@@ -1,0 +1,45 @@
+# All files will be found by recursive descent of directories, and each found
+# file will be assigned the default labels. This is then overriden by matching
+# each file against each line in this file, in order. The pattern is specified
+# as a regex, but ! is used as a regex delimiter, so you can safely use / in
+# the patterns. 
+#
+# Be aware that all files in a directory are specfied use 'dir/.*', not 'dir/*'.
+#
+# Possible labels:
+#	- non-erroneous (default) or erroneous
+#	- non-interpretable (default) or interpretable (interpretable means executable)
+#	- long (default) or short
+#	- size-neutral (default) or size-dependent
+#	- non-includable (default) or includable
+#	- no-test_name (don't run with a particular test)
+#
+# A common pattern would be to override some tests by adding, for example, the
+# following to the bottom of the file:
+#	.*				non-interpretable
+#	codegen/.*	interpretable
+
+bugs/.*									short interpretable
+codegen/.*								short interpretable
+dynamic/.*								short interpretable
+general/.*								short interpretable
+horrible/.*								short interpretable
+inline-c/.*								short non-interpretable
+
+bugs/bug0009.php						size-dependent
+bugs/bug0011.php						size-dependent
+
+general/foreach_error1.php			erroneous non-interpretable
+general/foreach_error2.php			erroneous non-interpretable
+general/nestedfndefs.php			erroneous non-interpretable
+general/prepostop_error1.php		erroneous non-interpretable
+general/prepostop_error2.php		erroneous non-interpretable
+
+general/binops.php						long no-CompiledVsInterpreted # infinite loops in generated code
+general/include_complex.php			includable
+general/included_recursive1.php		includable
+general/included_recursive2.php		includable
+
+general/for.php						non-interpretable # infinite loops
+general/instring.php					non-interpretable # php's parser doesnt like this
+general/functions.php				non-interpretable # php gives the dumped content a different error message, which wont be fixed until the unparser work gets done

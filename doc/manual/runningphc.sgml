@@ -1,0 +1,194 @@
+<chapter id="runningphc">
+<title id="runningphc.title">Running &phc</title>
+
+<para> Once you have installed &phc (see <xref linkend="install"
+endterm="install.title">), run it by typing </para>
+
+<screen>
+./phc --help
+</screen>
+		
+<para> You should see something like </para>
+
+<screen>
+phc 0.1.7 
+
+Usage: phc [OPTIONS]... [FILES]...
+
+  -h, --help                   Print help and exit
+      --full-help              Print help, including hidden options, and exit
+  -V, --version                Print version and exit
+  -c, --compile                Compile  (default=off)
+  -C, --c-option=STRING        Pass option to the C compile (e.g., -C-g; can be 
+                                 specified multiple times)
+      --extension=NAME         Generate a PHP extension called NAME instead of 
+                                 a standalone application
+      --run=STRING             Run the specified plugin (may be specified 
+                                 multiple times)
+      --dump-php               Dump PHP code back immediately after parsing to 
+                                 standard output (pretty printing)  
+                                 (default=off)
+      --dump-ast-dot           Dump the AST from the source in dot format  
+                                 (default=off)
+      --dump-ast-xml           Dump the AST from the source in XML format  
+                                 (default=off)
+      --read-ast-xml           Assume the input is a phc AST in XML format  
+                                 (default=off)
+      --compile-time-includes  When possible, replace include() statements with 
+                                 the parsed contents of the specified file  
+                                 (default=off)
+      --tab=STRING             String to use for tabs while unparsing  
+                                 (default=`     ')
+  -v, --verbose                Verbose output  (default=off)
+</screen>
+
+<para> (the exact output will depend on the version of &phc) </para>
+
+<para> Now write a very small PHP script, for example </para>
+
+<programlisting>
+&lt;? <reserved>echo</reserved> "Hello world!"; ?&gt;
+</programlisting>
+
+<para> and store it in a file, for example in
+<filename>helloworld.php</filename>. Then run &phc as follows: </para>
+
+<screen>
+./phc --dump-php helloworld.php
+</screen>
+
+<para> This should output a pretty-printed version of your PHP script
+back to standard output: </para>
+			
+<programlisting>
+&lt;?<reserved>php</reserved>
+   <reserved>echo</reserved> "Hello world!";
+?&gt;
+</programlisting>
+
+<section>
+
+<title> Graphical Output </title>
+
+<para> &phc represents PHP scripts internally as trees (this is further
+explained in <xref linkend="treetutorial1">). If you have a DOT viewer
+installed on your system (for example, <ulink
+url="http://www.graphviz.org">graphviz</ulink>), you can view this tree
+graphically. First, ask &phc to output the tree in DOT format: </para>
+
+<screen>
+./phc --dump-ast-dot helloworld.php &gt; helloworld.dot
+</screen>
+
+<para> You can then view the tree (<filename>helloworld.dot</filename>) using
+Graphviz. In most Unix/Linux systems, you should be able to do </para>
+
+<screen>
+dotty helloworld.dot
+</screen>
+
+<para> And you should see the tree; it should look similar to the tree shown in
+figure <xref linkend="helloworldtree">. </para>
+
+<figure id="helloworldtree">
+<title>Abstract syntax tree for &ldquo;Hello world&rdquo;</title>
+<mediaobject>
+<imageobject>
+<imagedata fileref="img/helloworld.jpg">
+</imageobject>
+</mediaobject>
+</figure>
+
+</section>
+<section id="xml">
+
+<title id="xml.title">Writing and Reading XML</title>
+
+<para> &phc can also output an XML representation of the tree. You can use this
+representation if you want to process PHP scripts without using the &phc
+framework, but yet using the &phc abstract representation of PHP scripts. To
+generate an XML version of the tree, run </para>
+
+<screen>
+./phc --dump-ast-xml helloworld.php &gt; helloworld.xml
+</screen>
+
+<para> &phc can also read the XML back in, after which all the usual features
+of &phc are again available; in particular, it is possible to read an XML file,
+and write PHP syntax. To convert the XML file we just generated back to PHP
+syntax, run </para>
+
+<screen>
+./phc --read-ast-xml --dump-php helloworld.xml
+</screen>
+
+<para>The generated XML uses the schema <ulink
+url="http://www.phpcompiler.org/phc-1.0">http://www.phpcompiler.org/phc-1.0</ulink>.
+</para>
+
+</section>
+<section>
+
+<title>Compile-time Includes</title>
+
+<para> &phc now has initial support for compile-time processing of PHP's
+<code>include</code> built-in.  Enabling this feature inserts the included
+statements in the AST in the place of the <code>include</code> statement.
+Included functions become part of the %MAIN% class, and included classes become
+part of the script.  In the event that &phc is not able to process the
+<code>include</code> statement (for example, if it would require using the
+<code>remote</code> feature of <code>include</code>), a warning is issued, and
+the <code>include</code> statement is left in place. To enable this support,
+run </para>
+
+<screen>
+./phc --compile-time-includes script_with_includes.php
+</screen>
+
+<para> The include support is intended to mimic <ulink
+url="http://php.net/manual/en/function.include.php">PHP's include
+built-in</ulink>, as far as can be achieved at compile time. &phc supports:
+</para>
+
+<itemizedlist>
+	<listitem><para>Moving included statements to the point at which
+	<code>include</code> was called. Naturally, these statement's use the
+	variable scope at the point at which they are included,</para></listitem>
+
+	<listitem><para>Preserving <code>__FILE__</code> and <code>__LINE__</code>
+	statements,</para></listitem>
+
+	<listitem><para>Moving included functions to the <code>%MAIN%</code> class,
+	and importing the included classes,</para></listitem>
+
+	<listitem><para><code>include</code>, and <code>require</code>. If the
+	specified file cannot be found, parsed, or if the argument to
+	<code>include</code> is not a string literal, the include statement is left
+	in place.</para></listitem>
+</itemizedlist>
+
+<para> &phc does not support: </para>
+
+<itemizedlist>
+	<listitem><para>Return values in included scripts. We intend to support
+	these in the future. They will likely be supported in a later stage of the
+	compilation process, instead of in the AST,</para></listitem>
+
+	<listitem><para>Calling <code>include</code> on anything other than a
+	literal string containing the filename of a local file. This excludes
+	variables and remote files. These may be supported when more static
+	analyses are available,</para></listitem>
+
+	<listitem><para><code>include_once</code> and <code>require_once</code>, as
+	we cannot guarantee that the file to be included is not included elsewhere.
+	These statements will not be processed, and combinations of
+	<code>include</code> or <code>require</code> and <code>include_once</code>
+	or <code>require_once</code> may cause incorrect behaviour with this option
+	set,</para></listitem>
+
+	<listitem><para>Updating <code>get_included_files()</code> to reflect the
+	included files.</para></listitem>
+</itemizedlist>
+
+</section>
+</chapter>

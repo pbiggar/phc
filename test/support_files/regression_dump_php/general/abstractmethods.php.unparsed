@@ -1,0 +1,16 @@
+<?php
+   abstract class C
+   {
+      public function f()
+      {
+      }
+
+      public function g()
+      {
+         echo "Hi!";
+      }
+
+      abstract function h();
+   }
+
+?>

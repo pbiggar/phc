@@ -1,0 +1,187 @@
+{
+   <ld - this looks like it's gengetopt's fault, but its a valgrind bug>
+   Memcheck:Addr4
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libc-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   fun:_dl_open
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   fun:dlopen
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <ld - potentially not an error - again, valgrind bug>
+   Memcheck:Cond
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libc-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   fun:_dl_open
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   fun:dlopen
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <ld - potentially not an error - again>
+   Memcheck:Cond
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libc-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   fun:_dl_open
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   fun:dlopen
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <ld - potentially not an error, again>
+   Memcheck:Cond
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libc-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   fun:_dl_open
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   obj:/lib/ld-2.3.6.so
+   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   fun:dlopen
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <Xerces error>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
+   fun:_ZN11xercesc_2_710XMLScanner10scanPrologEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <Same bug, different stack trace>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79XMLReader13skippedStringEPKt
+   fun:_ZN11xercesc_2_712IGXMLScanner10scanEndTagERb
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+   fun:_Z11run_pluginsP14AST_php_script
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanCharDataERNS_9XMLBufferE
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+   fun:_Z11run_pluginsP14AST_php_script
+   fun:main
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79ReaderMgr11getNextCharEv
+   fun:_ZN11xercesc_2_712IGXMLScanner18basicAttrValueScanEPKtRNS_9XMLBufferE
+   fun:_ZN11xercesc_2_712IGXMLScanner11rawAttrScanEPKtRNS_11RefVectorOfINS_12KVStringPairEEERb
+   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79XMLReader8getQNameERNS_9XMLBufferEPi
+   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+   fun:_Z11run_pluginsP14AST_php_script
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
+   fun:_ZN11xercesc_2_710XMLScanner14senseNextTokenERj
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+   fun:_Z11run_pluginsP14AST_php_script
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79XMLReader8getQNameERNS_9XMLBufferEPi
+   fun:_ZN11xercesc_2_712IGXMLScanner11rawAttrScanEPKtRNS_11RefVectorOfINS_12KVStringPairEEERb
+   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+}
+{
+   <Same bug, different stack trace - again>
+   Memcheck:Cond
+   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
+   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
+   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
+   fun:_ZN11xercesc_2_79XMLReader10skipSpacesERbb
+   fun:_ZN11xercesc_2_79ReaderMgr14skipPastSpacesEb
+   fun:_ZN11xercesc_2_712IGXMLScanner10scanEndTagERb
+   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
+   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
+   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
+   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
+   fun:_Z20parse_ast_xml_bufferP6String
+   fun:process_ast
+}

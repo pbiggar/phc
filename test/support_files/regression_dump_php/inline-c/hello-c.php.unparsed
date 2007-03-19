@@ -1,0 +1,4 @@
+<?php
+   // phc:inline-c
+   "printf(\"hello world\n\");";
+?>

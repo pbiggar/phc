@@ -1,0 +1,240 @@
+<chapter id="treetutorial2">
+<title id="treetutorial2.title">Modifying Tree Nodes</title>
+
+<section>
+
+<title></title>
+
+<para> Now that we have seen in <xref linkend="treetutorial1"> how to inspect
+the tree, in this tutorial we will look at modifying the tree. The task we set
+ourselves is: replace all calls to <code>mysql_connect</code> by calls to
+<code>dbx_connect</code> (<ulink
+url="http://pecl.php.net/package/dbx">dbx</ulink> is a PECL extension to PHP
+that allows scripts interface with a database independent of the type of the
+database; this conversion could be part of a larger refactoring process that
+makes a script written for MySQL work with other databases.) </para>
+
+<para> The tutorial we develop in this tutorial is available as
+<filename>MySQL2DBX.la</filename> in the &phc distribution. To see its effect,
+run &phc as follows: </para>
+	
+<programlisting>
+phc --run plugins/tutorials/MySQL2DBX.la --dump-php test.php
+</programlisting>
+
+</section>
+<section>
+
+<title>First Attempt</title>
+
+<para> As in the previous tutorial, we are interested in all function calls.
+However, now we are interested only in function calls to
+<code>mysql_connect</code>. Let us have a look at the precise definition of a
+function call according to the <xref linkend="grammar" endterm="grammar.title">:
+</para>
+
+<programlisting>
+method_invocation ::= target method_name <emphasis>params:</emphasis>actual_parameter* ;
+method_name ::= METHOD_NAME | reflection ;
+actual_parameter ::= <emphasis>is_ref:</emphasis>"&"? expr ;
+</programlisting>
+			
+<para> (The <code>target</code> of a method invocation is the class or object
+the function gets invoked on. It is explained in <xref
+linkend="treetutorial3">, and need not worry us here.) For now, we are only
+interested in the <code>method_name</code>. The grammar tells us that a
+<code>method_name</code> is either a <code>METHOD_NAME</code> or an
+<code>expr</code>. If a symbol is written in CAPITALS in the grammar, that
+means it refers to a &ldquo;code&rdquo;. In this case, to an actual method name
+(such as <code>mysql_connect</code>). In PHP, it is also possible to call a
+method whose name is stored in variable; in this case, the function name will
+be a <code>reflection</code> node (which contains an <code>expr</code>). In
+this tutorial, we are interested in &ldquo;normal&rdquo; method invocations
+only. </para>
+
+<para> Literals (or &ldquo;<emphasis>terminal symbols</emphasis>&rdquo;) do not
+get represented by a class called <code>AST_something</code>, but by a class
+called <code>Token_something</code> instead. All classes
+<code>Token_something</code> have an attribute called <code>value</code> which
+corresponds to the value of the token. For most tokens, the type of
+<code>value</code> is an STL <code>String*</code>. However, for some tokens,
+for example <code>INT</code>, <code>value</code> has a different type (e.g.,
+<code>int</code>). If the token has a non-standard type, it will have an
+additional attribute called <code>source_rep</code>, which corresponds to the
+representation of the token in the source. For example, the real number
+<code>5E-1</code> would have <code>value</code> equal to the
+(<code>double</code>) 0.5, but <code>source_rep</code> equal to (the
+<code>String*</code>) &ldquo;5E-1&rdquo;. </para> 
+
+<para> Thus, we arrive at the following first attempt. </para>
+
+<programlisting>
+<reserved>#include</reserved> &lt;phc/Tree_visitor.h&gt;
+
+<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Tree_visitor
+{
+<reserved>public</reserved>:
+   <reserved>void</reserved> post_method_invocation(AST_method_invocation* in)
+   {
+      Token_method_name* name;
+	  
+      name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("mysql_connect"));
+      <reserved>if</reserved>(in-&gt;method_name-&gt;match(name))
+      {
+         in-&gt;method_name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("dbx_connect"));
+      }
+   }
+};
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+{
+   MySQL2DBX m2d;
+   php_script-&gt;visit(&amp;m2d);
+}
+</programlisting>
+
+<para> <reserved>Note</reserved>: &phc uses a garbage collector, so there is
+never any need to free objects (you never have to call <code>delete</code>).
+This makes programming much easier and less error-prone (smaller chance of
+bugs). </para>
+
+<para> <code>match</code> compares two (sub)trees for deep equality.  There is
+also another function called <code>deep_equals</code>, which does nearly the
+same thing, but there are two important differences.  <code>match</code> does
+not take comments, line numbers and other &ldquo;additional&rdquo; information
+into account, whereas <code>deep_equals</code> does. The second difference is
+that <code>match</code> supports wildcards; this will be explained in <xref
+linkend="treetutorial3">.
+
+</section>
+<section>
+
+<title>Modifying the Parameters</title>
+
+<para> Unfortunately, renaming <code>mysql_connect</code> to
+<code>dbx_connect</code> is not sufficient, because the parameters to the two
+functions differ. According to the <ulink
+url="http://www.php.net/manual/en/index.php">PHP manual</ulink>, the signatures
+for both functions are </para>
+
+<programlisting>
+mysql_connect (server, username, password, new_link, int client_flags)
+</programlisting>
+
+<para> and </para>
+
+<programlisting>
+dbx_connect (module, host, database, username, password, persistent)
+</programlisting>
+
+<para> The <code>module</code> parameter to <code>dbx_connect</code> should be
+set to <code>DBX_MYSQL</code> to connect to a MySQL database. Then
+<code>host</code> corresponds to <code>server</code>, and <code>username</code>
+and <code>password</code> have the same purpose too. So, we should insert
+<code>DBX_MYSQL</code> at the front of the list, and insert <code>NULL</code>
+in between <code>host</code> and <code>username</code> (the
+<code>mysql_connect</code> command does not select a database). The last two
+parameters to <code>mysql_connect</code> do not have an equivalent in
+<code>dbx_connect</code>, so if they are specified, we cannot perform the
+conversion. The last parameter to <code>dbx_connect</code>
+(<code>persistent</code>) is optional, and we will ignore it in this tutorial.
+</para>
+
+<para> Now, in &phc, <code>DBX_MYSQL</code> is an <code>AST_constant</code>.
+Because &phc deals with everything as being classes, a constant must also be
+defined in a class. Constants defined in the PHP standard library, such as
+<code>DBX_MYSQL</code>, should be defined in the special &ldquo;class&rdquo;
+<code>%STDLIB%</code>. (For more information on how PHP gets converted to the
+abstract syntax tree, see <xref linkend="representingphp"
+endterm="representingphp.title">.) <para> Finally, <code>NULL</code> is
+represented by <code>Token_null</code>.  </para>
+
+<para> We are now ready to write our conversion function: </para>
+
+<programlisting>
+#include &lt;phc/Tree_visitor.h&gt;
+
+<reserved>class</reserved> MySQL2DBX : <reserved>public</reserved> Tree_visitor
+{
+<reserved>public</reserved>:
+   <reserved>void</reserved> post_method_invocation(AST_method_invocation* in)
+   {
+      AST_actual_parameter_list::iterator pos;
+      Token_constant_name* module_name;
+      AST_constant* module_constant;
+      AST_actual_parameter* param;
+      Token_method_name* name;
+	  
+      name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("mysql_connect"));
+      <reserved>if</reserved>(in-&gt;method_name-&gt;match(name))
+      {
+         <emphasis>// Check for too many parameters</emphasis>
+         <reserved>if</reserved>(in-&gt;actual_parameters-&gt;size() &gt; 3)
+         {
+            printf("Error: unable to translate call "
+               "to mysql_connect on line %d\n", in-&gt;get_line_number());
+            <reserved>return</reserved>;
+         }
+      
+         <emphasis>// Modify name</emphasis>
+         in-&gt;method_name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("dbx_connect"));
+      
+         <emphasis>// Modify parameters</emphasis>
+         module_name = <reserved>new</reserved> Token_constant_name(<reserved>new</reserved> String("DBX_MYSQL"));
+         module_constant = <reserved>new</reserved> AST_constant("%STDLIB%", module_name);
+         
+         pos = in-&gt;actual_parameters-&gt;begin();
+         param = <reserved>new</reserved> AST_actual_parameter(false, module_constant);
+         in-&gt;actual_parameters-&gt;insert(pos, param); pos++;
+         <emphasis>/* Skip host */</emphasis> pos++;
+         Token_null* null = <reserved>new</reserved> Token_null(<reserved>new</reserved> String("NULL"));
+         param = <reserved>new</reserved> AST_actual_parameter(false, null);
+         in-&gt;actual_parameters-&gt;insert(pos, param); 
+      }
+   }
+};
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+{
+   MySQL2DBX m2d;
+   php_script-&gt;visit(&amp;m2d);
+}
+</programlisting>
+
+<para> If we apply this transformation to </para>
+
+<programlisting>
+$link = mysql_connect('host', 'user', 'pass');
+</programlisting>
+
+<para> We get </para>
+
+<programlisting>
+$link = dbx_connect(DBX_MYSQL, "host", NULL, "user", "pass");
+</programlisting>
+
+</section>
+<section>
+
+<title>Refactoring</title>
+
+<para> A quick note on refactoring. Refactoring is the process of modifying
+existing programs (PHP scripts), usually to work in new projects or in
+different setups (for example, with a different database engine). Manual
+refactoring is laborious and error-prone, so tool-support is a must. Although
+&phc can be used to refactor PHP code as shown in this tutorial, a dedicated
+refactoring tool for PHP would be easier to use (though of course less
+flexible). Such a tool can however be built on top of &phc;. See also the list
+of <ulink url="http://www.phpcompiler.org/spinoffs">Spinoff Projects</ulink> on
+the &phc website. </para>
+
+</section>
+<section>
+
+<title> What's Next? </title>
+
+<para> <xref linkend="treetutorial3"> explains how you can modify the
+<emphasis>structure</emphasis> of the tree, as well as the tree nodes.  </para>
+
+</section>
+</chapter>

@@ -1,0 +1,13 @@
+<?php
+   echo $f;
+   $f = 6;
+   echo $f;
+   echo $f;
+   $f = 8;
+   echo $f;
+   echo $f;
+   $f = 26;
+   echo $f;
+   echo $f;
+   echo $f;
+?>

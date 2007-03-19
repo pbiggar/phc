@@ -1,0 +1,3 @@
+#!/bin/bash
+export LD_LIBRARY_PATH=/misc/csw/lib
+/misc/svn/hooks/post-commit.php $*

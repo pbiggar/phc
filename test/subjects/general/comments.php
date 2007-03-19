@@ -1,0 +1,157 @@
+<?php
+	$a = /* nested */ 1 + /* comment */ 2;
+
+	echo 1;		// (1) Single line comment not at the start of the line
+	echo 2;		# (2) Alternative style
+	
+	/*
+	 * Statements
+	 */
+
+	// (3) Single line comment at the start of the line
+	echo 3;
+
+	// (4) Alternative style line comment at the start of the line
+	echo 4;
+
+	echo 41; /* comment 41 */ echo 42; /* echo 42 */
+	echo /* 43 */ 43, /* 44 */ 44;
+
+	echo 5;
+
+	// Some assignment
+	$a = $b;
+
+	// Non-expression statement
+	break 5;
+
+	/*
+	 * (6) Other constructs 
+	 */
+	
+	// (7) Some function definition
+	function f7()
+	{
+		echo "In f7 (without comment)";
+	}
+
+	// (8) Some class definition
+	class C8
+	{
+		// (9) Some class attribute
+		var $x9;
+		
+		var $y10; // (10) Same line class attribute comment
+	
+		// (11) Method definition
+		function c11()
+		{
+			echo "In c11 (without comment)";
+		}
+	}
+
+	// (12) if-statement
+	if(12)
+	{
+		echo 13;
+	}
+	// Comment for the else part
+	else
+	{
+		// And another comment
+		echo 14;
+	}
+
+	// (15) while-statement
+	while(15)
+	{
+		echo 16;
+	}
+
+	// (17) do-while statement
+	do
+	{
+		echo 18;
+	}
+	while(17);
+
+	// 19 for loop
+	for(19;;)
+	{
+		echo 20;
+	}
+
+	// 21 foreach
+	foreach(21 as $x)
+	{
+		echo 22;
+	}
+
+	// 23 switch
+	switch(23)
+	{
+		// Case 1
+		case 1:
+			break;
+		// Case 2
+		case 2:
+			break;
+		// Default case
+		default:
+			break;
+	}
+
+	// 24 Declare statement
+	declare(TICKS = 24)
+	{
+		break;
+	}
+
+	// 25 Try statement
+	try
+	{
+		25;
+	}
+	// First catch
+	catch(FirstException $e1)
+	{
+		break;
+	}
+	// Second catch
+	catch(SecondException $e2)
+	{
+		break;
+	}
+
+	// 26 Preceding if-comment
+	if(26) // 26 Same-line if comment
+	{
+		break;
+	}
+
+	// 27 This function has 
+	// 28 more than one comment 
+	function f()
+	{
+		return 27 + 28;
+	}
+
+	/* Multiline comment */
+	break 29;
+
+	/* Semi Nested /* multiline comment */ 
+	break 30;
+
+	// More than one in-line comment
+	break 31; /* comment 1 */ /* comment 2 */
+
+	break 32;
+
+	// This no longer breaks
+	$x = /* one */ 33 + /* two */ 34;
+
+	/*
+	 * So does this
+	 */
+	break 35;
+?>

@@ -1,0 +1,11 @@
+<?php
+   $var1 = "my variable 3";
+   $var2 = "my variable 4";
+   # test recursive include
+   include "included1.php";
+   # prints "my new value"
+   print $var1;
+   # prints "new value"
+   print $var2;
+   return true;
+?>

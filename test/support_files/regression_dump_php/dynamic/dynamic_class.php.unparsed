@@ -1,0 +1,18 @@
+<?php
+   class A
+   {
+      public function f()
+      {
+      }
+
+      public function g()
+      {
+      }
+   }
+
+   function h()
+   {
+   }
+
+   $x = 7;
+?>

@@ -1,0 +1,15 @@
+<!-- Overrides of Entity Declarations -->
+
+<!ENTITY % local.tech.char.class "|reserved|code">
+<!ENTITY % local.gen.char.class "|boxed"> 
+
+<!-- Load DocBook -->
+
+<!ENTITY % DocBookDTD PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+%DocBookDTD;
+
+<!-- New/Modified Element and Attribute Declarations -->
+
+<!ELEMENT reserved - - ((%smallcptr.char.mix;)+)>
+<!ELEMENT code - - ((%smallcptr.char.mix;)+)>
+<!ELEMENT boxed - - ((%para.char.mix;)+)>

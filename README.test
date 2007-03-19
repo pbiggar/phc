@@ -1,0 +1,29 @@
+The tests are held in test/framework/, but tests should be run from this
+directory.  test/support_files/ are files used by the tests, for example for
+regression.  test/subjects/ are the files used to test phc. Most are designed
+to test some feature or tickle some bug. test/subjects/labels controls what
+tests are run on which subjects. test/logs/ contains logs of failed tests.
+
+To run tests:
+
+	$ make test (aka make check)
+or
+	$ make installcheck
+or
+	$ make long-test
+or
+	$ php tests/scripts/driver.php
+
+The latter allows command line options, and limiting the tests with regular
+expressions. Run driver.php with the '-h' flag for details.
+
+In order to run tests on your own php files, add the files to
+test/subjects/3rdparty/, and list them in subjects/3rdparty/labels. In order to
+generate the support files, for example if you'd like the regression tests to
+succeed rather than be skipped, run
+
+	$ make generate-test-files
+
+By default, 3rdparty tests are treated as 'long', so need to be run with
+
+	$ make long-test

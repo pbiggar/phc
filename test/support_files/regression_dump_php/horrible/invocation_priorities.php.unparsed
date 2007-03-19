@@ -1,0 +1,39 @@
+<?php
+   class X
+   {
+      public $f;
+      public $a;
+
+      public function X()
+      {
+         $this->f = "foo";
+         $this->a = array("foo");
+      }
+
+      public function foo()
+      {
+         echo "X::foo\n";
+      }
+   }
+
+   function foo()
+   {
+      echo "foo\n";
+   }
+
+   $f = "foo";
+   $a = array("foo");
+   $x = new X();
+   // foo
+   foo();
+   // X::foo
+   $x->foo();
+   // X::foo
+   $x->$f();
+   // X::foo
+   $x->{"f" . "oo"}();
+   // foo
+   $x->a[0]();
+   // X::foo
+   $x->$a[0]();
+?>

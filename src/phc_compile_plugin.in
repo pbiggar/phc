@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# phc -- the open source PHP compiler 
+# See doc/license/README.license for licensing information
+#
+# Shell script to compile phc plugins
+
+_FILENAME=$1
+if test ! $# -eq 1 
+then 
+	_FILENAME="myplugin.cpp"
+fi
+
+_INSTALL_DIR="@pkglibdir@"
+_INCLUDES="-I@includedir@/phc"
+
+if test "-$CFLAGS" = "-"
+then CFLAGS="@CFLAGS@"
+fi
+if test "-$LDFLAGS" = "-"
+then LDFLAGS="@LDFLAGS@"
+fi
+
+_LIBTOOL="@libexecdir@/libtool";
+_OUTPUT="`basename $_FILENAME .cpp`.la"
+# We only support gcc, but @CXX@ might be a non-default version.
+_COMPILE="$_LIBTOOL --mode=compile @CXX@ $_INCLUDES $CFLAGS -c $_FILENAME"
+_LINK="$_LIBTOOL --mode=link @CXX@ -module $LDFLAGS $_FILENAME -o $_OUTPUT -rpath $_INSTALL_DIR"
+
+if test ! $# -eq 1
+then
+	echo "usage: $0 $_FILENAME"
+	echo
+	echo "If you wish to use more complicated options for g++,"
+	echo "override the \$LDFLAGS or \$CFLAGS environmental variables,"
+	echo "or modify the following commands:"
+	echo
+	echo "  $_COMPILE"
+	echo "  $_LINK"
+	exit
+fi
+
+echo $_COMPILE
+$_COMPILE
+echo $_LINK
+$_LINK

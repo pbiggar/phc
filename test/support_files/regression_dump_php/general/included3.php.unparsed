@@ -1,0 +1,71 @@
+<?php
+   # this script test includes with multiple return statements, which all need to be merged.
+   # in the future, this might be a good constant propagation/loop-invariant/code-hoising example
+   $a = 7;
+   if($a < 6)
+   {
+      # break 1;
+      return $a;
+   }
+   else
+   {
+      for($i = 0; $i < 10; $i++)
+      {
+         if($i > $a)
+         {
+            # break 2;
+            return $i + 2;
+         }
+         while(true)
+         {
+            if($a == 7)
+            {
+               # break 3;
+               return 182;
+            }
+            else
+            {
+               do
+               {
+                  switch(7)
+                  {
+                     case 0:
+                        # break 5;
+                        return 0;
+                     case 1:
+                        # break 5;
+                        return 6;
+                        break;
+                     case 2:
+                        # break 5;
+                        return 7;
+                        break;
+                     case 3:
+                        for($j = 0; $j < 10; $j++)
+                        {
+                           if($j == 1)
+                           {
+                              break;
+                           }
+                           else
+                           {
+                              # break 6;
+                              return;
+                           }
+                        }
+                     default:
+                        break;
+                  }
+                  # break 4;
+                  return 45;
+               }
+               while(6);
+            }
+         }
+      }
+      # break 1;
+      return "a string";
+   }
+   # break 1
+   return "asd";
+?>

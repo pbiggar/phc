@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>phc -- Portering and Packaging</title>
+		<link rel="stylesheet" type="text/css" href="../phc.css">
+	</head>
+	<body>
+		<table width="796" align="center" cellspacing="0" cellpadding="2" style="border: #8a7640 solid 1px;">
+		<tr>
+			<td height="149" style="background: url(../img/header.png);">&nbsp;</td>
+		</tr>
+		<tr>
+			<td style="color: white; background-color: #8a7640;">
+				<a class="nav" href="../index.html">Home</a> | 
+				<a class="nav" href="../src/index.html">Downloads</a> | 
+				<a class="nav" href="../doc/manual/index.html">Documentation</a> |
+				<a class="nav" href="../plugins/index.html">Plugins</a> |
+				<a class="nav" href="../spinoffs/index.html">Spinoff Projects</a> |
+				<a class="nav" href="../contact.html">Mailing List</a>
+			</td>
+		</tr>
+		<tr><td style="padding: 5px;">
+			<h1>We need porters, packagers and maintainers</h1>
+
+			<p>Now that <span class="phc">phc</span> has a plugin architecture, it
+			is no longer necessary for users to integrate their source with it. As
+			a result, it is much more useful to package <span
+			class="phc">phc</span> and integrate it within various distributions'
+			package management systems. If you are interested in packaging <span
+			class="phc">phc</span> for your favourite OS, please <a
+			href="../contact.html">contact us</a>.</p>
+
+			<p>Currently, <span class="phc">phc</span> runs on x86 Linux. Most of
+			the testing occurs on i686 Ubuntu Dapper and i686 Debian Etch, with
+			occasional testing on Darwin, and infrequent testing on sparc Solaris
+			(SunOS 5.9).  If you have access to other machines, architectures or
+			operating systems, and would be willing to test <span
+			class="phc">phc</span> on it, please <a href="../contact.html">contact
+			us</a>.</p>
+
+			<h1>Packaging hints</h1>
+			<p>Do not strip the binaries. Since the plugins use <tt>dlopen()</tt>,
+			and link dynamically against the <tt><span
+			class="phc">phc</span></tt>, the plugins will not work unless the
+			symbol information is available.</p>
+
+
+
+			<h1>Test suite</h1>
+
+			<p>Although we included tests in <span class="phc">phc</span> up to
+			version 0.1.5.1-1, it is no longer practical to do so, mostly due to
+			the size of the regression tests.  However, in order to help potential
+			porters and maintainers, we provide the <a
+			href="../src/tests-VERSION.tar.bz2">full test suite</a> (20MB).  Extract
+			the tests in the <tt>src/</tt> directory, and run</p>
+
+<pre>
+make test
+</pre>
+			<p> to run the short version of the tests, or</p>
+<pre>
+make long-test
+</pre>
+
+			<p>to run the entire suite. Note that the line numbers test is
+			expected to fail (this is a known bug and will be fixed in a later
+			release). </p>
+
+			<h1><span class="phc">phc</span> packages</h1>
+
+			<p>See the <a href=../src/index.html>downloads page</a> for existing
+			packages. In addition, we're looking for people to create and/or
+			maintain packages for more systems, including Debian/Ubuntu
+			(especially Debian/Ubuntu), Gentoo, Slackware, Darwin and Solaris.
+			</p>
+
+		</td></tr>
+		<tr>
+			<td style="border-top: solid #8a7640 1px; font-size: 8pt; background-color: #efdca5;">
+				$LastChangedDate: 2006-05-30 09:48:43 +0100 (Tue, 30 May 2006) $. Contents &copy; the <a href="../authors.html">authors</a>.
+			</td>
+		</tr>
+		</table>
+	</body>
+</html>

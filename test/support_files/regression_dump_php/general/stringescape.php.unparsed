@@ -1,0 +1,13 @@
+<?php
+   /* test octal */
+   echo "@\n";
+   /* test hex */
+   echo "@\n";
+   /* test non-printable characters */
+   echo "Some non-printable chars: \x00 \x01 \x02 \x7F\n";
+   /* other escaping, both in DQ_STR and HD_STR */
+   echo "a\nb";
+   echo "a\nb";
+   echo "a\"b";
+   echo "a\\\"b";
+?>

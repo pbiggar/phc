@@ -1,0 +1,175 @@
+<chapter id="grammar">
+<title id="grammar.title">The Abstract Grammar</title>
+
+<section>
+<title></title>
+
+<para> This is the full and authoritative definition of the &phc abstract
+grammar for PHP in <application>maketea</application> format (this can also be
+found in <filename>generated_src/phc.tea</filename> in the distribution). For a
+description of the structure of the grammar, and how it converts to C++ code,
+refer to the <xref linkend="maketeatheory">.  </para>
+
+</section>
+
+<section>
+<title>Overall Structure</title>
+
+<programlisting>
+php_script ::= interface_def* class_def+ ;
+
+interface_def ::= INTERFACE_NAME <emphasis>extends</emphasis>:INTERFACE_NAME* member* ;
+
+class_def ::= class_mod CLASS_NAME <emphasis>extends</emphasis>:CLASS_NAME? 
+   <emphasis>implements</emphasis>:INTERFACE_NAME* member* ;
+class_mod ::= "abstract"? "final"? ;
+
+member ::= method | attribute ;
+
+method ::= signature statement*? ;
+signature ::= method_mod <emphasis>is_ref</emphasis>:"&"? METHOD_NAME formal_parameter* ;
+method_mod ::= "public"? "protected"? "private"? 
+   "static"? "abstract"? "final"? ;
+formal_parameter ::= type <emphasis>is_ref</emphasis>:"&"? VARIABLE_NAME expr? ;
+type ::= "array"? CLASS_NAME? ;
+
+attribute ::= attr_mod VARIABLE_NAME expr? ;
+attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+</programlisting>
+
+</section>
+<section>
+<title>Statements</title>
+
+<programlisting>
+statement ::=
+     if | while | do | for | foreach 
+   | switch | break | continue | return
+   | static_declaration
+   | unset | declare | try | throw | eval_expr ;
+
+if ::= expr <emphasis>iftrue</emphasis>:statement* <emphasis>iffalse</emphasis>:statement* ;
+while ::= expr statement* ;
+do ::= statement* expr ;
+for ::= <emphasis>init</emphasis>:expr? <emphasis>cond</emphasis>:expr? <emphasis>incr</emphasis>:expr? statement* ;
+foreach ::= expr <emphasis>key</emphasis>:variable? <emphasis>is_ref</emphasis>:"&"? 
+   <emphasis>val</emphasis>:variable statement* ;
+
+switch ::= expr switch_case* ;
+switch_case ::= expr? statement* ;
+break ::= expr? ;
+continue ::= expr? ;
+return ::= expr? ;
+
+static_declaration ::= VARIABLE_NAME expr? ;
+unset ::= variable ;
+
+declare ::= directive+ statement* ;
+directive ::= DIRECTIVE_NAME expr ;
+
+try ::= statement* <emphasis>catches</emphasis>:catch* ;
+catch ::= CLASS_NAME VARIABLE_NAME statement* ;
+throw ::= expr ;
+
+eval_expr ::= expr ;
+</programlisting>
+
+</section>
+<section>
+
+<title>Expressions</title>
+
+<programlisting>
+expr ::=
+     assignment | list_assignment | cast | unary_op | bin_op
+   | conditional_expr | ignore_errors | constant | instanceof
+   | variable | pre_op | post_op | array
+   | method_invocation | new | clone
+   | literal ;
+   
+literal ::= INT | REAL | STRING | BOOL | NULL ;
+   
+assignment ::= variable <emphasis>is_ref</emphasis>:"&"? expr ;
+
+list_assignment ::= list_elements expr ;
+list_elements ::= list_element?* ;
+list_element ::= variable | list_elements ;
+
+cast ::= CAST expr ;
+unary_op ::= OP expr ;
+bin_op ::= <emphasis>left</emphasis>:expr OP <emphasis>right</emphasis>:expr ;
+
+conditional_expr ::= 
+   <emphasis>cond</emphasis>:expr <emphasis>iftrue</emphasis>:expr <emphasis>iffalse</emphasis>:expr ;
+ignore_errors ::= expr ;
+
+constant ::= CLASS_NAME CONSTANT_NAME ;
+
+instanceof ::= expr class_name ;
+
+variable ::= target? variable_name
+   <emphasis>array_indices</emphasis>:expr?* <emphasis>string_index</emphasis>:expr? ;
+variable_name ::= VARIABLE_NAME | reflection ;
+reflection ::= expr ;
+
+target ::= expr | CLASS_NAME ;
+
+pre_op ::= OP variable ;
+post_op ::= variable OP ;
+
+array ::= array_elem* ;
+array_elem ::= <emphasis>key</emphasis>:expr? <emphasis>is_ref</emphasis>:"&"? <emphasis>val</emphasis>:expr ;
+
+method_invocation ::= target method_name actual_parameter* ;
+method_name ::= METHOD_NAME | reflection ;
+
+actual_parameter ::= <emphasis>is_ref</emphasis>:"&"? expr ;
+
+new ::= class_name actual_parameter* ;
+class_name ::= CLASS_NAME | reflection ;
+
+clone ::= expr ;
+</programlisting>
+
+</section>
+<section>
+
+<title>Additional Structure</title>
+
+<programlisting>
+node ::= 
+     php_script | class_mod | signature 
+   | method_mod | formal_parameter | type | attr_mod 
+   | static_var | directive | list_element | variable_name | target
+   | array_elem | method_name | actual_parameter | class_name 
+   | commented_node | expr | identifier 
+   | formal_parameter* | directive* | array_elem* | actual_parameter* 
+   | INTERFACE_NAME* | list_element* | expr*
+   ;
+
+commented_node ::= 
+     member | statement | interface_def | class_def | switch_case 
+	| catch interface_def* | class_def* | member* | statement* 
+	| switch_case* | catch*   
+   ;
+
+identifier ::=
+     INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
+   | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME
+   ;  
+</programlisting>
+
+</section>
+<section id="mixin">
+
+<title>Mix-in Code</title>
+
+<para> The code generated based on the grammar listed above can be extended
+by &ldquo;mix-in&rdquo; code, which adds fields or methods to the class
+structure generated by &phc;. For a full
+listing of the mix-in code, see <filename>generated_src/phc.tea</filename> in the
+&phc distribution. </para>
+
+</section>
+
+</chapter>

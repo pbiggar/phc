@@ -1,0 +1,34 @@
+# All files will be found by recursive descent of directories, and each found
+# file will be assigned the default labels. This is then overriden by matching
+# each file against each line in this file, in order. The pattern is specified
+# as a regex, but ! is used as a regex delimiter, so you can safely use / in
+# the patterns. 
+#
+# Be aware that all files in a directory are specfied use 'dir/.*', not 'dir/*'.
+#
+# Possible labels:
+#	- non-erroneous (default) or erroneous
+#	- non-interpretable (default) or interpretable (interpretable means executable)
+#	- long (default) or short
+#	- size-neutral (default) or size-dependent
+#	- non-includable (default) or includable
+#	- no-test_name (don't run with a particular test)
+#
+# A common pattern would be to override some tests by adding, for example, the
+# following to the bottom of the file:
+#	.*				non-interpretable
+
+## Examples
+#
+# general/.*								short interpretable
+# bugs/.*									short interpretable
+# bugs/bug0009.php						size-dependent
+# general/foreach_error2.php			erroneous non-interpretable
+# general/binops.php						no-CompiledVsInterpreted
+
+## Long by default
+.*		long
+
+## Remove this to enable a test to check if files are safely interpretable
+.* non-interpretable
+

@@ -1,0 +1,386 @@
+<?php
+   # including within a class
+   class H
+   {
+      public function H()
+      {
+         echo "H\n";
+      }
+
+      public function g()
+      {
+         $a1 = "old string";
+         $a2 = "old string";
+         echo "about to include included_var_overwrite.php\n";
+         $a1 = "new value";
+         $a2 = "a DIFFEnt new value";
+         if($a1 == "old value" or $a2 == "my old value")
+         {
+            fail(__FILE__, __LINE__, "var overwrite within class");
+         }
+      }
+   }
+
+   class B
+   {
+      public function b()
+      {
+         echo "Success\n";
+         return True;
+      }
+   }
+
+   class C
+   {
+      public function C()
+      {
+      }
+
+      public function cc()
+      {
+         return 7;
+      }
+   }
+
+   class X
+   {
+      public $f;
+      public $a;
+
+      public function X()
+      {
+         $this->f = "foo";
+         $this->a = array("foo");
+      }
+
+      public function foo()
+      {
+         echo "X::foo\n";
+      }
+   }
+
+   class K
+   {
+      public $my_var;
+
+      public function K()
+      {
+         $my_var = 6;
+      }
+
+      public function kk()
+      {
+         global $i1;
+         global $i2;
+         var_dump($i1);
+         var_dump($i2);
+         if($i1 != "some value" and $i2 != "another value")
+         {
+            fail(__FILE__, __LINE__, "using variables in included class");
+         }
+         return $my_var;
+      }
+   }
+
+   # note that this test will not work on cygwin, because of incorrect PHP
+   # behaviour, specifically that PHP includes using \\ on cygwin (even though
+   # it opens files using /
+   // the following not being included
+   //- files that arent found
+   //- files that dont parse
+   //- files with return statements arent
+   //- files with return statements in their classes are ok                       
+   //- include_once the second time.
+   // the following issuing errors
+   //- the parse failing                                                          
+   //- class redefinition being spotted
+   //- method redefinition being spotted
+   //- the file not being found for require
+   // warnings on
+   //- files which arent included
+   //- the file not being found
+   # there should be no require, include, include_once or require_once
+   # statements in this file once its passed through phc with
+   # --compile-time-includes
+   function fail($file, $line, $reason)
+   {
+      print "Failure: '" . $reason . "' on " . $file . ":" . $line . "\n";
+   }
+
+   # including within a function
+   function g()
+   {
+      $a1 = "old string";
+      $a2 = "old string";
+      echo "about to include included_var_overwrite.php\n";
+      $a1 = "new value";
+      $a2 = "a DIFFEnt new value";
+      var_dump($a1);
+      var_dump($a2);
+      if($a1 == "old value" or $a2 == "my old value")
+      {
+         fail(__FILE__, __LINE__, "var overwrite within function");
+      }
+   }
+
+   function b()
+   {
+      echo "Success\n";
+      return true;
+   }
+
+   function foo()
+   {
+      echo "foo\n";
+   }
+
+   function j($j1, $j2)
+   {
+      global $i1;
+      global $i2;
+      echo $i1;
+      echo $i2;
+      echo $j1;
+      echo $j2;
+      if($i1 != "some value" and $i2 != "another value")
+      {
+         fail(__FILE__, __LINE__, "using variables in included function");
+      }
+      return 6;
+   }
+
+   # checks variables are overwritten
+   $a1 = "old value";
+   $a2 = "my old value";
+   echo "about to include included_var_overwrite.php\n";
+   $a1 = "new value";
+   $a2 = "a DIFFEnt new value";
+   var_dump($a1);
+   var_dump($a2);
+   if($a1 == "old value" or $a2 == "my old value")
+   {
+      fail(__FILE__, __LINE__, "var overwrite");
+   }
+   # checks classes are added
+   echo "about to include included_classes_and_functions.php\n";
+   $b = new B();
+   var_dump($b);
+   $b = $b->b();
+   var_dump($b);
+   if(!$b)
+   {
+      fail(__FILE__, __LINE__, "included class");
+   }
+   $b = b();
+   var_dump($b);
+   if(!$b)
+   {
+      fail(__FILE__, __LINE__, "included function");
+   }
+   # include a file with return statements in the classes
+   # if this fails, the grep will remove it
+   echo "about to include included_classes_with_return_values.php\n";
+   $c = new C();
+   var_dump($c);
+   $c = $c->cc();
+   var_dump($c);
+   if($c != 7)
+   {
+      fail(__FILE__, __LINE__, "class with return value");
+   }
+   # files with directory levels
+   echo "about to include include_dir/../../bugs/././../horrible/invocation_priorities.php\n";
+   $f = "foo";
+   $a = array("foo");
+   $x = new X();
+   // foo
+   foo();
+   // X::foo
+   $x->foo();
+   // X::foo
+   $x->$f();
+   // X::foo
+   $x->{"f" . "oo"}();
+   // foo
+   $x->a[0]();
+   // X::foo
+   $x->$a[0]();
+   var_dump($f);
+   var_dump($a);
+   var_dump($x);
+   if(!$x)
+   {
+      fail(__FILE__, __LINE__, "directory levels");
+   }
+   # files from the current working directory, with ./
+   $x = "zzz";
+   $y = "zzz";
+   $xx = "zzz";
+   echo "about to include ./test/subjects/horrible/obfuscated_foreach.php\n";
+   $x = array(1 => "a", 2 => "b", 3 => "c");
+   echo "** 1 **\n";
+   foreach($x as $y)
+   {
+      echo $y . "\n";
+   }
+   echo "** 2 **\n";
+   foreach($x as $y[0])
+   {
+      echo $y . "\n";
+   }
+   echo "** 3 **\n";
+   foreach($x as $y{0})
+   {
+      echo $y . "\n";
+   }
+   echo "** 4 **\n";
+   foreach($x as $a->b)
+   {
+      echo "(" . $a . ") " . $a->b . "\n";
+   }
+   /* Breaks */
+   /*
+	echo "** 5 **\n";
+	foreach($x as $y[0][0])
+	{
+		echo "$y\n";
+	}
+	*/
+   $xx = "x";
+   echo "** 6 **\n";
+   foreach($$xx as $y)
+   {
+      echo $y . "\n";
+   }
+   echo "** 7 **\n";
+   foreach($$xx as &$y)
+   {
+      echo $y . "\n";
+   }
+   // Needs the following to avoid corruption of the array
+   unset($y);
+   echo "** 8 **\n";
+   foreach($$xx as $y => $z)
+   {
+      echo $y . " => " . $z . "\n";
+   }
+   echo "** 9 **\n";
+   foreach($$xx as $y => &$z)
+   {
+      echo $y . " => " . $z . "\n";
+   }
+   var_dump($x);
+   var_dump($y);
+   var_dump($xx);
+   if(!$xx)
+   {
+      fail(__FILE__, __LINE__, "current working directory");
+   }
+   # files from the current working directory
+   echo "about to include test/subjects/horrible/obfuscated_foreach.php\n";
+   $x = array(1 => "a", 2 => "b", 3 => "c");
+   echo "** 1 **\n";
+   foreach($x as $y)
+   {
+      echo $y . "\n";
+   }
+   echo "** 2 **\n";
+   foreach($x as $y[0])
+   {
+      echo $y . "\n";
+   }
+   echo "** 3 **\n";
+   foreach($x as $y{0})
+   {
+      echo $y . "\n";
+   }
+   echo "** 4 **\n";
+   foreach($x as $a->b)
+   {
+      echo "(" . $a . ") " . $a->b . "\n";
+   }
+   /* Breaks */
+   /*
+	echo "** 5 **\n";
+	foreach($x as $y[0][0])
+	{
+		echo "$y\n";
+	}
+	*/
+   $xx = "x";
+   echo "** 6 **\n";
+   foreach($$xx as $y)
+   {
+      echo $y . "\n";
+   }
+   echo "** 7 **\n";
+   foreach($$xx as &$y)
+   {
+      echo $y . "\n";
+   }
+   // Needs the following to avoid corruption of the array
+   unset($y);
+   echo "** 8 **\n";
+   foreach($$xx as $y => $z)
+   {
+      echo $y . " => " . $z . "\n";
+   }
+   echo "** 9 **\n";
+   foreach($$xx as $y => &$z)
+   {
+      echo $y . " => " . $z . "\n";
+   }
+   var_dump($x);
+   var_dump($y);
+   var_dump($xx);
+   if(!$xx)
+   {
+      fail(__FILE__, __LINE__, "current working directory");
+   }
+   # including files with correct __FILE__
+   # Note: this test taken out. We dont want to process file, merely include it
+   # in the tree	
+   # calling files with include
+   echo "about to include included_recursive1.php\n";
+   echo $f;
+   $f = 6;
+   echo $f;
+   echo $f;
+   $f = 8;
+   echo $f;
+   echo $f;
+   $f = 26;
+   echo $f;
+   echo $f;
+   echo $f;
+   var_dump($f);
+   if($f !== 26)
+   {
+      fail(__FILE__, __LINE__, "recursive include");
+   }
+   g();
+   $h = new H();
+   var_dump($h);
+   $h = $h->g();
+   var_dump($h);
+   # the included file using varaibles from this file
+   $i1 = "some value";
+   $i2 = "another value";
+   echo "about to include included_use_existing_vars.php\n";
+   var_dump($i1);
+   var_dump($i2);
+   if($i1 !== "some value" and $i2 !== "another value")
+   {
+      fail(__FILE__, __LINE__, "using variables inncluded file");
+   }
+   # the included file using functions from this file
+   echo "about to include included_use_vars_in_function.php\n";
+   $j = j(1, 2);
+   var_dump($j);
+   # the included file using classes from this file
+   echo "about to include included_use_vars_in_classes.php\n";
+   $k = new K();
+   var_dump($k);
+   $k = $k->kk();
+   var_dump($k);
+?>

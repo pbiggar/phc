@@ -1,0 +1,34 @@
+<?php
+   class Foo
+   {
+      public $x;
+
+      public function Foo()
+      {
+         $this->x = array('bar');
+      }
+
+      public function bar()
+      {
+         echo "foo::bar\n";
+      }
+
+      public function y()
+      {
+         echo "y\n";
+      }
+   }
+
+   function bar()
+   {
+      echo "bar\n";
+   }
+
+   $a = new Foo();
+   // bar
+   $a->x[0]();
+   // foo:y
+   $a->y();
+   // foo:bar
+   $a->{$a->x[0]}();
+?>

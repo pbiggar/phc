@@ -1,0 +1,28 @@
+#HTMLDOC 1.8.23
+-t pdf14 -f phc.pdf --webpage --no-title --linkstyle underline --size A4 --left 1.00in --right 0.50in --top 0.50in --bottom 0.50in --header .t. --footer h.1 --nup 1 --tocheader .t. --tocfooter ..i --portrait --color --no-pscommands --no-xrxcomments --compression=1 --jpeg=0 --fontsize 11.0 --fontspacing 1.2 --headingfont Helvetica --bodyfont Times --headfootsize 11.0 --headfootfont Helvetica --charset iso-8859-1 --no-links --no-embedfonts --pagemode document --pagelayout single --firstpage p1 --pageeffect none --pageduration 10 --effectduration 1.0 --no-encryption --permissions all  --owner-password ""  --user-password "" --browserwidth 850
+doc/website/index.html
+doc/website/news.html
+doc/website/authors.html
+doc/website/doc/index.html
+doc/website/doc/install.html
+doc/website/doc/runningphc.html
+doc/website/doc/portingandpackagingphc.html
+doc/website/doc/demo.html
+doc/website/doc/gettingstarted.html
+doc/website/doc/tutorial1.html
+doc/website/doc/tutorial2.html
+doc/website/doc/tutorial3.html
+doc/website/doc/tutorial4.html
+doc/website/doc/tutorial5.html
+doc/website/doc/tutorial6.html
+doc/website/doc/whatsinstore.html
+doc/website/doc/grammar.html
+doc/website/doc/representingphp.html
+doc/website/doc/generatedcode.html
+doc/website/doc/limitations.html
+doc/website/doc/maketeatheory.html
+doc/website/doc/virtualinheritance.html
+doc/website/doc/reentrantparser.html
+doc/website/plugins/index.html
+doc/website/spinoffs/index.html
+doc/website/contact.html

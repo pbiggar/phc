@@ -1,0 +1,5 @@
+<?php
+// Notice that line4 starts with "REG" (the HEREDOC identifier)
+echo "REGEDIT4"; 
+
+?>

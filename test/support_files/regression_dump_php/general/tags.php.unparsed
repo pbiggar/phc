@@ -1,0 +1,6 @@
+<?php
+   echo W;
+   echo X;
+   echo Y;
+   echo Z;
+?>

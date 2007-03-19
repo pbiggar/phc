@@ -1,0 +1,40 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * configure settings
+ */
+
+/*
+ * Package configuration 
+ */
+
+#undef PACKAGE
+#undef VERSION
+
+/*
+ * Garbage collector
+ */
+
+// "libgc" available?
+#undef HAVE_GC_LIB
+
+// "gc/gc_cpp.h" available?
+#undef HAVE_GC_INC
+
+// --enable-gc specified? 
+#undef ENABLE_GC
+
+/*
+ * Xerces-C++
+ */
+
+// Xerces-C++ available?
+#undef HAVE_XERCES
+
+/*
+ * PHP
+ */
+
+// PHP installation path
+#undef PHP_INSTALL_PATH

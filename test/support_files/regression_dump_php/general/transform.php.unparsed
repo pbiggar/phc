@@ -1,0 +1,23 @@
+<?php
+   class Foo
+   {
+      public function foobar()
+      {
+         echo "Foo::foobar()\n";
+      }
+
+      public function Foo()
+      {
+         $this->foobar();
+         foobar();
+      }
+   }
+
+   function foobar()
+   {
+      echo "foobar()\n";
+   }
+
+   $x = new Foo();
+   foobar();
+?>

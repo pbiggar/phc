@@ -1,0 +1,271 @@
+0.1.7 (8 September 2006)
+------------------------
+
+Since no major problems were reported in 0.1.7rc2, released 0.1.7. Note that 
+some line numbers are still incorrect, so that the line number regression test
+will still fail. 
+
+0.1.7rc2 (21 July 2006)
+----------------------
+
+Minor bugfixes:
+* Bug in Process_ast that should have caused the whole thing to fail but for
+  some reason didn't
+* The schema wasn't regenerated properly when phc.tea was modified
+* "+=" style expressions were unparsed incorrectly in some cases; phc now
+  automatically brackets the second expression, so that $x += $y is unparsed
+  as $x = $x + ($y)
+
+0.1.7rc1 (13 July 2006)
+-----------------------
+
+* Added support for plugins. phc extensions no longer need to be hardcoded
+  into the phc binary, but can be compiled completely independent of the phc
+  binary (a shellscript phc_compile_plugin makes compilation of plugins easy).
+  This makes binary packages of phc much more useful
+* Documentation updated to explain writing plugins
+* Added a new tutorial to explain how to remove nodes from the tree or 
+  replacing nodes by multiple new nodes (tutorial 6).
+* All the plugins that are developed in the tutorials now come standard
+  as plugins with phc (plugins/tutorials/*); also added a few new plugins
+  to demonstrate certain features (for example, traversal order)
+* To make installing phc useful, "make install" now installs the phc binary,
+  the aforementioned script, all the headers that are necessary to compile
+  plugins (by default into /usr/local/include/phc). In addition, a number
+  of default plugins are installed, as is the XML schema.
+* All selfs tests are removed from the binary (command line options are gone,
+  too) and are now implemented as plugins
+* Minor feature enhancements/bug fixes:
+  - compile_time_includes now sets targets on AST_variable properly
+    (this cannot be seen from the PHP output, but will be apparent from
+	the XML output or DOT output)
+  - XML AST's can now be read from standard input
+  - XML AST's must be read using the --read-ast-xml command line option
+  - Comments, line numbers, and other AST attributes are now serialised
+    and deserialised from and to XML
+  - Removed the schema location from the generated XML files
+    (this is set by the phc binary instead)
+  - Added a page to the website with information for package maintainers
+    Also made the tests available from the website (approx 20 MB)
+  - AST nodes now have a phc.filename property (which specifies the file 
+    the node was defined in)
+  - Removed class attributes from the AST nodes; these are now entries in 
+    attrs; some entries are removed altogether once they are no longer 
+	necessary (parser temporaries)
+  - Global variables are now static attributes of %MAIN% (as they should be
+    and were documented to be)
+  - Integers specified in hex (0x..) larger than MAX_INT were incorrectly
+    converted to doubles on systems where atof does not support hex (ISO
+	dictates it should, but it does not on Cygwin/Solaris/perhaps others)
+
+0.1.6rc2 (7 July 2006)
+---------------------
+
+* Bugfix: Scripts with open ended PHP (no closing tag) had an extraneous echo
+  at the end; also, use of identifiers as array indices inside strings caused
+  the identifier to be duplicated in the string to follow the variable access.
+
+0.1.6rc1 (4 July 2006)
+----------------------
+
+* The build process now uses autoconf and automake. From a user's perspective,
+  this means that compiling phc now takes two steps: running ./configure,
+  followed by running make. For people using phc to develop applications, the
+  use of automake means that we now have automatic dependency tracking, which
+  is quite nice (esp. because the dependencies that were specified manually
+  in the old Makefile were often not completely up to date).
+  The distribution tarball will contain all generated code, so that users
+  only need a C++ compiler and make tool to build phc.
+* The Tree_transform API has been split into two APIs: the (original)
+  Tree_transform API and a (new) Tree_visitor API. Tree_transforms can modify
+  the structure of the tree, as before. There are a few differences with the
+  old API: 
+  - The signatures of methods is different (they have a return type instead of
+    a second "out" parameter using a double pointer).
+  - If a pre_transform returns a new node, that node does not (automatically)
+    get recursively transformed (although if necessary the user can this
+    request this behaviour by manually calling pre_transform on the new node). 
+  - Some transforms can now return lists; for example, all statements can
+    return lists. This makes it possible to replace a single if-statement
+    (say) in the tree by multiple other statements, or indeed by an empty list
+    of statements, effectively deleting the statement from the tree.
+  The Tree_visitor API can be used to define "visitors" over the tree; a
+  visitor cannot modify the structure of the tree, but on the positive side,
+  visitors can be defined generically: for example, it is possible to define a
+  visitor that visits every node by implementing the "pre_node" method. For
+  details see the tutorials on the phc website.
+* The AST classes now support "deep_equals" and "match" methods. "deep_equals"
+  implements deep equality; "match" is nearly the same as deep equality, but
+  only takes the tree itself into account (and ignores for example comments
+  and line numbers), and supports wildcards ("WILDCARD"). This is useful
+  for pattern matching in tree transforms and visitors. See tutorials on the
+  phc website for details.
+* The AST class hierarchy, Tree_transform API and Tree_visitor API are now
+  generated (rather than written manually) by a new tool called "maketea".
+* Instead of using Vector<AST_statement*> for a list of statements, we generate
+  specialised list classes for each type (.e.g, AST_statement_list). These
+  specialised list classes are proper AST nodes, and thus have their own
+  transform and visit methods (note that these classes inherit from the STL
+  list class, and can be treated as such).
+* Simplified the grammar; we no longer have "refable_expr" or "expr_opt_ref";
+  instead, we only have "expr"s (expressions), and references are indicated
+  explicitely (where they are allowed). The rule for assignment has changed;
+  an assignment can now only have a variable or a list of variables on the left
+  hand side. Further, static_var now only allows a single variable, which
+  removes the need for a separate "static_declaration" and "static_var";
+  removed production for "static_var".
+* The DOT unparser and PHP unparser are now implemented as Tree_visitors; this
+  means that it is easier to define new unparsers, by inheriting from these
+  parsers and redefine the appropriate methods. The PHP unparser checks the
+  "--tab" command line option to specify the string to use for indentation
+  (defaults to a single TAB).
+* Added an XML unparser that dumps the AST into XML format. 
+  In addition, we added an XML parser that is able to read back in the output
+  of the XML unparser (needs Xerces) - of course, we can then dump the XML back
+  to PHP syntax. This is useful for people that want to write applications to
+  operate on PHP scripts based on our abstract representation, but do not want
+  to use phc itself.
+  The schema for the XML can be found at http://www.phpcompiler.org/phc-1.0.
+* We no longer bundle the Boehm garbage collector. Linking in the garbage
+  collector leads to segfaults in some cases, which we suspect is due to
+  a bug in the garbage collector. However, ./configure has an option to
+  enable the garbage collector (--enable-gc), which must be installed on the
+  host system.
+* We now support a "--compile-time-includes" flag that enables compile time
+  includes (see "Running phc" on the website for details). 
+* Various minor bugfixes and features:
+  - HEREDOC terminating on XXX, that contained lines starting with XXX,
+    was parsed incorrectly
+  - Added support for "<>" operator
+  - Removed support for nested multiline comments (we figured supporting
+    nested comments would be backwards compatible, but of course it isn't)
+  - Class attributes can now have names that are keywords 
+    (PHP allows this which is why we now allow it; though why anyone would
+    want to do this I don't know)
+  - "elseif" clauses are now marked as being an "elseif" clause by the parser
+    (AST_if::elseif) and are unparsed correctly by the unparser
+  - Literal values (integers, reals, etc.) are now unparsed exactly as they
+    are specified in the script (i.e., "False" unparses as "False", "null"
+	 unparses as "null", etc. - previously they values were unparsed in a
+	 "canonical" way - for example, always "NULL")
+  - Unary minus (-5) is now regarded as a single integer (-5), rather than
+    an operation (-) on an integer (5); which makes it possible to deal with
+    LONG_MIN (-2^31) correctly
+  - Integers outside the integer range are treated as reals
+  - Transforms and clone methods now use covariant return types. This makes
+    the code more readable, removes the need for dynamic casts in many
+    places, but does require a recent version of gcc (3.4.0+)
+  - A comment before the definition of an interface is now associated with
+    the interface itself, rather than with the first definition in the
+    interface.
+  - Scripts that ended on a comment, and did not include a closing tag "?>",
+    had an extraneous "echo" at the end of the script.
+
+0.1.5.1 (27 January 2006)
+-------------------------
+Patch to make phc compile on systems with old versions of Flex. 
+
+0.1.5 (26 January 2006)
+-----------------------
+This is mainly a clean-up release. Lots of minor improvements and bug fixes. The
+most important improvements ones are mentioned below.
+
+* Changed the license from GPL to BSD. Detailed licensing information can be
+  found in the directory "license".
+* Made the parser re-entrant (removed all globals). This is the first step
+  towards an implementation of "include". However, this feature is still
+  EXPERIMENTAL.
+* Added automated testing (both regression tests and unit tests). "make test"
+  will run all test and show how many passed/failed. To get verbose output, run
+  "make verbose-test" instead. You will need PHP5 to run the tests. Made a few
+  minor changes to the code to make regression tests possible.
+* Changed the build process; source files generated by tools (flex, bison, 
+  gperf or gengetopt) are now create in the directory "generated/". All of these
+  files are included in the release tarballs, so that users will only need gcc
+  to compile phc (and don't need flex, bison, gperf or gengetopt). Also, object
+  files are created in the directory "build/", to avoid cluttering up the root
+  directory.
+* Added a new make target "phc-nogc" which will build a version of phc with no
+  garbage collector built-in. Make sure to run "make cleanall" before switching
+  from "make phc" to "make phc-nogc" and back.
+* Minor modification to the grammar: arguments to static local variable
+  declarations in methods are optional.
+* Modified the DOT unparser to give slightly better readable output
+  (distinguishes booleans from Tokens graphically and optionally inserts line
+  numbers if the option --use-line-numbers is passed to phc)
+* Upgraded the garbage collector to version 6.6.
+
+This release incorporates the following bug fixes:
+
+* Unary plus (e.g, +$x) caused the parser to crash.
+* Due to an uninitialised (private) variable in AST_variable, variables were
+  sometimes recognised as method invocations instead (sometimes this crashed the
+  parser, too).
+* Calls to "echo" now generate calls to "echo", rather than "print". Moreover,
+  extraneous brackets in the arguments to echo (and similar built-ins) are
+  avoided.
+* Class attributes were not given a dollar sign by the PHP unparser.
+* The PHP unparser wasn't unparsing complex function names correctly (function
+  names that are actually expressions).
+* Throw statements were not terminated by a semi-colon by the unparser.
+* Sometimes reference assignments were recognised as "global" statements.
+* \" in HEREDOC strings should be interpreted as two characters, rather than
+  just one (") - i.e., " does not need to be escaped in HEREDOC strings.
+* HEREDOC strings were not dealt with in a binary safe way.
+* Windows style newlines were still not handled perfectly (especially at the end
+  of a script).
+* The generated syntax tree was not strictly linear (some nodes in the tree were
+  "shared" by multiple parent nodes).
+* Older versions of Bison wrote their output to the wrong directory; the output
+  of bison is now explicitly specified.
+
+0.1.4 (9 January 2006)
+----------------------
+
+* "global" declarations are no longer explicitly represented in the tree. See
+  "Converting PHP" for a detailed explanation of how they are now represented. 
+* Added deep_clone methods to all classes in the Object hierarchy.
+* Bug fix: __METHOD__ crashed the parser 
+* Bug fix: Line numbers weren't counted properly
+* Replaced the single SCALAR terminal symbol in the grammar by five separate
+  terminal symbols (INT, REAL, STRING, BOOL, and NULL). Updated the class
+  hierarchy, tree transform API, parser and unparser and documentation to
+  reflect this change. Note that the structure of all Token_xxx classes have
+  changed; they no longer inherit from String, but have an attribute called
+  "value" instead, which will be of type String for most (but not all) tokens.
+  Refer to the grammar formalism (or ast.h) for details.
+* Removed the transform_children methods for the token symbols from the tree
+  transform class (tokens do not have children).
+* Modified the tree transform API so that if a pre transform returns a new
+  node, phc will call the pre transform _again_ on that new node. This is
+  detailed in the completely rewritten tutorial 3.
+* Renamed FUNCTION_NAME to METHOD_NAME and function_call to method_invocation
+  to bring the terminology in line with the rest of phc.
+* Updated "Converting PHP" so that it explains variable and function targets.
+  Also, the explanation of variables in the old tutorial 3 has been moved here.
+* Documented the _implementation_ of the tree transform API. Also wrote an
+  article "Memory layout for Multiple and Virtual Inheritance" to provide some
+  background information. 
+
+0.1.3 (1 December 2005)
+-----------------------
+Fixed a few bugs:
+* Null vectors are now unparsed properly by the dot unparser
+* RETURN and RETURN_OP in the lexer were broken (i.e, --dump-tokens wasn't
+  working) - they were referring to source column numbers that we no longer keep
+  track off.
+* We now deal with Windows-style line-breaks.
+
+0.1.2 (17 November 2005)
+------------------------
+Added functionality to the TreeTransform API to enable the programmer to change
+the order in which the children of a node are visited, avoid visiting some
+children, or execute a piece of code in between visiting two children.
+
+0.1.1 (2 November 2005)
+-----------------------
+Fixed a bug in the lexer (PHP in-string syntax).
+
+0.1 (29 September 2005)
+-----------------------
+First release.

@@ -1,0 +1,52 @@
+NOTE: Before version 0.1.5, phc was distributed under the GNU GPL v2. 
+
+phc is distributed under the BSD license, which is included in LICENSE.
+
+Additionally, phc uses tools and code from several sources, each with their own
+license, which we believe to be compatible with phc's BSD license. These are
+listed below. You need to be aware of these if you plan on redistributing phc,
+either as part of a product (open source or not), or if you plan on making
+source or binary distributions (ie for use with dpkg, apt or emerge).
+
+   php:
+		- We base our parser on the Zend engine parser, which is licensed under
+		  the Zend Engine License, version 2.0.
+		- Read zend_engine_license_2_00.txt
+		- "This product includes the Zend Engine, freely available at
+		  http://www.zend.com".
+
+   bison (GNU Bison >= 1.24): 
+		- Read the preamble of php.tab.cpp
+		- "/* As a special exception, when this file is copied by Bison into a
+		  Bison output file, you may use that output file without restriction.
+		  This special exception was added by the Free Software Foundation in
+		  version 1.24 of Bison.  */"
+
+   flex (2.5.31)
+		- Read the preamble of FlexLexer.h (probably in /usr/include/)
+		- Flex output files do not generate license information. We assume they
+		  are safe to use. The FlexLexer.h include file has a BSD license, which
+		  needs to be addressed in binary distributions. Source distributions
+		  would only need to comply if they redistributed FlexLexer.h.
+
+   gengetopt (version 2.10):
+		- Read the preamble in cmdline.c
+		- "The developers of gengetopt consider the fixed text that goes in all
+		  gengetopt output files to be in the public domain: we make no copyright
+		  claims on it."
+
+   gperf (GNU gperf 3.0.1):
+		- No copyright notices are included in the output files.
+
+RESPONSIBILITIES
+
+If you plan on distributing software (source or binary) which includes phc,
+whether as part of your own project, or when packaging phc (for example as an
+rpm), you have the following responsibilities (to our knowledge):
+
+	- You must include phc copyright notices in binary and source distributions
+	  and abide by phc's BSD license.
+	- You must include flex copyright notices (flex_copyright_notices.txt) in
+	  binary distributions only and abide by flex's Modified BSD license.
+	- You must abide by the acknowledgement and and advertising clauses from the
+	  Zend license, and include the license in any distribution.

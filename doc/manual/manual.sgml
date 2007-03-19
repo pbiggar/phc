@@ -1,0 +1,64 @@
+<!--
+	Top-level structure of the phc manuals
+	TODO: mention license
+
+	To get HTML output, process this file with	
+	
+		jade -t sgml -d manual.dsl#html manual.sgml
+	
+	To get Latex output, process with
+
+		jade -t tex -d manual.dsl#print manual.sgml
+		jadetex manual.tex
+-->
+<!DOCTYPE set PUBLIC "-//phc//DTD DocBook V3.1-Based Extension//EN" "manual.dtd" [
+<!-- User manual -->
+<!ENTITY install SYSTEM "install.sgml">
+<!ENTITY runningphc SYSTEM "runningphc.sgml">
+<!-- Developers' manual -->
+<!ENTITY devintro SYSTEM "devintro.sgml">
+<!ENTITY gettingstarted SYSTEM "gettingstarted.sgml">
+<!ENTITY treetutorial1 SYSTEM "treetutorial1.sgml">
+<!ENTITY treetutorial2 SYSTEM "treetutorial2.sgml">
+<!ENTITY treetutorial3 SYSTEM "treetutorial3.sgml">
+<!ENTITY treetutorial4 SYSTEM "treetutorial4.sgml">
+<!ENTITY treetutorial5 SYSTEM "treetutorial5.sgml">
+<!ENTITY treetutorial6 SYSTEM "treetutorial6.sgml">
+<!ENTITY grammar SYSTEM "grammar.sgml">
+<!ENTITY representingphp SYSTEM "representingphp.sgml">
+<!ENTITY limitations SYSTEM "limitations.sgml">
+<!ENTITY generatedcode SYSTEM "generatedcode.sgml">
+<!ENTITY maketeatheory SYSTEM "maketeatheory.sgml">
+<!-- Couple of macro definitions -->
+<!ENTITY phc "<Application>phc</Application>">
+]>
+<set id="manual">
+<title>&phc Documentation</title>
+<book id="usermanual">
+	<title>The &phc User's Manual</title>
+	&install
+	&runningphc
+</book>
+<book id="devmanual">
+	<title>The &phc Developer's Manual</title>
+	&devintro
+	<part id="treetutorials">
+		<title id="treetutorials.title">Tree Traversal API Tutorials</title>
+		&gettingstarted
+		&treetutorial1
+		&treetutorial2
+		&treetutorial3
+		&treetutorial4
+		&treetutorial5
+		&treetutorial6
+	</part>
+	<part id="reference">
+		<title id="reference.title">Reference</title>
+		&grammar
+		&representingphp
+		&limitations
+		&generatedcode
+		&maketeatheory
+	</part>
+</book>
+</set>

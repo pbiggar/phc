@@ -1,0 +1,398 @@
+-- Aug 3
+
+* Put in a shoutout to Dan as a contributer
+* Include valgrind_suppressions in the test package
+
+-- Aug 2
+
+* add libtool into the mix; make plugins work on cygwin
+* Put smaller news items onto the homepage
+
+-- Aug 1
+
+* Fix bug in maketea; Tree_transform.h contains methods such as pre_node
+  which really shouldn't be there
+
+-- July 21
+
+* Modify the unparser to properly deal with brackets (insert them when 
+  necessary and only when necessary)
+* Incorporate Conor's patches
+o Fix the lexer to get a more accurate source representation (especially
+  related to \x40 and \100 style characters).
+o Add command-line arguments for plugins (and related docs)
+
+-- July 19
+
+* Modify configure to check if we need to link in libdl 
+o Fix line numbers (see also STATUS entry Jan 18)
+o Modify bison to use %type
+
+-- July 17
+
+* Move schema to generated/ and add a symlink to it from src/
+o Add a -v option (verbose)
+o Explain CC and CXX configure options in the installation instructions
+o Re-generate the bundled installation instructions
+o Tell xerces about their bug we found using valgrind
+o Find the bug with Boehm's collector
+
+-- July 14
+
+o We can make our analysis for global variables (to add them to %MAIN%) 
+  slightly better by searching for _all_ references to %MAIN%::$.. 
+  That would include any "global" statements.
+x Don't install plugins/tools/* - changed our minds about this: purity_check is
+  going 'online' so it's needed for 'make test'
+
+-- July 10
+
+* Make global variables static attributes of MAIN
+* Update tutorial 6 to use "parse"
+* Make sure there are no class attributes left in the AST node 
+  (should all use "attrs"); see phc.tea
+
+-- July 9
+
+* Update tutorial 5 when comments are implemented as attributes
+
+-- June 19
+
+* ./configure should fail when old versions of gcc (< 3.4) are used
+
+-- June 14
+
+* Make tests use --dump-ast-xml instead of --dump-php
+* Refactor regression tests to use common code
+* Make tests run on cygwin
+* Tests don't run properly with php-cgi. Make autoconf test for php-cli
+  --- Cygwin problem? 
+  Did it in the test script instead of autoconf
+* Read XML from stdin (look for magic symbols perhaps: <?xml vs <?php or
+	automatically switch between parsers on error)
+
+-- June 1
+
+o Manpage?
+
+-- 14 March
+
+* Add "DOT escape" to dot_functionality
+o Make DOT obey the left-to-right ordering of node children. 
+  Supposedly, this can be achieved using "ordering=out".
+
+-- 02 February
+
+* Make the conversion of tokens a seperate transformations
+* Write a test to have php compare our source representations with the values
+  of our tokens
+* Move true, false and null from gperf to the lexer, so that we can store the
+  string the user gives us.
+* Turn the garbage collector back on at some point.
+* Change the website to mention Zend rather than PHP, as per the license.
+
+-- 30 January
+
+* Deal nicer with elseif clauses in the unparser
+
+-- 26 January
+
+* Add a .bz2, perhaps making it the default way to download (2.7MB vs 2.0MB)
+
+-- 25 January
+
+* Update installation instructions to include "make test", and show more
+  up-to-date output of phc and phc --help.
+
+-- 24 January
+
+* Rename ParserContext.h, PHPLexer.h etc. in parsing/ to 
+  lower-case, initial-caps, underscore word separation style (?).
+x Change from using Vector to using a hash map for storing
+  certain item lists in AST_nodes (?).
+  Decided against this: people should be able to rely on ordering. See next.
+* Add find_class, find_interface to AST_php_script, and
+  find_attribute, find_method to AST_class_def (and AST_interface_def)
+
+-- 23 January
+
+x Use flex's built-in line numbering instead of concocting our own
+  Tried it; yylineno was miles off, very inaccurate. No idea why that is 
+  happening; I suggest we leave well enough alone.
+* Change the license to Modified BSD (update the website too)
+* Make the lexer and parser fully reentrant.
+* Add simple include functionality.
+* Write an article on making the compiler reentrant.
+* Catch and hide the verbose output when not using -v
+* Add a separate test for dumping the ast without line numbers
+* The generation of config.h relies on svn; should probably be hard-coded
+  in the release versions.
+
+-- 19 January
+
+* Add a generic AST traversal API
+
+-- 18 January
+
+* Add line numbers to dotty output
+o Update line numbering: associate the line number with the token, and use that
+  for a node's numbering
+
+-- 16 January 2006
+
+* Allow usual Linux file operations: a flag to send output to a (named) file;
+  reading standard input instead of files, if given.
+
+-- 11 January 2006
+
+* We should think about nodes in transform wanting to delete or nullify 
+  themselves. Both are currently impossible, because the transform breaks if
+  a user assigns NULL to *out; deleting is impossible because we simply 
+  do not support it currently.
+
+-- 9 January
+
+* Add a test suite for existing features.
+
+-- 31 December 2005
+
+o Allow to output parts of the syntax tree (see option in phc.ggo) 
+* Should AST_node get a char* filename as well as a long line_number?
+
+-- 14 December 2005
+
+* Fix top down tree traversals when tree is modified during the transform
+* Fix the ``looping'' error message in the generic transform method
+  (transform.cpp) to do unmangling.
+* Update grammar formalism to explain how the Token_xxx classes are derived
+* Update tutorial 3 to explain how the TreeTransform deals with modifying
+  the tree while traversing it
+* Update the website to have an "Authors" page.  
+* Check the website to make sure everything corresponds to the new grammar.
+* Make sure we are consistently calling FLOAT/DOUBLE/REAL "REAL" 
+  (in particular in the scanner/parser)
+* Rename "function_name" to "method_name" while we're making incompatible
+  changes anyway. Make sure this change is propagated everywhere.  
+
+-- 05 December 2005
+
+* Add (deep) copy constructors for all AST classes
+* Add documentation to convert regarding variable and function targets
+  (%MAIN%)
+
+-- 30 November 2005
+
+* Remove AST_global
+* Update the unparser (TreeTransform)
+* Better error handling. Also update tutorial 2!
+* Make yyparse not use the global php_script variable
+* Don't use yyin as global - prevents use of multiple parsers
+
+-- 2 November 2005
+
+* Write a transform that cleans up instring syntax "x is $x" should be
+  "x is " . $x, not "x is " . $x . ""
+
+-- 18 October 2005
+
+* Modify the translation API to be void bar(foo* in, foo** out) rather than
+  foo* bar(foo* in)
+o Support dynagraph 
+  (http://www.research.att.com/sw/tools/graphviz/dgwin/dynagraph.html)
+
+-- 11 October 2005
+
+* Add a README to the source package.
+
+-- 5 October 2005
+
+* Consider naming of the static "constructors" in ast.h; should we make them
+  more consistent? Esp. consider Token_scalar. 
+  Suggestion: rename all constructors to new_something?
+* We must make a decision: either we add functions to %MAIN% as _static_
+  methods, and we add other code to a special function called "%run%" or
+  something - or we add them as normal functions - but then function calls
+  should be invoked on the (single) instance of the %MAIN% class.. 
+  We must decide this SOON.
+
+-- 30 September 2005
+
+* Make AST_switch_case and AST_catch (and possibly others) commented nodes
+o Deal with comments for the else-clause of an if-statement
+* Deal with "lone" comments
+* Modify the lexer to get rid of our own buffer manipulation code 
+  (use some STL class instead)
+* Mention dotty in the Getting Started and show some pictures
+* Implement the tutorials listed in Getting Started
+
+-- 23 September 2005
+
+* Improve FixComments so that it deals with statements that have an
+  expression argument (and possibly others). See the "break 5" line 
+  in tests/comments.php -- OBSOLETE
+* Improve the recording of line numbers
+  For example, for classes, the line number recorded is the _last_ line of
+  the class definition.
+
+-- 22 September 2005
+
+* Record line numbers in the AST
+
+-- 16 September 2005
+
+* Add a garbage collector
+
+-- 15 September 2005
+
+* Deal with comments
+* Have some form of support for generic traversals
+* Deal with tags other than <?php and ?>
+
+-- 14 September 2005
+
+* Do not print %MAIN% in the unparser.
+* Deal with CAST_UNSET (specifically, being a statement rather than an 
+  expression)
+
+-- 8 September 2005
+
+* Look at how we deal with binary data in Strings. Is it safe?
+
+-- 6 September 2005
+
+* Deal with backticked strings in the lexer.
+
+-- 5 September 2005
+
+* Diff our grammar and the official grammar, and subversion the diff, so that
+  we can diff the diff :-)
+* Remove unparse_to_php in Token_xxx. They don't do anything special, expect
+  for Token_variable_name, which is causing trouble anyway. If we remove them,
+  we can deal with $'s properly (with invocations).
+* Perhaps a fix for the bracket problem: add an attribute needs_brackets to
+  AST_expr and set it to true when the user uses brackets? This should eliminate
+  the need for most brackets, and also yields a more faithful unparsing.
+
+-- 3 September 2005
+
+* Token_scalar should put quotes around strings in unparse_to_php
+* Add assertions "not NULL" in all AST constructors (where applicable)
+* Update the DOT unparser to deal with the new structure (it compiles,
+  and should work, but there is a number of DOT unparsers missing).
+
+-- 2 September 2005
+
+* To bring our grammar in line with PHP 5.1.0, we need one update.
+  optional_class_type got a third alternative, T_ARRAY:
+
+  optional_class_type:
+       /* empty */
+     | T_STRING
+     |  T_ARRAY 
+
+* Change 'ref' to 'is_ref' in grammar specification. Naming conventions
+  agreed today dictate that 'class_def*' be named 'class_defs' in the 
+  AST class hierarchy.
+
+-- 24 August 2005
+
+* We should think of a way to structure the tree so that _all_ information
+  is shown in a tree-like fashion; in particular, we should get rid of 
+  tree node "attributes" ("&", "abstract", etc.) - this would make the tree
+  more uniform which should make writing tools that process the tree easier.
+
+-- 19 August 2005
+
+* We should remove the rule refable_expr ::= function_call, and then rename
+  function_call to method_call. (It is not possible to call a function on
+  something which is not an object.) However, this is not completely trivial,
+  because it means we have to introduce an object for library functions.
+  
+  (sort of avoided/ignored at the moment: target in an AST_function_call
+  should always be non-null).
+
+-- 17 August 2005
+
+* expr_without_variables: Class instantiation 
+* expr_without_variables: Object cloning
+* Annotate each and every production with the type it synthesises
+* Represent no-values as 'null' (with no box) in the unparsing of DOT.
+* Compare AST_static_member and AST_class_constant. While we're at it,
+  do we need AST_static_member? (Is that not a special case of AST_invocation?)
+
+-- 16 August 2005
+
+* Use Integer for passing ints up the parse tree.
+* Integrate class __MAIN__ into the set of class_or_interface_definition's in php_script
+
+-- 15 August 2005
+
+* Change all references to c_str() to references to unparse_to_php.
+* Why is there stuff missing from non_empty_function_call_parameter_list?
+
+-- 13 August 2005
+
+Differences between our grammar and the PHP reference grammar (found using the
+new bison2bnf tool):
+
+* This one is very odd: our rule for interface_list allows empty, whereas the
+  official one does not. Where did that come from?
+  -- I have no idea, but it's gone now! (JG Aug 17th 2005).  
+* unticked_statement: T_USE
+* unticked_statement: T_DECLARE
+* internal_functions_in_yacc (note that we moved the first two alternatives
+  from internal_functions_in_yacc, T_ISSET and T_EMPTY, into 
+  expr_without_variables)
+* Another odd one: in non_empty_array_pair_list, the second last rule
+  in the reference grammar (expr T_DOUBLE_ARROW '&' ...) is missing from
+  our grammar for some reason.
+
+Known (and intentional) differences, mostly due to difference in the lexical
+analysers:
+* encaps_list 
+* common_scalar/scalar
+
+-- 12 August 2005
+
+o We currently 'hack' our function setup. we don't consider
+  function declarations inside if()'s
+
+Items still to do in AST construction:
+
+* K_UNSET
+* K_TRY / K_THROW (Plus rest of exception handling) 
+* Check out the is_reference production. What's it for?
+* Class interfaces (unticked_class_declaration_statement)
+* class_entry_type
+* extends_from
+* implements_list
+* Parameters on functions parameter_list
+* class_constant_declaration
+* class_variable_declaration
+* abstract methods (method_body)
+* class member_modifiers
+* expr_without_variable needs to be finished 
+* dynamic_class_name_reference
+* ctor_arguments
+* K___LINE__ stuff 
+* finish off 'scalar'
+* assignment_list
+* handle array_pair_list
+* isset_variables
+* class_constant
+
+-- 1 April 2005
+
+* Define abstract syntax
+* Modify the parser to generate the AST
+
+-- 11 March 2005
+
+* The lexical analyser must be modified to return the tokens to the syntax
+  analyser rather than outputting them to standard output.
+* Might be useful to define it in such a way that we can still run the 
+  lexical analyser by itself? (Although that might break when we couple
+  the lexical and syntax analyser more closely to deal with strings.)
+x Analyse and cleanup the grammar.
+* Grab the PHP manual, extract all code samples (automatically), make sure
+  we can parse all.

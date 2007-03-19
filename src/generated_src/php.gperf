@@ -1,0 +1,80 @@
+%{
+	/*
+	 * phc -- the open source PHP compiler
+	 * See doc/license/README.license for licensing information
+	 *
+	 * List of reserved keywords 
+	 */
+	 
+	#include "php_parser.tab.hpp"
+%}
+struct keyword { char* name; int token; }
+%%
+and,					K_AND
+or,					K_OR
+xor,					K_XOR
+__FILE__,			K___FILE__
+__LINE__,			K___LINE__
+array,				K_ARRAY
+as,					K_AS
+break,				K_BREAK
+case,					K_CASE
+class,				K_CLASS
+const,				K_CONST
+continue,			K_CONTINUE
+declare,				K_DECLARE
+default,				K_DEFAULT
+do,					K_DO
+echo,					K_ECHO
+else,					K_ELSE
+elseif,				K_ELSEIF
+empty,				K_EMPTY
+enddeclare,			K_ENDDECLARE
+endfor,				K_ENDFOR
+endforeach,			K_ENDFOREACH
+endif,				K_ENDIF
+endswitch,			K_ENDSWITCH
+endwhile,			K_ENDWHILE
+eval,					K_EVAL
+exit,					K_EXIT
+extends,				K_EXTENDS
+for,					K_FOR
+foreach,				K_FOREACH
+function,			K_FUNCTION
+global,				K_GLOBAL
+if,					K_IF
+include,				K_INCLUDE
+include_once,		K_INCLUDE_ONCE
+instanceof,			K_INSTANCEOF
+isset,				K_ISSET
+list,					K_LIST
+new,					K_NEW
+print,				K_PRINT
+require,				K_REQUIRE
+require_once,		K_REQUIRE_ONCE
+return,				K_RETURN
+static,				K_STATIC
+switch,				K_SWITCH
+unset,				K_UNSET
+use,					K_USE
+var,					K_VAR
+while,				K_WHILE
+__FUNCTION__,		K___FUNCTION__
+__CLASS__,			K___CLASS__
+__METHOD__,			K___METHOD__
+final,				K_FINAL
+interface,			K_INTERFACE
+implements,			K_IMPLEMENTS
+public,				K_PUBLIC
+private,				K_PRIVATE
+protected,			K_PROTECTED
+abstract,			K_ABSTRACT
+clone,				K_CLONE
+try,					K_TRY
+catch,				K_CATCH
+throw,				K_THROW
+cfunction,			K_CFUNCTION
+old_function,		K_OLD_FUNCTION
+true,					C_TRUE
+false,				C_FALSE
+null,					C_NULL

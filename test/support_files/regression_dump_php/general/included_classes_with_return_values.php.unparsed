@@ -1,0 +1,14 @@
+<?php
+   class C
+   {
+      public function C()
+      {
+      }
+
+      public function cc()
+      {
+         return 7;
+      }
+   }
+
+?>

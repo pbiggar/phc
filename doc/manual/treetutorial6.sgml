@@ -1,0 +1,331 @@
+<chapter id="treetutorial6">
+<title id="treetutorial6.title">Returning Lists</title>
+
+<section>
+<title></title>
+
+<para> In this tutorial we will develop step-by-step a transform that expands
+<code>include</code> statements. For example, if <filename>b.php</filename> is
+</para>
+
+<programlisting>
+&lt;?<reserved>php</reserved>
+   echo "Hello world";
+?&gt;
+</programlisting>
+			
+<para>and <filename>a.php</filename> is</para> 
+
+<programlisting>
+&lt;?<reserved>php</reserved>
+   include "b.php";
+   echo "Goodbye!";
+?&gt;
+</programlisting>
+
+<para>Then running the transform on <filename>a.php</filename> yields </para>
+
+<programlisting>
+&lt;?<reserved>php</reserved>
+   echo "Hello world\n";
+   echo "Goodbye\n";
+?&gt;
+</programlisting>
+
+<para> The transform we will develop in this tutorial is only a simple
+implementation of <code>include</code>s; a more full-featured
+transform is available using the option
+<code>--compile-time-includes</code>. The code for that transform
+is <filename>process_ast/Process_includes.cpp</filename>. The transform we will
+develop here is available as
+<filename>plugins/tutorials/Expand_includes.la</filename>. </para>
+
+</section>
+<section>
+
+<title> Deleting Nodes </title>
+
+<para> Our transform should process <code>include</code> statements.
+In the AST, <code>include</code>s are represented as method
+invocations. Thus, we might start like this: </para>
+
+<programlisting>
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Tree_transform
+{
+<reserved>public</reserved>:
+   AST_expr* pre_method_invocation(AST_method_invocation* in)
+   {
+      <emphasis>// Process includes</emphasis>
+   }
+};
+</programlisting>
+
+<para> However, this will not get us very far. The return type of
+<code>pre_method_invocation</code> is an <code>AST_expr</code>.
+That means that we can replace the method invocation (the
+<code>include</code> statement) only by another, single,
+expression. But we want to replace it by the contents of the
+specified file! </para>
+
+<para> Recall from <xref linkend="treetutorial1"> that to
+turn an expression into a statement, &phc 
+inserts an <code>AST_eval_expr</code> in the abstract syntax tree.
+Thus, if we want to process <code>include</code> statements, we
+could also look at all <code>eval_expr</code> nodes. Assuming for
+the moment we can make that work, does it get us any further? As a
+matter of fact, it does! If you check
+<filename>&lt;phc/Tree_transform.h&gt;</filename>, you will see that the 
+signature for <code>pre_eval_expr</code> is </para>
+
+<programlisting>
+<reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, AST_statement_list* out)
+</programlisting>
+
+<para> This is different from the signatures we have seen so far. For
+nodes that can be replaced by a number of new nodes, the pre transform
+and post transform methods will not have a return value in their
+signature, but have an extra <code>AST_xxx_list</code> argument.
+This list is initialised to be empty before
+<code>pre_eval_expr</code> is invoked, and when
+<code>pre_eval_expr</code> returns, the nodes in this list will
+replace <code>*in</code>. If the list is empty, the node is simply
+deleted from the tree. </para>
+
+<para> So, we will use the following plugin as our starting point.
+Executing this plugin deletes all <code>eval_expr</code> nodes from
+the tree (try it!). </para>
+
+<programlisting>
+<reserved>#include</reserved> &lt;phc/Tree_transform.h&gt;
+
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Tree_transform
+{
+<reserved>public</reserved>:
+   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, AST_statement_list* out)
+   {
+   }
+};
+
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+{
+   Expand_includes einc;
+   php_script-&gt;transform(&amp;einc);
+}
+</programlisting>
+
+</section>
+<section>
+
+<title> Using the XML unparser </title>
+
+<para> So, we now want to do something more useful than deleting all
+<code>eval_expr</code> nodes from the tree. The first thing we need
+to be able to do is distinguish <code>include</code> statements
+from other <code>eval_expr</code> nodes. We can use pattern
+matching (see <xref linkend="treetutorial3"> and <xref linkend="treetutorial4"> 
+) to do that - but what should we match
+against? If you are unsure about the structure of the tree, it can
+be quite useful to use the XML unparser to find out what the tree
+looks like. We modify the plugin as follows: </para>
+
+<programlisting>
+<reserved>#include</reserved> &lt;phc/Tree_transform.h&gt;
+<reserved>#include</reserved> &lt;phc/process_ast/XML_unparser.h&gt;
+
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Tree_transform
+{
+<reserved>private</reserved>:
+   XML_unparser xml_unparser;
+
+<reserved>public</reserved>:
+   void pre_eval_expr(AST_eval_expr* in, AST_statement_list* out)
+   {
+      in-&gt;visit(&amp;xml_unparser);
+   }
+}
+</programlisting>
+
+<para> The XML unparser is implemented using the
+<code>Tree_visitor</code> API, so it can be invoked just like you
+run any other visitor. There is a similar visitor called
+<code>PHP_unparser</code> (in
+<filename>&lt;phc/process_ast/PHP_unparser.h&gt;</filename>) that you can use
+to print (parts of the) AST to PHP syntax. </para>
+
+<para> When you run this transform on <filename>a.php</filename>, it will print
+two <code>eval_expr</code> nodes (shown in XML syntax), one for the
+<code>include</code> and one for the <code>echo</code> . We are
+interested in the first, the <code>include</code>: (we have removed
+the <code>&lt;attrs /&gt;</code> blocks to improve readability):
+</para>
+
+<programlisting>
+&lt;AST_eval_expr&gt;
+   &lt;AST_method_invocation&gt;
+      &lt;Token_class_name&gt;
+         &lt;value&gt;%STDLIB%&lt;/value&gt;
+      &lt;/Token_class_name&gt;
+      &lt;Token_method_name&gt;
+         &lt;value&gt;include&lt;/value&gt;
+      &lt;/Token_method_name&gt;
+      &lt;AST_actual_parameter_list&gt;
+         &lt;AST_actual_parameter&gt;
+            &lt;bool&gt;false&lt;/bool&gt;
+            &lt;Token_string&gt;
+               &lt;value&gt;b.php&lt;/value&gt;
+               &lt;source_rep&gt;b.php&lt;/source_rep&gt;
+            &lt;/Token_string&gt;
+         &lt;/AST_actual_parameter&gt;
+      &lt;/AST_actual_parameter_list&gt;
+   &lt;/AST_method_invocation&gt;
+&lt;/AST_eval_expr&gt;
+</programlisting>
+
+<para> This tells us that the <code>include</code> statement is an
+<code>eval_expr</code> node (that was obvious from the fact that we
+implemented <code>pre_eval_expr</code>). The <code>eval_expr</code>
+contains a <code>method_invocation</code> (we knew that too). The
+method invocation has target <code>%STDLIB%</code>, method name
+<code>include</code>, and a single parameter in the parameter list
+that contains the name of the file we are interested in. We can
+construct a pattern that matches this tree exactly: </para>
+
+<programlisting>
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Tree_transform
+{
+<reserved>public</reserved>:
+   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, AST_statement_list* out)
+   {
+      <emphasis>// Pattern to match include statements</emphasis>   
+      Token_string* filename; 
+      AST_actual_parameter* param;
+      AST_actual_parameter_list* params;
+      Token_method_name* method_name;
+      Token_class_name* target; 
+      AST_method_invocation* pattern;
+      
+      filename = <reserved>new</reserved> Token_string(WILDCARD, WILDCARD);
+      param = <reserved>new</reserved> AST_actual_parameter(false, filename);
+      params = <reserved>new</reserved> AST_actual_parameter_list();
+      params-&gt;push_back(param);
+      method_name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("include"));
+      target = <reserved>new</reserved> Token_class_name(<reserved>new</reserved> String("%STDLIB%"));
+      pattern = <reserved>new</reserved> AST_method_invocation(target, method_name, params);
+
+      <emphasis>// Check we have a matching function</emphasis>
+      <reserved>if</reserved>(!in-&gt;expr-&gt;match(pattern))
+      {
+         <emphasis>// No match; leave untouched</emphasis>
+         out-&gt;push_back(in);
+      }
+      <reserved>else</reserved>
+      {
+         <emphasis>// Process the include</emphasis>
+      }
+   }
+};
+</programlisting>
+	
+<para> Note how the construction of the pattern follows the structure
+of the tree as output by the XML unparser exactly. The only
+difference is that we leave the actual filename a wildcard;
+obviously, we want to be able to match against any
+<code>include</code>, not just <code>include("a.php")</code>.
+Running this transform should remove the <code>include</code> from
+the file, but leave the other statements untouched (note that we
+need to <code>push_back in</code> to <code>out</code> to make sure
+a statement does not get deleted). </para>
+
+</section>
+<section>
+
+<title> The Full Transform </title>
+
+<para> Remember from the previous tutorials that code defined outside
+the scope of any class and any function becomes part of
+<code>%MAIN%::%run%</code> in &phc;'s
+internal representation. So, to expand the include, we need to
+parse the specified file, and replace the <code>include</code> by
+all the statements in <code>%MAIN%::%run%</code> in the parsed
+script (we should also deal with the other functions of
+<code>%MAIN%</code>, and with any other classes or interfaces in
+the included script; this is left as an exercise for the reader).
+Here then is the full transform: </para>  
+
+<programlisting>
+<reserved>#include</reserved> &lt;phc/Tree_transform.h&gt;
+<reserved>#include</reserved> &lt;phc/parse.h&gt;
+
+<reserved>class</reserved> Expand_includes : <reserved>public</reserved> Tree_transform
+{
+<reserved>public</reserved>:
+   <reserved>void</reserved> pre_eval_expr(AST_eval_expr* in, AST_statement_list* out)
+   {
+      <emphasis>// Pattern to match include statements</emphasis> 
+      Token_string* filename; 
+      AST_actual_parameter* param;
+      AST_actual_parameter_list* params;
+      Token_method_name* method_name;
+      Token_class_name* target; 
+      AST_method_invocation* pattern;
+      
+      filename = <reserved>new</reserved> Token_string(WILDCARD, WILDCARD);
+      param = <reserved>new</reserved> AST_actual_parameter(false, filename);
+      params = <reserved>new</reserved> AST_actual_parameter_list();
+      params-&gt;push_back(param);
+      method_name = <reserved>new</reserved> Token_method_name(<reserved>new</reserved> String("include"));
+      target = <reserved>new</reserved> Token_class_name(<reserved>new</reserved> String("%STDLIB%"));
+      pattern = <reserved>new</reserved> AST_method_invocation(target, method_name, params);
+
+      <emphasis>// Check we have a matching function</emphasis>
+      <reserved>if</reserved>(!in-&gt;expr-&gt;match(pattern))
+      {
+         <emphasis>// No match; leave untouched</emphasis>
+         out-&gt;push_back(in);
+      }
+      <reserved>else</reserved>
+      {
+         <emphasis>// Try to open the file</emphasis>
+         AST_php_script* php_script = parse(filename-&gt;value, <reserved>NULL</reserved>, <reserved>false</reserved>); 
+         <reserved>if</reserved>(php_script == <reserved>NULL</reserved>)
+         {
+            cout &lt;&lt; "Could not parse file " &lt;&lt; *filename-&gt;value;
+            cout &lt;&lt; " on line " &lt;&lt; in-&gt;get_line_number() &lt;&lt; endl;
+            exit(-1);
+         }
+
+         <emphasis>// Replace the include by all statements in %MAIN%::%run%</emphasis>
+         AST_class_def* main = php_script-&gt;get_class_def("%MAIN%");
+         AST_method* run = main-&gt;get_method("%run%");
+         out-&gt;push_back_all(run-&gt;statements);
+      }
+   }
+};
+</programlisting>
+
+</section>
+<section>
+
+<title> What's Next? </title>
+
+<para> This is the last tutorial in this series on using the
+<code>Tree_visitor</code> and <code>Tree_transform</code> classes.
+Of course, there is no substitute for experimentation: if you
+really want to understand how things works, you should implement
+your own transforms. Hopefully, the tutorials will help you do so.
+The following sources should also be useful: </para>
+
+<itemizedlist>
+<listitem><para>The <xref linkend="grammar" endterm="grammar"> (and the <xref linkend="maketeatheory" endterm="maketeatheory.title">)</para></listitem>
+<listitem><para>The explanation of how PHP gets represented in the abstract syntax as detailed in <xref linkend="representingphp" endterm="representingphp.title"> </para></listitem>
+<listitem><para>The definition of the C++ classes for the AST nodes in <filename>&lt;phc/ast.h&gt;</filename></para></listitem>
+<listitem><para>The definition of the <code>Tree_visitor</code> and <code>Tree_transform</code> classes in <filename>&lt;phc/Tree_visitor.h&gt;</filename> and <filename>&lt;phc/Tree_transform.h&gt;</filename> respectively</para></listitem>
+</itemizedlist>
+
+<para> And of course, we are more than happy to answer any other
+questions you might still have. Just send an email to the <ulink
+url="http://www.phpcompiler.org/contact.html">mailing list</ulink> and we'll do our best to
+answer you as quickly as possible! Happy coding! </para>
+
+</section>
+</chapter>

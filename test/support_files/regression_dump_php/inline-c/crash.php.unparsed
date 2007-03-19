@@ -1,0 +1,4 @@
+<?php
+   // phc:inline-c
+   "int* p = 0;\n*p = 5; // crash!";
+?>
