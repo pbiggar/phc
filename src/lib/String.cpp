@@ -30,3 +30,8 @@ String::String(char const* s, size_t n) : string(s, n)
 String::~String() 
 {
 }
+
+String* String::clone()
+{
+	return new String(*this);
+}

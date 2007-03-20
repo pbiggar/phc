@@ -99,8 +99,6 @@ src_phc_SOURCES =												\
 	src/process_ast/Token_conversion.h					\
 	src/process_ast/Variable_targets.cpp				\
 	src/process_ast/Variable_targets.h					\
-	src/process_ast/Visit_everything.cpp				\
-	src/process_ast/Visit_everything.h					\
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h
 
@@ -143,7 +141,6 @@ strangeprocessast_HEADERS =					\
 	src/process_ast/PHP_unparser.h			\
 	src/process_ast/Process_includes.h		\
 	src/process_ast/Remove_concat_null.h	\
-	src/process_ast/Visit_everything.h		\
 	src/process_ast/XML_unparser.h
 
 strangelibdir = $(pkgincludedir)/lib

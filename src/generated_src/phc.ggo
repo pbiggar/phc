@@ -9,7 +9,6 @@ option "with-php" - "PHP installation path" string typestr="NAME" no hidden
 option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
 option "dump-tokens" - "Perform lexical analysis only (spits out a token list). Probably only useful for debugging phc itself" flag off hidden
 option "dump-php" - "Dump PHP code back immediately after parsing to standard output (pretty printing)" flag off 
-option "temp-old-unparser" - "Dump PHP using the old unparser" flag off hidden # we can take this away when Matthias' unparser matures a bit more
 option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
 option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off
 option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off

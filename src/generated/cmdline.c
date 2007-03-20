@@ -56,7 +56,6 @@ const char *gengetopt_args_info_full_help[] = {
   "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
   "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list). Probably only useful for debugging phc \n                                 itself  (default=off)",
   "      --dump-php               Dump PHP code back immediately after parsing to \n                                 standard output (pretty printing)  \n                                 (default=off)",
-  "      --temp-old-unparser      Dump PHP using the old unparser  (default=off)",
   "      --dump-ast-dot           Dump the AST from the source in dot format  \n                                 (default=off)",
   "      --dump-ast-xml           Dump the AST from the source in XML format  \n                                 (default=off)",
   "      --read-ast-xml           Assume the input is a phc AST in XML format  \n                                 (default=off)",
@@ -103,7 +102,6 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->run_given = 0 ;
   args_info->dump_tokens_given = 0 ;
   args_info->dump_php_given = 0 ;
-  args_info->temp_old_unparser_given = 0 ;
   args_info->dump_ast_dot_given = 0 ;
   args_info->dump_ast_xml_given = 0 ;
   args_info->read_ast_xml_given = 0 ;
@@ -129,7 +127,6 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->run_orig = NULL;
   args_info->dump_tokens_flag = 0;
   args_info->dump_php_flag = 0;
-  args_info->temp_old_unparser_flag = 0;
   args_info->dump_ast_dot_flag = 0;
   args_info->dump_ast_xml_flag = 0;
   args_info->read_ast_xml_flag = 0;
@@ -160,15 +157,14 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->run_max = -1;
   args_info->dump_tokens_help = gengetopt_args_info_full_help[9] ;
   args_info->dump_php_help = gengetopt_args_info_full_help[10] ;
-  args_info->temp_old_unparser_help = gengetopt_args_info_full_help[11] ;
-  args_info->dump_ast_dot_help = gengetopt_args_info_full_help[12] ;
-  args_info->dump_ast_xml_help = gengetopt_args_info_full_help[13] ;
-  args_info->read_ast_xml_help = gengetopt_args_info_full_help[14] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[15] ;
-  args_info->compile_time_includes_help = gengetopt_args_info_full_help[16] ;
-  args_info->tab_help = gengetopt_args_info_full_help[17] ;
-  args_info->verbose_help = gengetopt_args_info_full_help[18] ;
-  args_info->no_validation_help = gengetopt_args_info_full_help[19] ;
+  args_info->dump_ast_dot_help = gengetopt_args_info_full_help[11] ;
+  args_info->dump_ast_xml_help = gengetopt_args_info_full_help[12] ;
+  args_info->read_ast_xml_help = gengetopt_args_info_full_help[13] ;
+  args_info->no_line_numbers_help = gengetopt_args_info_full_help[14] ;
+  args_info->compile_time_includes_help = gengetopt_args_info_full_help[15] ;
+  args_info->tab_help = gengetopt_args_info_full_help[16] ;
+  args_info->verbose_help = gengetopt_args_info_full_help[17] ;
+  args_info->no_validation_help = gengetopt_args_info_full_help[18] ;
   
 }
 
@@ -382,9 +378,6 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   }
   if (args_info->dump_php_given) {
     fprintf(outfile, "%s\n", "dump-php");
-  }
-  if (args_info->temp_old_unparser_given) {
-    fprintf(outfile, "%s\n", "temp-old-unparser");
   }
   if (args_info->dump_ast_dot_given) {
     fprintf(outfile, "%s\n", "dump-ast-dot");
@@ -674,7 +667,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "run",	1, NULL, 0 },
         { "dump-tokens",	0, NULL, 0 },
         { "dump-php",	0, NULL, 0 },
-        { "temp-old-unparser",	0, NULL, 0 },
         { "dump-ast-dot",	0, NULL, 0 },
         { "dump-ast-xml",	0, NULL, 0 },
         { "read-ast-xml",	0, NULL, 0 },
@@ -868,20 +860,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.dump_php_given = 1;
             args_info->dump_php_given = 1;
             args_info->dump_php_flag = !(args_info->dump_php_flag);
-          }
-          /* Dump PHP using the old unparser.  */
-          else if (strcmp (long_options[option_index].name, "temp-old-unparser") == 0)
-          {
-            if (local_args_info.temp_old_unparser_given)
-              {
-                fprintf (stderr, "%s: `--temp-old-unparser' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-                goto failure;
-              }
-            if (args_info->temp_old_unparser_given && ! override)
-              continue;
-            local_args_info.temp_old_unparser_given = 1;
-            args_info->temp_old_unparser_given = 1;
-            args_info->temp_old_unparser_flag = !(args_info->temp_old_unparser_flag);
           }
           /* Dump the AST from the source in dot format.  */
           else if (strcmp (long_options[option_index].name, "dump-ast-dot") == 0)

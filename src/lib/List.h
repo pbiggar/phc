@@ -26,7 +26,10 @@ public:
 
 // Create a singleton list
 public:
-	List(_Tp elem);
+	List(_Tp elem) : list<_Tp, _Alloc>()
+	{
+		push_back(elem);
+	}
 
 public:
 	using list<_Tp, _Alloc>::begin;

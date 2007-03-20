@@ -51,8 +51,6 @@ struct gengetopt_args_info
   const char *dump_tokens_help; /* Perform lexical analysis only (spits out a token list). Probably only useful for debugging phc itself help description.  */
   int dump_php_flag;	/* Dump PHP code back immediately after parsing to standard output (pretty printing) (default=off).  */
   const char *dump_php_help; /* Dump PHP code back immediately after parsing to standard output (pretty printing) help description.  */
-  int temp_old_unparser_flag;	/* Dump PHP using the old unparser (default=off).  */
-  const char *temp_old_unparser_help; /* Dump PHP using the old unparser help description.  */
   int dump_ast_dot_flag;	/* Dump the AST from the source in dot format (default=off).  */
   const char *dump_ast_dot_help; /* Dump the AST from the source in dot format help description.  */
   int dump_ast_xml_flag;	/* Dump the AST from the source in XML format (default=off).  */
@@ -82,7 +80,6 @@ struct gengetopt_args_info
   unsigned int run_given ;	/* Whether run was given.  */
   int dump_tokens_given ;	/* Whether dump-tokens was given.  */
   int dump_php_given ;	/* Whether dump-php was given.  */
-  int temp_old_unparser_given ;	/* Whether temp-old-unparser was given.  */
   int dump_ast_dot_given ;	/* Whether dump-ast-dot was given.  */
   int dump_ast_xml_given ;	/* Whether dump-ast-xml was given.  */
   int read_ast_xml_given ;	/* Whether read-ast-xml was given.  */

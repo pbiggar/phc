@@ -18,7 +18,6 @@
 #include "codegen/Generate_C.h"
 #include "codegen/Prep.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Zend_style_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
 #include "AST.h"
@@ -91,18 +90,10 @@ int main(int argc, char** argv)
 		process_ast(php_script);
 		run_plugins(php_script);
 
-		// Use the old unparser. The name temp is chosen specifically so that we
-		// won't leave it in for the next release.
-		if (args_info.temp_old_unparser_flag)
-		{
-			PHP_unparser pup;
-			php_script->visit(&pup);
-		}
-
 		if(args_info.dump_php_flag)
 		{
-			Zend_Style_Unparser zsup;
-			php_script->visit(&zsup);
+			PHP_unparser php_unparser;
+			php_script->visit(&php_unparser);
 		}
 
 		if(args_info.dump_ast_xml_flag)

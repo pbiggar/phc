@@ -8,11 +8,11 @@
 #ifndef PHC_DOT_UNPARSER
 #define PHC_DOT_UNPARSER
 
-#include "process_ast/Visit_everything.h"
+#include "AST_visitor.h"
 #include <stack>
 #include <map>
 
-class DOT_unparser : public virtual Visit_everything
+class DOT_unparser : public virtual AST_visitor
 {
 private:
 	void show_source_rep(String* source_rep);

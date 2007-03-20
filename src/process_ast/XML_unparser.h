@@ -8,9 +8,9 @@
 #ifndef PHC_XML_UNPARSER
 #define PHC_XML_UNPARSER
 
-#include "process_ast/Visit_everything.h"
+#include "AST_visitor.h"
 
-class XML_unparser : public Visit_everything 
+class XML_unparser : public AST_visitor 
 {
 protected:
 	ostream& os;

@@ -18,8 +18,9 @@ extern struct gengetopt_args_info args_info;
 /* Dump the XML for anynode to stderr. A global function. */
 void xdebug (AST_node* in, bool print_attrs = true)
 {
-	XML_unparser *xup = new XML_unparser (cerr, print_attrs);
-	in->visit (xup);
+	// TODO: reenable
+	// XML_unparser *xup = new XML_unparser (cerr, print_attrs);
+	// in->visit (xup);
 }
 
 void XML_unparser::print_indent()

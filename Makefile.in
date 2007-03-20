@@ -248,8 +248,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	process_ast.$(OBJEXT) Process_includes.$(OBJEXT) \
 	Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
-	Variable_targets.$(OBJEXT) Visit_everything.$(OBJEXT) \
-	XML_unparser.$(OBJEXT)
+	Variable_targets.$(OBJEXT) XML_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -556,8 +555,6 @@ src_phc_SOURCES = \
 	src/process_ast/Token_conversion.h					\
 	src/process_ast/Variable_targets.cpp				\
 	src/process_ast/Variable_targets.h					\
-	src/process_ast/Visit_everything.cpp				\
-	src/process_ast/Visit_everything.h					\
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h
 
@@ -601,7 +598,6 @@ strangeprocessast_HEADERS = \
 	src/process_ast/PHP_unparser.h			\
 	src/process_ast/Process_includes.h		\
 	src/process_ast/Remove_concat_null.h	\
-	src/process_ast/Visit_everything.h		\
 	src/process_ast/XML_unparser.h
 
 strangelibdir = $(pkgincludedir)/lib
@@ -915,7 +911,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Variable_targets.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Visit_everything.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
@@ -1560,20 +1555,6 @@ Variable_targets.obj: src/process_ast/Variable_targets.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Variable_targets.cpp' object='Variable_targets.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Variable_targets.obj `if test -f 'src/process_ast/Variable_targets.cpp'; then $(CYGPATH_W) 'src/process_ast/Variable_targets.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Variable_targets.cpp'; fi`
-
-Visit_everything.o: src/process_ast/Visit_everything.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_everything.o -MD -MP -MF $(DEPDIR)/Visit_everything.Tpo -c -o Visit_everything.o `test -f 'src/process_ast/Visit_everything.cpp' || echo '$(srcdir)/'`src/process_ast/Visit_everything.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Visit_everything.Tpo $(DEPDIR)/Visit_everything.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Visit_everything.cpp' object='Visit_everything.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Visit_everything.o `test -f 'src/process_ast/Visit_everything.cpp' || echo '$(srcdir)/'`src/process_ast/Visit_everything.cpp
-
-Visit_everything.obj: src/process_ast/Visit_everything.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Visit_everything.obj -MD -MP -MF $(DEPDIR)/Visit_everything.Tpo -c -o Visit_everything.obj `if test -f 'src/process_ast/Visit_everything.cpp'; then $(CYGPATH_W) 'src/process_ast/Visit_everything.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Visit_everything.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Visit_everything.Tpo $(DEPDIR)/Visit_everything.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Visit_everything.cpp' object='Visit_everything.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Visit_everything.obj `if test -f 'src/process_ast/Visit_everything.cpp'; then $(CYGPATH_W) 'src/process_ast/Visit_everything.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Visit_everything.cpp'; fi`
 
 XML_unparser.o: src/process_ast/XML_unparser.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XML_unparser.o -MD -MP -MF $(DEPDIR)/XML_unparser.Tpo -c -o XML_unparser.o `test -f 'src/process_ast/XML_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/XML_unparser.cpp
