@@ -994,7 +994,9 @@ List<AST_interface_def*>* AST_transform::transform_interface_def_list(List<AST_i
     List<AST_interface_def*>::const_iterator i;
     List<AST_interface_def*>* out = new List<AST_interface_def*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_interface_def(*i));
     }
@@ -1009,7 +1011,7 @@ List<AST_interface_def*>* AST_transform::transform_interface_def(AST_interface_d
     List<AST_interface_def*>* out2 = new List<AST_interface_def*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_interface_def(*i, out1);
+    else pre_interface_def(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1028,7 +1030,9 @@ List<AST_class_def*>* AST_transform::transform_class_def_list(List<AST_class_def
     List<AST_class_def*>::const_iterator i;
     List<AST_class_def*>* out = new List<AST_class_def*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_class_def(*i));
     }
@@ -1043,7 +1047,7 @@ List<AST_class_def*>* AST_transform::transform_class_def(AST_class_def* in)
     List<AST_class_def*>* out2 = new List<AST_class_def*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_class_def(*i, out1);
+    else pre_class_def(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1078,6 +1082,8 @@ List<Token_interface_name*>* AST_transform::transform_interface_name_list(List<T
     List<Token_interface_name*>::const_iterator i;
     List<Token_interface_name*>* out = new List<Token_interface_name*>;
     
+    if(in == NULL)
+    	out->push_back(NULL);
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_interface_name(*i));
@@ -1091,7 +1097,9 @@ List<AST_member*>* AST_transform::transform_member_list(List<AST_member*>* in)
     List<AST_member*>::const_iterator i;
     List<AST_member*>* out = new List<AST_member*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_member(*i));
     }
@@ -1106,7 +1114,7 @@ List<AST_member*>* AST_transform::transform_member(AST_member* in)
     List<AST_member*>* out2 = new List<AST_member*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_member(*i, out1);
+    else pre_member(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1173,7 +1181,9 @@ List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement
     List<AST_statement*>::const_iterator i;
     List<AST_statement*>* out = new List<AST_statement*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_statement(*i));
     }
@@ -1188,7 +1198,7 @@ List<AST_statement*>* AST_transform::transform_statement(AST_statement* in)
     List<AST_statement*>* out2 = new List<AST_statement*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_statement(*i, out1);
+    else pre_statement(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1239,7 +1249,9 @@ List<AST_formal_parameter*>* AST_transform::transform_formal_parameter_list(List
     List<AST_formal_parameter*>::const_iterator i;
     List<AST_formal_parameter*>* out = new List<AST_formal_parameter*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_formal_parameter(*i));
     }
@@ -1254,7 +1266,7 @@ List<AST_formal_parameter*>* AST_transform::transform_formal_parameter(AST_forma
     List<AST_formal_parameter*>* out2 = new List<AST_formal_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_formal_parameter(*i, out1);
+    else pre_formal_parameter(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1353,7 +1365,9 @@ List<AST_switch_case*>* AST_transform::transform_switch_case_list(List<AST_switc
     List<AST_switch_case*>::const_iterator i;
     List<AST_switch_case*>* out = new List<AST_switch_case*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_switch_case(*i));
     }
@@ -1368,7 +1382,7 @@ List<AST_switch_case*>* AST_transform::transform_switch_case(AST_switch_case* in
     List<AST_switch_case*>* out2 = new List<AST_switch_case*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_switch_case(*i, out1);
+    else pre_switch_case(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1387,7 +1401,9 @@ List<AST_directive*>* AST_transform::transform_directive_list(List<AST_directive
     List<AST_directive*>::const_iterator i;
     List<AST_directive*>* out = new List<AST_directive*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_directive(*i));
     }
@@ -1402,7 +1418,7 @@ List<AST_directive*>* AST_transform::transform_directive(AST_directive* in)
     List<AST_directive*>* out2 = new List<AST_directive*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_directive(*i, out1);
+    else pre_directive(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1437,7 +1453,9 @@ List<AST_catch*>* AST_transform::transform_catch_list(List<AST_catch*>* in)
     List<AST_catch*>::const_iterator i;
     List<AST_catch*>* out = new List<AST_catch*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_catch(*i));
     }
@@ -1452,7 +1470,7 @@ List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
     List<AST_catch*>* out2 = new List<AST_catch*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_catch(*i, out1);
+    else pre_catch(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1487,7 +1505,9 @@ List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_lis
     List<AST_list_element*>::const_iterator i;
     List<AST_list_element*>* out = new List<AST_list_element*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_list_element(*i));
     }
@@ -1502,7 +1522,7 @@ List<AST_list_element*>* AST_transform::transform_list_element(AST_list_element*
     List<AST_list_element*>* out2 = new List<AST_list_element*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_list_element(*i, out1);
+    else pre_list_element(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1617,6 +1637,8 @@ List<AST_expr*>* AST_transform::transform_expr_list(List<AST_expr*>* in)
     List<AST_expr*>::const_iterator i;
     List<AST_expr*>* out = new List<AST_expr*>;
     
+    if(in == NULL)
+    	out->push_back(NULL);
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_expr(*i));
@@ -1630,7 +1652,9 @@ List<AST_array_elem*>* AST_transform::transform_array_elem_list(List<AST_array_e
     List<AST_array_elem*>::const_iterator i;
     List<AST_array_elem*>* out = new List<AST_array_elem*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_array_elem(*i));
     }
@@ -1645,7 +1669,7 @@ List<AST_array_elem*>* AST_transform::transform_array_elem(AST_array_elem* in)
     List<AST_array_elem*>* out2 = new List<AST_array_elem*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_array_elem(*i, out1);
+    else pre_array_elem(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1680,7 +1704,9 @@ List<AST_actual_parameter*>* AST_transform::transform_actual_parameter_list(List
     List<AST_actual_parameter*>::const_iterator i;
     List<AST_actual_parameter*>* out = new List<AST_actual_parameter*>;
     
-    for(i = in->begin(); i != in->end(); i++)
+    if(in == NULL)
+    	out->push_back(NULL);
+    else for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_actual_parameter(*i));
     }
@@ -1695,7 +1721,7 @@ List<AST_actual_parameter*>* AST_transform::transform_actual_parameter(AST_actua
     List<AST_actual_parameter*>* out2 = new List<AST_actual_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_actual_parameter(*i, out1);
+    else pre_actual_parameter(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
@@ -1723,7 +1749,7 @@ void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 10: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
@@ -1732,7 +1758,7 @@ void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     }
     assert(0);
 }
@@ -1749,7 +1775,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 13: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1758,7 +1784,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 14: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1767,7 +1793,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 15: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1776,7 +1802,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 16: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1785,7 +1811,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 17: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1794,7 +1820,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 19: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1803,7 +1829,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 20: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1812,7 +1838,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 21: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1821,7 +1847,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 22: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1830,7 +1856,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 23: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1839,7 +1865,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 24: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1848,7 +1874,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 26: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1857,7 +1883,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 28: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1866,7 +1892,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 29: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1875,7 +1901,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 30: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1884,7 +1910,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     }
     assert(0);
 }
@@ -1924,10 +1950,10 @@ void AST_transform::pre_list_element(AST_list_element* in, List<AST_list_element
     {
     case 41: 
     	out->push_back(pre_variable(dynamic_cast<AST_variable*>(in)));
-    	break;
+    	return;
     case 33: 
     	out->push_back(pre_list_elements(dynamic_cast<AST_list_elements*>(in)));
-    	break;
+    	return;
     }
     assert(0);
 }
@@ -2006,7 +2032,7 @@ void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 10: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
@@ -2015,7 +2041,7 @@ void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     }
     assert(0);
 }
@@ -2032,7 +2058,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 13: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2041,7 +2067,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 14: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2050,7 +2076,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 15: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2059,7 +2085,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 16: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2068,7 +2094,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 17: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2077,7 +2103,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 19: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2086,7 +2112,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 20: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2095,7 +2121,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 21: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2104,7 +2130,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 22: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2113,7 +2139,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 23: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2122,7 +2148,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 24: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2131,7 +2157,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 26: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2140,7 +2166,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 28: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2149,7 +2175,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 29: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2158,7 +2184,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     case 30: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2167,7 +2193,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
-    	break;
+    	return;
     }
     assert(0);
 }
@@ -2207,10 +2233,10 @@ void AST_transform::post_list_element(AST_list_element* in, List<AST_list_elemen
     {
     case 41: 
     	out->push_back(post_variable(dynamic_cast<AST_variable*>(in)));
-    	break;
+    	return;
     case 33: 
     	out->push_back(post_list_elements(dynamic_cast<AST_list_elements*>(in)));
-    	break;
+    	return;
     }
     assert(0);
 }
