@@ -21,3 +21,8 @@ bool Boolean::value()
 {
 	return _b;
 }
+
+Boolean* Boolean::clone()
+{
+	return new Boolean(_b);
+}

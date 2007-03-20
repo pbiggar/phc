@@ -27,3 +27,8 @@ void Integer::operator++(POST_INCREMENT)
 {
 	_n++;
 }
+
+Integer* Integer::clone()
+{
+	return new Integer(_n);
+}

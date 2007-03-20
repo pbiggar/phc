@@ -271,7 +271,7 @@ void PHP_unparser::children_attr_mod(AST_attr_mod* in)
 
 void PHP_unparser::children_if(AST_if* in)
 {
-	if(in->attrs->get_boolean("phc.unparser.is_elseif")->value())
+	if(in->attrs->is_true("phc.unparser.is_elseif"))
 		echo("elseif(");
 	else
 		echo("if(");
@@ -285,7 +285,7 @@ void PHP_unparser::children_if(AST_if* in)
 	{
 		AST_if* elseif = dynamic_cast<AST_if*>(in->iffalse->front());
 
-		if(elseif && elseif->attrs->get_boolean("phc.unparser.is_elseif")->value())
+		if(elseif && elseif->attrs->is_true("phc.unparser.is_elseif"))
 		{
 			visit_statement(elseif);
 		}

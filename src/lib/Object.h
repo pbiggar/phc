@@ -32,9 +32,13 @@ class Object : public gc
 class Object
 #endif
 {
+// Make Object a virtual base (required for RTTI and dynamic casts)
 public:
-	// Make Object a virtual base (required for RTTI and dynamic casts)
 	virtual ~Object() {}
+
+// Objects should support cloning
+public:
+	virtual Object* clone() = 0;
 };
 
 #endif /* OBJECT_H */

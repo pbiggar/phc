@@ -60,3 +60,19 @@ void AttrMap::set(string key, Object* value)
 {
 	(*this)[key] = value;
 }
+
+AttrMap* AttrMap::clone()
+{
+	AttrMap* result = new AttrMap;
+	
+	AttrMap::const_iterator i;
+	for(i = begin(); i != end(); i++)
+	{
+		if((*i).second)
+			result->set((*i).first, (*i).second->clone());
+		else
+			result->set((*i).first, NULL);
+	}
+
+	return result;
+}

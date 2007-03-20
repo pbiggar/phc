@@ -733,19 +733,19 @@ unticked_statement:
 	
 			if(var2)
 			{
-				if(var1->attrs->get_boolean("phc.parser.is_ref")->value())
+				if(var1->attrs->is_true("phc.parser.is_ref"))
 				{
 					phc_error(ERR_FOREACH_KEY_REF, var1->get_filename(), var1->get_line_number());
 				}
 			
 				new_foreach->key = var1;
-				new_foreach->is_ref = var2->attrs->get_boolean("phc.parser.is_ref")->value();
+				new_foreach->is_ref = var2->attrs->is_true("phc.parser.is_ref");
 				new_foreach->val = var2;
 			}
 			else
 			{
 				new_foreach->key = NULL;
-				new_foreach->is_ref = var1->attrs->get_boolean("phc.parser.is_ref")->value();
+				new_foreach->is_ref = var1->attrs->is_true("phc.parser.is_ref");
 				new_foreach->val = var1;
 			}
 
@@ -765,19 +765,19 @@ unticked_statement:
 	
 			if(var2)
 			{
-				if(var1->attrs->get_boolean("phc.parser.is_ref")->value())
+				if(var1->attrs->is_true("phc.parser.is_ref"))
 				{
 					phc_error(ERR_FOREACH_KEY_REF, var1->get_filename(), var1->get_line_number());
 				}
 			
 				new_foreach->key = var1;
-				new_foreach->is_ref = var2->attrs->get_boolean("phc.parser.is_ref")->value();
+				new_foreach->is_ref = var2->attrs->is_true("phc.parser.is_ref");
 				new_foreach->val = var2;
 			}
 			else
 			{
 				new_foreach->key = NULL;
-				new_foreach->is_ref = var1->attrs->get_boolean("phc.parser.is_ref")->value();
+				new_foreach->is_ref = var1->attrs->is_true("phc.parser.is_ref");
 				new_foreach->val = var1;
 			}
 

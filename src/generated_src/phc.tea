@@ -184,6 +184,11 @@ public:
 		// abstract, it won't add a constructor itself
 		attrs = new AttrMap();
 	}
+
+	void clone_mixin_from(AST_node* in)
+	{
+		attrs = in->attrs->clone();
+	}
 };
 
 class AST_commented_node 
@@ -347,19 +352,9 @@ public:
 		this->string_index = NULL;
 	}
 	
-	void init()
+	void _init()
 	{
-		attrs->set("phc.parser.is_ref", new Boolean(false));
 		attrs->set("phc.parser.function_params", NULL);
-	}
-};
-
-class AST_assignment 
-{
-public:
-	void init()
-	{
-		attrs->set("phc.unparser.is_global_stmt", new Boolean(false));
 	}
 };
 
@@ -599,14 +594,5 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return new String("NULL");
-	}
-};
-
-class AST_if
-{
-public:
-	void init()
-	{
-		attrs->set("phc.unparser.is_elseif", new Boolean(false));
 	}
 };

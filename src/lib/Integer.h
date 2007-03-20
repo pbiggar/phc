@@ -24,6 +24,9 @@ public:
 	long value();
 
 public:
+	Integer* clone();
+
+public:
 	void operator++(POST_INCREMENT); 
 };
 

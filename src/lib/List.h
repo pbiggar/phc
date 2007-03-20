@@ -39,6 +39,23 @@ public:
 	{
 		insert(end(), other->begin(), other->end());
 	}
+
+public:
+	List* clone()
+	{
+		List* result = new List<_Tp, _Alloc>;
+
+		typename List<_Tp, _Alloc>::const_iterator i;
+		for(i = begin(); i != end(); i++)
+		{
+			if(*i)
+				result->push_back((*i)->clone());
+			else
+				result->push_back(NULL);
+		}
+	
+		return result;
+	}
 };
 
 #endif /* LIST_H */

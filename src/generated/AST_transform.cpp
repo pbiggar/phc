@@ -995,8 +995,9 @@ List<AST_interface_def*>* AST_transform::transform_interface_def_list(List<AST_i
     List<AST_interface_def*>* out = new List<AST_interface_def*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_interface_def(*i));
     }
@@ -1031,8 +1032,9 @@ List<AST_class_def*>* AST_transform::transform_class_def_list(List<AST_class_def
     List<AST_class_def*>* out = new List<AST_class_def*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_class_def(*i));
     }
@@ -1083,7 +1085,8 @@ List<Token_interface_name*>* AST_transform::transform_interface_name_list(List<T
     List<Token_interface_name*>* out = new List<Token_interface_name*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
+    	return NULL;
+    
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_interface_name(*i));
@@ -1098,8 +1101,9 @@ List<AST_member*>* AST_transform::transform_member_list(List<AST_member*>* in)
     List<AST_member*>* out = new List<AST_member*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_member(*i));
     }
@@ -1182,8 +1186,9 @@ List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement
     List<AST_statement*>* out = new List<AST_statement*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_statement(*i));
     }
@@ -1250,8 +1255,9 @@ List<AST_formal_parameter*>* AST_transform::transform_formal_parameter_list(List
     List<AST_formal_parameter*>* out = new List<AST_formal_parameter*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_formal_parameter(*i));
     }
@@ -1366,8 +1372,9 @@ List<AST_switch_case*>* AST_transform::transform_switch_case_list(List<AST_switc
     List<AST_switch_case*>* out = new List<AST_switch_case*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_switch_case(*i));
     }
@@ -1402,8 +1409,9 @@ List<AST_directive*>* AST_transform::transform_directive_list(List<AST_directive
     List<AST_directive*>* out = new List<AST_directive*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_directive(*i));
     }
@@ -1454,8 +1462,9 @@ List<AST_catch*>* AST_transform::transform_catch_list(List<AST_catch*>* in)
     List<AST_catch*>* out = new List<AST_catch*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_catch(*i));
     }
@@ -1506,8 +1515,9 @@ List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_lis
     List<AST_list_element*>* out = new List<AST_list_element*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_list_element(*i));
     }
@@ -1638,7 +1648,8 @@ List<AST_expr*>* AST_transform::transform_expr_list(List<AST_expr*>* in)
     List<AST_expr*>* out = new List<AST_expr*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
+    	return NULL;
+    
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_expr(*i));
@@ -1653,8 +1664,9 @@ List<AST_array_elem*>* AST_transform::transform_array_elem_list(List<AST_array_e
     List<AST_array_elem*>* out = new List<AST_array_elem*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_array_elem(*i));
     }
@@ -1705,8 +1717,9 @@ List<AST_actual_parameter*>* AST_transform::transform_actual_parameter_list(List
     List<AST_actual_parameter*>* out = new List<AST_actual_parameter*>;
     
     if(in == NULL)
-    	out->push_back(NULL);
-    else for(i = in->begin(); i != in->end(); i++)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back_all(transform_actual_parameter(*i));
     }

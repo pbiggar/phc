@@ -113,7 +113,7 @@ Zend_Style_Unparser::children_php_script(AST_php_script* in)
 void 
 Zend_Style_Unparser::children_if(AST_if* in)
 {
-	if(in->attrs->get_boolean("phc.unparser.is_elseif")->value())
+	if(in->attrs->is_true("phc.unparser.is_elseif"))
 		echo(" elseif (");
 	else
 		echo("if (");
@@ -130,7 +130,7 @@ Zend_Style_Unparser::children_if(AST_if* in)
 	{
 		AST_if* elseif = dynamic_cast<AST_if*>(in->iffalse->front());
 
-		if(elseif && elseif->attrs->get_boolean("phc.unparser.is_elseif")->value())
+		if(elseif && elseif->attrs->is_true("phc.unparser.is_elseif"))
 		{
 			elseif->visit(this);
 		}

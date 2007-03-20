@@ -106,14 +106,15 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_node* clone() = 0;
-public:
     AttrMap* attrs;
     //  Return the line number of the node (or 0 if unknown)
     int get_line_number();
     //  Return the filename of the node (or NULL if unknown)
     String* get_filename();
     AST_node();
+    void clone_mixin_from(AST_node* in);
+public:
+    virtual AST_node* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -133,14 +134,14 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_php_script* clone();
-public:
     AST_php_script();
     //  Returns NULL if the class could not be found
     AST_class_def* get_class_def(const char* name);
 public:
     void visit(AST_visitor* visitor);
     void transform(AST_transform* transform);
+public:
+    virtual AST_php_script* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -186,9 +187,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_signature* clone();
-public:
     AST_signature(const char* name);
+public:
+    virtual AST_signature* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -214,8 +215,6 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_method_mod* clone();
-public:
     AST_method_mod(AST_method_mod* a, AST_method_mod* b);
     static AST_method_mod* new_PUBLIC();
     static AST_method_mod* new_PROTECTED();
@@ -223,6 +222,8 @@ public:
     static AST_method_mod* new_STATIC();
     static AST_method_mod* new_ABSTRACT();
     static AST_method_mod* new_FINAL();
+public:
+    virtual AST_method_mod* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -246,10 +247,10 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_formal_parameter* clone();
-public:
     AST_formal_parameter(AST_type* type, Token_variable_name* name);
     AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name);
+public:
+    virtual AST_formal_parameter* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -296,14 +297,14 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_attr_mod* clone();
-public:
     AST_attr_mod(AST_method_mod* mm);
     static AST_attr_mod* new_PUBLIC();
     static AST_attr_mod* new_PROTECTED();
     static AST_attr_mod* new_PRIVATE();
     static AST_attr_mod* new_STATIC();
     static AST_attr_mod* new_CONST();
+public:
+    virtual AST_attr_mod* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -470,11 +471,11 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_commented_node* clone() = 0;
-public:
     AST_commented_node();
     //  Return the comments associated with the node
     List<String*>* get_comments();
+public:
+    virtual AST_commented_node* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -491,9 +492,9 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_identifier* clone() = 0;
-public:
     virtual String* get_value_as_string() = 0;
+public:
+    virtual AST_identifier* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -541,13 +542,13 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_class_def* clone();
-public:
     AST_class_def(AST_class_mod* mod);
     AST_class_def(char* name);
     void add_member(AST_member* member);
     //  Returns NULL if the method could not be found
     AST_method* get_method(const char* name);
+public:
+    virtual AST_class_def* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -641,9 +642,9 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_expr* clone() = 0;
-public:
     AST_expr();
+public:
+    virtual AST_expr* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -922,8 +923,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_if* clone();
-public:
-    void init();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1264,10 +1263,10 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_literal* clone() = 0;
-public:
     virtual String* get_value_as_string() = 0;
     virtual String* get_source_rep() = 0;
+public:
+    virtual AST_literal* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1291,8 +1290,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_assignment* clone();
-public:
-    void init();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1336,9 +1333,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_cast* clone();
-public:
     AST_cast(char* cast, AST_expr* expr);
+public:
+    virtual AST_cast* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1360,9 +1357,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_unary_op* clone();
-public:
     AST_unary_op(AST_expr* expr, char* op);
+public:
+    virtual AST_unary_op* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1385,9 +1382,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_bin_op* clone();
-public:
     AST_bin_op(AST_expr* left, AST_expr* right, char* op);
+public:
+    virtual AST_bin_op* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1453,9 +1450,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_constant* clone();
-public:
     AST_constant(char* class_name, Token_constant_name* constant_name);
+public:
+    virtual AST_constant* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1501,10 +1498,10 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_variable* clone();
-public:
     AST_variable(AST_variable_name* name);
-    void init();
+    void _init();
+public:
+    virtual AST_variable* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1526,9 +1523,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_pre_op* clone();
-public:
     AST_pre_op(AST_variable* var, char* op);
+public:
+    virtual AST_pre_op* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1550,9 +1547,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_post_op* clone();
-public:
     AST_post_op(AST_variable* var, char* op);
+public:
+    virtual AST_post_op* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1596,14 +1593,14 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_method_invocation* clone();
-public:
     //  For internal use only!
     AST_method_invocation(const char* name, AST_expr* arg);
     //  For internal use only!
     AST_method_invocation(Token_method_name* name, AST_expr* arg);
     //  This does in fact create a valid subtree
     AST_method_invocation(const char* target, const char* name, AST_expr* arg);
+public:
+    virtual AST_method_invocation* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1670,10 +1667,10 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_int* that);
 public:
+    virtual String* get_value_as_string();
+public:
     virtual Token_int* clone();
     virtual int clone_value();
-public:
-    virtual String* get_value_as_string();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1697,10 +1694,10 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_real* that);
 public:
+    virtual String* get_value_as_string();
+public:
     virtual Token_real* clone();
     virtual double clone_value();
-public:
-    virtual String* get_value_as_string();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1724,10 +1721,10 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_string* that);
 public:
+    virtual String* get_value_as_string();
+public:
     virtual Token_string* clone();
     virtual String* clone_value();
-public:
-    virtual String* get_value_as_string();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1751,10 +1748,10 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_bool* that);
 public:
+    virtual String* get_value_as_string();
+public:
     virtual Token_bool* clone();
     virtual bool clone_value();
-public:
-    virtual String* get_value_as_string();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1775,9 +1772,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual Token_null* clone();
-public:
     virtual String* get_value_as_string();
+public:
+    virtual Token_null* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };

@@ -22,6 +22,9 @@ public:
 	Boolean();
 	Boolean(bool b);
 	bool value(); 
+
+public:
+	Boolean* clone();
 };
 
 #endif 
