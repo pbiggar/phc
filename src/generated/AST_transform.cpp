@@ -5,6 +5,11 @@ AST_transform::~AST_transform()
 }
 
 // The pre-transform gets called before the children of the node are transformed
+AST_root* AST_transform::pre_root(AST_root* in)
+{
+    return in;
+}
+
 AST_php_script* AST_transform::pre_php_script(AST_php_script* in)
 {
     return in;
@@ -321,6 +326,11 @@ Token_constant_name* AST_transform::pre_constant_name(Token_constant_name* in)
 }
 
 // The post-transform gets called after the children of the node have been transformed
+AST_root* AST_transform::post_root(AST_root* in)
+{
+    return in;
+}
+
 AST_php_script* AST_transform::post_php_script(AST_php_script* in)
 {
     return in;
@@ -637,6 +647,11 @@ Token_constant_name* AST_transform::post_constant_name(Token_constant_name* in)
 }
 
 // Transform the children of the node
+void AST_transform::children_root(AST_root* in)
+{
+    in->php_script = transform_php_script(in->php_script);
+}
+
 void AST_transform::children_php_script(AST_php_script* in)
 {
     in->interface_defs = transform_interface_def_list(in->interface_defs);
@@ -989,6 +1004,22 @@ void AST_transform::children_constant_name(Token_constant_name* in)
 
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
+AST_php_script* AST_transform::transform_php_script(AST_php_script* in)
+{
+    if(in == NULL) return NULL;
+    
+    AST_php_script* out;
+    
+    out = pre_php_script(in);
+    if(out != NULL)
+    {
+    	children_php_script(out);
+    	out = post_php_script(out);
+    }
+    
+    return out;
+}
+
 List<AST_interface_def*>* AST_transform::transform_interface_def_list(List<AST_interface_def*>* in)
 {
     List<AST_interface_def*>::const_iterator i;
@@ -1754,7 +1785,7 @@ void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
 {
     switch(in->classid())
     {
-    case 5: 
+    case 6: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
     		List<AST_member*>::const_iterator i;
@@ -1763,7 +1794,7 @@ void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 10: 
+    case 11: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
     		List<AST_member*>::const_iterator i;
@@ -1780,7 +1811,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
 {
     switch(in->classid())
     {
-    case 12: 
+    case 13: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1789,7 +1820,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 13: 
+    case 14: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1798,7 +1829,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 14: 
+    case 15: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1807,7 +1838,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 15: 
+    case 16: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1816,7 +1847,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 16: 
+    case 17: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1825,7 +1856,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 17: 
+    case 18: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1834,7 +1865,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 19: 
+    case 20: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1843,7 +1874,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 20: 
+    case 21: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1852,7 +1883,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 21: 
+    case 22: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1861,7 +1892,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 22: 
+    case 23: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1870,7 +1901,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 23: 
+    case 24: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1879,7 +1910,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 24: 
+    case 25: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1888,7 +1919,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 26: 
+    case 27: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1897,7 +1928,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 28: 
+    case 29: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1906,7 +1937,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 29: 
+    case 30: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1915,7 +1946,7 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 30: 
+    case 31: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -1932,27 +1963,27 @@ AST_expr* AST_transform::pre_expr(AST_expr* in)
 {
     switch(in->classid())
     {
-    case 31: return pre_assignment(dynamic_cast<AST_assignment*>(in));
-    case 32: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case 34: return pre_cast(dynamic_cast<AST_cast*>(in));
-    case 35: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case 36: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case 37: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case 38: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case 39: return pre_constant(dynamic_cast<AST_constant*>(in));
-    case 40: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case 41: return pre_variable(dynamic_cast<AST_variable*>(in));
-    case 43: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case 44: return pre_post_op(dynamic_cast<AST_post_op*>(in));
-    case 45: return pre_array(dynamic_cast<AST_array*>(in));
-    case 47: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case 49: return pre_new(dynamic_cast<AST_new*>(in));
-    case 50: return pre_clone(dynamic_cast<AST_clone*>(in));
-    case 56: return pre_int(dynamic_cast<Token_int*>(in));
-    case 57: return pre_real(dynamic_cast<Token_real*>(in));
-    case 58: return pre_string(dynamic_cast<Token_string*>(in));
-    case 59: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case 60: return pre_null(dynamic_cast<Token_null*>(in));
+    case 32: return pre_assignment(dynamic_cast<AST_assignment*>(in));
+    case 33: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case 35: return pre_cast(dynamic_cast<AST_cast*>(in));
+    case 36: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case 37: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case 38: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case 39: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case 40: return pre_constant(dynamic_cast<AST_constant*>(in));
+    case 41: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case 42: return pre_variable(dynamic_cast<AST_variable*>(in));
+    case 44: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case 45: return pre_post_op(dynamic_cast<AST_post_op*>(in));
+    case 46: return pre_array(dynamic_cast<AST_array*>(in));
+    case 48: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case 50: return pre_new(dynamic_cast<AST_new*>(in));
+    case 51: return pre_clone(dynamic_cast<AST_clone*>(in));
+    case 57: return pre_int(dynamic_cast<Token_int*>(in));
+    case 58: return pre_real(dynamic_cast<Token_real*>(in));
+    case 59: return pre_string(dynamic_cast<Token_string*>(in));
+    case 60: return pre_bool(dynamic_cast<Token_bool*>(in));
+    case 61: return pre_null(dynamic_cast<Token_null*>(in));
     }
     assert(0);
 }
@@ -1961,10 +1992,10 @@ void AST_transform::pre_list_element(AST_list_element* in, List<AST_list_element
 {
     switch(in->classid())
     {
-    case 41: 
+    case 42: 
     	out->push_back(pre_variable(dynamic_cast<AST_variable*>(in)));
     	return;
-    case 33: 
+    case 34: 
     	out->push_back(pre_list_elements(dynamic_cast<AST_list_elements*>(in)));
     	return;
     }
@@ -1975,8 +2006,8 @@ AST_class_name* AST_transform::pre_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52: return pre_class_name(dynamic_cast<Token_class_name*>(in));
-    case 42: return pre_reflection(dynamic_cast<AST_reflection*>(in));
+    case 53: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case 43: return pre_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -1985,28 +2016,28 @@ AST_target* AST_transform::pre_target(AST_target* in)
 {
     switch(in->classid())
     {
-    case 31: return pre_assignment(dynamic_cast<AST_assignment*>(in));
-    case 32: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case 34: return pre_cast(dynamic_cast<AST_cast*>(in));
-    case 35: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case 36: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case 37: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case 38: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case 39: return pre_constant(dynamic_cast<AST_constant*>(in));
-    case 40: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case 41: return pre_variable(dynamic_cast<AST_variable*>(in));
-    case 43: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case 44: return pre_post_op(dynamic_cast<AST_post_op*>(in));
-    case 45: return pre_array(dynamic_cast<AST_array*>(in));
-    case 47: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case 49: return pre_new(dynamic_cast<AST_new*>(in));
-    case 50: return pre_clone(dynamic_cast<AST_clone*>(in));
-    case 56: return pre_int(dynamic_cast<Token_int*>(in));
-    case 57: return pre_real(dynamic_cast<Token_real*>(in));
-    case 58: return pre_string(dynamic_cast<Token_string*>(in));
-    case 59: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case 60: return pre_null(dynamic_cast<Token_null*>(in));
-    case 52: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case 32: return pre_assignment(dynamic_cast<AST_assignment*>(in));
+    case 33: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case 35: return pre_cast(dynamic_cast<AST_cast*>(in));
+    case 36: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case 37: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case 38: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case 39: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case 40: return pre_constant(dynamic_cast<AST_constant*>(in));
+    case 41: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case 42: return pre_variable(dynamic_cast<AST_variable*>(in));
+    case 44: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case 45: return pre_post_op(dynamic_cast<AST_post_op*>(in));
+    case 46: return pre_array(dynamic_cast<AST_array*>(in));
+    case 48: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case 50: return pre_new(dynamic_cast<AST_new*>(in));
+    case 51: return pre_clone(dynamic_cast<AST_clone*>(in));
+    case 57: return pre_int(dynamic_cast<Token_int*>(in));
+    case 58: return pre_real(dynamic_cast<Token_real*>(in));
+    case 59: return pre_string(dynamic_cast<Token_string*>(in));
+    case 60: return pre_bool(dynamic_cast<Token_bool*>(in));
+    case 61: return pre_null(dynamic_cast<Token_null*>(in));
+    case 53: return pre_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
 }
@@ -2015,8 +2046,8 @@ AST_variable_name* AST_transform::pre_variable_name(AST_variable_name* in)
 {
     switch(in->classid())
     {
-    case 54: return pre_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case 42: return pre_reflection(dynamic_cast<AST_reflection*>(in));
+    case 55: return pre_variable_name(dynamic_cast<Token_variable_name*>(in));
+    case 43: return pre_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -2025,8 +2056,8 @@ AST_method_name* AST_transform::pre_method_name(AST_method_name* in)
 {
     switch(in->classid())
     {
-    case 53: return pre_method_name(dynamic_cast<Token_method_name*>(in));
-    case 42: return pre_reflection(dynamic_cast<AST_reflection*>(in));
+    case 54: return pre_method_name(dynamic_cast<Token_method_name*>(in));
+    case 43: return pre_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -2037,7 +2068,7 @@ void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
 {
     switch(in->classid())
     {
-    case 5: 
+    case 6: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
     		List<AST_member*>::const_iterator i;
@@ -2046,7 +2077,7 @@ void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 10: 
+    case 11: 
     	{
     		List<AST_member*>* local_out = new List<AST_member*>;
     		List<AST_member*>::const_iterator i;
@@ -2063,7 +2094,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
 {
     switch(in->classid())
     {
-    case 12: 
+    case 13: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2072,7 +2103,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 13: 
+    case 14: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2081,7 +2112,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 14: 
+    case 15: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2090,7 +2121,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 15: 
+    case 16: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2099,7 +2130,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 16: 
+    case 17: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2108,7 +2139,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 17: 
+    case 18: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2117,7 +2148,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 19: 
+    case 20: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2126,7 +2157,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 20: 
+    case 21: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2135,7 +2166,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 21: 
+    case 22: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2144,7 +2175,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 22: 
+    case 23: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2153,7 +2184,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 23: 
+    case 24: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2162,7 +2193,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 24: 
+    case 25: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2171,7 +2202,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 26: 
+    case 27: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2180,7 +2211,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 28: 
+    case 29: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2189,7 +2220,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 29: 
+    case 30: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2198,7 +2229,7 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case 30: 
+    case 31: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
@@ -2215,27 +2246,27 @@ AST_expr* AST_transform::post_expr(AST_expr* in)
 {
     switch(in->classid())
     {
-    case 31: return post_assignment(dynamic_cast<AST_assignment*>(in));
-    case 32: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case 34: return post_cast(dynamic_cast<AST_cast*>(in));
-    case 35: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case 36: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case 37: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case 38: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case 39: return post_constant(dynamic_cast<AST_constant*>(in));
-    case 40: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case 41: return post_variable(dynamic_cast<AST_variable*>(in));
-    case 43: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case 44: return post_post_op(dynamic_cast<AST_post_op*>(in));
-    case 45: return post_array(dynamic_cast<AST_array*>(in));
-    case 47: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case 49: return post_new(dynamic_cast<AST_new*>(in));
-    case 50: return post_clone(dynamic_cast<AST_clone*>(in));
-    case 56: return post_int(dynamic_cast<Token_int*>(in));
-    case 57: return post_real(dynamic_cast<Token_real*>(in));
-    case 58: return post_string(dynamic_cast<Token_string*>(in));
-    case 59: return post_bool(dynamic_cast<Token_bool*>(in));
-    case 60: return post_null(dynamic_cast<Token_null*>(in));
+    case 32: return post_assignment(dynamic_cast<AST_assignment*>(in));
+    case 33: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case 35: return post_cast(dynamic_cast<AST_cast*>(in));
+    case 36: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case 37: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case 38: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case 39: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case 40: return post_constant(dynamic_cast<AST_constant*>(in));
+    case 41: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case 42: return post_variable(dynamic_cast<AST_variable*>(in));
+    case 44: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case 45: return post_post_op(dynamic_cast<AST_post_op*>(in));
+    case 46: return post_array(dynamic_cast<AST_array*>(in));
+    case 48: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case 50: return post_new(dynamic_cast<AST_new*>(in));
+    case 51: return post_clone(dynamic_cast<AST_clone*>(in));
+    case 57: return post_int(dynamic_cast<Token_int*>(in));
+    case 58: return post_real(dynamic_cast<Token_real*>(in));
+    case 59: return post_string(dynamic_cast<Token_string*>(in));
+    case 60: return post_bool(dynamic_cast<Token_bool*>(in));
+    case 61: return post_null(dynamic_cast<Token_null*>(in));
     }
     assert(0);
 }
@@ -2244,10 +2275,10 @@ void AST_transform::post_list_element(AST_list_element* in, List<AST_list_elemen
 {
     switch(in->classid())
     {
-    case 41: 
+    case 42: 
     	out->push_back(post_variable(dynamic_cast<AST_variable*>(in)));
     	return;
-    case 33: 
+    case 34: 
     	out->push_back(post_list_elements(dynamic_cast<AST_list_elements*>(in)));
     	return;
     }
@@ -2258,8 +2289,8 @@ AST_class_name* AST_transform::post_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52: return post_class_name(dynamic_cast<Token_class_name*>(in));
-    case 42: return post_reflection(dynamic_cast<AST_reflection*>(in));
+    case 53: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case 43: return post_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -2268,28 +2299,28 @@ AST_target* AST_transform::post_target(AST_target* in)
 {
     switch(in->classid())
     {
-    case 31: return post_assignment(dynamic_cast<AST_assignment*>(in));
-    case 32: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case 34: return post_cast(dynamic_cast<AST_cast*>(in));
-    case 35: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case 36: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case 37: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case 38: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case 39: return post_constant(dynamic_cast<AST_constant*>(in));
-    case 40: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case 41: return post_variable(dynamic_cast<AST_variable*>(in));
-    case 43: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case 44: return post_post_op(dynamic_cast<AST_post_op*>(in));
-    case 45: return post_array(dynamic_cast<AST_array*>(in));
-    case 47: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case 49: return post_new(dynamic_cast<AST_new*>(in));
-    case 50: return post_clone(dynamic_cast<AST_clone*>(in));
-    case 56: return post_int(dynamic_cast<Token_int*>(in));
-    case 57: return post_real(dynamic_cast<Token_real*>(in));
-    case 58: return post_string(dynamic_cast<Token_string*>(in));
-    case 59: return post_bool(dynamic_cast<Token_bool*>(in));
-    case 60: return post_null(dynamic_cast<Token_null*>(in));
-    case 52: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case 32: return post_assignment(dynamic_cast<AST_assignment*>(in));
+    case 33: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case 35: return post_cast(dynamic_cast<AST_cast*>(in));
+    case 36: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case 37: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case 38: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case 39: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case 40: return post_constant(dynamic_cast<AST_constant*>(in));
+    case 41: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case 42: return post_variable(dynamic_cast<AST_variable*>(in));
+    case 44: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case 45: return post_post_op(dynamic_cast<AST_post_op*>(in));
+    case 46: return post_array(dynamic_cast<AST_array*>(in));
+    case 48: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case 50: return post_new(dynamic_cast<AST_new*>(in));
+    case 51: return post_clone(dynamic_cast<AST_clone*>(in));
+    case 57: return post_int(dynamic_cast<Token_int*>(in));
+    case 58: return post_real(dynamic_cast<Token_real*>(in));
+    case 59: return post_string(dynamic_cast<Token_string*>(in));
+    case 60: return post_bool(dynamic_cast<Token_bool*>(in));
+    case 61: return post_null(dynamic_cast<Token_null*>(in));
+    case 53: return post_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
 }
@@ -2298,8 +2329,8 @@ AST_variable_name* AST_transform::post_variable_name(AST_variable_name* in)
 {
     switch(in->classid())
     {
-    case 54: return post_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case 42: return post_reflection(dynamic_cast<AST_reflection*>(in));
+    case 55: return post_variable_name(dynamic_cast<Token_variable_name*>(in));
+    case 43: return post_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -2308,8 +2339,8 @@ AST_method_name* AST_transform::post_method_name(AST_method_name* in)
 {
     switch(in->classid())
     {
-    case 53: return post_method_name(dynamic_cast<Token_method_name*>(in));
-    case 42: return post_reflection(dynamic_cast<AST_reflection*>(in));
+    case 54: return post_method_name(dynamic_cast<Token_method_name*>(in));
+    case 43: return post_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
 }
@@ -2320,10 +2351,10 @@ void AST_transform::children_member(AST_member* in)
 {
     switch(in->classid())
     {
-    case 5:
+    case 6:
     	children_method(dynamic_cast<AST_method*>(in));
     	break;
-    case 10:
+    case 11:
     	children_attribute(dynamic_cast<AST_attribute*>(in));
     	break;
     }
@@ -2333,52 +2364,52 @@ void AST_transform::children_statement(AST_statement* in)
 {
     switch(in->classid())
     {
-    case 12:
+    case 13:
     	children_if(dynamic_cast<AST_if*>(in));
     	break;
-    case 13:
+    case 14:
     	children_while(dynamic_cast<AST_while*>(in));
     	break;
-    case 14:
+    case 15:
     	children_do(dynamic_cast<AST_do*>(in));
     	break;
-    case 15:
+    case 16:
     	children_for(dynamic_cast<AST_for*>(in));
     	break;
-    case 16:
+    case 17:
     	children_foreach(dynamic_cast<AST_foreach*>(in));
     	break;
-    case 17:
+    case 18:
     	children_switch(dynamic_cast<AST_switch*>(in));
     	break;
-    case 19:
+    case 20:
     	children_break(dynamic_cast<AST_break*>(in));
     	break;
-    case 20:
+    case 21:
     	children_continue(dynamic_cast<AST_continue*>(in));
     	break;
-    case 21:
+    case 22:
     	children_return(dynamic_cast<AST_return*>(in));
     	break;
-    case 22:
+    case 23:
     	children_static_declaration(dynamic_cast<AST_static_declaration*>(in));
     	break;
-    case 23:
+    case 24:
     	children_unset(dynamic_cast<AST_unset*>(in));
     	break;
-    case 24:
+    case 25:
     	children_declare(dynamic_cast<AST_declare*>(in));
     	break;
-    case 26:
+    case 27:
     	children_try(dynamic_cast<AST_try*>(in));
     	break;
-    case 28:
+    case 29:
     	children_throw(dynamic_cast<AST_throw*>(in));
     	break;
-    case 29:
+    case 30:
     	children_eval_expr(dynamic_cast<AST_eval_expr*>(in));
     	break;
-    case 30:
+    case 31:
     	children_nop(dynamic_cast<AST_nop*>(in));
     	break;
     }
@@ -2388,67 +2419,67 @@ void AST_transform::children_expr(AST_expr* in)
 {
     switch(in->classid())
     {
-    case 31:
+    case 32:
     	children_assignment(dynamic_cast<AST_assignment*>(in));
     	break;
-    case 32:
+    case 33:
     	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     	break;
-    case 34:
+    case 35:
     	children_cast(dynamic_cast<AST_cast*>(in));
     	break;
-    case 35:
+    case 36:
     	children_unary_op(dynamic_cast<AST_unary_op*>(in));
     	break;
-    case 36:
+    case 37:
     	children_bin_op(dynamic_cast<AST_bin_op*>(in));
     	break;
-    case 37:
+    case 38:
     	children_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
     	break;
-    case 38:
+    case 39:
     	children_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
     	break;
-    case 39:
+    case 40:
     	children_constant(dynamic_cast<AST_constant*>(in));
     	break;
-    case 40:
+    case 41:
     	children_instanceof(dynamic_cast<AST_instanceof*>(in));
     	break;
-    case 41:
+    case 42:
     	children_variable(dynamic_cast<AST_variable*>(in));
     	break;
-    case 43:
+    case 44:
     	children_pre_op(dynamic_cast<AST_pre_op*>(in));
     	break;
-    case 44:
+    case 45:
     	children_post_op(dynamic_cast<AST_post_op*>(in));
     	break;
-    case 45:
+    case 46:
     	children_array(dynamic_cast<AST_array*>(in));
     	break;
-    case 47:
+    case 48:
     	children_method_invocation(dynamic_cast<AST_method_invocation*>(in));
     	break;
-    case 49:
+    case 50:
     	children_new(dynamic_cast<AST_new*>(in));
     	break;
-    case 50:
+    case 51:
     	children_clone(dynamic_cast<AST_clone*>(in));
     	break;
-    case 56:
+    case 57:
     	children_int(dynamic_cast<Token_int*>(in));
     	break;
-    case 57:
+    case 58:
     	children_real(dynamic_cast<Token_real*>(in));
     	break;
-    case 58:
+    case 59:
     	children_string(dynamic_cast<Token_string*>(in));
     	break;
-    case 59:
+    case 60:
     	children_bool(dynamic_cast<Token_bool*>(in));
     	break;
-    case 60:
+    case 61:
     	children_null(dynamic_cast<Token_null*>(in));
     	break;
     }
@@ -2458,10 +2489,10 @@ void AST_transform::children_list_element(AST_list_element* in)
 {
     switch(in->classid())
     {
-    case 41:
+    case 42:
     	children_variable(dynamic_cast<AST_variable*>(in));
     	break;
-    case 33:
+    case 34:
     	children_list_elements(dynamic_cast<AST_list_elements*>(in));
     	break;
     }
@@ -2471,10 +2502,10 @@ void AST_transform::children_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52:
+    case 53:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
-    case 42:
+    case 43:
     	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }
@@ -2484,70 +2515,70 @@ void AST_transform::children_target(AST_target* in)
 {
     switch(in->classid())
     {
-    case 31:
+    case 32:
     	children_assignment(dynamic_cast<AST_assignment*>(in));
     	break;
-    case 32:
+    case 33:
     	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     	break;
-    case 34:
+    case 35:
     	children_cast(dynamic_cast<AST_cast*>(in));
     	break;
-    case 35:
+    case 36:
     	children_unary_op(dynamic_cast<AST_unary_op*>(in));
     	break;
-    case 36:
+    case 37:
     	children_bin_op(dynamic_cast<AST_bin_op*>(in));
     	break;
-    case 37:
+    case 38:
     	children_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
     	break;
-    case 38:
+    case 39:
     	children_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
     	break;
-    case 39:
+    case 40:
     	children_constant(dynamic_cast<AST_constant*>(in));
     	break;
-    case 40:
+    case 41:
     	children_instanceof(dynamic_cast<AST_instanceof*>(in));
     	break;
-    case 41:
+    case 42:
     	children_variable(dynamic_cast<AST_variable*>(in));
     	break;
-    case 43:
+    case 44:
     	children_pre_op(dynamic_cast<AST_pre_op*>(in));
     	break;
-    case 44:
+    case 45:
     	children_post_op(dynamic_cast<AST_post_op*>(in));
     	break;
-    case 45:
+    case 46:
     	children_array(dynamic_cast<AST_array*>(in));
     	break;
-    case 47:
+    case 48:
     	children_method_invocation(dynamic_cast<AST_method_invocation*>(in));
     	break;
-    case 49:
+    case 50:
     	children_new(dynamic_cast<AST_new*>(in));
     	break;
-    case 50:
+    case 51:
     	children_clone(dynamic_cast<AST_clone*>(in));
     	break;
-    case 56:
+    case 57:
     	children_int(dynamic_cast<Token_int*>(in));
     	break;
-    case 57:
+    case 58:
     	children_real(dynamic_cast<Token_real*>(in));
     	break;
-    case 58:
+    case 59:
     	children_string(dynamic_cast<Token_string*>(in));
     	break;
-    case 59:
+    case 60:
     	children_bool(dynamic_cast<Token_bool*>(in));
     	break;
-    case 60:
+    case 61:
     	children_null(dynamic_cast<Token_null*>(in));
     	break;
-    case 52:
+    case 53:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
     }
@@ -2557,10 +2588,10 @@ void AST_transform::children_variable_name(AST_variable_name* in)
 {
     switch(in->classid())
     {
-    case 54:
+    case 55:
     	children_variable_name(dynamic_cast<Token_variable_name*>(in));
     	break;
-    case 42:
+    case 43:
     	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }
@@ -2570,10 +2601,10 @@ void AST_transform::children_method_name(AST_method_name* in)
 {
     switch(in->classid())
     {
-    case 53:
+    case 54:
     	children_method_name(dynamic_cast<Token_method_name*>(in));
     	break;
-    case 42:
+    case 43:
     	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }

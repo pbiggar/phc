@@ -18,6 +18,7 @@ using namespace std;
 
 
 class AST_node;
+class AST_root;
 class AST_php_script;
 class AST_class_mod;
 class AST_signature;
@@ -96,7 +97,7 @@ class Token_null;
 class AST_transform;
 class AST_visitor;
 
-// node ::= php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | expr | identifier;
+// node ::= root | php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | expr | identifier;
 class AST_node : virtual public Object
 {
 private:
@@ -115,6 +116,27 @@ public:
     void clone_mixin_from(AST_node* in);
 public:
     virtual AST_node* clone() = 0;
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+// root ::= php_script ;
+class AST_root : virtual public AST_node
+{
+public:
+    AST_root(AST_php_script* php_script);
+protected:
+    AST_root();
+public:
+    AST_php_script* php_script;
+private:
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual AST_root* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -139,7 +161,7 @@ public:
     AST_class_def* get_class_def(const char* name);
 public:
     void visit(AST_visitor* visitor);
-    void transform(AST_transform* transform);
+    AST_php_script* transform(AST_transform* transform);
 public:
     virtual AST_php_script* clone();
 friend class AST_transform;
@@ -1836,7 +1858,7 @@ public:
 private:
 	int classid()
 	{
-		return 64;
+		return 65;
 	}
 };
 

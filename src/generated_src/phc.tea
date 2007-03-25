@@ -20,6 +20,8 @@ use string "String";
 	Grammar definition
 -}
 
+root ::= php_script ;
+
 php_script ::= interface_def* class_def+ ;
 
 interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
@@ -125,7 +127,8 @@ clone ::= expr ;
  -}
 
 node ::= 
-	  php_script | class_mod | signature 
+	  root 
+	| php_script | class_mod | signature 
 	| method_mod | formal_parameter | type | attr_mod 
 	| directive | list_element | variable_name | target
 	| array_elem | method_name | actual_parameter | class_name 
@@ -291,12 +294,12 @@ public:
 public:
 	void visit(AST_visitor* visitor)
 	{
-		visitor->children_php_script(this);
+		visitor->visit_php_script(this);
 	}
 
-	void transform(AST_transform* transform)
+	AST_php_script* transform(AST_transform* transform)
 	{
-		transform->children_php_script(this);
+		return transform->transform_php_script(this);
 	}
 };
 

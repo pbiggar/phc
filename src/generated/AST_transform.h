@@ -25,6 +25,7 @@ public:
     virtual ~AST_transform();
 // The pre-transform gets called before the children of the node are transformed
 public:
+    virtual AST_root* pre_root(AST_root* in);
     virtual AST_php_script* pre_php_script(AST_php_script* in);
     virtual void pre_interface_def(AST_interface_def* in, List<AST_interface_def*>* out);
     virtual void pre_class_def(AST_class_def* in, List<AST_class_def*>* out);
@@ -90,6 +91,7 @@ public:
     virtual Token_constant_name* pre_constant_name(Token_constant_name* in);
 // The post-transform gets called after the children of the node have been transformed
 public:
+    virtual AST_root* post_root(AST_root* in);
     virtual AST_php_script* post_php_script(AST_php_script* in);
     virtual void post_interface_def(AST_interface_def* in, List<AST_interface_def*>* out);
     virtual void post_class_def(AST_class_def* in, List<AST_class_def*>* out);
@@ -155,6 +157,7 @@ public:
     virtual Token_constant_name* post_constant_name(Token_constant_name* in);
 // Transform the children of the node
 public:
+    virtual void children_root(AST_root* in);
     virtual void children_php_script(AST_php_script* in);
     virtual void children_interface_def(AST_interface_def* in);
     virtual void children_class_def(AST_class_def* in);
@@ -222,7 +225,8 @@ public:
     virtual void children_constant_name(Token_constant_name* in);
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
-protected:
+public:
+    virtual AST_php_script* transform_php_script(AST_php_script* in);
     virtual List<AST_interface_def*>* transform_interface_def_list(List<AST_interface_def*>* in);
     virtual List<AST_interface_def*>* transform_interface_def(AST_interface_def* in);
     virtual List<AST_class_def*>* transform_class_def_list(List<AST_class_def*>* in);

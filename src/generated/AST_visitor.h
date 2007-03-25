@@ -24,6 +24,7 @@ class AST_visitor
 public:
     virtual ~AST_visitor();
 public:
+    virtual void pre_root(AST_root* in);
     virtual void pre_php_script(AST_php_script* in);
     virtual void pre_interface_def(AST_interface_def* in);
     virtual void pre_class_def(AST_class_def* in);
@@ -100,6 +101,7 @@ public:
     virtual void pre_op(Token_op* in);
     virtual void pre_constant_name(Token_constant_name* in);
 public:
+    virtual void post_root(AST_root* in);
     virtual void post_php_script(AST_php_script* in);
     virtual void post_interface_def(AST_interface_def* in);
     virtual void post_class_def(AST_class_def* in);
@@ -176,6 +178,7 @@ public:
     virtual void post_op(Token_op* in);
     virtual void post_constant_name(Token_constant_name* in);
 public:
+    virtual void children_root(AST_root* in);
     virtual void children_php_script(AST_php_script* in);
     virtual void children_interface_def(AST_interface_def* in);
     virtual void children_class_def(AST_class_def* in);
@@ -241,6 +244,7 @@ public:
     virtual void children_op(Token_op* in);
     virtual void children_constant_name(Token_constant_name* in);
 public:
+    virtual void pre_root_chain(AST_root* in);
     virtual void pre_php_script_chain(AST_php_script* in);
     virtual void pre_interface_def_chain(AST_interface_def* in);
     virtual void pre_class_def_chain(AST_class_def* in);
@@ -305,6 +309,7 @@ public:
     virtual void pre_op_chain(Token_op* in);
     virtual void pre_constant_name_chain(Token_constant_name* in);
 public:
+    virtual void post_root_chain(AST_root* in);
     virtual void post_php_script_chain(AST_php_script* in);
     virtual void post_interface_def_chain(AST_interface_def* in);
     virtual void post_class_def_chain(AST_class_def* in);
@@ -369,6 +374,7 @@ public:
     virtual void post_op_chain(Token_op* in);
     virtual void post_constant_name_chain(Token_constant_name* in);
 public:
+    virtual void visit_php_script(AST_php_script* in);
     virtual void visit_interface_def_list(List<AST_interface_def*>* in);
     virtual void visit_interface_def(AST_interface_def* in);
     virtual void visit_class_def_list(List<AST_class_def*>* in);
