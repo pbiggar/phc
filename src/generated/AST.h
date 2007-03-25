@@ -1786,24 +1786,19 @@ public:
 	virtual ~__WILDCARD__() {}
 
 public:
-	virtual void set_value(AST_node* in) = 0;
+	virtual bool match(AST_node* in) = 0;
 };
 
 template<class C>
 class Wildcard : public virtual C, public __WILDCARD__
 {
 public:
-	Wildcard() {}
+	Wildcard() : value(NULL) {}
 	Wildcard(C* v) : value(v) {}
 	virtual ~Wildcard() {}
 
 public:
 	C* value;
-
-	virtual void set_value(AST_node* in)
-	{
-		value = dynamic_cast<C*>(in);
-	}
 
 	virtual bool match(AST_node* in)
 	{
@@ -1818,13 +1813,22 @@ public:
 
 	virtual Wildcard* clone()
 	{
-		return new Wildcard(value->clone());
+		if(value != NULL)
+			return new Wildcard(value->clone());
+		else
+			return new Wildcard(NULL);
 	}
 
 	virtual bool equals(AST_node* in)
 	{
 		Wildcard* that = dynamic_cast<Wildcard*>(in);
 		if(that == NULL) return false;
+
+		if(this->value == NULL || that->value == NULL)
+		{
+			if(this->value != NULL || that->value != NULL)
+				return false;
+		}
 
 		return value->equals(that->value);
 	}

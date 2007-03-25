@@ -56,16 +56,13 @@ int AST_php_script::classid()
 
 bool AST_php_script::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_php_script* that = dynamic_cast<AST_php_script*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->interface_defs != NULL && that->interface_defs != NULL)
     {
@@ -254,16 +251,13 @@ int AST_class_mod::classid()
 
 bool AST_class_mod::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_class_mod* that = dynamic_cast<AST_class_mod*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     return true;
 }
@@ -314,16 +308,13 @@ int AST_signature::classid()
 
 bool AST_signature::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_signature* that = dynamic_cast<AST_signature*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->method_mod == NULL)
     {
@@ -472,16 +463,13 @@ int AST_method_mod::classid()
 
 bool AST_method_mod::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_method_mod* that = dynamic_cast<AST_method_mod*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     return true;
 }
@@ -609,16 +597,13 @@ int AST_formal_parameter::classid()
 
 bool AST_formal_parameter::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_formal_parameter* that = dynamic_cast<AST_formal_parameter*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->type == NULL)
     {
@@ -734,16 +719,13 @@ int AST_type::classid()
 
 bool AST_type::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_type* that = dynamic_cast<AST_type*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->class_name == NULL)
     {
@@ -809,16 +791,13 @@ int AST_attr_mod::classid()
 
 bool AST_attr_mod::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_attr_mod* that = dynamic_cast<AST_attr_mod*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     return true;
 }
@@ -932,16 +911,13 @@ int AST_directive::classid()
 
 bool AST_directive::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_directive* that = dynamic_cast<AST_directive*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->directive_name == NULL)
     {
@@ -1028,16 +1004,13 @@ int AST_array_elem::classid()
 
 bool AST_array_elem::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_array_elem* that = dynamic_cast<AST_array_elem*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->key == NULL)
     {
@@ -1118,16 +1091,13 @@ int AST_actual_parameter::classid()
 
 bool AST_actual_parameter::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_actual_parameter* that = dynamic_cast<AST_actual_parameter*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -1216,16 +1186,13 @@ int AST_interface_def::classid()
 
 bool AST_interface_def::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_interface_def* that = dynamic_cast<AST_interface_def*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->interface_name == NULL)
     {
@@ -1393,16 +1360,13 @@ int AST_class_def::classid()
 
 bool AST_class_def::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_class_def* that = dynamic_cast<AST_class_def*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->class_mod == NULL)
     {
@@ -1656,16 +1620,13 @@ int AST_switch_case::classid()
 
 bool AST_switch_case::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_switch_case* that = dynamic_cast<AST_switch_case*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -1776,16 +1737,13 @@ int AST_catch::classid()
 
 bool AST_catch::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_catch* that = dynamic_cast<AST_catch*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->class_name == NULL)
     {
@@ -1917,16 +1875,13 @@ int AST_list_elements::classid()
 
 bool AST_list_elements::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_list_elements* that = dynamic_cast<AST_list_elements*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->list_elements != NULL && that->list_elements != NULL)
     {
@@ -2016,16 +1971,13 @@ int AST_reflection::classid()
 
 bool AST_reflection::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_reflection* that = dynamic_cast<AST_reflection*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -2084,16 +2036,13 @@ String* Token_interface_name::get_value_as_string()
 
 bool Token_interface_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2147,16 +2096,13 @@ String* Token_class_name::get_value_as_string()
 
 bool Token_class_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_class_name* that = dynamic_cast<Token_class_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2210,16 +2156,13 @@ String* Token_method_name::get_value_as_string()
 
 bool Token_method_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_method_name* that = dynamic_cast<Token_method_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2273,16 +2216,13 @@ String* Token_variable_name::get_value_as_string()
 
 bool Token_variable_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_variable_name* that = dynamic_cast<Token_variable_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2336,16 +2276,13 @@ String* Token_directive_name::get_value_as_string()
 
 bool Token_directive_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_directive_name* that = dynamic_cast<Token_directive_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2399,16 +2336,13 @@ String* Token_cast::get_value_as_string()
 
 bool Token_cast::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_cast* that = dynamic_cast<Token_cast*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2462,16 +2396,13 @@ String* Token_op::get_value_as_string()
 
 bool Token_op::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_op* that = dynamic_cast<Token_op*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2525,16 +2456,13 @@ String* Token_constant_name::get_value_as_string()
 
 bool Token_constant_name::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_constant_name* that = dynamic_cast<Token_constant_name*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->value != NULL && that->value != NULL)
     	return (*this->value == *that->value);
@@ -2585,16 +2513,13 @@ int AST_method::classid()
 
 bool AST_method::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_method* that = dynamic_cast<AST_method*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->signature == NULL)
     {
@@ -2705,16 +2630,13 @@ int AST_attribute::classid()
 
 bool AST_attribute::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_attribute* that = dynamic_cast<AST_attribute*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->attr_mod == NULL)
     {
@@ -2806,16 +2728,13 @@ int AST_if::classid()
 
 bool AST_if::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_if* that = dynamic_cast<AST_if*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -2977,16 +2896,13 @@ int AST_while::classid()
 
 bool AST_while::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_while* that = dynamic_cast<AST_while*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3095,16 +3011,13 @@ int AST_do::classid()
 
 bool AST_do::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_do* that = dynamic_cast<AST_do*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->statements != NULL && that->statements != NULL)
     {
@@ -3217,16 +3130,13 @@ int AST_for::classid()
 
 bool AST_for::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_for* that = dynamic_cast<AST_for*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->init == NULL)
     {
@@ -3375,16 +3285,13 @@ int AST_foreach::classid()
 
 bool AST_foreach::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_foreach* that = dynamic_cast<AST_foreach*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3531,16 +3438,13 @@ int AST_switch::classid()
 
 bool AST_switch::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_switch* that = dynamic_cast<AST_switch*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3647,16 +3551,13 @@ int AST_break::classid()
 
 bool AST_break::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_break* that = dynamic_cast<AST_break*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3710,16 +3611,13 @@ int AST_continue::classid()
 
 bool AST_continue::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_continue* that = dynamic_cast<AST_continue*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3773,16 +3671,13 @@ int AST_return::classid()
 
 bool AST_return::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_return* that = dynamic_cast<AST_return*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -3838,16 +3733,13 @@ int AST_static_declaration::classid()
 
 bool AST_static_declaration::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_static_declaration* that = dynamic_cast<AST_static_declaration*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->variable_name == NULL)
     {
@@ -3918,16 +3810,13 @@ int AST_unset::classid()
 
 bool AST_unset::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_unset* that = dynamic_cast<AST_unset*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->variable == NULL)
     {
@@ -3983,16 +3872,13 @@ int AST_declare::classid()
 
 bool AST_declare::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_declare* that = dynamic_cast<AST_declare*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->directives != NULL && that->directives != NULL)
     {
@@ -4137,16 +4023,13 @@ int AST_try::classid()
 
 bool AST_try::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_try* that = dynamic_cast<AST_try*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->statements != NULL && that->statements != NULL)
     {
@@ -4289,16 +4172,13 @@ int AST_throw::classid()
 
 bool AST_throw::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_throw* that = dynamic_cast<AST_throw*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -4352,16 +4232,13 @@ int AST_eval_expr::classid()
 
 bool AST_eval_expr::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_eval_expr* that = dynamic_cast<AST_eval_expr*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -4409,16 +4286,13 @@ int AST_nop::classid()
 
 bool AST_nop::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_nop* that = dynamic_cast<AST_nop*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     return true;
 }
@@ -4463,16 +4337,13 @@ int AST_assignment::classid()
 
 bool AST_assignment::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_assignment* that = dynamic_cast<AST_assignment*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->variable == NULL)
     {
@@ -4549,16 +4420,13 @@ int AST_list_assignment::classid()
 
 bool AST_list_assignment::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_list_assignment* that = dynamic_cast<AST_list_assignment*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->list_elements == NULL)
     {
@@ -4631,16 +4499,13 @@ int AST_cast::classid()
 
 bool AST_cast::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_cast* that = dynamic_cast<AST_cast*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->cast == NULL)
     {
@@ -4722,16 +4587,13 @@ int AST_unary_op::classid()
 
 bool AST_unary_op::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_unary_op* that = dynamic_cast<AST_unary_op*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->op == NULL)
     {
@@ -4815,16 +4677,13 @@ int AST_bin_op::classid()
 
 bool AST_bin_op::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_bin_op* that = dynamic_cast<AST_bin_op*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->left == NULL)
     {
@@ -4926,16 +4785,13 @@ int AST_conditional_expr::classid()
 
 bool AST_conditional_expr::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_conditional_expr* that = dynamic_cast<AST_conditional_expr*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->cond == NULL)
     {
@@ -5023,16 +4879,13 @@ int AST_ignore_errors::classid()
 
 bool AST_ignore_errors::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_ignore_errors* that = dynamic_cast<AST_ignore_errors*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -5088,16 +4941,13 @@ int AST_constant::classid()
 
 bool AST_constant::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_constant* that = dynamic_cast<AST_constant*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->class_name == NULL)
     {
@@ -5179,16 +5029,13 @@ int AST_instanceof::classid()
 
 bool AST_instanceof::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_instanceof* that = dynamic_cast<AST_instanceof*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -5265,16 +5112,13 @@ int AST_variable::classid()
 
 bool AST_variable::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_variable* that = dynamic_cast<AST_variable*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->target == NULL)
     {
@@ -5436,16 +5280,13 @@ int AST_pre_op::classid()
 
 bool AST_pre_op::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_pre_op* that = dynamic_cast<AST_pre_op*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->op == NULL)
     {
@@ -5527,16 +5368,13 @@ int AST_post_op::classid()
 
 bool AST_post_op::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_post_op* that = dynamic_cast<AST_post_op*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->variable == NULL)
     {
@@ -5616,16 +5454,13 @@ int AST_array::classid()
 
 bool AST_array::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_array* that = dynamic_cast<AST_array*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->array_elems != NULL && that->array_elems != NULL)
     {
@@ -5719,16 +5554,13 @@ int AST_method_invocation::classid()
 
 bool AST_method_invocation::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_method_invocation* that = dynamic_cast<AST_method_invocation*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->target == NULL)
     {
@@ -5891,16 +5723,13 @@ int AST_new::classid()
 
 bool AST_new::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_new* that = dynamic_cast<AST_new*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->class_name == NULL)
     {
@@ -6007,16 +5836,13 @@ int AST_clone::classid()
 
 bool AST_clone::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     AST_clone* that = dynamic_cast<AST_clone*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->expr == NULL)
     {
@@ -6077,16 +5903,13 @@ String* Token_int::get_source_rep()
 
 bool Token_int::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_int* that = dynamic_cast<Token_int*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(!match_value(that))
     	return false;
@@ -6174,16 +5997,13 @@ String* Token_real::get_source_rep()
 
 bool Token_real::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_real* that = dynamic_cast<Token_real*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(!match_value(that))
     	return false;
@@ -6282,16 +6102,13 @@ String* Token_string::get_source_rep()
 
 bool Token_string::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_string* that = dynamic_cast<Token_string*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(!match_value(that))
     	return false;
@@ -6377,16 +6194,13 @@ String* Token_bool::get_source_rep()
 
 bool Token_bool::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_bool* that = dynamic_cast<Token_bool*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(!match_value(that))
     	return false;
@@ -6473,16 +6287,13 @@ String* Token_null::get_source_rep()
 
 bool Token_null::match(AST_node* in)
 {
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
     Token_null* that = dynamic_cast<Token_null*>(in);
     if(that == NULL) return false;
-    
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(that);
-    if(joker != NULL)
-    {
-    	joker->set_value(this);
-    	return true;
-    }
     
     if(this->source_rep != NULL && that->source_rep != NULL)
     	return (*this->source_rep == *that->source_rep);
