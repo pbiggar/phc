@@ -20,8 +20,6 @@ use string "String";
 	Grammar definition
 -}
 
-root ::= php_script ;
-
 php_script ::= interface_def* class_def+ ;
 
 interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
@@ -127,8 +125,7 @@ clone ::= expr ;
  -}
 
 node ::= 
-	  root 
-	| php_script | class_mod | signature 
+	  php_script | class_mod | signature 
 	| method_mod | formal_parameter | type | attr_mod 
 	| directive | list_element | variable_name | target
 	| array_elem | method_name | actual_parameter | class_name 

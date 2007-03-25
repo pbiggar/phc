@@ -38,7 +38,6 @@
 (method_name,method_name,)
 (new,expr,)
 (nop,statement,*)
-(php_script,php_script,)
 (post_op,expr,)
 (pre_op,expr,)
 (reflection,reflection,)
