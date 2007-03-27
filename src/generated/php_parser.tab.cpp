@@ -4077,7 +4077,7 @@ yyreduce:
 			CAST_AST(params, (yyvsp[(6) - (8)]), List<AST_formal_parameter*>); 
 			CAST_AST(body, (yyvsp[(8) - (8)]), List<AST_statement*>);
 		
-			AST_signature* signature = NEW(AST_signature, (AST_method_mod::new_STATIC(), is_ref->value(), name, params));
+			AST_signature* signature = NEW(AST_signature, (new AST_method_mod(), is_ref->value(), name, params));
 			fn->signature = signature;
 			fn->statements = body;
 
@@ -4906,12 +4906,12 @@ yyreduce:
 
   case 157:
 #line 1752 "src/generated_src/php_parser.ypp"
-    { (yyval) = NEW(AST_attr_mod, (true, false, false, false, false)); ;}
+    { (yyval) = NEW(AST_attr_mod, (false, false, false, false, false)); ;}
     break;
 
   case 158:
 #line 1760 "src/generated_src/php_parser.ypp"
-    { (yyval) = AST_method_mod::new_PUBLIC(); ;}
+    { (yyval) = new AST_method_mod(); ;}
     break;
 
   case 159:
@@ -4970,7 +4970,7 @@ yyreduce:
 			CAST_AST(members, (yyvsp[(1) - (3)]), List<AST_member*>);
 			CAST_STR(name, (yyvsp[(3) - (3)]), Token_variable_name);
 			
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, NULL));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));
 			members->push_back(attr);
 			
 			(yyval) = members;
@@ -4984,7 +4984,7 @@ yyreduce:
 			CAST_STR(name, (yyvsp[(3) - (5)]), Token_variable_name);
 			CAST_AST(value, (yyvsp[(5) - (5)]), AST_expr);
 			
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
 			members->push_back(attr);
 
 			(yyval) = members;			
@@ -4997,7 +4997,7 @@ yyreduce:
 			CAST_STR(name, (yyvsp[(1) - (1)]), Token_variable_name);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, NULL));	
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));	
 			members->push_back(attr);
 
 			(yyval) = members;
@@ -5011,7 +5011,7 @@ yyreduce:
 			CAST_AST(value, (yyvsp[(3) - (3)]), AST_expr);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
 			members->push_back(attr);
 
 			(yyval) = members;

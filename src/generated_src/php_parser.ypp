@@ -967,7 +967,7 @@ unticked_function_declaration_statement:
 			CAST_AST(params, $6, List<AST_formal_parameter*>); 
 			CAST_AST(body, $8, List<AST_statement*>);
 		
-			AST_signature* signature = NEW(AST_signature, (AST_method_mod::new_STATIC(), is_ref->value(), name, params));
+			AST_signature* signature = NEW(AST_signature, (new AST_method_mod(), is_ref->value(), name, params));
 			fn->signature = signature;
 			fn->statements = body;
 
@@ -1749,7 +1749,7 @@ variable_modifiers:
 			$$ = NEW(AST_attr_mod, (method_mod)); 
 		}
 	| K_VAR
-		{ $$ = NEW(AST_attr_mod, (true, false, false, false, false)); }
+		{ $$ = NEW(AST_attr_mod, (false, false, false, false, false)); }
 	;
 
 /*
@@ -1757,7 +1757,7 @@ variable_modifiers:
  */
 method_modifiers:
 	  /* empty */
-		{ $$ = AST_method_mod::new_PUBLIC(); }
+		{ $$ = new AST_method_mod(); }
 	| non_empty_member_modifiers
 		{ $$ = $1; }
 	;
@@ -1804,7 +1804,7 @@ class_variable_declaration:
 			CAST_AST(members, $1, List<AST_member*>);
 			CAST_STR(name, $3, Token_variable_name);
 			
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, NULL));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));
 			members->push_back(attr);
 			
 			$$ = members;
@@ -1815,7 +1815,7 @@ class_variable_declaration:
 			CAST_STR(name, $3, Token_variable_name);
 			CAST_AST(value, $5, AST_expr);
 			
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
 			members->push_back(attr);
 
 			$$ = members;			
@@ -1825,7 +1825,7 @@ class_variable_declaration:
 			CAST_STR(name, $1, Token_variable_name);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, NULL));	
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));	
 			members->push_back(attr);
 
 			$$ = members;
@@ -1836,7 +1836,7 @@ class_variable_declaration:
 			CAST_AST(value, $3, AST_expr);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_PUBLIC(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
 			members->push_back(attr);
 
 			$$ = members;

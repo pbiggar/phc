@@ -144,15 +144,9 @@ void PHP_unparser::children_interface_def(AST_interface_def* in)
 		visit_interface_name_list(in->extends);
 	}
 	
-	newline();
-	echo_nl("{");
-	inc_indent();
 	visit_member_list(in->members);
-	dec_indent();
-	echo_nl("}");
 }
 
-// %MAIN% is treated specially in AST_class_def_list
 void PHP_unparser::children_class_def(AST_class_def* in)
 {
 	visit_class_mod(in->class_mod);
@@ -171,12 +165,7 @@ void PHP_unparser::children_class_def(AST_class_def* in)
 		visit_interface_name_list(in->implements);
 	}
 	
-	newline();
-	echo_nl("{");
-	inc_indent();
 	visit_member_list(in->members);
-	dec_indent();
-	echo_nl("}");
 }
 
 void PHP_unparser::children_class_mod(AST_class_mod* in)
@@ -764,44 +753,14 @@ void PHP_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
 
 void PHP_unparser::visit_member_list(List<AST_member*>* in)
 {
-	AST_method* run = NULL;
-	bool is_first = true;
+	newline();
+	echo_nl("{");
+	inc_indent();
 
-	List<AST_member*>::const_iterator i;
-	for(i = in->begin(); i != in->end(); i++)
-	{
-		AST_method* method = dynamic_cast<AST_method*>(*i);
-		
-		// Don't output attributes of %MAIN%
-		if(!method && inside_main)
-		{
-			continue;
-		}
-		// We output run at the end of %MAIN%
-		if(method && *method->signature->method_name->value == "%run%")
-		{
-			run = method;	
-		}
-		// Otherwise, unparse the class member as normal
-		else
-		{		
-			if(!is_first && method) empty_line();
-			visit_member(*i);
-			is_first = false;
-		}
-	}
+	AST_visitor::visit_member_list(in);	
 
-	// Treat %run% specially
-	// Rather than calling visit, we iterate over the vector manually
-	// to avoid PHP_unparser::the opening and closing curlies
-	if(inside_main)
-	{
-		assert(run);
-		if(!is_first) empty_line();
-		List<AST_statement*>::const_iterator j;
-		for(j = run->statements->begin(); j != run->statements->end(); j++)
-			visit_statement(*j);
-	}
+	dec_indent();
+	echo_nl("}");
 }
 
 void PHP_unparser::visit_statement_list(List<AST_statement*>* in)
@@ -810,9 +769,7 @@ void PHP_unparser::visit_statement_list(List<AST_statement*>* in)
 	echo("{");
 	inc_indent();
 
-	List<AST_statement*>::const_iterator i;
-	for(i = in->begin(); i != in->end(); i++)
-		visit_statement(*i);
+	AST_visitor::visit_statement_list(in);
 
 	dec_indent();
 	echo_nl("}");

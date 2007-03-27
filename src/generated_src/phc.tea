@@ -223,6 +223,16 @@ public:
 class AST_method_mod 
 {
 public:
+	AST_method_mod()
+	{
+		is_public = false;
+		is_protected = false;
+		is_private = false;
+		is_static = false;
+		is_abstract = false;
+		is_final = false;
+	}
+
 	AST_method_mod(AST_method_mod* a, AST_method_mod* b) 
 	{
 		this->is_public 		= a->is_public		|| b->is_public;
@@ -391,6 +401,15 @@ public:
 class AST_attr_mod
 {
 public:
+	AST_attr_mod()
+	{
+		is_public = false;
+		is_protected = false;
+		is_private = false;
+		is_static = false;
+		is_const = false;
+	}
+
 	AST_attr_mod(AST_method_mod* mm) 
 	{
 		if(mm->is_final)

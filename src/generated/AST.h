@@ -196,8 +196,6 @@ class AST_method_mod : virtual public AST_node
 {
 public:
     AST_method_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final);
-protected:
-    AST_method_mod();
 public:
     bool is_public;
     bool is_protected;
@@ -212,6 +210,7 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    AST_method_mod();
     AST_method_mod(AST_method_mod* a, AST_method_mod* b);
     static AST_method_mod* new_PUBLIC();
     static AST_method_mod* new_PROTECTED();
@@ -279,8 +278,6 @@ class AST_attr_mod : virtual public AST_node
 {
 public:
     AST_attr_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const);
-protected:
-    AST_attr_mod();
 public:
     bool is_public;
     bool is_protected;
@@ -294,6 +291,7 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    AST_attr_mod();
     AST_attr_mod(AST_method_mod* mm);
     static AST_attr_mod* new_PUBLIC();
     static AST_attr_mod* new_PROTECTED();
