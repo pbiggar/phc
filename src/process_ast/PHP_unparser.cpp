@@ -372,7 +372,8 @@ void PHP_unparser::children_break(AST_break* in)
 		echo(" ");
 		visit_expr(in->expr);
 	}
-	echo_nl(";");
+	echo(";");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_continue(AST_continue* in)
@@ -383,7 +384,8 @@ void PHP_unparser::children_continue(AST_continue* in)
 		echo(" ");
 		visit_expr(in->expr);
 	}
-	echo_nl(";");
+	echo(";");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_return(AST_return* in)
@@ -394,7 +396,8 @@ void PHP_unparser::children_return(AST_return* in)
 		echo(" ");
 		visit_expr(in->expr);
 	}
-	echo_nl(";");
+	echo(";");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_static_declaration(AST_static_declaration* in)
@@ -406,14 +409,16 @@ void PHP_unparser::children_static_declaration(AST_static_declaration* in)
 		echo(" = ");
 		visit_expr(in->expr);
 	}
-	echo_nl(";");
+	echo(";");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_unset(AST_unset* in)
 {
 	echo("unset(");
 	visit_variable(in->variable);
-	echo_nl(");");
+	echo(");");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_declare(AST_declare* in)
@@ -424,7 +429,10 @@ void PHP_unparser::children_declare(AST_declare* in)
 	if(!in->statements->empty())
 		visit_statement_list(in->statements);
 	else
-		echo_nl(";");
+	{
+		echo(";");
+		// newline output by post_commented_node
+	}
 }
 
 void PHP_unparser::children_directive(AST_directive* in)
@@ -455,7 +463,8 @@ void PHP_unparser::children_throw(AST_throw* in)
 {
 	echo("throw ");
 	visit_expr(in->expr);
-	echo_nl(";");
+	echo(";");
+	// newline output by post_commented_node
 }
 
 void PHP_unparser::children_eval_expr(AST_eval_expr* in)
@@ -1005,17 +1014,12 @@ void PHP_unparser::post_commented_node(AST_commented_node* in)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
-			echo(" ");
+			if(!output_comment) echo(" ");
 			echo(*i);
 			newline();
 			output_comment = true;
 		}
 	}
 
-	if(!output_comment && (
-		dynamic_cast<AST_eval_expr*>(in) || 
-		dynamic_cast<AST_attribute*>(in)))
-	{
-		newline();
-	}
+	if(!output_comment) newline();
 }
