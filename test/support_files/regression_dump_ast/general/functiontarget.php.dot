@@ -4,104 +4,44 @@
 
 digraph AST {
 node_0 [label="AST_php_script"];
-node_1 [label="AST_interface_def_list"];
-node_2 [label="AST_class_def_list"];
-node_3 [label="AST_class_def"];
-node_4 [label="AST_class_mod"];
-node_5 [label="Token_class_name"];
-node_6 [label="%MAIN%", shape=box]
-node_5 -> node_6;
-node_7 [label="NULL\n(Token_class_name)", shape=plaintext]
-node_8 [label="Token_interface_name_list"];
-node_9 [label="AST_member_list"];
-node_10 [label="AST_method (7)"];
-node_11 [label="AST_signature (7)"];
-node_12 [label="AST_method_mod"];
-node_13 [label="is_static", shape=plaintext]
-node_12 -> node_13;
-node_14 [label="Token_method_name"];
-node_15 [label="%run%", shape=box]
-node_14 -> node_15;
-node_16 [label="AST_formal_parameter_list"];
-node_11 -> node_16;
-node_11 -> node_14;
-node_11 -> node_12;
-node_17 [label="AST_statement_list"];
-node_18 [label="AST_eval_expr (3)"];
-node_19 [label="AST_method_invocation (3)"];
-node_20 [label="Token_class_name"];
-node_21 [label="%STDLIB%", shape=box]
-node_20 -> node_21;
-node_22 [label="Token_method_name"];
-node_23 [label="foobar", shape=box]
-node_22 -> node_23;
-node_24 [label="AST_actual_parameter_list"];
-node_19 -> node_24;
-node_19 -> node_22;
-node_19 -> node_20;
-node_18 -> node_19;
-node_25 [label="AST_eval_expr (4)"];
-node_26 [label="AST_method_invocation (4)"];
-node_27 [label="Token_class_name"];
-node_28 [label="X", shape=box]
-node_27 -> node_28;
-node_29 [label="Token_method_name"];
-node_30 [label="foo", shape=box]
-node_29 -> node_30;
-node_31 [label="AST_actual_parameter_list"];
-node_26 -> node_31;
-node_26 -> node_29;
-node_26 -> node_27;
-node_25 -> node_26;
-node_32 [label="AST_eval_expr (5)"];
-node_33 [label="AST_method_invocation (5)"];
-node_34 [label="AST_variable (5)"];
-node_35 [label="Token_class_name"];
-node_36 [label="%MAIN%", shape=box]
-node_35 -> node_36;
-node_37 [label="Token_variable_name"];
-node_38 [label="y", shape=box]
-node_37 -> node_38;
-node_39 [label="AST_expr_list"];
-node_40 [label="NULL\n(AST_expr)", shape=plaintext]
-node_34 -> node_40;
-node_34 -> node_39;
-node_34 -> node_37;
-node_34 -> node_35;
-node_41 [label="Token_method_name (5)"];
-node_42 [label="bar", shape=box]
-node_41 -> node_42;
-node_43 [label="AST_actual_parameter_list"];
-node_33 -> node_43;
-node_33 -> node_41;
-node_33 -> node_34;
-node_32 -> node_33;
-node_44 [label="AST_nop (7)"];
-node_17 -> node_44;
-node_17 -> node_32;
-node_17 -> node_25;
-node_17 -> node_18;
-node_10 -> node_17;
-node_10 -> node_11;
-node_45 [label="AST_attribute"];
-node_46 [label="AST_attr_mod"];
-node_47 [label="is_static", shape=plaintext]
-node_46 -> node_47;
-node_48 [label="Token_variable_name"];
-node_49 [label="y", shape=box]
-node_48 -> node_49;
-node_50 [label="NULL\n(AST_expr)", shape=plaintext]
-node_45 -> node_50;
-node_45 -> node_48;
-node_45 -> node_46;
-node_9 -> node_45;
-node_9 -> node_10;
-node_3 -> node_9;
-node_3 -> node_8;
-node_3 -> node_7;
-node_3 -> node_5;
+node_1 [label="AST_eval_expr (3)"];
+node_2 [label="AST_method_invocation (3)"];
+node_3 [label="Token_class_name"];
+node_4 [label="%STDLIB%", shape=box]
 node_3 -> node_4;
+node_5 [label="Token_method_name"];
+node_6 [label="foobar", shape=box]
+node_5 -> node_6;
+node_2 -> node_5;
 node_2 -> node_3;
-node_0 -> node_2;
+node_1 -> node_2;
+node_7 [label="AST_eval_expr (4)"];
+node_8 [label="AST_method_invocation (4)"];
+node_9 [label="Token_class_name"];
+node_10 [label="X", shape=box]
+node_9 -> node_10;
+node_11 [label="Token_method_name"];
+node_12 [label="foo", shape=box]
+node_11 -> node_12;
+node_8 -> node_11;
+node_8 -> node_9;
+node_7 -> node_8;
+node_13 [label="AST_eval_expr (5)"];
+node_14 [label="AST_method_invocation (5)"];
+node_15 [label="AST_variable (5)"];
+node_16 [label="Token_variable_name"];
+node_17 [label="y", shape=box]
+node_16 -> node_17;
+node_15 -> node_16;
+node_18 [label="Token_method_name (5)"];
+node_19 [label="bar", shape=box]
+node_18 -> node_19;
+node_14 -> node_18;
+node_14 -> node_15;
+node_13 -> node_14;
+node_20 [label="AST_nop (7)"];
+node_0 -> node_20;
+node_0 -> node_13;
+node_0 -> node_7;
 node_0 -> node_1;
 }
