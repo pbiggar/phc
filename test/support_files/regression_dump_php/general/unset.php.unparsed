@@ -2,5 +2,6 @@
    unset($x);
    unset($a->b);
    // unset(f());
+   
    $x = (unset) $x;
 ?>
