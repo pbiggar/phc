@@ -1,5 +1,4 @@
 <?php
-// Note the space before the HEREDOC string identifier
-echo ""; 
-
+   // Note the space before the HEREDOC string identifier
+   echo "";
 ?>

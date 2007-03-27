@@ -11,10 +11,13 @@
 	 *
 	 * for the first line.
 	 */
+   
    $a = "[" . $b . "]";
+   
    /*
 	 * Extra test cases
 	 */
+   
    $a = "[]";
    $a = $b;
    $a = " " . $b;
