@@ -26,10 +26,10 @@ public:
 // The pre-transform gets called before the children of the node are transformed
 public:
     virtual AST_php_script* pre_php_script(AST_php_script* in);
-    virtual void pre_interface_def(AST_interface_def* in, List<AST_interface_def*>* out);
-    virtual void pre_class_def(AST_class_def* in, List<AST_class_def*>* out);
+    virtual void pre_class_def(AST_class_def* in, List<AST_statement*>* out);
     virtual AST_class_mod* pre_class_mod(AST_class_mod* in);
-    virtual void pre_method(AST_method* in, List<AST_member*>* out);
+    virtual void pre_interface_def(AST_interface_def* in, List<AST_statement*>* out);
+    virtual void pre_method(AST_method* in, List<AST_method*>* out);
     virtual AST_signature* pre_signature(AST_signature* in);
     virtual AST_method_mod* pre_method_mod(AST_method_mod* in);
     virtual void pre_formal_parameter(AST_formal_parameter* in, List<AST_formal_parameter*>* out);
@@ -75,8 +75,8 @@ public:
     virtual void pre_actual_parameter(AST_actual_parameter* in, List<AST_actual_parameter*>* out);
     virtual AST_expr* pre_new(AST_new* in);
     virtual AST_expr* pre_clone(AST_clone* in);
-    virtual Token_interface_name* pre_interface_name(Token_interface_name* in);
     virtual Token_class_name* pre_class_name(Token_class_name* in);
+    virtual Token_interface_name* pre_interface_name(Token_interface_name* in);
     virtual Token_method_name* pre_method_name(Token_method_name* in);
     virtual Token_variable_name* pre_variable_name(Token_variable_name* in);
     virtual Token_directive_name* pre_directive_name(Token_directive_name* in);
@@ -91,10 +91,10 @@ public:
 // The post-transform gets called after the children of the node have been transformed
 public:
     virtual AST_php_script* post_php_script(AST_php_script* in);
-    virtual void post_interface_def(AST_interface_def* in, List<AST_interface_def*>* out);
-    virtual void post_class_def(AST_class_def* in, List<AST_class_def*>* out);
+    virtual void post_class_def(AST_class_def* in, List<AST_statement*>* out);
     virtual AST_class_mod* post_class_mod(AST_class_mod* in);
-    virtual void post_method(AST_method* in, List<AST_member*>* out);
+    virtual void post_interface_def(AST_interface_def* in, List<AST_statement*>* out);
+    virtual void post_method(AST_method* in, List<AST_method*>* out);
     virtual AST_signature* post_signature(AST_signature* in);
     virtual AST_method_mod* post_method_mod(AST_method_mod* in);
     virtual void post_formal_parameter(AST_formal_parameter* in, List<AST_formal_parameter*>* out);
@@ -140,8 +140,8 @@ public:
     virtual void post_actual_parameter(AST_actual_parameter* in, List<AST_actual_parameter*>* out);
     virtual AST_expr* post_new(AST_new* in);
     virtual AST_expr* post_clone(AST_clone* in);
-    virtual Token_interface_name* post_interface_name(Token_interface_name* in);
     virtual Token_class_name* post_class_name(Token_class_name* in);
+    virtual Token_interface_name* post_interface_name(Token_interface_name* in);
     virtual Token_method_name* post_method_name(Token_method_name* in);
     virtual Token_variable_name* post_variable_name(Token_variable_name* in);
     virtual Token_directive_name* post_directive_name(Token_directive_name* in);
@@ -156,9 +156,9 @@ public:
 // Transform the children of the node
 public:
     virtual void children_php_script(AST_php_script* in);
-    virtual void children_interface_def(AST_interface_def* in);
     virtual void children_class_def(AST_class_def* in);
     virtual void children_class_mod(AST_class_mod* in);
+    virtual void children_interface_def(AST_interface_def* in);
     virtual void children_method(AST_method* in);
     virtual void children_signature(AST_signature* in);
     virtual void children_method_mod(AST_method_mod* in);
@@ -207,8 +207,8 @@ public:
     virtual void children_clone(AST_clone* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_interface_name(Token_interface_name* in);
     virtual void children_class_name(Token_class_name* in);
+    virtual void children_interface_name(Token_interface_name* in);
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_directive_name(Token_directive_name* in);
@@ -223,19 +223,15 @@ public:
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
 public:
-    virtual List<AST_interface_def*>* transform_interface_def_list(List<AST_interface_def*>* in);
-    virtual List<AST_interface_def*>* transform_interface_def(AST_interface_def* in);
-    virtual List<AST_class_def*>* transform_class_def_list(List<AST_class_def*>* in);
-    virtual List<AST_class_def*>* transform_class_def(AST_class_def* in);
-    virtual Token_interface_name* transform_interface_name(Token_interface_name* in);
+    virtual List<AST_statement*>* transform_statement_list(List<AST_statement*>* in);
+    virtual List<AST_statement*>* transform_statement(AST_statement* in);
+    virtual AST_class_mod* transform_class_mod(AST_class_mod* in);
+    virtual Token_class_name* transform_class_name(Token_class_name* in);
     virtual List<Token_interface_name*>* transform_interface_name_list(List<Token_interface_name*>* in);
     virtual List<AST_member*>* transform_member_list(List<AST_member*>* in);
     virtual List<AST_member*>* transform_member(AST_member* in);
-    virtual AST_class_mod* transform_class_mod(AST_class_mod* in);
-    virtual Token_class_name* transform_class_name(Token_class_name* in);
+    virtual Token_interface_name* transform_interface_name(Token_interface_name* in);
     virtual AST_signature* transform_signature(AST_signature* in);
-    virtual List<AST_statement*>* transform_statement_list(List<AST_statement*>* in);
-    virtual List<AST_statement*>* transform_statement(AST_statement* in);
     virtual AST_method_mod* transform_method_mod(AST_method_mod* in);
     virtual Token_method_name* transform_method_name(Token_method_name* in);
     virtual List<AST_formal_parameter*>* transform_formal_parameter_list(List<AST_formal_parameter*>* in);
@@ -271,8 +267,8 @@ public:
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 protected:
-    virtual void pre_member(AST_member* in, List<AST_member*>* out);
     virtual void pre_statement(AST_statement* in, List<AST_statement*>* out);
+    virtual void pre_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* pre_expr(AST_expr* in);
     virtual void pre_list_element(AST_list_element* in, List<AST_list_element*>* out);
     virtual AST_class_name* pre_class_name(AST_class_name* in);
@@ -282,8 +278,8 @@ protected:
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
 protected:
-    virtual void post_member(AST_member* in, List<AST_member*>* out);
     virtual void post_statement(AST_statement* in, List<AST_statement*>* out);
+    virtual void post_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* post_expr(AST_expr* in);
     virtual void post_list_element(AST_list_element* in, List<AST_list_element*>* out);
     virtual AST_class_name* post_class_name(AST_class_name* in);
@@ -293,8 +289,8 @@ protected:
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
 protected:
-    virtual void children_member(AST_member* in);
     virtual void children_statement(AST_statement* in);
+    virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);
     virtual void children_list_element(AST_list_element* in);
     virtual void children_class_name(AST_class_name* in);

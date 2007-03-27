@@ -11,7 +11,7 @@ PHP_context::PHP_context(FILE* input, String* filename)
 {	
 	init_scanner(input);
 
-	php_script = new AST_php_script();
+	php_script = NULL;
 	current_method = new String("[outside any method]");
 	current_class = new String("[outside any class]");
 

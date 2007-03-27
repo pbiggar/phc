@@ -46,7 +46,7 @@ $tests = array ();
 
 require_once ("basic_parse_tests.php");
 array_push($tests, new PluginTest ("cloning"));
-require_once ("compiled_vs_interpreted.php");
+# require_once ("compiled_vs_interpreted.php");
 require_once ("compile_time_include.php");
 require_once ("interpret_canonical_unparsed.php");
 require_once ("interpret_unparsed.php");

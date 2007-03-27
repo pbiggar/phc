@@ -43,10 +43,14 @@ void AST_node::clone_mixin_from(AST_node* in)
 	}
 }
 
-AST_php_script::AST_php_script(List<AST_interface_def*>* interface_defs, List<AST_class_def*>* class_defs)
+AST_php_script::AST_php_script(List<AST_statement*>* statements)
 {
-    this->interface_defs = interface_defs;
-    this->class_defs = class_defs;
+    this->statements = statements;
+}
+
+AST_php_script::AST_php_script()
+{
+    this->statements = 0;
 }
 
 int AST_php_script::classid()
@@ -64,12 +68,12 @@ bool AST_php_script::match(AST_node* in)
     AST_php_script* that = dynamic_cast<AST_php_script*>(in);
     if(that == NULL) return false;
     
-    if(this->interface_defs != NULL && that->interface_defs != NULL)
+    if(this->statements != NULL && that->statements != NULL)
     {
-    	List<AST_interface_def*>::const_iterator i, j;
+    	List<AST_statement*>::const_iterator i, j;
     	for(
-    		i = this->interface_defs->begin(), j = that->interface_defs->begin();
-    		i != this->interface_defs->end() && j != that->interface_defs->end();
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
     		i++, j++)
     	{
     		if(*i == NULL)
@@ -80,27 +84,7 @@ bool AST_php_script::match(AST_node* in)
     		else if(!(*i)->match(*j))
     			return false;
     	}
-    	if(i != this->interface_defs->end() || j != that->interface_defs->end())
-    		return false;
-    }
-    
-    if(this->class_defs != NULL && that->class_defs != NULL)
-    {
-    	List<AST_class_def*>::const_iterator i, j;
-    	for(
-    		i = this->class_defs->begin(), j = that->class_defs->begin();
-    		i != this->class_defs->end() && j != that->class_defs->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->class_defs->end() || j != that->class_defs->end())
+    	if(i != this->statements->end() || j != that->statements->end())
     		return false;
     }
     
@@ -112,17 +96,17 @@ bool AST_php_script::equals(AST_node* in)
     AST_php_script* that = dynamic_cast<AST_php_script*>(in);
     if(that == NULL) return false;
     
-    if(this->interface_defs == NULL || that->interface_defs == NULL)
+    if(this->statements == NULL || that->statements == NULL)
     {
-    	if(this->interface_defs != NULL || that->interface_defs != NULL)
+    	if(this->statements != NULL || that->statements != NULL)
     		return false;
     }
     else
     {
-    	List<AST_interface_def*>::const_iterator i, j;
+    	List<AST_statement*>::const_iterator i, j;
     	for(
-    		i = this->interface_defs->begin(), j = that->interface_defs->begin();
-    		i != this->interface_defs->end() && j != that->interface_defs->end();
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -133,69 +117,16 @@ bool AST_php_script::equals(AST_node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->interface_defs->end() || j != that->interface_defs->end())
-    		return false;
-    }
-    
-    if(this->class_defs == NULL || that->class_defs == NULL)
-    {
-    	if(this->class_defs != NULL || that->class_defs != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<AST_class_def*>::const_iterator i, j;
-    	for(
-    		i = this->class_defs->begin(), j = that->class_defs->begin();
-    		i != this->class_defs->end() && j != that->class_defs->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->class_defs->end() || j != that->class_defs->end())
+    	if(i != this->statements->end() || j != that->statements->end())
     		return false;
     }
     
     return true;
 }
 
-AST_php_script::AST_php_script()
-{
-    #line 271 "src/generated_src/phc.tea"
-{
-		interface_defs = new List<AST_interface_def*>;
-		class_defs = new List<AST_class_def*>;
-		class_defs->push_back(new AST_class_def("%MAIN%"));
-	}
-}
-
-//  Returns NULL if the class could not be found
-AST_class_def* AST_php_script::get_class_def(const char* name)
-{
-    #line 279 "src/generated_src/phc.tea"
-{
-		List<AST_class_def*>::const_iterator i;
-		for(i = class_defs->begin(); i != class_defs->end(); i++)
-		#line 282 "src/generated_src/phc.tea"
-{
-			AST_class_def* class_def = dynamic_cast<AST_class_def*>(*i);
-			if(class_def && *class_def->class_name->value == name)
-				return class_def;
-		}
-	
-		return NULL;
-	}
-}
-
 void AST_php_script::visit(AST_visitor* visitor)
 {
-    #line 293 "src/generated_src/phc.tea"
+    #line 271 "src/generated_src/phc.tea"
 {
 		visitor->visit_php_script(this);
 	}
@@ -203,7 +134,7 @@ void AST_php_script::visit(AST_visitor* visitor)
 
 AST_php_script* AST_php_script::transform(AST_transform* transform)
 {
-    #line 298 "src/generated_src/phc.tea"
+    #line 276 "src/generated_src/phc.tea"
 {
 		return transform->transform_php_script(this);
 	}
@@ -211,23 +142,15 @@ AST_php_script* AST_php_script::transform(AST_transform* transform)
 
 AST_php_script* AST_php_script::clone()
 {
-    List<AST_interface_def*>* interface_defs = NULL;
-    if(this->interface_defs != NULL)
+    List<AST_statement*>* statements = NULL;
+    if(this->statements != NULL)
     {
-    	List<AST_interface_def*>::const_iterator i;
-    	interface_defs = new List<AST_interface_def*>;
-    	for(i = this->interface_defs->begin(); i != this->interface_defs->end(); i++)
-    		interface_defs->push_back(*i ? (*i)->clone() : NULL);
+    	List<AST_statement*>::const_iterator i;
+    	statements = new List<AST_statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<AST_class_def*>* class_defs = NULL;
-    if(this->class_defs != NULL)
-    {
-    	List<AST_class_def*>::const_iterator i;
-    	class_defs = new List<AST_class_def*>;
-    	for(i = this->class_defs->begin(); i != this->class_defs->end(); i++)
-    		class_defs->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_php_script* clone = new AST_php_script(interface_defs, class_defs);
+    AST_php_script* clone = new AST_php_script(statements);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -246,7 +169,7 @@ AST_class_mod::AST_class_mod()
 
 int AST_class_mod::classid()
 {
-    return 4;
+    return 3;
 }
 
 bool AST_class_mod::match(AST_node* in)
@@ -669,7 +592,7 @@ bool AST_formal_parameter::equals(AST_node* in)
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 397 "src/generated_src/phc.tea"
+    #line 375 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -680,7 +603,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 405 "src/generated_src/phc.tea"
+    #line 383 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -827,7 +750,7 @@ bool AST_attr_mod::equals(AST_node* in)
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 417 "src/generated_src/phc.tea"
+    #line 395 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error(ERR_FINAL_VARS, mm->get_filename(), mm->get_line_number());
@@ -842,7 +765,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 429 "src/generated_src/phc.tea"
+    #line 407 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -850,7 +773,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 434 "src/generated_src/phc.tea"
+    #line 412 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -858,7 +781,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 439 "src/generated_src/phc.tea"
+    #line 417 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -866,7 +789,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 444 "src/generated_src/phc.tea"
+    #line 422 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -874,7 +797,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 449 "src/generated_src/phc.tea"
+    #line 427 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -1165,439 +1088,11 @@ AST_identifier::AST_identifier()
 {
 }
 
-AST_interface_def::AST_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<AST_member*>* members)
+AST_statement::AST_statement()
 {
-    this->interface_name = interface_name;
-    this->extends = extends;
-    this->members = members;
-}
-
-AST_interface_def::AST_interface_def()
-{
-    this->interface_name = 0;
-    this->extends = 0;
-    this->members = 0;
-}
-
-int AST_interface_def::classid()
-{
-    return 2;
-}
-
-bool AST_interface_def::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_interface_def* that = dynamic_cast<AST_interface_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->interface_name == NULL)
-    {
-    	if(that->interface_name != NULL && !that->interface_name->match(this->interface_name))
-    		return false;
-    }
-    else if(!this->interface_name->match(that->interface_name))
-    	return false;
-    
-    if(this->extends != NULL && that->extends != NULL)
-    {
-    	List<Token_interface_name*>::const_iterator i, j;
-    	for(
-    		i = this->extends->begin(), j = that->extends->begin();
-    		i != this->extends->end() && j != that->extends->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->extends->end() || j != that->extends->end())
-    		return false;
-    }
-    
-    if(this->members != NULL && that->members != NULL)
-    {
-    	List<AST_member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool AST_interface_def::equals(AST_node* in)
-{
-    AST_interface_def* that = dynamic_cast<AST_interface_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->interface_name == NULL || that->interface_name == NULL)
-    {
-    	if(this->interface_name != NULL || that->interface_name != NULL)
-    		return false;
-    }
-    else if(!this->interface_name->equals(that->interface_name))
-    	return false;
-    
-    if(this->extends == NULL || that->extends == NULL)
-    {
-    	if(this->extends != NULL || that->extends != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Token_interface_name*>::const_iterator i, j;
-    	for(
-    		i = this->extends->begin(), j = that->extends->begin();
-    		i != this->extends->end() && j != that->extends->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->extends->end() || j != that->extends->end())
-    		return false;
-    }
-    
-    if(this->members == NULL || that->members == NULL)
-    {
-    	if(this->members != NULL || that->members != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<AST_member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-AST_interface_def* AST_interface_def::clone()
-{
-    Token_interface_name* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
-    List<Token_interface_name*>* extends = NULL;
-    if(this->extends != NULL)
-    {
-    	List<Token_interface_name*>::const_iterator i;
-    	extends = new List<Token_interface_name*>;
-    	for(i = this->extends->begin(); i != this->extends->end(); i++)
-    		extends->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<AST_member*>* members = NULL;
-    if(this->members != NULL)
-    {
-    	List<AST_member*>::const_iterator i;
-    	members = new List<AST_member*>;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    		members->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_interface_def* clone = new AST_interface_def(interface_name, extends, members);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-AST_class_def::AST_class_def(AST_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<AST_member*>* members)
-{
-    this->class_mod = class_mod;
-    this->class_name = class_name;
-    this->extends = extends;
-    this->implements = implements;
-    this->members = members;
-}
-
-AST_class_def::AST_class_def()
-{
-    this->class_mod = 0;
-    this->class_name = 0;
-    this->extends = 0;
-    this->implements = 0;
-    this->members = 0;
-}
-
-int AST_class_def::classid()
-{
-    return 3;
-}
-
-bool AST_class_def::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_class_def* that = dynamic_cast<AST_class_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_mod == NULL)
-    {
-    	if(that->class_mod != NULL && !that->class_mod->match(this->class_mod))
-    		return false;
-    }
-    else if(!this->class_mod->match(that->class_mod))
-    	return false;
-    
-    if(this->class_name == NULL)
-    {
-    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
-    		return false;
-    }
-    else if(!this->class_name->match(that->class_name))
-    	return false;
-    
-    if(this->extends == NULL)
-    {
-    	if(that->extends != NULL && !that->extends->match(this->extends))
-    		return false;
-    }
-    else if(!this->extends->match(that->extends))
-    	return false;
-    
-    if(this->implements != NULL && that->implements != NULL)
-    {
-    	List<Token_interface_name*>::const_iterator i, j;
-    	for(
-    		i = this->implements->begin(), j = that->implements->begin();
-    		i != this->implements->end() && j != that->implements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->implements->end() || j != that->implements->end())
-    		return false;
-    }
-    
-    if(this->members != NULL && that->members != NULL)
-    {
-    	List<AST_member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool AST_class_def::equals(AST_node* in)
-{
-    AST_class_def* that = dynamic_cast<AST_class_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_mod == NULL || that->class_mod == NULL)
-    {
-    	if(this->class_mod != NULL || that->class_mod != NULL)
-    		return false;
-    }
-    else if(!this->class_mod->equals(that->class_mod))
-    	return false;
-    
-    if(this->class_name == NULL || that->class_name == NULL)
-    {
-    	if(this->class_name != NULL || that->class_name != NULL)
-    		return false;
-    }
-    else if(!this->class_name->equals(that->class_name))
-    	return false;
-    
-    if(this->extends == NULL || that->extends == NULL)
-    {
-    	if(this->extends != NULL || that->extends != NULL)
-    		return false;
-    }
-    else if(!this->extends->equals(that->extends))
-    	return false;
-    
-    if(this->implements == NULL || that->implements == NULL)
-    {
-    	if(this->implements != NULL || that->implements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Token_interface_name*>::const_iterator i, j;
-    	for(
-    		i = this->implements->begin(), j = that->implements->begin();
-    		i != this->implements->end() && j != that->implements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->implements->end() || j != that->implements->end())
-    		return false;
-    }
-    
-    if(this->members == NULL || that->members == NULL)
-    {
-    	if(this->members != NULL || that->members != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<AST_member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-AST_class_def::AST_class_def(AST_class_mod* mod)
-{
-    #line 307 "src/generated_src/phc.tea"
-{
-		this->class_mod = mod;
-		this->class_name = NULL;
-		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<AST_member*>;
-	}
-}
-
-AST_class_def::AST_class_def(char* name)
-{
-    #line 316 "src/generated_src/phc.tea"
-{
-		this->class_mod = new AST_class_mod(false, false);
-		this->class_name = new Token_class_name(new String(name));
-		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<AST_member*>;
-	}
-}
-
-void AST_class_def::add_member(AST_member* member)
-{
-    #line 325 "src/generated_src/phc.tea"
-{
-		this->members->push_back(member);
-	}
-}
-
-//  Returns NULL if the method could not be found
-AST_method* AST_class_def::get_method(const char* name)
-{
-    #line 331 "src/generated_src/phc.tea"
-{
-		List<AST_member*>::const_iterator i;
-		for(i = members->begin(); i != members->end(); i++)
-		#line 334 "src/generated_src/phc.tea"
-{
-			AST_method* method = dynamic_cast<AST_method*>(*i);
-			if(method && *method->signature->method_name->value == name)
-				return method;
-		}
-
-		return NULL;
-	}
-}
-
-AST_class_def* AST_class_def::clone()
-{
-    AST_class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Token_class_name* extends = this->extends ? this->extends->clone() : NULL;
-    List<Token_interface_name*>* implements = NULL;
-    if(this->implements != NULL)
-    {
-    	List<Token_interface_name*>::const_iterator i;
-    	implements = new List<Token_interface_name*>;
-    	for(i = this->implements->begin(); i != this->implements->end(); i++)
-    		implements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<AST_member*>* members = NULL;
-    if(this->members != NULL)
-    {
-    	List<AST_member*>::const_iterator i;
-    	members = new List<AST_member*>;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    		members->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_class_def* clone = new AST_class_def(class_mod, class_name, extends, implements, members);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_member::AST_member()
-{
-}
-
-AST_statement::AST_statement()
 {
 }
 
@@ -1852,7 +1347,7 @@ AST_catch* AST_catch::clone()
 
 AST_expr::AST_expr()
 {
-    #line 499 "src/generated_src/phc.tea"
+    #line 477 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -2014,66 +1509,6 @@ AST_reflection* AST_reflection::clone()
     return clone;
 }
 
-Token_interface_name::Token_interface_name(String* value)
-{
-    this->value = value;
-}
-
-Token_interface_name::Token_interface_name()
-{
-    this->value = 0;
-}
-
-int Token_interface_name::classid()
-{
-    return 51;
-}
-
-String* Token_interface_name::get_value_as_string()
-{
-    return value;
-}
-
-bool Token_interface_name::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool Token_interface_name::equals(AST_node* in)
-{
-    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    return true;
-}
-
-Token_interface_name* Token_interface_name::clone()
-{
-    String* value = new String(*this->value);
-    Token_interface_name* clone = new Token_interface_name(value);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
 Token_class_name::Token_class_name(String* value)
 {
     this->value = value;
@@ -2086,7 +1521,7 @@ Token_class_name::Token_class_name()
 
 int Token_class_name::classid()
 {
-    return 52;
+    return 51;
 }
 
 String* Token_class_name::get_value_as_string()
@@ -2130,6 +1565,66 @@ Token_class_name* Token_class_name::clone()
 {
     String* value = new String(*this->value);
     Token_class_name* clone = new Token_class_name(value);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+Token_interface_name::Token_interface_name(String* value)
+{
+    this->value = value;
+}
+
+Token_interface_name::Token_interface_name()
+{
+    this->value = 0;
+}
+
+int Token_interface_name::classid()
+{
+    return 52;
+}
+
+String* Token_interface_name::get_value_as_string()
+{
+    return value;
+}
+
+bool Token_interface_name::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool Token_interface_name::equals(AST_node* in)
+{
+    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+Token_interface_name* Token_interface_name::clone()
+{
+    String* value = new String(*this->value);
+    Token_interface_name* clone = new Token_interface_name(value);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -2490,6 +1985,434 @@ Token_constant_name* Token_constant_name::clone()
 {
     String* value = new String(*this->value);
     Token_constant_name* clone = new Token_constant_name(value);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+AST_class_def::AST_class_def(AST_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<AST_member*>* members)
+{
+    this->class_mod = class_mod;
+    this->class_name = class_name;
+    this->extends = extends;
+    this->implements = implements;
+    this->members = members;
+}
+
+AST_class_def::AST_class_def()
+{
+    this->class_mod = 0;
+    this->class_name = 0;
+    this->extends = 0;
+    this->implements = 0;
+    this->members = 0;
+}
+
+int AST_class_def::classid()
+{
+    return 2;
+}
+
+bool AST_class_def::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_class_def* that = dynamic_cast<AST_class_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_mod == NULL)
+    {
+    	if(that->class_mod != NULL && !that->class_mod->match(this->class_mod))
+    		return false;
+    }
+    else if(!this->class_mod->match(that->class_mod))
+    	return false;
+    
+    if(this->class_name == NULL)
+    {
+    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
+    		return false;
+    }
+    else if(!this->class_name->match(that->class_name))
+    	return false;
+    
+    if(this->extends == NULL)
+    {
+    	if(that->extends != NULL && !that->extends->match(this->extends))
+    		return false;
+    }
+    else if(!this->extends->match(that->extends))
+    	return false;
+    
+    if(this->implements != NULL && that->implements != NULL)
+    {
+    	List<Token_interface_name*>::const_iterator i, j;
+    	for(
+    		i = this->implements->begin(), j = that->implements->begin();
+    		i != this->implements->end() && j != that->implements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->implements->end() || j != that->implements->end())
+    		return false;
+    }
+    
+    if(this->members != NULL && that->members != NULL)
+    {
+    	List<AST_member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool AST_class_def::equals(AST_node* in)
+{
+    AST_class_def* that = dynamic_cast<AST_class_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_mod == NULL || that->class_mod == NULL)
+    {
+    	if(this->class_mod != NULL || that->class_mod != NULL)
+    		return false;
+    }
+    else if(!this->class_mod->equals(that->class_mod))
+    	return false;
+    
+    if(this->class_name == NULL || that->class_name == NULL)
+    {
+    	if(this->class_name != NULL || that->class_name != NULL)
+    		return false;
+    }
+    else if(!this->class_name->equals(that->class_name))
+    	return false;
+    
+    if(this->extends == NULL || that->extends == NULL)
+    {
+    	if(this->extends != NULL || that->extends != NULL)
+    		return false;
+    }
+    else if(!this->extends->equals(that->extends))
+    	return false;
+    
+    if(this->implements == NULL || that->implements == NULL)
+    {
+    	if(this->implements != NULL || that->implements != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Token_interface_name*>::const_iterator i, j;
+    	for(
+    		i = this->implements->begin(), j = that->implements->begin();
+    		i != this->implements->end() && j != that->implements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->implements->end() || j != that->implements->end())
+    		return false;
+    }
+    
+    if(this->members == NULL || that->members == NULL)
+    {
+    	if(this->members != NULL || that->members != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<AST_member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+AST_class_def::AST_class_def(AST_class_mod* mod)
+{
+    #line 285 "src/generated_src/phc.tea"
+{
+		this->class_mod = mod;
+		this->class_name = NULL;
+		this->extends = NULL;
+		this->implements = new List<Token_interface_name*>;
+		this->members = new List<AST_member*>;
+	}
+}
+
+AST_class_def::AST_class_def(char* name)
+{
+    #line 294 "src/generated_src/phc.tea"
+{
+		this->class_mod = new AST_class_mod(false, false);
+		this->class_name = new Token_class_name(new String(name));
+		this->extends = NULL;
+		this->implements = new List<Token_interface_name*>;
+		this->members = new List<AST_member*>;
+	}
+}
+
+void AST_class_def::add_member(AST_member* member)
+{
+    #line 303 "src/generated_src/phc.tea"
+{
+		this->members->push_back(member);
+	}
+}
+
+//  Returns NULL if the method could not be found
+AST_method* AST_class_def::get_method(const char* name)
+{
+    #line 309 "src/generated_src/phc.tea"
+{
+		List<AST_member*>::const_iterator i;
+		for(i = members->begin(); i != members->end(); i++)
+		#line 312 "src/generated_src/phc.tea"
+{
+			AST_method* method = dynamic_cast<AST_method*>(*i);
+			if(method && *method->signature->method_name->value == name)
+				return method;
+		}
+
+		return NULL;
+	}
+}
+
+AST_class_def* AST_class_def::clone()
+{
+    AST_class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
+    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Token_class_name* extends = this->extends ? this->extends->clone() : NULL;
+    List<Token_interface_name*>* implements = NULL;
+    if(this->implements != NULL)
+    {
+    	List<Token_interface_name*>::const_iterator i;
+    	implements = new List<Token_interface_name*>;
+    	for(i = this->implements->begin(); i != this->implements->end(); i++)
+    		implements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<AST_member*>* members = NULL;
+    if(this->members != NULL)
+    {
+    	List<AST_member*>::const_iterator i;
+    	members = new List<AST_member*>;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    		members->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_class_def* clone = new AST_class_def(class_mod, class_name, extends, implements, members);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+AST_interface_def::AST_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<AST_member*>* members)
+{
+    this->interface_name = interface_name;
+    this->extends = extends;
+    this->members = members;
+}
+
+AST_interface_def::AST_interface_def()
+{
+    this->interface_name = 0;
+    this->extends = 0;
+    this->members = 0;
+}
+
+int AST_interface_def::classid()
+{
+    return 4;
+}
+
+bool AST_interface_def::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_interface_def* that = dynamic_cast<AST_interface_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->interface_name == NULL)
+    {
+    	if(that->interface_name != NULL && !that->interface_name->match(this->interface_name))
+    		return false;
+    }
+    else if(!this->interface_name->match(that->interface_name))
+    	return false;
+    
+    if(this->extends != NULL && that->extends != NULL)
+    {
+    	List<Token_interface_name*>::const_iterator i, j;
+    	for(
+    		i = this->extends->begin(), j = that->extends->begin();
+    		i != this->extends->end() && j != that->extends->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->extends->end() || j != that->extends->end())
+    		return false;
+    }
+    
+    if(this->members != NULL && that->members != NULL)
+    {
+    	List<AST_member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool AST_interface_def::equals(AST_node* in)
+{
+    AST_interface_def* that = dynamic_cast<AST_interface_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->interface_name == NULL || that->interface_name == NULL)
+    {
+    	if(this->interface_name != NULL || that->interface_name != NULL)
+    		return false;
+    }
+    else if(!this->interface_name->equals(that->interface_name))
+    	return false;
+    
+    if(this->extends == NULL || that->extends == NULL)
+    {
+    	if(this->extends != NULL || that->extends != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Token_interface_name*>::const_iterator i, j;
+    	for(
+    		i = this->extends->begin(), j = that->extends->begin();
+    		i != this->extends->end() && j != that->extends->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->extends->end() || j != that->extends->end())
+    		return false;
+    }
+    
+    if(this->members == NULL || that->members == NULL)
+    {
+    	if(this->members != NULL || that->members != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<AST_member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+AST_interface_def* AST_interface_def::clone()
+{
+    Token_interface_name* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
+    List<Token_interface_name*>* extends = NULL;
+    if(this->extends != NULL)
+    {
+    	List<Token_interface_name*>::const_iterator i;
+    	extends = new List<Token_interface_name*>;
+    	for(i = this->extends->begin(); i != this->extends->end(); i++)
+    		extends->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<AST_member*>* members = NULL;
+    if(this->members != NULL)
+    {
+    	List<AST_member*>::const_iterator i;
+    	members = new List<AST_member*>;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    		members->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_interface_def* clone = new AST_interface_def(interface_name, extends, members);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -4552,7 +4475,7 @@ bool AST_cast::equals(AST_node* in)
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 508 "src/generated_src/phc.tea"
+    #line 486 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -4640,7 +4563,7 @@ bool AST_unary_op::equals(AST_node* in)
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 489 "src/generated_src/phc.tea"
+    #line 467 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -4746,7 +4669,7 @@ bool AST_bin_op::equals(AST_node* in)
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 458 "src/generated_src/phc.tea"
+    #line 436 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -4994,7 +4917,7 @@ bool AST_constant::equals(AST_node* in)
 
 AST_constant::AST_constant(char* class_name, Token_constant_name* constant_name)
 {
-    #line 518 "src/generated_src/phc.tea"
+    #line 496 "src/generated_src/phc.tea"
 {
 		this->class_name = new Token_class_name(new String(class_name));
 		this->constant_name = constant_name;
@@ -5226,7 +5149,7 @@ bool AST_variable::equals(AST_node* in)
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 348 "src/generated_src/phc.tea"
+    #line 326 "src/generated_src/phc.tea"
 {
 		this->target = NULL;
 		this->variable_name = name;
@@ -5237,7 +5160,7 @@ AST_variable::AST_variable(AST_variable_name* name)
 
 void AST_variable::_init()
 {
-    #line 356 "src/generated_src/phc.tea"
+    #line 334 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
@@ -5333,7 +5256,7 @@ bool AST_pre_op::equals(AST_node* in)
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 479 "src/generated_src/phc.tea"
+    #line 457 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5421,7 +5344,7 @@ bool AST_post_op::equals(AST_node* in)
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 469 "src/generated_src/phc.tea"
+    #line 447 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5653,7 +5576,7 @@ bool AST_method_invocation::equals(AST_node* in)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 366 "src/generated_src/phc.tea"
+    #line 344 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -5666,7 +5589,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 376 "src/generated_src/phc.tea"
+    #line 354 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -5678,7 +5601,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 385 "src/generated_src/phc.tea"
+    #line 363 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -5951,7 +5874,7 @@ bool Token_int::equals_value(Token_int* that)
 
 String* Token_int::get_value_as_string()
 {
-    #line 541 "src/generated_src/phc.tea"
+    #line 519 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -6045,7 +5968,7 @@ bool Token_real::equals_value(Token_real* that)
 
 String* Token_real::get_value_as_string()
 {
-    #line 552 "src/generated_src/phc.tea"
+    #line 530 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -6150,7 +6073,7 @@ bool Token_string::equals_value(Token_string* that)
 
 String* Token_string::get_value_as_string()
 {
-    #line 586 "src/generated_src/phc.tea"
+    #line 564 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -6242,7 +6165,7 @@ bool Token_bool::equals_value(Token_bool* that)
 
 String* Token_bool::get_value_as_string()
 {
-    #line 574 "src/generated_src/phc.tea"
+    #line 552 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -6319,7 +6242,7 @@ bool Token_null::equals(AST_node* in)
 
 String* Token_null::get_value_as_string()
 {
-    #line 595 "src/generated_src/phc.tea"
+    #line 573 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}

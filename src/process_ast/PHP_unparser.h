@@ -101,8 +101,6 @@ public:
 	void children_bool(Token_bool* in);
 	void children_null(Token_null* in);
 	
-	void visit_interface_def_list(List<AST_interface_def*>* in);
-	void visit_class_def_list(List<AST_class_def*>* in);
 	void visit_interface_name_list(List<Token_interface_name*>* in);
 	void visit_member_list(List<AST_member*>* in);
 	void visit_statement_list(List<AST_statement*>* in);

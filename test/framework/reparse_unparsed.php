@@ -17,13 +17,13 @@ class ReparseUnparsed extends TwoCommandTest
 	function get_command_line1 ($subject)
 	{
 		global $phc;
-		return "cat $subject | $phc --dump-ast-xml 2>&1";
+		return "cat $subject | $phc --dump-php 2>&1";
 	}
 
 	function get_command_line2 ($subject)
 	{
 		global $phc;
-		return "$phc --dump-php $subject 2>&1 | $phc --dump-ast-xml 2>&1";
+		return "$phc --dump-php $subject 2>&1 | $phc --dump-php 2>&1";
 	}
 
 	function homogenize_output ($string)

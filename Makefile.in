@@ -152,15 +152,6 @@ plugins_tutorials_Comment_ifs_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tutorials_Comment_ifs_la_LDFLAGS) $(LDFLAGS) -o $@
-plugins_tutorials_Expand_includes_la_LIBADD =
-am_plugins_tutorials_Expand_includes_la_OBJECTS = Expand_includes.lo
-plugins_tutorials_Expand_includes_la_OBJECTS =  \
-	$(am_plugins_tutorials_Expand_includes_la_OBJECTS)
-plugins_tutorials_Expand_includes_la_LINK = $(LIBTOOL) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tutorials_Expand_includes_la_LDFLAGS) $(LDFLAGS) -o \
-	$@
 plugins_tutorials_InsertDB_la_LIBADD =
 am_plugins_tutorials_InsertDB_la_OBJECTS = InsertDB.lo
 plugins_tutorials_InsertDB_la_OBJECTS =  \
@@ -177,23 +168,6 @@ plugins_tutorials_MySQL2DBX_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tutorials_MySQL2DBX_la_LDFLAGS) $(LDFLAGS) -o $@
-plugins_tutorials_count_classes_la_LIBADD =
-am_plugins_tutorials_count_classes_la_OBJECTS = count_classes.lo
-plugins_tutorials_count_classes_la_OBJECTS =  \
-	$(am_plugins_tutorials_count_classes_la_OBJECTS)
-plugins_tutorials_count_classes_la_LINK = $(LIBTOOL) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tutorials_count_classes_la_LDFLAGS) $(LDFLAGS) -o $@
-plugins_tutorials_count_function_calls_difficult_la_LIBADD =
-am_plugins_tutorials_count_function_calls_difficult_la_OBJECTS =  \
-	count_function_calls_difficult.lo
-plugins_tutorials_count_function_calls_difficult_la_OBJECTS = $(am_plugins_tutorials_count_function_calls_difficult_la_OBJECTS)
-plugins_tutorials_count_function_calls_difficult_la_LINK = $(LIBTOOL) \
-	--tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
-	$(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tutorials_count_function_calls_difficult_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
 plugins_tutorials_count_function_calls_easy_la_LIBADD =
 am_plugins_tutorials_count_function_calls_easy_la_OBJECTS =  \
 	count_function_calls_easy.lo
@@ -244,8 +218,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
 	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) \
 	Invocation_targets.$(OBJEXT) PHP_unparser.$(OBJEXT) \
-	process_ast.$(OBJEXT) Process_includes.$(OBJEXT) \
-	Remove_concat_null.$(OBJEXT) \
+	process_ast.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Variable_targets.$(OBJEXT) XML_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
@@ -286,11 +259,8 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
-	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
 	$(plugins_tutorials_MySQL2DBX_la_SOURCES) \
-	$(plugins_tutorials_count_classes_la_SOURCES) \
-	$(plugins_tutorials_count_function_calls_difficult_la_SOURCES) \
 	$(plugins_tutorials_count_function_calls_easy_la_SOURCES) \
 	$(plugins_tutorials_count_statements_la_SOURCES) \
 	$(plugins_tutorials_helloworld_la_SOURCES) \
@@ -305,11 +275,8 @@ DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
-	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
 	$(plugins_tutorials_MySQL2DBX_la_SOURCES) \
-	$(plugins_tutorials_count_classes_la_SOURCES) \
-	$(plugins_tutorials_count_function_calls_difficult_la_SOURCES) \
 	$(plugins_tutorials_count_function_calls_easy_la_SOURCES) \
 	$(plugins_tutorials_count_statements_la_SOURCES) \
 	$(plugins_tutorials_helloworld_la_SOURCES) \
@@ -542,8 +509,6 @@ src_phc_SOURCES = \
 	src/process_ast/PHP_unparser.h						\
 	src/process_ast/process_ast.cpp						\
 	src/process_ast/process_ast.h							\
-	src/process_ast/Process_includes.cpp				\
-	src/process_ast/Process_includes.h					\
 	src/process_ast/Remove_concat_null.cpp				\
 	src/process_ast/Remove_concat_null.h				\
 	src/process_ast/Remove_parser_temporaries.cpp	\
@@ -555,6 +520,8 @@ src_phc_SOURCES = \
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h
 
+#	src/process_ast/Process_includes.cpp
+#	src/process_ast/Process_includes.h
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
@@ -593,10 +560,10 @@ strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS = \
 	src/process_ast/DOT_unparser.h			\
 	src/process_ast/PHP_unparser.h			\
-	src/process_ast/Process_includes.h		\
 	src/process_ast/Remove_concat_null.h	\
 	src/process_ast/XML_unparser.h
 
+#	src/process_ast/Process_includes.h
 strangelibdir = $(pkgincludedir)/lib
 strangelib_HEADERS = \
 	src/lib/AttrMap.h		\
@@ -609,6 +576,21 @@ strangelib_HEADERS = \
 	src/lib/Object.h		\
 	src/lib/String.h
 
+
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_classes.la
+#plugins_tutorials_count_classes_la_SOURCES = plugins/tutorials/count_classes.cpp
+#plugins_tutorials_count_classes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_difficult.la
+#plugins_tutorials_count_function_calls_difficult_la_SOURCES = plugins/tutorials/count_function_calls_difficult.cpp
+#plugins_tutorials_count_function_calls_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
+#plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
+#plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/linear.la \
 	plugins/tests/line_numbers.la \
@@ -616,11 +598,8 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
 	plugins/tutorials/Comment_ifs.la \
-	plugins/tutorials/count_classes.la \
-	plugins/tutorials/count_function_calls_difficult.la \
 	plugins/tutorials/count_function_calls_easy.la \
 	plugins/tutorials/count_statements.la \
-	plugins/tutorials/Expand_includes.la \
 	plugins/tutorials/helloworld.la plugins/tutorials/InsertDB.la \
 	plugins/tutorials/MySQL2DBX.la \
 	plugins/tutorials/show_traversal_order.la
@@ -643,16 +622,10 @@ plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tutorials_count_classes_la_SOURCES = plugins/tutorials/count_classes.cpp
-plugins_tutorials_count_classes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tutorials_count_function_calls_difficult_la_SOURCES = plugins/tutorials/count_function_calls_difficult.cpp
-plugins_tutorials_count_function_calls_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_function_calls_easy_la_SOURCES = plugins/tutorials/count_function_calls_easy.cpp
 plugins_tutorials_count_function_calls_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_la_SOURCES = plugins/tutorials/count_statements.cpp
 plugins_tutorials_count_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
-plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_helloworld_la_SOURCES = plugins/tutorials/helloworld.cpp
 plugins_tutorials_helloworld_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_InsertDB_la_SOURCES = plugins/tutorials/InsertDB.cpp
@@ -788,16 +761,10 @@ plugins/tutorials/$(am__dirstamp):
 	@: > plugins/tutorials/$(am__dirstamp)
 plugins/tutorials/Comment_ifs.la: $(plugins_tutorials_Comment_ifs_la_OBJECTS) $(plugins_tutorials_Comment_ifs_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
 	$(plugins_tutorials_Comment_ifs_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_Comment_ifs_la_OBJECTS) $(plugins_tutorials_Comment_ifs_la_LIBADD) $(LIBS)
-plugins/tutorials/Expand_includes.la: $(plugins_tutorials_Expand_includes_la_OBJECTS) $(plugins_tutorials_Expand_includes_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
-	$(plugins_tutorials_Expand_includes_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_Expand_includes_la_OBJECTS) $(plugins_tutorials_Expand_includes_la_LIBADD) $(LIBS)
 plugins/tutorials/InsertDB.la: $(plugins_tutorials_InsertDB_la_OBJECTS) $(plugins_tutorials_InsertDB_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
 	$(plugins_tutorials_InsertDB_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_InsertDB_la_OBJECTS) $(plugins_tutorials_InsertDB_la_LIBADD) $(LIBS)
 plugins/tutorials/MySQL2DBX.la: $(plugins_tutorials_MySQL2DBX_la_OBJECTS) $(plugins_tutorials_MySQL2DBX_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
 	$(plugins_tutorials_MySQL2DBX_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_MySQL2DBX_la_OBJECTS) $(plugins_tutorials_MySQL2DBX_la_LIBADD) $(LIBS)
-plugins/tutorials/count_classes.la: $(plugins_tutorials_count_classes_la_OBJECTS) $(plugins_tutorials_count_classes_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
-	$(plugins_tutorials_count_classes_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_count_classes_la_OBJECTS) $(plugins_tutorials_count_classes_la_LIBADD) $(LIBS)
-plugins/tutorials/count_function_calls_difficult.la: $(plugins_tutorials_count_function_calls_difficult_la_OBJECTS) $(plugins_tutorials_count_function_calls_difficult_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
-	$(plugins_tutorials_count_function_calls_difficult_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_count_function_calls_difficult_la_OBJECTS) $(plugins_tutorials_count_function_calls_difficult_la_LIBADD) $(LIBS)
 plugins/tutorials/count_function_calls_easy.la: $(plugins_tutorials_count_function_calls_easy_la_OBJECTS) $(plugins_tutorials_count_function_calls_easy_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
 	$(plugins_tutorials_count_function_calls_easy_la_LINK) -rpath $(pkglibdir) $(plugins_tutorials_count_function_calls_easy_la_OBJECTS) $(plugins_tutorials_count_function_calls_easy_la_LIBADD) $(LIBS)
 plugins/tutorials/count_statements.la: $(plugins_tutorials_count_statements_la_OBJECTS) $(plugins_tutorials_count_statements_la_DEPENDENCIES) plugins/tutorials/$(am__dirstamp)
@@ -892,7 +859,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
@@ -902,7 +868,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prep.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
@@ -914,8 +879,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/canonical_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cloning.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cmdline.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_classes.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_function_calls_difficult.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_function_calls_easy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Po@am__quote@
@@ -1098,13 +1061,6 @@ Comment_ifs.lo: plugins/tutorials/Comment_ifs.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Comment_ifs.lo `test -f 'plugins/tutorials/Comment_ifs.cpp' || echo '$(srcdir)/'`plugins/tutorials/Comment_ifs.cpp
 
-Expand_includes.lo: plugins/tutorials/Expand_includes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Expand_includes.lo -MD -MP -MF $(DEPDIR)/Expand_includes.Tpo -c -o Expand_includes.lo `test -f 'plugins/tutorials/Expand_includes.cpp' || echo '$(srcdir)/'`plugins/tutorials/Expand_includes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Expand_includes.Tpo $(DEPDIR)/Expand_includes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tutorials/Expand_includes.cpp' object='Expand_includes.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Expand_includes.lo `test -f 'plugins/tutorials/Expand_includes.cpp' || echo '$(srcdir)/'`plugins/tutorials/Expand_includes.cpp
-
 InsertDB.lo: plugins/tutorials/InsertDB.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT InsertDB.lo -MD -MP -MF $(DEPDIR)/InsertDB.Tpo -c -o InsertDB.lo `test -f 'plugins/tutorials/InsertDB.cpp' || echo '$(srcdir)/'`plugins/tutorials/InsertDB.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/InsertDB.Tpo $(DEPDIR)/InsertDB.Plo
@@ -1118,20 +1074,6 @@ MySQL2DBX.lo: plugins/tutorials/MySQL2DBX.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tutorials/MySQL2DBX.cpp' object='MySQL2DBX.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MySQL2DBX.lo `test -f 'plugins/tutorials/MySQL2DBX.cpp' || echo '$(srcdir)/'`plugins/tutorials/MySQL2DBX.cpp
-
-count_classes.lo: plugins/tutorials/count_classes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT count_classes.lo -MD -MP -MF $(DEPDIR)/count_classes.Tpo -c -o count_classes.lo `test -f 'plugins/tutorials/count_classes.cpp' || echo '$(srcdir)/'`plugins/tutorials/count_classes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/count_classes.Tpo $(DEPDIR)/count_classes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tutorials/count_classes.cpp' object='count_classes.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o count_classes.lo `test -f 'plugins/tutorials/count_classes.cpp' || echo '$(srcdir)/'`plugins/tutorials/count_classes.cpp
-
-count_function_calls_difficult.lo: plugins/tutorials/count_function_calls_difficult.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT count_function_calls_difficult.lo -MD -MP -MF $(DEPDIR)/count_function_calls_difficult.Tpo -c -o count_function_calls_difficult.lo `test -f 'plugins/tutorials/count_function_calls_difficult.cpp' || echo '$(srcdir)/'`plugins/tutorials/count_function_calls_difficult.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/count_function_calls_difficult.Tpo $(DEPDIR)/count_function_calls_difficult.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tutorials/count_function_calls_difficult.cpp' object='count_function_calls_difficult.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o count_function_calls_difficult.lo `test -f 'plugins/tutorials/count_function_calls_difficult.cpp' || echo '$(srcdir)/'`plugins/tutorials/count_function_calls_difficult.cpp
 
 count_function_calls_easy.lo: plugins/tutorials/count_function_calls_easy.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT count_function_calls_easy.lo -MD -MP -MF $(DEPDIR)/count_function_calls_easy.Tpo -c -o count_function_calls_easy.lo `test -f 'plugins/tutorials/count_function_calls_easy.cpp' || echo '$(srcdir)/'`plugins/tutorials/count_function_calls_easy.cpp
@@ -1482,20 +1424,6 @@ process_ast.obj: src/process_ast/process_ast.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/process_ast.cpp' object='process_ast.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o process_ast.obj `if test -f 'src/process_ast/process_ast.cpp'; then $(CYGPATH_W) 'src/process_ast/process_ast.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/process_ast.cpp'; fi`
-
-Process_includes.o: src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.o -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
-
-Process_includes.obj: src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.obj -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
 
 Remove_concat_null.o: src/process_ast/Remove_concat_null.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Remove_concat_null.o -MD -MP -MF $(DEPDIR)/Remove_concat_null.Tpo -c -o Remove_concat_null.o `test -f 'src/process_ast/Remove_concat_null.cpp' || echo '$(srcdir)/'`src/process_ast/Remove_concat_null.cpp

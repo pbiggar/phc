@@ -8,7 +8,7 @@ void AST_visitor::pre_php_script(AST_php_script* in)
 {
 }
 
-void AST_visitor::pre_interface_def(AST_interface_def* in)
+void AST_visitor::pre_statement(AST_statement* in)
 {
 }
 
@@ -17,6 +17,10 @@ void AST_visitor::pre_class_def(AST_class_def* in)
 }
 
 void AST_visitor::pre_class_mod(AST_class_mod* in)
+{
+}
+
+void AST_visitor::pre_interface_def(AST_interface_def* in)
 {
 }
 
@@ -49,10 +53,6 @@ void AST_visitor::pre_attribute(AST_attribute* in)
 }
 
 void AST_visitor::pre_attr_mod(AST_attr_mod* in)
-{
-}
-
-void AST_visitor::pre_statement(AST_statement* in)
 {
 }
 
@@ -252,11 +252,11 @@ void AST_visitor::pre_identifier(AST_identifier* in)
 {
 }
 
-void AST_visitor::pre_interface_name(Token_interface_name* in)
+void AST_visitor::pre_class_name(Token_class_name* in)
 {
 }
 
-void AST_visitor::pre_class_name(Token_class_name* in)
+void AST_visitor::pre_interface_name(Token_interface_name* in)
 {
 }
 
@@ -308,7 +308,7 @@ void AST_visitor::post_php_script(AST_php_script* in)
 {
 }
 
-void AST_visitor::post_interface_def(AST_interface_def* in)
+void AST_visitor::post_statement(AST_statement* in)
 {
 }
 
@@ -317,6 +317,10 @@ void AST_visitor::post_class_def(AST_class_def* in)
 }
 
 void AST_visitor::post_class_mod(AST_class_mod* in)
+{
+}
+
+void AST_visitor::post_interface_def(AST_interface_def* in)
 {
 }
 
@@ -349,10 +353,6 @@ void AST_visitor::post_attribute(AST_attribute* in)
 }
 
 void AST_visitor::post_attr_mod(AST_attr_mod* in)
-{
-}
-
-void AST_visitor::post_statement(AST_statement* in)
 {
 }
 
@@ -552,11 +552,11 @@ void AST_visitor::post_identifier(AST_identifier* in)
 {
 }
 
-void AST_visitor::post_interface_name(Token_interface_name* in)
+void AST_visitor::post_class_name(Token_class_name* in)
 {
 }
 
-void AST_visitor::post_class_name(Token_class_name* in)
+void AST_visitor::post_interface_name(Token_interface_name* in)
 {
 }
 
@@ -606,15 +606,7 @@ void AST_visitor::post_constant_name(Token_constant_name* in)
 
 void AST_visitor::children_php_script(AST_php_script* in)
 {
-    visit_interface_def_list(in->interface_defs);
-    visit_class_def_list(in->class_defs);
-}
-
-void AST_visitor::children_interface_def(AST_interface_def* in)
-{
-    visit_interface_name(in->interface_name);
-    visit_interface_name_list(in->extends);
-    visit_member_list(in->members);
+    visit_statement_list(in->statements);
 }
 
 void AST_visitor::children_class_def(AST_class_def* in)
@@ -630,6 +622,13 @@ void AST_visitor::children_class_mod(AST_class_mod* in)
 {
     visit_marker("is_abstract", in->is_abstract);
     visit_marker("is_final", in->is_final);
+}
+
+void AST_visitor::children_interface_def(AST_interface_def* in)
+{
+    visit_interface_name(in->interface_name);
+    visit_interface_name_list(in->extends);
+    visit_member_list(in->members);
 }
 
 void AST_visitor::children_method(AST_method* in)
@@ -921,11 +920,11 @@ void AST_visitor::children_clone(AST_clone* in)
     visit_expr(in->expr);
 }
 
-void AST_visitor::children_interface_name(Token_interface_name* in)
+void AST_visitor::children_class_name(Token_class_name* in)
 {
 }
 
-void AST_visitor::children_class_name(Token_class_name* in)
+void AST_visitor::children_interface_name(Token_interface_name* in)
 {
 }
 
@@ -979,17 +978,11 @@ void AST_visitor::pre_php_script_chain(AST_php_script* in)
     pre_php_script(in);
 }
 
-void AST_visitor::pre_interface_def_chain(AST_interface_def* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_interface_def(in);
-}
-
 void AST_visitor::pre_class_def_chain(AST_class_def* in)
 {
     pre_node(in);
     pre_commented_node(in);
+    pre_statement(in);
     pre_class_def(in);
 }
 
@@ -999,11 +992,20 @@ void AST_visitor::pre_class_mod_chain(AST_class_mod* in)
     pre_class_mod(in);
 }
 
+void AST_visitor::pre_interface_def_chain(AST_interface_def* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_interface_def(in);
+}
+
 void AST_visitor::pre_method_chain(AST_method* in)
 {
     pre_node(in);
     pre_commented_node(in);
     pre_member(in);
+    pre_statement(in);
     pre_method(in);
 }
 
@@ -1350,13 +1352,6 @@ void AST_visitor::pre_clone_chain(AST_clone* in)
     pre_clone(in);
 }
 
-void AST_visitor::pre_interface_name_chain(Token_interface_name* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_interface_name(in);
-}
-
 void AST_visitor::pre_class_name_chain(Token_class_name* in)
 {
     pre_node(in);
@@ -1364,6 +1359,13 @@ void AST_visitor::pre_class_name_chain(Token_class_name* in)
     pre_class_name(in);
     pre_target(in);
     pre_class_name(in);
+}
+
+void AST_visitor::pre_interface_name_chain(Token_interface_name* in)
+{
+    pre_node(in);
+    pre_identifier(in);
+    pre_interface_name(in);
 }
 
 void AST_visitor::pre_method_name_chain(Token_method_name* in)
@@ -1461,16 +1463,10 @@ void AST_visitor::post_php_script_chain(AST_php_script* in)
     post_node(in);
 }
 
-void AST_visitor::post_interface_def_chain(AST_interface_def* in)
-{
-    post_interface_def(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
 void AST_visitor::post_class_def_chain(AST_class_def* in)
 {
     post_class_def(in);
+    post_statement(in);
     post_commented_node(in);
     post_node(in);
 }
@@ -1481,9 +1477,18 @@ void AST_visitor::post_class_mod_chain(AST_class_mod* in)
     post_node(in);
 }
 
+void AST_visitor::post_interface_def_chain(AST_interface_def* in)
+{
+    post_interface_def(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
 void AST_visitor::post_method_chain(AST_method* in)
 {
     post_method(in);
+    post_statement(in);
     post_member(in);
     post_commented_node(in);
     post_node(in);
@@ -1832,18 +1837,18 @@ void AST_visitor::post_clone_chain(AST_clone* in)
     post_node(in);
 }
 
-void AST_visitor::post_interface_name_chain(Token_interface_name* in)
-{
-    post_interface_name(in);
-    post_identifier(in);
-    post_node(in);
-}
-
 void AST_visitor::post_class_name_chain(Token_class_name* in)
 {
     post_class_name(in);
     post_target(in);
     post_class_name(in);
+    post_identifier(in);
+    post_node(in);
+}
+
+void AST_visitor::post_interface_name_chain(Token_interface_name* in)
+{
+    post_interface_name(in);
     post_identifier(in);
     post_node(in);
 }
@@ -1937,63 +1942,51 @@ void AST_visitor::post_constant_name_chain(Token_constant_name* in)
     post_node(in);
 }
 
-void AST_visitor::visit_interface_def_list(List<AST_interface_def*>* in)
+void AST_visitor::visit_statement_list(List<AST_statement*>* in)
 {
-    List<AST_interface_def*>::const_iterator i;
+    List<AST_statement*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_interface_def*>");
+    	visit_null("List<AST_statement*>");
     else for(i = in->begin(); i != in->end(); i++)
     {
-    	visit_interface_def(*i);
+    	visit_statement(*i);
     }
 }
 
-void AST_visitor::visit_interface_def(AST_interface_def* in)
+void AST_visitor::visit_statement(AST_statement* in)
 {
     if(in == NULL)
-    	visit_null("List<AST_interface_def*>");
+    	visit_null("List<AST_statement*>");
     else
     {
-    	pre_interface_def_chain(in);
-    	children_interface_def(in);
-    	post_interface_def_chain(in);
+    	pre_statement_chain(in);
+    	children_statement(in);
+    	post_statement_chain(in);
     }
 }
 
-void AST_visitor::visit_class_def_list(List<AST_class_def*>* in)
-{
-    List<AST_class_def*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null("List<AST_class_def*>");
-    else for(i = in->begin(); i != in->end(); i++)
-    {
-    	visit_class_def(*i);
-    }
-}
-
-void AST_visitor::visit_class_def(AST_class_def* in)
+void AST_visitor::visit_class_mod(AST_class_mod* in)
 {
     if(in == NULL)
-    	visit_null("List<AST_class_def*>");
+    	visit_null("AST_class_mod");
     else
     {
-    	pre_class_def_chain(in);
-    	children_class_def(in);
-    	post_class_def_chain(in);
+    	pre_class_mod_chain(in);
+    	children_class_mod(in);
+    	post_class_mod_chain(in);
     }
 }
 
-void AST_visitor::visit_interface_name(Token_interface_name* in)
+void AST_visitor::visit_class_name(Token_class_name* in)
 {
     if(in == NULL)
-    	visit_null("Token_interface_name");
+    	visit_null("Token_class_name");
     else
     {
-    	pre_interface_name_chain(in);
-    	children_interface_name(in);
-    	post_interface_name_chain(in);
+    	pre_class_name_chain(in);
+    	children_class_name(in);
+    	post_class_name_chain(in);
     }
 }
 
@@ -2033,27 +2026,15 @@ void AST_visitor::visit_member(AST_member* in)
     }
 }
 
-void AST_visitor::visit_class_mod(AST_class_mod* in)
+void AST_visitor::visit_interface_name(Token_interface_name* in)
 {
     if(in == NULL)
-    	visit_null("AST_class_mod");
+    	visit_null("Token_interface_name");
     else
     {
-    	pre_class_mod_chain(in);
-    	children_class_mod(in);
-    	post_class_mod_chain(in);
-    }
-}
-
-void AST_visitor::visit_class_name(Token_class_name* in)
-{
-    if(in == NULL)
-    	visit_null("Token_class_name");
-    else
-    {
-    	pre_class_name_chain(in);
-    	children_class_name(in);
-    	post_class_name_chain(in);
+    	pre_interface_name_chain(in);
+    	children_interface_name(in);
+    	post_interface_name_chain(in);
     }
 }
 
@@ -2066,30 +2047,6 @@ void AST_visitor::visit_signature(AST_signature* in)
     	pre_signature_chain(in);
     	children_signature(in);
     	post_signature_chain(in);
-    }
-}
-
-void AST_visitor::visit_statement_list(List<AST_statement*>* in)
-{
-    List<AST_statement*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null("List<AST_statement*>");
-    else for(i = in->begin(); i != in->end(); i++)
-    {
-    	visit_statement(*i);
-    }
-}
-
-void AST_visitor::visit_statement(AST_statement* in)
-{
-    if(in == NULL)
-    	visit_null("List<AST_statement*>");
-    else
-    {
-    	pre_statement_chain(in);
-    	children_statement(in);
-    	post_statement_chain(in);
     }
 }
 
@@ -2485,23 +2442,19 @@ void AST_visitor::visit_marker(char const* name, bool value)
 {
 }
 
-void AST_visitor::pre_member_chain(AST_member* in)
-{
-    switch(in->classid())
-    {
-    case 5:
-    	pre_method_chain(dynamic_cast<AST_method*>(in));
-    	break;
-    case 10:
-    	pre_attribute_chain(dynamic_cast<AST_attribute*>(in));
-    	break;
-    }
-}
-
 void AST_visitor::pre_statement_chain(AST_statement* in)
 {
     switch(in->classid())
     {
+    case 2:
+    	pre_class_def_chain(dynamic_cast<AST_class_def*>(in));
+    	break;
+    case 4:
+    	pre_interface_def_chain(dynamic_cast<AST_interface_def*>(in));
+    	break;
+    case 5:
+    	pre_method_chain(dynamic_cast<AST_method*>(in));
+    	break;
     case 12:
     	pre_if_chain(dynamic_cast<AST_if*>(in));
     	break;
@@ -2549,6 +2502,19 @@ void AST_visitor::pre_statement_chain(AST_statement* in)
     	break;
     case 30:
     	pre_nop_chain(dynamic_cast<AST_nop*>(in));
+    	break;
+    }
+}
+
+void AST_visitor::pre_member_chain(AST_member* in)
+{
+    switch(in->classid())
+    {
+    case 5:
+    	pre_method_chain(dynamic_cast<AST_method*>(in));
+    	break;
+    case 10:
+    	pre_attribute_chain(dynamic_cast<AST_attribute*>(in));
     	break;
     }
 }
@@ -2640,7 +2606,7 @@ void AST_visitor::pre_class_name_chain(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52:
+    case 51:
     	pre_class_name_chain(dynamic_cast<Token_class_name*>(in));
     	break;
     case 42:
@@ -2716,7 +2682,7 @@ void AST_visitor::pre_target_chain(AST_target* in)
     case 60:
     	pre_null_chain(dynamic_cast<Token_null*>(in));
     	break;
-    case 52:
+    case 51:
     	pre_class_name_chain(dynamic_cast<Token_class_name*>(in));
     	break;
     }
@@ -2748,23 +2714,19 @@ void AST_visitor::pre_method_name_chain(AST_method_name* in)
     }
 }
 
-void AST_visitor::post_member_chain(AST_member* in)
-{
-    switch(in->classid())
-    {
-    case 5:
-    	post_method_chain(dynamic_cast<AST_method*>(in));
-    	break;
-    case 10:
-    	post_attribute_chain(dynamic_cast<AST_attribute*>(in));
-    	break;
-    }
-}
-
 void AST_visitor::post_statement_chain(AST_statement* in)
 {
     switch(in->classid())
     {
+    case 2:
+    	post_class_def_chain(dynamic_cast<AST_class_def*>(in));
+    	break;
+    case 4:
+    	post_interface_def_chain(dynamic_cast<AST_interface_def*>(in));
+    	break;
+    case 5:
+    	post_method_chain(dynamic_cast<AST_method*>(in));
+    	break;
     case 12:
     	post_if_chain(dynamic_cast<AST_if*>(in));
     	break;
@@ -2812,6 +2774,19 @@ void AST_visitor::post_statement_chain(AST_statement* in)
     	break;
     case 30:
     	post_nop_chain(dynamic_cast<AST_nop*>(in));
+    	break;
+    }
+}
+
+void AST_visitor::post_member_chain(AST_member* in)
+{
+    switch(in->classid())
+    {
+    case 5:
+    	post_method_chain(dynamic_cast<AST_method*>(in));
+    	break;
+    case 10:
+    	post_attribute_chain(dynamic_cast<AST_attribute*>(in));
     	break;
     }
 }
@@ -2903,7 +2878,7 @@ void AST_visitor::post_class_name_chain(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52:
+    case 51:
     	post_class_name_chain(dynamic_cast<Token_class_name*>(in));
     	break;
     case 42:
@@ -2979,7 +2954,7 @@ void AST_visitor::post_target_chain(AST_target* in)
     case 60:
     	post_null_chain(dynamic_cast<Token_null*>(in));
     	break;
-    case 52:
+    case 51:
     	post_class_name_chain(dynamic_cast<Token_class_name*>(in));
     	break;
     }
@@ -3011,23 +2986,19 @@ void AST_visitor::post_method_name_chain(AST_method_name* in)
     }
 }
 
-void AST_visitor::children_member(AST_member* in)
-{
-    switch(in->classid())
-    {
-    case 5:
-    	children_method(dynamic_cast<AST_method*>(in));
-    	break;
-    case 10:
-    	children_attribute(dynamic_cast<AST_attribute*>(in));
-    	break;
-    }
-}
-
 void AST_visitor::children_statement(AST_statement* in)
 {
     switch(in->classid())
     {
+    case 2:
+    	children_class_def(dynamic_cast<AST_class_def*>(in));
+    	break;
+    case 4:
+    	children_interface_def(dynamic_cast<AST_interface_def*>(in));
+    	break;
+    case 5:
+    	children_method(dynamic_cast<AST_method*>(in));
+    	break;
     case 12:
     	children_if(dynamic_cast<AST_if*>(in));
     	break;
@@ -3075,6 +3046,19 @@ void AST_visitor::children_statement(AST_statement* in)
     	break;
     case 30:
     	children_nop(dynamic_cast<AST_nop*>(in));
+    	break;
+    }
+}
+
+void AST_visitor::children_member(AST_member* in)
+{
+    switch(in->classid())
+    {
+    case 5:
+    	children_method(dynamic_cast<AST_method*>(in));
+    	break;
+    case 10:
+    	children_attribute(dynamic_cast<AST_attribute*>(in));
     	break;
     }
 }
@@ -3166,7 +3150,7 @@ void AST_visitor::children_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52:
+    case 51:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
     case 42:
@@ -3242,7 +3226,7 @@ void AST_visitor::children_target(AST_target* in)
     case 60:
     	children_null(dynamic_cast<Token_null*>(in));
     	break;
-    case 52:
+    case 51:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
     }

@@ -316,16 +316,8 @@ start:
 			// If there are any remaining comments, add them as a NOP
 			if(!context->last_comments.empty())
 				body->push_back(NEW(AST_nop, ()));
-		
-			AST_signature* signature = NEW(AST_signature, ("%run%"));
-			signature->method_mod = AST_method_mod::new_STATIC();
-
-			context->php_script->get_class_def("%MAIN%")->add_member(NEW(AST_method, (signature, body)));
-			
-			// Make %MAIN% the last class definition
-			AST_class_def* main = context->php_script->class_defs->front();
-			context->php_script->class_defs->pop_front();
-			context->php_script->class_defs->push_back(main);
+	
+			context->php_script = new AST_php_script(body);	
 		}
 	;
 
@@ -964,11 +956,7 @@ is_reference:
 	;
 
 /*
- * Synthesises nothing.
- *
- * The function is added directly to the %MAIN% class. This is necessary,
- * because the structure of the tree as we build it (consisting of classes
- * only) disagrees with the structure of the PHP grammar here.
+ * Synthesises an AST_method. 
  */
 unticked_function_declaration_statement:
 	  keyword_function is_reference IDENT {context->current_method = dynamic_cast<String*>($3);} '(' parameter_list ')' block
@@ -983,17 +971,12 @@ unticked_function_declaration_statement:
 			fn->signature = signature;
 			fn->statements = body;
 
-			context->php_script->get_class_def("%MAIN%")->add_member(fn);	
-
-			$$ = NULL;
+			$$ = fn;
 		}
 	;
 
 /*
- * Synthesises nothing
- *
- * The class or interface declaration is added directly to the script,
- * because as fas as PHP is concerned, this is a statement (but we disagree)
+ * Synthesises an AST_class_def or an AST_interface_def
  */
 unticked_class_declaration_statement:
 	  class_entry_type IDENT {context->current_class = dynamic_cast<String*>($2);} extends_from implements_list '{' class_statement_list '}'
@@ -1009,9 +992,7 @@ unticked_class_declaration_statement:
 			new_class->implements = implements;
 			new_class->members = members;
 
-			context->php_script->class_defs->push_back(new_class);
-
-			$$ = NULL;
+			$$ = new_class;
 		}
 	| interface_entry IDENT interface_extends_list '{' class_statement_list '}'
 		{
@@ -1024,9 +1005,7 @@ unticked_class_declaration_statement:
 			idef->extends = extends;
 			idef->members = members;
 			
-			context->php_script->interface_defs->push_back(idef);
-
-			$$ = NULL;
+			$$ = idef;
 		}
 	;
 

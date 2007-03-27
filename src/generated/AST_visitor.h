@@ -25,9 +25,10 @@ public:
     virtual ~AST_visitor();
 public:
     virtual void pre_php_script(AST_php_script* in);
-    virtual void pre_interface_def(AST_interface_def* in);
+    virtual void pre_statement(AST_statement* in);
     virtual void pre_class_def(AST_class_def* in);
     virtual void pre_class_mod(AST_class_mod* in);
+    virtual void pre_interface_def(AST_interface_def* in);
     virtual void pre_member(AST_member* in);
     virtual void pre_method(AST_method* in);
     virtual void pre_signature(AST_signature* in);
@@ -36,7 +37,6 @@ public:
     virtual void pre_type(AST_type* in);
     virtual void pre_attribute(AST_attribute* in);
     virtual void pre_attr_mod(AST_attr_mod* in);
-    virtual void pre_statement(AST_statement* in);
     virtual void pre_if(AST_if* in);
     virtual void pre_while(AST_while* in);
     virtual void pre_do(AST_do* in);
@@ -86,8 +86,8 @@ public:
     virtual void pre_node(AST_node* in);
     virtual void pre_commented_node(AST_commented_node* in);
     virtual void pre_identifier(AST_identifier* in);
-    virtual void pre_interface_name(Token_interface_name* in);
     virtual void pre_class_name(Token_class_name* in);
+    virtual void pre_interface_name(Token_interface_name* in);
     virtual void pre_method_name(Token_method_name* in);
     virtual void pre_variable_name(Token_variable_name* in);
     virtual void pre_directive_name(Token_directive_name* in);
@@ -101,9 +101,10 @@ public:
     virtual void pre_constant_name(Token_constant_name* in);
 public:
     virtual void post_php_script(AST_php_script* in);
-    virtual void post_interface_def(AST_interface_def* in);
+    virtual void post_statement(AST_statement* in);
     virtual void post_class_def(AST_class_def* in);
     virtual void post_class_mod(AST_class_mod* in);
+    virtual void post_interface_def(AST_interface_def* in);
     virtual void post_member(AST_member* in);
     virtual void post_method(AST_method* in);
     virtual void post_signature(AST_signature* in);
@@ -112,7 +113,6 @@ public:
     virtual void post_type(AST_type* in);
     virtual void post_attribute(AST_attribute* in);
     virtual void post_attr_mod(AST_attr_mod* in);
-    virtual void post_statement(AST_statement* in);
     virtual void post_if(AST_if* in);
     virtual void post_while(AST_while* in);
     virtual void post_do(AST_do* in);
@@ -162,8 +162,8 @@ public:
     virtual void post_node(AST_node* in);
     virtual void post_commented_node(AST_commented_node* in);
     virtual void post_identifier(AST_identifier* in);
-    virtual void post_interface_name(Token_interface_name* in);
     virtual void post_class_name(Token_class_name* in);
+    virtual void post_interface_name(Token_interface_name* in);
     virtual void post_method_name(Token_method_name* in);
     virtual void post_variable_name(Token_variable_name* in);
     virtual void post_directive_name(Token_directive_name* in);
@@ -177,9 +177,9 @@ public:
     virtual void post_constant_name(Token_constant_name* in);
 public:
     virtual void children_php_script(AST_php_script* in);
-    virtual void children_interface_def(AST_interface_def* in);
     virtual void children_class_def(AST_class_def* in);
     virtual void children_class_mod(AST_class_mod* in);
+    virtual void children_interface_def(AST_interface_def* in);
     virtual void children_method(AST_method* in);
     virtual void children_signature(AST_signature* in);
     virtual void children_method_mod(AST_method_mod* in);
@@ -227,8 +227,8 @@ public:
     virtual void children_new(AST_new* in);
     virtual void children_clone(AST_clone* in);
 public:
-    virtual void children_interface_name(Token_interface_name* in);
     virtual void children_class_name(Token_class_name* in);
+    virtual void children_interface_name(Token_interface_name* in);
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_directive_name(Token_directive_name* in);
@@ -242,9 +242,9 @@ public:
     virtual void children_constant_name(Token_constant_name* in);
 public:
     virtual void pre_php_script_chain(AST_php_script* in);
-    virtual void pre_interface_def_chain(AST_interface_def* in);
     virtual void pre_class_def_chain(AST_class_def* in);
     virtual void pre_class_mod_chain(AST_class_mod* in);
+    virtual void pre_interface_def_chain(AST_interface_def* in);
     virtual void pre_method_chain(AST_method* in);
     virtual void pre_signature_chain(AST_signature* in);
     virtual void pre_method_mod_chain(AST_method_mod* in);
@@ -291,8 +291,8 @@ public:
     virtual void pre_actual_parameter_chain(AST_actual_parameter* in);
     virtual void pre_new_chain(AST_new* in);
     virtual void pre_clone_chain(AST_clone* in);
-    virtual void pre_interface_name_chain(Token_interface_name* in);
     virtual void pre_class_name_chain(Token_class_name* in);
+    virtual void pre_interface_name_chain(Token_interface_name* in);
     virtual void pre_method_name_chain(Token_method_name* in);
     virtual void pre_variable_name_chain(Token_variable_name* in);
     virtual void pre_directive_name_chain(Token_directive_name* in);
@@ -306,9 +306,9 @@ public:
     virtual void pre_constant_name_chain(Token_constant_name* in);
 public:
     virtual void post_php_script_chain(AST_php_script* in);
-    virtual void post_interface_def_chain(AST_interface_def* in);
     virtual void post_class_def_chain(AST_class_def* in);
     virtual void post_class_mod_chain(AST_class_mod* in);
+    virtual void post_interface_def_chain(AST_interface_def* in);
     virtual void post_method_chain(AST_method* in);
     virtual void post_signature_chain(AST_signature* in);
     virtual void post_method_mod_chain(AST_method_mod* in);
@@ -355,8 +355,8 @@ public:
     virtual void post_actual_parameter_chain(AST_actual_parameter* in);
     virtual void post_new_chain(AST_new* in);
     virtual void post_clone_chain(AST_clone* in);
-    virtual void post_interface_name_chain(Token_interface_name* in);
     virtual void post_class_name_chain(Token_class_name* in);
+    virtual void post_interface_name_chain(Token_interface_name* in);
     virtual void post_method_name_chain(Token_method_name* in);
     virtual void post_variable_name_chain(Token_variable_name* in);
     virtual void post_directive_name_chain(Token_directive_name* in);
@@ -369,19 +369,15 @@ public:
     virtual void post_op_chain(Token_op* in);
     virtual void post_constant_name_chain(Token_constant_name* in);
 public:
-    virtual void visit_interface_def_list(List<AST_interface_def*>* in);
-    virtual void visit_interface_def(AST_interface_def* in);
-    virtual void visit_class_def_list(List<AST_class_def*>* in);
-    virtual void visit_class_def(AST_class_def* in);
-    virtual void visit_interface_name(Token_interface_name* in);
+    virtual void visit_statement_list(List<AST_statement*>* in);
+    virtual void visit_statement(AST_statement* in);
+    virtual void visit_class_mod(AST_class_mod* in);
+    virtual void visit_class_name(Token_class_name* in);
     virtual void visit_interface_name_list(List<Token_interface_name*>* in);
     virtual void visit_member_list(List<AST_member*>* in);
     virtual void visit_member(AST_member* in);
-    virtual void visit_class_mod(AST_class_mod* in);
-    virtual void visit_class_name(Token_class_name* in);
+    virtual void visit_interface_name(Token_interface_name* in);
     virtual void visit_signature(AST_signature* in);
-    virtual void visit_statement_list(List<AST_statement*>* in);
-    virtual void visit_statement(AST_statement* in);
     virtual void visit_method_mod(AST_method_mod* in);
     virtual void visit_method_name(Token_method_name* in);
     virtual void visit_formal_parameter_list(List<AST_formal_parameter*>* in);
@@ -418,8 +414,8 @@ public:
     virtual void visit_null(char const* name);
     virtual void visit_marker(char const* name, bool value);
 protected:
-    virtual void pre_member_chain(AST_member* in);
     virtual void pre_statement_chain(AST_statement* in);
+    virtual void pre_member_chain(AST_member* in);
     virtual void pre_expr_chain(AST_expr* in);
     virtual void pre_list_element_chain(AST_list_element* in);
     virtual void pre_class_name_chain(AST_class_name* in);
@@ -427,8 +423,8 @@ protected:
     virtual void pre_variable_name_chain(AST_variable_name* in);
     virtual void pre_method_name_chain(AST_method_name* in);
 protected:
-    virtual void post_member_chain(AST_member* in);
     virtual void post_statement_chain(AST_statement* in);
+    virtual void post_member_chain(AST_member* in);
     virtual void post_expr_chain(AST_expr* in);
     virtual void post_list_element_chain(AST_list_element* in);
     virtual void post_class_name_chain(AST_class_name* in);
@@ -436,8 +432,8 @@ protected:
     virtual void post_variable_name_chain(AST_variable_name* in);
     virtual void post_method_name_chain(AST_method_name* in);
 protected:
-    virtual void children_member(AST_member* in);
     virtual void children_statement(AST_statement* in);
+    virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);
     virtual void children_list_element(AST_list_element* in);
     virtual void children_class_name(AST_class_name* in);

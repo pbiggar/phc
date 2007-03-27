@@ -35,23 +35,23 @@ class AST_actual_parameter;
 class AST_class_name;
 class AST_commented_node;
 class AST_identifier;
-class AST_interface_def;
-class AST_class_def;
-class AST_member;
 class AST_statement;
+class AST_member;
 class AST_switch_case;
 class AST_catch;
 class AST_expr;
 class AST_list_elements;
 class AST_reflection;
-class Token_interface_name;
 class Token_class_name;
+class Token_interface_name;
 class Token_method_name;
 class Token_variable_name;
 class Token_directive_name;
 class Token_cast;
 class Token_op;
 class Token_constant_name;
+class AST_class_def;
+class AST_interface_def;
 class AST_method;
 class AST_attribute;
 class AST_if;
@@ -119,24 +119,21 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
-// php_script ::= interface_def* class_def* ;
+// php_script ::= statement* ;
 class AST_php_script : virtual public AST_node
 {
 public:
-    AST_php_script(List<AST_interface_def*>* interface_defs, List<AST_class_def*>* class_defs);
+    AST_php_script(List<AST_statement*>* statements);
+protected:
+    AST_php_script();
 public:
-    List<AST_interface_def*>* interface_defs;
-    List<AST_class_def*>* class_defs;
+    List<AST_statement*>* statements;
 private:
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
-public:
-    AST_php_script();
-    //  Returns NULL if the class could not be found
-    AST_class_def* get_class_def(const char* name);
 public:
     void visit(AST_visitor* visitor);
     AST_php_script* transform(AST_transform* transform);
@@ -499,56 +496,19 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
-// interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
-class AST_interface_def : virtual public AST_commented_node
+// statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | unset | declare | try | throw | eval_expr | nop;
+class AST_statement : virtual public AST_commented_node
 {
 public:
-    AST_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<AST_member*>* members);
-protected:
-    AST_interface_def();
-public:
-    Token_interface_name* interface_name;
-    List<Token_interface_name*>* extends;
-    List<AST_member*>* members;
+    AST_statement();
 private:
-    virtual int classid();
+    virtual int classid() = 0;
 public:
-    virtual bool match(AST_node* in);
+    virtual bool match(AST_node* in) = 0;
 public:
-    virtual bool equals(AST_node* in);
+    virtual bool equals(AST_node* in) = 0;
 public:
-    virtual AST_interface_def* clone();
-friend class AST_transform;
-friend class AST_visitor;
-};
-
-// class_def ::= class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
-class AST_class_def : virtual public AST_commented_node
-{
-public:
-    AST_class_def(AST_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<AST_member*>* members);
-protected:
-    AST_class_def();
-public:
-    AST_class_mod* class_mod;
-    Token_class_name* class_name;
-    Token_class_name* extends;
-    List<Token_interface_name*>* implements;
-    List<AST_member*>* members;
-private:
-    virtual int classid();
-public:
-    virtual bool match(AST_node* in);
-public:
-    virtual bool equals(AST_node* in);
-public:
-    AST_class_def(AST_class_mod* mod);
-    AST_class_def(char* name);
-    void add_member(AST_member* member);
-    //  Returns NULL if the method could not be found
-    AST_method* get_method(const char* name);
-public:
-    virtual AST_class_def* clone();
+    virtual AST_statement* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -566,23 +526,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_member* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
-};
-
-// statement ::= if | while | do | for | foreach | switch | break | continue | return | static_declaration | unset | declare | try | throw | eval_expr | nop;
-class AST_statement : virtual public AST_commented_node
-{
-public:
-    AST_statement();
-private:
-    virtual int classid() = 0;
-public:
-    virtual bool match(AST_node* in) = 0;
-public:
-    virtual bool equals(AST_node* in) = 0;
-public:
-    virtual AST_statement* clone() = 0;
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -691,27 +634,6 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
-class Token_interface_name : virtual public AST_identifier
-{
-public:
-    Token_interface_name(String* value);
-protected:
-    Token_interface_name();
-private:
-    virtual int classid();
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    virtual bool match(AST_node* in);
-public:
-    virtual bool equals(AST_node* in);
-public:
-    virtual Token_interface_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
-};
-
 class Token_class_name : virtual public AST_target, virtual public AST_class_name, virtual public AST_identifier
 {
 public:
@@ -729,6 +651,27 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_class_name* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+class Token_interface_name : virtual public AST_identifier
+{
+public:
+    Token_interface_name(String* value);
+protected:
+    Token_interface_name();
+private:
+    virtual int classid();
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual Token_interface_name* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -859,8 +802,62 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
+// class_def ::= class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
+class AST_class_def : virtual public AST_statement, virtual public AST_commented_node
+{
+public:
+    AST_class_def(AST_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<AST_member*>* members);
+protected:
+    AST_class_def();
+public:
+    AST_class_mod* class_mod;
+    Token_class_name* class_name;
+    Token_class_name* extends;
+    List<Token_interface_name*>* implements;
+    List<AST_member*>* members;
+private:
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    AST_class_def(AST_class_mod* mod);
+    AST_class_def(char* name);
+    void add_member(AST_member* member);
+    //  Returns NULL if the method could not be found
+    AST_method* get_method(const char* name);
+public:
+    virtual AST_class_def* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+// interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
+class AST_interface_def : virtual public AST_statement, virtual public AST_commented_node
+{
+public:
+    AST_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<AST_member*>* members);
+protected:
+    AST_interface_def();
+public:
+    Token_interface_name* interface_name;
+    List<Token_interface_name*>* extends;
+    List<AST_member*>* members;
+private:
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual AST_interface_def* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
 // method ::= signature statement*? ;
-class AST_method : virtual public AST_member
+class AST_method : virtual public AST_statement, virtual public AST_member
 {
 public:
     AST_method(AST_signature* signature, List<AST_statement*>* statements);

@@ -89,8 +89,6 @@ src_phc_SOURCES =												\
 	src/process_ast/PHP_unparser.h						\
 	src/process_ast/process_ast.cpp						\
 	src/process_ast/process_ast.h							\
-	src/process_ast/Process_includes.cpp				\
-	src/process_ast/Process_includes.h					\
 	src/process_ast/Remove_concat_null.cpp				\
 	src/process_ast/Remove_concat_null.h				\
 	src/process_ast/Remove_parser_temporaries.cpp	\
@@ -101,6 +99,8 @@ src_phc_SOURCES =												\
 	src/process_ast/Variable_targets.h					\
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h
+#	src/process_ast/Process_includes.cpp
+#	src/process_ast/Process_includes.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
@@ -139,9 +139,9 @@ strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/DOT_unparser.h			\
 	src/process_ast/PHP_unparser.h			\
-	src/process_ast/Process_includes.h		\
 	src/process_ast/Remove_concat_null.h	\
 	src/process_ast/XML_unparser.h
+#	src/process_ast/Process_includes.h
 
 strangelibdir = $(pkgincludedir)/lib
 strangelib_HEADERS =		\
@@ -195,13 +195,15 @@ nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_classes.la
-plugins_tutorials_count_classes_la_SOURCES = plugins/tutorials/count_classes.cpp
-plugins_tutorials_count_classes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_classes.la
+#plugins_tutorials_count_classes_la_SOURCES = plugins/tutorials/count_classes.cpp
+#plugins_tutorials_count_classes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_difficult.la
-plugins_tutorials_count_function_calls_difficult_la_SOURCES = plugins/tutorials/count_function_calls_difficult.cpp
-plugins_tutorials_count_function_calls_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_difficult.la
+#plugins_tutorials_count_function_calls_difficult_la_SOURCES = plugins/tutorials/count_function_calls_difficult.cpp
+#plugins_tutorials_count_function_calls_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_easy.la
 plugins_tutorials_count_function_calls_easy_la_SOURCES = plugins/tutorials/count_function_calls_easy.cpp
@@ -211,9 +213,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements.la
 plugins_tutorials_count_statements_la_SOURCES = plugins/tutorials/count_statements.cpp
 plugins_tutorials_count_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
-plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
-plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+# TODO: probably replace by another tutorial
+#nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
+#plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
+#plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/helloworld.la
 plugins_tutorials_helloworld_la_SOURCES = plugins/tutorials/helloworld.cpp

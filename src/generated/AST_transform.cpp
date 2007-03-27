@@ -10,12 +10,7 @@ AST_php_script* AST_transform::pre_php_script(AST_php_script* in)
     return in;
 }
 
-void AST_transform::pre_interface_def(AST_interface_def* in, List<AST_interface_def*>* out)
-{
-    out->push_back(in);
-}
-
-void AST_transform::pre_class_def(AST_class_def* in, List<AST_class_def*>* out)
+void AST_transform::pre_class_def(AST_class_def* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -25,7 +20,12 @@ AST_class_mod* AST_transform::pre_class_mod(AST_class_mod* in)
     return in;
 }
 
-void AST_transform::pre_method(AST_method* in, List<AST_member*>* out)
+void AST_transform::pre_interface_def(AST_interface_def* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::pre_method(AST_method* in, List<AST_method*>* out)
 {
     out->push_back(in);
 }
@@ -255,12 +255,12 @@ AST_expr* AST_transform::pre_clone(AST_clone* in)
     return in;
 }
 
-Token_interface_name* AST_transform::pre_interface_name(Token_interface_name* in)
+Token_class_name* AST_transform::pre_class_name(Token_class_name* in)
 {
     return in;
 }
 
-Token_class_name* AST_transform::pre_class_name(Token_class_name* in)
+Token_interface_name* AST_transform::pre_interface_name(Token_interface_name* in)
 {
     return in;
 }
@@ -326,12 +326,7 @@ AST_php_script* AST_transform::post_php_script(AST_php_script* in)
     return in;
 }
 
-void AST_transform::post_interface_def(AST_interface_def* in, List<AST_interface_def*>* out)
-{
-    out->push_back(in);
-}
-
-void AST_transform::post_class_def(AST_class_def* in, List<AST_class_def*>* out)
+void AST_transform::post_class_def(AST_class_def* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -341,7 +336,12 @@ AST_class_mod* AST_transform::post_class_mod(AST_class_mod* in)
     return in;
 }
 
-void AST_transform::post_method(AST_method* in, List<AST_member*>* out)
+void AST_transform::post_interface_def(AST_interface_def* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::post_method(AST_method* in, List<AST_method*>* out)
 {
     out->push_back(in);
 }
@@ -571,12 +571,12 @@ AST_expr* AST_transform::post_clone(AST_clone* in)
     return in;
 }
 
-Token_interface_name* AST_transform::post_interface_name(Token_interface_name* in)
+Token_class_name* AST_transform::post_class_name(Token_class_name* in)
 {
     return in;
 }
 
-Token_class_name* AST_transform::post_class_name(Token_class_name* in)
+Token_interface_name* AST_transform::post_interface_name(Token_interface_name* in)
 {
     return in;
 }
@@ -639,15 +639,7 @@ Token_constant_name* AST_transform::post_constant_name(Token_constant_name* in)
 // Transform the children of the node
 void AST_transform::children_php_script(AST_php_script* in)
 {
-    in->interface_defs = transform_interface_def_list(in->interface_defs);
-    in->class_defs = transform_class_def_list(in->class_defs);
-}
-
-void AST_transform::children_interface_def(AST_interface_def* in)
-{
-    in->interface_name = transform_interface_name(in->interface_name);
-    in->extends = transform_interface_name_list(in->extends);
-    in->members = transform_member_list(in->members);
+    in->statements = transform_statement_list(in->statements);
 }
 
 void AST_transform::children_class_def(AST_class_def* in)
@@ -661,6 +653,13 @@ void AST_transform::children_class_def(AST_class_def* in)
 
 void AST_transform::children_class_mod(AST_class_mod* in)
 {
+}
+
+void AST_transform::children_interface_def(AST_interface_def* in)
+{
+    in->interface_name = transform_interface_name(in->interface_name);
+    in->extends = transform_interface_name_list(in->extends);
+    in->members = transform_member_list(in->members);
 }
 
 void AST_transform::children_method(AST_method* in)
@@ -935,11 +934,11 @@ void AST_transform::children_clone(AST_clone* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void AST_transform::children_interface_name(Token_interface_name* in)
+void AST_transform::children_class_name(Token_class_name* in)
 {
 }
 
-void AST_transform::children_class_name(Token_class_name* in)
+void AST_transform::children_interface_name(Token_interface_name* in)
 {
 }
 
@@ -989,36 +988,36 @@ void AST_transform::children_constant_name(Token_constant_name* in)
 
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
-List<AST_interface_def*>* AST_transform::transform_interface_def_list(List<AST_interface_def*>* in)
+List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement*>* in)
 {
-    List<AST_interface_def*>::const_iterator i;
-    List<AST_interface_def*>* out = new List<AST_interface_def*>;
+    List<AST_statement*>::const_iterator i;
+    List<AST_statement*>* out = new List<AST_statement*>;
     
     if(in == NULL)
     	return NULL;
     
     for(i = in->begin(); i != in->end(); i++)
     {
-    	out->push_back_all(transform_interface_def(*i));
+    	out->push_back_all(transform_statement(*i));
     }
     
     return out;
 }
 
-List<AST_interface_def*>* AST_transform::transform_interface_def(AST_interface_def* in)
+List<AST_statement*>* AST_transform::transform_statement(AST_statement* in)
 {
-    List<AST_interface_def*>::const_iterator i;
-    List<AST_interface_def*>* out1 = new List<AST_interface_def*>;
-    List<AST_interface_def*>* out2 = new List<AST_interface_def*>;
+    List<AST_statement*>::const_iterator i;
+    List<AST_statement*>* out1 = new List<AST_statement*>;
+    List<AST_statement*>* out2 = new List<AST_statement*>;
     
     if(in == NULL) out1->push_back(NULL);
-    else pre_interface_def(in, out1);
+    else pre_statement(in, out1);
     for(i = out1->begin(); i != out1->end(); i++)
     {
     	if(*i != NULL)
     	{
-    		children_interface_def(*i);
-    		post_interface_def(*i, out2);
+    		children_statement(*i);
+    		post_statement(*i, out2);
     	}
     	else out2->push_back(NULL);
     }
@@ -1026,54 +1025,33 @@ List<AST_interface_def*>* AST_transform::transform_interface_def(AST_interface_d
     return out2;
 }
 
-List<AST_class_def*>* AST_transform::transform_class_def_list(List<AST_class_def*>* in)
-{
-    List<AST_class_def*>::const_iterator i;
-    List<AST_class_def*>* out = new List<AST_class_def*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_class_def(*i));
-    }
-    
-    return out;
-}
-
-List<AST_class_def*>* AST_transform::transform_class_def(AST_class_def* in)
-{
-    List<AST_class_def*>::const_iterator i;
-    List<AST_class_def*>* out1 = new List<AST_class_def*>;
-    List<AST_class_def*>* out2 = new List<AST_class_def*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_class_def(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_class_def(*i);
-    		post_class_def(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
-Token_interface_name* AST_transform::transform_interface_name(Token_interface_name* in)
+AST_class_mod* AST_transform::transform_class_mod(AST_class_mod* in)
 {
     if(in == NULL) return NULL;
     
-    Token_interface_name* out;
+    AST_class_mod* out;
     
-    out = pre_interface_name(in);
+    out = pre_class_mod(in);
     if(out != NULL)
     {
-    	children_interface_name(out);
-    	out = post_interface_name(out);
+    	children_class_mod(out);
+    	out = post_class_mod(out);
+    }
+    
+    return out;
+}
+
+Token_class_name* AST_transform::transform_class_name(Token_class_name* in)
+{
+    if(in == NULL) return NULL;
+    
+    Token_class_name* out;
+    
+    out = pre_class_name(in);
+    if(out != NULL)
+    {
+    	children_class_name(out);
+    	out = post_class_name(out);
     }
     
     return out;
@@ -1132,33 +1110,17 @@ List<AST_member*>* AST_transform::transform_member(AST_member* in)
     return out2;
 }
 
-AST_class_mod* AST_transform::transform_class_mod(AST_class_mod* in)
+Token_interface_name* AST_transform::transform_interface_name(Token_interface_name* in)
 {
     if(in == NULL) return NULL;
     
-    AST_class_mod* out;
+    Token_interface_name* out;
     
-    out = pre_class_mod(in);
+    out = pre_interface_name(in);
     if(out != NULL)
     {
-    	children_class_mod(out);
-    	out = post_class_mod(out);
-    }
-    
-    return out;
-}
-
-Token_class_name* AST_transform::transform_class_name(Token_class_name* in)
-{
-    if(in == NULL) return NULL;
-    
-    Token_class_name* out;
-    
-    out = pre_class_name(in);
-    if(out != NULL)
-    {
-    	children_class_name(out);
-    	out = post_class_name(out);
+    	children_interface_name(out);
+    	out = post_interface_name(out);
     }
     
     return out;
@@ -1178,43 +1140,6 @@ AST_signature* AST_transform::transform_signature(AST_signature* in)
     }
     
     return out;
-}
-
-List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement*>* in)
-{
-    List<AST_statement*>::const_iterator i;
-    List<AST_statement*>* out = new List<AST_statement*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_statement(*i));
-    }
-    
-    return out;
-}
-
-List<AST_statement*>* AST_transform::transform_statement(AST_statement* in)
-{
-    List<AST_statement*>::const_iterator i;
-    List<AST_statement*>* out1 = new List<AST_statement*>;
-    List<AST_statement*>* out2 = new List<AST_statement*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_statement(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_statement(*i);
-    		post_statement(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
 }
 
 AST_method_mod* AST_transform::transform_method_mod(AST_method_mod* in)
@@ -1766,36 +1691,37 @@ AST_php_script* AST_transform::transform_php_script(AST_php_script* in)
 
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
+void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
 {
     switch(in->classid())
     {
+    case 2: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_class_def(dynamic_cast<AST_class_def*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case 4: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_interface_def(dynamic_cast<AST_interface_def*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case 5: 
     	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
+    		List<AST_method*>* local_out = new List<AST_method*>;
+    		List<AST_method*>::const_iterator i;
     		pre_method(dynamic_cast<AST_method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case 10: 
-    	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
-    		pre_attribute(dynamic_cast<AST_attribute*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
-{
-    switch(in->classid())
-    {
     case 12: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -1944,6 +1870,32 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     assert(0);
 }
 
+void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
+{
+    switch(in->classid())
+    {
+    case 5: 
+    	{
+    		List<AST_method*>* local_out = new List<AST_method*>;
+    		List<AST_method*>::const_iterator i;
+    		pre_method(dynamic_cast<AST_method*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case 10: 
+    	{
+    		List<AST_member*>* local_out = new List<AST_member*>;
+    		List<AST_member*>::const_iterator i;
+    		pre_attribute(dynamic_cast<AST_attribute*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
 AST_expr* AST_transform::pre_expr(AST_expr* in)
 {
     switch(in->classid())
@@ -1991,7 +1943,7 @@ AST_class_name* AST_transform::pre_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case 51: return pre_class_name(dynamic_cast<Token_class_name*>(in));
     case 42: return pre_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
@@ -2022,7 +1974,7 @@ AST_target* AST_transform::pre_target(AST_target* in)
     case 58: return pre_string(dynamic_cast<Token_string*>(in));
     case 59: return pre_bool(dynamic_cast<Token_bool*>(in));
     case 60: return pre_null(dynamic_cast<Token_null*>(in));
-    case 52: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case 51: return pre_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
 }
@@ -2049,36 +2001,37 @@ AST_method_name* AST_transform::pre_method_name(AST_method_name* in)
 
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
+void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
 {
     switch(in->classid())
     {
+    case 2: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_class_def(dynamic_cast<AST_class_def*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case 4: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_interface_def(dynamic_cast<AST_interface_def*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case 5: 
     	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
+    		List<AST_method*>* local_out = new List<AST_method*>;
+    		List<AST_method*>::const_iterator i;
     		post_method(dynamic_cast<AST_method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case 10: 
-    	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
-    		post_attribute(dynamic_cast<AST_attribute*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
-{
-    switch(in->classid())
-    {
     case 12: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2227,6 +2180,32 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     assert(0);
 }
 
+void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
+{
+    switch(in->classid())
+    {
+    case 5: 
+    	{
+    		List<AST_method*>* local_out = new List<AST_method*>;
+    		List<AST_method*>::const_iterator i;
+    		post_method(dynamic_cast<AST_method*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case 10: 
+    	{
+    		List<AST_member*>* local_out = new List<AST_member*>;
+    		List<AST_member*>::const_iterator i;
+    		post_attribute(dynamic_cast<AST_attribute*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
 AST_expr* AST_transform::post_expr(AST_expr* in)
 {
     switch(in->classid())
@@ -2274,7 +2253,7 @@ AST_class_name* AST_transform::post_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case 51: return post_class_name(dynamic_cast<Token_class_name*>(in));
     case 42: return post_reflection(dynamic_cast<AST_reflection*>(in));
     }
     assert(0);
@@ -2305,7 +2284,7 @@ AST_target* AST_transform::post_target(AST_target* in)
     case 58: return post_string(dynamic_cast<Token_string*>(in));
     case 59: return post_bool(dynamic_cast<Token_bool*>(in));
     case 60: return post_null(dynamic_cast<Token_null*>(in));
-    case 52: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case 51: return post_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
 }
@@ -2332,23 +2311,19 @@ AST_method_name* AST_transform::post_method_name(AST_method_name* in)
 
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
-void AST_transform::children_member(AST_member* in)
-{
-    switch(in->classid())
-    {
-    case 5:
-    	children_method(dynamic_cast<AST_method*>(in));
-    	break;
-    case 10:
-    	children_attribute(dynamic_cast<AST_attribute*>(in));
-    	break;
-    }
-}
-
 void AST_transform::children_statement(AST_statement* in)
 {
     switch(in->classid())
     {
+    case 2:
+    	children_class_def(dynamic_cast<AST_class_def*>(in));
+    	break;
+    case 4:
+    	children_interface_def(dynamic_cast<AST_interface_def*>(in));
+    	break;
+    case 5:
+    	children_method(dynamic_cast<AST_method*>(in));
+    	break;
     case 12:
     	children_if(dynamic_cast<AST_if*>(in));
     	break;
@@ -2396,6 +2371,19 @@ void AST_transform::children_statement(AST_statement* in)
     	break;
     case 30:
     	children_nop(dynamic_cast<AST_nop*>(in));
+    	break;
+    }
+}
+
+void AST_transform::children_member(AST_member* in)
+{
+    switch(in->classid())
+    {
+    case 5:
+    	children_method(dynamic_cast<AST_method*>(in));
+    	break;
+    case 10:
+    	children_attribute(dynamic_cast<AST_attribute*>(in));
     	break;
     }
 }
@@ -2487,7 +2475,7 @@ void AST_transform::children_class_name(AST_class_name* in)
 {
     switch(in->classid())
     {
-    case 52:
+    case 51:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
     case 42:
@@ -2563,7 +2551,7 @@ void AST_transform::children_target(AST_target* in)
     case 60:
     	children_null(dynamic_cast<Token_null*>(in));
     	break;
-    case 52:
+    case 51:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
     	break;
     }

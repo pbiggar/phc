@@ -124,8 +124,10 @@ void PHP_unparser::children_php_script(AST_php_script* in)
 	echo("<?php");
 	inc_indent();
 
-	visit_interface_def_list(in->interface_defs);
-	visit_class_def_list(in->class_defs);
+	// We don't want to output the { and }, so we manually traverse the list
+	List<AST_statement*>::const_iterator i;
+	for(i = in->statements->begin(); i != in->statements->end(); i++)
+		visit_statement(*i);
 
 	dec_indent();
 	echo_nl("?>");
@@ -249,7 +251,7 @@ void PHP_unparser::children_attribute(AST_attribute* in)
 		echo(" = ");
 		visit_expr(in->expr);
 	}
-	echo("; ");
+	echo(";");
 	// newline is output by post_commented_node
 }
 
@@ -470,7 +472,7 @@ void PHP_unparser::children_throw(AST_throw* in)
 void PHP_unparser::children_eval_expr(AST_eval_expr* in)
 {
 	visit_expr(in->expr);
-	echo("; ");
+	echo(";");
 	// The newline gets added by post_commented_node
 }
 
@@ -748,45 +750,6 @@ void PHP_unparser::children_clone(AST_clone* in)
 {
 	echo("clone ");
 	visit_expr(in->expr);
-}
-
-void PHP_unparser::visit_interface_def_list(List<AST_interface_def*>* in)
-{
-	List<AST_interface_def*>::const_iterator i;
-
-	for(i = in->begin(); i != in->end(); i++)
-	{
-		visit_interface_def(*i);
-		empty_line();
-	}
-}
-
-void PHP_unparser::visit_class_def_list(List<AST_class_def*>* in)
-{
-	AST_class_def* main = NULL;
-	List<AST_class_def*>::const_iterator i;
-	bool is_first = true;
-
-	for(i = in->begin(); i != in->end(); i++)
-	{
-		if(*(*i)->class_name->value == "%MAIN%")
-		{
-			main = *i;
-		}
-		else
-		{
-			if(!is_first) empty_line();
-			visit_class_def(*i);
-			is_first = false;
-		}
-	}
-
-	// Treat %MAIN% specially
-	if(!is_first) empty_line();
-	assert(main);
-	inside_main = true;
-	visit_member_list(main->members);
-	inside_main = false;
 }
 
 void PHP_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
@@ -1085,6 +1048,7 @@ void PHP_unparser::post_commented_node(AST_commented_node* in)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
+			echo(" ");
 			echo(*i);
 			newline();
 			output_comment = true;
