@@ -1,20 +1,22 @@
 <?php
+   define("sc", 0);
+   
    class X
    {
-      public $y;
-
-      public function X()
+      var $y;
+      
+      function X()
       {
          $this->y = 123;
       }
    }
-
-   define("sc", 0);
+   
    $b = 1;
    $arr[0] = "foo";
    $arr["sc"] = "boo";
    $str = "bar";
    $x = new X();
+   
    /*
 	 * Simple syntax
 	 *
@@ -29,34 +31,33 @@
 	 *   "$a[b]"  b an integer
 	 *   "$a[b]"  b an ident (interpreted as a string)
 	 */
+   
    echo "a " . $bc . "\n";
    echo "a " . $b . "c\n";
    echo "a " . $arr[0] . " c\n";
-   // "a " . $b["x"] . " c\n"; prints "boo"
-   echo "a " . $arr["sc"] . " c\n";
-   // Curlies are not interpreted
-   echo "a " . $str . "{0} c\n";
-   // (Again)
-   echo "a " . $arr[0] . "{1} c\n";
+   echo "a " . $arr["sc"] . " c\n"; // "a " . $b["x"] . " c\n"; prints "boo"
+   echo "a " . $str . "{0} c\n"; // Curlies are not interpreted
+   echo "a " . $arr[0] . "{1} c\n"; // (Again)
    echo "a " . $x->y . " c\n";
+   
    echo "a " . $bc . " d";
    echo "a " . $b . "c d";
    echo "a " . $b[0] . " d";
    echo "a " . $b["c"] . " d";
    echo "a " . $b->c . " d";
+   
    /* 
 	 * Complex syntax 
 	 */
+   
    echo "a " . $b . " c\n";
    echo "a " . $arr[0] . " c\n";
-   // Note: prints "foo"		
-   echo "a " . $arr[sc] . " c\n";
-   // Curlies _are_ interpreted
-   echo "a " . $str{0} . " c\n";
+   echo "a " . $arr[sc] . " c\n"; // Note: prints "foo"		
+   echo "a " . $str{0} . " c\n"; // Curlies _are_ interpreted
    echo "a " . $arr[0]{1} . " c\n";
-   // while this prints "boo" 
-   echo "a " . $arr["sc"] . " c\n";
+   echo "a " . $arr["sc"] . " c\n"; // while this prints "boo" 
    echo "a " . $x->y . " c\n";
+   
    echo "a " . $b . " c";
    echo "a " . $arr[0] . " c";
    echo "a " . $arr[sc] . " c";
@@ -64,18 +65,23 @@
    echo "a " . $arr[0]{1} . " c";
    echo "a " . $arr["sc"] . " c";
    echo "a " . $x->y . " c";
+   
+   
    /*
 	 * PHP will bark on this, but we don't
 	 */
-   // We don't generate an error
-   echo "a " . $b . "[ 0 ] c\n";
+   
+   echo "a " . $b . "[ 0 ] c\n"; // We don't generate an error
    echo "a " . $b + $c . " d\n";
    echo "a " . $b . $c . " d\n";
    echo "a " . $b . "blah" . " d\n";
    echo "a " . $b . "c " . $d . " e" . " d\n";
+   
    /*
 	 * Nested complex syntax
 	 */
+   
    echo "a " . $b . "c " . $b . " e" . " d\n";
+   
    echo "a " . $x . "foo " . $x . " bar" . " b";
 ?>

@@ -1,12 +1,15 @@
 <?php
+   
    /* if we search an entire string for a character, say \x00, and we
 	 * don't find it, even though its there, then it looks like a bug.
 	 * However, if the string also contains another character we're
 	 * searching for, say \x01, then this will mask the bug. The allchars
 	 * test had this problem. If you make all the strings different, this
 	 * takes the problem away */
+   
    /* might add a fouble characters test later, but for now single is all
 	 * we need */
+   
    echo "Single characters:";
    echo "0: ";
    echo "\x00";
@@ -520,5 +523,6 @@
    echo "\xFE";
    echo "255: ";
    echo "\xFF";
+   
    echo "\t\n";
 ?>

@@ -2,19 +2,19 @@
    class FirstException extends Exception
    {
    }
-
    class SecondException extends Exception
    {
    }
-
    class ThirdException extends Exception
    {
    }
-
+   
    function f()
    {
       static $x = 0;
+      
       $x++;
+      
       switch($x)
       {
          case 1:
@@ -25,7 +25,7 @@
             throw new ThirdException();
       }
    }
-
+   
    try
    {
       f();
@@ -34,6 +34,7 @@
    {
       echo "FirstException\n";
    }
+   
    try
    {
       f();
@@ -46,6 +47,7 @@
    {
       echo "SecondException\n";
    }
+   
    try
    {
       f();

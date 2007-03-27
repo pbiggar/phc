@@ -1,4 +1,5 @@
 <?php
+   
    foreach(array(true, false) as $a)
    {
       foreach(array(true, false) as $b)
@@ -19,6 +20,7 @@
          }
       }
    }
+   
    # all 4 bit permutations
    foreach(range(0, 15) as $a)
    {
@@ -32,27 +34,39 @@
                var_dump($a | $b | $c | $d);
                var_dump($a | $b | $c & $d);
                var_dump($a | $b | $c ^ $d);
+               
                var_dump($a | $b & $c | $d);
                var_dump($a | $b & $c & $d);
                var_dump($a | $b & $c ^ $d);
+               
                var_dump($a | $b ^ $c | $d);
                var_dump($a | $b ^ $c & $d);
                var_dump($a | $b ^ $c ^ $d);
+               
+               
+               
                var_dump($a & $b | $c | $d);
                var_dump($a & $b | $c & $d);
                var_dump($a & $b | $c ^ $d);
+               
                var_dump($a & $b & $c | $d);
                var_dump($a & $b & $c & $d);
                var_dump($a & $b & $c ^ $d);
+               
                var_dump($a & $b ^ $c | $d);
                var_dump($a & $b ^ $c & $d);
                var_dump($a & $b ^ $c ^ $d);
+               
+               
+               
                var_dump($a ^ $b | $c | $d);
                var_dump($a ^ $b | $c & $d);
                var_dump($a ^ $b | $c ^ $d);
+               
                var_dump($a ^ $b & $c | $d);
                var_dump($a ^ $b & $c & $d);
                var_dump($a ^ $b & $c ^ $d);
+               
                var_dump($a ^ $b ^ $c | $d);
                var_dump($a ^ $b ^ $c & $d);
                var_dump($a ^ $b ^ $c ^ $d);
@@ -60,4 +74,5 @@
          }
       }
    }
+   
 ?>

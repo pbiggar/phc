@@ -5,6 +5,6 @@
       const y = 'foo';
       const z = 'bar';
    }
-
+   
    echo Foo::x;
 ?>

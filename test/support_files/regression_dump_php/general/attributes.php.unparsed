@@ -1,20 +1,26 @@
 <?php
+   
    class FooBar
    {
-      public $a;
-      public $b = 10;
-      public $c;
-      public $d;
-      public $e = 10;
-      public $f = 20;
+      
+      var $a;
+      var $b = 10;
+      
+      var $c;
+      var $d;
+      var $e = 10;
+      var $f = 20;
+      
       private $g;
       private $h = 100;
       private $i;
+      
       public $j;
       static $k;
       protected $l;
+      
       public static $n;
       private static $m;
    }
-
+   
 ?>

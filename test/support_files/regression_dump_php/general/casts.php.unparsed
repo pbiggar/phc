@@ -1,14 +1,15 @@
 <?php
+   
    class A
    {
       // the PHP docs say an object converts to the string "Object", but it doesnt
       // look like it
-      public function __toString()
+      function __toString()
       {
          return "a";
       }
    }
-
+   
    foreach(array(0, 3, "asd", new A()) as $y)
    {
       var_dump($y);

@@ -1,16 +1,15 @@
 <?php
    abstract class C
    {
-      public function f()
+      function f()
       {
       }
-
-      public function g()
+      
+      function g()
       {
          echo "Hi!";
       }
-
+      
       abstract function h();
    }
-
 ?>
