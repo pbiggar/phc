@@ -2,7 +2,14 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Unparse the AST back to PHP syntax
+ * Unparse the AST back to PHP syntax. Tries to adhere to the Zend coding 
+ * style guidelines at
+ *
+ *   http://framework.zend.com/manual/en/coding-standard.coding-style.html
+ *
+ * With contributions from Matthias Kleine.
+ * 
+ * TODO: Implement A.4.2.4 (lining up of "=" and ".")
  */
 
 #include <iostream>
@@ -116,7 +123,11 @@ PHP_unparser::PHP_unparser(ostream& os) : os(os)
 {
 	indent_level = 0;
 	at_start_of_line = true;
-	inside_main = false;
+
+	in_if_expression = false;
+	in_method_invocation = false;
+	array_elem_counter = 0;
+	concat_counter = 0;
 }
 
 void PHP_unparser::children_php_script(AST_php_script* in)
@@ -179,17 +190,21 @@ void PHP_unparser::children_method(AST_method* in)
 {
 	visit_signature(in->signature);
 	if(in->statements != NULL)
+	{
+		newline();
 		visit_statement_list(in->statements);
+		newline();
+		// another newline?
+	}
 	else
 		// Abstract method
 		echo_nl(";");
+		// TODO: newline?
 }
 
 void PHP_unparser::children_signature(AST_signature* in)
 {
-	if(!inside_main)
-		visit_method_mod(in->method_mod);
-
+	visit_method_mod(in->method_mod);
 	echo("function ");
 	if(in->is_ref) echo("&");
 	visit_method_name(in->method_name);
@@ -263,12 +278,15 @@ void PHP_unparser::children_attr_mod(AST_attr_mod* in)
 void PHP_unparser::children_if(AST_if* in)
 {
 	if(in->attrs->is_true("phc.unparser.is_elseif"))
-		echo("elseif(");
+		echo(" elseif (");
 	else
-		echo("if(");
+		echo("if (");
 
+	in_if_expression = true;
 	visit_expr(in->expr);
-	echo_nl(")");
+	in_if_expression = false;
+
+	echo(") ");
 	
 	visit_statement_list(in->iftrue);
 	
@@ -282,25 +300,29 @@ void PHP_unparser::children_if(AST_if* in)
 		}
 		else
 		{
-			echo_nl("else");
+			echo(" else ");
 			visit_statement_list(in->iffalse);
 		}
 	}
+	
+	newline();
 }
 
 void PHP_unparser::children_while(AST_while* in)
 {
-	echo("while(");
+	echo("while (");
 	visit_expr(in->expr);
-	echo_nl(")");
+	echo(") ");
 	visit_statement_list(in->statements);
+	newline();
 }
 
 void PHP_unparser::children_do(AST_do* in)
 {
 	echo_nl("do");
 	visit_statement_list(in->statements);
-	echo("while(");
+	newline();
+	echo("while (");
 	visit_expr(in->expr);
 	echo_nl(");");
 }
@@ -313,13 +335,14 @@ void PHP_unparser::children_for(AST_for* in)
 	if(in->cond != NULL) visit_expr(in->cond);
 	echo("; ");
 	if(in->incr != NULL) visit_expr(in->incr);
-	echo_nl(")");
+	echo(") ");
 	visit_statement_list(in->statements);
+	newline();
 }
 
 void PHP_unparser::children_foreach(AST_foreach* in)
 {
-	echo("foreach(");
+	echo("foreach (");
 	visit_expr(in->expr);
 	echo(" as ");
 	if(in->key != NULL) 
@@ -329,15 +352,16 @@ void PHP_unparser::children_foreach(AST_foreach* in)
 	}
 	if(in->is_ref) echo("&");
 	visit_variable(in->val);
-	echo_nl(")");
+	echo(") ");
 	visit_statement_list(in->statements);
+	newline();
 }
 
 void PHP_unparser::children_switch(AST_switch* in)
 {
-	echo("switch(");
+	echo("switch (");
 	visit_expr(in->expr);
-	echo_nl(")");
+	echo(") ");
 	visit_switch_case_list(in->switch_cases);
 }
 
@@ -427,7 +451,10 @@ void PHP_unparser::children_declare(AST_declare* in)
 	visit_directive_list(in->directives);
 
 	if(!in->statements->empty())
+	{
 		visit_statement_list(in->statements);
+		newline();
+	}
 	else
 	{
 		echo(";");
@@ -444,19 +471,21 @@ void PHP_unparser::children_directive(AST_directive* in)
 
 void PHP_unparser::children_try(AST_try* in)
 {
-	echo_nl("try");
+	echo("try ");
 	visit_statement_list(in->statements);
+	echo(" ");
 	visit_catch_list(in->catches);
 }
 
 void PHP_unparser::children_catch(AST_catch* in)
 {
-	echo("catch(");
+	echo("catch (");
 	visit_class_name(in->class_name);
 	echo(" $");
 	visit_variable_name(in->variable_name);
-	echo_nl(")");
+	echo(") ");
 	visit_statement_list(in->statements);
+	newline();
 }
 
 void PHP_unparser::children_throw(AST_throw* in)
@@ -536,10 +565,37 @@ void PHP_unparser::children_unary_op(AST_unary_op* in)
 void PHP_unparser::children_bin_op(AST_bin_op* in)
 {
 	visit_expr(in->left);
-	// We output "3 + 5", but "3, 5"
-	if(*in->op->value != ",") echo(" ");
+	
+	if(!in_if_expression)
+	{
+		if(*in->op->value == ".")
+		{
+			concat_counter++;
+			if((concat_counter % 2) == 0)
+			{
+				// TODO: again, do we want to increment the indentation 
+				// level for every new line?
+				newline();
+				indent_level++;
+			}
+		}
+	}
+	
+	if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
 	visit_op(in->op);
 	echo(" ");
+
+	if(!in_if_expression)
+	{
+		if(*in->op->value == ".")
+		{
+			if((concat_counter % 2) == 0)
+			{
+				indent_level--;
+			}
+		}
+	}
+
 	visit_expr(in->right);
 }
 
@@ -664,6 +720,20 @@ void PHP_unparser::children_array(AST_array* in)
 
 void PHP_unparser::children_array_elem(AST_array_elem* in)
 {
+	// TODO. Note sure this should be here; perhaps it should be in 
+	// visit array_elem_list or something?
+	if(!in_method_invocation)
+	{
+		array_elem_counter++;
+		if(array_elem_counter > 0)
+		{
+			newline();
+			// TODO: not sure I agree with this. Do we want to increment
+			// the indentation level for every element in the array?
+			indent_level++;
+		}
+	}
+
 	if(in->key != NULL)
 	{
 		visit_expr(in->key);
@@ -671,6 +741,14 @@ void PHP_unparser::children_array_elem(AST_array_elem* in)
 	}
 	if(in->is_ref) echo("&");
 	visit_expr(in->val);
+
+	if(!in_method_invocation)
+	{
+		if(array_elem_counter > 0)
+			indent_level--;
+
+		array_elem_counter--;
+	}
 }
 
 void PHP_unparser::children_method_invocation(AST_method_invocation* in)
@@ -731,8 +809,12 @@ void PHP_unparser::children_method_invocation(AST_method_invocation* in)
 
 void PHP_unparser::children_actual_parameter(AST_actual_parameter* in)
 {
+	in_method_invocation = true;
+
 	if(in->is_ref) echo("&");
 	visit_expr(in->expr);
+
+	in_method_invocation = false;
 }
 
 void PHP_unparser::children_new(AST_new* in)
@@ -774,14 +856,13 @@ void PHP_unparser::visit_member_list(List<AST_member*>* in)
 
 void PHP_unparser::visit_statement_list(List<AST_statement*>* in)
 {
-	newline();
 	echo("{");
 	inc_indent();
 
 	AST_visitor::visit_statement_list(in);
 
 	dec_indent();
-	echo_nl("}");
+	echo("}");
 }
 
 void PHP_unparser::visit_formal_parameter_list(List<AST_formal_parameter*>* in)

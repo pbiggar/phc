@@ -31,7 +31,10 @@ protected:
 
 // State
 protected:
-	bool inside_main;
+	bool in_if_expression;
+	bool in_method_invocation;
+	int array_elem_counter;
+	int concat_counter;
 
 public:
 	PHP_unparser(ostream& os = cout);
