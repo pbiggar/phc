@@ -221,21 +221,17 @@ function is_32_bit()
 	return true;
 }
 
-require_once("Text/Diff.php");
-require_once("Text/Diff/Renderer.php");
-require_once("Text/Diff/Renderer/unified.php");
 function diff ($string1, $string2)
 {
-	global $pear_text_diff;
-	if ((strlen ($string1) > 32000 and strlen ($string2) > 32000))
+	if (!extension_loaded ("xdiff"))
 	{
-		return "Diffs too long, skipping.\nString1:\n$string1\nString2:\n$string2";
+		$result = @dl ("xdiff.so"); // avoid the E_WARNING
+		if (!$result)
+		{
+			return "Note: xdiff not available for diffing. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
+		}
 	}
-	$renderer = new Text_Diff_Renderer_unified ();
-	$diff = new Text_Diff (split ("\n", $string1),
-			split ("\n", $string2));
-	$diff = $renderer->render($diff);
-	return $diff;
+	return xdiff_string_diff ($string1, $string2);
 }
 
 function log_failure ($test_name, $subject, $header, $output)
