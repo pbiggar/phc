@@ -21,7 +21,7 @@ extern "C" void process_ast(AST_php_script* script)
 	script->visit(&xml_unparser);
 	AST_php_script* reparsed = parse_ast_xml_buffer(new String(xml_output.str()));
 
-	if(script->deep_equals(reparsed))
+	if(script->equals(reparsed))
 	{
 		printf("Success\n");
 	}
