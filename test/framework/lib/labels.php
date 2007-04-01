@@ -66,7 +66,10 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 
 	// parse the file
 	$lines = file($label_filename);
-	$third_party_lines = file ($third_party_filename);
+	if (file_exists ($third_party_filename)) 
+		$third_party_lines = file ($third_party_filename);
+	else 
+		$third_party_lines = array ();
 
 	foreach($lines as $line)
 	{
