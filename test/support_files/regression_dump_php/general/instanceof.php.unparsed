@@ -1,11 +1,9 @@
 <?php
-   if($x instanceof SOME_CLASS)
-   {
+   if ($x instanceof SOME_CLASS) {
       
    }
    
-   if($y instanceof $x)
-   {
+   if ($y instanceof $x) {
       
    }
 ?>

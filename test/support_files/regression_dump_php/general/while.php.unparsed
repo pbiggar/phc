@@ -1,21 +1,16 @@
 <?php
    $x = 100;
    
-   while($x)
-   {
-      if($x > 10)
-      {
+   while ($x) {
+      if ($x > 10) {
          $x = $x - 5;
          $y++;
-      }
-      else
-      {
+      } else {
          $x = $x - 1;
       }
    }
    
-   while($x)
-   {
+   while ($x) {
       $x = $x - 1;
    }
 ?>

@@ -41,29 +41,30 @@
 	 * Foreach
 	 */
    
-   $arr = array(1 => 'a', 2 => 'b', 3 => 'c');
+   $arr = array(
+      1 => 'a', 
+      2 => 'b', 
+      3 => 'c');
    
    // foreach($arr as $y => f1()) {}	// Illegal
-   foreach($arr as $y => ${f2()})
-   {
+   foreach ($arr as $y => ${f2()}) {
       // Legal 
       echo $x . "\n";
    }
-   foreach($arr as $y => $c->d)
-   {
+   foreach ($arr as $y => $c->d) {
       // Legal
-      echo $c->d . "\n";
+      echo $c->d
+          . "\n";
    }
    
    // foreach($arr as f1() => $y) {}	// Illegal
-   foreach($arr as ${f2()} => $y)
-   {
+   foreach ($arr as ${f2()} => $y) {
       // Legal 
       echo $x . "\n";
    }
-   foreach($arr as $c->d => $y)
-   {
+   foreach ($arr as $c->d => $y) {
       // Legal
-      echo $c->d . "\n";
+      echo $c->d
+          . "\n";
    }
 ?>

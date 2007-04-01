@@ -1,8 +1,7 @@
 <?php
    function f($id, $x, $y)
    {
-      for(; $x, $y; )
-      {
+      for(; $x, $y; ) {
          echo $id . "\n";
          break;
       }

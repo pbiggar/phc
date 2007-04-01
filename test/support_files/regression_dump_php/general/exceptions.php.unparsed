@@ -15,8 +15,7 @@
       
       $x++;
       
-      switch($x)
-      {
+      switch ($x) {
          case 1:
             throw new FirstException();
          case 2:
@@ -26,42 +25,30 @@
       }
    }
    
-   try
-   {
+   try {
       f();
-   }
-   catch(FirstException $e)
-   {
+   } catch (FirstException $e) {
       echo "FirstException\n";
    }
    
-   try
-   {
+   try {
       f();
-   }
-   catch(FirstException $e)
-   {
+   } catch (FirstException $e) {
       echo "FirstException\n";
    }
-   catch(SecondException $e)
-   {
+   catch (SecondException $e) {
       echo "SecondException\n";
    }
    
-   try
-   {
+   try {
       f();
-   }
-   catch(FirstException $e)
-   {
+   } catch (FirstException $e) {
       echo "FirstException\n";
    }
-   catch(SecondException $e)
-   {
+   catch (SecondException $e) {
       echo "SecondException\n";
    }
-   catch(ThirdException $e)
-   {
+   catch (ThirdException $e) {
       echo "ThirdException\n";
    }
 ?>

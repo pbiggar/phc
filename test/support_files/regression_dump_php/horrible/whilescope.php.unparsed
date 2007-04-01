@@ -7,10 +7,10 @@
       
       $x = 200;
       
-      for($i = 0; $i < 5; $i++)
-      {
+      for($i = 0; $i < 5; $i++) {
          
-         echo "x: " . $x . "\n";
+         echo "x: " . $x
+             . "\n";
          global $x;
          
       }

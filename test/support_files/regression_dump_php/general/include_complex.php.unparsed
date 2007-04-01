@@ -28,7 +28,10 @@
    
    function fail($file, $line, $reason)
    {
-      print "Failure: '" . $reason . "' on " . $file . ":" . $line . "\n";
+      print "Failure: '" . $reason
+          . "' on " . $file
+          . ":" . $line
+          . "\n";
    }
    
    
@@ -43,8 +46,7 @@
    var_dump($a1);
    var_dump($a2);
    
-   if($a1 == "old value" or $a2 == "my old value")
-   {
+   if ($a1 == "old value" or $a2 == "my old value") {
       fail(__FILE__, __LINE__, "var overwrite");
    }
    
@@ -60,14 +62,12 @@
    var_dump($b);
    $b = $b->b();
    var_dump($b);
-   if(!$b)
-   {
+   if (!$b) {
       fail(__FILE__, __LINE__, "included class");
    }
    $b = b();
    var_dump($b);
-   if(!$b)
-   {
+   if (!$b) {
       fail(__FILE__, __LINE__, "included function");
    }
    
@@ -84,8 +84,7 @@
    var_dump($c);
    $c = $c->cc();
    var_dump($c);
-   if($c != 7)
-   {
+   if ($c != 7) {
       fail(__FILE__, __LINE__, "class with return value");
    }
    
@@ -99,8 +98,7 @@
    var_dump($f);
    var_dump($a);
    var_dump($x);
-   if(!$x)
-   {
+   if (!$x) {
       fail(__FILE__, __LINE__, "directory levels");
    }
    
@@ -116,8 +114,7 @@
    var_dump($x);
    var_dump($y);
    var_dump($xx);
-   if(!$xx)
-   {
+   if (!$xx) {
       fail(__FILE__, __LINE__, "current working directory");
    }
    
@@ -131,8 +128,7 @@
    var_dump($x);
    var_dump($y);
    var_dump($xx);
-   if(!$xx)
-   {
+   if (!$xx) {
       fail(__FILE__, __LINE__, "current working directory");
    }
    
@@ -148,8 +144,7 @@
    require "included_recursive1.php";
    
    var_dump($f);
-   if($f !== 26)
-   {
+   if ($f !== 26) {
       fail(__FILE__, __LINE__, "recursive include");
    }
    
@@ -167,8 +162,7 @@
       var_dump($a1);
       var_dump($a2);
       
-      if($a1 == "old value" or $a2 == "my old value")
-      {
+      if ($a1 == "old value" or $a2 == "my old value") {
          fail(__FILE__, __LINE__, "var overwrite within function");
       }
    }
@@ -191,8 +185,7 @@
          echo "about to include included_var_overwrite.php\n";
          include "included_var_overwrite.php";
          
-         if($a1 == "old value" or $a2 == "my old value")
-         {
+         if ($a1 == "old value" or $a2 == "my old value") {
             fail(__FILE__, __LINE__, "var overwrite within class");
          }
       }

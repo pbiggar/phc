@@ -7,7 +7,8 @@
       function X()
       {
          $this->f = "foo";
-         $this->a = array("foo");
+         $this->a = array(
+            "foo");
       }
       
       function foo()
@@ -22,7 +23,8 @@
    }
    
    $f = "foo";
-   $a = array("foo");
+   $a = array(
+      "foo");
    
    $x = new X();
    

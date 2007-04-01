@@ -3,8 +3,7 @@
    // before 2
    echo "hello world"; // after
    
-   if($cond)
-   {
+   if ($cond) {
       // a comment 1
       // a comment 2
       echo "foo";
@@ -12,8 +11,7 @@
       // and another comment 2
    }
    
-   if($cond)
-   {
+   if ($cond) {
       // comment in an empty block 1
       // comment in an empty block 2
    }

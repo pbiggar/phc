@@ -1,8 +1,7 @@
 <?php
    $x = $argv[1];
    
-   switch($x)
-   {
+   switch ($x) {
       case 1:
          echo "one\n";
          break;
@@ -14,8 +13,7 @@
          break;
    }
    
-   switch($x)
-   {
+   switch ($x) {
       default:
          echo "unknown\n";
          break;
@@ -27,14 +25,12 @@
          break;
    }
    
-   switch(1)
-   {
+   switch (1) {
       case 2:
    }
    
    
-   switch(3)
-   {
+   switch (3) {
       case 1:
          1.1;
       case 2:

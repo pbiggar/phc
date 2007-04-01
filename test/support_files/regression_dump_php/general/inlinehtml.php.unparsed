@@ -1,11 +1,8 @@
 <?php
    echo "1\n";
-   if(1)
-   {
+   if (1) {
       echo "Some longer string\n";
-   }
-   else
-   {
+   } else {
       echo "3\n";
    }
    echo "4\n";

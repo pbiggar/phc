@@ -27,7 +27,9 @@
    $base_1 = 3;
    $base_2 = 4;
    
-   $ref = array(1 => &$base_1, 2 => &$base_2);
+   $ref = array(
+      1 => &$base_1, 
+      2 => &$base_2);
    
    var_dump($ref); // array(2) { [1]=>&int(3) [2]=>&int(4) }
    
@@ -55,25 +57,24 @@
 	 * (I do not know whether this is something we need to mimick)
 	 */
    
-   $arr = array(1 => 11, 2 => 12);
+   $arr = array(
+      1 => 11, 
+      2 => 12);
    var_dump($arr); // array(2) { [1]=> int(11) [2]=> int(12) }
    
-   foreach($arr as $key => $val)
-   {
+   foreach ($arr as $key => $val) {
       $key += 10;
       $val *= 2;
    }
    var_dump($arr); // array(2) { [1]=> int(11) [2]=> int(12) }
    
-   foreach($arr as $key => &$val)
-   {
+   foreach ($arr as $key => &$val) {
       $key += 10;
       $val *= 2;
    }
    var_dump($arr); // array(2) { [1]=> &int(22) [2]=> &int(24) }
    
-   foreach($arr as $key => &$val)
-   {
+   foreach ($arr as $key => &$val) {
       $key += 10;
       $val *= 2;
    }
