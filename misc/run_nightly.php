@@ -59,7 +59,7 @@ function run_command ($title, $command, $directory = false)
 	$output .= run_command ("Removing old version", "rm -Rf /tmp/phc_testing");
 	mkdir($root) or die ("Mkdir in /tmp/ failing is very unlikely. PANIC");
 
-	$output .= run_command ("Checking out source", "svn export -q http://phc.googlecode.com/svn/phc/trunk", $root);
+	$output .= run_command ("Checking out source", "svn export -q http://phc.googlecode.com/svn/trunk", $root);
 	$output .= run_command ("Checking out website", "svn export -q http://phc.googlecode.com/svn/www", $root);
 	$output .= run_command ("Touch generated", "touch src/generated/*", "$root/trunk");
 	$output .= run_command ("Configure", "./configure --prefix=$root/installed", "$root/trunk");
