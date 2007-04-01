@@ -221,6 +221,12 @@ function is_32_bit()
 	return true;
 }
 
+/* Prints diffs if the xdiff extension is available, and simple outputs both
+ * strings otherwise. 
+ * To install xdiff:
+ *   install libxdiff from http://www.xmailserver.org/xdiff-lib.html 
+ *   install xdiff from pecl with "pecl install xdiff". 
+ *   There is no need to load xdiff.so in your php.ini file. */
 function diff ($string1, $string2)
 {
 	if (!extension_loaded ("xdiff"))
