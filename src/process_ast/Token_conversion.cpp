@@ -106,7 +106,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		String* source_rep = new String("-");
 		*source_rep += *i->value->source_rep;
 		i->value->source_rep = source_rep;
-		i->value->value = -(i->value->value);
+		i->value->value = strtol(source_rep->c_str(), 0, 0);
 		return pre_expr(i->value);
 	}
 
@@ -115,7 +115,8 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		String* source_rep = new String("-");
 		*source_rep += *f->value->source_rep;
 		f->value->source_rep = source_rep;
-		f->value->value = -(f->value->value);
+		f->value->value = atof(source_rep->c_str ());
+
 		return pre_expr(f->value);
 	}
 	

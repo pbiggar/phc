@@ -30,15 +30,13 @@ public:
 
 	void print_comparison(String* type, String* value, String* source)
 	{
-		printf("\tif(%s !== %s)\n"
-				"\t{\n"
-				"\t\t$success = false;\n"
-				"\t\tprint \"Failure (%s): ('%s' (\".gettype(%s).\": \".(%s).\") vs '%s' (\".gettype(%s).\": \".(%s).\"))\\n\";\n"
-				"\t}\n\n",
-				value->c_str(), source->c_str(),
-				type->c_str(),
-				value->c_str(), value->c_str(), value->c_str(),
-				source->c_str(), source->c_str(), source->c_str());
+		printf ("\tif(%s !== %s)\n", value->c_str(), source->c_str());
+		printf ("\t{\n");
+		printf ("\t\t$success = false;\n");
+		printf ("\t\tprint \"Failure (%s): ", type->c_str());
+		printf ("'%s' (\".gettype(%s).\": \".(%s).\") vs ", value->c_str(), value->c_str(), value->c_str());
+		printf ("'%s' (\".gettype(%s).\": \".(%s).\"))\\n\";\n", source->c_str(), source->c_str(), source->c_str());
+		printf ("\t}\n\n");
 	}
 
 	void pre_int(Token_int* in)
