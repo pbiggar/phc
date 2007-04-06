@@ -120,6 +120,7 @@ public:
 	}
 };
 
+/*
 class Set_variable_targets_to_null : public AST_visitor
 {
 public:
@@ -135,7 +136,7 @@ public:
 		}
 	}
 };
-
+*/
 // store the current php script
 AST_php_script* Process_includes::pre_php_script(AST_php_script* in)
 {
@@ -146,7 +147,7 @@ AST_php_script* Process_includes::pre_php_script(AST_php_script* in)
 // store the method currently being defined
 void Process_includes::pre_method(AST_method* in, List<AST_member*>* out)
 {
-	in_main_run = (in == current_script->get_class_def("%MAIN%")->get_method("%run%"));
+//	in_main_run = (in == current_script->get_class_def("%MAIN%")->get_method("%run%"));
 	out->push_back(in);
 }
 
@@ -154,8 +155,8 @@ void Process_includes::pre_method(AST_method* in, List<AST_member*>* out)
 void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
 	AST_method_invocation* pattern;
-	Token_string* token_filename = new Token_string(NULL, NULL);
-	Token_method_name* method_name = new Token_method_name(NULL);
+	Wildcard<Token_string>* token_filename = new Wildcard<Token_string>;
+	Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
 
 	// the filename is the only parameter of the include statement
 	pattern = new AST_method_invocation(
@@ -167,10 +168,10 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	);
 
 	// check we have a matching function
-	if	((in->expr->match(pattern)) and
-			(*method_name->value == "include" or *method_name->value == "require"))
+	if((in->expr->match(pattern)) and
+	   (*(method_name->value->value) == "include" or *(method_name->value->value) == "require"))
 	{
-		String* filename = token_filename->value;
+		String* filename = token_filename->value->value;
 
 		// Set up search directory
 		List<String*>* dirs = new List<String*>();
@@ -196,30 +197,30 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		}
 			
 		// Right now we deal with the statements to be returned.
-		AST_class_def* main = php_script->get_class_def("%MAIN%");
-		AST_method* run = main->get_method("%run%");
+//		AST_class_def* main = php_script->get_class_def("%MAIN%");
+//		AST_method* run = main->get_method("%run%");
 
 		// We don't support returning values from included scripts; 
 		// issue a warning and leave the include as-is
 		Return_check rc;
-		rc.visit_statement_list(run->statements);
+		rc.visit_statement_list(php_script->statements);
 		if(rc.found)
 		{
 			phc_warning(WARNING_INCLUDE_RETURN, in->get_filename(), in->get_line_number(), filename->c_str());
 			out->push_back(in);
 			return;
 		}
-
+/*
 		// clear the target if statements arent being output to main::run
 		if (not in_main_run) 
 		{
 			Set_variable_targets_to_null svttn;
 			svttn.visit_statement_list(run->statements);
 		}
-
+*/
 		// copy the statements from %MAIN%::%run%
-		out->push_back_all(run->statements);
-
+		out->push_back_all(php_script->statements);
+/*
 		// copy classes
 		List<AST_class_def*>::const_iterator ci;
 		for(ci = php_script->class_defs->begin(); ci != php_script->class_defs->end(); ci++)
@@ -245,6 +246,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 				}
 			}
 		}
+*/
 	}
 	else
 	{
@@ -253,9 +255,15 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 
 
 		// check if its an unsupported version of include
-		AST_method_invocation *method = new AST_method_invocation(new Token_class_name(new String("%STDLIB%")), method_name, NULL);
+		AST_method_invocation *method = 
+			new AST_method_invocation (
+					new Token_class_name (new String("%STDLIB%")),
+					method_name, 
+					new List<AST_actual_parameter*>( 
+						new AST_actual_parameter(false, token_filename)));
+
 		if	((in->expr->match(method)) and
-				(*method_name->value == "include" or *method_name->value == "require"))
+				(*(method_name->value->value) == "include" or *(method_name->value->value) == "require"))
 		{
 			ostringstream os;
 			PHP_unparser pup(os);

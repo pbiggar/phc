@@ -20,7 +20,7 @@
 #include "process_ast/Remove_parser_temporaries.h"
 #include "process_ast/Remove_concat_null.h"
 #include "process_ast/Token_conversion.h"
-// #include "process_ast/Process_includes.h"
+#include "process_ast/Process_includes.h"
 
 extern struct gengetopt_args_info args_info;
 
@@ -180,12 +180,9 @@ void run_standard_transforms(AST_php_script* php_script)
 	// pre-parsed, process_includes should be one of the last transforms
 	// to run, else the effort will be duplicated (which could lead to
 	// an error)
-	// TODO: temporarily disabled
-	/*
 	if(args_info.compile_time_includes_flag)
 	{
 		Process_includes pi;
 		php_script->transform(&pi);
 	}
-	*/
 }
