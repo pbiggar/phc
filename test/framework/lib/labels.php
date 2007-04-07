@@ -41,6 +41,13 @@ function strip_long_files ($label_struct)
 	return $label_struct;
 }
 
+/* If FILENAME begins with "3rdparty" and we're not doing long tests, return true, else false */
+function skip_3rdparty ($filename)
+{
+	global $opt_long;
+	return ($opt_long && preg_match ("!/3rdparty/!", $filename));
+}
+
 function create_label_struct ($directory, $label_filename, $third_party_filename)
 {
 	global $default_labels;
@@ -49,7 +56,6 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	global $labels;
 	global $exceptions;
 
-	// get all the php scripts in the file
 	$files = get_all_scripts_in_dir ($directory);
 
 	// labelled files is a table indexed by filename, containing tables indexed
@@ -95,20 +101,30 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	# go over the labelled_files, and make an table indexed by label
 	foreach ($files as $filename)
 	{
-		phc_assert(isset($labelled_files{$filename}), "file not found");
-
-		// check the interpretable
-		if ($labelled_files{$filename}{"non-interpretable"} === "check")
+		// If you have a ton of 3rd party files, dont spend time checking them
+		// all, unless your actually going to use them 
+		if (skip_3rdparty ($filename))
 		{
-			phc_assert (check_for_plugin ("tools/purity_test"), "purity not available");
-			global $phc, $plugin_dir;
-			if (`$phc --run $plugin_dir/tools/purity_test.la $filename 2>&1` == "")
+			$labelled_files{$filename}{"non-interpretable"} = 0;
+		}
+		else
+		{
+			phc_assert(isset($labelled_files{$filename}), "file not found");
+
+			// check the interpretable
+			if ($labelled_files{$filename}{"non-interpretable"} === "check")
 			{
-				$labelled_files{$filename}{"non-interpretable"} = 0;
-			}
-			else
-			{
-				$labelled_files{$filename}{"non-interpretable"} = 1;
+				phc_assert (check_for_plugin ("tools/purity_test"), "purity not available");
+				global $phc, $plugin_dir;
+				if (`$phc --run $plugin_dir/tools/purity_test.la $filename 2>&1` == "")
+				{
+					$pure[] = $filename;
+					$labelled_files{$filename}{"non-interpretable"} = 0;
+				}
+				else
+				{
+					$labelled_files{$filename}{"non-interpretable"} = 1;
+				}
 			}
 		}
 
@@ -124,6 +140,8 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 			}
 		}
 	}
+//	var_dump ($pure);
+// TODO var_dump the pure. Will be more worth it when includes are on by default
 
 	// sort and generally fix up the arrays
 	foreach ($labels as $label)
