@@ -41,3 +41,11 @@
 	echo "test success\n";
 
 ?>
+
+<?pHP
+
+	/* Any capitalization seesm be ok for the interpreter */
+	echo "test success\n";
+
+?>
+
