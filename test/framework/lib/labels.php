@@ -45,7 +45,7 @@ function strip_long_files ($label_struct)
 function skip_3rdparty ($filename)
 {
 	global $opt_long;
-	return ($opt_long && preg_match ("!/3rdparty/!", $filename));
+	return !($opt_long && preg_match ("!/3rdparty/!", $filename));
 }
 
 function create_label_struct ($directory, $label_filename, $third_party_filename)
