@@ -211,7 +211,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	Prep.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
-	keywords.$(OBJEXT) lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
+	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
@@ -474,7 +474,7 @@ src_phc_SOURCES = \
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
-	src/generated/keywords.cpp								\
+	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
@@ -531,7 +531,7 @@ BUILT_SOURCES = \
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
-	src/generated/keywords.cpp								\
+	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
@@ -892,7 +892,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/keywords.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.yy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line_numbers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linear.Plo@am__quote@
@@ -1150,20 +1149,6 @@ AST.obj: src/generated/AST.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST.cpp' object='AST.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST.obj `if test -f 'src/generated/AST.cpp'; then $(CYGPATH_W) 'src/generated/AST.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST.cpp'; fi`
-
-keywords.o: src/generated/keywords.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT keywords.o -MD -MP -MF $(DEPDIR)/keywords.Tpo -c -o keywords.o `test -f 'src/generated/keywords.cpp' || echo '$(srcdir)/'`src/generated/keywords.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/keywords.Tpo $(DEPDIR)/keywords.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/keywords.cpp' object='keywords.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o keywords.o `test -f 'src/generated/keywords.cpp' || echo '$(srcdir)/'`src/generated/keywords.cpp
-
-keywords.obj: src/generated/keywords.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT keywords.obj -MD -MP -MF $(DEPDIR)/keywords.Tpo -c -o keywords.obj `if test -f 'src/generated/keywords.cpp'; then $(CYGPATH_W) 'src/generated/keywords.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/keywords.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/keywords.Tpo $(DEPDIR)/keywords.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/keywords.cpp' object='keywords.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o keywords.obj `if test -f 'src/generated/keywords.cpp'; then $(CYGPATH_W) 'src/generated/keywords.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/keywords.cpp'; fi`
 
 lex.yy.o: src/generated/lex.yy.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.o -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
@@ -2072,8 +2057,8 @@ src/generated/AST_visitor.h: src/generated_src/phc.tea
 	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
-src/generated/keywords.cpp: src/generated_src/php.gperf 
-	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.cpp src/generated_src/php.gperf
+src/generated/keywords.h: src/generated_src/php.gperf 
+	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
 src/generated/cmdline.c \
 src/generated/cmdline.h: src/generated_src/phc.ggo

@@ -5,9 +5,6 @@
 	 *
 	 * List of reserved keywords 
 	 */
-	 
-	#include "AST.h"
-	#include "php_parser.tab.hpp"
 %}
 struct keyword { char* name; int token; }
 %%

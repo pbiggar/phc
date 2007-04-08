@@ -52,7 +52,7 @@ src_phc_SOURCES =												\
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
-	src/generated/keywords.cpp								\
+	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
@@ -109,7 +109,7 @@ BUILT_SOURCES = \
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
-	src/generated/keywords.cpp								\
+	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
@@ -264,8 +264,8 @@ src/generated/AST_visitor.h: src/generated_src/phc.tea
 	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
-src/generated/keywords.cpp: src/generated_src/php.gperf 
-	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.cpp src/generated_src/php.gperf
+src/generated/keywords.h: src/generated_src/php.gperf 
+	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
 src/generated/cmdline.c \
 src/generated/cmdline.h: src/generated_src/phc.ggo

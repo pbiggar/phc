@@ -1,5 +1,5 @@
 /* ANSI-C code produced by gperf version 3.0.2 */
-/* Command-line: /usr/bin/gperf --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.cpp src/generated_src/php.gperf  */
+/* Command-line: /usr/bin/gperf --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf  */
 /* Computed positions: -k'1,3-4' */
 
 #if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
@@ -37,10 +37,7 @@
 	 *
 	 * List of reserved keywords 
 	 */
-	 
-	#include "AST.h"
-	#include "php_parser.tab.hpp"
-#line 12 "src/generated_src/php.gperf"
+#line 9 "src/generated_src/php.gperf"
 struct keyword { char* name; int token; };
 #include <string.h>
 
@@ -158,181 +155,181 @@ in_word_set (register const char *str, register unsigned int len)
   static const struct keyword wordlist[] =
     {
       {""}, {""}, {""},
-#line 74 "src/generated_src/php.gperf"
+#line 71 "src/generated_src/php.gperf"
       {"try",					K_TRY},
-#line 30 "src/generated_src/php.gperf"
+#line 27 "src/generated_src/php.gperf"
       {"else",					K_ELSE},
       {""},
-#line 31 "src/generated_src/php.gperf"
+#line 28 "src/generated_src/php.gperf"
       {"elseif",				K_ELSEIF},
-#line 41 "src/generated_src/php.gperf"
+#line 38 "src/generated_src/php.gperf"
       {"extends",				K_EXTENDS},
       {""}, {""},
-#line 65 "src/generated_src/php.gperf"
+#line 62 "src/generated_src/php.gperf"
       {"__METHOD__",			K___METHOD__},
       {""},
-#line 46 "src/generated_src/php.gperf"
+#line 43 "src/generated_src/php.gperf"
       {"if",					K_IF},
       {""},
-#line 40 "src/generated_src/php.gperf"
+#line 37 "src/generated_src/php.gperf"
       {"exit",					K_EXIT},
-#line 50 "src/generated_src/php.gperf"
+#line 47 "src/generated_src/php.gperf"
       {"isset",				K_ISSET},
-#line 58 "src/generated_src/php.gperf"
+#line 55 "src/generated_src/php.gperf"
       {"switch",				K_SWITCH},
-#line 20 "src/generated_src/php.gperf"
+#line 17 "src/generated_src/php.gperf"
       {"as",					K_AS},
       {""},
-#line 67 "src/generated_src/php.gperf"
+#line 64 "src/generated_src/php.gperf"
       {"interface",			K_INTERFACE},
-#line 49 "src/generated_src/php.gperf"
+#line 46 "src/generated_src/php.gperf"
       {"instanceof",			K_INSTANCEOF},
-#line 57 "src/generated_src/php.gperf"
+#line 54 "src/generated_src/php.gperf"
       {"static",				K_STATIC},
-#line 28 "src/generated_src/php.gperf"
+#line 25 "src/generated_src/php.gperf"
       {"do",					K_DO},
-#line 72 "src/generated_src/php.gperf"
+#line 69 "src/generated_src/php.gperf"
       {"abstract",			K_ABSTRACT},
-#line 22 "src/generated_src/php.gperf"
+#line 19 "src/generated_src/php.gperf"
       {"case",					K_CASE},
-#line 24 "src/generated_src/php.gperf"
+#line 21 "src/generated_src/php.gperf"
       {"const",				K_CONST},
       {""}, {""},
-#line 25 "src/generated_src/php.gperf"
+#line 22 "src/generated_src/php.gperf"
       {"continue",			K_CONTINUE},
-#line 37 "src/generated_src/php.gperf"
+#line 34 "src/generated_src/php.gperf"
       {"endswitch",			K_ENDSWITCH},
-#line 21 "src/generated_src/php.gperf"
+#line 18 "src/generated_src/php.gperf"
       {"break",				K_BREAK},
       {""}, {""}, {""},
-#line 51 "src/generated_src/php.gperf"
+#line 48 "src/generated_src/php.gperf"
       {"list",					K_LIST},
-#line 36 "src/generated_src/php.gperf"
+#line 33 "src/generated_src/php.gperf"
       {"endif",				K_ENDIF},
       {""}, {""},
-#line 14 "src/generated_src/php.gperf"
+#line 11 "src/generated_src/php.gperf"
       {"and",					K_AND},
       {""},
-#line 23 "src/generated_src/php.gperf"
+#line 20 "src/generated_src/php.gperf"
       {"class",				K_CLASS},
       {""}, {""}, {""}, {""},
-#line 75 "src/generated_src/php.gperf"
+#line 72 "src/generated_src/php.gperf"
       {"catch",				K_CATCH},
       {""}, {""},
-#line 18 "src/generated_src/php.gperf"
+#line 15 "src/generated_src/php.gperf"
       {"__LINE__",			K___LINE__},
-#line 39 "src/generated_src/php.gperf"
+#line 36 "src/generated_src/php.gperf"
       {"eval",					K_EVAL},
-#line 33 "src/generated_src/php.gperf"
+#line 30 "src/generated_src/php.gperf"
       {"enddeclare",			K_ENDDECLARE},
       {""}, {""},
-#line 60 "src/generated_src/php.gperf"
+#line 57 "src/generated_src/php.gperf"
       {"use",					K_USE},
-#line 79 "src/generated_src/php.gperf"
+#line 76 "src/generated_src/php.gperf"
       {"true",					C_TRUE},
-#line 59 "src/generated_src/php.gperf"
+#line 56 "src/generated_src/php.gperf"
       {"unset",				K_UNSET},
       {""}, {""},
-#line 17 "src/generated_src/php.gperf"
+#line 14 "src/generated_src/php.gperf"
       {"__FILE__",			K___FILE__},
-#line 64 "src/generated_src/php.gperf"
+#line 61 "src/generated_src/php.gperf"
       {"__CLASS__",			K___CLASS__},
-#line 66 "src/generated_src/php.gperf"
+#line 63 "src/generated_src/php.gperf"
       {"final",				K_FINAL},
       {""}, {""},
-#line 61 "src/generated_src/php.gperf"
+#line 58 "src/generated_src/php.gperf"
       {"var",					K_VAR},
-#line 81 "src/generated_src/php.gperf"
+#line 78 "src/generated_src/php.gperf"
       {"null",					C_NULL},
       {""},
-#line 34 "src/generated_src/php.gperf"
+#line 31 "src/generated_src/php.gperf"
       {"endfor",				K_ENDFOR},
-#line 47 "src/generated_src/php.gperf"
-      {"include",				K_INCLUDE},
 #line 44 "src/generated_src/php.gperf"
+      {"include",				K_INCLUDE},
+#line 41 "src/generated_src/php.gperf"
       {"function",			K_FUNCTION},
       {""},
-#line 35 "src/generated_src/php.gperf"
+#line 32 "src/generated_src/php.gperf"
       {"endforeach",			K_ENDFOREACH},
       {""},
-#line 48 "src/generated_src/php.gperf"
+#line 45 "src/generated_src/php.gperf"
       {"include_once",		K_INCLUDE_ONCE},
-#line 52 "src/generated_src/php.gperf"
+#line 49 "src/generated_src/php.gperf"
       {"new",					K_NEW},
       {""},
-#line 80 "src/generated_src/php.gperf"
+#line 77 "src/generated_src/php.gperf"
       {"false",				C_FALSE},
       {""},
-#line 26 "src/generated_src/php.gperf"
+#line 23 "src/generated_src/php.gperf"
       {"declare",				K_DECLARE},
-#line 16 "src/generated_src/php.gperf"
+#line 13 "src/generated_src/php.gperf"
       {"xor",					K_XOR},
-#line 77 "src/generated_src/php.gperf"
+#line 74 "src/generated_src/php.gperf"
       {"cfunction",			K_CFUNCTION},
-#line 19 "src/generated_src/php.gperf"
+#line 16 "src/generated_src/php.gperf"
       {"array",				K_ARRAY},
       {""},
-#line 27 "src/generated_src/php.gperf"
+#line 24 "src/generated_src/php.gperf"
       {"default",				K_DEFAULT},
       {""}, {""},
-#line 32 "src/generated_src/php.gperf"
+#line 29 "src/generated_src/php.gperf"
       {"empty",				K_EMPTY},
       {""},
-#line 15 "src/generated_src/php.gperf"
+#line 12 "src/generated_src/php.gperf"
       {"or",					K_OR},
-#line 42 "src/generated_src/php.gperf"
+#line 39 "src/generated_src/php.gperf"
       {"for",					K_FOR},
-#line 29 "src/generated_src/php.gperf"
+#line 26 "src/generated_src/php.gperf"
       {"echo",					K_ECHO},
       {""}, {""},
-#line 43 "src/generated_src/php.gperf"
+#line 40 "src/generated_src/php.gperf"
       {"foreach",				K_FOREACH},
       {""}, {""},
-#line 53 "src/generated_src/php.gperf"
+#line 50 "src/generated_src/php.gperf"
       {"print",				K_PRINT},
       {""}, {""},
-#line 38 "src/generated_src/php.gperf"
+#line 35 "src/generated_src/php.gperf"
       {"endwhile",			K_ENDWHILE},
       {""}, {""},
-#line 56 "src/generated_src/php.gperf"
+#line 53 "src/generated_src/php.gperf"
       {"return",				K_RETURN},
-#line 63 "src/generated_src/php.gperf"
+#line 60 "src/generated_src/php.gperf"
       {"__FUNCTION__",		K___FUNCTION__},
       {""}, {""}, {""},
-#line 45 "src/generated_src/php.gperf"
+#line 42 "src/generated_src/php.gperf"
       {"global",				K_GLOBAL},
       {""}, {""}, {""},
-#line 73 "src/generated_src/php.gperf"
+#line 70 "src/generated_src/php.gperf"
       {"clone",				K_CLONE},
       {""},
-#line 70 "src/generated_src/php.gperf"
+#line 67 "src/generated_src/php.gperf"
       {"private",				K_PRIVATE},
       {""}, {""},
-#line 62 "src/generated_src/php.gperf"
+#line 59 "src/generated_src/php.gperf"
       {"while",				K_WHILE},
       {""},
-#line 78 "src/generated_src/php.gperf"
+#line 75 "src/generated_src/php.gperf"
       {"old_function",		K_OLD_FUNCTION},
       {""}, {""}, {""}, {""},
-#line 54 "src/generated_src/php.gperf"
+#line 51 "src/generated_src/php.gperf"
       {"require",				K_REQUIRE},
       {""}, {""}, {""},
-#line 69 "src/generated_src/php.gperf"
+#line 66 "src/generated_src/php.gperf"
       {"public",				K_PUBLIC},
-#line 55 "src/generated_src/php.gperf"
+#line 52 "src/generated_src/php.gperf"
       {"require_once",		K_REQUIRE_ONCE},
       {""}, {""},
-#line 68 "src/generated_src/php.gperf"
+#line 65 "src/generated_src/php.gperf"
       {"implements",			K_IMPLEMENTS},
       {""}, {""}, {""}, {""},
-#line 76 "src/generated_src/php.gperf"
+#line 73 "src/generated_src/php.gperf"
       {"throw",				K_THROW},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
       {""}, {""},
-#line 71 "src/generated_src/php.gperf"
+#line 68 "src/generated_src/php.gperf"
       {"protected",			K_PROTECTED}
     };
 

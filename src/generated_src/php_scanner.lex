@@ -18,10 +18,10 @@
 	#include "php_parser.tab.hpp"
 	#include "cmdline.h"
 	#include "parsing/PHP_context.h"
+	#include "keywords.h"
 
 	extern struct gengetopt_args_info args_info;
-	const struct keyword* in_word_set(const char*, unsigned int);
-
+	
 	#define YY_SKIP_YYWRAP
 
 	/*
@@ -46,8 +46,6 @@
 		BEGIN(RET_MULTI);									\
 		yylval->string = yyextra->mt_lval[0];		\
 		RETURN(yyextra->mt_type[0]);
-
-	struct keyword { char* name; int token; };
 
 	#define YY_EXTRA_TYPE PHP_context*
 %}
