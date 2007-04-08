@@ -41,11 +41,11 @@ function strip_long_files ($label_struct)
 	return $label_struct;
 }
 
-/* If FILENAME begins with "3rdparty" and we're not doing long tests, return true, else false */
+/* Returns true if this is a long test, and we're only doing short tests */
 function skip_3rdparty ($filename)
 {
 	global $opt_long;
-	return !($opt_long && preg_match ("!/3rdparty/!", $filename));
+	return (!$opt_long && preg_match ("#/3rdparty/#", $filename));
 }
 
 function create_label_struct ($directory, $label_filename, $third_party_filename)
