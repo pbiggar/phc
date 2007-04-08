@@ -27,7 +27,8 @@ statement ::=
    | if | while | do | for | foreach 
    | switch | break | continue | return
    | static_declaration
-   | unset | declare | try | throw | eval_expr | nop ;
+   | unset | declare | try | throw | eval_expr | nop 
+	| label | goto ;
 
 class_def ::= 
    class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -71,6 +72,9 @@ throw ::= expr ;
 eval_expr ::= expr ;
 
 nop ::= ;
+
+goto ::= LABEL_NAME ;
+label ::= LABEL_NAME ;
 
 expr ::=
      assignment | list_assignment | cast | unary_op | bin_op | conditional_expr
@@ -139,6 +143,7 @@ commented_node ::=
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
 	| DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME
+	| LABEL_NAME
 	;  
 
 {-

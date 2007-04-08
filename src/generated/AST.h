@@ -47,6 +47,7 @@ class Token_interface_name;
 class Token_method_name;
 class Token_variable_name;
 class Token_directive_name;
+class Token_label_name;
 class Token_cast;
 class Token_op;
 class Token_constant_name;
@@ -70,6 +71,8 @@ class AST_try;
 class AST_throw;
 class AST_eval_expr;
 class AST_nop;
+class AST_goto;
+class AST_label;
 class AST_literal;
 class AST_assignment;
 class AST_list_assignment;
@@ -475,7 +478,7 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
-// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME;
+// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
 class AST_identifier : virtual public AST_node
 {
 public:
@@ -494,7 +497,7 @@ friend class AST_transform;
 friend class AST_visitor;
 };
 
-// statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | unset | declare | try | throw | eval_expr | nop;
+// statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | unset | declare | try | throw | eval_expr | nop | label | goto;
 class AST_statement : virtual public AST_commented_node
 {
 public:
@@ -733,6 +736,27 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_directive_name* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+class Token_label_name : virtual public AST_identifier
+{
+public:
+    Token_label_name(String* value);
+protected:
+    Token_label_name();
+private:
+    virtual int classid();
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual Token_label_name* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1242,6 +1266,48 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_nop* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+// goto ::= LABEL_NAME ;
+class AST_goto : virtual public AST_statement
+{
+public:
+    AST_goto(Token_label_name* label_name);
+protected:
+    AST_goto();
+public:
+    Token_label_name* label_name;
+private:
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual AST_goto* clone();
+friend class AST_transform;
+friend class AST_visitor;
+};
+
+// label ::= LABEL_NAME ;
+class AST_label : virtual public AST_statement
+{
+public:
+    AST_label(Token_label_name* label_name);
+protected:
+    AST_label();
+public:
+    Token_label_name* label_name;
+private:
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual AST_label* clone();
 friend class AST_transform;
 friend class AST_visitor;
 };
@@ -1831,7 +1897,7 @@ public:
 private:
 	int classid()
 	{
-		return 64;
+		return 67;
 	}
 };
 

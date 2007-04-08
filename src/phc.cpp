@@ -16,6 +16,7 @@
 #include "cmdline.h"
 #include "process_ast/process_ast.h"
 #include "codegen/Generate_C.h"
+#include "codegen/Lower_control_flow.h"
 #include "codegen/Prep.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -208,12 +209,14 @@ int main(int argc, char** argv)
 void generate_c(AST_php_script* php_script)
 {
 	Generate_C* generate_c;
+	Lower_control_flow lcf;
 	Prep prep;
 
 	if(!args_info.extension_given)
 		generate_c = new Generate_C(NULL);
 	else
 		generate_c = new Generate_C(new String(args_info.extension_arg));
+	php_script->transform(&lcf);	
 	php_script->transform(&prep);	
 	php_script->visit(generate_c);
 }

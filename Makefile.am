@@ -44,6 +44,8 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt.h								\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/Lower_control_flow.cpp					\
+	src/codegen/Lower_control_flow.h						\
 	src/codegen/Prep.cpp										\
 	src/codegen/Prep.h										\
 	src/generated/AST.cpp									\

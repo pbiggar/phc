@@ -5,7 +5,7 @@
 //  Return the line number of the node (or 0 if unknown)
 int AST_node::get_line_number()
 {
-    #line 166 "src/generated_src/phc.tea"
+    #line 171 "src/generated_src/phc.tea"
 {
 		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
 		if(i != NULL)
@@ -18,7 +18,7 @@ int AST_node::get_line_number()
 //  Return the filename of the node (or NULL if unknown)
 String* AST_node::get_filename()
 {
-    #line 176 "src/generated_src/phc.tea"
+    #line 181 "src/generated_src/phc.tea"
 {
 		return dynamic_cast<String*>(attrs->get("phc.filename"));
 	}
@@ -26,7 +26,7 @@ String* AST_node::get_filename()
 
 AST_node::AST_node()
 {
-    #line 181 "src/generated_src/phc.tea"
+    #line 186 "src/generated_src/phc.tea"
 {
 		// Constructor gets called because all classes inherit from
 		// AST_node virtually; also, because maketea knows AST_node is
@@ -37,7 +37,7 @@ AST_node::AST_node()
 
 void AST_node::clone_mixin_from(AST_node* in)
 {
-    #line 189 "src/generated_src/phc.tea"
+    #line 194 "src/generated_src/phc.tea"
 {
 		attrs = in->attrs->clone();
 	}
@@ -126,7 +126,7 @@ bool AST_php_script::equals(AST_node* in)
 
 void AST_php_script::visit(AST_visitor* visitor)
 {
-    #line 281 "src/generated_src/phc.tea"
+    #line 286 "src/generated_src/phc.tea"
 {
 		visitor->visit_php_script(this);
 	}
@@ -134,7 +134,7 @@ void AST_php_script::visit(AST_visitor* visitor)
 
 AST_php_script* AST_php_script::transform(AST_transform* transform)
 {
-    #line 286 "src/generated_src/phc.tea"
+    #line 291 "src/generated_src/phc.tea"
 {
 		return transform->transform_php_script(this);
 	}
@@ -332,7 +332,7 @@ bool AST_signature::equals(AST_node* in)
 
 AST_signature::AST_signature(const char* name)
 {
-    #line 215 "src/generated_src/phc.tea"
+    #line 220 "src/generated_src/phc.tea"
 {
 		this->method_mod = AST_method_mod::new_PUBLIC();
 		this->is_ref = false;
@@ -415,7 +415,7 @@ bool AST_method_mod::equals(AST_node* in)
 
 AST_method_mod::AST_method_mod()
 {
-    #line 227 "src/generated_src/phc.tea"
+    #line 232 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -428,7 +428,7 @@ AST_method_mod::AST_method_mod()
 
 AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 {
-    #line 237 "src/generated_src/phc.tea"
+    #line 242 "src/generated_src/phc.tea"
 {
 		this->is_public 		= a->is_public		|| b->is_public;
 		this->is_protected	= a->is_protected	|| b->is_protected;
@@ -441,7 +441,7 @@ AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 
 AST_method_mod* AST_method_mod::new_PUBLIC()
 {
-    #line 247 "src/generated_src/phc.tea"
+    #line 252 "src/generated_src/phc.tea"
 {
 		return new AST_method_mod(true, false, false, false, false, false);		
 	}
@@ -449,7 +449,7 @@ AST_method_mod* AST_method_mod::new_PUBLIC()
 
 AST_method_mod* AST_method_mod::new_PROTECTED()
 {
-    #line 252 "src/generated_src/phc.tea"
+    #line 257 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, true, false, false, false, false);		
 	}
@@ -457,7 +457,7 @@ AST_method_mod* AST_method_mod::new_PROTECTED()
 
 AST_method_mod* AST_method_mod::new_PRIVATE()
 {
-    #line 257 "src/generated_src/phc.tea"
+    #line 262 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, true, false, false, false);		
 	}
@@ -465,7 +465,7 @@ AST_method_mod* AST_method_mod::new_PRIVATE()
 
 AST_method_mod* AST_method_mod::new_STATIC()
 {
-    #line 262 "src/generated_src/phc.tea"
+    #line 267 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, true, false, false);		
 	}
@@ -473,7 +473,7 @@ AST_method_mod* AST_method_mod::new_STATIC()
 
 AST_method_mod* AST_method_mod::new_ABSTRACT()
 {
-    #line 267 "src/generated_src/phc.tea"
+    #line 272 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, false, true, false);		
 	}
@@ -481,7 +481,7 @@ AST_method_mod* AST_method_mod::new_ABSTRACT()
 
 AST_method_mod* AST_method_mod::new_FINAL()
 {
-    #line 272 "src/generated_src/phc.tea"
+    #line 277 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, false, false, true);		
 	}
@@ -595,7 +595,7 @@ bool AST_formal_parameter::equals(AST_node* in)
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 385 "src/generated_src/phc.tea"
+    #line 390 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -606,7 +606,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 393 "src/generated_src/phc.tea"
+    #line 398 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -744,7 +744,7 @@ bool AST_attr_mod::equals(AST_node* in)
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 405 "src/generated_src/phc.tea"
+    #line 410 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -756,7 +756,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 414 "src/generated_src/phc.tea"
+    #line 419 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error(ERR_FINAL_VARS, mm->get_filename(), mm->get_line_number());
@@ -771,7 +771,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 426 "src/generated_src/phc.tea"
+    #line 431 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -779,7 +779,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 431 "src/generated_src/phc.tea"
+    #line 436 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -787,7 +787,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 436 "src/generated_src/phc.tea"
+    #line 441 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -795,7 +795,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 441 "src/generated_src/phc.tea"
+    #line 446 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -803,7 +803,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 446 "src/generated_src/phc.tea"
+    #line 451 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -928,7 +928,7 @@ AST_array_elem::AST_array_elem()
 
 int AST_array_elem::classid()
 {
-    return 46;
+    return 48;
 }
 
 bool AST_array_elem::match(AST_node* in)
@@ -1015,7 +1015,7 @@ AST_actual_parameter::AST_actual_parameter()
 
 int AST_actual_parameter::classid()
 {
-    return 48;
+    return 50;
 }
 
 bool AST_actual_parameter::match(AST_node* in)
@@ -1073,7 +1073,7 @@ AST_class_name::AST_class_name()
 
 AST_commented_node::AST_commented_node()
 {
-    #line 198 "src/generated_src/phc.tea"
+    #line 203 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.comments", new List<String*>);
 	}
@@ -1082,7 +1082,7 @@ AST_commented_node::AST_commented_node()
 //  Return the comments associated with the node
 List<String*>* AST_commented_node::get_comments()
 {
-    #line 204 "src/generated_src/phc.tea"
+    #line 209 "src/generated_src/phc.tea"
 {
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
 		assert(comments);
@@ -1353,7 +1353,7 @@ AST_catch* AST_catch::clone()
 
 AST_expr::AST_expr()
 {
-    #line 496 "src/generated_src/phc.tea"
+    #line 501 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -1371,7 +1371,7 @@ AST_list_elements::AST_list_elements()
 
 int AST_list_elements::classid()
 {
-    return 33;
+    return 35;
 }
 
 bool AST_list_elements::match(AST_node* in)
@@ -1467,7 +1467,7 @@ AST_reflection::AST_reflection()
 
 int AST_reflection::classid()
 {
-    return 42;
+    return 44;
 }
 
 bool AST_reflection::match(AST_node* in)
@@ -1527,7 +1527,7 @@ Token_class_name::Token_class_name()
 
 int Token_class_name::classid()
 {
-    return 51;
+    return 53;
 }
 
 String* Token_class_name::get_value_as_string()
@@ -1587,7 +1587,7 @@ Token_interface_name::Token_interface_name()
 
 int Token_interface_name::classid()
 {
-    return 52;
+    return 54;
 }
 
 String* Token_interface_name::get_value_as_string()
@@ -1647,7 +1647,7 @@ Token_method_name::Token_method_name()
 
 int Token_method_name::classid()
 {
-    return 53;
+    return 55;
 }
 
 String* Token_method_name::get_value_as_string()
@@ -1707,7 +1707,7 @@ Token_variable_name::Token_variable_name()
 
 int Token_variable_name::classid()
 {
-    return 54;
+    return 56;
 }
 
 String* Token_variable_name::get_value_as_string()
@@ -1767,7 +1767,7 @@ Token_directive_name::Token_directive_name()
 
 int Token_directive_name::classid()
 {
-    return 55;
+    return 57;
 }
 
 String* Token_directive_name::get_value_as_string()
@@ -1815,6 +1815,66 @@ Token_directive_name* Token_directive_name::clone()
     return clone;
 }
 
+Token_label_name::Token_label_name(String* value)
+{
+    this->value = value;
+}
+
+Token_label_name::Token_label_name()
+{
+    this->value = 0;
+}
+
+int Token_label_name::classid()
+{
+    return 58;
+}
+
+String* Token_label_name::get_value_as_string()
+{
+    return value;
+}
+
+bool Token_label_name::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool Token_label_name::equals(AST_node* in)
+{
+    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    return true;
+}
+
+Token_label_name* Token_label_name::clone()
+{
+    String* value = new String(*this->value);
+    Token_label_name* clone = new Token_label_name(value);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 Token_cast::Token_cast(String* value)
 {
     this->value = value;
@@ -1827,7 +1887,7 @@ Token_cast::Token_cast()
 
 int Token_cast::classid()
 {
-    return 61;
+    return 64;
 }
 
 String* Token_cast::get_value_as_string()
@@ -1887,7 +1947,7 @@ Token_op::Token_op()
 
 int Token_op::classid()
 {
-    return 62;
+    return 65;
 }
 
 String* Token_op::get_value_as_string()
@@ -1947,7 +2007,7 @@ Token_constant_name::Token_constant_name()
 
 int Token_constant_name::classid()
 {
-    return 63;
+    return 66;
 }
 
 String* Token_constant_name::get_value_as_string()
@@ -2179,7 +2239,7 @@ bool AST_class_def::equals(AST_node* in)
 
 AST_class_def::AST_class_def(AST_class_mod* mod)
 {
-    #line 295 "src/generated_src/phc.tea"
+    #line 300 "src/generated_src/phc.tea"
 {
 		this->class_mod = mod;
 		this->class_name = NULL;
@@ -2191,7 +2251,7 @@ AST_class_def::AST_class_def(AST_class_mod* mod)
 
 AST_class_def::AST_class_def(char* name)
 {
-    #line 304 "src/generated_src/phc.tea"
+    #line 309 "src/generated_src/phc.tea"
 {
 		this->class_mod = new AST_class_mod(false, false);
 		this->class_name = new Token_class_name(new String(name));
@@ -2203,7 +2263,7 @@ AST_class_def::AST_class_def(char* name)
 
 void AST_class_def::add_member(AST_member* member)
 {
-    #line 313 "src/generated_src/phc.tea"
+    #line 318 "src/generated_src/phc.tea"
 {
 		this->members->push_back(member);
 	}
@@ -2212,11 +2272,11 @@ void AST_class_def::add_member(AST_member* member)
 //  Returns NULL if the method could not be found
 AST_method* AST_class_def::get_method(const char* name)
 {
-    #line 319 "src/generated_src/phc.tea"
+    #line 324 "src/generated_src/phc.tea"
 {
 		List<AST_member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
-		#line 322 "src/generated_src/phc.tea"
+		#line 327 "src/generated_src/phc.tea"
 {
 			AST_method* method = dynamic_cast<AST_method*>(*i);
 			if(method && *method->signature->method_name->value == name)
@@ -4241,6 +4301,126 @@ AST_nop* AST_nop::clone()
     return clone;
 }
 
+AST_goto::AST_goto(Token_label_name* label_name)
+{
+    this->label_name = label_name;
+}
+
+AST_goto::AST_goto()
+{
+    this->label_name = 0;
+}
+
+int AST_goto::classid()
+{
+    return 31;
+}
+
+bool AST_goto::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_goto* that = dynamic_cast<AST_goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool AST_goto::equals(AST_node* in)
+{
+    AST_goto* that = dynamic_cast<AST_goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+AST_goto* AST_goto::clone()
+{
+    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
+    AST_goto* clone = new AST_goto(label_name);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+AST_label::AST_label(Token_label_name* label_name)
+{
+    this->label_name = label_name;
+}
+
+AST_label::AST_label()
+{
+    this->label_name = 0;
+}
+
+int AST_label::classid()
+{
+    return 32;
+}
+
+bool AST_label::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_label* that = dynamic_cast<AST_label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool AST_label::equals(AST_node* in)
+{
+    AST_label* that = dynamic_cast<AST_label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+AST_label* AST_label::clone()
+{
+    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
+    AST_label* clone = new AST_label(label_name);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 AST_literal::AST_literal()
 {
 }
@@ -4261,7 +4441,7 @@ AST_assignment::AST_assignment()
 
 int AST_assignment::classid()
 {
-    return 31;
+    return 33;
 }
 
 bool AST_assignment::match(AST_node* in)
@@ -4344,7 +4524,7 @@ AST_list_assignment::AST_list_assignment()
 
 int AST_list_assignment::classid()
 {
-    return 32;
+    return 34;
 }
 
 bool AST_list_assignment::match(AST_node* in)
@@ -4423,7 +4603,7 @@ AST_cast::AST_cast()
 
 int AST_cast::classid()
 {
-    return 34;
+    return 36;
 }
 
 bool AST_cast::match(AST_node* in)
@@ -4481,7 +4661,7 @@ bool AST_cast::equals(AST_node* in)
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 505 "src/generated_src/phc.tea"
+    #line 510 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -4511,7 +4691,7 @@ AST_unary_op::AST_unary_op()
 
 int AST_unary_op::classid()
 {
-    return 35;
+    return 37;
 }
 
 bool AST_unary_op::match(AST_node* in)
@@ -4569,7 +4749,7 @@ bool AST_unary_op::equals(AST_node* in)
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 486 "src/generated_src/phc.tea"
+    #line 491 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -4601,7 +4781,7 @@ AST_bin_op::AST_bin_op()
 
 int AST_bin_op::classid()
 {
-    return 36;
+    return 38;
 }
 
 bool AST_bin_op::match(AST_node* in)
@@ -4675,7 +4855,7 @@ bool AST_bin_op::equals(AST_node* in)
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 455 "src/generated_src/phc.tea"
+    #line 460 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -4709,7 +4889,7 @@ AST_conditional_expr::AST_conditional_expr()
 
 int AST_conditional_expr::classid()
 {
-    return 37;
+    return 39;
 }
 
 bool AST_conditional_expr::match(AST_node* in)
@@ -4803,7 +4983,7 @@ AST_ignore_errors::AST_ignore_errors()
 
 int AST_ignore_errors::classid()
 {
-    return 38;
+    return 40;
 }
 
 bool AST_ignore_errors::match(AST_node* in)
@@ -4865,7 +5045,7 @@ AST_constant::AST_constant()
 
 int AST_constant::classid()
 {
-    return 39;
+    return 41;
 }
 
 bool AST_constant::match(AST_node* in)
@@ -4923,7 +5103,7 @@ bool AST_constant::equals(AST_node* in)
 
 AST_constant::AST_constant(char* class_name, Token_constant_name* constant_name)
 {
-    #line 515 "src/generated_src/phc.tea"
+    #line 520 "src/generated_src/phc.tea"
 {
 		this->class_name = new Token_class_name(new String(class_name));
 		this->constant_name = constant_name;
@@ -4953,7 +5133,7 @@ AST_instanceof::AST_instanceof()
 
 int AST_instanceof::classid()
 {
-    return 40;
+    return 42;
 }
 
 bool AST_instanceof::match(AST_node* in)
@@ -5036,7 +5216,7 @@ AST_variable::AST_variable()
 
 int AST_variable::classid()
 {
-    return 41;
+    return 43;
 }
 
 bool AST_variable::match(AST_node* in)
@@ -5155,7 +5335,7 @@ bool AST_variable::equals(AST_node* in)
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 336 "src/generated_src/phc.tea"
+    #line 341 "src/generated_src/phc.tea"
 {
 		this->target = NULL;
 		this->variable_name = name;
@@ -5166,7 +5346,7 @@ AST_variable::AST_variable(AST_variable_name* name)
 
 void AST_variable::_init()
 {
-    #line 344 "src/generated_src/phc.tea"
+    #line 349 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
@@ -5204,7 +5384,7 @@ AST_pre_op::AST_pre_op()
 
 int AST_pre_op::classid()
 {
-    return 43;
+    return 45;
 }
 
 bool AST_pre_op::match(AST_node* in)
@@ -5262,7 +5442,7 @@ bool AST_pre_op::equals(AST_node* in)
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 476 "src/generated_src/phc.tea"
+    #line 481 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5292,7 +5472,7 @@ AST_post_op::AST_post_op()
 
 int AST_post_op::classid()
 {
-    return 44;
+    return 46;
 }
 
 bool AST_post_op::match(AST_node* in)
@@ -5350,7 +5530,7 @@ bool AST_post_op::equals(AST_node* in)
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 466 "src/generated_src/phc.tea"
+    #line 471 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5378,7 +5558,7 @@ AST_array::AST_array()
 
 int AST_array::classid()
 {
-    return 45;
+    return 47;
 }
 
 bool AST_array::match(AST_node* in)
@@ -5478,7 +5658,7 @@ AST_method_invocation::AST_method_invocation()
 
 int AST_method_invocation::classid()
 {
-    return 47;
+    return 49;
 }
 
 bool AST_method_invocation::match(AST_node* in)
@@ -5582,7 +5762,7 @@ bool AST_method_invocation::equals(AST_node* in)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 354 "src/generated_src/phc.tea"
+    #line 359 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -5595,7 +5775,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 364 "src/generated_src/phc.tea"
+    #line 369 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -5607,7 +5787,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 373 "src/generated_src/phc.tea"
+    #line 378 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -5647,7 +5827,7 @@ AST_new::AST_new()
 
 int AST_new::classid()
 {
-    return 49;
+    return 51;
 }
 
 bool AST_new::match(AST_node* in)
@@ -5760,7 +5940,7 @@ AST_clone::AST_clone()
 
 int AST_clone::classid()
 {
-    return 50;
+    return 52;
 }
 
 bool AST_clone::match(AST_node* in)
@@ -5822,7 +6002,7 @@ Token_int::Token_int()
 
 int Token_int::classid()
 {
-    return 56;
+    return 59;
 }
 
 String* Token_int::get_source_rep()
@@ -5880,7 +6060,7 @@ bool Token_int::equals_value(Token_int* that)
 
 String* Token_int::get_value_as_string()
 {
-    #line 538 "src/generated_src/phc.tea"
+    #line 543 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -5916,7 +6096,7 @@ Token_real::Token_real()
 
 int Token_real::classid()
 {
-    return 57;
+    return 60;
 }
 
 String* Token_real::get_source_rep()
@@ -5974,7 +6154,7 @@ bool Token_real::equals_value(Token_real* that)
 
 String* Token_real::get_value_as_string()
 {
-    #line 549 "src/generated_src/phc.tea"
+    #line 554 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -6021,7 +6201,7 @@ Token_string::Token_string()
 
 int Token_string::classid()
 {
-    return 58;
+    return 61;
 }
 
 String* Token_string::get_source_rep()
@@ -6079,7 +6259,7 @@ bool Token_string::equals_value(Token_string* that)
 
 String* Token_string::get_value_as_string()
 {
-    #line 583 "src/generated_src/phc.tea"
+    #line 588 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -6113,7 +6293,7 @@ Token_bool::Token_bool()
 
 int Token_bool::classid()
 {
-    return 59;
+    return 62;
 }
 
 String* Token_bool::get_source_rep()
@@ -6171,7 +6351,7 @@ bool Token_bool::equals_value(Token_bool* that)
 
 String* Token_bool::get_value_as_string()
 {
-    #line 571 "src/generated_src/phc.tea"
+    #line 576 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -6206,7 +6386,7 @@ Token_null::Token_null()
 
 int Token_null::classid()
 {
-    return 60;
+    return 63;
 }
 
 String* Token_null::get_source_rep()
@@ -6248,7 +6428,7 @@ bool Token_null::equals(AST_node* in)
 
 String* Token_null::get_value_as_string()
 {
-    #line 592 "src/generated_src/phc.tea"
+    #line 597 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}

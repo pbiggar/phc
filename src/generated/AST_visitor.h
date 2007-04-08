@@ -56,6 +56,8 @@ public:
     virtual void pre_throw(AST_throw* in);
     virtual void pre_eval_expr(AST_eval_expr* in);
     virtual void pre_nop(AST_nop* in);
+    virtual void pre_goto(AST_goto* in);
+    virtual void pre_label(AST_label* in);
     virtual void pre_expr(AST_expr* in);
     virtual void pre_literal(AST_literal* in);
     virtual void pre_assignment(AST_assignment* in);
@@ -91,6 +93,7 @@ public:
     virtual void pre_method_name(Token_method_name* in);
     virtual void pre_variable_name(Token_variable_name* in);
     virtual void pre_directive_name(Token_directive_name* in);
+    virtual void pre_label_name(Token_label_name* in);
     virtual void pre_int(Token_int* in);
     virtual void pre_real(Token_real* in);
     virtual void pre_string(Token_string* in);
@@ -132,6 +135,8 @@ public:
     virtual void post_throw(AST_throw* in);
     virtual void post_eval_expr(AST_eval_expr* in);
     virtual void post_nop(AST_nop* in);
+    virtual void post_goto(AST_goto* in);
+    virtual void post_label(AST_label* in);
     virtual void post_expr(AST_expr* in);
     virtual void post_literal(AST_literal* in);
     virtual void post_assignment(AST_assignment* in);
@@ -167,6 +172,7 @@ public:
     virtual void post_method_name(Token_method_name* in);
     virtual void post_variable_name(Token_variable_name* in);
     virtual void post_directive_name(Token_directive_name* in);
+    virtual void post_label_name(Token_label_name* in);
     virtual void post_int(Token_int* in);
     virtual void post_real(Token_real* in);
     virtual void post_string(Token_string* in);
@@ -206,6 +212,8 @@ public:
     virtual void children_throw(AST_throw* in);
     virtual void children_eval_expr(AST_eval_expr* in);
     virtual void children_nop(AST_nop* in);
+    virtual void children_goto(AST_goto* in);
+    virtual void children_label(AST_label* in);
     virtual void children_assignment(AST_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
     virtual void children_list_elements(AST_list_elements* in);
@@ -232,6 +240,7 @@ public:
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_directive_name(Token_directive_name* in);
+    virtual void children_label_name(Token_label_name* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
@@ -271,6 +280,8 @@ public:
     virtual void pre_throw_chain(AST_throw* in);
     virtual void pre_eval_expr_chain(AST_eval_expr* in);
     virtual void pre_nop_chain(AST_nop* in);
+    virtual void pre_goto_chain(AST_goto* in);
+    virtual void pre_label_chain(AST_label* in);
     virtual void pre_assignment_chain(AST_assignment* in);
     virtual void pre_list_assignment_chain(AST_list_assignment* in);
     virtual void pre_list_elements_chain(AST_list_elements* in);
@@ -296,6 +307,7 @@ public:
     virtual void pre_method_name_chain(Token_method_name* in);
     virtual void pre_variable_name_chain(Token_variable_name* in);
     virtual void pre_directive_name_chain(Token_directive_name* in);
+    virtual void pre_label_name_chain(Token_label_name* in);
     virtual void pre_int_chain(Token_int* in);
     virtual void pre_real_chain(Token_real* in);
     virtual void pre_string_chain(Token_string* in);
@@ -335,6 +347,8 @@ public:
     virtual void post_throw_chain(AST_throw* in);
     virtual void post_eval_expr_chain(AST_eval_expr* in);
     virtual void post_nop_chain(AST_nop* in);
+    virtual void post_goto_chain(AST_goto* in);
+    virtual void post_label_chain(AST_label* in);
     virtual void post_assignment_chain(AST_assignment* in);
     virtual void post_list_assignment_chain(AST_list_assignment* in);
     virtual void post_list_elements_chain(AST_list_elements* in);
@@ -360,6 +374,7 @@ public:
     virtual void post_method_name_chain(Token_method_name* in);
     virtual void post_variable_name_chain(Token_variable_name* in);
     virtual void post_directive_name_chain(Token_directive_name* in);
+    virtual void post_label_name_chain(Token_label_name* in);
     virtual void post_int_chain(Token_int* in);
     virtual void post_real_chain(Token_real* in);
     virtual void post_string_chain(Token_string* in);
@@ -394,6 +409,7 @@ public:
     virtual void visit_directive_name(Token_directive_name* in);
     virtual void visit_catch_list(List<AST_catch*>* in);
     virtual void visit_catch(AST_catch* in);
+    virtual void visit_label_name(Token_label_name* in);
     virtual void visit_list_elements(AST_list_elements* in);
     virtual void visit_list_element_list(List<AST_list_element*>* in);
     virtual void visit_list_element(AST_list_element* in);
