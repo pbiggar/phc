@@ -15,11 +15,6 @@
 	#include "lib/error.h"
 	#include "parsing/PHP_context.h"
 
-	#ifdef YYSTYPE
-	#undef YYSTYPE
-	#endif
-	#define YYSTYPE Object*
-
 	extern struct gengetopt_args_info args_info;
 
 	/*
@@ -118,13 +113,63 @@
 		return node;
 	}
 
-	int PHP_lex(YYSTYPE* yylval, void* scanner);
-	#define scanner context->scanner
-
 	void PHP_error(PHP_context* context, const char* s)
 	{
 		phc_error(ERR_BISON, context->filename, context->source_line, s);
 	}
+%}
+
+%union
+{
+	Object* object;
+	List<AST_statement*>* list_ast_statement;
+	List<AST_catch*>* list_ast_catch;
+	AST_catch* ast_catch;
+	List<AST_variable*>* list_ast_variable;
+	AST_variable* ast_variable;
+	Token_string* token_string;
+	AST_method* ast_method;
+	Integer* integer;
+	AST_class_def* ast_class_def;
+	Token_class_name* token_class_name;
+	AST_interface_def* ast_interface_def;
+	List<Token_interface_name*>* list_token_interface_name;
+	List<AST_directive*>* list_ast_directive;
+	List<AST_switch_case*>* switch_ast_case_list;
+	AST_if* ast_if;
+	List<AST_formal_parameter*>* list_ast_formal_parameter;
+	AST_type* ast_type;
+	List<AST_variable_name*>* list_ast_variable_name;
+	AST_variable_name* ast_variable_name;
+	List<AST_member*>* list_ast_member;
+	AST_attr_mod* ast_attr_mod;
+	AST_method_mod* ast_method_mod;
+	AST_expr* ast_expr;
+	AST_method_invocation* ast_method_invocation;
+	AST_class_name* class_name;
+	AST_constant* ast_constant;
+	List<AST_array_elem*>* list_ast_array_elem;
+	List<AST_expr*>* list_ast_expr;
+	AST_list_elements* ast_list_elements;
+	AST_list_element* ast_list_element;
+	String* string;
+	void* nothing;
+	List<AST_actual_parameter*>* list_ast_actual_parameter;
+	AST_class_name* ast_class_name;
+	List<AST_switch_case*>* list_ast_switch_case;
+	AST_switch_case* ast_switch_case;
+	AST_try* ast_try;
+	AST_declare* ast_declare;
+	AST_foreach* ast_foreach;
+	AST_switch* ast_switch;
+	AST_for* ast_for;
+	AST_do* ast_do;
+	AST_while* ast_while;
+}
+
+%{
+	int PHP_lex(YYSTYPE* yylval, void* scanner);
+	#define scanner context->scanner
 %}
 
 %pure_parser
@@ -139,135 +184,135 @@
 
 // Keywords
 
-%token K_AND
-%token K_OR
-%token K_XOR
-%token K___FILE__
-%token K_EXCEPTION
-%token K___LINE__
-%token K_ARRAY
-%token K_AS
-%token K_BREAK
-%token K_CASE
-%token K_CLASS
-%token K_CONST
-%token K_CONTINUE
-%token K_DECLARE
-%token K_DEFAULT
-%token K_DIE
-%token K_DO
-%token K_ECHO
-%token K_ELSE
-%token K_ELSEIF
-%token K_EMPTY
-%token K_ENDDECLARE
-%token K_ENDFOR
-%token K_ENDFOREACH
-%token K_ENDIF
-%token K_ENDSWITCH
-%token K_ENDWHILE
-%token K_EVAL
-%token K_EXIT
-%token K_EXTENDS
-%token K_FOR
-%token K_FOREACH
-%token K_FUNCTION
-%token K_GLOBAL
-%token K_IF
-%token K_INCLUDE
-%token K_INCLUDE_ONCE
-%token K_INSTANCEOF
-%token K_ISSET
-%token K_LIST
-%token K_NEW
-%token K_PRINT
-%token K_REQUIRE
-%token K_REQUIRE_ONCE
-%token K_RETURN
-%token K_STATIC
-%token K_SWITCH
-%token K_UNSET
-%token K_USE
-%token K_VAR
-%token K_WHILE
-%token K___FUNCTION__
-%token K___CLASS__
-%token K___METHOD__
-%token K_FINAL
-%token K_PHP_USER_FILTER
-%token K_INTERFACE
-%token K_IMPLEMENTS
-%token K_PUBLIC
-%token K_PRIVATE
-%token K_PROTECTED
-%token K_ABSTRACT
-%token K_CLONE
-%token K_TRY
-%token K_CATCH
-%token K_THROW
-%token K_CFUNCTION
-%token K_OLD_FUNCTION
+%token <string> K_AND
+%token <string> K_OR
+%token <string> K_XOR
+%token <string> K___FILE__
+%token <string> K_EXCEPTION
+%token <string> K___LINE__
+%token <string> K_ARRAY
+%token <string> K_AS
+%token <string> K_BREAK
+%token <string> K_CASE
+%token <string> K_CLASS
+%token <string> K_CONST
+%token <string> K_CONTINUE
+%token <string> K_DECLARE
+%token <string> K_DEFAULT
+%token <string> K_DIE
+%token <string> K_DO
+%token <string> K_ECHO
+%token <string> K_ELSE
+%token <string> K_ELSEIF
+%token <string> K_EMPTY
+%token <string> K_ENDDECLARE
+%token <string> K_ENDFOR
+%token <string> K_ENDFOREACH
+%token <string> K_ENDIF
+%token <string> K_ENDSWITCH
+%token <string> K_ENDWHILE
+%token <string> K_EVAL
+%token <string> K_EXIT
+%token <string> K_EXTENDS
+%token <string> K_FOR
+%token <string> K_FOREACH
+%token <string> K_FUNCTION
+%token <string> K_GLOBAL
+%token <string> K_IF
+%token <string> K_INCLUDE
+%token <string> K_INCLUDE_ONCE
+%token <string> K_INSTANCEOF
+%token <string> K_ISSET
+%token <string> K_LIST
+%token <string> K_NEW
+%token <string> K_PRINT
+%token <string> K_REQUIRE
+%token <string> K_REQUIRE_ONCE
+%token <string> K_RETURN
+%token <string> K_STATIC
+%token <string> K_SWITCH
+%token <string> K_UNSET
+%token <string> K_USE
+%token <string> K_VAR
+%token <string> K_WHILE
+%token <string> K___FUNCTION__
+%token <string> K___CLASS__
+%token <string> K___METHOD__
+%token <string> K_FINAL
+%token <string> K_PHP_USER_FILTER
+%token <string> K_INTERFACE
+%token <string> K_IMPLEMENTS
+%token <string> K_PUBLIC
+%token <string> K_PRIVATE
+%token <string> K_PROTECTED
+%token <string> K_ABSTRACT
+%token <string> K_CLONE
+%token <string> K_TRY
+%token <string> K_CATCH
+%token <string> K_THROW
+%token <string> K_CFUNCTION
+%token <string> K_OLD_FUNCTION
 
-%token K_HALT_COMPILER
+%token <string> K_HALT_COMPILER
 
 // Constants
 
-%token C_TRUE
-%token C_FALSE
-%token C_NULL
+%token <string> C_TRUE
+%token <string> C_FALSE
+%token <string> C_NULL
 
 // Operators
 
-%token O_EQEQ
-%token O_EQEQEQ
-%token O_NOTEQ
-%token O_NOTEQEQ
-%token O_LE
-%token O_GE
-%token O_INC
-%token O_DEC
-%token O_DOUBLEARROW
-%token O_SINGLEARROW
-%token O_SL
-%token O_SR
-%token O_COLONCOLON
+%token <string> O_EQEQ
+%token <string> O_EQEQEQ
+%token <string> O_NOTEQ
+%token <string> O_NOTEQEQ
+%token <string> O_LE
+%token <string> O_GE
+%token <string> O_INC
+%token <string> O_DEC
+%token <string> O_DOUBLEARROW
+%token <string> O_SINGLEARROW
+%token <string> O_SL
+%token <string> O_SR
+%token <string> O_COLONCOLON
 
-%token O_LOGICOR
-%token O_LOGICAND
+%token <string> O_LOGICOR
+%token <string> O_LOGICAND
 
-%token O_PLUSEQ
-%token O_MINUSEQ
-%token O_MULEQ
-%token O_DIVEQ
-%token O_CONCATEQ
-%token O_MODEQ
-%token O_ANDEQ
-%token O_OREQ
-%token O_XOREQ
-%token O_SLEQ
-%token O_SREQ
+%token <string> O_PLUSEQ
+%token <string> O_MINUSEQ
+%token <string> O_MULEQ
+%token <string> O_DIVEQ
+%token <string> O_CONCATEQ
+%token <string> O_MODEQ
+%token <string> O_ANDEQ
+%token <string> O_OREQ
+%token <string> O_XOREQ
+%token <string> O_SLEQ
+%token <string> O_SREQ
 
-%token O_MAGIC_CONCAT
+%token <string> O_MAGIC_CONCAT
 
 // Casts
 
-%token CAST_INT
-%token CAST_REAL
-%token CAST_STRING
-%token CAST_ARRAY
-%token CAST_OBJECT
-%token CAST_BOOL
-%token CAST_UNSET
+%token <string> CAST_INT
+%token <string> CAST_REAL
+%token <string> CAST_STRING
+%token <string> CAST_ARRAY
+%token <string> CAST_OBJECT
+%token <string> CAST_BOOL
+%token <string> CAST_UNSET
 
 // Other 
 
-%token STRING
-%token IDENT
-%token VARIABLE
-%token INT
-%token REAL 
-%token INLINE_HTML
-%token INVALID_TOKEN
+%token <string> STRING
+%token <string> IDENT
+%token <string> VARIABLE
+%token <string> INT
+%token <string> REAL 
+%token <string> INLINE_HTML
+%token <string> INVALID_TOKEN
 
 /*
  * Resolve conflicts
@@ -303,11 +348,123 @@
 %left K_ENDIF
 %right K_STATIC K_ABSTRACT K_FINAL K_PRIVATE K_PROTECTED K_PUBLIC
 
+%type <list_ast_statement> top_statement_list
+%type <object> top_statement
+%type <list_ast_statement> inner_statement_list
+%type <object> inner_statement
+%type <object> statement
+%type <object> unticked_statement
+%type <list_ast_catch> additional_catches
+%type <list_ast_catch> non_empty_additional_catches
+%type <ast_catch> additional_catch
+%type <list_ast_variable> unset_variables 
+%type <ast_variable> unset_variable
+%type <token_string> use_filename
+%type <ast_method> function_declaration_statement
+%type <object> class_declaration_statement
+%type <integer> is_reference
+%type <ast_method> unticked_function_declaration_statement
+%type <object> unticked_class_declaration_statement
+%type <ast_class_def> class_entry_type
+%type <token_class_name> extends_from
+%type <ast_interface_def> interface_entry
+%type <list_token_interface_name> interface_extends_list
+%type <list_token_interface_name> implements_list
+%type <list_token_interface_name> interface_list
+%type <ast_variable> foreach_optional_arg
+%type <ast_variable> foreach_variable
+%type <object> for_statement
+%type <object> foreach_statement
+%type <object> declare_statement
+%type <list_ast_directive> declare_list
+%type <list_ast_switch_case> switch_case_list
+%type <list_ast_switch_case> case_list
+%type <object> while_statement
+%type <ast_if> elseif_list
+%type <ast_if> new_elseif_list
+%type <object> else_single
+%type <object> new_else_single
+%type <list_ast_formal_parameter> parameter_list
+%type <list_ast_formal_parameter> non_empty_parameter_list
+%type <ast_type> optional_class_type
+%type <list_ast_actual_parameter> function_call_parameter_list
+%type <list_ast_actual_parameter> non_empty_function_call_parameter_list
+%type <list_ast_variable_name> global_var_list
+%type <ast_variable_name> global_var
+%type <list_ast_statement> static_var_list
+%type <list_ast_member> class_statement_list
+%type <list_ast_member> class_statement
+%type <object> method_body  
+%type <ast_attr_mod> variable_modifiers
+%type <ast_method_mod> method_modifiers
+%type <ast_method_mod> non_empty_member_modifiers
+%type <ast_method_mod> member_modifier
+%type <list_ast_member> class_variable_declaration
+%type <list_ast_member> class_constant_declaration
+%type <list_ast_statement> echo_expr_list
+%type <ast_expr> for_expr
+%type <ast_expr> non_empty_for_expr
+%type <ast_expr> expr_without_variable
+%type <ast_method_invocation> function_call
+%type <token_class_name> fully_qualified_class_name
+%type <ast_class_name> class_name_reference
+%type <ast_variable> dynamic_class_name_reference
+%type <list_ast_variable> dynamic_class_name_variable_properties
+%type <ast_variable> dynamic_class_name_variable_property
+%type <ast_expr> exit_expr
+%type <list_ast_actual_parameter> ctor_arguments
+%type <ast_expr> common_scalar
+%type <ast_expr> static_scalar
+%type <ast_constant> static_class_constant
+%type <ast_expr> scalar
+%type <list_ast_array_elem> static_array_pair_list
+%type <list_ast_array_elem> non_empty_static_array_pair_list
+%type <ast_expr> expr
+%type <ast_expr> r_variable
+%type <ast_expr> w_variable
+%type <ast_expr> rw_variable
+%type <ast_expr> variable
+%type <list_ast_expr> variable_properties
+%type <ast_expr> variable_property
+%type <list_ast_actual_parameter> method_or_not
+%type <ast_variable> variable_without_objects
+%type <ast_variable> static_member
+%type <ast_expr> base_variable_with_function_calls
+%type <ast_variable> base_variable
+%type <ast_variable> reference_variable
+%type <ast_variable_name> compound_variable
+%type <ast_expr> dim_offset
+%type <ast_variable> object_property
+%type <ast_variable> object_dim_list
+%type <ast_variable_name> variable_name
+%type <integer> simple_indirect_reference
+%type <ast_list_elements> assignment_list
+%type <ast_list_element> assignment_list_element
+%type <list_ast_array_elem> array_pair_list
+%type <list_ast_array_elem> non_empty_array_pair_list
+%type <ast_method_invocation> internal_functions_in_yacc
+%type <list_ast_actual_parameter> isset_variables
+%type <ast_constant> class_constant
+%type <ast_if> keyword_if
+%type <ast_if> keyword_elseif
+%type <ast_foreach> keyword_foreach
+%type <ast_while> keyword_while
+%type <ast_do> keyword_do
+%type <ast_for> keyword_for
+%type <ast_switch> keyword_switch
+%type <ast_declare> keyword_declare
+%type <ast_try> keyword_try
+%type <ast_catch> keyword_catch
+%type <ast_method> keyword_function
+%type <ast_switch_case> keyword_case
+%type <ast_switch_case> keyword_default
+%type <list_ast_statement> block
+%type <nothing> start
+%type <nothing> case_separator
+%type <nothing> possible_comma
+
 %%
 
-/*
- * Synthesises an AST_php_script
- */
 start: 
 	  top_statement_list
 	  	{ 
@@ -321,9 +478,6 @@ start:
 		}
 	;
 
-/*
- * Synthesises a List<AST_statement*>
- */
 top_statement_list:
 	  top_statement_list top_statement
 	  	{ 
@@ -353,8 +507,6 @@ top_statement_list:
 
 /*
  * Synthesises a List<AST_statement*>, an AST_statement or NULL
- *
- * Mimicks inner_statement
  */
 top_statement:
 	  statement
@@ -373,8 +525,6 @@ top_statement:
 	;
 
 /*
- * Synthesises a List<AST_statement*>
- *
  * Mimicks top_statement_list
  */
 inner_statement_list:
@@ -501,9 +651,6 @@ keyword_default:
 	;
 
 
-/*
- * Synthesises a List<AST_statement*> or an AST_statement
- */
 unticked_statement:
 	  block
 	  	{ 
@@ -819,9 +966,6 @@ unticked_statement:
 		}
 	;
 
-/*
- * Synthesises a List<AST_catch*>
- */
 additional_catches:
 	  non_empty_additional_catches
 		{ $$ = $1; }
@@ -832,9 +976,6 @@ additional_catches:
 		}
 	;
 
-/*
- * Synthesises a List<AST_catch*>
- */
 non_empty_additional_catches:
 	  additional_catch
 		{ 
@@ -856,9 +997,6 @@ non_empty_additional_catches:
 		}
 	;
 
-/*
- * Synthesises an AST_catch* 
- */
 additional_catch:
 	  keyword_catch '(' fully_qualified_class_name VARIABLE ')' block 
 		{
@@ -875,9 +1013,6 @@ additional_catch:
 		}
 	;
 
-/*
- * Synthesises a List<AST_variable*>
- */
 unset_variables:
 	  unset_variable
 		{ 
@@ -897,9 +1032,6 @@ unset_variables:
 		}
 	;
 
-/*
- * Synthesises an AST_variable
- */
 unset_variable:
 	  variable
 		{
@@ -909,9 +1041,6 @@ unset_variable:
 		}
 	;
 
-/*
- * Synthesises a Token_string  
- */
 use_filename:
 	  STRING
 	  	{
@@ -925,29 +1054,16 @@ use_filename:
 		}
 	;
 
-/*
- * Synthesises nothing
- *
- * See unticked_function_declaration_statement
- */
 function_declaration_statement:
 	  unticked_function_declaration_statement
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises nothing
- *
- * See unticked_class_declaration_statement
- */
 class_declaration_statement:
 	  unticked_class_declaration_statement
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an Integer (0 for no "&" or 1 for "&")
- */
 is_reference:
 	  /* empty */
 		{ $$ = new Integer(0); }
@@ -955,9 +1071,6 @@ is_reference:
 		{ $$ = new Integer(1); }
 	;
 
-/*
- * Synthesises an AST_method. 
- */
 unticked_function_declaration_statement:
 	  keyword_function is_reference IDENT {context->current_method = dynamic_cast<String*>($3);} '(' parameter_list ')' block
 		{
@@ -1010,8 +1123,6 @@ unticked_class_declaration_statement:
 	;
 
 /*
- * Synthesises an AST_class_def
- *
  * We generate the AST_class_def here to that it gets generated immediately
  * after having seen the "class" keyword, rather than after having seen the
  * closing curly brace. 
@@ -1039,9 +1150,6 @@ class_entry_type:
 		}
 	;
 
-/*
- * Synthesises a Token_class_name or NULL
- */
 extends_from:
 	  /* empty */
 		{ $$ = NULL; }
@@ -1049,17 +1157,11 @@ extends_from:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises nothing
- */
 interface_entry:
 	  K_INTERFACE
 		{ $$ = NEW(AST_interface_def, (NULL, NULL, NULL)); }
 	;
 
-/*
- * Synthesises a List<Token_interface_name*>
- */
 interface_extends_list:
 	  /* empty */
 		{ $$ = new List<Token_interface_name*>; }
@@ -1068,8 +1170,6 @@ interface_extends_list:
 	;
 
 /* 
- * Syntesises a List<Token_interface_name*>
- *
  * Vector contains no elements if the class implements no interfaces
  */
 implements_list:
@@ -1079,9 +1179,6 @@ implements_list:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises a List<Token_interface_name*>
- */
 interface_list:
 	  fully_qualified_class_name
 		{
@@ -1107,9 +1204,6 @@ interface_list:
 		}
 	;
 
-/*
- * Synthesises an AST_variable or NULL
- */
 foreach_optional_arg:
 	  /* empty */
 		{ $$ = NULL; }
@@ -1117,9 +1211,6 @@ foreach_optional_arg:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises an AST_variable
- */
 foreach_variable:
 	  w_variable
 		{ 
@@ -1166,9 +1257,6 @@ declare_statement:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises a List<AST_directive*>
- */
 declare_list:
 	  IDENT '=' static_scalar
 	  	{
@@ -1193,9 +1281,6 @@ declare_list:
 		}
 	;	  
 
-/*
- * Synthesises a List<AST_switch_case*>
- */
 switch_case_list:
 	  '{' case_list '}'
 		{ $$ = $2; }
@@ -1207,9 +1292,6 @@ switch_case_list:
 		{ $$ = $3; }
 	;
 
-/*
- * Synthesises a List<AST_switch_case*>
- */
 case_list:
 	  /* empty */
 		{ $$ = new List<AST_switch_case*>; }
@@ -1253,7 +1335,7 @@ case_separator:
 	;
 	
 /*
- * Synthesises a List<AST_statement*>
+ * Synthesises a List<AST_statement*> or AST_statement*
  */
 while_statement:
 	  statement
@@ -1266,9 +1348,6 @@ while_statement:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises an AST_if
- */
 elseif_list:
 	  /* empty */
 		{ $$ = NULL; }
@@ -1310,8 +1389,6 @@ elseif_list:
 	;
 
 /*
- * Synthesises an AST_if
- *
  * Duplication of elseif_list functionality
  */
 new_elseif_list:
@@ -1351,7 +1428,7 @@ new_elseif_list:
 	;
 
 /*
- * Synthesises a List<AST_statement*> or NULL
+ * Synthesises a List<AST_statement*> or AST_statement* 
  */
 else_single:
 	  /* empty */
@@ -1361,7 +1438,7 @@ else_single:
 	;
 
 /*
- * Synthesises a List<AST_statement*> or NULL
+ * Synthesises a List<AST_statement*> or AST_statement*
  * 
  * Mimicks else_single
  */
@@ -1372,9 +1449,6 @@ new_else_single:
 		{ $$ = $3; }
 	;
 
-/*
- * Synthesises a List<AST_formal_parameter*>
- */
 parameter_list:
 	  non_empty_parameter_list
 		{ $$ = $1; }
@@ -1386,8 +1460,6 @@ parameter_list:
 	;
 
 /*
- * Synthesises a List<AST_formal_parameter*>
- *
  * Lots of duplication in these rules, but what can you do?
  */
 non_empty_parameter_list:
@@ -1485,9 +1557,6 @@ non_empty_parameter_list:
 		}
 	;
 
-/*
- * Synthesises an AST_type
- */
 optional_class_type:
 	  /* empty */
 		{ $$ = NEW(AST_type, (false, NULL)); }
@@ -1502,9 +1571,6 @@ optional_class_type:
 		}
 	;	
 
-/*
- * Synthesises a List<AST_actual_parameter*>
- */
 function_call_parameter_list:
 	  non_empty_function_call_parameter_list
 		{ $$ = $1; }
@@ -1512,9 +1578,6 @@ function_call_parameter_list:
 		{ $$ = new List<AST_actual_parameter*>; }
 	;
 
-/*
- * Synthesises a List<AST_actual_parameter*>
- */
 non_empty_function_call_parameter_list:
 	  expr_without_variable
 		{
@@ -1566,9 +1629,6 @@ non_empty_function_call_parameter_list:
 		}
 	;
 
-/*
- * Synthesises a List<AST_variable_name*>
- */
 global_var_list:
 	  global_var_list ',' global_var
 		{
@@ -1589,9 +1649,6 @@ global_var_list:
 		}
 	;
 
-/*
- * Synthesises an AST_variable_name (Token_variable_name or AST_reflection)
- */
 global_var:
 	  VARIABLE
 		{
@@ -1611,9 +1668,6 @@ global_var:
 		}
 	; 
 
-/*
- * Synthesises a List<AST_statement*>
- */
 static_var_list: 
 	  static_var_list ',' VARIABLE
 		{
@@ -1659,9 +1713,6 @@ static_var_list:
 		}
 	;
 
-/*
- * Synthesises a List<AST_member*>
- */
 class_statement_list:
 	 	class_statement_list class_statement
 		{
@@ -1678,9 +1729,6 @@ class_statement_list:
 		}
 	;
 
-/* 
- * Synthesises a List<AST_member*>
- */
 class_statement:
 	  variable_modifiers class_variable_declaration ';'
 		{
@@ -1719,7 +1767,7 @@ class_statement:
 	;
 
 /*
- * Synthesises a List<AST_statement*> or NULL (for abstract methods)
+ * Synthesises an AST_statement_list* or AST_statement* 
  */
 method_body:
 	  ';' 
@@ -1733,9 +1781,6 @@ method_body:
 		}
 	;
 
-/*
- * Synthesises an AST_attr_mod
- */
 variable_modifiers:
 	  non_empty_member_modifiers
 		{
@@ -1752,9 +1797,6 @@ variable_modifiers:
 		{ $$ = NEW(AST_attr_mod, (false, false, false, false, false)); }
 	;
 
-/*
- * Synthesises an AST_method_mod 
- */
 method_modifiers:
 	  /* empty */
 		{ $$ = new AST_method_mod(); }
@@ -1762,9 +1804,6 @@ method_modifiers:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_method_mod
- */
 non_empty_member_modifiers:
 	  member_modifier
 		{ $$ = $1; }
@@ -1777,9 +1816,6 @@ non_empty_member_modifiers:
 		}
 	;
 
-/*
- * Synthesises an AST_method_mod 
- */
 member_modifier:
 	  K_PUBLIC
 		{ $$ = AST_method_mod::new_PUBLIC(); }
@@ -1795,9 +1831,6 @@ member_modifier:
 		{ $$ = AST_method_mod::new_FINAL(); }
 	;
 
-/*
- * Synthesises a List<AST_member*>
- */
 class_variable_declaration:
 	  class_variable_declaration ',' VARIABLE
 		{
@@ -1843,9 +1876,6 @@ class_variable_declaration:
 		}
 	;
 
-/*
- * Synthesises a List<AST_member*> 
- */
 class_constant_declaration:
 	  class_constant_declaration ',' IDENT '=' static_scalar
 		{
@@ -1872,8 +1902,6 @@ class_constant_declaration:
 	;
 
 /*
- * Synthesises a List<AST_statement*> 
- *
  * "echo foo, bar;" is translated into "echo(foo); echo(bar);"
  */
 echo_expr_list:
@@ -1899,9 +1927,6 @@ echo_expr_list:
 		}
 	;
 
-/*
- * Synthesises a AST_expr
- */
 for_expr:
 	  /* empty */
 		{ $$ = NULL; }
@@ -1910,7 +1935,6 @@ for_expr:
 	;
 
 /*
- * Synthesises a AST_expr
  * Commas are treated as binops
  */
 non_empty_for_expr:
@@ -1925,9 +1949,6 @@ non_empty_for_expr:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_expr
- */
 expr_without_variable:
 	  K_LIST '(' assignment_list ')' '=' expr
 		{ 
@@ -2433,9 +2454,6 @@ expr_without_variable:
 		}
 	;
 
-/*
- * Synthesises an AST_method_invocation 
- */
 function_call:
 	  IDENT '(' function_call_parameter_list ')'
 		{
@@ -2469,9 +2487,6 @@ function_call:
 		}
 	;
 
-/*
- * Synthesises a Token_class_name
- */
 fully_qualified_class_name:
 	  IDENT
 		{
@@ -2480,9 +2495,6 @@ fully_qualified_class_name:
 		}
 	;
 
-/*
- * Synthesises an AST_class_name
- */
 class_name_reference:
 	  IDENT
 		{
@@ -2498,8 +2510,6 @@ class_name_reference:
 	;
 
 /*
- * Synthesises up an AST_variable or whatever base_variable synthesises
- *
  * Note: the grammar is right recursive, whereas invocation is left recursive
  * "$a->b->c" is "($a->b)->c"; must be careful to generate the correct tree.
  */
@@ -2525,9 +2535,6 @@ dynamic_class_name_reference:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises a List<AST_variable*>
- */
 dynamic_class_name_variable_properties:
 	  dynamic_class_name_variable_properties dynamic_class_name_variable_property
 		{ 
@@ -2544,17 +2551,12 @@ dynamic_class_name_variable_properties:
 		}
 	;
 
-/*
- * Synthesises an AST_variable
- */
 dynamic_class_name_variable_property:
 	  O_SINGLEARROW object_property
 		{ $$ = $2; }
 	;
 
 /*
- * Synthesises an AST_expr
- *
  * If no argument is specified (exit; or exit();), assume 0.
  */
 exit_expr:
@@ -2566,9 +2568,6 @@ exit_expr:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises a List<AST_actual_parameter*>
- */
 ctor_arguments:
 	  /* empty */
 		{ 
@@ -2580,9 +2579,6 @@ ctor_arguments:
 		{ $$ = $2; }
 	;
 
-/*
- * Synthesises an AST_expr
- */
 common_scalar:
 	  INT
 		{
@@ -2636,9 +2632,6 @@ common_scalar:
 		}
 	;
 	
-/*
- * Synthesises an AST_expr
- */
 static_scalar:
 	  common_scalar
 		{ $$ = $1; }
@@ -2666,9 +2659,6 @@ static_scalar:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_constant
- */
 static_class_constant:
 	  IDENT O_COLONCOLON IDENT
 		{
@@ -2679,9 +2669,6 @@ static_class_constant:
 		}
 	;
 
-/*
- * Synthesises an AST_expr
- */
 scalar:
 	  IDENT
 		{
@@ -2695,9 +2682,6 @@ scalar:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises a List<AST_array_elem*>
- */
 static_array_pair_list:
 	  /* empty */
 		{ $$ = new List<AST_array_elem*>; }
@@ -2715,9 +2699,6 @@ possible_comma:
 		{ $$ = NULL; }
 	;
 
-/*
- * Synthesises a List<AST_array_elem*>
- */
 non_empty_static_array_pair_list:
 	  non_empty_static_array_pair_list ',' static_scalar O_DOUBLEARROW static_scalar
 		{
@@ -2763,9 +2744,6 @@ non_empty_static_array_pair_list:
 		}
 	;
 
-/*
- * Synthesises an AST_expr
- */
 expr:
 	  r_variable
 		{ $$ = $1; }
@@ -2773,33 +2751,22 @@ expr:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_expr
- */
 r_variable:
 	  variable
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_expr
- */
 w_variable:
 	  variable
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_expr
- */
 rw_variable:
 	  variable
 		{ $$ = $1; }
 	;
 
 /*
- * Synthesises an AST_expr
- *
  * NOTE: the original rule read
  *
  * variable ::= base_variable_with_function_calls O_SINGLEARROW object_property
@@ -2857,8 +2824,6 @@ variable:
 	;
 
 /*
- * Synthesises a List<AST_expr*> (AST_variable/AST_method_invocation)
- *
  * NOTE: The second rule goes to empty in the original grammar; see the
  * comment for "variable ::=" why this is changed.
  */
@@ -2884,7 +2849,7 @@ variable_properties:
 	;
 
 /* 
- * Synthesises an AST_variable or an AST_method_invocation
+ * Synthesises an AST_expr (AST_variable or an AST_method_invocation)
  *
  * NOTE: We decide to synthesise an AST_variable or an AST_method_invocation
  * based on the absence or presence of a parameter list (method_or_not).
@@ -2945,9 +2910,6 @@ variable_property:
 		}
 	;
 
-/* 
- * Synthesises a List<AST_actual_parameter*> or NULL
- */
 method_or_not:
 	  '(' function_call_parameter_list ')'
 		{ $$ = $2; }
@@ -2955,9 +2917,6 @@ method_or_not:
 		{ $$ = NULL; }
 	;
 
-/*
- * Synthesises an AST_variable
- */
 variable_without_objects:
 	  reference_variable
 		{ $$ = $1; }
@@ -2975,9 +2934,6 @@ variable_without_objects:
 		}
 	;
 
-/*
- * Synthesises an AST_variable
- */
 static_member:
 	  fully_qualified_class_name O_COLONCOLON variable_without_objects
 		{ 
@@ -2990,7 +2946,7 @@ static_member:
 	;
 
 /*
- * Synthesises an AST_variable or AST_method_invocation
+ * Synthesises an AST_expr (AST_variable or AST_method_invocation)
  */
 base_variable_with_function_calls:
 	  base_variable
@@ -2999,9 +2955,6 @@ base_variable_with_function_calls:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_variable 
- */
 base_variable:
 	  reference_variable
 		{ $$ = $1; }
@@ -3021,9 +2974,6 @@ base_variable:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_variable
- */
 reference_variable:
 	  reference_variable '[' dim_offset ']'
 		{
@@ -3052,9 +3002,6 @@ reference_variable:
 		}
 	;
 
-/*
- * Synthesises an AST_variable_name
- */
 compound_variable:
 	  VARIABLE
 		{ 
@@ -3069,9 +3016,6 @@ compound_variable:
 		}
 	;
 
-/*
- * Synthesises an AST_expr or NULL
- */
 dim_offset:
 	  /* empty */
 		{ $$ = NULL; }
@@ -3079,9 +3023,6 @@ dim_offset:
 		{ $$ = $1; }
 	;
 
-/*
- * Synthesises an AST_variable
- */
 object_property:
 	  object_dim_list
 		{ $$ = $1; }
@@ -3095,8 +3036,6 @@ object_property:
 	;
 
 /*
- * Synthesises an AST_variable
- *
  * Mimics reference_variable
  */
 object_dim_list:
@@ -3128,8 +3067,6 @@ object_dim_list:
 	;
 
 /* 
- * Synthesises an AST_variable_name
- * 
  * Mimics compound_variable
  */ 
 variable_name:
@@ -3147,8 +3084,6 @@ variable_name:
 	;
 
 /*
- * Synthesises an Integer
- *
  * Counts the number of dollar signs (indirections)
  */
 simple_indirect_reference:
@@ -3163,9 +3098,6 @@ simple_indirect_reference:
 		}
 	;
 
-/*
- * Synthesises an AST_list_elements
- */
 assignment_list:
 	  assignment_list ',' assignment_list_element
 		{
@@ -3188,22 +3120,21 @@ assignment_list:
 	;
 
 /*
- * Synthesises an AST_list_element
- *
  * Can be NULL for an empty list element, list($x, , $y)
  */
 assignment_list_element:
 	  variable
-		{ $$ = $1; }
+		{
+			// TODO: check whether this is a variable
+			CAST_AST(variable, $1, AST_variable);
+			$$ = variable; 
+		}
 	| K_LIST '(' assignment_list ')'
 		{ $$ = $3; }
 	| /* empty */
 		{ $$ = NULL; }
 	;
 
-/*
- * Synthesises a List<AST_array_elem*>
- */
 array_pair_list:
 	  /* emtpy */
 		{ $$ = new List<AST_array_elem*>; }
@@ -3212,8 +3143,6 @@ array_pair_list:
 	;
 
 /*
- * Synthesises a List<AST_array_elem*>
- *
  * Code duplicated in non_empty_static_array_pair_list
  */
 non_empty_array_pair_list:
@@ -3307,9 +3236,6 @@ non_empty_array_pair_list:
 		}
 	;
 
-/*
- * Synthesises an AST_method_invocation
- */
 internal_functions_in_yacc:
 	 K_ISSET '(' isset_variables ')' 
 		{
@@ -3350,9 +3276,6 @@ internal_functions_in_yacc:
 		}
 	;
 
-/*
- * Synthesises a List<AST_actual_parameter*>
- */
 isset_variables:
 	  variable
 		{
@@ -3372,9 +3295,6 @@ isset_variables:
 		}
 	;
 
-/*
- * Synthesises an AST_constant
- */
 class_constant:
 	  fully_qualified_class_name O_COLONCOLON IDENT
 		{

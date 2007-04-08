@@ -273,7 +273,57 @@
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE
+#line 123 "src/generated_src/php_parser.ypp"
+{
+	Object* object;
+	List<AST_statement*>* list_ast_statement;
+	List<AST_catch*>* list_ast_catch;
+	AST_catch* ast_catch;
+	List<AST_variable*>* list_ast_variable;
+	AST_variable* ast_variable;
+	Token_string* token_string;
+	AST_method* ast_method;
+	Integer* integer;
+	AST_class_def* ast_class_def;
+	Token_class_name* token_class_name;
+	AST_interface_def* ast_interface_def;
+	List<Token_interface_name*>* list_token_interface_name;
+	List<AST_directive*>* list_ast_directive;
+	List<AST_switch_case*>* switch_ast_case_list;
+	AST_if* ast_if;
+	List<AST_formal_parameter*>* list_ast_formal_parameter;
+	AST_type* ast_type;
+	List<AST_variable_name*>* list_ast_variable_name;
+	AST_variable_name* ast_variable_name;
+	List<AST_member*>* list_ast_member;
+	AST_attr_mod* ast_attr_mod;
+	AST_method_mod* ast_method_mod;
+	AST_expr* ast_expr;
+	AST_method_invocation* ast_method_invocation;
+	AST_class_name* class_name;
+	AST_constant* ast_constant;
+	List<AST_array_elem*>* list_ast_array_elem;
+	List<AST_expr*>* list_ast_expr;
+	AST_list_elements* ast_list_elements;
+	AST_list_element* ast_list_element;
+	String* string;
+	void* nothing;
+	List<AST_actual_parameter*>* list_ast_actual_parameter;
+	AST_class_name* ast_class_name;
+	List<AST_switch_case*>* list_ast_switch_case;
+	AST_switch_case* ast_switch_case;
+	AST_try* ast_try;
+	AST_declare* ast_declare;
+	AST_foreach* ast_foreach;
+	AST_switch* ast_switch;
+	AST_for* ast_for;
+	AST_do* ast_do;
+	AST_while* ast_while;
+}
+/* Line 1489 of yacc.c.  */
+#line 326 "src/generated/php_parser.tab.hpp"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

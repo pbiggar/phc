@@ -13,13 +13,14 @@
 %{
 	#include <assert.h>
 	#include <string.h>
+	#include "AST.h"
 	#include "lib/Integer.h"
 	#include "php_parser.tab.hpp"
 	#include "cmdline.h"
 	#include "parsing/PHP_context.h"
 
 	extern struct gengetopt_args_info args_info;
-	extern "C" const struct keyword* in_word_set(const char*, unsigned int);
+	const struct keyword* in_word_set(const char*, unsigned int);
 
 	#define YY_SKIP_YYWRAP
 
@@ -39,19 +40,16 @@
 		yyextra->after_arrow = false;											\
 		return x; } 
 
-	#define RETURN_ALL(state)					\
-		yyextra->mt_final_state = state;		\
-		yyextra->mt_index = 1;					\
-		BEGIN(RET_MULTI);							\
-		*yylval = yyextra->mt_lval[0];			\
+	#define RETURN_ALL(state)							\
+		yyextra->mt_final_state = state;				\
+		yyextra->mt_index = 1;							\
+		BEGIN(RET_MULTI);									\
+		yylval->string = yyextra->mt_lval[0];		\
 		RETURN(yyextra->mt_type[0]);
 
 	struct keyword { char* name; int token; };
 
 	#define YY_EXTRA_TYPE PHP_context*
-
-	// TODO: remove
-	#define YYSTYPE Object*
 %}
 
 %option reentrant
@@ -188,7 +186,7 @@ UNSET_CAST		{CS}"unset"{CE}
 
 <PHP>${IDENT}			{
 								// variable names do not contain $
-								*yylval = new String(yytext+1); 
+								yylval->string = new String(yytext+1); 
 								RETURN(VARIABLE);
 							}
 <PHP>{IDENT}			%{
@@ -198,7 +196,7 @@ UNSET_CAST		{CS}"unset"{CE}
 								// keyword so that we can reproduce it exactly the
 								// same way in the unparsers, if we so desire 
 								// (keywords are case insensitive)
-								*yylval = new String(yytext);
+								yylval->string = new String(yytext);
 							
 								// Check if the ident is in fact a keyword
 								const struct keyword* keyword;
@@ -221,8 +219,8 @@ UNSET_CAST		{CS}"unset"{CE}
 								}
 							}
 							%}
-<PHP>{INT}				{ *yylval = new String(yytext); RETURN(INT); }
-<PHP>{REAL}				{ *yylval = new String(yytext); RETURN(REAL); }
+<PHP>{INT}				{ yylval->string = new String(yytext); RETURN(INT); }
+<PHP>{REAL}				{ yylval->string = new String(yytext); RETURN(REAL); }
 <PHP>{STOP}				{ yyextra->buffer = ""; BEGIN(INITIAL); RETURN(';'); }
 
 	/* Strings */
@@ -284,7 +282,7 @@ UNSET_CAST		{CS}"unset"{CE}
 <SQ_STR>\'			{
 							String* str = new String(yyextra->buffer);
 							str->attrs->set("phc.unparser.is_singly_quoted", new Boolean(true)); 
-							*yylval = str;
+							yylval->string = str;
 							BEGIN(PHP);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -404,7 +402,7 @@ UNSET_CAST		{CS}"unset"{CE}
 <DQ_STR,HD_MAIN>"{$"	{
 							yy_push_state(COMPLEX2, yyscanner);
 							yy_push_state(COMPLEX1, yyscanner);
-							*yylval = new String(yyextra->buffer);
+							yylval->string = new String(yyextra->buffer);
 							yyless(1);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -451,7 +449,7 @@ UNSET_CAST		{CS}"unset"{CE}
 	/* Deal with (doubly quoted) strings. */
 
 <DQ_STR>\"			{
-							*yylval = new String(yyextra->buffer);
+							yylval->string = new String(yyextra->buffer);
 							BEGIN(PHP);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -514,7 +512,7 @@ UNSET_CAST		{CS}"unset"{CE}
 								if(string_len > 0 && yyextra->buffer[string_len - 1] == '\r')
 									string_len--; // Windows file
 							
-								*yylval = new String(yyextra->buffer.substr(0, string_len));
+								yylval->string = new String(yyextra->buffer.substr(0, string_len));
 								
 								if(yytext[0] == ';')
 									yyless(0);
@@ -541,7 +539,7 @@ UNSET_CAST		{CS}"unset"{CE}
 								BEGIN(yyextra->mt_final_state);
 							}
 
-							*yylval = yyextra->mt_lval[yyextra->mt_index];
+							yylval->string = yyextra->mt_lval[yyextra->mt_index];
 							yyextra->mt_index++;
 							RETURN(yyextra->mt_type[yyextra->mt_index - 1]);
 						}
@@ -564,7 +562,7 @@ UNSET_CAST		{CS}"unset"{CE}
 
 							if(!yyextra->buffer.empty())
 							{
-								*yylval = new String(yyextra->buffer);
+								yylval->string = new String(yyextra->buffer);
 								RETURN(INLINE_HTML);
 							}
 						%}
@@ -575,7 +573,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							} 
 							else 
 							{
-								*yylval = new String(yyextra->buffer);	
+								yylval->string = new String(yyextra->buffer);	
 								yyextra->buffer = "";
 								RETURN(INLINE_HTML);
 							}
