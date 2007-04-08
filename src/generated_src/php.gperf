@@ -5,6 +5,9 @@
 	 *
 	 * List of reserved keywords 
 	 */
+
+	// Suppress warnings in the gperf generated code 
+	#pragma GCC system_header
 %}
 struct keyword { char* name; int token; }
 %%
