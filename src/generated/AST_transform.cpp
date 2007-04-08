@@ -919,7 +919,6 @@ void AST_transform::children_variable(AST_variable* in)
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
     in->array_indices = transform_expr_list(in->array_indices);
-    in->string_index = transform_expr(in->string_index);
 }
 
 void AST_transform::children_reflection(AST_reflection* in)

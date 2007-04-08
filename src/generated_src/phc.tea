@@ -102,7 +102,7 @@ constant ::= CLASS_NAME CONSTANT_NAME ;
 
 instanceof ::= expr class_name ;
 
-variable ::= target? variable_name array_indices:expr?* string_index:expr? ;
+variable ::= target? variable_name array_indices:expr?* ;
 variable_name ::= VARIABLE_NAME | reflection ;
 reflection ::= expr ;
 
@@ -328,7 +328,6 @@ public:
 		this->target = NULL;
 		this->variable_name = name;
 		this->array_indices = new List<AST_expr*>;
-		this->string_index = NULL;
 	}
 	
 	void _init()

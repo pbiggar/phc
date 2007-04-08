@@ -1657,18 +1657,17 @@ public:
     virtual AST_instanceof* clone();
 };
 
-// variable ::= target? variable_name array_indices:expr?* string_index:expr? ;
+// variable ::= target? variable_name array_indices:expr?* ;
 class AST_variable : virtual public AST_expr, virtual public AST_list_element
 {
 public:
-    AST_variable(AST_target* target, AST_variable_name* variable_name, List<AST_expr*>* array_indices, AST_expr* string_index);
+    AST_variable(AST_target* target, AST_variable_name* variable_name, List<AST_expr*>* array_indices);
 protected:
     AST_variable();
 public:
     AST_target* target;
     AST_variable_name* variable_name;
     List<AST_expr*>* array_indices;
-    AST_expr* string_index;
 public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);

@@ -681,16 +681,18 @@ void PHP_unparser::children_variable(AST_variable* in)
 	List<AST_expr*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
-		echo("[");
-		if(*i) visit_expr(*i);
-		echo("]");
-	}
-	
-	if(in->string_index != NULL)
-	{
-		echo("{");
-		visit_expr(in->string_index);
-		echo("}");
+		if(*i && (*i)->attrs->is_true("phc.unparser.index_curlies"))
+		{
+			echo("{");
+			if(*i) visit_expr(*i);
+			echo("}");
+		}
+		else
+		{
+			echo("[");
+			if(*i) visit_expr(*i);
+			echo("]");
+		}
 	}
 }
 

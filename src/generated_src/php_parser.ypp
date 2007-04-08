@@ -3030,9 +3030,6 @@ reference_variable:
 			CAST_AST(var, $1, AST_variable);
 			CAST_AST(index, $3, AST_expr);
 		
-			// string index is only valid after *all* array indices.
-			assert(var->string_index == NULL);
-		
 			var->array_indices->push_back(index);
 			$$ = var;
 		}
@@ -3041,10 +3038,10 @@ reference_variable:
 			CAST_AST(var, $1, AST_variable);
 			CAST_AST(index, $3, AST_expr);
 			
-			// we only accept *one* string index.
-			assert(var->string_index == NULL);
-			
-			var->string_index = index;
+			if(index != NULL)
+				index->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+
+			var->array_indices->push_back(index);
 			$$ = var;
 		}
 	| compound_variable
@@ -3108,9 +3105,6 @@ object_dim_list:
 			CAST_AST(op, $1, AST_variable);
 			CAST_AST(index, $3, AST_expr);
 		
-			// string index is only valid after *all* array indices
-			assert(op->string_index == NULL);
-			
 			op->array_indices->push_back(index);
 			$$ = op;
 		}
@@ -3119,10 +3113,10 @@ object_dim_list:
 			CAST_AST(op, $1, AST_variable);
 			CAST_AST(index, $3, AST_expr);
 
-			// we only accept *one* string index.
-			assert(op->string_index == NULL);
+			if(index != NULL)
+				index->attrs->set("phc.unparser.index_curlies", new Boolean(true));
 
-			op->string_index = index;
+			op->array_indices->push_back(index);
 			$$ = op;
 		}
 	| variable_name

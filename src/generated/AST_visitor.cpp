@@ -898,7 +898,6 @@ void AST_visitor::children_variable(AST_variable* in)
     visit_target(in->target);
     visit_variable_name(in->variable_name);
     visit_expr_list(in->array_indices);
-    visit_expr(in->string_index);
 }
 
 void AST_visitor::children_reflection(AST_reflection* in)
