@@ -45,18 +45,18 @@ if ($opt_installed)
 $tests = array ();
 
 require_once ("basic_parse_tests.php");
-array_push($tests, new PluginTest ("cloning"));
+array_push ($tests, new PluginTest ("cloning"));
 # require_once ("compiled_vs_interpreted.php");
 require_once ("compile_time_include.php");
 require_once ("interpret_canonical_unparsed.php");
 require_once ("interpret_unparsed.php");
-array_push($tests, new PluginTest ("linear"));
+array_push ($tests, new PluginTest ("linear"));
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
-array_push($tests, new PluginTest ("pre_vs_post_count"));
-require_once ("regression_dump_ast.php");
-require_once ("regression_dump_includes.php");
-require_once ("regression_dump_php.php");
+array_push ($tests, new PluginTest ("pre_vs_post_count"));
+array_push ($tests, new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot"));
+array_push ($tests, new RegressionTest ("regression_dump_php", "--dump-php --tab=\"   \"", "unparsed"));
+array_push ($tests, new RegressionTest ("regression_dump_includes", "--dump-php --tab=\"   \" --compile-time-includes", "unparsed"));
 require_once ("reparse_unparsed.php");
 require_once ("source_vs_semantic_values.php"); // dont use plugin_test here
 require_once ("xml_roundtrip.php"); // dont use plugin_test here

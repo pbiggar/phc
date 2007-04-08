@@ -5,9 +5,34 @@
  */
 require_once ("support_file_test.php");
 
-abstract class RegressionTest extends SupportFileTest
+class RegressionTest extends SupportFileTest
 {
-	abstract function get_command_line ($subject);
+	// Note that the name is the support file directory 
+	function RegressionTest ($name, $command_line_options, $support_file_suffix)
+	{
+		$this->name = $name;
+		$this->options = $command_line_options;
+		$this->suffix = $support_file_suffix;
+		parent::__construct ($name);
+	}
+
+	function get_support_filename ($subject)
+	{
+		global $support_dir;
+		$script_name = adjusted_name($subject, 1);
+		return "$support_dir/{$this->name}/$script_name.{$this->suffix}";
+	}
+
+	function get_test_subjects ()
+	{
+		return get_non_erroneous_scripts ();
+	}
+
+	function get_command_line ($subject)
+	{
+		global $phc;
+		return "$phc {$this->options} $subject 2>&1";
+	}
 
 	function run_test ($subject)
 	{
