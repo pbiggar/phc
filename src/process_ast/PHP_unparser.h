@@ -10,6 +10,8 @@
 
 #include "AST_visitor.h"
 
+void debug (AST_node* in);
+
 class PHP_unparser : public virtual AST_visitor
 {
 // Unparsing
@@ -90,6 +92,8 @@ public:
 	void children_actual_parameter(AST_actual_parameter* in);
 	void children_new(AST_new* in);
 	void children_clone(AST_clone* in);
+	void children_goto(AST_goto* in);
+	void children_label(AST_label* in);
 	void children_interface_name(Token_interface_name* in);
 	void children_class_name(Token_class_name* in);
 	void children_method_name(Token_method_name* in);
@@ -103,6 +107,7 @@ public:
 	void children_string(Token_string* in);
 	void children_bool(Token_bool* in);
 	void children_null(Token_null* in);
+	void children_label_name(Token_label_name* in);
 	
 	void visit_interface_name_list(List<Token_interface_name*>* in);
 	void visit_member_list(List<AST_member*>* in);

@@ -14,6 +14,7 @@ AST_label* label ()
 	static int count = 0;
 	stringstream ss;
 	ss << "L" << count;
+	count ++;
 	return new AST_label (new Token_label_name (new String (ss.str ())));
 }
 
@@ -167,56 +168,101 @@ Lower_control_flow::pre_for (AST_for* in, List<AST_statement*>* out)
 	out->push_back_all (transform_statement (while_stmt));
 }
 
+/* Foreach looks complicated. Theoretically, you could replace it with
+ *		reset ($array)
+ *		while (current ($array))
+ *		{
+ *			$x = current ($array);
+ *			...
+ *			next ($array);
+ *		}
+ * but it seems from looking at the PHP opcodes that the internal iterator
+ * (why?!?) needs locks acquired, which makes sense. I'll return to this later
+ * */
 void 
 Lower_control_flow::pre_foreach(AST_foreach* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
-
+/* Switch is a little complicated aswell. In theory, it would be nice to
+ * convert this to a jump table in the generated code, but we can't really do
+ * that with the C output. We could use GCC extensions, but we probably dont
+ * want to go down that road. So we'll convert this to nested if's.
+ *
+ * Convert
+ *		switch (expr)
+ *		{
+ *			case expr1:
+ *				x1 ();
+ *			case expr2:
+ *				x2 ();
+ *			...
+ *			default exprD:
+ *				xD ();
+ *		}
+ *
+ *	into
+ *		val = expr;
+ *		if (expr == expr1) goto L1
+ *		else if (expr == expr2) goto L2
+ *		...
+ *		else goto
+ * TODO finish this
+ *			
+ */	
 void 
 Lower_control_flow::pre_switch(AST_switch* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_switch_case(AST_switch_case* in, List<AST_switch_case*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_break(AST_break* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_continue(AST_continue* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_try(AST_try* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_catch(AST_catch* in, List<AST_catch*>* out)
 {
+	out->push_back (in);
 }
 
 
 void 
 Lower_control_flow::pre_throw(AST_throw* in, List<AST_statement*>* out)
 {
+	out->push_back (in);
 }
 
 
 AST_expr*
 Lower_control_flow::pre_conditional_expr(AST_conditional_expr* in)
 {
+	return in;
 }
 

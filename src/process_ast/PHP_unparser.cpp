@@ -1105,3 +1105,24 @@ void PHP_unparser::post_commented_node(AST_commented_node* in)
 
 	if(!output_comment) newline();
 }
+
+void PHP_unparser::children_label_name (Token_label_name* in)
+{
+	os << *in->value;
+}
+
+void 
+PHP_unparser::children_goto (AST_goto* in)
+{
+	echo ("goto ");
+	visit_label_name (in->label_name);
+	echo_nl (";");
+}
+
+void 
+PHP_unparser::children_label (AST_label* in)
+{
+	visit_label_name (in->label_name);
+	os << ":";
+	newline ();
+}

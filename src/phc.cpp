@@ -91,6 +91,12 @@ int main(int argc, char** argv)
 		process_ast(php_script);
 		run_plugins(php_script);
 
+		if(args_info.run_lowering_flag)
+		{
+			Lower_control_flow lcf;
+			php_script->transform_children (&lcf);
+		}
+
 		if(args_info.dump_php_flag)
 		{
 			PHP_unparser php_unparser;

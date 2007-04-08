@@ -10,6 +10,8 @@
 
 #include "AST_visitor.h"
 
+void xdebug (AST_node* in, bool print_attrs);
+
 class XML_unparser : public AST_visitor 
 {
 protected:
