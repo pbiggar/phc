@@ -429,7 +429,7 @@ public:
 public:
     virtual void visit_null(char const* name);
     virtual void visit_marker(char const* name, bool value);
-protected:
+public:
     virtual void pre_statement_chain(AST_statement* in);
     virtual void pre_member_chain(AST_member* in);
     virtual void pre_expr_chain(AST_expr* in);
@@ -438,7 +438,7 @@ protected:
     virtual void pre_target_chain(AST_target* in);
     virtual void pre_variable_name_chain(AST_variable_name* in);
     virtual void pre_method_name_chain(AST_method_name* in);
-protected:
+public:
     virtual void post_statement_chain(AST_statement* in);
     virtual void post_member_chain(AST_member* in);
     virtual void post_expr_chain(AST_expr* in);
@@ -447,7 +447,7 @@ protected:
     virtual void post_target_chain(AST_target* in);
     virtual void post_variable_name_chain(AST_variable_name* in);
     virtual void post_method_name_chain(AST_method_name* in);
-protected:
+public:
     virtual void children_statement(AST_statement* in);
     virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);

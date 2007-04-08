@@ -279,20 +279,6 @@ public:
 	}
 };
 
-class AST_php_script
-{
-public:
-	void visit(AST_visitor* visitor)
-	{
-		visitor->visit_php_script(this);
-	}
-
-	AST_php_script* transform(AST_transform* transform)
-	{
-		return transform->transform_php_script(this);
-	}
-};
-
 class AST_class_def
 {
 public:

@@ -53,9 +53,19 @@ AST_php_script::AST_php_script()
     this->statements = 0;
 }
 
+void AST_php_script::visit(AST_visitor* visitor)
+{
+    visitor->visit_php_script(this);
+}
+
+void AST_php_script::transform_children(AST_transform* transform)
+{
+    transform->children_php_script(this);
+}
+
 int AST_php_script::classid()
 {
-    return 1;
+    return ID;
 }
 
 bool AST_php_script::match(AST_node* in)
@@ -124,22 +134,6 @@ bool AST_php_script::equals(AST_node* in)
     return true;
 }
 
-void AST_php_script::visit(AST_visitor* visitor)
-{
-    #line 286 "src/generated_src/phc.tea"
-{
-		visitor->visit_php_script(this);
-	}
-}
-
-AST_php_script* AST_php_script::transform(AST_transform* transform)
-{
-    #line 291 "src/generated_src/phc.tea"
-{
-		return transform->transform_php_script(this);
-	}
-}
-
 AST_php_script* AST_php_script::clone()
 {
     List<AST_statement*>* statements = NULL;
@@ -167,9 +161,19 @@ AST_class_mod::AST_class_mod()
     this->is_final = 0;
 }
 
+void AST_class_mod::visit(AST_visitor* visitor)
+{
+    visitor->visit_class_mod(this);
+}
+
+void AST_class_mod::transform_children(AST_transform* transform)
+{
+    transform->children_class_mod(this);
+}
+
 int AST_class_mod::classid()
 {
-    return 3;
+    return ID;
 }
 
 bool AST_class_mod::match(AST_node* in)
@@ -224,9 +228,19 @@ AST_signature::AST_signature()
     this->formal_parameters = 0;
 }
 
+void AST_signature::visit(AST_visitor* visitor)
+{
+    visitor->visit_signature(this);
+}
+
+void AST_signature::transform_children(AST_transform* transform)
+{
+    transform->children_signature(this);
+}
+
 int AST_signature::classid()
 {
-    return 6;
+    return ID;
 }
 
 bool AST_signature::match(AST_node* in)
@@ -369,9 +383,19 @@ AST_method_mod::AST_method_mod(bool is_public, bool is_protected, bool is_privat
     this->is_final = is_final;
 }
 
+void AST_method_mod::visit(AST_visitor* visitor)
+{
+    visitor->visit_method_mod(this);
+}
+
+void AST_method_mod::transform_children(AST_transform* transform)
+{
+    transform->children_method_mod(this);
+}
+
 int AST_method_mod::classid()
 {
-    return 7;
+    return ID;
 }
 
 bool AST_method_mod::match(AST_node* in)
@@ -516,9 +540,19 @@ AST_formal_parameter::AST_formal_parameter()
     this->expr = 0;
 }
 
+void AST_formal_parameter::visit(AST_visitor* visitor)
+{
+    visitor->visit_formal_parameter(this);
+}
+
+void AST_formal_parameter::transform_children(AST_transform* transform)
+{
+    transform->children_formal_parameter(this);
+}
+
 int AST_formal_parameter::classid()
 {
-    return 8;
+    return ID;
 }
 
 bool AST_formal_parameter::match(AST_node* in)
@@ -595,7 +629,7 @@ bool AST_formal_parameter::equals(AST_node* in)
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 390 "src/generated_src/phc.tea"
+    #line 376 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -606,7 +640,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 398 "src/generated_src/phc.tea"
+    #line 384 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -638,9 +672,19 @@ AST_type::AST_type()
     this->class_name = 0;
 }
 
+void AST_type::visit(AST_visitor* visitor)
+{
+    visitor->visit_type(this);
+}
+
+void AST_type::transform_children(AST_transform* transform)
+{
+    transform->children_type(this);
+}
+
 int AST_type::classid()
 {
-    return 9;
+    return ID;
 }
 
 bool AST_type::match(AST_node* in)
@@ -701,9 +745,19 @@ AST_attr_mod::AST_attr_mod(bool is_public, bool is_protected, bool is_private, b
     this->is_const = is_const;
 }
 
+void AST_attr_mod::visit(AST_visitor* visitor)
+{
+    visitor->visit_attr_mod(this);
+}
+
+void AST_attr_mod::transform_children(AST_transform* transform)
+{
+    transform->children_attr_mod(this);
+}
+
 int AST_attr_mod::classid()
 {
-    return 11;
+    return ID;
 }
 
 bool AST_attr_mod::match(AST_node* in)
@@ -744,7 +798,7 @@ bool AST_attr_mod::equals(AST_node* in)
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 410 "src/generated_src/phc.tea"
+    #line 396 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -756,7 +810,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 419 "src/generated_src/phc.tea"
+    #line 405 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error(ERR_FINAL_VARS, mm->get_filename(), mm->get_line_number());
@@ -771,7 +825,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 431 "src/generated_src/phc.tea"
+    #line 417 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -779,7 +833,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 436 "src/generated_src/phc.tea"
+    #line 422 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -787,7 +841,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 441 "src/generated_src/phc.tea"
+    #line 427 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -795,7 +849,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 446 "src/generated_src/phc.tea"
+    #line 432 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -803,7 +857,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 451 "src/generated_src/phc.tea"
+    #line 437 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -833,9 +887,19 @@ AST_directive::AST_directive()
     this->expr = 0;
 }
 
+void AST_directive::visit(AST_visitor* visitor)
+{
+    visitor->visit_directive(this);
+}
+
+void AST_directive::transform_children(AST_transform* transform)
+{
+    transform->children_directive(this);
+}
+
 int AST_directive::classid()
 {
-    return 25;
+    return ID;
 }
 
 bool AST_directive::match(AST_node* in)
@@ -926,9 +990,19 @@ AST_array_elem::AST_array_elem()
     this->val = 0;
 }
 
+void AST_array_elem::visit(AST_visitor* visitor)
+{
+    visitor->visit_array_elem(this);
+}
+
+void AST_array_elem::transform_children(AST_transform* transform)
+{
+    transform->children_array_elem(this);
+}
+
 int AST_array_elem::classid()
 {
-    return 48;
+    return ID;
 }
 
 bool AST_array_elem::match(AST_node* in)
@@ -1013,9 +1087,19 @@ AST_actual_parameter::AST_actual_parameter()
     this->expr = 0;
 }
 
+void AST_actual_parameter::visit(AST_visitor* visitor)
+{
+    visitor->visit_actual_parameter(this);
+}
+
+void AST_actual_parameter::transform_children(AST_transform* transform)
+{
+    transform->children_actual_parameter(this);
+}
+
 int AST_actual_parameter::classid()
 {
-    return 50;
+    return ID;
 }
 
 bool AST_actual_parameter::match(AST_node* in)
@@ -1114,9 +1198,19 @@ AST_switch_case::AST_switch_case()
     this->statements = 0;
 }
 
+void AST_switch_case::visit(AST_visitor* visitor)
+{
+    visitor->visit_switch_case(this);
+}
+
+void AST_switch_case::transform_children(AST_transform* transform)
+{
+    transform->children_switch_case(this);
+}
+
 int AST_switch_case::classid()
 {
-    return 18;
+    return ID;
 }
 
 bool AST_switch_case::match(AST_node* in)
@@ -1231,9 +1325,19 @@ AST_catch::AST_catch()
     this->statements = 0;
 }
 
+void AST_catch::visit(AST_visitor* visitor)
+{
+    visitor->visit_catch(this);
+}
+
+void AST_catch::transform_children(AST_transform* transform)
+{
+    transform->children_catch(this);
+}
+
 int AST_catch::classid()
 {
-    return 27;
+    return ID;
 }
 
 bool AST_catch::match(AST_node* in)
@@ -1353,7 +1457,7 @@ AST_catch* AST_catch::clone()
 
 AST_expr::AST_expr()
 {
-    #line 501 "src/generated_src/phc.tea"
+    #line 487 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -1369,9 +1473,19 @@ AST_list_elements::AST_list_elements()
     this->list_elements = 0;
 }
 
+void AST_list_elements::visit(AST_visitor* visitor)
+{
+    visitor->visit_list_elements(this);
+}
+
+void AST_list_elements::transform_children(AST_transform* transform)
+{
+    transform->children_list_elements(this);
+}
+
 int AST_list_elements::classid()
 {
-    return 35;
+    return ID;
 }
 
 bool AST_list_elements::match(AST_node* in)
@@ -1465,9 +1579,19 @@ AST_reflection::AST_reflection()
     this->expr = 0;
 }
 
+void AST_reflection::visit(AST_visitor* visitor)
+{
+    visitor->visit_variable_name(this);
+}
+
+void AST_reflection::transform_children(AST_transform* transform)
+{
+    transform->children_variable_name(this);
+}
+
 int AST_reflection::classid()
 {
-    return 44;
+    return ID;
 }
 
 bool AST_reflection::match(AST_node* in)
@@ -1525,14 +1649,24 @@ Token_class_name::Token_class_name()
     this->value = 0;
 }
 
-int Token_class_name::classid()
+void Token_class_name::visit(AST_visitor* visitor)
 {
-    return 53;
+    visitor->visit_class_name(this);
+}
+
+void Token_class_name::transform_children(AST_transform* transform)
+{
+    transform->children_class_name(this);
 }
 
 String* Token_class_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_class_name::classid()
+{
+    return ID;
 }
 
 bool Token_class_name::match(AST_node* in)
@@ -1585,14 +1719,24 @@ Token_interface_name::Token_interface_name()
     this->value = 0;
 }
 
-int Token_interface_name::classid()
+void Token_interface_name::visit(AST_visitor* visitor)
 {
-    return 54;
+    visitor->visit_interface_name(this);
+}
+
+void Token_interface_name::transform_children(AST_transform* transform)
+{
+    transform->children_interface_name(this);
 }
 
 String* Token_interface_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_interface_name::classid()
+{
+    return ID;
 }
 
 bool Token_interface_name::match(AST_node* in)
@@ -1645,14 +1789,24 @@ Token_method_name::Token_method_name()
     this->value = 0;
 }
 
-int Token_method_name::classid()
+void Token_method_name::visit(AST_visitor* visitor)
 {
-    return 55;
+    visitor->visit_method_name(this);
+}
+
+void Token_method_name::transform_children(AST_transform* transform)
+{
+    transform->children_method_name(this);
 }
 
 String* Token_method_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_method_name::classid()
+{
+    return ID;
 }
 
 bool Token_method_name::match(AST_node* in)
@@ -1705,14 +1859,24 @@ Token_variable_name::Token_variable_name()
     this->value = 0;
 }
 
-int Token_variable_name::classid()
+void Token_variable_name::visit(AST_visitor* visitor)
 {
-    return 56;
+    visitor->visit_variable_name(this);
+}
+
+void Token_variable_name::transform_children(AST_transform* transform)
+{
+    transform->children_variable_name(this);
 }
 
 String* Token_variable_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_variable_name::classid()
+{
+    return ID;
 }
 
 bool Token_variable_name::match(AST_node* in)
@@ -1765,14 +1929,24 @@ Token_directive_name::Token_directive_name()
     this->value = 0;
 }
 
-int Token_directive_name::classid()
+void Token_directive_name::visit(AST_visitor* visitor)
 {
-    return 57;
+    visitor->visit_directive_name(this);
+}
+
+void Token_directive_name::transform_children(AST_transform* transform)
+{
+    transform->children_directive_name(this);
 }
 
 String* Token_directive_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_directive_name::classid()
+{
+    return ID;
 }
 
 bool Token_directive_name::match(AST_node* in)
@@ -1825,14 +1999,24 @@ Token_label_name::Token_label_name()
     this->value = 0;
 }
 
-int Token_label_name::classid()
+void Token_label_name::visit(AST_visitor* visitor)
 {
-    return 58;
+    visitor->visit_label_name(this);
+}
+
+void Token_label_name::transform_children(AST_transform* transform)
+{
+    transform->children_label_name(this);
 }
 
 String* Token_label_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_label_name::classid()
+{
+    return ID;
 }
 
 bool Token_label_name::match(AST_node* in)
@@ -1885,14 +2069,24 @@ Token_cast::Token_cast()
     this->value = 0;
 }
 
-int Token_cast::classid()
+void Token_cast::visit(AST_visitor* visitor)
 {
-    return 64;
+    visitor->visit_cast(this);
+}
+
+void Token_cast::transform_children(AST_transform* transform)
+{
+    transform->children_cast(this);
 }
 
 String* Token_cast::get_value_as_string()
 {
     return value;
+}
+
+int Token_cast::classid()
+{
+    return ID;
 }
 
 bool Token_cast::match(AST_node* in)
@@ -1945,14 +2139,24 @@ Token_op::Token_op()
     this->value = 0;
 }
 
-int Token_op::classid()
+void Token_op::visit(AST_visitor* visitor)
 {
-    return 65;
+    visitor->visit_op(this);
+}
+
+void Token_op::transform_children(AST_transform* transform)
+{
+    transform->children_op(this);
 }
 
 String* Token_op::get_value_as_string()
 {
     return value;
+}
+
+int Token_op::classid()
+{
+    return ID;
 }
 
 bool Token_op::match(AST_node* in)
@@ -2005,14 +2209,24 @@ Token_constant_name::Token_constant_name()
     this->value = 0;
 }
 
-int Token_constant_name::classid()
+void Token_constant_name::visit(AST_visitor* visitor)
 {
-    return 66;
+    visitor->visit_constant_name(this);
+}
+
+void Token_constant_name::transform_children(AST_transform* transform)
+{
+    transform->children_constant_name(this);
 }
 
 String* Token_constant_name::get_value_as_string()
 {
     return value;
+}
+
+int Token_constant_name::classid()
+{
+    return ID;
 }
 
 bool Token_constant_name::match(AST_node* in)
@@ -2073,9 +2287,19 @@ AST_class_def::AST_class_def()
     this->members = 0;
 }
 
+void AST_class_def::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_class_def::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_class_def::classid()
 {
-    return 2;
+    return ID;
 }
 
 bool AST_class_def::match(AST_node* in)
@@ -2239,7 +2463,7 @@ bool AST_class_def::equals(AST_node* in)
 
 AST_class_def::AST_class_def(AST_class_mod* mod)
 {
-    #line 300 "src/generated_src/phc.tea"
+    #line 286 "src/generated_src/phc.tea"
 {
 		this->class_mod = mod;
 		this->class_name = NULL;
@@ -2251,7 +2475,7 @@ AST_class_def::AST_class_def(AST_class_mod* mod)
 
 AST_class_def::AST_class_def(char* name)
 {
-    #line 309 "src/generated_src/phc.tea"
+    #line 295 "src/generated_src/phc.tea"
 {
 		this->class_mod = new AST_class_mod(false, false);
 		this->class_name = new Token_class_name(new String(name));
@@ -2263,7 +2487,7 @@ AST_class_def::AST_class_def(char* name)
 
 void AST_class_def::add_member(AST_member* member)
 {
-    #line 318 "src/generated_src/phc.tea"
+    #line 304 "src/generated_src/phc.tea"
 {
 		this->members->push_back(member);
 	}
@@ -2272,11 +2496,11 @@ void AST_class_def::add_member(AST_member* member)
 //  Returns NULL if the method could not be found
 AST_method* AST_class_def::get_method(const char* name)
 {
-    #line 324 "src/generated_src/phc.tea"
+    #line 310 "src/generated_src/phc.tea"
 {
 		List<AST_member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
-		#line 327 "src/generated_src/phc.tea"
+		#line 313 "src/generated_src/phc.tea"
 {
 			AST_method* method = dynamic_cast<AST_method*>(*i);
 			if(method && *method->signature->method_name->value == name)
@@ -2327,9 +2551,19 @@ AST_interface_def::AST_interface_def()
     this->members = 0;
 }
 
+void AST_interface_def::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_interface_def::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_interface_def::classid()
 {
-    return 4;
+    return ID;
 }
 
 bool AST_interface_def::match(AST_node* in)
@@ -2495,9 +2729,19 @@ AST_method::AST_method()
     this->statements = 0;
 }
 
+void AST_method::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_method::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_method::classid()
 {
-    return 5;
+    return ID;
 }
 
 bool AST_method::match(AST_node* in)
@@ -2612,9 +2856,19 @@ AST_attribute::AST_attribute()
     this->expr = 0;
 }
 
+void AST_attribute::visit(AST_visitor* visitor)
+{
+    visitor->visit_member(this);
+}
+
+void AST_attribute::transform_children(AST_transform* transform)
+{
+    transform->children_member(this);
+}
+
 int AST_attribute::classid()
 {
-    return 10;
+    return ID;
 }
 
 bool AST_attribute::match(AST_node* in)
@@ -2710,9 +2964,19 @@ AST_if::AST_if()
     this->iffalse = 0;
 }
 
+void AST_if::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_if::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_if::classid()
 {
-    return 12;
+    return ID;
 }
 
 bool AST_if::match(AST_node* in)
@@ -2878,9 +3142,19 @@ AST_while::AST_while()
     this->statements = 0;
 }
 
+void AST_while::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_while::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_while::classid()
 {
-    return 13;
+    return ID;
 }
 
 bool AST_while::match(AST_node* in)
@@ -2993,9 +3267,19 @@ AST_do::AST_do()
     this->expr = 0;
 }
 
+void AST_do::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_do::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_do::classid()
 {
-    return 14;
+    return ID;
 }
 
 bool AST_do::match(AST_node* in)
@@ -3112,9 +3396,19 @@ AST_for::AST_for()
     this->statements = 0;
 }
 
+void AST_for::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_for::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_for::classid()
 {
-    return 15;
+    return ID;
 }
 
 bool AST_for::match(AST_node* in)
@@ -3267,9 +3561,19 @@ AST_foreach::AST_foreach()
     this->statements = 0;
 }
 
+void AST_foreach::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_foreach::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_foreach::classid()
 {
-    return 16;
+    return ID;
 }
 
 bool AST_foreach::match(AST_node* in)
@@ -3420,9 +3724,19 @@ AST_switch::AST_switch()
     this->switch_cases = 0;
 }
 
+void AST_switch::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_switch::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_switch::classid()
 {
-    return 17;
+    return ID;
 }
 
 bool AST_switch::match(AST_node* in)
@@ -3533,9 +3847,19 @@ AST_break::AST_break()
     this->expr = 0;
 }
 
+void AST_break::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_break::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_break::classid()
 {
-    return 19;
+    return ID;
 }
 
 bool AST_break::match(AST_node* in)
@@ -3593,9 +3917,19 @@ AST_continue::AST_continue()
     this->expr = 0;
 }
 
+void AST_continue::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_continue::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_continue::classid()
 {
-    return 20;
+    return ID;
 }
 
 bool AST_continue::match(AST_node* in)
@@ -3653,9 +3987,19 @@ AST_return::AST_return()
     this->expr = 0;
 }
 
+void AST_return::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_return::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_return::classid()
 {
-    return 21;
+    return ID;
 }
 
 bool AST_return::match(AST_node* in)
@@ -3715,9 +4059,19 @@ AST_static_declaration::AST_static_declaration()
     this->expr = 0;
 }
 
+void AST_static_declaration::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_static_declaration::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_static_declaration::classid()
 {
-    return 22;
+    return ID;
 }
 
 bool AST_static_declaration::match(AST_node* in)
@@ -3792,9 +4146,19 @@ AST_unset::AST_unset()
     this->variable = 0;
 }
 
+void AST_unset::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_unset::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_unset::classid()
 {
-    return 23;
+    return ID;
 }
 
 bool AST_unset::match(AST_node* in)
@@ -3854,9 +4218,19 @@ AST_declare::AST_declare()
     this->statements = 0;
 }
 
+void AST_declare::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_declare::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_declare::classid()
 {
-    return 24;
+    return ID;
 }
 
 bool AST_declare::match(AST_node* in)
@@ -4005,9 +4379,19 @@ AST_try::AST_try()
     this->catches = 0;
 }
 
+void AST_try::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_try::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_try::classid()
 {
-    return 26;
+    return ID;
 }
 
 bool AST_try::match(AST_node* in)
@@ -4154,9 +4538,19 @@ AST_throw::AST_throw()
     this->expr = 0;
 }
 
+void AST_throw::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_throw::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_throw::classid()
 {
-    return 28;
+    return ID;
 }
 
 bool AST_throw::match(AST_node* in)
@@ -4214,9 +4608,19 @@ AST_eval_expr::AST_eval_expr()
     this->expr = 0;
 }
 
+void AST_eval_expr::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_eval_expr::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_eval_expr::classid()
 {
-    return 29;
+    return ID;
 }
 
 bool AST_eval_expr::match(AST_node* in)
@@ -4268,9 +4672,19 @@ AST_nop::AST_nop()
 {
 }
 
+void AST_nop::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_nop::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_nop::classid()
 {
-    return 30;
+    return ID;
 }
 
 bool AST_nop::match(AST_node* in)
@@ -4311,9 +4725,19 @@ AST_goto::AST_goto()
     this->label_name = 0;
 }
 
+void AST_goto::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_goto::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_goto::classid()
 {
-    return 31;
+    return ID;
 }
 
 bool AST_goto::match(AST_node* in)
@@ -4371,9 +4795,19 @@ AST_label::AST_label()
     this->label_name = 0;
 }
 
+void AST_label::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_label::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
 int AST_label::classid()
 {
-    return 32;
+    return ID;
 }
 
 bool AST_label::match(AST_node* in)
@@ -4439,9 +4873,19 @@ AST_assignment::AST_assignment()
     this->expr = 0;
 }
 
+void AST_assignment::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_assignment::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_assignment::classid()
 {
-    return 33;
+    return ID;
 }
 
 bool AST_assignment::match(AST_node* in)
@@ -4522,9 +4966,19 @@ AST_list_assignment::AST_list_assignment()
     this->expr = 0;
 }
 
+void AST_list_assignment::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_list_assignment::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_list_assignment::classid()
 {
-    return 34;
+    return ID;
 }
 
 bool AST_list_assignment::match(AST_node* in)
@@ -4601,9 +5055,19 @@ AST_cast::AST_cast()
     this->expr = 0;
 }
 
+void AST_cast::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_cast::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_cast::classid()
 {
-    return 36;
+    return ID;
 }
 
 bool AST_cast::match(AST_node* in)
@@ -4661,7 +5125,7 @@ bool AST_cast::equals(AST_node* in)
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 510 "src/generated_src/phc.tea"
+    #line 496 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -4689,9 +5153,19 @@ AST_unary_op::AST_unary_op()
     this->expr = 0;
 }
 
+void AST_unary_op::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_unary_op::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_unary_op::classid()
 {
-    return 37;
+    return ID;
 }
 
 bool AST_unary_op::match(AST_node* in)
@@ -4749,7 +5223,7 @@ bool AST_unary_op::equals(AST_node* in)
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 491 "src/generated_src/phc.tea"
+    #line 477 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -4779,9 +5253,19 @@ AST_bin_op::AST_bin_op()
     this->right = 0;
 }
 
+void AST_bin_op::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_bin_op::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_bin_op::classid()
 {
-    return 38;
+    return ID;
 }
 
 bool AST_bin_op::match(AST_node* in)
@@ -4855,7 +5339,7 @@ bool AST_bin_op::equals(AST_node* in)
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 460 "src/generated_src/phc.tea"
+    #line 446 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -4887,9 +5371,19 @@ AST_conditional_expr::AST_conditional_expr()
     this->iffalse = 0;
 }
 
+void AST_conditional_expr::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_conditional_expr::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_conditional_expr::classid()
 {
-    return 39;
+    return ID;
 }
 
 bool AST_conditional_expr::match(AST_node* in)
@@ -4981,9 +5475,19 @@ AST_ignore_errors::AST_ignore_errors()
     this->expr = 0;
 }
 
+void AST_ignore_errors::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_ignore_errors::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_ignore_errors::classid()
 {
-    return 40;
+    return ID;
 }
 
 bool AST_ignore_errors::match(AST_node* in)
@@ -5043,9 +5547,19 @@ AST_constant::AST_constant()
     this->constant_name = 0;
 }
 
+void AST_constant::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_constant::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_constant::classid()
 {
-    return 41;
+    return ID;
 }
 
 bool AST_constant::match(AST_node* in)
@@ -5103,7 +5617,7 @@ bool AST_constant::equals(AST_node* in)
 
 AST_constant::AST_constant(char* class_name, Token_constant_name* constant_name)
 {
-    #line 520 "src/generated_src/phc.tea"
+    #line 506 "src/generated_src/phc.tea"
 {
 		this->class_name = new Token_class_name(new String(class_name));
 		this->constant_name = constant_name;
@@ -5131,9 +5645,19 @@ AST_instanceof::AST_instanceof()
     this->class_name = 0;
 }
 
+void AST_instanceof::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_instanceof::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_instanceof::classid()
 {
-    return 42;
+    return ID;
 }
 
 bool AST_instanceof::match(AST_node* in)
@@ -5214,9 +5738,19 @@ AST_variable::AST_variable()
     this->string_index = 0;
 }
 
+void AST_variable::visit(AST_visitor* visitor)
+{
+    visitor->visit_variable(this);
+}
+
+void AST_variable::transform_children(AST_transform* transform)
+{
+    transform->children_variable(this);
+}
+
 int AST_variable::classid()
 {
-    return 43;
+    return ID;
 }
 
 bool AST_variable::match(AST_node* in)
@@ -5335,7 +5869,7 @@ bool AST_variable::equals(AST_node* in)
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 341 "src/generated_src/phc.tea"
+    #line 327 "src/generated_src/phc.tea"
 {
 		this->target = NULL;
 		this->variable_name = name;
@@ -5346,7 +5880,7 @@ AST_variable::AST_variable(AST_variable_name* name)
 
 void AST_variable::_init()
 {
-    #line 349 "src/generated_src/phc.tea"
+    #line 335 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
@@ -5382,9 +5916,19 @@ AST_pre_op::AST_pre_op()
     this->variable = 0;
 }
 
+void AST_pre_op::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_pre_op::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_pre_op::classid()
 {
-    return 45;
+    return ID;
 }
 
 bool AST_pre_op::match(AST_node* in)
@@ -5442,7 +5986,7 @@ bool AST_pre_op::equals(AST_node* in)
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 481 "src/generated_src/phc.tea"
+    #line 467 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5470,9 +6014,19 @@ AST_post_op::AST_post_op()
     this->op = 0;
 }
 
+void AST_post_op::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_post_op::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_post_op::classid()
 {
-    return 46;
+    return ID;
 }
 
 bool AST_post_op::match(AST_node* in)
@@ -5530,7 +6084,7 @@ bool AST_post_op::equals(AST_node* in)
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 471 "src/generated_src/phc.tea"
+    #line 457 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -5556,9 +6110,19 @@ AST_array::AST_array()
     this->array_elems = 0;
 }
 
+void AST_array::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_array::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_array::classid()
 {
-    return 47;
+    return ID;
 }
 
 bool AST_array::match(AST_node* in)
@@ -5656,9 +6220,19 @@ AST_method_invocation::AST_method_invocation()
     this->actual_parameters = 0;
 }
 
+void AST_method_invocation::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_method_invocation::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_method_invocation::classid()
 {
-    return 49;
+    return ID;
 }
 
 bool AST_method_invocation::match(AST_node* in)
@@ -5762,7 +6336,7 @@ bool AST_method_invocation::equals(AST_node* in)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 359 "src/generated_src/phc.tea"
+    #line 345 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -5775,7 +6349,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 369 "src/generated_src/phc.tea"
+    #line 355 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -5787,7 +6361,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 378 "src/generated_src/phc.tea"
+    #line 364 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -5825,9 +6399,19 @@ AST_new::AST_new()
     this->actual_parameters = 0;
 }
 
+void AST_new::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_new::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_new::classid()
 {
-    return 51;
+    return ID;
 }
 
 bool AST_new::match(AST_node* in)
@@ -5938,9 +6522,19 @@ AST_clone::AST_clone()
     this->expr = 0;
 }
 
+void AST_clone::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_clone::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
 int AST_clone::classid()
 {
-    return 52;
+    return ID;
 }
 
 bool AST_clone::match(AST_node* in)
@@ -6000,14 +6594,24 @@ Token_int::Token_int()
     this->source_rep = 0;
 }
 
-int Token_int::classid()
+void Token_int::visit(AST_visitor* visitor)
 {
-    return 59;
+    visitor->visit_expr(this);
+}
+
+void Token_int::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
 }
 
 String* Token_int::get_source_rep()
 {
     return source_rep;
+}
+
+int Token_int::classid()
+{
+    return ID;
 }
 
 bool Token_int::match(AST_node* in)
@@ -6060,7 +6664,7 @@ bool Token_int::equals_value(Token_int* that)
 
 String* Token_int::get_value_as_string()
 {
-    #line 543 "src/generated_src/phc.tea"
+    #line 529 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -6094,14 +6698,24 @@ Token_real::Token_real()
     this->source_rep = 0;
 }
 
-int Token_real::classid()
+void Token_real::visit(AST_visitor* visitor)
 {
-    return 60;
+    visitor->visit_expr(this);
+}
+
+void Token_real::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
 }
 
 String* Token_real::get_source_rep()
 {
     return source_rep;
+}
+
+int Token_real::classid()
+{
+    return ID;
 }
 
 bool Token_real::match(AST_node* in)
@@ -6154,7 +6768,7 @@ bool Token_real::equals_value(Token_real* that)
 
 String* Token_real::get_value_as_string()
 {
-    #line 554 "src/generated_src/phc.tea"
+    #line 540 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -6199,14 +6813,24 @@ Token_string::Token_string()
     this->source_rep = 0;
 }
 
-int Token_string::classid()
+void Token_string::visit(AST_visitor* visitor)
 {
-    return 61;
+    visitor->visit_expr(this);
+}
+
+void Token_string::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
 }
 
 String* Token_string::get_source_rep()
 {
     return source_rep;
+}
+
+int Token_string::classid()
+{
+    return ID;
 }
 
 bool Token_string::match(AST_node* in)
@@ -6259,7 +6883,7 @@ bool Token_string::equals_value(Token_string* that)
 
 String* Token_string::get_value_as_string()
 {
-    #line 588 "src/generated_src/phc.tea"
+    #line 574 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -6291,14 +6915,24 @@ Token_bool::Token_bool()
     this->source_rep = 0;
 }
 
-int Token_bool::classid()
+void Token_bool::visit(AST_visitor* visitor)
 {
-    return 62;
+    visitor->visit_expr(this);
+}
+
+void Token_bool::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
 }
 
 String* Token_bool::get_source_rep()
 {
     return source_rep;
+}
+
+int Token_bool::classid()
+{
+    return ID;
 }
 
 bool Token_bool::match(AST_node* in)
@@ -6351,7 +6985,7 @@ bool Token_bool::equals_value(Token_bool* that)
 
 String* Token_bool::get_value_as_string()
 {
-    #line 576 "src/generated_src/phc.tea"
+    #line 562 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -6384,14 +7018,24 @@ Token_null::Token_null()
     this->source_rep = 0;
 }
 
-int Token_null::classid()
+void Token_null::visit(AST_visitor* visitor)
 {
-    return 63;
+    visitor->visit_expr(this);
+}
+
+void Token_null::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
 }
 
 String* Token_null::get_source_rep()
 {
     return source_rep;
+}
+
+int Token_null::classid()
+{
+    return ID;
 }
 
 bool Token_null::match(AST_node* in)
@@ -6428,7 +7072,7 @@ bool Token_null::equals(AST_node* in)
 
 String* Token_null::get_value_as_string()
 {
-    #line 597 "src/generated_src/phc.tea"
+    #line 583 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}

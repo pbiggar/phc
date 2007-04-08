@@ -276,7 +276,7 @@ public:
     virtual AST_php_script* transform_php_script(AST_php_script* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
-protected:
+public:
     virtual void pre_statement(AST_statement* in, List<AST_statement*>* out);
     virtual void pre_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* pre_expr(AST_expr* in);
@@ -287,7 +287,7 @@ protected:
     virtual AST_method_name* pre_method_name(AST_method_name* in);
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
-protected:
+public:
     virtual void post_statement(AST_statement* in, List<AST_statement*>* out);
     virtual void post_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* post_expr(AST_expr* in);
@@ -298,7 +298,7 @@ protected:
     virtual AST_method_name* post_method_name(AST_method_name* in);
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
-protected:
+public:
     virtual void children_statement(AST_statement* in);
     virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);

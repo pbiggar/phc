@@ -88,9 +88,14 @@ NL					\r?\n?
 WS					[ \t\n\r]
 ANY				[\x00-\xff]	
 
-START				"<?php"|"<?"
+PHP				[pP][hH][pP]
+PHP_START		"<?"{PHP}?
+SCRIPT_START	"<script"{WS}+"language"{WS}*"="{WS}*['"]{WS}*{PHP}{WS}*['"]{WS}*">"
+START				{PHP_START}|{SCRIPT_START}
 START_ECHO		"<?="
-STOP				"?>"{NL}?
+PHP_STOP			"?>"
+SCRIPT_STOP		"</script"{WS}*">"
+STOP				({PHP_STOP}|{SCRIPT_STOP}){NL}?
 
 IDENT				[a-zA-Z_\x7F-\xFF][a-zA-Z0-9_\x7F-\xFF]*
 

@@ -138,10 +138,10 @@ public:
 };
 */
 // store the current php script
-AST_php_script* Process_includes::pre_php_script(AST_php_script* in)
+void Process_includes::children_php_script(AST_php_script* in)
 {
 	current_script = in;
-	return in;
+	AST_transform::children_php_script(in);
 }
 
 // store the method currently being defined

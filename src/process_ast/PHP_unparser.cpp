@@ -23,9 +23,8 @@ using namespace std;
 
 void debug (AST_node *in)
 {
-	// TODO: re-enable
-	// static PHP_unparser *pup = new PHP_unparser (cerr);
-	// in->visit (pup);
+	static PHP_unparser *pup = new PHP_unparser (cerr);
+	in->visit (pup);
 }
 
 void PHP_unparser::echo(const char* str)

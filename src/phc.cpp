@@ -216,8 +216,8 @@ void generate_c(AST_php_script* php_script)
 		generate_c = new Generate_C(NULL);
 	else
 		generate_c = new Generate_C(new String(args_info.extension_arg));
-	php_script->transform(&lcf);	
-	php_script->transform(&prep);	
+	php_script->transform_children(&lcf);	
+	php_script->transform_children(&prep);	
 	php_script->visit(generate_c);
 }
 

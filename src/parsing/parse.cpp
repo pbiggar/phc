@@ -165,7 +165,7 @@ void run_standard_transforms(AST_php_script* php_script)
 	// (frequent) circumstances. This will remove them. This could
 	// probably be run at any time.
 	Remove_concat_null rcn;
-	php_script->transform(&rcn);
+	php_script->transform_children(&rcn);
 
 	// There are a number of strange rules based on the value of an
 	// integer/real, which must be applied. The parser cannot do this,
@@ -173,7 +173,7 @@ void run_standard_transforms(AST_php_script* php_script)
 	// before the number, and this is unknown at compile time. This
 	// should be run early.
 	Token_conversion tc;
-	php_script->transform(&tc);
+	php_script->transform_children(&tc);
 
 	// This replaces include() statements with the file they include,
 	// based on certain rules. Since the included script will be
@@ -183,6 +183,6 @@ void run_standard_transforms(AST_php_script* php_script)
 	if(args_info.compile_time_includes_flag)
 	{
 		Process_includes pi;
-		php_script->transform(&pi);
+		php_script->transform_children(&pi);
 	}
 }

@@ -102,7 +102,10 @@ class AST_visitor;
 // node ::= php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | expr | identifier;
 class AST_node : virtual public Object
 {
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -118,8 +121,6 @@ public:
     void clone_mixin_from(AST_node* in);
 public:
     virtual AST_node* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // php_script ::= statement* ;
@@ -131,19 +132,18 @@ protected:
     AST_php_script();
 public:
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 1;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
-    void visit(AST_visitor* visitor);
-    AST_php_script* transform(AST_transform* transform);
-public:
     virtual AST_php_script* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // class_mod ::= "abstract"? "final"? ;
@@ -156,7 +156,11 @@ protected:
 public:
     bool is_abstract;
     bool is_final;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 3;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -164,8 +168,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_class_mod* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // signature ::= method_mod is_ref:"&" METHOD_NAME formal_parameter* ;
@@ -180,7 +182,11 @@ public:
     bool is_ref;
     Token_method_name* method_name;
     List<AST_formal_parameter*>* formal_parameters;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 6;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -190,8 +196,6 @@ public:
     AST_signature(const char* name);
 public:
     virtual AST_signature* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
@@ -206,7 +210,11 @@ public:
     bool is_static;
     bool is_abstract;
     bool is_final;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 7;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -223,8 +231,6 @@ public:
     static AST_method_mod* new_FINAL();
 public:
     virtual AST_method_mod* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // formal_parameter ::= type is_ref:"&" VARIABLE_NAME expr? ;
@@ -239,7 +245,11 @@ public:
     bool is_ref;
     Token_variable_name* variable_name;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 8;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -250,8 +260,6 @@ public:
     AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name);
 public:
     virtual AST_formal_parameter* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // type ::= "array"? CLASS_NAME? ;
@@ -264,7 +272,11 @@ protected:
 public:
     bool is_array;
     Token_class_name* class_name;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 9;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -272,8 +284,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_type* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // attr_mod ::= "public"? "protected"? "private"? "static"? "const"? ;
@@ -287,7 +297,11 @@ public:
     bool is_private;
     bool is_static;
     bool is_const;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 11;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -303,8 +317,6 @@ public:
     static AST_attr_mod* new_CONST();
 public:
     virtual AST_attr_mod* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // directive ::= DIRECTIVE_NAME expr ;
@@ -317,7 +329,11 @@ protected:
 public:
     Token_directive_name* directive_name;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -325,8 +341,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_directive* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // list_element ::= variable | list_elements;
@@ -334,7 +348,10 @@ class AST_list_element : virtual public AST_node
 {
 public:
     AST_list_element();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -342,8 +359,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_list_element* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // variable_name ::= VARIABLE_NAME | reflection;
@@ -351,7 +366,10 @@ class AST_variable_name : virtual public AST_node
 {
 public:
     AST_variable_name();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -359,8 +377,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_variable_name* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // target ::= expr | CLASS_NAME;
@@ -368,7 +384,10 @@ class AST_target : virtual public AST_node
 {
 public:
     AST_target();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -376,8 +395,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_target* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // array_elem ::= key:expr? is_ref:"&" val:expr ;
@@ -391,7 +408,11 @@ public:
     AST_expr* key;
     bool is_ref;
     AST_expr* val;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 48;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -399,8 +420,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_array_elem* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // method_name ::= METHOD_NAME | reflection;
@@ -408,7 +427,10 @@ class AST_method_name : virtual public AST_node
 {
 public:
     AST_method_name();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -416,8 +438,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_method_name* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // actual_parameter ::= is_ref:"&" expr ;
@@ -430,7 +450,11 @@ protected:
 public:
     bool is_ref;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 50;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -438,8 +462,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_actual_parameter* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // class_name ::= CLASS_NAME | reflection;
@@ -447,7 +469,10 @@ class AST_class_name : virtual public AST_node
 {
 public:
     AST_class_name();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -455,14 +480,15 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_class_name* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // commented_node ::= member | statement | interface_def | class_def | switch_case | catch;
 class AST_commented_node : virtual public AST_node
 {
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -474,8 +500,6 @@ public:
     List<String*>* get_comments();
 public:
     virtual AST_commented_node* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
@@ -483,7 +507,10 @@ class AST_identifier : virtual public AST_node
 {
 public:
     AST_identifier();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -493,8 +520,6 @@ public:
     virtual String* get_value_as_string() = 0;
 public:
     virtual AST_identifier* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | unset | declare | try | throw | eval_expr | nop | label | goto;
@@ -502,7 +527,10 @@ class AST_statement : virtual public AST_commented_node
 {
 public:
     AST_statement();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -510,8 +538,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_statement* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // member ::= method | attribute;
@@ -519,7 +545,10 @@ class AST_member : virtual public AST_commented_node
 {
 public:
     AST_member();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -527,8 +556,6 @@ public:
     virtual bool equals(AST_node* in) = 0;
 public:
     virtual AST_member* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // switch_case ::= expr? statement* ;
@@ -541,7 +568,11 @@ protected:
 public:
     AST_expr* expr;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 18;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -549,8 +580,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_switch_case* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // catch ::= CLASS_NAME VARIABLE_NAME statement* ;
@@ -564,7 +593,11 @@ public:
     Token_class_name* class_name;
     Token_variable_name* variable_name;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 27;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -572,14 +605,15 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_catch* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // expr ::= assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | clone | literal;
 class AST_expr : virtual public AST_target, virtual public AST_node
 {
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -589,8 +623,6 @@ public:
     AST_expr();
 public:
     virtual AST_expr* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // list_elements ::= list_element?* ;
@@ -602,7 +634,11 @@ protected:
     AST_list_elements();
 public:
     List<AST_list_element*>* list_elements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 35;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -610,8 +646,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_list_elements* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // reflection ::= expr ;
@@ -623,7 +657,11 @@ protected:
     AST_reflection();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -631,8 +669,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_reflection* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_class_name : virtual public AST_target, virtual public AST_class_name, virtual public AST_identifier
@@ -641,19 +677,21 @@ public:
     Token_class_name(String* value);
 protected:
     Token_class_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 53;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_class_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_interface_name : virtual public AST_identifier
@@ -662,19 +700,21 @@ public:
     Token_interface_name(String* value);
 protected:
     Token_interface_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 54;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_interface_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_method_name : virtual public AST_method_name, virtual public AST_identifier
@@ -683,19 +723,21 @@ public:
     Token_method_name(String* value);
 protected:
     Token_method_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 55;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_method_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_variable_name : virtual public AST_variable_name, virtual public AST_identifier
@@ -704,19 +746,21 @@ public:
     Token_variable_name(String* value);
 protected:
     Token_variable_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 56;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_variable_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_directive_name : virtual public AST_identifier
@@ -725,19 +769,21 @@ public:
     Token_directive_name(String* value);
 protected:
     Token_directive_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 57;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_directive_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_label_name : virtual public AST_identifier
@@ -746,19 +792,21 @@ public:
     Token_label_name(String* value);
 protected:
     Token_label_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 58;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_label_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_cast : virtual public AST_identifier
@@ -767,19 +815,21 @@ public:
     Token_cast(String* value);
 protected:
     Token_cast();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 64;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_cast* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_op : virtual public AST_identifier
@@ -788,19 +838,21 @@ public:
     Token_op(String* value);
 protected:
     Token_op();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 65;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_op* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_constant_name : virtual public AST_identifier
@@ -809,19 +861,21 @@ public:
     Token_constant_name(String* value);
 protected:
     Token_constant_name();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     virtual String* get_value_as_string();
+public:
+    static const int ID = 66;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_constant_name* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // class_def ::= class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -837,7 +891,11 @@ public:
     Token_class_name* extends;
     List<Token_interface_name*>* implements;
     List<AST_member*>* members;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 2;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -851,8 +909,6 @@ public:
     AST_method* get_method(const char* name);
 public:
     virtual AST_class_def* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
@@ -866,7 +922,11 @@ public:
     Token_interface_name* interface_name;
     List<Token_interface_name*>* extends;
     List<AST_member*>* members;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 4;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -874,8 +934,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_interface_def* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // method ::= signature statement*? ;
@@ -888,7 +946,11 @@ protected:
 public:
     AST_signature* signature;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 5;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -896,8 +958,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_method* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // attribute ::= attr_mod VARIABLE_NAME expr? ;
@@ -911,7 +971,11 @@ public:
     AST_attr_mod* attr_mod;
     Token_variable_name* variable_name;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 10;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -919,8 +983,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_attribute* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // if ::= expr iftrue:statement* iffalse:statement* ;
@@ -934,7 +996,11 @@ public:
     AST_expr* expr;
     List<AST_statement*>* iftrue;
     List<AST_statement*>* iffalse;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 12;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -942,8 +1008,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_if* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // while ::= expr statement* ;
@@ -956,7 +1020,11 @@ protected:
 public:
     AST_expr* expr;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 13;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -964,8 +1032,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_while* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // do ::= statement* expr ;
@@ -978,7 +1044,11 @@ protected:
 public:
     List<AST_statement*>* statements;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 14;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -986,8 +1056,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_do* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // for ::= init:expr? cond:expr? incr:expr? statement* ;
@@ -1002,7 +1070,11 @@ public:
     AST_expr* cond;
     AST_expr* incr;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 15;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1010,8 +1082,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_for* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // foreach ::= expr key:variable? is_ref:"&" val:variable statement* ;
@@ -1027,7 +1097,11 @@ public:
     bool is_ref;
     AST_variable* val;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 16;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1035,8 +1109,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_foreach* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // switch ::= expr switch_case* ;
@@ -1049,7 +1121,11 @@ protected:
 public:
     AST_expr* expr;
     List<AST_switch_case*>* switch_cases;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 17;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1057,8 +1133,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_switch* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // break ::= expr? ;
@@ -1070,7 +1144,11 @@ protected:
     AST_break();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 19;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1078,8 +1156,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_break* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // continue ::= expr? ;
@@ -1091,7 +1167,11 @@ protected:
     AST_continue();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 20;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1099,8 +1179,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_continue* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // return ::= expr? ;
@@ -1112,7 +1190,11 @@ protected:
     AST_return();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 21;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1120,8 +1202,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_return* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // static_declaration ::= VARIABLE_NAME expr? ;
@@ -1134,7 +1214,11 @@ protected:
 public:
     Token_variable_name* variable_name;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1142,8 +1226,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_static_declaration* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // unset ::= variable ;
@@ -1155,7 +1237,11 @@ protected:
     AST_unset();
 public:
     AST_variable* variable;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 23;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1163,8 +1249,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_unset* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // declare ::= directive* statement* ;
@@ -1177,7 +1261,11 @@ protected:
 public:
     List<AST_directive*>* directives;
     List<AST_statement*>* statements;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 24;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1185,8 +1273,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_declare* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // try ::= statement* catches:catch* ;
@@ -1199,7 +1285,11 @@ protected:
 public:
     List<AST_statement*>* statements;
     List<AST_catch*>* catches;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 26;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1207,8 +1297,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_try* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // throw ::= expr ;
@@ -1220,7 +1308,11 @@ protected:
     AST_throw();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 28;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1228,8 +1320,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_throw* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // eval_expr ::= expr ;
@@ -1241,7 +1331,11 @@ protected:
     AST_eval_expr();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 29;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1249,8 +1343,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_eval_expr* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // nop ::= ;
@@ -1258,7 +1350,11 @@ class AST_nop : virtual public AST_statement
 {
 public:
     AST_nop();
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 30;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1266,8 +1362,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_nop* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // goto ::= LABEL_NAME ;
@@ -1279,7 +1373,11 @@ protected:
     AST_goto();
 public:
     Token_label_name* label_name;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 31;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1287,8 +1385,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_goto* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // label ::= LABEL_NAME ;
@@ -1300,7 +1396,11 @@ protected:
     AST_label();
 public:
     Token_label_name* label_name;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1308,8 +1408,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_label* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // literal ::= INT<int> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<>;
@@ -1317,7 +1415,10 @@ class AST_literal : virtual public AST_expr
 {
 public:
     AST_literal();
-private:
+public:
+    virtual void visit(AST_visitor* visitor) = 0;
+    virtual void transform_children(AST_transform* transform) = 0;
+public:
     virtual int classid() = 0;
 public:
     virtual bool match(AST_node* in) = 0;
@@ -1328,8 +1429,6 @@ public:
     virtual String* get_source_rep() = 0;
 public:
     virtual AST_literal* clone() = 0;
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // assignment ::= variable is_ref:"&" expr ;
@@ -1343,7 +1442,11 @@ public:
     AST_variable* variable;
     bool is_ref;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1351,8 +1454,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_assignment* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // list_assignment ::= list_elements expr ;
@@ -1365,7 +1466,11 @@ protected:
 public:
     AST_list_elements* list_elements;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 34;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1373,8 +1478,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_list_assignment* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // cast ::= CAST expr ;
@@ -1387,7 +1490,11 @@ protected:
 public:
     Token_cast* cast;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 36;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1397,8 +1504,6 @@ public:
     AST_cast(char* cast, AST_expr* expr);
 public:
     virtual AST_cast* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // unary_op ::= OP expr ;
@@ -1411,7 +1516,11 @@ protected:
 public:
     Token_op* op;
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1421,8 +1530,6 @@ public:
     AST_unary_op(AST_expr* expr, char* op);
 public:
     virtual AST_unary_op* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // bin_op ::= left:expr OP right:expr ;
@@ -1436,7 +1543,11 @@ public:
     AST_expr* left;
     Token_op* op;
     AST_expr* right;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1446,8 +1557,6 @@ public:
     AST_bin_op(AST_expr* left, AST_expr* right, char* op);
 public:
     virtual AST_bin_op* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
@@ -1461,7 +1570,11 @@ public:
     AST_expr* cond;
     AST_expr* iftrue;
     AST_expr* iffalse;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1469,8 +1582,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_conditional_expr* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // ignore_errors ::= expr ;
@@ -1482,7 +1593,11 @@ protected:
     AST_ignore_errors();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1490,8 +1605,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_ignore_errors* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // constant ::= CLASS_NAME CONSTANT_NAME ;
@@ -1504,7 +1617,11 @@ protected:
 public:
     Token_class_name* class_name;
     Token_constant_name* constant_name;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1514,8 +1631,6 @@ public:
     AST_constant(char* class_name, Token_constant_name* constant_name);
 public:
     virtual AST_constant* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // instanceof ::= expr class_name ;
@@ -1528,7 +1643,11 @@ protected:
 public:
     AST_expr* expr;
     AST_class_name* class_name;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1536,8 +1655,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_instanceof* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // variable ::= target? variable_name array_indices:expr?* string_index:expr? ;
@@ -1552,7 +1669,11 @@ public:
     AST_variable_name* variable_name;
     List<AST_expr*>* array_indices;
     AST_expr* string_index;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1563,8 +1684,6 @@ public:
     void _init();
 public:
     virtual AST_variable* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // pre_op ::= OP variable ;
@@ -1577,7 +1696,11 @@ protected:
 public:
     Token_op* op;
     AST_variable* variable;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 45;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1587,8 +1710,6 @@ public:
     AST_pre_op(AST_variable* var, char* op);
 public:
     virtual AST_pre_op* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // post_op ::= variable OP ;
@@ -1601,7 +1722,11 @@ protected:
 public:
     AST_variable* variable;
     Token_op* op;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 46;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1611,8 +1736,6 @@ public:
     AST_post_op(AST_variable* var, char* op);
 public:
     virtual AST_post_op* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // array ::= array_elem* ;
@@ -1624,7 +1747,11 @@ protected:
     AST_array();
 public:
     List<AST_array_elem*>* array_elems;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 47;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1632,8 +1759,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_array* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // method_invocation ::= target method_name actual_parameter* ;
@@ -1647,7 +1772,11 @@ public:
     AST_target* target;
     AST_method_name* method_name;
     List<AST_actual_parameter*>* actual_parameters;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 49;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1662,8 +1791,6 @@ public:
     AST_method_invocation(const char* target, const char* name, AST_expr* arg);
 public:
     virtual AST_method_invocation* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // new ::= class_name actual_parameter* ;
@@ -1676,7 +1803,11 @@ protected:
 public:
     AST_class_name* class_name;
     List<AST_actual_parameter*>* actual_parameters;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 51;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1684,8 +1815,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_new* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 // clone ::= expr ;
@@ -1697,7 +1826,11 @@ protected:
     AST_clone();
 public:
     AST_expr* expr;
-private:
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 52;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1705,8 +1838,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual AST_clone* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_int : virtual public AST_literal
@@ -1715,12 +1846,16 @@ public:
     Token_int(int value, String* source_rep);
 protected:
     Token_int();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     int value;
     String* source_rep;
     virtual String* get_source_rep();
+public:
+    static const int ID = 59;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
     virtual bool match_value(Token_int* that);
@@ -1732,8 +1867,6 @@ public:
 public:
     virtual Token_int* clone();
     virtual int clone_value();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_real : virtual public AST_literal
@@ -1742,12 +1875,16 @@ public:
     Token_real(double value, String* source_rep);
 protected:
     Token_real();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     double value;
     String* source_rep;
     virtual String* get_source_rep();
+public:
+    static const int ID = 60;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
     virtual bool match_value(Token_real* that);
@@ -1759,8 +1896,6 @@ public:
 public:
     virtual Token_real* clone();
     virtual double clone_value();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_string : virtual public AST_literal
@@ -1769,12 +1904,16 @@ public:
     Token_string(String* value, String* source_rep);
 protected:
     Token_string();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* value;
     String* source_rep;
     virtual String* get_source_rep();
+public:
+    static const int ID = 61;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
     virtual bool match_value(Token_string* that);
@@ -1786,8 +1925,6 @@ public:
 public:
     virtual Token_string* clone();
     virtual String* clone_value();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_bool : virtual public AST_literal
@@ -1796,12 +1933,16 @@ public:
     Token_bool(bool value, String* source_rep);
 protected:
     Token_bool();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     bool value;
     String* source_rep;
     virtual String* get_source_rep();
+public:
+    static const int ID = 62;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
     virtual bool match_value(Token_bool* that);
@@ -1813,8 +1954,6 @@ public:
 public:
     virtual Token_bool* clone();
     virtual bool clone_value();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 class Token_null : virtual public AST_literal
@@ -1823,11 +1962,15 @@ public:
     Token_null(String* source_rep);
 protected:
     Token_null();
-private:
-    virtual int classid();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
 public:
     String* source_rep;
     virtual String* get_source_rep();
+public:
+    static const int ID = 63;
+    virtual int classid();
 public:
     virtual bool match(AST_node* in);
 public:
@@ -1836,8 +1979,6 @@ public:
     virtual String* get_value_as_string();
 public:
     virtual Token_null* clone();
-friend class AST_transform;
-friend class AST_visitor;
 };
 
 
@@ -1894,10 +2035,23 @@ public:
 		return value->equals(that->value);
 	}
 
-private:
+	virtual void visit(AST_visitor* visitor)
+	{
+		if(value != NULL)
+			value->visit(visitor);
+	}
+
+	virtual void transform_children(AST_transform* transform)
+	{
+		if(value != NULL)
+			value->transform_children(transform);
+	}
+
+public:
+	static const int ID = 67;
 	int classid()
 	{
-		return 67;
+		return ID;
 	}
 };
 
