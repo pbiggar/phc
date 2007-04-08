@@ -18,76 +18,18 @@
 	extern struct gengetopt_args_info args_info;
 
 	/*
-	 * We provide some macros to do conversion of synthesized attributes to
-	 * typed variables. Note that NULL arguments are left unchanged.
-	 *
-	 * CAST_AST(dest, src, type) converts "src" to "dest" of type "type".
-	 *   It asserts that the conversion is successful.
-	 *
-	 * CAST_STR(dest, src, type) converts "src" to "dest" of type "type",
-	 *   where type must be a Token type. It casts "src" to (String*) and then
-	 *   uses the constructor of "dest" to do the conversion.
-	 *
-	 * CAST_UNSAFE is like ARG_CAST, but omits the assertion.
-	 *
-	 * CAST_STATEMENT_VECTOR(dest, src) is a specialised version of 
-	 *   ARG_CAST that tries to convert "src" to "dest" of type 
-	 *   List<AST_statement*>*. If this fails, it asserts that "src" is
-	 *   of type AST_statement*, and creates a new vector and adds "src"
-	 *   to this vector. If "src" is NULL, it returns an empty vector.
-	 */
-	
-	static void assert_line_number(Object* obj)
-	{
-		AST_node* node = dynamic_cast<AST_node*>(obj);
-
-		printf("Internal error: source type is %s ", typeid(*obj).name());
-		
-		if(node)
-			printf("(source line %d)\n", node->get_line_number());
-		else
-			printf("(source line unknown)\n");
-	}
-	
-	#define CAST_AST(dest, src, type) 									\
-		type* dest = dynamic_cast<type*>(src);							\
-		if(src && !dest) assert_line_number(src);						\
-		assert(!src || dest);
-
-	#define CAST_STR(dest, src, type) 									\
-		type* dest; {															\
-		String* temp = dynamic_cast<String*>(src);					\
-		assert(temp != NULL);												\
-		dest = new type(temp); }
-
-	#define CAST_UNSAFE(dest, src, type) 								\
-		type* dest = dynamic_cast<type*>(src);
-		
-	#define CAST_STATEMENT_VECTOR(dest, src) 							\
-		List<AST_statement*>* dest; 									\
-		if(!src)																	\
-			dest = new List<AST_statement*>;							\
-		else if(dynamic_cast<AST_statement*>(src)) 					\
-		{ 																			\
-			dest = new List<AST_statement*>; 							\
-			dest->push_back(dynamic_cast<AST_statement*>(src));	\
-		} 																			\
-		else 																		\
-		{ 																			\
-			assert(dynamic_cast<List<AST_statement*>*>(src));	\
-			dest = dynamic_cast<List<AST_statement*>*>(src); 	\
-		}
-	
-	/*
 	 * Some semantic checks
 	 */
 
-	#define EXPECT_VARIABLE(attr) \
-		if(!var) \
-		{ \
-			AST_node* node = dynamic_cast<AST_node*>(attr); \
+	AST_variable* expect_variable(AST_expr* node)
+	{
+		AST_variable* var = dynamic_cast<AST_variable*>(node);
+		
+		if(var == NULL && node != NULL)
 			phc_error(ERR_EXPECT_VAR, node->get_filename(), node->get_line_number()); \
-		}
+			
+		return var;
+	}
 
 	/*
 	 * Define macro to add line numbers and comments to nodes
@@ -116,6 +58,14 @@
 	void PHP_error(PHP_context* context, const char* s)
 	{
 		phc_error(ERR_BISON, context->filename, context->source_line, s);
+	}
+
+	/* Return a new list of statements, containing a single statement */
+	static List<AST_statement*>* wrap(AST_statement* statement)
+	{
+		List<AST_statement*>* result = new List<AST_statement*>;
+		result->push_back(statement);
+		return result;
 	}
 %}
 
@@ -153,7 +103,6 @@
 	AST_list_elements* ast_list_elements;
 	AST_list_element* ast_list_element;
 	String* string;
-	void* nothing;
 	List<AST_actual_parameter*>* list_ast_actual_parameter;
 	AST_class_name* ast_class_name;
 	List<AST_switch_case*>* list_ast_switch_case;
@@ -165,6 +114,7 @@
 	AST_for* ast_for;
 	AST_do* ast_do;
 	AST_while* ast_while;
+	AST_statement* ast_statement;
 }
 
 %{
@@ -174,8 +124,12 @@
 
 %pure_parser
 %name-prefix="PHP_"
-%parse-param { PHP_context* context }
-%lex-param { void* scanner }
+%parse-param {
+			PHP_context* context
+		}
+%lex-param {
+			void* scanner
+		}
 %error-verbose
 
 /*
@@ -349,11 +303,11 @@
 %right K_STATIC K_ABSTRACT K_FINAL K_PRIVATE K_PROTECTED K_PUBLIC
 
 %type <list_ast_statement> top_statement_list
-%type <object> top_statement
+%type <list_ast_statement> top_statement
 %type <list_ast_statement> inner_statement_list
-%type <object> inner_statement
-%type <object> statement
-%type <object> unticked_statement
+%type <list_ast_statement> inner_statement
+%type <list_ast_statement> statement
+%type <list_ast_statement> unticked_statement
 %type <list_ast_catch> additional_catches
 %type <list_ast_catch> non_empty_additional_catches
 %type <ast_catch> additional_catch
@@ -361,10 +315,10 @@
 %type <ast_variable> unset_variable
 %type <token_string> use_filename
 %type <ast_method> function_declaration_statement
-%type <object> class_declaration_statement
+%type <ast_statement> class_declaration_statement
 %type <integer> is_reference
 %type <ast_method> unticked_function_declaration_statement
-%type <object> unticked_class_declaration_statement
+%type <ast_statement> unticked_class_declaration_statement
 %type <ast_class_def> class_entry_type
 %type <token_class_name> extends_from
 %type <ast_interface_def> interface_entry
@@ -373,17 +327,17 @@
 %type <list_token_interface_name> interface_list
 %type <ast_variable> foreach_optional_arg
 %type <ast_variable> foreach_variable
-%type <object> for_statement
-%type <object> foreach_statement
-%type <object> declare_statement
+%type <list_ast_statement> for_statement
+%type <list_ast_statement> foreach_statement
+%type <list_ast_statement> declare_statement
 %type <list_ast_directive> declare_list
 %type <list_ast_switch_case> switch_case_list
 %type <list_ast_switch_case> case_list
-%type <object> while_statement
+%type <list_ast_statement> while_statement
 %type <ast_if> elseif_list
 %type <ast_if> new_elseif_list
-%type <object> else_single
-%type <object> new_else_single
+%type <list_ast_statement> else_single
+%type <list_ast_statement> new_else_single
 %type <list_ast_formal_parameter> parameter_list
 %type <list_ast_formal_parameter> non_empty_parameter_list
 %type <ast_type> optional_class_type
@@ -394,7 +348,7 @@
 %type <list_ast_statement> static_var_list
 %type <list_ast_member> class_statement_list
 %type <list_ast_member> class_statement
-%type <object> method_body  
+%type <list_ast_statement> method_body  
 %type <ast_attr_mod> variable_modifiers
 %type <ast_method_mod> method_modifiers
 %type <ast_method_mod> non_empty_member_modifiers
@@ -459,68 +413,48 @@
 %type <ast_switch_case> keyword_case
 %type <ast_switch_case> keyword_default
 %type <list_ast_statement> block
-%type <nothing> start
-%type <nothing> case_separator
-%type <nothing> possible_comma
 
 %%
 
 start: 
 	  top_statement_list
-	  	{ 
-			CAST_AST(body, $1, List<AST_statement*>);
-
+	  	{
 			// If there are any remaining comments, add them as a NOP
 			if(!context->last_comments.empty())
-				body->push_back(NEW(AST_nop, ()));
+				$1->push_back(NEW(AST_nop, ()));
 	
-			context->php_script = new AST_php_script(body);	
+			context->php_script = new AST_php_script($1);	
 		}
 	;
 
 top_statement_list:
 	  top_statement_list top_statement
-	  	{ 
-			CAST_AST(statement_list, $1, List<AST_statement*>);
-
-			// Ignore null statements
-			if($2)
-			{
-				CAST_UNSAFE(statement, $2, AST_statement);
-			
-				if(statement == NULL)
-				{
-					CAST_AST(statements, $2, List<AST_statement*>);
-					statement_list->push_back_all(statements);
-				}
-				else
-				{
-					statement_list->push_back(statement);
-				}
-			}
-				
-			$$ = statement_list;
+	  	{
+			$1->push_back_all($2);
+			$$ = $1;
 		}
 	| /* empty */
-		{ $$ = new List<AST_statement*>; }
+		{
+			$$ = new List<AST_statement*>;
+		}
 	;
 
-/*
- * Synthesises a List<AST_statement*>, an AST_statement or NULL
- */
 top_statement:
 	  statement
 	  	{
 			$$ = $1; 
 		}
 	| function_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = wrap($1);
+		}
 	| class_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = wrap($1);
+		}
 	| K_HALT_COMPILER '(' ')' ';'
 		{
-			// Note: we never generate K_HALT_COMPILER
-			$$ = NULL;
+			assert(0);
 		}
 	;
 
@@ -529,56 +463,40 @@ top_statement:
  */
 inner_statement_list:
 	  inner_statement_list inner_statement
-	  	{ 
-			CAST_AST(statement_list, $1, List<AST_statement*>);
-
-			// Ignore null statements
-			if($2)
-			{
-				CAST_UNSAFE(statement, $2, AST_statement);
-
-				if(statement == NULL)
-				{
-					CAST_AST(statements, $2, List<AST_statement*>);
-					statement_list->push_back_all(statements);
-				}
-				else
-				{
-					statement_list->push_back(statement);
-				}
-			}
-
-			$$ = statement_list;
+	  	{
+			$1->push_back_all($2);
+			$$ = $1;
 		}
 	| /* empty */ 
-		{ $$ = new List<AST_statement*>; }
+		{
+			$$ = new List<AST_statement*>;
+		}
 	;
 
-/*
- * Synthesises a List<AST_statement*>, an AST_statement or NULL
- */
 inner_statement:
 	  statement
 	  	{
 			$$ = $1;
 		}
 	| function_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = wrap($1);
+		}
 	| class_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = wrap($1);
+		}
 	| K_HALT_COMPILER '(' ')' ';'
 		{
-			// Note: we never generate K_HALT_COMPILER
-			$$ = NULL;
+			assert(0);
 		}
 	;
 
-/*
- * Synthesises a List<AST_statement*> or an AST_statement
- */
 statement:
 	  unticked_statement
-	  	{ $$ = $1; }
+	  	{
+			$$ = $1;
+		}
 	;
 
 /*
@@ -587,67 +505,93 @@ statement:
 
 keyword_if: 
 	  K_IF
-		{ $$ = NEW(AST_if, (NULL, NULL, NULL)); }
+		{
+			$$ = NEW(AST_if, (NULL, NULL, NULL));
+		}
 	;
 
 keyword_elseif: 
 	  K_ELSEIF
-		{ $$ = NEW(AST_if, (NULL, NULL, NULL)); }
+		{
+			$$ = NEW(AST_if, (NULL, NULL, NULL));
+		}
 	;
 
 keyword_foreach:
 	  K_FOREACH
-	  	{ $$ = NEW(AST_foreach, (NULL, NULL, false, NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_foreach, (NULL, NULL, false, NULL, NULL));
+		}
 	;
 
 keyword_while:
 	  K_WHILE
-	  	{ $$ = NEW(AST_while, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_while, (NULL, NULL));
+		}
 	;
 
 keyword_do:
 	  K_DO
-	  	{ $$ = NEW(AST_do, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_do, (NULL, NULL));
+		}
 	;
 
 keyword_for:
 	  K_FOR
-	  	{ $$ = NEW(AST_for, (NULL, NULL, NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_for, (NULL, NULL, NULL, NULL));
+		}
 	;
 
 keyword_switch:
 	  K_SWITCH
-	  	{ $$ = NEW(AST_switch, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_switch, (NULL, NULL));
+		}
 	;
 
 keyword_declare:
 	  K_DECLARE
-	  	{ $$ = NEW(AST_declare, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_declare, (NULL, NULL));
+		}
 	;
 
 keyword_try:
 	  K_TRY
-	  	{ $$ = NEW(AST_try, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_try, (NULL, NULL));
+		}
 	;
 
 keyword_catch:
 	  K_CATCH
-	  	{ $$ = NEW(AST_catch, (NULL, NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_catch, (NULL, NULL, NULL));
+		}
 	;
 
 keyword_function:
 	  K_FUNCTION
-	    { $$ = NEW(AST_method, (NULL, NULL)); }
+	    {
+			$$ = NEW(AST_method, (NULL, NULL));
+		}
 	;
 
 keyword_case:
 	  K_CASE
-	  	{ $$ = NEW(AST_switch_case, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_switch_case, (NULL, NULL));
+		}
 	;
 
 keyword_default:
 	  K_DEFAULT
-	  	{ $$ = NEW(AST_switch_case, (NULL, NULL)); }
+	  	{
+			$$ = NEW(AST_switch_case, (NULL, NULL));
+		}
 	;
 
 
@@ -658,22 +602,16 @@ unticked_statement:
 		}
 	| keyword_if '(' expr ')' statement elseif_list else_single
 		{
-			CAST_AST(new_if, $1, AST_if);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_STATEMENT_VECTOR(iftrue, $5);
-			CAST_AST(elseif, $6, AST_if);
-			CAST_STATEMENT_VECTOR(iffalse, $7);
+			$1->expr = $3;
+			$1->iftrue = $5;
 			
-			new_if->expr = expr;
-			new_if->iftrue = iftrue;
-			
-			if(elseif)
+			if($6)
 			{
 				List<AST_statement*>* new_false = new List<AST_statement*>;
-				new_false->push_back(elseif);
+				new_false->push_back($6);
 				
 				/* 
-				 * Nest the elseif part
+				 * Nest the $6 part
 				 *
 				 * We must add it to the most deeply nested if we can find
 				 * Note that _if_ any of the nested ifs (elseifs) has a false
@@ -682,135 +620,108 @@ unticked_statement:
 				 *
 				 * This is similar to the code in elseif_list. 
 				 */ 
-				while(!elseif->iffalse->empty())
-					elseif = dynamic_cast<AST_if*>(elseif->iffalse->front());
-				elseif->iffalse = iffalse;
+				while(!$6->iffalse->empty())
+					$6 = dynamic_cast<AST_if*>($6->iffalse->front());
+				$6->iffalse = $7;
 				
-				new_if->iffalse = new_false;
+				$1->iffalse = new_false;
 			}
 			else
 			{
-				new_if->iffalse = iffalse;
+				$1->iffalse = $7;
 			}
 
-			$$ = new_if;
+			$$ = wrap($1);
 		}
 	| keyword_if '(' expr ')' ':' inner_statement_list new_elseif_list new_else_single K_ENDIF ';'
 		{
 			// Duplication of logic above for K_IF.
-			CAST_AST(new_if, $1, AST_if);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_STATEMENT_VECTOR(iftrue, $6);
-			CAST_AST(elseif, $7, AST_if);
-			CAST_STATEMENT_VECTOR(iffalse, $8);
 			
-			new_if->expr = expr;
-			new_if->iftrue = iftrue;
+			$1->expr = $3;
+			$1->iftrue = $6;
 		
-			if(elseif)
+			if($7)
 			{
 				List<AST_statement*>* new_false = new List<AST_statement*>;
-				new_false->push_back(elseif);
+				new_false->push_back($7);
 
-				while(!elseif->iffalse->empty())
-					elseif = dynamic_cast<AST_if*>(elseif->iffalse->front());
-				elseif->iffalse = iffalse;
+				while(!$7->iffalse->empty())
+					$7 = dynamic_cast<AST_if*>($7->iffalse->front());
+				$7->iffalse = $8;
 				
-				new_if->iffalse = new_false;	
+				$1->iffalse = new_false;	
 			}
 			else
 			{
-				new_if->iffalse = iffalse;
+				$1->iffalse = $8;
 			}
 	
-			$$ = new_if;
+			$$ = wrap($1);
 		}
 	| keyword_while '(' expr ')' while_statement
 		{
-			CAST_AST(new_while, $1, AST_while);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(body, $5, List<AST_statement*>);
+			$1->expr = $3;
+			$1->statements = $5;
 
-			new_while->expr = expr;
-			new_while->statements = body;
-
-			$$ = new_while;
+			$$ = wrap($1);
 		}
 	| keyword_do statement K_WHILE '(' expr ')' ';'
 		{
-			CAST_AST(new_do, $1, AST_do);
-			CAST_STATEMENT_VECTOR(body, $2);
-			CAST_AST(expr, $5, AST_expr);
+			$1->statements = $2;
+			$1->expr = $5;
 			
-			new_do->statements = body;
-			new_do->expr = expr;
-			
-			$$ = new_do;
+			$$ = wrap($1);
 		}
 	| keyword_for '(' for_expr ';' for_expr ';' for_expr ')' for_statement
 		{
-			CAST_AST(new_for, $1, AST_for);
-			CAST_AST(init, $3, AST_expr);
-			CAST_AST(cond, $5, AST_expr);
-			CAST_AST(incr, $7, AST_expr);
-			CAST_STATEMENT_VECTOR(stmts, $9);
+			$1->init = $3;
+			$1->cond = $5;
+			$1->incr = $7;
+			$1->statements = $9;
 			
-			new_for->init = init;
-			new_for->cond = cond;
-			new_for->incr = incr;
-			new_for->statements = stmts;
-			
-			$$ = new_for;
+			$$ = wrap($1);
 		}
 	| keyword_switch '(' expr ')' switch_case_list
 		{
-			CAST_AST(new_switch, $1, AST_switch);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(cases, $5, List<AST_switch_case*>);
+			$1->expr = $3;
+			$1->switch_cases = $5;
 			
-			new_switch->expr = expr;
-			new_switch->switch_cases = cases;
-			
-			$$ = new_switch;
+			$$ = wrap($1);
 		}
 	| K_BREAK ';'
-		{ $$ = NEW(AST_break, (NULL)); }
+		{
+			$$ = wrap(NEW(AST_break, (NULL)));
+		}
 	| K_BREAK expr ';'
-		{ 
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_break, (expr));
+		{
+			$$ = wrap(NEW(AST_break, ($2)));
 		}
 	| K_CONTINUE ';'
-		{ $$ = NEW(AST_continue, (NULL)); }
+		{
+			$$ = wrap(NEW(AST_continue, (NULL)));
+		}
 	| K_CONTINUE expr ';'
 		{
-			CAST_AST(expr, $2, AST_expr);
-
-			$$ = NEW(AST_continue, (expr));
+			$$ = wrap(NEW(AST_continue, ($2)));
 		}
 	| K_RETURN ';'
-		{ $$ = NEW(AST_return, (NULL)); }
+		{
+			$$ = wrap(NEW(AST_return, (NULL)));
+		}
 	| K_RETURN expr_without_variable ';'
 		{
-			CAST_AST(expr, $2, AST_expr);
-
-			$$ = NEW(AST_return, (expr));
+			$$ = wrap(NEW(AST_return, ($2)));
 		}
 	| K_RETURN variable ';'
 		{
-			CAST_AST(expr, $2, AST_expr);
-
-			$$ = NEW(AST_return, (expr));
+			$$ = wrap(NEW(AST_return, ($2)));
 		}
 	| K_GLOBAL global_var_list ';'
 		{
-			CAST_AST(list, $2, List<AST_variable_name*>);
-		
 			List<AST_statement*>* globals = new List<AST_statement*>;
 			List<AST_variable_name*>::const_iterator i;
 			
-			for(i = list->begin(); i != list->end(); i++)
+			for(i = $2->begin(); i != $2->end(); i++)
 			{
 				AST_variable* gv = NEW(AST_variable, (*i)); // global var
 				gv->target = NEW(Token_class_name, (new String("%MAIN%")));
@@ -824,151 +735,130 @@ unticked_statement:
 			$$ = globals;
 		}
 	| K_STATIC static_var_list ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	| K_ECHO echo_expr_list ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	| INLINE_HTML
 		{
-			CAST_AST(str, $1, String);
-			Token_string* scalar = NEW(Token_string, (str, str));
+			Token_string* scalar = NEW(Token_string, ($1, $1));
 			AST_expr* fn = NEW(AST_method_invocation, ("echo", scalar));
 	
-			$$ = NEW(AST_eval_expr, (fn));
+			$$ = wrap(NEW(AST_eval_expr, (fn)));
 		}
 	| expr ';'
-		{ 
-			CAST_AST(expr, $1, AST_expr);
-			
-			$$ = NEW(AST_eval_expr, (expr));
+		{
+			$$ = wrap(NEW(AST_eval_expr, ($1)));
 		}
 	| K_USE use_filename ';'
 		{
-			CAST_AST(expr, $2, Token_string); 
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("use", expr));
+			AST_method_invocation* fn = NEW(AST_method_invocation, ("use", $2));
 			
-			$$ = NEW(AST_eval_expr, (fn));
+			$$ = wrap(NEW(AST_eval_expr, (fn)));
 		}
 	| K_UNSET '(' unset_variables ')' ';'
 		{
-			CAST_AST(vars, $3, List<AST_variable*>);
 			List<AST_statement*>* statements = new List<AST_statement*>;
 			List<AST_variable*>::const_iterator i;
 			
-			for(i = vars->begin(); i != vars->end(); i++)
+			for(i = $3->begin(); i != $3->end(); i++)
 				statements->push_back(NEW(AST_unset, (*i)));
 
 			$$ = statements;
 		}
 	| keyword_foreach '(' variable K_AS foreach_variable foreach_optional_arg ')' foreach_statement
 		{
-			CAST_AST(new_foreach, $1, AST_foreach);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(var1, $5, AST_variable);
-			CAST_AST(var2, $6, AST_variable);
-			CAST_STATEMENT_VECTOR(body, $8);
+			$1->expr = $3;
+			$1->statements = $8;
 	
-			new_foreach->expr = expr;
-			new_foreach->statements = body;
-	
-			if(var2)
+			if($6)
 			{
-				if(var1->attrs->is_true("phc.parser.is_ref"))
+				if($5->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, var1->get_filename(), var1->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, $5->get_filename(), $5->get_line_number());
 				}
 			
-				new_foreach->key = var1;
-				new_foreach->is_ref = var2->attrs->is_true("phc.parser.is_ref");
-				new_foreach->val = var2;
+				$1->key = $5;
+				$1->is_ref = $6->attrs->is_true("phc.parser.is_ref");
+				$1->val = $6;
 			}
 			else
 			{
-				new_foreach->key = NULL;
-				new_foreach->is_ref = var1->attrs->is_true("phc.parser.is_ref");
-				new_foreach->val = var1;
+				$1->key = NULL;
+				$1->is_ref = $5->attrs->is_true("phc.parser.is_ref");
+				$1->val = $5;
 			}
 
-			$$ = new_foreach;
+			$$ = wrap($1);
 		}
 	| keyword_foreach '(' expr_without_variable K_AS w_variable foreach_optional_arg ')' foreach_statement
 		{ 
 			// Duplication of the logic in the previous rule
-			CAST_AST(new_foreach, $1, AST_foreach);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(var1, $5, AST_variable);
-			CAST_AST(var2, $6, AST_variable);
-			CAST_STATEMENT_VECTOR(body, $8);
+			$1->expr = $3;
+			$1->statements = $8;
 	
-			new_foreach->expr = expr;
-			new_foreach->statements = body;
-	
-			if(var2)
+			if($6)
 			{
-				if(var1->attrs->is_true("phc.parser.is_ref"))
+				if($5->attrs->is_true("phc.parser.is_ref"))
 				{
-					phc_error(ERR_FOREACH_KEY_REF, var1->get_filename(), var1->get_line_number());
+					phc_error(ERR_FOREACH_KEY_REF, $5->get_filename(), $5->get_line_number());
 				}
 			
-				new_foreach->key = var1;
-				new_foreach->is_ref = var2->attrs->is_true("phc.parser.is_ref");
-				new_foreach->val = var2;
+				$1->key = expect_variable($5);
+				$1->is_ref = $6->attrs->is_true("phc.parser.is_ref");
+				$1->val = $6;
 			}
 			else
 			{
-				new_foreach->key = NULL;
-				new_foreach->is_ref = var1->attrs->is_true("phc.parser.is_ref");
-				new_foreach->val = var1;
+				$1->key = NULL;
+				$1->is_ref = $5->attrs->is_true("phc.parser.is_ref");
+				$1->val = expect_variable($5);
 			}
 
-			$$ = new_foreach;
+			$$ = wrap($1);
 		}
 	| keyword_declare '(' declare_list ')' declare_statement	
 		{
-			CAST_AST(new_declare, $1, AST_declare);
-			CAST_AST(directives, $3, List<AST_directive*>);
-			CAST_STATEMENT_VECTOR(statements, $5);
+			$1->directives = $3;
+			$1->statements = $5;
 
-			new_declare->directives = directives;
-			new_declare->statements = statements;
-
-			$$ = new_declare;
+			$$ = wrap($1);
 		}
 	| ';'
-		{ $$ = NULL; }
+		{
+			$$ = new List<AST_statement*>;
+		}
 	| keyword_try block keyword_catch '(' fully_qualified_class_name VARIABLE ')' block additional_catches
 		{ 
-			CAST_AST(new_try, $1, AST_try);
-			CAST_STATEMENT_VECTOR(try_stat, $2);
-			CAST_AST(new_catch, $3, AST_catch);
-			CAST_AST(class_name, $5, Token_class_name);
-			CAST_STR(var, $6, Token_variable_name);
-			CAST_STATEMENT_VECTOR(catch_stat, $8);
-			CAST_AST(additional_catches, $9, List<AST_catch*>);
+			Token_variable_name* var = new Token_variable_name($6);
 			
-			new_catch->class_name = class_name;
-			new_catch->variable_name = var;
-			new_catch->statements = catch_stat;
+			$3->class_name = $5;
+			$3->variable_name = var;
+			$3->statements = $8;
 
 			List<AST_catch*>* all_catches = new List<AST_catch*>;
-			all_catches->push_back(new_catch);
-			all_catches->push_back_all(additional_catches);
+			all_catches->push_back($3);
+			all_catches->push_back_all($9);
 		
-			new_try->statements = try_stat;
-			new_try->catches = all_catches;
+			$1->statements = $2;
+			$1->catches = all_catches;
 		
-			$$ = new_try;
+			$$ = wrap($1);
 		}
 	| K_THROW expr ';'
 		{
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_throw, (expr)); 
+			$$ = wrap(NEW(AST_throw, ($2))); 
 		}
 	;
 
 additional_catches:
 	  non_empty_additional_catches
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| /* empty */
 		{
 			List<AST_catch*>* catches = new List<AST_catch*>;
@@ -978,147 +868,124 @@ additional_catches:
 
 non_empty_additional_catches:
 	  additional_catch
-		{ 
-			CAST_AST(c, $1, AST_catch);
-			
+		{
 			List<AST_catch*>* catches = new List<AST_catch*>;
-			catches->push_back(c);
+			catches->push_back($1);
 			
 			$$ = catches;
 		}
 	| non_empty_additional_catches additional_catch
 		{
-			CAST_AST(catches, $1, List<AST_catch*>);
-			CAST_AST(c, $2, AST_catch);
+			$1->push_back($2);
 			
-			catches->push_back(c);
-			
-			$$ = catches; 
+			$$ = $1; 
 		}
 	;
 
 additional_catch:
 	  keyword_catch '(' fully_qualified_class_name VARIABLE ')' block 
 		{
-			CAST_AST(new_catch, $1, AST_catch);
-			CAST_AST(class_name, $3, Token_class_name);
-			CAST_STR(var, $4, Token_variable_name);
-			CAST_STATEMENT_VECTOR(stat, $6);
+			Token_variable_name* var = new Token_variable_name($4);
 			
-			new_catch->class_name = class_name;
-			new_catch->variable_name = var;
-			new_catch->statements = stat;
+			$1->class_name = $3;
+			$1->variable_name = var;
+			$1->statements = $6;
 			
-			$$ = new_catch; 
+			$$ = $1; 
 		}
 	;
 
 unset_variables:
 	  unset_variable
-		{ 
-			CAST_AST(var, $1, AST_variable);
-
+		{
 			List<AST_variable*>* vars = new List<AST_variable*>;
-			vars->push_back(var);
+			vars->push_back($1);
 			$$ = vars;
 		}
 	| unset_variables ',' unset_variable
-		{ 
-			CAST_AST(vars, $1, List<AST_variable*>);
-			CAST_AST(var, $3, AST_variable);
-		
-			vars->push_back(var);
-			$$ = vars; 
+		{
+			$1->push_back($3);
+			$$ = $1; 
 		}
 	;
 
 unset_variable:
 	  variable
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			$$ = var;
+			$$ = expect_variable($1);
 		}
 	;
 
 use_filename:
 	  STRING
 	  	{
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_string, (str, str));
+			$$ = NEW(Token_string, ($1, $1));
 		}
 	| '(' STRING ')'
 	  	{
-			CAST_AST(str, $2, String);
-			$$ = NEW(Token_string, (str, str))
+			$$ = NEW(Token_string, ($2, $2))
 		}
 	;
 
 function_declaration_statement:
 	  unticked_function_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 class_declaration_statement:
 	  unticked_class_declaration_statement
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 is_reference:
 	  /* empty */
-		{ $$ = new Integer(0); }
+		{
+			$$ = new Integer(0);
+		}
 	| '&'
-		{ $$ = new Integer(1); }
+		{
+			$$ = new Integer(1);
+		}
 	;
 
 unticked_function_declaration_statement:
 	  keyword_function is_reference IDENT {context->current_method = dynamic_cast<String*>($3);} '(' parameter_list ')' block
 		{
-			CAST_AST(fn, $1, AST_method);
-			CAST_AST(is_ref, $2, Integer);
-			CAST_STR(name, $3, Token_method_name);
-			CAST_AST(params, $6, List<AST_formal_parameter*>); 
-			CAST_AST(body, $8, List<AST_statement*>);
+			Token_method_name* name = new Token_method_name($3);
 		
-			AST_signature* signature = NEW(AST_signature, (new AST_method_mod(), is_ref->value(), name, params));
-			fn->signature = signature;
-			fn->statements = body;
+			AST_signature* signature = NEW(AST_signature, (new AST_method_mod(), $2->value(), name, $6));
+			$1->signature = signature;
+			$1->statements = $8;
 
-			$$ = fn;
+			$$ = $1;
 		}
 	;
 
-/*
- * Synthesises an AST_class_def or an AST_interface_def
- */
 unticked_class_declaration_statement:
 	  class_entry_type IDENT {context->current_class = dynamic_cast<String*>($2);} extends_from implements_list '{' class_statement_list '}'
 		{ 
-			CAST_AST(new_class, $1, AST_class_def);
-			CAST_STR(name, $2, Token_class_name);
-			CAST_AST(extends, $4, Token_class_name);
-			CAST_AST(implements, $5, List<Token_interface_name*>);
-			CAST_AST(members, $7, List<AST_member*>);
+			Token_class_name* name = new Token_class_name($2);
 
-			new_class->class_name = name;
-			new_class->extends = extends;
-			new_class->implements = implements;
-			new_class->members = members;
+			$1->class_name = name;
+			$1->extends = $4;
+			$1->implements = $5;
+			$1->members = $7;
 
-			$$ = new_class;
+			$$ = $1;
 		}
 	| interface_entry IDENT interface_extends_list '{' class_statement_list '}'
 		{
-			CAST_AST(idef, $1, AST_interface_def);
-			CAST_STR(name, $2, Token_interface_name);
-			CAST_AST(extends, $3, List<Token_interface_name*>);
-			CAST_AST(members, $5, List<AST_member*>);
+			Token_interface_name* name = new Token_interface_name($2);
 
-			idef->interface_name = name;
-			idef->extends = extends;
-			idef->members = members;
+			$1->interface_name = name;
+			$1->extends = $3;
+			$1->members = $5;
 			
-			$$ = idef;
+			$$ = $1;
 		}
 	;
 
@@ -1152,21 +1019,31 @@ class_entry_type:
 
 extends_from:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| K_EXTENDS fully_qualified_class_name 
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 interface_entry:
 	  K_INTERFACE
-		{ $$ = NEW(AST_interface_def, (NULL, NULL, NULL)); }
+		{
+			$$ = NEW(AST_interface_def, (NULL, NULL, NULL));
+		}
 	;
 
 interface_extends_list:
 	  /* empty */
-		{ $$ = new List<Token_interface_name*>; }
+		{
+			$$ = new List<Token_interface_name*>;
+		}
 	| K_EXTENDS interface_list
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 /* 
@@ -1174,17 +1051,19 @@ interface_extends_list:
  */
 implements_list:
 	  /* empty */
-		{ $$ = new List<Token_interface_name*>; }
+		{
+			$$ = new List<Token_interface_name*>;
+		}
 	| K_IMPLEMENTS interface_list
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 interface_list:
 	  fully_qualified_class_name
 		{
-			CAST_AST(class_name, $1, Token_class_name);
-
-			Token_interface_name* ifn = NEW(Token_interface_name, (class_name->value));
+			Token_interface_name* ifn = NEW(Token_interface_name, ($1->value));
 		
 			List<Token_interface_name*>* names;
 			names = new List<Token_interface_name*>;
@@ -1194,133 +1073,131 @@ interface_list:
 		}
 	| interface_list ',' fully_qualified_class_name
 		{
-			CAST_AST(names, $1, List<Token_interface_name*>);
-			CAST_AST(class_name, $3, Token_class_name);
+			Token_interface_name* ifn = NEW(Token_interface_name, ($3->value));
+			$1->push_back(ifn);
 			
-			Token_interface_name* ifn = NEW(Token_interface_name, (class_name->value));
-			names->push_back(ifn);
-			
-			$$ = names;
+			$$ = $1;
 		}
 	;
 
 foreach_optional_arg:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| O_DOUBLEARROW foreach_variable
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 foreach_variable:
 	  w_variable
-		{ 
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			$$ = var;
+		{
+			$$ = expect_variable($1);
 		}
 	| '&' w_variable
 		{ 
-			CAST_UNSAFE(var, $2, AST_variable);
-			EXPECT_VARIABLE($2);
-			var->attrs->set("phc.parser.is_ref", new Boolean(true));
-			$$ = var; 
+			$2->attrs->set("phc.parser.is_ref", new Boolean(true));
+			$$ = expect_variable($2); 
 		}
 	;
 
-/*
- * Synthesises an AST_statement or List<AST_statement*>
- */
 for_statement:
 	  statement
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| ':' inner_statement_list K_ENDFOR ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
-/*
- * Synthesises an AST_statement* or List<AST_statement*> 
- */
 foreach_statement:
 	  statement
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| ':' inner_statement_list K_ENDFOREACH ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
-/*
- * Synthesises an AST_statement* or List<AST_statement*>
- */
 declare_statement:
 	  statement
-	  	{ $$ = $1; }
+	  	{
+			$$ = $1;
+		}
 	| ':' inner_statement_list K_ENDDECLARE ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 declare_list:
 	  IDENT '=' static_scalar
 	  	{
-			CAST_STR(name, $1, Token_directive_name);
-			CAST_AST(value, $3, AST_expr);
+			Token_directive_name* name = new Token_directive_name($1);
 
 			List<AST_directive*>* dirs = new List<AST_directive*>;
-			AST_directive* dir = NEW(AST_directive, (name, value));
+			AST_directive* dir = NEW(AST_directive, (name, $3));
 			
 			dirs->push_back(dir);
 			$$ = dirs;
 		}
 	| declare_list ',' IDENT '=' static_scalar
 		{
-			CAST_AST(dirs, $1, List<AST_directive*>);
-			CAST_STR(name, $3, Token_directive_name);	
-			CAST_AST(value, $5, AST_expr);
+			Token_directive_name* name = new Token_directive_name($3);	
 			
-			AST_directive* dir = NEW(AST_directive, (name, value));
-			dirs->push_back(dir);
-			$$ = dirs;
+			AST_directive* dir = NEW(AST_directive, (name, $5));
+			$1->push_back(dir);
+			$$ = $1;
 		}
 	;	  
 
 switch_case_list:
 	  '{' case_list '}'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	| '{' ';' case_list '}'
-		{ $$ = $3; }
+		{
+			$$ = $3;
+		}
 	| ':' case_list K_ENDSWITCH ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	| ':' ';' case_list K_ENDSWITCH ';'
-		{ $$ = $3; }
+		{
+			$$ = $3;
+		}
 	;
 
 case_list:
 	  /* empty */
-		{ $$ = new List<AST_switch_case*>; }
+		{
+			$$ = new List<AST_switch_case*>;
+		}
 	| case_list keyword_case expr case_separator inner_statement_list
 		{
-			CAST_AST(cases, $1, List<AST_switch_case*>);
-			CAST_AST(switch_case, $2, AST_switch_case);	
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(body, $5, List<AST_statement*>);
+			$2->statements = $5;
+			$2->expr = $3;
 			
-			switch_case->statements = body;
-			switch_case->expr = expr;
+			$1->push_back($2);
 			
-			cases->push_back(switch_case);
-			
-			$$ = cases;
+			$$ = $1;
 		}
 	| case_list keyword_default case_separator inner_statement_list
 		{
-			CAST_AST(cases, $1, List<AST_switch_case*>);
-			CAST_AST(switch_case, $2, AST_switch_case);
-			CAST_AST(body, $4, List<AST_statement*>);
-
-			switch_case->statements = body;
-			switch_case->expr = NULL;
+			$2->statements = $4;
+			$2->expr = NULL;
 			
-			cases->push_back(switch_case);
+			$1->push_back($2);
 			
-			$$ = cases;
+			$$ = $1;
 		}
 	;
 
@@ -1329,61 +1206,53 @@ case_list:
  */
 case_separator:
 	  ':'
-		{ $$ = NULL; }
 	| ';'
-		{ $$ = NULL; }
 	;
 	
-/*
- * Synthesises a List<AST_statement*> or AST_statement*
- */
 while_statement:
 	  statement
 		{
-			CAST_STATEMENT_VECTOR(body, $1);
-			
-			$$ = body;
+			$$ = $1;
 		}
 	| ':' inner_statement_list K_ENDWHILE ';'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 elseif_list:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| elseif_list keyword_elseif '(' expr ')' statement
 		{
-			CAST_AST(elseif, $1, AST_if);
-			CAST_AST(nested_if, $2, AST_if);
-			CAST_AST(expr, $4, AST_expr);
-			CAST_STATEMENT_VECTOR(stat, $6);
-			
 			List<AST_statement*>* empty = new List<AST_statement*>;
 			
-			nested_if->expr = expr;
-			nested_if->iftrue = stat;
-			nested_if->iffalse = empty;
-			nested_if->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			$2->expr = $4;
+			$2->iftrue = $6;
+			$2->iffalse = empty;
+			$2->attrs->set("phc.unparser.is_elseif", new Boolean(true));
 
-			if(elseif)
+			if($1)
 			{
 				List<AST_statement*>* iffalse = new List<AST_statement*>;
-				iffalse->push_back(nested_if);
+				iffalse->push_back($2);
 				
 				/*
-				 * Nest the elseif.
+				 * Nest the $1.
 				 * This is similar to the code in unticked_statement for K_IF.
 				 */
-				AST_if* p = elseif;
+				AST_if* p = $1;
 				while(!p->iffalse->empty())
 					p = dynamic_cast<AST_if*>(p->iffalse->front());
 				p->iffalse = iffalse;		
 						
-				$$ = elseif;
+				$$ = $1;
 			}
 			else
 			{
-				$$ = nested_if;
+				$$ = $2;
 			}
 		}
 	;
@@ -1393,65 +1262,67 @@ elseif_list:
  */
 new_elseif_list:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| new_elseif_list keyword_elseif '(' expr ')' ':' inner_statement_list
 		{
-			CAST_AST(elseif, $1, AST_if);
-			CAST_AST(nested_if, $2, AST_if);
-			CAST_AST(expr, $4, AST_expr);
-			CAST_STATEMENT_VECTOR(stat, $7);
-			
 			List<AST_statement*>* empty = new List<AST_statement*>;
 			
-			nested_if->expr = expr;
-			nested_if->iftrue = stat;
-			nested_if->iffalse = empty;
-			nested_if->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			$2->expr = $4;
+			$2->iftrue = $7;
+			$2->iffalse = empty;
+			$2->attrs->set("phc.unparser.is_elseif", new Boolean(true));
 
-			if(elseif)
+			if($1)
 			{
 				List<AST_statement*>* iffalse = new List<AST_statement*>;
-				iffalse->push_back(nested_if);
+				iffalse->push_back($2);
 				
-				AST_if* p = elseif;
+				AST_if* p = $1;
 				while(!p->iffalse->empty())
 					p = dynamic_cast<AST_if*>(p->iffalse->front());
 				p->iffalse = iffalse;		
 						
-				$$ = elseif;
+				$$ = $1;
 			}
 			else
 			{
-				$$ = nested_if;
+				$$ = $2;
 			}
 		}
 	;
 
-/*
- * Synthesises a List<AST_statement*> or AST_statement* 
- */
 else_single:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = new List<AST_statement*>;
+		}
 	| K_ELSE statement
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 /*
- * Synthesises a List<AST_statement*> or AST_statement*
- * 
  * Mimicks else_single
  */
 new_else_single:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = new List<AST_statement*>;
+		}
 	| K_ELSE ':' inner_statement_list
-		{ $$ = $3; }
+		{
+			$$ = $3;
+		}
 	;
 
 parameter_list:
 	  non_empty_parameter_list
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| /* empty */
 		{ 
 			List<AST_formal_parameter*>* params = new List<AST_formal_parameter*>;
@@ -1465,104 +1336,90 @@ parameter_list:
 non_empty_parameter_list:
 	  optional_class_type VARIABLE
 		{ 
-			CAST_AST(class_type, $1, AST_type);
-			CAST_STR(name, $2, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($2);
 			
 			List<AST_formal_parameter*>* params;
 			
 			params = new List<AST_formal_parameter*>;
-			params->push_back(NEW(AST_formal_parameter, (class_type, name)));
+			params->push_back(NEW(AST_formal_parameter, ($1, name)));
 			
 			$$ = params; 
 		}
 	| optional_class_type '&' VARIABLE
 		{ 
-			CAST_AST(class_type, $1, AST_type);
-			CAST_STR(name, $3, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($3);
 			
 			List<AST_formal_parameter*>* params;
 			
 			params = new List<AST_formal_parameter*>;
-			params->push_back(NEW(AST_formal_parameter, (class_type, true, name)));
+			params->push_back(NEW(AST_formal_parameter, ($1, true, name)));
 			
 			$$ = params; 
 		}
 	| optional_class_type '&' VARIABLE '=' static_scalar
 		{ 
-			CAST_AST(class_type, $1, AST_type);
-			CAST_STR(name, $3, Token_variable_name);
-			CAST_AST(default_val, $5, AST_expr);
+			Token_variable_name* name = new Token_variable_name($3);
 			
 			List<AST_formal_parameter*>* params;
 			
 			params = new List<AST_formal_parameter*>;
-			params->push_back(NEW(AST_formal_parameter, (class_type, true, name, default_val)));
+			params->push_back(NEW(AST_formal_parameter, ($1, true, name, $5)));
 			
 			$$ = params; 
 		}
 	| optional_class_type VARIABLE '=' static_scalar
 		{ 
-			CAST_AST(class_type, $1, AST_type);
-			CAST_STR(name, $2, Token_variable_name);
-			CAST_AST(default_val, $4, AST_expr);
+			Token_variable_name* name = new Token_variable_name($2);
 			
 			List<AST_formal_parameter*>* params;
 			
 			params = new List<AST_formal_parameter*>;
-			params->push_back(NEW(AST_formal_parameter, (class_type, false, name, default_val)));
+			params->push_back(NEW(AST_formal_parameter, ($1, false, name, $4)));
 			
 			$$ = params; 
 		}
 	| non_empty_parameter_list ',' optional_class_type VARIABLE
 		{ 
-			CAST_AST(params, $1, List<AST_formal_parameter*>);
-			CAST_AST(class_type, $3, AST_type);
-			CAST_STR(name, $4, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($4);
 			
-			params->push_back(NEW(AST_formal_parameter, (class_type, name)));
+			$1->push_back(NEW(AST_formal_parameter, ($3, name)));
 			
-			$$ = params; 
+			$$ = $1; 
 		}
 	| non_empty_parameter_list ',' optional_class_type '&' VARIABLE
 		{ 
-			CAST_AST(params, $1, List<AST_formal_parameter*>);
-			CAST_AST(class_type, $3, AST_type);
-			CAST_STR(name, $5, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($5);
 			
-			params->push_back(NEW(AST_formal_parameter, (class_type, true, name)));
+			$1->push_back(NEW(AST_formal_parameter, ($3, true, name)));
 			
-			$$ = params; 
+			$$ = $1; 
 		}
 	| non_empty_parameter_list ',' optional_class_type '&' VARIABLE '=' static_scalar
 		{ 
-			CAST_AST(params, $1, List<AST_formal_parameter*>);
-			CAST_AST(class_type, $3, AST_type);
-			CAST_STR(name, $5, Token_variable_name);
-			CAST_AST(default_val, $7, AST_expr);
+			Token_variable_name* name = new Token_variable_name($5);
 			
-			params->push_back(NEW(AST_formal_parameter, (class_type, true, name, default_val)));
+			$1->push_back(NEW(AST_formal_parameter, ($3, true, name, $7)));
 			
-			$$ = params; 
+			$$ = $1; 
 		}
 	| non_empty_parameter_list ',' optional_class_type VARIABLE '=' static_scalar
 		{ 
-			CAST_AST(params, $1, List<AST_formal_parameter*>);
-			CAST_AST(class_type, $3, AST_type);
-			CAST_STR(name, $4, Token_variable_name);
-			CAST_AST(default_val, $6, AST_expr);
+			Token_variable_name* name = new Token_variable_name($4);
 			
-			params->push_back(NEW(AST_formal_parameter, (class_type, false, name, default_val)));
+			$1->push_back(NEW(AST_formal_parameter, ($3, false, name, $6)));
 			
-			$$ = params; 
+			$$ = $1; 
 		}
 	;
 
 optional_class_type:
 	  /* empty */
-		{ $$ = NEW(AST_type, (false, NULL)); }
+		{
+			$$ = NEW(AST_type, (false, NULL));
+		}
 	| IDENT
 		{ 
-			CAST_STR(class_name, $1, Token_class_name);
+			Token_class_name* class_name = new Token_class_name($1);
 			$$ = NEW(AST_type, (false, class_name)); 
 		}
 	| K_ARRAY
@@ -1573,77 +1430,61 @@ optional_class_type:
 
 function_call_parameter_list:
 	  non_empty_function_call_parameter_list
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| /* empty */
-		{ $$ = new List<AST_actual_parameter*>; }
+		{
+			$$ = new List<AST_actual_parameter*>;
+		}
 	;
 
 non_empty_function_call_parameter_list:
 	  expr_without_variable
 		{
-			CAST_AST(arg, $1, AST_expr);
-			
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
-			list->push_back(NEW(AST_actual_parameter, (false, arg)));
+			list->push_back(NEW(AST_actual_parameter, (false, $1)));
 			$$ = list;
 		}
 	| variable
 		{
-			CAST_AST(arg, $1, AST_expr);
-			
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
-			list->push_back(NEW(AST_actual_parameter, (false, arg)));
+			list->push_back(NEW(AST_actual_parameter, (false, $1)));
 			$$ = list;
 		}
 	| '&' w_variable
 		{
-			CAST_AST(expr, $2, AST_expr);
-			
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
-			list->push_back(NEW(AST_actual_parameter, (true, expr)));
+			list->push_back(NEW(AST_actual_parameter, (true, $2)));
 			$$ = list; 
 		}
 	| non_empty_function_call_parameter_list ',' expr_without_variable
 		{
-			CAST_AST(list, $1, List<AST_actual_parameter*>);
-			CAST_AST(arg, $3, AST_expr);
-			
-			list->push_back(NEW(AST_actual_parameter, (false, arg)));
-			$$ = list;
+			$1->push_back(NEW(AST_actual_parameter, (false, $3)));
+			$$ = $1;
 		}
 	| non_empty_function_call_parameter_list ',' variable
 		{
-			CAST_AST(list, $1, List<AST_actual_parameter*>);
-			CAST_AST(arg, $3, AST_expr);
-			
-			list->push_back(NEW(AST_actual_parameter, (false, arg)));
-			$$ = list;
+			$1->push_back(NEW(AST_actual_parameter, (false, $3)));
+			$$ = $1;
 		}
 	| non_empty_function_call_parameter_list ',' '&' w_variable
-		{ 
-			CAST_AST(list, $1, List<AST_actual_parameter*>);
-			CAST_AST(arg, $4, AST_expr);
-			
-			list->push_back(NEW(AST_actual_parameter, (true, arg)));
-			$$ = list; 
+		{
+			$1->push_back(NEW(AST_actual_parameter, (true, $4)));
+			$$ = $1; 
 		}
 	;
 
 global_var_list:
 	  global_var_list ',' global_var
 		{
-			CAST_AST(list, $1, List<AST_variable_name*>);
-			CAST_AST(var_name, $3, AST_variable_name);
-
-			list->push_back(var_name);
-			$$ = list;
+			$1->push_back($3);
+			$$ = $1;
 		}
 	| global_var
 		{
-			CAST_AST(var_name, $1, AST_variable_name);
-			
 			List<AST_variable_name*>* list = new List<AST_variable_name*>;
-			list->push_back(var_name);
+			list->push_back($1);
 			
 			$$ = list;
 		}
@@ -1652,47 +1493,42 @@ global_var_list:
 global_var:
 	  VARIABLE
 		{
-			CAST_STR(var, $1, Token_variable_name);
+			Token_variable_name* var = new Token_variable_name($1);
 			$$ = var; 
 		}
 	| '$' r_variable
 		{ 
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_reflection, (expr));
+			$$ = NEW(AST_reflection, ($2));
 		}
 	| '$' '{' expr '}'
 		{ 
-			CAST_AST(expr, $3, AST_expr);
-			expr->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
-			$$ = NEW(AST_reflection, (expr));
+			$3->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$$ = NEW(AST_reflection, ($3));
 		}
 	; 
 
 static_var_list: 
 	  static_var_list ',' VARIABLE
 		{
-			CAST_AST(list, $1, List<AST_statement*>);
-			CAST_STR(name, $3, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($3);
 			
 			AST_static_declaration* v = NEW(AST_static_declaration, (name, NULL));
-			list->push_back(v);
+			$1->push_back(v);
 			
-			$$ = list;
+			$$ = $1;
 		}
 	| static_var_list ',' VARIABLE '=' static_scalar
 		{
-			CAST_AST(list, $1, List<AST_statement*>);
-			CAST_STR(name, $3, Token_variable_name);
-			CAST_AST(value, $5, AST_expr);
+			Token_variable_name* name = new Token_variable_name($3);
 
-			AST_static_declaration* v = NEW(AST_static_declaration, (name, value));
-			list->push_back(v);
+			AST_static_declaration* v = NEW(AST_static_declaration, (name, $5));
+			$1->push_back(v);
 			
-			$$ = list;
+			$$ = $1;
 		}
 	| VARIABLE
 		{
-			CAST_STR(name, $1, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($1);
 			
 			List<AST_statement*>* list = new List<AST_statement*>;
 			AST_static_declaration* v = NEW(AST_static_declaration, (name, NULL));
@@ -1702,11 +1538,10 @@ static_var_list:
 		}
 	| VARIABLE '=' static_scalar
 		{
-			CAST_STR(name, $1, Token_variable_name);
-			CAST_AST(value, $3, AST_expr);
+			Token_variable_name* name = new Token_variable_name($1);
 			
 			List<AST_statement*>* list = new List<AST_statement*>;
-			AST_static_declaration* v = NEW(AST_static_declaration, (name, value));
+			AST_static_declaration* v = NEW(AST_static_declaration, (name, $3));
 			list->push_back(v);
 
 			$$ = list;
@@ -1716,12 +1551,9 @@ static_var_list:
 class_statement_list:
 	 	class_statement_list class_statement
 		{
-			CAST_AST(member_list, $1, List<AST_member*>);		
-			CAST_AST(members, $2, List<AST_member*>);
+			$1->push_back_all($2);
 			
-			member_list->push_back_all(members);
-			
-			$$ = member_list;			
+			$$ = $1;			
 		}
 	| /* empty */
 		{
@@ -1732,43 +1564,35 @@ class_statement_list:
 class_statement:
 	  variable_modifiers class_variable_declaration ';'
 		{
-			CAST_AST(modifiers, $1, AST_attr_mod);
-			CAST_AST(members, $2, List<AST_member*>);	
-
 			List<AST_member*>::iterator i;
-			for(i = members->begin(); i != members->end(); i++)
+			for(i = $2->begin(); i != $2->end(); i++)
 			{
-				CAST_AST(attribute, *i, AST_attribute);
-				attribute->attr_mod = modifiers->clone();
+				AST_attribute* attribute = dynamic_cast<AST_attribute*>(*i);
+				assert(attribute != NULL);
+				attribute->attr_mod = $1->clone();
 			}
 
-			$$ = members;
+			$$ = $2;
 		}
 	| class_constant_declaration ';'
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| method_modifiers keyword_function is_reference IDENT {context->current_method = dynamic_cast<String*>($4);} '(' parameter_list ')' method_body
 		{
-			CAST_AST(mod, $1, AST_method_mod);
-			CAST_AST(fn, $2, AST_method);
-			CAST_AST(is_ref, $3, Integer);
-			CAST_STR(name, $4, Token_method_name);
-			CAST_AST(params, $7, List<AST_formal_parameter*>);
-			CAST_AST(body, $9, List<AST_statement*>);
+			Token_method_name* name = new Token_method_name($4);
 		
-			AST_signature* signature = NEW(AST_signature, (mod, is_ref->value(), name, params));
+			AST_signature* signature = NEW(AST_signature, ($1, $3->value(), name, $7));
 			
 			List<AST_member*>* members = new List<AST_member*>;
-			fn->signature = signature;
-			fn->statements = body;
-			members->push_back(fn);
+			$2->signature = signature;
+			$2->statements = $9;
+			members->push_back($2);
 			
 			$$ = members;
 		}
 	;
 
-/*
- * Synthesises an AST_statement_list* or AST_statement* 
- */
 method_body:
 	  ';' 
 		{
@@ -1784,78 +1608,90 @@ method_body:
 variable_modifiers:
 	  non_empty_member_modifiers
 		{
-			CAST_AST(method_mod, $1, AST_method_mod);
-			
-			if(method_mod->is_abstract)
+			if($1->is_abstract)
 			{
-				phc_error(ERR_ABSTRACT_VARS, method_mod->get_filename(), method_mod->get_line_number());
+				phc_error(ERR_ABSTRACT_VARS, $1->get_filename(), $1->get_line_number());
 			}
 
-			$$ = NEW(AST_attr_mod, (method_mod)); 
+			$$ = NEW(AST_attr_mod, ($1)); 
 		}
 	| K_VAR
-		{ $$ = NEW(AST_attr_mod, (false, false, false, false, false)); }
+		{
+			$$ = NEW(AST_attr_mod, (false, false, false, false, false));
+		}
 	;
 
 method_modifiers:
 	  /* empty */
-		{ $$ = new AST_method_mod(); }
+		{
+			$$ = new AST_method_mod();
+		}
 	| non_empty_member_modifiers
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 non_empty_member_modifiers:
 	  member_modifier
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| non_empty_member_modifiers member_modifier
 		{
-			CAST_AST(i, $1, AST_method_mod);
-			CAST_AST(j, $2, AST_method_mod);
-		
-			$$ = NEW(AST_method_mod, (i, j)); 
+			$$ = NEW(AST_method_mod, ($1, $2)); 
 		}
 	;
 
 member_modifier:
 	  K_PUBLIC
-		{ $$ = AST_method_mod::new_PUBLIC(); }
+		{
+			$$ = AST_method_mod::new_PUBLIC();
+		}
 	| K_PROTECTED
-		{ $$ = AST_method_mod::new_PROTECTED(); }
+		{
+			$$ = AST_method_mod::new_PROTECTED();
+		}
 	| K_PRIVATE
-		{ $$ = AST_method_mod::new_PRIVATE(); }
+		{
+			$$ = AST_method_mod::new_PRIVATE();
+		}
 	| K_STATIC
-		{ $$ = AST_method_mod::new_STATIC(); }
+		{
+			$$ = AST_method_mod::new_STATIC();
+		}
 	| K_ABSTRACT
-		{ $$ = AST_method_mod::new_ABSTRACT(); }
+		{
+			$$ = AST_method_mod::new_ABSTRACT();
+		}
 	| K_FINAL
-		{ $$ = AST_method_mod::new_FINAL(); }
+		{
+			$$ = AST_method_mod::new_FINAL();
+		}
 	;
 
 class_variable_declaration:
 	  class_variable_declaration ',' VARIABLE
 		{
-			CAST_AST(members, $1, List<AST_member*>);
-			CAST_STR(name, $3, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($3);
 			
 			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));
-			members->push_back(attr);
+			$1->push_back(attr);
 			
-			$$ = members;
+			$$ = $1;
 		}
 	| class_variable_declaration ',' VARIABLE '=' static_scalar
 		{
-			CAST_AST(members, $1, List<AST_member*>);
-			CAST_STR(name, $3, Token_variable_name);
-			CAST_AST(value, $5, AST_expr);
+			Token_variable_name* name = new Token_variable_name($3);
 			
-			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
-			members->push_back(attr);
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, $5));
+			$1->push_back(attr);
 
-			$$ = members;			
+			$$ = $1;			
 		}
 	| VARIABLE
 		{
-			CAST_STR(name, $1, Token_variable_name);
+			Token_variable_name* name = new Token_variable_name($1);
 			List<AST_member*>* members = new List<AST_member*>;
 
 			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, NULL));	
@@ -1865,11 +1701,10 @@ class_variable_declaration:
 		}
 	| VARIABLE '=' static_scalar
 		{ 
-			CAST_STR(name, $1, Token_variable_name);
-			CAST_AST(value, $3, AST_expr);
+			Token_variable_name* name = new Token_variable_name($1);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (new AST_attr_mod(), name, $3));
 			members->push_back(attr);
 
 			$$ = members;
@@ -1879,22 +1714,19 @@ class_variable_declaration:
 class_constant_declaration:
 	  class_constant_declaration ',' IDENT '=' static_scalar
 		{
-			CAST_AST(members, $1, List<AST_member*>);
-			CAST_STR(name, $3, Token_variable_name);
-			CAST_AST(value, $5, AST_expr);
+			Token_variable_name* name = new Token_variable_name($3);
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_CONST(), name, value));
-			members->push_back(attr);
+			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_CONST(), name, $5));
+			$1->push_back(attr);
 			
-			$$ = members;
+			$$ = $1;
 		}
 	| K_CONST IDENT '=' static_scalar
 		{
-			CAST_STR(name, $2, Token_variable_name);
-			CAST_AST(value, $4, AST_expr);
+			Token_variable_name* name = new Token_variable_name($2);
 			List<AST_member*>* members = new List<AST_member*>;
 
-			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_CONST(), name, value));
+			AST_attribute* attr = NEW(AST_attribute, (AST_attr_mod::new_CONST(), name, $4));
 			members->push_back(attr);
 
 			$$ = members;
@@ -1907,20 +1739,16 @@ class_constant_declaration:
 echo_expr_list:
 	  echo_expr_list ',' expr
 		{
-			CAST_AST(echo_list, $1, List<AST_statement*>);
-			CAST_AST(param, $3, AST_expr);
+			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", $3));
+			$1->push_back(NEW(AST_eval_expr, (fn)));
 			
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", param));
-			echo_list->push_back(NEW(AST_eval_expr, (fn)));
-			
-			$$ = echo_list;
+			$$ = $1;
 		}
 	| expr
 		{
-			CAST_AST(param, $1, AST_expr);
 			List<AST_statement*>* echo_list = new List<AST_statement*>;
 			
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", param));
+			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", $1));
 			echo_list->push_back(NEW(AST_eval_expr, (fn)));
 			
 			$$ = echo_list;
@@ -1929,9 +1757,13 @@ echo_expr_list:
 
 for_expr:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| non_empty_for_expr
-		{ $$ = $1 }
+		{
+			$$ = $1
+		}
 	;
 
 /*
@@ -1940,297 +1772,215 @@ for_expr:
 non_empty_for_expr:
 	  non_empty_for_expr ',' expr
 		{
-			CAST_AST(a, $1, AST_expr);
-			CAST_AST(b, $3, AST_expr);
-
-			$$ = new AST_bin_op(a, b, ",");
+			$$ = new AST_bin_op($1, $3, ",");
 		}
 	| expr
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 expr_without_variable:
 	  K_LIST '(' assignment_list ')' '=' expr
-		{ 
-			CAST_AST(elements, $3, AST_list_elements);
-			CAST_AST(expr, $6, AST_expr);
-			
-			$$ = NEW(AST_list_assignment, (elements, expr));
+		{
+			$$ = NEW(AST_list_assignment, ($3, $6));
 		}
 	| variable '=' expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(value, $3, AST_expr);
-			
-			$$ = NEW(AST_assignment, (var, false, value));
+			$$ = NEW(AST_assignment, (expect_variable($1), false, $3));
 		}
 	| variable '=' '&' variable
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(value, $4, AST_expr);
-			
-			$$ = NEW(AST_assignment, (var, true, value)); 
+			$$ = NEW(AST_assignment, (expect_variable($1), true, $4));
 		}
 	| variable '=' '&' K_NEW class_name_reference ctor_arguments 
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(name, $5, AST_class_name);
-			CAST_AST(args, $6, List<AST_actual_parameter*>);
-
-			$$ = NEW(AST_assignment, (var, true, NEW(AST_new, (name, args))));
+			$$ = NEW(AST_assignment, (expect_variable($1), true, NEW(AST_new, ($5, $6))));
 		}
 	| K_NEW class_name_reference ctor_arguments
 		{
-			CAST_AST(name, $2, AST_class_name);	
-			CAST_AST(args, $3, List<AST_actual_parameter*>);
-
-			$$ = NEW(AST_new, (name, args));
+			$$ = NEW(AST_new, ($2, $3));
 		}
 	| K_CLONE expr
-		{ 
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_clone, (expr)); 
+		{
+			$$ = NEW(AST_clone, ($2)); 
 		}
 	| variable O_PLUSEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
-			
+			AST_variable* var = expect_variable($1);
+
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "+"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "+"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_MINUSEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
-			
+			AST_variable* var = expect_variable($1);
+
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "-"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "-"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_MULEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
-			
+			AST_variable* var = expect_variable($1);
+
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "*"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "*"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_DIVEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "/"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "/"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_CONCATEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "."))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "."))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_MODEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "%"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "%"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_ANDEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "&"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "&"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_OREQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "|"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "|"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_XOREQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "^"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "^"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_SLEQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, "<<"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "<<"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| variable O_SREQ expr
 		{
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			CAST_AST(expr, $3, AST_expr);
+			AST_variable* var = expect_variable($1);
 			
 			AST_expr* var_c;
 			var_c = var->clone();
 			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, expr, ">>"))));
+			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, ">>"))));
 			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
 			$$ = agn;
 		}
 	| rw_variable O_INC
 		{ 
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			$$ = NEW(AST_post_op, (var, "++"));
+			$$ = NEW(AST_post_op, (expect_variable($1), "++"));
 		}
 	| O_INC rw_variable
 		{ 
-			CAST_UNSAFE(var, $2, AST_variable);
-			EXPECT_VARIABLE($2);
-			$$ = NEW(AST_pre_op, (var, "++"));
+			$$ = NEW(AST_pre_op, (expect_variable($2), "++"));
 		}
 	| rw_variable O_DEC
 		{ 
-			CAST_UNSAFE(var, $1, AST_variable);
-			EXPECT_VARIABLE($1);
-			$$ = NEW(AST_post_op, (var, "--"));
+			$$ = NEW(AST_post_op, (expect_variable($1), "--"));
 		}
 	| O_DEC rw_variable
 		{ 
-			CAST_UNSAFE(var, $2, AST_variable);
-			EXPECT_VARIABLE($2);
-			$$ = NEW(AST_pre_op, (var, "--"));
+			$$ = NEW(AST_pre_op, (expect_variable($2), "--"));
 		}
 	| expr O_LOGICOR expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "||"));
+			$$ = NEW(AST_bin_op, ($1, $3, "||"));
 		}
 	| expr O_LOGICAND expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "&&"));
+			$$ = NEW(AST_bin_op, ($1, $3, "&&"));
 		}
 	| expr K_OR expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "or"));
+			$$ = NEW(AST_bin_op, ($1, $3, "or"));
 		}
 	| expr K_AND expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "and"));
+			$$ = NEW(AST_bin_op, ($1, $3, "and"));
 		}
 	| expr K_XOR expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "xor"));
+			$$ = NEW(AST_bin_op, ($1, $3, "xor"));
 		}
    | expr '|' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "|"));
+			$$ = NEW(AST_bin_op, ($1, $3, "|"));
 		}
    | expr '&' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "&"));
+			$$ = NEW(AST_bin_op, ($1, $3, "&"));
 		}
    | expr '^' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "^"));
+			$$ = NEW(AST_bin_op, ($1, $3, "^"));
 		}
    | expr '.' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "."));
+			$$ = NEW(AST_bin_op, ($1, $3, "."));
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "."));
+			$$ = NEW(AST_bin_op, ($1, $3, "."));
 
 			/*
 			 * Interface with the lexer: return to in-string state 
@@ -2240,52 +1990,31 @@ expr_without_variable:
 		}
    | expr '+' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "+"));
+			$$ = NEW(AST_bin_op, ($1, $3, "+"));
 		}
    | expr '-' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "-"));
+			$$ = NEW(AST_bin_op, ($1, $3, "-"));
 		}
    | expr '*' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "*"));
+			$$ = NEW(AST_bin_op, ($1, $3, "*"));
 		}
    | expr '/' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "/"));
+			$$ = NEW(AST_bin_op, ($1, $3, "/"));
 		}
    | expr '%' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "%"));
+			$$ = NEW(AST_bin_op, ($1, $3, "%"));
 		}
 	| expr O_SL expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "<<"));
+			$$ = NEW(AST_bin_op, ($1, $3, "<<"));
 		}
 	| expr O_SR expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, ">>"));
+			$$ = NEW(AST_bin_op, ($1, $3, ">>"));
 		}
    | '+' expr
 		{
@@ -2293,204 +2022,144 @@ expr_without_variable:
 			$$ = $2; 
 		}
    | '-' expr
-		{ 
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_unary_op, (expr, "-")); 
+		{
+			$$ = NEW(AST_unary_op, ($2, "-")); 
 		}
    | '!' expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_unary_op, (expr, "!")); 
+			$$ = NEW(AST_unary_op, ($2, "!")); 
 		}
    | '~' expr
-		{ 
-			CAST_AST(expr, $2, AST_expr);
-			
-			$$ = NEW(AST_unary_op, (expr, "~")); 
+		{
+			$$ = NEW(AST_unary_op, ($2, "~")); 
 		}
 	| expr O_EQEQEQ expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "==="));
+			$$ = NEW(AST_bin_op, ($1, $3, "==="));
 		}
 	| expr O_NOTEQEQ expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "!=="));
+			$$ = NEW(AST_bin_op, ($1, $3, "!=="));
 		}
 	| expr O_EQEQ expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "=="));
+			$$ = NEW(AST_bin_op, ($1, $3, "=="));
 		}
 	| expr O_NOTEQ expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "!="));
+			$$ = NEW(AST_bin_op, ($1, $3, "!="));
 		}
 	| expr '<' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "<"));
+			$$ = NEW(AST_bin_op, ($1, $3, "<"));
 		}
 	| expr O_LE expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, "<="));
+			$$ = NEW(AST_bin_op, ($1, $3, "<="));
 		}
 	| expr '>' expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, ">"));
+			$$ = NEW(AST_bin_op, ($1, $3, ">"));
 		}
 	| expr O_GE expr
 		{
-			CAST_AST(left, $1, AST_expr);
-			CAST_AST(right, $3, AST_expr);
-
-			$$ = NEW(AST_bin_op, (left, right, ">="));
+			$$ = NEW(AST_bin_op, ($1, $3, ">="));
 		}
 	| expr K_INSTANCEOF class_name_reference
 		{
-			CAST_AST(expr, $1, AST_expr);
-			CAST_AST(class_name, $3, AST_class_name);
-			
-			$$ = NEW(AST_instanceof, (expr, class_name));
+			$$ = NEW(AST_instanceof, ($1, $3));
 		}
 	| '(' expr ')'
 		{
-			CAST_AST(expr, $2, AST_expr);
-
-			expr->attrs->set("phc.unparser.needs_brackets", new Boolean(true));
+			$2->attrs->set("phc.unparser.needs_brackets", new Boolean(true));
 			
-			$$ = expr;
+			$$ = $2;
 		}
 	| expr '?' expr ':' expr
 		{
-			CAST_AST(cond, $1, AST_expr);
-			CAST_AST(iftrue, $3, AST_expr);
-			CAST_AST(iffalse, $5, AST_expr);
-			
-			$$ = NEW(AST_conditional_expr, (cond, iftrue, iffalse)); 
+			$$ = NEW(AST_conditional_expr, ($1, $3, $5)); 
 		}
 	| internal_functions_in_yacc
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| CAST_INT expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("int", expr));
+			$$ = NEW(AST_cast, ("int", $2));
 		}
 	| CAST_REAL expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("real", expr));
+			$$ = NEW(AST_cast, ("real", $2));
 		}
 	| CAST_STRING expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("string", expr));
+			$$ = NEW(AST_cast, ("string", $2));
 		}
 	| CAST_ARRAY expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("array", expr));
+			$$ = NEW(AST_cast, ("array", $2));
 		}
 	| CAST_OBJECT expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("object", expr));
+			$$ = NEW(AST_cast, ("object", $2));
 		}
 	| CAST_BOOL expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("bool", expr));
+			$$ = NEW(AST_cast, ("bool", $2));
 		}
 	| CAST_UNSET expr
 		{ 
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_cast, ("unset", expr));
+			$$ = NEW(AST_cast, ("unset", $2));
 		}
 	| K_EXIT exit_expr
 		{
-			CAST_AST(param, $2, AST_expr);
-			
-			$$ = NEW(AST_method_invocation, ("exit", param));
+			$$ = NEW(AST_method_invocation, ("exit", $2));
 		}
 	| '@' expr
 		{
-			CAST_AST(expr, $2, AST_expr);
- 
-			$$ = NEW(AST_ignore_errors, (expr)); 
+			$$ = NEW(AST_ignore_errors, ($2)); 
 		}
 	| scalar
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| K_ARRAY '(' array_pair_list ')'
-		{ 
-			CAST_AST(list, $3, List<AST_array_elem*>);
-			
-			$$ = NEW(AST_array, (list)); 
+		{
+			$$ = NEW(AST_array, ($3)); 
 		}
 	| K_PRINT expr
 		{
-			CAST_AST(param, $2, AST_expr);
-
-			$$ = NEW(AST_method_invocation, ("print", param));	
+			$$ = NEW(AST_method_invocation, ("print", $2));	
 		}
 	;
 
 function_call:
 	  IDENT '(' function_call_parameter_list ')'
 		{
-			CAST_AST(params, $3, List<AST_actual_parameter*>);
-			CAST_STR(fn, $1, Token_method_name);
+			Token_method_name* fn = new Token_method_name($1);
 		
-			$$ = NEW(AST_method_invocation, (NULL, fn, params));
+			$$ = NEW(AST_method_invocation, (NULL, fn, $3));
 		}
 	| fully_qualified_class_name O_COLONCOLON IDENT '(' function_call_parameter_list ')'
 		{
-			CAST_AST(class_name, $1, Token_class_name);
-			CAST_STR(fn, $3, Token_method_name);
-			CAST_AST(params, $5, List<AST_actual_parameter*>);
+			Token_method_name* fn = new Token_method_name($3);
 
-			$$ = NEW(AST_method_invocation, (class_name, fn, params));
+			$$ = NEW(AST_method_invocation, ($1, fn, $5));
 		}
 	| fully_qualified_class_name O_COLONCOLON variable_without_objects '(' function_call_parameter_list ')'
 		{
-			CAST_AST(class_name, $1, Token_class_name);
-			CAST_AST(expr, $3, AST_expr);
-			CAST_AST(params, $5, List<AST_actual_parameter*>);
-			
-			$$ = NEW(AST_method_invocation, (class_name, NEW(AST_reflection, (expr)), params));
+			$$ = NEW(AST_method_invocation, ($1, NEW(AST_reflection, ($3)), $5));
 		}
 	| variable_without_objects '(' function_call_parameter_list ')'
 		{
-			CAST_AST(expr, $1, AST_expr);
-			CAST_AST(params, $3, List<AST_actual_parameter*>);			
-			
-			$$ = NEW(AST_method_invocation, (NULL, NEW(AST_reflection, (expr)), params));
+			$$ = NEW(AST_method_invocation, (NULL, NEW(AST_reflection, ($1)), $3));
 		}
 	;
 
 fully_qualified_class_name:
 	  IDENT
 		{
-			CAST_STR(name, $1, Token_class_name);
+			Token_class_name* name = new Token_class_name($1);
 			$$ = name; 
 		}
 	;
@@ -2498,14 +2167,13 @@ fully_qualified_class_name:
 class_name_reference:
 	  IDENT
 		{
-			CAST_STR(name, $1, Token_class_name);
+			Token_class_name* name = new Token_class_name($1);
 
 			$$ = name; 
 		}
 	| dynamic_class_name_reference
 		{ 
-			CAST_AST(expr, $1, AST_expr);
-			$$ = NEW(AST_reflection, (expr)); 
+			$$ = NEW(AST_reflection, ($1)); 
 		}
 	;
 
@@ -2516,33 +2184,28 @@ class_name_reference:
 dynamic_class_name_reference:
 	  base_variable O_SINGLEARROW object_property dynamic_class_name_variable_properties
 		{
-			CAST_AST(object, $1, AST_expr);
-			CAST_AST(result, $3, AST_variable);
-			CAST_AST(vars, $4, List<AST_variable*>);
-			
-			result->target = object;
+			$3->target = $1;
 
 			List<AST_variable*>::const_iterator i;
-			for(i = vars->begin(); i != vars->end(); i++)
+			for(i = $4->begin(); i != $4->end(); i++)
 			{
-				(*i)->target = result;
-				result = *i;
+				(*i)->target = $3;
+				$3 = *i;
 			}
 			
-			$$ = result; 
+			$$ = $3; 
 		}
 	| base_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 dynamic_class_name_variable_properties:
 	  dynamic_class_name_variable_properties dynamic_class_name_variable_property
-		{ 
-			CAST_AST(vars, $1, List<AST_variable*>);
-			CAST_AST(var, $2, AST_variable);
-
-			vars->push_back(var);
-			$$ = vars;
+		{
+			$1->push_back($2);
+			$$ = $1;
 		}
 	| /* empty */
 		{ 
@@ -2553,7 +2216,9 @@ dynamic_class_name_variable_properties:
 
 dynamic_class_name_variable_property:
 	  O_SINGLEARROW object_property
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 /*
@@ -2561,11 +2226,17 @@ dynamic_class_name_variable_property:
  */
 exit_expr:
 	  /* empty */
-		{ $$ = NEW(Token_int, (0L, new String("0"))); }
+		{
+			$$ = NEW(Token_int, (0L, new String("0")));
+		}
 	| '(' ')'
-		{ $$ = NEW(Token_int, (0L, new String("0"))); }
+		{
+			$$ = NEW(Token_int, (0L, new String("0")));
+		}
 	| '(' expr ')'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 ctor_arguments:
@@ -2576,39 +2247,35 @@ ctor_arguments:
 			$$ = args; 
 		}
 	| '(' function_call_parameter_list ')'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	;
 
 common_scalar:
 	  INT
 		{
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_int, (strtol(str->c_str(), 0, 0), str));
+			$$ = NEW(Token_int, (strtol($1->c_str(), 0, 0), $1));
 		}
 	| REAL 
 		{
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_real, (atof(str->c_str()), str));
+			$$ = NEW(Token_real, (atof($1->c_str()), $1));
 		}
 	| STRING
 		{
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_string, (str, str));
+			$$ = NEW(Token_string, ($1, $1));
 		}
 	| C_FALSE
 		{ 
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_bool, (false, str));
+			$$ = NEW(Token_bool, (false, $1));
 		}
 	| C_TRUE
 		{ 
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_bool, (true, str));
+			$$ = NEW(Token_bool, (true, $1));
 		}
 	| C_NULL
 		{ 
-			CAST_AST(str, $1, String);
-			$$ = NEW(Token_null, (str));
+			$$ = NEW(Token_null, ($1));
 		}
 	| K___LINE__
 		{
@@ -2634,10 +2301,12 @@ common_scalar:
 	
 static_scalar:
 	  common_scalar
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| IDENT
 		{
-			CAST_STR(name, $1, Token_constant_name);
+			Token_constant_name* name = new Token_constant_name($1);
 			$$ = NEW(AST_constant, ("%MAIN%", name)); 
 		}
 	| '+' static_scalar
@@ -2647,23 +2316,23 @@ static_scalar:
 		}
 	| '-' static_scalar
 		{
-			CAST_AST(val, $2, AST_expr);
-			$$ = NEW(AST_unary_op, (val, "-"));
+			$$ = NEW(AST_unary_op, ($2, "-"));
 		}
 	| K_ARRAY '(' static_array_pair_list ')'
 		{
-			CAST_AST(list, $3, List<AST_array_elem*>);
-			$$ = NEW(AST_array, (list));
+			$$ = NEW(AST_array, ($3));
 		}
 	| static_class_constant
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 static_class_constant:
 	  IDENT O_COLONCOLON IDENT
 		{
-			CAST_STR(class_name, $1, Token_class_name);
-			CAST_STR(constant, $3, Token_constant_name);
+			Token_class_name* class_name = new Token_class_name($1);
+			Token_constant_name* constant = new Token_constant_name($3);
 			
 			$$ = NEW(AST_constant, (class_name, constant));
 		}
@@ -2672,21 +2341,29 @@ static_class_constant:
 scalar:
 	  IDENT
 		{
-			CAST_STR(name, $1, Token_constant_name);
+			Token_constant_name* name = new Token_constant_name($1);
 
 			$$ = NEW(AST_constant, ("%MAIN%", name));
 		}
 	| class_constant
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| common_scalar
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 static_array_pair_list:
 	  /* empty */
-		{ $$ = new List<AST_array_elem*>; }
+		{
+			$$ = new List<AST_array_elem*>;
+		}
 	| non_empty_static_array_pair_list possible_comma
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 /*
@@ -2694,50 +2371,36 @@ static_array_pair_list:
  */
 possible_comma:
 	  /* empty */
-		{ $$ = NULL; }
 	| ','
-		{ $$ = NULL; }
 	;
 
 non_empty_static_array_pair_list:
 	  non_empty_static_array_pair_list ',' static_scalar O_DOUBLEARROW static_scalar
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(key, $3, AST_expr);
-			CAST_AST(value, $5, AST_expr);
+			AST_array_elem* elem = NEW(AST_array_elem, ($3, false, $5));
+			$1->push_back(elem);
 
-			AST_array_elem* elem = NEW(AST_array_elem, (key, false, value));
-			list->push_back(elem);
-
-			$$ = list;
+			$$ = $1;
 		}
 	| non_empty_static_array_pair_list ',' static_scalar
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(value, $3, AST_expr);
+			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, $3));
+			$1->push_back(elem);
 			
-			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, value));
-			list->push_back(elem);
-			
-			$$ = list;
+			$$ = $1;
 		}
 	| static_scalar O_DOUBLEARROW static_scalar
 		{
-			CAST_AST(key, $1, AST_expr);
-			CAST_AST(value, $3, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
-			AST_array_elem* elem = NEW(AST_array_elem, (key, false, value));
+			AST_array_elem* elem = NEW(AST_array_elem, ($1, false, $3));
 			list->push_back(elem);
 
 			$$ = list;
 		}
 	| static_scalar
 		{
-			CAST_AST(value, $1, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
-			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, value));
+			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, $1));
 			list->push_back(elem);
 
 			$$ = list;
@@ -2746,28 +2409,38 @@ non_empty_static_array_pair_list:
 
 expr:
 	  r_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| expr_without_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 r_variable:
 	  variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 w_variable:
 	  variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 rw_variable:
 	  variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 /*
- * NOTE: the original rule read
+ * The original rule read
  *
  * variable ::= base_variable_with_function_calls O_SINGLEARROW object_property
  *     method_or_not variable_properties
@@ -2786,72 +2459,64 @@ rw_variable:
 variable:
 	  base_variable_with_function_calls variable_properties
 		{
-			CAST_AST(object, $1, AST_expr);
-			CAST_AST(props, $2, List<AST_expr*>);
-
 			List<AST_expr*>::iterator i;
-			for(i = props->begin(); i != props->end(); i++)
+			for(i = $2->begin(); i != $2->end(); i++)
 			{
-				CAST_UNSAFE(var, *i, AST_variable);
-				CAST_UNSAFE(fn, *i, AST_method_invocation);
+				AST_variable* var = dynamic_cast<AST_variable*>(*i);
+				AST_method_invocation* fn = dynamic_cast<AST_method_invocation*>(*i);
 
 				if(var)
 				{
-					var->target = object;
+					var->target = $1;
 					
 					List<AST_actual_parameter*>* function_params = dynamic_cast<List<AST_actual_parameter*>*>(var->attrs->get("phc.parser.function_params"));
 	
 					if(function_params)
 					{
-						object = NEW(AST_method_invocation, (NULL, NEW(AST_reflection,(var)), function_params));
+						$1 = NEW(AST_method_invocation, (NULL, NEW(AST_reflection,(var)), function_params));
 					}
 					else
 					{
-						object = var;
+						$1 = var;
 					}
 				}
 				else
 				{
-					fn->target = object;
-					object = fn;
+					fn->target = $1;
+					$1 = fn;
 				}
 			}
 
-			$$ = object;
+			$$ = $1;
 		}
 	| base_variable_with_function_calls
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 /*
- * NOTE: The second rule goes to empty in the original grammar; see the
+ * The second rule goes to empty in the original grammar; see the
  * comment for "variable ::=" why this is changed.
  */
 variable_properties:
 	  variable_properties variable_property
 		{
-			CAST_AST(props, $1, List<AST_expr*>);
-			CAST_AST(prop, $2, AST_expr);
-
-			props->push_back(prop);
+			$1->push_back($2);
 			
-			$$ = props;
+			$$ = $1;
 		}
 	| variable_property 
-		{ 
-			CAST_AST(prop, $1, AST_expr);
-			
+		{
 			List<AST_expr*>* props = new List<AST_expr*>;
-			props->push_back(prop);
+			props->push_back($1);
 			
 			$$ = props;
 		}
 	;
 
 /* 
- * Synthesises an AST_expr (AST_variable or an AST_method_invocation)
- *
- * NOTE: We decide to synthesise an AST_variable or an AST_method_invocation
+ * We decide to synthesise an AST_variable or an AST_method_invocation
  * based on the absence or presence of a parameter list (method_or_not).
  * If there is a parameter list, we _try_ to generate a method invocation.
  *
@@ -2872,166 +2537,161 @@ variable_properties:
 variable_property:
 	  O_SINGLEARROW object_property method_or_not
 		{
-			CAST_AST(var, $2, AST_variable);
-			CAST_AST(params, $3, List<AST_actual_parameter*>);
-			
-			if(params)
+			if($3)
 			{
-				if(var->array_indices->empty())
+				if($2->array_indices->empty())
 				{
-					CAST_UNSAFE(vn, var->variable_name, Token_variable_name);
+					Token_variable_name* vn = dynamic_cast<Token_variable_name*>($2->variable_name);
 				
 					if(vn)
 					{
 						Token_method_name* fn;
 						
 						fn = NEW(Token_method_name, (vn->value));
-						$$ = NEW(AST_method_invocation, (NULL, fn, params));
+						$$ = NEW(AST_method_invocation, (NULL, fn, $3));
 					}
 					else
 					{
 						AST_reflection* fn;
 
-						fn = dynamic_cast<AST_reflection*>(var->variable_name);
+						fn = dynamic_cast<AST_reflection*>($2->variable_name);
 						assert(fn);
-						$$ = NEW(AST_method_invocation, (NULL, fn, params));
+						$$ = NEW(AST_method_invocation, (NULL, fn, $3));
 					}
 				}
 				else
 				{
-					var->attrs->set("phc.parser.function_params", params);
-					$$ = var;
+					$2->attrs->set("phc.parser.function_params", $3);
+					$$ = $2;
 				}
 			}
 			else
 			{
-				$$ = var;
+				$$ = $2;
 			}
 		}
 	;
 
 method_or_not:
 	  '(' function_call_parameter_list ')'
-		{ $$ = $2; }
+		{
+			$$ = $2;
+		}
 	| /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	;
 
 variable_without_objects:
 	  reference_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| simple_indirect_reference reference_variable
 		{
-			CAST_AST(num_indirections, $1, Integer);
-			CAST_AST(var, $2, AST_variable);
-				
-			for(long i = 0; i < num_indirections->value(); i++)
+			for(long i = 0; i < $1->value(); i++)
 			{
-				var = NEW(AST_variable, (NEW(AST_reflection, (var))));
+				$2 = NEW(AST_variable, (NEW(AST_reflection, ($2))));
 			}
 			
-			$$ = var;
+			$$ = $2;
 		}
 	;
 
 static_member:
 	  fully_qualified_class_name O_COLONCOLON variable_without_objects
-		{ 
-			CAST_AST(class_name, $1, Token_class_name);
-			CAST_AST(var, $3, AST_variable);
-		
-			var->target = class_name;
-			$$ = var; 
+		{
+			$3->target = $1;
+			$$ = $3; 
 		}
 	;
 
-/*
- * Synthesises an AST_expr (AST_variable or AST_method_invocation)
- */
 base_variable_with_function_calls:
 	  base_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| function_call
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 base_variable:
 	  reference_variable
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| simple_indirect_reference reference_variable
-		{	
-			CAST_AST(num_indirections, $1, Integer);
-			CAST_AST(var, $2, AST_variable);
-				
-			for(long i = 0; i < num_indirections->value(); i++)
+		{
+			for(long i = 0; i < $1->value(); i++)
 			{
-				var = NEW(AST_variable, (NEW(AST_reflection, (var))));
+				$2 = NEW(AST_variable, (NEW(AST_reflection, ($2))));
 			}
 
-			$$ = var;
+			$$ = $2;
 		}
 	| static_member
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 reference_variable:
 	  reference_variable '[' dim_offset ']'
 		{
-			CAST_AST(var, $1, AST_variable);
-			CAST_AST(index, $3, AST_expr);
-		
-			var->array_indices->push_back(index);
-			$$ = var;
+			$1->array_indices->push_back($3);
+			$$ = $1;
 		}
 	| reference_variable '{' expr '}'
 		{
-			CAST_AST(var, $1, AST_variable);
-			CAST_AST(index, $3, AST_expr);
-			
-			if(index != NULL)
-				index->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+			if($3 != NULL)
+				$3->attrs->set("phc.unparser.index_curlies", new Boolean(true));
 
-			var->array_indices->push_back(index);
-			$$ = var;
+			$1->array_indices->push_back($3);
+			$$ = $1;
 		}
 	| compound_variable
 		{
-			CAST_AST(name, $1, AST_variable_name);
-
-			$$ = NEW(AST_variable, (name));
+			$$ = NEW(AST_variable, ($1));
 		}
 	;
 
 compound_variable:
 	  VARIABLE
 		{ 
-			CAST_STR(var, $1, Token_variable_name);
+			Token_variable_name* var = new Token_variable_name($1);
 			$$ = var; 
 		}
 	| '$' '{' expr '}'
 		{ 
-			CAST_AST(expr, $3, AST_expr);
-			expr->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
-			$$ = NEW(AST_reflection, (expr)); 
+			$3->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$$ = NEW(AST_reflection, ($3)); 
 		}
 	;
 
 dim_offset:
 	  /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	| expr
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 object_property:
 	  object_dim_list
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	| variable_without_objects 
 		{
 			// This is a "normal" variable (which includes a $), i.e. $x->$y
 			// So, we need to add a level of indirection
-			CAST_AST(var, $1, AST_variable);
-			$$ = NEW(AST_variable, (NEW(AST_reflection, (var)))); 
+			$$ = NEW(AST_variable, (NEW(AST_reflection, ($1)))); 
 		}
 	;
 
@@ -3041,28 +2701,20 @@ object_property:
 object_dim_list:
 	  object_dim_list '[' dim_offset ']'
 		{
-			CAST_AST(op, $1, AST_variable);
-			CAST_AST(index, $3, AST_expr);
-		
-			op->array_indices->push_back(index);
-			$$ = op;
+			$1->array_indices->push_back($3);
+			$$ = $1;
 		}
 	| object_dim_list '{' expr '}'
 		{
-			CAST_AST(op, $1, AST_variable);
-			CAST_AST(index, $3, AST_expr);
+			if($3 != NULL)
+				$3->attrs->set("phc.unparser.index_curlies", new Boolean(true));
 
-			if(index != NULL)
-				index->attrs->set("phc.unparser.index_curlies", new Boolean(true));
-
-			op->array_indices->push_back(index);
-			$$ = op;
+			$1->array_indices->push_back($3);
+			$$ = $1;
 		}
 	| variable_name
-		{ 
-			CAST_AST(name, $1, AST_variable_name);	
-
-			$$ = NEW(AST_variable, (name)); 
+		{
+			$$ = NEW(AST_variable, ($1)); 
 		}
 	;
 
@@ -3072,14 +2724,13 @@ object_dim_list:
 variable_name:
 	  IDENT
 		{ 
-			CAST_STR(var, $1, Token_variable_name);
+			Token_variable_name* var = new Token_variable_name($1);
 			$$ = var; 
 		}
 	| '{' expr '}'
 		{ 
-			CAST_AST(expr, $2, AST_expr);
-			expr->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
-			$$ = NEW(AST_reflection, (expr)); 
+			$2->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$$ = NEW(AST_reflection, ($2)); 
 		}
 	;
 
@@ -3088,32 +2739,27 @@ variable_name:
  */
 simple_indirect_reference:
 	  '$'
-		{ $$ = new Integer(1); } 
+		{
+			$$ = new Integer(1);
+		} 
 	| simple_indirect_reference '$'
 		{
-			CAST_AST(i, $1, Integer);
-			
-			(*i)++;
-			$$ = i; 
+			(*$1)++;
+			$$ = $1; 
 		}
 	;
 
 assignment_list:
 	  assignment_list ',' assignment_list_element
 		{
-			CAST_AST(elements, $1, AST_list_elements);
-			CAST_AST(element, $3, AST_list_element);
-
-			elements->list_elements->push_back(element);
+			$1->list_elements->push_back($3);
 			
-			$$ = elements; 
+			$$ = $1; 
 		}
 	| assignment_list_element
 		{
-			CAST_AST(element, $1, AST_list_element);
-
 			List<AST_list_element*>* elements = new List<AST_list_element*>;
-			elements->push_back(element);
+			elements->push_back($1);
 			
 			$$ = NEW(AST_list_elements, (elements)); 
 		}
@@ -3125,21 +2771,27 @@ assignment_list:
 assignment_list_element:
 	  variable
 		{
-			// TODO: check whether this is a variable
-			CAST_AST(variable, $1, AST_variable);
-			$$ = variable; 
+			$$ = expect_variable($1); 
 		}
 	| K_LIST '(' assignment_list ')'
-		{ $$ = $3; }
+		{
+			$$ = $3;
+		}
 	| /* empty */
-		{ $$ = NULL; }
+		{
+			$$ = NULL;
+		}
 	;
 
 array_pair_list:
 	  /* emtpy */
-		{ $$ = new List<AST_array_elem*>; }
+		{
+			$$ = new List<AST_array_elem*>;
+		}
 	| non_empty_array_pair_list possible_comma
-		{ $$ = $1; }
+		{
+			$$ = $1;
+		}
 	;
 
 /*
@@ -3148,88 +2800,64 @@ array_pair_list:
 non_empty_array_pair_list:
 	  non_empty_array_pair_list ',' expr O_DOUBLEARROW expr
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(key, $3, AST_expr);
-			CAST_AST(value, $5, AST_expr);
+			AST_array_elem* elem = NEW(AST_array_elem, ($3, false, $5));
+			$1->push_back(elem);
 
-			AST_array_elem* elem = NEW(AST_array_elem, (key, false, value));
-			list->push_back(elem);
-
-			$$ = list;
+			$$ = $1;
 		}
 	| non_empty_array_pair_list ',' expr
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(value, $3, AST_expr);
+			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, $3));
+			$1->push_back(elem);
 			
-			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, value));
-			list->push_back(elem);
-			
-			$$ = list;
+			$$ = $1;
 		}
 	| expr O_DOUBLEARROW expr
 		{
-			CAST_AST(key, $1, AST_expr);
-			CAST_AST(value, $3, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
-			AST_array_elem* elem = NEW(AST_array_elem, (key, false, value));
+			AST_array_elem* elem = NEW(AST_array_elem, ($1, false, $3));
 			list->push_back(elem);
 
 			$$ = list;
 		}
 	| expr
 		{
-			CAST_AST(value, $1, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
-			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, value));
+			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, $1));
 			list->push_back(elem);
 
 			$$ = list;
 		}
 	| non_empty_array_pair_list ',' expr O_DOUBLEARROW '&' w_variable
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(key, $3, AST_expr);
-			CAST_AST(value, $6, AST_expr);
-
 			AST_array_elem* elem = 
-				NEW(AST_array_elem, (key, true, value));
-			list->push_back(elem);
+				NEW(AST_array_elem, ($3, true, $6));
+			$1->push_back(elem);
 
-			$$ = list;
+			$$ = $1;
 		}
 	| non_empty_array_pair_list ',' '&' w_variable 
 		{
-			CAST_AST(list, $1, List<AST_array_elem*>);
-			CAST_AST(value, $4, AST_expr);
-			
 			AST_array_elem* elem = 
-				NEW(AST_array_elem, (NULL, true, value));
-			list->push_back(elem);
+				NEW(AST_array_elem, (NULL, true, $4));
+			$1->push_back(elem);
 			
-			$$ = list;
+			$$ = $1;
 		}
 	| expr O_DOUBLEARROW '&' w_variable 
 		{
-			CAST_AST(key, $1, AST_expr);
-			CAST_AST(value, $4, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = 
-				NEW(AST_array_elem, (key, true, value));
+				NEW(AST_array_elem, ($1, true, $4));
 			list->push_back(elem);
 
 			$$ = list;
 		}
 	| '&' w_variable
 		{
-			CAST_AST(value, $2, AST_expr);
-			
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = 
-				NEW(AST_array_elem, (NULL, true, value));
+				NEW(AST_array_elem, (NULL, true, $2));
 			list->push_back(elem);
 
 			$$ = list;
@@ -3239,69 +2867,56 @@ non_empty_array_pair_list:
 internal_functions_in_yacc:
 	 K_ISSET '(' isset_variables ')' 
 		{
-			CAST_AST(params, $3, List<AST_actual_parameter*>);
-		  
 			Token_method_name* fn = NEW(Token_method_name, (new String("isset")));
-			$$ = NEW(AST_method_invocation, (NULL, fn, params));
+			$$ = NEW(AST_method_invocation, (NULL, fn, $3));
 		}
 	| K_EMPTY '(' variable ')'
 		{
-			CAST_AST(variable, $3, AST_expr); 
-			$$ = NEW(AST_method_invocation, ("empty", variable));
+			$$ = NEW(AST_method_invocation, ("empty", $3));
 		}
 	| K_INCLUDE expr 
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_method_invocation, ("include", expr));
+			$$ = NEW(AST_method_invocation, ("include", $2));
 		}
 	| K_INCLUDE_ONCE expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_method_invocation, ("include_once", expr));
+			$$ = NEW(AST_method_invocation, ("include_once", $2));
 		}
 	| K_EVAL '(' expr ')'
 		{
-			CAST_AST(expr, $3, AST_expr);
-			$$ = NEW(AST_method_invocation, ("eval", expr));
+			$$ = NEW(AST_method_invocation, ("eval", $3));
 		}
 	| K_REQUIRE expr 
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_method_invocation, ("require", expr));
+			$$ = NEW(AST_method_invocation, ("require", $2));
 		}
 	| K_REQUIRE_ONCE expr
 		{
-			CAST_AST(expr, $2, AST_expr);
-			$$ = NEW(AST_method_invocation, ("require_once", expr));
+			$$ = NEW(AST_method_invocation, ("require_once", $2));
 		}
 	;
 
 isset_variables:
 	  variable
 		{
-			CAST_AST(variable, $1, AST_expr);
 			List<AST_actual_parameter*>* params = new List<AST_actual_parameter*>;
 			
-			params->push_back(NEW(AST_actual_parameter, (false, variable)));
+			params->push_back(NEW(AST_actual_parameter, (false, $1)));
 			$$ = params;
 		}
 	| isset_variables ',' variable
 		{
-			CAST_AST(params, $1, List<AST_actual_parameter*>);
-			CAST_AST(variable, $3, AST_expr);
-			
-			params->push_back(NEW(AST_actual_parameter, (false, variable)));
-			$$ = params;
+			$1->push_back(NEW(AST_actual_parameter, (false, $3)));
+			$$ = $1;
 		}
 	;
 
 class_constant:
 	  fully_qualified_class_name O_COLONCOLON IDENT
 		{
-			CAST_AST(class_name, $1, Token_class_name);
-			CAST_STR(constant, $3, Token_constant_name);
+			Token_constant_name* constant = new Token_constant_name($3);
 
-			$$ = NEW(AST_constant, (class_name, constant));
+			$$ = NEW(AST_constant, ($1, constant));
 		}
 	;
 
@@ -3312,11 +2927,9 @@ class_constant:
 block:
 	  '{' inner_statement_list '}'
 		{
-			CAST_STATEMENT_VECTOR(list, $2);
-			
 			// If there are any remaining comments, add them as a NOP
 			if(!context->last_comments.empty())
-				list->push_back(NEW(AST_nop, ()));
+				$2->push_back(NEW(AST_nop, ()));
 
-			$$ = list;
+			$$ = $2;
 		}

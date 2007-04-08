@@ -274,7 +274,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 123 "src/generated_src/php_parser.ypp"
+#line 73 "src/generated_src/php_parser.ypp"
 {
 	Object* object;
 	List<AST_statement*>* list_ast_statement;
@@ -308,7 +308,6 @@ typedef union YYSTYPE
 	AST_list_elements* ast_list_elements;
 	AST_list_element* ast_list_element;
 	String* string;
-	void* nothing;
 	List<AST_actual_parameter*>* list_ast_actual_parameter;
 	AST_class_name* ast_class_name;
 	List<AST_switch_case*>* list_ast_switch_case;
@@ -320,6 +319,7 @@ typedef union YYSTYPE
 	AST_for* ast_for;
 	AST_do* ast_do;
 	AST_while* ast_while;
+	AST_statement* ast_statement;
 }
 /* Line 1489 of yacc.c.  */
 #line 326 "src/generated/php_parser.tab.hpp"
