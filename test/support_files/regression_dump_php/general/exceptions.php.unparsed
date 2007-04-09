@@ -35,8 +35,7 @@
       f();
    } catch (FirstException $e) {
       echo "FirstException\n";
-   }
-   catch (SecondException $e) {
+   } catch (SecondException $e) {
       echo "SecondException\n";
    }
    
@@ -44,11 +43,9 @@
       f();
    } catch (FirstException $e) {
       echo "FirstException\n";
-   }
-   catch (SecondException $e) {
+   } catch (SecondException $e) {
       echo "SecondException\n";
-   }
-   catch (ThirdException $e) {
+   } catch (ThirdException $e) {
       echo "ThirdException\n";
    }
 ?>

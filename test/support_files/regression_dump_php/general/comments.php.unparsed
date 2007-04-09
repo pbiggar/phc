@@ -71,11 +71,9 @@
    }
    
    // (17) do-while statement
-   do
-   {
+   do {
       echo 18;
-   }
-   while (17);
+   } while (17);
    
    // 19 for loop
    for(19; ; ) {
@@ -101,7 +99,7 @@
    }
    
    // 24 Declare statement
-   declare(TICKS = 24){
+   declare(TICKS = 24) {
       break;
    }
    
@@ -111,8 +109,7 @@
    } // First catch
    catch (FirstException $e1) {
       break;
-   }
-   // Second catch
+   } // Second catch
    catch (SecondException $e2) {
       break;
    }

@@ -52,8 +52,8 @@
 		RETURN(yyextra->mt_type[0]);
 
 	#define YY_EXTRA_TYPE PHP_context*
-	
-	// Defined in the parser
+
+	// Defined in php_parser.ypp
 	AST_node* copy_state(AST_node* node, PHP_context* context);
 %}
 

@@ -35,6 +35,7 @@ protected:
 	void newline();
 	void output_tabs();
 	void empty_line();
+	void space_or_newline();
 
 public:
 	void children_php_script(AST_php_script* in);
@@ -65,6 +66,7 @@ public:
 	void children_directive(AST_directive* in);
 	void children_try(AST_try* in);
 	void children_catch(AST_catch* in);
+	void post_catch_chain(AST_catch* in);
 	void children_throw(AST_throw* in);
 	void children_eval_expr(AST_eval_expr* in);
 	void children_assignment(AST_assignment* in);

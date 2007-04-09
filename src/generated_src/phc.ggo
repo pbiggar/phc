@@ -9,6 +9,7 @@ option "with-php" - "PHP installation path" string typestr="NAME" no hidden
 option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
 option "dump-tokens" - "Perform lexical analysis only (spits out a token list). Probably only useful for debugging phc itself" flag off hidden
 option "dump-php" - "Dump PHP code back immediately after parsing to standard output (pretty printing)" flag off 
+option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "run-lowering" - "Dump the XML representation of the HIR, after lowering. Only useful for debugging" flag off hidden
 option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
 option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off

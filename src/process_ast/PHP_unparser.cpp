@@ -2,14 +2,10 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Unparse the AST back to PHP syntax. Tries to adhere to the Zend coding 
- * style guidelines at
+ * Unparse the AST back to PHP syntax. Makes an effort to adhere to the Zend
+ * coding style guidelines at
  *
  *   http://framework.zend.com/manual/en/coding-standard.coding-style.html
- *
- * With contributions from Matthias Kleine.
- * 
- * TODO: Implement A.4.2.4 (lining up of "=" and ".")
  */
 
 #include <iostream>
@@ -118,6 +114,14 @@ void PHP_unparser::empty_line()
 	os << endl;
 }
 
+void PHP_unparser::space_or_newline()
+{
+	if(args_info.next_line_curlies_flag)
+		newline();
+	else
+		echo(" ");
+}
+
 PHP_unparser::PHP_unparser(ostream& os) : os(os)
 {
 	indent_level = 0;
@@ -179,7 +183,6 @@ void PHP_unparser::children_class_mod(AST_class_mod* in)
 	if(in->is_final) echo("final ");
 }
 
-// "%run%" is treated specially in AST_member_list
 void PHP_unparser::children_method(AST_method* in)
 {
 	visit_signature(in->signature);
@@ -269,12 +272,11 @@ void PHP_unparser::children_attr_mod(AST_attr_mod* in)
 
 void PHP_unparser::children_if(AST_if* in)
 {
-	if(in->attrs->is_true("phc.unparser.is_elseif"))
-		echo(" else");
-		
+	if(in->attrs->is_true("phc.unparser.is_elseif")) echo("else");
 	echo("if (");
 	visit_expr(in->expr);
-	echo(") ");
+	echo(")");
+	space_or_newline();
 
 	visit_statement_list(in->iftrue);
 
@@ -282,13 +284,17 @@ void PHP_unparser::children_if(AST_if* in)
 	{
 		AST_if* elseif = dynamic_cast<AST_if*>(in->iffalse->front());
 
+		space_or_newline();
+
 		if(elseif && elseif->attrs->is_true("phc.unparser.is_elseif"))
 		{
 			visit_statement(elseif);
 		}
 		else
 		{
-			echo(" else ");
+			echo("else");
+			space_or_newline();
+
 			visit_statement_list(in->iffalse);
 		}
 	}
@@ -314,22 +320,23 @@ void PHP_unparser::children_hir_if(AST_hir_if* in)
 	newline();
 }
 
-
-
 void PHP_unparser::children_while(AST_while* in)
 {
 	echo("while (");
 	visit_expr(in->expr);
-	echo(") ");
+	echo(")");
+	space_or_newline();
+
 	visit_statement_list(in->statements);
 	newline();
 }
 
 void PHP_unparser::children_do(AST_do* in)
 {
-	echo_nl("do");
+	echo("do");
+	space_or_newline();
 	visit_statement_list(in->statements);
-	newline();
+	space_or_newline();
 	echo("while (");
 	visit_expr(in->expr);
 	echo_nl(");");
@@ -343,7 +350,9 @@ void PHP_unparser::children_for(AST_for* in)
 	if(in->cond != NULL) visit_expr(in->cond);
 	echo("; ");
 	if(in->incr != NULL) visit_expr(in->incr);
-	echo(") ");
+	echo(")");
+	space_or_newline();
+
 	visit_statement_list(in->statements);
 	newline();
 }
@@ -360,7 +369,9 @@ void PHP_unparser::children_foreach(AST_foreach* in)
 	}
 	if(in->is_ref) echo("&");
 	visit_variable(in->val);
-	echo(") ");
+	echo(")");
+	space_or_newline();
+
 	visit_statement_list(in->statements);
 	newline();
 }
@@ -369,7 +380,9 @@ void PHP_unparser::children_switch(AST_switch* in)
 {
 	echo("switch (");
 	visit_expr(in->expr);
-	echo(") ");
+	echo(")");
+	space_or_newline();
+
 	visit_switch_case_list(in->switch_cases);
 }
 
@@ -457,6 +470,7 @@ void PHP_unparser::children_declare(AST_declare* in)
 {
 	echo("declare");
 	visit_directive_list(in->directives);
+	space_or_newline();
 
 	if(!in->statements->empty())
 	{
@@ -479,9 +493,12 @@ void PHP_unparser::children_directive(AST_directive* in)
 
 void PHP_unparser::children_try(AST_try* in)
 {
-	echo("try ");
+	echo("try");
+	space_or_newline();
+
 	visit_statement_list(in->statements);
-	echo(" ");
+	space_or_newline();
+
 	visit_catch_list(in->catches);
 }
 
@@ -491,9 +508,25 @@ void PHP_unparser::children_catch(AST_catch* in)
 	visit_class_name(in->class_name);
 	echo(" $");
 	visit_variable_name(in->variable_name);
-	echo(") ");
+	echo(")");
+	space_or_newline();
+
 	visit_statement_list(in->statements);
-	newline();
+}
+
+// We override post_catch_chain to avoid post_commented_node adding a newline
+// after every catch (which messes up the layout when using same line curlies)
+// We cannot deal with after-comments here, so we just assert that they don't
+// exist and wait until somebody complains :)
+void PHP_unparser::post_catch_chain(AST_catch* in)
+{
+	List<String*>::const_iterator i;
+	List<String*>* comments = in->get_comments();
+	
+	for(i = comments->begin(); i != comments->end(); i++)
+	{
+		assert(!((*i)->attrs->is_true("phc.unparser.comment.after")));
+	}
 }
 
 void PHP_unparser::children_throw(AST_throw* in)
@@ -864,7 +897,10 @@ void PHP_unparser::visit_catch_list(List<AST_catch*>* in)
 {
 	List<AST_catch*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
+	{
+		if(i != in->begin()) space_or_newline();
 		visit_catch(*i);
+	}
 }
 
 void PHP_unparser::visit_list_element_list(List<AST_list_element*>* in)
@@ -1050,6 +1086,7 @@ void PHP_unparser::pre_commented_node(AST_commented_node* in)
 	}
 }
 
+// Note: does not get executed for AST_catch (which overrides post_catch_chain)
 void PHP_unparser::post_commented_node(AST_commented_node* in)
 {
 	List<String*>::const_iterator i;
