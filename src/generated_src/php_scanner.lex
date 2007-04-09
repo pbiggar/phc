@@ -40,14 +40,17 @@
 		yyextra->after_arrow = false;											\
 		return x; } 
 
-	#define RETURN_ALL(state)							\
-		yyextra->mt_final_state = state;				\
-		yyextra->mt_index = 1;							\
-		BEGIN(RET_MULTI);									\
-		yylval->string = yyextra->mt_lval[0];		\
+	#define RETURN_ALL(state)					\
+		yyextra->mt_final_state = state;		\
+		yyextra->mt_index = 1;					\
+		BEGIN(RET_MULTI);							\
+		*yylval = yyextra->mt_lval[0];		\
 		RETURN(yyextra->mt_type[0]);
 
 	#define YY_EXTRA_TYPE PHP_context*
+	
+	// Defined in the parser
+	AST_node* copy_state(AST_node* node, PHP_context* context);
 %}
 
 %option reentrant
@@ -217,7 +220,16 @@ UNSET_CAST		{CS}"unset"{CE}
 								}
 							}
 							%}
-<PHP>{INT}				{ yylval->string = new String(yytext); RETURN(INT); }
+<PHP>{INT}				{ 
+								Token_int* i = new Token_int(
+									strtol(yytext, 0, 0),
+									new String(yytext));
+						
+								copy_state(i, yyextra);
+
+								yylval->token_int = i;
+								RETURN(INT); 
+							}
 <PHP>{REAL}				{ yylval->string = new String(yytext); RETURN(REAL); }
 <PHP>{STOP}				{ yyextra->buffer = ""; BEGIN(INITIAL); RETURN(';'); }
 
@@ -537,7 +549,7 @@ UNSET_CAST		{CS}"unset"{CE}
 								BEGIN(yyextra->mt_final_state);
 							}
 
-							yylval->string = yyextra->mt_lval[yyextra->mt_index];
+							*yylval = yyextra->mt_lval[yyextra->mt_index];
 							yyextra->mt_index++;
 							RETURN(yyextra->mt_type[yyextra->mt_index - 1]);
 						}
@@ -616,14 +628,24 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 
 	if(lval)
 	{
-		if(length == -1)
-			mt_lval[mt_count] = new String(lval);
-		else
-			mt_lval[mt_count] = new String(lval, length);
+		Token_int* i;
+		int len = length == -1 ? strlen(lval) : length;
+		
+		switch(type)
+		{
+			case INT:
+				i = new Token_int(strtol(lval, 0, 0), new String(lval, len));
+				copy_state(i, this);
+				mt_lval[mt_count].token_int = i;
+				break;
+			default:
+				mt_lval[mt_count].string = new String(lval, len);
+				break;
+		};
 	}
 	else
 	{
-		mt_lval[mt_count] = NULL;
+		mt_lval[mt_count].object = NULL;
 	}
 
 	mt_count++;

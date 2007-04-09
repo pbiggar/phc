@@ -37,7 +37,7 @@
 	#define NEW(class, args)\
 		dynamic_cast<class*>(copy_state(new class args, context))
 	
-	static AST_node* copy_state(AST_node* node, PHP_context* context)
+	AST_node* copy_state(AST_node* node, PHP_context* context)
 	{
 		node->attrs->set("phc.line_number", new Integer(context->source_line));
 		node->attrs->set("phc.filename", context->filename->clone());
@@ -115,6 +115,7 @@
 	AST_do* ast_do;
 	AST_while* ast_while;
 	AST_statement* ast_statement;
+	Token_int* token_int;
 }
 
 %{
@@ -138,76 +139,76 @@
 
 // Keywords
 
-%token <string> K_AND
-%token <string> K_OR
-%token <string> K_XOR
-%token <string> K___FILE__
-%token <string> K_EXCEPTION
-%token <string> K___LINE__
-%token <string> K_ARRAY
-%token <string> K_AS
-%token <string> K_BREAK
-%token <string> K_CASE
-%token <string> K_CLASS
-%token <string> K_CONST
-%token <string> K_CONTINUE
-%token <string> K_DECLARE
-%token <string> K_DEFAULT
-%token <string> K_DIE
-%token <string> K_DO
-%token <string> K_ECHO
-%token <string> K_ELSE
-%token <string> K_ELSEIF
-%token <string> K_EMPTY
-%token <string> K_ENDDECLARE
-%token <string> K_ENDFOR
-%token <string> K_ENDFOREACH
-%token <string> K_ENDIF
-%token <string> K_ENDSWITCH
-%token <string> K_ENDWHILE
-%token <string> K_EVAL
-%token <string> K_EXIT
-%token <string> K_EXTENDS
-%token <string> K_FOR
-%token <string> K_FOREACH
-%token <string> K_FUNCTION
-%token <string> K_GLOBAL
-%token <string> K_IF
-%token <string> K_INCLUDE
-%token <string> K_INCLUDE_ONCE
-%token <string> K_INSTANCEOF
-%token <string> K_ISSET
-%token <string> K_LIST
-%token <string> K_NEW
-%token <string> K_PRINT
-%token <string> K_REQUIRE
-%token <string> K_REQUIRE_ONCE
-%token <string> K_RETURN
-%token <string> K_STATIC
-%token <string> K_SWITCH
-%token <string> K_UNSET
-%token <string> K_USE
-%token <string> K_VAR
-%token <string> K_WHILE
-%token <string> K___FUNCTION__
-%token <string> K___CLASS__
-%token <string> K___METHOD__
-%token <string> K_FINAL
-%token <string> K_PHP_USER_FILTER
-%token <string> K_INTERFACE
-%token <string> K_IMPLEMENTS
-%token <string> K_PUBLIC
-%token <string> K_PRIVATE
-%token <string> K_PROTECTED
-%token <string> K_ABSTRACT
-%token <string> K_CLONE
-%token <string> K_TRY
-%token <string> K_CATCH
-%token <string> K_THROW
-%token <string> K_CFUNCTION
-%token <string> K_OLD_FUNCTION
+%token K_AND
+%token K_OR
+%token K_XOR
+%token K___FILE__
+%token K_EXCEPTION
+%token K___LINE__
+%token K_ARRAY
+%token K_AS
+%token K_BREAK
+%token K_CASE
+%token K_CLASS
+%token K_CONST
+%token K_CONTINUE
+%token K_DECLARE
+%token K_DEFAULT
+%token K_DIE
+%token K_DO
+%token K_ECHO
+%token K_ELSE
+%token K_ELSEIF
+%token K_EMPTY
+%token K_ENDDECLARE
+%token K_ENDFOR
+%token K_ENDFOREACH
+%token K_ENDIF
+%token K_ENDSWITCH
+%token K_ENDWHILE
+%token K_EVAL
+%token K_EXIT
+%token K_EXTENDS
+%token K_FOR
+%token K_FOREACH
+%token K_FUNCTION
+%token K_GLOBAL
+%token K_IF
+%token K_INCLUDE
+%token K_INCLUDE_ONCE
+%token K_INSTANCEOF
+%token K_ISSET
+%token K_LIST
+%token K_NEW
+%token K_PRINT
+%token K_REQUIRE
+%token K_REQUIRE_ONCE
+%token K_RETURN
+%token K_STATIC
+%token K_SWITCH
+%token K_UNSET
+%token K_USE
+%token K_VAR
+%token K_WHILE
+%token K___FUNCTION__
+%token K___CLASS__
+%token K___METHOD__
+%token K_FINAL
+%token K_PHP_USER_FILTER
+%token K_INTERFACE
+%token K_IMPLEMENTS
+%token K_PUBLIC
+%token K_PRIVATE
+%token K_PROTECTED
+%token K_ABSTRACT
+%token K_CLONE
+%token K_TRY
+%token K_CATCH
+%token K_THROW
+%token K_CFUNCTION
+%token K_OLD_FUNCTION
 
-%token <string> K_HALT_COMPILER
+%token K_HALT_COMPILER
 
 // Constants
 
@@ -217,53 +218,53 @@
 
 // Operators
 
-%token <string> O_EQEQ
-%token <string> O_EQEQEQ
-%token <string> O_NOTEQ
-%token <string> O_NOTEQEQ
-%token <string> O_LE
-%token <string> O_GE
-%token <string> O_INC
-%token <string> O_DEC
-%token <string> O_DOUBLEARROW
-%token <string> O_SINGLEARROW
-%token <string> O_SL
-%token <string> O_SR
-%token <string> O_COLONCOLON
+%token O_EQEQ
+%token O_EQEQEQ
+%token O_NOTEQ
+%token O_NOTEQEQ
+%token O_LE
+%token O_GE
+%token O_INC
+%token O_DEC
+%token O_DOUBLEARROW
+%token O_SINGLEARROW
+%token O_SL
+%token O_SR
+%token O_COLONCOLON
 
-%token <string> O_LOGICOR
-%token <string> O_LOGICAND
+%token O_LOGICOR
+%token O_LOGICAND
 
-%token <string> O_PLUSEQ
-%token <string> O_MINUSEQ
-%token <string> O_MULEQ
-%token <string> O_DIVEQ
-%token <string> O_CONCATEQ
-%token <string> O_MODEQ
-%token <string> O_ANDEQ
-%token <string> O_OREQ
-%token <string> O_XOREQ
-%token <string> O_SLEQ
-%token <string> O_SREQ
+%token O_PLUSEQ
+%token O_MINUSEQ
+%token O_MULEQ
+%token O_DIVEQ
+%token O_CONCATEQ
+%token O_MODEQ
+%token O_ANDEQ
+%token O_OREQ
+%token O_XOREQ
+%token O_SLEQ
+%token O_SREQ
 
-%token <string> O_MAGIC_CONCAT
+%token O_MAGIC_CONCAT
 
 // Casts
 
-%token <string> CAST_INT
-%token <string> CAST_REAL
-%token <string> CAST_STRING
-%token <string> CAST_ARRAY
-%token <string> CAST_OBJECT
-%token <string> CAST_BOOL
-%token <string> CAST_UNSET
+%token CAST_INT
+%token CAST_REAL
+%token CAST_STRING
+%token CAST_ARRAY
+%token CAST_OBJECT
+%token CAST_BOOL
+%token CAST_UNSET
 
 // Other 
 
 %token <string> STRING
 %token <string> IDENT
 %token <string> VARIABLE
-%token <string> INT
+%token <token_int> INT
 %token <string> REAL 
 %token <string> INLINE_HTML
 %token <string> INVALID_TOKEN
@@ -2255,7 +2256,7 @@ ctor_arguments:
 common_scalar:
 	  INT
 		{
-			$$ = NEW(Token_int, (strtol($1->c_str(), 0, 0), $1));
+			$$ = $1; 
 		}
 	| REAL 
 		{

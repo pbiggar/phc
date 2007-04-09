@@ -11,6 +11,7 @@
 #include "AST.h"
 #include "lib/String.h"
 #include "lib/List.h"
+#include "php_parser.tab.hpp"
 
 class PHP_context
 {
@@ -47,11 +48,11 @@ public:
 // Processing comments, HEREDOC strings and keywords
 public: 
 	bool attach_to_previous; // Attach comment to previous token?
+	bool after_arrow; // was the last token we generated "->"?
+	bool starts_line; // does the next token start a new line? 
 
 	char *heredoc_id, *heredoc_id_ptr;
 	long heredoc_id_len;
-
-	bool after_arrow; // was the last token we generated ->?
 
 // Buffers
 public:
@@ -62,7 +63,7 @@ public:
 	#define MAX_MT 10
 
 	long mt_type[MAX_MT];
-	String* mt_lval[MAX_MT];
+	YYSTYPE mt_lval[MAX_MT];
 	long mt_index;
 	long mt_count;
 	long mt_final_state;

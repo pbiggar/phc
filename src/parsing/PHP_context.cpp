@@ -17,11 +17,13 @@ PHP_context::PHP_context(FILE* input, String* filename)
 
 	this->filename = filename;
 	source_line = 1;
-	attach_to_previous = false;
 	mt_index = 0;
 	mt_count = 0;
 	last_commented_node = 0;
+	
+	attach_to_previous = false;
 	after_arrow = false;
+	starts_line = true;
 }
 
 PHP_context::~PHP_context()
