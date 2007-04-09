@@ -87,34 +87,44 @@ node_10 -> node_19;
 node_10 -> node_11;
 node_1 -> node_10;
 node_1 -> node_2;
-node_43 [label="AST_eval_expr (10)"];
-node_44 [label="AST_method_invocation (10)"];
-node_45 [label="Token_class_name"];
-node_46 [label="%STDLIB%", shape=box]
-node_45 -> node_46;
-node_47 [label="Token_method_name"];
-node_48 [label="var_dump", shape=box]
-node_47 -> node_48;
-node_49 [label="AST_actual_parameter (10)"];
-node_50 [label="AST_method_invocation (10)"];
-node_51 [label="Token_class_name"];
-node_52 [label="%STDLIB%", shape=box]
-node_51 -> node_52;
-node_53 [label="Token_method_name"];
-node_54 [label="factorial", shape=box]
-node_53 -> node_54;
-node_55 [label="AST_actual_parameter (10)"];
-node_56 [label="Token_int (10)"];
-node_57 [label="15", shape=box]
-node_56 -> node_57;
-node_55 -> node_56;
-node_50 -> node_55;
-node_50 -> node_53;
-node_50 -> node_51;
-node_49 -> node_50;
-node_44 -> node_49;
-node_44 -> node_47;
+node_43 [label="AST_method (10)"];
+node_44 [label="AST_signature (13)"];
+node_45 [label="AST_method_mod"];
+node_46 [label="Token_method_name"];
+node_47 [label="main", shape=box]
+node_46 -> node_47;
+node_44 -> node_46;
 node_44 -> node_45;
+node_48 [label="AST_eval_expr (12)"];
+node_49 [label="AST_method_invocation (12)"];
+node_50 [label="Token_class_name"];
+node_51 [label="%STDLIB%", shape=box]
+node_50 -> node_51;
+node_52 [label="Token_method_name"];
+node_53 [label="var_dump", shape=box]
+node_52 -> node_53;
+node_54 [label="AST_actual_parameter (12)"];
+node_55 [label="AST_method_invocation (12)"];
+node_56 [label="Token_class_name"];
+node_57 [label="%STDLIB%", shape=box]
+node_56 -> node_57;
+node_58 [label="Token_method_name"];
+node_59 [label="factorial", shape=box]
+node_58 -> node_59;
+node_60 [label="AST_actual_parameter (12)"];
+node_61 [label="Token_int (12)"];
+node_62 [label="15", shape=box]
+node_61 -> node_62;
+node_60 -> node_61;
+node_55 -> node_60;
+node_55 -> node_58;
+node_55 -> node_56;
+node_54 -> node_55;
+node_49 -> node_54;
+node_49 -> node_52;
+node_49 -> node_50;
+node_48 -> node_49;
+node_43 -> node_48;
 node_43 -> node_44;
 node_0 -> node_43;
 node_0 -> node_1;

@@ -1,4 +1,7 @@
 <?php
-   $bar = (true || false && false);
-   var_dump($bar);
+   function main()
+   {
+      $bar = (true || false && false);
+      var_dump($bar);
+   }
 ?>

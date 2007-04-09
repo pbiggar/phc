@@ -13,6 +13,10 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
+#define OBSOLETE { cout << "/* OBSOLETE */;\n"; 
+
+#define END_OBSOLETE cout << "/* END OBSOLETE */;\n"; }
+
 /*
  * Variabes set by the code generator
  *
@@ -286,16 +290,23 @@ Generate_C::Generate_C(String* extension_name)
 
 void Generate_C::post_string(Token_string* in)
 {
-	String* s = fresh("string");
-
-	cout << "zval* " << *s << ";\n";
-	cout << "MAKE_STD_ZVAL(" << *s << ");\n";
-	cout << "ZVAL_STRING(" << *s << ", \"";
+	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n";
+	cout << "ZVAL_STRING(temp[" << temp(in) << "], \"";
 	escape(in->value);
 	cout << "\", 1);\n";
 
-	in->attrs->set(LOC, s);
-	cout << "zend_hash_next_index_insert(temps, &" << *s << ", sizeof(zval*), NULL);\n";
+	OBSOLETE
+		String* s = fresh("string");
+
+		cout << "zval* " << *s << ";\n";
+		cout << "MAKE_STD_ZVAL(" << *s << ");\n";
+		cout << "ZVAL_STRING(" << *s << ", \"";
+		escape(in->value);
+		cout << "\", 1);\n";
+
+		in->attrs->set(LOC, s);
+		cout << "zend_hash_next_index_insert(temps, &" << *s << ", sizeof(zval*), NULL);\n";
+	END_OBSOLETE
 }
 
 void Generate_C::post_int(Token_int* in)
@@ -303,46 +314,54 @@ void Generate_C::post_int(Token_int* in)
 	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n"; 
 	cout << "ZVAL_LONG(temp[" << temp(in) << "], " << in->value << ");\n"; 
 
-	cout << "/* OBSOLETE */\n";
-	
-	String* i = fresh("int");
+	OBSOLETE
+		String* i = fresh("int");
 
-	cout << "zval* " << *i << ";\n";
-	cout << "MAKE_STD_ZVAL(" << *i << ");\n";
-	cout << "ZVAL_LONG(" << *i << ", " << in->value << ");\n";
+		cout << "zval* " << *i << ";\n";
+		cout << "MAKE_STD_ZVAL(" << *i << ");\n";
+		cout << "ZVAL_LONG(" << *i << ", " << in->value << ");\n";
 
-	in->attrs->set(LOC, i);
-	cout << "zend_hash_next_index_insert(temps, &" << *i << ", sizeof(zval*), NULL);\n";
-
-	cout << "/* END OBSOLETE */\n";
+		in->attrs->set(LOC, i);
+		cout << "zend_hash_next_index_insert(temps, &" << *i << ", sizeof(zval*), NULL);\n";
+	END_OBSOLETE
 }
 
 void Generate_C::post_bool(Token_bool* in)
 {
-	String* b = fresh("bool");
-
-	cout << "zval* " << *b << ";\n";
-	cout << "MAKE_STD_ZVAL(" << *b << ");\n";
-	
+	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n";
 	if(in->value)
-		cout << "ZVAL_TRUE(" << *b << ");";
+		cout << "ZVAL_TRUE(temp[" << temp(in) << "]);\n";
 	else
-		cout << "ZVAL_FALSE(" << *b << ");";
+		cout << "ZVAL_FALSE(temp[" << temp(in) << "]);\n";
+
+	OBSOLETE
+		String* b = fresh("bool");
 	
-	in->attrs->set(LOC, b);
-	cout << "zend_hash_next_index_insert(temps, &" << *b << ", sizeof(zval*), NULL);\n";
+		cout << "zval* " << *b << ";\n";
+		cout << "MAKE_STD_ZVAL(" << *b << ");\n";
+	
+		if(in->value)
+			cout << "ZVAL_TRUE(" << *b << ");";
+		else
+			cout << "ZVAL_FALSE(" << *b << ");";
+	
+		in->attrs->set(LOC, b);
+		cout << "zend_hash_next_index_insert(temps, &" << *b << ", sizeof(zval*), NULL);\n";
+	END_OBSOLETE
 }
 
 void Generate_C::post_null(Token_null* in)
 {
-	String* n = fresh("null");
+	OBSOLETE
+		String* n = fresh("null");
 	
-	cout << "zval*" << *n << ";\n";
-	cout << "ALLOC_INIT_ZVAL(" << *n << ");\n";
+		cout << "zval*" << *n << ";\n";
+		cout << "ALLOC_INIT_ZVAL(" << *n << ");\n";
 
-	in->attrs->set(LOC, n);
-	// TODO: should we up the refcount when interesting into the temps array?
-	cout << "zend_hash_next_index_insert(temps, &" << *n << ", sizeof(zval*), NULL);\n";
+		in->attrs->set(LOC, n);
+		// TODO: should we up the refcount when interesting into the temps array?
+		cout << "zend_hash_next_index_insert(temps, &" << *n << ", sizeof(zval*), NULL);\n";
+	END_OBSOLETE
 }
 
 /*
@@ -456,9 +475,10 @@ void Generate_C::post_method_invocation(AST_method_invocation* in)
  * Simple statements
  */
 
+// NOTE updated to use temp
 void Generate_C::post_return(AST_return* in)
 {
-	cout << "*return_value = *" << *in->expr->attrs->get_string(LOC) << ";\n";
+	cout << "*return_value = *temp[" << temp(in->expr) << "];\n";
 	cout << "zval_copy_ctor(return_value);\n";
 	cout << "goto " << *eofn_labels.back() << ";\n";
 }
@@ -865,7 +885,15 @@ void Generate_C::post_method(AST_method* in)
 	cout << *eofn << ":;\n";
 
 	/**/
-	cout << "// Free all temporaries\n";
+	cout << "// Free temporaries\n";
+	cout << "{\n";
+	cout << "int i;\n";
+	cout << "for(i = 0; i < " << in->attrs->get_integer("phc.codegen.num_temps")->value() << "; i++)\n";
+	cout << "if(temp[i] != NULL) zval_ptr_dtor(&temp[i]);\n";
+	cout << "}\n";
+
+	/**/
+	cout << "// OBSOLETE Free all temporaries\n";
 	cout << "zend_hash_destroy(temps);\n";
 	cout << "FREE_HASHTABLE(temps);\n";
 
@@ -1012,8 +1040,8 @@ void Generate_C::driver()
 	"    // load the compiled extension\n"
 	"    zend_startup_module (&" << *extension_name << "_module_entry);\n"
 	"\n"
-	"    zval main_run_name;\n"
-	"    ZVAL_STRING (&main_run_name, \"main_run\", NULL);\n"
+	"    zval main_name;\n"
+	"    ZVAL_STRING (&main_name, \"main\", NULL);\n"
 	"\n"
 	"    zval retval;\n"
 	"\n"
@@ -1021,7 +1049,7 @@ void Generate_C::driver()
 	"    int success = call_user_function( \n"
 	"				     EG (function_table),\n"
 	"				     NULL,\n"
-	"				     &main_run_name,\n"
+	"				     &main_name,\n"
 	"				     &retval,\n"
 	"				     0,\n"
 	"				     NULL\n"

@@ -8,5 +8,8 @@
       }
    }
    
-   var_dump(factorial(15));
+   function main()
+   {
+      var_dump(factorial(15));
+   }
 ?>

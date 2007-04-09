@@ -1,6 +1,6 @@
 <?php
 	function main()
 	{
-		5;
+		var_dump(true);
 	}
 ?>

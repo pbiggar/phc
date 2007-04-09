@@ -1,3 +1,6 @@
 <?php
-   eval("printf(\"hello world\n\");");
+   function main()
+   {
+      eval("printf(\"hello world\n\");");
+   }
 ?>

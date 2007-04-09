@@ -1,4 +1,7 @@
 <?php
-   $a = eval("return 5;");
-   var_dump($a);
+   function main()
+   {
+      $a = eval("return 5;");
+      var_dump($a);
+   }
 ?>

@@ -1,5 +1,8 @@
 <?php
-   $a = "test";
-   $b = "another test";
-   $a = &$b;
+   function main()
+   {
+      $a = "test";
+      $b = "another test";
+      $a = &$b;
+   }
 ?>
