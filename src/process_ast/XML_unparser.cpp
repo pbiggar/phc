@@ -159,13 +159,15 @@ void XML_unparser::pre_node(AST_node* in)
 				HANDLE_BOOLEAN ("phc.unparser.needs_curlies")
 				HANDLE_BOOLEAN ("phc.unparser.is_global_stmt")
 				HANDLE_BOOLEAN ("phc.unparser.is_opeq")
+				HANDLE_BOOLEAN ("phc.unparser.starts_line")
 				HANDLE_STRING ("phc.generate_c.location")
 				HANDLE_BOOLEAN ("phc.generate_c.is_addr")
 				HANDLE_STRING ("phc.generate_c.hash")
 				HANDLE_STRING ("phc.generate_c.stridx")
 				HANDLE_INT ("phc.generate_c.strlen")
 				HANDLE_STRING ("phc.generate_c.zvalidx")
-				HANDLE_STRING ("phc.codegen.temp")
+				HANDLE_INT ("phc.codegen.temp")
+				HANDLE_INT ("phc.codegen.num_temps")
 #undef HANDLE_BOOLEAN
 #undef HANDLE_STRING
 #undef HANDLE_INT

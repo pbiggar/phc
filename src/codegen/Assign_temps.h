@@ -10,17 +10,22 @@
 
 #include "AST_visitor.h"
 
+enum scope { GLOBAL_SCOPE, LOCAL_SCOPE };
+
 class Assign_temps : public AST_visitor
 {
 public:
-	Assign_temps();
-
-public:
+	void pre_php_script(AST_php_script* in);
+	void post_php_script(AST_php_script* in);
+	void pre_method(AST_method* in);
+	void post_method(AST_method* in);
 	void pre_expr(AST_expr* in);
 
 protected:
-	int nextFresh;
-	String* fresh();
+	int next_global_fresh;
+	int next_local_fresh;
+	scope current_scope;
+	Integer* fresh();
 };
 
 #endif // PHC_ASSIGN_TEMPS_H
