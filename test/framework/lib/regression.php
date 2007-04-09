@@ -13,7 +13,12 @@ class RegressionTest extends SupportFileTest
 		$this->name = $name;
 		$this->options = $command_line_options;
 		$this->suffix = $support_file_suffix;
-		parent::__construct ($name);
+		parent::__construct ();
+	}
+
+	function get_name ()
+	{
+		return $this->name;
 	}
 
 	function get_support_filename ($subject)
