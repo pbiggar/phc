@@ -150,7 +150,7 @@ node_78 [label="Token_variable_name"];
 node_79 [label="i1", shape=box]
 node_78 -> node_79;
 node_77 -> node_78;
-node_80 [label="Token_op"];
+node_80 [label="Token_op (13)"];
 node_81 [label="!=", shape=box]
 node_80 -> node_81;
 node_82 [label="Token_string (13)"];
@@ -159,7 +159,7 @@ node_82 -> node_83;
 node_76 -> node_82;
 node_76 -> node_80;
 node_76 -> node_77;
-node_84 [label="Token_op"];
+node_84 [label="Token_op (13)"];
 node_85 [label="and", shape=box]
 node_84 -> node_85;
 node_86 [label="AST_bin_op (13)"];
@@ -168,7 +168,7 @@ node_88 [label="Token_variable_name"];
 node_89 [label="i2", shape=box]
 node_88 -> node_89;
 node_87 -> node_88;
-node_90 [label="Token_op"];
+node_90 [label="Token_op (13)"];
 node_91 [label="!=", shape=box]
 node_90 -> node_91;
 node_92 [label="Token_string (13)"];

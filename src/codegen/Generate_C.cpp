@@ -78,6 +78,7 @@ public:
 		(*this)["==="] = "is_identical_function";
 		(*this)["!=="] = "is_not_identical_function";
 		(*this)["!="] = "is_not_equal_function";
+		(*this)["<>"] = "is_not_equal_function";
 		(*this)["<"] = "is_smaller_function";
 		(*this)["<="] = "is_smaller_or_equal_function";
 		(*this)["++"] = "add_function";

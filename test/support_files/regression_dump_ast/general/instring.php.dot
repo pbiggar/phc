@@ -1327,7 +1327,7 @@ node_683 [label="Token_variable_name"];
 node_684 [label="b", shape=box]
 node_683 -> node_684;
 node_682 -> node_683;
-node_685 [label="Token_op"];
+node_685 [label="Token_op (96)"];
 node_686 [label="+", shape=box]
 node_685 -> node_686;
 node_687 [label="AST_variable (96)"];

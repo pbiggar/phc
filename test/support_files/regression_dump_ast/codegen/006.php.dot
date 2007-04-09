@@ -51,7 +51,7 @@ node_26 [label="Token_variable_name"];
 node_27 [label="b", shape=box]
 node_26 -> node_27;
 node_25 -> node_26;
-node_28 [label="Token_op"];
+node_28 [label="Token_op (4)"];
 node_29 [label="+", shape=box]
 node_28 -> node_29;
 node_30 [label="Token_int (4)"];

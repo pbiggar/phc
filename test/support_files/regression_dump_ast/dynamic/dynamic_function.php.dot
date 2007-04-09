@@ -25,7 +25,7 @@ node_12 [label="Token_variable_name"];
 node_13 [label="x", shape=box]
 node_12 -> node_13;
 node_11 -> node_12;
-node_14 [label="Token_op"];
+node_14 [label="Token_op (4)"];
 node_15 [label="*", shape=box]
 node_14 -> node_15;
 node_16 [label="AST_variable (4)"];
@@ -36,7 +36,7 @@ node_16 -> node_17;
 node_10 -> node_16;
 node_10 -> node_14;
 node_10 -> node_11;
-node_19 [label="Token_op"];
+node_19 [label="Token_op (4)"];
 node_20 [label=">", shape=box]
 node_19 -> node_20;
 node_21 [label="Token_int (4)"];

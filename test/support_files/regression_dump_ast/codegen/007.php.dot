@@ -27,7 +27,7 @@ node_13 [label="Token_variable_name"];
 node_14 [label="n", shape=box]
 node_13 -> node_14;
 node_12 -> node_13;
-node_15 [label="Token_op"];
+node_15 [label="Token_op (4)"];
 node_16 [label="==", shape=box]
 node_15 -> node_16;
 node_17 [label="Token_int (4)"];
@@ -48,7 +48,7 @@ node_25 [label="Token_variable_name"];
 node_26 [label="n", shape=box]
 node_25 -> node_26;
 node_24 -> node_25;
-node_27 [label="Token_op"];
+node_27 [label="Token_op (7)"];
 node_28 [label="*", shape=box]
 node_27 -> node_28;
 node_29 [label="AST_method_invocation (7)"];
@@ -65,7 +65,7 @@ node_37 [label="Token_variable_name"];
 node_38 [label="n", shape=box]
 node_37 -> node_38;
 node_36 -> node_37;
-node_39 [label="Token_op"];
+node_39 [label="Token_op (7)"];
 node_40 [label="-", shape=box]
 node_39 -> node_40;
 node_41 [label="Token_int (7)"];

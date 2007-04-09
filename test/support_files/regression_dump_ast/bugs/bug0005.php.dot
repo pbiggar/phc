@@ -33,8 +33,8 @@ node_18 [label="Token_variable_name"];
 node_19 [label="a", shape=box]
 node_18 -> node_19;
 node_17 -> node_18;
-node_20 [label="Token_op"];
-node_21 [label="!=", shape=box]
+node_20 [label="Token_op (4)"];
+node_21 [label="<>", shape=box]
 node_20 -> node_21;
 node_22 [label="Token_int (4)"];
 node_23 [label="0", shape=box]

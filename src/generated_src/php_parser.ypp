@@ -272,7 +272,10 @@
 %token <string> INLINE_HTML
 %token <string> INVALID_TOKEN
 
-%token <token_op> '.'
+// Types of simple operators
+%token <token_op> ',' '|' '&' '^' '.' '+' '-' '*' '/' '%' '!' '~' 
+%token <token_op> O_LOGICOR O_LOGICAND K_OR K_AND K_XOR O_SL O_SR
+%token <token_op> O_EQEQEQ O_NOTEQEQ O_EQEQ O_NOTEQ '<' O_LE '>' O_GE
 
 /*
  * Resolve conflicts
@@ -1778,7 +1781,7 @@ for_expr:
 non_empty_for_expr:
 	  non_empty_for_expr ',' expr
 		{
-			$$ = new AST_bin_op($1, $3, ",");
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr
 		{
@@ -1950,35 +1953,35 @@ expr_without_variable:
 		}
 	| expr O_LOGICOR expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "||"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_LOGICAND expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "&&"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr K_OR expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "or"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr K_AND expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "and"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr K_XOR expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "xor"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '|' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "|"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '&' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "&"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '^' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "^"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '.' expr
 		{
@@ -1996,31 +1999,31 @@ expr_without_variable:
 		}
    | expr '+' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "+"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '-' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "-"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '*' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "*"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '/' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "/"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | expr '%' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "%"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_SL expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "<<"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_SR expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, ">>"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
    | '+' expr
 		{
@@ -2029,47 +2032,47 @@ expr_without_variable:
 		}
    | '-' expr
 		{
-			$$ = NEW(AST_unary_op, ($2, "-")); 
+			$$ = NEW(AST_unary_op, ($1, $2)); 
 		}
    | '!' expr
 		{
-			$$ = NEW(AST_unary_op, ($2, "!")); 
+			$$ = NEW(AST_unary_op, ($1, $2)); 
 		}
    | '~' expr
 		{
-			$$ = NEW(AST_unary_op, ($2, "~")); 
+			$$ = NEW(AST_unary_op, ($1, $2)); 
 		}
 	| expr O_EQEQEQ expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "==="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_NOTEQEQ expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "!=="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_EQEQ expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "=="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_NOTEQ expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "!="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr '<' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "<"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_LE expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "<="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr '>' expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, ">"));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr O_GE expr
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, ">="));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 		}
 	| expr K_INSTANCEOF class_name_reference
 		{

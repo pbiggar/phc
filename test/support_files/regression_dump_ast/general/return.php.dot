@@ -35,7 +35,7 @@ node_17 [label="Token_variable_name"];
 node_18 [label="x", shape=box]
 node_17 -> node_18;
 node_16 -> node_17;
-node_19 [label="Token_op"];
+node_19 [label="Token_op (5)"];
 node_20 [label="+", shape=box]
 node_19 -> node_20;
 node_21 [label="AST_variable (5)"];

@@ -37,13 +37,13 @@ node_2 -> node_6;
 node_2 -> node_4;
 node_2 -> node_3;
 node_18 [label="AST_for (4)"];
-node_19 [label="AST_bin_op"];
+node_19 [label="AST_bin_op (4)"];
 node_20 [label="AST_variable (4)"];
 node_21 [label="Token_variable_name"];
 node_22 [label="x", shape=box]
 node_21 -> node_22;
 node_20 -> node_21;
-node_23 [label="Token_op"];
+node_23 [label="Token_op (4)"];
 node_24 [label=",", shape=box]
 node_23 -> node_24;
 node_25 [label="AST_variable (4)"];

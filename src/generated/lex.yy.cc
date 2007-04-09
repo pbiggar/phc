@@ -848,14 +848,14 @@ goto find_rule; \
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
-	#define RETURN_OP(x) { 														\
+	#define RETURN_OP(t, s) {													\
 		if(args_info.dump_tokens_flag) 										\
-			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, x); 	\
-		yylval->token_op = new Token_op(new String(x)); 				\
+			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
+		yylval->token_op = new Token_op(new String(s)); 				\
 		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\
-		return *x; } 
+		return t; } 
 
 	#define RETURN_ALL(state)					\
 		yyextra->mt_final_state = state;		\
@@ -1297,152 +1297,155 @@ YY_RULE_SETUP
 case 9:
 YY_RULE_SETUP
 #line 157 "src/generated_src/php_scanner.lex"
-{ RETURN(O_EQEQ); }
+{ RETURN_OP(O_EQEQ, "=="); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 158 "src/generated_src/php_scanner.lex"
-{ RETURN(O_EQEQEQ); }
+{ RETURN_OP(O_EQEQEQ, "==="); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 159 "src/generated_src/php_scanner.lex"
-{ RETURN(O_NOTEQ); }
+{ RETURN_OP(O_NOTEQ, "!="); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 160 "src/generated_src/php_scanner.lex"
-{ RETURN(O_NOTEQ); }
+{ RETURN_OP(O_NOTEQ, "<>"); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 161 "src/generated_src/php_scanner.lex"
-{ RETURN(O_NOTEQEQ); }
+{ RETURN_OP(O_NOTEQEQ, "!=="); }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 162 "src/generated_src/php_scanner.lex"
-{ RETURN(O_LE); }
+{ RETURN_OP(O_LE, "<="); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 163 "src/generated_src/php_scanner.lex"
-{ RETURN(O_GE); }
+{ RETURN_OP(O_GE, ">="); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 164 "src/generated_src/php_scanner.lex"
+#line 165 "src/generated_src/php_scanner.lex"
 { RETURN(O_INC); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 165 "src/generated_src/php_scanner.lex"
+#line 166 "src/generated_src/php_scanner.lex"
 { RETURN(O_DEC); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 166 "src/generated_src/php_scanner.lex"
+#line 167 "src/generated_src/php_scanner.lex"
 { RETURN(O_DOUBLEARROW); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 167 "src/generated_src/php_scanner.lex"
+#line 168 "src/generated_src/php_scanner.lex"
 { RETURN(O_SINGLEARROW); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 169 "src/generated_src/php_scanner.lex"
-{ RETURN(O_SL); }
+#line 170 "src/generated_src/php_scanner.lex"
+{ RETURN_OP(O_SL, "<<"); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 170 "src/generated_src/php_scanner.lex"
-{ RETURN(O_SR); }
+#line 171 "src/generated_src/php_scanner.lex"
+{ RETURN_OP(O_SR, ">>"); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 172 "src/generated_src/php_scanner.lex"
+#line 173 "src/generated_src/php_scanner.lex"
 { RETURN(O_PLUSEQ); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 173 "src/generated_src/php_scanner.lex"
+#line 174 "src/generated_src/php_scanner.lex"
 { RETURN(O_MINUSEQ); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 174 "src/generated_src/php_scanner.lex"
+#line 175 "src/generated_src/php_scanner.lex"
 { RETURN(O_MULEQ); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 175 "src/generated_src/php_scanner.lex"
+#line 176 "src/generated_src/php_scanner.lex"
 { RETURN(O_DIVEQ); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 176 "src/generated_src/php_scanner.lex"
+#line 177 "src/generated_src/php_scanner.lex"
 { RETURN(O_CONCATEQ); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 177 "src/generated_src/php_scanner.lex"
+#line 178 "src/generated_src/php_scanner.lex"
 { RETURN(O_MODEQ); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 178 "src/generated_src/php_scanner.lex"
+#line 179 "src/generated_src/php_scanner.lex"
 { RETURN(O_ANDEQ); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 179 "src/generated_src/php_scanner.lex"
+#line 180 "src/generated_src/php_scanner.lex"
 { RETURN(O_OREQ); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 180 "src/generated_src/php_scanner.lex"
+#line 181 "src/generated_src/php_scanner.lex"
 { RETURN(O_XOREQ); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 181 "src/generated_src/php_scanner.lex"
+#line 182 "src/generated_src/php_scanner.lex"
 { RETURN(O_SLEQ); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 182 "src/generated_src/php_scanner.lex"
+#line 183 "src/generated_src/php_scanner.lex"
 { RETURN(O_SREQ); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 183 "src/generated_src/php_scanner.lex"
+#line 184 "src/generated_src/php_scanner.lex"
 { RETURN(O_COLONCOLON); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 185 "src/generated_src/php_scanner.lex"
-{ RETURN(O_LOGICAND); }
+#line 186 "src/generated_src/php_scanner.lex"
+{ RETURN_OP(O_LOGICAND, "&&"); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 186 "src/generated_src/php_scanner.lex"
-{ RETURN(O_LOGICOR); }
+#line 187 "src/generated_src/php_scanner.lex"
+{ RETURN_OP(O_LOGICOR, "||"); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 188 "src/generated_src/php_scanner.lex"
-{ RETURN_OP(yytext); }
+#line 189 "src/generated_src/php_scanner.lex"
+{ RETURN_OP(*yytext, yytext); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 189 "src/generated_src/php_scanner.lex"
-{ yyextra->attach_to_previous = true; RETURN_OP(yytext); } 
+#line 190 "src/generated_src/php_scanner.lex"
+{ 
+								yyextra->attach_to_previous = true; 
+								RETURN_OP(*yytext, yytext); 
+							} 
 	YY_BREAK
 /* Tokens */
 case 38:
 YY_RULE_SETUP
-#line 193 "src/generated_src/php_scanner.lex"
+#line 197 "src/generated_src/php_scanner.lex"
 {
 								// variable names do not contain $
 								yylval->string = new String(yytext+1); 
@@ -1451,7 +1454,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 198 "src/generated_src/php_scanner.lex"
+#line 202 "src/generated_src/php_scanner.lex"
 
 							{	// Can't declare local variables without scoping them
 								
@@ -1468,6 +1471,12 @@ YY_RULE_SETUP
 								{
 									switch(keyword->token)
 									{
+										case K_AND:
+										case K_OR:
+										case K_XOR:
+											yylval->token_op = new Token_op(new String(yytext));
+											copy_state(yylval->token_op, yyextra);
+											break;
 										case K_CLASS:
 										case K_FUNCTION:
 											yyextra->attach_to_previous = 1;
@@ -1485,7 +1494,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 228 "src/generated_src/php_scanner.lex"
+#line 238 "src/generated_src/php_scanner.lex"
 { 
 								Token_int* i = new Token_int(
 									strtol(yytext, 0, 0),
@@ -1499,41 +1508,41 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 238 "src/generated_src/php_scanner.lex"
+#line 248 "src/generated_src/php_scanner.lex"
 { yylval->string = new String(yytext); RETURN(REAL); }
 	YY_BREAK
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 239 "src/generated_src/php_scanner.lex"
+#line 249 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(INITIAL); RETURN(';'); }
 	YY_BREAK
 /* Strings */
 case 43:
 YY_RULE_SETUP
-#line 243 "src/generated_src/php_scanner.lex"
+#line 253 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(SQ_STR); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 244 "src/generated_src/php_scanner.lex"
+#line 254 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(BT_STR); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 245 "src/generated_src/php_scanner.lex"
+#line 255 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(DQ_STR); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 246 "src/generated_src/php_scanner.lex"
+#line 256 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(HD_STR); }
 	YY_BREAK
 /* Comments */
 case 47:
 /* rule 47 can match eol */
 YY_RULE_SETUP
-#line 250 "src/generated_src/php_scanner.lex"
+#line 260 "src/generated_src/php_scanner.lex"
 {
 								// Following a suggestion by Tim Van Holder on bison-help,
 								// we treat blank lines as comments
@@ -1542,7 +1551,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 255 "src/generated_src/php_scanner.lex"
+#line 265 "src/generated_src/php_scanner.lex"
 {
 								yyextra->buffer = yytext;	
 								BEGIN(ML_COMM); 
@@ -1550,7 +1559,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 259 "src/generated_src/php_scanner.lex"
+#line 269 "src/generated_src/php_scanner.lex"
 { 
 								yyextra->buffer = yytext;	
 								BEGIN(SL_COMM); 
@@ -1558,7 +1567,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 264 "src/generated_src/php_scanner.lex"
+#line 274 "src/generated_src/php_scanner.lex"
 { 
 								yyextra->buffer.append(yytext);
 								
@@ -1574,13 +1583,13 @@ YY_RULE_SETUP
 case 51:
 /* rule 51 can match eol */
 YY_RULE_SETUP
-#line 275 "src/generated_src/php_scanner.lex"
+#line 285 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }
 	YY_BREAK
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 277 "src/generated_src/php_scanner.lex"
+#line 287 "src/generated_src/php_scanner.lex"
 { 
 								if(yyextra->attach_to_previous)
 									yyextra->attach_comment(new String(yyextra->buffer));
@@ -1595,31 +1604,31 @@ YY_RULE_SETUP
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 287 "src/generated_src/php_scanner.lex"
+#line 297 "src/generated_src/php_scanner.lex"
 { yyextra->buffer = ""; BEGIN(INITIAL); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 288 "src/generated_src/php_scanner.lex"
+#line 298 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }	
 	YY_BREAK
 /* Any other character */
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 292 "src/generated_src/php_scanner.lex"
+#line 302 "src/generated_src/php_scanner.lex"
 /* Ignore */
 	YY_BREAK
 case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
-#line 293 "src/generated_src/php_scanner.lex"
+#line 303 "src/generated_src/php_scanner.lex"
 { RETURN(INVALID_TOKEN); }
 	YY_BREAK
 /* Deal with singly quoted strings */
 case 57:
 YY_RULE_SETUP
-#line 297 "src/generated_src/php_scanner.lex"
+#line 307 "src/generated_src/php_scanner.lex"
 {
 							Token_string* str = new Token_string(
 								new String(yyextra->buffer),
@@ -1636,24 +1645,24 @@ YY_RULE_SETUP
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 310 "src/generated_src/php_scanner.lex"
+#line 320 "src/generated_src/php_scanner.lex"
 { BEGIN(SQ_ESC); }
 	YY_BREAK
 case 59:
 /* rule 59 can match eol */
 YY_RULE_SETUP
-#line 311 "src/generated_src/php_scanner.lex"
+#line 321 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 313 "src/generated_src/php_scanner.lex"
+#line 323 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); BEGIN(SQ_STR); }
 	YY_BREAK
 case 61:
 /* rule 61 can match eol */
 YY_RULE_SETUP
-#line 314 "src/generated_src/php_scanner.lex"
+#line 324 "src/generated_src/php_scanner.lex"
 {
 							yyextra->buffer.push_back('\\');
 							yyextra->buffer.push_back(*yytext);
@@ -1663,7 +1672,7 @@ YY_RULE_SETUP
 /* Deal with backticked strings. */
 case 62:
 YY_RULE_SETUP
-#line 322 "src/generated_src/php_scanner.lex"
+#line 332 "src/generated_src/php_scanner.lex"
 {
 							yyextra->schedule_return(IDENT, "shell_exec");
 							yyextra->schedule_return('(');
@@ -1676,13 +1685,13 @@ YY_RULE_SETUP
 case 63:
 /* rule 63 can match eol */
 YY_RULE_SETUP
-#line 330 "src/generated_src/php_scanner.lex"
+#line 340 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }
 	YY_BREAK
 /* Deal with in-string syntax (in DQ_STR, and HD_STR) */
 case 64:
 YY_RULE_SETUP
-#line 334 "src/generated_src/php_scanner.lex"
+#line 344 "src/generated_src/php_scanner.lex"
 {
 							yyextra->schedule_return(STRING, yyextra->buffer);
 							yyextra->schedule_return('.', ".");
@@ -1695,7 +1704,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 343 "src/generated_src/php_scanner.lex"
+#line 353 "src/generated_src/php_scanner.lex"
 {
 							yyextra->schedule_return(STRING, yyextra->buffer);
 							yyextra->schedule_return('.', ".");
@@ -1707,7 +1716,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 351 "src/generated_src/php_scanner.lex"
+#line 361 "src/generated_src/php_scanner.lex"
 
 						{
 							long left, right;
@@ -1729,7 +1738,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 369 "src/generated_src/php_scanner.lex"
+#line 379 "src/generated_src/php_scanner.lex"
 
 						{
 							long left, right;
@@ -1751,7 +1760,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 387 "src/generated_src/php_scanner.lex"
+#line 397 "src/generated_src/php_scanner.lex"
 
 						{
 							long left, right;
@@ -1773,7 +1782,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 405 "src/generated_src/php_scanner.lex"
+#line 415 "src/generated_src/php_scanner.lex"
 
 						{
 							long arrow;
@@ -1793,7 +1802,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 422 "src/generated_src/php_scanner.lex"
+#line 432 "src/generated_src/php_scanner.lex"
 {
 							yy_push_state(COMPLEX2, yyscanner);
 							yy_push_state(COMPLEX1, yyscanner);
@@ -1811,32 +1820,32 @@ YY_RULE_SETUP
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 437 "src/generated_src/php_scanner.lex"
+#line 447 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('\n'); yy_pop_state(yyscanner); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 438 "src/generated_src/php_scanner.lex"
+#line 448 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('\t'); yy_pop_state(yyscanner); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 439 "src/generated_src/php_scanner.lex"
+#line 449 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('\r'); yy_pop_state(yyscanner); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 440 "src/generated_src/php_scanner.lex"
+#line 450 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('\\'); yy_pop_state(yyscanner); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 441 "src/generated_src/php_scanner.lex"
+#line 451 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('$');  yy_pop_state(yyscanner); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 442 "src/generated_src/php_scanner.lex"
+#line 452 "src/generated_src/php_scanner.lex"
 
 						{
 							char c = (char) strtol(yytext + 1, 0, 16);
@@ -1847,7 +1856,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 449 "src/generated_src/php_scanner.lex"
+#line 459 "src/generated_src/php_scanner.lex"
 
 						{
 							char c = (char) strtol(yytext, 0, 8);
@@ -1859,7 +1868,7 @@ YY_RULE_SETUP
 case 78:
 /* rule 78 can match eol */
 YY_RULE_SETUP
-#line 456 "src/generated_src/php_scanner.lex"
+#line 466 "src/generated_src/php_scanner.lex"
 { 
 							yyextra->buffer.push_back('\\');
 							yyextra->buffer.push_back(*yytext);
@@ -1870,7 +1879,7 @@ YY_RULE_SETUP
 case 79:
 /* rule 79 can match eol */
 YY_RULE_SETUP
-#line 464 "src/generated_src/php_scanner.lex"
+#line 474 "src/generated_src/php_scanner.lex"
 {
 							yyless(0);
 							BEGIN(PHP);
@@ -1880,17 +1889,17 @@ YY_RULE_SETUP
 case 80:
 /* rule 80 can match eol */
 YY_RULE_SETUP
-#line 469 "src/generated_src/php_scanner.lex"
+#line 479 "src/generated_src/php_scanner.lex"
 {
 							yyless(0);
 							yy_pop_state(yyscanner);
-							RETURN_OP(".");
+							RETURN_OP('.', ".");
 						}
 	YY_BREAK
 /* Deal with (doubly quoted) strings. */
 case 81:
 YY_RULE_SETUP
-#line 477 "src/generated_src/php_scanner.lex"
+#line 487 "src/generated_src/php_scanner.lex"
 {
 							Token_string* str = new Token_string(
 								new String(yyextra->buffer),
@@ -1905,24 +1914,24 @@ YY_RULE_SETUP
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 489 "src/generated_src/php_scanner.lex"
+#line 499 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back('"'); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 490 "src/generated_src/php_scanner.lex"
+#line 500 "src/generated_src/php_scanner.lex"
 { yy_push_state(ESCAPE, yyscanner); }
 	YY_BREAK
 case 84:
 /* rule 84 can match eol */
 YY_RULE_SETUP
-#line 491 "src/generated_src/php_scanner.lex"
+#line 501 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }
 	YY_BREAK
 /* Heredoc syntax */
 case 85:
 YY_RULE_SETUP
-#line 495 "src/generated_src/php_scanner.lex"
+#line 505 "src/generated_src/php_scanner.lex"
 {
 							yyextra->heredoc_id = strdup(yytext);
 							yyextra->heredoc_id_len = yyleng;
@@ -1936,7 +1945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 505 "src/generated_src/php_scanner.lex"
+#line 515 "src/generated_src/php_scanner.lex"
 { 
 							yyless(0); 
 							BEGIN(PHP); 
@@ -1946,24 +1955,24 @@ YY_RULE_SETUP
 case 87:
 /* rule 87 can match eol */
 YY_RULE_SETUP
-#line 511 "src/generated_src/php_scanner.lex"
+#line 521 "src/generated_src/php_scanner.lex"
 { BEGIN(HD_MAIN); }
 	YY_BREAK
 case 88:
 /* rule 88 can match eol */
 YY_RULE_SETUP
-#line 512 "src/generated_src/php_scanner.lex"
+#line 522 "src/generated_src/php_scanner.lex"
 { RETURN(INVALID_TOKEN);	}
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 514 "src/generated_src/php_scanner.lex"
+#line 524 "src/generated_src/php_scanner.lex"
 { yy_push_state(ESCAPE, yyscanner); }
 	YY_BREAK
 case 90:
 /* rule 90 can match eol */
 YY_RULE_SETUP
-#line 515 "src/generated_src/php_scanner.lex"
+#line 525 "src/generated_src/php_scanner.lex"
 {
 							yyextra->buffer.push_back(*yytext);
 
@@ -1974,7 +1983,7 @@ YY_RULE_SETUP
 case 91:
 /* rule 91 can match eol */
 YY_RULE_SETUP
-#line 521 "src/generated_src/php_scanner.lex"
+#line 531 "src/generated_src/php_scanner.lex"
 
 							yyextra->buffer.push_back(*yytext);
 
@@ -1992,7 +2001,7 @@ YY_RULE_SETUP
 case 92:
 /* rule 92 can match eol */
 YY_RULE_SETUP
-#line 534 "src/generated_src/php_scanner.lex"
+#line 544 "src/generated_src/php_scanner.lex"
  
 							{
 								// Remove heredoc_id from the buffer 
@@ -2022,7 +2031,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 560 "src/generated_src/php_scanner.lex"
+#line 570 "src/generated_src/php_scanner.lex"
 
 							yyextra->buffer.push_back(*yytext);
 							yyextra->heredoc_id_ptr = 0;
@@ -2033,7 +2042,7 @@ YY_RULE_SETUP
 case 94:
 /* rule 94 can match eol */
 YY_RULE_SETUP
-#line 568 "src/generated_src/php_scanner.lex"
+#line 578 "src/generated_src/php_scanner.lex"
 {
 							yyless(0);
 
@@ -2051,7 +2060,7 @@ YY_RULE_SETUP
 /* Deal with HTML fragments */
 case 95:
 YY_RULE_SETUP
-#line 584 "src/generated_src/php_scanner.lex"
+#line 594 "src/generated_src/php_scanner.lex"
 {
 							// The logic that deals with returning multiple tokens
 							// needs at least two tokens to work with.
@@ -2067,7 +2076,7 @@ YY_RULE_SETUP
 case 96:
 /* rule 96 can match eol */
 YY_RULE_SETUP
-#line 595 "src/generated_src/php_scanner.lex"
+#line 605 "src/generated_src/php_scanner.lex"
 
 							BEGIN(PHP); 
 
@@ -2094,7 +2103,7 @@ case YY_STATE_EOF(SL_COMM):
 case YY_STATE_EOF(COMPLEX1):
 case YY_STATE_EOF(COMPLEX2):
 case YY_STATE_EOF(RET_MULTI):
-#line 604 "src/generated_src/php_scanner.lex"
+#line 614 "src/generated_src/php_scanner.lex"
 
 							if(yyextra->buffer.empty())
 							{
@@ -2111,15 +2120,15 @@ case YY_STATE_EOF(RET_MULTI):
 case 97:
 /* rule 97 can match eol */
 YY_RULE_SETUP
-#line 616 "src/generated_src/php_scanner.lex"
+#line 626 "src/generated_src/php_scanner.lex"
 { yyextra->buffer.push_back(*yytext); }
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 618 "src/generated_src/php_scanner.lex"
+#line 628 "src/generated_src/php_scanner.lex"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2123 "src/generated/lex.yy.cc"
+#line 2132 "src/generated/lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3210,7 +3219,7 @@ void PHP_free (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 618 "src/generated_src/php_scanner.lex"
+#line 628 "src/generated_src/php_scanner.lex"
 
 
 

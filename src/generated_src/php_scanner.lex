@@ -35,14 +35,14 @@
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
-	#define RETURN_OP(x) { 														\
+	#define RETURN_OP(t, s) {													\
 		if(args_info.dump_tokens_flag) 										\
-			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, x); 	\
-		yylval->token_op = new Token_op(new String(x)); 				\
+			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
+		yylval->token_op = new Token_op(new String(s)); 				\
 		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\
-		return *x; } 
+		return t; } 
 
 	#define RETURN_ALL(state)					\
 		yyextra->mt_final_state = state;		\
@@ -154,20 +154,21 @@ UNSET_CAST		{CS}"unset"{CE}
 
 	/* Operators */
 
-<PHP>"=="				{ RETURN(O_EQEQ); }
-<PHP>"==="				{ RETURN(O_EQEQEQ); }
-<PHP>"!="				{ RETURN(O_NOTEQ); }
-<PHP>"<>"				{ RETURN(O_NOTEQ); }
-<PHP>"!=="				{ RETURN(O_NOTEQEQ); }
-<PHP>"<="				{ RETURN(O_LE); }
-<PHP>">="				{ RETURN(O_GE); }
+<PHP>"=="				{ RETURN_OP(O_EQEQ, "=="); }
+<PHP>"==="				{ RETURN_OP(O_EQEQEQ, "==="); }
+<PHP>"!="				{ RETURN_OP(O_NOTEQ, "!="); }
+<PHP>"<>"				{ RETURN_OP(O_NOTEQ, "<>"); }
+<PHP>"!=="				{ RETURN_OP(O_NOTEQEQ, "!=="); }
+<PHP>"<="				{ RETURN_OP(O_LE, "<="); }
+<PHP>">="				{ RETURN_OP(O_GE, ">="); }
+
 <PHP>"++"				{ RETURN(O_INC); }
 <PHP>"--"				{ RETURN(O_DEC); }
 <PHP>"=>"				{ RETURN(O_DOUBLEARROW); }
 <PHP>"->"				{ RETURN(O_SINGLEARROW); }
 
-<PHP>"<<"				{ RETURN(O_SL); }
-<PHP>">>"				{ RETURN(O_SR); }
+<PHP>"<<"				{ RETURN_OP(O_SL, "<<"); }
+<PHP>">>"				{ RETURN_OP(O_SR, ">>"); }
 
 <PHP>"+="				{ RETURN(O_PLUSEQ); }
 <PHP>"-="				{ RETURN(O_MINUSEQ); }
@@ -182,11 +183,14 @@ UNSET_CAST		{CS}"unset"{CE}
 <PHP>">>="				{ RETURN(O_SREQ); }
 <PHP>"::"				{ RETURN(O_COLONCOLON); }
 
-<PHP>"&&"				{ RETURN(O_LOGICAND); }
-<PHP>"||"				{ RETURN(O_LOGICOR); }
+<PHP>"&&"				{ RETURN_OP(O_LOGICAND, "&&"); }
+<PHP>"||"				{ RETURN_OP(O_LOGICOR, "||"); }
 
-<PHP>{SIMPLE_OP}		{ RETURN_OP(yytext); }
-<PHP>";"					{ yyextra->attach_to_previous = true; RETURN_OP(yytext); } 
+<PHP>{SIMPLE_OP}		{ RETURN_OP(*yytext, yytext); }
+<PHP>";"					{ 
+								yyextra->attach_to_previous = true; 
+								RETURN_OP(*yytext, yytext); 
+							} 
 
 	/* Tokens */
 
@@ -211,6 +215,12 @@ UNSET_CAST		{CS}"unset"{CE}
 								{
 									switch(keyword->token)
 									{
+										case K_AND:
+										case K_OR:
+										case K_XOR:
+											yylval->token_op = new Token_op(new String(yytext));
+											copy_state(yylval->token_op, yyextra);
+											break;
 										case K_CLASS:
 										case K_FUNCTION:
 											yyextra->attach_to_previous = 1;
@@ -469,7 +479,7 @@ UNSET_CAST		{CS}"unset"{CE}
 <COMPLEX2>{ANY}	{
 							yyless(0);
 							yy_pop_state(yyscanner);
-							RETURN_OP(".");
+							RETURN_OP('.', ".");
 						}
 
 	/* Deal with (doubly quoted) strings. */

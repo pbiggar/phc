@@ -22,7 +22,7 @@ node_10 [label="Token_variable_name"];
 node_11 [label="i", shape=box]
 node_10 -> node_11;
 node_9 -> node_10;
-node_12 [label="Token_op"];
+node_12 [label="Token_op (4)"];
 node_13 [label="<", shape=box]
 node_12 -> node_13;
 node_14 [label="Token_int (4)"];

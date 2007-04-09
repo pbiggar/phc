@@ -15,14 +15,14 @@ node_6 [label="AST_bin_op (2)"];
 node_7 [label="Token_bool (2)"];
 node_8 [label="true", shape=box]
 node_7 -> node_8;
-node_9 [label="Token_op"];
+node_9 [label="Token_op (2)"];
 node_10 [label="||", shape=box]
 node_9 -> node_10;
 node_11 [label="AST_bin_op (2)"];
 node_12 [label="Token_bool (2)"];
 node_13 [label="false", shape=box]
 node_12 -> node_13;
-node_14 [label="Token_op"];
+node_14 [label="Token_op (2)"];
 node_15 [label="&&", shape=box]
 node_14 -> node_15;
 node_16 [label="Token_bool (2)"];

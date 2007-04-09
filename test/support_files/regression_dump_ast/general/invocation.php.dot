@@ -309,7 +309,7 @@ node_160 [label="AST_bin_op (19)"];
 node_161 [label="Token_int (19)"];
 node_162 [label="2", shape=box]
 node_161 -> node_162;
-node_163 [label="Token_op"];
+node_163 [label="Token_op (19)"];
 node_164 [label="+", shape=box]
 node_163 -> node_164;
 node_165 [label="Token_int (19)"];
@@ -334,7 +334,7 @@ node_173 [label="AST_bin_op (20)"];
 node_174 [label="Token_int (20)"];
 node_175 [label="2", shape=box]
 node_174 -> node_175;
-node_176 [label="Token_op"];
+node_176 [label="Token_op (20)"];
 node_177 [label="+", shape=box]
 node_176 -> node_177;
 node_178 [label="Token_int (20)"];
