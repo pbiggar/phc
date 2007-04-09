@@ -1,22 +1,31 @@
 # phc -- the open source PHP compiler
 # See doc/license/README.license for licensing information
+section "GENERAL OPTIONS"
+option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
+option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off
+option "verbose" v "Verbose output" flag off
+option "no-validation" - "Toggle XML validation"  flag on hidden 
 
+section "COMPILATION OPTIONS"
 option "compile" c "Compile" flag off
 option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string no multiple 
 option "generate-c" - "Generate C code" flag off hidden
 option "extension" - "Generate a PHP extension called NAME instead of a standalone application" string typestr="NAME" no 
 option "with-php" - "PHP installation path" string typestr="NAME" no hidden 
-option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
-option "dump-tokens" - "Perform lexical analysis only (spits out a token list). Probably only useful for debugging phc itself" flag off hidden
+option "compile-time-includes" - "When possible, replace include() statements with the parsed contents of the specified file" flag off
+
+section "DUMP OPTIONS"
 option "dump-php" - "Dump PHP code back immediately after parsing to standard output (pretty printing)" flag off 
-option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
-option "run-lowering" - "Dump the XML representation of the HIR, after lowering. Only useful for debugging" flag off hidden
 option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
 option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off
-option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off
+option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "no-line-numbers" - "Don't include line numbers when dumping AST/XML" flag off hidden 
-option "compile-time-includes" - "When possible, replace include() statements with the parsed contents of the specified file" flag off
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
-option "verbose" v "Verbose output" flag off
-option "no-validation" - "Toggle XML validation"  flag on hidden 
+
+section "DEBUGGING PHC"
+text "Specify --full-help to see these options"
+option "dump-tokens" - "Perform lexical analysis only (spits out a token list)" flag off hidden
+option "run-lowering" - "Dump the XML representation of the HIR, after lowering" flag off hidden
+option "run-assign-temps" - "Dump the XML representation of the HIR, after assigning temporaries" flag off hidden
+
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

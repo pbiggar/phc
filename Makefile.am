@@ -46,6 +46,8 @@ src_phc_SOURCES =												\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
+	src/codegen/Assign_temps.cpp							\
+	src/codegen/Assign_temps.h								\
 	src/codegen/Prep.cpp										\
 	src/codegen/Prep.h										\
 	src/generated/AST.cpp									\

@@ -31,42 +31,53 @@ const char *gengetopt_args_info_help[] = {
   "  -h, --help                   Print help and exit",
   "      --full-help              Print help, including hidden options, and exit",
   "  -V, --version                Print version and exit",
+  "\nGENERAL OPTIONS:",
+  "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
+  "      --read-ast-xml           Assume the input is a phc AST in XML format  \n                                 (default=off)",
+  "  -v, --verbose                Verbose output  (default=off)",
+  "\nCOMPILATION OPTIONS:",
   "  -c, --compile                Compile  (default=off)",
   "  -C, --c-option=STRING        Pass option to the C compile (e.g., -C-g; can be \n                                 specified multiple times)",
   "      --extension=NAME         Generate a PHP extension called NAME instead of \n                                 a standalone application",
-  "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
+  "      --compile-time-includes  When possible, replace include() statements with \n                                 the parsed contents of the specified file  \n                                 (default=off)",
+  "\nDUMP OPTIONS:",
   "      --dump-php               Dump PHP code back immediately after parsing to \n                                 standard output (pretty printing)  \n                                 (default=off)",
-  "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
   "      --dump-ast-dot           Dump the AST from the source in dot format  \n                                 (default=off)",
   "      --dump-ast-xml           Dump the AST from the source in XML format  \n                                 (default=off)",
-  "      --read-ast-xml           Assume the input is a phc AST in XML format  \n                                 (default=off)",
-  "      --compile-time-includes  When possible, replace include() statements with \n                                 the parsed contents of the specified file  \n                                 (default=off)",
+  "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
   "      --tab=STRING             String to use for tabs while unparsing  \n                                 (default=`\t')",
-  "  -v, --verbose                Verbose output  (default=off)",
+  "\nDEBUGGING PHC:",
+  "Specify --full-help to see these options",
     0
 };
 const char *gengetopt_args_info_full_help[] = {
   "  -h, --help                   Print help and exit",
   "      --full-help              Print help, including hidden options, and exit",
   "  -V, --version                Print version and exit",
+  "\nGENERAL OPTIONS:",
+  "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
+  "      --read-ast-xml           Assume the input is a phc AST in XML format  \n                                 (default=off)",
+  "  -v, --verbose                Verbose output  (default=off)",
+  "      --no-validation          Toggle XML validation  (default=on)",
+  "\nCOMPILATION OPTIONS:",
   "  -c, --compile                Compile  (default=off)",
   "  -C, --c-option=STRING        Pass option to the C compile (e.g., -C-g; can be \n                                 specified multiple times)",
   "      --generate-c             Generate C code  (default=off)",
   "      --extension=NAME         Generate a PHP extension called NAME instead of \n                                 a standalone application",
   "      --with-php=NAME          PHP installation path",
-  "      --run=STRING             Run the specified plugin (may be specified \n                                 multiple times)",
-  "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list). Probably only useful for debugging phc \n                                 itself  (default=off)",
+  "      --compile-time-includes  When possible, replace include() statements with \n                                 the parsed contents of the specified file  \n                                 (default=off)",
+  "\nDUMP OPTIONS:",
   "      --dump-php               Dump PHP code back immediately after parsing to \n                                 standard output (pretty printing)  \n                                 (default=off)",
-  "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
-  "      --run-lowering           Dump the XML representation of the HIR, after \n                                 lowering. Only useful for debugging  \n                                 (default=off)",
   "      --dump-ast-dot           Dump the AST from the source in dot format  \n                                 (default=off)",
   "      --dump-ast-xml           Dump the AST from the source in XML format  \n                                 (default=off)",
-  "      --read-ast-xml           Assume the input is a phc AST in XML format  \n                                 (default=off)",
+  "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
   "      --no-line-numbers        Don't include line numbers when dumping AST/XML  \n                                 (default=off)",
-  "      --compile-time-includes  When possible, replace include() statements with \n                                 the parsed contents of the specified file  \n                                 (default=off)",
   "      --tab=STRING             String to use for tabs while unparsing  \n                                 (default=`\t')",
-  "  -v, --verbose                Verbose output  (default=off)",
-  "      --no-validation          Toggle XML validation  (default=on)",
+  "\nDEBUGGING PHC:",
+  "Specify --full-help to see these options",
+  "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list)  (default=off)",
+  "      --run-lowering           Dump the XML representation of the HIR, after \n                                 lowering  (default=off)",
+  "      --run-assign-temps       Dump the XML representation of the HIR, after \n                                 assigning temporaries  (default=off)",
     0
 };
 
@@ -97,29 +108,35 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->help_given = 0 ;
   args_info->full_help_given = 0 ;
   args_info->version_given = 0 ;
+  args_info->run_given = 0 ;
+  args_info->read_ast_xml_given = 0 ;
+  args_info->verbose_given = 0 ;
+  args_info->no_validation_given = 0 ;
   args_info->compile_given = 0 ;
   args_info->c_option_given = 0 ;
   args_info->generate_c_given = 0 ;
   args_info->extension_given = 0 ;
   args_info->with_php_given = 0 ;
-  args_info->run_given = 0 ;
-  args_info->dump_tokens_given = 0 ;
+  args_info->compile_time_includes_given = 0 ;
   args_info->dump_php_given = 0 ;
-  args_info->next_line_curlies_given = 0 ;
-  args_info->run_lowering_given = 0 ;
   args_info->dump_ast_dot_given = 0 ;
   args_info->dump_ast_xml_given = 0 ;
-  args_info->read_ast_xml_given = 0 ;
+  args_info->next_line_curlies_given = 0 ;
   args_info->no_line_numbers_given = 0 ;
-  args_info->compile_time_includes_given = 0 ;
   args_info->tab_given = 0 ;
-  args_info->verbose_given = 0 ;
-  args_info->no_validation_given = 0 ;
+  args_info->dump_tokens_given = 0 ;
+  args_info->run_lowering_given = 0 ;
+  args_info->run_assign_temps_given = 0 ;
 }
 
 static
 void clear_args (struct gengetopt_args_info *args_info)
 {
+  args_info->run_arg = NULL;
+  args_info->run_orig = NULL;
+  args_info->read_ast_xml_flag = 0;
+  args_info->verbose_flag = 0;
+  args_info->no_validation_flag = 1;
   args_info->compile_flag = 0;
   args_info->c_option_arg = NULL;
   args_info->c_option_orig = NULL;
@@ -128,21 +145,17 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->extension_orig = NULL;
   args_info->with_php_arg = NULL;
   args_info->with_php_orig = NULL;
-  args_info->run_arg = NULL;
-  args_info->run_orig = NULL;
-  args_info->dump_tokens_flag = 0;
+  args_info->compile_time_includes_flag = 0;
   args_info->dump_php_flag = 0;
-  args_info->next_line_curlies_flag = 0;
-  args_info->run_lowering_flag = 0;
   args_info->dump_ast_dot_flag = 0;
   args_info->dump_ast_xml_flag = 0;
-  args_info->read_ast_xml_flag = 0;
+  args_info->next_line_curlies_flag = 0;
   args_info->no_line_numbers_flag = 0;
-  args_info->compile_time_includes_flag = 0;
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
-  args_info->verbose_flag = 0;
-  args_info->no_validation_flag = 1;
+  args_info->dump_tokens_flag = 0;
+  args_info->run_lowering_flag = 0;
+  args_info->run_assign_temps_flag = 0;
   
 }
 
@@ -152,28 +165,29 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->help_help = gengetopt_args_info_full_help[0] ;
   args_info->full_help_help = gengetopt_args_info_full_help[1] ;
   args_info->version_help = gengetopt_args_info_full_help[2] ;
-  args_info->compile_help = gengetopt_args_info_full_help[3] ;
-  args_info->c_option_help = gengetopt_args_info_full_help[4] ;
-  args_info->c_option_min = -1;
-  args_info->c_option_max = -1;
-  args_info->generate_c_help = gengetopt_args_info_full_help[5] ;
-  args_info->extension_help = gengetopt_args_info_full_help[6] ;
-  args_info->with_php_help = gengetopt_args_info_full_help[7] ;
-  args_info->run_help = gengetopt_args_info_full_help[8] ;
+  args_info->run_help = gengetopt_args_info_full_help[4] ;
   args_info->run_min = -1;
   args_info->run_max = -1;
-  args_info->dump_tokens_help = gengetopt_args_info_full_help[9] ;
-  args_info->dump_php_help = gengetopt_args_info_full_help[10] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[11] ;
-  args_info->run_lowering_help = gengetopt_args_info_full_help[12] ;
-  args_info->dump_ast_dot_help = gengetopt_args_info_full_help[13] ;
-  args_info->dump_ast_xml_help = gengetopt_args_info_full_help[14] ;
-  args_info->read_ast_xml_help = gengetopt_args_info_full_help[15] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[16] ;
-  args_info->compile_time_includes_help = gengetopt_args_info_full_help[17] ;
-  args_info->tab_help = gengetopt_args_info_full_help[18] ;
-  args_info->verbose_help = gengetopt_args_info_full_help[19] ;
-  args_info->no_validation_help = gengetopt_args_info_full_help[20] ;
+  args_info->read_ast_xml_help = gengetopt_args_info_full_help[5] ;
+  args_info->verbose_help = gengetopt_args_info_full_help[6] ;
+  args_info->no_validation_help = gengetopt_args_info_full_help[7] ;
+  args_info->compile_help = gengetopt_args_info_full_help[9] ;
+  args_info->c_option_help = gengetopt_args_info_full_help[10] ;
+  args_info->c_option_min = -1;
+  args_info->c_option_max = -1;
+  args_info->generate_c_help = gengetopt_args_info_full_help[11] ;
+  args_info->extension_help = gengetopt_args_info_full_help[12] ;
+  args_info->with_php_help = gengetopt_args_info_full_help[13] ;
+  args_info->compile_time_includes_help = gengetopt_args_info_full_help[14] ;
+  args_info->dump_php_help = gengetopt_args_info_full_help[16] ;
+  args_info->dump_ast_dot_help = gengetopt_args_info_full_help[17] ;
+  args_info->dump_ast_xml_help = gengetopt_args_info_full_help[18] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[19] ;
+  args_info->no_line_numbers_help = gengetopt_args_info_full_help[20] ;
+  args_info->tab_help = gengetopt_args_info_full_help[21] ;
+  args_info->dump_tokens_help = gengetopt_args_info_full_help[23] ;
+  args_info->run_lowering_help = gengetopt_args_info_full_help[24] ;
+  args_info->run_assign_temps_help = gengetopt_args_info_full_help[25] ;
   
 }
 
@@ -235,6 +249,28 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
 {
   
   unsigned int i;
+  if (args_info->run_arg)
+    {
+      for (i = 0; i < args_info->run_given; ++i)
+        {
+          if (args_info->run_arg [i])
+            {
+              free (args_info->run_arg [i]); /* free previous argument */
+              args_info->run_arg [i] = 0;
+            }
+          if (args_info->run_orig [i])
+            {
+              free (args_info->run_orig [i]); /* free previous argument */
+              args_info->run_orig [i] = 0;
+            }
+        }
+      if (args_info->run_arg [0])
+        free (args_info->run_arg [0]); /* free default string */
+      free (args_info->run_arg); /* free previous argument */
+      args_info->run_arg = 0;
+      free (args_info->run_orig); /* free previous argument */
+      args_info->run_orig = 0;
+    }
   if (args_info->c_option_arg)
     {
       for (i = 0; i < args_info->c_option_given; ++i)
@@ -276,28 +312,6 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
     {
       free (args_info->with_php_orig); /* free previous argument */
       args_info->with_php_orig = 0;
-    }
-  if (args_info->run_arg)
-    {
-      for (i = 0; i < args_info->run_given; ++i)
-        {
-          if (args_info->run_arg [i])
-            {
-              free (args_info->run_arg [i]); /* free previous argument */
-              args_info->run_arg [i] = 0;
-            }
-          if (args_info->run_orig [i])
-            {
-              free (args_info->run_orig [i]); /* free previous argument */
-              args_info->run_orig [i] = 0;
-            }
-        }
-      if (args_info->run_arg [0])
-        free (args_info->run_arg [0]); /* free default string */
-      free (args_info->run_arg); /* free previous argument */
-      args_info->run_arg = 0;
-      free (args_info->run_orig); /* free previous argument */
-      args_info->run_orig = 0;
     }
   if (args_info->tab_arg)
     {
@@ -342,6 +356,25 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   if (args_info->version_given) {
     fprintf(outfile, "%s\n", "version");
   }
+  if (args_info->run_orig)
+    {
+      for (i = 0; i < args_info->run_given; ++i)
+        {
+          if (args_info->run_orig [i])
+            {
+              fprintf(outfile, "%s=\"%s\"\n", "run", args_info->run_orig [i]);
+            }
+        }
+    }
+  if (args_info->read_ast_xml_given) {
+    fprintf(outfile, "%s\n", "read-ast-xml");
+  }
+  if (args_info->verbose_given) {
+    fprintf(outfile, "%s\n", "verbose");
+  }
+  if (args_info->no_validation_given) {
+    fprintf(outfile, "%s\n", "no-validation");
+  }
   if (args_info->compile_given) {
     fprintf(outfile, "%s\n", "compile");
   }
@@ -372,27 +405,11 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
       fprintf(outfile, "%s\n", "with-php");
     }
   }
-  if (args_info->run_orig)
-    {
-      for (i = 0; i < args_info->run_given; ++i)
-        {
-          if (args_info->run_orig [i])
-            {
-              fprintf(outfile, "%s=\"%s\"\n", "run", args_info->run_orig [i]);
-            }
-        }
-    }
-  if (args_info->dump_tokens_given) {
-    fprintf(outfile, "%s\n", "dump-tokens");
+  if (args_info->compile_time_includes_given) {
+    fprintf(outfile, "%s\n", "compile-time-includes");
   }
   if (args_info->dump_php_given) {
     fprintf(outfile, "%s\n", "dump-php");
-  }
-  if (args_info->next_line_curlies_given) {
-    fprintf(outfile, "%s\n", "next-line-curlies");
-  }
-  if (args_info->run_lowering_given) {
-    fprintf(outfile, "%s\n", "run-lowering");
   }
   if (args_info->dump_ast_dot_given) {
     fprintf(outfile, "%s\n", "dump-ast-dot");
@@ -400,14 +417,11 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   if (args_info->dump_ast_xml_given) {
     fprintf(outfile, "%s\n", "dump-ast-xml");
   }
-  if (args_info->read_ast_xml_given) {
-    fprintf(outfile, "%s\n", "read-ast-xml");
+  if (args_info->next_line_curlies_given) {
+    fprintf(outfile, "%s\n", "next-line-curlies");
   }
   if (args_info->no_line_numbers_given) {
     fprintf(outfile, "%s\n", "no-line-numbers");
-  }
-  if (args_info->compile_time_includes_given) {
-    fprintf(outfile, "%s\n", "compile-time-includes");
   }
   if (args_info->tab_given) {
     if (args_info->tab_orig) {
@@ -416,11 +430,14 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
       fprintf(outfile, "%s\n", "tab");
     }
   }
-  if (args_info->verbose_given) {
-    fprintf(outfile, "%s\n", "verbose");
+  if (args_info->dump_tokens_given) {
+    fprintf(outfile, "%s\n", "dump-tokens");
   }
-  if (args_info->no_validation_given) {
-    fprintf(outfile, "%s\n", "no-validation");
+  if (args_info->run_lowering_given) {
+    fprintf(outfile, "%s\n", "run-lowering");
+  }
+  if (args_info->run_assign_temps_given) {
+    fprintf(outfile, "%s\n", "run-assign-temps");
   }
   
   fclose (outfile);
@@ -630,10 +647,10 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   int error = 0;
 
   /* checks for required options */
-  if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
+  if (check_multiple_option_occurrences(prog_name, args_info->run_given, args_info->run_min, args_info->run_max, "'--run'"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->run_given, args_info->run_min, args_info->run_max, "'--run'"))
+  if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
      error = 1;
   
   
@@ -650,8 +667,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
 
   int i;        /* Counter */
 
-  struct string_list * c_option_list = NULL,* c_option_new = NULL;
   struct string_list * run_list = NULL,* run_new = NULL;
+  struct string_list * c_option_list = NULL,* c_option_new = NULL;
   int error = 0;
   struct gengetopt_args_info local_args_info;
 
@@ -674,29 +691,30 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "help",	0, NULL, 'h' },
         { "full-help",	0, NULL, 0 },
         { "version",	0, NULL, 'V' },
+        { "run",	1, NULL, 0 },
+        { "read-ast-xml",	0, NULL, 0 },
+        { "verbose",	0, NULL, 'v' },
+        { "no-validation",	0, NULL, 0 },
         { "compile",	0, NULL, 'c' },
         { "c-option",	1, NULL, 'C' },
         { "generate-c",	0, NULL, 0 },
         { "extension",	1, NULL, 0 },
         { "with-php",	1, NULL, 0 },
-        { "run",	1, NULL, 0 },
-        { "dump-tokens",	0, NULL, 0 },
+        { "compile-time-includes",	0, NULL, 0 },
         { "dump-php",	0, NULL, 0 },
-        { "next-line-curlies",	0, NULL, 0 },
-        { "run-lowering",	0, NULL, 0 },
         { "dump-ast-dot",	0, NULL, 0 },
         { "dump-ast-xml",	0, NULL, 0 },
-        { "read-ast-xml",	0, NULL, 0 },
+        { "next-line-curlies",	0, NULL, 0 },
         { "no-line-numbers",	0, NULL, 0 },
-        { "compile-time-includes",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
-        { "verbose",	0, NULL, 'v' },
-        { "no-validation",	0, NULL, 0 },
+        { "dump-tokens",	0, NULL, 0 },
+        { "run-lowering",	0, NULL, 0 },
+        { "run-assign-temps",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
       stop_char = 0;
-      c = getopt_long (argc, argv, "hVcC:v", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvcC:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -711,6 +729,19 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
           cmdline_parser_print_version ();
           cmdline_parser_free (&local_args_info);
           exit (EXIT_SUCCESS);
+
+        case 'v':	/* Verbose output.  */
+          if (local_args_info.verbose_given)
+            {
+              fprintf (stderr, "%s: `--verbose' (`-v') option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+              goto failure;
+            }
+          if (args_info->verbose_given && ! override)
+            continue;
+          local_args_info.verbose_given = 1;
+          args_info->verbose_given = 1;
+          args_info->verbose_flag = !(args_info->verbose_flag);
+          break;
 
         case 'c':	/* Compile.  */
           if (local_args_info.compile_given)
@@ -750,19 +781,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             }
           break;
 
-        case 'v':	/* Verbose output.  */
-          if (local_args_info.verbose_given)
-            {
-              fprintf (stderr, "%s: `--verbose' (`-v') option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-              goto failure;
-            }
-          if (args_info->verbose_given && ! override)
-            continue;
-          local_args_info.verbose_given = 1;
-          args_info->verbose_given = 1;
-          args_info->verbose_flag = !(args_info->verbose_flag);
-          break;
-
 
         case 0:	/* Long option with no short option */
           if (strcmp (long_options[option_index].name, "full-help") == 0) {
@@ -771,8 +789,63 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             exit (EXIT_SUCCESS);}
           
 
+          /* Run the specified plugin (may be specified multiple times).  */
+          if (strcmp (long_options[option_index].name, "run") == 0)
+          {
+            local_args_info.run_given++;
+          
+            multi_token = get_multiple_arg_token(optarg);
+            multi_next = get_multiple_arg_token_next (optarg);
+          
+            while (1)
+              {
+                run_new = (struct string_list *) malloc (sizeof (struct string_list));
+                run_new->next = run_list;
+                run_list = run_new;
+                run_new->arg = gengetopt_strdup (multi_token);
+                run_new->orig = multi_token;
+          
+                if (multi_next)
+                  {
+                    multi_token = get_multiple_arg_token(multi_next);
+                    multi_next = get_multiple_arg_token_next (multi_next);
+                    local_args_info.run_given++;
+                  }
+                else
+                  break;
+              }
+            break;
+          }
+          /* Assume the input is a phc AST in XML format.  */
+          else if (strcmp (long_options[option_index].name, "read-ast-xml") == 0)
+          {
+            if (local_args_info.read_ast_xml_given)
+              {
+                fprintf (stderr, "%s: `--read-ast-xml' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->read_ast_xml_given && ! override)
+              continue;
+            local_args_info.read_ast_xml_given = 1;
+            args_info->read_ast_xml_given = 1;
+            args_info->read_ast_xml_flag = !(args_info->read_ast_xml_flag);
+          }
+          /* Toggle XML validation.  */
+          else if (strcmp (long_options[option_index].name, "no-validation") == 0)
+          {
+            if (local_args_info.no_validation_given)
+              {
+                fprintf (stderr, "%s: `--no-validation' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->no_validation_given && ! override)
+              continue;
+            local_args_info.no_validation_given = 1;
+            args_info->no_validation_given = 1;
+            args_info->no_validation_flag = !(args_info->no_validation_flag);
+          }
           /* Generate C code.  */
-          if (strcmp (long_options[option_index].name, "generate-c") == 0)
+          else if (strcmp (long_options[option_index].name, "generate-c") == 0)
           {
             if (local_args_info.generate_c_given)
               {
@@ -823,46 +896,19 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               free (args_info->with_php_orig); /* free previous string */
             args_info->with_php_orig = gengetopt_strdup (optarg);
           }
-          /* Run the specified plugin (may be specified multiple times).  */
-          else if (strcmp (long_options[option_index].name, "run") == 0)
+          /* When possible, replace include() statements with the parsed contents of the specified file.  */
+          else if (strcmp (long_options[option_index].name, "compile-time-includes") == 0)
           {
-            local_args_info.run_given++;
-          
-            multi_token = get_multiple_arg_token(optarg);
-            multi_next = get_multiple_arg_token_next (optarg);
-          
-            while (1)
+            if (local_args_info.compile_time_includes_given)
               {
-                run_new = (struct string_list *) malloc (sizeof (struct string_list));
-                run_new->next = run_list;
-                run_list = run_new;
-                run_new->arg = gengetopt_strdup (multi_token);
-                run_new->orig = multi_token;
-          
-                if (multi_next)
-                  {
-                    multi_token = get_multiple_arg_token(multi_next);
-                    multi_next = get_multiple_arg_token_next (multi_next);
-                    local_args_info.run_given++;
-                  }
-                else
-                  break;
-              }
-            break;
-          }
-          /* Perform lexical analysis only (spits out a token list). Probably only useful for debugging phc itself.  */
-          else if (strcmp (long_options[option_index].name, "dump-tokens") == 0)
-          {
-            if (local_args_info.dump_tokens_given)
-              {
-                fprintf (stderr, "%s: `--dump-tokens' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                fprintf (stderr, "%s: `--compile-time-includes' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
                 goto failure;
               }
-            if (args_info->dump_tokens_given && ! override)
+            if (args_info->compile_time_includes_given && ! override)
               continue;
-            local_args_info.dump_tokens_given = 1;
-            args_info->dump_tokens_given = 1;
-            args_info->dump_tokens_flag = !(args_info->dump_tokens_flag);
+            local_args_info.compile_time_includes_given = 1;
+            args_info->compile_time_includes_given = 1;
+            args_info->compile_time_includes_flag = !(args_info->compile_time_includes_flag);
           }
           /* Dump PHP code back immediately after parsing to standard output (pretty printing).  */
           else if (strcmp (long_options[option_index].name, "dump-php") == 0)
@@ -877,34 +923,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.dump_php_given = 1;
             args_info->dump_php_given = 1;
             args_info->dump_php_flag = !(args_info->dump_php_flag);
-          }
-          /* Output the opening curly on the next line instead of on the same line.  */
-          else if (strcmp (long_options[option_index].name, "next-line-curlies") == 0)
-          {
-            if (local_args_info.next_line_curlies_given)
-              {
-                fprintf (stderr, "%s: `--next-line-curlies' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-                goto failure;
-              }
-            if (args_info->next_line_curlies_given && ! override)
-              continue;
-            local_args_info.next_line_curlies_given = 1;
-            args_info->next_line_curlies_given = 1;
-            args_info->next_line_curlies_flag = !(args_info->next_line_curlies_flag);
-          }
-          /* Dump the XML representation of the HIR, after lowering. Only useful for debugging.  */
-          else if (strcmp (long_options[option_index].name, "run-lowering") == 0)
-          {
-            if (local_args_info.run_lowering_given)
-              {
-                fprintf (stderr, "%s: `--run-lowering' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-                goto failure;
-              }
-            if (args_info->run_lowering_given && ! override)
-              continue;
-            local_args_info.run_lowering_given = 1;
-            args_info->run_lowering_given = 1;
-            args_info->run_lowering_flag = !(args_info->run_lowering_flag);
           }
           /* Dump the AST from the source in dot format.  */
           else if (strcmp (long_options[option_index].name, "dump-ast-dot") == 0)
@@ -934,19 +952,19 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->dump_ast_xml_given = 1;
             args_info->dump_ast_xml_flag = !(args_info->dump_ast_xml_flag);
           }
-          /* Assume the input is a phc AST in XML format.  */
-          else if (strcmp (long_options[option_index].name, "read-ast-xml") == 0)
+          /* Output the opening curly on the next line instead of on the same line.  */
+          else if (strcmp (long_options[option_index].name, "next-line-curlies") == 0)
           {
-            if (local_args_info.read_ast_xml_given)
+            if (local_args_info.next_line_curlies_given)
               {
-                fprintf (stderr, "%s: `--read-ast-xml' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                fprintf (stderr, "%s: `--next-line-curlies' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
                 goto failure;
               }
-            if (args_info->read_ast_xml_given && ! override)
+            if (args_info->next_line_curlies_given && ! override)
               continue;
-            local_args_info.read_ast_xml_given = 1;
-            args_info->read_ast_xml_given = 1;
-            args_info->read_ast_xml_flag = !(args_info->read_ast_xml_flag);
+            local_args_info.next_line_curlies_given = 1;
+            args_info->next_line_curlies_given = 1;
+            args_info->next_line_curlies_flag = !(args_info->next_line_curlies_flag);
           }
           /* Don't include line numbers when dumping AST/XML.  */
           else if (strcmp (long_options[option_index].name, "no-line-numbers") == 0)
@@ -961,20 +979,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.no_line_numbers_given = 1;
             args_info->no_line_numbers_given = 1;
             args_info->no_line_numbers_flag = !(args_info->no_line_numbers_flag);
-          }
-          /* When possible, replace include() statements with the parsed contents of the specified file.  */
-          else if (strcmp (long_options[option_index].name, "compile-time-includes") == 0)
-          {
-            if (local_args_info.compile_time_includes_given)
-              {
-                fprintf (stderr, "%s: `--compile-time-includes' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-                goto failure;
-              }
-            if (args_info->compile_time_includes_given && ! override)
-              continue;
-            local_args_info.compile_time_includes_given = 1;
-            args_info->compile_time_includes_given = 1;
-            args_info->compile_time_includes_flag = !(args_info->compile_time_includes_flag);
           }
           /* String to use for tabs while unparsing.  */
           else if (strcmp (long_options[option_index].name, "tab") == 0)
@@ -995,19 +999,47 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               free (args_info->tab_orig); /* free previous string */
             args_info->tab_orig = gengetopt_strdup (optarg);
           }
-          /* Toggle XML validation.  */
-          else if (strcmp (long_options[option_index].name, "no-validation") == 0)
+          /* Perform lexical analysis only (spits out a token list).  */
+          else if (strcmp (long_options[option_index].name, "dump-tokens") == 0)
           {
-            if (local_args_info.no_validation_given)
+            if (local_args_info.dump_tokens_given)
               {
-                fprintf (stderr, "%s: `--no-validation' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                fprintf (stderr, "%s: `--dump-tokens' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
                 goto failure;
               }
-            if (args_info->no_validation_given && ! override)
+            if (args_info->dump_tokens_given && ! override)
               continue;
-            local_args_info.no_validation_given = 1;
-            args_info->no_validation_given = 1;
-            args_info->no_validation_flag = !(args_info->no_validation_flag);
+            local_args_info.dump_tokens_given = 1;
+            args_info->dump_tokens_given = 1;
+            args_info->dump_tokens_flag = !(args_info->dump_tokens_flag);
+          }
+          /* Dump the XML representation of the HIR, after lowering.  */
+          else if (strcmp (long_options[option_index].name, "run-lowering") == 0)
+          {
+            if (local_args_info.run_lowering_given)
+              {
+                fprintf (stderr, "%s: `--run-lowering' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->run_lowering_given && ! override)
+              continue;
+            local_args_info.run_lowering_given = 1;
+            args_info->run_lowering_given = 1;
+            args_info->run_lowering_flag = !(args_info->run_lowering_flag);
+          }
+          /* Dump the XML representation of the HIR, after assigning temporaries.  */
+          else if (strcmp (long_options[option_index].name, "run-assign-temps") == 0)
+          {
+            if (local_args_info.run_assign_temps_given)
+              {
+                fprintf (stderr, "%s: `--run-assign-temps' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->run_assign_temps_given && ! override)
+              continue;
+            local_args_info.run_assign_temps_given = 1;
+            args_info->run_assign_temps_given = 1;
+            args_info->run_assign_temps_flag = !(args_info->run_assign_temps_flag);
           }
           
           break;
@@ -1022,21 +1054,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     } /* while */
 
 
-  if (local_args_info.c_option_given && c_option_list)
-    {
-      struct string_list *tmp;
-      args_info->c_option_arg = (char * *) realloc (args_info->c_option_arg, (args_info->c_option_given + local_args_info.c_option_given) * sizeof (char *));
-      args_info->c_option_orig = (char **) realloc (args_info->c_option_orig, (args_info->c_option_given + local_args_info.c_option_given) * sizeof (char *));
-      for (i = (local_args_info.c_option_given - 1); i >= 0; --i)
-        {
-          tmp = c_option_list;
-          args_info->c_option_arg [i + args_info->c_option_given] = c_option_list->arg;
-          args_info->c_option_orig [i + args_info->c_option_given] = c_option_list->orig;
-          c_option_list = c_option_list->next;
-          free (tmp);
-        }
-    }
-  
   if (local_args_info.run_given && run_list)
     {
       struct string_list *tmp;
@@ -1052,11 +1069,26 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         }
     }
   
+  if (local_args_info.c_option_given && c_option_list)
+    {
+      struct string_list *tmp;
+      args_info->c_option_arg = (char * *) realloc (args_info->c_option_arg, (args_info->c_option_given + local_args_info.c_option_given) * sizeof (char *));
+      args_info->c_option_orig = (char **) realloc (args_info->c_option_orig, (args_info->c_option_given + local_args_info.c_option_given) * sizeof (char *));
+      for (i = (local_args_info.c_option_given - 1); i >= 0; --i)
+        {
+          tmp = c_option_list;
+          args_info->c_option_arg [i + args_info->c_option_given] = c_option_list->arg;
+          args_info->c_option_orig [i + args_info->c_option_given] = c_option_list->orig;
+          c_option_list = c_option_list->next;
+          free (tmp);
+        }
+    }
+  
 
-  args_info->c_option_given += local_args_info.c_option_given;
-  local_args_info.c_option_given = 0;
   args_info->run_given += local_args_info.run_given;
   local_args_info.run_given = 0;
+  args_info->c_option_given += local_args_info.c_option_given;
+  local_args_info.c_option_given = 0;
   
   if (check_required)
     {
@@ -1095,18 +1127,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   return 0;
 
 failure:
-  if (c_option_list)
-    {
-      struct string_list *tmp;
-      while (c_option_list)
-        {
-          tmp = c_option_list;
-          free (c_option_list->arg);
-          free (c_option_list->orig);
-          c_option_list = c_option_list->next;
-          free (tmp);
-        }
-    }
   if (run_list)
     {
       struct string_list *tmp;
@@ -1116,6 +1136,18 @@ failure:
           free (run_list->arg);
           free (run_list->orig);
           run_list = run_list->next;
+          free (tmp);
+        }
+    }
+  if (c_option_list)
+    {
+      struct string_list *tmp;
+      while (c_option_list)
+        {
+          tmp = c_option_list;
+          free (c_option_list->arg);
+          free (c_option_list->orig);
+          c_option_list = c_option_list->next;
           free (tmp);
         }
     }
