@@ -14,6 +14,11 @@ void debug (AST_node* in);
 
 class PHP_unparser : public virtual AST_visitor
 {
+// Constructor; pass in a different ostream to write to a file/string instead
+// of standard output
+public:
+	PHP_unparser(ostream& os = cout);
+
 // Unparsing
 protected:
 	ostream& os;
@@ -31,18 +36,7 @@ protected:
 	void output_tabs();
 	void empty_line();
 
-// State
-protected:
-	bool in_if_expression;
-	bool in_method_invocation;
-	int array_elem_counter;
-	int concat_counter;
-
 public:
-	PHP_unparser(ostream& os = cout);
-
-public:
-
 	void children_php_script(AST_php_script* in);
 	void children_interface_def(AST_interface_def* in);
 	void children_class_def(AST_class_def* in);
@@ -120,7 +114,7 @@ public:
 	void visit_expr_list(List<AST_expr*>* in);
 	void visit_array_elem_list(List<AST_array_elem*>* in);
 	void visit_actual_parameter_list(List<AST_actual_parameter*>* in);
-	
+
 	void pre_expr(AST_expr* in);
 	void post_expr(AST_expr* in);
 	void pre_commented_node(AST_commented_node* in);

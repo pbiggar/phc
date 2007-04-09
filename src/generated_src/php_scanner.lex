@@ -33,11 +33,13 @@
 		if(args_info.dump_tokens_flag)										\
 			printf("%ld: " #x "\n", yyextra->source_line);				\
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
+		yyextra->starts_line = false;											\
 		return x; }
 	#define RETURN_OP(x) { 														\
 		if(args_info.dump_tokens_flag) 										\
 			printf("%ld: SIMPLE_OP %c\n", yyextra->source_line, x); 	\
 		yyextra->after_arrow = false;											\
+		yyextra->starts_line = false;											\
 		return x; } 
 
 	#define RETURN_ALL(state)					\
@@ -133,7 +135,8 @@ UNSET_CAST		{CS}"unset"{CE}
 								if(YY_START != SL_COMM && YY_START != ML_COMM)
 									yyextra->attach_to_previous = 0;
 
-								yyextra->source_line++; 
+								yyextra->source_line++;
+								yyextra->starts_line = true;
 								REJECT;
 							}
 

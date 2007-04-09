@@ -122,11 +122,6 @@ PHP_unparser::PHP_unparser(ostream& os) : os(os)
 {
 	indent_level = 0;
 	at_start_of_line = true;
-
-	in_if_expression = false;
-	in_method_invocation = false;
-	array_elem_counter = 0;
-	concat_counter = 0;
 }
 
 void PHP_unparser::children_php_script(AST_php_script* in)
@@ -277,16 +272,12 @@ void PHP_unparser::children_attr_mod(AST_attr_mod* in)
 void PHP_unparser::children_if(AST_if* in)
 {
 	if(in->attrs->is_true("phc.unparser.is_elseif"))
-		echo(" elseif (");
-	else
-		echo("if (");
-
-	in_if_expression = true;
+		echo(" else");
+		
+	echo("if (");
 	visit_expr(in->expr);
-	in_if_expression = false;
-
 	echo(") ");
-	
+
 	visit_statement_list(in->iftrue);
 	
 	if(!in->iffalse->empty())
@@ -564,37 +555,9 @@ void PHP_unparser::children_unary_op(AST_unary_op* in)
 void PHP_unparser::children_bin_op(AST_bin_op* in)
 {
 	visit_expr(in->left);
-	
-	if(!in_if_expression)
-	{
-		if(*in->op->value == ".")
-		{
-			concat_counter++;
-			if((concat_counter % 2) == 0)
-			{
-				// TODO: again, do we want to increment the indentation 
-				// level for every new line?
-				newline();
-				indent_level++;
-			}
-		}
-	}
-	
 	if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
 	visit_op(in->op);
 	echo(" ");
-
-	if(!in_if_expression)
-	{
-		if(*in->op->value == ".")
-		{
-			if((concat_counter % 2) == 0)
-			{
-				indent_level--;
-			}
-		}
-	}
-
 	visit_expr(in->right);
 }
 
@@ -721,20 +684,6 @@ void PHP_unparser::children_array(AST_array* in)
 
 void PHP_unparser::children_array_elem(AST_array_elem* in)
 {
-	// TODO. Note sure this should be here; perhaps it should be in 
-	// visit array_elem_list or something?
-	if(!in_method_invocation)
-	{
-		array_elem_counter++;
-		if(array_elem_counter > 0)
-		{
-			newline();
-			// TODO: not sure I agree with this. Do we want to increment
-			// the indentation level for every element in the array?
-			indent_level++;
-		}
-	}
-
 	if(in->key != NULL)
 	{
 		visit_expr(in->key);
@@ -742,14 +691,6 @@ void PHP_unparser::children_array_elem(AST_array_elem* in)
 	}
 	if(in->is_ref) echo("&");
 	visit_expr(in->val);
-
-	if(!in_method_invocation)
-	{
-		if(array_elem_counter > 0)
-			indent_level--;
-
-		array_elem_counter--;
-	}
 }
 
 void PHP_unparser::children_method_invocation(AST_method_invocation* in)
@@ -810,12 +751,8 @@ void PHP_unparser::children_method_invocation(AST_method_invocation* in)
 
 void PHP_unparser::children_actual_parameter(AST_actual_parameter* in)
 {
-	in_method_invocation = true;
-
 	if(in->is_ref) echo("&");
 	visit_expr(in->expr);
-
-	in_method_invocation = false;
 }
 
 void PHP_unparser::children_new(AST_new* in)
@@ -1058,6 +995,12 @@ void PHP_unparser::children_null(Token_null* in)
 // Generic classes
 void PHP_unparser::pre_expr(AST_expr* in)
 {
+	if(in->attrs->is_true("phc.unparser.starts_line"))
+	{
+		newline();
+		os << args_info.tab_arg;
+	}
+
 	if(in->attrs->is_true("phc.unparser.needs_brackets"))
 		echo("(");
 	if(in->attrs->is_true("phc.unparser.needs_curlies"))

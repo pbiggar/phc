@@ -41,6 +41,8 @@
 	{
 		node->attrs->set("phc.line_number", new Integer(context->source_line));
 		node->attrs->set("phc.filename", context->filename->clone());
+		if(context->starts_line)
+			node->attrs->set("phc.unparser.starts_line", new Boolean(true));
 
 		AST_commented_node* cnode;
 		cnode = dynamic_cast<AST_commented_node*>(node);
