@@ -958,7 +958,7 @@ void PHP_unparser::children_string(Token_string* in)
 	}
 	else
 	{
-		if(in->source_rep->attrs->is_true("phc.unparser.is_singly_quoted"))
+		if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
 		{
 			string::iterator i;
 
@@ -993,14 +993,17 @@ void PHP_unparser::children_null(Token_null* in)
 }
 
 // Generic classes
-void PHP_unparser::pre_expr(AST_expr* in)
+void PHP_unparser::pre_node(AST_node* in)
 {
 	if(in->attrs->is_true("phc.unparser.starts_line"))
 	{
 		newline();
 		os << args_info.tab_arg;
 	}
+}
 
+void PHP_unparser::pre_expr(AST_expr* in)
+{
 	if(in->attrs->is_true("phc.unparser.needs_brackets"))
 		echo("(");
 	if(in->attrs->is_true("phc.unparser.needs_curlies"))

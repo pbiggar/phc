@@ -115,6 +115,7 @@ public:
 	void visit_array_elem_list(List<AST_array_elem*>* in);
 	void visit_actual_parameter_list(List<AST_actual_parameter*>* in);
 
+	void pre_node(AST_node* in);
 	void pre_expr(AST_expr* in);
 	void post_expr(AST_expr* in);
 	void pre_commented_node(AST_commented_node* in);

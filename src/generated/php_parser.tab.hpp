@@ -321,9 +321,10 @@ typedef union YYSTYPE
 	AST_while* ast_while;
 	AST_statement* ast_statement;
 	Token_int* token_int;
+	Token_op* token_op;
 }
 /* Line 1489 of yacc.c.  */
-#line 327 "src/generated/php_parser.tab.hpp"
+#line 328 "src/generated/php_parser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

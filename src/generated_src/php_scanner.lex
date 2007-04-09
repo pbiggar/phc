@@ -37,10 +37,12 @@
 		return x; }
 	#define RETURN_OP(x) { 														\
 		if(args_info.dump_tokens_flag) 										\
-			printf("%ld: SIMPLE_OP %c\n", yyextra->source_line, x); 	\
+			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, x); 	\
+		yylval->token_op = new Token_op(new String(x)); 				\
+		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\
-		return x; } 
+		return *x; } 
 
 	#define RETURN_ALL(state)					\
 		yyextra->mt_final_state = state;		\
@@ -183,8 +185,8 @@ UNSET_CAST		{CS}"unset"{CE}
 <PHP>"&&"				{ RETURN(O_LOGICAND); }
 <PHP>"||"				{ RETURN(O_LOGICOR); }
 
-<PHP>{SIMPLE_OP}		{ RETURN_OP(*yytext); }
-<PHP>";"					{ yyextra->attach_to_previous = true; RETURN_OP(';'); } 
+<PHP>{SIMPLE_OP}		{ RETURN_OP(yytext); }
+<PHP>";"					{ yyextra->attach_to_previous = true; RETURN_OP(yytext); } 
 
 	/* Tokens */
 
@@ -293,9 +295,14 @@ UNSET_CAST		{CS}"unset"{CE}
 	/* Deal with singly quoted strings */
 
 <SQ_STR>\'			{
-							String* str = new String(yyextra->buffer);
-							str->attrs->set("phc.unparser.is_singly_quoted", new Boolean(true)); 
-							yylval->string = str;
+							Token_string* str = new Token_string(
+								new String(yyextra->buffer),
+								new String(yyextra->buffer));
+							copy_state(str, yyextra);
+							str->attrs->set("phc.unparser.is_singly_quoted", 
+								new Boolean(true)); 
+							yylval->token_string = str;
+
 							BEGIN(PHP);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -326,18 +333,18 @@ UNSET_CAST		{CS}"unset"{CE}
 
 <DQ_STR,HD_MAIN>"$"{IDENT} {
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1]);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
 						}	
 <DQ_STR,HD_MAIN>"${"{IDENT}"}" {
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[2], yyleng - 3);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
 						}
@@ -348,12 +355,12 @@ UNSET_CAST		{CS}"unset"{CE}
 							right = strchr(yytext, ']') - yytext;
 
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(INT, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
@@ -366,12 +373,12 @@ UNSET_CAST		{CS}"unset"{CE}
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(STRING, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
@@ -384,12 +391,12 @@ UNSET_CAST		{CS}"unset"{CE}
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(VARIABLE, &yytext[left+2], right - left - 2);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
@@ -401,11 +408,11 @@ UNSET_CAST		{CS}"unset"{CE}
 							arrow = strchr(yytext, '-') - yytext;
 							
 							yyextra->schedule_return(STRING, yyextra->buffer);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], arrow - 1);
 							yyextra->schedule_return(O_SINGLEARROW);
 							yyextra->schedule_return(IDENT, &yytext[arrow+2]);
-							yyextra->schedule_return('.');
+							yyextra->schedule_return('.', ".");
 
 							yyextra->buffer = "";
 							RETURN_ALL(YY_START);
@@ -415,7 +422,13 @@ UNSET_CAST		{CS}"unset"{CE}
 <DQ_STR,HD_MAIN>"{$"	{
 							yy_push_state(COMPLEX2, yyscanner);
 							yy_push_state(COMPLEX1, yyscanner);
-							yylval->string = new String(yyextra->buffer);
+
+							Token_string* str = new Token_string(
+								new String(yyextra->buffer),
+								new String(yyextra->buffer));
+							copy_state(str, yyextra);
+							yylval->token_string = str;
+
 							yyless(1);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -451,18 +464,23 @@ UNSET_CAST		{CS}"unset"{CE}
 <COMPLEX1>{ANY}	{
 							yyless(0);
 							BEGIN(PHP);
-							RETURN_OP(O_MAGIC_CONCAT);
+							RETURN(O_MAGIC_CONCAT);
 						}
 <COMPLEX2>{ANY}	{
 							yyless(0);
 							yy_pop_state(yyscanner);
-							RETURN_OP('.');
+							RETURN_OP(".");
 						}
 
 	/* Deal with (doubly quoted) strings. */
 
 <DQ_STR>\"			{
-							yylval->string = new String(yyextra->buffer);
+							Token_string* str = new Token_string(
+								new String(yyextra->buffer),
+								new String(yyextra->buffer));
+							copy_state(str, yyextra);
+							yylval->token_string = str;
+
 							BEGIN(PHP);
 							yyextra->buffer = "";
 							RETURN(STRING);
@@ -524,8 +542,12 @@ UNSET_CAST		{CS}"unset"{CE}
 									string_len--;
 								if(string_len > 0 && yyextra->buffer[string_len - 1] == '\r')
 									string_len--; // Windows file
-							
-								yylval->string = new String(yyextra->buffer.substr(0, string_len));
+						
+								Token_string* str = new Token_string(
+									new String(yyextra->buffer.substr(0, string_len)),
+									new String(yyextra->buffer.substr(0, string_len)));
+								copy_state(str, yyextra);
+								yylval->token_string = str;
 								
 								if(yytext[0] == ';')
 									yyless(0);
@@ -632,14 +654,27 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 	if(lval)
 	{
 		Token_int* i;
+		Token_string* s;
 		int len = length == -1 ? strlen(lval) : length;
 		
-		switch(type)
+		if(type < 256)
+		{
+			// Simple op
+			Token_op* o = new Token_op(new String(lval, len));
+			copy_state(o, this);
+			mt_lval[mt_count].token_op = o;
+		}
+		else switch(type)
 		{
 			case INT:
 				i = new Token_int(strtol(lval, 0, 0), new String(lval, len));
 				copy_state(i, this);
 				mt_lval[mt_count].token_int = i;
+				break;
+			case STRING:
+				s = new Token_string(new String(lval, len), new String(lval, len));
+				copy_state(s, this);
+				mt_lval[mt_count].token_string = s;
 				break;
 			default:
 				mt_lval[mt_count].string = new String(lval, len);
