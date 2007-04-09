@@ -343,8 +343,8 @@ long-test: all test/framework/lib/autovars.php
 
 generate-test-files: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
-		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s -l Regression BasicParseTest; \
-		@php@ -Cq $(srcdir)/test/framework/driver.php -s -l Regression BasicParseTest; \
+		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression BasicParseTest; \
+		@php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression BasicParseTest; \
 		else echo PHP support required for test; \
 	fi
 
