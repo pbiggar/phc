@@ -57,7 +57,7 @@ node_30 [label="Token_variable_name"];
 node_31 [label="x", shape=box]
 node_30 -> node_31;
 node_29 -> node_30;
-node_32 [label="Token_op"];
+node_32 [label="Token_op (6)"];
 node_33 [label=".", shape=box]
 node_32 -> node_33;
 node_34 [label="AST_variable (6)"];
@@ -164,7 +164,7 @@ node_87 [label="Token_variable_name"];
 node_88 [label="x", shape=box]
 node_87 -> node_88;
 node_86 -> node_87;
-node_89 [label="Token_op"];
+node_89 [label="Token_op (12)"];
 node_90 [label=".", shape=box]
 node_89 -> node_90;
 node_91 [label="AST_variable (12)"];
@@ -314,7 +314,7 @@ node_165 [label="Token_variable_name"];
 node_166 [label="x", shape=box]
 node_165 -> node_166;
 node_164 -> node_165;
-node_167 [label="Token_op"];
+node_167 [label="Token_op (18)"];
 node_168 [label=".", shape=box]
 node_167 -> node_168;
 node_169 [label="AST_variable (18)"];
@@ -336,7 +336,7 @@ node_177 [label="Token_variable_name"];
 node_178 [label="x", shape=box]
 node_177 -> node_178;
 node_176 -> node_177;
-node_179 [label="Token_op"];
+node_179 [label="Token_op (18)"];
 node_180 [label=".", shape=box]
 node_179 -> node_180;
 node_181 [label="AST_variable (18)"];
@@ -521,7 +521,7 @@ node_272 [label="Token_variable_name"];
 node_273 [label="x", shape=box]
 node_272 -> node_273;
 node_271 -> node_272;
-node_274 [label="Token_op"];
+node_274 [label="Token_op (24)"];
 node_275 [label=".", shape=box]
 node_274 -> node_275;
 node_276 [label="AST_variable (24)"];
@@ -543,7 +543,7 @@ node_284 [label="Token_variable_name"];
 node_285 [label="x", shape=box]
 node_284 -> node_285;
 node_283 -> node_284;
-node_286 [label="Token_op"];
+node_286 [label="Token_op (24)"];
 node_287 [label=".", shape=box]
 node_286 -> node_287;
 node_288 [label="AST_variable (24)"];
@@ -676,7 +676,7 @@ node_352 [label="Token_variable_name"];
 node_353 [label="x", shape=box]
 node_352 -> node_353;
 node_351 -> node_352;
-node_354 [label="Token_op"];
+node_354 [label="Token_op (30)"];
 node_355 [label=".", shape=box]
 node_354 -> node_355;
 node_356 [label="AST_variable (30)"];

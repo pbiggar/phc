@@ -69,7 +69,7 @@ node_37 [label="Token_variable_name"];
 node_38 [label="i", shape=box]
 node_37 -> node_38;
 node_36 -> node_37;
-node_39 [label="Token_op"];
+node_39 [label="Token_op (4)"];
 node_40 [label=".", shape=box]
 node_39 -> node_40;
 node_41 [label="Token_string (4)"];

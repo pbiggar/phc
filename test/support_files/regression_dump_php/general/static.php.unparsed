@@ -10,16 +10,9 @@
       static $x;
       static $y;
       
-      static $x = array(
-         1, 
-         2, 
-         3);
-      static $x = array(
-         1 => 2, 
-         2 => 3);
-      static $x = array(
-         FOO => BAR, 
-         FOOBAR);
+      static $x = array(1, 2, 3);
+      static $x = array(1 => 2, 2 => 3);
+      static $x = array(FOO => BAR, FOOBAR);
       
       static $x = 5;
       static $x = -5;

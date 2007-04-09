@@ -36,10 +36,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    function fail($file, $line, $reason)
    {
-      print "Failure: '" . $reason
-          . "' on " . $file
-          . ":" . $line
-          . "\n";
+      print "Failure: '" . $reason . "' on " . $file . ":" . $line . "\n";
    }
    
    
@@ -112,8 +109,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
       function X()
       {
          $this->f = "foo";
-         $this->a = array(
-            "foo");
+         $this->a = array("foo");
       }
       
       function foo()
@@ -128,8 +124,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    }
    
    $f = "foo";
-   $a = array(
-      "foo");
+   $a = array("foo");
    
    $x = new X();
    
@@ -154,15 +149,11 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    $y = "zzz";
    $xx = "zzz";
    echo "about to include ./test/subjects/horrible/obfuscated_foreach.php\n";
-   $x = array(
-      1 => "a", 
-      2 => "b", 
-      3 => "c");
+   $x = array(1 => "a", 2 => "b", 3 => "c");
    
    echo "** 1 **\n";
    foreach ($x as $y) {
-      echo $y
-          . "\n";
+      echo $y . "\n";
    }
    
    echo "** 2 **\n";
@@ -172,15 +163,12 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 3 **\n";
    foreach ($x as $y{0}) {
-      echo $y
-          . "\n";
+      echo $y . "\n";
    }
    
    echo "** 4 **\n";
    foreach ($x as $a->b) {
-      echo "(" . $a
-          . ") " . $a->b
-          . "\n";
+      echo "(" . $a . ") " . $a->b . "\n";
    }
    
    /* Breaks */
@@ -201,8 +189,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 7 **\n";
    foreach ($$xx as &$y) {
-      echo $y
-          . "\n";
+      echo $y . "\n";
    }
    
    // Needs the following to avoid corruption of the array
@@ -210,15 +197,12 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 8 **\n";
    foreach ($$xx as $y => $z) {
-      echo $y . " => "
-          . $z . "\n";
+      echo $y . " => " . $z . "\n";
    }
    
    echo "** 9 **\n";
    foreach ($$xx as $y => &$z) {
-      echo $y
-          . " => " . $z
-          . "\n";
+      echo $y . " => " . $z . "\n";
    }
    
    var_dump($x);
@@ -233,10 +217,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    # files from the current working directory
    
    echo "about to include test/subjects/horrible/obfuscated_foreach.php\n";
-   $x = array(
-      1 => "a", 
-      2 => "b", 
-      3 => "c");
+   $x = array(1 => "a", 2 => "b", 3 => "c");
    
    echo "** 1 **\n";
    foreach ($x as $y) {
@@ -245,8 +226,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 2 **\n";
    foreach ($x as $y[0]) {
-      echo $y
-          . "\n";
+      echo $y . "\n";
    }
    
    echo "** 3 **\n";
@@ -256,9 +236,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 4 **\n";
    foreach ($x as $a->b) {
-      echo "("
-          . $a . ") "
-          . $a->b . "\n";
+      echo "(" . $a . ") " . $a->b . "\n";
    }
    
    /* Breaks */
@@ -274,8 +252,7 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 6 **\n";
    foreach ($$xx as $y) {
-      echo $y
-          . "\n";
+      echo $y . "\n";
    }
    
    echo "** 7 **\n";
@@ -288,15 +265,12 @@ Note that line numbers are inaccurate, and will be fixed in a later release
    
    echo "** 8 **\n";
    foreach ($$xx as $y => $z) {
-      echo $y
-          . " => " . $z
-          . "\n";
+      echo $y . " => " . $z . "\n";
    }
    
    echo "** 9 **\n";
    foreach ($$xx as $y => &$z) {
-      echo $y . " => "
-          . $z . "\n";
+      echo $y . " => " . $z . "\n";
    }
    
    var_dump($x);

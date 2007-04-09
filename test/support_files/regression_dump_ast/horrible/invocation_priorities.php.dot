@@ -234,7 +234,7 @@ node_120 [label="AST_bin_op (31)"];
 node_121 [label="Token_string (31)"];
 node_122 [label="f", shape=box]
 node_121 -> node_122;
-node_123 [label="Token_op"];
+node_123 [label="Token_op (31)"];
 node_124 [label=".", shape=box]
 node_123 -> node_124;
 node_125 [label="Token_string (31)"];

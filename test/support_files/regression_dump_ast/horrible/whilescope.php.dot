@@ -90,7 +90,7 @@ node_49 [label="AST_bin_op (10)"];
 node_50 [label="Token_string (10)"];
 node_51 [label="x: ", shape=box]
 node_50 -> node_51;
-node_52 [label="Token_op"];
+node_52 [label="Token_op (10)"];
 node_53 [label=".", shape=box]
 node_52 -> node_53;
 node_54 [label="AST_variable (10)"];
@@ -101,7 +101,7 @@ node_54 -> node_55;
 node_49 -> node_54;
 node_49 -> node_52;
 node_49 -> node_50;
-node_57 [label="Token_op"];
+node_57 [label="Token_op (10)"];
 node_58 [label=".", shape=box]
 node_57 -> node_58;
 node_59 [label="Token_string (10)"];

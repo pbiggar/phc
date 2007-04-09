@@ -28,10 +28,7 @@
    
    function fail($file, $line, $reason)
    {
-      print "Failure: '" . $reason
-          . "' on " . $file
-          . ":" . $line
-          . "\n";
+      print "Failure: '" . $reason . "' on " . $file . ":" . $line . "\n";
    }
    
    

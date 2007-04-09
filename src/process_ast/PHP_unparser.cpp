@@ -1015,7 +1015,7 @@ void PHP_unparser::children_null(Token_null* in)
 // Generic classes
 void PHP_unparser::pre_node(AST_node* in)
 {
-	if(in->attrs->is_true("phc.unparser.starts_line"))
+	if(in->attrs->is_true("phc.unparser.starts_line") && !at_start_of_line)
 	{
 		newline();
 		os << args_info.tab_arg;

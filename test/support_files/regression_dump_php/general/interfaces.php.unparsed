@@ -51,7 +51,6 @@
    $c->fb();
    $c->o();
    echo Foo::x . "\n";
-   echo FooBar::x
-       . "\n";
+   echo FooBar::x . "\n";
    echo C::x . "\n";
 ?>

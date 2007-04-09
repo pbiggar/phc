@@ -7,8 +7,7 @@
       
       function Foo()
       {
-         $this->x = array(
-            'bar');
+         $this->x = array('bar');
       }
       
       function bar()

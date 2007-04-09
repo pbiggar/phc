@@ -54,7 +54,7 @@ node_30 [label="AST_bin_op (31)"];
 node_31 [label="Token_string (31)"];
 node_32 [label="Failure: '", shape=box]
 node_31 -> node_32;
-node_33 [label="Token_op"];
+node_33 [label="Token_op (31)"];
 node_34 [label=".", shape=box]
 node_33 -> node_34;
 node_35 [label="AST_variable (31)"];
@@ -65,7 +65,7 @@ node_35 -> node_36;
 node_30 -> node_35;
 node_30 -> node_33;
 node_30 -> node_31;
-node_38 [label="Token_op"];
+node_38 [label="Token_op (31)"];
 node_39 [label=".", shape=box]
 node_38 -> node_39;
 node_40 [label="Token_string (31)"];
@@ -74,7 +74,7 @@ node_40 -> node_41;
 node_29 -> node_40;
 node_29 -> node_38;
 node_29 -> node_30;
-node_42 [label="Token_op"];
+node_42 [label="Token_op (31)"];
 node_43 [label=".", shape=box]
 node_42 -> node_43;
 node_44 [label="AST_variable (31)"];
@@ -85,7 +85,7 @@ node_44 -> node_45;
 node_28 -> node_44;
 node_28 -> node_42;
 node_28 -> node_29;
-node_47 [label="Token_op"];
+node_47 [label="Token_op (31)"];
 node_48 [label=".", shape=box]
 node_47 -> node_48;
 node_49 [label="Token_string (31)"];
@@ -94,7 +94,7 @@ node_49 -> node_50;
 node_27 -> node_49;
 node_27 -> node_47;
 node_27 -> node_28;
-node_51 [label="Token_op"];
+node_51 [label="Token_op (31)"];
 node_52 [label=".", shape=box]
 node_51 -> node_52;
 node_53 [label="AST_variable (31)"];
@@ -105,7 +105,7 @@ node_53 -> node_54;
 node_26 -> node_53;
 node_26 -> node_51;
 node_26 -> node_27;
-node_56 [label="Token_op"];
+node_56 [label="Token_op (31)"];
 node_57 [label=".", shape=box]
 node_56 -> node_57;
 node_58 [label="Token_string (31)"];

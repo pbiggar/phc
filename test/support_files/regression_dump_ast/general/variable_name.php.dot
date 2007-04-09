@@ -254,7 +254,7 @@ node_134 [label="Token_variable_name"];
 node_135 [label="x", shape=box]
 node_134 -> node_135;
 node_133 -> node_134;
-node_136 [label="Token_op"];
+node_136 [label="Token_op (46)"];
 node_137 [label=".", shape=box]
 node_136 -> node_137;
 node_138 [label="Token_string (46)"];
@@ -315,7 +315,7 @@ node_166 [label="d", shape=box]
 node_165 -> node_166;
 node_161 -> node_165;
 node_161 -> node_162;
-node_167 [label="Token_op"];
+node_167 [label="Token_op (50)"];
 node_168 [label=".", shape=box]
 node_167 -> node_168;
 node_169 [label="Token_string (50)"];
@@ -372,7 +372,7 @@ node_194 [label="Token_variable_name"];
 node_195 [label="x", shape=box]
 node_194 -> node_195;
 node_193 -> node_194;
-node_196 [label="Token_op"];
+node_196 [label="Token_op (55)"];
 node_197 [label=".", shape=box]
 node_196 -> node_197;
 node_198 [label="Token_string (55)"];
@@ -433,7 +433,7 @@ node_226 [label="d", shape=box]
 node_225 -> node_226;
 node_221 -> node_225;
 node_221 -> node_222;
-node_227 [label="Token_op"];
+node_227 [label="Token_op (59)"];
 node_228 [label=".", shape=box]
 node_227 -> node_228;
 node_229 [label="Token_string (59)"];

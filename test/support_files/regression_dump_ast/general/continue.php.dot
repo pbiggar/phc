@@ -84,7 +84,7 @@ node_44 [label="AST_bin_op (12)"];
 node_45 [label="Token_string (12)"];
 node_46 [label="x is ", shape=box]
 node_45 -> node_46;
-node_47 [label="Token_op"];
+node_47 [label="Token_op (12)"];
 node_48 [label=".", shape=box]
 node_47 -> node_48;
 node_49 [label="AST_variable (12)"];

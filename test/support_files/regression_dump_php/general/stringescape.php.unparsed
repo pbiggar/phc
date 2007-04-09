@@ -11,8 +11,10 @@
    
    /* other escaping, both in DQ_STR and HD_STR */
    echo "a\nb";
-   echo "a\nb";
+   echo 
+      "a\nb";
    echo "a\"b";
-   echo "a\\\"b";
+   echo 
+      "a\\\"b";
    
 ?>

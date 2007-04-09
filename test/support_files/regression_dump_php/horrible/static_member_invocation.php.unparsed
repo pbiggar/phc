@@ -13,7 +13,6 @@
    echo X::$foo . "\n";
    
    $x = new X();
-   echo $x->bar
-       . "\n";
+   echo $x->bar . "\n";
    
 ?>

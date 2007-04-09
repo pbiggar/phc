@@ -316,7 +316,7 @@ node_165 [label="x", shape=box]
 node_164 -> node_165;
 node_161 -> node_164;
 node_161 -> node_162;
-node_166 [label="Token_op"];
+node_166 [label="Token_op (41)"];
 node_167 [label=".", shape=box]
 node_166 -> node_167;
 node_168 [label="Token_string (41)"];
@@ -349,7 +349,7 @@ node_182 [label="x", shape=box]
 node_181 -> node_182;
 node_178 -> node_181;
 node_178 -> node_179;
-node_183 [label="Token_op"];
+node_183 [label="Token_op (42)"];
 node_184 [label=".", shape=box]
 node_183 -> node_184;
 node_185 [label="Token_string (42)"];
@@ -382,7 +382,7 @@ node_199 [label="x", shape=box]
 node_198 -> node_199;
 node_195 -> node_198;
 node_195 -> node_196;
-node_200 [label="Token_op"];
+node_200 [label="Token_op (43)"];
 node_201 [label=".", shape=box]
 node_200 -> node_201;
 node_202 [label="Token_string (43)"];

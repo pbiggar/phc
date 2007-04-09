@@ -32,13 +32,15 @@
    echo "9: ";
    echo "\t";
    echo "10: ";
-   echo "\n";
+   echo 
+      "\n";
    echo "11: ";
    echo "\x0B";
    echo "12: ";
    echo "\x0C";
    echo "13: ";
-   echo "\r";
+   echo 
+      "\r";
    echo "14: ";
    echo "\x0E";
    echo "15: ";

@@ -76,7 +76,7 @@ node_40 [label="foo", shape=box]
 node_39 -> node_40;
 node_36 -> node_39;
 node_36 -> node_37;
-node_41 [label="Token_op"];
+node_41 [label="Token_op (13)"];
 node_42 [label=".", shape=box]
 node_41 -> node_42;
 node_43 [label="Token_string (13)"];
@@ -126,7 +126,7 @@ node_66 [label="bar", shape=box]
 node_65 -> node_66;
 node_61 -> node_65;
 node_61 -> node_62;
-node_67 [label="Token_op"];
+node_67 [label="Token_op (15)"];
 node_68 [label=".", shape=box]
 node_67 -> node_68;
 node_69 [label="Token_string (15)"];
