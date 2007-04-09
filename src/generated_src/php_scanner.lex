@@ -218,8 +218,54 @@ UNSET_CAST		{CS}"unset"{CE}
 										case K_AND:
 										case K_OR:
 										case K_XOR:
-											yylval->token_op = new Token_op(new String(yytext));
+											yylval->token_op = new Token_op(
+												new String(yytext));
 											copy_state(yylval->token_op, yyextra);
+											break;
+										case C_FALSE:
+											yylval->token_bool = new Token_bool(false, 
+												new String(yytext));
+											copy_state(yylval->token_bool, yyextra);
+											break;
+										case C_TRUE:
+											yylval->token_bool = new Token_bool(true, 
+												new String(yytext));
+											copy_state(yylval->token_bool, yyextra);
+											break;
+										case C_NULL:
+											yylval->token_null = new Token_null( 
+												new String(yytext));
+											copy_state(yylval->token_null, yyextra);
+											break;
+										case K___LINE__:
+											yylval->token_int = new Token_int(
+												yyextra->source_line,
+												new String(yytext));
+											copy_state(yylval->token_int, yyextra);
+											break;
+										case K___FILE__:
+											yylval->token_string = new Token_string(
+												yyextra->filename,
+												new String("__FILE__"));
+											copy_state(yylval->token_string, yyextra);
+											break;
+										case K___CLASS__:
+											yylval->token_string = new Token_string(
+												yyextra->current_class,
+												new String("__CLASS__"));
+											copy_state(yylval->token_string, yyextra);
+											break;
+										case K___METHOD__:
+											yylval->token_string = new Token_string(
+												yyextra->current_method,
+												new String("__METHOD__"));
+											copy_state(yylval->token_string, yyextra);
+											break;
+										case K___FUNCTION__:
+											yylval->token_string = new Token_string(
+												yyextra->current_method,
+												new String("__FUNCTION__"));
+											copy_state(yylval->token_string, yyextra);
 											break;
 										case K_CLASS:
 										case K_FUNCTION:
@@ -239,13 +285,18 @@ UNSET_CAST		{CS}"unset"{CE}
 								Token_int* i = new Token_int(
 									strtol(yytext, 0, 0),
 									new String(yytext));
-						
 								copy_state(i, yyextra);
-
 								yylval->token_int = i;
 								RETURN(INT); 
 							}
-<PHP>{REAL}				{ yylval->string = new String(yytext); RETURN(REAL); }
+<PHP>{REAL}				{ 
+								Token_real* r = new Token_real(
+									atof(yytext),
+									new String(yytext));
+								copy_state(r, yyextra);
+								yylval->token_real = r;
+								RETURN(REAL); 
+							}
 <PHP>{STOP}				{ yyextra->buffer = ""; BEGIN(INITIAL); RETURN(';'); }
 
 	/* Strings */

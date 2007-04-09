@@ -188,12 +188,10 @@ void PHP_unparser::children_method(AST_method* in)
 		newline();
 		visit_statement_list(in->statements);
 		newline();
-		// another newline?
 	}
 	else
 		// Abstract method
 		echo_nl(";");
-		// TODO: newline?
 }
 
 void PHP_unparser::children_signature(AST_signature* in)

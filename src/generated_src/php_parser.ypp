@@ -119,6 +119,9 @@
 	AST_statement* ast_statement;
 	Token_int* token_int;
 	Token_op* token_op;
+	Token_real* token_real;
+	Token_bool* token_bool;
+	Token_null* token_null;
 }
 
 %{
@@ -142,12 +145,12 @@
 
 // Keywords
 
-%token K_AND
-%token K_OR
-%token K_XOR
-%token K___FILE__
+%token <token_op> K_AND
+%token <token_op> K_OR
+%token <token_op> K_XOR
+%token <token_string> K___FILE__
 %token K_EXCEPTION
-%token K___LINE__
+%token <token_int> K___LINE__
 %token K_ARRAY
 %token K_AS
 %token K_BREAK
@@ -193,9 +196,9 @@
 %token K_USE
 %token K_VAR
 %token K_WHILE
-%token K___FUNCTION__
-%token K___CLASS__
-%token K___METHOD__
+%token <token_string> K___FUNCTION__
+%token <token_string> K___CLASS__
+%token <token_string> K___METHOD__
 %token K_FINAL
 %token K_PHP_USER_FILTER
 %token K_INTERFACE
@@ -215,28 +218,28 @@
 
 // Constants
 
-%token <string> C_TRUE
-%token <string> C_FALSE
-%token <string> C_NULL
+%token <token_bool> C_TRUE
+%token <token_bool> C_FALSE
+%token <token_null> C_NULL
 
 // Operators
 
-%token O_EQEQ
-%token O_EQEQEQ
-%token O_NOTEQ
-%token O_NOTEQEQ
-%token O_LE
-%token O_GE
+%token <token_op> O_EQEQ
+%token <token_op> O_EQEQEQ
+%token <token_op> O_NOTEQ
+%token <token_op> O_NOTEQEQ
+%token <token_op> O_LE
+%token <token_op> O_GE
 %token O_INC
 %token O_DEC
 %token O_DOUBLEARROW
 %token O_SINGLEARROW
-%token O_SL
-%token O_SR
-%token O_COLONCOLON
+%token <token_op> O_SL
+%token <token_op> O_SR
+%token <token_op> O_COLONCOLON
 
-%token O_LOGICOR
-%token O_LOGICAND
+%token <token_op> O_LOGICOR
+%token <token_op> O_LOGICAND
 
 %token O_PLUSEQ
 %token O_MINUSEQ
@@ -268,14 +271,12 @@
 %token <string> IDENT
 %token <string> VARIABLE
 %token <token_int> INT
-%token <string> REAL 
+%token <token_real> REAL 
 %token <string> INLINE_HTML
 %token <string> INVALID_TOKEN
 
 // Types of simple operators
-%token <token_op> ',' '|' '&' '^' '.' '+' '-' '*' '/' '%' '!' '~' 
-%token <token_op> O_LOGICOR O_LOGICAND K_OR K_AND K_XOR O_SL O_SR
-%token <token_op> O_EQEQEQ O_NOTEQEQ O_EQEQ O_NOTEQ '<' O_LE '>' O_GE
+%token <token_op> ',' '|' '&' '^' '.' '+' '-' '*' '/' '%' '!' '~' '<' '>'
 
 /*
  * Resolve conflicts
@@ -2268,7 +2269,7 @@ common_scalar:
 		}
 	| REAL 
 		{
-			$$ = NEW(Token_real, (atof($1->c_str()), $1));
+			$$ = $1;	
 		}
 	| STRING
 		{
@@ -2276,35 +2277,35 @@ common_scalar:
 		}
 	| C_FALSE
 		{ 
-			$$ = NEW(Token_bool, (false, $1));
+			$$ = $1; 
 		}
 	| C_TRUE
 		{ 
-			$$ = NEW(Token_bool, (true, $1));
+			$$ = $1; 
 		}
 	| C_NULL
 		{ 
-			$$ = NEW(Token_null, ($1));
+			$$ = $1; 
 		}
 	| K___LINE__
 		{
-			$$ = NEW(Token_int, (context->source_line, new String("__LINE__")));
+			$$ = $1; 
 		}
 	| K___FILE__
 		{
-			$$ = NEW(Token_string, (context->filename, new String("__FILE__")));
+			$$ = $1; 
 		}
 	| K___CLASS__
 		{
-			$$ = NEW(Token_string, (context->current_class, new String("__CLASS__")));
+			$$ = $1; 
 		}
 	| K___METHOD__
 		{
-			$$ = NEW(Token_string, (context->current_method, new String("__METHOD__")));
+			$$ = $1; 
 		}
 	| K___FUNCTION__
 		{
-			$$ = NEW(Token_string, (context->current_method, new String("__FUNCTION__")));
+			$$ = $1; 
 		}
 	;
 	
