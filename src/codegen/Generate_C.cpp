@@ -53,6 +53,11 @@ static List<String*> eofn_labels;	// end of function labels
  * entries for + and -, but obviously need to be invoked slightly differently.
  */
 
+static int temp(AST_node* in)
+{
+	return in->attrs->get_integer("phc.codegen.temp")->value();
+}
+
 static class Bin_op_functions : public map<string,string>
 {
 public:
@@ -295,6 +300,11 @@ void Generate_C::post_string(Token_string* in)
 
 void Generate_C::post_int(Token_int* in)
 {
+	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n"; 
+	cout << "ZVAL_LONG(temp[" << temp(in) << "], " << in->value << ");\n"; 
+
+	cout << "/* OBSOLETE */\n";
+	
 	String* i = fresh("int");
 
 	cout << "zval* " << *i << ";\n";
@@ -303,6 +313,8 @@ void Generate_C::post_int(Token_int* in)
 
 	in->attrs->set(LOC, i);
 	cout << "zend_hash_next_index_insert(temps, &" << *i << ", sizeof(zval*), NULL);\n";
+
+	cout << "/* END OBSOLETE */\n";
 }
 
 void Generate_C::post_bool(Token_bool* in)
@@ -770,15 +782,14 @@ void Generate_C::post_variable(AST_variable* in)
  * Method definition
  */
 
-void 
-Generate_C::start_method (String* name, List<AST_formal_parameter*> *parameters)
+void Generate_C::pre_method(AST_method* in)
 {
 	// We need a label to indicate where the end of the function is
 	String* eofn = fresh("end_of_function");
 	eofn_labels.push_back(eofn);
 
-	cout << "PHP_FUNCTION(" << *name << ")\n";
-	methods.push_back(name);
+	cout << "PHP_FUNCTION(" << *in->signature->method_name->value << ")\n";
+	methods.push_back(in->signature->method_name->value);
 
 	cout << "{\n";
 
@@ -786,6 +797,12 @@ Generate_C::start_method (String* name, List<AST_formal_parameter*> *parameters)
 	cout << "// Store a reference to the current active symbol table\n";
 	cout << "HashTable* old_active_symbol_table;\n";
 	cout << "old_active_symbol_table = EG(active_symbol_table);\n";
+
+	/**/
+	cout << "// Array to hold all temporaries needed within the function\n";
+	int num_temps = in->attrs->get_integer("phc.codegen.num_temps")->value();
+	cout << "zval* temp[" << num_temps << "];\n";
+	cout << "memset(temp, 0, " << num_temps << " * sizeof(zval*));\n";
 
 	/* TODO count the locals - growing hashtables is very expensiveg*/
 	cout << "// Setup locals array\n";
@@ -801,6 +818,7 @@ Generate_C::start_method (String* name, List<AST_formal_parameter*> *parameters)
 	cout << "zend_hash_init(temps, 64, NULL, ZVAL_PTR_DTOR, 0);\n";
 
 	/**/
+	List<AST_formal_parameter*>* parameters = in->signature->formal_parameters;
 	if(parameters && parameters->size() > 0)
 	{
 		cout << "// Add all parameters as local variables\n";
@@ -840,15 +858,7 @@ Generate_C::start_method (String* name, List<AST_formal_parameter*> *parameters)
 	cout << "// Function body\n";
 }
 
-void
-Generate_C::pre_method(AST_method* in)
-{
-	start_method (in->signature->method_name->value, in->signature->formal_parameters);
-}
-
-/* Methods are automatically matched with pre_method and post_method. So if you call this out of turn, you'd better have them correctly matched */
-void
-Generate_C::end_method ()
+void Generate_C::post_method(AST_method* in)
 {
 	String* eofn = eofn_labels.back();
 	eofn_labels.pop_back();
@@ -870,10 +880,6 @@ Generate_C::end_method ()
 
 	cout << "}\n";
 }
-void Generate_C::post_method(AST_method* in)
-{
-	end_method ();
-}
 
 
 /*
@@ -883,14 +889,10 @@ void Generate_C::post_method(AST_method* in)
 void Generate_C::pre_php_script(AST_php_script* in)
 {
 	cout << "#include \"php.h\"\n";
-
-	start_method (new String ("main_run"), NULL);
 }
 
 void Generate_C::post_php_script(AST_php_script* in)
 {
-	end_method ();
-
 	/**/
 	cout << "// Register all functions with PHP\n";
 	cout << "static function_entry " << *extension_name << "_functions[] = {\n";
