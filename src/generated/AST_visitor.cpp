@@ -96,6 +96,10 @@ void AST_visitor::pre_return(AST_return* in)
 {
 }
 
+void AST_visitor::pre_hir_if(AST_hir_if* in)
+{
+}
+
 void AST_visitor::pre_static_declaration(AST_static_declaration* in)
 {
 }
@@ -405,6 +409,10 @@ void AST_visitor::post_continue(AST_continue* in)
 }
 
 void AST_visitor::post_return(AST_return* in)
+{
+}
+
+void AST_visitor::post_hir_if(AST_hir_if* in)
 {
 }
 
@@ -770,6 +778,13 @@ void AST_visitor::children_continue(AST_continue* in)
 void AST_visitor::children_return(AST_return* in)
 {
     visit_expr(in->expr);
+}
+
+void AST_visitor::children_hir_if(AST_hir_if* in)
+{
+    visit_expr(in->expr);
+    visit_goto(in->iftrue);
+    visit_goto(in->iffalse);
 }
 
 void AST_visitor::children_static_declaration(AST_static_declaration* in)
@@ -1161,6 +1176,14 @@ void AST_visitor::pre_return_chain(AST_return* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_return(in);
+}
+
+void AST_visitor::pre_hir_if_chain(AST_hir_if* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_hir_if(in);
 }
 
 void AST_visitor::pre_static_declaration_chain(AST_static_declaration* in)
@@ -1666,6 +1689,14 @@ void AST_visitor::post_continue_chain(AST_continue* in)
 void AST_visitor::post_return_chain(AST_return* in)
 {
     post_return(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_hir_if_chain(AST_hir_if* in)
+{
+    post_hir_if(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -2265,6 +2296,18 @@ void AST_visitor::visit_switch_case(AST_switch_case* in)
     }
 }
 
+void AST_visitor::visit_goto(AST_goto* in)
+{
+    if(in == NULL)
+    	visit_null("AST_goto");
+    else
+    {
+    	pre_goto_chain(in);
+    	children_goto(in);
+    	post_goto_chain(in);
+    }
+}
+
 void AST_visitor::visit_directive_list(List<AST_directive*>* in)
 {
     List<AST_directive*>::const_iterator i;
@@ -2604,6 +2647,9 @@ void AST_visitor::pre_statement_chain(AST_statement* in)
     case AST_goto::ID:
     	pre_goto_chain(dynamic_cast<AST_goto*>(in));
     	break;
+    case AST_hir_if::ID:
+    	pre_hir_if_chain(dynamic_cast<AST_hir_if*>(in));
+    	break;
     }
 }
 
@@ -2882,6 +2928,9 @@ void AST_visitor::post_statement_chain(AST_statement* in)
     case AST_goto::ID:
     	post_goto_chain(dynamic_cast<AST_goto*>(in));
     	break;
+    case AST_hir_if::ID:
+    	post_hir_if_chain(dynamic_cast<AST_hir_if*>(in));
+    	break;
     }
 }
 
@@ -3159,6 +3208,9 @@ void AST_visitor::children_statement(AST_statement* in)
     	break;
     case AST_goto::ID:
     	children_goto(dynamic_cast<AST_goto*>(in));
+    	break;
+    case AST_hir_if::ID:
+    	children_hir_if(dynamic_cast<AST_hir_if*>(in));
     	break;
     }
 }

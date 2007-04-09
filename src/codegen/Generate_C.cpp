@@ -676,30 +676,21 @@ void Generate_C::post_assignment(AST_assignment* in)
 
 void Generate_C::children_if(AST_if* in)
 {
+	assert (0);
+}
 
+void Generate_C::children_hir_if(AST_hir_if* in)
+{
 	visit_expr(in->expr);
 	cout << "if (zend_is_true(" << *in->expr->attrs->get_string(LOC) << ")) \n";
-	visit_statement_list(in->iftrue);
+	visit_statement (in->iftrue);
 	cout << "else \n";
-	visit_statement_list(in->iffalse);
+	visit_statement (in->iffalse);
 }
 
 void Generate_C::children_for(AST_for* in)
 {
-	visit_expr(in->init);
-
-	String* for_header = fresh("for_header");
-	String* after_for = fresh("after_for");
-
-	cout << *for_header << ":;\n";
-	visit_expr(in->cond);
-	cout << "if(!zend_is_true(" << *in->cond->attrs->get_string(LOC) << ")) goto " << *after_for << ";\n";
-
-	visit_statement_list(in->statements);
-	visit_expr(in->incr);
-	cout << "goto " << *for_header << ";\n";
-
-	cout << *after_for << ":;\n";
+	assert (0);
 }
 
 /*

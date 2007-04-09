@@ -78,6 +78,8 @@ List<AST_statement*>* wrap (AST_statement* statement)
 void
 Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 {
+	// Don't lower them if they're already lowered
+	// TODO this would be easier if there was a new catagory of if
 	AST_label *l1 = label ();
 	AST_label *l2 = label ();
 	AST_label *l3 = label ();
@@ -88,20 +90,16 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 	AST_goto *l1_goto_l3 = new AST_goto (l3->label_name);
 	AST_goto *l2_goto_l3 = new AST_goto (l3->label_name);
 
-	// fix the if statement
-	List<AST_statement*>* iftrue = in->iftrue;
-	List<AST_statement*>* iffalse = in->iffalse;
-	// in->expr is unchanged
-	in->iftrue = wrap (goto_l1);
-	in->iffalse = wrap (goto_l2);
+	// make the if
+	AST_hir_if *new_if = new AST_hir_if (in->expr, goto_l1, goto_l2);
 
 	// generate the code
-	out->push_back (in);
+	out->push_back (new_if);
 	out->push_back (l1);
-	out->push_back_all (iftrue);
+	out->push_back_all (in->iftrue);
 	out->push_back (l1_goto_l3);
 	out->push_back (l2);
-	out->push_back_all (iffalse);
+	out->push_back_all (in->iffalse);
 	out->push_back (l2_goto_l3);
 	out->push_back (l3);
 }
@@ -128,9 +126,7 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 	AST_goto *goto_l2 = new AST_goto (l2->label_name);
 
 	// create the if statement
-	AST_if *if_stmt = new AST_if (in->expr, 
-											wrap (goto_l1), 
-											wrap (goto_l2));
+	AST_hir_if *if_stmt = new AST_hir_if (in->expr, goto_l1, goto_l2);
 
 	// generate code
 	out->push_back (l0);
@@ -148,22 +144,25 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
  *		L1:
  *			y ();
  *			if ($x) goto L1:
+ *			else goto L2:
+ *		L2:
  */
 void
 Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 {
 	AST_label* l1 = label ();
+	AST_label* l2 = label ();
 	AST_goto* goto_l1 = new AST_goto (l1->label_name);
+	AST_goto* goto_l2 = new AST_goto (l2->label_name);
 
 	// make the if
-	AST_if* if_stmt = new AST_if (in->expr, 
-											wrap (goto_l1), 
-											new List<AST_statement*> ());
+	AST_hir_if* if_stmt = new AST_hir_if (in->expr, goto_l1, goto_l2);
 
 	// generate the code
 	out->push_back (l1);
 	out->push_back_all (in->statements);
 	out->push_back (if_stmt);
+	out->push_back (l2);
 }
 
 /* Convert

@@ -47,6 +47,7 @@ public:
     virtual void pre_break(AST_break* in);
     virtual void pre_continue(AST_continue* in);
     virtual void pre_return(AST_return* in);
+    virtual void pre_hir_if(AST_hir_if* in);
     virtual void pre_static_declaration(AST_static_declaration* in);
     virtual void pre_unset(AST_unset* in);
     virtual void pre_declare(AST_declare* in);
@@ -126,6 +127,7 @@ public:
     virtual void post_break(AST_break* in);
     virtual void post_continue(AST_continue* in);
     virtual void post_return(AST_return* in);
+    virtual void post_hir_if(AST_hir_if* in);
     virtual void post_static_declaration(AST_static_declaration* in);
     virtual void post_unset(AST_unset* in);
     virtual void post_declare(AST_declare* in);
@@ -203,6 +205,7 @@ public:
     virtual void children_break(AST_break* in);
     virtual void children_continue(AST_continue* in);
     virtual void children_return(AST_return* in);
+    virtual void children_hir_if(AST_hir_if* in);
     virtual void children_static_declaration(AST_static_declaration* in);
     virtual void children_unset(AST_unset* in);
     virtual void children_declare(AST_declare* in);
@@ -271,6 +274,7 @@ public:
     virtual void pre_break_chain(AST_break* in);
     virtual void pre_continue_chain(AST_continue* in);
     virtual void pre_return_chain(AST_return* in);
+    virtual void pre_hir_if_chain(AST_hir_if* in);
     virtual void pre_static_declaration_chain(AST_static_declaration* in);
     virtual void pre_unset_chain(AST_unset* in);
     virtual void pre_declare_chain(AST_declare* in);
@@ -338,6 +342,7 @@ public:
     virtual void post_break_chain(AST_break* in);
     virtual void post_continue_chain(AST_continue* in);
     virtual void post_return_chain(AST_return* in);
+    virtual void post_hir_if_chain(AST_hir_if* in);
     virtual void post_static_declaration_chain(AST_static_declaration* in);
     virtual void post_unset_chain(AST_unset* in);
     virtual void post_declare_chain(AST_declare* in);
@@ -404,6 +409,7 @@ public:
     virtual void visit_variable(AST_variable* in);
     virtual void visit_switch_case_list(List<AST_switch_case*>* in);
     virtual void visit_switch_case(AST_switch_case* in);
+    virtual void visit_goto(AST_goto* in);
     virtual void visit_directive_list(List<AST_directive*>* in);
     virtual void visit_directive(AST_directive* in);
     virtual void visit_directive_name(Token_directive_name* in);

@@ -46,6 +46,7 @@ public:
     virtual void pre_break(AST_break* in, List<AST_statement*>* out);
     virtual void pre_continue(AST_continue* in, List<AST_statement*>* out);
     virtual void pre_return(AST_return* in, List<AST_statement*>* out);
+    virtual void pre_hir_if(AST_hir_if* in, List<AST_statement*>* out);
     virtual void pre_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
     virtual void pre_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void pre_declare(AST_declare* in, List<AST_statement*>* out);
@@ -55,7 +56,7 @@ public:
     virtual void pre_throw(AST_throw* in, List<AST_statement*>* out);
     virtual void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
     virtual void pre_nop(AST_nop* in, List<AST_statement*>* out);
-    virtual void pre_goto(AST_goto* in, List<AST_statement*>* out);
+    virtual AST_goto* pre_goto(AST_goto* in);
     virtual void pre_label(AST_label* in, List<AST_statement*>* out);
     virtual AST_expr* pre_assignment(AST_assignment* in);
     virtual AST_expr* pre_list_assignment(AST_list_assignment* in);
@@ -114,6 +115,7 @@ public:
     virtual void post_break(AST_break* in, List<AST_statement*>* out);
     virtual void post_continue(AST_continue* in, List<AST_statement*>* out);
     virtual void post_return(AST_return* in, List<AST_statement*>* out);
+    virtual void post_hir_if(AST_hir_if* in, List<AST_statement*>* out);
     virtual void post_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
     virtual void post_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void post_declare(AST_declare* in, List<AST_statement*>* out);
@@ -123,7 +125,7 @@ public:
     virtual void post_throw(AST_throw* in, List<AST_statement*>* out);
     virtual void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
     virtual void post_nop(AST_nop* in, List<AST_statement*>* out);
-    virtual void post_goto(AST_goto* in, List<AST_statement*>* out);
+    virtual AST_goto* post_goto(AST_goto* in);
     virtual void post_label(AST_label* in, List<AST_statement*>* out);
     virtual AST_expr* post_assignment(AST_assignment* in);
     virtual AST_expr* post_list_assignment(AST_list_assignment* in);
@@ -182,6 +184,7 @@ public:
     virtual void children_break(AST_break* in);
     virtual void children_continue(AST_continue* in);
     virtual void children_return(AST_return* in);
+    virtual void children_hir_if(AST_hir_if* in);
     virtual void children_static_declaration(AST_static_declaration* in);
     virtual void children_unset(AST_unset* in);
     virtual void children_declare(AST_declare* in);
@@ -252,6 +255,7 @@ public:
     virtual AST_variable* transform_variable(AST_variable* in);
     virtual List<AST_switch_case*>* transform_switch_case_list(List<AST_switch_case*>* in);
     virtual List<AST_switch_case*>* transform_switch_case(AST_switch_case* in);
+    virtual AST_goto* transform_goto(AST_goto* in);
     virtual List<AST_directive*>* transform_directive_list(List<AST_directive*>* in);
     virtual List<AST_directive*>* transform_directive(AST_directive* in);
     virtual Token_directive_name* transform_directive_name(Token_directive_name* in);

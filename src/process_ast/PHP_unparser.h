@@ -49,6 +49,7 @@ public:
 	void children_attribute(AST_attribute* in);
 	void children_attr_mod(AST_attr_mod* in);
 	void children_if(AST_if* in);
+	void children_hir_if(AST_hir_if* in);
 	void children_while(AST_while* in);
 	void children_do(AST_do* in);
 	void children_for(AST_for* in);

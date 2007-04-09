@@ -279,7 +279,7 @@ void PHP_unparser::children_if(AST_if* in)
 	echo(") ");
 
 	visit_statement_list(in->iftrue);
-	
+
 	if(!in->iffalse->empty())
 	{
 		AST_if* elseif = dynamic_cast<AST_if*>(in->iffalse->front());
@@ -294,9 +294,29 @@ void PHP_unparser::children_if(AST_if* in)
 			visit_statement_list(in->iffalse);
 		}
 	}
-	
+
 	newline();
 }
+
+/* This is simpler than the other if, since there's no user-written code to
+ * maintain, and the statements can only be gotos */
+void PHP_unparser::children_hir_if(AST_hir_if* in)
+{
+	echo("if (");
+
+	bool in_if_expression = true;
+	visit_expr(in->expr);
+	in_if_expression = false;
+
+	echo(") ");
+	visit_goto (in->iftrue);
+	echo("else ");
+	visit_goto (in->iffalse);
+
+	newline();
+}
+
+
 
 void PHP_unparser::children_while(AST_while* in)
 {

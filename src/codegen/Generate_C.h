@@ -47,6 +47,7 @@ public:
 	void post_unset(AST_unset* in);
 	void post_assignment(AST_assignment* in);
 	void children_if(AST_if* in);
+	void children_hir_if(AST_hir_if* in);
 	void children_for(AST_for* in);
 	void post_variable(AST_variable* in);
 	void pre_method(AST_method* in);
