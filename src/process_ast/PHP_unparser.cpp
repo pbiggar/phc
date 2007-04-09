@@ -1123,6 +1123,5 @@ void
 PHP_unparser::children_label (AST_label* in)
 {
 	visit_label_name (in->label_name);
-	os << ":";
-	newline ();
+	os << ":" << endl;
 }

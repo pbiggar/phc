@@ -27,6 +27,8 @@ private:
 	void update_hash(AST_variable* var, String* val);
 	void index_hash(AST_variable* in);
 	void separate(AST_variable* var);
+	void start_method (String* name, List<AST_formal_parameter*>* parameters);
+	void end_method ();
 
 public:
 	// use NULL to compile as an extension
@@ -52,6 +54,8 @@ public:
 	void pre_php_script(AST_php_script* in);
 	void post_php_script(AST_php_script* in);
 	void children_eval_expr(AST_eval_expr* in);
+	void children_goto (AST_goto* in);
+	void children_label (AST_label* in);
 };
 
 #endif // GENERATE_C

@@ -11,6 +11,7 @@
 #include "Generate_C.h"
 #include "process_ast/XML_unparser.h"
 #include "lib/List.h"
+#include "process_ast/PHP_unparser.h"
 
 /*
  * Variabes set by the code generator
@@ -57,6 +58,7 @@ static class Bin_op_functions : public map<string,string>
 public:
 	Bin_op_functions() : map<string,string>()
 	{
+		/* TODO > then is missing */
 		(*this)["+"] = "add_function";	
 		(*this)["-"] = "sub_function";	
 		(*this)["*"] = "mul_function";	
@@ -82,6 +84,9 @@ public:
 		(*this)["--"] = "sub_function";
 	}
 } bin_op_functions;
+
+/* TODO while not supported */
+/* TODO we can support break's with computed gotos :) */
 
 /*
  * Indexing and updating hashes
@@ -491,6 +496,7 @@ void Generate_C::children_bin_op(AST_bin_op* in)
 		
 		cout << "// Evaluate " << *in->op->value << "\n";	
 		cout << "MAKE_STD_ZVAL(" << *binop_result << ");\n";
+		/* TODO check output of map (missing > was missed) */
 		cout << bin_op_functions[*in->op->value] << "(" << *binop_result << ", " << *in->left->attrs->get_string(LOC) << ", " << *in->right->attrs->get_string(LOC) << " TSRMLS_CC);\n";
 	}
 
@@ -670,19 +676,12 @@ void Generate_C::post_assignment(AST_assignment* in)
 
 void Generate_C::children_if(AST_if* in)
 {
-	String* iftrue = fresh("iftrue");
-	String* afterif = fresh("afterif");
 
 	visit_expr(in->expr);
-	cout << "if(zend_is_true(" << *in->expr->attrs->get_string(LOC) << ")) goto " << *iftrue << ";\n";
-
-	visit_statement_list(in->iffalse);
-	cout << "goto " << *afterif << ";\n";
-	
-	cout << *iftrue << ":;\n";
+	cout << "if (zend_is_true(" << *in->expr->attrs->get_string(LOC) << ")) \n";
 	visit_statement_list(in->iftrue);
-
-	cout << *afterif << ":;\n";
+	cout << "else \n";
+	visit_statement_list(in->iffalse);
 }
 
 void Generate_C::children_for(AST_for* in)
@@ -765,17 +764,12 @@ void Generate_C::post_variable(AST_variable* in)
  * Method definition
  */
 
-void Generate_C::pre_method(AST_method* in)
+void 
+Generate_C::start_method (String* name, List<AST_formal_parameter*> *parameters)
 {
-	String* name = in->signature->method_name->value;
-	
 	// We need a label to indicate where the end of the function is
 	String* eofn = fresh("end_of_function");
 	eofn_labels.push_back(eofn);
-
-	// TODO: HACK!
-	if(*name == "%run%")
-		name = new String("main_run");
 
 	cout << "PHP_FUNCTION(" << *name << ")\n";
 	methods.push_back(name);
@@ -787,31 +781,31 @@ void Generate_C::pre_method(AST_method* in)
 	cout << "HashTable* old_active_symbol_table;\n";
 	cout << "old_active_symbol_table = EG(active_symbol_table);\n";
 
-	/**/
+	/* TODO count the locals - growing hashtables is very expensiveg*/
 	cout << "// Setup locals array\n";
 	cout << "HashTable* locals;\n";
 	cout << "ALLOC_HASHTABLE(locals);\n";
 	cout << "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n";
 	cout << "EG(active_symbol_table) = locals;\n";
 
-	/**/
+	/* TODO count the temporaries - growing hashtables is very expensive */
 	cout << "// We store all temporaries in an array so that they can be deallocated\n";
 	cout << "HashTable* temps;\n";
 	cout << "ALLOC_HASHTABLE(temps);\n";
 	cout << "zend_hash_init(temps, 64, NULL, ZVAL_PTR_DTOR, 0);\n";
 
 	/**/
-	if(in->signature->formal_parameters->size() > 0)
+	if(parameters && parameters->size() > 0)
 	{
 		cout << "// Add all parameters as local variables\n";
 		stringstream zgp_format; 
 		stringstream zgp_args; 
 		cout << "{\n";
-		cout << "zval* params[" << in->signature->formal_parameters->size() << "];\n";
+		cout << "zval* params[" << parameters->size() << "];\n";
 		List<AST_formal_parameter*>::const_iterator i;
 		int index;	
-		for(i = in->signature->formal_parameters->begin(), index = 0;
-			i != in->signature->formal_parameters->end();
+		for(i = parameters->begin(), index = 0;
+			i != parameters->end();
 			i++, index++)
 		{
 			// TODO: deal with default values
@@ -820,14 +814,14 @@ void Generate_C::pre_method(AST_method* in)
 			// TODO: deal with references
 			zgp_format << "z";
 			
-			if(i != in->signature->formal_parameters->begin())
+			if (i != parameters->begin())
 				zgp_args << ", ";
 	
 			zgp_args << "&params[" << index << "]";
 		}
 		cout << "zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, \"" << zgp_format.str() << "\", " << zgp_args.str() << ");\n";
-		for(i = in->signature->formal_parameters->begin(), index = 0;
-			i != in->signature->formal_parameters->end();
+		for(i = parameters->begin(), index = 0;
+			i != parameters->end();
 			i++, index++)
 		{
 			cout << "zval_add_ref(&params[" << index << "]);\n";
@@ -840,7 +834,15 @@ void Generate_C::pre_method(AST_method* in)
 	cout << "// Function body\n";
 }
 
-void Generate_C::post_method(AST_method* in)
+void
+Generate_C::pre_method(AST_method* in)
+{
+	start_method (in->signature->method_name->value, in->signature->formal_parameters);
+}
+
+/* Methods are automatically matched with pre_method and post_method. So if you call this out of turn, you'd better have them correctly matched */
+void
+Generate_C::end_method ()
 {
 	String* eofn = eofn_labels.back();
 	eofn_labels.pop_back();
@@ -862,6 +864,11 @@ void Generate_C::post_method(AST_method* in)
 
 	cout << "}\n";
 }
+void Generate_C::post_method(AST_method* in)
+{
+	end_method ();
+}
+
 
 /*
  * Top-level structure
@@ -870,10 +877,14 @@ void Generate_C::post_method(AST_method* in)
 void Generate_C::pre_php_script(AST_php_script* in)
 {
 	cout << "#include \"php.h\"\n";
+
+	start_method (new String ("main_run"), NULL);
 }
 
 void Generate_C::post_php_script(AST_php_script* in)
 {
+	end_method ();
+
 	/**/
 	cout << "// Register all functions with PHP\n";
 	cout << "static function_entry " << *extension_name << "_functions[] = {\n";
@@ -934,6 +945,20 @@ void Generate_C::children_eval_expr(AST_eval_expr* in)
 	}
 }
 
+void
+Generate_C::children_goto (AST_goto *in)
+{
+	cout << "goto " << *(in->label_name->value) << ";" << endl;
+}
+
+void
+Generate_C::children_label (AST_label* in)
+{
+	// getting a few errors with this. I expect we are not allowed put a label
+	// before another label, or before a declaration. Added semicolon to be sure
+	cout << *(in->label_name->value) << ": ;" << endl;
+}
+
 /*
  * Driver (to turn the extension into a stand-alone application)
  */
@@ -942,6 +967,8 @@ void Generate_C::driver()
 {
 	cout << "#include <sapi/embed/php_embed.h>\n";
 	cout << "#include <signal.h>\n\n";
+
+	/* TODO this is always a bug in phc. If not, we'll post it to the FAQ or something. */
 
 	cout <<
 	"void sighandler(int signum)\n"
