@@ -58,7 +58,6 @@ static class Bin_op_functions : public map<string,string>
 public:
 	Bin_op_functions() : map<string,string>()
 	{
-		/* TODO > then is missing */
 		(*this)["+"] = "add_function";	
 		(*this)["-"] = "sub_function";	
 		(*this)["*"] = "mul_function";	
@@ -81,12 +80,13 @@ public:
 		(*this)["<>"] = "is_not_equal_function";
 		(*this)["<"] = "is_smaller_function";
 		(*this)["<="] = "is_smaller_or_equal_function";
+		(*this)[">="] = "is_smaller_function"; // This one looks wrong, but we reverse the operands to make this
+		(*this)[">"] = "is_smaller_or_equal_function"; // This one too
 		(*this)["++"] = "add_function";
 		(*this)["--"] = "sub_function";
 	}
 } bin_op_functions;
 
-/* TODO while not supported */
 /* TODO we can support break's with computed gotos :) */
 
 /*
@@ -491,14 +491,28 @@ void Generate_C::children_bin_op(AST_bin_op* in)
 		cout << *after_binop << ":;\n"; 
 	}
 	else
-	{	
+	{
 		cout << "// Evaluate right operand of " << *in->op->value << "\n";
 		visit_expr(in->right);
 		
 		cout << "// Evaluate " << *in->op->value << "\n";	
 		cout << "MAKE_STD_ZVAL(" << *binop_result << ");\n";
-		/* TODO check output of map (missing > was missed) */
-		cout << bin_op_functions[*in->op->value] << "(" << *binop_result << ", " << *in->left->attrs->get_string(LOC) << ", " << *in->right->attrs->get_string(LOC) << " TSRMLS_CC);\n";
+
+		assert (bin_op_functions.find(*in->op->value) != bin_op_functions.end());
+
+		// some operators need the operands to be reversed (since we call the opposite function). This is accounted for in the binops table.
+		if (*in->op->value == ">" || *in->op->value == ">=")
+		{
+			cout << bin_op_functions[*in->op->value] << "(" << *binop_result << ", "
+				<< *in->right->attrs->get_string(LOC) << ", " 
+				<< *in->left->attrs->get_string(LOC) << " TSRMLS_CC);\n";
+		}
+		else
+		{
+			cout << bin_op_functions[*in->op->value] << "(" << *binop_result << ", "
+				<< *in->left->attrs->get_string(LOC) << ", " 
+				<< *in->right->attrs->get_string(LOC) << " TSRMLS_CC);\n";
+		}
 	}
 
 	in->attrs->set(LOC, binop_result);
