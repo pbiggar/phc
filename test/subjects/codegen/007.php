@@ -7,5 +7,8 @@
 			return $n * factorial($n - 1);
 	}
 
-	var_dump(factorial(15));
+	function main()
+	{
+		var_dump(factorial(15));
+	}
 ?>

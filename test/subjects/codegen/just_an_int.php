@@ -1,5 +1,5 @@
 <?php
-	function f()
+	function main()
 	{
 		5;
 	}

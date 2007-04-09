@@ -1,6 +1,9 @@
 <?php
-	for($i = 0; $i < 10; $i = $i + 1)
+	function main()
 	{
-		echo "$i\n";
+		for($i = 0; $i < 10; $i = $i + 1)
+		{
+			echo "$i\n";
+		}
 	}
 ?>

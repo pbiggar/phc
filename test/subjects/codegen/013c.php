@@ -1,5 +1,8 @@
 <?php
-	$a["foo"]["bar"] = "baz";
-
-	var_dump($a);
+	function main()
+	{
+		$a["foo"]["bar"] = "baz";
+	
+		var_dump($a);
+	}
 ?>

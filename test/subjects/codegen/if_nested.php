@@ -1,33 +1,35 @@
 <?php
-
-	$x = 0;
-	if ($x == 1) // asda
+	function main()
 	{
-		$y = 2;
-		$z = 3;
-		if ($y == 4)
+		$x = 0;
+		if ($x == 1) // asda
 		{
-			$z = 5;
+			$y = 2;
+			$z = 3;
+			if ($y == 4)
+			{
+				$z = 5;
+			}
+			else
+			{
+				$z = 6;
+			}
 		}
 		else
 		{
-			$z = 6;
+			$y = 7;
+			if ($y == 8)
+			{
+				$z = 9;
+			}
+			else
+			{
+				$z = 10;
+			}
 		}
+	
+		var_dump ($x);
+		var_dump ($y);
+		var_dump ($z);
 	}
-	else
-	{
-		$y = 7;
-		if ($y == 8)
-		{
-			$z = 9;
-		}
-		else
-		{
-			$z = 10;
-		}
-	}
-
-	var_dump ($x);
-	var_dump ($y);
-	var_dump ($z);
 ?>

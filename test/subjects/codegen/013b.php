@@ -1,5 +1,8 @@
 <?php
-	$a = NULL;
-	$a["foo"] = "bar";
-	var_dump($a);
+	function main()
+	{
+		$a = NULL;
+		$a["foo"] = "bar";
+		var_dump($a);
+	}
 ?>

@@ -1,4 +1,7 @@
 <?php
-	$a = 5;
-	var_dump($a);
+	function main()
+	{
+		$a = 5;
+		var_dump($a);
+	}
 ?>

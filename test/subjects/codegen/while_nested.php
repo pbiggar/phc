@@ -1,19 +1,21 @@
 <?php
-
-	while ($x < 10)
+	function main()
 	{
-		echo "$x\n";
-		while ($y < 20)
+		while ($x < 10)
 		{
-			echo "$y\n";
-			$y++;
-			$x++;
+			echo "$x\n";
+			while ($y < 20)
+			{
+				echo "$y\n";
+				$y++;
+				$x++;
+			}
+			$z++;
+			echo "$z\n";
 		}
-		$z++;
-		echo "$z\n";
+	
+		var_dump ($x);
+		var_dump ($y);
+		var_dump ($z);
 	}
-
-	var_dump ($x);
-	var_dump ($y);
-	var_dump ($z);
 ?>
