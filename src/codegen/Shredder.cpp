@@ -17,6 +17,14 @@ void Shredder::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
 	out->push_back_all(pieces);
 	out->push_back(in);
+
+	// Move comment to the first piece (if any)
+	if(!pieces->empty())
+	{
+		pieces->front()->attrs->set("phc.comments", in->get_comments());
+		in->attrs->set("phc.comments", new List<String*>);
+	}
+
 	pieces->clear();
 }
 
@@ -65,7 +73,8 @@ AST_variable* Shredder::post_variable(AST_variable* in)
  * Binary and unary operators
  *
  * The "lazy" binary operators (&&, ||, and friends) are not dealt with here, 
- * but in the lowering pass.
+ * but in the lowering pass. Pre and post operators are translated to binary
+ * operators.
  */
 
 AST_expr* Shredder::post_bin_op(AST_bin_op* in)
@@ -76,6 +85,67 @@ AST_expr* Shredder::post_bin_op(AST_bin_op* in)
 AST_expr* Shredder::post_unary_op(AST_unary_op* in)
 {
 	return create_piece(in);
+}
+
+AST_expr* Shredder::post_pre_op(AST_pre_op* in)
+{
+	Token_op* op;
+	
+	if(*in->op->value == "--")
+		op = new Token_op(new String("-"));
+	else if(*in->op->value == "++")
+		op = new Token_op(new String("+"));
+	else
+		assert(0);
+
+	AST_variable* one = fresh();
+
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		one,
+		false,
+		new Token_int(1, new String("1")))));
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		in->variable->clone(),
+		false,
+		new AST_bin_op(
+			in->variable->clone(),
+			op,
+			one))));
+	
+	return in->variable->clone();
+}
+
+AST_expr* Shredder::post_post_op(AST_post_op* in)
+{
+	Token_op* op;
+	
+	if(*in->op->value == "--")
+		op = new Token_op(new String("-"));
+	else if(*in->op->value == "++")
+		op = new Token_op(new String("+"));
+	else
+		assert(0);
+
+	AST_variable* old_value = fresh();
+	AST_variable* one = fresh();
+
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		old_value,
+		false,
+		in->variable->clone())));
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		one,
+		false,
+		new Token_int(1, new String("1")))));
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		in->variable->clone(),
+		false,
+		new AST_bin_op(
+			in->variable->clone(),
+			op,
+			one))));
+	
+	return old_value;
 }
 
 /*

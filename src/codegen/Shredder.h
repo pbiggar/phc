@@ -20,6 +20,8 @@ public:
 	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
 	AST_variable* post_variable(AST_variable* in);
 	AST_expr* post_bin_op(AST_bin_op* in);
+	AST_expr* post_pre_op(AST_pre_op* in);
+	AST_expr* post_post_op(AST_post_op* in);
 	AST_expr* post_unary_op(AST_unary_op* in);
 	AST_expr* post_int(Token_int* in);
 	AST_expr* post_real(Token_real* in);
