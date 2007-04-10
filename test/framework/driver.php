@@ -50,6 +50,7 @@ require_once ("compiled_vs_interpreted.php");
 require_once ("compile_time_include.php");
 require_once ("interpret_canonical_unparsed.php");
 require_once ("interpret_unparsed.php");
+require_once ("interpret_shredded.php");
 array_push ($tests, new PluginTest ("linear"));
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
