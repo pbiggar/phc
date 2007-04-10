@@ -70,10 +70,12 @@ struct gengetopt_args_info
   const char *tab_help; /* String to use for tabs while unparsing help description.  */
   int dump_tokens_flag;	/* Perform lexical analysis only (spits out a token list) (default=off).  */
   const char *dump_tokens_help; /* Perform lexical analysis only (spits out a token list) help description.  */
-  int run_lowering_flag;	/* Dump the XML representation of the HIR, after lowering (default=off).  */
-  const char *run_lowering_help; /* Dump the XML representation of the HIR, after lowering help description.  */
-  int run_assign_temps_flag;	/* Dump the XML representation of the HIR, after assigning temporaries (default=off).  */
-  const char *run_assign_temps_help; /* Dump the XML representation of the HIR, after assigning temporaries help description.  */
+  int run_lowering_flag;	/* Run the lowering pass (remove control flow constructs) (default=off).  */
+  const char *run_lowering_help; /* Run the lowering pass (remove control flow constructs) help description.  */
+  int run_assign_temps_flag;	/* Assign temporaries (OBSOLETE) (default=off).  */
+  const char *run_assign_temps_help; /* Assign temporaries (OBSOLETE) help description.  */
+  int run_shredder_flag;	/* Run the shredder (transform the AST to 3AC-like code) (default=off).  */
+  const char *run_shredder_help; /* Run the shredder (transform the AST to 3AC-like code) help description.  */
   
   int help_given ;	/* Whether help was given.  */
   int full_help_given ;	/* Whether full-help was given.  */
@@ -97,6 +99,7 @@ struct gengetopt_args_info
   int dump_tokens_given ;	/* Whether dump-tokens was given.  */
   int run_lowering_given ;	/* Whether run-lowering was given.  */
   int run_assign_temps_given ;	/* Whether run-assign-temps was given.  */
+  int run_shredder_given ;	/* Whether run-shredder was given.  */
 
   char **inputs ; /* unamed options */
   unsigned inputs_num ; /* unamed options number */

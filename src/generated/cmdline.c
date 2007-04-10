@@ -76,8 +76,9 @@ const char *gengetopt_args_info_full_help[] = {
   "\nDEBUGGING PHC:",
   "Specify --full-help to see these options",
   "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list)  (default=off)",
-  "      --run-lowering           Dump the XML representation of the HIR, after \n                                 lowering  (default=off)",
-  "      --run-assign-temps       Dump the XML representation of the HIR, after \n                                 assigning temporaries  (default=off)",
+  "      --run-lowering           Run the lowering pass (remove control flow \n                                 constructs)  (default=off)",
+  "      --run-assign-temps       Assign temporaries (OBSOLETE)  (default=off)",
+  "      --run-shredder           Run the shredder (transform the AST to 3AC-like \n                                 code)  (default=off)",
     0
 };
 
@@ -127,6 +128,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->dump_tokens_given = 0 ;
   args_info->run_lowering_given = 0 ;
   args_info->run_assign_temps_given = 0 ;
+  args_info->run_shredder_given = 0 ;
 }
 
 static
@@ -156,6 +158,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->dump_tokens_flag = 0;
   args_info->run_lowering_flag = 0;
   args_info->run_assign_temps_flag = 0;
+  args_info->run_shredder_flag = 0;
   
 }
 
@@ -188,6 +191,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->dump_tokens_help = gengetopt_args_info_full_help[23] ;
   args_info->run_lowering_help = gengetopt_args_info_full_help[24] ;
   args_info->run_assign_temps_help = gengetopt_args_info_full_help[25] ;
+  args_info->run_shredder_help = gengetopt_args_info_full_help[26] ;
   
 }
 
@@ -438,6 +442,9 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   }
   if (args_info->run_assign_temps_given) {
     fprintf(outfile, "%s\n", "run-assign-temps");
+  }
+  if (args_info->run_shredder_given) {
+    fprintf(outfile, "%s\n", "run-shredder");
   }
   
   fclose (outfile);
@@ -710,6 +717,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "dump-tokens",	0, NULL, 0 },
         { "run-lowering",	0, NULL, 0 },
         { "run-assign-temps",	0, NULL, 0 },
+        { "run-shredder",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
@@ -1013,7 +1021,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->dump_tokens_given = 1;
             args_info->dump_tokens_flag = !(args_info->dump_tokens_flag);
           }
-          /* Dump the XML representation of the HIR, after lowering.  */
+          /* Run the lowering pass (remove control flow constructs).  */
           else if (strcmp (long_options[option_index].name, "run-lowering") == 0)
           {
             if (local_args_info.run_lowering_given)
@@ -1027,7 +1035,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->run_lowering_given = 1;
             args_info->run_lowering_flag = !(args_info->run_lowering_flag);
           }
-          /* Dump the XML representation of the HIR, after assigning temporaries.  */
+          /* Assign temporaries (OBSOLETE).  */
           else if (strcmp (long_options[option_index].name, "run-assign-temps") == 0)
           {
             if (local_args_info.run_assign_temps_given)
@@ -1040,6 +1048,20 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.run_assign_temps_given = 1;
             args_info->run_assign_temps_given = 1;
             args_info->run_assign_temps_flag = !(args_info->run_assign_temps_flag);
+          }
+          /* Run the shredder (transform the AST to 3AC-like code).  */
+          else if (strcmp (long_options[option_index].name, "run-shredder") == 0)
+          {
+            if (local_args_info.run_shredder_given)
+              {
+                fprintf (stderr, "%s: `--run-shredder' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->run_shredder_given && ! override)
+              continue;
+            local_args_info.run_shredder_given = 1;
+            args_info->run_shredder_given = 1;
+            args_info->run_shredder_flag = !(args_info->run_shredder_flag);
           }
           
           break;

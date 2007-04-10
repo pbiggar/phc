@@ -19,6 +19,7 @@
 #include "codegen/Lower_control_flow.h"
 #include "codegen/Prep.h"
 #include "codegen/Assign_temps.h"
+#include "codegen/Shredder.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
@@ -102,6 +103,12 @@ int main(int argc, char** argv)
 		{
 			Assign_temps at;
 			php_script->visit(&at);
+		}
+
+		if(args_info.run_shredder_flag)
+		{
+			Shredder s;
+			php_script->transform_children(&s);
 		}
 
 		if(args_info.dump_php_flag)
@@ -224,6 +231,7 @@ void generate_c(AST_php_script* php_script)
 	Lower_control_flow lcf;
 	Prep prep;
 	Assign_temps at;
+	Shredder shredder;
 	Generate_C* generate_c;
 
 	if(!args_info.extension_given)
@@ -232,7 +240,8 @@ void generate_c(AST_php_script* php_script)
 		generate_c = new Generate_C(new String(args_info.extension_arg));
 
 	php_script->transform_children(&lcf);	
-	php_script->transform_children(&prep);	
+	php_script->transform_children(&prep);
+	php_script->transform_children(&shredder);
 	php_script->visit(&at);
 	php_script->visit(generate_c);
 }
