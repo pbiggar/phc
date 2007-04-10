@@ -4,66 +4,56 @@
 
 digraph AST {
 node_0 [label="AST_php_script"];
-node_1 [label="AST_method (2)"];
-node_2 [label="AST_signature (7)"];
-node_3 [label="AST_method_mod"];
-node_4 [label="Token_method_name"];
-node_5 [label="main", shape=box]
+node_1 [label="AST_eval_expr (2)"];
+node_2 [label="AST_assignment (2)"];
+node_3 [label="AST_variable (2)"];
+node_4 [label="Token_variable_name"];
+node_5 [label="a", shape=box]
 node_4 -> node_5;
-node_2 -> node_4;
+node_3 -> node_4;
+node_6 [label="Token_null (2)"];
+node_7 [label="NULL", shape=box]
+node_6 -> node_7;
+node_2 -> node_6;
 node_2 -> node_3;
-node_6 [label="AST_eval_expr (4)"];
-node_7 [label="AST_assignment (4)"];
-node_8 [label="AST_variable (4)"];
-node_9 [label="Token_variable_name"];
-node_10 [label="a", shape=box]
+node_1 -> node_2;
+node_8 [label="AST_eval_expr (3)"];
+node_9 [label="AST_assignment (3)"];
+node_10 [label="AST_variable (3)"];
+node_11 [label="Token_variable_name"];
+node_12 [label="a", shape=box]
+node_11 -> node_12;
+node_13 [label="Token_int (3)"];
+node_14 [label="123", shape=box]
+node_13 -> node_14;
+node_10 -> node_13;
+node_10 -> node_11;
+node_15 [label="Token_int (3)"];
+node_16 [label="456", shape=box]
+node_15 -> node_16;
+node_9 -> node_15;
 node_9 -> node_10;
 node_8 -> node_9;
-node_11 [label="Token_null (4)"];
-node_12 [label="NULL", shape=box]
-node_11 -> node_12;
-node_7 -> node_11;
-node_7 -> node_8;
-node_6 -> node_7;
-node_13 [label="AST_eval_expr (5)"];
-node_14 [label="AST_assignment (5)"];
-node_15 [label="AST_variable (5)"];
-node_16 [label="Token_variable_name"];
-node_17 [label="a", shape=box]
-node_16 -> node_17;
-node_18 [label="Token_int (5)"];
-node_19 [label="123", shape=box]
-node_18 -> node_19;
-node_15 -> node_18;
-node_15 -> node_16;
-node_20 [label="Token_int (5)"];
-node_21 [label="456", shape=box]
-node_20 -> node_21;
-node_14 -> node_20;
-node_14 -> node_15;
-node_13 -> node_14;
-node_22 [label="AST_eval_expr (6)"];
-node_23 [label="AST_method_invocation (6)"];
-node_24 [label="Token_class_name"];
-node_25 [label="%STDLIB%", shape=box]
+node_17 [label="AST_eval_expr (4)"];
+node_18 [label="AST_method_invocation (4)"];
+node_19 [label="Token_class_name"];
+node_20 [label="%STDLIB%", shape=box]
+node_19 -> node_20;
+node_21 [label="Token_method_name"];
+node_22 [label="var_dump", shape=box]
+node_21 -> node_22;
+node_23 [label="AST_actual_parameter (4)"];
+node_24 [label="AST_variable (4)"];
+node_25 [label="Token_variable_name"];
+node_26 [label="a", shape=box]
+node_25 -> node_26;
 node_24 -> node_25;
-node_26 [label="Token_method_name"];
-node_27 [label="var_dump", shape=box]
-node_26 -> node_27;
-node_28 [label="AST_actual_parameter (6)"];
-node_29 [label="AST_variable (6)"];
-node_30 [label="Token_variable_name"];
-node_31 [label="a", shape=box]
-node_30 -> node_31;
-node_29 -> node_30;
-node_28 -> node_29;
-node_23 -> node_28;
-node_23 -> node_26;
 node_23 -> node_24;
-node_22 -> node_23;
-node_1 -> node_22;
-node_1 -> node_13;
-node_1 -> node_6;
-node_1 -> node_2;
+node_18 -> node_23;
+node_18 -> node_21;
+node_18 -> node_19;
+node_17 -> node_18;
+node_0 -> node_17;
+node_0 -> node_8;
 node_0 -> node_1;
 }
