@@ -18,6 +18,9 @@ public:
 
 public:
 	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
+	void post_return(AST_return* in, List<AST_statement*>* out);
+
+public:
 	AST_variable* post_variable(AST_variable* in);
 	AST_expr* post_bin_op(AST_bin_op* in);
 	AST_expr* post_pre_op(AST_pre_op* in);
@@ -32,6 +35,7 @@ public:
 protected:
 	List<AST_statement*>* pieces;
 	AST_variable* create_piece(AST_expr* in);
+	void push_back_pieces(AST_statement* in, List<AST_statement*>* out);
 };
 
 #endif // PHC_SHREDDER_H

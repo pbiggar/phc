@@ -15,17 +15,12 @@ Shredder::Shredder()
 
 void Shredder::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
-	out->push_back_all(pieces);
-	out->push_back(in);
+	push_back_pieces(in, out);
+}
 
-	// Move comment to the first piece (if any)
-	if(!pieces->empty())
-	{
-		pieces->front()->attrs->set("phc.comments", in->get_comments());
-		in->attrs->set("phc.comments", new List<String*>);
-	}
-
-	pieces->clear();
+void Shredder::post_return(AST_return* in, List<AST_statement*>* out)
+{
+	push_back_pieces(in, out);
 }
 
 /*
@@ -189,3 +184,24 @@ AST_variable* Shredder::create_piece(AST_expr* in)
 	pieces->push_back(new AST_eval_expr(new AST_assignment(temp, false, in)));
 	return temp;
 }
+
+/*
+ * Once an expression has been split into multiple statements, we want
+ * to assemble the pieces, and then execute the original statements.
+ */
+
+void Shredder::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
+{
+	out->push_back_all(pieces);
+	out->push_back(in);
+
+	// Move comment to the first piece (if any)
+	if(!pieces->empty())
+	{
+		pieces->front()->attrs->set("phc.comments", in->get_comments());
+		in->attrs->set("phc.comments", new List<String*>);
+	}
+
+	pieces->clear();
+}
+
