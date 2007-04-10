@@ -25,7 +25,7 @@ option "tab" - "String to use for tabs while unparsing" string default="\t" no
 section "DEBUGGING PHC"
 text "Specify --full-help to see these options"
 option "dump-tokens" - "Perform lexical analysis only (spits out a token list)" flag off hidden
-option "run-lift" - "Run the lift pass (create a main function)" flag off hidden
+option "run-lifting" - "Run the lifting pass (create a main function)" flag off hidden
 option "run-lowering" - "Run the lowering pass (remove control flow constructs)" flag off hidden
 option "run-shredder" - "Run the shredder (transform the AST to 3AC-like code)" flag off hidden
 

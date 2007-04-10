@@ -70,8 +70,8 @@ struct gengetopt_args_info
   const char *tab_help; /* String to use for tabs while unparsing help description.  */
   int dump_tokens_flag;	/* Perform lexical analysis only (spits out a token list) (default=off).  */
   const char *dump_tokens_help; /* Perform lexical analysis only (spits out a token list) help description.  */
-  int run_lift_flag;	/* Run the lift pass (create a main function) (default=off).  */
-  const char *run_lift_help; /* Run the lift pass (create a main function) help description.  */
+  int run_lifting_flag;	/* Run the lifting pass (create a main function) (default=off).  */
+  const char *run_lifting_help; /* Run the lifting pass (create a main function) help description.  */
   int run_lowering_flag;	/* Run the lowering pass (remove control flow constructs) (default=off).  */
   const char *run_lowering_help; /* Run the lowering pass (remove control flow constructs) help description.  */
   int run_shredder_flag;	/* Run the shredder (transform the AST to 3AC-like code) (default=off).  */
@@ -97,7 +97,7 @@ struct gengetopt_args_info
   int no_line_numbers_given ;	/* Whether no-line-numbers was given.  */
   int tab_given ;	/* Whether tab was given.  */
   int dump_tokens_given ;	/* Whether dump-tokens was given.  */
-  int run_lift_given ;	/* Whether run-lift was given.  */
+  int run_lifting_given ;	/* Whether run-lifting was given.  */
   int run_lowering_given ;	/* Whether run-lowering was given.  */
   int run_shredder_given ;	/* Whether run-shredder was given.  */
 
