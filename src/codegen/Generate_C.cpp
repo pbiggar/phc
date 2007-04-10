@@ -57,11 +57,6 @@ static List<String*> eofn_labels;	// end of function labels
  * entries for + and -, but obviously need to be invoked slightly differently.
  */
 
-static int temp(AST_node* in)
-{
-	return in->attrs->get_integer("phc.codegen.temp")->value();
-}
-
 static class Bin_op_functions : public map<string,string>
 {
 public:
@@ -290,78 +285,56 @@ Generate_C::Generate_C(String* extension_name)
 
 void Generate_C::post_string(Token_string* in)
 {
-	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n";
-	cout << "ZVAL_STRING(temp[" << temp(in) << "], \"";
+	String* s = fresh("string");
+
+	cout << "zval* " << *s << ";\n";
+	cout << "MAKE_STD_ZVAL(" << *s << ");\n";
+	cout << "ZVAL_STRING(" << *s << ", \"";
 	escape(in->value);
 	cout << "\", 1);\n";
 
-	OBSOLETE
-		String* s = fresh("string");
-
-		cout << "zval* " << *s << ";\n";
-		cout << "MAKE_STD_ZVAL(" << *s << ");\n";
-		cout << "ZVAL_STRING(" << *s << ", \"";
-		escape(in->value);
-		cout << "\", 1);\n";
-
-		in->attrs->set(LOC, s);
-		cout << "zend_hash_next_index_insert(temps, &" << *s << ", sizeof(zval*), NULL);\n";
-	END_OBSOLETE
+	in->attrs->set(LOC, s);
+	cout << "zend_hash_next_index_insert(temps, &" << *s << ", sizeof(zval*), NULL);\n";
 }
 
 void Generate_C::post_int(Token_int* in)
 {
-	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n"; 
-	cout << "ZVAL_LONG(temp[" << temp(in) << "], " << in->value << ");\n"; 
+	String* i = fresh("int");
 
-	OBSOLETE
-		String* i = fresh("int");
+	cout << "zval* " << *i << ";\n";
+	cout << "MAKE_STD_ZVAL(" << *i << ");\n";
+	cout << "ZVAL_LONG(" << *i << ", " << in->value << ");\n";
 
-		cout << "zval* " << *i << ";\n";
-		cout << "MAKE_STD_ZVAL(" << *i << ");\n";
-		cout << "ZVAL_LONG(" << *i << ", " << in->value << ");\n";
-
-		in->attrs->set(LOC, i);
-		cout << "zend_hash_next_index_insert(temps, &" << *i << ", sizeof(zval*), NULL);\n";
-	END_OBSOLETE
+	in->attrs->set(LOC, i);
+	cout << "zend_hash_next_index_insert(temps, &" << *i << ", sizeof(zval*), NULL);\n";
 }
 
 void Generate_C::post_bool(Token_bool* in)
 {
-	cout << "MAKE_STD_ZVAL(temp[" << temp(in) << "]);\n";
+	String* b = fresh("bool");
+	
+	cout << "zval* " << *b << ";\n";
+	cout << "MAKE_STD_ZVAL(" << *b << ");\n";
+	
 	if(in->value)
-		cout << "ZVAL_TRUE(temp[" << temp(in) << "]);\n";
+		cout << "ZVAL_TRUE(" << *b << ");";
 	else
-		cout << "ZVAL_FALSE(temp[" << temp(in) << "]);\n";
-
-	OBSOLETE
-		String* b = fresh("bool");
+		cout << "ZVAL_FALSE(" << *b << ");";
 	
-		cout << "zval* " << *b << ";\n";
-		cout << "MAKE_STD_ZVAL(" << *b << ");\n";
-	
-		if(in->value)
-			cout << "ZVAL_TRUE(" << *b << ");";
-		else
-			cout << "ZVAL_FALSE(" << *b << ");";
-	
-		in->attrs->set(LOC, b);
-		cout << "zend_hash_next_index_insert(temps, &" << *b << ", sizeof(zval*), NULL);\n";
-	END_OBSOLETE
+	in->attrs->set(LOC, b);
+	cout << "zend_hash_next_index_insert(temps, &" << *b << ", sizeof(zval*), NULL);\n";
 }
 
 void Generate_C::post_null(Token_null* in)
 {
-	OBSOLETE
-		String* n = fresh("null");
+	String* n = fresh("null");
 	
-		cout << "zval*" << *n << ";\n";
-		cout << "ALLOC_INIT_ZVAL(" << *n << ");\n";
+	cout << "zval*" << *n << ";\n";
+	cout << "ALLOC_INIT_ZVAL(" << *n << ");\n";
 
-		in->attrs->set(LOC, n);
-		// TODO: should we up the refcount when interesting into the temps array?
-		cout << "zend_hash_next_index_insert(temps, &" << *n << ", sizeof(zval*), NULL);\n";
-	END_OBSOLETE
+	in->attrs->set(LOC, n);
+	// TODO: should we up the refcount when interesting into the temps array?
+	cout << "zend_hash_next_index_insert(temps, &" << *n << ", sizeof(zval*), NULL);\n";
 }
 
 /*
@@ -475,10 +448,9 @@ void Generate_C::post_method_invocation(AST_method_invocation* in)
  * Simple statements
  */
 
-// NOTE updated to use temp
 void Generate_C::post_return(AST_return* in)
 {
-	cout << "*return_value = *temp[" << temp(in->expr) << "];\n";
+	cout << "*return_value = *" << *in->expr->attrs->get_string(LOC) << ";\n";
 	cout << "zval_copy_ctor(return_value);\n";
 	cout << "goto " << *eofn_labels.back() << ";\n";
 }
@@ -818,12 +790,6 @@ void Generate_C::pre_method(AST_method* in)
 	cout << "HashTable* old_active_symbol_table;\n";
 	cout << "old_active_symbol_table = EG(active_symbol_table);\n";
 
-	/**/
-	cout << "// Array to hold all temporaries needed within the function\n";
-	int num_temps = in->attrs->get_integer("phc.codegen.num_temps")->value();
-	cout << "zval* temp[" << num_temps << "];\n";
-	cout << "memset(temp, 0, " << num_temps << " * sizeof(zval*));\n";
-
 	/* TODO count the locals - growing hashtables is very expensiveg*/
 	cout << "// Setup locals array\n";
 	cout << "HashTable* locals;\n";
@@ -885,15 +851,7 @@ void Generate_C::post_method(AST_method* in)
 	cout << *eofn << ":;\n";
 
 	/**/
-	cout << "// Free temporaries\n";
-	cout << "{\n";
-	cout << "int i;\n";
-	cout << "for(i = 0; i < " << in->attrs->get_integer("phc.codegen.num_temps")->value() << "; i++)\n";
-	cout << "if(temp[i] != NULL) zval_ptr_dtor(&temp[i]);\n";
-	cout << "}\n";
-
-	/**/
-	cout << "// OBSOLETE Free all temporaries\n";
+	cout << "// Free all temporaries\n";
 	cout << "zend_hash_destroy(temps);\n";
 	cout << "FREE_HASHTABLE(temps);\n";
 
@@ -1041,7 +999,7 @@ void Generate_C::driver()
 	"    zend_startup_module (&" << *extension_name << "_module_entry);\n"
 	"\n"
 	"    zval main_name;\n"
-	"    ZVAL_STRING (&main_name, \"main\", NULL);\n"
+	"    ZVAL_STRING (&main_name, \"__MAIN__\", NULL);\n"
 	"\n"
 	"    zval retval;\n"
 	"\n"
