@@ -11,10 +11,6 @@
 		return 2;
 	}
 
-	function main()
-	{
-		$a[f()] = g();
-	
-		var_dump($a);
-	}
+	$a[f()] = g();
+	var_dump($a);
 ?>

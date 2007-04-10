@@ -210,8 +210,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Shredder.$(OBJEXT) fresh.$(OBJEXT) Assign_temps.$(OBJEXT) \
-	Prep.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
+	Shredder.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
+	fresh.$(OBJEXT) Prep.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
 	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
@@ -471,10 +471,10 @@ src_phc_SOURCES = \
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
-	src/codegen/Assign_temps.cpp							\
-	src/codegen/Assign_temps.h								\
 	src/codegen/Prep.cpp										\
 	src/codegen/Prep.h										\
 	src/generated/AST.cpp									\
@@ -866,7 +866,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Assign_temps.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
@@ -875,6 +874,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invocation_targets.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Po@am__quote@
@@ -1146,6 +1146,20 @@ Shredder.obj: src/codegen/Shredder.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
 
+Lift_functions_and_classes.o: src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.o -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+
+Lift_functions_and_classes.obj: src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.obj -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
+
 fresh.o: src/codegen/fresh.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.o -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
@@ -1159,20 +1173,6 @@ fresh.obj: src/codegen/fresh.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
-
-Assign_temps.o: src/codegen/Assign_temps.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Assign_temps.o -MD -MP -MF $(DEPDIR)/Assign_temps.Tpo -c -o Assign_temps.o `test -f 'src/codegen/Assign_temps.cpp' || echo '$(srcdir)/'`src/codegen/Assign_temps.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Assign_temps.Tpo $(DEPDIR)/Assign_temps.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Assign_temps.cpp' object='Assign_temps.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Assign_temps.o `test -f 'src/codegen/Assign_temps.cpp' || echo '$(srcdir)/'`src/codegen/Assign_temps.cpp
-
-Assign_temps.obj: src/codegen/Assign_temps.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Assign_temps.obj -MD -MP -MF $(DEPDIR)/Assign_temps.Tpo -c -o Assign_temps.obj `if test -f 'src/codegen/Assign_temps.cpp'; then $(CYGPATH_W) 'src/codegen/Assign_temps.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Assign_temps.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Assign_temps.Tpo $(DEPDIR)/Assign_temps.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Assign_temps.cpp' object='Assign_temps.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Assign_temps.obj `if test -f 'src/codegen/Assign_temps.cpp'; then $(CYGPATH_W) 'src/codegen/Assign_temps.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Assign_temps.cpp'; fi`
 
 Prep.o: src/codegen/Prep.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prep.o -MD -MP -MF $(DEPDIR)/Prep.Tpo -c -o Prep.o `test -f 'src/codegen/Prep.cpp' || echo '$(srcdir)/'`src/codegen/Prep.cpp

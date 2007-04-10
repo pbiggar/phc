@@ -1,11 +1,8 @@
 <?php
-	function main()
+	for($i = 0; $i < 10; $i++)
 	{
-		for($i = 0; $i < 10; $i++)
-		{
-			$arg[$i] = $i * 2;
-		}
-	
-		var_dump($arg);
+		$arg[$i] = $i * 2;
 	}
+
+	var_dump($arg);
 ?>

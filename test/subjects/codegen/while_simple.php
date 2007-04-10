@@ -1,12 +1,9 @@
 <?php
-	function main()
+	while ($x < 10)
 	{
-		while ($x < 10)
-		{
-			echo "$x\n";
-			$x++;
-		}
-	
-		var_dump ($x);
+		echo "$x\n";
+		$x++;
 	}
+
+	var_dump ($x);
 ?>

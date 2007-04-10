@@ -15,10 +15,10 @@
 #include <ltdl.h>
 #include "cmdline.h"
 #include "process_ast/process_ast.h"
+#include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lower_control_flow.h"
 #include "codegen/Prep.h"
-#include "codegen/Assign_temps.h"
 #include "codegen/Shredder.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -93,16 +93,16 @@ int main(int argc, char** argv)
 		process_ast(php_script);
 		run_plugins(php_script);
 
+		if(args_info.run_lift_flag)
+		{
+			Lift_functions_and_classes lift;
+			php_script->transform_children(&lift);
+		}
+
 		if(args_info.run_lowering_flag)
 		{
 			Lower_control_flow lcf;
 			php_script->transform_children (&lcf);
-		}
-
-		if(args_info.run_assign_temps_flag)
-		{
-			Assign_temps at;
-			php_script->visit(&at);
 		}
 
 		if(args_info.run_shredder_flag)
@@ -228,9 +228,9 @@ int main(int argc, char** argv)
 		
 void generate_c(AST_php_script* php_script)
 {
+	Lift_functions_and_classes lift;
 	Lower_control_flow lcf;
 	Prep prep;
-	Assign_temps at;
 	Shredder shredder;
 	Generate_C* generate_c;
 
@@ -239,10 +239,10 @@ void generate_c(AST_php_script* php_script)
 	else
 		generate_c = new Generate_C(new String(args_info.extension_arg));
 
+	php_script->transform_children(&lift);
 	php_script->transform_children(&lcf);	
 	php_script->transform_children(&prep);
 	php_script->transform_children(&shredder);
-	php_script->visit(&at);
 	php_script->visit(generate_c);
 }
 

@@ -5,12 +5,9 @@
 		$arg = 6;
 	}
 
-	function main()
-	{
-		$a = 5;
-		$b = &$a;
-		f($b);
+	$a = 5;
+	$b = &$a;
+	f($b);
 
-		debug_zval_dump($a);
-	}
+	debug_zval_dump($a);
 ?>

@@ -1,6 +1,3 @@
 <?php
-	function main()
-	{
-		var_dump(null);
-	}
+	var_dump(null);
 ?>

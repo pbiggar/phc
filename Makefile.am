@@ -48,10 +48,10 @@ src_phc_SOURCES =												\
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
-	src/codegen/Assign_temps.cpp							\
-	src/codegen/Assign_temps.h								\
 	src/codegen/Prep.cpp										\
 	src/codegen/Prep.h										\
 	src/generated/AST.cpp									\

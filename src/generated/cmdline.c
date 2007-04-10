@@ -76,8 +76,8 @@ const char *gengetopt_args_info_full_help[] = {
   "\nDEBUGGING PHC:",
   "Specify --full-help to see these options",
   "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list)  (default=off)",
+  "      --run-lift               Run the lift pass (create a main function)  \n                                 (default=off)",
   "      --run-lowering           Run the lowering pass (remove control flow \n                                 constructs)  (default=off)",
-  "      --run-assign-temps       Assign temporaries (OBSOLETE)  (default=off)",
   "      --run-shredder           Run the shredder (transform the AST to 3AC-like \n                                 code)  (default=off)",
     0
 };
@@ -126,8 +126,8 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_line_numbers_given = 0 ;
   args_info->tab_given = 0 ;
   args_info->dump_tokens_given = 0 ;
+  args_info->run_lift_given = 0 ;
   args_info->run_lowering_given = 0 ;
-  args_info->run_assign_temps_given = 0 ;
   args_info->run_shredder_given = 0 ;
 }
 
@@ -156,8 +156,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
   args_info->dump_tokens_flag = 0;
+  args_info->run_lift_flag = 0;
   args_info->run_lowering_flag = 0;
-  args_info->run_assign_temps_flag = 0;
   args_info->run_shredder_flag = 0;
   
 }
@@ -189,8 +189,8 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_line_numbers_help = gengetopt_args_info_full_help[20] ;
   args_info->tab_help = gengetopt_args_info_full_help[21] ;
   args_info->dump_tokens_help = gengetopt_args_info_full_help[23] ;
-  args_info->run_lowering_help = gengetopt_args_info_full_help[24] ;
-  args_info->run_assign_temps_help = gengetopt_args_info_full_help[25] ;
+  args_info->run_lift_help = gengetopt_args_info_full_help[24] ;
+  args_info->run_lowering_help = gengetopt_args_info_full_help[25] ;
   args_info->run_shredder_help = gengetopt_args_info_full_help[26] ;
   
 }
@@ -437,11 +437,11 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   if (args_info->dump_tokens_given) {
     fprintf(outfile, "%s\n", "dump-tokens");
   }
+  if (args_info->run_lift_given) {
+    fprintf(outfile, "%s\n", "run-lift");
+  }
   if (args_info->run_lowering_given) {
     fprintf(outfile, "%s\n", "run-lowering");
-  }
-  if (args_info->run_assign_temps_given) {
-    fprintf(outfile, "%s\n", "run-assign-temps");
   }
   if (args_info->run_shredder_given) {
     fprintf(outfile, "%s\n", "run-shredder");
@@ -715,8 +715,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-line-numbers",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
         { "dump-tokens",	0, NULL, 0 },
+        { "run-lift",	0, NULL, 0 },
         { "run-lowering",	0, NULL, 0 },
-        { "run-assign-temps",	0, NULL, 0 },
         { "run-shredder",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
@@ -1021,6 +1021,20 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->dump_tokens_given = 1;
             args_info->dump_tokens_flag = !(args_info->dump_tokens_flag);
           }
+          /* Run the lift pass (create a main function).  */
+          else if (strcmp (long_options[option_index].name, "run-lift") == 0)
+          {
+            if (local_args_info.run_lift_given)
+              {
+                fprintf (stderr, "%s: `--run-lift' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->run_lift_given && ! override)
+              continue;
+            local_args_info.run_lift_given = 1;
+            args_info->run_lift_given = 1;
+            args_info->run_lift_flag = !(args_info->run_lift_flag);
+          }
           /* Run the lowering pass (remove control flow constructs).  */
           else if (strcmp (long_options[option_index].name, "run-lowering") == 0)
           {
@@ -1034,20 +1048,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.run_lowering_given = 1;
             args_info->run_lowering_given = 1;
             args_info->run_lowering_flag = !(args_info->run_lowering_flag);
-          }
-          /* Assign temporaries (OBSOLETE).  */
-          else if (strcmp (long_options[option_index].name, "run-assign-temps") == 0)
-          {
-            if (local_args_info.run_assign_temps_given)
-              {
-                fprintf (stderr, "%s: `--run-assign-temps' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
-                goto failure;
-              }
-            if (args_info->run_assign_temps_given && ! override)
-              continue;
-            local_args_info.run_assign_temps_given = 1;
-            args_info->run_assign_temps_given = 1;
-            args_info->run_assign_temps_flag = !(args_info->run_assign_temps_flag);
           }
           /* Run the shredder (transform the AST to 3AC-like code).  */
           else if (strcmp (long_options[option_index].name, "run-shredder") == 0)
