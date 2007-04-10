@@ -210,16 +210,17 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Shredder.$(OBJEXT) Assign_temps.$(OBJEXT) Prep.$(OBJEXT) \
-	AST.$(OBJEXT) cmdline.$(OBJEXT) lex.yy.$(OBJEXT) \
-	php_parser.tab.$(OBJEXT) AST_transform.$(OBJEXT) \
-	AST_visitor.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
-	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
-	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
-	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
-	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) \
-	Invocation_targets.$(OBJEXT) PHP_unparser.$(OBJEXT) \
-	process_ast.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
+	Shredder.$(OBJEXT) fresh.$(OBJEXT) Assign_temps.$(OBJEXT) \
+	Prep.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
+	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
+	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
+	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
+	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
+	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
+	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
+	DOT_unparser.$(OBJEXT) Invocation_targets.$(OBJEXT) \
+	PHP_unparser.$(OBJEXT) process_ast.$(OBJEXT) \
+	Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Variable_targets.$(OBJEXT) XML_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT)
@@ -470,6 +471,8 @@ src_phc_SOURCES = \
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
+	src/codegen/fresh.cpp									\
+	src/codegen/fresh.h										\
 	src/codegen/Assign_temps.cpp							\
 	src/codegen/Assign_temps.h								\
 	src/codegen/Prep.cpp										\
@@ -895,6 +898,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
@@ -1141,6 +1145,20 @@ Shredder.obj: src/codegen/Shredder.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Shredder.cpp' object='Shredder.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
+
+fresh.o: src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.o -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
+
+fresh.obj: src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.obj -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
 
 Assign_temps.o: src/codegen/Assign_temps.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Assign_temps.o -MD -MP -MF $(DEPDIR)/Assign_temps.Tpo -c -o Assign_temps.o `test -f 'src/codegen/Assign_temps.cpp' || echo '$(srcdir)/'`src/codegen/Assign_temps.cpp
