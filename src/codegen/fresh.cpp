@@ -7,12 +7,12 @@
 
 #include "fresh.h"
 
-AST_variable* fresh()
+AST_variable* fresh(string prefix)
 {
-	static int next_fresh = 0;
-
+	static map<string, int> temps;
+	int t = temps[prefix]++;
 	stringstream ss;
-	ss << "T" << next_fresh++;
+	ss << prefix << t;
 
 	String* name = new String(ss.str());
 	List<AST_expr*>* ind = new List<AST_expr*>;

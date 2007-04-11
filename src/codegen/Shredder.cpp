@@ -35,7 +35,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL)
 	{
-		AST_variable* temp = fresh();
+		AST_variable* temp = fresh("T");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, false,
 			new AST_variable(
@@ -49,7 +49,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	
 	while(not in->array_indices->empty())
 	{
-		AST_variable* temp = fresh();
+		AST_variable* temp = fresh("T");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, false, 
 			new AST_variable(
@@ -93,7 +93,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 	else
 		assert(0);
 
-	AST_variable* one = fresh();
+	AST_variable* one = fresh("T");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
@@ -121,8 +121,8 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 	else
 		assert(0);
 
-	AST_variable* old_value = fresh();
-	AST_variable* one = fresh();
+	AST_variable* old_value = fresh("T");
+	AST_variable* one = fresh("T");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		old_value,
@@ -180,7 +180,7 @@ AST_expr* Shredder::post_null(Token_null* in)
 
 AST_variable* Shredder::create_piece(AST_expr* in)
 {
-	AST_variable* temp = fresh();
+	AST_variable* temp = fresh("T");
 	pieces->push_back(new AST_eval_expr(new AST_assignment(temp, false, in)));
 	return temp;
 }
