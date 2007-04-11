@@ -13,9 +13,100 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
-#define OBSOLETE { cout << "/* OBSOLETE */;\n"; 
+class Pattern 
+{
+public:
+	virtual bool match(AST_statement* that) = 0;
+	virtual void generate_code(Generate_C* gen) = 0;
+	virtual ~Pattern() {}
+};
 
-#define END_OBSOLETE cout << "/* END OBSOLETE */;\n"; }
+class Method_definition : public Pattern
+{
+public:
+	bool match(AST_statement* that)
+	{
+		pattern = new Wildcard<AST_method>;
+		return that->match(pattern);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		cout << "begin method " << *pattern->value->signature->method_name->value << endl;
+		gen->visit_statement_list(pattern->value->statements);
+		cout << "end method " << *pattern->value->signature->method_name->value << endl;
+	}
+
+protected:
+	Wildcard<AST_method>* pattern;
+};
+
+class Assign_string : public Pattern
+{
+public:
+	bool match(AST_statement* that)
+	{
+		lhs = new Wildcard<Token_variable_name>;
+		rhs = new Wildcard<Token_string>;
+		return that->match(
+			new AST_eval_expr(new AST_assignment(
+				new AST_variable(NULL, lhs, NULL), 
+				false, 
+				rhs
+			)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		cout << "locals[" << *lhs->value->value << "] = \"" << *rhs->value->value << "\"" << endl;
+	}
+
+protected:
+	Wildcard<Token_variable_name>* lhs;
+	Wildcard<Token_string>* rhs;
+};
+
+void Generate_C::children_statement(AST_statement* in)
+{
+	Pattern* patterns[] = 
+	{
+		new Method_definition()
+	,	new Assign_string()
+	};
+
+	bool matched = false;
+	for(unsigned i = 0; i < sizeof(patterns) / sizeof(Pattern*); i++)
+	{
+		if(patterns[i]->match(in))
+		{
+			patterns[i]->generate_code(this);
+			matched = true;
+		}
+	}
+
+	if(not matched)
+	{
+		PHP_unparser pup;
+		cout << "could not generate code for ";
+		in->visit(&pup);
+	}
+}
+
+Generate_C::Generate_C(String* extension_name)
+{
+	if(extension_name != NULL)
+	{
+		this->extension_name = extension_name;
+		is_extension = true;
+	}
+	else
+	{
+		this->extension_name = new String("app");
+		is_extension = false;
+	}
+}
+
+#ifdef OBSOLETE
 
 /*
  * Variabes set by the code generator
@@ -260,24 +351,6 @@ void Generate_C::update_hash(AST_variable* var, String* val)
 	}
 }
 
-
-/*
- * Constructor
- */
-
-Generate_C::Generate_C(String* extension_name)
-{
-	if(extension_name != NULL)
-	{
-		this->extension_name = extension_name;
-		is_extension = true;
-	}
-	else
-	{
-		this->extension_name = new String("app");
-		is_extension = false;
-	}
-}
 
 /*
  * Tokens
@@ -1074,3 +1147,5 @@ String* Generate_C::quote(String* str)
 	ss << '"' << *str << '"';
 	return new String(ss.str());
 }
+
+#endif
