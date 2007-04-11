@@ -61,7 +61,7 @@ private:
 public:
 	Goto_uppering ()
 	{
-		next = new AST_variable (NULL, new Token_variable_name (new String ("__next")), NULL);
+		next = new AST_variable (NULL, new Token_variable_name (new String ("__next")), new List<AST_expr*>);
 		start = new Token_string (new String ("start"), new String ("start"));
 		end = new Token_string (new String ("end"), new String ("end"));
 	}

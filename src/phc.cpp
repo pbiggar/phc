@@ -91,7 +91,6 @@ int main(int argc, char** argv)
 	if(php_script != NULL)
 	{
 		process_ast(php_script);
-		run_plugins(php_script);
 
 		if(args_info.run_lifting_flag)
 		{
@@ -107,9 +106,13 @@ int main(int argc, char** argv)
 
 		if(args_info.run_shredder_flag)
 		{
+			Lower_control_flow lcf;
 			Shredder s;
+			php_script->transform_children(&lcf);
 			php_script->transform_children(&s);
 		}
+
+		run_plugins(php_script);
 
 		if(args_info.dump_php_flag)
 		{
