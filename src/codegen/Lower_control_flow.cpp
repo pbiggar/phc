@@ -85,16 +85,14 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 	AST_label *l3 = label ();
 
 	// create the gotos
-	AST_goto *goto_l1 = new AST_goto (l1->label_name);
-	AST_goto *goto_l2 = new AST_goto (l2->label_name);
 	AST_goto *l1_goto_l3 = new AST_goto (l3->label_name);
 	AST_goto *l2_goto_l3 = new AST_goto (l3->label_name);
 
 	// make the if
-	AST_hir_if *new_if = new AST_hir_if (in->expr, goto_l1, goto_l2);
+	AST_branch *branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
 
 	// generate the code
-	out->push_back (new_if);
+	out->push_back (branch);
 	out->push_back (l1);
 	out->push_back_all (in->iftrue);
 	out->push_back (l1_goto_l3);
@@ -122,15 +120,13 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 	AST_label *l1 = label ();
 	AST_label *l2 = label ();
 	AST_goto *goto_l0 = new AST_goto (l0->label_name);
-	AST_goto *goto_l1 = new AST_goto (l1->label_name);
-	AST_goto *goto_l2 = new AST_goto (l2->label_name);
 
 	// create the if statement
-	AST_hir_if *if_stmt = new AST_hir_if (in->expr, goto_l1, goto_l2);
+	AST_branch *branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
 
 	// generate code
 	out->push_back (l0);
-	out->push_back (if_stmt);
+	out->push_back (branch);
 	out->push_back (l1);
 	out->push_back_all (in->statements);
 	out->push_back (goto_l0);
@@ -152,16 +148,14 @@ Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 {
 	AST_label* l1 = label ();
 	AST_label* l2 = label ();
-	AST_goto* goto_l1 = new AST_goto (l1->label_name);
-	AST_goto* goto_l2 = new AST_goto (l2->label_name);
 
 	// make the if
-	AST_hir_if* if_stmt = new AST_hir_if (in->expr, goto_l1, goto_l2);
+	AST_branch* branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
 
 	// generate the code
 	out->push_back (l1);
 	out->push_back_all (in->statements);
-	out->push_back (if_stmt);
+	out->push_back (branch);
 	out->push_back (l2);
 }
 
@@ -299,4 +293,28 @@ Lower_control_flow::post_conditional_expr(AST_conditional_expr* in)
 {
 	return in;
 }
+
+/* Convert
+ *		if ($x || $y) z();
+ *	into
+ *		if ($x)
+ *			goto L2;
+ *		else
+ *			goto L1
+ *	L1:
+ *		if ($y)
+ *			goto L2;
+ *		else
+ *			goto L3;
+ *	L2:
+ *		y ();
+ *	L3:
+ *
+ *	and convert
+ *		if ($x || $y
+ */
+//void 
+//Lower_control_flow::post_bin_op (AST_bin_op* in)
+//{
+//}
 

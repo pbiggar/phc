@@ -96,7 +96,15 @@ void AST_visitor::pre_return(AST_return* in)
 {
 }
 
-void AST_visitor::pre_hir_if(AST_hir_if* in)
+void AST_visitor::pre_branch(AST_branch* in)
+{
+}
+
+void AST_visitor::pre_goto(AST_goto* in)
+{
+}
+
+void AST_visitor::pre_label(AST_label* in)
 {
 }
 
@@ -133,14 +141,6 @@ void AST_visitor::pre_eval_expr(AST_eval_expr* in)
 }
 
 void AST_visitor::pre_nop(AST_nop* in)
-{
-}
-
-void AST_visitor::pre_goto(AST_goto* in)
-{
-}
-
-void AST_visitor::pre_label(AST_label* in)
 {
 }
 
@@ -280,11 +280,11 @@ void AST_visitor::pre_variable_name(Token_variable_name* in)
 {
 }
 
-void AST_visitor::pre_directive_name(Token_directive_name* in)
+void AST_visitor::pre_label_name(Token_label_name* in)
 {
 }
 
-void AST_visitor::pre_label_name(Token_label_name* in)
+void AST_visitor::pre_directive_name(Token_directive_name* in)
 {
 }
 
@@ -412,7 +412,15 @@ void AST_visitor::post_return(AST_return* in)
 {
 }
 
-void AST_visitor::post_hir_if(AST_hir_if* in)
+void AST_visitor::post_branch(AST_branch* in)
+{
+}
+
+void AST_visitor::post_goto(AST_goto* in)
+{
+}
+
+void AST_visitor::post_label(AST_label* in)
 {
 }
 
@@ -449,14 +457,6 @@ void AST_visitor::post_eval_expr(AST_eval_expr* in)
 }
 
 void AST_visitor::post_nop(AST_nop* in)
-{
-}
-
-void AST_visitor::post_goto(AST_goto* in)
-{
-}
-
-void AST_visitor::post_label(AST_label* in)
 {
 }
 
@@ -596,11 +596,11 @@ void AST_visitor::post_variable_name(Token_variable_name* in)
 {
 }
 
-void AST_visitor::post_directive_name(Token_directive_name* in)
+void AST_visitor::post_label_name(Token_label_name* in)
 {
 }
 
-void AST_visitor::post_label_name(Token_label_name* in)
+void AST_visitor::post_directive_name(Token_directive_name* in)
 {
 }
 
@@ -780,11 +780,21 @@ void AST_visitor::children_return(AST_return* in)
     visit_expr(in->expr);
 }
 
-void AST_visitor::children_hir_if(AST_hir_if* in)
+void AST_visitor::children_branch(AST_branch* in)
 {
     visit_expr(in->expr);
-    visit_goto(in->iftrue);
-    visit_goto(in->iffalse);
+    visit_label_name(in->iftrue);
+    visit_label_name(in->iffalse);
+}
+
+void AST_visitor::children_goto(AST_goto* in)
+{
+    visit_label_name(in->label_name);
+}
+
+void AST_visitor::children_label(AST_label* in)
+{
+    visit_label_name(in->label_name);
 }
 
 void AST_visitor::children_static_declaration(AST_static_declaration* in)
@@ -835,16 +845,6 @@ void AST_visitor::children_eval_expr(AST_eval_expr* in)
 
 void AST_visitor::children_nop(AST_nop* in)
 {
-}
-
-void AST_visitor::children_goto(AST_goto* in)
-{
-    visit_label_name(in->label_name);
-}
-
-void AST_visitor::children_label(AST_label* in)
-{
-    visit_label_name(in->label_name);
 }
 
 void AST_visitor::children_assignment(AST_assignment* in)
@@ -984,11 +984,11 @@ void AST_visitor::children_variable_name(Token_variable_name* in)
 {
 }
 
-void AST_visitor::children_directive_name(Token_directive_name* in)
+void AST_visitor::children_label_name(Token_label_name* in)
 {
 }
 
-void AST_visitor::children_label_name(Token_label_name* in)
+void AST_visitor::children_directive_name(Token_directive_name* in)
 {
 }
 
@@ -1178,12 +1178,28 @@ void AST_visitor::pre_return_chain(AST_return* in)
     pre_return(in);
 }
 
-void AST_visitor::pre_hir_if_chain(AST_hir_if* in)
+void AST_visitor::pre_branch_chain(AST_branch* in)
 {
     pre_node(in);
     pre_commented_node(in);
     pre_statement(in);
-    pre_hir_if(in);
+    pre_branch(in);
+}
+
+void AST_visitor::pre_goto_chain(AST_goto* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_goto(in);
+}
+
+void AST_visitor::pre_label_chain(AST_label* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_label(in);
 }
 
 void AST_visitor::pre_static_declaration_chain(AST_static_declaration* in)
@@ -1253,22 +1269,6 @@ void AST_visitor::pre_nop_chain(AST_nop* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_nop(in);
-}
-
-void AST_visitor::pre_goto_chain(AST_goto* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_goto(in);
-}
-
-void AST_visitor::pre_label_chain(AST_label* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_label(in);
 }
 
 void AST_visitor::pre_assignment_chain(AST_assignment* in)
@@ -1460,18 +1460,18 @@ void AST_visitor::pre_variable_name_chain(Token_variable_name* in)
     pre_variable_name(in);
 }
 
-void AST_visitor::pre_directive_name_chain(Token_directive_name* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_directive_name(in);
-}
-
 void AST_visitor::pre_label_name_chain(Token_label_name* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_label_name(in);
+}
+
+void AST_visitor::pre_directive_name_chain(Token_directive_name* in)
+{
+    pre_node(in);
+    pre_identifier(in);
+    pre_directive_name(in);
 }
 
 void AST_visitor::pre_int_chain(Token_int* in)
@@ -1694,9 +1694,25 @@ void AST_visitor::post_return_chain(AST_return* in)
     post_node(in);
 }
 
-void AST_visitor::post_hir_if_chain(AST_hir_if* in)
+void AST_visitor::post_branch_chain(AST_branch* in)
 {
-    post_hir_if(in);
+    post_branch(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_goto_chain(AST_goto* in)
+{
+    post_goto(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_label_chain(AST_label* in)
+{
+    post_label(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -1766,22 +1782,6 @@ void AST_visitor::post_eval_expr_chain(AST_eval_expr* in)
 void AST_visitor::post_nop_chain(AST_nop* in)
 {
     post_nop(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void AST_visitor::post_goto_chain(AST_goto* in)
-{
-    post_goto(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void AST_visitor::post_label_chain(AST_label* in)
-{
-    post_label(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -1976,16 +1976,16 @@ void AST_visitor::post_variable_name_chain(Token_variable_name* in)
     post_node(in);
 }
 
-void AST_visitor::post_directive_name_chain(Token_directive_name* in)
+void AST_visitor::post_label_name_chain(Token_label_name* in)
 {
-    post_directive_name(in);
+    post_label_name(in);
     post_identifier(in);
     post_node(in);
 }
 
-void AST_visitor::post_label_name_chain(Token_label_name* in)
+void AST_visitor::post_directive_name_chain(Token_directive_name* in)
 {
-    post_label_name(in);
+    post_directive_name(in);
     post_identifier(in);
     post_node(in);
 }
@@ -2296,15 +2296,15 @@ void AST_visitor::visit_switch_case(AST_switch_case* in)
     }
 }
 
-void AST_visitor::visit_goto(AST_goto* in)
+void AST_visitor::visit_label_name(Token_label_name* in)
 {
     if(in == NULL)
-    	visit_null("AST_goto");
+    	visit_null("Token_label_name");
     else
     {
-    	pre_goto_chain(in);
-    	children_goto(in);
-    	post_goto_chain(in);
+    	pre_label_name_chain(in);
+    	children_label_name(in);
+    	post_label_name_chain(in);
     }
 }
 
@@ -2365,18 +2365,6 @@ void AST_visitor::visit_catch(AST_catch* in)
     	pre_catch_chain(in);
     	children_catch(in);
     	post_catch_chain(in);
-    }
-}
-
-void AST_visitor::visit_label_name(Token_label_name* in)
-{
-    if(in == NULL)
-    	visit_null("Token_label_name");
-    else
-    {
-    	pre_label_name_chain(in);
-    	children_label_name(in);
-    	post_label_name_chain(in);
     }
 }
 
@@ -2647,8 +2635,8 @@ void AST_visitor::pre_statement_chain(AST_statement* in)
     case AST_goto::ID:
     	pre_goto_chain(dynamic_cast<AST_goto*>(in));
     	break;
-    case AST_hir_if::ID:
-    	pre_hir_if_chain(dynamic_cast<AST_hir_if*>(in));
+    case AST_branch::ID:
+    	pre_branch_chain(dynamic_cast<AST_branch*>(in));
     	break;
     }
 }
@@ -2928,8 +2916,8 @@ void AST_visitor::post_statement_chain(AST_statement* in)
     case AST_goto::ID:
     	post_goto_chain(dynamic_cast<AST_goto*>(in));
     	break;
-    case AST_hir_if::ID:
-    	post_hir_if_chain(dynamic_cast<AST_hir_if*>(in));
+    case AST_branch::ID:
+    	post_branch_chain(dynamic_cast<AST_branch*>(in));
     	break;
     }
 }
@@ -3209,8 +3197,8 @@ void AST_visitor::children_statement(AST_statement* in)
     case AST_goto::ID:
     	children_goto(dynamic_cast<AST_goto*>(in));
     	break;
-    case AST_hir_if::ID:
-    	children_hir_if(dynamic_cast<AST_hir_if*>(in));
+    case AST_branch::ID:
+    	children_branch(dynamic_cast<AST_branch*>(in));
     	break;
     }
 }

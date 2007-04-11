@@ -698,13 +698,13 @@ void Generate_C::children_if(AST_if* in)
 	assert (0);
 }
 
-void Generate_C::children_hir_if(AST_hir_if* in)
+void Generate_C::children_branch(AST_branch* in)
 {
 	visit_expr(in->expr);
 	cout << "if (zend_is_true(" << *in->expr->attrs->get_string(LOC) << ")) \n";
-	visit_statement (in->iftrue);
+	cout << "	goto " << *(in->iftrue->value) << ";" << endl;
 	cout << "else \n";
-	visit_statement (in->iffalse);
+	cout << "	goto " << *(in->iffalse->value) << ";" << endl;
 }
 
 void Generate_C::children_for(AST_for* in)

@@ -50,7 +50,6 @@ public:
 	void children_attribute(AST_attribute* in);
 	void children_attr_mod(AST_attr_mod* in);
 	void children_if(AST_if* in);
-	void children_hir_if(AST_hir_if* in);
 	void children_while(AST_while* in);
 	void children_do(AST_do* in);
 	void children_for(AST_for* in);
@@ -89,6 +88,7 @@ public:
 	void children_actual_parameter(AST_actual_parameter* in);
 	void children_new(AST_new* in);
 	void children_clone(AST_clone* in);
+	void children_branch (AST_branch* in);
 	void children_goto(AST_goto* in);
 	void children_label(AST_label* in);
 	void children_interface_name(Token_interface_name* in);

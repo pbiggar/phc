@@ -291,7 +291,7 @@ public:
 						args.push_front(nodes.top());
 						nodes.pop();
 					}
-					assert (0);
+					assert (false);
 	
 //					node = AST_node_factory::create(name, &args);
 					node->attrs = attrs_stack.top();

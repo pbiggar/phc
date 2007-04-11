@@ -46,7 +46,9 @@ public:
     virtual void pre_break(AST_break* in, List<AST_statement*>* out);
     virtual void pre_continue(AST_continue* in, List<AST_statement*>* out);
     virtual void pre_return(AST_return* in, List<AST_statement*>* out);
-    virtual void pre_hir_if(AST_hir_if* in, List<AST_statement*>* out);
+    virtual void pre_branch(AST_branch* in, List<AST_statement*>* out);
+    virtual void pre_goto(AST_goto* in, List<AST_statement*>* out);
+    virtual void pre_label(AST_label* in, List<AST_statement*>* out);
     virtual void pre_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
     virtual void pre_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void pre_declare(AST_declare* in, List<AST_statement*>* out);
@@ -56,8 +58,6 @@ public:
     virtual void pre_throw(AST_throw* in, List<AST_statement*>* out);
     virtual void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
     virtual void pre_nop(AST_nop* in, List<AST_statement*>* out);
-    virtual AST_goto* pre_goto(AST_goto* in);
-    virtual void pre_label(AST_label* in, List<AST_statement*>* out);
     virtual AST_expr* pre_assignment(AST_assignment* in);
     virtual AST_expr* pre_list_assignment(AST_list_assignment* in);
     virtual AST_list_elements* pre_list_elements(AST_list_elements* in);
@@ -82,8 +82,8 @@ public:
     virtual Token_interface_name* pre_interface_name(Token_interface_name* in);
     virtual Token_method_name* pre_method_name(Token_method_name* in);
     virtual Token_variable_name* pre_variable_name(Token_variable_name* in);
-    virtual Token_directive_name* pre_directive_name(Token_directive_name* in);
     virtual Token_label_name* pre_label_name(Token_label_name* in);
+    virtual Token_directive_name* pre_directive_name(Token_directive_name* in);
     virtual AST_expr* pre_int(Token_int* in);
     virtual AST_expr* pre_real(Token_real* in);
     virtual AST_expr* pre_string(Token_string* in);
@@ -115,7 +115,9 @@ public:
     virtual void post_break(AST_break* in, List<AST_statement*>* out);
     virtual void post_continue(AST_continue* in, List<AST_statement*>* out);
     virtual void post_return(AST_return* in, List<AST_statement*>* out);
-    virtual void post_hir_if(AST_hir_if* in, List<AST_statement*>* out);
+    virtual void post_branch(AST_branch* in, List<AST_statement*>* out);
+    virtual void post_goto(AST_goto* in, List<AST_statement*>* out);
+    virtual void post_label(AST_label* in, List<AST_statement*>* out);
     virtual void post_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
     virtual void post_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void post_declare(AST_declare* in, List<AST_statement*>* out);
@@ -125,8 +127,6 @@ public:
     virtual void post_throw(AST_throw* in, List<AST_statement*>* out);
     virtual void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
     virtual void post_nop(AST_nop* in, List<AST_statement*>* out);
-    virtual AST_goto* post_goto(AST_goto* in);
-    virtual void post_label(AST_label* in, List<AST_statement*>* out);
     virtual AST_expr* post_assignment(AST_assignment* in);
     virtual AST_expr* post_list_assignment(AST_list_assignment* in);
     virtual AST_list_elements* post_list_elements(AST_list_elements* in);
@@ -151,8 +151,8 @@ public:
     virtual Token_interface_name* post_interface_name(Token_interface_name* in);
     virtual Token_method_name* post_method_name(Token_method_name* in);
     virtual Token_variable_name* post_variable_name(Token_variable_name* in);
-    virtual Token_directive_name* post_directive_name(Token_directive_name* in);
     virtual Token_label_name* post_label_name(Token_label_name* in);
+    virtual Token_directive_name* post_directive_name(Token_directive_name* in);
     virtual AST_expr* post_int(Token_int* in);
     virtual AST_expr* post_real(Token_real* in);
     virtual AST_expr* post_string(Token_string* in);
@@ -184,7 +184,9 @@ public:
     virtual void children_break(AST_break* in);
     virtual void children_continue(AST_continue* in);
     virtual void children_return(AST_return* in);
-    virtual void children_hir_if(AST_hir_if* in);
+    virtual void children_branch(AST_branch* in);
+    virtual void children_goto(AST_goto* in);
+    virtual void children_label(AST_label* in);
     virtual void children_static_declaration(AST_static_declaration* in);
     virtual void children_unset(AST_unset* in);
     virtual void children_declare(AST_declare* in);
@@ -194,8 +196,6 @@ public:
     virtual void children_throw(AST_throw* in);
     virtual void children_eval_expr(AST_eval_expr* in);
     virtual void children_nop(AST_nop* in);
-    virtual void children_goto(AST_goto* in);
-    virtual void children_label(AST_label* in);
     virtual void children_assignment(AST_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
     virtual void children_list_elements(AST_list_elements* in);
@@ -222,8 +222,8 @@ public:
     virtual void children_interface_name(Token_interface_name* in);
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
-    virtual void children_directive_name(Token_directive_name* in);
     virtual void children_label_name(Token_label_name* in);
+    virtual void children_directive_name(Token_directive_name* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
@@ -255,13 +255,12 @@ public:
     virtual AST_variable* transform_variable(AST_variable* in);
     virtual List<AST_switch_case*>* transform_switch_case_list(List<AST_switch_case*>* in);
     virtual List<AST_switch_case*>* transform_switch_case(AST_switch_case* in);
-    virtual AST_goto* transform_goto(AST_goto* in);
+    virtual Token_label_name* transform_label_name(Token_label_name* in);
     virtual List<AST_directive*>* transform_directive_list(List<AST_directive*>* in);
     virtual List<AST_directive*>* transform_directive(AST_directive* in);
     virtual Token_directive_name* transform_directive_name(Token_directive_name* in);
     virtual List<AST_catch*>* transform_catch_list(List<AST_catch*>* in);
     virtual List<AST_catch*>* transform_catch(AST_catch* in);
-    virtual Token_label_name* transform_label_name(Token_label_name* in);
     virtual AST_list_elements* transform_list_elements(AST_list_elements* in);
     virtual List<AST_list_element*>* transform_list_element_list(List<AST_list_element*>* in);
     virtual List<AST_list_element*>* transform_list_element(AST_list_element* in);

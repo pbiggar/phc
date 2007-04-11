@@ -304,18 +304,17 @@ void PHP_unparser::children_if(AST_if* in)
 
 /* This is simpler than the other if, since there's no user-written code to
  * maintain, and the statements can only be gotos */
-void PHP_unparser::children_hir_if(AST_hir_if* in)
+void PHP_unparser::children_branch(AST_branch* in)
 {
 	echo("if (");
-
 	bool in_if_expression = true;
 	visit_expr(in->expr);
 	in_if_expression = false;
-
-	echo(") ");
-	visit_goto (in->iftrue);
-	echo("else ");
-	visit_goto (in->iffalse);
+	echo(") goto ");
+	visit_label_name (in->iftrue);
+	echo (" else goto ");
+	visit_label_name (in->iffalse);
+	echo (";");
 
 	newline();
 }

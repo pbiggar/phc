@@ -28,7 +28,7 @@ statement ::=
    | switch | break | continue | return
    | static_declaration
    | unset | declare | try | throw | eval_expr | nop 
-	| label | goto | hir_if ;
+	| label | goto | branch ;
 
 class_def ::= 
    class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -59,12 +59,10 @@ break ::= expr? ;
 continue ::= expr? ;
 return ::= expr? ;
 
-{- A small bit of a grammar hack here. If we lower to AST_ifs, we might accidentally relower
-them, and it's tedious to check for this. The ideal would be to have an if with
-a different prefix, but this is as near as we can get I think. This hack has
-the benefit that we dont have to hack anything within the compiler (except
-perhaps to assert that the lowered statements have been removed). -}
-hir_if ::= expr iftrue:goto iffalse:goto ;
+
+branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+goto ::= LABEL_NAME ;
+label ::= LABEL_NAME ;
 
 
 static_declaration ::= VARIABLE_NAME expr? ;
@@ -80,9 +78,6 @@ throw ::= expr ;
 eval_expr ::= expr ;
 
 nop ::= ;
-
-goto ::= LABEL_NAME ;
-label ::= LABEL_NAME ;
 
 expr ::=
      assignment | list_assignment | cast | unary_op | bin_op | conditional_expr

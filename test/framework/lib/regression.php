@@ -30,7 +30,11 @@ class RegressionTest extends SupportFileTest
 
 	function get_test_subjects ()
 	{
-		return get_non_erroneous_scripts ();
+		// XXX HACK
+		if ($this->name == "regression_dump_includes")
+			return get_includable_scripts ();
+		else
+			return get_non_erroneous_scripts ();
 	}
 
 	function get_command_line ($subject)

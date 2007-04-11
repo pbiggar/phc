@@ -171,6 +171,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/canonical_unparser.la
 plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.cpp
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/goto_uppering.la
+plugins_tests_goto_uppering_la_SOURCES = plugins/tests/goto_uppering.cpp
+plugins_tests_goto_uppering_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}

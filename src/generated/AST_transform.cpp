@@ -110,7 +110,17 @@ void AST_transform::pre_return(AST_return* in, List<AST_statement*>* out)
     out->push_back(in);
 }
 
-void AST_transform::pre_hir_if(AST_hir_if* in, List<AST_statement*>* out)
+void AST_transform::pre_branch(AST_branch* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::pre_goto(AST_goto* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::pre_label(AST_label* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -156,16 +166,6 @@ void AST_transform::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 }
 
 void AST_transform::pre_nop(AST_nop* in, List<AST_statement*>* out)
-{
-    out->push_back(in);
-}
-
-AST_goto* AST_transform::pre_goto(AST_goto* in)
-{
-    return in;
-}
-
-void AST_transform::pre_label(AST_label* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -290,12 +290,12 @@ Token_variable_name* AST_transform::pre_variable_name(Token_variable_name* in)
     return in;
 }
 
-Token_directive_name* AST_transform::pre_directive_name(Token_directive_name* in)
+Token_label_name* AST_transform::pre_label_name(Token_label_name* in)
 {
     return in;
 }
 
-Token_label_name* AST_transform::pre_label_name(Token_label_name* in)
+Token_directive_name* AST_transform::pre_directive_name(Token_directive_name* in)
 {
     return in;
 }
@@ -446,7 +446,17 @@ void AST_transform::post_return(AST_return* in, List<AST_statement*>* out)
     out->push_back(in);
 }
 
-void AST_transform::post_hir_if(AST_hir_if* in, List<AST_statement*>* out)
+void AST_transform::post_branch(AST_branch* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::post_goto(AST_goto* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::post_label(AST_label* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -492,16 +502,6 @@ void AST_transform::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 }
 
 void AST_transform::post_nop(AST_nop* in, List<AST_statement*>* out)
-{
-    out->push_back(in);
-}
-
-AST_goto* AST_transform::post_goto(AST_goto* in)
-{
-    return in;
-}
-
-void AST_transform::post_label(AST_label* in, List<AST_statement*>* out)
 {
     out->push_back(in);
 }
@@ -626,12 +626,12 @@ Token_variable_name* AST_transform::post_variable_name(Token_variable_name* in)
     return in;
 }
 
-Token_directive_name* AST_transform::post_directive_name(Token_directive_name* in)
+Token_label_name* AST_transform::post_label_name(Token_label_name* in)
 {
     return in;
 }
 
-Token_label_name* AST_transform::post_label_name(Token_label_name* in)
+Token_directive_name* AST_transform::post_directive_name(Token_directive_name* in)
 {
     return in;
 }
@@ -804,11 +804,21 @@ void AST_transform::children_return(AST_return* in)
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_hir_if(AST_hir_if* in)
+void AST_transform::children_branch(AST_branch* in)
 {
     in->expr = transform_expr(in->expr);
-    in->iftrue = transform_goto(in->iftrue);
-    in->iffalse = transform_goto(in->iffalse);
+    in->iftrue = transform_label_name(in->iftrue);
+    in->iffalse = transform_label_name(in->iffalse);
+}
+
+void AST_transform::children_goto(AST_goto* in)
+{
+    in->label_name = transform_label_name(in->label_name);
+}
+
+void AST_transform::children_label(AST_label* in)
+{
+    in->label_name = transform_label_name(in->label_name);
 }
 
 void AST_transform::children_static_declaration(AST_static_declaration* in)
@@ -859,16 +869,6 @@ void AST_transform::children_eval_expr(AST_eval_expr* in)
 
 void AST_transform::children_nop(AST_nop* in)
 {
-}
-
-void AST_transform::children_goto(AST_goto* in)
-{
-    in->label_name = transform_label_name(in->label_name);
-}
-
-void AST_transform::children_label(AST_label* in)
-{
-    in->label_name = transform_label_name(in->label_name);
 }
 
 void AST_transform::children_assignment(AST_assignment* in)
@@ -1006,11 +1006,11 @@ void AST_transform::children_variable_name(Token_variable_name* in)
 {
 }
 
-void AST_transform::children_directive_name(Token_directive_name* in)
+void AST_transform::children_label_name(Token_label_name* in)
 {
 }
 
-void AST_transform::children_label_name(Token_label_name* in)
+void AST_transform::children_directive_name(Token_directive_name* in)
 {
 }
 
@@ -1388,17 +1388,17 @@ List<AST_switch_case*>* AST_transform::transform_switch_case(AST_switch_case* in
     return out2;
 }
 
-AST_goto* AST_transform::transform_goto(AST_goto* in)
+Token_label_name* AST_transform::transform_label_name(Token_label_name* in)
 {
     if(in == NULL) return NULL;
     
-    AST_goto* out;
+    Token_label_name* out;
     
-    out = pre_goto(in);
+    out = pre_label_name(in);
     if(out != NULL)
     {
-    	children_goto(out);
-    	out = post_goto(out);
+    	children_label_name(out);
+    	out = post_label_name(out);
     }
     
     return out;
@@ -1492,22 +1492,6 @@ List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
     }
     
     return out2;
-}
-
-Token_label_name* AST_transform::transform_label_name(Token_label_name* in)
-{
-    if(in == NULL) return NULL;
-    
-    Token_label_name* out;
-    
-    out = pre_label_name(in);
-    if(out != NULL)
-    {
-    	children_label_name(out);
-    	out = post_label_name(out);
-    }
-    
-    return out;
 }
 
 AST_list_elements* AST_transform::transform_list_elements(AST_list_elements* in)
@@ -1968,13 +1952,19 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     	}
     	return;
     case AST_goto::ID: 
-    	out->push_back(pre_goto(dynamic_cast<AST_goto*>(in)));
-    	return;
-    case AST_hir_if::ID: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
-    		pre_hir_if(dynamic_cast<AST_hir_if*>(in), local_out);
+    		pre_goto(dynamic_cast<AST_goto*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_branch::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_branch(dynamic_cast<AST_branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2299,13 +2289,19 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     	}
     	return;
     case AST_goto::ID: 
-    	out->push_back(post_goto(dynamic_cast<AST_goto*>(in)));
-    	return;
-    case AST_hir_if::ID: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
-    		post_hir_if(dynamic_cast<AST_hir_if*>(in), local_out);
+    		post_goto(dynamic_cast<AST_goto*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_branch::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_branch(dynamic_cast<AST_branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2512,8 +2508,8 @@ void AST_transform::children_statement(AST_statement* in)
     case AST_goto::ID:
     	children_goto(dynamic_cast<AST_goto*>(in));
     	break;
-    case AST_hir_if::ID:
-    	children_hir_if(dynamic_cast<AST_hir_if*>(in));
+    case AST_branch::ID:
+    	children_branch(dynamic_cast<AST_branch*>(in));
     	break;
     }
 }
