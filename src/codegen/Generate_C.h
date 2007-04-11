@@ -21,10 +21,13 @@ public:
 
 public:
 	void children_statement(AST_statement* in);
+	void pre_php_script(AST_php_script* in);
+	void post_php_script(AST_php_script* in);
 
-protected:
+public:
 	String* extension_name;
 	bool is_extension;
+	List<String*>* methods;	// List of all methods compiled	
 
 /*
 private:

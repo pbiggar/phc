@@ -13,6 +13,10 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
+/*
+ * Pattern definitions for statements
+ */
+
 class Pattern 
 {
 public:
@@ -32,39 +36,240 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		cout << "begin method " << *pattern->value->signature->method_name->value << endl;
+		signature = pattern->value->signature;
+		gen->methods->push_back(signature->method_name->value);
+
+		method_entry();	
 		gen->visit_statement_list(pattern->value->statements);
-		cout << "end method " << *pattern->value->signature->method_name->value << endl;
+		method_exit();
 	}
 
 protected:
 	Wildcard<AST_method>* pattern;
+	AST_signature* signature;
+
+protected:
+	void method_entry()
+	{
+		cout
+		// Function header
+		<< "PHP_FUNCTION(" << *signature->method_name->value << ")\n"
+		<< "{\n"
+		/**/
+		<< "// Setup locals array\n"
+		<< "HashTable* locals;\n"
+		<< "ALLOC_HASHTABLE(locals);\n"
+		<< "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n"
+		/**/
+		<< "// Function body\n"
+		;
+	}
+
+	void method_exit()
+	{
+		cout
+		<< "// Destroy locals array\n"
+		<< "zend_hash_destroy(locals);\n"
+		<< "FREE_HASHTABLE(locals);\n"
+		<< "}\n"
+		;
+	}
 };
 
-class Assign_string : public Pattern
+class Assignment : public Pattern
 {
+public:
+	virtual AST_expr* rhs_pattern() = 0;
+	virtual void generate_rhs() = 0;
+	virtual ~Assignment() {}
+
 public:
 	bool match(AST_statement* that)
 	{
-		lhs = new Wildcard<Token_variable_name>;
-		rhs = new Wildcard<Token_string>;
+		lhs = new Wildcard<AST_variable>;
 		return that->match(
 			new AST_eval_expr(new AST_assignment(
-				new AST_variable(NULL, lhs, NULL), 
-				false, 
-				rhs
+				lhs,
+				/* ignored */ false,
+				rhs_pattern()
 			)));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		cout << "locals[" << *lhs->value->value << "] = \"" << *rhs->value->value << "\"" << endl;
+		// Open local scope and create a zval* to hold the RHS result
+		cout << "{\n";
+		cout << "zval* rhs;\n";
+
+		// Generate code for the RHS
+		generate_rhs();
+
+		// Variable variable or ordinary variable?
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
+
+		// Ordinary variable
+		if(name != NULL)
+		{
+			cout 
+			// Remove theold value from the hashtable
+			// (reducing its refcount)
+			<< "zend_hash_del(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() << ");\n"
+			// Add the new value to the hashtable
+			<< "zend_hash_add(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() << ", "
+			<< "&rhs, sizeof(zval*), NULL);\n"
+			;
+		}
+		else
+		{
+			assert(0);
+		}
+
+		cout << "}\n"; 				// close local scope
 	}
 
 protected:
-	Wildcard<Token_variable_name>* lhs;
-	Wildcard<Token_string>* rhs;
+	Wildcard<AST_variable>* lhs;
 };
+
+class Assign_string : public Assignment 
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Token_string>;
+		return rhs;
+	}
+
+	void generate_rhs()
+	{
+		cout 
+		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "ZVAL_STRING(rhs, " 
+		<< "\"" << escape(rhs->value->value) << "\", "
+		<< "1);\n"
+		;
+	}
+
+protected:
+	Wildcard<Token_string>* rhs;
+
+public:
+	static string escape(String* s)
+	{
+		stringstream ss;
+	
+		String::const_iterator i;
+		for(i = s->begin(); i != s->end(); i++)
+		{
+			if(*i == '"')
+			{
+				ss << "\\\"";
+			}
+			else if(*i >= 32 && *i < 127)
+			{
+				ss << *i;
+			}
+			else
+			{
+				ss << "\\x" << setw(2) << setfill('0') << hex << uppercase << (unsigned long int)(unsigned char) *i;
+				ss << resetiosflags(cout.flags());
+			}
+		}
+	
+		return ss.str();
+	}
+};
+
+class Method_invocation : public Assignment
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		rhs = new Wildcard<AST_method_invocation>;
+		return rhs;
+	}
+
+	void generate_rhs()
+	{
+		// Variable function or ordinary function?
+		Token_method_name* name;
+		name = dynamic_cast<Token_method_name*>(rhs->value->method_name);
+
+		if(name != NULL)
+		{
+			cout
+			<< "// Create zval to hold function name\n"
+			<< "zval function_name;\n"
+			<< "INIT_PZVAL(&function_name);\n"
+			<< "ZVAL_STRING(&function_name, "
+			<< "\"" << *name->value << "\", "
+			<< "0);\n"
+			;
+		}
+		else
+		{
+			assert(0);
+		}
+		
+		cout
+		<< "zval* function_name_ptr;\n"
+		<< "function_name_ptr = &function_name;\n"
+		;
+
+		cout 
+		<< "// Setup array of arguments\n"
+		<< "zval* args[" << rhs->value->actual_parameters->size() << "];\n"
+		;
+
+		List<AST_actual_parameter*>::const_iterator i;
+		unsigned index = 0;
+		for(
+			i = rhs->value->actual_parameters->begin(); 
+			i != rhs->value->actual_parameters->end(); 
+			i++, index++)
+		{
+			// After the shredder, all arguments must be simple variables
+			AST_variable* arg;
+			Token_variable_name* arg_name;
+			arg = dynamic_cast<AST_variable*>((*i)->expr);
+			arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
+
+			cout
+			<< "zend_hash_find(locals, "
+			<< "\"" << *arg_name->value << "\", "
+			<< arg_name->value->length() << ", "
+			<< "(void**)&args[" << index << "]);\n"
+			;
+			//cout 
+			//<< "args[" << index << "] = " 
+			//<< *(*i)->expr->attrs->get_string(LOC) << ";\n"
+			//;
+		}
+	
+		cout
+		<< "// Call the function\n"
+		<< "int success;\n"	
+		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "success = call_user_function(EG(function_table), " 
+		<< "NULL, function_name_ptr, rhs, " 
+		<< rhs->value->actual_parameters->size() << ", args TSRMLS_CC);\n"
+		<< "assert(success == SUCCESS);\n"
+		;
+	}
+
+protected:
+	Wildcard<AST_method_invocation>* rhs;
+};
+
+/*
+ * Visitor methods to generate C code
+ * Visitor for statements uses the patterns defined above.
+ */
 
 void Generate_C::children_statement(AST_statement* in)
 {
@@ -72,6 +277,7 @@ void Generate_C::children_statement(AST_statement* in)
 	{
 		new Method_definition()
 	,	new Assign_string()
+	,	new Method_invocation()
 	};
 
 	bool matched = false;
@@ -87,10 +293,114 @@ void Generate_C::children_statement(AST_statement* in)
 	if(not matched)
 	{
 		PHP_unparser pup;
-		cout << "could not generate code for ";
+		cout << "// could not generate code for ";
 		in->visit(&pup);
 	}
 }
+
+void Generate_C::pre_php_script(AST_php_script* in)
+{
+	cout << "#include \"php.h\"\n";
+}
+
+void Generate_C::post_php_script(AST_php_script* in)
+{
+	cout 
+		<< "// Register all functions with PHP\n"
+		<< "static function_entry " << *extension_name << "_functions[] = {\n"
+		;
+
+	List<String*>::const_iterator i;
+	for(i = methods->begin(); i != methods->end(); i++)
+		cout << "PHP_FE(" << **i << ", NULL)\n";
+
+	cout << "{ NULL, NULL, NULL }\n";
+	cout << "};\n";
+
+	cout
+		<< "// Register the module itself with PHP\n"
+		<< "zend_module_entry " << *extension_name << "_module_entry = {\n"
+		<< "STANDARD_MODULE_HEADER, \n"
+		<< "\"" << *extension_name << "\",\n"
+		<< *extension_name << "_functions,\n"
+		<< "NULL, /* MINIT */\n"
+		<< "NULL, /* MSHUTDOWN */\n"
+		<< "NULL, /* RINIT */\n"
+		<< "NULL, /* RSHUTDOWN */\n"
+		<< "NULL, /* MINFO */\n"
+		<< "\"1.0\",\n"
+		<< "STANDARD_MODULE_PROPERTIES\n"
+		<< "};\n"
+		;
+
+	if(is_extension)
+	{
+		cout << "ZEND_GET_MODULE(" << *extension_name << ")\n";
+	}
+	else
+	{
+		cout << "#include <sapi/embed/php_embed.h>\n";
+		cout << "#include <signal.h>\n\n";
+	
+		cout <<
+		"void sighandler(int signum)\n"
+		"{\n"
+		"	switch(signum)\n"
+		"	{\n"
+		"		case SIGABRT:\n"
+		"			printf(\"SIGABRT received!\\n\");\n"
+		"			break;\n"
+		"		case SIGSEGV:\n"
+		"			printf(\"SIGSEGV received!\\n\");\n"
+		"			break;\n"
+		"		default:\n"
+		"			printf(\"Unknown signal received!\\n\");\n"
+		"			break;\n"
+		"	}\n"
+		"\n"
+		"	printf(\"This could be a bug in phc. If you suspect it is, please email\\n\");\n"
+		"	printf(\"a bug report to phc-general@phpcompiler.org.\\n\");\n"
+		"	exit(-1);\n"
+		"}\n";
+	
+		cout << 
+		"\n"
+		"int\n"
+		"main (int argc, char* argv[])\n"
+		"{\n"
+		"    signal(SIGABRT, sighandler);\n"
+		"    signal(SIGSEGV, sighandler);\n"
+		"\n"
+		"    PHP_EMBED_START_BLOCK (argc, argv)\n"
+		"\n"
+		"    // load the compiled extension\n"
+		"    zend_startup_module (&" << *extension_name << "_module_entry);\n"
+		"\n"
+		"    zval main_name;\n"
+		"    ZVAL_STRING (&main_name, \"__MAIN__\", NULL);\n"
+		"\n"
+		"    zval retval;\n"
+		"\n"
+		"    // call %MAIN%::run\n"
+		"    int success = call_user_function( \n"
+		"				     EG (function_table),\n"
+		"				     NULL,\n"
+		"				     &main_name,\n"
+		"				     &retval,\n"
+		"				     0,\n"
+		"				     NULL\n"
+		"				     TSRMLS_CC);\n"
+		"	\n"
+		"   PHP_EMBED_END_BLOCK()"
+		"\n"
+		"  return 0;\n"
+		"}\n" ;
+	}
+}
+
+/*
+ * Bookkeeping 
+ */
 
 Generate_C::Generate_C(String* extension_name)
 {
@@ -104,6 +414,8 @@ Generate_C::Generate_C(String* extension_name)
 		this->extension_name = new String("app");
 		is_extension = false;
 	}
+
+	methods = new List<String*>;
 }
 
 #ifdef OBSOLETE

@@ -31,6 +31,7 @@ public:
 	AST_expr* post_bool(Token_bool* in);
 	AST_expr* post_string(Token_string* in);
 	AST_expr* post_null(Token_null* in);
+	Token_method_name* post_method_name(Token_method_name* in);
 
 protected:
 	List<AST_statement*>* pieces;

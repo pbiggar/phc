@@ -15,6 +15,13 @@ Shredder::Shredder()
 
 void Shredder::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
+	if(in->expr->classid() != AST_assignment::ID)
+	{
+		// All eval_expr must be assignments; if they are not, we generate
+		// a dummy assignment on the LHS
+		in->expr = new AST_assignment(fresh("T"), false, in->expr);
+	}
+	
 	push_back_pieces(in, out);
 }
 
@@ -170,6 +177,22 @@ AST_expr* Shredder::post_bool(Token_bool* in)
 AST_expr* Shredder::post_null(Token_null* in)
 {
 	return create_piece(in);
+}
+
+/*
+ * Since the shredder changes all eval_expr into assignments, it will change
+ * echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true function
+ * call in PHP, this will generate incorrect PHP code. For that reason, we
+ * translate "echo" to "print" here.
+ */
+
+Token_method_name* Shredder::post_method_name(Token_method_name* in)
+{
+	if(*in->value == "echo")
+		return new Token_method_name(new String("print"));
+	else
+		return in;
+
 }
 
 /*
