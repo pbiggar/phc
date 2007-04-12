@@ -79,7 +79,7 @@ void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
  * LHS. In the example above, we'd stop at the assignment to $T2, and then
  * use 
  *
- *   $T2[2] = ...
+ *   $T2[3] = ...
  *
  * as the LHS of the assignment. This isn't strictly necessary for array
  * assignment (since we are using reference assignment), but it is strictly
