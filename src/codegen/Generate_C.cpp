@@ -240,15 +240,15 @@ public:
 			arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
 
 			cout
+			<< "{\n"
+			<< "zval** arg;\n"
 			<< "zend_hash_find(locals, "
 			<< "\"" << *arg_name->value << "\", "
 			<< arg_name->value->length() << ", "
-			<< "(void**)&args[" << index << "]);\n"
+			<< "(void**)&arg);\n"
+			<< "args[" << index << "] = *arg;\n"
+			<< "}\n"
 			;
-			//cout 
-			//<< "args[" << index << "] = " 
-			//<< *(*i)->expr->attrs->get_string(LOC) << ";\n"
-			//;
 		}
 	
 		cout
