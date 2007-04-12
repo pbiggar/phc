@@ -49,8 +49,8 @@
  *	gotos and labels with their respective constructs.
  */
 
-#include "AST_transform.h"
-class Goto_uppering : virtual public AST_transform
+#include "AST_visitor.h"
+class Goto_uppering : virtual public AST_visitor
 {
 private:
 	AST_variable *next;
@@ -68,7 +68,9 @@ public:
 
 public:
 
-	List<AST_statement*>* transform_statement_list (List<AST_statement*> *in)
+	/* We dont want to run this on all statement bodies in the traversal order.
+	 * So we call it manually at the right times. */
+	List<AST_statement*>* convert_statement_list (List<AST_statement*> *in)
 	{
 		// this in only contains the while, and the "start" statement.
 		List<AST_statement*> *out = new List<AST_statement*> ();
@@ -167,10 +169,20 @@ public:
 		return out;
 	}
 
+	void pre_php_script (AST_php_script *in)
+	{
+		in->statements = convert_statement_list (in->statements);
+	}
+
+	void pre_method (AST_method *in)
+	{
+		in->statements = convert_statement_list (in->statements);
+	}
+
 };
 
 extern "C" void process_ast(AST_php_script* script)
 {
 	Goto_uppering gup;
-	script->transform_children (&gup);
+	script->visit (&gup);
 }

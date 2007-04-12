@@ -186,6 +186,8 @@ Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
 	AST_statement* init = new AST_eval_expr (in->init);
 	AST_statement* incr = new AST_eval_expr (in->incr);
 
+	if (in->cond == NULL) in->cond = new Token_null (new String ("null"));
+
 	// create the while
 	AST_while *while_stmt = new AST_while (in->cond, in->statements);
 	while_stmt->statements->push_back (incr);

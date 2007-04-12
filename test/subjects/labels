@@ -43,3 +43,6 @@ general/included_recursive2.php		includable
 general/for.php						non-interpretable # infinite loops
 general/instring.php					non-interpretable # php's parser doesnt like this
 general/functions.php				non-interpretable # php gives the dumped content a different error message, which wont be fixed until the unparser work gets done
+
+codegen/factorial.php		no-InterpretShredded # Interpret shredded infinite loops on this
+general/factorial.php		no-InterpretShredded # Interpret shredded infinite loops on this

@@ -30,7 +30,7 @@ class InterpretLowered extends TwoCommandTest
 	{
 		global $phc, $php;
 		$dir_name = dirname($subject);
-		return "$phc --run-lowering --run goto_uppering.la --dump-php $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
+		return "$phc --run-lowering --run plugins/tests/goto_uppering.la --dump-php $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
 	}
 
 	function homogenize_output ($string)

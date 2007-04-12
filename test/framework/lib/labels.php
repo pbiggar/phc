@@ -187,14 +187,10 @@ function process_label_file_line ($line, $files, $labelled_files)
 			}
 			else if (preg_match ("/no-(.*)/", $label, $matches))
 			{
-				if (isset($exceptions{$matches[1]}))
-					array_push($exceptions{$matches[1]}, $filename);
-				else
-					$exceptions{$matches[1]} = array($filename);
+				$exceptions{$matches[1]}[] =  $filename;
 			}
 			else if ($label == "check-interpretable")
 			{
-				print "Marking $filename as check\n";
 				$labelled_files{$filename}{"interpretable"} = "check";
 			}
 			else
