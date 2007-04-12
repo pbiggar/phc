@@ -18,7 +18,6 @@
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lower_control_flow.h"
-#include "codegen/Prep.h"
 #include "codegen/Shredder.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -233,7 +232,6 @@ void generate_c(AST_php_script* php_script)
 {
 	Lift_functions_and_classes lift;
 	Lower_control_flow lcf;
-	Prep prep;
 	Shredder shredder;
 	Generate_C* generate_c;
 
@@ -244,7 +242,6 @@ void generate_c(AST_php_script* php_script)
 
 	php_script->transform_children(&lift);
 	php_script->transform_children(&lcf);	
-	php_script->transform_children(&prep);
 	php_script->transform_children(&shredder);
 	php_script->visit(generate_c);
 }

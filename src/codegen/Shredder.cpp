@@ -9,7 +9,7 @@
 #include "fresh.h"
 #include "process_ast/XML_unparser.h"
 
-class Remove_unparser_attrs : public AST_visitor
+class Prep : public AST_visitor
 {
 	void pre_node(AST_node* in)
 	{
@@ -217,8 +217,8 @@ Token_method_name* Shredder::post_method_name(Token_method_name* in)
 
 void Shredder::children_php_script(AST_php_script* in)
 {
-	Remove_unparser_attrs ra;
-	in->visit(&ra);
+	Prep prep;
+	in->visit(&prep);
 
 	AST_transform::children_php_script(in);
 }

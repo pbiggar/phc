@@ -52,8 +52,6 @@ src_phc_SOURCES =												\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
-	src/codegen/Prep.cpp										\
-	src/codegen/Prep.h										\
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
