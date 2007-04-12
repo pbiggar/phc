@@ -10,7 +10,7 @@
 	 */
    
    $base = 1;
-   $ref = &$base;
+   $ref =& $base;
    
    var_dump($base); // int(1) 
    var_dump($ref); // int(1)
@@ -44,7 +44,7 @@
    var_dump($base_2); // int(8)
    
    $base_3 = 9;
-   $ref[2] = &$base_3;
+   $ref[2] =& $base_3;
    
    var_dump($ref); // array(2) { [1]=>&int(7) [2]=>&int(9) }
    
@@ -137,7 +137,7 @@
    $out_f4 = f4();
    var_dump($out_f4); // int(3)
    
-   $out_f4 = &f4();
+   $out_f4 =& f4();
    var_dump($out_f4); // int(4)
    $out_f4 = 10;
    var_dump($out_f4); // int(10)
@@ -163,7 +163,7 @@
    $out_f5 = f5();
    var_dump($out_f5); // int(3)
    
-   $out_f5 = &f5();
+   $out_f5 =& f5();
    var_dump($out_f5); // int(4)
    $out_f5 = 10;
    var_dump($out_f5); // int(10)

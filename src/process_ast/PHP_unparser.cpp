@@ -457,6 +457,14 @@ void PHP_unparser::children_static_declaration(AST_static_declaration* in)
 	// newline output by post_commented_node
 }
 
+void PHP_unparser::children_global(AST_global* in)
+{
+	echo("global $");
+	visit_variable_name(in->variable_name);
+	echo(";");
+	// newline output by post_commented_node
+}
+
 void PHP_unparser::children_unset(AST_unset* in)
 {
 	echo("unset(");
@@ -556,11 +564,6 @@ void PHP_unparser::children_assignment(AST_assignment* in)
 		visit_op(bin_op->op);
 		echo("= ");
 		visit_expr(bin_op->right);
-	}
-	else if(in->attrs->is_true("phc.unparser.is_global_stmt"))
-	{
-		echo("global ");
-		visit_variable(in->variable);
 	}
 	else
 	{

@@ -60,6 +60,7 @@ public:
 	void children_continue(AST_continue* in);
 	void children_return(AST_return* in);
 	void children_static_declaration(AST_static_declaration* in);
+	void children_global(AST_global* in);
 	void children_unset(AST_unset* in);
 	void children_declare(AST_declare* in);
 	void children_directive(AST_directive* in);

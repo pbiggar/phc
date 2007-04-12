@@ -733,13 +733,7 @@ unticked_statement:
 			
 			for(i = $2->begin(); i != $2->end(); i++)
 			{
-				AST_variable* gv = NEW(AST_variable, (*i)); // global var
-				gv->target = NEW(Token_class_name, (new String("%MAIN%")));
-				AST_variable_name* iclone = (*i)->clone();
-				AST_variable* lv = NEW(AST_variable, (iclone)); // local var
-				AST_assignment* gd = NEW(AST_assignment, (lv, true, gv)); // global declaration
-				gd->attrs->set("phc.unparser.is_global_stmt", new Boolean(true));
-				globals->push_back(NEW(AST_eval_expr, (gd)));
+				globals->push_back(NEW(AST_global, (*i)));
 			}
 		
 			$$ = globals;
@@ -1503,11 +1497,10 @@ global_var_list:
 global_var:
 	  VARIABLE
 		{
-			Token_variable_name* var = new Token_variable_name($1);
-			$$ = var; 
+			$$ = NEW(Token_variable_name, ($1));
 		}
 	| '$' r_variable
-		{ 
+		{
 			$$ = NEW(AST_reflection, ($2));
 		}
 	| '$' '{' expr '}'

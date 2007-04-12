@@ -65,6 +65,45 @@ void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
 }
 
 /*
+ * Global is translated into a reference to the GLOBALS array
+ */
+
+void Shredder::pre_global(AST_global* in, List<AST_statement*>* out)
+{
+	Token_variable_name* name;
+	name = dynamic_cast<Token_variable_name*>(in->variable_name);
+
+	if(name != NULL)
+	{
+		out->push_back(new AST_eval_expr(new AST_assignment(
+			new AST_variable(NULL, name, new List<AST_expr*>),
+			true,
+			new AST_variable(
+				NULL, 
+				new Token_variable_name(new String("GLOBALS")),
+				new List<AST_expr*>(new Token_string(
+					name->value->clone(),
+					name->value->clone()
+			))))));
+	}
+	else
+	{
+		AST_reflection* reflection;
+		reflection = dynamic_cast<AST_reflection*>(in->variable_name);
+		assert(reflection != NULL);
+
+		out->push_back(new AST_eval_expr(new AST_assignment(
+			new AST_variable(NULL, reflection, new List<AST_expr*>),
+			true,
+			new AST_variable(
+				NULL, 
+				new Token_variable_name(new String("GLOBALS")),
+				new List<AST_expr*>(reflection->expr)
+			))));
+	}
+}
+
+/*
  * Variables (array indexing, object indexing)
  *
  * We do the indexing bit-by-bit. For example, for $c->a[1][2][3], we get
@@ -155,6 +194,11 @@ AST_expr* Shredder::post_unary_op(AST_unary_op* in)
 {
 	return create_piece(in);
 }
+	
+AST_expr* Shredder::post_conditional_expr(AST_conditional_expr* in)
+{
+	return create_piece(in);
+}
 
 AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 {
@@ -223,7 +267,7 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 
 AST_expr* Shredder::post_int(Token_int* in)
 {
-	return in; // return create_piece(in);
+	return create_piece(in);
 }
 
 AST_expr* Shredder::post_real(Token_real* in)

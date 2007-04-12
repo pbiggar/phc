@@ -21,6 +21,7 @@ public:
 	void post_return(AST_return* in, List<AST_statement*>* out);
 	void post_branch(AST_branch* in, List<AST_statement*>* out);
 	void post_unset(AST_unset* in, List<AST_statement*>* out);
+	void pre_global(AST_global* in, List<AST_statement*>* out);
 
 public:
 	AST_variable* post_variable(AST_variable* in);
@@ -28,6 +29,7 @@ public:
 	AST_expr* post_pre_op(AST_pre_op* in);
 	AST_expr* post_post_op(AST_post_op* in);
 	AST_expr* post_unary_op(AST_unary_op* in);
+	AST_expr* post_conditional_expr(AST_conditional_expr* in);
 	AST_expr* post_int(Token_int* in);
 	AST_expr* post_real(Token_real* in);
 	AST_expr* post_bool(Token_bool* in);

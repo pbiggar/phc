@@ -112,6 +112,10 @@ void AST_visitor::pre_static_declaration(AST_static_declaration* in)
 {
 }
 
+void AST_visitor::pre_global(AST_global* in)
+{
+}
+
 void AST_visitor::pre_unset(AST_unset* in)
 {
 }
@@ -425,6 +429,10 @@ void AST_visitor::post_label(AST_label* in)
 }
 
 void AST_visitor::post_static_declaration(AST_static_declaration* in)
+{
+}
+
+void AST_visitor::post_global(AST_global* in)
 {
 }
 
@@ -801,6 +809,11 @@ void AST_visitor::children_static_declaration(AST_static_declaration* in)
 {
     visit_variable_name(in->variable_name);
     visit_expr(in->expr);
+}
+
+void AST_visitor::children_global(AST_global* in)
+{
+    visit_variable_name(in->variable_name);
 }
 
 void AST_visitor::children_unset(AST_unset* in)
@@ -1208,6 +1221,14 @@ void AST_visitor::pre_static_declaration_chain(AST_static_declaration* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_static_declaration(in);
+}
+
+void AST_visitor::pre_global_chain(AST_global* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_global(in);
 }
 
 void AST_visitor::pre_unset_chain(AST_unset* in)
@@ -1721,6 +1742,14 @@ void AST_visitor::post_label_chain(AST_label* in)
 void AST_visitor::post_static_declaration_chain(AST_static_declaration* in)
 {
     post_static_declaration(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_global_chain(AST_global* in)
+{
+    post_global(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -2308,6 +2337,18 @@ void AST_visitor::visit_label_name(Token_label_name* in)
     }
 }
 
+void AST_visitor::visit_variable_name(AST_variable_name* in)
+{
+    if(in == NULL)
+    	visit_null("AST_variable_name");
+    else
+    {
+    	pre_variable_name_chain(in);
+    	children_variable_name(in);
+    	post_variable_name_chain(in);
+    }
+}
+
 void AST_visitor::visit_directive_list(List<AST_directive*>* in)
 {
     List<AST_directive*>::const_iterator i;
@@ -2464,18 +2505,6 @@ void AST_visitor::visit_target(AST_target* in)
     }
 }
 
-void AST_visitor::visit_variable_name(AST_variable_name* in)
-{
-    if(in == NULL)
-    	visit_null("AST_variable_name");
-    else
-    {
-    	pre_variable_name_chain(in);
-    	children_variable_name(in);
-    	post_variable_name_chain(in);
-    }
-}
-
 void AST_visitor::visit_expr_list(List<AST_expr*>* in)
 {
     List<AST_expr*>::const_iterator i;
@@ -2611,6 +2640,9 @@ void AST_visitor::pre_statement_chain(AST_statement* in)
     case AST_static_declaration::ID:
     	pre_static_declaration_chain(dynamic_cast<AST_static_declaration*>(in));
     	break;
+    case AST_global::ID:
+    	pre_global_chain(dynamic_cast<AST_global*>(in));
+    	break;
     case AST_unset::ID:
     	pre_unset_chain(dynamic_cast<AST_unset*>(in));
     	break;
@@ -2724,6 +2756,19 @@ void AST_visitor::pre_expr_chain(AST_expr* in)
     }
 }
 
+void AST_visitor::pre_variable_name_chain(AST_variable_name* in)
+{
+    switch(in->classid())
+    {
+    case Token_variable_name::ID:
+    	pre_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
+    	break;
+    case AST_reflection::ID:
+    	pre_reflection_chain(dynamic_cast<AST_reflection*>(in));
+    	break;
+    }
+}
+
 void AST_visitor::pre_list_element_chain(AST_list_element* in)
 {
     switch(in->classid())
@@ -2823,19 +2868,6 @@ void AST_visitor::pre_target_chain(AST_target* in)
     }
 }
 
-void AST_visitor::pre_variable_name_chain(AST_variable_name* in)
-{
-    switch(in->classid())
-    {
-    case Token_variable_name::ID:
-    	pre_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
-    	break;
-    case AST_reflection::ID:
-    	pre_reflection_chain(dynamic_cast<AST_reflection*>(in));
-    	break;
-    }
-}
-
 void AST_visitor::pre_method_name_chain(AST_method_name* in)
 {
     switch(in->classid())
@@ -2891,6 +2923,9 @@ void AST_visitor::post_statement_chain(AST_statement* in)
     	break;
     case AST_static_declaration::ID:
     	post_static_declaration_chain(dynamic_cast<AST_static_declaration*>(in));
+    	break;
+    case AST_global::ID:
+    	post_global_chain(dynamic_cast<AST_global*>(in));
     	break;
     case AST_unset::ID:
     	post_unset_chain(dynamic_cast<AST_unset*>(in));
@@ -3005,6 +3040,19 @@ void AST_visitor::post_expr_chain(AST_expr* in)
     }
 }
 
+void AST_visitor::post_variable_name_chain(AST_variable_name* in)
+{
+    switch(in->classid())
+    {
+    case Token_variable_name::ID:
+    	post_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
+    	break;
+    case AST_reflection::ID:
+    	post_reflection_chain(dynamic_cast<AST_reflection*>(in));
+    	break;
+    }
+}
+
 void AST_visitor::post_list_element_chain(AST_list_element* in)
 {
     switch(in->classid())
@@ -3104,19 +3152,6 @@ void AST_visitor::post_target_chain(AST_target* in)
     }
 }
 
-void AST_visitor::post_variable_name_chain(AST_variable_name* in)
-{
-    switch(in->classid())
-    {
-    case Token_variable_name::ID:
-    	post_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
-    	break;
-    case AST_reflection::ID:
-    	post_reflection_chain(dynamic_cast<AST_reflection*>(in));
-    	break;
-    }
-}
-
 void AST_visitor::post_method_name_chain(AST_method_name* in)
 {
     switch(in->classid())
@@ -3172,6 +3207,9 @@ void AST_visitor::children_statement(AST_statement* in)
     	break;
     case AST_static_declaration::ID:
     	children_static_declaration(dynamic_cast<AST_static_declaration*>(in));
+    	break;
+    case AST_global::ID:
+    	children_global(dynamic_cast<AST_global*>(in));
     	break;
     case AST_unset::ID:
     	children_unset(dynamic_cast<AST_unset*>(in));
@@ -3286,6 +3324,19 @@ void AST_visitor::children_expr(AST_expr* in)
     }
 }
 
+void AST_visitor::children_variable_name(AST_variable_name* in)
+{
+    switch(in->classid())
+    {
+    case Token_variable_name::ID:
+    	children_variable_name(dynamic_cast<Token_variable_name*>(in));
+    	break;
+    case AST_reflection::ID:
+    	children_reflection(dynamic_cast<AST_reflection*>(in));
+    	break;
+    }
+}
+
 void AST_visitor::children_list_element(AST_list_element* in)
 {
     switch(in->classid())
@@ -3381,19 +3432,6 @@ void AST_visitor::children_target(AST_target* in)
     	break;
     case Token_class_name::ID:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
-    	break;
-    }
-}
-
-void AST_visitor::children_variable_name(AST_variable_name* in)
-{
-    switch(in->classid())
-    {
-    case Token_variable_name::ID:
-    	children_variable_name(dynamic_cast<Token_variable_name*>(in));
-    	break;
-    case AST_reflection::ID:
-    	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }
 }

@@ -24,6 +24,7 @@
 (for,statement,*)
 (foreach,statement,*)
 (formal_parameter,formal_parameter,*)
+(global,statement,*)
 (goto,statement,*)
 (if,statement,*)
 (ignore_errors,expr,)

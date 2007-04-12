@@ -50,6 +50,7 @@ public:
     virtual void pre_goto(AST_goto* in, List<AST_statement*>* out);
     virtual void pre_label(AST_label* in, List<AST_statement*>* out);
     virtual void pre_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
+    virtual void pre_global(AST_global* in, List<AST_statement*>* out);
     virtual void pre_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void pre_declare(AST_declare* in, List<AST_statement*>* out);
     virtual void pre_directive(AST_directive* in, List<AST_directive*>* out);
@@ -119,6 +120,7 @@ public:
     virtual void post_goto(AST_goto* in, List<AST_statement*>* out);
     virtual void post_label(AST_label* in, List<AST_statement*>* out);
     virtual void post_static_declaration(AST_static_declaration* in, List<AST_statement*>* out);
+    virtual void post_global(AST_global* in, List<AST_statement*>* out);
     virtual void post_unset(AST_unset* in, List<AST_statement*>* out);
     virtual void post_declare(AST_declare* in, List<AST_statement*>* out);
     virtual void post_directive(AST_directive* in, List<AST_directive*>* out);
@@ -188,6 +190,7 @@ public:
     virtual void children_goto(AST_goto* in);
     virtual void children_label(AST_label* in);
     virtual void children_static_declaration(AST_static_declaration* in);
+    virtual void children_global(AST_global* in);
     virtual void children_unset(AST_unset* in);
     virtual void children_declare(AST_declare* in);
     virtual void children_directive(AST_directive* in);
@@ -256,6 +259,7 @@ public:
     virtual List<AST_switch_case*>* transform_switch_case_list(List<AST_switch_case*>* in);
     virtual List<AST_switch_case*>* transform_switch_case(AST_switch_case* in);
     virtual Token_label_name* transform_label_name(Token_label_name* in);
+    virtual AST_variable_name* transform_variable_name(AST_variable_name* in);
     virtual List<AST_directive*>* transform_directive_list(List<AST_directive*>* in);
     virtual List<AST_directive*>* transform_directive(AST_directive* in);
     virtual Token_directive_name* transform_directive_name(Token_directive_name* in);
@@ -269,7 +273,6 @@ public:
     virtual Token_constant_name* transform_constant_name(Token_constant_name* in);
     virtual AST_class_name* transform_class_name(AST_class_name* in);
     virtual AST_target* transform_target(AST_target* in);
-    virtual AST_variable_name* transform_variable_name(AST_variable_name* in);
     virtual List<AST_expr*>* transform_expr_list(List<AST_expr*>* in);
     virtual List<AST_array_elem*>* transform_array_elem_list(List<AST_array_elem*>* in);
     virtual List<AST_array_elem*>* transform_array_elem(AST_array_elem* in);
@@ -283,10 +286,10 @@ public:
     virtual void pre_statement(AST_statement* in, List<AST_statement*>* out);
     virtual void pre_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* pre_expr(AST_expr* in);
+    virtual AST_variable_name* pre_variable_name(AST_variable_name* in);
     virtual void pre_list_element(AST_list_element* in, List<AST_list_element*>* out);
     virtual AST_class_name* pre_class_name(AST_class_name* in);
     virtual AST_target* pre_target(AST_target* in);
-    virtual AST_variable_name* pre_variable_name(AST_variable_name* in);
     virtual AST_method_name* pre_method_name(AST_method_name* in);
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
@@ -294,10 +297,10 @@ public:
     virtual void post_statement(AST_statement* in, List<AST_statement*>* out);
     virtual void post_member(AST_member* in, List<AST_member*>* out);
     virtual AST_expr* post_expr(AST_expr* in);
+    virtual AST_variable_name* post_variable_name(AST_variable_name* in);
     virtual void post_list_element(AST_list_element* in, List<AST_list_element*>* out);
     virtual AST_class_name* post_class_name(AST_class_name* in);
     virtual AST_target* post_target(AST_target* in);
-    virtual AST_variable_name* post_variable_name(AST_variable_name* in);
     virtual AST_method_name* post_method_name(AST_method_name* in);
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
@@ -305,10 +308,10 @@ public:
     virtual void children_statement(AST_statement* in);
     virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);
+    virtual void children_variable_name(AST_variable_name* in);
     virtual void children_list_element(AST_list_element* in);
     virtual void children_class_name(AST_class_name* in);
     virtual void children_target(AST_target* in);
-    virtual void children_variable_name(AST_variable_name* in);
     virtual void children_method_name(AST_method_name* in);
 };
 

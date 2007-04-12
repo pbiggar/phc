@@ -51,6 +51,7 @@ public:
     virtual void pre_goto(AST_goto* in);
     virtual void pre_label(AST_label* in);
     virtual void pre_static_declaration(AST_static_declaration* in);
+    virtual void pre_global(AST_global* in);
     virtual void pre_unset(AST_unset* in);
     virtual void pre_declare(AST_declare* in);
     virtual void pre_directive(AST_directive* in);
@@ -131,6 +132,7 @@ public:
     virtual void post_goto(AST_goto* in);
     virtual void post_label(AST_label* in);
     virtual void post_static_declaration(AST_static_declaration* in);
+    virtual void post_global(AST_global* in);
     virtual void post_unset(AST_unset* in);
     virtual void post_declare(AST_declare* in);
     virtual void post_directive(AST_directive* in);
@@ -209,6 +211,7 @@ public:
     virtual void children_goto(AST_goto* in);
     virtual void children_label(AST_label* in);
     virtual void children_static_declaration(AST_static_declaration* in);
+    virtual void children_global(AST_global* in);
     virtual void children_unset(AST_unset* in);
     virtual void children_declare(AST_declare* in);
     virtual void children_directive(AST_directive* in);
@@ -278,6 +281,7 @@ public:
     virtual void pre_goto_chain(AST_goto* in);
     virtual void pre_label_chain(AST_label* in);
     virtual void pre_static_declaration_chain(AST_static_declaration* in);
+    virtual void pre_global_chain(AST_global* in);
     virtual void pre_unset_chain(AST_unset* in);
     virtual void pre_declare_chain(AST_declare* in);
     virtual void pre_directive_chain(AST_directive* in);
@@ -346,6 +350,7 @@ public:
     virtual void post_goto_chain(AST_goto* in);
     virtual void post_label_chain(AST_label* in);
     virtual void post_static_declaration_chain(AST_static_declaration* in);
+    virtual void post_global_chain(AST_global* in);
     virtual void post_unset_chain(AST_unset* in);
     virtual void post_declare_chain(AST_declare* in);
     virtual void post_directive_chain(AST_directive* in);
@@ -410,6 +415,7 @@ public:
     virtual void visit_switch_case_list(List<AST_switch_case*>* in);
     virtual void visit_switch_case(AST_switch_case* in);
     virtual void visit_label_name(Token_label_name* in);
+    virtual void visit_variable_name(AST_variable_name* in);
     virtual void visit_directive_list(List<AST_directive*>* in);
     virtual void visit_directive(AST_directive* in);
     virtual void visit_directive_name(Token_directive_name* in);
@@ -423,7 +429,6 @@ public:
     virtual void visit_constant_name(Token_constant_name* in);
     virtual void visit_class_name(AST_class_name* in);
     virtual void visit_target(AST_target* in);
-    virtual void visit_variable_name(AST_variable_name* in);
     virtual void visit_expr_list(List<AST_expr*>* in);
     virtual void visit_array_elem_list(List<AST_array_elem*>* in);
     virtual void visit_array_elem(AST_array_elem* in);
@@ -438,28 +443,28 @@ public:
     virtual void pre_statement_chain(AST_statement* in);
     virtual void pre_member_chain(AST_member* in);
     virtual void pre_expr_chain(AST_expr* in);
+    virtual void pre_variable_name_chain(AST_variable_name* in);
     virtual void pre_list_element_chain(AST_list_element* in);
     virtual void pre_class_name_chain(AST_class_name* in);
     virtual void pre_target_chain(AST_target* in);
-    virtual void pre_variable_name_chain(AST_variable_name* in);
     virtual void pre_method_name_chain(AST_method_name* in);
 public:
     virtual void post_statement_chain(AST_statement* in);
     virtual void post_member_chain(AST_member* in);
     virtual void post_expr_chain(AST_expr* in);
+    virtual void post_variable_name_chain(AST_variable_name* in);
     virtual void post_list_element_chain(AST_list_element* in);
     virtual void post_class_name_chain(AST_class_name* in);
     virtual void post_target_chain(AST_target* in);
-    virtual void post_variable_name_chain(AST_variable_name* in);
     virtual void post_method_name_chain(AST_method_name* in);
 public:
     virtual void children_statement(AST_statement* in);
     virtual void children_member(AST_member* in);
     virtual void children_expr(AST_expr* in);
+    virtual void children_variable_name(AST_variable_name* in);
     virtual void children_list_element(AST_list_element* in);
     virtual void children_class_name(AST_class_name* in);
     virtual void children_target(AST_target* in);
-    virtual void children_variable_name(AST_variable_name* in);
     virtual void children_method_name(AST_method_name* in);
 };
 
