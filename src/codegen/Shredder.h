@@ -20,6 +20,7 @@ public:
 	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
 	void post_return(AST_return* in, List<AST_statement*>* out);
 	void post_branch(AST_branch* in, List<AST_statement*>* out);
+	void post_unset(AST_unset* in, List<AST_statement*>* out);
 
 public:
 	AST_variable* post_variable(AST_variable* in);

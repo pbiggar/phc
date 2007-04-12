@@ -567,7 +567,7 @@ void PHP_unparser::children_assignment(AST_assignment* in)
 		visit_variable(in->variable);
 
 		if(in->is_ref)
-			echo(" = &");
+			echo(" =& ");
 		else
 			echo(" = ");
 

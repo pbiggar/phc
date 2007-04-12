@@ -7,7 +7,10 @@
 
 #include "Shredder.h"
 #include "fresh.h"
+
+// For development only
 #include "process_ast/XML_unparser.h"
+#include "process_ast/PHP_unparser.h"
 
 class Prep : public AST_visitor
 {
@@ -16,6 +19,16 @@ class Prep : public AST_visitor
 		in->attrs->erase("phc.unparser.is_opeq");
 		in->attrs->erase("phc.unparser.is_global_stmt");
 		in->attrs->erase("phc.unparser.starts_line");
+	}
+
+	void pre_assignment(AST_assignment* in)
+	{
+		in->variable->attrs->set("phc.shredder.need_addr", new Boolean(true));
+	}
+
+	void pre_unset(AST_unset* in)
+	{
+		in->variable->attrs->set("phc.shredder.need_addr", new Boolean(true));
 	}
 };
 
@@ -41,6 +54,11 @@ void Shredder::post_return(AST_return* in, List<AST_statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Shredder::post_unset(AST_unset* in, List<AST_statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
 {
 	push_back_pieces(in, out);
@@ -48,39 +66,72 @@ void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
 
 /*
  * Variables (array indexing, object indexing)
- * TODO: variables on the LHS need to be treated differently from variables
- * on the RHS
+ *
+ * We do the indexing bit-by-bit. For example, for $c->a[1][2][3], we get
+ *
+ *	$T0 =& $c->arr;
+ *	$T1 =& $T0[1];
+ *	$T2 =& $T1[2];
+ *	$T3 =& $T2[3];
+ *
+ * If the variable occurs on the LHS of an assignment (if the attribute
+ * "phc.shredder.need_addr" is set), we stop one short, and use that as the
+ * LHS. In the example above, we'd stop at the assignment to $T2, and then
+ * use 
+ *
+ *   $T2[2] = ...
+ *
+ * as the LHS of the assignment. This isn't strictly necessary for array
+ * assignment (since we are using reference assignment), but it is strictly
+ * necessary if the variable is the argument to a call to "unset", for example.
+ *
+ * Note that it is important to use reference assignment, because when we
+ * assign to $T2[2] above, we want the original object $c to be modified.
  */
 
 AST_variable* Shredder::post_variable(AST_variable* in)
 {
 	AST_variable* prev = in;
+	
+	int num_pieces = 
+		  (in->target != NULL ? 1 : 0) 
+		+ in->array_indices->size()
+		- (in->attrs->is_true("phc.shredder.need_addr") ? 1 : 0);
 
-	if(in->target != NULL)
+	if(in->target != NULL && num_pieces > 0)
 	{
 		AST_variable* temp = fresh("T");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp, false,
+			temp, true,
 			new AST_variable(
 				in->target,
 				in->variable_name->clone(),
 				new List<AST_expr*>()))));
 		prev = temp;
+		num_pieces--;
 
 		in->target = NULL;
 	}
 	
-	while(not in->array_indices->empty())
+	while(num_pieces > 0)
 	{
 		AST_variable* temp = fresh("T");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp, false, 
+			temp, true, 
 			new AST_variable(
 				NULL, 
 				prev->variable_name->clone(), 
 				new List<AST_expr*>(in->array_indices->front())))));
 		prev = temp;
+		num_pieces--;
 
+		in->array_indices->pop_front();
+	}
+
+	if(prev != in && !in->array_indices->empty())
+	{
+		prev = prev->clone();
+		prev->array_indices->push_back(in->array_indices->front());
 		in->array_indices->pop_front();
 	}
 
@@ -172,7 +223,7 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 
 AST_expr* Shredder::post_int(Token_int* in)
 {
-	return create_piece(in);
+	return in; // return create_piece(in);
 }
 
 AST_expr* Shredder::post_real(Token_real* in)

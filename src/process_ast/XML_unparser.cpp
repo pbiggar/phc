@@ -168,6 +168,7 @@ void XML_unparser::pre_node(AST_node* in)
 				HANDLE_STRING ("phc.generate_c.zvalidx")
 				HANDLE_INT ("phc.codegen.temp")
 				HANDLE_INT ("phc.codegen.num_temps")
+				HANDLE_BOOLEAN ("phc.shredder.need_addr")
 #undef HANDLE_BOOLEAN
 #undef HANDLE_STRING
 #undef HANDLE_INT
