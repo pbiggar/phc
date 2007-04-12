@@ -41,6 +41,11 @@ void Shredder::post_return(AST_return* in, List<AST_statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 /*
  * Variables (array indexing, object indexing)
  * TODO: variables on the LHS need to be treated differently from variables
