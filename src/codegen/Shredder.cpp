@@ -7,6 +7,17 @@
 
 #include "Shredder.h"
 #include "fresh.h"
+#include "process_ast/XML_unparser.h"
+
+class Remove_unparser_attrs : public AST_visitor
+{
+	void pre_node(AST_node* in)
+	{
+		in->attrs->erase("phc.unparser.is_opeq");
+		in->attrs->erase("phc.unparser.is_global_stmt");
+		in->attrs->erase("phc.unparser.starts_line");
+	}
+};
 
 Shredder::Shredder()
 {
@@ -193,6 +204,18 @@ Token_method_name* Shredder::post_method_name(Token_method_name* in)
 	else
 		return in;
 
+}
+
+/*
+ * Remove unparser attributes
+ */
+
+void Shredder::children_php_script(AST_php_script* in)
+{
+	Remove_unparser_attrs ra;
+	in->visit(&ra);
+
+	AST_transform::children_php_script(in);
 }
 
 /*
