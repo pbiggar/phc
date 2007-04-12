@@ -68,19 +68,15 @@ public:
 
 public:
 
-	void pre_method (AST_method* in, List<AST_method*> *out)
+	List<AST_statement*>* transform_statement_list (List<AST_statement*> *in)
 	{
-		// iterate through these presently
-		List<AST_statement*> *statements = in->statements;
-
-
-		// this list only contains the while, and the "start" statement.
-		in->statements = new List<AST_statement*> ();
+		// this in only contains the while, and the "start" statement.
+		List<AST_statement*> *out = new List<AST_statement*> ();
 
 		// add $next = "start";
 		AST_assignment *init = new AST_assignment (next->clone (), false,
-																start->clone ());
-		in->statements->push_back (new AST_eval_expr (init));
+				start->clone ());
+		out->push_back (new AST_eval_expr (init));
 
 		// create 'switch ($next)' (cases is to be used later)
 		List<AST_switch_case*> *cases = new List<AST_switch_case*> ();
@@ -89,13 +85,13 @@ public:
 		// create 'while (true)' and add the switch to it
 		Token_bool *truth = new Token_bool (true, new String ("true"));
 		AST_while *while_stmt = new AST_while (truth, new List<AST_statement*> ());
-		in->statements->push_back (while_stmt);
+		out->push_back (while_stmt);
 		while_stmt->statements->push_back (switches);
 
 
 		// case "start";
-		// TODO why is this protected?
 		AST_switch_case* current = new AST_switch_case (start->clone (), new List<AST_statement*> ());
+		cases->push_back (current);
 
 
 		// set up patterns
@@ -107,16 +103,16 @@ public:
 		AST_label *label_pattern = new AST_label (l1);;
 
 		List<AST_statement*>::const_iterator i;
-		for (i = statements->begin (); i != statements->end (); i++)
+		for (i = in->begin (); i != in->end (); i++)
 		{
 			// add statements to the current case statement
 			if ((*i)->match (goto_pattern))
 			{
 				// add the gotos to the current case statement
 				current->statements->push_back (
-					new AST_eval_expr (
-						new AST_assignment (next->clone (), false,
-							new Token_string (l1->value->value, l1->value->value))));
+						new AST_eval_expr (
+							new AST_assignment (next->clone (), false,
+								new Token_string (l1->value->value, l1->value->value))));
 
 				current->statements->push_back (new AST_continue (NULL));
 			}
@@ -124,8 +120,8 @@ public:
 			{
 				// add the if and gotos to the current case statement
 				AST_if *iffy = new AST_if (expr->value, 
-													new List<AST_statement*>(), 
-													new List<AST_statement*>());
+						new List<AST_statement*>(), 
+						new List<AST_statement*>());
 
 				iffy->iftrue->push_back (
 						new AST_eval_expr (
@@ -137,7 +133,7 @@ public:
 						new AST_eval_expr (
 							new AST_assignment (next->clone (), false,
 								new Token_string (l2->value->value, l2->value->value) )));
-				iffy->iftrue->push_back (new AST_continue (NULL));
+				iffy->iffalse->push_back (new AST_continue (NULL));
 
 				current->statements->push_back (iffy);
 			}
@@ -153,11 +149,24 @@ public:
 			{
 				current->statements->push_back (*i);
 			}
-
 		}
 
-		out->push_back (in);
+		// add '$next = "end";' after the final statement
+		current->statements->push_back (new AST_eval_expr (
+					new AST_assignment (next->clone (), false,
+						new Token_string (new String ("end"), new String ("end")))));
+
+
+		// add the breaking statement
+		current = new AST_switch_case (
+				new Token_string (new String ("end"), new String ("end")), 
+				new List<AST_statement*> ());
+		cases->push_back (current);
+		current->statements->push_back (new AST_break (new Token_int (2, new String ("2"))));
+
+		return out;
 	}
+
 };
 
 extern "C" void process_ast(AST_php_script* script)
