@@ -1,7 +1,7 @@
 <?php
    function f(&$arg)
    {
-      debug_zval_dump(&$arg);
+      var_dump(&$arg);
       $arg = 6;
    }
    
@@ -9,5 +9,5 @@
    $b = &$a;
    f($b);
    
-   debug_zval_dump($a);
+   var_dump($a);
 ?>

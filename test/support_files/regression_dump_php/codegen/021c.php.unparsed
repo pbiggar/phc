@@ -2,7 +2,7 @@
    $a = 1;
    $b = $a;
    $c = &$a;
-   debug_zval_dump($a);
-   debug_zval_dump($b);
-   debug_zval_dump($c);
+   var_dump($a);
+   var_dump($b);
+   var_dump($c);
 ?>

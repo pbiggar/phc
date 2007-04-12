@@ -63,7 +63,7 @@ node_31 [label="Token_class_name"];
 node_32 [label="%STDLIB%", shape=box]
 node_31 -> node_32;
 node_33 [label="Token_method_name"];
-node_34 [label="debug_zval_dump", shape=box]
+node_34 [label="var_dump", shape=box]
 node_33 -> node_34;
 node_35 [label="AST_actual_parameter (5)"];
 node_36 [label="AST_variable (5)"];
@@ -82,7 +82,7 @@ node_41 [label="Token_class_name"];
 node_42 [label="%STDLIB%", shape=box]
 node_41 -> node_42;
 node_43 [label="Token_method_name"];
-node_44 [label="debug_zval_dump", shape=box]
+node_44 [label="var_dump", shape=box]
 node_43 -> node_44;
 node_45 [label="AST_actual_parameter (6)"];
 node_46 [label="AST_variable (6)"];
