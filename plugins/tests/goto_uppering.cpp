@@ -176,7 +176,8 @@ public:
 
 	void pre_method (AST_method *in)
 	{
-		in->statements = convert_statement_list (in->statements);
+		if(in->statements != NULL) // abstract method?
+			in->statements = convert_statement_list (in->statements);
 	}
 
 };
