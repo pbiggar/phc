@@ -8,22 +8,13 @@
 #ifndef PHC_LOWER_EXPR_FLOW_H
 #define PHC_LOWER_EXPR_FLOW_H
 
-#include "AST_transform.h"
+#include "Lower_expr.h"
 
-class Lower_expr_flow : public AST_transform
+class Lower_expr_flow : public Lower_expr 
 {
 public:
-	Lower_expr_flow();
-
-public:
-	void post_branch(AST_branch* in, List<AST_statement*>* out);
-	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
-
-public:
 	AST_expr* post_bin_op(AST_bin_op* in);
-
-protected:
-	List<AST_statement*>* pieces;
+	AST_expr* post_conditional_expr(AST_conditional_expr* in);
 };
 
 #endif // PHC_LOWER_EXPR_FLOW_H

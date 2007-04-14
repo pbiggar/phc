@@ -9,18 +9,13 @@
 #ifndef PHC_SHREDDER_H
 #define PHC_SHREDDER_H
 
-#include "AST_transform.h"
+#include "Lower_expr.h"
 
-class Shredder : public AST_transform
+class Shredder : public Lower_expr
 {
 public:
-	Shredder();
-
-public:
-	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
-	void post_return(AST_return* in, List<AST_statement*>* out);
-	void post_branch(AST_branch* in, List<AST_statement*>* out);
-	void post_unset(AST_unset* in, List<AST_statement*>* out);
+	void children_php_script(AST_php_script* in);
+	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
 	void pre_global(AST_global* in, List<AST_statement*>* out);
 
 public:
@@ -36,12 +31,6 @@ public:
 	AST_expr* post_string(Token_string* in);
 	AST_expr* post_null(Token_null* in);
 	Token_method_name* post_method_name(Token_method_name* in);
-	void children_php_script(AST_php_script* in);
-
-protected:
-	List<AST_statement*>* pieces;
-	AST_variable* create_piece(AST_expr* in);
-	void push_back_pieces(AST_statement* in, List<AST_statement*>* out);
 };
 
 #endif // PHC_SHREDDER_H

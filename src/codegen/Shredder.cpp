@@ -46,36 +46,31 @@ class Prep : public AST_visitor
 	}
 };
 
-Shredder::Shredder()
-{
-	pieces = new List<AST_statement*>;
-}
+/*
+ * Remove unparser attributes
+ */
 
-void Shredder::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Shredder::children_php_script(AST_php_script* in)
+{
+	Prep prep;
+	in->visit(&prep);
+
+	Lower_expr::children_php_script(in);
+}
+		
+/*
+ * All eval_expr must be assignments; if they are not, we generate
+ * a dummy assignment on the LHS
+ */
+
+void Shredder::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
 	if(in->expr->classid() != AST_assignment::ID)
 	{
-		// All eval_expr must be assignments; if they are not, we generate
-		// a dummy assignment on the LHS
-		in->expr = new AST_assignment(fresh("TS"), false, in->expr);
+		in->expr = new AST_assignment(fresh_var("TS"), false, in->expr);
 	}
-	
-	push_back_pieces(in, out);
-}
 
-void Shredder::post_return(AST_return* in, List<AST_statement*>* out)
-{
-	push_back_pieces(in, out);
-}
-
-void Shredder::post_unset(AST_unset* in, List<AST_statement*>* out)
-{
-	push_back_pieces(in, out);
-}
-
-void Shredder::post_branch(AST_branch* in, List<AST_statement*>* out)
-{
-	push_back_pieces(in, out);
+	out->push_back(in);
 }
 
 /*
@@ -153,7 +148,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL && num_pieces > 0)
 	{
-		AST_variable* temp = fresh("TS");
+		AST_variable* temp = fresh_var("TS");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true,
 			new AST_variable(
@@ -168,7 +163,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	
 	while(num_pieces > 0)
 	{
-		AST_variable* temp = fresh("TS");
+		AST_variable* temp = fresh_var("TS");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true, 
 			new AST_variable(
@@ -201,17 +196,17 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 AST_expr* Shredder::post_bin_op(AST_bin_op* in)
 {
-	return create_piece(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_unary_op(AST_unary_op* in)
 {
-	return create_piece(in);
+	return eval(in);
 }
 	
 AST_expr* Shredder::post_conditional_expr(AST_conditional_expr* in)
 {
-	return create_piece(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_pre_op(AST_pre_op* in)
@@ -225,7 +220,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 	else
 		assert(0);
 
-	AST_variable* one = fresh("TS");
+	AST_variable* one = fresh_var("TS");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
@@ -253,8 +248,8 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 	else
 		assert(0);
 
-	AST_variable* old_value = fresh("TS");
-	AST_variable* one = fresh("TS");
+	AST_variable* old_value = fresh_var("TS");
+	AST_variable* one = fresh_var("TS");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		old_value,
@@ -284,7 +279,7 @@ AST_expr* Shredder::post_int(Token_int* in)
 	if(in->attrs->is_true("phc.shredder.no_temp"))
 		return in;
 	else
-		return create_piece(in);
+		return eval(in);
 }
 
 AST_expr* Shredder::post_real(Token_real* in)
@@ -292,7 +287,7 @@ AST_expr* Shredder::post_real(Token_real* in)
 	if(in->attrs->is_true("phc.shredder.no_temp"))
 		return in;
 	else
-		return create_piece(in);
+		return eval(in);
 }
 
 AST_expr* Shredder::post_string(Token_string* in)
@@ -300,7 +295,7 @@ AST_expr* Shredder::post_string(Token_string* in)
 	if(in->attrs->is_true("phc.shredder.no_temp"))
 		return in;
 	else
-		return create_piece(in);
+		return eval(in);
 }
 
 AST_expr* Shredder::post_bool(Token_bool* in)
@@ -308,7 +303,7 @@ AST_expr* Shredder::post_bool(Token_bool* in)
 	if(in->attrs->is_true("phc.shredder.no_temp"))
 		return in;
 	else
-		return create_piece(in);
+		return eval(in);
 }
 
 AST_expr* Shredder::post_null(Token_null* in)
@@ -316,7 +311,7 @@ AST_expr* Shredder::post_null(Token_null* in)
 	if(in->attrs->is_true("phc.shredder.no_temp"))
 		return in;
 	else
-		return create_piece(in);
+		return eval(in);
 }
 
 /*
@@ -334,49 +329,3 @@ Token_method_name* Shredder::post_method_name(Token_method_name* in)
 		return in;
 
 }
-
-/*
- * Remove unparser attributes
- */
-
-void Shredder::children_php_script(AST_php_script* in)
-{
-	Prep prep;
-	in->visit(&prep);
-
-	AST_transform::children_php_script(in);
-}
-
-/*
- * Most methods in the shredder to the same: an expression is split into
- * lots of assignments, one corresponding to each individual operator in
- * the expression. This is implemented by "create_piece".
- */
-
-AST_variable* Shredder::create_piece(AST_expr* in)
-{
-	AST_variable* temp = fresh("TS");
-	pieces->push_back(new AST_eval_expr(new AST_assignment(temp, false, in)));
-	return temp;
-}
-
-/*
- * Once an expression has been split into multiple statements, we want
- * to assemble the pieces, and then execute the original statements.
- */
-
-void Shredder::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
-{
-	out->push_back_all(pieces);
-	out->push_back(in);
-
-	// Move comment to the first piece (if any)
-	if(!pieces->empty())
-	{
-		pieces->front()->attrs->set("phc.comments", in->get_comments());
-		in->attrs->set("phc.comments", new List<String*>);
-	}
-
-	pieces->clear();
-}
-

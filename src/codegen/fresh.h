@@ -10,6 +10,7 @@
 
 #include "AST.h"
 
-AST_variable* fresh(string prefix);
+AST_variable* fresh_var(string prefix);
+String* fresh(string prefix);
 
 #endif // PHC_FRESH_H

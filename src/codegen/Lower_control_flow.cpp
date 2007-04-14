@@ -288,35 +288,3 @@ Lower_control_flow::post_throw(AST_throw* in, List<AST_statement*>* out)
 {
 	out->push_back (in);
 }
-
-
-AST_expr*
-Lower_control_flow::post_conditional_expr(AST_conditional_expr* in)
-{
-	return in;
-}
-
-/* Convert
- *		if ($x || $y) z();
- *	into
- *		if ($x)
- *			goto L2;
- *		else
- *			goto L1
- *	L1:
- *		if ($y)
- *			goto L2;
- *		else
- *			goto L3;
- *	L2:
- *		y ();
- *	L3:
- *
- *	and convert
- *		if ($x || $y
- */
-//void 
-//Lower_control_flow::post_bin_op (AST_bin_op* in)
-//{
-//}
-

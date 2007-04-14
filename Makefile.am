@@ -38,20 +38,22 @@ bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
 
-src_phc_SOURCES =												\
+src_phc_SOURCES =											\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
-	src/codegen/Lower_control_flow.cpp					\
+	src/codegen/Lower_control_flow.cpp						\
 	src/codegen/Lower_control_flow.h						\
-	src/codegen/Lower_expr_flow.cpp						\
+	src/codegen/Lower_expr.cpp								\
+	src/codegen/Lower_expr.h								\
+	src/codegen/Lower_expr_flow.cpp							\
 	src/codegen/Lower_expr_flow.h							\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
-	src/codegen/Lift_functions_and_classes.cpp		\
-	src/codegen/Lift_functions_and_classes.h			\
+	src/codegen/Lift_functions_and_classes.cpp				\
+	src/codegen/Lift_functions_and_classes.h				\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
 	src/generated/AST.cpp									\
@@ -61,53 +63,53 @@ src_phc_SOURCES =												\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp						\
+	src/generated/AST_transform.cpp							\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h							\
+	src/generated/AST_visitor.h								\
 	src/lib/AttrMap.cpp										\
-	src/lib/AttrMap.h											\
+	src/lib/AttrMap.h										\
 	src/lib/base64.cpp										\
-	src/lib/base64.h											\
-	src/lib/Boolean.h											\
+	src/lib/base64.h										\
+	src/lib/Boolean.h										\
 	src/lib/Boolean.cpp										\
-	src/lib/demangle.cpp										\
+	src/lib/demangle.cpp									\
 	src/lib/demangle.h										\
-	src/lib/error.cpp											\
+	src/lib/error.cpp										\
 	src/lib/error.h											\
-	src/lib/Integer.h											\
+	src/lib/Integer.h										\
 	src/lib/Integer.cpp										\
-	src/lib/List.h												\
-	src/lib/Object.h											\
+	src/lib/List.h											\
+	src/lib/Object.h										\
 	src/lib/Object.cpp										\
 	src/lib/String.cpp										\
-	src/lib/String.h											\
+	src/lib/String.h										\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
-	src/parsing/PHP_context.cpp							\
+	src/parsing/PHP_context.cpp								\
 	src/parsing/PHP_context.h								\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
-	src/phc.cpp													\
+	src/phc.cpp												\
 	src/process_ast/DOT_unparser.cpp						\
-	src/process_ast/DOT_unparser.h						\
-	src/process_ast/Invocation_targets.cpp				\
-	src/process_ast/Invocation_targets.h				\
+	src/process_ast/DOT_unparser.h							\
+	src/process_ast/Invocation_targets.cpp					\
+	src/process_ast/Invocation_targets.h					\
 	src/process_ast/PHP_unparser.cpp						\
-	src/process_ast/PHP_unparser.h						\
-	src/process_ast/process_ast.cpp						\
+	src/process_ast/PHP_unparser.h							\
+	src/process_ast/process_ast.cpp							\
 	src/process_ast/process_ast.h							\
-	src/process_ast/Remove_concat_null.cpp				\
-	src/process_ast/Remove_concat_null.h				\
-	src/process_ast/Remove_parser_temporaries.cpp	\
-	src/process_ast/Remove_parser_temporaries.h		\
-	src/process_ast/Token_conversion.cpp				\
-	src/process_ast/Token_conversion.h					\
-	src/process_ast/Variable_targets.cpp				\
-	src/process_ast/Variable_targets.h					\
+	src/process_ast/Remove_concat_null.cpp					\
+	src/process_ast/Remove_concat_null.h					\
+	src/process_ast/Remove_parser_temporaries.cpp			\
+	src/process_ast/Remove_parser_temporaries.h				\
+	src/process_ast/Token_conversion.cpp					\
+	src/process_ast/Token_conversion.h						\
+	src/process_ast/Variable_targets.cpp					\
+	src/process_ast/Variable_targets.h						\
 	src/process_ast/XML_unparser.cpp						\
-	src/process_ast/XML_unparser.h						\
-	src/process_ast/Process_includes.cpp				\
+	src/process_ast/XML_unparser.h							\
+	src/process_ast/Process_includes.cpp					\
 	src/process_ast/Process_includes.h
 
 BUILT_SOURCES = \
@@ -118,10 +120,10 @@ BUILT_SOURCES = \
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp						\
+	src/generated/AST_transform.cpp							\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h							\
+	src/generated/AST_visitor.h								\
 	test/framework/lib/autovars.php
 
 # - The magic to accomplish this is described cryptically in the last few
@@ -134,13 +136,13 @@ BUILT_SOURCES = \
 #   AST_visitor.h)
 strangephcdir = $(pkgincludedir)
 strangephc_HEADERS =						\
-	config.h									\
-	src/generated/AST.h					\
-	src/generated/AST_transform.h		\
+	config.h								\
+	src/generated/AST.h						\
+	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
-strangeparsing_HEADERS =				\
+strangeparsing_HEADERS =					\
 	src/parsing/parse.h
 
 strangeprocessastdir = $(pkgincludedir)/process_ast
@@ -156,8 +158,8 @@ strangelib_HEADERS =		\
 	src/lib/AttrMap.h		\
 	src/lib/base64.h		\
 	src/lib/Boolean.h		\
-	src/lib/demangle.h	\
-	src/lib/error.h		\
+	src/lib/demangle.h		\
+	src/lib/error.h			\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
 	src/lib/Object.h		\

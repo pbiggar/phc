@@ -26,7 +26,6 @@ class Lower_control_flow : public AST_transform
 		void post_try(AST_try* in, List<AST_statement*>* out);
 		void post_catch(AST_catch* in, List<AST_catch*>* out);
 		void post_throw(AST_throw* in, List<AST_statement*>* out);
-		AST_expr* post_conditional_expr(AST_conditional_expr* in);
 };
 
 #endif // PHC_LOWER_CONTROL_FLOW_H
