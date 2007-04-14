@@ -65,6 +65,7 @@ AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
  *  	goto L3;
  *  L2:
  *  	$TEF2 = h();
+ *  	goto L3;
  *  L3:
  *  	foo($TEF2);
  */
