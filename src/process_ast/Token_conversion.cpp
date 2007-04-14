@@ -35,45 +35,6 @@ AST_expr* Token_conversion::pre_int(Token_int* in)
 	if(errno == ERANGE)
 	{
 		errno = 0;
-		// check for a hexadecimal integer in the right range
-		if (		in->source_rep->compare(0, 2, "0x", 2) == 0
-				or in->source_rep->compare(0, 2, "0X", 2) == 0
-				or in->source_rep->compare(0, 3, "-0x", 3) == 0
-				or in->source_rep->compare(0, 3, "-0X", 3) == 0
-			)
-		{
-			if(strtoll(in->source_rep->c_str(), NULL, 16) > (long long)(ULONG_MAX))
-			{
-				assert(errno == 0);
-				Token_int* i = new Token_int(LONG_MAX, in->source_rep);
-				i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
-				return i;
-			}
-			else 
-			{
-				assert(errno == 0);
-				if(strtoll(in->source_rep->c_str(), NULL, 16) < -(long long)(ULONG_MAX))
-				{
-					assert(errno == 0);
-					// Why LONG_MIN + 1? Well. Ask the PHP folks :)
-					Token_int* i = new Token_int(LONG_MIN + 1, in->source_rep);
-					i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
-					return i;
-				}
-				else
-				{
-					assert(errno == 0);
-					// some platforms (cygwin and solaris at least) dont like atof (or strtod) on
-					// hex numbers, despite it being part of the C standard for a very
-					// long time. Since we're processing digits, we can safely go the long way.
-					double value = static_cast<double>(strtoll(in->source_rep->c_str(), NULL, 16));
-					assert(errno == 0);
-					Token_real* r = new Token_real(value, in->source_rep);
-					r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
-					return r;
-				}
-			}
-		}
 
 		// get a real in the case of overflow
 		double value = strtod(in->source_rep->c_str(), (char **)NULL);
