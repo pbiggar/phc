@@ -18,6 +18,7 @@
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lower_control_flow.h"
+#include "codegen/Lower_expr_flow.h"
 #include "codegen/Shredder.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -100,14 +101,18 @@ int main(int argc, char** argv)
 		if(args_info.run_lowering_flag)
 		{
 			Lower_control_flow lcf;
+			Lower_expr_flow lef;
 			php_script->transform_children (&lcf);
+			php_script->transform_children (&lef);
 		}
 
 		if(args_info.run_shredder_flag)
 		{
 			Lower_control_flow lcf;
+			Lower_expr_flow lef;
 			Shredder s;
 			php_script->transform_children(&lcf);
+			php_script->transform_children(&lef);
 			php_script->transform_children(&s);
 		}
 
@@ -232,6 +237,7 @@ void generate_c(AST_php_script* php_script)
 {
 	Lift_functions_and_classes lift;
 	Lower_control_flow lcf;
+	Lower_expr_flow lef;
 	Shredder shredder;
 	Generate_C* generate_c;
 
@@ -242,6 +248,7 @@ void generate_c(AST_php_script* php_script)
 
 	php_script->transform_children(&lift);
 	php_script->transform_children(&lcf);	
+	php_script->transform_children(&lef);	
 	php_script->transform_children(&shredder);
 	php_script->visit(generate_c);
 }

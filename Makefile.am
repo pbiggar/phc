@@ -46,6 +46,8 @@ src_phc_SOURCES =												\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
+	src/codegen/Lower_expr_flow.cpp						\
+	src/codegen/Lower_expr_flow.h							\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
 	src/codegen/Lift_functions_and_classes.cpp		\

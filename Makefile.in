@@ -218,17 +218,17 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Shredder.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
-	fresh.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
-	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
-	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
-	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
-	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
-	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
-	DOT_unparser.$(OBJEXT) Invocation_targets.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) process_ast.$(OBJEXT) \
-	Remove_concat_null.$(OBJEXT) \
+	Lower_expr_flow.$(OBJEXT) Shredder.$(OBJEXT) \
+	Lift_functions_and_classes.$(OBJEXT) fresh.$(OBJEXT) \
+	AST.$(OBJEXT) cmdline.$(OBJEXT) lex.yy.$(OBJEXT) \
+	php_parser.tab.$(OBJEXT) AST_transform.$(OBJEXT) \
+	AST_visitor.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
+	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
+	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
+	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
+	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) \
+	Invocation_targets.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	process_ast.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Variable_targets.$(OBJEXT) XML_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT)
@@ -479,6 +479,8 @@ src_phc_SOURCES = \
 	src/codegen/Generate_C.h								\
 	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
+	src/codegen/Lower_expr_flow.cpp						\
+	src/codegen/Lower_expr_flow.h							\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
 	src/codegen/Lift_functions_and_classes.cpp		\
@@ -888,6 +890,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invocation_targets.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Po@am__quote@
@@ -1150,6 +1153,20 @@ Lower_control_flow.obj: src/codegen/Lower_control_flow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lower_control_flow.cpp' object='Lower_control_flow.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_control_flow.obj `if test -f 'src/codegen/Lower_control_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_control_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_control_flow.cpp'; fi`
+
+Lower_expr_flow.o: src/codegen/Lower_expr_flow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_expr_flow.o -MD -MP -MF $(DEPDIR)/Lower_expr_flow.Tpo -c -o Lower_expr_flow.o `test -f 'src/codegen/Lower_expr_flow.cpp' || echo '$(srcdir)/'`src/codegen/Lower_expr_flow.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lower_expr_flow.Tpo $(DEPDIR)/Lower_expr_flow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lower_expr_flow.cpp' object='Lower_expr_flow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_expr_flow.o `test -f 'src/codegen/Lower_expr_flow.cpp' || echo '$(srcdir)/'`src/codegen/Lower_expr_flow.cpp
+
+Lower_expr_flow.obj: src/codegen/Lower_expr_flow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_expr_flow.obj -MD -MP -MF $(DEPDIR)/Lower_expr_flow.Tpo -c -o Lower_expr_flow.obj `if test -f 'src/codegen/Lower_expr_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_expr_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_expr_flow.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lower_expr_flow.Tpo $(DEPDIR)/Lower_expr_flow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lower_expr_flow.cpp' object='Lower_expr_flow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_expr_flow.obj `if test -f 'src/codegen/Lower_expr_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_expr_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_expr_flow.cpp'; fi`
 
 Shredder.o: src/codegen/Shredder.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.o -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp
