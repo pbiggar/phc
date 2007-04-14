@@ -360,8 +360,7 @@ UNSET_CAST		{CS}"unset"{CE}
 								new String(yyextra->buffer),
 								new String(yyextra->buffer));
 							copy_state(str, yyextra);
-							str->attrs->set("phc.unparser.is_singly_quoted", 
-								new Boolean(true)); 
+							str->attrs->set_true("phc.unparser.is_singly_quoted");
 							yylval->token_string = str;
 
 							BEGIN(PHP);
@@ -703,7 +702,7 @@ void PHP_context::return_to_complex_syntax()
 // Attach a comment to the last node generated
 void PHP_context::attach_comment(String *s)
 {
-	s->attrs->set("phc.unparser.comment.after", new Boolean(true));
+	s->attrs->set_true("phc.unparser.comment.after");
 	assert(last_commented_node);
 	last_commented_node->get_comments()->push_back(s);
 }	

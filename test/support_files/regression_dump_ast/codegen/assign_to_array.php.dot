@@ -73,7 +73,7 @@ node_36 [label="Token_class_name"];
 node_37 [label="%STDLIB%", shape=box]
 node_36 -> node_37;
 node_38 [label="Token_method_name"];
-node_39 [label="var_dump", shape=box]
+node_39 [label="var_export", shape=box]
 node_38 -> node_39;
 node_40 [label="AST_actual_parameter (5)"];
 node_41 [label="AST_variable (5)"];

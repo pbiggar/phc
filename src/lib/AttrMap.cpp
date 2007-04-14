@@ -42,13 +42,22 @@ String* AttrMap::get_string(string key)
 	return ret;
 }
 
+void AttrMap::set_true(string key)
+{
+	set(key, new Boolean(true));
+}
+
+void AttrMap::set_false(string key)
+{
+	set(key, new Boolean(false));
+}
+
 bool AttrMap::is_true(string key)
 {
+	if(!has(key)) return false;
 	Boolean* ret = dynamic_cast<Boolean*>((*this)[key]);
-	if(ret == NULL)
-		return false;
-	else
-		return ret->value();
+	assert(ret != NULL);
+	return ret->value();
 }
 
 bool AttrMap::has(string key)

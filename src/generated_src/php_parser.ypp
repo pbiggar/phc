@@ -42,7 +42,7 @@
 		node->attrs->set("phc.line_number", new Integer(context->source_line));
 		node->attrs->set("phc.filename", context->filename->clone());
 		if(context->starts_line)
-			node->attrs->set("phc.unparser.starts_line", new Boolean(true));
+			node->attrs->set_true("phc.unparser.starts_line");
 
 		AST_commented_node* cnode;
 		cnode = dynamic_cast<AST_commented_node*>(node);
@@ -1102,7 +1102,7 @@ foreach_variable:
 		}
 	| '&' w_variable
 		{ 
-			$2->attrs->set("phc.parser.is_ref", new Boolean(true));
+			$2->attrs->set_true("phc.parser.is_ref");
 			$$ = expect_variable($2); 
 		}
 	;
@@ -1236,7 +1236,7 @@ elseif_list:
 			$2->expr = $4;
 			$2->iftrue = $6;
 			$2->iffalse = empty;
-			$2->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			$2->attrs->set_true("phc.unparser.is_elseif");
 
 			if($1)
 			{
@@ -1276,7 +1276,7 @@ new_elseif_list:
 			$2->expr = $4;
 			$2->iftrue = $7;
 			$2->iffalse = empty;
-			$2->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			$2->attrs->set_true("phc.unparser.is_elseif");
 
 			if($1)
 			{
@@ -1505,7 +1505,7 @@ global_var:
 		}
 	| '$' '{' expr '}'
 		{ 
-			$3->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$3->attrs->set_true("phc.unparser.needs_curlies");
 			$$ = NEW(AST_reflection, ($3));
 		}
 	; 
@@ -1816,7 +1816,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "+"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_MINUSEQ expr
@@ -1827,7 +1827,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "-"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_MULEQ expr
@@ -1838,7 +1838,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "*"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_DIVEQ expr
@@ -1849,7 +1849,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "/"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_CONCATEQ expr
@@ -1860,7 +1860,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "."))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_MODEQ expr
@@ -1871,7 +1871,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "%"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_ANDEQ expr
@@ -1882,7 +1882,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "&"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_OREQ expr
@@ -1893,7 +1893,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "|"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_XOREQ expr
@@ -1904,7 +1904,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "^"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_SLEQ expr
@@ -1915,7 +1915,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "<<"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| variable O_SREQ expr
@@ -1926,7 +1926,7 @@ expr_without_variable:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, ">>"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			$$ = agn;
 		}
 	| rw_variable O_INC
@@ -2074,7 +2074,7 @@ expr_without_variable:
 		}
 	| '(' expr ')'
 		{
-			$2->attrs->set("phc.unparser.needs_brackets", new Boolean(true));
+			$2->attrs->set_true("phc.unparser.needs_brackets");
 			
 			$$ = $2;
 		}
@@ -2650,7 +2650,7 @@ reference_variable:
 	| reference_variable '{' expr '}'
 		{
 			if($3 != NULL)
-				$3->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+				$3->attrs->set_true("phc.unparser.index_curlies");
 
 			$1->array_indices->push_back($3);
 			$$ = $1;
@@ -2669,7 +2669,7 @@ compound_variable:
 		}
 	| '$' '{' expr '}'
 		{ 
-			$3->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$3->attrs->set_true("phc.unparser.needs_curlies");
 			$$ = NEW(AST_reflection, ($3)); 
 		}
 	;
@@ -2710,7 +2710,7 @@ object_dim_list:
 	| object_dim_list '{' expr '}'
 		{
 			if($3 != NULL)
-				$3->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+				$3->attrs->set_true("phc.unparser.index_curlies");
 
 			$1->array_indices->push_back($3);
 			$$ = $1;
@@ -2732,7 +2732,7 @@ variable_name:
 		}
 	| '{' expr '}'
 		{ 
-			$2->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			$2->attrs->set_true("phc.unparser.needs_curlies");
 			$$ = NEW(AST_reflection, ($2)); 
 		}
 	;

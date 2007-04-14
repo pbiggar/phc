@@ -346,7 +346,7 @@
 		node->attrs->set("phc.line_number", new Integer(context->source_line));
 		node->attrs->set("phc.filename", context->filename->clone());
 		if(context->starts_line)
-			node->attrs->set("phc.unparser.starts_line", new Boolean(true));
+			node->attrs->set_true("phc.unparser.starts_line");
 
 		AST_commented_node* cnode;
 		cnode = dynamic_cast<AST_commented_node*>(node);
@@ -4207,7 +4207,7 @@ yyreduce:
   case 90:
 #line 1104 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(2) - (2)].ast_expr)->attrs->set("phc.parser.is_ref", new Boolean(true));
+			(yyvsp[(2) - (2)].ast_expr)->attrs->set_true("phc.parser.is_ref");
 			(yyval.ast_variable) = expect_variable((yyvsp[(2) - (2)].ast_expr)); 
 		;}
     break;
@@ -4366,7 +4366,7 @@ yyreduce:
 			(yyvsp[(2) - (6)].ast_if)->expr = (yyvsp[(4) - (6)].ast_expr);
 			(yyvsp[(2) - (6)].ast_if)->iftrue = (yyvsp[(6) - (6)].list_ast_statement);
 			(yyvsp[(2) - (6)].ast_if)->iffalse = empty;
-			(yyvsp[(2) - (6)].ast_if)->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			(yyvsp[(2) - (6)].ast_if)->attrs->set_true("phc.unparser.is_elseif");
 
 			if((yyvsp[(1) - (6)].ast_if))
 			{
@@ -4406,7 +4406,7 @@ yyreduce:
 			(yyvsp[(2) - (7)].ast_if)->expr = (yyvsp[(4) - (7)].ast_expr);
 			(yyvsp[(2) - (7)].ast_if)->iftrue = (yyvsp[(7) - (7)].list_ast_statement);
 			(yyvsp[(2) - (7)].ast_if)->iffalse = empty;
-			(yyvsp[(2) - (7)].ast_if)->attrs->set("phc.unparser.is_elseif", new Boolean(true));
+			(yyvsp[(2) - (7)].ast_if)->attrs->set_true("phc.unparser.is_elseif");
 
 			if((yyvsp[(1) - (7)].ast_if))
 			{
@@ -4692,7 +4692,7 @@ yyreduce:
   case 143:
 #line 1507 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(3) - (4)].ast_expr)->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr)));
 		;}
     break;
@@ -5086,7 +5086,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "+"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5100,7 +5100,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "-"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5114,7 +5114,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "*"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5128,7 +5128,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "/"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5142,7 +5142,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "."))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5156,7 +5156,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "%"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5170,7 +5170,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "&"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5184,7 +5184,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "|"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5198,7 +5198,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "^"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5212,7 +5212,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), "<<"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5226,7 +5226,7 @@ yyreduce:
 			var_c = var->clone();
 			
 			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, (yyvsp[(3) - (3)].ast_expr), ">>"))));
-			agn->attrs->set("phc.unparser.is_opeq", new Boolean(true));
+			agn->attrs->set_true("phc.unparser.is_opeq");
 			(yyval.ast_expr) = agn;
 		;}
     break;
@@ -5479,7 +5479,7 @@ yyreduce:
   case 231:
 #line 2076 "src/generated_src/php_parser.ypp"
     {
-			(yyvsp[(2) - (3)].ast_expr)->attrs->set("phc.unparser.needs_brackets", new Boolean(true));
+			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_brackets");
 			
 			(yyval.ast_expr) = (yyvsp[(2) - (3)].ast_expr);
 		;}
@@ -6159,7 +6159,7 @@ yyreduce:
 #line 2651 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(3) - (4)].ast_expr) != NULL)
-				(yyvsp[(3) - (4)].ast_expr)->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+				(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.index_curlies");
 
 			(yyvsp[(1) - (4)].ast_variable)->array_indices->push_back((yyvsp[(3) - (4)].ast_expr));
 			(yyval.ast_variable) = (yyvsp[(1) - (4)].ast_variable);
@@ -6184,7 +6184,7 @@ yyreduce:
   case 316:
 #line 2671 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(3) - (4)].ast_expr)->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr))); 
 		;}
     break;
@@ -6231,7 +6231,7 @@ yyreduce:
 #line 2711 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(3) - (4)].ast_expr) != NULL)
-				(yyvsp[(3) - (4)].ast_expr)->attrs->set("phc.unparser.index_curlies", new Boolean(true));
+				(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.index_curlies");
 
 			(yyvsp[(1) - (4)].ast_variable)->array_indices->push_back((yyvsp[(3) - (4)].ast_expr));
 			(yyval.ast_variable) = (yyvsp[(1) - (4)].ast_variable);
@@ -6256,7 +6256,7 @@ yyreduce:
   case 325:
 #line 2734 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(2) - (3)].ast_expr)->attrs->set("phc.unparser.needs_curlies", new Boolean(true));
+			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(2) - (3)].ast_expr))); 
 		;}
     break;

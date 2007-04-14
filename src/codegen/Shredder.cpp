@@ -23,12 +23,19 @@ class Prep : public AST_visitor
 
 	void pre_assignment(AST_assignment* in)
 	{
-		in->variable->attrs->set("phc.shredder.need_addr", new Boolean(true));
+		in->variable->attrs->set_true("phc.shredder.need_addr");
 	}
 
 	void pre_unset(AST_unset* in)
 	{
-		in->variable->attrs->set("phc.shredder.need_addr", new Boolean(true));
+		in->variable->attrs->set_true("phc.shredder.need_addr");
+	}
+
+	void pre_attribute(AST_attribute* in)
+	{
+		// Do not generate a temp to hold the default value of an attribute
+		if(in->expr != NULL)
+			in->expr->attrs->set_true("phc.shredder.no_temp");
 	}
 };
 
@@ -267,27 +274,42 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 
 AST_expr* Shredder::post_int(Token_int* in)
 {
-	return create_piece(in);
+	if(in->attrs->is_true("phc.shredder.no_temp"))
+		return in;
+	else
+		return create_piece(in);
 }
 
 AST_expr* Shredder::post_real(Token_real* in)
 {
-	return create_piece(in);
+	if(in->attrs->is_true("phc.shredder.no_temp"))
+		return in;
+	else
+		return create_piece(in);
 }
 
 AST_expr* Shredder::post_string(Token_string* in)
 {
-	return create_piece(in);
+	if(in->attrs->is_true("phc.shredder.no_temp"))
+		return in;
+	else
+		return create_piece(in);
 }
 
 AST_expr* Shredder::post_bool(Token_bool* in)
 {
-	return create_piece(in);
+	if(in->attrs->is_true("phc.shredder.no_temp"))
+		return in;
+	else
+		return create_piece(in);
 }
 
 AST_expr* Shredder::post_null(Token_null* in)
 {
-	return create_piece(in);
+	if(in->attrs->is_true("phc.shredder.no_temp"))
+		return in;
+	else
+		return create_piece(in);
 }
 
 /*

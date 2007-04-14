@@ -184,37 +184,37 @@ public:
 				else if(key == "phc.unparser.needs_brackets")
 				{
 					if(buffer == "true")
-						attrs_stack.top()->set("phc.unparser.needs_brackets", new Boolean(true));
+						attrs_stack.top()->set_true("phc.unparser.needs_brackets");
 					else
-						attrs_stack.top()->set("phc.unparser.needs_brackets", new Boolean(false));
+						attrs_stack.top()->set_false("phc.unparser.needs_brackets");
 				}
 				else if(key == "phc.unparser.needs_curlies")
 				{
 					if(buffer == "true")
-						attrs_stack.top()->set("phc.unparser.needs_curlies", new Boolean(true));
+						attrs_stack.top()->set_true("phc.unparser.needs_curlies");
 					else
-						attrs_stack.top()->set("phc.unparser.needs_curlies", new Boolean(false));
+						attrs_stack.top()->set_false("phc.unparser.needs_curlies");
 				}
 				else if(key == "phc.unparser.is_elseif")
 				{
 					if(buffer == "true")
-						attrs_stack.top()->set("phc.unparser.is_elseif", new Boolean(true));
+						attrs_stack.top()->set_true("phc.unparser.is_elseif");
 					else
-						attrs_stack.top()->set("phc.unparser.is_elseif", new Boolean(false));
+						attrs_stack.top()->set_false("phc.unparser.is_elseif");
 				}
 				else if(key == "phc.unparser.is_global_stmt")
 				{
 					if(buffer == "true")
-						attrs_stack.top()->set("phc.unparser.is_global_stmt", new Boolean(true));
+						attrs_stack.top()->set_true("phc.unparser.is_global_stmt");
 					else
-						attrs_stack.top()->set("phc.unparser.is_global_stmt", new Boolean(false));
+						attrs_stack.top()->set_false("phc.unparser.is_global_stmt");
 				}
 				else if(key == "phc.unparser.is_opeq")
 				{
 					if(buffer == "true")
-						attrs_stack.top()->set("phc.unparser.is_opeq", new Boolean(true));
+						attrs_stack.top()->set_true("phc.unparser.is_opeq");
 					else
-						attrs_stack.top()->set("phc.unparser.is_opeq", new Boolean(false));
+						attrs_stack.top()->set_false("phc.unparser.is_opeq");
 				}
 				else
 				{
