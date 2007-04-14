@@ -17,6 +17,7 @@ public:
 	void children_php_script(AST_php_script* in);
 	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
 	void pre_global(AST_global* in, List<AST_statement*>* out);
+	AST_expr* pre_method_invocation(AST_method_invocation* in);
 
 public:
 	AST_variable* post_variable(AST_variable* in);
@@ -30,7 +31,6 @@ public:
 	AST_expr* post_bool(Token_bool* in);
 	AST_expr* post_string(Token_string* in);
 	AST_expr* post_null(Token_null* in);
-	Token_method_name* post_method_name(Token_method_name* in);
 };
 
 #endif // PHC_SHREDDER_H

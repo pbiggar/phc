@@ -318,14 +318,39 @@ AST_expr* Shredder::post_null(Token_null* in)
  * Since the shredder changes all eval_expr into assignments, it will change
  * echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true function
  * call in PHP, this will generate incorrect PHP code. For that reason, we
- * translate "echo" to "print" here.
+ * translate echo(x) to printf("%s",x) here.
  */
 
-Token_method_name* Shredder::post_method_name(Token_method_name* in)
+AST_expr* Shredder::pre_method_invocation(AST_method_invocation* in)
 {
-	if(*in->value == "echo")
-		return new Token_method_name(new String("print"));
+	Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
+	AST_method_invocation* echo = new AST_method_invocation(
+		new Token_class_name(new String("%STDLIB%")),
+		new Token_method_name(new String("echo")),
+		new List<AST_actual_parameter*>(
+			new AST_actual_parameter(false, arg)
+		));
+	AST_method_invocation* print = new AST_method_invocation(
+		new Token_class_name(new String("%STDLIB%")),
+		new Token_method_name(new String("print")),
+		new List<AST_actual_parameter*>(
+			new AST_actual_parameter(false, arg)
+		));
+
+	if(in->match(echo) || in->match(print))
+	{
+		return new AST_method_invocation(
+			new Token_class_name(new String("%STDLIB%")),
+			new Token_method_name(new String("printf")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(
+					false, 
+					new Token_string(new String("%s"), new String("%s"))),
+				new AST_actual_parameter(
+					false,
+					arg->value)
+			));
+	}
 	else
 		return in;
-
 }

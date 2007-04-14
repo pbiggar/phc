@@ -24,11 +24,24 @@ public:
 	List() : list<_Tp, _Alloc>() {}
 	virtual ~List() {}
 
-// Create a singleton list
+// Create a list with one, two or three elements 
 public:
-	List(_Tp elem) : list<_Tp, _Alloc>()
+	List(_Tp elem1) : list<_Tp, _Alloc>()
 	{
-		push_back(elem);
+		push_back(elem1);
+	}
+
+	List(_Tp elem1, _Tp elem2) : list<_Tp, _Alloc>()
+	{
+		push_back(elem1);
+		push_back(elem2);
+	}
+
+	List(_Tp elem1, _Tp elem2, _Tp elem3) : list<_Tp, _Alloc>()
+	{
+		push_back(elem1);
+		push_back(elem2);
+		push_back(elem3);
 	}
 
 public:
