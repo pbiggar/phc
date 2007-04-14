@@ -37,6 +37,13 @@ class Prep : public AST_visitor
 		if(in->expr != NULL)
 			in->expr->attrs->set_true("phc.shredder.no_temp");
 	}
+
+	void pre_static_declaration(AST_static_declaration* in)
+	{
+		// Do not generate a temp to hold the default value of a static var
+		if(in->expr != NULL)
+			in->expr->attrs->set_true("phc.shredder.no_temp");
+	}
 };
 
 Shredder::Shredder()
@@ -50,7 +57,7 @@ void Shredder::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 	{
 		// All eval_expr must be assignments; if they are not, we generate
 		// a dummy assignment on the LHS
-		in->expr = new AST_assignment(fresh("T"), false, in->expr);
+		in->expr = new AST_assignment(fresh("TS"), false, in->expr);
 	}
 	
 	push_back_pieces(in, out);
@@ -146,7 +153,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL && num_pieces > 0)
 	{
-		AST_variable* temp = fresh("T");
+		AST_variable* temp = fresh("TS");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true,
 			new AST_variable(
@@ -161,7 +168,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	
 	while(num_pieces > 0)
 	{
-		AST_variable* temp = fresh("T");
+		AST_variable* temp = fresh("TS");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true, 
 			new AST_variable(
@@ -218,7 +225,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 	else
 		assert(0);
 
-	AST_variable* one = fresh("T");
+	AST_variable* one = fresh("TS");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
@@ -246,8 +253,8 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 	else
 		assert(0);
 
-	AST_variable* old_value = fresh("T");
-	AST_variable* one = fresh("T");
+	AST_variable* old_value = fresh("TS");
+	AST_variable* one = fresh("TS");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		old_value,
@@ -348,7 +355,7 @@ void Shredder::children_php_script(AST_php_script* in)
 
 AST_variable* Shredder::create_piece(AST_expr* in)
 {
-	AST_variable* temp = fresh("T");
+	AST_variable* temp = fresh("TS");
 	pieces->push_back(new AST_eval_expr(new AST_assignment(temp, false, in)));
 	return temp;
 }
