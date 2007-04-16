@@ -45,3 +45,5 @@ general/for.php						non-interpretable # infinite loops
 general/for_cond_with_comma.php		non-interpretable # infinite loops
 general/instring.php				non-interpretable # php's parser doesnt like this
 general/functions.php				non-interpretable # php gives the dumped content a different error message, which wont be fixed until the unparser work gets done
+
+codegen/switch_no_case.php non-interpretable

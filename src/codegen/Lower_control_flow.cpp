@@ -7,55 +7,8 @@
  */
 
 #include "Lower_control_flow.h"
+#include "fresh.h"
 #include "process_ast/XML_unparser.h"
-
-/* Generate a new unique label */
-AST_label* label ()
-{
-	static int count = 0;
-	stringstream ss;
-	ss << "L" << count;
-	count ++;
-	return new AST_label (new Token_label_name (new String (ss.str ())));
-}
-
-/* Add a comment, generated from DESC and OWNER to NEW */
-#if 0
-void
-add_comment (AST_commented_node* new_node, const char* desc, AST_node* owner)
-{
-	static int comment_number = 0;
-
-	// get a number for the lowered object
-	const char* name = "phc.lowering.number";
-	int number;
-	if (owner->attrs->has (name))
-		number = owner->attrs->get_integer (name)->value ();
-	else
-	{
-		number = comment_number;
-		comment_number ++;
-		owner->attrs->set (name, new Integer (number));
-	}
-
-	stringstream ss;
-	ss << desc << number;
-	String* comment = new String (ss.str ());
-//	new_node->attrs->attrs->set(
-//										 "phc.unparser.comment.after",
-//										 new Boolean(true));
-//	new_node->attrs->set("phc.comments", new List<String*> (comment));
-}
-#endif
-
-/* Return a new list of statements, containing a single statement
- * STATEMENT. */
-List<AST_statement*>* wrap (AST_statement* statement)
-{
-	List<AST_statement*>* result = new List<AST_statement*> ();
-	result->push_back (statement);
-	return result;
-}
 
 /* Convert
  *			if ($x) { y (); }
@@ -80,9 +33,9 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 {
 	// Don't lower them if they're already lowered
 	// TODO this would be easier if there was a new catagory of if
-	AST_label *l1 = label ();
-	AST_label *l2 = label ();
-	AST_label *l3 = label ();
+	AST_label *l1 = fresh_label ();
+	AST_label *l2 = fresh_label ();
+	AST_label *l3 = fresh_label ();
 
 	// create the gotos
 	AST_goto *l1_goto_l3 = new AST_goto (l3->label_name);
@@ -116,9 +69,9 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 void
 Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 {
-	AST_label *l0 = label ();
-	AST_label *l1 = label ();
-	AST_label *l2 = label ();
+	AST_label *l0 = fresh_label ();
+	AST_label *l1 = fresh_label ();
+	AST_label *l2 = fresh_label ();
 	AST_goto *goto_l0 = new AST_goto (l0->label_name);
 
 	// create the if statement
@@ -146,8 +99,8 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 void
 Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 {
-	AST_label* l1 = label ();
-	AST_label* l2 = label ();
+	AST_label* l1 = fresh_label ();
+	AST_label* l2 = fresh_label ();
 
 	// make the if
 	AST_branch* branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
@@ -218,7 +171,13 @@ Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
 /* Switch is a little complicated aswell. In theory, it would be nice to
  * convert this to a jump table in the generated code, but we can't really do
  * that with the C output. We could use GCC extensions, but we probably dont
- * want to go down that road. So we'll convert this to nested if's.
+ * want to go down that road. So we'll convert this to simple if's.
+ *
+ * Note that the blocks always fall-through. We will rely on a break
+ * transform to escape the blocks.
+ *
+ * These need to e separated since the default must be after the last
+ * comparison, but must fall through in the specified order.
  *
  * Convert
  *		switch (expr)
@@ -227,33 +186,85 @@ Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
  *				x1 ();
  *			case expr2:
  *				x2 ();
+ *				break;
  *			...
  *			default exprD:
  *				xD ();
+ *
+ *			case expr3:
+ *				x3 ();
  *		}
  *
  *	into
  *		val = expr;
- *		if (expr == expr1) goto L1
- *		else if (expr == expr2) goto L2
- *		...
- *		else goto
- * TODO finish this
- *			
+ *		if (expr == expr1) goto L1;
+ *		if (expr == expr2) goto L2;
+ *		if (expr == expr3) goto L3;
+ *		goto LD;
+ *	L1:
+ *		x1 ();
+ *		goto L2;
+ *	L2:
+ *		x2 ();
+ *		break; // to become goto LE
+ *		goto LD;
+ *	LD:
+ *		xD ();
+ *		goto L3;
+ *	L3:
+ *		x3 ();
+ *		goto LE:
+ *	LE:
+ *
  */	
 void 
 Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
 {
-	out->push_back (in);
+	// val = expr;
+	AST_variable *lhs = fresh_var ("TL");
+	AST_assignment* assign = new AST_assignment (lhs, false, in->expr);
+	out->push_back (new AST_eval_expr (assign));
+
+	List<AST_statement*> *branches = new List<AST_statement*> ();
+	List<AST_statement*> *blocks = new List<AST_statement*> ();
+
+	List<AST_switch_case*> *cases = in->switch_cases;
+	List<AST_switch_case*>::const_iterator i;
+
+	// we need to know the header of the next block ahead of time
+	AST_label* next_block_header = fresh_label ();
+	AST_goto* _default = NULL;
+	for (i = cases->begin (); i != cases->end (); i++)
+	{
+		AST_label* header = next_block_header;
+		next_block_header = fresh_label ();
+
+		if ((*i)->expr == NULL) // default
+		{
+			assert (_default == NULL);
+			_default = new AST_goto (header->label_name);
+		}
+		else
+		{
+			// make the comparison
+			Token_op* op = new Token_op (new String ("=="));
+			AST_expr* compare = new AST_bin_op (lhs->clone (), op, (*i)->expr);
+			AST_branch* branch = new AST_branch (compare, header->label_name, NULL);
+			branches->push_back (branch);
+		}
+
+		blocks->push_back (header);
+		blocks->push_back_all ((*i)->statements);
+		blocks->push_back (new AST_goto (next_block_header->label_name)); // fallthrough
+	}
+	blocks->push_back (next_block_header);
+
+	if (_default) 
+		branches->push_back (_default);
+
+	out->push_back_all (branches);
+	out->push_back_all (blocks);
 }
-
-
-void 
-Lower_control_flow::post_switch_case(AST_switch_case* in, List<AST_switch_case*>* out)
-{
-	out->push_back (in);
-}
-
 
 void 
 Lower_control_flow::post_break(AST_break* in, List<AST_statement*>* out)

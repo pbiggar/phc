@@ -20,7 +20,6 @@ class Lower_control_flow : public AST_transform
 		void post_foreach(AST_foreach* in, List<AST_statement*>* out);
 		void post_if(AST_if* in, List<AST_statement*>* out);
 		void post_switch(AST_switch* in, List<AST_statement*>* out);
-		void post_switch_case(AST_switch_case* in, List<AST_switch_case*>* out);
 		void post_break(AST_break* in, List<AST_statement*>* out);
 		void post_continue(AST_continue* in, List<AST_statement*>* out);
 		void post_try(AST_try* in, List<AST_statement*>* out);

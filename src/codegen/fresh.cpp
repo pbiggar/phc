@@ -25,3 +25,12 @@ AST_variable* fresh_var(string prefix)
 		new List<AST_expr*>
 		);
 }
+
+AST_label* fresh_label ()
+{
+	return new AST_label (
+		new Token_label_name (fresh("L")));
+}
+
+
+
