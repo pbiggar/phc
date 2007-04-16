@@ -3,11 +3,11 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Test an unparsed script interprets the same as the original after lowering 
- * using php command line.
+ * Test an unparsed script interprets the same as the original after running
+ * the obfuscator, and the shredder, using php command line.
  */
-array_push($tests, new InterpretLowered ());
-class InterpretLowered extends TwoCommandTest
+array_push($tests, new InterpretObfuscated ());
+class InterpretObfuscated extends TwoCommandTest
 {
 	function get_test_subjects ()
 	{
@@ -30,7 +30,7 @@ class InterpretLowered extends TwoCommandTest
 	{
 		global $phc, $php;
 		$dir_name = dirname($subject);
-		return "$phc --run-lowering --dump-php $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
+		return "$phc --run-shredder --obfuscate --dump-php $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
 	}
 
 	function homogenize_output ($string)

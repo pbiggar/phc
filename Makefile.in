@@ -89,10 +89,6 @@ plugins_tests_cloning_la_LIBADD =
 am_plugins_tests_cloning_la_OBJECTS = cloning.lo
 plugins_tests_cloning_la_OBJECTS =  \
 	$(am_plugins_tests_cloning_la_OBJECTS)
-plugins_tests_goto_uppering_la_LIBADD =
-am_plugins_tests_goto_uppering_la_OBJECTS = goto_uppering.lo
-plugins_tests_goto_uppering_la_OBJECTS =  \
-	$(am_plugins_tests_goto_uppering_la_OBJECTS)
 plugins_tests_line_numbers_la_LIBADD =
 am_plugins_tests_line_numbers_la_OBJECTS = line_numbers.lo
 plugins_tests_line_numbers_la_OBJECTS =  \
@@ -152,19 +148,19 @@ plugins_tutorials_show_traversal_order_la_OBJECTS =  \
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
-	Generate_C.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Lower_expr.$(OBJEXT) Lower_expr_flow.$(OBJEXT) \
-	Shredder.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
-	fresh.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
-	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
-	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
-	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
-	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
-	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
-	DOT_unparser.$(OBJEXT) Invocation_targets.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) process_ast.$(OBJEXT) \
-	Remove_concat_null.$(OBJEXT) \
+	Generate_C.$(OBJEXT) Goto_uppering.$(OBJEXT) \
+	Lower_control_flow.$(OBJEXT) Lower_expr.$(OBJEXT) \
+	Lower_expr_flow.$(OBJEXT) Shredder.$(OBJEXT) \
+	Lift_functions_and_classes.$(OBJEXT) fresh.$(OBJEXT) \
+	AST.$(OBJEXT) cmdline.$(OBJEXT) lex.yy.$(OBJEXT) \
+	php_parser.tab.$(OBJEXT) AST_transform.$(OBJEXT) \
+	AST_visitor.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
+	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
+	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
+	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
+	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) \
+	Invocation_targets.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	process_ast.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Variable_targets.$(OBJEXT) XML_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT)
@@ -194,7 +190,6 @@ CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
-	$(plugins_tests_goto_uppering_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
@@ -211,7 +206,6 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(src_phc_SOURCES)
 DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
-	$(plugins_tests_goto_uppering_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
@@ -403,6 +397,8 @@ src_phc_SOURCES = \
 	3rdparty/getopt/getopt.h								\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/Goto_uppering.cpp							\
+	src/codegen/Goto_uppering.h							\
 	src/codegen/Lower_control_flow.cpp						\
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Lower_expr.cpp								\
@@ -541,8 +537,8 @@ strangelib_HEADERS = \
 #plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
 #plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
-	plugins/tests/goto_uppering.la plugins/tests/cloning.la \
-	plugins/tests/linear.la plugins/tests/line_numbers.la \
+	plugins/tests/cloning.la plugins/tests/linear.la \
+	plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
@@ -555,8 +551,6 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 PLUGIN_LDFLAGS = -module -avoid-version
 plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.cpp
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_goto_uppering_la_SOURCES = plugins/tests/goto_uppering.cpp
-plugins_tests_goto_uppering_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp
@@ -692,8 +686,6 @@ plugins/tests/canonical_unparser.la: $(plugins_tests_canonical_unparser_la_OBJEC
 	$(CXXLINK) -rpath $(pkglibdir) $(plugins_tests_canonical_unparser_la_LDFLAGS) $(plugins_tests_canonical_unparser_la_OBJECTS) $(plugins_tests_canonical_unparser_la_LIBADD) $(LIBS)
 plugins/tests/cloning.la: $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(CXXLINK) -rpath $(pkglibdir) $(plugins_tests_cloning_la_LDFLAGS) $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_LIBADD) $(LIBS)
-plugins/tests/goto_uppering.la: $(plugins_tests_goto_uppering_la_OBJECTS) $(plugins_tests_goto_uppering_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
-	$(CXXLINK) -rpath $(pkglibdir) $(plugins_tests_goto_uppering_la_LDFLAGS) $(plugins_tests_goto_uppering_la_OBJECTS) $(plugins_tests_goto_uppering_la_LIBADD) $(LIBS)
 plugins/tests/line_numbers.la: $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(CXXLINK) -rpath $(pkglibdir) $(plugins_tests_line_numbers_la_LDFLAGS) $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_LIBADD) $(LIBS)
 plugins/tests/linear.la: $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -813,6 +805,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invocation_targets.Po@am__quote@
@@ -844,7 +837,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/goto_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.yy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line_numbers.Plo@am__quote@
@@ -957,13 +949,6 @@ cloning.lo: plugins/tests/cloning.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cloning.lo `test -f 'plugins/tests/cloning.cpp' || echo '$(srcdir)/'`plugins/tests/cloning.cpp
 
-goto_uppering.lo: plugins/tests/goto_uppering.cpp
-@am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT goto_uppering.lo -MD -MP -MF "$(DEPDIR)/goto_uppering.Tpo" -c -o goto_uppering.lo `test -f 'plugins/tests/goto_uppering.cpp' || echo '$(srcdir)/'`plugins/tests/goto_uppering.cpp; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/goto_uppering.Tpo" "$(DEPDIR)/goto_uppering.Plo"; else rm -f "$(DEPDIR)/goto_uppering.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/goto_uppering.cpp' object='goto_uppering.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o goto_uppering.lo `test -f 'plugins/tests/goto_uppering.cpp' || echo '$(srcdir)/'`plugins/tests/goto_uppering.cpp
-
 line_numbers.lo: plugins/tests/line_numbers.cpp
 @am__fastdepCXX_TRUE@	if $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT line_numbers.lo -MD -MP -MF "$(DEPDIR)/line_numbers.Tpo" -c -o line_numbers.lo `test -f 'plugins/tests/line_numbers.cpp' || echo '$(srcdir)/'`plugins/tests/line_numbers.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/line_numbers.Tpo" "$(DEPDIR)/line_numbers.Plo"; else rm -f "$(DEPDIR)/line_numbers.Tpo"; exit 1; fi
@@ -1068,6 +1053,20 @@ Generate_C.obj: src/codegen/Generate_C.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Generate_C.cpp' object='Generate_C.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Generate_C.obj `if test -f 'src/codegen/Generate_C.cpp'; then $(CYGPATH_W) 'src/codegen/Generate_C.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Generate_C.cpp'; fi`
+
+Goto_uppering.o: src/codegen/Goto_uppering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Goto_uppering.o -MD -MP -MF "$(DEPDIR)/Goto_uppering.Tpo" -c -o Goto_uppering.o `test -f 'src/codegen/Goto_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Goto_uppering.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Goto_uppering.Tpo" "$(DEPDIR)/Goto_uppering.Po"; else rm -f "$(DEPDIR)/Goto_uppering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Goto_uppering.cpp' object='Goto_uppering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Goto_uppering.o `test -f 'src/codegen/Goto_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Goto_uppering.cpp
+
+Goto_uppering.obj: src/codegen/Goto_uppering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Goto_uppering.obj -MD -MP -MF "$(DEPDIR)/Goto_uppering.Tpo" -c -o Goto_uppering.obj `if test -f 'src/codegen/Goto_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Goto_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Goto_uppering.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Goto_uppering.Tpo" "$(DEPDIR)/Goto_uppering.Po"; else rm -f "$(DEPDIR)/Goto_uppering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Goto_uppering.cpp' object='Goto_uppering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Goto_uppering.obj `if test -f 'src/codegen/Goto_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Goto_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Goto_uppering.cpp'; fi`
 
 Lower_control_flow.o: src/codegen/Lower_control_flow.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_control_flow.o -MD -MP -MF "$(DEPDIR)/Lower_control_flow.Tpo" -c -o Lower_control_flow.o `test -f 'src/codegen/Lower_control_flow.cpp' || echo '$(srcdir)/'`src/codegen/Lower_control_flow.cpp; \

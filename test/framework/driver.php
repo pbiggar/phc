@@ -49,6 +49,7 @@ require_once ("interpret_canonical_unparsed.php");
 require_once ("interpret_unparsed.php");
 require_once ("interpret_lowered.php");
 require_once ("interpret_shredded.php");
+require_once ("interpret_obfuscated.php");
 require_once ("compiled_vs_interpreted.php");
 array_push ($tests, new PluginTest ("cloning"));
 array_push ($tests, new PluginTest ("linear"));

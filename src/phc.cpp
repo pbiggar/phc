@@ -20,6 +20,7 @@
 #include "codegen/Lower_control_flow.h"
 #include "codegen/Lower_expr_flow.h"
 #include "codegen/Shredder.h"
+#include "codegen/Goto_uppering.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
@@ -92,13 +93,17 @@ int main(int argc, char** argv)
 	{
 		process_ast(php_script);
 
+		// lift
 		if(args_info.run_lifting_flag)
 		{
 			Lift_functions_and_classes lift;
 			php_script->transform_children(&lift);
 		}
 
-		if(args_info.run_lowering_flag)
+		// lower
+		if (args_info.run_lowering_flag 
+				|| args_info.run_shredder_flag
+				|| args_info.obfuscate_flag)
 		{
 			Lower_control_flow lcf;
 			Lower_expr_flow lef;
@@ -106,14 +111,21 @@ int main(int argc, char** argv)
 			php_script->transform_children (&lef);
 		}
 
-		if(args_info.run_shredder_flag)
+		// shred
+		if(args_info.run_shredder_flag
+				|| args_info.obfuscate_flag)
 		{
-			Lower_control_flow lcf;
-			Lower_expr_flow lef;
 			Shredder s;
-			php_script->transform_children(&lcf);
-			php_script->transform_children(&lef);
 			php_script->transform_children(&s);
+		}
+
+		// upper
+		if(args_info.run_lowering_flag
+				|| args_info.run_shredder_flag
+				|| args_info.obfuscate_flag)
+		{
+			Goto_uppering gu;
+			php_script->visit (&gu);
 		}
 
 		run_plugins(php_script);

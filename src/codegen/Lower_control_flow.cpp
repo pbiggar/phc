@@ -10,6 +10,8 @@
 #include "fresh.h"
 #include "process_ast/XML_unparser.h"
 
+// TODO if obfuscate is set, we should randomly rearrange the basic blocks
+
 /* Convert
  *			if ($x) { y (); }
  *			else { z (); }
@@ -197,9 +199,12 @@ Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
  *
  *	into
  *		val = expr;
- *		if (expr == expr1) goto L1;
- *		if (expr == expr2) goto L2;
- *		if (expr == expr3) goto L3;
+ *		if (expr == expr1) goto L1; else goto N1;
+ *	N1:
+ *		if (expr == expr2) goto L2; else goto N2;
+ *	N2:
+ *		if (expr == expr3) goto L3; else goto N3;
+ *	N3:
  *		goto LD;
  *	L1:
  *		x1 ();
@@ -246,11 +251,17 @@ Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
 		}
 		else
 		{
+			// the else branch just goes to the next line. We dont allow NULL else
+			// statements (perhaps we should?).
+			AST_label* next = fresh_label ();
+
 			// make the comparison
 			Token_op* op = new Token_op (new String ("=="));
 			AST_expr* compare = new AST_bin_op (lhs->clone (), op, (*i)->expr);
-			AST_branch* branch = new AST_branch (compare, header->label_name, NULL);
+			AST_branch* branch = new AST_branch (compare, header->label_name, next->label_name);
+
 			branches->push_back (branch);
+			branches->push_back (next);
 		}
 
 		blocks->push_back (header);

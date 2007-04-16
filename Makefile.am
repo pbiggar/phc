@@ -44,6 +44,8 @@ src_phc_SOURCES =											\
 	3rdparty/getopt/getopt.h								\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
+	src/codegen/Goto_uppering.cpp							\
+	src/codegen/Goto_uppering.h							\
 	src/codegen/Lower_control_flow.cpp						\
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Lower_expr.cpp								\
@@ -172,10 +174,6 @@ PLUGIN_LDFLAGS = -module -avoid-version
 nobase_pkglib_LTLIBRARIES += plugins/tests/canonical_unparser.la
 plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.cpp
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tests/goto_uppering.la
-plugins_tests_goto_uppering_la_SOURCES = plugins/tests/goto_uppering.cpp
-plugins_tests_goto_uppering_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp
