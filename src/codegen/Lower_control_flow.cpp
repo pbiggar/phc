@@ -6,11 +6,75 @@
  * gotos, and add necessary labels.
  */
 
+/* We increase the depth for any statement which works with break and continue.
+ * We decrease it on the way back up. The labels are created by post_break,
+ * stored in the labels stack, and used as necessary. */
+
 #include "Lower_control_flow.h"
 #include "fresh.h"
+#include <sstream>
 #include "process_ast/XML_unparser.h"
 
 // TODO if obfuscate is set, we should randomly rearrange the basic blocks
+
+#define BREAK_ATTR "phc.codegen.break_label"
+#define CONTINUE_ATTR "phc.codegen.continue_label"
+template <class T>
+const char* get_attr_name ()
+{
+	if (T::ID == AST_break::ID) return BREAK_ATTR;
+	if (T::ID == AST_continue::ID) return CONTINUE_ATTR;
+	return NULL;
+}
+
+
+template<class T> 
+void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement*> *out)
+{
+	assert (break_levels.back () == in);
+	assert (continue_levels.back () == in);
+
+	// Not a great way to do this, sorry.
+	const char* attr_name = get_attr_name<T> ();
+	if (!in->attrs->has (attr_name))
+		return;
+
+	AST_label* label = dynamic_cast<AST_label*> (in->attrs->get (attr_name));
+	assert (label != NULL);
+	out->push_back (label);
+}
+
+// Returns true if IN is a Toekn_int with a value of VALUE.
+bool is_int (AST_expr* in, int value)
+{
+	Token_int* _int = dynamic_cast<Token_int*> (in);
+	return _int && _int->value == value;
+}
+
+String* string_for_int (int i)
+{
+	stringstream ss;
+	ss << i;
+	return new String (ss.str ());
+}
+
+// Get IN's exit label, or create one for it, and return it.
+template <class T>
+AST_label* Lower_control_flow::exit_label (AST_node* in)
+{
+	const char* attr_name = get_attr_name <T> ();
+	if (in->attrs->has (attr_name))
+	{
+		AST_label *label = dynamic_cast <AST_label*> (in->attrs->get (attr_name));
+		assert (label);
+		return label;
+	}
+
+	AST_label *label = fresh_label ();
+	in->attrs->set (attr_name, label);
+	return label;
+}
+
 
 /* Convert
  *			if ($x) { y (); }
@@ -31,10 +95,9 @@
  * readable and understandable, as it keeps the structure of the original
  * if-else statement. */
 void
-Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
+lower_if(AST_if* in, List<AST_statement*>* out)
 {
 	// Don't lower them if they're already lowered
-	// TODO this would be easier if there was a new catagory of if
 	AST_label *l1 = fresh_label ();
 	AST_label *l2 = fresh_label ();
 	AST_label *l3 = fresh_label ();
@@ -57,6 +120,12 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
 	out->push_back (l3);
 }
 
+void
+Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
+{
+	lower_if (in, out);
+}
+
 /* Convert
  *			while ($x) { y (); }
  * into
@@ -68,8 +137,8 @@ Lower_control_flow::post_if(AST_if* in, List<AST_statement*>* out)
  *			goto L0
  *		L2:
  */
-void
-Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
+
+void lower_while (AST_while* in, List<AST_statement*>* out)
 {
 	AST_label *l0 = fresh_label ();
 	AST_label *l1 = fresh_label ();
@@ -88,6 +157,16 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 	out->push_back (l2);
 }
 
+void
+Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
+{
+	potentially_add_label<AST_continue> (in, out);
+	lower_while (in, out);
+	potentially_add_label<AST_break> (in, out);
+	break_levels.pop_back ();
+	continue_levels.pop_back ();
+}
+
 /* Convert
  *		do { y (); } 
  *		while ($x)
@@ -99,7 +178,7 @@ Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
  *		L2:
  */
 void
-Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
+lower_do (AST_do* in, List<AST_statement*>* out)
 {
 	AST_label* l1 = fresh_label ();
 	AST_label* l2 = fresh_label ();
@@ -112,6 +191,15 @@ Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 	out->push_back_all (in->statements);
 	out->push_back (branch);
 	out->push_back (l2);
+}
+
+void Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
+{
+	potentially_add_label<AST_continue> (in, out);
+	lower_do (in, out);
+	potentially_add_label<AST_break> (in, out);
+	break_levels.pop_back ();
+	continue_levels.pop_back ();
 }
 
 /* Convert
@@ -134,23 +222,35 @@ Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
  *				i++;
  *			}
  *	which is then lowered by post_while. */
+
 void
-Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
+Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 {
 	// these are expressions, which arent statements, so they need to be wrapped
 	AST_statement* init = new AST_eval_expr (in->init);
 	AST_statement* incr = new AST_eval_expr (in->incr);
 
-	if (in->cond == NULL) in->cond = new Token_null (new String ("null"));
+	if (in->cond == NULL) 
+		in->cond = new Token_bool (true, new String ("true"));
 
 	// create the while
 	AST_while *while_stmt = new AST_while (in->cond, in->statements);
+
+	// A continue in a for loop lands just before the increment
+	potentially_add_label<AST_continue> (in, while_stmt->statements);
 	while_stmt->statements->push_back (incr);
-	List<AST_statement*> *lowered_while = transform_statement (while_stmt);
 
 	// push it all back
 	out->push_back (init);
-	out->push_back_all (lowered_while);
+	lower_while (while_stmt, out);
+}
+void
+Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
+{
+	lower_for (in, out);
+	potentially_add_label<AST_break> (in, out);
+	break_levels.pop_back ();
+	continue_levels.pop_back ();
 }
 
 /* Foreach looks complicated. Theoretically, you could replace it with
@@ -167,7 +267,11 @@ Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
 void 
 Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
 {
+	potentially_add_label<AST_continue> (in, out);
 	out->push_back (in);
+	potentially_add_label<AST_break> (in, out);
+	break_levels.pop_back ();
+	continue_levels.pop_back ();
 }
 
 /* Switch is a little complicated aswell. In theory, it would be nice to
@@ -221,9 +325,10 @@ Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
  *		goto LE:
  *	LE:
  *
- */	
+ */
+
 void 
-Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
+lower_switch(AST_switch* in, List<AST_statement*>* out)
 {
 	// val = expr;
 	AST_variable *lhs = fresh_var ("TL");
@@ -272,41 +377,167 @@ Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
 
 	if (_default) 
 		branches->push_back (_default);
+	else // if default is blank jump to the end
+		branches->push_back (new AST_goto (next_block_header->label_name));
 
 	out->push_back_all (branches);
 	out->push_back_all (blocks);
 }
 
 void 
-Lower_control_flow::post_break(AST_break* in, List<AST_statement*>* out)
+Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
 {
-	out->push_back (in);
+	lower_switch (in, out);
+	// A continue is the same as a break, so add the label at the same place
+	potentially_add_label<AST_continue> (in, out);
+	potentially_add_label<AST_break> (in, out);
+	break_levels.pop_back ();
+	continue_levels.pop_back ();
+}
+
+/* Transform:
+ *		break $x;
+ *	into:
+ *		$TB1 = $x;
+ *		if ($TB1 = 1) goto L1; else goto L2;
+ *	L2:
+ *		if ($TB1 = 2) goto L3; else goto L4;
+ *	L4:
+ *		if ($TB1 = 3) goto L5; else goto L6;
+ *	L6:
+ *		if ($TB1 = 4) goto L7; else goto L8;
+ *	L8:
+ *
+ *	where L(2n) is the label at the end of the nth inner loop construct
+ */
+void 
+Lower_control_flow::post_break (AST_break* in, List<AST_statement*>* out)
+{
+	lower_exit<AST_break> (in, out);
+}
+void 
+Lower_control_flow::post_continue (AST_continue* in, List<AST_statement*>* out)
+{
+	lower_exit<AST_continue> (in, out);
+}
+
+template <class T>
+void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
+{
+	/* If this break has a NULL expression, it's much easier (and gives more
+	 * readable output) if we special case it. Also, break 0 is the same as
+	 * break 1, which is the same as just break. Its easier to handle it all
+	 * together. */
+	List<AST_node*> *levels; // It gets uglier
+	if (AST_break::ID == in->ID) levels = &break_levels;
+	if (AST_continue::ID == in->ID) levels = &continue_levels;
+	assert (levels);
+
+	// TODO: matching doesnt seem to work here
+	if (in->expr == NULL || is_int (in->expr, 0) || is_int (in->expr, 1))
+	{
+		// Create a label, pushback a goto to it, and attach it as an attribute
+		// of the innermost looping construct.
+		AST_node* level = levels->back ();
+
+		AST_label *target = exit_label<T> (level);
+		AST_goto *exit = new AST_goto (target->label_name);
+		out->push_back (exit);
+		return;
+	}
+
+	// Otherwise we create a label and a goto for each possible loop, and attach
+	// the label it the loop.
+	
+	// Since we compare to the expression, we need to create a variable for it.
+	AST_variable *lhs = fresh_var ("TB");
+	AST_assignment* assign = new AST_assignment (lhs, false, in->expr);
+	out->push_back (new AST_eval_expr (assign));
+
+	// 1 branch and label per level:
+	//		if ($TB1 = 1) goto L1; else goto L2;
+	//	L2:
+	List<AST_node*>::reverse_iterator i;
+	unsigned int depth = 1;
+	for (i = levels->rbegin (); i != levels->rend (); i++)
+	{
+		// FYI: Objects/strings evaluate to 0
+		AST_node* level = (*i);
+
+		// Attach the break target to the loop construct.
+		AST_label* iftrue = exit_label<T> (level);
+
+		// Create: if ($TB1 == depth)
+		Token_op* op = new Token_op (new String ("=="));
+		Token_int* branch_num = new Token_int (depth, string_for_int (depth));
+		AST_expr* compare = new AST_bin_op (lhs->clone (), op, branch_num);
+
+		// Zero is the same as one, so check for it too
+		if (depth == 1)
+		{
+			// Turn ($TB == 1) into ($TB == 0 || $TB == 1)
+			Token_op* eq_op = new Token_op (new String ("=="));
+			Token_int* zero = new Token_int (0, new String ("0"));
+			AST_expr* zero_comp = new AST_bin_op (lhs->clone (), eq_op, zero);
+
+			Token_op* or_op = new Token_op (new String ("||"));
+			compare = new AST_bin_op (compare, or_op, zero_comp);
+		}
+
+		AST_label* iffalse = fresh_label ();
+		AST_branch* branch = new AST_branch (compare, iftrue->label_name, iffalse->label_name);
+
+		out->push_back (branch);
+		out->push_back (iffalse);
+		depth ++;
+	}
+	assert (depth == break_levels.size () + 1);
+
+	// Add a failure condition if the user tries to break too far
+	// TODO: Not exactly what we'd expect, but a decent first attempt
+	AST_method_name* name = new Token_method_name (new String ("die"));
+	List<AST_actual_parameter*> *params = new List<AST_actual_parameter*> ();
+	String* error_string = 
+		new String ("Fatal error: Too many break/continue levels");
+	AST_actual_parameter* param = 
+		new AST_actual_parameter (false, new Token_string (error_string, error_string));
+	params->push_back (param);
+	Token_class_name *stdlib = new Token_class_name (new String ("%STDLIB%"));
+	out->push_back (new AST_eval_expr (new AST_method_invocation (stdlib, name, params)));
 }
 
 
-void 
-Lower_control_flow::post_continue(AST_continue* in, List<AST_statement*>* out)
+void Lower_control_flow::pre_while(AST_while* in, List<AST_statement*>* out)
 {
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
 	out->push_back (in);
 }
 
-
-void 
-Lower_control_flow::post_try(AST_try* in, List<AST_statement*>* out)
+void Lower_control_flow::pre_do(AST_do* in, List<AST_statement*>* out)
 {
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
 	out->push_back (in);
 }
 
-
-void 
-Lower_control_flow::post_catch(AST_catch* in, List<AST_catch*>* out)
+void Lower_control_flow::pre_for(AST_for* in, List<AST_statement*>* out)
 {
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
 	out->push_back (in);
 }
 
-
-void 
-Lower_control_flow::post_throw(AST_throw* in, List<AST_statement*>* out)
+void Lower_control_flow::pre_foreach(AST_foreach* in, List<AST_statement*>* out)
 {
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
+	out->push_back (in);
+}
+
+void Lower_control_flow::pre_switch(AST_switch* in, List<AST_statement*>* out)
+{
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
 	out->push_back (in);
 }
