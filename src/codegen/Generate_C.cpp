@@ -563,10 +563,9 @@ void Generate_C::children_statement(AST_statement* in)
 
 	if(not matched)
 	{
-		PHP_unparser pup;
-		cout << "/* could not generate code for ";
+		PHP_unparser pup(cerr);
+		cerr << "could not generate code for ";
 		in->visit(&pup);
-		cout << "*/\n";
 	}
 }
 
