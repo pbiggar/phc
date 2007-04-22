@@ -73,17 +73,13 @@ node_15 -> node_20;
 node_15 -> node_16;
 node_36 [label="AST_eval_expr (13)"];
 node_37 [label="AST_method_invocation (13)"];
-node_38 [label="Token_class_name"];
-node_39 [label="%STDLIB%", shape=box]
+node_38 [label="Token_method_name"];
+node_39 [label="foo", shape=box]
 node_38 -> node_39;
-node_40 [label="Token_method_name"];
-node_41 [label="foo", shape=box]
-node_40 -> node_41;
-node_37 -> node_40;
 node_37 -> node_38;
 node_36 -> node_37;
-node_42 [label="AST_nop (15)"];
-node_0 -> node_42;
+node_40 [label="AST_nop (15)"];
+node_0 -> node_40;
 node_0 -> node_36;
 node_0 -> node_15;
 node_0 -> node_8;

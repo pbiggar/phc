@@ -612,7 +612,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"\n"
 		"    zval retval;\n"
 		"\n"
-		"    // call %MAIN%::run\n"
+		"    // call __MAIN__\n"
 		"    int success = call_user_function( \n"
 		"				     EG (function_table),\n"
 		"				     NULL,\n"
@@ -925,7 +925,7 @@ void Generate_C::post_method_invocation(AST_method_invocation* in)
 	Wildcard<AST_expr>* eval_arg = new Wildcard<AST_expr>;
 
 	pattern = new AST_method_invocation(
-		new Token_class_name(new String("%STDLIB%")),
+		NULL,	
 		new Token_method_name(new String("eval")),
 		new List<AST_actual_parameter*>(
 			new AST_actual_parameter(false, eval_arg)
@@ -1580,7 +1580,7 @@ void Generate_C::driver()
 	"\n"
 	"    zval retval;\n"
 	"\n"
-	"    // call %MAIN%::run\n"
+	"    // call __MAIN__\n"
 	"    int success = call_user_function( \n"
 	"				     EG (function_table),\n"
 	"				     NULL,\n"

@@ -1657,7 +1657,7 @@ public:
     virtual AST_ignore_errors* clone();
 };
 
-// constant ::= CLASS_NAME CONSTANT_NAME ;
+// constant ::= CLASS_NAME? CONSTANT_NAME ;
 class AST_constant : virtual public AST_expr
 {
 public:
@@ -1677,8 +1677,6 @@ public:
     virtual bool match(AST_node* in);
 public:
     virtual bool equals(AST_node* in);
-public:
-    AST_constant(char* class_name, Token_constant_name* constant_name);
 public:
     virtual AST_constant* clone();
 };
@@ -1810,7 +1808,7 @@ public:
     virtual AST_array* clone();
 };
 
-// method_invocation ::= target method_name actual_parameter* ;
+// method_invocation ::= target? method_name actual_parameter* ;
 class AST_method_invocation : virtual public AST_expr
 {
 public:

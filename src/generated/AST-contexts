@@ -51,7 +51,7 @@
 (static_declaration,statement,*)
 (switch,statement,*)
 (switch_case,switch_case,*)
-(target,target,)
+(target,target,?)
 (throw,statement,*)
 (try,statement,*)
 (type,type,)

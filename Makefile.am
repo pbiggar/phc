@@ -95,8 +95,6 @@ src_phc_SOURCES =											\
 	src/phc.cpp												\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h							\
-	src/process_ast/Invocation_targets.cpp					\
-	src/process_ast/Invocation_targets.h					\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h							\
 	src/process_ast/process_ast.cpp							\
@@ -107,8 +105,6 @@ src_phc_SOURCES =											\
 	src/process_ast/Remove_parser_temporaries.h				\
 	src/process_ast/Token_conversion.cpp					\
 	src/process_ast/Token_conversion.h						\
-	src/process_ast/Variable_targets.cpp					\
-	src/process_ast/Variable_targets.h						\
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h							\
 	src/process_ast/Process_includes.cpp					\

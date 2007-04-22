@@ -92,63 +92,51 @@ node_8 -> node_17;
 node_8 -> node_9;
 node_45 [label="AST_eval_expr (15)"];
 node_46 [label="AST_method_invocation (15)"];
-node_47 [label="Token_class_name"];
-node_48 [label="%STDLIB%", shape=box]
+node_47 [label="Token_method_name"];
+node_48 [label="var_dump", shape=box]
 node_47 -> node_48;
-node_49 [label="Token_method_name"];
-node_50 [label="var_dump", shape=box]
-node_49 -> node_50;
-node_51 [label="AST_actual_parameter (15)"];
-node_52 [label="AST_variable (15)"];
-node_53 [label="Token_variable_name"];
-node_54 [label="x", shape=box]
-node_53 -> node_54;
-node_52 -> node_53;
+node_49 [label="AST_actual_parameter (15)"];
+node_50 [label="AST_variable (15)"];
+node_51 [label="Token_variable_name"];
+node_52 [label="x", shape=box]
 node_51 -> node_52;
-node_46 -> node_51;
+node_50 -> node_51;
+node_49 -> node_50;
 node_46 -> node_49;
 node_46 -> node_47;
 node_45 -> node_46;
-node_55 [label="AST_eval_expr (16)"];
-node_56 [label="AST_method_invocation (16)"];
-node_57 [label="Token_class_name"];
-node_58 [label="%STDLIB%", shape=box]
-node_57 -> node_58;
-node_59 [label="Token_method_name"];
-node_60 [label="var_dump", shape=box]
-node_59 -> node_60;
-node_61 [label="AST_actual_parameter (16)"];
-node_62 [label="AST_variable (16)"];
-node_63 [label="Token_variable_name"];
-node_64 [label="y", shape=box]
-node_63 -> node_64;
-node_62 -> node_63;
-node_61 -> node_62;
-node_56 -> node_61;
-node_56 -> node_59;
-node_56 -> node_57;
+node_53 [label="AST_eval_expr (16)"];
+node_54 [label="AST_method_invocation (16)"];
+node_55 [label="Token_method_name"];
+node_56 [label="var_dump", shape=box]
 node_55 -> node_56;
-node_65 [label="AST_eval_expr (17)"];
-node_66 [label="AST_method_invocation (17)"];
-node_67 [label="Token_class_name"];
-node_68 [label="%STDLIB%", shape=box]
+node_57 [label="AST_actual_parameter (16)"];
+node_58 [label="AST_variable (16)"];
+node_59 [label="Token_variable_name"];
+node_60 [label="y", shape=box]
+node_59 -> node_60;
+node_58 -> node_59;
+node_57 -> node_58;
+node_54 -> node_57;
+node_54 -> node_55;
+node_53 -> node_54;
+node_61 [label="AST_eval_expr (17)"];
+node_62 [label="AST_method_invocation (17)"];
+node_63 [label="Token_method_name"];
+node_64 [label="var_dump", shape=box]
+node_63 -> node_64;
+node_65 [label="AST_actual_parameter (17)"];
+node_66 [label="AST_variable (17)"];
+node_67 [label="Token_variable_name"];
+node_68 [label="z", shape=box]
 node_67 -> node_68;
-node_69 [label="Token_method_name"];
-node_70 [label="var_dump", shape=box]
-node_69 -> node_70;
-node_71 [label="AST_actual_parameter (17)"];
-node_72 [label="AST_variable (17)"];
-node_73 [label="Token_variable_name"];
-node_74 [label="z", shape=box]
-node_73 -> node_74;
-node_72 -> node_73;
-node_71 -> node_72;
-node_66 -> node_71;
-node_66 -> node_69;
 node_66 -> node_67;
 node_65 -> node_66;
-node_0 -> node_65;
-node_0 -> node_55;
+node_62 -> node_65;
+node_62 -> node_63;
+node_61 -> node_62;
+node_0 -> node_61;
+node_0 -> node_53;
 node_0 -> node_45;
 node_0 -> node_8;
 node_0 -> node_1;

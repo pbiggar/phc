@@ -3,13 +3,7 @@
    echo $f;
    $f = 8;
    echo $f;
-   
-   echo $f;
-   
-   $f = 26;
-   
-   echo $f;
-   
+   include "included_recursive3.php";
    echo $f;
    
 ?>

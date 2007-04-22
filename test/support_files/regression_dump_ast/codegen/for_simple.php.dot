@@ -56,30 +56,26 @@ node_16 -> node_20;
 node_16 -> node_17;
 node_28 [label="AST_eval_expr (4)"];
 node_29 [label="AST_method_invocation (4)"];
-node_30 [label="Token_class_name"];
-node_31 [label="%STDLIB%", shape=box]
+node_30 [label="Token_method_name"];
+node_31 [label="echo", shape=box]
 node_30 -> node_31;
-node_32 [label="Token_method_name"];
-node_33 [label="echo", shape=box]
-node_32 -> node_33;
-node_34 [label="AST_actual_parameter"];
-node_35 [label="AST_bin_op (4)"];
-node_36 [label="AST_variable (4)"];
-node_37 [label="Token_variable_name"];
-node_38 [label="i", shape=box]
-node_37 -> node_38;
-node_36 -> node_37;
-node_39 [label="Token_op (4)"];
-node_40 [label=".", shape=box]
-node_39 -> node_40;
-node_41 [label="Token_string (4)"];
-node_42 [label="", shape=box]
-node_41 -> node_42;
-node_35 -> node_41;
-node_35 -> node_39;
+node_32 [label="AST_actual_parameter"];
+node_33 [label="AST_bin_op (4)"];
+node_34 [label="AST_variable (4)"];
+node_35 [label="Token_variable_name"];
+node_36 [label="i", shape=box]
 node_35 -> node_36;
 node_34 -> node_35;
-node_29 -> node_34;
+node_37 [label="Token_op (4)"];
+node_38 [label=".", shape=box]
+node_37 -> node_38;
+node_39 [label="Token_string (4)"];
+node_40 [label="", shape=box]
+node_39 -> node_40;
+node_33 -> node_39;
+node_33 -> node_37;
+node_33 -> node_34;
+node_32 -> node_33;
 node_29 -> node_32;
 node_29 -> node_30;
 node_28 -> node_29;

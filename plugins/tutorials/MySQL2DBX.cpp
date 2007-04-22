@@ -30,7 +30,7 @@ public:
 		
          // Modify parameters
          module_name = new Token_constant_name(new String("DBX_MYSQL"));
-         module_constant = new AST_constant("%STDLIB%", module_name);
+         module_constant = new AST_constant(NULL, module_name);
          
 		 pos = in->actual_parameters->begin();
          param = new AST_actual_parameter(false, module_constant);

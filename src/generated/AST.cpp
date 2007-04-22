@@ -5793,15 +5793,6 @@ bool AST_constant::equals(AST_node* in)
     return true;
 }
 
-AST_constant::AST_constant(char* class_name, Token_constant_name* constant_name)
-{
-    #line 509 "src/generated_src/phc.tea"
-{
-		this->class_name = new Token_class_name(new String(class_name));
-		this->constant_name = constant_name;
-	}
-}
-
 AST_constant* AST_constant::clone()
 {
     Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
@@ -6822,7 +6813,7 @@ bool Token_int::equals_value(Token_int* that)
 
 String* Token_int::get_value_as_string()
 {
-    #line 532 "src/generated_src/phc.tea"
+    #line 522 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -6926,7 +6917,7 @@ bool Token_real::equals_value(Token_real* that)
 
 String* Token_real::get_value_as_string()
 {
-    #line 543 "src/generated_src/phc.tea"
+    #line 533 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -7041,7 +7032,7 @@ bool Token_string::equals_value(Token_string* that)
 
 String* Token_string::get_value_as_string()
 {
-    #line 577 "src/generated_src/phc.tea"
+    #line 567 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7143,7 +7134,7 @@ bool Token_bool::equals_value(Token_bool* that)
 
 String* Token_bool::get_value_as_string()
 {
-    #line 565 "src/generated_src/phc.tea"
+    #line 555 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -7230,7 +7221,7 @@ bool Token_null::equals(AST_node* in)
 
 String* Token_null::get_value_as_string()
 {
-    #line 586 "src/generated_src/phc.tea"
+    #line 576 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}

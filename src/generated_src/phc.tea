@@ -102,7 +102,7 @@ bin_op ::= left:expr OP right:expr ;
 conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
 ignore_errors ::= expr ;
 
-constant ::= CLASS_NAME CONSTANT_NAME ;
+constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 instanceof ::= expr class_name ;
 
@@ -118,7 +118,7 @@ post_op ::= variable OP ;
 array ::= array_elem* ;
 array_elem ::= key:expr? is_ref:"&"? val:expr ;
 
-method_invocation ::= target method_name actual_parameter* ;
+method_invocation ::= target? method_name actual_parameter* ;
 method_name ::= METHOD_NAME | reflection ;
 
 actual_parameter ::= is_ref:"&"? expr ;
@@ -499,16 +499,6 @@ public:
 	{
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
-	}
-};
-
-class AST_constant
-{
-public:
-	AST_constant(char* class_name, Token_constant_name* constant_name) 
-	{
-		this->class_name = new Token_class_name(new String(class_name));
-		this->constant_name = constant_name;
 	}
 };
 

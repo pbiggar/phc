@@ -188,27 +188,19 @@ node_48 -> node_49;
 node_47 -> node_48;
 node_93 [label="AST_eval_expr (12)"];
 node_94 [label="AST_method_invocation (12)"];
-node_95 [label="Token_class_name"];
-node_96 [label="%STDLIB%", shape=box]
+node_95 [label="Token_method_name"];
+node_96 [label="foo", shape=box]
 node_95 -> node_96;
-node_97 [label="Token_method_name"];
-node_98 [label="foo", shape=box]
-node_97 -> node_98;
-node_94 -> node_97;
 node_94 -> node_95;
 node_93 -> node_94;
-node_99 [label="AST_eval_expr (12)"];
-node_100 [label="AST_method_invocation (12)"];
-node_101 [label="Token_class_name"];
-node_102 [label="%STDLIB%", shape=box]
-node_101 -> node_102;
-node_103 [label="Token_method_name"];
-node_104 [label="bar", shape=box]
-node_103 -> node_104;
-node_100 -> node_103;
-node_100 -> node_101;
+node_97 [label="AST_eval_expr (12)"];
+node_98 [label="AST_method_invocation (12)"];
+node_99 [label="Token_method_name"];
+node_100 [label="bar", shape=box]
 node_99 -> node_100;
-node_0 -> node_99;
+node_98 -> node_99;
+node_97 -> node_98;
+node_0 -> node_97;
 node_0 -> node_93;
 node_0 -> node_47;
 node_0 -> node_1;

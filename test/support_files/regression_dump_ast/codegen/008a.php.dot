@@ -79,20 +79,16 @@ node_1 -> node_8;
 node_1 -> node_2;
 node_38 [label="AST_eval_expr (7)"];
 node_39 [label="AST_method_invocation (7)"];
-node_40 [label="Token_class_name"];
-node_41 [label="%STDLIB%", shape=box]
+node_40 [label="Token_method_name"];
+node_41 [label="var_dump", shape=box]
 node_40 -> node_41;
-node_42 [label="Token_method_name"];
-node_43 [label="var_dump", shape=box]
-node_42 -> node_43;
-node_44 [label="AST_actual_parameter (7)"];
-node_45 [label="AST_variable (7)"];
-node_46 [label="Token_variable_name"];
-node_47 [label="arg", shape=box]
-node_46 -> node_47;
-node_45 -> node_46;
+node_42 [label="AST_actual_parameter (7)"];
+node_43 [label="AST_variable (7)"];
+node_44 [label="Token_variable_name"];
+node_45 [label="arg", shape=box]
 node_44 -> node_45;
-node_39 -> node_44;
+node_43 -> node_44;
+node_42 -> node_43;
 node_39 -> node_42;
 node_39 -> node_40;
 node_38 -> node_39;

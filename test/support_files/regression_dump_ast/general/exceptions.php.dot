@@ -123,212 +123,176 @@ node_19 -> node_20;
 node_61 [label="AST_try (17)"];
 node_62 [label="AST_eval_expr (19)"];
 node_63 [label="AST_method_invocation (19)"];
-node_64 [label="Token_class_name"];
-node_65 [label="%STDLIB%", shape=box]
+node_64 [label="Token_method_name"];
+node_65 [label="f", shape=box]
 node_64 -> node_65;
-node_66 [label="Token_method_name"];
-node_67 [label="f", shape=box]
-node_66 -> node_67;
-node_63 -> node_66;
 node_63 -> node_64;
 node_62 -> node_63;
-node_68 [label="AST_catch (21)"];
-node_69 [label="Token_class_name"];
-node_70 [label="FirstException", shape=box]
+node_66 [label="AST_catch (21)"];
+node_67 [label="Token_class_name"];
+node_68 [label="FirstException", shape=box]
+node_67 -> node_68;
+node_69 [label="Token_variable_name"];
+node_70 [label="e", shape=box]
 node_69 -> node_70;
-node_71 [label="Token_variable_name"];
-node_72 [label="e", shape=box]
-node_71 -> node_72;
-node_73 [label="AST_eval_expr (23)"];
-node_74 [label="AST_method_invocation (23)"];
-node_75 [label="Token_class_name"];
-node_76 [label="%STDLIB%", shape=box]
+node_71 [label="AST_eval_expr (23)"];
+node_72 [label="AST_method_invocation (23)"];
+node_73 [label="Token_method_name"];
+node_74 [label="echo", shape=box]
+node_73 -> node_74;
+node_75 [label="AST_actual_parameter"];
+node_76 [label="Token_string (23)"];
+node_77 [label="FirstExcep..", shape=box]
+node_76 -> node_77;
 node_75 -> node_76;
-node_77 [label="Token_method_name"];
-node_78 [label="echo", shape=box]
-node_77 -> node_78;
-node_79 [label="AST_actual_parameter"];
-node_80 [label="Token_string (23)"];
-node_81 [label="FirstExcep..", shape=box]
+node_72 -> node_75;
+node_72 -> node_73;
+node_71 -> node_72;
+node_66 -> node_71;
+node_66 -> node_69;
+node_66 -> node_67;
+node_61 -> node_66;
+node_61 -> node_62;
+node_78 [label="AST_try (26)"];
+node_79 [label="AST_eval_expr (28)"];
+node_80 [label="AST_method_invocation (28)"];
+node_81 [label="Token_method_name"];
+node_82 [label="f", shape=box]
+node_81 -> node_82;
 node_80 -> node_81;
 node_79 -> node_80;
-node_74 -> node_79;
-node_74 -> node_77;
-node_74 -> node_75;
-node_73 -> node_74;
-node_68 -> node_73;
-node_68 -> node_71;
-node_68 -> node_69;
-node_61 -> node_68;
-node_61 -> node_62;
-node_82 [label="AST_try (26)"];
-node_83 [label="AST_eval_expr (28)"];
-node_84 [label="AST_method_invocation (28)"];
-node_85 [label="Token_class_name"];
-node_86 [label="%STDLIB%", shape=box]
-node_85 -> node_86;
-node_87 [label="Token_method_name"];
-node_88 [label="f", shape=box]
-node_87 -> node_88;
-node_84 -> node_87;
+node_83 [label="AST_catch (30)"];
+node_84 [label="Token_class_name"];
+node_85 [label="FirstException", shape=box]
 node_84 -> node_85;
-node_83 -> node_84;
-node_89 [label="AST_catch (30)"];
-node_90 [label="Token_class_name"];
-node_91 [label="FirstException", shape=box]
+node_86 [label="Token_variable_name"];
+node_87 [label="e", shape=box]
+node_86 -> node_87;
+node_88 [label="AST_eval_expr (32)"];
+node_89 [label="AST_method_invocation (32)"];
+node_90 [label="Token_method_name"];
+node_91 [label="echo", shape=box]
 node_90 -> node_91;
-node_92 [label="Token_variable_name"];
-node_93 [label="e", shape=box]
+node_92 [label="AST_actual_parameter"];
+node_93 [label="Token_string (32)"];
+node_94 [label="FirstExcep..", shape=box]
+node_93 -> node_94;
 node_92 -> node_93;
-node_94 [label="AST_eval_expr (32)"];
-node_95 [label="AST_method_invocation (32)"];
+node_89 -> node_92;
+node_89 -> node_90;
+node_88 -> node_89;
+node_83 -> node_88;
+node_83 -> node_86;
+node_83 -> node_84;
+node_95 [label="AST_catch (34)"];
 node_96 [label="Token_class_name"];
-node_97 [label="%STDLIB%", shape=box]
+node_97 [label="SecondException", shape=box]
 node_96 -> node_97;
-node_98 [label="Token_method_name"];
-node_99 [label="echo", shape=box]
+node_98 [label="Token_variable_name"];
+node_99 [label="e", shape=box]
 node_98 -> node_99;
-node_100 [label="AST_actual_parameter"];
-node_101 [label="Token_string (32)"];
-node_102 [label="FirstExcep..", shape=box]
+node_100 [label="AST_eval_expr (36)"];
+node_101 [label="AST_method_invocation (36)"];
+node_102 [label="Token_method_name"];
+node_103 [label="echo", shape=box]
+node_102 -> node_103;
+node_104 [label="AST_actual_parameter"];
+node_105 [label="Token_string (36)"];
+node_106 [label="SecondExce..", shape=box]
+node_105 -> node_106;
+node_104 -> node_105;
+node_101 -> node_104;
 node_101 -> node_102;
 node_100 -> node_101;
 node_95 -> node_100;
 node_95 -> node_98;
 node_95 -> node_96;
-node_94 -> node_95;
-node_89 -> node_94;
-node_89 -> node_92;
-node_89 -> node_90;
-node_103 [label="AST_catch (34)"];
-node_104 [label="Token_class_name"];
-node_105 [label="SecondException", shape=box]
-node_104 -> node_105;
-node_106 [label="Token_variable_name"];
-node_107 [label="e", shape=box]
-node_106 -> node_107;
-node_108 [label="AST_eval_expr (36)"];
-node_109 [label="AST_method_invocation (36)"];
-node_110 [label="Token_class_name"];
-node_111 [label="%STDLIB%", shape=box]
+node_78 -> node_95;
+node_78 -> node_83;
+node_78 -> node_79;
+node_107 [label="AST_try (38)"];
+node_108 [label="AST_eval_expr (40)"];
+node_109 [label="AST_method_invocation (40)"];
+node_110 [label="Token_method_name"];
+node_111 [label="f", shape=box]
 node_110 -> node_111;
-node_112 [label="Token_method_name"];
-node_113 [label="echo", shape=box]
-node_112 -> node_113;
-node_114 [label="AST_actual_parameter"];
-node_115 [label="Token_string (36)"];
-node_116 [label="SecondExce..", shape=box]
-node_115 -> node_116;
-node_114 -> node_115;
-node_109 -> node_114;
-node_109 -> node_112;
 node_109 -> node_110;
 node_108 -> node_109;
-node_103 -> node_108;
-node_103 -> node_106;
-node_103 -> node_104;
-node_82 -> node_103;
-node_82 -> node_89;
-node_82 -> node_83;
-node_117 [label="AST_try (38)"];
-node_118 [label="AST_eval_expr (40)"];
-node_119 [label="AST_method_invocation (40)"];
-node_120 [label="Token_class_name"];
-node_121 [label="%STDLIB%", shape=box]
-node_120 -> node_121;
-node_122 [label="Token_method_name"];
-node_123 [label="f", shape=box]
-node_122 -> node_123;
-node_119 -> node_122;
+node_112 [label="AST_catch (42)"];
+node_113 [label="Token_class_name"];
+node_114 [label="FirstException", shape=box]
+node_113 -> node_114;
+node_115 [label="Token_variable_name"];
+node_116 [label="e", shape=box]
+node_115 -> node_116;
+node_117 [label="AST_eval_expr (44)"];
+node_118 [label="AST_method_invocation (44)"];
+node_119 [label="Token_method_name"];
+node_120 [label="echo", shape=box]
 node_119 -> node_120;
+node_121 [label="AST_actual_parameter"];
+node_122 [label="Token_string (44)"];
+node_123 [label="FirstExcep..", shape=box]
+node_122 -> node_123;
+node_121 -> node_122;
+node_118 -> node_121;
 node_118 -> node_119;
-node_124 [label="AST_catch (42)"];
+node_117 -> node_118;
+node_112 -> node_117;
+node_112 -> node_115;
+node_112 -> node_113;
+node_124 [label="AST_catch (46)"];
 node_125 [label="Token_class_name"];
-node_126 [label="FirstException", shape=box]
+node_126 [label="SecondException", shape=box]
 node_125 -> node_126;
 node_127 [label="Token_variable_name"];
 node_128 [label="e", shape=box]
 node_127 -> node_128;
-node_129 [label="AST_eval_expr (44)"];
-node_130 [label="AST_method_invocation (44)"];
-node_131 [label="Token_class_name"];
-node_132 [label="%STDLIB%", shape=box]
+node_129 [label="AST_eval_expr (48)"];
+node_130 [label="AST_method_invocation (48)"];
+node_131 [label="Token_method_name"];
+node_132 [label="echo", shape=box]
 node_131 -> node_132;
-node_133 [label="Token_method_name"];
-node_134 [label="echo", shape=box]
+node_133 [label="AST_actual_parameter"];
+node_134 [label="Token_string (48)"];
+node_135 [label="SecondExce..", shape=box]
+node_134 -> node_135;
 node_133 -> node_134;
-node_135 [label="AST_actual_parameter"];
-node_136 [label="Token_string (44)"];
-node_137 [label="FirstExcep..", shape=box]
-node_136 -> node_137;
-node_135 -> node_136;
-node_130 -> node_135;
 node_130 -> node_133;
 node_130 -> node_131;
 node_129 -> node_130;
 node_124 -> node_129;
 node_124 -> node_127;
 node_124 -> node_125;
-node_138 [label="AST_catch (46)"];
-node_139 [label="Token_class_name"];
-node_140 [label="SecondException", shape=box]
+node_136 [label="AST_catch (50)"];
+node_137 [label="Token_class_name"];
+node_138 [label="ThirdException", shape=box]
+node_137 -> node_138;
+node_139 [label="Token_variable_name"];
+node_140 [label="e", shape=box]
 node_139 -> node_140;
-node_141 [label="Token_variable_name"];
-node_142 [label="e", shape=box]
-node_141 -> node_142;
-node_143 [label="AST_eval_expr (48)"];
-node_144 [label="AST_method_invocation (48)"];
-node_145 [label="Token_class_name"];
-node_146 [label="%STDLIB%", shape=box]
-node_145 -> node_146;
-node_147 [label="Token_method_name"];
-node_148 [label="echo", shape=box]
-node_147 -> node_148;
-node_149 [label="AST_actual_parameter"];
-node_150 [label="Token_string (48)"];
-node_151 [label="SecondExce..", shape=box]
-node_150 -> node_151;
-node_149 -> node_150;
-node_144 -> node_149;
-node_144 -> node_147;
-node_144 -> node_145;
+node_141 [label="AST_eval_expr (52)"];
+node_142 [label="AST_method_invocation (52)"];
+node_143 [label="Token_method_name"];
+node_144 [label="echo", shape=box]
 node_143 -> node_144;
-node_138 -> node_143;
-node_138 -> node_141;
-node_138 -> node_139;
-node_152 [label="AST_catch (50)"];
-node_153 [label="Token_class_name"];
-node_154 [label="ThirdException", shape=box]
-node_153 -> node_154;
-node_155 [label="Token_variable_name"];
-node_156 [label="e", shape=box]
-node_155 -> node_156;
-node_157 [label="AST_eval_expr (52)"];
-node_158 [label="AST_method_invocation (52)"];
-node_159 [label="Token_class_name"];
-node_160 [label="%STDLIB%", shape=box]
-node_159 -> node_160;
-node_161 [label="Token_method_name"];
-node_162 [label="echo", shape=box]
-node_161 -> node_162;
-node_163 [label="AST_actual_parameter"];
-node_164 [label="Token_string (52)"];
-node_165 [label="ThirdExcep..", shape=box]
-node_164 -> node_165;
-node_163 -> node_164;
-node_158 -> node_163;
-node_158 -> node_161;
-node_158 -> node_159;
-node_157 -> node_158;
-node_152 -> node_157;
-node_152 -> node_155;
-node_152 -> node_153;
-node_117 -> node_152;
-node_117 -> node_138;
-node_117 -> node_124;
-node_117 -> node_118;
-node_0 -> node_117;
-node_0 -> node_82;
+node_145 [label="AST_actual_parameter"];
+node_146 [label="Token_string (52)"];
+node_147 [label="ThirdExcep..", shape=box]
+node_146 -> node_147;
+node_145 -> node_146;
+node_142 -> node_145;
+node_142 -> node_143;
+node_141 -> node_142;
+node_136 -> node_141;
+node_136 -> node_139;
+node_136 -> node_137;
+node_107 -> node_136;
+node_107 -> node_124;
+node_107 -> node_112;
+node_107 -> node_108;
+node_0 -> node_107;
+node_0 -> node_78;
 node_0 -> node_61;
 node_0 -> node_19;
 node_0 -> node_13;

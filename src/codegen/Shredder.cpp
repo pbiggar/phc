@@ -82,13 +82,13 @@ public:
 	{
 		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
 		AST_method_invocation* echo = new AST_method_invocation(
-			new Token_class_name(new String("%STDLIB%")),
+			NULL,	
 			new Token_method_name(new String("echo")),
 			new List<AST_actual_parameter*>(
 				new AST_actual_parameter(false, arg)
 			));
 		AST_method_invocation* print = new AST_method_invocation(
-			new Token_class_name(new String("%STDLIB%")),
+			NULL,	
 			new Token_method_name(new String("print")),
 			new List<AST_actual_parameter*>(
 				new AST_actual_parameter(false, arg)
@@ -97,7 +97,7 @@ public:
 		if(in->match(echo) || in->match(print))
 		{
 			return new AST_method_invocation(
-				new Token_class_name(new String("%STDLIB%")),
+				NULL,
 				new Token_method_name(new String("printf")),
 				new List<AST_actual_parameter*>(
 					new AST_actual_parameter(

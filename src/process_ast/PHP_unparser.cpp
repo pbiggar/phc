@@ -631,16 +631,13 @@ void PHP_unparser::children_ignore_errors(AST_ignore_errors* in)
 
 void PHP_unparser::children_constant(AST_constant* in)
 {
-	if((*in->class_name->value)[0] == '%')
-	{
-		visit_constant_name(in->constant_name);
-	}
-	else
+	if(in->class_name != NULL)
 	{
 		visit_class_name(in->class_name);
 		echo("::");
-		visit_constant_name(in->constant_name);
 	}
+
+	visit_constant_name(in->constant_name);
 }
 
 void PHP_unparser::children_instanceof(AST_instanceof* in)
@@ -661,15 +658,8 @@ void PHP_unparser::children_variable(AST_variable* in)
 
 		if(class_name)
 		{
-			if((*class_name->value)[0] == '%')
-			{
-				echo("$");
-			}
-			else
-			{
-				visit_class_name(class_name);
-				echo("::$");
-			}
+			visit_class_name(class_name);
+			echo("::$");
 		}
 		else
 		{
@@ -756,17 +746,10 @@ void PHP_unparser::children_method_invocation(AST_method_invocation* in)
 	static_method = dynamic_cast<Token_class_name*>(in->target);
 	if(static_method)
 	{
-		if((*static_method->value)[0] == '%')
-		{
-			// Don't print names of phc pseudo-classes
-		}
-		else
-		{
-			visit_class_name(static_method);
-			echo("::");
-		}
+		visit_class_name(static_method);
+		echo("::");
 	}
-	else
+	else if(in->target != NULL)
 	{
 		visit_target(in->target);
 		echo("->");
@@ -775,7 +758,7 @@ void PHP_unparser::children_method_invocation(AST_method_invocation* in)
 
 	// Leave out brackets in calls in builtins
 	method_name = dynamic_cast<Token_method_name*>(in->method_name);
-	if(static_method && method_name && *static_method->value == "%STDLIB%")
+	if(method_name)
 	{
 		use_brackets &= *method_name->value != "echo";
 		use_brackets &= *method_name->value != "print";

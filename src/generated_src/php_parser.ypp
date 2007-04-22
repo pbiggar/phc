@@ -2310,7 +2310,7 @@ static_scalar:
 	| IDENT
 		{
 			Token_constant_name* name = new Token_constant_name($1);
-			$$ = NEW(AST_constant, ("%MAIN%", name)); 
+			$$ = NEW(AST_constant, (NULL, name)); 
 		}
 	| '+' static_scalar
 		{
@@ -2346,7 +2346,7 @@ scalar:
 		{
 			Token_constant_name* name = new Token_constant_name($1);
 
-			$$ = NEW(AST_constant, ("%MAIN%", name));
+			$$ = NEW(AST_constant, (NULL, name));
 		}
 	| class_constant
 		{

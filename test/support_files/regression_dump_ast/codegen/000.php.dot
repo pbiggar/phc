@@ -19,20 +19,16 @@ node_2 -> node_3;
 node_1 -> node_2;
 node_8 [label="AST_eval_expr (3)"];
 node_9 [label="AST_method_invocation (3)"];
-node_10 [label="Token_class_name"];
-node_11 [label="%STDLIB%", shape=box]
+node_10 [label="Token_method_name"];
+node_11 [label="var_dump", shape=box]
 node_10 -> node_11;
-node_12 [label="Token_method_name"];
-node_13 [label="var_dump", shape=box]
-node_12 -> node_13;
-node_14 [label="AST_actual_parameter (3)"];
-node_15 [label="AST_variable (3)"];
-node_16 [label="Token_variable_name"];
-node_17 [label="a", shape=box]
-node_16 -> node_17;
-node_15 -> node_16;
+node_12 [label="AST_actual_parameter (3)"];
+node_13 [label="AST_variable (3)"];
+node_14 [label="Token_variable_name"];
+node_15 [label="a", shape=box]
 node_14 -> node_15;
-node_9 -> node_14;
+node_13 -> node_14;
+node_12 -> node_13;
 node_9 -> node_12;
 node_9 -> node_10;
 node_8 -> node_9;

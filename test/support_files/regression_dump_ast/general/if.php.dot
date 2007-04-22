@@ -273,18 +273,14 @@ node_115 -> node_118;
 node_115 -> node_116;
 node_139 [label="AST_eval_expr (70)"];
 node_140 [label="AST_method_invocation (70)"];
-node_141 [label="Token_class_name"];
-node_142 [label="%STDLIB%", shape=box]
+node_141 [label="Token_method_name"];
+node_142 [label="echo", shape=box]
 node_141 -> node_142;
-node_143 [label="Token_method_name"];
-node_144 [label="echo", shape=box]
+node_143 [label="AST_actual_parameter"];
+node_144 [label="Token_string (70)"];
+node_145 [label="", shape=box]
+node_144 -> node_145;
 node_143 -> node_144;
-node_145 [label="AST_actual_parameter"];
-node_146 [label="Token_string (70)"];
-node_147 [label="", shape=box]
-node_146 -> node_147;
-node_145 -> node_146;
-node_140 -> node_145;
 node_140 -> node_143;
 node_140 -> node_141;
 node_139 -> node_140;

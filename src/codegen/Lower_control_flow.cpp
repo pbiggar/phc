@@ -502,8 +502,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	AST_actual_parameter* param = 
 		new AST_actual_parameter (false, new Token_string (error_string, error_string));
 	params->push_back (param);
-	Token_class_name *stdlib = new Token_class_name (new String ("%STDLIB%"));
-	out->push_back (new AST_eval_expr (new AST_method_invocation (stdlib, name, params)));
+	out->push_back (new AST_eval_expr (new AST_method_invocation (NULL, name, params)));
 }
 
 

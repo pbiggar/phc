@@ -5810,7 +5810,7 @@ yyreduce:
 #line 2311 "src/generated_src/php_parser.ypp"
     {
 			Token_constant_name* name = new Token_constant_name((yyvsp[(1) - (1)].string));
-			(yyval.ast_expr) = NEW(AST_constant, ("%MAIN%", name)); 
+			(yyval.ast_expr) = NEW(AST_constant, (NULL, name)); 
 		;}
     break;
 
@@ -5858,7 +5858,7 @@ yyreduce:
     {
 			Token_constant_name* name = new Token_constant_name((yyvsp[(1) - (1)].string));
 
-			(yyval.ast_expr) = NEW(AST_constant, ("%MAIN%", name));
+			(yyval.ast_expr) = NEW(AST_constant, (NULL, name));
 		;}
     break;
 
