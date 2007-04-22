@@ -24,7 +24,7 @@ public:
 	void post_global(AST_global* in, List<AST_statement*>* out);
 
 protected:
-	AST_variable* eval(AST_expr* in);
+	AST_expr* eval(AST_expr* in);
 	void eval(AST_expr* in, AST_variable* temp);
 	void push_back_pieces(AST_statement* in, List<AST_statement*>* out);
 	List<AST_statement*>* pieces;

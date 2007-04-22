@@ -41,13 +41,15 @@ AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
 	}
 	else if(*in->op->value == "||" || *in->op->value == "or")
 	{
-		AST_variable* temp = eval(in->left);
+		AST_variable* temp = dynamic_cast<AST_variable*>(eval(in->left));
+		assert(temp);
 		return post_conditional_expr(new AST_conditional_expr(
 			temp->clone(), temp->clone(), in->right));
 	}
 	else if(*in->op->value == "&&" || *in->op->value == "and")
 	{
-		AST_variable* temp = eval(in->left); 
+		AST_variable* temp = dynamic_cast<AST_variable*>(eval(in->left));
+		assert(temp);
 		return post_conditional_expr(new AST_conditional_expr(
 			temp->clone(), in->right, temp->clone()));
 	}

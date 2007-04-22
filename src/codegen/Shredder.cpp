@@ -24,6 +24,10 @@ class Prep : public AST_visitor
 	void pre_assignment(AST_assignment* in)
 	{
 		in->variable->attrs->set_true("phc.shredder.need_addr");
+
+		// Is is not necessary to generate a temporary for the top-level
+		// expression of an assignment
+		in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
 	void pre_unset(AST_unset* in)
@@ -35,14 +39,14 @@ class Prep : public AST_visitor
 	{
 		// Do not generate a temp to hold the default value of an attribute
 		if(in->expr != NULL)
-			in->expr->attrs->set_true("phc.shredder.no_temp");
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
 	void pre_static_declaration(AST_static_declaration* in)
 	{
 		// Do not generate a temp to hold the default value of a static var
 		if(in->expr != NULL)
-			in->expr->attrs->set_true("phc.shredder.no_temp");
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 };
 
@@ -67,6 +71,7 @@ void Shredder::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
 	if(in->expr->classid() != AST_assignment::ID)
 	{
+		in->expr->attrs->set_true("phc.lower_expr.no_temp");
 		in->expr = new AST_assignment(fresh_var("TS"), false, in->expr);
 	}
 
@@ -271,47 +276,41 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 }
 
 /*
+ * Method invocation
+ */
+
+AST_expr* Shredder::post_method_invocation(AST_method_invocation* in)
+{
+	return eval(in);
+}
+
+/*
  * Literals
  */
 
 AST_expr* Shredder::post_int(Token_int* in)
 {
-	if(in->attrs->is_true("phc.shredder.no_temp"))
-		return in;
-	else
-		return eval(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_real(Token_real* in)
 {
-	if(in->attrs->is_true("phc.shredder.no_temp"))
-		return in;
-	else
-		return eval(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_string(Token_string* in)
 {
-	if(in->attrs->is_true("phc.shredder.no_temp"))
-		return in;
-	else
-		return eval(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_bool(Token_bool* in)
 {
-	if(in->attrs->is_true("phc.shredder.no_temp"))
-		return in;
-	else
-		return eval(in);
+	return eval(in);
 }
 
 AST_expr* Shredder::post_null(Token_null* in)
 {
-	if(in->attrs->is_true("phc.shredder.no_temp"))
-		return in;
-	else
-		return eval(in);
+	return eval(in);
 }
 
 /*

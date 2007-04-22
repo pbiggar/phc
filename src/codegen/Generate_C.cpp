@@ -116,6 +116,84 @@ protected:
 	}
 };
 
+class Label : public Pattern
+{
+public:
+	bool match(AST_statement* that)
+	{
+		label = new Wildcard<Token_label_name>;
+		return that->match(new AST_label(label));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		cout << *label->value->value << ":;\n";
+	}
+
+protected:
+	Wildcard<Token_label_name>* label;
+};
+
+class Branch : public Pattern
+{
+public:
+	bool match(AST_statement* that)
+	{
+		cond = new Wildcard<Token_variable_name>;
+		iftrue = new Wildcard<Token_label_name>;
+		iffalse = new Wildcard<Token_label_name>;
+		return that->match(new AST_branch(
+			new AST_variable(NULL, cond, new List<AST_expr*>),
+			iftrue, 
+			iffalse
+			));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		cout
+		<< "{\n"
+		<< "zval* cond;\n"
+		<< "{\n"
+		<< "zval** arg;\n"
+		<< "zend_hash_find(locals, "
+		<< "\"" << *cond->value->value << "\", "
+		<< cond->value->value->length() << ", "
+		<< "(void**)&arg);\n"
+		<< "cond = *arg;\n"
+		<< "}\n"
+		<< "if(zend_is_true(cond)) "
+		<< "goto " << *iftrue->value->value << ";\n"
+		<< "else "
+		<< "goto " << *iffalse->value->value << ";\n"
+		<< "}\n"
+		;
+	}
+
+protected:
+	Wildcard<Token_variable_name>* cond;
+	Wildcard<Token_label_name>* iftrue;
+	Wildcard<Token_label_name>* iffalse;
+};
+
+class Goto : public Pattern
+{
+public:
+	bool match(AST_statement* that)
+	{
+		label = new Wildcard<Token_label_name>;
+		return that->match(new AST_goto(label));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		cout << "goto " << *label->value->value << ";\n";
+	}
+
+protected:
+	Wildcard<Token_label_name>* label;
+};
+
 class Assignment : public Pattern
 {
 public:
@@ -428,6 +506,9 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_real()
 	,	new Method_invocation()
 	,	new Bin_op()
+	,	new Label()
+	,	new Branch()
+	,	new Goto()
 	};
 
 	bool matched = false;

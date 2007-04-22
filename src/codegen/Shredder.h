@@ -26,6 +26,7 @@ public:
 	AST_expr* post_post_op(AST_post_op* in);
 	AST_expr* post_unary_op(AST_unary_op* in);
 	AST_expr* post_conditional_expr(AST_conditional_expr* in);
+	AST_expr* post_method_invocation(AST_method_invocation* in);
 	AST_expr* post_int(Token_int* in);
 	AST_expr* post_real(Token_real* in);
 	AST_expr* post_bool(Token_bool* in);

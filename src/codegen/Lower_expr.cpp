@@ -69,14 +69,23 @@ void Lower_expr::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
  *  
  *   T = e;
  *
- * the value returned is the expression "T".
+ * the value returned is the expression "T". 
+ *
+ * If the node is marked "phc.lower_expr.no_temp", eval simply returns in.
  */
 
-AST_variable* Lower_expr::eval(AST_expr* in)
+AST_expr* Lower_expr::eval(AST_expr* in)
 {
-	AST_variable* temp = fresh_var("TLE"); 
-	eval(in, temp);
-	return temp;
+	if(in->attrs->is_true("phc.lower_expr.no_temp"))
+	{
+		return in;
+	}
+	else
+	{
+		AST_variable* temp = fresh_var("TLE"); 
+		eval(in, temp);
+		return temp;
+	}
 }
 
 // Variation on eval that takes in the name of the temp
