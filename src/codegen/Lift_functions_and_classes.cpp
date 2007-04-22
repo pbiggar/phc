@@ -25,12 +25,6 @@ void Lift_functions_and_classes::children_php_script(AST_php_script* in)
 			new Token_method_name(new String("__MAIN__")),
 			new List<AST_formal_parameter*>),
 		main));
-
-	in->statements->push_back(new AST_eval_expr (
-		new AST_method_invocation(
-			NULL,
-			new Token_method_name(new String("__MAIN__")),
-			new List<AST_actual_parameter*>)));
 }
 
 void Lift_functions_and_classes::pre_class_def(AST_class_def* in, List<AST_statement*>* out)

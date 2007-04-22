@@ -120,35 +120,11 @@ public:
 	}
 };
 
-/*
-class Set_variable_targets_to_null : public AST_visitor
-{
-public:
-
-	void pre_variable(AST_variable* in)
-	{
-		// When we include a file, the globals become locals, and no longer
-		// should have %MAIN% as their target
-		Token_class_name* main = new Token_class_name(new String("%MAIN%"));
-		if (in->target and in->target->match(main))
-		{
-			in->target = NULL;
-		}
-	}
-};
-*/
 // store the current php script
 void Process_includes::children_php_script(AST_php_script* in)
 {
 	current_script = in;
 	AST_transform::children_php_script(in);
-}
-
-// store the method currently being defined
-void Process_includes::pre_method(AST_method* in, List<AST_member*>* out)
-{
-//	in_main_run = (in == current_script->get_class_def("%MAIN%")->get_method("%run%"));
-	out->push_back(in);
 }
 
 // look for include statements
@@ -160,7 +136,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 
 	// the filename is the only parameter of the include statement
 	pattern = new AST_method_invocation(
-		new Token_class_name(new String("%STDLIB%")),
+		NULL,
 		method_name,
 		new List<AST_actual_parameter*>(
 			new AST_actual_parameter(false, token_filename)
@@ -196,10 +172,6 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			return;
 		}
 			
-		// Right now we deal with the statements to be returned.
-//		AST_class_def* main = php_script->get_class_def("%MAIN%");
-//		AST_method* run = main->get_method("%run%");
-
 		// We don't support returning values from included scripts; 
 		// issue a warning and leave the include as-is
 		Return_check rc;
@@ -210,43 +182,9 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			out->push_back(in);
 			return;
 		}
-/*
-		// clear the target if statements arent being output to main::run
-		if (not in_main_run) 
-		{
-			Set_variable_targets_to_null svttn;
-			svttn.visit_statement_list(run->statements);
-		}
-*/
+
 		// copy the statements from %MAIN%::%run%
 		out->push_back_all(php_script->statements);
-/*
-		// copy classes
-		List<AST_class_def*>::const_iterator ci;
-		for(ci = php_script->class_defs->begin(); ci != php_script->class_defs->end(); ci++)
-		{
-			if(*ci != main)
-			{
-				current_script->class_defs->push_back(*ci);
-			}
-		}
-
-		// copy attributes and methods from %MAIN%
-		List<AST_member*>::const_iterator mi;
-		for(mi = main->members->begin(); mi != main->members->end(); mi++)
-		{
-			if(*mi != run)
-			{
-				bool is_method = (dynamic_cast<AST_method*>(*mi) != NULL);
-
-				// attributes arent pushed out if the current method isnt %main%::%run%
-				if (is_method or not in_main_run)
-				{
-					current_script->get_class_def("%MAIN%")->members->push_back(*mi);
-				}
-			}
-		}
-*/
 	}
 	else
 	{
@@ -257,7 +195,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		// check if its an unsupported version of include
 		AST_method_invocation *method = 
 			new AST_method_invocation (
-					new Token_class_name (new String("%STDLIB%")),
+					NULL,
 					method_name, 
 					new List<AST_actual_parameter*>( 
 						new AST_actual_parameter(false, token_filename)));
