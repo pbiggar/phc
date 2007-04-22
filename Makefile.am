@@ -38,7 +38,7 @@ bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
 
-src_phc_SOURCES =											\
+src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
@@ -46,16 +46,18 @@ src_phc_SOURCES =											\
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
 	src/codegen/Goto_uppering.h							\
-	src/codegen/Lower_control_flow.cpp						\
+	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
 	src/codegen/Lower_expr.cpp								\
 	src/codegen/Lower_expr.h								\
-	src/codegen/Lower_expr_flow.cpp							\
+	src/codegen/Lower_expr_flow.cpp						\
 	src/codegen/Lower_expr_flow.h							\
+	src/codegen/Reorder_functions.cpp					\
+	src/codegen/Reorder_functions.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
-	src/codegen/Lift_functions_and_classes.cpp				\
-	src/codegen/Lift_functions_and_classes.h				\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
 	src/generated/AST.cpp									\

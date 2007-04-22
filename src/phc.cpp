@@ -21,6 +21,7 @@
 #include "codegen/Lower_expr_flow.h"
 #include "codegen/Shredder.h"
 #include "codegen/Goto_uppering.h"
+#include "codegen/Reorder_functions.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
@@ -98,6 +99,14 @@ int main(int argc, char** argv)
 		{
 			Lift_functions_and_classes lift;
 			php_script->transform_children(&lift);
+		}
+		// reorder
+		if (args_info.run_lowering_flag 
+				|| args_info.run_shredder_flag
+				|| args_info.obfuscate_flag)
+		{
+			Reorder_functions rf;
+			php_script->visit(&rf);
 		}
 
 		// lower
