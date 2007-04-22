@@ -30,9 +30,6 @@ public:
 		(*this)["/"] = "div_function";	
 		(*this)["%"] = "mod_function";	
 		(*this)["xor"] = "boolean_xor_function";
-		(*this)["!"] = "boolean_not_function";
-		(*this)["not"] = "boolean_not_function";
-		(*this)["~"] = "bitwise_not_function";
 		(*this)["|"] = "bitwise_or_function";
 		(*this)["&"] = "bitwise_and_function";
 		(*this)["^"] = "bitwise_xor_function";
@@ -46,6 +43,10 @@ public:
 		(*this)["<>"] = "is_not_equal_function";
 		(*this)["<"] = "is_smaller_function";
 		(*this)["<="] = "is_smaller_or_equal_function";
+		// Unary functions
+		(*this)["!"] = "boolean_not_function";
+		(*this)["not"] = "boolean_not_function";
+		(*this)["~"] = "bitwise_not_function";
 		// The operands to the next two functions must be swapped
 		(*this)[">="] = "is_smaller_or_equal_function"; 
 		(*this)[">"] = "is_smaller_function";
@@ -152,15 +153,9 @@ public:
 	{
 		cout
 		<< "{\n"
-		<< "zval* cond;\n"
-		<< "{\n"
-		<< "zval** arg;\n"
-		<< "zend_hash_find(locals, "
+		<< "zval* cond = index_ht(locals, \n"
 		<< "\"" << *cond->value->value << "\", "
-		<< cond->value->value->length() << ", "
-		<< "(void**)&arg);\n"
-		<< "cond = *arg;\n"
-		<< "}\n"
+		<< cond->value->value->length() << ");"
 		<< "if(zend_is_true(cond)) "
 		<< "goto " << *iftrue->value->value << ";\n"
 		<< "else "
@@ -228,18 +223,64 @@ public:
 		// Ordinary variable
 		if(name != NULL)
 		{
-			cout 
-			// Remove theold value from the hashtable
-			// (reducing its refcount)
-			<< "zend_hash_del(locals, "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() << ");\n"
-			// Add the new value to the hashtable
-			<< "zend_hash_add(locals, "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() << ", "
-			<< "&rhs, sizeof(zval*), NULL);\n"
-			;
+			if(lhs->value->array_indices->size() == 0)
+			{
+				cout 
+				// Remove the old value from the hashtable
+				// (reducing its refcount)
+				<< "zend_hash_del(locals, "
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() << ");\n"
+				// Add the new value to the hashtable
+				<< "zend_hash_add(locals, "
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() << ", "
+				<< "&rhs, sizeof(zval*), NULL);\n"
+				;
+			}
+			else if(lhs->value->array_indices->size() == 1)
+			{
+				AST_variable* var = dynamic_cast<AST_variable*>
+					(lhs->value->array_indices->front());
+				Token_variable_name* ind = dynamic_cast<Token_variable_name*>
+					(var->variable_name);
+
+				cout 
+				<< "{\n"
+				<< "zval* arr = index_ht(locals, " 
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() << ");\n"
+				<< "zval* ind = index_ht(locals, "
+				<< "\"" << *ind->value << "\", "
+				<< ind->value->length() << ");\n"
+				<< "if(Z_TYPE_P(arr) == IS_NULL)\n"
+				<< "array_init(arr);\n"
+				<< "else if(Z_TYPE_P(arr) != IS_ARRAY)\n"
+				// TODO: proper error message
+				<< "assert(0);\n"
+				<< "HashTable* ht = Z_ARRVAL_P(arr);\n"
+				// Numeric index? 
+				<< "if(Z_TYPE_P(ind) == IS_LONG)" 
+				<< "{\n"
+				// Remove the old value from the hashtable (this will
+				// automatically reduce its refcount)
+				<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
+				// Add the new value to the hashtable
+				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
+				<< "&rhs, sizeof(zval*), NULL);\n"
+				<< "}\n"
+				<< "else\n"
+				<< "{\n"
+				<< "// TODO\n"
+				<< "}\n"
+				<< "}\n"
+				;
+			}
+			else
+			{
+				// Cannot happen after shredder
+				assert(0);
+			}
 		}
 		else
 		{
@@ -400,14 +441,9 @@ public:
 			arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
 
 			cout
-			<< "{\n"
-			<< "zval** arg;\n"
-			<< "zend_hash_find(locals, "
+			<< "args[" << index << "] = index_ht(locals, \n"
 			<< "\"" << *arg_name->value << "\", "
-			<< arg_name->value->length() << ", "
-			<< "(void**)&arg);\n"
-			<< "args[" << index << "] = *arg;\n"
-			<< "}\n"
+			<< arg_name->value->length() << ");"
 			;
 		}
 	
@@ -450,27 +486,12 @@ public:
 		string op_fn = bin_op_functions[*op->value->value]; 
 
 		cout 
-		<< "zval* left;\n"
-		<< "zval* right;\n"
-		// Find left argument
-		<< "{\n"
-		<< "zval** arg;\n"
-		<< "zend_hash_find(locals, "
+		<< "zval* left = index_ht(locals, "
 		<< "\"" << *left->value->value << "\", "
-		<< left->value->value->length() << ", "
-		<< "(void**)&arg);\n"
-		<< "left = *arg;\n"
-		<< "}\n"
-		// Find right argument
-		<< "{\n"
-		<< "zval** arg;\n"
-		<< "zend_hash_find(locals, "
+		<< left->value->value->length() << ");\n"
+		<< "zval* right = index_ht(locals, "
 		<< "\"" << *right->value->value << "\", "
-		<< right->value->value->length() << ", "
-		<< "(void**)&arg);\n"
-		<< "right = *arg;\n"
-		<< "}\n"
-		// Execute the binary operator
+		<< right->value->value->length() << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
 		;
 
@@ -508,17 +529,9 @@ public:
 		string op_fn = bin_op_functions[*op->value->value]; 
 
 		cout 
-		<< "zval* expr;\n"
-		// Find left argument
-		<< "{\n"
-		<< "zval** arg;\n"
-		<< "zend_hash_find(locals, "
+		<< "zval* expr = index_ht(locals, "
 		<< "\"" << *expr->value->value << "\", "
-		<< expr->value->value->length() << ", "
-		<< "(void**)&arg);\n"
-		<< "expr = *arg;\n"
-		<< "}\n"
-		// Execute the binary operator
+		<< expr->value->value->length() << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
 		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
 		;
@@ -572,7 +585,21 @@ void Generate_C::children_statement(AST_statement* in)
 
 void Generate_C::pre_php_script(AST_php_script* in)
 {
-	cout << "#include \"php.h\"\n";
+	cout 
+	<< "#include \"php.h\"\n"
+	<< "zval* index_ht(HashTable* ht, char* key, int len)\n" 
+	<< "{\n"
+	<< "zval** zvpp;\n"
+	<< "if(zend_hash_find(ht, key, len, (void**)&zvpp) != SUCCESS)\n"
+	<< "{\n"
+	<< "zval* zvp;\n"
+	<< "ALLOC_INIT_ZVAL(zvp);\n"
+	<< "zend_hash_add(ht, key, len, &zvp, sizeof(zval*), NULL);\n"
+	<< "zend_hash_find(ht, key, len, (void**)&zvpp);\n"
+	<< "}\n"
+	<< "return *zvpp;\n"
+	<< "}\n"
+	;
 }
 
 void Generate_C::post_php_script(AST_php_script* in)
