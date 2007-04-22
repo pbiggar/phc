@@ -13,8 +13,10 @@
 -->
 <!DOCTYPE set PUBLIC "-//phc//DTD DocBook V3.1-Based Extension//EN" "manual.dtd" [
 <!-- User manual -->
+<!ENTITY userintro SYSTEM "userintro.sgml">
 <!ENTITY install SYSTEM "install.sgml">
 <!ENTITY runningphc SYSTEM "runningphc.sgml">
+<!ENTITY porting SYSTEM "porting.sgml">
 <!-- Developers' manual -->
 <!ENTITY devintro SYSTEM "devintro.sgml">
 <!ENTITY gettingstarted SYSTEM "gettingstarted.sgml">
@@ -36,8 +38,10 @@
 <title>&phc Documentation</title>
 <book id="usermanual">
 	<title>The &phc User's Manual</title>
+	&userintro
 	&install
 	&runningphc
+	&porting
 </book>
 <book id="devmanual">
 	<title>The &phc Developer's Manual</title>
