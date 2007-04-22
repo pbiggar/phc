@@ -94,7 +94,10 @@ int main(int argc, char** argv)
 		process_ast(php_script);
 
 		// lift
-		if(args_info.run_lifting_flag)
+		if(args_info.run_lifting_flag
+				|| args_info.run_lowering_flag 
+				|| args_info.run_shredder_flag
+				|| args_info.obfuscate_flag)
 		{
 			Lift_functions_and_classes lift;
 			php_script->transform_children(&lift);
