@@ -136,27 +136,70 @@ protected:
 	Wildcard<AST_variable>* lhs;
 };
 
-class Assign_string : public Assignment 
+template<class T>
+class Assign_literal : public Assignment
 {
 public:
 	AST_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<Token_string>;
+		rhs = new Wildcard<T>;
 		return rhs;
 	}
 
 	void generate_rhs()
 	{
+		cout << "MAKE_STD_ZVAL(rhs);\n";
+		init_rhs();
+	}
+
+	virtual void init_rhs() = 0;
+
+protected:
+	Wildcard<T>* rhs;
+};
+
+class Assign_int : public Assign_literal<Token_int> 
+{
+	void init_rhs()
+	{
+		cout << "ZVAL_LONG(rhs, " << rhs->value->value << ");\n"; 
+	}
+};
+
+class Assign_real : public Assign_literal<Token_real> 
+{
+	void init_rhs()
+	{
+		cout << "ZVAL_DOUBLE(rhs, " << rhs->value->value << ");\n";
+	}
+};
+
+class Assign_bool : public Assign_literal<Token_bool> 
+{
+	void init_rhs()
+	{
+		cout << "ZVAL_BOOL(rhs, " << rhs->value->value << ");\n";
+	}
+};
+
+class Assign_null : public Assign_literal<Token_null> 
+{
+	void init_rhs()
+	{
+		cout << "ZVAL_NULL(rhs);\n";
+	}
+};
+
+class Assign_string : public Assign_literal<Token_string> 
+{
+	void init_rhs()
+	{
 		cout 
-		<< "MAKE_STD_ZVAL(rhs);\n"
 		<< "ZVAL_STRING(rhs, " 
 		<< "\"" << escape(rhs->value->value) << "\", "
 		<< "1);\n"
 		;
 	}
-
-protected:
-	Wildcard<Token_string>* rhs;
 
 public:
 	static string escape(String* s)
@@ -277,6 +320,10 @@ void Generate_C::children_statement(AST_statement* in)
 	{
 		new Method_definition()
 	,	new Assign_string()
+	,	new Assign_int()
+	,	new Assign_null()
+	,	new Assign_bool()
+	,	new Assign_real()
 	,	new Method_invocation()
 	};
 
