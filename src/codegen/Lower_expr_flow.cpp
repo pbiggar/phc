@@ -39,13 +39,13 @@ AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
 		pieces->push_back(new AST_eval_expr(in->left));
 		return in->right;
 	}
-	else if(*in->op->value == "||")
+	else if(*in->op->value == "||" || *in->op->value == "or")
 	{
 		AST_variable* temp = eval(in->left);
 		return post_conditional_expr(new AST_conditional_expr(
 			temp->clone(), temp->clone(), in->right));
 	}
-	else if(*in->op->value == "&&")
+	else if(*in->op->value == "&&" || *in->op->value == "and")
 	{
 		AST_variable* temp = eval(in->left); 
 		return post_conditional_expr(new AST_conditional_expr(

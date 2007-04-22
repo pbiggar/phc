@@ -14,6 +14,46 @@
 #include "process_ast/PHP_unparser.h"
 
 /*
+ * Map of the Zend functions that implement the binary operators
+ * The map also contains entries for ++ and --, which are identical to the
+ * entries for + and -, but obviously need to be invoked slightly differently.
+ */
+
+static class Bin_op_functions : public map<string,string>
+{
+public:
+	Bin_op_functions() : map<string,string>()
+	{
+		(*this)["+"] = "add_function";	
+		(*this)["-"] = "sub_function";	
+		(*this)["*"] = "mul_function";	
+		(*this)["/"] = "div_function";	
+		(*this)["%"] = "mod_function";	
+		(*this)["xor"] = "boolean_xor_function";
+		(*this)["!"] = "boolean_not_function";
+		(*this)["not"] = "boolean_not_function";
+		(*this)["~"] = "bitwise_not_function";
+		(*this)["|"] = "bitwise_or_function";
+		(*this)["&"] = "bitwise_and_function";
+		(*this)["^"] = "bitwise_xor_function";
+		(*this)["<<"] = "shift_left_function";
+		(*this)[">>"] = "shift_right_function";
+		(*this)["."] = "concat_function";
+		(*this)["=="] = "is_equal_function";
+		(*this)["==="] = "is_identical_function";
+		(*this)["!=="] = "is_not_identical_function";
+		(*this)["!="] = "is_not_equal_function";
+		(*this)["<>"] = "is_not_equal_function";
+		(*this)["<"] = "is_smaller_function";
+		(*this)["<="] = "is_smaller_or_equal_function";
+		(*this)[">="] = "is_smaller_function"; // This one looks wrong, but we reverse the operands to make this
+		(*this)[">"] = "is_smaller_or_equal_function"; // This one too
+		(*this)["++"] = "add_function";
+		(*this)["--"] = "sub_function";
+	}
+} bin_op_functions;
+
+/*
  * Pattern definitions for statements
  */
 
@@ -309,6 +349,68 @@ protected:
 	Wildcard<AST_method_invocation>* rhs;
 };
 
+class Bin_op : public Assignment
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		left = new Wildcard<Token_variable_name>;
+		op = new Wildcard<Token_op>;
+		right = new Wildcard<Token_variable_name>;
+
+		return new AST_bin_op(
+			new AST_variable(NULL, left, new List<AST_expr*>),
+			op, 
+			new AST_variable(NULL, right, new List<AST_expr*>)
+			); 
+	}
+
+	void generate_rhs()
+	{
+		assert(
+			bin_op_functions.find(*op->value->value) != 
+			bin_op_functions.end());
+		string op_fn = bin_op_functions[*op->value->value]; 
+
+		cout 
+		<< "zval* left;\n"
+		<< "zval* right;\n"
+		// Find left argument
+		<< "{\n"
+		<< "zval** arg;\n"
+		<< "zend_hash_find(locals, "
+		<< "\"" << *left->value->value << "\", "
+		<< left->value->value->length() << ", "
+		<< "(void**)&arg);\n"
+		<< "left = *arg;\n"
+		<< "}\n"
+		// Find right argument
+		<< "{\n"
+		<< "zval** arg;\n"
+		<< "zend_hash_find(locals, "
+		<< "\"" << *right->value->value << "\", "
+		<< right->value->value->length() << ", "
+		<< "(void**)&arg);\n"
+		<< "right = *arg;\n"
+		<< "}\n"
+		// Execute the binary operator
+		<< "MAKE_STD_ZVAL(rhs);\n"
+		;
+
+		// some operators need the operands to be reversed (since we call the
+		// opposite function). This is accounted for in the binops table.
+		if(*op->value->value == ">" || *op->value->value == ">=")
+			cout << op_fn << "(rhs, right, left TSRMLS_CC);\n";
+		else
+			cout << op_fn << "(rhs, left, right TSRMLS_CC);\n";
+	}
+
+protected:
+	Wildcard<Token_variable_name>* left;
+	Wildcard<Token_op>* op;
+	Wildcard<Token_variable_name>* right;
+};
+
 /*
  * Visitor methods to generate C code
  * Visitor for statements uses the patterns defined above.
@@ -325,6 +427,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_bool()
 	,	new Assign_real()
 	,	new Method_invocation()
+	,	new Bin_op()
 	};
 
 	bool matched = false;
@@ -501,45 +604,6 @@ Generate_C::Generate_C(String* extension_name)
 static List<String*> methods;		// list of all methods compiled
 static List<String*> eofn_labels;	// end of function labels
 
-/*
- * Map of the Zend functions that implement the binary operators
- * The map also contains entries for ++ and --, which are identical to the
- * entries for + and -, but obviously need to be invoked slightly differently.
- */
-
-static class Bin_op_functions : public map<string,string>
-{
-public:
-	Bin_op_functions() : map<string,string>()
-	{
-		(*this)["+"] = "add_function";	
-		(*this)["-"] = "sub_function";	
-		(*this)["*"] = "mul_function";	
-		(*this)["/"] = "div_function";	
-		(*this)["%"] = "mod_function";	
-		(*this)["xor"] = "boolean_xor_function";
-		(*this)["!"] = "boolean_not_function";
-		(*this)["not"] = "boolean_not_function";
-		(*this)["~"] = "bitwise_not_function";
-		(*this)["|"] = "bitwise_or_function";
-		(*this)["&"] = "bitwise_and_function";
-		(*this)["^"] = "bitwise_xor_function";
-		(*this)["<<"] = "shift_left_function";
-		(*this)[">>"] = "shift_right_function";
-		(*this)["."] = "concat_function";
-		(*this)["=="] = "is_equal_function";
-		(*this)["==="] = "is_identical_function";
-		(*this)["!=="] = "is_not_identical_function";
-		(*this)["!="] = "is_not_equal_function";
-		(*this)["<>"] = "is_not_equal_function";
-		(*this)["<"] = "is_smaller_function";
-		(*this)["<="] = "is_smaller_or_equal_function";
-		(*this)[">="] = "is_smaller_function"; // This one looks wrong, but we reverse the operands to make this
-		(*this)[">"] = "is_smaller_or_equal_function"; // This one too
-		(*this)["++"] = "add_function";
-		(*this)["--"] = "sub_function";
-	}
-} bin_op_functions;
 
 /* TODO we can support break's with computed gotos :) */
 
