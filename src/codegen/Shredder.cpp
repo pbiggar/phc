@@ -152,7 +152,7 @@ class Annotate : public AST_visitor
 };
 
 /*
- * Remove unparser attributes
+ * Remove unparser attributes and desugar
  */
 
 void Shredder::children_php_script(AST_php_script* in)
@@ -362,3 +362,36 @@ AST_expr* Shredder::post_null(Token_null* in)
 	return eval(in);
 }
 
+/*
+ * Array literals
+ */
+
+AST_expr* Shredder::post_array(AST_array* in)
+{
+	String* temp = fresh("TS");
+	List<AST_array_elem*>::const_iterator i;
+	
+	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
+	{
+		AST_expr* key;
+
+		if((*i)->key != NULL)
+			key = (*i)->key;
+		else
+			key = NULL;
+
+		pieces->push_back(new AST_eval_expr(new AST_assignment(
+			new AST_variable(
+				NULL,
+				new Token_variable_name(temp->clone()),
+				new List<AST_expr*>(key)),
+			(*i)->is_ref,
+			(*i)->val
+			)));
+	}
+	
+	return new AST_variable(
+		NULL,
+		new Token_variable_name(temp),
+		new List<AST_expr*>());
+}

@@ -29,6 +29,7 @@ public:
 	AST_expr* post_bool(Token_bool* in);
 	AST_expr* post_string(Token_string* in);
 	AST_expr* post_null(Token_null* in);
+	AST_expr* post_array(AST_array* in);
 };
 
 #endif // PHC_SHREDDER_H
