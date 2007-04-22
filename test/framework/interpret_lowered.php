@@ -35,7 +35,9 @@ class InterpretLowered extends TwoCommandTest
 
 	function homogenize_output ($string)
 	{
-		return $this->homogenize_line_numbers ($string);
+		$string = $this->homogenize_line_numbers ($string);
+		$string = $this->homogenize_break_levels ($string);
+		return $string;
 	}
 
 }

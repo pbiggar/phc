@@ -498,7 +498,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	AST_method_name* name = new Token_method_name (new String ("die"));
 	List<AST_actual_parameter*> *params = new List<AST_actual_parameter*> ();
 	String* error_string = 
-		new String ("Fatal error: Too many break/continue levels");
+		new String ("\nFatal error: Too many break/continue levels\n");
 	AST_actual_parameter* param = 
 		new AST_actual_parameter (false, new Token_string (error_string, error_string));
 	params->push_back (param);
