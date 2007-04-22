@@ -15,9 +15,6 @@ class Shredder : public Lower_expr
 {
 public:
 	void children_php_script(AST_php_script* in);
-	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
-	void pre_global(AST_global* in, List<AST_statement*>* out);
-	AST_expr* pre_method_invocation(AST_method_invocation* in);
 
 public:
 	AST_variable* post_variable(AST_variable* in);

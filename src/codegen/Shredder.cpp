@@ -12,7 +12,108 @@
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
 
-class Prep : public AST_visitor
+class Desugar : public AST_transform
+{
+public:
+	// All eval_expr must be assignments; if they are not, we generate
+	// a dummy assignment on the LHS
+	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+	{
+		if(in->expr->classid() != AST_assignment::ID)
+		{
+			in->expr = new AST_assignment(fresh_var("TS"), false, in->expr);
+		}
+	
+		out->push_back(in);
+	}
+
+ 	// Global is translated into a reference to the GLOBALS array
+	void pre_global(AST_global* in, List<AST_statement*>* out)
+	{
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(in->variable_name);
+	
+		if(name != NULL)
+		{
+			out->push_back(new AST_eval_expr(new AST_assignment(
+				new AST_variable(NULL, name, new List<AST_expr*>),
+				true,
+				new AST_variable(
+					NULL, 
+					new Token_variable_name(new String("GLOBALS")),
+					new List<AST_expr*>(new Token_string(
+						name->value->clone(),
+						name->value->clone()
+				))))));
+		}
+		else
+		{
+			AST_reflection* reflection;
+			reflection = dynamic_cast<AST_reflection*>(in->variable_name);
+			assert(reflection != NULL);
+	
+			out->push_back(new AST_eval_expr(new AST_assignment(
+				new AST_variable(NULL, reflection, new List<AST_expr*>),
+				true,
+				new AST_variable(
+					NULL, 
+					new Token_variable_name(new String("GLOBALS")),
+					new List<AST_expr*>(reflection->expr)
+				))));
+		}
+	}
+
+	// Replace "-x" by "0 - x"
+	AST_expr* pre_unary_op(AST_unary_op* in)
+	{
+		if(*in->op->value == "-") return new AST_bin_op(
+			new Token_int(0, new String("0")),
+			in->op,
+			in->expr);
+		else
+			return in;
+	}
+
+	// Since the shredder changes all eval_expr into assignments, it will
+	// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
+	// function call in PHP, this will generate incorrect PHP code. For that
+	// reason, we translate echo(x) to printf("%s",x) here.
+	AST_expr* pre_method_invocation(AST_method_invocation* in)
+	{
+		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
+		AST_method_invocation* echo = new AST_method_invocation(
+			new Token_class_name(new String("%STDLIB%")),
+			new Token_method_name(new String("echo")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(false, arg)
+			));
+		AST_method_invocation* print = new AST_method_invocation(
+			new Token_class_name(new String("%STDLIB%")),
+			new Token_method_name(new String("print")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(false, arg)
+			));
+	
+		if(in->match(echo) || in->match(print))
+		{
+			return new AST_method_invocation(
+				new Token_class_name(new String("%STDLIB%")),
+				new Token_method_name(new String("printf")),
+				new List<AST_actual_parameter*>(
+					new AST_actual_parameter(
+						false, 
+						new Token_string(new String("%s"), new String("%s"))),
+					new AST_actual_parameter(
+						false,
+						arg->value)
+				));
+		}
+		else
+			return in;
+	}
+};
+
+class Annotate : public AST_visitor
 {
 	void pre_node(AST_node* in)
 	{
@@ -56,67 +157,15 @@ class Prep : public AST_visitor
 
 void Shredder::children_php_script(AST_php_script* in)
 {
-	Prep prep;
-	in->visit(&prep);
+	Desugar desugar;
+	in->transform_children(&desugar);
+
+	Annotate ann;
+	in->visit(&ann);
 
 	Lower_expr::children_php_script(in);
 }
 		
-/*
- * All eval_expr must be assignments; if they are not, we generate
- * a dummy assignment on the LHS
- */
-
-void Shredder::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
-{
-	if(in->expr->classid() != AST_assignment::ID)
-	{
-		in->expr->attrs->set_true("phc.lower_expr.no_temp");
-		in->expr = new AST_assignment(fresh_var("TS"), false, in->expr);
-	}
-
-	out->push_back(in);
-}
-
-/*
- * Global is translated into a reference to the GLOBALS array
- */
-
-void Shredder::pre_global(AST_global* in, List<AST_statement*>* out)
-{
-	Token_variable_name* name;
-	name = dynamic_cast<Token_variable_name*>(in->variable_name);
-
-	if(name != NULL)
-	{
-		out->push_back(new AST_eval_expr(new AST_assignment(
-			new AST_variable(NULL, name, new List<AST_expr*>),
-			true,
-			new AST_variable(
-				NULL, 
-				new Token_variable_name(new String("GLOBALS")),
-				new List<AST_expr*>(new Token_string(
-					name->value->clone(),
-					name->value->clone()
-			))))));
-	}
-	else
-	{
-		AST_reflection* reflection;
-		reflection = dynamic_cast<AST_reflection*>(in->variable_name);
-		assert(reflection != NULL);
-
-		out->push_back(new AST_eval_expr(new AST_assignment(
-			new AST_variable(NULL, reflection, new List<AST_expr*>),
-			true,
-			new AST_variable(
-				NULL, 
-				new Token_variable_name(new String("GLOBALS")),
-				new List<AST_expr*>(reflection->expr)
-			))));
-	}
-}
-
 /*
  * Variables (array indexing, object indexing)
  *
@@ -313,43 +362,3 @@ AST_expr* Shredder::post_null(Token_null* in)
 	return eval(in);
 }
 
-/*
- * Since the shredder changes all eval_expr into assignments, it will change
- * echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true function
- * call in PHP, this will generate incorrect PHP code. For that reason, we
- * translate echo(x) to printf("%s",x) here.
- */
-
-AST_expr* Shredder::pre_method_invocation(AST_method_invocation* in)
-{
-	Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
-	AST_method_invocation* echo = new AST_method_invocation(
-		new Token_class_name(new String("%STDLIB%")),
-		new Token_method_name(new String("echo")),
-		new List<AST_actual_parameter*>(
-			new AST_actual_parameter(false, arg)
-		));
-	AST_method_invocation* print = new AST_method_invocation(
-		new Token_class_name(new String("%STDLIB%")),
-		new Token_method_name(new String("print")),
-		new List<AST_actual_parameter*>(
-			new AST_actual_parameter(false, arg)
-		));
-
-	if(in->match(echo) || in->match(print))
-	{
-		return new AST_method_invocation(
-			new Token_class_name(new String("%STDLIB%")),
-			new Token_method_name(new String("printf")),
-			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(
-					false, 
-					new Token_string(new String("%s"), new String("%s"))),
-				new AST_actual_parameter(
-					false,
-					arg->value)
-			));
-	}
-	else
-		return in;
-}

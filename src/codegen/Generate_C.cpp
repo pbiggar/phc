@@ -46,10 +46,9 @@ public:
 		(*this)["<>"] = "is_not_equal_function";
 		(*this)["<"] = "is_smaller_function";
 		(*this)["<="] = "is_smaller_or_equal_function";
-		(*this)[">="] = "is_smaller_function"; // This one looks wrong, but we reverse the operands to make this
-		(*this)[">"] = "is_smaller_or_equal_function"; // This one too
-		(*this)["++"] = "add_function";
-		(*this)["--"] = "sub_function";
+		// The operands to the next two functions must be swapped
+		(*this)[">="] = "is_smaller_or_equal_function"; 
+		(*this)[">"] = "is_smaller_function";
 	}
 } bin_op_functions;
 
@@ -524,8 +523,9 @@ void Generate_C::children_statement(AST_statement* in)
 	if(not matched)
 	{
 		PHP_unparser pup;
-		cout << "// could not generate code for ";
+		cout << "/* could not generate code for ";
 		in->visit(&pup);
+		cout << "*/\n";
 	}
 }
 
