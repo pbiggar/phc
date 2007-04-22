@@ -488,6 +488,46 @@ protected:
 	Wildcard<Token_variable_name>* right;
 };
 
+class Unary_op : public Assignment
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		op = new Wildcard<Token_op>;
+		expr = new Wildcard<Token_variable_name>;
+
+		return new AST_unary_op(op,
+			new AST_variable(NULL, expr, new List<AST_expr*>)); 
+	}
+
+	void generate_rhs()
+	{
+		assert(
+			bin_op_functions.find(*op->value->value) != 
+			bin_op_functions.end());
+		string op_fn = bin_op_functions[*op->value->value]; 
+
+		cout 
+		<< "zval* expr;\n"
+		// Find left argument
+		<< "{\n"
+		<< "zval** arg;\n"
+		<< "zend_hash_find(locals, "
+		<< "\"" << *expr->value->value << "\", "
+		<< expr->value->value->length() << ", "
+		<< "(void**)&arg);\n"
+		<< "expr = *arg;\n"
+		<< "}\n"
+		// Execute the binary operator
+		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
+		;
+	}
+
+protected:
+	Wildcard<Token_op>* op;
+	Wildcard<Token_variable_name>* expr;
+};
 /*
  * Visitor methods to generate C code
  * Visitor for statements uses the patterns defined above.
@@ -505,6 +545,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_real()
 	,	new Method_invocation()
 	,	new Bin_op()
+	,	new Unary_op()
 	,	new Label()
 	,	new Branch()
 	,	new Goto()
