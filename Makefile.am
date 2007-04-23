@@ -105,6 +105,8 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_concat_null.h					\
 	src/process_ast/Remove_parser_temporaries.cpp			\
 	src/process_ast/Remove_parser_temporaries.h				\
+	src/process_ast/Strip_comments.cpp					\
+	src/process_ast/Strip_comments.h						\
 	src/process_ast/Token_conversion.cpp					\
 	src/process_ast/Token_conversion.h						\
 	src/process_ast/XML_unparser.cpp						\

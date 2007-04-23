@@ -44,13 +44,6 @@ void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement
 	out->push_back (label);
 }
 
-// Returns true if IN is a Toekn_int with a value of VALUE.
-bool is_int (AST_expr* in, int value)
-{
-	Token_int* _int = dynamic_cast<Token_int*> (in);
-	return _int && _int->value == value;
-}
-
 String* string_for_int (int i)
 {
 	stringstream ss;
@@ -434,7 +427,9 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	assert (levels);
 
 	// TODO: matching doesnt seem to work here
-	if (in->expr == NULL || is_int (in->expr, 0) || is_int (in->expr, 1))
+	
+	Token_int *_int = dynamic_cast<Token_int*> (in);
+	if (in->expr == NULL || (_int && _int->value <= 1))
 	{
 		// Create a label, pushback a goto to it, and attach it as an attribute
 		// of the innermost looping construct.
@@ -470,19 +465,11 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 		// Create: if ($TB1 == depth)
 		Token_op* op = new Token_op (new String ("=="));
 		Token_int* branch_num = new Token_int (depth, string_for_int (depth));
-		AST_expr* compare = new AST_bin_op (lhs->clone (), op, branch_num);
+		AST_bin_op* compare = new AST_bin_op (lhs->clone (), op, branch_num);
 
-		// Zero is the same as one, so check for it too
+		// We break to depth 1 for any expr <= 1
 		if (depth == 1)
-		{
-			// Turn ($TB == 1) into ($TB == 0 || $TB == 1)
-			Token_op* eq_op = new Token_op (new String ("=="));
-			Token_int* zero = new Token_int (0, new String ("0"));
-			AST_expr* zero_comp = new AST_bin_op (lhs->clone (), eq_op, zero);
-
-			Token_op* or_op = new Token_op (new String ("||"));
-			compare = new AST_bin_op (compare, or_op, zero_comp);
-		}
+			compare->op = new Token_op (new String ("<="));
 
 		AST_label* iffalse = fresh_label ();
 		AST_branch* branch = new AST_branch (compare, iftrue->label_name, iffalse->label_name);
