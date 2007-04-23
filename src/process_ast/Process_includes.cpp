@@ -49,7 +49,7 @@ extern struct gengetopt_args_info args_info;
 
 /* However, all functions and classes defined in the included file have
  * the global scope. */
-// we put them in %MAIN% 
+// we put them in the current function, as above.
 
 /* If the include occurs inside a function within the calling file, then all of
  * the code contained in the called file will behave as though it had been
@@ -183,7 +183,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			return;
 		}
 
-		// copy the statements from %MAIN%::%run%
+		// copy the statements
 		out->push_back_all(php_script->statements);
 	}
 	else
@@ -201,7 +201,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 						new AST_actual_parameter(false, token_filename)));
 
 		if	((in->expr->match(method)) and
-				(*(method_name->value->value) == "include" or *(method_name->value->value) == "require"))
+				(*(method_name->value->value) == "include_once" or *(method_name->value->value) == "require_once"))
 		{
 			ostringstream os;
 			PHP_unparser pup(os);

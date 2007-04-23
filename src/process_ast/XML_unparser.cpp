@@ -169,6 +169,11 @@ void XML_unparser::pre_node(AST_node* in)
 				HANDLE_INT ("phc.codegen.temp")
 				HANDLE_INT ("phc.codegen.num_temps")
 				HANDLE_BOOLEAN ("phc.shredder.need_addr")
+				HANDLE_BOOLEAN ("phc.lower_expr.no_temp")
+				HANDLE_BOOLEAN ("phc.unparser.is_singly_quoted")
+				HANDLE_BOOLEAN ("phc.unparser.index_curlies")
+//				HANDLE_BOOLEAN ("phc.codegen.break_label")
+//				HANDLE_BOOLEAN ("phc.codegen.continue_label")
 #undef HANDLE_BOOLEAN
 #undef HANDLE_STRING
 #undef HANDLE_INT
