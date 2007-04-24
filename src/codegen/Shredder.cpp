@@ -258,11 +258,6 @@ AST_expr* Shredder::post_unary_op(AST_unary_op* in)
 	return eval(in);
 }
 	
-AST_expr* Shredder::post_conditional_expr(AST_conditional_expr* in)
-{
-	return eval(in);
-}
-
 AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 {
 	Token_op* op;

@@ -74,19 +74,19 @@ AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
 
 AST_expr* Lower_expr_flow::post_conditional_expr(AST_conditional_expr* in)
 {
-	Token_label_name* label1 = new Token_label_name(fresh("LEF"));
-	Token_label_name* label2 = new Token_label_name(fresh("LEF"));
-	Token_label_name* label3 = new Token_label_name(fresh("LEF"));
+	AST_label* label1 = fresh_label();
+	AST_label* label2 = fresh_label();
+	AST_label* label3 = fresh_label();
 	AST_variable* temp = fresh_var("TEF");
 
-	pieces->push_back(new AST_branch(in->cond, label1, label2));
-	pieces->push_back(new AST_label(label1));
+	pieces->push_back(new AST_branch(in->cond, label1->label_name, label2->label_name));
+	pieces->push_back(label1);
 	eval(in->iftrue, temp);
-	pieces->push_back(new AST_goto(label3));
-	pieces->push_back(new AST_label(label2));
+	pieces->push_back(new AST_goto(label3->label_name));
+	pieces->push_back(label2);
 	eval(in->iffalse, temp);
-	pieces->push_back(new AST_goto(label3));
-	pieces->push_back(new AST_label(label3));
+	pieces->push_back(new AST_goto(label3->label_name));
+	pieces->push_back(label3);
 	
 	return temp;
 }
