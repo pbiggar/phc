@@ -127,10 +127,7 @@ FILE_PATTERNS          = *.c \
                          *.MM \
                          *.PY
 RECURSIVE              = YES
-EXCLUDE                = /tmp/phc_testing/trunk/src/3rdparty/ \
-                         /tmp/phc_testing/trunk/doc/ \
-                         /tmp/phc_testing/trunk/test/support_files/ \
-                         /tmp/phc_testing/trunk/misc/
+EXCLUDE                = 
 EXCLUDE_SYMLINKS       = YES
 EXCLUDE_PATTERNS       = 
 EXAMPLE_PATH           = 
@@ -162,8 +159,8 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = /tmp/phc_testing/www/template/header.html
-HTML_FOOTER            = /tmp/phc_testing/www/template/footer.html
+HTML_HEADER            = /tmp/phc_testing/www/trunk/template/header.html
+HTML_FOOTER            = /tmp/phc_testing/www/trunk/emplate/footer.html
 HTML_STYLESHEET        = /tmp/phc_testing/www/phc.css
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
