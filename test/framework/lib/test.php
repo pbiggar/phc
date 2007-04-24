@@ -65,7 +65,7 @@ abstract class Test
 
 	function homogenize_break_levels ($string)
 	{
-		$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ levels in .*/",
+		$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ level(s)? in .*/",
 										"Fatal error: Too many break/continue levels", $string);
 		return $string;
 	}

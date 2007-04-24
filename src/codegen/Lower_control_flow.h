@@ -22,6 +22,11 @@ class Lower_control_flow : public AST_transform
 		template<class T> AST_label* exit_label (AST_node*);
 		template<class T> void lower_exit (T*, List<AST_statement*>*);
 		void lower_for (AST_for*, List<AST_statement*>*);
+		void lower_foreach (AST_foreach*, List<AST_statement*>*);
+		void lower_do (AST_do*, List<AST_statement*>*);
+		void lower_if (AST_if*, List<AST_statement*>*);
+		void lower_while (AST_while* in, List<AST_statement*>* out);
+		void lower_switch(AST_switch* in, List<AST_statement*>* out);
 
 	public:
 		void pre_while(AST_while* in, List<AST_statement*>* out);
