@@ -77,6 +77,7 @@ AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 			if(!PHP_parse(context))
 			{
 				php_script = context->php_script;
+				php_script->attrs->set ("phc.filename", filename);
 				run_standard_transforms(php_script);
 			}
 		}
