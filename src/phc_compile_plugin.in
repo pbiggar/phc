@@ -6,41 +6,65 @@
 # Shell script to compile phc plugins
 
 _FILENAME=$1
-if test ! $# -eq 1 
+if [ $# -ne 1 ]
 then 
+	# set the filename for the error message
 	_FILENAME="myplugin.cpp"
+else
+	# check the file exists
+	if [ ! -e $_FILENAME ]; then
+		echo "Error: File not found: $_FILENAME";
+		exit 1
+	fi
 fi
+_OBJECT="`basename $_FILENAME .cpp`.lo"
+_OUTPUT="`basename $_FILENAME .cpp`.la"
 
+# these are set by configure
 _INSTALL_DIR="@pkglibdir@"
 _INCLUDES="-I@includedir@/phc"
 
-if test "-$CFLAGS" = "-"
-then CFLAGS="@CFLAGS@"
+# allow environmental vars to override configured settings
+if [ "-$CFLAGS" = "-" ]; then
+	CFLAGS="@CFLAGS@"
 fi
-if test "-$LDFLAGS" = "-"
-then LDFLAGS="@LDFLAGS@"
+if [ "-$LDFLAGS" = "-" ]; then
+	LDFLAGS="@LDFLAGS@"
 fi
 
-_LIBTOOL="@libexecdir@/libtool";
-_OUTPUT="`basename $_FILENAME .cpp`.la"
+# Find the appropriate libtool to use
+_ORIGINAL_LIBTOOL="@libexecdir@/libtool";
+_LIBTOOL=$_ORIGINAL_LIBTOOL
+# If its not installed there might be a libtool in the current directory
+if [ ! -x $_LIBTOOL ]; then _LIBTOOL="./libtool"; fi
+# Then just hope its in the path
+if [ ! -x $_LIBTOOL ]; then _LIBTOOL="libtool"; fi
+if [ ! -x $_LIBTOOL ]; then 
+	echo "Error: Libtool missing or not executable - searched $_ORIGINAL_LIBTOOL, ./libtool and in your PATH"
+	exit 1
+fi
+
 # We only support gcc, but @CXX@ might be a non-default version.
 _COMPILE="$_LIBTOOL --mode=compile @CXX@ $_INCLUDES $CFLAGS -c $_FILENAME"
-_LINK="$_LIBTOOL --mode=link @CXX@ -module $LDFLAGS $_FILENAME -o $_OUTPUT -rpath $_INSTALL_DIR"
+_LINK="$_LIBTOOL --mode=link @CXX@ -module $LDFLAGS $_OBJECT -o $_OUTPUT -rpath $_INSTALL_DIR"
 
-if test ! $# -eq 1
+if [ $# -ne 1 ]
 then
 	echo "usage: $0 $_FILENAME"
 	echo
 	echo "If you wish to use more complicated options for g++,"
-	echo "override the \$LDFLAGS or \$CFLAGS environmental variables,"
+	echo "override the LDFLAGS or CFLAGS environmental variables,"
 	echo "or modify the following commands:"
 	echo
 	echo "  $_COMPILE"
 	echo "  $_LINK"
-	exit
+	exit 1
 fi
 
+# 
 echo $_COMPILE
-$_COMPILE
+$_COMPILE || exit 1
 echo $_LINK
-$_LINK
+$_LINK || exit 1
+
+exit 0
