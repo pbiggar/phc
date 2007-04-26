@@ -9,7 +9,7 @@
 // when dealing with the manual, we need more space
 ini_set("memory_limit","256M");
 ini_set("include_path","test/framework/external/:".ini_get("include_path"));
-set_time_limit (0); // dont let the script time out
+set_time_limit (60); // recnetly we've run into infinite loops. Maybe dying mightn't be a bad idea
 
 // check version of php
 if (substr (phpversion (), 0, 1) < 5)
@@ -40,6 +40,7 @@ if ($opt_installed)
 	$phc = "$bindir/phc";
 	$plugin_dir = "$pkglibdir/plugins";
 	$phc_compile_plugin = "$bindir/phc_compile_plugin";
+	$trunk_CPPFLAGS = ""; // we use these for compiling plugins with phc_compile_plugin
 }
 
 $tests = array ();

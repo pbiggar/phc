@@ -6,21 +6,22 @@
  * Get values from configure
  */
 
-$valgrind = "@valgrind@";
-$graphviz_gc = "@graphviz_gc@";
-$dot = "@dot@";
-$php_exe = "@php@";
-$gcc = "@CC@";
-$diff = "@diff@";
-$php_path = "@php_install_path@";
+$valgrind = '@valgrind@';
+$graphviz_gc = '@graphviz_gc@';
+$dot = '@dot@';
+$php_exe = '@php@';
+$gcc = '@CC@';
+$diff = '@diff@';
+$php_path = '@php_install_path@';
 if ($php_path)
 {
-	$libphp = "$php_path/lib";
+	$libphp = '$php_path/lib';
 }
-$bindir = "@bindir@";
-$pkglibdir = "@pkglibdir@";
-$phc_suffix = "@EXEEXT@";
-$xerces_compiled_in = "@xerces_compiled_in@";
+$bindir = '@bindir@';
+$pkglibdir = '@pkglibdir@';
+$phc_suffix = '@EXEEXT@';
+$trunk_CPPFLAGS = '\'@AM_CPPFLAGS@\'';
+$xerces_compiled_in = '@xerces_compiled_in@';
 
 
 ?>

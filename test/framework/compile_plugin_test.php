@@ -18,6 +18,7 @@ class CompilePluginTest extends NoSubjectTest
 	function run_test ($subject)
 	{
 		global $phc;
+		global $trunk_CPPFLAGS;
 		phc_assert ($subject == "All", "Shouldnt have test subjects passed here");
 		global $phc_compile_plugin;
 
@@ -29,9 +30,11 @@ class CompilePluginTest extends NoSubjectTest
 			return;
 		}
 
+		# phc_compile_plugin only allows CFLAGS and LDFLAGS, even though we use CPPFLAGS
+		if ($trunk_CPPFLAGS)
+			$trunk_CPPFLAGS = "CFLAGS=$trunk_CPPFLAGS";
 
-# TODO this -I stuff is very iffy. Use autovars
-		$command = "CFLAGS=\"-I. -Isrc -I src/generated\" $phc_compile_plugin plugin.cpp 2>&1 > /dev/null "; # throw away stdout. Compiler errors come in on stderr
+		$command = "$trunk_CPPFLAGS $phc_compile_plugin plugin.cpp 2>&1 > /dev/null "; # throw away stdout. Compiler errors come in on stderr
 		list ($output, $return_value) = complete_exec ($command);
 		if ($output || $return_value != 0)
 		{
