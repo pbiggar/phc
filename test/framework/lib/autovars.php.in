@@ -15,7 +15,7 @@ $diff = '@diff@';
 $php_path = '@php_install_path@';
 if ($php_path)
 {
-	$libphp = '$php_path/lib';
+	$libphp = "$php_path/lib";
 }
 $bindir = '@bindir@';
 $pkglibdir = '@pkglibdir@';

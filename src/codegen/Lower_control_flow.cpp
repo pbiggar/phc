@@ -242,20 +242,53 @@ void Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
 	continue_levels.pop_back ();
 }
 
-/* Foreach looks complicated. Theoretically, you could replace it with
- *		reset ($array)
- *		while (current ($array))
- *		{
- *			$x = current ($array);
- *			...
- *			next ($array);
- *		}
- * but it seems from looking at the PHP opcodes that the internal iterator
- * (why?!?) needs locks acquired, which makes sense. I'll return to this later
+/* Convert 
+ *   foreach ($array as $x)
+ *   {
+ *		 ...;
+ *   }
+ * into
+ *	  $temp_array = $array; // copies the array, implicit reset
+ *	  while (current ($temp_array))
+ *	  {
+ *	    $x = current ($temp_array);
+ *		 ...
+ *		 next ($temp_array);
+ *	  }
+ *	
+ *	However, if we use references, we convert
+ *   foreach ($array as &$x)
+ *   {
+ *		 ...;
+ *   }
+ * into
+ *	  $temp_array =& $array; // same array, only evaluate expr once
+ *	  reset ($temp_array)
+ *	  while (list ($key, $val) = each ($temp_array))
+ *	  {
+ *	    $x = current ($temp_array);
+ *		 ...
+ *		 next ($temp_array);
+ *	  }
+ *	
+ 
  * */
 
 void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* out)
 {
+	AST_variable* array = fresh_var ("LCF");
+	// only evaluate the array once
+	AST_assignment* copy = new AST_assignment (array, in->is_ref, in->expr);
+
+	if (in->is_ref)
+	{
+		
+	}
+	else
+	{
+		// copy the array
+
+	}
 	/*
 	// these are expressions, which arent statements, so they need to be wrapped
 	AST_statement* init = new AST_eval_expr (in->init);

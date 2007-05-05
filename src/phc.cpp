@@ -22,6 +22,8 @@
 #include "codegen/Shredder.h"
 #include "codegen/Goto_uppering.h"
 #include "codegen/Reorder_functions.h"
+#include "codegen/Check_lowering.h"
+#include "codegen/Check_uppering.h"
 #include "process_ast/Strip_comments.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -124,6 +126,9 @@ int main(int argc, char** argv)
 		Lower_expr_flow lef;
 		php_script->transform_children (&lcf);
 		php_script->transform_children (&lef);
+
+		Check_lowering cl;
+		php_script->visit (&cl);
 	}
 
 	// shred
@@ -144,6 +149,9 @@ int main(int argc, char** argv)
 	{
 		Goto_uppering gu;
 		php_script->visit (&gu);
+
+		Check_uppering cl;
+		php_script->visit (&cl);
 	}
 
 	// Strip comments

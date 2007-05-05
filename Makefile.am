@@ -45,8 +45,12 @@ src_phc_SOURCES =												\
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
 	src/codegen/Goto_uppering.h							\
+	src/codegen/Check_uppering.cpp						\
+	src/codegen/Check_uppering.h							\
 	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
+	src/codegen/Check_lowering.cpp						\
+	src/codegen/Check_lowering.h							\
 	src/codegen/Lower_expr.cpp								\
 	src/codegen/Lower_expr.h								\
 	src/codegen/Lower_expr_flow.cpp						\

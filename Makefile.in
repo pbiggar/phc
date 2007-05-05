@@ -149,7 +149,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	Lower_control_flow.$(OBJEXT) Lower_expr.$(OBJEXT) \
+	Check_uppering.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
+	Check_lowering.$(OBJEXT) Lower_expr.$(OBJEXT) \
 	Lower_expr_flow.$(OBJEXT) Reorder_functions.$(OBJEXT) \
 	Shredder.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
 	fresh.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
@@ -398,8 +399,12 @@ src_phc_SOURCES = \
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
 	src/codegen/Goto_uppering.h							\
+	src/codegen/Check_uppering.cpp						\
+	src/codegen/Check_uppering.h							\
 	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
+	src/codegen/Check_lowering.cpp						\
+	src/codegen/Check_lowering.h							\
 	src/codegen/Lower_expr.cpp								\
 	src/codegen/Lower_expr.h								\
 	src/codegen/Lower_expr_flow.cpp						\
@@ -801,6 +806,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Check_lowering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Check_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
@@ -1067,6 +1074,20 @@ Goto_uppering.obj: src/codegen/Goto_uppering.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Goto_uppering.obj `if test -f 'src/codegen/Goto_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Goto_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Goto_uppering.cpp'; fi`
 
+Check_uppering.o: src/codegen/Check_uppering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.o -MD -MP -MF "$(DEPDIR)/Check_uppering.Tpo" -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Check_uppering.Tpo" "$(DEPDIR)/Check_uppering.Po"; else rm -f "$(DEPDIR)/Check_uppering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp
+
+Check_uppering.obj: src/codegen/Check_uppering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.obj -MD -MP -MF "$(DEPDIR)/Check_uppering.Tpo" -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Check_uppering.Tpo" "$(DEPDIR)/Check_uppering.Po"; else rm -f "$(DEPDIR)/Check_uppering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`
+
 Lower_control_flow.o: src/codegen/Lower_control_flow.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_control_flow.o -MD -MP -MF "$(DEPDIR)/Lower_control_flow.Tpo" -c -o Lower_control_flow.o `test -f 'src/codegen/Lower_control_flow.cpp' || echo '$(srcdir)/'`src/codegen/Lower_control_flow.cpp; \
 @am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Lower_control_flow.Tpo" "$(DEPDIR)/Lower_control_flow.Po"; else rm -f "$(DEPDIR)/Lower_control_flow.Tpo"; exit 1; fi
@@ -1080,6 +1101,20 @@ Lower_control_flow.obj: src/codegen/Lower_control_flow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lower_control_flow.cpp' object='Lower_control_flow.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_control_flow.obj `if test -f 'src/codegen/Lower_control_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_control_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_control_flow.cpp'; fi`
+
+Check_lowering.o: src/codegen/Check_lowering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.o -MD -MP -MF "$(DEPDIR)/Check_lowering.Tpo" -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Check_lowering.Tpo" "$(DEPDIR)/Check_lowering.Po"; else rm -f "$(DEPDIR)/Check_lowering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp
+
+Check_lowering.obj: src/codegen/Check_lowering.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.obj -MD -MP -MF "$(DEPDIR)/Check_lowering.Tpo" -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Check_lowering.Tpo" "$(DEPDIR)/Check_lowering.Po"; else rm -f "$(DEPDIR)/Check_lowering.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`
 
 Lower_expr.o: src/codegen/Lower_expr.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_expr.o -MD -MP -MF "$(DEPDIR)/Lower_expr.Tpo" -c -o Lower_expr.o `test -f 'src/codegen/Lower_expr.cpp' || echo '$(srcdir)/'`src/codegen/Lower_expr.cpp; \
