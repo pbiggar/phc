@@ -22,6 +22,8 @@ class Check_lowering : public AST_visitor
 		void post_if(AST_if* in);
 		void post_break(AST_break* in);
 		void post_continue(AST_continue* in);
+		void post_conditional_expr (AST_conditional_expr* in);
+		void post_bin_op (AST_bin_op* in);
 };
 
 #endif // PHC_CHECK_LOWERING_H

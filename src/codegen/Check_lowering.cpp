@@ -48,4 +48,18 @@ void Check_lowering::post_continue(AST_continue* in)
 	assert (false);
 }
 
+void Check_lowering::post_bin_op (AST_bin_op* in)
+{
+	if (*in->op->value == "||"
+		|| *in->op->value == "or"
+		|| *in->op->value == "&&"
+		|| *in->op->value == "and"
+		|| *in->op->value == ",")
+		assert (false);
+}
 
+
+void Check_lowering::post_conditional_expr (AST_conditional_expr* in)
+{
+	assert (false);
+}
