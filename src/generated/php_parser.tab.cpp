@@ -426,7 +426,7 @@ typedef union YYSTYPE
 	AST_constant* ast_constant;
 	List<AST_array_elem*>* list_ast_array_elem;
 	List<AST_expr*>* list_ast_expr;
-	AST_list_elements* ast_list_elements;
+	AST_nested_list_elements* ast_nested_list_elements;
 	AST_list_element* ast_list_element;
 	String* string;
 	List<AST_actual_parameter*>* list_ast_actual_parameter;
@@ -5038,7 +5038,7 @@ yyreduce:
   case 180:
 #line 1788 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_list_assignment, ((yyvsp[(3) - (6)].ast_list_elements), (yyvsp[(6) - (6)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_list_assignment, ((yyvsp[(3) - (6)].ast_nested_list_elements)->list_elements, (yyvsp[(6) - (6)].ast_expr)));
 		;}
     break;
 
@@ -6279,9 +6279,9 @@ yyreduce:
   case 328:
 #line 2757 "src/generated_src/php_parser.ypp"
     {
-			(yyvsp[(1) - (3)].ast_list_elements)->list_elements->push_back((yyvsp[(3) - (3)].ast_list_element));
+			(yyvsp[(1) - (3)].ast_nested_list_elements)->list_elements->push_back((yyvsp[(3) - (3)].ast_list_element));
 			
-			(yyval.ast_list_elements) = (yyvsp[(1) - (3)].ast_list_elements); 
+			(yyval.ast_nested_list_elements) = (yyvsp[(1) - (3)].ast_nested_list_elements); 
 		;}
     break;
 
@@ -6291,7 +6291,7 @@ yyreduce:
 			List<AST_list_element*>* elements = new List<AST_list_element*>;
 			elements->push_back((yyvsp[(1) - (1)].ast_list_element));
 			
-			(yyval.ast_list_elements) = NEW(AST_list_elements, (elements)); 
+			(yyval.ast_nested_list_elements) = NEW(AST_nested_list_elements, (elements)); 
 		;}
     break;
 
@@ -6305,7 +6305,7 @@ yyreduce:
   case 331:
 #line 2780 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_list_element) = (yyvsp[(3) - (4)].ast_list_elements);
+			(yyval.ast_list_element) = (yyvsp[(3) - (4)].ast_nested_list_elements);
 		;}
     break;
 

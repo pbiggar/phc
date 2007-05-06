@@ -91,9 +91,9 @@ literal ::= INT<int> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
 assignment ::= variable is_ref:"&"? expr ;
 
-list_assignment ::= list_elements expr ;
-list_elements ::= list_element?* ;
-list_element ::= variable | list_elements ;
+list_assignment ::= list_element?* expr ;
+list_element ::= variable | nested_list_elements ;
+nested_list_elements ::= list_element?* ;
 
 cast ::= CAST expr ;
 unary_op ::= OP expr ;

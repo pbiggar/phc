@@ -305,7 +305,7 @@ typedef union YYSTYPE
 	AST_constant* ast_constant;
 	List<AST_array_elem*>* list_ast_array_elem;
 	List<AST_expr*>* list_ast_expr;
-	AST_list_elements* ast_list_elements;
+	AST_nested_list_elements* ast_nested_list_elements;
 	AST_list_element* ast_list_element;
 	String* string;
 	List<AST_actual_parameter*>* list_ast_actual_parameter;

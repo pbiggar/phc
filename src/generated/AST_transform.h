@@ -61,7 +61,7 @@ public:
     virtual void pre_nop(AST_nop* in, List<AST_statement*>* out);
     virtual AST_expr* pre_assignment(AST_assignment* in);
     virtual AST_expr* pre_list_assignment(AST_list_assignment* in);
-    virtual AST_list_elements* pre_list_elements(AST_list_elements* in);
+    virtual void pre_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out);
     virtual AST_expr* pre_cast(AST_cast* in);
     virtual AST_expr* pre_unary_op(AST_unary_op* in);
     virtual AST_expr* pre_bin_op(AST_bin_op* in);
@@ -131,7 +131,7 @@ public:
     virtual void post_nop(AST_nop* in, List<AST_statement*>* out);
     virtual AST_expr* post_assignment(AST_assignment* in);
     virtual AST_expr* post_list_assignment(AST_list_assignment* in);
-    virtual AST_list_elements* post_list_elements(AST_list_elements* in);
+    virtual void post_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out);
     virtual AST_expr* post_cast(AST_cast* in);
     virtual AST_expr* post_unary_op(AST_unary_op* in);
     virtual AST_expr* post_bin_op(AST_bin_op* in);
@@ -201,7 +201,7 @@ public:
     virtual void children_nop(AST_nop* in);
     virtual void children_assignment(AST_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
-    virtual void children_list_elements(AST_list_elements* in);
+    virtual void children_nested_list_elements(AST_nested_list_elements* in);
     virtual void children_cast(AST_cast* in);
     virtual void children_unary_op(AST_unary_op* in);
     virtual void children_bin_op(AST_bin_op* in);
@@ -265,7 +265,6 @@ public:
     virtual Token_directive_name* transform_directive_name(Token_directive_name* in);
     virtual List<AST_catch*>* transform_catch_list(List<AST_catch*>* in);
     virtual List<AST_catch*>* transform_catch(AST_catch* in);
-    virtual AST_list_elements* transform_list_elements(AST_list_elements* in);
     virtual List<AST_list_element*>* transform_list_element_list(List<AST_list_element*>* in);
     virtual List<AST_list_element*>* transform_list_element(AST_list_element* in);
     virtual Token_cast* transform_cast(Token_cast* in);

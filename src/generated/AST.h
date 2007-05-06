@@ -40,7 +40,7 @@ class AST_member;
 class AST_switch_case;
 class AST_catch;
 class AST_expr;
-class AST_list_elements;
+class AST_nested_list_elements;
 class AST_reflection;
 class Token_class_name;
 class Token_interface_name;
@@ -345,7 +345,7 @@ public:
     virtual AST_directive* clone();
 };
 
-// list_element ::= variable | list_elements;
+// list_element ::= variable | nested_list_elements;
 class AST_list_element : virtual public AST_node
 {
 public:
@@ -627,13 +627,13 @@ public:
     virtual AST_expr* clone() = 0;
 };
 
-// list_elements ::= list_element?* ;
-class AST_list_elements : virtual public AST_list_element
+// nested_list_elements ::= list_element?* ;
+class AST_nested_list_elements : virtual public AST_list_element
 {
 public:
-    AST_list_elements(List<AST_list_element*>* list_elements);
+    AST_nested_list_elements(List<AST_list_element*>* list_elements);
 protected:
-    AST_list_elements();
+    AST_nested_list_elements();
 public:
     List<AST_list_element*>* list_elements;
 public:
@@ -647,7 +647,7 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    virtual AST_list_elements* clone();
+    virtual AST_nested_list_elements* clone();
 };
 
 // reflection ::= expr ;
@@ -1506,15 +1506,15 @@ public:
     virtual AST_assignment* clone();
 };
 
-// list_assignment ::= list_elements expr ;
+// list_assignment ::= list_element?* expr ;
 class AST_list_assignment : virtual public AST_expr
 {
 public:
-    AST_list_assignment(AST_list_elements* list_elements, AST_expr* expr);
+    AST_list_assignment(List<AST_list_element*>* list_elements, AST_expr* expr);
 protected:
     AST_list_assignment();
 public:
-    AST_list_elements* list_elements;
+    List<AST_list_element*>* list_elements;
     AST_expr* expr;
 public:
     virtual void visit(AST_visitor* visitor);

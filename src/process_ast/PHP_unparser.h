@@ -71,7 +71,6 @@ public:
 	void children_eval_expr(AST_eval_expr* in);
 	void children_assignment(AST_assignment* in);
 	void children_list_assignment(AST_list_assignment* in);
-	void children_list_elements(AST_list_elements* in);
 	void children_cast(AST_cast* in);
 	void children_unary_op(AST_unary_op* in);
 	void children_bin_op(AST_bin_op* in);

@@ -185,9 +185,9 @@ AST_expr* AST_transform::pre_list_assignment(AST_list_assignment* in)
     return in;
 }
 
-AST_list_elements* AST_transform::pre_list_elements(AST_list_elements* in)
+void AST_transform::pre_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 AST_expr* AST_transform::pre_cast(AST_cast* in)
@@ -526,9 +526,9 @@ AST_expr* AST_transform::post_list_assignment(AST_list_assignment* in)
     return in;
 }
 
-AST_list_elements* AST_transform::post_list_elements(AST_list_elements* in)
+void AST_transform::post_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 AST_expr* AST_transform::post_cast(AST_cast* in)
@@ -894,11 +894,11 @@ void AST_transform::children_assignment(AST_assignment* in)
 
 void AST_transform::children_list_assignment(AST_list_assignment* in)
 {
-    in->list_elements = transform_list_elements(in->list_elements);
+    in->list_elements = transform_list_element_list(in->list_elements);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_list_elements(AST_list_elements* in)
+void AST_transform::children_nested_list_elements(AST_nested_list_elements* in)
 {
     in->list_elements = transform_list_element_list(in->list_elements);
 }
@@ -1525,22 +1525,6 @@ List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
     return out2;
 }
 
-AST_list_elements* AST_transform::transform_list_elements(AST_list_elements* in)
-{
-    if(in == NULL) return NULL;
-    
-    AST_list_elements* out;
-    
-    out = pre_list_elements(in);
-    if(out != NULL)
-    {
-    	children_list_elements(out);
-    	out = post_list_elements(out);
-    }
-    
-    return out;
-}
-
 List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_list_element*>* in)
 {
     List<AST_list_element*>::const_iterator i;
@@ -2069,8 +2053,14 @@ void AST_transform::pre_list_element(AST_list_element* in, List<AST_list_element
     case AST_variable::ID: 
     	out->push_back(pre_variable(dynamic_cast<AST_variable*>(in)));
     	return;
-    case AST_list_elements::ID: 
-    	out->push_back(pre_list_elements(dynamic_cast<AST_list_elements*>(in)));
+    case AST_nested_list_elements::ID: 
+    	{
+    		List<AST_list_element*>* local_out = new List<AST_list_element*>;
+    		List<AST_list_element*>::const_iterator i;
+    		pre_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
     	return;
     }
     assert(0);
@@ -2415,8 +2405,14 @@ void AST_transform::post_list_element(AST_list_element* in, List<AST_list_elemen
     case AST_variable::ID: 
     	out->push_back(post_variable(dynamic_cast<AST_variable*>(in)));
     	return;
-    case AST_list_elements::ID: 
-    	out->push_back(post_list_elements(dynamic_cast<AST_list_elements*>(in)));
+    case AST_nested_list_elements::ID: 
+    	{
+    		List<AST_list_element*>* local_out = new List<AST_list_element*>;
+    		List<AST_list_element*>::const_iterator i;
+    		post_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
     	return;
     }
     assert(0);
@@ -2653,8 +2649,8 @@ void AST_transform::children_list_element(AST_list_element* in)
     case AST_variable::ID:
     	children_variable(dynamic_cast<AST_variable*>(in));
     	break;
-    case AST_list_elements::ID:
-    	children_list_elements(dynamic_cast<AST_list_elements*>(in));
+    case AST_nested_list_elements::ID:
+    	children_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in));
     	break;
     }
 }

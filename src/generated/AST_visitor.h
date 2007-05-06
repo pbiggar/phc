@@ -64,8 +64,8 @@ public:
     virtual void pre_literal(AST_literal* in);
     virtual void pre_assignment(AST_assignment* in);
     virtual void pre_list_assignment(AST_list_assignment* in);
-    virtual void pre_list_elements(AST_list_elements* in);
     virtual void pre_list_element(AST_list_element* in);
+    virtual void pre_nested_list_elements(AST_nested_list_elements* in);
     virtual void pre_cast(AST_cast* in);
     virtual void pre_unary_op(AST_unary_op* in);
     virtual void pre_bin_op(AST_bin_op* in);
@@ -145,8 +145,8 @@ public:
     virtual void post_literal(AST_literal* in);
     virtual void post_assignment(AST_assignment* in);
     virtual void post_list_assignment(AST_list_assignment* in);
-    virtual void post_list_elements(AST_list_elements* in);
     virtual void post_list_element(AST_list_element* in);
+    virtual void post_nested_list_elements(AST_nested_list_elements* in);
     virtual void post_cast(AST_cast* in);
     virtual void post_unary_op(AST_unary_op* in);
     virtual void post_bin_op(AST_bin_op* in);
@@ -222,7 +222,7 @@ public:
     virtual void children_nop(AST_nop* in);
     virtual void children_assignment(AST_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
-    virtual void children_list_elements(AST_list_elements* in);
+    virtual void children_nested_list_elements(AST_nested_list_elements* in);
     virtual void children_cast(AST_cast* in);
     virtual void children_unary_op(AST_unary_op* in);
     virtual void children_bin_op(AST_bin_op* in);
@@ -292,7 +292,7 @@ public:
     virtual void pre_nop_chain(AST_nop* in);
     virtual void pre_assignment_chain(AST_assignment* in);
     virtual void pre_list_assignment_chain(AST_list_assignment* in);
-    virtual void pre_list_elements_chain(AST_list_elements* in);
+    virtual void pre_nested_list_elements_chain(AST_nested_list_elements* in);
     virtual void pre_cast_chain(AST_cast* in);
     virtual void pre_unary_op_chain(AST_unary_op* in);
     virtual void pre_bin_op_chain(AST_bin_op* in);
@@ -361,7 +361,7 @@ public:
     virtual void post_nop_chain(AST_nop* in);
     virtual void post_assignment_chain(AST_assignment* in);
     virtual void post_list_assignment_chain(AST_list_assignment* in);
-    virtual void post_list_elements_chain(AST_list_elements* in);
+    virtual void post_nested_list_elements_chain(AST_nested_list_elements* in);
     virtual void post_cast_chain(AST_cast* in);
     virtual void post_unary_op_chain(AST_unary_op* in);
     virtual void post_bin_op_chain(AST_bin_op* in);
@@ -421,7 +421,6 @@ public:
     virtual void visit_directive_name(Token_directive_name* in);
     virtual void visit_catch_list(List<AST_catch*>* in);
     virtual void visit_catch(AST_catch* in);
-    virtual void visit_list_elements(AST_list_elements* in);
     virtual void visit_list_element_list(List<AST_list_element*>* in);
     virtual void visit_list_element(AST_list_element* in);
     virtual void visit_cast(Token_cast* in);

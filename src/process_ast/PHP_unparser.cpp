@@ -580,15 +580,9 @@ void PHP_unparser::children_assignment(AST_assignment* in)
 
 void PHP_unparser::children_list_assignment(AST_list_assignment* in)
 {
-	visit_list_elements(in->list_elements);
+	visit_list_element_list(in->list_elements);
 	echo(" = ");
 	visit_expr(in->expr);
-}
-
-void PHP_unparser::children_list_elements(AST_list_elements* in)
-{
-	echo("list");
-	visit_list_element_list(in->list_elements);
 }
 
 void PHP_unparser::children_cast(AST_cast* in)
@@ -890,7 +884,7 @@ void PHP_unparser::visit_catch_list(List<AST_catch*>* in)
 
 void PHP_unparser::visit_list_element_list(List<AST_list_element*>* in)
 {
-	echo("(");
+	echo("list(");
 
 	List<AST_list_element*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)

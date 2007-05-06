@@ -102,7 +102,7 @@
 	AST_constant* ast_constant;
 	List<AST_array_elem*>* list_ast_array_elem;
 	List<AST_expr*>* list_ast_expr;
-	AST_list_elements* ast_list_elements;
+	AST_nested_list_elements* ast_nested_list_elements;
 	AST_list_element* ast_list_element;
 	String* string;
 	List<AST_actual_parameter*>* list_ast_actual_parameter;
@@ -402,7 +402,7 @@
 %type <ast_variable> object_dim_list
 %type <ast_variable_name> variable_name
 %type <integer> simple_indirect_reference
-%type <ast_list_elements> assignment_list
+%type <ast_nested_list_elements> assignment_list
 %type <ast_list_element> assignment_list_element
 %type <list_ast_array_elem> array_pair_list
 %type <list_ast_array_elem> non_empty_array_pair_list
@@ -1786,7 +1786,7 @@ non_empty_for_expr:
 expr_without_variable:
 	  K_LIST '(' assignment_list ')' '=' expr
 		{
-			$$ = NEW(AST_list_assignment, ($3, $6));
+			$$ = NEW(AST_list_assignment, ($3->list_elements, $6));
 		}
 	| variable '=' expr
 		{
@@ -2764,7 +2764,7 @@ assignment_list:
 			List<AST_list_element*>* elements = new List<AST_list_element*>;
 			elements->push_back($1);
 			
-			$$ = NEW(AST_list_elements, (elements)); 
+			$$ = NEW(AST_nested_list_elements, (elements)); 
 		}
 	;
 

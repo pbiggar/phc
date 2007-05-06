@@ -1463,39 +1463,39 @@ AST_expr::AST_expr()
 	}
 }
 
-AST_list_elements::AST_list_elements(List<AST_list_element*>* list_elements)
+AST_nested_list_elements::AST_nested_list_elements(List<AST_list_element*>* list_elements)
 {
     this->list_elements = list_elements;
 }
 
-AST_list_elements::AST_list_elements()
+AST_nested_list_elements::AST_nested_list_elements()
 {
     this->list_elements = 0;
 }
 
-void AST_list_elements::visit(AST_visitor* visitor)
+void AST_nested_list_elements::visit(AST_visitor* visitor)
 {
-    visitor->visit_list_elements(this);
+    visitor->visit_list_element(this);
 }
 
-void AST_list_elements::transform_children(AST_transform* transform)
+void AST_nested_list_elements::transform_children(AST_transform* transform)
 {
-    transform->children_list_elements(this);
+    transform->children_list_element(this);
 }
 
-int AST_list_elements::classid()
+int AST_nested_list_elements::classid()
 {
     return ID;
 }
 
-bool AST_list_elements::match(AST_node* in)
+bool AST_nested_list_elements::match(AST_node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    AST_list_elements* that = dynamic_cast<AST_list_elements*>(in);
+    AST_nested_list_elements* that = dynamic_cast<AST_nested_list_elements*>(in);
     if(that == NULL) return false;
     
     if(this->list_elements != NULL && that->list_elements != NULL)
@@ -1521,9 +1521,9 @@ bool AST_list_elements::match(AST_node* in)
     return true;
 }
 
-bool AST_list_elements::equals(AST_node* in)
+bool AST_nested_list_elements::equals(AST_node* in)
 {
-    AST_list_elements* that = dynamic_cast<AST_list_elements*>(in);
+    AST_nested_list_elements* that = dynamic_cast<AST_nested_list_elements*>(in);
     if(that == NULL) return false;
     
     if(this->list_elements == NULL || that->list_elements == NULL)
@@ -1554,7 +1554,7 @@ bool AST_list_elements::equals(AST_node* in)
     return true;
 }
 
-AST_list_elements* AST_list_elements::clone()
+AST_nested_list_elements* AST_nested_list_elements::clone()
 {
     List<AST_list_element*>* list_elements = NULL;
     if(this->list_elements != NULL)
@@ -1564,7 +1564,7 @@ AST_list_elements* AST_list_elements::clone()
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
     		list_elements->push_back(*i ? (*i)->clone() : NULL);
     }
-    AST_list_elements* clone = new AST_list_elements(list_elements);
+    AST_nested_list_elements* clone = new AST_nested_list_elements(list_elements);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -5132,7 +5132,7 @@ AST_assignment* AST_assignment::clone()
     return clone;
 }
 
-AST_list_assignment::AST_list_assignment(AST_list_elements* list_elements, AST_expr* expr)
+AST_list_assignment::AST_list_assignment(List<AST_list_element*>* list_elements, AST_expr* expr)
 {
     this->list_elements = list_elements;
     this->expr = expr;
@@ -5169,13 +5169,25 @@ bool AST_list_assignment::match(AST_node* in)
     AST_list_assignment* that = dynamic_cast<AST_list_assignment*>(in);
     if(that == NULL) return false;
     
-    if(this->list_elements == NULL)
+    if(this->list_elements != NULL && that->list_elements != NULL)
     {
-    	if(that->list_elements != NULL && !that->list_elements->match(this->list_elements))
+    	List<AST_list_element*>::const_iterator i, j;
+    	for(
+    		i = this->list_elements->begin(), j = that->list_elements->begin();
+    		i != this->list_elements->end() && j != that->list_elements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->list_elements->end() || j != that->list_elements->end())
     		return false;
     }
-    else if(!this->list_elements->match(that->list_elements))
-    	return false;
     
     if(this->expr == NULL)
     {
@@ -5198,8 +5210,25 @@ bool AST_list_assignment::equals(AST_node* in)
     	if(this->list_elements != NULL || that->list_elements != NULL)
     		return false;
     }
-    else if(!this->list_elements->equals(that->list_elements))
-    	return false;
+    else
+    {
+    	List<AST_list_element*>::const_iterator i, j;
+    	for(
+    		i = this->list_elements->begin(), j = that->list_elements->begin();
+    		i != this->list_elements->end() && j != that->list_elements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->list_elements->end() || j != that->list_elements->end())
+    		return false;
+    }
     
     if(this->expr == NULL || that->expr == NULL)
     {
@@ -5214,7 +5243,14 @@ bool AST_list_assignment::equals(AST_node* in)
 
 AST_list_assignment* AST_list_assignment::clone()
 {
-    AST_list_elements* list_elements = this->list_elements ? this->list_elements->clone() : NULL;
+    List<AST_list_element*>* list_elements = NULL;
+    if(this->list_elements != NULL)
+    {
+    	List<AST_list_element*>::const_iterator i;
+    	list_elements = new List<AST_list_element*>;
+    	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
+    		list_elements->push_back(*i ? (*i)->clone() : NULL);
+    }
     AST_expr* expr = this->expr ? this->expr->clone() : NULL;
     AST_list_assignment* clone = new AST_list_assignment(list_elements, expr);
     clone->AST_node::clone_mixin_from(this);

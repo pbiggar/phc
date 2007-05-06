@@ -164,11 +164,11 @@ void AST_visitor::pre_list_assignment(AST_list_assignment* in)
 {
 }
 
-void AST_visitor::pre_list_elements(AST_list_elements* in)
+void AST_visitor::pre_list_element(AST_list_element* in)
 {
 }
 
-void AST_visitor::pre_list_element(AST_list_element* in)
+void AST_visitor::pre_nested_list_elements(AST_nested_list_elements* in)
 {
 }
 
@@ -484,11 +484,11 @@ void AST_visitor::post_list_assignment(AST_list_assignment* in)
 {
 }
 
-void AST_visitor::post_list_elements(AST_list_elements* in)
+void AST_visitor::post_list_element(AST_list_element* in)
 {
 }
 
-void AST_visitor::post_list_element(AST_list_element* in)
+void AST_visitor::post_nested_list_elements(AST_nested_list_elements* in)
 {
 }
 
@@ -869,11 +869,11 @@ void AST_visitor::children_assignment(AST_assignment* in)
 
 void AST_visitor::children_list_assignment(AST_list_assignment* in)
 {
-    visit_list_elements(in->list_elements);
+    visit_list_element_list(in->list_elements);
     visit_expr(in->expr);
 }
 
-void AST_visitor::children_list_elements(AST_list_elements* in)
+void AST_visitor::children_nested_list_elements(AST_nested_list_elements* in)
 {
     visit_list_element_list(in->list_elements);
 }
@@ -1308,11 +1308,11 @@ void AST_visitor::pre_list_assignment_chain(AST_list_assignment* in)
     pre_list_assignment(in);
 }
 
-void AST_visitor::pre_list_elements_chain(AST_list_elements* in)
+void AST_visitor::pre_nested_list_elements_chain(AST_nested_list_elements* in)
 {
     pre_node(in);
     pre_list_element(in);
-    pre_list_elements(in);
+    pre_nested_list_elements(in);
 }
 
 void AST_visitor::pre_cast_chain(AST_cast* in)
@@ -1832,9 +1832,9 @@ void AST_visitor::post_list_assignment_chain(AST_list_assignment* in)
     post_node(in);
 }
 
-void AST_visitor::post_list_elements_chain(AST_list_elements* in)
+void AST_visitor::post_nested_list_elements_chain(AST_nested_list_elements* in)
 {
-    post_list_elements(in);
+    post_nested_list_elements(in);
     post_list_element(in);
     post_node(in);
 }
@@ -2409,18 +2409,6 @@ void AST_visitor::visit_catch(AST_catch* in)
     }
 }
 
-void AST_visitor::visit_list_elements(AST_list_elements* in)
-{
-    if(in == NULL)
-    	visit_null("AST_list_elements");
-    else
-    {
-    	pre_list_elements_chain(in);
-    	children_list_elements(in);
-    	post_list_elements_chain(in);
-    }
-}
-
 void AST_visitor::visit_list_element_list(List<AST_list_element*>* in)
 {
     List<AST_list_element*>::const_iterator i;
@@ -2776,8 +2764,8 @@ void AST_visitor::pre_list_element_chain(AST_list_element* in)
     case AST_variable::ID:
     	pre_variable_chain(dynamic_cast<AST_variable*>(in));
     	break;
-    case AST_list_elements::ID:
-    	pre_list_elements_chain(dynamic_cast<AST_list_elements*>(in));
+    case AST_nested_list_elements::ID:
+    	pre_nested_list_elements_chain(dynamic_cast<AST_nested_list_elements*>(in));
     	break;
     }
 }
@@ -3060,8 +3048,8 @@ void AST_visitor::post_list_element_chain(AST_list_element* in)
     case AST_variable::ID:
     	post_variable_chain(dynamic_cast<AST_variable*>(in));
     	break;
-    case AST_list_elements::ID:
-    	post_list_elements_chain(dynamic_cast<AST_list_elements*>(in));
+    case AST_nested_list_elements::ID:
+    	post_nested_list_elements_chain(dynamic_cast<AST_nested_list_elements*>(in));
     	break;
     }
 }
@@ -3344,8 +3332,8 @@ void AST_visitor::children_list_element(AST_list_element* in)
     case AST_variable::ID:
     	children_variable(dynamic_cast<AST_variable*>(in));
     	break;
-    case AST_list_elements::ID:
-    	children_list_elements(dynamic_cast<AST_list_elements*>(in));
+    case AST_nested_list_elements::ID:
+    	children_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in));
     	break;
     }
 }
