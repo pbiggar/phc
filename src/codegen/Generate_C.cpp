@@ -6,6 +6,21 @@
  *
  * Currently, the C code is generated directly from the AST; once we have an
  * IR, the C code will be generated from the IR instead.
+ *
+ * We define a virtual class "Pattern" which corresponds to a particular kind
+ * of statement that we can generate code for. We inherit from Pattern to 
+ * define the various statements we can translate, create instances of each
+ * of these classes, and then for every statement in the input, cycle through
+ * all the patterns to find one that matches, and then call "generate_code"
+ * on that pattern.
+ *
+ * We really on the Shredder, Lower_control_flow and Lower_expr_flow. In a few
+ * places, however, we still need a "new" temporary, but these temporaries all
+ * have in common that they are short-lived (we never need to call "fresh",
+ * for instance). Where we need these, we open a local C scope, and then just
+ * use a descriptive name; the life-span of the temporary then is limited to
+ * this scope. The equivalent of opening a local C scope when generating 
+ * assembly code instead would simply be a temporary value on the stack.
  */
 
 #include "Generate_C.h"
@@ -14,16 +29,18 @@
 #include "process_ast/PHP_unparser.h"
 
 /*
- * Map of the Zend functions that implement the binary operators
+ * Map of the Zend functions that implement the operators
+ *
  * The map also contains entries for ++ and --, which are identical to the
  * entries for + and -, but obviously need to be invoked slightly differently.
  */
 
-static class Bin_op_functions : public map<string,string>
+static class Op_functions : public map<string,string>
 {
 public:
-	Bin_op_functions() : map<string,string>()
+	Op_functions() : map<string,string>()
 	{
+		// Binary functions
 		(*this)["+"] = "add_function";	
 		(*this)["-"] = "sub_function";	
 		(*this)["*"] = "mul_function";	
@@ -51,7 +68,7 @@ public:
 		(*this)[">="] = "is_smaller_or_equal_function"; 
 		(*this)[">"] = "is_smaller_function";
 	}
-} bin_op_functions;
+} op_functions;
 
 /*
  * Pattern definitions for statements
@@ -188,6 +205,12 @@ protected:
 	Wildcard<Token_label_name>* label;
 };
 
+/*
+ * Assignment is a "virtual" pattern. It deals with the LHS of the assignment,
+ * but not with the RHS. Various other classes inherit from Assignment, and
+ * deal with the different forms the RHS can take.
+ */
+
 class Assignment : public Pattern
 {
 public:
@@ -284,6 +307,7 @@ public:
 		}
 		else
 		{
+			// TODO
 			assert(0);
 		}
 
@@ -293,6 +317,11 @@ public:
 protected:
 	Wildcard<AST_variable>* lhs;
 };
+
+/*
+ * Assign_literal is another virtual class, and corresponds to assignming an
+ * int, bool, etc. all of which inherit from Assign_literal.
+ */
 
 template<class T>
 class Assign_literal : public Assignment
@@ -384,6 +413,49 @@ public:
 	
 		return ss.str();
 	}
+};
+
+class Copy : public Assignment
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		rhs = new Wildcard<AST_variable>;
+		return rhs;
+	}
+
+	void generate_rhs()
+	{
+		// Variable variable or ordinary variable?
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(rhs->value->variable_name);
+
+		if(name != NULL)
+		{
+			// Ordinary variable
+			
+			// TODO: deal with object indexing
+			assert(rhs->value->target == NULL);
+
+			// TODO: deal with array indexing
+			assert(rhs->value->array_indices->size() == 0);
+
+			// TODO: deal with copying etc.
+			cout
+			<< "rhs = index_ht(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() << ");"
+			;
+		}
+		else
+		{
+			// Variable variable. TODO
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<AST_variable>* rhs;
 };
 
 class Method_invocation : public Assignment
@@ -481,9 +553,9 @@ public:
 	void generate_rhs()
 	{
 		assert(
-			bin_op_functions.find(*op->value->value) != 
-			bin_op_functions.end());
-		string op_fn = bin_op_functions[*op->value->value]; 
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
 
 		cout 
 		<< "zval* left = index_ht(locals, "
@@ -524,9 +596,9 @@ public:
 	void generate_rhs()
 	{
 		assert(
-			bin_op_functions.find(*op->value->value) != 
-			bin_op_functions.end());
-		string op_fn = bin_op_functions[*op->value->value]; 
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
 
 		cout 
 		<< "zval* expr = index_ht(locals, "
@@ -557,6 +629,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_null()
 	,	new Assign_bool()
 	,	new Assign_real()
+	,	new Copy()
 	,	new Method_invocation()
 	,	new Bin_op()
 	,	new Unary_op()
