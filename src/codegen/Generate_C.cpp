@@ -14,7 +14,7 @@
  * all the patterns to find one that matches, and then call "generate_code"
  * on that pattern.
  *
- * We really on the Shredder, Lower_control_flow and Lower_expr_flow. In a few
+ * We rely on the Shredder, Lower_control_flow and Lower_expr_flow. In a few
  * places, however, we still need a "new" temporary, but these temporaries all
  * have in common that they are short-lived (we never need to call "fresh",
  * for instance). Where we need these, we open a local C scope, and then just
@@ -293,10 +293,21 @@ public:
 				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
 				<< "&rhs, sizeof(zval*), NULL);\n"
 				<< "}\n"
-				// String index. TODO
+				// String index.
 				<< "else\n"
 				<< "{\n"
-				<< "assert(0);\n"
+				// Convert to the argument to a string 
+				// TODO: if we know it's a string, we don't need to convert
+				<< "zval* string_index;\n"
+				<< "MAKE_STD_ZVAL(string_index);\n"
+				<< "*string_index = *ind;\n"
+				<< "zval_copy_ctor(string_index);\n"
+				<< "convert_to_string(string_index);\n"
+				// Remove the old value from the hashtable
+				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index));\n"
+				// Add the new value to the hashtable
+				<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index), &rhs, sizeof(zval*), NULL);\n"
+				<< "zval_ptr_dtor(&string_index);\n"
 				<< "}\n"
 				<< "}\n"
 				;
@@ -307,8 +318,6 @@ public:
 				)
 			{
 				// Assign to next available index
-				// TODO: factor out some common code between this and the
-				// previous case
 				cout 
 				<< "{\n"
 				<< "zval* arr = index_ht(locals, " 
@@ -496,10 +505,17 @@ public:
 				<< "}\n"
 				<< "rhs = *zvpp;\n"
 				<< "}\n"
-				// String index. TODO
+				// String index. 
+				// TODO: code duplication again (see Assignment)
 				<< "else\n"
 				<< "{\n"
-				<< "assert(0);\n"
+				<< "zval* string_index;\n"
+				<< "MAKE_STD_ZVAL(string_index);\n"
+				<< "*string_index = *ind;\n"
+				<< "zval_copy_ctor(string_index);\n"
+				<< "convert_to_string(string_index);\n"
+				<< "rhs = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index));\n"
+				<< "zval_ptr_dtor(&string_index);\n"
 				<< "}\n"
 				<< "}\n"
 				;
