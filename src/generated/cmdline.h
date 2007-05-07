@@ -76,8 +76,8 @@ struct gengetopt_args_info
   const char *run_lowering_help; /* Run the lowering pass (remove control flow constructs) help description.  */
   int run_shredder_flag;	/* Run the shredder (transform the AST to 3AC-like code) (default=off).  */
   const char *run_shredder_help; /* Run the shredder (transform the AST to 3AC-like code) help description.  */
-  int no_run_uppering_flag;	/* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) (default=off).  */
-  const char *no_run_uppering_help; /* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) help description.  */
+  int no_goto_uppering_flag;	/* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) (default=off).  */
+  const char *no_goto_uppering_help; /* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) help description.  */
   int obfuscate_flag;	/* Obfuscate code (TODO) (default=off).  */
   const char *obfuscate_help; /* Obfuscate code (TODO) help description.  */
   
@@ -104,7 +104,7 @@ struct gengetopt_args_info
   int run_lifting_given ;	/* Whether run-lifting was given.  */
   int run_lowering_given ;	/* Whether run-lowering was given.  */
   int run_shredder_given ;	/* Whether run-shredder was given.  */
-  int no_run_uppering_given ;	/* Whether no-run-uppering was given.  */
+  int no_goto_uppering_given ;	/* Whether no-goto-uppering was given.  */
   int obfuscate_given ;	/* Whether obfuscate was given.  */
 
   char **inputs ; /* unamed options */

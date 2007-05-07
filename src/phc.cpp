@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 	}
 
 	// upper
-	if(!args_info.no_run_uppering_flag
+	if(!args_info.no_goto_uppering_flag
 			&& (args_info.run_lowering_flag
 				|| args_info.run_shredder_flag
 				|| args_info.obfuscate_flag))

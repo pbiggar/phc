@@ -753,7 +753,7 @@ class Unset : public Pattern
 				<< "{\n"
 				<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
 				<< "}\n"
-				// String index TODO
+				// String index 
 				<< "else\n"
 				<< "{\n"
 				// TODO Code duplication
