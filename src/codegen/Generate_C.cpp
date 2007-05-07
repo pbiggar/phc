@@ -482,14 +482,12 @@ public:
 		Token_variable_name* name;
 		name = dynamic_cast<Token_variable_name*>(rhs->value->variable_name);
 
+		// TODO: deal with object indexing
+		assert(rhs->value->target == NULL);
+
 		if(name != NULL)
 		{
 			// Ordinary variable
-			
-			// TODO: deal with object indexing
-			assert(rhs->value->target == NULL);
-
-			// TODO: deal with copying etc.
 			cout
 			<< "rhs = index_ht(locals, "
 			<< "\"" << *name->value << "\", "
@@ -505,39 +503,28 @@ public:
 				<< "HashTable* ht = extract_ht(rhs);"
 				<< "zval* ind = index_ht(locals, "
 				<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-				// Numeric index?
-				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
-				<< "{\n"
-				<< "zval** zvpp;\n"
-				<< "if(zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp) != SUCCESS)\n"
-				<< "{\n"
-				<< "zval* zvp;\n"
-				<< "ALLOC_INIT_ZVAL(zvp);\n"
-				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), &zvp, sizeof(zval*), NULL);\n"
-				<< "zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp);\n"
-				<< "}\n"
-				<< "rhs = *zvpp;\n"
-				<< "}\n"
-				// String index. 
-				// TODO: code duplication again (see Assignment)
-				<< "else\n"
-				<< "{\n"
-				<< "zval* string_index;\n"
-				<< "MAKE_STD_ZVAL(string_index);\n"
-				<< "*string_index = *ind;\n"
-				<< "zval_copy_ctor(string_index);\n"
-				<< "convert_to_string(string_index);\n"
-				<< "rhs = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
-				<< "zval_ptr_dtor(&string_index);\n"
-				<< "}\n"
+				<< "rhs = index_ht_zval(ht, ind);\n"
 				<< "}\n"
 				;
 			}
 		}
 		else
 		{
-			// Variable variable. TODO
-			assert(0);
+			// Variable variable.
+			// After shredder, a variable variable cannot have array indices
+			assert(rhs->value->array_indices->size() == 0);
+
+			AST_reflection* refl;
+			refl = dynamic_cast<AST_reflection*>(rhs->value->variable_name);
+			String* name = operand(refl->expr);
+
+			cout 
+			<< "{\n"
+			<< "zval* name = index_ht(locals, "
+			<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
+			<< "rhs = index_ht_zval(locals, name);\n"
+			<< "}\n"
+			;
 		}
 	}
 
@@ -857,6 +844,38 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "}\n"
 	<< "return *zvpp;\n"
 	<< "}\n"
+
+	// Index a hashtable using a zval*
+	<< "zval* index_ht_zval(HashTable* ht, zval* ind)\n"
+	<< "{\n"
+	<< "zval* result;\n"
+	// Numeric index
+	<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
+	<< "{\n"
+	<< "zval** zvpp;\n"
+	<< "if(zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp) != SUCCESS)\n"
+	<< "{\n"
+	<< "zval* zvp;\n"
+	<< "ALLOC_INIT_ZVAL(zvp);\n"
+	<< "zend_hash_index_update(ht, Z_LVAL_P(ind), &zvp, sizeof(zval*), NULL);\n"
+	<< "zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp);\n"
+	<< "}\n"
+	<< "result = *zvpp;\n"
+	<< "}\n"
+	// String index. 
+	<< "else\n"
+	<< "{\n"
+	<< "zval* string_index;\n"
+	<< "MAKE_STD_ZVAL(string_index);\n"
+	<< "*string_index = *ind;\n"
+	<< "zval_copy_ctor(string_index);\n"
+	<< "convert_to_string(string_index);\n"
+	<< "result = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
+	<< "zval_ptr_dtor(&string_index);\n"
+	<< "}\n"
+	<< "return result;\n"
+	<< "}\n"
+
 	// Extract the hashtable from a hash-valued zval
 	<< "HashTable* extract_ht(zval* arr)\n"
 	<< "{\n"

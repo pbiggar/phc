@@ -137,6 +137,9 @@ class Annotate : public AST_visitor
 		in->attrs->erase("phc.unparser.is_opeq");
 		in->attrs->erase("phc.unparser.is_global_stmt");
 		in->attrs->erase("phc.unparser.starts_line");
+
+		// TODO: I *think* this is correct, but I'm not sure
+		in->attrs->erase("phc.unparser.needs_curlies");
 	}
 
 	void pre_assignment(AST_assignment* in)
@@ -217,6 +220,20 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		+ in->array_indices->size()
 		- (in->attrs->is_true("phc.shredder.need_addr") ? 1 : 0);
 
+	// translate ${$x}[1] to $T = ${$x}; $T[1] but only if no target is set
+	if(in->target == NULL && in->variable_name->classid() == AST_reflection::ID)
+	{
+		AST_variable* temp = fresh_var("TS");
+		pieces->push_back(new AST_eval_expr(new AST_assignment(
+			temp, true,
+			new AST_variable(
+				NULL,
+				in->variable_name,
+				new List<AST_expr*>()
+			))));
+		prev = temp;
+	}
+
 	if(in->target != NULL && num_pieces > 0)
 	{
 		AST_variable* temp = fresh_var("TS");
@@ -225,13 +242,15 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 			new AST_variable(
 				in->target,
 				in->variable_name->clone(),
-				new List<AST_expr*>()))));
+				new List<AST_expr*>()
+			))));
 		prev = temp;
 		num_pieces--;
 
+		// TODO: this destructively modifies *in. is that what we want?
 		in->target = NULL;
 	}
-	
+
 	while(num_pieces > 0)
 	{
 		AST_variable* temp = fresh_var("TS");
@@ -244,6 +263,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		prev = temp;
 		num_pieces--;
 
+		// TODO: this destructively modifies *in. is that what we want?
 		in->array_indices->pop_front();
 	}
 
