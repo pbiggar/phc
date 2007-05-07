@@ -261,29 +261,30 @@ public:
 				<< "&rhs, sizeof(zval*), NULL);\n"
 				;
 			}
-			else if(lhs->value->array_indices->size() == 1)
+			else if(
+				lhs->value->array_indices->size() == 1 &&
+				lhs->value->array_indices->front() != NULL
+				)
 			{
 				AST_variable* var = dynamic_cast<AST_variable*>
 					(lhs->value->array_indices->front());
+
+				// After shredder arrays are indexed using simple vars only
 				Token_variable_name* ind = dynamic_cast<Token_variable_name*>
 					(var->variable_name);
+				assert(ind != NULL);
 
 				cout 
 				<< "{\n"
 				<< "zval* arr = index_ht(locals, " 
 				<< "\"" << *name->value << "\", "
 				<< name->value->length() << ");\n"
+				<< "HashTable* ht = extract_ht(arr);\n"
 				<< "zval* ind = index_ht(locals, "
 				<< "\"" << *ind->value << "\", "
 				<< ind->value->length() << ");\n"
-				<< "if(Z_TYPE_P(arr) == IS_NULL)\n"
-				<< "array_init(arr);\n"
-				<< "else if(Z_TYPE_P(arr) != IS_ARRAY)\n"
-				// TODO: proper error message
-				<< "assert(0);\n"
-				<< "HashTable* ht = Z_ARRVAL_P(arr);\n"
 				// Numeric index? 
-				<< "if(Z_TYPE_P(ind) == IS_LONG)" 
+				<< "if(Z_TYPE_P(ind) == IS_LONG)\n" 
 				<< "{\n"
 				// Remove the old value from the hashtable (this will
 				// automatically reduce its refcount)
@@ -292,10 +293,29 @@ public:
 				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
 				<< "&rhs, sizeof(zval*), NULL);\n"
 				<< "}\n"
+				// String index. TODO
 				<< "else\n"
 				<< "{\n"
-				<< "// TODO\n"
+				<< "assert(0);\n"
 				<< "}\n"
+				<< "}\n"
+				;
+			}
+			else if(
+				lhs->value->array_indices->size() == 1 &&
+				lhs->value->array_indices->front() == NULL
+				)
+			{
+				// Assign to next available index
+				// TODO: factor out some common code between this and the
+				// previous case
+				cout 
+				<< "{\n"
+				<< "zval* arr = index_ht(locals, " 
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() << ");\n"
+				<< "HashTable* ht = extract_ht(arr);\n"
+				<< "zend_hash_next_index_insert(ht, &rhs, sizeof(zval*), NULL);\n"
 				<< "}\n"
 				;
 			}
@@ -437,15 +457,53 @@ public:
 			// TODO: deal with object indexing
 			assert(rhs->value->target == NULL);
 
-			// TODO: deal with array indexing
-			assert(rhs->value->array_indices->size() == 0);
-
 			// TODO: deal with copying etc.
 			cout
 			<< "rhs = index_ht(locals, "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() << ");"
 			;
+			
+			if(rhs->value->array_indices->size() == 1)
+			{
+				// TODO: there is some duplication of code between here
+				// and Assignment (but the code is not identical)
+
+				AST_variable* var = dynamic_cast<AST_variable*>
+					(rhs->value->array_indices->front());
+
+				// After shredder arrays are indexed using simple vars only
+				Token_variable_name* ind = dynamic_cast<Token_variable_name*>
+					(var->variable_name);
+				assert(ind != NULL);
+
+				cout 
+				<< "{\n"
+				<< "HashTable* ht = extract_ht(rhs);"
+				<< "zval* ind = index_ht(locals, "
+				<< "\"" << *ind->value << "\", "
+				<< ind->value->length() << ");\n"
+				// Numeric index?
+				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
+				<< "{\n"
+				<< "zval** zvpp;\n"
+				<< "if(zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp) != SUCCESS)\n"
+				<< "{\n"
+				<< "zval* zvp;\n"
+				<< "ALLOC_INIT_ZVAL(zvp);\n"
+				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), &zvp, sizeof(zval*), NULL);\n"
+				<< "zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp);\n"
+				<< "}\n"
+				<< "rhs = *zvpp;\n"
+				<< "}\n"
+				// String index. TODO
+				<< "else\n"
+				<< "{\n"
+				<< "assert(0);\n"
+				<< "}\n"
+				<< "}\n"
+				;
+			}
 		}
 		else
 		{
@@ -658,8 +716,10 @@ void Generate_C::children_statement(AST_statement* in)
 
 void Generate_C::pre_php_script(AST_php_script* in)
 {
+	// Some common functions
 	cout 
 	<< "#include \"php.h\"\n"
+	// Index a hashtable
 	<< "zval* index_ht(HashTable* ht, char* key, int len)\n" 
 	<< "{\n"
 	<< "zval** zvpp;\n"
@@ -671,6 +731,16 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "zend_hash_find(ht, key, len, (void**)&zvpp);\n"
 	<< "}\n"
 	<< "return *zvpp;\n"
+	<< "}\n"
+	// Extract the hashtable from a hash-valued zval
+	<< "HashTable* extract_ht(zval* arr)\n"
+	<< "{\n"
+	<< "if(Z_TYPE_P(arr) == IS_NULL)\n"
+	<< "array_init(arr);\n"
+	<< "else if(Z_TYPE_P(arr) != IS_ARRAY)\n"
+	// TODO: proper error message
+	<< "assert(0);\n"
+	<< "return Z_ARRVAL_P(arr);\n"
 	<< "}\n"
 	;
 }
