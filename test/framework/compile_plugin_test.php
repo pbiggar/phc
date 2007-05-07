@@ -22,6 +22,7 @@ class CompilePluginTest extends NoSubjectTest
 		phc_assert ($subject == "All", "Shouldnt have test subjects passed here");
 		global $phc_compile_plugin;
 		$plugin_name = tempnam (".", "plugin");
+		unlink ("$plugin_name");
 
 		if (!copy ("plugins/tools/purity_test.cpp", "$plugin_name.cpp"))
 		{
@@ -50,6 +51,7 @@ class CompilePluginTest extends NoSubjectTest
 			$this->mark_success ("All");
 			// add files created on other platforms here
 			unlink ("$plugin_name.cpp");
+			// TODO libtool --mode-clean plugin.lo will clean up these files
 			unlink ("$plugin_name.o");
 			unlink ("$plugin_name.lo");
 			unlink ("$plugin_name.la");

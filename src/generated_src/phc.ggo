@@ -1,13 +1,17 @@
 # phc -- the open source PHP compiler
 # See doc/license/README.license for licensing information
 section "GENERAL OPTIONS"
-option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
-option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off
 option "verbose" v "Verbose output" flag off
+option "compile" c "Compile" flag off
+option "pretty-print" - "Pretty print input according to the Zend style guidelines" flag off 
+option "obfuscate" - "Obfuscate input" flag off
+option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
+
+section "INPUT OPTIONS"
+option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off
 option "no-validation" - "Toggle XML validation"  flag on hidden 
 
 section "COMPILATION OPTIONS"
-option "compile" c "Compile" flag off
 option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified multiple times)" string no multiple 
 option "generate-c" - "Generate C code" flag off hidden
 option "extension" - "Generate a PHP extension called NAME instead of a standalone application" string typestr="NAME" no 
@@ -15,7 +19,6 @@ option "with-php" - "PHP installation path" string typestr="NAME" no hidden
 option "compile-time-includes" - "When possible, replace include() statements with the parsed contents of the specified file" flag off
 
 section "DUMP OPTIONS"
-option "dump-php" - "Dump PHP code back immediately after parsing to standard output (pretty printing)" flag off 
 option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
 option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
@@ -28,6 +31,5 @@ option "run-lifting" - "Run the lifting pass (create a main function)" flag off 
 option "run-lowering" - "Run the lowering pass (remove control flow constructs)" flag off hidden
 option "run-shredder" - "Run the shredder (transform the AST to 3AC-like code)" flag off hidden
 option "no-goto-uppering" - "Don't run the uppering pass (don't replace gotos with valid, if ugly, php)" flag off hidden
-option "obfuscate" - "Obfuscate code (TODO)" flag off 
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

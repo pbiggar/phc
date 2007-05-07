@@ -13,7 +13,7 @@ then
 else
 	# check the file exists
 	if [ ! -e $_FILENAME ]; then
-		echo "Error: File not found: $_FILENAME";
+		echo "Error: File not found: $_FILENAME" >&2
 		exit 1
 	fi
 fi
@@ -40,7 +40,7 @@ if [ ! -x $_LIBTOOL ]; then _LIBTOOL="./libtool"; fi
 # Then just hope its in the path
 if [ ! -x $_LIBTOOL ]; then _LIBTOOL="libtool"; fi
 if [ ! -x $_LIBTOOL ]; then 
-	echo "Error: Libtool missing or not executable - searched $_ORIGINAL_LIBTOOL, ./libtool and in your PATH"
+	echo "Error: Libtool missing or not executable - searched $_ORIGINAL_LIBTOOL, ./libtool and in your PATH" >&2;
 	exit 1
 fi
 
@@ -62,9 +62,9 @@ then
 fi
 
 # 
-echo $_COMPILE
+echo $_COMPILE >&2
 $_COMPILE || exit 1
-echo $_LINK
+echo $_LINK >&2
 $_LINK || exit 1
 
 exit 0

@@ -163,7 +163,7 @@ int main(int argc, char** argv)
 
 	run_plugins(php_script);
 
-	if(args_info.dump_php_flag)
+	if(args_info.pretty_print_flag)
 	{
 		PHP_unparser php_unparser;
 		php_script->visit(&php_unparser);

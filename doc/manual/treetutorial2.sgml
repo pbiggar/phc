@@ -19,7 +19,7 @@ makes a script written for MySQL work with other databases.) </para>
 run &phc as follows: </para>
 	
 <programlisting>
-phc --run plugins/tutorials/MySQL2DBX.la --dump-php test.php
+phc --run plugins/tutorials/MySQL2DBX.la --pretty-print test.php
 </programlisting>
 
 </section>

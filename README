@@ -77,7 +77,7 @@ Usage: phc [OPTIONS]... [FILES]...
       --full-help              Print help, including hidden options, and exit
   -V, --version                Print version and exit
       --run=STRING             Run the specified plugin
-      --dump-php               Dump PHP code back immediately after parsing to
+      --pretty-print               Dump PHP code back immediately after parsing to
                                  standard output (pretty printing)
                                  (default=off)
       --dump-ast-dot           Dump the AST from the source in dot format
@@ -100,7 +100,7 @@ Now write a very small PHP script, for example
 
 and store it in a file, for example in helloworld.php. Then run phc as follows:
 
-./phc --dump-php helloworld.php
+./phc --pretty-print helloworld.php
 
 This should output a pretty-printed version of your PHP script back to standard
 output:
@@ -138,7 +138,7 @@ phc can also read the XML back in, after which all the usual features of phc are
 again available; in particular, it is possible to read an XML file, and write
 PHP syntax. To convert the XML file we just generated back to PHP syntax, run
 
-./phc --dump-php helloworld.xml
+./phc --pretty-print helloworld.xml
 
 The generated XML uses the schema http://www.phpcompiler.org/phc-1.0.
 

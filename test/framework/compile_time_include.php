@@ -26,7 +26,7 @@ class CompileTimeInclude extends TwoCommandTest
 	{
 		global $phc, $php;
 		$dir_name = dirname($subject);
-		return "$phc --dump-php --compile-time-includes $subject 2>&1 | grep -v \"^[[:space:]]\\+include\" 2>&1 | grep -v \"^[[:space:]]\\+require\" 2>&1 | $php -d include_path=$dir_name 2>&1";
+		return "$phc --pretty-print --compile-time-includes $subject 2>&1 | grep -v \"^[[:space:]]\\+include\" 2>&1 | grep -v \"^[[:space:]]\\+require\" 2>&1 | $php -d include_path=$dir_name 2>&1";
 	}
 
 	function homogenize_output ($output)

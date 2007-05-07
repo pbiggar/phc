@@ -59,8 +59,8 @@ require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
 array_push ($tests, new PluginTest ("pre_vs_post_count"));
 array_push ($tests, new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot"));
-array_push ($tests, new RegressionTest ("regression_dump_php", "--dump-php --tab=\"   \"", "unparsed"));
-array_push ($tests, new RegressionTest ("regression_dump_includes", "--dump-php --tab=\"   \" --compile-time-includes", "unparsed"));
+array_push ($tests, new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed"));
+array_push ($tests, new RegressionTest ("regression_dump_includes", "--pretty-print --tab=\"   \" --compile-time-includes", "unparsed"));
 require_once ("reparse_unparsed.php");
 require_once ("source_vs_semantic_values.php"); // dont use plugin_test here
 require_once ("xml_roundtrip.php"); // dont use plugin_test here

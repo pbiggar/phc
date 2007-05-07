@@ -293,7 +293,7 @@ extension as a plugin. </para>
 
 <para> In theory, you now know enough to start implementing your own tools for
 PHP. Write a new plugin, run the plugin using the <code>--run</code> option,
-and optionally pass in the <code>--dump-php</code> option also to request that
+and optionally pass in the <code>--pretty-print</code> option also to request that
 &phc outputs the tree back to PHP syntax after having executed your plugin.
 </para>
 

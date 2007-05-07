@@ -30,7 +30,7 @@ class InterpretObfuscated extends TwoCommandTest
 	{
 		global $phc, $php;
 		$dir_name = dirname($subject);
-		return "$phc --run-shredder --obfuscate --dump-php $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
+		return "$phc --run-shredder --obfuscate --pretty-print $subject 2>&1 | $php -d include_path=$dir_name:./ 2>&1";
 	}
 
 	function homogenize_output ($string)
