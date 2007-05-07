@@ -62,9 +62,9 @@ then
 fi
 
 # 
-echo $_COMPILE >&2
+echo $_COMPILE
 $_COMPILE || exit 1
-echo $_LINK >&2
+echo $_LINK
 $_LINK || exit 1
 
 exit 0

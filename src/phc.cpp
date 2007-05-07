@@ -163,7 +163,8 @@ int main(int argc, char** argv)
 
 	run_plugins(php_script);
 
-	if(args_info.pretty_print_flag)
+	if(args_info.pretty_print_flag
+		|| args_info.obfuscate_flag) // obfuscate implies printing now
 	{
 		PHP_unparser php_unparser;
 		php_script->visit(&php_unparser);
