@@ -289,6 +289,8 @@ function adjusted_name ($script_name, $adjust_for_regression = 0)
 
 function complete_exec($command)
 {
+	global $opt_verbose;
+
 	$handle = popen($command, "r");
 	$output = "";
 	while(!feof($handle))
@@ -296,6 +298,8 @@ function complete_exec($command)
 		$output .= fgets($handle);
 	}
 	$return_value = pclose($handle);
+	if ($opt_verbose)
+		print "Running: $command\n";
 	return array ($output, $return_value);
 }
 
