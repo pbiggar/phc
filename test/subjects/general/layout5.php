@@ -24,7 +24,7 @@
 	for($a; $b; $c)
 		echo $d;
 
-	foreach($arr as $key => $val)
+	foreach(array () as $key => $val)
 		echo "booh";
 
 	switch($a)

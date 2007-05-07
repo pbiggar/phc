@@ -14,11 +14,15 @@
 	
 	foreach($x as &$y)
 	{
+		var_export ($x);
 		echo "$y\n";
+		var_export ($x);
 	}
 	
 	foreach($x as $y => &$z)
 	{
+		var_export ($x);
 		echo "$y => $z\n";
+		var_export ($x);
 	}
 ?>

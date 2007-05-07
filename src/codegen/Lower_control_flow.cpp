@@ -10,6 +10,10 @@
  * We decrease it on the way back up. The labels are created by post_break,
  * stored in the labels stack, and used as necessary. */
 
+// TODO we have to handle iterators too: 
+//   http://www.php.net/manual/en/ref.spl.php
+//   http://ramikayyali.com/archives/2005/02/25/iterators
+
 #include "Lower_control_flow.h"
 #include "fresh.h"
 #include <sstream>
@@ -243,70 +247,111 @@ void Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
 }
 
 /* Convert 
- *   foreach ($array as $x)
+ *   foreach ($array as $key => $value)
  *   {
  *		 ...;
  *   }
  * into
  *	  $temp_array = $array; // copies the array, implicit reset
- *	  while (current ($temp_array))
+ *	  unset ($value);
+ *	  while (list ($Tkey, ) = each ($temp_array))
  *	  {
- *	    $x = current ($temp_array);
+ *	   $key =& $Tkey;
+ *		$value = $temp_array [$Tkey];
  *		 ...
- *		 next ($temp_array);
  *	  }
  *	
  *	However, if we use references, we convert
- *   foreach ($array as &$x)
+ *   foreach ($array as $key => &$value)
  *   {
  *		 ...;
  *   }
  * into
- *	  $temp_array =& $array; // same array, only evaluate expr once
+ *	  $temp_array = $array; // same array, only evaluate expr once
  *	  reset ($temp_array)
- *	  while (list ($key, $val) = each ($temp_array))
+ *	  unset ($value);
+ *	  while (list ($key, ) = each ($temp_array))
  *	  {
- *	    $x = current ($temp_array);
+ *		$value =& $temp_array [$key];
  *		 ...
- *		 next ($temp_array);
  *	  }
- *	
- 
+ *
+ *	In the referenced version, at the end of an iteration, $value still refers
+ *	to the last data element in $array.
  * */
 
 void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* out)
 {
-	AST_variable* array = fresh_var ("LCF");
-	// only evaluate the array once
-	AST_assignment* copy = new AST_assignment (array, in->is_ref, in->expr);
+	AST_variable* temp_array = fresh_var ("LCF_a");
 
+	// if no key is provided, use a temporary
+	AST_variable* Tkey;
+	if (in->key) Tkey = in->key;
+	else Tkey = fresh_var ("LCF_k");
+
+	// $temp_array =& $array or $temp_array = $array;
+	//
+	// TODO the nested loops problem is associated with this. Messing with this changes the results substantially
+	// TODO i suspect reset is also involved. My code does what I think is required, but PHPs doesnt.
+	AST_eval_expr* copy = new AST_eval_expr (
+		new AST_assignment (temp_array, in->is_ref, in->expr));
+	AST_eval_expr* reset = NULL;
 	if (in->is_ref)
 	{
-		
+		// reset ($temp_array);
+		List<AST_actual_parameter*> *reset_params 
+			= new List<AST_actual_parameter*> ();
+		reset_params->push_back (new AST_actual_parameter (false, temp_array));
+		reset = new AST_eval_expr (
+					new AST_method_invocation (NULL, 
+						new Token_method_name (new String ("reset")),
+						reset_params)
+				);
 	}
-	else
-	{
-		// copy the array
 
-	}
-	/*
-	// these are expressions, which arent statements, so they need to be wrapped
-	AST_statement* init = new AST_eval_expr (in->init);
-	AST_statement* incr = new AST_eval_expr (in->incr);
+	// unset ($value);
+	List<AST_actual_parameter*> *unset_params = new List<AST_actual_parameter*> ();
+	unset_params->push_back (new AST_actual_parameter (false, in->val));
+	AST_eval_expr* unset = new AST_eval_expr (
+			new AST_method_invocation (NULL, 
+				new Token_method_name (new String ("unset")),
+				unset_params)
+			);
 
-	if (in->cond == NULL) 
-		in->cond = new Token_bool (true, new String ("true"));
 
-	// create the while
-	AST_while *while_stmt = new AST_while (in->cond, in->statements);
+	// each ($temp_array)
+	List<AST_actual_parameter*> *each_params 
+		= new List<AST_actual_parameter*> ();
+	each_params->push_back (new AST_actual_parameter (false, temp_array));
+	AST_method_invocation *each = new AST_method_invocation (NULL, 
+			new Token_method_name (new String ("each")),
+			each_params);
+
+	// list ($key, ) = each ($temp_array);
+	List<AST_list_element*> *lhss = new List< AST_list_element*> ();
+	lhss->push_back (Tkey);
+	AST_list_assignment *assign = new AST_list_assignment (lhss, each);
+
+	// $value = $temp_array [$Tkey]
+	// or
+	// $value =& $temp_array [$Tkey]
+	List<AST_expr*> *indices = new List<AST_expr*> ();
+	indices->push_back (Tkey);
+	AST_variable *val = new AST_variable (NULL, temp_array->variable_name, indices);
+	AST_assignment *fetch_val = new AST_assignment (in->val, in->is_ref, val);
+	in->statements->push_front (new AST_eval_expr (fetch_val));
+
+	// while (list ($key, ) = each ($temp_array))
+   AST_while* while_stmt = new AST_while (assign, in->statements);
 
 	// A continue in a for loop lands just before the increment
 	potentially_add_label<AST_continue> (in, while_stmt->statements);
-	while_stmt->statements->push_back (incr);
 
 	// push it all back
-	out->push_back (init);
-	lower_while (while_stmt, out);*/
+	out->push_back (copy);
+	if (reset) out->push_back (reset);
+//	out->push_back (unset);
+	lower_while (while_stmt, out);
 }
 
 void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
@@ -314,7 +359,6 @@ void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out
 	lower_foreach (in, out);
 	// we add the continue label in lower_foreach
 	potentially_add_label<AST_continue> (in, out);
-	out->push_back (in);
 	potentially_add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();

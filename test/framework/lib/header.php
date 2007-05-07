@@ -237,7 +237,7 @@ function diff ($string1, $string2)
 			return "Note: xdiff not available for diffing. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
 		}
 	}
-	return xdiff_string_diff ($string1, $string2);
+	return xdiff_string_diff ("$string1\n", "$string2\n");
 }
 
 function log_failure ($test_name, $subject, $header, $output)

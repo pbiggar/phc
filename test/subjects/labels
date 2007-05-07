@@ -25,6 +25,7 @@ dynamic/.*							short interpretable
 general/.*							short interpretable
 horrible/.*							short interpretable
 inline-c/.*							short non-interpretable
+php_bugs/.*								short interpretable
 unsupported/.*						short interpretable
 
 bugs/bug0009.php					size-dependent
