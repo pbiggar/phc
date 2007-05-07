@@ -1070,20 +1070,18 @@ void PHP_unparser::post_commented_node(AST_commented_node* in)
 {
 	List<String*>::const_iterator i;
 	List<String*>* comments = in->get_comments();
-	bool output_comment = false;
 
 	for(i = comments->begin(); i != comments->end(); i++)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
-			if(!output_comment && !at_start_of_line) echo(" ");
+			if(!at_start_of_line) echo(" ");
 			echo(*i);
 			newline();
-			output_comment = true;
 		}
 	}
 
-	if(!output_comment) newline();
+	if(!at_start_of_line) newline();
 }
 
 void PHP_unparser::children_label_name (Token_label_name* in)
