@@ -1076,7 +1076,7 @@ void PHP_unparser::post_commented_node(AST_commented_node* in)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
-			if(!output_comment) echo(" ");
+			if(!output_comment && !at_start_of_line) echo(" ");
 			echo(*i);
 			newline();
 			output_comment = true;
