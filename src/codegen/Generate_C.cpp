@@ -125,6 +125,8 @@ protected:
 	void method_exit()
 	{
 		cout
+		// Labels are local to a function
+		<< "end_of_function:;\n" 
 		<< "// Destroy locals array\n"
 		<< "zend_hash_destroy(locals);\n"
 		<< "FREE_HASHTABLE(locals);\n"
@@ -587,9 +589,9 @@ public:
 			arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
 
 			cout
-			<< "args[" << index << "] = index_ht(locals, \n"
+			<< "args[" << index << "] = index_ht(locals, "
 			<< "\"" << *arg_name->value << "\", "
-			<< arg_name->value->length() << ");"
+			<< arg_name->value->length() << ");\n"
 			;
 		}
 	
@@ -688,6 +690,37 @@ protected:
 	Wildcard<Token_variable_name>* expr;
 };
 
+class Return : public Pattern
+{
+	bool match(AST_statement* that)
+	{
+		expr = new Wildcard<AST_expr>;
+		return(that->match(new AST_return(expr)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		// After the shredder, argument must be a simple variable
+		AST_variable* arg;
+		Token_variable_name* arg_name;
+		arg = dynamic_cast<AST_variable*>(expr->value);
+		arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
+
+		cout
+		<< "{\n"
+		<< "*return_value = *index_ht(locals, "
+		<< "\"" << *arg_name->value << "\", "
+		<< arg_name->value->length() << ");\n"
+		<< "zval_copy_ctor(return_value);\n"
+		<< "goto end_of_function;\n"
+		<< "}\n"
+		;
+	}
+
+protected:
+	Wildcard<AST_expr>* expr;
+};
+
 /*
  * Visitor methods to generate C code
  * Visitor for statements uses the patterns defined above.
@@ -710,6 +743,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Label()
 	,	new Branch()
 	,	new Goto()
+	,	new Return()
 	};
 
 	bool matched = false;

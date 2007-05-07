@@ -1,3 +1,11 @@
+test/subjects/general/include_complex.php:57: Warning: Returning values from included scripts is not supported in file included_classes_and_functions.php
+Note that line numbers are inaccurate, and will be fixed in a later release
+test/subjects/general/include_complex.php:80: Warning: Returning values from included scripts is not supported in file included_classes_with_return_values.php
+Note that line numbers are inaccurate, and will be fixed in a later release
+test/subjects/general/include_complex.php:210: Warning: Returning values from included scripts is not supported in file included_use_vars_in_function.php
+Note that line numbers are inaccurate, and will be fixed in a later release
+test/subjects/general/include_complex.php:217: Warning: Returning values from included scripts is not supported in file included_use_vars_in_classes.php
+Note that line numbers are inaccurate, and will be fixed in a later release
 <?php
    
    # note that this test will not work on cygwin, because of incorrect PHP
@@ -38,7 +46,10 @@
    $a2 = "my old value";
    
    echo "about to include included_var_overwrite.php\n";
-   include "included_var_overwrite.php";
+   
+   $a1 = "new value";
+   $a2 = "a DIFFEnt new value";
+   
    
    var_dump($a1);
    var_dump($a2);
@@ -90,7 +101,39 @@
    # files with directory levels
    
    echo "about to include include_dir/../../bugs/././../horrible/invocation_priorities.php\n";
-   include "include_dir/../../bugs/./../horrible/invocation_priorities.php";
+   class X
+   {
+      var $f;
+      var $a;
+      
+      function X()
+      {
+         $this->f = "foo";
+         $this->a = array("foo");
+      }
+      
+      function foo()
+      {
+         echo "X::foo\n";
+      }
+   }
+   
+   function foo()
+   {
+      echo "foo\n";
+   }
+   
+   $f = "foo";
+   $a = array("foo");
+   
+   $x = new X();
+   
+   foo(); // foo
+   $x->foo(); // X::foo
+   $x->$f(); // X::foo
+   $x->{"f" . "oo"}(); // X::foo
+   $x->a[0](); // foo
+   $x->$a[0](); // X::foo
    
    var_dump($f);
    var_dump($a);
@@ -106,7 +149,61 @@
    $y = "zzz";
    $xx = "zzz";
    echo "about to include ./test/subjects/horrible/obfuscated_foreach.php\n";
-   include "./test/subjects/horrible/obfuscated_foreach.php";
+   $x = array(1 => "a", 2 => "b", 3 => "c");
+   
+   echo "** 1 **\n";
+   foreach ($x as $y) {
+      echo $y . "\n";
+   }
+   
+   echo "** 2 **\n";
+   foreach ($x as $y[0]) {
+      echo $y . "\n";
+   }
+   
+   echo "** 3 **\n";
+   foreach ($x as $y{0}) {
+      echo $y . "\n";
+   }
+   
+   echo "** 4 **\n";
+   foreach ($x as $a->b) {
+      echo "(" . $a . ") " . $a->b . "\n";
+   }
+   
+   /* Breaks */
+   /*
+	echo "** 5 **\n";
+	foreach($x as $y[0][0])
+	{
+		echo "$y\n";
+	}
+	*/
+   
+   $xx = "x";
+   
+   echo "** 6 **\n";
+   foreach ($$xx as $y) {
+      echo $y . "\n";
+   }
+   
+   echo "** 7 **\n";
+   foreach ($$xx as &$y) {
+      echo $y . "\n";
+   }
+   
+   // Needs the following to avoid corruption of the array
+   unset($y);
+   
+   echo "** 8 **\n";
+   foreach ($$xx as $y => $z) {
+      echo $y . " => " . $z . "\n";
+   }
+   
+   echo "** 9 **\n";
+   foreach ($$xx as $y => &$z) {
+      echo $y . " => " . $z . "\n";
+   }
    
    var_dump($x);
    var_dump($y);
@@ -120,7 +217,61 @@
    # files from the current working directory
    
    echo "about to include test/subjects/horrible/obfuscated_foreach.php\n";
-   include "test/subjects/horrible/obfuscated_foreach.php";
+   $x = array(1 => "a", 2 => "b", 3 => "c");
+   
+   echo "** 1 **\n";
+   foreach ($x as $y) {
+      echo $y . "\n";
+   }
+   
+   echo "** 2 **\n";
+   foreach ($x as $y[0]) {
+      echo $y . "\n";
+   }
+   
+   echo "** 3 **\n";
+   foreach ($x as $y{0}) {
+      echo $y . "\n";
+   }
+   
+   echo "** 4 **\n";
+   foreach ($x as $a->b) {
+      echo "(" . $a . ") " . $a->b . "\n";
+   }
+   
+   /* Breaks */
+   /*
+	echo "** 5 **\n";
+	foreach($x as $y[0][0])
+	{
+		echo "$y\n";
+	}
+	*/
+   
+   $xx = "x";
+   
+   echo "** 6 **\n";
+   foreach ($$xx as $y) {
+      echo $y . "\n";
+   }
+   
+   echo "** 7 **\n";
+   foreach ($$xx as &$y) {
+      echo $y . "\n";
+   }
+   
+   // Needs the following to avoid corruption of the array
+   unset($y);
+   
+   echo "** 8 **\n";
+   foreach ($$xx as $y => $z) {
+      echo $y . " => " . $z . "\n";
+   }
+   
+   echo "** 9 **\n";
+   foreach ($$xx as $y => &$z) {
+      echo $y . " => " . $z . "\n";
+   }
    
    var_dump($x);
    var_dump($y);
@@ -138,7 +289,25 @@
    # calling files with include
    
    echo "about to include included_recursive1.php\n";
-   require "included_recursive1.php";
+   
+   echo $f;
+   $f = 6;
+   echo $f;
+   
+   echo $f;
+   $f = 8;
+   echo $f;
+   
+   echo $f;
+   
+   $f = 26;
+   
+   echo $f;
+   
+   echo $f;
+   
+   echo $f;
+   
    
    var_dump($f);
    if ($f !== 26) {
@@ -154,7 +323,10 @@
       $a2 = "old string";
       
       echo "about to include included_var_overwrite.php\n";
-      require "included_var_overwrite.php";
+      
+      $a1 = "new value";
+      $a2 = "a DIFFEnt new value";
+      
       
       var_dump($a1);
       var_dump($a2);
@@ -180,7 +352,10 @@
          $a2 = "old string";
          
          echo "about to include included_var_overwrite.php\n";
-         include "included_var_overwrite.php";
+         
+         $a1 = "new value";
+         $a2 = "a DIFFEnt new value";
+         
          
          if ($a1 == "old value" or $a2 == "my old value") {
             fail(__FILE__, __LINE__, "var overwrite within class");
@@ -198,7 +373,13 @@
    $i2 = "another value";
    
    echo "about to include included_use_existing_vars.php\n";
-   include "included_use_existing_vars.php";
+   
+   var_dump($i1);
+   var_dump($i2);
+   if ($i1 !== "some value" and $i2 !== "another value") {
+      fail(__FILE__, __LINE__, "using variables inncluded file");
+   }
+   
    
    # the included file using functions from this file
    

@@ -117,6 +117,17 @@ public:
 		else
 			return in;
 	}
+
+	// All return statements must get an argument (NULL if none specified)
+	void pre_return(AST_return* in, List<AST_statement*>* out)
+	{
+		if(in->expr == NULL)
+		{
+			in->expr = new Token_null(new String("NULL"));
+		}
+
+		out->push_back(in);
+	}
 };
 
 class Annotate : public AST_visitor
