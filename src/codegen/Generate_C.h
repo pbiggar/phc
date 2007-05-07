@@ -28,7 +28,6 @@ public:
 	String* extension_name;
 	bool is_extension;
 	List<String*>* methods;	// List of all methods compiled	
-	
 
 /*
 private:

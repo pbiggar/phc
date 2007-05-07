@@ -29,6 +29,34 @@
 #include "process_ast/PHP_unparser.h"
 
 /*
+ * After the shredder, many expressions can only contain "simple" variables.
+ * For example, where a bin-op could contain arbitrary expressions on the left
+ * and right, after the shredder, both of those expressions must be a simple
+ * variable; that is, a variable with a Token_variable_name as name, no target,
+ * and no array indices. Wherever we assume this, we use this function
+ * "operand" to extract the variable name. That factors out a bit of recurring
+ * code, and also flags where we make this assumption.
+ */
+
+String* operand(AST_expr* in)
+{
+	AST_variable* var;
+	Token_variable_name* var_name;
+
+	assert(in);
+	
+	var = dynamic_cast<AST_variable*>(in);
+	assert(var);
+	assert(var->target == NULL);
+	assert(var->array_indices->size() == 0);
+
+	var_name = dynamic_cast<Token_variable_name*>(var->variable_name);
+	assert(var_name);
+
+	return var_name->value;
+}
+
+/*
  * Map of the Zend functions that implement the operators
  *
  * The map also contains entries for ++ and --, which are identical to the
@@ -174,7 +202,7 @@ public:
 		<< "{\n"
 		<< "zval* cond = index_ht(locals, \n"
 		<< "\"" << *cond->value->value << "\", "
-		<< cond->value->value->length() << ");"
+		<< cond->value->value->length() + 1 << ");"
 		<< "if(zend_is_true(cond)) "
 		<< "goto " << *iftrue->value->value << ";\n"
 		<< "else "
@@ -255,11 +283,11 @@ public:
 				// (reducing its refcount)
 				<< "zend_hash_del(locals, "
 				<< "\"" << *name->value << "\", "
-				<< name->value->length() << ");\n"
+				<< name->value->length() + 1 << ");\n"
 				// Add the new value to the hashtable
 				<< "zend_hash_add(locals, "
 				<< "\"" << *name->value << "\", "
-				<< name->value->length() << ", "
+				<< name->value->length() + 1 << ", "
 				<< "&rhs, sizeof(zval*), NULL);\n"
 				;
 			}
@@ -268,23 +296,16 @@ public:
 				lhs->value->array_indices->front() != NULL
 				)
 			{
-				AST_variable* var = dynamic_cast<AST_variable*>
-					(lhs->value->array_indices->front());
-
-				// After shredder arrays are indexed using simple vars only
-				Token_variable_name* ind = dynamic_cast<Token_variable_name*>
-					(var->variable_name);
-				assert(ind != NULL);
+				String* ind = operand(lhs->value->array_indices->front());
 
 				cout 
 				<< "{\n"
 				<< "zval* arr = index_ht(locals, " 
 				<< "\"" << *name->value << "\", "
-				<< name->value->length() << ");\n"
+				<< name->value->length() + 1 << ");\n"
 				<< "HashTable* ht = extract_ht(arr);\n"
 				<< "zval* ind = index_ht(locals, "
-				<< "\"" << *ind->value << "\", "
-				<< ind->value->length() << ");\n"
+				<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 				// Numeric index? 
 				<< "if(Z_TYPE_P(ind) == IS_LONG)\n" 
 				<< "{\n"
@@ -306,9 +327,9 @@ public:
 				<< "zval_copy_ctor(string_index);\n"
 				<< "convert_to_string(string_index);\n"
 				// Remove the old value from the hashtable
-				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index));\n"
+				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
 				// Add the new value to the hashtable
-				<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index), &rhs, sizeof(zval*), NULL);\n"
+				<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1, &rhs, sizeof(zval*), NULL);\n"
 				<< "zval_ptr_dtor(&string_index);\n"
 				<< "}\n"
 				<< "}\n"
@@ -324,7 +345,7 @@ public:
 				<< "{\n"
 				<< "zval* arr = index_ht(locals, " 
 				<< "\"" << *name->value << "\", "
-				<< name->value->length() << ");\n"
+				<< name->value->length() + 1 << ");\n"
 				<< "HashTable* ht = extract_ht(arr);\n"
 				<< "zend_hash_next_index_insert(ht, &rhs, sizeof(zval*), NULL);\n"
 				<< "}\n"
@@ -472,28 +493,18 @@ public:
 			cout
 			<< "rhs = index_ht(locals, "
 			<< "\"" << *name->value << "\", "
-			<< name->value->length() << ");"
+			<< name->value->length() + 1 << ");"
 			;
 			
 			if(rhs->value->array_indices->size() == 1)
 			{
-				// TODO: there is some duplication of code between here
-				// and Assignment (but the code is not identical)
-
-				AST_variable* var = dynamic_cast<AST_variable*>
-					(rhs->value->array_indices->front());
-
-				// After shredder arrays are indexed using simple vars only
-				Token_variable_name* ind = dynamic_cast<Token_variable_name*>
-					(var->variable_name);
-				assert(ind != NULL);
+				String* ind = operand(rhs->value->array_indices->front());
 
 				cout 
 				<< "{\n"
 				<< "HashTable* ht = extract_ht(rhs);"
 				<< "zval* ind = index_ht(locals, "
-				<< "\"" << *ind->value << "\", "
-				<< ind->value->length() << ");\n"
+				<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 				// Numeric index?
 				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
 				<< "{\n"
@@ -516,7 +527,7 @@ public:
 				<< "*string_index = *ind;\n"
 				<< "zval_copy_ctor(string_index);\n"
 				<< "convert_to_string(string_index);\n"
-				<< "rhs = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index));\n"
+				<< "rhs = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
 				<< "zval_ptr_dtor(&string_index);\n"
 				<< "}\n"
 				<< "}\n"
@@ -582,16 +593,11 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			// After the shredder, all arguments must be simple variables
-			AST_variable* arg;
-			Token_variable_name* arg_name;
-			arg = dynamic_cast<AST_variable*>((*i)->expr);
-			arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
+			String* op = operand((*i)->expr);
 
 			cout
 			<< "args[" << index << "] = index_ht(locals, "
-			<< "\"" << *arg_name->value << "\", "
-			<< arg_name->value->length() << ");\n"
+			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 			;
 		}
 	
@@ -636,10 +642,10 @@ public:
 		cout 
 		<< "zval* left = index_ht(locals, "
 		<< "\"" << *left->value->value << "\", "
-		<< left->value->value->length() << ");\n"
+		<< left->value->value->length() + 1 << ");\n"
 		<< "zval* right = index_ht(locals, "
 		<< "\"" << *right->value->value << "\", "
-		<< right->value->value->length() << ");\n"
+		<< right->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
 		;
 
@@ -679,7 +685,7 @@ public:
 		cout 
 		<< "zval* expr = index_ht(locals, "
 		<< "\"" << *expr->value->value << "\", "
-		<< expr->value->value->length() << ");\n"
+		<< expr->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
 		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
 		;
@@ -700,17 +706,12 @@ class Return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		// After the shredder, argument must be a simple variable
-		AST_variable* arg;
-		Token_variable_name* arg_name;
-		arg = dynamic_cast<AST_variable*>(expr->value);
-		arg_name = dynamic_cast<Token_variable_name*>(arg->variable_name);
+		String* op = operand(expr->value);
 
 		cout
 		<< "{\n"
 		<< "*return_value = *index_ht(locals, "
-		<< "\"" << *arg_name->value << "\", "
-		<< arg_name->value->length() << ");\n"
+		<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 		<< "zval_copy_ctor(return_value);\n"
 		<< "goto end_of_function;\n"
 		<< "}\n"
@@ -719,6 +720,78 @@ class Return : public Pattern
 
 protected:
 	Wildcard<AST_expr>* expr;
+};
+
+class Unset : public Pattern
+{
+	bool match(AST_statement* that)
+	{
+		var = new Wildcard<AST_variable>;
+		return(that->match(new AST_unset(var)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		// TODO: deal with object indexing
+		assert(var->value->target == NULL);
+
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(var->value->variable_name);
+
+		if(name != NULL)
+		{
+			if(var->value->array_indices->size() == 0)
+			{
+				cout
+				<< "zend_hash_del(locals, "
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() + 1 << ");"
+				;
+			}
+			else 
+			{
+				assert(var->value->array_indices->size() == 1);
+				String* ind = operand(var->value->array_indices->front());
+
+				cout
+				<< "{\n"
+				<< "zval* arr = index_ht(locals, "
+				<< "\"" << *name->value << "\", " 
+				<< name->value->length() + 1 << ");"
+				<< "HashTable* ht = extract_ht(arr);"
+				<< "zval* ind = index_ht(locals, "
+				<< "\"" << *ind << "\", " << ind->length() + 1 << ");"
+				// Numeric index?
+				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
+				<< "{\n"
+				<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
+				<< "}\n"
+				// String index TODO
+				<< "else\n"
+				<< "{\n"
+				// TODO Code duplication
+				<< "zval* string_index;\n"
+				<< "MAKE_STD_ZVAL(string_index);\n"
+				<< "*string_index = *ind;\n"
+				<< "zval_copy_ctor(string_index);\n"
+				<< "convert_to_string(string_index);\n"
+				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
+				<< "zval_ptr_dtor(&string_index);\n"
+				<< "}\n"
+				<< "}\n"
+				;
+			}
+		}
+		else
+		{
+			// Variable variable
+			// TODO
+			assert(0);
+		}
+	}
+
+protected:
+	Wildcard<AST_variable>* var;
 };
 
 /*
@@ -744,6 +817,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Branch()
 	,	new Goto()
 	,	new Return()
+	,	new Unset()
 	};
 
 	bool matched = false;
