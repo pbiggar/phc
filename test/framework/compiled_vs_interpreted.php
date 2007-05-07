@@ -38,7 +38,8 @@ class CompiledVsInterpreted extends Test
 		list ($phc_output1, $phc_return1) = complete_exec($phc_command1);
 		if ($phc_return1 != 0)
 		{
-			$this->mark_failure($subject, $phc_command1, $phc_return1, $phc_output1);
+			//$this->mark_failure($subject, $phc_command1, $phc_return1, $phc_output1);
+			$this->mark_skipped($subject, "failure to generate C code is marked as skipped"); 
 			return;
 		}
 

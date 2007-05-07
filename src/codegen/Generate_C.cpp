@@ -711,6 +711,7 @@ void Generate_C::children_statement(AST_statement* in)
 		PHP_unparser pup(cerr);
 		cerr << "could not generate code for ";
 		in->visit(&pup);
+		abort();
 	}
 }
 
