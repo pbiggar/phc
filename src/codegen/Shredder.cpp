@@ -27,6 +27,12 @@ public:
 		out->push_back(in);
 	}
 
+	// NOP statements are removed
+	void pre_nop(AST_nop* in, List<AST_statement*>* out)
+	{
+		// Leave "out" empty 
+	}
+
  	// Global is translated into a reference to the GLOBALS array
 	void pre_global(AST_global* in, List<AST_statement*>* out)
 	{

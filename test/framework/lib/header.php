@@ -162,7 +162,7 @@ function open_skipped_file ()
 function note_in_skipped_file ($test_name, $subject, $reason)
 {
 	global $skipped_file;
-	fprintf ($skipped_file, "$test_name: Skipped $subject - $reason\n");
+	fprintf ($skipped_file, "%s", "$test_name: Skipped $subject - $reason\n");
 	// we frequently stop the test midway, but we want up to the minute results
 	fflush ($skipped_file);
 }

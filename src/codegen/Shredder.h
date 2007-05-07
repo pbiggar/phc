@@ -15,6 +15,7 @@ class Shredder : public Lower_expr
 {
 public:
 	void children_php_script(AST_php_script* in);
+	void post_nop(AST_nop* in);
 
 public:
 	AST_variable* post_variable(AST_variable* in);

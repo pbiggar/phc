@@ -34,12 +34,12 @@ class CompiledVsInterpreted extends Test
 		$expected = $this->homogenize_output ($expected); 
 
 		// first check that phc returns 0
-		$phc_command1 = "$phc --generate-c $subject 2>&1";
+		$phc_command1 = "$phc --generate-c $subject 2>&1 >/dev/null";
 		list ($phc_output1, $phc_return1) = complete_exec($phc_command1);
 		if ($phc_return1 != 0)
 		{
 			//$this->mark_failure($subject, $phc_command1, $phc_return1, $phc_output1);
-			$this->mark_skipped($subject, "failure to generate C code is marked as skipped"); 
+			$this->mark_skipped($subject, $phc_output1); 
 			return;
 		}
 
