@@ -10,6 +10,7 @@
 #include <errno.h>
 #include "Token_conversion.h"
 #include "lib/error.h"
+#include "embed/embed.h"
 
 /*
  * When we parse, values such as ints, strings, floats, bools etc, used to be
@@ -24,29 +25,7 @@
 
 AST_expr* Token_conversion::pre_int(Token_int* in)
 {
-	errno = 0; // clear this since we need to know if strtol sets it
-
-	// we need to know about overflow, so we use strtol here, and strtoll later
-	strtol(in->source_rep->c_str(), NULL, 0);
-
-	// if theres overflow, it gets converted to a real, except if its
-	// specfied in hex, and its greater than 0x100000000, in which case it
-	// becomes int(MAX_INT)
-	if(errno == ERANGE)
-	{
-		errno = 0;
-
-		// get a real in the case of overflow
-		double value = strtod(in->source_rep->c_str(), (char **)NULL);
-		assert(errno == 0);
-		Token_real* r = new Token_real(value, in->source_rep);
-		r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
-		return r;
-	}
-	else
-	{
-		return in;
-	}
+	return PHP::convert_token (in);
 }
 
 // Convert unary_op(-,int(5)) to int(-5), and similarly for reals
@@ -62,13 +41,14 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		return pre_expr(expr->value);
 	}
 
+	// TODO add a pass to check for the lack of unary -s
+
 	if(in->match(new AST_unary_op(i, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *i->value->source_rep;
 		i->value->source_rep = source_rep;
-		i->value->value = strtol(source_rep->c_str(), 0, 0);
-		return pre_expr(i->value);
+		return pre_expr (PHP::convert_token (i->value));
 	}
 
 	if(in->match(new AST_unary_op(f, "-")))
@@ -76,9 +56,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		String* source_rep = new String("-");
 		*source_rep += *f->value->source_rep;
 		f->value->source_rep = source_rep;
-		f->value->value = atof(source_rep->c_str ());
-
-		return pre_expr(f->value);
+		return pre_expr (PHP::convert_token (f->value));
 	}
 	
 	return in;

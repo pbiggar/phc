@@ -11,7 +11,7 @@ require_once ("startup.php");
 
 function get_phc ()
 {
-	global $opt_valgrind, $phc_suffix, $valgrind;
+	global $opt_valgrind, $phc_suffix, $valgrind, $libphp;
 
 	// first check that this isnt being run from the wrong directory (the right directory contains ./phc - if you get this far you have the tests)
 	$phc = "src/phc$phc_suffix";
@@ -27,7 +27,7 @@ function get_phc ()
 		# we turn off the leak check because we dont tidy up any garbage
 		$phc = "$valgrind -q --suppressions=misc/valgrind_suppressions --leak-check=no $phc";
 	}
-	return $phc;
+	return "LD_LIBRARY_PATH=$libphp/ $phc";
 
 }
 

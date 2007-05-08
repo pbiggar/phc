@@ -153,8 +153,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Check_lowering.$(OBJEXT) Lower_expr.$(OBJEXT) \
 	Lower_expr_flow.$(OBJEXT) Reorder_functions.$(OBJEXT) \
 	Shredder.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
-	fresh.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
-	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
+	fresh.$(OBJEXT) embed.$(OBJEXT) AST.$(OBJEXT) \
+	cmdline.$(OBJEXT) lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
@@ -374,6 +374,8 @@ SUBDIRS = libltdl
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
 	$(LTDLINCL) -I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated \
+	-I@php_install_path@/include/php -I@php_install_path@/include/php/main \
+	-I@php_install_path@/include/php/TSRM -I@php_install_path@/include/php/Zend \
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -Wall
 
 
@@ -386,7 +388,7 @@ src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
-src_phc_LDADD = @gc_lib@ $(LIBLTDL)
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) -lphp5 -L@php_install_path@/php
 src_phc_DEPENDENCIES = $(LIBLTDL)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
@@ -417,6 +419,8 @@ src_phc_SOURCES = \
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
+	src/embed/embed.h											\
+	src/embed/embed.cpp										\
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
@@ -839,6 +843,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_function_calls_easy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fresh.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
@@ -1199,6 +1204,20 @@ fresh.obj: src/codegen/fresh.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
+
+embed.o: src/embed/embed.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.o -MD -MP -MF "$(DEPDIR)/embed.Tpo" -c -o embed.o `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/embed.Tpo" "$(DEPDIR)/embed.Po"; else rm -f "$(DEPDIR)/embed.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/embed/embed.cpp' object='embed.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o embed.o `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
+
+embed.obj: src/embed/embed.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.obj -MD -MP -MF "$(DEPDIR)/embed.Tpo" -c -o embed.obj `if test -f 'src/embed/embed.cpp'; then $(CYGPATH_W) 'src/embed/embed.cpp'; else $(CYGPATH_W) '$(srcdir)/src/embed/embed.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/embed.Tpo" "$(DEPDIR)/embed.Po"; else rm -f "$(DEPDIR)/embed.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/embed/embed.cpp' object='embed.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o embed.obj `if test -f 'src/embed/embed.cpp'; then $(CYGPATH_W) 'src/embed/embed.cpp'; else $(CYGPATH_W) '$(srcdir)/src/embed/embed.cpp'; fi`
 
 AST.o: src/generated/AST.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST.o -MD -MP -MF "$(DEPDIR)/AST.Tpo" -c -o AST.o `test -f 'src/generated/AST.cpp' || echo '$(srcdir)/'`src/generated/AST.cpp; \

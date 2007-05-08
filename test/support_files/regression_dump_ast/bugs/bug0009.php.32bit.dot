@@ -88,7 +88,7 @@ node_45 [label="Token_method_name"];
 node_46 [label="echo", shape=box]
 node_45 -> node_46;
 node_47 [label="AST_actual_parameter"];
-node_48 [label="Token_int (7)"];
+node_48 [label="Token_real (7)"];
 node_49 [label="-214748364..", shape=box]
 node_48 -> node_49;
 node_47 -> node_48;

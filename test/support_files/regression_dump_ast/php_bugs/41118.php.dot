@@ -62,7 +62,7 @@ node_31 [label="Token_method_name"];
 node_32 [label="var_dump", shape=box]
 node_31 -> node_32;
 node_33 [label="AST_actual_parameter (7)"];
-node_34 [label="Token_int (7)"];
+node_34 [label="Token_real (7)"];
 node_35 [label="-020000000..", shape=box]
 node_34 -> node_35;
 node_33 -> node_34;

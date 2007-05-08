@@ -16,6 +16,8 @@ SUBDIRS = libltdl
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
 	$(LTDLINCL) -I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated \
+	-I@php_install_path@/include/php -I@php_install_path@/include/php/main \
+	-I@php_install_path@/include/php/TSRM -I@php_install_path@/include/php/Zend \
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -Wall
 
 bin_PROGRAMS = src/phc
@@ -29,7 +31,7 @@ src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
-src_phc_LDADD = @gc_lib@ $(LIBLTDL)
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) -lphp5 -L@php_install_path@/php
 
 src_phc_DEPENDENCIES = $(LIBLTDL)
 
@@ -63,6 +65,8 @@ src_phc_SOURCES =												\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
+	src/embed/embed.h											\
+	src/embed/embed.cpp										\
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
 	src/generated/cmdline.c									\
@@ -355,6 +359,13 @@ long-test: all test/framework/lib/autovars.php
 	fi
 
 generate-test-files: all test/framework/lib/autovars.php
+	@if [ -n "@php@" ]; \
+		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s regression BasicParseTest; \
+		@php@ -Cq $(srcdir)/test/framework/driver.php -s regression BasicParseTest; \
+		else echo PHP support required for test; \
+	fi
+
+long-generate-test-files: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression BasicParseTest; \
 		@php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression BasicParseTest; \

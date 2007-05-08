@@ -30,6 +30,7 @@
 #include "process_ast/DOT_unparser.h"
 #include "AST.h"
 #include "parsing/parse.h"
+#include "embed/embed.h"
 
 using namespace std;
 
@@ -356,4 +357,5 @@ run_plugins(AST_php_script* php_script)
 
 	ret = lt_dlexit();
 	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, NULL, 0, lt_dlerror ());
+
 }

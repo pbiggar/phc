@@ -829,7 +829,7 @@ node_444 [label="Token_method_name"];
 node_445 [label="var_dump", shape=box]
 node_444 -> node_445;
 node_446 [label="AST_actual_parameter (41)"];
-node_447 [label="Token_int (41)"];
+node_447 [label="Token_real (41)"];
 node_448 [label="-0x8000000..", shape=box]
 node_447 -> node_448;
 node_446 -> node_447;
@@ -998,7 +998,7 @@ node_535 [label="Token_method_name"];
 node_536 [label="var_dump", shape=box]
 node_535 -> node_536;
 node_537 [label="AST_actual_parameter (48)"];
-node_538 [label="Token_int (48)"];
+node_538 [label="Token_real (48)"];
 node_539 [label="-214748364..", shape=box]
 node_538 -> node_539;
 node_537 -> node_538;
