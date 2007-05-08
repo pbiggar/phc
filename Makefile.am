@@ -31,7 +31,7 @@ src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) -lphp5 -L@php_install_path@/php
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) -lphp5 -L@php_install_path@/lib
 
 src_phc_DEPENDENCIES = $(LIBLTDL)
 
