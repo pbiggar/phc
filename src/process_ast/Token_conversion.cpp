@@ -23,7 +23,12 @@
  * parsing, and convert them to their semantic values using this transformation.
  */
 
-AST_expr* Token_conversion::pre_int(Token_int* in)
+AST_expr* Token_conversion::pre_int (Token_int* in)
+{
+	return PHP::convert_token (in);
+}
+
+AST_expr* Token_conversion::pre_real (Token_real* in)
 {
 	return PHP::convert_token (in);
 }
@@ -33,7 +38,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 {
 	Wildcard<AST_expr>* expr = new Wildcard<AST_expr>;
 	Wildcard<Token_int>* i = new Wildcard<Token_int>;
-	Wildcard<Token_real>* f = new Wildcard<Token_real>;
+	Wildcard<Token_real>* r = new Wildcard<Token_real>;
 
 	if(in->match(new AST_unary_op(new AST_unary_op(expr, "-"), "-")))
 	{
@@ -51,12 +56,12 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		return pre_expr (PHP::convert_token (i->value));
 	}
 
-	if(in->match(new AST_unary_op(f, "-")))
+	if(in->match(new AST_unary_op(r, "-")))
 	{
 		String* source_rep = new String("-");
-		*source_rep += *f->value->source_rep;
-		f->value->source_rep = source_rep;
-		return pre_expr (PHP::convert_token (f->value));
+		*source_rep += *r->value->source_rep;
+		r->value->source_rep = source_rep;
+		return pre_expr (PHP::convert_token (r->value));
 	}
 	
 	return in;

@@ -66,6 +66,9 @@ int main(int argc, char** argv)
 {
 	AST_php_script* php_script = NULL;
 
+	// Start the embedded interpreter
+	PHP::startup_php ();
+
 	// Synchronise C and C++ I/O
 	ios_base::sync_with_stdio();
 
@@ -275,6 +278,8 @@ int main(int argc, char** argv)
 			close(old_stdout);
 		}
 	}
+
+	PHP::shutdown_php ();
 
 	return 0;
 }

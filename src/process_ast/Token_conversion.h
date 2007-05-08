@@ -14,8 +14,9 @@
 class Token_conversion : public AST_transform
 {
 public:
-	AST_expr* pre_int(Token_int* in);
-	AST_expr* pre_unary_op(AST_unary_op* in);
+	AST_expr* pre_int (Token_int* in);
+	AST_expr* pre_real (Token_real* in);
+	AST_expr* pre_unary_op (AST_unary_op* in);
 };
 
 #endif // PHC_TOKEN_CONVERSION

@@ -283,7 +283,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							%}
 <PHP>{INT}				{ 
 								Token_int* i = new Token_int(
-									strtol(yytext, 0, 0),
+									0, // initialized in Token_conversion
 									new String(yytext));
 								copy_state(i, yyextra);
 								yylval->token_int = i;
@@ -291,7 +291,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							}
 <PHP>{REAL}				{ 
 								Token_real* r = new Token_real(
-									atof(yytext),
+									0.0, // initialized in Token_conversion
 									new String(yytext));
 								copy_state(r, yyextra);
 								yylval->token_real = r;
