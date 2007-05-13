@@ -2230,11 +2230,11 @@ dynamic_class_name_variable_property:
 exit_expr:
 	  /* empty */
 		{
-			$$ = NEW(Token_int, (0L, new String("0")));
+			$$ = NEW(Token_int, (0L));
 		}
 	| '(' ')'
 		{
-			$$ = NEW(Token_int, (0L, new String("0")));
+			$$ = NEW(Token_int, (0L));
 		}
 	| '(' expr ')'
 		{

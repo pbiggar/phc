@@ -326,7 +326,7 @@ typedef union YYSTYPE
 	Token_bool* token_bool;
 	Token_null* token_null;
 }
-/* Line 1489 of yacc.c.  */
+/* Line 1529 of yacc.c.  */
 #line 331 "src/generated/php_parser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

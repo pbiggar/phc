@@ -104,7 +104,7 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 			new Token_string (new String ("end"), new String ("end")), 
 			new List<AST_statement*> ());
 	cases->push_back (current);
-	current->statements->push_back (new AST_break (new Token_int (2, new String ("2"))));
+	current->statements->push_back (new AST_break (new Token_int (2)));
 
 	return out;
 }

@@ -73,7 +73,7 @@ public:
 	AST_expr* pre_unary_op(AST_unary_op* in)
 	{
 		if(*in->op->value == "-") return new AST_bin_op(
-			new Token_int(0, new String("0")),
+			new Token_int(0),
 			in->op,
 			in->expr);
 		else
@@ -311,7 +311,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
 		false,
-		new Token_int(1, new String("1")))));
+		new Token_int(1))));
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		in->variable->clone(),
 		false,
@@ -344,7 +344,7 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
 		false,
-		new Token_int(1, new String("1")))));
+		new Token_int(1))));
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		in->variable->clone(),
 		false,
@@ -460,7 +460,7 @@ AST_expr* Shredder::post_list_assignment(AST_list_assignment* in)
 	{
 		// create the RHS
 		List<AST_expr*> *array_indices = new List<AST_expr*> ();
-		array_indices->push_back (new Token_int (counter, NULL));
+		array_indices->push_back (new Token_int (counter));
 		AST_variable* rhs = 
 			new AST_variable (NULL, 
 									temp->variable_name->clone(),

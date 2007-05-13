@@ -1911,6 +1911,9 @@ public:
     virtual bool equals_value(Token_int* that);
 public:
     virtual String* get_value_as_string();
+    Token_int(int v);
+private:
+    void call_initializing_virtuals();
 public:
     virtual Token_int* clone();
     virtual int clone_value();
@@ -1940,6 +1943,9 @@ public:
     virtual bool equals_value(Token_real* that);
 public:
     virtual String* get_value_as_string();
+    Token_real(double v);
+private:
+    void call_initializing_virtuals();
 public:
     virtual Token_real* clone();
     virtual double clone_value();
@@ -1969,6 +1975,7 @@ public:
     virtual bool equals_value(Token_string* that);
 public:
     virtual String* get_value_as_string();
+    Token_string(String* v);
 public:
     virtual Token_string* clone();
     virtual String* clone_value();
@@ -1998,6 +2005,9 @@ public:
     virtual bool equals_value(Token_bool* that);
 public:
     virtual String* get_value_as_string();
+    Token_bool(bool v);
+private:
+    void call_initializing_virtuals();
 public:
     virtual Token_bool* clone();
     virtual bool clone_value();
@@ -2007,8 +2017,6 @@ class Token_null : virtual public AST_literal
 {
 public:
     Token_null(String* source_rep);
-protected:
-    Token_null();
 public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
@@ -2024,6 +2032,9 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual String* get_value_as_string();
+    Token_null();
+private:
+    void call_initializing_virtuals();
 public:
     virtual Token_null* clone();
 };

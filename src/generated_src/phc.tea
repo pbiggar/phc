@@ -524,6 +524,18 @@ public:
 		os << value;
 		return new String(os.str());
 	}
+
+	Token_int (int v)
+	{
+		value = v;
+		call_initializing_virtuals (); // cant call virtual functions from a constructor
+	}
+
+private:
+	void call_initializing_virtuals ()
+	{
+		source_rep = get_value_as_string ();
+	}
 };
 
 class Token_real
@@ -546,6 +558,18 @@ public:
 
 		return new String(str);
 	}
+
+	Token_real (double v)
+	{
+		value = v;
+		call_initializing_virtuals (); // cant call virtual functions from a constructor
+	}
+private:
+
+	void call_initializing_virtuals ()
+	{
+		source_rep = get_value_as_string ();
+	}
 };
 
 class Token_bool
@@ -558,6 +582,19 @@ public:
 		else
 			return new String("False");
 	}
+
+	Token_bool (bool v)
+	{
+		value = v;
+		call_initializing_virtuals (); // cant call virtual functions from a constructor
+	}
+private:
+
+	void call_initializing_virtuals ()
+	{
+		source_rep = get_value_as_string ();
+	}
+
 };
 
 class Token_string
@@ -566,6 +603,12 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return value;
+	}
+
+	Token_string (String* v)
+	{
+		value = v;
+		source_rep = v;
 	}
 };
 
@@ -576,4 +619,15 @@ public:
 	{
 		return new String("NULL");
 	}
+	Token_null ()
+	{
+		call_initializing_virtuals (); // cant call virtual functions from a constructor
+	}
+
+private:
+	void call_initializing_virtuals ()
+	{
+		source_rep = get_value_as_string ();
+	}
+
 };

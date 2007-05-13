@@ -48,13 +48,6 @@ void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement
 	out->push_back (label);
 }
 
-String* string_for_int (int i)
-{
-	stringstream ss;
-	ss << i;
-	return new String (ss.str ());
-}
-
 // Get IN's exit label, or create one for it, and return it.
 template <class T>
 AST_label* Lower_control_flow::exit_label (AST_node* in)
@@ -558,7 +551,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 
 				// Create: if ($TB1 == depth)
 				Token_op* op = new Token_op (new String ("=="));
-				Token_int* branch_num = new Token_int (depth, string_for_int (depth));
+				Token_int* branch_num = new Token_int (depth);
 				AST_bin_op* compare = new AST_bin_op (lhs->clone (), op, branch_num);
 
 				// We break to depth 1 for any expr <= 1

@@ -447,7 +447,7 @@ typedef union YYSTYPE
 	Token_bool* token_bool;
 	Token_null* token_null;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 452 "src/generated/php_parser.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -5688,14 +5688,14 @@ yyreduce:
   case 258:
 #line 2232 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(Token_int, (0L, new String("0")));
+			(yyval.ast_expr) = NEW(Token_int, (0L));
 		;}
     break;
 
   case 259:
 #line 2236 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(Token_int, (0L, new String("0")));
+			(yyval.ast_expr) = NEW(Token_int, (0L));
 		;}
     break;
 
