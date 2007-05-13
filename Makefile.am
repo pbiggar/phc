@@ -26,8 +26,9 @@ bin_PROGRAMS = src/phc
 # hear about. 
 AM_CXXFLAGS = -Wextra -Wno-unused-parameter
 
-# Special libtool flag for later plugin loading
-src_phc_LDFLAGS = -export-dynamic
+# -export-dynammic: Special libtool flag for later plugin loading
+# -R: search for libraries (ie libphp5) in php's lib install dir
+src_phc_LDFLAGS = -export-dynamic -R@php_install_path@/lib
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway

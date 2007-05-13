@@ -53,7 +53,7 @@ class CompiledVsInterpreted extends Test
 		}
 
 		// run the program
-		$command2 = "LD_LIBRARY_PATH=$libphp:\$LD_LIBRARY_PATH ./a.out 2>&1";
+		$command2 = " ./a.out 2>&1";
 		list ($actual, $return2) = complete_exec($command2);
 		$actual = $this->homogenize_output ($actual); 
 

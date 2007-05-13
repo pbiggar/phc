@@ -27,7 +27,7 @@ function get_phc ()
 		# we turn off the leak check because we dont tidy up any garbage
 		$phc = "$valgrind -q --suppressions=misc/valgrind_suppressions --leak-check=no $phc";
 	}
-	return "LD_LIBRARY_PATH=$libphp/ $phc";
+	return $phc;
 
 }
 

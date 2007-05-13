@@ -201,7 +201,7 @@ int main(int argc, char** argv)
 			php_path = PHP_INSTALL_PATH;
 		
 		// Argument array for gcc
-		#define GCC_ARGS 9
+		#define GCC_ARGS 10
 		stringstream args[GCC_ARGS];
 		args[0] << "gcc";
 		args[1] << "-I" << php_path << "/include/php";
@@ -209,9 +209,10 @@ int main(int argc, char** argv)
 		args[3] << "-I" << php_path << "/include/php/TSRM";
 		args[4] << "-I" << php_path << "/include/php/Zend";
 		args[5] << "-L" << php_path << "/lib";
-		args[6] << "-lphp5";
-		args[7] << "-xc";
-		args[8] << "-";
+		args[6] << "-Wl,-R" << php_path << "/lib";
+		args[7] << "-lphp5";
+		args[8] << "-xc";
+		args[9] << "-";
 
 		char** argv;
 		argv = (char**) calloc(GCC_ARGS + args_info.c_option_given + 1, sizeof(char*));
