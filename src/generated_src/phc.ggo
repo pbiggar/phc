@@ -30,6 +30,6 @@ option "dump-tokens" - "Perform lexical analysis only (spits out a token list)" 
 option "run-lifting" - "Run the lifting pass (create a main function)" flag off hidden
 option "run-lowering" - "Run the lowering pass (remove control flow constructs)" flag off hidden
 option "run-shredder" - "Run the shredder (transform the AST to 3AC-like code)" flag off hidden
-option "no-goto-uppering" - "Don't run the uppering pass (don't replace gotos with valid, if ugly, php)" flag off hidden
+option "run-goto-uppering" - "Run the uppering pass (replace gotos with valid, if ugly, php so that it can be interpreted)" flag off hidden
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

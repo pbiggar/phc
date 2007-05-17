@@ -145,11 +145,8 @@ int main(int argc, char** argv)
 		php_script->transform_children(&s);
 	}
 
-	// upper
-	if(!args_info.no_goto_uppering_flag
-			&& (args_info.run_lowering_flag
-				|| args_info.run_shredder_flag
-				|| args_info.obfuscate_flag))
+	// upper (implied by obfuscation)
+	if(args_info.run_goto_uppering_flag || args_info.obfuscate_flag)
 	{
 		Goto_uppering gu;
 		php_script->visit (&gu);

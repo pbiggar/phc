@@ -78,8 +78,8 @@ struct gengetopt_args_info
   const char *run_lowering_help; /* Run the lowering pass (remove control flow constructs) help description.  */
   int run_shredder_flag;	/* Run the shredder (transform the AST to 3AC-like code) (default=off).  */
   const char *run_shredder_help; /* Run the shredder (transform the AST to 3AC-like code) help description.  */
-  int no_goto_uppering_flag;	/* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) (default=off).  */
-  const char *no_goto_uppering_help; /* Don't run the uppering pass (don't replace gotos with valid, if ugly, php) help description.  */
+  int run_goto_uppering_flag;	/* Run the uppering pass (replace gotos with valid, if ugly, php so that it can be interpreted) (default=off).  */
+  const char *run_goto_uppering_help; /* Run the uppering pass (replace gotos with valid, if ugly, php so that it can be interpreted) help description.  */
   
   int help_given ;	/* Whether help was given.  */
   int full_help_given ;	/* Whether full-help was given.  */
@@ -105,7 +105,7 @@ struct gengetopt_args_info
   int run_lifting_given ;	/* Whether run-lifting was given.  */
   int run_lowering_given ;	/* Whether run-lowering was given.  */
   int run_shredder_given ;	/* Whether run-shredder was given.  */
-  int no_goto_uppering_given ;	/* Whether no-goto-uppering was given.  */
+  int run_goto_uppering_given ;	/* Whether run-goto-uppering was given.  */
 
   char **inputs ; /* unamed options */
   unsigned inputs_num ; /* unamed options number */

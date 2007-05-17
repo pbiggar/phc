@@ -80,7 +80,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --run-lifting            Run the lifting pass (create a main function)  \n                                 (default=off)",
   "      --run-lowering           Run the lowering pass (remove control flow \n                                 constructs)  (default=off)",
   "      --run-shredder           Run the shredder (transform the AST to 3AC-like \n                                 code)  (default=off)",
-  "      --no-goto-uppering       Don't run the uppering pass (don't replace gotos \n                                 with valid, if ugly, php)  (default=off)",
+  "      --run-goto-uppering      Run the uppering pass (replace gotos with valid, \n                                 if ugly, php so that it can be interpreted)  \n                                 (default=off)",
     0
 };
 
@@ -132,7 +132,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->run_lifting_given = 0 ;
   args_info->run_lowering_given = 0 ;
   args_info->run_shredder_given = 0 ;
-  args_info->no_goto_uppering_given = 0 ;
+  args_info->run_goto_uppering_given = 0 ;
 }
 
 static
@@ -164,7 +164,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->run_lifting_flag = 0;
   args_info->run_lowering_flag = 0;
   args_info->run_shredder_flag = 0;
-  args_info->no_goto_uppering_flag = 0;
+  args_info->run_goto_uppering_flag = 0;
   
 }
 
@@ -199,7 +199,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->run_lifting_help = gengetopt_args_info_full_help[26] ;
   args_info->run_lowering_help = gengetopt_args_info_full_help[27] ;
   args_info->run_shredder_help = gengetopt_args_info_full_help[28] ;
-  args_info->no_goto_uppering_help = gengetopt_args_info_full_help[29] ;
+  args_info->run_goto_uppering_help = gengetopt_args_info_full_help[29] ;
   
 }
 
@@ -457,8 +457,8 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   if (args_info->run_shredder_given) {
     fprintf(outfile, "%s\n", "run-shredder");
   }
-  if (args_info->no_goto_uppering_given) {
-    fprintf(outfile, "%s\n", "no-goto-uppering");
+  if (args_info->run_goto_uppering_given) {
+    fprintf(outfile, "%s\n", "run-goto-uppering");
   }
   
   fclose (outfile);
@@ -733,7 +733,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "run-lifting",	0, NULL, 0 },
         { "run-lowering",	0, NULL, 0 },
         { "run-shredder",	0, NULL, 0 },
-        { "no-goto-uppering",	0, NULL, 0 },
+        { "run-goto-uppering",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
@@ -1094,19 +1094,19 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->run_shredder_given = 1;
             args_info->run_shredder_flag = !(args_info->run_shredder_flag);
           }
-          /* Don't run the uppering pass (don't replace gotos with valid, if ugly, php).  */
-          else if (strcmp (long_options[option_index].name, "no-goto-uppering") == 0)
+          /* Run the uppering pass (replace gotos with valid, if ugly, php so that it can be interpreted).  */
+          else if (strcmp (long_options[option_index].name, "run-goto-uppering") == 0)
           {
-            if (local_args_info.no_goto_uppering_given)
+            if (local_args_info.run_goto_uppering_given)
               {
-                fprintf (stderr, "%s: `--no-goto-uppering' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                fprintf (stderr, "%s: `--run-goto-uppering' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
                 goto failure;
               }
-            if (args_info->no_goto_uppering_given && ! override)
+            if (args_info->run_goto_uppering_given && ! override)
               continue;
-            local_args_info.no_goto_uppering_given = 1;
-            args_info->no_goto_uppering_given = 1;
-            args_info->no_goto_uppering_flag = !(args_info->no_goto_uppering_flag);
+            local_args_info.run_goto_uppering_given = 1;
+            args_info->run_goto_uppering_given = 1;
+            args_info->run_goto_uppering_flag = !(args_info->run_goto_uppering_flag);
           }
           
           break;
