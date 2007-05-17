@@ -7,7 +7,7 @@
  * command line and phc --compile-time-includes.
  */
 
-array_push($tests, new CompileTimeInclude ());
+$tests[] = new CompileTimeInclude ();
 class CompileTimeInclude extends CompareWithPHP
 {
 	function get_test_subjects ()
@@ -15,13 +15,17 @@ class CompileTimeInclude extends CompareWithPHP
 		return get_includable_scripts ();
 	}
 
-	function get_command_line ($subject)
+	function __construct ()
 	{
-		global $phc;
-		return "$phc --pretty-print --compile-time-includes $subject 2>&1 "
+		parent::__construct ("CompareWithPHP", "--pretty-print --compile-time-includes");
+	}
+
+	function get_command_line2 ($subject)
+	{
+		$command = parent::get_command_line2 ($subject);
+		return $command
 				. " | grep -v \"^[[:space:]]\\+include\" 2>&1"
 				. " | grep -v \"^[[:space:]]\\+require\" 2>&1";
 	}
 }
-
 ?>

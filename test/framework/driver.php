@@ -47,11 +47,11 @@ if ($opt_installed)
 $tests = array ();
 
 require_once ("basic_parse_tests.php");
-require_once ("interpret_canonical_unparsed.php");
-require_once ("interpret_unparsed.php");
-require_once ("interpret_lowered.php");
-require_once ("interpret_shredded.php");
-require_once ("interpret_obfuscated.php");
+$tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la");
+$tests[] = new CompareWithPHP ("InterpretLowered", "--run-lowering --pretty-print --run-goto-uppering");
+$tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate --run-goto-uppering");
+$tests[] = new CompareWithPHP ("InterpretShredded", "--run-shredder --pretty-print --run-goto-uppering");
+$tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print");
 require_once ("compiled_vs_interpreted.php");
 array_push ($tests, new PluginTest ("cloning"));
 array_push ($tests, new PluginTest ("linear"));

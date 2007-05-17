@@ -15,12 +15,24 @@ function get_php_command_line ($subject, $pipe = false)
 }
 
 
-abstract class CompareWithPHP extends TwoCommandTest
+class CompareWithPHP extends TwoCommandTest
 {
+	function __construct ($name, $command_line)
+	{
+		$this->name = $name;
+		$this->command_line = $command_line;
+		parent::__construct ();
+	}
+
 	public static $cache = array ();
 	function get_test_subjects ()
 	{
 		return get_interpretable_scripts ();
+	}
+
+	function allow_failure_exit_code ()
+	{
+		return true;
 	}
 
 	// we intercept and wrap this to cache results
@@ -54,13 +66,12 @@ abstract class CompareWithPHP extends TwoCommandTest
 		return get_php_command_line ($subject);
 	}
 
-	// Returns a command line with which to call php to interpret SUBJECT.
-	// SUBJECT can be blank if you plan on piping to php
-	abstract function get_command_line ($subject);
-
 	function get_command_line2 ($subject)
 	{
-		return $this->get_command_line ($subject). " | ". get_php_command_line ($subject, "pipe");
+		global $phc;
+		$command = $this->command_line;
+		$pipe_command = get_php_command_line ($subject, "pipe");
+		return "$phc $command $subject 2>&1 | $pipe_command";
 	}
 
 	function homogenize_output ($output)
@@ -69,6 +80,11 @@ abstract class CompareWithPHP extends TwoCommandTest
 		$output = homogenize_line_numbers ($output);
 		$output = homogenize_break_levels ($output);
 		return $output;
+	}
+
+	function get_name ()
+	{
+		return $this->name;
 	}
 }
 
