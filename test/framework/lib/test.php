@@ -5,6 +5,40 @@
  *
  * Base class for tests
  */
+
+
+function homogenize_xml ($string)
+{
+	$string = preg_replace("/(<attr key=\"phc.line_number\">)\d+(<\/attr>)/", "$1$2", $string);
+	$string = preg_replace("/(<attr key=\"phc.filename\">).*?(<\/attr>)/", "$1$2", $string);
+	return $string;
+}
+
+function homogenize_filenames ($string)
+{
+	$string = preg_replace("/(Warning: .* in ).* on line \d+/", "$1", $string);
+	$string = preg_replace("/(Fatal error: .* in ).* on line \d+/", "$1", $string);
+	$string = preg_replace("/(Catchable fatal error:) .* in .* on line \d+/", "$1", $string);
+	return $string;
+}
+
+function homogenize_line_numbers ($string)
+{
+	$string = preg_replace("/(Warning: .* in .* on line )\d+/", "$1", $string);
+	$string = preg_replace("/(Fatal error: .* in .* on line )\d+/", "$1", $string);
+	$string = preg_replace("/(Catchable fatal error: .* in .* on line )\d+/", "$1", $string);
+	return $string;
+}
+
+function homogenize_break_levels ($string)
+{
+	$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ level(s)? in .*/",
+									"Fatal error: Too many break/continue levels", $string);
+	return $string;
+}
+
+
+
 abstract class Test
 {
 	function __construct ()
@@ -37,36 +71,6 @@ abstract class Test
 
 	function homogenize_output ($string)
 	{
-		return $string;
-	}
-
-	function homogenize_xml ($string)
-	{
-		$string = preg_replace("/(<attr key=\"phc.line_number\">)\d+(<\/attr>)/", "$1$2", $string);
-		$string = preg_replace("/(<attr key=\"phc.filename\">).*?(<\/attr>)/", "$1$2", $string);
-		return $string;
-	}
-
-	function homogenize_filenames ($string)
-	{
-		$string = preg_replace("/(Warning: .* in ).* on line \d+/", "$1", $string);
-		$string = preg_replace("/(Fatal error: .* in ).* on line \d+/", "$1", $string);
-		$string = preg_replace("/(Catchable fatal error:) .* in .* on line \d+/", "$1", $string);
-		return $string;
-	}
-
-	function homogenize_line_numbers ($string)
-	{
-		$string = preg_replace("/(Warning: .* in .* on line )\d+/", "$1", $string);
-		$string = preg_replace("/(Fatal error: .* in .* on line )\d+/", "$1", $string);
-		$string = preg_replace("/(Catchable fatal error: .* in .* on line )\d+/", "$1", $string);
-		return $string;
-	}
-
-	function homogenize_break_levels ($string)
-	{
-		$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ level(s)? in .*/",
-										"Fatal error: Too many break/continue levels", $string);
 		return $string;
 	}
 

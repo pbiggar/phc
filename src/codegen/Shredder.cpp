@@ -440,10 +440,11 @@ AST_expr* Shredder::post_array(AST_array* in)
  *	Note the reverse order. This matters if you've arrays on the lhs. note that references arent allowed here.
  */
 
-AST_expr* Shredder::post_list_assignment(AST_list_assignment* in)
+AST_expr* Shredder::pre_list_assignment(AST_list_assignment* in)
 {
 	AST_variable* temp = fresh_var("PLA");
 
+	assert (in->expr != NULL);
 	pieces->push_back(
 		new AST_eval_expr(
 			new AST_assignment(temp->clone (), false, in->expr)));

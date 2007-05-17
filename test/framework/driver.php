@@ -31,6 +31,7 @@ $phc_compile_plugin = get_phc_compile_plugin ();
 require_once ("lib/test.php");
 require_once ("lib/plugin_test.php");
 require_once ("lib/two_command_test.php");
+require_once ("lib/compare_with_php_test.php");
 require_once ("lib/regression.php");
 
 

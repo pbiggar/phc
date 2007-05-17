@@ -16,9 +16,15 @@ using namespace std;
 extern struct gengetopt_args_info args_info;
 
 /* Dump the XML for anynode to stderr. A global function. */
-void xdebug (AST_node* in, bool print_attrs)
+void xdebug (AST_node* in)
 {
-	XML_unparser *xup = new XML_unparser (cerr, print_attrs);
+	XML_unparser *xup = new XML_unparser (cerr, false);
+	in->visit (xup);
+}
+
+void xadebug (AST_node* in)
+{
+	XML_unparser *xup = new XML_unparser (cerr, true);
 	in->visit (xup);
 }
 

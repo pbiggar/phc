@@ -10,7 +10,9 @@
 
 #include "AST_visitor.h"
 
-void xdebug (AST_node* in, bool print_attrs = true);
+// these are split so they're easy to call from the debugger
+void xdebug (AST_node* in);
+void xadebug (AST_node* in); // print attrs
 
 class XML_unparser : public AST_visitor 
 {

@@ -25,11 +25,16 @@
 
 AST_expr* Token_conversion::pre_int (Token_int* in)
 {
+	if (*in->source_rep == "__LINE__" or *in->source_rep == "__FILE__")
+		return in;
+
+	assert (in->value == 0);
 	return PHP::convert_token (in);
 }
 
 AST_expr* Token_conversion::pre_real (Token_real* in)
 {
+	assert (in->value == 0.0);
 	return PHP::convert_token (in);
 }
 
@@ -53,7 +58,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		String* source_rep = new String("-");
 		*source_rep += *i->value->source_rep;
 		i->value->source_rep = source_rep;
-		return pre_expr (PHP::convert_token (i->value));
+		return PHP::convert_token (i->value);
 	}
 
 	if(in->match(new AST_unary_op(r, "-")))
@@ -61,7 +66,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		String* source_rep = new String("-");
 		*source_rep += *r->value->source_rep;
 		r->value->source_rep = source_rep;
-		return pre_expr (PHP::convert_token (r->value));
+		return PHP::convert_token (r->value);
 	}
 	
 	return in;

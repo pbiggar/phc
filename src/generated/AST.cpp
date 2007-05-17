@@ -629,7 +629,7 @@ bool AST_formal_parameter::equals(AST_node* in)
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 379 "src/generated_src/phc.tea"
+    #line 388 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -640,7 +640,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 387 "src/generated_src/phc.tea"
+    #line 396 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -798,7 +798,7 @@ bool AST_attr_mod::equals(AST_node* in)
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 399 "src/generated_src/phc.tea"
+    #line 408 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -810,7 +810,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 408 "src/generated_src/phc.tea"
+    #line 417 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error(ERR_FINAL_VARS, mm->get_filename(), mm->get_line_number());
@@ -825,7 +825,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 420 "src/generated_src/phc.tea"
+    #line 429 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -833,7 +833,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 425 "src/generated_src/phc.tea"
+    #line 434 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -841,7 +841,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 430 "src/generated_src/phc.tea"
+    #line 439 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -849,7 +849,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 435 "src/generated_src/phc.tea"
+    #line 444 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -857,7 +857,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 440 "src/generated_src/phc.tea"
+    #line 449 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -1457,7 +1457,7 @@ AST_catch* AST_catch::clone()
 
 AST_expr::AST_expr()
 {
-    #line 490 "src/generated_src/phc.tea"
+    #line 499 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -4978,6 +4978,14 @@ bool AST_eval_expr::equals(AST_node* in)
     return true;
 }
 
+void AST_eval_expr::_init()
+{
+    #line 331 "src/generated_src/phc.tea"
+{
+		assert (expr != NULL);
+	}
+}
+
 AST_eval_expr* AST_eval_expr::clone()
 {
     AST_expr* expr = this->expr ? this->expr->clone() : NULL;
@@ -5339,7 +5347,7 @@ bool AST_cast::equals(AST_node* in)
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 499 "src/generated_src/phc.tea"
+    #line 508 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -5437,7 +5445,7 @@ bool AST_unary_op::equals(AST_node* in)
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 480 "src/generated_src/phc.tea"
+    #line 489 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -5553,7 +5561,7 @@ bool AST_bin_op::equals(AST_node* in)
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 449 "src/generated_src/phc.tea"
+    #line 458 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -6056,7 +6064,7 @@ bool AST_variable::equals(AST_node* in)
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 331 "src/generated_src/phc.tea"
+    #line 340 "src/generated_src/phc.tea"
 {
 		this->target = NULL;
 		this->variable_name = name;
@@ -6066,7 +6074,7 @@ AST_variable::AST_variable(AST_variable_name* name)
 
 void AST_variable::_init()
 {
-    #line 338 "src/generated_src/phc.tea"
+    #line 347 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
@@ -6171,7 +6179,7 @@ bool AST_pre_op::equals(AST_node* in)
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 470 "src/generated_src/phc.tea"
+    #line 479 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -6269,7 +6277,7 @@ bool AST_post_op::equals(AST_node* in)
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 460 "src/generated_src/phc.tea"
+    #line 469 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -6521,7 +6529,7 @@ bool AST_method_invocation::equals(AST_node* in)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 348 "src/generated_src/phc.tea"
+    #line 357 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -6534,7 +6542,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 358 "src/generated_src/phc.tea"
+    #line 367 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -6546,7 +6554,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 367 "src/generated_src/phc.tea"
+    #line 376 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -6849,7 +6857,7 @@ bool Token_int::equals_value(Token_int* that)
 
 String* Token_int::get_value_as_string()
 {
-    #line 522 "src/generated_src/phc.tea"
+    #line 531 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -6859,7 +6867,7 @@ String* Token_int::get_value_as_string()
 
 Token_int::Token_int(int v)
 {
-    #line 529 "src/generated_src/phc.tea"
+    #line 538 "src/generated_src/phc.tea"
 {
 		value = v;
 		call_initializing_virtuals (); // cant call virtual functions from a constructor
@@ -6868,7 +6876,7 @@ Token_int::Token_int(int v)
 
 void Token_int::call_initializing_virtuals()
 {
-    #line 536 "src/generated_src/phc.tea"
+    #line 545 "src/generated_src/phc.tea"
 {
 		source_rep = get_value_as_string ();
 	}
@@ -6970,7 +6978,7 @@ bool Token_real::equals_value(Token_real* that)
 
 String* Token_real::get_value_as_string()
 {
-    #line 545 "src/generated_src/phc.tea"
+    #line 554 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -6991,7 +6999,7 @@ String* Token_real::get_value_as_string()
 
 Token_real::Token_real(double v)
 {
-    #line 563 "src/generated_src/phc.tea"
+    #line 572 "src/generated_src/phc.tea"
 {
 		value = v;
 		call_initializing_virtuals (); // cant call virtual functions from a constructor
@@ -7000,7 +7008,7 @@ Token_real::Token_real(double v)
 
 void Token_real::call_initializing_virtuals()
 {
-    #line 570 "src/generated_src/phc.tea"
+    #line 579 "src/generated_src/phc.tea"
 {
 		source_rep = get_value_as_string ();
 	}
@@ -7102,7 +7110,7 @@ bool Token_string::equals_value(Token_string* that)
 
 String* Token_string::get_value_as_string()
 {
-    #line 604 "src/generated_src/phc.tea"
+    #line 613 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7110,7 +7118,7 @@ String* Token_string::get_value_as_string()
 
 Token_string::Token_string(String* v)
 {
-    #line 609 "src/generated_src/phc.tea"
+    #line 618 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = v;
@@ -7213,7 +7221,7 @@ bool Token_bool::equals_value(Token_bool* that)
 
 String* Token_bool::get_value_as_string()
 {
-    #line 579 "src/generated_src/phc.tea"
+    #line 588 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -7224,7 +7232,7 @@ String* Token_bool::get_value_as_string()
 
 Token_bool::Token_bool(bool v)
 {
-    #line 587 "src/generated_src/phc.tea"
+    #line 596 "src/generated_src/phc.tea"
 {
 		value = v;
 		call_initializing_virtuals (); // cant call virtual functions from a constructor
@@ -7233,7 +7241,7 @@ Token_bool::Token_bool(bool v)
 
 void Token_bool::call_initializing_virtuals()
 {
-    #line 594 "src/generated_src/phc.tea"
+    #line 603 "src/generated_src/phc.tea"
 {
 		source_rep = get_value_as_string ();
 	}
@@ -7312,7 +7320,7 @@ bool Token_null::equals(AST_node* in)
 
 String* Token_null::get_value_as_string()
 {
-    #line 619 "src/generated_src/phc.tea"
+    #line 628 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}
@@ -7320,7 +7328,7 @@ String* Token_null::get_value_as_string()
 
 Token_null::Token_null()
 {
-    #line 623 "src/generated_src/phc.tea"
+    #line 632 "src/generated_src/phc.tea"
 {
 		call_initializing_virtuals (); // cant call virtual functions from a constructor
 	}
@@ -7328,7 +7336,7 @@ Token_null::Token_null()
 
 void Token_null::call_initializing_virtuals()
 {
-    #line 629 "src/generated_src/phc.tea"
+    #line 638 "src/generated_src/phc.tea"
 {
 		source_rep = get_value_as_string ();
 	}

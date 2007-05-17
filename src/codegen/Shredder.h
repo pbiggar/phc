@@ -30,7 +30,7 @@ public:
 	AST_expr* post_string(Token_string* in);
 	AST_expr* post_null(Token_null* in);
 	AST_expr* post_array(AST_array* in);
-	AST_expr* post_list_assignment(AST_list_assignment* in);
+	AST_expr* pre_list_assignment(AST_list_assignment* in);
 };
 
 #endif // PHC_SHREDDER_H

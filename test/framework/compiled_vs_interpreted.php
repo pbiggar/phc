@@ -25,7 +25,7 @@ class CompiledVsInterpreted extends Test
 
 	function run_test ($subject)
 	{
-		global $gcc, $phc, $libphp, $php;
+		global $gcc, $phc, $php;
 		$dir_name = dirname($subject);
 
 		// get the output from the interpreter for the file
@@ -38,7 +38,6 @@ class CompiledVsInterpreted extends Test
 		list ($phc_output1, $phc_return1) = complete_exec($phc_command1);
 		if ($phc_return1 != 0)
 		{
-			//$this->mark_failure($subject, $phc_command1, $phc_return1, $phc_output1);
 			$this->mark_skipped($subject, $phc_output1); 
 			return;
 		}
@@ -48,7 +47,10 @@ class CompiledVsInterpreted extends Test
 		list ($phc_output2, $phc_return2) = complete_exec($phc_command2);
 		if ($phc_return2 != 0)
 		{
-			$this->mark_failure ($subject, $phc_command2, $phc_return2, $phc_output2);
+			$this->mark_failure ($subject,
+				array($command1, $phc_command1, $phc_command2), 
+				array($return1, $phc_return1, $phc_return2),
+				$phc_output2);
 			return;
 		}
 
@@ -60,7 +62,10 @@ class CompiledVsInterpreted extends Test
 		if ($actual !== $expected or $return1 != 0 or $return2 != 0)
 		{
 			$output = diff ($expected, $actual);
-			$this->mark_failure($subject, array($command1, $phc_command1, $phc_command2, $command2), array($return1, $phc_return1, $phc_return2, $return2), $output);
+			$this->mark_failure($subject,
+				array($command1, $phc_command1, $phc_command2, $command2),
+				array($return1, $phc_return1, $phc_return2, $return2),
+				$output);
 		}
 		else
 		{

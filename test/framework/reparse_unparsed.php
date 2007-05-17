@@ -28,7 +28,7 @@ class ReparseUnparsed extends TwoCommandTest
 
 	function homogenize_output ($string)
 	{
-		return $this->homogenize_xml ($string);
+		return homogenize_xml ($string);
 	}
 
 }

@@ -1438,6 +1438,8 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    void _init();
+public:
     virtual AST_eval_expr* clone();
 };
 
