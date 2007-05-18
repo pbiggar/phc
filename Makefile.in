@@ -335,7 +335,6 @@ exec_prefix = @exec_prefix@
 flex = @flex@
 gc_lib = @gc_lib@
 gengetopt = @gengetopt@
-ghc = @ghc@
 gperf = @gperf@
 graphviz_gc = @graphviz_gc@
 host = @host@

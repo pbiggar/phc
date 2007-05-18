@@ -34,7 +34,6 @@ AC_SUBST([LTDLINCL])
 AC_SUBST([LIBLTDL])
 
 dnl check for other programs
-AC_PATH_PROG([ghc], [ghc])
 AC_PATH_PROG([gengetopt], [gengetopt])
 AC_PATH_PROG([gperf], [gperf])
 AC_PATH_PROG([flex], [flex])
