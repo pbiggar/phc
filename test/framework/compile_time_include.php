@@ -17,7 +17,7 @@ class CompileTimeInclude extends CompareWithPHP
 
 	function __construct ()
 	{
-		parent::__construct ("CompareWithPHP", "--pretty-print --compile-time-includes");
+		parent::__construct ("CompileTimeInclude", "--pretty-print --compile-time-includes");
 	}
 
 	function get_command_line2 ($subject)

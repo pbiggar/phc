@@ -211,6 +211,9 @@ void Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 
 void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 {
+	/* Note that any of in->expr, in->init and in->incr can be NULL (eg in "for
+	 * (;;)", so we have to handle all those cases. */
+
 	// these are expressions, which arent statements, so they need to be wrapped
 	AST_statement* init = new AST_eval_expr (in->init);
 	AST_statement* incr = new AST_eval_expr (in->incr);
@@ -223,10 +226,12 @@ void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 
 	// A continue in a for loop lands just before the increment
 	potentially_add_label<AST_continue> (in, while_stmt->statements);
-	while_stmt->statements->push_back (incr);
+	if (in->incr)
+		while_stmt->statements->push_back (incr);
 
 	// push it all back
-	out->push_back (init);
+	if (in->init)
+		out->push_back (init);
 	lower_while (while_stmt, out);
 }
 
