@@ -252,12 +252,39 @@ public:
 	bool match(AST_statement* that)
 	{
 		lhs = new Wildcard<AST_variable>;
-		return that->match(
-			new AST_eval_expr(new AST_assignment(
-				lhs,
-				/* ignored */ false,
-				rhs_pattern()
-			)));
+		agn = new AST_assignment(lhs, /* ignored */ false, rhs_pattern());
+		return that->match(new AST_eval_expr(agn));
+	}
+
+	// Get the LHS from the hashtable 
+	void index_lhs()
+	{
+	}
+
+	// Make a copy of the RHS
+	void clone_rhs()
+	{
+	}
+
+	// Make the LHS point to the RHS (copy-on-write)
+	void copy_on_write()
+	{
+	}
+
+	// Overwrite the LHS with the RHS
+	void overwrite_lhs()
+	{
+	}
+
+	// Separate the RHS (that is, make a copy *and update the hashtable*)
+	// See "Separation anxiety" in the PHP book
+	void separate_rhs()
+	{
+	}
+
+	// Make the LHS reference the RHS (assume seperation has been done)
+	void reference_rhs()
+	{
 	}
 
 	void generate_code(Generate_C* gen)
@@ -268,6 +295,38 @@ public:
 
 		// Generate code for the RHS
 		generate_rhs();
+
+		if(!agn->is_ref)
+		{
+			// Normal assignment
+			cout << "zval* lhs;\n";
+			index_lhs();
+
+			// if the LHS is_ref, then we must overwrite it. otherwise,
+			// we make the LHS point to the RHS (copy-on-write)
+			cout << "if(!lhs->is_ref) {\n";
+			// If the RHS is_ref, we must first clone it
+			cout << "if(rhs->is_ref) {\n";
+			clone_rhs();
+			cout << "}\n";
+			copy_on_write();
+			cout << "} else {\n";
+			overwrite_lhs();
+			cout << "}\n";
+		}
+		else
+		{
+			// Reference assignment
+			// For a reference assignment, the LHS is always updated to 
+			// point to the RHS (even if the LHS is currently is_ref)
+			// However, if the RHS is in a copy-on-write set (ref_count > 1
+			// but not is_ref), it must be seperated first
+
+			cout << "if(rhs->ref_count > 1 && !rhs->is_ref) {\n";
+			separate_rhs();
+			cout << "}\n";
+			reference_rhs();
+		}
 
 		// Variable variable or ordinary variable?
 		Token_variable_name* name;
@@ -367,6 +426,7 @@ public:
 	}
 
 protected:
+	AST_assignment* agn;
 	Wildcard<AST_variable>* lhs;
 };
 
