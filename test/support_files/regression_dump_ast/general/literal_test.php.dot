@@ -478,7 +478,7 @@ node_255 [label="Token_method_name"];
 node_256 [label="var_dump", shape=box]
 node_255 -> node_256;
 node_257 [label="AST_actual_parameter (24)"];
-node_258 [label="Token_real (24)"];
+node_258 [label="Token_int (24)"];
 node_259 [label="0x10000000..", shape=box]
 node_258 -> node_259;
 node_257 -> node_258;
@@ -504,7 +504,7 @@ node_269 [label="Token_method_name"];
 node_270 [label="var_dump", shape=box]
 node_269 -> node_270;
 node_271 [label="AST_actual_parameter (25)"];
-node_272 [label="Token_real (25)"];
+node_272 [label="Token_int (25)"];
 node_273 [label="0x10000000..", shape=box]
 node_272 -> node_273;
 node_271 -> node_272;
@@ -530,7 +530,7 @@ node_283 [label="Token_method_name"];
 node_284 [label="var_dump", shape=box]
 node_283 -> node_284;
 node_285 [label="AST_actual_parameter (26)"];
-node_286 [label="Token_real (26)"];
+node_286 [label="Token_int (26)"];
 node_287 [label="0x10000000..", shape=box]
 node_286 -> node_287;
 node_285 -> node_286;
@@ -1167,7 +1167,7 @@ node_626 [label="Token_method_name"];
 node_627 [label="var_dump", shape=box]
 node_626 -> node_627;
 node_628 [label="AST_actual_parameter (56)"];
-node_629 [label="Token_real (56)"];
+node_629 [label="Token_int (56)"];
 node_630 [label="-0x1000000..", shape=box]
 node_629 -> node_630;
 node_628 -> node_629;
@@ -1193,7 +1193,7 @@ node_640 [label="Token_method_name"];
 node_641 [label="var_dump", shape=box]
 node_640 -> node_641;
 node_642 [label="AST_actual_parameter (57)"];
-node_643 [label="Token_real (57)"];
+node_643 [label="Token_int (57)"];
 node_644 [label="-0x1000000..", shape=box]
 node_643 -> node_644;
 node_642 -> node_643;
@@ -1219,7 +1219,7 @@ node_654 [label="Token_method_name"];
 node_655 [label="var_dump", shape=box]
 node_654 -> node_655;
 node_656 [label="AST_actual_parameter (58)"];
-node_657 [label="Token_real (58)"];
+node_657 [label="Token_int (58)"];
 node_658 [label="-0x1000000..", shape=box]
 node_657 -> node_658;
 node_656 -> node_657;
