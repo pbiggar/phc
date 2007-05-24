@@ -186,6 +186,8 @@ bool AST_class_mod::match(AST_node* in)
     AST_class_mod* that = dynamic_cast<AST_class_mod*>(in);
     if(that == NULL) return false;
     
+    that->is_abstract = this->is_abstract;
+    that->is_final = this->is_final;
     return true;
 }
 
@@ -261,6 +263,7 @@ bool AST_signature::match(AST_node* in)
     else if(!this->method_mod->match(that->method_mod))
     	return false;
     
+    that->is_ref = this->is_ref;
     if(this->method_name == NULL)
     {
     	if(that->method_name != NULL && !that->method_name->match(this->method_name))
@@ -408,6 +411,12 @@ bool AST_method_mod::match(AST_node* in)
     AST_method_mod* that = dynamic_cast<AST_method_mod*>(in);
     if(that == NULL) return false;
     
+    that->is_public = this->is_public;
+    that->is_protected = this->is_protected;
+    that->is_private = this->is_private;
+    that->is_static = this->is_static;
+    that->is_abstract = this->is_abstract;
+    that->is_final = this->is_final;
     return true;
 }
 
@@ -573,6 +582,7 @@ bool AST_formal_parameter::match(AST_node* in)
     else if(!this->type->match(that->type))
     	return false;
     
+    that->is_ref = this->is_ref;
     if(this->variable_name == NULL)
     {
     	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
@@ -697,6 +707,7 @@ bool AST_type::match(AST_node* in)
     AST_type* that = dynamic_cast<AST_type*>(in);
     if(that == NULL) return false;
     
+    that->is_array = this->is_array;
     if(this->class_name == NULL)
     {
     	if(that->class_name != NULL && !that->class_name->match(this->class_name))
@@ -770,6 +781,11 @@ bool AST_attr_mod::match(AST_node* in)
     AST_attr_mod* that = dynamic_cast<AST_attr_mod*>(in);
     if(that == NULL) return false;
     
+    that->is_public = this->is_public;
+    that->is_protected = this->is_protected;
+    that->is_private = this->is_private;
+    that->is_static = this->is_static;
+    that->is_const = this->is_const;
     return true;
 }
 
@@ -1023,6 +1039,7 @@ bool AST_array_elem::match(AST_node* in)
     else if(!this->key->match(that->key))
     	return false;
     
+    that->is_ref = this->is_ref;
     if(this->val == NULL)
     {
     	if(that->val != NULL && !that->val->match(this->val))
@@ -1112,6 +1129,7 @@ bool AST_actual_parameter::match(AST_node* in)
     AST_actual_parameter* that = dynamic_cast<AST_actual_parameter*>(in);
     if(that == NULL) return false;
     
+    that->is_ref = this->is_ref;
     if(this->expr == NULL)
     {
     	if(that->expr != NULL && !that->expr->match(this->expr))
@@ -3602,6 +3620,7 @@ bool AST_foreach::match(AST_node* in)
     else if(!this->key->match(that->key))
     	return false;
     
+    that->is_ref = this->is_ref;
     if(this->val == NULL)
     {
     	if(that->val != NULL && !that->val->match(this->val))
@@ -5092,6 +5111,7 @@ bool AST_assignment::match(AST_node* in)
     else if(!this->variable->match(that->variable))
     	return false;
     
+    that->is_ref = this->is_ref;
     if(this->expr == NULL)
     {
     	if(that->expr != NULL && !that->expr->match(this->expr))
