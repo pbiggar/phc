@@ -56,6 +56,145 @@ String* operand(AST_expr* in)
 	return var_name->value;
 }
 
+// Find the zval described by "var" and store it in "zvp" 
+void index_locals(string zvp, AST_variable* var)
+{
+	// Variable variable or ordinary variable?
+	Token_variable_name* name;
+	name = dynamic_cast<Token_variable_name*>(var->variable_name);
+
+	// TODO: deal with object indexing
+	assert(var->target == NULL);
+
+	if(name != NULL)
+	{
+		// Ordinary variable
+		cout
+		<< zvp << " = index_ht(locals, "
+		<< "\"" << *name->value << "\", "
+		<< name->value->length() + 1 << ");\n"
+		;
+		
+		if(var->array_indices->size() == 1)
+		{
+			String* ind = operand(var->array_indices->front());
+
+			cout 
+			<< "{\n"
+			<< "HashTable* ht = extract_ht(" << zvp << ");"
+			<< "zval* ind = index_ht(locals, "
+			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
+			<< zvp << " = index_ht_zval(ht, ind);\n"
+			<< "}\n"
+			;
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert(var->array_indices->size() == 0);
+
+		AST_reflection* refl;
+		refl = dynamic_cast<AST_reflection*>(var->variable_name);
+		String* name = operand(refl->expr);
+
+		cout 
+		<< "{\n"
+		<< "zval* name = index_ht(locals, "
+		<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
+		<< zvp << " = index_ht_zval(locals, name);\n"
+		<< "}\n"
+		;
+	}
+}
+
+// Update the variable in "locals" described by "var" with "zvp", and
+// increment "zvp"'s refcount
+void update_locals(AST_variable* var, string zvp)
+{
+	// Variable variable or ordinary variable?
+	Token_variable_name* name;
+	name = dynamic_cast<Token_variable_name*>(var->variable_name);
+
+	cout << zvp << "->refcount++;\n";
+
+	// Ordinary variable
+	if(name != NULL)
+	{
+		if(var->array_indices->size() == 0)
+		{
+			cout 
+			// Remove the old value from the hashtable
+			// (reducing its refcount)
+			<< "zend_hash_del(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ");\n"
+			// Add the new value to the hashtable
+			<< "zend_hash_add(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ", "
+			<< "&" << zvp << ", sizeof(zval*), NULL);\n"
+			;
+		}
+		else if(
+			var->array_indices->size() == 1 &&
+			var->array_indices->front() != NULL
+			)
+		{
+			String* ind = operand(var->array_indices->front());
+
+			cout 
+			<< "{\n"
+			<< "zval* arr = index_ht(locals, " 
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ");\n"
+			<< "HashTable* ht = extract_ht(arr);\n"
+			<< "zval* ind = index_ht(locals, "
+			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
+			<< "update_ht(ht, ind, " << zvp << ");\n"
+			<< "}\n"
+			;
+		}
+		else if(
+			var->array_indices->size() == 1 &&
+			var->array_indices->front() == NULL
+			)
+		{
+			// Assign to next available index
+			cout 
+			<< "{\n"
+			<< "zval* arr = index_ht(locals, " 
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ");\n"
+			<< "HashTable* ht = extract_ht(arr);\n"
+			<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
+			<< "}\n"
+			;
+		}
+		else
+		{
+			// Cannot happen after shredder
+			assert(0);
+		}
+	}
+	else
+	{
+		// After the shredder, this should be 0
+		assert(var->array_indices->size() == 0);
+	
+		AST_reflection* refl;
+		refl = dynamic_cast<AST_reflection*>(var->variable_name);
+		String* ind = operand(refl->expr);
+
+		cout
+		<< "zval* ind = index_ht(locals, "
+		<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
+		<< "update_ht(locals, ind, " << zvp << ");\n"
+		;
+	}
+}
+
 /*
  * Map of the Zend functions that implement the operators
  *
@@ -260,32 +399,7 @@ public:
 	void index_lhs()
 	{
 		cout << "// Index LHS\n";
-
-		// TODO: object indexing
-		assert(lhs->value->target == NULL);
-
-		// TODO: array indexing
-		assert(lhs->value->array_indices->size() == 0);
-
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
-
-		if(name != NULL)
-		{
-			// Normal variable
-			cout 
-			<< "lhs = index_ht(locals, \"" 
-			<< *name->value
-			<< "\", " 
-			<< name->value->length() + 1
-			<< ");\n"
-			;
-		}
-		else
-		{
-			// TODO Variable variable
-			assert(0);
-		}
+		index_locals("lhs", lhs->value);
 	}
 
 	// Make a copy of the RHS
@@ -304,44 +418,11 @@ public:
 		;
 	}
 
-	// Update the hashtable so that var points to RHS, and increment refcount
-	void update_hash(AST_variable* var)
-	{
-		// TODO: object indexing
-		assert(var->target == NULL);
-
-		// TODO: array indexing
-		assert(var->array_indices->size() == 0);
-
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(var->variable_name);
-
-		if(name != NULL)
-		{
-			// Normal variable
-			cout
-			<< "zend_hash_del(locals, "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");\n"
-			<< "zend_hash_add(locals, "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ", "
-			<< "&rhs, sizeof(zval*), NULL);\n"
-			<< "rhs->refcount++;\n"
-			;
-		}
-		else
-		{
-			// TODO Variable variable
-			assert(0);
-		}
-	}
-
 	// Make the LHS point to the RHS (copy-on-write)
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_hash(lhs->value);
+		update_locals(lhs->value, "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -373,7 +454,7 @@ public:
 		{
 			// First, make a copy, then update the hashtable
 			clone_rhs();
-			update_hash(rhs->value);
+			update_locals(rhs->value, "rhs");
 		}
 		else
 		{
@@ -389,7 +470,7 @@ public:
 	{
 		cout << "// Change-on-write\n";
 		cout << "rhs->is_ref = 1;\n";
-		update_hash(lhs->value);
+		update_locals(lhs->value, "rhs");
 	}
 
 	void generate_code(Generate_C* gen)
@@ -437,103 +518,8 @@ public:
 			reference_rhs();
 		}
 
-/*
-		// Variable variable or ordinary variable?
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
-
-		// Ordinary variable
-		if(name != NULL)
-		{
-			if(lhs->value->array_indices->size() == 0)
-			{
-				cout 
-				// Remove the old value from the hashtable
-				// (reducing its refcount)
-				<< "zend_hash_del(locals, "
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");\n"
-				// Add the new value to the hashtable
-				<< "zend_hash_add(locals, "
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ", "
-				<< "&rhs, sizeof(zval*), NULL);\n"
-				;
-			}
-			else if(
-				lhs->value->array_indices->size() == 1 &&
-				lhs->value->array_indices->front() != NULL
-				)
-			{
-				String* ind = operand(lhs->value->array_indices->front());
-
-				cout 
-				<< "{\n"
-				<< "zval* arr = index_ht(locals, " 
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");\n"
-				<< "HashTable* ht = extract_ht(arr);\n"
-				<< "zval* ind = index_ht(locals, "
-				<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-				// Numeric index? 
-				<< "if(Z_TYPE_P(ind) == IS_LONG)\n" 
-				<< "{\n"
-				// Remove the old value from the hashtable (this will
-				// automatically reduce its refcount)
-				<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
-				// Add the new value to the hashtable
-				<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
-				<< "&rhs, sizeof(zval*), NULL);\n"
-				<< "}\n"
-				// String index.
-				<< "else\n"
-				<< "{\n"
-				// Convert to the argument to a string 
-				// TODO: if we know it's a string, we don't need to convert
-				<< "zval* string_index;\n"
-				<< "MAKE_STD_ZVAL(string_index);\n"
-				<< "*string_index = *ind;\n"
-				<< "zval_copy_ctor(string_index);\n"
-				<< "convert_to_string(string_index);\n"
-				// Remove the old value from the hashtable
-				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
-				// Add the new value to the hashtable
-				<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1, &rhs, sizeof(zval*), NULL);\n"
-				<< "zval_ptr_dtor(&string_index);\n"
-				<< "}\n"
-				<< "}\n"
-				;
-			}
-			else if(
-				lhs->value->array_indices->size() == 1 &&
-				lhs->value->array_indices->front() == NULL
-				)
-			{
-				// Assign to next available index
-				cout 
-				<< "{\n"
-				<< "zval* arr = index_ht(locals, " 
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");\n"
-				<< "HashTable* ht = extract_ht(arr);\n"
-				<< "zend_hash_next_index_insert(ht, &rhs, sizeof(zval*), NULL);\n"
-				<< "}\n"
-				;
-			}
-			else
-			{
-				// Cannot happen after shredder
-				assert(0);
-			}
-		}
-		else
-		{
-			// TODO
-			assert(0);
-		}
-*/
-
-		cout << "}\n"; 				// close local scope
+		// close local scope
+		cout << "}\n"; 	
 	}
 
 protected:
@@ -650,54 +636,7 @@ public:
 
 	void generate_rhs()
 	{
-		// Variable variable or ordinary variable?
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(rhs->value->variable_name);
-
-		// TODO: deal with object indexing
-		assert(rhs->value->target == NULL);
-
-		if(name != NULL)
-		{
-			// Ordinary variable
-			cout
-			<< "rhs = index_ht(locals, "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");\n"
-			;
-			
-			if(rhs->value->array_indices->size() == 1)
-			{
-				String* ind = operand(rhs->value->array_indices->front());
-
-				cout 
-				<< "{\n"
-				<< "HashTable* ht = extract_ht(rhs);"
-				<< "zval* ind = index_ht(locals, "
-				<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-				<< "rhs = index_ht_zval(ht, ind);\n"
-				<< "}\n"
-				;
-			}
-		}
-		else
-		{
-			// Variable variable.
-			// After shredder, a variable variable cannot have array indices
-			assert(rhs->value->array_indices->size() == 0);
-
-			AST_reflection* refl;
-			refl = dynamic_cast<AST_reflection*>(rhs->value->variable_name);
-			String* name = operand(refl->expr);
-
-			cout 
-			<< "{\n"
-			<< "zval* name = index_ht(locals, "
-			<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
-			<< "rhs = index_ht_zval(locals, name);\n"
-			<< "}\n"
-			;
-		}
+		index_locals("rhs", rhs->value);
 	}
 
 protected:
@@ -1060,6 +999,36 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	// TODO: proper error message
 	<< "assert(0);\n"
 	<< "return Z_ARRVAL_P(arr);\n"
+	<< "}\n"
+	
+	// Update a hashtable using a zval* index
+	<< "void update_ht(HashTable* ht, zval* ind, zval* val)\n"
+	<< "{\n"
+	<< "if(Z_TYPE_P(ind) == IS_LONG)\n" 
+	<< "{\n"
+	// Remove the old value from the hashtable (this will
+	// automatically reduce its refcount)
+	<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
+	// Add the new value to the hashtable
+	<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
+	<< "&val, sizeof(zval*), NULL);\n"
+	<< "}\n"
+	// String index.
+	<< "else\n"
+	<< "{\n"
+	// Convert to the argument to a string 
+	// TODO: if we know it's a string, we don't need to convert
+	<< "zval* string_index;\n"
+	<< "MAKE_STD_ZVAL(string_index);\n"
+	<< "*string_index = *ind;\n"
+	<< "zval_copy_ctor(string_index);\n"
+	<< "convert_to_string(string_index);\n"
+	// Remove the old value from the hashtable
+	<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
+	// Add the new value to the hashtable
+	<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1, &val, sizeof(zval*), NULL);\n"
+	<< "zval_ptr_dtor(&string_index);\n"
+	<< "}\n"
 	<< "}\n"
 	;
 }
