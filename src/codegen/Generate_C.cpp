@@ -664,7 +664,7 @@ public:
 			}
 			else
 			{
-				ss << "\\x" << setw(2) << setfill('0') << hex << uppercase << (unsigned long int)(unsigned char) *i;
+				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) *i;
 				ss << resetiosflags(cout.flags());
 			}
 		}

@@ -6,6 +6,7 @@
 	function fun($x) { $x = 'x'; }
 	function fun_r(&$x) { $x = 'x'; }
 
+	eval('
 	// Test proper calling conventions in simple cases
 
 	$a = 10;
@@ -35,7 +36,7 @@
 	fun($f);
 	var_export($e);
 	var_export($f);
-	$f = 'y';
+	$f = \'y\';
 	var_export($e);
 	var_export($f);
 	
@@ -44,7 +45,7 @@
 	fun(&$h);
 	var_export($g);
 	var_export($h);
-	$h = 'y';
+	$h = \'y\';
 	var_export($g);
 	var_export($h);
 
@@ -53,7 +54,7 @@
 	fun_r($j);
 	var_export($i);
 	var_export($j);
-	$j = 'y';
+	$j = \'y\';
 	var_export($i);
 	var_export($j);
 
@@ -62,7 +63,7 @@
 	fun_r(&$l);
 	var_export($k);
 	var_export($l);
-	$l = 'y';
+	$l = \'y\';
 	var_export($k);
 	var_export($l);
 	
@@ -78,7 +79,7 @@
 	fun($n);
 	var_export($m);
 	var_export($n);
-	$m = 'y';
+	$m = \'y\';
 	var_export($m);
 	var_export($n);
 
@@ -87,7 +88,7 @@
 	fun(&$p);
 	var_export($o);
 	var_export($p);
-	$p = 'y';
+	$p = \'y\';
 	var_export($o);
 	var_export($p);
 
@@ -96,7 +97,7 @@
 	fun_r($r);
 	var_export($q);
 	var_export($r);
-	$r = 'y';
+	$r = \'y\';
 	var_export($q);
 	var_export($r);
 
@@ -105,9 +106,10 @@
 	fun_r(&$t);
 	var_export($s);
 	var_export($t);
-	$t = 'y';
+	$t = \'y\';
 	var_export($s);
 	var_export($t);
 
 	echo "\n";
+	');
 ?>
