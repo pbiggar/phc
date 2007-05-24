@@ -284,9 +284,58 @@ protected:
 		<< "HashTable* locals;\n"
 		<< "ALLOC_HASHTABLE(locals);\n"
 		<< "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n"
-		/**/
-		<< "// Function body\n"
 		;
+	
+		// TODO: set active symbol table for compatibility with eval
+
+		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
+		if(parameters && parameters->size() > 0)
+		{
+			cout << "// Add all parameters as local variables\n";
+			stringstream zgp_format; 
+			stringstream zgp_args; 
+			cout << "{\n";
+			cout << "zval* params[" << parameters->size() << "];\n";
+			List<AST_formal_parameter*>::const_iterator i;
+			int index;	
+			for(i = parameters->begin(), index = 0;
+				i != parameters->end();
+				i++, index++)
+			{
+				// TODO: deal with default values
+				// TODO: deal with type (although that should be dealt with
+				// elsewhere)
+				// TODO: deal with references
+				zgp_format << "z";
+				
+				if (i != parameters->begin())
+					zgp_args << ", ";
+		
+				zgp_args << "&params[" << index << "]";
+			}
+			cout << "zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, \"" << zgp_format.str() << "\", " << zgp_args.str() << ");\n";
+			for(i = parameters->begin(), index = 0;
+				i != parameters->end();
+				i++, index++)
+			{
+				cout << "params[" << index << "]->refcount++;\n";
+				
+				if((*i)->is_ref)
+					cout << "params[" << index << "]->is_ref = 1;\n";
+				
+
+				cout
+				<< "zend_hash_add(locals, "
+				<< "\"" << *(*i)->variable_name->value << "\", " 
+				<< (*i)->variable_name->value->length() + 1  
+				<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
+				;
+			}
+	
+			cout << "}\n";
+		}
+		
+		cout << "// Function body\n";
 	}
 
 	void method_exit()
