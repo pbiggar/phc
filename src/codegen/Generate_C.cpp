@@ -200,9 +200,9 @@ public:
 	{
 		cout
 		<< "{\n"
-		<< "zval* cond = index_ht(locals, \n"
+		<< "zval* cond = index_ht(locals, "
 		<< "\"" << *cond->value->value << "\", "
-		<< cond->value->value->length() + 1 << ");"
+		<< cond->value->value->length() + 1 << ");\n"
 		<< "if(zend_is_true(cond)) "
 		<< "goto " << *iftrue->value->value << ";\n"
 		<< "else "
@@ -259,32 +259,137 @@ public:
 	// Get the LHS from the hashtable 
 	void index_lhs()
 	{
+		cout << "// Index LHS\n";
+
+		// TODO: object indexing
+		assert(lhs->value->target == NULL);
+
+		// TODO: array indexing
+		assert(lhs->value->array_indices->size() == 0);
+
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
+
+		if(name != NULL)
+		{
+			// Normal variable
+			cout 
+			<< "lhs = index_ht(locals, \"" 
+			<< *name->value
+			<< "\", " 
+			<< name->value->length() + 1
+			<< ");\n"
+			;
+		}
+		else
+		{
+			// TODO Variable variable
+			assert(0);
+		}
 	}
 
 	// Make a copy of the RHS
 	void clone_rhs()
 	{
+		cout
+		<< "{\n"
+		<< "zval* new_rhs;\n"
+		<< "MAKE_STD_ZVAL(new_rhs);\n"
+		<< "new_rhs->refcount = 0;\n"
+		<< "new_rhs->value = rhs->value;\n"
+		<< "new_rhs->type = rhs->type;\n"
+		<< "zval_copy_ctor(new_rhs);\n"
+		<< "rhs = new_rhs;\n"
+		<< "}\n"
+		;
+	}
+
+	// Update the hashtable so that var points to RHS, and increment refcount
+	void update_hash(AST_variable* var)
+	{
+		// TODO: object indexing
+		assert(var->target == NULL);
+
+		// TODO: array indexing
+		assert(var->array_indices->size() == 0);
+
+		Token_variable_name* name;
+		name = dynamic_cast<Token_variable_name*>(var->variable_name);
+
+		if(name != NULL)
+		{
+			// Normal variable
+			cout
+			<< "zend_hash_del(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ");\n"
+			<< "zend_hash_add(locals, "
+			<< "\"" << *name->value << "\", "
+			<< name->value->length() + 1 << ", "
+			<< "&rhs, sizeof(zval*), NULL);\n"
+			<< "rhs->refcount++;\n"
+			;
+		}
+		else
+		{
+			// TODO Variable variable
+			assert(0);
+		}
 	}
 
 	// Make the LHS point to the RHS (copy-on-write)
 	void copy_on_write()
 	{
+		cout << "// Copy-on-write\n";
+		update_hash(lhs->value);
 	}
 
 	// Overwrite the LHS with the RHS
 	void overwrite_lhs()
 	{
+		cout
+		<< "// Overwrite LHS\n"
+		<< "lhs->value = rhs->value;\n"
+		<< "lhs->type = rhs->type;\n"
+		<< "zval_copy_ctor(lhs);\n"
+		<< "// Delete RHS if it is a temp;\n"
+		<< "if(rhs->refcount == 0)\n"
+		<< "{\n"
+		<< "// zval_ptr_dtor decrements refcount and deletes the zval when 0\n"
+		<< "rhs->refcount = 1;\n"
+		<< "zval_ptr_dtor(&rhs);\n"
+		<< "}\n"
+		;
 	}
 
 	// Separate the RHS (that is, make a copy *and update the hashtable*)
 	// See "Separation anxiety" in the PHP book
 	void separate_rhs()
 	{
+		Wildcard<AST_variable>* rhs;
+		rhs = dynamic_cast<Wildcard<AST_variable>*>(agn->expr);
+
+		if(rhs != NULL)
+		{
+			// First, make a copy, then update the hashtable
+			clone_rhs();
+			update_hash(rhs->value);
+		}
+		else
+		{
+			// I *think* the need for separation can only ever arise when the
+			// RHS is a variable. However, the decision to run seperate_rhs
+			// is based on runtime information, hence the runtime assert
+			cout << "assert(0);\n";
+		}
 	}
 
 	// Make the LHS reference the RHS (assume seperation has been done)
 	void reference_rhs()
 	{
+		cout << "// Change-on-write\n";
+		cout << "rhs->is_ref = 1;\n";
+		update_hash(lhs->value);
 	}
 
 	void generate_code(Generate_C* gen)
@@ -298,8 +403,11 @@ public:
 
 		if(!agn->is_ref)
 		{
-			// Normal assignment
-			cout << "zval* lhs;\n";
+			cout 
+			<< "// Normal assignment\n"
+			<< "zval* lhs;\n"
+			;
+			
 			index_lhs();
 
 			// if the LHS is_ref, then we must overwrite it. otherwise,
@@ -316,18 +424,20 @@ public:
 		}
 		else
 		{
-			// Reference assignment
+			cout << "// Reference assignment\n";
+
 			// For a reference assignment, the LHS is always updated to 
 			// point to the RHS (even if the LHS is currently is_ref)
-			// However, if the RHS is in a copy-on-write set (ref_count > 1
+			// However, if the RHS is in a copy-on-write set (refcount > 1
 			// but not is_ref), it must be seperated first
 
-			cout << "if(rhs->ref_count > 1 && !rhs->is_ref) {\n";
+			cout << "if(rhs->refcount > 1 && !rhs->is_ref) {\n";
 			separate_rhs();
 			cout << "}\n";
 			reference_rhs();
 		}
 
+/*
 		// Variable variable or ordinary variable?
 		Token_variable_name* name;
 		name = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
@@ -421,6 +531,7 @@ public:
 			// TODO
 			assert(0);
 		}
+*/
 
 		cout << "}\n"; 				// close local scope
 	}
@@ -448,6 +559,7 @@ public:
 	void generate_rhs()
 	{
 		cout << "MAKE_STD_ZVAL(rhs);\n";
+		cout << "rhs->refcount = 0;\n";
 		init_rhs();
 	}
 
@@ -551,7 +663,7 @@ public:
 			cout
 			<< "rhs = index_ht(locals, "
 			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");"
+			<< name->value->length() + 1 << ");\n"
 			;
 			
 			if(rhs->value->array_indices->size() == 1)
@@ -656,6 +768,7 @@ public:
 		<< "NULL, function_name_ptr, rhs, " 
 		<< rhs->value->actual_parameters->size() << ", args TSRMLS_CC);\n"
 		<< "assert(success == SUCCESS);\n"
+		<< "rhs->refcount = 0;\n"
 		;
 	}
 
@@ -694,6 +807,7 @@ public:
 		<< "\"" << *right->value->value << "\", "
 		<< right->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "rhs->refcount = 0;\n"
 		;
 
 		// some operators need the operands to be reversed (since we call the
@@ -734,6 +848,7 @@ public:
 		<< "\"" << *expr->value->value << "\", "
 		<< expr->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "rhs->refcount = 0;\n"
 		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
 		;
 	}
