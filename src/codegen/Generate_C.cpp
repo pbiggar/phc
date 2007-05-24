@@ -294,7 +294,7 @@ protected:
 			cout << "// Add all parameters as local variables\n";
 			stringstream zgp_format; 
 			stringstream zgp_args; 
-			cout << "{\n";
+			cout << "int params_is_ref[" << parameters->size() << "];\n";
 			cout << "zval* params[" << parameters->size() << "];\n";
 			List<AST_formal_parameter*>::const_iterator i;
 			int index;	
@@ -306,7 +306,7 @@ protected:
 				// TODO: deal with type (although that should be dealt with
 				// elsewhere)
 				// TODO: deal with references
-				zgp_format << "z";
+				zgp_format << "z/";
 				
 				if (i != parameters->begin())
 					zgp_args << ", ";
@@ -320,6 +320,7 @@ protected:
 			{
 				cout << "params[" << index << "]->refcount++;\n";
 				
+				cout << "params_is_ref[" << index << "] = params[" << index << "]->is_ref;\n";
 				if((*i)->is_ref)
 					cout << "params[" << index << "]->is_ref = 1;\n";
 				
@@ -330,8 +331,6 @@ protected:
 				<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
 				;
 			}
-	
-			cout << "}\n";
 		}
 		
 		cout << "// Function body\n";
@@ -339,6 +338,21 @@ protected:
 
 	void method_exit()
 	{
+		cout << "// Method exit\n";
+		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
+		if(parameters && parameters->size() > 0)
+		{
+			// Restore is_ref
+			List<AST_formal_parameter*>::const_iterator i;
+			int index;	
+			for(i = parameters->begin(), index = 0;
+				i != parameters->end();
+				i++, index++)
+			{
+				cout << "params[" << index << "]->is_ref = params_is_ref[" << index << "];\n";
+			}
+		}
+		
 		cout
 		// Labels are local to a function
 		<< "end_of_function:;\n" 
