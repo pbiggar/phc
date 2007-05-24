@@ -701,8 +701,68 @@ public:
 		return rhs;
 	}
 
+	bool call_eval()
+	{
+		AST_method_invocation* pattern;
+		Wildcard<AST_variable>* eval_arg = new Wildcard<AST_variable>;
+
+		pattern = new AST_method_invocation(
+			NULL,	
+			new Token_method_name(new String("eval")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(false, eval_arg)
+				)
+			);
+		
+		if(rhs->value->match(pattern))
+		{
+			String* arg = operand(eval_arg->value);
+
+			cout
+			<< "// Call eval\n"
+			<< "{\n"
+			<< "zval eval_arg;\n"
+			<< "INIT_ZVAL(eval_arg);\n"
+			<< "eval_arg = *index_ht(locals, "
+			<< "\"" << *arg << "\", " << arg->length() + 1 << ");\n"
+			<< "convert_to_string(&eval_arg);\n"
+			// TODO this is very ugly
+			// If the user wrote "return ..", we need to store the return value;
+			// however, in that case, zend_eval_string will slap an extra
+			// "return" onto the front of the string, so we must remove the 
+			// "return" from the string the user wrote. If the user did not
+			// write "return", he is not interesting in the return value,
+			// and we must pass NULL instead or rhs to avoid zend_eval_string
+			// adding "return".
+			<< "MAKE_STD_ZVAL(rhs);\n"
+			<< "if(!strncmp(Z_STRVAL(eval_arg), \"return \", 7))"
+			<< "{\n"
+			<< "zend_eval_string(Z_STRVAL(eval_arg) + 7, rhs, "
+			<< "\"eval'd code\" TSRMLS_CC);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<< "zend_eval_string(Z_STRVAL(eval_arg), NULL, "
+			<< "\"eval'd code\" TSRMLS_CC);\n"
+			<< "ZVAL_NULL(rhs);\n"
+			<< "}\n"
+			<< "rhs->refcount = 0;\n"
+			<< "}\n"
+			;
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	void generate_rhs()
 	{
+		// Special case for eval
+		if(call_eval()) return;
+
 		// Variable function or ordinary function?
 		Token_method_name* name;
 		name = dynamic_cast<Token_method_name*>(rhs->value->method_name);
