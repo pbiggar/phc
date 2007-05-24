@@ -1,17 +1,16 @@
 <?php
    /*
- * Test of function calls
- *
- * We define two functions fun and fun_r, both of which take a single argument
- * $x; but fun_r is compile-time-by-reference and fun is not.
- *
- * Tests are designed to check copy-on-write etc. stuff
- *
- * See also functioncalls_compiled.php
+ * Like functioncalls.php, but using compiled functions. 
  */
    
-   eval('function fun($x) { $x = \'x\'; }');
-   eval('function fun_r(&$x) { $x = \'x\'; }');
+   function fun($x)
+   {
+      $x = 'x';
+   }
+   function fun_r(&$x)
+   {
+      $x = 'x';
+   }
    
    // Test proper calling conventions in simple cases
    

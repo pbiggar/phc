@@ -323,7 +323,6 @@ protected:
 				if((*i)->is_ref)
 					cout << "params[" << index << "]->is_ref = 1;\n";
 				
-
 				cout
 				<< "zend_hash_add(locals, "
 				<< "\"" << *(*i)->variable_name->value << "\", " 
@@ -451,18 +450,18 @@ public:
 		index_locals("lhs", lhs->value);
 	}
 
-	// Make a copy of the RHS
-	void clone_rhs()
+	// Make a copy of zvp 
+	void clone(string zvp)
 	{
 		cout
 		<< "{\n"
-		<< "zval* new_rhs;\n"
-		<< "MAKE_STD_ZVAL(new_rhs);\n"
-		<< "new_rhs->refcount = 0;\n"
-		<< "new_rhs->value = rhs->value;\n"
-		<< "new_rhs->type = rhs->type;\n"
-		<< "zval_copy_ctor(new_rhs);\n"
-		<< "rhs = new_rhs;\n"
+		<< "zval* clone;\n"
+		<< "MAKE_STD_ZVAL(clone);\n"
+		<< "clone->refcount = 0;\n"
+		<< "clone->value = " << zvp << "->value;\n"
+		<< "clone->type = " << zvp << "->type;\n"
+		<< "zval_copy_ctor(clone);\n"
+		<< zvp << " = clone;\n"
 		<< "}\n"
 		;
 	}
@@ -502,7 +501,7 @@ public:
 		if(rhs != NULL)
 		{
 			// First, make a copy, then update the hashtable
-			clone_rhs();
+			clone("rhs");
 			update_locals(rhs->value, "rhs");
 		}
 		else
@@ -545,7 +544,7 @@ public:
 			cout << "if(!lhs->is_ref) {\n";
 			// If the RHS is_ref, we must first clone it
 			cout << "if(rhs->is_ref) {\n";
-			clone_rhs();
+			clone("rhs");
 			cout << "}\n";
 			copy_on_write();
 			cout << "} else {\n";
@@ -731,7 +730,7 @@ public:
 			// however, in that case, zend_eval_string will slap an extra
 			// "return" onto the front of the string, so we must remove the 
 			// "return" from the string the user wrote. If the user did not
-			// write "return", he is not interesting in the return value,
+			// write "return", he is not interested in the return value,
 			// and we must pass NULL instead or rhs to avoid zend_eval_string
 			// adding "return".
 			<< "MAKE_STD_ZVAL(rhs);\n"
@@ -803,9 +802,38 @@ public:
 			String* op = operand((*i)->expr);
 
 			cout
-			<< "args[" << index << "] = index_ht(locals, "
+			<< "{\n"
+			<< "zval* arg = index_ht(locals, "
 			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 			;
+
+			// Separate argument
+			cout << "if(arg->refcount > 1 && !arg->is_ref) {\n";
+			AST_variable* var = dynamic_cast<AST_variable*>((*i)->expr);
+			if(var != NULL)
+			{
+				clone("arg");
+				update_locals(var, "arg");
+			}
+			else
+			{
+				cout << "assert(0);\n";
+			}
+			cout << "}\n";
+		
+			// TODO this destroys the zval
+			if((*i)->is_ref)
+			{
+				cout << "arg->is_ref = 1;\n";
+			}
+			else
+			{
+				cout << "arg->is_ref = 0;\n";
+				cout << "arg->refcount = 1;\n";
+			}
+
+			cout << "args[" << index << "] = arg;";
+			cout << "}\n";
 		}
 	
 		cout
