@@ -10,12 +10,12 @@
    
    function f($x)
    {
-      $x = $x + 1;
+      $x = 0;
    }
    
    function g(&$x)
    {
-      $x = $x + 1;
+      $x = 0;
    }
    
    // Test proper calling conventions in simple cases
