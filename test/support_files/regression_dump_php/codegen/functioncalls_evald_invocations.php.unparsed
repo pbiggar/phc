@@ -12,111 +12,108 @@
       $x = 'x';
    }
    
-   eval(
-      '
-	// Test proper calling conventions in simple cases
-
-	$a = 10;
-	fun($a);
-	var_export($a);
-
-	$b = 20;
-	fun(&$b);
-	var_export($b);
-
-	$c = 30;
-	fun_r($c);
-	var_export($c);
-
-	$d = 40;
-	fun_r(&$d);
-	var_export($d);
-
-	echo "\n";
-
-	// Same as before, but the variable now passed in is part of a
-	// copy-on-write set. In all cases where a pass-by-reference is involved,
-	// only one of the two variables should be changed.
-
-	$e = 50;
-	$f = $e;
-	fun($f);
-	var_export($e);
-	var_export($f);
-	$f = \'y\';
-	var_export($e);
-	var_export($f);
-	
-	$g = 60;
-	$h = $g;
-	fun(&$h);
-	var_export($g);
-	var_export($h);
-	$h = \'y\';
-	var_export($g);
-	var_export($h);
-
-	$i = 70;
-	$j = $i;
-	fun_r($j);
-	var_export($i);
-	var_export($j);
-	$j = \'y\';
-	var_export($i);
-	var_export($j);
-
-	$k = 80;
-	$l = $k;
-	fun_r(&$l);
-	var_export($k);
-	var_export($l);
-	$l = \'y\';
-	var_export($k);
-	var_export($l);
-	
-	echo "\n";
-
-	// Same again, but the variable passed in is now part of a 
-	// change-on-write set (references another variable). 
-	// In this section, in all cases where a pass-by-reference is involved,
-	// both variables should be changed.
-
-	$m = 90;
-	$n =& $m;
-	fun($n);
-	var_export($m);
-	var_export($n);
-	$m = \'y\';
-	var_export($m);
-	var_export($n);
-
-	$o = 100;
-	$p =& $o;
-	fun(&$p);
-	var_export($o);
-	var_export($p);
-	$p = \'y\';
-	var_export($o);
-	var_export($p);
-
-	$q = 110;
-	$r =& $q;
-	fun_r($r);
-	var_export($q);
-	var_export($r);
-	$r = \'y\';
-	var_export($q);
-	var_export($r);
-
-	$s = 120;
-	$t =& $s;
-	fun_r(&$t);
-	var_export($s);
-	var_export($t);
-	$t = \'y\';
-	var_export($s);
-	var_export($t);
-
-	echo "\n";
-	');
+   // Test proper calling conventions in simple cases
+   
+   eval('$a = 10;');
+   eval('fun($a);');
+   eval('var_export($a);');
+   
+   eval('$b = 20;');
+   eval('fun(&$b);');
+   eval('var_export($b);');
+   
+   eval('$c = 30;');
+   eval('fun_r($c);');
+   eval('var_export($c);');
+   
+   eval('$d = 40;');
+   eval('fun_r(&$d);');
+   eval('var_export($d);');
+   
+   eval('echo "\n";');
+   
+   // Same as before, but the variable now passed in is part of a
+   // copy-on-write set. In all cases where a pass-by-reference is involved,
+   // only one of the two variables should be changed.
+   
+   eval('$e = 50;');
+   eval('$f = $e;');
+   eval('fun($f);');
+   eval('var_export($e);');
+   eval('var_export($f);');
+   eval('$f = \'y\';');
+   eval('var_export($e);');
+   eval('var_export($f);');
+   
+   eval('$g = 60;');
+   eval('$h = $g;');
+   eval('fun(&$h);');
+   eval('var_export($g);');
+   eval('var_export($h);');
+   eval('$h = \'y\';');
+   eval('var_export($g);');
+   eval('var_export($h);');
+   
+   eval('$i = 70;');
+   eval('$j = $i;');
+   eval('fun_r($j);');
+   eval('var_export($i);');
+   eval('var_export($j);');
+   eval('$j = \'y\';');
+   eval('var_export($i);');
+   eval('var_export($j);');
+   
+   eval('$k = 80;');
+   eval('$l = $k;');
+   eval('fun_r(&$l);');
+   eval('var_export($k);');
+   eval('var_export($l);');
+   eval('$l = \'y\';');
+   eval('var_export($k);');
+   eval('var_export($l);');
+   
+   eval('echo "\n";');
+   
+   // Same again, but the variable passed in is now part of a 
+   // change-on-write set (references another variable). 
+   // In this section, in all cases where a pass-by-reference is involved,
+   // both variables should be changed.
+   
+   eval('$m = 90;');
+   eval('$n =& $m;');
+   eval('fun($n);');
+   eval('var_export($m);');
+   eval('var_export($n);');
+   eval('$m = \'y\';');
+   eval('var_export($m);');
+   eval('var_export($n);');
+   
+   eval('$o = 100;');
+   eval('$p =& $o;');
+   eval('fun(&$p);');
+   eval('var_export($o);');
+   eval('var_export($p);');
+   eval('$p = \'y\';');
+   eval('var_export($o);');
+   eval('var_export($p);');
+   
+   eval('$q = 110;');
+   eval('$r =& $q;');
+   eval('fun_r($r);');
+   eval('var_export($q);');
+   eval('var_export($r);');
+   eval('$r = \'y\';');
+   eval('var_export($q);');
+   eval('var_export($r);');
+   
+   eval('$s = 120;');
+   eval('$t =& $s;');
+   eval('fun_r(&$t);');
+   eval('var_export($s);');
+   eval('var_export($t);');
+   eval('$t = \'y\';');
+   eval('var_export($s);');
+   eval('var_export($t);');
+   
+   eval('echo "\n";');
 ?>

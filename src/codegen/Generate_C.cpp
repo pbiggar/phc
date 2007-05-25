@@ -273,6 +273,28 @@ protected:
 	AST_signature* signature;
 
 protected:
+	void debug_argument_stack()
+	{
+		cout <<
+		"{\n"
+		"void **p;\n"
+		"int arg_count;\n"
+		"zval *param_ptr;\n"
+		"\n"
+		"p = EG(argument_stack).top_element-2;\n"
+		"arg_count = (ulong) *p;\n"
+		"\n"
+		"printf(\"\\nARGUMENT STACK\\n\");"
+		"while (arg_count > 0) {\n"
+		"	param_ptr = *(p-arg_count);\n"
+		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
+		"	arg_count--;\n"
+		"}\n"
+		"printf(\"END ARGUMENT STACK\\n\");"
+		"}\n"
+		;
+	}
+
 	void method_entry()
 	{
 		cout
@@ -284,9 +306,12 @@ protected:
 		<< "HashTable* locals;\n"
 		<< "ALLOC_HASHTABLE(locals);\n"
 		<< "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n"
+		<< "HashTable* old_active_symbol_table = EG(active_symbol_table);\n"
+		<< "EG(active_symbol_table) = locals;\n"
 		;
-	
-		// TODO: set active symbol table for compatibility with eval
+
+		// debug_argument_stack();
+
 
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
@@ -307,6 +332,8 @@ protected:
 				i != parameters->end();
 				i++, index++)
 			{
+//				cout << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
+
 				cout
 				<< "params[" << index << "]->refcount++;\n"
 				<< "zend_hash_add(locals, "
@@ -332,6 +359,7 @@ protected:
 		<< "// Destroy locals array\n"
 		<< "zend_hash_destroy(locals);\n"
 		<< "FREE_HASHTABLE(locals);\n"
+		<< "EG(active_symbol_table) = old_active_symbol_table;\n"
 		<< "}\n"
 		;
 	}
@@ -678,6 +706,65 @@ protected:
 	Wildcard<AST_variable>* rhs;
 };
 
+class Eval : public Assignment
+{
+	AST_expr* rhs_pattern()
+	{
+		eval_arg = new Wildcard<AST_variable>;
+		return new AST_method_invocation(
+			NULL,	
+			new Token_method_name(new String("eval")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(false, eval_arg)
+				)
+			);
+	}
+
+	void generate_rhs()	
+	{
+		String* arg = operand(eval_arg->value);
+
+		// cout << "debug_hash(locals);\n";
+
+		cout
+		<< "// Call eval\n"
+		<< "{\n"
+		<< "zval eval_arg;\n"
+		<< "INIT_ZVAL(eval_arg);\n"
+		<< "eval_arg = *index_ht(locals, "
+		<< "\"" << *arg << "\", " << arg->length() + 1 << ");\n"
+		<< "convert_to_string(&eval_arg);\n"
+		// TODO this is very ugly
+		// If the user wrote "return ..", we need to store the return value;
+		// however, in that case, zend_eval_string will slap an extra
+		// "return" onto the front of the string, so we must remove the 
+		// "return" from the string the user wrote. If the user did not
+		// write "return", he is not interested in the return value,
+		// and we must pass NULL instead or rhs to avoid zend_eval_string
+		// adding "return".
+		<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "if(!strncmp(Z_STRVAL(eval_arg), \"return \", 7))"
+		<< "{\n"
+		<< "zend_eval_string(Z_STRVAL(eval_arg) + 7, rhs, "
+		<< "\"eval'd code\" TSRMLS_CC);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<< "zend_eval_string(Z_STRVAL(eval_arg), NULL, "
+		<< "\"eval'd code\" TSRMLS_CC);\n"
+		<< "ZVAL_NULL(rhs);\n"
+		<< "}\n"
+		<< "rhs->refcount = 0;\n"
+		<< "}\n"
+		;
+		
+		// cout << "debug_hash(locals);\n";
+	}
+
+protected:
+	Wildcard<AST_variable>* eval_arg;
+};
+
 class Method_invocation : public Assignment
 {
 public:
@@ -687,67 +774,12 @@ public:
 		return rhs;
 	}
 
-	bool call_eval()
-	{
-		AST_method_invocation* pattern;
-		Wildcard<AST_variable>* eval_arg = new Wildcard<AST_variable>;
-
-		pattern = new AST_method_invocation(
-			NULL,	
-			new Token_method_name(new String("eval")),
-			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(false, eval_arg)
-				)
-			);
-		
-		if(rhs->value->match(pattern))
-		{
-			String* arg = operand(eval_arg->value);
-
-			cout
-			<< "// Call eval\n"
-			<< "{\n"
-			<< "zval eval_arg;\n"
-			<< "INIT_ZVAL(eval_arg);\n"
-			<< "eval_arg = *index_ht(locals, "
-			<< "\"" << *arg << "\", " << arg->length() + 1 << ");\n"
-			<< "convert_to_string(&eval_arg);\n"
-			// TODO this is very ugly
-			// If the user wrote "return ..", we need to store the return value;
-			// however, in that case, zend_eval_string will slap an extra
-			// "return" onto the front of the string, so we must remove the 
-			// "return" from the string the user wrote. If the user did not
-			// write "return", he is not interested in the return value,
-			// and we must pass NULL instead or rhs to avoid zend_eval_string
-			// adding "return".
-			<< "MAKE_STD_ZVAL(rhs);\n"
-			<< "if(!strncmp(Z_STRVAL(eval_arg), \"return \", 7))"
-			<< "{\n"
-			<< "zend_eval_string(Z_STRVAL(eval_arg) + 7, rhs, "
-			<< "\"eval'd code\" TSRMLS_CC);\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "zend_eval_string(Z_STRVAL(eval_arg), NULL, "
-			<< "\"eval'd code\" TSRMLS_CC);\n"
-			<< "ZVAL_NULL(rhs);\n"
-			<< "}\n"
-			<< "rhs->refcount = 0;\n"
-			<< "}\n"
-			;
-
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
 	void generate_rhs()
 	{
-		// Special case for eval
-		if(call_eval()) return;
+		List<AST_actual_parameter*>::const_iterator i;
+		unsigned index;
+		
+		// cout << "debug_hash(locals);\n";
 
 		// Variable function or ordinary function?
 		Token_method_name* name;
@@ -762,27 +794,57 @@ public:
 			<< "ZVAL_STRING(&function_name, "
 			<< "\"" << *name->value << "\", "
 			<< "0);\n"
+			<< "zval* function_name_ptr;\n"
+			<< "function_name_ptr = &function_name;\n"
 			;
 		}
 		else
 		{
 			assert(0);
 		}
-		
+	
+		// Figure out which parameters need to be passed by reference
 		cout
-		<< "zval* function_name_ptr;\n"
-		<< "function_name_ptr = &function_name;\n"
+		<< "zend_function* signature;\n"
+		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL);"
+		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+		<< "int by_ref[" << rhs->value->actual_parameters->size() << "];\n"
 		;
+
+		// TODO: Not 100% this is fully correct; in particular, 
+		// pass_rest_by_reference does not seem to work.
+		// cout << "printf(\"\\ncalling %s\\n\", signature->common.function_name);\n";
+		for(
+			i = rhs->value->actual_parameters->begin(), index = 0; 
+			i != rhs->value->actual_parameters->end(); 
+			i++, index++)
+		{
+			// cout << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
+			
+			cout
+			<< "if(arg_info)\n"
+			<< "{\n"
+			<< "by_ref[" << index << "] = arg_info->pass_by_reference;\n"
+			<< "arg_info++;\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<< "by_ref[" << index << "] = signature->common.pass_rest_by_reference;"
+			<< "}\n"
+			;
+			
+			if((*i)->is_ref) cout << "by_ref[" << index << "] = 1;";
+			
+			// cout << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
+		}
 
 		cout 
 		<< "// Setup array of arguments\n"
 		<< "zval* args[" << rhs->value->actual_parameters->size() << "];\n"
 		;
 
-		List<AST_actual_parameter*>::const_iterator i;
-		unsigned index = 0;
 		for(
-			i = rhs->value->actual_parameters->begin(); 
+			i = rhs->value->actual_parameters->begin(), index = 0; 
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
@@ -793,9 +855,10 @@ public:
 			<< "zval* arg = index_ht(locals, "
 			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 			;
-
-			// Separate argument
-			cout << "if(arg->refcount > 1 && !arg->is_ref) {\n";
+	
+			// Separate argument if it is part of a copy-on-write set, 
+			// and we are passing by reference
+			cout << "if(arg->refcount > 1 && !arg->is_ref && by_ref[" << index << "]) {\n";
 			AST_variable* var = dynamic_cast<AST_variable*>((*i)->expr);
 			if(var != NULL)
 			{
@@ -807,17 +870,15 @@ public:
 				cout << "assert(0);\n";
 			}
 			cout << "}\n";
-		
-			// TODO this destroys the zval
-			if((*i)->is_ref)
-			{
-				cout << "arg->is_ref = 1;\n";
-			}
-			else
-			{
-				cout << "arg->is_ref = 0;\n";
-				cout << "arg->refcount = 1;\n";
-			}
+
+			// Clone argument if it is part of a change-on-write set, 
+			// and we are *not* passing by reference
+			cout << "if(arg->is_ref && !by_ref[" << index << "]) {\n";
+			clone("arg");
+			cout << "}\n";
+
+			// I don't know where or how arg->is_ref gets restored, but it does
+			cout << "if(by_ref[" << index << "]) arg->is_ref = 1;\n";
 
 			cout << "args[" << index << "] = arg;";
 			cout << "}\n";
@@ -833,6 +894,8 @@ public:
 		<< "assert(success == SUCCESS);\n"
 		<< "rhs->refcount = 0;\n"
 		;
+		
+		// cout << "debug_hash(locals);\n";
 	}
 
 protected:
@@ -1035,6 +1098,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_bool()
 	,	new Assign_real()
 	,	new Copy()
+	,	new Eval()
 	,	new Method_invocation()
 	,	new Bin_op()
 	,	new Unary_op()
@@ -1052,6 +1116,7 @@ void Generate_C::children_statement(AST_statement* in)
 		{
 			patterns[i]->generate_code(this);
 			matched = true;
+			break;
 		}
 	}
 
@@ -1154,6 +1219,48 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "zval_ptr_dtor(&string_index);\n"
 	<< "}\n"
 	<< "}\n"
+	
+	<< "void debug_hash(HashTable* ht)\n"
+	<< "{\n"
+	<< "printf(\"\\nHASH\\n\");\n"
+	<< "for(\n"
+	<< "	zend_hash_internal_pointer_reset(ht);\n"
+	<< "	zend_hash_has_more_elements(ht) == SUCCESS;\n"
+	<< "	zend_hash_move_forward(ht)\n"
+	<< "	)\n"
+	<< "{\n"
+	<< "	char *key;\n"
+	<< "	unsigned keylen;\n"
+	<< "	unsigned long idx;\n"
+	<< "	int type;\n"
+	<< "	zval** ppzval;\n"
+	<< "	zval tmpcopy;\n"
+	<< "\n"
+	<< "	type = zend_hash_get_current_key_ex(ht, &key, &keylen, &idx, 0, NULL);\n"
+	<< "	zend_hash_get_current_data(ht, (void**)&ppzval);\n"
+	<< "\n"
+	<< "	tmpcopy = **ppzval;\n"
+	<< "	zval_copy_ctor(&tmpcopy);\n"
+	<< "	INIT_PZVAL(&tmpcopy);\n"
+	<< "	convert_to_string(&tmpcopy);\n"
+	<< "\n"
+	<< "	if(type == HASH_KEY_IS_STRING)\n"
+	<< "	{\n"
+	<< "		PHPWRITE(key, keylen - 1);\n"
+	<< "	}\n"
+	<< "	else\n"
+	<< "	{\n"
+	<< "		php_printf(\"%ld\", idx);\n"
+	<< "	}\n"
+	<< "\n"
+	<< "	php_printf(\": addr = %08lX, refcount = %d, is_ref = %d (\", *ppzval, (*ppzval)->refcount, (*ppzval)->is_ref);\n"
+	<< "	PHPWRITE(Z_STRVAL(tmpcopy), Z_STRLEN(tmpcopy));\n"
+	<< "	php_printf(\")\\n\");\n"
+	<< "\n"
+	<< "	zval_dtor(&tmpcopy);\n"
+	<< "}\n"
+	<< "printf(\"END HASH\\n\");\n"
+	<< "}"
 	;
 }
 
