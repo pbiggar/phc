@@ -1,6 +1,6 @@
 <?php
 /*
- * Like functioncalls.php, but using compiled functions. 
+ * Like functioncalls_compiled, but using eval'd function invocations.
  */
 
 	function fun($x) { $x = 'x'; }
