@@ -57,7 +57,7 @@ String* operand(AST_expr* in)
 }
 
 // Find the zval described by "var" and store it in "zvp" 
-void index_locals(string zvp, AST_variable* var)
+void index_st(string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -70,7 +70,7 @@ void index_locals(string zvp, AST_variable* var)
 	{
 		// Ordinary variable
 		cout
-		<< zvp << " = index_ht(locals, "
+		<< zvp << " = index_ht(EG(active_symbol_table), "
 		<< "\"" << *name->value << "\", "
 		<< name->value->length() + 1 << ");\n"
 		;
@@ -82,7 +82,7 @@ void index_locals(string zvp, AST_variable* var)
 			cout 
 			<< "{\n"
 			<< "HashTable* ht = extract_ht(" << zvp << ");"
-			<< "zval* ind = index_ht(locals, "
+			<< "zval* ind = index_ht(EG(active_symbol_table), "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< zvp << " = index_ht_zval(ht, ind);\n"
 			<< "}\n"
@@ -101,17 +101,17 @@ void index_locals(string zvp, AST_variable* var)
 
 		cout 
 		<< "{\n"
-		<< "zval* name = index_ht(locals, "
+		<< "zval* name = index_ht(EG(active_symbol_table), "
 		<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
-		<< zvp << " = index_ht_zval(locals, name);\n"
+		<< zvp << " = index_ht_zval(EG(active_symbol_table), name);\n"
 		<< "}\n"
 		;
 	}
 }
 
-// Update the variable in "locals" described by "var" with "zvp", and
+// Update the variable in "EG(active_symbol_table)" described by "var" with "zvp", and
 // increment "zvp"'s refcount
-void update_locals(AST_variable* var, string zvp)
+void update_st(AST_variable* var, string zvp)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -127,11 +127,11 @@ void update_locals(AST_variable* var, string zvp)
 			cout 
 			// Remove the old value from the hashtable
 			// (reducing its refcount)
-			<< "zend_hash_del(locals, "
+			<< "zend_hash_del(EG(active_symbol_table), "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			// Add the new value to the hashtable
-			<< "zend_hash_add(locals, "
+			<< "zend_hash_add(EG(active_symbol_table), "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ", "
 			<< "&" << zvp << ", sizeof(zval*), NULL);\n"
@@ -146,11 +146,11 @@ void update_locals(AST_variable* var, string zvp)
 
 			cout 
 			<< "{\n"
-			<< "zval* arr = index_ht(locals, " 
+			<< "zval* arr = index_ht(EG(active_symbol_table), " 
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			<< "HashTable* ht = extract_ht(arr);\n"
-			<< "zval* ind = index_ht(locals, "
+			<< "zval* ind = index_ht(EG(active_symbol_table), "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< "update_ht(ht, ind, " << zvp << ");\n"
 			<< "}\n"
@@ -164,7 +164,7 @@ void update_locals(AST_variable* var, string zvp)
 			// Assign to next available index
 			cout 
 			<< "{\n"
-			<< "zval* arr = index_ht(locals, " 
+			<< "zval* arr = index_ht(EG(active_symbol_table), " 
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			<< "HashTable* ht = extract_ht(arr);\n"
@@ -188,9 +188,9 @@ void update_locals(AST_variable* var, string zvp)
 		String* ind = operand(refl->expr);
 
 		cout
-		<< "zval* ind = index_ht(locals, "
+		<< "zval* ind = index_ht(EG(active_symbol_table), "
 		<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-		<< "update_ht(locals, ind, " << zvp << ");\n"
+		<< "update_ht(EG(active_symbol_table), ind, " << zvp << ");\n"
 		;
 	}
 }
@@ -301,17 +301,22 @@ protected:
 		// Function header
 		<< "PHP_FUNCTION(" << *signature->method_name->value << ")\n"
 		<< "{\n"
-		/**/
-		<< "// Setup locals array\n"
-		<< "HashTable* locals;\n"
-		<< "ALLOC_HASHTABLE(locals);\n"
-		<< "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n"
-		<< "HashTable* old_active_symbol_table = EG(active_symbol_table);\n"
-		<< "EG(active_symbol_table) = locals;\n"
 		;
 
-		// debug_argument_stack();
+		// __MAIN__ uses the global symbol table 
+		if(*signature->method_name->value != "__MAIN__")
+		{
+			cout
+			<< "// Setup locals array\n"
+			<< "HashTable* locals;\n"
+			<< "ALLOC_HASHTABLE(locals);\n"
+			<< "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n"
+			<< "HashTable* old_active_symbol_table = EG(active_symbol_table);\n"
+			<< "EG(active_symbol_table) = locals;\n"
+			;
+		}
 
+		// debug_argument_stack();
 
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
@@ -336,7 +341,7 @@ protected:
 
 				cout
 				<< "params[" << index << "]->refcount++;\n"
-				<< "zend_hash_add(locals, "
+				<< "zend_hash_add(EG(active_symbol_table), "
 				<< "\"" << *(*i)->variable_name->value << "\", " 
 				<< (*i)->variable_name->value->length() + 1  
 				<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
@@ -355,13 +360,20 @@ protected:
 		cout
 		// Labels are local to a function
 		<< "// Method exit\n"
-		<< "end_of_function:;\n" 
-		<< "// Destroy locals array\n"
-		<< "zend_hash_destroy(locals);\n"
-		<< "FREE_HASHTABLE(locals);\n"
-		<< "EG(active_symbol_table) = old_active_symbol_table;\n"
-		<< "}\n"
+		<< "end_of_function:;\n"
 		;
+
+		if(*signature->method_name->value != "__MAIN__")
+		{
+			cout
+			<< "// Destroy locals array\n"
+			<< "zend_hash_destroy(locals);\n"
+			<< "FREE_HASHTABLE(locals);\n"
+			<< "EG(active_symbol_table) = old_active_symbol_table;\n"
+			;
+		}
+
+		cout << "}\n";
 	}
 };
 
@@ -402,7 +414,7 @@ public:
 	{
 		cout
 		<< "{\n"
-		<< "zval* cond = index_ht(locals, "
+		<< "zval* cond = index_ht(EG(active_symbol_table), "
 		<< "\"" << *cond->value->value << "\", "
 		<< cond->value->value->length() + 1 << ");\n"
 		<< "if(zend_is_true(cond)) "
@@ -462,7 +474,7 @@ public:
 	void index_lhs()
 	{
 		cout << "// Index LHS\n";
-		index_locals("lhs", lhs->value);
+		index_st("lhs", lhs->value);
 	}
 
 	// Make a copy of zvp 
@@ -485,7 +497,7 @@ public:
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_locals(lhs->value, "rhs");
+		update_st(lhs->value, "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -520,7 +532,7 @@ public:
 		{
 			// First, make a copy, then update the hashtable
 			clone("rhs");
-			update_locals(rhs->value, "rhs");
+			update_st(rhs->value, "rhs");
 		}
 		else
 		{
@@ -536,7 +548,7 @@ public:
 	{
 		cout << "// Change-on-write\n";
 		cout << "rhs->is_ref = 1;\n";
-		update_locals(lhs->value, "rhs");
+		update_st(lhs->value, "rhs");
 	}
 
 	void generate_code(Generate_C* gen)
@@ -621,11 +633,13 @@ protected:
 	Wildcard<T>* rhs;
 };
 
+// TODO not sure if we want to use ->source_rep or ->value here; using
+// source_rep currently to avoid losing precision
 class Assign_int : public Assign_literal<Token_int> 
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_LONG(rhs, " << rhs->value->value << ");\n"; 
+		cout << "ZVAL_LONG(rhs, " << *rhs->value->source_rep << ");\n"; 
 	}
 };
 
@@ -633,7 +647,7 @@ class Assign_real : public Assign_literal<Token_real>
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_DOUBLE(rhs, " << rhs->value->value << ");\n";
+		cout << "ZVAL_DOUBLE(rhs, " << *rhs->value->source_rep << ");\n";
 	}
 };
 
@@ -658,9 +672,9 @@ class Assign_string : public Assign_literal<Token_string>
 	void init_rhs()
 	{
 		cout 
-		<< "ZVAL_STRING(rhs, " 
+		<< "ZVAL_STRINGL(rhs, " 
 		<< "\"" << escape(rhs->value->value) << "\", "
-		<< "1);\n"
+		<< rhs->value->value->length() << ", 1);\n"
 		;
 	}
 
@@ -672,9 +686,9 @@ public:
 		String::const_iterator i;
 		for(i = s->begin(); i != s->end(); i++)
 		{
-			if(*i == '"')
+			if(*i == '"' || *i == '\\')
 			{
-				ss << "\\\"";
+				ss << "\\" << *i;
 			}
 			else if(*i >= 32 && *i < 127)
 			{
@@ -702,7 +716,7 @@ public:
 
 	void generate_rhs()
 	{
-		index_locals("rhs", rhs->value);
+		index_st("rhs", rhs->value);
 	}
 
 protected:
@@ -727,14 +741,14 @@ class Eval : public Assignment
 	{
 		String* arg = operand(eval_arg->value);
 
-		// cout << "debug_hash(locals);\n";
+		// cout << "debug_hash(EG(active_symbol_table));\n";
 
 		cout
 		<< "// Call eval\n"
 		<< "{\n"
 		<< "zval eval_arg;\n"
 		<< "INIT_ZVAL(eval_arg);\n"
-		<< "eval_arg = *index_ht(locals, "
+		<< "eval_arg = *index_ht(EG(active_symbol_table), "
 		<< "\"" << *arg << "\", " << arg->length() + 1 << ");\n"
 		<< "convert_to_string(&eval_arg);\n"
 		// TODO this is very ugly
@@ -761,7 +775,7 @@ class Eval : public Assignment
 		<< "}\n"
 		;
 		
-		// cout << "debug_hash(locals);\n";
+		// cout << "debug_hash(EG(active_symbol_table));\n";
 	}
 
 protected:
@@ -782,7 +796,7 @@ public:
 		List<AST_actual_parameter*>::const_iterator i;
 		unsigned index;
 		
-		// cout << "debug_hash(locals);\n";
+		// cout << "debug_hash(EG(active_symbol_table));\n";
 
 		// Variable function or ordinary function?
 		Token_method_name* name;
@@ -855,7 +869,7 @@ public:
 
 			cout
 			<< "{\n"
-			<< "zval* arg = index_ht(locals, "
+			<< "zval* arg = index_ht(EG(active_symbol_table), "
 			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 			;
 	
@@ -866,7 +880,7 @@ public:
 			if(var != NULL)
 			{
 				clone("arg");
-				update_locals(var, "arg");
+				update_st(var, "arg");
 			}
 			else
 			{
@@ -905,7 +919,7 @@ public:
 		<< "rhs->refcount = 0;\n"
 		;
 		
-		// cout << "debug_hash(locals);\n";
+		// cout << "debug_hash(EG(active_symbol_table));\n";
 	}
 
 protected:
@@ -936,10 +950,10 @@ public:
 		string op_fn = op_functions[*op->value->value]; 
 
 		cout 
-		<< "zval* left = index_ht(locals, "
+		<< "zval* left = index_ht(EG(active_symbol_table), "
 		<< "\"" << *left->value->value << "\", "
 		<< left->value->value->length() + 1 << ");\n"
-		<< "zval* right = index_ht(locals, "
+		<< "zval* right = index_ht(EG(active_symbol_table), "
 		<< "\"" << *right->value->value << "\", "
 		<< right->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
@@ -980,7 +994,7 @@ public:
 		string op_fn = op_functions[*op->value->value]; 
 
 		cout 
-		<< "zval* expr = index_ht(locals, "
+		<< "zval* expr = index_ht(EG(active_symbol_table), "
 		<< "\"" << *expr->value->value << "\", "
 		<< expr->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
@@ -1008,7 +1022,7 @@ class Return : public Pattern
 
 		cout
 		<< "{\n"
-		<< "*return_value = *index_ht(locals, "
+		<< "*return_value = *index_ht(EG(active_symbol_table), "
 		<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
 		<< "zval_copy_ctor(return_value);\n"
 		<< "goto end_of_function;\n"
@@ -1041,7 +1055,7 @@ class Unset : public Pattern
 			if(var->value->array_indices->size() == 0)
 			{
 				cout
-				<< "zend_hash_del(locals, "
+				<< "zend_hash_del(EG(active_symbol_table), "
 				<< "\"" << *name->value << "\", "
 				<< name->value->length() + 1 << ");"
 				;
@@ -1053,11 +1067,11 @@ class Unset : public Pattern
 
 				cout
 				<< "{\n"
-				<< "zval* arr = index_ht(locals, "
+				<< "zval* arr = index_ht(EG(active_symbol_table), "
 				<< "\"" << *name->value << "\", " 
 				<< name->value->length() + 1 << ");"
 				<< "HashTable* ht = extract_ht(arr);"
-				<< "zval* ind = index_ht(locals, "
+				<< "zval* ind = index_ht(EG(active_symbol_table), "
 				<< "\"" << *ind << "\", " << ind->length() + 1 << ");"
 				// Numeric index?
 				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
