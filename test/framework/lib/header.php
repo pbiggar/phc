@@ -291,16 +291,29 @@ function complete_exec($command)
 {
 	global $opt_verbose;
 
-	$handle = popen($command, "r");
-	$output = "";
-	while(!feof($handle))
+	$descriptorspec = array(1 => array("pipe", "w"),
+									2 => array("pipe", "w"));
+	$pipes = array();
+	$handle = proc_open($command, $descriptorspec, &$pipes);
+	
+	$out = "";
+	$err = "";
+	do
 	{
-		$output .= fgets($handle);
+		$out .= stream_get_contents ($pipes[1]);
+		$err .= stream_get_contents ($pipes[2]);
+		$status = proc_get_status ($handle);
 	}
-	$return_value = pclose($handle);
+	while ($status["running"]);
+	$out .= stream_get_contents ($pipes[1]);
+	$err .= stream_get_contents ($pipes[2]);
+	# contrary to popular opinion, proc_close doesnt return the exit
+	# status
+	$exit_code = $status["exitcode"];
+	proc_close ($handle);
 	if ($opt_verbose)
 		print "Running: $command\n";
-	return array ($output, $return_value);
+	return array ($out, $err, $exit_code);
 }
 
 function check_for_plugin ($plugin_name)
@@ -315,8 +328,5 @@ function check_for_program ($program_name)
 	return ($program_name !== "" 
 			&& (file_exists ($program_name) or $program_name == "gcc"));
 }
-
-
-
 
 ?>

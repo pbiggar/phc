@@ -29,43 +29,48 @@ class CompiledVsInterpreted extends Test
 		$dir_name = dirname($subject);
 
 		// get the output from the interpreter for the file
-		$command1 = "$php -d include_path=$dir_name:./ $subject 2>&1";
-		list ($expected, $return1) = complete_exec($command1);
-		$expected = $this->homogenize_output ($expected); 
+		$command1 = get_php_command_line ($subject);
+		list ($out1, $err1, $exit1) = complete_exec($command1);
+		$out1 = $this->homogenize_output ($out1); 
 
 		// first check that phc returns 0
-		$phc_command1 = "$phc --generate-c $subject 2>&1 >/dev/null";
-		list ($phc_output1, $phc_return1) = complete_exec($phc_command1);
-		if ($phc_return1 != 0)
+		$phc_command1 = "$phc --generate-c $subject";
+		list ($phc_out1, $phc_err1, $phc_exit1) = complete_exec($phc_command1);
+		if ($phc_exit1 != 0)
 		{
-			$this->mark_skipped($subject, $phc_output1); 
+			$this->mark_skipped($subject, $phc_out1); 
 			return;
 		}
 
 		// generate C
-		$phc_command2 = "$phc -c $subject 2>&1";
-		list ($phc_output2, $phc_return2) = complete_exec($phc_command2);
-		if ($phc_return2 != 0)
+		$phc_command2 = "$phc -c $subject";
+		list ($phc_out2, $phc_err2, $phc_exit2) = complete_exec($phc_command2);
+		if ($phc_exit2 or $phc_err2)
 		{
 			$this->mark_failure ($subject,
 				array($command1, $phc_command1, $phc_command2), 
-				array($return1, $phc_return1, $phc_return2),
-				$phc_output2);
+				array($exit1, $phc_exit1, $phc_exit2),
+				$phc_out2,
+				array($err1, $phc_err1, $phc_err2));
 			return;
 		}
 
 		// run the program
-		$command2 = " ./a.out 2>&1";
-		list ($actual, $return2) = complete_exec($command2);
-		$actual = $this->homogenize_output ($actual); 
+		$command2 = " ./a.out";
+		list ($out2, $err2, $exit2) = complete_exec($command2);
+		$out2 = $this->homogenize_output ($out2); 
 
-		if ($actual !== $expected or $return1 != 0 or $return2 != 0)
+		if ($out1 !== $out2 
+			or $err1 !== $err2 
+			or $exit1 
+			or $exit2)
 		{
-			$output = diff ($expected, $actual);
-			$this->mark_failure($subject,
+			$output = diff ($out1, $out2);
+			$this->mark_failure ($subject,
 				array($command1, $phc_command1, $phc_command2, $command2),
-				array($return1, $phc_return1, $phc_return2, $return2),
-				$output);
+				array($exit1, $phc_exit1, $phc_exit2, $exit2),
+				$output,
+				array ($err1, $phc_err1, $phc_err2, $err2));
 		}
 		else
 		{

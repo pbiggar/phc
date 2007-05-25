@@ -1,0 +1,23 @@
+_phc()
+{
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# options completion
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help --full-help -V --version \
+		-v --verbose -c --compile --pretty-print --obfuscate \
+		--run --read-ast-xml --no-validation -C \
+		--c-option --generate-c --extension= \
+		--with-php --compile-time-includes --dump-ast-dot \
+		--dump-ast-xml  --next-line-curlies --no-line-numbers \
+		--tab= --dump-tokens --run-lifting --run-lowering \
+		--run-shredder --run-goto-uppering \ 
+		' -- $cur) )
+	else
+# we could be specifying a plugin, or a gcc command line
+#		_filedir *.php
+		_filedir
+	fi
+}
+complete -F _phc phc

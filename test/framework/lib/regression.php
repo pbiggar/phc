@@ -40,7 +40,7 @@ class RegressionTest extends SupportFileTest
 	function get_command_line ($subject)
 	{
 		global $phc;
-		return "$phc {$this->options} $subject 2>&1";
+		return "$phc {$this->options} $subject";
 	}
 
 	function run_test ($subject)
@@ -51,13 +51,13 @@ class RegressionTest extends SupportFileTest
 		if (file_exists($regression_file))
 		{
 			$command = $this->get_command_line ($subject);
-			$command .= " | diff -u $regression_file - 2>&1";
-			list ($diff, $return_value) = complete_exec($command);
+			$command .= " | diff -u $regression_file -";
+			list ($diff, $err, $exit) = complete_exec($command);
 
 			// compare to the existing files
 			if ($diff)
 			{
-				$this->mark_failure ($subject, $command, $return_value, $diff);
+				$this->mark_failure ($subject, $command, $exit, $diff, $err);
 			}
 			else
 			{
@@ -101,16 +101,16 @@ class RegressionTest extends SupportFileTest
 	{
 		// get the output
 		$command = $this->get_command_line ($subject);
-		list ($output, $return_value) = complete_exec($command);
+		list ($out, $err, $exit) = complete_exec($command);
 
-		if ($return_value == 0)
+		if ($exit == 0)
 		{
-			$this->write_support_file ($output, $subject);
+			$this->write_support_file ($out, $err, $subject);
 			$this->mark_success ($subject);
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, $return_value, $output);
+			$this->mark_failure ($subject, $command, $exit, $out, $err);
 		}
 	}
 

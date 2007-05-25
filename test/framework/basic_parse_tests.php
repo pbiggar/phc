@@ -33,35 +33,35 @@ class BasicParseTest extends SupportFileTest
 			$check = preg_match ("/^return: (\d+)\noutput: (.*)$/s", $lines, $array);
 			phc_assert ($check == 1, "wrong number of matches ($check)");
 
-			list ($_, $expected_return_value, $expected_error) = $array;
+			list ($_, $exit1, $err1) = $array;
 			phc_assert ($_ == $lines, "should match whole string");
-			phc_assert ($expected_return_value != 0, "wrong return value");
-			phc_assert ($expected_error != "", "bad error");
+			phc_assert ($exit1 != 0, "wrong return value");
+			phc_assert ($err1 != "", "bad error");
 		}
 		else
 		{
-			$expected_error = "";
-			$expected_return_value = 0;
+			$err1 = "";
+			$exit1 = 0;
 		}
 
 		// we now have expected output
 		$command = $this->get_command_line ($subject);
-		list ($error, $return_value) = complete_exec($command);
+		list ($out2, $err2, $exit2) = complete_exec ($command);
 
-		if ($return_value == $expected_return_value and $error == $expected_error)
+		if ($exit1 == $exit2 and $err1 == $err2 or $out1 or $out2)
 		{
 			$this->mark_success ($subject);
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, "$return_value (expected $expected_return_value)", "'$error'\nExpected:\n'$expected_error'");
+			$this->mark_failure ($subject, $command, array($exit1, $exit2), array ($out1, $out2), array ($err1, $err2));
 		}
 	}
 
 	function get_command_line ($subject)
 	{
 		global $phc;
-		return "$phc $subject 2>&1";
+		return "$phc $subject";
 	}
 
 	function get_support_filename ($subject)
@@ -75,11 +75,11 @@ class BasicParseTest extends SupportFileTest
 	{
 		// get the output
 		$command = $this->get_command_line ($subject);
-		list ($output, $return_value) = complete_exec($command);
+		list ($out, $err, $exit) = complete_exec($command);
 
-		$file_output = "return: $return_value\noutput: $output";
+		$file_output = "return: $exit\noutput: $err";
 
-		if ($return_value == 0)
+		if ($exit == 0)
 		{
 			$this->mark_skipped ($subject, "No generated results to be stored");
 		}

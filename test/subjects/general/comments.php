@@ -23,7 +23,7 @@
 	$a = $b;
 
 	// Non-expression statement
-	break 5;
+	echo "break 5"; // moved to comments2.php
 
 	/*
 	 * (6) Other constructs 
@@ -66,17 +66,19 @@
 	while(15)
 	{
 		echo 16;
+		break;
 	}
 
 	// (17) do-while statement
 	do
 	{
 		echo 18;
+		break;
 	}
 	while(17);
 
 	// 19 for loop
-	for(19;;)
+	for(19;0;17)
 	{
 		echo 20;
 	}
@@ -104,7 +106,7 @@
 	// 24 Declare statement
 	declare(TICKS = 24)
 	{
-		break;
+		echo "break 24";
 	}
 
 	// 25 Try statement
@@ -126,7 +128,7 @@
 	// 26 Preceding if-comment
 	if(26) // 26 Same-line if comment
 	{
-		break;
+		echo "break 26";
 	}
 
 	// 27 This function has 
@@ -137,15 +139,15 @@
 	}
 
 	/* Multiline comment */
-	break 29;
+	echo "break 29";
 
 	/* Semi Nested /* multiline comment */ 
-	break 30;
+	echo "break 30";
 
 	// More than one in-line comment
-	break 31; /* comment 1 */ /* comment 2 */
+	echo "break 31"; /* comment 1 */ /* comment 2 */
 
-	break 32;
+	echo "break 32";
 
 	// This no longer breaks
 	$x = /* one */ 33 + /* two */ 34;
@@ -153,5 +155,5 @@
 	/*
 	 * So does this
 	 */
-	break 35;
+	echo "break 35";
 ?>

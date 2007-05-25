@@ -31,7 +31,6 @@ const char* get_attr_name ()
 	return NULL;
 }
 
-
 template<class T> 
 void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement*> *out)
 {
@@ -250,48 +249,40 @@ void Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
  *		 ...;
  *   }
  * into
- *	  $temp_array = $array; // copies the array, implicit reset
+ *	  if ($array->refcount)
+ *		$temp_array = $array; // copy by val
+ *	  else
+ *		$temp_array =& $array; // copy by ref
+ *
+ *	// (if array is an expression, use former form)
+ *
  *	  unset ($value);
  *	  while (list ($Tkey, ) = each ($temp_array))
  *	  {
  *	   $key =& $Tkey;
- *		$value = $temp_array [$Tkey];
- *		 ...
- *	  }
- *	
- *	However, if we use references, we convert
- *   foreach ($array as $key => &$value)
- *   {
- *		 ...;
- *   }
- * into
- *	  $temp_array = $array; // same array, only evaluate expr once
- *	  reset ($temp_array)
- *	  unset ($value);
- *	  while (list ($key, ) = each ($temp_array))
- *	  {
- *		$value =& $temp_array [$key];
+ *		$value = $temp_array [$Tkey]; // use =& form for an array reference
  *		 ...
  *	  }
  *
- *	In the referenced version, at the end of an iteration, $value still refers
- *	to the last data element in $array.
- * */
+ *	  This saves from messing about with locks, and such, which I
+ *	  believe are just refcounts anyway.
+ */
+
 
 void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* out)
 {
-	AST_variable* temp_array = fresh_var ("LCF_a");
+	AST_variable* temp_array = fresh_var ("LCF_ARRAY_");
 
 	// if no key is provided, use a temporary
 	AST_variable* Tkey;
 	if (in->key) Tkey = in->key;
-	else Tkey = fresh_var ("LCF_k");
+	else Tkey = fresh_var ("LCF_KEY_");
 
-	// $temp_array =& $array or $temp_array = $array;
-	//
-	// TODO the nested loops problem is associated with this. Messing with this changes the results substantially
-	// TODO i suspect reset is also involved. My code does what I think is required, but PHPs doesnt.
-	AST_eval_expr* copy = new AST_eval_expr (
+	// If the expression is a varaible then we may want to use a
+	// reference. Otherwise, we just use a copy.
+	// $temp_array =& $array
+	bool array_ref = (dynamic_cast<AST_variable*>(in->expr) != NULL);
+	AST_eval_expr* array_copy  = new AST_eval_expr (
 		new AST_assignment (temp_array, in->is_ref, in->expr));
 	AST_eval_expr* reset = NULL;
 	if (in->is_ref)
@@ -346,11 +337,143 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 	potentially_add_label<AST_continue> (in, while_stmt->statements);
 
 	// push it all back
-	out->push_back (copy);
+	out->push_back (array_copy);
 	if (reset) out->push_back (reset);
 //	out->push_back (unset);
 	lower_while (while_stmt, out);
 }
+
+#if 0
+void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* out)
+{
+	// use the same lock variable throughout the program
+	static AST_variable* locks = fresh_var ("LCF_LOCK_");
+
+	AST_variable* temp_array = fresh_var ("LCF_ARRAY_");
+
+	// if no key is provided, use a temporary
+	AST_variable* Tkey;
+	if (in->key) Tkey = in->key;
+	else Tkey = fresh_var ("LCF_KEY_");
+
+	// If the expression is a varaible then we may want to use a
+	// reference. Otherwise, we just use a copy.
+	bool array_ref = (dynamic_cast<AST_variable*>(in->expr) != NULL);
+	AST_eval_expr* copy  = new AST_eval_expr (
+		new AST_assignment (temp_array, array_ref, in->expr));
+
+	List <AST_statement*>* lock_check = new List<AST_statement*> ();
+	AST_variable* lock_created;
+	// if ($locks[$x]) {
+	if (array_ref)
+	{
+
+		lock_created = fresh_var ("LCF_LOCK_CREATED_");
+
+		// $tmp = $x;
+		List<AST_statement*>* by_copy = new List<AST_statement*> ();
+		by_copy->push_back (new AST_eval_expr (
+					new AST_assignment (temp_array->clone (), true, in->expr)));
+		// lock_created = false;
+		by_copy->push_back (new AST_eval_expr (
+					new AST_assignment (lock_created->clone (), false, new Token_bool (false))));
+
+
+		// else 
+		// { 
+		//		$tmp =& $x;
+		List<AST_statement*>* by_ref = new List<AST_statement*> ();
+		by_ref->push_back (new AST_eval_expr (
+					new AST_assignment (temp_array->clone (), false, in->expr)));
+		//		lock_created = true;
+		by_ref->push_back (new AST_eval_expr (
+					new AST_assignment (lock_created->clone (), false, new Token_bool (false))));
+
+		//		$locks[$x] = true; 
+		// }
+		by_ref->push_back (new AST_eval_expr (
+					new AST_assignment (get_lock_access (in->expr), true, in->expr)));
+
+		// Finally create the if
+		lock_check->push_back (new AST_if (get_lock_access (in->expr), by_ref, by_copy));
+
+	}
+
+	// reset ($temp_array);
+/*	List<AST_actual_parameter*> *reset_params 
+	= new List<AST_actual_parameter*> ();
+	reset_params->push_back (new AST_actual_parameter (false, temp_array));
+	AST_eval_expr* reset = new AST_eval_expr (
+		new AST_method_invocation (NULL, 
+			new Token_method_name (new String ("reset")),
+			reset_params)
+		);
+*/
+	// unset ($value);
+/*	List<AST_actual_parameter*> *unset_params = new List<AST_actual_parameter*> ();
+	unset_params->push_back (new AST_actual_parameter (false, in->val));
+	AST_eval_expr* unset = new AST_eval_expr (
+			new AST_method_invocation (NULL, 
+				new Token_method_name (new String ("unset")),
+				unset_params)
+			);
+*/
+
+	// each ($temp_array)
+	List<AST_actual_parameter*> *each_params 
+		= new List<AST_actual_parameter*> ();
+	each_params->push_back (new AST_actual_parameter (false, temp_array));
+	AST_method_invocation *each = new AST_method_invocation (NULL, 
+			new Token_method_name (new String ("each")),
+			each_params);
+
+	// list ($key, ) = each ($temp_array);
+	List<AST_list_element*> *lhss = new List< AST_list_element*> ();
+	lhss->push_back (Tkey);
+	AST_list_assignment *assign = new AST_list_assignment (lhss, each);
+
+	// $value = $temp_array [$Tkey]
+	// or
+	// $value =& $temp_array [$Tkey]
+	List<AST_expr*> *indices = new List<AST_expr*> ();
+	indices->push_back (Tkey);
+	AST_variable *val = new AST_variable (NULL, temp_array->variable_name, indices);
+	AST_assignment *fetch_val = new AST_assignment (in->val, in->is_ref, val);
+	in->statements->push_front (new AST_eval_expr (fetch_val));
+
+	// while (list ($key, ) = each ($temp_array))
+   AST_while* while_stmt = new AST_while (assign, in->statements);
+
+	// A continue in a for loop lands just before the increment
+	potentially_add_label<AST_continue> (in, while_stmt->statements);
+
+	// reset the lock
+	AST_statement* lock_unset;
+	if (array_ref)
+	{
+		//		if (lock_created);
+		lock_unset = AST_if (new AST_eval_expr (lock_created->clone ()));
+
+
+		// unset ($lock [$asrray]);
+		List<AST_actual_parameter*> *unset_params = new List<AST_actual_parameter*> ();
+		unset_params->push_back (new AST_actual_parameter (false, get_lock_access (in->expr)));
+		lock_unset->iftrue->push_back (new AST_eval_expr (
+				new AST_method_invocation (NULL, 
+					new Token_method_name (new String ("unset")),
+					unset_params)
+				));
+	}
+
+
+	// push it all back
+	out->push_back (copy);
+	if (array_ref) lower_if (check_lock, out);
+//	if (reset) out->push_back (reset);
+	lower_while (while_stmt, out);
+	if (array_ref) out->push_back (lock_unset);
+}
+#endif
 
 void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out)
 {
@@ -574,9 +697,8 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 		}
 	}
 
-	// Add a failure condition if the user tries to break too far
-	// TODO: Not exactly what PHP does, but a decent first attempt
-	AST_method_name* name = new Token_method_name (new String ("die"));
+	// Print an error, and die with 255
+	AST_method_name* name = new Token_method_name (new String ("echo"));
 	List<AST_actual_parameter*> *params = new List<AST_actual_parameter*> ();
 	String* error_string = 
 		new String ("\nFatal error: Too many break/continue levels\n");
@@ -584,6 +706,14 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 		new AST_actual_parameter (false, new Token_string (error_string, error_string));
 	params->push_back (param);
 	out->push_back (new AST_eval_expr (new AST_method_invocation (NULL, name, params)));
+
+	AST_method_name* die_name = new Token_method_name (new String ("die"));
+	List<AST_actual_parameter*> *die_params = new List<AST_actual_parameter*> ();
+	AST_actual_parameter* die_param = 
+		new AST_actual_parameter (false, new Token_int (255 ));
+	die_params->push_back (die_param);
+	out->push_back (new AST_eval_expr (new AST_method_invocation (NULL, die_name, die_params)));
+
 }
 
 

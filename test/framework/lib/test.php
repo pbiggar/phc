@@ -34,6 +34,12 @@ function homogenize_break_levels ($string)
 {
 	$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ level(s)? in .*/",
 									"Fatal error: Too many break/continue levels", $string);
+
+# just clear these warnings
+	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
+									"", $string);
+	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
+									"", $string);
 	return $string;
 }
 
@@ -247,14 +253,14 @@ abstract class Test
 		$this->update_count ();
 	}
 
-	function mark_failure ($subject, $commands, $return_values = "Not relevent", $output = "Not relevent")
+	function mark_failure ($subject, $commands, $exits = "Not relevent", $out = "Not relevent", $errs = "Not relevent")
 	{
 		global $log_directory, $opt_verbose;
 		$red = red_string();
 		$reset = reset_string();
 		if (is_array ($commands))
 		{
-			if ($return_values == "Not relevent")
+			if ($exits == "Not relevent")
 			{
 				$command_string = "";
 				foreach ($commands as $command)
@@ -264,31 +270,36 @@ abstract class Test
 			}
 			else
 			{
-				phc_assert (is_array ($return_values), "Expected array of return values");
-				phc_assert (count ($return_values) == count ($commands), 
+				phc_assert (is_array ($exits), "Expected array of return values");
+				phc_assert (count ($exits) == count ($commands), 
 					"Expected same number of commands and return values");
 				$command_string = "";
-				for ($i = 0; $i < count ($commands); $i++)
+				$err_string = "";
+				foreach ($commands as $i => $command)
 				{
-					$command = $commands[$i];
-					$return_value = $return_values[$i];
-					$command_string .= "{$red}Command$reset ($return_value): $command\n";
+					$exit = $exits[$i];
+					$err = $errs [$i];
+					$command_string .= "{$red}Command $i$reset ($exit): $command\n";
+					if ($err)
+						$err_string .= "{$red}Error $i$reset: $err\n";
 				}
 			}
 
 		}
 		else
 		{
-			$command_string = "{$red}Command$reset ($return_values): $commands\n";
+			$command_string = "{$red}Command$reset ($exits): $commands\n";
+			$err_string = "";
 		}
 
+		$command_string .= $err_string;
 		// dump it to a file
 		$file_header = 
 			"Failure in test $subject:\n".
 			$command_string.
 			"Output:\n"; // this is added below to avoid the massive memory usage
 
-		log_failure ($this->get_name(), $subject, $command_string, $output);
+		log_failure ($this->get_name(), $subject, $command_string, $out);
 		$this->erase_progress_bar();
 
 		if ($opt_verbose)
@@ -300,7 +311,7 @@ abstract class Test
 				print
 					"$red----------- The script failed as follows: ------------------------$reset\n".
 					$command_string.
-					"{$red}Output:$reset ". substr (preg_replace ("/\n/", "", $output), 0, 70).
+					"{$red}Output:$reset ". substr (preg_replace ("/\n/", "", $out), 0, 70).
 					"...$reset\n".
 					"$red---------------- End of failure notice ---------------------------$reset\n\n";
 			}

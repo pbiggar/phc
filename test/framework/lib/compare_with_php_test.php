@@ -11,7 +11,7 @@ function get_php_command_line ($subject, $pipe = false)
 	global $php;
 	$dir_name = dirname($subject);
 	if ($pipe) $subject = "";
-	return "$php -d include_path=./:$dir_name $subject 2>&1";
+	return "$php -d include_path=./:$dir_name -d max_execution_time=5 $subject";
 }
 
 
@@ -71,7 +71,7 @@ class CompareWithPHP extends TwoCommandTest
 		global $phc;
 		$command = $this->command_line;
 		$pipe_command = get_php_command_line ($subject, "pipe");
-		return "$phc $command $subject 2>&1 | $pipe_command";
+		return "$phc $command $subject | $pipe_command";
 	}
 
 	function homogenize_output ($output)

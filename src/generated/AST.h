@@ -1009,6 +1009,8 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    AST_if(AST_expr* expr);
+public:
     virtual AST_if* clone();
 };
 

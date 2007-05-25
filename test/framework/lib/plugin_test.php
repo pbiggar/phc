@@ -33,26 +33,25 @@ class PluginTest extends Test
 	{
 		global $phc, $plugin_dir;
 		$plugin = $this->plugin_name;
-		return "$phc --run $plugin_dir/tests/$plugin.la $subject 2>&1";
+		return "$phc --run $plugin_dir/tests/$plugin.la $subject";
 	}
 
 	function run_test ($subject)
 	{
 		$command = $this->get_command_line ($subject);
-		list ($output, $return_value) = complete_exec($command);
-# TODO check return value aswell
-		if ($output == "Success\n")
+		list ($out, $err, $exit) = complete_exec($command);
+		if ($out == "Success\n" and $exit == 0 and $err == "")
 		{
 			$this->mark_success ($subject);
 		}
-		elseif ($output == "Skipped\n")
+		elseif ($out == "Skipped\n")
 		{
 			$name = $this->plugin_name;
 			$this->mark_skipped ($subject, "Plugin $name returns skipped");
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, $return_value, $output);
+			$this->mark_failure ($subject, $command, $exit, $out, $err);
 		}
 	}
 

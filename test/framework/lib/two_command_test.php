@@ -10,9 +10,9 @@ abstract class TwoCommandTest extends Test
 	abstract function get_command_line1 ($subject);
 	abstract function get_command_line2 ($subject);
 
-	// return true if we allow the test1 or test2 to return a non-zero exit
-	// code. If true, scripts with minor errors, which we intend to _kinda_
-	// replicate, are allowed.
+	// exit true if we allow the test1 or test2 to exit a non-zero
+	// exit code. If true, scripts with minor errors, which we intend
+	// to _kinda_ replicate, are allowed.
 	function allow_failure_exit_code ()
 	{
 		return false;
@@ -21,9 +21,9 @@ abstract class TwoCommandTest extends Test
 	function run_command ($command, $subject)
 	{
 		// run first command
-		list ($output, $return) = complete_exec($command);
-		$output = $this->homogenize_output ($output);
-		return array ($output, $return);
+		list ($out, $err, $exit) = complete_exec($command);
+		$out = $this->homogenize_output ($out);
+		return array ($out, $err, $exit);
 	}
 
 	function end_timer ()
@@ -35,18 +35,20 @@ abstract class TwoCommandTest extends Test
 	{
 		$command1 = $this->get_command_line1 ($subject);
 		$command2 = $this->get_command_line2 ($subject);
-		list ($expected, $return1) = $this->run_command ($command1, $subject);
-		list ($actual, $return2) = $this->run_command ($command2, $subject);
+		list ($out1, $err1, $exit1) = $this->run_command ($command1, $subject);
+		list ($out2, $err2, $exit2) = $this->run_command ($command2, $subject);
 
 		parent::end_timer($subject); // the diff can take a long time
-		if ($actual !== $expected or 
-				(!$this->allow_failure_exit_code () and ($return1 != 0 or $return2 != 0)))
+		if ($out1 !== $out2 or 
+				$err1 !== $err2 or
+				(!$this->allow_failure_exit_code () and ($exit1 != 0 or $exit2 != 0)))
 		{
-			$output = diff ($expected, $actual);
+			$output = diff ($out1, $out2);
 			$this->mark_failure($subject, 
 				array($command1, $command2),
-				array($return1, $return2),
-				$output);
+				array($exit1, $exit2),
+				$output,
+				array ($err1, $err2));
 		}
 		else $this->mark_success ($subject);
 	}

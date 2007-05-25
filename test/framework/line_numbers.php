@@ -19,10 +19,10 @@ class LineNumbersTest extends Test
 		global $phc;
 
 		//print "testing script $subject\n";
-		$command = "$phc --run plugins/tests/line_numbers.la $subject 2>&1";
-		list ($output, $return_value) = complete_exec($command);
+		$command = "$phc --run plugins/tests/line_numbers.la $subject";
+		list ($out, $err, $exit) = complete_exec($command);
 
-		if (strlen($output) == 0)
+		if (strlen($out) == 0)
 		{
 			$this->mark_skipped ();
 		}
@@ -41,7 +41,7 @@ class LineNumbersTest extends Test
 			// The output is in the form "token:line_number--!!--!!--".  Newlines,
 			// if they are there, are part of the token. This is to avoid
 			// confusion over newlines in regex.
-			$lines = explode("--!!--!!--", rtrim($output));
+			$lines = explode("--!!--!!--", rtrim($out));
 
 			foreach($lines as $line)
 			{

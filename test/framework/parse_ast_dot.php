@@ -31,12 +31,12 @@ class ParseASTDot extends Test
 		// order of 2> and > changes this behaviour.
 		// TODO this only works on systems with
 		// /dev/null - ie probably not cygwin
-		$command = "$phc --dump-ast $subject 2>&1 | $graphviz_gc 2>&1 >/dev/null";
-		list ($output, $return_value) = complete_exec($command);
+		$command = "$phc --dump-ast $subject | $graphviz_gc";
+		list ($out, $err, $exit) = complete_exec($command);
 
-		if ($output)
+		if ($err or $exit) # ignore out
 		{
-			$this->mark_failure ($subject, $command, $return_value, $output);
+			$this->mark_failure ($subject, $command, $exit, $out, $err);
 		}
 		else
 		{

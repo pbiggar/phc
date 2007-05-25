@@ -26,7 +26,7 @@ class CompilePluginTest extends NoSubjectTest
 
 		if (!copy ("plugins/tools/purity_test.cpp", "$plugin_name.cpp"))
 		{
-			$this->mark_failure ("All", "Copy failed", 0, "");
+			$this->mark_failure ("All", "Copy failed");
 			return;
 		}
 
@@ -34,18 +34,18 @@ class CompilePluginTest extends NoSubjectTest
 		if ($trunk_CPPFLAGS)
 			$trunk_CPPFLAGS = "CFLAGS=$trunk_CPPFLAGS";
 
-		$command = "$trunk_CPPFLAGS $phc_compile_plugin $plugin_name.cpp 2>&1 > /dev/null "; # throw away stdout. Compiler errors come in on stderr
-		list ($output, $return_value) = complete_exec ($command);
-		if ($output || $return_value != 0)
+		$command = "$trunk_CPPFLAGS $phc_compile_plugin $plugin_name.cpp";
+		list ($out, $err, $exit) = complete_exec ($command); # ignore stdout
+		if ($err or $exit)
 		{
-			$this->mark_failure ("All", $command, $return_value, $output);
+			$this->mark_failure ("All", $command, $exit, $out, $err);
 			// dont delete the files - leave them as a trail
 			return;
 		}
 
-		$command = "$phc --run $plugin_name.la test/subjects/general/if.php 2>&1 ";
-		list ($output, $return_value) = complete_exec ($command);
-		if ($return_value != 0) $this->mark_failure ("All", $command, $return_value, $output);
+		$command = "$phc --run $plugin_name.la test/subjects/general/if.php";
+		list ($out, $err, $exit) = complete_exec ($command);
+		if ($exit != 0) $this->mark_failure ("All", $command, $exit, $out, $err);
 		else 
 		{
 			$this->mark_success ("All");

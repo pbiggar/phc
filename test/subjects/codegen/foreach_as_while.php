@@ -11,7 +11,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 1 -----------------\n";
 
 	// standard foreach, with references
 	$temp_array = &$array;
@@ -23,7 +23,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 2 -----------------\n";
 
 	// refernce done by in-loop copy, single param to list
 	while (list ($key) = each (&$temp_array))
@@ -34,7 +34,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 3 -----------------\n";
 
 	// refernce done by in-loop copy, two params to list
 	while (list ($key, ) = each (&$temp_array))
@@ -45,7 +45,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 4 -----------------\n";
 
 	// refernce done by in-loop copy, no list
 	while ($key = each (&$temp_array))
@@ -56,7 +56,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 5 -----------------\n";
 
 
 	// now a foreach
@@ -68,7 +68,7 @@
 	}
 	var_export ($array);
 	reset ($array);
-	echo "----------------------------------\n";
+	echo "-------------- 6 -----------------\n";
 
 
 		// with references
@@ -77,7 +77,8 @@
 	//	  arrays pointer, our example above would cause an endless loop had we
 	//	  assigned $fruit to another variable inside the loop.
 	// I can't seem to replicate this
-	reset ($a);
+	$a = array (6, 5, 6, 23, 7);
+	reset ($a); // cant reset
 	while (list ($x, ) = each (&$a))
 	{
 		$b = $a;
@@ -85,28 +86,28 @@
 		var_export ($a[$x]);
 	}
 	echo "\n";
-	echo "----------------------------------\n";
+	echo "-------------- 7 -----------------\n";
 
 
 	foreach ($a as &$x)
 	{
 		$b = $a;
 		$b[3] = "A"; // php is copy on write
-		var_dump ($b[0]);
-		var_dump ($a);
-		var_dump ($b);
+		var_export ($b[0]);
+		var_export ($a);
+		var_export ($b);
 	}
-	echo "----------------------------------\n";
+	echo "-------------- 8 -----------------\n";
 
 	foreach ($a as $x)
 	{
 		$b = $a;
 		$b[3] = "A"; // php is copy on write
-		var_dump ($b[0]);
-		var_dump ($a);
-		var_dump ($b);
+		var_export ($b[0]);
+		var_export ($a);
+		var_export ($b);
 	}
-	echo "----------------------------------\n";
+	echo "-------------- 9 -----------------\n";
 
 
 	foreach ($a as &$x)
@@ -115,11 +116,11 @@
 		while (each ($a)) {}
 		$b = $a;
 		$b[3] = "A"; // php is copy on write
-		var_dump ($b[0]);
-		var_dump ($a);
-		var_dump ($b);
+		var_export ($b[0]);
+		var_export ($a);
+		var_export ($b);
 	}
-	echo "----------------------------------\n";
+	echo "-------------- 10 ----------------\n";
 
 
 
