@@ -144,6 +144,10 @@ class Annotate : public AST_visitor
 
 	void pre_assignment(AST_assignment* in)
 	{
+		// Assignments of the form $$e =& $d dont work if $$e is split into a temporary first
+		if (in->is_ref && in->variable->variable_name->classid() == AST_reflection::ID)
+			in->variable->attrs->set_true("phc.lower_expr.no_temp");
+
 		in->variable->attrs->set_true("phc.shredder.need_addr");
 
 		// Is is not necessary to generate a temporary for the top-level
@@ -169,6 +173,7 @@ class Annotate : public AST_visitor
 		if(in->expr != NULL)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
+
 };
 
 /*
@@ -221,9 +226,11 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		- (in->attrs->is_true("phc.shredder.need_addr") ? 1 : 0);
 
 	// translate ${$x}[1] to $T = ${$x}; $T[1] but only if no target is set
-	if(in->target == NULL && in->variable_name->classid() == AST_reflection::ID)
+	if(in->target == NULL 
+		&& in->variable_name->classid() == AST_reflection::ID
+		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
 	{
-		AST_variable* temp = fresh_var("TS");
+		AST_variable* temp = fresh_var("TS_R_");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true,
 			new AST_variable(
@@ -236,7 +243,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL && num_pieces > 0)
 	{
-		AST_variable* temp = fresh_var("TS");
+		AST_variable* temp = fresh_var("TS_T_");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp, true,
 			new AST_variable(

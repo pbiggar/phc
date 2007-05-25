@@ -64,7 +64,7 @@ void Lower_expr::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
 }
 
 /*
- * A commen pattern is captured by "eval", which takes an argument
+ * A common pattern is captured by "eval", which takes an argument
  * an expression e, generates a new temporary T, and pushes back the statement
  *  
  *   T = e;
