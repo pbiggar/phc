@@ -877,7 +877,14 @@ public:
 			clone("arg");
 			cout << "}\n";
 
-			// I don't know where or how arg->is_ref gets restored, but it does
+			// We don't need to restore ->is_ref afterwards, because the 
+			// called function will reduce the refcount of arg on return,
+			// and will reset is_ref to 0 when refcount drops to 1.
+			// If the refcount does not drop to 1 when the function returns,
+			// but we did set is_ref to 1 here, that means that is_ref must
+			// already have been 1 to start with (since if it had not, that
+			// means that the variable would have been in a copy-on-write set,
+			// and would have been seperated above).
 			cout << "if(by_ref[" << index << "]) arg->is_ref = 1;\n";
 
 			cout << "args[" << index << "] = arg;";
