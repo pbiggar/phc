@@ -261,7 +261,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		signature = pattern->value->signature;
-		gen->methods->push_back(signature->method_name->value);
+		gen->methods->push_back(signature);
 
 		method_entry();	
 		gen->visit_statement_list(pattern->value->statements);
@@ -291,46 +291,33 @@ protected:
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
-			cout << "// Add all parameters as local variables\n";
-			stringstream zgp_format; 
-			stringstream zgp_args; 
-			cout << "int params_is_ref[" << parameters->size() << "];\n";
-			cout << "zval* params[" << parameters->size() << "];\n";
+			// TODO: Deal with default values
+			cout 
+			<< "// Add all parameters as local variables\n"
+			<< "{\n"
+			<< "zval* params[" << parameters->size() << "];\n"
+			// First parameter to zend_get_parameters_array does not appear
+			// to be used (by looking at the source)
+			<< "zend_get_parameters_array(0, ZEND_NUM_ARGS(), params);\n"
+			;
+
 			List<AST_formal_parameter*>::const_iterator i;
 			int index;	
 			for(i = parameters->begin(), index = 0;
 				i != parameters->end();
 				i++, index++)
 			{
-				// TODO: deal with default values
-				// TODO: deal with type (although that should be dealt with
-				// elsewhere)
-				// TODO: deal with references
-				zgp_format << "z/";
-				
-				if (i != parameters->begin())
-					zgp_args << ", ";
-		
-				zgp_args << "&params[" << index << "]";
-			}
-			cout << "zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, \"" << zgp_format.str() << "\", " << zgp_args.str() << ");\n";
-			for(i = parameters->begin(), index = 0;
-				i != parameters->end();
-				i++, index++)
-			{
-				cout << "params[" << index << "]->refcount++;\n";
-				
-				cout << "params_is_ref[" << index << "] = params[" << index << "]->is_ref;\n";
-				if((*i)->is_ref)
-					cout << "params[" << index << "]->is_ref = 1;\n";
-				
 				cout
+				<< "params[" << index << "]->refcount++;\n"
 				<< "zend_hash_add(locals, "
 				<< "\"" << *(*i)->variable_name->value << "\", " 
 				<< (*i)->variable_name->value->length() + 1  
 				<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
 				;
 			}
+				
+			cout << "}\n";
+
 		}
 		
 		cout << "// Function body\n";
@@ -338,23 +325,9 @@ protected:
 
 	void method_exit()
 	{
-		cout << "// Method exit\n";
-		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
-		if(parameters && parameters->size() > 0)
-		{
-			// Restore is_ref
-			List<AST_formal_parameter*>::const_iterator i;
-			int index;	
-			for(i = parameters->begin(), index = 0;
-				i != parameters->end();
-				i++, index++)
-			{
-				cout << "params[" << index << "]->is_ref = params_is_ref[" << index << "];\n";
-			}
-		}
-		
 		cout
 		// Labels are local to a function
+		<< "// Method exit\n"
 		<< "end_of_function:;\n" 
 		<< "// Destroy locals array\n"
 		<< "zend_hash_destroy(locals);\n"
@@ -1186,14 +1159,41 @@ void Generate_C::pre_php_script(AST_php_script* in)
 
 void Generate_C::post_php_script(AST_php_script* in)
 {
+	List<AST_signature*>::const_iterator i;
+
+	cout << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
+	for(i = methods->begin(); i != methods->end(); i++)
+	{
+		String* name = (*i)->method_name->value;
+
+		cout << "ZEND_BEGIN_ARG_INFO(" << *name << "_arg_info, 0)\n";
+
+		// TODO: deal with type hinting
+
+		List<AST_formal_parameter*>::const_iterator j;
+		for(
+			j = (*i)->formal_parameters->begin();
+			j != (*i)->formal_parameters->end();
+			j++)
+		{
+			cout 
+			<< "ZEND_ARG_INFO("
+			<< ((*j)->is_ref ? "1" : "0")
+			<< ", \"" << *(*j)->variable_name->value << "\")\n"; 
+		}
+
+		cout << "ZEND_END_ARG_INFO()\n";
+	}
+
 	cout 
 		<< "// Register all functions with PHP\n"
 		<< "static function_entry " << *extension_name << "_functions[] = {\n"
 		;
-
-	List<String*>::const_iterator i;
 	for(i = methods->begin(); i != methods->end(); i++)
-		cout << "PHP_FE(" << **i << ", NULL)\n";
+	{
+		String* name = (*i)->method_name->value;
+		cout << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
+	}
 
 	cout << "{ NULL, NULL, NULL }\n";
 	cout << "};\n";
@@ -1296,7 +1296,7 @@ Generate_C::Generate_C(String* extension_name)
 		is_extension = false;
 	}
 
-	methods = new List<String*>;
+	methods = new List<AST_signature*>;
 }
 
 #ifdef OBSOLETE

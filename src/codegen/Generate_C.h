@@ -27,7 +27,7 @@ public:
 public:
 	String* extension_name;
 	bool is_extension;
-	List<String*>* methods;	// List of all methods compiled	
+	List<AST_signature*>* methods;	// List of all methods compiled	
 
 /*
 private:
