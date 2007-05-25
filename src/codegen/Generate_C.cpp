@@ -492,6 +492,9 @@ public:
 	void overwrite_lhs()
 	{
 		cout
+		<< "// First, call the destructor to remove any data structures\n"
+		<< "// associated with lhs that will now be overwritten\n"
+		<< "zval_dtor(lhs);\n"
 		<< "// Overwrite LHS\n"
 		<< "lhs->value = rhs->value;\n"
 		<< "lhs->type = rhs->type;\n"
