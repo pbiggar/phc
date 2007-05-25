@@ -281,54 +281,58 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 	// If the expression is a varaible then we may want to use a
 	// reference. Otherwise, we just use a copy.
 	// $temp_array =& $array
-	bool array_ref = (dynamic_cast<AST_variable*>(in->expr) != NULL);
+//	bool array_ref = (dynamic_cast<AST_variable*>(in->expr) != NULL);
 	AST_eval_expr* array_copy  = new AST_eval_expr (
 		new AST_assignment (temp_array, in->is_ref, in->expr));
+
 	AST_eval_expr* reset = NULL;
 	if (in->is_ref)
 	{
 		// reset ($temp_array);
-		List<AST_actual_parameter*> *reset_params 
-			= new List<AST_actual_parameter*> ();
-		reset_params->push_back (new AST_actual_parameter (false, temp_array));
 		reset = new AST_eval_expr (
-					new AST_method_invocation (NULL, 
-						new Token_method_name (new String ("reset")),
-						reset_params)
-				);
+				new AST_method_invocation (
+					NULL,
+					new Token_method_name (new String ("reset")),
+					new List<AST_actual_parameter*> (
+						new AST_actual_parameter (false, temp_array)
+					)
+				)
+			);
 	}
 
 	// unset ($value);
-	List<AST_actual_parameter*> *unset_params = new List<AST_actual_parameter*> ();
+/*	List<AST_actual_parameter*> *unset_params = new List<AST_actual_parameter*> ();
 	unset_params->push_back (new AST_actual_parameter (false, in->val));
 	AST_eval_expr* unset = new AST_eval_expr (
 			new AST_method_invocation (NULL, 
 				new Token_method_name (new String ("unset")),
 				unset_params)
 			);
-
-
-	// each ($temp_array)
-	List<AST_actual_parameter*> *each_params 
-		= new List<AST_actual_parameter*> ();
-	each_params->push_back (new AST_actual_parameter (false, temp_array));
-	AST_method_invocation *each = new AST_method_invocation (NULL, 
-			new Token_method_name (new String ("each")),
-			each_params);
+*/
 
 	// list ($key, ) = each ($temp_array);
-	List<AST_list_element*> *lhss = new List< AST_list_element*> ();
-	lhss->push_back (Tkey);
-	AST_list_assignment *assign = new AST_list_assignment (lhss, each);
+	AST_list_assignment *assign = new AST_list_assignment (
+			new List< AST_list_element*> (Tkey),
+			new AST_method_invocation (
+				NULL, 
+				new Token_method_name (new String ("each")),
+				new List<AST_actual_parameter*> (
+					new AST_actual_parameter (false, temp_array)
+				)
+			)
+		);
 
 	// $value = $temp_array [$Tkey]
 	// or
 	// $value =& $temp_array [$Tkey]
-	List<AST_expr*> *indices = new List<AST_expr*> ();
-	indices->push_back (Tkey);
-	AST_variable *val = new AST_variable (NULL, temp_array->variable_name, indices);
-	AST_assignment *fetch_val = new AST_assignment (in->val, in->is_ref, val);
-	in->statements->push_front (new AST_eval_expr (fetch_val));
+	in->statements->push_front (
+			new AST_eval_expr (
+				new AST_assignment (
+					in->val,
+					in->is_ref,
+					new AST_variable (NULL, temp_array->variable_name, new List<AST_expr*> (Tkey)))
+			)
+		);
 
 	// while (list ($key, ) = each ($temp_array))
    AST_while* while_stmt = new AST_while (assign, in->statements);
@@ -571,9 +575,15 @@ void Lower_control_flow::lower_switch(AST_switch* in, List<AST_statement*>* out)
 			AST_label* next = fresh_label ();
 
 			// make the comparison
-			Token_op* op = new Token_op (new String ("=="));
-			AST_expr* compare = new AST_bin_op (lhs->clone (), op, (*i)->expr);
-			AST_branch* branch = new AST_branch (compare, header->label_name, next->label_name);
+			AST_branch* branch = new AST_branch (
+					new AST_bin_op (
+						lhs->clone (), 
+						new Token_op (new String ("==")),
+						(*i)->expr
+					),
+					header->label_name,
+					next->label_name
+				);
 
 			branches->push_back (branch);
 			branches->push_back (next);
@@ -649,10 +659,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 			// Create a label, pushback a goto to it, and attach it as an attribute
 			// of the innermost looping construct.
 			AST_node* level = levels->back ();
-
-			AST_label *target = exit_label<T> (level);
-			AST_goto *exit = new AST_goto (target->label_name);
-			out->push_back (exit);
+			out->push_back (new AST_goto ((exit_label<T> (level))->label_name));
 		}
 		else
 		{
@@ -661,8 +668,8 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 
 			// Since we compare to the expression, we need to create a variable for it.
 			AST_variable *lhs = fresh_var ("TB");
-			AST_assignment* assign = new AST_assignment (lhs, false, in->expr);
-			out->push_back (new AST_eval_expr (assign));
+			out->push_back (new AST_eval_expr (
+					new AST_assignment (lhs, false, in->expr)));
 
 			// 1 branch and label per level:
 			//		if ($TB1 = 1) goto L1; else goto L2;
@@ -698,21 +705,30 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	}
 
 	// Print an error, and die with 255
-	AST_method_name* name = new Token_method_name (new String ("echo"));
-	List<AST_actual_parameter*> *params = new List<AST_actual_parameter*> ();
-	String* error_string = 
-		new String ("\nFatal error: Too many break/continue levels\n");
-	AST_actual_parameter* param = 
-		new AST_actual_parameter (false, new Token_string (error_string, error_string));
-	params->push_back (param);
-	out->push_back (new AST_eval_expr (new AST_method_invocation (NULL, name, params)));
+	out->push_back (new AST_eval_expr (
+			new AST_method_invocation (
+				NULL, 
+				new Token_method_name (new String ("echo")), 
+				new List<AST_actual_parameter*> (
+					new AST_actual_parameter (
+						false, 
+						new Token_string (
+							new String ("\nFatal error: Too many break/continue levels\n")
+						)
+					)
+				)
+			)
+		));
 
-	AST_method_name* die_name = new Token_method_name (new String ("die"));
-	List<AST_actual_parameter*> *die_params = new List<AST_actual_parameter*> ();
-	AST_actual_parameter* die_param = 
-		new AST_actual_parameter (false, new Token_int (255 ));
-	die_params->push_back (die_param);
-	out->push_back (new AST_eval_expr (new AST_method_invocation (NULL, die_name, die_params)));
+	out->push_back (new AST_eval_expr (
+			new AST_method_invocation (
+				NULL, 
+				new Token_method_name (new String ("die")), 
+				new List<AST_actual_parameter*> (
+					new AST_actual_parameter (false, new Token_int (255)))
+				)
+			)
+		);
 
 }
 
