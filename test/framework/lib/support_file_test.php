@@ -35,7 +35,7 @@ abstract class SupportFileTest extends Test
 		$this->finish_test ();
 	}
 
-	function write_support_file ($contents, $subject)
+	function write_support_file ($out, $subject)
 	{
 		$filename = $this->get_support_filename ($subject);
 
@@ -46,7 +46,7 @@ abstract class SupportFileTest extends Test
 			@mkdir($dirname, 0755, true);
 		}
 
-		file_put_contents($filename, $contents);
+		file_put_contents($filename, $out);
 	}
 
 }

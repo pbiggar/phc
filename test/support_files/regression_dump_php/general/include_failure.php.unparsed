@@ -1,8 +1,0 @@
-<?php
-   # some garbage
-   $a = "x";
-   # warning only 
-   include "some_file_which_doesnt_exist.php";
-   # error only 
-   require "some_file_which_doesnt_exist.php";
-?>

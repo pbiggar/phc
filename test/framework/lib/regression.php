@@ -105,7 +105,7 @@ class RegressionTest extends SupportFileTest
 
 		if ($exit == 0)
 		{
-			$this->write_support_file ($out, $err, $subject);
+			$this->write_support_file ($out, $subject);
 			$this->mark_success ($subject);
 		}
 		else

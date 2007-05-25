@@ -1,4 +1,0 @@
-<?php
-   $var1 = "my new value";
-   $var2 = "new value";
-?>
