@@ -806,7 +806,7 @@ public:
 		// Figure out which parameters need to be passed by reference
 		cout
 		<< "zend_function* signature;\n"
-		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL);"
+		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);"
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
 		<< "int by_ref[" << rhs->value->actual_parameters->size() << "];\n"
 		;
@@ -1246,16 +1246,14 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "\n"
 	<< "	if(type == HASH_KEY_IS_STRING)\n"
 	<< "	{\n"
-	<< "		PHPWRITE(key, keylen - 1);\n"
+	<< "		printf(key);\n"	
 	<< "	}\n"
 	<< "	else\n"
 	<< "	{\n"
-	<< "		php_printf(\"%ld\", idx);\n"
+	<< "		printf(\"%d\", idx);\n"	
 	<< "	}\n"
 	<< "\n"
-	<< "	php_printf(\": addr = %08lX, refcount = %d, is_ref = %d (\", *ppzval, (*ppzval)->refcount, (*ppzval)->is_ref);\n"
-	<< "	PHPWRITE(Z_STRVAL(tmpcopy), Z_STRLEN(tmpcopy));\n"
-	<< "	php_printf(\")\\n\");\n"
+	<< "	printf(\": addr = %08lX, refcount = %d, is_ref = %d (%s)\", *ppzval, (*ppzval)->refcount, (*ppzval)->is_ref, Z_STRVAL(tmpcopy));\n"
 	<< "\n"
 	<< "	zval_dtor(&tmpcopy);\n"
 	<< "}\n"
