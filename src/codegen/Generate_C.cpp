@@ -316,6 +316,20 @@ protected:
 			;
 		}
 
+		// Add references to the superglobals 
+		// TODO: currently we deal only with GLOBALS
+		// TODO: we call zval_ptr_dtor on globals afterwards, and it is 
+		// also removed from the hashtable. Everything seems to work fine,
+		// but I'm a bit worried about accidentally trying to delete the 
+		// global symbol table ;)
+		cout
+		<< "zval* globals;\n"
+		<< "MAKE_STD_ZVAL(globals);\n"
+		<< "globals->value.ht = &EG(symbol_table);\n"
+		<< "globals->type = IS_ARRAY;\n"
+		<< "zend_hash_add(EG(active_symbol_table), \"GLOBALS\", 8, &globals, sizeof(zval*), NULL);\n"
+		;
+
 		// debug_argument_stack();
 
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
@@ -372,6 +386,8 @@ protected:
 			<< "EG(active_symbol_table) = old_active_symbol_table;\n"
 			;
 		}
+
+		cout << "zval_ptr_dtor(&globals);\n";
 
 		cout << "}\n";
 	}
