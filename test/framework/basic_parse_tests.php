@@ -54,7 +54,7 @@ class BasicParseTest extends SupportFileTest
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, array($exit1, $exit2), array ($out1, $out2), array ($err1, $err2));
+			$this->mark_failure ($subject, array ("Opening $filename", $command), array($exit1, $exit2), array ($out1, $out2), array ($err1, $err2));
 		}
 	}
 
