@@ -349,10 +349,14 @@ abstract class Test
 		global $opt_no_progress_bar;
 		if (! $opt_no_progress_bar)
 		{
+			# check for divide by zero
+			$target_num = $this->num_files;
+			if ($target_num == 0) $target_num = 1;
+
 			$this->erase_progress_bar ();
 			$this->progress_bar->reset(
 					"{$this->get_name()} %bar% %fraction% done ({$this->failures} failed)", 
-					"#", "-", 80, $this->num_files);
+					"#", "-", 80, $target_num);
 			$this->progress_bar->update($this->total);
 		}
 	}
@@ -460,7 +464,7 @@ abstract class Test
 		elseif ($total_count == 0)
 		{
 			return sprintf("%-30s %-21s    ", $test, $timing)
-				. red_string().  "Failure (No tests run)"
+				. red_string().  "Failure (No tests run)  "
 				. reset_string();
 		}
 		
