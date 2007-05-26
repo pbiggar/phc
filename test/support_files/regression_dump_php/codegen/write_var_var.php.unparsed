@@ -13,4 +13,14 @@
    ${$e} =& $d;
    $f = $f + 1.0;
    var_dump($d);
+   
+   $g = array(1, array(2, 3, array(4, 5, 6)));
+   $h = "g";
+   ${$h}[1][2][3] = 7;
+   var_dump($g);
+   
+   $i = array(8, 9);
+   ${$h}[1][2][3] =& $i[0];
+   var_dump($g);
+   
 ?>
