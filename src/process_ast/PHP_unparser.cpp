@@ -996,11 +996,12 @@ void PHP_unparser::children_string(Token_string* in)
 			string::iterator i;
 
 			echo("'");
-			// Only thing that can be escaped in an SQ string is the single quote 
+			// Only thing that can be escaped in an SQ string is the single
+			// quote and the backslash itself 
 			for(i = in->source_rep->begin(); i != in->source_rep->end(); i++)
 			{
-				if(*i == '\'') 
-					os << "\\'";
+				if(*i == '\'' || *i == '\\') 
+					os << "\\" << *i;
 				else
 					os << *i;
 			}

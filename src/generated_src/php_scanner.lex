@@ -371,6 +371,7 @@ UNSET_CAST		{CS}"unset"{CE}
 <SQ_STR>{ANY}		{ yyextra->buffer.push_back(*yytext); }
 
 <SQ_ESC>\'			{ yyextra->buffer.push_back(*yytext); BEGIN(SQ_STR); }
+<SQ_ESC>\\			{ yyextra->buffer.push_back(*yytext); BEGIN(SQ_STR); }
 <SQ_ESC>{ANY}		{
 							yyextra->buffer.push_back('\\');
 							yyextra->buffer.push_back(*yytext);
