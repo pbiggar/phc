@@ -160,8 +160,9 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
 	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
 	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
-	DOT_unparser.$(OBJEXT) PHP_unparser.$(OBJEXT) \
-	process_ast.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
+	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
+	PHP_unparser.$(OBJEXT) process_ast.$(OBJEXT) \
+	Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Strip_comments.$(OBJEXT) \
 	Token_conversion.$(OBJEXT) XML_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT)
@@ -458,6 +459,8 @@ src_phc_SOURCES = \
 	src/phc.cpp												\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h							\
+	src/process_ast/Invalid_check.cpp					\
+	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h							\
 	src/process_ast/process_ast.cpp							\
@@ -818,6 +821,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lift_functions_and_classes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr.Po@am__quote@
@@ -1470,6 +1474,20 @@ DOT_unparser.obj: src/process_ast/DOT_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/DOT_unparser.cpp' object='DOT_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o DOT_unparser.obj `if test -f 'src/process_ast/DOT_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/DOT_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/DOT_unparser.cpp'; fi`
+
+Invalid_check.o: src/process_ast/Invalid_check.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Invalid_check.o -MD -MP -MF "$(DEPDIR)/Invalid_check.Tpo" -c -o Invalid_check.o `test -f 'src/process_ast/Invalid_check.cpp' || echo '$(srcdir)/'`src/process_ast/Invalid_check.cpp; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Invalid_check.Tpo" "$(DEPDIR)/Invalid_check.Po"; else rm -f "$(DEPDIR)/Invalid_check.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Invalid_check.cpp' object='Invalid_check.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Invalid_check.o `test -f 'src/process_ast/Invalid_check.cpp' || echo '$(srcdir)/'`src/process_ast/Invalid_check.cpp
+
+Invalid_check.obj: src/process_ast/Invalid_check.cpp
+@am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Invalid_check.obj -MD -MP -MF "$(DEPDIR)/Invalid_check.Tpo" -c -o Invalid_check.obj `if test -f 'src/process_ast/Invalid_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Invalid_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Invalid_check.cpp'; fi`; \
+@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/Invalid_check.Tpo" "$(DEPDIR)/Invalid_check.Po"; else rm -f "$(DEPDIR)/Invalid_check.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Invalid_check.cpp' object='Invalid_check.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Invalid_check.obj `if test -f 'src/process_ast/Invalid_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Invalid_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Invalid_check.cpp'; fi`
 
 PHP_unparser.o: src/process_ast/PHP_unparser.cpp
 @am__fastdepCXX_TRUE@	if $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PHP_unparser.o -MD -MP -MF "$(DEPDIR)/PHP_unparser.Tpo" -c -o PHP_unparser.o `test -f 'src/process_ast/PHP_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/PHP_unparser.cpp; \

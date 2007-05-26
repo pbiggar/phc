@@ -25,6 +25,7 @@
 #include "codegen/Check_lowering.h"
 #include "codegen/Check_uppering.h"
 #include "process_ast/Strip_comments.h"
+#include "process_ast/Invalid_check.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
@@ -93,6 +94,10 @@ int main(int argc, char** argv)
 			phc_error(ERR_FILE_NOT_FOUND, new String(args_info.inputs[0]), 0);
 		}
 	}
+
+	// Check for invalid but parsable code
+	Invalid_check ic;
+	php_script->visit (&ic);
 
 	if(php_script == NULL) return -1;
 

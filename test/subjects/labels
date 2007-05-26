@@ -51,3 +51,7 @@ general/for_cond_with_comma.php		non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops
 
 general/instring.php				non-interpretable # php's parser doesnt like this
+
+
+.*						long erroneous 
+unsupported/.*						short erroneous 

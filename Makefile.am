@@ -105,6 +105,8 @@ src_phc_SOURCES =												\
 	src/phc.cpp												\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h							\
+	src/process_ast/Invalid_check.cpp					\
+	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h							\
 	src/process_ast/process_ast.cpp							\
