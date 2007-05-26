@@ -14,6 +14,11 @@ class PluginTest extends Test
 		parent::__construct();
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("BasicParseTest");
+	}
+
 	function get_test_subjects ()
 	{
 		return get_non_erroneous_scripts();

@@ -15,6 +15,11 @@ class CompilePluginTest extends NoSubjectTest
 		return check_for_program ($phc_compile_plugin);
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("BasicParseTest");
+	}
+
 	function run_test ($subject)
 	{
 		global $phc;

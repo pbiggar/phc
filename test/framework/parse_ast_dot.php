@@ -15,6 +15,11 @@ class ParseASTDot extends Test
 		return get_non_erroneous_scripts();
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("BasicParseTest");
+	}
+
 	function check_prerequisites ()
 	{
 		global $graphviz_gc;

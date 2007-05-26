@@ -14,6 +14,11 @@ class SourceVsSemanticTest extends PluginTest
 		parent::__construct("source_vs_semantic_values");
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("BasicParseTest");
+	}
+
 	function get_command_line ($subject)
 	{
 		global $phc, $php;

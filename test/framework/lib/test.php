@@ -96,6 +96,36 @@ abstract class Test
 		return true;
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ();
+	}
+
+	// we dont want this to be overridden
+	function get_builtin_dependent_test_names ()
+	{
+		if (!isset($this->dependencies))
+			return array ();
+
+		return (array) ($this->dependencies);
+	}
+
+	function passed_test_dependencies ($subject)
+	{
+		global $successes;
+
+		$dependencies = $this->get_dependent_test_names () 
+							+ $this->get_builtin_dependent_test_names ();
+		foreach ($dependencies as $dependency)
+		{
+			if (!isset($successes[$dependency][$subject]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	abstract function run_test ($subject);
 	abstract function get_test_subjects ();
 
@@ -129,6 +159,10 @@ abstract class Test
 			if (!$this->check_test_prerequisites ($subject))
 			{
 				$this->mark_skipped ($subject, "Individual prerequsite failed");
+			}
+			elseif (!$this->passed_test_dependencies ($subject))
+			{
+				$this->mark_skipped ($subject, "Test failed dependency");
 			}
 			elseif ($this->check_exception ($subject))
 			{
@@ -208,14 +242,6 @@ abstract class Test
 		$max_val = array_pop(array_values($this->timers));
 		$max_key = $numbers{array_pop(array_keys($this->timers))};
 
-/*
-		var_dump($max_key);
-		var_dump($max_val);
-		var_dump($med_key);
-		var_dump($med_val);
-		var_dump($mean);
-		var_dump($std_dev);
-*/
 		// more than a second apart, and 2 std deviations above average
 		if (($max_val > ($mean + 2*$std_dev))
 				and ($max_val > $mean + 1))
@@ -232,6 +258,10 @@ abstract class Test
 
 	function mark_success ($subject)
 	{
+		# alert dependent tests to our success
+		global $successes;
+		$successes{$this->get_name ()}{$subject} = true;
+
 		$this->successes++;
 		$this->total++;
 		$this->update_count ();
@@ -299,27 +329,14 @@ abstract class Test
 			$command_string.
 			"Output:\n"; // this is added below to avoid the massive memory usage
 
+		if (is_array ($out))
+		{
+			$out = join ("\n", $out);
+		}
+
 		log_failure ($this->get_name(), $subject, $command_string, $out);
 		$this->erase_progress_bar();
 
-		if ($opt_verbose)
-		{
-			if ($this->failures < 2)
-			{
-				$script_name = adjusted_name($subject);
-				printf("{$this->get_name()} failure with %-56s\n", $script_name);
-				print
-					"$red----------- The script failed as follows: ------------------------$reset\n".
-					$command_string.
-					"{$red}Output:$reset ". substr (preg_replace ("/\n/", "", $out), 0, 70).
-					"...$reset\n".
-					"$red---------------- End of failure notice ---------------------------$reset\n\n";
-			}
-			elseif ($this->failures == 2)
-			{
-				print "{$red}Too many failures, restricting output...                              $reset\n\n";
-			}
-		}
 		$this->display_progress_bar ();
 
 		$this->failures++;

@@ -14,6 +14,11 @@ class XMLRoundtrip extends PluginTest
 		parent::__construct("xml_roundtrip");
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("BasicParseTest");
+	}
+
 	function check_prerequisites ()
 	{
 		global $xerces_compiled_in;

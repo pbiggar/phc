@@ -17,10 +17,11 @@ function get_php_command_line ($subject, $pipe = false)
 
 class CompareWithPHP extends TwoCommandTest
 {
-	function __construct ($name, $command_line)
+	function __construct ($name, $command_line, $dependecies = array ())
 	{
 		$this->name = $name;
 		$this->command_line = $command_line;
+		$this->dependencies = $dependecies;
 		parent::__construct ();
 	}
 

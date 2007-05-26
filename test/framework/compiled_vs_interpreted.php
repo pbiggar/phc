@@ -18,6 +18,11 @@ class CompiledVsInterpreted extends Test
 		return true;
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("InterpretShredded");
+	}
+
 	function get_test_subjects ()
 	{
 		return get_interpretable_scripts ();
@@ -38,7 +43,7 @@ class CompiledVsInterpreted extends Test
 		list ($phc_out1, $phc_err1, $phc_exit1) = complete_exec($phc_command1);
 		if ($phc_exit1 != 0)
 		{
-			$this->mark_skipped($subject, $phc_out1); 
+			$this->mark_skipped($subject, "Generate C has non-zero status"); 
 			return;
 		}
 

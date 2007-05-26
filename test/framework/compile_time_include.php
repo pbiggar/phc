@@ -15,6 +15,11 @@ class CompileTimeInclude extends CompareWithPHP
 		return get_includable_scripts ();
 	}
 
+	function get_dependent_test_names ()
+	{
+		return array ("InterpretUnparsed");
+	}
+
 	function __construct ()
 	{
 		parent::__construct ("CompileTimeInclude", "--pretty-print --compile-time-includes");

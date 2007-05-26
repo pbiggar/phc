@@ -13,7 +13,6 @@
 array_push($tests, new BasicParseTest());
 class BasicParseTest extends SupportFileTest
 {
-
 	function get_test_subjects ()
 	{
 		return get_all_scripts();
@@ -33,8 +32,8 @@ class BasicParseTest extends SupportFileTest
 			$check = preg_match ("/^return: (\d+)\noutput: (.*)$/s", $lines, $array);
 			phc_assert ($check == 1, "wrong number of matches ($check)");
 
-			list ($_, $exit1, $err1) = $array;
-			phc_assert ($_ == $lines, "should match whole string");
+			list ($out1, $exit1, $err1) = $array;
+			phc_assert ($out1 == $lines, "should match whole string");
 			phc_assert ($exit1 != 0, "wrong return value");
 			phc_assert ($err1 != "", "bad error");
 		}
@@ -42,6 +41,7 @@ class BasicParseTest extends SupportFileTest
 		{
 			$err1 = "";
 			$exit1 = 0;
+			$out1 = "";
 		}
 
 		// we now have expected output
