@@ -19,39 +19,30 @@
 #	.*				non-interpretable
 #	codegen/.*	interpretable
 
-bugs/.*								short interpretable
-codegen/.*							short interpretable
-dynamic/.*							short interpretable
-general/.*							short interpretable
-horrible/.*							short interpretable
-inline-c/.*							short non-interpretable
-php_bugs/.*							short interpretable
+bugs/.*									short interpretable
+codegen/.*								short interpretable
+dynamic/.*								short interpretable
+general/.*								short interpretable
+horrible/.*								short interpretable
+inline-c/.*								short non-interpretable
+php_bugs/.*								short interpretable
+unsupported/.*							short
 
-# we dont support the features used by files in unsupported. Check that they
-# parse, and no more.
-unsupported/.*						short erroneous 
+bugs/bug0009.php						size-dependent
+bugs/bug0011.php						size-dependent
 
-bugs/bug0009.php					size-dependent
-bugs/bug0011.php					size-dependent
-
-general/foreach_error1.php			erroneous non-interpretable
-general/foreach_error2.php			erroneous non-interpretable
-general/nestedfndefs.php			erroneous non-interpretable
-general/prepostop_error1.php		erroneous non-interpretable
-general/prepostop_error2.php		erroneous non-interpretable
-
-general/include_complex.php			includable
-general/included_recursive1.php		includable
-general/included_recursive2.php		includable
+general/include_complex.php		includable
+general/included_recursive1.php	includable
+general/included_recursive2.php	includable
 
 # These tests all cause infinite loops
 general/binops.php					long no-CompiledVsInterpreted
 general/for.php						non-interpretable # infinite loops
-general/for_cond_with_comma.php		non-interpretable # infinite loops
+general/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops
 
-general/instring.php				non-interpretable # php's parser doesnt like this
+general/instring.php					non-interpretable # php's parser doesnt like this
 
 
-.*						long erroneous 
-unsupported/.*						short erroneous 
+#.*										long erroneous 
+#unsupported/.*						short erroneous 

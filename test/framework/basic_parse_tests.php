@@ -22,39 +22,25 @@ class BasicParseTest extends SupportFileTest
 	{
 		global $phc;
 
-		// check if we're expecting output
-		$filename = $this->get_support_filename ($subject);
-		if (file_exists ($filename))
-		{
-			// read the expectd output from the file
-			$lines = file_get_contents ($filename);
-
-			$check = preg_match ("/^return: (\d+)\noutput: (.*)$/s", $lines, $array);
-			phc_assert ($check == 1, "wrong number of matches ($check)");
-
-			list ($out1, $exit1, $err1) = $array;
-			phc_assert ($out1 == $lines, "should match whole string");
-			phc_assert ($exit1 != 0, "wrong return value");
-			phc_assert ($err1 != "", "bad error");
-		}
-		else
-		{
-			$err1 = "";
-			$exit1 = 0;
-			$out1 = "";
-		}
-
 		// we now have expected output
 		$command = $this->get_command_line ($subject);
-		list ($out2, $err2, $exit2) = complete_exec ($command);
+		list ($out, $err, $exit, $failure) = run_command ($command, $subject);
 
-		if ($exit1 == $exit2 and $err1 == $err2 or $out1 or $out2)
+		if ($failure === "")
 		{
 			$this->mark_success ($subject);
+			// if there was a warning or error, dont say this is successful.
+			// TODO this means we cant test warnings that are only generated
+			// due to non-default passes, which needs to be fixed (later)
+			if ($err)
+			{
+				global $successes;
+				unset($successes[$this->get_name ()][$subject]);
+			}
 		}
 		else
 		{
-			$this->mark_failure ($subject, array ("Opening $filename", $command), array($exit1, $exit2), array ($out1, $out2), array ($err1, $err2));
+			$this->mark_failure ($subject, $command, $exit, array ($out, $failure), $err);
 		}
 	}
 

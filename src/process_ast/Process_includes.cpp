@@ -167,7 +167,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		if(php_script == NULL)
 		{
 			// Script could not be found or not be parsed; leave the include in
-			phc_warning(WARNING_INCLUDE_FAILED, in->get_filename(), in->get_line_number(), filename->c_str());
+			phc_warning("File %s could not be included", in->get_filename(), in->get_line_number(), filename->c_str());
 			out->push_back(in);
 			return;
 		}
@@ -178,7 +178,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		rc.visit_statement_list(php_script->statements);
 		if(rc.found)
 		{
-			phc_warning(WARNING_INCLUDE_RETURN, in->get_filename(), in->get_line_number(), filename->c_str());
+			phc_warning("Returning values from included scripts is not supported in file %s", in->get_filename(), in->get_line_number(), filename->c_str());
 			out->push_back(in);
 			return;
 		}
@@ -206,7 +206,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			ostringstream os;
 			PHP_unparser pup(os);
 			pup.visit_actual_parameter_list(method->actual_parameters);
-			phc_warning(WARNING_INCLUDE_FAILED, in->get_filename(), in->get_line_number(), os.str().c_str());
+			phc_warning("File %s could not be included", in->get_filename(), in->get_line_number(), os.str().c_str());
 		}
 
 

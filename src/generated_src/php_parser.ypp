@@ -26,7 +26,7 @@
 		AST_variable* var = dynamic_cast<AST_variable*>(node);
 		
 		if(var == NULL && node != NULL)
-			phc_error(ERR_EXPECT_VAR, node->get_filename(), node->get_line_number()); \
+			phc_error("Variable name expected", node->get_filename(), node->get_line_number()); \
 			
 		return var;
 	}
@@ -59,7 +59,7 @@
 
 	void PHP_error(PHP_context* context, const char* s)
 	{
-		phc_error(ERR_BISON, context->filename, context->source_line, s);
+		phc_error(s, context->filename, context->source_line);
 	}
 
 	/* Return a new list of statements, containing a single statement */
@@ -69,6 +69,9 @@
 		result->push_back(statement);
 		return result;
 	}
+
+#define ERR_FOREACH_KEY_REF "Key element cannot be a reference"
+
 %}
 
 %union
@@ -1613,7 +1616,7 @@ variable_modifiers:
 		{
 			if($1->is_abstract)
 			{
-				phc_error(ERR_ABSTRACT_VARS, $1->get_filename(), $1->get_line_number());
+				phc_error("Cannot declare variables to be abstract", $1->get_filename(), $1->get_line_number());
 			}
 
 			$$ = NEW(AST_attr_mod, ($1)); 

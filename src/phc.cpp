@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 		php_script = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
 		if (php_script == NULL)
 		{
-			phc_error(ERR_FILE_NOT_FOUND, new String(args_info.inputs[0]), 0);
+			phc_error("File not found", new String(args_info.inputs[0]), 0);
 		}
 	}
 
@@ -299,12 +299,14 @@ void generate_c(AST_php_script* php_script)
 	php_script->visit(generate_c);
 }
 
+
+#define ERR_PLUGIN_UNKNOWN  "Unknown error (%s) with plugin %s"
 void 
 run_plugins(AST_php_script* php_script)
 {
 	typedef void (*process_ast_function)(AST_php_script*);
 	int ret = lt_dlinit();
-	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, NULL, 0, lt_dlerror ());
+	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, lt_dlerror ());
 
 	for(unsigned i = 0; i < args_info.run_given; i++)
 	{
@@ -346,15 +348,16 @@ run_plugins(AST_php_script* php_script)
 		if(handle == NULL)
 		{
 			datadir_err = strdup (lt_dlerror ());
-			phc_error (ERR_PLUGIN_NOT_FOUND, NULL, 0, args_info.run_arg[i], default_err,
-					cwd_err, datadir_err);
+			phc_error (
+				"Could not find %s plugin with errors \"%s\", \"%s\" and \"%s\"",
+				NULL, 0, args_info.run_arg[i], default_err, cwd_err, datadir_err);
 		}
 
 		process_ast_function past = (process_ast_function) lt_dlsym(handle, "process_ast");
 		const char* load_symbol_err = lt_dlerror();
 		if(past == NULL)
 		{
-			phc_error (ERR_PLUGIN_INVALID, NULL, 0, args_info.run_arg[i], load_symbol_err);
+			phc_error ("Unknown error (%s) with plugin %s", NULL, 0, args_info.run_arg[i], load_symbol_err);
 		}
 
 		(*past)(php_script);
@@ -366,4 +369,5 @@ run_plugins(AST_php_script* php_script)
 	ret = lt_dlexit();
 	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, NULL, 0, lt_dlerror ());
 
+#undef ERR_PLUGIN_UNKNOWN
 }

@@ -185,7 +185,7 @@ void XML_unparser::pre_node(AST_node* in)
 #undef HANDLE_INT
 				else
 				{
-					phc_warning(WARNING_UNKNOWN_ATTRIBUTE, NULL, 0, (*i).first.c_str());	
+					phc_warning("Unknown attribute '%s'", NULL, 0, (*i).first.c_str());	
 				}
 			}
 

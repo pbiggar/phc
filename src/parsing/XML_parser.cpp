@@ -25,6 +25,8 @@
 #include "cmdline.h"
 extern struct gengetopt_args_info args_info;
 
+#define ERR_XML_PARSE "Could not parse the XML (%s)"
+
 XERCES_CPP_NAMESPACE_USE
 
 AST_php_script* parse_ast_xml(InputSource& inputSource);
@@ -218,7 +220,7 @@ public:
 				}
 				else
 				{
-					::phc_warning(WARNING_UNKNOWN_ATTRIBUTE, NULL, locator->getLineNumber(), key.c_str()); 
+					::phc_warning("Unknown attribute '%s'", NULL, locator->getLineNumber(), key.c_str()); 
 				}
 			}
 			else if(!strcmp(name, "comment"))
@@ -347,7 +349,7 @@ public:
 	void error(const SAXParseException& exception)
 	{
 		char* message = XMLString::transcode(exception.getMessage());
-		::phc_warning(WARNING_XML, NULL, exception.getLineNumber(), message);
+		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), message);
 		XMLString::release(&message);
 		no_errors = false;
 	}
@@ -355,7 +357,7 @@ public:
 	void fatalError(const SAXParseException& exception)
 	{	
 		char* message = XMLString::transcode(exception.getMessage());
-		::phc_warning(WARNING_XML, NULL, exception.getLineNumber(), message);
+		::phc_warning("XML error: %s", NULL, exception.getLineNumber(), message);
 		XMLString::release(&message);
 		no_errors = false;
 	}
@@ -376,7 +378,7 @@ AST_php_script* parse_ast_xml_file(String* filename)
 	}
 	catch (const XMLException& toCatch) {
 		char* message = XMLString::transcode(toCatch.getMessage());
-		phc_error(ERR_XML_PARSE, NULL, 0, message);
+		phc_error(ERR_XML_PARSE, message);
 	}
 
 	XMLCh* name = XMLString::transcode(filename->c_str());
@@ -399,7 +401,7 @@ AST_php_script* parse_ast_xml_buffer(String* buffer)
 	}
 	catch (const XMLException& toCatch) {
 		char* message = XMLString::transcode(toCatch.getMessage());
-		phc_error(ERR_XML_PARSE, NULL, 0, message);
+		phc_error(ERR_XML_PARSE, message);
 	}
 
 	MemBufInputSource* is = new MemBufInputSource((XMLByte*) buffer->c_str(), buffer->length(), "parse_ast_xml_buffer", false);
@@ -420,7 +422,7 @@ AST_php_script* parse_ast_xml_stdin()
 	}
 	catch (const XMLException& toCatch) {
 		char* message = XMLString::transcode(toCatch.getMessage());
-		phc_error(ERR_XML_PARSE, NULL, 0, message);
+		phc_error(ERR_XML_PARSE, message);
 	}
 
 	StdInInputSource* is = new StdInInputSource();
@@ -460,18 +462,18 @@ AST_php_script* parse_ast_xml(InputSource& inputSource)
 	}
 	catch (const XMLException& toCatch) {
 		char* message = XMLString::transcode(toCatch.getMessage());
-		phc_error(ERR_XML_PARSE, NULL, 0, message);
+		phc_error(ERR_XML_PARSE, message);
 	}
 	catch (const SAXParseException& toCatch) {
 		char* message = XMLString::transcode(toCatch.getMessage());
-		phc_error(ERR_XML_PARSE, NULL, 0, message);
+		phc_error(ERR_XML_PARSE, message);
 	}
 	catch (...) {
-		phc_error(ERR_XML_PARSE, NULL, 0, "Unexpected exception");
+		phc_error(ERR_XML_PARSE, "Unexpected exception");
 	}
 
 	if(!phcHandler->no_errors)
-		phc_error(ERR_XML_PARSE, NULL, 0, "There were XML errors");
+		phc_error(ERR_XML_PARSE, "There were XML errors");
 	
 	AST_php_script* result = phcHandler->result; 
 

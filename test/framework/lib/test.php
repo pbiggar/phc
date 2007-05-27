@@ -43,7 +43,79 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
+// Run COMMAND and check if the warnings and errors returned are expected, and that there arent any unexpected ones. This handles warnings and errors at compile time, not run time. Run-time errors use homogenize_x, above.
+function run_command ($command, $subject)
+{
+	// check if we're expecting errors or warnings
+	$lines = split ("\n", file_get_contents ($subject));
+	$pregs = array ("/#(.*)$/", "/\/\/(.*)$/", "/\/\*(.*)\*\//");
+	$error = false;
+	$warnings = array ();
+	foreach ($lines as $line)
+	{
+		// get single line comments
+		foreach ($pregs as $preg)
+		{
+			if (preg_match ("$preg", $line, $line_match))
+				// extract the error/warning from the comment
+				if (preg_match ("/\s*\{\s*(\S.*\S)\s*\}\s*$/", $line_match[1], $comment_match))
+				{
+					if (preg_match ("/^Error:/", $comment_match[1]))
+						$error = $comment_match[1];
+					elseif (preg_match ("/^Warning:/", $comment_match[1]))
+						$warnings[] = $comment_match[1];
+				}
+		}
+	}
 
+	// $matches now has a full list of expected errors
+	$failure = "";
+	list ($out, $err, $exit) = complete_exec ($command);
+
+	// if the exit code was non-zero, expect an error and vice-versa
+	if ($exit xor ($error !== false))
+		$failure = "No exit code for expected error: $error";
+
+	// if theres something in stderr, it should match a comment
+	foreach (split ("\n", $err) as $line)
+	{
+		if ($line == "")
+			continue;
+
+		if ($line == "Note that line numbers are inaccurate, and will be fixed in a later release")
+			continue;
+
+		$original_line = $line;
+		$line = preg_replace ("/[^:]*:\d+:\s/", "", $line);
+
+		$found = false;
+		foreach ($warnings as &$warning)
+		{
+			if ($line == $warning)
+			{
+				unset ($warning);
+				$found = true;
+			}
+		}
+		if ($line === $error)
+		{
+			$error = false;
+			$found = true;
+		}
+
+		if ($found == false)
+			$failure = "Unexpected error or warning: $original_line";
+	}
+
+	// every comment should be matched
+	if ($error !== false)
+		$failure = "Expected error not found: $error";
+
+	if (count ($warnings))
+		$failure = "Expected warning not found: $warnings[0]";
+
+	return array ($out, $err, $exit, $failure);
+}
 
 abstract class Test
 {
@@ -457,7 +529,7 @@ abstract class Test
 		if ($skipped_count > 0)
 		{
 			return sprintf("%-30s %-21s    ", $test, $timing)
-				. red_string().  "Failure ($failure_count/".($total_count)." failed; "
+				. red_string().  "Failure ($failure_count/".($total_count-$skipped_count)." failed; "
 				. blue_string() . "$skipped_count skipped)"
 				. reset_string();
 		}

@@ -44,7 +44,7 @@ AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 		else
 			php_script = parse_ast_xml_file(full_path);
 		#else
-			phc_error(ERR_NO_XML_SUPPORT, NULL, 0);
+			phc_error("XML support not built-in; install Xerces C development library");
 		#endif
 	}
 	else

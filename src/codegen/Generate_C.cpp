@@ -2042,7 +2042,7 @@ void Generate_C::children_eval_expr(AST_eval_expr* in)
 		Token_string* inline_c = dynamic_cast<Token_string*>(in->expr);
 		if(inline_c == NULL)
 		{
-			phc_error(ERR_INVALID_INLINE_C, 
+			phc_error("Invalid 'inline-c' directive"
 				in->expr->get_filename(), 
 				in->expr->get_line_number());
 		}
