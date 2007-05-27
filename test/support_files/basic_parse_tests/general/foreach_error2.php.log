@@ -1,3 +1,0 @@
-return: 2
-output: test/subjects/general/foreach_error2.php:6: Error: Variable name expected
-Note that line numbers are inaccurate, and will be fixed in a later release

@@ -9,10 +9,9 @@
 array_push($tests, new ParseASTDot ());
 class ParseASTDot extends Test
 {
-
 	function get_test_subjects ()
 	{
-		return get_non_erroneous_scripts();
+		return get_all_scripts ();
 	}
 
 	function get_dependent_test_names ()

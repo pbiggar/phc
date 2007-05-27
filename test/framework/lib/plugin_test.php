@@ -21,7 +21,7 @@ class PluginTest extends Test
 
 	function get_test_subjects ()
 	{
-		return get_non_erroneous_scripts();
+		return get_all_scripts ();
 	}
 
 	function check_prerequisites ()

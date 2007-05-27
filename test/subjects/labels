@@ -7,7 +7,6 @@
 # Be aware that all files in a directory are specfied use 'dir/.*', not 'dir/*'.
 #
 # Possible labels:
-#	- non-erroneous (default) or erroneous
 #	- non-interpretable (default) or interpretable (interpretable means executable)
 #	- long (default) or short
 #	- size-neutral (default) or size-dependent

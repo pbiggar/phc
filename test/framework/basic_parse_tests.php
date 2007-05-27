@@ -11,7 +11,7 @@
 // scripts.
 
 array_push($tests, new BasicParseTest());
-class BasicParseTest extends SupportFileTest
+class BasicParseTest extends Test
 {
 	function get_test_subjects ()
 	{
@@ -50,31 +50,6 @@ class BasicParseTest extends SupportFileTest
 		return "$phc $subject";
 	}
 
-	function get_support_filename ($subject)
-	{
-		global $support_dir;
-		$script_name = adjusted_name ($subject);
-		return "$support_dir/basic_parse_tests/$script_name.log";
-	}
-
-	function generate_support_file ($subject)
-	{
-		// get the output
-		$command = $this->get_command_line ($subject);
-		list ($out, $err, $exit) = complete_exec($command);
-
-		$file_output = "return: $exit\noutput: $err";
-
-		if ($exit == 0)
-		{
-			$this->mark_skipped ($subject, "No generated results to be stored");
-		}
-		else
-		{
-			$this->write_support_file ($file_output, $subject);
-			$this->mark_success ($subject);
-		}
-	}
 }
 
 

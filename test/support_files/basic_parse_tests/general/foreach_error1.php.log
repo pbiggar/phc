@@ -1,3 +1,0 @@
-return: 3
-output: test/subjects/general/foreach_error1.php:7: Error: Key element cannot be a reference
-Note that line numbers are inaccurate, and will be fixed in a later release

@@ -10,11 +10,10 @@ $subject_dir =		"test/subjects/";
 $label_file =		"test/subjects/labels";
 $third_party_label_file =		"test/subjects/3rdparty/labels";
 
-$default_labels		=	array("non-erroneous", "long",  "non-interpretable", "size-neutral", "non-includable");
-$non_default_labels =	array("erroneous", "short", "interpretable", "size-dependent", "includable");
+$default_labels		=	array("long",  "non-interpretable", "size-neutral", "non-includable");
+$non_default_labels =	array("short", "interpretable", "size-dependent", "includable");
 $labels =				array_merge($default_labels, $non_default_labels);
 $opposite_label = array(
-	"non-erroneous" => "erroneous",				"erroneous" => "non-erroneous",
 	"long" => "short",								"short" => "long",
 	"non-interpretable" => "interpretable",	"interpretable" => "non-interpretable",
 	"size-neutral" => "size-dependent",			"size-dependent" => "size-neutral",
@@ -213,16 +212,6 @@ function get_scripts_labelled($label)
 function get_includable_scripts()
 {
 	return get_scripts_labelled("includable");
-}
-
-function get_erroneous_scripts()
-{
-	return get_scripts_labelled("erroneous");
-}
-
-function get_non_erroneous_scripts()
-{
-	return get_scripts_labelled("non-erroneous");
 }
 
 function get_interpretable_scripts()

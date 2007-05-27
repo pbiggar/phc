@@ -11,7 +11,7 @@ class ReparseUnparsed extends TwoCommandTest
 {
 	function get_test_subjects ()
 	{
-		return get_non_erroneous_scripts ();
+		return get_all_scripts ();
 	}
 
 	function get_dependent_test_names ()
@@ -33,7 +33,8 @@ class ReparseUnparsed extends TwoCommandTest
 
 	function homogenize_output ($string)
 	{
-		return homogenize_xml ($string);
+		// TODO ideally we would use the xml output, but there are problems there
+//		return homogenize_xml ($string);
 	}
 
 }

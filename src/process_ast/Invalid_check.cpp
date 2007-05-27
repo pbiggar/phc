@@ -12,10 +12,20 @@
 
 void Invalid_check::pre_statement (AST_statement* in)
 {
-	// $x[];
-	if (in->match (new AST_eval_expr (new AST_variable (
-			new Wildcard<AST_target>, new Wildcard<AST_variable_name>, new List<AST_expr*> (NULL)))))
+	// $x[]; or $x[][0]
+	// These are represented as lists with NULL entries
+	Wildcard<AST_variable> *wild = new Wildcard<AST_variable> ();
+
+	if (in->match (new AST_eval_expr (wild)))
 	{
-		phc_error ("Cannot use [] for reading", in->get_filename (), in->get_line_number ());
+		if (wild->value->array_indices)
+		{
+			List<AST_expr*>::const_iterator i;
+			for (i = wild->value->array_indices->begin (); i != wild->value->array_indices->end (); i++)
+			{
+				if (*i == NULL)
+					phc_error ("Cannot use [] for reading", in->get_filename (), in->get_line_number ());
+			}
+		}
 	}
 }
