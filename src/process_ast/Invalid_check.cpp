@@ -29,3 +29,26 @@ void Invalid_check::pre_statement (AST_statement* in)
 		}
 	}
 }
+
+void Invalid_check::pre_assignment (AST_assignment* in)
+{
+	// $x =& array (); or $x =& 5;
+	// These are syntax errors, but we're able to add them later (especially in foreach lowering)
+	if (in->is_ref)
+	{
+		if (in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<AST_array>)))
+		{
+			phc_error ("Cannot assign a reference to a literal array", in->get_filename (), in->get_line_number ());
+		}
+
+		// FIXME: Cant use AST_literal in a wildcard. 
+		if (in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_real>))
+				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_int>))
+				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_string>))
+				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_bool>))
+				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_null>)))
+		{
+			phc_error ("Cannot assign a reference to a literal", in->get_filename (), in->get_line_number ());
+		}
+	}
+}

@@ -17,6 +17,7 @@ class Invalid_check : public AST_visitor
 {
 public:
 	void pre_statement (AST_statement* in);
+	void pre_assignment (AST_assignment* in);
 };
 
 #endif // PHC_INVALID_CHECK
