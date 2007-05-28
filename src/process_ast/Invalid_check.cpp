@@ -79,8 +79,8 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 		Wildcard<AST_attr_mod> *attr_mod = new Wildcard<AST_attr_mod>;
 
 		if ((*i)->match (new AST_attribute (attr_mod, new Wildcard<Token_variable_name>, new Wildcard<AST_expr>)))
-			if (!attr_mod->is_const)
-				phc_warning ("Interfaces may not include member variables", 
-						in->members->front()->get_filename(), in->members->front()->get_line_number ());
+			if (!attr_mod->value->is_const)
+				phc_error ("Interfaces may not include member variables", 
+					attr_mod->value->get_filename(), attr_mod->value->get_line_number ());
 	}
 }

@@ -31,8 +31,8 @@ public:
 public:
 	// These need to be declared here because they are pure virtual in the
 	// base class
-	void visit_null(char* type_id);
-	void visit_marker(char* name, bool value);
+	void visit_null(const char* type_id);
+	void visit_marker(const char* name, bool value);
 
 public:
 	void pre_node(AST_node* in);

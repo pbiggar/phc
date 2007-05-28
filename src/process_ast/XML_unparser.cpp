@@ -237,13 +237,13 @@ void XML_unparser::pre_literal(AST_literal* in)
 		os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
 }
 
-void XML_unparser::visit_null(char* type_id)
+void XML_unparser::visit_null(const char* type_id)
 {
 	print_indent();
 	os << "<" << type_id << " xsi:nil=\"true\" />" << endl;
 }
 
-void XML_unparser::visit_marker(char* name, bool value)
+void XML_unparser::visit_marker(const char* name, bool value)
 {
 	print_indent();
 	os << "<bool>" 
