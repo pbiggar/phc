@@ -8,8 +8,9 @@
 
 class PluginTest extends Test
 {
-	function __construct ($plugin_name)
+	function __construct ($plugin_name, $other_commands = "")
 	{
+		$this->other_commands = $other_commands;
 		$this->plugin_name = $plugin_name;
 		parent::__construct();
 	}
@@ -31,14 +32,18 @@ class PluginTest extends Test
 
 	function get_name ()
 	{
-		return $this->plugin_name;
+		$name = $this->plugin_name;
+		if ($this->other_commands)
+			$name .= " with ". $this->other_commands;
+		return $name;
 	}
 
 	function get_command_line ($subject)
 	{
 		global $phc, $plugin_dir;
 		$plugin = $this->plugin_name;
-		return "$phc --run $plugin_dir/tests/$plugin.la $subject";
+		$commands = $this->other_commands;
+		return "$phc $commands --run $plugin_dir/tests/$plugin.la $subject";
 	}
 
 	function run_test ($subject)

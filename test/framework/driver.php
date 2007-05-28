@@ -55,6 +55,8 @@ $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate --run-goto-up
 require_once ("compiled_vs_interpreted.php");
 $tests[] = new PluginTest ("cloning");
 $tests[] = new PluginTest ("linear");
+$tests[] = new PluginTest ("linear", "--run-lowering");
+$tests[] = new PluginTest ("linear", "--run_shredder");
 require_once ("compile_time_include.php");
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
