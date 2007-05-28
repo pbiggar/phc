@@ -409,6 +409,23 @@ abstract class Test
 		$this->update_count ();
 	}
 
+	function get_triple_string ($brackets = true)
+	{
+		$red = red_string ();
+		$blue = blue_string ();
+		$green = green_string ();
+		$reset = reset_string ();
+		$passed = $green.$this->successes." P".$reset;
+		$failed = $red.$this->failures." F".$reset;
+		$skipped = $blue.$this->skipped." S".$reset;
+		if ($brackets == false)
+			return "$passed, $failed, $skipped$red";
+		else if ($this->failures > 0)
+			return "$red($passed, $failed, $skipped$red)$reset";
+		else
+			return "$green($passed, $failed, $skipped$green)$reset";
+	}
+
 	function update_count ()
 	{
 		global $opt_no_progress_bar;
@@ -420,8 +437,8 @@ abstract class Test
 
 			$this->erase_progress_bar ();
 			$this->progress_bar->reset(
-					"{$this->get_name()} %bar% %fraction% done ({$this->failures} failed)", 
-					"#", "-", 80, $target_num);
+					"{$this->get_name()} %bar% %fraction% done {$this->get_triple_string ()}", 
+					"#", "-", 130, $target_num);
 			$this->progress_bar->update($this->total);
 		}
 	}
@@ -447,98 +464,25 @@ abstract class Test
 	function finish_test ()
 	{
 		$this->erase_progress_bar();
-		if ($this->successes == 0)
-		{
-			$string = $this->get_failure_string ();
-		}
-		elseif ($this->failures == 0)
-		{
-			if ($this->successes > 0)
-			{ 
-				$string = $this->get_success_string ();
-			}
-			else
-			{
-				phc_unreachable ();
-			}
-		}
-		else
-		{
-			$string = $this->get_failure_string ();
-		}
-		print "$string\n";
-	}
 
-	function get_success_string()
-	{
-		$test = $this->get_name();
+		$red = red_string ();
 		$blue = blue_string ();
-		$reset = blue_string ();
+		$green = green_string ();
+		$reset = reset_string ();
+
+		$test = $this->get_name();
 		$timing = $this->get_timing_string ();
-		$skipped_count = $this->skipped;
-		$success_count = sprintf("%3s", $this->successes);
-		if ($skipped_count > 0)
-		{
-			return sprintf("%-30s %-21s    ", $test, $timing)
-				. green_string()."Success ($success_count/$success_count passed; "
-				. blue_string() . "$skipped_count skipped)"
-				. reset_string();
-		}
+		$triple = $this->get_triple_string (false);
+
+		if ($this->failures > 0 or $this->successes == 0)
+			$word = "{$red}Failure:$reset";
 		else
-		{
-			return sprintf("%-30s %-21s    ", $test, $timing)
-				. green_string()."Success ($success_count/$success_count passed)"
-				. reset_string();
-		}
-	}
+			$word = "{$green}Success:$reset";
 
-	function get_skipped_string ()
-	{
-		$skipped_count = $this->skipped;
-		$test = $this->get_name ();
-		return sprintf("%-30s %-21s    ", $test, $timing)
-			. blue_string()
-			. "$skipped_count skipped"
-			. reset_string();
-	}
-
-	function get_failure_string ()
-	{
-		$test = $this->get_name ();
-		$success_count = sprintf("%3s", $this->successes);
-		$failure_count = sprintf("%3s", $this->failures);
-		$skipped_count = $this->skipped;
-		$total_count = sprintf("%3s", $this->total);
-
-		if ($skipped_count == $this->total and $this->check_prerequisites() == false)
-		{
-			return sprintf("%-30s %-21s    ", $test, "")
-				. red_string().  "Failure ( Prerequisites) "
-				. reset_string();
-		}
-
-		$timing = $this->get_timing_string ();
-
-		if ($skipped_count > 0)
-		{
-			return sprintf("%-30s %-21s    ", $test, $timing)
-				. red_string().  "Failure ($failure_count/".($total_count-$skipped_count)." failed; "
-				. blue_string() . "$skipped_count skipped)"
-				. reset_string();
-		}
-		elseif ($total_count == 0)
-		{
-			return sprintf("%-30s %-21s    ", $test, $timing)
-				. red_string().  "Failure (No tests run)  "
-				. reset_string();
-		}
-		
-		else
-		{
-			return sprintf("%-30s %-21s    ", $test, $timing)
-				. red_string().  "Failure ($failure_count/".($total_count)." failed)"
-				. reset_string();
-		}
+		// a color or a reset involves 6 characters, but gets displayed as zero.
+		// Those 6 need to be taken into account for sprintf
+		$string = sprintf("%-30s %-25s %20s %56s", $test, $timing, $word, $triple);
+		print "$string\n";
 	}
 
 	// return true if the subject is marked as an exception
