@@ -2,7 +2,6 @@
 	interface Foo 
 	{
 		const x = 5;
-		var $bold;
 		public function f();
 	}
 

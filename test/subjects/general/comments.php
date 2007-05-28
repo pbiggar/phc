@@ -84,7 +84,7 @@
 	}
 
 	// 21 foreach
-	foreach(21 as $x)
+	foreach(array () as $x)
 	{
 		echo 22;
 	}

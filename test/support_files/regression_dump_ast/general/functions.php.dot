@@ -65,7 +65,7 @@ node_31 [label="AST_method (6)"];
 node_32 [label="AST_signature (6)"];
 node_33 [label="AST_method_mod"];
 node_34 [label="Token_method_name"];
-node_35 [label="c", shape=box]
+node_35 [label="c1", shape=box]
 node_34 -> node_35;
 node_36 [label="AST_formal_parameter (6)"];
 node_37 [label="AST_type (6)"];
@@ -98,7 +98,7 @@ node_48 [label="AST_method (7)"];
 node_49 [label="AST_signature (7)"];
 node_50 [label="AST_method_mod"];
 node_51 [label="Token_method_name"];
-node_52 [label="c", shape=box]
+node_52 [label="c2", shape=box]
 node_51 -> node_52;
 node_53 [label="AST_formal_parameter (7)"];
 node_54 [label="AST_type (7)"];

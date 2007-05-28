@@ -18,6 +18,8 @@ class Invalid_check : public AST_visitor
 public:
 	void pre_statement (AST_statement* in);
 	void pre_assignment (AST_assignment* in);
+	void pre_foreach (AST_foreach* in);
+	void pre_interface_def (AST_interface_def* in);
 };
 
 #endif // PHC_INVALID_CHECK

@@ -3,8 +3,8 @@
 
 	function a($x, $y) {}
 	function b(&$x, &$y) {}
-	function c(C $x, D $y) {}
-	function c(array $x, array $y) {}
+	function c1(C $x, D $y) {}
+	function c2(array $x, array $y) {}
 	function &d(C &$x, D &$y) {}
 	
 	function e($x = 0, $y = 0) {}

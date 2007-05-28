@@ -116,7 +116,7 @@ class RegressionTest extends SupportFileTest
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, $exit, $out, $err);
+			$this->mark_skipped ($subject, "Non zero exit code ($exit)");
 		}
 	}
 

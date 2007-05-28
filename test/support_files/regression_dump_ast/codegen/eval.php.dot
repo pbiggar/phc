@@ -11,7 +11,7 @@ node_4 [label="eval", shape=box]
 node_3 -> node_4;
 node_5 [label="AST_actual_parameter"];
 node_6 [label="Token_string (2)"];
-node_7 [label="echo \"hi\\\\..", shape=box]
+node_7 [label="echo \"hi\\n..", shape=box]
 node_6 -> node_7;
 node_5 -> node_6;
 node_2 -> node_5;

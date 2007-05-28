@@ -14,19 +14,12 @@ function homogenize_xml ($string)
 	return $string;
 }
 
-function homogenize_filenames ($string)
+function homogenize_filenames_and_line_numbers ($string)
 {
-	$string = preg_replace("/(Warning: .* in ).* on line \d+/", "$1", $string);
-	$string = preg_replace("/(Fatal error: .* in ).* on line \d+/", "$1", $string);
-	$string = preg_replace("/(Catchable fatal error:) .* in .* on line \d+/", "$1", $string);
-	return $string;
-}
-
-function homogenize_line_numbers ($string)
-{
-	$string = preg_replace("/(Warning: .* in .* on line )\d+/", "$1", $string);
-	$string = preg_replace("/(Fatal error: .* in .* on line )\d+/", "$1", $string);
-	$string = preg_replace("/(Catchable fatal error: .* in .* on line )\d+/", "$1", $string);
+	$string = preg_replace("/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace("/(Fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace("/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace("/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
 	return $string;
 }
 

@@ -30,7 +30,7 @@
    eval('fun_r(&$d);');
    eval('var_export($d);');
    
-   eval('echo "\n";');
+   eval('echo "\\n";');
    
    // Same as before, but the variable now passed in is part of a
    // copy-on-write set. In all cases where a pass-by-reference is involved,
@@ -72,7 +72,7 @@
    eval('var_export($k);');
    eval('var_export($l);');
    
-   eval('echo "\n";');
+   eval('echo "\\n";');
    
    // Same again, but the variable passed in is now part of a 
    // change-on-write set (references another variable). 
@@ -115,5 +115,5 @@
    eval('var_export($s);');
    eval('var_export($t);');
    
-   eval('echo "\n";');
+   eval('echo "\\n";');
 ?>
