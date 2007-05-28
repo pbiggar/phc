@@ -79,13 +79,13 @@ AST_expr* Lower_expr_flow::post_conditional_expr(AST_conditional_expr* in)
 	AST_label* label3 = fresh_label();
 	AST_variable* temp = fresh_var("TEF");
 
-	pieces->push_back(new AST_branch(in->cond, label1->label_name, label2->label_name));
+	pieces->push_back(new AST_branch(in->cond, label1->label_name->clone (), label2->label_name->clone ()));
 	pieces->push_back(label1);
-	eval(in->iftrue, temp);
-	pieces->push_back(new AST_goto(label3->label_name));
+	eval(in->iftrue, temp->clone ());
+	pieces->push_back(new AST_goto(label3->label_name->clone ()));
 	pieces->push_back(label2);
-	eval(in->iffalse, temp);
-	pieces->push_back(new AST_goto(label3->label_name));
+	eval(in->iffalse, temp->clone ());
+	pieces->push_back(new AST_goto(label3->label_name->clone ()));
 	pieces->push_back(label3);
 	
 	return temp;

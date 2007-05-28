@@ -44,7 +44,7 @@ void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement
 
 	AST_label* label = dynamic_cast<AST_label*> (in->attrs->get (attr_name));
 	assert (label != NULL);
-	out->push_back (label);
+	out->push_back (label->clone ());
 }
 
 // Get IN's exit label, or create one for it, and return it.
@@ -294,7 +294,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 					NULL,
 					new Token_method_name (new String ("reset")),
 					new List<AST_actual_parameter*> (
-						new AST_actual_parameter (false, temp_array)
+						new AST_actual_parameter (false, temp_array->clone ())
 					)
 				)
 			);
@@ -581,8 +581,8 @@ void Lower_control_flow::lower_switch(AST_switch* in, List<AST_statement*>* out)
 						new Token_op (new String ("==")),
 						(*i)->expr
 					),
-					header->label_name,
-					next->label_name
+					header->label_name->clone (),
+					next->label_name->clone ()
 				);
 
 			branches->push_back (branch);
@@ -591,14 +591,14 @@ void Lower_control_flow::lower_switch(AST_switch* in, List<AST_statement*>* out)
 
 		blocks->push_back (header);
 		blocks->push_back_all ((*i)->statements);
-		blocks->push_back (new AST_goto (next_block_header->label_name)); // fallthrough
+		blocks->push_back (new AST_goto (next_block_header->label_name->clone ())); // fallthrough
 	}
 	blocks->push_back (next_block_header);
 
 	if (_default) 
 		branches->push_back (_default);
 	else // if default is blank jump to the end
-		branches->push_back (new AST_goto (next_block_header->label_name));
+		branches->push_back (new AST_goto (next_block_header->label_name->clone ()));
 
 	out->push_back_all (branches);
 	out->push_back_all (blocks);
@@ -643,8 +643,8 @@ template <class T>
 void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 {
 	/* If this break has a NULL expression, it's much easier (and gives more
-	 * readable output) if we special case it. Also, break 0 is the same as
-	 * break 1, which is the same as just break. Its easier to handle it all
+	 * readable output) if we special case it. Also, break 1 is the same as
+	 * break < 1, which is the same as just break. Its easier to handle it all
 	 * together. */
 	List<AST_node*> *levels; // It gets uglier
 	if (AST_break::ID == in->ID) levels = &break_levels;
@@ -659,7 +659,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 			// Create a label, pushback a goto to it, and attach it as an attribute
 			// of the innermost looping construct.
 			AST_node* level = levels->back ();
-			out->push_back (new AST_goto ((exit_label<T> (level))->label_name));
+			out->push_back (new AST_goto ((exit_label<T> (level))->label_name->clone ()));
 		}
 		else
 		{
@@ -682,7 +682,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 				AST_node* level = (*i);
 
 				// Attach the break target to the loop construct.
-				AST_label* iftrue = exit_label<T> (level);
+				AST_label* iftrue = exit_label<T> (level)->clone ();
 
 				// Create: if ($TB1 == depth)
 				Token_op* op = new Token_op (new String ("=="));
@@ -694,7 +694,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 					compare->op = new Token_op (new String ("<="));
 
 				AST_label* iffalse = fresh_label ();
-				AST_branch* branch = new AST_branch (compare, iftrue->label_name, iffalse->label_name);
+				AST_branch* branch = new AST_branch (compare, iftrue->label_name->clone (), iffalse->label_name->clone ());
 
 				out->push_back (branch);
 				out->push_back (iffalse);

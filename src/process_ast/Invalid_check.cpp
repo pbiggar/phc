@@ -36,17 +36,12 @@ void Invalid_check::pre_assignment (AST_assignment* in)
 	// These are syntax errors, but we're able to add them later (especially in foreach lowering)
 	if (in->is_ref)
 	{
-		if (in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<AST_array>)))
+		if (dynamic_cast<AST_assignment*> (in->expr))
 		{
 			phc_error ("Cannot assign a reference to a literal array", in->get_filename (), in->get_line_number ());
 		}
 
-		// FIXME: Cant use AST_literal in a wildcard. 
-		if (in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_real>))
-				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_int>))
-				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_string>))
-				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_bool>))
-				or in->match (new AST_assignment (new Wildcard<AST_variable>, true, new Wildcard<Token_null>)))
+		if (dynamic_cast<AST_literal*> (in->expr))
 		{
 			phc_error ("Cannot assign a reference to a literal", in->get_filename (), in->get_line_number ());
 		}
