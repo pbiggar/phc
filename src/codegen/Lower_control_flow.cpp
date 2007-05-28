@@ -91,11 +91,11 @@ void Lower_control_flow::lower_if(AST_if* in, List<AST_statement*>* out)
 	AST_label *l3 = fresh_label ();
 
 	// create the gotos
-	AST_goto *l1_goto_l3 = new AST_goto (l3->label_name);
-	AST_goto *l2_goto_l3 = new AST_goto (l3->label_name);
+	AST_goto *l1_goto_l3 = new AST_goto (l3->label_name->clone ());
+	AST_goto *l2_goto_l3 = new AST_goto (l3->label_name->clone ());
 
 	// make the if
-	AST_branch *branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
+	AST_branch *branch = new AST_branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate the code
 	out->push_back (branch);
@@ -130,10 +130,10 @@ void Lower_control_flow::lower_while (AST_while* in, List<AST_statement*>* out)
 	AST_label *l0 = fresh_label ();
 	AST_label *l1 = fresh_label ();
 	AST_label *l2 = fresh_label ();
-	AST_goto *goto_l0 = new AST_goto (l0->label_name);
+	AST_goto *goto_l0 = new AST_goto (l0->label_name->clone ());
 
 	// create the if statement
-	AST_branch *branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
+	AST_branch *branch = new AST_branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate code
 	out->push_back (l0);
@@ -169,7 +169,7 @@ void Lower_control_flow::lower_do (AST_do* in, List<AST_statement*>* out)
 	AST_label* l2 = fresh_label ();
 
 	// make the if
-	AST_branch* branch = new AST_branch (in->expr, l1->label_name, l2->label_name);
+	AST_branch* branch = new AST_branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate the code
 	out->push_back (l1);
@@ -218,7 +218,7 @@ void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 	AST_statement* incr = new AST_eval_expr (in->incr);
 
 	if (in->cond == NULL) 
-		in->cond = new Token_bool (true, new String ("true"));
+		in->cond = new Token_bool (true);
 
 	// create the while
 	AST_while *while_stmt = new AST_while (in->cond, in->statements);
@@ -282,7 +282,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 	// reference. Otherwise, we just use a copy.
 	// $temp_array =& $array
 //	bool array_ref = (dynamic_cast<AST_variable*>(in->expr) != NULL);
-	AST_eval_expr* array_copy  = new AST_eval_expr (
+	AST_eval_expr* array_copy = new AST_eval_expr (
 		new AST_assignment (temp_array, in->is_ref, in->expr));
 
 	AST_eval_expr* reset = NULL;
@@ -317,7 +317,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 				NULL, 
 				new Token_method_name (new String ("each")),
 				new List<AST_actual_parameter*> (
-					new AST_actual_parameter (false, temp_array)
+					new AST_actual_parameter (false, temp_array->clone ())
 				)
 			)
 		);
@@ -330,7 +330,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 				new AST_assignment (
 					in->val,
 					in->is_ref,
-					new AST_variable (NULL, temp_array->variable_name, new List<AST_expr*> (Tkey)))
+					new AST_variable (NULL, temp_array->variable_name->clone (), new List<AST_expr*> (Tkey->clone ())))
 			)
 		);
 
@@ -566,7 +566,7 @@ void Lower_control_flow::lower_switch(AST_switch* in, List<AST_statement*>* out)
 		if ((*i)->expr == NULL) // default
 		{
 			assert (_default == NULL);
-			_default = new AST_goto (header->label_name);
+			_default = new AST_goto (header->label_name->clone ());
 		}
 		else
 		{

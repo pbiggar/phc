@@ -11,13 +11,19 @@ class PluginTest extends Test
 	function __construct ($plugin_name, $other_commands = "")
 	{
 		$this->other_commands = $other_commands;
+		$this->commands_as_string = preg_replace ("/\s/", " ", $other_commands);
 		$this->plugin_name = $plugin_name;
 		parent::__construct();
 	}
 
 	function get_dependent_test_names ()
 	{
-		return array ("BasicParseTest");
+		$result = array ("BasicParseTest");
+
+		// if the plugin uses other commands, then the base plugin is probably a prerequisite
+		if ($this->other_commands)
+			$result[] = $this->plugin_name;
+		return $result;
 	}
 
 	function get_test_subjects ()
@@ -34,7 +40,7 @@ class PluginTest extends Test
 	{
 		$name = $this->plugin_name;
 		if ($this->other_commands)
-			$name .= " with ". $this->other_commands;
+			$name .= "_with_". $this->commands_as_string;
 		return $name;
 	}
 
