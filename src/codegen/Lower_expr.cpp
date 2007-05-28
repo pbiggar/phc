@@ -91,5 +91,5 @@ AST_expr* Lower_expr::eval(AST_expr* in)
 // Variation on eval that takes in the name of the temp
 void Lower_expr::eval(AST_expr* in, AST_variable* temp)
 {
-	pieces->push_back(new AST_eval_expr(new AST_assignment(temp, false, in)));
+	pieces->push_back(new AST_eval_expr(new AST_assignment(temp->clone (), false, in->clone ())));
 }

@@ -21,7 +21,7 @@ public:
 	{
 		if(in->expr->classid() != AST_assignment::ID)
 		{
-			in->expr = new AST_assignment(fresh_var("TS"), false, in->expr);
+			in->expr = new AST_assignment(fresh_var("TSe"), false, in->expr);
 		}
 	
 		out->push_back(in);
@@ -42,7 +42,7 @@ public:
 		if(name != NULL)
 		{
 			out->push_back(new AST_eval_expr(new AST_assignment(
-				new AST_variable(NULL, name, new List<AST_expr*>),
+				new AST_variable(NULL, name->clone (), new List<AST_expr*>),
 				true,
 				new AST_variable(
 					NULL, 
@@ -230,9 +230,9 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		&& in->variable_name->classid() == AST_reflection::ID
 		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
 	{
-		AST_variable* temp = fresh_var("TS_R_");
+		AST_variable* temp = fresh_var("TSr");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp, true,
+			temp->clone (), true,
 			new AST_variable(
 				NULL,
 				in->variable_name,
@@ -243,9 +243,9 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL && num_pieces > 0)
 	{
-		AST_variable* temp = fresh_var("TS_T_");
+		AST_variable* temp = fresh_var("TSt");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp, true,
+			temp->clone (), true,
 			new AST_variable(
 				in->target,
 				in->variable_name->clone(),
@@ -260,13 +260,13 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	while(num_pieces > 0)
 	{
-		AST_variable* temp = fresh_var("TS");
+		AST_variable* temp = fresh_var("TSi");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp, true, 
+			temp->clone (), true,
 			new AST_variable(
 				NULL, 
 				prev->variable_name->clone(), 
-				new List<AST_expr*>(in->array_indices->front())))));
+				new List<AST_expr*>(in->array_indices->front()->clone ())))));
 		prev = temp;
 		num_pieces--;
 
@@ -277,7 +277,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	if(prev != in && !in->array_indices->empty())
 	{
 		prev = prev->clone();
-		prev->array_indices->push_back(in->array_indices->front());
+		prev->array_indices->push_back(in->array_indices->front()->clone ());
 		in->array_indices->pop_front();
 	}
 
@@ -313,7 +313,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 	else
 		assert(0);
 
-	AST_variable* one = fresh_var("TS");
+	AST_variable* one = fresh_var("TSo");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
 		one,
@@ -325,7 +325,7 @@ AST_expr* Shredder::post_pre_op(AST_pre_op* in)
 		new AST_bin_op(
 			in->variable->clone(),
 			op,
-			one))));
+			one->clone ()))));
 	
 	return in->variable->clone();
 }
@@ -342,14 +342,14 @@ AST_expr* Shredder::post_post_op(AST_post_op* in)
 		assert(0);
 
 	AST_variable* old_value = fresh_var("TS");
-	AST_variable* one = fresh_var("TS");
+	AST_variable* one = fresh_var("TSo");
 
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
-		old_value,
+		old_value->clone (),
 		false,
 		in->variable->clone())));
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
-		one,
+		one->clone (),
 		false,
 		new Token_int(1))));
 	pieces->push_back(new AST_eval_expr(new AST_assignment(
@@ -407,7 +407,7 @@ AST_expr* Shredder::post_null(Token_null* in)
 
 AST_expr* Shredder::post_array(AST_array* in)
 {
-	String* temp = fresh("TS");
+	String* temp = fresh("TSa");
 	List<AST_array_elem*>::const_iterator i;
 	
 	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
