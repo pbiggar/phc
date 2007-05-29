@@ -174,6 +174,13 @@ class Annotate : public AST_visitor
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
+	void pre_directive (AST_directive* in)
+	{
+		// Do not generate a temp to hold the value of a directive
+		// variable
+		in->expr->attrs->set_true("phc.lower_expr.no_temp");
+	}
+
 };
 
 /*
