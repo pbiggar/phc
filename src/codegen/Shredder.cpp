@@ -181,6 +181,16 @@ class Annotate : public AST_visitor
 		in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
+	void pre_formal_parameter (AST_formal_parameter* in)
+
+	{
+		// Do not generate a temp to hold the value of a parameter's default
+		// value
+		if (in->expr)
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
+	}
+
+
 };
 
 /*

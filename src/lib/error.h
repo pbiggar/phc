@@ -8,14 +8,17 @@
 #ifndef PHC_ERROR
 #define PHC_ERROR
 
-#include <stdarg.h>
 #include "lib/String.h"
 
-void phc_error (const char*, String* filename, int line, ...);
-void phc_error (const char*, ...);
+class AST_node;
 
-void phc_warning (const char*, String* filename, int line, ...);
-void phc_warning (const char*, ...);
+void phc_error (const char* message, String* filename, int line, ...);
+void phc_error (const char* message, AST_node* node, ...);
+void phc_error (const char* message, ...);
+
+void phc_warning (const char* message, String* filename, int line, ...);
+void phc_warning (const char* message, AST_node* node, ...);
+void phc_warning (const char* message, ...);
 
 
 #endif

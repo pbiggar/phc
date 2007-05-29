@@ -24,7 +24,7 @@ void Invalid_check::pre_statement (AST_statement* in)
 			for (i = wild->value->array_indices->begin (); i != wild->value->array_indices->end (); i++)
 			{
 				if (*i == NULL)
-					phc_error ("Cannot use [] for reading", in->get_filename (), in->get_line_number ());
+					phc_error ("Cannot use [] for reading", in);
 			}
 		}
 	}
@@ -38,12 +38,12 @@ void Invalid_check::pre_assignment (AST_assignment* in)
 	{
 		if (dynamic_cast<AST_assignment*> (in->expr))
 		{
-			phc_error ("Cannot assign a reference to a literal array", in->get_filename (), in->get_line_number ());
+			phc_error ("Cannot assign a reference to a literal array", in);
 		}
 
 		if (dynamic_cast<AST_literal*> (in->expr))
 		{
-			phc_error ("Cannot assign a reference to a literal", in->get_filename (), in->get_line_number ());
+			phc_error ("Cannot assign a reference to a literal", in);
 		}
 	}
 }
@@ -60,7 +60,7 @@ void Invalid_check::pre_foreach (AST_foreach* in)
 	if (dynamic_cast<AST_literal*> (in->expr))
 	{
 		phc_error ("Invalid (literal) expression supplied for foreach()",
-			in->expr->get_filename (), in->expr->get_line_number ());
+			in->expr, in->expr);
 	}
 }
 
@@ -76,16 +76,33 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 		if ((*i)->match (new AST_attribute (attr_mod, new Wildcard<Token_variable_name>, new Wildcard<AST_expr>)))
 			if (!attr_mod->value->is_const)
 				phc_error ("Interfaces may not include member variables", 
-					attr_mod->value->get_filename(), attr_mod->value->get_line_number ());
+					attr_mod->value);
 	}
 }
 
 void Invalid_check::pre_directive (AST_directive *in)
 {
 	// declare (ticks = $x)
-	// the shredder can create these
+	// Declaration directives must have literal arguments. There's no
+	// reason that non-literals wouldnt be ok, but thats php for you
 	
-	if (*in->directive_name->value == "ticks"
-		&& dynamic_cast <Token_int*>(in->expr) == NULL)
-		phc_error ("Ticks directive must have integer argument");
+	if (*in->directive_name->value == "ticks")
+	{
+		if (!(dynamic_cast <AST_literal*>(in->expr)))
+			phc_error ("Cannot convert to ordinal value", in->expr);
+	}
+}
+
+void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
+{
+	if (in->expr == NULL)
+		return;
+	// function ($x = f())
+
+	// TODO we could have an array of variables, which is probably
+	// not allowed.
+
+	if (!(dynamic_cast <AST_literal*> (in->expr)
+			|| dynamic_cast <AST_array*> (in->expr)))
+		phc_error ("Default value for a formal parameter must be a literal value or an array", in->expr);
 }

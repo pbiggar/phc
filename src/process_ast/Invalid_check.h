@@ -21,6 +21,7 @@ public:
 	void pre_foreach (AST_foreach* in);
 	void pre_interface_def (AST_interface_def* in);
 	void pre_directive (AST_directive *in);
+	void pre_formal_parameter (AST_formal_parameter* in);
 };
 
 #endif // PHC_INVALID_CHECK
