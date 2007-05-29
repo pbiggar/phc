@@ -263,7 +263,8 @@ public:
 		signature = pattern->value->signature;
 		gen->methods->push_back(signature);
 
-		method_entry();	
+		method_entry();
+		gen->return_by_reference = signature->is_ref;
 		gen->visit_statement_list(pattern->value->statements);
 		method_exit();
 	}
@@ -874,6 +875,7 @@ public:
 		cout 
 		<< "// Setup array of arguments\n"
 		<< "zval* args[" << rhs->value->actual_parameters->size() << "];\n"
+		<< "zval** args_ind[" << rhs->value->actual_parameters->size() << "];\n"
 		;
 
 		for(
@@ -920,19 +922,36 @@ public:
 			// and would have been seperated above).
 			cout << "if(by_ref[" << index << "]) arg->is_ref = 1;\n";
 
-			cout << "args[" << index << "] = arg;";
-			cout << "}\n";
+			cout 
+			<< "args[" << index << "] = arg;\n"
+			<< "args_ind[" << index << "] = &args[" << index << "];\n"
+			<< "}\n"
+			;
 		}
 	
 		cout
 		<< "// Call the function\n"
 		<< "int success;\n"	
-		<< "MAKE_STD_ZVAL(rhs);\n"
-		<< "success = call_user_function(EG(function_table), " 
-		<< "NULL, function_name_ptr, rhs, " 
-		<< rhs->value->actual_parameters->size() << ", args TSRMLS_CC);\n"
+		//<< "MAKE_STD_ZVAL(rhs);\n"
+		<< "success = call_user_function_ex(EG(function_table), " 
+		<< "NULL, function_name_ptr, &rhs, " 
+		<< rhs->value->actual_parameters->size() << ", args_ind, "
+		<< "0, NULL TSRMLS_CC);\n"
 		<< "assert(success == SUCCESS);\n"
-		<< "rhs->refcount = 0;\n"
+		;
+
+		// If the function does not return a reference, it has created a new
+		// zval to hold the function result or returned an existing zval and
+		// increment its refcount (but is_ref would be 0: copy-on-write). In
+		// either case, the refcount is one too many, and we need to decrement
+		// it. If on the other hand it returned a reference, we must leave it
+		// alone.
+		cout 
+		<< "if(!signature->common.return_reference)\n"
+//		<< "{\n"
+		<< "rhs->refcount--;\n"
+//		<< "if(rhs->refcount == 1) rhs->is_ref = 0;\n"
+//		<< "}\n"
 		;
 		
 		// cout << "debug_hash(EG(active_symbol_table));\n";
@@ -1035,12 +1054,34 @@ class Return : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		String* op = operand(expr->value);
-
-		cout
+			
+		cout 
 		<< "{\n"
-		<< "*return_value = *index_ht(EG(active_symbol_table), "
+		<< "zval* rhs = index_ht(EG(active_symbol_table), "
 		<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
-		<< "zval_copy_ctor(return_value);\n"
+		;
+
+		if(!gen->return_by_reference)
+		{
+			cout 
+			<< "return_value->value = rhs->value;\n"
+			<< "return_value->type = rhs->type;\n"
+			<< "zval_copy_ctor(return_value);\n"
+			;
+		}
+		else
+		{
+			// TODO separate if necessary
+			
+			cout
+			<< "zval_ptr_dtor(return_value_ptr);\n"
+			<< "rhs->is_ref = 1;\n"
+			<< "rhs->refcount++;\n"
+			<< "*return_value_ptr = rhs;\n"
+			;
+		}
+
+		cout 
 		<< "goto end_of_function;\n"
 		<< "}\n"
 		;
@@ -1293,7 +1334,7 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "		printf(\"%d\", idx);\n"	
 	<< "	}\n"
 	<< "\n"
-	<< "	printf(\": addr = %08lX, refcount = %d, is_ref = %d (%s)\", *ppzval, (*ppzval)->refcount, (*ppzval)->is_ref, Z_STRVAL(tmpcopy));\n"
+	<< "	printf(\": addr = %08lX, refcount = %d, is_ref = %d (%s)\\n\", *ppzval, (*ppzval)->refcount, (*ppzval)->is_ref, Z_STRVAL(tmpcopy));\n"
 	<< "\n"
 	<< "	zval_dtor(&tmpcopy);\n"
 	<< "}\n"
@@ -1311,7 +1352,12 @@ void Generate_C::post_php_script(AST_php_script* in)
 	{
 		String* name = (*i)->method_name->value;
 
-		cout << "ZEND_BEGIN_ARG_INFO(" << *name << "_arg_info, 0)\n";
+		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
+		cout 
+		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
+		<< ((*i)->is_ref ? "1" : "0")
+		<< ", 0)\n"
+		;
 
 		// TODO: deal with type hinting
 
@@ -1443,618 +1489,3 @@ Generate_C::Generate_C(String* extension_name)
 
 	methods = new List<AST_signature*>;
 }
-
-#ifdef OBSOLETE
-
-/*
- * Variabes set by the code generator
- *
- * Most nodes synthesize up the location of the result in LOC, which must be
- * a zval* (not a zval, nor a zval**). Variables also synthesize up the 
- * corresponding zval*; for example $a[x] indexes ACTIVE_SYMBOL_TABLE to find
- * $a, then indexes $a to find x, and then synthesizes up x. 
- * 
- * However, in some cases the (last) hash table should not be indexed, but
- * instead the name of the hashtable and the name of the index should be
- * synthesized up instead (this applies to lvalues in reference assignments,
- * and to the arguments of unset, for example). In that case, the name of the
- * hash table is synthesized up in HASH, and the name of the index in
- * STRIDX/STRLEN for string indexes, or ZVALIDX for zval* indexes. In the $a[x]
- * example, ACTIVE_SYMBOL_TABLE is indexed to find a, and a is then synthesized
- * up as HASH, STRIDX will be "x", and STRLEN will be sizeof("x") = 2.
- * The cases where this is appropriate are marked IS_ADDR by Prep. 
- *
- * HASH    HashTable*
- * STRIDX  char*
- * STRLEN  int
- * ZVALIDX zval* 
- */
-
-#define LOC "phc.generate_c.location"
-#define IS_ADDR "phc.generate_c.is_addr"
-#define HASH "phc.generate_c.hash"
-#define STRIDX "phc.generate_c.stridx"
-#define STRLEN "phc.generate_c.strlen"
-#define ZVALIDX "phc.generate_c.zvalidx"
-
-static List<String*> methods;		// list of all methods compiled
-static List<String*> eofn_labels;	// end of function labels
-
-
-/* TODO we can support break's with computed gotos :) */
-
-/*
- * Indexing and updating hashes
- */
-
-// Index the hash (change from STRIDX/ZVALIDX to LOC)
-void Generate_C::index_hash(AST_variable* var)
-{
-	String* indexed = fresh("indexed");
-	var->attrs->set(LOC, deref(indexed));
-
-	cout << "// Index the hash table..\n";
-	cout << "zval **" << *indexed << ";\n";
-
-	if(var->attrs->has(STRIDX))
-	{
-		String* hash = var->attrs->get_string(HASH);
-		String* stridx = var->attrs->get_string(STRIDX);
-		int strlen = var->attrs->get_integer(STRLEN)->value();
-
-		cout 
-		<< "// ..using a string index\n"
-		<< "if(zend_hash_find(" << *hash << ", " 
-		<< *stridx << ", " << strlen << ", " 
-		<< "(void**)&" << *indexed << ") != SUCCESS)\n"
-		<< "{\n"
-		<< "zval* new_var;\n"
-		<< "ALLOC_INIT_ZVAL(new_var);\n"
-		<< "zend_hash_add(" << *hash << ", " 
-		<< *stridx << ", " << strlen << ", "
-		<< "&new_var, sizeof(zval*), NULL);\n"
-		<< "// This must now succeed\n"
-		<< "zend_hash_find(" << *hash << ", " 
-		<< *stridx << ", " << strlen << ", "
-		<< "(void**)&" << *indexed << ");\n"
-		<< "}\n";
-	}
-	else
-	{
-		String* hash = var->attrs->get_string(HASH);
-		String* zvalidx = var->attrs->get_string(ZVALIDX);
-
-		cout
-		<< "// ..using a numeric zval\n"
-		<< "if(Z_TYPE_P(" << *zvalidx << ") == IS_LONG)\n"
-		<< "{\n"
-		<< "if(zend_hash_index_find(" << *hash << ", " 
-		<< "Z_LVAL_P(" << *zvalidx << "), "
-		<< "(void**)&" << *indexed << ") != SUCCESS)\n"
-		<< "{\n"
-		<< "zval* new_var;\n"
-		<< "ALLOC_INIT_ZVAL(new_var);\n"
-		<< "zend_hash_index_update(" << *hash << ", " 
-		<< "Z_LVAL_P(" << *zvalidx << "), " 
-		<< "&new_var, sizeof(zval*), NULL);\n" 
-		<< "// This must now succeed\n"
-		<< "zend_hash_index_find(" << *hash << ", " 
-		<< "Z_LVAL_P(" << *zvalidx << "), " 
-		<< "(void**)&" << *indexed << ");\n"
-		<< "}\n"
-		<< "}\n"
-	
-		/**/
-		<< "// ..or using a string zval\n"
-		<< "else\n"
-		<< "{\n"
-		<< "zval string_index;\n"
-		<< "string_index = *" << *zvalidx << ";"
-		<< "convert_to_string(&string_index);\n"
-		<< "if(zend_hash_find(" << *hash << ", "
-		<< "Z_STRVAL(string_index), Z_STRLEN(string_index) + 1, "
-		<< "(void**)&" << *indexed << ") != SUCCESS)\n"
-		<< "{\n"
-		<< "zval* new_var;\n"
-		<< "ALLOC_INIT_ZVAL(new_var);\n"
-		<< "zend_hash_add(" << *hash << ", " 
-		<< "Z_STRVAL(string_index), Z_STRLEN(string_index) + 1, "
-		<< "&new_var, sizeof(zval*), NULL);\n"
-		<< "// This must now succeed\n"
-		<< "zend_hash_find(" << *hash << ", "
-		<< "Z_STRVAL(string_index), Z_STRLEN(string_index) + 1, "
-		<< "(void**)&" << *indexed << ");\n"
-		<< "}\n"
-		<< "}\n";
-	}
-}
-
-// Separate (create a copy) 
-void Generate_C::separate(AST_variable* in)
-{
-	String* separated = fresh("separated");
-	String* loc = in->attrs->get_string(LOC);
-
-	cout 
-	<< "// separate if necessary\n"
-	<< "zval* " << *separated << ";\n"
-	<< "if("
-	<< "(" << *loc << ")->refcount > 1 && " << "!(" << *loc << ")->is_ref)"
-	<< "{\n"
-	<< "MAKE_STD_ZVAL(" << *separated << ");\n"
-	<< "*" << *separated << " = *" << *in->attrs->get_string(LOC) << ";\n"
-	<< "zval_copy_ctor(" << *separated << ");\n"
-	<< *separated << "->refcount = 1;\n"
-	<< *separated << "->is_ref = 0;\n";
-	
-	cout
-	<< "// Remove the old variable from the hashtable (decreasing its\n" 
-	<< "// refcount), and insert the new separated variable\n";
-	update_hash(dynamic_cast<AST_variable*>(in), separated);
-
-	cout
-	<< "}\n"
-	<< "else\n"
-	<< "{\n"
-	<< *separated << " = " << *in->attrs->get_string(LOC) << ";\n"
-	<< "}\n";
-
-	in->attrs->set(LOC, separated);
-}
-
-// Replace the variable in the hash table with the new value (must be a zval*)	
-void Generate_C::update_hash(AST_variable* var, String* val)
-{
-	if(var->attrs->has(STRIDX))
-	{
-		// Remove the old value from the hashtable (this will
-		// automatically reduce its refcount)
-		cout << "zend_hash_del(" ;
-		cout << *var->attrs->get_string(HASH) << ", ";
-		cout << *var->attrs->get_string(STRIDX) << ", ";
-		cout << var->attrs->get_integer(STRLEN)->value() << ");\n";
-		// Add the new value to the hashtable
-		cout << "zend_hash_add(" ;
-		cout << *var->attrs->get_string(HASH) << ", ";
-		cout << *var->attrs->get_string(STRIDX) << ", ";
-		cout << var->attrs->get_integer(STRLEN)->value() << ", ";
-		cout << "&" << *val << ", ";
-		cout << "sizeof(zval*), NULL);\n";;
-	}
-	else
-	{
-		assert(var->attrs->has(ZVALIDX));
-
-		// Numeric index? 
-		cout << "if(Z_TYPE_P(" ;
-		cout << *var->attrs->get_string(ZVALIDX) ;
-		cout << ") == IS_LONG)\n" ;
-		cout << "{\n";
-		// Remove the old value from the hashtable (this will
-		// automatically reduce its refcount)
-		cout << "zend_hash_index_del(";
-		cout << *var->attrs->get_string(HASH) << ", ";
-		cout << "Z_LVAL_P(" << *var->attrs->get_string(ZVALIDX) ;
-		cout << "));\n";
-		// Add the new value to the hashtable
-		cout << "zend_hash_index_update(" ;
-		cout << *var->attrs->get_string(HASH) << ", ";
-		cout << "Z_LVAL_P(" << *var->attrs->get_string(ZVALIDX) << "), ";
-		cout << "&" << *val << ", ";
-		cout << "sizeof(zval*), NULL);\n";
-		cout << "}\n";
-		cout << "else\n";
-		cout << "{\n";
-		cout << "// TODO\n";
-		cout << "}\n";
-	}
-}
-
-/*
- * Method invocation
- */
-
-void Generate_C::post_method_invocation(AST_method_invocation* in)
-{
-	// Special case for eval
-	AST_method_invocation* pattern;
-	Wildcard<AST_expr>* eval_arg = new Wildcard<AST_expr>;
-
-	pattern = new AST_method_invocation(
-		NULL,	
-		new Token_method_name(new String("eval")),
-		new List<AST_actual_parameter*>(
-			new AST_actual_parameter(false, eval_arg)
-			)
-		);
-
-	if(in->match(pattern))
-	{
-		String* eval_retval = fresh("eval_retval");
-
-		cout << "zval* " << *eval_retval << ";\n";
-		cout << "MAKE_STD_ZVAL(" << *eval_retval << ");\n";
-		cout << "zend_hash_next_index_insert(temps, &" << *eval_retval << ", sizeof(zval*), NULL);\n";
-		cout << "{\n";
-		cout << "zval eval_arg;\n";
-		cout << "eval_arg = *" << *eval_arg->value->attrs->get_string(LOC) << ";\n";
-		cout << "convert_to_string(&eval_arg);\n";
-		cout << "zend_eval_string(Z_STRVAL(eval_arg), " << *eval_retval << ", ";
-		cout << "\"" << *eval_arg->value->get_filename() << " eval'd code\" TSRMLS_CC);\n" ;
-		cout << "}\n";;
-
-		in->attrs->set(LOC, eval_retval);
-		return;
-	}
-
-	// TODO: check target
-
-	String* ret_val = fresh("ret_val");
-	cout << "zval " << *ret_val << ";\n";
-
-	cout << "{\n";
-
-	/**/
-	cout << "// Create a zval to contain the name of the function\n";
-
-	Token_method_name* method_name = dynamic_cast<Token_method_name*>(in->method_name);
-	if(method_name != NULL)
-	{
-		cout << "zval function_name_str;\n";
-		cout << "INIT_PZVAL(&function_name_str);\n";
-		cout << "ZVAL_STRING(&function_name_str, \"" << *method_name->value << "\", 0);\n";
-		cout << "zval* function_name = &function_name_str;\n";
-	}
-	else
-	{
-		cout << "zval* function_name = " << *in->method_name->attrs->get_string(LOC) << "\n";
-	}
-
-	/**/
-	cout << "// Setup array of arguments\n";
-	cout << "zval* args[" << in->actual_parameters->size() << "];\n";
-
-	List<AST_actual_parameter*>::const_iterator i;
-	unsigned index = 0;
-	for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
-	{
-		cout 
-		<< "args[" << index << "] = " 
-		<< *(*i)->expr->attrs->get_string(LOC) << ";\n";
-		
-		if(!(*i)->is_ref)
-		{
-			cout
-			<< "// Clone function argument if necessary\n"
-			<< "if(args[" << index << "]->is_ref)\n"
-			<< "{\n"
-			<< "zval* clone;\n"
-			<< "MAKE_STD_ZVAL(clone);\n"
-			<< "*clone = *args[" << index << "];\n" 
-			<< "zval_copy_ctor(clone);\n"
-			<< "clone->is_ref = 0;\n"
-			<< "// refcount set to 0; call_user_function will add 1\n"
-			<< "clone->refcount = 0;\n"
-			<< "args[" << index << "] = clone;\n"
-			<< "}\n";
-		}
-		else
-		{
-			// TODO: deal with passing by reference
-		}
-
-		index++;
-	}
-
-	/**/
-	cout << "// Call the function\n";
-	cout << "int success;\n";	
-	cout << "success = call_user_function(EG(function_table), NULL, function_name, &" << *ret_val << ", " << in->actual_parameters->size() << ", args TSRMLS_CC);\n";
-	cout << "assert(success == SUCCESS);\n";
-
-	cout << "}\n";
-
-	in->attrs->set(LOC, addr(ret_val));	
-}
-
-void Generate_C::post_unset(AST_unset* in)
-{
-	/**/
-	cout << "// Unset\n";
-
-	if(in->variable->attrs->has(STRIDX))
-	{
-		cout << "zend_hash_del(";
-		cout << *in->variable->attrs->get_string(HASH) << ", ";
-		cout << *in->variable->attrs->get_string(STRIDX) << ", ";
-		cout << in->variable->attrs->get_integer(STRLEN)->value() << ");\n";;
-	}
-	else
-	{
-		cout << "if(Z_TYPE_P(" ;
-		cout << *in->variable->attrs->get_string(ZVALIDX) ;
-		cout << ") == IS_LONG)\n";
-		cout << "{\n";
-		cout << "zend_hash_index_del(";
-		cout << *in->variable->attrs->get_string(HASH) << ", ";
-		cout << "Z_LVAL_P(" << *in->variable->attrs->get_string(ZVALIDX) ;
-		cout << "));\n";
-		cout << "}\n";
-		cout << "else\n";
-		cout << "{\n";
-		cout << "zval string_index;\n" ;
-		cout << "string_index = *" ;
-		cout << *in->variable->attrs->get_string(ZVALIDX);
-		cout << ";\n";
-		cout << "convert_to_string(&string_index);\n";
-		cout << "zend_hash_del(" ;
-		cout << *in->variable->attrs->get_string(HASH) << ", ";
-		cout << "Z_STRVAL(string_index), Z_STRLEN(string_index) + 1);\n";
-		cout << "}\n";;
-	}
-}
-
-/*
- * Assignment
- *
- * Prep will have marked the LHS as IS_ADDR, and will have marked the RHS as
- * IS_ADDR _if_ this is a reference assignment and the RHS is a variable
- */
-
-void Generate_C::post_assignment(AST_assignment* in)
-{
-	String* rhs = in->expr->attrs->get_string(LOC);
-	
-	/**/
-	cout << "// Execute assignment\n";
-
-	if(!in->is_ref)
-	{
-		if(dynamic_cast<AST_variable*>(in->expr) != NULL)
-		{
-			cout 
-			<< "// copy-on-write is possible if the RHS is not a reference\n"
-			<< "if(!(" << *rhs << ")->is_ref)\n"
-			<< "{\n"
-			<< "// Up refcount, but don't mark as reference (copy-on-write)\n"
-			<< "zval_add_ref(&" << *rhs << ");\n";
-	
-			update_hash(in->variable, rhs);
-	
-			cout 
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "// copy now (separate)\n";
-	
-			index_hash(in->variable);
-			separate(in->variable);
-			String* lhs = in->variable->attrs->get_string(LOC);
-
-			cout 
-			<< "zval_dtor(" << *lhs << ");\n"
-			// Copy over the value and type, ignoring refcount and is_ref
-			<< "(" << *lhs << ")->value = " << "(" << *rhs << ")->value;\n"
-			<< "(" << *lhs << ")->type = " << "(" << *rhs << ")->type;\n"
-			<< "zval_copy_ctor(" << *lhs << ");\n"
-			<< "}\n";
-		}
-		else
-		{
-			// If the RHS is not a variable, copy-on-write is not applicable
-			index_hash(in->variable);
-			separate(in->variable);
-			String* lhs = in->variable->attrs->get_string(LOC);
-
-			cout 
-			<< "zval_dtor(" << *lhs << ");\n"
-			// Copy over the value and type, ignoring refcount and is_ref
-			<< "(" << *lhs << ")->value = " << "(" << *rhs << ")->value;\n"
-			<< "(" << *lhs << ")->type = " << "(" << *rhs << ")->type;\n"
-			<< "zval_copy_ctor(" << *lhs << ");\n";
-		}
-	}
-	else
-	{
-		AST_variable* var = dynamic_cast<AST_variable*>(in->expr);
-
-		if(var != NULL)
-		{
-			cout << "// Separate RHS if it is in a copy-on-write set\n";
-			separate(var);
-			rhs = var->attrs->get_string(LOC); 
-		}
-		
-		// Up the refcount of the RHS and mark as a reference (change-on-write)
-		cout
-		<< "zval_add_ref(&" << *rhs << ");\n"
-		<< "(" << *rhs << ")->is_ref = 1;\n";
-
-		update_hash(in->variable, in->expr->attrs->get_string(LOC));
-	}
-}
-
-/*
- * Variable references
- */
-
-void Generate_C::post_variable(AST_variable* in)
-{
-	// TODO: deal with target
-	// TODO: deal with (string) indexing
-	// TODO: deal with variable variables
-	
-	Token_variable_name* var_name;
-	var_name = dynamic_cast<Token_variable_name*>(in->variable_name);
-	assert(var_name);
-
-	in->attrs->set(HASH, new String("EG(active_symbol_table)"));
-	in->attrs->set(STRIDX, quote(var_name->value));
-	in->attrs->set(STRLEN, new Integer(var_name->value->size() + 1));
-	
-	if(!in->attrs->is_true(IS_ADDR) || in->array_indices->size() > 0)
-	{
-		index_hash(in);
-	}
-
-	// Evaluate all array indices
-	List<AST_expr*>::const_iterator i, end_1;
-	end_1 = in->array_indices->end(); end_1--;
-	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
-	{
-		String* hash = fresh("hash");
-		
-		/**/
-		cout << "// Make sure the hashtable is actually a hashtable (or NULL)\n";
-		cout << "if(Z_TYPE_P(" << *in->attrs->get_string(LOC) << ") == IS_NULL)\n";
-		cout << "{\n";
-		cout << "array_init(" << *in->attrs->get_string(LOC) << ");\n";
-		cout << "}\n";
-		cout << "else ";
-		cout << "if(Z_TYPE_P(" << *in->attrs->get_string(LOC) << ") != IS_ARRAY)\n";
-		cout << "{\n";
-		cout << "printf(\"variable is not an array\\n\");\n";
-		cout << "abort();\n";
-		cout << "}\n";
-
-		/**/
-		cout << "// Extract the hashtable from the zval\n";
-		cout << "HashTable* " << *hash << ";\n";
-		cout << *hash << " = Z_ARRVAL_P(" << *in->attrs->get_string(LOC) << ");\n";;
-
-		in->attrs->set(HASH, hash);
-		in->attrs->set(ZVALIDX, (*i)->attrs->get_string(LOC));
-	
-		if(!in->attrs->is_true(IS_ADDR) || i != end_1)
-		{
-			index_hash(in);
-		}
-	}
-}
-
-/*
- * Method definition
- */
-
-void Generate_C::pre_method(AST_method* in)
-{
-	// We need a label to indicate where the end of the function is
-	String* eofn = fresh("end_of_function");
-	eofn_labels.push_back(eofn);
-
-	cout << "PHP_FUNCTION(" << *in->signature->method_name->value << ")\n";
-	methods.push_back(in->signature->method_name->value);
-
-	cout << "{\n";
-
-	/**/
-	cout << "// Store a reference to the current active symbol table\n";
-	cout << "HashTable* old_active_symbol_table;\n";
-	cout << "old_active_symbol_table = EG(active_symbol_table);\n";
-
-	/* TODO count the locals - growing hashtables is very expensiveg*/
-	cout << "// Setup locals array\n";
-	cout << "HashTable* locals;\n";
-	cout << "ALLOC_HASHTABLE(locals);\n";
-	cout << "zend_hash_init(locals, 64, NULL, ZVAL_PTR_DTOR, 0);\n";
-	cout << "EG(active_symbol_table) = locals;\n";
-
-	/* TODO count the temporaries - growing hashtables is very expensive */
-	cout << "// We store all temporaries in an array so that they can be deallocated\n";
-	cout << "HashTable* temps;\n";
-	cout << "ALLOC_HASHTABLE(temps);\n";
-	cout << "zend_hash_init(temps, 64, NULL, ZVAL_PTR_DTOR, 0);\n";
-
-	/**/
-	List<AST_formal_parameter*>* parameters = in->signature->formal_parameters;
-	if(parameters && parameters->size() > 0)
-	{
-		cout << "// Add all parameters as local variables\n";
-		stringstream zgp_format; 
-		stringstream zgp_args; 
-		cout << "{\n";
-		cout << "zval* params[" << parameters->size() << "];\n";
-		List<AST_formal_parameter*>::const_iterator i;
-		int index;	
-		for(i = parameters->begin(), index = 0;
-			i != parameters->end();
-			i++, index++)
-		{
-			// TODO: deal with default values
-			// TODO: deal with type (although that should be dealt with
-			// elsewhere)
-			// TODO: deal with references
-			zgp_format << "z";
-			
-			if (i != parameters->begin())
-				zgp_args << ", ";
-	
-			zgp_args << "&params[" << index << "]";
-		}
-		cout << "zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, \"" << zgp_format.str() << "\", " << zgp_args.str() << ");\n";
-		for(i = parameters->begin(), index = 0;
-			i != parameters->end();
-			i++, index++)
-		{
-			cout << "zval_add_ref(&params[" << index << "]);\n";
-			cout << "zend_hash_add(EG(active_symbol_table), \"" << *(*i)->variable_name->value << "\", sizeof(\"" << *(*i)->variable_name->value << "\"), &params[" << index << "], sizeof(zval*), NULL);\n";
-		}
-
-		cout << "}\n";
-	}
-
-	cout << "// Function body\n";
-}
-
-void Generate_C::post_method(AST_method* in)
-{
-	String* eofn = eofn_labels.back();
-	eofn_labels.pop_back();
-	cout << *eofn << ":;\n";
-
-	/**/
-	cout << "// Free all temporaries\n";
-	cout << "zend_hash_destroy(temps);\n";
-	cout << "FREE_HASHTABLE(temps);\n";
-
-	/**/
-	cout << "// Destroy locals array\n";
-	cout << "zend_hash_destroy(locals);\n";
-	cout << "FREE_HASHTABLE(locals);\n";
-
-	/**/
-	cout << "// Restore previous active symbol table\n";
-	cout << "EG(active_symbol_table) = old_active_symbol_table;\n";	
-
-	cout << "}\n";
-}
-
-/*
- * Special cases
- */
-
-void Generate_C::children_eval_expr(AST_eval_expr* in)
-{
-	// Check for inline C blocks
-	List<String*>* comments = in->get_comments();
-	if(!comments->empty() && *(comments->back()) == "// phc:inline-c")
-	{
-		Token_string* inline_c = dynamic_cast<Token_string*>(in->expr);
-		if(inline_c == NULL)
-		{
-			phc_error("Invalid 'inline-c' directive"
-				in->expr->get_filename(), 
-				in->expr->get_line_number());
-		}
-		else
-		{
-			cout << *inline_c->value << endl;
-		}
-	}
-	else
-	{
-		visit_expr(in->expr);
-	}
-}
-
-#endif
