@@ -47,28 +47,28 @@ if ($opt_installed)
 $tests = array ();
 
 require_once ("basic_parse_tests.php");
-$tests[] = new PluginTest ("linear");
 $tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print", "BasicParseTest");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "InterpretUnparsed");
-$tests[] = new PluginTest ("linear", "--run-lifting");
-$tests[] = new PluginTest ("linear", "--run-lowering");
 $tests[] = new CompareWithPHP ("InterpretLowered", "--run-lowering --pretty-print --run-goto-uppering", "InterpretUnparsed");
-$tests[] = new PluginTest ("linear", "--run-shredder");
 $tests[] = new CompareWithPHP ("InterpretShredded", "--run-shredder --pretty-print --run-goto-uppering", "InterpretLowered");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate --run-goto-uppering", "InterpretShredded");
 require_once ("compiled_vs_interpreted.php");
+$tests[] = new PluginTest ("linear");
+$tests[] = new PluginTest ("linear", "--run-lifting");
+$tests[] = new PluginTest ("linear", "--run-lowering");
+$tests[] = new PluginTest ("linear", "--run-shredder");
 $tests[] = new PluginTest ("cloning");
-require_once ("compile_time_include.php");
-require_once ("line_numbers.php");
-require_once ("parse_ast_dot.php");
 $tests[] = new PluginTest ("pre_vs_post_count");
-$tests[] = new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot");
-$tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
-$tests[] = new RegressionTest ("regression_dump_includes", "--pretty-print --tab=\"   \" --compile-time-includes", "unparsed");
 require_once ("reparse_unparsed.php");
 require_once ("source_vs_semantic_values.php"); // dont use plugin_test here
 require_once ("xml_roundtrip.php"); // dont use plugin_test here
 require_once ("compile_plugin_test.php");
+require_once ("compile_time_include.php");
+require_once ("line_numbers.php");
+require_once ("parse_ast_dot.php");
+$tests[] = new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot");
+$tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
+$tests[] = new RegressionTest ("regression_dump_includes", "--pretty-print --tab=\"   \" --compile-time-includes", "unparsed");
 
 if (!$opt_no_delete)
 {

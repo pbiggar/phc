@@ -415,15 +415,18 @@ abstract class Test
 		$blue = blue_string ();
 		$green = green_string ();
 		$reset = reset_string ();
-		$passed = $green.$this->successes." P".$reset;
-		$failed = $red.$this->failures." F".$reset;
-		$skipped = $blue.$this->skipped." S".$reset;
+		$passed = sprintf ("%5s", $this->successes." P");
+		$failed = sprintf ("%4s", $this->failures." F");
+		$skipped = sprintf ("%4s", $this->skipped." S");
 		if ($brackets == false)
-			return "$passed, $failed, $skipped$red";
-		else if ($this->failures > 0)
-			return "$red($passed, $failed, $skipped$red)$reset";
+		{
+			if ($this->failures > 0)
+				return "$red$passed, $failed, $skipped$reset";
+			else 
+				return "$green$passed, $failed, $skipped$reset";
+		}
 		else
-			return "$green($passed, $failed, $skipped$green)$reset";
+			return "$green($passed$reset, $red$failed$reset, $blue$skipped)$reset";
 	}
 
 	function update_count ()
@@ -438,7 +441,7 @@ abstract class Test
 			$this->erase_progress_bar ();
 			$this->progress_bar->reset(
 					"{$this->get_name()} %bar% %fraction% done {$this->get_triple_string ()}", 
-					"#", "-", 130, $target_num);
+					"#", "-", 112, $target_num);
 			$this->progress_bar->update($this->total);
 		}
 	}
@@ -481,7 +484,7 @@ abstract class Test
 
 		// a color or a reset involves 6 characters, but gets displayed as zero.
 		// Those 6 need to be taken into account for sprintf
-		$string = sprintf("%-30s %-25s %20s %56s", $test, $timing, $word, $triple);
+		$string = sprintf("%-29s %-21s %20s %28s", $test, $timing, $word, $triple);
 		print "$string\n";
 	}
 
