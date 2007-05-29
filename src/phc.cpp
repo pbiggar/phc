@@ -113,6 +113,9 @@ int main(int argc, char** argv)
 	{
 		Lift_functions_and_classes lift;
 		php_script->transform_children(&lift);
+
+		// check for errors
+		php_script->visit (&ic);
 	}
 
 	// reorder
@@ -122,6 +125,9 @@ int main(int argc, char** argv)
 	{
 		Reorder_functions rf;
 		php_script->visit(&rf);
+
+		// check for errors
+		php_script->visit (&ic);
 	}
 
 	// lower
@@ -132,12 +138,16 @@ int main(int argc, char** argv)
 			|| args_info.compile_flag)
 	{
 		Lower_control_flow lcf;
-		Lower_expr_flow lef;
 		php_script->transform_children (&lcf);
+		php_script->visit (&ic); // check for errors
+
+		Lower_expr_flow lef;
 		php_script->transform_children (&lef);
+		php_script->visit (&ic); // check for errors
 
 		Check_lowering cl;
 		php_script->visit (&cl);
+		php_script->visit (&ic); // check for errors
 	}
 
 	// shred
@@ -148,6 +158,7 @@ int main(int argc, char** argv)
 	{
 		Shredder s;
 		php_script->transform_children(&s);
+		php_script->visit (&ic); // check for errors
 	}
 
 	// upper (implied by obfuscation)
@@ -155,9 +166,11 @@ int main(int argc, char** argv)
 	{
 		Goto_uppering gu;
 		php_script->visit (&gu);
+		php_script->visit (&ic); // check for errors
 
 		Check_uppering cl;
 		php_script->visit (&cl);
+		php_script->visit (&ic); // check for errors
 	}
 
 	// Strip comments
@@ -165,6 +178,7 @@ int main(int argc, char** argv)
 	{
 		Strip_comments sc;
 		php_script->visit (&sc);
+		php_script->visit (&ic);
 	}
 
 	run_plugins(php_script);

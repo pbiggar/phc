@@ -79,3 +79,13 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 					attr_mod->value->get_filename(), attr_mod->value->get_line_number ());
 	}
 }
+
+void Invalid_check::pre_directive (AST_directive *in)
+{
+	// declare (ticks = $x)
+	// the shredder can create these
+	
+	if (*in->directive_name->value == "ticks"
+		&& dynamic_cast <Token_int*>(in->expr) == NULL)
+		phc_error ("Ticks directive must have integer argument");
+}
