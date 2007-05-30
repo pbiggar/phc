@@ -24,6 +24,7 @@ codegen/.*								short interpretable
 dynamic/.*								short interpretable
 horrible/.*								short interpretable
 inline-c/.*								short non-interpretable
+invalid/.*								short non-interpretable # These are all invalid after parsing
 parsing/.*								short interpretable
 php_bugs/.*								short interpretable
 unsupported/.*							short non-interpretable

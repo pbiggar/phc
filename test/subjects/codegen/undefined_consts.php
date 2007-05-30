@@ -1,5 +1,5 @@
 <?php
-	function x ($x = Foo::BAR, $y = UNDEF::CON_ST)
+	function x ($x = Foo::BAR, $y = UNDEF::CONST_)
 	{
 		var_dump ($x);
 		var_dump ($y);
@@ -12,5 +12,7 @@
 	{
 		const BAR = 7;
 	}
+
+	x ();
 
 ?>
