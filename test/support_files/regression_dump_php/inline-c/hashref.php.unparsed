@@ -1,6 +1,0 @@
-<?php
-   // phc:inline-c
-   "#line 4 \"hashref.php\"\n/*\n * a = 5;\n * b[1] =& a;\n * b[1] = 6;\n */\nzval *a;\nMAKE_STD_ZVAL (a);\nZVAL_LONG (a, 5);\nZEND_SET_SYMBOL (EG (active_symbol_table), \"a\", a);\n\nzval *b;\nMAKE_STD_ZVAL (b);\narray_init (b);\nZEND_SET_SYMBOL (EG (active_symbol_table), \"b\", b);\n\n// Execute assignment\nzval_add_ref (&a);\n(a)->is_ref = 1;\nadd_index_zval(b, 1, a); \n\n// Extract the hashtable from the zval\nzval **indexed0;\nzend_hash_index_find (Z_ARRVAL_P(b), 1, (void **) &indexed0);\nZVAL_LONG(*indexed0, 6);";
-   var_dump($a);
-   var_dump($b);
-?>

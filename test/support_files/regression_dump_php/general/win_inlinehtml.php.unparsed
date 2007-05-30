@@ -1,9 +1,0 @@
-<?php
-   echo "1\r\n";
-   if (1) {
-      echo "Some longer string\r\n";
-   } else {
-      echo "3\r\n";
-   }
-   echo "4\r";
-?>

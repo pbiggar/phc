@@ -1,6 +1,0 @@
-<?php
-   
-   $x = shell_exec("ls");
-   echo $x;
-   
-?>

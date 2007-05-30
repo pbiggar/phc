@@ -1,4 +1,0 @@
-<?php
-   // phc:inline-c
-   "abort();";
-?>

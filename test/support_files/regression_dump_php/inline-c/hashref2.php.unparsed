@@ -1,7 +1,0 @@
-<?php
-   eval("\$a = 5;");
-   eval("\$b[1] =& \$a;");
-   eval("\$b[1] = 6;");
-   // phc:inline-c
-   "#line 9 \"hashref2.php\"\nzval** a;\nzval** b;\nzval** b_1;\n\nzend_hash_find(EG(active_symbol_table), \"a\", sizeof(\"a\"), (void**) &a);\nzend_hash_find(EG(active_symbol_table), \"b\", sizeof(\"b\"), (void**) &b);\nzend_hash_index_find(Z_ARRVAL_PP(b), 1, (void**) &b_1);\n\nprintf(\"a: %08X, b[1]: %08X\\n\", (unsigned) *a, (unsigned) *b_1);\nprintf(\"a->is_ref = %d\\n\", (*a)->is_ref);\nprintf(\"a->refcount = %d\\n\", (*a)->refcount);\nprintf(\"a->type == IS_LONG == %d\\n\", (*a)->type == IS_LONG);\nprintf(\"a->value->lval = %d\\n\", (*a)->value.lval);\n";
-?>
