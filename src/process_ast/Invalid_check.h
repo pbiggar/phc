@@ -22,6 +22,7 @@ public:
 	void pre_interface_def (AST_interface_def* in);
 	void pre_directive (AST_directive *in);
 	void pre_formal_parameter (AST_formal_parameter* in);
+	void pre_method_invocation (AST_method_invocation* in);
 };
 
 #endif // PHC_INVALID_CHECK

@@ -107,3 +107,17 @@ void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 			|| dynamic_cast <AST_array*> (in->expr)))
 		phc_error ("Default value for a formal parameter must be a literal value or an array", in->expr);
 }
+
+void Invalid_check::pre_method_invocation (AST_method_invocation* in)
+{
+	// the 'use' builtin isnt actually builtin yet
+	if (in->match (new AST_method_invocation (
+							NULL,
+							new Token_method_name(new String ("use")),
+							NULL)))
+	{
+		phc_error ("'use' builtin not yet a part of PHP. Please use include_once() or require_once()", in);
+	}
+}
+
+
