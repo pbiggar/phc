@@ -98,6 +98,7 @@ int main(int argc, char** argv)
 	// Check for invalid but parsable code
 	Invalid_check ic;
 	php_script->visit (&ic);
+	ic.use_ice = true; // from now on, use an internal error
 
 	if(php_script == NULL) return -1;
 

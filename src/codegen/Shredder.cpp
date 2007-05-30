@@ -190,7 +190,7 @@ class Annotate : public AST_visitor
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
-  };
+};
 
 /*
  * Remove unparser attributes and desugar

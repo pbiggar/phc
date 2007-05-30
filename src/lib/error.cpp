@@ -32,6 +32,36 @@ void phc_message (const char* type, const char* message_template, String* filena
 		" in a later release\n");
 }
 
+// Print the internal error message and quit
+void phc_internal_error (const char* message, String* filename, int line, ...)
+{
+	va_list argp;
+	va_start(argp, line);
+	phc_message ("Internal Error", message, filename, line, argp);
+	va_end(argp);
+	exit(-1);
+}
+
+void phc_internal_error (const char* message, AST_node* node, ...)
+{
+	va_list argp;
+	va_start(argp, node);
+	phc_message ("Internal Error", message, 
+		node->get_filename (), node->get_line_number (), argp);
+	va_end(argp);
+	exit(-1);
+}
+
+void phc_internal_error (const char* message, ...)
+{
+	va_list argp;
+	va_start(argp, message);
+	phc_message ("Internal Error", message, NULL, 0, argp);
+	va_end(argp);
+	exit(-1);
+}
+
+
 // Print the error message and quit
 void phc_error (const char* message, String* filename, int line, ...)
 {
@@ -52,9 +82,6 @@ void phc_error (const char* message, AST_node* node, ...)
 	exit(-1);
 }
 
-
-
-// Print the error message and quit
 void phc_error (const char* message, ...)
 {
 	va_list argp;
@@ -63,6 +90,7 @@ void phc_error (const char* message, ...)
 	va_end(argp);
 	exit(-1);
 }
+
 
 // Print the warning and continue 
 void phc_warning (const char* message, String* filename, int line, ...)
@@ -79,5 +107,13 @@ void phc_warning (const char* message, AST_node* node, ...)
 	va_start(argp, node);
 	phc_message ("Warning", message,
 		node->get_filename (), node->get_line_number (), argp);
+	va_end(argp);
+}
+
+void phc_warning (const char* message, ...)
+{
+	va_list argp;
+	va_start(argp, message);
+	phc_message ("Warning", message, NULL, 0, argp);
 	va_end(argp);
 }

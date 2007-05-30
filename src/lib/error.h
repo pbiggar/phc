@@ -12,9 +12,15 @@
 
 class AST_node;
 
+void phc_internal_error (const char* message, String* filename, int line, ...);
+void phc_internal_error (const char* message, AST_node* node, ...);
+void phc_internal_error (const char* message, ...);
+
+
 void phc_error (const char* message, String* filename, int line, ...);
 void phc_error (const char* message, AST_node* node, ...);
 void phc_error (const char* message, ...);
+
 
 void phc_warning (const char* message, String* filename, int line, ...);
 void phc_warning (const char* message, AST_node* node, ...);

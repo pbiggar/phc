@@ -16,6 +16,14 @@
 class Invalid_check : public AST_visitor 
 {
 public:
+
+	// If this is set, use phc_internal_error instead of phc_error
+	bool use_ice; // ice == Internal Compiler Error
+	Invalid_check () : use_ice (false) {}
+
+	// decide the error based on whether USE_ICE is set
+	void error (const char* message, AST_node* node);
+
 	void pre_statement (AST_statement* in);
 	void pre_assignment (AST_assignment* in);
 	void pre_foreach (AST_foreach* in);

@@ -16,6 +16,7 @@ bool is_literal (AST_expr* in)
 				|| dynamic_cast <AST_constant*> (in));
 }
 
+
 class Check_deep_literals : public AST_visitor
 {
 public:
@@ -39,6 +40,14 @@ bool check_deep_literals (AST_node *in)
 	return cdl.non_literal_found;
 }
 
+void Invalid_check::error (const char* message, AST_node* node)
+{
+	if (use_ice)
+		phc_internal_error (message, node);
+	else
+		phc_error (message, node);
+}
+
 void Invalid_check::pre_statement (AST_statement* in)
 {
 	// $x[]; or $x[][0]
@@ -53,7 +62,7 @@ void Invalid_check::pre_statement (AST_statement* in)
 			for (i = wild->value->array_indices->begin (); i != wild->value->array_indices->end (); i++)
 			{
 				if (*i == NULL)
-					phc_error ("Cannot use [] for reading", in);
+					error ("Cannot use [] for reading", in);
 			}
 		}
 	}
@@ -70,7 +79,7 @@ void Invalid_check::pre_assignment (AST_assignment* in)
 
 	if (in->is_ref)
 		if (is_literal (in->expr))
-			phc_error ("Cannot assign a reference to a literal", in->expr);
+			error ("Cannot assign a reference to a literal", in->expr);
 }
 
 void Invalid_check::pre_foreach (AST_foreach* in)
@@ -81,7 +90,7 @@ void Invalid_check::pre_foreach (AST_foreach* in)
 	
 	if (dynamic_cast<AST_literal*> (in->expr))
 	{
-		phc_error ("Invalid (literal) expression supplied for foreach()",
+		error ("Invalid (literal) expression supplied for foreach()",
 			in->expr);
 	}
 }
@@ -102,7 +111,7 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 				new Wildcard<AST_expr>))
 			)
 			if (!attr_mod->value->is_const)
-				phc_error ("Interfaces may not include member variables", 
+				error ("Interfaces may not include member variables", 
 					attr_mod->value);
 	}
 }
@@ -117,7 +126,7 @@ void Invalid_check::pre_directive (AST_directive *in)
 	{
 		// This error message is taken from php
 		if (!(dynamic_cast <AST_literal*>(in->expr)))
-			phc_error ("Cannot convert to ordinal value", in->expr);
+			error ("Cannot convert to ordinal value", in->expr);
 	}
 }
 
@@ -129,7 +138,7 @@ void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 		return;
 
 	if (check_deep_literals (in->expr))
-		phc_error ("Default value of a formal parameter must be a literal value or an array", in->expr);
+		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
 }
 
 void Invalid_check::pre_method_invocation (AST_method_invocation* in)
@@ -140,7 +149,7 @@ void Invalid_check::pre_method_invocation (AST_method_invocation* in)
 							new Token_method_name(new String ("use")),
 							NULL)))
 	{
-		phc_error ("'use' builtin not yet a part of PHP. Please use include_once() or require_once()", in);
+		error ("'use' builtin not yet a part of PHP. Please use include_once() or require_once()", in);
 	}
 }
 
@@ -153,5 +162,5 @@ void Invalid_check::pre_attribute (AST_attribute* in)
 		return;
 
 	if (check_deep_literals (in->expr))
-		phc_error ("Default value of an attribute must be a literal value or an array", in->expr);
+		error ("Default value of an attribute must be a literal value or an array", in->expr);
 }
