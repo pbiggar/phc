@@ -423,6 +423,11 @@ abstract class Test
 		$this->update_count ();
 	}
 
+	function is_successful ()
+	{
+		return ($this->successes == 0 or $this->failures > 0);
+	}
+
 	function get_triple_string ($brackets = true)
 	{
 		$red = red_string ();
@@ -434,7 +439,7 @@ abstract class Test
 		$skipped = sprintf ("%4s", $this->skipped." S");
 		if ($brackets == false)
 		{
-			if ($this->failures > 0)
+			if ($this->is_successful ())
 				return "$red$passed, $failed, $skipped$reset";
 			else 
 				return "$green$passed, $failed, $skipped$reset";
@@ -491,7 +496,7 @@ abstract class Test
 		$timing = $this->get_timing_string ();
 		$triple = $this->get_triple_string (false);
 
-		if ($this->failures > 0 or $this->successes == 0)
+		if ($this->is_successful ())
 			$word = "{$red}Failure:$reset";
 		else
 			$word = "{$green}Success:$reset";

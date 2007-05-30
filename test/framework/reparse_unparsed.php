@@ -16,7 +16,7 @@ class ReparseUnparsed extends TwoCommandTest
 
 	function get_dependent_test_names ()
 	{
-		return array ("InterpretUnparsed");
+		return array ("BasicParseTest");
 	}
 
 	function get_command_line1 ($subject)

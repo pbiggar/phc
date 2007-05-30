@@ -22,26 +22,26 @@
 bugs/.*									short interpretable
 codegen/.*								short interpretable
 dynamic/.*								short interpretable
-general/.*								short interpretable
 horrible/.*								short interpretable
 inline-c/.*								short non-interpretable
+parsing/.*								short interpretable
 php_bugs/.*								short interpretable
 unsupported/.*							short non-interpretable
 
 bugs/bug0009.php						size-dependent
 bugs/bug0011.php						size-dependent
 
-general/include_complex.php		includable
-general/included_recursive1.php	includable
-general/included_recursive2.php	includable
+parsing/include_complex.php		includable
+parsing/included_recursive1.php	includable
+parsing/included_recursive2.php	includable
 
 # These tests all cause infinite loops
-general/binops.php					long no-CompiledVsInterpreted
-general/for.php						non-interpretable # infinite loops
-general/for_cond_with_comma.php	non-interpretable # infinite loops
+parsing/binops.php					long no-CompiledVsInterpreted
+parsing/for.php						non-interpretable # infinite loops
+parsing/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops
 
-general/instring.php					non-interpretable # php's parser doesnt like this
+parsing/instring.php					non-interpretable # php's parser doesnt like this
 
 
 #.*										long erroneous 
