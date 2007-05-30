@@ -7,7 +7,8 @@
 # Be aware that all files in a directory are specfied use 'dir/.*', not 'dir/*'.
 #
 # Possible labels:
-#	- non-interpretable (default) or interpretable (interpretable means executable)
+#	- non-interpretable or interpretable (interpretable means executable). The
+#	    default is to run a purity test to check if they are interpretable
 #	- long (default) or short
 #	- size-neutral (default) or size-dependent
 #	- non-includable (default) or includable
@@ -25,7 +26,7 @@ general/.*								short interpretable
 horrible/.*								short interpretable
 inline-c/.*								short non-interpretable
 php_bugs/.*								short interpretable
-unsupported/.*							short
+unsupported/.*							short non-interpretable
 
 bugs/bug0009.php						size-dependent
 bugs/bug0011.php						size-dependent
