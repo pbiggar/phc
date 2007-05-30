@@ -132,6 +132,13 @@ public:
 
 class Annotate : public AST_visitor
 {
+	// only generate array elements if this is set
+	bool generate_array_temps;
+
+public:
+
+	Annotate() : generate_array_temps(true) {}
+
 	void pre_node(AST_node* in)
 	{
 		in->attrs->erase("phc.unparser.is_opeq");
@@ -144,15 +151,17 @@ class Annotate : public AST_visitor
 
 	void pre_assignment(AST_assignment* in)
 	{
-		// Assignments of the form $$e =& $d dont work if $$e is split into a temporary first
+		// Assignments of the form $$e =& $d dont work if $$e is split
+		// into a temporary first
 		if (in->is_ref && in->variable->variable_name->classid() == AST_reflection::ID)
 			in->variable->attrs->set_true("phc.lower_expr.no_temp");
 
 		in->variable->attrs->set_true("phc.shredder.need_addr");
 
-		// Is is not necessary to generate a temporary for the top-level
-		// expression of an assignment
-		in->expr->attrs->set_true("phc.lower_expr.no_temp");
+		// Is is not necessary to generate a temporary for the
+		// top-level expression of an assignment
+		if (in->expr->classid () != AST_array::ID)
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
 	void pre_unset(AST_unset* in)
@@ -162,15 +171,34 @@ class Annotate : public AST_visitor
 
 	void pre_attribute(AST_attribute* in)
 	{
-		// Do not generate a temp to hold the default value of an attribute
+		// Do not generate a temp to hold the default value of an
+		// attribute
 		if(in->expr != NULL)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
+
+		generate_array_temps = false;
+	}
+
+	void post_attribute(AST_attribute* in)
+	{
+		generate_array_temps = true;
+	}
+
+	void pre_array_elem (AST_array_elem* in)
+	{
+		if (generate_array_temps == false)
+		{
+			if(in->key)
+				in->key->attrs->set_true("phc.lower_expr.no_temp");
+			if(in->val)
+				in->val->attrs->set_true("phc.lower_expr.no_temp");
+		}
 	}
 
 	void pre_static_declaration(AST_static_declaration* in)
 	{
 		// Do not generate a temp to hold the default value of a static var
-		if(in->expr != NULL)
+		if(in->expr)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
@@ -188,6 +216,13 @@ class Annotate : public AST_visitor
 		// default value
 		if (in->expr)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
+
+		generate_array_temps = false;
+	}
+
+	void post_formal_parameter (AST_formal_parameter* in)
+	{
+		generate_array_temps = true;
 	}
 
 };
@@ -423,7 +458,39 @@ AST_expr* Shredder::post_null(Token_null* in)
 
 AST_expr* Shredder::post_array(AST_array* in)
 {
-	return in;
+	if (in->attrs->is_true("phc.lower_expr.no_temp"))
+		return in;
+
+	// We leave in arrays with no elements
+	if (in->array_elems->size () == 0)
+		return in;
+
+	String* temp = fresh("TS");
+	List<AST_array_elem*>::const_iterator i;
+
+	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
+	{
+		AST_expr* key;
+
+		if((*i)->key != NULL)
+			key = (*i)->key;
+		else
+			key = NULL;
+
+		pieces->push_back(new AST_eval_expr(new AST_assignment(
+						new AST_variable(
+							NULL,
+							new Token_variable_name(temp->clone()),
+							new List<AST_expr*>(key)),
+						(*i)->is_ref,
+						(*i)->val
+						)));
+	}
+
+	return new AST_variable(
+			NULL,
+			new Token_variable_name(temp),
+			new List<AST_expr*>());
 }
 
 /* Shred
