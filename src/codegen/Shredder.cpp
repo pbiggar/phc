@@ -184,14 +184,13 @@ class Annotate : public AST_visitor
 	void pre_formal_parameter (AST_formal_parameter* in)
 
 	{
-		// Do not generate a temp to hold the value of a parameter's default
-		// value
+		// Do not generate a temp to hold the value of a parameter's
+		// default value
 		if (in->expr)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
-
-};
+  };
 
 /*
  * Remove unparser attributes and desugar
@@ -424,44 +423,20 @@ AST_expr* Shredder::post_null(Token_null* in)
 
 AST_expr* Shredder::post_array(AST_array* in)
 {
-	String* temp = fresh("TSa");
-	List<AST_array_elem*>::const_iterator i;
-	
-	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
-	{
-		AST_expr* key;
-
-		if((*i)->key != NULL)
-			key = (*i)->key;
-		else
-			key = NULL;
-
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			new AST_variable(
-				NULL,
-				new Token_variable_name(temp->clone()),
-				new List<AST_expr*>(key)),
-			(*i)->is_ref,
-			(*i)->val
-			)));
-	}
-	
-	return new AST_variable(
-		NULL,
-		new Token_variable_name(temp),
-		new List<AST_expr*>());
+	return in;
 }
 
 /* Shred
  *  $x = (list ($a, $b, $c) = array ($c, $b, a));
  * into
- *	  $Tarr = array ($c, $b, $a); // hopefully this is already done
+ *	  $Tarr = array ($c, $b, $a);
  *	  $c = $Tarr[2];
  *	  $b = $Tarr[1];
  *	  $a = $Tarr[0];
  *	  $x = $Tarr;
  *
- *	Note the reverse order. This matters if you've arrays on the lhs. note that references arent allowed here.
+ *	Note the reverse order. This matters if you've arrays on the lhs.
+ *	Note that references arent allowed here.
  */
 
 AST_expr* Shredder::post_list_assignment(AST_list_assignment* in)
