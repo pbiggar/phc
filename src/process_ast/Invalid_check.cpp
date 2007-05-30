@@ -9,6 +9,35 @@
  */
 #include "Invalid_check.h"
 
+bool is_literal (AST_expr* in)
+{
+	return ( dynamic_cast <AST_literal*> (in) 
+				|| dynamic_cast <AST_array*> (in)
+				|| dynamic_cast <AST_constant*> (in));
+}
+
+class Check_deep_literals : public AST_visitor
+{
+public:
+
+	bool non_literal_found;
+	Check_deep_literals () : non_literal_found (false) {}
+	// we could override everything with an error, but we just need
+	// expressions
+	void pre_expr (AST_expr *in)
+	{
+		if (!is_literal (in))
+			non_literal_found = true;
+	}
+};
+
+/* Returns TRUE if any non-literals were found */
+bool check_deep_literals (AST_node *in)
+{
+	Check_deep_literals cdl;
+	in->visit (&cdl);
+	return cdl.non_literal_found;
+}
 
 void Invalid_check::pre_statement (AST_statement* in)
 {
@@ -33,34 +62,27 @@ void Invalid_check::pre_statement (AST_statement* in)
 void Invalid_check::pre_assignment (AST_assignment* in)
 {
 	// $x =& array (); or $x =& 5;
-	// These are syntax errors, but we're able to add them later (especially in foreach lowering)
-	if (in->is_ref)
-	{
-		if (dynamic_cast<AST_assignment*> (in->expr))
-		{
-			phc_error ("Cannot assign a reference to a literal array", in);
-		}
+	// These are syntax errors, but we're able to add them later
+	// (especially in foreach lowering)
+	
+	if (in->expr == NULL)
+		return;
 
-		if (dynamic_cast<AST_literal*> (in->expr))
-		{
-			phc_error ("Cannot assign a reference to a literal", in);
-		}
-	}
+	if (in->is_ref)
+		if (is_literal (in->expr))
+			phc_error ("Cannot assign a reference to a literal", in->expr);
 }
 
 void Invalid_check::pre_foreach (AST_foreach* in)
 {
 	// foreach (21 as $x) {}
-	// PHP only gives this as a warning, but its using run-time values, and we
-	// know this is a semantic error.
+	// PHP only gives this as a warning, but its using run-time
+	// values, and we know this is a semantic error.
 	
-	// FIXME this is a good example of why we need is_literal. Note that the
-	// tests above would also benefit. Its a lot of code to test something very
-	// simple.
 	if (dynamic_cast<AST_literal*> (in->expr))
 	{
 		phc_error ("Invalid (literal) expression supplied for foreach()",
-			in->expr, in->expr);
+			in->expr);
 	}
 }
 
@@ -73,7 +95,12 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 	{
 		Wildcard<AST_attr_mod> *attr_mod = new Wildcard<AST_attr_mod>;
 
-		if ((*i)->match (new AST_attribute (attr_mod, new Wildcard<Token_variable_name>, new Wildcard<AST_expr>)))
+		if ((*i)->match (
+			new AST_attribute (
+				attr_mod, 
+				new Wildcard<Token_variable_name>, 
+				new Wildcard<AST_expr>))
+			)
 			if (!attr_mod->value->is_const)
 				phc_error ("Interfaces may not include member variables", 
 					attr_mod->value);
@@ -96,16 +123,13 @@ void Invalid_check::pre_directive (AST_directive *in)
 
 void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 {
+	//   function x ($x = f()) {} // also a syntax error
+
 	if (in->expr == NULL)
 		return;
-	// function ($x = f())
 
-	// TODO we could have an array of variables, which is probably
-	// not allowed.
-
-	if (!(dynamic_cast <AST_literal*> (in->expr)
-			|| dynamic_cast <AST_array*> (in->expr)))
-		phc_error ("Default value for a formal parameter must be a literal value or an array", in->expr);
+	if (check_deep_literals (in->expr))
+		phc_error ("Default value of a formal parameter must be a literal value or an array", in->expr);
 }
 
 void Invalid_check::pre_method_invocation (AST_method_invocation* in)
@@ -120,4 +144,14 @@ void Invalid_check::pre_method_invocation (AST_method_invocation* in)
 	}
 }
 
+void Invalid_check::pre_attribute (AST_attribute* in)
+{
+	// class X {
+	//   var $x = f(); // also a syntax error
+	// }
+	if (in->expr == NULL)
+		return;
 
+	if (check_deep_literals (in->expr))
+		phc_error ("Default value of an attribute must be a literal value or an array", in->expr);
+}

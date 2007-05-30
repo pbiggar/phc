@@ -23,6 +23,7 @@ public:
 	void pre_directive (AST_directive *in);
 	void pre_formal_parameter (AST_formal_parameter* in);
 	void pre_method_invocation (AST_method_invocation* in);
+	void pre_attribute (AST_attribute* in);
 };
 
 #endif // PHC_INVALID_CHECK
