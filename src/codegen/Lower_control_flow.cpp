@@ -312,7 +312,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 
 	// list ($key, ) = each ($temp_array);
 	AST_list_assignment *assign = new AST_list_assignment (
-			new List< AST_list_element*> (Tkey),
+			new List<AST_list_element*> (Tkey),
 			new AST_method_invocation (
 				NULL, 
 				new Token_method_name (new String ("each")),

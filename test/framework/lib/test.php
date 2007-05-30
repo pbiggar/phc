@@ -16,10 +16,11 @@ function homogenize_xml ($string)
 
 function homogenize_filenames_and_line_numbers ($string)
 {
-	$string = preg_replace("/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
-	$string = preg_replace("/(Fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
-	$string = preg_replace("/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
-	$string = preg_replace("/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
+	$string = preg_replace( "/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
+//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
 	return $string;
 }
 
@@ -33,6 +34,19 @@ function homogenize_break_levels ($string)
 									"", $string);
 	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
 									"", $string);
+	return $string;
+}
+
+// its still correct if the number of references is off, so look for var_dump output, and remove &s from it
+function homogenize_reference_count ($string)
+{
+# this only actually finds differences in arrays
+	$string = preg_replace(
+		"/
+					(\s+\[.*?\]=>\s+)		# key and newline
+					&							# we want to delete this
+					(.*?\s+)					# dont go too far
+		/smx", "$1$2", $string);
 	return $string;
 }
 

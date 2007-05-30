@@ -88,6 +88,7 @@ void Invalid_check::pre_directive (AST_directive *in)
 	
 	if (*in->directive_name->value == "ticks")
 	{
+		// This error message is taken from php
 		if (!(dynamic_cast <AST_literal*>(in->expr)))
 			phc_error ("Cannot convert to ordinal value", in->expr);
 	}
