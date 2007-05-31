@@ -1,15 +1,20 @@
 <?php
+	function f() {}
+	function g($a) {}
+	function h($a, $b) {}
+	function i($a, $b, $c) {}
+
 	f();
 
-	f(5);
-	f($x);
-	f(&$x);
+	g(5);
+	g($x);
+	g(&$x);
 
-	f(5, 6);
-	f($x, $y);
-	f(&$x, &$y);
+	h(5, 6);
+	h($x, $y);
+	h(&$x, &$y);
 
-	f(5, 6, 7);
-	f($x, $y, $z);
-	f(&$x, &$y, &$z);
+	i(5, 6, 7);
+	i($x, $y, $z);
+	i(&$x, &$y, &$z);
 ?>

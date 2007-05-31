@@ -62,8 +62,13 @@ String* operand(AST_expr* in)
 	return var_name->value;
 }
 
-// Find the zval described by "var" and store it in "zvp" 
-void index_st(string hash, string zvp, AST_variable* var)
+enum Scope { LOCAL, GLOBAL };
+
+// Find the zval described by "var" and store it in "zvp"
+// Scope only applies to the top-level variable! (i.e., the variable used
+// to index a variable variable, or the variable used as an array index
+// are always taken from the local scope)
+void index_st(Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -71,6 +76,12 @@ void index_st(string hash, string zvp, AST_variable* var)
 
 	// TODO: deal with object indexing
 	assert(var->target == NULL);
+
+	string hash;
+	if(scope == LOCAL)
+		hash = "EG(active_symbol_table)";
+	else
+		hash = "&EG(symbol_table)";
 
 	if(name != NULL)
 	{
@@ -88,7 +99,7 @@ void index_st(string hash, string zvp, AST_variable* var)
 			cout 
 			<< "{\n"
 			<< "HashTable* ht = extract_ht(" << zvp << ");"
-			<< "zval* ind = index_ht(" << hash << ", "
+			<< "zval* ind = index_ht(EG(active_symbol_table), "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< zvp << " = index_ht_zval(ht, ind);\n"
 			<< "}\n"
@@ -107,7 +118,7 @@ void index_st(string hash, string zvp, AST_variable* var)
 
 		cout 
 		<< "{\n"
-		<< "zval* name = index_ht(" << hash << ", "
+		<< "zval* name = index_ht(EG(active_symbol_table), "
 		<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
 		<< zvp << " = index_ht_zval(" << hash << ", name);\n"
 		<< "}\n"
@@ -116,14 +127,23 @@ void index_st(string hash, string zvp, AST_variable* var)
 }
 
 // Update the variable "var" with "zvp", incrementing "zvp"'s refcount
-void update_st(string hash, AST_variable* var, string zvp)
+// Scope only applies to the top-level variable! (i.e., the variable used
+// to index a variable variable, or the variable used as an array index
+// are always taken from the local scope)
+void update_st(Scope scope, AST_variable* var, string zvp)
 {
+	string hash;
+	if(scope == LOCAL)
+		hash = "EG(active_symbol_table)";
+	else
+		hash = "&EG(symbol_table)";
+
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
 	name = dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	cout << zvp << "->refcount++;\n";
-
+	
 	// Ordinary variable
 	if(name != NULL)
 	{
@@ -155,7 +175,7 @@ void update_st(string hash, AST_variable* var, string zvp)
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			<< "HashTable* ht = extract_ht(arr);\n"
-			<< "zval* ind = index_ht(" << hash << ", "
+			<< "zval* ind = index_ht(EG(active_symbol_table), "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< "update_ht(ht, ind, " << zvp << ");\n"
 			<< "}\n"
@@ -193,7 +213,7 @@ void update_st(string hash, AST_variable* var, string zvp)
 		String* ind = operand(refl->expr);
 
 		cout
-		<< "zval* ind = index_ht(" << hash << ", "
+		<< "zval* ind = index_ht(EG(active_symbol_table), "
 		<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 		<< "update_ht(" << hash << ", ind, " << zvp << ");\n"
 		;
@@ -217,30 +237,33 @@ void clone(string zvp)
 }
 
 // Implementation of "global" (used in various places)
-void global(AST_variable_name* var_name)
+void global(AST_variable_name* var_name, bool separate)
 {
 	AST_variable* var;
 	var = new AST_variable(NULL, var_name, new List<AST_expr*>());
 
 	cout << "{\n";
 	cout << "zval* global_var;\n";
-	index_st("&EG(symbol_table)", "global_var", var);
+	index_st(GLOBAL, "global_var", var);
 	
 	// Separate RHS if necessary
-	cout << "if(global_var->refcount > 1 && !global_var->is_ref) {\n";
-	clone("global_var");
-	update_st("&EG(symbol_table)", var, "global_var");
-	cout << "}\n";
+	if(separate)
+	{
+		cout << "if(global_var->refcount > 1 && !global_var->is_ref) {\n";
+		clone("global_var");
+		update_st(GLOBAL, var, "global_var");
+		cout << "}\n";
+	}
 
 	cout << "global_var->is_ref = 1;\n";
-	update_st("EG(active_symbol_table)", var, "global_var");
+	update_st(LOCAL, var, "global_var");
 	cout << "}\n";
 }
 
 // For convenience
 void global(char* name)
 {
-	global(new Token_variable_name(new String(name)));
+	global(new Token_variable_name(new String(name)), false);
 }
 
 /*
@@ -526,14 +549,14 @@ public:
 	void index_lhs()
 	{
 		cout << "// Index LHS\n";
-		index_st("EG(active_symbol_table)", "lhs", lhs->value);
+		index_st(LOCAL, "lhs", lhs->value);
 	}
 
 	// Make the LHS point to the RHS (copy-on-write)
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_st("EG(active_symbol_table)", lhs->value, "rhs");
+		update_st(LOCAL, lhs->value, "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -570,7 +593,7 @@ public:
 		if(rhs != NULL)
 		{
 			// First, make a copy, then update the hashtable
-			update_st("EG(active_symbol_table)", rhs->value, "rhs");
+			update_st(LOCAL, rhs->value, "rhs");
 		}
 		else
 		{
@@ -589,7 +612,7 @@ public:
 	{
 		cout << "// Change-on-write\n";
 		cout << "rhs->is_ref = 1;\n";
-		update_st("EG(active_symbol_table)", lhs->value, "rhs");
+		update_st(LOCAL, lhs->value, "rhs");
 	}
 
 	void generate_code(Generate_C* gen)
@@ -765,7 +788,7 @@ public:
 
 	void generate_rhs()
 	{
-		index_st("EG(active_symbol_table)", "rhs", rhs->value);
+		index_st(LOCAL, "rhs", rhs->value);
 		// We now have two references to the RHS
 		cout << "rhs->refcount++;\n";
 	}
@@ -785,7 +808,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		global(rhs->value);
+		global(rhs->value, true);
 	}
 
 protected:
@@ -949,7 +972,7 @@ public:
 			if(var != NULL)
 			{
 				clone("arg");
-				update_st("EG(active_symbol_table)", var, "arg");
+				update_st(LOCAL, var, "arg");
 			}
 			else
 			{

@@ -13,7 +13,6 @@
 
 	function show_global_x2()
 	{
-		global $GLOBALS;
 		echo "x2: $GLOBALS[x2]\n";
 	}
 
