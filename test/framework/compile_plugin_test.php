@@ -48,7 +48,9 @@ class CompilePluginTest extends NoSubjectTest
 			return;
 		}
 
-		$command = "$phc --run $plugin_name.la test/subjects/general/if.php";
+		$files = get_all_scripts ();
+		$filename = $files[0];
+		$command = "$phc --run $plugin_name.la $filename";
 		list ($out, $err, $exit) = complete_exec ($command);
 		if ($exit != 0) $this->mark_failure ("All", $command, $exit, $out, $err);
 		else 
