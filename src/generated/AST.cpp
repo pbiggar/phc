@@ -6803,7 +6803,7 @@ AST_clone* AST_clone::clone()
     return clone;
 }
 
-Token_int::Token_int(int value, String* source_rep)
+Token_int::Token_int(long value, String* source_rep)
 {
     this->value = value;
     this->source_rep = source_rep;
@@ -6919,7 +6919,7 @@ Token_int* Token_int::clone()
     return clone;
 }
 
-int Token_int::clone_value()
+long Token_int::clone_value()
 {
     return value;
 }

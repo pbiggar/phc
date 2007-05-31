@@ -1464,7 +1464,7 @@ public:
     virtual AST_nop* clone();
 };
 
-// literal ::= INT<int> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<>;
+// literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<>;
 class AST_literal : virtual public AST_expr
 {
 public:
@@ -1894,14 +1894,14 @@ public:
 class Token_int : virtual public AST_literal
 {
 public:
-    Token_int(int value, String* source_rep);
+    Token_int(long value, String* source_rep);
 protected:
     Token_int();
 public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    int value;
+    long value;
     String* source_rep;
     virtual String* get_source_rep();
 public:
@@ -1920,7 +1920,7 @@ private:
     void call_initializing_virtuals();
 public:
     virtual Token_int* clone();
-    virtual int clone_value();
+    virtual long clone_value();
 };
 
 class Token_real : virtual public AST_literal

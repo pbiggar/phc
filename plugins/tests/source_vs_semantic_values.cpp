@@ -34,8 +34,8 @@ public:
 		printf ("\t{\n");
 		printf ("\t\t$success = false;\n");
 		printf ("\t\tprint \"Failure (%s): ", type->c_str());
-		printf ("'%s' (\".gettype(%s).\": \".(%s).\") vs ", value->c_str(), value->c_str(), value->c_str());
-		printf ("'%s' (\".gettype(%s).\": \".(%s).\"))\\n\";\n", source->c_str(), source->c_str(), source->c_str());
+		printf ("value: '%s' (\".gettype(%s).\": \".(%s).\") vs ", value->c_str(), value->c_str(), value->c_str());
+		printf ("source: '%s' (\".gettype(%s).\": \".(%s).\"))\\n\";\n", source->c_str(), source->c_str(), source->c_str());
 		printf ("\t}\n\n");
 	}
 
