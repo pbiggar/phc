@@ -1,4 +1,4 @@
-#!/usr/bin/php -Cq
+#!/usr/local/bin/php -Cq
 <?php
 
 ini_set("memory_limit","32M");
@@ -27,7 +27,7 @@ function get_header ($title, $command)
 	return $header;
 }
 
-function run_command ($title, $command, $directory = false)
+function run_command ($title, $command, $directory = false, $print_result = true)
 {
 	global $output;
 	$header = get_header ($title, $command);
@@ -48,6 +48,9 @@ function run_command ($title, $command, $directory = false)
 		exit();
 	}
 
+	if ($print_result)
+		return "$header\n";
+
 	return "$header$result\n\n";
 }
 
@@ -59,17 +62,17 @@ function run_command ($title, $command, $directory = false)
 	$output .= run_command ("Removing old version", "rm -Rf /tmp/phc_testing");
 	mkdir($root) or die ("Mkdir in /tmp/ failing is very unlikely. PANIC");
 
-	$output .= run_command ("Checking out source", "svn export -q http://phc.googlecode.com/svn/trunk", $root);
-	$output .= run_command ("Checking out website", "svn export -q http://phc.googlecode.com/svn/www", $root);
-	$output .= run_command ("Touch generated", "touch src/generated/*", "$root/trunk");
-	$output .= run_command ("Configure", "./configure --prefix=$root/installed", "$root/trunk");
-	$output .= run_command ("Make", "make", "$root/trunk");
+	$output .= run_command ("Checking out source", "svn export -q http://phc.googlecode.com/svn/trunk", $root, false);
+	$output .= run_command ("Checking out website", "svn export -q http://phc.googlecode.com/svn/www", $root, false);
+	$output .= run_command ("Touch generated", "touch src/generated/*", "$root/trunk", false);
+	$output .= run_command ("Configure", "./configure --prefix=$root/installed", "$root/trunk", false);
+	$output .= run_command ("Make", "make", "$root/trunk", false);
 
 	// We use this in the summary later
 	$test_summary = run_command ("Run tests", "php test/framework/driver.php -l -p", "$root/trunk");
 	$output .= $test_summary;
 
-	$output .= run_command ("Run installer", "make install", "$root/trunk");
+	$output .= run_command ("Run installer", "make install", "$root/trunk", false);
 	$output .= run_command ("Test installed components", "php test/framework/driver.php -l -p -i", "$root/trunk");
 
 	$found = run_command ("Errors", "find test/logs 2>&1 | grep '.php.log$'", "$root/trunk");
