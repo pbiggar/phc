@@ -19,9 +19,9 @@
 #include "codegen/Generate_C.h"
 #include "codegen/Lower_control_flow.h"
 #include "codegen/Lower_expr_flow.h"
+#include "codegen/Note_top_level_declarations.h"
 #include "codegen/Shredder.h"
 #include "codegen/Goto_uppering.h"
-#include "codegen/Reorder_functions.h"
 #include "codegen/Check_lowering.h"
 #include "codegen/Check_uppering.h"
 #include "process_ast/Strip_comments.h"
@@ -107,6 +107,10 @@ int main(int argc, char** argv)
 
 	process_ast(php_script);
 
+	Note_top_level_declarations ntld;
+	php_script->visit (&ntld);
+	php_script->visit (&ic); // check for errors
+
 	// lift
 	if(args_info.run_lifting_flag
 		|| args_info.generate_c_flag
@@ -120,7 +124,7 @@ int main(int argc, char** argv)
 	}
 
 	// reorder
-	if (args_info.run_lowering_flag 
+/*	if (args_info.run_lowering_flag 
 			|| args_info.run_shredder_flag
 			|| args_info.obfuscate_flag)
 	{
@@ -130,7 +134,7 @@ int main(int argc, char** argv)
 		// check for errors
 		php_script->visit (&ic);
 	}
-
+*/
 	// lower
 	if (args_info.run_lowering_flag 
 			|| args_info.run_shredder_flag

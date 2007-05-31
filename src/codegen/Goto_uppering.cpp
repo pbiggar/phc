@@ -12,6 +12,9 @@ Goto_uppering::Goto_uppering ()
 List<AST_statement*>*
 Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 {
+	// The prelude contains all static declarations
+	List<AST_statement*> *prelude = new List<AST_statement*> ();
+
 	// this in only contains the while, and the "start" statement.
 	List<AST_statement*> *out = new List<AST_statement*> ();
 
@@ -89,7 +92,10 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 		}
 		else
 		{
-			current->statements->push_back (*i);
+			if (((*i)->attrs->is_true ("phc.lower_control_flow.top_level_declaration")))
+				prelude->push_back(*i);
+			else
+				current->statements->push_back(*i);
 		}
 	}
 
@@ -106,7 +112,10 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 	cases->push_back (current);
 	current->statements->push_back (new AST_break (new Token_int (2)));
 
-	return out;
+
+	// combine the two lists, and output all statements
+	prelude->push_back_all (out);
+	return prelude;
 }
 
 void 

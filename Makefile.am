@@ -58,12 +58,12 @@ src_phc_SOURCES =												\
 	src/codegen/Lower_expr.h								\
 	src/codegen/Lower_expr_flow.cpp						\
 	src/codegen/Lower_expr_flow.h							\
-	src/codegen/Reorder_functions.cpp					\
-	src/codegen/Reorder_functions.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
+	src/codegen/Note_top_level_declarations.cpp		\
+	src/codegen/Note_top_level_declarations.h			\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
 	src/embed/embed.h											\

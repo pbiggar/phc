@@ -28,6 +28,12 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
+/* TODO any non-top-level class or function should be promoted to a top-level
+ * class/function with a different name, and it its place to be a call to
+ * "register_dynamic_class(C, __phc__C1__)". Top-level classes and functions
+ * are marked with the "phc.lower_control_flow.top_level_declaration"
+ * attribute. */
+
 /*
  * After the shredder, many expressions can only contain "simple" variables.
  * For example, where a bin-op could contain arbitrary expressions on the left

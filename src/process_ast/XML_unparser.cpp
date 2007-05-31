@@ -178,6 +178,8 @@ void XML_unparser::pre_node(AST_node* in)
 				HANDLE_BOOLEAN ("phc.lower_expr.no_temp")
 				HANDLE_BOOLEAN ("phc.unparser.is_singly_quoted")
 				HANDLE_BOOLEAN ("phc.unparser.index_curlies")
+				HANDLE_BOOLEAN ("phc.lower_control_flow.top_level_declaration")
+// these are no longer present
 //				HANDLE_BOOLEAN ("phc.codegen.break_label")
 //				HANDLE_BOOLEAN ("phc.codegen.continue_label")
 #undef HANDLE_BOOLEAN
@@ -185,7 +187,7 @@ void XML_unparser::pre_node(AST_node* in)
 #undef HANDLE_INT
 				else
 				{
-					phc_warning("Unknown attribute '%s'", NULL, 0, (*i).first.c_str());	
+					phc_warning("Unknown attribute '%s'", in, (*i).first.c_str());	
 				}
 			}
 
