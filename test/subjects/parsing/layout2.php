@@ -9,5 +9,5 @@
 		. " FROM " . $b
 		. " WHERE " . $c . " GROUPBY " . $d;
 
-	foo(); bar();
+	echo $query1; echo $query2; 
 ?>

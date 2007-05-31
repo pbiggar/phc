@@ -8,7 +8,7 @@
 	}
 
 	f();
-	var_dump($a);
+	// var_dump($a); // disabled because PHP doesn't like it (bug in PHP?)
 	var_dump($b);
 
 	$x = "GLOBALS";

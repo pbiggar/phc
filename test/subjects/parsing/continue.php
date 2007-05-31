@@ -7,7 +7,7 @@
 		$x = $x - 1;
 		if($x == 3)
 		{
-			continue 3;
+			continue 1;
 		}
 		printf("x is $x");
 	}
