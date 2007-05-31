@@ -63,7 +63,7 @@ String* operand(AST_expr* in)
 }
 
 // Find the zval described by "var" and store it in "zvp" 
-void index_st(string zvp, AST_variable* var)
+void index_st(string hash, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -76,7 +76,7 @@ void index_st(string zvp, AST_variable* var)
 	{
 		// Ordinary variable
 		cout
-		<< zvp << " = index_ht(EG(active_symbol_table), "
+		<< zvp << " = index_ht(" << hash << ", "
 		<< "\"" << *name->value << "\", "
 		<< name->value->length() + 1 << ");\n"
 		;
@@ -88,7 +88,7 @@ void index_st(string zvp, AST_variable* var)
 			cout 
 			<< "{\n"
 			<< "HashTable* ht = extract_ht(" << zvp << ");"
-			<< "zval* ind = index_ht(EG(active_symbol_table), "
+			<< "zval* ind = index_ht(" << hash << ", "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< zvp << " = index_ht_zval(ht, ind);\n"
 			<< "}\n"
@@ -107,17 +107,16 @@ void index_st(string zvp, AST_variable* var)
 
 		cout 
 		<< "{\n"
-		<< "zval* name = index_ht(EG(active_symbol_table), "
+		<< "zval* name = index_ht(" << hash << ", "
 		<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
-		<< zvp << " = index_ht_zval(EG(active_symbol_table), name);\n"
+		<< zvp << " = index_ht_zval(" << hash << ", name);\n"
 		<< "}\n"
 		;
 	}
 }
 
-// Update the variable in "EG(active_symbol_table)" described by "var" with "zvp", and
-// increment "zvp"'s refcount
-void update_st(AST_variable* var, string zvp)
+// Update the variable "var" with "zvp", incrementing "zvp"'s refcount
+void update_st(string hash, AST_variable* var, string zvp)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -133,11 +132,11 @@ void update_st(AST_variable* var, string zvp)
 			cout 
 			// Remove the old value from the hashtable
 			// (reducing its refcount)
-			<< "zend_hash_del(EG(active_symbol_table), "
+			<< "zend_hash_del(" << hash << ", "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			// Add the new value to the hashtable
-			<< "zend_hash_add(EG(active_symbol_table), "
+			<< "zend_hash_add(" << hash << ", "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ", "
 			<< "&" << zvp << ", sizeof(zval*), NULL);\n"
@@ -152,11 +151,11 @@ void update_st(AST_variable* var, string zvp)
 
 			cout 
 			<< "{\n"
-			<< "zval* arr = index_ht(EG(active_symbol_table), " 
+			<< "zval* arr = index_ht(" << hash << ", " 
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			<< "HashTable* ht = extract_ht(arr);\n"
-			<< "zval* ind = index_ht(EG(active_symbol_table), "
+			<< "zval* ind = index_ht(" << hash << ", "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< "update_ht(ht, ind, " << zvp << ");\n"
 			<< "}\n"
@@ -170,7 +169,7 @@ void update_st(AST_variable* var, string zvp)
 			// Assign to next available index
 			cout 
 			<< "{\n"
-			<< "zval* arr = index_ht(EG(active_symbol_table), " 
+			<< "zval* arr = index_ht(" << hash << ", " 
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
 			<< "HashTable* ht = extract_ht(arr);\n"
@@ -194,11 +193,54 @@ void update_st(AST_variable* var, string zvp)
 		String* ind = operand(refl->expr);
 
 		cout
-		<< "zval* ind = index_ht(EG(active_symbol_table), "
+		<< "zval* ind = index_ht(" << hash << ", "
 		<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-		<< "update_ht(EG(active_symbol_table), ind, " << zvp << ");\n"
+		<< "update_ht(" << hash << ", ind, " << zvp << ");\n"
 		;
 	}
+}
+	
+// Make a copy of zvp 
+void clone(string zvp)
+{
+	cout
+	<< "{\n"
+	<< "zval* clone;\n"
+	<< "MAKE_STD_ZVAL(clone);\n"
+	<< "clone->refcount = 0;\n"
+	<< "clone->value = " << zvp << "->value;\n"
+	<< "clone->type = " << zvp << "->type;\n"
+	<< "zval_copy_ctor(clone);\n"
+	<< zvp << " = clone;\n"
+	<< "}\n"
+	;
+}
+
+// Implementation of "global" (used in various places)
+void global(AST_variable_name* var_name)
+{
+	AST_variable* var;
+	var = new AST_variable(NULL, var_name, new List<AST_expr*>());
+
+	cout << "{\n";
+	cout << "zval* global_var;\n";
+	index_st("&EG(symbol_table)", "global_var", var);
+	
+	// Separate RHS if necessary
+	cout << "if(global_var->refcount > 1 && !global_var->is_ref) {\n";
+	clone("global_var");
+	update_st("&EG(symbol_table)", var, "global_var");
+	cout << "}\n";
+
+	cout << "global_var->is_ref = 1;\n";
+	update_st("EG(active_symbol_table)", var, "global_var");
+	cout << "}\n";
+}
+
+// For convenience
+void global(char* name)
+{
+	global(new Token_variable_name(new String(name)));
 }
 
 /*
@@ -323,19 +365,8 @@ protected:
 			;
 		}
 
-		// Add references to the superglobals 
-		// TODO: currently we deal only with GLOBALS
-		// TODO: we call zval_ptr_dtor on globals afterwards, and it is 
-		// also removed from the hashtable. Everything seems to work fine,
-		// but I'm a bit worried about accidentally trying to delete the 
-		// global symbol table ;)
-		cout
-		<< "zval* globals;\n"
-		<< "MAKE_STD_ZVAL(globals);\n"
-		<< "globals->value.ht = &EG(symbol_table);\n"
-		<< "globals->type = IS_ARRAY;\n"
-		<< "zend_hash_add(EG(active_symbol_table), \"GLOBALS\", 8, &globals, sizeof(zval*), NULL);\n"
-		;
+		// TODO: deal with all superglobals 
+		global("GLOBALS");
 
 		// debug_argument_stack();
 
@@ -393,8 +424,6 @@ protected:
 			<< "EG(active_symbol_table) = old_active_symbol_table;\n"
 			;
 		}
-
-		cout << "zval_ptr_dtor(&globals);\n";
 
 		cout << "}\n";
 	}
@@ -497,30 +526,14 @@ public:
 	void index_lhs()
 	{
 		cout << "// Index LHS\n";
-		index_st("lhs", lhs->value);
-	}
-
-	// Make a copy of zvp 
-	void clone(string zvp)
-	{
-		cout
-		<< "{\n"
-		<< "zval* clone;\n"
-		<< "MAKE_STD_ZVAL(clone);\n"
-		<< "clone->refcount = 0;\n"
-		<< "clone->value = " << zvp << "->value;\n"
-		<< "clone->type = " << zvp << "->type;\n"
-		<< "zval_copy_ctor(clone);\n"
-		<< zvp << " = clone;\n"
-		<< "}\n"
-		;
+		index_st("EG(active_symbol_table)", "lhs", lhs->value);
 	}
 
 	// Make the LHS point to the RHS (copy-on-write)
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_st(lhs->value, "rhs");
+		update_st("EG(active_symbol_table)", lhs->value, "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -557,7 +570,7 @@ public:
 		if(rhs != NULL)
 		{
 			// First, make a copy, then update the hashtable
-			update_st(rhs->value, "rhs");
+			update_st("EG(active_symbol_table)", rhs->value, "rhs");
 		}
 		else
 		{
@@ -576,7 +589,7 @@ public:
 	{
 		cout << "// Change-on-write\n";
 		cout << "rhs->is_ref = 1;\n";
-		update_st(lhs->value, "rhs");
+		update_st("EG(active_symbol_table)", lhs->value, "rhs");
 	}
 
 	void generate_code(Generate_C* gen)
@@ -752,13 +765,31 @@ public:
 
 	void generate_rhs()
 	{
-		index_st("rhs", rhs->value);
+		index_st("EG(active_symbol_table)", "rhs", rhs->value);
 		// We now have two references to the RHS
 		cout << "rhs->refcount++;\n";
 	}
 
 protected:
 	Wildcard<AST_variable>* rhs;
+};
+
+class Global : public Pattern 
+{
+public:
+	bool match(AST_statement* that)
+	{
+		rhs = new Wildcard<AST_variable_name>;
+		return(that->match(new AST_global(rhs)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		global(rhs->value);
+	}
+
+protected:
+	Wildcard<AST_variable_name>* rhs;
 };
 
 class Eval : public Assignment
@@ -918,7 +949,7 @@ public:
 			if(var != NULL)
 			{
 				clone("arg");
-				update_st(var, "arg");
+				update_st("EG(active_symbol_table)", var, "arg");
 			}
 			else
 			{
@@ -1207,6 +1238,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_bool()
 	,	new Assign_real()
 	,	new Copy()
+	,	new Global()
 	,	new Eval()
 	,	new Method_invocation()
 	,	new Bin_op()

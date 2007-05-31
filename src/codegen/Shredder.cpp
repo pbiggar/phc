@@ -33,42 +33,6 @@ public:
 		// Leave "out" empty 
 	}
 
- 	// Global is translated into a reference to the GLOBALS array
-	void pre_global(AST_global* in, List<AST_statement*>* out)
-	{
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(in->variable_name);
-	
-		if(name != NULL)
-		{
-			out->push_back(new AST_eval_expr(new AST_assignment(
-				new AST_variable(NULL, name->clone (), new List<AST_expr*>),
-				true,
-				new AST_variable(
-					NULL, 
-					new Token_variable_name(new String("GLOBALS")),
-					new List<AST_expr*>(new Token_string(
-						name->value->clone(),
-						name->value->clone()
-				))))));
-		}
-		else
-		{
-			AST_reflection* reflection;
-			reflection = dynamic_cast<AST_reflection*>(in->variable_name);
-			assert(reflection != NULL);
-	
-			out->push_back(new AST_eval_expr(new AST_assignment(
-				new AST_variable(NULL, reflection, new List<AST_expr*>),
-				true,
-				new AST_variable(
-					NULL, 
-					new Token_variable_name(new String("GLOBALS")),
-					new List<AST_expr*>(reflection->expr)
-				))));
-		}
-	}
-
 	// Replace "-x" by "0 - x"
 	AST_expr* pre_unary_op(AST_unary_op* in)
 	{
