@@ -669,12 +669,13 @@ protected:
 };
 
 // TODO not sure if we want to use ->source_rep or ->value here; using
-// source_rep currently to avoid losing precision
+// zend_eval_string with source_rep currently to avoid losing precision
+// Anyone who things he/she knows a better solution, be sure to run all tests!
 class Assign_int : public Assign_literal<Token_int> 
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_LONG(rhs, " << *rhs->value->source_rep << ");\n"; 
+		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
 	}
 };
 
@@ -682,7 +683,7 @@ class Assign_real : public Assign_literal<Token_real>
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_DOUBLE(rhs, " << *rhs->value->source_rep << ");\n";
+		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
 	}
 };
 
