@@ -1168,7 +1168,8 @@ class Unset : public Pattern
 				// TODO Code duplication
 				<< "zval* string_index;\n"
 				<< "MAKE_STD_ZVAL(string_index);\n"
-				<< "*string_index = *ind;\n"
+				<< "string_index->value = ind->value;\n"
+				<< "string_index->type = ind->type;\n"
 				<< "zval_copy_ctor(string_index);\n"
 				<< "convert_to_string(string_index);\n"
 				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
@@ -1278,7 +1279,8 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "{\n"
 	<< "zval* string_index;\n"
 	<< "MAKE_STD_ZVAL(string_index);\n"
-	<< "*string_index = *ind;\n"
+	<< "string_index->value = ind->value;\n"
+	<< "string_index->type = ind->type;\n"
 	<< "zval_copy_ctor(string_index);\n"
 	<< "convert_to_string(string_index);\n"
 	<< "result = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
@@ -1317,7 +1319,8 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	// TODO: if we know it's a string, we don't need to convert
 	<< "zval* string_index;\n"
 	<< "MAKE_STD_ZVAL(string_index);\n"
-	<< "*string_index = *ind;\n"
+	<< "string_index->value = ind->value;\n"
+	<< "string_index->type = ind->type;\n"
 	<< "zval_copy_ctor(string_index);\n"
 	<< "convert_to_string(string_index);\n"
 	// Remove the old value from the hashtable
