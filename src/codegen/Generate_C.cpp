@@ -551,18 +551,23 @@ public:
 		Wildcard<AST_variable>* rhs;
 		rhs = dynamic_cast<Wildcard<AST_variable>*>(agn->expr);
 
+		// Make a copy of the RHS
+		clone("rhs");
+
 		if(rhs != NULL)
 		{
 			// First, make a copy, then update the hashtable
-			clone("rhs");
 			update_st(rhs->value, "rhs");
 		}
 		else
 		{
+			// TODO 
+
 			// I *think* the need for separation can only ever arise when the
 			// RHS is a variable. However, the decision to run seperate_rhs
 			// is based on runtime information, hence the runtime assert
-			cout << "assert(0);\n";
+		//	cout << "assert(0);\n";
+		//	
 		}
 	}
 
@@ -582,6 +587,11 @@ public:
 
 		// Generate code for the RHS
 		generate_rhs();
+
+		// Make a copy of the pointer to the RHS so that we can reduce its
+		// refcount when we're done ("rhs" itself may be overwritten by a 
+		// call to clone)
+		cout << "zval* rhs_orig = rhs;\n";
 
 		if(!agn->is_ref)
 		{
@@ -619,6 +629,9 @@ public:
 			reference_rhs();
 		}
 
+		// Reduce refcount of RHS and garbage collect if necessary
+		cout << "zval_ptr_dtor(&rhs_orig);\n";
+
 		// close local scope
 		cout << "}\n"; 	
 	}
@@ -646,7 +659,6 @@ public:
 	void generate_rhs()
 	{
 		cout << "MAKE_STD_ZVAL(rhs);\n";
-		cout << "rhs->refcount = 0;\n";
 		init_rhs();
 	}
 
@@ -740,6 +752,8 @@ public:
 	void generate_rhs()
 	{
 		index_st("rhs", rhs->value);
+		// We now have two references to the RHS
+		cout << "rhs->refcount++;\n";
 	}
 
 protected:
@@ -794,7 +808,6 @@ class Eval : public Assignment
 		<< "\"eval'd code\" TSRMLS_CC);\n"
 		<< "ZVAL_NULL(rhs);\n"
 		<< "}\n"
-		<< "rhs->refcount = 0;\n"
 		<< "}\n"
 		;
 		
@@ -946,18 +959,24 @@ public:
 		<< "assert(success == SUCCESS);\n"
 		;
 
-		// If the function does not return a reference, it has created a new
-		// zval to hold the function result or returned an existing zval and
-		// increment its refcount (but is_ref would be 0: copy-on-write). In
-		// either case, the refcount is one too many, and we need to decrement
-		// it. If on the other hand it returned a reference, we must leave it
-		// alone.
+		// Workaround a bug (feature?) of the Zend API that I don't know how to
+		// solve otherwise. It seems that Zend resets the refcount and is_ref
+		// fields of the return value after the function returns. That is okay
+		// if the function does not return a reference (because it will have
+		// created a fresh zval to hold the result), but obviously garbage
+		// collector problems when the function returned a reference to an
+		// existing zval. Hence, we increment the refcount here, and set is_ref
+		// to true if the function signature declares the function to return a
+		// reference. This causes memory leaks, but that's better than a
+		// segfault :) (Note that this will cause memory leaks only when 
+		// calling eval'd functions, because they do in fact return the proper
+		// refcount, which will be one too many after we've incremented them).
 		cout 
-		<< "if(!signature->common.return_reference)\n"
-//		<< "{\n"
-		<< "rhs->refcount--;\n"
-//		<< "if(rhs->refcount == 1) rhs->is_ref = 0;\n"
-//		<< "}\n"
+		<< "if(signature->common.return_reference)\n"
+		<< "{\n"
+		<< "rhs->refcount++;\n"
+		<< "rhs->is_ref = 1;\n"
+		<< "}"
 		;
 		
 		// cout << "debug_hash(EG(active_symbol_table));\n";
@@ -998,7 +1017,6 @@ public:
 		<< "\"" << *right->value->value << "\", "
 		<< right->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
-		<< "rhs->refcount = 0;\n"
 		;
 
 		// some operators need the operands to be reversed (since we call the
@@ -1039,7 +1057,6 @@ public:
 		<< "\"" << *expr->value->value << "\", "
 		<< expr->value->value->length() + 1 << ");\n"
 		<< "MAKE_STD_ZVAL(rhs);\n"
-		<< "rhs->refcount = 0;\n"
 		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
 		;
 	}
@@ -1078,13 +1095,16 @@ class Return : public Pattern
 		else
 		{
 			// TODO separate if necessary
-			
+			// (May not be necessary due to the shredder)
+
 			cout
 			<< "zval_ptr_dtor(return_value_ptr);\n"
 			<< "rhs->is_ref = 1;\n"
 			<< "rhs->refcount++;\n"
 			<< "*return_value_ptr = rhs;\n"
 			;
+//		cout << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
+
 		}
 
 		cout 
