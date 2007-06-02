@@ -21,6 +21,7 @@
 #include "lib/base64.h"
 #include "lib/error.h"
 #include "lib/AttrMap.h"
+#include "AST_factory.h"
 
 #include "cmdline.h"
 extern struct gengetopt_args_info args_info;
@@ -294,10 +295,11 @@ public:
 						nodes.pop();
 					}
 					assert (false);
-	
-//					node = AST_node_factory::create(name, &args);
+/*	
+					node = AST_factory::create(name, &args);
 					node->attrs = attrs_stack.top();
 					attrs_stack.pop();
+*/
 				}
 			
 				num_children.pop();

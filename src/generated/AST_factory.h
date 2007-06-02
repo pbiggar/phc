@@ -1,3 +1,6 @@
+#ifndef _AST_FACTORY_H_
+#define _AST_FACTORY_H_
+
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -14,7 +17,13 @@
 using namespace std;
 
 
+#include "AST.h"
+
 class AST_factory
 {
+public:
+    static Object* create(char const* type_id, List<Object*>* args);
 };
 
+
+#endif
