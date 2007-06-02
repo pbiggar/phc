@@ -82,120 +82,81 @@ void XML_unparser::pre_node(AST_node* in)
 	os << ">" << endl;
 	indent++;
 
-	if (print_attrs)
+	if(print_attrs) print_attributes(in);
+}
+
+void XML_unparser::print_attributes(AST_node* in)
+{
+	if(in->attrs->size() == 0)
 	{
-		if(in->attrs->size() == 0)
+		print_indent();
+		os << "<attrs />" << endl;
+	}
+	else
+	{
+		print_indent();
+		os << "<attrs>" << endl;
+		indent++;
+
+		AttrMap::const_iterator i;
+		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
 		{
-			print_indent();
-			os << "<attrs />" << endl;
+			print_attribute((*i).first, (*i).second);
 		}
-		else
+			
+		indent--;
+		print_indent();
+		os << "</attrs>" << endl;
+	}
+}
+
+void XML_unparser::print_attribute(string name, Object* attr)
+{
+	print_indent();
+
+	if(String* str = dynamic_cast<String*>(attr))
+	{
+		os << "<attr key=\"" << name << "\">" << *str << "</attr>" << endl;
+	}
+	else if(Integer* i = dynamic_cast<Integer*>(attr))
+	{
+		os << "<attr key=\"" << name << "\">" << i->value () << "</attr>" << endl;
+	}
+	else if(Boolean* b = dynamic_cast<Boolean*>(attr))
+	{
+		os << "<attr key=\"" << name << "\">" << (b->value() ? "true" : "false") << "</attr>" << endl;
+	}
+	else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
+	{
+		os << "<attr key=\"" << name << "\">" << endl;
+		indent++;
+
+		List<String*>::const_iterator j;
+		for(j = ls->begin(); j != ls->end(); j++)
 		{
 			print_indent();
-			os << "<attrs>" << endl;
-			indent++;
+			os << "<string";
 
-			AttrMap::const_iterator i;
-			for(i = in->attrs->begin(); i != in->attrs->end(); i++)
+			if(needs_encoding(*j))
 			{
-				if((*i).first == "phc.line_number")
-				{
-					print_indent();
-					os << "<attr key=\"phc.line_number\">" << in->get_line_number() << "</attr>" << endl;
-				}
-				else if((*i).first == "phc.filename")
-				{
-					print_indent();
-					os << "<attr key=\"phc.filename\">" << *in->get_filename() << "</attr>" << endl;
-				}
-				else if((*i).first == "phc.comments")
-				{
-					print_indent();
-					os << "<attr key=\"phc.comments\">" << endl;
-					indent++;
-
-					List<String*>::const_iterator j;
-					List<String*>* comments = dynamic_cast<List<String*>*>((*i).second);
-					for(j = comments->begin(); j != comments->end(); j++)
-					{
-						print_indent();
-						os << "<comment";
-
-						if(needs_encoding(*j))
-						{
-							os << " encoding=\"base64\">";
-							os << *base64_encode(*j);
-						}
-						else	
-						{
-							os << ">";
-							os << **j;
-						}
-
-						os << "</comment>" << endl;
-					}
-
-					indent--;
-					print_indent();
-					os << "</attr>" << endl;
-				}
-#define HANDLE_BOOLEAN(A)																											\
-				else if((*i).first == A)																							\
-				{																															\
-					print_indent();																									\
-					bool attr_true = in->attrs->is_true (A);																	\
-					os << "<attr key=\"" A "\">" << (attr_true ? "true" : "false") << "</attr>" << endl;		\
-				}
-#define HANDLE_STRING(A)																											\
-				else if((*i).first == A)																							\
-				{																															\
-					print_indent();																									\
-					String* string = in->attrs->get_string (A);																\
-					os << "<attr key=\"" A "\">" << *string << "</attr>" << endl;										\
-				}
-#define HANDLE_INT(A)																												\
-				else if((*i).first == A)																							\
-				{																															\
-					print_indent();																									\
-					Integer* integer = in->attrs->get_integer (A);															\
-					os << "<attr key=\"" A "\">" << integer->value () << "</attr>" << endl;							\
-				}
-				HANDLE_BOOLEAN ("phc.unparser.is_elseif")
-				HANDLE_BOOLEAN ("phc.unparser.needs_brackets")
-				HANDLE_BOOLEAN ("phc.unparser.needs_curlies")
-				HANDLE_BOOLEAN ("phc.unparser.is_global_stmt")
-				HANDLE_BOOLEAN ("phc.unparser.is_opeq")
-				HANDLE_BOOLEAN ("phc.unparser.starts_line")
-				HANDLE_STRING ("phc.generate_c.location")
-				HANDLE_BOOLEAN ("phc.generate_c.is_addr")
-				HANDLE_STRING ("phc.generate_c.hash")
-				HANDLE_STRING ("phc.generate_c.stridx")
-				HANDLE_INT ("phc.generate_c.strlen")
-				HANDLE_STRING ("phc.generate_c.zvalidx")
-				HANDLE_INT ("phc.codegen.temp")
-				HANDLE_INT ("phc.codegen.num_temps")
-				HANDLE_BOOLEAN ("phc.shredder.need_addr")
-				HANDLE_BOOLEAN ("phc.lower_expr.no_temp")
-				HANDLE_BOOLEAN ("phc.unparser.is_singly_quoted")
-				HANDLE_BOOLEAN ("phc.unparser.index_curlies")
-				HANDLE_BOOLEAN ("phc.lower_control_flow.top_level_declaration")
-// these are no longer present
-//				HANDLE_BOOLEAN ("phc.codegen.break_label")
-//				HANDLE_BOOLEAN ("phc.codegen.continue_label")
-#undef HANDLE_BOOLEAN
-#undef HANDLE_STRING
-#undef HANDLE_INT
-				else
-				{
-					phc_warning("Unknown attribute '%s'", in, (*i).first.c_str());	
-				}
+				os << " encoding=\"base64\">";
+				os << *base64_encode(*j);
+			}
+			else	
+			{
+				os << ">";
+				os << **j;
 			}
 
-			indent--;
-			print_indent();
-			os << "</attrs>" << endl;
+			os << "</string>" << endl;
 		}
+
+		indent--;
+		print_indent();
+		os << "</attr>" << endl;
 	}
+	else
+		phc_warning("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	
 }
 
 void XML_unparser::post_node(AST_node* in)

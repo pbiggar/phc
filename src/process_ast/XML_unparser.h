@@ -41,6 +41,9 @@ public:
 	void pre_identifier(AST_identifier* in);
 	void pre_literal(AST_literal* in);
 
+protected:
+	void print_attributes(AST_node* in);
+	void print_attribute(string name, Object* attr);
 };
 
 #endif // PHC_XML_UNPARSER
