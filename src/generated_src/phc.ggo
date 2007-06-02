@@ -22,7 +22,8 @@ section "DUMP OPTIONS"
 option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
 option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
-option "no-line-numbers" - "Don't include line numbers when dumping AST/XML" flag off hidden 
+option "no-line-numbers" - "Don't include line numbers when dumping DOT/XML" flag off hidden 
+option "no-nulls" - "Don't include NULLs when dumping DOT" flag off hidden
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
 
 section "DEBUGGING PHC"

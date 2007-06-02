@@ -29,10 +29,11 @@ public:
 	virtual ~XML_unparser();
 
 public:
-	// These need to be declared here because they are pure virtual in the
-	// base class
-	void visit_null(const char* type_id);
-	void visit_marker(const char* name, bool value);
+	void visit_marker(char const* name, bool value);
+	void visit_null(char const* type_id);
+	void visit_null_list(char const* type_id);
+	void pre_list(char const* type_id, int size);
+	void post_list(char const* type_id, int size);
 
 public:
 	void pre_node(AST_node* in);

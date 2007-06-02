@@ -4,7 +4,7 @@ AST_transform::~AST_transform()
 {
 }
 
-// The pre-transform gets called before the children of the node are transformed
+// Invoked before the children are transformed
 AST_php_script* AST_transform::pre_php_script(AST_php_script* in)
 {
     return in;
@@ -345,7 +345,7 @@ Token_constant_name* AST_transform::pre_constant_name(Token_constant_name* in)
     return in;
 }
 
-// The post-transform gets called after the children of the node have been transformed
+// Invoked after the children have been transformed
 AST_php_script* AST_transform::post_php_script(AST_php_script* in)
 {
     return in;

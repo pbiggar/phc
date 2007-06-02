@@ -23,7 +23,7 @@ class AST_transform
 {
 public:
     virtual ~AST_transform();
-// The pre-transform gets called before the children of the node are transformed
+// Invoked before the children are transformed
 public:
     virtual AST_php_script* pre_php_script(AST_php_script* in);
     virtual void pre_class_def(AST_class_def* in, List<AST_statement*>* out);
@@ -93,7 +93,7 @@ public:
     virtual Token_cast* pre_cast(Token_cast* in);
     virtual Token_op* pre_op(Token_op* in);
     virtual Token_constant_name* pre_constant_name(Token_constant_name* in);
-// The post-transform gets called after the children of the node have been transformed
+// Invoked after the children have been transformed
 public:
     virtual AST_php_script* post_php_script(AST_php_script* in);
     virtual void post_class_def(AST_class_def* in, List<AST_statement*>* out);

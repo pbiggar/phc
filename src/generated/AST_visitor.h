@@ -23,6 +23,7 @@ class AST_visitor
 {
 public:
     virtual ~AST_visitor();
+// Invoked before the children are visited
 public:
     virtual void pre_php_script(AST_php_script* in);
     virtual void pre_statement(AST_statement* in);
@@ -104,6 +105,7 @@ public:
     virtual void pre_cast(Token_cast* in);
     virtual void pre_op(Token_op* in);
     virtual void pre_constant_name(Token_constant_name* in);
+// Invoked after the children have been visited
 public:
     virtual void post_php_script(AST_php_script* in);
     virtual void post_statement(AST_statement* in);
@@ -185,6 +187,7 @@ public:
     virtual void post_cast(Token_cast* in);
     virtual void post_op(Token_op* in);
     virtual void post_constant_name(Token_constant_name* in);
+// Visit the children of a node
 public:
     virtual void children_php_script(AST_php_script* in);
     virtual void children_class_def(AST_class_def* in);
@@ -240,6 +243,7 @@ public:
     virtual void children_actual_parameter(AST_actual_parameter* in);
     virtual void children_new(AST_new* in);
     virtual void children_clone(AST_clone* in);
+// Tokens don't have children, so these methods do nothing by default
 public:
     virtual void children_class_name(Token_class_name* in);
     virtual void children_interface_name(Token_interface_name* in);
@@ -255,6 +259,15 @@ public:
     virtual void children_cast(Token_cast* in);
     virtual void children_op(Token_op* in);
     virtual void children_constant_name(Token_constant_name* in);
+// Unparser support
+public:
+    virtual void visit_marker(char const* name, bool value);
+    virtual void visit_null(char const* type_id);
+    virtual void visit_null_list(char const* type_id);
+    virtual void pre_list(char const* type_id, int size);
+    virtual void post_list(char const* type_id, int size);
+// Invoke the chain of pre-visit methods along the inheritance hierachy
+// Do not override unless you know what you are doing
 public:
     virtual void pre_php_script_chain(AST_php_script* in);
     virtual void pre_class_def_chain(AST_class_def* in);
@@ -324,6 +337,9 @@ public:
     virtual void pre_cast_chain(Token_cast* in);
     virtual void pre_op_chain(Token_op* in);
     virtual void pre_constant_name_chain(Token_constant_name* in);
+// Invoke the chain of post-visit methods along the inheritance hierarchy
+// (invoked in opposite order to the pre-chain)
+// Do not override unless you know what you are doing
 public:
     virtual void post_php_script_chain(AST_php_script* in);
     virtual void post_class_def_chain(AST_class_def* in);
@@ -393,6 +409,8 @@ public:
     virtual void post_cast_chain(Token_cast* in);
     virtual void post_op_chain(Token_op* in);
     virtual void post_constant_name_chain(Token_constant_name* in);
+// Call the pre-chain, visit children and post-chain in order
+// Do not override unless you know what you are doing
 public:
     virtual void visit_statement_list(List<AST_statement*>* in);
     virtual void visit_statement(AST_statement* in);
@@ -435,9 +453,8 @@ public:
     virtual void visit_actual_parameter_list(List<AST_actual_parameter*>* in);
     virtual void visit_actual_parameter(AST_actual_parameter* in);
     virtual void visit_php_script(AST_php_script* in);
-public:
-    virtual void visit_null(char const* name);
-    virtual void visit_marker(char const* name, bool value);
+// Invoke the right pre-chain (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void pre_statement_chain(AST_statement* in);
     virtual void pre_member_chain(AST_member* in);
@@ -447,6 +464,8 @@ public:
     virtual void pre_class_name_chain(AST_class_name* in);
     virtual void pre_target_chain(AST_target* in);
     virtual void pre_method_name_chain(AST_method_name* in);
+// Invoke the right post-chain (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void post_statement_chain(AST_statement* in);
     virtual void post_member_chain(AST_member* in);
@@ -456,6 +475,8 @@ public:
     virtual void post_class_name_chain(AST_class_name* in);
     virtual void post_target_chain(AST_target* in);
     virtual void post_method_name_chain(AST_method_name* in);
+// Invoke the right visit-children (manual dispatching)
+// Do not override unless you know what you are doing
 public:
     virtual void children_statement(AST_statement* in);
     virtual void children_member(AST_member* in);

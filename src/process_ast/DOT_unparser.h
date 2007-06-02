@@ -15,10 +15,7 @@
 class DOT_unparser : public virtual AST_visitor
 {
 private:
-	void show_source_rep(String* source_rep);
-
 	stack<int> node_stack;
-	map<Object*, int> node_ids;
 	int new_node_id;
 
 public:
@@ -26,16 +23,24 @@ public:
 	virtual ~DOT_unparser(); 
 
 public:
-	// These need to be declared here because they are pure virtual in the
-	// base class
-	void visit_null(char* type_id);
-	void visit_marker(char* name, bool value);
-
-public:
+	void visit_php_script(AST_php_script* in);
+	void pre_node(AST_node* in);
+	void post_node(AST_node* in);
 	void pre_literal(AST_literal* in);
 	void pre_identifier(AST_identifier* in);
-	void post_node(AST_node* in);
-	void pre_node(AST_node* in);
+
+public:
+	void visit_marker(char const* name, bool value);
+	void visit_null(char const* type_id);
+	void visit_null_list(char const* type_id);
+	void pre_list(char const* type_id, int size);
+	void post_list(char const* type_id, int size);
+
+protected:
+	void new_node(char const* label, int line_number);
+	void new_box(String* source_rep);
+	void add_link(int target);
+
 };
 
 #endif // PHC_DOT_UNPARSER

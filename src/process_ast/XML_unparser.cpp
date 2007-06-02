@@ -239,16 +239,36 @@ void XML_unparser::pre_literal(AST_literal* in)
 		os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
 }
 
-void XML_unparser::visit_null(const char* type_id)
-{
-	print_indent();
-	os << "<" << type_id << " xsi:nil=\"true\" />" << endl;
-}
-
 void XML_unparser::visit_marker(const char* name, bool value)
 {
 	print_indent();
 	os << "<bool>" 
 		<< "<!-- " << name << " -->"
 		<< (value ? "true" : "false") << "</bool>" << endl;
+}
+
+void XML_unparser::visit_null(const char* type_id)
+{
+	print_indent();
+	os << "<" << type_id << " xsi:nil=\"true\" />" << endl;
+}
+
+void XML_unparser::visit_null_list(const char* type_id)
+{
+	print_indent();
+	os << "<" << type_id << "_list xsi:nil=\"true\" />" << endl;
+}
+
+void XML_unparser::pre_list(const char* type_id, int size)
+{
+	print_indent();
+	os << "<" << type_id << "_list>" << endl;
+	indent++;
+}
+
+void XML_unparser::post_list(const char* type_id, int size)
+{
+	indent--;
+	print_indent();
+	os << "</" << type_id << "_list>" << endl;
 }

@@ -4,6 +4,7 @@ AST_visitor::~AST_visitor()
 {
 }
 
+// Invoked before the children are visited
 void AST_visitor::pre_php_script(AST_php_script* in)
 {
 }
@@ -324,6 +325,7 @@ void AST_visitor::pre_constant_name(Token_constant_name* in)
 {
 }
 
+// Invoked after the children have been visited
 void AST_visitor::post_php_script(AST_php_script* in)
 {
 }
@@ -644,6 +646,7 @@ void AST_visitor::post_constant_name(Token_constant_name* in)
 {
 }
 
+// Visit the children of a node
 void AST_visitor::children_php_script(AST_php_script* in)
 {
     visit_statement_list(in->statements);
@@ -981,6 +984,7 @@ void AST_visitor::children_clone(AST_clone* in)
     visit_expr(in->expr);
 }
 
+// Tokens don't have children, so these methods do nothing by default
 void AST_visitor::children_class_name(Token_class_name* in)
 {
 }
@@ -1037,6 +1041,29 @@ void AST_visitor::children_constant_name(Token_constant_name* in)
 {
 }
 
+// Unparser support
+void AST_visitor::visit_marker(char const* name, bool value)
+{
+}
+
+void AST_visitor::visit_null(char const* type_id)
+{
+}
+
+void AST_visitor::visit_null_list(char const* type_id)
+{
+}
+
+void AST_visitor::pre_list(char const* type_id, int size)
+{
+}
+
+void AST_visitor::post_list(char const* type_id, int size)
+{
+}
+
+// Invoke the chain of pre-visit methods along the inheritance hierachy
+// Do not override unless you know what you are doing
 void AST_visitor::pre_php_script_chain(AST_php_script* in)
 {
     pre_node(in);
@@ -1561,6 +1588,9 @@ void AST_visitor::pre_constant_name_chain(Token_constant_name* in)
     pre_constant_name(in);
 }
 
+// Invoke the chain of post-visit methods along the inheritance hierarchy
+// (invoked in opposite order to the pre-chain)
+// Do not override unless you know what you are doing
 void AST_visitor::post_php_script_chain(AST_php_script* in)
 {
     post_php_script(in);
@@ -2085,15 +2115,24 @@ void AST_visitor::post_constant_name_chain(Token_constant_name* in)
     post_node(in);
 }
 
+// Call the pre-chain, visit children and post-chain in order
+// Do not override unless you know what you are doing
 void AST_visitor::visit_statement_list(List<AST_statement*>* in)
 {
     List<AST_statement*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_statement*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_statement");
+    else
     {
-    	visit_statement(*i);
+    	pre_list("AST_statement", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_statement(*i);
+    	}
+    
+    	post_list("AST_statement", in->size());
     }
 }
 
@@ -2138,10 +2177,17 @@ void AST_visitor::visit_interface_name_list(List<Token_interface_name*>* in)
     List<Token_interface_name*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<Token_interface_name*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("Token_interface_name");
+    else
     {
-    	visit_interface_name(*i);
+    	pre_list("Token_interface_name", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_interface_name(*i);
+    	}
+    
+    	post_list("Token_interface_name", in->size());
     }
 }
 
@@ -2150,10 +2196,17 @@ void AST_visitor::visit_member_list(List<AST_member*>* in)
     List<AST_member*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_member*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_member");
+    else
     {
-    	visit_member(*i);
+    	pre_list("AST_member", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_member(*i);
+    	}
+    
+    	post_list("AST_member", in->size());
     }
 }
 
@@ -2222,10 +2275,17 @@ void AST_visitor::visit_formal_parameter_list(List<AST_formal_parameter*>* in)
     List<AST_formal_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_formal_parameter*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_formal_parameter");
+    else
     {
-    	visit_formal_parameter(*i);
+    	pre_list("AST_formal_parameter", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_formal_parameter(*i);
+    	}
+    
+    	post_list("AST_formal_parameter", in->size());
     }
 }
 
@@ -2306,10 +2366,17 @@ void AST_visitor::visit_switch_case_list(List<AST_switch_case*>* in)
     List<AST_switch_case*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_switch_case*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_switch_case");
+    else
     {
-    	visit_switch_case(*i);
+    	pre_list("AST_switch_case", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_switch_case(*i);
+    	}
+    
+    	post_list("AST_switch_case", in->size());
     }
 }
 
@@ -2354,10 +2421,17 @@ void AST_visitor::visit_directive_list(List<AST_directive*>* in)
     List<AST_directive*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_directive*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_directive");
+    else
     {
-    	visit_directive(*i);
+    	pre_list("AST_directive", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_directive(*i);
+    	}
+    
+    	post_list("AST_directive", in->size());
     }
 }
 
@@ -2390,10 +2464,17 @@ void AST_visitor::visit_catch_list(List<AST_catch*>* in)
     List<AST_catch*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_catch*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_catch");
+    else
     {
-    	visit_catch(*i);
+    	pre_list("AST_catch", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_catch(*i);
+    	}
+    
+    	post_list("AST_catch", in->size());
     }
 }
 
@@ -2414,10 +2495,17 @@ void AST_visitor::visit_list_element_list(List<AST_list_element*>* in)
     List<AST_list_element*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_list_element*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_list_element");
+    else
     {
-    	visit_list_element(*i);
+    	pre_list("AST_list_element", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_list_element(*i);
+    	}
+    
+    	post_list("AST_list_element", in->size());
     }
 }
 
@@ -2498,10 +2586,17 @@ void AST_visitor::visit_expr_list(List<AST_expr*>* in)
     List<AST_expr*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_expr*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_expr");
+    else
     {
-    	visit_expr(*i);
+    	pre_list("AST_expr", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_expr(*i);
+    	}
+    
+    	post_list("AST_expr", in->size());
     }
 }
 
@@ -2510,10 +2605,17 @@ void AST_visitor::visit_array_elem_list(List<AST_array_elem*>* in)
     List<AST_array_elem*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_array_elem*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_array_elem");
+    else
     {
-    	visit_array_elem(*i);
+    	pre_list("AST_array_elem", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_array_elem(*i);
+    	}
+    
+    	post_list("AST_array_elem", in->size());
     }
 }
 
@@ -2546,10 +2648,17 @@ void AST_visitor::visit_actual_parameter_list(List<AST_actual_parameter*>* in)
     List<AST_actual_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null("List<AST_actual_parameter*>");
-    else for(i = in->begin(); i != in->end(); i++)
+    	visit_null_list("AST_actual_parameter");
+    else
     {
-    	visit_actual_parameter(*i);
+    	pre_list("AST_actual_parameter", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_actual_parameter(*i);
+    	}
+    
+    	post_list("AST_actual_parameter", in->size());
     }
 }
 
@@ -2577,14 +2686,8 @@ void AST_visitor::visit_php_script(AST_php_script* in)
     }
 }
 
-void AST_visitor::visit_null(char const* name)
-{
-}
-
-void AST_visitor::visit_marker(char const* name, bool value)
-{
-}
-
+// Invoke the right pre-chain (manual dispatching)
+// Do not override unless you know what you are doing
 void AST_visitor::pre_statement_chain(AST_statement* in)
 {
     switch(in->classid())
@@ -2869,6 +2972,8 @@ void AST_visitor::pre_method_name_chain(AST_method_name* in)
     }
 }
 
+// Invoke the right post-chain (manual dispatching)
+// Do not override unless you know what you are doing
 void AST_visitor::post_statement_chain(AST_statement* in)
 {
     switch(in->classid())
@@ -3153,6 +3258,8 @@ void AST_visitor::post_method_name_chain(AST_method_name* in)
     }
 }
 
+// Invoke the right visit-children (manual dispatching)
+// Do not override unless you know what you are doing
 void AST_visitor::children_statement(AST_statement* in)
 {
     switch(in->classid())

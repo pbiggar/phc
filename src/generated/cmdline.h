@@ -65,8 +65,10 @@ struct gengetopt_args_info
   const char *dump_ast_xml_help; /* Dump the AST from the source in XML format help description.  */
   int next_line_curlies_flag;	/* Output the opening curly on the next line instead of on the same line (default=off).  */
   const char *next_line_curlies_help; /* Output the opening curly on the next line instead of on the same line help description.  */
-  int no_line_numbers_flag;	/* Don't include line numbers when dumping AST/XML (default=off).  */
-  const char *no_line_numbers_help; /* Don't include line numbers when dumping AST/XML help description.  */
+  int no_line_numbers_flag;	/* Don't include line numbers when dumping DOT/XML (default=off).  */
+  const char *no_line_numbers_help; /* Don't include line numbers when dumping DOT/XML help description.  */
+  int no_nulls_flag;	/* Don't include NULLs when dumping DOT (default=off).  */
+  const char *no_nulls_help; /* Don't include NULLs when dumping DOT help description.  */
   char * tab_arg;	/* String to use for tabs while unparsing (default='\t').  */
   char * tab_orig;	/* String to use for tabs while unparsing original value given at command line.  */
   const char *tab_help; /* String to use for tabs while unparsing help description.  */
@@ -100,6 +102,7 @@ struct gengetopt_args_info
   int dump_ast_xml_given ;	/* Whether dump-ast-xml was given.  */
   int next_line_curlies_given ;	/* Whether next-line-curlies was given.  */
   int no_line_numbers_given ;	/* Whether no-line-numbers was given.  */
+  int no_nulls_given ;	/* Whether no-nulls was given.  */
   int tab_given ;	/* Whether tab was given.  */
   int dump_tokens_given ;	/* Whether dump-tokens was given.  */
   int run_lifting_given ;	/* Whether run-lifting was given.  */

@@ -2205,7 +2205,7 @@ src/generated/AST.h \
 src/generated/AST_transform.cpp \
 src/generated/AST_transform.h \
 src/generated/AST_visitor.cpp \
-src/generated/AST_visitor.h: src/generated_src/phc.tea
+src/generated/AST_visitor.h: src/generated_src/phc.tea @maketea@
 	@maketea@ src/generated_src/phc.tea
 	mv AST.cpp src/generated/
 	mv AST.h src/generated/
