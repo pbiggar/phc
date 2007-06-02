@@ -75,7 +75,7 @@ void XML_unparser::pre_node(AST_node* in)
 	
 	if(is_root)
 	{
-		os << " xmlns=\"http://www.phpcompiler.org/phc-1.0\"";
+		os << " xmlns=\"http://www.phpcompiler.org/phc-1.1\"";
 		os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 	}
 

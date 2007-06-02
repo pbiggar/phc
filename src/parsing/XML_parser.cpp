@@ -34,36 +34,14 @@ AST_php_script* parse_ast_xml(InputSource& inputSource);
 
 class PHC_SAX2Handler : public DefaultHandler {
 private:
-	stack<Object*> nodes;
-	stack<int> num_children;
+	stack<Object*> node_stack;
+	stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
 	String* source_rep;
 	string key;
 	stack<AttrMap*> attrs_stack;
 	const Locator* locator;
-
-	bool is_ast_node(const XMLCh* const uri, const XMLCh* const name)
-	{
-		bool rv;
-
-		char* elem_uri = XMLString::transcode(uri);
-		char* elem_name = XMLString::transcode(name);
-
-		if(strcmp(elem_uri, "http://www.phpcompiler.org/phc-1.0"))
-			rv = false;
-		else if(!strncmp(elem_name, "AST_", 4))
-			rv = true;
-		else if(!strncmp(elem_name, "Token_", 6))
-			rv = true;
-		else
-			rv = false;
-	
-		XMLString::release(&elem_uri);
-		XMLString::release(&elem_name);
-
-		return rv;
-	}
 
 public:
 	AST_php_script* result;
@@ -75,7 +53,7 @@ public:
 public:
 	void startDocument()
 	{
-		num_children.push(0);
+		num_children_stack.push(0);
 		no_errors = true;
 	}
 
@@ -83,7 +61,7 @@ public:
 	{
 		if(no_errors)
 		{
-			result = dynamic_cast<AST_php_script*>(nodes.top());
+			result = dynamic_cast<AST_php_script*>(node_stack.top());
 		}
 	}
 
@@ -94,66 +72,56 @@ public:
 		const Attributes& attrs
 	)
 	{
-		if(no_errors)
-		{
-			is_nil = false;
-			is_base64_encoded = false;
-	
-			// Clear the attribute map when seeing <attrs>
-			char* name = XMLString::transcode(localname);
-			if(!strcmp(name, "attrs"))
-			{
-				attrs_stack.push(new AttrMap);
-			}
-			
-			// Check attributes
-			for(unsigned i = 0; i < attrs.getLength(); i++)
-			{
-				char* attr_uri = XMLString::transcode(attrs.getURI(i));
-				char* attr_name = XMLString::transcode(attrs.getLocalName(i));
-				char* attr_value = XMLString::transcode(attrs.getValue(i));
-	
-				if(!strcmp(attr_uri, "http://www.w3.org/2001/XMLSchema-instance") &&
-					!strcmp(attr_name, "nil") &&
-					!strcmp(attr_value, "true"))
-				{
-					is_nil = true;
-				}
-	
-				if(!strcmp(attr_uri, "") &&
-					!strcmp(attr_name, "encoding") &&
-					!strcmp(attr_value, "base64"))
-				{
-					is_base64_encoded = true;
-				}
-				
-				if(!strcmp(attr_uri, "") &&
-					!strcmp(attr_name, "key") &&
-					!strcmp(name, "attr"))
-				{
-					key = attr_value;
+		if(!no_errors) return;
 
-					if(key == "phc.comments")
-					{
-						(*attrs_stack.top())["phc.comments"] = new List<String*>;
-					}
-				}
-			
-				XMLString::release(&attr_uri);
-				XMLString::release(&attr_name);
-				XMLString::release(&attr_value);
+		is_nil = false;
+		is_base64_encoded = false;
+	
+		// Push a new attribute map when seeing <attrs>
+		char* name = XMLString::transcode(localname);
+		if(!strcmp(name, "attrs"))
+		{
+			attrs_stack.push(new AttrMap);
+		}
+		
+		// Check attributes
+		for(unsigned i = 0; i < attrs.getLength(); i++)
+		{
+			char* attr_uri = XMLString::transcode(attrs.getURI(i));
+			char* attr_name = XMLString::transcode(attrs.getLocalName(i));
+			char* attr_value = XMLString::transcode(attrs.getValue(i));
+	
+			if(!strcmp(attr_uri, "http://www.w3.org/2001/XMLSchema-instance") &&
+				!strcmp(attr_name, "nil") &&
+				!strcmp(attr_value, "true"))
+			{
+				is_nil = true;
 			}
 	
-			if(is_ast_node(uri, localname))
+			if(!strcmp(attr_uri, "") &&
+				!strcmp(attr_name, "encoding") &&
+				!strcmp(attr_value, "base64"))
 			{
-				if(!is_nil)
-					num_children.push(0);
+				is_base64_encoded = true;
 			}
-			else
+		
+			// Store name of the attribute key 
+			if(!strcmp(attr_uri, "") &&
+				!strcmp(attr_name, "key") &&
+				!strcmp(name, "attr"))
 			{
-				buffer = "";
+				key = attr_value;
 			}
+		
+			XMLString::release(&attr_uri);
+			XMLString::release(&attr_name);
+			XMLString::release(&attr_value);
 		}
+
+		buffer = "";
+
+		num_children_stack.top()++;
+		num_children_stack.push(0);
 	}
 
 	void endElement(
@@ -162,180 +130,153 @@ public:
 		const XMLCh* const qname
 	)
 	{
-		if(no_errors)
-		{
-			char* name = XMLString::transcode(localname);
-	
-			if(!strcmp(name, "attrs"))
-			{
-				// ignore 
-			}
-			else if(!strcmp(name, "attr"))
-			{
-				if(key == "phc.line_number")
-				{
-					attrs_stack.top()->set("phc.line_number", new Integer(strtol(buffer.c_str(), 0, 0)));
-				}
-				else if(key == "phc.filename")
-				{
-					attrs_stack.top()->set("phc.filename", new String(buffer));
-				}
-				else if(key == "phc.comments")
-				{
-					// Dealt with in the start tag rather than the end tag
-				}
-				else if(key == "phc.unparser.needs_brackets")
-				{
-					if(buffer == "true")
-						attrs_stack.top()->set_true("phc.unparser.needs_brackets");
-					else
-						attrs_stack.top()->set_false("phc.unparser.needs_brackets");
-				}
-				else if(key == "phc.unparser.needs_curlies")
-				{
-					if(buffer == "true")
-						attrs_stack.top()->set_true("phc.unparser.needs_curlies");
-					else
-						attrs_stack.top()->set_false("phc.unparser.needs_curlies");
-				}
-				else if(key == "phc.unparser.is_elseif")
-				{
-					if(buffer == "true")
-						attrs_stack.top()->set_true("phc.unparser.is_elseif");
-					else
-						attrs_stack.top()->set_false("phc.unparser.is_elseif");
-				}
-				else if(key == "phc.unparser.is_global_stmt")
-				{
-					if(buffer == "true")
-						attrs_stack.top()->set_true("phc.unparser.is_global_stmt");
-					else
-						attrs_stack.top()->set_false("phc.unparser.is_global_stmt");
-				}
-				else if(key == "phc.unparser.is_opeq")
-				{
-					if(buffer == "true")
-						attrs_stack.top()->set_true("phc.unparser.is_opeq");
-					else
-						attrs_stack.top()->set_false("phc.unparser.is_opeq");
-				}
-				else
-				{
-					::phc_warning("Unknown attribute '%s'", NULL, locator->getLineNumber(), key.c_str()); 
-				}
-			}
-			else if(!strcmp(name, "comment"))
-			{
-				Object* attr = (*attrs_stack.top())["phc.comments"];
-				List<String*>* comments = dynamic_cast<List<String*>*>(attr);
-				if(is_base64_encoded)
-					comments->push_back(base64_decode(&buffer));
-				else
-					comments->push_back(new String(buffer));
-					
-			}
-			else if(is_nil)
-			{
-				nodes.push(NULL);
-				num_children.top()++;
-				is_nil = false;
-			}
-			else if(is_ast_node(uri, localname))
-			{
-				List<Object*> args;
-				AST_node* node;
-	
-				if(!strcmp(name, "Token_string"))
-				{
-					String* value = dynamic_cast<String*>(nodes.top());
-					node = new Token_string(value, source_rep);
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-					nodes.pop();
-				}
-				else if(!strcmp(name, "Token_int"))
-				{
-					String* value = dynamic_cast<String*>(nodes.top());
-					node = new Token_int(strtol(value->c_str(), 0, 0), source_rep);
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-					nodes.pop();
-				}
-				else if(!strcmp(name, "Token_real"))
-				{
-					String* value = dynamic_cast<String*>(nodes.top());
-					node = new Token_real(atof(value->c_str()), source_rep);	
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-					nodes.pop();
-				}
-				else if(!strcmp(name, "Token_bool"))
-				{
-					String* value = dynamic_cast<String*>(nodes.top());
-					// Token_bool::get_value_as_string returns "True" or "False"
-					if(*value == "True")
-						node = new Token_bool(true, source_rep);
-					else
-						node = new Token_bool(false, source_rep);
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-					nodes.pop();
-				}
-				else if(!strcmp(name, "Token_null"))
-				{
-					node = new Token_null(source_rep);
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-				}
-				else
-				{
-					for(int i = 0; i < num_children.top(); i++)
-					{
-						args.push_front(nodes.top());
-						nodes.pop();
-					}
-					assert (false);
-/*	
-					node = AST_factory::create(name, &args);
-					node->attrs = attrs_stack.top();
-					attrs_stack.pop();
-*/
-				}
+		if(!no_errors) return;
 			
-				num_children.pop();
-				nodes.push(node);
-				num_children.top()++;
+		char* name = XMLString::transcode(localname);
+		Object* node = NULL;
+		AST_node* ast_node = NULL;
+		String* value;
+		String* source_rep;
+
+		// Number of children of the node we are about to create
+		int num_children = num_children_stack.top();
+
+		// After we pop, num_children_stack.top() corresponds to the number
+		// of children of the *parent* of the node we are about to create
+		num_children_stack.pop();
+
+		if(is_nil)
+		{
+			node_stack.push(NULL);
+			is_nil = false;
+		}
+		else if(!strcmp(name, "attrs"))
+		{
+			// the <attrs> node isn't a proper child
+			num_children_stack.top()--;
+		}
+		else if(!strcmp(name, "attr"))
+		{
+			// key is set when we see the open tag
+			attrs_stack.top()->set(key, node_stack.top());
+			node_stack.pop();
+		}
+		else if(!strcmp(name, "Token_string"))
+		{
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			ast_node = new Token_string(value, source_rep);
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(!strcmp(name, "Token_int"))
+		{
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			ast_node = new Token_int(strtol(value->c_str(), 0, 0), source_rep);
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(!strcmp(name, "Token_real"))
+		{
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			ast_node = new Token_real(atof(value->c_str()), source_rep);	
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(!strcmp(name, "Token_bool"))
+		{
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			// Token_bool::get_value_as_string returns "True" or "False"
+			if(*value == "True")
+				ast_node = new Token_bool(true, source_rep);
+			else
+				ast_node = new Token_bool(false, source_rep);
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(!strcmp(name, "Token_null"))
+		{
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			ast_node = new Token_null(source_rep);
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(
+ 			 !strcmp(name, "value") 
+		  || !strcmp(name, "source_rep")
+		  || !strcmp(name, "string")
+		  )
+		{
+			if(is_base64_encoded)
+				node = base64_decode(&buffer);
+			else
+				node = new String(buffer);
+		}
+		else if(!strcmp(name, "bool"))
+		{
+			if(buffer == "true")
+				node = new Boolean(true);
+			else
+				node = new Boolean(false);
+		}
+		else if(!strcmp(name, "integer"))
+		{
+			node = new Integer(strtol(buffer.c_str(), 0, 0));
+		}
+		else if(!strcmp(name, "string_list"))
+		{
+			List<String*>* string_list = new List<String*>;
+
+			for(int i = 0; i < num_children; i++)
+			{
+				string_list->push_front(dynamic_cast<String*>(node_stack.top()));
+				node_stack.pop();
+			}
+
+			node = string_list;
+		}
+		else if(!strncmp(name, "AST_", 4))
+		{
+			List<Object*> args;
+
+			for(int i = 0; i < num_children; i++)
+			{
+				args.push_front(node_stack.top());
+				node_stack.pop();
+			}
+		
+			node = AST_factory::create(name, &args);
+			ast_node = dynamic_cast<AST_node*>(node);
+
+			if(ast_node != NULL)
+			{
+				ast_node->attrs = attrs_stack.top();
+				attrs_stack.pop();
 			}
 			else
 			{
-				if(!strcmp(name, "value"))
-				{
-					if(is_base64_encoded)
-						nodes.push(base64_decode(&buffer));
-					else
-						nodes.push(new String(buffer));
-	
-					num_children.top()++;
-				}
-				else if(!strcmp(name, "bool"))
-				{
-					if(buffer == "true")
-						nodes.push(new Boolean(true));
-					else
-						nodes.push(new Boolean(false));
-					num_children.top()++;
-				}
-				else if(!strcmp(name, "source_rep"))
-				{
-					if(is_base64_encoded)
-						source_rep = base64_decode(&buffer);
-					else
-						source_rep = new String(buffer);
-				}
+				// Must have been a list
 			}
-	
-			XMLString::release(&name);
 		}
+		else
+		{
+			phc_warning("XML parser: cannot deal tag '%s'", name);
+		}
+	
+		if(ast_node != NULL)
+			node_stack.push(ast_node);
+		else if(node != NULL)
+			node_stack.push(node);
+
+		XMLString::release(&name);
 	}
 
 	virtual void characters(const XMLCh* const chars, const unsigned int length)
@@ -445,8 +386,8 @@ AST_php_script* parse_ast_xml(InputSource& inputSource)
 	if(!args_info.no_validation_flag)
 	{
 		XMLCh* propertyValue = XMLString::transcode(
-			"http://www.phpcompiler.org/phc-1.0 ./phc-1.0.xsd "
-			"http://www.phpcompiler.org/phc-1.0 " DATADIR "/" PACKAGE "/phc-1.0.xsd");
+			"http://www.phpcompiler.org/phc-1.1 ./phc-1.1.xsd "
+			"http://www.phpcompiler.org/phc-1.1 " DATADIR "/" PACKAGE "/phc-1.1.xsd");
 		ArrayJanitor<XMLCh> janValue(propertyValue);
 		parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation, propertyValue);
 
