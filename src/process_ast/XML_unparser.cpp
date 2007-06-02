@@ -116,19 +116,19 @@ void XML_unparser::print_attribute(string name, Object* attr)
 
 	if(String* str = dynamic_cast<String*>(attr))
 	{
-		os << "<attr key=\"" << name << "\">" << *str << "</attr>" << endl;
+		os << "<attr key=\"" << name << "\"><string>" << *str << "</string></attr>" << endl;
 	}
 	else if(Integer* i = dynamic_cast<Integer*>(attr))
 	{
-		os << "<attr key=\"" << name << "\">" << i->value () << "</attr>" << endl;
+		os << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>" << endl;
 	}
 	else if(Boolean* b = dynamic_cast<Boolean*>(attr))
 	{
-		os << "<attr key=\"" << name << "\">" << (b->value() ? "true" : "false") << "</attr>" << endl;
+		os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
 	}
 	else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
 	{
-		os << "<attr key=\"" << name << "\">" << endl;
+		os << "<attr key=\"" << name << "\"><string_list>" << endl;
 		indent++;
 
 		List<String*>::const_iterator j;
@@ -153,7 +153,7 @@ void XML_unparser::print_attribute(string name, Object* attr)
 
 		indent--;
 		print_indent();
-		os << "</attr>" << endl;
+		os << "</string_list></attr>" << endl;
 	}
 	else
 		phc_warning("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	

@@ -40,33 +40,33 @@ bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
 
-src_phc_SOURCES =												\
+src_phc_SOURCES =											\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
-	src/codegen/Goto_uppering.h							\
-	src/codegen/Check_uppering.cpp						\
+	src/codegen/Goto_uppering.h								\
+	src/codegen/Check_uppering.cpp							\
 	src/codegen/Check_uppering.h							\
-	src/codegen/Lower_control_flow.cpp					\
+	src/codegen/Lower_control_flow.cpp						\
 	src/codegen/Lower_control_flow.h						\
-	src/codegen/Check_lowering.cpp						\
+	src/codegen/Check_lowering.cpp							\
 	src/codegen/Check_lowering.h							\
 	src/codegen/Lower_expr.cpp								\
 	src/codegen/Lower_expr.h								\
-	src/codegen/Lower_expr_flow.cpp						\
+	src/codegen/Lower_expr_flow.cpp							\
 	src/codegen/Lower_expr_flow.h							\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
-	src/codegen/Lift_functions_and_classes.cpp		\
-	src/codegen/Lift_functions_and_classes.h			\
-	src/codegen/Note_top_level_declarations.cpp		\
-	src/codegen/Note_top_level_declarations.h			\
+	src/codegen/Lift_functions_and_classes.cpp				\
+	src/codegen/Lift_functions_and_classes.h				\
+	src/codegen/Note_top_level_declarations.cpp				\
+	src/codegen/Note_top_level_declarations.h				\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
-	src/embed/embed.h											\
+	src/embed/embed.h										\
 	src/embed/embed.cpp										\
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
@@ -79,6 +79,8 @@ src_phc_SOURCES =												\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h								\
+	src/generated/AST_factory.cpp							\
+	src/generated/AST_factory.h								\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h										\
 	src/lib/base64.cpp										\
@@ -105,8 +107,8 @@ src_phc_SOURCES =												\
 	src/phc.cpp												\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h							\
-	src/process_ast/Invalid_check.cpp					\
-	src/process_ast/Invalid_check.h						\
+	src/process_ast/Invalid_check.cpp						\
+	src/process_ast/Invalid_check.h							\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h							\
 	src/process_ast/process_ast.cpp							\
@@ -115,7 +117,7 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_concat_null.h					\
 	src/process_ast/Remove_parser_temporaries.cpp			\
 	src/process_ast/Remove_parser_temporaries.h				\
-	src/process_ast/Strip_comments.cpp					\
+	src/process_ast/Strip_comments.cpp						\
 	src/process_ast/Strip_comments.h						\
 	src/process_ast/Token_conversion.cpp					\
 	src/process_ast/Token_conversion.h						\
@@ -136,6 +138,8 @@ BUILT_SOURCES = \
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h								\
+	src/generated/AST_factory.cpp							\
+	src/generated/AST_factory.h								\
 	test/framework/lib/autovars.php
 
 # - The magic to accomplish this is described cryptically in the last few
@@ -268,12 +272,15 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 #   the correct way is so onerous, that this way seems much better.
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
-src/generated/AST.cpp \
-src/generated/AST.h \
-src/generated/AST_transform.cpp \
-src/generated/AST_transform.h \
-src/generated/AST_visitor.cpp \
-src/generated/AST_visitor.h: src/generated_src/phc.tea @maketea@
+src/generated/AST.cpp 				\
+src/generated/AST.h 				\
+src/generated/AST_transform.cpp 	\
+src/generated/AST_transform.h		\
+src/generated/AST_visitor.cpp 		\
+src/generated/AST_visitor.h 		\
+src/generated/AST_factory.cpp		\
+src/generated/AST_factory.h			\
+	: src/generated_src/phc.tea @maketea@
 	@maketea@ src/generated_src/phc.tea
 	mv AST.cpp src/generated/
 	mv AST.h src/generated/
@@ -281,6 +288,8 @@ src/generated/AST_visitor.h: src/generated_src/phc.tea @maketea@
 	mv AST_transform.h src/generated/
 	mv AST_visitor.cpp src/generated/
 	mv AST_visitor.h src/generated/
+	mv AST_factory.cpp src/generated/
+	mv AST_factory.h src/generated/
 	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
