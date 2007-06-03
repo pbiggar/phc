@@ -198,6 +198,11 @@ public:
 	{
 		attrs = in->attrs->clone();
 	}
+
+	bool is_mixin_valid()
+	{
+		return attrs != NULL;
+	}
 };
 
 class AST_commented_node 
@@ -621,6 +626,16 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return value;
+	}
+
+	bool is_value_valid()
+	{
+		return value != NULL;
+	}
+
+	String* clone_value()
+	{
+		return value->clone();
 	}
 
 	Token_string (String* v)
