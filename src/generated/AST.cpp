@@ -347,17 +347,6 @@ bool AST_signature::equals(AST_node* in)
     return true;
 }
 
-AST_signature::AST_signature(const char* name)
-{
-    #line 224 "src/generated_src/phc.tea"
-{
-		this->method_mod = AST_method_mod::new_PUBLIC();
-		this->is_ref = false;
-		this->method_name = new Token_method_name(new String(name));
-		this->formal_parameters = new List<AST_formal_parameter*>;
-	}
-}
-
 AST_signature* AST_signature::clone()
 {
     AST_method_mod* method_mod = this->method_mod ? this->method_mod->clone() : NULL;
@@ -374,6 +363,17 @@ AST_signature* AST_signature::clone()
     AST_signature* clone = new AST_signature(method_mod, is_ref, method_name, formal_parameters);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_signature::AST_signature(const char* name)
+{
+    #line 224 "src/generated_src/phc.tea"
+{
+		this->method_mod = AST_method_mod::new_PUBLIC();
+		this->is_ref = false;
+		this->method_name = new Token_method_name(new String(name));
+		this->formal_parameters = new List<AST_formal_parameter*>;
+	}
 }
 
 AST_method_mod::AST_method_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final)
@@ -444,6 +444,19 @@ bool AST_method_mod::equals(AST_node* in)
     	return false;
     
     return true;
+}
+
+AST_method_mod* AST_method_mod::clone()
+{
+    bool is_public = this->is_public;
+    bool is_protected = this->is_protected;
+    bool is_private = this->is_private;
+    bool is_static = this->is_static;
+    bool is_abstract = this->is_abstract;
+    bool is_final = this->is_final;
+    AST_method_mod* clone = new AST_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
 }
 
 AST_method_mod::AST_method_mod()
@@ -518,19 +531,6 @@ AST_method_mod* AST_method_mod::new_FINAL()
 { 
 		return new AST_method_mod(false, false, false, false, false, true);		
 	}
-}
-
-AST_method_mod* AST_method_mod::clone()
-{
-    bool is_public = this->is_public;
-    bool is_protected = this->is_protected;
-    bool is_private = this->is_private;
-    bool is_static = this->is_static;
-    bool is_abstract = this->is_abstract;
-    bool is_final = this->is_final;
-    AST_method_mod* clone = new AST_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* variable_name, AST_expr* expr)
@@ -637,6 +637,17 @@ bool AST_formal_parameter::equals(AST_node* in)
     return true;
 }
 
+AST_formal_parameter* AST_formal_parameter::clone()
+{
+    AST_type* type = this->type ? this->type->clone() : NULL;
+    bool is_ref = this->is_ref;
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
+    AST_formal_parameter* clone = new AST_formal_parameter(type, is_ref, variable_name, expr);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
     #line 388 "src/generated_src/phc.tea"
@@ -657,17 +668,6 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_va
 		this->variable_name = name;
 		this->expr = NULL;
 	}
-}
-
-AST_formal_parameter* AST_formal_parameter::clone()
-{
-    AST_type* type = this->type ? this->type->clone() : NULL;
-    bool is_ref = this->is_ref;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    AST_formal_parameter* clone = new AST_formal_parameter(type, is_ref, variable_name, expr);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_type::AST_type(bool is_array, Token_class_name* class_name)
@@ -812,6 +812,18 @@ bool AST_attr_mod::equals(AST_node* in)
     return true;
 }
 
+AST_attr_mod* AST_attr_mod::clone()
+{
+    bool is_public = this->is_public;
+    bool is_protected = this->is_protected;
+    bool is_private = this->is_private;
+    bool is_static = this->is_static;
+    bool is_const = this->is_const;
+    AST_attr_mod* clone = new AST_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 AST_attr_mod::AST_attr_mod()
 {
     #line 408 "src/generated_src/phc.tea"
@@ -877,18 +889,6 @@ AST_attr_mod* AST_attr_mod::new_CONST()
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
-}
-
-AST_attr_mod* AST_attr_mod::clone()
-{
-    bool is_public = this->is_public;
-    bool is_protected = this->is_protected;
-    bool is_private = this->is_private;
-    bool is_static = this->is_static;
-    bool is_const = this->is_const;
-    AST_attr_mod* clone = new AST_attr_mod(is_public, is_protected, is_private, is_static, is_const);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_directive::AST_directive(Token_directive_name* directive_name, AST_expr* expr)
@@ -2479,6 +2479,32 @@ bool AST_class_def::equals(AST_node* in)
     return true;
 }
 
+AST_class_def* AST_class_def::clone()
+{
+    AST_class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
+    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Token_class_name* extends = this->extends ? this->extends->clone() : NULL;
+    List<Token_interface_name*>* implements = NULL;
+    if(this->implements != NULL)
+    {
+    	List<Token_interface_name*>::const_iterator i;
+    	implements = new List<Token_interface_name*>;
+    	for(i = this->implements->begin(); i != this->implements->end(); i++)
+    		implements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<AST_member*>* members = NULL;
+    if(this->members != NULL)
+    {
+    	List<AST_member*>::const_iterator i;
+    	members = new List<AST_member*>;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    		members->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_class_def* clone = new AST_class_def(class_mod, class_name, extends, implements, members);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 AST_class_def::AST_class_def(AST_class_mod* mod)
 {
     #line 290 "src/generated_src/phc.tea"
@@ -2527,32 +2553,6 @@ AST_method* AST_class_def::get_method(const char* name)
 
 		return NULL;
 	}
-}
-
-AST_class_def* AST_class_def::clone()
-{
-    AST_class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Token_class_name* extends = this->extends ? this->extends->clone() : NULL;
-    List<Token_interface_name*>* implements = NULL;
-    if(this->implements != NULL)
-    {
-    	List<Token_interface_name*>::const_iterator i;
-    	implements = new List<Token_interface_name*>;
-    	for(i = this->implements->begin(); i != this->implements->end(); i++)
-    		implements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<AST_member*>* members = NULL;
-    if(this->members != NULL)
-    {
-    	List<AST_member*>::const_iterator i;
-    	members = new List<AST_member*>;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    		members->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_class_def* clone = new AST_class_def(class_mod, class_name, extends, implements, members);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_interface_def::AST_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<AST_member*>* members)
@@ -3124,14 +3124,6 @@ bool AST_if::equals(AST_node* in)
     return true;
 }
 
-AST_if::AST_if(AST_expr* expr)
-{
-    #line 499 "src/generated_src/phc.tea"
-{
-		AST_if (expr, new List<AST_statement*> (), new List<AST_statement*>);
-	}
-}
-
 AST_if* AST_if::clone()
 {
     AST_expr* expr = this->expr ? this->expr->clone() : NULL;
@@ -3154,6 +3146,14 @@ AST_if* AST_if::clone()
     AST_if* clone = new AST_if(expr, iftrue, iffalse);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_if::AST_if(AST_expr* expr)
+{
+    #line 499 "src/generated_src/phc.tea"
+{
+		AST_if (expr, new List<AST_statement*> (), new List<AST_statement*>);
+	}
 }
 
 AST_while::AST_while(AST_expr* expr, List<AST_statement*>* statements)
@@ -4946,11 +4946,13 @@ AST_throw* AST_throw::clone()
 AST_eval_expr::AST_eval_expr(AST_expr* expr)
 {
     this->expr = expr;
+    _init();
 }
 
 AST_eval_expr::AST_eval_expr()
 {
     this->expr = 0;
+    _init();
 }
 
 void AST_eval_expr::visit(AST_visitor* visitor)
@@ -5005,20 +5007,20 @@ bool AST_eval_expr::equals(AST_node* in)
     return true;
 }
 
-void AST_eval_expr::_init()
-{
-    #line 331 "src/generated_src/phc.tea"
-{
-		assert (expr != NULL);
-	}
-}
-
 AST_eval_expr* AST_eval_expr::clone()
 {
     AST_expr* expr = this->expr ? this->expr->clone() : NULL;
     AST_eval_expr* clone = new AST_eval_expr(expr);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+void AST_eval_expr::_init()
+{
+    #line 331 "src/generated_src/phc.tea"
+{
+		assert (expr != NULL);
+	}
 }
 
 AST_nop::AST_nop()
@@ -5373,15 +5375,6 @@ bool AST_cast::equals(AST_node* in)
     return true;
 }
 
-AST_cast::AST_cast(char* cast, AST_expr* expr)
-{
-    #line 517 "src/generated_src/phc.tea"
-{
-		this->cast = new Token_cast(new String(cast));
-		this->expr = expr;
-	}
-}
-
 AST_cast* AST_cast::clone()
 {
     Token_cast* cast = this->cast ? this->cast->clone() : NULL;
@@ -5389,6 +5382,15 @@ AST_cast* AST_cast::clone()
     AST_cast* clone = new AST_cast(cast, expr);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_cast::AST_cast(char* cast, AST_expr* expr)
+{
+    #line 517 "src/generated_src/phc.tea"
+{
+		this->cast = new Token_cast(new String(cast));
+		this->expr = expr;
+	}
 }
 
 AST_unary_op::AST_unary_op(Token_op* op, AST_expr* expr)
@@ -5471,15 +5473,6 @@ bool AST_unary_op::equals(AST_node* in)
     return true;
 }
 
-AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
-{
-    #line 489 "src/generated_src/phc.tea"
-{
-		this->expr = expr;
-		this->op = new Token_op(new String(op));
-	}
-}
-
 AST_unary_op* AST_unary_op::clone()
 {
     Token_op* op = this->op ? this->op->clone() : NULL;
@@ -5487,6 +5480,15 @@ AST_unary_op* AST_unary_op::clone()
     AST_unary_op* clone = new AST_unary_op(op, expr);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
+{
+    #line 489 "src/generated_src/phc.tea"
+{
+		this->expr = expr;
+		this->op = new Token_op(new String(op));
+	}
 }
 
 AST_bin_op::AST_bin_op(AST_expr* left, Token_op* op, AST_expr* right)
@@ -5587,16 +5589,6 @@ bool AST_bin_op::equals(AST_node* in)
     return true;
 }
 
-AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
-{
-    #line 458 "src/generated_src/phc.tea"
-{
-		this->left = left;
-		this->op = new Token_op(new String(op));
-		this->right = right;
-	}
-}
-
 AST_bin_op* AST_bin_op::clone()
 {
     AST_expr* left = this->left ? this->left->clone() : NULL;
@@ -5605,6 +5597,16 @@ AST_bin_op* AST_bin_op::clone()
     AST_bin_op* clone = new AST_bin_op(left, op, right);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
+{
+    #line 458 "src/generated_src/phc.tea"
+{
+		this->left = left;
+		this->op = new Token_op(new String(op));
+		this->right = right;
+	}
 }
 
 AST_conditional_expr::AST_conditional_expr(AST_expr* cond, AST_expr* iftrue, AST_expr* iffalse)
@@ -5968,6 +5970,7 @@ AST_variable::AST_variable(AST_target* target, AST_variable_name* variable_name,
     this->target = target;
     this->variable_name = variable_name;
     this->array_indices = array_indices;
+    _init();
 }
 
 AST_variable::AST_variable()
@@ -5975,6 +5978,7 @@ AST_variable::AST_variable()
     this->target = 0;
     this->variable_name = 0;
     this->array_indices = 0;
+    _init();
 }
 
 void AST_variable::visit(AST_visitor* visitor)
@@ -6090,6 +6094,23 @@ bool AST_variable::equals(AST_node* in)
     return true;
 }
 
+AST_variable* AST_variable::clone()
+{
+    AST_target* target = this->target ? this->target->clone() : NULL;
+    AST_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<AST_expr*>* array_indices = NULL;
+    if(this->array_indices != NULL)
+    {
+    	List<AST_expr*>::const_iterator i;
+    	array_indices = new List<AST_expr*>;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    		array_indices->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_variable* clone = new AST_variable(target, variable_name, array_indices);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 AST_variable::AST_variable(AST_variable_name* name)
 {
     #line 340 "src/generated_src/phc.tea"
@@ -6106,23 +6127,6 @@ void AST_variable::_init()
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
-}
-
-AST_variable* AST_variable::clone()
-{
-    AST_target* target = this->target ? this->target->clone() : NULL;
-    AST_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<AST_expr*>* array_indices = NULL;
-    if(this->array_indices != NULL)
-    {
-    	List<AST_expr*>::const_iterator i;
-    	array_indices = new List<AST_expr*>;
-    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    		array_indices->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_variable* clone = new AST_variable(target, variable_name, array_indices);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_pre_op::AST_pre_op(Token_op* op, AST_variable* variable)
@@ -6205,15 +6209,6 @@ bool AST_pre_op::equals(AST_node* in)
     return true;
 }
 
-AST_pre_op::AST_pre_op(AST_variable* var, char* op)
-{
-    #line 479 "src/generated_src/phc.tea"
-{
-		this->variable = var;
-		this->op = new Token_op(new String(op));
-	}
-}
-
 AST_pre_op* AST_pre_op::clone()
 {
     Token_op* op = this->op ? this->op->clone() : NULL;
@@ -6221,6 +6216,15 @@ AST_pre_op* AST_pre_op::clone()
     AST_pre_op* clone = new AST_pre_op(op, variable);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_pre_op::AST_pre_op(AST_variable* var, char* op)
+{
+    #line 479 "src/generated_src/phc.tea"
+{
+		this->variable = var;
+		this->op = new Token_op(new String(op));
+	}
 }
 
 AST_post_op::AST_post_op(AST_variable* variable, Token_op* op)
@@ -6303,15 +6307,6 @@ bool AST_post_op::equals(AST_node* in)
     return true;
 }
 
-AST_post_op::AST_post_op(AST_variable* var, char* op)
-{
-    #line 469 "src/generated_src/phc.tea"
-{
-		this->variable = var;
-		this->op = new Token_op(new String(op));
-	}
-}
-
 AST_post_op* AST_post_op::clone()
 {
     AST_variable* variable = this->variable ? this->variable->clone() : NULL;
@@ -6319,6 +6314,15 @@ AST_post_op* AST_post_op::clone()
     AST_post_op* clone = new AST_post_op(variable, op);
     clone->AST_node::clone_mixin_from(this);
     return clone;
+}
+
+AST_post_op::AST_post_op(AST_variable* var, char* op)
+{
+    #line 469 "src/generated_src/phc.tea"
+{
+		this->variable = var;
+		this->op = new Token_op(new String(op));
+	}
 }
 
 AST_array::AST_array(List<AST_array_elem*>* array_elems)
@@ -6554,6 +6558,23 @@ bool AST_method_invocation::equals(AST_node* in)
     return true;
 }
 
+AST_method_invocation* AST_method_invocation::clone()
+{
+    AST_target* target = this->target ? this->target->clone() : NULL;
+    AST_method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
+    List<AST_actual_parameter*>* actual_parameters = NULL;
+    if(this->actual_parameters != NULL)
+    {
+    	List<AST_actual_parameter*>::const_iterator i;
+    	actual_parameters = new List<AST_actual_parameter*>;
+    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_method_invocation* clone = new AST_method_invocation(target, method_name, actual_parameters);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
@@ -6589,23 +6610,6 @@ AST_method_invocation::AST_method_invocation(const char* target, const char* nam
 		this->actual_parameters = new List<AST_actual_parameter*>;
 		this->actual_parameters->push_back(new AST_actual_parameter(false, arg));
 	}
-}
-
-AST_method_invocation* AST_method_invocation::clone()
-{
-    AST_target* target = this->target ? this->target->clone() : NULL;
-    AST_method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
-    List<AST_actual_parameter*>* actual_parameters = NULL;
-    if(this->actual_parameters != NULL)
-    {
-    	List<AST_actual_parameter*>::const_iterator i;
-    	actual_parameters = new List<AST_actual_parameter*>;
-    	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
-    		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
-    }
-    AST_method_invocation* clone = new AST_method_invocation(target, method_name, actual_parameters);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 AST_new::AST_new(AST_class_name* class_name, List<AST_actual_parameter*>* actual_parameters)
@@ -6883,6 +6887,20 @@ bool Token_int::equals_value(Token_int* that)
     return (this->value == that->value);
 }
 
+Token_int* Token_int::clone()
+{
+    String* source_rep = new String(*this->source_rep);
+    value = clone_value();
+    Token_int* clone = new Token_int(value, source_rep);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+long Token_int::clone_value()
+{
+    return value;
+}
+
 String* Token_int::get_value_as_string()
 {
     #line 540 "src/generated_src/phc.tea"
@@ -6908,20 +6926,6 @@ void Token_int::call_initializing_virtuals()
 {
 		source_rep = get_value_as_string ();
 	}
-}
-
-Token_int* Token_int::clone()
-{
-    String* source_rep = new String(*this->source_rep);
-    value = clone_value();
-    Token_int* clone = new Token_int(value, source_rep);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-long Token_int::clone_value()
-{
-    return value;
 }
 
 Token_real::Token_real(double value, String* source_rep)
@@ -7004,6 +7008,20 @@ bool Token_real::equals_value(Token_real* that)
     return (this->value == that->value);
 }
 
+Token_real* Token_real::clone()
+{
+    String* source_rep = new String(*this->source_rep);
+    value = clone_value();
+    Token_real* clone = new Token_real(value, source_rep);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+double Token_real::clone_value()
+{
+    return value;
+}
+
 String* Token_real::get_value_as_string()
 {
     #line 563 "src/generated_src/phc.tea"
@@ -7040,20 +7058,6 @@ void Token_real::call_initializing_virtuals()
 {
 		source_rep = get_value_as_string ();
 	}
-}
-
-Token_real* Token_real::clone()
-{
-    String* source_rep = new String(*this->source_rep);
-    value = clone_value();
-    Token_real* clone = new Token_real(value, source_rep);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-double Token_real::clone_value()
-{
-    return value;
 }
 
 Token_string::Token_string(String* value, String* source_rep)
@@ -7136,6 +7140,20 @@ bool Token_string::equals_value(Token_string* that)
     return (*this->value == *that->value);
 }
 
+Token_string* Token_string::clone()
+{
+    String* source_rep = new String(*this->source_rep);
+    value = clone_value();
+    Token_string* clone = new Token_string(value, source_rep);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+String* Token_string::clone_value()
+{
+    return value;
+}
+
 String* Token_string::get_value_as_string()
 {
     #line 622 "src/generated_src/phc.tea"
@@ -7151,20 +7169,6 @@ Token_string::Token_string(String* v)
 		value = v;
 		source_rep = v;
 	}
-}
-
-Token_string* Token_string::clone()
-{
-    String* source_rep = new String(*this->source_rep);
-    value = clone_value();
-    Token_string* clone = new Token_string(value, source_rep);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-String* Token_string::clone_value()
-{
-    return value;
 }
 
 Token_bool::Token_bool(bool value, String* source_rep)
@@ -7247,6 +7251,20 @@ bool Token_bool::equals_value(Token_bool* that)
     return (this->value == that->value);
 }
 
+Token_bool* Token_bool::clone()
+{
+    String* source_rep = new String(*this->source_rep);
+    value = clone_value();
+    Token_bool* clone = new Token_bool(value, source_rep);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+bool Token_bool::clone_value()
+{
+    return value;
+}
+
 String* Token_bool::get_value_as_string()
 {
     #line 597 "src/generated_src/phc.tea"
@@ -7273,20 +7291,6 @@ void Token_bool::call_initializing_virtuals()
 {
 		source_rep = get_value_as_string ();
 	}
-}
-
-Token_bool* Token_bool::clone()
-{
-    String* source_rep = new String(*this->source_rep);
-    value = clone_value();
-    Token_bool* clone = new Token_bool(value, source_rep);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-bool Token_bool::clone_value()
-{
-    return value;
 }
 
 Token_null::Token_null(String* source_rep)
@@ -7346,6 +7350,14 @@ bool Token_null::equals(AST_node* in)
     return true;
 }
 
+Token_null* Token_null::clone()
+{
+    String* source_rep = new String(*this->source_rep);
+    Token_null* clone = new Token_null(source_rep);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
 String* Token_null::get_value_as_string()
 {
     #line 637 "src/generated_src/phc.tea"
@@ -7368,14 +7380,6 @@ void Token_null::call_initializing_virtuals()
 {
 		source_rep = get_value_as_string ();
 	}
-}
-
-Token_null* Token_null::clone()
-{
-    String* source_rep = new String(*this->source_rep);
-    Token_null* clone = new Token_null(source_rep);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
 }
 
 

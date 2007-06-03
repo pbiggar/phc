@@ -114,6 +114,8 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
+    virtual AST_node* clone() = 0;
+public:
     AttrMap* attrs;
     //  Return the line number of the node (or 0 if unknown)
     int get_line_number();
@@ -121,8 +123,6 @@ public:
     String* get_filename();
     AST_node();
     void clone_mixin_from(AST_node* in);
-public:
-    virtual AST_node* clone() = 0;
 };
 
 // php_script ::= statement* ;
@@ -195,9 +195,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_signature(const char* name);
-public:
     virtual AST_signature* clone();
+public:
+    AST_signature(const char* name);
 };
 
 // method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
@@ -223,6 +223,8 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_method_mod* clone();
+public:
     AST_method_mod();
     AST_method_mod(AST_method_mod* a, AST_method_mod* b);
     static AST_method_mod* new_PUBLIC();
@@ -231,8 +233,6 @@ public:
     static AST_method_mod* new_STATIC();
     static AST_method_mod* new_ABSTRACT();
     static AST_method_mod* new_FINAL();
-public:
-    virtual AST_method_mod* clone();
 };
 
 // formal_parameter ::= type is_ref:"&" VARIABLE_NAME expr? ;
@@ -258,10 +258,10 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_formal_parameter* clone();
+public:
     AST_formal_parameter(AST_type* type, Token_variable_name* name);
     AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name);
-public:
-    virtual AST_formal_parameter* clone();
 };
 
 // type ::= "array"? CLASS_NAME? ;
@@ -310,6 +310,8 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_attr_mod* clone();
+public:
     AST_attr_mod();
     AST_attr_mod(AST_method_mod* mm);
     static AST_attr_mod* new_PUBLIC();
@@ -317,8 +319,6 @@ public:
     static AST_attr_mod* new_PRIVATE();
     static AST_attr_mod* new_STATIC();
     static AST_attr_mod* new_CONST();
-public:
-    virtual AST_attr_mod* clone();
 };
 
 // directive ::= DIRECTIVE_NAME expr ;
@@ -497,11 +497,11 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
+    virtual AST_commented_node* clone() = 0;
+public:
     AST_commented_node();
     //  Return the comments associated with the node
     List<String*>* get_comments();
-public:
-    virtual AST_commented_node* clone() = 0;
 };
 
 // identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
@@ -519,9 +519,9 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    virtual String* get_value_as_string() = 0;
-public:
     virtual AST_identifier* clone() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
 };
 
 // statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | global | unset | declare | try | throw | eval_expr | nop | label | goto | branch;
@@ -622,9 +622,9 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
-    AST_expr();
-public:
     virtual AST_expr* clone() = 0;
+public:
+    AST_expr();
 };
 
 // nested_list_elements ::= list_element?* ;
@@ -904,13 +904,13 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_class_def* clone();
+public:
     AST_class_def(AST_class_mod* mod);
     AST_class_def(char* name);
     void add_member(AST_member* member);
     //  Returns NULL if the method could not be found
     AST_method* get_method(const char* name);
-public:
-    virtual AST_class_def* clone();
 };
 
 // interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
@@ -1009,9 +1009,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_if(AST_expr* expr);
-public:
     virtual AST_if* clone();
+public:
+    AST_if(AST_expr* expr);
 };
 
 // while ::= expr statement* ;
@@ -1440,9 +1440,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    void _init();
-public:
     virtual AST_eval_expr* clone();
+public:
+    void _init();
 };
 
 // nop ::= ;
@@ -1479,10 +1479,10 @@ public:
 public:
     virtual bool equals(AST_node* in) = 0;
 public:
+    virtual AST_literal* clone() = 0;
+public:
     virtual String* get_value_as_string() = 0;
     virtual String* get_source_rep() = 0;
-public:
-    virtual AST_literal* clone() = 0;
 };
 
 // assignment ::= variable is_ref:"&" expr ;
@@ -1555,9 +1555,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_cast(char* cast, AST_expr* expr);
-public:
     virtual AST_cast* clone();
+public:
+    AST_cast(char* cast, AST_expr* expr);
 };
 
 // unary_op ::= OP expr ;
@@ -1581,9 +1581,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_unary_op(AST_expr* expr, char* op);
-public:
     virtual AST_unary_op* clone();
+public:
+    AST_unary_op(AST_expr* expr, char* op);
 };
 
 // bin_op ::= left:expr OP right:expr ;
@@ -1608,9 +1608,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_bin_op(AST_expr* left, AST_expr* right, char* op);
-public:
     virtual AST_bin_op* clone();
+public:
+    AST_bin_op(AST_expr* left, AST_expr* right, char* op);
 };
 
 // conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
@@ -1731,10 +1731,10 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_variable* clone();
+public:
     AST_variable(AST_variable_name* name);
     void _init();
-public:
-    virtual AST_variable* clone();
 };
 
 // pre_op ::= OP variable ;
@@ -1758,9 +1758,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_pre_op(AST_variable* var, char* op);
-public:
     virtual AST_pre_op* clone();
+public:
+    AST_pre_op(AST_variable* var, char* op);
 };
 
 // post_op ::= variable OP ;
@@ -1784,9 +1784,9 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
-    AST_post_op(AST_variable* var, char* op);
-public:
     virtual AST_post_op* clone();
+public:
+    AST_post_op(AST_variable* var, char* op);
 };
 
 // array ::= array_elem* ;
@@ -1834,14 +1834,14 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual AST_method_invocation* clone();
+public:
     //  For internal use only!
     AST_method_invocation(const char* name, AST_expr* arg);
     //  For internal use only!
     AST_method_invocation(Token_method_name* name, AST_expr* arg);
     //  This does in fact create a valid subtree
     AST_method_invocation(const char* target, const char* name, AST_expr* arg);
-public:
-    virtual AST_method_invocation* clone();
 };
 
 // new ::= class_name actual_parameter* ;
@@ -1914,13 +1914,13 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_int* that);
 public:
+    virtual Token_int* clone();
+    virtual long clone_value();
+public:
     virtual String* get_value_as_string();
     Token_int(int v);
 private:
     void call_initializing_virtuals();
-public:
-    virtual Token_int* clone();
-    virtual long clone_value();
 };
 
 class Token_real : virtual public AST_literal
@@ -1946,13 +1946,13 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_real* that);
 public:
+    virtual Token_real* clone();
+    virtual double clone_value();
+public:
     virtual String* get_value_as_string();
     Token_real(double v);
 private:
     void call_initializing_virtuals();
-public:
-    virtual Token_real* clone();
-    virtual double clone_value();
 };
 
 class Token_string : virtual public AST_literal
@@ -1978,11 +1978,11 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_string* that);
 public:
-    virtual String* get_value_as_string();
-    Token_string(String* v);
-public:
     virtual Token_string* clone();
     virtual String* clone_value();
+public:
+    virtual String* get_value_as_string();
+    Token_string(String* v);
 };
 
 class Token_bool : virtual public AST_literal
@@ -2008,13 +2008,13 @@ public:
     virtual bool equals(AST_node* in);
     virtual bool equals_value(Token_bool* that);
 public:
+    virtual Token_bool* clone();
+    virtual bool clone_value();
+public:
     virtual String* get_value_as_string();
     Token_bool(bool v);
 private:
     void call_initializing_virtuals();
-public:
-    virtual Token_bool* clone();
-    virtual bool clone_value();
 };
 
 class Token_null : virtual public AST_literal
@@ -2035,12 +2035,12 @@ public:
 public:
     virtual bool equals(AST_node* in);
 public:
+    virtual Token_null* clone();
+public:
     virtual String* get_value_as_string();
     Token_null();
 private:
     void call_initializing_virtuals();
-public:
-    virtual Token_null* clone();
 };
 
 
