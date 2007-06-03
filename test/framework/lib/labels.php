@@ -265,69 +265,10 @@ function get_all_scripts_in_dir($directory)
 	phc_assert($directory != '', "Cant search blank directory");
 	phc_assert(preg_match("/\/$/", $directory), "directory '$directory' must end in a '/'");
 
-	// this is run from the src directory
-	$dirs = array($directory);
-
-	$result = array();
-	for($i = 0; $i < count($dirs); $i++)
-	{
-		$dir = $dirs[$i];
-		// open the directory
-		if ($dh = @opendir($dir)) 
-		{
-			// get the current file
-			while (($file = readdir($dh)) !== false) 
-			{
-				// if its a directory recurse into it by adding it to the list
-				if (is_dir($dir.$file))
-				{
-					if ($file != "." and $file != "..")
-					{
-						// you need the compound relative directory name to open it
-						array_push($dirs, $dir.$file."/");
-					}
-				}
-				elseif (preg_match("/\.php$/", $file)) // otherwise the the file(.php files only)
-				{
-					array_push($result, $dir.$file);
-				}
-			}
-			closedir($dh);
-		}
-		else
-		{
-			mkdir($dir, 0755, true);
-		}
-	}
-
+	$command = "find $directory -name \"*.php\"";
+	echo "$command\n";
+	$result = split ("\n", trim (`$command`));
 	return $result;
 }
-
-// returns a list of all the php files within a directory (non-recursively)
-function get_scripts_in_dir($directory)
-{
-	$result = array();
-
-	$dir = $directory;
-	// open the directory
-	if ($dh = opendir($dir)) 
-	{
-
-		// get the current file
-		while (($file = readdir($dh)) !== false) 
-		{
-			// otherwise add the file(.php files only)
-			if (preg_match("/\.php$/", $file)) 
-			{
-				array_push($result, $dir.$file);
-			}
-		}
-		closedir($dh);
-	}
-
-	return $result;
-}
-
-
 
 ?>

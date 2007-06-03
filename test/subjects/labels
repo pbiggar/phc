@@ -45,5 +45,5 @@ codegen/for_varying_cond.php		non-interpretable # infinite loops
 parsing/instring.php					non-interpretable # php's parser doesnt like this
 
 
-#.*										long erroneous 
-#unsupported/.*						short erroneous 
+#.*										long
+#unsupported/.*						short
