@@ -19768,9 +19768,19 @@ fi
 { echo "$as_me:$LINENO: result: $ac_cv_lib_php5_zend_eval_string" >&5
 echo "${ECHO_T}$ac_cv_lib_php5_zend_eval_string" >&6; }
 if test $ac_cv_lib_php5_zend_eval_string = yes; then
-  found_embed_sapi=yes
+
+		found_embed_sapi=yes
+		cat >>confdefs.h <<\_ACEOF
+#define HAVE_EMBED 1
+_ACEOF
+
+		INCLUDES = "-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS $INCLUDES"
+		LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH} $LIBS"
+
 else
-  found_embed_sapi=no
+
+		found_embed_sapi=no
+
 fi
 
 { echo "$as_me:$LINENO: checking for sapi/embed/php_embed.h" >&5

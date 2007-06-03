@@ -16,8 +16,6 @@ SUBDIRS = libltdl
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
 	$(LTDLINCL) -I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated \
-	-I@php_install_path@/include/php -I@php_install_path@/include/php/main \
-	-I@php_install_path@/include/php/TSRM -I@php_install_path@/include/php/Zend \
 	-DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -Wall
 
 bin_PROGRAMS = src/phc
@@ -28,11 +26,11 @@ AM_CXXFLAGS = -Wextra -Wno-unused-parameter
 
 # -export-dynammic: Special libtool flag for later plugin loading
 # -R: search for libraries (ie libphp5) in php's lib install dir
-src_phc_LDFLAGS = -export-dynamic -R@php_install_path@/lib
+src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
-src_phc_LDADD = @gc_lib@ $(LIBLTDL) -lphp5 -L@php_install_path@/lib
+src_phc_LDADD = @gc_lib@ $(LIBLTDL)
 
 src_phc_DEPENDENCIES = $(LIBLTDL)
 
@@ -349,38 +347,70 @@ maintainerclean-local:
 check-local: test
 installcheck-local: installtest
 
+
 test: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php; \
 		@php@ -Cq $(srcdir)/test/framework/driver.php; \
-		else echo PHP support required for test; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php; \
+			php -Cq $(srcdir)/test/framework/driver.php; \
+		else \
+			echo PHP support required for test; \
+		fi \
 	fi
 
 installtest: install test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -i; \
-		@php@ -Cq $(srcdir)/test/framework/driver.php -i;  \
-		else echo PHP support required for test; \
+		@php@ -Cq $(srcdir)/test/framework/driver.php -i; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php -i; \
+			php -Cq $(srcdir)/test/framework/driver.php -i; \
+		else \
+			echo PHP support required for test; \
+		fi \
 	fi
+
 
 long-test: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -l; \
 		@php@ -Cq $(srcdir)/test/framework/driver.php -l; \
-		else echo PHP support required for test; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php -l; \
+			php -Cq $(srcdir)/test/framework/driver.php -l; \
+		else \
+			echo PHP support required for test; \
+		fi \
 	fi
+
 
 generate-test-files: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s regression; \
 		@php@ -Cq $(srcdir)/test/framework/driver.php -s regression; \
-		else echo PHP support required for test; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php -s regression; \
+			php -Cq $(srcdir)/test/framework/driver.php - regression; \
+		else \
+			echo PHP support required for test; \
+		fi \
 	fi
 
 long-generate-test-files: all test/framework/lib/autovars.php
 	@if [ -n "@php@" ]; \
 		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression; \
 		@php@ -Cq $(srcdir)/test/framework/driver.php -s -l regression; \
-		else echo PHP support required for test; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php -s -l regression; \
+			php -Cq $(srcdir)/test/framework/driver.php -s -l regression; \
+		else \
+			echo PHP support required for test; \
+		fi \
 	fi
-

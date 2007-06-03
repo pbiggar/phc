@@ -48,15 +48,23 @@ function get_phc_compile_plugin ()
 function get_php ()
 {
 	global $php_exe;
-	# remember this screipt si running with the same php we will be using
-	if (PHP_SAPI == "cgi")
+
+	# use the version of PHP found by configure
+	if ($php_exe)
 	{
-		return "$php_exe -Cq -d html_errors=0";
+		# remember this screipt si running with the same php we will be using
+		if (PHP_SAPI == "cgi")
+		{
+			return "$php_exe -Cq -d html_errors=0";
+		}
+
+		return "$php_exe -C";
 	}
-
-	return "$php_exe -C";
-	
-
+	else
+	{
+		$php = trim (`which php`);
+		return "$php -C";
+	}
 }
 
 
@@ -324,7 +332,10 @@ function check_for_plugin ($plugin_name)
 
 function check_for_program ($program_name)
 {
-	/* the gcc variable doesnt have a path */
+	// only use the first word
+	$program_names = split (" ", $program_name);
+	$program_name = $program_names[0];
+
 	return ($program_name !== "" 
 			&& (file_exists ($program_name) or $program_name == "gcc"));
 }

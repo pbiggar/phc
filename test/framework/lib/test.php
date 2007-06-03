@@ -161,8 +161,8 @@ abstract class Test
 
 	function check_global_prerequisites ()
 	{
-		global $php_exe;
-		return check_for_program ($php_exe);
+		global $php;
+		return check_for_program ($php);
 	}
 
 	function check_prerequisites ()
