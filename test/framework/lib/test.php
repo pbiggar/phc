@@ -425,27 +425,53 @@ abstract class Test
 
 	function is_successful ()
 	{
-		return ($this->successes == 0 or $this->failures > 0);
+		return ($this->failures == 0);
 	}
 
-	function get_triple_string ($brackets = true)
+	function is_completely_skipped ()
 	{
-		$red = red_string ();
-		$blue = blue_string ();
-		$green = green_string ();
+		return ($this->failures == 0 and $this->successes == 0 and $this->skipped > 0);
+	}
+
+	function get_appropriate_colour ()
+	{
+		if ($this->is_completely_skipped ())
+			return blue_string ();
+		elseif ($this->is_successful ())
+			return green_string ();
+		else
+			return red_string ();
+	}
+
+	function get_appropriate_phrase ()
+	{
+		if ($this->is_completely_skipped ())
+			return "Skipped";
+		elseif ($this->is_successful ())
+			return "Success";
+		else
+			return "Failure";
+	}
+
+	function get_triple_string ($finished = false)
+	{
 		$reset = reset_string ();
 		$passed = sprintf ("%5s", $this->successes." P");
-		$failed = sprintf ("%4s", $this->failures." F");
-		$skipped = sprintf ("%4s", $this->skipped." S");
-		if ($brackets == false)
+		$failed = sprintf ("%5s", $this->failures." F");
+		$skipped = sprintf ("%5s", $this->skipped." S");
+		if ($finished)
 		{
-			if ($this->is_successful ())
-				return "$red$passed, $failed, $skipped$reset";
-			else 
-				return "$green$passed, $failed, $skipped$reset";
+			$colour = $this->get_appropriate_colour ();
+			return "$colour$passed, $failed, $skipped$reset";
 		}
 		else
-			return "$green($passed$reset, $red$failed$reset, $blue$skipped)$reset";
+		{
+			$blue = blue_string ();
+			$green = green_string ();
+			$red = red_string ();
+			$reset = reset_string ();
+			return "$green$passed$reset, $red$failed$reset, $blue$skipped$reset";
+		}
 	}
 
 	function update_count ()
@@ -459,8 +485,8 @@ abstract class Test
 
 			$this->erase_progress_bar ();
 			$this->progress_bar->reset(
-					"{$this->get_name()} %bar% %fraction% done {$this->get_triple_string ()}", 
-					"#", "-", 112, $target_num);
+					"{$this->get_name()} %bar% %fraction%: {$this->get_triple_string ()}", 
+					"#", "-", 112, $target_num); # i dont understand how this number works, but it includes control chars
 			$this->progress_bar->update($this->total);
 		}
 	}
@@ -494,16 +520,15 @@ abstract class Test
 
 		$test = $this->get_name();
 		$timing = $this->get_timing_string ();
-		$triple = $this->get_triple_string (false);
+		$triple = $this->get_triple_string (true);
 
-		if ($this->is_successful ())
-			$word = "{$red}Failure:$reset";
-		else
-			$word = "{$green}Success:$reset";
+		$phrase = $this->get_appropriate_phrase ();
+		$colour = $this->get_appropriate_colour ();
+		$word = "$colour$phrase:$reset";
 
 		// a color or a reset involves 6 characters, but gets displayed as zero.
 		// Those 6 need to be taken into account for sprintf
-		$string = sprintf("%-29s %-21s %20s %28s", $test, $timing, $word, $triple);
+		$string = sprintf("%-27s %-22s %20s %28s", $test, $timing, $word, $triple);
 		print "$string\n";
 	}
 
