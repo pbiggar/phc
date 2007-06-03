@@ -219,23 +219,13 @@ nobase_pkglib_LTLIBRARIES += plugins/tutorials/Comment_ifs.la
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-# TODO: probably replace by another tutorial
-#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_classes.la
-#plugins_tutorials_count_classes_la_SOURCES = plugins/tutorials/count_classes.cpp
-#plugins_tutorials_count_classes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_easy.la
+plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
+plugins_tutorials_count_statements_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-# TODO: probably replace by another tutorial
-#nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_difficult.la
-#plugins_tutorials_count_function_calls_difficult_la_SOURCES = plugins/tutorials/count_function_calls_difficult.cpp
-#plugins_tutorials_count_function_calls_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_function_calls_easy.la
-plugins_tutorials_count_function_calls_easy_la_SOURCES = plugins/tutorials/count_function_calls_easy.cpp
-plugins_tutorials_count_function_calls_easy_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements.la
-plugins_tutorials_count_statements_la_SOURCES = plugins/tutorials/count_statements.cpp
-plugins_tutorials_count_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_difficult.la
+plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
+plugins_tutorials_count_statements_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 # TODO: probably replace by another tutorial
 #nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la

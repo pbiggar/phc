@@ -20,7 +20,7 @@ public:
    // Print the number of function calls when we are done
    void post_php_script(AST_php_script* in)
    {
-      printf("%d statements found\n", num_statements);
+      cout << num_statements << " statements found" << endl;
    }
    
    // Count the number of function calls

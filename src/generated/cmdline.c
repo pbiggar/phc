@@ -73,8 +73,9 @@ const char *gengetopt_args_info_full_help[] = {
   "      --dump-ast-dot           Dump the AST from the source in dot format  \n                                 (default=off)",
   "      --dump-ast-xml           Dump the AST from the source in XML format  \n                                 (default=off)",
   "      --next-line-curlies      Output the opening curly on the next line \n                                 instead of on the same line  (default=off)",
-  "      --no-line-numbers        Don't include line numbers when dumping DOT/XML  \n                                 (default=off)",
-  "      --no-nulls               Don't include NULLs when dumping DOT  \n                                 (default=off)",
+  "      --no-line-numbers        Don't show line numbers when dumping DOT/XML  \n                                 (default=off)",
+  "      --no-nulls               Don't show NULLs when dumping DOT  (default=off)",
+  "      --no-empty-lists         Don't show empty lists when dumping DOT  \n                                 (default=off)",
   "      --tab=STRING             String to use for tabs while unparsing  \n                                 (default=`\t')",
   "\nDEBUGGING PHC:",
   "      --dump-tokens            Perform lexical analysis only (spits out a token \n                                 list)  (default=off)",
@@ -129,6 +130,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->next_line_curlies_given = 0 ;
   args_info->no_line_numbers_given = 0 ;
   args_info->no_nulls_given = 0 ;
+  args_info->no_empty_lists_given = 0 ;
   args_info->tab_given = 0 ;
   args_info->dump_tokens_given = 0 ;
   args_info->run_lifting_given = 0 ;
@@ -161,6 +163,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->next_line_curlies_flag = 0;
   args_info->no_line_numbers_flag = 0;
   args_info->no_nulls_flag = 0;
+  args_info->no_empty_lists_flag = 0;
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
   args_info->dump_tokens_flag = 0;
@@ -198,12 +201,13 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->next_line_curlies_help = gengetopt_args_info_full_help[21] ;
   args_info->no_line_numbers_help = gengetopt_args_info_full_help[22] ;
   args_info->no_nulls_help = gengetopt_args_info_full_help[23] ;
-  args_info->tab_help = gengetopt_args_info_full_help[24] ;
-  args_info->dump_tokens_help = gengetopt_args_info_full_help[26] ;
-  args_info->run_lifting_help = gengetopt_args_info_full_help[27] ;
-  args_info->run_lowering_help = gengetopt_args_info_full_help[28] ;
-  args_info->run_shredder_help = gengetopt_args_info_full_help[29] ;
-  args_info->run_goto_uppering_help = gengetopt_args_info_full_help[30] ;
+  args_info->no_empty_lists_help = gengetopt_args_info_full_help[24] ;
+  args_info->tab_help = gengetopt_args_info_full_help[25] ;
+  args_info->dump_tokens_help = gengetopt_args_info_full_help[27] ;
+  args_info->run_lifting_help = gengetopt_args_info_full_help[28] ;
+  args_info->run_lowering_help = gengetopt_args_info_full_help[29] ;
+  args_info->run_shredder_help = gengetopt_args_info_full_help[30] ;
+  args_info->run_goto_uppering_help = gengetopt_args_info_full_help[31] ;
   
 }
 
@@ -444,6 +448,9 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   }
   if (args_info->no_nulls_given) {
     fprintf(outfile, "%s\n", "no-nulls");
+  }
+  if (args_info->no_empty_lists_given) {
+    fprintf(outfile, "%s\n", "no-empty-lists");
   }
   if (args_info->tab_given) {
     if (args_info->tab_orig) {
@@ -736,6 +743,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "next-line-curlies",	0, NULL, 0 },
         { "no-line-numbers",	0, NULL, 0 },
         { "no-nulls",	0, NULL, 0 },
+        { "no-empty-lists",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
         { "dump-tokens",	0, NULL, 0 },
         { "run-lifting",	0, NULL, 0 },
@@ -1013,7 +1021,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->next_line_curlies_given = 1;
             args_info->next_line_curlies_flag = !(args_info->next_line_curlies_flag);
           }
-          /* Don't include line numbers when dumping DOT/XML.  */
+          /* Don't show line numbers when dumping DOT/XML.  */
           else if (strcmp (long_options[option_index].name, "no-line-numbers") == 0)
           {
             if (local_args_info.no_line_numbers_given)
@@ -1027,7 +1035,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             args_info->no_line_numbers_given = 1;
             args_info->no_line_numbers_flag = !(args_info->no_line_numbers_flag);
           }
-          /* Don't include NULLs when dumping DOT.  */
+          /* Don't show NULLs when dumping DOT.  */
           else if (strcmp (long_options[option_index].name, "no-nulls") == 0)
           {
             if (local_args_info.no_nulls_given)
@@ -1040,6 +1048,20 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.no_nulls_given = 1;
             args_info->no_nulls_given = 1;
             args_info->no_nulls_flag = !(args_info->no_nulls_flag);
+          }
+          /* Don't show empty lists when dumping DOT.  */
+          else if (strcmp (long_options[option_index].name, "no-empty-lists") == 0)
+          {
+            if (local_args_info.no_empty_lists_given)
+              {
+                fprintf (stderr, "%s: `--no-empty-lists' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->no_empty_lists_given && ! override)
+              continue;
+            local_args_info.no_empty_lists_given = 1;
+            args_info->no_empty_lists_given = 1;
+            args_info->no_empty_lists_flag = !(args_info->no_empty_lists_flag);
           }
           /* String to use for tabs while unparsing.  */
           else if (strcmp (long_options[option_index].name, "tab") == 0)

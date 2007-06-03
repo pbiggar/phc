@@ -106,14 +106,20 @@ void DOT_unparser::visit_null_list(char const* type_id)
 
 void DOT_unparser::pre_list(char const* type_id, int size)
 {
-	stringstream s;
-	s << "List<" << type_id << ">";
-	new_node(s.str().c_str(), 0);
+	if(!args_info.no_empty_lists_flag || size > 0)
+	{
+		stringstream s;
+		s << "List<" << type_id << ">";
+		new_node(s.str().c_str(), 0);
+	}
 }
 
 void DOT_unparser::post_list(char const* type_id, int size)
 {
-	node_stack.pop();
+	if(!args_info.no_empty_lists_flag || size > 0)
+	{
+		node_stack.pop();
+	}
 }
 
 void DOT_unparser::new_node(char const* label, int line_number)
