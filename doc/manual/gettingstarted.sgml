@@ -22,10 +22,7 @@ plugin that does nothing except print a string. Create a new directory, say
 <Filename>helloworld.cpp</Filename>: </para>
 
 <programlisting>
-<reserved>#include</reserved> &lt;phc/ast.h&gt;
-<reserved>#include</reserved> &lt;iostream&gt;
-
-<reserved>using namespace</reserved> std;
+<reserved>#include</reserved> &lt;AST.h&gt;
 
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
@@ -141,8 +138,8 @@ output the AST as an XML document, see <xref linkend="runningphc">). </para>
 {
 <reserved>public</reserved>:
    AST_expr* expr;
-   AST_statement_list* iftrue;
-   AST_statement_list* iffalse;
+   List&lt;AST_statement*&gt;* iftrue;
+   List&lt;AST_statement*&gt;* iffalse;
 };
 </programlisting>
 
@@ -159,7 +156,7 @@ STL <code>list</code> class, and can thus be treated as such. </para>
 <reserved>class</reserved> AST_array
 {
 <reserved>public</reserved>:
-   AST_array_elem_list* array_elems;
+   List&lt;AST_array_elemt*&gt;* array_elems;
 };
 
 <reserved>class</reserved> AST_array_elem
@@ -188,16 +185,13 @@ Once the tree has been built, you can examine or modify the tree in any way you
 want. When you are finished, you can ask &phc to output the tree to normal PHP
 code again. </para> 
 
-<para> Let's write a very simple plugin that counts the number of class
-definitions in a script. If you look at the <xref linkend="grammar"
-endterm="grammar.title">, you will notice that class definitions are
-represented by a (C++) class called <code>AST_class_def</code>. So, we need to
-count the number of objects of type <code>AST_class_def</code> in the tree.
-Create a new file <filename>~/myplugins/count_classes.cpp</filename>.  Recall
-the skeleton plugin: </para>
+<para> Let's write a very simple plugin that counts the number of statements in
+a script.  Create a new file
+<filename>~/myplugins/count_statements.cpp</filename>.  Recall the skeleton
+plugin: </para>
 		
 <programlisting>
-<reserved>#include</reserved> &lt;phc/ast.h&gt;
+<reserved>#include</reserved> &lt;AST.h&gt;
 
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
@@ -210,42 +204,35 @@ AST. If you look at the grammar (<xref linkend="grammar">), you will find that
 <code>AST_php_script</code> corresponds to the following rule: </para>
 	
 <programlisting>
-php_script ::= interface_def* class_def+ ;
+php_script ::= statement* ;
 </programlisting>
 
 <para> Thus, as far as &phc is concerned, a PHP script consists of a number of
-interface definitions, followed by a number of class definitions (see <xref
-linkend="representingphp">).  The plus (<code>+</code>) in this rule is similar
-to an asterisk (<code>*</code>), but indicates that there must at least be one
-item in the list. In other words, a PHP script may not have any interface
-definitions, but it must have at least one class definition. </para>
-
-<para> By now you should be able to deduce that the class
-<code>AST_php_script</code> will have two members, called
-<code>interface_defs</code> and <code>class_defs</code>, both of which are
-lists. So, to count the number of classes, all we have to do is query the
-number of elements in the <code>class_defs</code> vector: </para>
+statements. The class <code>AST_php_script</code> will have therefore have one
+member, called <code>statements</code>, the list of statements. So, to count
+the number of classes, all we have to do is query the number of elements in the
+<code>statements</code> list: </para>
 
 <programlisting>
-<reserved>#include</reserved> &lt;phc/ast.h&gt;
+<reserved>#include</reserved> &lt;AST.h&gt;
 
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
-   printf("%d class definition(s) found\n", php_script->class_defs->size());
+   printf("%d statement(s) found\n", php_script->statements->size());
 }
 </programlisting>
 
-<para> Save this file to <filename>~/myplugins/count_classes.cpp</filename>.
+<para> Save this file to <filename>~/myplugins/count_statements.cpp</filename>.
 Compile: </para>
 
 <programlisting>
-~/myplugins$ phc_compile_plugin count_classes.cpp
+~/myplugins$ phc_compile_plugin count_statements.cpp
 </programlisting>
 
 <para> And run: </para>
 
 <programlisting>
-./phc --run count_classes.la hello.php
+./phc --run count_statements.la hello.php
 </programlisting>
 
 </section>
@@ -253,25 +240,24 @@ Compile: </para>
 <section>
 <title>Actually..</title>
 
-<para> If you actually did try to run your plugin, you might think right now
-that something went wrong: &phc appears to report one class definition too
-many!  However, there is a very good reason for this. We said earlier that as
-far as &phc is concerned, a PHP script consists of a number of interface
-definitions, followed by at least one class definition. So where does the code
-that is defined outside of any class go? </para>
+<para> If you actually did try to run your plugin, you may have found that our plugin isn't quite correct. Consider the following example: </para>
 
-<para> The answer is that any code defined outside any class goes into a
-special class called <code>%MAIN%</code>. Any functions you define that do not
-belong to any class, become members of <code>%MAIN%</code>, and any code you
-write that does not belong to any function, becomes part of a special method in
-<code>%MAIN%</code> called <code>%run%</code>.  When &phc outputs the tree back
-to normal PHP code, <code>%MAIN%</code> disappears; however, when you work with
-the tree, there is no distinction between code defined inside and outside
-classes; in the tree, everything is defined as part of some class. This makes
-the tree simpler and easier to work with. </para>
+<programlisting>
+&lt;?<reserved>php</reserved>
+   $x = 5;
+   <reserved>if</reserved>($x == 5)
+      <reserved>echo</reserved> "yes";
+   <reserved>else</reserved>
+      <reserved>echo</reserved> "no";
+?&gt;
+</programlisting>
 
-<para> More details about how the various PHP constructs are represented in the
-abstract grammar can be found in <xref linkend="representingphp">. </para>
+<para> If you run our plugin on this example, if will report two statements.
+Why? Well, the first statement is the assignment, and the second is the
+conditional (the <code>if</code> statement). The statements
+<emphasis>inside</emphasis> the <code>if</code> statement are not counted,
+because they are not part of the outer list of statements of the script. In the
+next tutorial we will see how to fix this. </para>
 
 </section>
 
@@ -281,7 +267,7 @@ abstract grammar can be found in <xref linkend="representingphp">. </para>
 <para> If you prefer not to write a plugin but want to modify &phc itself to
 derive a new, stand-alone, application, you can modify <code>process_ast</code>
 in <filename>process_ast/process_ast.cpp</filename> in the &phc source tree
-instead. This has the effect of &ldquo;hardcoding&rdquo; your plugin into &phc
+instead. This has the effect of &ldquo;hardcoding&rdquo; your plugin into &phc;
 (in versions before 0.1.7, this was the only way to write extensions).
 However, in the rest of the tutorials we will assume that you are writing your
 extension as a plugin. </para>

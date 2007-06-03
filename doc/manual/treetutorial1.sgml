@@ -7,19 +7,26 @@
 
 <para> In <xref linkend="gettingstarted">, we explained that &phc represents
 PHP scripts internally as an abstract syntax tree, and that the structure of
-this tree is determined by the <xref linkend="grammar" endterm="grammar.title">. We
-then showed how to make use of this tree to count the number of classes.  In
-this tutorial, we will consider an equally simple task: we want to count the
-number of function calls in a script. So, for the following PHP script, </para>
+this tree is determined by the <xref linkend="grammar"
+endterm="grammar.title">. We then showed how to make use of this tree to count
+the number of statements. However, the plugin we wrote only counted the
+&ldquo;top-level&rdquo; statements. Statements nested inside other statements
+(for example, statements inside the true or false branch of an <code>if</code>
+statement) were ignored. In this tutorial, we will rectify this problem and
+write a plugin that counts <emphasis>all</emphasis> statements in a script. So,
+for </para>
 		
 <programlisting>
 &lt;?<reserved>php</reserved>
-   <reserved>echo</reserved> "Hello ";
-   <reserved>echo</reserved> "world!";
+   $x = 5;
+   <reserved>if</reserved>($x == 5)
+      <reserved>echo</reserved> "yes";
+   <reserved>else</reserved>
+      <reserved>echo</reserved> "no";
 ?&gt;
 </programlisting>
 
-<para> we should report two function calls. </para>
+<para> we should report four statements. </para>
 
 <para> Note that all the plugins that we will develop in these tutorials are
 included in the &phc distribution. For example, in this tutorial we will be
@@ -27,13 +34,13 @@ developing two plugins: a difficult solution to the problem and an easy
 solution to the problem. You can run these plugins by running </para>
 
 <screen>
-phc --run plugins/tutorials/count_function_calls_difficult.la hello.php
+phc --run plugins/tutorials/count_statements_difficult.la test.php
 </screen>
 			
 <para> or </para>
 
 <screen>
-phc --run plugins/tutorials/count_function_calls_easy.la hello.php
+phc --run plugins/tutorials/count_statements_easy.la test.php
 </screen>
 
 </section>
@@ -42,37 +49,29 @@ phc --run plugins/tutorials/count_function_calls_easy.la hello.php
 
 <title>The Grammar (Revisited)</title>
 
-<para> How do we go about counting the number of function calls in a script?
-Remember that, as far as &phc is concerned, a PHP script consists of a number
-of classes (and interface definitions). Each of these classes may have one or
-more methods, and each method can have one or more statements in them.
-Simplified, the grammar would state this as: </para>
+<para> How do we go about counting all statements in a script?  Remember that,
+as far as &phc is concerned, a PHP script consists of a number of statements,
+but some of those statements may have other statements nested inside them. Here
+is part of the &phc; grammar: </para>
 
 <programlisting>
-php_script ::= class_def+ ;
-class_def ::= CLASS_NAME member* ; 
-member ::= method | attribute ;
-method ::= signature statement* ;
-signature ::= METHOD_NAME formal_parameter* ; 
+php_script ::= statement* ;
+statement ::= eval_expr | if | while | ...
+if ::= expr iftrue:statement* iffalse:statement* ;
+while ::= expr statement* ;
 </programlisting>
 
-<para>where the vertical bar (<code>|</code>) means &ldquo;or&rdquo;.  Thus,
-our running example is represented by the tree in <xref
-linkend="simplifiedtree"> <footnote> <para>The tree shown in <xref
-linkend="simplifiedtree"> is simplified from the real tree; not all nodes are
-shown. The full tree is</para> <mediaobject> <imageobject> <imagedata
-fileref="img/tutorial1-full.eps" scale="30" format="EPS"> </imageobject>
-<imageobject> <imagedata fileref="img/tutorial1-full.jpg" scale="30">
-</imageobject> </mediaobject> </footnote>. </para>
+<para>The vertical bar (<code>|</code>) means &ldquo;or&rdquo;. So, a statement
+is either an evaluation of an expression (<code>eval_expr</code>), an
+<code>if</code> statement, or a <code>while</code> statement, or..  Thus, our
+running example is represented by the tree in <xref linkend="ifx5tree">. The
+four statements that we are interested in have been highlighted.  </para>
 
-<figure id="simplifiedtree">
-<title>Simplified tree for the running example</title>
+<figure id="ifx5tree">
+<title>Abstract syntax tree for the running example</title>
 <mediaobject>
 <imageobject>
-<imagedata fileref="img/tutorial1-simplified.eps" scale="50" format="EPS">
-</imageobject>
-<imageobject>
-<imagedata fileref="img/tutorial1-simplified.jpg">
+<imagedata fileref="img/ifx5.jpg">
 </imageobject>
 </mediaobject>
 </figure>
@@ -84,14 +83,13 @@ fileref="img/tutorial1-full.eps" scale="30" format="EPS"> </imageobject>
 
 <title>Statements and Expressions</title>
 
-<para> The two nodes that we are interested in are the &ldquo;method
-invocation&rdquo; nodes. The <code>eval expr</code> nodes just above them
-probably need some explanation. There are many different types of statements in
-PHP: <code>if</code>-statements, <code>while</code>-statements,
+<para> The <code>eval_expr</code> nodes in the tree probably need some
+explanation. There are many different types of statements in PHP:
+<code>if</code>-statements, <code>while</code>-statements,
 <code>for</code>-loops, etc. You can find the full list in the <xref
-linkend="grammar" endterm="grammar.title">. If you do look at the grammar, you will
-notice in particular that a function call is not actually a statement! Instead,
-a function call is an <emphasis>expression</emphasis>. </para> 
+linkend="grammar" endterm="grammar.title">. If you do look at the grammar, you
+will notice in particular that a function call is not actually a statement!
+Instead, a function call is an <emphasis>expression</emphasis>. </para> 
 
 <para> The difference between statements and expressions is that a statement
 <emphasis>does</emphasis> something (for example, a <code>for</code>-loop
@@ -116,74 +114,66 @@ eval_expr ::= expr ;
 
 <title>The Difficult Solution</title>
 
-<para> The following plugin counts the number of function calls in a tree. If
-you do not understand the code, do not worry! We will look at a much easier
-solution in a second. If you understand the comments, that is enough.  </para>
+<para> The following plugin is a partial solution to counting the number of
+statements in a tree. If you do not understand the code, do not worry! We will
+look at a much easier solution in a second. If you understand the comments,
+that is enough.  </para>
 			
 <programlisting>
-#include &lt;phc/ast.h&gt;
+<reserved>#include</reserved> &lt;AST.h&gt;
+
+<reserved>int</reserved> count(List&lt;AST_statement*&gt;* in)
+{
+	<emphasis>// Every item in "in" is a statement</emphasis>
+	<reserved>int</reserved> num_statements = in->size();
+
+	<emphasis>// But there can also be statements nested inside any</emphasis>
+	<emphasis>// of the statements in "in". We consider each one in turn.</emphasis>
+	List&lt;AST_statement*&gt;::const_iterator i;
+	<reserved>for</reserved>(i = in->begin(); i != in->end(); i++)
+	{
+		<emphasis>// Check if the statement is an if-statement</emphasis>
+		<reserved>if</reserved>(AST_if* if_stmt = dynamic_cast&lt;AST_if*&gt;(*i))
+		{
+			num_statements += count(if_stmt->iftrue);
+			num_statements += count(if_stmt->iffalse);
+		}
+	}
+
+	<reserved>return</reserved> num_statements;
+}
 
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
-   AST_class_def_list::const_iterator ci;
-   AST_member_list::const_iterator mi;
-   AST_statement_list::const_iterator si;
-   
-   AST_method* method;
-   AST_eval_expr* eval_expr;
-   AST_method_invocation* invoc;
-   
-   <reserved>int</reserved> num_function_calls = 0;
-   
-   <emphasis>// Inspect all classes</emphasis>
-   <reserved>for</reserved>(
-      ci = php_script-&gt;class_defs-&gt;begin(); 
-      ci != php_script-&gt;class_defs-&gt;end(); 
-      ci++)
-   {
-      <emphasis>// Inspect all members in the class</emphasis>
-      <reserved>for</reserved>(
-         mi = (*ci)-&gt;members-&gt;begin(); 
-         mi != (*ci)-&gt;members-&gt;end(); 
-         mi++)
-      {
-         <emphasis>// Check whether this member is a method or an attribute</emphasis>
-         method = <reserved>dynamic_cast</reserved>&lt;AST_method*&gt;(*mi);
-         <reserved>if</reserved>(method == <reserved>NULL</reserved>) <reserved>continue</reserved>;
-         
-         <emphasis>// Check all statements in the method</emphasis>
-         <reserved>for</reserved>(
-            si = method-&gt;statements-&gt;begin(); 
-            si != method-&gt;statements-&gt;end(); 
-            si++)
-         {
-            <emphasis>// Check if the statement is of type "eval_expr"</emphasis>
-            eval_expr = <reserved>dynamic_cast</reserved>&lt;AST_eval_expr*&gt;(*si);
-            <reserved>if</reserved>(eval_expr == <reserved>NULL</reserved>) <reserved>continue</reserved>;
-   
-            <emphasis>// Finally, check <reserved>if</reserved> the expression is a function call</emphasis>
-            invoc = <reserved>dynamic_cast</reserved>&lt;AST_method_invocation*&gt;(eval_expr-&gt;expr);
-            <reserved>if</reserved>(invoc == <reserved>NULL</reserved>) <reserved>continue</reserved>;
-   
-            <emphasis>// Yeah! We found a function call</emphasis>
-            num_function_calls++;
-         }
-      }
-   }
-   
-   printf("%d function calls found\n", num_function_calls);
+	<reserved>int</reserved> num_statements = count(php_script->statements);
+	cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
 }
 </programlisting>
 
-<para> Why is this code so complicated? First of all, it has to search through
-the entire tree, looking for function calls. Because function calls are fairly
-deep down in the tree, we need a lot of code simply to find them. The second
-complication is the fact that, for example, a class consists of
-&ldquo;members&ldquo;. A member is either an attribute or a method, but we are
-interested only in methods.  Similarly, a method consists of
-&ldquo;statements&ldquo;. A statement can be one of many things; but we are
-only interested in <code>eval_expr</code> statements. Thus, we have to test
-nodes for their type (using <code>dynamic_cast</code>). </para>
+<para> The overall structure of this plugin should be fairly clear. We count
+all the statements in the outermost list of statements, and then consider each
+statement in turn to check if there are any statements nested inside them. This
+plugin will now report the correct number of statements for our example with
+the <code>if</code> statement. However, if will report an invalid number of
+statements for examples with other types of statements. For example, it will
+report only two statements for
+
+<programlisting>
+&lt;?<reserved>php</reserved>
+   $x = 5;
+   <reserved>while</reserved>($x--)
+   {
+      <reserved>echo</reserved> $x;
+   }
+&gt;>
+</programlisting>
+
+<para> Of course, we can fix the plugin by testing for <code>while</code>
+statements. And for <code>do</code> statements. And for <code>foreach</code>,
+<code>switch</code>, <code>try</code>, etc. As mentioned, manually dealing with
+the syntax tree is a laborious process! Even something as simple as counting
+the number of statements in a script becomes a large program. Fortunately,
+there is a much easier solution. </para> 
 
 </section>
 
@@ -193,11 +183,11 @@ nodes for their type (using <code>dynamic_cast</code>). </para>
 
 <para> Fortunately, &phc will do all this for you automatically! There is a
 standard &ldquo;do-nothing&rdquo; tree traversal predefined in &phc in the form
-of a class called <code>Tree_visitor</code> (defined in
-<filename>&lt;phc/Tree_visitor.h&gt;</filename>). <code>Tree_visitor</code>
-contains methods for each type of node in the tree. &phc will automatically
-traverse the abstract syntax tree for you, and call the appropriate method at
-each node.  </para>
+of a class called <code>AST_visitor</code> (defined in
+<filename>&lt;AST_visitor.h&gt;</filename>). <code>AST_visitor</code> contains
+methods for each type of node in the tree. &phc will automatically traverse the
+abstract syntax tree for you, and call the appropriate method at each node.
+</para>
 
 <para> In fact, there are <emphasis>two</emphasis> methods defined for each
 type of node. The first method, called <code>pre_something</code>, gets called
@@ -212,89 +202,62 @@ in the tree), and the very last method that gets called is
 <code>post_php_script</code>. </para>
 
 <para> So, here is an alternative and much easier solution for our problem.
+This plugin will actually count <emphasis>all</emphasis> statements in a
+script, without having to worry about all the different ways statements can be
+embedded in other statements. Moreover, even if the internal representation of
+&phc; changes (for example, if another type of statement gets added), this
+plugin will still work as-is.
 </para>
 
 <programlisting>
-#include &lt;phc/Tree_visitor.h&gt;
+<reserved>#include</reserved> "AST_visitor.h"
 
-<reserved>class</reserved> Count_function_calls : <reserved>public</reserved> Tree_visitor
+<reserved>class</reserved> Count_statements : <reserved>public</reserved> AST_visitor
 {
 <reserved>private</reserved>:
-   <reserved>int</reserved> num_function_calls;
+   <reserved>int</reserved> num_statements;
 
 <reserved>public</reserved>:
-   <emphasis>// Set num_function_calls to zero before we begin</emphasis>
+   <emphasis>// Set num_statements to zero before we begin</emphasis>
    <reserved>void</reserved> pre_php_script(AST_php_script* in)
    {
-      num_function_calls = 0;
+      num_statements = 0;
    }
 
    <emphasis>// Print the number of function calls when we are done</emphasis>
    <reserved>void</reserved> post_php_script(AST_php_script* in)
    {
-      printf("%d function calls found\n", num_function_calls);
+      cout &lt;&lt; num_statements &lt;&lt; " statements found" &lt;&lt; endl;
    }
    
    <emphasis>// Count the number of function calls</emphasis>
-   <reserved>void</reserved> post_method_invocation(AST_method_invocation* in)
+   <reserved>void</reserved> post_statement(AST_statement* in)
    {
-      num_function_calls++;
+      num_statements++;
    }
 };
 
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
-   Count_function_calls cfc;
-   php_script-&gt;visit(&amp;cfc);
+	Count_statements cfc;
+	php_script->visit(&amp;cfc);
 }
 </programlisting>
 
-<para> The real work in this transform is now done by the visitor; the only
-task left that <code>process_ast</code> still has to do is instantiate the
-visitor and run it over the tree. </para>
+<para> We override a number of methods of the <code>AST_visitor</code> class to
+implement the functionality we need; the traversal is then taken care of by
+&phc;. </para>
 
 </section>
 
 <section>
 
-<title>Counting All Statements</title> 
+<title>Pre and Post Methods</title> 
 
-<para> (The plugin explained in this section is available as
-<filename>plugins/tutorials/count_statements.la</filename> in the &phc
-distribution.) </para>
-
-<para> Suppose we wanted to count all statements, rather than just function
-calls. We could define methods for <code>eval_expr</code>, <code>for</code>,
-<code>while</code>, <code>if</code>, etc., but there is an easier way. If you
-check the <xref linkend="grammar" endterm="grammar.title">, you will find the
-following rules: </para>
-
-<programlisting>
-statement ::= if | ... ;
-commented_node ::= ... | statement | ... ;
-node ::= ... | node | ... ;
-</programlisting>
-			
-<para> You could read this as &ldquo;an if-statement <emphasis>is-a</emphasis>
-statement, a statement <emphasis>is-a</emphasis> commented node (a node that
-may have comments associated with it), and a commented node
-<emphasis>is-a</emphasis> node. This <emphasis>is-a</emphasis> relation is
-reflection using inheritance (class <code>AST_if</code> inherits from
-<code>AST_statement</code>), but the tree visitor API also has corresponding
-&ldquo;generic&rdquo; methods.  For example, the following suffices to count
-all statements: </para>
-			
-<programlisting>
-<reserved>void</reserved> pre_statement(AST_statement* in)
-{
-   num_statements++;
-}
-</programlisting>
-	
 <para> We need to be precise about the order in which &phc calls all these
 methods. Suppose we have a node <code>Foo</code> (say, an if-statement), which
 <emphasis>is-a</emphasis> <code>Bar</code> (say, statement), which itself
-<emphasis>is-a</emphasis> <code>Baz</code> (say, commented node).  Then &phc
+<emphasis>is-a</emphasis> <code>Baz</code> (say, commented node).  Then &phc;
 calls the visitor methods in the following order: </para>
 
 <orderedlist>
@@ -312,7 +275,16 @@ implemented, they will <emphasis>all</emphasis> be invoked, in the order listed
 above. So, implementing a more specific visitor (<code>pre_foo</code>) does not
 inhibit the more general method (<code>pre_bar</code>) from being invoked. You
 can run the <filename>plugins/tutorials/show_traversal_order.la</filename> from
-the &phc distribution to see this in action.  </para>
+the &phc; distribution to see this in action. </para>
+
+<note>
+<para>(Advanced users) As mentioned above, if you implement <code>pre_if</code>
+(say), the more general methods such as <code>pre_statement</code> or
+<code>pre_node</code> will still be invoked. It is possible to override
+<code>pre_if_chain</code> instead; if you override <code>pre_if_chain</code>,
+you are responsible for calling the more general methods manually. If you
+don't, they will not be called at all. </para>
+</note>
 
 </section>
 

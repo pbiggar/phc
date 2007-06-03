@@ -32,7 +32,7 @@
 <!ENTITY generatedcode SYSTEM "generatedcode.sgml">
 <!ENTITY maketeatheory SYSTEM "maketeatheory.sgml">
 <!-- Couple of macro definitions -->
-<!ENTITY phc "<Application>phc</Application>">
+<!ENTITY phc "<reserved>phc</reserved>">
 ]>
 <set id="manual">
 <title>&phc Documentation</title>

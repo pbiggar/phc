@@ -4,17 +4,17 @@
 <section>
 <title></title>
 
-<para> Because &phc does not generate machine code, it not yet useful to end
-users. However, it can be used as a framework for writing applications that
-process PHP code. &phc parses PHP code into an internal representation known as
-an <emphasis>abstract syntax tree</emphasis> or <emphasis>AST</emphasis>.
-Applications can process PHP code by analysing and modifying this abstract
-representation in one of two ways: </para>  
+<para> From the start, one of the design goals of &phc; has been to provide a
+useful framework for writing applications that process PHP scripts. &phc parses
+PHP code into an internal representation known as an <emphasis>abstract syntax
+tree</emphasis> or <emphasis>AST</emphasis>.  Applications can process PHP code
+by analysing and modifying this abstract representation in one of two ways:
+</para>  
 
 <itemizedlist>
 
 <listitem><para> &phc supports <emphasis>plugins</emphasis>. Plugins are
-modules that can be loaded into &phc, which get access to the AST. &phc
+modules that can be loaded into &phc, which get access to the AST. &phc;
 provides sophisticated support for writing operations over the AST through the
 <emphasis>Tree Transformation API</emphasis>. </para></listitem> 
 
@@ -24,8 +24,8 @@ then use &phc to convert the XML back to PHP syntax.  </para></listitem>
 
 </itemizedlist>
 
-<para> <xref linkend="treetutorials" endterm="treetutorials.title"> explains
-how to write plugins for &phc, and provides numerous examples. You will find
+<para> The <xref linkend="treetutorials" endterm="treetutorials.title"> explain
+how to write plugins for &phc, and provide numerous examples. You will find
 <xref linkend="reference" endterm="reference.title"> very useful when writing
 serious applications using &phc;.
 
@@ -47,23 +47,20 @@ linkend="install">).  However, most people should not need these tools (even if
 you are implementing tools based on &phc). </para>
 
 <itemizedlist>
-<listitem><para><code>flex</code> (if you need to modify the lexical
-analyser)</para></listitem>
-<listitem><para><code>bison</code> (if you need to modify the syntax
-analyser)</para></listitem>
-<listitem><para><ulink url="http://www.haskell.org/ghc/">ghc</ulink> (to
-compile <application>maketea</application>, which is written in Haskell; you
-will need to compile <application>maketea</application> either if you want to
-modify the &phc grammar (not an easy thing to do), or modify
-<application>maketea</application> itself)</para></listitem>
+<listitem><para><code>flex</code> if you need to modify the lexical
+analyser</para></listitem>
+<listitem><para><code>bison</code> if you need to modify the syntax
+analyser</para></listitem>
+<listitem><para><ulink url="http://www.maketea.org">maketea</ulink> if you
+want to modify the &phc grammar (or the AST classes)</para></listitem>
 <listitem><para><ulink
 url="http://www.gnu.org/software/gengetopt/gengetopt.html">gengetopt</ulink>
-(if you need to add additional command line arguments; you will need version
-0.16 or higher)</para></listitem>
+if you need to add additional command line arguments; you will need version
+0.20 or higher</para></listitem>
 <listitem><para><ulink
-url="http://www.gnu.org/software/gperf/gperf.html">gperf</ulink> (if you need
+url="http://www.gnu.org/software/gperf/gperf.html">gperf</ulink> if you need
 to modify the list of keywords recognized by the lexical
-analyser)</para></listitem>
+analyser</para></listitem>
 </itemizedlist>
 
 <para>It is possible to link &phc to the Boehm garbage collector. If you wish
@@ -115,26 +112,25 @@ detail. </para>
 <title>The Transform</title>
 
 <para> Suppose we want to rename function <code>foo</code> to
-<code>bar</code>. This is done by the following (C++) program: </para>
+<code>bar</code>. This is done by the following plugin: </para>
 
 <programlisting>
-<reserved>#include</reserved> "Tree_visitor.h"
+<reserved>#include</reserved> "AST_visitor.h"
 
-<reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> Tree_visitor
+<reserved>class</reserved> Rename_foo_to_bar : <reserved>public</reserved> AST_visitor
 {
    <reserved>void</reserved> pre_method_name(Token_method_name* in)
    {
-      <reserved>if</reserved>(*in-&gt;get_value == "foo")
-         in-&gt;value = <reserved>new</reserved> String("bar");
+      <reserved>if</reserved>(*in->value == "foo")
+         in->value = <reserved>new</reserved> String("bar");
    }
 };
-</programlisting>
 
-<para> We need to instruct &phc to run our transform: </para>
-
-<programlisting>
-Rename_foo_to_bar f2b;
-php_script-&gt;transform(&amp;f2b);
+<reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
+{
+    Rename_foo_to_bar f2b;
+    php_script->visit(&amp;f2b);
+}
 </programlisting>					
 
 </section>
@@ -172,12 +168,12 @@ example shows how easy it is to operate on PHP scripts within the
 
 <para><xref linkend="gettingstarted" endterm="gettingstarted.title"> introduces
 writing plugins for &phc;. It then explains how &phc represents PHP scripts
-internally, and shows how to write a simple plugin that counts the number of
-classes in a PHP script.</para>
+internally, and shows how to write a first (but ultimately wrong) attempt at
+simple plugin that counts the number of statements in a PHP script.</para>
 
 <para><xref linkend="treetutorial1" endterm="treetutorial1.title"> introduces
 the support that &phc offers for traversing (and transforming) scripts. It
-shows how to write a program that counts the number of function calls in a
+shows how to write a plugin that correctly counts the number of statements in a
 script.</para>
 
 <para><xref linkend="treetutorial2" endterm="treetutorial2.title"> shows how
