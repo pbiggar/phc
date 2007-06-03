@@ -24,11 +24,11 @@ public:
 
    void post_method_invocation(AST_method_invocation* in)
    {
-      Token_method_name* pattern = new Token_method_name(NULL);
+      Wildcard<Token_method_name>* pattern = new Wildcard<Token_method_name>;
       
       // Check for dbx_
       if(in->method_name->match(pattern) && 
-         pattern->value->find("dbx_") == 0)
+         pattern->value->value->find("dbx_") == 0)
       {
          uses_dbx = true;
       }
@@ -37,6 +37,6 @@ public:
 
 extern "C" void process_ast(AST_php_script* php_script)
 {
-	InsertDB idb;
-	php_script->visit(&idb);
+   InsertDB idb;
+   php_script->visit(&idb);
 }

@@ -68,7 +68,7 @@ will explain how this transform can be written. </para>
 
 <para> Concatenation is a binary operator, so we are interested in nodes of
 type <code>AST_bin_op</code>. If you check the grammar or, alternatively,
-<filename>ast.h</filename>, you will find that <code>AST_bin_op</code> has
+<filename>AST.h</filename>, you will find that <code>AST_bin_op</code> has
 three attributes: a <code>left</code> and a <code>right</code> expression (of
 type <code>AST_expr</code>) and the operator itself (<code>Token_op*
 op</code>).  Thus, we are interested in nodes of type <code>AST_bin_op</code>
@@ -78,7 +78,7 @@ whose <code>op</code> equals the single dot (for string concatenation). </para>
 </para>
 
 <programlisting>
-<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> Tree_visitor
+<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> AST_visitor
 {
 <reserved>public</reserved>:
    <reserved>void</reserved> pre_bin_op(AST_bin_op* in)
@@ -93,7 +93,7 @@ whose <code>op</code> equals the single dot (for string concatenation). </para>
 </programlisting>
 
 <para> The problem is, what are we going to do inside the <code>if</code>? Tree
-visitors can only inspect and modify <code>in</code>; they cannot restructure
+visitors can only inspect and modify <code>*in</code>; they cannot restructure
 the tree. In particular, we cannot replace <code>*in</code> by a new node. For
 this purpose, &phc offers a separate API, the tree
 <emphasis>transformation</emphasis> API. It looks very similar to the tree
@@ -110,7 +110,7 @@ would be useful, anyway.) </para>
 yields </para>
 
 <programlisting>
-<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> <boxed>Tree_transform</boxed>
+<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> <boxed>AST_transform</boxed>
 {
 <reserved>public</reserved>:
    <boxed>AST_expr*</boxed> pre_bin_op(AST_bin_op* in)
@@ -128,10 +128,10 @@ yields </para>
 inherit from a different class, and <code>pre_bin_op</code> now has a return
 value, which is the node that will replace <code>*in</code>. If you check the
 default implementation of <code>pre_bin_op</code> in
-<filename>Tree_transform.cpp</filename>, you'll find: </para>
+<filename>AST_transform.cpp</filename>, you'll find: </para>
 
 <programlisting>
-AST_expr* Tree_transform::pre_bin_op(AST_bin_op* in)
+AST_expr* AST_transform::pre_bin_op(AST_bin_op* in)
 {
    <reserved>return</reserved> in;
 }
@@ -151,7 +151,7 @@ by another other expression node. The <xref linkend="maketeatheory"
 endterm="maketeatheory.title"> explains exactly how the signatures for the
 <code>pre</code> and <code>post</code> methods are derived, but in most cases
 they are what you'd expect.  The easiest way to check is to simply look them up
-in <filename>&lt;phc/Tree_transform.h&gt;</filename>. </para> 
+in <filename>&lt;AST_transform.h&gt;</filename>. </para> 
 
 </section>
 <section id="implementation">
@@ -165,20 +165,21 @@ if the right operand is the empty string, we want to replace the operator by
 its left operand. Here's the full transform: </para>
 	
 <programlisting>
-<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> Tree_transform
+<reserved>class</reserved> Remove_concat_null : <reserved>public</reserved> AST_transform
 {
 <reserved>public</reserved>:
    AST_expr* post_bin_op(AST_bin_op* in)
    {
       Token_string* empty = <reserved>new</reserved> Token_string(<reserved>new</reserved> String(""), <reserved>new</reserved> String(""));
-
+      Wildcard&lt;AST_expr&gt;* wildcard = <reserved>new</reserved> Wildcard&lt;AST_expr&gt;;
+   
       <emphasis>// Replace with right operand if left operand is the empty string</emphasis>
-      <reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> AST_bin_op(empty, WILDCARD, ".")))
-         <reserved>return</reserved> in-&gt;right;
-
+      <reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> AST_bin_op(empty, wildcard, ".")))
+         <reserved>return</reserved> wildcard-&gt;value;
+   
       <emphasis>// Replace with left operand if right operand is the empty string</emphasis>
-      <reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> AST_bin_op(WILDCARD, empty, ".")))
-         <reserved>return</reserved> in-&gt;left;
+      <reserved>if</reserved>(in-&gt;match(<reserved>new</reserved> AST_bin_op(wildcard, empty, ".")))
+         <reserved>return</reserved> wildcard-&gt;value;
       
       <reserved>return</reserved> in;
    }
@@ -197,7 +198,10 @@ Thus, </para>
 			
 <para> can be paraphrased as &ldquo;is <code>in</code> a binary operator with
 the empty string as the left operand and <code>"."</code> as the operator (I
-don't care about the right operand)?&ldquo; </para>
+don't care about the right operand)?&ldquo; If the match succeeded, you can
+find out which expression was matched by the wildcard by accessing
+<code>wildcard->value</code>, although we do not use that particular feature of
+wildcards in this example. </para>
 
 <para> Note that the constructor for <code>Token_string</code> has two
 arguments: one corresponds to the value of the string, and one corresponds to
@@ -224,20 +228,20 @@ to <code>visit</code>: </para>
 }
 </programlisting>
 
-<para> Likewise, transformations are run with a call to (you guessed it :)
-<code>transform</code>: </para>
+<para> Likewise, transformations are run with a call to 
+<code>transform_children</code>: </para>
 
 <programlisting>
 <reserved>extern</reserved> "C" <reserved>void</reserved> process_ast(AST_php_script* php_script)
 {
     SomeTransform transform;
-    php_script-&gt;transform(&amp;transform);
+    php_script-&gt;transform_children(&amp;transform);
 }
 </programlisting>
 
-<para> Note however than when invoked like this, the transform should not
-replace the top-level node in the AST (the <code>AST_php_script</code> node
-itself). </para> 
+<para> We invoke <code>transform_children</code> because we should not replace
+the top-level node in the AST (the <code>AST_php_script</code> node itself).
+</para> 
 
 </section>
 <section>
@@ -274,7 +278,7 @@ reason to use a pre-transform, it's safer to use the post-transform, because in
 the post-transform the children of the node have already been transformed, so
 that you are looking at the &ldquo;final&rdquo; version of the node. </para>
 
-<para> The second solution is to use a pre-transform, but explicitly tell &phc
+<para> The second solution is to use a pre-transform, but explicitly tell &phc;
 to transform the new node in turn.  This is the less elegant solution, but
 sometimes this is the only solution that will work (see for example the
 <code>Token_conversion</code> transform in the &phc source tree). To do this,
