@@ -38,7 +38,6 @@ private:
 	stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
-	String* source_rep;
 	string key;
 	stack<AttrMap*> attrs_stack;
 	const Locator* locator;
@@ -163,8 +162,8 @@ public:
 		}
 		else if(!strcmp(name, "Token_string"))
 		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			ast_node = new Token_string(value, source_rep);
 			ast_node->attrs = attrs_stack.top();
@@ -172,8 +171,8 @@ public:
 		}
 		else if(!strcmp(name, "Token_int"))
 		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			ast_node = new Token_int(strtol(value->c_str(), 0, 0), source_rep);
 			ast_node->attrs = attrs_stack.top();
@@ -181,8 +180,8 @@ public:
 		}
 		else if(!strcmp(name, "Token_real"))
 		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			ast_node = new Token_real(atof(value->c_str()), source_rep);	
 			ast_node->attrs = attrs_stack.top();
@@ -190,8 +189,8 @@ public:
 		}
 		else if(!strcmp(name, "Token_bool"))
 		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			// Token_bool::get_value_as_string returns "True" or "False"
 			if(*value == "True")
@@ -243,7 +242,7 @@ public:
 
 			node = string_list;
 		}
-		else if(!strncmp(name, "AST_", 4))
+		else if(!strncmp(name, "AST_", 4) || !strncmp(name, "Token_", 6))
 		{
 			List<Object*> args;
 

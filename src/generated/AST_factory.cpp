@@ -1,5 +1,15 @@
 #include "AST_factory.h"
 
+// If type_id corresponds to AST node, the elements in args must
+// correspond to the children of the node.
+// 
+// If type_id corresponds to a list (of the form "..._list"),
+// the elements of arg must be of the same type as the elements
+// in the list, and all elements in args are added to the list.
+// 
+// If type_id corresponds to a token (terminal symbol), args must
+// contain a single node of type String. Terminal symbols
+// with non-default values are not supported.
 Object* AST_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
@@ -393,6 +403,60 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
     	assert(i == args->end());
     	return new AST_clone(expr);
+    }
+    if(!strcmp(type_id, "Token_class_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_class_name(value);
+    }
+    if(!strcmp(type_id, "Token_interface_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_interface_name(value);
+    }
+    if(!strcmp(type_id, "Token_method_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_method_name(value);
+    }
+    if(!strcmp(type_id, "Token_variable_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_variable_name(value);
+    }
+    if(!strcmp(type_id, "Token_label_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_label_name(value);
+    }
+    if(!strcmp(type_id, "Token_directive_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_directive_name(value);
+    }
+    if(!strcmp(type_id, "Token_cast"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_cast(value);
+    }
+    if(!strcmp(type_id, "Token_op"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_op(value);
+    }
+    if(!strcmp(type_id, "Token_constant_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_constant_name(value);
     }
     if(!strcmp(type_id, "AST_statement_list"))
     {
