@@ -404,3 +404,16 @@ long-generate-test-files: all test/framework/lib/autovars.php
 			echo PHP support required for test; \
 		fi \
 	fi
+
+testclean: all test/framework/lib/autovars.php
+	@if [ -n "@php@" ]; \
+		then echo @php@ -Cq $(srcdir)/test/framework/driver.php -c; \
+		@php@ -Cq $(srcdir)/test/framework/driver.php -c; \
+	else \
+		if [ -x "`which php`" ]; \
+			then echo php -Cq $(srcdir)/test/framework/driver.php -c; \
+			php -Cq $(srcdir)/test/framework/driver.php -c; \
+		else \
+			echo PHP support required for test; \
+		fi \
+	fi

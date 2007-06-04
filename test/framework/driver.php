@@ -18,11 +18,24 @@ if (substr (phpversion (), 0, 1) < 5)
 }
 
 $support_dir =		"test/support_files";
-$log_directory =	"test/logs";
 $plugin_dir = "plugins";
 
 require_once ("lib/startup.php");
 require_once ("lib/header.php");
+
+$log_directory =	"test/logs/".date_string ();
+
+if ($opt_clean)
+{
+	echo "rm -Rf ./test/logs/*";
+	`rm -Rf ./test/logs/*`;
+	exit (0);
+}
+else
+{
+	echo "Logs in $log_directory\n";
+}
+
 
 $phc = get_phc ();
 $php = get_php ();
@@ -33,8 +46,6 @@ require_once ("lib/plugin_test.php");
 require_once ("lib/two_command_test.php");
 require_once ("lib/compare_with_php_test.php");
 require_once ("lib/regression.php");
-
-
 
 if ($opt_installed)
 {
@@ -69,12 +80,6 @@ require_once ("parse_ast_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
 $tests[] = new RegressionTest ("regression_dump_includes", "--pretty-print --tab=\"   \" --compile-time-includes", "unparsed");
-
-if (!$opt_no_delete)
-{
-	echo "rm -Rf $log_directory/*\n";
-	`rm -Rf $log_directory/*`;
-}
 
 require_once ("lib/labels.php");
 open_skipped_file ();

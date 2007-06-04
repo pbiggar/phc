@@ -213,10 +213,6 @@ void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 	/* Note that any of in->expr, in->init and in->incr can be NULL (eg in "for
 	 * (;;)", so we have to handle all those cases. */
 
-	// these are expressions, which arent statements, so they need to be wrapped
-	AST_statement* init = new AST_eval_expr (in->init);
-	AST_statement* incr = new AST_eval_expr (in->incr);
-
 	if (in->cond == NULL) 
 		in->cond = new Token_bool (true);
 
@@ -226,11 +222,11 @@ void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 	// A continue in a for loop lands just before the increment
 	potentially_add_label<AST_continue> (in, while_stmt->statements);
 	if (in->incr)
-		while_stmt->statements->push_back (incr);
+		while_stmt->statements->push_back (new AST_eval_expr (in->incr));
 
 	// push it all back
 	if (in->init)
-		out->push_back (init);
+		out->push_back (new AST_eval_expr (in->init));
 	lower_while (while_stmt, out);
 }
 

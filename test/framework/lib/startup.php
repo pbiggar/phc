@@ -10,7 +10,7 @@ require_once ("Console/Getopt.php");
 require_once ("Console/ProgressBar.php");
 
 $cg = new Console_Getopt();
-list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "lvVshndpi", array ("long", "verbose", "valgrind", "support", "help", "number", "no-delete", "no-progress"));
+list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "lvVshndpic", array ("long", "verbose", "valgrind", "support", "help", "number", "no-delete", "no-progress"));
 foreach ($opts as $opt) 
 {
 	if ($opt[1] == NULL) $options{$opt[0]} = "";
@@ -22,9 +22,9 @@ $opt_valgrind = isset($options{"V"});
 $opt_support = isset($options{"s"});
 $opt_numbered = isset($options{"n"});
 $opt_help = isset($options{"h"});
-$opt_no_delete = (isset($options{"d"})) or $opt_numbered;
 $opt_no_progress_bar = isset($options{"p"});
 $opt_installed = isset($options{"i"});
+$opt_clean = isset($options{"c"});
 
 if ($opt_help)
 {
@@ -41,9 +41,9 @@ Options:
     -v     Print verbose messages after test failure
     -l     Run long tests (default: run only tests marked short in labels file)
     -n     Print a numbered list of the files to be processed (implies -d)
-    -d     Don't delete test logs before running
     -p     Don't use a progress bar (useful for nightly testing)
     -i     Use installed program and plugins for tests
+    -c     Clean up (ie delete) all logs files and directories.
 
 Regex:
     A list of regular expressions matching the tests to be run. Any test name

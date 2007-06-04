@@ -340,4 +340,18 @@ function check_for_program ($program_name)
 			&& (file_exists ($program_name) or $program_name == "gcc"));
 }
 
+function date_string ()
+{
+	# only generate once
+	# Day_date_month_hour_min_sec
+	global $date_string;
+	if ($date_string == NULL)
+	{
+		$date_string = date ("D_d_M_H_i_s");
+	}
+
+	return $date_string;
+
+}
+
 ?>
