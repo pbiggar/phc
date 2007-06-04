@@ -36,5 +36,8 @@
  * PHP
  */
 
+// Embed SAPI available
+#undef HAVE_EMBED
+
 // PHP installation path
 #undef PHP_INSTALL_PATH

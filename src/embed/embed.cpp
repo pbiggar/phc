@@ -3,7 +3,7 @@
 
 // other #includes are in the #else block of HAVE_PHP5
 
-#ifdef HAVE_PHP5
+#if HAVE_EMBED
 
 #include <sapi/embed/php_embed.h>
 

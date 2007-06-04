@@ -76,8 +76,8 @@ AC_CHECK_LIB(
 	[
 		AS_VAR_SET(found_embed_sapi, yes)
 		AC_DEFINE(HAVE_EMBED, 1)
-		INCLUDES = "-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS $INCLUDES"
-		LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH} $LIBS"
+		AC_SUBST([libphp_headers], ["-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"])
+		LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
 	], 
 	[
 		AS_VAR_SET(found_embed_sapi, no)

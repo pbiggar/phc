@@ -266,7 +266,6 @@ function get_all_scripts_in_dir($directory)
 	phc_assert(preg_match("/\/$/", $directory), "directory '$directory' must end in a '/'");
 
 	$command = "find $directory -name \"*.php\"";
-	echo "$command\n";
 	$result = split ("\n", trim (`$command`));
 	return $result;
 }
