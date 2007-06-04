@@ -35,6 +35,8 @@ else
 {
 	echo "Logs in $log_directory\n";
 	mkdir ($log_directory);
+	@unlink ("test/logs/latest");
+	symlink ($log_directory, "test/logs/latest");
 }
 
 
