@@ -227,10 +227,9 @@ nobase_pkglib_LTLIBRARIES += plugins/tutorials/count_statements_difficult.la
 plugins_tutorials_count_statements_difficult_la_SOURCES = plugins/tutorials/count_statements_difficult.cpp
 plugins_tutorials_count_statements_difficult_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-# TODO: probably replace by another tutorial
-#nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
-#plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
-#plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tutorials/Expand_includes.la
+plugins_tutorials_Expand_includes_la_SOURCES = plugins/tutorials/Expand_includes.cpp
+plugins_tutorials_Expand_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tutorials/helloworld.la
 plugins_tutorials_helloworld_la_SOURCES = plugins/tutorials/helloworld.cpp

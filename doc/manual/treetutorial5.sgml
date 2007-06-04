@@ -70,11 +70,11 @@ for visiting all the children of the node. The default implementation for
 <code>AST_if</code> is: </para>
 
 <programlisting>
-<reserved>void</reserved> children_if(AST_if* in)
+<reserved>void</reserved> AST_visitor::children_if(AST_if* in)
 {  
-   in-&gt;expr-&gt;visit(this);
-   in-&gt;iftrue-&gt;visit(this);
-   in-&gt;iffalse-&gt;visit(this);
+    visit_expr(in->expr);
+    visit_statement_list(in->iftrue);
+    visit_statement_list(in->iffalse);
 }
 </programlisting>
 
@@ -88,10 +88,12 @@ the method you will need to modify. </para>
 <filename>plugins/tutorials/Comment_ifs.la</filename>): </para>
 
 <programlisting>
-<reserved>class</reserved> Comment_ifs : <reserved>public</reserved> Tree_visitor
+<reserved>#include</reserved> "AST_visitor.h"
+
+<reserved>class</reserved> Comment_ifs : <reserved>public</reserved> AST_visitor
 {
 <reserved>private</reserved>:
-   <reserved>bool</reserved> comment;
+   bool comment;
 
 <reserved>public</reserved>:
    Comment_ifs()
@@ -101,17 +103,17 @@ the method you will need to modify. </para>
 
    <reserved>void</reserved> children_if(AST_if* in)
    {
-      in-&gt;expr-&gt;visit(this);
+      visit_expr(in-&gt;expr);
       comment = <reserved>true</reserved>;
-      in-&gt;iftrue-&gt;visit(this);
+      visit_statement_list(in-&gt;iftrue);
       comment = <reserved>true</reserved>;
-      in-&gt;iffalse-&gt;visit(this);
+      visit_statement_list(in-&gt;iffalse);
       comment = <reserved>false</reserved>;
    }
 
    <reserved>void</reserved> post_statement(AST_statement* in)
    {
-      <reserved>if</reserved>(comment &amp;&amp; in-&gt;get_comments()-&gt;empty())
+      <reserved>if</reserved>(comment && in-&gt;get_comments()-&gt;empty())
          in-&gt;get_comments()-&gt;push_back(new String("/* TODO: Insert comment */"));
 
       comment = <reserved>false</reserved>;
@@ -126,8 +128,8 @@ the method you will need to modify. </para>
 <title> What's Next? </title>
 
 <para> <xref linkend="treetutorial6"> explains how to deal with transforms that
-can replace a single node by multiple new nodes, and shows how to call the &phc
-parser and unparser from your plugins. </para>
+can replace a single node by multiple new nodes, and shows how to call the
+&phc; parser and unparser from your plugins. </para>
 
 </section>
 
