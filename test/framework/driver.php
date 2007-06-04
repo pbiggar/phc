@@ -27,13 +27,14 @@ $log_directory =	"test/logs/".date_string ();
 
 if ($opt_clean)
 {
-	echo "rm -Rf ./test/logs/*";
+	echo "rm -Rf ./test/logs/*\n";
 	`rm -Rf ./test/logs/*`;
 	exit (0);
 }
 else
 {
 	echo "Logs in $log_directory\n";
+	mkdir ($log_directory);
 }
 
 

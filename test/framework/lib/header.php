@@ -164,7 +164,8 @@ set_error_handler ("phc_error_handler");
 function open_skipped_file ()
 {
 	global $skipped_file;
-	$skipped_file = fopen ("test/logs/skipped", "w") or die ("Cannot open skipped file\n");
+	global $log_directory;
+	$skipped_file = fopen ("$log_directory/skipped", "w") or die ("Cannot open skipped file\n");
 }
 
 function note_in_skipped_file ($test_name, $subject, $reason)
