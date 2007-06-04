@@ -7584,9 +7584,12 @@ bool Token_int::is_value_valid()
     return true;
 }
 
-String* Token_int::get_value_as_string()
+//  Constructors can't call virtual functions, so we create a non-virtual to
+//  do the work. This is then called by the virtual function, and is also
+//  safely called from the constructor.
+String* Token_int::_get_value_as_string()
 {
-    #line 545 "src/generated_src/phc.tea"
+    #line 549 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -7594,20 +7597,20 @@ String* Token_int::get_value_as_string()
 	}
 }
 
-Token_int::Token_int(int v)
+String* Token_int::get_value_as_string()
 {
-    #line 552 "src/generated_src/phc.tea"
+    #line 557 "src/generated_src/phc.tea"
 {
-		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
+		return _get_value_as_string ();
 	}
 }
 
-void Token_int::call_initializing_virtuals()
+Token_int::Token_int(int v)
 {
-    #line 559 "src/generated_src/phc.tea"
+    #line 562 "src/generated_src/phc.tea"
 {
-		source_rep = get_value_as_string ();
+		value = v;
+		source_rep = _get_value_as_string ();
 	}
 }
 
@@ -7718,9 +7721,10 @@ bool Token_real::is_value_valid()
     return true;
 }
 
-String* Token_real::get_value_as_string()
+//  See comment in Token_int::_get_value_as_string ()
+String* Token_real::_get_value_as_string()
 {
-    #line 568 "src/generated_src/phc.tea"
+    #line 574 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -7739,20 +7743,20 @@ String* Token_real::get_value_as_string()
 	}
 }
 
-Token_real::Token_real(double v)
-{
-    #line 586 "src/generated_src/phc.tea"
-{
-		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
-	}
-}
-
-void Token_real::call_initializing_virtuals()
+String* Token_real::get_value_as_string()
 {
     #line 593 "src/generated_src/phc.tea"
 {
-		source_rep = get_value_as_string ();
+		return _get_value_as_string ();
+	}
+}
+
+Token_real::Token_real(double v)
+{
+    #line 598 "src/generated_src/phc.tea"
+{
+		value = v;
+		source_rep = _get_value_as_string ();
 	}
 }
 
@@ -7855,7 +7859,7 @@ bool Token_string::is_valid()
 
 String* Token_string::get_value_as_string()
 {
-    #line 627 "src/generated_src/phc.tea"
+    #line 633 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7863,7 +7867,7 @@ String* Token_string::get_value_as_string()
 
 bool Token_string::is_value_valid()
 {
-    #line 632 "src/generated_src/phc.tea"
+    #line 638 "src/generated_src/phc.tea"
 {
 		return value != NULL;
 	}
@@ -7871,7 +7875,7 @@ bool Token_string::is_value_valid()
 
 String* Token_string::clone_value()
 {
-    #line 637 "src/generated_src/phc.tea"
+    #line 643 "src/generated_src/phc.tea"
 {
 		return value->clone();
 	}
@@ -7879,7 +7883,7 @@ String* Token_string::clone_value()
 
 Token_string::Token_string(String* v)
 {
-    #line 642 "src/generated_src/phc.tea"
+    #line 648 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = v;
@@ -7993,9 +7997,10 @@ bool Token_bool::is_value_valid()
     return true;
 }
 
-String* Token_bool::get_value_as_string()
+//  See comment in Token_int::_get_value_as_string ()
+String* Token_bool::_get_value_as_string()
 {
-    #line 602 "src/generated_src/phc.tea"
+    #line 609 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -8004,20 +8009,20 @@ String* Token_bool::get_value_as_string()
 	}
 }
 
-Token_bool::Token_bool(bool v)
+String* Token_bool::get_value_as_string()
 {
-    #line 610 "src/generated_src/phc.tea"
+    #line 618 "src/generated_src/phc.tea"
 {
-		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
+		return _get_value_as_string ();
 	}
 }
 
-void Token_bool::call_initializing_virtuals()
+Token_bool::Token_bool(bool v)
 {
-    #line 617 "src/generated_src/phc.tea"
+    #line 623 "src/generated_src/phc.tea"
 {
-		source_rep = get_value_as_string ();
+		value = v;
+		source_rep = _get_value_as_string ();
 	}
 }
 
@@ -8095,7 +8100,7 @@ bool Token_null::is_valid()
 
 String* Token_null::get_value_as_string()
 {
-    #line 652 "src/generated_src/phc.tea"
+    #line 658 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}
@@ -8103,17 +8108,9 @@ String* Token_null::get_value_as_string()
 
 Token_null::Token_null()
 {
-    #line 656 "src/generated_src/phc.tea"
-{
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
-	}
-}
-
-void Token_null::call_initializing_virtuals()
-{
     #line 662 "src/generated_src/phc.tea"
 {
-		source_rep = get_value_as_string ();
+		source_rep = new String ("NULL");
 	}
 }
 

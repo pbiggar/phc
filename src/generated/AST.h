@@ -2070,11 +2070,14 @@ public:
 public:
     virtual bool is_valid();
     virtual bool is_value_valid();
+private:
+    //  Constructors can't call virtual functions, so we create a non-virtual to
+    //  do the work. This is then called by the virtual function, and is also
+    //  safely called from the constructor.
+    String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
     Token_int(int v);
-private:
-    void call_initializing_virtuals();
 };
 
 class Token_real : virtual public AST_literal
@@ -2105,11 +2108,12 @@ public:
 public:
     virtual bool is_valid();
     virtual bool is_value_valid();
+private:
+    //  See comment in Token_int::_get_value_as_string ()
+    String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
     Token_real(double v);
-private:
-    void call_initializing_virtuals();
 };
 
 class Token_string : virtual public AST_literal
@@ -2173,11 +2177,12 @@ public:
 public:
     virtual bool is_valid();
     virtual bool is_value_valid();
+private:
+    //  See comment in Token_int::_get_value_as_string ()
+    String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
     Token_bool(bool v);
-private:
-    void call_initializing_virtuals();
 };
 
 class Token_null : virtual public AST_literal
@@ -2204,8 +2209,6 @@ public:
 public:
     virtual String* get_value_as_string();
     Token_null();
-private:
-    void call_initializing_virtuals();
 };
 
 

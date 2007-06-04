@@ -540,31 +540,37 @@ public:
 
 class Token_int
 {
-public:
-	virtual String* get_value_as_string()
+private:
+
+	// Constructors can't call virtual functions, so we create a non-virtual to
+	// do the work. This is then called by the virtual function, and is also
+	// safely called from the constructor.
+	String* _get_value_as_string()
 	{
 		std::ostringstream os;
 		os << value;
 		return new String(os.str());
 	}
 
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
 	Token_int (int v)
 	{
 		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
-	}
-
-private:
-	void call_initializing_virtuals ()
-	{
-		source_rep = get_value_as_string ();
+		source_rep = _get_value_as_string ();
 	}
 };
 
 class Token_real
 {
-public:
-	virtual String* get_value_as_string()
+private:
+
+	// See comment in Token_int::_get_value_as_string ()
+	String* _get_value_as_string()
 	{
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -582,23 +588,24 @@ public:
 		return new String(str);
 	}
 
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
 	Token_real (double v)
 	{
 		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
-	}
-private:
-
-	void call_initializing_virtuals ()
-	{
-		source_rep = get_value_as_string ();
+		source_rep = _get_value_as_string ();
 	}
 };
 
 class Token_bool
 {
-public:
-	virtual String* get_value_as_string()
+private:
+	// See comment in Token_int::_get_value_as_string ()
+	String* _get_value_as_string()
 	{
 		if(value)
 			return new String("True");
@@ -606,18 +613,17 @@ public:
 			return new String("False");
 	}
 
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
 	Token_bool (bool v)
 	{
 		value = v;
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
+		source_rep = _get_value_as_string ();
 	}
-private:
-
-	void call_initializing_virtuals ()
-	{
-		source_rep = get_value_as_string ();
-	}
-
 };
 
 class Token_string
@@ -654,13 +660,6 @@ public:
 	}
 	Token_null ()
 	{
-		call_initializing_virtuals (); // cant call virtual functions from a constructor
+		source_rep = new String ("NULL");
 	}
-
-private:
-	void call_initializing_virtuals ()
-	{
-		source_rep = get_value_as_string ();
-	}
-
 };
