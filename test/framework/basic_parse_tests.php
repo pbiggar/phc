@@ -30,13 +30,11 @@ class BasicParseTest extends Test
 		{
 			$this->mark_success ($subject);
 			// if there was a warning or error, dont say this is
-			// successful. TODO this means we cant test warnings that
-			// are only generated due to non-default passes, which
-			// needs to be fixed (later)
+			// successful.
 			if ($err)
 			{
-				global $successes;
-				unset($successes[$this->get_name ()][$subject]);
+				$this->expected_failure_count++;
+				write_dependencies ($this->get_name (), $subject, false);
 			}
 		}
 		else
@@ -54,13 +52,11 @@ class BasicParseTest extends Test
 	# we override tests run in order to add a line at the end
 	function run ()
 	{
-		global $successes;
 		parent::run ();
-		$num_skipped = $this->successes - count ($successes{$this->get_name()});
+		$num_skipped = $this->successes - $this->expected_failure_count;
 		echo "($num_skipped expected errors)\n";
 	}
 
 }
-
 
 ?>

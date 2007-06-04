@@ -33,7 +33,6 @@ if ($opt_clean)
 }
 else
 {
-	echo "Logs in $log_directory\n";
 	mkdir ($log_directory);
 	@unlink ("test/logs/latest");
 	symlink ($log_directory, "test/logs/latest");
@@ -89,7 +88,7 @@ open_skipped_file ();
 
 foreach ($tests as $test)
 {
-	$test_name = $test->get_name ();
+$test_name = $test->get_name ();
 
 	/* if there are regexes, check them, and skip tests not matching one of them */
 	if (count ($arguments) > 0)
@@ -102,13 +101,7 @@ foreach ($tests as $test)
 
 		if (!$match)
 		{
-			// if we skip a test, mark all the subjects as successes
-			foreach (get_all_scripts() as $subject)
-			{
-				$successes[$test_name][$subject] = true;
-			}
-
-//			print "Skipping $test_name\n";
+			//	print "Skipping $test_name\n";
 			continue;
 		}
 	}

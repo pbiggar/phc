@@ -1,5 +1,16 @@
 PHPBench: http://www.pureftpd.org/project/phpbench
 
+	PHPbench will need a bit of modification to do good work, which negates the point somewhat. It has a divide by zero in it, which we should remove, and also an infinite loop.
+
+	It also loads tests like this (AKA dynamic class loading):
+		$dir = opendir ($test_dir);
+		while ($entry = readdir ($dir))
+		{
+			include_once ($entry);
+		}
+
+	Try optimizing that.
+
 PHP BS: http://www.pureftpd.org/project/phpbench
 
 Shootout: http://alioth.debian.org/scm/?group_id=30402

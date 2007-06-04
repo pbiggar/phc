@@ -355,4 +355,65 @@ function date_string ()
 
 }
 
+/* These are used to store dependencies. When a test is run, we dont want to
+ * display errors for tests which we know will fail, since they failed a
+ * previous test, and are guaranteed to fail this one. I tried a number of
+ * other approaches to this, including keeping a single set of results in a
+ * file, or a file per test run, or a file per test, and they all had flaws.
+ * 
+ * There are a number of odd problems. First, any number of tests can be run,
+ * and you can run a test without running its dependencies, and it is desirable
+ * to do so. Secondly, a test run can stop at any point, due to an exit or a
+ * CTRL-C. Thirdly, multiple test runs can occur simulateously, and shouldnt
+ * interfere with each other. In all these cases, incorrect behaviour can lead
+ * to dependencies being incorrectly guessed, or overwritten with incorrect
+ * information, or not available at all. This will result in people searching
+ * for bugs in the wrong places, or not being able to identify actual bugs.
+ *
+ * The final chosen solution is to have a single directory (test/failures/),
+ * containing one directory for each test, and each of these containing 1 file
+ * per test subject. The contents of this file is "Pass" or "Fail". The file is
+ * read each time we want to resolve a dependency, and never cached. 
+ *
+ * If the file doesnt exist, then we cant resolve the dependency, which works
+ * out the same as a "Pass", in that dependent tests will run. This is the only
+ * time we can get incorrect information. In this case, we mark the failure
+ * log, so that we dont go on wild goose chases without being told.
+ */
+
+function get_dependent_filename ($test_name, $subject)
+{
+	$result = "test/dependencies/$test_name/$subject";
+
+	// make sure the directory exists
+	if (!file_exists (dirname ($result)))
+	{
+		$is_made = mkdir (dirname ($result), 0700, true);
+		assert ($is_made);
+	}
+
+	return $result;
+}
+function write_dependencies ($test_name, $subject, $value)
+{
+	$filename = get_dependent_filename ($test_name, $subject);
+	if ($value == true)
+	{
+		file_put_contents ($filename, "Pass");
+	}
+	else
+	{
+		file_put_contents ($filename, "Fail");
+	}
+}
+
+function read_dependency ($test_name, $subject)
+{
+	$filename = get_dependent_filename ($test_name, $subject);
+	if (!file_exists ($filename))
+		return "missing";
+	else
+		return file_get_contents ($filename);
+}
+
 ?>

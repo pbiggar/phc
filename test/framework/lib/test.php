@@ -189,18 +189,69 @@ abstract class Test
 		return (array) ($this->dependencies);
 	}
 
-	function passed_test_dependencies ($subject)
+	function calculate_all_dependencies ()
 	{
-		global $successes;
+		global $tests;
+		$dependencies = $this->get_builtin_dependent_test_names () 
+				+ $this->get_dependent_test_names ();
 
-		$dependencies = $this->get_dependent_test_names () 
-							+ $this->get_builtin_dependent_test_names ();
+		# we want deep dependencies here, so get the parent dependencies too
+		$all_dependencies = array ();
 		foreach ($dependencies as $dependency)
 		{
-			if (!isset($successes[$dependency][$subject]))
+			$all_dependencies[] = $dependency;
+			foreach ($tests as $test) # find it in the set of tests
 			{
-				return false;
+				if ($test->get_name () == $dependency)
+				{
+					foreach ($test->get_all_dependencies() as $new_dependency)
+						$all_dependencies[] = $new_dependency;
+					break;
+				}
 			}
+		}
+		$this->all_dependencies = $all_dependencies;
+	}
+
+	function get_all_dependencies ()
+	{
+		if (isset($this->all_dependencies))
+			return $this->all_dependencies;
+
+		$this->calculate_all_dependencies ();
+		return $this->all_dependencies;
+	}
+
+	function passed_test_dependencies ($subject)
+	{
+		$shallow_dependencies = $this->get_all_dependencies ();
+
+		# we want deep dependencies here, so get the parent dependencies too
+		$dependencies = array ();
+		global $tests;
+		while ($shallow_dependencies)
+		{
+			$dependency = array_pop ($shallow_dependencies);
+			$dependencies[] = $dependency;
+			foreach ($tests as $test) # find it in the set of tests
+			{
+				if ($test->get_name () == $dependency)
+				{
+					foreach ($test->get_all_dependencies() as $new_dependency)
+						$shallow_dependencies[] = $new_dependency;
+					break;
+				}
+			}
+		}
+
+		$this->missing_dependency = "";
+		foreach ($dependencies as $dependency)
+		{
+			$depend = read_dependency ($dependency, $subject);
+			if ($depend == "Fail")
+				return false;
+			elseif ($depend == "missing")
+				$this->missing_dependency = $dependency;
 		}
 		return true;
 	}
@@ -337,9 +388,7 @@ abstract class Test
 
 	function mark_success ($subject)
 	{
-		# alert dependent tests to our success
-		global $successes;
-		$successes{$this->get_name ()}{$subject} = true;
+		write_dependencies ($this->get_name (), $subject, true);
 
 		$this->successes++;
 		$this->total++;
@@ -364,7 +413,15 @@ abstract class Test
 
 	function mark_failure ($subject, $commands, $exits = "Not relevent", $out = "Not relevent", $errs = "Not relevent")
 	{
-		global $log_directory, $opt_verbose;
+		global $log_directory;
+
+		write_dependencies ($this->get_name (), $subject, false);
+		$dependency_string = "";
+		if ($this->missing_dependency)
+		{
+			$dependency_string = "NOTE: dependency {$this->missing_dependency} is missing. This may be the cause of this failure\n";
+		}
+
 		$red = red_string();
 		$reset = reset_string();
 		if (is_array ($commands))
@@ -401,13 +458,7 @@ abstract class Test
 			$err_string = "";
 		}
 
-		$command_string .= $err_string;
-		// dump it to a file
-		$file_header = 
-			"Failure in test $subject:\n".
-			$command_string.
-			"Output:\n"; // this is added below to avoid the massive memory usage
-
+		$command_string = $dependency_string.$command_string.$err_string;
 		if (is_array ($out))
 		{
 			$out = join ("\n", $out);
