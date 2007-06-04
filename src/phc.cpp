@@ -105,11 +105,17 @@ int main(int argc, char** argv)
 	// Make sure the inputs cannot be accessed globally
 	args_info.inputs = NULL;
 
+
 	process_ast(php_script);
 
+
+	// check for errors
+	php_script->visit (&ic); 
+	assert (php_script->is_valid ());
+
+	// do this early
 	Note_top_level_declarations ntld;
 	php_script->visit (&ntld);
-	php_script->visit (&ic); // check for errors
 
 	// lift
 	if(args_info.run_lifting_flag
@@ -123,18 +129,6 @@ int main(int argc, char** argv)
 		php_script->visit (&ic);
 	}
 
-	// reorder
-/*	if (args_info.run_lowering_flag 
-			|| args_info.run_shredder_flag
-			|| args_info.obfuscate_flag)
-	{
-		Reorder_functions rf;
-		php_script->visit(&rf);
-
-		// check for errors
-		php_script->visit (&ic);
-	}
-*/
 	// lower
 	if (args_info.run_lowering_flag 
 			|| args_info.run_shredder_flag
@@ -145,14 +139,17 @@ int main(int argc, char** argv)
 		Lower_control_flow lcf;
 		php_script->transform_children (&lcf);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 
 		Lower_expr_flow lef;
 		php_script->transform_children (&lef);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 
 		Check_lowering cl;
 		php_script->visit (&cl);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 	}
 
 	// shred
@@ -164,6 +161,7 @@ int main(int argc, char** argv)
 		Shredder s;
 		php_script->transform_children(&s);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 	}
 
 	// upper (implied by obfuscation)
@@ -172,10 +170,12 @@ int main(int argc, char** argv)
 		Goto_uppering gu;
 		php_script->visit (&gu);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 
 		Check_uppering cl;
 		php_script->visit (&cl);
 		php_script->visit (&ic); // check for errors
+		assert (php_script->is_valid ());
 	}
 
 	// Strip comments
@@ -184,6 +184,7 @@ int main(int argc, char** argv)
 		Strip_comments sc;
 		php_script->visit (&sc);
 		php_script->visit (&ic);
+		assert (php_script->is_valid ());
 	}
 
 	run_plugins(php_script);
