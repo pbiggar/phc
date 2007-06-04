@@ -126,6 +126,7 @@ public:
     AST_node();
     void clone_mixin_from(AST_node* in);
     bool is_mixin_valid();
+    bool is_mixin_equal(AST_node* in);
 };
 
 // php_script ::= statement* ;

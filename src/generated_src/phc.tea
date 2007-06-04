@@ -203,6 +203,29 @@ public:
 	{
 		return attrs != NULL;
 	}
+
+	bool is_mixin_equal(AST_node* in)
+	{
+		// Compare line number and filename
+		// (We can't compare the entire attrs map because Object cannot
+		// necessarily be compared for equality)
+
+		if(get_line_number() != in->get_line_number())
+			return false;
+
+		if(get_filename() == NULL)
+		{
+			if(in->get_filename() != NULL)
+				return false;
+		}
+		else
+		{
+			if(*get_filename() != *in->get_filename())
+				return false;
+		}
+
+		return true;
+	}
 };
 
 class AST_commented_node 

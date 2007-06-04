@@ -51,6 +51,34 @@ bool AST_node::is_mixin_valid()
 	}
 }
 
+bool AST_node::is_mixin_equal(AST_node* in)
+{
+    #line 208 "src/generated_src/phc.tea"
+{
+		// Compare line number and filename
+		// (We can't compare the entire attrs map because Object cannot
+		// necessarily be compared for equality)
+
+		if(get_line_number() != in->get_line_number())
+			return false;
+
+		if(get_filename() == NULL)
+		#line 217 "src/generated_src/phc.tea"
+{
+			if(in->get_filename() != NULL)
+				return false;
+		}
+		else
+		#line 222 "src/generated_src/phc.tea"
+{
+			if(*get_filename() != *in->get_filename())
+				return false;
+		}
+
+		return true;
+	}
+}
+
 AST_php_script::AST_php_script(List<AST_statement*>* statements)
 {
     this->statements = statements;
@@ -139,6 +167,7 @@ bool AST_php_script::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -224,6 +253,7 @@ bool AST_class_mod::equals(AST_node* in)
     if(this->is_final != that->is_final)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -372,6 +402,7 @@ bool AST_signature::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -411,7 +442,7 @@ bool AST_signature::is_valid()
 
 AST_signature::AST_signature(const char* name)
 {
-    #line 229 "src/generated_src/phc.tea"
+    #line 252 "src/generated_src/phc.tea"
 {
 		this->method_mod = AST_method_mod::new_PUBLIC();
 		this->is_ref = false;
@@ -487,6 +518,7 @@ bool AST_method_mod::equals(AST_node* in)
     if(this->is_final != that->is_final)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -511,7 +543,7 @@ bool AST_method_mod::is_valid()
 
 AST_method_mod::AST_method_mod()
 {
-    #line 241 "src/generated_src/phc.tea"
+    #line 264 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -524,7 +556,7 @@ AST_method_mod::AST_method_mod()
 
 AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 {
-    #line 251 "src/generated_src/phc.tea"
+    #line 274 "src/generated_src/phc.tea"
 {
 		this->is_public 		= a->is_public		|| b->is_public;
 		this->is_protected	= a->is_protected	|| b->is_protected;
@@ -537,7 +569,7 @@ AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 
 AST_method_mod* AST_method_mod::new_PUBLIC()
 {
-    #line 261 "src/generated_src/phc.tea"
+    #line 284 "src/generated_src/phc.tea"
 {
 		return new AST_method_mod(true, false, false, false, false, false);		
 	}
@@ -545,7 +577,7 @@ AST_method_mod* AST_method_mod::new_PUBLIC()
 
 AST_method_mod* AST_method_mod::new_PROTECTED()
 {
-    #line 266 "src/generated_src/phc.tea"
+    #line 289 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, true, false, false, false, false);		
 	}
@@ -553,7 +585,7 @@ AST_method_mod* AST_method_mod::new_PROTECTED()
 
 AST_method_mod* AST_method_mod::new_PRIVATE()
 {
-    #line 271 "src/generated_src/phc.tea"
+    #line 294 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, true, false, false, false);		
 	}
@@ -561,7 +593,7 @@ AST_method_mod* AST_method_mod::new_PRIVATE()
 
 AST_method_mod* AST_method_mod::new_STATIC()
 {
-    #line 276 "src/generated_src/phc.tea"
+    #line 299 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, true, false, false);		
 	}
@@ -569,7 +601,7 @@ AST_method_mod* AST_method_mod::new_STATIC()
 
 AST_method_mod* AST_method_mod::new_ABSTRACT()
 {
-    #line 281 "src/generated_src/phc.tea"
+    #line 304 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, false, true, false);		
 	}
@@ -577,7 +609,7 @@ AST_method_mod* AST_method_mod::new_ABSTRACT()
 
 AST_method_mod* AST_method_mod::new_FINAL()
 {
-    #line 286 "src/generated_src/phc.tea"
+    #line 309 "src/generated_src/phc.tea"
 { 
 		return new AST_method_mod(false, false, false, false, false, true);		
 	}
@@ -684,6 +716,7 @@ bool AST_formal_parameter::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -709,7 +742,7 @@ bool AST_formal_parameter::is_valid()
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 393 "src/generated_src/phc.tea"
+    #line 416 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -720,7 +753,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 401 "src/generated_src/phc.tea"
+    #line 424 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -794,6 +827,7 @@ bool AST_type::equals(AST_node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -875,6 +909,7 @@ bool AST_attr_mod::equals(AST_node* in)
     if(this->is_const != that->is_const)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -898,7 +933,7 @@ bool AST_attr_mod::is_valid()
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 413 "src/generated_src/phc.tea"
+    #line 436 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -910,7 +945,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 422 "src/generated_src/phc.tea"
+    #line 445 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
@@ -925,7 +960,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 434 "src/generated_src/phc.tea"
+    #line 457 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -933,7 +968,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 439 "src/generated_src/phc.tea"
+    #line 462 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -941,7 +976,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 444 "src/generated_src/phc.tea"
+    #line 467 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -949,7 +984,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 449 "src/generated_src/phc.tea"
+    #line 472 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -957,7 +992,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 454 "src/generated_src/phc.tea"
+    #line 477 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -1040,6 +1075,7 @@ bool AST_directive::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1155,6 +1191,7 @@ bool AST_array_elem::equals(AST_node* in)
     else if(!this->val->equals(that->val))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1245,6 +1282,7 @@ bool AST_actual_parameter::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1270,7 +1308,7 @@ AST_class_name::AST_class_name()
 
 AST_commented_node::AST_commented_node()
 {
-    #line 212 "src/generated_src/phc.tea"
+    #line 235 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.comments", new List<String*>);
 	}
@@ -1279,7 +1317,7 @@ AST_commented_node::AST_commented_node()
 //  Return the comments associated with the node
 List<String*>* AST_commented_node::get_comments()
 {
-    #line 218 "src/generated_src/phc.tea"
+    #line 241 "src/generated_src/phc.tea"
 {
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
 		assert(comments);
@@ -1405,6 +1443,7 @@ bool AST_switch_case::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1563,6 +1602,7 @@ bool AST_catch::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1601,7 +1641,7 @@ bool AST_catch::is_valid()
 
 AST_expr::AST_expr()
 {
-    #line 513 "src/generated_src/phc.tea"
+    #line 536 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -1695,6 +1735,7 @@ bool AST_nested_list_elements::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1784,6 +1825,7 @@ bool AST_reflection::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1861,6 +1903,7 @@ bool Token_class_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -1938,6 +1981,7 @@ bool Token_interface_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2015,6 +2059,7 @@ bool Token_method_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2092,6 +2137,7 @@ bool Token_variable_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2169,6 +2215,7 @@ bool Token_label_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2246,6 +2293,7 @@ bool Token_directive_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2323,6 +2371,7 @@ bool Token_cast::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2400,6 +2449,7 @@ bool Token_op::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2477,6 +2527,7 @@ bool Token_constant_name::equals(AST_node* in)
     else if(*this->value != *that->value)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2684,6 +2735,7 @@ bool AST_class_def::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -2740,7 +2792,7 @@ bool AST_class_def::is_valid()
 
 AST_class_def::AST_class_def(AST_class_mod* mod)
 {
-    #line 295 "src/generated_src/phc.tea"
+    #line 318 "src/generated_src/phc.tea"
 {
 		this->class_mod = mod;
 		this->class_name = NULL;
@@ -2752,7 +2804,7 @@ AST_class_def::AST_class_def(AST_class_mod* mod)
 
 AST_class_def::AST_class_def(char* name)
 {
-    #line 304 "src/generated_src/phc.tea"
+    #line 327 "src/generated_src/phc.tea"
 {
 		this->class_mod = new AST_class_mod(false, false);
 		this->class_name = new Token_class_name(new String(name));
@@ -2764,7 +2816,7 @@ AST_class_def::AST_class_def(char* name)
 
 void AST_class_def::add_member(AST_member* member)
 {
-    #line 313 "src/generated_src/phc.tea"
+    #line 336 "src/generated_src/phc.tea"
 {
 		this->members->push_back(member);
 	}
@@ -2773,11 +2825,11 @@ void AST_class_def::add_member(AST_member* member)
 //  Returns NULL if the method could not be found
 AST_method* AST_class_def::get_method(const char* name)
 {
-    #line 319 "src/generated_src/phc.tea"
+    #line 342 "src/generated_src/phc.tea"
 {
 		List<AST_member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
-		#line 322 "src/generated_src/phc.tea"
+		#line 345 "src/generated_src/phc.tea"
 {
 			AST_method* method = dynamic_cast<AST_method*>(*i);
 			if(method && *method->signature->method_name->value == name)
@@ -2941,6 +2993,7 @@ bool AST_interface_def::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3097,6 +3150,7 @@ bool AST_method::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3224,6 +3278,7 @@ bool AST_attribute::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3399,6 +3454,7 @@ bool AST_if::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3451,7 +3507,7 @@ bool AST_if::is_valid()
 
 AST_if::AST_if(AST_expr* expr)
 {
-    #line 504 "src/generated_src/phc.tea"
+    #line 527 "src/generated_src/phc.tea"
 {
 		AST_if (expr, new List<AST_statement*> (), new List<AST_statement*>);
 	}
@@ -3563,6 +3619,7 @@ bool AST_while::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3703,6 +3760,7 @@ bool AST_do::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -3879,6 +3937,7 @@ bool AST_for::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4065,6 +4124,7 @@ bool AST_foreach::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4210,6 +4270,7 @@ bool AST_switch::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4303,6 +4364,7 @@ bool AST_break::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4380,6 +4442,7 @@ bool AST_continue::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4457,6 +4520,7 @@ bool AST_return::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4570,6 +4634,7 @@ bool AST_branch::equals(AST_node* in)
     else if(!this->iffalse->equals(that->iffalse))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4651,6 +4716,7 @@ bool AST_goto::equals(AST_node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4728,6 +4794,7 @@ bool AST_label::equals(AST_node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4823,6 +4890,7 @@ bool AST_static_declaration::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4902,6 +4970,7 @@ bool AST_global::equals(AST_node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -4979,6 +5048,7 @@ bool AST_unset::equals(AST_node* in)
     else if(!this->variable->equals(that->variable))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5132,6 +5202,7 @@ bool AST_declare::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5315,6 +5386,7 @@ bool AST_try::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5422,6 +5494,7 @@ bool AST_throw::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5501,6 +5574,7 @@ bool AST_eval_expr::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5521,7 +5595,7 @@ bool AST_eval_expr::is_valid()
 
 void AST_eval_expr::_init()
 {
-    #line 336 "src/generated_src/phc.tea"
+    #line 359 "src/generated_src/phc.tea"
 {
 		assert (expr != NULL);
 	}
@@ -5564,6 +5638,7 @@ bool AST_nop::equals(AST_node* in)
     AST_nop* that = dynamic_cast<AST_nop*>(in);
     if(that == NULL) return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5667,6 +5742,7 @@ bool AST_assignment::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5794,6 +5870,7 @@ bool AST_list_assignment::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5903,6 +5980,7 @@ bool AST_cast::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -5925,7 +6003,7 @@ bool AST_cast::is_valid()
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 522 "src/generated_src/phc.tea"
+    #line 545 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -6009,6 +6087,7 @@ bool AST_unary_op::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6031,7 +6110,7 @@ bool AST_unary_op::is_valid()
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 494 "src/generated_src/phc.tea"
+    #line 517 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -6133,6 +6212,7 @@ bool AST_bin_op::equals(AST_node* in)
     else if(!this->right->equals(that->right))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6157,7 +6237,7 @@ bool AST_bin_op::is_valid()
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 463 "src/generated_src/phc.tea"
+    #line 486 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -6260,6 +6340,7 @@ bool AST_conditional_expr::equals(AST_node* in)
     else if(!this->iffalse->equals(that->iffalse))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6341,6 +6422,7 @@ bool AST_ignore_errors::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6436,6 +6518,7 @@ bool AST_constant::equals(AST_node* in)
     else if(!this->constant_name->equals(that->constant_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6533,6 +6616,7 @@ bool AST_instanceof::equals(AST_node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6679,6 +6763,7 @@ bool AST_variable::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6715,7 +6800,7 @@ bool AST_variable::is_valid()
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 345 "src/generated_src/phc.tea"
+    #line 368 "src/generated_src/phc.tea"
 {
 		this->target = NULL;
 		this->variable_name = name;
@@ -6725,7 +6810,7 @@ AST_variable::AST_variable(AST_variable_name* name)
 
 void AST_variable::_init()
 {
-    #line 352 "src/generated_src/phc.tea"
+    #line 375 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.parser.function_params", NULL);
 	}
@@ -6808,6 +6893,7 @@ bool AST_pre_op::equals(AST_node* in)
     else if(!this->variable->equals(that->variable))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6830,7 +6916,7 @@ bool AST_pre_op::is_valid()
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 484 "src/generated_src/phc.tea"
+    #line 507 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -6914,6 +7000,7 @@ bool AST_post_op::equals(AST_node* in)
     else if(!this->op->equals(that->op))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -6936,7 +7023,7 @@ bool AST_post_op::is_valid()
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 474 "src/generated_src/phc.tea"
+    #line 497 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -7031,6 +7118,7 @@ bool AST_array::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7187,6 +7275,7 @@ bool AST_method_invocation::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7226,7 +7315,7 @@ bool AST_method_invocation::is_valid()
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 362 "src/generated_src/phc.tea"
+    #line 385 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -7239,7 +7328,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 372 "src/generated_src/phc.tea"
+    #line 395 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -7251,7 +7340,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 381 "src/generated_src/phc.tea"
+    #line 404 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -7366,6 +7455,7 @@ bool AST_new::equals(AST_node* in)
     		return false;
     }
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7459,6 +7549,7 @@ bool AST_clone::equals(AST_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7549,6 +7640,7 @@ bool Token_int::equals(AST_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7589,7 +7681,7 @@ bool Token_int::is_value_valid()
 //  safely called from the constructor.
 String* Token_int::_get_value_as_string()
 {
-    #line 549 "src/generated_src/phc.tea"
+    #line 572 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -7599,7 +7691,7 @@ String* Token_int::_get_value_as_string()
 
 String* Token_int::get_value_as_string()
 {
-    #line 557 "src/generated_src/phc.tea"
+    #line 580 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7607,7 +7699,7 @@ String* Token_int::get_value_as_string()
 
 Token_int::Token_int(int v)
 {
-    #line 562 "src/generated_src/phc.tea"
+    #line 585 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7686,6 +7778,7 @@ bool Token_real::equals(AST_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7724,7 +7817,7 @@ bool Token_real::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_real::_get_value_as_string()
 {
-    #line 574 "src/generated_src/phc.tea"
+    #line 597 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -7745,7 +7838,7 @@ String* Token_real::_get_value_as_string()
 
 String* Token_real::get_value_as_string()
 {
-    #line 593 "src/generated_src/phc.tea"
+    #line 616 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7753,7 +7846,7 @@ String* Token_real::get_value_as_string()
 
 Token_real::Token_real(double v)
 {
-    #line 598 "src/generated_src/phc.tea"
+    #line 621 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7832,6 +7925,7 @@ bool Token_string::equals(AST_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -7859,7 +7953,7 @@ bool Token_string::is_valid()
 
 String* Token_string::get_value_as_string()
 {
-    #line 633 "src/generated_src/phc.tea"
+    #line 656 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7867,7 +7961,7 @@ String* Token_string::get_value_as_string()
 
 bool Token_string::is_value_valid()
 {
-    #line 638 "src/generated_src/phc.tea"
+    #line 661 "src/generated_src/phc.tea"
 {
 		return value != NULL;
 	}
@@ -7875,7 +7969,7 @@ bool Token_string::is_value_valid()
 
 String* Token_string::clone_value()
 {
-    #line 643 "src/generated_src/phc.tea"
+    #line 666 "src/generated_src/phc.tea"
 {
 		return value->clone();
 	}
@@ -7883,7 +7977,7 @@ String* Token_string::clone_value()
 
 Token_string::Token_string(String* v)
 {
-    #line 648 "src/generated_src/phc.tea"
+    #line 671 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = v;
@@ -7962,6 +8056,7 @@ bool Token_bool::equals(AST_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8000,7 +8095,7 @@ bool Token_bool::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_bool::_get_value_as_string()
 {
-    #line 609 "src/generated_src/phc.tea"
+    #line 632 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -8011,7 +8106,7 @@ String* Token_bool::_get_value_as_string()
 
 String* Token_bool::get_value_as_string()
 {
-    #line 618 "src/generated_src/phc.tea"
+    #line 641 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -8019,7 +8114,7 @@ String* Token_bool::get_value_as_string()
 
 Token_bool::Token_bool(bool v)
 {
-    #line 623 "src/generated_src/phc.tea"
+    #line 646 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -8080,6 +8175,7 @@ bool Token_null::equals(AST_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
+    if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
@@ -8100,7 +8196,7 @@ bool Token_null::is_valid()
 
 String* Token_null::get_value_as_string()
 {
-    #line 658 "src/generated_src/phc.tea"
+    #line 681 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}
@@ -8108,7 +8204,7 @@ String* Token_null::get_value_as_string()
 
 Token_null::Token_null()
 {
-    #line 662 "src/generated_src/phc.tea"
+    #line 685 "src/generated_src/phc.tea"
 {
 		source_rep = new String ("NULL");
 	}
