@@ -53,7 +53,7 @@ class BasicParseTest extends Test
 	function run ()
 	{
 		parent::run ();
-		$num_skipped = $this->successes - $this->expected_failure_count;
+		$num_skipped = $this->expected_failure_count;
 		echo "($num_skipped expected errors)\n";
 	}
 

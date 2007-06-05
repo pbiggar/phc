@@ -422,7 +422,9 @@ abstract class Test
 
 		$red = red_string();
 		$reset = reset_string();
-		$err_string = "BUG NOT AVAILABLE";
+
+		// we have 1 or more outputs, only 1 error, and 1 or more commands, with the same number of error codes as commands
+		$err_string = "";
 		if (is_array ($commands))
 		{
 			if ($exits == "Not relevent")

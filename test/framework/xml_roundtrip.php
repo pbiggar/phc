@@ -23,7 +23,7 @@ class XMLRoundtrip extends PluginTest
 	{
 		global $xerces_compiled_in;
 		return parent::check_prerequisites () and
-			$xerces_compiled_in;
+			$xerces_compiled_in != 'no';
 	}
 	
 }
