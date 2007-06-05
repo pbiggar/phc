@@ -218,25 +218,25 @@ plugins_tutorials_show_traversal_order_la_LINK = $(LIBTOOL) --tag=CXX \
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
-	Generate_C.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	Check_uppering.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Check_lowering.$(OBJEXT) Lower_expr.$(OBJEXT) \
-	Lower_expr_flow.$(OBJEXT) Shredder.$(OBJEXT) \
+	Check_lowering.$(OBJEXT) Check_uppering.$(OBJEXT) \
+	fresh.$(OBJEXT) Generate_C.$(OBJEXT) Goto_uppering.$(OBJEXT) \
 	Lift_functions_and_classes.$(OBJEXT) \
-	Note_top_level_declarations.$(OBJEXT) fresh.$(OBJEXT) \
-	embed.$(OBJEXT) AST.$(OBJEXT) cmdline.$(OBJEXT) \
-	lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
+	Lower_control_flow.$(OBJEXT) Lower_expr.$(OBJEXT) \
+	Lower_expr_flow.$(OBJEXT) \
+	Note_top_level_declarations.$(OBJEXT) Shredder.$(OBJEXT) \
+	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	AST_factory.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
-	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
-	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
-	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
-	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) process_ast.$(OBJEXT) \
+	cmdline.$(OBJEXT) lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
+	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
+	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
+	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
+	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
+	Consistency_check.$(OBJEXT) DOT_unparser.$(OBJEXT) \
+	Invalid_check.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	process_ast.$(OBJEXT) Process_includes.$(OBJEXT) \
 	Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Strip_comments.$(OBJEXT) \
-	Token_conversion.$(OBJEXT) XML_unparser.$(OBJEXT) \
-	Process_includes.$(OBJEXT)
+	Token_conversion.$(OBJEXT) XML_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -480,87 +480,89 @@ src_phc_SOURCES = \
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/codegen/Check_lowering.cpp						\
+	src/codegen/Check_lowering.h							\
+	src/codegen/Check_uppering.cpp						\
+	src/codegen/Check_uppering.h							\
+	src/codegen/fresh.cpp									\
+	src/codegen/fresh.h										\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
-	src/codegen/Goto_uppering.h								\
-	src/codegen/Check_uppering.cpp							\
-	src/codegen/Check_uppering.h							\
-	src/codegen/Lower_control_flow.cpp						\
+	src/codegen/Goto_uppering.h							\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
+	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
-	src/codegen/Check_lowering.cpp							\
-	src/codegen/Check_lowering.h							\
 	src/codegen/Lower_expr.cpp								\
-	src/codegen/Lower_expr.h								\
-	src/codegen/Lower_expr_flow.cpp							\
+	src/codegen/Lower_expr_flow.cpp						\
 	src/codegen/Lower_expr_flow.h							\
+	src/codegen/Lower_expr.h								\
+	src/codegen/Note_top_level_declarations.cpp		\
+	src/codegen/Note_top_level_declarations.h			\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
-	src/codegen/Lift_functions_and_classes.cpp				\
-	src/codegen/Lift_functions_and_classes.h				\
-	src/codegen/Note_top_level_declarations.cpp				\
-	src/codegen/Note_top_level_declarations.h				\
-	src/codegen/fresh.cpp									\
-	src/codegen/fresh.h										\
-	src/embed/embed.h										\
 	src/embed/embed.cpp										\
+	src/embed/embed.h											\
 	src/generated/AST.cpp									\
+	src/generated/AST_factory.cpp							\
+	src/generated/AST_factory.h							\
 	src/generated/AST.h										\
+	src/generated/AST_transform.cpp						\
+	src/generated/AST_transform.h							\
+	src/generated/AST_visitor.cpp							\
+	src/generated/AST_visitor.h							\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp							\
-	src/generated/AST_transform.h							\
-	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h								\
-	src/generated/AST_factory.cpp							\
-	src/generated/AST_factory.h								\
 	src/lib/AttrMap.cpp										\
-	src/lib/AttrMap.h										\
+	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
-	src/lib/base64.h										\
-	src/lib/Boolean.h										\
+	src/lib/base64.h											\
 	src/lib/Boolean.cpp										\
-	src/lib/demangle.cpp									\
+	src/lib/Boolean.h											\
+	src/lib/demangle.cpp										\
 	src/lib/demangle.h										\
-	src/lib/error.cpp										\
+	src/lib/error.cpp											\
 	src/lib/error.h											\
-	src/lib/Integer.h										\
 	src/lib/Integer.cpp										\
-	src/lib/List.h											\
-	src/lib/Object.h										\
+	src/lib/Integer.h											\
+	src/lib/List.h												\
 	src/lib/Object.cpp										\
+	src/lib/Object.h											\
 	src/lib/String.cpp										\
-	src/lib/String.h										\
+	src/lib/String.h											\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
-	src/parsing/PHP_context.cpp								\
+	src/parsing/PHP_context.cpp							\
 	src/parsing/PHP_context.h								\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
-	src/phc.cpp												\
+	src/phc.cpp													\
+	src/process_ast/Consistenct_check.h					\
+	src/process_ast/Consistency_check.cpp				\
 	src/process_ast/DOT_unparser.cpp						\
-	src/process_ast/DOT_unparser.h							\
-	src/process_ast/Invalid_check.cpp						\
-	src/process_ast/Invalid_check.h							\
+	src/process_ast/DOT_unparser.h						\
+	src/process_ast/Invalid_check.cpp					\
+	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
-	src/process_ast/PHP_unparser.h							\
-	src/process_ast/process_ast.cpp							\
+	src/process_ast/PHP_unparser.h						\
+	src/process_ast/process_ast.cpp						\
 	src/process_ast/process_ast.h							\
-	src/process_ast/Remove_concat_null.cpp					\
-	src/process_ast/Remove_concat_null.h					\
-	src/process_ast/Remove_parser_temporaries.cpp			\
-	src/process_ast/Remove_parser_temporaries.h				\
-	src/process_ast/Strip_comments.cpp						\
+	src/process_ast/Process_includes.cpp				\
+	src/process_ast/Process_includes.h					\
+	src/process_ast/Remove_concat_null.cpp				\
+	src/process_ast/Remove_concat_null.h				\
+	src/process_ast/Remove_parser_temporaries.cpp	\
+	src/process_ast/Remove_parser_temporaries.h		\
+	src/process_ast/Strip_comments.cpp					\
 	src/process_ast/Strip_comments.h						\
-	src/process_ast/Token_conversion.cpp					\
-	src/process_ast/Token_conversion.h						\
+	src/process_ast/Token_conversion.cpp				\
+	src/process_ast/Token_conversion.h					\
 	src/process_ast/XML_unparser.cpp						\
-	src/process_ast/XML_unparser.h							\
-	src/process_ast/Process_includes.cpp					\
-	src/process_ast/Process_includes.h
+	src/process_ast/XML_unparser.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
@@ -570,12 +572,12 @@ BUILT_SOURCES = \
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp							\
+	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h								\
+	src/generated/AST_visitor.h							\
 	src/generated/AST_factory.cpp							\
-	src/generated/AST_factory.h								\
+	src/generated/AST_factory.h							\
 	test/framework/lib/autovars.php
 
 
@@ -893,6 +895,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Check_lowering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Check_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Consistency_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
@@ -1140,6 +1143,48 @@ show_traversal_order.lo: plugins/tutorials/show_traversal_order.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o show_traversal_order.lo `test -f 'plugins/tutorials/show_traversal_order.cpp' || echo '$(srcdir)/'`plugins/tutorials/show_traversal_order.cpp
 
+Check_lowering.o: src/codegen/Check_lowering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.o -MD -MP -MF $(DEPDIR)/Check_lowering.Tpo -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_lowering.Tpo $(DEPDIR)/Check_lowering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp
+
+Check_lowering.obj: src/codegen/Check_lowering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.obj -MD -MP -MF $(DEPDIR)/Check_lowering.Tpo -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_lowering.Tpo $(DEPDIR)/Check_lowering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`
+
+Check_uppering.o: src/codegen/Check_uppering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.o -MD -MP -MF $(DEPDIR)/Check_uppering.Tpo -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_uppering.Tpo $(DEPDIR)/Check_uppering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp
+
+Check_uppering.obj: src/codegen/Check_uppering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.obj -MD -MP -MF $(DEPDIR)/Check_uppering.Tpo -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_uppering.Tpo $(DEPDIR)/Check_uppering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`
+
+fresh.o: src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.o -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
+
+fresh.obj: src/codegen/fresh.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.obj -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
+
 Generate_C.o: src/codegen/Generate_C.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C.o -MD -MP -MF $(DEPDIR)/Generate_C.Tpo -c -o Generate_C.o `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_C.Tpo $(DEPDIR)/Generate_C.Po
@@ -1168,19 +1213,19 @@ Goto_uppering.obj: src/codegen/Goto_uppering.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Goto_uppering.obj `if test -f 'src/codegen/Goto_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Goto_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Goto_uppering.cpp'; fi`
 
-Check_uppering.o: src/codegen/Check_uppering.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.o -MD -MP -MF $(DEPDIR)/Check_uppering.Tpo -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_uppering.Tpo $(DEPDIR)/Check_uppering.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.o' libtool=no @AMDEPBACKSLASH@
+Lift_functions_and_classes.o: src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.o -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.o `test -f 'src/codegen/Check_uppering.cpp' || echo '$(srcdir)/'`src/codegen/Check_uppering.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
 
-Check_uppering.obj: src/codegen/Check_uppering.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_uppering.obj -MD -MP -MF $(DEPDIR)/Check_uppering.Tpo -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_uppering.Tpo $(DEPDIR)/Check_uppering.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_uppering.cpp' object='Check_uppering.obj' libtool=no @AMDEPBACKSLASH@
+Lift_functions_and_classes.obj: src/codegen/Lift_functions_and_classes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.obj -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_uppering.obj `if test -f 'src/codegen/Check_uppering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_uppering.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
 
 Lower_control_flow.o: src/codegen/Lower_control_flow.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_control_flow.o -MD -MP -MF $(DEPDIR)/Lower_control_flow.Tpo -c -o Lower_control_flow.o `test -f 'src/codegen/Lower_control_flow.cpp' || echo '$(srcdir)/'`src/codegen/Lower_control_flow.cpp
@@ -1195,20 +1240,6 @@ Lower_control_flow.obj: src/codegen/Lower_control_flow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lower_control_flow.cpp' object='Lower_control_flow.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_control_flow.obj `if test -f 'src/codegen/Lower_control_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_control_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_control_flow.cpp'; fi`
-
-Check_lowering.o: src/codegen/Check_lowering.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.o -MD -MP -MF $(DEPDIR)/Check_lowering.Tpo -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_lowering.Tpo $(DEPDIR)/Check_lowering.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.o `test -f 'src/codegen/Check_lowering.cpp' || echo '$(srcdir)/'`src/codegen/Check_lowering.cpp
-
-Check_lowering.obj: src/codegen/Check_lowering.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Check_lowering.obj -MD -MP -MF $(DEPDIR)/Check_lowering.Tpo -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Check_lowering.Tpo $(DEPDIR)/Check_lowering.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Check_lowering.cpp' object='Check_lowering.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Check_lowering.obj `if test -f 'src/codegen/Check_lowering.cpp'; then $(CYGPATH_W) 'src/codegen/Check_lowering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Check_lowering.cpp'; fi`
 
 Lower_expr.o: src/codegen/Lower_expr.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_expr.o -MD -MP -MF $(DEPDIR)/Lower_expr.Tpo -c -o Lower_expr.o `test -f 'src/codegen/Lower_expr.cpp' || echo '$(srcdir)/'`src/codegen/Lower_expr.cpp
@@ -1238,34 +1269,6 @@ Lower_expr_flow.obj: src/codegen/Lower_expr_flow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_expr_flow.obj `if test -f 'src/codegen/Lower_expr_flow.cpp'; then $(CYGPATH_W) 'src/codegen/Lower_expr_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lower_expr_flow.cpp'; fi`
 
-Shredder.o: src/codegen/Shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.o -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Shredder.cpp' object='Shredder.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp
-
-Shredder.obj: src/codegen/Shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.obj -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Shredder.cpp' object='Shredder.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
-
-Lift_functions_and_classes.o: src/codegen/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.o -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.o `test -f 'src/codegen/Lift_functions_and_classes.cpp' || echo '$(srcdir)/'`src/codegen/Lift_functions_and_classes.cpp
-
-Lift_functions_and_classes.obj: src/codegen/Lift_functions_and_classes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lift_functions_and_classes.obj -MD -MP -MF $(DEPDIR)/Lift_functions_and_classes.Tpo -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lift_functions_and_classes.Tpo $(DEPDIR)/Lift_functions_and_classes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Lift_functions_and_classes.cpp' object='Lift_functions_and_classes.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lift_functions_and_classes.obj `if test -f 'src/codegen/Lift_functions_and_classes.cpp'; then $(CYGPATH_W) 'src/codegen/Lift_functions_and_classes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Lift_functions_and_classes.cpp'; fi`
-
 Note_top_level_declarations.o: src/codegen/Note_top_level_declarations.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Note_top_level_declarations.o -MD -MP -MF $(DEPDIR)/Note_top_level_declarations.Tpo -c -o Note_top_level_declarations.o `test -f 'src/codegen/Note_top_level_declarations.cpp' || echo '$(srcdir)/'`src/codegen/Note_top_level_declarations.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Note_top_level_declarations.Tpo $(DEPDIR)/Note_top_level_declarations.Po
@@ -1280,19 +1283,19 @@ Note_top_level_declarations.obj: src/codegen/Note_top_level_declarations.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Note_top_level_declarations.obj `if test -f 'src/codegen/Note_top_level_declarations.cpp'; then $(CYGPATH_W) 'src/codegen/Note_top_level_declarations.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Note_top_level_declarations.cpp'; fi`
 
-fresh.o: src/codegen/fresh.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.o -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.o' libtool=no @AMDEPBACKSLASH@
+Shredder.o: src/codegen/Shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.o -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Shredder.cpp' object='Shredder.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.o `test -f 'src/codegen/fresh.cpp' || echo '$(srcdir)/'`src/codegen/fresh.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp
 
-fresh.obj: src/codegen/fresh.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fresh.obj -MD -MP -MF $(DEPDIR)/fresh.Tpo -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fresh.Tpo $(DEPDIR)/fresh.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
+Shredder.obj: src/codegen/Shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.obj -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Shredder.cpp' object='Shredder.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/codegen/fresh.cpp'; then $(CYGPATH_W) 'src/codegen/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/fresh.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/codegen/Shredder.cpp'; then $(CYGPATH_W) 'src/codegen/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Shredder.cpp'; fi`
 
 embed.o: src/embed/embed.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.o -MD -MP -MF $(DEPDIR)/embed.Tpo -c -o embed.o `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
@@ -1322,33 +1325,19 @@ AST.obj: src/generated/AST.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST.obj `if test -f 'src/generated/AST.cpp'; then $(CYGPATH_W) 'src/generated/AST.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST.cpp'; fi`
 
-lex.yy.o: src/generated/lex.yy.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.o -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/lex.yy.Tpo $(DEPDIR)/lex.yy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/lex.yy.cc' object='lex.yy.o' libtool=no @AMDEPBACKSLASH@
+AST_factory.o: src/generated/AST_factory.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_factory.o -MD -MP -MF $(DEPDIR)/AST_factory.Tpo -c -o AST_factory.o `test -f 'src/generated/AST_factory.cpp' || echo '$(srcdir)/'`src/generated/AST_factory.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_factory.Tpo $(DEPDIR)/AST_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST_factory.cpp' object='AST_factory.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_factory.o `test -f 'src/generated/AST_factory.cpp' || echo '$(srcdir)/'`src/generated/AST_factory.cpp
 
-lex.yy.obj: src/generated/lex.yy.cc
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.obj -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.obj `if test -f 'src/generated/lex.yy.cc'; then $(CYGPATH_W) 'src/generated/lex.yy.cc'; else $(CYGPATH_W) '$(srcdir)/src/generated/lex.yy.cc'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/lex.yy.Tpo $(DEPDIR)/lex.yy.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/lex.yy.cc' object='lex.yy.obj' libtool=no @AMDEPBACKSLASH@
+AST_factory.obj: src/generated/AST_factory.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_factory.obj -MD -MP -MF $(DEPDIR)/AST_factory.Tpo -c -o AST_factory.obj `if test -f 'src/generated/AST_factory.cpp'; then $(CYGPATH_W) 'src/generated/AST_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_factory.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_factory.Tpo $(DEPDIR)/AST_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST_factory.cpp' object='AST_factory.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lex.yy.obj `if test -f 'src/generated/lex.yy.cc'; then $(CYGPATH_W) 'src/generated/lex.yy.cc'; else $(CYGPATH_W) '$(srcdir)/src/generated/lex.yy.cc'; fi`
-
-php_parser.tab.o: src/generated/php_parser.tab.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT php_parser.tab.o -MD -MP -MF $(DEPDIR)/php_parser.tab.Tpo -c -o php_parser.tab.o `test -f 'src/generated/php_parser.tab.cpp' || echo '$(srcdir)/'`src/generated/php_parser.tab.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/php_parser.tab.Tpo $(DEPDIR)/php_parser.tab.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/php_parser.tab.cpp' object='php_parser.tab.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o php_parser.tab.o `test -f 'src/generated/php_parser.tab.cpp' || echo '$(srcdir)/'`src/generated/php_parser.tab.cpp
-
-php_parser.tab.obj: src/generated/php_parser.tab.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT php_parser.tab.obj -MD -MP -MF $(DEPDIR)/php_parser.tab.Tpo -c -o php_parser.tab.obj `if test -f 'src/generated/php_parser.tab.cpp'; then $(CYGPATH_W) 'src/generated/php_parser.tab.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/php_parser.tab.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/php_parser.tab.Tpo $(DEPDIR)/php_parser.tab.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/php_parser.tab.cpp' object='php_parser.tab.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o php_parser.tab.obj `if test -f 'src/generated/php_parser.tab.cpp'; then $(CYGPATH_W) 'src/generated/php_parser.tab.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/php_parser.tab.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_factory.obj `if test -f 'src/generated/AST_factory.cpp'; then $(CYGPATH_W) 'src/generated/AST_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_factory.cpp'; fi`
 
 AST_transform.o: src/generated/AST_transform.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_transform.o -MD -MP -MF $(DEPDIR)/AST_transform.Tpo -c -o AST_transform.o `test -f 'src/generated/AST_transform.cpp' || echo '$(srcdir)/'`src/generated/AST_transform.cpp
@@ -1378,19 +1367,33 @@ AST_visitor.obj: src/generated/AST_visitor.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_visitor.obj `if test -f 'src/generated/AST_visitor.cpp'; then $(CYGPATH_W) 'src/generated/AST_visitor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_visitor.cpp'; fi`
 
-AST_factory.o: src/generated/AST_factory.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_factory.o -MD -MP -MF $(DEPDIR)/AST_factory.Tpo -c -o AST_factory.o `test -f 'src/generated/AST_factory.cpp' || echo '$(srcdir)/'`src/generated/AST_factory.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_factory.Tpo $(DEPDIR)/AST_factory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST_factory.cpp' object='AST_factory.o' libtool=no @AMDEPBACKSLASH@
+lex.yy.o: src/generated/lex.yy.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.o -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/lex.yy.Tpo $(DEPDIR)/lex.yy.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/lex.yy.cc' object='lex.yy.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_factory.o `test -f 'src/generated/AST_factory.cpp' || echo '$(srcdir)/'`src/generated/AST_factory.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
 
-AST_factory.obj: src/generated/AST_factory.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_factory.obj -MD -MP -MF $(DEPDIR)/AST_factory.Tpo -c -o AST_factory.obj `if test -f 'src/generated/AST_factory.cpp'; then $(CYGPATH_W) 'src/generated/AST_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_factory.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_factory.Tpo $(DEPDIR)/AST_factory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST_factory.cpp' object='AST_factory.obj' libtool=no @AMDEPBACKSLASH@
+lex.yy.obj: src/generated/lex.yy.cc
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.obj -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.obj `if test -f 'src/generated/lex.yy.cc'; then $(CYGPATH_W) 'src/generated/lex.yy.cc'; else $(CYGPATH_W) '$(srcdir)/src/generated/lex.yy.cc'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/lex.yy.Tpo $(DEPDIR)/lex.yy.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/lex.yy.cc' object='lex.yy.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_factory.obj `if test -f 'src/generated/AST_factory.cpp'; then $(CYGPATH_W) 'src/generated/AST_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_factory.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lex.yy.obj `if test -f 'src/generated/lex.yy.cc'; then $(CYGPATH_W) 'src/generated/lex.yy.cc'; else $(CYGPATH_W) '$(srcdir)/src/generated/lex.yy.cc'; fi`
+
+php_parser.tab.o: src/generated/php_parser.tab.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT php_parser.tab.o -MD -MP -MF $(DEPDIR)/php_parser.tab.Tpo -c -o php_parser.tab.o `test -f 'src/generated/php_parser.tab.cpp' || echo '$(srcdir)/'`src/generated/php_parser.tab.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/php_parser.tab.Tpo $(DEPDIR)/php_parser.tab.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/php_parser.tab.cpp' object='php_parser.tab.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o php_parser.tab.o `test -f 'src/generated/php_parser.tab.cpp' || echo '$(srcdir)/'`src/generated/php_parser.tab.cpp
+
+php_parser.tab.obj: src/generated/php_parser.tab.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT php_parser.tab.obj -MD -MP -MF $(DEPDIR)/php_parser.tab.Tpo -c -o php_parser.tab.obj `if test -f 'src/generated/php_parser.tab.cpp'; then $(CYGPATH_W) 'src/generated/php_parser.tab.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/php_parser.tab.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/php_parser.tab.Tpo $(DEPDIR)/php_parser.tab.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/php_parser.tab.cpp' object='php_parser.tab.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o php_parser.tab.obj `if test -f 'src/generated/php_parser.tab.cpp'; then $(CYGPATH_W) 'src/generated/php_parser.tab.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/php_parser.tab.cpp'; fi`
 
 AttrMap.o: src/lib/AttrMap.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AttrMap.o -MD -MP -MF $(DEPDIR)/AttrMap.Tpo -c -o AttrMap.o `test -f 'src/lib/AttrMap.cpp' || echo '$(srcdir)/'`src/lib/AttrMap.cpp
@@ -1560,6 +1563,20 @@ phc.obj: src/phc.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o phc.obj `if test -f 'src/phc.cpp'; then $(CYGPATH_W) 'src/phc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/phc.cpp'; fi`
 
+Consistency_check.o: src/process_ast/Consistency_check.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Consistency_check.o -MD -MP -MF $(DEPDIR)/Consistency_check.Tpo -c -o Consistency_check.o `test -f 'src/process_ast/Consistency_check.cpp' || echo '$(srcdir)/'`src/process_ast/Consistency_check.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Consistency_check.Tpo $(DEPDIR)/Consistency_check.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Consistency_check.cpp' object='Consistency_check.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Consistency_check.o `test -f 'src/process_ast/Consistency_check.cpp' || echo '$(srcdir)/'`src/process_ast/Consistency_check.cpp
+
+Consistency_check.obj: src/process_ast/Consistency_check.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Consistency_check.obj -MD -MP -MF $(DEPDIR)/Consistency_check.Tpo -c -o Consistency_check.obj `if test -f 'src/process_ast/Consistency_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Consistency_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Consistency_check.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Consistency_check.Tpo $(DEPDIR)/Consistency_check.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Consistency_check.cpp' object='Consistency_check.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Consistency_check.obj `if test -f 'src/process_ast/Consistency_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Consistency_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Consistency_check.cpp'; fi`
+
 DOT_unparser.o: src/process_ast/DOT_unparser.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT DOT_unparser.o -MD -MP -MF $(DEPDIR)/DOT_unparser.Tpo -c -o DOT_unparser.o `test -f 'src/process_ast/DOT_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/DOT_unparser.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/DOT_unparser.Tpo $(DEPDIR)/DOT_unparser.Po
@@ -1615,6 +1632,20 @@ process_ast.obj: src/process_ast/process_ast.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/process_ast.cpp' object='process_ast.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o process_ast.obj `if test -f 'src/process_ast/process_ast.cpp'; then $(CYGPATH_W) 'src/process_ast/process_ast.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/process_ast.cpp'; fi`
+
+Process_includes.o: src/process_ast/Process_includes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.o -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
+
+Process_includes.obj: src/process_ast/Process_includes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.obj -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
 
 Remove_concat_null.o: src/process_ast/Remove_concat_null.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Remove_concat_null.o -MD -MP -MF $(DEPDIR)/Remove_concat_null.Tpo -c -o Remove_concat_null.o `test -f 'src/process_ast/Remove_concat_null.cpp' || echo '$(srcdir)/'`src/process_ast/Remove_concat_null.cpp
@@ -1685,20 +1716,6 @@ XML_unparser.obj: src/process_ast/XML_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/XML_unparser.cpp' object='XML_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_unparser.obj `if test -f 'src/process_ast/XML_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/XML_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/XML_unparser.cpp'; fi`
-
-Process_includes.o: src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.o -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp
-
-Process_includes.obj: src/process_ast/Process_includes.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.obj -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Process_includes.Tpo $(DEPDIR)/Process_includes.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Process_includes.cpp' object='Process_includes.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Process_includes.obj `if test -f 'src/process_ast/Process_includes.cpp'; then $(CYGPATH_W) 'src/process_ast/Process_includes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Process_includes.cpp'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

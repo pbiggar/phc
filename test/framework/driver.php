@@ -61,7 +61,7 @@ $tests = array ();
 
 require_once ("basic_parse_tests.php");
 $tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print", "BasicParseTest");
-$tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "InterpretUnparsed");
+$tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretLowered", "--run-lowering --pretty-print --run-goto-uppering", "InterpretUnparsed");
 $tests[] = new CompareWithPHP ("InterpretShredded", "--run-shredder --pretty-print --run-goto-uppering", "InterpretLowered");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate --run-goto-uppering", "InterpretShredded");

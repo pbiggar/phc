@@ -4695,7 +4695,7 @@ yyreduce:
   case 143:
 #line 1510 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
+			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr)));
 		;}
     break;
@@ -5482,7 +5482,7 @@ yyreduce:
   case 231:
 #line 2079 "src/generated_src/php_parser.ypp"
     {
-			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_brackets");
+			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_user_brackets");
 			
 			(yyval.ast_expr) = (yyvsp[(2) - (3)].ast_expr);
 		;}
@@ -6187,7 +6187,7 @@ yyreduce:
   case 316:
 #line 2674 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
+			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr))); 
 		;}
     break;
@@ -6259,7 +6259,7 @@ yyreduce:
   case 325:
 #line 2737 "src/generated_src/php_parser.ypp"
     { 
-			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_curlies");
+			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(2) - (3)].ast_expr))); 
 		;}
     break;

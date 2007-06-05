@@ -26,6 +26,7 @@
 #include "codegen/Check_uppering.h"
 #include "process_ast/Strip_comments.h"
 #include "process_ast/Invalid_check.h"
+#include "process_ast/Consistency_check.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
@@ -98,20 +99,14 @@ int main(int argc, char** argv)
 	// Check for invalid but parsable code
 	Invalid_check ic;
 	php_script->visit (&ic);
-	ic.use_ice = true; // from now on, use an internal error
 
 	if(php_script == NULL) return -1;
 
 	// Make sure the inputs cannot be accessed globally
 	args_info.inputs = NULL;
 
-
 	process_ast(php_script);
-
-
-	// check for errors
-	php_script->visit (&ic); 
-	assert (php_script->is_valid ());
+	check (php_script);
 
 	// do this early
 	Note_top_level_declarations ntld;
@@ -124,9 +119,8 @@ int main(int argc, char** argv)
 	{
 		Lift_functions_and_classes lift;
 		php_script->transform_children(&lift);
+		check (php_script);
 
-		// check for errors
-		php_script->visit (&ic);
 	}
 
 	// lower
@@ -138,18 +132,15 @@ int main(int argc, char** argv)
 	{
 		Lower_control_flow lcf;
 		php_script->transform_children (&lcf);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 
 		Lower_expr_flow lef;
 		php_script->transform_children (&lef);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 
 		Check_lowering cl;
 		php_script->visit (&cl);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 	}
 
 	// shred
@@ -160,8 +151,7 @@ int main(int argc, char** argv)
 	{
 		Shredder s;
 		php_script->transform_children(&s);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 	}
 
 	// upper (implied by obfuscation)
@@ -169,13 +159,11 @@ int main(int argc, char** argv)
 	{
 		Goto_uppering gu;
 		php_script->visit (&gu);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 
 		Check_uppering cl;
 		php_script->visit (&cl);
-		php_script->visit (&ic); // check for errors
-		assert (php_script->is_valid ());
+		check (php_script);
 	}
 
 	// Strip comments
@@ -183,8 +171,7 @@ int main(int argc, char** argv)
 	{
 		Strip_comments sc;
 		php_script->visit (&sc);
-		php_script->visit (&ic);
-		assert (php_script->is_valid ());
+		check (php_script);
 	}
 
 	run_plugins(php_script);

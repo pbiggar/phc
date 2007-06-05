@@ -1036,19 +1036,57 @@ void PHP_unparser::pre_node(AST_node* in)
 	}
 }
 
+/* There are a number of places where curlies are required. All of these
+ * involves reflection, and some special cases in the node containing the
+ * reflected variable. In general $$$$x (ie any amunt of nested variabels) is
+ * ok, and anything else requires curlies. */
+bool needs_curlies (AST_reflection* in)
+{
+	AST_variable* var = dynamic_cast <AST_variable*> (in->expr);
+	if (var 
+		&& var->target == NULL
+		&& var->array_indices->size() == 0)
+		return false;
+
+	return true;
+}
+
+void PHP_unparser::pre_variable (AST_variable* in)
+{
+	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->variable_name);
+	if (reflect && 
+			(needs_curlies (reflect) || in->array_indices->size () > 0))
+		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+}
+
+void PHP_unparser::pre_method_invocation (AST_method_invocation* in)
+{
+	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->method_name);
+	if (in->target
+			&& reflect && needs_curlies (reflect))
+		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+}
+
+void PHP_unparser::pre_global (AST_global* in)
+{
+	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->variable_name);
+	if (reflect && needs_curlies (reflect))
+		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+}
+
 void PHP_unparser::pre_expr(AST_expr* in)
 {
-	if(in->attrs->is_true("phc.unparser.needs_brackets"))
+	if(in->attrs->is_true("phc.unparser.needs_user_brackets"))
 		echo("(");
-	if(in->attrs->is_true("phc.unparser.needs_curlies"))
+	if(in->attrs->is_true("phc.unparser.needs_curlies") or in->attrs->is_true("phc.unparser.needs_user_curlies"))
 		echo("{");
 }
 
 void PHP_unparser::post_expr(AST_expr* in)
 {
-	if(in->attrs->is_true("phc.unparser.needs_curlies"))
+	if(in->attrs->is_true("phc.unparser.needs_curlies") or in->attrs->is_true("phc.unparser.needs_user_curlies"))
 		echo("}");
-	if(in->attrs->is_true("phc.unparser.needs_brackets"))
+	if(in->attrs->is_true("phc.unparser.needs_user_brackets"))
 		echo(")");
 }
 

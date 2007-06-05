@@ -1508,7 +1508,7 @@ global_var:
 		}
 	| '$' '{' expr '}'
 		{ 
-			$3->attrs->set_true("phc.unparser.needs_curlies");
+			$3->attrs->set_true("phc.unparser.needs_user_curlies");
 			$$ = NEW(AST_reflection, ($3));
 		}
 	; 
@@ -2077,7 +2077,7 @@ expr_without_variable:
 		}
 	| '(' expr ')'
 		{
-			$2->attrs->set_true("phc.unparser.needs_brackets");
+			$2->attrs->set_true("phc.unparser.needs_user_brackets");
 			
 			$$ = $2;
 		}
@@ -2672,7 +2672,7 @@ compound_variable:
 		}
 	| '$' '{' expr '}'
 		{ 
-			$3->attrs->set_true("phc.unparser.needs_curlies");
+			$3->attrs->set_true("phc.unparser.needs_user_curlies");
 			$$ = NEW(AST_reflection, ($3)); 
 		}
 	;
@@ -2735,7 +2735,7 @@ variable_name:
 		}
 	| '{' expr '}'
 		{ 
-			$2->attrs->set_true("phc.unparser.needs_curlies");
+			$2->attrs->set_true("phc.unparser.needs_user_curlies");
 			$$ = NEW(AST_reflection, ($2)); 
 		}
 	;

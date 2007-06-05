@@ -123,6 +123,10 @@ public:
 	void post_expr(AST_expr* in);
 	void pre_commented_node(AST_commented_node* in);
 	void post_commented_node(AST_commented_node* in);
+
+	void pre_variable (AST_variable* in);
+	void pre_method_invocation (AST_method_invocation* in);
+	void pre_global (AST_global* in);
 };
 
 #endif // PHC_PHP_UNPARSER 

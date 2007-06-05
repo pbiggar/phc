@@ -659,6 +659,8 @@ public:
 class AST_expr : virtual public AST_target, virtual public AST_node
 {
 public:
+    AST_expr();
+public:
     virtual void visit(AST_visitor* visitor) = 0;
     virtual void transform_children(AST_transform* transform) = 0;
 public:
@@ -671,8 +673,6 @@ public:
     virtual AST_expr* clone() = 0;
 public:
     virtual bool is_valid() = 0;
-public:
-    AST_expr();
 };
 
 // nested_list_elements ::= list_element?* ;

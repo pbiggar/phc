@@ -1641,10 +1641,6 @@ bool AST_catch::is_valid()
 
 AST_expr::AST_expr()
 {
-    #line 531 "src/generated_src/phc.tea"
-{
-		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
-	}
 }
 
 AST_nested_list_elements::AST_nested_list_elements(List<AST_list_element*>* list_elements)
@@ -6003,7 +5999,7 @@ bool AST_cast::is_valid()
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 540 "src/generated_src/phc.tea"
+    #line 531 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -7671,7 +7667,7 @@ bool Token_int::is_value_valid()
 //  safely called from the constructor.
 String* Token_int::_get_value_as_string()
 {
-    #line 567 "src/generated_src/phc.tea"
+    #line 558 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -7681,7 +7677,7 @@ String* Token_int::_get_value_as_string()
 
 String* Token_int::get_value_as_string()
 {
-    #line 575 "src/generated_src/phc.tea"
+    #line 566 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7689,7 +7685,7 @@ String* Token_int::get_value_as_string()
 
 Token_int::Token_int(int v)
 {
-    #line 580 "src/generated_src/phc.tea"
+    #line 571 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7807,7 +7803,7 @@ bool Token_real::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_real::_get_value_as_string()
 {
-    #line 592 "src/generated_src/phc.tea"
+    #line 583 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -7828,7 +7824,7 @@ String* Token_real::_get_value_as_string()
 
 String* Token_real::get_value_as_string()
 {
-    #line 611 "src/generated_src/phc.tea"
+    #line 602 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7836,7 +7832,7 @@ String* Token_real::get_value_as_string()
 
 Token_real::Token_real(double v)
 {
-    #line 616 "src/generated_src/phc.tea"
+    #line 607 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7943,7 +7939,7 @@ bool Token_string::is_valid()
 
 String* Token_string::get_value_as_string()
 {
-    #line 651 "src/generated_src/phc.tea"
+    #line 642 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7951,7 +7947,7 @@ String* Token_string::get_value_as_string()
 
 bool Token_string::is_value_valid()
 {
-    #line 656 "src/generated_src/phc.tea"
+    #line 647 "src/generated_src/phc.tea"
 {
 		return value != NULL;
 	}
@@ -7959,7 +7955,7 @@ bool Token_string::is_value_valid()
 
 String* Token_string::clone_value()
 {
-    #line 661 "src/generated_src/phc.tea"
+    #line 652 "src/generated_src/phc.tea"
 {
 		return value->clone();
 	}
@@ -7967,7 +7963,7 @@ String* Token_string::clone_value()
 
 Token_string::Token_string(String* v)
 {
-    #line 666 "src/generated_src/phc.tea"
+    #line 657 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = v;
@@ -8085,7 +8081,7 @@ bool Token_bool::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_bool::_get_value_as_string()
 {
-    #line 627 "src/generated_src/phc.tea"
+    #line 618 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -8096,7 +8092,7 @@ String* Token_bool::_get_value_as_string()
 
 String* Token_bool::get_value_as_string()
 {
-    #line 636 "src/generated_src/phc.tea"
+    #line 627 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -8104,7 +8100,7 @@ String* Token_bool::get_value_as_string()
 
 Token_bool::Token_bool(bool v)
 {
-    #line 641 "src/generated_src/phc.tea"
+    #line 632 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -8186,7 +8182,7 @@ bool Token_null::is_valid()
 
 String* Token_null::get_value_as_string()
 {
-    #line 676 "src/generated_src/phc.tea"
+    #line 667 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}
@@ -8194,7 +8190,7 @@ String* Token_null::get_value_as_string()
 
 Token_null::Token_null()
 {
-    #line 680 "src/generated_src/phc.tea"
+    #line 671 "src/generated_src/phc.tea"
 {
 		source_rep = new String ("NULL");
 	}

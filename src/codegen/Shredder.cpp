@@ -108,9 +108,10 @@ public:
 		in->attrs->erase("phc.unparser.is_opeq");
 		in->attrs->erase("phc.unparser.is_global_stmt");
 		in->attrs->erase("phc.unparser.starts_line");
-
-		// TODO: I *think* this is correct, but I'm not sure
 		in->attrs->erase("phc.unparser.needs_curlies");
+		in->attrs->erase("phc.unparser.needs_user_curlies");
+		in->attrs->erase("phc.unparser.needs_brackets");
+		in->attrs->erase("phc.unparser.needs_user_brackets");
 	}
 
 	void pre_assignment(AST_assignment* in)

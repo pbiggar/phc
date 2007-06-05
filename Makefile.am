@@ -38,91 +38,93 @@ bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
 
-src_phc_SOURCES =											\
+src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/codegen/Check_lowering.cpp						\
+	src/codegen/Check_lowering.h							\
+	src/codegen/Check_uppering.cpp						\
+	src/codegen/Check_uppering.h							\
+	src/codegen/fresh.cpp									\
+	src/codegen/fresh.h										\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Goto_uppering.cpp							\
-	src/codegen/Goto_uppering.h								\
-	src/codegen/Check_uppering.cpp							\
-	src/codegen/Check_uppering.h							\
-	src/codegen/Lower_control_flow.cpp						\
+	src/codegen/Goto_uppering.h							\
+	src/codegen/Lift_functions_and_classes.cpp		\
+	src/codegen/Lift_functions_and_classes.h			\
+	src/codegen/Lower_control_flow.cpp					\
 	src/codegen/Lower_control_flow.h						\
-	src/codegen/Check_lowering.cpp							\
-	src/codegen/Check_lowering.h							\
 	src/codegen/Lower_expr.cpp								\
-	src/codegen/Lower_expr.h								\
-	src/codegen/Lower_expr_flow.cpp							\
+	src/codegen/Lower_expr_flow.cpp						\
 	src/codegen/Lower_expr_flow.h							\
+	src/codegen/Lower_expr.h								\
+	src/codegen/Note_top_level_declarations.cpp		\
+	src/codegen/Note_top_level_declarations.h			\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
-	src/codegen/Lift_functions_and_classes.cpp				\
-	src/codegen/Lift_functions_and_classes.h				\
-	src/codegen/Note_top_level_declarations.cpp				\
-	src/codegen/Note_top_level_declarations.h				\
-	src/codegen/fresh.cpp									\
-	src/codegen/fresh.h										\
-	src/embed/embed.h										\
 	src/embed/embed.cpp										\
+	src/embed/embed.h											\
 	src/generated/AST.cpp									\
+	src/generated/AST_factory.cpp							\
+	src/generated/AST_factory.h							\
 	src/generated/AST.h										\
+	src/generated/AST_transform.cpp						\
+	src/generated/AST_transform.h							\
+	src/generated/AST_visitor.cpp							\
+	src/generated/AST_visitor.h							\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp							\
-	src/generated/AST_transform.h							\
-	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h								\
-	src/generated/AST_factory.cpp							\
-	src/generated/AST_factory.h								\
 	src/lib/AttrMap.cpp										\
-	src/lib/AttrMap.h										\
+	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
-	src/lib/base64.h										\
-	src/lib/Boolean.h										\
+	src/lib/base64.h											\
 	src/lib/Boolean.cpp										\
-	src/lib/demangle.cpp									\
+	src/lib/Boolean.h											\
+	src/lib/demangle.cpp										\
 	src/lib/demangle.h										\
-	src/lib/error.cpp										\
+	src/lib/error.cpp											\
 	src/lib/error.h											\
-	src/lib/Integer.h										\
 	src/lib/Integer.cpp										\
-	src/lib/List.h											\
-	src/lib/Object.h										\
+	src/lib/Integer.h											\
+	src/lib/List.h												\
 	src/lib/Object.cpp										\
+	src/lib/Object.h											\
 	src/lib/String.cpp										\
-	src/lib/String.h										\
+	src/lib/String.h											\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
-	src/parsing/PHP_context.cpp								\
+	src/parsing/PHP_context.cpp							\
 	src/parsing/PHP_context.h								\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
-	src/phc.cpp												\
+	src/phc.cpp													\
+	src/process_ast/Consistenct_check.h					\
+	src/process_ast/Consistency_check.cpp				\
 	src/process_ast/DOT_unparser.cpp						\
-	src/process_ast/DOT_unparser.h							\
-	src/process_ast/Invalid_check.cpp						\
-	src/process_ast/Invalid_check.h							\
+	src/process_ast/DOT_unparser.h						\
+	src/process_ast/Invalid_check.cpp					\
+	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
-	src/process_ast/PHP_unparser.h							\
-	src/process_ast/process_ast.cpp							\
+	src/process_ast/PHP_unparser.h						\
+	src/process_ast/process_ast.cpp						\
 	src/process_ast/process_ast.h							\
-	src/process_ast/Remove_concat_null.cpp					\
-	src/process_ast/Remove_concat_null.h					\
-	src/process_ast/Remove_parser_temporaries.cpp			\
-	src/process_ast/Remove_parser_temporaries.h				\
-	src/process_ast/Strip_comments.cpp						\
+	src/process_ast/Process_includes.cpp				\
+	src/process_ast/Process_includes.h					\
+	src/process_ast/Remove_concat_null.cpp				\
+	src/process_ast/Remove_concat_null.h				\
+	src/process_ast/Remove_parser_temporaries.cpp	\
+	src/process_ast/Remove_parser_temporaries.h		\
+	src/process_ast/Strip_comments.cpp					\
 	src/process_ast/Strip_comments.h						\
-	src/process_ast/Token_conversion.cpp					\
-	src/process_ast/Token_conversion.h						\
+	src/process_ast/Token_conversion.cpp				\
+	src/process_ast/Token_conversion.h					\
 	src/process_ast/XML_unparser.cpp						\
-	src/process_ast/XML_unparser.h							\
-	src/process_ast/Process_includes.cpp					\
-	src/process_ast/Process_includes.h
+	src/process_ast/XML_unparser.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
@@ -132,12 +134,12 @@ BUILT_SOURCES = \
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
 	src/generated/php_parser.tab.cpp						\
-	src/generated/AST_transform.cpp							\
+	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
-	src/generated/AST_visitor.h								\
+	src/generated/AST_visitor.h							\
 	src/generated/AST_factory.cpp							\
-	src/generated/AST_factory.h								\
+	src/generated/AST_factory.h							\
 	test/framework/lib/autovars.php
 
 # - The magic to accomplish this is described cryptically in the last few
