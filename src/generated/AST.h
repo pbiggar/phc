@@ -1874,7 +1874,6 @@ public:
     virtual bool is_valid();
 public:
     AST_variable(AST_variable_name* name);
-    void _init();
 };
 
 // pre_op ::= OP variable ;

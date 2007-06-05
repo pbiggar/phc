@@ -370,11 +370,6 @@ public:
 		this->variable_name = name;
 		this->array_indices = new List<AST_expr*>;
 	}
-	
-	void _init()
-	{
-		attrs->set("phc.parser.function_params", NULL);
-	}
 };
 
 class AST_method_invocation

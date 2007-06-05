@@ -742,7 +742,7 @@ bool AST_formal_parameter::is_valid()
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 416 "src/generated_src/phc.tea"
+    #line 411 "src/generated_src/phc.tea"
 {
 		this->type = type;
 		this->is_ref = false;
@@ -753,7 +753,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 424 "src/generated_src/phc.tea"
+    #line 419 "src/generated_src/phc.tea"
 { 
 		this->type = type;
 		this->is_ref = is_ref;
@@ -933,7 +933,7 @@ bool AST_attr_mod::is_valid()
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 436 "src/generated_src/phc.tea"
+    #line 431 "src/generated_src/phc.tea"
 {
 		is_public = false;
 		is_protected = false;
@@ -945,7 +945,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 445 "src/generated_src/phc.tea"
+    #line 440 "src/generated_src/phc.tea"
 {
 		if(mm->is_final)
 			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
@@ -960,7 +960,7 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 457 "src/generated_src/phc.tea"
+    #line 452 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
@@ -968,7 +968,7 @@ AST_attr_mod* AST_attr_mod::new_PUBLIC()
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 462 "src/generated_src/phc.tea"
+    #line 457 "src/generated_src/phc.tea"
 { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
@@ -976,7 +976,7 @@ AST_attr_mod* AST_attr_mod::new_PROTECTED()
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 467 "src/generated_src/phc.tea"
+    #line 462 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
@@ -984,7 +984,7 @@ AST_attr_mod* AST_attr_mod::new_PRIVATE()
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 472 "src/generated_src/phc.tea"
+    #line 467 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
@@ -992,7 +992,7 @@ AST_attr_mod* AST_attr_mod::new_STATIC()
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 477 "src/generated_src/phc.tea"
+    #line 472 "src/generated_src/phc.tea"
 {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
@@ -1641,7 +1641,7 @@ bool AST_catch::is_valid()
 
 AST_expr::AST_expr()
 {
-    #line 536 "src/generated_src/phc.tea"
+    #line 531 "src/generated_src/phc.tea"
 {
 		attrs->set("phc.unparser.needs_brackets", new Boolean(false));
 	}
@@ -3507,7 +3507,7 @@ bool AST_if::is_valid()
 
 AST_if::AST_if(AST_expr* expr)
 {
-    #line 527 "src/generated_src/phc.tea"
+    #line 522 "src/generated_src/phc.tea"
 {
 		AST_if (expr, new List<AST_statement*> (), new List<AST_statement*>);
 	}
@@ -6003,7 +6003,7 @@ bool AST_cast::is_valid()
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 545 "src/generated_src/phc.tea"
+    #line 540 "src/generated_src/phc.tea"
 {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
@@ -6110,7 +6110,7 @@ bool AST_unary_op::is_valid()
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 517 "src/generated_src/phc.tea"
+    #line 512 "src/generated_src/phc.tea"
 {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -6237,7 +6237,7 @@ bool AST_bin_op::is_valid()
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 486 "src/generated_src/phc.tea"
+    #line 481 "src/generated_src/phc.tea"
 {
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -6642,7 +6642,6 @@ AST_variable::AST_variable(AST_target* target, AST_variable_name* variable_name,
     this->target = target;
     this->variable_name = variable_name;
     this->array_indices = array_indices;
-    _init();
 }
 
 AST_variable::AST_variable()
@@ -6650,7 +6649,6 @@ AST_variable::AST_variable()
     this->target = 0;
     this->variable_name = 0;
     this->array_indices = 0;
-    _init();
 }
 
 void AST_variable::visit(AST_visitor* visitor)
@@ -6808,14 +6806,6 @@ AST_variable::AST_variable(AST_variable_name* name)
 	}
 }
 
-void AST_variable::_init()
-{
-    #line 375 "src/generated_src/phc.tea"
-{
-		attrs->set("phc.parser.function_params", NULL);
-	}
-}
-
 AST_pre_op::AST_pre_op(Token_op* op, AST_variable* variable)
 {
     this->op = op;
@@ -6916,7 +6906,7 @@ bool AST_pre_op::is_valid()
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 507 "src/generated_src/phc.tea"
+    #line 502 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -7023,7 +7013,7 @@ bool AST_post_op::is_valid()
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 497 "src/generated_src/phc.tea"
+    #line 492 "src/generated_src/phc.tea"
 {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -7315,7 +7305,7 @@ bool AST_method_invocation::is_valid()
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 385 "src/generated_src/phc.tea"
+    #line 380 "src/generated_src/phc.tea"
 { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
@@ -7328,7 +7318,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 395 "src/generated_src/phc.tea"
+    #line 390 "src/generated_src/phc.tea"
 { 
 		this->target = NULL;
 		this->method_name = name; 
@@ -7340,7 +7330,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 404 "src/generated_src/phc.tea"
+    #line 399 "src/generated_src/phc.tea"
 {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
@@ -7681,7 +7671,7 @@ bool Token_int::is_value_valid()
 //  safely called from the constructor.
 String* Token_int::_get_value_as_string()
 {
-    #line 572 "src/generated_src/phc.tea"
+    #line 567 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		os << value;
@@ -7691,7 +7681,7 @@ String* Token_int::_get_value_as_string()
 
 String* Token_int::get_value_as_string()
 {
-    #line 580 "src/generated_src/phc.tea"
+    #line 575 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7699,7 +7689,7 @@ String* Token_int::get_value_as_string()
 
 Token_int::Token_int(int v)
 {
-    #line 585 "src/generated_src/phc.tea"
+    #line 580 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7817,7 +7807,7 @@ bool Token_real::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_real::_get_value_as_string()
 {
-    #line 597 "src/generated_src/phc.tea"
+    #line 592 "src/generated_src/phc.tea"
 {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
@@ -7838,7 +7828,7 @@ String* Token_real::_get_value_as_string()
 
 String* Token_real::get_value_as_string()
 {
-    #line 616 "src/generated_src/phc.tea"
+    #line 611 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -7846,7 +7836,7 @@ String* Token_real::get_value_as_string()
 
 Token_real::Token_real(double v)
 {
-    #line 621 "src/generated_src/phc.tea"
+    #line 616 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -7953,7 +7943,7 @@ bool Token_string::is_valid()
 
 String* Token_string::get_value_as_string()
 {
-    #line 656 "src/generated_src/phc.tea"
+    #line 651 "src/generated_src/phc.tea"
 {
 		return value;
 	}
@@ -7961,7 +7951,7 @@ String* Token_string::get_value_as_string()
 
 bool Token_string::is_value_valid()
 {
-    #line 661 "src/generated_src/phc.tea"
+    #line 656 "src/generated_src/phc.tea"
 {
 		return value != NULL;
 	}
@@ -7969,7 +7959,7 @@ bool Token_string::is_value_valid()
 
 String* Token_string::clone_value()
 {
-    #line 666 "src/generated_src/phc.tea"
+    #line 661 "src/generated_src/phc.tea"
 {
 		return value->clone();
 	}
@@ -7977,7 +7967,7 @@ String* Token_string::clone_value()
 
 Token_string::Token_string(String* v)
 {
-    #line 671 "src/generated_src/phc.tea"
+    #line 666 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = v;
@@ -8095,7 +8085,7 @@ bool Token_bool::is_value_valid()
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_bool::_get_value_as_string()
 {
-    #line 632 "src/generated_src/phc.tea"
+    #line 627 "src/generated_src/phc.tea"
 {
 		if(value)
 			return new String("True");
@@ -8106,7 +8096,7 @@ String* Token_bool::_get_value_as_string()
 
 String* Token_bool::get_value_as_string()
 {
-    #line 641 "src/generated_src/phc.tea"
+    #line 636 "src/generated_src/phc.tea"
 {
 		return _get_value_as_string ();
 	}
@@ -8114,7 +8104,7 @@ String* Token_bool::get_value_as_string()
 
 Token_bool::Token_bool(bool v)
 {
-    #line 646 "src/generated_src/phc.tea"
+    #line 641 "src/generated_src/phc.tea"
 {
 		value = v;
 		source_rep = _get_value_as_string ();
@@ -8196,7 +8186,7 @@ bool Token_null::is_valid()
 
 String* Token_null::get_value_as_string()
 {
-    #line 681 "src/generated_src/phc.tea"
+    #line 676 "src/generated_src/phc.tea"
 {
 		return new String("NULL");
 	}
@@ -8204,7 +8194,7 @@ String* Token_null::get_value_as_string()
 
 Token_null::Token_null()
 {
-    #line 685 "src/generated_src/phc.tea"
+    #line 680 "src/generated_src/phc.tea"
 {
 		source_rep = new String ("NULL");
 	}
