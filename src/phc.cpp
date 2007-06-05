@@ -37,7 +37,7 @@ using namespace std;
 
 struct gengetopt_args_info args_info;
 
-void generate_c(AST_php_script* php_script);
+void generate_c(AST_php_script* php_script, ostream& os = cout);
 void run_plugins(AST_php_script* php_script);
 
 void sighandler(int signum)
@@ -221,6 +221,10 @@ int main(int argc, char** argv)
 			php_path = args_info.with_php_arg;
 		else
 			php_path = PHP_INSTALL_PATH;
+
+		// Generate C
+		stringstream ss;
+		generate_c(php_script, ss);
 		
 		// Argument array for gcc
 		#define GCC_ARGS 10
@@ -285,8 +289,8 @@ int main(int argc, char** argv)
 			close(pfd[READ_END]);
 			dup2(pfd[WRITE_END], STDOUT_FILENO);
 
-			// Generate C code
-			generate_c(php_script);
+			// Output previously generated C
+			cout << ss.str ();
 			cout.flush();
 
 			// Close the pipe into indicate EOF to gcc
@@ -307,7 +311,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 		
-void generate_c(AST_php_script* php_script)
+void generate_c(AST_php_script* php_script, ostream& os)
 {
 	Generate_C* generate_c;
 
@@ -316,7 +320,11 @@ void generate_c(AST_php_script* php_script)
 	else
 		generate_c = new Generate_C(new String(args_info.extension_arg));
 
+	// adding an ostream is so invasive, thats its simpler to simply hack in this osteam as a global.
+	streambuf* backup = cout.rdbuf ();
+	cout.rdbuf (os.rdbuf ());
 	php_script->visit(generate_c);
+	cout.rdbuf (backup);
 }
 
 
