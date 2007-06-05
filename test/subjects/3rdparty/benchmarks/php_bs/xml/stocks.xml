@@ -1,0 +1,43 @@
+<?xml:stylesheet type="text/xsl" href="XSL.xsl" version="1.0" encoding="UTF-8"?>
+<portfolio>
+<stock>
+  <symbol>SUNW</symbol>
+  <name>Sun Microsystems</name>
+  <price>17.1</price>
+</stock>
+<stock>
+  <symbol>AOL</symbol>
+  <name>America Online</name>
+  <price>51.05</price>
+</stock>
+<stock>
+  <symbol>IBM</symbol>
+  <name>International Business Machines</name>
+  <price>116.10</price>
+</stock>
+<stock>
+  <symbol>Ken</symbol>
+  <name>KAI</name>
+  <price>195.20</price>
+</stock>
+  <stock>
+  <symbol>CLI</symbol>
+  <name>Crispulo</name>
+  <price>145.20</price>
+</stock>
+  <stock>
+  <symbol>CMI</symbol>
+  <name>Curtis</name>
+  <price>5.20</price>
+</stock>
+  <stock>
+  <symbol>GRE</symbol>
+  <name>Ignite</name>
+  <price>25.20</price>
+</stock>
+  <stock>
+  <symbol>MVI</symbol>
+  <name>Mercedes</name>
+  <price>11.20</price>
+</stock>
+</portfolio>

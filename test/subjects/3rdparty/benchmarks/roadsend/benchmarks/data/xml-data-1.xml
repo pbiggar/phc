@@ -1,0 +1,112 @@
+<SM_XML>
+<SMCONFIG VERSION="1.2">
+
+    <SITE siteid="GLOBAL">                                       
+        <SECTION name="dirs">
+            <VAR name="smRoot"      value = "/usr/local/lib/php/siteManager/" />
+            <VAR name="base"        value = "{$smRoot}"/>            
+            <VAR name="redist"      value = "{$base}redist/" />
+            <VAR name="pear"        value = "{$redist}pear/" />
+            <VAR name="config"      value = "{$base}config/"/>
+            <VAR name="libs"        value = "{$base}lib/"/>
+            <VAR name="libs"        value = "{$base}contrib/lib/" />
+            <VAR name="modules"     value = "{$base}contrib/modules/"/>            
+            <VAR name="templates"   value = "{$base}contrib/templates/"/>            
+            <VAR name="smartForms"  value = "{$base}contrib/smartForms/"/>
+            <VAR name="sfEntities"  value = "{$base}lib/sfInputEntities/"/>
+            <VAR name="sfFilters"   value = "{$base}lib/sfFilters/"/>            
+            <VAR name="smTags"      value = "{$base}lib/smTags/" />
+            <VAR name="sContainers" value = "{$base}lib/sessionContainers/" />
+            <VAR name="cache"       value = "{$base}cache/"/>
+            <VAR name="memberSystems" value = "{$base}lib/memberSystems/" />            
+            <VAR name="configReaders" value = "{$base}lib/configReaders/" />                        
+        </SECTION>
+        <SECTION name="localization">
+            <VAR name="defaultLocale"       value = "en_US" desc = "default locale for site" />
+            <VAR name="useClientLocale"     value = "true"  desc = "when true, SiteManager will default to the locale requested by the clients browser, if available" />
+        </SECTION>
+        <SECTION name="db" id="default">
+            <VAR name="active"              value = "false" desc = "whether this connection is active or not" />
+            <VAR name="defaultConnection"   value = "true"  desc = "set to true to have this connection be the default connection. will be $dbH" />
+            <VAR name="dbType"              value = "mysql" desc = "the database type. must be valid PEAR database type." />
+            <VAR name="persistent"          value = "true"  desc = "bool to determine whether this is a persistent connection or not" />
+            <VAR name="required"            value = "true"  desc = "if this is true, a fatal error will be thrown if the connection fails. if false, it will ignore a bad connection." />
+        </SECTION>
+        <SECTION name="compatibility">
+            <VAR name="2.2.x"               value = "true"  desc = "set to true if you want more compatibility with SiteManager 2.2.x" />
+        </SECTION>
+        <SECTION name="templates">
+            <VAR name="allowQuickTags"      value = "true"  desc = "if true, the template engine will use the Quick Tag system" />
+            <VAR name="quickTagIdentifier"  value = "@@"    desc = "Quick Tags will be wrapped in this identifier" />
+        </SECTION>
+        <SECTION name="flags">
+            <VAR name="showLoadTime"            value="true"    desc="when true, all pages will have an HTML comment tacked onto them with the page's load time" />
+            <VAR name="propagateInVarDefault"   value="false"   desc="if this is true, inVars will be propagated by default. when false, you must specify which to propagate" />
+            <VAR name="sendNoCacheHeaders"      value="false"   desc="if this is true, a header will be sent to stop browsers from caching pages" />
+        </SECTION>
+        <SECTION name="cache">
+            <VAR name="useCache"            value="false"   desc="master switch for using the caching system" />            
+            <VAR name="cacheSMConfig"       value="true"    desc="(deprecate) when true, SiteManager will attempt to cache SMCONFIG files to the cache directory" />            
+            <VAR name="cacheSMLanguage"     value="true"    desc="(deprecate) when true, SiteManager will attempt to cache SMLANGUAGE files to the cache directory" />            
+            <VAR name="cacheSMObject"       value="true"    desc="(deprecate) when true, SiteManager will attempt to cache SMOBJECT files to the cache directory" />
+            <VAR name="cacheSmartForm"      value="true"    desc="(deprecate) when true, SiteManager will attempt to cache SMARTFORM files to the cache directory" />
+        </SECTION>
+        <SECTION name="cacheConfig" id="smconfig">
+            <VAR name="useCache"            value="false"  desc="cache this file type" />
+            <VAR name="autoExpire"          value="true"  desc="if true, the file will auto-recache if the file change time is later than the cache file change time" />
+            <VAR name="cacheTTL"            value="86400" desc="maximum length of time (in seconds) before a file should be recached" />
+        </SECTION>
+        <SECTION name="debug">   
+            <VAR name="debugLevel"          value="0"       desc="debugLog messages of this verbosity and lower will be shown in the debugLog - all else ommitted." />
+            <VAR name="errorHandler"        value="SM_errorHandler" desc="default SiteManager error handler (class name). To customize for a site, extend SM_errorHandler and place an entry in your localConfig.xsm" />
+            <VAR name="showNotices"         value="true"    desc="when true, SiteManager will display all PHP notices and warnings in the debug output" />
+            <VAR name="develState"          value="false"   desc="whether sitemanager is in development mode or not"/>
+            <VAR name="debugOnVar"          value="false"   desc="if true, the debugLog will be shown above the output of a page if variable SM_debug is passed as 1 to the script" />
+        </SECTION>
+        <SECTION name="sessions">                
+            <VAR name="containerType"       value="none"            desc="which session container to use. currently 'database' or 'file'" />
+            <VAR name="sessionCookie"       value=""                desc="when non blank, create a cookie on the remote users machine that stores their session id" />            
+            <VAR name="useMemberSystem"     value="false"           desc="main on/off switch for member system. if on, make sure 'members' section is setup" />
+            <VAR name="forceSessionID"      value="true"            desc="when set to true, the session ID variable will always be appended to links, even if a cookie is in use. true is safest bet, as users can turn cookies off." />
+            <VAR name="autoLogin"           value="true"            desc="when true, if a session cookie was found, try to restore their session" />            
+            <VAR name="badSessionPage"      value="home/home.php"   desc="page to send to when a session is invalid" />
+            <VAR name="scriptWithVars"      value="\.php\?"         desc="regex to determine if linking to a script. if you use a different extension other than .php, change this" />
+            <VAR name="sessionIDName"       value="sID"             desc="variable name to use to store sessions ID" /> 
+            <VAR name="cookieTTL"           value="2678400"         desc="session cookie expire time. 2678400=1month. set to 0 to expire after browser closes." />
+            <VAR name="defaultScript"       value="index.php"       desc="the default script that loads when no script is specified" />            
+            <VAR name="cookiePath"          value="/"               desc="the path setcookie() will use for the session cookie" />
+            <VAR name="forceAntiCacheVar"   value=""                desc="when set to a value, SiteManager sessions will add this variable with a random value to the URL in an attempt to thwarte caching systems" />
+            <VAR name="absoluteLinkBase"    value=""                desc="when set, it will be prepended to all session generated links. use for making links absolute." />
+            <VAR name="trackLastPageAccess"    value="false"     desc="When set, we track the last page access time was for each user. if inactiveTTL is greater then 0, it will log the person (see 'inactiveTTL' in the members section) " />
+        </SECTION>
+        <SECTION name="sessionContainer" id="database">
+            <VAR name="serialize"           value="true"            desc="whether to serialize all persistent variables or not. must be true to keep arrays and objects perisistent" />            
+            <VAR name="dataBaseID"          value="default"         desc="which database connection (from db section) should SiteManager use for sessions" />
+            <VAR name="sessionTable"        value="sessions"        desc="sessions table name" />            
+            <VAR name="hashFunc"            value="crc32"           desc="crc32 or md5 for computing hash of session key. crc32 is faster, md5 will produce a more unique key" />
+        </SECTION>        
+        <SECTION name="sessionContainer" id="file">
+            <VAR name="savePath"           value="/tmp/"            desc="path to save session files. must be writable by web server!" />
+        </SECTION>                
+        <SECTION name="members">
+            <VAR name="memberSystemType"     value="default"        desc="which member system handler to use" />
+            <VAR name="usePersistentMembers" value="true"           desc="when true, member data will be keep as a persistent variable instead of loaded in from the container each time" />
+            <VAR name="loginTTL"             value="2678400"        desc="how long is a login session valid for (2678400)" />
+            <VAR name="inactiveTTL"        value="1800"                desc="Number of seconds of inactivity before session times out. 1800 default (30 mins) trackLastPageAccess in sessions must bet 'true' for this to work" />
+            <VAR name="maintainTables"       value="false"          desc="if true, SiteManager will delete old sessions. performance hit, so defaults to false. better to run a cron'd script." />
+        </SECTION>
+        <SECTION name="memberSystem" id="default">
+            <VAR name="dataBaseID"          value="default"          desc="which database connection (from db section) should SiteManager use for sessions" />        
+            <VAR name="memberTable"         value="members"          desc="member table name" />            
+            <VAR name="memberSessionsTable" value="memberSessions"   desc="logged in member session table" />
+            <VAR name="userNameField"       value="userName"         desc="the username field" />            
+            <VAR name="passWordField"       value="passWord"         desc="the password field" />
+            <VAR name="uIDField"            value="uID"              desc="the unique user id field" />            
+            <VAR name="sIDField"            value="sID"              desc="the unique session id field" />
+            <VAR name="dcField"             value="dateCreated"      desc="DATETIME field of session creation" />            
+        </SECTION>
+    </SITE>
+        
+</SMCONFIG>
+</SM_XML>
+

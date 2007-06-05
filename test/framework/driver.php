@@ -82,6 +82,11 @@ require_once ("parse_ast_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--dump-ast-dot", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
 $tests[] = new RegressionTest ("regression_dump_includes", "--pretty-print --tab=\"   \" --compile-time-includes", "unparsed");
+require_once ("zend_benchmark.php");
+#require_once ("roadsend_benchmark.php");
+#require_once ("phpbench_benchmark.php");
+#require_once ("php_bs_benchmark.php");
+#require_once ("shootout_benchmark.php");
 
 require_once ("lib/labels.php");
 open_skipped_file ();

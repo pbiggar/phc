@@ -1,0 +1,78 @@
+<SM_XML>
+<SMCONFIG VERSION="1.2">
+
+    <SITE>                                       
+        <SECTION name="dirs">
+
+	  <!-- check lib first -->
+            <VAR name="packages"    value = "packages/"/>
+            <VAR name="modules"     value = "baseModules/"/>
+            <VAR name="templates"   value = "baseSmartForms/"/>
+            <VAR name="smartForms"  value = "baseSmartForms/"/>
+            <VAR name="codePlates"  value = "baseCodePlates/"/>
+            <VAR name="sfEntities"  value = "baseInputEntities/"/>
+            <VAR name="smTags"      value = "baseTags/"/>
+            <VAR name="memberSystems" value = "lib/memberSystem/" />
+
+            <VAR name="packages"    value = "{$SP_portalBase}packages/"/>
+            <VAR name="modules"     value = "{$SP_portalBase}baseModules/"/>
+            <VAR name="templates"   value = "{$SP_portalBase}baseSmartForms/"/>
+            <VAR name="smartForms"  value = "{$SP_portalBase}baseSmartForms/"/>
+            <VAR name="codePlates"  value = "{$SP_portalBase}baseCodePlates/"/>
+            <VAR name="sfEntities"  value = "{$SP_portalBase}baseInputEntities/"/>
+            <VAR name="smTags"      value = "{$SP_portalBase}baseTags/"/>
+            <VAR name="memberSystems" value = "{$SP_portalBase}lib/memberSystem/" />
+        </SECTION>        
+        <SECTION name="compatibility">
+            <VAR name="2.2.x"               value = "false"  desc = "set to true if you want more compatibility with SiteManager 2.2.x" />
+        </SECTION>
+        <SECTION name="debug">
+            <VAR name="errorHandler"        value="spErrorHandler" desc="portal error handler" />        
+        </SECTION>        
+        <SECTION name="defaults">
+            <VAR name="autoRealmAuthSelect" value="false" desc="when true, if a member attempts to access a realm they are not authenticated in, but they are authenticated in a different realm, select that other realm as current" />
+            <VAR name="fuzzyLogins"         value="true" desc="when true, if member attempts authentication in one realm but fails, check parent realms for same user/pass and auth in those realms instead" />
+            <VAR name="realmHistoryCount"   value="5" desc="number of realms to keep in users realm history list" />
+            <VAR name="useMemberRealmConfig" value="false" desc="when true, memberRealmConfig is used when determining realm/member page, etc to use on page load" />
+        </SECTION>
+        <SECTION name="sessions">                
+            <VAR name="containerType"    value = "database"          desc="session container" />
+            <VAR name="useMemberSystem"     value = "true"              desc="main on/off switch for member system. if on, make sure 'members' section is setup" />
+            <VAR name="sessionCookie"       value = "SMPSESSION"        desc="when non blank, create a cookie on the remote users machine that stores their session id" />            
+            <VAR name="autoLogin"           value = "true"              desc="when true, if a session cookie was found, try to restore their session" />
+            <VAR name="badSessionPage"      value = "home/home.php"     desc="page to send to when a session is invalid" />
+            <VAR name="sessionIDName"       value = "sID"               desc="variable name to use to store sessions ID" /> 
+            <VAR name="defaultScript"       value = "index.php"         desc="the default script that loads when no script is specified" />
+            <VAR name="forceSessionID"      value = "false" />
+        </SECTION>        
+        <SECTION name="sessionContainer" id="database">
+            <VAR name="serialize"           value="true"            desc="whether to serialize all persistent variables or not. must be true to keep arrays and objects perisistent" />            
+            <VAR name="dataBaseID"          value="default"         desc="which database connection (from db section) should SiteManager use for sessions" />
+            <VAR name="sessionTable"        value="sessions"        desc="sessions table name" />            
+        </SECTION>        
+        <SECTION name="members">
+            <VAR name="memberSystemType"     value="portal"        desc="which member system handler to use" />
+            <VAR name="usePersistentMembers" value="true"           desc="when true, member data will be keep as a persistent variable instead of loaded in from the container each time" />
+            <VAR name="maintainTables"       value="false"          desc="if true, SiteManager will delete old sessions. performance hit, so defaults to false. better to run a cron'd script." />
+        </SECTION>
+        <SECTION name="memberSystem" id="portal">
+            <VAR name="dataBaseID"          value="default"          desc="which database connection (from db section) should SiteManager use for sessions" />        
+            <VAR name="memberTable"         value="members"          desc="member table name" />            
+            <VAR name="memberInfoTable"     value="memberInfo"       desc="member table name" />            
+            <VAR name="memberInfoForm"      value="memberInfoForm"   desc="member table form name" />            
+            <VAR name="memberSessionsTable" value="memberSessions"   desc="logged in member session table" />
+            <VAR name="userNameField"       value="userName"         desc="the username field" />            
+            <VAR name="passWordField"       value="passWord"         desc="the password field" />
+            <VAR name="uIDField"            value="uID"              desc="the unique user id field" />            
+            <VAR name="sIDField"            value="sessionID"        desc="the unique session id field" />
+            <VAR name="dcField"             value="dateCreated"      desc="DATETIME field of session creation" />            
+        </SECTION>
+        <SECTION name="pVars">
+            <VAR name="SP_realmTrack" desc="realm a guest member is in" />
+            <VAR name="SP_guestPage" desc="page guest member is looking at" />
+            <VAR name="SP_realmHistory" desc="list of realms the user has been in, with timestamp" />
+        </SECTION>
+    </SITE>
+        
+</SMCONFIG>
+</SM_XML>

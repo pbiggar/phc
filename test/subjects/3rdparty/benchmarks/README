@@ -1,0 +1,45 @@
+PHPBench: http://www.pureftpd.org/project/phpbench
+
+	PHPbench will need a bit of modification to do good work, which negates the point somewhat. It has a divide by zero in it, which we should remove, and also an infinite loop.
+
+	It also loads tests like this (AKA dynamic class loading):
+		$dir = opendir ($test_dir);
+		while ($entry = readdir ($dir))
+		{
+			include_once ($entry);
+		}
+
+	Try optimizing that.
+
+	We can hack it into the correct form though. Done.
+	Wont compile though.
+
+	It seems that this test really only tests language features, and doesnt
+	actually do any work. Most of it will be optmized away (in the future) so
+	its unlikely to be useful in the long run
+
+PHP BS: http://phplens.com/benchmark_suite/
+
+	A little bit complicated. Needs to change url loading into an include. I
+	cant quite find where it calls the include or the eval or whatever, though.
+
+	This does include quite a few tests, as well as input data, though not much
+	of it, it seems.
+
+Shootout: http://alioth.debian.org/scm/?group_id=30402
+
+	The tests are in bench/test_name/test_name.php. I'm not sure how to call the
+	test suite, although each test contains a command line.
+
+Zend: $PHP_SRC/Zend/bench.php
+
+	A nice simple test. You just run php bench.php and it runs, printing timing info. It wont compile either though.
+
+Roadsend: http://www.roadsend.com/home/index.php?pageID=benchmarks
+
+	Short, doesnt take command line parameters, is varied, but simple.
+	Requires you to "export PCC_HOME=`pwd`" or similar, however.
+
+	This seems to be the only test with data that needs to be run-through. This
+	makes it a somewhat better test than the others, it seems.
+

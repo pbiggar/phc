@@ -244,7 +244,6 @@ abstract class Test
 			}
 		}
 
-		$this->missing_dependency = "";
 		foreach ($dependencies as $dependency)
 		{
 			$depend = read_dependency ($dependency, $subject);
@@ -316,7 +315,6 @@ abstract class Test
 
 	function end_timer ($subject)
 	{
-		$number = 0;
 		$time = microtime (true) - $this->timer_start;
 		$this->timers[$subject] = $time;
 	}
@@ -417,13 +415,14 @@ abstract class Test
 
 		write_dependencies ($this->get_name (), $subject, false);
 		$dependency_string = "";
-		if ($this->missing_dependency)
+		if (isset ($this->missing_dependency))
 		{
 			$dependency_string = "NOTE: dependency {$this->missing_dependency} is missing. This may be the cause of this failure\n";
 		}
 
 		$red = red_string();
 		$reset = reset_string();
+		$err_string = "BUG NOT AVAILABLE";
 		if (is_array ($commands))
 		{
 			if ($exits == "Not relevent")
@@ -455,7 +454,8 @@ abstract class Test
 		else
 		{
 			$command_string = "{$red}Command$reset ($exits): $commands\n";
-			$err_string = "";
+			if ($errs)
+				$err_string = "{$red}Error$reset: $errs\n";
 		}
 
 		$command_string = $dependency_string.$command_string.$err_string;
