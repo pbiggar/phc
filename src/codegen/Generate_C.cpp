@@ -48,16 +48,40 @@ String* operand(AST_expr* in)
 {
 	AST_variable* var;
 	Token_variable_name* var_name;
+	static PHP_unparser pup(cerr);
 
 	assert(in);
 	
 	var = dynamic_cast<AST_variable*>(in);
-	assert(var);
-	assert(var->target == NULL);
-	assert(var->array_indices->size() == 0);
+	if(var == NULL)
+	{
+		cerr << "Expect simple variable but got NULL";
+		cerr << " on line " << in->get_line_number() << endl;
+		assert(0);
+	}
+	if(var->target != NULL)
+	{
+		cerr << "Expect simple variable but got field access ";
+		var->visit(&pup);
+		cerr << " on line " << in->get_line_number() << endl;
+		assert(0);
+	}
+	if(var->array_indices->size() != 0)
+	{
+		cerr << "Expect simple variable but got array index ";
+		var->visit(&pup);
+		cerr << " on line " << in->get_line_number() << endl;
+		assert(0);
+	}
 
 	var_name = dynamic_cast<Token_variable_name*>(var->variable_name);
-	assert(var_name);
+	if(var_name == NULL)
+	{
+		cerr << "Expect simple variable but got variable variable ";
+		var->visit(&pup);
+		cerr << " on line " << in->get_line_number() << endl;
+		assert(0);
+	}
 
 	return var_name->value;
 }
