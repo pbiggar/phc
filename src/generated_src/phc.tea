@@ -201,7 +201,17 @@ public:
 
 	bool is_mixin_valid()
 	{
-		return attrs != NULL;
+		if (attrs == NULL)
+			return false;
+
+		AttrMap::const_iterator i;
+		for(i = attrs->begin(); i != attrs->end(); i++)
+		{
+			if ((*i).second == NULL)
+				return false;
+		}
+
+		return true;
 	}
 
 	bool is_mixin_equal(AST_node* in)
