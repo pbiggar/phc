@@ -15,9 +15,7 @@
 void check (AST_node* in)
 {
 	// check validity
-	if (not in->is_valid ())
-		phc_internal_error ("Node is not valid", in);
-
+	in->assert_valid();
 	in->visit (new Consistency_check ());
 }
 

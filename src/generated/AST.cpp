@@ -5,8 +5,7 @@
 //  Return the line number of the node (or 0 if unknown)
 int AST_node::get_line_number()
 {
-    #line 175 "src/generated_src/phc.tea"
-{
+    {
 		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
 		if(i != NULL)
 			return i->value();
@@ -18,16 +17,14 @@ int AST_node::get_line_number()
 //  Return the filename of the node (or NULL if unknown)
 String* AST_node::get_filename()
 {
-    #line 185 "src/generated_src/phc.tea"
-{
+    {
 		return dynamic_cast<String*>(attrs->get("phc.filename"));
 	}
 }
 
 AST_node::AST_node()
 {
-    #line 190 "src/generated_src/phc.tea"
-{
+    {
 		// Constructor gets called because all classes inherit from
 		// AST_node virtually; also, because maketea knows AST_node is
 		// abstract, it won't add a constructor itself
@@ -37,35 +34,27 @@ AST_node::AST_node()
 
 void AST_node::clone_mixin_from(AST_node* in)
 {
-    #line 198 "src/generated_src/phc.tea"
-{
+    {
 		attrs = in->attrs->clone();
 	}
 }
 
-bool AST_node::is_mixin_valid()
+void AST_node::assert_mixin_valid()
 {
-    #line 203 "src/generated_src/phc.tea"
-{
-		if (attrs == NULL)
-			return false;
+    {
+		assert(attrs != NULL);
 
 		AttrMap::const_iterator i;
 		for(i = attrs->begin(); i != attrs->end(); i++)
-		#line 209 "src/generated_src/phc.tea"
-{
-			if ((*i).second == NULL)
-				return false;
+		{
+			assert((*i).second != NULL);
 		}
-
-		return true;
 	}
 }
 
 bool AST_node::is_mixin_equal(AST_node* in)
 {
-    #line 218 "src/generated_src/phc.tea"
-{
+    {
 		// Compare line number and filename
 		// (We can't compare the entire attrs map because Object cannot
 		// necessarily be compared for equality)
@@ -74,14 +63,12 @@ bool AST_node::is_mixin_equal(AST_node* in)
 			return false;
 
 		if(get_filename() == NULL)
-		#line 227 "src/generated_src/phc.tea"
-{
+		{
 			if(in->get_filename() != NULL)
 				return false;
 		}
 		else
-		#line 232 "src/generated_src/phc.tea"
-{
+		{
 			if(*get_filename() != *in->get_filename())
 				return false;
 		}
@@ -197,18 +184,18 @@ AST_php_script* AST_php_script::clone()
     return clone;
 }
 
-bool AST_php_script::is_valid()
+void AST_php_script::assert_valid()
 {
-    if(statements == NULL) return false;
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_class_mod::AST_class_mod(bool is_abstract, bool is_final)
@@ -277,10 +264,9 @@ AST_class_mod* AST_class_mod::clone()
     return clone;
 }
 
-bool AST_class_mod::is_valid()
+void AST_class_mod::assert_valid()
 {
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_signature::AST_signature(AST_method_mod* method_mod, bool is_ref, Token_method_name* method_name, List<AST_formal_parameter*>* formal_parameters)
@@ -435,26 +421,27 @@ AST_signature* AST_signature::clone()
     return clone;
 }
 
-bool AST_signature::is_valid()
+void AST_signature::assert_valid()
 {
-    if(method_mod == NULL || !method_mod->is_valid()) return false;
-    if(method_name == NULL || !method_name->is_valid()) return false;
-    if(formal_parameters == NULL) return false;
+    assert(method_mod != NULL);
+    method_mod->assert_valid();
+    assert(method_name != NULL);
+    method_name->assert_valid();
+    assert(formal_parameters != NULL);
     {
     	List<AST_formal_parameter*>::const_iterator i;
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_signature::AST_signature(const char* name)
 {
-    #line 262 "src/generated_src/phc.tea"
-{
+    {
 		this->method_mod = AST_method_mod::new_PUBLIC();
 		this->is_ref = false;
 		this->method_name = new Token_method_name(new String(name));
@@ -546,16 +533,14 @@ AST_method_mod* AST_method_mod::clone()
     return clone;
 }
 
-bool AST_method_mod::is_valid()
+void AST_method_mod::assert_valid()
 {
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_method_mod::AST_method_mod()
 {
-    #line 274 "src/generated_src/phc.tea"
-{
+    {
 		is_public = false;
 		is_protected = false;
 		is_private = false;
@@ -567,8 +552,7 @@ AST_method_mod::AST_method_mod()
 
 AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 {
-    #line 284 "src/generated_src/phc.tea"
-{
+    {
 		this->is_public 		= a->is_public		|| b->is_public;
 		this->is_protected	= a->is_protected	|| b->is_protected;
 		this->is_private		= a->is_private	|| b->is_private;
@@ -580,48 +564,42 @@ AST_method_mod::AST_method_mod(AST_method_mod* a, AST_method_mod* b)
 
 AST_method_mod* AST_method_mod::new_PUBLIC()
 {
-    #line 294 "src/generated_src/phc.tea"
-{
+    {
 		return new AST_method_mod(true, false, false, false, false, false);		
 	}
 }
 
 AST_method_mod* AST_method_mod::new_PROTECTED()
 {
-    #line 299 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_method_mod(false, true, false, false, false, false);		
 	}
 }
 
 AST_method_mod* AST_method_mod::new_PRIVATE()
 {
-    #line 304 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_method_mod(false, false, true, false, false, false);		
 	}
 }
 
 AST_method_mod* AST_method_mod::new_STATIC()
 {
-    #line 309 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_method_mod(false, false, false, true, false, false);		
 	}
 }
 
 AST_method_mod* AST_method_mod::new_ABSTRACT()
 {
-    #line 314 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_method_mod(false, false, false, false, true, false);		
 	}
 }
 
 AST_method_mod* AST_method_mod::new_FINAL()
 {
-    #line 319 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_method_mod(false, false, false, false, false, true);		
 	}
 }
@@ -742,19 +720,19 @@ AST_formal_parameter* AST_formal_parameter::clone()
     return clone;
 }
 
-bool AST_formal_parameter::is_valid()
+void AST_formal_parameter::assert_valid()
 {
-    if(type == NULL || !type->is_valid()) return false;
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(type != NULL);
+    type->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* name)
 {
-    #line 421 "src/generated_src/phc.tea"
-{
+    {
 		this->type = type;
 		this->is_ref = false;
 		this->variable_name = name;
@@ -764,8 +742,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
 
 AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name)
 {
-    #line 429 "src/generated_src/phc.tea"
-{ 
+    { 
 		this->type = type;
 		this->is_ref = is_ref;
 		this->variable_name = name;
@@ -851,11 +828,10 @@ AST_type* AST_type::clone()
     return clone;
 }
 
-bool AST_type::is_valid()
+void AST_type::assert_valid()
 {
-    if(class_name != NULL && !class_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(class_name != NULL) class_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_attr_mod::AST_attr_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const)
@@ -936,16 +912,14 @@ AST_attr_mod* AST_attr_mod::clone()
     return clone;
 }
 
-bool AST_attr_mod::is_valid()
+void AST_attr_mod::assert_valid()
 {
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_attr_mod::AST_attr_mod()
 {
-    #line 441 "src/generated_src/phc.tea"
-{
+    {
 		is_public = false;
 		is_protected = false;
 		is_private = false;
@@ -956,8 +930,7 @@ AST_attr_mod::AST_attr_mod()
 
 AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 {
-    #line 450 "src/generated_src/phc.tea"
-{
+    {
 		if(mm->is_final)
 			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
 
@@ -971,40 +944,35 @@ AST_attr_mod::AST_attr_mod(AST_method_mod* mm)
 
 AST_attr_mod* AST_attr_mod::new_PUBLIC()
 {
-    #line 462 "src/generated_src/phc.tea"
-{
+    {
 		return new AST_attr_mod(true, false, false, false, false);
 	}
 }
 
 AST_attr_mod* AST_attr_mod::new_PROTECTED()
 {
-    #line 467 "src/generated_src/phc.tea"
-{ 
+    { 
 		return new AST_attr_mod(false, true, false, false, false);
 	}
 }
 
 AST_attr_mod* AST_attr_mod::new_PRIVATE()
 {
-    #line 472 "src/generated_src/phc.tea"
-{
+    {
 		return new AST_attr_mod(false, false, true, false, false);
 	}
 }
 
 AST_attr_mod* AST_attr_mod::new_STATIC()
 {
-    #line 477 "src/generated_src/phc.tea"
-{
+    {
 		return new AST_attr_mod(false, false, false, true, false);
 	}
 }
 
 AST_attr_mod* AST_attr_mod::new_CONST()
 {
-    #line 482 "src/generated_src/phc.tea"
-{
+    {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
 }
@@ -1099,12 +1067,13 @@ AST_directive* AST_directive::clone()
     return clone;
 }
 
-bool AST_directive::is_valid()
+void AST_directive::assert_valid()
 {
-    if(directive_name == NULL || !directive_name->is_valid()) return false;
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(directive_name != NULL);
+    directive_name->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_list_element::AST_list_element()
@@ -1216,12 +1185,12 @@ AST_array_elem* AST_array_elem::clone()
     return clone;
 }
 
-bool AST_array_elem::is_valid()
+void AST_array_elem::assert_valid()
 {
-    if(key != NULL && !key->is_valid()) return false;
-    if(val == NULL || !val->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(key != NULL) key->assert_valid();
+    assert(val != NULL);
+    val->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_method_name::AST_method_name()
@@ -1306,11 +1275,11 @@ AST_actual_parameter* AST_actual_parameter::clone()
     return clone;
 }
 
-bool AST_actual_parameter::is_valid()
+void AST_actual_parameter::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_class_name::AST_class_name()
@@ -1319,8 +1288,7 @@ AST_class_name::AST_class_name()
 
 AST_commented_node::AST_commented_node()
 {
-    #line 245 "src/generated_src/phc.tea"
-{
+    {
 		attrs->set("phc.comments", new List<String*>);
 	}
 }
@@ -1328,8 +1296,7 @@ AST_commented_node::AST_commented_node()
 //  Return the comments associated with the node
 List<String*>* AST_commented_node::get_comments()
 {
-    #line 251 "src/generated_src/phc.tea"
-{
+    {
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
 		assert(comments);
 		return comments;
@@ -1474,19 +1441,19 @@ AST_switch_case* AST_switch_case::clone()
     return clone;
 }
 
-bool AST_switch_case::is_valid()
+void AST_switch_case::assert_valid()
 {
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(statements == NULL) return false;
+    if(expr != NULL) expr->assert_valid();
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_catch::AST_catch(Token_class_name* class_name, Token_variable_name* variable_name, List<AST_statement*>* statements)
@@ -1634,20 +1601,22 @@ AST_catch* AST_catch::clone()
     return clone;
 }
 
-bool AST_catch::is_valid()
+void AST_catch::assert_valid()
 {
-    if(class_name == NULL || !class_name->is_valid()) return false;
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(statements == NULL) return false;
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_expr::AST_expr()
@@ -1761,16 +1730,17 @@ AST_nested_list_elements* AST_nested_list_elements::clone()
     return clone;
 }
 
-bool AST_nested_list_elements::is_valid()
+void AST_nested_list_elements::assert_valid()
 {
-    if(list_elements == NULL) return false;
+    assert(list_elements != NULL);
     {
     	List<AST_list_element*>::const_iterator i;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
-    		if(*i != NULL && !(*i)->is_valid()) return false;
+    	{
+    		if(*i != NULL) (*i)->assert_valid();
+    	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_reflection::AST_reflection(AST_expr* expr)
@@ -1844,11 +1814,11 @@ AST_reflection* AST_reflection::clone()
     return clone;
 }
 
-bool AST_reflection::is_valid()
+void AST_reflection::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 Token_class_name::Token_class_name(String* value)
@@ -1922,11 +1892,10 @@ Token_class_name* Token_class_name::clone()
     return clone;
 }
 
-bool Token_class_name::is_valid()
+void Token_class_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_interface_name::Token_interface_name(String* value)
@@ -2000,11 +1969,10 @@ Token_interface_name* Token_interface_name::clone()
     return clone;
 }
 
-bool Token_interface_name::is_valid()
+void Token_interface_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_method_name::Token_method_name(String* value)
@@ -2078,11 +2046,10 @@ Token_method_name* Token_method_name::clone()
     return clone;
 }
 
-bool Token_method_name::is_valid()
+void Token_method_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_variable_name::Token_variable_name(String* value)
@@ -2156,11 +2123,10 @@ Token_variable_name* Token_variable_name::clone()
     return clone;
 }
 
-bool Token_variable_name::is_valid()
+void Token_variable_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_label_name::Token_label_name(String* value)
@@ -2234,11 +2200,10 @@ Token_label_name* Token_label_name::clone()
     return clone;
 }
 
-bool Token_label_name::is_valid()
+void Token_label_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_directive_name::Token_directive_name(String* value)
@@ -2312,11 +2277,10 @@ Token_directive_name* Token_directive_name::clone()
     return clone;
 }
 
-bool Token_directive_name::is_valid()
+void Token_directive_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_cast::Token_cast(String* value)
@@ -2390,11 +2354,10 @@ Token_cast* Token_cast::clone()
     return clone;
 }
 
-bool Token_cast::is_valid()
+void Token_cast::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_op::Token_op(String* value)
@@ -2468,11 +2431,10 @@ Token_op* Token_op::clone()
     return clone;
 }
 
-bool Token_op::is_valid()
+void Token_op::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 Token_constant_name::Token_constant_name(String* value)
@@ -2546,11 +2508,10 @@ Token_constant_name* Token_constant_name::clone()
     return clone;
 }
 
-bool Token_constant_name::is_valid()
+void Token_constant_name::assert_valid()
 {
-    if(value == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
 }
 
 AST_class_def::AST_class_def(AST_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<AST_member*>* members)
@@ -2772,35 +2733,37 @@ AST_class_def* AST_class_def::clone()
     return clone;
 }
 
-bool AST_class_def::is_valid()
+void AST_class_def::assert_valid()
 {
-    if(class_mod == NULL || !class_mod->is_valid()) return false;
-    if(class_name == NULL || !class_name->is_valid()) return false;
-    if(extends != NULL && !extends->is_valid()) return false;
-    if(implements == NULL) return false;
+    assert(class_mod != NULL);
+    class_mod->assert_valid();
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    if(extends != NULL) extends->assert_valid();
+    assert(implements != NULL);
     {
     	List<Token_interface_name*>::const_iterator i;
     	for(i = this->implements->begin(); i != this->implements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(members == NULL) return false;
+    assert(members != NULL);
     {
     	List<AST_member*>::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_class_def::AST_class_def(AST_class_mod* mod)
 {
-    #line 328 "src/generated_src/phc.tea"
-{
+    {
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
@@ -2811,8 +2774,7 @@ AST_class_def::AST_class_def(AST_class_mod* mod)
 
 AST_class_def::AST_class_def(char* name)
 {
-    #line 337 "src/generated_src/phc.tea"
-{
+    {
 		this->class_mod = new AST_class_mod(false, false);
 		this->class_name = new Token_class_name(new String(name));
 		this->extends = NULL;
@@ -2823,8 +2785,7 @@ AST_class_def::AST_class_def(char* name)
 
 void AST_class_def::add_member(AST_member* member)
 {
-    #line 346 "src/generated_src/phc.tea"
-{
+    {
 		this->members->push_back(member);
 	}
 }
@@ -2832,12 +2793,10 @@ void AST_class_def::add_member(AST_member* member)
 //  Returns NULL if the method could not be found
 AST_method* AST_class_def::get_method(const char* name)
 {
-    #line 352 "src/generated_src/phc.tea"
-{
+    {
 		List<AST_member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
-		#line 355 "src/generated_src/phc.tea"
-{
+		{
 			AST_method* method = dynamic_cast<AST_method*>(*i);
 			if(method && *method->signature->method_name->value == name)
 				return method;
@@ -3028,27 +2987,29 @@ AST_interface_def* AST_interface_def::clone()
     return clone;
 }
 
-bool AST_interface_def::is_valid()
+void AST_interface_def::assert_valid()
 {
-    if(interface_name == NULL || !interface_name->is_valid()) return false;
-    if(extends == NULL) return false;
+    assert(interface_name != NULL);
+    interface_name->assert_valid();
+    assert(extends != NULL);
     {
     	List<Token_interface_name*>::const_iterator i;
     	for(i = this->extends->begin(); i != this->extends->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(members == NULL) return false;
+    assert(members != NULL);
     {
     	List<AST_member*>::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_method::AST_method(AST_signature* signature, List<AST_statement*>* statements)
@@ -3177,17 +3138,20 @@ AST_method* AST_method::clone()
     return clone;
 }
 
-bool AST_method::is_valid()
+void AST_method::assert_valid()
 {
-    if(signature == NULL || !signature->is_valid()) return false;
+    assert(signature != NULL);
+    signature->assert_valid();
     if(statements != NULL)
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_attribute::AST_attribute(AST_attr_mod* attr_mod, Token_variable_name* variable_name, AST_expr* expr)
@@ -3299,13 +3263,14 @@ AST_attribute* AST_attribute::clone()
     return clone;
 }
 
-bool AST_attribute::is_valid()
+void AST_attribute::assert_valid()
 {
-    if(attr_mod == NULL || !attr_mod->is_valid()) return false;
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(attr_mod != NULL);
+    attr_mod->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_if::AST_if(AST_expr* expr, List<AST_statement*>* iftrue, List<AST_statement*>* iffalse)
@@ -3489,33 +3454,34 @@ AST_if* AST_if::clone()
     return clone;
 }
 
-bool AST_if::is_valid()
+void AST_if::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(iftrue == NULL) return false;
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(iftrue != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(iffalse == NULL) return false;
+    assert(iffalse != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_if::AST_if(AST_expr* expr)
 {
-    #line 532 "src/generated_src/phc.tea"
-{
+    {
 		AST_if (expr, new List<AST_statement*> (), new List<AST_statement*>);
 	}
 }
@@ -3646,19 +3612,20 @@ AST_while* AST_while::clone()
     return clone;
 }
 
-bool AST_while::is_valid()
+void AST_while::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(statements == NULL) return false;
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_do::AST_do(List<AST_statement*>* statements, AST_expr* expr)
@@ -3787,19 +3754,20 @@ AST_do* AST_do::clone()
     return clone;
 }
 
-bool AST_do::is_valid()
+void AST_do::assert_valid()
 {
-    if(statements == NULL) return false;
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_for::AST_for(AST_expr* init, AST_expr* cond, AST_expr* incr, List<AST_statement*>* statements)
@@ -3966,21 +3934,21 @@ AST_for* AST_for::clone()
     return clone;
 }
 
-bool AST_for::is_valid()
+void AST_for::assert_valid()
 {
-    if(init != NULL && !init->is_valid()) return false;
-    if(cond != NULL && !cond->is_valid()) return false;
-    if(incr != NULL && !incr->is_valid()) return false;
-    if(statements == NULL) return false;
+    if(init != NULL) init->assert_valid();
+    if(cond != NULL) cond->assert_valid();
+    if(incr != NULL) incr->assert_valid();
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_foreach::AST_foreach(AST_expr* expr, AST_variable* key, bool is_ref, AST_variable* val, List<AST_statement*>* statements)
@@ -4154,21 +4122,23 @@ AST_foreach* AST_foreach::clone()
     return clone;
 }
 
-bool AST_foreach::is_valid()
+void AST_foreach::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(key != NULL && !key->is_valid()) return false;
-    if(val == NULL || !val->is_valid()) return false;
-    if(statements == NULL) return false;
+    assert(expr != NULL);
+    expr->assert_valid();
+    if(key != NULL) key->assert_valid();
+    assert(val != NULL);
+    val->assert_valid();
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_switch::AST_switch(AST_expr* expr, List<AST_switch_case*>* switch_cases)
@@ -4297,19 +4267,20 @@ AST_switch* AST_switch::clone()
     return clone;
 }
 
-bool AST_switch::is_valid()
+void AST_switch::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(switch_cases == NULL) return false;
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(switch_cases != NULL);
     {
     	List<AST_switch_case*>::const_iterator i;
     	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_break::AST_break(AST_expr* expr)
@@ -4383,11 +4354,10 @@ AST_break* AST_break::clone()
     return clone;
 }
 
-bool AST_break::is_valid()
+void AST_break::assert_valid()
 {
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_continue::AST_continue(AST_expr* expr)
@@ -4461,11 +4431,10 @@ AST_continue* AST_continue::clone()
     return clone;
 }
 
-bool AST_continue::is_valid()
+void AST_continue::assert_valid()
 {
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_return::AST_return(AST_expr* expr)
@@ -4539,11 +4508,10 @@ AST_return* AST_return::clone()
     return clone;
 }
 
-bool AST_return::is_valid()
+void AST_return::assert_valid()
 {
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_branch::AST_branch(AST_expr* expr, Token_label_name* iftrue, Token_label_name* iffalse)
@@ -4655,13 +4623,15 @@ AST_branch* AST_branch::clone()
     return clone;
 }
 
-bool AST_branch::is_valid()
+void AST_branch::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(iftrue == NULL || !iftrue->is_valid()) return false;
-    if(iffalse == NULL || !iffalse->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(iftrue != NULL);
+    iftrue->assert_valid();
+    assert(iffalse != NULL);
+    iffalse->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_goto::AST_goto(Token_label_name* label_name)
@@ -4735,11 +4705,11 @@ AST_goto* AST_goto::clone()
     return clone;
 }
 
-bool AST_goto::is_valid()
+void AST_goto::assert_valid()
 {
-    if(label_name == NULL || !label_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(label_name != NULL);
+    label_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_label::AST_label(Token_label_name* label_name)
@@ -4813,11 +4783,11 @@ AST_label* AST_label::clone()
     return clone;
 }
 
-bool AST_label::is_valid()
+void AST_label::assert_valid()
 {
-    if(label_name == NULL || !label_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(label_name != NULL);
+    label_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_static_declaration::AST_static_declaration(Token_variable_name* variable_name, AST_expr* expr)
@@ -4910,12 +4880,12 @@ AST_static_declaration* AST_static_declaration::clone()
     return clone;
 }
 
-bool AST_static_declaration::is_valid()
+void AST_static_declaration::assert_valid()
 {
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(expr != NULL && !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_global::AST_global(AST_variable_name* variable_name)
@@ -4989,11 +4959,11 @@ AST_global* AST_global::clone()
     return clone;
 }
 
-bool AST_global::is_valid()
+void AST_global::assert_valid()
 {
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_unset::AST_unset(AST_variable* variable)
@@ -5067,11 +5037,11 @@ AST_unset* AST_unset::clone()
     return clone;
 }
 
-bool AST_unset::is_valid()
+void AST_unset::assert_valid()
 {
-    if(variable == NULL || !variable->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(variable != NULL);
+    variable->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_declare::AST_declare(List<AST_directive*>* directives, List<AST_statement*>* statements)
@@ -5236,26 +5206,27 @@ AST_declare* AST_declare::clone()
     return clone;
 }
 
-bool AST_declare::is_valid()
+void AST_declare::assert_valid()
 {
-    if(directives == NULL) return false;
+    assert(directives != NULL);
     {
     	List<AST_directive*>::const_iterator i;
     	for(i = this->directives->begin(); i != this->directives->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(statements == NULL) return false;
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_try::AST_try(List<AST_statement*>* statements, List<AST_catch*>* catches)
@@ -5420,26 +5391,27 @@ AST_try* AST_try::clone()
     return clone;
 }
 
-bool AST_try::is_valid()
+void AST_try::assert_valid()
 {
-    if(statements == NULL) return false;
+    assert(statements != NULL);
     {
     	List<AST_statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(catches == NULL) return false;
+    assert(catches != NULL);
     {
     	List<AST_catch*>::const_iterator i;
     	for(i = this->catches->begin(); i != this->catches->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_throw::AST_throw(AST_expr* expr)
@@ -5513,11 +5485,11 @@ AST_throw* AST_throw::clone()
     return clone;
 }
 
-bool AST_throw::is_valid()
+void AST_throw::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_eval_expr::AST_eval_expr(AST_expr* expr)
@@ -5593,17 +5565,16 @@ AST_eval_expr* AST_eval_expr::clone()
     return clone;
 }
 
-bool AST_eval_expr::is_valid()
+void AST_eval_expr::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 void AST_eval_expr::_init()
 {
-    #line 369 "src/generated_src/phc.tea"
-{
+    {
 		assert (expr != NULL);
 	}
 }
@@ -5656,10 +5627,9 @@ AST_nop* AST_nop::clone()
     return clone;
 }
 
-bool AST_nop::is_valid()
+void AST_nop::assert_valid()
 {
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_literal::AST_literal()
@@ -5763,12 +5733,13 @@ AST_assignment* AST_assignment::clone()
     return clone;
 }
 
-bool AST_assignment::is_valid()
+void AST_assignment::assert_valid()
 {
-    if(variable == NULL || !variable->is_valid()) return false;
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(variable != NULL);
+    variable->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_list_assignment::AST_list_assignment(List<AST_list_element*>* list_elements, AST_expr* expr)
@@ -5897,17 +5868,19 @@ AST_list_assignment* AST_list_assignment::clone()
     return clone;
 }
 
-bool AST_list_assignment::is_valid()
+void AST_list_assignment::assert_valid()
 {
-    if(list_elements == NULL) return false;
+    assert(list_elements != NULL);
     {
     	List<AST_list_element*>::const_iterator i;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
-    		if(*i != NULL && !(*i)->is_valid()) return false;
+    	{
+    		if(*i != NULL) (*i)->assert_valid();
+    	}
     }
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_cast::AST_cast(Token_cast* cast, AST_expr* expr)
@@ -6000,18 +5973,18 @@ AST_cast* AST_cast::clone()
     return clone;
 }
 
-bool AST_cast::is_valid()
+void AST_cast::assert_valid()
 {
-    if(cast == NULL || !cast->is_valid()) return false;
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(cast != NULL);
+    cast->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_cast::AST_cast(char* cast, AST_expr* expr)
 {
-    #line 541 "src/generated_src/phc.tea"
-{
+    {
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;
 	}
@@ -6107,18 +6080,18 @@ AST_unary_op* AST_unary_op::clone()
     return clone;
 }
 
-bool AST_unary_op::is_valid()
+void AST_unary_op::assert_valid()
 {
-    if(op == NULL || !op->is_valid()) return false;
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(op != NULL);
+    op->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
 {
-    #line 522 "src/generated_src/phc.tea"
-{
+    {
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
 	}
@@ -6233,19 +6206,20 @@ AST_bin_op* AST_bin_op::clone()
     return clone;
 }
 
-bool AST_bin_op::is_valid()
+void AST_bin_op::assert_valid()
 {
-    if(left == NULL || !left->is_valid()) return false;
-    if(op == NULL || !op->is_valid()) return false;
-    if(right == NULL || !right->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(left != NULL);
+    left->assert_valid();
+    assert(op != NULL);
+    op->assert_valid();
+    assert(right != NULL);
+    right->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
 {
-    #line 491 "src/generated_src/phc.tea"
-{
+    {
 		this->left = left;
 		this->op = new Token_op(new String(op));
 		this->right = right;
@@ -6361,13 +6335,15 @@ AST_conditional_expr* AST_conditional_expr::clone()
     return clone;
 }
 
-bool AST_conditional_expr::is_valid()
+void AST_conditional_expr::assert_valid()
 {
-    if(cond == NULL || !cond->is_valid()) return false;
-    if(iftrue == NULL || !iftrue->is_valid()) return false;
-    if(iffalse == NULL || !iffalse->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(cond != NULL);
+    cond->assert_valid();
+    assert(iftrue != NULL);
+    iftrue->assert_valid();
+    assert(iffalse != NULL);
+    iffalse->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_ignore_errors::AST_ignore_errors(AST_expr* expr)
@@ -6441,11 +6417,11 @@ AST_ignore_errors* AST_ignore_errors::clone()
     return clone;
 }
 
-bool AST_ignore_errors::is_valid()
+void AST_ignore_errors::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_constant::AST_constant(Token_class_name* class_name, Token_constant_name* constant_name)
@@ -6538,12 +6514,12 @@ AST_constant* AST_constant::clone()
     return clone;
 }
 
-bool AST_constant::is_valid()
+void AST_constant::assert_valid()
 {
-    if(class_name != NULL && !class_name->is_valid()) return false;
-    if(constant_name == NULL || !constant_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    if(class_name != NULL) class_name->assert_valid();
+    assert(constant_name != NULL);
+    constant_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_instanceof::AST_instanceof(AST_expr* expr, AST_class_name* class_name)
@@ -6636,12 +6612,13 @@ AST_instanceof* AST_instanceof::clone()
     return clone;
 }
 
-bool AST_instanceof::is_valid()
+void AST_instanceof::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(class_name == NULL || !class_name->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_variable::AST_variable(AST_target* target, AST_variable_name* variable_name, List<AST_expr*>* array_indices)
@@ -6789,24 +6766,25 @@ AST_variable* AST_variable::clone()
     return clone;
 }
 
-bool AST_variable::is_valid()
+void AST_variable::assert_valid()
 {
-    if(target != NULL && !target->is_valid()) return false;
-    if(variable_name == NULL || !variable_name->is_valid()) return false;
-    if(array_indices == NULL) return false;
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(array_indices != NULL);
     {
     	List<AST_expr*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    		if(*i != NULL && !(*i)->is_valid()) return false;
+    	{
+    		if(*i != NULL) (*i)->assert_valid();
+    	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_variable::AST_variable(AST_variable_name* name)
 {
-    #line 378 "src/generated_src/phc.tea"
-{
+    {
 		this->target = NULL;
 		this->variable_name = name;
 		this->array_indices = new List<AST_expr*>;
@@ -6903,18 +6881,18 @@ AST_pre_op* AST_pre_op::clone()
     return clone;
 }
 
-bool AST_pre_op::is_valid()
+void AST_pre_op::assert_valid()
 {
-    if(op == NULL || !op->is_valid()) return false;
-    if(variable == NULL || !variable->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(op != NULL);
+    op->assert_valid();
+    assert(variable != NULL);
+    variable->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_pre_op::AST_pre_op(AST_variable* var, char* op)
 {
-    #line 512 "src/generated_src/phc.tea"
-{
+    {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
 	}
@@ -7010,18 +6988,18 @@ AST_post_op* AST_post_op::clone()
     return clone;
 }
 
-bool AST_post_op::is_valid()
+void AST_post_op::assert_valid()
 {
-    if(variable == NULL || !variable->is_valid()) return false;
-    if(op == NULL || !op->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(variable != NULL);
+    variable->assert_valid();
+    assert(op != NULL);
+    op->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_post_op::AST_post_op(AST_variable* var, char* op)
 {
-    #line 502 "src/generated_src/phc.tea"
-{
+    {
 		this->variable = var;
 		this->op = new Token_op(new String(op));
 	}
@@ -7134,18 +7112,18 @@ AST_array* AST_array::clone()
     return clone;
 }
 
-bool AST_array::is_valid()
+void AST_array::assert_valid()
 {
-    if(array_elems == NULL) return false;
+    assert(array_elems != NULL);
     {
     	List<AST_array_elem*>::const_iterator i;
     	for(i = this->array_elems->begin(); i != this->array_elems->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_method_invocation::AST_method_invocation(AST_target* target, AST_method_name* method_name, List<AST_actual_parameter*>* actual_parameters)
@@ -7293,27 +7271,27 @@ AST_method_invocation* AST_method_invocation::clone()
     return clone;
 }
 
-bool AST_method_invocation::is_valid()
+void AST_method_invocation::assert_valid()
 {
-    if(target != NULL && !target->is_valid()) return false;
-    if(method_name == NULL || !method_name->is_valid()) return false;
-    if(actual_parameters == NULL) return false;
+    if(target != NULL) target->assert_valid();
+    assert(method_name != NULL);
+    method_name->assert_valid();
+    assert(actual_parameters != NULL);
     {
     	List<AST_actual_parameter*>::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
-    #line 390 "src/generated_src/phc.tea"
-{ 
+    { 
 		// This leaves the tree in an inconsistent state
 		this->target = NULL;
 		this->method_name = new Token_method_name(new String(name));
@@ -7325,8 +7303,7 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 //  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
-    #line 400 "src/generated_src/phc.tea"
-{ 
+    { 
 		this->target = NULL;
 		this->method_name = name; 
 		this->actual_parameters = new List<AST_actual_parameter*>;
@@ -7337,8 +7314,7 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 //  This does in fact create a valid subtree
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
-    #line 409 "src/generated_src/phc.tea"
-{
+    {
 		this->target = new Token_class_name(new String(target));
 		this->method_name = new Token_method_name(new String(name));
 		this->actual_parameters = new List<AST_actual_parameter*>;
@@ -7472,19 +7448,20 @@ AST_new* AST_new::clone()
     return clone;
 }
 
-bool AST_new::is_valid()
+void AST_new::assert_valid()
 {
-    if(class_name == NULL || !class_name->is_valid()) return false;
-    if(actual_parameters == NULL) return false;
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    assert(actual_parameters != NULL);
     {
     	List<AST_actual_parameter*>::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
-    		if(*i == NULL || !(*i)->is_valid()) return false;
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 AST_clone::AST_clone(AST_expr* expr)
@@ -7558,11 +7535,11 @@ AST_clone* AST_clone::clone()
     return clone;
 }
 
-bool AST_clone::is_valid()
+void AST_clone::assert_valid()
 {
-    if(expr == NULL || !expr->is_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert(expr != NULL);
+    expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 Token_int::Token_int(long value, String* source_rep)
@@ -7660,17 +7637,15 @@ long Token_int::clone_value()
     return value;
 }
 
-bool Token_int::is_valid()
+void Token_int::assert_valid()
 {
-    if(source_rep == NULL) return false;
-    if(!is_value_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert_value_valid();
+    AST_node::assert_mixin_valid();
 }
 
-bool Token_int::is_value_valid()
+void Token_int::assert_value_valid()
 {
-    return true;
+    // Assume value is valid
 }
 
 //  Constructors can't call virtual functions, so we create a non-virtual to
@@ -7678,8 +7653,7 @@ bool Token_int::is_value_valid()
 //  safely called from the constructor.
 String* Token_int::_get_value_as_string()
 {
-    #line 568 "src/generated_src/phc.tea"
-{
+    {
 		std::ostringstream os;
 		os << value;
 		return new String(os.str());
@@ -7688,16 +7662,14 @@ String* Token_int::_get_value_as_string()
 
 String* Token_int::get_value_as_string()
 {
-    #line 576 "src/generated_src/phc.tea"
-{
+    {
 		return _get_value_as_string ();
 	}
 }
 
 Token_int::Token_int(int v)
 {
-    #line 581 "src/generated_src/phc.tea"
-{
+    {
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
@@ -7798,24 +7770,21 @@ double Token_real::clone_value()
     return value;
 }
 
-bool Token_real::is_valid()
+void Token_real::assert_valid()
 {
-    if(source_rep == NULL) return false;
-    if(!is_value_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert_value_valid();
+    AST_node::assert_mixin_valid();
 }
 
-bool Token_real::is_value_valid()
+void Token_real::assert_value_valid()
 {
-    return true;
+    // Assume value is valid
 }
 
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_real::_get_value_as_string()
 {
-    #line 593 "src/generated_src/phc.tea"
-{
+    {
 		std::ostringstream os;
 		// setprecision(20) outputs as many digits as required, with
 		// a maximum of 20
@@ -7835,16 +7804,14 @@ String* Token_real::_get_value_as_string()
 
 String* Token_real::get_value_as_string()
 {
-    #line 612 "src/generated_src/phc.tea"
-{
+    {
 		return _get_value_as_string ();
 	}
 }
 
 Token_real::Token_real(double v)
 {
-    #line 617 "src/generated_src/phc.tea"
-{
+    {
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
@@ -7940,42 +7907,41 @@ Token_string* Token_string::clone()
     return clone;
 }
 
-bool Token_string::is_valid()
+void Token_string::assert_valid()
 {
-    if(source_rep == NULL) return false;
-    if(!is_value_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert_value_valid();
+    AST_node::assert_mixin_valid();
+}
+
+void Token_string::assert_value_valid()
+{
+    // Assume value is valid
 }
 
 String* Token_string::get_value_as_string()
 {
-    #line 652 "src/generated_src/phc.tea"
-{
+    {
 		return value;
 	}
 }
 
 bool Token_string::is_value_valid()
 {
-    #line 657 "src/generated_src/phc.tea"
-{
+    {
 		return value != NULL;
 	}
 }
 
 String* Token_string::clone_value()
 {
-    #line 662 "src/generated_src/phc.tea"
-{
+    {
 		return value->clone();
 	}
 }
 
 Token_string::Token_string(String* v)
 {
-    #line 667 "src/generated_src/phc.tea"
-{
+    {
 		value = v;
 		source_rep = v;
 	}
@@ -8076,24 +8042,21 @@ bool Token_bool::clone_value()
     return value;
 }
 
-bool Token_bool::is_valid()
+void Token_bool::assert_valid()
 {
-    if(source_rep == NULL) return false;
-    if(!is_value_valid()) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    assert_value_valid();
+    AST_node::assert_mixin_valid();
 }
 
-bool Token_bool::is_value_valid()
+void Token_bool::assert_value_valid()
 {
-    return true;
+    // Assume value is valid
 }
 
 //  See comment in Token_int::_get_value_as_string ()
 String* Token_bool::_get_value_as_string()
 {
-    #line 628 "src/generated_src/phc.tea"
-{
+    {
 		if(value)
 			return new String("True");
 		else
@@ -8103,16 +8066,14 @@ String* Token_bool::_get_value_as_string()
 
 String* Token_bool::get_value_as_string()
 {
-    #line 637 "src/generated_src/phc.tea"
-{
+    {
 		return _get_value_as_string ();
 	}
 }
 
 Token_bool::Token_bool(bool v)
 {
-    #line 642 "src/generated_src/phc.tea"
-{
+    {
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
@@ -8184,25 +8145,21 @@ Token_null* Token_null::clone()
     return clone;
 }
 
-bool Token_null::is_valid()
+void Token_null::assert_valid()
 {
-    if(source_rep == NULL) return false;
-    if(!AST_node::is_mixin_valid()) return false;
-    return true;
+    AST_node::assert_mixin_valid();
 }
 
 String* Token_null::get_value_as_string()
 {
-    #line 677 "src/generated_src/phc.tea"
-{
+    {
 		return new String("NULL");
 	}
 }
 
 Token_null::Token_null()
 {
-    #line 681 "src/generated_src/phc.tea"
-{
+    {
 		source_rep = new String ("NULL");
 	}
 }

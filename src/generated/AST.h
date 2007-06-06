@@ -116,7 +116,7 @@ public:
 public:
     virtual AST_node* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 public:
     AttrMap* attrs;
     //  Return the line number of the node (or 0 if unknown)
@@ -125,7 +125,7 @@ public:
     String* get_filename();
     AST_node();
     void clone_mixin_from(AST_node* in);
-    bool is_mixin_valid();
+    void assert_mixin_valid();
     bool is_mixin_equal(AST_node* in);
 };
 
@@ -151,7 +151,7 @@ public:
 public:
     virtual AST_php_script* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // class_mod ::= "abstract"? "final"? ;
@@ -177,7 +177,7 @@ public:
 public:
     virtual AST_class_mod* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // signature ::= method_mod is_ref:"&" METHOD_NAME formal_parameter* ;
@@ -205,7 +205,7 @@ public:
 public:
     virtual AST_signature* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_signature(const char* name);
 };
@@ -235,7 +235,7 @@ public:
 public:
     virtual AST_method_mod* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_method_mod();
     AST_method_mod(AST_method_mod* a, AST_method_mod* b);
@@ -272,7 +272,7 @@ public:
 public:
     virtual AST_formal_parameter* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_formal_parameter(AST_type* type, Token_variable_name* name);
     AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name);
@@ -301,7 +301,7 @@ public:
 public:
     virtual AST_type* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // attr_mod ::= "public"? "protected"? "private"? "static"? "const"? ;
@@ -328,7 +328,7 @@ public:
 public:
     virtual AST_attr_mod* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_attr_mod();
     AST_attr_mod(AST_method_mod* mm);
@@ -362,7 +362,7 @@ public:
 public:
     virtual AST_directive* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // list_element ::= variable | nested_list_elements;
@@ -382,7 +382,7 @@ public:
 public:
     virtual AST_list_element* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // variable_name ::= VARIABLE_NAME | reflection;
@@ -402,7 +402,7 @@ public:
 public:
     virtual AST_variable_name* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // target ::= expr | CLASS_NAME;
@@ -422,7 +422,7 @@ public:
 public:
     virtual AST_target* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // array_elem ::= key:expr? is_ref:"&" val:expr ;
@@ -449,7 +449,7 @@ public:
 public:
     virtual AST_array_elem* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // method_name ::= METHOD_NAME | reflection;
@@ -469,7 +469,7 @@ public:
 public:
     virtual AST_method_name* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // actual_parameter ::= is_ref:"&" expr ;
@@ -495,7 +495,7 @@ public:
 public:
     virtual AST_actual_parameter* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // class_name ::= CLASS_NAME | reflection;
@@ -515,7 +515,7 @@ public:
 public:
     virtual AST_class_name* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // commented_node ::= member | statement | interface_def | class_def | switch_case | catch;
@@ -533,7 +533,7 @@ public:
 public:
     virtual AST_commented_node* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 public:
     AST_commented_node();
     //  Return the comments associated with the node
@@ -557,7 +557,7 @@ public:
 public:
     virtual AST_identifier* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
 };
@@ -579,7 +579,7 @@ public:
 public:
     virtual AST_statement* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // member ::= method | attribute;
@@ -599,7 +599,7 @@ public:
 public:
     virtual AST_member* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // switch_case ::= expr? statement* ;
@@ -625,7 +625,7 @@ public:
 public:
     virtual AST_switch_case* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // catch ::= CLASS_NAME VARIABLE_NAME statement* ;
@@ -652,7 +652,7 @@ public:
 public:
     virtual AST_catch* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // expr ::= assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | clone | literal;
@@ -672,7 +672,7 @@ public:
 public:
     virtual AST_expr* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 };
 
 // nested_list_elements ::= list_element?* ;
@@ -697,7 +697,7 @@ public:
 public:
     virtual AST_nested_list_elements* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // reflection ::= expr ;
@@ -722,7 +722,7 @@ public:
 public:
     virtual AST_reflection* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_class_name : virtual public AST_target, virtual public AST_class_name, virtual public AST_identifier
@@ -747,7 +747,7 @@ public:
 public:
     virtual Token_class_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_interface_name : virtual public AST_identifier
@@ -772,7 +772,7 @@ public:
 public:
     virtual Token_interface_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_method_name : virtual public AST_method_name, virtual public AST_identifier
@@ -797,7 +797,7 @@ public:
 public:
     virtual Token_method_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_variable_name : virtual public AST_variable_name, virtual public AST_identifier
@@ -822,7 +822,7 @@ public:
 public:
     virtual Token_variable_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_label_name : virtual public AST_identifier
@@ -847,7 +847,7 @@ public:
 public:
     virtual Token_label_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_directive_name : virtual public AST_identifier
@@ -872,7 +872,7 @@ public:
 public:
     virtual Token_directive_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_cast : virtual public AST_identifier
@@ -897,7 +897,7 @@ public:
 public:
     virtual Token_cast* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_op : virtual public AST_identifier
@@ -922,7 +922,7 @@ public:
 public:
     virtual Token_op* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_constant_name : virtual public AST_identifier
@@ -947,7 +947,7 @@ public:
 public:
     virtual Token_constant_name* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // class_def ::= class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -976,7 +976,7 @@ public:
 public:
     virtual AST_class_def* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_class_def(AST_class_mod* mod);
     AST_class_def(char* name);
@@ -1009,7 +1009,7 @@ public:
 public:
     virtual AST_interface_def* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // method ::= signature statement*? ;
@@ -1035,7 +1035,7 @@ public:
 public:
     virtual AST_method* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // attribute ::= attr_mod VARIABLE_NAME expr? ;
@@ -1062,7 +1062,7 @@ public:
 public:
     virtual AST_attribute* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // if ::= expr iftrue:statement* iffalse:statement* ;
@@ -1089,7 +1089,7 @@ public:
 public:
     virtual AST_if* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_if(AST_expr* expr);
 };
@@ -1117,7 +1117,7 @@ public:
 public:
     virtual AST_while* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // do ::= statement* expr ;
@@ -1143,7 +1143,7 @@ public:
 public:
     virtual AST_do* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // for ::= init:expr? cond:expr? incr:expr? statement* ;
@@ -1171,7 +1171,7 @@ public:
 public:
     virtual AST_for* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // foreach ::= expr key:variable? is_ref:"&" val:variable statement* ;
@@ -1200,7 +1200,7 @@ public:
 public:
     virtual AST_foreach* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // switch ::= expr switch_case* ;
@@ -1226,7 +1226,7 @@ public:
 public:
     virtual AST_switch* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // break ::= expr? ;
@@ -1251,7 +1251,7 @@ public:
 public:
     virtual AST_break* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // continue ::= expr? ;
@@ -1276,7 +1276,7 @@ public:
 public:
     virtual AST_continue* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // return ::= expr? ;
@@ -1301,7 +1301,7 @@ public:
 public:
     virtual AST_return* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME ;
@@ -1328,7 +1328,7 @@ public:
 public:
     virtual AST_branch* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // goto ::= LABEL_NAME ;
@@ -1353,7 +1353,7 @@ public:
 public:
     virtual AST_goto* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // label ::= LABEL_NAME ;
@@ -1378,7 +1378,7 @@ public:
 public:
     virtual AST_label* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // static_declaration ::= VARIABLE_NAME expr? ;
@@ -1404,7 +1404,7 @@ public:
 public:
     virtual AST_static_declaration* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // global ::= variable_name ;
@@ -1429,7 +1429,7 @@ public:
 public:
     virtual AST_global* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // unset ::= variable ;
@@ -1454,7 +1454,7 @@ public:
 public:
     virtual AST_unset* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // declare ::= directive* statement* ;
@@ -1480,7 +1480,7 @@ public:
 public:
     virtual AST_declare* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // try ::= statement* catches:catch* ;
@@ -1506,7 +1506,7 @@ public:
 public:
     virtual AST_try* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // throw ::= expr ;
@@ -1531,7 +1531,7 @@ public:
 public:
     virtual AST_throw* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // eval_expr ::= expr ;
@@ -1556,7 +1556,7 @@ public:
 public:
     virtual AST_eval_expr* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     void _init();
 };
@@ -1579,7 +1579,7 @@ public:
 public:
     virtual AST_nop* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<>;
@@ -1599,7 +1599,7 @@ public:
 public:
     virtual AST_literal* clone() = 0;
 public:
-    virtual bool is_valid() = 0;
+    virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
     virtual String* get_source_rep() = 0;
@@ -1629,7 +1629,7 @@ public:
 public:
     virtual AST_assignment* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // list_assignment ::= list_element?* expr ;
@@ -1655,7 +1655,7 @@ public:
 public:
     virtual AST_list_assignment* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // cast ::= CAST expr ;
@@ -1681,7 +1681,7 @@ public:
 public:
     virtual AST_cast* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_cast(char* cast, AST_expr* expr);
 };
@@ -1709,7 +1709,7 @@ public:
 public:
     virtual AST_unary_op* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_unary_op(AST_expr* expr, char* op);
 };
@@ -1738,7 +1738,7 @@ public:
 public:
     virtual AST_bin_op* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_bin_op(AST_expr* left, AST_expr* right, char* op);
 };
@@ -1767,7 +1767,7 @@ public:
 public:
     virtual AST_conditional_expr* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // ignore_errors ::= expr ;
@@ -1792,7 +1792,7 @@ public:
 public:
     virtual AST_ignore_errors* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // constant ::= CLASS_NAME? CONSTANT_NAME ;
@@ -1818,7 +1818,7 @@ public:
 public:
     virtual AST_constant* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // instanceof ::= expr class_name ;
@@ -1844,7 +1844,7 @@ public:
 public:
     virtual AST_instanceof* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // variable ::= target? variable_name array_indices:expr?* ;
@@ -1871,7 +1871,7 @@ public:
 public:
     virtual AST_variable* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_variable(AST_variable_name* name);
 };
@@ -1899,7 +1899,7 @@ public:
 public:
     virtual AST_pre_op* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_pre_op(AST_variable* var, char* op);
 };
@@ -1927,7 +1927,7 @@ public:
 public:
     virtual AST_post_op* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     AST_post_op(AST_variable* var, char* op);
 };
@@ -1954,7 +1954,7 @@ public:
 public:
     virtual AST_array* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // method_invocation ::= target? method_name actual_parameter* ;
@@ -1981,7 +1981,7 @@ public:
 public:
     virtual AST_method_invocation* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     //  For internal use only!
     AST_method_invocation(const char* name, AST_expr* arg);
@@ -2014,7 +2014,7 @@ public:
 public:
     virtual AST_new* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 // clone ::= expr ;
@@ -2039,7 +2039,7 @@ public:
 public:
     virtual AST_clone* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 };
 
 class Token_int : virtual public AST_literal
@@ -2068,8 +2068,8 @@ public:
     virtual Token_int* clone();
     virtual long clone_value();
 public:
-    virtual bool is_valid();
-    virtual bool is_value_valid();
+    virtual void assert_valid();
+    virtual void assert_value_valid();
 private:
     //  Constructors can't call virtual functions, so we create a non-virtual to
     //  do the work. This is then called by the virtual function, and is also
@@ -2106,8 +2106,8 @@ public:
     virtual Token_real* clone();
     virtual double clone_value();
 public:
-    virtual bool is_valid();
-    virtual bool is_value_valid();
+    virtual void assert_valid();
+    virtual void assert_value_valid();
 private:
     //  See comment in Token_int::_get_value_as_string ()
     String* _get_value_as_string();
@@ -2141,7 +2141,8 @@ public:
 public:
     virtual Token_string* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
+    virtual void assert_value_valid();
 public:
     virtual String* get_value_as_string();
     bool is_value_valid();
@@ -2175,8 +2176,8 @@ public:
     virtual Token_bool* clone();
     virtual bool clone_value();
 public:
-    virtual bool is_valid();
-    virtual bool is_value_valid();
+    virtual void assert_valid();
+    virtual void assert_value_valid();
 private:
     //  See comment in Token_int::_get_value_as_string ()
     String* _get_value_as_string();
@@ -2205,7 +2206,7 @@ public:
 public:
     virtual Token_null* clone();
 public:
-    virtual bool is_valid();
+    virtual void assert_valid();
 public:
     virtual String* get_value_as_string();
     Token_null();
@@ -2265,9 +2266,9 @@ public:
 		return value->equals(that->value);
 	}
 
-	virtual bool is_valid()
+	virtual void assert_valid()
 	{
-		return (value == NULL || value->is_valid());
+		if(value != NULL) value->assert_valid();
 	}
 
 	virtual void visit(AST_visitor* visitor)

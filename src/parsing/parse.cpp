@@ -85,7 +85,7 @@ AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 		if(input != stdin) fclose(input);
 	}
 
-	assert(php_script->is_valid());
+	php_script->assert_valid();
 	return php_script;
 }
 
