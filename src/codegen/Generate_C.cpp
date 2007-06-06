@@ -55,31 +55,40 @@ String* operand(AST_expr* in)
 	var = dynamic_cast<AST_variable*>(in);
 	if(var == NULL)
 	{
-		cerr << "Expect simple variable but got NULL";
-		cerr << " on line " << in->get_line_number() << endl;
+		cerr << "Expected simple variable but got expression ";
+		in->visit(&pup);
+		if(in->get_line_number() != 0)
+			cerr << " on line " << in->get_line_number();
+		cerr << endl;
 		assert(0);
 	}
 	if(var->target != NULL)
 	{
-		cerr << "Expect simple variable but got field access ";
-		var->visit(&pup);
-		cerr << " on line " << in->get_line_number() << endl;
+		cerr << "Expected simple variable but got field access ";
+		in->visit(&pup);
+		if(in->get_line_number() != 0)
+			cerr << " on line " << in->get_line_number();
+		cerr << endl;
 		assert(0);
 	}
 	if(var->array_indices->size() != 0)
 	{
-		cerr << "Expect simple variable but got array index ";
-		var->visit(&pup);
-		cerr << " on line " << in->get_line_number() << endl;
+		cerr << "Expected simple variable but got array index ";
+		in->visit(&pup);
+		if(in->get_line_number() != 0)
+			cerr << " on line " << in->get_line_number();
+		cerr << endl;
 		assert(0);
 	}
 
 	var_name = dynamic_cast<Token_variable_name*>(var->variable_name);
 	if(var_name == NULL)
 	{
-		cerr << "Expect simple variable but got variable variable ";
-		var->visit(&pup);
-		cerr << " on line " << in->get_line_number() << endl;
+		cerr << "Expected simple variable but got variable variable ";
+		in->visit(&pup);
+		if(in->get_line_number() != 0)
+			cerr << " on line " << in->get_line_number();
+		cerr << endl;
 		assert(0);
 	}
 
