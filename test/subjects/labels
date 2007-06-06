@@ -37,7 +37,8 @@ parsing/included_recursive1.php	includable
 parsing/included_recursive2.php	includable
 
 # These tests all cause infinite loops
-parsing/binops.php					long no-CompiledVsInterpreted
+parsing/binops\d+.php				long no-CompiledVsInterpreted
+
 parsing/for.php						non-interpretable # infinite loops
 parsing/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops

@@ -431,13 +431,20 @@ AST_expr* Shredder::post_array(AST_array* in)
 	if (in->attrs->is_true("phc.lower_expr.no_temp"))
 		return in;
 
-	// We leave in arrays with no elements
-	if (in->array_elems->size () == 0)
-		return in;
-
 	String* temp = fresh("TS");
-	List<AST_array_elem*>::const_iterator i;
+	AST_variable* var = 
+		new AST_variable (new Token_variable_name (temp->clone()));
 
+	// We need to unset TS in case its run in a loop
+	pieces->push_back(new AST_eval_expr (
+		new AST_method_invocation ("unset", var->clone ())));
+
+	// We need to cast it in case its empty
+	pieces->push_back(
+		new AST_eval_expr (new AST_assignment (var->clone (), false, new AST_cast("array", var->clone ()))));
+	
+
+	List<AST_array_elem*>::const_iterator i;
 	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
 	{
 		AST_expr* key;
@@ -470,7 +477,7 @@ AST_expr* Shredder::post_array(AST_array* in)
  *	  $c = $Tarr[2];
  *	  $b = $Tarr[1];
  *	  $a = $Tarr[0];
- *	  $x = $Tarr;
+ *	  $x = $Tarr; // note that left evaluates to the RHS of the assignment
  *
  *	Note the reverse order. This matters if you've arrays on the lhs.
  *	Note that references arent allowed here.
