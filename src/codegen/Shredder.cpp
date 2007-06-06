@@ -293,8 +293,13 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	if(prev != in && !in->array_indices->empty())
 	{
 		prev = prev->clone();
-		prev->array_indices->push_back(in->array_indices->front()->clone ());
+		AST_expr* front = in->array_indices->front();
 		in->array_indices->pop_front();
+
+		if (front) // NULL expressions are allowed
+			front = front->clone ();
+
+		prev->array_indices->push_back(front);
 	}
 
 	return prev;
