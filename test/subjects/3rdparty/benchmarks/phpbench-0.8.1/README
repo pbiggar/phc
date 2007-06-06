@@ -1,0 +1,79 @@
+
+		  -=- Documentation for PHPBench 0.8.1 -=-
+			http://phpbench.pureftpd.org
+
+
+  PHPBench is a benchmark suite for PHP.
+  
+  It performs a large number of simple tests in order to bench various
+aspects of the PHP interpreter.
+
+  PHPBench can be used to compare hardware, operating systems, PHP versions,
+PHP accelerators and caches, compiler options, etc.
+
+  Custom tests can be easily added to the suite.
+
+
+	       ----------------[ Basic usage ]----------------
+
+  The 'tests' directory contains all tests that PHPBench will try to perform.
+  This directory can be copied in:
+  
+ - /usr/local/lib/phpbench/tests
+ - /usr/local/share/phpbench/tests
+ - /usr/lib/phpbench/tests
+ - /usr/share/phpbench/tests
+ - /opt/phpbench/tests
+  
+  Alternatively, if you run this application in its own directory, you don't
+need to copy the 'test' directory.
+
+  In order to start a basic benchmark, just type:
+  
+  ./phpbench.php
+  
+  or if something goes wrong:
+  
+  php phpbench.php
+  
+  or if you want to save the output to a file:
+  
+  ./phpbench.php | tee output.txt
+  
+
+	    ----------------[ Iterations number ]----------------
+
+  In order to get accurate results, every test is evaluated more than once.
+  
+  By defaut, tests are evaluated 100000 times, or multiples of that value for
+some tests that are known to be CPU-expensive or other tests that are known to
+be very fast.
+
+  If you have slow hardware or very fast hardware, you can change the number
+of iterations, with the -i switch:
+
+  ./phpbench.php -i 5000
+  
+  The 'score' you get when the benchmark completes is a ratio between the
+number of iterations and the total time that was needed to perform all
+tests. Thus, the score should be independant of the number of iterations,
+but the higher number you use, the more accuracy you will get.
+
+
+	       ----------------[ CSV output ]----------------
+
+  You can save a CSV summary of the benchmark. This summary contains the
+time needed to perform every test, and a percentile value. A value of 12%
+would mean that 12% of the total time was needed for that particular test.
+
+  The summary can be loaded in almost any spreadsheet, including, but not
+limited to: Kspread (Koffice), OOcalc (Openoffice), Gnumeric and Excel.
+
+  In order to produce that CSV file, just use the -f option, followed by the
+name of the file you are willing to create:
+
+  ./phpbench.php -f summary.csv
+
+
+
+                                     Frank Denis <j@pureftpd.org>

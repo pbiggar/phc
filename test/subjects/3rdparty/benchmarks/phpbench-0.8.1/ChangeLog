@@ -1,0 +1,6 @@
+* Version 0.8
+  Initial release.
+  
+* Version 0.8.1
+  The regression test of test_bitwise has been fixed for 64-bits CPUs.
+  
