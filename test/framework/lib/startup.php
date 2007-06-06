@@ -40,7 +40,7 @@ Options:
     -s     Generate support files (mostly for regression tests)
     -v     Print verbose messages after test failure
     -l     Run long tests (default: run only tests marked short in labels file)
-    -n     Print a numbered list of the files to be processed (implies -d)
+    -n     Print a numbered list of the files to be processed
     -p     Don't use a progress bar (useful for nightly testing)
     -i     Use installed program and plugins for tests
     -c     Clean up (ie delete) all logs files and directories.

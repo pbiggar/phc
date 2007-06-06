@@ -49,6 +49,11 @@ require_once ("lib/two_command_test.php");
 require_once ("lib/compare_with_php_test.php");
 require_once ("lib/regression.php");
 
+if ($opt_long)
+{
+	set_time_limit (300); // 5 mins for long tests should be grand. Note, this is system time, so time spent waiting for blocking external processes doesnt count
+}
+
 if ($opt_installed)
 {
 	$phc = "$bindir/phc";

@@ -8,14 +8,14 @@ foreach (array (true, false) as $a)
 		{
 			foreach (array (true, false) as $d)
 			{
-				var_dump ($a || $b || $c || $d);
-				var_dump ($a || $b || $c && $d);
-				var_dump ($a || $b && $c || $d);
-				var_dump ($a || $b && $c && $d);
-				var_dump ($a && $b || $c || $d);
-				var_dump ($a && $b || $c && $d);
-				var_dump ($a && $b && $c || $d);
-				var_dump ($a && $b && $c && $d);
+				echo ($a || $b || $c || $d). "\n";
+				echo ($a || $b || $c && $d). "\n";
+				echo ($a || $b && $c || $d). "\n";
+				echo ($a || $b && $c && $d). "\n";
+				echo ($a && $b || $c || $d). "\n";
+				echo ($a && $b || $c && $d). "\n";
+				echo ($a && $b && $c || $d). "\n";
+				echo ($a && $b && $c && $d). "\n";
 			}
 		}
 	}
@@ -31,45 +31,45 @@ foreach (range (0, 15) as $a)
 			foreach (range (0, 15) as $d)
 			{
 				# trinary :)
-				var_dump ($a | $b | $c | $d);
-				var_dump ($a | $b | $c & $d);
-				var_dump ($a | $b | $c ^ $d);
+				echo ($a | $b | $c | $d). "\n";
+				echo ($a | $b | $c & $d). "\n";
+				echo ($a | $b | $c ^ $d). "\n";
 
-				var_dump ($a | $b & $c | $d);
-				var_dump ($a | $b & $c & $d);
-				var_dump ($a | $b & $c ^ $d);
+				echo ($a | $b & $c | $d). "\n";
+				echo ($a | $b & $c & $d). "\n";
+				echo ($a | $b & $c ^ $d). "\n";
 				
-				var_dump ($a | $b ^ $c | $d);
-				var_dump ($a | $b ^ $c & $d);
-				var_dump ($a | $b ^ $c ^ $d);
+				echo ($a | $b ^ $c | $d). "\n";
+				echo ($a | $b ^ $c & $d). "\n";
+				echo ($a | $b ^ $c ^ $d). "\n";
 
 
 
-				var_dump ($a & $b | $c | $d);
-				var_dump ($a & $b | $c & $d);
-				var_dump ($a & $b | $c ^ $d);
+				echo ($a & $b | $c | $d). "\n";
+				echo ($a & $b | $c & $d). "\n";
+				echo ($a & $b | $c ^ $d). "\n";
 
-				var_dump ($a & $b & $c | $d);
-				var_dump ($a & $b & $c & $d);
-				var_dump ($a & $b & $c ^ $d);
+				echo ($a & $b & $c | $d). "\n";
+				echo ($a & $b & $c & $d). "\n";
+				echo ($a & $b & $c ^ $d). "\n";
 				
-				var_dump ($a & $b ^ $c | $d);
-				var_dump ($a & $b ^ $c & $d);
-				var_dump ($a & $b ^ $c ^ $d);
+				echo ($a & $b ^ $c | $d). "\n";
+				echo ($a & $b ^ $c & $d). "\n";
+				echo ($a & $b ^ $c ^ $d). "\n";
 
 
 
-				var_dump ($a ^ $b | $c | $d);
-				var_dump ($a ^ $b | $c & $d);
-				var_dump ($a ^ $b | $c ^ $d);
+				echo ($a ^ $b | $c | $d). "\n";
+				echo ($a ^ $b | $c & $d). "\n";
+				echo ($a ^ $b | $c ^ $d). "\n";
 
-				var_dump ($a ^ $b & $c | $d);
-				var_dump ($a ^ $b & $c & $d);
-				var_dump ($a ^ $b & $c ^ $d);
+				echo ($a ^ $b & $c | $d). "\n";
+				echo ($a ^ $b & $c & $d). "\n";
+				echo ($a ^ $b & $c ^ $d). "\n";
 
-				var_dump ($a ^ $b ^ $c | $d);
-				var_dump ($a ^ $b ^ $c & $d);
-				var_dump ($a ^ $b ^ $c ^ $d);
+				echo ($a ^ $b ^ $c | $d). "\n";
+				echo ($a ^ $b ^ $c & $d). "\n";
+				echo ($a ^ $b ^ $c ^ $d). "\n";
 			}
 		}
 	}

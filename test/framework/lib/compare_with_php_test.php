@@ -9,9 +9,16 @@
 function get_php_command_line ($subject, $pipe = false)
 {
 	global $php;
+	global $opt_long;
+
+	if ($opt_long)
+		$max_exe = 12;
+	else
+		$max_exe = 5;
+
 	$dir_name = dirname($subject);
 	if ($pipe) $subject = "";
-	return "$php -d include_path=./:$dir_name -d max_execution_time=5 $subject";
+	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
 }
 
 
