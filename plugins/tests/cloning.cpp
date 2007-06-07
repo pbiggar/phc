@@ -57,9 +57,3 @@ extern "C" void process_hir (AST_php_script* script)
 {
 	test_cloning (script);
 }
-
-
-extern "C" void process_ast (AST_php_script* script)
-{
-	test_cloning (script);
-}

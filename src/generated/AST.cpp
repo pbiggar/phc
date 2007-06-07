@@ -47,7 +47,11 @@ void AST_node::assert_mixin_valid()
 		AttrMap::const_iterator i;
 		for(i = attrs->begin(); i != attrs->end(); i++)
 		{
-			assert((*i).second != NULL);
+			if ((*i).first != "phc.line_number"
+				&& (*i).first != "phc.filename")
+			{
+				assert((*i).second != NULL);
+			}
 		}
 	}
 }

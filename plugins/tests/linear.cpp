@@ -22,9 +22,3 @@ extern "C" void process_hir (AST_php_script* php_script)
 {
 	test_linear (php_script);
 }
-
-
-extern "C" void process_ast (AST_php_script* php_script)
-{
-	test_linear (php_script);
-}
