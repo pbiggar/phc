@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+	# Run phc with all specified agruments, using the last argument as a
+	# filename. Compare its xml output with its xmloutput without any flags
+	# of php
+	dl("xdiff.so");
+
+	unset ($argv[0]);
+	$file = array_pop ($argv);
+	$args = join (" ", $argv);
+
+	$result1 = `src/phc --dump-ast-xml $args $file`;
+	$result2 = `src/phc --dump-ast-xml $file`;
+	echo xdiff_string_diff ($result1, $result2);
+?>

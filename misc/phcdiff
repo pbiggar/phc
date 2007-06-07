@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+	# Run phc with all specified agruments, using the last argument as a
+	# filename. Pretty print it, run it through php and compare it to the output
+	# of php
+	dl("xdiff.so");
+
+	unset ($argv[0]);
+	$file = array_pop ($argv);
+	$args = join (" ", $argv);
+
+	$result1 = `src/phc --pretty-print $args $file | php`;
+	$result2 = `php $file`;
+	echo xdiff_string_diff ($result1, $result2);
+?>
