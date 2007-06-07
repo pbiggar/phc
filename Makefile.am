@@ -111,8 +111,6 @@ src_phc_SOURCES =												\
 	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h						\
-	src/process_ast/process_ast.cpp						\
-	src/process_ast/process_ast.h							\
 	src/process_ast/Process_includes.cpp				\
 	src/process_ast/Process_includes.h					\
 	src/process_ast/Remove_concat_null.cpp				\

@@ -283,6 +283,10 @@ abstract class Test
 			return false;
 		}
 
+		// end early if specified
+		global $opt_quick;
+		$count = 0;
+
 		foreach ($files as $subject)
 		{
 			if (!$this->check_test_prerequisites ($subject))
@@ -303,6 +307,10 @@ abstract class Test
 				$this->run_test ($subject);
 				$this->end_timer ($subject);
 			}
+			$count ++;
+
+			if ($opt_quick && $count >= 10)
+				break;
 		}
 
 		$this->finish_test ();

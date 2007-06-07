@@ -10,7 +10,7 @@ require_once ("Console/Getopt.php");
 require_once ("Console/ProgressBar.php");
 
 $cg = new Console_Getopt();
-list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "lvVshndpic", array ("long", "verbose", "valgrind", "support", "help", "number", "no-delete", "no-progress"));
+list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "lvVshndpicq", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick"));
 foreach ($opts as $opt) 
 {
 	if ($opt[1] == NULL) $options{$opt[0]} = "";
@@ -25,6 +25,7 @@ $opt_help = isset($options{"h"});
 $opt_no_progress_bar = isset($options{"p"});
 $opt_installed = isset($options{"i"});
 $opt_clean = isset($options{"c"});
+$opt_quick = isset($options{"q"});
 
 if ($opt_help)
 {
@@ -44,6 +45,7 @@ Options:
     -p     Don't use a progress bar (useful for nightly testing)
     -i     Use installed program and plugins for tests
     -c     Clean up (ie delete) all logs files and directories.
+    -q     Just use the first 10 test subjects, for a real quick test run
 
 Regex:
     A list of regular expressions matching the tests to be run. Any test name

@@ -233,8 +233,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
 	Consistency_check.$(OBJEXT) DOT_unparser.$(OBJEXT) \
 	Invalid_check.$(OBJEXT) PHP_unparser.$(OBJEXT) \
-	process_ast.$(OBJEXT) Process_includes.$(OBJEXT) \
-	Remove_concat_null.$(OBJEXT) \
+	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Strip_comments.$(OBJEXT) \
 	Token_conversion.$(OBJEXT) XML_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
@@ -549,8 +548,6 @@ src_phc_SOURCES = \
 	src/process_ast/Invalid_check.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h						\
-	src/process_ast/process_ast.cpp						\
-	src/process_ast/process_ast.h							\
 	src/process_ast/Process_includes.cpp				\
 	src/process_ast/Process_includes.h					\
 	src/process_ast/Remove_concat_null.cpp				\
@@ -941,7 +938,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_parser.tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pre_vs_post_count.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process_ast.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/purity_test.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
@@ -1618,20 +1614,6 @@ PHP_unparser.obj: src/process_ast/PHP_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/PHP_unparser.cpp' object='PHP_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PHP_unparser.obj `if test -f 'src/process_ast/PHP_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/PHP_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/PHP_unparser.cpp'; fi`
-
-process_ast.o: src/process_ast/process_ast.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT process_ast.o -MD -MP -MF $(DEPDIR)/process_ast.Tpo -c -o process_ast.o `test -f 'src/process_ast/process_ast.cpp' || echo '$(srcdir)/'`src/process_ast/process_ast.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/process_ast.Tpo $(DEPDIR)/process_ast.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/process_ast.cpp' object='process_ast.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o process_ast.o `test -f 'src/process_ast/process_ast.cpp' || echo '$(srcdir)/'`src/process_ast/process_ast.cpp
-
-process_ast.obj: src/process_ast/process_ast.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT process_ast.obj -MD -MP -MF $(DEPDIR)/process_ast.Tpo -c -o process_ast.obj `if test -f 'src/process_ast/process_ast.cpp'; then $(CYGPATH_W) 'src/process_ast/process_ast.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/process_ast.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/process_ast.Tpo $(DEPDIR)/process_ast.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/process_ast.cpp' object='process_ast.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o process_ast.obj `if test -f 'src/process_ast/process_ast.cpp'; then $(CYGPATH_W) 'src/process_ast/process_ast.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/process_ast.cpp'; fi`
 
 Process_includes.o: src/process_ast/Process_includes.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Process_includes.o -MD -MP -MF $(DEPDIR)/Process_includes.Tpo -c -o Process_includes.o `test -f 'src/process_ast/Process_includes.cpp' || echo '$(srcdir)/'`src/process_ast/Process_includes.cpp

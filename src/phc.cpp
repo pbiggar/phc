@@ -14,7 +14,6 @@
 #include <sys/wait.h>
 #include <ltdl.h>
 #include "cmdline.h"
-#include "process_ast/process_ast.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lower_control_flow.h"
@@ -353,6 +352,8 @@ int main(int argc, char** argv)
 
 	PHP::shutdown_php ();
 
+	finalize_plugins ();
+
 	return 0;
 }
 		
@@ -445,7 +446,6 @@ void init_plugins ()
 
 		// Save for later
 		handles [i] = handle;
-
 	}
 }
 
