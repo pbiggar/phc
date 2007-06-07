@@ -8,7 +8,7 @@
 #include "Collect_all_pointers.h"
 #include "process_ast/PHP_unparser.h"
 
-extern "C" void process_ast(AST_php_script* orig_script)
+static void test_cloning (AST_php_script* orig_script)
 {
 	bool success = true;
 
@@ -53,3 +53,13 @@ extern "C" void process_ast(AST_php_script* orig_script)
 		printf("Success\n");
 }
 
+extern "C" void process_hir (AST_php_script* script)
+{
+	test_cloning (script);
+}
+
+
+extern "C" void process_ast (AST_php_script* script)
+{
+	test_cloning (script);
+}

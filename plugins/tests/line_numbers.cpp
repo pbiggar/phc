@@ -206,9 +206,19 @@ public:
 
 };
 
-extern "C" void process_ast(AST_php_script* script)
+static void test_line_numbers (AST_php_script* php_script)
 {
 	Print_line_numbers gsasv;
-	script->visit(&gsasv);
+	php_script->visit(&gsasv);
 	cout << endl;
+}
+
+extern "C" void process_hir (AST_php_script* php_script)
+{
+	test_line_numbers (php_script);
+}
+
+extern "C" void process_ast (AST_php_script* php_script)
+{
+	test_line_numbers (php_script);
 }

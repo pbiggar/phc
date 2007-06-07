@@ -5,29 +5,14 @@
  * Compare the semantic value of tokens against their source representation
  */
 
+/* We assume that both plugins are run, and start the output in the first entry
+ * method, and finish it in the last */
+
 #include "AST_visitor.h"
 
 class Get_source_and_semantic_values : public AST_visitor
 {
 public:
-	void pre_php_script(AST_php_script* in)
-	{
-		printf("<?php\n\n$success = true;\n\n");
-	}
-
-	void post_php_script(AST_php_script* in)
-	{
-		printf(	"if($success)\n"
-				"{\n"
-				"\tprint(\"Success\\n\");\n"
-				"}\n"
-				"else\n"
-				"{\n"
-				"\tprint(\"Failure\\n\");\n"
-				"}\n"
-				"\n?>");
-	}
-
 	void print_comparison(String* type, String* value, String* source)
 	{
 		printf ("\tif(%s !== %s)\n", value->c_str(), source->c_str());
@@ -59,8 +44,32 @@ public:
 	}
 };
 
-extern "C" void process_ast(AST_php_script* script)
+extern "C" void process_ast (AST_php_script* php_script)
 {
+	// print a header
+	printf("<?php\n\n$success = true;\n\n");
+
+	// dump the ast
 	Get_source_and_semantic_values gsasv;
-	script->visit(&gsasv);
+	php_script->visit(&gsasv);
 }
+
+extern "C" void process_hir (AST_php_script* php_script)
+{
+	// dump the HIR
+	Get_source_and_semantic_values gsasv;
+	php_script->visit(&gsasv);
+
+	// print the footer
+	printf(	"if($success)\n"
+				"{\n"
+				"\tprint(\"Success\\n\");\n"
+				"}\n"
+				"else\n"
+				"{\n"
+				"\tprint(\"Failure\\n\");\n"
+				"}\n"
+				"\n?>");
+}
+
+

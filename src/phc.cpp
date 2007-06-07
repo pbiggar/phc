@@ -39,7 +39,10 @@ using namespace std;
 struct gengetopt_args_info args_info;
 
 void generate_c(AST_php_script* php_script, ostream& os = cout);
-void run_plugins(AST_php_script* php_script);
+
+void run_plugins (AST_php_script* php_script, const char* entry_function_name);
+void init_plugins ();
+void finalize_plugins ();
 
 void sighandler(int signum)
 {
@@ -66,6 +69,11 @@ void sighandler(int signum)
 
 int main(int argc, char** argv)
 {
+
+	/* 
+	 *	Startup
+	 */
+
 	AST_php_script* php_script = NULL;
 
 	// Start the embedded interpreter
@@ -83,6 +91,13 @@ int main(int argc, char** argv)
 	if(cmdline_parser(argc, argv, &args_info) != 0)
 		exit(-1);
 
+	// Initialize plugins
+	init_plugins ();
+
+
+	/* 
+	 *	Parsing 
+	 */
 	if(args_info.inputs_num == 0)
 	{
 		php_script = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
@@ -96,21 +111,37 @@ int main(int argc, char** argv)
 		}
 	}
 
-	// Check for invalid but parsable code
-	Invalid_check ic;
-	php_script->visit (&ic);
-
 	if(php_script == NULL) return -1;
 
 	// Make sure the inputs cannot be accessed globally
 	args_info.inputs = NULL;
 
-	process_ast(php_script);
+	// Check for invalid but parsable code
+	Invalid_check ic;
+	php_script->visit (&ic);
+
+	// Check for invalid tree representation
 	check (php_script);
 
-	// do this early
+
+	/*
+	 * AST operations
+	 */
+
+	// Run user AST plugins
+	run_plugins (php_script, "process_ast");
+	check (php_script);
+
+
+	/*
+	 * Passes to lower the AST to HIR
+	 */
+
+	// Make a note of statically declared functions and classes
 	Note_top_level_declarations ntld;
 	php_script->visit (&ntld);
+	check (php_script);
+
 
 	// lift
 	if(args_info.run_lifting_flag
@@ -120,7 +151,6 @@ int main(int argc, char** argv)
 		Lift_functions_and_classes lift;
 		php_script->transform_children(&lift);
 		check (php_script);
-
 	}
 
 	// lower
@@ -154,6 +184,14 @@ int main(int argc, char** argv)
 		check (php_script);
 	}
 
+
+	/*
+	 * Passes on the HIR
+	 */
+
+	run_plugins (php_script, "process_hir");
+	check (php_script);
+
 	// upper (implied by obfuscation)
 	if(args_info.run_goto_uppering_flag || args_info.obfuscate_flag)
 	{
@@ -174,7 +212,10 @@ int main(int argc, char** argv)
 		check (php_script);
 	}
 
-	run_plugins(php_script);
+
+	/*
+	 * Printing passes
+	 */
 
 	if(args_info.pretty_print_flag
 		|| args_info.obfuscate_flag) // obfuscate implies printing now
@@ -194,6 +235,15 @@ int main(int argc, char** argv)
 		DOT_unparser dot_unparser;
 		php_script->visit(&dot_unparser);
 	}
+
+	// Passes do modify scripts, even though they shouldnt
+	check (php_script);
+
+
+
+	/*
+	 * Code generation passes
+	 */
 	
 	if(args_info.generate_c_flag)
 	{
@@ -293,6 +343,14 @@ int main(int argc, char** argv)
 		}
 	}
 
+	// Passes do modify scripts, even though they shouldnt
+	check (php_script);
+
+
+	/*
+	 * Destruction passes
+	 */
+
 	PHP::shutdown_php ();
 
 	return 0;
@@ -314,14 +372,31 @@ void generate_c(AST_php_script* php_script, ostream& os)
 	cout.rdbuf (backup);
 }
 
+static lt_dlhandle *handles;
 
-#define ERR_PLUGIN_UNKNOWN  "Unknown error (%s) with plugin %s"
 void 
-run_plugins(AST_php_script* php_script)
+run_plugins (AST_php_script* php_script, const char* entry_function_name)
 {
-	typedef void (*process_ast_function)(AST_php_script*);
+	typedef void (*process_function)(AST_php_script*);
+
+	for(unsigned i = 0; i < args_info.run_given; i++)
+	{
+		process_function pfunc = (process_function) lt_dlsym(handles[i], entry_function_name);
+
+		// Its not an error to not define this function
+		if(pfunc != NULL)
+			(*pfunc)(php_script);
+
+	}
+}
+
+void init_plugins ()
+{
 	int ret = lt_dlinit();
-	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, lt_dlerror ());
+	if (ret != 0) phc_error ("Error initializing ltdl plugin infrastructure: %s", lt_dlerror ());
+
+	// store all the handlers for plugin passes
+	handles = new lt_dlhandle[args_info.run_given];
 
 	for(unsigned i = 0; i < args_info.run_given; i++)
 	{
@@ -368,21 +443,23 @@ run_plugins(AST_php_script* php_script)
 				NULL, 0, args_info.run_arg[i], default_err, cwd_err, datadir_err);
 		}
 
-		process_ast_function past = (process_ast_function) lt_dlsym(handle, "process_ast");
-		const char* load_symbol_err = lt_dlerror();
-		if(past == NULL)
-		{
-			phc_error ("Unknown error (%s) with plugin %s", NULL, 0, args_info.run_arg[i], load_symbol_err);
-		}
+		// Save for later
+		handles [i] = handle;
 
-		(*past)(php_script);
-		
-		int ret = lt_dlclose (handle);
-		if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, NULL, 0, lt_dlerror ());
+	}
+}
+
+void finalize_plugins ()
+{
+
+	for(unsigned i = 0; i < args_info.run_given; i++)
+	{
+		int ret = lt_dlclose (handles[i]);
+		if (ret != 0) phc_error ("Error closing %s plugin with error: %s", args_info.run_arg[i], lt_dlerror ());
 	}
 
-	ret = lt_dlexit();
-	if (ret != 0) phc_error (ERR_PLUGIN_UNKNOWN, NULL, 0, lt_dlerror ());
+	delete handles;
 
-#undef ERR_PLUGIN_UNKNOWN
+	int ret = lt_dlexit();
+	if (ret != 0) phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
 }

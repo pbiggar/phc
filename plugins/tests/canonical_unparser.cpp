@@ -35,7 +35,7 @@ class Canonical_unparser : public virtual PHP_unparser
 	}
 };
 
-extern "C" void process_ast(AST_php_script* script)
+extern "C" void process_hir (AST_php_script* script)
 {
 	Canonical_unparser cup;
 	script->clone()->visit(&cup);

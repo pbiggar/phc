@@ -43,7 +43,13 @@ public:
 	}
 };
 
-extern "C" void process_ast(AST_php_script* script)
+extern "C" void process_hir (AST_php_script* script)
+{
+	Test_pre_vs_post_count t;
+	script->visit(&t);
+}
+
+extern "C" void process_ast (AST_php_script* script)
 {
 	Test_pre_vs_post_count t;
 	script->visit(&t);

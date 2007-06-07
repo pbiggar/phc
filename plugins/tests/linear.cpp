@@ -7,10 +7,10 @@
 
 #include "Collect_all_pointers.h"
 
-extern "C" void process_ast(AST_php_script* script)
+static void test_linear (AST_php_script* php_script)
 {
 	Collect_all_pointers cap;
-	script->visit(&cap);
+	php_script->visit(&cap);
 
 	if(cap.all_pointers.size() == cap.unique_pointers.size())
 		printf("Success\n");
@@ -18,3 +18,13 @@ extern "C" void process_ast(AST_php_script* script)
 		printf("Failure\n");
 }
 
+extern "C" void process_hir (AST_php_script* php_script)
+{
+	test_linear (php_script);
+}
+
+
+extern "C" void process_ast (AST_php_script* php_script)
+{
+	test_linear (php_script);
+}
