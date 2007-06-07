@@ -21,7 +21,10 @@ class ZendBenchmark extends NoSubjectTest
 		list ($out1, $err1, $exit1) = complete_exec ($command1);
 		$this->end_benchmark_timer ("compile_$name");
 		if ($err1 or $exit1 != 0)
+		{
 			$this->mark_failure ("compile_$name", $command1, $exit1, $out1, $err1);
+			return;
+		}
 
 		$this->start_benchmark_timer ("php_$name");
 		list ($out1, $err1, $exit1) = complete_exec ("php $filename");
