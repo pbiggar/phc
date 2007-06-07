@@ -155,6 +155,14 @@ void XML_unparser::print_attribute(string name, Object* attr)
 		print_indent();
 		os << "</string_list></attr>" << endl;
 	}
+	else if (attr == NULL && name == "phc.filename") // TODO we should fix this, not work around it
+	{
+		os << "<attr key=\"" << name << "\"><string>NULL</string></attr>" << endl;
+	}
+	else if(name == "phc.line_number") // TODO: line numbers are just longs. perhaps they should be wrapped
+	{
+		os << "<attr key=\"" << name << "\"><integer>" << reinterpret_cast<long>(attr) << "</integer></attr>" << endl;
+	}
 	else
 		phc_warning("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	
 }
