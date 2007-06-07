@@ -263,7 +263,7 @@ int main(int argc, char** argv)
 		generate_c(php_script, ss);
 		
 		// Argument array for gcc
-		#define GCC_ARGS 10
+		#define GCC_ARGS 11
 		stringstream args[GCC_ARGS];
 		args[0] << "gcc";
 		args[1] << "-I" << php_path << "/include/php";
@@ -273,8 +273,9 @@ int main(int argc, char** argv)
 		args[5] << "-L" << php_path << "/lib";
 		args[6] << "-Wl,-R" << php_path << "/lib";
 		args[7] << "-lphp5";
-		args[8] << "-xc";
-		args[9] << "-";
+		args[8] << "-ggdb3";
+		args[9] << "-xc";
+		args[10] << "-";
 
 		char** argv;
 		argv = (char**) calloc(GCC_ARGS + args_info.c_option_given + 1, sizeof(char*));

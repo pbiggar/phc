@@ -1,0 +1,3 @@
+#!/bin/bash
+
+CFLAGS="-ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed
