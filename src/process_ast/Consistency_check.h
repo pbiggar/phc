@@ -10,6 +10,9 @@
  *
  */
 
+#ifndef CONSISTENCY_CHECK_H
+#define CONSISTENCY_CHECK_H
+
 #include "Invalid_check.h"
 void check (AST_node* in);
 
@@ -18,3 +21,6 @@ class Consistency_check : public Invalid_check
 public:
 	Consistency_check ();
 };
+
+
+#endif  // CONSISTENCY_CHECK_H

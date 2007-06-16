@@ -8,7 +8,7 @@
 /* We assume that both plugins are run, and start the output in the first entry
  * method, and finish it in the last */
 
-#include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 
 class Get_source_and_semantic_values : public AST_visitor
 {
@@ -44,24 +44,24 @@ public:
 	}
 };
 
-extern "C" void process_ast (AST_php_script* php_script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	// print a header
-	printf("<?php\n\n$success = true;\n\n");
+	pm->add_after_each_pass (pass);
 
-	// dump the ast
-	Get_source_and_semantic_values gsasv;
-	php_script->visit(&gsasv);
+	// print a header
+	cout << "<?php\n\n$success = true;\n\n";
 }
 
-extern "C" void process_hir (AST_php_script* php_script)
-{
-	// dump the HIR
-	Get_source_and_semantic_values gsasv;
-	php_script->visit(&gsasv);
 
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit(new Get_source_and_semantic_values ());
+}
+
+extern "C" void unload ()
+{
 	// print the footer
-	printf(	"if($success)\n"
+	cout <<	"if($success)\n"
 				"{\n"
 				"\tprint(\"Success\\n\");\n"
 				"}\n"
@@ -69,7 +69,5 @@ extern "C" void process_hir (AST_php_script* php_script)
 				"{\n"
 				"\tprint(\"Failure\\n\");\n"
 				"}\n"
-				"\n?>");
+				"\n?>";
 }
-
-

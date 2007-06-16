@@ -6,26 +6,35 @@
  */
 
 #include <iostream>
-#include "AST.h"
 #include "config.h"
 #include "process_ast/XML_unparser.h"
-#include <parsing/XML_parser.h> 
+#include "parsing/XML_parser.h" 
+#include "process_ast/Pass_manager.h" 
 
 using namespace std;
 
-static void test_roundtrip (AST_php_script* php_script)
+static bool success = true;
+static bool is_run = false;
+
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	#ifdef HAVE_XERCES
+	pm->add_after_each_pass (pass);
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+#ifdef HAVE_XERCES
+	is_run = true;
 
 	// unparse once
 	ostringstream xml_output1;
 	XML_unparser xml_unparser1 (xml_output1);
-	php_script->visit(&xml_unparser1);
+	in->visit(&xml_unparser1);
 
 	// reparse
 	AST_php_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
 
-	// unparse once
+	// unparse a second time
 	ostringstream xml_output2;
 	XML_unparser xml_unparser2 (xml_output2);
 	reparsed1->visit(&xml_unparser2);
@@ -33,26 +42,24 @@ static void test_roundtrip (AST_php_script* php_script)
 	// reparse
 	AST_php_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
 
-	if(php_script->equals(reparsed1) && php_script->equals(reparsed2))
-	{
-		printf("Success\n");
-	}
-	else
+	if (not (in->equals(reparsed1) && in->equals(reparsed2)))
 	{
 		printf("Failure\n");
 		XML_unparser unparser;
-		php_script->visit(new XML_unparser ());
-		reparsed1->visit(new XML_unparser ());
-		reparsed2->visit(new XML_unparser ());
+		in->visit (new XML_unparser ());
+		reparsed1->visit (new XML_unparser ());
+		reparsed2->visit (new XML_unparser ());
 	}
-	#else
+#else
 	cout << "XML support not built-in" << endl;
-	#endif
+#endif
+
 }
 
-
-extern "C" void process_hir (AST_php_script* php_script)
+extern "C" void unload ()
 {
-	test_roundtrip (php_script);
+	if (is_run && success)
+		printf("Success\n");
+	else
+		printf("Failure\n");
 }
-

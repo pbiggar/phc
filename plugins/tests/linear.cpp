@@ -6,19 +6,37 @@
  */
 
 #include "Collect_all_pointers.h"
+#include "process_ast/Pass_manager.h"
 
-static void test_linear (AST_php_script* php_script)
+/* We add this pass after every other pass in load(),
+ * update the variables in run, and print out results in
+ * exit (). */
+static bool success = true;
+static bool is_run = false;
+
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
+{
+	pm->add_after_each_pass (pass);
+}
+
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
 {
 	Collect_all_pointers cap;
-	php_script->visit(&cap);
+	in->visit(&cap);
 
-	if(cap.all_pointers.size() == cap.unique_pointers.size())
+	is_run = true;
+
+	if(cap.all_pointers.size() != cap.unique_pointers.size())
+		success = false;
+}
+
+extern "C" void unload ()
+{
+	if (is_run && success)
 		printf("Success\n");
 	else
 		printf("Failure\n");
 }
 
-extern "C" void process_hir (AST_php_script* php_script)
-{
-	test_linear (php_script);
-}
+

@@ -16,11 +16,8 @@ option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified 
 option "generate-c" - "Generate C code" flag off hidden
 option "extension" - "Generate a PHP extension called NAME instead of a standalone application" string typestr="NAME" no 
 option "with-php" - "PHP installation path" string typestr="NAME" no hidden 
-option "compile-time-includes" - "When possible, replace include() statements with the parsed contents of the specified file" flag off
 
-section "DUMP OPTIONS"
-option "dump-ast-dot" - "Dump the AST from the source in dot format" flag off
-option "dump-ast-xml" - "Dump the AST from the source in XML format" flag off
+section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
 option "no-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag off hidden 
 option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
@@ -28,10 +25,9 @@ option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hid
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
 
 section "DEBUGGING PHC"
-option "dump-tokens" - "Perform lexical analysis only (spits out a token list)" flag off hidden
-option "run-lifting" - "Run the lifting pass (create a main function)" flag off hidden
-option "run-lowering" - "Run the lowering pass (remove control flow constructs)" flag off hidden
-option "run-shredder" - "Run the shredder (transform the AST to 3AC-like code)" flag off hidden
-option "run-goto-uppering" - "Run the uppering pass (replace gotos with valid, if ugly, php so that it can be interpreted)" flag off hidden
+option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "udump" U "Dump input as runnable PHP after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "ddump" - "Dump input as DOT after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "xdump" X "Dump input as XML after the pass named 'pasname'" string typestr="passname" multiple hidden optional
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

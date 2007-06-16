@@ -7,7 +7,7 @@
  */
 
 #include "process_ast/PHP_unparser.h" 
-
+#include "process_ast/Pass_manager.h" 
 class Clear_user_syntax : public virtual AST_visitor
 {
 	void pre_node (AST_node* in)
@@ -35,8 +35,12 @@ class Canonical_unparser : public virtual PHP_unparser
 	}
 };
 
-extern "C" void process_hir (AST_php_script* script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	Canonical_unparser cup;
-	script->clone()->visit(&cup);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->clone()->visit (new Canonical_unparser ());
 }

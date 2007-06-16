@@ -18,6 +18,9 @@ class Lower_control_flow : public AST_transform
 		List<AST_node*> continue_levels;
 
 	public:
+		AST_php_script* post_php_script (AST_php_script* in);
+
+	public:
 		template<class T> void potentially_add_label (AST_node*, List<AST_statement*>*);
 		template<class T> AST_label* exit_label (AST_node*);
 		template<class T> void lower_exit (T*, List<AST_statement*>*);

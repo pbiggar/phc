@@ -15,6 +15,7 @@
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
 #include "Lower_control_flow.h"
+#include "Check_lowering.h"
 #include "fresh.h"
 #include <sstream>
 #include "process_ast/XML_unparser.h"
@@ -762,4 +763,10 @@ void Lower_control_flow::pre_switch(AST_switch* in, List<AST_statement*>* out)
 	break_levels.push_back (in);
 	continue_levels.push_back (in);
 	out->push_back (in);
+}
+
+AST_php_script* Lower_control_flow::post_php_script (AST_php_script* in)
+{
+	in->visit (new Check_lowering ());
+	return in;
 }

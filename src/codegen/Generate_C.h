@@ -11,13 +11,44 @@
 #ifndef GENERATE_C
 #define GENERATE_C
 
+#include <sstream>
+#include "cmdline.h"
 #include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 
-class Generate_C : public AST_visitor
+class Generate_C : public AST_visitor, public Pass
 {
 public:
+	stringstream& os;
+
 	// use NULL to compile as an extension
-	Generate_C(String* extension_name);
+	Generate_C(stringstream& os);
+
+	void run (AST_php_script* in, Pass_manager* pm)
+	{
+		if (!(pm->args_info->generate_c_flag
+					or pm->args_info->compile_flag))
+			return;
+
+		if (pm->args_info->extension_given)
+		{
+			extension_name = new String (pm->args_info->extension_arg);
+			is_extension = true;
+		}
+		else
+		{
+			extension_name = new String("app");
+			is_extension = false;
+		}
+
+		// adding an ostream is so invasive, thats its
+		// simpler to simply hack in this osteam as a global.
+		streambuf* backup = cout.rdbuf ();
+		cout.rdbuf (os.rdbuf ());
+		in->visit(this);
+		cout.rdbuf (backup);
+	}
+
 
 public:
 	void children_statement(AST_statement* in);

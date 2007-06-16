@@ -16,9 +16,7 @@
 #include "parsing/XML_parser.h"
 #include "parsing/PHP_context.h"
 #include "process_ast/Remove_parser_temporaries.h"
-#include "process_ast/Remove_concat_null.h"
 #include "process_ast/Token_conversion.h"
-#include "process_ast/Process_includes.h"
 
 extern struct gengetopt_args_info args_info;
 
@@ -66,13 +64,13 @@ AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 		// Compile
 		PHP_context* context = new PHP_context(input, full_path);
 
-		if(args_info.dump_tokens_flag)
+//		if(is_dump_option ("tokens"))
 		{
 			// run the lexer only
 			// TODO: reenable
 			// while(parser.php_lexer->yylex());
 		}
-		else
+//		else
 		{
 			if(!PHP_parse(context))
 			{
@@ -148,11 +146,6 @@ void run_standard_transforms(AST_php_script* php_script)
 	Remove_parser_temporaries rpt;
 	php_script->visit(&rpt);
 
-	// The parser will introduce concatenations with "" in certain
-	// (frequent) circumstances. This will remove them. This could
-	// probably be run at any time.
-	Remove_concat_null rcn;
-	php_script->transform_children(&rcn);
 
 	// There are a number of strange rules based on the value of an
 	// integer/real, which must be applied. The parser cannot do this,
@@ -161,15 +154,4 @@ void run_standard_transforms(AST_php_script* php_script)
 	// should be run early.
 	Token_conversion tc;
 	php_script->transform_children(&tc);
-
-	// This replaces include() statements with the file they include,
-	// based on certain rules. Since the included script will be
-	// pre-parsed, process_includes should be one of the last transforms
-	// to run, else the effort will be duplicated (which could lead to
-	// an error)
-	if(args_info.compile_time_includes_flag)
-	{
-		Process_includes pi;
-		php_script->transform_children(&pi);
-	}
 }

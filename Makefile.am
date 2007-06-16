@@ -46,6 +46,8 @@ src_phc_SOURCES =												\
 	src/codegen/Check_lowering.h							\
 	src/codegen/Check_uppering.cpp						\
 	src/codegen/Check_uppering.h							\
+	src/codegen/Compile_C.cpp								\
+	src/codegen/Compile_C.h									\
 	src/codegen/fresh.cpp									\
 	src/codegen/fresh.h										\
 	src/codegen/Generate_C.cpp								\
@@ -109,7 +111,11 @@ src_phc_SOURCES =												\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
 	src/process_ast/Invalid_check.h						\
+	src/process_ast/Pass_manager.cpp						\
+	src/process_ast/Pass_manager.h						\
 	src/process_ast/PHP_unparser.cpp						\
+	src/process_ast/PHP_unparser.h						\
+	src/process_ast/Pretty_printer.h						\
 	src/process_ast/PHP_unparser.h						\
 	src/process_ast/Process_includes.cpp				\
 	src/process_ast/Process_includes.h					\

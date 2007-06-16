@@ -843,13 +843,13 @@ goto find_rule; \
 	 */
 
 	#define RETURN(x) {															\
-		if(args_info.dump_tokens_flag)										\
+		if(false)													\
 			printf("%ld: " #x "\n", yyextra->source_line);				\
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
 	#define RETURN_OP(t, s) {													\
-		if(args_info.dump_tokens_flag) 										\
+		if(false)													\
 			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
 		yylval->token_op = new Token_op(new String(s)); 				\
 		copy_state(yylval->token_op, yyextra);								\

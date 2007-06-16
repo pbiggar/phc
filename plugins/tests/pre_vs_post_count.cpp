@@ -7,7 +7,10 @@
  */
 
 #include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 
+static bool success = true;
+static bool is_run = false;
 class Test_pre_vs_post_count : public AST_visitor
 {
 private:
@@ -21,12 +24,10 @@ public:
 
 	void post_php_script(AST_php_script* in)
 	{
-		if (count == 0)
+		is_run = true;
+		if (count != 0)
 		{
-			printf("Success\n");
-		}
-		else 
-		{
+			success = false;
 			printf("Failure\n");
 			printf("Count is %d\n", count);
 		}
@@ -45,6 +46,25 @@ public:
 
 extern "C" void process_hir (AST_php_script* script)
 {
-	Test_pre_vs_post_count t;
-	script->visit(&t);
 }
+
+
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
+{
+	pm->add_after_each_pass (pass);
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit(new Test_pre_vs_post_count ());
+}
+
+extern "C" void unload ()
+{
+	if (is_run && success)
+		printf("Success\n");
+	else
+		printf("Failure\n");
+}
+
+

@@ -27,6 +27,7 @@ public:
 	
 	void pre_php_script (AST_php_script *in);
 	void pre_method (AST_method *in);
+	void post_php_script (AST_php_script* in);
 };
 
 #endif // PHC_GOTO_UPPERING_H

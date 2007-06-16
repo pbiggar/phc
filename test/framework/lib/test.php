@@ -132,6 +132,7 @@ abstract class Test
 		$this->failures = 0;
 		$this->skipped = 0;
 		$this->total = 0;
+		$this->expected_failure_count = 0;
 		$this->timers = array();
 	}
 

@@ -1,4 +1,5 @@
 #include "Goto_uppering.h"
+#include "Check_uppering.h"
 
 Goto_uppering::Goto_uppering ()
 {
@@ -129,4 +130,9 @@ Goto_uppering::pre_method (AST_method *in)
 {
 	if(in->statements != NULL) // abstract method?
 		in->statements = convert_statement_list (in->statements);
+}
+
+void Goto_uppering::post_php_script (AST_php_script* in)
+{
+//	in->visit (new Check_uppering ());
 }

@@ -9,6 +9,7 @@
 #include "AST_visitor.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
+#include "process_ast/Pass_manager.h"
 #include "lib/List.h"
 
 // search for scripts that are "pure"; ie have no side effects
@@ -798,8 +799,6 @@ public:
 			impurity = in;
 		}
 
-
-		
 	}
 
 	void post_php_script(AST_php_script* in)
@@ -815,8 +814,12 @@ public:
 
 };
 
-extern "C" void process_ast(AST_php_script* script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	Purity_test pt;
-	script->visit(&pt);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit(new Purity_test ());
 }

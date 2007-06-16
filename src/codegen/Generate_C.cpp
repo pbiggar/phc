@@ -1592,18 +1592,8 @@ void Generate_C::post_php_script(AST_php_script* in)
  * Bookkeeping 
  */
 
-Generate_C::Generate_C(String* extension_name)
+Generate_C::Generate_C(stringstream& os) : os (os)
 {
-	if(extension_name != NULL)
-	{
-		this->extension_name = extension_name;
-		is_extension = true;
-	}
-	else
-	{
-		this->extension_name = new String("app");
-		is_extension = false;
-	}
-
 	methods = new List<AST_signature*>;
+	name = new String ("generate-c");
 }
