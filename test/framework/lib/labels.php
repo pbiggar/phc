@@ -270,4 +270,11 @@ function get_all_scripts_in_dir($directory)
 	return $result;
 }
 
+function get_all_plugins ()
+{
+	$command = "find plugins -name \"*.cpp\"";
+	$result = split ("\n", trim (`$command`));
+	return $result;
+}
+
 ?>
