@@ -3,7 +3,7 @@
  * See doc/license/README.license for licensing information
  */
 
-#include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 
 class MySQL2DBX : public AST_visitor
 {
@@ -42,8 +42,12 @@ public:
    }
 };
 
-extern "C" void process_ast(AST_php_script* php_script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	MySQL2DBX m2d;
-	php_script->visit(&m2d);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit (new MySQL2DBX ());
 }

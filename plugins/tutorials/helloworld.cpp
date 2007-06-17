@@ -3,12 +3,12 @@
  * See doc/license/README.license for licensing information
  */
 
-#include "AST.h"
+#include "process_ast/Pass_manager.h"
 #include <iostream>
 
 using namespace std;
 
-extern "C" void process_ast(AST_php_script* php_script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	cout << "Hello world (I'm a phc plugin!)" << endl;
 }

@@ -5,7 +5,7 @@
  * Printout all the tokens with their line numbers.
  */
 
-#include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 #include "process_ast/PHP_unparser.h"
 
 class Print_line_numbers : public AST_visitor
@@ -202,23 +202,15 @@ public:
 		cout << *in->get_source_rep() << ":" << in->get_line_number() << delimiter;
 	}
 
-
-
 };
 
-static void test_line_numbers (AST_php_script* php_script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	Print_line_numbers gsasv;
-	php_script->visit(&gsasv);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit (new Print_line_numbers ());
 	cout << endl;
-}
-
-extern "C" void process_hir (AST_php_script* php_script)
-{
-	test_line_numbers (php_script);
-}
-
-extern "C" void process_ast (AST_php_script* php_script)
-{
-	test_line_numbers (php_script);
 }

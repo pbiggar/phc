@@ -5,7 +5,7 @@
  * Add a TODO comment in empty if statement bodies.
  */
 
-#include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 
 class Comment_ifs : public AST_visitor
 {
@@ -37,8 +37,12 @@ public:
    }
 };
 
-extern "C" void process_ast(AST_php_script* php_script)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	Comment_ifs cifs;
-	php_script->visit(&cifs);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit (new Comment_ifs ());
 }

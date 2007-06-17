@@ -3,7 +3,7 @@
  * See doc/license/README.license for licensing information
  */
 
-#include "AST_visitor.h"
+#include "process_ast/Pass_manager.h"
 #include "lib/demangle.h"
 
 class Show_traversal_order : public AST_visitor
@@ -56,8 +56,12 @@ public:
 	}
 };
 
-extern "C" void process_ast(AST_php_script* in)
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	Show_traversal_order sto;
-	in->visit(&sto);
+	pm->add_after_named_pass (pass, "ast");
+}
+
+extern "C" void run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit (new Show_traversal_order ());
 }

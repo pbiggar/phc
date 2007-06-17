@@ -44,11 +44,6 @@ public:
 	}
 };
 
-extern "C" void process_hir (AST_php_script* script)
-{
-}
-
-
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_after_each_pass (pass);
@@ -66,5 +61,3 @@ extern "C" void unload ()
 	else
 		printf("Failure\n");
 }
-
-
