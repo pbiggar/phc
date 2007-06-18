@@ -15,6 +15,55 @@
 class Desugar : public AST_transform
 {
 public:
+	//   $x[f()] += 1;
+	// 
+	// is represented as 
+	// 
+	//   $x[f()] = $x[f()] + 1; // phc.unparser.opeq is set
+	//
+	// Since f() would be executed twice, it would be incorrect for any
+	// side-effecting expression. We convert to
+	//
+	//	  $tmp = f();
+	//   $x[$tmp] = $x[$tmp] + 1;
+	
+	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+	{
+		AST_assignment* assignment = dynamic_cast <AST_assignment*> (in->expr);
+		if (assignment == NULL 
+			or !assignment->attrs->is_true ("phc.unparser.is_opeq"))
+		{
+			out->push_back (in);
+			return;
+		}
+
+
+		// the variables and expressions are identical
+		AST_variable* lhs = assignment->variable;
+		AST_variable* rhs = dynamic_cast <AST_variable*> (
+			(dynamic_cast<AST_bin_op*>(assignment->expr))->left);
+		assert (lhs->equals (rhs));
+
+		// generate a temp for each non-literal expression.
+
+		List<AST_expr*>::iterator i;
+		List<AST_expr*>::iterator j;
+		for (i = lhs->array_indices->begin(), j = rhs->array_indices->begin();
+				i != lhs->array_indices->end(), j != rhs->array_indices->end();
+				i++, j++)
+		{
+			if (dynamic_cast<AST_literal*>(*i))
+				continue;
+
+			AST_variable* tmp = fresh_var ("Topeq");
+			out->push_back (new AST_eval_expr (new AST_assignment (tmp, false, (*i))));
+			(*i) = tmp->clone ();
+			(*j) = tmp->clone ();
+		}
+
+		out->push_back (in);
+	}
+
 	// All eval_expr must be assignments; if they are not, we generate
 	// a dummy assignment on the LHS
 	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
@@ -43,6 +92,7 @@ public:
 		else
 			return in;
 	}
+
 
 	// Since the shredder changes all eval_expr into assignments, it will
 	// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
@@ -175,7 +225,6 @@ public:
 	}
 
 	void pre_formal_parameter (AST_formal_parameter* in)
-
 	{
 		// Do not generate a temp to hold the value of a parameter's
 		// default value
