@@ -105,7 +105,7 @@ src_phc_SOURCES =												\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/phc.cpp													\
-	src/process_ast/Consistenct_check.h					\
+	src/process_ast/Consistency_check.h					\
 	src/process_ast/Consistency_check.cpp				\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
@@ -115,7 +115,7 @@ src_phc_SOURCES =												\
 	src/process_ast/Pass_manager.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h						\
-	src/process_ast/Pretty_printer.h						\
+	src/process_ast/Pretty_print.h						\
 	src/process_ast/PHP_unparser.h						\
 	src/process_ast/Process_includes.cpp				\
 	src/process_ast/Process_includes.h					\
