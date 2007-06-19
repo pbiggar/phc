@@ -41,9 +41,17 @@ class CompiledVsInterpreted extends Test
 		// first check that phc returns 0
 		$phc_command1 = "$phc --generate-c $subject";
 		list ($phc_out1, $phc_err1, $phc_exit1) = complete_exec($phc_command1);
+
+		# Blank output wasnt being picked up
+		if (count (split ("\n", $phc_out1)) < 300)
+		{
+			$this->mark_failure ($subject, $phc_command1, $phc_exit1, $phc_out1, $phc_err1); 
+			return;
+		}
+
 		if ($phc_exit1 != 0)
 		{
-			$this->mark_skipped($subject, "Generate C has non-zero status"); 
+			$this->mark_skipped ($subject, "Generate C has non-zero status"); 
 			return;
 		}
 
