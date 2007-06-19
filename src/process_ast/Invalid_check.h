@@ -32,6 +32,7 @@ public:
 	void pre_formal_parameter (AST_formal_parameter* in);
 	void pre_method_invocation (AST_method_invocation* in);
 	void pre_attribute (AST_attribute* in);
+	void pre_static_declaration (AST_static_declaration* in);
 };
 
 #endif // PHC_INVALID_CHECK

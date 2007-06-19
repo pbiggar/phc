@@ -26,9 +26,12 @@ public:
 	String(const string& s); 
 	String(char const* s); 
 	String(char const* s, size_t n);
+
+	// case insensitive comparison
 	virtual ~String();
 
 public:
+	bool ci_compare (const string& s);
 	String* clone();
 };
 

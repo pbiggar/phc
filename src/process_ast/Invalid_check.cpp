@@ -116,17 +116,25 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 	}
 }
 
+
 void Invalid_check::pre_directive (AST_directive *in)
 {
 	// declare (ticks = $x)
 	// Declaration directives must have literal arguments. There's no
 	// reason that non-literals wouldnt be ok, but thats php for you
+
 	
-	if (*in->directive_name->value == "ticks")
+	// ticks is case insensitive
+	if (in->directive_name->value->ci_compare ("ticks"))
 	{
 		// This error message is taken from php
 		if (!(dynamic_cast <AST_literal*>(in->expr)))
 			error ("Cannot convert to ordinal value", in->expr);
+	}
+	else
+	{
+		// TODO should be a warning perhaps?
+		error ("PHP only supports the 'ticks' directive", in->directive_name);
 	}
 }
 
@@ -163,4 +171,16 @@ void Invalid_check::pre_attribute (AST_attribute* in)
 
 	if (check_deep_literals (in->expr))
 		error ("Default value of an attribute must be a literal value or an array", in->expr);
+}
+
+void Invalid_check::pre_static_declaration (AST_static_declaration* in)
+{
+	// function X () {
+	//   static $x = f(); // also a syntax error
+	// }
+	if (in->expr == NULL)
+		return;
+
+	if (check_deep_literals (in->expr))
+		error ("Default value of a static declaration must be a literal value or an array", in->expr);
 }
