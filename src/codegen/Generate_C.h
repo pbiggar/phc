@@ -47,6 +47,9 @@ public:
 		cout.rdbuf (os.rdbuf ());
 		in->visit(this);
 		cout.rdbuf (backup);
+
+		if (pm->args_info->generate_c_flag)
+			cout << os.str ();
 	}
 
 
