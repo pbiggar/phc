@@ -6,7 +6,6 @@
  * Compile a plugin using phc_compile_plugin, and check it works
  */
 
-require_once ("lib/no_subject_test.php");
 class CompilePluginTest extends Test
 {
 	function check_prerequisites ()
@@ -61,6 +60,8 @@ class CompilePluginTest extends Test
 		# phc_compile_plugin only allows CFLAGS and LDFLAGS, even though we use CPPFLAGS
 		if ($trunk_CPPFLAGS)
 			$CPPFLAGS = "CFLAGS=$trunk_CPPFLAGS";
+		else
+			$CPPFLAGS = "";
 
 		$command = "$CPPFLAGS $phc_compile_plugin $plugin_name.cpp";
 		list ($out, $err, $exit) = complete_exec ($command); # ignore stdout

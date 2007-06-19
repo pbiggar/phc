@@ -6,8 +6,7 @@
  * Test to run the zend benchmark
  */
 
-$tests[] = new ZendBenchmark ();
-
+require_once ("lib/no_subject_test.php");
 class ZendBenchmark extends NoSubjectTest
 {
 	function run_test ($subject)
@@ -46,3 +45,7 @@ class ZendBenchmark extends NoSubjectTest
 		$this->benchmark_timers[$subject] = microtime(true) - $this->benchmark_timer_start;
 	}
 }
+
+
+$tests[] = new ZendBenchmark ();
+

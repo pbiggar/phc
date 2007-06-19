@@ -9,12 +9,9 @@
 #define PHC_PASS_MANAGER_H
 
 #include "AST_visitor.h"
-#include "cmdline.h"
-#include "ltdl.h"
 #include "AST_transform.h"
-#include "process_ast/Consistency_check.h"
-#include "process_ast/PHP_unparser.h"
-#include "codegen/Goto_uppering.h"
+#include "ltdl.h"
+#include "cmdline.h"
 
 class Pass_manager;
 

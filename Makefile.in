@@ -595,30 +595,31 @@ BUILT_SOURCES = \
 #   AST_visitor.h)
 strangephcdir = $(pkgincludedir)
 strangephc_HEADERS = \
-	config.h								\
+	config.h										\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
-	src/generated/AST_visitor.h
+	src/generated/AST_visitor.h			\
+	src/generated/cmdline.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS = \
-	src/parsing/parse.h
+	src/parsing/parse.h						\
+	src/parsing/XML_parser.h
 
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS = \
 	src/process_ast/DOT_unparser.h			\
 	src/process_ast/PHP_unparser.h			\
-	src/process_ast/Remove_concat_null.h	\
-	src/process_ast/XML_unparser.h			\
-	src/process_ast/Process_includes.h
+	src/process_ast/Pass_manager.h			\
+	src/process_ast/XML_unparser.h
 
 strangelibdir = $(pkgincludedir)/lib
 strangelib_HEADERS = \
 	src/lib/AttrMap.h		\
 	src/lib/base64.h		\
 	src/lib/Boolean.h		\
-	src/lib/demangle.h		\
-	src/lib/error.h			\
+	src/lib/demangle.h	\
+	src/lib/error.h		\
 	src/lib/Integer.h		\
 	src/lib/List.h			\
 	src/lib/Object.h		\
