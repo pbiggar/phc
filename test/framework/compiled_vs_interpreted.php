@@ -18,6 +18,11 @@ class CompiledVsInterpreted extends Test
 		return true;
 	}
 
+	function homogenize_output ($string)
+	{
+		return homogenize_filenames_and_line_numbers ($string);
+	}
+
 	function get_dependent_test_names ()
 	{
 		return array ("InterpretShredded");
@@ -75,8 +80,7 @@ class CompiledVsInterpreted extends Test
 
 		if ($out1 !== $out2 
 			or $err1 !== $err2 
-			or $exit1 
-			or $exit2)
+			or $exit1 !== $exit2) 
 		{
 			$output = diff ($out1, $out2);
 			$this->mark_failure ($subject,

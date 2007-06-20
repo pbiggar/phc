@@ -956,9 +956,8 @@ public:
 
 // check for non-existant functions
 		<< "if (signature == NULL) {"
-		<< "fprintf (stderr,"
-			" \"Fatal error: Call to undefined function " << *name->value 
-		<< "() in " << name->get_filename () 
+		<< "printf (\"\\nFatal error: Call to undefined function " << *name->value << "()"
+		<< " in " << name->get_filename () 
 		<< " on line " << name->get_line_number () 
 		<< "\\n\"); "
 		<< "exit (-1);"
