@@ -944,10 +944,26 @@ public:
 			assert(0);
 		}
 	
+		// TODO: better error reporting. Either use or duplicate PHP's
+		// mechanism for error reporting. We might be safe sticking with
+		// this for fatal errors, however, since they can'y be caught by
+		// error handlers
+
 		// Figure out which parameters need to be passed by reference
 		cout
 		<< "zend_function* signature;\n"
-		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);"
+		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);\n"
+
+// check for non-existant functions
+		<< "if (signature == NULL) {"
+		<< "fprintf (stderr,"
+			" \"Fatal error: Call to undefined function " << *name->value 
+		<< "() in " << name->get_filename () 
+		<< " on line " << name->get_line_number () 
+		<< "\\n\"); "
+		<< "exit (-1);"
+		<<	"}\n"
+
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
 		<< "int by_ref[" << rhs->value->actual_parameters->size() << "];\n"
 		;

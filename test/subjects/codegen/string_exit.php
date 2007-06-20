@@ -1,0 +1,5 @@
+<?php
+
+	exit ("a string");
+
+?>

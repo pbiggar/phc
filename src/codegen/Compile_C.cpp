@@ -30,7 +30,7 @@ void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 		php_path = PHP_INSTALL_PATH;
 
 	// Argument array for gcc
-#define GCC_ARGS 10
+#define GCC_ARGS 12
 	stringstream args[GCC_ARGS];
 	args[0] << "gcc";
 	args[1] << "-I" << php_path << "/include/php";
@@ -41,7 +41,9 @@ void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 	args[6] << "-Wl,-R" << php_path << "/lib";
 	args[7] << "-lphp5";
 	args[8] << "-xc";
-	args[9] << "-";
+	args[9] << "-ggdb3";
+	args[10] << "-O0";
+	args[11] << "-";
 
 	char** argv;
 	argv = (char**) calloc(GCC_ARGS + pm->args_info->c_option_given + 1, sizeof(char*));
