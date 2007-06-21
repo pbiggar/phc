@@ -848,6 +848,41 @@ protected:
 	Wildcard<AST_variable_name>* rhs;
 };
 
+class Assign_constant : public Assignment
+{
+public:
+
+	AST_expr* rhs_pattern()
+	{
+		rhs = new Wildcard<AST_constant> ();
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		// Check whether its in the form CONST or CLASS::CONST
+		String* name = new String ("");
+		if (rhs->value->class_name)
+		{
+			name->append (*rhs->value->class_name->value);
+			name->append ("::");
+		}
+
+		name->append (*rhs->value->constant_name->value);
+
+		cout
+			<< "MAKE_STD_ZVAL (rhs);\n"
+			<< "zend_get_constant ( \"" << *name << "\""
+			<< ", " << name->length() // exclude NULL-terminator
+			<< ", rhs TSRMLS_CC);\n" // the book say _DC, but that doesnt compile
+			;
+
+	}
+
+protected:
+	Wildcard<AST_constant>* rhs;
+};
+
 class Eval : public Assignment
 {
 	AST_expr* rhs_pattern()
@@ -912,16 +947,18 @@ public:
 	bool match (AST_statement* that)
 	{
 		exit_arg = new Wildcard<AST_variable> ();
+		Wildcard<Token_method_name>* name = new Wildcard <Token_method_name> ();
 		return that->match (
 				new AST_eval_expr (
 					new AST_assignment (new Wildcard<AST_variable>, false, // ignored
 						new AST_method_invocation(
 							NULL,	
-							new Token_method_name(new String("exit")),
+							name,
 							new List<AST_actual_parameter*>(
 								new AST_actual_parameter(false, exit_arg)
 								)
-							))));
+							))))
+			&& (*name->value->value == "exit" || *name->value->value == "die");
 	}
 
 	void generate_code (Generate_C* gen)
@@ -1358,6 +1395,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Assign_null()
 	,	new Assign_bool()
 	,	new Assign_real()
+	,	new Assign_constant ()
 	,	new Copy()
 	,	new Global()
 	,	new Eval()

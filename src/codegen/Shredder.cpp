@@ -471,6 +471,11 @@ AST_expr* Shredder::post_null(Token_null* in)
 	return eval(in);
 }
 
+AST_expr* Shredder::post_constant (AST_constant* in)
+{
+	return eval(in);
+}
+
 /*
  * Array literals
  */
