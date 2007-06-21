@@ -872,11 +872,15 @@ public:
 
 		cout
 			<< "MAKE_STD_ZVAL (rhs);\n"
-			<< "zend_get_constant ( \"" << *name << "\""
+			<< "int result = zend_get_constant ( \"" << *name << "\""
 			<< ", " << name->length() // exclude NULL-terminator
 			<< ", rhs TSRMLS_CC);\n" // the book say _DC, but that doesnt compile
 			;
 
+		// check for missing constant
+		cout 
+			<< "if (!result)\n"
+			<<	"ZVAL_STRINGL (rhs, \"" << *name << "\", " << name->length () << ", 1);\n";
 	}
 
 protected:
