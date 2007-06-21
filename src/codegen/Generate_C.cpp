@@ -906,6 +906,56 @@ protected:
 	Wildcard<AST_variable>* eval_arg;
 };
 
+class Exit : public Pattern
+{
+public:
+	bool match (AST_statement* that)
+	{
+		exit_arg = new Wildcard<AST_variable> ();
+		return that->match (
+				new AST_eval_expr (
+					new AST_assignment (new Wildcard<AST_variable>, false, // ignored
+						new AST_method_invocation(
+							NULL,	
+							new Token_method_name(new String("exit")),
+							new List<AST_actual_parameter*>(
+								new AST_actual_parameter(false, exit_arg)
+								)
+							))));
+	}
+
+	void generate_code (Generate_C* gen)
+	{
+		String* op = operand (exit_arg->value);
+
+		// Fetch the parameter
+		cout
+			<< "// call exit ()\n{\n"
+			<< "zval* arg = index_ht(EG(active_symbol_table), "
+			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
+			;
+
+		// if its a long, return with exit code
+		cout 
+			<< "if (Z_TYPE_P (arg) == IS_LONG)\n"
+			<< "exit (Z_LVAL_P (arg));\n"
+			;
+
+		// otherwise print the argument. Generally convert_to_string
+		// should be avoided, since it destroys the data already
+		// there, but we're about to exit () anyway.
+		cout 
+			<< "convert_to_string (arg);\n"
+			<< "PHPWRITE (Z_STRVAL_P (arg), Z_STRLEN_P (arg));\n"
+			<< "exit (0);\n}\n"
+			;
+
+	}
+
+protected:
+	Wildcard<AST_variable>* exit_arg;
+};
+
 class Method_invocation : public Assignment
 {
 public:
@@ -954,7 +1004,7 @@ public:
 		<< "zend_function* signature;\n"
 		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);\n"
 
-// check for non-existant functions
+		// check for non-existant functions
 		<< "if (signature == NULL) {"
 		<< "printf (\"\\nFatal error: Call to undefined function " << *name->value << "()"
 		<< " in " << name->get_filename () 
@@ -1311,6 +1361,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Copy()
 	,	new Global()
 	,	new Eval()
+	,	new Exit()
 	,	new Method_invocation()
 	,	new Bin_op()
 	,	new Unary_op()
