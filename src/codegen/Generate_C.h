@@ -26,6 +26,10 @@ public:
 
 	void run (AST_php_script* in, Pass_manager* pm)
 	{
+		if (!pm->args_info->generate_c_flag 
+			&& !pm->args_info->compile_flag)
+			return;
+
 		if (pm->args_info->extension_given)
 		{
 			extension_name = new String (pm->args_info->extension_arg);

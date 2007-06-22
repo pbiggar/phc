@@ -490,8 +490,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 		new AST_variable (new Token_variable_name (temp->clone()));
 
 	// We need to unset TS in case its run in a loop
-	pieces->push_back(new AST_eval_expr (
-		new AST_method_invocation ("unset", var->clone ())));
+	pieces->push_back(new AST_unset (var->clone ()));
 
 	// We need to cast it in case its empty
 	pieces->push_back(
