@@ -608,6 +608,12 @@ public:
 		return that->match(new AST_eval_expr(agn));
 	}
 
+	// Additional code to be executed on lhs before it all goes out
+	// of scope
+	void generate_epilogue ()
+	{
+	}
+
 	// Get the LHS from the hashtable 
 	void index_lhs()
 	{
@@ -730,6 +736,8 @@ public:
 
 		// Reduce refcount of RHS and garbage collect if necessary
 		cout << "zval_ptr_dtor(&rhs_orig);\n";
+
+		generate_epilogue ();
 
 		// close local scope
 		cout << "}\n"; 	
@@ -858,6 +866,23 @@ public:
 
 protected:
 	Wildcard<AST_variable>* rhs;
+};
+
+class Cast_array : public Copy
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		rhs = new Wildcard<AST_variable>;
+		return new AST_cast (new Token_cast (
+			new String ("array")),
+			rhs);
+	}
+
+	void generate_epilogue ()
+	{
+		cout << "convert_to_array (lhs);\n";
+	}
 };
 
 class Global : public Pattern 
@@ -1443,6 +1468,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Goto()
 	,	new Return()
 	,	new Unset()
+	,	new Cast_array ()
 	};
 
 	bool matched = false;
