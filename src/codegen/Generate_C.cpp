@@ -364,6 +364,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
+		this->gen = gen;
 		signature = pattern->value->signature;
 		gen->methods->push_back(signature);
 
@@ -376,6 +377,7 @@ public:
 protected:
 	Wildcard<AST_method>* pattern;
 	AST_signature* signature;
+	Generate_C* gen;
 
 protected:
 	void debug_argument_stack()
@@ -429,14 +431,14 @@ protected:
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
-			// TODO: Deal with default values
 			cout 
 			<< "// Add all parameters as local variables\n"
 			<< "{\n"
+			<< "int num_args = ZEND_NUM_ARGS ();\n"
 			<< "zval* params[" << parameters->size() << "];\n"
 			// First parameter to zend_get_parameters_array does not appear
 			// to be used (by looking at the source)
-			<< "zend_get_parameters_array(0, ZEND_NUM_ARGS(), params);\n"
+			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
 			List<AST_formal_parameter*>::const_iterator i;
@@ -446,14 +448,42 @@ protected:
 				i++, index++)
 			{
 //				cout << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
+				cout << "// param " << index << "\n";
+
+				// if a default value is available, then create code to
+				// assign it if an argument is not provided at run time.
+				// We model it as an assignment to the named variable,
+				// and call on the code generator to generate the
+				// default assignment for us.
+				if ((*i)->expr)
+				{
+					cout 
+						<< "if (num_args <= " << index << ")\n"
+						<< "{\n";
+
+					AST_statement* assign_default_values = 
+						new AST_eval_expr (
+								new AST_assignment (
+									new AST_variable (
+										NULL,
+										(*i)->variable_name,
+										new List<AST_expr*> ()),
+									false, (*i)->expr));
+
+					gen->children_statement (assign_default_values);
+					cout << "} else {\n";
+				}
 
 				cout
-				<< "params[" << index << "]->refcount++;\n"
-				<< "zend_hash_add(EG(active_symbol_table), "
-				<< "\"" << *(*i)->variable_name->value << "\", " 
-				<< (*i)->variable_name->value->length() + 1  
-				<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
-				;
+					<< "params[" << index << "]->refcount++;\n"
+					<< "zend_hash_add(EG(active_symbol_table), "
+					<< "\"" << *(*i)->variable_name->value << "\", " 
+					<< (*i)->variable_name->value->length() + 1  
+					<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
+					;
+
+				if ((*i)->expr)
+					cout << "}\n";
 			}
 				
 			cout << "}\n";
@@ -848,6 +878,7 @@ protected:
 	Wildcard<AST_variable_name>* rhs;
 };
 
+// TODO remove duplicate code
 class Assign_constant : public Assignment
 {
 public:
