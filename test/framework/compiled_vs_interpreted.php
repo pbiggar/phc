@@ -76,7 +76,9 @@ class CompiledVsInterpreted extends Test
 		// run the program
 		$command2 = " ./a.out";
 		list ($out2, $err2, $exit2) = complete_exec($command2);
+
 		$out2 = $this->homogenize_output ($out2); 
+
 
 		if ($out1 !== $out2 
 			or $err1 !== $err2 

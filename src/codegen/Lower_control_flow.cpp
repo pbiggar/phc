@@ -647,6 +647,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	if (AST_break::ID == in->ID) levels = &break_levels;
 	if (AST_continue::ID == in->ID) levels = &continue_levels;
 	assert (levels);
+
 	if (levels->size ())
 	{
 
@@ -702,6 +703,17 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	}
 
 	// Print an error, and die with 255
+
+	// Get an expression
+	AST_expr* level_count = in->expr;
+	if (level_count == NULL)
+		level_count = new Token_int (1);
+	else
+		level_count = level_count->clone ();
+
+	stringstream ss;
+	ss << " levels in " << *(in->get_filename ()) << " on line " << in->get_line_number () << "\n";
+
 	out->push_back (new AST_eval_expr (
 			new AST_method_invocation (
 				NULL, 
@@ -709,13 +721,13 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 				new List<AST_actual_parameter*> (
 					new AST_actual_parameter (
 						false, 
-						new Token_string (
-							new String ("\nFatal error: Too many break/continue levels\n")
-						)
-					)
-				)
-			)
-		));
+						new AST_bin_op (
+							new AST_bin_op (
+								new Token_string (new String ("\nFatal error: Cannot break/continue ")),
+								level_count,
+								"."),
+							new Token_string (new String (ss.str())),
+							"."))))));
 
 	out->push_back (new AST_eval_expr (
 			new AST_method_invocation (

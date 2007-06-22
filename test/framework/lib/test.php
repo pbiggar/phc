@@ -26,9 +26,6 @@ function homogenize_filenames_and_line_numbers ($string)
 
 function homogenize_break_levels ($string)
 {
-	$string = preg_replace(	"/Fatal error: Cannot break\/continue \d+ level(s)? in .*/",
-									"Fatal error: Too many break/continue levels", $string);
-
 # just clear these warnings
 	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
 									"", $string);
