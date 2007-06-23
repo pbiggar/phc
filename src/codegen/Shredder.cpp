@@ -241,6 +241,83 @@ public:
 
 };
 
+// Some shredding will create variables which may be missed if the shredding
+// isnt separated.
+class Early_shredder : public Lower_expr
+{
+public:
+
+	/* Shred
+	 *  $x = (list ($a, $b, $c) = array ($c, $b, a));
+	 * into
+	 *	  $Tarr = array ($c, $b, $a);
+	 *	  $c = $Tarr[2];
+	 *	  $b = $Tarr[1];
+	 *	  $a = $Tarr[0];
+	 *	  $x = $Tarr; // note that left evaluates to the RHS of the assignment
+	 *
+	 *	Note the reverse order. This matters if you've arrays on the lhs.
+	 *	Note that references arent allowed here.
+	 */
+
+	AST_expr* post_list_assignment(AST_list_assignment* in)
+	{
+		AST_variable* temp = fresh_var("PLA");
+
+		assert (in->expr != NULL);
+		pieces->push_back(
+				new AST_eval_expr(
+					new AST_assignment(temp->clone (), false, in->expr)));
+
+
+		// reverse order
+		List<AST_list_element*>::const_reverse_iterator i;
+		int counter = in->list_elements->size () - 1;
+		for (i = in->list_elements->rbegin (); 
+				i != in->list_elements->rend ();
+				i++)
+		{
+			// create the RHS
+			List<AST_expr*> *array_indices = new List<AST_expr*> ();
+			array_indices->push_back (new Token_int (counter));
+			AST_variable* rhs = 
+				new AST_variable (NULL, 
+						temp->variable_name->clone(),
+						array_indices);
+			counter --;
+
+			// list ($x, , $z) leaves a NULL
+			if (*i == NULL)
+				continue;
+
+			// create the LHS
+			// its either a variable or a nested list element
+			AST_nested_list_elements* nested 
+				= dynamic_cast <AST_nested_list_elements*> (*i);
+			if (nested)
+			{
+				// convert into a list_assignment, and repeat
+				pieces->push_back (new AST_eval_expr (
+							post_list_assignment (
+								new AST_list_assignment (nested->list_elements, rhs))));
+			}
+			else
+			{
+				AST_variable* var = dynamic_cast <AST_variable*> (*i);
+				assert (var);
+				// $c = $Tarr[2];
+				pieces->push_back( 
+						new AST_eval_expr(
+							new AST_assignment(var, false, rhs)));
+			}
+		}
+		assert (counter == -1);
+
+		// lists evaluate to their rvalue
+		return temp;
+	}
+};
+
 /*
  * Remove unparser attributes and desugar
  */
@@ -252,6 +329,10 @@ void Shredder::children_php_script(AST_php_script* in)
 
 	Annotate ann;
 	in->visit(&ann);
+
+	// Shredding which creates more variables and may be missed
+	Early_shredder es;
+	in->transform_children(&es);
 
 	Lower_expr::children_php_script(in);
 }
@@ -523,74 +604,3 @@ AST_expr* Shredder::post_array(AST_array* in)
 			new List<AST_expr*>());
 }
 
-/* Shred
- *  $x = (list ($a, $b, $c) = array ($c, $b, a));
- * into
- *	  $Tarr = array ($c, $b, $a);
- *	  $c = $Tarr[2];
- *	  $b = $Tarr[1];
- *	  $a = $Tarr[0];
- *	  $x = $Tarr; // note that left evaluates to the RHS of the assignment
- *
- *	Note the reverse order. This matters if you've arrays on the lhs.
- *	Note that references arent allowed here.
- */
-
-AST_expr* Shredder::post_list_assignment(AST_list_assignment* in)
-{
-	AST_variable* temp = fresh_var("PLA");
-
-	assert (in->expr != NULL);
-	pieces->push_back(
-		new AST_eval_expr(
-			new AST_assignment(temp->clone (), false, in->expr)));
-
-	// Hopefully nested lists will be handled by the visitor by magic
-
-
-	// reverse order
-	List<AST_list_element*>::const_reverse_iterator i;
-	int counter = in->list_elements->size () - 1;
-	for (i = in->list_elements->rbegin (); 
-		i != in->list_elements->rend ();
-		i++)
-	{
-		// create the RHS
-		List<AST_expr*> *array_indices = new List<AST_expr*> ();
-		array_indices->push_back (new Token_int (counter));
-		AST_variable* rhs = 
-			new AST_variable (NULL, 
-									temp->variable_name->clone(),
-									array_indices);
-		counter --;
-
-		// list ($x, , $z) leaves a NULL
-		if (*i == NULL)
-			continue;
-
-		// create the LHS
-		// its either a variable or a nested list element
-		AST_nested_list_elements* nested 
-			= dynamic_cast <AST_nested_list_elements*> (*i);
-		if (nested)
-		{
-			// convert into a list_assignment, and repeat
-			pieces->push_back (new AST_eval_expr (
-				post_list_assignment (
-					new AST_list_assignment (nested->list_elements, rhs))));
-		}
-		else
-		{
-			AST_variable* var = dynamic_cast <AST_variable*> (*i);
-			assert (var);
-			// $c = $Tarr[2];
-			pieces->push_back( 
-				new AST_eval_expr(
-					new AST_assignment(var, false, rhs)));
-		}
-	}
-	assert (counter == -1);
-
-	// lists evaluate to their rvalue
-	return temp;
-}
