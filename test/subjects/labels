@@ -39,6 +39,9 @@ parsing/included_recursive2.php	includable
 # These tests all cause infinite loops
 parsing/binops\d+.php				long no-CompiledVsInterpreted
 
+# gcc takes 44 seconds to compile this test
+parsing/allchars_inline.php		no-CompiledVsInterpreted
+
 parsing/for.php						non-interpretable # infinite loops
 parsing/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops
