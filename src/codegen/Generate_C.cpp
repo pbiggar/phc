@@ -124,8 +124,10 @@ void index_st(Scope scope, string zvp, AST_variable* var)
 		<< "\"" << *name->value << "\", "
 		<< name->value->length() + 1 << ");\n"
 		;
-		
-		if(var->array_indices->size() == 1)
+
+		// dont look up if we should be pushing
+		if(var->array_indices->size() == 1
+			&& var->array_indices->front () != NULL) 
 		{
 			String* ind = operand(var->array_indices->front());
 
