@@ -2,6 +2,7 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
+ * shredder (n.): a machine that tears objects into smaller pieces.
  * Transform the AST into 3AC-like code.
  */
 
@@ -11,6 +12,7 @@
 // For development only
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
+#include "process_ast/Consistency_check.h"
 
 class Desugar : public AST_transform
 {
@@ -148,6 +150,7 @@ class Annotate : public AST_visitor
 {
 	// only generate array elements if this is set
 	bool generate_array_temps;
+	bool return_by_ref;
 
 public:
 
@@ -171,7 +174,13 @@ public:
 		if (in->is_ref && in->variable->variable_name->classid() == AST_reflection::ID)
 			in->variable->attrs->set_true("phc.lower_expr.no_temp");
 
+		// We need references if we shred $x[0][1][etc] = ...;
 		in->variable->attrs->set_true("phc.shredder.need_addr");
+
+		// Variables on the RHS need references if $x =& $y is being used
+		Wildcard<AST_variable>* rhs = new Wildcard<AST_variable> ();
+		if (in->is_ref && in->match (new AST_assignment (new Wildcard<AST_variable>(), false /*ignore*/, rhs)))
+			rhs->value->attrs->set_true ("phc.shredder.need_addr");
 
 		// Is is not necessary to generate a temporary for the
 		// top-level expression of an assignment
@@ -239,10 +248,28 @@ public:
 		generate_array_temps = true;
 	}
 
+	// TODO nested functions?
+	void pre_method (AST_method* in)
+	{
+		return_by_ref = in->signature->is_ref;
+	}
+
+	void post_method (AST_method* in)
+	{
+		return_by_ref = false;
+	}
+
+	void post_return (AST_return* in)
+	{
+		if (return_by_ref 
+			&& in->expr->classid () == AST_variable::ID)
+			in->expr->attrs->set_true ("phc.shredder.need_addr");
+	}
+
 };
 
-// Some shredding will create variables which may be missed if the shredding
-// isnt separated.
+// Some shredding will create variables which may be missed if done at the same
+// time as the variable shredding.
 class Early_shredder : public Lower_expr
 {
 public:
@@ -265,9 +292,11 @@ public:
 		AST_variable* temp = fresh_var("PLA");
 
 		assert (in->expr != NULL);
+
+		bool use_ref = !is_ref_literal (in->expr);
 		pieces->push_back(
 				new AST_eval_expr(
-					new AST_assignment(temp->clone (), false, in->expr)));
+					new AST_assignment(temp->clone (), use_ref, in->expr)));
 
 
 		// reverse order
@@ -327,16 +356,16 @@ void Shredder::children_php_script(AST_php_script* in)
 	Desugar desugar;
 	in->transform_children(&desugar);
 
-	Annotate ann;
-	in->visit(&ann);
-
 	// Shredding which creates more variables and may be missed
 	Early_shredder es;
 	in->transform_children(&es);
 
+	Annotate ann;
+	in->visit(&ann);
+
 	Lower_expr::children_php_script(in);
 }
-		
+
 /*
  * Variables (array indexing, object indexing)
  *
@@ -345,40 +374,49 @@ void Shredder::children_php_script(AST_php_script* in)
  *	$T0 =& $c->arr;
  *	$T1 =& $T0[1];
  *	$T2 =& $T1[2];
- *	$T3 =& $T2[3];
+ *	$T2[3] ... ;
  *
- * If the variable occurs on the LHS of an assignment (if the attribute
- * "phc.shredder.need_addr" is set), we stop one short, and use that as the
- * LHS. In the example above, we'd stop at the assignment to $T2, and then
- * use 
- *
- *   $T2[3] = ...
- *
- * as the LHS of the assignment. This isn't strictly necessary for array
- * assignment (since we are using reference assignment), but it is strictly
- * necessary if the variable is the argument to a call to "unset", for example.
+ * However, we always stop one short, as in $T2 above. This is necessary in the
+ * case of unset, returning by reference, and a number of other cases.
  *
  * Note that it is important to use reference assignment, because when we
  * assign to $T2[2] above, we want the original object $c to be modified.
+ *
+ * However, introducing references where there were no references before will
+ * result in an element being inserted in the array if the element is
+ * missing, or the array is NULL. For example,
+ *
+ *		$x = $y[5];
+ *
+ *	is different than
+ *
+ *		$x =& $y[5];
+ *
+ *	since $y has no index 5.
+ *
+ * As a result, we use reference assignment only if there is an implicit
+ * reference, or reference assignment is used.
  */
 
 AST_variable* Shredder::post_variable(AST_variable* in)
 {
 	AST_variable* prev = in;
+//	in->attrs->set_true ("phc.shredder.need_addr");
 	
 	int num_pieces = 
 		  (in->target != NULL ? 1 : 0) 
 		+ in->array_indices->size()
 		- (in->attrs->is_true("phc.shredder.need_addr") ? 1 : 0);
 
-	// translate ${$x}[1] to $T = ${$x}; $T[1] but only if no target is set
+	// translate ${$x}[1] to $T =& ${$x}; $T[1] but only if no target is set
 	if(in->target == NULL 
 		&& in->variable_name->classid() == AST_reflection::ID
 		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
 	{
 		AST_variable* temp = fresh_var("TSr");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp->clone (), true,
+			temp->clone (), 
+			in->attrs->is_true ("phc.shredder.need_addr"),
 			new AST_variable(
 				NULL,
 				in->variable_name,
@@ -391,7 +429,8 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	{
 		AST_variable* temp = fresh_var("TSt");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp->clone (), true,
+			temp->clone (),
+			in->attrs->is_true ("phc.shredder.need_addr"),
 			new AST_variable(
 				in->target,
 				in->variable_name->clone(),
@@ -408,7 +447,8 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	{
 		AST_variable* temp = fresh_var("TSi");
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-			temp->clone (), true,
+			temp->clone (),
+			in->attrs->is_true ("phc.shredder.need_addr"),
 			new AST_variable(
 				NULL, 
 				prev->variable_name->clone(), 
@@ -566,7 +606,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 	if (in->attrs->is_true("phc.lower_expr.no_temp"))
 		return in;
 
-	String* temp = fresh("TS");
+	String* temp = fresh("TSa");
 	AST_variable* var = 
 		new AST_variable (new Token_variable_name (temp->clone()));
 

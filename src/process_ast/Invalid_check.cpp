@@ -9,13 +9,12 @@
  */
 #include "Invalid_check.h"
 
-bool is_literal (AST_expr* in)
+bool is_ref_literal (AST_expr* in)
 {
 	return ( dynamic_cast <AST_literal*> (in) 
 				|| dynamic_cast <AST_array*> (in)
 				|| dynamic_cast <AST_constant*> (in));
 }
-
 
 class Check_deep_literals : public AST_visitor
 {
@@ -27,7 +26,7 @@ public:
 	// expressions
 	void pre_expr (AST_expr *in)
 	{
-		if (!is_literal (in))
+		if (!is_ref_literal (in))
 			non_literal_found = true;
 	}
 };
@@ -78,7 +77,7 @@ void Invalid_check::pre_assignment (AST_assignment* in)
 		return;
 
 	if (in->is_ref)
-		if (is_literal (in->expr))
+		if (is_ref_literal (in->expr))
 			error ("Cannot assign a reference to a literal", in->expr);
 }
 

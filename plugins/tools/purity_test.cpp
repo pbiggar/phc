@@ -772,12 +772,12 @@ public:
 
 		// if overwriting functions is allowed, have to watch for that
 
-		Token_class_name* stdlib_name = new Token_class_name(new String("%STDLIB%"));
-		Token_method_name* method_name = new Token_method_name(NULL);
-		AST_method_invocation* method = new AST_method_invocation(stdlib_name, method_name, NULL);
+		Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
+		AST_method_invocation* method = new AST_method_invocation (
+			new Wildcard<Token_class_name> (),
+			method_name, NULL);
 
 		bool found = false;
-		// check its in stdlib
 		if (in->match (method))
 		{
 			// check against all allowed methods 
@@ -785,7 +785,7 @@ public:
 			List<String*>::const_iterator ci;
 			for(ci = allowed.begin(); ci != allowed.end(); ci++)
 			{
-				if (*method_name->value == **ci)
+				if (*(method_name->value->value) == **ci)
 				{
 					found = true;
 					break;

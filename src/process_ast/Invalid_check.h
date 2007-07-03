@@ -13,6 +13,9 @@
 
 #include "AST_visitor.h"
 
+// Returns true if IN is not allowed be on the RHS of a reference assignment.
+bool is_ref_literal (AST_expr* in);
+
 class Invalid_check : public AST_visitor 
 {
 public:
