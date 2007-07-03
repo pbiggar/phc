@@ -7,6 +7,6 @@
 		return $element1;
 	}
 
-	$y = array_reduce (f, $x);
+	$y = array_reduce ($x, f);
 
 ?>
