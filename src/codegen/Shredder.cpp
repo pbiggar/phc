@@ -266,6 +266,18 @@ public:
 			in->expr->attrs->set_true ("phc.shredder.need_addr");
 	}
 
+
+	/* Statements can occur nested within expressions, in which case we'd like
+	 * to simplify them. We mark assignments which occur as an eval_expr, then mark
+	 * all other assignments as being nested_stmts.
+	 */
+	void pre_eval_expr (AST_eval_expr* in)
+	{
+		if (dynamic_cast<AST_assignment*> (in->expr))
+		{
+			in->expr->attrs->set_true("phc.shredder.non_nested_assignment");
+		}
+	}
 };
 
 // Some shredding will create variables which may be missed if done at the same
@@ -595,6 +607,31 @@ AST_expr* Shredder::post_null(Token_null* in)
 AST_expr* Shredder::post_constant (AST_constant* in)
 {
 	return eval(in);
+}
+
+/*
+ * Translate into canonical tree form (replace assignments within expressions
+ * with an assignment and a variable access:
+ *
+ * Translate
+ *
+ *	  $x = $y = 5;
+ *
+ *	into
+ *
+ *	  $y = 5;
+ *	  $t1 = $y;
+ *	  $x = $t1;
+ */
+AST_expr* Shredder::post_assignment (AST_assignment* in)
+{
+	if (in->attrs->is_true ("phc.shredder.non_nested_assignment"))
+		return in;
+
+	// dont replace with the same variable, since it may be assigned to multiple
+	// times in the same expression.
+	pieces->push_back (new AST_eval_expr (in));
+	return eval (in->variable);
 }
 
 /*
