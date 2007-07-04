@@ -602,7 +602,7 @@ public:
 
 	// Additional code to be executed on lhs before it all goes out
 	// of scope
-	void generate_epilogue ()
+	virtual void generate_epilogue ()
 	{
 	}
 
