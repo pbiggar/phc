@@ -129,6 +129,7 @@ AS_IF(
 * compile PHP scripts with phc.                                               *
 *                                                                             *
 * To install the PHP embed SAPI, follow the PHP installation instructions,    *
-* but make sure to pass the --embed-embed option to the PHP configure script. *
+* but make sure to pass the --enable-embed option to the PHP configure        *
+* script.                                                                     *
 *******************************************************************************]
 	)])
