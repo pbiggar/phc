@@ -132,6 +132,11 @@ void index_st(Scope scope, string zvp, AST_variable* var)
 			String* ind = operand(var->array_indices->front());
 
 			cout 
+			<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+			<< "{\n"
+			<< "ZVAL_NULL(" << zvp << ");\n"
+			<< "}\n"
+			<< "else\n"
 			<< "{\n"
 			<< "HashTable* ht = extract_ht(" << zvp << ");"
 			<< "zval* ind = index_ht(EG(active_symbol_table), "
@@ -184,14 +189,14 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 	{
 		if(var->array_indices->size() == 0)
 		{
+			// We need to update, instead of deleting and then adding.
+			// The latter reorders the hashtable, which isnt correct
+			// (say if we add the same key twice, once at the front,
+			// and once at the end, it should end up at the front).
+			
 			cout 
-			// Remove the old value from the hashtable
-			// (reducing its refcount)
-			<< "zend_hash_del(" << hash << ", "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");\n"
 			// Add the new value to the hashtable
-			<< "zend_hash_add(" << hash << ", "
+			<< "zend_hash_update(" << hash << ", "
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ", "
 			<< "&" << zvp << ", sizeof(zval*), NULL);\n"
@@ -1535,9 +1540,6 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "{\n"
 	<< "if(Z_TYPE_P(ind) == IS_LONG)\n" 
 	<< "{\n"
-	// Remove the old value from the hashtable (this will
-	// automatically reduce its refcount)
-	<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
 	// Add the new value to the hashtable
 	<< "zend_hash_index_update(ht, Z_LVAL_P(ind), "
 	<< "&val, sizeof(zval*), NULL);\n"
@@ -1553,10 +1555,9 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "string_index->type = ind->type;\n"
 	<< "zval_copy_ctor(string_index);\n"
 	<< "convert_to_string(string_index);\n"
-	// Remove the old value from the hashtable
-	<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
-	// Add the new value to the hashtable
-	<< "zend_hash_add(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1, &val, sizeof(zval*), NULL);\n"
+
+	// Add the new value to the hashtable.
+	<< "zend_hash_update(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1, &val, sizeof(zval*), NULL);\n"
 	<< "zval_ptr_dtor(&string_index);\n"
 	<< "}\n"
 	<< "}\n"
