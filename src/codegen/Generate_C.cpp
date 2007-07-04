@@ -623,22 +623,7 @@ public:
 	// Overwrite the LHS with the RHS
 	void overwrite_lhs()
 	{
-		cout
-		<< "// First, call the destructor to remove any data structures\n"
-		<< "// associated with lhs that will now be overwritten\n"
-		<< "zval_dtor(lhs);\n"
-		<< "// Overwrite LHS\n"
-		<< "lhs->value = rhs->value;\n"
-		<< "lhs->type = rhs->type;\n"
-		<< "zval_copy_ctor(lhs);\n"
-		<< "// Delete RHS if it is a temp;\n"
-		<< "if(rhs->refcount == 0)\n"
-		<< "{\n"
-		<< "// zval_ptr_dtor decrements refcount and deletes the zval when 0\n"
-		<< "rhs->refcount = 1;\n"
-		<< "zval_ptr_dtor(&rhs);\n"
-		<< "}\n"
-		;
+		cout << "overwrite_lhs (lhs, rhs);\n";
 	}
 
 	// Separate the RHS (that is, make a copy *and update the hashtable*)
@@ -1627,6 +1612,26 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "zval_copy_ctor(clone);\n"
 	<< "*zvp = clone;\n"
 	<< "}\n"
+
+	// Overwrite one zval with another
+	<< "void overwrite_lhs (zval* lhs, zval* rhs)\n"
+	<< "{\n"
+	<< "// First, call the destructor to remove any data structures\n"
+	<< "// associated with lhs that will now be overwritten\n"
+	<< "zval_dtor(lhs);\n"
+	<< "// Overwrite LHS\n"
+	<< "lhs->value = rhs->value;\n"
+	<< "lhs->type = rhs->type;\n"
+	<< "zval_copy_ctor(lhs);\n"
+	<< "// Delete RHS if it is a temp;\n"
+	<< "if(rhs->refcount == 0)\n"
+	<< "{\n"
+	<< "// zval_ptr_dtor decrements refcount and deletes the zval when 0\n"
+	<< "rhs->refcount = 1;\n"
+	<< "zval_ptr_dtor(&rhs);\n"
+	<< "}\n"
+	<< "}\n"
+
 	;
 }
 
