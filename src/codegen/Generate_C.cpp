@@ -258,17 +258,7 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 // Make a copy of zvp 
 void clone(string zvp)
 {
-	cout
-	<< "{\n"
-	<< "zval* clone;\n"
-	<< "MAKE_STD_ZVAL(clone);\n"
-	<< "clone->refcount = 0;\n"
-	<< "clone->value = " << zvp << "->value;\n"
-	<< "clone->type = " << zvp << "->type;\n"
-	<< "zval_copy_ctor(clone);\n"
-	<< zvp << " = clone;\n"
-	<< "}\n"
-	;
+	cout << "zvp_clone (&" << zvp << ");\n";
 }
 
 // Implementation of "global" (used in various places)
@@ -1095,7 +1085,7 @@ public:
 	
 		// TODO: better error reporting. Either use or duplicate PHP's
 		// mechanism for error reporting. We might be safe sticking with
-		// this for fatal errors, however, since they can'y be caught by
+		// this for fatal errors, however, since they can't be caught by
 		// error handlers
 
 		// Figure out which parameters need to be passed by reference
@@ -1625,6 +1615,18 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "}\n"
 	<< "printf(\"END HASH\\n\");\n"
 	<< "}"
+
+	// Make a copy of a zval*
+	<< "void zvp_clone (zval** zvp)\n"
+	<< "{\n"
+	<< "zval* clone;\n"
+	<< "MAKE_STD_ZVAL(clone);\n"
+	<< "clone->refcount = 0;\n"
+	<< "clone->value = (*zvp)->value;\n"
+	<< "clone->type = (*zvp)->type;\n"
+	<< "zval_copy_ctor(clone);\n"
+	<< "*zvp = clone;\n"
+	<< "}\n"
 	;
 }
 
