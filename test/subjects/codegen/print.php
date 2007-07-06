@@ -3,8 +3,8 @@
 	// Commented statements arent allowed by the parser
 
 	// compare print and echo
-	function f () { return "7\n"; }
-	$x = "5\n";
+	function f () { return "17\n"; }
+	$x = "15\n";
 
 //	print;
 //	print ();
@@ -40,5 +40,13 @@
 	// we convert print to printf, which returns the length of the string.
 	// Print, however, always returns 1.
 	print print "a string of some length";
+
+	// This might fail if we moved print before we shredded.
+	function x ()
+	{
+		return print "a string longer than 1";
+	}
+
+	print x ();
 
 ?>

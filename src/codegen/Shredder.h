@@ -32,6 +32,8 @@ public:
 	AST_expr* post_constant (AST_constant* in);
 	AST_expr* post_array(AST_array* in);
 	AST_expr* post_assignment(AST_assignment* in);
+	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out);
+
 };
 
 #endif // PHC_SHREDDER_H

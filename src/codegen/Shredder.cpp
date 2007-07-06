@@ -95,66 +95,6 @@ public:
 			return in;
 	}
 
-
-	// Since the shredder changes all eval_expr into assignments, it will
-	// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
-	// function call in PHP, this will generate incorrect PHP code. For that
-	// reason, we translate echo(x) to printf("%s",x) here. echo (x,y) is
-	// translated to printf ("%s%s", x, y).
-	AST_expr* pre_method_invocation(AST_method_invocation* in)
-	{
-		AST_method_invocation* echo = new AST_method_invocation(
-			NULL,	
-			new Token_method_name (new String ("echo")),
-			NULL); // match any list (note this doesnt get populated. Use in to get the list.)
-
-		if (in->match(echo))
-		{
-			String* arg1 = new String ();
-			List<AST_actual_parameter*>* parameters = new List<AST_actual_parameter*> (
-				new AST_actual_parameter (false, new Token_string (arg1)));
-			List<AST_actual_parameter*>::const_iterator i;
-			for ( i = in->actual_parameters->begin ();
-					i != in->actual_parameters->end();
-					i++)
-			{
-				arg1->append ("%s");
-				parameters->push_back (*i);
-			}
-
-			return new AST_method_invocation(
-				NULL,
-				new Token_method_name(new String("printf")),
-				parameters);
-		}
-
-		// prints only have 1 parameter, and always return 1.
-		// TODO deal with return value
-		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
-		AST_method_invocation* print = new AST_method_invocation(
-			NULL,	
-			new Token_method_name(new String("print")),
-			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(false, arg) // print can only have 1 argument
-			));
-		if (in->match(print))
-		{
-			return new AST_method_invocation(
-				NULL,
-				new Token_method_name(new String("printf")),
-				new List<AST_actual_parameter*>(
-					new AST_actual_parameter(
-						false, 
-						new Token_string(new String("%s"), new String("%s"))),
-					new AST_actual_parameter(
-						false,
-						arg->value)
-				));
-		}
-		else
-			return in;
-	}
-
 	// All return statements must get an argument (NULL if none specified)
 	void pre_return(AST_return* in, List<AST_statement*>* out)
 	{
@@ -380,6 +320,95 @@ public:
 	}
 };
 
+class Tidy_print : public AST_transform
+{
+
+	// Since the shredder changes all eval_expr into assignments, it will
+	// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
+	// function call in PHP, this will generate incorrect PHP code. For that
+	// reason, we translate echo(x) to printf("%s",x) here.
+	AST_expr* pre_method_invocation(AST_method_invocation* in)
+	{
+		AST_method_invocation* echo = new AST_method_invocation(
+			NULL,	
+			new Token_method_name (new String ("echo")),
+			NULL); // match any list (note this doesnt get populated. Use in to get the list.)
+
+		if (in->match(echo))
+		{
+			// set up paramters
+			String* arg1 = new String ();
+			List<AST_actual_parameter*>* parameters = new List<AST_actual_parameter*> (
+				new AST_actual_parameter (false, new Token_string (arg1)));
+
+			// add in parameters
+			List<AST_actual_parameter*>::const_iterator i;
+			for ( i = in->actual_parameters->begin ();
+					i != in->actual_parameters->end();
+					i++)
+			{
+				arg1->append ("%s");
+				parameters->push_back (*i);
+			}
+
+			return new AST_method_invocation(
+				NULL,
+				new Token_method_name(new String("printf")),
+				parameters);
+		}
+
+		return in;
+	}
+
+	/* Convert print, in a similar fashion to echo. Print can only have 1 parameter though, and always return 1.
+	 *   $x = print $y;
+	 * into
+	 *   $t2 = printf ("%s", $y); // $t2 can be discarded
+	 *   $x = 1;
+	 */
+	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+	{
+		AST_assignment* stmt = dynamic_cast<AST_assignment*> (in->expr);
+		assert (stmt);
+
+		// prints only have 1 parameter, and always return 1.
+		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
+		AST_method_invocation* print = new AST_method_invocation(
+			NULL,	
+			new Token_method_name(new String("print")),
+			new List<AST_actual_parameter*>(
+				new AST_actual_parameter(false, arg) // print can only have 1 argument
+			));
+
+		if (!stmt->expr->match(print))
+		{
+			out->push_back (in);
+			return;
+		}
+	
+		// $t2 = printf ("%s", expr);
+		AST_variable* t2 = fresh_var("TSp");
+		out->push_back (new AST_eval_expr (
+					new AST_assignment(t2, false,
+						new AST_method_invocation(
+							NULL,
+							new Token_method_name(new String("printf")),
+							new List<AST_actual_parameter*>(
+								new AST_actual_parameter(
+									false, 
+									new Token_string(new String("%s"))),
+								new AST_actual_parameter(
+									false,
+									arg->value)
+						)))));
+
+		// $x = 1;
+		out->push_back (new AST_eval_expr (
+					new AST_assignment(stmt->variable, false,
+						new Token_int (1))));
+	}
+};
+
 /*
  * Remove unparser attributes and desugar
  */
@@ -397,6 +426,11 @@ void Shredder::children_php_script(AST_php_script* in)
 	in->visit(&ann);
 
 	Lower_expr::children_php_script(in);
+
+	// Its easier to do this after shredding, since its hard to support "print
+	// print print $x;" without it.
+	Tidy_print tp;
+	in->transform_children (&tp);
 }
 
 /*
@@ -506,6 +540,15 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	}
 
 	return prev;
+}
+
+/* Remove statements which consist of a single variable. These can be
+ * introduced by the list lowering. We use the pre_ form, since the post_ form
+ * overrides Lower_expr::post_eval_expr.*/
+void Shredder::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+{
+	if (in->expr->classid () != AST_variable::ID)
+		out->push_back (in);
 }
 
 /*
