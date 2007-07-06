@@ -110,7 +110,14 @@ void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
 	{
 		if (*n == *((*i)->name))
 		{
-			insert (i, pass);
+			if (i == end ())
+				push_back (pass);
+			else
+			{
+				// insert before the next item
+				i++;
+				insert (i, pass);
+			}
 			return;
 		}
 	}
@@ -174,6 +181,36 @@ void Pass_manager::run (AST_php_script* in)
 		(*i)->run (in, this);
 		check (in);
 		dump (in, *i);
+	}
+}
+
+/* Run ll passes between FROM and TO, inclusive. */
+void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
+{
+	bool exec = false;
+	List<Pass*>::const_iterator i;
+	for (i = begin (); i != end (); i++)
+	{
+		assert ((*i)->name);
+
+		// check for starting pass
+		if (exec == false)
+		{
+			if (*((*i)->name) == *from)
+				exec = true;
+		}
+
+		if (exec == true)
+		{
+			(*i)->run (in, this);
+			check (in);
+
+			// check for last pass
+			if (*((*i)->name) == *to)
+				exec = false;
+		}
+
+		// dont dump
 	}
 }
 

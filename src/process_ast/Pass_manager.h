@@ -89,6 +89,7 @@ public:
 		this->args_info = args_info;
 	}
 
+	// TODO make these use Strings
 	void add_pass (Pass* pass);
 	void add_visitor (AST_visitor* visitor, const char* name);
 	void add_transform (AST_transform* transform, const char* name);
@@ -96,6 +97,7 @@ public:
 
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, const char* name);
+	void run_from_to (String* from, String* to, AST_php_script* in);
 
 	void dump (AST_php_script* in, Pass* pass);
 	void dump_list ();
