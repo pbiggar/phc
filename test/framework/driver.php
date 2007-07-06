@@ -72,6 +72,7 @@ $tests[] = new CompareWithPHP ("InterpretLoweredExpr", "--udump=lef", "Interpret
 $tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretLoweredExpr");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "InterpretShredded");
 require_once ("compiled_vs_interpreted.php");
+require_once ("refcounts.php");
 $tests[] = new PluginTest ("linear");
 $tests[] = new PluginTest ("cloning");
 $tests[] = new PluginTest ("pre_vs_post_count");

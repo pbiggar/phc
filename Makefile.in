@@ -136,6 +136,14 @@ plugins_tests_xml_roundtrip_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_xml_roundtrip_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_debug_zval_la_LIBADD =
+am_plugins_tools_debug_zval_la_OBJECTS = debug_zval.lo
+plugins_tools_debug_zval_la_OBJECTS =  \
+	$(am_plugins_tools_debug_zval_la_OBJECTS)
+plugins_tools_debug_zval_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_debug_zval_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_purity_test_la_LIBADD =
 am_plugins_tools_purity_test_la_OBJECTS = purity_test.lo
 plugins_tools_purity_test_la_OBJECTS =  \
@@ -273,6 +281,7 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
+	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
@@ -290,6 +299,7 @@ DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
+	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
@@ -631,7 +641,7 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
-	plugins/tutorials/Comment_ifs.la \
+	plugins/tools/debug_zval.la plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/count_statements_difficult.la \
 	plugins/tutorials/Expand_includes.la \
@@ -655,6 +665,8 @@ plugins_tests_xml_roundtrip_la_SOURCES = plugins/tests/xml_roundtrip.cpp
 plugins_tests_xml_roundtrip_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
+plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
@@ -791,6 +803,8 @@ plugins/tests/xml_roundtrip.la: $(plugins_tests_xml_roundtrip_la_OBJECTS) $(plug
 plugins/tools/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tools
 	@: > plugins/tools/$(am__dirstamp)
+plugins/tools/debug_zval.la: $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_debug_zval_la_LINK) -rpath $(pkglibdir) $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_LIBADD) $(LIBS)
 plugins/tools/purity_test.la: $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_purity_test_la_LINK) -rpath $(pkglibdir) $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_LIBADD) $(LIBS)
 plugins/tutorials/$(am__dirstamp):
@@ -934,6 +948,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cmdline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements_difficult.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements_easy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug_zval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error.Po@am__quote@
@@ -1085,6 +1100,13 @@ xml_roundtrip.lo: plugins/tests/xml_roundtrip.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/xml_roundtrip.cpp' object='xml_roundtrip.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o xml_roundtrip.lo `test -f 'plugins/tests/xml_roundtrip.cpp' || echo '$(srcdir)/'`plugins/tests/xml_roundtrip.cpp
+
+debug_zval.lo: plugins/tools/debug_zval.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT debug_zval.lo -MD -MP -MF $(DEPDIR)/debug_zval.Tpo -c -o debug_zval.lo `test -f 'plugins/tools/debug_zval.cpp' || echo '$(srcdir)/'`plugins/tools/debug_zval.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/debug_zval.Tpo $(DEPDIR)/debug_zval.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/debug_zval.cpp' object='debug_zval.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o debug_zval.lo `test -f 'plugins/tools/debug_zval.cpp' || echo '$(srcdir)/'`plugins/tools/debug_zval.cpp
 
 purity_test.lo: plugins/tools/purity_test.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT purity_test.lo -MD -MP -MF $(DEPDIR)/purity_test.Tpo -c -o purity_test.lo `test -f 'plugins/tools/purity_test.cpp' || echo '$(srcdir)/'`plugins/tools/purity_test.cpp
