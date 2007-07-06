@@ -99,24 +99,45 @@ public:
 	// Since the shredder changes all eval_expr into assignments, it will
 	// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
 	// function call in PHP, this will generate incorrect PHP code. For that
-	// reason, we translate echo(x) to printf("%s",x) here.
+	// reason, we translate echo(x) to printf("%s",x) here. echo (x,y) is
+	// translated to printf ("%s%s", x, y).
 	AST_expr* pre_method_invocation(AST_method_invocation* in)
 	{
-		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
 		AST_method_invocation* echo = new AST_method_invocation(
 			NULL,	
-			new Token_method_name(new String("echo")),
-			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(false, arg)
-			));
+			new Token_method_name (new String ("echo")),
+			NULL); // match any list (note this doesnt get populated. Use in to get the list.)
+
+		if (in->match(echo))
+		{
+			String* arg1 = new String ();
+			List<AST_actual_parameter*>* parameters = new List<AST_actual_parameter*> (
+				new AST_actual_parameter (false, new Token_string (arg1)));
+			List<AST_actual_parameter*>::const_iterator i;
+			for ( i = in->actual_parameters->begin ();
+					i != in->actual_parameters->end();
+					i++)
+			{
+				arg1->append ("%s");
+				parameters->push_back (*i);
+			}
+
+			return new AST_method_invocation(
+				NULL,
+				new Token_method_name(new String("printf")),
+				parameters);
+		}
+
+		// prints only have 1 parameter, and always return 1.
+		// TODO deal with return value
+		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
 		AST_method_invocation* print = new AST_method_invocation(
 			NULL,	
 			new Token_method_name(new String("print")),
 			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(false, arg)
+				new AST_actual_parameter(false, arg) // print can only have 1 argument
 			));
-	
-		if(in->match(echo) || in->match(print))
+		if (in->match(print))
 		{
 			return new AST_method_invocation(
 				NULL,
