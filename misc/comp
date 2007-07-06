@@ -1,0 +1,18 @@
+#!/bin/bash
+
+PHP_NAME=$1
+NAME=`basename $1` # remove the filename suffix
+NAME=${NAME%.php}
+
+src/phc $PHP_NAME --dump=hir > $NAME.hir.php
+src/phc --generate-c $PHP_NAME | indent > $NAME.c
+gcc -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -L/usr/local/lib -Wl,-R/usr/local/lib -lphp5 -xc -ggdb3 -O0 $NAME.c -o $NAME
+
+NAME="./$NAME"
+
+if [ "-$2" = "--g" ]
+then
+	NAME="gdb $NAME"
+fi
+
+exec $NAME
