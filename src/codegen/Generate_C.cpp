@@ -125,25 +125,37 @@ void index_st(Scope scope, string zvp, AST_variable* var)
 		<< name->value->length() + 1 << ");\n"
 		;
 
-		// dont look up if we should be pushing
-		if(var->array_indices->size() == 1
-			&& var->array_indices->front () != NULL) 
+		if(var->array_indices->size() == 1)
 		{
-			String* ind = operand(var->array_indices->front());
+			if (var->array_indices->front () == NULL)
+			{
+				// If we're pushing, make sure we have an array to push onto.
+				cout
+					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY)\n"
+					<< "{\n"
+					<< "array_init (" << zvp << ");\n"
+					<< "}\n"
+					<< "HashTable* ht = extract_ht(" << zvp << ");\n";
+			}
+			else
+			{
+				String* ind = operand(var->array_indices->front());
 
-			cout 
-			<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
-			<< "{\n"
-			<< "ZVAL_NULL(" << zvp << ");\n"
-			<< "}\n"
-			<< "else\n"
-			<< "{\n"
-			<< "HashTable* ht = extract_ht(" << zvp << ");"
-			<< "zval* ind = index_ht(EG(active_symbol_table), "
-			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-			<< zvp << " = index_ht_zval(ht, ind);\n"
-			<< "}\n"
-			;
+				cout 
+					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
+					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+					<< "{\n"
+					<< "ZVAL_NULL(" << zvp << ");\n"
+					<< "}\n"
+					<< "else\n"
+					<< "{\n"
+					<< "HashTable* ht = extract_ht(" << zvp << ");"
+					<< "zval* ind = index_ht(EG(active_symbol_table), "
+					<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
+					<< zvp << " = index_ht_zval(ht, ind);\n"
+					<< "}\n"
+					;
+			}
 		}
 	}
 	else
@@ -228,13 +240,7 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 		{
 			// Assign to next available index
 			cout 
-			<< "{\n"
-			<< "zval* arr = index_ht(" << hash << ", " 
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");\n"
-			<< "HashTable* ht = extract_ht(arr);\n"
-			<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
-			<< "}\n"
+				<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
 			;
 		}
 		else
@@ -689,17 +695,26 @@ public:
 			
 			index_lhs();
 
-			// if the LHS is_ref, then we must overwrite it. otherwise,
-			// we make the LHS point to the RHS (copy-on-write)
-			cout << "if(!lhs->is_ref) {\n";
-			// If the RHS is_ref, we must first clone it
-			cout << "if(rhs->is_ref) {\n";
-			clone("rhs");
-			cout << "}\n";
-			copy_on_write();
-			cout << "} else {\n";
-			overwrite_lhs();
-			cout << "}\n";
+			if (lhs->value->array_indices->size () == 1
+				&& lhs->value->array_indices->front () == NULL)
+			{
+				// never overwrite
+				copy_on_write();
+			}
+			else
+			{
+				// if the LHS is_ref, then we must overwrite it. otherwise,
+				// we make the LHS point to the RHS (copy-on-write)
+				cout << "if(!lhs->is_ref) {\n";
+				// If the RHS is_ref, we must first clone it
+				cout << "if(rhs->is_ref) {\n";
+				clone("rhs");
+				cout << "}\n";
+				copy_on_write();
+				cout << "} else {\n";
+				overwrite_lhs();
+				cout << "}\n";
+			}
 		}
 		else
 		{
@@ -1429,6 +1444,11 @@ protected:
 
 void Generate_C::children_statement(AST_statement* in)
 {
+	// Make reading the generated code easier
+	cout << "/* ";
+	in->visit (new PHP_unparser (cout));
+	cout << " */\n";
+
 	Pattern* patterns[] = 
 	{
 		new Method_definition()
