@@ -1,12 +1,15 @@
 #!/bin/bash
 
+# A script to test the compilation of a particular PHP script. In particular, this copies originals to the local directory, and generates readable C which can be used to debug the assembly. Pass -g as the second argument to run the debugger.
+
 PHP_NAME=$1
 NAME=`basename $1` # remove the filename suffix
 NAME=${NAME%.php}
 
-src/phc $PHP_NAME --dump=hir > $NAME.hir.php
-src/phc --generate-c $PHP_NAME | indent > $NAME.c
-gcc -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -L/usr/local/lib -Wl,-R/usr/local/lib -lphp5 -xc -ggdb3 -O0 $NAME.c -o $NAME
+cp $PHP_NAME $NAME.orig.php || exit 1;
+src/phc $PHP_NAME --dump=hir > $NAME.hir.php || exit 1;
+src/phc --generate-c $PHP_NAME | indent > $NAME.c || exit 1
+gcc -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -L/usr/local/lib -Wl,-R/usr/local/lib -lphp5 -xc -ggdb3 -O0 $NAME.c -o $NAME || exit 1
 
 NAME="./$NAME"
 
