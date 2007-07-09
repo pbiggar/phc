@@ -3,7 +3,13 @@
 	// Commented statements arent allowed by the parser
 
 	// compare print and echo
-	function f () { return "17\n"; }
+	$z = 2;
+	function f () 
+	{
+		global $z;
+		$z++;
+		return "--$z--\n";
+	}
 	$x = "15\n";
 
 //	print;
@@ -19,12 +25,13 @@
 //	$y = echo 5;
 	$y = print 5;
 
-	echo f(), $x, f();
+	echo f(), $x, f(); 
 //	print f(), $x, f();
 
 	print print print $x;
 //	echo echo echo $x;
 	echo print print $x;
+//	print echo $x;
 	
 	echo f(), print print $x, $x;
 

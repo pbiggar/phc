@@ -368,7 +368,7 @@
 %type <ast_method_mod> member_modifier
 %type <list_ast_member> class_variable_declaration
 %type <list_ast_member> class_constant_declaration
-%type <list_ast_statement> echo_expr_list
+%type <ast_statement> echo_expr_list
 %type <ast_expr> for_expr
 %type <ast_expr> non_empty_for_expr
 %type <ast_expr> expr_without_variable
@@ -747,7 +747,7 @@ unticked_statement:
 		}
 	| K_ECHO echo_expr_list ';'
 		{
-			$$ = $2;
+			$$ = wrap ($2);
 		}
 	| INLINE_HTML
 		{
@@ -1741,23 +1741,22 @@ class_constant_declaration:
 
 /*
  * "echo foo, bar;" is translated into "echo(foo); echo(bar);"
+ * Note that an echo isnt a function, and behaves slightly differently from
+ * functions, in that the result of the evaluation of an argument is printed
+ * before the next argument is evaluated.
  */
 echo_expr_list:
 	  echo_expr_list ',' expr
 		{
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", $3));
-			$1->push_back(NEW(AST_eval_expr, (fn)));
+			AST_method_invocation* fn = dynamic_cast <AST_method_invocation*> (dynamic_cast<AST_eval_expr*>($1)->expr);
+			fn->actual_parameters->push_back (NEW (AST_actual_parameter, (false, $3)));
 			
 			$$ = $1;
 		}
 	| expr
 		{
-			List<AST_statement*>* echo_list = new List<AST_statement*>;
-			
 			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", $1));
-			echo_list->push_back(NEW(AST_eval_expr, (fn)));
-			
-			$$ = echo_list;
+			$$ = (NEW(AST_eval_expr, (fn)));
 		}
 	;
 

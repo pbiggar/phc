@@ -14,6 +14,53 @@
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/Consistency_check.h"
 
+// Split echos into multiple statements. Normal function calls evaluate all
+// their actual parameters at once, and then call the expression with the
+// results of the evaluations. Echo, however, only evaluates its next argument
+// after printing the result of the previouis argument. Functions with
+// side-effects will display this.
+//
+// Convert
+//	  echo f (), f();
+//	into
+//	  print f();
+//	  print f();
+//
+//	We convert to print simply so the later print transformation is easier.
+class Echo_split : public AST_transform
+{
+	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+	{
+		AST_method_invocation* echo = new AST_method_invocation (
+				NULL,	
+				new Token_method_name (new String("echo")),
+				NULL); // match any list (note this doesnt get populated. Use in STMT get the list.)
+
+		if (not in->expr->match (echo))
+		{
+			out->push_back (in);
+			return;
+		};
+
+		List<AST_actual_parameter*>* params =
+			(dynamic_cast <AST_method_invocation*> (in->expr))->actual_parameters;
+		assert (params);
+
+		List<AST_actual_parameter*>::const_iterator i;
+		for (i = params->begin (); i != params->end(); i++)
+		{
+			out->push_back (new AST_eval_expr (
+							new AST_method_invocation (
+								NULL,
+								new Token_method_name (new String ("print")),
+								new List<AST_actual_parameter*> (*i))));
+
+		}
+	}
+
+};
+
+
 class Desugar : public AST_transform
 {
 public:
@@ -324,45 +371,8 @@ class Tidy_print : public AST_transform
 {
 	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
 	{
-		AST_assignment* stmt = dynamic_cast<AST_assignment*> (in->expr);
-		assert (stmt);
-
-
-		// Since the shredder changes all eval_expr into assignments, it will
-		// change echo("hi") to $Tx = echo("hi"); but since "echo" isn't a true
-		// function call in PHP, this will generate incorrect PHP code. For that
-		// reason, we translate echo(x) to printf("%s",x) here.
-		AST_method_invocation* echo = new AST_method_invocation (
-				NULL,	
-				new Token_method_name (new String("echo")),
-				NULL); // match any list (note this doesnt get populated. Use in to get the list.)
-
-		if (stmt->expr->match (echo))
-		{
-			// set up paramters
-			String* arg1 = new String ();
-			List<AST_actual_parameter*>* parameters = new List<AST_actual_parameter*> (
-					new AST_actual_parameter (false, new Token_string (arg1)));
-
-			
-			List<AST_actual_parameter*>* params =
-				(dynamic_cast <AST_method_invocation*> (stmt->expr))->actual_parameters;
-			// add in parameters
-			List<AST_actual_parameter*>::const_iterator i;
-			for (i = params->begin (); i != params->end(); i++)
-			{
-				arg1->append ("%s");
-				parameters->push_back (*i);
-			}
-
-			out->push_back_all (shred (new AST_eval_expr (
-						new AST_assignment (stmt->variable, false,
-							new AST_method_invocation (
-								NULL,
-								new Token_method_name (new String ("printf")),
-								parameters)))));
-			return;
-		}
+		AST_assignment* agn = dynamic_cast<AST_assignment*> (in->expr);
+		assert (agn);
 
 		/* Convert print, in a similar fashion to echo. Print can only have 1 parameter though, and always return 1.
 		 *   $x = print $y;
@@ -380,7 +390,7 @@ class Tidy_print : public AST_transform
 
 
 
-		if (stmt->expr->match (print))
+		if (agn->expr->match (print))
 		{
 			// $t2 = printf ("%s", expr);
 			AST_variable* t2 = fresh_var("TSp");
@@ -401,13 +411,15 @@ class Tidy_print : public AST_transform
 
 			// $x = 1;
 			out->push_back (new AST_eval_expr (
-						new AST_assignment(stmt->variable, false,
+						new AST_assignment(agn->variable, false,
 							new Token_int (1))));
 
 			return;
 		}
-
-		out->push_back (in);;
+		else
+		{
+			out->push_back (in);;
+		}
 	}
 };
 
@@ -432,6 +444,9 @@ List<AST_statement*>* shred (AST_statement* in)
 
 void Shredder::children_php_script(AST_php_script* in)
 {
+	Echo_split ecs;
+	in->transform_children (&ecs);
+
 	Desugar desugar;
 	in->transform_children(&desugar);
 
