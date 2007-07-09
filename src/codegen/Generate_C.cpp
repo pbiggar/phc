@@ -239,8 +239,14 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 			)
 		{
 			// Assign to next available index
-			cout 
+			cout
+				<< "{\n"
+				<< "zval* arr = index_ht(" << hash << ", " 
+				<< "\"" << *name->value << "\", "
+				<< name->value->length() + 1 << ");\n"
+				<< "HashTable* ht = extract_ht(arr);\n"
 				<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
+				<< "}\n"
 			;
 		}
 		else
