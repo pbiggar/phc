@@ -100,8 +100,9 @@ enum Scope { LOCAL, GLOBAL };
 // Find the zval described by "var" and store it in "zvp"
 // Scope only applies to the top-level variable! (i.e., the variable used
 // to index a variable variable, or the variable used as an array index
-// are always taken from the local scope)
-void index_st(Scope scope, string zvp, AST_variable* var)
+// are always taken from the local scope). If CREATE is true, create the
+// variable if it doesnt exist.
+void index_st(Scope scope, string zvp, AST_variable* var, bool create)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -125,36 +126,46 @@ void index_st(Scope scope, string zvp, AST_variable* var)
 		<< name->value->length() + 1 << ");\n"
 		;
 
+		assert (var->array_indices->size () == 0 
+					|| var->array_indices->size () == 1);
 		if(var->array_indices->size() == 1)
 		{
 			if (var->array_indices->front () == NULL)
 			{
+			   assert (create);
 				// If we're pushing, make sure we have an array to push onto.
 				cout
 					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY)\n"
 					<< "{\n"
 					<< "array_init (" << zvp << ");\n"
 					<< "}\n"
-					<< "HashTable* ht = extract_ht(" << zvp << ");\n";
+					<< "HashTable* ht = extract_ht(" << zvp << " TSRMLS_CC);\n";
 			}
 			else
 			{
 				String* ind = operand(var->array_indices->front());
 
-				cout 
-					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
-					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+				if (not create)
+				{
+					cout 
+						<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
+						<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+						<< "	{\n"
+						<< "		MAKE_STD_ZVAL (" << zvp << ");"
+						<< "		ZVAL_NULL(" << zvp << ");\n"
+						<<			zvp << "->refcount--;\n"
+						<< "	}\n"
+						<< "else\n";
+				}
+
+				cout
 					<< "{\n"
-					<< "ZVAL_NULL(" << zvp << ");\n"
-					<< "}\n"
-					<< "else\n"
-					<< "{\n"
-					<< "HashTable* ht = extract_ht(" << zvp << ");"
+					<< "HashTable* ht = extract_ht(" << zvp << " TSRMLS_CC);"
 					<< "zval* ind = index_ht(EG(active_symbol_table), "
 					<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-					<< zvp << " = index_ht_zval(ht, ind);\n"
-					<< "}\n"
-					;
+					<< zvp << " = index_ht_zval" 
+						<< (create ? "" : "_no_create") << " (ht, ind);\n"
+					<< "}\n"	
 			}
 		}
 	}
@@ -226,7 +237,7 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 			<< "zval* arr = index_ht(" << hash << ", " 
 			<< "\"" << *name->value << "\", "
 			<< name->value->length() + 1 << ");\n"
-			<< "HashTable* ht = extract_ht(arr);\n"
+			<< "HashTable* ht = extract_ht(arr TSRMLS_CC);\n"
 			<< "zval* ind = index_ht(EG(active_symbol_table), "
 			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
 			<< "update_ht(ht, ind, " << zvp << ");\n"
@@ -244,7 +255,7 @@ void update_st(Scope scope, AST_variable* var, string zvp)
 				<< "zval* arr = index_ht(" << hash << ", " 
 				<< "\"" << *name->value << "\", "
 				<< name->value->length() + 1 << ");\n"
-				<< "HashTable* ht = extract_ht(arr);\n"
+				<< "HashTable* ht = extract_ht(arr TSRMLS_CC);\n"
 				<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
 				<< "}\n"
 			;
@@ -286,7 +297,7 @@ void global(AST_variable_name* var_name, bool separate)
 
 	cout << "{\n";
 	cout << "zval* global_var;\n";
-	index_st(GLOBAL, "global_var", var);
+	index_st(GLOBAL, "global_var", var, true);
 	
 	// Separate RHS if necessary
 	if(separate)
@@ -627,7 +638,7 @@ public:
 	void index_lhs()
 	{
 		cout << "// Index LHS\n";
-		index_st(LOCAL, "lhs", lhs->value);
+		index_st(LOCAL, "lhs", lhs->value, true);
 	}
 
 	// Make the LHS point to the RHS (copy-on-write)
@@ -862,8 +873,9 @@ public:
 
 	void generate_rhs()
 	{
-		index_st(LOCAL, "rhs", rhs->value);
-		// We now have two references to the RHS
+		index_st(LOCAL, "rhs", rhs->value, agn->is_ref);
+
+		// We now have two references to the RHS (but only is we dont 
 		cout << "rhs->refcount++;\n";
 	}
 
@@ -1406,7 +1418,7 @@ class Unset : public Pattern
 				<< "zval* arr = index_ht(EG(active_symbol_table), "
 				<< "\"" << *name->value << "\", " 
 				<< name->value->length() + 1 << ");"
-				<< "HashTable* ht = extract_ht(arr);"
+				<< "HashTable* ht = extract_ht(arr TSRMLS_CC);"
 				<< "zval* ind = index_ht(EG(active_symbol_table), "
 				<< "\"" << *ind << "\", " << ind->length() + 1 << ");"
 				// Numeric index?
@@ -1518,6 +1530,20 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "return *zvpp;\n"
 	<< "}\n"
 
+	// Index a hashtable, but dont create it if it isnt there. Code generating
+	// calls to this will need to be careful with memory.
+	<< "zval* index_ht_no_create (HashTable* ht, char* key, int len)\n" 
+	<< "{\n"
+	<< "zval** zvpp;\n"
+	<< "if(zend_hash_find(ht, key, len, (void**)&zvpp) != SUCCESS)\n"
+	<< "{\n"
+	<< "zval* zvp;\n"
+	<< "ALLOC_INIT_ZVAL(zvp);\n"
+	<< "zvpp = &zvp;\n"
+	<< "}\n"
+	<< "return *zvpp;\n"
+	<< "}\n"
+
 	// Index a hashtable using a zval*
 	<< "zval* index_ht_zval(HashTable* ht, zval* ind)\n"
 	<< "{\n"
@@ -1550,14 +1576,49 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "return result;\n"
 	<< "}\n"
 
+	// Index using a zval, but dont create it if it isnt there. Code generating
+	// calls to this will need to be careful with memory.
+	<< "zval* index_ht_zval_no_create (HashTable* ht, zval* ind)\n"
+	<< "{\n"
+	<< "zval* result;\n"
+	// Numeric index
+	<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
+	<< "{\n"
+	<< "zval** zvpp;\n"
+	<< "if(zend_hash_index_find(ht, Z_LVAL_P(ind), (void**)&zvpp) != SUCCESS)\n"
+	<< "{\n"
+	<< "zval* zvp;\n"
+	<< "ALLOC_INIT_ZVAL(zvp);\n"
+	<< "zvpp = &zvp;\n"
+	<< "}\n"
+	<< "result = *zvpp;\n"
+	<< "}\n"
+	// String index. 
+	<< "else\n"
+	<< "{\n"
+	<< "zval* string_index;\n"
+	<< "MAKE_STD_ZVAL(string_index);\n"
+	<< "string_index->value = ind->value;\n"
+	<< "string_index->type = ind->type;\n"
+	<< "zval_copy_ctor(string_index);\n"
+	<< "convert_to_string(string_index);\n"
+	<< "result = index_ht(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
+	<< "zval_ptr_dtor(&string_index);\n"
+	<< "}\n"
+	<< "return result;\n"
+	<< "}\n"
+
+
 	// Extract the hashtable from a hash-valued zval
-	<< "HashTable* extract_ht(zval* arr)\n"
+	<< "HashTable* extract_ht(zval* arr TSRMLS_DC)\n"
 	<< "{\n"
 	<< "if(Z_TYPE_P(arr) == IS_NULL)\n"
 	<< "array_init(arr);\n"
 	<< "else if(Z_TYPE_P(arr) != IS_ARRAY)\n"
-	// TODO: proper error message
-	<< "assert(0);\n"
+	<< "{\n"
+	<< "php_error_docref (NULL TSRMLS_CC, E_WARNING, \"Cannot use a scalar value as an array\");\n"
+	<< "array_init(arr);\n"
+	<< "}\n"
 	<< "return Z_ARRVAL_P(arr);\n"
 	<< "}\n"
 	
