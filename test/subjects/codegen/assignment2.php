@@ -8,38 +8,39 @@
  */
 
 /*
- * Simple variables
+ * Arrays
  */
+	
 	// Normal assignment
-	$Aa = 10;
-	$Ab = $Aa;
-	$Ab = $Ab + 1;
-	var_export($Aa);
-	var_export($Ab);
+	$Ba[0] = 10;
+	$Bb[0] = $Ba[0];
+	$Bb[0] = $Bb[0] + 1;
+	var_export($Ba);
+	var_export($Bb);
 
 	// Reference assignment
-	$Ac = 20;
-	$Ad =& $Ac;
-	$Ad = $Ad + 1;
-	var_export($Ac);
-	var_export($Ad);
+	$Bc[0] = 20;
+	$Bd[0] =& $Bc[0];
+	$Bd[0] = $Bd[0] + 1;
+	var_export($Bc);
+	var_export($Bd);
 
 	// Normal assignment, RHS is_ref
-	$Ae = 30;
-	$Af =& $Ae;
-	$Ag = $Af;
-	$Ag = $Ag + 1;
-	var_export($Ae);
-	var_export($Af);
-	var_export($Ag);
+	$Be[0] = 30;
+	$Bf[0] =& $Be[0];
+	$Bg[0] = $Bf[0];
+	$Bg[0] = $Bg[0] + 1;
+	var_export($Be);
+	var_export($Bf);
+	var_export($Bg);
 
 	// Reference assignment, RHS is copy-on-write
-	$Ah = 40;
-	$Ai = $Ah;
-	$Aj =& $Ai;
-	$Aj = $Aj + 1;
-	var_export($Ah);
-	var_export($Ai);
-	var_export($Aj);
+	$Bh[0] = 40;
+	$Bi[0] = $Bh[0];
+	$Bj[0] =& $Bi[0];
+	$Bj[0] = $Bj[0] + 1;
+	var_export($Bh);
+	var_export($Bi);
+	var_export($Bj);
 
 ?>
