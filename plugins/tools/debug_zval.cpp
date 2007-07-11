@@ -87,5 +87,4 @@ extern "C" void run (AST_node* in, Pass_manager* pm)
 	// We run the pass manager again on the generated code. We need to make sure
 	// we dont cause infinite recursion
 	in->transform_children (new Debug_zval (pm));
-	in->visit (new PHP_unparser ());
 }
