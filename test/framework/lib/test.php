@@ -16,11 +16,16 @@ function homogenize_xml ($string)
 
 function homogenize_filenames_and_line_numbers ($string)
 {
+	// specific errors and warnings
+	$string = preg_replace( "/(Warning: ).*(\(\) expects the argument \(.*\) to be a valid callback in ).*( on line )\d+/" , "$1$2$3", $string);
+	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
+//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
+
+	// general line number and filename removal
 	$string = preg_replace( "/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
 	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
 	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
-//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
+
 	return $string;
 }
 
