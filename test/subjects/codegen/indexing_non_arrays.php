@@ -22,16 +22,6 @@
 	var_dump ($x3[0]);
 	var_dump ($x3);
 
-	// TODO reenable
-
-//	$x4 = "string";
-//	var_dump ($x4[0]);
-//	var_dump ($x4);
-
-//	$x5 = "string";
-//	var_dump ($x5[17]); // index outside the string
-//	var_dump ($x5);
-
 	// with a ref
 	$x6 = NULL;
 	$x7 =& $x6;

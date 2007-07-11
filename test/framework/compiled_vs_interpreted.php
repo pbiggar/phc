@@ -20,7 +20,9 @@ class CompiledVsInterpreted extends Test
 
 	function homogenize_output ($string)
 	{
-		return homogenize_filenames_and_line_numbers ($string);
+		$string = homogenize_filenames_and_line_numbers ($string);
+		$string = homogenize_reference_count ($string);
+		return $string;
 	}
 
 	function get_dependent_test_names ()
