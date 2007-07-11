@@ -1098,11 +1098,6 @@ public:
 			assert(0);
 		}
 	
-		// TODO: better error reporting. Either use or duplicate PHP's
-		// mechanism for error reporting. We might be safe sticking with
-		// this for fatal errors, however, since they can't be caught by
-		// error handlers
-
 		// Figure out which parameters need to be passed by reference
 		cout
 		<< "zend_function* signature;\n"
@@ -1110,11 +1105,10 @@ public:
 
 		// check for non-existant functions
 		<< "if (signature == NULL) {"
-		<< "printf (\"\\nFatal error: Call to undefined function " << *name->value << "()"
-		<< " in " << name->get_filename () 
-		<< " on line " << name->get_line_number () 
-		<< "\\n\"); "
-		<< "exit (-1);"
+		<< "	phc_exit_status = -1;\n"
+		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << " TSRMLS_CC);\n"
+		<< "	php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
+		<< "	phc_setup_error (0, NULL, 0 TSRMLS_CC);\n"
 		<<	"}\n"
 
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
@@ -1763,6 +1757,36 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "		zval_ptr_dtor(&rhs);\n"
 	<< "	}\n"
 	<< "}\n"
+
+	// TODO dont overwrite line numbers if we're compiling an extension
+	<< "void phc_setup_error (int init, char* filename, int line_number TSRMLS_DC)" 
+	<< "{\n"
+	<<	"	static int old_in_compilation;\n"
+	<<	"	static int old_in_execution;\n"
+	<< "	static char* old_filename;\n"
+	<< "	static int old_lineno;\n"
+	<< "	if (init)\n"
+	<< "	{\n"
+	<< "		if (filename == NULL) filename = \"[phc_compiled_file]\";\n"
+	// Save old values
+	<<	"		old_in_compilation = CG(in_compilation);\n"
+	<<	"		old_in_execution = EG(in_execution);\n"
+	<< "		old_filename = CG(compiled_filename);\n"
+	<< "		old_lineno = CG(zend_lineno);\n"
+	// Put in our values
+	<<	"		CG(in_compilation) = 1;\n"
+	<<	"		EG(in_execution) = 1;\n"
+	<< "		CG(compiled_filename) = filename;\n"
+	<< "		CG(zend_lineno)= line_number;\n"
+	<< "	}\n"
+	<< "	else\n"
+	<< "	{\n"
+	<<	"		CG(in_compilation) = old_in_compilation;\n"
+	<<	"		EG(in_execution) = old_in_execution;\n"
+	<< "		CG(compiled_filename)= old_filename;\n"
+	<< "		CG(zend_lineno) = old_lineno;\n"
+	<< "	}\n"
+	<< "}\n"
 	;
 }
 
@@ -1876,6 +1900,10 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"\n"
 		"    zval retval;\n"
 		"\n"
+		"    // Use standard errors, on stdout\n"
+		"    zend_alter_ini_entry (\"report_zend_debug\", sizeof(\"report_zend_debug\"), \"0\", sizeof(\"0\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
+		"    zend_alter_ini_entry (\"display_startup_errors\", sizeof(\"display_startup_errors\"), \"1\", sizeof(\"1\") - 1, PHP_INI_ALL, PHP_INI_STAGE_RUNTIME);\n"
+		"\n"
 		"    // call __MAIN__\n"
 		"    int success = call_user_function( \n"
 		"				     EG (function_table),\n"
@@ -1885,7 +1913,9 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"				     0,\n"
 		"				     NULL\n"
 		"				     TSRMLS_CC);\n"
-		"	\n"
+		"\n"
+		"   phc_exit_status = EG(exit_status);\n"
+		"\n"
 		"   PHP_EMBED_END_BLOCK()"
 		"\n"
 		// EG(exit_status) isnt fetched for embed
