@@ -14,7 +14,7 @@ class Refcounts extends CompiledVsInterpreted
 
 	function get_dependent_test_names ()
 	{
-		return array ("CompiledVsInterpreted");
+		return array ("InterpretShredded");
 	}
 
 

@@ -71,6 +71,7 @@ $tests[] = new CompareWithPHP ("InterpretLoweredCF", "--udump=lcf", "InterpretUn
 $tests[] = new CompareWithPHP ("InterpretLoweredExpr", "--udump=lef", "InterpretLoweredCF");
 $tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretLoweredExpr");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "InterpretShredded");
+require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 require_once ("refcounts.php");
 $tests[] = new PluginTest ("linear");
