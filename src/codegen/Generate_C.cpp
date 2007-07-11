@@ -1042,26 +1042,18 @@ public:
 
 		// Fetch the parameter
 		cout
-			<< "// call exit ()\n{\n"
-			<< "zval* arg = index_ht(EG(active_symbol_table), "
-			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
-			;
+			<< "// call exit ()\n"
+			<< "{\n"
+			<< "	zval* arg = index_ht(EG(active_symbol_table), "
+			<< "		\"" << *op << "\", " << op->length() + 1 << ");\n"
 
-		// if its a long, return with exit code
-		cout 
-			<< "if (Z_TYPE_P (arg) == IS_LONG)\n"
-			<< "exit (Z_LVAL_P (arg));\n"
-			;
+			<< "	if (Z_TYPE_P (arg) == IS_LONG)\n"
+			<< "		phc_exit_status = Z_LVAL_P (arg);\n"
+			<<	"	else"
+			<< "		zend_print_variable (arg);\n"
+			<< "	zend_bailout ();\n"
 
-		// otherwise print the argument. Generally convert_to_string
-		// should be avoided, since it destroys the data already
-		// there, but we're about to exit () anyway.
-		cout 
-			<< "convert_to_string (arg);\n"
-			<< "PHPWRITE (Z_STRVAL_P (arg), Z_STRLEN_P (arg));\n"
-			<< "exit (0);\n}\n"
-			;
-
+			<< "}\n";
 	}
 
 protected:
@@ -1516,6 +1508,7 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	// Some common functions
 	cout 
 	<< "#include \"php.h\"\n"
+	<<	"static int phc_exit_status = 0;\n"
 
 	// Index a hashtable
 	<< "zval* index_ht(HashTable* ht, char* key, int len)\n" 
@@ -1895,7 +1888,8 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"	\n"
 		"   PHP_EMBED_END_BLOCK()"
 		"\n"
-		"  return 0;\n"
+		// EG(exit_status) isnt fetched for embed
+		"  return phc_exit_status;\n"
 		"}\n" ;
 	}
 }

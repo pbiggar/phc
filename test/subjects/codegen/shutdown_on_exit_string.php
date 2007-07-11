@@ -7,6 +7,6 @@
 		echo "shutdown function called\n";
 	}
 
-	die (255);
+	die ("asd");
 
 ?>
