@@ -1,32 +1,108 @@
 <?php
 
-	// Try accessing each data-type as if it were an array, then
-	// assigning to it.
-	$x = NULL;
-	var_dump ($x[0]);
-	var_dump ($x);
+	function write ($init, $insert)
+	{
+		echo "--------------------\n";
+		echo "checking early write for '$init', '$insert'\n";
+		$x = $init;
+		$x[3] = $insert; // write in string
+		var_dump ($x[2]);  // read val before
+		var_dump ($x[3]); // read same val
+		var_dump ($x[4]);  // read val after
+		var_dump ($x[17]); // read out of string
+		var_dump ($x);
 
-	$x0 = false;
-	var_dump ($x0[0]);
-	var_dump ($x0);
+		echo "--------------------\n";
+		echo "checking late write for '$init', '$insert'\n";
+		$x = "string";
+		$x = $init;
+		$x[17] = $insert;
+		var_dump ($x[17]); // read same val
+		var_dump ($x);
 
-	$x1 = true;
-	var_dump ($x1[0]);
-	var_dump ($x1);
+		if (is_string ($init))
+			return; // not supported, move to separate test case
 
-	$x2 = 7;
-	var_dump ($x2[0]);
-	var_dump ($x2);
+		echo "--------------------\n";
+		echo "checking early (ref) write for '$init', '$insert'\n";
+		$x = $init;
+		$x[3] =& $insert; // write in string
+		var_dump ($x[2]);  // read val before
+		var_dump ($x[3]); // read same val
+		var_dump ($x[4]);  // read val after
+		var_dump ($x[170]); // read out of string
+		var_dump ($x);
 
-	$x3 = 7.0;
-	var_dump ($x3[0]);
-	var_dump ($x3);
+		echo "--------------------\n";
+		echo "checking late (ref) write for '$init', '$insert'\n";
+		$x = $init;
+		$x[170] =& $insert;
+		var_dump ($x[170]); // read same val
+		var_dump ($x);
+	}
+	
+	function push ($init, $insert)
+	{
+		if (is_string ($init))
+			return; // not supported. Move to separate test case
 
-	// with a ref
-	$x6 = NULL;
-	$x7 =& $x6;
-	$x7[5] = 6;
-	var_dump ($x6);
+		// early and late dont make sense here
+		echo "--------------------\n";
+		echo "checking push for '$init', '$insert'\n";
+		$x = $init;
+		$x[] = $insert; // write in string
+		var_dump ($x[2]);  // read val before
+		var_dump ($x[3]); // read same val
+		var_dump ($x[4]);  // read val after
+		var_dump ($x[17]); // read out of string
+		var_dump ($x);
+
+		echo "--------------------\n";
+		echo "checking (ref) push for '$init', '$insert'\n";
+		$x = $init;
+		$x[] =& $insert; // write in string
+		var_dump ($x[2]);  // read val before
+		var_dump ($x[3]); // read same val
+		var_dump ($x[4]);  // read val after
+		var_dump ($x[170]); // read out of string
+		var_dump ($x);
+	}
+
+
+	$check = array (
+		"",
+		"a",
+		"aasd",
+		"really quite a really really long string, longer even",
+		array (),
+		array (17, 45),
+		array ("ppp", "jjj"),
+		array ("12", "6"),
+		array (array ("rrr")),
+		56,
+		-17,
+		0,
+		1,
+		-1,
+		62.75,
+		NULL,
+		false,
+		true);
+
+	foreach ($check as $init)
+	{
+		foreach ($check as $insert)
+		{
+			echo "--------------------\n";
+			echo "Init: ";
+			var_dump ($init);
+			echo "Insert: ";
+			var_dump ($insert);
+
+			write ($init, $insert);
+			push ($init, $insert);
+		}
+	}
 
 	// TODO objects and resources
 
