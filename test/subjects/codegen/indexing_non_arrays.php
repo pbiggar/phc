@@ -3,7 +3,7 @@
 	function write ($init, $insert)
 	{
 		echo "--------------------\n";
-		echo "checking early write for '$init', '$insert'\n";
+		echo "checking early write\n";
 		$x = $init;
 		$x[3] = $insert; // write in string
 		var_dump ($x[2]);  // read val before
@@ -13,7 +13,7 @@
 		var_dump ($x);
 
 		echo "--------------------\n";
-		echo "checking late write for '$init', '$insert'\n";
+		echo "checking late write\n";
 		$x = "string";
 		$x = $init;
 		$x[17] = $insert;
@@ -24,7 +24,7 @@
 			return; // not supported, move to separate test case
 
 		echo "--------------------\n";
-		echo "checking early (ref) write for '$init', '$insert'\n";
+		echo "checking early (ref) write\n";
 		$x = $init;
 		$x[3] =& $insert; // write in string
 		var_dump ($x[2]);  // read val before
@@ -34,7 +34,7 @@
 		var_dump ($x);
 
 		echo "--------------------\n";
-		echo "checking late (ref) write for '$init', '$insert'\n";
+		echo "checking late (ref) write\n";
 		$x = $init;
 		$x[170] =& $insert;
 		var_dump ($x[170]); // read same val
@@ -48,7 +48,7 @@
 
 		// early and late dont make sense here
 		echo "--------------------\n";
-		echo "checking push for '$init', '$insert'\n";
+		echo "checking push\n";
 		$x = $init;
 		$x[] = $insert; // write in string
 		var_dump ($x[2]);  // read val before
@@ -58,7 +58,7 @@
 		var_dump ($x);
 
 		echo "--------------------\n";
-		echo "checking (ref) push for '$init', '$insert'\n";
+		echo "checking (ref) push\n";
 		$x = $init;
 		$x[] =& $insert; // write in string
 		var_dump ($x[2]);  // read val before
