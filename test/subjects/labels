@@ -19,9 +19,11 @@
 #	.*				non-interpretable
 #	codegen/.*	interpretable
 
+# 3rdparty isnt short
 bugs/.*									short interpretable
 codegen/.*								short interpretable
 dynamic/.*								short interpretable
+errors/.*								short interpretable
 horrible/.*								short interpretable
 inline-c/.*								short non-interpretable
 invalid/.*								short non-interpretable # These are all invalid after parsing
@@ -47,7 +49,6 @@ parsing/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops
 
 parsing/instring.php					non-interpretable # php's parser doesnt like this
-
 
 #.*										long
 #unsupported/.*						short
