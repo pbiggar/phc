@@ -1391,7 +1391,7 @@ class Unset : public Pattern
 				cout
 				<< "zend_hash_del(EG(active_symbol_table), "
 				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");"
+				<< name->value->length() + 1 << ");\n"
 				;
 			}
 			else 
@@ -1499,6 +1499,13 @@ void Generate_C::children_statement(AST_statement* in)
 
 void Generate_C::pre_php_script(AST_php_script* in)
 {
+	/* The difference between zend_symtable_X and zend_hash_X is that the
+	 * symtable version will check if the key is a string of an integer, and if
+	 * so, use the int version instead. We can use the symtable version safely
+	 * for symbol tables, since variables cant be integers, but we cant
+	 * accurately use the hash version for hashtable. Well-named, they are.
+	 */
+
 	// Some common functions
 	cout 
 	<< "#include \"php.h\"\n"
@@ -1508,12 +1515,12 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "zval* index_ht(HashTable* ht, char* key, int len)\n" 
 	<< "{\n"
 	<< "	zval** zvpp;\n"
-	<< "	if(zend_hash_find(ht, key, len, (void**)&zvpp) != SUCCESS)\n"
+	<< "	if(zend_symtable_find(ht, key, len, (void**)&zvpp) != SUCCESS)\n"
 	<< "	{\n"
 	<< "		zval* zvp;\n"
 	<< "		ALLOC_INIT_ZVAL(zvp);\n"
-	<< "		zend_hash_add(ht, key, len, &zvp, sizeof(zval*), NULL);\n"
-	<< "		zend_hash_find(ht, key, len, (void**)&zvpp);\n"
+	<< "		zend_symtable_update(ht, key, len, &zvp, sizeof(zval*), NULL);\n"
+	<< "		zend_symtable_find(ht, key, len, (void**)&zvpp);\n"
 	<< "	}\n"
 	<< "	return *zvpp;\n"
 	<< "}\n"
@@ -1522,7 +1529,7 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "zval* index_ht_dont_add (HashTable* ht, char* key, int len)\n" 
 	<< "{\n"
 	<< "	zval** zvpp;\n"
-	<< "	if(zend_hash_find(ht, key, len, (void**)&zvpp) != SUCCESS)\n"
+	<< "	if(zend_symtable_find (ht, key, len, (void**)&zvpp) != SUCCESS)\n"
 	<< "	{\n"
 	<< "		zval* zvp;\n"
 	<< "		ALLOC_INIT_ZVAL (zvp);\n"
@@ -1681,7 +1688,7 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "		string_index->type = ind->type;\n"
 	<< "		zval_copy_ctor(string_index);\n"
 	<< "		convert_to_string(string_index);\n"
-	<< "		zend_hash_update(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1,"
+	<< "		zend_symtable_update(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1,"
 	<<	"			&val, sizeof(zval*), NULL);\n"
 	<< "		zval_ptr_dtor(&string_index);\n"
 	<< "	}\n"
@@ -1690,6 +1697,11 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	<< "void debug_hash(HashTable* ht)\n"
 	<< "{\n"
 	<< "printf(\"\\nHASH\\n\");\n"
+	<< "if (ht == NULL)\n"
+	<< "{\n"
+	<< "	printf (\"NULL\\n\");\n"
+	<< "	return;\n"
+	<< "}\n"
 	<< "for(\n"
 	<< "	zend_hash_internal_pointer_reset(ht);\n"
 	<< "	zend_hash_has_more_elements(ht) == SUCCESS;\n"
