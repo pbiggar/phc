@@ -184,9 +184,9 @@ function process_label_file_line ($line, $files, $labelled_files)
 			{
 				$labelled_files{$filename}{$opposite_label{$label}} = 0;
 			}
-			else if (preg_match ("/no-(.*)/", $label, $matches))
+			else if (preg_match ("/no-(.*)/", $label, $exception_matches))
 			{
-				$exceptions{$matches[1]}[] =  $filename;
+				$exceptions{$exception_matches[1]}[] =  $filename;
 			}
 			else if ($label == "check-interpretable")
 			{

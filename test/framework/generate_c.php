@@ -17,6 +17,12 @@ class Generate_C extends Test
 		return array ("InterpretShredded");
 	}
 
+	function get_time_limit ()
+	{
+		// TODO this test takes ages and ages. Why?
+		return 400;
+	}
+
 	function get_test_subjects ()
 	{
 		return get_interpretable_scripts ();
@@ -34,10 +40,10 @@ class Generate_C extends Test
 		if ($phc_exit or $phc_err)
 		{
 			$this->mark_failure ($subject,
-				array($phc_command), 
-				array($phc_exit),
+				$phc_command, 
+				$phc_exit,
 				$phc_out,
-				array($phc_err));
+				$phc_err);
 		}
 		# Blank output wasnt being picked up
 		else if (count (split ("\n", $phc_out)) < 170)

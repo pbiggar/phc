@@ -138,6 +138,12 @@ abstract class Test
 		$this->timers = array();
 	}
 
+	// override this function if your test takes ages
+	function get_time_limit ()
+	{
+		return 20; // most tests complete in 10 seconds, so give some space
+	}
+
 	function get_name ()
 	{
 		return get_class($this);
@@ -274,6 +280,10 @@ abstract class Test
 
 	function run()
 	{
+		// increase the timelimit
+		$time_limit = ini_get('max_execution_time');
+		set_time_limit ($time_limit + $this->get_time_limit ());
+
 		// do this first so that the progress bar is ready
 		$files = $this->get_test_subjects ();
 		$this->ready_progress_bar (count ($files));

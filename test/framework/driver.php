@@ -9,7 +9,6 @@
 // when dealing with the manual, we need more space
 ini_set("memory_limit","256M");
 ini_set("include_path","test/framework/external/:".ini_get("include_path"));
-set_time_limit (180); // it seems 60 is no longer enough time
 
 // check version of php
 if (substr (phpversion (), 0, 1) < 5)
