@@ -728,7 +728,7 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 		else switch(type)
 		{
 			case INT:
-				i = new Token_int(strtol(lval, 0, 0), new String(lval, len));
+				i = new Token_int(0, new String(lval, len)); // initialized in Token_conversion
 				copy_state(i, this);
 				mt_lval[mt_count].token_int = i;
 				break;
