@@ -63,9 +63,9 @@ if ($opt_installed)
 
 $tests = array ();
 
-require_once ("basic_parse_tests.php");
+require_once ("basic_parse_test.php");
 $tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print", "BasicParseTest");
-$tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la"); // not necessarily dependent of InterpretUnparsed
+$tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretLoweredCF", "--udump=lcf", "InterpretUnparsed");
 $tests[] = new CompareWithPHP ("InterpretLoweredExpr", "--udump=lef", "InterpretLoweredCF");
 $tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretLoweredExpr");
@@ -80,7 +80,6 @@ require_once ("reparse_unparsed.php");
 require_once ("source_vs_semantic_values.php"); // dont use plugin_test here
 require_once ("xml_roundtrip.php"); // dont use plugin_test here
 require_once ("compile_plugin_test.php");
-require_once ("compile_time_include.php");
 require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--ddump=ast", "dot");

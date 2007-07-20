@@ -18,8 +18,6 @@
 	include "empty.php";
 	include "exceptions.php";
 	include "for_cond_with_comma.php";
-	include "foreach_error1.php";
-	include "foreach_error2.php";
 	include "foreach.php";
 	include "for.php";
 	include "functioncalls.php";
@@ -28,10 +26,7 @@
 	include "global.php";
 	include "helloworld.php";
 	include "if.php";
-	include "include_and_co.php";
 	include "include_complex.php";
-	include "included1.php";
-	include "included2.php";
 	include "inlinehtml.php";
 	include "instanceof.php";
 	include "instring.php";
@@ -43,8 +38,6 @@
 	include "nestedfndefs.php";
 	include "new.php";
 	include "precedence.php";
-	include "prepostop_error1.php";
-	include "prepostop_error2.php";
 	include "prepostop.php";
 	include "refs.php";
 	include "removecontactnulls.php";
