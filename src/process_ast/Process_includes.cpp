@@ -15,9 +15,6 @@
 #include "lib/error.h"
 #include "parsing/parse.h"
 #include "process_ast/PHP_unparser.h"
-#include "cmdline.h"
-
-extern struct gengetopt_args_info args_info;
 
 /*
  * The include functionality is described in http://php.net/include/. 
@@ -33,42 +30,45 @@ extern struct gengetopt_args_info args_info;
  * - the '$val = include('my_file.php');' construct
  * - get_included_files()
  * - proper error messages. If it fails, we leave in the include statement
+ * - using include_path to get the correct include path
  *
+ * TODO
+ * - return statements and the complications they entail
  *
  * We intend to support in the future (but probably in the IR):
  * - include statements whose parameter can be derived using constant
  *   propegation or other dataflow analysis
  * - Run-time inclusion
  * - Remote compile-time or run-time inclusion
- * - return statements and the complications they entail
  */
 
-/* Any variables available at that line in the calling file will be
- * available within the called file, from that point forward. */
-// We put them in the current function
-
-/* However, all functions and classes defined in the included file have
- * the global scope. */
-// we put them in the current function, as above.
-
-/* If the include occurs inside a function within the calling file, then all of
+/* These statements are culled from the manuals.
+ *
+ * Any variables available at that line in the calling file will be
+ * available within the called file, from that point forward.
+ *
+ * However, all functions and classes defined in the included file have
+ * the global scope.
+ *
+ * If the include occurs inside a function within the calling file, then all of
  * the code contained in the called file will behave as though it had been
  * defined inside that function. So, it will follow the variable scope of that
- * function. */
-// Done: we put them in the current function
-
-/* Because include() and require()  are special language constructs, you
+ * function.
+ *
+ * - We put the code directly inside the calling function, which handles all these cases.
+ *
+ * Because include() and require()  are special language constructs, you
  * must enclose them within a statement block if it's inside a conditional
- * block. */
-// Done: This is handled automatically by the parser
-
-/* $bar is the value 1 because the include was successful. Notice the
+ * block.
+ *  - This is handled automatically by the parser
+ *
+ * $bar is the value 1 because the include was successful. Notice the
  * difference between the above examples. The first uses return() within the
  * included file while the other does not. If the file can't be included, FALSE
- * is returned and E_WARNING is issued. */
-// Not done: we dont support this
-
-/* Handling Returns: It is possible to execute a return()  statement
+ * is returned and E_WARNING is issued.
+ * - We dont support this. The warning is left to the run-time.
+ *
+ * Handling Returns: It is possible to execute a return()  statement
  * inside an included file in order to terminate processing in that file and
  * return to the script which called it. Also, it's possible to return values
  * from included files. You can take the value of the include call as you would
@@ -76,28 +76,23 @@ extern struct gengetopt_args_info args_info;
  * files unless the output of the remote file has valid PHP start and end tags
  * (as with any local file). You can declare the needed variables within those
  * tags and they will be introduced at whichever point the file was included.
- * */
-// Not done: We'll handle returns in the IR, since the IR has goto, which these
-// really need. Also, contructs like 
-// '$a = do_something(do_something_else(include('myfile.php')))' are easy to
-// support in the IR and nasty to support in the AST
-
-/* If there are functions defined in the included file, they can be used in the
+ *  - TODO We'll handle returns in the IR, since the IR has goto, which these
+ *         really need. Also, contructs like '$a =
+ *         do_something(do_something_else(include('myfile.php')))' are easy to
+ *         support in the IR and nasty to support in the AST.
+ *
+ * If there are functions defined in the included file, they can be used in the
  * main file independent if they are before return() or after. If the file is
  * included twice, PHP 5 issues fatal error because functions were already
  * declared, while PHP 4 doesn't complain about functions defined after
  * return(). It is recommended to use include_once() instead of checking if the
  * file was already included and conditionally return inside the included file.
- * */
-// Done: redefined functions signal an error
+ *  - Redefined functions and classes lead to an error. However, there may be
+ *    some bugs in this, which cant really be resolved without data flow.
+ *    Include_once at your peril.
+ */ 
 
-// With the _once, if there is an include_ or require_once, and there is an
-// include anywhere which we cant include, fail all includes and issue a
-// warning.
-// Not done: just leaving this out. Include_once at your peril
-
-// We could update get_included_files(), (say, by appending it with the file nmae of the included file), but that's a bit difficult to get right.
-// Not done, a bit tricky
+// TODO add tests for each warning and error
 
 class Return_check : public AST_visitor
 {
@@ -108,6 +103,12 @@ public:
 	Return_check()
 	{
 		found = false;
+	}
+
+	// Avoid looking in any defined functions
+	void children_method (AST_method* in)
+	{
+		// deliberately empty
 	}
 
 	void pre_return(AST_return* in)
@@ -144,8 +145,11 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	);
 
 	// check we have a matching function
-	if((in->expr->match(pattern)) and
-	   (*(method_name->value->value) == "include" or *(method_name->value->value) == "require"))
+	if((in->expr->match(pattern)) 
+		and (*(method_name->value->value) == "include" 
+			or *(method_name->value->value) == "include_once"
+			or *(method_name->value->value) == "require"
+			or *(method_name->value->value) == "require_once"))
 	{
 		String* filename = token_filename->value->value;
 
@@ -154,7 +158,6 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 
 		// If the included file starts with "./" or "../", use empty search path
 		// Otherwise, pass in dirname(filename) as the search path
-		// TODO: this should include the actual include path at some stage
 		if(filename->substr(0, 2) != "./" && filename->substr(0, 3) != "../")
 		{
 			char* directory_name = strdup(in->get_filename()->c_str());
@@ -171,13 +174,14 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			out->push_back(in);
 			return;
 		}
-			
+
 		// We don't support returning values from included scripts; 
 		// issue a warning and leave the include as-is
 		Return_check rc;
 		rc.visit_statement_list(php_script->statements);
 		if(rc.found)
 		{
+			// TODO
 			phc_warning("Returning values from included scripts is not supported in file %s", in->get_filename(), in->get_line_number(), filename->c_str());
 			out->push_back(in);
 			return;
@@ -187,29 +191,5 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		out->push_back_all(php_script->statements);
 	}
 	else
-	{
-		// It's not an include statement (or an unsupported version of the include,
-		// e.g. one that assigns to a variable)
-
-
-		// check if its an unsupported version of include
-		AST_method_invocation *method = 
-			new AST_method_invocation (
-					NULL,
-					method_name, 
-					new List<AST_actual_parameter*>( 
-						new AST_actual_parameter(false, token_filename)));
-
-		if	((in->expr->match(method)) and
-				(*(method_name->value->value) == "include_once" or *(method_name->value->value) == "require_once"))
-		{
-			ostringstream os;
-			PHP_unparser pup(os);
-			pup.visit_actual_parameter_list(method->actual_parameters);
-			phc_warning("File %s could not be included", in->get_filename(), in->get_line_number(), os.str().c_str());
-		}
-
-
 		out->push_back(in);
-	}
 }

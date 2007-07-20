@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 	// Passes to lower the AST to HIR
 	pm->add_visitor (new Invalid_check (), "check");
 	pm->add_transform (new Remove_concat_null (), "rcn");
-//	pm->add_pass (new	Process_includes ());
+	pm->add_transform (new	Process_includes (), "incl");
 	pm->add_pass (new Fake_pass ("ast"));
 	pm->add_pass (new Pretty_print ());
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
