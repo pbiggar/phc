@@ -7,11 +7,11 @@
 	function c2(array $x, array $y) {}
 	function &d(C &$x, D &$y) {}
 	
-	function e($x = 0, $y = 0) {}
-	function f(&$x = 0, &$y = 0) {}
-	function g(C $x = 0, D $y = 0) {}
-	function g(array $x = 0, array $y = 0) {}
-	function &h(C &$x = 0, D &$y = 0) {}
+	function e($x = NULL, $y = NULL) {}
+	function f(&$x = NULL, &$y = NULL) {}
+	function g(C $x = NULL, D $y = NULL) {}
+	function g(array $x = NULL, array $y = NULL) {}
+	function &h(C &$x = NULL, D &$y = NULL) {}
 	
 	class D 
 	{
@@ -21,10 +21,10 @@
 		function dc(array $x, array $y) {}
 		function &dd(C &$x, D &$y) {}
 		
-		function de($x = 0, $y = 0) {}
-		function df(&$x = 0, &$y = 0) {}
-		function dg(C $x = 0, D $y = 0) {}
-		function dg(array $x = 0, array $y = 0) {}
-		function &dh(C &$x = 0, D &$y = 0) {}
+		function de($x = NULL, $y = NULL) {}
+		function df(&$x = NULL, &$y = NULL) {}
+		function dg(C $x = NULL, D $y = NULL) {}
+		function dg(array $x = NULL, array $y = NULL) {}
+		function &dh(C &$x = NULL, D &$y = NULL) {}
 	}
 ?>

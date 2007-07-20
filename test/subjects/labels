@@ -19,20 +19,14 @@
 #	.*				non-interpretable
 #	codegen/.*	interpretable
 
-# 3rdparty isnt short
-bugs/.*									short interpretable
-codegen/.*								short interpretable
-dynamic/.*								short interpretable
-errors/.*								short interpretable
-horrible/.*								short interpretable
-inline-c/.*								short non-interpretable
-# Counter-intuitive: since these are invalid, we only catch when they dont run
-# by the fact that they fail when we interpret them. However, they will be
-# skipped if basicParseTest finds the error, so its safe to label them as interpreted.
-invalid/.*								short interpretable 
-parsing/.*								short interpretable
-php_bugs/.*								short interpretable
-unsupported/.*							short non-interpretable
+# Counter-intuitive: Invalid tests which accidentally pass are only caught when
+# they dont run by the fact that they fail when we interpret them. However,
+# they will be skipped if basicParseTest finds the error, so its safe to label
+# them as interpreted.
+.*											short interpretable
+inline-c/.*								non-interpretable
+unsupported/.*							non-interpretable
+3rdparty/.*								long
 
 bugs/bug0009.php						size-dependent
 bugs/bug0011.php						size-dependent

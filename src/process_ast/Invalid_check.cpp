@@ -139,13 +139,38 @@ void Invalid_check::pre_directive (AST_directive *in)
 
 void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 {
-	//   function x ($x = f()) {} // also a syntax error
-
+	// function x ($x = f()) {} // syntax error
 	if (in->expr == NULL)
 		return;
 
 	if (check_deep_literals (in->expr))
 		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
+
+	// if theres no type hint, return
+	if (in->type->is_array == false && in->type->class_name == NULL)
+		return;
+
+	// despite the warnings, it appears that constants are OK
+	if (in->expr->classid () == AST_constant::ID)
+		return;
+
+	// function f (array x = 7) {} // only allowed NULL or array
+	if (in->type->is_array)
+	{
+		if (in->expr->classid () == Token_null::ID)
+			return;
+
+		if (in->expr->classid () != AST_array::ID
+				or (check_deep_literals (in->expr)))
+			error ("Default value for parameters with array type hint can only be an array or NULL", in->expr);
+
+	}
+	else
+	{
+		// function f (int x = 7) {} // only allowed NULL
+		if (in->expr->classid () != Token_null::ID)
+			error ("Default value for parameters with a class type hint can only be NULL", in->expr);
+	}
 }
 
 void Invalid_check::pre_method_invocation (AST_method_invocation* in)

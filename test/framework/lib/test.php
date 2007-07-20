@@ -71,8 +71,6 @@ function run_command ($command, $subject)
 				{
 					if (preg_match ("/^Error:/", $comment_match[1]))
 						$error = $comment_match[1];
-					elseif (preg_match ("/^Fatal error:/", $comment_match[1]))
-						$error = $comment_match[1];
 					elseif (preg_match ("/^Warning:/", $comment_match[1]))
 						$warnings[] = $comment_match[1];
 				}
