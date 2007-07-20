@@ -7,6 +7,6 @@
 	}
 
 	// check for error
-	$x = array (new A () => 5);
+	$x = array (new A () => 5); // { Warning: Illegal offset type }
 
 ?>
