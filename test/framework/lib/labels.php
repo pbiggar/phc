@@ -10,14 +10,13 @@ $subject_dir =		"test/subjects/";
 $label_file =		"test/subjects/labels";
 $third_party_label_file =		"test/subjects/3rdparty/labels";
 
-$default_labels		=	array("long",  "non-interpretable", "size-neutral", "non-includable");
-$non_default_labels =	array("short", "interpretable", "size-dependent", "includable");
+$default_labels		=	array("long",  "non-interpretable", "size-neutral");
+$non_default_labels =	array("short", "interpretable", "size-dependent");
 $labels =				array_merge($default_labels, $non_default_labels);
 $opposite_label = array(
 	"long" => "short",								"short" => "long",
 	"non-interpretable" => "interpretable",	"interpretable" => "non-interpretable",
-	"size-neutral" => "size-dependent",			"size-dependent" => "size-neutral",
-	"non-includable" => "includable",				"includable" => "non-includable");
+	"size-neutral" => "size-dependent",			"size-dependent" => "size-neutral");
 
 $exceptions = array();
 
@@ -139,8 +138,6 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 			}
 		}
 	}
-//	var_dump ($pure);
-// TODO var_dump the pure. Will be more worth it when includes are on by default
 
 	// sort and generally fix up the arrays
 	foreach ($labels as $label)
@@ -206,12 +203,6 @@ function get_scripts_labelled($label)
 	global $label_struct;
 	phc_assert($label_struct !== null, "label structure not yet initialized");
 	return $label_struct{$label};
-}
-
-// returns a list of php script which use the include feature
-function get_includable_scripts()
-{
-	return get_scripts_labelled("includable");
 }
 
 function get_interpretable_scripts()
