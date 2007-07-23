@@ -1,7 +1,8 @@
 _phc()
 {
-	local cur
+	local cur prev
 	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# options completion
 	if [[ "$cur" == -* ]]; then
@@ -20,4 +21,4 @@ _phc()
 		_filedir
 	fi
 }
-complete -F _phc phc
+complete -F _phc $filenames phc
