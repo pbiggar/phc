@@ -1,0 +1,45 @@
+A quick description of the purpose of each directory
+
+	3rdparty/
+		Within the testing framework, 3rdparty/ is a special directory. It uses
+		its own label file, 3rparty/labels/, and tests in this directory are
+		normally considered 'long' (ie you need -l to run them). We generally put
+		applications in here to test them.
+	
+	bugs/
+		Test cases from bug reports that were filed to use. Named in the order
+		they were filed.
+
+	codegen/
+		If there is something special to be done for a particular feature when
+		generating code, there should be a test case in here. 
+
+	dynamic/
+		Tests dealing with dynamic features (typing probably not included, unless
+		its interesting) should go in here.
+
+	errors/
+		PHP run-time errors (and some warnings) which we have moved to
+		compile-time errors. There's a fine line between errors/ and invalid/,
+		sometimes.
+
+	horrible/
+		A list of difficult parsing problems.
+
+	inline-c/
+		We allow inline c to test certain features in codegen. This is for
+		testing only, and should certainly not be used by anybody.
+
+	invalid/
+		Tests which PHP wont parse.
+
+	parsing/
+		Tests to hit every bit of the parser.
+
+	php_bugs/
+		Test cases from bug reports submitted to PHP bugzilla. There help us with
+		corner cases when something is being implemented.
+
+	unsupported/
+		Some things are a combination of silly, not widely used, unsafe, and most
+		importantly, very difficult to support.
