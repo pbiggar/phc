@@ -202,6 +202,10 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
+plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
+plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/line_numbers.la
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}

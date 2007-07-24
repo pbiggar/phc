@@ -66,6 +66,7 @@ $tests = array ();
 require_once ("basic_parse_test.php");
 $tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print", "BasicParseTest");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
+$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--udump=hir --run plugins/tests/strip_includes.la", "BasicParseTest");
 $tests[] = new CompareWithPHP ("InterpretLoweredCF", "--udump=lcf", "InterpretUnparsed");
 $tests[] = new CompareWithPHP ("InterpretLoweredExpr", "--udump=lef", "InterpretLoweredCF");
 $tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretLoweredExpr");
