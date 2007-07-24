@@ -92,7 +92,7 @@ require_once ("zend_benchmark.php");
 #require_once ("shootout_benchmark.php");
 
 require_once ("lib/labels.php");
-open_skipped_file ();
+open_status_files ();
 
 foreach ($tests as $test)
 {
@@ -128,6 +128,6 @@ $test_name = $test->get_name ();
 	else $test->run ();
 }
 
-close_skipped_file ();
+close_status_files ();
 
 ?>

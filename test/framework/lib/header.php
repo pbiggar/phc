@@ -161,25 +161,34 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 }
 set_error_handler ("phc_error_handler");
 
-function open_skipped_file ()
+function open_status_files ()
 {
-	global $skipped_file;
+	global $status_files;
 	global $log_directory;
-	$skipped_file = fopen ("$log_directory/skipped", "w") or die ("Cannot open skipped file\n");
+	foreach (array ("failure", "skipped", "success") as $status)
+	{
+		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
+	}
 }
 
-function note_in_skipped_file ($test_name, $subject, $reason)
+function log_status ($status, $test_name, $subject, $reason = "")
 {
-	global $skipped_file;
-	fprintf ($skipped_file, "%s", "$test_name: Skipped $subject - $reason\n");
+	global $status_files;
+	$file = $status_files[$status];
+
+	if ($reason) $reason .= " - $reason";
+	$status = ucfirst ($status);
+	fprintf ($file, "%s", "$test_name: $status $subject$reason\n");
+
 	// we frequently stop the test midway, but we want up to the minute results
-	fflush ($skipped_file);
+	fflush ($file);
 }
 
-function close_skipped_file ()
+function close_skipped_files ()
 {
-	global $skipped_file;
-	fclose ($skipped_file);
+	global $status_files;
+	foreach ($status_files as $file)
+		fclose ($file);
 }
 
 function phc_assert ($boolean, $message)

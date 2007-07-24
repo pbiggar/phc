@@ -412,6 +412,7 @@ abstract class Test
 		$this->successes++;
 		$this->total++;
 		$this->update_count ();
+		log_status ("success", $this->get_name(), $subject);
 	}
 
 	function mark_skipped ($subject, $reason)
@@ -426,7 +427,7 @@ abstract class Test
 			$this->skipped++;
 			$this->total++;
 		}
-		note_in_skipped_file ($this->get_name(), $subject, $reason);
+		log_status ("skipped", $this->get_name(), $subject, $reason);
 		$this->update_count ();
 	}
 
@@ -488,6 +489,7 @@ abstract class Test
 		}
 
 		log_failure ($this->get_name(), $subject, $command_string, $out);
+		log_status ("failure", $this->get_name(), $subject);
 		$this->erase_progress_bar();
 
 		$this->display_progress_bar ();
