@@ -25,7 +25,7 @@
 # them as interpreted.
 .*											short interpretable
 inline-c/.*								non-interpretable
-unsupported/.*							non-interpretable
+unsupported/.*							non-interpretable no-BasicParseTest
 3rdparty/.*								long
 
 bugs/bug0009.php						size-dependent
