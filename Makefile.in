@@ -128,14 +128,14 @@ plugins_tests_source_vs_semantic_values_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_source_vs_semantic_values_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-plugins_tests_stripped_includes_la_LIBADD =
-am_plugins_tests_stripped_includes_la_OBJECTS = stripped_includes.lo
-plugins_tests_stripped_includes_la_OBJECTS =  \
-	$(am_plugins_tests_stripped_includes_la_OBJECTS)
-plugins_tests_stripped_includes_la_LINK = $(LIBTOOL) --tag=CXX \
+plugins_tests_strip_includes_la_LIBADD =
+am_plugins_tests_strip_includes_la_OBJECTS = strip_includes.lo
+plugins_tests_strip_includes_la_OBJECTS =  \
+	$(am_plugins_tests_strip_includes_la_OBJECTS)
+plugins_tests_strip_includes_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tests_stripped_includes_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(plugins_tests_strip_includes_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_xml_roundtrip_la_LIBADD =
 am_plugins_tests_xml_roundtrip_la_OBJECTS = xml_roundtrip.lo
 plugins_tests_xml_roundtrip_la_OBJECTS =  \
@@ -288,7 +288,7 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
-	$(plugins_tests_stripped_includes_la_SOURCES) \
+	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
@@ -307,7 +307,7 @@ DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
-	$(plugins_tests_stripped_includes_la_SOURCES) \
+	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
@@ -647,8 +647,7 @@ strangelib_HEADERS = \
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/linear.la \
-	plugins/tests/stripped_includes.la \
-	plugins/tests/line_numbers.la \
+	plugins/tests/strip_includes.la plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
@@ -666,8 +665,8 @@ plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_stripped_includes_la_SOURCES = plugins/tests/stripped_includes.cpp
-plugins_tests_stripped_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
+plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
 plugins_tests_line_numbers_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_pre_vs_post_count_la_SOURCES = plugins/tests/pre_vs_post_count.cpp
@@ -811,8 +810,8 @@ plugins/tests/pre_vs_post_count.la: $(plugins_tests_pre_vs_post_count_la_OBJECTS
 	$(plugins_tests_pre_vs_post_count_la_LINK) -rpath $(pkglibdir) $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_LIBADD) $(LIBS)
 plugins/tests/source_vs_semantic_values.la: $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_source_vs_semantic_values_la_LINK) -rpath $(pkglibdir) $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_LIBADD) $(LIBS)
-plugins/tests/stripped_includes.la: $(plugins_tests_stripped_includes_la_OBJECTS) $(plugins_tests_stripped_includes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
-	$(plugins_tests_stripped_includes_la_LINK) -rpath $(pkglibdir) $(plugins_tests_stripped_includes_la_OBJECTS) $(plugins_tests_stripped_includes_la_LIBADD) $(LIBS)
+plugins/tests/strip_includes.la: $(plugins_tests_strip_includes_la_OBJECTS) $(plugins_tests_strip_includes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
+	$(plugins_tests_strip_includes_la_LINK) -rpath $(pkglibdir) $(plugins_tests_strip_includes_la_OBJECTS) $(plugins_tests_strip_includes_la_LIBADD) $(LIBS)
 plugins/tests/xml_roundtrip.la: $(plugins_tests_xml_roundtrip_la_OBJECTS) $(plugins_tests_xml_roundtrip_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_xml_roundtrip_la_LINK) -rpath $(pkglibdir) $(plugins_tests_xml_roundtrip_la_OBJECTS) $(plugins_tests_xml_roundtrip_la_LIBADD) $(LIBS)
 plugins/tools/$(am__dirstamp):
@@ -981,7 +980,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/purity_test.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stripped_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strip_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml_roundtrip.Plo@am__quote@
 
 .c.o:
@@ -1110,12 +1109,12 @@ source_vs_semantic_values.lo: plugins/tests/source_vs_semantic_values.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o source_vs_semantic_values.lo `test -f 'plugins/tests/source_vs_semantic_values.cpp' || echo '$(srcdir)/'`plugins/tests/source_vs_semantic_values.cpp
 
-stripped_includes.lo: plugins/tests/stripped_includes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT stripped_includes.lo -MD -MP -MF $(DEPDIR)/stripped_includes.Tpo -c -o stripped_includes.lo `test -f 'plugins/tests/stripped_includes.cpp' || echo '$(srcdir)/'`plugins/tests/stripped_includes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/stripped_includes.Tpo $(DEPDIR)/stripped_includes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/stripped_includes.cpp' object='stripped_includes.lo' libtool=yes @AMDEPBACKSLASH@
+strip_includes.lo: plugins/tests/strip_includes.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT strip_includes.lo -MD -MP -MF $(DEPDIR)/strip_includes.Tpo -c -o strip_includes.lo `test -f 'plugins/tests/strip_includes.cpp' || echo '$(srcdir)/'`plugins/tests/strip_includes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/strip_includes.Tpo $(DEPDIR)/strip_includes.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/strip_includes.cpp' object='strip_includes.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o stripped_includes.lo `test -f 'plugins/tests/stripped_includes.cpp' || echo '$(srcdir)/'`plugins/tests/stripped_includes.cpp
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o strip_includes.lo `test -f 'plugins/tests/strip_includes.cpp' || echo '$(srcdir)/'`plugins/tests/strip_includes.cpp
 
 xml_roundtrip.lo: plugins/tests/xml_roundtrip.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT xml_roundtrip.lo -MD -MP -MF $(DEPDIR)/xml_roundtrip.Tpo -c -o xml_roundtrip.lo `test -f 'plugins/tests/xml_roundtrip.cpp' || echo '$(srcdir)/'`plugins/tests/xml_roundtrip.cpp
