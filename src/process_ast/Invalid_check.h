@@ -36,6 +36,7 @@ public:
 	void pre_method_invocation (AST_method_invocation* in);
 	void pre_attribute (AST_attribute* in);
 	void pre_static_declaration (AST_static_declaration* in);
+	void pre_array_elem (AST_array_elem* in);
 };
 
 #endif // PHC_INVALID_CHECK

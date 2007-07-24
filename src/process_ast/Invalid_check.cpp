@@ -207,4 +207,19 @@ void Invalid_check::pre_static_declaration (AST_static_declaration* in)
 
 	if (check_deep_literals (in->expr))
 		error ("Default value of a static declaration must be a literal value or an array", in->expr);
+	
+}
+
+void Invalid_check::pre_array_elem (AST_array_elem* in)
+{
+	if (in->key == NULL)
+		return;
+
+	// basically, new, array and clone are errors here
+	if (in->key->classid () == AST_new::ID
+		or in->key->classid () == AST_clone::ID
+		or in->key->classid () == AST_array::ID)
+	{
+		error ("Illegal offset type", in->key);
+	}
 }
