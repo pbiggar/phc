@@ -427,6 +427,7 @@ abstract class Test
 			$this->skipped++;
 			$this->total++;
 		}
+		write_dependencies ($this->get_name (), $subject, false);
 		log_status ("skipped", $this->get_name(), $subject, $reason);
 		$this->update_count ();
 	}

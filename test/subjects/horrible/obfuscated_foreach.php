@@ -20,6 +20,7 @@
 	}
 
 	echo "** 4 **\n";
+	$a = array ('b' => 'b');
 	foreach($x as $a->b)
 	{
 		echo "($a) $a->b\n";

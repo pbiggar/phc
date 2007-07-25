@@ -27,17 +27,17 @@ abstract class TwoCommandTest extends Test
 	{
 		$command1 = $this->get_command_line1 ($subject);
 		$command2 = $this->get_command_line2 ($subject);
-		list ($full_out1, $err1, $exit1) = complete_exec($command1);
-		list ($full_out2, $err2, $exit2) = complete_exec($command2);
-		$out1 = $this->homogenize_output ($full_out1);
-		$out2 = $this->homogenize_output ($full_out2);
+		list ($out1, $err1, $exit1) = complete_exec($command1);
+		list ($out2, $err2, $exit2) = complete_exec($command2);
+		$out1 = $this->homogenize_output ($out1);
+		$out2 = $this->homogenize_output ($out2);
 
 		parent::end_timer($subject); // the diff can take a long time
 		if ($out1 !== $out2 or 
 				$err1 !== $err2 or
 				(!$this->allow_failure_exit_code () and ($exit1 != 0 or $exit2 != 0)))
 		{
-			$output = diff ($full_out1, $full_out2);
+			$output = diff ($out1, $out2);
 			$this->mark_failure($subject, 
 				array($command1, $command2),
 				array($exit1, $exit2),

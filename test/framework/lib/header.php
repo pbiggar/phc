@@ -184,7 +184,7 @@ function log_status ($status, $test_name, $subject, $reason = "")
 	fflush ($file);
 }
 
-function close_skipped_files ()
+function close_status_files ()
 {
 	global $status_files;
 	foreach ($status_files as $file)

@@ -1,4 +1,6 @@
-A quick description of the purpose of each directory
+A quick description of the purpose of each directory. Note that in general,
+test cases should be short, and in the case of long tests, errors should be
+moved to a separate short test.
 
 	3rdparty/
 		Within the testing framework, 3rdparty/ is a special directory. It uses
@@ -34,7 +36,7 @@ A quick description of the purpose of each directory
 		Tests which PHP wont parse.
 
 	parsing/
-		Tests to hit every bit of the parser.
+		Tests to hit every bit of the parser. General tests are also put in here.
 
 	php_bugs/
 		Test cases from bug reports submitted to PHP bugzilla. There help us with
