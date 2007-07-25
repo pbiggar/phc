@@ -674,6 +674,15 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 		phc_error ("Cannot break/continue %d levels", error_node, error_depth);
 	}
 
+	// Since we compare to the expression, we need to create a variable for it.
+	AST_variable *lhs = fresh_var ("TB");
+
+	if (in->expr)
+		out->push_back (new AST_eval_expr (
+					new AST_assignment (lhs, false, in->expr)));
+	else
+		out->push_back (new AST_eval_expr (
+					new AST_assignment (lhs, false, new Token_int (1))));
 
 	if (levels->size ())
 	{
@@ -689,11 +698,6 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 		{
 			// Otherwise we create a label and a goto for each possible loop, and attach
 			// the label it the loop.
-
-			// Since we compare to the expression, we need to create a variable for it.
-			AST_variable *lhs = fresh_var ("TB");
-			out->push_back (new AST_eval_expr (
-					new AST_assignment (lhs, false, in->expr)));
 
 			// 1 branch and label per level:
 			//		if ($TB1 = 1) goto L1; else goto L2;
@@ -729,14 +733,6 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	}
 
 	// Print an error, and die with 255
-
-	// Get an expression
-	AST_expr* level_count = in->expr;
-	if (level_count == NULL)
-		level_count = new Token_int (1);
-	else
-		level_count = level_count->clone ();
-
 	stringstream ss;
 	ss << " levels in " << *(in->get_filename ()) << " on line " << in->get_line_number () << "\n";
 
@@ -750,7 +746,7 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 						new AST_bin_op (
 							new AST_bin_op (
 								new Token_string (new String ("\nFatal error: Cannot break/continue ")),
-								level_count,
+								lhs->clone (),
 								"."),
 							new Token_string (new String (ss.str())),
 							"."))))));

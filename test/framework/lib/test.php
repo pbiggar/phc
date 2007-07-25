@@ -38,11 +38,11 @@ function homogenize_break_levels ($string)
 
 function homogenize_warnings ($string)
 {
-# just clear these warnings
-#	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
-#									"", $string);
-#	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
-#									"", $string);
+	# just clear these warnings
+	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
+									"", $string);
+	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
+									"", $string);
 	return $string;
 }
 
