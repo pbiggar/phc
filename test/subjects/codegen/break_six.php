@@ -13,7 +13,8 @@
 				for ($m = 0; $m < 3; $m++)
 				{
 					var_dump ("m$m");
-					break 6;
+					$x = 6; // evade the checker
+					break $x;
 				}
 			}
 		}

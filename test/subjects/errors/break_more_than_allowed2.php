@@ -6,7 +6,7 @@
 		{
 			while ($x > 0)
 			{
-				break 17; // { Warning: Cannot break 17 levels }
+				break 17; // { Error: Cannot break/continue 17 levels }
 				$x--;
 			}
 		}

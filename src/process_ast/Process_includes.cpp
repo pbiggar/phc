@@ -93,6 +93,10 @@
  */ 
 
 // TODO add tests for each warning and error
+// - classes become multiply defined
+// - functions become multiply defined
+// - include_once fails incorrectly
+// - include_once fails correctly
 
 class Return_check : public AST_visitor
 {
@@ -121,11 +125,8 @@ public:
 	}
 };
 
-// store the current php script
-void Process_includes::children_php_script(AST_php_script* in)
+Process_includes::Process_includes (bool gotos_allowed)
 {
-	current_script = in;
-	AST_transform::children_php_script(in);
 }
 
 // look for include statements

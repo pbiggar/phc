@@ -31,11 +31,18 @@ function homogenize_filenames_and_line_numbers ($string)
 
 function homogenize_break_levels ($string)
 {
+	// this is a bug we want to ignore
+	$string = preg_replace( "/(Fatal error: Cannot break\/continue 1 level)s/", "$1", $string);
+	return $string;
+}
+
+function homogenize_warnings ($string)
+{
 # just clear these warnings
-	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
-									"", $string);
-	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
-									"", $string);
+#	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
+#									"", $string);
+#	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
+#									"", $string);
 	return $string;
 }
 
@@ -56,7 +63,10 @@ function homogenize_reference_count ($string)
 function run_command ($command, $subject)
 {
 	// check if we're expecting errors or warnings
-	$lines = split ("\n", file_get_contents ($subject));
+	list ($out, $err, $exit) = complete_exec ("src/phc --dont-fail --pretty-print $subject"); // without this, includes hide expected errors
+	if ($exit) // if theres still an error, look it up the old fashioned way
+		$out = file_get_contents ($subject);
+	$lines = split ("\n", $out);
 	$pregs = array ("/#(.*)$/", "/\/\/(.*)$/", "/\/\*(.*)\*\//");
 	$error = false;
 	$warnings = array ();

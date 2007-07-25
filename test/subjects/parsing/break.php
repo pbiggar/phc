@@ -2,6 +2,7 @@
 	for(;;)
 	{
 		break;
-		break 5;
+		$x = 5;
+		break $x;
 	}
 ?>

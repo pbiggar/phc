@@ -656,10 +656,28 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	if (AST_continue::ID == in->ID) levels = &continue_levels;
 	assert (levels);
 
+	// check that we arent being asked to jump further than we know we can go
+	unsigned int error_depth = 0;
+	Token_int *_int = dynamic_cast<Token_int*> (in->expr);
+
+	if (in->expr == NULL || (_int && _int->value <= 1))
+		error_depth = 1;
+	else if (_int)
+		error_depth = _int->value;
+
+	if (error_depth > levels->size ())
+	{
+		// find a good node to put the error on
+		AST_node* error_node = in->expr;
+		if (error_node == NULL)
+			error_node = in;
+		phc_error ("Cannot break/continue %d levels", error_node, error_depth);
+	}
+
+
 	if (levels->size ())
 	{
-
-		Token_int *_int = dynamic_cast<Token_int*> (in);
+		Token_int *_int = dynamic_cast<Token_int*> (in->expr);
 		if (in->expr == NULL || (_int && _int->value <= 1))
 		{
 			// Create a label, pushback a goto to it, and attach it as an attribute

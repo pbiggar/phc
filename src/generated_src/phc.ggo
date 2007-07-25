@@ -8,7 +8,7 @@ option "obfuscate" - "Obfuscate input" flag off
 option "run" - "Run the specified plugin (may be specified multiple times)" string no multiple 
 
 section "INPUT OPTIONS"
-option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off
+option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off # TODO this should be readable at any point, really
 option "no-validation" - "Toggle XML validation"  flag on hidden 
 
 section "COMPILATION OPTIONS"
@@ -25,9 +25,10 @@ option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hid
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
 
 section "DEBUGGING PHC"
-option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "udump" U "Dump input as runnable PHP after the pass named 'pasname'" string typestr="passname" multiple hidden optional
 option "ddump" - "Dump input as DOT after the pass named 'pasname'" string typestr="passname" multiple hidden optional
 option "xdump" X "Dump input as XML after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

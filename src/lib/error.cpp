@@ -10,6 +10,12 @@
 #include <stdarg.h>
 #include "lib/error.h"
 #include "AST.h"
+#include "cmdline.h"
+
+// Generally we pass this through the pass manager. However, this is
+// very ugly for error messages, as then we would need access
+// everywhere we want to cause an error.
+struct gengetopt_args_info error_args_info;
 
 void phc_message (const char* type, const char* message_template, String* filename, int line, va_list argp)
 {
@@ -39,7 +45,8 @@ void phc_internal_error (const char* message, String* filename, int line, ...)
 	va_start(argp, line);
 	phc_message ("Internal Error", message, filename, line, argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 void phc_internal_error (const char* message, AST_node* node, ...)
@@ -49,7 +56,8 @@ void phc_internal_error (const char* message, AST_node* node, ...)
 	phc_message ("Internal Error", message, 
 		node->get_filename (), node->get_line_number (), argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 void phc_internal_error (const char* message, ...)
@@ -58,7 +66,8 @@ void phc_internal_error (const char* message, ...)
 	va_start(argp, message);
 	phc_message ("Internal Error", message, NULL, 0, argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 
@@ -69,7 +78,8 @@ void phc_error (const char* message, String* filename, int line, ...)
 	va_start(argp, line);
 	phc_message ("Error", message, filename, line, argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 void phc_error (const char* message, AST_node* node, ...)
@@ -79,7 +89,8 @@ void phc_error (const char* message, AST_node* node, ...)
 	phc_message ("Error", message, 
 		node->get_filename (), node->get_line_number (), argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 void phc_error (const char* message, ...)
@@ -88,7 +99,8 @@ void phc_error (const char* message, ...)
 	va_start(argp, message);
 	phc_message ("Error", message, NULL, 0, argp);
 	va_end(argp);
-	exit(-1);
+	if (not error_args_info.dont_fail_flag)
+		exit(-1);
 }
 
 

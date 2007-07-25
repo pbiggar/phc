@@ -59,6 +59,7 @@ void sighandler(int signum)
 
 
 
+extern struct gengetopt_args_info error_args_info;
 struct gengetopt_args_info args_info;
 
 int main(int argc, char** argv)
@@ -85,6 +86,8 @@ int main(int argc, char** argv)
 	if(cmdline_parser(argc, argv, &args_info) != 0)
 		exit(-1);
 
+	// Passign this struct through the pass manager is a bit hard.
+	error_args_info = args_info;
 
 	// The rest of the compilation is controlled by the pass manager.
 	Pass_manager* pm = new Pass_manager (&args_info);
@@ -117,7 +120,7 @@ int main(int argc, char** argv)
 	// Passes to lower the AST to HIR
 	pm->add_visitor (new Invalid_check (), "check");
 	pm->add_transform (new Remove_concat_null (), "rcn");
-	pm->add_transform (new	Process_includes (), "incl");
+	pm->add_transform (new Process_includes (false), "incl1");
 	pm->add_pass (new Fake_pass ("ast"));
 	pm->add_pass (new Pretty_print ());
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
@@ -125,6 +128,7 @@ int main(int argc, char** argv)
 	pm->add_transform (new Lower_control_flow (), "lcf");
 	pm->add_transform (new Lower_expr_flow (), "lef");
 	pm->add_transform (new Shredder (), "shred");
+	pm->add_transform (new Process_includes (true), "incl2");
 	pm->add_pass (new Fake_pass ("hir"));
 	pm->add_visitor (new Strip_comments (), "decomment");
 	pm->add_pass (new Obfuscate ());

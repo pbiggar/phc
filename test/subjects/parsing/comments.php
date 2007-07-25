@@ -117,12 +117,12 @@
 	// First catch
 	catch(FirstException $e1)
 	{
-		break;
+//		break;
 	}
 	// Second catch
 	catch(SecondException $e2)
 	{
-		break;
+//		break;
 	}
 
 	// 26 Preceding if-comment
