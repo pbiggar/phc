@@ -270,10 +270,8 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 {
 	AST_variable* temp_array = fresh_var ("LCF_ARRAY_");
 
-	// if no key is provided, use a temporary
-	AST_variable* Tkey;
-	if (in->key) Tkey = in->key;
-	else Tkey = fresh_var ("LCF_KEY_");
+	// we need a temporary even if the key is provided
+	AST_variable* Tkey = fresh_var ("LCF_KEY_");
 
 	// If the expression is a varaible then we may want to use a
 	// reference. Otherwise, we just use a copy.
@@ -307,7 +305,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 			);
 */
 
-	// list ($key, ) = each ($temp_array);
+	// list ($Tkey, ) = each ($temp_array);
 	AST_list_assignment *assign = new AST_list_assignment (
 			new List<AST_list_element*> (Tkey),
 			new AST_method_invocation (
@@ -318,6 +316,16 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 				)
 			)
 		);
+
+	// $key &= $Tkey;
+	if (in->key)
+		in->statements->push_front (
+				new AST_eval_expr (
+					new AST_assignment (
+						in->key,
+						false,
+						Tkey->clone ())));
+
 
 	// $value = $temp_array [$Tkey]
 	// or
@@ -515,11 +523,11 @@ void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out
  *
  *	into
  *		val = expr;
- *		if (expr == expr1) goto L1; else goto N1;
+ *		if (val == expr1) goto L1; else goto N1;
  *	N1:
- *		if (expr == expr2) goto L2; else goto N2;
+ *		if (val == expr2) goto L2; else goto N2;
  *	N2:
- *		if (expr == expr3) goto L3; else goto N3;
+ *		if (val == expr3) goto L3; else goto N3;
  *	N3:
  *		goto LD;
  *	L1:
