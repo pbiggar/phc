@@ -108,11 +108,11 @@ function run_command ($command, $subject)
 		$line = preg_replace ("/[^:]*:\d+:\s/", "", $line);
 
 		$found = false;
-		foreach ($warnings as &$warning)
+		foreach ($warnings as $key => $warning)
 		{
 			if ($line == $warning)
 			{
-				unset ($warning);
+				unset ($warnings[$key]);
 				$found = true;
 			}
 		}
@@ -123,15 +123,15 @@ function run_command ($command, $subject)
 		}
 
 		if ($found == false)
-			$failure = "Unexpected error or warning: $original_line";
+			$failure = "Unexpected error or warning: $original_line\n";
 	}
 
 	// every comment should be matched
 	if ($error !== false)
-		$failure = "Expected error not found: $error";
+		$failure .= "Expected error not found: $error\n";
 
 	if (count ($warnings))
-		$failure = "Expected warning not found: $warnings[0]";
+		$failure .= "Expected warning not found: $warnings[0]\n";
 
 	return array ($out, $err, $exit, $failure);
 }
