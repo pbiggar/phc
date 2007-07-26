@@ -74,8 +74,8 @@
 
 
 
-	# include a file with return statements in the classes
-	# if this fails, the grep will remove it
+	# include a file with return statements in the classes (ie which
+	# shouldnt be removed)
 
 	echo "about to include included_classes_with_return_values.php\n";
 	include "included_classes_with_return_values.php";

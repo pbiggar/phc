@@ -274,6 +274,26 @@ public:
 			in->expr->attrs->set_true ("phc.shredder.need_addr");
 	}
 
+	/* To be able to support includes with return statements, without dataflow, we dont shred their string arguments */
+	void post_method_invocation (AST_method_invocation* in)
+	{
+		Token_method_name* name = dynamic_cast<Token_method_name*>(in->method_name);
+		if (name && (
+					*name->value == "include"
+					or *name->value == "require" 
+					or *name->value == "include_once" 
+					or *name->value == "require_once"))
+		{
+			List<AST_actual_parameter*>::const_iterator i;
+			for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
+			{
+				if (dynamic_cast<Token_string*> ((*i)->expr))
+					(*i)->expr->attrs->set_true("phc.lower_expr.no_temp");
+			}
+
+		}
+	}
+
 
 	/* Statements can occur nested within expressions, in which case we'd like
 	 * to simplify them. We mark assignments which occur as an eval_expr, then mark

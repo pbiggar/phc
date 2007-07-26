@@ -9,12 +9,18 @@
 #define PHC_PROCESS_INCLUDES
 
 #include "AST_transform.h"
+#include "Pass_manager.h"
 
 class Process_includes : public AST_transform
 {
 public:
-	bool gotos_allowed;
-	Process_includes (bool gotos_allowed);
+	// This means that the pass should try its hardest to include
+	// things, and issue warnings on anything that remains. Without
+	// DEFINITIVE set, it wont insert gotos.
+	bool definitive;
+	String* pass_name;
+	Pass_manager* pm;
+	Process_includes (bool definitive, String* pass_name, Pass_manager* pm);
 
 public:
 	void pre_method(AST_method* in, List<AST_member*>* out);

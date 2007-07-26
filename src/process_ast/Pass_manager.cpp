@@ -184,7 +184,7 @@ void Pass_manager::run (AST_php_script* in)
 	}
 }
 
-/* Run ll passes between FROM and TO, inclusive. */
+/* Run all passes between FROM and TO, inclusive. */
 void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
 {
 	bool exec = false;
@@ -210,6 +210,24 @@ void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
 				exec = false;
 		}
 
+		// dont dump
+	}
+}
+
+/* Run all passes until TO, inclusive. */
+void Pass_manager::run_until (String* to, AST_php_script* in)
+{
+	List<Pass*>::const_iterator i;
+	for (i = begin (); i != end (); i++)
+	{
+		assert ((*i)->name);
+
+			(*i)->run (in, this);
+			check (in);
+
+			// check for last pass
+			if (*((*i)->name) == *to)
+				break;
 		// dont dump
 	}
 }

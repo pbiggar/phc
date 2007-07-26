@@ -13,6 +13,7 @@
 #include "AST_visitor.h"
 #include "AST.h"
 #include "lib/error.h"
+#include "src/codegen/fresh.h"
 #include "parsing/parse.h"
 #include "process_ast/PHP_unparser.h"
 
@@ -93,8 +94,6 @@
  */ 
 
 // TODO add tests for each warning and error
-// - classes become multiply defined
-// - functions become multiply defined
 // - include_once fails incorrectly
 // - include_once fails correctly
 
@@ -102,7 +101,6 @@ class Return_check : public AST_visitor
 {
 public:
 	bool found;
-	int line_number;
 
 	Return_check()
 	{
@@ -116,43 +114,101 @@ public:
 	}
 
 	void pre_return(AST_return* in)
-	{	
-		if (not found)
-		{
-			found = true;
-			line_number = in->get_line_number();
-		}
+	{
+		found = true;
 	}
 };
 
-Process_includes::Process_includes (bool gotos_allowed)
+/* Transform
+ *   $x = include "a"; // where "a.php" has the line "return 7";
+ * into
+ *	  ... // included file lines
+ *   $x = 7;
+ *	  goto TIG1;
+ *   ...; // ore included lines
+ *   TIG1:
+ */
+class Return_transform : public AST_transform
+{
+public:
+
+	// The label to jump to
+	AST_label* label;
+
+	// The variable to be set before jumping
+	AST_variable* variable;
+
+	Return_transform (AST_label* label, AST_variable* variable = NULL)
+	: label (label),
+	  variable (variable)
+	{
+	}
+
+	// Avoid looking in any defined functions
+	void children_method (AST_method* in)
+	{
+		// deliberately empty
+	}
+
+   void pre_return (AST_return* in, List<AST_statement*>* out)
+	{
+		// return 7; => $x = 7;
+		if (variable and in->expr)
+			out->push_back (new AST_eval_expr (
+						new AST_assignment (
+							variable->clone(), 
+							false, // we only work on the outer function,
+									 // so return cant be by reference
+							in->expr)));
+
+		// goto TIG;
+		out->push_back (new AST_goto (label->label_name->clone ()));
+	}
+};
+
+Process_includes::Process_includes (bool definitive, String* pass_name, Pass_manager* pm)
+: definitive (definitive),
+  pass_name (pass_name),
+  pm (pm)
 {
 }
 
 // look for include statements
 void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 {
-	AST_method_invocation* pattern;
-	Wildcard<Token_string>* token_filename = new Wildcard<Token_string>;
 	Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
+	Wildcard<AST_expr>* expr_filename = new Wildcard<AST_expr>;
 
 	// the filename is the only parameter of the include statement
-	pattern = new AST_method_invocation(
-		NULL,
-		method_name,
-		new List<AST_actual_parameter*>(
-			new AST_actual_parameter(false, token_filename)
-		)
-	);
+	AST_method_invocation* pattern = new AST_method_invocation(
+			NULL,
+			method_name,
+			new List<AST_actual_parameter*> (new AST_actual_parameter (false, expr_filename))
+			);
 
-	// check we have a matching function
-	if((in->expr->match(pattern)) 
+	AST_assignment* agn_pattern = new AST_assignment (
+		new Wildcard<AST_variable>, false, pattern);
+
+	// TODO there is obviously a difference between these forms. In
+	// particular, the once_ versions actually do something
+	// different. Make tests to demonstrate, then fix.
+	if ((in->expr->match (pattern) or in->expr->match (agn_pattern))
 		and (*(method_name->value->value) == "include" 
 			or *(method_name->value->value) == "include_once"
 			or *(method_name->value->value) == "require"
 			or *(method_name->value->value) == "require_once"))
 	{
-		String* filename = token_filename->value->value;
+		Token_string* token_filename = dynamic_cast<Token_string*> (expr_filename->value);
+		if (token_filename == NULL)
+		{
+			if (definitive)
+				phc_warning("File with variable filename could not be included, and will be included at run-time", in);
+
+			out->push_back(in);
+			return;
+		}
+
+		String* filename = token_filename->value;
 
 		// Set up search directory
 		List<String*>* dirs = new List<String*>();
@@ -171,7 +227,9 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		if(php_script == NULL)
 		{
 			// Script could not be found or not be parsed; leave the include in
-			phc_warning("File %s could not be included", in->get_filename(), in->get_line_number(), filename->c_str());
+			if (definitive)
+				phc_warning("File %s could not be included, and will be included at run-time", in, filename->c_str());
+
 			out->push_back(in);
 			return;
 		}
@@ -179,14 +237,25 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		// We don't support returning values from included scripts; 
 		// issue a warning and leave the include as-is
 		Return_check rc;
-		rc.visit_statement_list(php_script->statements);
+		rc.visit_statement_list (php_script->statements);
 		if(rc.found)
 		{
-			// TODO
-			phc_warning("Returning values from included scripts is not supported in file %s", in->get_filename(), in->get_line_number(), filename->c_str());
-			out->push_back(in);
-			return;
+			if (definitive)
+			{
+				AST_label* label = fresh_label ();
+				php_script->transform_children (new Return_transform (label));
+				out->push_back (label);
+			}
+			else
+			{
+				// Dont issue a warning, as it will be included next time
+				out->push_back(in);
+				return;
+			}
 		}
+
+		// bring the statements to the expected level of the IR
+		pm->run_until (pass_name, php_script);
 
 		// copy the statements
 		out->push_back_all(php_script->statements);
