@@ -42,18 +42,18 @@ void sighandler(int signum)
 	switch(signum)
 	{
 		case SIGABRT:
-			printf("SIGABRT received!\n");
+			fprintf(stderr, "SIGABRT received!\n");
 			break;
 		case SIGSEGV:
-			printf("SIGSEGV received!\n");
+			fprintf(stderr, "SIGSEGV received!\n");
 			break;
 		default:
-			printf("Unknown signal received!\n");
+			fprintf(stderr, "Unknown signal received!\n");
 			break;
 	}
 
-	printf("This could be a bug in phc. If you suspect it is, please email\n");
-	printf("a bug report to phc-general@phpcompiler.org.\n");
+	fprintf(stderr, "This could be a bug in phc. If you suspect it is, please email\n");
+	fprintf(stderr, "a bug report to phc-general@phpcompiler.org.\n");
 	exit(-1);
 }
 
@@ -101,6 +101,9 @@ int main(int argc, char** argv)
 	}
 	else
 	{
+		if (args_info.inputs_num > 1)
+			phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
+
 		php_script = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
 		if (php_script == NULL)
 		{
