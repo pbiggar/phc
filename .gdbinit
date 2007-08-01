@@ -7,4 +7,8 @@ b phc_error(char const*, AST_node*, ...)
 define ast
 	print debug_hash (EG(active_symbol_table))
 end
+define gst
+	print debug_hash (&EG(symbol_table))
+end
+
 b sighandler
