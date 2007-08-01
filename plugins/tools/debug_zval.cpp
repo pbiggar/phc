@@ -70,7 +70,7 @@ public:
 		 * the pass queue. I dont think that's a good idea). */
 		List<AST_statement*>* shredded = new List<AST_statement*> (echo, dump);
 		AST_php_script* wrap = new AST_php_script (shredded);
-		pm->run_from_to (new String ("lcf"), new String ("hir"), wrap);
+		pm->run_from_to (new String ("lcf"), new String ("shred"), wrap);
 		debugs->push_back_all (wrap->statements);
 
 		return var;
@@ -79,7 +79,7 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "hir");
+	pm->add_before_named_pass (pass, "hir");
 }
 
 extern "C" void run (AST_node* in, Pass_manager* pm)

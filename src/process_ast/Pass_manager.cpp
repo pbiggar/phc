@@ -102,6 +102,22 @@ void Pass_manager::add_after_each_pass (Pass* pass)
 	}
 }
 
+void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
+{
+	String* n = new String (name);
+	List<Pass*>::iterator i;
+	for (i = begin (); i != end (); i++)
+	{
+		if (*n == *((*i)->name))
+		{
+			insert (i, pass);
+			return;
+		}
+	}
+
+	phc_error ("No pass with name %s was found", name);
+}
+
 void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
 {
 	String* n = new String (name);

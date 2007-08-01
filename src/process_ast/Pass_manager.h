@@ -97,6 +97,7 @@ public:
 
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, const char* name);
+	void add_before_named_pass (Pass* pass, const char* name);
 	void run_from_to (String* from, String* to, AST_php_script* in);
 	void run_until (String* to, AST_php_script* in);
 
