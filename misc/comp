@@ -5,17 +5,48 @@
 PHP_NAME=$1
 NAME=`basename $1` # remove the filename suffix
 NAME=${NAME%.php}
+EXEC_NAME="./$NAME"
+
+PHC_ARGS=""
+DEBUG_PHC=0
+
+# parse command line parms
+
+for var in $2 $3;
+do
+	if [ "-$var" = "--g" ]
+	then
+		EXEC_NAME="gdb $EXEC_NAME"
+		DEBUG_PHC=1
+	fi
+	if [ "-$var" = "--r" ]
+	then
+		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
+	fi
+done
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
-src/phc $PHP_NAME --dump=hir > $NAME.hir.php || exit 1;
-src/phc --generate-c $PHP_NAME | indent > $NAME.c || exit 1
-gcc -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -L/usr/local/lib -Wl,-R/usr/local/lib -lphp5 -xc -ggdb3 -O0 $NAME.c -o $NAME || exit 1
 
-NAME="./$NAME"
-
-if [ "-$2" = "--g" ]
-then
-	NAME="gdb $NAME"
+# generate HIR
+src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
+if [[ $? != 0 ]]; then
+	if [[ $DEBUG_PHC != 0 ]]; then 
+		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --dump=hir
+	fi
+	exit 1
 fi
 
-exec $NAME
+# generate C
+src/phc --generate-c $PHC_ARGS $PHP_NAME > $NAME.c
+if [[ $? != 0 ]]; then 
+	if [[ $DEBUG_PHC  != 0 ]]; then 
+		exec gdb --args src/phc --generate-c $PHC_ARGS $PHP_NAME
+	fi
+	exit 1
+fi
+indent $NAME.c
+
+# compile it
+gcc -Wall -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -L/usr/local/lib -Wl,-R/usr/local/lib -lphp5 -xc -ggdb3 -O0 $NAME.c -o $NAME || exit 1
+
+exec $EXEC_NAME
