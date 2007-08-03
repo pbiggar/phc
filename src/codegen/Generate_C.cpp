@@ -97,6 +97,13 @@ String* operand(AST_expr* in)
 }
 
 enum Scope { LOCAL, GLOBAL };
+string get_scope (Scope scope)
+{
+	if(scope == LOCAL)
+		return "EG(active_symbol_table)";
+	else
+		return "&EG(symbol_table)";
+}
 
 // Find the zval described by "var" and store it in "zvp"
 // Scope only applies to the top-level variable! (i.e., the variable used
@@ -112,11 +119,7 @@ void index_st(Scope scope, string zvp, AST_variable* var, bool create)
 	// TODO: deal with object indexing
 	assert(var->target == NULL);
 
-	string hash;
-	if(scope == LOCAL)
-		hash = "EG(active_symbol_table)";
-	else
-		hash = "&EG(symbol_table)";
+	string hash = get_scope (scope);
 
 	if(name != NULL)
 	{
@@ -196,11 +199,7 @@ void index_st(Scope scope, string zvp, AST_variable* var, bool create)
 // are always taken from the local scope)
 void update_st(Scope scope, AST_variable* var, string zvp)
 {
-	string hash;
-	if(scope == LOCAL)
-		hash = "EG(active_symbol_table)";
-	else
-		hash = "&EG(symbol_table)";
+	string hash = get_scope (scope);
 
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
