@@ -128,21 +128,123 @@ void lookup (Scope scope, Token_variable_name* name, string target)
 		<< "}\n";
 }
 
+void declare (string var)
+{
+	cout 
+		<< "zval* " << var << ";\n"
+		<< "int is_" << var << "_new = 0;\n";
+}
 
+void cleanup (string target)
+{
+	cout
+		<< "if (is_" << target << "_new)\n"
+		<< "  zval_ptr_dtor (&" << target << ");\n";
+}
 
+void cleanup_new (string target)
+{
+	cout
+		<< "if (p_" << target << " == NULL) // if the variable wasnt found\n"
+		<< "  zval_ptr_dtor (&" << target << ");\n";
+}
 
+/* Generate code to write ZVP, a variable in the generated code,
+ * to VAR, a named variable. */
+void write_var (string zvp, AST_variable* var)
+{
+	// Variable variable or ordinary variable?
+	Token_variable_name* name
+		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
+	// TODO: deal with object indexing
+	assert(var->target == NULL);
 
+	if(name != NULL)
+	{
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				cout << "assert (0); // write_array_index\n";
+				//				write_array_index ();
+			}
+			else
+			{
+				cout << "assert (0); // push_var\n";
+				//				push_var ()
+			}
+		}
+		else
+		{
+			cout 
+				<< "// Normal assignment\n"
+				<< "write_simple_var (" 
+				<<		"\"" << *name->value << "\", "
+				<<		name->value->size () + 1 << ", "
+				<<		"&" << zvp << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert(var->array_indices->size() == 0);
 
+		cout << "assert (0); // write_var_var\n";
+//		write_var_var ();
+	}
+}
 
+/* Generate code to read the variable named in VAR to the zval* ZVP */
+void read_var (string zvp, AST_variable* var)
+{
+	// Variable variable or ordinary variable?
+	Token_variable_name* name
+		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
+	// TODO: deal with object indexing
+	assert(var->target == NULL);
 
+	if(name != NULL)
+	{
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				cout << "assert (0); // read_array_index\n";
+				//				read_array_index ();
+			}
+			else
+			{
+				assert (0);
+			}
+		}
+		else
+		{
+			cout 
+				<< "// Read normal variable\n"
+				<< zvp << " = read_simple_var (" 
+				<<		"\"" << *name->value << "\", "
+				<<		name->value->size () + 1  << ", "
+				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert(var->array_indices->size() == 0);
 
-
-
-
-
-
+		cout << "assert (0); // read_var_var\n";
+//		read_var_var ();
+	}
+}
 
 
 // Find the zval described by VAR and generate code to store it in ZVP.
@@ -390,7 +492,7 @@ void update_st(Scope scope, AST_variable* var, string target, string source)
 // Make a copy of zvp 
 void clone(string zvp)
 {
-	cout << "zvp_clone (&" << zvp << ");\n";
+	cout << "old_clone (&" << zvp << ");\n";
 }
 
 // Implementation of "global" (used in various places)
@@ -550,7 +652,7 @@ protected:
 		}
 
 		// TODO: deal with all superglobals 
-		global("GLOBALS");
+//		global("GLOBALS");
 
 		// debug_argument_stack();
 
@@ -677,16 +779,18 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		cout
-		<< "{\n"
-		<< "zval* cond = index_ht(EG(active_symbol_table), "
-		<< "\"" << *cond->value->value << "\", "
-		<< cond->value->value->length() + 1 << ");\n"
-		<< "if(zend_is_true(cond)) "
-		<< "goto " << *iftrue->value->value << ";\n"
-		<< "else "
-		<< "goto " << *iffalse->value->value << ";\n"
-		<< "}\n"
-		;
+			<< "{\n"
+			<< "zval* cond;\n";
+		lookup (LOCAL, cond->value, "cond");
+		cout 
+			<< "zend_bool bcond = zend_is_true(cond);\n";
+		cleanup_new ("cond");
+		cout << "if (bcond)\n"
+			<< "goto " << *iftrue->value->value << ";\n"
+			<< "else "
+			<< "goto " << *iffalse->value->value << ";\n"
+			<< "}\n"
+			;
 	}
 
 protected:
@@ -744,7 +848,7 @@ public:
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_st(LOCAL, lhs->value, "lhs", "rhs");
+//		update_st(LOCAL, lhs->value, "lhs", "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -781,18 +885,69 @@ public:
 	}
 
 	// Make the LHS reference the RHS (assume seperation has been done)
-	void reference_rhs()
+//	void old_reference_rhs()
+//	{
+//		cout << "// Change-on-write\n";
+//		cout << "rhs->is_ref = 1;\n";
+//		update_st(LOCAL, lhs->value, "lhs", "rhs");
+//	}
+
+	// write rhs into lhs
+	void write_reference_rhs ()
 	{
-		cout << "// Change-on-write\n";
-		cout << "rhs->is_ref = 1;\n";
-		update_st(LOCAL, lhs->value, "rhs", "lhs");
+		Wildcard<AST_variable>* rhs;
+		rhs = dynamic_cast<Wildcard<AST_variable>*>(agn->expr);
+		assert (rhs != NULL);
+
+		Token_variable_name* rname;
+		rname = dynamic_cast<Token_variable_name*>(rhs->value->variable_name);
+		assert (rname != NULL);
+
+		Token_variable_name* lname;
+		lname = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
+		assert (lname != NULL);
+
+		// if its new, check it wont separate
+		cout << "assert (is_rhs_new == 1 ? (!(rhs->refcount > 1 && !rhs->is_ref)) == 0 : 1);\n";
+
+		cout 
+			<< "reference_simple_var (" 
+			<<		"\"" << *lname->value << "\", "
+			<< lname->value->size () + 1 << ", "
+			<< "&rhs, &is_rhs_new, "
+			<<		"\"" << *rname->value << "\", "
+			<< rname->value->size () + 1 << " TSRMLS_CC);\n";
 	}
+
+
+	/* MEMORY DISCUSSION
+	 *
+	 * Variables are created on both sides, many of which have to be cleaned up:
+	 *
+	 * For lhs variables:
+	 *		Indexing the lhs returns a new var or refcount 1, or old var, with an
+	 *		incremented refcount. If we update the hash table, the old var gets
+	 *		its refcount decremented to account for its removal from the
+	 *		hashtable, so we decrement its value to account for our increment. If
+	 *		its new, the decrement is also necessary. If we have the same variable
+	 *		on both sides, the hash table doesnt touch it, so we remove the extra
+	 *		lhs increment and the rhs increment. TODO what about references?
+	 *
+	 *  - if st is updated, the old contents are auto decremented by the zend_hash_update
+	 *  - index_ht increments the refcount of the fetched var.
+	 *  - 
+	 *  - 
+	 */
 
 	void generate_code(Generate_C* gen)
 	{
 		// Open local scope and create a zval* to hold the RHS result
 		cout << "{\n";
 		cout << "zval* rhs;\n";
+		cout << "int is_rhs_new = 0;\n";
+
+		// If the rhs doesnt care about references, dont use them
+//		cout << "int use_ref = 0;\n";
 
 		// Generate code for the RHS
 		generate_rhs();
@@ -800,57 +955,69 @@ public:
 		// Make a copy of the pointer to the RHS so that we can reduce its
 		// refcount when we're done ("rhs" itself may be overwritten by a 
 		// call to clone)
-		cout << "zval* rhs_orig = rhs;\n";
+//		cout << "zval* rhs_orig = rhs;\n";
+
+//		cout 
+//			<< "// Normal assignment\n"
+//			<< "zval* lhs = write_to_simple_var ();\n"
+//			;
+
+		// After this call, we expect lhs to be the variable, or the indexed
+		// variable for an array index. Additionally, ht is set for an array
+		// index, or an array push.
+//		cout << "// Index LHS\n";
+//		index_st_lhs (LOCAL, "lhs", lhs->value);
 
 		if(!agn->is_ref)
 		{
-			cout 
-			<< "// Normal assignment\n"
-			<< "zval* lhs;\n"
-			;
-			
-			index_lhs();
-
-			if (lhs->value->array_indices->size () == 1
-				&& lhs->value->array_indices->front () == NULL)
+			if (lhs->value->array_indices->size () == 1)
 			{
+				if (lhs->value->array_indices->front () == NULL)
+				{
 				// never overwrite
-				copy_on_write();
+//				copy_on_write();
+					cout << "assert (0); // front == NULL\n";
+				}
+				else
+				{
+					cout << "assert (0); // front != NULL\n";
+				}
 			}
 			else
 			{
+				write_var ("rhs", lhs->value);
 				// if the LHS is_ref, then we must overwrite it. otherwise,
 				// we make the LHS point to the RHS (copy-on-write)
-				cout << "if(!lhs->is_ref) {\n";
+//				cout << "if(!lhs->is_ref) {\n";
 				// If the RHS is_ref, we must first clone it
-				cout << "if(rhs->is_ref) {\n";
-				clone("rhs");
-				cout << "}\n";
-				copy_on_write();
-				cout << "} else {\n";
-				overwrite_lhs();
-				cout << "}\n";
+//				cout << "if(rhs->is_ref) {\n";
+//				clone("rhs");
+//				cout << "}\n";
+//				copy_on_write();
+//				cout << "} else {\n";
+////				overwrite_lhs();
+//				cout << "}\n";
 			}
 		}
 		else
 		{
 			cout << "// Reference assignment\n";
 
+			assert (lhs->value->array_indices->size () == 0);
+
 			// For a reference assignment, the LHS is always updated to 
 			// point to the RHS (even if the LHS is currently is_ref)
 			// However, if the RHS is in a copy-on-write set (refcount > 1
 			// but not is_ref), it must be seperated first
-
-			cout << "if(rhs->refcount > 1 && !rhs->is_ref) {\n";
-			separate_rhs();
-			cout << "}\n";
-			reference_rhs();
+			write_reference_rhs ();
 		}
 
 		// Reduce refcount of RHS and garbage collect if necessary
-		cout << "zval_ptr_dtor(&rhs_orig);\n";
+//		cout << "if (p_lhs == NULL) zval_ptr_dtor(&lhs);\n";
+		cleanup ("rhs");
+//		cout << "zval_ptr_dtor(&rhs_orig);\n";
 
-		generate_epilogue ();
+//		generate_epilogue ();
 
 		// close local scope
 		cout << "}\n"; 	
@@ -878,6 +1045,7 @@ public:
 
 	void generate_rhs()
 	{
+		cout << "is_rhs_new = 1;\n";
 		cout << "MAKE_STD_ZVAL(rhs);\n";
 		init_rhs();
 	}
@@ -972,10 +1140,7 @@ public:
 
 	void generate_rhs()
 	{
-		index_st(LOCAL, "rhs", rhs->value, agn->is_ref);
-
-		// We now have two references to the RHS (but only is we dont 
-		cout << "rhs->refcount++;\n";
+		read_var ("rhs", rhs->value);
 	}
 
 protected:
@@ -1073,41 +1238,53 @@ class Eval : public Assignment
 
 	void generate_rhs()	
 	{
-		String* arg = operand(eval_arg->value);
+		// check
+		operand(eval_arg->value);
 
 		// cout << "debug_hash(EG(active_symbol_table));\n";
 
 		cout
-		<< "// Call eval\n"
-		<< "{\n"
-		<< "zval eval_arg;\n"
-		<< "INIT_ZVAL(eval_arg);\n"
-		<< "eval_arg = *index_ht(EG(active_symbol_table), "
-		<< "\"" << *arg << "\", " << arg->length() + 1 << ");\n"
-		<< "convert_to_string(&eval_arg);\n"
-		// TODO this is very ugly
-		// If the user wrote "return ..", we need to store the return value;
-		// however, in that case, zend_eval_string will slap an extra
-		// "return" onto the front of the string, so we must remove the 
-		// "return" from the string the user wrote. If the user did not
-		// write "return", he is not interested in the return value,
-		// and we must pass NULL instead or rhs to avoid zend_eval_string
-		// adding "return".
-		<< "MAKE_STD_ZVAL(rhs);\n"
-		<< "if(!strncmp(Z_STRVAL(eval_arg), \"return \", 7))"
-		<< "{\n"
-		<< "	zend_eval_string(Z_STRVAL(eval_arg) + 7, rhs, "
-		<< "		\"eval'd code\" TSRMLS_CC);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<< "	zend_eval_string(Z_STRVAL(eval_arg), NULL, "
-		<< "		\"eval'd code\" TSRMLS_CC);\n"
-		<< "	ZVAL_NULL(rhs);\n"
-		<< "}\n"
-		<< "}\n"
-		;
-		
+			<< "// Call eval\n"
+			<< "{\n"
+			<< "  zval copy;\n"
+			<< "  zval* eval_arg;\n"
+			<< "  INIT_ZVAL (copy);\n";
+
+		lookup (LOCAL, 
+			dynamic_cast<Token_variable_name*> (eval_arg->value->variable_name),
+			"eval_arg");
+
+		cout
+			<< "  copy = *eval_arg;\n"
+			<< "  convert_to_string(&copy);\n"
+			// TODO this is very ugly
+			// If the user wrote "return ..", we need to store the
+			// return value; however, in that case, zend_eval_string
+			// will slap an extra "return" onto the front of the string,
+			// so we must remove the "return" from the string the user
+			// wrote. If the user did not write "return", he is not
+			// interested in the return value, and we must pass NULL
+			// instead or rhs to avoid zend_eval_string adding "return".
+			<< "  MAKE_STD_ZVAL(rhs);\n"
+			<< "  is_rhs_new = 1;\n"
+			<< "  if(!strncmp(Z_STRVAL(copy), \"return \", 7))"
+			<< "  {\n"
+			<< "  	zend_eval_string (Z_STRVAL (copy) + 7, rhs, "
+			<< "		\"eval'd code\" TSRMLS_CC);\n"
+			<< "  }\n"
+			<< "  else\n"
+			<< "  {\n"
+			<< "	  zend_eval_string (Z_STRVAL (copy), NULL, "
+			<< "		\"eval'd code\" TSRMLS_CC);\n"
+			<< "	  ZVAL_NULL (rhs);\n"
+			<< "  }\n"
+			<< "  if (p_eval_arg == NULL)\n"
+			<< "  {\n"
+			<< "    zval_ptr_dtor (p_eval_arg);\n"
+			<< "  }\n"
+			<< "}\n"
+			;
+
 		// cout << "debug_hash(EG(active_symbol_table));\n";
 	}
 
@@ -1186,8 +1363,8 @@ public:
 			<< "zval function_name;\n"
 			<< "INIT_PZVAL(&function_name);\n"
 			<< "ZVAL_STRING(&function_name, "
-			<< "\"" << *name->value << "\", "
-			<< "0);\n"
+			<<		"\"" << *name->value << "\", "
+			<<		"0);\n"
 			<< "zval* function_name_ptr;\n"
 			<< "function_name_ptr = &function_name;\n"
 			;
@@ -1197,6 +1374,8 @@ public:
 			assert(0);
 		}
 	
+		int num_args = rhs->value->actual_parameters->size();
+
 		// Figure out which parameters need to be passed by reference
 		cout
 		<< "zend_function* signature;\n"
@@ -1211,7 +1390,7 @@ public:
 		<<	"}\n"
 
 		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-		<< "int by_ref[" << rhs->value->actual_parameters->size() << "];\n"
+		<< "int by_ref[" << num_args << "];\n"
 		;
 
 		// TODO: Not 100% this is fully correct; in particular, 
@@ -1227,12 +1406,12 @@ public:
 			cout
 			<< "if(arg_info)\n"
 			<< "{\n"
-			<< "by_ref[" << index << "] = arg_info->pass_by_reference;\n"
-			<< "arg_info++;\n"
+			<< "	by_ref[" << index << "] = arg_info->pass_by_reference;\n"
+			<< "	arg_info++;\n"
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
-			<< "by_ref[" << index << "] = signature->common.pass_rest_by_reference;"
+			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;"
 			<< "}\n"
 			;
 			
@@ -1242,69 +1421,39 @@ public:
 		}
 
 		cout 
-		<< "// Setup array of arguments\n"
-		<< "zval* args[" << rhs->value->actual_parameters->size() << "];\n"
-		<< "zval** args_ind[" << rhs->value->actual_parameters->size() << "];\n"
-		;
+			<< "// Setup array of arguments\n"
+			<< "zval* args[" << num_args << "];\n"
+			<< "zval** args_ind[" << num_args  << "];\n"
+			<< "char* names[" << num_args << "];\n"
+			<< "int lengths[" << num_args << "];\n"
+			;
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			String* op = operand((*i)->expr);
-
-			cout
-			<< "{\n"
-			<< "zval* arg = index_ht(EG(active_symbol_table), "
-			<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
-			;
-	
-			// Separate argument if it is part of a copy-on-write set, 
-			// and we are passing by reference
-			cout << "if(arg->refcount > 1 && !arg->is_ref && by_ref[" << index << "]) {\n";
-			AST_variable* var = dynamic_cast<AST_variable*>((*i)->expr);
-			if(var != NULL)
-			{
-				clone("arg");
-				update_st(LOCAL, var, "arg");
-			}
-			else
-			{
-				cout << "assert(0);\n";
-			}
-			cout << "}\n";
-
-			// Clone argument if it is part of a change-on-write set, 
-			// and we are *not* passing by reference
-			cout << "if(arg->is_ref && !by_ref[" << index << "]) {\n";
-			clone("arg");
-			cout << "}\n";
-
-			// We don't need to restore ->is_ref afterwards, because the 
-			// called function will reduce the refcount of arg on return,
-			// and will reset is_ref to 0 when refcount drops to 1.
-			// If the refcount does not drop to 1 when the function returns,
-			// but we did set is_ref to 1 here, that means that is_ref must
-			// already have been 1 to start with (since if it had not, that
-			// means that the variable would have been in a copy-on-write set,
-			// and would have been seperated above).
-			cout << "if(by_ref[" << index << "]) arg->is_ref = 1;\n";
-
-			cout 
-			<< "args[" << index << "] = arg;\n"
-			<< "args_ind[" << index << "] = &args[" << index << "];\n"
-			<< "}\n"
-			;
+			// use this is a check, but actually use the index_st_rhs to generate this
+			String* name = operand((*i)->expr);
+			cout << "names[" << index << "] = \"" << *name << "\";\n";
+			cout << "lengths[" << index << "] = " << name->size () + 1 << ";\n";
 		}
-	
+
+		cout
+			<< "int i;\n"
+			<< "for (i = 0; i < " << num_args << "; i++)\n"
+			<< "{\n"
+			<< "	args[i] = fetch_arg (names[i], lengths[i], by_ref[i] TSRMLS_CC);\n"
+			<< "	args_ind[i] = &args[i];\n"
+			<< "}\n";
+
 		cout
 		<< "// Call the function\n"
 		<< "int success;\n"	
 		//<< "MAKE_STD_ZVAL(rhs);\n"
 		<< "success = call_user_function_ex(EG(function_table), " 
 		<< "NULL, function_name_ptr, &rhs, " 
-		<< rhs->value->actual_parameters->size() << ", args_ind, "
+		<< num_args << ", args_ind, "
 		<< "0, NULL TSRMLS_CC);\n"
 		<< "assert(success == SUCCESS);\n"
 		;
@@ -1324,8 +1473,12 @@ public:
 		cout 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
-		<< "rhs->refcount++;\n"
+//		<< "rhs->refcount++;\n"
 		<< "rhs->is_ref = 1;\n"
+		<< "}"
+		<< "else"
+		<< "{"
+		<< "is_rhs_new = 1;"
 		<< "}"
 		;
 		
@@ -1341,15 +1494,11 @@ class Bin_op : public Assignment
 public:
 	AST_expr* rhs_pattern()
 	{
-		left = new Wildcard<Token_variable_name>;
+		left = new Wildcard<AST_variable>;
 		op = new Wildcard<Token_op>;
-		right = new Wildcard<Token_variable_name>;
+		right = new Wildcard<AST_variable>;
 
-		return new AST_bin_op(
-			new AST_variable(NULL, left, new List<AST_expr*>),
-			op, 
-			new AST_variable(NULL, right, new List<AST_expr*>)
-			); 
+		return new AST_bin_op (left, op, right); 
 	}
 
 	void generate_rhs()
@@ -1359,15 +1508,14 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
+		declare ("left");
+		declare ("right");
+		read_var ("left", left->value);
+		read_var ("right", right->value);
 		cout 
-		<< "zval* left = index_ht(EG(active_symbol_table), "
-		<< "\"" << *left->value->value << "\", "
-		<< left->value->value->length() + 1 << ");\n"
-		<< "zval* right = index_ht(EG(active_symbol_table), "
-		<< "\"" << *right->value->value << "\", "
-		<< right->value->value->length() + 1 << ");\n"
-		<< "MAKE_STD_ZVAL(rhs);\n"
-		;
+			<< "MAKE_STD_ZVAL(rhs);\n"
+			<< "is_rhs_new = 1;\n"
+			;
 
 		// some operators need the operands to be reversed (since we call the
 		// opposite function). This is accounted for in the binops table.
@@ -1375,12 +1523,15 @@ public:
 			cout << op_fn << "(rhs, right, left TSRMLS_CC);\n";
 		else
 			cout << op_fn << "(rhs, left, right TSRMLS_CC);\n";
+
+		cleanup ("left");
+		cleanup ("right");
 	}
 
 protected:
-	Wildcard<Token_variable_name>* left;
+	Wildcard<AST_variable>* left;
 	Wildcard<Token_op>* op;
-	Wildcard<Token_variable_name>* right;
+	Wildcard<AST_variable>* right;
 };
 
 class Unary_op : public Assignment
@@ -1737,6 +1888,8 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"				     NULL\n"
 		"				     TSRMLS_CC);\n"
 		"\n"
+		"    assert (success == SUCCESS);\n"
+		"\n"
 		"   phc_exit_status = EG(exit_status);\n"
 		"\n"
 		"   PHP_EMBED_END_BLOCK()"
@@ -1756,3 +1909,5 @@ Generate_C::Generate_C(stringstream& os) : os (os)
 	methods = new List<AST_signature*>;
 	name = new String ("generate-c");
 }
+
+
