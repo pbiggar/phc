@@ -105,12 +105,60 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
-// Find the zval described by "var" and store it in "zvp"
-// Scope only applies to the top-level variable! (i.e., the variable used
+/* Lookup the variable NAME in the SCOPE, and store the variable in
+ * TARGET. If the variable does not exist, create it, and set a
+ * generated variable named TARGET_is_new. Both TARGET and
+ * TARGET_is_new need to be declared already. */
+void lookup (Scope scope, Token_variable_name* name, string target)
+{
+	assert (name != 0);
+	string hash = get_scope (scope);
+	cout
+		<< "  zval** p_" << target << "= NULL;\n"
+		<< "	if (zend_symtable_find (" << hash << ", "
+		<<			'"' << *name->value << "\", "
+		<<				name->value->size () + 1 << ", "
+		<<				"(void**)&p_" << target << ") != SUCCESS)\n"
+		<< "{\n"
+		<< 	target << " = EG (uninitialized_zval_ptr);\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<<    target << "= *p_" << target << ";\n"
+		<< "}\n";
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Find the zval described by VAR and generate code to store it in ZVP.
+// SCOPE only applies to the top-level variable! (i.e., the variable used
 // to index a variable variable, or the variable used as an array index
-// are always taken from the local scope). If CREATE is true, create the
-// variable if it doesnt exist.
-void index_st(Scope scope, string zvp, AST_variable* var, bool create)
+// are always taken from the local scope). 
+//
+// If VAR doesnt exist, it will be created (although if it is a array acces, it
+// will not be added to the accessed hashtable). If the run-time indicates that
+// VAR is required by reference, then VAR will be added to the symbol-table.
+// Additionally, if VAR involves an array index, _and_ is used by reference,
+// then VAR will be turned into an array and written back to the symbol table,
+// and a NULL inserted in the indexed position.
+//
+// The returned value (in the generated code) has its refcount incremented.
+void index_st_rhs (Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
@@ -123,52 +171,135 @@ void index_st(Scope scope, string zvp, AST_variable* var, bool create)
 
 	if(name != NULL)
 	{
-		// Ordinary variable
-		cout
-		<< zvp << " = index_ht(" << hash << ", "
-		<< "\"" << *name->value << "\", "
-		<< name->value->length() + 1 << ");\n"
-		;
+		// find var, or create it (inserting if necessary)
+		lookup (scope, name, zvp);
 
-		assert (var->array_indices->size () == 0 
-					|| var->array_indices->size () == 1);
-		if(var->array_indices->size() == 1)
+		if (var->array_indices->size() == 1)
 		{
-			if (var->array_indices->front () == NULL)
-			{
-			   assert (create);
-				// If we're pushing, make sure we have an array to push onto.
-				cout
-					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY)\n"
-					<< "{\n"
-					<< "array_init (" << zvp << ");\n"
-					<< "}\n"
-					<< "HashTable* ht = extract_ht(" << zvp << " TSRMLS_CC);\n";
-			}
-			else
+			// acces rhs as an array
+			assert (var->array_indices->front () != NULL);
+			String* ind = operand(var->array_indices->front());
+
+
+			// if its not an array, turn it into one
+			cout 
+				<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
+				<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+				<< "	{\n"
+				<< "		array_init (" << zvp << ");" // uses a preallocated zval
+				<< "	}\n"
+				<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
+
+				<< "// We need to keep the array to free it in a moment\n"
+				<< "zval* rhs_arr = rhs;\n"
+
+				<< "HashTable* ht = Z_ARRVAL_P (" << zvp << ");"
+				<< "zval* ind = index_ht (" // dont add the index if its missing
+				<<						"EG(active_symbol_table), "
+				<< "					\"" << *ind << "\", "
+				<<						ind->length() + 1 << ", "
+				<<	"					0);\n"
+				<< zvp << " = index_ht_zval (ht, ind, use_ref);\n"
+
+				<< "// We no longer need the array\n"
+				<< "zval_ptr_dtor (&rhs_arr);\n";
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert(var->array_indices->size() == 0);
+
+		AST_reflection* refl;
+		refl = dynamic_cast<AST_reflection*>(var->variable_name);
+		String* name = operand(refl->expr);
+		cout
+			<< "zval* name = index_ht (EG(active_symbol_table), "
+			<< "										\"" << *name << "\", "
+			<<											name->length() + 1 << ", "
+			<<	"										0);\n"
+			<<	zvp << " = index_ht_zval(" << hash << ", name, use_ref);\n"
+			<< "zval_ptr_dtor (name)\n";
+	}
+}
+
+
+// TODO strings
+// Find the zval described by VAR and generate code to store it in ZVP.
+// SCOPE only applies to the top-level variable! (i.e., the variable used
+// to index a variable variable, or the variable used as an array index
+// are always taken from the local scope). 
+//
+// If VAR doesnt exist, it will be created and added to the symbol table.
+// If VAR involves an array index or an array push, the ZVP will be turned
+// into an array, and written back to the symbol-table.
+//
+// In the case of array indexing, $VAR[index] will be stored in ZVP.
+// Otherwise (simple access or array pushing), the symbol-table entry for VAR
+// will be stored in ZVP.
+//
+// In either variable case, the hashtable ZVP_ht will be generate, and in the
+// array index case, ZVP_ind will be generate, and available for later
+// generated code.
+//
+// TODO really?: The returned value (in the generated code) has its refcount incremented.
+void index_st_lhs (Scope scope, string zvp, AST_variable* var)
+{
+	// Variable variable or ordinary variable?
+	Token_variable_name* name;
+	name = dynamic_cast<Token_variable_name*>(var->variable_name);
+
+	// TODO: deal with object indexing
+	assert(var->target == NULL);
+
+	string hash = get_scope (scope);
+
+	if(name != NULL)
+	{
+		lookup (scope, name, zvp);
+
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
 			{
 				String* ind = operand(var->array_indices->front());
 
-				if (not create)
-				{
-					cout 
-						<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
-						<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
-						<< "	{\n"
-						<< "		ALLOC_INIT_ZVAL (" << zvp << ");"
-						<<			zvp << "->refcount--;\n"
-						<< "	}\n"
-						<< "else\n";
-				}
+				// - new (not array)
+				// - found and array
+				// - found and not array
+				// TODO it seems that we're a refcount off here in one case or the other
 
-				cout
-					<< "{\n"
-					<< "HashTable* ht = extract_ht(" << zvp << " TSRMLS_CC);"
-					<< "zval* ind = index_ht(EG(active_symbol_table), "
-					<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-					<< zvp << " = index_ht_zval" 
-						<< (create ? "" : "_dont_add") << " (ht, ind);\n"
-					<< "}\n";
+				// if its not an array, turn it into one
+				cout 
+					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
+					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+					<< "	{\n"
+					<< "		array_init (" << zvp << ");" // uses a preallocated zval
+					<< "	}\n"
+					<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
+					<< "\n"
+					<< "HashTable* " << zvp << "_ht = Z_ARRVAL_P (" << zvp << ");"
+					<< "zval* " << zvp << "_ind = index_ht ("
+					<<						"EG(active_symbol_table), "
+					<< "					\"" << *ind << "\"" << ", "
+					<<						ind->length() + 1 << ", "
+					<<	"					0);\n"
+					<< zvp << " = index_ht_zval (" << zvp << "_ht, "
+					<<										zvp << "_ind, 1);\n";
+			}
+			else
+			{
+				cout 
+					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
+					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
+					<< "	{\n"
+					<< "		array_init (" << zvp << ");" // uses a preallocated zval
+					<< "	}\n"
+					<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
+					<< "\n"
+					<< "HashTable* " << zvp << "_ht = Z_ARRVAL_P (" << zvp << ");";
 
 			}
 		}
@@ -181,104 +312,77 @@ void index_st(Scope scope, string zvp, AST_variable* var, bool create)
 
 		AST_reflection* refl;
 		refl = dynamic_cast<AST_reflection*>(var->variable_name);
-		String* name = operand(refl->expr);
 
-		cout 
-		<< "{\n"
-		<< "zval* name = index_ht(EG(active_symbol_table), "
-		<< "\"" << *name << "\", " << name->length() + 1 << ");\n"
-		<< zvp << " = index_ht_zval(" << hash << ", name);\n"
-		<< "}\n"
-		;
+		String* name = operand(refl->expr);
+		cout
+			<< "zval* " << zvp << "_name = index_ht (EG(active_symbol_table), "
+			<< "										\"" << *name << "\", "
+			<<											name->length() + 1 << ", "
+			<<	"										0);\n"
+			<<	zvp << " = index_ht_zval (" << hash << ", " << zvp << "_name);\n";
 	}
 }
 
-// Update the variable "var" with "zvp", incrementing "zvp"'s refcount
+// Update the variable VAR with SOURCE, incrementing SOURCE's refcount.
 // Scope only applies to the top-level variable! (i.e., the variable used
 // to index a variable variable, or the variable used as an array index
-// are always taken from the local scope)
-void update_st(Scope scope, AST_variable* var, string zvp)
+// are always taken from the local scope). If VAR is an array, use variables in
+// TARGET for the array and indices.
+void update_st(Scope scope, AST_variable* var, string target, string source)
 {
+	// We need to update, instead of deleting and then adding.
+	// The latter reorders the hashtable, which isnt correct
+	// (say if we add the same key twice, once at the front,
+	// and once at the end, it should end up at the front).
+
 	string hash = get_scope (scope);
 
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
 	name = dynamic_cast<Token_variable_name*>(var->variable_name);
 
-	cout << zvp << "->refcount++;\n";
+	cout << source << "->refcount++;\n";
 	
 	// Ordinary variable
 	if(name != NULL)
 	{
 		if(var->array_indices->size() == 0)
 		{
-			// We need to update, instead of deleting and then adding.
-			// The latter reorders the hashtable, which isnt correct
-			// (say if we add the same key twice, once at the front,
-			// and once at the end, it should end up at the front).
-			
 			cout 
-			// Add the new value to the hashtable
-			<< "zend_hash_update(" << hash << ", "
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ", "
-			<< "&" << zvp << ", sizeof(zval*), NULL);\n"
-			;
+				<< "zend_hash_update(" << hash << ", "
+				<<			"\"" << *name->value << "\", "
+				<<			name->value->length() + 1 << ", "
+				<<			"&" << source << ", sizeof(zval*), NULL);\n";
 		}
-		else if(
-			var->array_indices->size() == 1 &&
-			var->array_indices->front() != NULL
-			)
+		else 
 		{
-			String* ind = operand(var->array_indices->front());
-
-			cout 
-			<< "{\n"
-			<< "zval* arr = index_ht(" << hash << ", " 
-			<< "\"" << *name->value << "\", "
-			<< name->value->length() + 1 << ");\n"
-			<< "HashTable* ht = extract_ht(arr TSRMLS_CC);\n"
-			<< "zval* ind = index_ht(EG(active_symbol_table), "
-			<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-			<< "update_ht(ht, ind, " << zvp << ");\n"
-			<< "}\n"
-			;
-		}
-		else if(
-			var->array_indices->size() == 1 &&
-			var->array_indices->front() == NULL
-			)
-		{
-			// Assign to next available index
-			cout
-				<< "{\n"
-				<< "zval* arr = index_ht(" << hash << ", " 
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");\n"
-				<< "HashTable* ht = extract_ht(arr TSRMLS_CC);\n"
-				<< "zend_hash_next_index_insert(ht, &" << zvp << ", sizeof(zval*), NULL);\n"
-				<< "}\n"
-			;
-		}
-		else
-		{
-			// Cannot happen after shredder
-			assert(0);
+			assert (target != "");
+			if (var->array_indices->front() != NULL)
+			{
+				// The ZVP_ht and ZVP_ind variables are already set up.
+				cout 
+					<< "update_ht("	<< target << "_ht, " 
+											<< target << "_ind, " 
+											<< source << ");\n";
+			}
+			else 
+			{
+				// The ZVP_ht variable is already set up.
+				// Assign to next available index.
+				cout
+					<< "zend_hash_next_index_insert (" << target << "_ht, "
+					<<	"	&" << source << ", sizeof(zval*), NULL);\n";
+			}
 		}
 	}
 	else
 	{
 		// After the shredder, this should be 0
 		assert(var->array_indices->size() == 0);
-	
-		AST_reflection* refl;
-		refl = dynamic_cast<AST_reflection*>(var->variable_name);
-		String* ind = operand(refl->expr);
 
 		cout
-		<< "zval* ind = index_ht(EG(active_symbol_table), "
-		<< "\"" << *ind << "\", " << ind->length() + 1 << ");\n"
-		<< "update_ht(" << hash << ", ind, " << zvp << ");\n"
+			<< "update_ht(" << hash << ", " << target << "_name, " << source << ");\n"
+			<< "zval_ptr_dtor (" << target << "_name);\n // clear up";
 		;
 	}
 }
@@ -297,19 +401,21 @@ void global(AST_variable_name* var_name, bool separate)
 
 	cout << "{\n";
 	cout << "zval* global_var;\n";
-	index_st(GLOBAL, "global_var", var, true);
+	cout << "int use_ref = 1;\n";
+	index_st_rhs (GLOBAL, "global_var", var);
 	
 	// Separate RHS if necessary
 	if(separate)
 	{
 		cout << "if(global_var->refcount > 1 && !global_var->is_ref) {\n";
 		clone("global_var");
-		update_st(GLOBAL, var, "global_var");
+		update_st(GLOBAL, var, "", "global_var");
 		cout << "}\n";
 	}
+	// TODO this function needs more work for me to be sure its right
 
 	cout << "global_var->is_ref = 1;\n";
-	update_st(LOCAL, var, "global_var");
+	update_st(LOCAL, var, "", "global_var");
 	cout << "}\n";
 }
 
@@ -634,18 +740,11 @@ public:
 	{
 	}
 
-	// Get the LHS from the hashtable 
-	void index_lhs()
-	{
-		cout << "// Index LHS\n";
-		index_st(LOCAL, "lhs", lhs->value, true);
-	}
-
 	// Make the LHS point to the RHS (copy-on-write)
 	void copy_on_write()
 	{
 		cout << "// Copy-on-write\n";
-		update_st(LOCAL, lhs->value, "rhs");
+		update_st(LOCAL, lhs->value, "lhs", "rhs");
 	}
 
 	// Overwrite the LHS with the RHS
@@ -667,7 +766,7 @@ public:
 		if(rhs != NULL)
 		{
 			// First, make a copy, then update the hashtable
-			update_st(LOCAL, rhs->value, "rhs");
+			update_st(LOCAL, rhs->value, "rhs", "rhs");
 		}
 		else
 		{
@@ -676,7 +775,7 @@ public:
 			// I *think* the need for separation can only ever arise when the
 			// RHS is a variable. However, the decision to run seperate_rhs
 			// is based on runtime information, hence the runtime assert
-		//	cout << "assert(0);\n";
+			cout << "assert(0);\n";
 		//	
 		}
 	}
@@ -686,7 +785,7 @@ public:
 	{
 		cout << "// Change-on-write\n";
 		cout << "rhs->is_ref = 1;\n";
-		update_st(LOCAL, lhs->value, "rhs");
+		update_st(LOCAL, lhs->value, "rhs", "lhs");
 	}
 
 	void generate_code(Generate_C* gen)
