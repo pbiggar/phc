@@ -167,8 +167,17 @@ void write_var (string zvp, AST_variable* var)
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				cout << "assert (0); // write_array_index\n";
-				//				write_array_index ();
+				String* index = operand (var->array_indices->front());
+				cout
+					<< "// Array assignment\n"
+					<< "write_array_index ("
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1 << ", "
+					<<		"\"" << *index << "\", "
+					<<		index->size () + 1 << ", "
+					<<		"&" << zvp << ", "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
 			}
 			else
 			{
@@ -216,8 +225,16 @@ void read_var (string zvp, AST_variable* var)
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				cout << "assert (0); // read_array_index\n";
-				//				read_array_index ();
+				String *index = operand (var->array_indices->front ());
+				cout 
+					<< "// Read array variable\n"
+					<< zvp << " = read_array_index (" 
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1  << ", "
+					<<		"\"" << *index << "\", "
+					<<		index->size () + 1  << ", "
+					<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+					;
 			}
 			else
 			{
@@ -518,6 +535,7 @@ void global(AST_variable_name* var_name, bool separate)
 
 	cout << "global_var->is_ref = 1;\n";
 	update_st(LOCAL, var, "", "global_var");
+//	cout << "zval_ptr_dtor (&global_var);\n";
 	cout << "}\n";
 }
 
@@ -726,7 +744,7 @@ protected:
 		cout
 		// Labels are local to a function
 		<< "// Method exit\n"
-		<< "end_of_function:;\n"
+		<< "end_of_function:__attribute__((unused));\n"
 		;
 
 		if(*signature->method_name->value != "__MAIN__")
@@ -970,34 +988,7 @@ public:
 
 		if(!agn->is_ref)
 		{
-			if (lhs->value->array_indices->size () == 1)
-			{
-				if (lhs->value->array_indices->front () == NULL)
-				{
-				// never overwrite
-//				copy_on_write();
-					cout << "assert (0); // front == NULL\n";
-				}
-				else
-				{
-					cout << "assert (0); // front != NULL\n";
-				}
-			}
-			else
-			{
-				write_var ("rhs", lhs->value);
-				// if the LHS is_ref, then we must overwrite it. otherwise,
-				// we make the LHS point to the RHS (copy-on-write)
-//				cout << "if(!lhs->is_ref) {\n";
-				// If the RHS is_ref, we must first clone it
-//				cout << "if(rhs->is_ref) {\n";
-//				clone("rhs");
-//				cout << "}\n";
-//				copy_on_write();
-//				cout << "} else {\n";
-////				overwrite_lhs();
-//				cout << "}\n";
-			}
+			write_var ("rhs", lhs->value);
 		}
 		else
 		{
@@ -1909,5 +1900,3 @@ Generate_C::Generate_C(stringstream& os) : os (os)
 	methods = new List<AST_signature*>;
 	name = new String ("generate-c");
 }
-
-
