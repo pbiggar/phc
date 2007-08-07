@@ -1415,8 +1415,6 @@ public:
 			<< "// Setup array of arguments\n"
 			<< "zval* args[" << num_args << "];\n"
 			<< "zval** args_ind[" << num_args  << "];\n"
-			<< "char* names[" << num_args << "];\n"
-			<< "int lengths[" << num_args << "];\n"
 			;
 
 		for(
@@ -1425,18 +1423,39 @@ public:
 			i++, index++)
 		{
 			// use this is a check, but actually use the index_st_rhs to generate this
-			String* name = operand((*i)->expr);
-			cout << "names[" << index << "] = \"" << *name << "\";\n";
-			cout << "lengths[" << index << "] = " << name->size () + 1 << ";\n";
-		}
+			AST_variable* var 
+				= dynamic_cast<AST_variable*> ((*i)->expr);
+			assert (var);
 
-		cout
-			<< "int i;\n"
-			<< "for (i = 0; i < " << num_args << "; i++)\n"
-			<< "{\n"
-			<< "	args[i] = fetch_arg (names[i], lengths[i], by_ref[i] TSRMLS_CC);\n"
-			<< "	args_ind[i] = &args[i];\n"
-			<< "}\n";
+			Token_variable_name* name
+				= dynamic_cast<Token_variable_name*>(var->variable_name);
+			if (var->array_indices->size ())
+			{
+				String* ind_name = operand(var->array_indices->front ());
+				cout 
+					<< "	args[" << index << "] = fetch_indexed_arg ("
+					<<				"\"" << *name->value << "\", "
+					<<				name->value->size () + 1 << ", "
+					<<				"\"" << *ind_name << "\", "
+					<<				ind_name->size () + 1 << ", "
+					<<				"by_ref[" << index << "] TSRMLS_CC);\n"
+					;
+			}
+			else
+			{
+				cout 
+					<< "	args[" << index << "] = fetch_arg ("
+					<<				"\"" << *name->value << "\", "
+					<<				name->value->size () + 1 << ", "
+					<<				"by_ref[" << index << "] TSRMLS_CC);\n"
+					;
+
+			}
+			cout
+
+				<< "	args_ind[" << index << "] = &args[" << index << "];\n"
+				;
+		}
 
 		cout
 		<< "// Call the function\n"

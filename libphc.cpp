@@ -622,3 +622,79 @@ fetch_arg (char *name, int name_length, int pass_by_ref TSRMLS_DC)
 
   return arg;
 }
+
+zval *
+fetch_indexed_arg (char *name, int name_length, char *ind_name,
+		   int ind_length, int pass_by_ref TSRMLS_DC)
+{
+  zval **p_var;
+  zval *var;
+
+  zval **p_ind;
+  zval *ind;
+
+  zval **p_arg;
+  zval *arg;
+
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), name, name_length,
+			 (void **) &p_var) == SUCCESS);
+  if (!var_exists)
+    {
+      return EG (uninitialized_zval_ptr);
+    }
+
+  var = *p_var;
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists =
+    (zend_symtable_find (EG (active_symbol_table), ind_name, ind_length,
+			 (void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    ind = EG (uninitialized_zval_ptr);
+
+  // find the var
+  int arg_exists = (find_with_zval (ht, ind, &p_arg) == SUCCESS);
+  if (arg_exists)
+    arg = *p_arg;
+  else
+    arg = EG (uninitialized_zval_ptr);
+
+  // Separate argument if it is part of a copy-on-write
+  // set, and we are passing by reference
+  if (arg->refcount > 1 && !arg->is_ref && pass_by_ref)
+    {
+      zvp_clone (&arg, NULL TSRMLS_CC);
+      arg->refcount++;
+
+      arg->refcount++;
+      zend_hash_update (EG (active_symbol_table), name, name_length, &arg,
+			sizeof (zval *), NULL);
+    }
+
+  // Clone argument if it is part of a change-on-write
+  // set, and we are *not* passing by reference
+  if (arg->is_ref && !pass_by_ref)
+    zvp_clone (&arg, NULL TSRMLS_CC);
+
+
+  // We don't need to restore ->is_ref afterwards,
+  // because the called function will reduce the
+  // refcount of arg on return, and will reset is_ref to
+  // 0 when refcount drops to 1.  If the refcount does
+  // not drop to 1 when the function returns, but we did
+  // set is_ref to 1 here, that means that is_ref must
+  // already have been 1 to start with (since if it had
+  // not, that means that the variable would have been
+  // in a copy-on-write set, and would have been
+  // seperated above).
+  if (pass_by_ref)
+    arg->is_ref = 1;
+
+  return arg;
+}
