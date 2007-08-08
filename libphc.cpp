@@ -173,8 +173,10 @@ update_ht (HashTable * ht, zval * ind, zval * val)
 {
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
-      zend_hash_index_update (ht, Z_LVAL_P (ind),
-			      &val, sizeof (zval *), NULL);
+      int result = zend_hash_index_update (ht, Z_LVAL_P
+					   (ind), &val, sizeof (zval *),
+					   NULL);
+      assert (result == SUCCESS);
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
     {
@@ -183,13 +185,16 @@ update_ht (HashTable * ht, zval * ind, zval * val)
       index->value = ind->value;
       index->type = ind->type;
       convert_to_long (index);
-      zend_hash_index_update (ht, Z_LVAL_P (index),
-			      &val, sizeof (zval *), NULL);
+      int result = zend_hash_index_update (ht, Z_LVAL_P (index),
+					   &val, sizeof (zval *), NULL);
+      assert (result == SUCCESS);
       zval_ptr_dtor (&index);
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
-      zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *), NULL);
+      int result =
+	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *), NULL);
+      assert (result == SUCCESS);
     }
   else
     {
@@ -199,9 +204,11 @@ update_ht (HashTable * ht, zval * ind, zval * val)
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      zend_symtable_update (ht, Z_STRVAL_P (string_index),
-			    Z_STRLEN_P (string_index) + 1, &val,
-			    sizeof (zval *), NULL);
+      int result = zend_symtable_update (ht, Z_STRVAL_P (string_index),
+					 Z_STRLEN_P (string_index) + 1, &val,
+					 sizeof (zval *), NULL);
+
+      assert (result == SUCCESS);
       zval_ptr_dtor (&string_index);
     }
 }
@@ -385,8 +392,11 @@ write_simple_var (char *var_name, int var_length, zval ** p_rhs,
 	}
 
       rhs->refcount++;
-      zend_hash_update (EG (active_symbol_table), var_name, var_length, &rhs,
-			sizeof (zval *), NULL);
+      int result =
+	zend_hash_update (EG (active_symbol_table), var_name, var_length,
+			  &rhs,
+			  sizeof (zval *), NULL);
+      assert (result == SUCCESS);
     }
   else
     {
@@ -553,24 +563,88 @@ write_array_index (char *var_name, int var_length, char *ind_name,
     zval_ptr_dtor (&ind);
 }
 
-/* Potentially change-on-write the variable named VAR_NAME, contained in the
- * variable P_VAR. If P_VAR is in the copy-on-write set, separate it, and
- * write it back as VAR_NAME, which should be its original name */
+// Separate the RHS (that is, make a copy *and update the hashtable*)
+// See "Separation anxiety" in the PHP book
 void
-reference_simple_var (char *var_name1, int var_length1, zval ** p_var1,
-		      int *is_var1_new, char *var_name2,
-		      int var_length2 TSRMLS_DC)
+separate_simple_var (char *name, int length, zval ** p_zvp,
+		     int *is_zvp_new TSRMLS_DC)
 {
-  if ((*p_var1)->refcount > 1 && !(*p_var1)->is_ref)
-    {
-      zvp_clone (p_var1, is_var1_new TSRMLS_CC);
-      zend_hash_update (EG (active_symbol_table), var_name2, var_length2,
-			p_var1, sizeof (zval *), NULL);
-    }
+  /* For a reference assignment, the LHS is always updated
+   * to point to the RHS (even if the LHS is currently
+   * is_ref) However, if the RHS is in a copy-on-write set
+   * (refcount > 1 but not is_ref), it must be seperated
+   * first */
+  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+    return;
+
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  int result = zend_hash_update (EG (active_symbol_table), name, length,
+				 p_zvp, sizeof (zval *), NULL);
+
+  assert (result == SUCCESS);
+}
+
+// Separate the RHS (that is, make a copy *and update the hashtable*)
+// See "Separation anxiety" in the PHP book
+void
+separate_array_index (char *var_name, int var_length, char *ind_name,
+		      int ind_length, zval ** p_zvp,
+		      int *is_zvp_new TSRMLS_DC)
+{
+  zval **p_var;
+
+  /* For a reference assignment, the LHS is always updated
+   * to point to the RHS (even if the LHS is currently
+   * is_ref) However, if the RHS is in a copy-on-write set
+   * (refcount > 1 but not is_ref), it must be seperated
+   * first */
+  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+    return;
+
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+
+  // find the hashtable holding it
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
+			 (void **) &p_var) == SUCCESS);
+  assert (var_exists);
+
+  // insert into hashtable
+  int result = zend_hash_update ((*p_var)->value.ht, ind_name, ind_length,
+				 p_zvp, sizeof (zval *), NULL);
+
+  assert (result == SUCCESS);
+}
+
+/* Potentially change-on-write VAR_NAME1, contained in
+ * the variable P_VAR1. If P_VAR1 is in the copy-on-write
+ * set, separate it, and write it back as VAR_NAME2,
+ * which should be its original name */
+void
+reference_simple_var (char *name, int length, zval ** p_zvp,
+		      int *is_zvp_new TSRMLS_DC)
+{
   // Change-on-write
-  (*p_var1)->is_ref = 1;
-  (*p_var1)->refcount++;
-  zend_hash_update (EG (active_symbol_table), var_name1, var_length1, p_var1,
+  (*p_zvp)->is_ref = 1;
+  (*p_zvp)->refcount++;
+  int result = zend_hash_update (EG (active_symbol_table), name, length, p_zvp,
+		    sizeof (zval *), NULL);
+  assert (result == SUCCESS);
+}
+
+/* Potentially change-on-write VAR_NAME1, contained in
+ * the variable P_VAR1. If P_VAR1 is in the copy-on-write
+ * set, separate it, and write it back as VAR_NAME2,
+ * which should be its original name */
+void				// TODO change function and update 
+reference_array_index (char *name, int length, zval ** p_zvp,
+		       int *is_zvp_new TSRMLS_DC)
+{
+  assert (0);
+  // Change-on-write
+  (*p_zvp)->is_ref = 1;
+  (*p_zvp)->refcount++;
+  zend_hash_update (EG (active_symbol_table), name, length, p_zvp,
 		    sizeof (zval *), NULL);
 }
 

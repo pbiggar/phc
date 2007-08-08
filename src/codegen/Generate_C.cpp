@@ -208,6 +208,138 @@ void write_var (string zvp, AST_variable* var)
 	}
 }
 
+/* Separate the rhs, and write it back to the symbol table if necessary */
+void separate_var (string zvp, AST_variable* var)
+{
+	// unified separation
+	// separated write back to rhs
+	Token_variable_name* name
+		= dynamic_cast<Token_variable_name*>(var->variable_name);
+
+	// if its new, check it wont separate
+	cout 
+		<< "if (is_rhs_new)\n"
+		<<	"	assert (!(rhs->refcount > 1 && !rhs->is_ref));\n";
+
+	assert(var->target == NULL);
+
+
+	if(name != NULL)
+	{
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				String* index = operand (var->array_indices->front());
+				cout
+					<< "// Array separation \n"
+					<< "separate_array_index ("
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1 << ", "
+					<<		"\"" << *index << "\", "
+					<<		index->size () + 1 << ", "
+					<<		"&" << zvp << ", "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
+			}
+			else
+			{
+				assert (0);
+			}
+		}
+		else
+		{
+			cout 
+				<< "// Reference Assignment\n"
+				<< "separate_simple_var (" 
+				<<		"\"" << *name->value << "\", "
+				<< name->value->size () + 1 << ", "
+				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert (0); // TODO
+		assert (var->array_indices->size() == 0);
+
+		cout << "assert (0); // separate_var_var\n";
+//		write_var_var ();
+	}
+}
+
+/* Generate code to write ZVP, a variable in the generated code,
+ * to LHS, a named variable. RHS is needed for the reference. */
+void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
+{
+	assert (var->array_indices->size () == 0);
+
+	// Variable variable or ordinary variable?
+	Token_variable_name* name
+		= dynamic_cast<Token_variable_name*>(var->variable_name);
+
+	// TODO: deal with object indexing
+	assert (var->target == NULL);
+
+
+	// if the variaible was just created, we need to create a symbol table entry for it
+	cout
+		<< "if (is_" << zvp << "_new)\n"
+		<< "{\n";
+		write_var (zvp, orig);
+		cout << "}\n";
+
+
+	if(name != NULL)
+	{
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				String* index = operand (var->array_indices->front());
+				cout
+					<< "// Reference array assignment\n"
+					<< "reference_array_index ("
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1 << ", "
+					<<		"\"" << *index << "\", "
+					<<		index->size () + 1 << ", "
+					<<		"&" << zvp << ", "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
+			}
+			else
+			{
+				assert (0); // I dont think you can do this
+				cout << "assert (0); // push_var\n";
+				//				push_var ()
+			}
+		}
+		else
+		{
+			cout 
+				<< "// Reference Assignment\n"
+				<< "reference_simple_var (" 
+				<<		"\"" << *name->value << "\", "
+				<< name->value->size () + 1 << ", "
+				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert (0); // TODO
+		assert(var->array_indices->size() == 0);
+
+		cout << "assert (0); // reference_var_var\n";
+//		reference_var_var ();
+	}
+}
+
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read_var (string zvp, AST_variable* var)
 {
@@ -910,33 +1042,6 @@ public:
 //		update_st(LOCAL, lhs->value, "lhs", "rhs");
 //	}
 
-	// write rhs into lhs
-	void write_reference_rhs ()
-	{
-		Wildcard<AST_variable>* rhs;
-		rhs = dynamic_cast<Wildcard<AST_variable>*>(agn->expr);
-		assert (rhs != NULL);
-
-		Token_variable_name* rname;
-		rname = dynamic_cast<Token_variable_name*>(rhs->value->variable_name);
-		assert (rname != NULL);
-
-		Token_variable_name* lname;
-		lname = dynamic_cast<Token_variable_name*>(lhs->value->variable_name);
-		assert (lname != NULL);
-
-		// if its new, check it wont separate
-		cout << "assert (is_rhs_new == 1 ? (!(rhs->refcount > 1 && !rhs->is_ref)) == 0 : 1);\n";
-
-		cout 
-			<< "reference_simple_var (" 
-			<<		"\"" << *lname->value << "\", "
-			<< lname->value->size () + 1 << ", "
-			<< "&rhs, &is_rhs_new, "
-			<<		"\"" << *rname->value << "\", "
-			<< rname->value->size () + 1 << " TSRMLS_CC);\n";
-	}
-
 
 	/* MEMORY DISCUSSION
 	 *
@@ -961,52 +1066,24 @@ public:
 	{
 		// Open local scope and create a zval* to hold the RHS result
 		cout << "{\n";
-		cout << "zval* rhs;\n";
-		cout << "int is_rhs_new = 0;\n";
-
-		// If the rhs doesnt care about references, dont use them
-//		cout << "int use_ref = 0;\n";
+		declare ("rhs");
 
 		// Generate code for the RHS
 		generate_rhs();
 
-		// Make a copy of the pointer to the RHS so that we can reduce its
-		// refcount when we're done ("rhs" itself may be overwritten by a 
-		// call to clone)
-//		cout << "zval* rhs_orig = rhs;\n";
-
-//		cout 
-//			<< "// Normal assignment\n"
-//			<< "zval* lhs = write_to_simple_var ();\n"
-//			;
-
-		// After this call, we expect lhs to be the variable, or the indexed
-		// variable for an array index. Additionally, ht is set for an array
-		// index, or an array push.
-//		cout << "// Index LHS\n";
-//		index_st_lhs (LOCAL, "lhs", lhs->value);
-
 		if(!agn->is_ref)
-		{
 			write_var ("rhs", lhs->value);
-		}
 		else
 		{
-			cout << "// Reference assignment\n";
+			// this must be a copy
+			Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
+			assert (rhs);
 
-			assert (lhs->value->array_indices->size () == 0);
-
-			// For a reference assignment, the LHS is always updated to 
-			// point to the RHS (even if the LHS is currently is_ref)
-			// However, if the RHS is in a copy-on-write set (refcount > 1
-			// but not is_ref), it must be seperated first
-			write_reference_rhs ();
+			separate_var ("rhs", rhs->value);
+			write_reference_var ("rhs", lhs->value, rhs->value);
 		}
 
-		// Reduce refcount of RHS and garbage collect if necessary
-//		cout << "if (p_lhs == NULL) zval_ptr_dtor(&lhs);\n";
 		cleanup ("rhs");
-//		cout << "zval_ptr_dtor(&rhs_orig);\n";
 
 //		generate_epilogue ();
 
