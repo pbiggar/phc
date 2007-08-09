@@ -1676,8 +1676,6 @@ class Return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		String* op = operand(expr->value);
-			
 		cout << "{\n";
 		declare ("rhs");
 		read_var ("rhs", expr->value);

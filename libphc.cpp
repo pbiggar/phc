@@ -499,9 +499,47 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
   //  (*p_zvp)->refcount--; // refcount will be increased below
-  // TODO is this overkill? we probably only need to overwrite
-  write_array_index (var_name, var_length, ind_name, ind_length, p_zvp,
-		     is_zvp_new TSRMLS_CC);
+
+
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *ind = NULL;
+  zval **p_ind = &ind;
+
+  zval *zvp = *p_zvp;
+
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
+			 (void **) &p_var) == SUCCESS);
+  if (var_exists)
+    var = *p_var;
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (EG (active_symbol_table), var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists =
+    (zend_symtable_find (EG (active_symbol_table), ind_name, ind_length,
+			 (void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    {
+      ALLOC_INIT_ZVAL (ind);
+    }
+
+  update_ht (ht, ind, zvp);
+
+  if (!ind_exists)
+    zval_ptr_dtor (&ind);
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in
@@ -533,8 +571,45 @@ reference_array_index (char *var_name, int var_length, char *ind_name,
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
 
-  write_array_index (var_name, var_length, ind_name, ind_length, p_zvp,
-		     is_zvp_new TSRMLS_CC);
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *ind = NULL;
+  zval **p_ind = &ind;
+
+  zval *zvp = *p_zvp;
+
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
+			 (void **) &p_var) == SUCCESS);
+  if (var_exists)
+    var = *p_var;
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (EG (active_symbol_table), var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists =
+    (zend_symtable_find (EG (active_symbol_table), ind_name, ind_length,
+			 (void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    {
+      ALLOC_INIT_ZVAL (ind);
+    }
+
+  update_ht (ht, ind, zvp);
+
+  if (!ind_exists)
+    zval_ptr_dtor (&ind);
 }
 
 
