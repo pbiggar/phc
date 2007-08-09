@@ -283,15 +283,6 @@ void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 	// TODO: deal with object indexing
 	assert (var->target == NULL);
 
-
-	// if the variaible was just created, we need to create a symbol table entry for it
-	cout
-		<< "if (is_" << zvp << "_new)\n"
-		<< "{\n";
-		write_var (zvp, orig);
-		cout << "}\n";
-
-
 	if(name != NULL)
 	{
 		if (var->array_indices->size() == 1)
@@ -1491,6 +1482,7 @@ public:
 		cout 
 			<< "// Setup array of arguments\n"
 			<< "zval* args[" << num_args << "];\n"
+			<< "int new_args[" << num_args << "]; // set to 1 if the arg is new\n"
 			<< "zval** args_ind[" << num_args  << "];\n"
 			;
 
@@ -1506,16 +1498,19 @@ public:
 
 			Token_variable_name* name
 				= dynamic_cast<Token_variable_name*>(var->variable_name);
+
+			cout << "new_args[" << index << "] = 0;\n";
 			if (var->array_indices->size ())
 			{
 				String* ind_name = operand(var->array_indices->front ());
-				cout 
+				cout
 					<< "	args[" << index << "] = fetch_indexed_arg ("
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
-					<<				"by_ref[" << index << "] TSRMLS_CC);\n"
+					<<				"by_ref[" << index << "], "
+					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					;
 			}
 			else
@@ -1524,7 +1519,8 @@ public:
 					<< "	args[" << index << "] = fetch_arg ("
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
-					<<				"by_ref[" << index << "] TSRMLS_CC);\n"
+					<<				"by_ref[" << index << "], "
+					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					;
 
 			}
@@ -1568,6 +1564,21 @@ public:
 		<< "is_rhs_new = 1;"
 		<< "}"
 		;
+
+		for(
+			i = rhs->value->actual_parameters->begin(), index = 0; 
+			i != rhs->value->actual_parameters->end(); 
+			i++, index++)
+		{
+			// TODO put the for loop into generated code
+			cout 
+				<< "if (new_args[" << index << "])\n"
+				<< "{\n"
+				<< "	assert (new_args[" << index << "] == 1);\n"
+				<< "	zval_ptr_dtor (&args[" << index << "]);\n"
+				<< "}\n";
+		}
+	
 		
 		// cout << "debug_hash(EG(active_symbol_table));\n";
 	}

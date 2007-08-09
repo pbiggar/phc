@@ -9,107 +9,6 @@
 #include "php.h"
 static int phc_exit_status = 0;
 
-// Index a hashtable
-/* Index HT by KEY, which is of length LEN (including '\0'). If index
- * doesnt exist, return a NULL zval. If INSERT is true, add it to HT before
- * returning it. 
- *
- * For consistency, the returned zval has its refcount incremented. While
- * this is annoying, its necessary to handle refcounts correctly for
- * variables created which arent in a symbol table. */
-zval *
-index_ht (HashTable * ht, char *key, int len, int insert)
-{
-  zval **zvpp;
-  if (zend_symtable_find (ht, key, len, (void **) &zvpp) == SUCCESS)
-    {
-      return *zvpp;
-    }
-  assert (0);			// we should be moving to other allocation methods
-
-  zval *zvp;
-  ALLOC_INIT_ZVAL (zvp);
-
-  if (insert)
-    zend_symtable_update (ht, key, len, &zvp, sizeof (zval *), NULL);
-
-  return zvp;
-}
-
-// Index using an int
-// TODO move comments into generated code
-/* Index HT by KEY. If index doesnt exist, return a NULL zval. If INSERT is
- * true, add it to HT before returning it.
- *
- * For consistency, the returned zval has its refcount incremented. While
- * this is annoying, its necessary to handle refcounts correctly for
- * variables created which arent in a symbol table. */
-zval *
-index_ht_long (HashTable * ht, long key, int insert)
-{
-  zval **zvpp;
-  if (zend_hash_index_find (ht, key, (void **) &zvpp) == SUCCESS)
-    {
-      (*zvpp)->refcount++;
-      return *zvpp;
-    }
-
-  zval *zvp;
-  ALLOC_INIT_ZVAL (zvp);
-
-  if (insert)
-    zend_hash_index_update (ht, key, &zvp, sizeof (zval *), NULL);
-
-  return zvp;
-}
-
-// Index by zval
-/* Index HT using IND. If index doesnt exist, return a NULL zval. If INSERT is
- * true, add it to HT before returning it. 
- *
- * For consistency, the returned zval has its refcount incremented. While
- * this is annoying, its necessary to handle refcounts correctly for
- * variables created which arent in a symbol table. */
-zval *
-index_ht_zval (HashTable * ht, zval * ind, int insert)
-{
-  zval *result;
-  if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
-    {
-      result = index_ht_long (ht, Z_LVAL_P (ind), insert);
-    }
-  else if (Z_TYPE_P (ind) == IS_DOUBLE)
-    {
-      zval *index;
-      MAKE_STD_ZVAL (index);
-      index->value = ind->value;
-      index->type = ind->type;
-      convert_to_long (index);
-      result = index_ht_long (ht, Z_LVAL_P (index), insert);
-      zval_ptr_dtor (&index);
-    }
-  else if (Z_TYPE_P (ind) == IS_NULL)
-    {
-      result = index_ht (ht, "", sizeof (""), insert);
-    }
-  else
-    {
-      // use a string index for other types
-      zval *string_index;
-      MAKE_STD_ZVAL (string_index);
-      string_index->value = ind->value;
-      string_index->type = ind->type;
-      zval_copy_ctor (string_index);
-      convert_to_string (string_index);
-      result =
-	index_ht (ht, Z_STRVAL_P (string_index),
-		  Z_STRLEN_P (string_index) + 1, insert);
-      zval_ptr_dtor (&string_index);
-    }
-  return result;
-}
-
-
 // Extract the hashtable from a hash-valued zval
 HashTable *
 extract_ht (zval * arr TSRMLS_DC)
@@ -290,27 +189,20 @@ debug_hash (HashTable * ht)
 void
 zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
-  zval *clone = EG (uninitialized_zval_ptr);	// TODO this cant be right
-  clone->value = (*p_zvp)->value;
-  clone->type = (*p_zvp)->type;
-  zval_copy_ctor (clone);
-  if (is_zvp_new && *is_zvp_new)	// if its new, we have the only reference
-    {
-      zval_ptr_dtor (p_zvp);
-      *is_zvp_new = 0;
-    }
-  *p_zvp = clone;
-}
-
-void
-old_clone (zval ** p_zvp)
-{
   zval *clone;
   MAKE_STD_ZVAL (clone);
-  clone->refcount = 0;
   clone->value = (*p_zvp)->value;
   clone->type = (*p_zvp)->type;
   zval_copy_ctor (clone);
+  assert (is_zvp_new);
+  assert (*is_zvp_new == 0);	// TODO not sure what should happen here
+  *is_zvp_new = 1;
+  /*
+     if (is_zvp_new && *is_zvp_new)       // if its new, we have the only reference
+     {
+     zval_ptr_dtor (p_zvp);
+     *is_zvp_new = 0;
+     } */
   *p_zvp = clone;
 }
 
@@ -420,8 +312,14 @@ read_simple_var (char *var_name, int var_length, int *is_new TSRMLS_DC)
       return *p_zvp;
     }
 
+  // The function call mechanism deals specially with
+  // EG(uninitialize_zval_ptr) (or sometime EG(uninitialize_zval)), so
+  // we need to use this too. This particular zval can also be set, so
+  // theres no guarantee that it's NULL, that its refcount is 1, or
+  // that is_ref is 0. So it needs to be treated carefully.
   zval *zvp = EG (uninitialized_zval_ptr);
-  *is_new = 1;
+  //  ALLOC_INIT_ZVAL (zvp);
+  //  *is_new = 1;
   return zvp;
 }
 
@@ -443,9 +341,10 @@ read_array_index (char *var_name, int var_length, char *ind_name,
 			 (void **) &p_var) == SUCCESS);
   if (!var_exists)
     {
-      *is_new = 1;
-      ALLOC_INIT_ZVAL (var);
-      return var;
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (var);
+      //      return var;
+      return EG (uninitialized_zval_ptr);
     }
 
   var = *p_var;
@@ -453,9 +352,10 @@ read_array_index (char *var_name, int var_length, char *ind_name,
   if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
     {
       // TODO does this need an error, if so, use extract_ht
-      *is_new = 1;
-      ALLOC_INIT_ZVAL (var);
-      return var;
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (var);
+      //      return var;
+      return EG (uninitialized_zval_ptr);
     }
 
   // if its not an array, make it an array
@@ -479,14 +379,13 @@ read_array_index (char *var_name, int var_length, char *ind_name,
     result = *p_result;
   else
     {
-      *is_new = 1;
-      ALLOC_INIT_ZVAL (result);
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (result);
+      result = EG (uninitialized_zval_ptr);
     }
 
   if (!ind_exists)
-    {
-      zval_ptr_dtor (&ind);
-    }
+    zval_ptr_dtor (&ind);
 
   return result;
 }
@@ -554,7 +453,7 @@ write_array_index (char *var_name, int var_length, char *ind_name,
     }
   else
     {
-      // not positive if this is possible
+      // TODO not sure if this is possible
       assert (0);
       overwrite_lhs (lhs, rhs);
     }
@@ -578,10 +477,8 @@ separate_simple_var (char *name, int length, zval ** p_zvp,
     return;
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-  int result = zend_hash_update (EG (active_symbol_table), name, length,
-				 p_zvp, sizeof (zval *), NULL);
-
-  assert (result == SUCCESS);
+  //  (*p_zvp)->refcount--; // refcount will be increased below
+  write_simple_var (name, length, p_zvp, is_zvp_new TSRMLS_CC);
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)
@@ -591,8 +488,6 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
 		      int ind_length, zval ** p_zvp,
 		      int *is_zvp_new TSRMLS_DC)
 {
-  zval **p_var;
-
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
    * is_ref) However, if the RHS is in a copy-on-write set
@@ -602,18 +497,9 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
     return;
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-
-  // find the hashtable holding it
-  int var_exists =
-    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
-  assert (var_exists);
-
-  // insert into hashtable
-  int result = zend_hash_update ((*p_var)->value.ht, ind_name, ind_length,
-				 p_zvp, sizeof (zval *), NULL);
-
-  assert (result == SUCCESS);
+  //  (*p_zvp)->refcount--; // refcount will be increased below
+  write_array_index (var_name, var_length, ind_name, ind_length, p_zvp,
+		     is_zvp_new TSRMLS_CC);
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in
@@ -627,8 +513,9 @@ reference_simple_var (char *name, int length, zval ** p_zvp,
   // Change-on-write
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
-  int result = zend_hash_update (EG (active_symbol_table), name, length, p_zvp,
-		    sizeof (zval *), NULL);
+  int result =
+    zend_hash_update (EG (active_symbol_table), name, length, p_zvp,
+		      sizeof (zval *), NULL);
   assert (result == SUCCESS);
 }
 
@@ -650,7 +537,8 @@ reference_array_index (char *name, int length, zval ** p_zvp,
 
 
 zval *
-fetch_arg (char *name, int name_length, int pass_by_ref TSRMLS_DC)
+fetch_arg (char *name, int name_length, int pass_by_ref,
+	   int *is_arg_new TSRMLS_DC)
 {
   zval **argp = NULL;
   zval *arg;
@@ -658,17 +546,22 @@ fetch_arg (char *name, int name_length, int pass_by_ref TSRMLS_DC)
       (EG (active_symbol_table), name, name_length,
        (void **) &argp) != SUCCESS)
     {
+      // we only do this for variables to be passed to function calls
       arg = EG (uninitialized_zval_ptr);
     }
   else
     arg = *argp;
 
+  if (arg == EG (uninitialized_zval_ptr))
+    return arg;
+
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
   if (arg->refcount > 1 && !arg->is_ref && pass_by_ref)
     {
-      zvp_clone (&arg, NULL TSRMLS_CC);
-      arg->refcount++;
+      assert (arg != EG (uninitialized_zval_ptr));
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
       arg->refcount++;
       zend_hash_update (EG (active_symbol_table), name, name_length, &arg,
@@ -678,7 +571,12 @@ fetch_arg (char *name, int name_length, int pass_by_ref TSRMLS_DC)
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
   if (arg->is_ref && !pass_by_ref)
-    zvp_clone (&arg, NULL TSRMLS_CC);
+    {
+      assert (arg != EG (uninitialized_zval_ptr));
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
+    }
+
 
 
   // We don't need to restore ->is_ref afterwards,
@@ -699,7 +597,7 @@ fetch_arg (char *name, int name_length, int pass_by_ref TSRMLS_DC)
 
 zval *
 fetch_indexed_arg (char *name, int name_length, char *ind_name,
-		   int ind_length, int pass_by_ref TSRMLS_DC)
+		   int ind_length, int pass_by_ref, int *is_arg_new TSRMLS_DC)
 {
   zval **p_var;
   zval *var;
@@ -739,12 +637,15 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
   else
     arg = EG (uninitialized_zval_ptr);
 
+  if (arg == EG (uninitialized_zval_ptr))
+    return arg;
+
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
   if (arg->refcount > 1 && !arg->is_ref && pass_by_ref)
     {
-      zvp_clone (&arg, NULL TSRMLS_CC);
-      arg->refcount++;
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
       arg->refcount++;
       zend_hash_update (EG (active_symbol_table), name, name_length, &arg,
@@ -754,7 +655,12 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
   if (arg->is_ref && !pass_by_ref)
-    zvp_clone (&arg, NULL TSRMLS_CC);
+    {
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
+
+      // TODO why dont we write back in this case
+    }
 
 
   // We don't need to restore ->is_ref afterwards,
