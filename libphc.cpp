@@ -164,7 +164,7 @@ debug_hash (HashTable * ht)
 	  printf (Z_BVAL_P (zvp) ? "(true)" : "(false)");
 	  break;
 	case IS_ARRAY:
-	  printf ("(Array)");
+	  printf ("(array(%d))", Z_ARRVAL_P (zvp)->nNumOfElements);
 	  break;
 	case IS_OBJECT:
 	  printf ("(Object)");
@@ -395,7 +395,6 @@ void
 write_array_index (char *var_name, int var_length, char *ind_name,
 		   int ind_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-
   zval *var = NULL;
   zval **p_var = &var;
 
@@ -431,6 +430,7 @@ write_array_index (char *var_name, int var_length, char *ind_name,
     ind = *p_ind;
   else
     {
+      // do not remove these curlies, as this expands to 2 statements
       ALLOC_INIT_ZVAL (ind);
     }
 
@@ -477,9 +477,13 @@ separate_simple_var (char *name, int length, zval ** p_zvp,
     return;
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-  //  (*p_zvp)->refcount--; // refcount will be increased below
-  // TODO is this overkill? we probably only need to overwrite
-  write_simple_var (name, length, p_zvp, is_zvp_new TSRMLS_CC);
+
+  (*p_zvp)->refcount++;
+  int result = zend_hash_update (EG (active_symbol_table),
+				 name, length,
+				 p_zvp,
+				 sizeof (zval *), NULL);
+  assert (result == SUCCESS);
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)
@@ -565,7 +569,8 @@ reference_simple_var (char *name, int length, zval ** p_zvp,
  * which should be its original name */
 void				// TODO change function and update 
 reference_array_index (char *var_name, int var_length, char *ind_name,
-		   int ind_length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+		       int ind_length, zval ** p_zvp,
+		       int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
   (*p_zvp)->is_ref = 1;
@@ -725,8 +730,7 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
       arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
       arg->refcount++;
-      zend_hash_update (EG (active_symbol_table), name, name_length, &arg,
-			sizeof (zval *), NULL);
+      update_ht (ht, ind, arg);
     }
 
   // Clone argument if it is part of a change-on-write
