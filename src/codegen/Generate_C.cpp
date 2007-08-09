@@ -274,8 +274,6 @@ void separate_var (string zvp, AST_variable* var)
  * to LHS, a named variable. RHS is needed for the reference. */
 void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 {
-	assert (var->array_indices->size () == 0);
-
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
@@ -332,8 +330,11 @@ void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 }
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read_var (string zvp, AST_variable* var)
+void read_var (string zvp, AST_expr* expr)
 {
+	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	assert (var);
+
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
@@ -1677,14 +1678,13 @@ class Return : public Pattern
 	{
 		String* op = operand(expr->value);
 			
-		cout 
-		<< "{\n"
-		<< "zval* rhs = index_ht(EG(active_symbol_table), "
-		<< "\"" << *op << "\", " << op->length() + 1 << ");\n"
-		;
+		cout << "{\n";
+		declare ("rhs");
+		read_var ("rhs", expr->value);
 
 		if(!gen->return_by_reference)
 		{
+			// TODO what about if there's run-time return by reference
 			cout 
 			<< "return_value->value = rhs->value;\n"
 			<< "return_value->type = rhs->type;\n"

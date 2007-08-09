@@ -478,6 +478,7 @@ separate_simple_var (char *name, int length, zval ** p_zvp,
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
   //  (*p_zvp)->refcount--; // refcount will be increased below
+  // TODO is this overkill? we probably only need to overwrite
   write_simple_var (name, length, p_zvp, is_zvp_new TSRMLS_CC);
 }
 
@@ -498,6 +499,7 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
   //  (*p_zvp)->refcount--; // refcount will be increased below
+  // TODO is this overkill? we probably only need to overwrite
   write_array_index (var_name, var_length, ind_name, ind_length, p_zvp,
 		     is_zvp_new TSRMLS_CC);
 }
@@ -524,15 +526,15 @@ reference_simple_var (char *name, int length, zval ** p_zvp,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 void				// TODO change function and update 
-reference_array_index (char *name, int length, zval ** p_zvp,
-		       int *is_zvp_new TSRMLS_DC)
+reference_array_index (char *var_name, int var_length, char *ind_name,
+		   int ind_length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
-  assert (0);
   // Change-on-write
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
-  zend_hash_update (EG (active_symbol_table), name, length, p_zvp,
-		    sizeof (zval *), NULL);
+
+  write_array_index (var_name, var_length, ind_name, ind_length, p_zvp,
+		     is_zvp_new TSRMLS_CC);
 }
 
 
