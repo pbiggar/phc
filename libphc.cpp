@@ -323,12 +323,11 @@ write_var (char *var_name, int var_length, zval ** p_rhs,
 
   if (!lhs_exists || !lhs->is_ref)
     {
-      if (rhs->is_ref)
-	{
+       if (rhs->is_ref)
 	  zvp_clone (&rhs, is_rhs_new TSRMLS_CC);
-	}
+       else
+	  rhs->refcount++;
 
-      rhs->refcount++;
       int result =
 	zend_hash_update (EG (active_symbol_table), var_name, var_length,
 			  &rhs,
@@ -488,12 +487,11 @@ write_array (char *var_name, int var_length, char *ind_name,
 
   if (!lhs_exists || !lhs->is_ref)
     {
-      if (rhs->is_ref)
-	{
+       if (rhs->is_ref)
 	  zvp_clone (&rhs, is_rhs_new TSRMLS_CC);
-	}
+       else
+	  rhs->refcount++;
 
-      rhs->refcount++;
       ht_update (ht, ind, rhs);
     }
   else
@@ -504,6 +502,36 @@ write_array (char *var_name, int var_length, char *ind_name,
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
+}
+
+/* Write P_RHS into the symbol table as a variable named VAR_NAME */
+void
+push_var (char *var_name, int var_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+{
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *rhs = *p_rhs;
+
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
+			 (void **) &p_var) == SUCCESS);
+  if (var_exists)
+    var = *p_var;
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (EG (active_symbol_table), var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  rhs->refcount++;
+  zend_hash_next_index_insert (ht, &rhs, sizeof (zval*), NULL);
+
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)

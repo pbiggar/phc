@@ -169,13 +169,17 @@ void write (string zvp, AST_variable* var)
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1 << ", "
 					<<		"&" << zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
-				;
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 			else
 			{
-				cout << "assert (0); // push_var\n";
-				//				var_push ()
+				cout
+					<< "// Array pushing\n"
+					<< "push_var ("
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1 << ", "
+					<<		"&" << zvp << ", "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 		}
 		else
@@ -186,8 +190,7 @@ void write (string zvp, AST_variable* var)
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1 << ", "
 				<<		"&" << zvp << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
-				;
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
 	}
 	else
@@ -195,9 +198,10 @@ void write (string zvp, AST_variable* var)
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
 		assert(var->array_indices->size() == 0);
+		assert (0);
 
-		cout << "assert (0); // var_var_write \n";
-//		var_var_write ();
+		cout << "assert (0); // write_var_var \n";
+//		write_var_var ();
 	}
 }
 
@@ -237,7 +241,7 @@ void separate (string zvp, AST_variable* var)
 			}
 			else
 			{
-				assert (0);
+				assert (0); // no push version
 			}
 		}
 		else
