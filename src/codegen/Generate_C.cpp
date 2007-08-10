@@ -142,16 +142,9 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
 
-void cleanup_new (string target)
-{
-	cout
-		<< "if (p_" << target << " == NULL) // if the variable wasnt found\n"
-		<< "  zval_ptr_dtor (&" << target << ");\n";
-}
-
 /* Generate code to write ZVP, a variable in the generated code,
  * to VAR, a named variable. */
-void write_var (string zvp, AST_variable* var)
+void write (string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
@@ -170,7 +163,7 @@ void write_var (string zvp, AST_variable* var)
 				String* index = operand (var->array_indices->front());
 				cout
 					<< "// Array assignment\n"
-					<< "write_array_index ("
+					<< "write_array ("
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -182,14 +175,14 @@ void write_var (string zvp, AST_variable* var)
 			else
 			{
 				cout << "assert (0); // push_var\n";
-				//				push_var ()
+				//				var_push ()
 			}
 		}
 		else
 		{
 			cout 
 				<< "// Normal assignment\n"
-				<< "write_simple_var (" 
+				<< "write_var (" 
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1 << ", "
 				<<		"&" << zvp << ", "
@@ -203,13 +196,13 @@ void write_var (string zvp, AST_variable* var)
 		// After shredder, a variable variable cannot have array indices
 		assert(var->array_indices->size() == 0);
 
-		cout << "assert (0); // write_var_var\n";
-//		write_var_var ();
+		cout << "assert (0); // var_var_write \n";
+//		var_var_write ();
 	}
 }
 
 /* Separate the rhs, and write it back to the symbol table if necessary */
-void separate_var (string zvp, AST_variable* var)
+void separate (string zvp, AST_variable* var)
 {
 	// unified separation
 	// separated write back to rhs
@@ -233,8 +226,7 @@ void separate_var (string zvp, AST_variable* var)
 			{
 				String* index = operand (var->array_indices->front());
 				cout
-					<< "// Array separation \n"
-					<< "separate_array_index ("
+					<< "separate_array ("
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -251,8 +243,7 @@ void separate_var (string zvp, AST_variable* var)
 		else
 		{
 			cout 
-				<< "// Reference Assignment\n"
-				<< "separate_simple_var (" 
+				<< "separate_var (" 
 				<<		"\"" << *name->value << "\", "
 				<< name->value->size () + 1 << ", "
 				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
@@ -266,13 +257,13 @@ void separate_var (string zvp, AST_variable* var)
 		assert (var->array_indices->size() == 0);
 
 		cout << "assert (0); // separate_var_var\n";
-//		write_var_var ();
+//		separate_var_var ();
 	}
 }
 
 /* Generate code to write ZVP, a variable in the generated code,
  * to LHS, a named variable. RHS is needed for the reference. */
-void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
+void write_reference (string zvp, AST_variable* var, AST_variable* orig)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
@@ -291,7 +282,7 @@ void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 				String* index = operand (var->array_indices->front());
 				cout
 					<< "// Reference array assignment\n"
-					<< "reference_array_index ("
+					<< "write_array_reference ("
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -310,8 +301,8 @@ void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 		else
 		{
 			cout 
-				<< "// Reference Assignment\n"
-				<< "reference_simple_var (" 
+				<< "// Normal Reference Assignment\n"
+				<< "write_var_reference (" 
 				<<		"\"" << *name->value << "\", "
 				<< name->value->size () + 1 << ", "
 				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
@@ -324,13 +315,13 @@ void write_reference_var (string zvp, AST_variable* var, AST_variable* orig)
 		assert (0); // TODO
 		assert(var->array_indices->size() == 0);
 
-		cout << "assert (0); // reference_var_var\n";
+		cout << "assert (0); // write_var_var_reference\n";
 //		reference_var_var ();
 	}
 }
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read_var (string zvp, AST_expr* expr)
+void read (string zvp, AST_expr* expr)
 {
 	AST_variable* var = dynamic_cast<AST_variable*> (expr);
 	assert (var);
@@ -352,7 +343,7 @@ void read_var (string zvp, AST_expr* expr)
 				String *index = operand (var->array_indices->front ());
 				cout 
 					<< "// Read array variable\n"
-					<< zvp << " = read_array_index (" 
+					<< zvp << " = read_array (" 
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1  << ", "
 					<<		"\"" << *index << "\", "
@@ -369,7 +360,7 @@ void read_var (string zvp, AST_expr* expr)
 		{
 			cout 
 				<< "// Read normal variable\n"
-				<< zvp << " = read_simple_var (" 
+				<< zvp << " = read_var (" 
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1  << ", "
 				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
@@ -386,7 +377,6 @@ void read_var (string zvp, AST_expr* expr)
 //		read_var_var ();
 	}
 }
-
 
 // Find the zval described by VAR and generate code to store it in ZVP.
 // SCOPE only applies to the top-level variable! (i.e., the variable used
@@ -908,11 +898,11 @@ class Branch : public Pattern
 public:
 	bool match(AST_statement* that)
 	{
-		cond = new Wildcard<Token_variable_name>;
+		cond = new Wildcard<AST_variable>;
 		iftrue = new Wildcard<Token_label_name>;
 		iffalse = new Wildcard<Token_label_name>;
 		return that->match(new AST_branch(
-			new AST_variable(NULL, cond, new List<AST_expr*>),
+			cond,
 			iftrue, 
 			iffalse
 			));
@@ -921,22 +911,23 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		cout
-			<< "{\n"
-			<< "zval* cond;\n";
-		lookup (LOCAL, cond->value, "cond");
+			<< "{\n";
+		declare ("cond");
+		read ("cond", cond->value);
 		cout 
 			<< "zend_bool bcond = zend_is_true(cond);\n";
-		cleanup_new ("cond");
-		cout << "if (bcond)\n"
-			<< "goto " << *iftrue->value->value << ";\n"
+		cleanup ("cond");
+		cout 
+			<< "if (bcond)\n"
+			<< "	goto " << *iftrue->value->value << ";\n"
 			<< "else "
-			<< "goto " << *iffalse->value->value << ";\n"
+			<< "	goto " << *iffalse->value->value << ";\n"
 			<< "}\n"
 			;
 	}
 
 protected:
-	Wildcard<Token_variable_name>* cond;
+	Wildcard<AST_variable>* cond;
 	Wildcard<Token_label_name>* iftrue;
 	Wildcard<Token_label_name>* iffalse;
 };
@@ -1064,15 +1055,15 @@ public:
 		generate_rhs();
 
 		if(!agn->is_ref)
-			write_var ("rhs", lhs->value);
+			write ("rhs", lhs->value);
 		else
 		{
 			// this must be a copy
 			Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
 			assert (rhs);
 
-			separate_var ("rhs", rhs->value);
-			write_reference_var ("rhs", lhs->value, rhs->value);
+			separate ("rhs", rhs->value);
+			write_reference ("rhs", lhs->value, rhs->value);
 		}
 
 		cleanup ("rhs");
@@ -1200,7 +1191,7 @@ public:
 
 	void generate_rhs()
 	{
-		read_var ("rhs", rhs->value);
+		read ("rhs", rhs->value);
 	}
 
 protected:
@@ -1505,7 +1496,7 @@ public:
 			{
 				String* ind_name = operand(var->array_indices->front ());
 				cout
-					<< "	args[" << index << "] = fetch_indexed_arg ("
+					<< "	args[" << index << "] = fetch_array_arg ("
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
@@ -1517,7 +1508,7 @@ public:
 			else
 			{
 				cout 
-					<< "	args[" << index << "] = fetch_arg ("
+					<< "	args[" << index << "] = fetch_var_arg ("
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"by_ref[" << index << "], "
@@ -1609,8 +1600,8 @@ public:
 
 		declare ("left");
 		declare ("right");
-		read_var ("left", left->value);
-		read_var ("right", right->value);
+		read ("left", left->value);
+		read ("right", right->value);
 		cout 
 			<< "MAKE_STD_ZVAL(rhs);\n"
 			<< "is_rhs_new = 1;\n"
@@ -1678,7 +1669,7 @@ class Return : public Pattern
 	{
 		cout << "{\n";
 		declare ("rhs");
-		read_var ("rhs", expr->value);
+		read ("rhs", expr->value);
 
 		if(!gen->return_by_reference)
 		{
@@ -1735,7 +1726,7 @@ class Unset : public Pattern
 			if(var->value->array_indices->size() == 0)
 			{
 				cout
-					<< "unset_simple_var ("
+					<< "unset_var ("
 					<< "\"" << *name->value << "\", "
 					<< name->value->length() + 1 << " TSRMLS_CC);\n"
 					;
@@ -1745,7 +1736,7 @@ class Unset : public Pattern
 				assert(var->value->array_indices->size() == 1);
 				String* ind = operand(var->value->array_indices->front());
 				cout
-					<< "unset_indexed_var ("
+					<< "unset_array ("
 					<< "\"" << *name->value << "\", "
 					<< name->value->length() + 1 << ", "
 					<< "\"" << *ind << "\", "

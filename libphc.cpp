@@ -24,10 +24,10 @@ extract_ht (zval * arr TSRMLS_DC)
   return Z_ARRVAL_P (arr);
 }
 
-/* Using IND as a key to HT, call the appropriate zned_index_X function
- * with data as a parameter, and return its result. */
+/* Using IND as a key to HT, call the appropriate zend_index_X
+ * function with data as a parameter, and return its result. */
 int
-find_with_zval (HashTable * ht, zval * ind, zval *** data)
+ht_find (HashTable * ht, zval * ind, zval *** data)
 {
   int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
@@ -68,7 +68,7 @@ find_with_zval (HashTable * ht, zval * ind, zval *** data)
 
 // Update a hashtable using a zval* index
 void
-update_ht (HashTable * ht, zval * ind, zval * val)
+ht_update (HashTable * ht, zval * ind, zval * val)
 {
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
@@ -114,7 +114,7 @@ update_ht (HashTable * ht, zval * ind, zval * val)
 
 // Delete from a hashtable using a zval* index
 void
-delete_from_ht (HashTable * ht, zval * ind)
+ht_delete (HashTable * ht, zval * ind)
 {
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
@@ -155,8 +155,10 @@ delete_from_ht (HashTable * ht, zval * ind)
     }
 }
 
+
+
 void
-debug_hash (HashTable * ht)
+ht_debug (HashTable * ht)
 {
   printf ("\nHASH\n");
   if (ht == NULL)
@@ -305,8 +307,8 @@ phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
-write_simple_var (char *var_name, int var_length, zval ** p_rhs,
-		  int *is_rhs_new TSRMLS_DC)
+write_var (char *var_name, int var_length, zval ** p_rhs,
+	   int *is_rhs_new TSRMLS_DC)
 {
   zval *lhs = NULL;
   zval **p_lhs = &lhs;
@@ -344,7 +346,7 @@ write_simple_var (char *var_name, int var_length, zval ** p_rhs,
  * it. If the variable doent exist, a new one is created and *IS_NEW is set.
  * */
 zval *
-read_simple_var (char *var_name, int var_length, int *is_new TSRMLS_DC)
+read_var (char *var_name, int var_length, int *is_new TSRMLS_DC)
 {
   zval **p_zvp;
   if (zend_symtable_find
@@ -367,8 +369,8 @@ read_simple_var (char *var_name, int var_length, int *is_new TSRMLS_DC)
 }
 
 zval *
-read_array_index (char *var_name, int var_length, char *ind_name,
-		  int ind_length, int *is_new TSRMLS_DC)
+read_array (char *var_name, int var_length, char *ind_name,
+	    int ind_length, int *is_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
@@ -417,7 +419,7 @@ read_array_index (char *var_name, int var_length, char *ind_name,
     }
 
   // find the var
-  int result_exists = (find_with_zval (ht, ind, &p_result) == SUCCESS);
+  int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
   if (result_exists)
     result = *p_result;
   else
@@ -435,8 +437,8 @@ read_array_index (char *var_name, int var_length, char *ind_name,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
-write_array_index (char *var_name, int var_length, char *ind_name,
-		   int ind_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+write_array (char *var_name, int var_length, char *ind_name,
+	     int ind_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
@@ -479,7 +481,7 @@ write_array_index (char *var_name, int var_length, char *ind_name,
 
 
   // find the var
-  int lhs_exists = (find_with_zval (ht, ind, &p_lhs) == SUCCESS);
+  int lhs_exists = (ht_find (ht, ind, &p_lhs) == SUCCESS);
   if (lhs_exists)
     lhs = *p_lhs;
 
@@ -492,7 +494,7 @@ write_array_index (char *var_name, int var_length, char *ind_name,
 	}
 
       rhs->refcount++;
-      update_ht (ht, ind, rhs);
+      ht_update (ht, ind, rhs);
     }
   else
     {
@@ -507,8 +509,8 @@ write_array_index (char *var_name, int var_length, char *ind_name,
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 void
-separate_simple_var (char *name, int length, zval ** p_zvp,
-		     int *is_zvp_new TSRMLS_DC)
+separate_var (char *name, int length, zval ** p_zvp,
+	      int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
@@ -531,9 +533,8 @@ separate_simple_var (char *name, int length, zval ** p_zvp,
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 void
-separate_array_index (char *var_name, int var_length, char *ind_name,
-		      int ind_length, zval ** p_zvp,
-		      int *is_zvp_new TSRMLS_DC)
+separate_array (char *var_name, int var_length, char *ind_name,
+		int ind_length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
@@ -582,7 +583,7 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
       ALLOC_INIT_ZVAL (ind);
     }
 
-  update_ht (ht, ind, zvp);
+  ht_update (ht, ind, zvp);
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
@@ -593,8 +594,8 @@ separate_array_index (char *var_name, int var_length, char *ind_name,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 void
-reference_simple_var (char *name, int length, zval ** p_zvp,
-		      int *is_zvp_new TSRMLS_DC)
+write_var_reference (char *name, int length, zval ** p_zvp,
+		     int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
   (*p_zvp)->is_ref = 1;
@@ -610,7 +611,7 @@ reference_simple_var (char *name, int length, zval ** p_zvp,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 void				// TODO change function and update 
-reference_array_index (char *var_name, int var_length, char *ind_name,
+write_array_reference (char *var_name, int var_length, char *ind_name,
 		       int ind_length, zval ** p_zvp,
 		       int *is_zvp_new TSRMLS_DC)
 {
@@ -653,7 +654,7 @@ reference_array_index (char *var_name, int var_length, char *ind_name,
       ALLOC_INIT_ZVAL (ind);
     }
 
-  update_ht (ht, ind, zvp);
+  ht_update (ht, ind, zvp);
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
@@ -661,8 +662,8 @@ reference_array_index (char *var_name, int var_length, char *ind_name,
 
 
 zval *
-fetch_arg (char *name, int name_length, int pass_by_ref,
-	   int *is_arg_new TSRMLS_DC)
+fetch_var_arg (char *name, int name_length, int pass_by_ref,
+	       int *is_arg_new TSRMLS_DC)
 {
   zval **argp = NULL;
   zval *arg;
@@ -720,8 +721,8 @@ fetch_arg (char *name, int name_length, int pass_by_ref,
 }
 
 zval *
-fetch_indexed_arg (char *name, int name_length, char *ind_name,
-		   int ind_length, int pass_by_ref, int *is_arg_new TSRMLS_DC)
+fetch_array_arg (char *name, int name_length, char *ind_name,
+		 int ind_length, int pass_by_ref, int *is_arg_new TSRMLS_DC)
 {
   zval **p_var;
   zval *var;
@@ -755,7 +756,7 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
     ind = EG (uninitialized_zval_ptr);
 
   // find the var
-  int arg_exists = (find_with_zval (ht, ind, &p_arg) == SUCCESS);
+  int arg_exists = (ht_find (ht, ind, &p_arg) == SUCCESS);
   if (arg_exists)
     arg = *p_arg;
   else
@@ -772,7 +773,7 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
       arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
       arg->refcount++;
-      update_ht (ht, ind, arg);
+      ht_update (ht, ind, arg);
     }
 
   // Clone argument if it is part of a change-on-write
@@ -803,14 +804,14 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
 }
 
 void
-unset_simple_var (char *name, int length TSRMLS_DC)
+unset_var (char *name, int length TSRMLS_DC)
 {
   zend_hash_del (EG (active_symbol_table), name, length);
 }
 
 void
-unset_indexed_var (char *var_name, int var_length, char *ind_name,
-		   int ind_length TSRMLS_DC)
+unset_array (char *var_name, int var_length, char *ind_name,
+	     int ind_length TSRMLS_DC)
 {
 
   zval *var = NULL;
@@ -856,7 +857,7 @@ unset_indexed_var (char *var_name, int var_length, char *ind_name,
       ALLOC_INIT_ZVAL (ind);
     }
 
-  delete_from_ht (ht, ind);
+  ht_delete (ht, ind);
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
