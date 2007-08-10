@@ -112,6 +112,49 @@ update_ht (HashTable * ht, zval * ind, zval * val)
     }
 }
 
+// Delete from a hashtable using a zval* index
+void
+delete_from_ht (HashTable * ht, zval * ind)
+{
+  if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
+    {
+      int result = zend_hash_index_del (ht, Z_LVAL_P (ind));
+      assert (result == SUCCESS);
+    }
+  else if (Z_TYPE_P (ind) == IS_DOUBLE)
+    {
+      zval *index;
+      MAKE_STD_ZVAL (index);
+      index->value = ind->value;
+      index->type = ind->type;
+      convert_to_long (index);
+
+      int result = zend_hash_index_del (ht, Z_LVAL_P (index));
+      assert (result == SUCCESS);
+
+      zval_ptr_dtor (&index);
+    }
+  else if (Z_TYPE_P (ind) == IS_NULL)
+    {
+      int result = zend_hash_del (ht, "", sizeof (""));
+      assert (result == SUCCESS);
+    }
+  else
+    {
+      zval *string_index;
+      MAKE_STD_ZVAL (string_index);
+      string_index->value = ind->value;
+      string_index->type = ind->type;
+      zval_copy_ctor (string_index);
+      convert_to_string (string_index);
+      int result = zend_hash_del (ht, Z_STRVAL_P (string_index),
+				  Z_STRLEN_P (string_index) + 1);
+
+      assert (result == SUCCESS);
+      zval_ptr_dtor (&string_index);
+    }
+}
+
 void
 debug_hash (HashTable * ht)
 {
@@ -454,7 +497,6 @@ write_array_index (char *var_name, int var_length, char *ind_name,
   else
     {
       // TODO not sure if this is possible
-      assert (0);
       overwrite_lhs (lhs, rhs);
     }
 
@@ -758,4 +800,64 @@ fetch_indexed_arg (char *name, int name_length, char *ind_name,
     arg->is_ref = 1;
 
   return arg;
+}
+
+void
+unset_simple_var (char *name, int length TSRMLS_DC)
+{
+  zend_hash_del (EG (active_symbol_table), name, length);
+}
+
+void
+unset_indexed_var (char *var_name, int var_length, char *ind_name,
+		   int ind_length TSRMLS_DC)
+{
+
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *ind = NULL;
+  zval **p_ind = &ind;
+
+  int var_exists =
+    (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
+			 (void **) &p_var) == SUCCESS);
+  if (!var_exists)
+    {
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (var);
+      //      return var;
+      return;
+    }
+
+  var = *p_var;
+
+  if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
+    {
+      // TODO does this need an error, if so, use extract_ht
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (var);
+      //      return var;
+      return;
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists =
+    (zend_symtable_find (EG (active_symbol_table), ind_name, ind_length,
+			 (void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    {
+      // do not remove these curlies, as this expands to 2 statements
+      ALLOC_INIT_ZVAL (ind);
+    }
+
+  delete_from_ht (ht, ind);
+
+  if (!ind_exists)
+    zval_ptr_dtor (&ind);
 }

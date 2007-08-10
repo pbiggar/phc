@@ -1735,44 +1735,21 @@ class Unset : public Pattern
 			if(var->value->array_indices->size() == 0)
 			{
 				cout
-				<< "zend_hash_del(EG(active_symbol_table), "
-				<< "\"" << *name->value << "\", "
-				<< name->value->length() + 1 << ");\n"
-				;
+					<< "unset_simple_var ("
+					<< "\"" << *name->value << "\", "
+					<< name->value->length() + 1 << " TSRMLS_CC);\n"
+					;
 			}
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
 				String* ind = operand(var->value->array_indices->front());
-
 				cout
-				<< "{\n"
-				<< "zval* arr = index_ht(EG(active_symbol_table), "
-				<< "\"" << *name->value << "\", " 
-				<< name->value->length() + 1 << ");"
-				<< "HashTable* ht = extract_ht(arr TSRMLS_CC);"
-				<< "zval* ind = index_ht(EG(active_symbol_table), "
-				<< "\"" << *ind << "\", " << ind->length() + 1 << ");"
-				// Numeric index?
-				<< "if(Z_TYPE_P(ind) == IS_LONG)\n"
-				<< "{\n"
-				<< "zend_hash_index_del(ht, Z_LVAL_P(ind));\n"
-				<< "}\n"
-				// String index 
-				<< "else\n"
-				<< "{\n"
-				// TODO Code duplication
-				<< "zval* string_index;\n"
-				<< "MAKE_STD_ZVAL(string_index);\n"
-				<< "string_index->value = ind->value;\n"
-				<< "string_index->type = ind->type;\n"
-				<< "zval_copy_ctor(string_index);\n"
-				<< "convert_to_string(string_index);\n"
-				<< "zend_hash_del(ht, Z_STRVAL_P(string_index), Z_STRLEN_P(string_index) + 1);\n"
-				<< "zval_ptr_dtor(&string_index);\n"
-				<< "}\n"
-				<< "}\n"
-				;
+					<< "unset_indexed_var ("
+					<< "\"" << *name->value << "\", "
+					<< name->value->length() + 1 << ", "
+					<< "\"" << *ind << "\", "
+					<< ind->length() + 1 << " TSRMLS_CC);\n";
 			}
 		}
 		else
