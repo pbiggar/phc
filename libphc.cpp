@@ -890,3 +890,15 @@ unset_array (char *var_name, int var_length, char *ind_name,
   if (!ind_exists)
     zval_ptr_dtor (&ind);
 }
+
+void phc_exit (char* arg_name, int arg_length TSRMLS_DC)
+{
+   int is_arg_new = 0;
+   zval* arg = read_var (arg_name, arg_length, &is_arg_new TSRMLS_CC);
+   if (Z_TYPE_P (arg) == IS_LONG)
+      phc_exit_status = Z_LVAL_P (arg);
+   else
+      zend_print_variable (arg);
+
+   zend_bailout ();
+}

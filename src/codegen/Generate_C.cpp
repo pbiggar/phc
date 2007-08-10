@@ -1373,18 +1373,10 @@ public:
 
 		// Fetch the parameter
 		cout
-			<< "// call exit ()\n"
-			<< "{\n"
-			<< "	zval* arg = index_ht(EG(active_symbol_table), "
-			<< "		\"" << *op << "\", " << op->length() + 1 << ");\n"
-
-			<< "	if (Z_TYPE_P (arg) == IS_LONG)\n"
-			<< "		phc_exit_status = Z_LVAL_P (arg);\n"
-			<<	"	else"
-			<< "		zend_print_variable (arg);\n"
-			<< "	zend_bailout ();\n"
-
-			<< "}\n";
+			<< "// Exit ()\n"
+			<< "phc_exit (\"" 
+						<< *op << "\", "
+						<< op->length () + 1 << " TSRMLS_CC);\n";
 	}
 
 protected:
