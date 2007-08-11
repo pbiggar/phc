@@ -754,15 +754,13 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_va
 	}
 }
 
-AST_type::AST_type(bool is_array, Token_class_name* class_name)
+AST_type::AST_type(Token_class_name* class_name)
 {
-    this->is_array = is_array;
     this->class_name = class_name;
 }
 
 AST_type::AST_type()
 {
-    this->is_array = 0;
     this->class_name = 0;
 }
 
@@ -791,7 +789,6 @@ bool AST_type::match(AST_node* in)
     AST_type* that = dynamic_cast<AST_type*>(in);
     if(that == NULL) return false;
     
-    that->is_array = this->is_array;
     if(this->class_name == NULL)
     {
     	if(that->class_name != NULL && !that->class_name->match(this->class_name))
@@ -808,9 +805,6 @@ bool AST_type::equals(AST_node* in)
     AST_type* that = dynamic_cast<AST_type*>(in);
     if(that == NULL) return false;
     
-    if(this->is_array != that->is_array)
-    	return false;
-    
     if(this->class_name == NULL || that->class_name == NULL)
     {
     	if(this->class_name != NULL || that->class_name != NULL)
@@ -825,9 +819,8 @@ bool AST_type::equals(AST_node* in)
 
 AST_type* AST_type::clone()
 {
-    bool is_array = this->is_array;
     Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    AST_type* clone = new AST_type(is_array, class_name);
+    AST_type* clone = new AST_type(class_name);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }

@@ -278,15 +278,14 @@ public:
     AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name);
 };
 
-// type ::= "array"? CLASS_NAME? ;
+// type ::= CLASS_NAME? ;
 class AST_type : virtual public AST_node
 {
 public:
-    AST_type(bool is_array, Token_class_name* class_name);
+    AST_type(Token_class_name* class_name);
 protected:
     AST_type();
 public:
-    bool is_array;
     Token_class_name* class_name;
 public:
     virtual void visit(AST_visitor* visitor);

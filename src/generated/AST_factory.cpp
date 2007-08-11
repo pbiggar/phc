@@ -82,10 +82,9 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "AST_type"))
     {
-    	bool is_array = dynamic_cast<Boolean*>(*i++)->value();
     	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
     	assert(i == args->end());
-    	return new AST_type(is_array, class_name);
+    	return new AST_type(class_name);
     }
     if(!strcmp(type_id, "AST_attribute"))
     {

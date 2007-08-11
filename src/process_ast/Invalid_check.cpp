@@ -147,7 +147,7 @@ void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
 
 	// if theres no type hint, return
-	if (in->type->is_array == false && in->type->class_name == NULL)
+	if (in->type->class_name == NULL)
 		return;
 
 	// despite the warnings, it appears that constants are OK
@@ -155,7 +155,7 @@ void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 		return;
 
 	// function f (array x = 7) {} // only allowed NULL or array
-	if (in->type->is_array)
+	if (*in->type->class_name->value == "array")
 	{
 		if (in->expr->classid () == Token_null::ID)
 			return;

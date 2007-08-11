@@ -1422,16 +1422,17 @@ non_empty_parameter_list:
 optional_class_type:
 	  /* empty */
 		{
-			$$ = NEW(AST_type, (false, NULL));
+			$$ = NEW(AST_type, (NULL));
 		}
 	| IDENT
 		{ 
 			Token_class_name* class_name = new Token_class_name($1);
-			$$ = NEW(AST_type, (false, class_name)); 
+			$$ = NEW(AST_type, (class_name)); 
 		}
 	| K_ARRAY
 		{
-			$$ = NEW(AST_type, (true, NULL));
+			Token_class_name* class_name = new Token_class_name(new String ("array"));
+			$$ = NEW(AST_type, (class_name)); 
 		}
 	;	
 
