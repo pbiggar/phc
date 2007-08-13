@@ -13,6 +13,7 @@ static int phc_exit_status = 0;
 HashTable *
 extract_ht (zval * arr TSRMLS_DC)
 {
+   assert (arr != EG(uninitialized_zval_ptr));
   if (Z_TYPE_P (arr) == IS_NULL)
     array_init (arr);
   else if (Z_TYPE_P (arr) != IS_ARRAY)
@@ -517,7 +518,7 @@ push_var (char *var_name, int var_length, zval ** p_rhs, int *is_rhs_new TSRMLS_
   int var_exists =
     (zend_symtable_find (EG (active_symbol_table), var_name, var_length,
 			 (void **) &p_var) == SUCCESS);
-  if (var_exists)
+  if (var_exists && *p_var != EG(uninitialized_zval_ptr))
     var = *p_var;
   else
     {
