@@ -265,6 +265,7 @@ overwrite_lhs (zval * lhs, zval * rhs)
   // Delete RHS if it is a temp;
   if (rhs->refcount == 0)
     {
+       // TODO use p_rhs? (would need to be passed)
       assert (0);		// this doesnt look right
       // zval_ptr_dtor decrements refcount and deletes the zval when 0
       rhs->refcount = 1;
@@ -693,17 +694,17 @@ zval *
 fetch_var_arg (char *name, int name_length, int pass_by_ref,
 	       int *is_arg_new TSRMLS_DC)
 {
-  zval **argp = NULL;
+  zval **p_arg = NULL;
   zval *arg;
   if (zend_symtable_find
       (EG (active_symbol_table), name, name_length,
-       (void **) &argp) != SUCCESS)
+       (void **) &p_arg) != SUCCESS)
     {
       // we only do this for variables to be passed to function calls
       arg = EG (uninitialized_zval_ptr);
     }
   else
-    arg = *argp;
+    arg = *p_arg;
 
   if (arg == EG (uninitialized_zval_ptr))
     return arg;
@@ -714,7 +715,6 @@ fetch_var_arg (char *name, int name_length, int pass_by_ref,
     {
       assert (arg != EG (uninitialized_zval_ptr));
       zvp_clone (&arg, is_arg_new TSRMLS_CC);
-      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
       arg->refcount++;
       zend_hash_update (EG (active_symbol_table), name, name_length, &arg,
