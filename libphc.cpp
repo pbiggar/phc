@@ -605,8 +605,7 @@ separate_array (char *var_name, int var_length, char *ind_name,
     return;
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-  //  (*p_zvp)->refcount--; // refcount will be increased below
-
+  (*p_zvp)->refcount++;
 
   zval *var = NULL;
   zval **p_var = &var;
