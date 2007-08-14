@@ -47,6 +47,21 @@ void Invalid_check::error (const char* message, AST_node* node)
 		phc_error (message, node);
 }
 
+/* Returns true if any push operator found */
+bool check_for_push_operator (AST_variable* in)
+{
+	if (in->array_indices)
+	{
+		List<AST_expr*>::const_iterator i;
+		for (i = in->array_indices->begin (); i != in->array_indices->end (); i++)
+		{
+			if (*i == NULL)
+				return true;
+		}
+	}
+	return false;
+}
+
 void Invalid_check::pre_statement (AST_statement* in)
 {
 	// $x[]; or $x[][0]
@@ -55,15 +70,8 @@ void Invalid_check::pre_statement (AST_statement* in)
 
 	if (in->match (new AST_eval_expr (wild)))
 	{
-		if (wild->value->array_indices)
-		{
-			List<AST_expr*>::const_iterator i;
-			for (i = wild->value->array_indices->begin (); i != wild->value->array_indices->end (); i++)
-			{
-				if (*i == NULL)
-					error ("Cannot use [] for reading", in);
-			}
-		}
+	  if (check_for_push_operator (wild->value))
+		 error ("Cannot use [] for reading", wild->value);
 	}
 }
 
@@ -177,11 +185,25 @@ void Invalid_check::pre_method_invocation (AST_method_invocation* in)
 {
 	// the 'use' builtin isnt actually builtin yet
 	if (in->match (new AST_method_invocation (
-							NULL,
-							new Token_method_name(new String ("use")),
-							NULL)))
+					NULL,
+					new Token_method_name(new String ("use")),
+					NULL)))
 	{
 		error ("'use' builtin not yet a part of PHP. Please use include_once() or require_once()", in);
+	}
+
+	// check the parameters are readable variables (not [])
+	List<AST_actual_parameter*>::const_iterator i;
+	for (i = in->actual_parameters->begin (); i != in->actual_parameters->end (); i++)
+	{
+		Wildcard<AST_variable>* var = new Wildcard<AST_variable>;
+		if ((*i)->match (new AST_actual_parameter (
+						false, // ignored
+						var)))
+		{
+			if (check_for_push_operator (var->value))
+				error ("Cannot use [] for reading", var->value);
+		}
 	}
 }
 
