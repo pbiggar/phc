@@ -157,7 +157,6 @@ ht_delete (HashTable * ht, zval * ind)
 }
 
 
-
 void
 ht_debug (HashTable * ht)
 {
@@ -230,6 +229,31 @@ ht_debug (HashTable * ht)
     }
   printf ("END HASH\n");
 }
+
+
+// Call ht_debug on the named var in the given symbol table
+void ht_var_debug (char* name, HashTable* st)
+{
+   zval** p_zvp;
+   zval* zvp;
+   if (zend_symtable_find (st, name, strlen (name) + 1, 
+			    (void **) &p_zvp) != SUCCESS)
+   {
+      printf ("VAR NOT IN SYMBOL TABLE: '%s'\n", name);
+      return;
+   }
+
+   zvp = *p_zvp;
+   if (Z_TYPE_P (zvp) != IS_ARRAY)
+   {
+      printf ("NOT HASH\n");
+      return;
+   }
+ 
+   ht_debug (zvp->value.ht);
+}
+
+
 
 // Make a copy of a zval*
 void
@@ -326,9 +350,12 @@ write_var (char *var_name, int var_length, zval ** p_rhs,
   if (!lhs_exists || !lhs->is_ref)
     {
        if (rhs->is_ref)
-	  zvp_clone (&rhs, is_rhs_new TSRMLS_CC);
-       else
-	  rhs->refcount++;
+       {
+	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
+	  rhs = *p_rhs;
+       }
+
+       rhs->refcount++;
 
       int result =
 	zend_hash_update (EG (active_symbol_table), var_name, var_length,
@@ -490,9 +517,12 @@ write_array (char *var_name, int var_length, char *ind_name,
   if (!lhs_exists || !lhs->is_ref)
     {
        if (rhs->is_ref)
-	  zvp_clone (&rhs, is_rhs_new TSRMLS_CC);
-       else
-	  rhs->refcount++;
+       {
+	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
+	  rhs = *p_rhs;
+       }
+
+       rhs->refcount++;
 
       ht_update (ht, ind, rhs);
     }
