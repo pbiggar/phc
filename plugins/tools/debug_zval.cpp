@@ -54,13 +54,21 @@ public:
 							new Token_string (new String (": ")))
 							)));
 
+		// Replace $x[] with just $x
+		AST_variable* dumped_var = var;
+		if (var->array_indices->size () == 1 && var->array_indices->front() == NULL)
+		{
+			dumped_var = var->clone ();
+			dumped_var->array_indices->pop_front ();
+		}
+
 		// debug_zval_dump ($var);
 		AST_statement* dump = new AST_eval_expr (
 				new AST_method_invocation (
 					NULL,
 					new Token_method_name (new String ("debug_zval_dump")),
 					new List<AST_actual_parameter*> (
-						new AST_actual_parameter (false, var))));
+						new AST_actual_parameter (false, dumped_var))));
 
 
 		/* In order to shred these, they must be wrapped in a AST_php_script
