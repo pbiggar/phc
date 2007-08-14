@@ -111,6 +111,7 @@ string get_scope (Scope scope)
  * TARGET_is_new need to be declared already. */
 void lookup (Scope scope, Token_variable_name* name, string target)
 {
+	// TODO remove this function
 	assert (name != 0);
 	string hash = get_scope (scope);
 	cout
@@ -144,7 +145,7 @@ void cleanup (string target)
 
 /* Generate code to write ZVP, a variable in the generated code,
  * to VAR, a named variable. */
-void write (string zvp, AST_variable* var)
+void write (Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
@@ -164,6 +165,7 @@ void write (string zvp, AST_variable* var)
 				cout
 					<< "// Array assignment\n"
 					<< "write_array ("
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -176,6 +178,7 @@ void write (string zvp, AST_variable* var)
 				cout
 					<< "// Array pushing\n"
 					<< "push_var ("
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"&" << zvp << ", "
@@ -187,6 +190,7 @@ void write (string zvp, AST_variable* var)
 			cout 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
+				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1 << ", "
 				<<		"&" << zvp << ", "
@@ -206,17 +210,17 @@ void write (string zvp, AST_variable* var)
 }
 
 /* Separate the rhs, and write it back to the symbol table if necessary */
-void separate (string zvp, AST_variable* var)
+void separate (Scope scope, string zvp, AST_variable* var)
 {
-	// unified separation
 	// separated write back to rhs
 	Token_variable_name* name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// if its new, check it wont separate
 	cout 
-		<< "if (is_rhs_new)\n"
-		<<	"	assert (!(rhs->refcount > 1 && !rhs->is_ref));\n";
+		<< "if (is_" << zvp << "_new)\n"
+		<<	"	assert (!(" << zvp << "->refcount > 1 "
+		<<	"		&& !" << zvp << "->is_ref));\n";
 
 	assert(var->target == NULL);
 
@@ -231,6 +235,7 @@ void separate (string zvp, AST_variable* var)
 				String* index = operand (var->array_indices->front());
 				cout
 					<< "separate_array ("
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -248,6 +253,7 @@ void separate (string zvp, AST_variable* var)
 		{
 			cout 
 				<< "separate_var (" 
+				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<< name->value->size () + 1 << ", "
 				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
@@ -267,7 +273,7 @@ void separate (string zvp, AST_variable* var)
 
 /* Generate code to write ZVP, a variable in the generated code,
  * to LHS, a named variable. RHS is needed for the reference. */
-void write_reference (string zvp, AST_variable* var, AST_variable* orig)
+void write_reference (Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
 	Token_variable_name* name
@@ -287,6 +293,7 @@ void write_reference (string zvp, AST_variable* var, AST_variable* orig)
 				cout
 					<< "// Reference array assignment\n"
 					<< "write_array_reference ("
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		"\"" << *index << "\", "
@@ -307,6 +314,7 @@ void write_reference (string zvp, AST_variable* var, AST_variable* orig)
 			cout 
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
+				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<< name->value->size () + 1 << ", "
 				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
@@ -325,7 +333,7 @@ void write_reference (string zvp, AST_variable* var, AST_variable* orig)
 }
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (string zvp, AST_expr* expr)
+void read (Scope scope, string zvp, AST_expr* expr)
 {
 	AST_variable* var = dynamic_cast<AST_variable*> (expr);
 	assert (var);
@@ -348,6 +356,7 @@ void read (string zvp, AST_expr* expr)
 				cout 
 					<< "// Read array variable\n"
 					<< zvp << " = read_array (" 
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1  << ", "
 					<<		"\"" << *index << "\", "
@@ -365,6 +374,7 @@ void read (string zvp, AST_expr* expr)
 			cout 
 				<< "// Read normal variable\n"
 				<< zvp << " = read_var (" 
+				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1  << ", "
 				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
@@ -397,6 +407,7 @@ void read (string zvp, AST_expr* expr)
 // The returned value (in the generated code) has its refcount incremented.
 void index_st_rhs (Scope scope, string zvp, AST_variable* var)
 {
+	assert (0);
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
 	name = dynamic_cast<Token_variable_name*>(var->variable_name);
@@ -483,6 +494,7 @@ void index_st_rhs (Scope scope, string zvp, AST_variable* var)
 // TODO really?: The returned value (in the generated code) has its refcount incremented.
 void index_st_lhs (Scope scope, string zvp, AST_variable* var)
 {
+	assert (0);
 	// Variable variable or ordinary variable?
 	Token_variable_name* name;
 	name = dynamic_cast<Token_variable_name*>(var->variable_name);
@@ -567,6 +579,7 @@ void index_st_lhs (Scope scope, string zvp, AST_variable* var)
 // TARGET for the array and indices.
 void update_st(Scope scope, AST_variable* var, string target, string source)
 {
+	assert (0);
 	// We need to update, instead of deleting and then adding.
 	// The latter reorders the hashtable, which isnt correct
 	// (say if we add the same key twice, once at the front,
@@ -627,33 +640,29 @@ void update_st(Scope scope, AST_variable* var, string target, string source)
 // Make a copy of zvp 
 void clone(string zvp)
 {
-	cout << "old_clone (&" << zvp << ");\n";
+	assert (0);
 }
 
 // Implementation of "global" (used in various places)
-void global(AST_variable_name* var_name, bool separate)
+void global(AST_variable_name* var_name, bool separate_var)
 {
 	AST_variable* var;
 	var = new AST_variable(NULL, var_name, new List<AST_expr*>());
 
 	cout << "{\n";
-	cout << "zval* global_var;\n";
-	cout << "int use_ref = 1;\n";
-	index_st_rhs (GLOBAL, "global_var", var);
+	declare ("global_var");
+	read (GLOBAL, "global_var", var);
 	
 	// Separate RHS if necessary
-	if(separate)
+	if (separate_var)
 	{
-		cout << "if(global_var->refcount > 1 && !global_var->is_ref) {\n";
-		clone("global_var");
-		update_st(GLOBAL, var, "", "global_var");
-		cout << "}\n";
+		separate (GLOBAL, "global_var", var);
 	}
 	// TODO this function needs more work for me to be sure its right
 
-	cout << "global_var->is_ref = 1;\n";
-	update_st(LOCAL, var, "", "global_var");
-//	cout << "zval_ptr_dtor (&global_var);\n";
+	// TODO i think this should be write by reference
+	write_reference (LOCAL, "global_var", var);
+	cleanup ("global_var");
 	cout << "}\n";
 }
 
@@ -788,7 +797,7 @@ protected:
 		}
 
 		// TODO: deal with all superglobals 
-//		global("GLOBALS");
+		global("GLOBALS");
 
 		// debug_argument_stack();
 
@@ -917,7 +926,7 @@ public:
 		cout
 			<< "{\n";
 		declare ("cond");
-		read ("cond", cond->value);
+		read (LOCAL, "cond", cond->value);
 		cout 
 			<< "zend_bool bcond = zend_is_true(cond);\n";
 		cleanup ("cond");
@@ -981,55 +990,6 @@ public:
 	{
 	}
 
-	// Make the LHS point to the RHS (copy-on-write)
-	void copy_on_write()
-	{
-		cout << "// Copy-on-write\n";
-//		update_st(LOCAL, lhs->value, "lhs", "rhs");
-	}
-
-	// Overwrite the LHS with the RHS
-	void overwrite_lhs()
-	{
-		cout << "overwrite_lhs (lhs, rhs);\n";
-	}
-
-	// Separate the RHS (that is, make a copy *and update the hashtable*)
-	// See "Separation anxiety" in the PHP book
-	void separate_rhs()
-	{
-		Wildcard<AST_variable>* rhs;
-		rhs = dynamic_cast<Wildcard<AST_variable>*>(agn->expr);
-
-		// Make a copy of the RHS
-		clone("rhs");
-
-		if(rhs != NULL)
-		{
-			// First, make a copy, then update the hashtable
-			update_st(LOCAL, rhs->value, "rhs", "rhs");
-		}
-		else
-		{
-			// TODO 
-
-			// I *think* the need for separation can only ever arise when the
-			// RHS is a variable. However, the decision to run seperate_rhs
-			// is based on runtime information, hence the runtime assert
-			cout << "assert(0);\n";
-		//	
-		}
-	}
-
-	// Make the LHS reference the RHS (assume seperation has been done)
-//	void old_reference_rhs()
-//	{
-//		cout << "// Change-on-write\n";
-//		cout << "rhs->is_ref = 1;\n";
-//		update_st(LOCAL, lhs->value, "lhs", "rhs");
-//	}
-
-
 	/* MEMORY DISCUSSION
 	 *
 	 * Variables are created on both sides, many of which have to be cleaned up:
@@ -1059,15 +1019,15 @@ public:
 		generate_rhs();
 
 		if(!agn->is_ref)
-			write ("rhs", lhs->value);
+			write (LOCAL, "rhs", lhs->value);
 		else
 		{
 			// this must be a copy
 			Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
 			assert (rhs);
 
-			separate ("rhs", rhs->value);
-			write_reference ("rhs", lhs->value, rhs->value);
+			separate (LOCAL, "rhs", rhs->value);
+			write_reference (LOCAL, "rhs", lhs->value);
 		}
 
 		cleanup ("rhs");
@@ -1195,7 +1155,7 @@ public:
 
 	void generate_rhs()
 	{
-		read ("rhs", rhs->value);
+		read (LOCAL, "rhs", rhs->value);
 	}
 
 protected:
@@ -1434,11 +1394,16 @@ public:
 		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << " TSRMLS_CC);\n"
 		<< "	php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
 		<< "	phc_setup_error (0, NULL, 0 TSRMLS_CC);\n"
-		<<	"}\n"
+		<<	"}\n";
 
-		<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
-		<< "int by_ref[" << num_args << "];\n"
-		;
+
+		if (num_args)
+		{
+			cout
+				<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+				<< "int by_ref[" << num_args << "];\n"
+				;
+		}
 
 		// TODO: Not 100% this is fully correct; in particular, 
 		// pass_rest_by_reference does not seem to work.
@@ -1467,12 +1432,16 @@ public:
 			// cout << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
 		}
 
+		if (num_args)
+		{
+			cout 
+				<< "// Setup array of arguments\n"
+				<< "zval* args[" << num_args << "];\n"
+				<< "int new_args[" << num_args << "]; // set to 1 if the arg is new\n"
+				;
+		}
 		cout 
-			<< "// Setup array of arguments\n"
-			<< "zval* args[" << num_args << "];\n"
-			<< "int new_args[" << num_args << "]; // set to 1 if the arg is new\n"
-			<< "zval** args_ind[" << num_args  << "];\n"
-			;
+			<< "zval** args_ind[" << num_args  << "];\n";
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
@@ -1493,6 +1462,7 @@ public:
 				String* ind_name = operand(var->array_indices->front ());
 				cout
 					<< "	args[" << index << "] = fetch_array_arg ("
+					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
@@ -1505,6 +1475,7 @@ public:
 			{
 				cout 
 					<< "	args[" << index << "] = fetch_var_arg ("
+					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"by_ref[" << index << "], "
@@ -1596,8 +1567,8 @@ public:
 
 		declare ("left");
 		declare ("right");
-		read ("left", left->value);
-		read ("right", right->value);
+		read (LOCAL, "left", left->value);
+		read (LOCAL, "right", right->value);
 		cout 
 			<< "MAKE_STD_ZVAL(rhs);\n"
 			<< "is_rhs_new = 1;\n"
@@ -1665,7 +1636,7 @@ class Return : public Pattern
 	{
 		cout << "{\n";
 		declare ("rhs");
-		read ("rhs", expr->value);
+		read (LOCAL, "rhs", expr->value);
 
 		if(!gen->return_by_reference)
 		{
@@ -1723,20 +1694,23 @@ class Unset : public Pattern
 			{
 				cout
 					<< "unset_var ("
-					<< "\"" << *name->value << "\", "
-					<< name->value->length() + 1 << " TSRMLS_CC);\n"
+					<<		get_scope (LOCAL) << ", "
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->length() + 1 << " TSRMLS_CC);\n"
 					;
 			}
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
 				String* ind = operand(var->value->array_indices->front());
+				// TODO write test cases for which putting LOCAL here is wrong
 				cout
 					<< "unset_array ("
-					<< "\"" << *name->value << "\", "
-					<< name->value->length() + 1 << ", "
-					<< "\"" << *ind << "\", "
-					<< ind->length() + 1 << " TSRMLS_CC);\n";
+					<<		get_scope (LOCAL) << ", "
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->length() + 1 << ", "
+					<<		"\"" << *ind << "\", "
+					<<		ind->length() + 1 << " TSRMLS_CC);\n";
 			}
 		}
 		else
