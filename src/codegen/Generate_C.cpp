@@ -986,7 +986,7 @@ public:
 
 	// Additional code to be executed on lhs before it all goes out
 	// of scope
-	virtual void generate_epilogue ()
+	virtual void process_rhs ()
 	{
 	}
 
@@ -1018,6 +1018,10 @@ public:
 		// Generate code for the RHS
 		generate_rhs();
 
+		// do work on the rhs, if necessary
+		process_rhs();
+
+		// write it back to the lhs
 		if(!agn->is_ref)
 			write (LOCAL, "rhs", lhs->value);
 		else
@@ -1031,8 +1035,6 @@ public:
 		}
 
 		cleanup ("rhs");
-
-//		generate_epilogue ();
 
 		// close local scope
 		cout << "}\n"; 	
@@ -1173,9 +1175,9 @@ public:
 			rhs);
 	}
 
-	void generate_epilogue ()
+	virtual void process_rhs ()
 	{
-		cout << "convert_to_array (lhs);\n";
+		cout << "cast_var (&rhs, &is_rhs_new, IS_ARRAY TSRMLS_CC);\n";
 	}
 };
 
@@ -1221,16 +1223,12 @@ public:
 		name->append (*rhs->value->constant_name->value);
 
 		cout
-			<< "MAKE_STD_ZVAL (rhs);\n"
-			<< "int result = zend_get_constant ( \"" << *name << "\""
-			<< ", " << name->length() // exclude NULL-terminator
-			<< ", rhs TSRMLS_CC);\n" // the book say _DC, but that doesnt compile
+			<< "get_constant ( "
+			<<			"\"" << *name << "\", "
+			<<			name->length() << ", " // exclude NULL-terminator
+			<<			"&rhs, "
+			<<			"&is_rhs_new TSRMLS_CC);\n" // the book say _DC, but that doesnt compile
 			;
-
-		// check for missing constant
-		cout 
-			<< "if (!result)\n"
-			<<	"ZVAL_STRINGL (rhs, \"" << *name << "\", " << name->length () << ", 1);\n";
 	}
 
 protected:

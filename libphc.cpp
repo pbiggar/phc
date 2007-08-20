@@ -13,7 +13,7 @@ static int phc_exit_status = 0;
 HashTable *
 extract_ht (zval * arr TSRMLS_DC)
 {
-   assert (arr != EG(uninitialized_zval_ptr));
+  assert (arr != EG (uninitialized_zval_ptr));
   if (Z_TYPE_P (arr) == IS_NULL)
     array_init (arr);
   else if (Z_TYPE_P (arr) != IS_ARRAY)
@@ -232,25 +232,26 @@ ht_debug (HashTable * ht)
 
 
 // Call ht_debug on the named var in the given symbol table
-void ht_var_debug (HashTable* st, char* name)
+void
+ht_var_debug (HashTable * st, char *name)
 {
-   zval** p_zvp;
-   zval* zvp;
-   if (zend_symtable_find (st, name, strlen (name) + 1, 
-			    (void **) &p_zvp) != SUCCESS)
-   {
+  zval **p_zvp;
+  zval *zvp;
+  if (zend_symtable_find (st, name, strlen (name) + 1,
+			  (void **) &p_zvp) != SUCCESS)
+    {
       printf ("VAR NOT IN SYMBOL TABLE: '%s'\n", name);
       return;
-   }
+    }
 
-   zvp = *p_zvp;
-   if (Z_TYPE_P (zvp) != IS_ARRAY)
-   {
+  zvp = *p_zvp;
+  if (Z_TYPE_P (zvp) != IS_ARRAY)
+    {
       printf ("NOT HASH\n");
       return;
-   }
- 
-   ht_debug (zvp->value.ht);
+    }
+
+  ht_debug (zvp->value.ht);
 }
 
 
@@ -265,7 +266,7 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   clone->type = (*p_zvp)->type;
   zval_copy_ctor (clone);
   assert (is_zvp_new);
-  assert (*is_zvp_new == 0);	// TODO not sure what should happen here
+  assert (*is_zvp_new == 0);	// TODO lower refcount if its already new
   *is_zvp_new = 1;
   /*
      if (is_zvp_new && *is_zvp_new)       // if its new, we have the only reference
@@ -290,7 +291,7 @@ overwrite_lhs (zval * lhs, zval * rhs)
   // Delete RHS if it is a temp;
   if (rhs->refcount == 0)
     {
-       // TODO use p_rhs? (would need to be passed)
+      // TODO use p_rhs? (would need to be passed)
       assert (0);		// this doesnt look right
       // zval_ptr_dtor decrements refcount and deletes the zval when 0
       rhs->refcount = 1;
@@ -333,34 +334,32 @@ phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
-write_var (HashTable* st, char *var_name, int var_length, zval ** p_rhs,
+write_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
 	   int *is_rhs_new TSRMLS_DC)
 {
   zval *lhs = NULL;
   zval **p_lhs = &lhs;
   zval *rhs = *p_rhs;
 
-  int lhs_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_lhs) == SUCCESS);
+  int lhs_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_lhs) == SUCCESS);
 
   if (lhs_exists)
     lhs = *p_lhs;
 
   if (!lhs_exists || !lhs->is_ref)
     {
-       if (rhs->is_ref)
-       {
+      if (rhs->is_ref)
+	{
 	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
 	  rhs = *p_rhs;
-       }
+	}
 
-       rhs->refcount++;
+      rhs->refcount++;
 
-      int result =
-	zend_hash_update (st, var_name, var_length,
-			  &rhs,
-			  sizeof (zval *), NULL);
+      int result = zend_hash_update (st, var_name, var_length,
+				     &rhs,
+				     sizeof (zval *), NULL);
       assert (result == SUCCESS);
     }
   else
@@ -374,12 +373,12 @@ write_var (HashTable* st, char *var_name, int var_length, zval ** p_rhs,
  * it. If the variable doent exist, a new one is created and *IS_NEW is set.
  * */
 zval *
-read_var (HashTable* st, char *var_name, int var_length, int *is_new TSRMLS_DC)
+read_var (HashTable * st, char *var_name, int var_length,
+	  int *is_new TSRMLS_DC)
 {
   zval **p_zvp;
   if (zend_symtable_find
-      (st, var_name, var_length,
-       (void **) &p_zvp) == SUCCESS)
+      (st, var_name, var_length, (void **) &p_zvp) == SUCCESS)
     {
       *is_new = 0;
       return *p_zvp;
@@ -397,7 +396,7 @@ read_var (HashTable* st, char *var_name, int var_length, int *is_new TSRMLS_DC)
 }
 
 zval *
-read_array (HashTable *st, char *var_name, int var_length, char *ind_name,
+read_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 	    int ind_length, int *is_new TSRMLS_DC)
 {
   zval *var = NULL;
@@ -409,14 +408,10 @@ read_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   zval *result = NULL;
   zval **p_result = &ind;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
   if (!var_exists)
     {
-      //      *is_new = 1;
-      //      ALLOC_INIT_ZVAL (var);
-      //      return var;
       return EG (uninitialized_zval_ptr);
     }
 
@@ -425,9 +420,6 @@ read_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
     {
       // TODO does this need an error, if so, use extract_ht
-      //      *is_new = 1;
-      //      ALLOC_INIT_ZVAL (var);
-      //      return var;
       return EG (uninitialized_zval_ptr);
     }
 
@@ -435,9 +427,8 @@ read_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -465,7 +456,7 @@ read_array (HashTable *st, char *var_name, int var_length, char *ind_name,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
-write_array (HashTable *st, char *var_name, int var_length, char *ind_name,
+write_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 	     int ind_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   zval *var = NULL;
@@ -479,10 +470,9 @@ write_array (HashTable *st, char *var_name, int var_length, char *ind_name,
 
   zval *rhs = *p_rhs;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
-  if (var_exists)
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
+  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
     var = *p_var;
   else
     {
@@ -496,9 +486,8 @@ write_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -516,13 +505,13 @@ write_array (HashTable *st, char *var_name, int var_length, char *ind_name,
 
   if (!lhs_exists || !lhs->is_ref)
     {
-       if (rhs->is_ref)
-       {
+      if (rhs->is_ref)
+	{
 	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
 	  rhs = *p_rhs;
-       }
+	}
 
-       rhs->refcount++;
+      rhs->refcount++;
 
       ht_update (ht, ind, rhs);
     }
@@ -538,17 +527,17 @@ write_array (HashTable *st, char *var_name, int var_length, char *ind_name,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
-push_var (HashTable *st, char *var_name, int var_length, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
+	  int *is_rhs_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
 
   zval *rhs = *p_rhs;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
-  if (var_exists && *p_var != EG(uninitialized_zval_ptr))
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
+  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
     var = *p_var;
   else
     {
@@ -562,14 +551,14 @@ push_var (HashTable *st, char *var_name, int var_length, zval ** p_rhs, int *is_
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   rhs->refcount++;
-  zend_hash_next_index_insert (ht, &rhs, sizeof (zval*), NULL);
+  zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
 
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 void
-separate_var (HashTable *st, char *name, int length, zval ** p_zvp,
+separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
 	      int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
@@ -593,8 +582,9 @@ separate_var (HashTable *st, char *name, int length, zval ** p_zvp,
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 void
-separate_array (HashTable *st, char *var_name, int var_length, char *ind_name,
-		int ind_length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+separate_array (HashTable * st, char *var_name, int var_length,
+		char *ind_name, int ind_length, zval ** p_zvp,
+		int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
@@ -614,10 +604,10 @@ separate_array (HashTable *st, char *var_name, int var_length, char *ind_name,
 
   zval *zvp = *p_zvp;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
   if (var_exists)
+    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
     var = *p_var;
   else
     {
@@ -631,9 +621,8 @@ separate_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -653,15 +642,14 @@ separate_array (HashTable *st, char *var_name, int var_length, char *ind_name,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 void
-write_var_reference (HashTable *st, char *name, int length, zval ** p_zvp,
+write_var_reference (HashTable * st, char *name, int length, zval ** p_zvp,
 		     int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
-  int result =
-    zend_hash_update (st, name, length, p_zvp,
-		      sizeof (zval *), NULL);
+  int result = zend_hash_update (st, name, length, p_zvp,
+				 sizeof (zval *), NULL);
   assert (result == SUCCESS);
 }
 
@@ -670,8 +658,8 @@ write_var_reference (HashTable *st, char *name, int length, zval ** p_zvp,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 void				// TODO change function and update 
-write_array_reference (HashTable *st, char *var_name, int var_length, char *ind_name,
-		       int ind_length, zval ** p_zvp,
+write_array_reference (HashTable * st, char *var_name, int var_length,
+		       char *ind_name, int ind_length, zval ** p_zvp,
 		       int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
@@ -686,10 +674,10 @@ write_array_reference (HashTable *st, char *var_name, int var_length, char *ind_
 
   zval *zvp = *p_zvp;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
   if (var_exists)
+    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
     var = *p_var;
   else
     {
@@ -703,9 +691,8 @@ write_array_reference (HashTable *st, char *var_name, int var_length, char *ind_
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -721,14 +708,12 @@ write_array_reference (HashTable *st, char *var_name, int var_length, char *ind_
 
 
 zval *
-fetch_var_arg (HashTable *st, char *name, int name_length, int pass_by_ref,
+fetch_var_arg (HashTable * st, char *name, int name_length, int pass_by_ref,
 	       int *is_arg_new TSRMLS_DC)
 {
   zval **p_arg = NULL;
   zval *arg;
-  if (zend_symtable_find
-      (st, name, name_length,
-       (void **) &p_arg) != SUCCESS)
+  if (zend_symtable_find (st, name, name_length, (void **) &p_arg) != SUCCESS)
     {
       // we only do this for variables to be passed to function calls
       arg = EG (uninitialized_zval_ptr);
@@ -747,8 +732,7 @@ fetch_var_arg (HashTable *st, char *name, int name_length, int pass_by_ref,
       zvp_clone (&arg, is_arg_new TSRMLS_CC);
 
       arg->refcount++;
-      zend_hash_update (st, name, name_length, &arg,
-			sizeof (zval *), NULL);
+      zend_hash_update (st, name, name_length, &arg, sizeof (zval *), NULL);
     }
 
   // Clone argument if it is part of a change-on-write
@@ -779,7 +763,7 @@ fetch_var_arg (HashTable *st, char *name, int name_length, int pass_by_ref,
 }
 
 zval *
-fetch_array_arg (HashTable *st, char *name, int name_length, char *ind_name,
+fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
 		 int ind_length, int pass_by_ref, int *is_arg_new TSRMLS_DC)
 {
   zval **p_var;
@@ -791,9 +775,8 @@ fetch_array_arg (HashTable *st, char *name, int name_length, char *ind_name,
   zval **p_arg;
   zval *arg;
 
-  int var_exists =
-    (zend_symtable_find (st, name, name_length,
-			 (void **) &p_var) == SUCCESS);
+  int var_exists = (zend_symtable_find (st, name, name_length,
+					(void **) &p_var) == SUCCESS);
   if (!var_exists)
     {
       return EG (uninitialized_zval_ptr);
@@ -805,9 +788,8 @@ fetch_array_arg (HashTable *st, char *name, int name_length, char *ind_name,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -862,13 +844,49 @@ fetch_array_arg (HashTable *st, char *name, int name_length, char *ind_name,
 }
 
 void
-unset_var (HashTable *st, char *name, int length TSRMLS_DC)
+cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
+{
+  assert (type >= 0 && type <= 6);
+  if ((*p_zvp)->type == type)
+    return;
+
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  zval *zvp = *p_zvp;
+
+  switch (zvp->type)
+    {
+    case IS_NULL:
+      convert_to_null (zvp);
+      break;
+    case IS_BOOL:
+      convert_to_boolean (zvp);
+      break;
+    case IS_LONG:
+      convert_to_long (zvp);
+      break;
+    case IS_DOUBLE:
+      convert_to_double (zvp);
+      break;
+    case IS_STRING:
+      convert_to_string (zvp);
+      break;
+    case IS_ARRAY:
+      convert_to_array (zvp);
+      break;
+    case IS_OBJECT:
+      convert_to_object (zvp);
+      break;
+    }
+}
+
+void
+unset_var (HashTable * st, char *name, int length TSRMLS_DC)
 {
   zend_hash_del (st, name, length);
 }
 
 void
-unset_array (HashTable *st, char *var_name, int var_length, char *ind_name,
+unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 	     int ind_length TSRMLS_DC)
 {
 
@@ -878,14 +896,10 @@ unset_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   zval *ind = NULL;
   zval **p_ind = &ind;
 
-  int var_exists =
-    (zend_symtable_find (st, var_name, var_length,
-			 (void **) &p_var) == SUCCESS);
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
   if (!var_exists)
     {
-      //      *is_new = 1;
-      //      ALLOC_INIT_ZVAL (var);
-      //      return var;
       return;
     }
 
@@ -894,9 +908,6 @@ unset_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
     {
       // TODO does this need an error, if so, use extract_ht
-      //      *is_new = 1;
-      //      ALLOC_INIT_ZVAL (var);
-      //      return var;
       return;
     }
 
@@ -904,9 +915,8 @@ unset_array (HashTable *st, char *var_name, int var_length, char *ind_name,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_symtable_find (st, ind_name, ind_length,
-			 (void **) &p_ind) == SUCCESS);
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
   if (ind_exists)
     ind = *p_ind;
   else
@@ -921,14 +931,29 @@ unset_array (HashTable *st, char *var_name, int var_length, char *ind_name,
     zval_ptr_dtor (&ind);
 }
 
-void phc_exit (char* arg_name, int arg_length TSRMLS_DC)
+void
+phc_exit (char *arg_name, int arg_length TSRMLS_DC)
 {
-   int is_arg_new = 0;
-   zval* arg = read_var (EG (active_symbol_table), arg_name, arg_length, &is_arg_new TSRMLS_CC);
-   if (Z_TYPE_P (arg) == IS_LONG)
-      phc_exit_status = Z_LVAL_P (arg);
-   else
-      zend_print_variable (arg);
+  int is_arg_new = 0;
+  zval *arg = read_var (EG (active_symbol_table), arg_name, arg_length,
+			&is_arg_new TSRMLS_CC);
+  if (Z_TYPE_P (arg) == IS_LONG)
+    phc_exit_status = Z_LVAL_P (arg);
+  else
+    zend_print_variable (arg);
 
-   zend_bailout ();
+  zend_bailout ();
+}
+
+/* Copies a constant into ZVP. Note that LENGTH does not include the NULL-terminating byte. */
+void
+get_constant (char *name, int length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+{
+  MAKE_STD_ZVAL (*p_zvp);
+  // zend_get_constant returns 1 for success, not SUCCESS
+  int result = zend_get_constant (name, length, *p_zvp TSRMLS_CC);
+  if (result == 0)
+    ZVAL_STRINGL (*p_zvp, name, length, 1);
+
+  *is_zvp_new = 1;
 }
