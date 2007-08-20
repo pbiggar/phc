@@ -231,7 +231,6 @@ void PHP_unparser::children_formal_parameter(AST_formal_parameter* in)
 
 void PHP_unparser::children_type(AST_type* in)
 {
-	if(in->is_array) echo("array ");
 	if(in->class_name != NULL)
 	{
 		visit_class_name(in->class_name);

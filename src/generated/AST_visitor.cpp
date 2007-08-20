@@ -708,7 +708,6 @@ void AST_visitor::children_formal_parameter(AST_formal_parameter* in)
 
 void AST_visitor::children_type(AST_type* in)
 {
-    visit_marker("is_array", in->is_array);
     visit_class_name(in->class_name);
 }
 

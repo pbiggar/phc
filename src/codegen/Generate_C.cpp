@@ -1080,7 +1080,8 @@ class Assign_int : public Assign_literal<Token_int>
 {
 	void init_rhs()
 	{
-		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
+		cout << "ZVAL_LONG (rhs, " << rhs->value->value << ");\n";
+//		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
 	}
 };
 

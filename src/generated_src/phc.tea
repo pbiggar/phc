@@ -42,7 +42,7 @@ method ::= signature statement*? ;
 signature ::= method_mod is_ref:"&"? METHOD_NAME formal_parameter* ;
 method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
 formal_parameter ::= type is_ref:"&"? VARIABLE_NAME expr? ;
-type ::= "array"? CLASS_NAME? ;
+type ::= CLASS_NAME? ;
 
 attribute ::= attr_mod VARIABLE_NAME expr? ;
 attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
