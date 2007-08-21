@@ -482,6 +482,7 @@ write_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 			    &var, sizeof (zval *), NULL);
     }
 
+  // TODO this makes it an array
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
@@ -523,36 +524,6 @@ write_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
-}
-
-/* Write P_RHS into the symbol table as a variable named VAR_NAME */
-void
-push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
-	  int *is_rhs_new TSRMLS_DC)
-{
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *rhs = *p_rhs;
-
-  int var_exists = (zend_symtable_find (st, var_name, var_length,
-					(void **) &p_var) == SUCCESS);
-  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
-    var = *p_var;
-  else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_symtable_update (st, var_name, var_length,
-			    &var, sizeof (zval *), NULL);
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
-
-  rhs->refcount++;
-  zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
-
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)
@@ -635,6 +606,44 @@ separate_array (HashTable * st, char *var_name, int var_length,
 
   if (!ind_exists)
     zval_ptr_dtor (&ind);
+}
+
+
+
+/* Write P_RHS into the symbol table as a variable named VAR_NAME */
+void
+push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
+	  int *is_rhs_new TSRMLS_DC)
+{
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *rhs = *p_rhs;
+
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
+  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
+    {
+      int is_var_new = 0;
+      var = *p_var;
+      separate_var (st, var_name, var_length, &var, &is_var_new TSRMLS_CC);
+      if (is_var_new)
+	zval_ptr_dtor (p_var);
+    }
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (st, var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  rhs->refcount++;
+  zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
+
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in

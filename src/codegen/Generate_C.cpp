@@ -304,7 +304,8 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				assert (0); // I dont think you can do this
+				// TODO I'm pretty sure this is legal
+				assert (0);
 				cout << "assert (0); // push_var\n";
 				//				push_var ()
 			}
