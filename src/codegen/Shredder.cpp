@@ -274,9 +274,10 @@ public:
 			in->expr->attrs->set_true ("phc.shredder.need_addr");
 	}
 
-	/* To be able to support includes with return statements, without dataflow, we dont shred their string arguments */
 	void post_method_invocation (AST_method_invocation* in)
 	{
+		/* To be able to support includes with return statements, without
+		 * dataflow, we dont shred their string arguments */
 		Token_method_name* name = dynamic_cast<Token_method_name*>(in->method_name);
 		if (name && (
 					*name->value == "include"
@@ -292,6 +293,17 @@ public:
 			}
 
 		}
+
+		/* It isn't correct to shred variables which may be references at
+		 * run-time, but where we cannot tell if they are at compile-time. The
+		 * only occurrence of this in PHP is actual parameters. */
+		List<AST_actual_parameter*>::const_iterator i;
+		for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
+		{
+			if (dynamic_cast<AST_variable*> ((*i)->expr))
+				(*i)->expr->attrs->set_true("phc.shredder.dont_shred");
+		}
+
 	}
 
 
@@ -590,6 +602,9 @@ void Shredder::children_php_script(AST_php_script* in)
 
 AST_variable* Shredder::post_variable(AST_variable* in)
 {
+	if (in->attrs->is_true ("phc.shredder.dont_shred"))
+		return in;
+
 	AST_variable* prev = in;
 	
 	int num_pieces = 
