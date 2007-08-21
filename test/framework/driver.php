@@ -74,6 +74,7 @@ $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "InterpretS
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 require_once ("refcounts.php");
+require_once ("demi_eval.php");
 $tests[] = new PluginTest ("linear");
 $tests[] = new PluginTest ("cloning");
 $tests[] = new PluginTest ("pre_vs_post_count");

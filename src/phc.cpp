@@ -173,6 +173,9 @@ void init_plugins (Pass_manager* pm)
 		// Try opening the specified plugin from its default location, 
 		// from the current working directory, and from PKGLIBDIR (in that order)
 		const char* name = pm->args_info->run_arg[i];
+		const char* option = "";
+		if (pm->args_info->r_option_given < i)
+			option = pm->args_info->r_option_arg[i];
 		lt_dlhandle handle = lt_dlopenext (name);
 
 		const char* default_err;
@@ -215,7 +218,7 @@ void init_plugins (Pass_manager* pm)
 		}
 
 		// Save for later
-		pm->add_plugin (handle, name);
+		pm->add_plugin (handle, name, new String (option));
 
 	}
 }

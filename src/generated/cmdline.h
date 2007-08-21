@@ -40,6 +40,11 @@ struct gengetopt_args_info
   int run_min; /* Run the specified plugin (may be specified multiple times)'s minimum occurreces */
   int run_max; /* Run the specified plugin (may be specified multiple times)'s maximum occurreces */
   const char *run_help; /* Run the specified plugin (may be specified multiple times) help description.  */
+  char ** r_option_arg;	/* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin).  */
+  char ** r_option_orig;	/* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin) original value given at command line.  */
+  int r_option_min; /* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)'s minimum occurreces */
+  int r_option_max; /* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)'s maximum occurreces */
+  const char *r_option_help; /* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin) help description.  */
   int read_ast_xml_flag;	/* Assume the input is a phc AST in XML format (default=off).  */
   const char *read_ast_xml_help; /* Assume the input is a phc AST in XML format help description.  */
   int no_validation_flag;	/* Toggle XML validation (default=on).  */
@@ -99,6 +104,7 @@ struct gengetopt_args_info
   int pretty_print_given ;	/* Whether pretty-print was given.  */
   int obfuscate_given ;	/* Whether obfuscate was given.  */
   unsigned int run_given ;	/* Whether run was given.  */
+  unsigned int r_option_given ;	/* Whether r-option was given.  */
   int read_ast_xml_given ;	/* Whether read-ast-xml was given.  */
   int no_validation_given ;	/* Whether no-validation was given.  */
   unsigned int c_option_given ;	/* Whether c-option was given.  */

@@ -37,6 +37,7 @@ const char *gengetopt_args_info_help[] = {
   "      --pretty-print       Pretty print input according to the Zend style \n                             guidelines  (default=off)",
   "      --obfuscate          Obfuscate input  (default=off)",
   "      --run=STRING         Run the specified plugin (may be specified multiple \n                             times)",
+  "      --r-option=STRING    Pass option to a plugin (specify multiple flags in \n                             the same order as multiple plugins - 1 option only \n                             per plugin)",
   "\nINPUT OPTIONS:",
   "      --read-ast-xml       Assume the input is a phc AST in XML format  \n                             (default=off)",
   "\nCOMPILATION OPTIONS:",
@@ -57,6 +58,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --pretty-print       Pretty print input according to the Zend style \n                             guidelines  (default=off)",
   "      --obfuscate          Obfuscate input  (default=off)",
   "      --run=STRING         Run the specified plugin (may be specified multiple \n                             times)",
+  "      --r-option=STRING    Pass option to a plugin (specify multiple flags in \n                             the same order as multiple plugins - 1 option only \n                             per plugin)",
   "\nINPUT OPTIONS:",
   "      --read-ast-xml       Assume the input is a phc AST in XML format  \n                             (default=off)",
   "      --no-validation      Toggle XML validation  (default=on)",
@@ -112,6 +114,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->pretty_print_given = 0 ;
   args_info->obfuscate_given = 0 ;
   args_info->run_given = 0 ;
+  args_info->r_option_given = 0 ;
   args_info->read_ast_xml_given = 0 ;
   args_info->no_validation_given = 0 ;
   args_info->c_option_given = 0 ;
@@ -139,6 +142,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->obfuscate_flag = 0;
   args_info->run_arg = NULL;
   args_info->run_orig = NULL;
+  args_info->r_option_arg = NULL;
+  args_info->r_option_orig = NULL;
   args_info->read_ast_xml_flag = 0;
   args_info->no_validation_flag = 1;
   args_info->c_option_arg = NULL;
@@ -179,32 +184,35 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->run_help = gengetopt_args_info_full_help[8] ;
   args_info->run_min = -1;
   args_info->run_max = -1;
-  args_info->read_ast_xml_help = gengetopt_args_info_full_help[10] ;
-  args_info->no_validation_help = gengetopt_args_info_full_help[11] ;
-  args_info->c_option_help = gengetopt_args_info_full_help[13] ;
+  args_info->r_option_help = gengetopt_args_info_full_help[9] ;
+  args_info->r_option_min = -1;
+  args_info->r_option_max = -1;
+  args_info->read_ast_xml_help = gengetopt_args_info_full_help[11] ;
+  args_info->no_validation_help = gengetopt_args_info_full_help[12] ;
+  args_info->c_option_help = gengetopt_args_info_full_help[14] ;
   args_info->c_option_min = -1;
   args_info->c_option_max = -1;
-  args_info->generate_c_help = gengetopt_args_info_full_help[14] ;
-  args_info->extension_help = gengetopt_args_info_full_help[15] ;
-  args_info->with_php_help = gengetopt_args_info_full_help[16] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[18] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[19] ;
-  args_info->no_nulls_help = gengetopt_args_info_full_help[20] ;
-  args_info->no_empty_lists_help = gengetopt_args_info_full_help[21] ;
-  args_info->tab_help = gengetopt_args_info_full_help[22] ;
-  args_info->dump_help = gengetopt_args_info_full_help[24] ;
+  args_info->generate_c_help = gengetopt_args_info_full_help[15] ;
+  args_info->extension_help = gengetopt_args_info_full_help[16] ;
+  args_info->with_php_help = gengetopt_args_info_full_help[17] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[19] ;
+  args_info->no_line_numbers_help = gengetopt_args_info_full_help[20] ;
+  args_info->no_nulls_help = gengetopt_args_info_full_help[21] ;
+  args_info->no_empty_lists_help = gengetopt_args_info_full_help[22] ;
+  args_info->tab_help = gengetopt_args_info_full_help[23] ;
+  args_info->dump_help = gengetopt_args_info_full_help[25] ;
   args_info->dump_min = -1;
   args_info->dump_max = -1;
-  args_info->udump_help = gengetopt_args_info_full_help[25] ;
+  args_info->udump_help = gengetopt_args_info_full_help[26] ;
   args_info->udump_min = -1;
   args_info->udump_max = -1;
-  args_info->ddump_help = gengetopt_args_info_full_help[26] ;
+  args_info->ddump_help = gengetopt_args_info_full_help[27] ;
   args_info->ddump_min = -1;
   args_info->ddump_max = -1;
-  args_info->xdump_help = gengetopt_args_info_full_help[27] ;
+  args_info->xdump_help = gengetopt_args_info_full_help[28] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[28] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[29] ;
   
 }
 
@@ -287,6 +295,28 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
       args_info->run_arg = 0;
       free (args_info->run_orig); /* free previous argument */
       args_info->run_orig = 0;
+    }
+  if (args_info->r_option_arg)
+    {
+      for (i = 0; i < args_info->r_option_given; ++i)
+        {
+          if (args_info->r_option_arg [i])
+            {
+              free (args_info->r_option_arg [i]); /* free previous argument */
+              args_info->r_option_arg [i] = 0;
+            }
+          if (args_info->r_option_orig [i])
+            {
+              free (args_info->r_option_orig [i]); /* free previous argument */
+              args_info->r_option_orig [i] = 0;
+            }
+        }
+      if (args_info->r_option_arg [0])
+        free (args_info->r_option_arg [0]); /* free default string */
+      free (args_info->r_option_arg); /* free previous argument */
+      args_info->r_option_arg = 0;
+      free (args_info->r_option_orig); /* free previous argument */
+      args_info->r_option_orig = 0;
     }
   if (args_info->c_option_arg)
     {
@@ -480,6 +510,16 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
           if (args_info->run_orig [i])
             {
               fprintf(outfile, "%s=\"%s\"\n", "run", args_info->run_orig [i]);
+            }
+        }
+    }
+  if (args_info->r_option_orig)
+    {
+      for (i = 0; i < args_info->r_option_given; ++i)
+        {
+          if (args_info->r_option_orig [i])
+            {
+              fprintf(outfile, "%s=\"%s\"\n", "r-option", args_info->r_option_orig [i]);
             }
         }
     }
@@ -789,6 +829,9 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->run_given, args_info->run_min, args_info->run_max, "'--run'"))
      error = 1;
   
+  if (check_multiple_option_occurrences(prog_name, args_info->r_option_given, args_info->r_option_min, args_info->r_option_max, "'--r-option'"))
+     error = 1;
+  
   if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
      error = 1;
   
@@ -819,6 +862,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   int i;        /* Counter */
 
   struct string_list * run_list = NULL,* run_new = NULL;
+  struct string_list * r_option_list = NULL,* r_option_new = NULL;
   struct string_list * c_option_list = NULL,* c_option_new = NULL;
   struct string_list * dump_list = NULL,* dump_new = NULL;
   struct string_list * udump_list = NULL,* udump_new = NULL;
@@ -851,6 +895,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "pretty-print",	0, NULL, 0 },
         { "obfuscate",	0, NULL, 0 },
         { "run",	1, NULL, 0 },
+        { "r-option",	1, NULL, 0 },
         { "read-ast-xml",	0, NULL, 0 },
         { "no-validation",	0, NULL, 0 },
         { "c-option",	1, NULL, 'C' },
@@ -1071,6 +1116,33 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
                     multi_token = get_multiple_arg_token(multi_next);
                     multi_next = get_multiple_arg_token_next (multi_next);
                     local_args_info.run_given++;
+                  }
+                else
+                  break;
+              }
+            break;
+          }
+          /* Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin).  */
+          else if (strcmp (long_options[option_index].name, "r-option") == 0)
+          {
+            local_args_info.r_option_given++;
+          
+            multi_token = get_multiple_arg_token(optarg);
+            multi_next = get_multiple_arg_token_next (optarg);
+          
+            while (1)
+              {
+                r_option_new = (struct string_list *) malloc (sizeof (struct string_list));
+                r_option_new->next = r_option_list;
+                r_option_list = r_option_new;
+                r_option_new->arg = gengetopt_strdup (multi_token);
+                r_option_new->orig = multi_token;
+          
+                if (multi_next)
+                  {
+                    multi_token = get_multiple_arg_token(multi_next);
+                    multi_next = get_multiple_arg_token_next (multi_next);
+                    local_args_info.r_option_given++;
                   }
                 else
                   break;
@@ -1301,6 +1373,21 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         }
     }
   
+  if (local_args_info.r_option_given && r_option_list)
+    {
+      struct string_list *tmp;
+      args_info->r_option_arg = (char * *) realloc (args_info->r_option_arg, (args_info->r_option_given + local_args_info.r_option_given) * sizeof (char *));
+      args_info->r_option_orig = (char **) realloc (args_info->r_option_orig, (args_info->r_option_given + local_args_info.r_option_given) * sizeof (char *));
+      for (i = (local_args_info.r_option_given - 1); i >= 0; --i)
+        {
+          tmp = r_option_list;
+          args_info->r_option_arg [i + args_info->r_option_given] = r_option_list->arg;
+          args_info->r_option_orig [i + args_info->r_option_given] = r_option_list->orig;
+          r_option_list = r_option_list->next;
+          free (tmp);
+        }
+    }
+  
   if (local_args_info.c_option_given && c_option_list)
     {
       struct string_list *tmp;
@@ -1379,6 +1466,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
 
   args_info->run_given += local_args_info.run_given;
   local_args_info.run_given = 0;
+  args_info->r_option_given += local_args_info.r_option_given;
+  local_args_info.r_option_given = 0;
   args_info->c_option_given += local_args_info.c_option_given;
   local_args_info.c_option_given = 0;
   args_info->dump_given += local_args_info.dump_given;
@@ -1436,6 +1525,18 @@ failure:
           free (run_list->arg);
           free (run_list->orig);
           run_list = run_list->next;
+          free (tmp);
+        }
+    }
+  if (r_option_list)
+    {
+      struct string_list *tmp;
+      while (r_option_list)
+        {
+          tmp = r_option_list;
+          free (r_option_list->arg);
+          free (r_option_list->orig);
+          r_option_list = r_option_list->next;
           free (tmp);
         }
     }

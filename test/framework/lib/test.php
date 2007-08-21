@@ -280,7 +280,7 @@ abstract class Test
 	function print_numbered ()
 	{
 		$files = $this->get_test_subjects();
-		$i = 0;
+		$i = 1;
 		foreach ($files as $file)
 		{
 			print "$i. $file\n";
