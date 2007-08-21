@@ -238,12 +238,12 @@ void Pass_manager::run_until (String* to, AST_php_script* in)
 	{
 		assert ((*i)->name);
 
-			(*i)->run (in, this);
-			check (in);
+		(*i)->run (in, this);
+		check (in);
 
-			// check for last pass
-			if (*((*i)->name) == *to)
-				break;
+		// check for last pass
+		if (*((*i)->name) == *to)
+			break;
 		// dont dump
 	}
 }
