@@ -853,7 +853,7 @@ cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
   zval *zvp = *p_zvp;
 
-  switch (zvp->type)
+  switch (type)
     {
     case IS_NULL:
       convert_to_null (zvp);
