@@ -358,7 +358,7 @@ separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 void
-separate_array (HashTable * st, char *var_name, int var_length,
+separate_array_entry (HashTable * st, char *var_name, int var_length,
 		char *ind_name, int ind_length, zval ** p_zvp,
 		int *is_zvp_new TSRMLS_DC)
 {
@@ -805,6 +805,25 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
     }
 
   var = *p_var;
+
+  // pass_by_ref and var->is_ref - do nothing
+  // pass_by_ref and !var->is_ref - separate
+  // !pass_by_ref and var->is_ref - do nothing
+  // !pass_by_ref and !var->is_ref - if not array, return uninit
+
+  if (pass_by_ref && !var->is_ref)
+    {
+      int is_var_new = 0;
+      // if we use p_var instead of &var, zend_hash_update throws
+      // an error and returns failure.
+      separate_var (st, name, name_length, &var, &is_var_new TSRMLS_CC);
+      if (is_var_new)
+	zval_ptr_dtor (&var);
+    }
+  else if (!pass_by_ref && !var->is_ref && Z_TYPE_P (var) != IS_ARRAY)
+    {
+      return EG (uninitialized_zval_ptr);
+    }
 
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);

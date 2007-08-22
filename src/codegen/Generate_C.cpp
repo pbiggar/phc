@@ -234,7 +234,7 @@ void separate (Scope scope, string zvp, AST_variable* var)
 			{
 				String* index = operand (var->array_indices->front());
 				cout
-					<< "separate_array ("
+					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
