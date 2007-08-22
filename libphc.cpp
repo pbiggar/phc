@@ -331,6 +331,91 @@ phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
     }
 }
 
+// Separate the RHS (that is, make a copy *and update the hashtable*)
+// See "Separation anxiety" in the PHP book
+void
+separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
+	      int *is_zvp_new TSRMLS_DC)
+{
+  /* For a reference assignment, the LHS is always updated
+   * to point to the RHS (even if the LHS is currently
+   * is_ref) However, if the RHS is in a copy-on-write set
+   * (refcount > 1 but not is_ref), it must be seperated
+   * first */
+  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+    return;
+
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+
+  (*p_zvp)->refcount++;
+  int result = zend_hash_update (st,
+				 name, length,
+				 p_zvp,
+				 sizeof (zval *), NULL);
+  assert (result == SUCCESS);
+}
+
+// Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
+// See "Separation anxiety" in the PHP book
+void
+separate_array (HashTable * st, char *var_name, int var_length,
+		char *ind_name, int ind_length, zval ** p_zvp,
+		int *is_zvp_new TSRMLS_DC)
+{
+  /* For a reference assignment, the LHS is always updated
+   * to point to the RHS (even if the LHS is currently
+   * is_ref) However, if the RHS is in a copy-on-write set
+   * (refcount > 1 but not is_ref), it must be seperated
+   * first */
+  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+    return;
+
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *ind = NULL;
+  zval **p_ind = &ind;
+
+  zval *zvp = *p_zvp;
+
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
+  if (var_exists)
+    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
+    var = *p_var;
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (st, var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    {
+      ALLOC_INIT_ZVAL (ind);
+    }
+
+  zvp->refcount++;
+  ht_update (ht, ind, zvp);
+
+  if (!ind_exists)
+    zval_ptr_dtor (&ind);
+}
+
+
+
+
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
@@ -473,7 +558,16 @@ write_array (HashTable * st, char *var_name, int var_length, char *ind_name,
   int var_exists = (zend_symtable_find (st, var_name, var_length,
 					(void **) &p_var) == SUCCESS);
   if (var_exists && *p_var != EG (uninitialized_zval_ptr))
-    var = *p_var;
+    {
+      // Note that we delibrately use separate_var, and not separate_array.
+      int is_var_new = 0;
+      var = *p_var;
+      // if we use p_var instead of &var, zend_hash_update throws
+      // an error and returns failure.
+      separate_var (st, var_name, var_length, &var, &is_var_new TSRMLS_CC);
+      if (is_var_new)
+	zval_ptr_dtor (p_var);
+    }
   else
     {
       // if no var, create it and add it to the symbol table
@@ -526,89 +620,6 @@ write_array (HashTable * st, char *var_name, int var_length, char *ind_name,
     zval_ptr_dtor (&ind);
 }
 
-// Separate the RHS (that is, make a copy *and update the hashtable*)
-// See "Separation anxiety" in the PHP book
-void
-separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
-	      int *is_zvp_new TSRMLS_DC)
-{
-  /* For a reference assignment, the LHS is always updated
-   * to point to the RHS (even if the LHS is currently
-   * is_ref) However, if the RHS is in a copy-on-write set
-   * (refcount > 1 but not is_ref), it must be seperated
-   * first */
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-    return;
-
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-
-  (*p_zvp)->refcount++;
-  int result = zend_hash_update (st,
-				 name, length,
-				 p_zvp,
-				 sizeof (zval *), NULL);
-  assert (result == SUCCESS);
-}
-
-// Separate the RHS (that is, make a copy *and update the hashtable*)
-// See "Separation anxiety" in the PHP book
-void
-separate_array (HashTable * st, char *var_name, int var_length,
-		char *ind_name, int ind_length, zval ** p_zvp,
-		int *is_zvp_new TSRMLS_DC)
-{
-  /* For a reference assignment, the LHS is always updated
-   * to point to the RHS (even if the LHS is currently
-   * is_ref) However, if the RHS is in a copy-on-write set
-   * (refcount > 1 but not is_ref), it must be seperated
-   * first */
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-    return;
-
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
-
-  zval *zvp = *p_zvp;
-
-  int var_exists = (zend_symtable_find (st, var_name, var_length,
-					(void **) &p_var) == SUCCESS);
-  if (var_exists)
-    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
-    var = *p_var;
-  else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_symtable_update (st, var_name, var_length,
-			    &var, sizeof (zval *), NULL);
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
-
-  // find the index
-  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
-					(void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      ALLOC_INIT_ZVAL (ind);
-    }
-
-  zvp->refcount++;
-  ht_update (ht, ind, zvp);
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
-}
-
-
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 void
@@ -626,6 +637,8 @@ push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
     {
       int is_var_new = 0;
       var = *p_var;
+      // if we use p_var instead of &var, zend_has_update throws
+      // an error and returns failure.
       separate_var (st, var_name, var_length, &var, &is_var_new TSRMLS_CC);
       if (is_var_new)
 	zval_ptr_dtor (p_var);
@@ -786,7 +799,7 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
 
   int var_exists = (zend_symtable_find (st, name, name_length,
 					(void **) &p_var) == SUCCESS);
-  if (!var_exists)
+  if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
     {
       return EG (uninitialized_zval_ptr);
     }
