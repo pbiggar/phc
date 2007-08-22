@@ -39,19 +39,20 @@ public:
 	{
 		stringstream var_name;
 		var->visit (new PHP_unparser (var_name));
+		var_name << ": ";
 
 		// If we dont shred it, we cant generate code for it
 
-		// echo ("\$var: ");
-		AST_statement* echo = new AST_eval_expr (
+		// printf ("\$var: ");
+		AST_statement* print = new AST_eval_expr (
 				new AST_method_invocation (
 					NULL,
-					new Token_method_name (new String ("echo")),
+					new Token_method_name (new String ("printf")),
 					new List<AST_actual_parameter*> (
 						new AST_actual_parameter (false, 
-							new Token_string (new String (var_name.str ()))),
-						new AST_actual_parameter (false, 
-							new Token_string (new String (": ")))
+							new Token_string (new String (var_name.str ())))//,
+//						new AST_actual_parameter (false, 
+//							new Token_string (new String (": ")))
 							)));
 
 		// Replace $x[] with just $x
@@ -76,7 +77,7 @@ public:
 		 * (Its hard to decide if this is a bug or not. Declaring it a bug would
 		 * mean that we'd have to support passing any AST_node to any point in
 		 * the pass queue. I dont think that's a good idea). */
-		List<AST_statement*>* shredded = new List<AST_statement*> (echo, dump);
+		List<AST_statement*>* shredded = new List<AST_statement*> (print, dump);
 		AST_php_script* wrap = new AST_php_script (shredded);
 		pm->run_from_to (new String ("lcf"), new String ("shred"), wrap);
 		debugs->push_back_all (wrap->statements);
