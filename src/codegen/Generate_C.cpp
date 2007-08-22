@@ -175,6 +175,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
+				assert (var->array_indices->size() == 0);
 				cout
 					<< "// Array pushing\n"
 					<< "push_var ("
@@ -251,6 +252,7 @@ void separate (Scope scope, string zvp, AST_variable* var)
 		}
 		else
 		{
+			assert (var->array_indices->size() == 0);
 			cout 
 				<< "separate_var (" 
 				<<		get_scope (scope) << ", "
@@ -312,6 +314,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 		}
 		else
 		{
+			assert (var->array_indices->size() == 0);
 			cout 
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
@@ -372,6 +375,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		}
 		else
 		{
+			assert (var->array_indices->size() == 0);
 			cout 
 				<< "// Read normal variable\n"
 				<< zvp << " = read_var (" 
@@ -393,256 +397,6 @@ void read (Scope scope, string zvp, AST_expr* expr)
 	}
 }
 
-// Find the zval described by VAR and generate code to store it in ZVP.
-// SCOPE only applies to the top-level variable! (i.e., the variable used
-// to index a variable variable, or the variable used as an array index
-// are always taken from the local scope). 
-//
-// If VAR doesnt exist, it will be created (although if it is a array acces, it
-// will not be added to the accessed hashtable). If the run-time indicates that
-// VAR is required by reference, then VAR will be added to the symbol-table.
-// Additionally, if VAR involves an array index, _and_ is used by reference,
-// then VAR will be turned into an array and written back to the symbol table,
-// and a NULL inserted in the indexed position.
-//
-// The returned value (in the generated code) has its refcount incremented.
-void index_st_rhs (Scope scope, string zvp, AST_variable* var)
-{
-	assert (0);
-	// Variable variable or ordinary variable?
-	Token_variable_name* name;
-	name = dynamic_cast<Token_variable_name*>(var->variable_name);
-
-	// TODO: deal with object indexing
-	assert(var->target == NULL);
-
-	string hash = get_scope (scope);
-
-	if(name != NULL)
-	{
-		// find var, or create it (inserting if necessary)
-		lookup (scope, name, zvp);
-
-		if (var->array_indices->size() == 1)
-		{
-			// acces rhs as an array
-			assert (var->array_indices->front () != NULL);
-			String* ind = operand(var->array_indices->front());
-
-
-			// if its not an array, turn it into one
-			cout 
-				<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
-				<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
-				<< "	{\n"
-				<< "		array_init (" << zvp << ");" // uses a preallocated zval
-				<< "	}\n"
-				<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
-
-				<< "// We need to keep the array to free it in a moment\n"
-				<< "zval* rhs_arr = rhs;\n"
-
-				<< "HashTable* ht = Z_ARRVAL_P (" << zvp << ");"
-				<< "zval* ind = index_ht (" // dont add the index if its missing
-				<<						"EG(active_symbol_table), "
-				<< "					\"" << *ind << "\", "
-				<<						ind->length() + 1 << ", "
-				<<	"					0);\n"
-				<< zvp << " = index_ht_zval (ht, ind, use_ref);\n"
-
-				<< "// We no longer need the array\n"
-				<< "zval_ptr_dtor (&rhs_arr);\n";
-		}
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		assert(var->array_indices->size() == 0);
-
-		AST_reflection* refl;
-		refl = dynamic_cast<AST_reflection*>(var->variable_name);
-		String* name = operand(refl->expr);
-		cout
-			<< "zval* name = index_ht (EG(active_symbol_table), "
-			<< "										\"" << *name << "\", "
-			<<											name->length() + 1 << ", "
-			<<	"										0);\n"
-			<<	zvp << " = index_ht_zval(" << hash << ", name, use_ref);\n"
-			<< "zval_ptr_dtor (name)\n";
-	}
-}
-
-
-// TODO strings
-// Find the zval described by VAR and generate code to store it in ZVP.
-// SCOPE only applies to the top-level variable! (i.e., the variable used
-// to index a variable variable, or the variable used as an array index
-// are always taken from the local scope). 
-//
-// If VAR doesnt exist, it will be created and added to the symbol table.
-// If VAR involves an array index or an array push, the ZVP will be turned
-// into an array, and written back to the symbol-table.
-//
-// In the case of array indexing, $VAR[index] will be stored in ZVP.
-// Otherwise (simple access or array pushing), the symbol-table entry for VAR
-// will be stored in ZVP.
-//
-// In either variable case, the hashtable ZVP_ht will be generate, and in the
-// array index case, ZVP_ind will be generate, and available for later
-// generated code.
-//
-// TODO really?: The returned value (in the generated code) has its refcount incremented.
-void index_st_lhs (Scope scope, string zvp, AST_variable* var)
-{
-	assert (0);
-	// Variable variable or ordinary variable?
-	Token_variable_name* name;
-	name = dynamic_cast<Token_variable_name*>(var->variable_name);
-
-	// TODO: deal with object indexing
-	assert(var->target == NULL);
-
-	string hash = get_scope (scope);
-
-	if(name != NULL)
-	{
-		lookup (scope, name, zvp);
-
-		if (var->array_indices->size() == 1)
-		{
-			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				String* ind = operand(var->array_indices->front());
-
-				// - new (not array)
-				// - found and array
-				// - found and not array
-				// TODO it seems that we're a refcount off here in one case or the other
-
-				// if its not an array, turn it into one
-				cout 
-					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
-					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
-					<< "	{\n"
-					<< "		array_init (" << zvp << ");" // uses a preallocated zval
-					<< "	}\n"
-					<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
-					<< "\n"
-					<< "HashTable* " << zvp << "_ht = Z_ARRVAL_P (" << zvp << ");"
-					<< "zval* " << zvp << "_ind = index_ht ("
-					<<						"EG(active_symbol_table), "
-					<< "					\"" << *ind << "\"" << ", "
-					<<						ind->length() + 1 << ", "
-					<<	"					0);\n"
-					<< zvp << " = index_ht_zval (" << zvp << "_ht, "
-					<<										zvp << "_ind, 1);\n";
-			}
-			else
-			{
-				cout 
-					<< "if (Z_TYPE_P(" << zvp << ") != IS_ARRAY "
-					<<	" && Z_TYPE_P(" << zvp << ") != IS_STRING)\n"
-					<< "	{\n"
-					<< "		array_init (" << zvp << ");" // uses a preallocated zval
-					<< "	}\n"
-					<< "assert (Z_TYPE_P (" << zvp << ") == IS_ARRAY); // TODO" // TODO string
-					<< "\n"
-					<< "HashTable* " << zvp << "_ht = Z_ARRVAL_P (" << zvp << ");";
-
-			}
-		}
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		assert(var->array_indices->size() == 0);
-
-		AST_reflection* refl;
-		refl = dynamic_cast<AST_reflection*>(var->variable_name);
-
-		String* name = operand(refl->expr);
-		cout
-			<< "zval* " << zvp << "_name = index_ht (EG(active_symbol_table), "
-			<< "										\"" << *name << "\", "
-			<<											name->length() + 1 << ", "
-			<<	"										0);\n"
-			<<	zvp << " = index_ht_zval (" << hash << ", " << zvp << "_name);\n";
-	}
-}
-
-// Update the variable VAR with SOURCE, incrementing SOURCE's refcount.
-// Scope only applies to the top-level variable! (i.e., the variable used
-// to index a variable variable, or the variable used as an array index
-// are always taken from the local scope). If VAR is an array, use variables in
-// TARGET for the array and indices.
-void update_st(Scope scope, AST_variable* var, string target, string source)
-{
-	assert (0);
-	// We need to update, instead of deleting and then adding.
-	// The latter reorders the hashtable, which isnt correct
-	// (say if we add the same key twice, once at the front,
-	// and once at the end, it should end up at the front).
-
-	string hash = get_scope (scope);
-
-	// Variable variable or ordinary variable?
-	Token_variable_name* name;
-	name = dynamic_cast<Token_variable_name*>(var->variable_name);
-
-	cout << source << "->refcount++;\n";
-	
-	// Ordinary variable
-	if(name != NULL)
-	{
-		if(var->array_indices->size() == 0)
-		{
-			cout 
-				<< "zend_hash_update(" << hash << ", "
-				<<			"\"" << *name->value << "\", "
-				<<			name->value->length() + 1 << ", "
-				<<			"&" << source << ", sizeof(zval*), NULL);\n";
-		}
-		else 
-		{
-			assert (target != "");
-			if (var->array_indices->front() != NULL)
-			{
-				// The ZVP_ht and ZVP_ind variables are already set up.
-				cout 
-					<< "update_ht("	<< target << "_ht, " 
-											<< target << "_ind, " 
-											<< source << ");\n";
-			}
-			else 
-			{
-				// The ZVP_ht variable is already set up.
-				// Assign to next available index.
-				cout
-					<< "zend_hash_next_index_insert (" << target << "_ht, "
-					<<	"	&" << source << ", sizeof(zval*), NULL);\n";
-			}
-		}
-	}
-	else
-	{
-		// After the shredder, this should be 0
-		assert(var->array_indices->size() == 0);
-
-		cout
-			<< "update_ht(" << hash << ", " << target << "_name, " << source << ");\n"
-			<< "zval_ptr_dtor (" << target << "_name);\n // clear up";
-		;
-	}
-}
-	
-// Make a copy of zvp 
-void clone(string zvp)
-{
-	assert (0);
-}
 
 // Implementation of "global" (used in various places)
 void global(AST_variable_name* var_name, bool separate_var)
@@ -1459,6 +1213,7 @@ public:
 			cout << "new_args[" << index << "] = 0;\n";
 			if (var->array_indices->size ())
 			{
+				assert (var->array_indices->size () == 1);
 				String* ind_name = operand(var->array_indices->front ());
 				cout
 					<< "	args[" << index << "] = fetch_array_arg ("
