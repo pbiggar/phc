@@ -1145,9 +1145,9 @@ public:
 		// check for non-existant functions
 		<< "if (signature == NULL) {"
 		<< "	phc_exit_status = -1;\n"
-		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << " TSRMLS_CC);\n"
+		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << ", NULL TSRMLS_CC);\n"
 		<< "	php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
-		<< "	phc_setup_error (0, NULL, 0 TSRMLS_CC);\n"
+		<< "	phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
 		<<	"}\n";
 
 
@@ -1245,15 +1245,20 @@ public:
 		}
 
 		cout
-		<< "// Call the function\n"
-		<< "int success;\n"	
-		//<< "MAKE_STD_ZVAL(rhs);\n"
-		<< "success = call_user_function_ex(EG(function_table), " 
-		<< "NULL, function_name_ptr, &rhs, " 
-		<< num_args << ", args_ind, "
-		<< "0, NULL TSRMLS_CC);\n"
-		<< "assert(success == SUCCESS);\n"
-		;
+			<< "phc_setup_error (1, " 
+			<<				rhs->get_filename () << ", " 
+			<<				rhs->get_line_number () << ", "
+			<< "			NULL TSRMLS_CC);\n"
+			<< "// Call the function\n"
+			<< "int success;\n"	
+			//<< "MAKE_STD_ZVAL(rhs);\n"
+			<< "success = call_user_function_ex(EG(function_table), " 
+			<< "					NULL, function_name_ptr, &rhs, " 
+			<<						num_args << ", args_ind, "
+			<<						"0, NULL TSRMLS_CC);\n"
+			<< "assert(success == SUCCESS);\n"
+			<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
+			;
 
 		// Workaround a bug (feature?) of the Zend API that I don't know how to
 		// solve otherwise. It seems that Zend resets the refcount and is_ref

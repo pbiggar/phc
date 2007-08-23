@@ -301,12 +301,13 @@ overwrite_lhs (zval * lhs, zval * rhs)
 
 // TODO dont overwrite line numbers if we're compiling an extension
 void
-phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
+phc_setup_error (int init, char *filename, int line_number, zend_function* function TSRMLS_DC)
 {
   static int old_in_compilation;
   static int old_in_execution;
   static char *old_filename;
   static int old_lineno;
+  static zend_function* old_function;
   if (init)
     {
       if (filename == NULL)
@@ -316,11 +317,14 @@ phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
       old_in_execution = EG (in_execution);
       old_filename = CG (compiled_filename);
       old_lineno = CG (zend_lineno);
+      old_function = EG (function_state_ptr)->function;
       // Put in our values
       CG (in_compilation) = 1;
       EG (in_execution) = 1;
       CG (compiled_filename) = filename;
       CG (zend_lineno) = line_number;
+      if (function)
+	 EG (function_state_ptr)->function = function;
     }
   else
     {
@@ -328,6 +332,7 @@ phc_setup_error (int init, char *filename, int line_number TSRMLS_DC)
       EG (in_execution) = old_in_execution;
       CG (compiled_filename) = old_filename;
       CG (zend_lineno) = old_lineno;
+      EG (function_state_ptr)->function = old_function;
     }
 }
 
