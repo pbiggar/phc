@@ -354,7 +354,7 @@ separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
 void
 separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
-  zval* old = *p_zvp;
+  zval *old = *p_zvp;
   assert (old != EG (uninitialized_zval_ptr));
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
   zval_ptr_dtor (&old);
@@ -749,7 +749,7 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
   if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
-     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
+    separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -767,7 +767,7 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
 }
 
 /* Dont pass-by-ref */
-zval **
+zval *
 fetch_var_arg (HashTable * st, char *name, int name_length,
 	       int *is_arg_new TSRMLS_DC)
 {
@@ -779,20 +779,30 @@ fetch_var_arg (HashTable * st, char *name, int name_length,
     }
 
   if (p_arg == &EG (uninitialized_zval_ptr))
-    return p_arg;
+    return *p_arg;
 
-  // Since we dont pass by ref, we only need to separate if we have a ref. Otherwise, it will be separated later.
+  zval *arg = *p_arg;
+
+  // Since we dont pass by ref, we only need to separate if we have a
+  // ref. Otherwise, it will be separated later.
   // TODO It should be separated later no matter what, no?
 
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
-  if ((*p_arg)->is_ref)
-  {
-     assert (*p_arg != EG (uninitialized_zval_ptr));
-     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
-  }
+  if (arg->is_ref)
+    {
+      // Dont update the original, make a copy
+      assert (arg != EG (uninitialized_zval_ptr));
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
 
-  return p_arg;
+      // It seems we get incorrect refcounts without this
+      // TODO This decreases the refcount to zero, which seems wrong,
+      // but gives the right answer. We should look at how zend does
+      // this.
+      arg->refcount--;
+    }
+
+  return arg;
 }
 
 zval **
@@ -833,7 +843,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
 	  // write back.
 	  int is_var_new = 0;
 	  if ((*p_var)->refcount > 1 && !(*p_var)->is_ref)
-	     separate_zvpp (p_var, &is_var_new TSRMLS_CC);
+	    separate_zvpp (p_var, &is_var_new TSRMLS_CC);
 	}
     }
 
@@ -866,7 +876,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
   // We know that p_arg points into the hashtable. Therefore we can
   // just clone it, and dont need to update the hashtable.
   if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
-     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
+    separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -884,7 +894,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
 }
 
 /* Dont pass-by-ref */
-zval **
+zval *
 fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
 		 int ind_length, int *is_arg_new TSRMLS_DC)
 {
@@ -896,7 +906,7 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
     {
-      return &EG (uninitialized_zval_ptr);
+      return EG (uninitialized_zval_ptr);
     }
   else
     {
@@ -905,7 +915,7 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
 
       if (Z_TYPE_P (*p_var) != IS_ARRAY)
 	{
-	  return &EG (uninitialized_zval_ptr);
+	  return EG (uninitialized_zval_ptr);
 	}
     }
 
@@ -921,23 +931,36 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
   // find the var
   int arg_exists = (ht_find (ht, *p_ind, &p_arg) == SUCCESS);
   if (!arg_exists)
-    return &EG (uninitialized_zval_ptr);
+    return EG (uninitialized_zval_ptr);
 
   if (*p_arg == EG (uninitialized_zval_ptr))
     {
+      return EG (uninitialized_zval_ptr);
       // after the find, p_arg is the address of the ht entry, which contains a zval*. This can be updated by the function call.
-      ht_update (ht, *p_ind, *p_arg);
-      int result = ht_find (ht, *p_ind, &p_arg);
-      assert (result == SUCCESS);
-      return p_arg;
+      //      ht_update (ht, *p_ind, *p_arg);
+      //    int result = ht_find (ht, *p_ind, &p_arg);
+      //    assert (result == SUCCESS);
+      //   return p_arg;
     }
+  zval *arg = *p_arg;
 
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
-  if ((*p_arg)->is_ref)
-     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
-  return p_arg;
+  if (arg->is_ref)
+    {
+      // Dont update the original, make a copy
+      assert (arg != EG (uninitialized_zval_ptr));
+      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+
+      // It seems we get incorrect refcounts without this
+      // TODO This decreases the refcount to zero, which seems wrong,
+      // but gives the right answer. We should look at how zend does
+      // this.
+      arg->refcount--;
+    }
+
+  return arg;
 }
 
 void
@@ -993,7 +1016,7 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
   int var_exists = (zend_symtable_find (st, var_name, var_length,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists)
-     return;
+    return;
 
   if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
     {

@@ -1194,11 +1194,8 @@ public:
 				;
 		}
 		cout 
-			<< "// it may be that the argument is in a hashtable, in\n"
-			<< "// which case we need to pass the pointer into the\n"
-			<< "// ht, not the address of a copy of the pointer in \n"
-			<< "// the stack frame\n"
-			<< "zval** args_ind[" << num_args  << "];\n";
+			<< "zval** args_ind[" << num_args  << "];\n"
+			<< "zval* args[" << num_args  << "];\n";
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
@@ -1214,6 +1211,12 @@ public:
 				= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 			cout << "new_args[" << index << "] = 0;\n";
+			/* If we need a point that goes straight into the
+			 * hashtable, which we do for pass-by-ref, then we return a
+			 * zval**, straight into args_ind. Otherwise we return a
+			 * zval*, put it in args, and fetch it into args_ind after.
+			 * (It is difficult to return a zval** which doesnt point
+			 * into its containing hashtable, otherwise. */
 			if (var->array_indices->size ())
 			{
 				assert (var->array_indices->size () == 1);
@@ -1229,13 +1232,16 @@ public:
 					<<				ind_name->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					<< "else\n"
-					<< "	args_ind[" << index << "] = fetch_array_arg ("
+					<< "{\n"
+					<< "  args[" << index << "] = fetch_array_arg ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];"
+					<< "}\n"
 					;
 			}
 			else
@@ -1248,11 +1254,14 @@ public:
 					<<				name->value->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					<< "else\n"
-					<< "	args_ind[" << index << "] = fetch_var_arg ("
+					<< "{\n"
+					<< "  args[" << index << "] = fetch_var_arg ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];"
+					<< "}\n"
 					;
 
 			}
