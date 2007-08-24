@@ -351,6 +351,10 @@ separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
 /* Assuming that p_zvp points into a hashtable, we decrease the
  * refcount of the currently pointed to object, then clone it, and
  * insert it into the hashtable */
+// TODO Separation writes into the array, which automatically calls
+// the zval_ptr_dtor. However, if the array doesnt have a registered
+// destructor, then we shouldnt be calling this.
+//
 void
 separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
