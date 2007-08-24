@@ -5,6 +5,9 @@
  * cant safely use zend_hash_X versions for hashtable. Well-named, they are.
  */
 
+
+/* An important note of zval*s and zval**s. Frequently, zval** are fetched from arrays and symbol tables. The zval** will point into the array, and so updating it will update the relevant array entry. It is normally not the same to dereference it to a local varaible, and pass a reference to that */
+
 // Some common functions
 #include "php.h"
 static int phc_exit_status = 0;
@@ -26,7 +29,8 @@ extract_ht (zval * arr TSRMLS_DC)
 }
 
 /* Using IND as a key to HT, call the appropriate zend_index_X
- * function with data as a parameter, and return its result. */
+ * function with data as a parameter, and return its result. This
+ * updates the zval** pointed to by DATA. */
 int
 ht_find (HashTable * ht, zval * ind, zval *** data)
 {
@@ -236,7 +240,6 @@ void
 ht_var_debug (HashTable * st, char *name)
 {
   zval **p_zvp;
-  zval *zvp;
   if (zend_symtable_find (st, name, strlen (name) + 1,
 			  (void **) &p_zvp) != SUCCESS)
     {
@@ -244,14 +247,13 @@ ht_var_debug (HashTable * st, char *name)
       return;
     }
 
-  zvp = *p_zvp;
-  if (Z_TYPE_P (zvp) != IS_ARRAY)
+  if (Z_TYPE_P (*p_zvp) != IS_ARRAY)
     {
       printf ("NOT HASH\n");
       return;
     }
 
-  ht_debug (zvp->value.ht);
+  ht_debug ((*p_zvp)->value.ht);
 }
 
 
@@ -268,12 +270,6 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   assert (is_zvp_new);
   assert (*is_zvp_new == 0);	// TODO lower refcount if its already new
   *is_zvp_new = 1;
-  /*
-     if (is_zvp_new && *is_zvp_new)       // if its new, we have the only reference
-     {
-     zval_ptr_dtor (p_zvp);
-     *is_zvp_new = 0;
-     } */
   *p_zvp = clone;
 }
 
@@ -288,26 +284,18 @@ overwrite_lhs (zval * lhs, zval * rhs)
   lhs->value = rhs->value;
   lhs->type = rhs->type;
   zval_copy_ctor (lhs);
-  // Delete RHS if it is a temp;
-  if (rhs->refcount == 0)
-    {
-      // TODO use p_rhs? (would need to be passed)
-      assert (0);		// this doesnt look right
-      // zval_ptr_dtor decrements refcount and deletes the zval when 0
-      rhs->refcount = 1;
-      zval_ptr_dtor (&rhs);
-    }
 }
 
 // TODO dont overwrite line numbers if we're compiling an extension
 void
-phc_setup_error (int init, char *filename, int line_number, zend_function* function TSRMLS_DC)
+phc_setup_error (int init, char *filename, int line_number,
+		 zend_function * function TSRMLS_DC)
 {
   static int old_in_compilation;
   static int old_in_execution;
   static char *old_filename;
   static int old_lineno;
-  static zend_function* old_function;
+  static zend_function *old_function;
   if (init)
     {
       if (filename == NULL)
@@ -324,7 +312,7 @@ phc_setup_error (int init, char *filename, int line_number, zend_function* funct
       CG (compiled_filename) = filename;
       CG (zend_lineno) = line_number;
       if (function)
-	 EG (function_state_ptr)->function = function;
+	EG (function_state_ptr)->function = function;
     }
   else
     {
@@ -364,15 +352,16 @@ separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
 // See "Separation anxiety" in the PHP book
 void
 separate_array_entry (HashTable * st, char *var_name, int var_length,
-		char *ind_name, int ind_length, zval ** p_zvp,
-		int *is_zvp_new TSRMLS_DC)
+		      char *ind_name, int ind_length, zval ** p_zvp,
+		      int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
    * is_ref) However, if the RHS is in a copy-on-write set
    * (refcount > 1 but not is_ref), it must be seperated
    * first */
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+  if ((*p_zvp) != EG (uninitialized_zval_ptr)
+      && !((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
     return;
 
   zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
@@ -417,9 +406,6 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
   if (!ind_exists)
     zval_ptr_dtor (&ind);
 }
-
-
-
 
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
@@ -733,45 +719,24 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
     zval_ptr_dtor (&ind);
 }
 
-
-zval *
-fetch_var_arg (HashTable * st, char *name, int name_length, int pass_by_ref,
-	       int *is_arg_new TSRMLS_DC)
+zval **
+fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
+		      int *is_arg_new TSRMLS_DC)
 {
   zval **p_arg = NULL;
-  zval *arg;
   if (zend_symtable_find (st, name, name_length, (void **) &p_arg) != SUCCESS)
     {
       // we only do this for variables to be passed to function calls
-      arg = EG (uninitialized_zval_ptr);
+      p_arg = &EG (uninitialized_zval_ptr);
     }
-  else
-    arg = *p_arg;
 
-  if (arg == EG (uninitialized_zval_ptr))
-    return arg;
+  // TODO what if p_arg != &EG(uninitialized_zval_ptr)
+  if (*p_arg == EG (uninitialized_zval_ptr))
+    return p_arg;
 
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
-  if (arg->refcount > 1 && !arg->is_ref && pass_by_ref)
-    {
-      assert (arg != EG (uninitialized_zval_ptr));
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
-
-      arg->refcount++;
-      zend_hash_update (st, name, name_length, &arg, sizeof (zval *), NULL);
-    }
-
-  // Clone argument if it is part of a change-on-write
-  // set, and we are *not* passing by reference
-  if (arg->is_ref && !pass_by_ref)
-    {
-      assert (arg != EG (uninitialized_zval_ptr));
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
-      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
-    }
-
-
+  separate_var (st, name, name_length, p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -783,94 +748,115 @@ fetch_var_arg (HashTable * st, char *name, int name_length, int pass_by_ref,
   // not, that means that the variable would have been
   // in a copy-on-write set, and would have been
   // seperated above).
-  if (pass_by_ref)
-    arg->is_ref = 1;
+  (*p_arg)->is_ref = 1;
 
-  return arg;
+  return p_arg;
 }
 
-zval *
-fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
-		 int ind_length, int pass_by_ref, int *is_arg_new TSRMLS_DC)
+/* Dont pass-by-ref */
+zval **
+fetch_var_arg (HashTable * st, char *name, int name_length,
+	       int *is_arg_new TSRMLS_DC)
+{
+  zval **p_arg;
+  if (zend_symtable_find (st, name, name_length, (void **) &p_arg) != SUCCESS)
+    {
+      // we only do this for variables to be passed to function calls
+      p_arg = &EG (uninitialized_zval_ptr);
+    }
+
+  if (p_arg == &EG (uninitialized_zval_ptr))
+    return p_arg;
+
+  // Since we dont pass by ref, we only need to separate if we have a ref. Otherwise, it will be separated later.
+  // TODO It should be separated later no matter what, no?
+
+  // Clone argument if it is part of a change-on-write
+  // set, and we are *not* passing by reference
+  if ((*p_arg)->is_ref)
+    {
+      assert (*p_arg != EG (uninitialized_zval_ptr));
+      zvp_clone (p_arg, is_arg_new TSRMLS_CC);
+      (*p_arg)->refcount--;	// cloned vars have lower refcounts. Not positive why yet 
+      // TODO why is this
+    }
+
+  return p_arg;
+}
+
+zval **
+fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
+			char *ind_name, int ind_length,
+			int *is_arg_new TSRMLS_DC)
 {
   zval **p_var;
-  zval *var;
-
   zval **p_ind;
-  zval *ind;
-
   zval **p_arg;
-  zval *arg;
 
   int var_exists = (zend_symtable_find (st, name, name_length,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
     {
-      return EG (uninitialized_zval_ptr);
+      // We want to create a new array, which the passed var
+      // would be part of. Additionally, the var needs to be
+      // written back after creation.
+      zval *var;
+      ALLOC_INIT_ZVAL (var);
+      int result = zend_hash_update (st,
+				     name, name_length,
+				     &var,
+				     sizeof (zval *), NULL);
+      assert (result == SUCCESS);
+
+      /* Set p_var to point into the symbol table. */
+      result = zend_hash_find (st, name, name_length, (void **) &p_var);
+      assert (result == SUCCESS);
     }
-
-  var = *p_var;
-
-  // pass_by_ref and var->is_ref - do nothing
-  // pass_by_ref and !var->is_ref - separate
-  // !pass_by_ref and var->is_ref - do nothing
-  // !pass_by_ref and !var->is_ref - if not array, return uninit
-
-  if (pass_by_ref && !var->is_ref)
+  else
     {
-      int is_var_new = 0;
-      // if we use p_var instead of &var, zend_hash_update throws
-      // an error and returns failure.
-      separate_var (st, name, name_length, &var, &is_var_new TSRMLS_CC);
-      if (is_var_new)
-	zval_ptr_dtor (&var);
-    }
-  else if (!pass_by_ref && !var->is_ref && Z_TYPE_P (var) != IS_ARRAY)
-    {
-      return EG (uninitialized_zval_ptr);
+      // Since we'll be passing a pointer into this hashtable, we
+      // need to separate it now.
+      if (!(*p_var)->is_ref)
+	{
+	  // p_var already points into the symtable, so we dont need to
+	  // write back.
+	  int is_var_new = 0;
+	  zvp_clone (p_var, &is_var_new TSRMLS_CC);
+	  if (is_var_new)
+	    zval_ptr_dtor (p_var);
+	}
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+
 
   // find the index
   int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
 					(void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    ind = EG (uninitialized_zval_ptr);
+  if (!ind_exists)
+    p_ind = &EG (uninitialized_zval_ptr);
+
 
   // find the var
-  int arg_exists = (ht_find (ht, ind, &p_arg) == SUCCESS);
-  if (arg_exists)
-    arg = *p_arg;
-  else
-    arg = EG (uninitialized_zval_ptr);
-
-  if (arg == EG (uninitialized_zval_ptr))
-    return arg;
+  int arg_exists = (ht_find (ht, *p_ind, &p_arg) == SUCCESS);
+  if (!arg_exists)
+    {
+      // The argument needs to be put into the array. Add it, and set
+      // p_arg to point to the bucket containing it.
+      ht_update (ht, *p_ind, EG (uninitialized_zval_ptr));
+      int result = ht_find (ht, *p_ind, &p_arg);
+      assert (result == SUCCESS);
+      return p_arg;
+    }
 
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
-  if (arg->refcount > 1 && !arg->is_ref && pass_by_ref)
-    {
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
-      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
 
-      arg->refcount++;
-      ht_update (ht, ind, arg);
-    }
-
-  // Clone argument if it is part of a change-on-write
-  // set, and we are *not* passing by reference
-  if (arg->is_ref && !pass_by_ref)
-    {
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
-      arg->refcount--;		// cloned vars have lower refcounts. Not positive why yet
-
-      // TODO why dont we write back in this case
-    }
+  // We know that p_arg points into the hashtable. Therefore we can
+  // just clone it, and dont need to update the hashtable.
+  if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
+    zvp_clone (p_arg, is_arg_new TSRMLS_CC);
 
 
   // We don't need to restore ->is_ref afterwards,
@@ -883,10 +869,69 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
   // not, that means that the variable would have been
   // in a copy-on-write set, and would have been
   // seperated above).
-  if (pass_by_ref)
-    arg->is_ref = 1;
+  (*p_arg)->is_ref = 1;
 
-  return arg;
+  return p_arg;
+}
+
+/* Dont pass-by-ref */
+zval **
+fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
+		 int ind_length, int *is_arg_new TSRMLS_DC)
+{
+  zval **p_var;
+  zval **p_ind;
+  zval **p_arg;
+
+  int var_exists = (zend_symtable_find (st, name, name_length,
+					(void **) &p_var) == SUCCESS);
+  if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
+    {
+      return &EG (uninitialized_zval_ptr);
+    }
+  else
+    {
+      // !pass_by_ref and var->is_ref - do nothing
+      // !pass_by_ref and !var->is_ref - if not array, return uninit
+
+      if (Z_TYPE_P (*p_var) != IS_ARRAY)
+	{
+	  return &EG (uninitialized_zval_ptr);
+	}
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+
+  // find the index
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
+  if (!ind_exists)
+    p_ind = &EG (uninitialized_zval_ptr);
+
+  // find the var
+  int arg_exists = (ht_find (ht, *p_ind, &p_arg) == SUCCESS);
+  if (!arg_exists)
+    return &EG (uninitialized_zval_ptr);
+
+  if (*p_arg == EG (uninitialized_zval_ptr))
+    {
+      // after the find, p_arg is the address of the ht entry, which contains a zval*. This can be updated by the function call.
+      ht_update (ht, *p_ind, *p_arg);
+      int result = ht_find (ht, *p_ind, &p_arg);
+      assert (result == SUCCESS);
+      return p_arg;
+    }
+
+  // Clone argument if it is part of a change-on-write
+  // set, and we are *not* passing by reference
+  if ((*p_arg)->is_ref)
+    {
+      zvp_clone (p_arg, is_arg_new TSRMLS_CC);
+      (*p_arg)->refcount--;	// cloned vars have lower refcounts. Not positive why yet
+    }
+
+  return p_arg;
 }
 
 void
@@ -993,7 +1038,8 @@ phc_exit (char *arg_name, int arg_length TSRMLS_DC)
 
 /* Copies a constant into ZVP. Note that LENGTH does not include the NULL-terminating byte. */
 void
-get_constant (char *name, int length, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+get_constant (char *name, int length, zval ** p_zvp,
+	      int *is_zvp_new TSRMLS_DC)
 {
   MAKE_STD_ZVAL (*p_zvp);
   // zend_get_constant returns 1 for success, not SUCCESS

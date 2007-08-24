@@ -1190,11 +1190,14 @@ public:
 		{
 			cout 
 				<< "// Setup array of arguments\n"
-				<< "zval* args[" << num_args << "];\n"
 				<< "int new_args[" << num_args << "]; // set to 1 if the arg is new\n"
 				;
 		}
 		cout 
+			<< "// it may be that the argument is in a hashtable, in\n"
+			<< "// which case we need to pass the pointer into the\n"
+			<< "// ht, not the address of a copy of the pointer in \n"
+			<< "// the stack frame\n"
 			<< "zval** args_ind[" << num_args  << "];\n";
 
 		for(
@@ -1216,32 +1219,43 @@ public:
 				assert (var->array_indices->size () == 1);
 				String* ind_name = operand(var->array_indices->front ());
 				cout
-					<< "	args[" << index << "] = fetch_array_arg ("
+
+					<< "if (by_ref [" << index << "])\n"
+					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
-					<<				"by_ref[" << index << "], "
+					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<< "else\n"
+					<< "	args_ind[" << index << "] = fetch_array_arg ("
+					<<				get_scope (LOCAL) << ", "
+					<<				"\"" << *name->value << "\", "
+					<<				name->value->size () + 1 << ", "
+					<<				"\"" << *ind_name << "\", "
+					<<				ind_name->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					;
 			}
 			else
 			{
 				cout 
-					<< "	args[" << index << "] = fetch_var_arg ("
+					<< "if (by_ref [" << index << "])\n"
+					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
-					<<				"by_ref[" << index << "], "
+					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<< "else\n"
+					<< "	args_ind[" << index << "] = fetch_var_arg ("
+					<<				get_scope (LOCAL) << ", "
+					<<				"\"" << *name->value << "\", "
+					<<				name->value->size () + 1 << ", "
 					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
 					;
 
 			}
-			cout
-
-				<< "	args_ind[" << index << "] = &args[" << index << "];\n"
-				;
 		}
 
 		cout
@@ -1294,7 +1308,7 @@ public:
 				<< "if (new_args[" << index << "])\n"
 				<< "{\n"
 				<< "	assert (new_args[" << index << "] == 1);\n"
-				<< "	zval_ptr_dtor (&args[" << index << "]);\n"
+				<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
 				<< "}\n";
 		}
 	
