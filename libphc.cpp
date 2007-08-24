@@ -348,6 +348,18 @@ separate_var (HashTable * st, char *name, int length, zval ** p_zvp,
   assert (result == SUCCESS);
 }
 
+/* Assuming that p_zvp points into a hashtable, we decrease the
+ * refcount of the currently pointed to object, then clone it, and
+ * insert it into the hashtable */
+void
+separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+{
+  zval* old = *p_zvp;
+  assert (old != EG (uninitialized_zval_ptr));
+  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  zval_ptr_dtor (&old);
+}
+
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 void
@@ -736,7 +748,8 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
 
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
-  separate_var (st, name, name_length, p_arg, is_arg_new TSRMLS_CC);
+  if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
+     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -774,12 +787,10 @@ fetch_var_arg (HashTable * st, char *name, int name_length,
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
   if ((*p_arg)->is_ref)
-    {
-      assert (*p_arg != EG (uninitialized_zval_ptr));
-      zvp_clone (p_arg, is_arg_new TSRMLS_CC);
-      (*p_arg)->refcount--;	// cloned vars have lower refcounts. Not positive why yet 
-      // TODO why is this
-    }
+  {
+     assert (*p_arg != EG (uninitialized_zval_ptr));
+     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
+  }
 
   return p_arg;
 }
@@ -821,9 +832,8 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
 	  // p_var already points into the symtable, so we dont need to
 	  // write back.
 	  int is_var_new = 0;
-	  zvp_clone (p_var, &is_var_new TSRMLS_CC);
-	  if (is_var_new)
-	    zval_ptr_dtor (p_var);
+	  if ((*p_var)->refcount > 1 && !(*p_var)->is_ref)
+	     separate_zvpp (p_var, &is_var_new TSRMLS_CC);
 	}
     }
 
@@ -856,8 +866,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
   // We know that p_arg points into the hashtable. Therefore we can
   // just clone it, and dont need to update the hashtable.
   if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
-    zvp_clone (p_arg, is_arg_new TSRMLS_CC);
-
+     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -926,10 +935,7 @@ fetch_array_arg (HashTable * st, char *name, int name_length, char *ind_name,
   // Clone argument if it is part of a change-on-write
   // set, and we are *not* passing by reference
   if ((*p_arg)->is_ref)
-    {
-      zvp_clone (p_arg, is_arg_new TSRMLS_CC);
-      (*p_arg)->refcount--;	// cloned vars have lower refcounts. Not positive why yet
-    }
+     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
 
   return p_arg;
 }
@@ -981,45 +987,36 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 	     int ind_length TSRMLS_DC)
 {
 
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
+  zval **p_var;
+  zval **p_ind;
 
   int var_exists = (zend_symtable_find (st, var_name, var_length,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists)
-    {
-      return;
-    }
+     return;
 
-  var = *p_var;
-
-  if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
     {
       // TODO does this need an error, if so, use extract_ht
       return;
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
 
   // find the index
   int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
 					(void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
+  if (!ind_exists)
     {
       // do not remove these curlies, as this expands to 2 statements
-      ALLOC_INIT_ZVAL (ind);
+      ALLOC_INIT_ZVAL (*p_ind);
     }
 
-  ht_delete (ht, ind);
+  ht_delete (ht, *p_ind);
 
   if (!ind_exists)
-    zval_ptr_dtor (&ind);
+    zval_ptr_dtor (p_ind);
 }
 
 void
