@@ -1,0 +1,60 @@
+#!/usr/bin/php
+<?php
+
+# TODO 
+
+# This attempts to reduce a test case to a minimal test case. For a program of
+# N statements, it attempts to reduce it by N/2 statements chunks, then by N/4
+# statement chunks, and so on, while the progrmam still fails. 
+
+# Complexity:
+#	 There are N - K possible chunks for chunk size K.  The number of iterations
+#	 is (N-N/2) + (N-N/4) + ... + (N-1), which is log_2(N) steps of size N (the
+#	 second term converges to N, so we discard it). So the complexity is 
+#   O (N log N).
+
+
+# Approach:
+#	
+
+
+
+# prog = input_file
+# N = num_statements (prog)
+# for each k = N/2; k > 0; k /=2
+#	for each i = 0; i < N -k; i++
+#   new_prog = prog.reduce (i, k)
+#   out1 = php new_prog
+#   out2 = phc new_prog; ./a.out
+#   out1 = homogenize out1
+#   out2 = homogenize out2
+#   if (out1 != out2)
+#    prog = new_prog
+#    goto start;
+
+$filename = "test/subject/bugs/bug0001.php";
+
+$N = `src/phc --run plugins/tools/count_statents.la $filename`;
+$program = `cat $filename`;
+
+
+	$hir = `src/phc --udump=hir $file`;
+
+	while ()
+	{
+		$out1 = `echo $hir | php`;
+		$out2 = `echo $hir | src/phc --xread=hir -c; ./a.out`;
+
+		if ($out1 == $out2)
+		{
+			# backtrack
+		}
+		else
+		{
+			# strip another statement
+		}
+	}
+
+
+
+?>
