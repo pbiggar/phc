@@ -37,13 +37,13 @@ class Demi_eval extends CompiledVsInterpreted
 		$init = $this->init;
 
 		// get the output from the interpreter for the file
-		$command1 = "$phc --run plugins/tools/demi_eval.la --r-option=\"$init\" --run plugins/tools/debug_zval.la --udump=plugins/tools/debug_zval.la $subject | $php";
+		$command1 = "$phc --run plugins/tools/demi_eval.la --r-option=\"$init\" --udump=plugins/tools/demi_eval.la $subject | $php";
 		list ($out1, $err1, $exit1) = complete_exec($command1);
 		$out1 = $this->homogenize_output ($out1); 
 
 		// compile
 		// we expect output from the plugin, i think
-		$phc_command = "$phc -c --run plugins/tools/demi_eval.la --r-option=\"$init\" --run plugins/tools/debug_zval.la $subject";
+		$phc_command = "$phc -c --run plugins/tools/demi_eval.la --r-option=\"$init\" $subject";
 		list ($phc_out, $phc_err, $phc_exit) = complete_exec($phc_command);
 		if ($phc_exit or $phc_err)
 		{
