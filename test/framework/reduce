@@ -1,8 +1,6 @@
 #!/usr/bin/php
 <?php
 
-# TODO 
-
 # This attempts to reduce a test case to a minimal test case. For a program of
 # N statements, it attempts to reduce it by N/2 statements chunks, then by N/4
 # statement chunks, and so on, while the progrmam still fails. 
@@ -16,9 +14,6 @@
 
 # Approach:
 #	
-
-
-
 # prog = input_file
 # N = num_statements (prog)
 # for each k = N/2; k > 0; k /=2
@@ -32,29 +27,83 @@
 #    prog = new_prog
 #    goto start;
 
-$filename = "test/subject/bugs/bug0001.php";
+$filename = "test/subjects/bugs/bug0001.php";
 
-$N = `src/phc --run plugins/tools/count_statents.la $filename`;
-$program = `cat $filename`;
+$program = run ("cat $filename");
+$N = count_statements ($program);
 
-
-	$hir = `src/phc --udump=hir $file`;
-
-	while ()
+for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
+{
+// RESTART:
+	for ($i = 0; $i < ($N-$k); $i++)
 	{
-		$out1 = `echo $hir | php`;
-		$out2 = `echo $hir | src/phc --xread=hir -c; ./a.out`;
+		$new_progam = reduce ($program, $i, $k);
+		$out1 = homogenize (run ("php ", $new_prog));
+		run ("src/phc -c", $new_prog);
+		$out2 = homogenize (run ("./a.out"));
+		if ($out1 !== $out2) // success, we've reduced it while keeping the bug in
+		{
+			$program = $new_program;
+			$N = count_statements ($program);
+			continue 2; // to RESTART
+		}
 
-		if ($out1 == $out2)
-		{
-			# backtrack
-		}
-		else
-		{
-			# strip another statement
-		}
 	}
+}
+
+// we're done, it wont reduce any further
+
+file_put_contents ("$filename.reduced", $new_program);
 
 
+function reduce ($program_string, $i, $k)
+{
+	return run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=ast", $program);
+}
 
+
+function count_statements ($program_string)
+{
+	$out = run ("src/phc --run plugins/tutorials/count_statements_easy.la", $program_string);
+	preg_match ("/\d+ statements found/", $out, $matched) or die ();
+	return $matched[0];
+}
+
+
+function run ($command, $stdin = NULL)
+{
+	$descriptorspec = array(0 => array("pipe", "r"),
+									1 => array("pipe", "w"),
+									2 => array("pipe", "w"));
+
+	$pipes = array();
+
+	$handle = proc_open($command, $descriptorspec, &$pipes);
+	if ($stdin !== NULL)
+	{
+		fwrite ($pipes[0], $stdin);
+	}
+	fclose ($pipes[0]);
+	
+	$out = "";
+	$err = "";
+	do
+	{
+		$out .= stream_get_contents ($pipes[1]);
+		$err .= stream_get_contents ($pipes[2]);
+		$status = proc_get_status ($handle);
+	}
+	while ($status["running"]);
+	$out .= stream_get_contents ($pipes[1]);
+	$err .= stream_get_contents ($pipes[2]);
+	# contrary to popular opinion, proc_close doesnt return the exit
+	# status
+	$exit_code = $status["exitcode"];
+	proc_close ($handle);
+	if ($err || $exit_code != 0)
+	{
+		die ("Error in command '$command': $err ($exit_code)\n");
+	}
+	return $out;
+}
 ?>

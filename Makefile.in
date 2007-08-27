@@ -53,8 +53,8 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	config/config.sub config/depcomp config/install-sh \
 	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/libtool.m4 \
-	$(top_srcdir)/acinclude.m4 $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -168,6 +168,14 @@ plugins_tools_purity_test_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tools_purity_test_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_reduce_statements_la_LIBADD =
+am_plugins_tools_reduce_statements_la_OBJECTS = reduce_statements.lo
+plugins_tools_reduce_statements_la_OBJECTS =  \
+	$(am_plugins_tools_reduce_statements_la_OBJECTS)
+plugins_tools_reduce_statements_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_reduce_statements_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tutorials_Comment_ifs_la_LIBADD =
 am_plugins_tutorials_Comment_ifs_la_OBJECTS = Comment_ifs.lo
 plugins_tutorials_Comment_ifs_la_OBJECTS =  \
@@ -301,6 +309,7 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
+	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -321,6 +330,7 @@ DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
+	$(plugins_tools_reduce_statements_la_SOURCES) \
 	$(plugins_tutorials_Comment_ifs_la_SOURCES) \
 	$(plugins_tutorials_Expand_includes_la_SOURCES) \
 	$(plugins_tutorials_InsertDB_la_SOURCES) \
@@ -384,6 +394,8 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+F77 = @F77@
+FFLAGS = @FFLAGS@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -420,6 +432,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_CXX = @ac_ct_CXX@
+ac_ct_F77 = @ac_ct_F77@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
@@ -659,6 +672,7 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/source_vs_semantic_values.la \
 	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
 	plugins/tools/debug_zval.la plugins/tools/demi_eval.la \
+	plugins/tools/reduce_statements.la \
 	plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/count_statements_difficult.la \
@@ -689,6 +703,8 @@ plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
 plugins_tools_debug_zval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_demi_eval_la_SOURCES = plugins/tools/demi_eval.cpp
 plugins_tools_demi_eval_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_reduce_statements_la_SOURCES = plugins/tools/reduce_statements.cpp
+plugins_tools_reduce_statements_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_Comment_ifs_la_SOURCES = plugins/tutorials/Comment_ifs.cpp
 plugins_tutorials_Comment_ifs_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tutorials_count_statements_easy_la_SOURCES = plugins/tutorials/count_statements_easy.cpp
@@ -833,6 +849,8 @@ plugins/tools/demi_eval.la: $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tool
 	$(plugins_tools_demi_eval_la_LINK) -rpath $(pkglibdir) $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tools_demi_eval_la_LIBADD) $(LIBS)
 plugins/tools/purity_test.la: $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_purity_test_la_LINK) -rpath $(pkglibdir) $(plugins_tools_purity_test_la_OBJECTS) $(plugins_tools_purity_test_la_LIBADD) $(LIBS)
+plugins/tools/reduce_statements.la: $(plugins_tools_reduce_statements_la_OBJECTS) $(plugins_tools_reduce_statements_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_reduce_statements_la_LINK) -rpath $(pkglibdir) $(plugins_tools_reduce_statements_la_OBJECTS) $(plugins_tools_reduce_statements_la_LIBADD) $(LIBS)
 plugins/tutorials/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tutorials
 	@: > plugins/tutorials/$(am__dirstamp)
@@ -991,6 +1009,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_parser.tab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pre_vs_post_count.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/purity_test.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/reduce_statements.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/show_traversal_order.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/source_vs_semantic_values.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/strip_includes.Plo@am__quote@
@@ -1156,6 +1175,13 @@ purity_test.lo: plugins/tools/purity_test.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/purity_test.cpp' object='purity_test.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o purity_test.lo `test -f 'plugins/tools/purity_test.cpp' || echo '$(srcdir)/'`plugins/tools/purity_test.cpp
+
+reduce_statements.lo: plugins/tools/reduce_statements.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT reduce_statements.lo -MD -MP -MF $(DEPDIR)/reduce_statements.Tpo -c -o reduce_statements.lo `test -f 'plugins/tools/reduce_statements.cpp' || echo '$(srcdir)/'`plugins/tools/reduce_statements.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/reduce_statements.Tpo $(DEPDIR)/reduce_statements.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/reduce_statements.cpp' object='reduce_statements.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o reduce_statements.lo `test -f 'plugins/tools/reduce_statements.cpp' || echo '$(srcdir)/'`plugins/tools/reduce_statements.cpp
 
 Comment_ifs.lo: plugins/tutorials/Comment_ifs.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Comment_ifs.lo -MD -MP -MF $(DEPDIR)/Comment_ifs.Tpo -c -o Comment_ifs.lo `test -f 'plugins/tutorials/Comment_ifs.cpp' || echo '$(srcdir)/'`plugins/tutorials/Comment_ifs.cpp
