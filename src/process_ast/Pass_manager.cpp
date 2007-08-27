@@ -16,21 +16,22 @@
 #include "codegen/Goto_uppering.h"
 #include "Pass_manager.h"
 
-Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm)
+Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)
 {
 	this->handle = handle;
 	this->name = name;
+	this->option = option;
 }
 
 void Plugin_pass::run (AST_php_script* in, Pass_manager* pm)
 {
 	// RUN
-	typedef void (*load_function)(AST_php_script*, Pass_manager*);
-	load_function func = (load_function) lt_dlsym(handle, "run");
+	typedef void (*run_function)(AST_php_script*, Pass_manager*, String*);
+	run_function func = (run_function) lt_dlsym(handle, "run");
 	// TODO this is mandatory (in the sense that it
 	// doesnt make sense not to use this)
 
-	(*func)(in, pm);
+	(*func)(in, pm, option);
 }
 
 void Plugin_pass::post_process ()
@@ -78,9 +79,9 @@ void Pass_manager::add_transform (AST_transform* transform, const char* name)
 	add_pass (pass);
 }
 
-void Pass_manager::add_plugin (lt_dlhandle handle, const char* name)
+void Pass_manager::add_plugin (lt_dlhandle handle, const char* name, String* option)
 {
-	Plugin_pass* pp = new Plugin_pass (new String (name), handle, this);
+	Plugin_pass* pp = new Plugin_pass (new String (name), handle, this, option);
 
 	// LOAD
 	typedef void (*load_function)(Pass_manager*, Plugin_pass*);
