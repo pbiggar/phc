@@ -174,7 +174,7 @@ void init_plugins (Pass_manager* pm)
 		// from the current working directory, and from PKGLIBDIR (in that order)
 		const char* name = pm->args_info->run_arg[i];
 		const char* option = "";
-		if (pm->args_info->r_option_given < i)
+		if (pm->args_info->r_option_given >= i+1)
 			option = pm->args_info->r_option_arg[i];
 		lt_dlhandle handle = lt_dlopenext (name);
 

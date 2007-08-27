@@ -6,60 +6,9 @@
  * Base class for tests
  */
 
-
-function homogenize_xml ($string)
-{
-	$string = preg_replace("/(<attr key=\"phc.line_number\">)\d+(<\/attr>)/", "$1$2", $string);
-	$string = preg_replace("/(<attr key=\"phc.filename\">).*?(<\/attr>)/", "$1$2", $string);
-	return $string;
-}
-
-function homogenize_filenames_and_line_numbers ($string)
-{
-	// specific errors and warnings
-	$string = preg_replace( "/(Warning: ).*(\(\) expects the argument \(.*\) to be a valid callback in ).*( on line )\d+/" , "$1$2$3", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
-//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
-
-	// general line number and filename removal
-	$string = preg_replace( "/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
-	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
-	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
-
-	return $string;
-}
-
-function homogenize_break_levels ($string)
-{
-	// this is a bug we want to ignore
-	$string = preg_replace( "/(Fatal error: Cannot break\/continue 1 level)s/", "$1", $string);
-	return $string;
-}
-
-function homogenize_warnings ($string)
-{
-	# just clear these warnings
-	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
-									"", $string);
-	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
-									"", $string);
-	return $string;
-}
-
-// its still correct if the number of references is off, so look for var_dump output, and remove &s from it
-function homogenize_reference_count ($string)
-{
-# this only actually finds differences in arrays
-	$string = preg_replace(
-		"/
-					(\s+\[.*?\]=>\s+)		# key and newline
-					&							# we want to delete this
-					(.*?\s+)					# dont go too far
-		/smx", "$1$2", $string);
-	return $string;
-}
-
-// Run COMMAND and check if the warnings and errors returned are expected, and that there arent any unexpected ones. This handles warnings and errors at compile time, not run time. Run-time errors use homogenize_x, above.
+// Run COMMAND and check if the warnings and errors returned are expected, and
+// that there arent any unexpected ones. This handles warnings and errors at
+// compile time, not run time.
 function run_command ($command, $subject)
 {
 	// check if we're expecting errors or warnings

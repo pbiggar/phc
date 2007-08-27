@@ -56,9 +56,18 @@ extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
 	assert (colon_index != -1);
 
 	string start_string = option->substr (0, colon_index);
-	string finish_string = option->substr (colon_index, option->size () - colon_index);
+	string finish_string = option->substr (
+			colon_index+1, 
+			option->size () - colon_index);
 
-	cout << start_string << "-" << finish_string << endl;
 
-	in->transform_children (new Reduce (0, 0));
+	int start = 0;
+	stringstream sss (start_string);
+	sss >> start;
+
+	int finish = 0;
+	stringstream fss (finish_string);
+	fss >> finish;
+
+	in->transform_children (new Reduce (start, finish));
 }

@@ -1,5 +1,7 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
+
+require_once ("lib/header.php");
 
 # This attempts to reduce a test case to a minimal test case. For a program of
 # N statements, it attempts to reduce it by N/2 statements chunks, then by N/4
@@ -37,10 +39,10 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 // RESTART:
 	for ($i = 0; $i < ($N-$k); $i++)
 	{
-		$new_progam = reduce ($program, $i, $k);
-		$out1 = homogenize (run ("php ", $new_prog));
-		run ("src/phc -c", $new_prog);
-		$out2 = homogenize (run ("./a.out"));
+		$new_program = reduce ($program, $i, $k);
+		$out1 = homogenize_all (run ("php ", $new_program));
+		run ("src/phc -c", $new_program);
+		$out2 = homogenize_all (run ("./a.out"));
 		if ($out1 !== $out2) // success, we've reduced it while keeping the bug in
 		{
 			$program = $new_program;
@@ -58,7 +60,7 @@ file_put_contents ("$filename.reduced", $new_program);
 
 function reduce ($program_string, $i, $k)
 {
-	return run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=ast", $program);
+	return run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=ast", $program_string);
 }
 
 

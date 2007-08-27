@@ -21,6 +21,7 @@ $plugin_dir = "plugins";
 
 require_once ("lib/startup.php");
 require_once ("lib/header.php");
+require_once ("lib/autovars.php");
 
 $log_directory =	"test/logs/".date_string ();
 
