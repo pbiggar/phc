@@ -39,7 +39,9 @@ class Reduce : public AST_transform
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "hir");
+	// We arent interested in running any other passes on this.
+	pm->clear ();
+	pm->add_pass (pass);
 }
 
 extern "C" void run (AST_node* in, Pass_manager* pm, String* option)

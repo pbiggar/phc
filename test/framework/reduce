@@ -29,9 +29,9 @@ require_once ("lib/header.php");
 #    prog = new_prog
 #    goto start;
 
-$filename = "test/subjects/bugs/bug0001.php";
+$filename = $argv[1];
 
-$program = run ("cat $filename");
+list ($program) = run ("cat $filename");
 $N = count_statements ($program);
 print "$N statements\n";
 
@@ -40,14 +40,42 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 // RESTART:
 	for ($i = 0; $i < ($N-$k); $i++)
 	{
+		# Reduce
 		$new_program = reduce ($program, $i, $k);
-		$out1 = homogenize_all (run ("php ", $new_program));
-		run ("src/phc -c", $new_program);
-		$out2 = homogenize_all (run ("./a.out"));
-		if ($out1 !== $out2) // success, we've reduced it while keeping the bug in
+		print "Attempting to reduce by $k statements, starting at statement $i\n";
+		file_put_contents ("$filename.reduced_{$i}_$k", $new_program);
+
+		# Run through PHP
+		list ($out1, $err, $exit) = run ("php", $new_program);
+		if ($err || $exit) // if the reduced case causes a PHP error, ignore.
 		{
+			print "Error running through PHP. Skip\n";
+			continue;
+		}
+		$out1 = homogenize_all ($out1);
+		file_put_contents ("$filename.out1_{$i}_$k", $new_program);
+
+		# Run through phc
+		list ($out2, $err2, $exit2) = run ("src/phc -c", $new_program);
+		if ($err2 === "" && $out2 === "" && $exit2 === 0)
+		{
+			list ($out3, $err3, $exit3) = run ("./a.out");
+			$out3 = homogenize_all ($out3);
+			file_put_contents ("$filename.out2_{$i}_$k", $new_program);
+		}
+
+		if (($out1 !== $out3) || $err3 || $exit3 || $out2 || $err2 || $exit2) // success, we've reduced it while keeping the bug in
+		{
+			if ($program == $new_program)
+			{
+				// TODO investigate why this is needed
+				print "The two programs are identical. Ending early.\n";
+				break 2;
+			}
 			$program = $new_program;
 			$N = count_statements ($program);
+			$k = $N; // the iteration will divide $N by 2
+			print "Success, program reduced to $N statements\n";
 			continue 2; // to RESTART
 		}
 
@@ -62,13 +90,14 @@ file_put_contents ("$filename.reduced", $new_program);
 
 function reduce ($program_string, $i, $k)
 {
-	return run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=ast", $program_string);
+	list ($out) = run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=plugins/tools/reduce_statements.la", $program_string);
+	return $out;
 }
 
 
 function count_statements ($program_string)
 {
-	$out = run ("src/phc --run plugins/tutorials/count_statements_easy.la", $program_string);
+	list ($out) = run ("src/phc --run plugins/tutorials/count_statements_easy.la", $program_string);
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
 	return $matched[1];
 }
@@ -76,7 +105,7 @@ function count_statements ($program_string)
 
 function run ($command, $stdin = NULL)
 {
-	print "Running command: $command\n";
+//	print "Running command: $command\n";
 	$descriptorspec = array(0 => array("pipe", "r"),
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
@@ -105,10 +134,6 @@ function run ($command, $stdin = NULL)
 	# status
 	$exit_code = $status["exitcode"];
 	proc_close ($handle);
-	if ($err || $exit_code != 0)
-	{
-		die ("Error in command '$command': $err ($exit_code)\n");
-	}
-	return $out;
+	return array ($out, $err, $exit_code);
 }
 ?>

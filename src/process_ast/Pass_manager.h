@@ -79,7 +79,7 @@ public:
 };
 
 
-class Pass_manager : List<Pass*>
+class Pass_manager : public List<Pass*>
 {
 
 public:
