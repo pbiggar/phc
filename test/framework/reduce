@@ -33,6 +33,7 @@ $filename = "test/subjects/bugs/bug0001.php";
 
 $program = run ("cat $filename");
 $N = count_statements ($program);
+print "$N statements\n";
 
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 {
@@ -54,6 +55,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 }
 
 // we're done, it wont reduce any further
+print ("Finished. Result in $filename.reduced\n");
 
 file_put_contents ("$filename.reduced", $new_program);
 
@@ -67,13 +69,14 @@ function reduce ($program_string, $i, $k)
 function count_statements ($program_string)
 {
 	$out = run ("src/phc --run plugins/tutorials/count_statements_easy.la", $program_string);
-	preg_match ("/\d+ statements found/", $out, $matched) or die ();
-	return $matched[0];
+	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
+	return $matched[1];
 }
 
 
 function run ($command, $stdin = NULL)
 {
+	print "Running command: $command\n";
 	$descriptorspec = array(0 => array("pipe", "r"),
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
