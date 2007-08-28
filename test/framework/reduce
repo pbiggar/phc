@@ -29,13 +29,44 @@ require_once ("lib/header.php");
 #    prog = new_prog
 #    goto start;
 
-$filename = $argv[1];
+require_once ("Console/Getopt.php");
+
+$cg = new Console_Getopt();
+list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "vh", array ("verbose", "help"));
+foreach ($opts as $opt) 
+{
+	if (isset ($options{$opt[0]})) $options{$opt[0]} += 1;
+	else $options{$opt[0]} = 1;
+}
+$opt_verbose = isset ($options{"v"}) ? $options{"v"} : 0;
+$opt_help = isset ($options{"h"});
+
+$filename = $arguments[0];
+
+
+if ($opt_help)
+{
+	die (<<<EOL
+reduce - A program to automatically reduce test cases for phc- phpcompiler.org
+
+Usage: reduce [OPTIONS] filename
+
+Options:
+    -h     Print this help message
+    -v     Verbose. Can be set more than once. Set once, prints actions; set 
+           twice, prints commands executed; set thrice, dumps results of 
+           intermediate stages.
+
+EOL
+	);
+}
+
 
 # TODO add two levels of verbosity: the first one prints stuff, the second dumps files
 
 list ($program) = run ("cat $filename");
 $N = count_statements ($program);
-print "$N statements\n";
+debug (1, "$N statements");
 
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 {
@@ -44,14 +75,15 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 	{
 		# Reduce
 		$new_program = reduce ($program, $i, $k);
-		print "Attempting to reduce by $k statements, starting at statement $i\n";
-		file_put_contents ("$filename.reduced_{$i}_$k", $new_program);
+		debug (1, "Attempting to reduce by $k statements, starting at statement $i");
+		if (debug (3))
+			file_put_contents ("$filename.reduced_{$i}_$k", $new_program);
 
 		# Run through PHP
 		list ($out1, $err, $exit) = run ("php", $new_program);
 		if ($err || $exit) // if the reduced case causes a PHP error, ignore.
 		{
-			print "Error running through PHP. Skip.\n";
+			debug (1, "Error running through PHP. Skip.");
 			continue;
 		}
 		$out1 = homogenize_all ($out1);
@@ -63,7 +95,8 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 		{
 			list ($out3, $err3, $exit3) = run ("./a.out");
 			$out3 = homogenize_all ($out3);
-			file_put_contents ("$filename.out2_{$i}_$k", $new_program);
+			if (debug (3))
+				file_put_contents ("$filename.out2_{$i}_$k", $new_program);
 		}
 
 		if (($out1 !== $out3) || $err3 || $exit3 || $out2 || $err2 || $exit2) // success, we've reduced it while keeping the bug in
@@ -71,13 +104,13 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 			if ($program == $new_program)
 			{
 				// TODO investigate why this is needed
-				print "The two programs are identical. Ending early.\n";
+				debug (1, "The two programs are identical. Ending early.");
 				break 2;
 			}
 			$program = $new_program;
 			$N = count_statements ($program);
 			$k = $N; // the iteration will divide $N by 2
-			print "Success, program reduced to $N statements\n";
+			debug (1, "Success, program reduced to $N statements");
 			continue 2; // to RESTART
 		}
 
@@ -85,7 +118,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 }
 
 // we're done, it wont reduce any further
-print ("Finished. Reduced to $N statements. Result in $filename.reduced\n");
+debug (1, "Finished. Reduced to $N statements. Result in $filename.reduced");
 
 file_put_contents ("$filename.reduced", $program);
 
@@ -107,7 +140,7 @@ function count_statements ($program_string)
 
 function run ($command, $stdin = NULL)
 {
-//	print "Running command: $command\n";
+	debug (2, "Running command: $command");
 	$descriptorspec = array(0 => array("pipe", "r"),
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
@@ -138,4 +171,14 @@ function run ($command, $stdin = NULL)
 	proc_close ($handle);
 	return array ($out, $err, $exit_code);
 }
+
+function debug ($level, $message = NULL)
+{
+	global $opt_verbose;
+	if ($message !== NULL && $level <= $opt_verbose)
+		print "$message\n";
+
+	return ($level <= $opt_verbose);
+}
+
 ?>
