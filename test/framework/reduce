@@ -31,6 +31,8 @@ require_once ("lib/header.php");
 
 $filename = $argv[1];
 
+# TODO add two levels of verbosity: the first one prints stuff, the second dumps files
+
 list ($program) = run ("cat $filename");
 $N = count_statements ($program);
 print "$N statements\n";
@@ -38,7 +40,7 @@ print "$N statements\n";
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 {
 // RESTART:
-	for ($i = 0; $i < ($N-$k); $i++)
+	for ($i = 0; $i <= ($N-$k); $i++)
 	{
 		# Reduce
 		$new_program = reduce ($program, $i, $k);
@@ -49,7 +51,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 		list ($out1, $err, $exit) = run ("php", $new_program);
 		if ($err || $exit) // if the reduced case causes a PHP error, ignore.
 		{
-			print "Error running through PHP. Skip\n";
+			print "Error running through PHP. Skip.\n";
 			continue;
 		}
 		$out1 = homogenize_all ($out1);
@@ -83,9 +85,9 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 }
 
 // we're done, it wont reduce any further
-print ("Finished. Result in $filename.reduced\n");
+print ("Finished. Reduced to $N statements. Result in $filename.reduced\n");
 
-file_put_contents ("$filename.reduced", $new_program);
+file_put_contents ("$filename.reduced", $program);
 
 
 function reduce ($program_string, $i, $k)

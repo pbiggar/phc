@@ -17,23 +17,23 @@ class Reduce : public AST_transform
 {
 	private:
 		int start;
-		int finish;
-		int count;
+		int length;
+		int index;
 
 	public:
-		Reduce (int start, int finish)
+		Reduce (int start, int length)
 		{
 			this->start = start;
-			this->finish = finish;
-			this->count = 0;
+			this->length = length;
+			this->index = 0;
 		}
 
 		void post_statement (AST_statement *in, List<AST_statement*>* out)
 		{
-			if (count < start || count > finish)
+			if (!(index >= start && index < (start + length)))
 				out->push_back (in);
 
-			this->count++;
+			this->index++;
 		}
 };
 
@@ -58,7 +58,7 @@ extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
 	assert (colon_index != -1);
 
 	string start_string = option->substr (0, colon_index);
-	string finish_string = option->substr (
+	string length_string = option->substr (
 			colon_index+1, 
 			option->size () - colon_index);
 
@@ -67,9 +67,9 @@ extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
 	stringstream sss (start_string);
 	sss >> start;
 
-	int finish = 0;
-	stringstream fss (finish_string);
-	fss >> finish;
+	int length = 0;
+	stringstream lss (length_string);
+	lss >> length;
 
-	in->transform_children (new Reduce (start, finish));
+	in->transform_children (new Reduce (start, length));
 }
