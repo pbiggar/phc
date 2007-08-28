@@ -519,13 +519,13 @@ protected:
 		"p = EG(argument_stack).top_element-2;\n"
 		"arg_count = (ulong) *p;\n"
 		"\n"
-		"printf(\"\\nARGUMENT STACK\\n\");"
+		"printf(\"\\nARGUMENT STACK\\n\");\n"
 		"while (arg_count > 0) {\n"
 		"	param_ptr = *(p-arg_count);\n"
 		"	printf(\"addr = %08X, refcount = %d, is_ref = %d\\n\", (long)param_ptr, param_ptr->refcount, param_ptr->is_ref);\n"
 		"	arg_count--;\n"
 		"}\n"
-		"printf(\"END ARGUMENT STACK\\n\");"
+		"printf(\"END ARGUMENT STACK\\n\");\n"
 		"}\n"
 		;
 	}
@@ -688,7 +688,7 @@ public:
 		cout 
 			<< "if (bcond)\n"
 			<< "	goto " << *iftrue->value->value << ";\n"
-			<< "else "
+			<< "else\n"
 			<< "	goto " << *iffalse->value->value << ";\n"
 			<< "}\n"
 			;
@@ -1036,7 +1036,7 @@ class Eval : public Assignment
 			// instead or rhs to avoid zend_eval_string adding "return".
 			<< "  MAKE_STD_ZVAL(rhs);\n"
 			<< "  is_rhs_new = 1;\n"
-			<< "  if(!strncmp(Z_STRVAL(copy), \"return \", 7))"
+			<< "  if(!strncmp(Z_STRVAL(copy), \"return \", 7))\n"
 			<< "  {\n"
 			<< "  	zend_eval_string (Z_STRVAL (copy) + 7, rhs, "
 			<< "		\"eval'd code\" TSRMLS_CC);\n"
@@ -1143,7 +1143,7 @@ public:
 		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);\n"
 
 		// check for non-existant functions
-		<< "if (signature == NULL) {"
+		<< "if (signature == NULL) {\n"
 		<< "	phc_exit_status = -1;\n"
 		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << ", NULL TSRMLS_CC);\n"
 		<< "	php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
@@ -1177,11 +1177,11 @@ public:
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
-			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;"
+			<< "	by_ref[" << index << "] = signature->common.pass_rest_by_reference;\n"
 			<< "}\n"
 			;
 			
-			if((*i)->is_ref) cout << "by_ref[" << index << "] = 1;";
+			if((*i)->is_ref) cout << "by_ref[" << index << "] = 1;\n";
 			
 			// cout << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
 		}
@@ -1190,7 +1190,7 @@ public:
 		{
 			cout 
 				<< "// Setup array of arguments\n"
-				<< "int new_args[" << num_args << "]; // set to 1 if the arg is new\n"
+				<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
 				;
 		}
 		cout 
@@ -1210,7 +1210,7 @@ public:
 			Token_variable_name* name
 				= dynamic_cast<Token_variable_name*>(var->variable_name);
 
-			cout << "new_args[" << index << "] = 0;\n";
+			cout << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
 			 * hashtable, which we do for pass-by-ref, then we return a
 			 * zval**, straight into args_ind. Otherwise we return a
@@ -1224,13 +1224,24 @@ public:
 				cout
 
 					<< "if (by_ref [" << index << "])\n"
+					<< "{\n"
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
-					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+					// if we pass &EG(uninitialized_zval_ptr), the
+					// run-time will separate and overwrite it.
+					<< "  if (args_ind[" << index << "] "
+					<< "			== &EG(uninitialized_zval_ptr))\n"
+					<< "  {\n"
+					<< "	  args_ind[" << index << "] = &args[" << index << "];\n"
+					<< "	  destruct[" << index << "] = 1;\n"
+					<< "  }\n"
+					<< "}\n"
 					<< "else\n"
 					<< "{\n"
 					<< "  args[" << index << "] = fetch_array_arg ("
@@ -1239,8 +1250,8 @@ public:
 					<<				name->value->size () + 1 << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
-					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
-					<< " args_ind[" << index << "] = &args[" << index << "];"
+					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
 					;
 			}
@@ -1248,19 +1259,30 @@ public:
 			{
 				cout 
 					<< "if (by_ref [" << index << "])\n"
+					<< "{\n"
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
-					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
+					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+					// if we pass &EG(uninitialized_zval_ptr), the
+					// run-time will separate and overwrite it.
+					<< "  if (args_ind[" << index << "] "
+					<< "		== &EG(uninitialized_zval_ptr))\n"
+					<< "  {\n"
+					<< "	  args_ind[" << index << "] = &args[" << index << "];\n"
+					<< "	  destruct[" << index << "] = 1;\n"
+					<< "  }\n"
+					<< "}\n"
 					<< "else\n"
 					<< "{\n"
 					<< "  args[" << index << "] = fetch_var_arg ("
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
-					<<				"&new_args[" << index << "] TSRMLS_CC);\n"
-					<< " args_ind[" << index << "] = &args[" << index << "];"
+					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
 					;
 
@@ -1299,12 +1321,12 @@ public:
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
 //		<< "rhs->refcount++;\n"
-		<< "rhs->is_ref = 1;\n"
-		<< "}"
-		<< "else"
-		<< "{"
-		<< "is_rhs_new = 1;"
-		<< "}"
+		<< "	rhs->is_ref = 1;\n"
+		<< "}\n"
+		<< "else\n"
+		<< "{\n"
+		<< "	is_rhs_new = 1;\n"
+		<< "}\n"
 		;
 
 		for(
@@ -1314,13 +1336,12 @@ public:
 		{
 			// TODO put the for loop into generated code
 			cout 
-				<< "if (new_args[" << index << "])\n"
+				<< "if (destruct[" << index << "])\n"
 				<< "{\n"
-				<< "	assert (new_args[" << index << "] == 1);\n"
+				<< "	assert (destruct[" << index << "] == 1);\n"
 				<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
 				<< "}\n";
 		}
-	
 		
 		// cout << "debug_hash(EG(active_symbol_table));\n";
 	}
@@ -1709,7 +1730,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"\n"
 		"   phc_exit_status = EG(exit_status);\n"
 		"\n"
-		"   PHP_EMBED_END_BLOCK()"
+		"   PHP_EMBED_END_BLOCK()\n"
 		"\n"
 		// EG(exit_status) isnt fetched for embed
 		"  return phc_exit_status;\n"
