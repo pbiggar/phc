@@ -74,10 +74,9 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 	for ($i = 0; $i <= ($N-$k); $i++)
 	{
 		# Reduce
-		$new_program = reduce ($program, $i, $k);
 		debug (1, "Attempting to reduce by $k statements, starting at statement $i");
-		if (debug (3))
-			file_put_contents ("$filename.reduced_{$i}_$k", $new_program);
+		$new_program = reduce ($program, $i, $k);
+		dump (3, "$filename.reduced_{$i}_$k", $new_program);
 
 		# Run through PHP
 		list ($out1, $err, $exit) = run ("php", $new_program);
@@ -87,7 +86,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 			continue;
 		}
 		$out1 = homogenize_all ($out1);
-		file_put_contents ("$filename.out1_{$i}_$k", $new_program);
+		dump (3, "$filename.out1_{$i}_$k", $out1);
 
 		# Run through phc
 		list ($out2, $err2, $exit2) = run ("src/phc -c", $new_program);
@@ -95,8 +94,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 		{
 			list ($out3, $err3, $exit3) = run ("./a.out");
 			$out3 = homogenize_all ($out3);
-			if (debug (3))
-				file_put_contents ("$filename.out2_{$i}_$k", $new_program);
+			dump (3, "$filename.out2_{$i}_$k", $out3);
 		}
 
 		if (($out1 !== $out3) || $err3 || $exit3 || $out2 || $err2 || $exit2) // success, we've reduced it while keeping the bug in
@@ -137,7 +135,6 @@ function count_statements ($program_string)
 	return $matched[1];
 }
 
-
 function run ($command, $stdin = NULL)
 {
 	debug (2, "Running command: $command");
@@ -169,16 +166,34 @@ function run ($command, $stdin = NULL)
 	# status
 	$exit_code = $status["exitcode"];
 	proc_close ($handle);
+	debug (2, "Command exited with $exit_code and error: '$err'");
 	return array ($out, $err, $exit_code);
+}
+
+function above_debug_threshold ($level)
+{
+	global $opt_verbose;
+	return ($level <= $opt_verbose);
 }
 
 function debug ($level, $message = NULL)
 {
-	global $opt_verbose;
-	if ($message !== NULL && $level <= $opt_verbose)
-		print "$message\n";
+	$above = above_debug_threshold ($level);
+	if ($message !== NULL && $above)
+		print "$level: $message\n";
 
-	return ($level <= $opt_verbose);
+	return ($above);
+}
+
+function dump ($level, $filename, $output)
+{
+	debug ($level, "Dumping output to $filename");
+
+	$above = above_debug_threshold ($level);
+	if ($above)
+		file_put_contents($filename, $output);
+
+	return $above;
 }
 
 ?>

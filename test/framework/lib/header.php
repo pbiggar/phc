@@ -482,6 +482,8 @@ function homogenize_all ($string)
 	$string = homogenize_reference_count ($string);
 	$string = homogenize_warnings ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
+//	$string = homogenize_break_levels ($string);
+	return $string;
 }
 
 
