@@ -359,9 +359,17 @@ void
 separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
   zval *old = *p_zvp;
-  assert (old != EG (uninitialized_zval_ptr));
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-  zval_ptr_dtor (&old);
+  assert (p_zvp != &EG(uninitialized_zval_ptr));
+  if (old == EG (uninitialized_zval_ptr))
+  {
+	  ALLOC_INIT_ZVAL (*p_zvp);
+	  *is_zvp_new = 0;
+  }
+  else
+  {
+	  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+	  zval_ptr_dtor (&old);
+  }
 }
 
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
