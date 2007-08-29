@@ -28,10 +28,104 @@ class Reduce : public AST_transform
 			this->index = 0;
 		}
 
+		// Only remove statements where its sub-statements have been removed
+		// Declarations
+		bool should_remove (AST_class_def* in)
+		{
+			return in->members->size () == 0;
+		}
+
+		bool should_remove (AST_interface_def* in)
+		{
+			return in->members->size () == 0;
+		}
+
+		bool should_remove (AST_method* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+		// Control-flow with sub-statements
+		bool should_remove (AST_if* in)
+		{
+			return in->iftrue->size () == 0 && in->iffalse->size () == 0;
+		}
+
+		bool should_remove (AST_while* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+		bool should_remove (AST_do* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+		bool should_remove (AST_for* in)
+		{
+			return in->statements->size () == 0;
+		}
+		
+		bool should_remove (AST_foreach* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+		bool should_remove (AST_switch* in)
+		{
+			return in->switch_cases->size () == 0;
+		}
+
+		bool should_remove (AST_switch_case* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+		bool should_remove (AST_try* in)
+		{
+			return in->statements->size () == 0 && in->catches->size () == 0;
+		}
+
+		bool should_remove (AST_catch* in)
+		{
+			return in->statements->size () == 0;
+		}
+
+
+
+		// Catch everything else
+		bool should_remove (AST_statement* in)
+		{
+			return true;
+		}
+
+
+		// Things which can be removed
 		void post_statement (AST_statement *in, List<AST_statement*>* out)
 		{
-			if (!(index >= start && index < (start + length)))
+			potentially_remove<AST_statement> (in, out);
+		}
+
+		void post_switch_case (AST_switch_case *in, List<AST_switch_case*>* out)
+		{
+			potentially_remove<AST_switch_case> (in, out);
+		}
+
+		void post_catch (AST_catch *in, List<AST_catch*>* out)
+		{
+			potentially_remove<AST_catch> (in, out);
+		}
+
+
+
+		template <class T>
+		void potentially_remove (T* in, List<T*>* out)
+		{
+			if (!(index >= start && index < (start + length)) 
+					|| !should_remove (in))
+			{
 				out->push_back (in);
+			}
 
 			this->index++;
 		}
