@@ -38,7 +38,8 @@ parsing/binops\d+.php				long no-Generate_C no-Refcounts no-CompiledVsInterprete
 parsing/allchars_inline.php		no-Generate_C no-Refcounts no-CompiledVsInterpreted
 
 # The refcounts test is a little buggy.
-codegen/shutdown_on_.*.php	no-Refcounts 
+codegen/shutdown_on_.*.php			no-Refcounts 
+codegen/nested_statements.php		no-Refcounts
 
 
 parsing/for.php						non-interpretable # infinite loops

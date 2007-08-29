@@ -125,7 +125,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 }
 
 // we're done, it wont reduce any further
-debug (1, "Finished. Reduced to $N statements. Result in $filename.reduced");
+print "Finished. Reduced to $N statements. Result in $filename.reduced\n";
 
 file_put_contents ("$filename.reduced", $program);
 
