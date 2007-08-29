@@ -745,6 +745,7 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
 	  // we want to pass a reference into the symbol table, so we create a value, save it, find it, then return it.
 	  zval *arg;
 	  ALLOC_INIT_ZVAL (arg);
+	  arg->is_ref = 1;
 	  int result = zend_hash_update (st,
 			  name, name_length,
 			  &arg,
