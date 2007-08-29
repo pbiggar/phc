@@ -741,14 +741,21 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
 {
   zval **p_arg = NULL;
   if (zend_symtable_find (st, name, name_length, (void **) &p_arg) != SUCCESS)
-    {
-      // we only do this for variables to be passed to function calls
-      p_arg = &EG (uninitialized_zval_ptr);
-    }
+  {
+	  // we want to pass a reference into the symbol table, so we create a value, save it, find it, then return it.
+	  zval *arg;
+	  ALLOC_INIT_ZVAL (arg);
+	  int result = zend_hash_update (st,
+			  name, name_length,
+			  &arg,
+			  sizeof (zval *), NULL);
+	  assert (result == SUCCESS);
 
-  // TODO what if p_arg != &EG(uninitialized_zval_ptr)
-  if (*p_arg == EG (uninitialized_zval_ptr))
-    return p_arg;
+	  /* Set p_arg to point into the symbol table. */
+	  result = zend_hash_find (st, name, name_length, (void **) &p_arg);
+	  assert (result == SUCCESS);
+	  return p_arg;
+  }
 
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
@@ -821,22 +828,22 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
   int var_exists = (zend_symtable_find (st, name, name_length,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
-    {
-      // We want to create a new array, which the passed var
-      // would be part of. Additionally, the var needs to be
-      // written back after creation.
-      zval *var;
-      ALLOC_INIT_ZVAL (var);
-      int result = zend_hash_update (st,
-				     name, name_length,
-				     &var,
-				     sizeof (zval *), NULL);
-      assert (result == SUCCESS);
+  {
+	  // We want to create a new array, which the passed var
+	  // would be part of. Additionally, the var needs to be
+	  // written back after creation.
+	  zval *var;
+	  ALLOC_INIT_ZVAL (var);
+	  int result = zend_hash_update (st,
+			  name, name_length,
+			  &var,
+			  sizeof (zval *), NULL);
+	  assert (result == SUCCESS);
 
-      /* Set p_var to point into the symbol table. */
-      result = zend_hash_find (st, name, name_length, (void **) &p_var);
-      assert (result == SUCCESS);
-    }
+	  /* Set p_var to point into the symbol table. */
+	  result = zend_hash_find (st, name, name_length, (void **) &p_var);
+	  assert (result == SUCCESS);
+  }
   else
     {
       // Since we'll be passing a pointer into this hashtable, we
