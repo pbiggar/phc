@@ -769,7 +769,10 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
   if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
+  {
     separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
+	 *is_arg_new = 0;
+  }
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
