@@ -32,14 +32,23 @@ require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
-list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "vh", array ("verbose", "help"));
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:");
+if (!is_array ($opt_result))
+	die ($opt_result->message."\n");
+
+list ($opts, $arguments) = $opt_result;
 foreach ($opts as $opt) 
 {
-	if (isset ($options{$opt[0]})) $options{$opt[0]} += 1;
-	else $options{$opt[0]} = 1;
+	if ($opt[1] === NULL)
+	{
+		if (isset ($options{$opt[0]})) $options{$opt[0]} += 1;
+		else $options{$opt[0]} = 1;
+	}
+	else $options{$opt[0]} = $opt[1];
 }
 $opt_verbose = isset ($options{"v"}) ? $options{"v"} : 0;
 $opt_help = isset ($options{"h"});
+$opt_command = isset ($options{"c"}) ? $options{'c'} : "--dump=ast";
 
 $filename = $arguments[0];
 
@@ -56,7 +65,7 @@ Options:
     -v     Verbose. Can be set more than once. Set once, prints actions; set 
            twice, prints commands executed; set thrice, dumps results of 
            intermediate stages.
-
+    -c     Pass as arguments to the first phc. Be sure to include a --dump command, or nothing will happen.
 EOL
 	);
 }
@@ -64,7 +73,7 @@ EOL
 
 # TODO add two levels of verbosity: the first one prints stuff, the second dumps files
 
-list ($program) = run ("cat $filename");
+list ($program) = run ("src/phc $opt_command $filename");
 $N = count_statements ($program);
 debug (1, "$N statements");
 
@@ -97,7 +106,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 			dump (3, "$filename.out2_{$i}_$k", $out3);
 		}
 
-		if (($out1 !== $out3) || $err3 || $exit3 || $out2 || $err2 || $exit2) // success, we've reduced it while keeping the bug in
+		if ($out2 || $err2 || $exit2 || $err3 || $exit3 || ($out1 !== $out3)) // success, we've reduced it while keeping the bug in
 		{
 			if ($program == $new_program)
 			{
