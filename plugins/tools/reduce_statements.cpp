@@ -13,6 +13,57 @@
 #include "codegen/fresh.h"
 #include "lib/List.h"
 
+/* After removing statements, we may be left with gotos and branches
+ * to statements which dont exist, which will cause compiler errors.
+ * Labels will leave warnings for unused labels, which also trip us
+ * up. Unfortunately, those errors are percieved to be the sort of
+ * thing we want to isolate, which they arent. So if we remove
+ * something that involves a label, we want to remove other stuff
+ * with that label in them. (this is the sort of thing you do if you
+ * dont have data-flow :(). */
+class Strip_labels : public AST_transform
+{
+	public:
+		map<string, bool>* labels;
+
+	Strip_labels (map<string, bool>* labels)
+	{
+		this->labels = labels;
+	}
+
+	void post_branch (AST_branch* in, List<AST_statement*>* out)
+	{
+		if (!remove_label (in->iftrue) && !remove_label (in->iffalse))
+		{
+			out->push_back (in);
+		}
+	}
+
+	void post_goto (AST_goto* in, List<AST_statement*>* out)
+	{
+		if (!remove_label (in->label_name))
+		{
+			out->push_back (in);
+		}
+	}
+
+
+	void post_label (AST_label* in, List<AST_statement*>* out)
+	{
+		if (!remove_label (in->label_name))
+		{
+			out->push_back (in);
+		}
+	}
+
+	/* return true if the label should be removed */
+	bool remove_label (Token_label_name* in)
+	{
+		return (labels->find (*in->value) != labels->end ());
+	}
+
+};
+
 class Reduce : public AST_transform
 {
 	private:
@@ -21,11 +72,15 @@ class Reduce : public AST_transform
 		int index;
 
 	public:
+		map<string, bool>* labels;
+
+	public:
 		Reduce (int start, int length)
 		{
 			this->start = start;
 			this->length = length;
 			this->index = 0;
+			this->labels = new map<string, bool> ();
 		}
 
 		// Only remove statements where its sub-statements have been removed
@@ -104,6 +159,22 @@ class Reduce : public AST_transform
 		void post_statement (AST_statement *in, List<AST_statement*>* out)
 		{
 			potentially_remove<AST_statement> (in, out);
+
+			// If we remove a label, remove everything associated with that label.
+			// Otherwise we'll get compiler warnings and errors.
+			if (AST_goto* go = dynamic_cast <AST_goto*> (in))
+			{
+				mark_label (go->label_name);
+			}
+			else if (AST_branch* branch = dynamic_cast <AST_branch*> (in))
+			{
+				mark_label (branch->iftrue);
+				mark_label (branch->iffalse);
+			}
+			else if (AST_label* label = dynamic_cast <AST_label*> (in))
+			{
+				mark_label (label->label_name);
+			}
 		}
 
 		void post_switch_case (AST_switch_case *in, List<AST_switch_case*>* out)
@@ -128,6 +199,12 @@ class Reduce : public AST_transform
 			}
 
 			this->index++;
+		}
+
+
+		void mark_label (Token_label_name* name)
+		{
+			(*labels)[*name->value] = true;
 		}
 };
 
@@ -165,5 +242,7 @@ extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
 	stringstream lss (length_string);
 	lss >> length;
 
-	in->transform_children (new Reduce (start, length));
+	Reduce* red = new Reduce (start, length);
+	in->transform_children (red);
+	in->transform_children (new Strip_labels (red->labels));
 }

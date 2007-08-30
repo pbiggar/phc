@@ -105,49 +105,15 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 // RESTART:
 	for ($i = 0; $i <= ($N-$k); $i++)
 	{
-		# Reduce
-		debug (1, "Attempting to reduce by $k statements, starting at statement $i");
-		$xnew_program = reduce ($xprogram, $i, $k);
-		$pnew_program = convert ($xnew_program, 0); // converted to PHP
-		$unew_program = convert ($xnew_program, 1); // uppered
-		dump (3, "$filename.xreduced_{$i}_$k", $xnew_program);
-		dump (3, "$filename.preduced_{$i}_$k", $pnew_program);
-		dump (3, "$filename.ureduced_{$i}_$k", $unew_program);
-
-		# Run through PHP
-		list ($out1, $err, $exit) = run ("php", $unew_program);
-		if ($err || $exit) // if the reduced case causes a PHP error, ignore.
+	   $result = do_main_step ($xprogram, $i, $k, $filename);
+		if ($result !== false)
 		{
-			debug (1, "Error running through PHP. Skip.");
-			continue;
-		}
-		$out1 = homogenize_all ($out1);
-		dump (3, "$filename.out1_{$i}_$k", $out1);
-
-		# Run through phc
-		list ($out2, $err2, $exit2) = run ("src/phc --read-ast-xml -c", $xnew_program);
-		if ($err2 === "" && $out2 === "" && $exit2 === 0)
-		{
-			list ($out3, $err3, $exit3) = run ("./a.out");
-			$out3 = homogenize_all ($out3);
-			dump (3, "$filename.out2_{$i}_$k", $out3);
-		}
-
-		if ($out2 || $err2 || $exit2 || $err3 || $exit3 || ($out1 !== $out3)) // success, we've reduced it while keeping the bug in
-		{
-			if ($xprogram == $xnew_program)
-			{
-				// TODO investigate why this is needed
-				debug (1, "The two programs are identical. Ending early.");
-				break 2;
-			}
-			$xprogram = $xnew_program;
+			$xprogram = $result;
 			$N = count_statements ($xprogram);
 			$k = $N; // the iteration will divide $N by 2
 			debug (1, "Success, program reduced to $N statements");
-			continue 2; // to RESTART
+			continue 2;
 		}
-
 	}
 }
 
@@ -161,9 +127,11 @@ file_put_contents ("$filename.ureduced", $uprogram);
 file_put_contents ("$filename.reduced", $pprogram);
 
 
-function reduce ($xprogram_string, $i, $k)
+function reduce ($xprogram_string, $start, $num)
 {
-	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/reduce_statements.la --r-option=$i:$k --xdump=plugins/tools/reduce_statements.la", $xprogram_string);
+	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/reduce_statements.la"
+							 ." --r-option=$start:$num --xdump=plugins/tools/reduce_statements.la",
+							 $xprogram_string);
 	return $out;
 }
 
@@ -174,13 +142,11 @@ function convert ($xprogram_string, $upper)
 	return $out;
 }
 
-
-
-
 function count_statements ($xprogram_string)
 {
 	list ($out) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
+	var_dump ($matched);
 	return $matched[1];
 }
 
@@ -258,4 +224,52 @@ function dump ($level, $filename, $output)
 	return $above;
 }
 
+# Reduce and test the program, passed as XML in $xprogram. Reduce it starting
+# from the $start'th statement, by $num statements. For debugging, filename is
+# the name of the script we're working on.
+# Return false if the program couldnt reduce, or couldnt be tested, or the
+# reduced program otherwise.
+function do_main_step ($xprogram, $start, $num, $filename)
+{
+	# Reduce
+	debug (1, "Attempting to reduce by $num statements, starting at statement $start");
+	$xnew_program = reduce ($xprogram, $start, $num);
+	$pnew_program = convert ($xnew_program, 0); // converted to PHP
+	$unew_program = convert ($xnew_program, 1); // uppered
+	$id = "{$num}_$start";
+	dump (3, "$filename.xreduced_$id", $xnew_program);
+	dump (3, "$filename.preduced_$id", $pnew_program);
+	dump (3, "$filename.ureduced_$id", $unew_program);
+
+	if ($xprogram == $xnew_program)
+	{
+		// this would happen if we dont remove any statements
+		debug (1, "The two programs are identical. Skip.");
+		return false;
+	}
+
+	# Run through PHP
+	list ($out1, $err, $exit) = run ("php", $unew_program);
+	if ($err || $exit) // if the reduced case causes a PHP error, ignore.
+	{
+		debug (1, "Error running through PHP. Skip.");
+		return false;
+	}
+	$out1 = homogenize_all ($out1);
+	dump (3, "$filename.out1_$id", $out1);
+
+	# Run through phc
+	list ($out2, $err2, $exit2) = run ("src/phc --read-ast-xml -c", $xnew_program);
+	if ($err2 === "" && $out2 === "" && $exit2 === 0)
+	{
+		list ($out3, $err3, $exit3) = run ("./a.out");
+		$out3 = homogenize_all ($out3);
+		dump (3, "$filename.out2_$id", $out3);
+	}
+
+	if ($out2 || $err2 || $exit2 || $err3 || $exit3 || ($out1 !== $out3)) // success, we've reduced it while keeping the bug in
+		return $xnew_program;
+
+	return false;
+}
 ?>
