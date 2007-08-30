@@ -8,10 +8,12 @@ require_once ("lib/header.php");
 # statement chunks, and so on, while the progrmam still fails. 
 
 # Complexity:
+# TODO Actually, this is wrong, since each term has a larger complexity, because of k.
 #	 There are N - K possible chunks for chunk size K.  The number of iterations
 #	 is (N-N/2) + (N-N/4) + ... + (N-1), which is log_2(N) steps of size N (the
-#	 second term converges to N, so we discard it). So the complexity is 
-#   O (N log N).
+#	 second term converges to N, so we discard it). So the number of iterations
+#	 is O (N log N). Each iteration leads to a traversal of each statement,
+#	 giving worst case complexity of O (N^2 log N).
 
 
 # Approach:
@@ -32,26 +34,27 @@ require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rd");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
 list ($opts, $arguments) = $opt_result;
+$opt_verbose = 0;
+$opt_help = false;
+$opt_command = "";
 foreach ($opts as $opt) 
 {
-	if ($opt[1] === NULL)
+	switch ($opt[0])
 	{
-		if (isset ($options{$opt[0]})) $options{$opt[0]} += 1;
-		else $options{$opt[0]} = 1;
+		case 'h': $opt_help = true; break;
+		case 'v': $opt_verbose += 1; break;
+		case 'c': $opt_command .= $opt[1]; break;
+		case 'r': $opt_command .= "--run plugins/tools/debug_zval.la --xdump=plugins/tools/debug_zval.la"; break;
+		case 'd': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=true --xdump=plugins/tools/demi_eval.la"; break;
 	}
-	else $options{$opt[0]} = $opt[1];
 }
-$opt_verbose = isset ($options{"v"}) ? $options{"v"} : 0;
-$opt_help = isset ($options{"h"});
-$opt_command = isset ($options{"c"}) ? $options{'c'} : "--dump=ast";
-
-$filename = $arguments[0];
-
+if ($opt_command === "") 
+	$opt_command = "--xdump=ast";
 
 if ($opt_help)
 {
@@ -65,17 +68,37 @@ Options:
     -v     Verbose. Can be set more than once. Set once, prints actions; set 
            twice, prints commands executed; set thrice, dumps results of 
            intermediate stages.
-    -c     Pass as arguments to the first phc. Be sure to include a --dump command, or nothing will happen.
+    -c     Pass as arguments to the first phc. Be sure to include an --xdump command, or nothing will happen.
+    -r     Mnemonic: refcount. The equivalent of "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
+    -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la".
+
+Sample commands:
+    reduce -v test/subjects/codegen/0001.php
+    reduce "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
+    reduce -v 0001.uhir.php
+
 EOL
 	);
 }
 
+$filename = $arguments[0];
 
-# TODO add two levels of verbosity: the first one prints stuff, the second dumps files
+# Passing around code:
+#   There is a problem that some code cannot be parsed (ie gotos and labels).
+#   If we want to reduce code involving control-flow (and we do), then we need
+#   to pass around XML, only unparsing it when necessary.
 
-list ($program) = run ("src/phc $opt_command $filename");
-$N = count_statements ($program);
+
+list ($xprogram, $err, $exit) = run ("src/phc $opt_command $filename");
+if ($err || $exit)
+	die ("Program failed. Try -v -v for more info\n");
+
+$N = count_statements ($xprogram);
 debug (1, "$N statements");
+
+if ($N == 0)
+  die ("No statements. Failing. Try -v -v for more info\n");
+
 
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 {
@@ -84,11 +107,15 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 	{
 		# Reduce
 		debug (1, "Attempting to reduce by $k statements, starting at statement $i");
-		$new_program = reduce ($program, $i, $k);
-		dump (3, "$filename.reduced_{$i}_$k", $new_program);
+		$xnew_program = reduce ($xprogram, $i, $k);
+		$pnew_program = convert ($xnew_program, 0); // converted to PHP
+		$unew_program = convert ($xnew_program, 1); // uppered
+		dump (3, "$filename.xreduced_{$i}_$k", $xnew_program);
+		dump (3, "$filename.preduced_{$i}_$k", $pnew_program);
+		dump (3, "$filename.ureduced_{$i}_$k", $unew_program);
 
 		# Run through PHP
-		list ($out1, $err, $exit) = run ("php", $new_program);
+		list ($out1, $err, $exit) = run ("php", $unew_program);
 		if ($err || $exit) // if the reduced case causes a PHP error, ignore.
 		{
 			debug (1, "Error running through PHP. Skip.");
@@ -98,7 +125,7 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 		dump (3, "$filename.out1_{$i}_$k", $out1);
 
 		# Run through phc
-		list ($out2, $err2, $exit2) = run ("src/phc -c", $new_program);
+		list ($out2, $err2, $exit2) = run ("src/phc --read-ast-xml -c", $xnew_program);
 		if ($err2 === "" && $out2 === "" && $exit2 === 0)
 		{
 			list ($out3, $err3, $exit3) = run ("./a.out");
@@ -108,14 +135,14 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 
 		if ($out2 || $err2 || $exit2 || $err3 || $exit3 || ($out1 !== $out3)) // success, we've reduced it while keeping the bug in
 		{
-			if ($program == $new_program)
+			if ($xprogram == $xnew_program)
 			{
 				// TODO investigate why this is needed
 				debug (1, "The two programs are identical. Ending early.");
 				break 2;
 			}
-			$program = $new_program;
-			$N = count_statements ($program);
+			$xprogram = $xnew_program;
+			$N = count_statements ($xprogram);
 			$k = $N; // the iteration will divide $N by 2
 			debug (1, "Success, program reduced to $N statements");
 			continue 2; // to RESTART
@@ -127,19 +154,32 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 // we're done, it wont reduce any further
 print "Finished. Reduced to $N statements. Result in $filename.reduced\n";
 
-file_put_contents ("$filename.reduced", $program);
+$pprogram = convert ($xprogram, 0); // converted to PHP
+$uprogram = convert ($xprogram, 1); // uppered
+file_put_contents ("$filename.xreduced", $xprogram);
+file_put_contents ("$filename.ureduced", $uprogram);
+file_put_contents ("$filename.reduced", $pprogram);
 
 
-function reduce ($program_string, $i, $k)
+function reduce ($xprogram_string, $i, $k)
 {
-	list ($out) = run ("src/phc --run plugins/tools/reduce_statements.la --r-option=$i:$k --dump=plugins/tools/reduce_statements.la", $program_string);
+	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/reduce_statements.la --r-option=$i:$k --xdump=plugins/tools/reduce_statements.la", $xprogram_string);
+	return $out;
+}
+
+function convert ($xprogram_string, $upper)
+{
+	$upper = $upper ? "u" : "";
+	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=hir", $xprogram_string);
 	return $out;
 }
 
 
-function count_statements ($program_string)
+
+
+function count_statements ($xprogram_string)
 {
-	list ($out) = run ("src/phc --run plugins/tutorials/count_statements_easy.la", $program_string);
+	list ($out) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
 	return $matched[1];
 }
@@ -159,14 +199,27 @@ function run ($command, $stdin = NULL)
 		fwrite ($pipes[0], $stdin);
 	}
 	fclose ($pipes[0]);
+
+	stream_set_blocking ($pipes[1], 0);
+	stream_set_blocking ($pipes[2], 0);
 	
 	$out = "";
 	$err = "";
+	$start_time = time ();
 	do
 	{
 		$out .= stream_get_contents ($pipes[1]);
 		$err .= stream_get_contents ($pipes[2]);
 		$status = proc_get_status ($handle);
+
+		// assume a process times out in 10 seconds
+		if (time () > $start_time + 4)
+		{
+			debug (2, "Command timed out");
+			proc_terminate ($handle);
+			proc_close ($handle);
+			return array ("", "Timeout", -1);
+		}
 	}
 	while ($status["running"]);
 	$out .= stream_get_contents ($pipes[1]);
