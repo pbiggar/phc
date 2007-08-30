@@ -146,7 +146,6 @@ function count_statements ($xprogram_string)
 {
 	list ($out) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
-	var_dump ($matched);
 	return $matched[1];
 }
 
