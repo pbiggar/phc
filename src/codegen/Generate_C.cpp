@@ -273,6 +273,24 @@ void separate (Scope scope, string zvp, AST_variable* var)
 	}
 }
 
+
+/* Generate code to check if ZVP, a variable in the generated code,
+ * points to EG(uninitialized_zval_ptr), and if so, to initialize it
+ * to NULL instead. */
+void init (Scope scope, string zvp, AST_variable* var)
+{
+	cout 
+		<< "if (" << zvp << " == EG(uninitialized_zval_ptr))\n"
+		<< "{\n"
+		<< "	ALLOC_INIT_ZVAL (" << zvp << ");\n"
+		;
+	write (scope, zvp, var);
+
+	cout
+		<< "	zval_ptr_dtor (&" << zvp << ");\n"
+		<< "}\n";
+}
+
 /* Generate code to write ZVP, a variable in the generated code,
  * to LHS, a named variable. RHS is needed for the reference. */
 void write_reference (Scope scope, string zvp, AST_variable* var)
@@ -397,7 +415,6 @@ void read (Scope scope, string zvp, AST_expr* expr)
 	}
 }
 
-
 // Implementation of "global" (used in various places)
 void global(AST_variable_name* var_name, bool separate_var)
 {
@@ -407,6 +424,7 @@ void global(AST_variable_name* var_name, bool separate_var)
 	cout << "{\n";
 	declare ("global_var");
 	read (GLOBAL, "global_var", var);
+	init (GLOBAL, "global_var", var);
 	
 	// Separate RHS if necessary
 	if (separate_var)
