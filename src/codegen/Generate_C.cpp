@@ -1191,11 +1191,11 @@ public:
 			cout 
 				<< "// Setup array of arguments\n"
 				<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
+				<< "zval* args[" << num_args  << "];\n"
 				;
 		}
 		cout 
-			<< "zval** args_ind[" << num_args  << "];\n"
-			<< "zval* args[" << num_args  << "];\n";
+			<< "zval** args_ind[" << num_args  << "];\n";
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
