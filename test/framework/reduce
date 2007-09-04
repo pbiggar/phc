@@ -23,11 +23,11 @@ require_once ("lib/header.php");
 # for each k = N/2; k > 0; k /=2
 #	for each i = 0; i < N -k; i++
 #   new_prog = prog.reduce (i, k)
-#   out1 = php new_prog
-#   out2 = phc new_prog; ./a.out
-#   out1 = homogenize out1
-#   out2 = homogenize out2
-#   if (out1 != out2)
+#   php_out = php new_prog
+#   phc_out = phc new_prog; ./a.out
+#   php_out = homogenize php_out
+#   phc_out = homogenize phc_out
+#   if (php_out != phc_out)
 #    prog = new_prog
 #    goto start;
 
@@ -54,7 +54,7 @@ foreach ($opts as $opt)
 	}
 }
 if ($opt_command === "") 
-	$opt_command = "--xdump=ast";
+	$opt_command = "--xdump=hir";
 
 if ($opt_help)
 {
@@ -112,8 +112,10 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 			$N = count_statements ($xprogram);
 			$k = $N; // the iteration will divide $N by 2
 			debug (1, "Success, program reduced to $N statements");
+			debug (1, ""); // put a blank line in the debug
 			continue 2;
 		}
+		debug (1, ""); // put a blank line in the debug
 	}
 }
 
@@ -138,13 +140,14 @@ function reduce ($xprogram_string, $start, $num)
 function convert ($xprogram_string, $upper)
 {
 	$upper = $upper ? "u" : "";
-	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=hir", $xprogram_string);
+	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=ast", $xprogram_string);
 	return $out;
 }
 
 function count_statements ($xprogram_string)
 {
 	list ($out) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
+	debug (2, "Output is: $out");
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
 	return $matched[1];
 }
@@ -187,6 +190,8 @@ function run ($command, $stdin = NULL)
 		}
 	}
 	while ($status["running"]);
+	stream_set_blocking ($pipes[1], 1);
+	stream_set_blocking ($pipes[2], 1);
 	$out .= stream_get_contents ($pipes[1]);
 	$err .= stream_get_contents ($pipes[2]);
 	# contrary to popular opinion, proc_close doesnt return the exit
@@ -214,7 +219,7 @@ function debug ($level, $message = NULL)
 
 function dump ($level, $filename, $output)
 {
-	debug ($level, "Dumping output to $filename");
+	debug ($level, "Dumping to $filename");
 
 	$above = above_debug_threshold ($level);
 	if ($above)
@@ -248,26 +253,33 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	}
 
 	# Run through PHP
-	list ($out1, $err, $exit) = run ("php", $unew_program);
-	if ($err || $exit) // if the reduced case causes a PHP error, ignore.
+	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
+	if ($php_err || $php_exit) // if the reduced case causes a PHP error, ignore.
 	{
 		debug (1, "Error running through PHP. Skip.");
 		return false;
 	}
-	$out1 = homogenize_all ($out1);
-	dump (3, "$filename.out1_$id", $out1);
+	$php_out = homogenize_all ($php_out);
+	dump (3, "$filename.php_out_$id", $php_out);
 
 	# Run through phc
-	list ($out2, $err2, $exit2) = run ("src/phc --read-ast-xml -c", $xnew_program);
-	if ($err2 === "" && $out2 === "" && $exit2 === 0)
+	list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-ast-xml -c", $xnew_program);
+	if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
 	{
-		list ($out3, $err3, $exit3) = run ("./a.out");
-		$out3 = homogenize_all ($out3);
-		dump (3, "$filename.out2_$id", $out3);
+		list ($aout_out, $aout_err, $aout_exit) = run ("./a.out");
+		$aout_out = homogenize_all ($aout_out);
+		dump (3, "$filename.phc_out_$id", $aout_out);
 	}
 
-	if ($out2 || $err2 || $exit2 || $err3 || $exit3 || ($out1 !== $out3)) // success, we've reduced it while keeping the bug in
+	if ($phc_out || $phc_err || $phc_exit 
+		|| $aout_err || $aout_exit 
+		|| ($php_out !== $aout_out)) // success, we've reduced it while keeping the bug in
+	{
+		dump (3, "$filename.xsuccess_$id", $xnew_program);
+		dump (3, "$filename.psuccess_$id", $pnew_program);
+		dump (3, "$filename.usuccess_$id", $unew_program);
 		return $xnew_program;
+	}
 
 	return false;
 }
