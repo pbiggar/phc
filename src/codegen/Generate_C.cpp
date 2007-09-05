@@ -1552,10 +1552,18 @@ protected:
 
 void Generate_C::children_statement(AST_statement* in)
 {
-	// Make reading the generated code easier
-	cout << "/* ";
-	in->visit (new PHP_unparser (cout));
-	cout << " */\n";
+	// Make reading the generated code easier. If we use a /* comment,
+	// then we may get nested /* */ comments, which arent allowed and
+	// result in syntax errors in C. Use // instead.
+	stringstream ss;
+	in->visit (new PHP_unparser (ss));
+
+	while (not ss.eof ())
+	{
+		string str;
+		getline (ss, str);
+		cout << "// " << str << endl;
+	}
 
 	Pattern* patterns[] = 
 	{
