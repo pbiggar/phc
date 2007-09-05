@@ -494,6 +494,31 @@ read_var (HashTable * st, char *var_name, int var_length,
   return zvp;
 }
 
+/* Read the variable named VAR_NAME from the local symbol table, and
+ * find the variable which it refers to and return it. If the variable
+ * doent exist, a new one is created and *IS_NEW is set.
+ * */
+zval *
+read_var_var (HashTable * st, char *var_name, int var_length,
+	  int *is_new TSRMLS_DC)
+{
+	zval **p_zvp;
+	zval **p_result;
+	if (zend_symtable_find
+			(st, var_name, var_length, (void **) &p_zvp) != SUCCESS)
+	{
+		return EG (uninitialized_zval_ptr);
+	}
+
+	if (ht_find (st, *p_zvp, &p_result) != SUCCESS)
+	{
+		return EG (uninitialized_zval_ptr);
+	}
+
+	return *p_result;
+
+}
+
 zval *
 read_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 	    int ind_length, int *is_new TSRMLS_DC)
@@ -513,6 +538,76 @@ read_array (HashTable * st, char *var_name, int var_length, char *ind_name,
     {
       return EG (uninitialized_zval_ptr);
     }
+
+  var = *p_var;
+
+  if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
+    {
+      // TODO does this need an error, if so, use extract_ht
+      return EG (uninitialized_zval_ptr);
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  // find the index
+  int ind_exists = (zend_symtable_find (st, ind_name, ind_length,
+					(void **) &p_ind) == SUCCESS);
+  if (ind_exists)
+    ind = *p_ind;
+  else
+    {
+      // do not remove these curlies, as this expands to 2 statements
+      ALLOC_INIT_ZVAL (ind);
+    }
+
+  // find the var
+  int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
+  if (result_exists)
+    result = *p_result;
+  else
+    {
+      //      *is_new = 1;
+      //      ALLOC_INIT_ZVAL (result);
+      result = EG (uninitialized_zval_ptr);
+    }
+
+  if (!ind_exists)
+    zval_ptr_dtor (&ind);
+
+  return result;
+}
+
+zval *
+read_var_array (HashTable * st, char *var_name, int var_length, char *ind_name,
+	    int ind_length, int *is_new TSRMLS_DC)
+{
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *refl = NULL;
+  zval **p_refl = &var;
+
+  zval *ind = NULL;
+  zval **p_ind = &ind;
+
+  zval *result = NULL;
+  zval **p_result = &ind;
+
+	// read the reflector
+  if (zend_symtable_find (st, var_name, var_length,
+			  (void **) &p_refl) != SUCCESS)
+  {
+	  return EG (uninitialized_zval_ptr);
+  }
+
+  refl = *p_refl;
+
+	// read the variable itself
+  if (ht_find (st, *p_refl, &p_var) != SUCCESS)
+  {
+	  return EG (uninitialized_zval_ptr);
+  }
 
   var = *p_var;
 

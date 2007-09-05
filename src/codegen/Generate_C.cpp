@@ -175,7 +175,6 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				assert (var->array_indices->size() == 0);
 				cout
 					<< "// Array pushing\n"
 					<< "push_var ("
@@ -387,9 +386,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 					;
 			}
 			else
-			{
 				assert (0);
-			}
 		}
 		else
 		{
@@ -408,10 +405,42 @@ void read (Scope scope, string zvp, AST_expr* expr)
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
-		assert(var->array_indices->size() == 0);
+		AST_reflection* refl;
+		refl = dynamic_cast<AST_reflection*>(var->variable_name);
+		String* name = operand(refl->expr);
 
-		cout << "assert (0); // read_var_var\n";
-//		read_var_var ();
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				String *index = operand (var->array_indices->front ());
+				cout 
+					<< "// Read array variable-variable\n"
+					<< zvp << " = read_var_array (" 
+					<<		get_scope (scope) << ", "
+					<<		"\"" << *name << "\", "
+					<<		name->size () + 1  << ", "
+					<<		"\"" << *index << "\", "
+					<<		index->size () + 1  << ", "
+					<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+					;
+			}
+			else
+				assert (0);
+		}
+		else
+		{
+			assert (var->array_indices->size() == 0);
+			cout 
+				<< "// Read variable variable\n"
+				<< zvp << " = read_var_var (" 
+				<<		get_scope (scope) << ", "
+				<<		"\"" << *name << "\", "
+				<<		name->size () + 1  << ", "
+				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+				;
+		}
 	}
 }
 
