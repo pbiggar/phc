@@ -10,7 +10,6 @@
 
 // Some common functions
 #include "php.h"
-static int phc_exit_status = 0;
 
 // Extract the hashtable from a hash-valued zval
 HashTable *
@@ -726,7 +725,6 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
 
   if (Z_TYPE_P (var) == IS_STRING)
   {
-	  phc_exit_status = -1;
 	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot create references to/from string offsets nor overloaded objects");
   }
 
@@ -1049,7 +1047,6 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 
   if (Z_TYPE_P (*p_var) == IS_STRING)
   {
-	  phc_exit_status = -1;
 	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot unset string offsets");
   }
 
@@ -1084,7 +1081,7 @@ phc_exit (char *arg_name, int arg_length TSRMLS_DC)
   zval *arg = read_var (EG (active_symbol_table), arg_name, arg_length,
 			&is_arg_new TSRMLS_CC);
   if (Z_TYPE_P (arg) == IS_LONG)
-    phc_exit_status = Z_LVAL_P (arg);
+    EG (exit_status) = Z_LVAL_P (arg);
   else
     zend_print_variable (arg);
 
