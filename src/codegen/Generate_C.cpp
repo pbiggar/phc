@@ -830,9 +830,15 @@ public:
 		{
 			// this must be a copy
 			Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
-			assert (rhs);
-
-			separate (LOCAL, "rhs", rhs->value);
+			if (rhs)
+			{
+				separate (LOCAL, "rhs", rhs->value);
+			}
+			else
+			{
+				// method_invocations separate before they return, so no need.
+				assert (dynamic_cast<Wildcard<AST_method_invocation>*> (agn->expr));
+			}
 			write_reference (LOCAL, "rhs", lhs->value);
 		}
 
