@@ -724,6 +724,12 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
 			    &var, sizeof (zval *), NULL);
     }
 
+  if (Z_TYPE_P (var) == IS_STRING)
+  {
+	  phc_exit_status = -1;
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot create references to/from string offsets nor overloaded objects");
+  }
+
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
@@ -1041,7 +1047,13 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
   if (!var_exists)
     return;
 
-  if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+  {
+	  phc_exit_status = -1;
+	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot unset string offsets");
+  }
+
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)
     {
       // TODO does this need an error, if so, use extract_ht
       return;

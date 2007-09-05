@@ -1034,12 +1034,10 @@ class Eval : public Assignment
 			<< "// Call eval\n"
 			<< "{\n"
 			<< "  zval copy;\n"
-			<< "  zval* eval_arg;\n"
 			<< "  INIT_ZVAL (copy);\n";
 
-		lookup (LOCAL, 
-			dynamic_cast<Token_variable_name*> (eval_arg->value->variable_name),
-			"eval_arg");
+		declare ("eval_arg");
+		read (LOCAL, "eval_arg", eval_arg->value);
 
 		cout
 			<< "  copy = *eval_arg;\n"
@@ -1064,12 +1062,10 @@ class Eval : public Assignment
 			<< "	  zend_eval_string (Z_STRVAL (copy), NULL, "
 			<< "		\"eval'd code\" TSRMLS_CC);\n"
 			<< "	  ZVAL_NULL (rhs);\n"
-			<< "  }\n"
-			<< "  if (p_eval_arg == NULL)\n"
-			<< "  {\n"
-			<< "    zval_ptr_dtor (p_eval_arg);\n"
-			<< "  }\n"
-			<< "}\n"
+			<< "  }\n";
+
+			cleanup ("eval_arg");
+			cout << "}\n"
 			;
 
 		// cout << "debug_hash(EG(active_symbol_table));\n";
@@ -1419,10 +1415,9 @@ public:
 	AST_expr* rhs_pattern()
 	{
 		op = new Wildcard<Token_op>;
-		expr = new Wildcard<Token_variable_name>;
+		expr = new Wildcard<AST_variable>;
 
-		return new AST_unary_op(op,
-			new AST_variable(NULL, expr, new List<AST_expr*>)); 
+		return new AST_unary_op(op, expr);
 	}
 
 	void generate_rhs()
@@ -1432,18 +1427,21 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
+		declare ("expr");
+		read (LOCAL, "expr", expr->value);
+
 		cout 
-		<< "zval* expr = index_ht(EG(active_symbol_table), "
-		<< "\"" << *expr->value->value << "\", "
-		<< expr->value->value->length() + 1 << ");\n"
-		<< "MAKE_STD_ZVAL(rhs);\n"
-		<< op_fn << "(rhs, expr TSRMLS_CC);\n"
-		;
+			<< "MAKE_STD_ZVAL(rhs);\n"
+			<< "is_rhs_new = 1;\n"
+			<< op_fn << "(rhs, expr TSRMLS_CC);\n"
+			;
+
+		cleanup ("expr");
 	}
 
 protected:
 	Wildcard<Token_op>* op;
-	Wildcard<Token_variable_name>* expr;
+	Wildcard<AST_variable>* expr;
 };
 
 class Return : public Pattern
