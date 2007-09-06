@@ -1065,50 +1065,16 @@ class Eval : public Assignment
 
 	void generate_rhs()	
 	{
-		// check
-		operand(eval_arg->value);
-
-		// cout << "debug_hash(EG(active_symbol_table));\n";
-
-		cout
-			<< "// Call eval\n"
-			<< "{\n"
-			<< "  zval copy;\n"
-			<< "  INIT_ZVAL (copy);\n";
+		cout << "{\n";
 
 		declare ("eval_arg");
 		read (LOCAL, "eval_arg", eval_arg->value);
 
-		cout
-			<< "  copy = *eval_arg;\n"
-			<< "  convert_to_string(&copy);\n"
-			// TODO this is very ugly
-			// If the user wrote "return ..", we need to store the
-			// return value; however, in that case, zend_eval_string
-			// will slap an extra "return" onto the front of the string,
-			// so we must remove the "return" from the string the user
-			// wrote. If the user did not write "return", he is not
-			// interested in the return value, and we must pass NULL
-			// instead or rhs to avoid zend_eval_string adding "return".
-			<< "  MAKE_STD_ZVAL(rhs);\n"
-			<< "  is_rhs_new = 1;\n"
-			<< "  if(!strncmp(Z_STRVAL(copy), \"return \", 7))\n"
-			<< "  {\n"
-			<< "  	zend_eval_string (Z_STRVAL (copy) + 7, rhs, "
-			<< "		\"eval'd code\" TSRMLS_CC);\n"
-			<< "  }\n"
-			<< "  else\n"
-			<< "  {\n"
-			<< "	  zend_eval_string (Z_STRVAL (copy), NULL, "
-			<< "		\"eval'd code\" TSRMLS_CC);\n"
-			<< "	  ZVAL_NULL (rhs);\n"
-			<< "  }\n";
+		cout << "  eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
 
-			cleanup ("eval_arg");
-			cout << "}\n"
-			;
+		cleanup ("eval_arg");
 
-		// cout << "debug_hash(EG(active_symbol_table));\n";
+		cout << "}\n" ;
 	}
 
 protected:

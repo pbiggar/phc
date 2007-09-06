@@ -1171,6 +1171,42 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 }
 
 void
+eval (zval* zvp, zval** p_result, int* is_result_new TSRMLS_DC)
+{
+   // If the user wrote "return ..", we need to store the
+   // return value; however, in that case, zend_eval_string
+   // will slap an extra "return" onto the front of the string,
+   // so we must remove the "return" from the string the user
+   // wrote. If the user did not write "return", he is not
+   // interested in the return value, and we must pass NULL
+   // instead or rhs to avoid zend_eval_string adding "return".
+
+   // convert to a string
+   zval *copy;
+   MAKE_STD_ZVAL (copy);
+   copy->value = zvp->value;
+   copy->type = zvp->type;
+   zval_copy_ctor (copy);
+   convert_to_string (copy);
+
+   MAKE_STD_ZVAL (*p_result);
+   *is_result_new = 1;
+   if (!strncmp (Z_STRVAL_P (copy), "return ", 7))
+   {
+      zend_eval_string (Z_STRVAL_P (copy) + 7, *p_result,
+	    "eval'd code" TSRMLS_CC);
+   }
+   else
+   {
+      zend_eval_string (Z_STRVAL_P (copy), NULL, "eval'd code" TSRMLS_CC);
+      ZVAL_NULL (*p_result);
+   }
+
+   // cleanup
+   zval_ptr_dtor (&copy);
+}
+
+void
 phc_exit (char *arg_name, int arg_length TSRMLS_DC)
 {
   int is_arg_new = 0;
