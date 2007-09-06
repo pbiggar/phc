@@ -22,11 +22,11 @@ extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
 	{
 		// create a statement for the comment
 		AST_nop* nop = new AST_nop ();
-		nop->get_comments()->push_back (comment);
+		nop->get_comments()->push_front (comment);
 	}
 	else
 	{
 		// attach the comment to the first statement
-		script->statements->front ()->get_comments ()->push_back (comment);
+		script->statements->front ()->get_comments ()->push_front (comment);
 	}
 }
