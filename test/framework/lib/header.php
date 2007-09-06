@@ -306,29 +306,42 @@ function adjusted_name ($script_name, $adjust_for_regression = 0)
 function complete_exec($command)
 {
 	global $opt_verbose;
+	if ($opt_verbose)
+		print "Running command: $command\n";
 
 	$descriptorspec = array(1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
 	$handle = proc_open($command, $descriptorspec, &$pipes);
+	stream_set_blocking ($pipes[1], 0);
+	stream_set_blocking ($pipes[2], 0);
 	
 	$out = "";
 	$err = "";
+	$start_time = time ();
 	do
 	{
 		$out .= stream_get_contents ($pipes[1]);
 		$err .= stream_get_contents ($pipes[2]);
 		$status = proc_get_status ($handle);
+
+		// 20 second timeout on any command
+		if (time () > $start_time + 20)
+		{
+			proc_terminate ($handle);
+			proc_close ($handle);
+			return array ("", "Timeout", -1);
+		}
 	}
 	while ($status["running"]);
+	stream_set_blocking ($pipes[1], 1);
+	stream_set_blocking ($pipes[2], 1);
 	$out .= stream_get_contents ($pipes[1]);
 	$err .= stream_get_contents ($pipes[2]);
 	# contrary to popular opinion, proc_close doesnt return the exit
 	# status
 	$exit_code = $status["exitcode"];
 	proc_close ($handle);
-	if ($opt_verbose)
-		print "Running: $command\n";
 	return array ($out, $err, $exit_code);
 }
 
