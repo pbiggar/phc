@@ -1197,3 +1197,12 @@ get_constant (char *name, int length, zval ** p_zvp,
 
   *is_zvp_new = 1;
 }
+
+void phc_check_invariants (TSRMLS_D)
+{
+	assert (EG(uninitialized_zval_ptr) == &EG(uninitialized_zval));
+	assert (EG(uninitialized_zval).refcount >= 2);
+	assert (EG(uninitialized_zval).value.lval == 0);
+	assert (EG(uninitialized_zval).type == IS_NULL);
+	assert (EG(uninitialized_zval).is_ref == 0);
+}
