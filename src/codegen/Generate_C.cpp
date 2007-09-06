@@ -1338,6 +1338,8 @@ public:
 		cout 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
+		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
+		// TODO this must be wrong. We should separate/clone rhs
 		<< "	rhs->is_ref = 1;\n"
 		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
 		<< "		is_rhs_new = 1;\n"
@@ -1347,6 +1349,13 @@ public:
 		<< "	is_rhs_new = 1;\n"
 		<< "}\n"
 		;
+
+		if (agn->is_ref)
+		{
+			cout 
+				<< "if (rhs->refcount > 1 && !rhs->is_ref)\n"
+				<< "  zvp_clone (&rhs, &is_rhs_new TSRMLS_CC);\n";
+		}
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
