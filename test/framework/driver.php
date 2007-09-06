@@ -45,6 +45,8 @@ mkdir ($working_directory);
 @unlink ("test/working/latest");
 symlink ($working_directory, "test/working/latest");
 
+print ("Working from: $working_directory\n");
+print ("Logs in:      $log_directory\n");
 $phc = get_phc ();
 $php = get_php ();
 $phc_compile_plugin = get_phc_compile_plugin ();
