@@ -210,8 +210,11 @@ void write (Scope scope, string zvp, AST_variable* var)
 }
 
 /* Separate the rhs, and write it back to the symbol table if necessary */
-void separate (Scope scope, string zvp, AST_variable* var)
+void separate (Scope scope, string zvp, AST_expr* expr)
 {
+	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	assert (var);
+
 	// separated write back to rhs
 	Token_variable_name* name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
@@ -1494,23 +1497,25 @@ class Return : public Pattern
 
 		if(!gen->return_by_reference)
 		{
-			// TODO what about if there's run-time return by reference
+			// Run-time return by reference had slightly different
+			// semantics to compile-time. There is no way within a
+			// function to tell if the run-time return by reference is
+			// set, but its unnecessary anyway.
 			cout 
-			<< "return_value->value = rhs->value;\n"
-			<< "return_value->type = rhs->type;\n"
-			<< "zval_copy_ctor(return_value);\n"
-			;
+				<< "return_value->value = rhs->value;\n"
+				<< "return_value->type = rhs->type;\n"
+				<< "zval_copy_ctor(return_value);\n"
+				;
 		}
 		else
 		{
-			// TODO separate if necessary
-			// (May not be necessary due to the shredder)
+			separate (LOCAL, "rhs", expr->value);
 
 			cout
-			<< "zval_ptr_dtor(return_value_ptr);\n"
-			<< "rhs->is_ref = 1;\n"
-			<< "rhs->refcount++;\n"
-			<< "*return_value_ptr = rhs;\n"
+				<< "zval_ptr_dtor(return_value_ptr);\n"
+				<< "rhs->is_ref = 1;\n"
+				<< "rhs->refcount++;\n"
+				<< "*return_value_ptr = rhs;\n";
 			;
 //		cout << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
