@@ -4,8 +4,8 @@ moved to a separate short test.
 
 	3rdparty/
 		Within the testing framework, 3rdparty/ is a special directory. It uses
-		its own label file, 3rparty/labels/, and tests in this directory are
-		normally considered 'long' (ie you need -l to run them). We generally put
+		its own label file, 3rdparty/labels/, and tests in this directory are
+		normally considered 'long' (i.e. you need -l to run them). We generally put
 		applications in here to test them.
 	
 	bugs/
@@ -29,7 +29,7 @@ moved to a separate short test.
 		A list of difficult parsing problems.
 
 	inline-c/
-		We allow inline c to test certain features in codegen. This is for
+		We allow inlined C to test certain features in codegen. This is for
 		testing only, and should certainly not be used by anybody.
 
 	invalid/
@@ -42,6 +42,16 @@ moved to a separate short test.
 		Test cases from bug reports submitted to PHP bugzilla. There help us with
 		corner cases when something is being implemented.
 
+	reduced/
+		When we reduce test cases to isolate a problem, we copy the reduced case
+		here. Normally, we'd add a comment indicating its origin. These are named
+		in the order they are created.
+
 	unsupported/
 		Some things are a combination of silly, not widely used, unsafe, and most
 		importantly, very difficult to support.
+
+	warnings/
+		Currently, the difference between errors and warnings (and sometimes
+		invalid) is a little bit vague. Supposedly tests which cause warnings
+		should be in here, but occasionally, they're in errors/ instead.
