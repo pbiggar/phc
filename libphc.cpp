@@ -761,6 +761,11 @@ push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
 			    &var, sizeof (zval *), NULL);
     }
 
+  if (Z_TYPE_P (var) == IS_STRING)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR, "[] operator not supported for strings");
+    }
+
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
