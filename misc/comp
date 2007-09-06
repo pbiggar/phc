@@ -27,6 +27,10 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=true"
 	fi
+	if [ "-$var" = "--D" ]
+	then
+		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=false"
+	fi
 	if [ "-$var" = "--v" ]
 	then
 		set -x

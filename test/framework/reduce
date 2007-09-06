@@ -35,7 +35,7 @@ require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rd");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdD");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -52,6 +52,7 @@ foreach ($opts as $opt)
 		case 'c': $opt_command .= $opt[1]; break;
 		case 'r': $opt_command .= "--run plugins/tools/debug_zval.la --xdump=plugins/tools/debug_zval.la"; break;
 		case 'd': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=true --xdump=plugins/tools/demi_eval.la"; break;
+		case 'D': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=false --xdump=plugins/tools/demi_eval.la"; break;
 	}
 }
 if ($opt_command === "") 
