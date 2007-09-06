@@ -12,7 +12,7 @@ DEBUG_PHC=0
 
 # parse command line parms
 
-for var in $2 $3 $4;
+for var in $2 $3 $4 $5;
 do
 	if [ "-$var" = "--g" ]
 	then
@@ -26,6 +26,10 @@ do
 	if [ "-$var" = "--d" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=true"
+	fi
+	if [ "-$var" = "--v" ]
+	then
+		set -x
 	fi
 done
 
