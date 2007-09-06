@@ -1364,15 +1364,15 @@ public:
 		// collector problems when the function returned a reference to an
 		// existing zval. Hence, we increment the refcount here, and set is_ref
 		// to true if the function signature declares the function to return a
-		// reference. This causes memory leaks, but that's better than a
-		// segfault :) (Note that this will cause memory leaks only when 
-		// calling eval'd functions, because they do in fact return the proper
-		// refcount, which will be one too many after we've incremented them).
+		// reference. This causes memory leaks, so we make a note to clean up the
+		// memory. It only occurs when calling eval'd functions, because they do
+		// in fact return the correct refcount.
 		cout 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
-//		<< "rhs->refcount++;\n"
 		<< "	rhs->is_ref = 1;\n"
+		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
+		<< "		is_rhs_new = 1;\n"
 		<< "}\n"
 		<< "else\n"
 		<< "{\n"

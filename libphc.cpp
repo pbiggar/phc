@@ -267,7 +267,8 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   clone->type = (*p_zvp)->type;
   zval_copy_ctor (clone);
   assert (is_zvp_new);
-  assert (*is_zvp_new == 0);	// TODO lower refcount if its already new
+  if (*is_zvp_new)
+	  zval_ptr_dtor (p_zvp);
   *is_zvp_new = 1;
   *p_zvp = clone;
 }
