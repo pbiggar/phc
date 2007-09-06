@@ -23,22 +23,30 @@ require_once ("lib/startup.php");
 require_once ("lib/header.php");
 require_once ("lib/autovars.php");
 
-$log_directory =	"test/logs/".date_string ();
-
 if ($opt_clean)
 {
 	echo "rm -Rf ./test/logs/*\n";
 	`rm -Rf ./test/logs/*`;
+	echo "rm -Rf ./test/working/*\n";
+	`rm -Rf ./test/working/*`;
 	exit (0);
 }
-else
-{
-	mkdir ($log_directory);
-	@unlink ("test/logs/latest");
-	symlink ($log_directory, "test/logs/latest");
-}
 
 
+// setup log dir
+$log_directory =	"test/logs/".date_string ();
+mkdir ($log_directory);
+@unlink ("test/logs/latest");
+symlink ($log_directory, "test/logs/latest");
+
+//setup working dir
+$working_directory =	"test/working/".date_string ();
+mkdir ($working_directory);
+@unlink ("test/working/latest");
+symlink ($working_directory, "test/working/latest");
+
+print ("Working from: $working_directory\n");
+print ("Logs in:      $log_directory\n");
 $phc = get_phc ();
 $php = get_php ();
 $phc_compile_plugin = get_phc_compile_plugin ();

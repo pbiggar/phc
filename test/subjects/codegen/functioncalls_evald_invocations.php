@@ -5,6 +5,7 @@
 
 	function fun($x) { $x = 'x'; }
 	function fun_r(&$x) { $x = 'x'; }
+	function &fun_rr($x) { return $x; }
 
 	// Test proper calling conventions in simple cases
 
@@ -23,6 +24,14 @@
 	eval('$d = 40;');
 	eval('fun_r(&$d);');
 	eval('var_export($d);');
+
+	eval('$d1 = 41;');
+	eval('fun_rr(&$d1);');
+	eval('var_export($d1);');
+
+	eval('$d2 = 42;');
+	eval('fun_rr(&$d2);');
+	eval('var_export($d2);');
 
 	eval('echo "\n";');
 
@@ -66,6 +75,24 @@
 	eval('var_export($k);');
 	eval('var_export($l);');
 	
+	eval('$i1 = 71;');
+	eval('$j1 = $i1;');
+	eval('fun_rr($j1);');
+	eval('var_export($i1);');
+	eval('var_export($j1);');
+	eval('$j1 = \'y\';');
+	eval('var_export($i1);');
+	eval('var_export($j1);');
+
+	eval('$k1 = 81;');
+	eval('$l1 = $k1;');
+	eval('fun_rr(&$l1);');
+	eval('var_export($k1);');
+	eval('var_export($l1);');
+	eval('$l1 = \'y\';');
+	eval('var_export($k1);');
+	eval('var_export($l1);');
+	
 	eval('echo "\n";');
 
 	// Same again, but the variable passed in is now part of a 
@@ -108,6 +135,24 @@
 	eval('$t = \'y\';');
 	eval('var_export($s);');
 	eval('var_export($t);');
+
+	eval('$q1 = 111;');
+	eval('$r1 =& $q1;');
+	eval('fun_rr($r1);');
+	eval('var_export($q1);');
+	eval('var_export($r1);');
+	eval('$r1 = \'y\';');
+	eval('var_export($q1);');
+	eval('var_export($r1);');
+
+	eval('$s1 = 121;');
+	eval('$t1 =& $s1;');
+	eval('fun_rr(&$t1);');
+	eval('var_export($s1);');
+	eval('var_export($t1);');
+	eval('$t1 = \'y\';');
+	eval('var_export($s1);');
+	eval('var_export($t1);');
 
 	eval('echo "\n";');
 ?>

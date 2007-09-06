@@ -9,15 +9,22 @@
 
 function get_phc ()
 {
-	global $opt_valgrind, $phc_suffix, $valgrind, $libphp;
+	global $opt_valgrind, $phc_suffix, $valgrind, $libphp, $working_dir;
 
-	// first check that this isnt being run from the wrong directory (the right directory contains ./phc - if you get this far you have the tests)
+	// first check that this isnt being run from the wrong directory
+	// (the right directory contains ./phc - if you get this far you
+	// have the tests)
 	$phc = "src/phc$phc_suffix";
 	if (!file_exists($phc) and is_file($phc) and is_executable($phc))
 	{
 		$cwd = getcwd ();
 		die ("Error: The current directory, $cwd, does not contain the phc executable '$phc'\n");
 	}
+
+
+	// now copy to the working directory, so we can safely compile
+	// the executable while the tests run.
+	$phc = copy_to_working_dir ($phc);
 
 	if ($opt_valgrind)
 	{
@@ -38,6 +45,8 @@ function get_phc_compile_plugin ()
 		$cwd = getcwd ();
 		die ("Error: The current directory, $cwd, does not contain the phc executable '$phc'\n");
 	}
+
+	$phc_compile_plugin = copy_to_working_dir ($phc_compile_plugin);
 
 	return $phc_compile_plugin;
 
@@ -495,6 +504,18 @@ function homogenize_all ($string)
 	$string = homogenize_reference_count ($string);
 	$string = homogenize_warnings ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
+//	$string = homogenize_break_levels ($string);
+	return $string;
+}
+
+function copy_to_working_dir ($file)
+{
+	global $working_directory;
+	$filename = basename ($file);
+	$new_file = "$working_directory/$filename";
+	copy ($file, $new_file);
+	chmod ($new_file, fileperms ($file));
+	return $new_file;
 }
 
 

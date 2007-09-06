@@ -12,7 +12,7 @@ DEBUG_PHC=0
 
 # parse command line parms
 
-for var in $2 $3 $4;
+for var in $2 $3 $4 $5;
 do
 	if [ "-$var" = "--g" ]
 	then
@@ -27,6 +27,14 @@ do
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=true"
 	fi
+	if [ "-$var" = "--D" ]
+	then
+		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=false"
+	fi
+	if [ "-$var" = "--v" ]
+	then
+		set -x
+	fi
 done
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
@@ -36,6 +44,15 @@ src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
 		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --dump=hir
+	fi
+	exit 1
+fi
+
+# generate uppered HIR
+src/phc $PHP_NAME $PHC_ARGS --udump=hir > $NAME.uhir.php
+if [[ $? != 0 ]]; then
+	if [[ $DEBUG_PHC != 0 ]]; then 
+		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --udump=hir
 	fi
 	exit 1
 fi

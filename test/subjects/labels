@@ -37,6 +37,12 @@ parsing/binops\d+.php				long no-Generate_C no-Refcounts no-CompiledVsInterprete
 # gcc takes 44 seconds to compile this test. The generate C test is also very long
 parsing/allchars_inline.php		no-Generate_C no-Refcounts no-CompiledVsInterpreted
 
+# The refcounts test is a little buggy. If there is code both before and after a function def, it will print out different results.
+codegen/shutdown_on_.*.php			no-Refcounts 
+codegen/nested_statements.php		no-Refcounts
+codegen/print.php						no-Refcounts
+
+
 parsing/for.php						non-interpretable # infinite loops
 parsing/for_cond_with_comma.php	non-interpretable # infinite loops
 codegen/for_varying_cond.php		non-interpretable # infinite loops

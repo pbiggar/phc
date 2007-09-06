@@ -100,7 +100,8 @@ abstract class Test
 	// override this function if your test takes ages
 	function get_time_limit ()
 	{
-		return 20; // most tests complete in 10 seconds, so give some space
+		// basic_parse_tests take 20 seconds on my machine.
+		return 40;
 	}
 
 	function get_name ()
