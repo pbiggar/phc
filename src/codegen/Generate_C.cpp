@@ -1488,6 +1488,7 @@ class Return : public Pattern
 //		cout << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
 		}
+		cleanup ("rhs");
 
 		cout 
 		<< "goto end_of_function;\n"
