@@ -144,6 +144,14 @@ plugins_tests_xml_roundtrip_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(plugins_tests_xml_roundtrip_la_LDFLAGS) $(LDFLAGS) -o $@
+plugins_tools_add_comment_la_LIBADD =
+am_plugins_tools_add_comment_la_OBJECTS = add_comment.lo
+plugins_tools_add_comment_la_OBJECTS =  \
+	$(am_plugins_tools_add_comment_la_OBJECTS)
+plugins_tools_add_comment_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tools_add_comment_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tools_debug_zval_la_LIBADD =
 am_plugins_tools_debug_zval_la_OBJECTS = debug_zval.lo
 plugins_tools_debug_zval_la_OBJECTS =  \
@@ -306,6 +314,7 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
+	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
@@ -327,6 +336,7 @@ DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
 	$(plugins_tests_xml_roundtrip_la_SOURCES) \
+	$(plugins_tools_add_comment_la_SOURCES) \
 	$(plugins_tools_debug_zval_la_SOURCES) \
 	$(plugins_tools_demi_eval_la_SOURCES) \
 	$(plugins_tools_purity_test_la_SOURCES) \
@@ -670,9 +680,9 @@ nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/strip_includes.la plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
-	plugins/tests/xml_roundtrip.la plugins/tools/purity_test.la \
-	plugins/tools/debug_zval.la plugins/tools/demi_eval.la \
-	plugins/tools/reduce_statements.la \
+	plugins/tests/xml_roundtrip.la plugins/tools/add_comment.la \
+	plugins/tools/purity_test.la plugins/tools/debug_zval.la \
+	plugins/tools/demi_eval.la plugins/tools/reduce_statements.la \
 	plugins/tutorials/Comment_ifs.la \
 	plugins/tutorials/count_statements_easy.la \
 	plugins/tutorials/count_statements_difficult.la \
@@ -697,6 +707,8 @@ plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_sem
 plugins_tests_source_vs_semantic_values_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_xml_roundtrip_la_SOURCES = plugins/tests/xml_roundtrip.cpp
 plugins_tests_xml_roundtrip_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
+plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp
 plugins_tools_purity_test_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tools_debug_zval_la_SOURCES = plugins/tools/debug_zval.cpp
@@ -843,6 +855,8 @@ plugins/tests/xml_roundtrip.la: $(plugins_tests_xml_roundtrip_la_OBJECTS) $(plug
 plugins/tools/$(am__dirstamp):
 	@$(MKDIR_P) plugins/tools
 	@: > plugins/tools/$(am__dirstamp)
+plugins/tools/add_comment.la: $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
+	$(plugins_tools_add_comment_la_LINK) -rpath $(pkglibdir) $(plugins_tools_add_comment_la_OBJECTS) $(plugins_tools_add_comment_la_LIBADD) $(LIBS)
 plugins/tools/debug_zval.la: $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
 	$(plugins_tools_debug_zval_la_LINK) -rpath $(pkglibdir) $(plugins_tools_debug_zval_la_OBJECTS) $(plugins_tools_debug_zval_la_LIBADD) $(LIBS)
 plugins/tools/demi_eval.la: $(plugins_tools_demi_eval_la_OBJECTS) $(plugins_tools_demi_eval_la_DEPENDENCIES) plugins/tools/$(am__dirstamp)
@@ -986,6 +1000,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/canonical_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cloning.Plo@am__quote@
@@ -1154,6 +1169,13 @@ xml_roundtrip.lo: plugins/tests/xml_roundtrip.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/xml_roundtrip.cpp' object='xml_roundtrip.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o xml_roundtrip.lo `test -f 'plugins/tests/xml_roundtrip.cpp' || echo '$(srcdir)/'`plugins/tests/xml_roundtrip.cpp
+
+add_comment.lo: plugins/tools/add_comment.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT add_comment.lo -MD -MP -MF $(DEPDIR)/add_comment.Tpo -c -o add_comment.lo `test -f 'plugins/tools/add_comment.cpp' || echo '$(srcdir)/'`plugins/tools/add_comment.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/add_comment.Tpo $(DEPDIR)/add_comment.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tools/add_comment.cpp' object='add_comment.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o add_comment.lo `test -f 'plugins/tools/add_comment.cpp' || echo '$(srcdir)/'`plugins/tools/add_comment.cpp
 
 debug_zval.lo: plugins/tools/debug_zval.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT debug_zval.lo -MD -MP -MF $(DEPDIR)/debug_zval.Tpo -c -o debug_zval.lo `test -f 'plugins/tools/debug_zval.cpp' || echo '$(srcdir)/'`plugins/tools/debug_zval.cpp

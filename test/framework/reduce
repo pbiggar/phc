@@ -34,6 +34,7 @@ require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
+$command_line = join (" ", $cg->readPHPArgv());
 $opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rd");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
@@ -89,11 +90,15 @@ $filename = $arguments[0];
 #   to pass around XML, only unparsing it when necessary.
 
 
+$num_steps = 0;
+
+
 list ($xprogram, $err, $exit) = run ("src/phc $opt_command $filename");
 if ($err || $exit)
 	die ("Program failed. Try -v -v for more info\n");
 
 $N = count_statements ($xprogram);
+$original = $N;
 debug (1, "$N statements");
 
 if ($N == 0)
@@ -103,7 +108,7 @@ if ($N == 0)
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 {
 // RESTART:
-	for ($i = 0; $i <= ($N-$k); $i++)
+	for ($i = 0; $i <= ($N-$k); $i += $k)
 	{
 	   $result = do_main_step ($xprogram, $i, $k, $filename);
 		if ($result !== false)
@@ -120,14 +125,21 @@ for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
 }
 
 // we're done, it wont reduce any further
-print "Finished. Reduced to $N statements. Result in $filename.reduced\n";
+print "Finished. Reduced from $original to $N statements in $num_steps steps. Result in $filename.reduced\n";
 
+$xprogram = add_comment ($xprogram);
 $pprogram = convert ($xprogram, 0); // converted to PHP
 $uprogram = convert ($xprogram, 1); // uppered
 file_put_contents ("$filename.xreduced", $xprogram);
 file_put_contents ("$filename.ureduced", $uprogram);
 file_put_contents ("$filename.reduced", $pprogram);
 
+function add_comment ($xprogram)
+{
+	global $command_line;
+	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=plugins/tools/add_comment.la", $xprogram);
+	return $out;
+}
 
 function reduce ($xprogram_string, $start, $num)
 {
@@ -235,6 +247,9 @@ function dump ($level, $filename, $output)
 # reduced program otherwise.
 function do_main_step ($xprogram, $start, $num, $filename)
 {
+	global $num_steps;
+	$num_steps++;
+
 	# Reduce
 	debug (1, "Attempting to reduce by $num statements, starting at statement $start");
 	$xnew_program = reduce ($xprogram, $start, $num);
