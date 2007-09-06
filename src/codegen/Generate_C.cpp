@@ -1768,6 +1768,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"\n"
 		"   TSRMLS_D;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
+		"   EG(uninitialized_zval_ptr) = (zval*)(\"\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\0\\2\\0\\0\\0\"); // try to put this into read-only memory\n"
 		"   zend_try\n"
 		"   {\n"
 		"\n"
