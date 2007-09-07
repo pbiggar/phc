@@ -770,7 +770,52 @@ push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   rhs->refcount++;
-  zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
+  int result = zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
+  assert (result == SUCCESS);
+
+}
+
+void
+push_var_reference (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
+	  int *is_rhs_new TSRMLS_DC)
+{
+  zval *var = NULL;
+  zval **p_var = &var;
+
+  zval *rhs = *p_rhs;
+
+  int var_exists = (zend_symtable_find (st, var_name, var_length,
+					(void **) &p_var) == SUCCESS);
+  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
+    {
+      int is_var_new = 0;
+      var = *p_var;
+      // if we use p_var instead of &var, zend_has_update throws
+      // an error and returns failure.
+      separate_var (st, var_name, var_length, &var, &is_var_new TSRMLS_CC);
+      if (is_var_new)
+	zval_ptr_dtor (p_var);
+    }
+  else
+    {
+      // if no var, create it and add it to the symbol table
+      ALLOC_INIT_ZVAL (var);
+      zend_symtable_update (st, var_name, var_length,
+			    &var, sizeof (zval *), NULL);
+    }
+
+  if (Z_TYPE_P (var) == IS_STRING)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR, "[] operator not supported for strings");
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (var TSRMLS_CC);
+
+  rhs->is_ref = 1;
+  rhs->refcount++;
+  int result = zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
+  assert (result == SUCCESS);
 
 }
 

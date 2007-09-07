@@ -326,10 +326,12 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				// TODO I'm pretty sure this is legal
-				assert (0);
-				cout << "assert (0); // push_var\n";
-				//				push_var ()
+				cout 
+					<< "push_var_reference (" 
+					<<		get_scope (scope) << ", "
+					<<		"\"" << *name->value << "\", "
+					<<		name->value->size () + 1 << ", "
+					<<		"&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 		}
 		else
