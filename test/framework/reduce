@@ -3,17 +3,21 @@
 
 require_once ("lib/header.php");
 
-# This attempts to reduce a test case to a minimal test case. For a program of
-# N statements, it attempts to reduce it by N/2 statements chunks, then by N/4
-# statement chunks, and so on, while the progrmam still fails. 
+# This attempts to reduce a test case to a minimal test case. For a
+# program of N statements, it attempts to reduce it by N/2 statements
+# chunks, then by N/4 statement chunks, and so on, while the progrmam
+# still fails. 
 
 # Complexity:
-# TODO Actually, this is wrong, since each term has a larger complexity, because of k.
-#	 There are N - K possible chunks for chunk size K.  The number of iterations
-#	 is (N-N/2) + (N-N/4) + ... + (N-1), which is log_2(N) steps of size N (the
-#	 second term converges to N, so we discard it). So the number of iterations
-#	 is O (N log N). Each iteration leads to a traversal of each statement,
-#	 giving worst case complexity of O (N^2 log N).
+# TODO Actually, this is wrong, since each term has a larger
+# complexity, because of k.
+#
+# There are N - K possible chunks for chunk size K. The number of
+# iterations is (N-N/2) + (N-N/4) + ... + (N-1), which is log_2(N)
+# steps of size N (the second term converges to N, so we discard it).
+# So the number of iterations is O (N log N).  Each iteration leads to
+# a traversal of each statement, giving worst case complexity of O
+# (N^2 log N).
 
 
 # Approach:
@@ -58,7 +62,7 @@ foreach ($opts as $opt)
 if ($opt_command === "") 
 	$opt_command = "--xdump=hir";
 
-if ($opt_help)
+if ($opt_help || count ($arguments) < 1)
 {
 	die (<<<EOL
 reduce - A program to automatically reduce test cases for phc- phpcompiler.org
@@ -72,7 +76,8 @@ Options:
            intermediate stages.
     -c     Pass as arguments to the first phc. Be sure to include an --xdump command, or nothing will happen.
     -r     Mnemonic: refcount. The equivalent of "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
-    -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la".
+    -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=true".
+    -D     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=false".
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
@@ -159,7 +164,9 @@ function convert ($xprogram_string, $upper)
 
 function count_statements ($xprogram_string)
 {
-	list ($out) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
+	list ($out, $err, $exit) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
+	if ($err || $exit != 0)
+	  die ("Error reading number of statements\n");
 	debug (2, "Output is: $out");
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
 	return $matched[1];
