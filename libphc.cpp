@@ -256,22 +256,33 @@ ht_var_debug (HashTable * st, char *name)
 }
 
 
-
-// Make a copy of a zval*
+/* Make a copy of *P_ZVP, storing it in *P_ZVP. */
 void
-zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+zvp_clone_ex (zval ** p_zvp TSRMLS_DC)
 {
   zval *clone;
   MAKE_STD_ZVAL (clone);
   clone->value = (*p_zvp)->value;
   clone->type = (*p_zvp)->type;
   zval_copy_ctor (clone);
-  assert (is_zvp_new);
-  if (*is_zvp_new)
-    zval_ptr_dtor (p_zvp);
-  *is_zvp_new = 1;
   *p_zvp = clone;
 }
+
+/* Make a copy of *P_ZVP and store it in *P_ZVP. If *IS_ZVP_NEW is
+ * set, call the destructor on *P_ZVP before copying. *IS_ZVP_NEW is
+ * set to true. */
+void
+zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+{
+  zval* old = *p_zvp;
+
+  zvp_clone_ex (p_zvp TSRMLS_CC);
+
+  if (*is_zvp_new)
+    zval_ptr_dtor (&old);
+  *is_zvp_new = 1;
+}
+
 
 // Overwrite one zval with another
 void
