@@ -322,6 +322,8 @@ function complete_exec($command)
 									2 => array("pipe", "w"));
 	$pipes = array();
 	$handle = proc_open($command, $descriptorspec, &$pipes);
+
+	// set non blocking to avoid infinite loops on stuck programs
 	stream_set_blocking ($pipes[1], 0);
 	stream_set_blocking ($pipes[2], 0);
 	
@@ -337,10 +339,15 @@ function complete_exec($command)
 		// 20 second timeout on any command
 		if (time () > $start_time + 20)
 		{
-			proc_terminate ($handle);
+			proc_terminate ($handle); // catch run away programs
 			proc_close ($handle);
 			return array ("", "Timeout", -1);
 		}
+
+		// Since we use non-blocking, the for loop could well take 100%
+		// CPU. time of 1000 - 10000 seems OK. 100000 slows down the
+		// program by 50%.
+		usleep (1000);
 	}
 	while ($status["running"]);
 	stream_set_blocking ($pipes[1], 1);
@@ -476,16 +483,6 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
-function homogenize_warnings ($string)
-{
-	# just clear these warnings
-	$string = preg_replace(	"/Warning: Invalid argument supplied for foreach\(\) in/",
-									"", $string);
-	$string = preg_replace(	"/Warning: Variable passed to each\(\) is not an array or object in/",
-									"", $string);
-	return $string;
-}
-
 // its still correct if the number of references is off, so look for var_dump output, and remove &s from it
 function homogenize_reference_count ($string)
 {
@@ -502,7 +499,6 @@ function homogenize_reference_count ($string)
 function homogenize_all ($string)
 {
 	$string = homogenize_reference_count ($string);
-	$string = homogenize_warnings ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
 //	$string = homogenize_break_levels ($string);
 	return $string;
