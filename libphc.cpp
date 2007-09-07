@@ -268,7 +268,7 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   zval_copy_ctor (clone);
   assert (is_zvp_new);
   if (*is_zvp_new)
-	  zval_ptr_dtor (p_zvp);
+    zval_ptr_dtor (p_zvp);
   *is_zvp_new = 1;
   *p_zvp = clone;
 }
@@ -359,17 +359,17 @@ void
 separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
   zval *old = *p_zvp;
-  assert (p_zvp != &EG(uninitialized_zval_ptr));
+  assert (p_zvp != &EG (uninitialized_zval_ptr));
   if (old == EG (uninitialized_zval_ptr))
-  {
-	  ALLOC_INIT_ZVAL (*p_zvp);
-	  *is_zvp_new = 0;
-  }
+    {
+      ALLOC_INIT_ZVAL (*p_zvp);
+      *is_zvp_new = 0;
+    }
   else
-  {
-	  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
-	  zval_ptr_dtor (&old);
-  }
+    {
+      zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+      zval_ptr_dtor (&old);
+    }
 }
 
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
@@ -501,22 +501,22 @@ read_var (HashTable * st, char *var_name, int var_length,
  * */
 zval *
 read_var_var (HashTable * st, char *var_name, int var_length,
-	  int *is_new TSRMLS_DC)
+	      int *is_new TSRMLS_DC)
 {
-	zval **p_zvp;
-	zval **p_result;
-	if (zend_symtable_find
-			(st, var_name, var_length, (void **) &p_zvp) != SUCCESS)
-	{
-		return EG (uninitialized_zval_ptr);
-	}
+  zval **p_zvp;
+  zval **p_result;
+  if (zend_symtable_find
+      (st, var_name, var_length, (void **) &p_zvp) != SUCCESS)
+    {
+      return EG (uninitialized_zval_ptr);
+    }
 
-	if (ht_find (st, *p_zvp, &p_result) != SUCCESS)
-	{
-		return EG (uninitialized_zval_ptr);
-	}
+  if (ht_find (st, *p_zvp, &p_result) != SUCCESS)
+    {
+      return EG (uninitialized_zval_ptr);
+    }
 
-	return *p_result;
+  return *p_result;
 
 }
 
@@ -580,8 +580,8 @@ read_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 }
 
 zval *
-read_var_array (HashTable * st, char *var_name, int var_length, char *ind_name,
-	    int ind_length, int *is_new TSRMLS_DC)
+read_var_array (HashTable * st, char *var_name, int var_length,
+		char *ind_name, int ind_length, int *is_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
@@ -595,20 +595,20 @@ read_var_array (HashTable * st, char *var_name, int var_length, char *ind_name,
   zval *result = NULL;
   zval **p_result = &ind;
 
-	// read the reflector
+  // read the reflector
   if (zend_symtable_find (st, var_name, var_length,
 			  (void **) &p_refl) != SUCCESS)
-  {
-	  return EG (uninitialized_zval_ptr);
-  }
+    {
+      return EG (uninitialized_zval_ptr);
+    }
 
   refl = *p_refl;
 
-	// read the variable itself
+  // read the variable itself
   if (ht_find (st, *p_refl, &p_var) != SUCCESS)
-  {
-	  return EG (uninitialized_zval_ptr);
-  }
+    {
+      return EG (uninitialized_zval_ptr);
+    }
 
   var = *p_var;
 
@@ -763,7 +763,8 @@ push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
 
   if (Z_TYPE_P (var) == IS_STRING)
     {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR, "[] operator not supported for strings");
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"[] operator not supported for strings");
     }
 
   // if its not an array, make it an array
@@ -776,8 +777,8 @@ push_var (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
 }
 
 void
-push_var_reference (HashTable * st, char *var_name, int var_length, zval ** p_rhs,
-	  int *is_rhs_new TSRMLS_DC)
+push_var_reference (HashTable * st, char *var_name, int var_length,
+		    zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
@@ -806,7 +807,8 @@ push_var_reference (HashTable * st, char *var_name, int var_length, zval ** p_rh
 
   if (Z_TYPE_P (var) == IS_STRING)
     {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR, "[] operator not supported for strings");
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"[] operator not supported for strings");
     }
 
   // if its not an array, make it an array
@@ -870,9 +872,10 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
     }
 
   if (Z_TYPE_P (var) == IS_STRING)
-  {
-	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot create references to/from string offsets nor overloaded objects");
-  }
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"Cannot create references to/from string offsets nor overloaded objects");
+    }
 
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
@@ -899,30 +902,30 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int name_length,
 {
   zval **p_arg = NULL;
   if (zend_symtable_find (st, name, name_length, (void **) &p_arg) != SUCCESS)
-  {
-	  // we want to pass a reference into the symbol table, so we create a value, save it, find it, then return it.
-	  zval *arg;
-	  ALLOC_INIT_ZVAL (arg);
-	  arg->is_ref = 1;
-	  int result = zend_hash_update (st,
-			  name, name_length,
-			  &arg,
-			  sizeof (zval *), NULL);
-	  assert (result == SUCCESS);
+    {
+      // we want to pass a reference into the symbol table, so we create a value, save it, find it, then return it.
+      zval *arg;
+      ALLOC_INIT_ZVAL (arg);
+      arg->is_ref = 1;
+      int result = zend_hash_update (st,
+				     name, name_length,
+				     &arg,
+				     sizeof (zval *), NULL);
+      assert (result == SUCCESS);
 
-	  /* Set p_arg to point into the symbol table. */
-	  result = zend_hash_find (st, name, name_length, (void **) &p_arg);
-	  assert (result == SUCCESS);
-	  return p_arg;
-  }
+      /* Set p_arg to point into the symbol table. */
+      result = zend_hash_find (st, name, name_length, (void **) &p_arg);
+      assert (result == SUCCESS);
+      return p_arg;
+    }
 
   // Separate argument if it is part of a copy-on-write
   // set, and we are passing by reference
   if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
-  {
-    separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
-	 *is_arg_new = 0;
-  }
+    {
+      separate_zvpp (p_arg, is_arg_new TSRMLS_CC);
+      *is_arg_new = 0;
+    }
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -990,22 +993,22 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
   int var_exists = (zend_symtable_find (st, name, name_length,
 					(void **) &p_var) == SUCCESS);
   if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
-  {
-	  // We want to create a new array, which the passed var
-	  // would be part of. Additionally, the var needs to be
-	  // written back after creation.
-	  zval *var;
-	  ALLOC_INIT_ZVAL (var);
-	  int result = zend_hash_update (st,
-			  name, name_length,
-			  &var,
-			  sizeof (zval *), NULL);
-	  assert (result == SUCCESS);
+    {
+      // We want to create a new array, which the passed var
+      // would be part of. Additionally, the var needs to be
+      // written back after creation.
+      zval *var;
+      ALLOC_INIT_ZVAL (var);
+      int result = zend_hash_update (st,
+				     name, name_length,
+				     &var,
+				     sizeof (zval *), NULL);
+      assert (result == SUCCESS);
 
-	  /* Set p_var to point into the symbol table. */
-	  result = zend_hash_find (st, name, name_length, (void **) &p_var);
-	  assert (result == SUCCESS);
-  }
+      /* Set p_var to point into the symbol table. */
+      result = zend_hash_find (st, name, name_length, (void **) &p_var);
+      assert (result == SUCCESS);
+    }
   else
     {
       // Since we'll be passing a pointer into this hashtable, we
@@ -1192,9 +1195,10 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
     return;
 
   if (Z_TYPE_P (*p_var) == IS_STRING)
-  {
-	  php_error_docref (NULL TSRMLS_CC, E_ERROR, "Cannot unset string offsets");
-  }
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"Cannot unset string offsets");
+    }
 
   if (Z_TYPE_P (*p_var) != IS_ARRAY)
     {
@@ -1221,39 +1225,39 @@ unset_array (HashTable * st, char *var_name, int var_length, char *ind_name,
 }
 
 void
-eval (zval* zvp, zval** p_result, int* is_result_new TSRMLS_DC)
+eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
 {
-   // If the user wrote "return ..", we need to store the
-   // return value; however, in that case, zend_eval_string
-   // will slap an extra "return" onto the front of the string,
-   // so we must remove the "return" from the string the user
-   // wrote. If the user did not write "return", he is not
-   // interested in the return value, and we must pass NULL
-   // instead or rhs to avoid zend_eval_string adding "return".
+  // If the user wrote "return ..", we need to store the
+  // return value; however, in that case, zend_eval_string
+  // will slap an extra "return" onto the front of the string,
+  // so we must remove the "return" from the string the user
+  // wrote. If the user did not write "return", he is not
+  // interested in the return value, and we must pass NULL
+  // instead or rhs to avoid zend_eval_string adding "return".
 
-   // convert to a string
-   zval *copy;
-   MAKE_STD_ZVAL (copy);
-   copy->value = zvp->value;
-   copy->type = zvp->type;
-   zval_copy_ctor (copy);
-   convert_to_string (copy);
+  // convert to a string
+  zval *copy;
+  MAKE_STD_ZVAL (copy);
+  copy->value = zvp->value;
+  copy->type = zvp->type;
+  zval_copy_ctor (copy);
+  convert_to_string (copy);
 
-   MAKE_STD_ZVAL (*p_result);
-   *is_result_new = 1;
-   if (!strncmp (Z_STRVAL_P (copy), "return ", 7))
-   {
+  MAKE_STD_ZVAL (*p_result);
+  *is_result_new = 1;
+  if (!strncmp (Z_STRVAL_P (copy), "return ", 7))
+    {
       zend_eval_string (Z_STRVAL_P (copy) + 7, *p_result,
-	    "eval'd code" TSRMLS_CC);
-   }
-   else
-   {
+			"eval'd code" TSRMLS_CC);
+    }
+  else
+    {
       zend_eval_string (Z_STRVAL_P (copy), NULL, "eval'd code" TSRMLS_CC);
       ZVAL_NULL (*p_result);
-   }
+    }
 
-   // cleanup
-   zval_ptr_dtor (&copy);
+  // cleanup
+  zval_ptr_dtor (&copy);
 }
 
 void
@@ -1284,11 +1288,12 @@ get_constant (char *name, int length, zval ** p_zvp,
   *is_zvp_new = 1;
 }
 
-void phc_check_invariants (TSRMLS_D)
+void
+phc_check_invariants (TSRMLS_D)
 {
-	assert (EG(uninitialized_zval_ptr) == &EG(uninitialized_zval));
-	assert (EG(uninitialized_zval).refcount >= 1);
-	assert (EG(uninitialized_zval).value.lval == 0);
-	assert (EG(uninitialized_zval).type == IS_NULL);
-	assert (EG(uninitialized_zval).is_ref == 0);
+  assert (EG (uninitialized_zval_ptr) == &EG (uninitialized_zval));
+  assert (EG (uninitialized_zval).refcount >= 1);
+  assert (EG (uninitialized_zval).value.lval == 0);
+  assert (EG (uninitialized_zval).type == IS_NULL);
+  assert (EG (uninitialized_zval).is_ref == 0);
 }
