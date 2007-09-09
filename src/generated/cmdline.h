@@ -78,21 +78,21 @@ struct gengetopt_args_info
   int dump_min; /* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname''s minimum occurreces */
   int dump_max; /* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname''s maximum occurreces */
   const char *dump_help; /* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname' help description.  */
-  char ** udump_arg;	/* Dump input as runnable PHP after the pass named 'pasname'.  */
-  char ** udump_orig;	/* Dump input as runnable PHP after the pass named 'pasname' original value given at command line.  */
-  int udump_min; /* Dump input as runnable PHP after the pass named 'pasname''s minimum occurreces */
-  int udump_max; /* Dump input as runnable PHP after the pass named 'pasname''s maximum occurreces */
-  const char *udump_help; /* Dump input as runnable PHP after the pass named 'pasname' help description.  */
-  char ** ddump_arg;	/* Dump input as DOT after the pass named 'pasname'.  */
-  char ** ddump_orig;	/* Dump input as DOT after the pass named 'pasname' original value given at command line.  */
-  int ddump_min; /* Dump input as DOT after the pass named 'pasname''s minimum occurreces */
-  int ddump_max; /* Dump input as DOT after the pass named 'pasname''s maximum occurreces */
-  const char *ddump_help; /* Dump input as DOT after the pass named 'pasname' help description.  */
-  char ** xdump_arg;	/* Dump input as XML after the pass named 'pasname'.  */
-  char ** xdump_orig;	/* Dump input as XML after the pass named 'pasname' original value given at command line.  */
-  int xdump_min; /* Dump input as XML after the pass named 'pasname''s minimum occurreces */
-  int xdump_max; /* Dump input as XML after the pass named 'pasname''s maximum occurreces */
-  const char *xdump_help; /* Dump input as XML after the pass named 'pasname' help description.  */
+  char ** udump_arg;	/* Dump input as runnable PHP after the pass named 'passname'.  */
+  char ** udump_orig;	/* Dump input as runnable PHP after the pass named 'passname' original value given at command line.  */
+  int udump_min; /* Dump input as runnable PHP after the pass named 'passname''s minimum occurreces */
+  int udump_max; /* Dump input as runnable PHP after the pass named 'passname''s maximum occurreces */
+  const char *udump_help; /* Dump input as runnable PHP after the pass named 'passname' help description.  */
+  char ** ddump_arg;	/* Dump input as DOT after the pass named 'passname'.  */
+  char ** ddump_orig;	/* Dump input as DOT after the pass named 'passname' original value given at command line.  */
+  int ddump_min; /* Dump input as DOT after the pass named 'passname''s minimum occurreces */
+  int ddump_max; /* Dump input as DOT after the pass named 'passname''s maximum occurreces */
+  const char *ddump_help; /* Dump input as DOT after the pass named 'passname' help description.  */
+  char ** xdump_arg;	/* Dump input as XML after the pass named 'passname'.  */
+  char ** xdump_orig;	/* Dump input as XML after the pass named 'passname' original value given at command line.  */
+  int xdump_min; /* Dump input as XML after the pass named 'passname''s minimum occurreces */
+  int xdump_max; /* Dump input as XML after the pass named 'passname''s maximum occurreces */
+  const char *xdump_help; /* Dump input as XML after the pass named 'passname' help description.  */
   int dont_fail_flag;	/* Dont fail on error (after parsing) (default=off).  */
   const char *dont_fail_help; /* Dont fail on error (after parsing) help description.  */
   

@@ -27,9 +27,9 @@ option "tab" - "String to use for tabs while unparsing" string default="\t" no
 
 section "DEBUGGING PHC"
 option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "udump" U "Dump input as runnable PHP after the pass named 'pasname'" string typestr="passname" multiple hidden optional
-option "ddump" - "Dump input as DOT after the pass named 'pasname'" string typestr="passname" multiple hidden optional
-option "xdump" X "Dump input as XML after the pass named 'pasname'" string typestr="passname" multiple hidden optional
+option "udump" U "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "ddump" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "xdump" X "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

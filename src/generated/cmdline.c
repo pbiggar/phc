@@ -75,9 +75,9 @@ const char *gengetopt_args_info_full_help[] = {
   "      --tab=STRING         String to use for tabs while unparsing  \n                             (default=`\t')",
   "\nDEBUGGING PHC:",
   "  -D, --dump=passname      Dump input as PHP (although potentially with gotos \n                             and labels) after the pass named 'passname'",
-  "  -U, --udump=passname     Dump input as runnable PHP after the pass named \n                             'pasname'",
-  "      --ddump=passname     Dump input as DOT after the pass named 'pasname'",
-  "  -X, --xdump=passname     Dump input as XML after the pass named 'pasname'",
+  "  -U, --udump=passname     Dump input as runnable PHP after the pass named \n                             'passname'",
+  "      --ddump=passname     Dump input as DOT after the pass named 'passname'",
+  "  -X, --xdump=passname     Dump input as XML after the pass named 'passname'",
   "      --dont-fail          Dont fail on error (after parsing)  (default=off)",
     0
 };
@@ -1008,7 +1008,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             }
           break;
 
-        case 'U':	/* Dump input as runnable PHP after the pass named 'pasname'.  */
+        case 'U':	/* Dump input as runnable PHP after the pass named 'passname'.  */
           local_args_info.udump_given++;
         
           multi_token = get_multiple_arg_token(optarg);
@@ -1033,7 +1033,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             }
           break;
 
-        case 'X':	/* Dump input as XML after the pass named 'pasname'.  */
+        case 'X':	/* Dump input as XML after the pass named 'passname'.  */
           local_args_info.xdump_given++;
         
           multi_token = get_multiple_arg_token(optarg);
@@ -1304,7 +1304,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               free (args_info->tab_orig); /* free previous string */
             args_info->tab_orig = gengetopt_strdup (optarg);
           }
-          /* Dump input as DOT after the pass named 'pasname'.  */
+          /* Dump input as DOT after the pass named 'passname'.  */
           else if (strcmp (long_options[option_index].name, "ddump") == 0)
           {
             local_args_info.ddump_given++;
