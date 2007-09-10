@@ -183,9 +183,8 @@ function log_status ($status, $test_name, $subject, $reason = "")
 	global $status_files;
 	$file = $status_files[$status];
 
-	if ($reason) $reason .= " - $reason";
 	$status = ucfirst ($status);
-	fprintf ($file, "%s", "$test_name: $status $subject$reason\n");
+	fprintf ($file, "%s", "$test_name: $status $subject - $reason\n");
 
 	// we frequently stop the test midway, but we want up to the minute results
 	fflush ($file);
