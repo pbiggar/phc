@@ -84,11 +84,7 @@ class CompareWithPHP extends TwoCommandTest
 
 	function homogenize_output ($output)
 	{
-		$output = homogenize_filenames_and_line_numbers ($output);
-		$output = homogenize_break_levels ($output);
-		$output = homogenize_warnings ($output);
-		$output = homogenize_reference_count ($output);
-		return $output;
+		return homogenize_all ($output);
 	}
 
 	function get_name ()
