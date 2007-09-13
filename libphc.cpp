@@ -411,8 +411,7 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
 
   int var_exists = (zend_symtable_find (st, var_name, var_length,
 					(void **) &p_var) == SUCCESS);
-  if (var_exists)
-    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
+  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
     var = *p_var;
   else
     {
