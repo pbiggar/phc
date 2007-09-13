@@ -1,0 +1,56 @@
+#!/bin/sh
+
+set -x
+
+# Notes:
+#	This is recent: http://www.mail-archive.com/libtool@gnu.org/msg09600.html.
+#		However, following what they did still doesnt work for me.
+#  -lphp must appear before /usr/lib/lib*.a
+#  -lprofiler requires -L/usr/local/lib
+#  libtool wants -all-static, not -static
+#	It seems safe to ignore linker warnings about needing the shared library used for linking.
+#	The thread free ones wont link without pthreads, sine libxml2 requires them.
+
+# profile with gprof (uses threads and profiling)
+#libtool --mode=link gcc -all-static -lxml2 -lcrypt -lresolv -lm -ldl -lz \
+#	-I/usr/local/php-static-profiled-threaded/include/php \
+#	-I/usr/local/php-static-profiled-threaded/include/php/main \
+#	-I/usr/local/php-static-profiled-threaded/include/php/TSRM \
+#	-I/usr/local/php-static-profiled-threaded/include/php/Zend \
+#	-L/usr/local/php-static-profiled-threaded/lib \
+#	-lphp5_pt \
+#	/usr/lib/libresolv.a  /usr/lib/libcrypt.a /usr/lib/libdl.a /usr/lib/libm.a \
+#	/usr/lib/libxml2.a /usr/lib/libz.a /usr/lib/libc_p.a \
+#	bench.c -pg -p -ggdb3 -pthread -o bench_gprof 
+
+# profile with gprof, no threads (using profiling and threads)
+#libtool --mode=link gcc -all-static -lxml2 -lcrypt -lresolv -lm -ldl -lz \
+#	-I/usr/local/php-static-profiled/include/php \
+#	-I/usr/local/php-static-profiled/include/php/main \
+#	-I/usr/local/php-static-profiled/include/php/TSRM \
+#	-I/usr/local/php-static-profiled/include/php/Zend \
+#	-L/usr/local/php-static-profiled/lib \
+#	bench.c -lphp5_p -pg -ggdb3 -o bench_gprof_nothreads
+
+# profile with Google CPU profiler (uses threads, no profiling)
+libtool --mode=link gcc -all-static -lxml2 -lcrypt -lresolv -lm -ldl -lz \
+	-I/usr/local/php-static-threaded/include/php \
+	-I/usr/local/php-static-threaded/include/php/main \
+	-I/usr/local/php-static-threaded/include/php/TSRM \
+	-I/usr/local/php-static-threaded/include/php/Zend \
+	-L/usr/local/php-static-threaded/lib \
+	-L/usr/local/lib/ \
+	-lphp5_t \
+	/usr/lib/libresolv.a  /usr/lib/libcrypt.a /usr/lib/libdl.a /usr/lib/libm.a \
+	/usr/lib/libxml2.a /usr/lib/libz.a /usr/lib/libc_p.a \
+	bench.c -lprofiler -pthread -o bench_pprof 
+
+# profile with Google, no threads (uses no threads and no profiling)
+#libtool --mode=link gcc -all-static -lxml2 -lcrypt -lresolv -lm -ldl -lz \
+#	-I/usr/local/php-static/include/php \
+#	-I/usr/local/php-static/include/php/main \
+#	-I/usr/local/php-static/include/php/TSRM \
+#	-I/usr/local/php-static/include/php/Zend \
+#	-L/usr/local/php-static/lib \
+#	-L/usr/local/lib/ \
+#	bench.c -lphp5 -lprofiler -pthread -o bench_pprof_nothreads
