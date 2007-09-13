@@ -2,40 +2,37 @@
 
 # A script to test the compilation of a particular PHP script. In particular, this copies originals to the local directory, and generates readable C which can be used to debug the assembly. Pass -g as the second argument to run the debugger.
 
-PHP_NAME=$1
-NAME=`basename $1` # remove the filename suffix
-NAME=${NAME%.php}
-EXEC_NAME="./$NAME"
+# parse command line parms
 
 PHC_ARGS=""
 DEBUG_PHC=0
-
-# parse command line parms
-
-for var in $2 $3 $4 $5;
+for var in $@
 do
 	if [ "-$var" = "--g" ]
 	then
-		EXEC_NAME="gdb $EXEC_NAME"
+		EXEC_NAME="gdb "
 		DEBUG_PHC=1
-	fi
-	if [ "-$var" = "--r" ]
+	elif [ "-$var" = "--r" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/debug_zval.la"
-	fi
-	if [ "-$var" = "--d" ]
+	elif [ "-$var" = "--d" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=true"
-	fi
-	if [ "-$var" = "--D" ]
+	elif [ "-$var" = "--D" ]
 	then
 		PHC_ARGS="$PHC_ARGS --run plugins/tools/demi_eval.la --r-option=false"
-	fi
-	if [ "-$var" = "--v" ]
+	elif [ "-$var" = "--v" ]
 	then
 		set -x
+	else
+		PHP_NAME=$var
 	fi
 done
+
+NAME=`basename $PHP_NAME` # remove the filename suffix
+NAME=${NAME%.php}
+EXEC_NAME="$EXEC_NAME./$NAME"
+
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
 
