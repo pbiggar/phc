@@ -105,30 +105,6 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
-/* Lookup the variable NAME in the SCOPE, and store the variable in
- * TARGET. If the variable does not exist, create it, and set a
- * generated variable named TARGET_is_new. Both TARGET and
- * TARGET_is_new need to be declared already. */
-void lookup (Scope scope, Token_variable_name* name, string target)
-{
-	// TODO remove this function
-	assert (name != 0);
-	string hash = get_scope (scope);
-	cout
-		<< "  zval** p_" << target << "= NULL;\n"
-		<< "	if (zend_symtable_find (" << hash << ", "
-		<<			'"' << *name->value << "\", "
-		<<				name->value->size () + 1 << ", "
-		<<				"(void**)&p_" << target << ") != SUCCESS)\n"
-		<< "{\n"
-		<< 	target << " = EG (uninitialized_zval_ptr);\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<<    target << "= *p_" << target << ";\n"
-		<< "}\n";
-}
-
 void declare (string var)
 {
 	cout 
@@ -858,6 +834,73 @@ public:
 protected:
 	AST_assignment* agn;
 	Wildcard<AST_variable>* lhs;
+};
+
+/* An optimization for
+ *		$str = $str . "string";
+ *
+ *	We pass the rhs as both arguments, and concat_function calls a
+ *	realloc. The old way is to give it new memory, and have it copy
+ *	both strings in, then clean up the old one.
+ */
+class Str_cat : public Pattern
+{
+	bool match(AST_statement* that)
+	{
+		left = new Wildcard<AST_variable>;
+		Token_op* op = new Token_op (new String ("."));
+		right = new Wildcard<AST_variable>;
+		lhs = new Wildcard<AST_variable>;
+		AST_expr* rhs = new AST_bin_op (left, op, right); 
+
+		agn = new AST_assignment(lhs, /* ignored */ false, rhs);
+		bool match = that->match(new AST_eval_expr(agn));
+		if (!match)
+			return false;
+
+		Token_variable_name* left_var_name = dynamic_cast <Token_variable_name*> (left->value->variable_name);
+		Token_variable_name* lhs_var_name = dynamic_cast <Token_variable_name*> (lhs->value->variable_name);
+		if (left_var_name == NULL or lhs_var_name == NULL)
+			return false;
+
+		return (*left_var_name->value == *lhs_var_name->value);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		// Open local scope and create a zval* to hold the RHS result
+		cout << "{\n";
+
+		string op_fn = op_functions["."]; 
+
+		declare ("left");
+		declare ("right");
+		read (LOCAL, "left", left->value);
+		read (LOCAL, "right", right->value);
+
+		cout 
+			<< "if (left == EG (uninitialized_zval_ptr))\n"
+			<< "{\n";
+		separate (LOCAL, "left", left->value);
+		cout
+			<< "}\n";
+
+		cout << op_fn << "(left, left, right TSRMLS_CC);\n";
+
+		cleanup ("left");
+		cleanup ("right");
+
+		// close local scope
+		cout << "}\n";
+
+		cout << "phc_check_invariants (TSRMLS_C);\n";
+	}
+
+protected:
+	AST_assignment* agn;
+	Wildcard<AST_variable>* lhs;
+	Wildcard<AST_variable>* left;
+	Wildcard<AST_variable>* right;
 };
 
 /*
@@ -1598,6 +1641,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Eval()
 	,	new Exit()
 	,	new Method_invocation()
+	,	new Str_cat()
 	,	new Bin_op()
 	,	new Unary_op()
 	,	new Label()
