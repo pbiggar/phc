@@ -62,6 +62,9 @@ struct gengetopt_args_info
   char * with_php_arg;	/* PHP installation path.  */
   char * with_php_orig;	/* PHP installation path original value given at command line.  */
   const char *with_php_help; /* PHP installation path help description.  */
+  char * optimize_arg;	/* Optimize (default='0').  */
+  char * optimize_orig;	/* Optimize original value given at command line.  */
+  const char *optimize_help; /* Optimize help description.  */
   char * output_arg;	/* Place executable into file FILE.  */
   char * output_orig;	/* Place executable into file FILE original value given at command line.  */
   const char *output_help; /* Place executable into file FILE help description.  */
@@ -114,6 +117,7 @@ struct gengetopt_args_info
   int generate_c_given ;	/* Whether generate-c was given.  */
   int extension_given ;	/* Whether extension was given.  */
   int with_php_given ;	/* Whether with-php was given.  */
+  int optimize_given ;	/* Whether optimize was given.  */
   int output_given ;	/* Whether output was given.  */
   int next_line_curlies_given ;	/* Whether next-line-curlies was given.  */
   int no_line_numbers_given ;	/* Whether no-line-numbers was given.  */

@@ -18,6 +18,13 @@ Compile_C::Compile_C (stringstream& os)
 	this->name = new String ("compile_c");
 }
 
+stringstream& new_arg (vector<stringstream*> &args)
+{
+	stringstream* stream = new stringstream;
+	args.push_back (stream);
+	return *stream;
+}
+
 void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 {
 	if (not pm->args_info->compile_flag)
@@ -32,46 +39,53 @@ void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 
 
 	// Argument array for gcc
-	int num_args = 12 + pm->args_info->c_option_given + pm->args_info->output_given;
-	stringstream** args = new stringstream* [num_args];
-	int a = 0;
-	for (int i = 0; i < num_args; i++)
+	vector<stringstream*> args;
+	new_arg (args) << "gcc";
+	new_arg (args) << "-I" << php_path << "/include/php";
+	new_arg (args) << "-I" << php_path << "/include/php/main";
+	new_arg (args) << "-I" << php_path << "/include/php/TSRM";
+	new_arg (args) << "-I" << php_path << "/include/php/Zend";
+	new_arg (args) << "-L" << php_path << "/lib";
+	new_arg (args) << "-Wl,-R" << php_path << "/lib";
+	new_arg (args) << "-lphp5";
+	new_arg (args) << "-xc";
+	new_arg (args) << "-";
+
+	// Add (gcc) -g and -o arguments
+	if (strncmp (pm->args_info->optimize_arg, "0", 2) == 0)
 	{
-		args[i] = new stringstream();
+		new_arg (args) << "-ggdb3";
+		new_arg (args) << "-O0";
 	}
-	*args[a++] << "gcc";
-	*args[a++] << "-I" << php_path << "/include/php";
-	*args[a++] << "-I" << php_path << "/include/php/main";
-	*args[a++] << "-I" << php_path << "/include/php/TSRM";
-	*args[a++] << "-I" << php_path << "/include/php/Zend";
-	*args[a++] << "-L" << php_path << "/lib";
-	*args[a++] << "-Wl,-R" << php_path << "/lib";
-	*args[a++] << "-lphp5";
-	*args[a++] << "-xc";
-	*args[a++] << "-ggdb3";
-	*args[a++] << "-O0";
-	*args[a++] << "-";
+	else
+	{
+		// Use the specified optimization level
+		new_arg (args) << "-O" << pm->args_info->optimize_arg;
+
+		new_arg (args) << "-DNDEBUG"; // turn off assertions
+		new_arg (args) << "-g"; // We still need this to profile
+	}
 
 	// add -C arguments
 	for(unsigned i = 0; i < pm->args_info->c_option_given; i++)
-		*args[a++] << pm->args_info->c_option_arg[i]; 
+		new_arg (args) << pm->args_info->c_option_arg[i]; 
 
 	// add -o argument
 	if (pm->args_info->output_given)
 	{
-		*args [a++] << "-o" << pm->args_info->output_arg;
+		new_arg (args) << "-o" << pm->args_info->output_arg;
 	}
 
 
 	// copy it into argument list
 	char** argv;
-	argv = (char**) calloc(num_args + 1, sizeof(char*));
-	for(int i = 0; i < num_args; i++) 
+	argv = (char**) calloc(args.size ()+ 1, sizeof(char*));
+	for(unsigned int i = 0; i < args.size (); i++) 
 		argv[i] = strdup(args[i]->str().c_str());
 
 	if(pm->args_info->verbose_flag)
 	{
-		for(int i = 0; i < num_args; i++)
+		for(unsigned int i = 0; i < args.size (); i++)
 			cout << argv[i] << " ";
 		cout << endl;
 	}

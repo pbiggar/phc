@@ -41,6 +41,7 @@ const char *gengetopt_args_info_help[] = {
   "\nCOMPILATION OPTIONS:",
   "  -C, --c-option=STRING    Pass option to the C compile (e.g., -C-g; can be \n                             specified multiple times)",
   "      --extension=NAME     Generate a PHP extension called NAME instead of a \n                             standalone application",
+  "  -O, --optimize=STRING    Optimize  (default=`0')",
   "  -o, --output=FILE        Place executable into file FILE",
   "\nPRETTY PRINTING OPTIONS:",
   "      --next-line-curlies  Output the opening curly on the next line instead of \n                             on the same line  (default=off)",
@@ -67,6 +68,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --generate-c         Generate C code  (default=off)",
   "      --extension=NAME     Generate a PHP extension called NAME instead of a \n                             standalone application",
   "      --with-php=NAME      PHP installation path",
+  "  -O, --optimize=STRING    Optimize  (default=`0')",
   "  -o, --output=FILE        Place executable into file FILE",
   "\nPRETTY PRINTING OPTIONS:",
   "      --next-line-curlies  Output the opening curly on the next line instead of \n                             on the same line  (default=off)",
@@ -122,6 +124,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->generate_c_given = 0 ;
   args_info->extension_given = 0 ;
   args_info->with_php_given = 0 ;
+  args_info->optimize_given = 0 ;
   args_info->output_given = 0 ;
   args_info->next_line_curlies_given = 0 ;
   args_info->no_line_numbers_given = 0 ;
@@ -155,6 +158,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->extension_orig = NULL;
   args_info->with_php_arg = NULL;
   args_info->with_php_orig = NULL;
+  args_info->optimize_arg = gengetopt_strdup ("0");
+  args_info->optimize_orig = NULL;
   args_info->output_arg = NULL;
   args_info->output_orig = NULL;
   args_info->next_line_curlies_flag = 0;
@@ -199,25 +204,26 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->generate_c_help = gengetopt_args_info_full_help[15] ;
   args_info->extension_help = gengetopt_args_info_full_help[16] ;
   args_info->with_php_help = gengetopt_args_info_full_help[17] ;
-  args_info->output_help = gengetopt_args_info_full_help[18] ;
-  args_info->next_line_curlies_help = gengetopt_args_info_full_help[20] ;
-  args_info->no_line_numbers_help = gengetopt_args_info_full_help[21] ;
-  args_info->no_nulls_help = gengetopt_args_info_full_help[22] ;
-  args_info->no_empty_lists_help = gengetopt_args_info_full_help[23] ;
-  args_info->tab_help = gengetopt_args_info_full_help[24] ;
-  args_info->dump_help = gengetopt_args_info_full_help[26] ;
+  args_info->optimize_help = gengetopt_args_info_full_help[18] ;
+  args_info->output_help = gengetopt_args_info_full_help[19] ;
+  args_info->next_line_curlies_help = gengetopt_args_info_full_help[21] ;
+  args_info->no_line_numbers_help = gengetopt_args_info_full_help[22] ;
+  args_info->no_nulls_help = gengetopt_args_info_full_help[23] ;
+  args_info->no_empty_lists_help = gengetopt_args_info_full_help[24] ;
+  args_info->tab_help = gengetopt_args_info_full_help[25] ;
+  args_info->dump_help = gengetopt_args_info_full_help[27] ;
   args_info->dump_min = -1;
   args_info->dump_max = -1;
-  args_info->udump_help = gengetopt_args_info_full_help[27] ;
+  args_info->udump_help = gengetopt_args_info_full_help[28] ;
   args_info->udump_min = -1;
   args_info->udump_max = -1;
-  args_info->ddump_help = gengetopt_args_info_full_help[28] ;
+  args_info->ddump_help = gengetopt_args_info_full_help[29] ;
   args_info->ddump_min = -1;
   args_info->ddump_max = -1;
-  args_info->xdump_help = gengetopt_args_info_full_help[29] ;
+  args_info->xdump_help = gengetopt_args_info_full_help[30] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[30] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[31] ;
   
 }
 
@@ -356,6 +362,16 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
     {
       free (args_info->with_php_orig); /* free previous argument */
       args_info->with_php_orig = 0;
+    }
+  if (args_info->optimize_arg)
+    {
+      free (args_info->optimize_arg); /* free previous argument */
+      args_info->optimize_arg = 0;
+    }
+  if (args_info->optimize_orig)
+    {
+      free (args_info->optimize_orig); /* free previous argument */
+      args_info->optimize_orig = 0;
     }
   if (args_info->output_arg)
     {
@@ -561,6 +577,13 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
       fprintf(outfile, "%s=\"%s\"\n", "with-php", args_info->with_php_orig);
     } else {
       fprintf(outfile, "%s\n", "with-php");
+    }
+  }
+  if (args_info->optimize_given) {
+    if (args_info->optimize_orig) {
+      fprintf(outfile, "%s=\"%s\"\n", "optimize", args_info->optimize_orig);
+    } else {
+      fprintf(outfile, "%s\n", "optimize");
     }
   }
   if (args_info->output_given) {
@@ -916,6 +939,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "generate-c",	0, NULL, 0 },
         { "extension",	1, NULL, 0 },
         { "with-php",	1, NULL, 0 },
+        { "optimize",	1, NULL, 'O' },
         { "output",	1, NULL, 'o' },
         { "next-line-curlies",	0, NULL, 0 },
         { "no-line-numbers",	0, NULL, 0 },
@@ -931,7 +955,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
       };
 
       stop_char = 0;
-      c = getopt_long (argc, argv, "hVvcC:o:D:U:X:", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvcC:O:o:D:U:X:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -996,6 +1020,24 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               else
                 break;
             }
+          break;
+
+        case 'O':	/* Optimize.  */
+          if (local_args_info.optimize_given)
+            {
+              fprintf (stderr, "%s: `--optimize' (`-O') option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+              goto failure;
+            }
+          if (args_info->optimize_given && ! override)
+            continue;
+          local_args_info.optimize_given = 1;
+          args_info->optimize_given = 1;
+          if (args_info->optimize_arg)
+            free (args_info->optimize_arg); /* free previous string */
+          args_info->optimize_arg = gengetopt_strdup (optarg);
+          if (args_info->optimize_orig)
+            free (args_info->optimize_orig); /* free previous string */
+          args_info->optimize_orig = gengetopt_strdup (optarg);
           break;
 
         case 'o':	/* Place executable into file FILE.  */
