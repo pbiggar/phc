@@ -77,5 +77,11 @@ then
 fi
 
 $gcc_command
+if [[ $? != 0 ]]; then 
+	if [[ $debug_phc  == 0 ]]; then 
+		exit 1
+	fi
+fi
+
 
 exec $EXEC_NAME
