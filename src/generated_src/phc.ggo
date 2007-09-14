@@ -17,6 +17,7 @@ option "c-option" C "Pass option to the C compile (e.g., -C-g; can be specified 
 option "generate-c" - "Generate C code" flag off hidden
 option "extension" - "Generate a PHP extension called NAME instead of a standalone application" string typestr="NAME" no 
 option "with-php" - "PHP installation path" string typestr="NAME" no hidden 
+option "output" o "Place executable into file FILE" string typestr="FILE" no
 
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off

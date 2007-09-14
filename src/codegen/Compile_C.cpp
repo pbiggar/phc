@@ -6,6 +6,7 @@
  */
 
 #include "codegen/Compile_C.h"
+#include <vector>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -29,36 +30,52 @@ void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 	else
 		php_path = PHP_INSTALL_PATH;
 
-	// Argument array for gcc
-#define GCC_ARGS 12
-	stringstream args[GCC_ARGS];
-	args[0] << "gcc";
-	args[1] << "-I" << php_path << "/include/php";
-	args[2] << "-I" << php_path << "/include/php/main";
-	args[3] << "-I" << php_path << "/include/php/TSRM";
-	args[4] << "-I" << php_path << "/include/php/Zend";
-	args[5] << "-L" << php_path << "/lib";
-	args[6] << "-Wl,-R" << php_path << "/lib";
-	args[7] << "-lphp5";
-	args[8] << "-xc";
-	args[9] << "-ggdb3";
-	args[10] << "-O0";
-	args[11] << "-";
 
-	char** argv;
-	argv = (char**) calloc(GCC_ARGS + pm->args_info->c_option_given + 1, sizeof(char*));
-	for(unsigned i = 0; i < GCC_ARGS; i++) 
-		argv[i] = strdup(args[i].str().c_str());
+	// Argument array for gcc
+	int num_args = 12 + pm->args_info->c_option_given + pm->args_info->output_given;
+	stringstream** args = new stringstream* [num_args];
+	int a = 0;
+	for (int i = 0; i < num_args; i++)
+	{
+		args[i] = new stringstream();
+	}
+	*args[a++] << "gcc";
+	*args[a++] << "-I" << php_path << "/include/php";
+	*args[a++] << "-I" << php_path << "/include/php/main";
+	*args[a++] << "-I" << php_path << "/include/php/TSRM";
+	*args[a++] << "-I" << php_path << "/include/php/Zend";
+	*args[a++] << "-L" << php_path << "/lib";
+	*args[a++] << "-Wl,-R" << php_path << "/lib";
+	*args[a++] << "-lphp5";
+	*args[a++] << "-xc";
+	*args[a++] << "-ggdb3";
+	*args[a++] << "-O0";
+	*args[a++] << "-";
+
+	// add -C arguments
 	for(unsigned i = 0; i < pm->args_info->c_option_given; i++)
-		argv[GCC_ARGS + i] = pm->args_info->c_option_arg[i]; 
-	argv[GCC_ARGS + pm->args_info->c_option_given] = NULL;
+		*args[a++] << pm->args_info->c_option_arg[i]; 
+
+	// add -o argument
+	if (pm->args_info->output_given)
+	{
+		*args [a++] << "-o" << pm->args_info->output_arg;
+	}
+
+
+	// copy it into argument list
+	char** argv;
+	argv = (char**) calloc(num_args + 1, sizeof(char*));
+	for(int i = 0; i < num_args; i++) 
+		argv[i] = strdup(args[i]->str().c_str());
 
 	if(pm->args_info->verbose_flag)
 	{
-		for(unsigned i = 0; i < GCC_ARGS + pm->args_info->c_option_given; i++)
+		for(int i = 0; i < num_args; i++)
 			cout << argv[i] << " ";
 		cout << endl;
 	}
+
 
 	// Pipe output of Generate_C into gcc
 	int pfd[2];
