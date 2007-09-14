@@ -20,7 +20,7 @@ class Demi_eval extends CompiledVsInterpreted
 
 	function get_dependent_test_names ()
 	{
-		return array ("Generate_C");
+		return array ("CompiledVsInterpreted");
 	}
 
 	function get_name ()
