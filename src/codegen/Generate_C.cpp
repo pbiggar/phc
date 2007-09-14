@@ -30,6 +30,44 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
+
+// A single pass isnt really sufficient, but we can hack around it
+// with a prologue and an epilogue.
+static ostringstream prologue;
+static ostringstream code;
+static ostringstream epilogue;
+
+void Generate_C::run (AST_php_script* in, Pass_manager* pm)
+{
+	if (!pm->args_info->generate_c_flag 
+		&& !pm->args_info->compile_flag)
+		return;
+
+	if (pm->args_info->extension_given)
+	{
+		extension_name = new String (pm->args_info->extension_arg);
+		is_extension = true;
+	}
+	else
+	{
+		extension_name = new String("app");
+		is_extension = false;
+	}
+
+	in->visit (this);
+
+	os << prologue.str ();
+	os << code.str ();
+	os << epilogue.str ();
+
+	if (pm->args_info->generate_c_flag)
+	{
+		cout << prologue.str ();
+		cout << code.str ();
+		cout << epilogue.str ();
+	}
+}
+
 /* TODO any non-top-level class or function should be promoted to a top-level
  * class/function with a different name, and it its place to be a call to
  * "register_dynamic_class(C, __phc__C1__)". Top-level classes and functions
@@ -122,14 +160,14 @@ unsigned long get_hash (String* name)
 
 void declare (string var)
 {
-	cout 
+	code 
 		<< "zval* " << var << ";\n"
 		<< "int is_" << var << "_new = 0;\n";
 }
 
 void cleanup (string target)
 {
-	cout
+	code
 		<< "if (is_" << target << "_new)\n"
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
@@ -153,7 +191,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 			if (var->array_indices->front () != NULL)
 			{
 				String* index = operand (var->array_indices->front());
-				cout
+				code
 					<< "// Array assignment\n"
 					<< "write_array ("
 					<<		get_scope (scope) << ", "
@@ -168,7 +206,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				cout
+				code
 					<< "// Array pushing\n"
 					<< "push_var ("
 					<<		get_scope (scope) << ", "
@@ -181,7 +219,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 		}
 		else
 		{
-			cout 
+			code 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
 				<<		get_scope (scope) << ", "
@@ -199,7 +237,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 		assert(var->array_indices->size() == 0);
 		assert (0);
 
-		cout << "assert (0); // write_var_var \n";
+		code << "assert (0); // write_var_var \n";
 //		write_var_var ();
 	}
 }
@@ -215,7 +253,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// if its new, check it wont separate
-	cout 
+	code 
 		<< "if (is_" << zvp << "_new)\n"
 		<<	"	assert (!(" << zvp << "->refcount > 1 "
 		<<	"		&& !" << zvp << "->is_ref));\n";
@@ -231,7 +269,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			if (var->array_indices->front () != NULL)
 			{
 				String* index = operand (var->array_indices->front());
-				cout
+				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
@@ -252,7 +290,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 		else
 		{
 			assert (var->array_indices->size() == 0);
-			cout 
+			code 
 				<< "separate_var (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
@@ -269,7 +307,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 		assert (0); // TODO
 		assert (var->array_indices->size() == 0);
 
-		cout << "assert (0); // separate_var_var\n";
+		code << "assert (0); // separate_var_var\n";
 //		separate_var_var ();
 	}
 }
@@ -280,14 +318,14 @@ void separate (Scope scope, string zvp, AST_expr* expr)
  * to NULL instead. */
 void init (Scope scope, string zvp, AST_variable* var)
 {
-	cout 
+	code 
 		<< "if (" << zvp << " == EG(uninitialized_zval_ptr))\n"
 		<< "{\n"
 		<< "	ALLOC_INIT_ZVAL (" << zvp << ");\n"
 		;
 	write (scope, zvp, var);
 
-	cout
+	code
 		<< "	zval_ptr_dtor (&" << zvp << ");\n"
 		<< "}\n";
 }
@@ -311,7 +349,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			if (var->array_indices->front () != NULL)
 			{
 				String* index = operand (var->array_indices->front());
-				cout
+				code
 					<< "// Reference array assignment\n"
 					<< "write_array_reference ("
 					<<		get_scope (scope) << ", "
@@ -327,7 +365,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				cout 
+				code 
 					<< "push_var_reference (" 
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
@@ -339,7 +377,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 		else
 		{
 			assert (var->array_indices->size() == 0);
-			cout 
+			code 
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
 				<<		get_scope (scope) << ", "
@@ -357,7 +395,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 		assert (0); // TODO
 		assert(var->array_indices->size() == 0);
 
-		cout << "assert (0); // write_var_var_reference\n";
+		code << "assert (0); // write_var_var_reference\n";
 //		reference_var_var ();
 	}
 }
@@ -383,7 +421,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			if (var->array_indices->front () != NULL)
 			{
 				String *index = operand (var->array_indices->front ());
-				cout 
+				code 
 					<< "// Read array variable\n"
 					<< zvp << " = read_array (" 
 					<<		get_scope (scope) << ", "
@@ -402,7 +440,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		else
 		{
 			assert (var->array_indices->size() == 0);
-			cout 
+			code 
 				<< "// Read normal variable\n"
 				<< zvp << " = read_var (" 
 				<<		get_scope (scope) << ", "
@@ -427,7 +465,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			if (var->array_indices->front () != NULL)
 			{
 				String *index = operand (var->array_indices->front ());
-				cout 
+				code 
 					<< "// Read array variable-variable\n"
 					<< zvp << " = read_var_array (" 
 					<<		get_scope (scope) << ", "
@@ -446,7 +484,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		else
 		{
 			assert (var->array_indices->size() == 0);
-			cout 
+			code 
 				<< "// Read variable variable\n"
 				<< zvp << " = read_var_var (" 
 				<<		get_scope (scope) << ", "
@@ -465,7 +503,7 @@ void global(AST_variable_name* var_name, bool separate_var)
 	AST_variable* var;
 	var = new AST_variable(NULL, var_name, new List<AST_expr*>());
 
-	cout << "{\n";
+	code << "{\n";
 	declare ("global_var");
 	read (GLOBAL, "global_var", var);
 	init (GLOBAL, "global_var", var);
@@ -480,7 +518,7 @@ void global(AST_variable_name* var_name, bool separate_var)
 	// TODO i think this should be write by reference
 	write_reference (LOCAL, "global_var", var);
 	cleanup ("global_var");
-	cout << "}\n";
+	code << "}\n";
 }
 
 // For convenience
@@ -572,7 +610,7 @@ protected:
 protected:
 	void debug_argument_stack()
 	{
-		cout <<
+		code <<
 		"{\n"
 		"void **p;\n"
 		"int arg_count;\n"
@@ -594,7 +632,7 @@ protected:
 
 	void method_entry()
 	{
-		cout
+		code
 		// Function header
 		<< "PHP_FUNCTION(" << *signature->method_name->value << ")\n"
 		<< "{\n"
@@ -603,7 +641,7 @@ protected:
 		// __MAIN__ uses the global symbol table 
 		if(*signature->method_name->value != "__MAIN__")
 		{
-			cout
+			code
 			<< "// Setup locals array\n"
 			<< "HashTable* locals;\n"
 			<< "ALLOC_HASHTABLE(locals);\n"
@@ -621,7 +659,7 @@ protected:
 		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
-			cout 
+			code 
 			<< "// Add all parameters as local variables\n"
 			<< "{\n"
 			<< "int num_args = ZEND_NUM_ARGS ();\n"
@@ -637,8 +675,8 @@ protected:
 				i != parameters->end();
 				i++, index++)
 			{
-//				cout << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
-				cout << "// param " << index << "\n";
+//				code << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
+				code << "// param " << index << "\n";
 
 				// if a default value is available, then create code to
 				// assign it if an argument is not provided at run time.
@@ -647,7 +685,7 @@ protected:
 				// default assignment for us.
 				if ((*i)->expr)
 				{
-					cout 
+					code 
 						<< "if (num_args <= " << index << ")\n"
 						<< "{\n";
 
@@ -661,10 +699,10 @@ protected:
 									false, (*i)->expr));
 
 					gen->children_statement (assign_default_values);
-					cout << "} else {\n";
+					code << "} else {\n";
 				}
 
-				cout
+				code
 					<< "params[" << index << "]->refcount++;\n"
 					<< "zend_hash_quick_add(EG(active_symbol_table), "
 					<<		"\"" << *(*i)->variable_name->value << "\", " 
@@ -675,19 +713,19 @@ protected:
 					;
 
 				if ((*i)->expr)
-					cout << "}\n";
+					code << "}\n";
 			}
 				
-			cout << "}\n";
+			code << "}\n";
 
 		}
 		
-		cout << "// Function body\n";
+		code << "// Function body\n";
 	}
 
 	void method_exit()
 	{
-		cout
+		code
 		// Labels are local to a function
 		<< "// Method exit\n"
 		<< "end_of_function:__attribute__((unused));\n"
@@ -695,7 +733,7 @@ protected:
 
 		if(*signature->method_name->value != "__MAIN__")
 		{
-			cout
+			code
 			<< "// Destroy locals array\n"
 			<< "zend_hash_destroy(locals);\n"
 			<< "FREE_HASHTABLE(locals);\n"
@@ -703,7 +741,7 @@ protected:
 			;
 		}
 
-		cout << "}\n";
+		code << "}\n";
 	}
 };
 
@@ -718,7 +756,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		cout << *label->value->value << ":;\n";
+		code << *label->value->value << ":;\n";
 	}
 
 protected:
@@ -742,14 +780,14 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		cout
+		code
 			<< "{\n";
 		declare ("cond");
 		read (LOCAL, "cond", cond->value);
-		cout 
+		code 
 			<< "zend_bool bcond = zend_is_true(cond);\n";
 		cleanup ("cond");
-		cout 
+		code 
 			<< "if (bcond)\n"
 			<< "	goto " << *iftrue->value->value << ";\n"
 			<< "else\n"
@@ -775,7 +813,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		cout << "goto " << *label->value->value << ";\n";
+		code << "goto " << *label->value->value << ";\n";
 	}
 
 protected:
@@ -831,7 +869,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		// Open local scope and create a zval* to hold the RHS result
-		cout << "{\n";
+		code << "{\n";
 		declare ("rhs");
 
 		// Generate code for the RHS
@@ -862,9 +900,9 @@ public:
 		cleanup ("rhs");
 
 		// close local scope
-		cout << "}\n";
+		code << "}\n";
 
-		cout << "phc_check_invariants (TSRMLS_C);\n";
+		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
@@ -905,7 +943,7 @@ class Str_cat : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		// Open local scope and create a zval* to hold the RHS result
-		cout << "{\n";
+		code << "{\n";
 
 		string op_fn = op_functions["."]; 
 
@@ -914,22 +952,22 @@ class Str_cat : public Pattern
 		read (LOCAL, "left", left->value);
 		read (LOCAL, "right", right->value);
 
-		cout 
+		code 
 			<< "if (left == EG (uninitialized_zval_ptr))\n"
 			<< "{\n";
 		separate (LOCAL, "left", left->value);
-		cout
+		code
 			<< "}\n";
 
-		cout << op_fn << "(left, left, right TSRMLS_CC);\n";
+		code << op_fn << "(left, left, right TSRMLS_CC);\n";
 
 		cleanup ("left");
 		cleanup ("right");
 
 		// close local scope
-		cout << "}\n";
+		code << "}\n";
 
-		cout << "phc_check_invariants (TSRMLS_C);\n";
+		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
@@ -956,8 +994,6 @@ public:
 
 	void generate_rhs()
 	{
-		cout << "is_rhs_new = 1;\n";
-		cout << "MAKE_STD_ZVAL(rhs);\n";
 		init_rhs();
 	}
 
@@ -970,20 +1006,49 @@ protected:
 // TODO not sure if we want to use ->source_rep or ->value here; using
 // zend_eval_string with source_rep currently to avoid losing precision
 // Anyone who things he/she knows a better solution, be sure to run all tests!
+
+// Rather than allocating a new variable each time, we use a pool, and the same
+// variable in each case. The first time we encounter a new Token_*, we number
+// it, and add it to a list. If we come across an identical one, we just
+// reference the first generated one.
+
+map <long, int> generated_ints; // map value to index
 class Assign_int : public Assign_literal<Token_int> 
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_LONG (rhs, " << rhs->value->value << ");\n";
-//		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
+		// if it doesnt exist, add it.
+		map<long,int>::iterator iter = generated_ints.find (rhs->value->value);
+		int index;
+		if (iter == generated_ints.end ())
+		{
+			index = generated_ints.size (); // next index
+			generated_ints [rhs->value->value] = index;
+		}
+		else
+			index = iter->second;
+
+		code << "rhs = phc_const_pool_int_" << index << ";\n";
 	}
 };
 
+map <string, int> generated_reals; // map value to index
 class Assign_real : public Assign_literal<Token_real> 
 {
 	void init_rhs()
 	{
-		cout << "zend_eval_string(\"" << *rhs->value->source_rep << ";\", rhs, \"literal\" TSRMLS_CC);\n";
+		// if it doesnt exist, add it.
+		map<string,int>::iterator iter = generated_reals.find (*rhs->value->get_source_rep ());
+		int index;
+		if (iter == generated_reals.end ())
+		{
+			index = generated_reals.size (); // next index
+			generated_reals [*rhs->value->get_source_rep ()] = index;
+		}
+		else
+			index = iter->second;
+
+		code << "rhs = phc_const_pool_real_" << index << ";\n";
 	}
 };
 
@@ -991,7 +1056,10 @@ class Assign_bool : public Assign_literal<Token_bool>
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_BOOL(rhs, " << rhs->value->value << ");\n";
+		if (rhs->value->value)
+			code << "rhs = phc_const_pool_true;\n";
+		else
+			code << "rhs = phc_const_pool_false;\n";
 	}
 };
 
@@ -999,7 +1067,7 @@ class Assign_null : public Assign_literal<Token_null>
 {
 	void init_rhs()
 	{
-		cout << "ZVAL_NULL(rhs);\n";
+		code << "rhs = EG (uninitialized_zval_ptr);\n";
 	}
 };
 
@@ -1007,7 +1075,9 @@ class Assign_string : public Assign_literal<Token_string>
 {
 	void init_rhs()
 	{
-		cout 
+		code << "is_rhs_new = 1;\n";
+		code << "MAKE_STD_ZVAL(rhs);\n";
+		code 
 		<< "ZVAL_STRINGL(rhs, " 
 		<< "\"" << escape(rhs->value->value) << "\", "
 		<< rhs->value->value->length() << ", 1);\n"
@@ -1033,7 +1103,7 @@ public:
 			else
 			{
 				ss << "\\" << setw(3) << setfill('0') << oct << uppercase << (unsigned long int)(unsigned char) *i;
-				ss << resetiosflags(cout.flags());
+				ss << resetiosflags(code.flags());
 			}
 		}
 	
@@ -1072,7 +1142,7 @@ public:
 
 	virtual void process_rhs ()
 	{
-		cout << "cast_var (&rhs, &is_rhs_new, IS_ARRAY TSRMLS_CC);\n";
+		code << "cast_var (&rhs, &is_rhs_new, IS_ARRAY TSRMLS_CC);\n";
 	}
 };
 
@@ -1117,7 +1187,7 @@ public:
 
 		name->append (*rhs->value->constant_name->value);
 
-		cout
+		code
 			<< "get_constant ( "
 			<<			"\"" << *name << "\", "
 			<<			name->length() << ", " // exclude NULL-terminator
@@ -1146,16 +1216,16 @@ class Eval : public Assignment
 
 	void generate_rhs()	
 	{
-		cout << "{\n";
+		code << "{\n";
 
 		declare ("eval_arg");
 		read (LOCAL, "eval_arg", eval_arg->value);
 
-		cout << "  eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
+		code << "  eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
 
 		cleanup ("eval_arg");
 
-		cout << "}\n" ;
+		code << "}\n" ;
 	}
 
 protected:
@@ -1187,7 +1257,7 @@ public:
 		String* op = operand (exit_arg->value);
 
 		// Fetch the parameter
-		cout
+		code
 			<< "// Exit ()\n"
 			<< "phc_exit (\"" 
 			<<		*op << "\", "
@@ -1214,7 +1284,7 @@ public:
 		List<AST_actual_parameter*>::const_iterator i;
 		unsigned index;
 		
-		// cout << "debug_hash(EG(active_symbol_table));\n";
+		// code << "debug_hash(EG(active_symbol_table));\n";
 
 		// Variable function or ordinary function?
 		Token_method_name* name;
@@ -1222,7 +1292,7 @@ public:
 
 		if(name != NULL)
 		{
-			cout
+			code
 			<< "// Create zval to hold function name\n"
 			<< "zval function_name;\n"
 			<< "INIT_PZVAL(&function_name);\n"
@@ -1241,7 +1311,7 @@ public:
 		int num_args = rhs->value->actual_parameters->size();
 
 		// Figure out which parameters need to be passed by reference
-		cout
+		code
 		<< "zend_function* signature;\n"
 		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);\n"
 
@@ -1255,7 +1325,7 @@ public:
 
 		if (num_args)
 		{
-			cout
+			code
 				<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
 				<< "int by_ref[" << num_args << "];\n"
 				;
@@ -1263,15 +1333,15 @@ public:
 
 		// TODO: Not 100% this is fully correct; in particular, 
 		// pass_rest_by_reference does not seem to work.
-		// cout << "printf(\"\\ncalling %s\\n\", signature->common.function_name);\n";
+		// code << "printf(\"\\ncalling %s\\n\", signature->common.function_name);\n";
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			// cout << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
+			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
 			
-			cout
+			code
 			<< "if(arg_info)\n"
 			<< "{\n"
 			<< "	by_ref[" << index << "] = arg_info->pass_by_reference;\n"
@@ -1283,20 +1353,20 @@ public:
 			<< "}\n"
 			;
 			
-			if((*i)->is_ref) cout << "by_ref[" << index << "] = 1;\n";
+			if((*i)->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
-			// cout << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
+			// code << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
 		}
 
 		if (num_args)
 		{
-			cout 
+			code 
 				<< "// Setup array of arguments\n"
 				<< "int destruct[" << num_args << "]; // set to 1 if the arg is new\n"
 				<< "zval* args[" << num_args  << "];\n"
 				;
 		}
-		cout 
+		code 
 			<< "zval** args_ind[" << num_args  << "];\n";
 
 		for(
@@ -1312,7 +1382,7 @@ public:
 			Token_variable_name* name
 				= dynamic_cast<Token_variable_name*>(var->variable_name);
 
-			cout << "destruct[" << index << "] = 0;\n";
+			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
 			 * hashtable, which we do for pass-by-ref, then we return a
 			 * zval**, straight into args_ind. Otherwise we return a
@@ -1323,7 +1393,7 @@ public:
 			{
 				assert (var->array_indices->size () == 1);
 				String* ind_name = operand(var->array_indices->front ());
-				cout
+				code
 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n"
@@ -1363,7 +1433,7 @@ public:
 			}
 			else
 			{
-				cout 
+				code 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n"
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
@@ -1397,7 +1467,7 @@ public:
 			}
 		}
 
-		cout
+		code
 			<< "phc_setup_error (1, " 
 			<<				rhs->get_filename () << ", " 
 			<<				rhs->get_line_number () << ", "
@@ -1424,7 +1494,7 @@ public:
 		// reference. This causes memory leaks, so we make a note to clean up the
 		// memory. It only occurs when calling eval'd functions, because they do
 		// in fact return the correct refcount.
-		cout 
+		code 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
 		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
@@ -1441,7 +1511,7 @@ public:
 
 		if (agn->is_ref)
 		{
-			cout 
+			code 
 				<< "if (rhs->refcount > 1 && !rhs->is_ref)\n"
 				<< "  zvp_clone (&rhs, &is_rhs_new TSRMLS_CC);\n";
 		}
@@ -1452,7 +1522,7 @@ public:
 			i++, index++)
 		{
 			// TODO put the for loop into generated code
-			cout 
+			code 
 				<< "if (destruct[" << index << "])\n"
 				<< "{\n"
 				<< "	assert (destruct[" << index << "] == 1);\n"
@@ -1460,7 +1530,7 @@ public:
 				<< "}\n";
 		}
 		
-		// cout << "debug_hash(EG(active_symbol_table));\n";
+		// code << "debug_hash(EG(active_symbol_table));\n";
 	}
 
 protected:
@@ -1490,7 +1560,7 @@ public:
 		declare ("right");
 		read (LOCAL, "left", left->value);
 		read (LOCAL, "right", right->value);
-		cout 
+		code 
 			<< "MAKE_STD_ZVAL(rhs);\n"
 			<< "is_rhs_new = 1;\n"
 			;
@@ -1498,9 +1568,9 @@ public:
 		// some operators need the operands to be reversed (since we call the
 		// opposite function). This is accounted for in the binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			cout << op_fn << "(rhs, right, left TSRMLS_CC);\n";
+			code << op_fn << "(rhs, right, left TSRMLS_CC);\n";
 		else
-			cout << op_fn << "(rhs, left, right TSRMLS_CC);\n";
+			code << op_fn << "(rhs, left, right TSRMLS_CC);\n";
 
 		cleanup ("left");
 		cleanup ("right");
@@ -1533,7 +1603,7 @@ public:
 		declare ("expr");
 		read (LOCAL, "expr", expr->value);
 
-		cout 
+		code 
 			<< "MAKE_STD_ZVAL(rhs);\n"
 			<< "is_rhs_new = 1;\n"
 			<< op_fn << "(rhs, expr TSRMLS_CC);\n"
@@ -1557,7 +1627,7 @@ class Return : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
-		cout << "{\n";
+		code << "{\n";
 		declare ("rhs");
 		read (LOCAL, "rhs", expr->value);
 
@@ -1567,7 +1637,7 @@ class Return : public Pattern
 			// semantics to compile-time. There is no way within a
 			// function to tell if the run-time return by reference is
 			// set, but its unnecessary anyway.
-			cout 
+			code 
 				<< "return_value->value = rhs->value;\n"
 				<< "return_value->type = rhs->type;\n"
 				<< "zval_copy_ctor(return_value);\n"
@@ -1577,18 +1647,18 @@ class Return : public Pattern
 		{
 			separate (LOCAL, "rhs", expr->value);
 
-			cout
+			code
 				<< "zval_ptr_dtor(return_value_ptr);\n"
 				<< "rhs->is_ref = 1;\n"
 				<< "rhs->refcount++;\n"
 				<< "*return_value_ptr = rhs;\n";
 			;
-//		cout << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
+//		code << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
 		}
 		cleanup ("rhs");
 
-		cout 
+		code 
 		<< "goto end_of_function;\n"
 		<< "}\n"
 		;
@@ -1618,7 +1688,7 @@ class Unset : public Pattern
 		{
 			if(var->value->array_indices->size() == 0)
 			{
-				cout
+				code
 					<< "unset_var ("
 					<<		get_scope (LOCAL) << ", "
 					<<		"\"" << *name->value << "\", "
@@ -1632,7 +1702,7 @@ class Unset : public Pattern
 				assert(var->value->array_indices->size() == 1);
 				String* ind = operand(var->value->array_indices->front());
 				// TODO write test cases for which putting LOCAL here is wrong
-				cout
+				code
 					<< "unset_array ("
 					<<		get_scope (LOCAL) << ", "
 					<<		"\"" << *name->value << "\", "
@@ -1673,7 +1743,7 @@ void Generate_C::children_statement(AST_statement* in)
 	{
 		string str;
 		getline (ss, str);
-		cout << "// " << str << endl;
+		code << "// " << str << endl;
 	}
 
 	Pattern* patterns[] = 
@@ -1731,7 +1801,7 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	{
 		string str;
 		getline (file, str);
-		cout << str << endl;
+		prologue << str << endl;
 	}
 
 	file.close ();
@@ -1742,13 +1812,13 @@ void Generate_C::post_php_script(AST_php_script* in)
 {
 	List<AST_signature*>::const_iterator i;
 
-	cout << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
+	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
 	for(i = methods->begin(); i != methods->end(); i++)
 	{
 		String* name = (*i)->method_name->value;
 
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
-		cout 
+		code 
 		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
 		<< ((*i)->is_ref ? "1" : "0")
 		<< ", 0)\n"
@@ -1762,29 +1832,29 @@ void Generate_C::post_php_script(AST_php_script* in)
 			j != (*i)->formal_parameters->end();
 			j++)
 		{
-			cout 
+			code 
 			<< "ZEND_ARG_INFO("
 			<< ((*j)->is_ref ? "1" : "0")
 			<< ", \"" << *(*j)->variable_name->value << "\")\n"; 
 		}
 
-		cout << "ZEND_END_ARG_INFO()\n";
+		code << "ZEND_END_ARG_INFO()\n";
 	}
 
-	cout 
+	code 
 		<< "// Register all functions with PHP\n"
 		<< "static function_entry " << *extension_name << "_functions[] = {\n"
 		;
 	for(i = methods->begin(); i != methods->end(); i++)
 	{
 		String* name = (*i)->method_name->value;
-		cout << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
+		code << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
 	}
 
-	cout << "{ NULL, NULL, NULL }\n";
-	cout << "};\n";
+	code << "{ NULL, NULL, NULL }\n";
+	code << "};\n";
 
-	cout
+	code
 		<< "// Register the module itself with PHP\n"
 		<< "zend_module_entry " << *extension_name << "_module_entry = {\n"
 		<< "STANDARD_MODULE_HEADER, \n"
@@ -1800,16 +1870,66 @@ void Generate_C::post_php_script(AST_php_script* in)
 		<< "};\n"
 		;
 
+	// Create constant pools. The declaration goes in the prologue,
+	// above its first use, and the initialization and finalizations
+	// go in main ().
+	stringstream initializations;
+	stringstream finalizations;
+
+	// INTs
+	map<long, int>::iterator ii;
+	for (ii = generated_ints.begin(); ii != generated_ints.end(); ii++)
+	{
+		prologue
+			<< "zval* phc_const_pool_int_" << ii->second << ";\n";
+
+		initializations
+			<< "MAKE_STD_ZVAL (phc_const_pool_int_" << ii->second << ");\n"
+			<< "ZVAL_LONG (phc_const_pool_int_" << ii->second << ", " << ii->first << ");\n";
+
+		finalizations
+			<< "zval_ptr_dtor (&phc_const_pool_int_" << ii->second << ");\n";
+	}
+
+	// BOOLs
+	prologue << "zval* phc_const_pool_true;\n";
+	prologue << "zval* phc_const_pool_false;\n";
+	initializations << "MAKE_STD_ZVAL (phc_const_pool_true);\n";
+	initializations << "MAKE_STD_ZVAL (phc_const_pool_false);\n";
+	initializations << "ZVAL_BOOL (phc_const_pool_true, 1);\n";
+	initializations << "ZVAL_BOOL (phc_const_pool_false, 0);\n";
+	finalizations << "zval_ptr_dtor (&phc_const_pool_true);\n";
+	finalizations << "zval_ptr_dtor (&phc_const_pool_false);\n";
+
+	// REALSs
+	map<string, int>::iterator ir;
+	for (ir = generated_reals.begin(); ir != generated_reals.end(); ir++)
+	{
+		prologue
+			<< "zval* phc_const_pool_real_" << ir->second << ";\n";
+
+		initializations
+			<< "MAKE_STD_ZVAL (phc_const_pool_real_" << ir->second << ");\n"
+			<< "zend_eval_string(\"" << ir->first << ";\","
+			<<		"phc_const_pool_real_" << ir->second << ", "
+			<<		"\"literal\" TSRMLS_CC);\n";
+
+		finalizations
+			<< "zval_ptr_dtor (&phc_const_pool_real_" << ir->second << ");\n";
+	}
+
+
+
 	if(is_extension)
 	{
-		cout << "ZEND_GET_MODULE(" << *extension_name << ")\n";
+		code << "ZEND_GET_MODULE(" << *extension_name << ")\n";
 	}
 	else
 	{
-		cout << "#include <sapi/embed/php_embed.h>\n";
-		cout << "#include <signal.h>\n\n";
+		code << "#include <sapi/embed/php_embed.h>\n";
+		code << "#include <signal.h>\n\n";
 	
-		cout <<
+		code <<
 		"void sighandler(int signum)\n"
 		"{\n"
 		"	switch(signum)\n"
@@ -1830,7 +1950,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"	exit(-1);\n"
 		"}\n";
 	
-		cout << 
+		code << 
 		"\n"
 		"int\n"
 		"main (int argc, char* argv[])\n"
@@ -1850,6 +1970,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"      zval main_name;\n"
 		"      ZVAL_STRING (&main_name, \"__MAIN__\", NULL);\n"
 		"\n"
+		<< initializations.str () << 
 		"      zval retval;\n"
 		"\n"
 		"      // Use standard errors, on stdout\n"
@@ -1874,6 +1995,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   {\n"
 		"   }\n"
 		"   zend_end_try ();\n"
+		<< finalizations.str () << 
 		"   phc_exit_status = EG(exit_status);\n"
 		"   php_embed_shutdown (TSRMLS_C);\n"
 		"\n"
@@ -1886,7 +2008,7 @@ void Generate_C::post_php_script(AST_php_script* in)
  * Bookkeeping 
  */
 
-Generate_C::Generate_C(stringstream& os) : os (os)
+Generate_C::Generate_C(ostream& os) : os (os)
 {
 	methods = new List<AST_signature*>;
 	name = new String ("generate-c");
