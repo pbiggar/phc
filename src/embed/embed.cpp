@@ -62,6 +62,11 @@ AST_literal* PHP::convert_token (AST_literal *token)
 
 }
 
+unsigned long PHP::get_hash (String* string)
+{
+  return zend_get_hash_value (const_cast <char*> (string->c_str ()), string->size () + 1);
+}
+
 #else
 
 #include <errno.h>

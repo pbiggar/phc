@@ -25,6 +25,7 @@
 
 #include <fstream>
 #include "Generate_C.h"
+#include "embed/embed.h"
 #include "process_ast/XML_unparser.h"
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
@@ -105,6 +106,20 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
+string get_hash (Token_variable_name* name)
+{
+	// the "u" at the end of the constant makes it unsigned, which
+	// stops gcc warning us about it.
+	stringstream ss;
+	ss << PHP::get_hash (name->value) << "u";
+	return ss.str ();
+}
+
+unsigned long get_hash (String* name)
+{
+	return PHP::get_hash (name);
+}
+
 void declare (string var)
 {
 	cout 
@@ -144,8 +159,10 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1 << ", "
+					<<		get_hash (index) << ", "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
@@ -157,6 +174,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
@@ -169,6 +187,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1 << ", "
+				<<		get_hash (name) << ", "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
@@ -217,8 +236,10 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1 << ", "
+					<<		get_hash (index) << ", "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
@@ -235,8 +256,10 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 				<< "separate_var (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
-				<< name->value->size () + 1 << ", "
-				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
+				<<		name->value->size () + 1 << ", " 
+				<<		get_hash (name) << ", "
+				<<		"&" << zvp << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
 	}
 	else
@@ -294,8 +317,10 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1 << ", "
+					<<		get_hash (index) << ", "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
@@ -307,6 +332,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 		}
@@ -318,8 +344,10 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				<< "write_var_reference (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
-				<< name->value->size () + 1 << ", "
-				<< "&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
+				<<		name->value->size () + 1 << ", "
+				<<		get_hash (name) << ", "
+				<<		"&" << zvp << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
 	}
 	else
@@ -361,9 +389,11 @@ void read (Scope scope, string zvp, AST_expr* expr)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1  << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1  << ", "
-					<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+					<<		get_hash (index) << ", "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 					;
 			}
 			else
@@ -378,7 +408,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name->value << "\", "
 				<<		name->value->size () + 1  << ", "
-				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+				<<		get_hash (name) << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
 		}
 	}
@@ -402,8 +433,10 @@ void read (Scope scope, string zvp, AST_expr* expr)
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name << "\", "
 					<<		name->size () + 1  << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1  << ", "
+					<<		get_hash (index) << ", "
 					<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
 					;
 			}
@@ -419,7 +452,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name << "\", "
 				<<		name->size () + 1  << ", "
-				<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+				<<		get_hash (name) << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
 		}
 	}
@@ -632,10 +666,12 @@ protected:
 
 				cout
 					<< "params[" << index << "]->refcount++;\n"
-					<< "zend_hash_add(EG(active_symbol_table), "
-					<< "\"" << *(*i)->variable_name->value << "\", " 
-					<< (*i)->variable_name->value->length() + 1  
-					<< ", &params[" << index << "], sizeof(zval*), NULL);\n"
+					<< "zend_hash_quick_add(EG(active_symbol_table), "
+					<<		"\"" << *(*i)->variable_name->value << "\", " 
+					<<		(*i)->variable_name->value->length() + 1 << ", "
+					<<		get_hash ((*i)->variable_name) << ", "
+					<<		"&params[" << index << "], "
+					<<		"sizeof(zval*), NULL);\n"
 					;
 
 				if ((*i)->expr)
@@ -1154,8 +1190,10 @@ public:
 		cout
 			<< "// Exit ()\n"
 			<< "phc_exit (\"" 
-						<< *op << "\", "
-						<< op->length () + 1 << " TSRMLS_CC);\n";
+			<<		*op << "\", "
+			<<		op->length () + 1 << ", "
+			<<		get_hash (op)
+			<<		" TSRMLS_CC);\n";
 	}
 
 protected:
@@ -1293,8 +1331,10 @@ public:
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
+					<<				get_hash (name) << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
+					<<				get_hash (ind_name) << ", "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					// if we pass &EG(uninitialized_zval_ptr), the
@@ -1312,8 +1352,10 @@ public:
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
+					<<				get_hash (name) << ", "
 					<<				"\"" << *ind_name << "\", "
 					<<				ind_name->size () + 1 << ", "
+					<<				get_hash (ind_name) << ", "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
@@ -1328,6 +1370,7 @@ public:
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
+					<<				get_hash (name) << ", "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					// if we pass &EG(uninitialized_zval_ptr), the
@@ -1345,6 +1388,7 @@ public:
 					<<				get_scope (LOCAL) << ", "
 					<<				"\"" << *name->value << "\", "
 					<<				name->value->size () + 1 << ", "
+					<<				get_hash (name) << ", "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
@@ -1578,7 +1622,9 @@ class Unset : public Pattern
 					<< "unset_var ("
 					<<		get_scope (LOCAL) << ", "
 					<<		"\"" << *name->value << "\", "
-					<<		name->value->length() + 1 << " TSRMLS_CC);\n"
+					<<		name->value->length() + 1
+					// no get_hash version
+					<<		" TSRMLS_CC);\n"
 					;
 			}
 			else 
@@ -1591,8 +1637,11 @@ class Unset : public Pattern
 					<<		get_scope (LOCAL) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->length() + 1 << ", "
+					<<		get_hash (name) << ", "
 					<<		"\"" << *ind << "\", "
-					<<		ind->length() + 1 << " TSRMLS_CC);\n";
+					<<		ind->length() + 1 << ", "
+					<<		get_hash (ind)
+					<<		" TSRMLS_CC);\n";
 			}
 		}
 		else
