@@ -144,18 +144,19 @@ string get_scope (Scope scope)
 		return "&EG(symbol_table)";
 }
 
+
+string get_hash (String* name)
+{
+	stringstream ss;
+	ss << PHP::get_hash (name) << "u";
+	return ss.str ();
+}
+
 string get_hash (Token_variable_name* name)
 {
 	// the "u" at the end of the constant makes it unsigned, which
 	// stops gcc warning us about it.
-	stringstream ss;
-	ss << PHP::get_hash (name->value) << "u";
-	return ss.str ();
-}
-
-unsigned long get_hash (String* name)
-{
-	return PHP::get_hash (name);
+	return get_hash (name->value);
 }
 
 void declare (string var)
