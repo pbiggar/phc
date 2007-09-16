@@ -9,6 +9,7 @@
 require_once ("lib/no_subject_test.php");
 class ZendBenchmark extends NoSubjectTest
 {
+	// TODO: This test doesdnt ever mark_success
 	function run_test ($subject)
 	{
 		$filename = "test/subjects/3rdparty/benchmarks/zend/bench.php";
