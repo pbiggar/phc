@@ -265,16 +265,17 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Lower_expr_flow.$(OBJEXT) \
 	Note_top_level_declarations.$(OBJEXT) Shredder.$(OBJEXT) \
 	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
-	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	cmdline.$(OBJEXT) lex.yy.$(OBJEXT) php_parser.tab.$(OBJEXT) \
-	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
-	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
-	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
-	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) phc.$(OBJEXT) \
-	Consistency_check.$(OBJEXT) DOT_unparser.$(OBJEXT) \
-	Invalid_check.$(OBJEXT) Pass_manager.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) Process_includes.$(OBJEXT) \
-	Remove_concat_null.$(OBJEXT) \
+	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) HIR.$(OBJEXT) \
+	HIR_factory.$(OBJEXT) HIR_transform.$(OBJEXT) \
+	HIR_visitor.$(OBJEXT) cmdline.$(OBJEXT) lex.yy.$(OBJEXT) \
+	php_parser.tab.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
+	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
+	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
+	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
+	phc.$(OBJEXT) Consistency_check.$(OBJEXT) \
+	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
+	Pass_manager.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Strip_comments.$(OBJEXT) \
 	Token_conversion.$(OBJEXT) XML_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
@@ -557,13 +558,21 @@ src_phc_SOURCES = \
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
+	src/generated/AST.h										\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
-	src/generated/AST.h										\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
+	src/generated/HIR.cpp									\
+	src/generated/HIR.h										\
+	src/generated/HIR_factory.cpp							\
+	src/generated/HIR_factory.h							\
+	src/generated/HIR_transform.cpp						\
+	src/generated/HIR_transform.h							\
+	src/generated/HIR_visitor.cpp							\
+	src/generated/HIR_visitor.h							\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
@@ -621,17 +630,25 @@ src_phc_SOURCES = \
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
-	src/generated/cmdline.c									\
-	src/generated/cmdline.h									\
-	src/generated/keywords.h								\
-	src/generated/lex.yy.cc									\
-	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
+	src/generated/HIR.cpp									\
+	src/generated/HIR.h										\
+	src/generated/HIR_transform.cpp						\
+	src/generated/HIR_transform.h							\
+	src/generated/HIR_visitor.cpp							\
+	src/generated/HIR_visitor.h							\
+	src/generated/HIR_factory.cpp							\
+	src/generated/HIR_factory.h							\
+	src/generated/cmdline.c									\
+	src/generated/cmdline.h									\
+	src/generated/keywords.h								\
+	src/generated/lex.yy.cc									\
+	src/generated/php_parser.tab.cpp						\
 	test/framework/lib/autovars.php
 
 
@@ -649,6 +666,9 @@ strangephc_HEADERS = \
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
+	src/generated/HIR.h						\
+	src/generated/HIR_transform.h			\
+	src/generated/HIR_visitor.h			\
 	src/generated/cmdline.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
@@ -978,6 +998,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_factory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Po@am__quote@
@@ -1498,6 +1522,62 @@ AST_visitor.obj: src/generated/AST_visitor.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/AST_visitor.cpp' object='AST_visitor.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_visitor.obj `if test -f 'src/generated/AST_visitor.cpp'; then $(CYGPATH_W) 'src/generated/AST_visitor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/AST_visitor.cpp'; fi`
+
+HIR.o: src/generated/HIR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR.o -MD -MP -MF $(DEPDIR)/HIR.Tpo -c -o HIR.o `test -f 'src/generated/HIR.cpp' || echo '$(srcdir)/'`src/generated/HIR.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR.Tpo $(DEPDIR)/HIR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR.cpp' object='HIR.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR.o `test -f 'src/generated/HIR.cpp' || echo '$(srcdir)/'`src/generated/HIR.cpp
+
+HIR.obj: src/generated/HIR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR.obj -MD -MP -MF $(DEPDIR)/HIR.Tpo -c -o HIR.obj `if test -f 'src/generated/HIR.cpp'; then $(CYGPATH_W) 'src/generated/HIR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR.Tpo $(DEPDIR)/HIR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR.cpp' object='HIR.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR.obj `if test -f 'src/generated/HIR.cpp'; then $(CYGPATH_W) 'src/generated/HIR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR.cpp'; fi`
+
+HIR_factory.o: src/generated/HIR_factory.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_factory.o -MD -MP -MF $(DEPDIR)/HIR_factory.Tpo -c -o HIR_factory.o `test -f 'src/generated/HIR_factory.cpp' || echo '$(srcdir)/'`src/generated/HIR_factory.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_factory.Tpo $(DEPDIR)/HIR_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_factory.cpp' object='HIR_factory.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_factory.o `test -f 'src/generated/HIR_factory.cpp' || echo '$(srcdir)/'`src/generated/HIR_factory.cpp
+
+HIR_factory.obj: src/generated/HIR_factory.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_factory.obj -MD -MP -MF $(DEPDIR)/HIR_factory.Tpo -c -o HIR_factory.obj `if test -f 'src/generated/HIR_factory.cpp'; then $(CYGPATH_W) 'src/generated/HIR_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_factory.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_factory.Tpo $(DEPDIR)/HIR_factory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_factory.cpp' object='HIR_factory.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_factory.obj `if test -f 'src/generated/HIR_factory.cpp'; then $(CYGPATH_W) 'src/generated/HIR_factory.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_factory.cpp'; fi`
+
+HIR_transform.o: src/generated/HIR_transform.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_transform.o -MD -MP -MF $(DEPDIR)/HIR_transform.Tpo -c -o HIR_transform.o `test -f 'src/generated/HIR_transform.cpp' || echo '$(srcdir)/'`src/generated/HIR_transform.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_transform.Tpo $(DEPDIR)/HIR_transform.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_transform.cpp' object='HIR_transform.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_transform.o `test -f 'src/generated/HIR_transform.cpp' || echo '$(srcdir)/'`src/generated/HIR_transform.cpp
+
+HIR_transform.obj: src/generated/HIR_transform.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_transform.obj -MD -MP -MF $(DEPDIR)/HIR_transform.Tpo -c -o HIR_transform.obj `if test -f 'src/generated/HIR_transform.cpp'; then $(CYGPATH_W) 'src/generated/HIR_transform.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_transform.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_transform.Tpo $(DEPDIR)/HIR_transform.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_transform.cpp' object='HIR_transform.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_transform.obj `if test -f 'src/generated/HIR_transform.cpp'; then $(CYGPATH_W) 'src/generated/HIR_transform.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_transform.cpp'; fi`
+
+HIR_visitor.o: src/generated/HIR_visitor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_visitor.o -MD -MP -MF $(DEPDIR)/HIR_visitor.Tpo -c -o HIR_visitor.o `test -f 'src/generated/HIR_visitor.cpp' || echo '$(srcdir)/'`src/generated/HIR_visitor.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_visitor.Tpo $(DEPDIR)/HIR_visitor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_visitor.cpp' object='HIR_visitor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_visitor.o `test -f 'src/generated/HIR_visitor.cpp' || echo '$(srcdir)/'`src/generated/HIR_visitor.cpp
+
+HIR_visitor.obj: src/generated/HIR_visitor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_visitor.obj -MD -MP -MF $(DEPDIR)/HIR_visitor.Tpo -c -o HIR_visitor.obj `if test -f 'src/generated/HIR_visitor.cpp'; then $(CYGPATH_W) 'src/generated/HIR_visitor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_visitor.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_visitor.Tpo $(DEPDIR)/HIR_visitor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/generated/HIR_visitor.cpp' object='HIR_visitor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_visitor.obj `if test -f 'src/generated/HIR_visitor.cpp'; then $(CYGPATH_W) 'src/generated/HIR_visitor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/HIR_visitor.cpp'; fi`
 
 lex.yy.o: src/generated/lex.yy.cc
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lex.yy.o -MD -MP -MF $(DEPDIR)/lex.yy.Tpo -c -o lex.yy.o `test -f 'src/generated/lex.yy.cc' || echo '$(srcdir)/'`src/generated/lex.yy.cc
@@ -2395,6 +2475,27 @@ src/generated/AST_factory.h			\
 	mv AST_factory.cpp src/generated/
 	mv AST_factory.h src/generated/
 	mv AST-contexts src/generated/
+#	mv schema.xsd src/generated/phc-1.0.xsd
+
+src/generated/HIR.cpp 				\
+src/generated/HIR.h 				\
+src/generated/HIR_transform.cpp 	\
+src/generated/HIR_transform.h		\
+src/generated/HIR_visitor.cpp 		\
+src/generated/HIR_visitor.h 		\
+src/generated/HIR_factory.cpp		\
+src/generated/HIR_factory.h			\
+	: src/generated_src/hir.tea @maketea@
+	@maketea@ src/generated_src/hir.tea
+	mv HIR.cpp src/generated/
+	mv HIR.h src/generated/
+	mv HIR_transform.cpp src/generated/
+	mv HIR_transform.h src/generated/
+	mv HIR_visitor.cpp src/generated/
+	mv HIR_visitor.h src/generated/
+	mv HIR_factory.cpp src/generated/
+	mv HIR_factory.h src/generated/
+	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 

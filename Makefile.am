@@ -69,13 +69,21 @@ src_phc_SOURCES =												\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
+	src/generated/AST.h										\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
-	src/generated/AST.h										\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
+	src/generated/HIR.cpp									\
+	src/generated/HIR.h										\
+	src/generated/HIR_factory.cpp							\
+	src/generated/HIR_factory.h							\
+	src/generated/HIR_transform.cpp						\
+	src/generated/HIR_transform.h							\
+	src/generated/HIR_visitor.cpp							\
+	src/generated/HIR_visitor.h							\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
@@ -133,17 +141,25 @@ src_phc_SOURCES =												\
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
 	src/generated/AST.h										\
-	src/generated/cmdline.c									\
-	src/generated/cmdline.h									\
-	src/generated/keywords.h								\
-	src/generated/lex.yy.cc									\
-	src/generated/php_parser.tab.cpp						\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
+	src/generated/HIR.cpp									\
+	src/generated/HIR.h										\
+	src/generated/HIR_transform.cpp						\
+	src/generated/HIR_transform.h							\
+	src/generated/HIR_visitor.cpp							\
+	src/generated/HIR_visitor.h							\
+	src/generated/HIR_factory.cpp							\
+	src/generated/HIR_factory.h							\
+	src/generated/cmdline.c									\
+	src/generated/cmdline.h									\
+	src/generated/keywords.h								\
+	src/generated/lex.yy.cc									\
+	src/generated/php_parser.tab.cpp						\
 	test/framework/lib/autovars.php
 
 # - The magic to accomplish this is described cryptically in the last few
@@ -160,6 +176,9 @@ strangephc_HEADERS =							\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
+	src/generated/HIR.h						\
+	src/generated/HIR_transform.h			\
+	src/generated/HIR_visitor.h			\
 	src/generated/cmdline.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
@@ -305,6 +324,27 @@ src/generated/AST_factory.h			\
 	mv AST_factory.cpp src/generated/
 	mv AST_factory.h src/generated/
 	mv AST-contexts src/generated/
+#	mv schema.xsd src/generated/phc-1.0.xsd
+
+src/generated/HIR.cpp 				\
+src/generated/HIR.h 				\
+src/generated/HIR_transform.cpp 	\
+src/generated/HIR_transform.h		\
+src/generated/HIR_visitor.cpp 		\
+src/generated/HIR_visitor.h 		\
+src/generated/HIR_factory.cpp		\
+src/generated/HIR_factory.h			\
+	: src/generated_src/hir.tea @maketea@
+	@maketea@ src/generated_src/hir.tea
+	mv HIR.cpp src/generated/
+	mv HIR.h src/generated/
+	mv HIR_transform.cpp src/generated/
+	mv HIR_transform.h src/generated/
+	mv HIR_visitor.cpp src/generated/
+	mv HIR_visitor.h src/generated/
+	mv HIR_factory.cpp src/generated/
+	mv HIR_factory.h src/generated/
+	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 
