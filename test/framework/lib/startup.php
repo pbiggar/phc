@@ -10,7 +10,12 @@ require_once ("Console/Getopt.php");
 require_once ("Console/ProgressBar.php");
 
 $cg = new Console_Getopt();
-list ($opts, $arguments) = $cg->getOpt($cg->readPHPArgv(), "lvVshndpicq", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick"));
+$argv = $cg->readPHPArgv ();
+$getopt = $cg->getOpt($cg->readPHPArgv(), "lvVshndpicq", array ("long", "verbose", "valgrind", "support", "help", "number", "no-progress", "installed", "clean", "quick"));
+if ($getopt instanceof PEAR_Error)
+	die ("Command line error: {$getopt->message}\n");
+
+list ($opts, $arguments) = $getopt;
 foreach ($opts as $opt) 
 {
 	if ($opt[1] == NULL) $options{$opt[0]} = "";
