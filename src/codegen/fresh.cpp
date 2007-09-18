@@ -58,11 +58,14 @@ String* fresh(string prefix)
 
 AST_variable* fresh_var(string prefix)
 {
-	return new AST_variable(
+	AST_variable* var = new AST_variable (
 		NULL, 
-		new Token_variable_name(fresh(prefix)), 
+		new Token_variable_name (fresh (prefix)), 
 		new List<AST_expr*>
 		);
+
+	var->attrs->set_true ("phc.codegen.st_entry_not_required");
+	return var;
 }
 
 AST_label* fresh_label ()
@@ -70,6 +73,4 @@ AST_label* fresh_label ()
 	return new AST_label (
 		new Token_label_name (fresh("L")));
 }
-
-
 
