@@ -175,6 +175,19 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
 
+// Generate calls to read_var_ex, for array and array index lookups, and the like.
+void read_simple (Scope scope, string zvp, String* name)
+{
+	code
+		<< "zval* " << zvp << "= read_var_ex (" 
+		<<									get_scope (scope) << ", "
+		<<									"\"" << *name << "\", "
+		<<									name->size () + 1  << ", "
+		<<									get_hash (name) << " TSRMLS_CC);\n";
+}
+
+
+
 /* Generate code to write ZVP, a variable in the generated code,
  * to VAR, a named variable. */
 void write (Scope scope, string zvp, AST_variable* var)
@@ -195,15 +208,17 @@ void write (Scope scope, string zvp, AST_variable* var)
 			{
 				String* index = operand (var->array_indices->front());
 				code
-					<< "// Array assignment\n"
+					<< "// Array assignment\n";
+
+				read_simple (scope, "wa_index", index);
+
+				code
 					<< "write_array ("
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		get_hash (name) << ", "
-					<<		"\"" << *index << "\", "
-					<<		index->size () + 1 << ", "
-					<<		get_hash (index) << ", "
+					<<		"wa_index, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
@@ -272,18 +287,18 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			if (var->array_indices->front () != NULL)
 			{
 				String* index = operand (var->array_indices->front());
+
+				read_simple (scope, "sa_index", index);
+
 				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		get_hash (name) << ", "
-					<<		"\"" << *index << "\", "
-					<<		index->size () + 1 << ", "
-					<<		get_hash (index) << ", "
+					<<		"sa_index, "
 					<<		"&" << zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
-				;
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 			else
 			{
@@ -353,15 +368,16 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			{
 				String* index = operand (var->array_indices->front());
 				code
-					<< "// Reference array assignment\n"
+					<< "// Reference array assignment\n";
+				read_simple (scope, "war_index", index);
+
+				code
 					<< "write_array_reference ("
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name->value << "\", "
 					<<		name->value->size () + 1 << ", "
 					<<		get_hash (name) << ", "
-					<<		"\"" << *index << "\", "
-					<<		index->size () + 1 << ", "
-					<<		get_hash (index) << ", "
+					<<		"war_index, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
@@ -410,30 +426,31 @@ void read (Scope scope, string zvp, AST_expr* expr)
 	assert (var);
 
 	// Variable variable or ordinary variable?
-	Token_variable_name* name
+	Token_variable_name* token_name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// TODO: deal with object indexing
 	assert(var->target == NULL);
 
-	if(name != NULL)
+	if(token_name != NULL)
 	{
+		String* name = token_name->value;
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
 				String *index = operand (var->array_indices->front ());
-				code 
-					<< "// Read array variable\n"
+				code << "// Read array variable\n";
+
+				read_simple (scope, "r_array", name);
+				read_simple (scope, "ra_index", index);
+
+				code
 					<< zvp << " = read_array (" 
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1  << ", "
-					<<		get_hash (name) << ", "
-					<<		"\"" << *index << "\", "
-					<<		index->size () + 1  << ", "
-					<<		get_hash (index) << ", "
+					<<		"r_array, "
+					<<		"ra_index, "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 					;
 			}
@@ -447,8 +464,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				<< "// Read normal variable\n"
 				<< zvp << " = read_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name->value << "\", "
-				<<		name->value->size () + 1  << ", "
+				<<		"\"" << *name << "\", "
+				<<		name->size () + 1  << ", "
 				<<		get_hash (name) << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
@@ -468,20 +485,12 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			if (var->array_indices->front () != NULL)
 			{
 				String *index = operand (var->array_indices->front ());
-				code 
-					<< "// Read array variable-variable\n"
-					<< "zval* refl = read_var_ex (" 
-					<<		get_scope (scope) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->size () + 1  << ", "
-					<<		get_hash (name) << " TSRMLS_CC);\n"
+				code << "// Read array variable-variable\n";
 
-					<< "zval* refl_index = read_var_ex (" 
-					<<		get_scope (scope) << ", "
-					<<		"\"" << *index << "\", "
-					<<		index->size () + 1  << ", "
-					<<		get_hash (index) << " TSRMLS_CC);\n"
+				read_simple (scope, "refl", name);
+				read_simple (scope, "refl_index", index);
 
+				code
 					<< zvp << " = read_var_array (" 
 					<<		get_scope (scope) << ", "
 					<<		"refl, "
@@ -495,15 +504,11 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		else
 		{
 			assert (var->array_indices->size() == 0);
-			code 
-				<< "// Read variable variable\n"
-				<< "zval* refl = read_var (" 
-				<<		get_scope (scope) << ", "
-				<<		"\"" << *name << "\", "
-				<<		name->size () + 1  << ", "
-				<<		get_hash (name) << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+			code << "// Read variable variable\n";
 
+			read_simple (scope, "refl", name);
+
+			code
 				<< zvp << " = read_var_var (" 
 				<<		get_scope (scope) << ", "
 				<<		"refl, "

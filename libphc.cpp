@@ -403,8 +403,7 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 // See "Separation anxiety" in the PHP book
 static void
 separate_array_entry (HashTable * st, char *var_name, int var_length,
-		      ulong hashval, char *ind_name, int ind_length,
-		      ulong ind_hashval, zval ** p_zvp,
+		      ulong hashval, zval* ind, zval ** p_zvp,
 		      int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
@@ -420,9 +419,6 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
 
   zval *var = NULL;
   zval **p_var = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
 
   zval *zvp = *p_zvp;
 
@@ -441,22 +437,8 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      ALLOC_INIT_ZVAL (ind);
-    }
-
   zvp->refcount++;
   ht_update (ht, ind, zvp);
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
 }
 
 
@@ -559,51 +541,26 @@ read_var_var (HashTable * st, zval* refl, int *is_new TSRMLS_DC)
 }
 
 static zval *
-read_array (HashTable * st, char *var_name, int var_length, ulong var_hashval,
-	    char *ind_name, int ind_length, ulong ind_hashval,
+read_array (HashTable * st, zval* var, zval* ind,
 	    int *is_new TSRMLS_DC)
 {
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
-
   zval *result = NULL;
-  zval **p_result = &ind;
+  zval **p_result;
 
-  int var_exists =
-    (zend_hash_quick_find (st, var_name, var_length, var_hashval,
-			   (void **) &p_var) == SUCCESS);
-  if (!var_exists)
-    {
-      return EG (uninitialized_zval_ptr);
-    }
+  // read the variable
+  if (var == EG (uninitialized_zval_ptr))
+    return var;
 
-  var = *p_var;
 
+  // turn it into an array
   if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
     {
       // TODO does this need an error, if so, use extract_ht
       return EG (uninitialized_zval_ptr);
     }
-
-  // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      // do not remove these curlies, as this expands to 2 statements
-      ALLOC_INIT_ZVAL (ind);
-    }
-
-  // find the var
+  // find the result
   int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
   if (result_exists)
     result = *p_result;
@@ -611,9 +568,6 @@ read_array (HashTable * st, char *var_name, int var_length, ulong var_hashval,
     {
       result = EG (uninitialized_zval_ptr);
     }
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
 
   return result;
 }
@@ -657,17 +611,13 @@ read_var_array (HashTable * st, zval* refl, zval* ind, int *is_new TSRMLS_DC)
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
 write_array (HashTable * st, char *var_name, int var_length,
-	     ulong var_hashval, char *ind_name, int ind_length,
-	     ulong ind_hashval, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+	     ulong var_hashval, zval* ind, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   zval *var = NULL;
   zval **p_var = &var;
 
   zval *lhs = NULL;
   zval **p_lhs = &lhs;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
 
   zval *rhs = *p_rhs;
 
@@ -698,19 +648,6 @@ write_array (HashTable * st, char *var_name, int var_length,
   // if its not an array, make it an array
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      // do not remove these curlies, as this expands to 2 statements
-      ALLOC_INIT_ZVAL (ind);
-    }
-
-
   // find the var
   int lhs_exists = (ht_find (ht, ind, &p_lhs) == SUCCESS);
   if (lhs_exists)
@@ -734,9 +671,6 @@ write_array (HashTable * st, char *var_name, int var_length,
       // TODO not sure if this is possible
       overwrite_lhs (lhs, rhs);
     }
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
 }
 
 
@@ -854,8 +788,7 @@ write_var_reference (HashTable * st, char *name, int length, ulong hashval,
  * which should be its original name */
 static void				// TODO change function and update 
 write_array_reference (HashTable * st, char *var_name, int var_length,
-		       ulong var_hashval, char *ind_name, int ind_length,
-		       ulong ind_hashval, zval ** p_zvp,
+		       ulong var_hashval, zval* ind, zval ** p_zvp,
 		       int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
@@ -864,9 +797,6 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
 
   zval *var = NULL;
   zval **p_var = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
 
   zval *zvp = *p_zvp;
 
@@ -894,20 +824,7 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
   HashTable *ht = extract_ht (var TSRMLS_CC);
 
   // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      ALLOC_INIT_ZVAL (ind);
-    }
-
   ht_update (ht, ind, zvp);
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
 }
 
 static zval **
