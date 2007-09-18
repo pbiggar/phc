@@ -54,19 +54,19 @@ public:
     virtual HIR_expr* pre_new(HIR_new* in);
     virtual HIR_static_value* pre_static_array(HIR_static_array* in);
     virtual void pre_static_array_elem(HIR_static_array_elem* in, List<HIR_static_array_elem*>* out);
-    virtual Token_class_name* pre_class_name(Token_class_name* in);
     virtual Token_interface_name* pre_interface_name(Token_interface_name* in);
+    virtual Token_label_name* pre_label_name(Token_label_name* in);
+    virtual Token_cast* pre_cast(Token_cast* in);
+    virtual Token_op* pre_op(Token_op* in);
+    virtual Token_constant_name* pre_constant_name(Token_constant_name* in);
+    virtual Token_class_name* pre_class_name(Token_class_name* in);
     virtual Token_method_name* pre_method_name(Token_method_name* in);
     virtual Token_variable_name* pre_variable_name(Token_variable_name* in);
-    virtual Token_label_name* pre_label_name(Token_label_name* in);
     virtual HIR_literal* pre_int(Token_int* in);
     virtual HIR_literal* pre_real(Token_real* in);
     virtual HIR_literal* pre_string(Token_string* in);
     virtual HIR_literal* pre_bool(Token_bool* in);
     virtual HIR_literal* pre_null(Token_null* in);
-    virtual Token_cast* pre_cast(Token_cast* in);
-    virtual Token_op* pre_op(Token_op* in);
-    virtual Token_constant_name* pre_constant_name(Token_constant_name* in);
 // Invoked after the children have been transformed
 public:
     virtual HIR_php_script* post_php_script(HIR_php_script* in);
@@ -105,19 +105,19 @@ public:
     virtual HIR_expr* post_new(HIR_new* in);
     virtual HIR_static_value* post_static_array(HIR_static_array* in);
     virtual void post_static_array_elem(HIR_static_array_elem* in, List<HIR_static_array_elem*>* out);
-    virtual Token_class_name* post_class_name(Token_class_name* in);
     virtual Token_interface_name* post_interface_name(Token_interface_name* in);
+    virtual Token_label_name* post_label_name(Token_label_name* in);
+    virtual Token_cast* post_cast(Token_cast* in);
+    virtual Token_op* post_op(Token_op* in);
+    virtual Token_constant_name* post_constant_name(Token_constant_name* in);
+    virtual Token_class_name* post_class_name(Token_class_name* in);
     virtual Token_method_name* post_method_name(Token_method_name* in);
     virtual Token_variable_name* post_variable_name(Token_variable_name* in);
-    virtual Token_label_name* post_label_name(Token_label_name* in);
     virtual HIR_literal* post_int(Token_int* in);
     virtual HIR_literal* post_real(Token_real* in);
     virtual HIR_literal* post_string(Token_string* in);
     virtual HIR_literal* post_bool(Token_bool* in);
     virtual HIR_literal* post_null(Token_null* in);
-    virtual Token_cast* post_cast(Token_cast* in);
-    virtual Token_op* post_op(Token_op* in);
-    virtual Token_constant_name* post_constant_name(Token_constant_name* in);
 // Transform the children of the node
 public:
     virtual void children_php_script(HIR_php_script* in);
@@ -158,19 +158,19 @@ public:
     virtual void children_static_array_elem(HIR_static_array_elem* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_class_name(Token_class_name* in);
     virtual void children_interface_name(Token_interface_name* in);
+    virtual void children_label_name(Token_label_name* in);
+    virtual void children_cast(Token_cast* in);
+    virtual void children_op(Token_op* in);
+    virtual void children_constant_name(Token_constant_name* in);
+    virtual void children_class_name(Token_class_name* in);
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
-    virtual void children_label_name(Token_label_name* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
     virtual void children_bool(Token_bool* in);
     virtual void children_null(Token_null* in);
-    virtual void children_cast(Token_cast* in);
-    virtual void children_op(Token_op* in);
-    virtual void children_constant_name(Token_constant_name* in);
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
 public:

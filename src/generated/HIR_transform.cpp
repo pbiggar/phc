@@ -186,12 +186,32 @@ void HIR_transform::pre_static_array_elem(HIR_static_array_elem* in, List<HIR_st
     out->push_back(in);
 }
 
-Token_class_name* HIR_transform::pre_class_name(Token_class_name* in)
+Token_interface_name* HIR_transform::pre_interface_name(Token_interface_name* in)
 {
     return in;
 }
 
-Token_interface_name* HIR_transform::pre_interface_name(Token_interface_name* in)
+Token_label_name* HIR_transform::pre_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_cast* HIR_transform::pre_cast(Token_cast* in)
+{
+    return in;
+}
+
+Token_op* HIR_transform::pre_op(Token_op* in)
+{
+    return in;
+}
+
+Token_constant_name* HIR_transform::pre_constant_name(Token_constant_name* in)
+{
+    return in;
+}
+
+Token_class_name* HIR_transform::pre_class_name(Token_class_name* in)
 {
     return in;
 }
@@ -202,11 +222,6 @@ Token_method_name* HIR_transform::pre_method_name(Token_method_name* in)
 }
 
 Token_variable_name* HIR_transform::pre_variable_name(Token_variable_name* in)
-{
-    return in;
-}
-
-Token_label_name* HIR_transform::pre_label_name(Token_label_name* in)
 {
     return in;
 }
@@ -232,21 +247,6 @@ HIR_literal* HIR_transform::pre_bool(Token_bool* in)
 }
 
 HIR_literal* HIR_transform::pre_null(Token_null* in)
-{
-    return in;
-}
-
-Token_cast* HIR_transform::pre_cast(Token_cast* in)
-{
-    return in;
-}
-
-Token_op* HIR_transform::pre_op(Token_op* in)
-{
-    return in;
-}
-
-Token_constant_name* HIR_transform::pre_constant_name(Token_constant_name* in)
 {
     return in;
 }
@@ -432,12 +432,32 @@ void HIR_transform::post_static_array_elem(HIR_static_array_elem* in, List<HIR_s
     out->push_back(in);
 }
 
-Token_class_name* HIR_transform::post_class_name(Token_class_name* in)
+Token_interface_name* HIR_transform::post_interface_name(Token_interface_name* in)
 {
     return in;
 }
 
-Token_interface_name* HIR_transform::post_interface_name(Token_interface_name* in)
+Token_label_name* HIR_transform::post_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_cast* HIR_transform::post_cast(Token_cast* in)
+{
+    return in;
+}
+
+Token_op* HIR_transform::post_op(Token_op* in)
+{
+    return in;
+}
+
+Token_constant_name* HIR_transform::post_constant_name(Token_constant_name* in)
+{
+    return in;
+}
+
+Token_class_name* HIR_transform::post_class_name(Token_class_name* in)
 {
     return in;
 }
@@ -448,11 +468,6 @@ Token_method_name* HIR_transform::post_method_name(Token_method_name* in)
 }
 
 Token_variable_name* HIR_transform::post_variable_name(Token_variable_name* in)
-{
-    return in;
-}
-
-Token_label_name* HIR_transform::post_label_name(Token_label_name* in)
 {
     return in;
 }
@@ -478,21 +493,6 @@ HIR_literal* HIR_transform::post_bool(Token_bool* in)
 }
 
 HIR_literal* HIR_transform::post_null(Token_null* in)
-{
-    return in;
-}
-
-Token_cast* HIR_transform::post_cast(Token_cast* in)
-{
-    return in;
-}
-
-Token_op* HIR_transform::post_op(Token_op* in)
-{
-    return in;
-}
-
-Token_constant_name* HIR_transform::post_constant_name(Token_constant_name* in)
 {
     return in;
 }
@@ -713,11 +713,27 @@ void HIR_transform::children_static_array_elem(HIR_static_array_elem* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void HIR_transform::children_class_name(Token_class_name* in)
+void HIR_transform::children_interface_name(Token_interface_name* in)
 {
 }
 
-void HIR_transform::children_interface_name(Token_interface_name* in)
+void HIR_transform::children_label_name(Token_label_name* in)
+{
+}
+
+void HIR_transform::children_cast(Token_cast* in)
+{
+}
+
+void HIR_transform::children_op(Token_op* in)
+{
+}
+
+void HIR_transform::children_constant_name(Token_constant_name* in)
+{
+}
+
+void HIR_transform::children_class_name(Token_class_name* in)
 {
 }
 
@@ -726,10 +742,6 @@ void HIR_transform::children_method_name(Token_method_name* in)
 }
 
 void HIR_transform::children_variable_name(Token_variable_name* in)
-{
-}
-
-void HIR_transform::children_label_name(Token_label_name* in)
 {
 }
 
@@ -750,18 +762,6 @@ void HIR_transform::children_bool(Token_bool* in)
 }
 
 void HIR_transform::children_null(Token_null* in)
-{
-}
-
-void HIR_transform::children_cast(Token_cast* in)
-{
-}
-
-void HIR_transform::children_op(Token_op* in)
-{
-}
-
-void HIR_transform::children_constant_name(Token_constant_name* in)
 {
 }
 

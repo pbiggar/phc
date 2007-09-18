@@ -118,19 +118,6 @@ static_array_elem ::= static_array_key? is_ref:"&"? val:static_value ;
 static_array_key  ::= literal | constant ; 
 
 {-
- - Additional structure 
- -}
-
-node ::= 
-	  php_script | statement | class_mod | member | signature | method_mod 
-	| formal_parameter | type | attribute | attr_mod | variable_name | expr
-	| target | method_name | actual_parameter
-	| static_value | static_array | static_array_elem | static_array_key
-	| catch | class_name 
-	| CONSTANT_NAME | OP | CAST | LABEL_NAME | INTERFACE_NAME 
-	;
-
-{-
 	Mixin
 -}
 

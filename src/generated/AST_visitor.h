@@ -25,6 +25,7 @@ public:
     virtual ~AST_visitor();
 // Invoked before the children are visited
 public:
+    virtual void pre_node(AST_node* in);
     virtual void pre_php_script(AST_php_script* in);
     virtual void pre_statement(AST_statement* in);
     virtual void pre_class_def(AST_class_def* in);
@@ -88,7 +89,6 @@ public:
     virtual void pre_new(AST_new* in);
     virtual void pre_class_name(AST_class_name* in);
     virtual void pre_clone(AST_clone* in);
-    virtual void pre_node(AST_node* in);
     virtual void pre_commented_node(AST_commented_node* in);
     virtual void pre_identifier(AST_identifier* in);
     virtual void pre_class_name(Token_class_name* in);
@@ -107,6 +107,7 @@ public:
     virtual void pre_constant_name(Token_constant_name* in);
 // Invoked after the children have been visited
 public:
+    virtual void post_node(AST_node* in);
     virtual void post_php_script(AST_php_script* in);
     virtual void post_statement(AST_statement* in);
     virtual void post_class_def(AST_class_def* in);
@@ -170,7 +171,6 @@ public:
     virtual void post_new(AST_new* in);
     virtual void post_class_name(AST_class_name* in);
     virtual void post_clone(AST_clone* in);
-    virtual void post_node(AST_node* in);
     virtual void post_commented_node(AST_commented_node* in);
     virtual void post_identifier(AST_identifier* in);
     virtual void post_class_name(Token_class_name* in);

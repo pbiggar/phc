@@ -1752,12 +1752,12 @@ AST_reflection::AST_reflection()
 
 void AST_reflection::visit(AST_visitor* visitor)
 {
-    visitor->visit_variable_name(this);
+    visitor->visit_class_name(this);
 }
 
 void AST_reflection::transform_children(AST_transform* transform)
 {
-    transform->children_variable_name(this);
+    transform->children_class_name(this);
 }
 
 int AST_reflection::classid()

@@ -5,6 +5,10 @@ AST_visitor::~AST_visitor()
 }
 
 // Invoked before the children are visited
+void AST_visitor::pre_node(AST_node* in)
+{
+}
+
 void AST_visitor::pre_php_script(AST_php_script* in)
 {
 }
@@ -257,10 +261,6 @@ void AST_visitor::pre_clone(AST_clone* in)
 {
 }
 
-void AST_visitor::pre_node(AST_node* in)
-{
-}
-
 void AST_visitor::pre_commented_node(AST_commented_node* in)
 {
 }
@@ -326,6 +326,10 @@ void AST_visitor::pre_constant_name(Token_constant_name* in)
 }
 
 // Invoked after the children have been visited
+void AST_visitor::post_node(AST_node* in)
+{
+}
+
 void AST_visitor::post_php_script(AST_php_script* in)
 {
 }
@@ -575,10 +579,6 @@ void AST_visitor::post_class_name(AST_class_name* in)
 }
 
 void AST_visitor::post_clone(AST_clone* in)
-{
-}
-
-void AST_visitor::post_node(AST_node* in)
 {
 }
 
@@ -1400,8 +1400,8 @@ void AST_visitor::pre_instanceof_chain(AST_instanceof* in)
 void AST_visitor::pre_variable_chain(AST_variable* in)
 {
     pre_node(in);
-    pre_target(in);
     pre_list_element(in);
+    pre_target(in);
     pre_expr(in);
     pre_variable(in);
 }
@@ -1409,9 +1409,9 @@ void AST_visitor::pre_variable_chain(AST_variable* in)
 void AST_visitor::pre_reflection_chain(AST_reflection* in)
 {
     pre_node(in);
-    pre_class_name(in);
-    pre_method_name(in);
     pre_variable_name(in);
+    pre_method_name(in);
+    pre_class_name(in);
     pre_reflection(in);
 }
 
@@ -1478,9 +1478,9 @@ void AST_visitor::pre_clone_chain(AST_clone* in)
 void AST_visitor::pre_class_name_chain(Token_class_name* in)
 {
     pre_node(in);
-    pre_identifier(in);
-    pre_class_name(in);
     pre_target(in);
+    pre_class_name(in);
+    pre_identifier(in);
     pre_class_name(in);
 }
 
@@ -1494,16 +1494,16 @@ void AST_visitor::pre_interface_name_chain(Token_interface_name* in)
 void AST_visitor::pre_method_name_chain(Token_method_name* in)
 {
     pre_node(in);
-    pre_identifier(in);
     pre_method_name(in);
+    pre_identifier(in);
     pre_method_name(in);
 }
 
 void AST_visitor::pre_variable_name_chain(Token_variable_name* in)
 {
     pre_node(in);
-    pre_identifier(in);
     pre_variable_name(in);
+    pre_identifier(in);
     pre_variable_name(in);
 }
 
@@ -1928,17 +1928,17 @@ void AST_visitor::post_variable_chain(AST_variable* in)
 {
     post_variable(in);
     post_expr(in);
-    post_list_element(in);
     post_target(in);
+    post_list_element(in);
     post_node(in);
 }
 
 void AST_visitor::post_reflection_chain(AST_reflection* in)
 {
     post_reflection(in);
-    post_variable_name(in);
-    post_method_name(in);
     post_class_name(in);
+    post_method_name(in);
+    post_variable_name(in);
     post_node(in);
 }
 
@@ -2005,9 +2005,9 @@ void AST_visitor::post_clone_chain(AST_clone* in)
 void AST_visitor::post_class_name_chain(Token_class_name* in)
 {
     post_class_name(in);
-    post_target(in);
-    post_class_name(in);
     post_identifier(in);
+    post_class_name(in);
+    post_target(in);
     post_node(in);
 }
 
@@ -2021,16 +2021,16 @@ void AST_visitor::post_interface_name_chain(Token_interface_name* in)
 void AST_visitor::post_method_name_chain(Token_method_name* in)
 {
     post_method_name(in);
-    post_method_name(in);
     post_identifier(in);
+    post_method_name(in);
     post_node(in);
 }
 
 void AST_visitor::post_variable_name_chain(Token_variable_name* in)
 {
     post_variable_name(in);
-    post_variable_name(in);
     post_identifier(in);
+    post_variable_name(in);
     post_node(in);
 }
 

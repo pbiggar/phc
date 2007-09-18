@@ -132,14 +132,6 @@ clone ::= expr ;
  - Additional structure 
  -}
 
-node ::= 
-	  php_script | class_mod | signature 
-	| method_mod | formal_parameter | type | attr_mod 
-	| directive | list_element | variable_name | target
-	| array_elem | method_name | actual_parameter | class_name 
-	| commented_node | expr | identifier 
-	;
-
 commented_node ::= 
 	  member | statement | interface_def | class_def | switch_case | catch 
 	;

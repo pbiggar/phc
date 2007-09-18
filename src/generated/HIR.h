@@ -74,7 +74,7 @@ class Token_null;
 class HIR_transform;
 class HIR_visitor;
 
-// node ::= php_script | statement | class_mod | member | signature | method_mod | formal_parameter | type | attribute | attr_mod | variable_name | expr | target | method_name | actual_parameter | static_value | static_array | static_array_elem | static_array_key | catch | class_name | CONSTANT_NAME | OP | CAST | LABEL_NAME | INTERFACE_NAME;
+// node ::= php_script | statement | class_mod | member | signature | method_mod | formal_parameter | type | attr_mod | catch | expr | target | method_name | actual_parameter | class_name | static_value | static_array_elem | static_array_key | INTERFACE_NAME | LABEL_NAME | CAST | OP | CONSTANT_NAME;
 class HIR_node : virtual public Object
 {
 public:
@@ -548,7 +548,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 38;
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -573,7 +573,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 41;
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -598,7 +598,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 47;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -623,7 +623,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 48;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -648,7 +648,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 49;
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -743,7 +743,7 @@ public:
 };
 
 // attribute ::= attr_mod VARIABLE_NAME static_value? ;
-class HIR_attribute : virtual public HIR_member, virtual public HIR_node
+class HIR_attribute : virtual public HIR_member
 {
 public:
     HIR_attribute(HIR_attr_mod* attr_mod, Token_variable_name* variable_name, HIR_static_value* static_value);
@@ -923,7 +923,7 @@ public:
 };
 
 // variable_name ::= VARIABLE_NAME | variable_variable;
-class HIR_variable_name : virtual public HIR_expr, virtual public HIR_node
+class HIR_variable_name : virtual public HIR_expr
 {
 public:
     HIR_variable_name();
@@ -1334,7 +1334,7 @@ public:
 };
 
 // static_array ::= static_array_elem* ;
-class HIR_static_array : virtual public HIR_static_value, virtual public HIR_node
+class HIR_static_array : virtual public HIR_static_value
 {
 public:
     HIR_static_array(List<HIR_static_array_elem*>* static_array_elems);
@@ -1371,7 +1371,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 37;
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1396,7 +1396,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 39;
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1446,7 +1446,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 40;
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1472,7 +1472,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 42;
+    static const int ID = 45;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1502,7 +1502,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 43;
+    static const int ID = 46;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1532,7 +1532,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 44;
+    static const int ID = 47;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1562,7 +1562,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 45;
+    static const int ID = 48;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1591,7 +1591,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 46;
+    static const int ID = 49;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);

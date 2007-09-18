@@ -286,29 +286,11 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new HIR_static_array_elem(static_array_key, is_ref, val);
     }
-    if(!strcmp(type_id, "Token_class_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_class_name(value);
-    }
     if(!strcmp(type_id, "Token_interface_name"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_interface_name(value);
-    }
-    if(!strcmp(type_id, "Token_method_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_method_name(value);
-    }
-    if(!strcmp(type_id, "Token_variable_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_variable_name(value);
     }
     if(!strcmp(type_id, "Token_label_name"))
     {
@@ -333,6 +315,24 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_constant_name(value);
+    }
+    if(!strcmp(type_id, "Token_class_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_class_name(value);
+    }
+    if(!strcmp(type_id, "Token_method_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_method_name(value);
+    }
+    if(!strcmp(type_id, "Token_variable_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_variable_name(value);
     }
     if(!strcmp(type_id, "HIR_statement_list"))
     {

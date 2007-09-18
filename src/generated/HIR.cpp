@@ -2158,12 +2158,12 @@ HIR_method::HIR_method()
 
 void HIR_method::visit(HIR_visitor* visitor)
 {
-    visitor->visit_statement(this);
+    visitor->visit_member(this);
 }
 
 void HIR_method::transform_children(HIR_transform* transform)
 {
-    transform->children_statement(this);
+    transform->children_member(this);
 }
 
 int HIR_method::classid()
@@ -4088,12 +4088,12 @@ HIR_constant::HIR_constant()
 
 void HIR_constant::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void HIR_constant::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int HIR_constant::classid()
@@ -5019,12 +5019,12 @@ Token_int::Token_int()
 
 void Token_int::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Token_int::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 String* Token_int::get_source_rep()
@@ -5125,12 +5125,12 @@ Token_real::Token_real()
 
 void Token_real::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Token_real::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 String* Token_real::get_source_rep()
@@ -5231,12 +5231,12 @@ Token_string::Token_string()
 
 void Token_string::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Token_string::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 String* Token_string::get_source_rep()
@@ -5337,12 +5337,12 @@ Token_bool::Token_bool()
 
 void Token_bool::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Token_bool::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 String* Token_bool::get_source_rep()
@@ -5441,12 +5441,12 @@ Token_null::Token_null()
 
 void Token_null::visit(HIR_visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Token_null::transform_children(HIR_transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 String* Token_null::get_source_rep()

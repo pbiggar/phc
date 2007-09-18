@@ -18,6 +18,7 @@ public:
     virtual ~HIR_visitor();
 // Invoked before the children are visited
 public:
+    virtual void pre_node(HIR_node* in);
     virtual void pre_php_script(HIR_php_script* in);
     virtual void pre_statement(HIR_statement* in);
     virtual void pre_class_def(HIR_class_def* in);
@@ -64,22 +65,22 @@ public:
     virtual void pre_static_array(HIR_static_array* in);
     virtual void pre_static_array_elem(HIR_static_array_elem* in);
     virtual void pre_static_array_key(HIR_static_array_key* in);
-    virtual void pre_node(HIR_node* in);
-    virtual void pre_class_name(Token_class_name* in);
     virtual void pre_interface_name(Token_interface_name* in);
+    virtual void pre_label_name(Token_label_name* in);
+    virtual void pre_cast(Token_cast* in);
+    virtual void pre_op(Token_op* in);
+    virtual void pre_constant_name(Token_constant_name* in);
+    virtual void pre_class_name(Token_class_name* in);
     virtual void pre_method_name(Token_method_name* in);
     virtual void pre_variable_name(Token_variable_name* in);
-    virtual void pre_label_name(Token_label_name* in);
     virtual void pre_int(Token_int* in);
     virtual void pre_real(Token_real* in);
     virtual void pre_string(Token_string* in);
     virtual void pre_bool(Token_bool* in);
     virtual void pre_null(Token_null* in);
-    virtual void pre_cast(Token_cast* in);
-    virtual void pre_op(Token_op* in);
-    virtual void pre_constant_name(Token_constant_name* in);
 // Invoked after the children have been visited
 public:
+    virtual void post_node(HIR_node* in);
     virtual void post_php_script(HIR_php_script* in);
     virtual void post_statement(HIR_statement* in);
     virtual void post_class_def(HIR_class_def* in);
@@ -126,20 +127,19 @@ public:
     virtual void post_static_array(HIR_static_array* in);
     virtual void post_static_array_elem(HIR_static_array_elem* in);
     virtual void post_static_array_key(HIR_static_array_key* in);
-    virtual void post_node(HIR_node* in);
-    virtual void post_class_name(Token_class_name* in);
     virtual void post_interface_name(Token_interface_name* in);
+    virtual void post_label_name(Token_label_name* in);
+    virtual void post_cast(Token_cast* in);
+    virtual void post_op(Token_op* in);
+    virtual void post_constant_name(Token_constant_name* in);
+    virtual void post_class_name(Token_class_name* in);
     virtual void post_method_name(Token_method_name* in);
     virtual void post_variable_name(Token_variable_name* in);
-    virtual void post_label_name(Token_label_name* in);
     virtual void post_int(Token_int* in);
     virtual void post_real(Token_real* in);
     virtual void post_string(Token_string* in);
     virtual void post_bool(Token_bool* in);
     virtual void post_null(Token_null* in);
-    virtual void post_cast(Token_cast* in);
-    virtual void post_op(Token_op* in);
-    virtual void post_constant_name(Token_constant_name* in);
 // Visit the children of a node
 public:
     virtual void children_php_script(HIR_php_script* in);
@@ -180,19 +180,19 @@ public:
     virtual void children_static_array_elem(HIR_static_array_elem* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_class_name(Token_class_name* in);
     virtual void children_interface_name(Token_interface_name* in);
+    virtual void children_label_name(Token_label_name* in);
+    virtual void children_cast(Token_cast* in);
+    virtual void children_op(Token_op* in);
+    virtual void children_constant_name(Token_constant_name* in);
+    virtual void children_class_name(Token_class_name* in);
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
-    virtual void children_label_name(Token_label_name* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
     virtual void children_bool(Token_bool* in);
     virtual void children_null(Token_null* in);
-    virtual void children_cast(Token_cast* in);
-    virtual void children_op(Token_op* in);
-    virtual void children_constant_name(Token_constant_name* in);
 // Unparser support
 public:
     virtual void visit_marker(char const* name, bool value);
@@ -239,19 +239,19 @@ public:
     virtual void pre_new_chain(HIR_new* in);
     virtual void pre_static_array_chain(HIR_static_array* in);
     virtual void pre_static_array_elem_chain(HIR_static_array_elem* in);
-    virtual void pre_class_name_chain(Token_class_name* in);
     virtual void pre_interface_name_chain(Token_interface_name* in);
+    virtual void pre_label_name_chain(Token_label_name* in);
+    virtual void pre_cast_chain(Token_cast* in);
+    virtual void pre_op_chain(Token_op* in);
+    virtual void pre_constant_name_chain(Token_constant_name* in);
+    virtual void pre_class_name_chain(Token_class_name* in);
     virtual void pre_method_name_chain(Token_method_name* in);
     virtual void pre_variable_name_chain(Token_variable_name* in);
-    virtual void pre_label_name_chain(Token_label_name* in);
     virtual void pre_int_chain(Token_int* in);
     virtual void pre_real_chain(Token_real* in);
     virtual void pre_string_chain(Token_string* in);
     virtual void pre_bool_chain(Token_bool* in);
     virtual void pre_null_chain(Token_null* in);
-    virtual void pre_cast_chain(Token_cast* in);
-    virtual void pre_op_chain(Token_op* in);
-    virtual void pre_constant_name_chain(Token_constant_name* in);
 // Invoke the chain of post-visit methods along the inheritance hierarchy
 // (invoked in opposite order to the pre-chain)
 // Do not override unless you know what you are doing
@@ -292,19 +292,19 @@ public:
     virtual void post_new_chain(HIR_new* in);
     virtual void post_static_array_chain(HIR_static_array* in);
     virtual void post_static_array_elem_chain(HIR_static_array_elem* in);
-    virtual void post_class_name_chain(Token_class_name* in);
     virtual void post_interface_name_chain(Token_interface_name* in);
+    virtual void post_label_name_chain(Token_label_name* in);
+    virtual void post_cast_chain(Token_cast* in);
+    virtual void post_op_chain(Token_op* in);
+    virtual void post_constant_name_chain(Token_constant_name* in);
+    virtual void post_class_name_chain(Token_class_name* in);
     virtual void post_method_name_chain(Token_method_name* in);
     virtual void post_variable_name_chain(Token_variable_name* in);
-    virtual void post_label_name_chain(Token_label_name* in);
     virtual void post_int_chain(Token_int* in);
     virtual void post_real_chain(Token_real* in);
     virtual void post_string_chain(Token_string* in);
     virtual void post_bool_chain(Token_bool* in);
     virtual void post_null_chain(Token_null* in);
-    virtual void post_cast_chain(Token_cast* in);
-    virtual void post_op_chain(Token_op* in);
-    virtual void post_constant_name_chain(Token_constant_name* in);
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
 public:

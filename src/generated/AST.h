@@ -101,7 +101,7 @@ class Token_null;
 class AST_transform;
 class AST_visitor;
 
-// node ::= php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | expr | identifier;
+// node ::= php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | identifier;
 class AST_node : virtual public Object
 {
 public:
@@ -655,7 +655,7 @@ public:
 };
 
 // expr ::= assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | clone | literal;
-class AST_expr : virtual public AST_target, virtual public AST_node
+class AST_expr : virtual public AST_target
 {
 public:
     AST_expr();

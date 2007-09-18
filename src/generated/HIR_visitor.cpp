@@ -6,6 +6,10 @@ HIR_visitor::~HIR_visitor()
 }
 
 // Invoked before the children are visited
+void HIR_visitor::pre_node(HIR_node* in)
+{
+}
+
 void HIR_visitor::pre_php_script(HIR_php_script* in)
 {
 }
@@ -190,15 +194,27 @@ void HIR_visitor::pre_static_array_key(HIR_static_array_key* in)
 {
 }
 
-void HIR_visitor::pre_node(HIR_node* in)
+void HIR_visitor::pre_interface_name(Token_interface_name* in)
+{
+}
+
+void HIR_visitor::pre_label_name(Token_label_name* in)
+{
+}
+
+void HIR_visitor::pre_cast(Token_cast* in)
+{
+}
+
+void HIR_visitor::pre_op(Token_op* in)
+{
+}
+
+void HIR_visitor::pre_constant_name(Token_constant_name* in)
 {
 }
 
 void HIR_visitor::pre_class_name(Token_class_name* in)
-{
-}
-
-void HIR_visitor::pre_interface_name(Token_interface_name* in)
 {
 }
 
@@ -207,10 +223,6 @@ void HIR_visitor::pre_method_name(Token_method_name* in)
 }
 
 void HIR_visitor::pre_variable_name(Token_variable_name* in)
-{
-}
-
-void HIR_visitor::pre_label_name(Token_label_name* in)
 {
 }
 
@@ -234,19 +246,11 @@ void HIR_visitor::pre_null(Token_null* in)
 {
 }
 
-void HIR_visitor::pre_cast(Token_cast* in)
-{
-}
-
-void HIR_visitor::pre_op(Token_op* in)
-{
-}
-
-void HIR_visitor::pre_constant_name(Token_constant_name* in)
-{
-}
-
 // Invoked after the children have been visited
+void HIR_visitor::post_node(HIR_node* in)
+{
+}
+
 void HIR_visitor::post_php_script(HIR_php_script* in)
 {
 }
@@ -431,15 +435,27 @@ void HIR_visitor::post_static_array_key(HIR_static_array_key* in)
 {
 }
 
-void HIR_visitor::post_node(HIR_node* in)
+void HIR_visitor::post_interface_name(Token_interface_name* in)
+{
+}
+
+void HIR_visitor::post_label_name(Token_label_name* in)
+{
+}
+
+void HIR_visitor::post_cast(Token_cast* in)
+{
+}
+
+void HIR_visitor::post_op(Token_op* in)
+{
+}
+
+void HIR_visitor::post_constant_name(Token_constant_name* in)
 {
 }
 
 void HIR_visitor::post_class_name(Token_class_name* in)
-{
-}
-
-void HIR_visitor::post_interface_name(Token_interface_name* in)
 {
 }
 
@@ -448,10 +464,6 @@ void HIR_visitor::post_method_name(Token_method_name* in)
 }
 
 void HIR_visitor::post_variable_name(Token_variable_name* in)
-{
-}
-
-void HIR_visitor::post_label_name(Token_label_name* in)
 {
 }
 
@@ -472,18 +484,6 @@ void HIR_visitor::post_bool(Token_bool* in)
 }
 
 void HIR_visitor::post_null(Token_null* in)
-{
-}
-
-void HIR_visitor::post_cast(Token_cast* in)
-{
-}
-
-void HIR_visitor::post_op(Token_op* in)
-{
-}
-
-void HIR_visitor::post_constant_name(Token_constant_name* in)
 {
 }
 
@@ -725,11 +725,27 @@ void HIR_visitor::children_static_array_elem(HIR_static_array_elem* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void HIR_visitor::children_class_name(Token_class_name* in)
+void HIR_visitor::children_interface_name(Token_interface_name* in)
 {
 }
 
-void HIR_visitor::children_interface_name(Token_interface_name* in)
+void HIR_visitor::children_label_name(Token_label_name* in)
+{
+}
+
+void HIR_visitor::children_cast(Token_cast* in)
+{
+}
+
+void HIR_visitor::children_op(Token_op* in)
+{
+}
+
+void HIR_visitor::children_constant_name(Token_constant_name* in)
+{
+}
+
+void HIR_visitor::children_class_name(Token_class_name* in)
 {
 }
 
@@ -738,10 +754,6 @@ void HIR_visitor::children_method_name(Token_method_name* in)
 }
 
 void HIR_visitor::children_variable_name(Token_variable_name* in)
-{
-}
-
-void HIR_visitor::children_label_name(Token_label_name* in)
 {
 }
 
@@ -762,18 +774,6 @@ void HIR_visitor::children_bool(Token_bool* in)
 }
 
 void HIR_visitor::children_null(Token_null* in)
-{
-}
-
-void HIR_visitor::children_cast(Token_cast* in)
-{
-}
-
-void HIR_visitor::children_op(Token_op* in)
-{
-}
-
-void HIR_visitor::children_constant_name(Token_constant_name* in)
 {
 }
 
@@ -829,8 +829,8 @@ void HIR_visitor::pre_interface_def_chain(HIR_interface_def* in)
 void HIR_visitor::pre_method_chain(HIR_method* in)
 {
     pre_node(in);
-    pre_member(in);
     pre_statement(in);
+    pre_member(in);
     pre_method(in);
 }
 
@@ -1000,9 +1000,9 @@ void HIR_visitor::pre_bin_op_chain(HIR_bin_op* in)
 void HIR_visitor::pre_constant_chain(HIR_constant* in)
 {
     pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
     pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
     pre_constant(in);
 }
 
@@ -1046,92 +1046,16 @@ void HIR_visitor::pre_static_array_elem_chain(HIR_static_array_elem* in)
     pre_static_array_elem(in);
 }
 
-void HIR_visitor::pre_class_name_chain(Token_class_name* in)
-{
-    pre_node(in);
-    pre_class_name(in);
-    pre_target(in);
-    pre_class_name(in);
-}
-
 void HIR_visitor::pre_interface_name_chain(Token_interface_name* in)
 {
     pre_node(in);
     pre_interface_name(in);
 }
 
-void HIR_visitor::pre_method_name_chain(Token_method_name* in)
-{
-    pre_node(in);
-    pre_method_name(in);
-    pre_method_name(in);
-}
-
-void HIR_visitor::pre_variable_name_chain(Token_variable_name* in)
-{
-    pre_node(in);
-    pre_class_name(in);
-    pre_method_name(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_variable_name(in);
-    pre_variable_name(in);
-}
-
 void HIR_visitor::pre_label_name_chain(Token_label_name* in)
 {
     pre_node(in);
     pre_label_name(in);
-}
-
-void HIR_visitor::pre_int_chain(Token_int* in)
-{
-    pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_int(in);
-}
-
-void HIR_visitor::pre_real_chain(Token_real* in)
-{
-    pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_real(in);
-}
-
-void HIR_visitor::pre_string_chain(Token_string* in)
-{
-    pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_string(in);
-}
-
-void HIR_visitor::pre_bool_chain(Token_bool* in)
-{
-    pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_bool(in);
-}
-
-void HIR_visitor::pre_null_chain(Token_null* in)
-{
-    pre_node(in);
-    pre_static_array_key(in);
-    pre_static_value(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_null(in);
 }
 
 void HIR_visitor::pre_cast_chain(Token_cast* in)
@@ -1150,6 +1074,82 @@ void HIR_visitor::pre_constant_name_chain(Token_constant_name* in)
 {
     pre_node(in);
     pre_constant_name(in);
+}
+
+void HIR_visitor::pre_class_name_chain(Token_class_name* in)
+{
+    pre_node(in);
+    pre_target(in);
+    pre_class_name(in);
+    pre_class_name(in);
+}
+
+void HIR_visitor::pre_method_name_chain(Token_method_name* in)
+{
+    pre_node(in);
+    pre_method_name(in);
+    pre_method_name(in);
+}
+
+void HIR_visitor::pre_variable_name_chain(Token_variable_name* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_variable_name(in);
+    pre_target(in);
+    pre_method_name(in);
+    pre_class_name(in);
+    pre_variable_name(in);
+}
+
+void HIR_visitor::pre_int_chain(Token_int* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
+    pre_literal(in);
+    pre_int(in);
+}
+
+void HIR_visitor::pre_real_chain(Token_real* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
+    pre_literal(in);
+    pre_real(in);
+}
+
+void HIR_visitor::pre_string_chain(Token_string* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
+    pre_literal(in);
+    pre_string(in);
+}
+
+void HIR_visitor::pre_bool_chain(Token_bool* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
+    pre_literal(in);
+    pre_bool(in);
+}
+
+void HIR_visitor::pre_null_chain(Token_null* in)
+{
+    pre_node(in);
+    pre_expr(in);
+    pre_static_value(in);
+    pre_static_array_key(in);
+    pre_literal(in);
+    pre_null(in);
 }
 
 // Invoke the chain of post-visit methods along the inheritance hierarchy
@@ -1184,8 +1184,8 @@ void HIR_visitor::post_interface_def_chain(HIR_interface_def* in)
 void HIR_visitor::post_method_chain(HIR_method* in)
 {
     post_method(in);
-    post_statement(in);
     post_member(in);
+    post_statement(in);
     post_node(in);
 }
 
@@ -1355,9 +1355,9 @@ void HIR_visitor::post_bin_op_chain(HIR_bin_op* in)
 void HIR_visitor::post_constant_chain(HIR_constant* in)
 {
     post_constant(in);
-    post_expr(in);
-    post_static_value(in);
     post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
     post_node(in);
 }
 
@@ -1401,91 +1401,15 @@ void HIR_visitor::post_static_array_elem_chain(HIR_static_array_elem* in)
     post_node(in);
 }
 
-void HIR_visitor::post_class_name_chain(Token_class_name* in)
-{
-    post_class_name(in);
-    post_target(in);
-    post_class_name(in);
-    post_node(in);
-}
-
 void HIR_visitor::post_interface_name_chain(Token_interface_name* in)
 {
     post_interface_name(in);
     post_node(in);
 }
 
-void HIR_visitor::post_method_name_chain(Token_method_name* in)
-{
-    post_method_name(in);
-    post_method_name(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_variable_name_chain(Token_variable_name* in)
-{
-    post_variable_name(in);
-    post_variable_name(in);
-    post_expr(in);
-    post_target(in);
-    post_method_name(in);
-    post_class_name(in);
-    post_node(in);
-}
-
 void HIR_visitor::post_label_name_chain(Token_label_name* in)
 {
     post_label_name(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_int_chain(Token_int* in)
-{
-    post_int(in);
-    post_literal(in);
-    post_expr(in);
-    post_static_value(in);
-    post_static_array_key(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_real_chain(Token_real* in)
-{
-    post_real(in);
-    post_literal(in);
-    post_expr(in);
-    post_static_value(in);
-    post_static_array_key(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_string_chain(Token_string* in)
-{
-    post_string(in);
-    post_literal(in);
-    post_expr(in);
-    post_static_value(in);
-    post_static_array_key(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_bool_chain(Token_bool* in)
-{
-    post_bool(in);
-    post_literal(in);
-    post_expr(in);
-    post_static_value(in);
-    post_static_array_key(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_null_chain(Token_null* in)
-{
-    post_null(in);
-    post_literal(in);
-    post_expr(in);
-    post_static_value(in);
-    post_static_array_key(in);
     post_node(in);
 }
 
@@ -1504,6 +1428,82 @@ void HIR_visitor::post_op_chain(Token_op* in)
 void HIR_visitor::post_constant_name_chain(Token_constant_name* in)
 {
     post_constant_name(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_class_name_chain(Token_class_name* in)
+{
+    post_class_name(in);
+    post_class_name(in);
+    post_target(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_method_name_chain(Token_method_name* in)
+{
+    post_method_name(in);
+    post_method_name(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_variable_name_chain(Token_variable_name* in)
+{
+    post_variable_name(in);
+    post_class_name(in);
+    post_method_name(in);
+    post_target(in);
+    post_variable_name(in);
+    post_expr(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_int_chain(Token_int* in)
+{
+    post_int(in);
+    post_literal(in);
+    post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_real_chain(Token_real* in)
+{
+    post_real(in);
+    post_literal(in);
+    post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_string_chain(Token_string* in)
+{
+    post_string(in);
+    post_literal(in);
+    post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_bool_chain(Token_bool* in)
+{
+    post_bool(in);
+    post_literal(in);
+    post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_null_chain(Token_null* in)
+{
+    post_null(in);
+    post_literal(in);
+    post_static_array_key(in);
+    post_static_value(in);
+    post_expr(in);
     post_node(in);
 }
 
