@@ -470,15 +470,23 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				String *index = operand (var->array_indices->front ());
 				code 
 					<< "// Read array variable-variable\n"
-					<< zvp << " = read_var_array (" 
+					<< "zval* refl = read_var_ex (" 
 					<<		get_scope (scope) << ", "
 					<<		"\"" << *name << "\", "
 					<<		name->size () + 1  << ", "
-					<<		get_hash (name) << ", "
+					<<		get_hash (name) << " TSRMLS_CC);\n"
+
+					<< "zval* refl_index = read_var_ex (" 
+					<<		get_scope (scope) << ", "
 					<<		"\"" << *index << "\", "
 					<<		index->size () + 1  << ", "
-					<<		get_hash (index) << ", "
-					<< "	&is_" << zvp << "_new TSRMLS_CC);\n"
+					<<		get_hash (index) << " TSRMLS_CC);\n"
+
+					<< zvp << " = read_var_array (" 
+					<<		get_scope (scope) << ", "
+					<<		"refl, "
+					<<		"refl_index, "
+					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 					;
 			}
 			else
@@ -489,11 +497,16 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			assert (var->array_indices->size() == 0);
 			code 
 				<< "// Read variable variable\n"
-				<< zvp << " = read_var_var (" 
+				<< "zval* refl = read_var (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name << "\", "
 				<<		name->size () + 1  << ", "
 				<<		get_hash (name) << ", "
+				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+
+				<< zvp << " = read_var_var (" 
+				<<		get_scope (scope) << ", "
+				<<		"refl, "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
 				;
 		}

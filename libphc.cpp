@@ -497,11 +497,9 @@ write_var (HashTable * st, char *var_name, int var_length, ulong hashval,
 }
 
 
-/* Read the variable named VAR_NAME from the local symbol table and return
- * it. If the variable doent exist, a new one is created and *IS_NEW is set.
- * */
-static zval *
-read_var (HashTable * st, char *name, int length, ulong hashval,
+/* Return a pointer to symbol table entry for the variable called NAME. If the variable doesnt exist, &EG(uninitialized_zval_ptr) is returned. */
+static zval **
+read_var_p (HashTable * st, char *name, int length, ulong hashval,
 	  int *is_new TSRMLS_DC)
 {
   zval **p_zvp;
@@ -509,10 +507,36 @@ read_var (HashTable * st, char *name, int length, ulong hashval,
       (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
     {
       *is_new = 0;
-      return *p_zvp;
+      return p_zvp;
     }
 
+  return &EG (uninitialized_zval_ptr);
+}
+
+static zval *
+read_var_ex (HashTable * st, char *name, int length, ulong hashval
+	     TSRMLS_DC)
+{
+  zval **p_zvp;
+  if (zend_hash_quick_find
+      (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
+      return *p_zvp;
+
   return EG (uninitialized_zval_ptr);
+}
+
+/* Read the variable named VAR_NAME from the local symbol table and
+ * return it. If the variable doent exist, a new one is created and
+ * *IS_NEW is set.  */
+static zval *
+read_var (HashTable * st, char *name, int length, ulong hashval,
+	  int *is_new TSRMLS_DC)
+{
+  zval* zvp = read_var_ex (st, name, length, hashval TSRMLS_CC);
+  if (zvp != EG (uninitialized_zval_ptr))
+      *is_new = 0;
+
+  return zvp;
 }
 
 /* Read the variable named VAR_NAME from the local symbol table, and
@@ -520,24 +544,18 @@ read_var (HashTable * st, char *name, int length, ulong hashval,
  * doent exist, a new one is created and *IS_NEW is set.
  * */
 static zval *
-read_var_var (HashTable * st, char *name, int length, ulong hashval,
-	      int *is_new TSRMLS_DC)
+read_var_var (HashTable * st, zval* refl, int *is_new TSRMLS_DC)
 {
-  zval **p_zvp;
-  zval **p_result;
-  if (zend_hash_quick_find
-      (st, name, length, hashval, (void **) &p_zvp) != SUCCESS)
-    {
-      return EG (uninitialized_zval_ptr);
-    }
+  if (refl == EG(uninitialized_zval_ptr))
+    return refl;
 
-  if (ht_find (st, *p_zvp, &p_result) != SUCCESS)
+  zval **p_result;
+  if (ht_find (st, refl, &p_result) != SUCCESS)
     {
       return EG (uninitialized_zval_ptr);
     }
 
   return *p_result;
-
 }
 
 static zval *
@@ -601,61 +619,30 @@ read_array (HashTable * st, char *var_name, int var_length, ulong var_hashval,
 }
 
 static zval *
-read_var_array (HashTable * st, char *var_name, int var_length,
-		ulong var_hashval, char *ind_name, int ind_length,
-		ulong ind_hashval, int *is_new TSRMLS_DC)
+read_var_array (HashTable * st, zval* refl, zval* ind, int *is_new TSRMLS_DC)
 {
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *refl = NULL;
-  zval **p_refl = &var;
-
-  zval *ind = NULL;
-  zval **p_ind = &ind;
+  zval **p_var;
 
   zval *result = NULL;
   zval **p_result = &ind;
 
   // read the reflector
-  if (zend_hash_quick_find (st, var_name, var_length, var_hashval,
-			    (void **) &p_refl) != SUCCESS)
-    {
-      return EG (uninitialized_zval_ptr);
-    }
-
-  refl = *p_refl;
+  if (refl == EG (uninitialized_zval_ptr))
+    return EG (uninitialized_zval_ptr);
 
   // read the variable itself
-  if (ht_find (st, *p_refl, &p_var) != SUCCESS)
-    {
+  if (ht_find (st, refl, &p_var) != SUCCESS)
       return EG (uninitialized_zval_ptr);
-    }
 
-  var = *p_var;
-
-  if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
-    {
-      // TODO does this need an error, if so, use extract_ht
-      return EG (uninitialized_zval_ptr);
-    }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  // TODO does this need an error, if so, use extract_ht
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
+      return EG (uninitialized_zval_ptr);
 
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (ind_exists)
-    ind = *p_ind;
-  else
-    {
-      // do not remove these curlies, as this expands to 2 statements
-      ALLOC_INIT_ZVAL (ind);
-    }
+  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
 
-  // find the var
+      // find the var
   int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
   if (result_exists)
     result = *p_result;
@@ -663,9 +650,6 @@ read_var_array (HashTable * st, char *var_name, int var_length,
     {
       result = EG (uninitialized_zval_ptr);
     }
-
-  if (!ind_exists)
-    zval_ptr_dtor (&ind);
 
   return result;
 }
