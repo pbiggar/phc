@@ -70,17 +70,18 @@ fi
 indent $NAME.c
 
 # compile it, using phc's verbose output as the command. Pass an empty program so it doesnt compile twice, and if optimizing, 
-gcc_command=`echo '<?php ?>' | src/phc -v -c $PHC_ARGS -o $NAME | sed "s# - # $NAME.c #"` || exit 1
+GCC_COMMAND=`echo '<?php ?>' | src/phc -v -c $PHC_ARGS -o $NAME | sed "s# - # $NAME.c #"` || exit 1
 if [[ $OPTIMIZE != 0 ]]
 then
-	gcc_command=`echo $gcc_command | sed 's#/usr/local/#/usr/local/php-opt/#g'` || exit 1
+	GCC_COMMAND=`echo $GCC_COMMAND | sed 's#/usr/local/#/usr/local/php-opt/#g'` || exit 1
 fi
 
-$gcc_command
+$GCC_COMMAND
 if [[ $? != 0 ]]; then 
-	if [[ $debug_phc != 0 ]]; then 
+	if [[ $DEBUG_PHC != 0 ]]; then 
 		exec gdb --args src/phc --generate-c $PHC_ARGS $PHP_NAME
 	fi
+	exit 1
 fi
 
 
