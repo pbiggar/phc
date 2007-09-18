@@ -30,15 +30,18 @@
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
 
-
 // A single pass isnt really sufficient, but we can hack around it
 // with a prologue and an epilogue.
 static ostringstream prologue;
 static ostringstream code;
 static ostringstream epilogue;
 
+// TODO this is here for constant pooling. This should not be global.
+static gengetopt_args_info* args_info;
+
 void Generate_C::run (AST_php_script* in, Pass_manager* pm)
 {
+	args_info = pm->args_info;
 	if (!pm->args_info->generate_c_flag 
 		&& !pm->args_info->compile_flag)
 		return;
@@ -143,7 +146,6 @@ string get_scope (Scope scope)
 	else
 		return "&EG(symbol_table)";
 }
-
 
 string get_hash (String* name)
 {
@@ -979,11 +981,16 @@ protected:
 };
 
 /*
- * Assign_literal is another virtual class, and corresponds to assignming an
- * int, bool, etc. all of which inherit from Assign_literal.
+ * Assign_literal is another virtual class, and corresponds to
+ * assigning an int, bool, etc. all of which inherit from
+ * Assign_literal.
  */
 
-template<class T>
+
+stringstream initializations;
+stringstream finalizations;
+
+template<class T, class K>
 class Assign_literal : public Assignment
 {
 public:
@@ -993,103 +1000,125 @@ public:
 		return rhs;
 	}
 
+	// record if we've seen this variable before
 	void generate_rhs()
 	{
-		init_rhs();
+		// TODO If this isnt static, there is a new hash each time,
+		// because there is a new object each time it is called. Why is
+		// there a new object each time?
+		static map<K, string> vars;
+		if (args_info->optimize_given)
+		{
+			// The first time we see a constant, we add a declaration,
+			// initialization and finalization. After that, we find the
+			// first one and refer to it.
+
+
+			string var;
+			if (vars.find (key ()) != vars.end ())
+				var = vars [key ()];
+			else
+			{
+				// This is the first time we see the variable. Create the
+				// variables and add declarations. 
+				stringstream name;
+				name << prefix() << vars.size ();
+				var = name.str ();
+				vars [key ()] = var;
+
+				prologue << "zval* " << var << ";\n";
+				finalizations << "zval_ptr_dtor (&" << var << ");\n";
+				initialize (initializations, var);
+			}
+
+			code << "rhs = " << var << ";\n";
+		}
+		else
+		{
+			// initialize at this point in the code
+			code << "is_rhs_new = 1;\n";
+			initialize (code, "rhs");
+		}
 	}
 
-	virtual void init_rhs() = 0;
+	virtual string prefix () = 0;
+	virtual K key () = 0;
+	virtual void initialize (ostream& os, string var) = 0;
 
 protected:
 	Wildcard<T>* rhs;
 };
 
-// TODO not sure if we want to use ->source_rep or ->value here; using
-// zend_eval_string with source_rep currently to avoid losing precision
-// Anyone who things he/she knows a better solution, be sure to run all tests!
 
-// Rather than allocating a new variable each time, we use a pool, and the same
-// variable in each case. The first time we encounter a new Token_*, we number
-// it, and add it to a list. If we come across an identical one, we just
-// reference the first generated one.
-
-map <long, int> generated_ints; // map value to index
-class Assign_int : public Assign_literal<Token_int> 
+class Assign_bool : public Assign_literal<Token_bool, bool>
 {
-	void init_rhs()
-	{
-		// if it doesnt exist, add it.
-		map<long,int>::iterator iter = generated_ints.find (rhs->value->value);
-		int index;
-		if (iter == generated_ints.end ())
-		{
-			index = generated_ints.size (); // next index
-			generated_ints [rhs->value->value] = index;
-		}
-		else
-			index = iter->second;
+	string prefix () { return "phc_const_pool_bool_"; }
+	bool key () { return rhs->value->value; }
 
-		code << "rhs = phc_const_pool_int_" << index << ";\n";
+	void initialize (ostream& os, string var)
+	{
+		os << "MAKE_STD_ZVAL (" << var << ");\n" 
+			<< "ZVAL_BOOL (" << var << ", " 
+			<<		(rhs->value->value ? 1 : 0) << ");\n";
+	}
+
+};
+
+class Assign_int : public Assign_literal<Token_int, long>
+{
+	string prefix () { return "phc_const_pool_int_"; }
+	long key () { return rhs->value->value; }
+
+	void initialize (ostream& os, string var)
+	{
+		os << "MAKE_STD_ZVAL (" << var << ");\n"
+			<< "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
 	}
 };
 
-map <string, int> generated_reals; // map value to index
-class Assign_real : public Assign_literal<Token_real> 
+class Assign_real : public Assign_literal<Token_real, string>
 {
-	void init_rhs()
-	{
-		// if it doesnt exist, add it.
-		map<string,int>::iterator iter = generated_reals.find (*rhs->value->get_source_rep ());
-		int index;
-		if (iter == generated_reals.end ())
-		{
-			index = generated_reals.size (); // next index
-			generated_reals [*rhs->value->get_source_rep ()] = index;
-		}
-		else
-			index = iter->second;
+	string prefix () { return "phc_const_pool_real_"; }
+	string key () { return *rhs->value->get_source_rep (); }
 
-		code << "rhs = phc_const_pool_real_" << index << ";\n";
+	void initialize (ostream& os, string var)
+	{
+		os << "MAKE_STD_ZVAL (" << var << ");\n"
+			<< "zend_eval_string(\"" << *rhs->value->get_source_rep () << ";\","
+			<<		var << ", "
+			<<		"\"literal\" TSRMLS_CC);\n";
 	}
 };
 
-class Assign_bool : public Assign_literal<Token_bool> 
+class Assign_null : public Assign_literal<Token_null, string>
 {
-	void init_rhs()
+	string prefix () { return "phc_const_pool_null_"; }
+	string key () { return ""; }
+
+	void initialize (ostream& os, string var)
 	{
-		if (rhs->value->value)
-			code << "rhs = phc_const_pool_true;\n";
-		else
-			code << "rhs = phc_const_pool_false;\n";
+		os << "MAKE_STD_ZVAL (" << var << ");\n"
+			<< "ZVAL_NULL (" << var << ");\n";
 	}
 };
 
-class Assign_null : public Assign_literal<Token_null> 
+class Assign_string : public Assign_literal<Token_string, string>
 {
-	void init_rhs()
-	{
-		code << "rhs = EG (uninitialized_zval_ptr);\n";
-	}
-};
+	string prefix () { return "phc_const_pool_string_"; }
+	string key () { return *rhs->value->get_source_rep (); }
 
-class Assign_string : public Assign_literal<Token_string> 
-{
-	void init_rhs()
+	void initialize (ostream& os, string var)
 	{
-		code << "is_rhs_new = 1;\n";
-		code << "MAKE_STD_ZVAL(rhs);\n";
-		code 
-		<< "ZVAL_STRINGL(rhs, " 
-		<< "\"" << escape(rhs->value->value) << "\", "
-		<< rhs->value->value->length() << ", 1);\n"
-		;
+		os << "MAKE_STD_ZVAL (" << var << ");\n"
+			<< "ZVAL_STRINGL(" << var << ", " 
+			<<		"\"" << escape(rhs->value->value) << "\", "
+			<<		rhs->value->value->length() << ", 1);\n";
 	}
 
-public:
-	static string escape(String* s)
+	string escape(String* s)
 	{
 		stringstream ss;
-	
+
 		String::const_iterator i;
 		for(i = s->begin(); i != s->end(); i++)
 		{
@@ -1107,10 +1136,11 @@ public:
 				ss << resetiosflags(code.flags());
 			}
 		}
-	
+
 		return ss.str();
 	}
 };
+
 
 class Copy : public Assignment
 {
@@ -1750,11 +1780,11 @@ void Generate_C::children_statement(AST_statement* in)
 	Pattern* patterns[] = 
 	{
 		new Method_definition()
-	,	new Assign_string()
-	,	new Assign_int()
-	,	new Assign_null()
-	,	new Assign_bool()
-	,	new Assign_real()
+	,	new Assign_string ()
+	,	new Assign_int ()
+	,	new Assign_bool ()
+	,	new Assign_real ()
+	,	new Assign_null ()
 	,	new Assign_constant ()
 	,	new Copy()
 	,	new Global()
@@ -1871,56 +1901,6 @@ void Generate_C::post_php_script(AST_php_script* in)
 		<< "};\n"
 		;
 
-	// Create constant pools. The declaration goes in the prologue,
-	// above its first use, and the initialization and finalizations
-	// go in main ().
-	stringstream initializations;
-	stringstream finalizations;
-
-	// INTs
-	map<long, int>::iterator ii;
-	for (ii = generated_ints.begin(); ii != generated_ints.end(); ii++)
-	{
-		prologue
-			<< "zval* phc_const_pool_int_" << ii->second << ";\n";
-
-		initializations
-			<< "MAKE_STD_ZVAL (phc_const_pool_int_" << ii->second << ");\n"
-			<< "ZVAL_LONG (phc_const_pool_int_" << ii->second << ", " << ii->first << ");\n";
-
-		finalizations
-			<< "zval_ptr_dtor (&phc_const_pool_int_" << ii->second << ");\n";
-	}
-
-	// BOOLs
-	prologue << "zval* phc_const_pool_true;\n";
-	prologue << "zval* phc_const_pool_false;\n";
-	initializations << "MAKE_STD_ZVAL (phc_const_pool_true);\n";
-	initializations << "MAKE_STD_ZVAL (phc_const_pool_false);\n";
-	initializations << "ZVAL_BOOL (phc_const_pool_true, 1);\n";
-	initializations << "ZVAL_BOOL (phc_const_pool_false, 0);\n";
-	finalizations << "zval_ptr_dtor (&phc_const_pool_true);\n";
-	finalizations << "zval_ptr_dtor (&phc_const_pool_false);\n";
-
-	// REALSs
-	map<string, int>::iterator ir;
-	for (ir = generated_reals.begin(); ir != generated_reals.end(); ir++)
-	{
-		prologue
-			<< "zval* phc_const_pool_real_" << ir->second << ";\n";
-
-		initializations
-			<< "MAKE_STD_ZVAL (phc_const_pool_real_" << ir->second << ");\n"
-			<< "zend_eval_string(\"" << ir->first << ";\","
-			<<		"phc_const_pool_real_" << ir->second << ", "
-			<<		"\"literal\" TSRMLS_CC);\n";
-
-		finalizations
-			<< "zval_ptr_dtor (&phc_const_pool_real_" << ir->second << ");\n";
-	}
-
-
-
 	if(is_extension)
 	{
 		code << "ZEND_GET_MODULE(" << *extension_name << ")\n";
@@ -1964,6 +1944,8 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
+		"      // initialize all the constants\n"
+		<< initializations.str () << 
 		"\n"
 		"      // load the compiled extension\n"
 		"      zend_startup_module (&" << *extension_name << "_module_entry);\n"
@@ -1971,7 +1953,6 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"      zval main_name;\n"
 		"      ZVAL_STRING (&main_name, \"__MAIN__\", NULL);\n"
 		"\n"
-		<< initializations.str () << 
 		"      zval retval;\n"
 		"\n"
 		"      // Use standard errors, on stdout\n"

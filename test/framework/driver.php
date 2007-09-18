@@ -82,6 +82,7 @@ $tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretL
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "InterpretShredded");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
+require_once ("compile_optimized.php");
 require_once ("refcounts.php");
 require_once ("demi_eval.php");
 $tests[] = new PluginTest ("linear");
