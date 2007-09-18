@@ -78,8 +78,8 @@ fi
 
 $gcc_command
 if [[ $? != 0 ]]; then 
-	if [[ $debug_phc  == 0 ]]; then 
-		exit 1
+	if [[ $debug_phc != 0 ]]; then 
+		exec gdb --args src/phc --generate-c $PHC_ARGS $PHP_NAME
 	fi
 fi
 
