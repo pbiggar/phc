@@ -26,11 +26,16 @@
 static HashTable *
 extract_ht (zval * arr TSRMLS_DC)
 {
+  // TODO initializing the array is incorrect without separating first.
   assert (arr != EG (uninitialized_zval_ptr));
   if (Z_TYPE_P (arr) == IS_NULL)
-    array_init (arr);
+    {
+//      assert (arr->refcount == 1); // must be separated in advance
+      array_init (arr);
+    }
   else if (Z_TYPE_P (arr) != IS_ARRAY)
     {
+//      assert (arr->refcount == 1); // must be separated in advance
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
       array_init (arr);
