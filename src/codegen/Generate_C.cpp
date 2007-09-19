@@ -186,6 +186,26 @@ void read_simple (Scope scope, string zvp, String* name)
 		<<									get_hash (name) << " TSRMLS_CC);\n";
 }
 
+void read_simple_p (Scope scope, string zvp, String* name)
+{
+	code
+		<< "zval** " << zvp << "= read_var_ex_p (" 
+		<<									get_scope (scope) << ", "
+		<<									"\"" << *name << "\", "
+		<<									name->size () + 1  << ", "
+		<<									get_hash (name) << " TSRMLS_CC);\n";
+}
+
+void read_st (Scope scope, string zvp, String* name)
+{
+	code
+		<< "zval** " << zvp << "= get_st_entry (" 
+		<<									get_scope (scope) << ", "
+		<<									"\"" << *name << "\", "
+		<<									name->size () + 1  << ", "
+		<<									get_hash (name) << " TSRMLS_CC);\n";
+}
+
 
 
 /* Generate code to write ZVP, a variable in the generated code,
@@ -193,14 +213,15 @@ void read_simple (Scope scope, string zvp, String* name)
 void write (Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
-	Token_variable_name* name
+	Token_variable_name* token_name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// TODO: deal with object indexing
 	assert(var->target == NULL);
 
-	if(name != NULL)
+	if (token_name != NULL)
 	{
+		String* name = token_name->value;
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
@@ -211,13 +232,12 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<< "// Array assignment\n";
 
 				read_simple (scope, "wa_index", index);
+				read_st (scope, "w_array", name);
 
 				code
 					<< "write_array ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1 << ", "
-					<<		get_hash (name) << ", "
+					<<		"w_array, "
 					<<		"wa_index, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
@@ -228,8 +248,8 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<< "// Array pushing\n"
 					<< "push_var ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1 << ", "
+					<<		"\"" << *name << "\", "
+					<<		name->size () + 1 << ", "
 					<<		get_hash (name) << ", "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
@@ -241,8 +261,8 @@ void write (Scope scope, string zvp, AST_variable* var)
 				<< "// Normal assignment\n"
 				<< "write_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name->value << "\", "
-				<<		name->value->size () + 1 << ", "
+				<<		"\"" << *name << "\", "
+				<<		name->size () + 1 << ", "
 				<<		get_hash (name) << ", "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
