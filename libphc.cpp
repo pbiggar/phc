@@ -447,37 +447,31 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-write_var (HashTable * st, char *var_name, int var_length, ulong hashval,
+write_var (HashTable * st, zval** p_lhs,
 	   zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-  zval *lhs = NULL;
-  zval **p_lhs = &lhs;
-  zval *rhs = *p_rhs;
+  if (*p_lhs != EG (uninitialized_zval_ptr))
+  {
+     int is_var_new = 0;
+     separate_zvpp (p_lhs, &is_var_new TSRMLS_CC);
+  }
 
-  int lhs_exists = (zend_hash_quick_find (st, var_name, var_length, hashval,
-					  (void **) &p_lhs) == SUCCESS);
 
-  if (lhs_exists)
-    lhs = *p_lhs;
-
-  if (!lhs_exists || !lhs->is_ref)
+  if (!(*p_lhs)->is_ref)
     {
-      if (rhs->is_ref)
+      if ((*p_rhs)->is_ref)
 	{
 	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
-	  rhs = *p_rhs;
 	}
 
-      rhs->refcount++;
+      (*p_rhs)->refcount++;
 
-      int result = zend_hash_quick_update (st, var_name, var_length, hashval,
-					   &rhs,
-					   sizeof (zval *), NULL);
-      assert (result == SUCCESS);
+      zval_ptr_dtor (p_lhs);
+      *p_lhs = *p_rhs;
     }
   else
     {
-      overwrite_lhs (lhs, rhs);
+      overwrite_lhs (*p_lhs, *p_rhs);
     }
 }
 
@@ -653,8 +647,8 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
     }
   else
   {
-     zval_ptr_dtor (p_var);
      // if no var, create it and add it to the symbol table
+     zval_ptr_dtor (p_var);
      ALLOC_INIT_ZVAL (*p_var);
   }
 
@@ -690,46 +684,31 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-push_var (HashTable * st, char *var_name, int var_length, ulong hashval,
-	  zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *rhs = *p_rhs;
-
-  int var_exists = (zend_hash_quick_find (st, var_name, var_length, hashval,
-					  (void **) &p_var) == SUCCESS);
-  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
+  if (*p_var != EG (uninitialized_zval_ptr))
     {
       int is_var_new = 0;
-      var = *p_var;
-      // if we use p_var instead of &var, zend_has_update throws
-      // an error and returns failure.
-      separate_var (st, var_name, var_length, hashval, &var,
-		    &is_var_new TSRMLS_CC);
-      if (is_var_new)
-	zval_ptr_dtor (p_var);
+      separate_zvpp (p_var, &is_var_new TSRMLS_CC);
     }
   else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_hash_quick_update (st, var_name, var_length, hashval,
-			      &var, sizeof (zval *), NULL);
-    }
+  {
+     // if no var, create it and add it to the symbol table
+     zval_ptr_dtor (p_var);
+     ALLOC_INIT_ZVAL (*p_var);
+  }
 
-  if (Z_TYPE_P (var) == IS_STRING)
+  if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"[] operator not supported for strings");
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
 
-  rhs->refcount++;
-  int result = zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
+  (*p_rhs)->refcount++;
+  int result = zend_hash_next_index_insert (ht, p_rhs, sizeof (zval *), NULL);
   assert (result == SUCCESS);
 
 }

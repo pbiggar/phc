@@ -244,26 +244,25 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
+				read_st (scope, "w_array", name);
+
 				code
 					<< "// Array pushing\n"
 					<< "push_var ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->size () + 1 << ", "
-					<<		get_hash (name) << ", "
+					<<		"w_array, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 		}
 		else
 		{
+			read_st (scope, "w_var", name);
 			code 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name << "\", "
-				<<		name->size () + 1 << ", "
-				<<		get_hash (name) << ", "
+				<<		"w_var, "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
