@@ -402,6 +402,29 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
     }
 }
 
+static void
+separate_zvpp_ex (zval ** p_zvp TSRMLS_DC)
+{
+   if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+      return;
+
+   zval *old = *p_zvp;
+   if (old == EG (uninitialized_zval_ptr))
+   {
+      assert (p_zvp != &EG (uninitialized_zval_ptr));
+      ALLOC_INIT_ZVAL (*p_zvp);
+   }
+   else
+   {
+      MAKE_STD_ZVAL (*p_zvp);
+      (*p_zvp)->value = old->value;
+      (*p_zvp)->type = old->type;
+      zval_copy_ctor (*p_zvp);
+
+      zval_ptr_dtor (&old);
+   }
+}
+
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 static void
@@ -452,8 +475,7 @@ write_var (HashTable * st, zval** p_lhs,
 {
   if (*p_lhs != EG (uninitialized_zval_ptr))
   {
-     int is_var_new = 0;
-     separate_zvpp (p_lhs, &is_var_new TSRMLS_CC);
+     separate_zvpp_ex (p_lhs TSRMLS_CC);
   }
 
 
@@ -642,8 +664,7 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 
   if (*p_var != EG (uninitialized_zval_ptr))
     {
-      int is_var_new = 0;
-      separate_zvpp (p_var, &is_var_new TSRMLS_CC);
+      separate_zvpp_ex (p_var TSRMLS_CC);
     }
   else
   {
@@ -688,8 +709,7 @@ push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC
 {
   if (*p_var != EG (uninitialized_zval_ptr))
     {
-      int is_var_new = 0;
-      separate_zvpp (p_var, &is_var_new TSRMLS_CC);
+      separate_zvpp_ex (p_var TSRMLS_CC);
     }
   else
   {
