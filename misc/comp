@@ -36,7 +36,8 @@ done
 
 NAME=`basename $PHP_NAME` # remove the filename suffix
 NAME=${NAME%.php}
-EXEC_NAME="$EXEC_NAME./$NAME"
+OUT_NAME=$NAME.out
+EXEC_NAME="$EXEC_NAME./$OUT_NAME"
 
 
 cp $PHP_NAME $NAME.orig.php || exit 1;
@@ -70,7 +71,7 @@ fi
 indent $NAME.c
 
 # compile it, using phc's verbose output as the command. Pass an empty program so it doesnt compile twice, and if optimizing, 
-GCC_COMMAND=`echo '<?php ?>' | src/phc -v -c $PHC_ARGS -o $NAME | sed "s# - # $NAME.c #"` || exit 1
+GCC_COMMAND=`echo '<?php ?>' | src/phc -v -c $PHC_ARGS -o $OUT_NAME | sed "s# - # $NAME.c #"` || exit 1
 if [[ $OPTIMIZE != 0 ]]
 then
 	GCC_COMMAND=`echo $GCC_COMMAND | sed 's#/usr/local/#/usr/local/php-opt/#g'` || exit 1
