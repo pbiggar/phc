@@ -22,27 +22,30 @@
 // Some common functions
 #include "php.h"
 
+/* Make a copy of *P_ZVP, storing it in *P_ZVP. */
+static void
+zvp_clone_ex (zval ** p_zvp)
+{
+  zval *clone;
+  MAKE_STD_ZVAL (clone);
+  clone->value = (*p_zvp)->value;
+  clone->type = (*p_zvp)->type;
+  zval_copy_ctor (clone);
+  *p_zvp = clone;
+}
+
+/* If *P_ZVP is in a copy-on-write set, separate it by overwriting *P_ZVP with a clone of itself, and lowering the refcount on the original */
 static void
 separate_zvpp_ex (zval ** p_zvp TSRMLS_DC)
 {
-   if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-      return;
+	if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+		return;
 
-   zval *old = *p_zvp;
-   if (old == EG (uninitialized_zval_ptr))
-   {
-      assert (p_zvp != &EG (uninitialized_zval_ptr));
-      ALLOC_INIT_ZVAL (*p_zvp);
-   }
-   else
-   {
-      MAKE_STD_ZVAL (*p_zvp);
-      (*p_zvp)->value = old->value;
-      (*p_zvp)->type = old->type;
-      zval_copy_ctor (*p_zvp);
+	zval *old = *p_zvp;
 
-      zval_ptr_dtor (&old);
-   }
+	zvp_clone_ex (p_zvp);
+
+	zval_ptr_dtor (&old);
 }
 
 // Extract the hashtable from a hash-valued zval
@@ -53,12 +56,10 @@ extract_ht_ex (zval * arr TSRMLS_DC)
   assert (arr != EG (uninitialized_zval_ptr));
   if (Z_TYPE_P (arr) == IS_NULL)
     {
-      //      assert (arr->refcount == 1); // must be separated in advance
       array_init (arr);
     }
   else if (Z_TYPE_P (arr) != IS_ARRAY)
     {
-      //      assert (arr->refcount == 1); // must be separated in advance
       php_error_docref (NULL TSRMLS_CC, E_WARNING,
 			"Cannot use a scalar value as an array");
       array_init (arr);
@@ -71,16 +72,7 @@ extract_ht_ex (zval * arr TSRMLS_DC)
 static HashTable *
 extract_ht (zval ** p_var TSRMLS_DC)
 {
-  if (*p_var != EG (uninitialized_zval_ptr))
-    {
-      separate_zvpp_ex (p_var TSRMLS_CC);
-    }
-  else
-  {
-     // if no var, create it and add it to the symbol table
-     zval_ptr_dtor (p_var);
-     ALLOC_INIT_ZVAL (*p_var);
-  }
+	separate_zvpp_ex (p_var TSRMLS_CC);
 
    if (Z_TYPE_PP (p_var) != IS_ARRAY)
    {
@@ -320,18 +312,6 @@ ht_var_debug (HashTable * st, char *name)
 }
 
 
-/* Make a copy of *P_ZVP, storing it in *P_ZVP. */
-static void
-zvp_clone_ex (zval ** p_zvp TSRMLS_DC)
-{
-  zval *clone;
-  MAKE_STD_ZVAL (clone);
-  clone->value = (*p_zvp)->value;
-  clone->type = (*p_zvp)->type;
-  zval_copy_ctor (clone);
-  *p_zvp = clone;
-}
-
 /* Make a copy of *P_ZVP and store it in *P_ZVP. If *IS_ZVP_NEW is
  * set, call the destructor on *P_ZVP before copying. *IS_ZVP_NEW is
  * set to true. */
@@ -340,7 +320,7 @@ zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
   zval *old = *p_zvp;
 
-  zvp_clone_ex (p_zvp TSRMLS_CC);
+  zvp_clone_ex (p_zvp);
 
   if (*is_zvp_new)
     zval_ptr_dtor (&old);
@@ -689,20 +669,8 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 
   zval *rhs = *p_rhs;
 
-  if (*p_var != EG (uninitialized_zval_ptr))
-    {
-      separate_zvpp_ex (p_var TSRMLS_CC);
-    }
-  else
-  {
-     // if no var, create it and add it to the symbol table
-     zval_ptr_dtor (p_var);
-     ALLOC_INIT_ZVAL (*p_var);
-  }
-
-  // TODO this makes it an array
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the var
   int lhs_exists = (ht_find (ht, ind, &p_lhs) == SUCCESS);
@@ -734,17 +702,6 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 static void
 push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-  if (*p_var != EG (uninitialized_zval_ptr))
-    {
-      separate_zvpp_ex (p_var TSRMLS_CC);
-    }
-  else
-  {
-     // if no var, create it and add it to the symbol table
-     zval_ptr_dtor (p_var);
-     ALLOC_INIT_ZVAL (*p_var);
-  }
-
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
@@ -752,7 +709,7 @@ push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   (*p_rhs)->refcount++;
   int result = zend_hash_next_index_insert (ht, p_rhs, sizeof (zval *), NULL);
