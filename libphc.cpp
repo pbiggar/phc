@@ -412,8 +412,7 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 static void
-separate_var (HashTable * st, zval** p_var,
-	      int *is_var_new TSRMLS_DC)
+separate_var (HashTable * st, zval ** p_var, int *is_var_new TSRMLS_DC)
 {
   separate_zvpp_ex (p_var TSRMLS_CC);
 }
@@ -507,7 +506,7 @@ read_var_ex_p (HashTable * st, char *name, int length, ulong hashval
   zval **p_zvp;
   if (zend_hash_quick_find
       (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
-      return p_zvp;
+    return p_zvp;
 
   return &EG (uninitialized_zval_ptr);
 }
@@ -516,8 +515,7 @@ read_var_ex_p (HashTable * st, char *name, int length, ulong hashval
  * return it. If the variable doent exist, a new one is created and
  * *IS_NEW is set.  */
 static zval *
-read_var (HashTable * st, char *name, int length, ulong hashval
-	  TSRMLS_DC)
+read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 {
   return *read_var_ex_p (st, name, length, hashval TSRMLS_CC);
 }
@@ -545,7 +543,7 @@ read_var_var (HashTable * st, zval * refl TSRMLS_DC)
 static zval *
 read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
 {
-   // No memory at all is allocated in this function.
+  // No memory at all is allocated in this function.
   if (var == EG (uninitialized_zval_ptr))
     return var;
 
@@ -564,7 +562,7 @@ read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
   // find the result
   zval **p_result;
   if (ht_find (ht, ind, &p_result) == SUCCESS)
-     return *p_result;
+    return *p_result;
 
   return EG (uninitialized_zval_ptr);
 }
@@ -572,8 +570,8 @@ read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
 static zval *
 read_var_array (HashTable * st, zval * refl, zval * ind TSRMLS_DC)
 {
-   zval* var = read_var_var (st, refl TSRMLS_CC);
-   return read_array (st, var, ind TSRMLS_CC);
+  zval *var = read_var_var (st, refl TSRMLS_CC);
+  return read_array (st, var, ind TSRMLS_CC);
 }
 
 /* Write P_RHS into p_var, indexed by IND. Although st is unused, it
@@ -640,8 +638,8 @@ static void
 push_var_reference (HashTable * st, zval ** p_var,
 		    zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-   (*p_rhs)->is_ref = 1;
-   push_var (st, p_var, p_rhs, is_rhs_new TSRMLS_CC);
+  (*p_rhs)->is_ref = 1;
+  push_var (st, p_var, p_rhs, is_rhs_new TSRMLS_CC);
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in
@@ -649,7 +647,7 @@ push_var_reference (HashTable * st, zval ** p_var,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void
-write_var_reference (HashTable * st, zval** p_lhs,
+write_var_reference (HashTable * st, zval ** p_lhs,
 		     zval ** p_rhs, int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
@@ -986,49 +984,22 @@ unset_var (HashTable * st, char *name, int length TSRMLS_DC)
 }
 
 static void
-unset_array (HashTable * st, char *var_name, int var_length,
-	     ulong var_hashval, char *ind_name, int ind_length,
-	     ulong ind_hashval TSRMLS_DC)
+unset_array (HashTable * st, zval ** p_var, zval * ind TSRMLS_DC)
 {
-
-  zval **p_var;
-  zval **p_ind;
-
-  int var_exists =
-    (zend_hash_quick_find (st, var_name, var_length, var_hashval,
-			   (void **) &p_var) == SUCCESS);
-  if (!var_exists)
-    return;
-
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"Cannot unset string offsets");
     }
 
+  // NO error required
   if (Z_TYPE_P (*p_var) != IS_ARRAY)
-    {
-      // TODO does this need an error, if so, use extract_ht_ex
-      return;
-    }
+    return;
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
+  HashTable *ht = Z_ARRVAL_P (*p_var);
 
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (!ind_exists)
-    {
-      // do not remove these curlies, as this expands to 2 statements
-      ALLOC_INIT_ZVAL (*p_ind);
-    }
-
-  ht_delete (ht, *p_ind);
-
-  if (!ind_exists)
-    zval_ptr_dtor (p_ind);
+  ht_delete (ht, ind);
 }
 
 static void

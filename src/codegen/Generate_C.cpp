@@ -149,6 +149,8 @@ string get_scope (Scope scope)
 
 string get_hash (String* name)
 {
+	// the "u" at the end of the constant makes it unsigned, which
+	// stops gcc warning us about it.
 	stringstream ss;
 	ss << PHP::get_hash (name) << "u";
 	return ss.str ();
@@ -156,8 +158,6 @@ string get_hash (String* name)
 
 string get_hash (Token_variable_name* name)
 {
-	// the "u" at the end of the constant makes it unsigned, which
-	// stops gcc warning us about it.
 	return get_hash (name->value);
 }
 
@@ -1737,21 +1737,26 @@ class Unset : public Pattern
 
 	void generate_code(Generate_C* gen)
 	{
+		code << "{\n";
+
 		// TODO: deal with object indexing
 		assert(var->value->target == NULL);
 
-		Token_variable_name* name;
-		name = dynamic_cast<Token_variable_name*>(var->value->variable_name);
+		Token_variable_name* token_name =
+			dynamic_cast<Token_variable_name*>(
+				var->value->variable_name);
 
-		if(name != NULL)
+		String* name = token_name->value;
+
+		if (token_name != NULL)
 		{
-			if(var->value->array_indices->size() == 0)
+			if (var->value->array_indices->size() == 0)
 			{
 				code
 					<< "unset_var ("
 					<<		get_scope (LOCAL) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->length() + 1
+					<<		"\"" << *name << "\", "
+					<<		name->length() + 1
 					// no get_hash version
 					<<		" TSRMLS_CC);\n"
 					;
@@ -1759,17 +1764,15 @@ class Unset : public Pattern
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				String* ind = operand(var->value->array_indices->front());
-				// TODO write test cases for which putting LOCAL here is wrong
+				String* index = operand (var->value->array_indices->front());
+				read_st (LOCAL, "u_array", name);
+				read_simple (LOCAL, "u_index", index);
+
 				code
 					<< "unset_array ("
 					<<		get_scope (LOCAL) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->length() + 1 << ", "
-					<<		get_hash (name) << ", "
-					<<		"\"" << *ind << "\", "
-					<<		ind->length() + 1 << ", "
-					<<		get_hash (ind)
+					<<    "u_array, "
+					<<    "u_index "
 					<<		" TSRMLS_CC);\n";
 			}
 		}
@@ -1779,6 +1782,7 @@ class Unset : public Pattern
 			// TODO
 			assert(0);
 		}
+		code << "}\n";
 	}
 
 protected:
