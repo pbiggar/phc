@@ -649,15 +649,15 @@ push_var_reference (HashTable * st, zval ** p_var,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void
-write_var_reference (HashTable * st, char *name, int length, ulong hashval,
-		     zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+write_var_reference (HashTable * st, zval** p_lhs,
+		     zval ** p_rhs, int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
-  (*p_zvp)->is_ref = 1;
-  (*p_zvp)->refcount++;
-  int result = zend_hash_quick_update (st, name, length, hashval, p_zvp,
-				       sizeof (zval *), NULL);
-  assert (result == SUCCESS);
+  (*p_rhs)->is_ref = 1;
+  (*p_rhs)->refcount++;
+
+  zval_ptr_dtor (p_lhs);
+  *p_lhs = *p_rhs;
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in

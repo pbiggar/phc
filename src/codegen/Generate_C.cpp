@@ -410,9 +410,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name << "\", "
-				<<		name->size () + 1 << ", "
-				<<		get_hash (name) << ", "
+				<<		"ref_var, "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
