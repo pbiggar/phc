@@ -22,9 +22,32 @@
 // Some common functions
 #include "php.h"
 
+static void
+separate_zvpp_ex (zval ** p_zvp TSRMLS_DC)
+{
+   if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+      return;
+
+   zval *old = *p_zvp;
+   if (old == EG (uninitialized_zval_ptr))
+   {
+      assert (p_zvp != &EG (uninitialized_zval_ptr));
+      ALLOC_INIT_ZVAL (*p_zvp);
+   }
+   else
+   {
+      MAKE_STD_ZVAL (*p_zvp);
+      (*p_zvp)->value = old->value;
+      (*p_zvp)->type = old->type;
+      zval_copy_ctor (*p_zvp);
+
+      zval_ptr_dtor (&old);
+   }
+}
+
 // Extract the hashtable from a hash-valued zval
 static HashTable *
-extract_ht (zval * arr TSRMLS_DC)
+extract_ht_ex (zval * arr TSRMLS_DC)
 {
   // TODO initializing the array is incorrect without separating first.
   assert (arr != EG (uninitialized_zval_ptr));
@@ -42,6 +65,31 @@ extract_ht (zval * arr TSRMLS_DC)
     }
   return Z_ARRVAL_P (arr);
 }
+
+
+/* P_VAR points into a symbol table, at a variable which we wish to index as a hashtable. */
+static HashTable *
+extract_ht (zval ** p_var TSRMLS_DC)
+{
+  if (*p_var != EG (uninitialized_zval_ptr))
+    {
+      separate_zvpp_ex (p_var TSRMLS_CC);
+    }
+  else
+  {
+     // if no var, create it and add it to the symbol table
+     zval_ptr_dtor (p_var);
+     ALLOC_INIT_ZVAL (*p_var);
+  }
+
+   if (Z_TYPE_PP (p_var) != IS_ARRAY)
+   {
+      assert ((*p_var)->is_ref || (*p_var)->refcount == 1); // must be separated in advance
+   }
+
+  return extract_ht_ex (*p_var TSRMLS_CC);
+}
+
 
 /* Using IND as a key to HT, call the appropriate zend_index_X
  * function with data as a parameter, and return its result. This
@@ -402,29 +450,6 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
     }
 }
 
-static void
-separate_zvpp_ex (zval ** p_zvp TSRMLS_DC)
-{
-   if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-      return;
-
-   zval *old = *p_zvp;
-   if (old == EG (uninitialized_zval_ptr))
-   {
-      assert (p_zvp != &EG (uninitialized_zval_ptr));
-      ALLOC_INIT_ZVAL (*p_zvp);
-   }
-   else
-   {
-      MAKE_STD_ZVAL (*p_zvp);
-      (*p_zvp)->value = old->value;
-      (*p_zvp)->type = old->type;
-      zval_copy_ctor (*p_zvp);
-
-      zval_ptr_dtor (&old);
-   }
-}
-
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 static void
@@ -461,7 +486,7 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
 
   zvp->refcount++;
   ht_update (ht, ind, zvp);
@@ -597,10 +622,10 @@ read_array (HashTable * st, zval * var, zval * ind, int *is_new TSRMLS_DC)
   // turn it into an array
   if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
     {
-      // TODO does this need an error, if so, use extract_ht
+      // TODO does this need an error, if so, use extract_ht_ex
       return EG (uninitialized_zval_ptr);
     }
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
 
   // find the result
   int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
@@ -633,11 +658,11 @@ read_var_array (HashTable * st, zval * refl, zval * ind,
 
 
   // if its not an array, make it an array
-  // TODO does this need an error, if so, use extract_ht
+  // TODO does this need an error, if so, use extract_ht_ex
   if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
     return EG (uninitialized_zval_ptr);
 
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
   // find the var
   int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
@@ -675,7 +700,7 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 
   // TODO this makes it an array
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
   // find the var
   int lhs_exists = (ht_find (ht, ind, &p_lhs) == SUCCESS);
@@ -725,7 +750,7 @@ push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
   (*p_rhs)->refcount++;
   int result = zend_hash_next_index_insert (ht, p_rhs, sizeof (zval *), NULL);
@@ -770,7 +795,7 @@ push_var_reference (HashTable * st, char *name, int length,
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
 
   rhs->is_ref = 1;
   rhs->refcount++;
@@ -834,7 +859,7 @@ write_array_reference (HashTable * st, char *var_name, int var_length,
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
 
   // find the index
   ht_update (ht, ind, zvp);
@@ -976,7 +1001,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
 
   // find the index
@@ -1051,7 +1076,7 @@ fetch_array_arg (HashTable * st, char *var_name, int var_length,
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
   // find the index
   int ind_exists =
@@ -1160,12 +1185,12 @@ unset_array (HashTable * st, char *var_name, int var_length,
 
   if (Z_TYPE_P (*p_var) != IS_ARRAY)
     {
-      // TODO does this need an error, if so, use extract_ht
+      // TODO does this need an error, if so, use extract_ht_ex
       return;
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht (*p_var TSRMLS_CC);
+  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
 
   // find the index
   int ind_exists =
@@ -1225,6 +1250,7 @@ phc_exit (char *name, int length, ulong hashval TSRMLS_DC)
   int is_new = 0;
   zval *arg = read_var (EG (active_symbol_table), name, length,
 			hashval, &is_new TSRMLS_CC);
+
   if (Z_TYPE_P (arg) == IS_LONG)
     EG (exit_status) = Z_LVAL_P (arg);
   else
