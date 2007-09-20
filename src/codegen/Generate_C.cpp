@@ -470,8 +470,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 					<< zvp << " = read_array (" 
 					<<		get_scope (scope) << ", "
 					<<		"r_array, "
-					<<		"ra_index, "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+					<<		"ra_index "
+					<<		" TSRMLS_CC);\n"
 					;
 			}
 			else

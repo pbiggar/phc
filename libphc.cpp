@@ -435,9 +435,8 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 static void
-separate_array_entry (HashTable * st, zval** p_var,
-		      zval * ind, zval ** p_zvp,
-		      int *is_zvp_new TSRMLS_DC)
+separate_array_entry (HashTable * st, zval ** p_var,
+		      zval * ind, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
    * to point to the RHS (even if the LHS is currently
@@ -576,35 +575,30 @@ read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
 }
 
 static zval *
-read_array (HashTable * st, zval * var, zval * ind, int *is_new TSRMLS_DC)
+read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
 {
-  // memory is potentially allocated in extract_ht, but this is for separation, so its OK.
-  zval *result = NULL;
-  zval **p_result;
-
-  // read the variable
+   // No memory at all is allocated in this function.
   if (var == EG (uninitialized_zval_ptr))
     return var;
 
-
   // turn it into an array
-  if (Z_TYPE_P (var) != IS_ARRAY)	// TODO IS_STRING
+  if (Z_TYPE_P (var) != IS_ARRAY)
     {
-      // TODO does this need an error, if so, use extract_ht_ex
+      // TODO IS_STRING
+      assert (Z_TYPE_P (var) != IS_STRING);
       return EG (uninitialized_zval_ptr);
     }
-  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
+
+  // Since we know its an array, and we dont write to it, we dont need
+  // to separate it.
+  HashTable *ht = Z_ARRVAL_P (var);
 
   // find the result
-  int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
-  if (result_exists)
-    result = *p_result;
-  else
-    {
-      result = EG (uninitialized_zval_ptr);
-    }
+  zval **p_result;
+  if (ht_find (ht, ind, &p_result) == SUCCESS)
+     return *p_result;
 
-  return result;
+  return EG (uninitialized_zval_ptr);
 }
 
 static zval *
