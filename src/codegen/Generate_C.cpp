@@ -286,7 +286,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 	assert (var);
 
 	// separated write back to rhs
-	Token_variable_name* name
+	Token_variable_name* token_name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// if its new, check it wont separate
@@ -297,9 +297,10 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 
 	assert(var->target == NULL);
 
-
-	if(name != NULL)
+	if (token_name != NULL)
 	{
+		String* name = token_name->value;
+		read_st (scope, "sep_var", name);
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
@@ -312,12 +313,13 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1 << ", "
-					<<		get_hash (name) << ", "
+					<<		"\"" << *name << "\", "
+					<<    name->size () + 1 << ", "
+					<<    get_hash (name) << ", "
 					<<		"sa_index, "
 					<<		"&" << zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
+					<<		"&is_" << zvp << "_new "
+					<<		" TSRMLS_CC);\n";
 			}
 			else
 			{
@@ -330,11 +332,12 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			code 
 				<< "separate_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name->value << "\", "
-				<<		name->value->size () + 1 << ", " 
-				<<		get_hash (name) << ", "
+				<<		"\"" << *name << "\", "
+				<<    name->size () + 1 << ", "
+				<<    get_hash (name) << ", "
 				<<		"&" << zvp << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
+				<<		"&is_" << zvp << "_new "
+				<< " TSRMLS_CC);\n";
 		}
 	}
 	else
@@ -372,14 +375,16 @@ void init (Scope scope, string zvp, AST_variable* var)
 void write_reference (Scope scope, string zvp, AST_variable* var)
 {
 	// Variable variable or ordinary variable?
-	Token_variable_name* name
+	Token_variable_name* token_name
 		= dynamic_cast<Token_variable_name*>(var->variable_name);
 
 	// TODO: deal with object indexing
 	assert (var->target == NULL);
 
-	if(name != NULL)
+	if (token_name != NULL)
 	{
+		String *name = token_name->value;
+		read_st (scope, "ref_var", name);
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
@@ -393,9 +398,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				code
 					<< "write_array_reference ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1 << ", "
-					<<		get_hash (name) << ", "
+					<<		"ref_var, "
 					<<		"war_index, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
@@ -406,8 +409,8 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				code 
 					<< "push_var_reference (" 
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name->value << "\", "
-					<<		name->value->size () + 1 << ", "
+					<<		"\"" << *name << "\", "
+					<<		name->size () + 1 << ", "
 					<<		get_hash (name) << ", "
 					<<		"&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
 			}
@@ -419,8 +422,8 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name->value << "\", "
-				<<		name->value->size () + 1 << ", "
+				<<		"\"" << *name << "\", "
+				<<		name->size () + 1 << ", "
 				<<		get_hash (name) << ", "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
@@ -479,14 +482,15 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		else
 		{
 			assert (var->array_indices->size() == 0);
+			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = read_var (" 
+				<< zvp << " = read_var_ex (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name << "\", "
 				<<		name->size () + 1  << ", "
-				<<		get_hash (name) << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				<<		get_hash (name) << " "
+				<<		" TSRMLS_CC);\n"
 				;
 		}
 	}
@@ -547,7 +551,7 @@ void global(AST_variable_name* var_name, bool separate_var)
 	declare ("global_var");
 	read (GLOBAL, "global_var", var);
 	init (GLOBAL, "global_var", var);
-	
+
 	// Separate RHS if necessary
 	if (separate_var)
 	{
@@ -1566,8 +1570,9 @@ public:
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
 		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
-		// TODO this must be wrong. We should separate/clone rhs
 		<< "	rhs->is_ref = 1;\n"
+		// TODO what happens if there's supposed to be 8 or 10
+		// references to it.
 		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
 		<< "		is_rhs_new = 1;\n"
 		<< "}\n"
@@ -1579,6 +1584,7 @@ public:
 
 		if (agn->is_ref)
 		{
+			// TODO separate here?
 			code 
 				<< "if (rhs->refcount > 1 && !rhs->is_ref)\n"
 				<< "  zvp_clone (&rhs, &is_rhs_new TSRMLS_CC);\n";

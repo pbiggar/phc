@@ -596,6 +596,7 @@ read_var (HashTable * st, char *name, int length, ulong hashval,
 static zval *
 read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
 {
+	// is_new not required, since no vars created.
   if (refl == EG (uninitialized_zval_ptr))
     return refl;
 
@@ -611,6 +612,7 @@ read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
 static zval *
 read_array (HashTable * st, zval * var, zval * ind, int *is_new TSRMLS_DC)
 {
+	// memory is potentially allocated in extract_ht, but this is for separation, so its OK.
   zval *result = NULL;
   zval **p_result;
 
@@ -825,41 +827,24 @@ write_var_reference (HashTable * st, char *name, int length, ulong hashval,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void			// TODO change function and update 
-write_array_reference (HashTable * st, char *var_name, int var_length,
-		       ulong var_hashval, zval * ind, zval ** p_zvp,
+write_array_reference (HashTable * st, 
+		       zval** p_var, zval * ind, zval ** p_zvp,
 		       int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
 
-  zval *var = NULL;
-  zval **p_var = &var;
-
   zval *zvp = *p_zvp;
 
-  int var_exists =
-    (zend_hash_quick_find (st, var_name, var_length, var_hashval,
-			   (void **) &p_var) == SUCCESS);
-  if (var_exists)
-    //  if (var_exists && *p_var != EG(uninitialized_zval_ptr)) // perhaps
-    var = *p_var;
-  else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_hash_quick_update (st, var_name, var_length, var_hashval,
-			      &var, sizeof (zval *), NULL);
-    }
-
-  if (Z_TYPE_P (var) == IS_STRING)
+  if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"Cannot create references to/from string offsets nor overloaded objects");
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the index
   ht_update (ht, ind, zvp);
