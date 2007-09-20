@@ -731,9 +731,9 @@ static zval *
 fetch_var_arg (HashTable * st, char *name, int length, ulong hashval,
 	       int *is_arg_new TSRMLS_DC)
 {
-   zval* arg = read_var (st, name, length, hashval TSRMLS_CC);
-   if (arg->is_ref)
-   {
+  zval *arg = read_var (st, name, length, hashval TSRMLS_CC);
+  if (arg->is_ref)
+    {
       // We dont separate since we don't own one of ARG's references.
       zvp_clone (&arg, is_arg_new);
 
@@ -743,8 +743,8 @@ fetch_var_arg (HashTable * st, char *name, int length, ulong hashval,
       // this.
 
       arg->refcount--;
-   }
-   return arg;
+    }
+  return arg;
 }
 
 static zval **
@@ -752,76 +752,31 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
 			ulong hashval, char *ind_name, int ind_length,
 			ulong ind_hashval, int *is_arg_new TSRMLS_DC)
 {
-  zval **p_var;
-  zval **p_ind;
-  zval **p_arg;
-
-  int var_exists = (zend_hash_quick_find (st, name, name_length, hashval,
-					  (void **) &p_var) == SUCCESS);
-  if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
-    {
-      // We want to create a new array, which the passed var
-      // would be part of. Additionally, the var needs to be
-      // written back after creation.
-      zval *var;
-      ALLOC_INIT_ZVAL (var);
-      int result = zend_hash_quick_update (st,
-					   name, name_length, hashval,
-					   &var,
-					   sizeof (zval *), NULL);
-      assert (result == SUCCESS);
-
-      /* Set p_var to point into the symbol table. */
-      result =
-	zend_hash_quick_find (st, name, name_length, hashval,
-			      (void **) &p_var);
-      assert (result == SUCCESS);
-    }
-  else
-    {
-      // Since we'll be passing a pointer into this hashtable, we
-      // need to separate it now.
-      if (!(*p_var)->is_ref)
-	{
-	  // p_var already points into the symtable, so we dont need to
-	  // write back.
-	  int is_var_new = 0;
-	  if ((*p_var)->refcount > 1 && !(*p_var)->is_ref)
-	    sep_copy_on_write (p_var, &is_var_new TSRMLS_CC);
-	}
-    }
+  zval **p_var = get_st_entry (st, name, name_length, hashval TSRMLS_CC);
+  zval *ind = read_var (st, ind_name, ind_length, ind_hashval TSRMLS_CC);
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
-
-
-  // find the index
-  int ind_exists = (zend_hash_quick_find (st, ind_name, ind_length,
-					  ind_hashval,
-					  (void **) &p_ind) == SUCCESS);
-  if (!ind_exists)
-    p_ind = &EG (uninitialized_zval_ptr);
-
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the var
-  int arg_exists = (ht_find (ht, *p_ind, &p_arg) == SUCCESS);
+  // TODO this is the model for wht is to come. We need to add to the
+  // symbol table (similar to get_st_entry) and pass that. We need to
+  // do this in quite a lot of places apart from this, but we need a
+  // more efficient implementation here first.
+  zval **p_arg;
+  int arg_exists = (ht_find (ht, ind, &p_arg) == SUCCESS);
   if (!arg_exists)
     {
       // The argument needs to be put into the array. Add it, and set
       // p_arg to point to the bucket containing it.
-      ht_update (ht, *p_ind, EG (uninitialized_zval_ptr));
-      int result = ht_find (ht, *p_ind, &p_arg);
+      ht_update (ht, ind, EG (uninitialized_zval_ptr));
+      int result = ht_find (ht, ind, &p_arg);
       assert (result == SUCCESS);
       return p_arg;
     }
 
-  // Separate argument if it is part of a copy-on-write
-  // set, and we are passing by reference
-
-  // We know that p_arg points into the hashtable. Therefore we can
-  // just clone it, and dont need to update the hashtable.
-  if ((*p_arg)->refcount > 1 && !(*p_arg)->is_ref)
-    sep_copy_on_write (p_arg, is_arg_new TSRMLS_CC);
+  // We are passing by reference.
+  sep_copy_on_write (p_arg, is_arg_new TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -832,7 +787,7 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
   // already have been 1 to start with (since if it had
   // not, that means that the variable would have been
   // in a copy-on-write set, and would have been
-  // seperated above).
+  // separated above).
   (*p_arg)->is_ref = 1;
 
   return p_arg;
@@ -844,67 +799,36 @@ fetch_array_arg (HashTable * st, char *var_name, int var_length,
 		 ulong var_hashval, char *ind_name, int ind_length,
 		 ulong ind_hashval, int *is_arg_new TSRMLS_DC)
 {
-  zval **p_var;
-  zval **p_ind;
-  zval **p_arg;
+  zval *var = read_var (st, var_name, var_length, var_hashval TSRMLS_CC);
+  zval *ind = read_var (st, ind_name, ind_length, ind_hashval TSRMLS_CC);
 
-  int var_exists =
-    (zend_hash_quick_find (st, var_name, var_length, var_hashval,
-			   (void **) &p_var) == SUCCESS);
-  if (!var_exists || *p_var == EG (uninitialized_zval_ptr))
+  if (var == EG (uninitialized_zval_ptr))
+    return EG (uninitialized_zval_ptr);
+
+  if (Z_TYPE_P (var) != IS_ARRAY)
     {
       return EG (uninitialized_zval_ptr);
-    }
-  else
-    {
-      // !pass_by_ref and var->is_ref - do nothing
-      // !pass_by_ref and !var->is_ref - if not array, return uninit
-
-      if (Z_TYPE_P (*p_var) != IS_ARRAY)
-	{
-	  return EG (uninitialized_zval_ptr);
-	}
     }
 
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
-
-  // find the index
-  int ind_exists =
-    (zend_hash_quick_find (st, ind_name, ind_length, ind_hashval,
-			   (void **) &p_ind) == SUCCESS);
-  if (!ind_exists)
-    p_ind = &EG (uninitialized_zval_ptr);
+  HashTable *ht = Z_ARRVAL_P (var);
 
   // find the var
-  int arg_exists = (ht_find (ht, *p_ind, &p_arg) == SUCCESS);
-  if (!arg_exists)
+  zval **p_arg;
+  if (ht_find (ht, ind, &p_arg) != SUCCESS)
     return EG (uninitialized_zval_ptr);
 
-  if (*p_arg == EG (uninitialized_zval_ptr))
-    {
-      return EG (uninitialized_zval_ptr);
-      // after the find, p_arg is the address of the ht entry, which contains a zval*. This can be updated by the function call.
-      //      ht_update (ht, *p_ind, *p_arg);
-      //    int result = ht_find (ht, *p_ind, &p_arg);
-      //    assert (result == SUCCESS);
-      //   return p_arg;
-    }
   zval *arg = *p_arg;
-
-  // Clone argument if it is part of a change-on-write
-  // set, and we are *not* passing by reference
-
   if (arg->is_ref)
     {
-      // Dont update the original, make a copy
-      assert (arg != EG (uninitialized_zval_ptr));
+      // We dont separate since we don't own one of ARG's references.
       zvp_clone (&arg, is_arg_new);
 
-      // It seems we get incorrect refcounts without this
+      // It seems we get incorrect refcounts without this.
       // TODO This decreases the refcount to zero, which seems wrong,
       // but gives the right answer. We should look at how zend does
       // this.
+
       arg->refcount--;
     }
 
