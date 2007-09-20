@@ -509,7 +509,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 }
 
 // Implementation of "global" (used in various places)
-void global(AST_variable_name* var_name, bool separate_var)
+void global (AST_variable_name* var_name)
 {
 	AST_variable *var = new AST_variable (NULL,
 					var_name,
@@ -518,6 +518,8 @@ void global(AST_variable_name* var_name, bool separate_var)
 	code << "{\n";
 	declare ("global_var");
 	read (GLOBAL, "global_var", var);
+
+	// TODO should separate be done lazily? Is this even correct?
 	separate (GLOBAL, "global_var", var);
 	write_reference (LOCAL, "global_var", var);
 	cleanup ("global_var");
@@ -525,9 +527,9 @@ void global(AST_variable_name* var_name, bool separate_var)
 }
 
 // For convenience
-void global(char* name)
+void global (char* name)
 {
-	global(new Token_variable_name(new String(name)), false);
+	global(new Token_variable_name(new String(name)));
 }
 
 /*
@@ -871,7 +873,6 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		// Open local scope and create a zval* to hold the RHS result
 		code << "{\n";
 		declare ("rhs");
 
@@ -902,7 +903,6 @@ public:
 
 		cleanup ("rhs");
 
-		// close local scope
 		code << "}\n";
 
 		code << "phc_check_invariants (TSRMLS_C);\n";
@@ -1188,7 +1188,7 @@ public:
 
 	void generate_code(Generate_C* gen)
 	{
-		global(rhs->value, true);
+		global (rhs->value);
 	}
 
 protected:
@@ -1223,7 +1223,7 @@ public:
 			<<			"\"" << *name << "\", "
 			<<			name->length() << ", " // exclude NULL-terminator
 			<<			"&rhs, "
-			<<			"&is_rhs_new TSRMLS_CC);\n" // the book say _DC, but that doesnt compile
+			<<			"&is_rhs_new TSRMLS_CC);\n"
 			;
 	}
 
