@@ -1039,12 +1039,8 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
 }
 
 static void
-phc_exit (char *name, int length, ulong hashval TSRMLS_DC)
+phc_exit (zval * arg TSRMLS_DC)
 {
-  int is_new = 0;
-  zval *arg = read_var (EG (active_symbol_table), name, length,
-			hashval TSRMLS_CC);
-
   if (Z_TYPE_P (arg) == IS_LONG)
     EG (exit_status) = Z_LVAL_P (arg);
   else

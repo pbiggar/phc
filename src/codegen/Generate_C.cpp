@@ -342,24 +342,6 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 	}
 }
 
-
-/* Generate code to check if ZVP, a variable in the generated code,
- * points to EG(uninitialized_zval_ptr), and if so, to initialize it
- * to NULL instead. */
-void init (Scope scope, string zvp, AST_variable* var)
-{
-	code 
-		<< "if (" << zvp << " == EG(uninitialized_zval_ptr))\n"
-		<< "{\n"
-		<< "	ALLOC_INIT_ZVAL (" << zvp << ");\n"
-		;
-	write (scope, zvp, var);
-
-	code
-		<< "	zval_ptr_dtor (&" << zvp << ");\n"
-		<< "}\n";
-}
-
 /* Generate code to write ZVP, a variable in the generated code,
  * to LHS, a named variable. RHS is needed for the reference. */
 void write_reference (Scope scope, string zvp, AST_variable* var)
@@ -529,22 +511,14 @@ void read (Scope scope, string zvp, AST_expr* expr)
 // Implementation of "global" (used in various places)
 void global(AST_variable_name* var_name, bool separate_var)
 {
-	AST_variable* var;
-	var = new AST_variable(NULL, var_name, new List<AST_expr*>());
+	AST_variable *var = new AST_variable (NULL,
+					var_name,
+					new List < AST_expr * >());
 
 	code << "{\n";
 	declare ("global_var");
 	read (GLOBAL, "global_var", var);
-	init (GLOBAL, "global_var", var);
-
-	// Separate RHS if necessary
-	if (separate_var)
-	{
-		separate (GLOBAL, "global_var", var);
-	}
-	// TODO this function needs more work for me to be sure its right
-
-	// TODO i think this should be write by reference
+	separate (GLOBAL, "global_var", var);
 	write_reference (LOCAL, "global_var", var);
 	cleanup ("global_var");
 	code << "}\n";
@@ -1311,16 +1285,16 @@ public:
 
 	void generate_code (Generate_C* gen)
 	{
-		String* op = operand (exit_arg->value);
+		code << "{\n";
+		declare ("arg");
+		read (LOCAL, "arg", exit_arg->value);
 
 		// Fetch the parameter
 		code
-			<< "// Exit ()\n"
-			<< "phc_exit (\"" 
-			<<		*op << "\", "
-			<<		op->length () + 1 << ", "
-			<<		get_hash (op)
-			<<		" TSRMLS_CC);\n";
+			<<		"// Exit ()\n"
+			<<		"phc_exit (arg TSRMLS_CC);\n";
+
+		code << "}\n";
 	}
 
 protected:
