@@ -320,12 +320,14 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			code 
 				<< "separate_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"\"" << *name << "\", "
-				<<    name->size () + 1 << ", "
-				<<    get_hash (name) << ", "
-				<<		"&" << zvp << ", "
+				<<		"sep_var, "
 				<<		"&is_" << zvp << "_new "
 				<< " TSRMLS_CC);\n";
+
+			// TODO this can be removed when we move to zval**s instead
+			// of zval*s for rhss
+			code 
+				<< zvp << " = *sep_var;\n";
 		}
 	}
 	else

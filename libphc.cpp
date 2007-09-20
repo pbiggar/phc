@@ -381,29 +381,6 @@ phc_setup_error (int init, char *filename, int line_number,
     }
 }
 
-// Separate the RHS (that is, make a copy *and update the hashtable*)
-// See "Separation anxiety" in the PHP book
-static void
-separate_var (HashTable * st, char *name, int length, ulong hashval,
-	      zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
-{
-  /* For a reference assignment, the LHS is always updated
-   * to point to the RHS (even if the LHS is currently
-   * is_ref) However, if the RHS is in a copy-on-write set
-   * (refcount > 1 but not is_ref), it must be seperated
-   * first */
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-    return;
-
-  zvp_clone (p_zvp, is_zvp_new);
-
-  (*p_zvp)->refcount++;
-  int result = zend_hash_quick_update (st,
-				       name, length, hashval,
-				       p_zvp,
-				       sizeof (zval *), NULL);
-  assert (result == SUCCESS);
-}
 
 /* Assuming that p_zvp points into a hashtable, we decrease the
  * refcount of the currently pointed to object, then clone it, and
@@ -431,6 +408,16 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
       zval_ptr_dtor (&old);
     }
 }
+
+// Separate the RHS (that is, make a copy *and update the hashtable*)
+// See "Separation anxiety" in the PHP book
+static void
+separate_var (HashTable * st, zval** p_var,
+	      int *is_var_new TSRMLS_DC)
+{
+  separate_zvpp_ex (p_var TSRMLS_CC);
+}
+
 
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
