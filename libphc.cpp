@@ -703,11 +703,8 @@ write_array_reference (HashTable * st,
 }
 
 static zval **
-fetch_var_arg_by_ref (HashTable * st, char *name, int length,
-		      ulong hashval, int *is_arg_new TSRMLS_DC)
+fetch_var_arg_by_ref (HashTable * st, zval** p_arg TSRMLS_DC)
 {
-  zval **p_arg = get_st_entry (st, name, length, hashval TSRMLS_CC);
-
   // We are passign by reference
   sep_copy_on_write_ex (p_arg TSRMLS_CC);
 
@@ -728,10 +725,8 @@ fetch_var_arg_by_ref (HashTable * st, char *name, int length,
 
 /* Dont pass-by-ref */
 static zval *
-fetch_var_arg (HashTable * st, char *name, int length, ulong hashval,
-	       int *is_arg_new TSRMLS_DC)
+fetch_var_arg (HashTable * st, zval* arg, int *is_arg_new TSRMLS_DC)
 {
-  zval *arg = read_var (st, name, length, hashval TSRMLS_CC);
   if (arg->is_ref)
     {
       // We dont separate since we don't own one of ARG's references.
@@ -748,13 +743,9 @@ fetch_var_arg (HashTable * st, char *name, int length, ulong hashval,
 }
 
 static zval **
-fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
-			ulong hashval, char *ind_name, int ind_length,
-			ulong ind_hashval, int *is_arg_new TSRMLS_DC)
+fetch_array_arg_by_ref (HashTable * st, zval** p_var, zval* ind,
+			int *is_arg_new TSRMLS_DC)
 {
-  zval **p_var = get_st_entry (st, name, name_length, hashval TSRMLS_CC);
-  zval *ind = read_var (st, ind_name, ind_length, ind_hashval TSRMLS_CC);
-
   // if its not an array, make it an array
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
@@ -795,13 +786,9 @@ fetch_array_arg_by_ref (HashTable * st, char *name, int name_length,
 
 /* Dont pass-by-ref */
 static zval *
-fetch_array_arg (HashTable * st, char *var_name, int var_length,
-		 ulong var_hashval, char *ind_name, int ind_length,
-		 ulong ind_hashval, int *is_arg_new TSRMLS_DC)
+fetch_array_arg (HashTable * st, zval* var, zval* ind,
+		 int *is_arg_new TSRMLS_DC)
 {
-  zval *var = read_var (st, var_name, var_length, var_hashval TSRMLS_CC);
-  zval *ind = read_var (st, ind_name, ind_length, ind_hashval TSRMLS_CC);
-
   if (var == EG (uninitialized_zval_ptr))
     return EG (uninitialized_zval_ptr);
 

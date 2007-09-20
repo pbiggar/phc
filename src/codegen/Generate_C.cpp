@@ -1427,15 +1427,16 @@ public:
 				code
 
 					<< "if (by_ref [" << index << "])\n"
-					<< "{\n"
+					<< "{\n";
+
+				read_st (LOCAL, "arg", name->value);
+				read_simple (LOCAL, "ind", ind_name);
+
+				code
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
-					<<				"\"" << *name->value << "\", "
-					<<				name->value->size () + 1 << ", "
-					<<				get_hash (name) << ", "
-					<<				"\"" << *ind_name << "\", "
-					<<				ind_name->size () + 1 << ", "
-					<<				get_hash (ind_name) << ", "
+					<<				"arg, "
+					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					// if we pass &EG(uninitialized_zval_ptr), the
@@ -1448,15 +1449,16 @@ public:
 					<< "  }\n"
 					<< "}\n"
 					<< "else\n"
-					<< "{\n"
+					<< "{\n";
+
+				read_simple (LOCAL, "arg", name->value);
+				read_simple (LOCAL, "ind", ind_name);
+
+				code
 					<< "  args[" << index << "] = fetch_array_arg ("
 					<<				get_scope (LOCAL) << ", "
-					<<				"\"" << *name->value << "\", "
-					<<				name->value->size () + 1 << ", "
-					<<				get_hash (name) << ", "
-					<<				"\"" << *ind_name << "\", "
-					<<				ind_name->size () + 1 << ", "
-					<<				get_hash (ind_name) << ", "
+					<<				"arg, "
+					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
@@ -1466,13 +1468,13 @@ public:
 			{
 				code 
 					<< "if (by_ref [" << index << "])\n"
-					<< "{\n"
+					<< "{\n";
+
+				read_st (LOCAL, "p_arg", name->value);
+				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
-					<<				"\"" << *name->value << "\", "
-					<<				name->value->size () + 1 << ", "
-					<<				get_hash (name) << ", "
-					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<<				"p_arg TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					// if we pass &EG(uninitialized_zval_ptr), the
 					// run-time will separate and overwrite it.
@@ -1484,12 +1486,14 @@ public:
 					<< "  }\n"
 					<< "}\n"
 					<< "else\n"
-					<< "{\n"
+					<< "{\n";
+
+				read_simple (LOCAL, "arg", name->value);
+
+				code
 					<< "  args[" << index << "] = fetch_var_arg ("
 					<<				get_scope (LOCAL) << ", "
-					<<				"\"" << *name->value << "\", "
-					<<				name->value->size () + 1 << ", "
-					<<				get_hash (name) << ", "
+					<<				"arg, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
