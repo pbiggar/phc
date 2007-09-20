@@ -1439,14 +1439,6 @@ public:
 					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-					// if we pass &EG(uninitialized_zval_ptr), the
-					// run-time will separate and overwrite it.
-					<< "  if (args_ind[" << index << "] "
-					<< "			== &EG(uninitialized_zval_ptr))\n"
-					<< "  {\n"
-					<< "	  args_ind[" << index << "] = &args[" << index << "];\n"
-					<< "	  destruct[" << index << "] = 1;\n"
-					<< "  }\n"
 					<< "}\n"
 					<< "else\n"
 					<< "{\n";
@@ -1476,14 +1468,6 @@ public:
 					<<				get_scope (LOCAL) << ", "
 					<<				"p_arg TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-					// if we pass &EG(uninitialized_zval_ptr), the
-					// run-time will separate and overwrite it.
-					<< "  if (args_ind[" << index << "] "
-					<< "		== &EG(uninitialized_zval_ptr))\n"
-					<< "  {\n"
-					<< "	  args_ind[" << index << "] = &args[" << index << "];\n"
-					<< "	  destruct[" << index << "] = 1;\n"
-					<< "  }\n"
 					<< "}\n"
 					<< "else\n"
 					<< "{\n";
