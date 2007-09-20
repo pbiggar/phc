@@ -1587,7 +1587,7 @@ public:
 			// TODO separate here?
 			code 
 				<< "if (rhs->refcount > 1 && !rhs->is_ref)\n"
-				<< "  zvp_clone (&rhs, &is_rhs_new TSRMLS_CC);\n";
+				<< "  zvp_clone (&rhs, &is_rhs_new);\n";
 		}
 
 		for(

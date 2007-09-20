@@ -316,7 +316,7 @@ ht_var_debug (HashTable * st, char *name)
  * set, call the destructor on *P_ZVP before copying. *IS_ZVP_NEW is
  * set to true. */
 static void
-zvp_clone (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+zvp_clone (zval ** p_zvp, int *is_zvp_new)
 {
   zval *old = *p_zvp;
 
@@ -393,7 +393,7 @@ separate_var (HashTable * st, char *name, int length, ulong hashval,
   if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
     return;
 
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  zvp_clone (p_zvp, is_zvp_new);
 
   (*p_zvp)->refcount++;
   int result = zend_hash_quick_update (st,
@@ -425,7 +425,7 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
     }
   else
     {
-      zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+      zvp_clone (p_zvp, is_zvp_new);
       zval_ptr_dtor (&old);
     }
 }
@@ -446,7 +446,7 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
       && !((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
     return;
 
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  zvp_clone (p_zvp, is_zvp_new);
 
   zval *var = NULL;
   zval **p_var = &var;
@@ -488,7 +488,7 @@ write_var (HashTable * st, zval** p_lhs,
     {
       if ((*p_rhs)->is_ref)
 	{
-	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
+	  zvp_clone (p_rhs, is_rhs_new);
 	}
 
       (*p_rhs)->refcount++;
@@ -682,7 +682,7 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
     {
       if (rhs->is_ref)
 	{
-	  zvp_clone (p_rhs, is_rhs_new TSRMLS_CC);
+	  zvp_clone (p_rhs, is_rhs_new);
 	  rhs = *p_rhs;
 	}
 
@@ -886,7 +886,7 @@ fetch_var_arg (HashTable * st, char *name, int length, ulong hashval,
     {
       // Dont update the original, make a copy
       assert (arg != EG (uninitialized_zval_ptr));
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      zvp_clone (&arg, is_arg_new);
 
       // It seems we get incorrect refcounts without this
       // TODO This decreases the refcount to zero, which seems wrong,
@@ -1050,7 +1050,7 @@ fetch_array_arg (HashTable * st, char *var_name, int var_length,
     {
       // Dont update the original, make a copy
       assert (arg != EG (uninitialized_zval_ptr));
-      zvp_clone (&arg, is_arg_new TSRMLS_CC);
+      zvp_clone (&arg, is_arg_new);
 
       // It seems we get incorrect refcounts without this
       // TODO This decreases the refcount to zero, which seems wrong,
@@ -1069,7 +1069,7 @@ cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
   if ((*p_zvp)->type == type)
     return;
 
-  zvp_clone (p_zvp, is_zvp_new TSRMLS_CC);
+  zvp_clone (p_zvp, is_zvp_new);
   zval *zvp = *p_zvp;
 
   switch (type)
