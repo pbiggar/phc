@@ -175,21 +175,11 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
 
-// Generate calls to read_var_ex, for array and array index lookups, and the like.
+// Generate calls to read_var, for array and array index lookups, and the like.
 void read_simple (Scope scope, string zvp, String* name)
 {
 	code
-		<< "zval* " << zvp << "= read_var_ex (" 
-		<<									get_scope (scope) << ", "
-		<<									"\"" << *name << "\", "
-		<<									name->size () + 1  << ", "
-		<<									get_hash (name) << " TSRMLS_CC);\n";
-}
-
-void read_simple_p (Scope scope, string zvp, String* name)
-{
-	code
-		<< "zval** " << zvp << "= read_var_ex_p (" 
+		<< "zval* " << zvp << "= read_var (" 
 		<<									get_scope (scope) << ", "
 		<<									"\"" << *name << "\", "
 		<<									name->size () + 1  << ", "
@@ -481,7 +471,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = read_var_ex (" 
+				<< zvp << " = read_var (" 
 				<<		get_scope (scope) << ", "
 				<<		"\"" << *name << "\", "
 				<<		name->size () + 1  << ", "

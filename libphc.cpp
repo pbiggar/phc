@@ -510,6 +510,9 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   return p_zvp;
 }
 
+/* Return a pointer to symbol table entry for the variable called
+ * NAME. If the variable doesnt exist, &EG(uninitialized_zval_ptr) is
+ * returned. */
 static zval **
 read_var_ex_p (HashTable * st, char *name, int length, ulong hashval
 	       TSRMLS_DC)
@@ -517,41 +520,19 @@ read_var_ex_p (HashTable * st, char *name, int length, ulong hashval
   zval **p_zvp;
   if (zend_hash_quick_find
       (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
-    {
       return p_zvp;
-    }
 
   return &EG (uninitialized_zval_ptr);
-}
-
-/* Return a pointer to symbol table entry for the variable called NAME. If the variable doesnt exist, &EG(uninitialized_zval_ptr) is returned. */
-static zval **
-read_var_p (HashTable * st, char *name, int length, ulong hashval,
-	    int *is_new TSRMLS_DC)
-{
-  zval **p_zvp = read_var_ex_p (st, name, length, hashval TSRMLS_CC);
-
-//  if (p_zvp == &EG (uninitialized_zval_ptr))
-//    *is_new = 0;
-
-  return p_zvp;
-}
-
-
-static zval *
-read_var_ex (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
-{
-  return *read_var_ex_p (st, name, length, hashval TSRMLS_CC);
 }
 
 /* Read the variable named VAR_NAME from the local symbol table and
  * return it. If the variable doent exist, a new one is created and
  * *IS_NEW is set.  */
 static zval *
-read_var (HashTable * st, char *name, int length, ulong hashval,
-	  int *is_new TSRMLS_DC)
+read_var (HashTable * st, char *name, int length, ulong hashval
+	  TSRMLS_DC)
 {
-  return *read_var_p (st, name, length, hashval, is_new TSRMLS_CC);
+  return *read_var_ex_p (st, name, length, hashval TSRMLS_CC);
 }
 
 /* Read the variable named VAR_NAME from the local symbol table, and
@@ -1104,7 +1085,7 @@ phc_exit (char *name, int length, ulong hashval TSRMLS_DC)
 {
   int is_new = 0;
   zval *arg = read_var (EG (active_symbol_table), name, length,
-			hashval, &is_new TSRMLS_CC);
+			hashval TSRMLS_CC);
 
   if (Z_TYPE_P (arg) == IS_LONG)
     EG (exit_status) = Z_LVAL_P (arg);
