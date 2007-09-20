@@ -313,9 +313,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name << "\", "
-					<<    name->size () + 1 << ", "
-					<<    get_hash (name) << ", "
+					<<		"sep_var, "
 					<<		"sa_index, "
 					<<		"&" << zvp << ", "
 					<<		"&is_" << zvp << "_new "

@@ -34,18 +34,20 @@ zvp_clone_ex (zval ** p_zvp)
   *p_zvp = clone;
 }
 
-/* If *P_ZVP is in a copy-on-write set, separate it by overwriting *P_ZVP with a clone of itself, and lowering the refcount on the original */
+/* If *P_ZVP is in a copy-on-write set, separate it by overwriting
+ * *P_ZVP with a clone of itself, and lowering the refcount on the
+ * original. */
 static void
 separate_zvpp_ex (zval ** p_zvp TSRMLS_DC)
 {
-	if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
-		return;
+  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+    return;
 
-	zval *old = *p_zvp;
+  zval *old = *p_zvp;
 
-	zvp_clone_ex (p_zvp);
+  zvp_clone_ex (p_zvp);
 
-	zval_ptr_dtor (&old);
+  zval_ptr_dtor (&old);
 }
 
 // Extract the hashtable from a hash-valued zval
@@ -72,12 +74,12 @@ extract_ht_ex (zval * arr TSRMLS_DC)
 static HashTable *
 extract_ht (zval ** p_var TSRMLS_DC)
 {
-	separate_zvpp_ex (p_var TSRMLS_CC);
+  separate_zvpp_ex (p_var TSRMLS_CC);
 
-   if (Z_TYPE_PP (p_var) != IS_ARRAY)
-   {
-      assert ((*p_var)->is_ref || (*p_var)->refcount == 1); // must be separated in advance
-   }
+  if (Z_TYPE_PP (p_var) != IS_ARRAY)
+    {
+      assert ((*p_var)->is_ref || (*p_var)->refcount == 1);	// must be separated in advance
+    }
 
   return extract_ht_ex (*p_var TSRMLS_CC);
 }
@@ -433,8 +435,8 @@ separate_zvpp (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 static void
-separate_array_entry (HashTable * st, char *var_name, int var_length,
-		      ulong hashval, zval * ind, zval ** p_zvp,
+separate_array_entry (HashTable * st, zval** p_var,
+		      zval * ind, zval ** p_zvp,
 		      int *is_zvp_new TSRMLS_DC)
 {
   /* For a reference assignment, the LHS is always updated
@@ -447,26 +449,10 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
     return;
 
   zvp_clone (p_zvp, is_zvp_new);
-
-  zval *var = NULL;
-  zval **p_var = &var;
-
   zval *zvp = *p_zvp;
 
-  int var_exists = (zend_hash_quick_find (st, var_name, var_length, hashval,
-					  (void **) &p_var) == SUCCESS);
-  if (var_exists && *p_var != EG (uninitialized_zval_ptr))	// perhaps
-    var = *p_var;
-  else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_hash_quick_update (st, var_name, var_length, hashval,
-			      &var, sizeof (zval *), NULL);
-    }
-
   // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   zvp->refcount++;
   ht_update (ht, ind, zvp);
@@ -475,13 +461,13 @@ separate_array_entry (HashTable * st, char *var_name, int var_length,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-write_var (HashTable * st, zval** p_lhs,
+write_var (HashTable * st, zval ** p_lhs,
 	   zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   if (*p_lhs != EG (uninitialized_zval_ptr))
-  {
-     separate_zvpp_ex (p_lhs TSRMLS_CC);
-  }
+    {
+      separate_zvpp_ex (p_lhs TSRMLS_CC);
+    }
 
 
   if (!(*p_lhs)->is_ref)
@@ -503,26 +489,26 @@ write_var (HashTable * st, zval** p_lhs,
 }
 
 static zval **
-get_st_entry (HashTable * st, char *name, int length, ulong hashval
-	       TSRMLS_DC)
+get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 {
-   zval **p_zvp;
-   if (zend_hash_quick_find
-	 (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
-   {
+  zval **p_zvp;
+  if (zend_hash_quick_find
+      (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
+    {
       assert (p_zvp != NULL);
       return p_zvp;
-   }
+    }
 
-   // If we dont find it, put EG (uninitialized_zval_ptr) into the
-   // hashtable, and return a pointer to its container.
-   EG (uninitialized_zval_ptr)->refcount++;
-   int result = zend_hash_quick_add (st, name, length, hashval,
-	 &EG(uninitialized_zval_ptr), sizeof (zval *), (void**) &p_zvp);
-   assert (result == SUCCESS);
-   assert (p_zvp != NULL);
+  // If we dont find it, put EG (uninitialized_zval_ptr) into the
+  // hashtable, and return a pointer to its container.
+  EG (uninitialized_zval_ptr)->refcount++;
+  int result = zend_hash_quick_add (st, name, length, hashval,
+				    &EG (uninitialized_zval_ptr),
+				    sizeof (zval *), (void **) &p_zvp);
+  assert (result == SUCCESS);
+  assert (p_zvp != NULL);
 
-   return p_zvp;
+  return p_zvp;
 }
 
 static zval **
@@ -576,7 +562,7 @@ read_var (HashTable * st, char *name, int length, ulong hashval,
 static zval *
 read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
 {
-	// is_new not required, since no vars created.
+  // is_new not required, since no vars created.
   if (refl == EG (uninitialized_zval_ptr))
     return refl;
 
@@ -592,7 +578,7 @@ read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
 static zval *
 read_array (HashTable * st, zval * var, zval * ind, int *is_new TSRMLS_DC)
 {
-	// memory is potentially allocated in extract_ht, but this is for separation, so its OK.
+  // memory is potentially allocated in extract_ht, but this is for separation, so its OK.
   zval *result = NULL;
   zval **p_result;
 
@@ -661,7 +647,7 @@ read_var_array (HashTable * st, zval * refl, zval * ind,
 /* Write P_RHS into p_var, indexed by IND. Although st is unused, it
  * is left in since we may have to ask it for its destructor. */
 static void
-write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
+write_array (HashTable * st, zval ** p_var, zval * ind, zval ** p_rhs,
 	     int *is_rhs_new TSRMLS_DC)
 {
   zval *lhs = NULL;
@@ -700,7 +686,8 @@ write_array (HashTable * st, zval** p_var, zval * ind, zval ** p_rhs,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-push_var (HashTable * st, zval** p_var, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+push_var (HashTable * st, zval ** p_var, zval ** p_rhs,
+	  int *is_rhs_new TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
@@ -784,8 +771,8 @@ write_var_reference (HashTable * st, char *name, int length, ulong hashval,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void			// TODO change function and update 
-write_array_reference (HashTable * st, 
-		       zval** p_var, zval * ind, zval ** p_zvp,
+write_array_reference (HashTable * st,
+		       zval ** p_var, zval * ind, zval ** p_zvp,
 		       int *is_zvp_new TSRMLS_DC)
 {
   // Change-on-write
