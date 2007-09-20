@@ -1195,7 +1195,6 @@ protected:
 	Wildcard<AST_variable_name>* rhs;
 };
 
-// TODO remove duplicate code
 class Assign_constant : public Assignment
 {
 public:
@@ -1238,9 +1237,9 @@ class Eval : public Assignment
 		eval_arg = new Wildcard<AST_variable>;
 		return new AST_method_invocation(
 			NULL,	
-			new Token_method_name(new String("eval")),
+			new Token_method_name( new String("eval")),
 			new List<AST_actual_parameter*>(
-				new AST_actual_parameter(false, eval_arg)
+				new AST_actual_parameter (false, eval_arg)
 				)
 			);
 	}
@@ -1249,12 +1248,8 @@ class Eval : public Assignment
 	{
 		code << "{\n";
 
-		declare ("eval_arg");
-		read (LOCAL, "eval_arg", eval_arg->value);
-
-		code << "  eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
-
-		cleanup ("eval_arg");
+		read_simple (LOCAL, "eval_arg", operand (eval_arg->value));
+		code << "eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
 
 		code << "}\n" ;
 	}

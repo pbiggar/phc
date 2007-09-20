@@ -895,11 +895,8 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
   // instead or rhs to avoid zend_eval_string adding "return".
 
   // convert to a string
-  zval *copy;
-  MAKE_STD_ZVAL (copy);
-  copy->value = zvp->value;
-  copy->type = zvp->type;
-  zval_copy_ctor (copy);
+  zval* copy = zvp;
+  zvp_clone_ex (&copy);
   convert_to_string (copy);
 
   MAKE_STD_ZVAL (*p_result);
@@ -916,6 +913,7 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
     }
 
   // cleanup
+  assert (copy->refcount == 1);
   zval_ptr_dtor (&copy);
 }
 
