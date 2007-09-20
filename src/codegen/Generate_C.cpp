@@ -407,9 +407,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				code 
 					<< "push_var_reference (" 
 					<<		get_scope (scope) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->size () + 1 << ", "
-					<<		get_hash (name) << ", "
+					<<		"ref_var, "
 					<<		"&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 		}
@@ -515,9 +513,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 					<< zvp << " = read_var_array (" 
 					<<		get_scope (scope) << ", "
 					<<		"refl, "
-					<<		"refl_index, "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
-					;
+					<<		"refl_index "
+					<<		" TSRMLS_CC);\n";
 			}
 			else
 				assert (0);
@@ -532,8 +529,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			code
 				<< zvp << " = read_var_var (" 
 				<<		get_scope (scope) << ", "
-				<<		"refl, "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+				<<		"refl "
+				<<		" TSRMLS_CC);\n"
 				;
 		}
 	}

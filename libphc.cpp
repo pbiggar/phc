@@ -531,8 +531,8 @@ read_var_p (HashTable * st, char *name, int length, ulong hashval,
 {
   zval **p_zvp = read_var_ex_p (st, name, length, hashval TSRMLS_CC);
 
-  if (p_zvp == &EG (uninitialized_zval_ptr))
-    *is_new = 0;
+//  if (p_zvp == &EG (uninitialized_zval_ptr))
+//    *is_new = 0;
 
   return p_zvp;
 }
@@ -559,11 +559,11 @@ read_var (HashTable * st, char *name, int length, ulong hashval,
  * doent exist, a new one is created and *IS_NEW is set.
  * */
 static zval *
-read_var_var (HashTable * st, zval * refl, int *is_new TSRMLS_DC)
+read_var_var (HashTable * st, zval * refl TSRMLS_DC)
 {
   // is_new not required, since no vars created.
   if (refl == EG (uninitialized_zval_ptr))
-    return refl;
+    return EG (uninitialized_zval_ptr);
 
   zval **p_result;
   if (ht_find (st, refl, &p_result) != SUCCESS)
@@ -602,40 +602,10 @@ read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
 }
 
 static zval *
-read_var_array (HashTable * st, zval * refl, zval * ind,
-		int *is_new TSRMLS_DC)
+read_var_array (HashTable * st, zval * refl, zval * ind TSRMLS_DC)
 {
-  zval **p_var;
-
-  zval *result = NULL;
-  zval **p_result = &ind;
-
-  // read the reflector
-  if (refl == EG (uninitialized_zval_ptr))
-    return EG (uninitialized_zval_ptr);
-
-  // read the variable itself
-  if (ht_find (st, refl, &p_var) != SUCCESS)
-    return EG (uninitialized_zval_ptr);
-
-
-  // if its not an array, make it an array
-  // TODO does this need an error, if so, use extract_ht_ex
-  if (Z_TYPE_P (*p_var) != IS_ARRAY)	// TODO IS_STRING
-    return EG (uninitialized_zval_ptr);
-
-  HashTable *ht = extract_ht_ex (*p_var TSRMLS_CC);
-
-  // find the var
-  int result_exists = (ht_find (ht, ind, &p_result) == SUCCESS);
-  if (result_exists)
-    result = *p_result;
-  else
-    {
-      result = EG (uninitialized_zval_ptr);
-    }
-
-  return result;
+   zval* var = read_var_var (st, refl TSRMLS_CC);
+   return read_array (st, var, ind TSRMLS_CC);
 }
 
 /* Write P_RHS into p_var, indexed by IND. Although st is unused, it
@@ -699,49 +669,11 @@ push_var (HashTable * st, zval ** p_var, zval ** p_rhs,
 }
 
 static void
-push_var_reference (HashTable * st, char *name, int length,
-		    ulong hashval, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+push_var_reference (HashTable * st, zval ** p_var,
+		    zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-  zval *var = NULL;
-  zval **p_var = &var;
-
-  zval *rhs = *p_rhs;
-
-  int var_exists = (zend_hash_quick_find (st, name, length,
-					  hashval,
-					  (void **) &p_var) == SUCCESS);
-  if (var_exists && *p_var != EG (uninitialized_zval_ptr))
-    {
-      int is_var_new = 0;
-      var = *p_var;
-      // if we use p_var instead of &var, zend_has_update throws
-      // an error and returns failure.
-      separate_var (st, name, length, hashval, &var, &is_var_new TSRMLS_CC);
-      if (is_var_new)
-	zval_ptr_dtor (p_var);
-    }
-  else
-    {
-      // if no var, create it and add it to the symbol table
-      ALLOC_INIT_ZVAL (var);
-      zend_hash_quick_update (st, name, length, hashval,
-			      &var, sizeof (zval *), NULL);
-    }
-
-  if (Z_TYPE_P (var) == IS_STRING)
-    {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			"[] operator not supported for strings");
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht_ex (var TSRMLS_CC);
-
-  rhs->is_ref = 1;
-  rhs->refcount++;
-  int result = zend_hash_next_index_insert (ht, &rhs, sizeof (zval *), NULL);
-  assert (result == SUCCESS);
-
+   (*p_rhs)->is_ref = 1;
+   push_var (st, p_var, p_rhs, is_rhs_new TSRMLS_CC);
 }
 
 /* Potentially change-on-write VAR_NAME1, contained in
