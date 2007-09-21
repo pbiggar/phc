@@ -29,6 +29,7 @@
 #include "process_ast/XML_unparser.h"
 #include "lib/List.h"
 #include "process_ast/PHP_unparser.h"
+#include <set>
 
 // A single pass isnt really sufficient, but we can hack around it
 // with a prologue and an epilogue.
@@ -175,29 +176,74 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
 
+String* get_non_st_name (AST_variable* var)
+{
+	assert (var->attrs->is_true ("phc.codegen.st_entry_not_required"));
+
+	String* name = 
+		dynamic_cast<Token_variable_name*>
+		(var->variable_name)->value;
+
+	stringstream ss;
+	ss << "local_" << *name;
+	return new String (ss.str ());
+}
+
+
+
 // Generate calls to read_var, for array and array index lookups, and the like.
 void read_simple (Scope scope, string zvp, AST_variable* var)
 {
-	String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
-
-	code
-		<< "zval* " << zvp << "= read_var (" 
-		<<									get_scope (scope) << ", "
-		<<									"\"" << *name << "\", "
-		<<									name->size () + 1  << ", "
-		<<									get_hash (name) << " TSRMLS_CC);\n";
+	if (var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		String* name = get_non_st_name (var);
+		code 
+			<< "zval* " << zvp << ";\n"
+			<< "if (" << *name << " == NULL)\n"
+			<< "{\n"
+			<<		zvp << " = EG (uninitialized_zval_ptr);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<<		zvp << " = " << *name << ";\n"
+			<< "}\n";
+	}
+	else
+	{
+		String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
+		code
+			<< "zval* " << zvp << "= read_var (" 
+			<<								get_scope (scope) << ", "
+			<<								"\"" << *name << "\", "
+			<<								name->size () + 1  << ", "
+			<<									get_hash (name) << " TSRMLS_CC);\n";
+	}
 }
 
 void read_st (Scope scope, string zvp, AST_variable* var)
 {
-	// Segfaults will serve as assertions
-	String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
-	code
-		<< "zval** " << zvp << "= get_st_entry (" 
-		<<									get_scope (scope) << ", "
-		<<									"\"" << *name << "\", "
-		<<									name->size () + 1  << ", "
-		<<									get_hash (name) << " TSRMLS_CC);\n";
+	if (var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	{
+		String* name = get_non_st_name (var);
+		code 
+			<< "if (" << *name << " == NULL)\n"
+			<< "{\n"
+			<<		*name << " = EG (uninitialized_zval_ptr);\n"
+			<<		*name << "->refcount++;\n"
+			<< "}\n"
+			<<	"zval** " << zvp << " = &" << *name << ";\n";
+	}
+	else
+	{
+		// Segfaults will serve as assertions
+		String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
+		code
+			<< "zval** " << zvp << "= get_st_entry (" 
+			<<									get_scope (scope) << ", "
+			<<									"\"" << *name << "\", "
+			<<									name->size () + 1  << ", "
+			<<									get_hash (name) << " TSRMLS_CC);\n";
+	}
 }
 
 AST_variable* get_var (AST_expr* var_expr)
@@ -589,6 +635,7 @@ public:
 	virtual ~Pattern() {}
 };
 
+
 class Method_definition : public Pattern
 {
 public:
@@ -638,6 +685,51 @@ protected:
 		;
 	}
 
+	class Find_temps : public AST_visitor
+	{
+		public:
+
+			// Dont find variables within other functions, if those
+			// functions/classes are in.
+			bool in_class;
+			bool in_function;
+			set<string> var_names;
+
+			Find_temps () :
+				in_class (false),
+				in_function (false) 
+			{
+			}
+
+			void pre_variable (AST_variable* var)
+			{
+				if (!in_function && !in_class 
+					&& var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				{
+					String* name = get_non_st_name (var);
+					var_names.insert (*name);
+				}
+			}
+
+			void pre_class_def (AST_class_def*) { in_class = true; }
+			void post_class_def (AST_class_def*) { in_class = false;}
+			void pre_method (AST_method*) { in_function = true; }
+			void post_method (AST_method*) { in_function = false; }
+	};
+
+	void generate_non_st_declarations (List<AST_statement*>* statements)
+	{
+		Find_temps ft;
+		// collect all the variables
+		ft.visit_statement_list (statements);
+		set<string>::const_iterator i;
+		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
+		{
+			code
+				<< "zval* " << *i << " = NULL;\n";
+		}
+	}
+
 	void method_entry()
 	{
 		code
@@ -658,6 +750,8 @@ protected:
 			<< "EG(active_symbol_table) = locals;\n"
 			;
 		}
+
+		generate_non_st_declarations (pattern->value->statements);
 
 		// TODO: deal with all superglobals 
 		global("GLOBALS");
@@ -731,6 +825,24 @@ protected:
 		code << "// Function body\n";
 	}
 
+	void generate_non_st_cleanup (List<AST_statement*>* statements)
+	{
+		Find_temps ft;
+		// collect all the variables
+		ft.visit_statement_list (statements);
+		set<string>::const_iterator i;
+		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
+		{
+			code
+				<< "if (" << *i << " != NULL)\n"
+				<< "{\n"
+				<<		"zval_ptr_dtor (&" << *i << ");\n"
+				<< "}\n";
+	
+		}
+	}
+
+
 	void method_exit()
 	{
 		code
@@ -738,6 +850,7 @@ protected:
 		<< "// Method exit\n"
 		<< "end_of_function:__attribute__((unused));\n"
 		;
+
 
 		if(*signature->method_name->value != "__MAIN__")
 		{
@@ -748,6 +861,8 @@ protected:
 			<< "EG(active_symbol_table) = old_active_symbol_table;\n"
 			;
 		}
+
+		generate_non_st_cleanup (pattern->value->statements);
 
 		code << "}\n";
 	}
@@ -1708,14 +1823,26 @@ class Unset : public Pattern
 		{
 			if (var->value->array_indices->size() == 0)
 			{
-				code
-					<< "unset_var ("
-					<<		get_scope (LOCAL) << ", "
-					<<		"\"" << *name << "\", "
-					<<		name->length() + 1
-					// no get_hash version
-					<<		" TSRMLS_CC);\n"
-					;
+				if (var->value->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				{
+					String* name = get_non_st_name (var->value);
+					code
+						<< "if (" << *name << " != NULL)\n"
+						<< "{\n"
+						<<		"zval_ptr_dtor (&" << *name << ");\n"
+						<<		*name << " = NULL;\n"
+						<< "}\n";
+				}
+				else
+				{
+					code
+						<< "unset_var ("
+						<<		get_scope (LOCAL) << ", "
+						<<		"\"" << *name << "\", "
+						<<		name->length() + 1
+						// no get_hash version
+						<<		" TSRMLS_CC);\n";
+				}
 			}
 			else 
 			{
