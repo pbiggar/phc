@@ -14,6 +14,22 @@
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/Consistency_check.h"
 
+// Creates a variable and copies the attributes from in to it.
+AST_variable* make_var_from (AST_variable* in, AST_target* target, AST_variable_name* var_name, List<AST_expr*>* array_indices)
+{
+	AST_variable* result = new AST_variable (target, var_name, array_indices);
+	result->attrs = in->attrs->clone ();
+	return result;
+}
+
+AST_variable* make_var_from (AST_variable* in, AST_variable_name* var_name)
+{
+	AST_variable* result = new AST_variable (var_name);
+	result->attrs = in->attrs->clone ();
+	return result;
+}
+	
+
 // Split echos into multiple statements. Normal function calls evaluate all
 // their actual parameters at once, and then call the expression with the
 // results of the evaluations. Echo, however, only evaluates its next argument
@@ -329,11 +345,11 @@ public:
 	/* Shred
 	 *  $x = (list ($a, $b, $c) = array ($c, $b, a));
 	 * into
-	 *	  $Tarr = array ($c, $b, $a);
-	 *	  $c = $Tarr[2];
-	 *	  $b = $Tarr[1];
-	 *	  $a = $Tarr[0];
-	 *	  $x = $Tarr; // note that left evaluates to the RHS of the assignment
+	 *	  $PLA = array ($c, $b, $a);
+	 *	  $c = $PLA[2];
+	 *	  $b = $PLA[1];
+	 *	  $a = $PLA[0];
+	 *	  $x = $PLA; // note that left evaluates to the RHS of the assignment
 	 *
 	 *	Note the reverse order. This matters if you've arrays on the lhs.
 	 *	Note that references arent allowed here.
@@ -361,10 +377,11 @@ public:
 			// create the RHS
 			List<AST_expr*> *array_indices = new List<AST_expr*> ();
 			array_indices->push_back (new Token_int (counter));
-			AST_variable* rhs = 
-				new AST_variable (NULL, 
-						temp->variable_name->clone(),
-						array_indices);
+			AST_variable* rhs = make_var_from (
+					temp,
+					NULL,
+					temp->variable_name->clone(),
+					array_indices);
 			counter --;
 
 			// list ($x, , $z) leaves a NULL
@@ -386,7 +403,7 @@ public:
 			{
 				AST_variable* var = dynamic_cast <AST_variable*> (*i);
 				assert (var);
-				// $c = $Tarr[2];
+				// $c = $PLA[2];
 				pieces->push_back( 
 						new AST_eval_expr(
 							new AST_assignment(var, false, rhs)));
@@ -618,14 +635,17 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
 	{
 		AST_variable* temp = fresh_var("TSr");
+
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (), 
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable(
+			make_var_from (
+				in,
 				NULL,
 				in->variable_name,
 				new List<AST_expr*>()
 			))));
+
 		prev = temp;
 	}
 
@@ -635,7 +655,8 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable(
+			make_var_from (
+				in,
 				in->target,
 				in->variable_name->clone(),
 				new List<AST_expr*>()
@@ -653,7 +674,8 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable(
+			make_var_from (
+				prev,
 				NULL, 
 				prev->variable_name->clone(), 
 				new List<AST_expr*>(in->array_indices->front()->clone ())))));
@@ -782,9 +804,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 	if (in->attrs->is_true("phc.lower_expr.no_temp"))
 		return in;
 
-	String* temp = fresh("TSa");
-	AST_variable* var = 
-		new AST_variable (new Token_variable_name (temp->clone()));
+	AST_variable* var = fresh_var ("TSa");
 
 	// We need to unset TS in case its run in a loop
 	pieces->push_back(new AST_unset (var->clone ()));
@@ -805,18 +825,20 @@ AST_expr* Shredder::post_array(AST_array* in)
 			key = NULL;
 
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						new AST_variable(
+						make_var_from (
+							var,
 							NULL,
-							new Token_variable_name(temp->clone()),
+							var->variable_name->clone(),
 							new List<AST_expr*>(key)),
 						(*i)->is_ref,
 						(*i)->val
 						)));
 	}
 
-	return new AST_variable(
+	return make_var_from (
+			var,
 			NULL,
-			new Token_variable_name(temp),
+			var->variable_name->clone (),
 			new List<AST_expr*>());
 }
 

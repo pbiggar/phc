@@ -19,6 +19,7 @@
 #include "fresh.h"
 #include <sstream>
 #include "process_ast/XML_unparser.h"
+#include "Shredder.h"
 
 // TODO if obfuscate is set, we should randomly rearrange the basic blocks
 
@@ -335,7 +336,11 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 				new AST_assignment (
 					in->val,
 					in->is_ref,
-					new AST_variable (NULL, temp_array->variable_name->clone (), new List<AST_expr*> (Tkey->clone ())))
+					make_var_from (
+						temp_array,
+						NULL,
+						temp_array->variable_name->clone (), 
+						new List<AST_expr*> (Tkey->clone ())))
 			)
 		);
 
