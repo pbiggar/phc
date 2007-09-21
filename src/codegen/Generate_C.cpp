@@ -176,8 +176,10 @@ void cleanup (string target)
 }
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_simple (Scope scope, string zvp, String* name)
+void read_simple (Scope scope, string zvp, AST_variable* var)
 {
+	String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
+
 	code
 		<< "zval* " << zvp << "= read_var (" 
 		<<									get_scope (scope) << ", "
@@ -186,14 +188,30 @@ void read_simple (Scope scope, string zvp, String* name)
 		<<									get_hash (name) << " TSRMLS_CC);\n";
 }
 
-void read_st (Scope scope, string zvp, String* name)
+void read_st (Scope scope, string zvp, AST_variable* var)
 {
+	// Segfaults will serve as assertions
+	String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
 	code
 		<< "zval** " << zvp << "= get_st_entry (" 
 		<<									get_scope (scope) << ", "
 		<<									"\"" << *name << "\", "
 		<<									name->size () + 1  << ", "
 		<<									get_hash (name) << " TSRMLS_CC);\n";
+}
+
+AST_variable* get_var (AST_expr* var_expr)
+{
+	AST_variable* var = dynamic_cast<AST_variable*> (var_expr);
+	assert (var);
+	return var;
+}
+
+AST_variable* get_var (AST_reflection* var_refl)
+{
+	AST_variable* var = dynamic_cast<AST_variable*> (var_refl->expr);
+	assert (var);
+	return var;
 }
 
 
@@ -211,18 +229,16 @@ void write (Scope scope, string zvp, AST_variable* var)
 
 	if (token_name != NULL)
 	{
-		String* name = token_name->value;
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				String* index = operand (var->array_indices->front());
 				code
 					<< "// Array assignment\n";
 
-				read_simple (scope, "wa_index", index);
-				read_st (scope, "w_array", name);
+				read_simple (scope, "wa_index", get_var (var->array_indices->front ()));
+				read_st (scope, "w_array", var);
 
 				code
 					<< "write_array ("
@@ -234,7 +250,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				read_st (scope, "w_array", name);
+				read_st (scope, "w_array", var);
 
 				code
 					<< "// Array pushing\n"
@@ -247,7 +263,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 		}
 		else
 		{
-			read_st (scope, "w_var", name);
+			read_st (scope, "w_var", var);
 			code 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
@@ -272,8 +288,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 /* Separate the rhs, and write it back to the symbol table if necessary */
 void separate (Scope scope, string zvp, AST_expr* expr)
 {
-	AST_variable* var = dynamic_cast<AST_variable*> (expr);
-	assert (var);
+	AST_variable* var = get_var (expr);
 
 	// separated write back to rhs
 	Token_variable_name* token_name
@@ -289,17 +304,13 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 
 	if (token_name != NULL)
 	{
-		String* name = token_name->value;
-		read_st (scope, "sep_var", name);
+		read_st (scope, "sep_var", var);
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				String* index = operand (var->array_indices->front());
-
-				read_simple (scope, "sa_index", index);
-
+				read_simple (scope, "sa_index", get_var (var->array_indices->front ()));
 				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
@@ -355,17 +366,15 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 
 	if (token_name != NULL)
 	{
-		String *name = token_name->value;
-		read_st (scope, "ref_var", name);
+		read_st (scope, "ref_var", var);
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				String* index = operand (var->array_indices->front());
 				code
 					<< "// Reference array assignment\n";
-				read_simple (scope, "war_index", index);
+				read_simple (scope, "war_index", get_var (var->array_indices->front()));
 
 				code
 					<< "write_array_reference ("
@@ -424,17 +433,15 @@ void read (Scope scope, string zvp, AST_expr* expr)
 
 	if(token_name != NULL)
 	{
-		String* name = token_name->value;
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				String *index = operand (var->array_indices->front ());
 				code << "// Read array variable\n";
 
-				read_simple (scope, "r_array", name);
-				read_simple (scope, "ra_index", index);
+				read_simple (scope, "r_array", var);
+				read_simple (scope, "ra_index", get_var (var->array_indices->front ()));
 
 				code
 					<< zvp << " = read_array (" 
@@ -449,17 +456,15 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		}
 		else
 		{
+			stringstream ss;
+			ss << zvp << "var";
+			String* name = new String (ss.str ());
+			read_simple (scope, *name, var);
 			assert (var->array_indices->size() == 0);
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = read_var (" 
-				<<		get_scope (scope) << ", "
-				<<		"\"" << *name << "\", "
-				<<		name->size () + 1  << ", "
-				<<		get_hash (name) << " "
-				<<		" TSRMLS_CC);\n"
-				;
+				<< zvp << " = " << *name << ";\n"; 
 		}
 	}
 	else
@@ -468,18 +473,16 @@ void read (Scope scope, string zvp, AST_expr* expr)
 		// After shredder, a variable variable cannot have array indices
 		AST_reflection* refl;
 		refl = dynamic_cast<AST_reflection*>(var->variable_name);
-		String* name = operand(refl->expr);
 
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				String *index = operand (var->array_indices->front ());
 				code << "// Read array variable-variable\n";
 
-				read_simple (scope, "refl", name);
-				read_simple (scope, "refl_index", index);
+				read_simple (scope, "refl", get_var (refl));
+				read_simple (scope, "refl_index", get_var (var->array_indices->front ()));
 
 				code
 					<< zvp << " = read_var_array (" 
@@ -496,7 +499,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			assert (var->array_indices->size() == 0);
 			code << "// Read variable variable\n";
 
-			read_simple (scope, "refl", name);
+			read_simple (scope, "refl", get_var (refl));
 
 			code
 				<< zvp << " = read_var_var (" 
@@ -1248,7 +1251,7 @@ class Eval : public Assignment
 	{
 		code << "{\n";
 
-		read_simple (LOCAL, "eval_arg", operand (eval_arg->value));
+		read_simple (LOCAL, "eval_arg", eval_arg->value);
 		code << "eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
 
 		code << "}\n" ;
@@ -1401,12 +1404,7 @@ public:
 			i++, index++)
 		{
 			// use this is a check, but actually use the index_st_rhs to generate this
-			AST_variable* var 
-				= dynamic_cast<AST_variable*> ((*i)->expr);
-			assert (var);
-
-			Token_variable_name* name
-				= dynamic_cast<Token_variable_name*>(var->variable_name);
+			AST_variable* var = get_var ((*i)->expr);
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1418,14 +1416,15 @@ public:
 			if (var->array_indices->size ())
 			{
 				assert (var->array_indices->size () == 1);
-				String* ind_name = operand(var->array_indices->front ());
-				code
+				AST_variable* ind = 
+					get_var (var->array_indices->front ());
 
+				code
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
-				read_st (LOCAL, "arg", name->value);
-				read_simple (LOCAL, "ind", ind_name);
+				read_st (LOCAL, "arg", var);
+				read_simple (LOCAL, "ind", ind);
 
 				code
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
@@ -1438,8 +1437,8 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", name->value);
-				read_simple (LOCAL, "ind", ind_name);
+				read_simple (LOCAL, "arg", var);
+				read_simple (LOCAL, "ind", ind);
 
 				code
 					<< "  args[" << index << "] = fetch_array_arg ("
@@ -1457,7 +1456,7 @@ public:
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
-				read_st (LOCAL, "p_arg", name->value);
+				read_st (LOCAL, "p_arg", var);
 				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
@@ -1467,7 +1466,7 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", name->value);
+				read_simple (LOCAL, "arg", var);
 
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
@@ -1721,8 +1720,8 @@ class Unset : public Pattern
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				String* index = operand (var->value->array_indices->front());
-				read_st (LOCAL, "u_array", name);
+				AST_variable* index = get_var (var->value->array_indices->front());
+				read_st (LOCAL, "u_array", var->value);
 				read_simple (LOCAL, "u_index", index);
 
 				code
