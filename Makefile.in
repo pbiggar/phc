@@ -263,7 +263,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Goto_uppering.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
 	Lower_control_flow.$(OBJEXT) Lower_expr.$(OBJEXT) \
 	Lower_expr_flow.$(OBJEXT) \
-	Note_top_level_declarations.$(OBJEXT) Shredder.$(OBJEXT) \
+	Note_top_level_declarations.$(OBJEXT) \
+	Prune_symbol_table.$(OBJEXT) Shredder.$(OBJEXT) \
 	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) HIR.$(OBJEXT) \
 	HIR_factory.$(OBJEXT) HIR_transform.$(OBJEXT) \
@@ -553,6 +554,8 @@ src_phc_SOURCES = \
 	src/codegen/Lower_expr.h								\
 	src/codegen/Note_top_level_declarations.cpp		\
 	src/codegen/Note_top_level_declarations.h			\
+	src/codegen/Prune_symbol_table.cpp					\
+	src/codegen/Prune_symbol_table.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
 	src/embed/embed.cpp										\
@@ -1016,6 +1019,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shredder.Po@am__quote@
@@ -1438,6 +1442,20 @@ Note_top_level_declarations.obj: src/codegen/Note_top_level_declarations.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Note_top_level_declarations.cpp' object='Note_top_level_declarations.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Note_top_level_declarations.obj `if test -f 'src/codegen/Note_top_level_declarations.cpp'; then $(CYGPATH_W) 'src/codegen/Note_top_level_declarations.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Note_top_level_declarations.cpp'; fi`
+
+Prune_symbol_table.o: src/codegen/Prune_symbol_table.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prune_symbol_table.o -MD -MP -MF $(DEPDIR)/Prune_symbol_table.Tpo -c -o Prune_symbol_table.o `test -f 'src/codegen/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/codegen/Prune_symbol_table.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Prune_symbol_table.Tpo $(DEPDIR)/Prune_symbol_table.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Prune_symbol_table.cpp' object='Prune_symbol_table.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.o `test -f 'src/codegen/Prune_symbol_table.cpp' || echo '$(srcdir)/'`src/codegen/Prune_symbol_table.cpp
+
+Prune_symbol_table.obj: src/codegen/Prune_symbol_table.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Prune_symbol_table.obj -MD -MP -MF $(DEPDIR)/Prune_symbol_table.Tpo -c -o Prune_symbol_table.obj `if test -f 'src/codegen/Prune_symbol_table.cpp'; then $(CYGPATH_W) 'src/codegen/Prune_symbol_table.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Prune_symbol_table.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Prune_symbol_table.Tpo $(DEPDIR)/Prune_symbol_table.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Prune_symbol_table.cpp' object='Prune_symbol_table.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.obj `if test -f 'src/codegen/Prune_symbol_table.cpp'; then $(CYGPATH_W) 'src/codegen/Prune_symbol_table.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Prune_symbol_table.cpp'; fi`
 
 Shredder.o: src/codegen/Shredder.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.o -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.o `test -f 'src/codegen/Shredder.cpp' || echo '$(srcdir)/'`src/codegen/Shredder.cpp

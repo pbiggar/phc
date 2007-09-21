@@ -64,6 +64,8 @@ src_phc_SOURCES =												\
 	src/codegen/Lower_expr.h								\
 	src/codegen/Note_top_level_declarations.cpp		\
 	src/codegen/Note_top_level_declarations.h			\
+	src/codegen/Prune_symbol_table.cpp					\
+	src/codegen/Prune_symbol_table.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
 	src/embed/embed.cpp										\
