@@ -176,27 +176,23 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (&" << target << ");\n";
 }
 
-String* get_non_st_name (AST_variable* var)
+String* get_non_st_name (Token_variable_name* var_name)
 {
-	assert (var->attrs->is_true ("phc.codegen.st_entry_not_required"));
-
-	String* name = 
-		dynamic_cast<Token_variable_name*>
-		(var->variable_name)->value;
+	assert (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"));
 
 	stringstream ss;
-	ss << "local_" << *name;
+	ss << "local_" << *var_name->value;
 	return new String (ss.str ());
 }
 
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_simple (Scope scope, string zvp, AST_variable* var)
+void read_simple (Scope scope, string zvp, Token_variable_name* var_name)
 {
-	if (var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		String* name = get_non_st_name (var);
+		String* name = get_non_st_name (var_name);
 		code 
 			<< "zval* " << zvp << ";\n"
 			<< "if (" << *name << " == NULL)\n"
@@ -210,7 +206,7 @@ void read_simple (Scope scope, string zvp, AST_variable* var)
 	}
 	else
 	{
-		String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
+		String* name = var_name->value;
 		code
 			<< "zval* " << zvp << "= read_var (" 
 			<<								get_scope (scope) << ", "
@@ -220,11 +216,11 @@ void read_simple (Scope scope, string zvp, AST_variable* var)
 	}
 }
 
-void read_st (Scope scope, string zvp, AST_variable* var)
+void read_st (Scope scope, string zvp, Token_variable_name* var_name)
 {
-	if (var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
-		String* name = get_non_st_name (var);
+		String* name = get_non_st_name (var_name);
 		code 
 			<< "if (" << *name << " == NULL)\n"
 			<< "{\n"
@@ -236,7 +232,7 @@ void read_st (Scope scope, string zvp, AST_variable* var)
 	else
 	{
 		// Segfaults will serve as assertions
-		String* name = dynamic_cast<Token_variable_name*> (var->variable_name)->value;
+		String* name = var_name->value;
 		code
 			<< "zval** " << zvp << "= get_st_entry (" 
 			<<									get_scope (scope) << ", "
@@ -246,18 +242,21 @@ void read_st (Scope scope, string zvp, AST_variable* var)
 	}
 }
 
-AST_variable* get_var (AST_expr* var_expr)
+// Note this can return NULL if its not a variable name
+Token_variable_name* get_var_name (AST_expr* var_expr)
 {
 	AST_variable* var = dynamic_cast<AST_variable*> (var_expr);
 	assert (var);
-	return var;
+	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
+	return name;
 }
 
-AST_variable* get_var (AST_reflection* var_refl)
+Token_variable_name* get_var_name (AST_reflection* var_refl)
 {
 	AST_variable* var = dynamic_cast<AST_variable*> (var_refl->expr);
 	assert (var);
-	return var;
+	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
+	return name;
 }
 
 
@@ -283,8 +282,8 @@ void write (Scope scope, string zvp, AST_variable* var)
 				code
 					<< "// Array assignment\n";
 
-				read_simple (scope, "wa_index", get_var (var->array_indices->front ()));
-				read_st (scope, "w_array", var);
+				read_simple (scope, "wa_index", get_var_name (var->array_indices->front ()));
+				read_st (scope, "w_array", get_var_name (var));
 
 				code
 					<< "write_array ("
@@ -296,7 +295,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 			}
 			else
 			{
-				read_st (scope, "w_array", var);
+				read_st (scope, "w_array", get_var_name (var));
 
 				code
 					<< "// Array pushing\n"
@@ -309,7 +308,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 		}
 		else
 		{
-			read_st (scope, "w_var", var);
+			read_st (scope, "w_var", get_var_name (var));
 			code 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
@@ -334,11 +333,8 @@ void write (Scope scope, string zvp, AST_variable* var)
 /* Separate the rhs, and write it back to the symbol table if necessary */
 void separate (Scope scope, string zvp, AST_expr* expr)
 {
-	AST_variable* var = get_var (expr);
-
-	// separated write back to rhs
-	Token_variable_name* token_name
-		= dynamic_cast<Token_variable_name*>(var->variable_name);
+	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	Token_variable_name* var_name = get_var_name (expr);
 
 	// if its new, check it wont separate
 	code 
@@ -348,15 +344,15 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 
 	assert(var->target == NULL);
 
-	if (token_name != NULL)
+	if (var_name != NULL)
 	{
-		read_st (scope, "sep_var", var);
+		read_st (scope, "sep_var", var_name);
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
-				read_simple (scope, "sa_index", get_var (var->array_indices->front ()));
+				read_simple (scope, "sa_index", get_var_name (var->array_indices->front ()));
 				code
 					<< "separate_array_entry ("
 					<<		get_scope (scope) << ", "
@@ -403,16 +399,14 @@ void separate (Scope scope, string zvp, AST_expr* expr)
  * to LHS, a named variable. RHS is needed for the reference. */
 void write_reference (Scope scope, string zvp, AST_variable* var)
 {
-	// Variable variable or ordinary variable?
-	Token_variable_name* token_name
-		= dynamic_cast<Token_variable_name*>(var->variable_name);
+  Token_variable_name* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
 	assert (var->target == NULL);
 
-	if (token_name != NULL)
+	if (var_name != NULL)
 	{
-		read_st (scope, "ref_var", var);
+		read_st (scope, "ref_var", get_var_name (var));
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
@@ -420,7 +414,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			{
 				code
 					<< "// Reference array assignment\n";
-				read_simple (scope, "war_index", get_var (var->array_indices->front()));
+				read_simple (scope, "war_index", get_var_name (var->array_indices->front()));
 
 				code
 					<< "write_array_reference ("
@@ -469,15 +463,14 @@ void read (Scope scope, string zvp, AST_expr* expr)
 {
 	AST_variable* var = dynamic_cast<AST_variable*> (expr);
 	assert (var);
-
-	// Variable variable or ordinary variable?
-	Token_variable_name* token_name
-		= dynamic_cast<Token_variable_name*>(var->variable_name);
-
-	// TODO: deal with object indexing
 	assert(var->target == NULL);
 
-	if(token_name != NULL)
+	// Variable variable or ordinary variable?
+	Token_variable_name* var_name = get_var_name (expr);
+
+	// TODO: deal with object indexing
+
+	if(var_name != NULL)
 	{
 		if (var->array_indices->size() == 1)
 		{
@@ -486,8 +479,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			{
 				code << "// Read array variable\n";
 
-				read_simple (scope, "r_array", var);
-				read_simple (scope, "ra_index", get_var (var->array_indices->front ()));
+				read_simple (scope, "r_array", get_var_name (var));
+				read_simple (scope, "ra_index", get_var_name (var->array_indices->front ()));
 
 				code
 					<< zvp << " = read_array (" 
@@ -505,7 +498,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			stringstream ss;
 			ss << zvp << "var";
 			String* name = new String (ss.str ());
-			read_simple (scope, *name, var);
+			read_simple (scope, *name, get_var_name (var));
 			assert (var->array_indices->size() == 0);
 			// the same as read_simple, but doesnt declare
 			code 
@@ -527,8 +520,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			{
 				code << "// Read array variable-variable\n";
 
-				read_simple (scope, "refl", get_var (refl));
-				read_simple (scope, "refl_index", get_var (var->array_indices->front ()));
+				read_simple (scope, "refl", get_var_name (refl));
+				read_simple (scope, "refl_index", get_var_name (var->array_indices->front ()));
 
 				code
 					<< zvp << " = read_var_array (" 
@@ -545,7 +538,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			assert (var->array_indices->size() == 0);
 			code << "// Read variable variable\n";
 
-			read_simple (scope, "refl", get_var (refl));
+			read_simple (scope, "refl", get_var_name (refl));
 
 			code
 				<< zvp << " = read_var_var (" 
@@ -566,6 +559,7 @@ void global (AST_variable_name* var_name)
 
 	code << "{\n";
 	declare ("global_var");
+	// TODO this isnt necessary
 	read (GLOBAL, "global_var", var);
 
 	// TODO should separate be done lazily? Is this even correct?
@@ -573,12 +567,6 @@ void global (AST_variable_name* var_name)
 	write_reference (LOCAL, "global_var", var);
 	cleanup ("global_var");
 	code << "}\n";
-}
-
-// For convenience
-void global (char* name)
-{
-	global(new Token_variable_name(new String(name)));
 }
 
 /*
@@ -701,27 +689,29 @@ protected:
 			{
 			}
 
-			void pre_variable (AST_variable* var)
+			void pre_variable_name (Token_variable_name* var_name)
 			{
 				if (!in_function && !in_class 
-					&& var->attrs->is_true ("phc.codegen.st_entry_not_required"))
+					&& var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					String* name = get_non_st_name (var);
+					String* name = get_non_st_name (var_name);
 					var_names.insert (*name);
 				}
 			}
 
-			void pre_class_def (AST_class_def*) { in_class = true; }
-			void post_class_def (AST_class_def*) { in_class = false;}
-			void pre_method (AST_method*) { in_function = true; }
-			void post_method (AST_method*) { in_function = false; }
+			// TODO nesting doesnt work anyway
+//			void pre_class_def (AST_class_def*) { in_class = true; }
+//			void post_class_def (AST_class_def*) { in_class = false;}
+//			void pre_method (AST_method*) { in_function = true; }
+//			void post_method (AST_method*) { in_function = false; }
 	};
 
-	void generate_non_st_declarations (List<AST_statement*>* statements)
+	void generate_non_st_declarations (AST_method* method, AST_signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
-		ft.visit_statement_list (statements);
+		method->visit (&ft);
+		sig->visit (&ft);
 		set<string>::const_iterator i;
 		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
 		{
@@ -751,10 +741,8 @@ protected:
 			;
 		}
 
-		generate_non_st_declarations (pattern->value->statements);
+		generate_non_st_declarations (pattern->value, signature);
 
-		// TODO: deal with all superglobals 
-		global("GLOBALS");
 
 		// debug_argument_stack();
 
@@ -796,23 +784,37 @@ protected:
 								new AST_assignment (
 									new AST_variable (
 										NULL,
-										(*i)->variable_name,
+										(*i)->variable_name->clone (),
 										new List<AST_expr*> ()),
-									false, (*i)->expr));
+									false, (*i)->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";
 				}
 
 				code
-					<< "params[" << index << "]->refcount++;\n"
-					<< "zend_hash_quick_add(EG(active_symbol_table), "
-					<<		"\"" << *(*i)->variable_name->value << "\", " 
-					<<		(*i)->variable_name->value->length() + 1 << ", "
-					<<		get_hash ((*i)->variable_name) << ", "
-					<<		"&params[" << index << "], "
-					<<		"sizeof(zval*), NULL);\n"
-					;
+					<< "params[" << index << "]->refcount++;\n";
+
+				// TODO this should be abstactable, but it work now, so
+				// leave it.
+				if ((*i)->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				{
+					string name = *get_non_st_name ((*i)->variable_name);
+					code 
+						<< name << " = params[" << index << "];\n";
+				}
+				else
+				{
+					// TODO i dont believe theres a test for this
+					code 
+						<< "zend_hash_quick_add(EG(active_symbol_table), "
+						<<		"\"" << *(*i)->variable_name->value << "\", " 
+						<<		(*i)->variable_name->value->length() + 1 << ", "
+						<<		get_hash ((*i)->variable_name) << ", "
+						<<		"&params[" << index << "], "
+						<<		"sizeof(zval*), NULL);\n"
+					  ;
+				  }
 
 				if ((*i)->expr)
 					code << "}\n";
@@ -825,11 +827,12 @@ protected:
 		code << "// Function body\n";
 	}
 
-	void generate_non_st_cleanup (List<AST_statement*>* statements)
+	void generate_non_st_cleanup (AST_method* method, AST_signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
-		ft.visit_statement_list (statements);
+		method->visit (&ft);
+		sig->visit (&ft);
 		set<string>::const_iterator i;
 		for (i = ft.var_names.begin (); i != ft.var_names.end (); i++)
 		{
@@ -862,7 +865,7 @@ protected:
 			;
 		}
 
-		generate_non_st_cleanup (pattern->value->statements);
+		generate_non_st_cleanup (pattern->value, signature);
 
 		code << "}\n";
 	}
@@ -1366,7 +1369,7 @@ class Eval : public Assignment
 	{
 		code << "{\n";
 
-		read_simple (LOCAL, "eval_arg", eval_arg->value);
+		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value));
 		code << "eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
 
 		code << "}\n" ;
@@ -1519,7 +1522,8 @@ public:
 			i++, index++)
 		{
 			// use this is a check, but actually use the index_st_rhs to generate this
-			AST_variable* var = get_var ((*i)->expr);
+			AST_variable* var = dynamic_cast<AST_variable*> ((*i)->expr);
+			Token_variable_name* var_name = get_var_name ((*i)->expr);
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1531,14 +1535,14 @@ public:
 			if (var->array_indices->size ())
 			{
 				assert (var->array_indices->size () == 1);
-				AST_variable* ind = 
-					get_var (var->array_indices->front ());
+				Token_variable_name* ind = 
+					get_var_name (var->array_indices->front ());
 
 				code
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
-				read_st (LOCAL, "arg", var);
+				read_st (LOCAL, "arg", var_name);
 				read_simple (LOCAL, "ind", ind);
 
 				code
@@ -1552,7 +1556,7 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var);
+				read_simple (LOCAL, "arg", var_name);
 				read_simple (LOCAL, "ind", ind);
 
 				code
@@ -1571,7 +1575,7 @@ public:
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
-				read_st (LOCAL, "p_arg", var);
+				read_st (LOCAL, "p_arg", var_name);
 				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				get_scope (LOCAL) << ", "
@@ -1581,7 +1585,7 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var);
+				read_simple (LOCAL, "arg", var_name);
 
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
@@ -1813,19 +1817,15 @@ class Unset : public Pattern
 		// TODO: deal with object indexing
 		assert(var->value->target == NULL);
 
-		Token_variable_name* token_name =
-			dynamic_cast<Token_variable_name*>(
-				var->value->variable_name);
+		Token_variable_name* var_name = get_var_name (var->value);
 
-		String* name = token_name->value;
-
-		if (token_name != NULL)
+		if (var_name != NULL)
 		{
 			if (var->value->array_indices->size() == 0)
 			{
-				if (var->value->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					String* name = get_non_st_name (var->value);
+					String* name = get_non_st_name (var_name);
 					code
 						<< "if (" << *name << " != NULL)\n"
 						<< "{\n"
@@ -1835,6 +1835,7 @@ class Unset : public Pattern
 				}
 				else
 				{
+					String* name = var_name->value;
 					code
 						<< "unset_var ("
 						<<		get_scope (LOCAL) << ", "
@@ -1847,8 +1848,8 @@ class Unset : public Pattern
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				AST_variable* index = get_var (var->value->array_indices->front());
-				read_st (LOCAL, "u_array", var->value);
+				Token_variable_name* index = get_var_name (var->value->array_indices->front());
+				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
 				code
