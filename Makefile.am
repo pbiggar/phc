@@ -46,6 +46,7 @@ src_phc_SOURCES =												\
 	src/codegen/Check_lowering.h							\
 	src/codegen/Check_uppering.cpp						\
 	src/codegen/Check_uppering.h							\
+	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
 	src/codegen/fresh.cpp									\

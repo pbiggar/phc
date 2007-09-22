@@ -16,6 +16,8 @@
 #include "codegen/Lower_expr_flow.h"
 #include "codegen/Note_top_level_declarations.h"
 #include "codegen/Shredder.h"
+#include "codegen/Prune_symbol_table.h"
+#include "codegen/Clarify.h"
 #include "codegen/Obfuscate.h"
 #include "codegen/Compile_C.h"
 #include "process_ast/Strip_comments.h"
@@ -138,6 +140,8 @@ int main(int argc, char** argv)
 
 	// Use ss to pass generated code between Generate_C and Compile_C
 	stringstream ss;
+	pm->add_visitor (new Clarify (), "clar");
+	pm->add_visitor (new Prune_symbol_table (), "pst");
 	pm->add_pass (new Generate_C (ss));
 	pm->add_pass (new Compile_C (ss));
 
