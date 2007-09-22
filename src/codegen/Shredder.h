@@ -14,8 +14,6 @@
 List<AST_statement*>* shred (List<AST_statement*>* in);
 List<AST_statement*>* shred (AST_statement* in);
 
-AST_variable* make_var_from (AST_variable* in, AST_target* targer, AST_variable_name* var_name, List<AST_expr*>* array_indices);
-
 class Shredder : public Lower_expr
 {
 public:

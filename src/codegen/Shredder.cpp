@@ -14,21 +14,6 @@
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/Consistency_check.h"
 
-// Creates a variable and copies the attributes from in to it.
-AST_variable* make_var_from (AST_variable* in, AST_target* target, AST_variable_name* var_name, List<AST_expr*>* array_indices)
-{
-	AST_variable* result = new AST_variable (target, var_name, array_indices);
-	result->attrs = in->attrs->clone ();
-	return result;
-}
-
-AST_variable* make_var_from (AST_variable* in, AST_variable_name* var_name)
-{
-	AST_variable* result = new AST_variable (var_name);
-	result->attrs = in->attrs->clone ();
-	return result;
-}
-	
 
 // Split echos into multiple statements. Normal function calls evaluate all
 // their actual parameters at once, and then call the expression with the
@@ -377,8 +362,7 @@ public:
 			// create the RHS
 			List<AST_expr*> *array_indices = new List<AST_expr*> ();
 			array_indices->push_back (new Token_int (counter));
-			AST_variable* rhs = make_var_from (
-					temp,
+			AST_variable* rhs = new AST_variable (
 					NULL,
 					temp->variable_name->clone(),
 					array_indices);
@@ -542,6 +526,7 @@ class Tidy_print : public AST_transform
 	}
 };
 
+
 /*
  * Remove unparser attributes and desugar
  */
@@ -582,6 +567,7 @@ void Shredder::children_php_script(AST_php_script* in)
 	// print print $x;" without it.
 	Tidy_print tp;
 	in->transform_children (&tp);
+
 
 }
 
@@ -639,8 +625,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (), 
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			make_var_from (
-				in,
+			new AST_variable (
 				NULL,
 				in->variable_name,
 				new List<AST_expr*>()
@@ -655,8 +640,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			make_var_from (
-				in,
+			new AST_variable (
 				in->target,
 				in->variable_name->clone(),
 				new List<AST_expr*>()
@@ -674,8 +658,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			make_var_from (
-				prev,
+			new AST_variable (
 				NULL, 
 				prev->variable_name->clone(), 
 				new List<AST_expr*>(in->array_indices->front()->clone ())))));
@@ -825,8 +808,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 			key = NULL;
 
 		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						make_var_from (
-							var,
+						new AST_variable (
 							NULL,
 							var->variable_name->clone(),
 							new List<AST_expr*>(key)),
@@ -835,8 +817,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 						)));
 	}
 
-	return make_var_from (
-			var,
+	return new AST_variable (
 			NULL,
 			var->variable_name->clone (),
 			new List<AST_expr*>());

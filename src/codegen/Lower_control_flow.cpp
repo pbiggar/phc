@@ -336,8 +336,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
 				new AST_assignment (
 					in->val,
 					in->is_ref,
-					make_var_from (
-						temp_array,
+					new AST_variable (
 						NULL,
 						temp_array->variable_name->clone (), 
 						new List<AST_expr*> (Tkey->clone ())))
