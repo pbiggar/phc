@@ -20,7 +20,7 @@ public:
 	Prune_symbol_table () : prune (true) {}
 
 	void pre_method (AST_method* in);
-	void post_variable (AST_variable* in);
+	void post_variable_name (Token_variable_name* in);
 	void pre_reflection (AST_reflection* in);
 	void pre_method_invocation (AST_method_invocation* in);
 };

@@ -24,7 +24,7 @@ void Prune_symbol_table::pre_method (AST_method* in)
 	}
 }
 
-void Prune_symbol_table::post_variable (AST_variable* in)
+void Prune_symbol_table::post_variable_name (Token_variable_name* in)
 {
 	if (prune)
 		in->attrs->set_true ("phc.codegen.st_entry_not_required");
