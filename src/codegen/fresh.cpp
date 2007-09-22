@@ -64,7 +64,7 @@ AST_variable* fresh_var(string prefix)
 		new List<AST_expr*>
 		);
 
-	var->attrs->set_true ("phc.codegen.st_entry_not_required");
+	var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
 	return var;
 }
 
