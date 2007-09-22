@@ -703,7 +703,7 @@ write_array_reference (HashTable * st,
 }
 
 static zval **
-fetch_var_arg_by_ref (HashTable * st, zval** p_arg TSRMLS_DC)
+fetch_var_arg_by_ref (HashTable * st, zval ** p_arg TSRMLS_DC)
 {
   // We are passign by reference
   sep_copy_on_write_ex (p_arg TSRMLS_CC);
@@ -725,7 +725,7 @@ fetch_var_arg_by_ref (HashTable * st, zval** p_arg TSRMLS_DC)
 
 /* Dont pass-by-ref */
 static zval *
-fetch_var_arg (HashTable * st, zval* arg, int *is_arg_new TSRMLS_DC)
+fetch_var_arg (HashTable * st, zval * arg, int *is_arg_new TSRMLS_DC)
 {
   if (arg->is_ref)
     {
@@ -743,7 +743,7 @@ fetch_var_arg (HashTable * st, zval* arg, int *is_arg_new TSRMLS_DC)
 }
 
 static zval **
-fetch_array_arg_by_ref (HashTable * st, zval** p_var, zval* ind,
+fetch_array_arg_by_ref (HashTable * st, zval ** p_var, zval * ind,
 			int *is_arg_new TSRMLS_DC)
 {
   // if its not an array, make it an array
@@ -786,7 +786,7 @@ fetch_array_arg_by_ref (HashTable * st, zval** p_var, zval* ind,
 
 /* Dont pass-by-ref */
 static zval *
-fetch_array_arg (HashTable * st, zval* var, zval* ind,
+fetch_array_arg (HashTable * st, zval * var, zval * ind,
 		 int *is_arg_new TSRMLS_DC)
 {
   if (var == EG (uninitialized_zval_ptr))
@@ -895,7 +895,7 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
   // instead or rhs to avoid zend_eval_string adding "return".
 
   // convert to a string
-  zval* copy = zvp;
+  zval *copy = zvp;
   zvp_clone_ex (&copy);
   convert_to_string (copy);
 
