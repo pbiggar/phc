@@ -728,8 +728,10 @@ protected:
 		<< "{\n"
 		;
 
-		// __MAIN__ uses the global symbol table 
-		if(*signature->method_name->value != "__MAIN__")
+		// __MAIN__ uses the global symbol table. Dont allocate for
+		// functions which dont need a symbol table.
+		if (*signature->method_name->value != "__MAIN__" 
+			&& not signature->method_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 		{
 			code
 			<< "// Setup locals array\n"
@@ -855,7 +857,8 @@ protected:
 		;
 
 
-		if(*signature->method_name->value != "__MAIN__")
+		if (*signature->method_name->value != "__MAIN__"
+			&& not signature->method_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 		{
 			code
 			<< "// Destroy locals array\n"
@@ -1534,6 +1537,11 @@ public:
 			 * into its containing hashtable, otherwise. */
 			if (var->array_indices->size ())
 			{
+				// TODO: variables are allowed have more than 1 index (so long as
+				// the indexes are all temporaries). We do not know whether to
+				// shred the variables using references or not, since we do not
+				// know until run-time whether the function is call-by-reference or
+				// not.
 				assert (var->array_indices->size () == 1);
 				Token_variable_name* ind = 
 					get_var_name (var->array_indices->front ());
@@ -1571,6 +1579,10 @@ public:
 			}
 			else
 			{
+				// TODO: Its correct to handle variable variables here, since we
+				// dont know if they are to be passed by reference or not, so they
+				// cannot be shredder earlier.
+				assert (var_name);
 				code 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
