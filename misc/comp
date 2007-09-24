@@ -13,6 +13,9 @@ do
 	then
 		EXEC_NAME="gdb "
 		DEBUG_PHC=1
+	elif [ "-$var" = "--V" ]
+	then
+		EXEC_NAME="valgrind "
 	elif [ "-$var" = "--O" ]
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
