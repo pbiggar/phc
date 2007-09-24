@@ -458,6 +458,64 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 	}
 }
 
+void index_lhs (Scope scope, string zvp, AST_variable* var)
+{
+  Token_variable_name* var_name = get_var_name (var);
+
+	// TODO: deal with object indexing
+	assert (var->target == NULL);
+	code
+		<< "zval** " << zvp << ";\n";
+
+	if (var_name != NULL)
+	{
+		read_st (scope, "lhs_var", get_var_name (var));
+		if (var->array_indices->size() == 1)
+		{
+			// access var as an array
+			if (var->array_indices->front () != NULL)
+			{
+				code
+					<< "// Array assignment\n";
+				read_simple (scope, "lhs_index", get_var_name (var->array_indices->front()));
+
+				code
+					<<	zvp << " = get_ht_entry ("
+					<<		"lhs_var, "
+					<<		"lhs_index "
+					<<		" TSRMLS_CC);\n"
+				;
+			}
+			else
+			{
+				code
+					<< "// Array push \n";
+				code 
+					<< zvp << " = push_and_index_ht (" 
+					<<		"lhs_var, "
+					<<		" TSRMLS_CC);\n";
+			}
+		}
+		else
+		{
+			assert (var->array_indices->size() == 0);
+			code 
+				<< "// Normal Assignment\n"
+				<< zvp << " = lhs_var;\n";
+		}
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		assert (0); // TODO
+		assert(var->array_indices->size() == 0);
+
+		code << "assert (0); // write_var_var_reference\n";
+//		reference_var_var ();
+	}
+}
+
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read (Scope scope, string zvp, AST_expr* expr)
 {
@@ -962,18 +1020,18 @@ public:
 	virtual void generate_rhs() = 0;
 	virtual ~Assignment() {}
 
+	/* Have we converted to the new way yet? */
+	virtual bool fixed ()
+	{
+		return false;
+	}
+
 public:
 	bool match(AST_statement* that)
 	{
 		lhs = new Wildcard<AST_variable>;
 		agn = new AST_assignment(lhs, /* ignored */ false, rhs_pattern());
 		return that->match(new AST_eval_expr(agn));
-	}
-
-	// Additional code to be executed on lhs before it all goes out
-	// of scope
-	virtual void process_rhs ()
-	{
 	}
 
 	/* MEMORY DISCUSSION
@@ -998,34 +1056,42 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		declare ("rhs");
 
-		// Generate code for the RHS
-		generate_rhs();
+		if (fixed ())
+		{
+			index_lhs (LOCAL, "p_lhs", lhs->value);
 
-		// do work on the rhs, if necessary
-		process_rhs();
-
-		// write it back to the lhs
-		if(!agn->is_ref)
-			write (LOCAL, "rhs", lhs->value);
+			// Generate code for the RHS
+			generate_rhs();
+		}
 		else
 		{
-			// this must be a copy
-			Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
-			if (rhs)
-			{
-				separate (LOCAL, "rhs", rhs->value);
-			}
+			declare ("rhs");
+
+			// Generate code for the RHS
+			generate_rhs();
+
+			// write it back to the lhs
+			if(!agn->is_ref)
+				write (LOCAL, "rhs", lhs->value);
 			else
 			{
-				// method_invocations separate before they return, so no need.
-				assert (dynamic_cast<Wildcard<AST_method_invocation>*> (agn->expr));
+				// this must be a copy
+				Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
+				if (rhs)
+				{
+					separate (LOCAL, "rhs", rhs->value);
+				}
+				else
+				{
+					// method_invocations separate before they return, so no need.
+					assert (dynamic_cast<Wildcard<AST_method_invocation>*> (agn->expr));
+				}
+				write_reference (LOCAL, "rhs", lhs->value);
 			}
-			write_reference (LOCAL, "rhs", lhs->value);
+			cleanup ("rhs");
 		}
 
-		cleanup ("rhs");
 
 		code << "}\n";
 
@@ -1295,8 +1361,9 @@ public:
 			rhs);
 	}
 
-	virtual void process_rhs ()
+	virtual void generate_rhs ()
 	{
+		Copy::generate_rhs ();
 		code << "cast_var (&rhs, &is_rhs_new, IS_ARRAY TSRMLS_CC);\n";
 	}
 };
@@ -1694,6 +1761,10 @@ public:
 
 		return new AST_bin_op (left, op, right); 
 	}
+	bool fixed ()
+	{
+		return true;
+	}
 
 	void generate_rhs()
 	{
@@ -1702,24 +1773,32 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		declare ("left");
-		declare ("right");
-		read (LOCAL, "left", left->value);
-		read (LOCAL, "right", right->value);
-		code 
-			<< "MAKE_STD_ZVAL(rhs);\n"
-			<< "is_rhs_new = 1;\n"
-			;
+		read_simple (LOCAL, "left", get_var_name (left->value));
+		read_simple (LOCAL, "right", get_var_name (right->value));
 
-		// some operators need the operands to be reversed (since we call the
-		// opposite function). This is accounted for in the binops table.
+		code
+			<< "if (in_copy_on_write (*p_lhs))\n"
+			<< "{\n"
+			<< "	zval_ptr_dtor (p_lhs);\n"
+			<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+			<< "}\n"
+			<< "zval old = **p_lhs;\n"
+			<< "int result_is_operand = (*p_lhs == left || *p_lhs == right)\n;";
+
+		// some operators need the operands to be reversed (since we
+		// call the opposite function). This is accounted for in the
+		// binops table.
 		if(*op->value->value == ">" || *op->value->value == ">=")
-			code << op_fn << "(rhs, right, left TSRMLS_CC);\n";
+			code << op_fn << "(*p_lhs, right, left TSRMLS_CC);\n";
 		else
-			code << op_fn << "(rhs, left, right TSRMLS_CC);\n";
+			code << op_fn << "(*p_lhs, left, right TSRMLS_CC);\n";
 
-		cleanup ("left");
-		cleanup ("right");
+		// If the result is one of the operand, the operator function
+		// will already have cleaned up the result
+		code
+			<< "if (!result_is_operand)\n"
+			<<		"zval_dtor (&old);\n";
+
 	}
 
 protected:
@@ -1919,7 +1998,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Eval()
 	,	new Exit()
 	,	new Method_invocation()
-	,	new Str_cat()
+//	,	new Str_cat()
 	,	new Bin_op()
 	,	new Unary_op()
 	,	new Label()

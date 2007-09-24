@@ -34,6 +34,12 @@ zvp_clone_ex (zval ** p_zvp)
   *p_zvp = clone;
 }
 
+static int
+in_copy_on_write (zval* zvp)
+{
+  return (zvp->refcount > 1 && !zvp->is_ref);
+}
+
 /* If *P_ZVP is in a copy-on-write set, separate it by overwriting
  * *P_ZVP with a clone of itself, and lowering the refcount on the
  * original. */
@@ -146,13 +152,13 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
 
 // Update a hashtable using a zval* index
 static void
-ht_update (HashTable * ht, zval * ind, zval * val)
+ht_update (HashTable * ht, zval * ind, zval * val, zval*** dest)
 {
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
-      int result = zend_hash_index_update (ht, Z_LVAL_P
-					   (ind), &val, sizeof (zval *),
-					   NULL);
+      int result = zend_hash_index_update (ht, Z_LVAL_P (ind), &val,
+					   sizeof (zval *), 
+					   (void**) dest);
       assert (result == SUCCESS);
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
@@ -163,14 +169,16 @@ ht_update (HashTable * ht, zval * ind, zval * val)
       index->type = ind->type;
       convert_to_long (index);
       int result = zend_hash_index_update (ht, Z_LVAL_P (index),
-					   &val, sizeof (zval *), NULL);
+					   &val, sizeof (zval *), 
+					   (void**) dest);
       assert (result == SUCCESS);
       zval_ptr_dtor (&index);
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
       int result =
-	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *), NULL);
+	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *), 
+			  (void**) dest);
       assert (result == SUCCESS);
     }
   else
@@ -181,9 +189,12 @@ ht_update (HashTable * ht, zval * ind, zval * val)
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      int result = zend_symtable_update (ht, Z_STRVAL_P (string_index),
-					 Z_STRLEN_P (string_index) + 1, &val,
-					 sizeof (zval *), NULL);
+      int result = zend_symtable_update (ht, 
+					 Z_STRVAL_P (string_index),
+					 Z_STRLEN_P (string_index) + 1,
+					 &val,
+					 sizeof (zval *), 
+					 (void**) dest);
 
       assert (result == SUCCESS);
       zval_ptr_dtor (&string_index);
@@ -306,7 +317,6 @@ ht_debug (HashTable * ht)
     }
   printf ("END HASH\n");
 }
-
 
 // Call ht_debug on the named var in the given symbol table
 static void
@@ -456,7 +466,7 @@ separate_array_entry (HashTable * st, zval ** p_var,
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   zvp->refcount++;
-  ht_update (ht, ind, zvp);
+  ht_update (ht, ind, zvp, NULL);
 }
 
 
@@ -487,6 +497,28 @@ write_var (HashTable * st, zval ** p_lhs,
     {
       overwrite_lhs (*p_lhs, *p_rhs);
     }
+}
+
+static zval **
+get_ht_entry (zval** p_var, zval* ind TSRMLS_DC)
+{
+  HashTable* ht = extract_ht (p_var TSRMLS_CC);
+
+  zval **data;
+  if (ht_find (ht, ind, &data) == SUCCESS)
+    {
+      assert (data != NULL);
+      return data;
+    }
+
+  // If we dont find it, put EG (uninitialized_zval_ptr) into the
+  // hashtable, and return a pointer to its container.
+  EG (uninitialized_zval_ptr)->refcount++;
+  ht_update (ht, ind, EG (uninitialized_zval_ptr), &data);
+
+  assert (data != NULL);
+
+  return data;
 }
 
 static zval **
@@ -620,7 +652,7 @@ write_array (HashTable * st, zval ** p_var, zval * ind, zval ** p_rhs,
 
       rhs->refcount++;
 
-      ht_update (ht, ind, rhs);
+      ht_update (ht, ind, rhs, NULL);
     }
   else
     {
@@ -674,6 +706,7 @@ write_var_reference (HashTable * st, zval ** p_lhs,
   *p_lhs = *p_rhs;
 }
 
+
 /* Potentially change-on-write VAR_NAME1, contained in
  * the variable P_VAR1. If P_VAR1 is in the copy-on-write
  * set, separate it, and write it back as VAR_NAME2,
@@ -699,7 +732,7 @@ write_array_reference (HashTable * st,
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the index
-  ht_update (ht, ind, zvp);
+  ht_update (ht, ind, zvp, NULL);
 }
 
 static zval **
@@ -760,7 +793,7 @@ fetch_array_arg_by_ref (HashTable * st, zval ** p_var, zval * ind,
     {
       // The argument needs to be put into the array. Add it, and set
       // p_arg to point to the bucket containing it.
-      ht_update (ht, ind, EG (uninitialized_zval_ptr));
+      ht_update (ht, ind, EG (uninitialized_zval_ptr), NULL);
       int result = ht_find (ht, ind, &p_arg);
       assert (result == SUCCESS);
       return p_arg;
