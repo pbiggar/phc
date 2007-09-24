@@ -465,10 +465,10 @@ static void
 write_var (HashTable * st, zval ** p_lhs,
 	   zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-  if (*p_lhs != EG (uninitialized_zval_ptr))
-    {
-      sep_copy_on_write_ex (p_lhs TSRMLS_CC);
-    }
+//  if (*p_lhs != EG (uninitialized_zval_ptr))
+//    {
+//      sep_copy_on_write_ex (p_lhs TSRMLS_CC);
+//   }
 
 
   if (!(*p_lhs)->is_ref)
