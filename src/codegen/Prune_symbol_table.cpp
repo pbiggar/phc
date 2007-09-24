@@ -67,6 +67,7 @@ void Prune_symbol_table::pre_method_invocation (AST_method_invocation* in)
 		// Since eval, include etc are builtin, and cant be called as
 		// variable variables, its actually safe to prune here.
 	}
+}
 
 
 void Prune_symbol_table::post_variable_name (Token_variable_name* in)
