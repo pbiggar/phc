@@ -1685,7 +1685,6 @@ public:
 			<< "			NULL TSRMLS_CC);\n"
 			<< "// Call the function\n"
 			<< "int success;\n"	
-			//<< "MAKE_STD_ZVAL(rhs);\n"
 			<< "success = call_user_function_ex(EG(function_table), " 
 			<< "					NULL, function_name_ptr, &rhs, " 
 			<<						num_args << ", args_ind, "
@@ -1818,6 +1817,11 @@ public:
 		return new AST_unary_op(op, expr);
 	}
 
+	virtual bool fixed ()
+	{
+		return true;
+	}
+
 	void generate_rhs()
 	{
 		assert(
@@ -1825,16 +1829,24 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		declare ("expr");
-		read (LOCAL, "expr", expr->value);
+		read_simple (LOCAL, "expr", get_var_name (expr->value));
+
+		code
+			<< "if (in_copy_on_write (*p_lhs))\n"
+			<< "{\n"
+			<< "	zval_ptr_dtor (p_lhs);\n"
+			<< "	ALLOC_INIT_ZVAL (*p_lhs);\n"
+			<< "}\n"
+			<< "zval old = **p_lhs;\n"
+			<< "int result_is_operand = (*p_lhs == expr)\n;";
 
 		code 
-			<< "MAKE_STD_ZVAL(rhs);\n"
-			<< "is_rhs_new = 1;\n"
-			<< op_fn << "(rhs, expr TSRMLS_CC);\n"
-			;
+			<< op_fn << "(*p_lhs, expr TSRMLS_CC);\n" ;
 
-		cleanup ("expr");
+		code
+			<< "if (!result_is_operand)\n"
+			<<		"zval_dtor (&old);\n";
+
 	}
 
 protected:
