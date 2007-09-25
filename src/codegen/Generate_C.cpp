@@ -287,7 +287,6 @@ void write (Scope scope, string zvp, AST_variable* var)
 
 				code
 					<< "write_array ("
-					<<		get_scope (scope) << ", "
 					<<		"w_array, "
 					<<		"wa_index, "
 					<<		"&" << zvp << ", "
@@ -300,10 +299,9 @@ void write (Scope scope, string zvp, AST_variable* var)
 				code
 					<< "// Array pushing\n"
 					<< "push_var ("
-					<<		get_scope (scope) << ", "
 					<<		"w_array, "
-					<<		"&" << zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
+					<<		"&" << zvp << " "
+					<<		" TSRMLS_CC);\n";
 			}
 		}
 		else
@@ -312,7 +310,6 @@ void write (Scope scope, string zvp, AST_variable* var)
 			code 
 				<< "// Normal assignment\n"
 				<< "write_var (" 
-				<<		get_scope (scope) << ", "
 				<<		"w_var, "
 				<<		"&" << zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
@@ -355,7 +352,6 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 				read_simple (scope, "sa_index", get_var_name (var->array_indices->front ()));
 				code
 					<< "separate_array_entry ("
-					<<		get_scope (scope) << ", "
 					<<		"sep_var, "
 					<<		"sa_index, "
 					<<		"&" << zvp << ", "
@@ -372,9 +368,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			assert (var->array_indices->size() == 0);
 			code 
 				<< "separate_var (" 
-				<<		get_scope (scope) << ", "
-				<<		"sep_var, "
-				<<		"&is_" << zvp << "_new "
+				<<		"sep_var "
 				<< " TSRMLS_CC);\n";
 
 			// TODO this can be removed when we move to zval**s instead
@@ -418,20 +412,19 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 
 				code
 					<< "write_array_reference ("
-					<<		get_scope (scope) << ", "
 					<<		"ref_var, "
 					<<		"war_index, "
-					<<		"&" << zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n"
+					<<		"&" << zvp
+					<<		" TSRMLS_CC);\n"
 				;
 			}
 			else
 			{
 				code 
 					<< "push_var_reference (" 
-					<<		get_scope (scope) << ", "
 					<<		"ref_var, "
-					<<		"&" << zvp << ", &is_" << zvp << "_new TSRMLS_CC);\n";
+					<<		"&" << zvp 
+					<<		" TSRMLS_CC);\n";
 			}
 		}
 		else
@@ -440,10 +433,9 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 			code 
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
-				<<		get_scope (scope) << ", "
 				<<		"ref_var, "
-				<<		"&" << zvp << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
+				<<		"&" << zvp
+				<<		" TSRMLS_CC);\n";
 		}
 	}
 	else
@@ -542,7 +534,6 @@ void read (Scope scope, string zvp, AST_expr* expr)
 
 				code
 					<< zvp << " = read_array (" 
-					<<		get_scope (scope) << ", "
 					<<		"r_array, "
 					<<		"ra_index, "
 					<<		"&is_" << zvp << "_new "
@@ -1104,73 +1095,6 @@ protected:
 	Wildcard<AST_variable>* lhs;
 };
 
-/* An optimization for
- *		$str = $str . "string";
- *
- *	We pass the rhs as both arguments, and concat_function calls a
- *	realloc. The old way is to give it new memory, and have it copy
- *	both strings in, then clean up the old one.
- */
-class Str_cat : public Pattern
-{
-	bool match(AST_statement* that)
-	{
-		left = new Wildcard<AST_variable>;
-		Token_op* op = new Token_op (new String ("."));
-		right = new Wildcard<AST_variable>;
-		lhs = new Wildcard<AST_variable>;
-		AST_expr* rhs = new AST_bin_op (left, op, right); 
-
-		agn = new AST_assignment(lhs, /* ignored */ false, rhs);
-		bool match = that->match(new AST_eval_expr(agn));
-		if (!match)
-			return false;
-
-		Token_variable_name* left_var_name = dynamic_cast <Token_variable_name*> (left->value->variable_name);
-		Token_variable_name* lhs_var_name = dynamic_cast <Token_variable_name*> (lhs->value->variable_name);
-		if (left_var_name == NULL or lhs_var_name == NULL)
-			return false;
-
-		return (*left_var_name->value == *lhs_var_name->value);
-	}
-
-	void generate_code(Generate_C* gen)
-	{
-		// Open local scope and create a zval* to hold the RHS result
-		code << "{\n";
-
-		string op_fn = op_functions["."]; 
-
-		declare ("left");
-		declare ("right");
-		read (LOCAL, "left", left->value);
-		read (LOCAL, "right", right->value);
-
-		code 
-			<< "if (left == EG (uninitialized_zval_ptr))\n"
-			<< "{\n";
-		separate (LOCAL, "left", left->value);
-		code
-			<< "}\n";
-
-		code << op_fn << "(left, left, right TSRMLS_CC);\n";
-
-		cleanup ("left");
-		cleanup ("right");
-
-		// close local scope
-		code << "}\n";
-
-		code << "phc_check_invariants (TSRMLS_C);\n";
-	}
-
-protected:
-	AST_assignment* agn;
-	Wildcard<AST_variable>* lhs;
-	Wildcard<AST_variable>* left;
-	Wildcard<AST_variable>* right;
-};
-
 /*
  * Assign_literal is another virtual class, and corresponds to
  * assigning an int, bool, etc. all of which inherit from
@@ -1623,7 +1547,6 @@ public:
 
 				code
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
-					<<				get_scope (LOCAL) << ", "
 					<<				"arg, "
 					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
@@ -1637,7 +1560,6 @@ public:
 
 				code
 					<< "  args[" << index << "] = fetch_array_arg ("
-					<<				get_scope (LOCAL) << ", "
 					<<				"arg, "
 					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
@@ -1658,7 +1580,6 @@ public:
 				read_st (LOCAL, "p_arg", var_name);
 				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-					<<				get_scope (LOCAL) << ", "
 					<<				"p_arg TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					<< "}\n"
@@ -1669,7 +1590,6 @@ public:
 
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
-					<<				get_scope (LOCAL) << ", "
 					<<				"arg, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
@@ -1958,7 +1878,6 @@ class Unset : public Pattern
 
 				code
 					<< "unset_array ("
-					<<		get_scope (LOCAL) << ", "
 					<<    "u_array, "
 					<<    "u_index "
 					<<		" TSRMLS_CC);\n";
@@ -2011,7 +1930,6 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Eval()
 	,	new Exit()
 	,	new Method_invocation()
-//	,	new Str_cat()
 	,	new Bin_op()
 	,	new Unary_op()
 	,	new Label()
