@@ -35,9 +35,15 @@ zvp_clone_ex (zval ** p_zvp)
 }
 
 static int
-in_copy_on_write (zval* zvp)
+in_copy_on_write (zval * zvp)
 {
   return (zvp->refcount > 1 && !zvp->is_ref);
+}
+
+static int
+in_change_on_write (zval * zvp)
+{
+  return (zvp->refcount > 1 && zvp->is_ref);
 }
 
 /* If *P_ZVP is in a copy-on-write set, separate it by overwriting
@@ -46,7 +52,7 @@ in_copy_on_write (zval* zvp)
 static void
 sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
 {
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+  if (!in_copy_on_write (*p_zvp))
     return;
 
   zval *old = *p_zvp;
@@ -62,7 +68,7 @@ sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
 static void
 sep_change_on_write (zval ** p_zvp TSRMLS_DC)
 {
-  if (!((*p_zvp)->refcount > 1 && (*p_zvp)->is_ref))
+  if (!in_change_on_write (*p_zvp))
     return;
 
   zval *old = *p_zvp;
@@ -70,6 +76,46 @@ sep_change_on_write (zval ** p_zvp TSRMLS_DC)
   zvp_clone_ex (p_zvp);
 
   zval_ptr_dtor (&old);
+}
+
+
+static zval *
+read_string_index (zval * var, zval * ind TSRMLS_DC)
+{
+  assert (Z_TYPE_P (var) == IS_STRING);
+  long index;
+  switch (Z_TYPE_P (ind))
+    {
+    case IS_DOUBLE:
+      index = (long) Z_DVAL_P (ind);
+      break;
+
+    case IS_LONG:
+    case IS_BOOL:
+      index = Z_LVAL_P (ind);
+      break;
+
+    default:
+      php_error_docref (NULL TSRMLS_CC, E_WARNING, "Illegal offset type");
+
+    case IS_NULL:
+      index = 0;
+      break;
+    }
+
+  zval *result;
+  ALLOC_INIT_ZVAL (result);
+
+  if (index >= Z_STRLEN_P (var))
+    {
+      ZVAL_STRINGL (result, "", 0, 1);
+    }
+  else
+    {
+      char *string = Z_STRVAL_P (var);
+      ZVAL_STRINGL (result, &string[index], 1, 1);
+    }
+  return result;
 }
 
 // Extract the hashtable from a hash-valued zval
@@ -152,13 +198,13 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
 
 // Update a hashtable using a zval* index
 static void
-ht_update (HashTable * ht, zval * ind, zval * val, zval*** dest)
+ht_update (HashTable * ht, zval * ind, zval * val, zval *** dest)
 {
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
       int result = zend_hash_index_update (ht, Z_LVAL_P (ind), &val,
-					   sizeof (zval *), 
-					   (void**) dest);
+					   sizeof (zval *),
+					   (void **) dest);
       assert (result == SUCCESS);
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
@@ -169,16 +215,16 @@ ht_update (HashTable * ht, zval * ind, zval * val, zval*** dest)
       index->type = ind->type;
       convert_to_long (index);
       int result = zend_hash_index_update (ht, Z_LVAL_P (index),
-					   &val, sizeof (zval *), 
-					   (void**) dest);
+					   &val, sizeof (zval *),
+					   (void **) dest);
       assert (result == SUCCESS);
       zval_ptr_dtor (&index);
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
       int result =
-	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *), 
-			  (void**) dest);
+	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *),
+			  (void **) dest);
       assert (result == SUCCESS);
     }
   else
@@ -189,12 +235,12 @@ ht_update (HashTable * ht, zval * ind, zval * val, zval*** dest)
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      int result = zend_symtable_update (ht, 
+      int result = zend_symtable_update (ht,
 					 Z_STRVAL_P (string_index),
 					 Z_STRLEN_P (string_index) + 1,
 					 &val,
-					 sizeof (zval *), 
-					 (void**) dest);
+					 sizeof (zval *),
+					 (void **) dest);
 
       assert (result == SUCCESS);
       zval_ptr_dtor (&string_index);
@@ -418,7 +464,7 @@ phc_setup_error (int init, char *filename, int line_number,
 static void
 sep_copy_on_write (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 {
-  if (!((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+  if (!in_copy_on_write (*p_zvp))
     return;
 
   zval *old = *p_zvp;
@@ -443,7 +489,6 @@ separate_var (HashTable * st, zval ** p_var, int *is_var_new TSRMLS_DC)
   sep_copy_on_write_ex (p_var TSRMLS_CC);
 }
 
-
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
 // See "Separation anxiety" in the PHP book
 static void
@@ -455,8 +500,7 @@ separate_array_entry (HashTable * st, zval ** p_var,
    * is_ref) However, if the RHS is in a copy-on-write set
    * (refcount > 1 but not is_ref), it must be seperated
    * first */
-  if ((*p_zvp) != EG (uninitialized_zval_ptr)
-      && !((*p_zvp)->refcount > 1 && !(*p_zvp)->is_ref))
+  if ((*p_zvp) != EG (uninitialized_zval_ptr) && !in_copy_on_write (*p_zvp))
     return;
 
   zvp_clone (p_zvp, is_zvp_new);
@@ -475,12 +519,6 @@ static void
 write_var (HashTable * st, zval ** p_lhs,
 	   zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
-//  if (*p_lhs != EG (uninitialized_zval_ptr))
-//    {
-//      sep_copy_on_write_ex (p_lhs TSRMLS_CC);
-//   }
-
-
   if (!(*p_lhs)->is_ref)
     {
       if ((*p_rhs)->is_ref)
@@ -500,9 +538,9 @@ write_var (HashTable * st, zval ** p_lhs,
 }
 
 static zval **
-get_ht_entry (zval** p_var, zval* ind TSRMLS_DC)
+get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 {
-  HashTable* ht = extract_ht (p_var TSRMLS_CC);
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   zval **data;
   if (ht_find (ht, ind, &data) == SUCCESS)
@@ -589,19 +627,23 @@ read_var_var (HashTable * st, zval * refl TSRMLS_DC)
 }
 
 static zval *
-read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
+read_array (HashTable * st, zval * var, zval * ind,
+	    int *is_result_new TSRMLS_DC)
 {
-  // No memory at all is allocated in this function.
+  // Memory can be allocated in read_string_index
   if (var == EG (uninitialized_zval_ptr))
     return var;
 
-  // turn it into an array
   if (Z_TYPE_P (var) != IS_ARRAY)
     {
-      // TODO IS_STRING
-      assert (Z_TYPE_P (var) != IS_STRING);
+      if (Z_TYPE_P (var) == IS_STRING)
+	{
+	  *is_result_new = 1;
+	  return read_string_index (var, ind TSRMLS_CC);
+	}
       return EG (uninitialized_zval_ptr);
     }
+
 
   // Since we know its an array, and we dont write to it, we dont need
   // to separate it.
@@ -618,8 +660,9 @@ read_array (HashTable * st, zval * var, zval * ind TSRMLS_DC)
 static zval *
 read_var_array (HashTable * st, zval * refl, zval * ind TSRMLS_DC)
 {
+  // TODO
   zval *var = read_var_var (st, refl TSRMLS_CC);
-  return read_array (st, var, ind TSRMLS_CC);
+  return read_array (st, var, ind, NULL TSRMLS_CC);
 }
 
 /* Write P_RHS into p_var, indexed by IND. Although st is unused, it
@@ -634,6 +677,7 @@ write_array (HashTable * st, zval ** p_var, zval * ind, zval ** p_rhs,
   zval *rhs = *p_rhs;
 
   // if its not an array, make it an array
+  assert (Z_TYPE_PP (p_var) != IS_STRING);	// TODO unimplemented
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the var
@@ -780,6 +824,7 @@ fetch_array_arg_by_ref (HashTable * st, zval ** p_var, zval * ind,
 			int *is_arg_new TSRMLS_DC)
 {
   // if its not an array, make it an array
+  assert (Z_TYPE_PP (p_var) != IS_STRING);	// TODO unimplemented
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the var
@@ -827,6 +872,11 @@ fetch_array_arg (HashTable * st, zval * var, zval * ind,
 
   if (Z_TYPE_P (var) != IS_ARRAY)
     {
+      if (Z_TYPE_P (var) == IS_STRING)
+	{
+	  *is_arg_new = 1;
+	  return read_string_index (var, ind TSRMLS_CC);
+	}
       return EG (uninitialized_zval_ptr);
     }
 
