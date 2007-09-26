@@ -1432,39 +1432,44 @@ public:
 		Token_method_name* name;
 		name = dynamic_cast<Token_method_name*>(rhs->value->method_name);
 
-		if(name != NULL)
-		{
-			code
-			<< "// Create zval to hold function name\n"
-			<< "zval function_name;\n"
-			<< "INIT_PZVAL(&function_name);\n"
-			<< "ZVAL_STRING(&function_name, "
-			<<		"\"" << *name->value << "\", "
-			<<		"0);\n"
-			<< "zval* function_name_ptr;\n"
-			<< "function_name_ptr = &function_name;\n"
-			;
-		}
-		else
-		{
-			assert(0);
-		}
-	
+		assert (name != NULL);
+
 		int num_args = rhs->value->actual_parameters->size();
 
-		// Figure out which parameters need to be passed by reference
 		code
-		<< "zend_function* signature;\n"
-		<< "zend_is_callable_ex(function_name_ptr, 0, NULL, NULL, NULL, &signature, NULL TSRMLS_CC);\n"
+			<<	"// Create zval to hold function name\n"
+			<<	"zval function_name;\n"
+			<<	"INIT_PZVAL(&function_name);\n"
+			<<	"ZVAL_STRING(&function_name, "
+			<<		"\"" << *name->value << "\", "
+			<<		"0);\n"
+			<<	"zval* function_name_ptr = &function_name;\n"
+
+			<< "static zend_function* signature = NULL;\n"
+			<< "if (signature == NULL)\n"
+			<< "{\n"
+			<<		"// Create zval to hold function name\n"
+			<<		"zval function_name;\n"
+			<<		"INIT_PZVAL(&function_name);\n"
+			<<		"ZVAL_STRING(&function_name, "
+			<<			"\"" << *name->value << "\", "
+			<<			"0);\n"
+			<<		"function_name_ptr = &function_name;\n"
+			<<		"zend_is_callable_ex(function_name_ptr, 0, NULL,"
+			<<									"NULL, NULL, "
+			<<									"&signature, NULL TSRMLS_CC);\n"
+			<< "}\n"
 
 		// check for non-existant functions
-		<< "if (signature == NULL) {\n"
-		<< "	phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << ", NULL TSRMLS_CC);\n"
-		<< "	php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
-		<< "	phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
-		<<	"}\n";
+			<< "if (signature == NULL)\n"
+			<< "{\n"
+			<<		"phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << ", NULL TSRMLS_CC);\n"
+			<<		"php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
+			<<		"phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
+			<<	"}\n";
 
 
+		// Figure out which parameters need to be passed by reference
 		if (num_args)
 		{
 			code
@@ -1475,7 +1480,6 @@ public:
 
 		// TODO: Not 100% this is fully correct; in particular, 
 		// pass_rest_by_reference does not seem to work.
-		// code << "printf(\"\\ncalling %s\\n\", signature->common.function_name);\n";
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
 			i != rhs->value->actual_parameters->end(); 
