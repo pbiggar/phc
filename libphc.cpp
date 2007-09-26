@@ -82,6 +82,8 @@ sep_change_on_write (zval ** p_zvp TSRMLS_DC)
 static zval *
 read_string_index (zval * var, zval * ind TSRMLS_DC)
 {
+  // This must always allocate memory, since we cant return the
+  // passed string.
   assert (Z_TYPE_P (var) == IS_STRING);
   long index;
   switch (Z_TYPE_P (ind))
@@ -166,20 +168,21 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
     {
-      zval *index;
-      MAKE_STD_ZVAL (index);
-      index->value = ind->value;
-      index->type = ind->type;
-      convert_to_long (index);
-      result = zend_hash_index_find (ht, Z_LVAL_P (index), (void **) data);
-      zval_ptr_dtor (&index);
+      result = zend_hash_index_find (ht, (long) Z_DVAL_P (ind),
+				     (void **) data);
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
-      result = zend_symtable_find (ht, "", sizeof (""), (void **)data);
+      result = zend_hash_find (ht, "", sizeof (""), (void **)data);
+    }
+  else if (Z_TYPE_P (ind) == IS_STRING)
+    {
+      result = zend_symtable_find (ht, Z_STRVAL_P (ind),
+				   Z_STRLEN_P (ind) + 1, (void **) data);
     }
   else
     {
+      // TODO avoid alloc
       // use a string index for other types
       zval *string_index;
       MAKE_STD_ZVAL (string_index);
@@ -188,9 +191,9 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
 
-      result =
-	zend_symtable_find (ht, Z_STRVAL_P (string_index),
-			    Z_STRLEN_P (string_index) + 1, (void **) data);
+      result = zend_symtable_find (ht, Z_STRVAL_P (string_index),
+				   Z_STRLEN_P (string_index) + 1,
+				   (void **) data);
       zval_ptr_dtor (&string_index);
     }
   return result;
@@ -200,94 +203,82 @@ ht_find (HashTable * ht, zval * ind, zval *** data)
 static void
 ht_update (HashTable * ht, zval * ind, zval * val, zval *** dest)
 {
+  int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
-      int result = zend_hash_index_update (ht, Z_LVAL_P (ind), &val,
-					   sizeof (zval *),
-					   (void **) dest);
-      assert (result == SUCCESS);
+      result = zend_hash_index_update (ht, Z_LVAL_P (ind), &val,
+				       sizeof (zval *), (void **) dest);
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
     {
-      zval *index;
-      MAKE_STD_ZVAL (index);
-      index->value = ind->value;
-      index->type = ind->type;
-      convert_to_long (index);
-      int result = zend_hash_index_update (ht, Z_LVAL_P (index),
-					   &val, sizeof (zval *),
-					   (void **) dest);
-      assert (result == SUCCESS);
-      zval_ptr_dtor (&index);
+      result = zend_hash_index_update (ht, (long) Z_DVAL_P (ind),
+				       &val, sizeof (zval *), (void **) dest);
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
-      int result =
-	zend_hash_update (ht, "", sizeof (""), &val, sizeof (zval *),
-			  (void **) dest);
-      assert (result == SUCCESS);
+      result = zend_hash_update (ht, "", sizeof (""), &val,
+				 sizeof (zval *), (void **) dest);
+    }
+  else if (Z_TYPE_P (ind) == IS_STRING)
+    {
+      result = zend_symtable_update (ht, Z_STRVAL_P (ind),
+				     Z_STRLEN_P (ind) + 1,
+				     &val, sizeof (zval *), (void **) dest);
     }
   else
     {
+      // TODO avoid alloc
       zval *string_index;
       MAKE_STD_ZVAL (string_index);
       string_index->value = ind->value;
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      int result = zend_symtable_update (ht,
-					 Z_STRVAL_P (string_index),
-					 Z_STRLEN_P (string_index) + 1,
-					 &val,
-					 sizeof (zval *),
-					 (void **) dest);
+      result = zend_symtable_update (ht, Z_STRVAL_P (string_index),
+				     Z_STRLEN_P (string_index) + 1,
+				     &val, sizeof (zval *), (void **) dest);
 
-      assert (result == SUCCESS);
       zval_ptr_dtor (&string_index);
     }
+  assert (result == SUCCESS);
 }
 
 // Delete from a hashtable using a zval* index
 static void
 ht_delete (HashTable * ht, zval * ind)
 {
+  int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
-      int result = zend_hash_index_del (ht, Z_LVAL_P (ind));
-      assert (result == SUCCESS);
+      result = zend_hash_index_del (ht, Z_LVAL_P (ind));
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
     {
-      zval *index;
-      MAKE_STD_ZVAL (index);
-      index->value = ind->value;
-      index->type = ind->type;
-      convert_to_long (index);
-
-      int result = zend_hash_index_del (ht, Z_LVAL_P (index));
-      assert (result == SUCCESS);
-
-      zval_ptr_dtor (&index);
+      result = zend_hash_index_del (ht, (long) Z_DVAL_P (ind));
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
-      int result = zend_hash_del (ht, "", sizeof (""));
-      assert (result == SUCCESS);
+      result = zend_hash_del (ht, "", sizeof (""));
+    }
+  else if (Z_TYPE_P (ind) == IS_STRING)
+    {
+      result = zend_hash_del (ht, Z_STRVAL_P (ind), Z_STRLEN_P (ind) + 1);
     }
   else
     {
+      // TODO avoid alloc
       zval *string_index;
       MAKE_STD_ZVAL (string_index);
       string_index->value = ind->value;
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      int result = zend_hash_del (ht, Z_STRVAL_P (string_index),
-				  Z_STRLEN_P (string_index) + 1);
+      result = zend_hash_del (ht, Z_STRVAL_P (string_index),
+			      Z_STRLEN_P (string_index) + 1);
 
-      assert (result == SUCCESS);
       zval_ptr_dtor (&string_index);
     }
+  assert (result == SUCCESS);
 }
 
 
@@ -515,8 +506,7 @@ separate_array_entry (zval ** p_var,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-write_var (zval ** p_lhs,
-	   zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
+write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 {
   if (!(*p_lhs)->is_ref)
     {
@@ -616,8 +606,7 @@ read_var_var (HashTable * st, zval * refl TSRMLS_DC)
 }
 
 static zval *
-read_array (zval * var, zval * ind,
-	    int *is_result_new TSRMLS_DC)
+read_array (zval * var, zval * ind, int *is_result_new TSRMLS_DC)
 {
   // Memory can be allocated in read_string_index
   if (var == EG (uninitialized_zval_ptr))
@@ -696,8 +685,7 @@ write_array (zval ** p_var, zval * ind, zval ** p_rhs,
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
-push_var (zval ** p_var, zval ** p_rhs
-	  TSRMLS_DC)
+push_var (zval ** p_var, zval ** p_rhs TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
@@ -715,8 +703,7 @@ push_var (zval ** p_var, zval ** p_rhs
 }
 
 static void
-push_var_reference (zval ** p_var,
-		    zval ** p_rhs TSRMLS_DC)
+push_var_reference (zval ** p_var, zval ** p_rhs TSRMLS_DC)
 {
   (*p_rhs)->is_ref = 1;
   push_var (p_var, p_rhs TSRMLS_CC);
@@ -727,8 +714,7 @@ push_var_reference (zval ** p_var,
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void
-write_var_reference (zval ** p_lhs,
-		     zval ** p_rhs TSRMLS_DC)
+write_var_reference (zval ** p_lhs, zval ** p_rhs TSRMLS_DC)
 {
   // Change-on-write
   (*p_rhs)->is_ref = 1;
@@ -743,9 +729,8 @@ write_var_reference (zval ** p_lhs,
  * the variable P_VAR1. If P_VAR1 is in the copy-on-write
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
-static void			// TODO change function and update 
-write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp
-		       TSRMLS_DC)
+static void
+write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp TSRMLS_DC)
 {
   // Change-on-write
   (*p_zvp)->is_ref = 1;
@@ -769,7 +754,7 @@ write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp
 static zval **
 fetch_var_arg_by_ref (zval ** p_arg TSRMLS_DC)
 {
-  // We are passign by reference
+  // We are passing by reference
   sep_copy_on_write_ex (p_arg TSRMLS_CC);
 
   // We don't need to restore ->is_ref afterwards,
@@ -807,8 +792,7 @@ fetch_var_arg (zval * arg, int *is_arg_new TSRMLS_DC)
 }
 
 static zval **
-fetch_array_arg_by_ref (zval ** p_var, zval * ind,
-			int *is_arg_new TSRMLS_DC)
+fetch_array_arg_by_ref (zval ** p_var, zval * ind, int *is_arg_new TSRMLS_DC)
 {
   // if its not an array, make it an array
   assert (Z_TYPE_PP (p_var) != IS_STRING);	// TODO unimplemented
@@ -851,8 +835,7 @@ fetch_array_arg_by_ref (zval ** p_var, zval * ind,
 
 /* Dont pass-by-ref */
 static zval *
-fetch_array_arg (zval * var, zval * ind,
-		 int *is_arg_new TSRMLS_DC)
+fetch_array_arg (zval * var, zval * ind, int *is_arg_new TSRMLS_DC)
 {
   if (var == EG (uninitialized_zval_ptr))
     return EG (uninitialized_zval_ptr);
