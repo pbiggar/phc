@@ -468,7 +468,7 @@ function homogenize_filenames_and_line_numbers ($string)
 //	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
 
 	// general line number and filename removal
-	$string = preg_replace( "/(Warning: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Warning: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
 	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
 	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
 
