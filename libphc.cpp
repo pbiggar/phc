@@ -34,13 +34,13 @@ zvp_clone_ex (zval ** p_zvp)
   *p_zvp = clone;
 }
 
-static int
+static inline int
 in_copy_on_write (zval * zvp)
 {
   return (zvp->refcount > 1 && !zvp->is_ref);
 }
 
-static int
+static inline int
 in_change_on_write (zval * zvp)
 {
   return (zvp->refcount > 1 && zvp->is_ref);
@@ -59,7 +59,8 @@ sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
 
   zvp_clone_ex (p_zvp);
 
-  zval_ptr_dtor (&old);
+  assert (old->refcount > 1);
+  old->refcount--;
 }
 
 /* If *P_ZVP is in a copy-on-write set, separate it by overwriting
@@ -75,7 +76,8 @@ sep_change_on_write (zval ** p_zvp TSRMLS_DC)
 
   zvp_clone_ex (p_zvp);
 
-  zval_ptr_dtor (&old);
+  assert (old->refcount > 1);
+  old->refcount--;
 }
 
 
@@ -110,7 +112,7 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
 
   if (index >= Z_STRLEN_P (var))
     {
-      ZVAL_STRINGL (result, "", 0, 1);
+      ZVAL_STRINGL (result, "", 0, 0);
     }
   else
     {
@@ -468,7 +470,8 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   else
     {
       zvp_clone (p_zvp, is_zvp_new);
-      zval_ptr_dtor (&old);
+		assert (old->refcount > 1);
+		old->refcount--;
     }
 }
 
@@ -680,6 +683,30 @@ write_array (zval ** p_var, zval * ind, zval ** p_rhs,
     {
       overwrite_lhs (lhs, rhs);
     }
+}
+
+/* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
+ * for it */
+static zval**
+push_and_index_ht (zval** p_var TSRMLS_DC)
+{
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+			"[] operator not supported for strings");
+    }
+
+  // if its not an array, make it an array
+  HashTable *ht = extract_ht (p_var TSRMLS_CC);
+  zval** data;
+
+  EG(uninitialized_zval_ptr)->refcount++;
+  int result = zend_hash_next_index_insert (ht, &EG(uninitialized_zval_ptr), sizeof (zval *), (void**) &data);
+  assert (result == SUCCESS);
+
+  assert (data);
+
+  return data;
 }
 
 
