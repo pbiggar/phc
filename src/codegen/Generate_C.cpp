@@ -449,9 +449,10 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 	}
 }
 
-void index_lhs (Scope scope, string zvp, AST_variable* var)
+void index_lhs (Scope scope, string zvp, AST_expr* expr)
 {
-  Token_variable_name* var_name = get_var_name (var);
+	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	Token_variable_name* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
 	assert (var->target == NULL);
@@ -1840,14 +1841,14 @@ class Return : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		declare ("p_rhs");
-		code 
-			<< "zval* temp;\n"
-			<< "p_rhs = &temp;\n";
-		read (LOCAL, "p_rhs", expr->value);
-
 		if(!gen->return_by_reference)
 		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp;\n"
+				<< "p_rhs = &temp;\n";
+			read (LOCAL, "p_rhs", expr->value);
+
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
 			// function to tell if the run-time return by reference is
@@ -1857,12 +1858,15 @@ class Return : public Pattern
 				<< "return_value->type = (*p_rhs)->type;\n"
 				<< "zval_copy_ctor (return_value);\n"
 				;
+//			cleanup ("p_rhs");
 		}
 		else
 		{
-			separate (LOCAL, "p_rhs", expr->value);
+			// converted into an array
+			index_lhs (LOCAL, "p_rhs", expr->value);
 
 			code
+				<< "sep_copy_on_write_ex (p_rhs TSRMLS_CC);\n"
 				<< "zval_ptr_dtor (return_value_ptr);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
 				<< "(*p_rhs)->refcount++;\n"
@@ -1871,7 +1875,6 @@ class Return : public Pattern
 //		code << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
 		}
-		cleanup ("p_rhs");
 
 		code 
 		<< "goto end_of_function;\n"
