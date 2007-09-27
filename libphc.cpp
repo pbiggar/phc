@@ -408,6 +408,18 @@ overwrite_lhs (zval * lhs, zval * rhs)
   zval_copy_ctor (lhs);
 }
 
+// Overwrite one zval with another
+static void
+overwrite_lhs_no_copy (zval * lhs, zval * rhs)
+{
+  // First, call the destructor to remove any data structures
+  // associated with lhs that will now be overwritten
+  zval_dtor (lhs);
+  // Overwrite LHS
+  lhs->value = rhs->value;
+  lhs->type = rhs->type;
+}
+
 // TODO dont overwrite line numbers if we're compiling an extension
 static void
 phc_setup_error (int init, char *filename, int line_number,
@@ -1010,16 +1022,14 @@ phc_exit (zval * arg TSRMLS_DC)
 
 /* Copies a constant into ZVP. Note that LENGTH does not include the NULL-terminating byte. */
 static void
-get_constant (char *name, int length, zval ** p_zvp,
-	      int *is_zvp_new TSRMLS_DC)
+get_constant (char *name, int length, zval ** p_zvp
+	      TSRMLS_DC)
 {
   MAKE_STD_ZVAL (*p_zvp);
   // zend_get_constant returns 1 for success, not SUCCESS
   int result = zend_get_constant (name, length, *p_zvp TSRMLS_CC);
   if (result == 0)
     ZVAL_STRINGL (*p_zvp, name, length, 1);
-
-  *is_zvp_new = 1;
 }
 
 /* If assertions are off, this should be inlined to nothing */

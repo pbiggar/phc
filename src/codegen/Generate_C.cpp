@@ -1348,6 +1348,8 @@ public:
 		return rhs;
 	}
 
+	bool fixed () { return true; }
+
 	void generate_rhs ()
 	{
 		// Check whether its in the form CONST or CLASS::CONST
@@ -1360,13 +1362,31 @@ public:
 
 		name->append (*rhs->value->constant_name->value);
 
+		// zend_get_constant returns a copy of the constant, so we can
+		// put it in directly for non-reference lhss, and use the
+		// data directly without copying for reference lhss.
 		code
-			<< "get_constant ( "
+			<< "if (!(*p_lhs)->is_ref)\n"
+			<< "{\n"
+			<<		"zval_ptr_dtor (p_lhs);\n"
+			<<		"get_constant ( "
 			<<			"\"" << *name << "\", "
 			<<			name->length() << ", " // exclude NULL-terminator
-			<<			"&rhs, "
-			<<			"&is_rhs_new TSRMLS_CC);\n"
-			;
+			<<			"p_lhs "
+			<<			" TSRMLS_CC);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			// TODO use the constant's data isntead of copying
+			<<		"zval* constant;\n"
+			<<		"get_constant ( "
+			<<			"\"" << *name << "\", "
+			<<			name->length() << ", " // exclude NULL-terminator
+			<<			"&constant "
+			<<			" TSRMLS_CC);\n"
+			<<		"overwrite_lhs (*p_lhs, constant);\n"
+			<<		"zval_dtor (constant);\n"
+			<< "}\n";
 	}
 
 protected:
@@ -2146,7 +2166,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   }\n"
 		"   zend_catch\n"
 		"   {\n"
-		"		dealloc_pools = 0\n"
+		"		dealloc_pools = 0;\n"
 		"   }\n"
 		"   zend_end_try ();\n"
 		"   if (dealloc_pools)\n"
