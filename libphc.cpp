@@ -586,6 +586,17 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   return p_zvp;
 }
 
+static zval **
+get_st_entry_ex (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
+{
+  zval **p_zvp;
+  if (zend_hash_quick_find
+      (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
+    return p_zvp;
+
+   return &EG(uninitialized_zval_ptr);
+}
+
 /* Read the variable named VAR_NAME from the local symbol table and
  * return it. If the variable doent exist, a new one is created and
  * *IS_NEW is set.  */
@@ -604,37 +615,42 @@ read_var (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
  * find the variable which it refers to and return it. If the variable
  * doent exist, a new one is created and *IS_NEW is set.
  * */
-static zval *
+zval **
 read_var_var (HashTable * st, zval * refl TSRMLS_DC)
 {
   // is_new not required, since no vars created.
   if (refl == EG (uninitialized_zval_ptr))
-    return EG (uninitialized_zval_ptr);
+    return &EG (uninitialized_zval_ptr);
 
   zval **p_result;
   if (ht_find (st, refl, &p_result) != SUCCESS)
     {
-      return EG (uninitialized_zval_ptr);
+      return &EG (uninitialized_zval_ptr);
     }
 
-  return *p_result;
+  return p_result;
 }
 
-static zval *
-read_array (zval * var, zval * ind, int *is_result_new TSRMLS_DC)
+void 
+read_array (zval** result, zval * var, zval * ind, int *is_result_new TSRMLS_DC)
 {
   // Memory can be allocated in read_string_index
   if (var == EG (uninitialized_zval_ptr))
-    return var;
+  {
+     *result = var;
+    return ;
+  }
 
   if (Z_TYPE_P (var) != IS_ARRAY)
     {
       if (Z_TYPE_P (var) == IS_STRING)
 	{
 	  *is_result_new = 1;
-	  return read_string_index (var, ind TSRMLS_CC);
+	  *result = read_string_index (var, ind TSRMLS_CC);
+	  return;
 	}
-      return EG (uninitialized_zval_ptr);
+      *result = EG (uninitialized_zval_ptr);
+      return;
     }
 
 
@@ -643,19 +659,22 @@ read_array (zval * var, zval * ind, int *is_result_new TSRMLS_DC)
   HashTable *ht = Z_ARRVAL_P (var);
 
   // find the result
-  zval **p_result;
+  zval** p_result;
   if (ht_find (ht, ind, &p_result) == SUCCESS)
-    return *p_result;
+  {
+     *result = *p_result;
+     return;
+  }
 
-  return EG (uninitialized_zval_ptr);
+  *result = EG (uninitialized_zval_ptr);
 }
 
-static zval *
-read_var_array (HashTable * st, zval * refl, zval * ind TSRMLS_DC)
+void
+read_var_array (HashTable * st, zval** result, zval * refl, zval * ind TSRMLS_DC)
 {
   // TODO add an is_x_new parameter
-  zval *var = read_var_var (st, refl TSRMLS_CC);
-  return read_array (var, ind, NULL TSRMLS_CC);
+  zval **p_var = read_var_var (st, refl TSRMLS_CC);
+  read_array (result, *p_var, ind, NULL TSRMLS_CC);
 }
 
 /* Write P_RHS into p_var, indexed by IND. Although st is unused, it
@@ -775,8 +794,6 @@ write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp TSRMLS_DC)
   (*p_zvp)->is_ref = 1;
   (*p_zvp)->refcount++;
 
-  zval *zvp = *p_zvp;
-
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
@@ -787,7 +804,7 @@ write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp TSRMLS_DC)
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   // find the index
-  ht_update (ht, ind, zvp, NULL);
+  ht_update (ht, ind, *p_zvp, NULL);
 }
 
 static zval **

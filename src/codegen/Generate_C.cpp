@@ -165,7 +165,7 @@ string get_hash (Token_variable_name* name)
 void declare (string var)
 {
 	code 
-		<< "zval* " << var << ";\n"
+		<< "zval** " << var << ";\n"
 		<< "int is_" << var << "_new = 0;\n";
 }
 
@@ -173,7 +173,7 @@ void cleanup (string target)
 {
 	code
 		<< "if (is_" << target << "_new)\n"
-		<< "  zval_ptr_dtor (&" << target << ");\n";
+		<< "  zval_ptr_dtor (" << target << ");\n";
 }
 
 String* get_non_st_name (Token_variable_name* var_name)
@@ -289,7 +289,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<< "write_array ("
 					<<		"w_array, "
 					<<		"wa_index, "
-					<<		"&" << zvp << ", "
+					<<		zvp << ", "
 					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 			}
 			else
@@ -300,7 +300,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 					<< "// Array pushing\n"
 					<< "push_var ("
 					<<		"w_array, "
-					<<		"&" << zvp << " "
+					<<		zvp << " "
 					<<		" TSRMLS_CC);\n";
 			}
 		}
@@ -311,7 +311,7 @@ void write (Scope scope, string zvp, AST_variable* var)
 				<< "// Normal assignment\n"
 				<< "write_var (" 
 				<<		"w_var, "
-				<<		"&" << zvp << ", "
+				<<		zvp << ", "
 				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
 		}
 	}
@@ -336,8 +336,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 	// if its new, check it wont separate
 	code 
 		<< "if (is_" << zvp << "_new)\n"
-		<<	"	assert (!(" << zvp << "->refcount > 1 "
-		<<	"		&& !" << zvp << "->is_ref));\n";
+		<<	"	assert (!in_copy_on_write (*" << zvp << "));\n";
 
 	assert(var->target == NULL);
 
@@ -354,7 +353,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 					<< "separate_array_entry ("
 					<<		"sep_var, "
 					<<		"sa_index, "
-					<<		"&" << zvp << ", "
+					<<		zvp << ", "
 					<<		"&is_" << zvp << "_new "
 					<<		" TSRMLS_CC);\n";
 			}
@@ -374,7 +373,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 			// TODO this can be removed when we move to zval**s instead
 			// of zval*s for rhss
 			code 
-				<< zvp << " = *sep_var;\n";
+				<< zvp << " = sep_var;\n";
 		}
 	}
 	else
@@ -414,7 +413,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 					<< "write_array_reference ("
 					<<		"ref_var, "
 					<<		"war_index, "
-					<<		"&" << zvp
+					<<		zvp
 					<<		" TSRMLS_CC);\n"
 				;
 			}
@@ -423,7 +422,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				code 
 					<< "push_var_reference (" 
 					<<		"ref_var, "
-					<<		"&" << zvp 
+					<<		zvp 
 					<<		" TSRMLS_CC);\n";
 			}
 		}
@@ -434,7 +433,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				<< "// Normal Reference Assignment\n"
 				<< "write_var_reference (" 
 				<<		"ref_var, "
-				<<		"&" << zvp
+				<<		zvp
 				<<		" TSRMLS_CC);\n";
 		}
 	}
@@ -533,7 +532,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				read_simple (scope, "ra_index", get_var_name (var->array_indices->front ()));
 
 				code
-					<< zvp << " = read_array (" 
+					<< "read_array ("
+					<<		zvp << ", "
 					<<		"r_array, "
 					<<		"ra_index, "
 					<<		"&is_" << zvp << "_new "
@@ -553,7 +553,7 @@ void read (Scope scope, string zvp, AST_expr* expr)
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = " << *name << ";\n"; 
+				<< zvp << " = &" << *name << ";\n"; 
 		}
 	}
 	else
@@ -574,8 +574,9 @@ void read (Scope scope, string zvp, AST_expr* expr)
 				read_simple (scope, "refl_index", get_var_name (var->array_indices->front ()));
 
 				code
-					<< zvp << " = read_var_array (" 
+					<< "read_var_array ("
 					<<		get_scope (scope) << ", "
+					<<		zvp << ", " 
 					<<		"refl, "
 					<<		"refl_index "
 					<<		" TSRMLS_CC);\n";
@@ -608,14 +609,14 @@ void global (AST_variable_name* var_name)
 					new List < AST_expr * >());
 
 	code << "{\n";
-	declare ("global_var");
+	declare ("p_global_var");
 	// TODO this isnt necessary
-	read (GLOBAL, "global_var", var);
+	read (GLOBAL, "p_global_var", var);
 
 	// TODO should separate be done lazily? Is this even correct?
-	separate (GLOBAL, "global_var", var);
-	write_reference (LOCAL, "global_var", var);
-	cleanup ("global_var");
+	separate (GLOBAL, "p_global_var", var);
+	write_reference (LOCAL, "p_global_var", var);
+	cleanup ("p_global_var");
 	code << "}\n";
 }
 
@@ -961,11 +962,11 @@ public:
 	{
 		code
 			<< "{\n";
-		declare ("cond");
-		read (LOCAL, "cond", cond->value);
+		declare ("p_cond");
+		read (LOCAL, "p_cond", cond->value);
 		code 
-			<< "zend_bool bcond = zend_is_true(cond);\n";
-		cleanup ("cond");
+			<< "zend_bool bcond = zend_is_true (*p_cond);\n";
+		cleanup ("p_cond");
 		code 
 			<< "if (bcond)\n"
 			<< "	goto " << *iftrue->value->value << ";\n"
@@ -1058,30 +1059,33 @@ public:
 		}
 		else
 		{
-			declare ("rhs");
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
 
 			// Generate code for the RHS
 			generate_rhs();
 
 			// write it back to the lhs
 			if(!agn->is_ref)
-				write (LOCAL, "rhs", lhs->value);
+				write (LOCAL, "p_rhs", lhs->value);
 			else
 			{
 				// this must be a copy
 				Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
 				if (rhs)
 				{
-					separate (LOCAL, "rhs", rhs->value);
+					separate (LOCAL, "p_rhs", rhs->value);
 				}
 				else
 				{
 					// method_invocations separate before they return, so no need.
 					assert (dynamic_cast<Wildcard<AST_method_invocation>*> (agn->expr));
 				}
-				write_reference (LOCAL, "rhs", lhs->value);
+				write_reference (LOCAL, "p_rhs", lhs->value);
 			}
-			cleanup ("rhs");
+			cleanup ("p_rhs");
 		}
 
 
@@ -1294,7 +1298,7 @@ public:
 
 	void generate_rhs()
 	{
-		read (LOCAL, "rhs", rhs->value);
+		read (LOCAL, "p_rhs", rhs->value);
 	}
 
 protected:
@@ -1315,7 +1319,7 @@ public:
 	virtual void generate_rhs ()
 	{
 		Copy::generate_rhs ();
-		code << "cast_var (&rhs, &is_rhs_new, IS_ARRAY TSRMLS_CC);\n";
+		code << "cast_var (p_rhs, &is_p_rhs_new, IS_ARRAY TSRMLS_CC);\n";
 	}
 };
 
@@ -1376,7 +1380,6 @@ public:
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
-			// TODO use the constant's data isntead of copying
 			<<		"zval* constant;\n"
 			<<		"get_constant ( "
 			<<			"\"" << *name << "\", "
@@ -1411,7 +1414,7 @@ class Eval : public Assignment
 		code << "{\n";
 
 		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value));
-		code << "eval (eval_arg, &rhs, &is_rhs_new TSRMLS_CC);\n";
+		code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 
 		code << "}\n" ;
 	}
@@ -1443,13 +1446,13 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		declare ("arg");
-		read (LOCAL, "arg", exit_arg->value);
+		declare ("p_arg");
+		read (LOCAL, "p_arg", exit_arg->value);
 
 		// Fetch the parameter
 		code
 			<<		"// Exit ()\n"
-			<<		"phc_exit (arg TSRMLS_CC);\n";
+			<<		"phc_exit (*p_arg TSRMLS_CC);\n";
 
 		code << "}\n";
 	}
@@ -1657,7 +1660,7 @@ public:
 			<< "// Call the function\n"
 			<< "int success;\n"	
 			<< "success = call_user_function_ex(EG(function_table), " 
-			<< "					NULL, function_name_ptr, &rhs, " 
+			<< "					NULL, function_name_ptr, p_rhs, " 
 			<<						num_args << ", args_ind, "
 			<<						"0, NULL TSRMLS_CC);\n"
 			<< "assert(success == SUCCESS);\n"
@@ -1678,16 +1681,16 @@ public:
 		code 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
-		<< "	assert (rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	rhs->is_ref = 1;\n"
+		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+		<< "	(*p_rhs)->is_ref = 1;\n"
 		// TODO what happens if there's supposed to be 8 or 10
 		// references to it.
 		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
-		<< "		is_rhs_new = 1;\n"
+		<< "		is_p_rhs_new = 1;\n"
 		<< "}\n"
 		<< "else\n"
 		<< "{\n"
-		<< "	is_rhs_new = 1;\n"
+		<< "	is_p_rhs_new = 1;\n"
 		<< "}\n"
 		;
 
@@ -1695,8 +1698,8 @@ public:
 		{
 			// TODO separate here?
 			code 
-				<< "if (rhs->refcount > 1 && !rhs->is_ref)\n"
-				<< "  zvp_clone (&rhs, &is_rhs_new);\n";
+				<< "if (in_copy_on_write (*p_rhs))\n"
+				<< "  zvp_clone (p_rhs, &is_p_rhs_new);\n";
 		}
 
 		for(
@@ -1837,8 +1840,11 @@ class Return : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		declare ("rhs");
-		read (LOCAL, "rhs", expr->value);
+		declare ("p_rhs");
+		code 
+			<< "zval* temp;\n"
+			<< "p_rhs = &temp;\n";
+		read (LOCAL, "p_rhs", expr->value);
 
 		if(!gen->return_by_reference)
 		{
@@ -1847,25 +1853,25 @@ class Return : public Pattern
 			// function to tell if the run-time return by reference is
 			// set, but its unnecessary anyway.
 			code 
-				<< "return_value->value = rhs->value;\n"
-				<< "return_value->type = rhs->type;\n"
-				<< "zval_copy_ctor(return_value);\n"
+				<< "return_value->value = (*p_rhs)->value;\n"
+				<< "return_value->type = (*p_rhs)->type;\n"
+				<< "zval_copy_ctor (return_value);\n"
 				;
 		}
 		else
 		{
-			separate (LOCAL, "rhs", expr->value);
+			separate (LOCAL, "p_rhs", expr->value);
 
 			code
-				<< "zval_ptr_dtor(return_value_ptr);\n"
-				<< "rhs->is_ref = 1;\n"
-				<< "rhs->refcount++;\n"
-				<< "*return_value_ptr = rhs;\n";
+				<< "zval_ptr_dtor (return_value_ptr);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "*return_value_ptr = *p_rhs;\n";
 			;
 //		code << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
 		}
-		cleanup ("rhs");
+		cleanup ("p_rhs");
 
 		code 
 		<< "goto end_of_function;\n"
