@@ -1174,8 +1174,7 @@ public:
 				<<		"INIT_ZVAL (val);\n";
 			initialize (code, "&val");
 			code
-				<<		"overwrite_lhs (*p_lhs, &val);\n"
-				<<		"zval_dtor (&val);\n" // TODO overwrite doesnt need to copy
+				<<		"overwrite_lhs_no_copy (*p_lhs, &val);\n"
 				<< "}\n"
 				<< "else\n"
 				<< "{\n"
@@ -1384,8 +1383,8 @@ public:
 			<<			name->length() << ", " // exclude NULL-terminator
 			<<			"&constant "
 			<<			" TSRMLS_CC);\n"
-			<<		"overwrite_lhs (*p_lhs, constant);\n"
-			<<		"zval_dtor (constant);\n"
+			<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
+			<<		"safe_free_zval_ptr (constant);\n"
 			<< "}\n";
 	}
 
