@@ -59,8 +59,7 @@ sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
 
   zvp_clone_ex (p_zvp);
 
-  assert (old->refcount > 1);
-  old->refcount--;
+  zval_ptr_dtor (&old);
 }
 
 /* If *P_ZVP is in a copy-on-write set, separate it by overwriting
@@ -76,8 +75,7 @@ sep_change_on_write (zval ** p_zvp TSRMLS_DC)
 
   zvp_clone_ex (p_zvp);
 
-  assert (old->refcount > 1);
-  old->refcount--;
+  zval_ptr_dtor (&old);
 }
 
 
@@ -472,19 +470,7 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
   if (!in_copy_on_write (*p_zvp))
     return;
 
-  zval *old = *p_zvp;
-  assert (p_zvp != &EG (uninitialized_zval_ptr));
-  if (old == EG (uninitialized_zval_ptr))
-    {
-      ALLOC_INIT_ZVAL (*p_zvp);
-      *is_zvp_new = 0;
-    }
-  else
-    {
-      zvp_clone (p_zvp, is_zvp_new);
-		assert (old->refcount > 1);
-		old->refcount--;
-    }
+  zvp_clone (p_zvp, is_zvp_new);
 }
 
 // Separate the RHS (that is, make a copy *and update the hashtable*)
@@ -587,14 +573,15 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
 }
 
 static zval **
-get_st_entry_ex (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
+get_st_entry_ex (HashTable * st, char *name, int length,
+		 ulong hashval TSRMLS_DC)
 {
   zval **p_zvp;
   if (zend_hash_quick_find
       (st, name, length, hashval, (void **) &p_zvp) == SUCCESS)
     return p_zvp;
 
-   return &EG(uninitialized_zval_ptr);
+  return &EG (uninitialized_zval_ptr);
 }
 
 /* Read the variable named VAR_NAME from the local symbol table and
@@ -631,15 +618,16 @@ read_var_var (HashTable * st, zval * refl TSRMLS_DC)
   return p_result;
 }
 
-void 
-read_array (zval** result, zval * var, zval * ind, int *is_result_new TSRMLS_DC)
+void
+read_array (zval ** result, zval * var, zval * ind,
+	    int *is_result_new TSRMLS_DC)
 {
   // Memory can be allocated in read_string_index
   if (var == EG (uninitialized_zval_ptr))
-  {
-     *result = var;
-    return ;
-  }
+    {
+      *result = var;
+      return;
+    }
 
   if (Z_TYPE_P (var) != IS_ARRAY)
     {
@@ -659,18 +647,19 @@ read_array (zval** result, zval * var, zval * ind, int *is_result_new TSRMLS_DC)
   HashTable *ht = Z_ARRVAL_P (var);
 
   // find the result
-  zval** p_result;
+  zval **p_result;
   if (ht_find (ht, ind, &p_result) == SUCCESS)
-  {
-     *result = *p_result;
-     return;
-  }
+    {
+      *result = *p_result;
+      return;
+    }
 
   *result = EG (uninitialized_zval_ptr);
 }
 
 void
-read_var_array (HashTable * st, zval** result, zval * refl, zval * ind TSRMLS_DC)
+read_var_array (HashTable * st, zval ** result, zval * refl,
+		zval * ind TSRMLS_DC)
 {
   // TODO add an is_x_new parameter
   zval **p_var = read_var_var (st, refl TSRMLS_CC);
@@ -718,8 +707,8 @@ write_array (zval ** p_var, zval * ind, zval ** p_rhs,
 
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
  * for it */
-static zval**
-push_and_index_ht (zval** p_var TSRMLS_DC)
+static zval **
+push_and_index_ht (zval ** p_var TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
@@ -729,10 +718,12 @@ push_and_index_ht (zval** p_var TSRMLS_DC)
 
   // if its not an array, make it an array
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
-  zval** data;
+  zval **data;
 
-  EG(uninitialized_zval_ptr)->refcount++;
-  int result = zend_hash_next_index_insert (ht, &EG(uninitialized_zval_ptr), sizeof (zval *), (void**) &data);
+  EG (uninitialized_zval_ptr)->refcount++;
+  int result =
+    zend_hash_next_index_insert (ht, &EG (uninitialized_zval_ptr),
+				 sizeof (zval *), (void **) &data);
   assert (result == SUCCESS);
 
   assert (data);
@@ -1039,8 +1030,7 @@ phc_exit (zval * arg TSRMLS_DC)
 
 /* Copies a constant into ZVP. Note that LENGTH does not include the NULL-terminating byte. */
 static void
-get_constant (char *name, int length, zval ** p_zvp
-	      TSRMLS_DC)
+get_constant (char *name, int length, zval ** p_zvp TSRMLS_DC)
 {
   MAKE_STD_ZVAL (*p_zvp);
   // zend_get_constant returns 1 for success, not SUCCESS
