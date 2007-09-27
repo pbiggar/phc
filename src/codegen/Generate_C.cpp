@@ -1103,7 +1103,6 @@ protected:
 
 
 stringstream initializations;
-stringstream caught; // we need to extend the zvals into registered shutdown functions.
 stringstream finalizations;
 
 template<class T, class K>
@@ -1148,7 +1147,6 @@ public:
 				vars [key ()] = var;
 
 				prologue << "zval* " << var << ";\n";
-				caught << var << "->refcount++;\n";
 				finalizations << "zval_ptr_dtor (&" << var << ");\n";
 				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
 				initialize (initializations, var);
@@ -2113,6 +2111,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   signal(SIGSEGV, sighandler);\n"
 		"\n"
 		"   TSRMLS_D;\n"
+		"   int dealloc_pools = 1;\n"
 		"   php_embed_init (argc, argv PTSRMLS_CC);\n"
 		"   zend_first_try\n"
 		"   {\n"
@@ -2147,10 +2146,13 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   }\n"
 		"   zend_catch\n"
 		"   {\n"
-		<< caught.str () << 
+		"		dealloc_pools = 0\n"
 		"   }\n"
 		"   zend_end_try ();\n"
+		"   if (dealloc_pools)\n"
+		"   {\n"
 		<< finalizations.str () << 
+		"   }\n"
 		"   phc_exit_status = EG(exit_status);\n"
 		"   php_embed_shutdown (TSRMLS_C);\n"
 		"\n"
