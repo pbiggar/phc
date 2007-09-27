@@ -484,7 +484,7 @@ void index_lhs (Scope scope, string zvp, AST_variable* var)
 					<< "// Array push \n";
 				code 
 					<< zvp << " = push_and_index_ht (" 
-					<<		"lhs_var, "
+					<<		"lhs_var "
 					<<		" TSRMLS_CC);\n";
 			}
 		}
@@ -1103,6 +1103,7 @@ protected:
 
 
 stringstream initializations;
+stringstream caught; // we need to extend the zvals into registered shutdown functions.
 stringstream finalizations;
 
 template<class T, class K>
@@ -1113,6 +1114,11 @@ public:
 	{
 		rhs = new Wildcard<T>;
 		return rhs;
+	}
+
+	bool fixed ()
+	{
+		return true;
 	}
 
 	// record if we've seen this variable before
@@ -1142,17 +1148,45 @@ public:
 				vars [key ()] = var;
 
 				prologue << "zval* " << var << ";\n";
+				caught << var << "->refcount++;\n";
 				finalizations << "zval_ptr_dtor (&" << var << ");\n";
+				initializations << "ALLOC_INIT_ZVAL (" << var << ")\n";
 				initialize (initializations, var);
 			}
-
-			code << "rhs = " << var << ";\n";
+			code
+				<< "assert (!" << var << "->is_ref);\n"
+				<< "if ((*p_lhs)->is_ref)\n"
+				<<		"overwrite_lhs (*p_lhs, " << var << ");\n"
+				<<	"else\n"
+				<< "{\n"
+				<<		var << "->refcount++;\n"
+				<<		"zval_ptr_dtor (p_lhs);\n"
+				<<		"*p_lhs = " << var << ";\n"
+				<< "}\n";
 		}
 		else
 		{
 			// initialize at this point in the code
-			code << "is_rhs_new = 1;\n";
-			initialize (code, "rhs");
+			code
+				<<	"zval* literal;\n"
+				<< "if ((*p_lhs)->is_ref)\n"
+				<< "{\n"
+				<<		"// avoid allocating memory\n"
+				<<		"zval val;\n"
+				<<		"INIT_ZVAL (val);\n";
+			initialize (code, "&val");
+			code
+				<<		"overwrite_lhs (*p_lhs, &val);\n"
+				<<		"zval_dtor (&val);\n" // TODO overwrite doesnt need to copy
+				<< "}\n"
+				<< "else\n"
+				<< "{\n"
+				<<		"ALLOC_INIT_ZVAL (literal);\n";
+			initialize (code, "literal");
+			code
+				<<		"zval_ptr_dtor (p_lhs);\n"
+				<<		"*p_lhs = literal;\n"
+				<< "}\n";
 		}
 	}
 
@@ -1172,8 +1206,7 @@ class Assign_bool : public Assign_literal<Token_bool, bool>
 
 	void initialize (ostream& os, string var)
 	{
-		os << "MAKE_STD_ZVAL (" << var << ");\n" 
-			<< "ZVAL_BOOL (" << var << ", " 
+		os	<< "ZVAL_BOOL (" << var << ", " 
 			<<		(rhs->value->value ? 1 : 0) << ");\n";
 	}
 
@@ -1186,8 +1219,7 @@ class Assign_int : public Assign_literal<Token_int, long>
 
 	void initialize (ostream& os, string var)
 	{
-		os << "MAKE_STD_ZVAL (" << var << ");\n"
-			<< "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
+		os << "ZVAL_LONG (" << var << ", " << rhs->value->value << ");\n";
 	}
 };
 
@@ -1198,8 +1230,7 @@ class Assign_real : public Assign_literal<Token_real, string>
 
 	void initialize (ostream& os, string var)
 	{
-		os << "MAKE_STD_ZVAL (" << var << ");\n"
-			<< "zend_eval_string(\"" << *rhs->value->get_source_rep () << ";\","
+		os	<< "zend_eval_string(\"" << *rhs->value->get_source_rep () << ";\","
 			<<		var << ", "
 			<<		"\"literal\" TSRMLS_CC);\n";
 	}
@@ -1212,8 +1243,7 @@ class Assign_null : public Assign_literal<Token_null, string>
 
 	void initialize (ostream& os, string var)
 	{
-		os << "MAKE_STD_ZVAL (" << var << ");\n"
-			<< "ZVAL_NULL (" << var << ");\n";
+		os << "ZVAL_NULL (" << var << ");\n";
 	}
 };
 
@@ -1224,8 +1254,7 @@ class Assign_string : public Assign_literal<Token_string, string>
 
 	void initialize (ostream& os, string var)
 	{
-		os << "MAKE_STD_ZVAL (" << var << ");\n"
-			<< "ZVAL_STRINGL(" << var << ", " 
+		os << "ZVAL_STRINGL(" << var << ", " 
 			<<		"\"" << escape(rhs->value->value) << "\", "
 			<<		rhs->value->value->length() << ", 1);\n";
 	}
@@ -1685,6 +1714,7 @@ public:
 
 		return new AST_bin_op (left, op, right); 
 	}
+
 	bool fixed ()
 	{
 		return true;
@@ -2117,6 +2147,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 		"   }\n"
 		"   zend_catch\n"
 		"   {\n"
+		<< caught.str () << 
 		"   }\n"
 		"   zend_end_try ();\n"
 		<< finalizations.str () << 
