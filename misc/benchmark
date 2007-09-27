@@ -1,0 +1,50 @@
+#!/usr/bin/env php
+<?php
+
+	print "Starting benchmark 0\n";
+	$results = `misc/comp test/subjects/3rdparty/benchmarks/zend/bench.php -O`;
+	process_results ($results);
+
+	for ($i = 1; $i < 10; $i++)
+	{
+		print "Starting benchmark $i\n";
+		$results = `./bench.out`;
+		process_results ($results);
+	}
+
+	dump_results ();
+
+
+
+	function process_results ($string_input)
+	{
+		global $tally;
+		$strings = explode ("\n", $string_input);
+
+		foreach ($strings as $line)
+		{
+			if (preg_match ("/^(\S+)\s+([\d\.]+)$/", $line, $matches))
+			{
+#				print "Matching {$matches[1]} with {$matches[2]}\n";
+				$tally[$matches[1]][] = $matches[2];
+			}
+			else
+			{
+#				print "Skipping result line: $line\n";
+			}
+
+		}
+	}
+
+	function dump_results ()
+	{
+		global $tally;
+		foreach ($tally as $key => $result)
+		{
+			$num = count ($result);
+			$average = array_sum ($result) / $num;
+			printf ("%-20s ($num):  $average\n", $key);
+		}
+	}
+
+?>
