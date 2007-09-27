@@ -366,9 +366,7 @@ void separate (Scope scope, string zvp, AST_expr* expr)
 		{
 			assert (var->array_indices->size() == 0);
 			code 
-				<< "separate_var (" 
-				<<		"sep_var "
-				<< " TSRMLS_CC);\n";
+				<< "separate_var (sep_var);\n" ;
 
 			// TODO this can be removed when we move to zval**s instead
 			// of zval*s for rhss
@@ -434,7 +432,7 @@ void write_reference (Scope scope, string zvp, AST_variable* var)
 				<< "write_var_reference (" 
 				<<		"ref_var, "
 				<<		zvp
-				<<		" TSRMLS_CC);\n";
+				<<		");\n";
 		}
 	}
 	else
@@ -1324,7 +1322,7 @@ public:
 		{
 			index_lhs (LOCAL, "p_rhs", rhs->value);
 			code 
-				<< "sep_copy_on_write_ex (p_rhs TSRMLS_CC);\n"
+				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
 				<< "(*p_rhs)->refcount++;\n"
 				<< "zval_ptr_dtor (p_lhs);\n"
@@ -1350,7 +1348,7 @@ public:
 	virtual void generate_rhs ()
 	{
 		Copy::generate_rhs ();
-		code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY TSRMLS_CC);\n";
+		code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
 	}
 };
 
@@ -1664,7 +1662,7 @@ public:
 				read_st (LOCAL, "p_arg", var_name);
 				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-					<<				"p_arg TSRMLS_CC);\n"
+					<<				"p_arg);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					<< "}\n"
 					<< "else\n"
@@ -1675,7 +1673,7 @@ public:
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
 					<<				"arg, "
-					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
+					<<				"&destruct[" << index << "]);\n"
 					<< " args_ind[" << index << "] = &args[" << index << "];\n"
 					<< "}\n"
 					;
@@ -1896,7 +1894,7 @@ class Return : public Pattern
 			index_lhs (LOCAL, "p_rhs", expr->value);
 
 			code
-				<< "sep_copy_on_write_ex (p_rhs TSRMLS_CC);\n"
+				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "zval_ptr_dtor (return_value_ptr);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
 				<< "(*p_rhs)->refcount++;\n"
@@ -1956,7 +1954,7 @@ class Unset : public Pattern
 						<<		"\"" << *name << "\", "
 						<<		name->length() + 1
 						// no get_hash version
-						<<		" TSRMLS_CC);\n";
+						<<		");\n";
 				}
 			}
 			else 

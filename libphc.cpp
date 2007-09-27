@@ -50,7 +50,7 @@ in_change_on_write (zval * zvp)
  * *P_ZVP with a clone of itself, and lowering the refcount on the
  * original. */
 static void
-sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
+sep_copy_on_write_ex (zval ** p_zvp)
 {
   if (!in_copy_on_write (*p_zvp))
     return;
@@ -66,7 +66,7 @@ sep_copy_on_write_ex (zval ** p_zvp TSRMLS_DC)
  * *P_ZVP with a clone of itself, and lowering the refcount on the
  * original. */
 static void
-sep_change_on_write (zval ** p_zvp TSRMLS_DC)
+sep_change_on_write (zval ** p_zvp)
 {
   if (!in_change_on_write (*p_zvp))
     return;
@@ -144,7 +144,7 @@ extract_ht_ex (zval * arr TSRMLS_DC)
 static HashTable *
 extract_ht (zval ** p_var TSRMLS_DC)
 {
-  sep_copy_on_write_ex (p_var TSRMLS_CC);
+  sep_copy_on_write_ex (p_var);
 
   if (Z_TYPE_PP (p_var) != IS_ARRAY)
     {
@@ -465,7 +465,7 @@ phc_setup_error (int init, char *filename, int line_number,
 // destructor, then we shouldnt be calling this.
 //
 static void
-sep_copy_on_write (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
+sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
 {
   if (!in_copy_on_write (*p_zvp))
     return;
@@ -476,9 +476,9 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
 // Separate the RHS (that is, make a copy *and update the hashtable*)
 // See "Separation anxiety" in the PHP book
 static void
-separate_var (zval ** p_var TSRMLS_DC)
+separate_var (zval ** p_var)
 {
-  sep_copy_on_write_ex (p_var TSRMLS_CC);
+  sep_copy_on_write_ex (p_var);
 }
 
 // Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
@@ -769,7 +769,7 @@ push_var_reference (zval ** p_var, zval ** p_rhs TSRMLS_DC)
  * set, separate it, and write it back as VAR_NAME2,
  * which should be its original name */
 static void
-write_var_reference (zval ** p_lhs, zval ** p_rhs TSRMLS_DC)
+write_var_reference (zval ** p_lhs, zval ** p_rhs)
 {
   // Change-on-write
   (*p_rhs)->is_ref = 1;
@@ -805,10 +805,10 @@ write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp TSRMLS_DC)
 }
 
 static zval **
-fetch_var_arg_by_ref (zval ** p_arg TSRMLS_DC)
+fetch_var_arg_by_ref (zval ** p_arg)
 {
   // We are passing by reference
-  sep_copy_on_write_ex (p_arg TSRMLS_CC);
+  sep_copy_on_write_ex (p_arg);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -827,7 +827,7 @@ fetch_var_arg_by_ref (zval ** p_arg TSRMLS_DC)
 
 /* Dont pass-by-ref */
 static zval *
-fetch_var_arg (zval * arg, int *is_arg_new TSRMLS_DC)
+fetch_var_arg (zval * arg, int *is_arg_new)
 {
   if (arg->is_ref)
     {
@@ -869,7 +869,7 @@ fetch_array_arg_by_ref (zval ** p_var, zval * ind, int *is_arg_new TSRMLS_DC)
     }
 
   // We are passing by reference.
-  sep_copy_on_write (p_arg, is_arg_new TSRMLS_CC);
+  sep_copy_on_write (p_arg, is_arg_new);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
@@ -929,13 +929,13 @@ fetch_array_arg (zval * var, zval * ind, int *is_arg_new TSRMLS_DC)
 }
 
 static void
-cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
+cast_var (zval ** p_zvp, int *is_zvp_new, int type)
 {
   assert (type >= 0 && type <= 6);
   if ((*p_zvp)->type == type)
     return;
 
-  sep_copy_on_write (p_zvp, is_zvp_new TSRMLS_CC);
+  sep_copy_on_write (p_zvp, is_zvp_new);
   zval *zvp = *p_zvp;
 
   switch (type)
@@ -965,7 +965,7 @@ cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
 }
 
 static void
-unset_var (HashTable * st, char *name, int length TSRMLS_DC)
+unset_var (HashTable * st, char *name, int length)
 {
   zend_hash_del (st, name, length);
 }
