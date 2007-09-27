@@ -461,20 +461,29 @@ void index_lhs (Scope scope, string zvp, AST_expr* expr)
 
 	if (var_name != NULL)
 	{
-		read_st (scope, "lhs_var", get_var_name (var));
+		// lhs_var can exist more than once; rename
+		stringstream ss;
+		ss << zvp << "_var";
+		string zvp_name = ss.str ();
+
+		read_st (scope, zvp_name, get_var_name (var));
 		if (var->array_indices->size() == 1)
 		{
 			// access var as an array
 			if (var->array_indices->front () != NULL)
 			{
+				stringstream ss;
+				ss << zvp << "_index";
+				string zvp_index = ss.str ();
+
 				code
 					<< "// Array assignment\n";
-				read_simple (scope, "lhs_index", get_var_name (var->array_indices->front()));
+				read_simple (scope, zvp_index, get_var_name (var->array_indices->front()));
 
 				code
 					<<	zvp << " = get_ht_entry ("
-					<<		"lhs_var, "
-					<<		"lhs_index "
+					<<		zvp_name << ", "
+					<<		zvp_index
 					<<		" TSRMLS_CC);\n"
 				;
 			}
@@ -484,7 +493,7 @@ void index_lhs (Scope scope, string zvp, AST_expr* expr)
 					<< "// Array push \n";
 				code 
 					<< zvp << " = push_and_index_ht (" 
-					<<		"lhs_var "
+					<<		zvp_name
 					<<		" TSRMLS_CC);\n";
 			}
 		}
@@ -493,7 +502,7 @@ void index_lhs (Scope scope, string zvp, AST_expr* expr)
 			assert (var->array_indices->size() == 0);
 			code 
 				<< "// Normal Assignment\n"
-				<< zvp << " = lhs_var;\n";
+				<< zvp << " = " << zvp_name << ";\n";
 		}
 	}
 	else
@@ -1291,6 +1300,7 @@ class Assign_string : public Assign_literal<Token_string, string>
 class Copy : public Assignment
 {
 public:
+	bool fixed () { return true; }
 	AST_expr* rhs_pattern()
 	{
 		rhs = new Wildcard<AST_variable>;
@@ -1299,7 +1309,27 @@ public:
 
 	void generate_rhs()
 	{
-		read (LOCAL, "p_rhs", rhs->value);
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+			read (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			index_lhs (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "sep_copy_on_write_ex (p_rhs TSRMLS_CC);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
 	}
 
 protected:
@@ -1320,7 +1350,7 @@ public:
 	virtual void generate_rhs ()
 	{
 		Copy::generate_rhs ();
-		code << "cast_var (p_rhs, &is_p_rhs_new, IS_ARRAY TSRMLS_CC);\n";
+		code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY TSRMLS_CC);\n";
 	}
 };
 

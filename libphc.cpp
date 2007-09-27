@@ -530,6 +530,12 @@ write_var (zval ** p_lhs, zval ** p_rhs, int *is_rhs_new TSRMLS_DC)
 static zval **
 get_ht_entry (zval ** p_var, zval * ind TSRMLS_DC)
 {
+   if (Z_TYPE_P (*p_var) == IS_STRING)
+   {
+      php_error_docref (NULL TSRMLS_CC, E_ERROR,
+	    "Cannot create references to/from string offsets nor overloaded objects");
+   }
+
   HashTable *ht = extract_ht (p_var TSRMLS_CC);
 
   zval **data;
@@ -929,7 +935,7 @@ cast_var (zval ** p_zvp, int *is_zvp_new, int type TSRMLS_DC)
   if ((*p_zvp)->type == type)
     return;
 
-  zvp_clone (p_zvp, is_zvp_new);
+  sep_copy_on_write (p_zvp, is_zvp_new TSRMLS_CC);
   zval *zvp = *p_zvp;
 
   switch (type)
