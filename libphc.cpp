@@ -860,10 +860,12 @@ fetch_array_arg_by_ref (zval ** p_var, zval * ind, int *is_arg_new TSRMLS_DC)
   int arg_exists = (ht_find (ht, ind, &p_arg) == SUCCESS);
   if (!arg_exists)
     {
+		// TODO fix this
       // The argument needs to be put into the array. Add it, and set
       // p_arg to point to the bucket containing it.
       ht_update (ht, ind, EG (uninitialized_zval_ptr), NULL);
       int result = ht_find (ht, ind, &p_arg);
+		sep_copy_on_write_ex (p_arg);
       assert (result == SUCCESS);
       return p_arg;
     }

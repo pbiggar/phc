@@ -1249,36 +1249,32 @@ public:
 			<< "p_rhs = &temp;\n";
 
 		code
-			<<	"// Create zval to hold function name\n"
-			<<	"zval function_name;\n"
-			<<	"INIT_PZVAL(&function_name);\n"
-			<<	"ZVAL_STRING(&function_name, "
-			<<		"\"" << *name->value << "\", "
-			<<		"0);\n"
-			<<	"zval* function_name_ptr = &function_name;\n"
-
-			<< "static zend_function* signature = NULL;\n"
-			<< "if (signature == NULL)\n"
+			// lookup the function and cache it for next time
+			<< "// Call the function\n"
+			<< "static zend_fcall_info fci;\n"
+			<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
+			<< "if (!fcic.initialized)\n"
 			<< "{\n"
-			<<		"// Create zval to hold function name\n"
 			<<		"zval function_name;\n"
 			<<		"INIT_PZVAL(&function_name);\n"
 			<<		"ZVAL_STRING(&function_name, "
 			<<			"\"" << *name->value << "\", "
 			<<			"0);\n"
-			<<		"function_name_ptr = &function_name;\n"
-			<<		"zend_is_callable_ex(function_name_ptr, 0, NULL,"
-			<<									"NULL, NULL, "
-			<<									"&signature, NULL TSRMLS_CC);\n"
-			<< "}\n"
 
-		// check for non-existant functions
-			<< "if (signature == NULL)\n"
-			<< "{\n"
-			<<		"phc_setup_error (1, " << rhs->get_filename () << ", " << rhs->get_line_number () << ", NULL TSRMLS_CC);\n"
-			<<		"php_error_docref (NULL TSRMLS_CC, E_ERROR, \"Call to undefined function %s()\", \"" << *name->value << "\");\n"
-			<<		"phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
-			<<	"}\n";
+			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
+			<< 	"if (result == FAILURE) // check for missing function\n"
+			<< 	"{\n"
+			<<			"phc_setup_error (1, " 
+			<< 			rhs->get_filename () << ", " 
+			<< 			rhs->get_line_number () << ", "
+			<<				"NULL TSRMLS_CC);\n"
+						// die
+			<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
+			<<				"\"Call to undefined function %s()\", \"" 
+			<< 			*name->value << "\");\n"
+			<< 	"}\n"
+			<< "}\n"
+			<< "zend_function* signature = fcic.function_handler;\n";
 
 
 		// Figure out which parameters need to be passed by reference
@@ -1332,7 +1328,6 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			// use this is a check, but actually use the index_st_rhs to generate this
 			AST_variable* var = dynamic_cast<AST_variable*> ((*i)->expr);
 			Token_variable_name* var_name = get_var_name ((*i)->expr);
 
@@ -1345,10 +1340,11 @@ public:
 			 * into its containing hashtable, otherwise. */
 			if (var->array_indices->size ())
 			{
-				// TODO: variables are allowed have more than 1 index (so long as
-				// the indexes are all temporaries). We do not know whether to
-				// shred the variables using references or not, since we do not
-				// know until run-time whether the function is call-by-reference or
+				// TODO: variables are allowed have more than 1 index
+				// (so long as the indexes are all temporaries). We do
+				// not know whether to shred the variables using
+				// references or not, since we do not know until
+				// run-time whether the function is call-by-reference or
 				// not.
 				assert (var->array_indices->size () == 1);
 				Token_variable_name* ind = 
@@ -1367,6 +1363,7 @@ public:
 					<<				"ind, "
 					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
 					<< "}\n"
 					<< "else\n"
 					<< "{\n";
@@ -1385,18 +1382,19 @@ public:
 			}
 			else
 			{
-				// TODO: Its correct to handle variable variables here, since we
-				// dont know if they are to be passed by reference or not, so they
-				// cannot be shredder earlier.
+				// TODO: Its correct to handle variable variables here,
+				// since we dont know if they are to be passed by
+				// reference or not, so they cannot be shredder earlier.
 				assert (var_name);
 				code 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
-
+;
 				read_st (LOCAL, "p_arg", var_name);
 				code
 					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
 					<<				"p_arg);\n"
+					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
 					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
 					<< "}\n"
 					<< "else\n"
@@ -1420,27 +1418,43 @@ public:
 			<<				rhs->get_filename () << ", " 
 			<<				rhs->get_line_number () << ", "
 			<< "			NULL TSRMLS_CC);\n"
-			<< "// Call the function\n"
-			<< "int success;\n"	
-			<< "success = call_user_function_ex(EG(function_table), " 
-			<< "					NULL, function_name_ptr, p_rhs, " 
-			<<						num_args << ", args_ind, "
-			<<						"0, NULL TSRMLS_CC);\n"
+
+			// save existing paramters, in case of recursion
+			<< "int param_count_save = fci.param_count;\n"
+			<< "zval*** params_save = fci.params;\n"
+			<< "zval** retval_save = fci.retval_ptr_ptr;\n"
+
+			// set up params
+			<< "fci.params = args_ind;\n"
+			<< "fci.param_count = " << num_args << ";\n"
+			<< "fci.retval_ptr_ptr = p_rhs;\n"
+
+			// call the function
+			<< "int success = zend_call_function (&fci, &fcic TSRMLS_CC);\n"
 			<< "assert(success == SUCCESS);\n"
+
+			// restore params
+			<< "fci.params = params_save;\n"
+			<< "fci.param_count = param_count_save;\n"
+			<< "fci.retval_ptr_ptr = retval_save;\n"
+
+			// unset the errors
 			<< "phc_setup_error (0, NULL, 0, NULL TSRMLS_CC);\n"
 			;
 
-		// Workaround a bug (feature?) of the Zend API that I don't know how to
-		// solve otherwise. It seems that Zend resets the refcount and is_ref
-		// fields of the return value after the function returns. That is okay
-		// if the function does not return a reference (because it will have
-		// created a fresh zval to hold the result), but obviously garbage
-		// collector problems when the function returned a reference to an
-		// existing zval. Hence, we increment the refcount here, and set is_ref
-		// to true if the function signature declares the function to return a
-		// reference. This causes memory leaks, so we make a note to clean up the
-		// memory. It only occurs when calling eval'd functions, because they do
-		// in fact return the correct refcount.
+		// Workaround a bug (feature?) of the Zend API that I don't
+		// know how to solve otherwise. It seems that Zend resets the
+		// refcount and is_ref fields of the return value after the
+		// function returns. That is okay if the function does not
+		// return a reference (because it will have created a fresh
+		// zval to hold the result), but obviously garbage collector
+		// problems when the function returned a reference to an
+		// existing zval. Hence, we increment the refcount here, and
+		// set is_ref to true if the function signature declares the
+		// function to return a reference. This causes memory leaks,
+		// so we make a note to clean up the memory. It only occurs
+		// when calling eval'd functions, because they do in fact
+		// return the correct refcount.
 		code 
 		<< "if(signature->common.return_reference)\n"
 		<< "{\n"
@@ -1626,8 +1640,6 @@ class Return : public Pattern
 				<< "(*p_rhs)->is_ref = 1;\n"
 				<< "(*p_rhs)->refcount++;\n"
 				<< "*return_value_ptr = *p_rhs;\n";
-			;
-//		code << "printf(\"<<< rhs (%08X) %08X %d %d >>>\\n\", return_value_ptr, rhs, rhs->refcount, rhs->is_ref);\n";
 
 		}
 
