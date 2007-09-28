@@ -7,9 +7,10 @@
 
 	for ($i = 1; $i < 10; $i++)
 	{
-		print "Starting benchmark $i\n";
+		print "Starting benchmark $i: ";
 		$results = `./bench.out`;
 		process_results ($results);
+		echo "\n";
 	}
 
 	dump_results ();
@@ -27,6 +28,8 @@
 			{
 #				print "Matching {$matches[1]} with {$matches[2]}\n";
 				$tally[$matches[1]][] = $matches[2];
+				if ($matches[1] === "Total")
+					echo $matches[2];
 			}
 			else
 			{
