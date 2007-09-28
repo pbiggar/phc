@@ -970,11 +970,9 @@ public:
 	{
 		code
 			<< "{\n";
-		declare ("p_cond");
-		read (LOCAL, "p_cond", cond->value);
+		read_simple (LOCAL, "p_cond", get_var_name (cond->value));
 		code 
-			<< "zend_bool bcond = zend_is_true (*p_cond);\n";
-		cleanup ("p_cond");
+			<< "zend_bool bcond = zend_is_true (p_cond);\n";
 		code 
 			<< "if (bcond)\n"
 			<< "	goto " << *iftrue->value->value << ";\n"
@@ -1058,47 +1056,12 @@ public:
 	{
 		code << "{\n";
 
-		if (fixed ())
-		{
-			index_lhs (LOCAL, "p_lhs", lhs->value);
+		index_lhs (LOCAL, "p_lhs", lhs->value);
 
-			// Generate code for the RHS
-			generate_rhs();
-		}
-		else
-		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-
-			// Generate code for the RHS
-			generate_rhs();
-
-			// write it back to the lhs
-			if(!agn->is_ref)
-				write (LOCAL, "p_rhs", lhs->value);
-			else
-			{
-				// this must be a copy
-				Wildcard<AST_variable>* rhs = dynamic_cast<Wildcard<AST_variable>*> (agn->expr);
-				if (rhs)
-				{
-					separate (LOCAL, "p_rhs", rhs->value);
-				}
-				else
-				{
-					// method_invocations separate before they return, so no need.
-					assert (dynamic_cast<Wildcard<AST_method_invocation>*> (agn->expr));
-				}
-				write_reference (LOCAL, "p_rhs", lhs->value);
-			}
-			cleanup ("p_rhs");
-		}
-
+		// Generate code for the RHS
+		generate_rhs();
 
 		code << "}\n";
-
 		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
