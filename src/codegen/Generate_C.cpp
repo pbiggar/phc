@@ -88,56 +88,6 @@ void Generate_C::run (AST_php_script* in, Pass_manager* pm)
  * code, and also flags where we make this assumption.
  */
 
-String* operand(AST_expr* in)
-{
-	AST_variable* var;
-	Token_variable_name* var_name;
-	static PHP_unparser pup(cerr);
-
-	assert(in);
-	
-	var = dynamic_cast<AST_variable*>(in);
-	if(var == NULL)
-	{
-		cerr << "Expected simple variable but got expression ";
-		in->visit(&pup);
-		if(in->get_line_number() != 0)
-			cerr << " on line " << in->get_line_number();
-		cerr << endl;
-		assert(0);
-	}
-	if(var->target != NULL)
-	{
-		cerr << "Expected simple variable but got field access ";
-		in->visit(&pup);
-		if(in->get_line_number() != 0)
-			cerr << " on line " << in->get_line_number();
-		cerr << endl;
-		assert(0);
-	}
-	if(var->array_indices->size() != 0)
-	{
-		cerr << "Expected simple variable but got array index ";
-		in->visit(&pup);
-		if(in->get_line_number() != 0)
-			cerr << " on line " << in->get_line_number();
-		cerr << endl;
-		assert(0);
-	}
-
-	var_name = dynamic_cast<Token_variable_name*>(var->variable_name);
-	if(var_name == NULL)
-	{
-		cerr << "Expected simple variable but got variable variable ";
-		in->visit(&pup);
-		if(in->get_line_number() != 0)
-			cerr << " on line " << in->get_line_number();
-		cerr << endl;
-		assert(0);
-	}
-
-	return var_name->value;
-}
 
 enum Scope { LOCAL, GLOBAL };
 string get_scope (Scope scope)
@@ -259,193 +209,6 @@ Token_variable_name* get_var_name (AST_reflection* var_refl)
 	return name;
 }
 
-
-
-/* Generate code to write ZVP, a variable in the generated code,
- * to VAR, a named variable. */
-void write (Scope scope, string zvp, AST_variable* var)
-{
-	// Variable variable or ordinary variable?
-	Token_variable_name* token_name
-		= dynamic_cast<Token_variable_name*>(var->variable_name);
-
-	// TODO: deal with object indexing
-	assert(var->target == NULL);
-
-	if (token_name != NULL)
-	{
-		if (var->array_indices->size() == 1)
-		{
-			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				code
-					<< "// Array assignment\n";
-
-				read_simple (scope, "wa_index", get_var_name (var->array_indices->front ()));
-				read_st (scope, "w_array", get_var_name (var));
-
-				code
-					<< "write_array ("
-					<<		"w_array, "
-					<<		"wa_index, "
-					<<		zvp << ", "
-					<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
-			}
-			else
-			{
-				read_st (scope, "w_array", get_var_name (var));
-
-				code
-					<< "// Array pushing\n"
-					<< "push_var ("
-					<<		"w_array, "
-					<<		zvp << " "
-					<<		" TSRMLS_CC);\n";
-			}
-		}
-		else
-		{
-			read_st (scope, "w_var", get_var_name (var));
-			code 
-				<< "// Normal assignment\n"
-				<< "write_var (" 
-				<<		"w_var, "
-				<<		zvp << ", "
-				<<		"&is_" << zvp << "_new TSRMLS_CC);\n";
-		}
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		assert(var->array_indices->size() == 0);
-		assert (0);
-
-		code << "assert (0); // write_var_var \n";
-//		write_var_var ();
-	}
-}
-
-/* Separate the rhs, and write it back to the symbol table if necessary */
-void separate (Scope scope, string zvp, AST_expr* expr)
-{
-	AST_variable* var = dynamic_cast<AST_variable*> (expr);
-	Token_variable_name* var_name = get_var_name (expr);
-
-	// if its new, check it wont separate
-	code 
-		<< "if (is_" << zvp << "_new)\n"
-		<<	"	assert (!in_copy_on_write (*" << zvp << "));\n";
-
-	assert(var->target == NULL);
-
-	if (var_name != NULL)
-	{
-		read_st (scope, "sep_var", var_name);
-		if (var->array_indices->size() == 1)
-		{
-			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				read_simple (scope, "sa_index", get_var_name (var->array_indices->front ()));
-				code
-					<< "separate_array_entry ("
-					<<		"sep_var, "
-					<<		"sa_index, "
-					<<		zvp << ", "
-					<<		"&is_" << zvp << "_new "
-					<<		" TSRMLS_CC);\n";
-			}
-			else
-			{
-				assert (0); // no push version
-			}
-		}
-		else
-		{
-			assert (var->array_indices->size() == 0);
-			code 
-				<< "separate_var (sep_var);\n" ;
-
-			// TODO this can be removed when we move to zval**s instead
-			// of zval*s for rhss
-			code 
-				<< zvp << " = sep_var;\n";
-		}
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		assert (0); // TODO
-		assert (var->array_indices->size() == 0);
-
-		code << "assert (0); // separate_var_var\n";
-//		separate_var_var ();
-	}
-}
-
-/* Generate code to write ZVP, a variable in the generated code,
- * to LHS, a named variable. RHS is needed for the reference. */
-void write_reference (Scope scope, string zvp, AST_variable* var)
-{
-  Token_variable_name* var_name = get_var_name (var);
-
-	// TODO: deal with object indexing
-	assert (var->target == NULL);
-
-	if (var_name != NULL)
-	{
-		read_st (scope, "ref_var", get_var_name (var));
-		if (var->array_indices->size() == 1)
-		{
-			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				code
-					<< "// Reference array assignment\n";
-				read_simple (scope, "war_index", get_var_name (var->array_indices->front()));
-
-				code
-					<< "write_array_reference ("
-					<<		"ref_var, "
-					<<		"war_index, "
-					<<		zvp
-					<<		" TSRMLS_CC);\n"
-				;
-			}
-			else
-			{
-				code 
-					<< "push_var_reference (" 
-					<<		"ref_var, "
-					<<		zvp 
-					<<		" TSRMLS_CC);\n";
-			}
-		}
-		else
-		{
-			assert (var->array_indices->size() == 0);
-			code 
-				<< "// Normal Reference Assignment\n"
-				<< "write_var_reference (" 
-				<<		"ref_var, "
-				<<		zvp
-				<<		");\n";
-		}
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		assert (0); // TODO
-		assert(var->array_indices->size() == 0);
-
-		code << "assert (0); // write_var_var_reference\n";
-//		reference_var_var ();
-	}
-}
 
 void index_lhs (Scope scope, string zvp, AST_expr* expr)
 {
@@ -617,14 +380,18 @@ void global (AST_variable_name* var_name)
 					new List < AST_expr * >());
 
 	code << "{\n";
-	declare ("p_global_var");
-	// TODO this isnt necessary
-	read (GLOBAL, "p_global_var", var);
+	index_lhs (GLOBAL, "p_global_var", var); // rhs
+	index_lhs (LOCAL, "p_local_global_var", var); // lhs
 
-	// TODO should separate be done lazily? Is this even correct?
-	separate (GLOBAL, "p_global_var", var);
-	write_reference (LOCAL, "p_global_var", var);
-	cleanup ("p_global_var");
+	// Note that p_global_var can be in the copy-on-write set.
+	code 
+		<< "sep_copy_on_write_ex (p_global_var);\n"
+		<< "(*p_global_var)->is_ref = 1;\n"
+		<< "(*p_global_var)->refcount++;\n"
+		<< "zval_ptr_dtor (p_local_global_var);\n"
+		<< "*p_local_global_var = *p_global_var;\n";
+	
+
 	code << "}\n";
 }
 
@@ -1019,12 +786,6 @@ public:
 	virtual void generate_rhs() = 0;
 	virtual ~Assignment() {}
 
-	/* Have we converted to the new way yet? */
-	virtual bool fixed ()
-	{
-		return false;
-	}
-
 public:
 	bool match(AST_statement* that)
 	{
@@ -1032,25 +793,6 @@ public:
 		agn = new AST_assignment(lhs, /* ignored */ false, rhs_pattern());
 		return that->match(new AST_eval_expr(agn));
 	}
-
-	/* MEMORY DISCUSSION
-	 *
-	 * Variables are created on both sides, many of which have to be cleaned up:
-	 *
-	 * For lhs variables:
-	 *		Indexing the lhs returns a new var or refcount 1, or old var, with an
-	 *		incremented refcount. If we update the hash table, the old var gets
-	 *		its refcount decremented to account for its removal from the
-	 *		hashtable, so we decrement its value to account for our increment. If
-	 *		its new, the decrement is also necessary. If we have the same variable
-	 *		on both sides, the hash table doesnt touch it, so we remove the extra
-	 *		lhs increment and the rhs increment. TODO what about references?
-	 *
-	 *  - if st is updated, the old contents are auto decremented by the zend_hash_update
-	 *  - index_ht increments the refcount of the fetched var.
-	 *  - 
-	 *  - 
-	 */
 
 	void generate_code(Generate_C* gen)
 	{
@@ -1088,11 +830,6 @@ public:
 	{
 		rhs = new Wildcard<T>;
 		return rhs;
-	}
-
-	bool fixed ()
-	{
-		return true;
 	}
 
 	// record if we've seen this variable before
@@ -1468,13 +1205,13 @@ public:
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		declare ("p_arg");
-		read (LOCAL, "p_arg", exit_arg->value);
+
+		read_simple (LOCAL, "arg", get_var_name (exit_arg->value));
 
 		// Fetch the parameter
 		code
-			<<		"// Exit ()\n"
-			<<		"phc_exit (*p_arg TSRMLS_CC);\n";
+			<<	"// Exit ()\n"
+			<<	"phc_exit (arg TSRMLS_CC);\n";
 
 		code << "}\n";
 	}
@@ -1491,8 +1228,6 @@ public:
 		rhs = new Wildcard<AST_method_invocation>;
 		return rhs;
 	}
-
-	bool fixed () { return true; }
 
 	void generate_rhs()
 	{
@@ -1771,11 +1506,6 @@ public:
 		return new AST_bin_op (left, op, right); 
 	}
 
-	bool fixed ()
-	{
-		return true;
-	}
-
 	void generate_rhs()
 	{
 		assert(
@@ -1828,11 +1558,6 @@ public:
 		return new AST_unary_op(op, expr);
 	}
 
-	bool fixed ()
-	{
-		return true;
-	}
-
 	void generate_rhs()
 	{
 		assert(
@@ -1878,22 +1603,17 @@ class Return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp;\n"
-				<< "p_rhs = &temp;\n";
-			read (LOCAL, "p_rhs", expr->value);
+			read_simple (LOCAL, "rhs", get_var_name (expr->value));
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
 			// function to tell if the run-time return by reference is
 			// set, but its unnecessary anyway.
 			code 
-				<< "return_value->value = (*p_rhs)->value;\n"
-				<< "return_value->type = (*p_rhs)->type;\n"
+				<< "return_value->value = rhs->value;\n"
+				<< "return_value->type = rhs->type;\n"
 				<< "zval_copy_ctor (return_value);\n"
 				;
-//			cleanup ("p_rhs");
 		}
 		else
 		{
