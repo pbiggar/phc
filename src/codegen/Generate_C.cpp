@@ -1545,6 +1545,10 @@ public:
 		assert (name != NULL);
 
 		int num_args = rhs->value->actual_parameters->size();
+		declare ("p_rhs");
+		code 
+			<< "zval* temp;\n"
+			<< "p_rhs = &temp;\n";
 
 		code
 			<<	"// Create zval to hold function name\n"
@@ -1755,14 +1759,6 @@ public:
 		<< "}\n"
 		;
 
-		if (agn->is_ref)
-		{
-			// TODO separate here?
-			code 
-				<< "if (in_copy_on_write (*p_rhs))\n"
-				<< "  zvp_clone (p_rhs, &is_p_rhs_new);\n";
-		}
-
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
 			i != rhs->value->actual_parameters->end(); 
@@ -1776,6 +1772,22 @@ public:
 				<< "	zval_ptr_dtor (args_ind[" << index << "]);\n"
 				<< "}\n";
 		}
+
+		if (!agn->is_ref)
+		{
+			code 
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		}
+		else
+		{
+			code 
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
+		cleanup ("p_rhs");
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
 	}
