@@ -124,8 +124,7 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
 static HashTable *
 extract_ht_ex (zval * arr TSRMLS_DC)
 {
-  // TODO initializing the array is incorrect without separating first.
-  assert (arr != EG (uninitialized_zval_ptr));
+  assert (!in_copy_on_write (arr));
   if (Z_TYPE_P (arr) == IS_NULL)
     {
       array_init (arr);
@@ -145,11 +144,6 @@ static HashTable *
 extract_ht (zval ** p_var TSRMLS_DC)
 {
   sep_copy_on_write_ex (p_var);
-
-  if (Z_TYPE_PP (p_var) != IS_ARRAY)
-    {
-      assert ((*p_var)->is_ref || (*p_var)->refcount == 1);	// must be separated in advance
-    }
 
   return extract_ht_ex (*p_var TSRMLS_CC);
 }
@@ -480,30 +474,6 @@ separate_var (zval ** p_var)
 {
   sep_copy_on_write_ex (p_var);
 }
-
-// Separate the variable at an index of the hashtable (that is, make a copy, and update the hashtable. The symbol table is unaffect, except if the array doesnt exist, in which case it gets created.)
-// See "Separation anxiety" in the PHP book
-static void
-separate_array_entry (zval ** p_var,
-		      zval * ind, zval ** p_zvp, int *is_zvp_new TSRMLS_DC)
-{
-  /* For a reference assignment, the LHS is always updated
-   * to point to the RHS (even if the LHS is currently
-   * is_ref) However, if the RHS is in a copy-on-write set
-   * (refcount > 1 but not is_ref), it must be seperated
-   * first */
-  if ((*p_zvp) != EG (uninitialized_zval_ptr) && !in_copy_on_write (*p_zvp))
-    return;
-
-  zvp_clone (p_zvp, is_zvp_new);
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht (p_var TSRMLS_CC);
-
-  (*p_zvp)->refcount++;
-  ht_update (ht, ind, *p_zvp, NULL);
-}
-
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
@@ -856,22 +826,10 @@ fetch_array_arg_by_ref (zval ** p_var, zval * ind, int *is_arg_new TSRMLS_DC)
   // symbol table (similar to get_st_entry) and pass that. We need to
   // do this in quite a lot of places apart from this, but we need a
   // more efficient implementation here first.
-  zval **p_arg;
-  int arg_exists = (ht_find (ht, ind, &p_arg) == SUCCESS);
-  if (!arg_exists)
-    {
-		// TODO fix this
-      // The argument needs to be put into the array. Add it, and set
-      // p_arg to point to the bucket containing it.
-      ht_update (ht, ind, EG (uninitialized_zval_ptr), NULL);
-      int result = ht_find (ht, ind, &p_arg);
-		sep_copy_on_write_ex (p_arg);
-      assert (result == SUCCESS);
-      return p_arg;
-    }
+  zval **p_arg = get_ht_entry (p_var, ind TSRMLS_CC);
 
   // We are passing by reference.
-  sep_copy_on_write (p_arg, is_arg_new);
+  sep_copy_on_write_ex (p_arg);
 
   // We don't need to restore ->is_ref afterwards,
   // because the called function will reduce the
