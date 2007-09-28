@@ -1438,12 +1438,42 @@ class Eval : public Assignment
 			);
 	}
 
+	bool fixed () { return true; }
+
+	// TODO this is untidy, and slower than it should be. Not a
+	// priority.
 	void generate_rhs()	
 	{
 		code << "{\n";
-
 		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value));
-		code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+			code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			code 
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+
+			code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			code 
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+			cleanup ("p_rhs");
+		}
 
 		code << "}\n" ;
 	}
@@ -1498,6 +1528,8 @@ public:
 		rhs = new Wildcard<AST_method_invocation>;
 		return rhs;
 	}
+
+	bool fixed () { return true; }
 
 	void generate_rhs()
 	{
@@ -1821,7 +1853,7 @@ public:
 		return new AST_unary_op(op, expr);
 	}
 
-	virtual bool fixed ()
+	bool fixed ()
 	{
 		return true;
 	}
