@@ -467,13 +467,6 @@ sep_copy_on_write (zval ** p_zvp, int *is_zvp_new)
   zvp_clone (p_zvp, is_zvp_new);
 }
 
-// Separate the RHS (that is, make a copy *and update the hashtable*)
-// See "Separation anxiety" in the PHP book
-static void
-separate_var (zval ** p_var)
-{
-  sep_copy_on_write_ex (p_var);
-}
 
 /* Write P_RHS into the symbol table as a variable named VAR_NAME */
 static void
@@ -642,45 +635,6 @@ read_var_array (HashTable * st, zval ** result, zval * refl,
   read_array (result, *p_var, ind, NULL TSRMLS_CC);
 }
 
-/* Write P_RHS into p_var, indexed by IND. Although st is unused, it
- * is left in since we may have to ask it for its destructor. */
-static void
-write_array (zval ** p_var, zval * ind, zval ** p_rhs,
-	     int *is_rhs_new TSRMLS_DC)
-{
-  zval *lhs = NULL;
-  zval **p_lhs = &lhs;
-
-  zval *rhs = *p_rhs;
-
-  // if its not an array, make it an array
-  assert (Z_TYPE_PP (p_var) != IS_STRING);	// TODO unimplemented
-  HashTable *ht = extract_ht (p_var TSRMLS_CC);
-
-  // find the var
-  int lhs_exists = (ht_find (ht, ind, &p_lhs) == SUCCESS);
-  if (lhs_exists)
-    lhs = *p_lhs;
-
-
-  if (!lhs_exists || !lhs->is_ref)
-    {
-      if (rhs->is_ref)
-	{
-	  zvp_clone (p_rhs, is_rhs_new);
-	  rhs = *p_rhs;
-	}
-
-      rhs->refcount++;
-
-      ht_update (ht, ind, rhs, NULL);
-    }
-  else
-    {
-      overwrite_lhs (lhs, rhs);
-    }
-}
-
 /* Push EG (uninitialized_zval_ptr) and return a pointer into the ht
  * for it */
 static zval **
@@ -707,72 +661,6 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
   return data;
 }
 
-
-/* Write P_RHS into the symbol table as a variable named VAR_NAME */
-static void
-push_var (zval ** p_var, zval ** p_rhs TSRMLS_DC)
-{
-  if (Z_TYPE_P (*p_var) == IS_STRING)
-    {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			"[] operator not supported for strings");
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht (p_var TSRMLS_CC);
-
-  (*p_rhs)->refcount++;
-  int result = zend_hash_next_index_insert (ht, p_rhs, sizeof (zval *), NULL);
-  assert (result == SUCCESS);
-
-}
-
-static void
-push_var_reference (zval ** p_var, zval ** p_rhs TSRMLS_DC)
-{
-  (*p_rhs)->is_ref = 1;
-  push_var (p_var, p_rhs TSRMLS_CC);
-}
-
-/* Potentially change-on-write VAR_NAME1, contained in
- * the variable P_VAR1. If P_VAR1 is in the copy-on-write
- * set, separate it, and write it back as VAR_NAME2,
- * which should be its original name */
-static void
-write_var_reference (zval ** p_lhs, zval ** p_rhs)
-{
-  // Change-on-write
-  (*p_rhs)->is_ref = 1;
-  (*p_rhs)->refcount++;
-
-  zval_ptr_dtor (p_lhs);
-  *p_lhs = *p_rhs;
-}
-
-
-/* Potentially change-on-write VAR_NAME1, contained in
- * the variable P_VAR1. If P_VAR1 is in the copy-on-write
- * set, separate it, and write it back as VAR_NAME2,
- * which should be its original name */
-static void
-write_array_reference (zval ** p_var, zval * ind, zval ** p_zvp TSRMLS_DC)
-{
-  // Change-on-write
-  (*p_zvp)->is_ref = 1;
-  (*p_zvp)->refcount++;
-
-  if (Z_TYPE_P (*p_var) == IS_STRING)
-    {
-      php_error_docref (NULL TSRMLS_CC, E_ERROR,
-			"Cannot create references to/from string offsets nor overloaded objects");
-    }
-
-  // if its not an array, make it an array
-  HashTable *ht = extract_ht (p_var TSRMLS_CC);
-
-  // find the index
-  ht_update (ht, ind, *p_zvp, NULL);
-}
 
 static zval **
 fetch_var_arg_by_ref (zval ** p_arg)
