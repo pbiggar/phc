@@ -86,9 +86,10 @@ class Demi_eval : public AST_transform
 		}
 };
 
+// Fresh variables are marked as not needing a symbol table entry automatically. We cant get one in an eval (for now).
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "hir");
+	pm->add_before_named_pass (pass, "ast");
 }
 
 extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
