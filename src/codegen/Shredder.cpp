@@ -120,7 +120,10 @@ public:
 	{
 		if(in->expr->classid() != AST_assignment::ID)
 		{
-			in->expr = new AST_assignment(fresh_var("TSe"), false, in->expr);
+			AST_variable* var = fresh_var ("TSe");
+			var->attrs->set_true ("phc.codegen.unused");
+
+			in->expr = new AST_assignment(var, false, in->expr);
 		}
 	
 		out->push_back(in);
@@ -149,6 +152,7 @@ public:
 		if(in->expr == NULL)
 		{
 			in->expr = new Token_null(new String("NULL"));
+			in->expr->attrs->set_true ("phc.codegen.unused");
 		}
 
 		out->push_back(in);
@@ -482,6 +486,9 @@ class Tidy_print : public AST_transform
 		 * into
 		 *   $t2 = printf ("%s", $y); // $t2 can be discarded
 		 *   $x = 1;
+		 *
+		 * If $x is unused, we have
+		 *	  $x = printf ("%s", $y);
 		 */
 		Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
 		AST_method_invocation* print = new AST_method_invocation (
@@ -496,7 +503,12 @@ class Tidy_print : public AST_transform
 		if (agn->expr->match (print))
 		{
 			// $t2 = printf ("%s", expr);
-			AST_variable* t2 = fresh_var("TSp");
+			bool unused = agn->variable->attrs->is_true ("phc.codegen.unused");
+
+			AST_variable* t2 = agn->variable;
+			if (not unused)
+				t2 = fresh_var ("TSp");
+
 			out->push_back_all (shred (
 						new AST_eval_expr (
 							new AST_assignment(t2, false,
@@ -512,10 +524,15 @@ class Tidy_print : public AST_transform
 											arg->value)
 										))))));
 
-			// $x = 1;
-			out->push_back (new AST_eval_expr (
-						new AST_assignment(agn->variable, false,
-							new Token_int (1))));
+
+			// This isnt necessary 
+			if (not unused)
+			{
+				// $x = 1;
+				out->push_back (new AST_eval_expr (
+							new AST_assignment(agn->variable, false,
+								new Token_int (1))));
+			}
 
 			return;
 		}

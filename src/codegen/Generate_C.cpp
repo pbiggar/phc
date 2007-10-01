@@ -783,7 +783,7 @@ class Assignment : public Pattern
 {
 public:
 	virtual AST_expr* rhs_pattern() = 0;
-	virtual void generate_rhs() = 0;
+	virtual void generate_rhs (bool used) = 0;
 	virtual ~Assignment() {}
 
 public:
@@ -797,11 +797,13 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
+		int used = not lhs->value->attrs->is_true ("phc.codegen.unused");
 
-		index_lhs (LOCAL, "p_lhs", lhs->value);
+		if (used)
+			index_lhs (LOCAL, "p_lhs", lhs->value);
 
 		// Generate code for the RHS
-		generate_rhs();
+		generate_rhs (used);
 
 		code << "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
@@ -833,8 +835,11 @@ public:
 	}
 
 	// record if we've seen this variable before
-	void generate_rhs()
+	void generate_rhs (bool used)
 	{
+		if (not used)
+			return;
+
 		// TODO If this isnt static, there is a new hash each time,
 		// because there is a new object each time it is called. Why is
 		// there a new object each time?
@@ -1005,8 +1010,12 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs()
+	void generate_rhs (bool used)
 	{
+		// FIXME: this happens because of strange, multi-stage lowering
+		if (not used)
+			return;
+
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -1045,9 +1054,10 @@ public:
 			rhs);
 	}
 
-	virtual void generate_rhs ()
+	void generate_rhs (bool used)
 	{
-		Copy::generate_rhs ();
+		assert (used);
+		Copy::generate_rhs (used);
 		code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
 	}
 };
@@ -1082,8 +1092,9 @@ public:
 
 	bool fixed () { return true; }
 
-	void generate_rhs ()
+	void generate_rhs (bool used)
 	{
+		assert (used);
 		// Check whether its in the form CONST or CLASS::CONST
 		String* name = new String ("");
 		if (rhs->value->class_name)
@@ -1138,41 +1149,40 @@ class Eval : public Assignment
 			);
 	}
 
-	bool fixed () { return true; }
-
 	// TODO this is untidy, and slower than it should be. Not a
 	// priority.
-	void generate_rhs()	
+	void generate_rhs (bool used)
 	{
 		code << "{\n";
 		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value));
 
-		if (!agn->is_ref)
+		if (used)
 		{
 			declare ("p_rhs");
 			code 
 				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-			code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "p_rhs = &temp;\n"
+				<< "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+
+			if (!agn->is_ref)
+			{
+				code 
+					<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			}
+			else
+			{
+				code 
+					<< "sep_copy_on_write_ex (p_rhs);\n"
+					<< "(*p_rhs)->is_ref = 1;\n"
+					<< "(*p_rhs)->refcount++;\n"
+					<< "zval_ptr_dtor (p_lhs);\n"
+					<< "*p_lhs = *p_rhs;\n";
+			}
 			cleanup ("p_rhs");
 		}
 		else
 		{
-			declare ("p_rhs");
-			code 
-				<< "zval* temp = NULL;\n"
-				<< "p_rhs = &temp;\n";
-
-			code << "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
-			cleanup ("p_rhs");
+			code << "eval (eval_arg, NULL, NULL TSRMLS_CC);\n";
 		}
 
 		code << "}\n" ;
@@ -1229,7 +1239,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs()
+	void generate_rhs (bool used)
 	{
 		List<AST_actual_parameter*>::const_iterator i;
 		unsigned index;
@@ -1242,12 +1252,12 @@ public:
 
 		assert (name != NULL);
 
-		int num_args = rhs->value->actual_parameters->size();
 		declare ("p_rhs");
 		code 
 			<< "zval* temp;\n"
 			<< "p_rhs = &temp;\n";
 
+		int num_args = rhs->value->actual_parameters->size();
 		code
 			// lookup the function and cache it for next time
 			<< "// Call the function\n"
@@ -1456,20 +1466,19 @@ public:
 		// when calling eval'd functions, because they do in fact
 		// return the correct refcount.
 		code 
-		<< "if(signature->common.return_reference)\n"
-		<< "{\n"
-		<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
-		<< "	(*p_rhs)->is_ref = 1;\n"
-		// TODO what happens if there's supposed to be 8 or 10
-		// references to it.
-		<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
-		<< "		is_p_rhs_new = 1;\n"
-		<< "}\n"
-		<< "else\n"
-		<< "{\n"
-		<< "	is_p_rhs_new = 1;\n"
-		<< "}\n"
-		;
+			<< "if(signature->common.return_reference)\n"
+			<< "{\n"
+			<< "	assert (*p_rhs != EG(uninitialized_zval_ptr));\n"
+			<< "	(*p_rhs)->is_ref = 1;\n"
+			// TODO what happens if there's supposed to be 8 or 10
+			// references to it.
+			<< "  if (signature->type == ZEND_USER_FUNCTION)\n"
+			<< "		is_p_rhs_new = 1;\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<< "	is_p_rhs_new = 1;\n"
+			<< "}\n" ;
 
 		for(
 			i = rhs->value->actual_parameters->begin(), index = 0; 
@@ -1485,19 +1494,22 @@ public:
 				<< "}\n";
 		}
 
-		if (!agn->is_ref)
+		if (used)
 		{
-			code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
-		}
-		else
-		{
-			code 
-				<< "sep_copy_on_write_ex (p_rhs);\n"
-				<< "(*p_rhs)->is_ref = 1;\n"
-				<< "(*p_rhs)->refcount++;\n"
-				<< "zval_ptr_dtor (p_lhs);\n"
-				<< "*p_lhs = *p_rhs;\n";
+			if (!agn->is_ref)
+			{
+				code 
+					<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			}
+			else
+			{
+				code 
+					<< "sep_copy_on_write_ex (p_rhs);\n"
+					<< "(*p_rhs)->is_ref = 1;\n"
+					<< "(*p_rhs)->refcount++;\n"
+					<< "zval_ptr_dtor (p_lhs);\n"
+					<< "*p_lhs = *p_rhs;\n";
+			}
 		}
 		cleanup ("p_rhs");
 		
@@ -1520,8 +1532,9 @@ public:
 		return new AST_bin_op (left, op, right); 
 	}
 
-	void generate_rhs()
+	void generate_rhs (bool used)
 	{
+		assert (used);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1572,8 +1585,9 @@ public:
 		return new AST_unary_op(op, expr);
 	}
 
-	void generate_rhs()
+	void generate_rhs (bool used)
 	{
+		assert (used);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
