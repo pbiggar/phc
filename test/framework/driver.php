@@ -73,12 +73,16 @@ if ($opt_installed)
 $tests = array ();
 
 require_once ("basic_parse_test.php");
-$tests[] = new CompareWithPHP ("InterpretUnparsed", "--pretty-print", "BasicParseTest");
+$tests[] = new CompareWithPHP ("Interpret_ast", "--pretty-print", "BasicParseTest");
+$tests[] = new CompareWithPHP ("Interpret_lcf", "--udump=lcf", "Interpret_ast");
+$tests[] = new CompareWithPHP ("Interpret_lef", "--udump=lef", "Interpret_lcf");
+$tests[] = new CompareWithPHP ("Interpret_ecs", "--udump=ecs", "Interpret_lef");
+$tests[] = new CompareWithPHP ("Interpret_rlys", "--udump=rlys", "Interpret_ecs");
+$tests[] = new CompareWithPHP ("Interpret_desug", "--udump=desug", "Interpret_rlys");
+$tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_desug");
+$tests[] = new CompareWithPHP ("Interpret_tidyp", "--udump=tidyp", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
-$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--udump=hir --run plugins/tests/strip_includes.la", "BasicParseTest");
-$tests[] = new CompareWithPHP ("InterpretLoweredCF", "--udump=lcf", "InterpretUnparsed");
-$tests[] = new CompareWithPHP ("InterpretLoweredExpr", "--udump=lef", "InterpretLoweredCF");
-$tests[] = new CompareWithPHP ("InterpretShredded", "--udump=shred", "InterpretLoweredExpr");
+$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--udump=hir --run plugins/tests/strip_includes.la", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "InterpretShredded");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
