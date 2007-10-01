@@ -431,6 +431,9 @@ public:
 		(*this)["!"] = "boolean_not_function";
 		(*this)["not"] = "boolean_not_function";
 		(*this)["~"] = "bitwise_not_function";
+		// Post- functions
+		(*this)["++"] = "increment_function";
+		(*this)["--"] = "decrement_function";
 		// The operands to the next two functions must be swapped
 		(*this)[">="] = "is_smaller_or_equal_function"; 
 		(*this)[">"] = "is_smaller_function";
@@ -1572,6 +1575,37 @@ protected:
 	Wildcard<AST_variable>* right;
 };
 
+class Pre_op : public Assignment
+{
+public:
+	AST_expr* rhs_pattern()
+	{
+		op = new Wildcard<Token_op>;
+		var = new Wildcard<AST_variable>;
+
+		return new AST_pre_op (op, var); 
+	}
+
+	void generate_rhs (bool used)
+	{
+		assert (not used);
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
+
+		read_st (LOCAL, "p_var", get_var_name (var->value));
+
+		code
+			<< "sep_copy_on_write_ex (p_var);\n"
+			<< op_fn << "(*p_var);\n";
+	}
+
+protected:
+	Wildcard<AST_variable>* var;
+	Wildcard<Token_op>* op;
+};
+
 class Unary_op : public Assignment
 {
 public:
@@ -1769,6 +1803,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Eval()
 	,	new Exit()
 	,	new Method_invocation()
+	,	new Pre_op()
 	,	new Bin_op()
 	,	new Unary_op()
 	,	new Label()
@@ -1792,9 +1827,9 @@ void Generate_C::children_statement(AST_statement* in)
 
 	if(not matched)
 	{
-		PHP_unparser pup(cerr);
 		cerr << "could not generate code for ";
-		in->visit(&pup);
+		debug (in);
+		xdebug (in);
 		abort();
 	}
 }

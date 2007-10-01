@@ -231,6 +231,16 @@ public:
 		in->variable->attrs->set_true("phc.shredder.need_addr");
 	}
 
+	void pre_post_op (AST_post_op* in)
+	{
+		in->variable->attrs->set_true("phc.shredder.need_addr");
+	}
+
+	void pre_pre_op (AST_pre_op* in)
+	{
+		in->variable->attrs->set_true("phc.shredder.need_addr");
+	}
+
 	void pre_attribute(AST_attribute* in)
 	{
 		// Do not generate a temp to hold the default value of an
@@ -429,70 +439,55 @@ public:
 	}
 
 	/* Convert
-	 *		$x++;
+	 *		++$x;
 	 *	into
-	 *		$x = $x + 1;
-	 *
-	 *	This must be done before $A::q is shredded.
+	 *		$u = ++$x; // mark $u as unused
+	 *		$x;
 	 */
 	AST_expr* post_pre_op(AST_pre_op* in)
 	{
-		Token_op* op;
+		// $u = ++$x;
+		AST_variable* unused = fresh_var ("TSpri");
+		unused->attrs->set_true ("phc.codegen.unused");
+		pieces->push_back (new AST_eval_expr (
+				new AST_assignment (
+					unused,
+					false,
+					in)));
 
-		if(*in->op->value == "--")
-			op = new Token_op(new String("-"));
-		else if(*in->op->value == "++")
-			op = new Token_op(new String("+"));
-		else
-			assert(0);
-
-		AST_variable* one = fresh_var("TSo");
-
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						one,
-						false,
-						new Token_int(1))));
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						in->variable->clone(),
-						false,
-						new AST_bin_op(
-							in->variable->clone(),
-							op,
-							one->clone ()))));
-
-		return in->variable->clone();
+		// $x
+		return in->variable->clone ();;
 	}
 
+	/* Convert
+	 *		$x++;
+	 *	into
+	 *		$t = $x;
+	 *		$u = ++$x; // mark $u as unused
+	 *		$t;
+	 */
 	AST_expr* post_post_op(AST_post_op* in)
 	{
-		Token_op* op;
-
-		if(*in->op->value == "--")
-			op = new Token_op(new String("-"));
-		else if(*in->op->value == "++")
-			op = new Token_op(new String("+"));
-		else
-			assert(0);
-
 		AST_variable* old_value = fresh_var("TS");
-		AST_variable* one = fresh_var("TSo");
 
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
+		// $t = $x
+		pieces->push_back (new AST_eval_expr (new AST_assignment(
 						old_value->clone (),
 						false,
 						in->variable->clone())));
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						one->clone (),
-						false,
-						new Token_int(1))));
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						in->variable->clone(),
-						false,
-						new AST_bin_op(
-							in->variable->clone(),
-							op,
-							one))));
 
+		// $u = ++$x;
+		AST_variable* unused = fresh_var ("TSpoi");
+		unused->attrs->set_true ("phc.codegen.unused");
+		pieces->push_back (new AST_eval_expr (
+				new AST_assignment (
+					unused,
+					false,
+					new AST_pre_op (
+						in->op,
+						in->variable))));
+
+		// $t
 		return old_value;
 	}
 
