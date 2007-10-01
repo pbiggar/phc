@@ -1090,8 +1090,6 @@ public:
 		return rhs;
 	}
 
-	bool fixed () { return true; }
-
 	void generate_rhs (bool used)
 	{
 		assert (used);
