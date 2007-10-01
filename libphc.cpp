@@ -849,13 +849,18 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
   // instead or rhs to avoid zend_eval_string adding "return".
 
   // convert to a string
+  // TODO avoid allocation
   zval *copy = zvp;
   zvp_clone_ex (&copy);
   convert_to_string (copy);
 
-  MAKE_STD_ZVAL (*p_result);
-  *is_result_new = 1;
-  if (!strncmp (Z_STRVAL_P (copy), "return ", 7))
+  if (p_result)
+  {
+	  ALLOC_INIT_ZVAL (*p_result);
+	  *is_result_new = 1;
+  }
+
+  if (p_result && !strncmp (Z_STRVAL_P (copy), "return ", 7))
     {
       zend_eval_string (Z_STRVAL_P (copy) + 7, *p_result,
 			"eval'd code" TSRMLS_CC);
@@ -863,7 +868,6 @@ eval (zval * zvp, zval ** p_result, int *is_result_new TSRMLS_DC)
   else
     {
       zend_eval_string (Z_STRVAL_P (copy), NULL, "eval'd code" TSRMLS_CC);
-      ZVAL_NULL (*p_result);
     }
 
   // cleanup
