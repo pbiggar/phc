@@ -132,7 +132,11 @@ int main(int argc, char** argv)
 	pm->add_pass (new Lift_functions_and_classes ());
 	pm->add_transform (new Lower_control_flow (), "lcf");
 	pm->add_transform (new Lower_expr_flow (), "lef");
+	pm->add_transform (new Echo_split (), "ecs");
+	pm->add_transform (new Desugar (), "desug");
+	pm->add_transform (new Early_shredder (), "rlys");
 	pm->add_transform (new Shredder (), "shred");
+	pm->add_transform (new Tidy_print (), "tidyp");
 	pm->add_transform (new Process_includes (true, new String ("hir"), pm), "incl2");
 	pm->add_pass (new Fake_pass ("hir"));
 	pm->add_visitor (new Strip_comments (), "decomment");
