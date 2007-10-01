@@ -41,6 +41,7 @@ parsing/allchars_inline.php		no-Generate_C no-Refcounts no-CompiledVsInterpreted
 codegen/shutdown_on_.*.php			no-Refcounts 
 codegen/nested_statements.php		no-Refcounts
 codegen/print.php						no-Refcounts
+codegen/bench_.*.php					no-Refcounts # these take ages
 
 
 parsing/for.php						non-interpretable # infinite loops
