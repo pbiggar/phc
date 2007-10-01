@@ -1,7 +1,7 @@
 <?php
 
 function simpleudcall() {
-  for ($i = 0; $i < 1000000; $i++) 
+  for ($i = 0; $i < 10; $i++) 
     hallo2("hallo");
 }
 

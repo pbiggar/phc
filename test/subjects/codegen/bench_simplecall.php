@@ -1,7 +1,7 @@
 <?php
 
 	function simplecall() {
-  for ($i = 0; $i < 1000000; $i++) 
+  for ($i = 0; $i < 10; $i++) 
     strlen("hallo");
 }
 

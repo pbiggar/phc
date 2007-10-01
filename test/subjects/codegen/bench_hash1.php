@@ -11,6 +11,6 @@ function hash1($n) {
   print "$c\n";
 }
 
-hash1(50000);
+hash1(5);
 
 ?>

@@ -10,6 +10,6 @@ function fibo($n) {
 }
 
 // PHP takes ages to run this. Original was 30.
-fibo (20);
+fibo (4);
 
 ?>

@@ -16,6 +16,6 @@ function hash2($n) {
 }
 
 
-hash2 (500);
+hash2 (5);
 
 ?>

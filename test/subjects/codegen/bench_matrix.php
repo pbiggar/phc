@@ -28,7 +28,7 @@ function mmult ($rows, $cols, $m1, $m2) {
 
 
 function matrix($n) {
-  $SIZE = 30;
+  $SIZE = 10;
   $m1 = mkmatrix($SIZE, $SIZE);
   $m2 = mkmatrix($SIZE, $SIZE);
   while ($n--) {
@@ -37,6 +37,6 @@ function matrix($n) {
   print "{$mm[0][0]} {$mm[2][3]} {$mm[3][2]} {$mm[4][4]}\n";
 }
 
-matrix (20);
+matrix (2);
 
 ?>

@@ -12,6 +12,6 @@ function ary($n) {
 }
 
 
-ary (50000);
+ary (5);
 
 ?>

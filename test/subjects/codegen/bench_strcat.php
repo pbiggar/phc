@@ -9,6 +9,6 @@ function strcat($n) {
   print "$len\n";
 }
 
-strcat (20000);
+strcat (20);
 
 ?>

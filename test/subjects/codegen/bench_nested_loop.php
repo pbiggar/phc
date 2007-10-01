@@ -13,6 +13,6 @@ function nestedloop($n) {
   print "$x\n";
 }
 
-nestedloop (12);
+nestedloop (2);
 
 ?>

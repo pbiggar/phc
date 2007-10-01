@@ -52,6 +52,6 @@ function heapsort($N) {
   printf("%.10f\n", $ary[$N]);
 }
 
-heapsort (20000);
+heapsort (7);
 
 ?>

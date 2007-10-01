@@ -17,10 +17,10 @@ function mandel() {
       $rec=$s*($x-$w2)+$recen;
       $re=$rec;
       $im=$imc;
-      $color=1000;
+      $color=10;
       $re2=$re*$re;
       $im2=$im*$im;
-      while( ((($re2+$im2)<1000000) && $color>0)) {
+      while( ((($re2+$im2)<10) && $color>0)) {
         $im=$re*$im*2+$imc;
         $re=$re2-$im2+$rec;
         $re2=$re*$re;

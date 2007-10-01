@@ -5,7 +5,7 @@ function ary3($n) {
     $X[$i] = $i + 1;
     $Y[$i] = 0;
   }
-  for ($k=0; $k<1000; $k++) {
+  for ($k=0; $k<10; $k++) {
     for ($i=$n-1; $i>=0; $i--) {
       $Y[$i] += $X[$i];
     }
@@ -15,6 +15,6 @@ function ary3($n) {
 }
 
 
-ary3(2000);
+ary3(5);
 
 ?>

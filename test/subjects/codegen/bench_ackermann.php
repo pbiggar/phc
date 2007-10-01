@@ -11,6 +11,6 @@ function ackermann($n) {
   print "Ack(3,$n): $r\n";
 }
 
-ackermann (7);
+ackermann (3);
 
 ?>

@@ -31,6 +31,6 @@ function ary2($n) {
   print "$Y[$last]\n";
 }
 
-ary2(50000);
+ary2(5);
 
 ?>
