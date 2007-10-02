@@ -352,9 +352,15 @@ public:
 
 	void pre_static_declaration(AST_static_declaration* in)
 	{
+		generate_array_temps = false;
 		// Do not generate a temp to hold the default value of a static var
 		if(in->expr)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
+	}
+
+	void post_static_declaration(AST_static_declaration* in)
+	{
+		generate_array_temps = true;
 	}
 
 	void pre_directive (AST_directive* in)
