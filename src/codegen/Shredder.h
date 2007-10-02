@@ -143,6 +143,10 @@ public:
 	// a dummy assignment on the LHS
 	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 	{
+		// remove variables on their own
+		if (in->expr->classid() == AST_variable::ID)
+			return;
+
 		if(in->expr->classid() != AST_assignment::ID)
 		{
 			AST_variable* var = fresh_var ("TSe");
@@ -183,6 +187,85 @@ public:
 		out->push_back(in);
 	}
 };
+
+class Very_early_shredder : public Lower_expr
+{
+public:
+
+	/* Convert
+	 *		++$x;
+	 *	into
+	 *		$u = ++$x; // mark $u as unused
+	 *		$x;
+	 */
+	AST_expr* post_pre_op(AST_pre_op* in)
+	{
+		// $u = ++$x;
+		AST_variable* unused = fresh_var ("TSpri");
+		unused->attrs->set_true ("phc.codegen.unused");
+		pieces->push_back (new AST_eval_expr (
+				new AST_assignment (
+					unused,
+					false,
+					in)));
+
+		// $x
+		return in->variable->clone ();;
+	}
+
+	/* Special case:
+	 *	If 
+	 *		$x++ 
+	 *	is found on its own, convert directly into
+	 *		++$x;
+	 *
+	 *	This avoids an extra statement being issued by post_post_op.
+	 *	This should be replaced with data-flow at a later date.
+	 */
+	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+	{
+		if (AST_post_op* post_op = dynamic_cast<AST_post_op*> (in->expr))
+		{
+			in->expr = new AST_pre_op (post_op->op, post_op->variable);
+		}
+		out->push_back (in);
+	}
+
+	/* Convert
+	 *		$x++;
+	 *	into
+	 *		$t = $x;
+	 *		$u = ++$x; // mark $u as unused
+	 *		$t;
+	 */
+	AST_expr* post_post_op(AST_post_op* in)
+	{
+		AST_variable* old_value = fresh_var("TS");
+
+		// $t = $x
+		pieces->push_back (new AST_eval_expr (new AST_assignment(
+						old_value->clone (),
+						false,
+						in->variable->clone())));
+
+		// $u = ++$x;
+		AST_variable* unused = fresh_var ("TSpoi");
+		unused->attrs->set_true ("phc.codegen.unused");
+		pieces->push_back (new AST_eval_expr (
+				new AST_assignment (
+					unused,
+					false,
+					new AST_pre_op (
+						in->op,
+						in->variable))));
+
+		// $t
+		return old_value;
+	}
+
+};
+
+
 
 class Annotate : public AST_visitor
 {
@@ -360,8 +443,8 @@ public:
 	}
 };
 
-// Some shredding will create variables which may be missed if done at the same
-// time as the variable shredding.
+// Some shredding will create variables which may be missed if done
+// at the same time as the variable shredding.
 class Early_shredder : public Lower_expr
 {
 public:
@@ -437,61 +520,6 @@ public:
 		// lists evaluate to their rvalue
 		return temp;
 	}
-
-	/* Convert
-	 *		++$x;
-	 *	into
-	 *		$u = ++$x; // mark $u as unused
-	 *		$x;
-	 */
-	AST_expr* post_pre_op(AST_pre_op* in)
-	{
-		// $u = ++$x;
-		AST_variable* unused = fresh_var ("TSpri");
-		unused->attrs->set_true ("phc.codegen.unused");
-		pieces->push_back (new AST_eval_expr (
-				new AST_assignment (
-					unused,
-					false,
-					in)));
-
-		// $x
-		return in->variable->clone ();;
-	}
-
-	/* Convert
-	 *		$x++;
-	 *	into
-	 *		$t = $x;
-	 *		$u = ++$x; // mark $u as unused
-	 *		$t;
-	 */
-	AST_expr* post_post_op(AST_post_op* in)
-	{
-		AST_variable* old_value = fresh_var("TS");
-
-		// $t = $x
-		pieces->push_back (new AST_eval_expr (new AST_assignment(
-						old_value->clone (),
-						false,
-						in->variable->clone())));
-
-		// $u = ++$x;
-		AST_variable* unused = fresh_var ("TSpoi");
-		unused->attrs->set_true ("phc.codegen.unused");
-		pieces->push_back (new AST_eval_expr (
-				new AST_assignment (
-					unused,
-					false,
-					new AST_pre_op (
-						in->op,
-						in->variable))));
-
-		// $t
-		return old_value;
-	}
-
-
 };
 
 class Tidy_print : public AST_transform
