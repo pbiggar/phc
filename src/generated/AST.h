@@ -978,7 +978,7 @@ public:
     virtual void assert_valid();
 public:
     AST_class_def(AST_class_mod* mod);
-    AST_class_def(char* name);
+    AST_class_def(const char* name);
     void add_member(AST_member* member);
     //  Returns NULL if the method could not be found
     AST_method* get_method(const char* name);
@@ -1682,7 +1682,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_cast(char* cast, AST_expr* expr);
+    AST_cast(const char* cast, AST_expr* expr);
 };
 
 // unary_op ::= OP expr ;
@@ -1710,7 +1710,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_unary_op(AST_expr* expr, char* op);
+    AST_unary_op(AST_expr* expr, const char* op);
 };
 
 // bin_op ::= left:expr OP right:expr ;
@@ -1739,7 +1739,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_bin_op(AST_expr* left, AST_expr* right, char* op);
+    AST_bin_op(AST_expr* left, AST_expr* right, const char* op);
 };
 
 // conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
@@ -1900,7 +1900,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_pre_op(AST_variable* var, char* op);
+    AST_pre_op(AST_variable* var, const char* op);
 };
 
 // post_op ::= variable OP ;
@@ -1928,7 +1928,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_post_op(AST_variable* var, char* op);
+    AST_post_op(AST_variable* var, const char* op);
 };
 
 // array ::= array_elem* ;

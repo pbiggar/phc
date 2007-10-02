@@ -325,7 +325,7 @@ public:
 		this->members = new List<AST_member*>;
 	}
 
-	AST_class_def(char* name)
+	AST_class_def(const char* name)
 	{
 		this->class_mod = new AST_class_mod(false, false);
 		this->class_name = new Token_class_name(new String(name));
@@ -479,7 +479,7 @@ public:
 class AST_bin_op
 {
 public:
-	AST_bin_op(AST_expr* left, AST_expr* right, char* op) 
+	AST_bin_op(AST_expr* left, AST_expr* right, const char* op) 
 	{
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -490,7 +490,7 @@ public:
 class AST_post_op
 {
 public:
-	AST_post_op(AST_variable* var, char* op) 
+	AST_post_op(AST_variable* var, const char* op) 
 	{
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -500,7 +500,7 @@ public:
 class AST_pre_op
 {
 public:
-	AST_pre_op(AST_variable* var, char* op) 
+	AST_pre_op(AST_variable* var, const char* op) 
 	{
 		this->variable = var;
 		this->op = new Token_op(new String(op));
@@ -510,7 +510,7 @@ public:
 class AST_unary_op
 {
 public:
-	AST_unary_op(AST_expr* expr, char* op) 
+	AST_unary_op(AST_expr* expr, const char* op) 
 	{
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
@@ -529,7 +529,7 @@ public:
 class AST_cast
 {
 public:
-	AST_cast(char* cast, AST_expr* expr) 
+	AST_cast(const char* cast, AST_expr* expr) 
 	{
 		this->cast = new Token_cast(new String(cast));
 		this->expr = expr;

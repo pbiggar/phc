@@ -31,7 +31,7 @@ void Compile_C::run (AST_php_script* in, Pass_manager* pm)
 		return;
 
 	// Find PHP installation path
-	char* php_path;
+	const char* php_path;
 	if(pm->args_info->with_php_given)
 		php_path = pm->args_info->with_php_arg;
 	else

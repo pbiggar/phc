@@ -2769,7 +2769,7 @@ AST_class_def::AST_class_def(AST_class_mod* mod)
 	}
 }
 
-AST_class_def::AST_class_def(char* name)
+AST_class_def::AST_class_def(const char* name)
 {
     {
 		this->class_mod = new AST_class_mod(false, false);
@@ -5979,7 +5979,7 @@ void AST_cast::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_cast::AST_cast(char* cast, AST_expr* expr)
+AST_cast::AST_cast(const char* cast, AST_expr* expr)
 {
     {
 		this->cast = new Token_cast(new String(cast));
@@ -6086,7 +6086,7 @@ void AST_unary_op::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_unary_op::AST_unary_op(AST_expr* expr, char* op)
+AST_unary_op::AST_unary_op(AST_expr* expr, const char* op)
 {
     {
 		this->expr = expr;
@@ -6214,7 +6214,7 @@ void AST_bin_op::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, char* op)
+AST_bin_op::AST_bin_op(AST_expr* left, AST_expr* right, const char* op)
 {
     {
 		this->left = left;
@@ -6887,7 +6887,7 @@ void AST_pre_op::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_pre_op::AST_pre_op(AST_variable* var, char* op)
+AST_pre_op::AST_pre_op(AST_variable* var, const char* op)
 {
     {
 		this->variable = var;
@@ -6994,7 +6994,7 @@ void AST_post_op::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_post_op::AST_post_op(AST_variable* var, char* op)
+AST_post_op::AST_post_op(AST_variable* var, const char* op)
 {
     {
 		this->variable = var;
