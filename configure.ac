@@ -43,8 +43,13 @@ AC_PATH_PROG([diff], [diff])
 AC_PATH_PROG([valgrind], [valgrind])
 AC_PATH_PROG([dot], [dot])
 AC_PATH_PROG([graphviz_gc], [gc])
-AC_PATH_PROG([maketea], [maketea])
- 
+
+AC_ARG_WITH([maketea], 
+   AS_HELP_STRING([--with-maketea], [path to maketea (if installed)]),
+  [AC_PATH_PROG([maketea], [maketea], [], [${withval}:${withval}/bin])],
+  [AC_PATH_PROG([maketea], [maketea])]
+  )
+
 AC_ARG_WITH([php], 
 	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
 	[
@@ -62,6 +67,7 @@ AC_ARG_WITH([php],
 		AC_SUBST([php_install_path], ["/usr/local"])
 		PHP_INSTALL_PATH=["/usr/local"]
 	])
+
 
 dnl To check if the PHP embed SAPI has been installed, we temporarily add the
 dnl PHP installation path to LDFLAGS and CFLAGS, and restore it later (since 
