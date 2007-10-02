@@ -1,5 +1,5 @@
 <?php
 	unset ($GLOBALS [NULL]);
 
-	var_dump ($GLOBALS);
+	var_dump (count ($GLOBALS));
 ?>
