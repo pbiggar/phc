@@ -180,6 +180,11 @@ AST_expr* AST_transform::pre_assignment(AST_assignment* in)
     return in;
 }
 
+AST_expr* AST_transform::pre_op_assignment(AST_op_assignment* in)
+{
+    return in;
+}
+
 AST_expr* AST_transform::pre_list_assignment(AST_list_assignment* in)
 {
     return in;
@@ -330,12 +335,12 @@ AST_expr* AST_transform::pre_null(Token_null* in)
     return in;
 }
 
-Token_cast* AST_transform::pre_cast(Token_cast* in)
+Token_op* AST_transform::pre_op(Token_op* in)
 {
     return in;
 }
 
-Token_op* AST_transform::pre_op(Token_op* in)
+Token_cast* AST_transform::pre_cast(Token_cast* in)
 {
     return in;
 }
@@ -521,6 +526,11 @@ AST_expr* AST_transform::post_assignment(AST_assignment* in)
     return in;
 }
 
+AST_expr* AST_transform::post_op_assignment(AST_op_assignment* in)
+{
+    return in;
+}
+
 AST_expr* AST_transform::post_list_assignment(AST_list_assignment* in)
 {
     return in;
@@ -671,12 +681,12 @@ AST_expr* AST_transform::post_null(Token_null* in)
     return in;
 }
 
-Token_cast* AST_transform::post_cast(Token_cast* in)
+Token_op* AST_transform::post_op(Token_op* in)
 {
     return in;
 }
 
-Token_op* AST_transform::post_op(Token_op* in)
+Token_cast* AST_transform::post_cast(Token_cast* in)
 {
     return in;
 }
@@ -892,6 +902,13 @@ void AST_transform::children_assignment(AST_assignment* in)
     in->expr = transform_expr(in->expr);
 }
 
+void AST_transform::children_op_assignment(AST_op_assignment* in)
+{
+    in->variable = transform_variable(in->variable);
+    in->op = transform_op(in->op);
+    in->expr = transform_expr(in->expr);
+}
+
 void AST_transform::children_list_assignment(AST_list_assignment* in)
 {
     in->list_elements = transform_list_element_list(in->list_elements);
@@ -1049,11 +1066,11 @@ void AST_transform::children_null(Token_null* in)
 {
 }
 
-void AST_transform::children_cast(Token_cast* in)
+void AST_transform::children_op(Token_op* in)
 {
 }
 
-void AST_transform::children_op(Token_op* in)
+void AST_transform::children_cast(Token_cast* in)
 {
 }
 
@@ -1525,6 +1542,22 @@ List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
     return out2;
 }
 
+Token_op* AST_transform::transform_op(Token_op* in)
+{
+    if(in == NULL) return NULL;
+    
+    Token_op* out;
+    
+    out = pre_op(in);
+    if(out != NULL)
+    {
+    	children_op(out);
+    	out = post_op(out);
+    }
+    
+    return out;
+}
+
 List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_list_element*>* in)
 {
     List<AST_list_element*>::const_iterator i;
@@ -1573,22 +1606,6 @@ Token_cast* AST_transform::transform_cast(Token_cast* in)
     {
     	children_cast(out);
     	out = post_cast(out);
-    }
-    
-    return out;
-}
-
-Token_op* AST_transform::transform_op(Token_op* in)
-{
-    if(in == NULL) return NULL;
-    
-    Token_op* out;
-    
-    out = pre_op(in);
-    if(out != NULL)
-    {
-    	children_op(out);
-    	out = post_op(out);
     }
     
     return out;
@@ -2012,6 +2029,7 @@ AST_expr* AST_transform::pre_expr(AST_expr* in)
     switch(in->classid())
     {
     case AST_assignment::ID: return pre_assignment(dynamic_cast<AST_assignment*>(in));
+    case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_cast::ID: return pre_cast(dynamic_cast<AST_cast*>(in));
     case AST_unary_op::ID: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
@@ -2081,6 +2099,7 @@ AST_target* AST_transform::pre_target(AST_target* in)
     switch(in->classid())
     {
     case AST_assignment::ID: return pre_assignment(dynamic_cast<AST_assignment*>(in));
+    case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_cast::ID: return pre_cast(dynamic_cast<AST_cast*>(in));
     case AST_unary_op::ID: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
@@ -2364,6 +2383,7 @@ AST_expr* AST_transform::post_expr(AST_expr* in)
     switch(in->classid())
     {
     case AST_assignment::ID: return post_assignment(dynamic_cast<AST_assignment*>(in));
+    case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_cast::ID: return post_cast(dynamic_cast<AST_cast*>(in));
     case AST_unary_op::ID: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
@@ -2433,6 +2453,7 @@ AST_target* AST_transform::post_target(AST_target* in)
     switch(in->classid())
     {
     case AST_assignment::ID: return post_assignment(dynamic_cast<AST_assignment*>(in));
+    case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_cast::ID: return post_cast(dynamic_cast<AST_cast*>(in));
     case AST_unary_op::ID: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
@@ -2566,6 +2587,9 @@ void AST_transform::children_expr(AST_expr* in)
     case AST_assignment::ID:
     	children_assignment(dynamic_cast<AST_assignment*>(in));
     	break;
+    case AST_op_assignment::ID:
+    	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+    	break;
     case AST_list_assignment::ID:
     	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     	break;
@@ -2674,6 +2698,9 @@ void AST_transform::children_target(AST_target* in)
     {
     case AST_assignment::ID:
     	children_assignment(dynamic_cast<AST_assignment*>(in));
+    	break;
+    case AST_op_assignment::ID:
+    	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     	break;
     case AST_list_assignment::ID:
     	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));

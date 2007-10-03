@@ -4,8 +4,7 @@
  *
  * Unparse the AST back to PHP syntax, being as explicit as possible. This adds
  * bracket around most expressions, removes user-specified brackets and
- * curlies, and removes the is_opeq attribute, which would otherwise make
- * '$x[f()] += 1;' print as "x[f()] = $x[f()] + 1;'
+ * curlies.
  */
 
 #include "process_ast/PHP_unparser.h" 
@@ -16,7 +15,6 @@ class Clear_user_syntax : public virtual AST_visitor
 	{
 		in->attrs->erase("phc.unparser.needs_user_curlies");
 		in->attrs->erase("phc.unparser.needs_user_brackets");
-		in->attrs->erase("phc.unparser.is_opeq");
 	}
 };
 

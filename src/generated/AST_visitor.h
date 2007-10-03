@@ -65,6 +65,7 @@ public:
     virtual void pre_expr(AST_expr* in);
     virtual void pre_literal(AST_literal* in);
     virtual void pre_assignment(AST_assignment* in);
+    virtual void pre_op_assignment(AST_op_assignment* in);
     virtual void pre_list_assignment(AST_list_assignment* in);
     virtual void pre_list_element(AST_list_element* in);
     virtual void pre_nested_list_elements(AST_nested_list_elements* in);
@@ -102,8 +103,8 @@ public:
     virtual void pre_string(Token_string* in);
     virtual void pre_bool(Token_bool* in);
     virtual void pre_null(Token_null* in);
-    virtual void pre_cast(Token_cast* in);
     virtual void pre_op(Token_op* in);
+    virtual void pre_cast(Token_cast* in);
     virtual void pre_constant_name(Token_constant_name* in);
 // Invoked after the children have been visited
 public:
@@ -147,6 +148,7 @@ public:
     virtual void post_expr(AST_expr* in);
     virtual void post_literal(AST_literal* in);
     virtual void post_assignment(AST_assignment* in);
+    virtual void post_op_assignment(AST_op_assignment* in);
     virtual void post_list_assignment(AST_list_assignment* in);
     virtual void post_list_element(AST_list_element* in);
     virtual void post_nested_list_elements(AST_nested_list_elements* in);
@@ -184,8 +186,8 @@ public:
     virtual void post_string(Token_string* in);
     virtual void post_bool(Token_bool* in);
     virtual void post_null(Token_null* in);
-    virtual void post_cast(Token_cast* in);
     virtual void post_op(Token_op* in);
+    virtual void post_cast(Token_cast* in);
     virtual void post_constant_name(Token_constant_name* in);
 // Visit the children of a node
 public:
@@ -224,6 +226,7 @@ public:
     virtual void children_eval_expr(AST_eval_expr* in);
     virtual void children_nop(AST_nop* in);
     virtual void children_assignment(AST_assignment* in);
+    virtual void children_op_assignment(AST_op_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
     virtual void children_nested_list_elements(AST_nested_list_elements* in);
     virtual void children_cast(AST_cast* in);
@@ -256,8 +259,8 @@ public:
     virtual void children_string(Token_string* in);
     virtual void children_bool(Token_bool* in);
     virtual void children_null(Token_null* in);
-    virtual void children_cast(Token_cast* in);
     virtual void children_op(Token_op* in);
+    virtual void children_cast(Token_cast* in);
     virtual void children_constant_name(Token_constant_name* in);
 // Unparser support
 public:
@@ -304,6 +307,7 @@ public:
     virtual void pre_eval_expr_chain(AST_eval_expr* in);
     virtual void pre_nop_chain(AST_nop* in);
     virtual void pre_assignment_chain(AST_assignment* in);
+    virtual void pre_op_assignment_chain(AST_op_assignment* in);
     virtual void pre_list_assignment_chain(AST_list_assignment* in);
     virtual void pre_nested_list_elements_chain(AST_nested_list_elements* in);
     virtual void pre_cast_chain(AST_cast* in);
@@ -334,8 +338,8 @@ public:
     virtual void pre_string_chain(Token_string* in);
     virtual void pre_bool_chain(Token_bool* in);
     virtual void pre_null_chain(Token_null* in);
-    virtual void pre_cast_chain(Token_cast* in);
     virtual void pre_op_chain(Token_op* in);
+    virtual void pre_cast_chain(Token_cast* in);
     virtual void pre_constant_name_chain(Token_constant_name* in);
 // Invoke the chain of post-visit methods along the inheritance hierarchy
 // (invoked in opposite order to the pre-chain)
@@ -376,6 +380,7 @@ public:
     virtual void post_eval_expr_chain(AST_eval_expr* in);
     virtual void post_nop_chain(AST_nop* in);
     virtual void post_assignment_chain(AST_assignment* in);
+    virtual void post_op_assignment_chain(AST_op_assignment* in);
     virtual void post_list_assignment_chain(AST_list_assignment* in);
     virtual void post_nested_list_elements_chain(AST_nested_list_elements* in);
     virtual void post_cast_chain(AST_cast* in);
@@ -406,8 +411,8 @@ public:
     virtual void post_string_chain(Token_string* in);
     virtual void post_bool_chain(Token_bool* in);
     virtual void post_null_chain(Token_null* in);
-    virtual void post_cast_chain(Token_cast* in);
     virtual void post_op_chain(Token_op* in);
+    virtual void post_cast_chain(Token_cast* in);
     virtual void post_constant_name_chain(Token_constant_name* in);
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
@@ -439,10 +444,10 @@ public:
     virtual void visit_directive_name(Token_directive_name* in);
     virtual void visit_catch_list(List<AST_catch*>* in);
     virtual void visit_catch(AST_catch* in);
+    virtual void visit_op(Token_op* in);
     virtual void visit_list_element_list(List<AST_list_element*>* in);
     virtual void visit_list_element(AST_list_element* in);
     virtual void visit_cast(Token_cast* in);
-    virtual void visit_op(Token_op* in);
     virtual void visit_constant_name(Token_constant_name* in);
     virtual void visit_class_name(AST_class_name* in);
     virtual void visit_target(AST_target* in);

@@ -81,7 +81,8 @@ eval_expr ::= expr ;
 nop ::= ;
 
 expr ::=
-     assignment | list_assignment | cast | unary_op | bin_op | conditional_expr
+     assignment | op_assignment | list_assignment 
+   | cast | unary_op | bin_op | conditional_expr
    | ignore_errors | constant | instanceof
    | variable | pre_op | post_op | array
    | method_invocation | new | clone
@@ -90,10 +91,12 @@ expr ::=
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
 assignment ::= variable is_ref:"&"? expr ;
+op_assignment ::= variable OP expr ;
 
 list_assignment ::= list_element?* expr ;
 list_element ::= variable | nested_list_elements ;
 nested_list_elements ::= list_element?* ;
+
 
 cast ::= CAST expr ;
 unary_op ::= OP expr ;
@@ -474,6 +477,17 @@ public:
 	{
 		return new AST_attr_mod(false, false, false, false, true);
 	}
+};
+
+class AST_op_assignment
+{
+public:
+   AST_op_assignment(AST_variable* variable, const char* op, AST_expr* expr)
+   {
+      this->variable = variable;
+      this->op = new Token_op(new String(op));
+      this->expr = expr;
+   }
 };
 
 class AST_bin_op

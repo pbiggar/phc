@@ -1814,123 +1814,57 @@ expr_without_variable:
 	| variable O_PLUSEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "+"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "+", $3);
 		}
 	| variable O_MINUSEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "-"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "-", $3);
 		}
 	| variable O_MULEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "*"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "*", $3);
 		}
 	| variable O_DIVEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "/"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "/", $3);
 		}
 	| variable O_CONCATEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "."))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, ".", $3);
 		}
 	| variable O_MODEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "%"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "%", $3);
 		}
 	| variable O_ANDEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "&"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "&", $3);
 		}
 	| variable O_OREQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "|"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "|", $3);
 		}
 	| variable O_XOREQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "^"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "^", $3);
 		}
 	| variable O_SLEQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, "<<"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, "<<", $3);
 		}
 	| variable O_SREQ expr
 		{
 			AST_variable* var = expect_variable($1);
-			
-			AST_expr* var_c;
-			var_c = var->clone();
-			
-			AST_assignment* agn = NEW(AST_assignment, (var, false, NEW(AST_bin_op, (var_c, $3, ">>"))));
-			agn->attrs->set_true("phc.unparser.is_opeq");
-			$$ = agn;
+			$$ = new AST_op_assignment(var, ">>", $3);
 		}
 	| rw_variable O_INC
 		{ 

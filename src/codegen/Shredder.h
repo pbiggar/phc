@@ -35,6 +35,7 @@ public:
 	AST_expr* post_constant (AST_constant* in);
 	AST_expr* post_array(AST_array* in);
 	AST_expr* post_assignment(AST_assignment* in);
+  AST_expr* post_op_assignment(AST_op_assignment* in);
 	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out);
 
 };
@@ -89,55 +90,6 @@ class Echo_split : public AST_transform
 
 class Desugar : public AST_transform
 {
-public:
-	//   $x[f()] += 1;
-	// 
-	// is represented as 
-	// 
-	//   $x[f()] = $x[f()] + 1; // phc.unparser.opeq is set
-	//
-	// Since f() would be executed twice, it would be incorrect for any
-	// side-effecting expression. We convert to
-	//
-	//	  $tmp = f();
-	//   $x[$tmp] = $x[$tmp] + 1;
-	
-	void post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
-	{
-		AST_assignment* assignment = dynamic_cast <AST_assignment*> (in->expr);
-		if (assignment == NULL 
-			or !assignment->attrs->is_true ("phc.unparser.is_opeq"))
-		{
-			out->push_back (in);
-			return;
-		}
-
-
-		// the variables and expressions are identical
-		AST_variable* lhs = assignment->variable;
-		AST_variable* rhs = dynamic_cast <AST_variable*> (
-			(dynamic_cast<AST_bin_op*>(assignment->expr))->left);
-		assert (lhs->equals (rhs));
-
-		// generate a temp for each non-literal expression.
-
-		List<AST_expr*>::iterator i;
-		List<AST_expr*>::iterator j;
-		for (i = lhs->array_indices->begin(), j = rhs->array_indices->begin();
-				i != lhs->array_indices->end(), j != rhs->array_indices->end();
-				i++, j++)
-		{
-			if (dynamic_cast<AST_literal*>(*i))
-				continue;
-
-			AST_variable* tmp = fresh_var ("Topeq");
-			out->push_back (new AST_eval_expr (new AST_assignment (tmp, false, (*i))));
-			(*i) = tmp->clone ();
-			(*j) = tmp->clone ();
-		}
-
-		out->push_back (in);
-	}
 
 	// All eval_expr must be assignments; if they are not, we generate
 	// a dummy assignment on the LHS
@@ -279,7 +231,6 @@ public:
 
 	void pre_node(AST_node* in)
 	{
-		in->attrs->erase("phc.unparser.is_opeq");
 		in->attrs->erase("phc.unparser.is_global_stmt");
 		in->attrs->erase("phc.unparser.starts_line");
 		in->attrs->erase("phc.unparser.needs_curlies");
@@ -307,6 +258,16 @@ public:
 		// top-level expression of an assignment
 		if (in->expr->classid () != AST_array::ID)
 			in->expr->attrs->set_true("phc.lower_expr.no_temp");
+	}
+
+  // op_assignments are never by reference
+	void pre_op_assignment(AST_op_assignment* in)
+	{
+		// We need references if we shred $x[0][1][etc] = ...;
+		in->variable->attrs->set_true("phc.shredder.need_addr");
+
+    // We do need a temporary for the expression of the op_assignment,
+    // because it will be the right operand to a binary operator
 	}
 
 	void pre_unset(AST_unset* in)

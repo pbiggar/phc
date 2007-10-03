@@ -270,6 +270,14 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new AST_assignment(variable, is_ref, expr);
     }
+    if(!strcmp(type_id, "AST_op_assignment"))
+    {
+    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
+    	Token_op* op = dynamic_cast<Token_op*>(*i++);
+    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	assert(i == args->end());
+    	return new AST_op_assignment(variable, op, expr);
+    }
     if(!strcmp(type_id, "AST_list_assignment"))
     {
     	List<AST_list_element*>* list_elements = dynamic_cast<List<AST_list_element*>*>(*i++);
@@ -439,17 +447,17 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Token_directive_name(value);
     }
-    if(!strcmp(type_id, "Token_cast"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_cast(value);
-    }
     if(!strcmp(type_id, "Token_op"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_op(value);
+    }
+    if(!strcmp(type_id, "Token_cast"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_cast(value);
     }
     if(!strcmp(type_id, "Token_constant_name"))
     {

@@ -48,8 +48,8 @@ class Token_method_name;
 class Token_variable_name;
 class Token_label_name;
 class Token_directive_name;
-class Token_cast;
 class Token_op;
+class Token_cast;
 class Token_constant_name;
 class AST_class_def;
 class AST_interface_def;
@@ -77,6 +77,7 @@ class AST_eval_expr;
 class AST_nop;
 class AST_literal;
 class AST_assignment;
+class AST_op_assignment;
 class AST_list_assignment;
 class AST_cast;
 class AST_unary_op;
@@ -439,7 +440,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 50;
+    static const int ID = 51;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -485,7 +486,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 52;
+    static const int ID = 53;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -654,7 +655,7 @@ public:
     virtual void assert_valid();
 };
 
-// expr ::= assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | clone | literal;
+// expr ::= assignment | op_assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | clone | literal;
 class AST_expr : virtual public AST_target
 {
 public:
@@ -687,7 +688,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 37;
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -712,7 +713,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 46;
+    static const int ID = 47;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -737,7 +738,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 55;
+    static const int ID = 56;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -762,7 +763,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 56;
+    static const int ID = 57;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -787,7 +788,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 57;
+    static const int ID = 58;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -812,7 +813,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 58;
+    static const int ID = 59;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -837,7 +838,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 59;
+    static const int ID = 60;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -862,7 +863,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 60;
+    static const int ID = 61;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -870,31 +871,6 @@ public:
     virtual bool equals(AST_node* in);
 public:
     virtual Token_directive_name* clone();
-public:
-    virtual void assert_valid();
-};
-
-class Token_cast : virtual public AST_identifier
-{
-public:
-    Token_cast(String* value);
-protected:
-    Token_cast();
-public:
-    virtual void visit(AST_visitor* visitor);
-    virtual void transform_children(AST_transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 66;
-    virtual int classid();
-public:
-    virtual bool match(AST_node* in);
-public:
-    virtual bool equals(AST_node* in);
-public:
-    virtual Token_cast* clone();
 public:
     virtual void assert_valid();
 };
@@ -924,6 +900,31 @@ public:
     virtual void assert_valid();
 };
 
+class Token_cast : virtual public AST_identifier
+{
+public:
+    Token_cast(String* value);
+protected:
+    Token_cast();
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 68;
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual Token_cast* clone();
+public:
+    virtual void assert_valid();
+};
+
 class Token_constant_name : virtual public AST_identifier
 {
 public:
@@ -937,7 +938,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 68;
+    static const int ID = 69;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1631,6 +1632,35 @@ public:
     virtual void assert_valid();
 };
 
+// op_assignment ::= variable OP expr ;
+class AST_op_assignment : virtual public AST_expr
+{
+public:
+    AST_op_assignment(AST_variable* variable, Token_op* op, AST_expr* expr);
+protected:
+    AST_op_assignment();
+public:
+    AST_variable* variable;
+    Token_op* op;
+    AST_expr* expr;
+public:
+    virtual void visit(AST_visitor* visitor);
+    virtual void transform_children(AST_transform* transform);
+public:
+    static const int ID = 36;
+    virtual int classid();
+public:
+    virtual bool match(AST_node* in);
+public:
+    virtual bool equals(AST_node* in);
+public:
+    virtual AST_op_assignment* clone();
+public:
+    virtual void assert_valid();
+public:
+    AST_op_assignment(AST_variable* variable, const char* op, AST_expr* expr);
+};
+
 // list_assignment ::= list_element?* expr ;
 class AST_list_assignment : virtual public AST_expr
 {
@@ -1645,7 +1675,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 36;
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1671,7 +1701,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 38;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1699,7 +1729,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 39;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1728,7 +1758,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 40;
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1757,7 +1787,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 41;
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1782,7 +1812,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 42;
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1808,7 +1838,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 43;
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1834,7 +1864,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 44;
+    static const int ID = 45;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1861,7 +1891,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 45;
+    static const int ID = 46;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1889,7 +1919,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 47;
+    static const int ID = 48;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1917,7 +1947,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 48;
+    static const int ID = 49;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1944,7 +1974,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 49;
+    static const int ID = 50;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -1971,7 +2001,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 51;
+    static const int ID = 52;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2004,7 +2034,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 53;
+    static const int ID = 54;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2029,7 +2059,7 @@ public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);
 public:
-    static const int ID = 54;
+    static const int ID = 55;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2055,7 +2085,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 61;
+    static const int ID = 62;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2093,7 +2123,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 62;
+    static const int ID = 63;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2129,7 +2159,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 63;
+    static const int ID = 64;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2163,7 +2193,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 64;
+    static const int ID = 65;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2196,7 +2226,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 65;
+    static const int ID = 66;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
@@ -2283,7 +2313,7 @@ public:
 	}
 
 public:
-	static const int ID = 69;
+	static const int ID = 70;
 	int classid()
 	{
 		return ID;

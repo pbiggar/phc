@@ -70,6 +70,7 @@ public:
 	void children_throw(AST_throw* in);
 	void children_eval_expr(AST_eval_expr* in);
 	void children_assignment(AST_assignment* in);
+  void children_op_assignment(AST_op_assignment* in);
 	void children_list_assignment(AST_list_assignment* in);
 	void children_cast(AST_cast* in);
 	void children_unary_op(AST_unary_op* in);

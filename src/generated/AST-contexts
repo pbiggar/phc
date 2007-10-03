@@ -42,6 +42,7 @@
 (nested_list_elements,list_element,?*)
 (new,expr,)
 (nop,statement,*)
+(op_assignment,expr,)
 (post_op,expr,)
 (pre_op,expr,)
 (reflection,reflection,)

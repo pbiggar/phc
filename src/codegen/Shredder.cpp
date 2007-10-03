@@ -294,3 +294,24 @@ AST_expr* Shredder::post_array(AST_array* in)
 			new List<AST_expr*>());
 }
 
+AST_expr* Shredder::post_op_assignment(AST_op_assignment* in)
+{
+  AST_assignment* assignment;
+
+  // The LHS may be of the form $x[$y], but that should occur
+  // as an operand to a binary operator. Hence, we must visit the RHS again
+  // clearing the need_addr flag
+  AST_expr* left = in->variable->clone();
+  left->attrs->erase("phc.shredder.need_addr");
+  left = transform_expr(left);
+
+  assignment = new AST_assignment(
+    in->variable,
+    false,
+    new AST_bin_op(
+      left,
+      in->op,
+      in->expr)
+    );
+  return post_assignment(assignment); 
+}

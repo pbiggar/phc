@@ -552,29 +552,26 @@ void PHP_unparser::children_eval_expr(AST_eval_expr* in)
 
 void PHP_unparser::children_assignment(AST_assignment* in)
 {
-	if(in->attrs->is_true("phc.unparser.is_opeq"))
-	{
-		AST_bin_op* bin_op = dynamic_cast<AST_bin_op*>(in->expr);
-		assert(bin_op);
+	visit_variable(in->variable);
 
-		// $a += $b;
-		visit_expr(bin_op->left);
-		echo(" ");
-		visit_op(bin_op->op);
-		echo("= ");
-		visit_expr(bin_op->right);
-	}
+	if(in->is_ref)
+		echo(" =& ");
 	else
-	{
+		echo(" = ");
+
+	visit_expr(in->expr);
+}
+
+// $a += $b;
+void PHP_unparser::children_op_assignment(AST_op_assignment* in)
+{
 		visit_variable(in->variable);
 
-		if(in->is_ref)
-			echo(" =& ");
-		else
-			echo(" = ");
+		echo(" ");
+		visit_op(in->op);
+		echo("= ");
 
 		visit_expr(in->expr);
-	}
 }
 
 void PHP_unparser::children_list_assignment(AST_list_assignment* in)
