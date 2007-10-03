@@ -1046,23 +1046,38 @@ protected:
 	Wildcard<AST_variable>* rhs;
 };
 
-class Cast_array : public Copy
+class Cast : public Copy
 {
 public:
 	AST_expr* rhs_pattern()
 	{
 		rhs = new Wildcard<AST_variable>;
-		return new AST_cast (new Token_cast (
-			new String ("array")),
-			rhs);
+		cast = new Wildcard<Token_cast>;
+		return new AST_cast (cast, rhs);
 	}
 
 	void generate_rhs (bool used)
 	{
 		assert (used);
 		Copy::generate_rhs (used);
-		code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
+		if (*cast->value->value == "string")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_STRING);\n";
+		else if (*cast->value->value == "int")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_LONG);\n";
+		else if (*cast->value->value == "array")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
+		else if (*cast->value->value == "null")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_NULL);\n";
+		else if (*cast->value->value == "bool")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_BOOL);\n";
+		else if (*cast->value->value == "real")
+			code << "cast_var (p_lhs, &is_p_rhs_new, IS_DOUBLE);\n";
+		else
+			assert (0 && "unimplemented"); // TODO: unimplemented
 	}
+
+public:
+	Wildcard<Token_cast>* cast;
 };
 
 class Global : public Pattern 
@@ -1816,7 +1831,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Branch()
 	,	new Goto()
 	,	new Return()
-	,	new Cast_array ()
+	,	new Cast ()
 	};
 
 	bool matched = false;

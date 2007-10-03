@@ -809,6 +809,9 @@ cast_var (zval ** p_zvp, int *is_zvp_new, int type)
     case IS_OBJECT:
       convert_to_object (zvp);
       break;
+	 default:
+		assert (0); // TODO unimplemented
+		break;
     }
 }
 
