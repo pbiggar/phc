@@ -18,6 +18,7 @@ $TESTS_DIRS = array('/usr/local/lib/phpbench/tests',
 		    '/usr/share/phpbench/tests',
 		    '/opt/phpbench/tests',		    
 		    'tests',
+		    'test/subjects/3rdparty/benchmarks/phpbench-0.8.1/tests',
 		    '.');
 
 function test_start($func) {
