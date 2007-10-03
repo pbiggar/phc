@@ -14,7 +14,7 @@ class Generate_C extends Test
 {
 	function get_dependent_test_names ()
 	{
-		return array ("InterpretShredded");
+		return array ("Interpret_shred");
 	}
 
 	function get_time_limit ()
