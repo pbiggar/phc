@@ -772,7 +772,7 @@ unticked_statement:
 			List<AST_variable*>::const_iterator i;
 			
 			for(i = $3->begin(); i != $3->end(); i++)
-				statements->push_back(NEW(AST_unset, (*i)));
+				statements->push_back(NEW(AST_eval_expr, (new AST_method_invocation(NULL, "unset", *i))));
 
 			$$ = statements;
 		}
@@ -1809,7 +1809,7 @@ expr_without_variable:
 		}
 	| K_CLONE expr
 		{
-			$$ = NEW(AST_clone, ($2)); 
+			$$ = NEW(AST_method_invocation, (NULL, "clone", $2)); 
 		}
 	| variable O_PLUSEQ expr
 		{

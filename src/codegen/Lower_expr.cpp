@@ -33,11 +33,6 @@ void Lower_expr::post_return(AST_return* in, List<AST_statement*>* out)
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_unset(AST_unset* in, List<AST_statement*>* out)
-{
-	push_back_pieces(in, out);
-}
-
 void Lower_expr::post_branch(AST_branch* in, List<AST_statement*>* out)
 {
 	push_back_pieces(in, out);

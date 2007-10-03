@@ -17,7 +17,7 @@ use list "List";
 use string "String";
 
 {-
-	Grammar definition
+   Top-level structure	
 -}
 
 php_script ::= statement* ;
@@ -27,7 +27,7 @@ statement ::=
    | if | while | do | for | foreach 
    | switch | break | continue | return
    | static_declaration | global
-   | unset | declare | try | throw | eval_expr | nop 
+   | declare | try | throw | eval_expr | nop 
 	| label | goto | branch ;
 
 class_def ::= 
@@ -47,6 +47,10 @@ type ::= CLASS_NAME? ;
 attribute ::= attr_mod VARIABLE_NAME expr? ;
 attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
+{-
+   Statements
+-}
+
 if ::= expr iftrue:statement* iffalse:statement* ;
 while ::= expr statement* ;
 do ::= statement* expr ;
@@ -59,15 +63,8 @@ break ::= expr? ;
 continue ::= expr? ;
 return ::= expr? ;
 
-
-branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
-goto ::= LABEL_NAME ;
-label ::= LABEL_NAME ;
-
-
 static_declaration ::= VARIABLE_NAME expr? ;
 global ::= variable_name ;
-unset ::= variable ;
 
 declare ::= directive+ statement* ;
 directive ::= DIRECTIVE_NAME expr ;
@@ -80,12 +77,24 @@ eval_expr ::= expr ;
 
 nop ::= ;
 
+{-
+   HIR constructs (without a PHP equivalent)
+-}
+
+branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+goto ::= LABEL_NAME ;
+label ::= LABEL_NAME ;
+
+{-
+   Expressions
+-}
+
 expr ::=
      assignment | op_assignment | list_assignment 
    | cast | unary_op | bin_op | conditional_expr
    | ignore_errors | constant | instanceof
    | variable | pre_op | post_op | array
-   | method_invocation | new | clone
+   | method_invocation | new 
 	| literal ;
 	
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
@@ -96,7 +105,6 @@ op_assignment ::= variable OP expr ;
 list_assignment ::= list_element?* expr ;
 list_element ::= variable | nested_list_elements ;
 nested_list_elements ::= list_element?* ;
-
 
 cast ::= CAST expr ;
 unary_op ::= OP expr ;
@@ -128,8 +136,6 @@ actual_parameter ::= is_ref:"&"? expr ;
 
 new ::= class_name actual_parameter* ;
 class_name ::= CLASS_NAME | reflection ;
-
-clone ::= expr ;
 
 {-
  - Additional structure 
@@ -402,7 +408,11 @@ public:
 	// This does in fact create a valid subtree
 	AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 	{
-		this->target = new Token_class_name(new String(target));
+		if(target != NULL)
+			this->target = new Token_class_name(new String(target));
+		else
+			this->target = NULL;
+
 		this->method_name = new Token_method_name(new String(name));
 		this->actual_parameters = new List<AST_actual_parameter*>;
 		this->actual_parameters->push_back(new AST_actual_parameter(false, arg));

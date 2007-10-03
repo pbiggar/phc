@@ -3820,7 +3820,7 @@ yyreduce:
 			List<AST_variable*>::const_iterator i;
 			
 			for(i = (yyvsp[(3) - (5)].list_ast_variable)->begin(); i != (yyvsp[(3) - (5)].list_ast_variable)->end(); i++)
-				statements->push_back(NEW(AST_unset, (*i)));
+				statements->push_back(NEW(AST_eval_expr, (new AST_method_invocation(NULL, "unset", *i))));
 
 			(yyval.list_ast_statement) = statements;
 		;}
@@ -5073,7 +5073,7 @@ yyreduce:
   case 185:
 #line 1811 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_clone, ((yyvsp[(2) - (2)].ast_expr))); 
+			(yyval.ast_expr) = NEW(AST_method_invocation, (NULL, "clone", (yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 

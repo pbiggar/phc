@@ -464,14 +464,6 @@ void PHP_unparser::children_global(AST_global* in)
 	// newline output by post_commented_node
 }
 
-void PHP_unparser::children_unset(AST_unset* in)
-{
-	echo("unset(");
-	visit_variable(in->variable);
-	echo(");");
-	// newline output by post_commented_node
-}
-
 void PHP_unparser::children_declare(AST_declare* in)
 {
 	echo("declare");
@@ -757,6 +749,7 @@ void PHP_unparser::children_method_invocation(AST_method_invocation* in)
 		use_brackets &= *method_name->value != "require";
 		use_brackets &= *method_name->value != "require_once";
 		use_brackets &= *method_name->value != "use";
+		use_brackets &= *method_name->value != "clone";
 	}
 
 	if(!use_brackets)
@@ -788,12 +781,6 @@ void PHP_unparser::children_new(AST_new* in)
 	echo("(");
 	visit_actual_parameter_list(in->actual_parameters);
 	echo(")");
-}
-
-void PHP_unparser::children_clone(AST_clone* in)
-{
-	echo("clone ");
-	visit_expr(in->expr);
 }
 
 void PHP_unparser::visit_interface_name_list(List<Token_interface_name*>* in)

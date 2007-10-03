@@ -239,7 +239,6 @@ void Invalid_check::pre_array_elem (AST_array_elem* in)
 
 	// basically, new, array and clone are errors here
 	if (in->key->classid () == AST_new::ID
-		or in->key->classid () == AST_clone::ID
 		or in->key->classid () == AST_array::ID)
 	{
 		error ("Illegal offset type", in->key);

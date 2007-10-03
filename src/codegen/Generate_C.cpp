@@ -1704,7 +1704,12 @@ class Unset : public Pattern
 	bool match(AST_statement* that)
 	{
 		var = new Wildcard<AST_variable>;
-		return(that->match(new AST_unset(var)));
+		return that->match(
+			new AST_eval_expr(
+				new AST_method_invocation(
+					NULL,
+					"unset",
+					var)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1802,6 +1807,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Global()
 	,	new Eval()
 	,	new Exit()
+	,	new Unset()
 	,	new Method_invocation()
 	,	new Pre_op()
 	,	new Bin_op()
@@ -1810,7 +1816,6 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Branch()
 	,	new Goto()
 	,	new Return()
-	,	new Unset()
 	,	new Cast_array ()
 	};
 

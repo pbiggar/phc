@@ -177,26 +177,6 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new AST_return(expr);
     }
-    if(!strcmp(type_id, "AST_branch"))
-    {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	Token_label_name* iftrue = dynamic_cast<Token_label_name*>(*i++);
-    	Token_label_name* iffalse = dynamic_cast<Token_label_name*>(*i++);
-    	assert(i == args->end());
-    	return new AST_branch(expr, iftrue, iffalse);
-    }
-    if(!strcmp(type_id, "AST_goto"))
-    {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
-    	assert(i == args->end());
-    	return new AST_goto(label_name);
-    }
-    if(!strcmp(type_id, "AST_label"))
-    {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
-    	assert(i == args->end());
-    	return new AST_label(label_name);
-    }
     if(!strcmp(type_id, "AST_static_declaration"))
     {
     	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
@@ -209,12 +189,6 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	AST_variable_name* variable_name = dynamic_cast<AST_variable_name*>(*i++);
     	assert(i == args->end());
     	return new AST_global(variable_name);
-    }
-    if(!strcmp(type_id, "AST_unset"))
-    {
-    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
-    	assert(i == args->end());
-    	return new AST_unset(variable);
     }
     if(!strcmp(type_id, "AST_declare"))
     {
@@ -261,6 +235,26 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     {
     	assert(i == args->end());
     	return new AST_nop();
+    }
+    if(!strcmp(type_id, "AST_branch"))
+    {
+    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Token_label_name* iftrue = dynamic_cast<Token_label_name*>(*i++);
+    	Token_label_name* iffalse = dynamic_cast<Token_label_name*>(*i++);
+    	assert(i == args->end());
+    	return new AST_branch(expr, iftrue, iffalse);
+    }
+    if(!strcmp(type_id, "AST_goto"))
+    {
+    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	assert(i == args->end());
+    	return new AST_goto(label_name);
+    }
+    if(!strcmp(type_id, "AST_label"))
+    {
+    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	assert(i == args->end());
+    	return new AST_label(label_name);
     }
     if(!strcmp(type_id, "AST_assignment"))
     {
@@ -405,12 +399,6 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new AST_new(class_name, actual_parameters);
     }
-    if(!strcmp(type_id, "AST_clone"))
-    {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	assert(i == args->end());
-    	return new AST_clone(expr);
-    }
     if(!strcmp(type_id, "Token_class_name"))
     {
     	String* value = dynamic_cast<String*>(*i++);
@@ -435,17 +423,17 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Token_variable_name(value);
     }
-    if(!strcmp(type_id, "Token_label_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_label_name(value);
-    }
     if(!strcmp(type_id, "Token_directive_name"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_directive_name(value);
+    }
+    if(!strcmp(type_id, "Token_label_name"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_label_name(value);
     }
     if(!strcmp(type_id, "Token_op"))
     {

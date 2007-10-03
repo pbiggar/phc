@@ -2126,83 +2126,6 @@ void Token_variable_name::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-Token_label_name::Token_label_name(String* value)
-{
-    this->value = value;
-}
-
-Token_label_name::Token_label_name()
-{
-    this->value = 0;
-}
-
-void Token_label_name::visit(AST_visitor* visitor)
-{
-    visitor->visit_label_name(this);
-}
-
-void Token_label_name::transform_children(AST_transform* transform)
-{
-    transform->children_label_name(this);
-}
-
-String* Token_label_name::get_value_as_string()
-{
-    return value;
-}
-
-int Token_label_name::classid()
-{
-    return ID;
-}
-
-bool Token_label_name::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool Token_label_name::equals(AST_node* in)
-{
-    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Token_label_name* Token_label_name::clone()
-{
-    String* value = new String(*this->value);
-    Token_label_name* clone = new Token_label_name(value);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void Token_label_name::assert_valid()
-{
-    assert(value != NULL);
-    AST_node::assert_mixin_valid();
-}
-
 Token_directive_name::Token_directive_name(String* value)
 {
     this->value = value;
@@ -2275,6 +2198,83 @@ Token_directive_name* Token_directive_name::clone()
 }
 
 void Token_directive_name::assert_valid()
+{
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
+}
+
+Token_label_name::Token_label_name(String* value)
+{
+    this->value = value;
+}
+
+Token_label_name::Token_label_name()
+{
+    this->value = 0;
+}
+
+void Token_label_name::visit(AST_visitor* visitor)
+{
+    visitor->visit_label_name(this);
+}
+
+void Token_label_name::transform_children(AST_transform* transform)
+{
+    transform->children_label_name(this);
+}
+
+String* Token_label_name::get_value_as_string()
+{
+    return value;
+}
+
+int Token_label_name::classid()
+{
+    return ID;
+}
+
+bool Token_label_name::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool Token_label_name::equals(AST_node* in)
+{
+    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Token_label_name* Token_label_name::clone()
+{
+    String* value = new String(*this->value);
+    Token_label_name* clone = new Token_label_name(value);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void Token_label_name::assert_valid()
 {
     assert(value != NULL);
     AST_node::assert_mixin_valid();
@@ -4511,282 +4511,6 @@ void AST_return::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_branch::AST_branch(AST_expr* expr, Token_label_name* iftrue, Token_label_name* iffalse)
-{
-    this->expr = expr;
-    this->iftrue = iftrue;
-    this->iffalse = iffalse;
-}
-
-AST_branch::AST_branch()
-{
-    this->expr = 0;
-    this->iftrue = 0;
-    this->iffalse = 0;
-}
-
-void AST_branch::visit(AST_visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void AST_branch::transform_children(AST_transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int AST_branch::classid()
-{
-    return ID;
-}
-
-bool AST_branch::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_branch* that = dynamic_cast<AST_branch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->iftrue == NULL)
-    {
-    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
-    		return false;
-    }
-    else if(!this->iftrue->match(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL)
-    {
-    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
-    		return false;
-    }
-    else if(!this->iffalse->match(that->iffalse))
-    	return false;
-    
-    return true;
-}
-
-bool AST_branch::equals(AST_node* in)
-{
-    AST_branch* that = dynamic_cast<AST_branch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->iftrue == NULL || that->iftrue == NULL)
-    {
-    	if(this->iftrue != NULL || that->iftrue != NULL)
-    		return false;
-    }
-    else if(!this->iftrue->equals(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL || that->iffalse == NULL)
-    {
-    	if(this->iffalse != NULL || that->iffalse != NULL)
-    		return false;
-    }
-    else if(!this->iffalse->equals(that->iffalse))
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-AST_branch* AST_branch::clone()
-{
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    Token_label_name* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
-    Token_label_name* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    AST_branch* clone = new AST_branch(expr, iftrue, iffalse);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void AST_branch::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    assert(iftrue != NULL);
-    iftrue->assert_valid();
-    assert(iffalse != NULL);
-    iffalse->assert_valid();
-    AST_node::assert_mixin_valid();
-}
-
-AST_goto::AST_goto(Token_label_name* label_name)
-{
-    this->label_name = label_name;
-}
-
-AST_goto::AST_goto()
-{
-    this->label_name = 0;
-}
-
-void AST_goto::visit(AST_visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void AST_goto::transform_children(AST_transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int AST_goto::classid()
-{
-    return ID;
-}
-
-bool AST_goto::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_goto* that = dynamic_cast<AST_goto*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL)
-    {
-    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
-    		return false;
-    }
-    else if(!this->label_name->match(that->label_name))
-    	return false;
-    
-    return true;
-}
-
-bool AST_goto::equals(AST_node* in)
-{
-    AST_goto* that = dynamic_cast<AST_goto*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL || that->label_name == NULL)
-    {
-    	if(this->label_name != NULL || that->label_name != NULL)
-    		return false;
-    }
-    else if(!this->label_name->equals(that->label_name))
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-AST_goto* AST_goto::clone()
-{
-    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
-    AST_goto* clone = new AST_goto(label_name);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void AST_goto::assert_valid()
-{
-    assert(label_name != NULL);
-    label_name->assert_valid();
-    AST_node::assert_mixin_valid();
-}
-
-AST_label::AST_label(Token_label_name* label_name)
-{
-    this->label_name = label_name;
-}
-
-AST_label::AST_label()
-{
-    this->label_name = 0;
-}
-
-void AST_label::visit(AST_visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void AST_label::transform_children(AST_transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int AST_label::classid()
-{
-    return ID;
-}
-
-bool AST_label::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_label* that = dynamic_cast<AST_label*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL)
-    {
-    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
-    		return false;
-    }
-    else if(!this->label_name->match(that->label_name))
-    	return false;
-    
-    return true;
-}
-
-bool AST_label::equals(AST_node* in)
-{
-    AST_label* that = dynamic_cast<AST_label*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL || that->label_name == NULL)
-    {
-    	if(this->label_name != NULL || that->label_name != NULL)
-    		return false;
-    }
-    else if(!this->label_name->equals(that->label_name))
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-AST_label* AST_label::clone()
-{
-    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
-    AST_label* clone = new AST_label(label_name);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void AST_label::assert_valid()
-{
-    assert(label_name != NULL);
-    label_name->assert_valid();
-    AST_node::assert_mixin_valid();
-}
-
 AST_static_declaration::AST_static_declaration(Token_variable_name* variable_name, AST_expr* expr)
 {
     this->variable_name = variable_name;
@@ -4960,84 +4684,6 @@ void AST_global::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    AST_node::assert_mixin_valid();
-}
-
-AST_unset::AST_unset(AST_variable* variable)
-{
-    this->variable = variable;
-}
-
-AST_unset::AST_unset()
-{
-    this->variable = 0;
-}
-
-void AST_unset::visit(AST_visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void AST_unset::transform_children(AST_transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int AST_unset::classid()
-{
-    return ID;
-}
-
-bool AST_unset::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_unset* that = dynamic_cast<AST_unset*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    return true;
-}
-
-bool AST_unset::equals(AST_node* in)
-{
-    AST_unset* that = dynamic_cast<AST_unset*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-AST_unset* AST_unset::clone()
-{
-    AST_variable* variable = this->variable ? this->variable->clone() : NULL;
-    AST_unset* clone = new AST_unset(variable);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void AST_unset::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
     AST_node::assert_mixin_valid();
 }
 
@@ -5626,6 +5272,282 @@ AST_nop* AST_nop::clone()
 
 void AST_nop::assert_valid()
 {
+    AST_node::assert_mixin_valid();
+}
+
+AST_branch::AST_branch(AST_expr* expr, Token_label_name* iftrue, Token_label_name* iffalse)
+{
+    this->expr = expr;
+    this->iftrue = iftrue;
+    this->iffalse = iffalse;
+}
+
+AST_branch::AST_branch()
+{
+    this->expr = 0;
+    this->iftrue = 0;
+    this->iffalse = 0;
+}
+
+void AST_branch::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_branch::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_branch::classid()
+{
+    return ID;
+}
+
+bool AST_branch::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_branch* that = dynamic_cast<AST_branch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    if(this->iftrue == NULL)
+    {
+    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
+    		return false;
+    }
+    else if(!this->iftrue->match(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL)
+    {
+    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
+    		return false;
+    }
+    else if(!this->iffalse->match(that->iffalse))
+    	return false;
+    
+    return true;
+}
+
+bool AST_branch::equals(AST_node* in)
+{
+    AST_branch* that = dynamic_cast<AST_branch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(this->iftrue == NULL || that->iftrue == NULL)
+    {
+    	if(this->iftrue != NULL || that->iftrue != NULL)
+    		return false;
+    }
+    else if(!this->iftrue->equals(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL || that->iffalse == NULL)
+    {
+    	if(this->iffalse != NULL || that->iffalse != NULL)
+    		return false;
+    }
+    else if(!this->iffalse->equals(that->iffalse))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_branch* AST_branch::clone()
+{
+    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
+    Token_label_name* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
+    Token_label_name* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
+    AST_branch* clone = new AST_branch(expr, iftrue, iffalse);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_branch::assert_valid()
+{
+    assert(expr != NULL);
+    expr->assert_valid();
+    assert(iftrue != NULL);
+    iftrue->assert_valid();
+    assert(iffalse != NULL);
+    iffalse->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_goto::AST_goto(Token_label_name* label_name)
+{
+    this->label_name = label_name;
+}
+
+AST_goto::AST_goto()
+{
+    this->label_name = 0;
+}
+
+void AST_goto::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_goto::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_goto::classid()
+{
+    return ID;
+}
+
+bool AST_goto::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_goto* that = dynamic_cast<AST_goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool AST_goto::equals(AST_node* in)
+{
+    AST_goto* that = dynamic_cast<AST_goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_goto* AST_goto::clone()
+{
+    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
+    AST_goto* clone = new AST_goto(label_name);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_goto::assert_valid()
+{
+    assert(label_name != NULL);
+    label_name->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_label::AST_label(Token_label_name* label_name)
+{
+    this->label_name = label_name;
+}
+
+AST_label::AST_label()
+{
+    this->label_name = 0;
+}
+
+void AST_label::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_label::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_label::classid()
+{
+    return ID;
+}
+
+bool AST_label::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_label* that = dynamic_cast<AST_label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool AST_label::equals(AST_node* in)
+{
+    AST_label* that = dynamic_cast<AST_label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_label* AST_label::clone()
+{
+    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
+    AST_label* clone = new AST_label(label_name);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_label::assert_valid()
+{
+    assert(label_name != NULL);
+    label_name->assert_valid();
     AST_node::assert_mixin_valid();
 }
 
@@ -7441,7 +7363,11 @@ AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* 
 AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
 {
     {
-		this->target = new Token_class_name(new String(target));
+		if(target != NULL)
+			this->target = new Token_class_name(new String(target));
+		else
+			this->target = NULL;
+
 		this->method_name = new Token_method_name(new String(name));
 		this->actual_parameters = new List<AST_actual_parameter*>;
 		this->actual_parameters->push_back(new AST_actual_parameter(false, arg));
@@ -7587,84 +7513,6 @@ void AST_new::assert_valid()
     		(*i)->assert_valid();
     	}
     }
-    AST_node::assert_mixin_valid();
-}
-
-AST_clone::AST_clone(AST_expr* expr)
-{
-    this->expr = expr;
-}
-
-AST_clone::AST_clone()
-{
-    this->expr = 0;
-}
-
-void AST_clone::visit(AST_visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void AST_clone::transform_children(AST_transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int AST_clone::classid()
-{
-    return ID;
-}
-
-bool AST_clone::match(AST_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    AST_clone* that = dynamic_cast<AST_clone*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool AST_clone::equals(AST_node* in)
-{
-    AST_clone* that = dynamic_cast<AST_clone*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!AST_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-AST_clone* AST_clone::clone()
-{
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    AST_clone* clone = new AST_clone(expr);
-    clone->AST_node::clone_mixin_from(this);
-    return clone;
-}
-
-void AST_clone::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
     AST_node::assert_mixin_valid();
 }
 

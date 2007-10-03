@@ -35,9 +35,8 @@ public:
 	AST_expr* post_constant (AST_constant* in);
 	AST_expr* post_array(AST_array* in);
 	AST_expr* post_assignment(AST_assignment* in);
-  AST_expr* post_op_assignment(AST_op_assignment* in);
+	AST_expr* post_op_assignment(AST_op_assignment* in);
 	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out);
-
 };
 
 
@@ -99,7 +98,10 @@ class Desugar : public AST_transform
 		if (in->expr->classid() == AST_variable::ID)
 			return;
 
-		if(in->expr->classid() != AST_assignment::ID)
+		// Don't generate an assignment for unset
+		AST_expr* unset = new AST_method_invocation(NULL, "unset", new Wildcard<AST_expr>);
+
+		if(in->expr->classid() != AST_assignment::ID && !in->expr->match(unset))
 		{
 			AST_variable* var = fresh_var ("TSe");
 			var->attrs->set_true ("phc.codegen.unused");
@@ -270,11 +272,6 @@ public:
     // because it will be the right operand to a binary operator
 	}
 
-	void pre_unset(AST_unset* in)
-	{
-		in->variable->attrs->set_true("phc.shredder.need_addr");
-	}
-
 	void pre_post_op (AST_post_op* in)
 	{
 		in->variable->attrs->set_true("phc.shredder.need_addr");
@@ -403,9 +400,15 @@ public:
 	 */
 	void pre_eval_expr (AST_eval_expr* in)
 	{
-		if (dynamic_cast<AST_assignment*> (in->expr))
+		if (in->expr->classid() == AST_assignment::ID)
 		{
 			in->expr->attrs->set_true("phc.shredder.non_nested_assignment");
+		}
+
+		if (in->expr->classid() == AST_method_invocation::ID)
+		{
+			// Do not generate temps for top-level method invocations
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 		}
 	}
 };
@@ -494,7 +497,6 @@ class Tidy_print : public AST_transform
 	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
 	{
 		AST_assignment* agn = dynamic_cast<AST_assignment*> (in->expr);
-		assert (agn);
 
 		/* Convert print, in a similar fashion to echo. Print can only have 1 parameter though, and always return 1.
 		 *   $x = print $y;
@@ -513,9 +515,7 @@ class Tidy_print : public AST_transform
 					new AST_actual_parameter (false, arg) // print can only have 1 argument
 					));
 
-
-
-		if (agn->expr->match (print))
+		if (agn && agn->expr->match (print))
 		{
 			// $t2 = printf ("%s", expr);
 			bool unused = agn->variable->attrs->is_true ("phc.codegen.unused");
