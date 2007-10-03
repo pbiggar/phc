@@ -101,7 +101,7 @@ abstract class Test
 	function get_time_limit ()
 	{
 		// basic_parse_tests take 20 seconds on my machine.
-		return 40;
+		return 120;
 	}
 
 	function get_name ()

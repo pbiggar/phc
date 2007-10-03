@@ -103,7 +103,10 @@ class Desugar : public AST_transform
 		// Don't generate an assignment for unset
 		AST_expr* unset = new AST_method_invocation(NULL, "unset", new Wildcard<AST_expr>);
 
-		if(in->expr->classid() != AST_assignment::ID && !in->expr->match(unset))
+		if(in->expr->classid() != AST_assignment::ID && 
+		   in->expr->classid() != AST_op_assignment::ID &&
+		   in->expr->classid() != AST_list_assignment::ID &&
+		  !in->expr->match(unset))
 		{
 			AST_variable* var = fresh_var ("TSe");
 			var->attrs->set_true ("phc.codegen.unused");
@@ -402,7 +405,9 @@ public:
 	 */
 	void pre_eval_expr (AST_eval_expr* in)
 	{
-		if (in->expr->classid() == AST_assignment::ID)
+		if (in->expr->classid() == AST_assignment::ID ||
+		    in->expr->classid() == AST_op_assignment::ID ||
+			in->expr->classid() == AST_list_assignment::ID)
 		{
 			in->expr->attrs->set_true("phc.shredder.non_nested_assignment");
 		}
