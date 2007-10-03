@@ -36,6 +36,8 @@ public:
 	AST_expr* post_array(AST_array* in);
 	AST_expr* post_assignment(AST_assignment* in);
 	AST_expr* post_op_assignment(AST_op_assignment* in);
+	AST_expr* pre_ignore_errors(AST_ignore_errors* in);
+	AST_expr* post_ignore_errors(AST_ignore_errors* in);
 	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out);
 };
 

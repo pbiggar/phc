@@ -315,3 +315,39 @@ AST_expr* Shredder::post_op_assignment(AST_op_assignment* in)
     );
   return post_assignment(assignment); 
 }
+
+AST_expr* Shredder::pre_ignore_errors(AST_ignore_errors* in)
+{
+	AST_variable* zero = fresh_var("TSie");
+	AST_variable* temp = fresh_var("TSie");
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		zero,
+		false,
+		new Token_int(0))));
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		temp,
+		false,
+		new AST_method_invocation(
+			NULL,
+			"error_reporting",
+			zero))));
+	in->attrs->set("phc.shredder.old_error_level", temp);
+	return in;
+}
+
+AST_expr* Shredder::post_ignore_errors(AST_ignore_errors* in)
+{
+	AST_variable* temp = fresh_var("TSie");
+	AST_variable* old = dynamic_cast<AST_variable*>(in->attrs->get("phc.shredder.old_error_level"));
+	assert(old);
+	
+	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		temp,
+		false,
+		new AST_method_invocation(
+			NULL,
+			"error_reporting",
+			old))));
+	
+	return in->expr;
+}
