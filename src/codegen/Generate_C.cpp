@@ -845,6 +845,7 @@ public:
 			<<		"INIT_ZVAL (val);\n";
 		initialize (code, "&val");
 		code
+			<<		"// the memory will have been freshly allocated, so we dont need to call the copy constuctor\n"
 			<<		"overwrite_lhs_no_copy (*p_lhs, &val);\n"
 			<< "}\n"
 			<< "else\n"
@@ -1157,6 +1158,7 @@ public:
 			<<			name->length() << ", " // exclude NULL-terminator
 			<<			"&constant "
 			<<			" TSRMLS_CC);\n"
+			// get_constant guarantees new memory, so we can reuse the data, rather than copy and delete it
 			<<		"overwrite_lhs_no_copy (*p_lhs, constant);\n"
 			<<		"safe_free_zval_ptr (constant);\n"
 			<< "}\n";
