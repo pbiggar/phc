@@ -180,7 +180,16 @@ AST_expr* Shredder::post_unary_op(AST_unary_op* in)
 {
 	return eval(in);
 }
-	
+
+/*
+ * Casts
+ */
+
+AST_expr* Shredder::post_cast(AST_cast* in)
+{
+	return eval(in);
+}
+
 /*
  * Method invocation
  */
@@ -417,6 +426,21 @@ AST_expr* Split_unset_isset::pre_method_invocation(AST_method_invocation* in)
 		}
 
 		return result;
+	}
+	else
+	{
+		return in;
+	}
+}
+
+AST_expr* Translate_empty::pre_method_invocation(AST_method_invocation* in)
+{
+	if(in->method_name->match(new Token_method_name(new String("empty"))))
+	{
+		Token_cast* boolean = new Token_cast(new String("boolean"));
+		AST_actual_parameter* param = *in->actual_parameters->begin();
+		assert(!param->is_ref);
+		return new AST_unary_op(new AST_cast(boolean, param->expr), "!");
 	}
 	else
 	{

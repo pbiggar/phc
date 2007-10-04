@@ -1084,7 +1084,7 @@ public:
 			code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
 		else if (*cast->value->value == "null")
 			code << "cast_var (p_lhs, &is_p_rhs_new, IS_NULL);\n";
-		else if (*cast->value->value == "bool")
+		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
 			code << "cast_var (p_lhs, &is_p_rhs_new, IS_BOOL);\n";
 		else if (*cast->value->value == "real")
 			code << "cast_var (p_lhs, &is_p_rhs_new, IS_DOUBLE);\n";
