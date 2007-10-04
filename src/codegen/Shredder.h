@@ -88,6 +88,15 @@ class Echo_split : public AST_transform
 
 };
 
+class Split_unset_isset : public AST_transform
+{
+public:
+	// Split unset 
+	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
+
+	// Split isset
+	AST_expr* pre_method_invocation(AST_method_invocation* in); 
+};
 
 class Desugar : public AST_transform
 {
@@ -101,7 +110,7 @@ class Desugar : public AST_transform
 			return;
 
 		// Don't generate an assignment for unset
-		AST_expr* unset = new AST_method_invocation(NULL, "unset", new Wildcard<AST_expr>);
+		AST_expr* unset = new AST_method_invocation("unset", new Wildcard<AST_expr>);
 
 		if(in->expr->classid() != AST_assignment::ID && 
 		   in->expr->classid() != AST_op_assignment::ID &&

@@ -261,7 +261,7 @@ AST_expr* Shredder::post_array(AST_array* in)
 	AST_variable* var = fresh_var ("TSa");
 
 	// We need to unset TS in case its run in a loop
-	pieces->push_back(new AST_eval_expr(new AST_method_invocation(NULL, "unset", var->clone ())));
+	pieces->push_back(new AST_eval_expr(new AST_method_invocation("unset", var->clone ())));
 
 	// We need to cast it in case its empty
 	pieces->push_back(
@@ -330,7 +330,6 @@ AST_expr* Shredder::pre_ignore_errors(AST_ignore_errors* in)
 		temp,
 		false,
 		new AST_method_invocation(
-			NULL,
 			"error_reporting",
 			zero))));
 	in->attrs->set("phc.shredder.old_error_level", temp);
@@ -347,9 +346,80 @@ AST_expr* Shredder::post_ignore_errors(AST_ignore_errors* in)
 		temp,
 		false,
 		new AST_method_invocation(
-			NULL,
 			"error_reporting",
 			old))));
 	
 	return in->expr;
+}
+
+/*
+ * Convert
+ *		unset($x, $y, $z);
+ * into
+ *		unset($x);
+ *		unset($y);
+ * 		unset($z);
+ */
+void Split_unset_isset::pre_eval_expr(AST_eval_expr * in, List<AST_statement*>* out)
+{
+	AST_expr* unset = new AST_method_invocation(
+		NULL, 	// NULL target
+		new Token_method_name(new String("unset")),
+		NULL	// Arbitrary list of parameters
+		);
+
+	if(in->expr->match(unset))
+	{
+		AST_method_invocation* inv = dynamic_cast<AST_method_invocation*>(in->expr);
+		assert(inv);
+
+		List<AST_actual_parameter*>::const_iterator i;
+		for(i = inv->actual_parameters->begin();
+			i != inv->actual_parameters->end();
+			i++)
+		{
+			assert(!(*i)->is_ref);
+			out->push_back(new AST_eval_expr(new AST_method_invocation("unset", (*i)->expr)));
+		}
+	}
+	else
+	{
+		out->push_back(in);
+	}
+}
+
+/*
+ * convert
+ * 		isset($x, $y, $z)
+ * into
+ * 		isset($x) && isset($y) && isset($z)
+ */
+AST_expr* Split_unset_isset::pre_method_invocation(AST_method_invocation* in)
+{
+	if(in->method_name->match(new Token_method_name(new String("isset"))))
+	{
+		List<AST_expr*>* terms = new List<AST_expr*>;
+
+		List<AST_actual_parameter*>::const_iterator i;
+		for(i = in->actual_parameters->begin();
+			i != in->actual_parameters->end();
+			i++)
+		{
+			assert(!(*i)->is_ref);
+			terms->push_back(new AST_method_invocation("isset", (*i)->expr));
+		}
+
+		List<AST_expr*>::const_iterator j = terms->begin();
+		AST_expr* result = *j++;
+		for( ; j != terms->end(); j++)
+		{
+			result = new AST_bin_op(result, *j, "&&");	
+		}
+
+		return result;
+	}
+	else
+	{
+		return in;
+	}
 }

@@ -1985,12 +1985,8 @@ public:
 public:
     virtual void assert_valid();
 public:
-    //  For internal use only!
     AST_method_invocation(const char* name, AST_expr* arg);
-    //  For internal use only!
     AST_method_invocation(Token_method_name* name, AST_expr* arg);
-    //  This does in fact create a valid subtree
-    AST_method_invocation(const char* target, const char* name, AST_expr* arg);
 };
 
 // new ::= class_name actual_parameter* ;

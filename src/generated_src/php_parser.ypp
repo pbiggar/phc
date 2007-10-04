@@ -324,7 +324,7 @@
 %type <list_ast_catch> additional_catches
 %type <list_ast_catch> non_empty_additional_catches
 %type <ast_catch> additional_catch
-%type <list_ast_variable> unset_variables 
+%type <list_ast_actual_parameter> unset_variables 
 %type <ast_variable> unset_variable
 %type <token_string> use_filename
 %type <ast_method> function_declaration_statement
@@ -762,19 +762,17 @@ unticked_statement:
 		}
 	| K_USE use_filename ';'
 		{
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("use", $2));
-			
+			AST_method_invocation* fn;
+			fn = NEW(AST_method_invocation, ("use", $2));
 			$$ = wrap(NEW(AST_eval_expr, (fn)));
 		}
 	| K_UNSET '(' unset_variables ')' ';'
 		{
-			List<AST_statement*>* statements = new List<AST_statement*>;
-			List<AST_variable*>::const_iterator i;
-			
-			for(i = $3->begin(); i != $3->end(); i++)
-				statements->push_back(NEW(AST_eval_expr, (new AST_method_invocation(NULL, "unset", *i))));
-
-			$$ = statements;
+			AST_method_invocation* fn;
+			Token_method_name* unset;
+			unset = new Token_method_name(new String("unset"));
+			fn = NEW(AST_method_invocation, (NULL, unset, $3));
+			$$ = wrap(NEW(AST_eval_expr, (fn)));
 		}
 	| keyword_foreach '(' variable K_AS foreach_variable foreach_optional_arg ')' foreach_statement
 		{
@@ -905,13 +903,13 @@ additional_catch:
 unset_variables:
 	  unset_variable
 		{
-			List<AST_variable*>* vars = new List<AST_variable*>;
-			vars->push_back($1);
+			List<AST_actual_parameter*>* vars = new List<AST_actual_parameter*>;
+			vars->push_back(new AST_actual_parameter(false, $1));
 			$$ = vars;
 		}
 	| unset_variables ',' unset_variable
 		{
-			$1->push_back($3);
+			$1->push_back(new AST_actual_parameter(false, $3));
 			$$ = $1; 
 		}
 	;
@@ -1809,7 +1807,7 @@ expr_without_variable:
 		}
 	| K_CLONE expr
 		{
-			$$ = NEW(AST_method_invocation, (NULL, "clone", $2)); 
+			$$ = NEW(AST_method_invocation, ("clone", $2)); 
 		}
 	| variable O_PLUSEQ expr
 		{

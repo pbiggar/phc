@@ -130,6 +130,7 @@ int main(int argc, char** argv)
 	pm->add_pass (new Pretty_print ());
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
 	pm->add_pass (new Lift_functions_and_classes ());
+	pm->add_transform (new Split_unset_isset (), "sui");
 	pm->add_transform (new Lower_control_flow (), "lcf");
 	pm->add_transform (new Lower_expr_flow (), "lef");
 	pm->add_transform (new Echo_split (), "ecs");

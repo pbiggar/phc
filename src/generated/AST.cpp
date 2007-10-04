@@ -7336,11 +7336,9 @@ void AST_method_invocation::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-//  For internal use only!
 AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 {
     { 
-		// This leaves the tree in an inconsistent state
 		this->target = NULL;
 		this->method_name = new Token_method_name(new String(name));
 		this->actual_parameters = new List<AST_actual_parameter*>;
@@ -7348,27 +7346,11 @@ AST_method_invocation::AST_method_invocation(const char* name, AST_expr* arg)
 	}
 }
 
-//  For internal use only!
 AST_method_invocation::AST_method_invocation(Token_method_name* name, AST_expr* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<AST_actual_parameter*>;
-		this->actual_parameters->push_back(new AST_actual_parameter(false, arg));
-	}
-}
-
-//  This does in fact create a valid subtree
-AST_method_invocation::AST_method_invocation(const char* target, const char* name, AST_expr* arg)
-{
-    {
-		if(target != NULL)
-			this->target = new Token_class_name(new String(target));
-		else
-			this->target = NULL;
-
-		this->method_name = new Token_method_name(new String(name));
 		this->actual_parameters = new List<AST_actual_parameter*>;
 		this->actual_parameters->push_back(new AST_actual_parameter(false, arg));
 	}

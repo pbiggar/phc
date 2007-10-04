@@ -275,6 +275,44 @@ ht_delete (HashTable * ht, zval * ind)
   assert (result == SUCCESS);
 }
 
+// Check if a key exists in a hashtable 
+static int 
+ht_exists (HashTable * ht, zval * ind)
+{
+  int result;
+  if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
+    {
+      return zend_hash_index_exists (ht, Z_LVAL_P (ind));
+    }
+  else if (Z_TYPE_P (ind) == IS_DOUBLE)
+    {
+      return zend_hash_index_exists (ht, (long) Z_DVAL_P (ind));
+    }
+  else if (Z_TYPE_P (ind) == IS_NULL)
+    {
+      return zend_hash_exists (ht, "", sizeof (""));
+    }
+  else if (Z_TYPE_P (ind) == IS_STRING)
+    {
+      return zend_hash_exists (ht, Z_STRVAL_P (ind), Z_STRLEN_P (ind) + 1);
+    }
+  else
+    {
+      // TODO avoid alloc
+	  int result;
+      zval *string_index;
+      MAKE_STD_ZVAL (string_index);
+      string_index->value = ind->value;
+      string_index->type = ind->type;
+      zval_copy_ctor (string_index);
+      convert_to_string (string_index);
+      result = zend_hash_exists (ht, Z_STRVAL_P (string_index),
+			      Z_STRLEN_P (string_index) + 1);
+      zval_ptr_dtor (&string_index);
+	  return result;
+    }
+  assert(0);
+}
 
 static void
 ht_debug (HashTable * ht)
@@ -821,6 +859,12 @@ unset_var (HashTable * st, char *name, int length)
   zend_hash_del (st, name, length);
 }
 
+static int 
+isset_var (HashTable * st, char *name, int length)
+{
+	return zend_hash_exists(st, name, length);
+}
+
 static void
 unset_array (zval ** p_var, zval * ind TSRMLS_DC)
 {
@@ -838,6 +882,25 @@ unset_array (zval ** p_var, zval * ind TSRMLS_DC)
   HashTable *ht = Z_ARRVAL_P (*p_var);
 
   ht_delete (ht, ind);
+}
+
+static int 
+isset_array (zval ** p_var, zval * ind TSRMLS_DC)
+{
+  if (Z_TYPE_P (*p_var) == IS_STRING)
+    {
+		// isset on strings not yet implemented
+    	assert(0);
+	}
+
+  // NO error required; return false
+  if (Z_TYPE_P (*p_var) != IS_ARRAY)
+    return 0;
+
+  // if its not an array, make it an array
+  HashTable *ht = Z_ARRVAL_P (*p_var);
+
+  return ht_exists (ht, ind);
 }
 
 static void

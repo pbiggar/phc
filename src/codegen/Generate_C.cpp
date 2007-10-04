@@ -818,17 +818,53 @@ protected:
 };
 
 /*
- * Assign_literal is another virtual class, and corresponds to
- * assigning an int, bool, etc. all of which inherit from
- * Assign_literal.
+ * Assign_unknown_literal is a specialization of Assignment for literal
+ * assignments (such as calls to isset) which takes care of creating a new
+ * zval for the LHS if necessary.
+ *
+ * Assign_literal is a further specialization for those literal assignment
+ * where the value of the literal is known at compile time (assigning a token
+ * int, for example). The main difference between Assign_literal and 
+ * Assign_unknown_literal is that Assign_literal can do constant pooling.
  */
 
+class Assign_unknown_literal : public Assignment
+{
+public:
+	void generate_rhs (bool used)
+	{
+		if (not used)
+			return;
+
+		code
+			<<	"zval* literal;\n"
+			<< "if ((*p_lhs)->is_ref)\n"
+			<< "{\n"
+			<<		"// avoid allocating memory\n"
+			<<		"zval val;\n"
+			<<		"INIT_ZVAL (val);\n";
+		initialize (code, "&val");
+		code
+			<<		"overwrite_lhs_no_copy (*p_lhs, &val);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<<		"ALLOC_INIT_ZVAL (literal);\n";
+		initialize (code, "literal");
+		code
+			<<		"zval_ptr_dtor (p_lhs);\n"
+			<<		"*p_lhs = literal;\n"
+			<< "}\n";
+	}
+
+	virtual void initialize (ostream& os, string var) = 0;
+};
 
 stringstream initializations;
 stringstream finalizations;
 
 template<class T, class K>
-class Assign_literal : public Assignment
+class Assign_literal : public Assign_unknown_literal 
 {
 public:
 	AST_expr* rhs_pattern()
@@ -884,37 +920,16 @@ public:
 		}
 		else
 		{
-			// initialize at this point in the code
-			code
-				<<	"zval* literal;\n"
-				<< "if ((*p_lhs)->is_ref)\n"
-				<< "{\n"
-				<<		"// avoid allocating memory\n"
-				<<		"zval val;\n"
-				<<		"INIT_ZVAL (val);\n";
-			initialize (code, "&val");
-			code
-				<<		"overwrite_lhs_no_copy (*p_lhs, &val);\n"
-				<< "}\n"
-				<< "else\n"
-				<< "{\n"
-				<<		"ALLOC_INIT_ZVAL (literal);\n";
-			initialize (code, "literal");
-			code
-				<<		"zval_ptr_dtor (p_lhs);\n"
-				<<		"*p_lhs = literal;\n"
-				<< "}\n";
+			Assign_unknown_literal::generate_rhs(used);
 		}
 	}
 
 	virtual string prefix () = 0;
 	virtual K key () = 0;
-	virtual void initialize (ostream& os, string var) = 0;
 
 protected:
 	Wildcard<T>* rhs;
 };
-
 
 class Assign_bool : public Assign_literal<Token_bool, bool>
 {
@@ -1722,7 +1737,6 @@ class Unset : public Pattern
 		return that->match(
 			new AST_eval_expr(
 				new AST_method_invocation(
-					NULL,
 					"unset",
 					var)));
 	}
@@ -1789,6 +1803,80 @@ protected:
 	Wildcard<AST_variable>* var;
 };
 
+class Isset : public Assign_unknown_literal
+{
+	AST_expr* rhs_pattern()
+	{
+		var = new Wildcard<AST_variable>;
+		return new AST_method_invocation("isset", var);
+	}
+
+/*
+	void initialize(ostream& os, string var)
+	{
+		os	<< "ZVAL_BOOL (" << var << ", 1)\n;"; 
+	}
+*/
+
+	void initialize(ostream& code, string lhs)
+	{
+		code << "{\n";
+
+		// TODO: deal with object indexing
+		assert(var->value->target == NULL);
+
+		Token_variable_name* var_name = get_var_name (var->value);
+
+		if (var_name != NULL)
+		{
+			if (var->value->array_indices->size() == 0)
+			{
+				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				{
+					String* name = get_non_st_name (var_name);
+					code << "ZVAL_BOOL(" << lhs << ", " << *name << " != NULL);\n"; 
+				}
+				else
+				{
+					String* name = var_name->value;
+					code
+						<< "ZVAL_BOOL(" << lhs << ", "
+						<< "isset_var ("
+						<<		get_scope (LOCAL) << ", "
+						<<		"\"" << *name << "\", "
+						<<		name->length() + 1
+						// no get_hash version
+						<<		"));\n";
+				}
+			}
+			else 
+			{
+				assert(var->value->array_indices->size() == 1);
+				Token_variable_name* index = get_var_name (var->value->array_indices->front());
+				read_st (LOCAL, "u_array", var_name);
+				read_simple (LOCAL, "u_index", index);
+
+				code
+				  << "ZVAL_BOOL(" << lhs << ", "
+					<< "isset_array ("
+					<<    "u_array, "
+					<<    "u_index "
+					<<		" TSRMLS_CC));\n";
+			}
+		}
+		else
+		{
+			// Variable variable
+			// TODO
+			assert(0);
+		}
+		code << "}\n";
+	}
+
+protected:
+	Wildcard<AST_variable>* var;
+};
+
 /*
  * Visitor methods to generate C code
  * Visitor for statements uses the patterns defined above.
@@ -1823,6 +1911,7 @@ void Generate_C::children_statement(AST_statement* in)
 	,	new Eval()
 	,	new Exit()
 	,	new Unset()
+	,	new Isset()
 	,	new Method_invocation()
 	,	new Pre_op()
 	,	new Bin_op()
