@@ -4,8 +4,8 @@
  *
  * Generate C code
  *
- * Currently, the C code is generated directly from the AST; once we have an
- * IR, the C code will be generated from the IR instead.
+ * Currently, the C code is generated from HIR; once we have an LIR,
+ * the C code will be generated from the LIR instead.
  *
  * We define a virtual class "Pattern" which corresponds to a particular kind
  * of statement that we can generate code for. We inherit from Pattern to 
@@ -23,12 +23,12 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
+#include "AST_to_HIR.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
-#include "process_ast/XML_unparser.h"
 #include "lib/List.h"
-#include "process_ast/PHP_unparser.h"
+#include "lib/demangle.h"
 #include <set>
 
 // A single pass isnt really sufficient, but we can hack around it
@@ -40,7 +40,7 @@ static ostringstream epilogue;
 // TODO this is here for constant pooling. This should not be global.
 static gengetopt_args_info* args_info;
 
-void Generate_C::run (AST_php_script* in, Pass_manager* pm)
+void Generate_C::run (AST::AST_php_script* in, Pass_manager* pm)
 {
 	args_info = pm->args_info;
 	if (!pm->args_info->generate_c_flag 
@@ -58,7 +58,8 @@ void Generate_C::run (AST_php_script* in, Pass_manager* pm)
 		is_extension = false;
 	}
 
-	in->visit (this);
+	AST_to_HIR* tr = new AST_to_HIR();
+	tr->fold_php_script(in)->visit (this);
 
 	os << prologue.str ();
 	os << code.str ();
@@ -193,26 +194,26 @@ void read_st (Scope scope, string zvp, Token_variable_name* var_name)
 }
 
 // Note this can return NULL if its not a variable name
-Token_variable_name* get_var_name (AST_expr* var_expr)
+Token_variable_name* get_var_name (HIR_expr* var_expr)
 {
-	AST_variable* var = dynamic_cast<AST_variable*> (var_expr);
+	HIR_variable* var = dynamic_cast<HIR_variable*> (var_expr);
 	assert (var);
 	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
 	return name;
 }
 
-Token_variable_name* get_var_name (AST_reflection* var_refl)
+Token_variable_name* get_var_name (HIR_reflection* var_refl)
 {
-	AST_variable* var = dynamic_cast<AST_variable*> (var_refl->expr);
+	HIR_variable* var = dynamic_cast<HIR_variable*> (var_refl->expr);
 	assert (var);
 	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
 	return name;
 }
 
 
-void index_lhs (Scope scope, string zvp, AST_expr* expr)
+void index_lhs (Scope scope, string zvp, HIR_expr* expr)
 {
-	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
 	Token_variable_name* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
@@ -279,9 +280,9 @@ void index_lhs (Scope scope, string zvp, AST_expr* expr)
 }
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (Scope scope, string zvp, AST_expr* expr)
+void read (Scope scope, string zvp, HIR_expr* expr)
 {
-	AST_variable* var = dynamic_cast<AST_variable*> (expr);
+	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
 	assert (var);
 	assert(var->target == NULL);
 
@@ -331,8 +332,8 @@ void read (Scope scope, string zvp, AST_expr* expr)
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
-		AST_reflection* refl;
-		refl = dynamic_cast<AST_reflection*>(var->variable_name);
+		HIR_reflection* refl;
+		refl = dynamic_cast<HIR_reflection*>(var->variable_name);
 
 		if (var->array_indices->size() == 1)
 		{
@@ -373,11 +374,11 @@ void read (Scope scope, string zvp, AST_expr* expr)
 }
 
 // Implementation of "global" (used in various places)
-void global (AST_variable_name* var_name)
+void global (HIR_variable_name* var_name)
 {
-	AST_variable *var = new AST_variable (NULL,
+	HIR_variable *var = new HIR_variable (NULL,
 					var_name,
-					new List < AST_expr * >());
+					new List < HIR_expr * >());
 
 	code << "{\n";
 	index_lhs (GLOBAL, "p_global_var", var); // rhs
@@ -447,7 +448,7 @@ public:
 class Pattern 
 {
 public:
-	virtual bool match(AST_statement* that) = 0;
+	virtual bool match(HIR_statement* that) = 0;
 	virtual void generate_code(Generate_C* gen) = 0;
 	virtual ~Pattern() {}
 };
@@ -456,9 +457,9 @@ public:
 class Method_definition : public Pattern
 {
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		pattern = new Wildcard<AST_method>;
+		pattern = new Wildcard<HIR_method>;
 		return that->match(pattern);
 	}
 
@@ -475,8 +476,8 @@ public:
 	}
 
 protected:
-	Wildcard<AST_method>* pattern;
-	AST_signature* signature;
+	Wildcard<HIR_method>* pattern;
+	HIR_signature* signature;
 	Generate_C* gen;
 
 protected:
@@ -502,7 +503,7 @@ protected:
 		;
 	}
 
-	class Find_temps : public AST_visitor
+	class Find_temps : public HIR_visitor
 	{
 		public:
 
@@ -529,13 +530,13 @@ protected:
 			}
 
 			// TODO nesting doesnt work anyway
-//			void pre_class_def (AST_class_def*) { in_class = true; }
-//			void post_class_def (AST_class_def*) { in_class = false;}
-//			void pre_method (AST_method*) { in_function = true; }
-//			void post_method (AST_method*) { in_function = false; }
+//			void pre_class_def (HIR_class_def*) { in_class = true; }
+//			void post_class_def (HIR_class_def*) { in_class = false;}
+//			void pre_method (HIR_method*) { in_function = true; }
+//			void post_method (HIR_method*) { in_function = false; }
 	};
 
-	void generate_non_st_declarations (AST_method* method, AST_signature* sig)
+	void generate_non_st_declarations (HIR_method* method, HIR_signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
@@ -577,7 +578,7 @@ protected:
 
 		// debug_argument_stack();
 
-		List<AST_formal_parameter*>* parameters = signature->formal_parameters;
+		List<HIR_formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
 			code 
@@ -590,7 +591,7 @@ protected:
 			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
-			List<AST_formal_parameter*>::const_iterator i;
+			List<HIR_formal_parameter*>::const_iterator i;
 			int index;	
 			for(i = parameters->begin(), index = 0;
 				i != parameters->end();
@@ -610,13 +611,13 @@ protected:
 						<< "if (num_args <= " << index << ")\n"
 						<< "{\n";
 
-					AST_statement* assign_default_values = 
-						new AST_eval_expr (
-								new AST_assignment (
-									new AST_variable (
+					HIR_statement* assign_default_values = 
+						new HIR_eval_expr (
+								new HIR_assignment (
+									new HIR_variable (
 										NULL,
 										(*i)->variable_name->clone (),
-										new List<AST_expr*> ()),
+										new List<HIR_expr*> ()),
 									false, (*i)->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
@@ -658,7 +659,7 @@ protected:
 		code << "// Function body\n";
 	}
 
-	void generate_non_st_cleanup (AST_method* method, AST_signature* sig)
+	void generate_non_st_cleanup (HIR_method* method, HIR_signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
@@ -706,10 +707,10 @@ protected:
 class Label : public Pattern
 {
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
 		label = new Wildcard<Token_label_name>;
-		return that->match(new AST_label(label));
+		return that->match(new HIR_label(label));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -724,12 +725,12 @@ protected:
 class Branch : public Pattern
 {
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		cond = new Wildcard<AST_variable>;
+		cond = new Wildcard<HIR_variable>;
 		iftrue = new Wildcard<Token_label_name>;
 		iffalse = new Wildcard<Token_label_name>;
-		return that->match(new AST_branch(
+		return that->match(new HIR_branch(
 			cond,
 			iftrue, 
 			iffalse
@@ -753,7 +754,7 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable>* cond;
+	Wildcard<HIR_variable>* cond;
 	Wildcard<Token_label_name>* iftrue;
 	Wildcard<Token_label_name>* iffalse;
 };
@@ -761,10 +762,10 @@ protected:
 class Goto : public Pattern
 {
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
 		label = new Wildcard<Token_label_name>;
-		return that->match(new AST_goto(label));
+		return that->match(new HIR_goto(label));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -785,16 +786,16 @@ protected:
 class Assignment : public Pattern
 {
 public:
-	virtual AST_expr* rhs_pattern() = 0;
+	virtual HIR_expr* rhs_pattern() = 0;
 	virtual void generate_rhs (bool used) = 0;
 	virtual ~Assignment() {}
 
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		lhs = new Wildcard<AST_variable>;
-		agn = new AST_assignment(lhs, /* ignored */ false, rhs_pattern());
-		return that->match(new AST_eval_expr(agn));
+		lhs = new Wildcard<HIR_variable>;
+		agn = new HIR_assignment(lhs, /* ignored */ false, rhs_pattern());
+		return that->match(new HIR_eval_expr(agn));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -813,8 +814,8 @@ public:
 	}
 
 protected:
-	AST_assignment* agn;
-	Wildcard<AST_variable>* lhs;
+	HIR_assignment* agn;
+	Wildcard<HIR_variable>* lhs;
 };
 
 /*
@@ -868,7 +869,7 @@ template<class T, class K>
 class Assign_literal : public Assign_unknown_literal 
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
 		rhs = new Wildcard<T>;
 		return rhs;
@@ -1023,9 +1024,9 @@ class Copy : public Assignment
 {
 public:
 	bool fixed () { return true; }
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<AST_variable>;
+		rhs = new Wildcard<HIR_variable>;
 		return rhs;
 	}
 
@@ -1059,17 +1060,17 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable>* rhs;
+	Wildcard<HIR_variable>* rhs;
 };
 
 class Cast : public Copy
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<AST_variable>;
+		rhs = new Wildcard<HIR_variable>;
 		cast = new Wildcard<Token_cast>;
-		return new AST_cast (cast, rhs);
+		return new HIR_cast (cast, rhs);
 	}
 
 	void generate_rhs (bool used)
@@ -1099,10 +1100,10 @@ public:
 class Global : public Pattern 
 {
 public:
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		rhs = new Wildcard<AST_variable_name>;
-		return(that->match(new AST_global(rhs)));
+		rhs = new Wildcard<HIR_variable_name>;
+		return(that->match(new HIR_global(rhs)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1111,16 +1112,16 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable_name>* rhs;
+	Wildcard<HIR_variable_name>* rhs;
 };
 
 class Assign_constant : public Assignment
 {
 public:
 
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<AST_constant> ();
+		rhs = new Wildcard<HIR_constant> ();
 		return rhs;
 	}
 
@@ -1165,19 +1166,19 @@ public:
 	}
 
 protected:
-	Wildcard<AST_constant>* rhs;
+	Wildcard<HIR_constant>* rhs;
 };
 
 class Eval : public Assignment
 {
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<AST_variable>;
-		return new AST_method_invocation(
+		eval_arg = new Wildcard<HIR_variable>;
+		return new HIR_method_invocation(
 			NULL,	
 			new Token_method_name( new String("eval")),
-			new List<AST_actual_parameter*>(
-				new AST_actual_parameter (false, eval_arg)
+			new List<HIR_actual_parameter*>(
+				new HIR_actual_parameter (false, eval_arg)
 				)
 			);
 	}
@@ -1222,24 +1223,24 @@ class Eval : public Assignment
 	}
 
 protected:
-	Wildcard<AST_variable>* eval_arg;
+	Wildcard<HIR_variable>* eval_arg;
 };
 
 class Exit : public Pattern
 {
 public:
-	bool match (AST_statement* that)
+	bool match (HIR_statement* that)
 	{
-		exit_arg = new Wildcard<AST_variable> ();
+		exit_arg = new Wildcard<HIR_variable> ();
 		Wildcard<Token_method_name>* name = new Wildcard <Token_method_name> ();
 		return that->match (
-				new AST_eval_expr (
-					new AST_assignment (new Wildcard<AST_variable>, false, // ignored
-						new AST_method_invocation(
+				new HIR_eval_expr (
+					new HIR_assignment (new Wildcard<HIR_variable>, false, // ignored
+						new HIR_method_invocation(
 							NULL,	
 							name,
-							new List<AST_actual_parameter*>(
-								new AST_actual_parameter(false, exit_arg)
+							new List<HIR_actual_parameter*>(
+								new HIR_actual_parameter(false, exit_arg)
 								)
 							))))
 			&& (*name->value->value == "exit" || *name->value->value == "die");
@@ -1260,21 +1261,21 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable>* exit_arg;
+	Wildcard<HIR_variable>* exit_arg;
 };
 
 class Method_invocation : public Assignment
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<AST_method_invocation>;
+		rhs = new Wildcard<HIR_method_invocation>;
 		return rhs;
 	}
 
 	void generate_rhs (bool used)
 	{
-		List<AST_actual_parameter*>::const_iterator i;
+		List<HIR_actual_parameter*>::const_iterator i;
 		unsigned index;
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
@@ -1371,7 +1372,7 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			AST_variable* var = dynamic_cast<AST_variable*> ((*i)->expr);
+			HIR_variable* var = dynamic_cast<HIR_variable*> ((*i)->expr);
 			Token_variable_name* var_name = get_var_name ((*i)->expr);
 
 			code << "destruct[" << index << "] = 0;\n";
@@ -1550,19 +1551,19 @@ public:
 	}
 
 protected:
-	Wildcard<AST_method_invocation>* rhs;
+	Wildcard<HIR_method_invocation>* rhs;
 };
 
 class Bin_op : public Assignment
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		left = new Wildcard<AST_variable>;
+		left = new Wildcard<HIR_variable>;
 		op = new Wildcard<Token_op>;
-		right = new Wildcard<AST_variable>;
+		right = new Wildcard<HIR_variable>;
 
-		return new AST_bin_op (left, op, right); 
+		return new HIR_bin_op (left, op, right); 
 	}
 
 	void generate_rhs (bool used)
@@ -1602,20 +1603,20 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable>* left;
+	Wildcard<HIR_variable>* left;
 	Wildcard<Token_op>* op;
-	Wildcard<AST_variable>* right;
+	Wildcard<HIR_variable>* right;
 };
 
 class Pre_op : public Assignment
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
 		op = new Wildcard<Token_op>;
-		var = new Wildcard<AST_variable>;
+		var = new Wildcard<HIR_variable>;
 
-		return new AST_pre_op (op, var); 
+		return new HIR_pre_op (op, var); 
 	}
 
 	void generate_rhs (bool used)
@@ -1634,19 +1635,19 @@ public:
 	}
 
 protected:
-	Wildcard<AST_variable>* var;
+	Wildcard<HIR_variable>* var;
 	Wildcard<Token_op>* op;
 };
 
 class Unary_op : public Assignment
 {
 public:
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
 		op = new Wildcard<Token_op>;
-		expr = new Wildcard<AST_variable>;
+		expr = new Wildcard<HIR_variable>;
 
-		return new AST_unary_op(op, expr);
+		return new HIR_unary_op(op, expr);
 	}
 
 	void generate_rhs (bool used)
@@ -1679,15 +1680,15 @@ public:
 
 protected:
 	Wildcard<Token_op>* op;
-	Wildcard<AST_variable>* expr;
+	Wildcard<HIR_variable>* expr;
 };
 
 class Return : public Pattern
 {
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		expr = new Wildcard<AST_expr>;
-		return(that->match(new AST_return(expr)));
+		expr = new Wildcard<HIR_expr>;
+		return(that->match(new HIR_return(expr)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1728,17 +1729,17 @@ class Return : public Pattern
 	}
 
 protected:
-	Wildcard<AST_expr>* expr;
+	Wildcard<HIR_expr>* expr;
 };
 
 class Unset : public Pattern
 {
-	bool match(AST_statement* that)
+	bool match(HIR_statement* that)
 	{
-		var = new Wildcard<AST_variable>;
+		var = new Wildcard<HIR_variable>;
 		return that->match(
-			new AST_eval_expr(
-				new AST_method_invocation(
+			new HIR_eval_expr(
+				new HIR_method_invocation(
 					"unset",
 					var)));
 	}
@@ -1802,15 +1803,15 @@ class Unset : public Pattern
 	}
 
 protected:
-	Wildcard<AST_variable>* var;
+	Wildcard<HIR_variable>* var;
 };
 
 class Isset : public Assign_unknown_literal
 {
-	AST_expr* rhs_pattern()
+	HIR_expr* rhs_pattern()
 	{
-		var = new Wildcard<AST_variable>;
-		return new AST_method_invocation("isset", var);
+		var = new Wildcard<HIR_variable>;
+		return new HIR_method_invocation("isset", var);
 	}
 
 /*
@@ -1876,7 +1877,7 @@ class Isset : public Assign_unknown_literal
 	}
 
 protected:
-	Wildcard<AST_variable>* var;
+	Wildcard<HIR_variable>* var;
 };
 
 /*
@@ -1884,11 +1885,14 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-void Generate_C::children_statement(AST_statement* in)
+void Generate_C::children_statement(HIR_statement* in)
 {
 	// Make reading the generated code easier. If we use a /* comment,
 	// then we may get nested /* */ comments, which arent allowed and
 	// result in syntax errors in C. Use // instead.
+	/*
+	 * TODO: this is temporarily disabled because we don't (yet) have
+	 * a pretty-printer for the HIR
 	stringstream ss;
 	in->visit (new PHP_unparser (ss));
 
@@ -1898,6 +1902,7 @@ void Generate_C::children_statement(AST_statement* in)
 		getline (ss, str);
 		code << "// " << str << endl;
 	}
+	*/
 
 	Pattern* patterns[] = 
 	{
@@ -1938,14 +1943,14 @@ void Generate_C::children_statement(AST_statement* in)
 
 	if(not matched)
 	{
-		cerr << "could not generate code for ";
-		debug (in);
-		xdebug (in);
+		cerr << "could not generate code for " << demangle(in) << endl;
+		//debug (in);
+		//xdebug (in);
 		abort();
 	}
 }
 
-void Generate_C::pre_php_script(AST_php_script* in)
+void Generate_C::pre_php_script(HIR_php_script* in)
 {
 	// For now, we simply include this.
 	ifstream file ("libphc.cpp");
@@ -1962,9 +1967,9 @@ void Generate_C::pre_php_script(AST_php_script* in)
 	assert (file.is_open () == false);
 }
 
-void Generate_C::post_php_script(AST_php_script* in)
+void Generate_C::post_php_script(HIR_php_script* in)
 {
-	List<AST_signature*>::const_iterator i;
+	List<HIR_signature*>::const_iterator i;
 
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
 	for(i = methods->begin(); i != methods->end(); i++)
@@ -1980,7 +1985,7 @@ void Generate_C::post_php_script(AST_php_script* in)
 
 		// TODO: deal with type hinting
 
-		List<AST_formal_parameter*>::const_iterator j;
+		List<HIR_formal_parameter*>::const_iterator j;
 		for(
 			j = (*i)->formal_parameters->begin();
 			j != (*i)->formal_parameters->end();
@@ -2120,6 +2125,6 @@ void Generate_C::post_php_script(AST_php_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new List<AST_signature*>;
+	methods = new List<HIR_signature*>;
 	name = new String ("generate-c");
 }

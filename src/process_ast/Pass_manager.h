@@ -21,7 +21,7 @@ public:
 	Pass () {}
 	String* name;
 
-	virtual void run (AST_php_script* in, Pass_manager* pm) = 0;
+	virtual void run (AST::AST_php_script* in, Pass_manager* pm) = 0;
 	virtual void post_process () { }
 
 	virtual ~Pass () {}
@@ -33,16 +33,16 @@ public:
 
 class AST_visitor_pass : public Pass
 {
-	AST_visitor* visitor;
+	AST::AST_visitor* visitor;
 
 public:
 
-	AST_visitor_pass (AST_visitor* v)
+	AST_visitor_pass (AST::AST_visitor* v)
 	{
 		visitor = v;
 	}
 
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		in->visit (visitor);
 	}
@@ -50,16 +50,16 @@ public:
 
 class AST_transform_pass : public Pass
 {
-	AST_transform* transform;
+	AST::AST_transform* transform;
 
 public:
 
-	AST_transform_pass (AST_transform* t)
+	AST_transform_pass (AST::AST_transform* t)
 	{
 		transform = t;
 	}
 
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		in->transform_children (transform);
 	}
@@ -73,7 +73,7 @@ class Plugin_pass : public Pass
 public:
 
 	Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option);
-	void run (AST_php_script* in, Pass_manager* pm);
+	void run (AST::AST_php_script* in, Pass_manager* pm);
 	void post_process ();
 
 };
@@ -92,19 +92,19 @@ public:
 
 	// TODO make these use Strings
 	void add_pass (Pass* pass);
-	void add_visitor (AST_visitor* visitor, const char* name);
-	void add_transform (AST_transform* transform, const char* name);
+	void add_visitor (AST::AST_visitor* visitor, const char* name);
+	void add_transform (AST::AST_transform* transform, const char* name);
 	void add_plugin (lt_dlhandle handle, const char* name, String* option);
 
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, const char* name);
 	void add_before_named_pass (Pass* pass, const char* name);
-	void run_from_to (String* from, String* to, AST_php_script* in);
-	void run_until (String* to, AST_php_script* in);
+	void run_from_to (String* from, String* to, AST::AST_php_script* in);
+	void run_until (String* to, AST::AST_php_script* in);
 
-	void dump (AST_php_script* in, Pass* pass);
+	void dump (AST::AST_php_script* in, Pass* pass);
 	void dump_list ();
-	void run (AST_php_script* in);
+	void run (AST::AST_php_script* in);
 	void post_process ();
 	
 

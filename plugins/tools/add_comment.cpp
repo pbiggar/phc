@@ -7,6 +7,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_before_named_pass (pass, "ast");

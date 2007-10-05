@@ -12,6 +12,8 @@
 #include "AST.h"
 #include "cmdline.h"
 
+using namespace AST;
+
 // Generally we pass this through the pass manager. However, this is
 // very ugly for error messages, as then we would need access
 // everywhere we want to cause an error.

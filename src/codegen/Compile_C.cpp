@@ -25,7 +25,7 @@ stringstream& new_arg (vector<stringstream*> &args)
 	return *stream;
 }
 
-void Compile_C::run (AST_php_script* in, Pass_manager* pm)
+void Compile_C::run (AST::AST_php_script* in, Pass_manager* pm)
 {
 	if (not pm->args_info->compile_flag)
 		return;

@@ -10,6 +10,8 @@
 
 #include "AST_transform.h"
 
+using namespace AST;
+
 class Remove_concat_null : public AST_transform
 {
 public:

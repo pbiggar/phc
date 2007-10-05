@@ -5,6 +5,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST; 
+
 class Count_statements : public AST_visitor
 {
 private:

@@ -1,5 +1,6 @@
 #include "AST_visitor.h"
 
+namespace AST{
 AST_visitor::~AST_visitor()
 {
 }
@@ -3505,5 +3506,6 @@ void AST_visitor::children_method_name(AST_method_name* in)
     	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }
+}
 }
 

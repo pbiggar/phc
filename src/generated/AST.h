@@ -17,6 +17,7 @@
 using namespace std;
 
 
+namespace AST{
 class AST_node;
 class AST_php_script;
 class AST_class_mod;
@@ -2264,5 +2265,6 @@ public:
 	}
 };
 
+}
 
 #endif

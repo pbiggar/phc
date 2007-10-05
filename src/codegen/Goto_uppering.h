@@ -12,6 +12,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Goto_uppering : public AST_visitor
 {
 private:

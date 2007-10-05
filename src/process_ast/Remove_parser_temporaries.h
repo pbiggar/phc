@@ -12,6 +12,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Remove_parser_temporaries : public AST_visitor
 {
 public:

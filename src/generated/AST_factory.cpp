@@ -1,5 +1,6 @@
 #include "AST_factory.h"
 
+namespace AST{
 // If type_id corresponds to AST node, the elements in args must
 // correspond to the children of the node.
 // 
@@ -532,5 +533,6 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     }
     assert(0);
     return NULL;
+}
 }
 

@@ -12,6 +12,8 @@
 #include <stack>
 #include <map>
 
+using namespace AST;
+
 class DOT_unparser : public virtual AST_visitor
 {
 private:

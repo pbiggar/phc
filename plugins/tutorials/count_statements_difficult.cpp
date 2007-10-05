@@ -1,5 +1,7 @@
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 int count(List<AST_statement*>* in)
 {
 	// Every item in "in" is a statement

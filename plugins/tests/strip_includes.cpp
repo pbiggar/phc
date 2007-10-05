@@ -8,6 +8,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 class Strip_includes : public AST_transform
 {
 public:

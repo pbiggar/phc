@@ -10,6 +10,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 void debug (AST_node* in);
 
 class PHP_unparser : public virtual AST_visitor

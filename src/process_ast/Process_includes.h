@@ -11,6 +11,8 @@
 #include "AST_transform.h"
 #include "Pass_manager.h"
 
+using namespace AST;
+
 class Process_includes : public AST_transform
 {
 public:

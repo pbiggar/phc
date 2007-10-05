@@ -5,6 +5,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 class MySQL2DBX : public AST_visitor
 {
 public:

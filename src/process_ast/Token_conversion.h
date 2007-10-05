@@ -11,6 +11,8 @@
 
 #include "AST_transform.h"
 
+using namespace AST;
+
 class Token_conversion : public AST_transform
 {
 public:

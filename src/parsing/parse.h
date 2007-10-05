@@ -14,6 +14,8 @@
 
 #include "AST.h"
 
+using namespace AST;
+
 /*
  * Parse the specified file. Searches for the file in the current working
  * directory, and in any of the directories specified in dirs (if any). 

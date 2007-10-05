@@ -12,6 +12,8 @@
 #include "Prune_symbol_table.h"
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Prune_symbol_table : public AST_visitor
 {
 	bool prune;

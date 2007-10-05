@@ -69,6 +69,7 @@ src_phc_SOURCES =												\
 	src/codegen/Prune_symbol_table.h						\
 	src/codegen/Shredder.cpp								\
 	src/codegen/Shredder.h									\
+	src/codegen/AST_to_HIR.h								\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
@@ -79,6 +80,7 @@ src_phc_SOURCES =												\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
+	src/generated/AST_fold.h								\
 	src/generated/HIR.cpp									\
 	src/generated/HIR.h										\
 	src/generated/HIR_factory.cpp							\
@@ -87,6 +89,7 @@ src_phc_SOURCES =												\
 	src/generated/HIR_transform.h							\
 	src/generated/HIR_visitor.cpp							\
 	src/generated/HIR_visitor.h							\
+	src/generated/HIR_fold.h								\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
@@ -150,6 +153,7 @@ BUILT_SOURCES = \
 	src/generated/AST_visitor.h							\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
+	src/generated/AST_fold.h								\
 	src/generated/HIR.cpp									\
 	src/generated/HIR.h										\
 	src/generated/HIR_transform.cpp						\
@@ -158,6 +162,7 @@ BUILT_SOURCES = \
 	src/generated/HIR_visitor.h							\
 	src/generated/HIR_factory.cpp							\
 	src/generated/HIR_factory.h							\
+	src/generated/HIR_fold.h								\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
@@ -179,9 +184,11 @@ strangephc_HEADERS =							\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
+	src/generated/AST_fold.h				\
 	src/generated/HIR.h						\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_visitor.h			\
+	src/generated/HIR_fold.h				\
 	src/generated/cmdline.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
@@ -309,13 +316,14 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
 src/generated/AST.cpp 				\
-src/generated/AST.h 				\
+src/generated/AST.h 					\
 src/generated/AST_transform.cpp 	\
 src/generated/AST_transform.h		\
-src/generated/AST_visitor.cpp 		\
+src/generated/AST_visitor.cpp 	\
 src/generated/AST_visitor.h 		\
 src/generated/AST_factory.cpp		\
-src/generated/AST_factory.h			\
+src/generated/AST_factory.h		\
+src/generated/AST_fold.h			\
 	: src/generated_src/phc.tea @maketea@
 	@maketea@ src/generated_src/phc.tea
 	mv AST.cpp src/generated/
@@ -326,17 +334,19 @@ src/generated/AST_factory.h			\
 	mv AST_visitor.h src/generated/
 	mv AST_factory.cpp src/generated/
 	mv AST_factory.h src/generated/
+	mv AST_fold.h src/generated/
 	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/HIR.cpp 				\
-src/generated/HIR.h 				\
+src/generated/HIR.h 					\
 src/generated/HIR_transform.cpp 	\
 src/generated/HIR_transform.h		\
-src/generated/HIR_visitor.cpp 		\
+src/generated/HIR_visitor.cpp 	\
 src/generated/HIR_visitor.h 		\
 src/generated/HIR_factory.cpp		\
-src/generated/HIR_factory.h			\
+src/generated/HIR_factory.h		\
+src/generated/HIR_fold.h			\
 	: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
 	mv HIR.cpp src/generated/
@@ -347,6 +357,7 @@ src/generated/HIR_factory.h			\
 	mv HIR_visitor.h src/generated/
 	mv HIR_factory.cpp src/generated/
 	mv HIR_factory.h src/generated/
+	mv HIR_fold.h src/generated/
 	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 

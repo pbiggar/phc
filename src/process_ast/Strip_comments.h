@@ -10,6 +10,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Strip_comments : public virtual AST_visitor
 {
 public:

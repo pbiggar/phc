@@ -14,6 +14,7 @@
 	#include <assert.h>
 	#include <string.h>
 	#include "AST.h"
+	using namespace AST;
 	#include "lib/Integer.h"
 	#include "php_parser.tab.hpp"
 	#include "cmdline.h"

@@ -7,6 +7,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 class Comment_ifs : public AST_visitor
 {
 private:

@@ -9,6 +9,7 @@
 #define PHC_PHP_CONTEXT
 
 #include "AST.h"
+using namespace AST;
 #include "lib/String.h"
 #include "lib/List.h"
 #include "php_parser.tab.hpp"

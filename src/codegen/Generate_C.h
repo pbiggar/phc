@@ -13,27 +13,29 @@
 
 #include <sstream>
 #include "cmdline.h"
-#include "AST_visitor.h"
+#include "HIR_visitor.h"
 #include "process_ast/Pass_manager.h"
 
-class Generate_C : public AST_visitor, public Pass
+using namespace HIR;
+
+class Generate_C : public HIR_visitor, public Pass
 {
 public:
 
 	ostream& os;
 
-	void run (AST_php_script*, Pass_manager*);
+	void run (AST::AST_php_script*, Pass_manager*);
 	Generate_C(ostream&);
 
 public:
-	void children_statement(AST_statement* in);
-	void pre_php_script(AST_php_script* in);
-	void post_php_script(AST_php_script* in);
+	void children_statement(HIR_statement* in);
+	void pre_php_script(HIR_php_script* in);
+	void post_php_script(HIR_php_script* in);
 
 public:
 	String* extension_name;
 	bool is_extension;
-	List<AST_signature*>* methods;	// List of all methods compiled	
+	List<HIR_signature*>* methods;	// List of all methods compiled	
 	bool return_by_reference; 		// current methods returns by reference	
 };
 

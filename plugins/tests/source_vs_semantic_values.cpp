@@ -10,6 +10,8 @@
 
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 class Get_source_and_semantic_values : public AST_visitor
 {
 public:

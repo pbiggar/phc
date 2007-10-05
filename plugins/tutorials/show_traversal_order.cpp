@@ -6,6 +6,8 @@
 #include "process_ast/Pass_manager.h"
 #include "lib/demangle.h"
 
+using namespace AST;
+
 class Show_traversal_order : public AST_visitor
 {
 public:

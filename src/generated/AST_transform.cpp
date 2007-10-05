@@ -1,5 +1,6 @@
 #include "AST_transform.h"
 
+namespace AST{
 AST_transform::~AST_transform()
 {
 }
@@ -2718,5 +2719,6 @@ void AST_transform::children_method_name(AST_method_name* in)
     	children_reflection(dynamic_cast<AST_reflection*>(in));
     	break;
     }
+}
 }
 

@@ -2,11 +2,9 @@
  - phc -- the open source PHP compiler
  - See doc/license/README.license for licensing information
  -
- - Definition of the HIR
+ - The phc grammar in .tea format. 
  -
- - Note that the HIR does not support the 'declare' statement, which nobody
- - uses or can even define precisely. It does not even seem to be supported
- - by the interpreter.
+ - This is the authoritative grammar for phc. 
  -}
 
 {-
@@ -20,22 +18,18 @@ use string "String";
 use namespace "HIR";
 
 {-
-	Top-level structure	
+   Top-level structure	
 -}
 
 php_script ::= statement* ;
 
 statement ::=
      class_def | interface_def | method  
-   | return | static_declaration | global
-   | try | throw 
-	| label | goto | branch 
-	| assign_var | assign_var_var | assign_array | push_array 
-	;
-
-{-
-	Class and method definitions
--}
+   | if | while | do | for | foreach 
+   | switch | break | continue | return
+   | static_declaration | global
+   | declare | try | throw | eval_expr | nop 
+	| label | goto | branch ;
 
 class_def ::= 
    class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -48,81 +42,130 @@ member ::= method | attribute ;
 method ::= signature statement*? ;
 signature ::= method_mod is_ref:"&"? METHOD_NAME formal_parameter* ;
 method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
-formal_parameter ::= type is_ref:"&"? VARIABLE_NAME static_value? ;
+formal_parameter ::= type is_ref:"&"? VARIABLE_NAME expr? ;
 type ::= CLASS_NAME? ;
 
-attribute ::= attr_mod VARIABLE_NAME static_value? ;
+attribute ::= attr_mod VARIABLE_NAME expr? ;
 attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
 {-
-	Statements
+   Statements
 -}
 
-return ::= VARIABLE_NAME? ;
+if ::= expr iftrue:statement* iffalse:statement* ;
+while ::= expr statement* ;
+do ::= statement* expr ;
+for ::= init:expr? cond:expr? incr:expr? statement* ;
+foreach ::= expr key:variable? is_ref:"&"? val:variable statement* ;
 
-branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME;
-goto ::= LABEL_NAME ;
-label ::= LABEL_NAME ;
+switch ::= expr switch_case* ;
+switch_case ::= expr? statement* ;
+break ::= expr? ;
+continue ::= expr? ;
+return ::= expr? ;
 
-static_declaration ::= VARIABLE_NAME static_value? ;
-global ::= variable_name ; 
-variable_name ::= VARIABLE_NAME | variable_variable;
+static_declaration ::= VARIABLE_NAME expr? ;
+global ::= variable_name ;
+
+declare ::= directive+ statement* ;
+directive ::= DIRECTIVE_NAME expr ;
 
 try ::= statement* catches:catch* ;
 catch ::= CLASS_NAME VARIABLE_NAME statement* ;
-throw ::= VARIABLE_NAME ;
+throw ::= expr ;
 
-assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:expr ;
-assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
-assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
-push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
+eval_expr ::= expr ;
+
+nop ::= ;
 
 {-
-	Expressions
+   HIR constructs (without a PHP equivalent)
+-}
+
+branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+goto ::= LABEL_NAME ;
+label ::= LABEL_NAME ;
+
+{-
+   Expressions
 -}
 
 expr ::=
-     cast | unary_op | bin_op 
-   | constant | instanceof
-   | variable_name | index_array
-	| method_invocation | new 
+     assignment | op_assignment | list_assignment 
+   | cast | unary_op | bin_op | conditional_expr
+   | ignore_errors | constant | instanceof
+   | variable | pre_op | post_op | array
+   | method_invocation | new 
 	| literal ;
 	
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
-index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
-variable_variable ::= VARIABLE_NAME ; 
+assignment ::= variable is_ref:"&"? expr ;
+op_assignment ::= variable OP expr ;
 
-cast     ::= CAST VARIABLE_NAME ;
-unary_op ::= OP VARIABLE_NAME ;
-bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
+list_assignment ::= list_element?* expr ;
+list_element ::= variable | nested_list_elements ;
+nested_list_elements ::= list_element?* ;
+
+cast ::= CAST expr ;
+unary_op ::= OP expr ;
+bin_op ::= left:expr OP right:expr ;
+
+conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
+ignore_errors ::= expr ;
 
 constant ::= CLASS_NAME? CONSTANT_NAME ;
 
-instanceof ::= VARIABLE_NAME class_name ;
+instanceof ::= expr class_name ;
 
-target ::= VARIABLE_NAME | CLASS_NAME ;
+variable ::= target? variable_name array_indices:expr?* ;
+variable_name ::= VARIABLE_NAME | reflection ;
+reflection ::= expr ;
+
+target ::= expr | CLASS_NAME ;
+
+pre_op ::= OP variable ;
+post_op ::= variable OP ;
+
+array ::= array_elem* ;
+array_elem ::= key:expr? is_ref:"&"? val:expr ;
 
 method_invocation ::= target? method_name actual_parameter* ;
-method_name ::= METHOD_NAME | VARIABLE_NAME ;
+method_name ::= METHOD_NAME | reflection ;
 
-actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
+actual_parameter ::= is_ref:"&"? expr ;
 
 new ::= class_name actual_parameter* ;
-class_name ::= CLASS_NAME | VARIABLE_NAME ;
-
-static_value ::= literal | static_array | constant ;
- 
-static_array      ::= static_array_elem* ;
-static_array_elem ::= static_array_key? is_ref:"&"? val:static_value ;
-static_array_key  ::= literal | constant ; 
+class_name ::= CLASS_NAME | reflection ;
 
 {-
-	Mixin
--}
+ - Additional structure 
+ -}
 
+commented_node ::= 
+	  member | statement | interface_def | class_def | switch_case | catch 
+	;
+
+identifier ::=
+	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
+	| DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME
+	| LABEL_NAME
+	;  
+
+{-
+ - Extra attributes and methods (mixin code)
+ -}
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include "lib/error.h"
+#include "lib/Object.h"
 #include "lib/List.h"
 #include "lib/String.h"
+#include "lib/Boolean.h"
+#include "lib/Integer.h"
+#include "lib/AttrMap.h"
 
 class HIR_node : Object 
 {
@@ -194,5 +237,449 @@ public:
 		}
 
 		return true;
+	}
+};
+
+class HIR_commented_node 
+{
+public:
+	HIR_commented_node()
+	{
+		attrs->set("phc.comments", new List<String*>);
+	}
+
+	// Return the comments associated with the node
+	List<String*>* get_comments()
+	{
+		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
+		assert(comments);
+		return comments;
+	}
+};
+
+class HIR_signature 
+{
+public:
+	HIR_signature(const char* name) 
+	{
+		this->method_mod = HIR_method_mod::new_PUBLIC();
+		this->is_ref = false;
+		this->method_name = new Token_method_name(new String(name));
+		this->formal_parameters = new List<HIR_formal_parameter*>;
+	}
+};
+
+class HIR_method_mod 
+{
+public:
+	HIR_method_mod()
+	{
+		is_public = false;
+		is_protected = false;
+		is_private = false;
+		is_static = false;
+		is_abstract = false;
+		is_final = false;
+	}
+
+	HIR_method_mod(HIR_method_mod* a, HIR_method_mod* b) 
+	{
+		this->is_public 		= a->is_public		|| b->is_public;
+		this->is_protected	= a->is_protected	|| b->is_protected;
+		this->is_private		= a->is_private	|| b->is_private;
+		this->is_static		= a->is_static		|| b->is_static;
+		this->is_abstract		= a->is_abstract	|| b->is_abstract;
+		this->is_final			= a->is_final		|| b->is_final;
+	}
+
+	static HIR_method_mod* new_PUBLIC() 
+	{
+		return new HIR_method_mod(true, false, false, false, false, false);		
+	}
+
+	static HIR_method_mod* new_PROTECTED() 
+	{ 
+		return new HIR_method_mod(false, true, false, false, false, false);		
+	}
+
+	static HIR_method_mod* new_PRIVATE() 
+	{ 
+		return new HIR_method_mod(false, false, true, false, false, false);		
+	}
+
+	static HIR_method_mod* new_STATIC() 
+	{ 
+		return new HIR_method_mod(false, false, false, true, false, false);		
+	}
+
+	static HIR_method_mod* new_ABSTRACT() 
+	{ 
+		return new HIR_method_mod(false, false, false, false, true, false);		
+	}
+
+	static HIR_method_mod* new_FINAL() 
+	{ 
+		return new HIR_method_mod(false, false, false, false, false, true);		
+	}
+};
+
+class HIR_class_def
+{
+public:
+	HIR_class_def(HIR_class_mod* mod) 
+	{
+		this->class_mod = mod;
+		this->class_name = NULL;
+		this->extends = NULL;
+		this->implements = new List<Token_interface_name*>;
+		this->members = new List<HIR_member*>;
+	}
+
+	HIR_class_def(const char* name)
+	{
+		this->class_mod = new HIR_class_mod(false, false);
+		this->class_name = new Token_class_name(new String(name));
+		this->extends = NULL;
+		this->implements = new List<Token_interface_name*>;
+		this->members = new List<HIR_member*>;
+	}
+
+	void add_member(HIR_member* member) 
+	{
+		this->members->push_back(member);
+	}
+
+	// Returns NULL if the method could not be found
+	HIR_method* get_method(const char* name)
+	{
+		List<HIR_member*>::const_iterator i;
+		for(i = members->begin(); i != members->end(); i++)
+		{
+			HIR_method* method = dynamic_cast<HIR_method*>(*i);
+			if(method && *method->signature->method_name->value == name)
+				return method;
+		}
+
+		return NULL;
+	}
+};
+
+class HIR_eval_expr
+{
+public:
+	void _init()
+	{
+		assert (expr != NULL);
+	}
+};
+
+class HIR_variable
+{
+public:
+	HIR_variable(HIR_variable_name* name) 
+	{
+		this->target = NULL;
+		this->variable_name = name;
+		this->array_indices = new List<HIR_expr*>;
+	}
+};
+
+class HIR_method_invocation
+{
+public:
+	HIR_method_invocation(const char* name, HIR_expr* arg) 
+	{ 
+		this->target = NULL;
+		this->method_name = new Token_method_name(new String(name));
+		this->actual_parameters = new List<HIR_actual_parameter*>;
+		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+	}
+
+	HIR_method_invocation(Token_method_name* name, HIR_expr* arg) 
+	{ 
+		this->target = NULL;
+		this->method_name = name; 
+		this->actual_parameters = new List<HIR_actual_parameter*>;
+		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+	}
+};
+
+class HIR_formal_parameter
+{
+public:
+	HIR_formal_parameter(HIR_type* type, Token_variable_name* name) 
+	{
+		this->type = type;
+		this->is_ref = false;
+		this->variable_name = name;
+		this->expr = NULL;
+	}
+
+	HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* name) 
+	{ 
+		this->type = type;
+		this->is_ref = is_ref;
+		this->variable_name = name;
+		this->expr = NULL;
+	}
+};
+
+class HIR_attr_mod
+{
+public:
+	HIR_attr_mod()
+	{
+		is_public = false;
+		is_protected = false;
+		is_private = false;
+		is_static = false;
+		is_const = false;
+	}
+
+	HIR_attr_mod(HIR_method_mod* mm) 
+	{
+		if(mm->is_final)
+			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
+
+		this->is_public = mm->is_public;
+		this->is_protected = mm->is_protected;
+		this->is_private = mm->is_private;
+		this->is_static = mm->is_static;
+		this->is_const = false;
+	}
+
+	static HIR_attr_mod* new_PUBLIC() 
+	{
+		return new HIR_attr_mod(true, false, false, false, false);
+	}
+
+	static HIR_attr_mod* new_PROTECTED() 
+	{ 
+		return new HIR_attr_mod(false, true, false, false, false);
+	}
+
+	static HIR_attr_mod* new_PRIVATE() 
+	{
+		return new HIR_attr_mod(false, false, true, false, false);
+	}
+
+	static HIR_attr_mod* new_STATIC() 
+	{
+		return new HIR_attr_mod(false, false, false, true, false);
+	}
+	
+	static HIR_attr_mod* new_CONST() 
+	{
+		return new HIR_attr_mod(false, false, false, false, true);
+	}
+};
+
+class HIR_op_assignment
+{
+public:
+   HIR_op_assignment(HIR_variable* variable, const char* op, HIR_expr* expr)
+   {
+      this->variable = variable;
+      this->op = new Token_op(new String(op));
+      this->expr = expr;
+   }
+};
+
+class HIR_bin_op
+{
+public:
+	HIR_bin_op(HIR_expr* left, HIR_expr* right, const char* op) 
+	{
+		this->left = left;
+		this->op = new Token_op(new String(op));
+		this->right = right;
+	}
+};
+
+class HIR_post_op
+{
+public:
+	HIR_post_op(HIR_variable* var, const char* op) 
+	{
+		this->variable = var;
+		this->op = new Token_op(new String(op));
+	}
+};
+
+class HIR_pre_op
+{
+public:
+	HIR_pre_op(HIR_variable* var, const char* op) 
+	{
+		this->variable = var;
+		this->op = new Token_op(new String(op));
+	}
+};
+
+class HIR_unary_op
+{
+public:
+	HIR_unary_op(HIR_expr* expr, const char* op) 
+	{
+		this->expr = expr;
+		this->op = new Token_op(new String(op));
+	}
+};
+
+class HIR_if
+{
+public:
+	HIR_if(HIR_expr* expr)
+	{
+		HIR_if (expr, new List<HIR_statement*> (), new List<HIR_statement*>);
+	}
+};
+
+class HIR_cast
+{
+public:
+	HIR_cast(const char* cast, HIR_expr* expr) 
+	{
+		this->cast = new Token_cast(new String(cast));
+		this->expr = expr;
+	}
+};
+
+class HIR_identifier
+{
+public:
+	virtual String* get_value_as_string() = 0;
+};
+
+class HIR_literal
+{
+public:
+	virtual String* get_value_as_string() = 0;
+	virtual String* get_source_rep() = 0;
+};
+
+class Token_int
+{
+private:
+
+	// Constructors can't call virtual functions, so we create a non-virtual to
+	// do the work. This is then called by the virtual function, and is also
+	// safely called from the constructor.
+	String* _get_value_as_string()
+	{
+		std::ostringstream os;
+		os << value;
+		return new String(os.str());
+	}
+
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
+	Token_int (int v)
+	{
+		value = v;
+		source_rep = _get_value_as_string ();
+	}
+};
+
+class Token_real
+{
+private:
+
+	// See comment in Token_int::_get_value_as_string ()
+	String* _get_value_as_string()
+	{
+		std::ostringstream os;
+		// setprecision(20) outputs as many digits as required, with
+		// a maximum of 20
+		os << setprecision(20) << value;
+		// unfortunately, that means that if no digits are required at
+		// all (after the decimal point), the decimal point is left out
+		// completely; setting the "showpoint" flag fixes this, but then
+		// the STL _always_ shows all 20 digits, which is not what we 
+		// want either. Hence, we insert the ".0" manually if necessary:
+		string str = os.str();
+		if(str.find('.') >= str.size())
+			str.append(".0");
+
+		return new String(str);
+	}
+
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
+	Token_real (double v)
+	{
+		value = v;
+		source_rep = _get_value_as_string ();
+	}
+};
+
+class Token_bool
+{
+private:
+	// See comment in Token_int::_get_value_as_string ()
+	String* _get_value_as_string()
+	{
+		if(value)
+			return new String("True");
+		else
+			return new String("False");
+	}
+
+public:
+	virtual String* get_value_as_string()
+	{
+		return _get_value_as_string ();
+	}
+
+	Token_bool (bool v)
+	{
+		value = v;
+		source_rep = _get_value_as_string ();
+	}
+};
+
+class Token_string
+{
+public:
+	virtual String* get_value_as_string()
+	{
+		return value;
+	}
+
+	bool is_value_valid()
+	{
+		return value != NULL;
+	}
+
+	String* clone_value()
+	{
+		return value->clone();
+	}
+
+	Token_string (String* v)
+	{
+		value = v;
+		source_rep = v;
+	}
+};
+
+class Token_null
+{
+public:
+	virtual String* get_value_as_string()
+	{
+		return new String("NULL");
+	}
+	Token_null ()
+	{
+		source_rep = new String ("NULL");
 	}
 };

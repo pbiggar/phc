@@ -19,6 +19,7 @@ using namespace std;
 
 #include "AST.h"
 
+namespace AST{
 class AST_transform
 {
 public:
@@ -310,6 +311,7 @@ public:
     virtual void children_target(AST_target* in);
     virtual void children_method_name(AST_method_name* in);
 };
+}
 
 
 #endif

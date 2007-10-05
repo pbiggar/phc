@@ -2,6 +2,7 @@
 #include "AST_transform.h"
 #include "AST_visitor.h"
 
+namespace AST{
 //  Return the line number of the node (or 0 if unknown)
 int AST_node::get_line_number()
 {
@@ -8120,4 +8121,5 @@ Token_null::Token_null()
 	}
 }
 
+}
 

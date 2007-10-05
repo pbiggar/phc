@@ -19,6 +19,7 @@ using namespace std;
 
 #include "AST.h"
 
+namespace AST{
 class AST_factory
 {
 public:
@@ -34,6 +35,7 @@ public:
     // with non-default values are not supported.
     static Object* create(char const* type_id, List<Object*>* args);
 };
+}
 
 
 #endif

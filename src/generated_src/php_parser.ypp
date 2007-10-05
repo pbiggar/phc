@@ -9,6 +9,7 @@
 	#include <assert.h>
 	#include <typeinfo>
 	#include "AST.h"
+	using namespace AST;
 	#include "cmdline.h"
 	#include "lib/Integer.h"
 	#include "lib/String.h"

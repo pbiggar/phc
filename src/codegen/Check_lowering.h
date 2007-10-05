@@ -11,6 +11,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Check_lowering : public AST_visitor
 {
 	public:

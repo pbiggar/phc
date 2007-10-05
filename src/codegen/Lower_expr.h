@@ -11,6 +11,8 @@
 
 #include "AST_transform.h"
 
+using namespace AST;
+
 class Lower_expr : public AST_transform
 {
 public:

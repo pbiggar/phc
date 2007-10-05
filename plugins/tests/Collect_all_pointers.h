@@ -12,6 +12,8 @@
 #include <set>
 #include "AST_visitor.h"
 
+using namespace AST;
+
 class Collect_all_pointers : virtual public AST_visitor 
 {
 public:

@@ -11,6 +11,8 @@
 
 #include "AST_transform.h"
 
+using namespace AST;
+
 class Lower_control_flow : public AST_transform
 {
 	private:

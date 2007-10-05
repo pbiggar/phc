@@ -1,8 +1,16 @@
 #ifndef _HIR_H_
 #define _HIR_H_
 
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include "lib/error.h"
+#include "lib/Object.h"
 #include "lib/List.h"
 #include "lib/String.h"
+#include "lib/Boolean.h"
+#include "lib/Integer.h"
+#include "lib/AttrMap.h"
 #include <list>
 #include <string>
 #include <assert.h>
@@ -12,59 +20,78 @@ using namespace std;
 namespace HIR{
 class HIR_node;
 class HIR_php_script;
-class HIR_statement;
 class HIR_class_mod;
-class HIR_member;
 class HIR_signature;
 class HIR_method_mod;
 class HIR_formal_parameter;
 class HIR_type;
 class HIR_attr_mod;
-class HIR_catch;
-class HIR_expr;
+class HIR_directive;
+class HIR_list_element;
+class HIR_variable_name;
 class HIR_target;
+class HIR_array_elem;
 class HIR_method_name;
 class HIR_actual_parameter;
 class HIR_class_name;
-class HIR_static_value;
-class HIR_static_array_elem;
-class HIR_static_array_key;
+class HIR_commented_node;
+class HIR_identifier;
+class HIR_statement;
+class HIR_member;
+class HIR_switch_case;
+class HIR_catch;
+class HIR_expr;
+class HIR_nested_list_elements;
+class HIR_reflection;
+class Token_class_name;
 class Token_interface_name;
+class Token_method_name;
+class Token_variable_name;
+class Token_directive_name;
 class Token_label_name;
-class Token_cast;
 class Token_op;
+class Token_cast;
 class Token_constant_name;
 class HIR_class_def;
 class HIR_interface_def;
 class HIR_method;
 class HIR_attribute;
+class HIR_if;
+class HIR_while;
+class HIR_do;
+class HIR_for;
+class HIR_foreach;
+class HIR_switch;
+class HIR_break;
+class HIR_continue;
 class HIR_return;
+class HIR_static_declaration;
+class HIR_global;
+class HIR_declare;
+class HIR_try;
+class HIR_throw;
+class HIR_eval_expr;
+class HIR_nop;
 class HIR_branch;
 class HIR_goto;
 class HIR_label;
-class HIR_static_declaration;
-class HIR_global;
-class HIR_variable_name;
-class HIR_try;
-class HIR_throw;
-class HIR_assign_var;
-class HIR_assign_array;
-class HIR_assign_var_var;
-class HIR_push_array;
 class HIR_literal;
-class HIR_index_array;
+class HIR_assignment;
+class HIR_op_assignment;
+class HIR_list_assignment;
 class HIR_cast;
 class HIR_unary_op;
 class HIR_bin_op;
+class HIR_conditional_expr;
+class HIR_ignore_errors;
 class HIR_constant;
 class HIR_instanceof;
+class HIR_variable;
+class HIR_pre_op;
+class HIR_post_op;
+class HIR_array;
 class HIR_method_invocation;
 class HIR_new;
-class HIR_static_array;
-class Token_class_name;
-class Token_method_name;
-class HIR_variable_variable;
-class Token_variable_name;
 class Token_int;
 class Token_real;
 class Token_string;
@@ -74,7 +101,7 @@ class Token_null;
 class HIR_transform;
 class HIR_visitor;
 
-// node ::= php_script | statement | class_mod | member | signature | method_mod | formal_parameter | type | attr_mod | catch | expr | target | method_name | actual_parameter | class_name | static_value | static_array_elem | static_array_key | INTERFACE_NAME | LABEL_NAME | CAST | OP | CONSTANT_NAME;
+// node ::= php_script | class_mod | signature | method_mod | formal_parameter | type | attr_mod | directive | list_element | variable_name | target | array_elem | method_name | actual_parameter | class_name | commented_node | identifier;
 class HIR_node : virtual public Object
 {
 public:
@@ -127,26 +154,6 @@ public:
     virtual void assert_valid();
 };
 
-// statement ::= class_def | interface_def | method | return | static_declaration | global | try | throw | label | goto | branch | assign_var | assign_var_var | assign_array | push_array;
-class HIR_statement : virtual public HIR_node
-{
-public:
-    HIR_statement();
-public:
-    virtual void visit(HIR_visitor* visitor) = 0;
-    virtual void transform_children(HIR_transform* transform) = 0;
-public:
-    virtual int classid() = 0;
-public:
-    virtual bool match(HIR_node* in) = 0;
-public:
-    virtual bool equals(HIR_node* in) = 0;
-public:
-    virtual HIR_statement* clone() = 0;
-public:
-    virtual void assert_valid() = 0;
-};
-
 // class_mod ::= "abstract"? "final"? ;
 class HIR_class_mod : virtual public HIR_node
 {
@@ -171,26 +178,6 @@ public:
     virtual HIR_class_mod* clone();
 public:
     virtual void assert_valid();
-};
-
-// member ::= method | attribute;
-class HIR_member : virtual public HIR_node
-{
-public:
-    HIR_member();
-public:
-    virtual void visit(HIR_visitor* visitor) = 0;
-    virtual void transform_children(HIR_transform* transform) = 0;
-public:
-    virtual int classid() = 0;
-public:
-    virtual bool match(HIR_node* in) = 0;
-public:
-    virtual bool equals(HIR_node* in) = 0;
-public:
-    virtual HIR_member* clone() = 0;
-public:
-    virtual void assert_valid() = 0;
 };
 
 // signature ::= method_mod is_ref:"&" METHOD_NAME formal_parameter* ;
@@ -219,6 +206,8 @@ public:
     virtual HIR_signature* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_signature(const char* name);
 };
 
 // method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
@@ -226,8 +215,6 @@ class HIR_method_mod : virtual public HIR_node
 {
 public:
     HIR_method_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final);
-protected:
-    HIR_method_mod();
 public:
     bool is_public;
     bool is_protected;
@@ -249,20 +236,29 @@ public:
     virtual HIR_method_mod* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_method_mod();
+    HIR_method_mod(HIR_method_mod* a, HIR_method_mod* b);
+    static HIR_method_mod* new_PUBLIC();
+    static HIR_method_mod* new_PROTECTED();
+    static HIR_method_mod* new_PRIVATE();
+    static HIR_method_mod* new_STATIC();
+    static HIR_method_mod* new_ABSTRACT();
+    static HIR_method_mod* new_FINAL();
 };
 
-// formal_parameter ::= type is_ref:"&" VARIABLE_NAME static_value? ;
+// formal_parameter ::= type is_ref:"&" VARIABLE_NAME expr? ;
 class HIR_formal_parameter : virtual public HIR_node
 {
 public:
-    HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* variable_name, HIR_static_value* static_value);
+    HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* variable_name, HIR_expr* expr);
 protected:
     HIR_formal_parameter();
 public:
     HIR_type* type;
     bool is_ref;
     Token_variable_name* variable_name;
-    HIR_static_value* static_value;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -277,6 +273,9 @@ public:
     virtual HIR_formal_parameter* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_formal_parameter(HIR_type* type, Token_variable_name* name);
+    HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* name);
 };
 
 // type ::= CLASS_NAME? ;
@@ -309,8 +308,6 @@ class HIR_attr_mod : virtual public HIR_node
 {
 public:
     HIR_attr_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const);
-protected:
-    HIR_attr_mod();
 public:
     bool is_public;
     bool is_protected;
@@ -331,40 +328,47 @@ public:
     virtual HIR_attr_mod* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_attr_mod();
+    HIR_attr_mod(HIR_method_mod* mm);
+    static HIR_attr_mod* new_PUBLIC();
+    static HIR_attr_mod* new_PROTECTED();
+    static HIR_attr_mod* new_PRIVATE();
+    static HIR_attr_mod* new_STATIC();
+    static HIR_attr_mod* new_CONST();
 };
 
-// catch ::= CLASS_NAME VARIABLE_NAME statement* ;
-class HIR_catch : virtual public HIR_node
+// directive ::= DIRECTIVE_NAME expr ;
+class HIR_directive : virtual public HIR_node
 {
 public:
-    HIR_catch(Token_class_name* class_name, Token_variable_name* variable_name, List<HIR_statement*>* statements);
+    HIR_directive(Token_directive_name* directive_name, HIR_expr* expr);
 protected:
-    HIR_catch();
+    HIR_directive();
 public:
-    Token_class_name* class_name;
-    Token_variable_name* variable_name;
-    List<HIR_statement*>* statements;
+    Token_directive_name* directive_name;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 19;
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_catch* clone();
+    virtual HIR_directive* clone();
 public:
     virtual void assert_valid();
 };
 
-// expr ::= cast | unary_op | bin_op | constant | instanceof | variable_name | index_array | method_invocation | new | literal;
-class HIR_expr : virtual public HIR_node
+// list_element ::= variable | nested_list_elements;
+class HIR_list_element : virtual public HIR_node
 {
 public:
-    HIR_expr();
+    HIR_list_element();
 public:
     virtual void visit(HIR_visitor* visitor) = 0;
     virtual void transform_children(HIR_transform* transform) = 0;
@@ -375,12 +379,32 @@ public:
 public:
     virtual bool equals(HIR_node* in) = 0;
 public:
-    virtual HIR_expr* clone() = 0;
+    virtual HIR_list_element* clone() = 0;
 public:
     virtual void assert_valid() = 0;
 };
 
-// target ::= VARIABLE_NAME | CLASS_NAME;
+// variable_name ::= VARIABLE_NAME | reflection;
+class HIR_variable_name : virtual public HIR_node
+{
+public:
+    HIR_variable_name();
+public:
+    virtual void visit(HIR_visitor* visitor) = 0;
+    virtual void transform_children(HIR_transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(HIR_node* in) = 0;
+public:
+    virtual bool equals(HIR_node* in) = 0;
+public:
+    virtual HIR_variable_name* clone() = 0;
+public:
+    virtual void assert_valid() = 0;
+};
+
+// target ::= expr | CLASS_NAME;
 class HIR_target : virtual public HIR_node
 {
 public:
@@ -400,7 +424,34 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// method_name ::= METHOD_NAME | VARIABLE_NAME;
+// array_elem ::= key:expr? is_ref:"&" val:expr ;
+class HIR_array_elem : virtual public HIR_node
+{
+public:
+    HIR_array_elem(HIR_expr* key, bool is_ref, HIR_expr* val);
+protected:
+    HIR_array_elem();
+public:
+    HIR_expr* key;
+    bool is_ref;
+    HIR_expr* val;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 50;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_array_elem* clone();
+public:
+    virtual void assert_valid();
+};
+
+// method_name ::= METHOD_NAME | reflection;
 class HIR_method_name : virtual public HIR_node
 {
 public:
@@ -420,23 +471,21 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// actual_parameter ::= is_ref:"&" target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
+// actual_parameter ::= is_ref:"&" expr ;
 class HIR_actual_parameter : virtual public HIR_node
 {
 public:
-    HIR_actual_parameter(bool is_ref, HIR_target* target, Token_variable_name* variable_name, List<Token_variable_name*>* array_indices);
+    HIR_actual_parameter(bool is_ref, HIR_expr* expr);
 protected:
     HIR_actual_parameter();
 public:
     bool is_ref;
-    HIR_target* target;
-    Token_variable_name* variable_name;
-    List<Token_variable_name*>* array_indices;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 33;
+    static const int ID = 52;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -448,7 +497,7 @@ public:
     virtual void assert_valid();
 };
 
-// class_name ::= CLASS_NAME | VARIABLE_NAME;
+// class_name ::= CLASS_NAME | reflection;
 class HIR_class_name : virtual public HIR_node
 {
 public:
@@ -468,11 +517,9 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// static_value ::= literal | static_array | constant;
-class HIR_static_value : virtual public HIR_node
+// commented_node ::= member | statement | interface_def | class_def | switch_case | catch;
+class HIR_commented_node : virtual public HIR_node
 {
-public:
-    HIR_static_value();
 public:
     virtual void visit(HIR_visitor* visitor) = 0;
     virtual void transform_children(HIR_transform* transform) = 0;
@@ -483,43 +530,135 @@ public:
 public:
     virtual bool equals(HIR_node* in) = 0;
 public:
-    virtual HIR_static_value* clone() = 0;
+    virtual HIR_commented_node* clone() = 0;
+public:
+    virtual void assert_valid() = 0;
+public:
+    HIR_commented_node();
+    //  Return the comments associated with the node
+    List<String*>* get_comments();
+};
+
+// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
+class HIR_identifier : virtual public HIR_node
+{
+public:
+    HIR_identifier();
+public:
+    virtual void visit(HIR_visitor* visitor) = 0;
+    virtual void transform_children(HIR_transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(HIR_node* in) = 0;
+public:
+    virtual bool equals(HIR_node* in) = 0;
+public:
+    virtual HIR_identifier* clone() = 0;
+public:
+    virtual void assert_valid() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
+};
+
+// statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | global | declare | try | throw | eval_expr | nop | label | goto | branch;
+class HIR_statement : virtual public HIR_commented_node
+{
+public:
+    HIR_statement();
+public:
+    virtual void visit(HIR_visitor* visitor) = 0;
+    virtual void transform_children(HIR_transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(HIR_node* in) = 0;
+public:
+    virtual bool equals(HIR_node* in) = 0;
+public:
+    virtual HIR_statement* clone() = 0;
 public:
     virtual void assert_valid() = 0;
 };
 
-// static_array_elem ::= static_array_key? is_ref:"&" val:static_value ;
-class HIR_static_array_elem : virtual public HIR_node
+// member ::= method | attribute;
+class HIR_member : virtual public HIR_commented_node
 {
 public:
-    HIR_static_array_elem(HIR_static_array_key* static_array_key, bool is_ref, HIR_static_value* val);
-protected:
-    HIR_static_array_elem();
+    HIR_member();
 public:
-    HIR_static_array_key* static_array_key;
-    bool is_ref;
-    HIR_static_value* val;
+    virtual void visit(HIR_visitor* visitor) = 0;
+    virtual void transform_children(HIR_transform* transform) = 0;
+public:
+    virtual int classid() = 0;
+public:
+    virtual bool match(HIR_node* in) = 0;
+public:
+    virtual bool equals(HIR_node* in) = 0;
+public:
+    virtual HIR_member* clone() = 0;
+public:
+    virtual void assert_valid() = 0;
+};
+
+// switch_case ::= expr? statement* ;
+class HIR_switch_case : virtual public HIR_commented_node
+{
+public:
+    HIR_switch_case(HIR_expr* expr, List<HIR_statement*>* statements);
+protected:
+    HIR_switch_case();
+public:
+    HIR_expr* expr;
+    List<HIR_statement*>* statements;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 36;
+    static const int ID = 18;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_static_array_elem* clone();
+    virtual HIR_switch_case* clone();
 public:
     virtual void assert_valid();
 };
 
-// static_array_key ::= literal | constant;
-class HIR_static_array_key : virtual public HIR_node
+// catch ::= CLASS_NAME VARIABLE_NAME statement* ;
+class HIR_catch : virtual public HIR_commented_node
 {
 public:
-    HIR_static_array_key();
+    HIR_catch(Token_class_name* class_name, Token_variable_name* variable_name, List<HIR_statement*>* statements);
+protected:
+    HIR_catch();
+public:
+    Token_class_name* class_name;
+    Token_variable_name* variable_name;
+    List<HIR_statement*>* statements;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 27;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_catch* clone();
+public:
+    virtual void assert_valid();
+};
+
+// expr ::= assignment | op_assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | literal;
+class HIR_expr : virtual public HIR_target
+{
+public:
+    HIR_expr();
 public:
     virtual void visit(HIR_visitor* visitor) = 0;
     virtual void transform_children(HIR_transform* transform) = 0;
@@ -530,12 +669,87 @@ public:
 public:
     virtual bool equals(HIR_node* in) = 0;
 public:
-    virtual HIR_static_array_key* clone() = 0;
+    virtual HIR_expr* clone() = 0;
 public:
     virtual void assert_valid() = 0;
 };
 
-class Token_interface_name : virtual public HIR_node
+// nested_list_elements ::= list_element?* ;
+class HIR_nested_list_elements : virtual public HIR_list_element
+{
+public:
+    HIR_nested_list_elements(List<HIR_list_element*>* list_elements);
+protected:
+    HIR_nested_list_elements();
+public:
+    List<HIR_list_element*>* list_elements;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 37;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_nested_list_elements* clone();
+public:
+    virtual void assert_valid();
+};
+
+// reflection ::= expr ;
+class HIR_reflection : virtual public HIR_variable_name, virtual public HIR_method_name, virtual public HIR_class_name
+{
+public:
+    HIR_reflection(HIR_expr* expr);
+protected:
+    HIR_reflection();
+public:
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 46;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_reflection* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_class_name : virtual public HIR_target, virtual public HIR_class_name, virtual public HIR_identifier
+{
+public:
+    Token_class_name(String* value);
+protected:
+    Token_class_name();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 54;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual Token_class_name* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_interface_name : virtual public HIR_identifier
 {
 public:
     Token_interface_name(String* value);
@@ -548,7 +762,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 37;
+    static const int ID = 55;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -560,7 +774,82 @@ public:
     virtual void assert_valid();
 };
 
-class Token_label_name : virtual public HIR_node
+class Token_method_name : virtual public HIR_method_name, virtual public HIR_identifier
+{
+public:
+    Token_method_name(String* value);
+protected:
+    Token_method_name();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 56;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual Token_method_name* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_variable_name : virtual public HIR_variable_name, virtual public HIR_identifier
+{
+public:
+    Token_variable_name(String* value);
+protected:
+    Token_variable_name();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 57;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual Token_variable_name* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_directive_name : virtual public HIR_identifier
+{
+public:
+    Token_directive_name(String* value);
+protected:
+    Token_directive_name();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 58;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual Token_directive_name* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_label_name : virtual public HIR_identifier
 {
 public:
     Token_label_name(String* value);
@@ -573,7 +862,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 38;
+    static const int ID = 59;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -585,32 +874,7 @@ public:
     virtual void assert_valid();
 };
 
-class Token_cast : virtual public HIR_node
-{
-public:
-    Token_cast(String* value);
-protected:
-    Token_cast();
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 39;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual Token_cast* clone();
-public:
-    virtual void assert_valid();
-};
-
-class Token_op : virtual public HIR_node
+class Token_op : virtual public HIR_identifier
 {
 public:
     Token_op(String* value);
@@ -623,7 +887,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 40;
+    static const int ID = 65;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -635,7 +899,32 @@ public:
     virtual void assert_valid();
 };
 
-class Token_constant_name : virtual public HIR_node
+class Token_cast : virtual public HIR_identifier
+{
+public:
+    Token_cast(String* value);
+protected:
+    Token_cast();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 66;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual Token_cast* clone();
+public:
+    virtual void assert_valid();
+};
+
+class Token_constant_name : virtual public HIR_identifier
 {
 public:
     Token_constant_name(String* value);
@@ -648,7 +937,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 41;
+    static const int ID = 67;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -661,7 +950,7 @@ public:
 };
 
 // class_def ::= class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
-class HIR_class_def : virtual public HIR_statement
+class HIR_class_def : virtual public HIR_statement, virtual public HIR_commented_node
 {
 public:
     HIR_class_def(HIR_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<HIR_member*>* members);
@@ -687,10 +976,16 @@ public:
     virtual HIR_class_def* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_class_def(HIR_class_mod* mod);
+    HIR_class_def(const char* name);
+    void add_member(HIR_member* member);
+    //  Returns NULL if the method could not be found
+    HIR_method* get_method(const char* name);
 };
 
 // interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
-class HIR_interface_def : virtual public HIR_statement
+class HIR_interface_def : virtual public HIR_statement, virtual public HIR_commented_node
 {
 public:
     HIR_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<HIR_member*>* members);
@@ -742,17 +1037,17 @@ public:
     virtual void assert_valid();
 };
 
-// attribute ::= attr_mod VARIABLE_NAME static_value? ;
+// attribute ::= attr_mod VARIABLE_NAME expr? ;
 class HIR_attribute : virtual public HIR_member
 {
 public:
-    HIR_attribute(HIR_attr_mod* attr_mod, Token_variable_name* variable_name, HIR_static_value* static_value);
+    HIR_attribute(HIR_attr_mod* attr_mod, Token_variable_name* variable_name, HIR_expr* expr);
 protected:
     HIR_attribute();
 public:
     HIR_attr_mod* attr_mod;
     Token_variable_name* variable_name;
-    HIR_static_value* static_value;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -769,15 +1064,17 @@ public:
     virtual void assert_valid();
 };
 
-// return ::= VARIABLE_NAME? ;
-class HIR_return : virtual public HIR_statement
+// if ::= expr iftrue:statement* iffalse:statement* ;
+class HIR_if : virtual public HIR_statement
 {
 public:
-    HIR_return(Token_variable_name* variable_name);
+    HIR_if(HIR_expr* expr, List<HIR_statement*>* iftrue, List<HIR_statement*>* iffalse);
 protected:
-    HIR_return();
+    HIR_if();
 public:
-    Token_variable_name* variable_name;
+    HIR_expr* expr;
+    List<HIR_statement*>* iftrue;
+    List<HIR_statement*>* iffalse;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -789,22 +1086,23 @@ public:
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_return* clone();
+    virtual HIR_if* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_if(HIR_expr* expr);
 };
 
-// branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
-class HIR_branch : virtual public HIR_statement
+// while ::= expr statement* ;
+class HIR_while : virtual public HIR_statement
 {
 public:
-    HIR_branch(Token_variable_name* variable_name, Token_label_name* iftrue, Token_label_name* iffalse);
+    HIR_while(HIR_expr* expr, List<HIR_statement*>* statements);
 protected:
-    HIR_branch();
+    HIR_while();
 public:
-    Token_variable_name* variable_name;
-    Token_label_name* iftrue;
-    Token_label_name* iffalse;
+    HIR_expr* expr;
+    List<HIR_statement*>* statements;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -816,20 +1114,21 @@ public:
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_branch* clone();
+    virtual HIR_while* clone();
 public:
     virtual void assert_valid();
 };
 
-// goto ::= LABEL_NAME ;
-class HIR_goto : virtual public HIR_statement
+// do ::= statement* expr ;
+class HIR_do : virtual public HIR_statement
 {
 public:
-    HIR_goto(Token_label_name* label_name);
+    HIR_do(List<HIR_statement*>* statements, HIR_expr* expr);
 protected:
-    HIR_goto();
+    HIR_do();
 public:
-    Token_label_name* label_name;
+    List<HIR_statement*>* statements;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -841,20 +1140,23 @@ public:
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_goto* clone();
+    virtual HIR_do* clone();
 public:
     virtual void assert_valid();
 };
 
-// label ::= LABEL_NAME ;
-class HIR_label : virtual public HIR_statement
+// for ::= init:expr? cond:expr? incr:expr? statement* ;
+class HIR_for : virtual public HIR_statement
 {
 public:
-    HIR_label(Token_label_name* label_name);
+    HIR_for(HIR_expr* init, HIR_expr* cond, HIR_expr* incr, List<HIR_statement*>* statements);
 protected:
-    HIR_label();
+    HIR_for();
 public:
-    Token_label_name* label_name;
+    HIR_expr* init;
+    HIR_expr* cond;
+    HIR_expr* incr;
+    List<HIR_statement*>* statements;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -866,26 +1168,156 @@ public:
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_label* clone();
+    virtual HIR_for* clone();
 public:
     virtual void assert_valid();
 };
 
-// static_declaration ::= VARIABLE_NAME static_value? ;
-class HIR_static_declaration : virtual public HIR_statement
+// foreach ::= expr key:variable? is_ref:"&" val:variable statement* ;
+class HIR_foreach : virtual public HIR_statement
 {
 public:
-    HIR_static_declaration(Token_variable_name* variable_name, HIR_static_value* static_value);
+    HIR_foreach(HIR_expr* expr, HIR_variable* key, bool is_ref, HIR_variable* val, List<HIR_statement*>* statements);
 protected:
-    HIR_static_declaration();
+    HIR_foreach();
 public:
-    Token_variable_name* variable_name;
-    HIR_static_value* static_value;
+    HIR_expr* expr;
+    HIR_variable* key;
+    bool is_ref;
+    HIR_variable* val;
+    List<HIR_statement*>* statements;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
     static const int ID = 16;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_foreach* clone();
+public:
+    virtual void assert_valid();
+};
+
+// switch ::= expr switch_case* ;
+class HIR_switch : virtual public HIR_statement
+{
+public:
+    HIR_switch(HIR_expr* expr, List<HIR_switch_case*>* switch_cases);
+protected:
+    HIR_switch();
+public:
+    HIR_expr* expr;
+    List<HIR_switch_case*>* switch_cases;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 17;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_switch* clone();
+public:
+    virtual void assert_valid();
+};
+
+// break ::= expr? ;
+class HIR_break : virtual public HIR_statement
+{
+public:
+    HIR_break(HIR_expr* expr);
+protected:
+    HIR_break();
+public:
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 19;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_break* clone();
+public:
+    virtual void assert_valid();
+};
+
+// continue ::= expr? ;
+class HIR_continue : virtual public HIR_statement
+{
+public:
+    HIR_continue(HIR_expr* expr);
+protected:
+    HIR_continue();
+public:
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 20;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_continue* clone();
+public:
+    virtual void assert_valid();
+};
+
+// return ::= expr? ;
+class HIR_return : virtual public HIR_statement
+{
+public:
+    HIR_return(HIR_expr* expr);
+protected:
+    HIR_return();
+public:
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 21;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_return* clone();
+public:
+    virtual void assert_valid();
+};
+
+// static_declaration ::= VARIABLE_NAME expr? ;
+class HIR_static_declaration : virtual public HIR_statement
+{
+public:
+    HIR_static_declaration(Token_variable_name* variable_name, HIR_expr* expr);
+protected:
+    HIR_static_declaration();
+public:
+    Token_variable_name* variable_name;
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -910,7 +1342,7 @@ public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 17;
+    static const int ID = 23;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -922,24 +1354,30 @@ public:
     virtual void assert_valid();
 };
 
-// variable_name ::= VARIABLE_NAME | variable_variable;
-class HIR_variable_name : virtual public HIR_expr
+// declare ::= directive* statement* ;
+class HIR_declare : virtual public HIR_statement
 {
 public:
-    HIR_variable_name();
+    HIR_declare(List<HIR_directive*>* directives, List<HIR_statement*>* statements);
+protected:
+    HIR_declare();
 public:
-    virtual void visit(HIR_visitor* visitor) = 0;
-    virtual void transform_children(HIR_transform* transform) = 0;
+    List<HIR_directive*>* directives;
+    List<HIR_statement*>* statements;
 public:
-    virtual int classid() = 0;
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
 public:
-    virtual bool match(HIR_node* in) = 0;
+    static const int ID = 24;
+    virtual int classid();
 public:
-    virtual bool equals(HIR_node* in) = 0;
+    virtual bool match(HIR_node* in);
 public:
-    virtual HIR_variable_name* clone() = 0;
+    virtual bool equals(HIR_node* in);
 public:
-    virtual void assert_valid() = 0;
+    virtual HIR_declare* clone();
+public:
+    virtual void assert_valid();
 };
 
 // try ::= statement* catches:catch* ;
@@ -956,7 +1394,7 @@ public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 18;
+    static const int ID = 26;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -968,20 +1406,20 @@ public:
     virtual void assert_valid();
 };
 
-// throw ::= VARIABLE_NAME ;
+// throw ::= expr ;
 class HIR_throw : virtual public HIR_statement
 {
 public:
-    HIR_throw(Token_variable_name* variable_name);
+    HIR_throw(HIR_expr* expr);
 protected:
     HIR_throw();
 public:
-    Token_variable_name* variable_name;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 20;
+    static const int ID = 28;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -993,118 +1431,133 @@ public:
     virtual void assert_valid();
 };
 
-// assign_var ::= lhs:VARIABLE_NAME is_ref:"&" ignore_errors:"@" rhs:expr ;
-class HIR_assign_var : virtual public HIR_statement
+// eval_expr ::= expr ;
+class HIR_eval_expr : virtual public HIR_statement
 {
 public:
-    HIR_assign_var(Token_variable_name* lhs, bool is_ref, bool ignore_errors, HIR_expr* rhs);
+    HIR_eval_expr(HIR_expr* expr);
 protected:
-    HIR_assign_var();
+    HIR_eval_expr();
 public:
-    Token_variable_name* lhs;
-    bool is_ref;
-    bool ignore_errors;
-    HIR_expr* rhs;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 21;
+    static const int ID = 29;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_assign_var* clone();
+    virtual HIR_eval_expr* clone();
+public:
+    virtual void assert_valid();
+public:
+    void _init();
+};
+
+// nop ::= ;
+class HIR_nop : virtual public HIR_statement
+{
+public:
+    HIR_nop();
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 30;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_nop* clone();
 public:
     virtual void assert_valid();
 };
 
-// assign_array ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&" rhs:VARIABLE_NAME ;
-class HIR_assign_array : virtual public HIR_statement
+// branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME ;
+class HIR_branch : virtual public HIR_statement
 {
 public:
-    HIR_assign_array(Token_variable_name* lhs, Token_variable_name* index, bool is_ref, Token_variable_name* rhs);
+    HIR_branch(HIR_expr* expr, Token_label_name* iftrue, Token_label_name* iffalse);
 protected:
-    HIR_assign_array();
+    HIR_branch();
 public:
-    Token_variable_name* lhs;
-    Token_variable_name* index;
-    bool is_ref;
-    Token_variable_name* rhs;
+    HIR_expr* expr;
+    Token_label_name* iftrue;
+    Token_label_name* iffalse;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 22;
+    static const int ID = 31;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_assign_array* clone();
+    virtual HIR_branch* clone();
 public:
     virtual void assert_valid();
 };
 
-// assign_var_var ::= lhs:VARIABLE_NAME is_ref:"&" rhs:VARIABLE_NAME ;
-class HIR_assign_var_var : virtual public HIR_statement
+// goto ::= LABEL_NAME ;
+class HIR_goto : virtual public HIR_statement
 {
 public:
-    HIR_assign_var_var(Token_variable_name* lhs, bool is_ref, Token_variable_name* rhs);
+    HIR_goto(Token_label_name* label_name);
 protected:
-    HIR_assign_var_var();
+    HIR_goto();
 public:
-    Token_variable_name* lhs;
-    bool is_ref;
-    Token_variable_name* rhs;
+    Token_label_name* label_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 23;
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_assign_var_var* clone();
+    virtual HIR_goto* clone();
 public:
     virtual void assert_valid();
 };
 
-// push_array ::= lhs:VARIABLE_NAME is_ref:"&" rhs:VARIABLE_NAME ;
-class HIR_push_array : virtual public HIR_statement
+// label ::= LABEL_NAME ;
+class HIR_label : virtual public HIR_statement
 {
 public:
-    HIR_push_array(Token_variable_name* lhs, bool is_ref, Token_variable_name* rhs);
+    HIR_label(Token_label_name* label_name);
 protected:
-    HIR_push_array();
+    HIR_label();
 public:
-    Token_variable_name* lhs;
-    bool is_ref;
-    Token_variable_name* rhs;
+    Token_label_name* label_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 24;
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_push_array* clone();
+    virtual HIR_label* clone();
 public:
     virtual void assert_valid();
 };
 
 // literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<>;
-class HIR_literal : virtual public HIR_expr, virtual public HIR_static_value, virtual public HIR_static_array_key
+class HIR_literal : virtual public HIR_expr
 {
 public:
     HIR_literal();
@@ -1121,49 +1574,108 @@ public:
     virtual HIR_literal* clone() = 0;
 public:
     virtual void assert_valid() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
+    virtual String* get_source_rep() = 0;
 };
 
-// index_array ::= VARIABLE_NAME index:VARIABLE_NAME ;
-class HIR_index_array : virtual public HIR_expr
+// assignment ::= variable is_ref:"&" expr ;
+class HIR_assignment : virtual public HIR_expr
 {
 public:
-    HIR_index_array(Token_variable_name* variable_name, Token_variable_name* index);
+    HIR_assignment(HIR_variable* variable, bool is_ref, HIR_expr* expr);
 protected:
-    HIR_index_array();
+    HIR_assignment();
 public:
-    Token_variable_name* variable_name;
-    Token_variable_name* index;
+    HIR_variable* variable;
+    bool is_ref;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 25;
+    static const int ID = 34;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
 public:
     virtual bool equals(HIR_node* in);
 public:
-    virtual HIR_index_array* clone();
+    virtual HIR_assignment* clone();
 public:
     virtual void assert_valid();
 };
 
-// cast ::= CAST VARIABLE_NAME ;
-class HIR_cast : virtual public HIR_expr
+// op_assignment ::= variable OP expr ;
+class HIR_op_assignment : virtual public HIR_expr
 {
 public:
-    HIR_cast(Token_cast* cast, Token_variable_name* variable_name);
+    HIR_op_assignment(HIR_variable* variable, Token_op* op, HIR_expr* expr);
 protected:
-    HIR_cast();
+    HIR_op_assignment();
 public:
-    Token_cast* cast;
-    Token_variable_name* variable_name;
+    HIR_variable* variable;
+    Token_op* op;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 27;
+    static const int ID = 35;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_op_assignment* clone();
+public:
+    virtual void assert_valid();
+public:
+    HIR_op_assignment(HIR_variable* variable, const char* op, HIR_expr* expr);
+};
+
+// list_assignment ::= list_element?* expr ;
+class HIR_list_assignment : virtual public HIR_expr
+{
+public:
+    HIR_list_assignment(List<HIR_list_element*>* list_elements, HIR_expr* expr);
+protected:
+    HIR_list_assignment();
+public:
+    List<HIR_list_element*>* list_elements;
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 36;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_list_assignment* clone();
+public:
+    virtual void assert_valid();
+};
+
+// cast ::= CAST expr ;
+class HIR_cast : virtual public HIR_expr
+{
+public:
+    HIR_cast(Token_cast* cast, HIR_expr* expr);
+protected:
+    HIR_cast();
+public:
+    Token_cast* cast;
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1173,23 +1685,25 @@ public:
     virtual HIR_cast* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_cast(const char* cast, HIR_expr* expr);
 };
 
-// unary_op ::= OP VARIABLE_NAME ;
+// unary_op ::= OP expr ;
 class HIR_unary_op : virtual public HIR_expr
 {
 public:
-    HIR_unary_op(Token_op* op, Token_variable_name* variable_name);
+    HIR_unary_op(Token_op* op, HIR_expr* expr);
 protected:
     HIR_unary_op();
 public:
     Token_op* op;
-    Token_variable_name* variable_name;
+    HIR_expr* expr;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 28;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1199,24 +1713,26 @@ public:
     virtual HIR_unary_op* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_unary_op(HIR_expr* expr, const char* op);
 };
 
-// bin_op ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ;
+// bin_op ::= left:expr OP right:expr ;
 class HIR_bin_op : virtual public HIR_expr
 {
 public:
-    HIR_bin_op(Token_variable_name* left, Token_op* op, Token_variable_name* right);
+    HIR_bin_op(HIR_expr* left, Token_op* op, HIR_expr* right);
 protected:
     HIR_bin_op();
 public:
-    Token_variable_name* left;
+    HIR_expr* left;
     Token_op* op;
-    Token_variable_name* right;
+    HIR_expr* right;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 29;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1226,10 +1742,64 @@ public:
     virtual HIR_bin_op* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_bin_op(HIR_expr* left, HIR_expr* right, const char* op);
+};
+
+// conditional_expr ::= cond:expr iftrue:expr iffalse:expr ;
+class HIR_conditional_expr : virtual public HIR_expr
+{
+public:
+    HIR_conditional_expr(HIR_expr* cond, HIR_expr* iftrue, HIR_expr* iffalse);
+protected:
+    HIR_conditional_expr();
+public:
+    HIR_expr* cond;
+    HIR_expr* iftrue;
+    HIR_expr* iffalse;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 41;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_conditional_expr* clone();
+public:
+    virtual void assert_valid();
+};
+
+// ignore_errors ::= expr ;
+class HIR_ignore_errors : virtual public HIR_expr
+{
+public:
+    HIR_ignore_errors(HIR_expr* expr);
+protected:
+    HIR_ignore_errors();
+public:
+    HIR_expr* expr;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 42;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_ignore_errors* clone();
+public:
+    virtual void assert_valid();
 };
 
 // constant ::= CLASS_NAME? CONSTANT_NAME ;
-class HIR_constant : virtual public HIR_expr, virtual public HIR_static_value, virtual public HIR_static_array_key
+class HIR_constant : virtual public HIR_expr
 {
 public:
     HIR_constant(Token_class_name* class_name, Token_constant_name* constant_name);
@@ -1242,7 +1812,7 @@ public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 30;
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1254,21 +1824,21 @@ public:
     virtual void assert_valid();
 };
 
-// instanceof ::= VARIABLE_NAME class_name ;
+// instanceof ::= expr class_name ;
 class HIR_instanceof : virtual public HIR_expr
 {
 public:
-    HIR_instanceof(Token_variable_name* variable_name, HIR_class_name* class_name);
+    HIR_instanceof(HIR_expr* expr, HIR_class_name* class_name);
 protected:
     HIR_instanceof();
 public:
-    Token_variable_name* variable_name;
+    HIR_expr* expr;
     HIR_class_name* class_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 31;
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1276,6 +1846,116 @@ public:
     virtual bool equals(HIR_node* in);
 public:
     virtual HIR_instanceof* clone();
+public:
+    virtual void assert_valid();
+};
+
+// variable ::= target? variable_name array_indices:expr?* ;
+class HIR_variable : virtual public HIR_expr, virtual public HIR_list_element
+{
+public:
+    HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<HIR_expr*>* array_indices);
+protected:
+    HIR_variable();
+public:
+    HIR_target* target;
+    HIR_variable_name* variable_name;
+    List<HIR_expr*>* array_indices;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 45;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_variable* clone();
+public:
+    virtual void assert_valid();
+public:
+    HIR_variable(HIR_variable_name* name);
+};
+
+// pre_op ::= OP variable ;
+class HIR_pre_op : virtual public HIR_expr
+{
+public:
+    HIR_pre_op(Token_op* op, HIR_variable* variable);
+protected:
+    HIR_pre_op();
+public:
+    Token_op* op;
+    HIR_variable* variable;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 47;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_pre_op* clone();
+public:
+    virtual void assert_valid();
+public:
+    HIR_pre_op(HIR_variable* var, const char* op);
+};
+
+// post_op ::= variable OP ;
+class HIR_post_op : virtual public HIR_expr
+{
+public:
+    HIR_post_op(HIR_variable* variable, Token_op* op);
+protected:
+    HIR_post_op();
+public:
+    HIR_variable* variable;
+    Token_op* op;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 48;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_post_op* clone();
+public:
+    virtual void assert_valid();
+public:
+    HIR_post_op(HIR_variable* var, const char* op);
+};
+
+// array ::= array_elem* ;
+class HIR_array : virtual public HIR_expr
+{
+public:
+    HIR_array(List<HIR_array_elem*>* array_elems);
+protected:
+    HIR_array();
+public:
+    List<HIR_array_elem*>* array_elems;
+public:
+    virtual void visit(HIR_visitor* visitor);
+    virtual void transform_children(HIR_transform* transform);
+public:
+    static const int ID = 49;
+    virtual int classid();
+public:
+    virtual bool match(HIR_node* in);
+public:
+    virtual bool equals(HIR_node* in);
+public:
+    virtual HIR_array* clone();
 public:
     virtual void assert_valid();
 };
@@ -1295,7 +1975,7 @@ public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 32;
+    static const int ID = 51;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1305,6 +1985,9 @@ public:
     virtual HIR_method_invocation* clone();
 public:
     virtual void assert_valid();
+public:
+    HIR_method_invocation(const char* name, HIR_expr* arg);
+    HIR_method_invocation(Token_method_name* name, HIR_expr* arg);
 };
 
 // new ::= class_name actual_parameter* ;
@@ -1321,7 +2004,7 @@ public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
 public:
-    static const int ID = 34;
+    static const int ID = 53;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1329,131 +2012,6 @@ public:
     virtual bool equals(HIR_node* in);
 public:
     virtual HIR_new* clone();
-public:
-    virtual void assert_valid();
-};
-
-// static_array ::= static_array_elem* ;
-class HIR_static_array : virtual public HIR_static_value
-{
-public:
-    HIR_static_array(List<HIR_static_array_elem*>* static_array_elems);
-protected:
-    HIR_static_array();
-public:
-    List<HIR_static_array_elem*>* static_array_elems;
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    static const int ID = 35;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual HIR_static_array* clone();
-public:
-    virtual void assert_valid();
-};
-
-class Token_class_name : virtual public HIR_target, virtual public HIR_class_name
-{
-public:
-    Token_class_name(String* value);
-protected:
-    Token_class_name();
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 42;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual Token_class_name* clone();
-public:
-    virtual void assert_valid();
-};
-
-class Token_method_name : virtual public HIR_method_name
-{
-public:
-    Token_method_name(String* value);
-protected:
-    Token_method_name();
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 43;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual Token_method_name* clone();
-public:
-    virtual void assert_valid();
-};
-
-// variable_variable ::= VARIABLE_NAME ;
-class HIR_variable_variable : virtual public HIR_variable_name
-{
-public:
-    HIR_variable_variable(Token_variable_name* variable_name);
-protected:
-    HIR_variable_variable();
-public:
-    Token_variable_name* variable_name;
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    static const int ID = 26;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual HIR_variable_variable* clone();
-public:
-    virtual void assert_valid();
-};
-
-class Token_variable_name : virtual public HIR_variable_name, virtual public HIR_target, virtual public HIR_method_name, virtual public HIR_class_name
-{
-public:
-    Token_variable_name(String* value);
-protected:
-    Token_variable_name();
-public:
-    virtual void visit(HIR_visitor* visitor);
-    virtual void transform_children(HIR_transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 44;
-    virtual int classid();
-public:
-    virtual bool match(HIR_node* in);
-public:
-    virtual bool equals(HIR_node* in);
-public:
-    virtual Token_variable_name* clone();
 public:
     virtual void assert_valid();
 };
@@ -1472,7 +2030,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 45;
+    static const int ID = 60;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1486,6 +2044,14 @@ public:
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
+private:
+    //  Constructors can't call virtual functions, so we create a non-virtual to
+    //  do the work. This is then called by the virtual function, and is also
+    //  safely called from the constructor.
+    String* _get_value_as_string();
+public:
+    virtual String* get_value_as_string();
+    Token_int(int v);
 };
 
 class Token_real : virtual public HIR_literal
@@ -1502,7 +2068,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 46;
+    static const int ID = 61;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1516,6 +2082,12 @@ public:
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
+private:
+    //  See comment in Token_int::_get_value_as_string ()
+    String* _get_value_as_string();
+public:
+    virtual String* get_value_as_string();
+    Token_real(double v);
 };
 
 class Token_string : virtual public HIR_literal
@@ -1532,7 +2104,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 47;
+    static const int ID = 62;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1542,10 +2114,14 @@ public:
     virtual bool equals_value(Token_string* that);
 public:
     virtual Token_string* clone();
-    virtual String* clone_value();
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
+public:
+    virtual String* get_value_as_string();
+    bool is_value_valid();
+    String* clone_value();
+    Token_string(String* v);
 };
 
 class Token_bool : virtual public HIR_literal
@@ -1562,7 +2138,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 48;
+    static const int ID = 63;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1576,14 +2152,18 @@ public:
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
+private:
+    //  See comment in Token_int::_get_value_as_string ()
+    String* _get_value_as_string();
+public:
+    virtual String* get_value_as_string();
+    Token_bool(bool v);
 };
 
 class Token_null : virtual public HIR_literal
 {
 public:
     Token_null(String* source_rep);
-protected:
-    Token_null();
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1591,7 +2171,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 49;
+    static const int ID = 64;
     virtual int classid();
 public:
     virtual bool match(HIR_node* in);
@@ -1601,6 +2181,9 @@ public:
     virtual Token_null* clone();
 public:
     virtual void assert_valid();
+public:
+    virtual String* get_value_as_string();
+    Token_null();
 };
 
 
@@ -1675,7 +2258,7 @@ public:
 	}
 
 public:
-	static const int ID = 50;
+	static const int ID = 68;
 	int classid()
 	{
 		return ID;

@@ -11,6 +11,8 @@
 #include "AST_transform.h"
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 class Lift_functions_and_classes : public AST_transform, public Pass
 {
 public:

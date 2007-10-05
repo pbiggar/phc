@@ -13,5 +13,5 @@ public:
 	stringstream& os;
 
 	Compile_C (stringstream& os);
-	void run (AST_php_script* in, Pass_manager* pm);
+	void run (AST::AST_php_script* in, Pass_manager* pm);
 };

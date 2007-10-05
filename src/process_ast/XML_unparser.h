@@ -10,6 +10,8 @@
 
 #include "AST_visitor.h"
 
+using namespace AST;
+
 // these are split so they're easy to call from the debugger
 void xdebug (AST_node* in);
 void xadebug (AST_node* in); // print attrs

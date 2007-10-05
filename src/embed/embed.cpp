@@ -1,6 +1,8 @@
 #include "embed.h"
 #include <assert.h>
 
+using namespace AST;
+
 // other #includes are in the #else block of HAVE_PHP5
 
 #if HAVE_EMBED

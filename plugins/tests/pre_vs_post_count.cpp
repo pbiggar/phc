@@ -9,6 +9,8 @@
 #include "AST_visitor.h"
 #include "process_ast/Pass_manager.h"
 
+using namespace AST;
+
 static bool success = true;
 static bool is_run = false;
 class Test_pre_vs_post_count : public AST_visitor
