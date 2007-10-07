@@ -11,86 +11,95 @@
 #include "AST_fold.h"
 #include "HIR.h"
 
+/*
+ * Those AST nodes that should no longer appear in the HIR do not have an
+ * implementation in this translation, so that we inherit the default assert(0)
+ * implementation from AST_fold. However, to satisfy the typechecker, we must
+ * still provide a reasonble type for these nodes. For example, the type we
+ * specify for AST_for (which does not have a corresponding HIR construct) is
+ * simplify HIR::HIR_statement*. For some constructs, specifying HIR::HIR_node*
+ * suffices.
+ */
 class AST_to_HIR : public AST::AST_fold
-<HIR::HIR_node*,
- HIR::HIR_php_script*,
- HIR::HIR_statement*,
- HIR::HIR_class_def*,
- HIR::HIR_class_mod*,
- HIR::HIR_interface_def*,
- HIR::HIR_member*,
- HIR::HIR_method*,
- HIR::HIR_signature*,
- HIR::HIR_method_mod*,
- HIR::HIR_formal_parameter*,
- HIR::HIR_type*,
- HIR::HIR_attribute*,
- HIR::HIR_attr_mod*,
- HIR::HIR_if*,
- HIR::HIR_while*,
- HIR::HIR_do*,
- HIR::HIR_for*,
- HIR::HIR_foreach*,
- HIR::HIR_switch*,
- HIR::HIR_switch_case*,
- HIR::HIR_break*,
- HIR::HIR_continue*,
- HIR::HIR_return*,
- HIR::HIR_static_declaration*,
- HIR::HIR_global*,
- HIR::HIR_declare*,
- HIR::HIR_directive*,
- HIR::HIR_try*,
- HIR::HIR_catch*,
- HIR::HIR_throw*,
- HIR::HIR_eval_expr*,
- HIR::HIR_nop*,
- HIR::HIR_branch*,
- HIR::HIR_goto*,
- HIR::HIR_label*,
- HIR::HIR_expr*,
- HIR::HIR_literal*,
- HIR::HIR_assignment*,
- HIR::HIR_op_assignment*,
- HIR::HIR_list_assignment*,
- HIR::HIR_list_element*,
- HIR::HIR_nested_list_elements*,
- HIR::HIR_cast*,
- HIR::HIR_unary_op*,
- HIR::HIR_bin_op*,
- HIR::HIR_conditional_expr*,
- HIR::HIR_ignore_errors*,
- HIR::HIR_constant*,
- HIR::HIR_instanceof*,
- HIR::HIR_variable*,
- HIR::HIR_variable_name*,
- HIR::HIR_reflection*,
- HIR::HIR_target*,
- HIR::HIR_pre_op*,
- HIR::HIR_post_op*,
- HIR::HIR_array*,
- HIR::HIR_array_elem*,
- HIR::HIR_method_invocation*,
- HIR::HIR_method_name*,
- HIR::HIR_actual_parameter*,
- HIR::HIR_new*,
- HIR::HIR_class_name*,
- HIR::HIR_commented_node*,
- HIR::HIR_identifier*,
- HIR::Token_class_name*,
- HIR::Token_interface_name*,
- HIR::Token_method_name*,
- HIR::Token_variable_name*,
- HIR::Token_directive_name*,
- HIR::Token_label_name*,
- HIR::Token_int*,
- HIR::Token_real*,
- HIR::Token_string*,
- HIR::Token_bool*,
- HIR::Token_null*,
- HIR::Token_op*,
- HIR::Token_cast*,
- HIR::Token_constant_name*>
+<HIR::HIR_node*,				// AST_node*
+ HIR::HIR_php_script*,			// AST_php_script*
+ HIR::HIR_statement*,			// AST_statement*
+ HIR::HIR_class_def*,			// AST_class_def*
+ HIR::HIR_class_mod*,			// AST_class_mod*
+ HIR::HIR_interface_def*,		// AST_interface_def*
+ HIR::HIR_member*,				// AST_member*
+ HIR::HIR_method*,				// AST_method*
+ HIR::HIR_signature*,			// AST_signature*
+ HIR::HIR_method_mod*,			// AST_method_mod*
+ HIR::HIR_formal_parameter*,	// AST_formal_parameter*
+ HIR::HIR_type*,				// AST_type*
+ HIR::HIR_attribute*,			// AST_attribute*
+ HIR::HIR_attr_mod*,			// AST_attr_mod*
+ HIR::HIR_statement*,			// AST_if*
+ HIR::HIR_statement*,			// AST_while*
+ HIR::HIR_statement*,			// AST_do*
+ HIR::HIR_statement*,			// AST_for*
+ HIR::HIR_statement*,			// AST_foreach*
+ HIR::HIR_statement*,			// AST_switch*
+ HIR::HIR_node*,				// AST_switch_case*
+ HIR::HIR_statement*,			// AST_break*
+ HIR::HIR_statement*,			// AST_continue*
+ HIR::HIR_return*,				// AST_return*
+ HIR::HIR_static_declaration*,	// AST_static_declaration*
+ HIR::HIR_global*,				// AST_global*
+ HIR::HIR_statement*,			// AST_declare*
+ HIR::HIR_node*,				// AST_directive*
+ HIR::HIR_try*,					// AST_try*
+ HIR::HIR_catch*,				// AST_catch*
+ HIR::HIR_throw*,				// AST_throw*
+ HIR::HIR_eval_expr*,			// AST_eval_expr*
+ HIR::HIR_statement*,			// AST_nop*
+ HIR::HIR_branch*,				// AST_branch*
+ HIR::HIR_goto*,				// AST_goto*
+ HIR::HIR_label*,				// AST_label*
+ HIR::HIR_expr*,				// AST_expr*
+ HIR::HIR_literal*,				// AST_literal*
+ HIR::HIR_assignment*,			// AST_assignment*
+ HIR::HIR_expr*,				// AST_op_assignment*
+ HIR::HIR_expr*,				// AST_list_assignment*
+ HIR::HIR_node*,				// AST_list_element*
+ HIR::HIR_node*,				// AST_nested_list_elements*
+ HIR::HIR_cast*,				// AST_cast*
+ HIR::HIR_unary_op*,			// AST_unary_op*
+ HIR::HIR_bin_op*,				// AST_bin_op*
+ HIR::HIR_expr*,				// AST_conditional_expr*
+ HIR::HIR_expr*,				// AST_ignore_errors*
+ HIR::HIR_constant*,			// AST_constant*
+ HIR::HIR_instanceof*,			// AST_instanceof*
+ HIR::HIR_variable*,			// AST_variable*
+ HIR::HIR_variable_name*,		// AST_variable_name*
+ HIR::HIR_reflection*,			// AST_reflection*
+ HIR::HIR_target*,				// AST_target*
+ HIR::HIR_pre_op*,				// AST_pre_op*
+ HIR::HIR_post_op*,				// AST_post_op*
+ HIR::HIR_array*,				// AST_array*
+ HIR::HIR_array_elem*,			// AST_array_elem*
+ HIR::HIR_method_invocation*,	// AST_method_invocation*
+ HIR::HIR_method_name*,			// AST_method_name*
+ HIR::HIR_actual_parameter*,	// AST_actual_parameter*
+ HIR::HIR_new*,					// AST_new*
+ HIR::HIR_class_name*,			// AST_class_name*
+ HIR::HIR_node*,				// AST_commented_node*
+ HIR::HIR_identifier*,			// AST_identifier*
+ HIR::Token_class_name*,		// Token_class_name*
+ HIR::Token_interface_name*,	// Token_interface_name*
+ HIR::Token_method_name*,		// Token_method_name*
+ HIR::Token_variable_name*,		// Token_variable_name*
+ HIR::HIR_identifier*,			// Token_directive_name*
+ HIR::Token_label_name*,		// Token_label_name*
+ HIR::Token_int*,				// Token_int*
+ HIR::Token_real*,				// Token_real*
+ HIR::Token_string*,			// Token_string*
+ HIR::Token_bool*,				// Token_bool*
+ HIR::Token_null*,				// Token_null*
+ HIR::Token_op*,				// Token_op*
+ HIR::Token_cast*,				// Token_cast*
+ HIR::Token_constant_name*>		// Token_constant_name*
 {
 	HIR::HIR_php_script* fold_impl_php_script(AST::AST_php_script* orig, List<HIR::HIR_statement*>* statements) 
 	{
@@ -180,78 +189,6 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_if* fold_impl_if(AST::AST_if* orig, HIR::HIR_expr* expr, List<HIR::HIR_statement*>* iftrue, List<HIR::HIR_statement*>* iffalse) 
-	{
-		HIR::HIR_if* result;
-		result = new HIR::HIR_if(expr, iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_while* fold_impl_while(AST::AST_while* orig, HIR::HIR_expr* expr, List<HIR::HIR_statement*>* statements) 
-	{
-		HIR::HIR_while* result;
-		result = new HIR::HIR_while(expr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_do* fold_impl_do(AST::AST_do* orig, List<HIR::HIR_statement*>* statements, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_do* result;
-		result = new HIR::HIR_do(statements, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_for* fold_impl_for(AST::AST_for* orig, HIR::HIR_expr* init, HIR::HIR_expr* cond, HIR::HIR_expr* incr, List<HIR::HIR_statement*>* statements) 
-	{
-		HIR::HIR_for* result;
-		result = new HIR::HIR_for(init, cond, incr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_foreach* fold_impl_foreach(AST::AST_foreach* orig, HIR::HIR_expr* expr, HIR::HIR_variable* key, bool is_ref, HIR::HIR_variable* val, List<HIR::HIR_statement*>* statements) 
-	{
-		HIR::HIR_foreach* result;
-		result = new HIR::HIR_foreach(expr, key, is_ref, val, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_switch* fold_impl_switch(AST::AST_switch* orig, HIR::HIR_expr* expr, List<HIR::HIR_switch_case*>* switch_cases) 
-	{
-		HIR::HIR_switch* result;
-		result = new HIR::HIR_switch(expr, switch_cases);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_switch_case* fold_impl_switch_case(AST::AST_switch_case* orig, HIR::HIR_expr* expr, List<HIR::HIR_statement*>* statements) 
-	{
-		HIR::HIR_switch_case* result;
-		result = new HIR::HIR_switch_case(expr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_break* fold_impl_break(AST::AST_break* orig, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_break* result;
-		result = new HIR::HIR_break(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_continue* fold_impl_continue(AST::AST_continue* orig, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_continue* result;
-		result = new HIR::HIR_continue(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::HIR_return* fold_impl_return(AST::AST_return* orig, HIR::HIR_expr* expr) 
 	{
 		HIR::HIR_return* result;
@@ -272,22 +209,6 @@ class AST_to_HIR : public AST::AST_fold
 	{
 		HIR::HIR_global* result;
 		result = new HIR::HIR_global(variable_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_declare* fold_impl_declare(AST::AST_declare* orig, List<HIR::HIR_directive*>* directives, List<HIR::HIR_statement*>* statements) 
-	{
-		HIR::HIR_declare* result;
-		result = new HIR::HIR_declare(directives, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_directive* fold_impl_directive(AST::AST_directive* orig, HIR::Token_directive_name* directive_name, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_directive* result;
-		result = new HIR::HIR_directive(directive_name, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -324,14 +245,6 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_nop* fold_impl_nop(AST::AST_nop* orig) 
-	{
-		HIR::HIR_nop* result;
-		result = new HIR::HIR_nop();
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::HIR_branch* fold_impl_branch(AST::AST_branch* orig, HIR::HIR_expr* expr, HIR::Token_label_name* iftrue, HIR::Token_label_name* iffalse) 
 	{
 		HIR::HIR_branch* result;
@@ -364,30 +277,6 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_op_assignment* fold_impl_op_assignment(AST::AST_op_assignment* orig, HIR::HIR_variable* variable, HIR::Token_op* op, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_op_assignment* result;
-		result = new HIR::HIR_op_assignment(variable, op, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_list_assignment* fold_impl_list_assignment(AST::AST_list_assignment* orig, List<HIR::HIR_list_element*>* list_elements, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_list_assignment* result;
-		result = new HIR::HIR_list_assignment(list_elements, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_nested_list_elements* fold_impl_nested_list_elements(AST::AST_nested_list_elements* orig, List<HIR::HIR_list_element*>* list_elements) 
-	{
-		HIR::HIR_nested_list_elements* result;
-		result = new HIR::HIR_nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::HIR_cast* fold_impl_cast(AST::AST_cast* orig, HIR::Token_cast* cast, HIR::HIR_expr* expr) 
 	{
 		HIR::HIR_cast* result;
@@ -408,22 +297,6 @@ class AST_to_HIR : public AST::AST_fold
 	{
 		HIR::HIR_bin_op* result;
 		result = new HIR::HIR_bin_op(left, op, right);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_conditional_expr* fold_impl_conditional_expr(AST::AST_conditional_expr* orig, HIR::HIR_expr* cond, HIR::HIR_expr* iftrue, HIR::HIR_expr* iffalse) 
-	{
-		HIR::HIR_conditional_expr* result;
-		result = new HIR::HIR_conditional_expr(cond, iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_ignore_errors* fold_impl_ignore_errors(AST::AST_ignore_errors* orig, HIR::HIR_expr* expr) 
-	{
-		HIR::HIR_ignore_errors* result;
-		result = new HIR::HIR_ignore_errors(expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -544,14 +417,6 @@ class AST_to_HIR : public AST::AST_fold
 	{
 		HIR::Token_variable_name* result;
 		result = new HIR::Token_variable_name(orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Token_directive_name* fold_directive_name(AST::Token_directive_name* orig) 
-	{
-		HIR::Token_directive_name* result;
-		result = new HIR::Token_directive_name(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

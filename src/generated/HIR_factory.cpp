@@ -105,73 +105,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new HIR_attr_mod(is_public, is_protected, is_private, is_static, is_const);
     }
-    if(!strcmp(type_id, "HIR_if"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	List<HIR_statement*>* iftrue = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	List<HIR_statement*>* iffalse = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_if(expr, iftrue, iffalse);
-    }
-    if(!strcmp(type_id, "HIR_while"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_while(expr, statements);
-    }
-    if(!strcmp(type_id, "HIR_do"))
-    {
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_do(statements, expr);
-    }
-    if(!strcmp(type_id, "HIR_for"))
-    {
-    	HIR_expr* init = dynamic_cast<HIR_expr*>(*i++);
-    	HIR_expr* cond = dynamic_cast<HIR_expr*>(*i++);
-    	HIR_expr* incr = dynamic_cast<HIR_expr*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_for(init, cond, incr, statements);
-    }
-    if(!strcmp(type_id, "HIR_foreach"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	HIR_variable* key = dynamic_cast<HIR_variable*>(*i++);
-    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_variable* val = dynamic_cast<HIR_variable*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_foreach(expr, key, is_ref, val, statements);
-    }
-    if(!strcmp(type_id, "HIR_switch"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	List<HIR_switch_case*>* switch_cases = dynamic_cast<List<HIR_switch_case*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_switch(expr, switch_cases);
-    }
-    if(!strcmp(type_id, "HIR_switch_case"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_switch_case(expr, statements);
-    }
-    if(!strcmp(type_id, "HIR_break"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_break(expr);
-    }
-    if(!strcmp(type_id, "HIR_continue"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_continue(expr);
-    }
     if(!strcmp(type_id, "HIR_return"))
     {
     	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
@@ -190,20 +123,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
     	assert(i == args->end());
     	return new HIR_global(variable_name);
-    }
-    if(!strcmp(type_id, "HIR_declare"))
-    {
-    	List<HIR_directive*>* directives = dynamic_cast<List<HIR_directive*>*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_declare(directives, statements);
-    }
-    if(!strcmp(type_id, "HIR_directive"))
-    {
-    	Token_directive_name* directive_name = dynamic_cast<Token_directive_name*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_directive(directive_name, expr);
     }
     if(!strcmp(type_id, "HIR_try"))
     {
@@ -231,11 +150,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
     	assert(i == args->end());
     	return new HIR_eval_expr(expr);
-    }
-    if(!strcmp(type_id, "HIR_nop"))
-    {
-    	assert(i == args->end());
-    	return new HIR_nop();
     }
     if(!strcmp(type_id, "HIR_branch"))
     {
@@ -265,27 +179,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new HIR_assignment(variable, is_ref, expr);
     }
-    if(!strcmp(type_id, "HIR_op_assignment"))
-    {
-    	HIR_variable* variable = dynamic_cast<HIR_variable*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_op_assignment(variable, op, expr);
-    }
-    if(!strcmp(type_id, "HIR_list_assignment"))
-    {
-    	List<HIR_list_element*>* list_elements = dynamic_cast<List<HIR_list_element*>*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_list_assignment(list_elements, expr);
-    }
-    if(!strcmp(type_id, "HIR_nested_list_elements"))
-    {
-    	List<HIR_list_element*>* list_elements = dynamic_cast<List<HIR_list_element*>*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_nested_list_elements(list_elements);
-    }
     if(!strcmp(type_id, "HIR_cast"))
     {
     	Token_cast* cast = dynamic_cast<Token_cast*>(*i++);
@@ -307,20 +200,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	HIR_expr* right = dynamic_cast<HIR_expr*>(*i++);
     	assert(i == args->end());
     	return new HIR_bin_op(left, op, right);
-    }
-    if(!strcmp(type_id, "HIR_conditional_expr"))
-    {
-    	HIR_expr* cond = dynamic_cast<HIR_expr*>(*i++);
-    	HIR_expr* iftrue = dynamic_cast<HIR_expr*>(*i++);
-    	HIR_expr* iffalse = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_conditional_expr(cond, iftrue, iffalse);
-    }
-    if(!strcmp(type_id, "HIR_ignore_errors"))
-    {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_ignore_errors(expr);
     }
     if(!strcmp(type_id, "HIR_constant"))
     {
@@ -424,29 +303,23 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Token_variable_name(value);
     }
-    if(!strcmp(type_id, "Token_directive_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_directive_name(value);
-    }
     if(!strcmp(type_id, "Token_label_name"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_label_name(value);
     }
-    if(!strcmp(type_id, "Token_op"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_op(value);
-    }
     if(!strcmp(type_id, "Token_cast"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_cast(value);
+    }
+    if(!strcmp(type_id, "Token_op"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_op(value);
     }
     if(!strcmp(type_id, "Token_constant_name"))
     {
@@ -482,32 +355,11 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<HIR_formal_parameter*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_switch_case_list"))
-    {
-    	List<HIR_switch_case*>* list = new List<HIR_switch_case*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_switch_case*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "HIR_directive_list"))
-    {
-    	List<HIR_directive*>* list = new List<HIR_directive*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_directive*>(*i++));
-    	return list;
-    }
     if(!strcmp(type_id, "HIR_catch_list"))
     {
     	List<HIR_catch*>* list = new List<HIR_catch*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<HIR_catch*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "HIR_list_element_list"))
-    {
-    	List<HIR_list_element*>* list = new List<HIR_list_element*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_list_element*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "HIR_expr_list"))

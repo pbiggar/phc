@@ -61,51 +61,6 @@ HIR_attr_mod* HIR_transform::pre_attr_mod(HIR_attr_mod* in)
     return in;
 }
 
-void HIR_transform::pre_if(HIR_if* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_while(HIR_while* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_do(HIR_do* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_for(HIR_for* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_foreach(HIR_foreach* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_switch(HIR_switch* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_switch_case(HIR_switch_case* in, List<HIR_switch_case*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_break(HIR_break* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_continue(HIR_continue* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
 void HIR_transform::pre_return(HIR_return* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -117,16 +72,6 @@ void HIR_transform::pre_static_declaration(HIR_static_declaration* in, List<HIR_
 }
 
 void HIR_transform::pre_global(HIR_global* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_declare(HIR_declare* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::pre_directive(HIR_directive* in, List<HIR_directive*>* out)
 {
     out->push_back(in);
 }
@@ -151,11 +96,6 @@ void HIR_transform::pre_eval_expr(HIR_eval_expr* in, List<HIR_statement*>* out)
     out->push_back(in);
 }
 
-void HIR_transform::pre_nop(HIR_nop* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
 void HIR_transform::pre_branch(HIR_branch* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -176,21 +116,6 @@ HIR_expr* HIR_transform::pre_assignment(HIR_assignment* in)
     return in;
 }
 
-HIR_expr* HIR_transform::pre_op_assignment(HIR_op_assignment* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::pre_list_assignment(HIR_list_assignment* in)
-{
-    return in;
-}
-
-void HIR_transform::pre_nested_list_elements(HIR_nested_list_elements* in, List<HIR_list_element*>* out)
-{
-    out->push_back(in);
-}
-
 HIR_expr* HIR_transform::pre_cast(HIR_cast* in)
 {
     return in;
@@ -202,16 +127,6 @@ HIR_expr* HIR_transform::pre_unary_op(HIR_unary_op* in)
 }
 
 HIR_expr* HIR_transform::pre_bin_op(HIR_bin_op* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::pre_conditional_expr(HIR_conditional_expr* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::pre_ignore_errors(HIR_ignore_errors* in)
 {
     return in;
 }
@@ -291,11 +206,6 @@ Token_variable_name* HIR_transform::pre_variable_name(Token_variable_name* in)
     return in;
 }
 
-Token_directive_name* HIR_transform::pre_directive_name(Token_directive_name* in)
-{
-    return in;
-}
-
 Token_label_name* HIR_transform::pre_label_name(Token_label_name* in)
 {
     return in;
@@ -326,12 +236,12 @@ HIR_expr* HIR_transform::pre_null(Token_null* in)
     return in;
 }
 
-Token_op* HIR_transform::pre_op(Token_op* in)
+Token_cast* HIR_transform::pre_cast(Token_cast* in)
 {
     return in;
 }
 
-Token_cast* HIR_transform::pre_cast(Token_cast* in)
+Token_op* HIR_transform::pre_op(Token_op* in)
 {
     return in;
 }
@@ -397,51 +307,6 @@ HIR_attr_mod* HIR_transform::post_attr_mod(HIR_attr_mod* in)
     return in;
 }
 
-void HIR_transform::post_if(HIR_if* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_while(HIR_while* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_do(HIR_do* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_for(HIR_for* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_foreach(HIR_foreach* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_switch(HIR_switch* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_switch_case(HIR_switch_case* in, List<HIR_switch_case*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_break(HIR_break* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_continue(HIR_continue* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
 void HIR_transform::post_return(HIR_return* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -453,16 +318,6 @@ void HIR_transform::post_static_declaration(HIR_static_declaration* in, List<HIR
 }
 
 void HIR_transform::post_global(HIR_global* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_declare(HIR_declare* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
-void HIR_transform::post_directive(HIR_directive* in, List<HIR_directive*>* out)
 {
     out->push_back(in);
 }
@@ -487,11 +342,6 @@ void HIR_transform::post_eval_expr(HIR_eval_expr* in, List<HIR_statement*>* out)
     out->push_back(in);
 }
 
-void HIR_transform::post_nop(HIR_nop* in, List<HIR_statement*>* out)
-{
-    out->push_back(in);
-}
-
 void HIR_transform::post_branch(HIR_branch* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -512,21 +362,6 @@ HIR_expr* HIR_transform::post_assignment(HIR_assignment* in)
     return in;
 }
 
-HIR_expr* HIR_transform::post_op_assignment(HIR_op_assignment* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::post_list_assignment(HIR_list_assignment* in)
-{
-    return in;
-}
-
-void HIR_transform::post_nested_list_elements(HIR_nested_list_elements* in, List<HIR_list_element*>* out)
-{
-    out->push_back(in);
-}
-
 HIR_expr* HIR_transform::post_cast(HIR_cast* in)
 {
     return in;
@@ -538,16 +373,6 @@ HIR_expr* HIR_transform::post_unary_op(HIR_unary_op* in)
 }
 
 HIR_expr* HIR_transform::post_bin_op(HIR_bin_op* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::post_conditional_expr(HIR_conditional_expr* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::post_ignore_errors(HIR_ignore_errors* in)
 {
     return in;
 }
@@ -627,11 +452,6 @@ Token_variable_name* HIR_transform::post_variable_name(Token_variable_name* in)
     return in;
 }
 
-Token_directive_name* HIR_transform::post_directive_name(Token_directive_name* in)
-{
-    return in;
-}
-
 Token_label_name* HIR_transform::post_label_name(Token_label_name* in)
 {
     return in;
@@ -662,12 +482,12 @@ HIR_expr* HIR_transform::post_null(Token_null* in)
     return in;
 }
 
-Token_op* HIR_transform::post_op(Token_op* in)
+Token_cast* HIR_transform::post_cast(Token_cast* in)
 {
     return in;
 }
 
-Token_cast* HIR_transform::post_cast(Token_cast* in)
+Token_op* HIR_transform::post_op(Token_op* in)
 {
     return in;
 }
@@ -743,63 +563,6 @@ void HIR_transform::children_attr_mod(HIR_attr_mod* in)
 {
 }
 
-void HIR_transform::children_if(HIR_if* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->iftrue = transform_statement_list(in->iftrue);
-    in->iffalse = transform_statement_list(in->iffalse);
-}
-
-void HIR_transform::children_while(HIR_while* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void HIR_transform::children_do(HIR_do* in)
-{
-    in->statements = transform_statement_list(in->statements);
-    in->expr = transform_expr(in->expr);
-}
-
-void HIR_transform::children_for(HIR_for* in)
-{
-    in->init = transform_expr(in->init);
-    in->cond = transform_expr(in->cond);
-    in->incr = transform_expr(in->incr);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void HIR_transform::children_foreach(HIR_foreach* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->key = transform_variable(in->key);
-    in->val = transform_variable(in->val);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void HIR_transform::children_switch(HIR_switch* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->switch_cases = transform_switch_case_list(in->switch_cases);
-}
-
-void HIR_transform::children_switch_case(HIR_switch_case* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void HIR_transform::children_break(HIR_break* in)
-{
-    in->expr = transform_expr(in->expr);
-}
-
-void HIR_transform::children_continue(HIR_continue* in)
-{
-    in->expr = transform_expr(in->expr);
-}
-
 void HIR_transform::children_return(HIR_return* in)
 {
     in->expr = transform_expr(in->expr);
@@ -814,18 +577,6 @@ void HIR_transform::children_static_declaration(HIR_static_declaration* in)
 void HIR_transform::children_global(HIR_global* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
-}
-
-void HIR_transform::children_declare(HIR_declare* in)
-{
-    in->directives = transform_directive_list(in->directives);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void HIR_transform::children_directive(HIR_directive* in)
-{
-    in->directive_name = transform_directive_name(in->directive_name);
-    in->expr = transform_expr(in->expr);
 }
 
 void HIR_transform::children_try(HIR_try* in)
@@ -851,10 +602,6 @@ void HIR_transform::children_eval_expr(HIR_eval_expr* in)
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_nop(HIR_nop* in)
-{
-}
-
 void HIR_transform::children_branch(HIR_branch* in)
 {
     in->expr = transform_expr(in->expr);
@@ -878,24 +625,6 @@ void HIR_transform::children_assignment(HIR_assignment* in)
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_op_assignment(HIR_op_assignment* in)
-{
-    in->variable = transform_variable(in->variable);
-    in->op = transform_op(in->op);
-    in->expr = transform_expr(in->expr);
-}
-
-void HIR_transform::children_list_assignment(HIR_list_assignment* in)
-{
-    in->list_elements = transform_list_element_list(in->list_elements);
-    in->expr = transform_expr(in->expr);
-}
-
-void HIR_transform::children_nested_list_elements(HIR_nested_list_elements* in)
-{
-    in->list_elements = transform_list_element_list(in->list_elements);
-}
-
 void HIR_transform::children_cast(HIR_cast* in)
 {
     in->cast = transform_cast(in->cast);
@@ -913,18 +642,6 @@ void HIR_transform::children_bin_op(HIR_bin_op* in)
     in->left = transform_expr(in->left);
     in->op = transform_op(in->op);
     in->right = transform_expr(in->right);
-}
-
-void HIR_transform::children_conditional_expr(HIR_conditional_expr* in)
-{
-    in->cond = transform_expr(in->cond);
-    in->iftrue = transform_expr(in->iftrue);
-    in->iffalse = transform_expr(in->iffalse);
-}
-
-void HIR_transform::children_ignore_errors(HIR_ignore_errors* in)
-{
-    in->expr = transform_expr(in->expr);
 }
 
 void HIR_transform::children_constant(HIR_constant* in)
@@ -1009,10 +726,6 @@ void HIR_transform::children_variable_name(Token_variable_name* in)
 {
 }
 
-void HIR_transform::children_directive_name(Token_directive_name* in)
-{
-}
-
 void HIR_transform::children_label_name(Token_label_name* in)
 {
 }
@@ -1037,11 +750,11 @@ void HIR_transform::children_null(Token_null* in)
 {
 }
 
-void HIR_transform::children_op(Token_op* in)
+void HIR_transform::children_cast(Token_cast* in)
 {
 }
 
-void HIR_transform::children_cast(Token_cast* in)
+void HIR_transform::children_op(Token_op* in)
 {
 }
 
@@ -1338,59 +1051,6 @@ HIR_attr_mod* HIR_transform::transform_attr_mod(HIR_attr_mod* in)
     return out;
 }
 
-HIR_variable* HIR_transform::transform_variable(HIR_variable* in)
-{
-    if(in == NULL) return NULL;
-    
-    HIR_variable* out;
-    
-    out = pre_variable(in);
-    if(out != NULL)
-    {
-    	children_variable(out);
-    	out = post_variable(out);
-    }
-    
-    return out;
-}
-
-List<HIR_switch_case*>* HIR_transform::transform_switch_case_list(List<HIR_switch_case*>* in)
-{
-    List<HIR_switch_case*>::const_iterator i;
-    List<HIR_switch_case*>* out = new List<HIR_switch_case*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_switch_case(*i));
-    }
-    
-    return out;
-}
-
-List<HIR_switch_case*>* HIR_transform::transform_switch_case(HIR_switch_case* in)
-{
-    List<HIR_switch_case*>::const_iterator i;
-    List<HIR_switch_case*>* out1 = new List<HIR_switch_case*>;
-    List<HIR_switch_case*>* out2 = new List<HIR_switch_case*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_switch_case(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_switch_case(*i);
-    		post_switch_case(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
 HIR_variable_name* HIR_transform::transform_variable_name(HIR_variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1402,59 +1062,6 @@ HIR_variable_name* HIR_transform::transform_variable_name(HIR_variable_name* in)
     {
     	children_variable_name(out);
     	out = post_variable_name(out);
-    }
-    
-    return out;
-}
-
-List<HIR_directive*>* HIR_transform::transform_directive_list(List<HIR_directive*>* in)
-{
-    List<HIR_directive*>::const_iterator i;
-    List<HIR_directive*>* out = new List<HIR_directive*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_directive(*i));
-    }
-    
-    return out;
-}
-
-List<HIR_directive*>* HIR_transform::transform_directive(HIR_directive* in)
-{
-    List<HIR_directive*>::const_iterator i;
-    List<HIR_directive*>* out1 = new List<HIR_directive*>;
-    List<HIR_directive*>* out2 = new List<HIR_directive*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_directive(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_directive(*i);
-    		post_directive(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
-Token_directive_name* HIR_transform::transform_directive_name(Token_directive_name* in)
-{
-    if(in == NULL) return NULL;
-    
-    Token_directive_name* out;
-    
-    out = pre_directive_name(in);
-    if(out != NULL)
-    {
-    	children_directive_name(out);
-    	out = post_directive_name(out);
     }
     
     return out;
@@ -1513,57 +1120,20 @@ Token_label_name* HIR_transform::transform_label_name(Token_label_name* in)
     return out;
 }
 
-Token_op* HIR_transform::transform_op(Token_op* in)
+HIR_variable* HIR_transform::transform_variable(HIR_variable* in)
 {
     if(in == NULL) return NULL;
     
-    Token_op* out;
+    HIR_variable* out;
     
-    out = pre_op(in);
+    out = pre_variable(in);
     if(out != NULL)
     {
-    	children_op(out);
-    	out = post_op(out);
+    	children_variable(out);
+    	out = post_variable(out);
     }
     
     return out;
-}
-
-List<HIR_list_element*>* HIR_transform::transform_list_element_list(List<HIR_list_element*>* in)
-{
-    List<HIR_list_element*>::const_iterator i;
-    List<HIR_list_element*>* out = new List<HIR_list_element*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_list_element(*i));
-    }
-    
-    return out;
-}
-
-List<HIR_list_element*>* HIR_transform::transform_list_element(HIR_list_element* in)
-{
-    List<HIR_list_element*>::const_iterator i;
-    List<HIR_list_element*>* out1 = new List<HIR_list_element*>;
-    List<HIR_list_element*>* out2 = new List<HIR_list_element*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_list_element(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_list_element(*i);
-    		post_list_element(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
 }
 
 Token_cast* HIR_transform::transform_cast(Token_cast* in)
@@ -1577,6 +1147,22 @@ Token_cast* HIR_transform::transform_cast(Token_cast* in)
     {
     	children_cast(out);
     	out = post_cast(out);
+    }
+    
+    return out;
+}
+
+Token_op* HIR_transform::transform_op(Token_op* in)
+{
+    if(in == NULL) return NULL;
+    
+    Token_op* out;
+    
+    out = pre_op(in);
+    if(out != NULL)
+    {
+    	children_op(out);
+    	out = post_op(out);
     }
     
     return out;
@@ -1785,78 +1371,6 @@ void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_if::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_if(dynamic_cast<HIR_if*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_while::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_while(dynamic_cast<HIR_while*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_do::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_do(dynamic_cast<HIR_do*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_for::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_for(dynamic_cast<HIR_for*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_foreach::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_foreach(dynamic_cast<HIR_foreach*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_switch::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_switch(dynamic_cast<HIR_switch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_break::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_break(dynamic_cast<HIR_break*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_continue::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_continue(dynamic_cast<HIR_continue*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case HIR_return::ID: 
     	{
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
@@ -1884,15 +1398,6 @@ void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_declare::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_declare(dynamic_cast<HIR_declare*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case HIR_try::ID: 
     	{
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
@@ -1916,15 +1421,6 @@ void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
     		List<HIR_statement*>::const_iterator i;
     		pre_eval_expr(dynamic_cast<HIR_eval_expr*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_nop::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_nop(dynamic_cast<HIR_nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1991,13 +1487,9 @@ HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
     switch(in->classid())
     {
     case HIR_assignment::ID: return pre_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_op_assignment::ID: return pre_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    case HIR_list_assignment::ID: return pre_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
     case HIR_cast::ID: return pre_cast(dynamic_cast<HIR_cast*>(in));
     case HIR_unary_op::ID: return pre_unary_op(dynamic_cast<HIR_unary_op*>(in));
     case HIR_bin_op::ID: return pre_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_conditional_expr::ID: return pre_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    case HIR_ignore_errors::ID: return pre_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     case HIR_constant::ID: return pre_constant(dynamic_cast<HIR_constant*>(in));
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
@@ -2025,26 +1517,6 @@ HIR_variable_name* HIR_transform::pre_variable_name(HIR_variable_name* in)
     assert(0);
 }
 
-void HIR_transform::pre_list_element(HIR_list_element* in, List<HIR_list_element*>* out)
-{
-    switch(in->classid())
-    {
-    case HIR_variable::ID: 
-    	out->push_back(pre_variable(dynamic_cast<HIR_variable*>(in)));
-    	return;
-    case HIR_nested_list_elements::ID: 
-    	{
-    		List<HIR_list_element*>* local_out = new List<HIR_list_element*>;
-    		List<HIR_list_element*>::const_iterator i;
-    		pre_nested_list_elements(dynamic_cast<HIR_nested_list_elements*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
 HIR_class_name* HIR_transform::pre_class_name(HIR_class_name* in)
 {
     switch(in->classid())
@@ -2060,13 +1532,9 @@ HIR_target* HIR_transform::pre_target(HIR_target* in)
     switch(in->classid())
     {
     case HIR_assignment::ID: return pre_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_op_assignment::ID: return pre_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    case HIR_list_assignment::ID: return pre_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
     case HIR_cast::ID: return pre_cast(dynamic_cast<HIR_cast*>(in));
     case HIR_unary_op::ID: return pre_unary_op(dynamic_cast<HIR_unary_op*>(in));
     case HIR_bin_op::ID: return pre_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_conditional_expr::ID: return pre_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    case HIR_ignore_errors::ID: return pre_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     case HIR_constant::ID: return pre_constant(dynamic_cast<HIR_constant*>(in));
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
@@ -2128,78 +1596,6 @@ void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_if::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_if(dynamic_cast<HIR_if*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_while::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_while(dynamic_cast<HIR_while*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_do::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_do(dynamic_cast<HIR_do*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_for::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_for(dynamic_cast<HIR_for*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_foreach::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_foreach(dynamic_cast<HIR_foreach*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_switch::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_switch(dynamic_cast<HIR_switch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_break::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_break(dynamic_cast<HIR_break*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_continue::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_continue(dynamic_cast<HIR_continue*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case HIR_return::ID: 
     	{
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
@@ -2227,15 +1623,6 @@ void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_declare::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_declare(dynamic_cast<HIR_declare*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case HIR_try::ID: 
     	{
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
@@ -2259,15 +1646,6 @@ void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
     		List<HIR_statement*>* local_out = new List<HIR_statement*>;
     		List<HIR_statement*>::const_iterator i;
     		post_eval_expr(dynamic_cast<HIR_eval_expr*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case HIR_nop::ID: 
-    	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_nop(dynamic_cast<HIR_nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2334,13 +1712,9 @@ HIR_expr* HIR_transform::post_expr(HIR_expr* in)
     switch(in->classid())
     {
     case HIR_assignment::ID: return post_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_op_assignment::ID: return post_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    case HIR_list_assignment::ID: return post_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
     case HIR_cast::ID: return post_cast(dynamic_cast<HIR_cast*>(in));
     case HIR_unary_op::ID: return post_unary_op(dynamic_cast<HIR_unary_op*>(in));
     case HIR_bin_op::ID: return post_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_conditional_expr::ID: return post_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    case HIR_ignore_errors::ID: return post_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     case HIR_constant::ID: return post_constant(dynamic_cast<HIR_constant*>(in));
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
@@ -2368,26 +1742,6 @@ HIR_variable_name* HIR_transform::post_variable_name(HIR_variable_name* in)
     assert(0);
 }
 
-void HIR_transform::post_list_element(HIR_list_element* in, List<HIR_list_element*>* out)
-{
-    switch(in->classid())
-    {
-    case HIR_variable::ID: 
-    	out->push_back(post_variable(dynamic_cast<HIR_variable*>(in)));
-    	return;
-    case HIR_nested_list_elements::ID: 
-    	{
-    		List<HIR_list_element*>* local_out = new List<HIR_list_element*>;
-    		List<HIR_list_element*>::const_iterator i;
-    		post_nested_list_elements(dynamic_cast<HIR_nested_list_elements*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
 HIR_class_name* HIR_transform::post_class_name(HIR_class_name* in)
 {
     switch(in->classid())
@@ -2403,13 +1757,9 @@ HIR_target* HIR_transform::post_target(HIR_target* in)
     switch(in->classid())
     {
     case HIR_assignment::ID: return post_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_op_assignment::ID: return post_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    case HIR_list_assignment::ID: return post_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
     case HIR_cast::ID: return post_cast(dynamic_cast<HIR_cast*>(in));
     case HIR_unary_op::ID: return post_unary_op(dynamic_cast<HIR_unary_op*>(in));
     case HIR_bin_op::ID: return post_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_conditional_expr::ID: return post_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    case HIR_ignore_errors::ID: return post_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     case HIR_constant::ID: return post_constant(dynamic_cast<HIR_constant*>(in));
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
@@ -2453,30 +1803,6 @@ void HIR_transform::children_statement(HIR_statement* in)
     case HIR_method::ID:
     	children_method(dynamic_cast<HIR_method*>(in));
     	break;
-    case HIR_if::ID:
-    	children_if(dynamic_cast<HIR_if*>(in));
-    	break;
-    case HIR_while::ID:
-    	children_while(dynamic_cast<HIR_while*>(in));
-    	break;
-    case HIR_do::ID:
-    	children_do(dynamic_cast<HIR_do*>(in));
-    	break;
-    case HIR_for::ID:
-    	children_for(dynamic_cast<HIR_for*>(in));
-    	break;
-    case HIR_foreach::ID:
-    	children_foreach(dynamic_cast<HIR_foreach*>(in));
-    	break;
-    case HIR_switch::ID:
-    	children_switch(dynamic_cast<HIR_switch*>(in));
-    	break;
-    case HIR_break::ID:
-    	children_break(dynamic_cast<HIR_break*>(in));
-    	break;
-    case HIR_continue::ID:
-    	children_continue(dynamic_cast<HIR_continue*>(in));
-    	break;
     case HIR_return::ID:
     	children_return(dynamic_cast<HIR_return*>(in));
     	break;
@@ -2486,9 +1812,6 @@ void HIR_transform::children_statement(HIR_statement* in)
     case HIR_global::ID:
     	children_global(dynamic_cast<HIR_global*>(in));
     	break;
-    case HIR_declare::ID:
-    	children_declare(dynamic_cast<HIR_declare*>(in));
-    	break;
     case HIR_try::ID:
     	children_try(dynamic_cast<HIR_try*>(in));
     	break;
@@ -2497,9 +1820,6 @@ void HIR_transform::children_statement(HIR_statement* in)
     	break;
     case HIR_eval_expr::ID:
     	children_eval_expr(dynamic_cast<HIR_eval_expr*>(in));
-    	break;
-    case HIR_nop::ID:
-    	children_nop(dynamic_cast<HIR_nop*>(in));
     	break;
     case HIR_label::ID:
     	children_label(dynamic_cast<HIR_label*>(in));
@@ -2533,12 +1853,6 @@ void HIR_transform::children_expr(HIR_expr* in)
     case HIR_assignment::ID:
     	children_assignment(dynamic_cast<HIR_assignment*>(in));
     	break;
-    case HIR_op_assignment::ID:
-    	children_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    	break;
-    case HIR_list_assignment::ID:
-    	children_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
-    	break;
     case HIR_cast::ID:
     	children_cast(dynamic_cast<HIR_cast*>(in));
     	break;
@@ -2547,12 +1861,6 @@ void HIR_transform::children_expr(HIR_expr* in)
     	break;
     case HIR_bin_op::ID:
     	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    	break;
-    case HIR_conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    	break;
-    case HIR_ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     	break;
     case HIR_constant::ID:
     	children_constant(dynamic_cast<HIR_constant*>(in));
@@ -2609,19 +1917,6 @@ void HIR_transform::children_variable_name(HIR_variable_name* in)
     }
 }
 
-void HIR_transform::children_list_element(HIR_list_element* in)
-{
-    switch(in->classid())
-    {
-    case HIR_variable::ID:
-    	children_variable(dynamic_cast<HIR_variable*>(in));
-    	break;
-    case HIR_nested_list_elements::ID:
-    	children_nested_list_elements(dynamic_cast<HIR_nested_list_elements*>(in));
-    	break;
-    }
-}
-
 void HIR_transform::children_class_name(HIR_class_name* in)
 {
     switch(in->classid())
@@ -2642,12 +1937,6 @@ void HIR_transform::children_target(HIR_target* in)
     case HIR_assignment::ID:
     	children_assignment(dynamic_cast<HIR_assignment*>(in));
     	break;
-    case HIR_op_assignment::ID:
-    	children_op_assignment(dynamic_cast<HIR_op_assignment*>(in));
-    	break;
-    case HIR_list_assignment::ID:
-    	children_list_assignment(dynamic_cast<HIR_list_assignment*>(in));
-    	break;
     case HIR_cast::ID:
     	children_cast(dynamic_cast<HIR_cast*>(in));
     	break;
@@ -2656,12 +1945,6 @@ void HIR_transform::children_target(HIR_target* in)
     	break;
     case HIR_bin_op::ID:
     	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    	break;
-    case HIR_conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<HIR_conditional_expr*>(in));
-    	break;
-    case HIR_ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<HIR_ignore_errors*>(in));
     	break;
     case HIR_constant::ID:
     	children_constant(dynamic_cast<HIR_constant*>(in));
