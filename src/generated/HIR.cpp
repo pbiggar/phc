@@ -82,6 +82,15 @@ bool HIR_node::is_mixin_equal(HIR_node* in)
 	}
 }
 
+//  Return the comments associated with the node
+List<String*>* HIR_node::get_comments()
+{
+    {
+		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
+		return comments;
+	}
+}
+
 HIR_php_script::HIR_php_script(List<HIR_statement*>* statements)
 {
     this->statements = statements;
@@ -4612,113 +4621,6 @@ void HIR_pre_op::assert_valid()
 }
 
 HIR_pre_op::HIR_pre_op(HIR_variable* var, const char* op)
-{
-    {
-		this->variable = var;
-		this->op = new Token_op(new String(op));
-	}
-}
-
-HIR_post_op::HIR_post_op(HIR_variable* variable, Token_op* op)
-{
-    this->variable = variable;
-    this->op = op;
-}
-
-HIR_post_op::HIR_post_op()
-{
-    this->variable = 0;
-    this->op = 0;
-}
-
-void HIR_post_op::visit(HIR_visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void HIR_post_op::transform_children(HIR_transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int HIR_post_op::classid()
-{
-    return ID;
-}
-
-bool HIR_post_op::match(HIR_node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    HIR_post_op* that = dynamic_cast<HIR_post_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    if(this->op == NULL)
-    {
-    	if(that->op != NULL && !that->op->match(this->op))
-    		return false;
-    }
-    else if(!this->op->match(that->op))
-    	return false;
-    
-    return true;
-}
-
-bool HIR_post_op::equals(HIR_node* in)
-{
-    HIR_post_op* that = dynamic_cast<HIR_post_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->op == NULL || that->op == NULL)
-    {
-    	if(this->op != NULL || that->op != NULL)
-    		return false;
-    }
-    else if(!this->op->equals(that->op))
-    	return false;
-    
-    if(!HIR_node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-HIR_post_op* HIR_post_op::clone()
-{
-    HIR_variable* variable = this->variable ? this->variable->clone() : NULL;
-    Token_op* op = this->op ? this->op->clone() : NULL;
-    HIR_post_op* clone = new HIR_post_op(variable, op);
-    clone->HIR_node::clone_mixin_from(this);
-    return clone;
-}
-
-void HIR_post_op::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(op != NULL);
-    op->assert_valid();
-    HIR_node::assert_mixin_valid();
-}
-
-HIR_post_op::HIR_post_op(HIR_variable* var, const char* op)
 {
     {
 		this->variable = var;

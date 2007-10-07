@@ -76,7 +76,7 @@ class AST_to_HIR : public AST::AST_fold
  HIR::HIR_reflection*,			// AST_reflection*
  HIR::HIR_target*,				// AST_target*
  HIR::HIR_pre_op*,				// AST_pre_op*
- HIR::HIR_post_op*,				// AST_post_op*
+ HIR::HIR_expr*,				// AST_post_op*
  HIR::HIR_array*,				// AST_array*
  HIR::HIR_array_elem*,			// AST_array_elem*
  HIR::HIR_method_invocation*,	// AST_method_invocation*
@@ -337,14 +337,6 @@ class AST_to_HIR : public AST::AST_fold
 	{
 		HIR::HIR_pre_op* result;
 		result = new HIR::HIR_pre_op(op, variable);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::HIR_post_op* fold_impl_post_op(AST::AST_post_op* orig, HIR::HIR_variable* variable, HIR::Token_op* op) 
-	{
-		HIR::HIR_post_op* result;
-		result = new HIR::HIR_post_op(variable, op);
 		result->attrs = orig->attrs;
 		return result;
 	}

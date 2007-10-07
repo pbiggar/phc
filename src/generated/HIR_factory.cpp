@@ -236,13 +236,6 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new HIR_pre_op(op, variable);
     }
-    if(!strcmp(type_id, "HIR_post_op"))
-    {
-    	HIR_variable* variable = dynamic_cast<HIR_variable*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	assert(i == args->end());
-    	return new HIR_post_op(variable, op);
-    }
     if(!strcmp(type_id, "HIR_array"))
     {
     	List<HIR_array_elem*>* array_elems = dynamic_cast<List<HIR_array_elem*>*>(*i++);

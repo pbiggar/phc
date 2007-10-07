@@ -154,10 +154,6 @@ void HIR_visitor::pre_pre_op(HIR_pre_op* in)
 {
 }
 
-void HIR_visitor::pre_post_op(HIR_post_op* in)
-{
-}
-
 void HIR_visitor::pre_array(HIR_array* in)
 {
 }
@@ -388,10 +384,6 @@ void HIR_visitor::post_target(HIR_target* in)
 }
 
 void HIR_visitor::post_pre_op(HIR_pre_op* in)
-{
-}
-
-void HIR_visitor::post_post_op(HIR_post_op* in)
 {
 }
 
@@ -670,12 +662,6 @@ void HIR_visitor::children_pre_op(HIR_pre_op* in)
 {
     visit_op(in->op);
     visit_variable(in->variable);
-}
-
-void HIR_visitor::children_post_op(HIR_post_op* in)
-{
-    visit_variable(in->variable);
-    visit_op(in->op);
 }
 
 void HIR_visitor::children_array(HIR_array* in)
@@ -996,14 +982,6 @@ void HIR_visitor::pre_pre_op_chain(HIR_pre_op* in)
     pre_target(in);
     pre_expr(in);
     pre_pre_op(in);
-}
-
-void HIR_visitor::pre_post_op_chain(HIR_post_op* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_post_op(in);
 }
 
 void HIR_visitor::pre_array_chain(HIR_array* in)
@@ -1358,14 +1336,6 @@ void HIR_visitor::post_reflection_chain(HIR_reflection* in)
 void HIR_visitor::post_pre_op_chain(HIR_pre_op* in)
 {
     post_pre_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void HIR_visitor::post_post_op_chain(HIR_post_op* in)
-{
-    post_post_op(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2064,9 +2034,6 @@ void HIR_visitor::pre_expr_chain(HIR_expr* in)
     case HIR_pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_post_op::ID:
-    	pre_post_op_chain(dynamic_cast<HIR_post_op*>(in));
-    	break;
     case HIR_array::ID:
     	pre_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
@@ -2147,9 +2114,6 @@ void HIR_visitor::pre_target_chain(HIR_target* in)
     	break;
     case HIR_pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
-    	break;
-    case HIR_post_op::ID:
-    	pre_post_op_chain(dynamic_cast<HIR_post_op*>(in));
     	break;
     case HIR_array::ID:
     	pre_array_chain(dynamic_cast<HIR_array*>(in));
@@ -2280,9 +2244,6 @@ void HIR_visitor::post_expr_chain(HIR_expr* in)
     case HIR_pre_op::ID:
     	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_post_op::ID:
-    	post_post_op_chain(dynamic_cast<HIR_post_op*>(in));
-    	break;
     case HIR_array::ID:
     	post_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
@@ -2363,9 +2324,6 @@ void HIR_visitor::post_target_chain(HIR_target* in)
     	break;
     case HIR_pre_op::ID:
     	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
-    	break;
-    case HIR_post_op::ID:
-    	post_post_op_chain(dynamic_cast<HIR_post_op*>(in));
     	break;
     case HIR_array::ID:
     	post_array_chain(dynamic_cast<HIR_array*>(in));
@@ -2496,9 +2454,6 @@ void HIR_visitor::children_expr(HIR_expr* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_post_op::ID:
-    	children_post_op(dynamic_cast<HIR_post_op*>(in));
-    	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));
     	break;
@@ -2579,9 +2534,6 @@ void HIR_visitor::children_target(HIR_target* in)
     	break;
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    	break;
-    case HIR_post_op::ID:
-    	children_post_op(dynamic_cast<HIR_post_op*>(in));
     	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));

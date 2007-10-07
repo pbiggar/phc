@@ -56,7 +56,6 @@ public:
     virtual HIR_variable* pre_variable(HIR_variable* in);
     virtual HIR_reflection* pre_reflection(HIR_reflection* in);
     virtual HIR_expr* pre_pre_op(HIR_pre_op* in);
-    virtual HIR_expr* pre_post_op(HIR_post_op* in);
     virtual HIR_expr* pre_array(HIR_array* in);
     virtual void pre_array_elem(HIR_array_elem* in, List<HIR_array_elem*>* out);
     virtual HIR_expr* pre_method_invocation(HIR_method_invocation* in);
@@ -107,7 +106,6 @@ public:
     virtual HIR_variable* post_variable(HIR_variable* in);
     virtual HIR_reflection* post_reflection(HIR_reflection* in);
     virtual HIR_expr* post_pre_op(HIR_pre_op* in);
-    virtual HIR_expr* post_post_op(HIR_post_op* in);
     virtual HIR_expr* post_array(HIR_array* in);
     virtual void post_array_elem(HIR_array_elem* in, List<HIR_array_elem*>* out);
     virtual HIR_expr* post_method_invocation(HIR_method_invocation* in);
@@ -158,7 +156,6 @@ public:
     virtual void children_variable(HIR_variable* in);
     virtual void children_reflection(HIR_reflection* in);
     virtual void children_pre_op(HIR_pre_op* in);
-    virtual void children_post_op(HIR_post_op* in);
     virtual void children_array(HIR_array* in);
     virtual void children_array_elem(HIR_array_elem* in);
     virtual void children_method_invocation(HIR_method_invocation* in);

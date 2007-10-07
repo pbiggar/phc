@@ -63,7 +63,6 @@ public:
     virtual void pre_reflection(HIR_reflection* in);
     virtual void pre_target(HIR_target* in);
     virtual void pre_pre_op(HIR_pre_op* in);
-    virtual void pre_post_op(HIR_post_op* in);
     virtual void pre_array(HIR_array* in);
     virtual void pre_array_elem(HIR_array_elem* in);
     virtual void pre_method_invocation(HIR_method_invocation* in);
@@ -124,7 +123,6 @@ public:
     virtual void post_reflection(HIR_reflection* in);
     virtual void post_target(HIR_target* in);
     virtual void post_pre_op(HIR_pre_op* in);
-    virtual void post_post_op(HIR_post_op* in);
     virtual void post_array(HIR_array* in);
     virtual void post_array_elem(HIR_array_elem* in);
     virtual void post_method_invocation(HIR_method_invocation* in);
@@ -178,7 +176,6 @@ public:
     virtual void children_variable(HIR_variable* in);
     virtual void children_reflection(HIR_reflection* in);
     virtual void children_pre_op(HIR_pre_op* in);
-    virtual void children_post_op(HIR_post_op* in);
     virtual void children_array(HIR_array* in);
     virtual void children_array_elem(HIR_array_elem* in);
     virtual void children_method_invocation(HIR_method_invocation* in);
@@ -239,7 +236,6 @@ public:
     virtual void pre_variable_chain(HIR_variable* in);
     virtual void pre_reflection_chain(HIR_reflection* in);
     virtual void pre_pre_op_chain(HIR_pre_op* in);
-    virtual void pre_post_op_chain(HIR_post_op* in);
     virtual void pre_array_chain(HIR_array* in);
     virtual void pre_array_elem_chain(HIR_array_elem* in);
     virtual void pre_method_invocation_chain(HIR_method_invocation* in);
@@ -292,7 +288,6 @@ public:
     virtual void post_variable_chain(HIR_variable* in);
     virtual void post_reflection_chain(HIR_reflection* in);
     virtual void post_pre_op_chain(HIR_pre_op* in);
-    virtual void post_post_op_chain(HIR_post_op* in);
     virtual void post_array_chain(HIR_array* in);
     virtual void post_array_elem_chain(HIR_array_elem* in);
     virtual void post_method_invocation_chain(HIR_method_invocation* in);

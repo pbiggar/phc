@@ -156,11 +156,6 @@ HIR_expr* HIR_transform::pre_pre_op(HIR_pre_op* in)
     return in;
 }
 
-HIR_expr* HIR_transform::pre_post_op(HIR_post_op* in)
-{
-    return in;
-}
-
 HIR_expr* HIR_transform::pre_array(HIR_array* in)
 {
     return in;
@@ -398,11 +393,6 @@ HIR_reflection* HIR_transform::post_reflection(HIR_reflection* in)
 }
 
 HIR_expr* HIR_transform::post_pre_op(HIR_pre_op* in)
-{
-    return in;
-}
-
-HIR_expr* HIR_transform::post_post_op(HIR_post_op* in)
 {
     return in;
 }
@@ -672,12 +662,6 @@ void HIR_transform::children_pre_op(HIR_pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable = transform_variable(in->variable);
-}
-
-void HIR_transform::children_post_op(HIR_post_op* in)
-{
-    in->variable = transform_variable(in->variable);
-    in->op = transform_op(in->op);
 }
 
 void HIR_transform::children_array(HIR_array* in)
@@ -1494,7 +1478,6 @@ HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_post_op::ID: return pre_post_op(dynamic_cast<HIR_post_op*>(in));
     case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
@@ -1539,7 +1522,6 @@ HIR_target* HIR_transform::pre_target(HIR_target* in)
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_post_op::ID: return pre_post_op(dynamic_cast<HIR_post_op*>(in));
     case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
@@ -1719,7 +1701,6 @@ HIR_expr* HIR_transform::post_expr(HIR_expr* in)
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_post_op::ID: return post_post_op(dynamic_cast<HIR_post_op*>(in));
     case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
@@ -1764,7 +1745,6 @@ HIR_target* HIR_transform::post_target(HIR_target* in)
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_post_op::ID: return post_post_op(dynamic_cast<HIR_post_op*>(in));
     case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
@@ -1874,9 +1854,6 @@ void HIR_transform::children_expr(HIR_expr* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_post_op::ID:
-    	children_post_op(dynamic_cast<HIR_post_op*>(in));
-    	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));
     	break;
@@ -1957,9 +1934,6 @@ void HIR_transform::children_target(HIR_target* in)
     	break;
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    	break;
-    case HIR_post_op::ID:
-    	children_post_op(dynamic_cast<HIR_post_op*>(in));
     	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));

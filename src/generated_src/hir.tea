@@ -78,7 +78,7 @@ expr ::=
      assignment 
    | cast | unary_op | bin_op 
    | constant | instanceof
-   | variable | pre_op | post_op | array
+   | variable | pre_op | array
    | method_invocation | new 
 	| literal ;
 	
@@ -101,7 +101,6 @@ reflection ::= expr ;
 target ::= expr | CLASS_NAME ;
 
 pre_op ::= OP variable ;
-post_op ::= variable OP ;
 
 array ::= array_elem* ;
 array_elem ::= key:expr? is_ref:"&"? val:expr ;
@@ -209,21 +208,11 @@ public:
 
 		return true;
 	}
-};
-
-class HIR_commented_node 
-{
-public:
-	HIR_commented_node()
-	{
-		attrs->set("phc.comments", new List<String*>);
-	}
 
 	// Return the comments associated with the node
 	List<String*>* get_comments()
 	{
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
 		return comments;
 	}
 };
@@ -445,17 +434,6 @@ public:
 	}
 };
 
-class HIR_op_assignment
-{
-public:
-   HIR_op_assignment(HIR_variable* variable, const char* op, HIR_expr* expr)
-   {
-      this->variable = variable;
-      this->op = new Token_op(new String(op));
-      this->expr = expr;
-   }
-};
-
 class HIR_bin_op
 {
 public:
@@ -464,16 +442,6 @@ public:
 		this->left = left;
 		this->op = new Token_op(new String(op));
 		this->right = right;
-	}
-};
-
-class HIR_post_op
-{
-public:
-	HIR_post_op(HIR_variable* var, const char* op) 
-	{
-		this->variable = var;
-		this->op = new Token_op(new String(op));
 	}
 };
 
@@ -494,15 +462,6 @@ public:
 	{
 		this->expr = expr;
 		this->op = new Token_op(new String(op));
-	}
-};
-
-class HIR_if
-{
-public:
-	HIR_if(HIR_expr* expr)
-	{
-		HIR_if (expr, new List<HIR_statement*> (), new List<HIR_statement*>);
 	}
 };
 

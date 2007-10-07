@@ -54,7 +54,6 @@ template
  class _HIR_reflection,
  class _HIR_target,
  class _HIR_pre_op,
- class _HIR_post_op,
  class _HIR_array,
  class _HIR_array_elem,
  class _HIR_method_invocation,
@@ -415,15 +414,6 @@ public:
 		return fold_impl_pre_op(in, op, variable);
 	}
 
-	virtual _HIR_post_op fold_post_op(HIR_post_op* in)
-	{
-		_HIR_variable variable = 0;
-		if(in->variable != NULL) variable = fold_variable(in->variable);
-		_Token_op op = 0;
-		if(in->op != NULL) op = fold_op(in->op);
-		return fold_impl_post_op(in, variable, op);
-	}
-
 	virtual _HIR_array fold_array(HIR_array* in)
 	{
 		List<_HIR_array_elem>* array_elems = new List<_HIR_array_elem>;
@@ -518,7 +508,6 @@ public:
 	virtual _HIR_variable fold_impl_variable(HIR_variable* orig, _HIR_target target, _HIR_variable_name variable_name, List<_HIR_expr>* array_indices) { assert(0); };
 	virtual _HIR_reflection fold_impl_reflection(HIR_reflection* orig, _HIR_expr expr) { assert(0); };
 	virtual _HIR_pre_op fold_impl_pre_op(HIR_pre_op* orig, _Token_op op, _HIR_variable variable) { assert(0); };
-	virtual _HIR_post_op fold_impl_post_op(HIR_post_op* orig, _HIR_variable variable, _Token_op op) { assert(0); };
 	virtual _HIR_array fold_impl_array(HIR_array* orig, List<_HIR_array_elem>* array_elems) { assert(0); };
 	virtual _HIR_array_elem fold_impl_array_elem(HIR_array_elem* orig, _HIR_expr key, bool is_ref, _HIR_expr val) { assert(0); };
 	virtual _HIR_method_invocation fold_impl_method_invocation(HIR_method_invocation* orig, _HIR_target target, _HIR_method_name method_name, List<_HIR_actual_parameter>* actual_parameters) { assert(0); };
@@ -607,8 +596,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_post_op::ID:
-				return fold_post_op(dynamic_cast<HIR_post_op*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
@@ -711,8 +698,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_post_op::ID:
-				return fold_post_op(dynamic_cast<HIR_post_op*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
@@ -783,8 +768,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_post_op::ID:
-				return fold_post_op(dynamic_cast<HIR_post_op*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
@@ -859,6 +842,6 @@ public:
 };
 
 template<class T>
-class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 
