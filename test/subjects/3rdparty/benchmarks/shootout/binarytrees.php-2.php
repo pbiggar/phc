@@ -3,6 +3,7 @@
    http://shootout.alioth.debian.org/
 
    contributed by Peter Baltruschat
+// range 12-14
 */
 
 function bottomUpTree($item, $depth)

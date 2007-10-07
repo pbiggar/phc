@@ -4,6 +4,7 @@
    contributed by Isaac Gouy (PHP novice)
    
    php -q raytracer.php 32
+	  --range 20,40,80,160
 */
 
 

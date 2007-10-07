@@ -2,6 +2,7 @@
    http://shootout.alioth.debian.org/
 
    contributed by Peter Baltruschat
+	  --range 600,800,1000
 */
 function Transformation_Compose($tr, $a)
 {

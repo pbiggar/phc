@@ -3,8 +3,9 @@
 /* The Computer Language Shootout
  * http://shootout.alioth.debian.org/
  *
- * contributed by Charles G.
+ * contributed by Charles G
  * modified by Isaac Gouy
+	  --range 7,8,9
  */
 
 function nsieve($m)
@@ -18,13 +19,13 @@ function nsieve($m)
             ++$count;
             for ($j = $i << 1; $j < $m; $j += $i)
                 $flags[$j] = 'x';
-        }
+        
 
-    printf("Primes up to %8d %8d\n", $m, $count);
+    printf("Primes up to %8d %8d\n", $m, $count)
 
 }
 
 $m = $argv[1];
 for ($i = 0; $i < 3; $i++)
-    nsieve(10000 << ($m-$i));
+    nsieve(10000 << ($m-$i));
 ?>

@@ -4,9 +4,9 @@
    contributed by Isaac Gouy (PHP novice)
    
    php -q binarytrees.php 12
+// range 12-14
 */
 
-// range 12-14
 
 
 function newTreeNode(&$left, &$right, $item){ 
