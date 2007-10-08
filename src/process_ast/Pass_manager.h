@@ -18,11 +18,32 @@ class Pass_manager;
 class Pass
 {
 public:
-	Pass () {}
+	Pass () : name (NULL), description(NULL), enabled(true) { }
 	String* name;
+	String* description;
+
+public:
 
 	virtual void run (AST::AST_php_script* in, Pass_manager* pm) = 0;
 	virtual void post_process () { }
+
+private:
+	bool enabled;
+
+public:
+	bool is_enabled (Pass_manager* pm) { return enabled && pass_is_enabled (pm); }
+	void set_enabled (bool e) { enabled = e; }
+
+	// Plugin writers should use this
+	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
+
+	void run_pass (AST::AST_php_script* in, Pass_manager* pm)
+	{
+		if (is_enabled (pm))
+			run (in, pm);
+	}
+
+public:
 
 	virtual ~Pass () {}
 
@@ -79,6 +100,7 @@ public:
 };
 
 
+
 class Pass_manager : public List<Pass*>
 {
 
@@ -101,13 +123,35 @@ public:
 	void add_before_named_pass (Pass* pass, const char* name);
 	void run_from_to (String* from, String* to, AST::AST_php_script* in);
 	void run_until (String* to, AST::AST_php_script* in);
+	Pass* get_pass (const char* name);
+	void list_passes ();
 
 	void dump (AST::AST_php_script* in, Pass* pass);
-	void dump_list ();
 	void run (AST::AST_php_script* in);
 	void post_process ();
 	
 
+};
+
+
+// TODO a file of its own
+class List_passes : public Pass
+{
+public:
+	List_passes ()
+	{
+		this->name = new String ("lp");
+	}
+
+	void run (AST::AST_php_script* in, Pass_manager* pm)
+	{
+		pm->list_passes ();
+	}
+
+	bool pass_is_enabled (Pass_manager* pm)
+	{
+		return pm->args_info->list_passes_given;
+	}
 };
 
 #endif // PHC_PASS_MANAGER_H

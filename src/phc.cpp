@@ -125,8 +125,10 @@ int main(int argc, char** argv)
 	 */
 
 	// Passes to lower the AST to HIR
+	pm->add_pass (new List_passes ()); 
 	pm->add_visitor (new Invalid_check (), "check");
 	pm->add_transform (new Remove_concat_null (), "rcn");
+	// TODO add flag for include 
 	pm->add_transform (new Process_includes (false, new String ("ast"), pm), "incl1");
 	pm->add_pass (new Fake_pass ("ast"));
 	pm->add_pass (new Pretty_print ());

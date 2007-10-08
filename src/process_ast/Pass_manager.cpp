@@ -142,6 +142,31 @@ void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
 	phc_error ("No pass with name %s was found", name);
 }
 
+void Pass_manager::list_passes ()
+{
+	List<Pass*>::iterator i;
+	cout << "Passes:\n";
+	for (i = begin (); i != end (); i++)
+	{
+		String* desc = (*i)->description;
+		printf ("%-15s\t(%s)\t%s\n", 
+			(*i)->name->c_str (),
+			(*i)->is_enabled (this) ? "enabled" : "disabled",
+			desc ? desc->c_str () : "No description");
+	}
+}
+
+Pass* Pass_manager::get_pass (const char* name)
+{
+	List<Pass*>::iterator i;
+	for (i = begin (); i != end (); i++)
+	{
+		if (*(*i)->name == name)
+			return (*i);
+	}
+	return NULL;
+}
+
 void Pass_manager::dump (AST_php_script* in, Pass* pass)
 {
 	String* name = pass->name;
@@ -180,22 +205,13 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	}
 }
 
-void Pass_manager::dump_list ()
-{
-	List<Pass*>::const_iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		cout << (*i) << "\n";
-	}
-}
-
 void Pass_manager::run (AST_php_script* in)
 {
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
 	{
 		assert ((*i)->name);
-		(*i)->run (in, this);
+		(*i)->run_pass (in, this);
 		check (in);
 		dump (in, *i);
 	}
@@ -219,7 +235,7 @@ void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
 
 		if (exec == true)
 		{
-			(*i)->run (in, this);
+			(*i)->run_pass (in, this);
 			check (in);
 
 			// check for last pass
@@ -239,7 +255,7 @@ void Pass_manager::run_until (String* to, AST_php_script* in)
 	{
 		assert ((*i)->name);
 
-		(*i)->run (in, this);
+		(*i)->run_pass (in, this);
 		check (in);
 
 		// check for last pass

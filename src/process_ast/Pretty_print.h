@@ -22,10 +22,15 @@ public:
 	{
 		this->name = new String ("pretty-print");
 	}
+
 	void run (AST_php_script* in, Pass_manager* pm)
 	{
-		if (pm->args_info->pretty_print_flag)
-			in->visit (new PHP_unparser ());
+		in->visit (new PHP_unparser ());
+	}
+
+	bool pass_is_enabled (Pass_manager* pm)
+	{
+		return pm->args_info->pretty_print_flag;
 	}
 };
 
