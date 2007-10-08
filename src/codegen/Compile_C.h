@@ -14,4 +14,5 @@ public:
 
 	Compile_C (stringstream& os);
 	void run (AST::AST_php_script* in, Pass_manager* pm);
+	bool pass_is_enabled (Pass_manager* pm);
 };

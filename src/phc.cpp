@@ -129,7 +129,7 @@ int main(int argc, char** argv)
 	pm->add_visitor (new Invalid_check (), "check");
 	pm->add_transform (new Remove_concat_null (), "rcn");
 	// TODO add flag for include 
-	pm->add_transform (new Process_includes (false, new String ("ast"), pm), "incl1");
+	pm->add_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
 	pm->add_pass (new Fake_pass ("ast"));
 	pm->add_pass (new Pretty_print ());
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
 	pm->add_transform (new Early_shredder (), "rlys");
 	pm->add_transform (new Shredder (), "shred");
 	pm->add_transform (new Tidy_print (), "tidyp");
-	pm->add_transform (new Process_includes (true, new String ("hir"), pm), "incl2");
+	pm->add_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 	pm->add_pass (new Fake_pass ("hir"));
 	pm->add_visitor (new Strip_comments (), "decomment");
 	pm->add_pass (new Obfuscate ());

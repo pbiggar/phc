@@ -40,13 +40,14 @@ static ostringstream epilogue;
 // TODO this is here for constant pooling. This should not be global.
 static gengetopt_args_info* args_info;
 
+bool Generate_C::pass_is_enabled (Pass_manager* pm)
+{
+	return pm->args_info->generate_c_flag or pm->args_info->compile_flag;
+}
+
 void Generate_C::run (AST::AST_php_script* in, Pass_manager* pm)
 {
 	args_info = pm->args_info;
-	if (!pm->args_info->generate_c_flag 
-		&& !pm->args_info->compile_flag)
-		return;
-
 	if (not PHP::is_available ())
 	{
 		// TODO would be better if we checked for these at run-time if they

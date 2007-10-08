@@ -24,12 +24,14 @@ public:
 
 	void run (AST_php_script* in, Pass_manager* pm)
 	{
-		if (!pm->args_info->obfuscate_flag)
-			return;
-
 		in = in->clone ();
 		in->visit (new Goto_uppering());
 		in->visit (new PHP_unparser);
+	}
+
+	bool pass_is_enabled (Pass_manager* pm)
+	{
+		return pm->args_info->obfuscate_flag;
 	}
 };
 

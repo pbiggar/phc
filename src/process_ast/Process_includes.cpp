@@ -166,11 +166,17 @@ public:
 	}
 };
 
-Process_includes::Process_includes (bool definitive, String* pass_name, Pass_manager* pm)
+Process_includes::Process_includes (bool definitive, String* pass_name, Pass_manager* pm, const char* name)
 : definitive (definitive),
   pass_name (pass_name),
   pm (pm)
 {
+	this->name = new String (name);
+}
+
+bool Process_includes::pass_is_enabled (Pass_manager* pm)
+{
+	return pm->args_info->include_given;
 }
 
 // look for include statements
@@ -255,6 +261,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 		}
 
 		// bring the statements to the expected level of the IR
+		// TODO why didnt I include this pass?
 		pm->run_until (pass_name, php_script);
 
 		// copy the statements

@@ -31,6 +31,7 @@ public:
 	void children_statement(HIR_statement* in);
 	void pre_php_script(HIR_php_script* in);
 	void post_php_script(HIR_php_script* in);
+	bool pass_is_enabled (Pass_manager* pm);
 
 public:
 	String* extension_name;
