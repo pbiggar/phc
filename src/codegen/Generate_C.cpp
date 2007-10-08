@@ -47,6 +47,17 @@ void Generate_C::run (AST::AST_php_script* in, Pass_manager* pm)
 		&& !pm->args_info->compile_flag)
 		return;
 
+	if (not PHP::is_available ())
+	{
+		// TODO would be better if we checked for these at run-time if they
+		// werent available at compile time.
+		phc_error (	"phc requires PHP to be avaiable for compilation. " 
+						"Please install the PHP embed SAPI, "
+						"and run 'configure' on phc again");
+
+		// TODO more information perhaps? Or integrate with configure warning?
+	}
+
 	if (pm->args_info->extension_given)
 	{
 		extension_name = new String (pm->args_info->extension_arg);

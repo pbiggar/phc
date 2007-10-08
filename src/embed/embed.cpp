@@ -16,6 +16,11 @@ static void ***tsrm_ls;
 
 bool PHP::is_started = false;
 
+bool PHP::is_available ()
+{
+	return true;
+}
+
 void PHP::startup_php ()
 {
 	assert (is_started == false);
@@ -160,4 +165,17 @@ AST_literal* PHP::convert_token (AST_literal *token)
 		return in;
 	}
 }
+
+unsigned long PHP::get_hash (String* string)
+{
+	// TODO people who dont have PHP installed may still want to see
+	// generated C code (perhaps to be cross compiled?)
+	assert (0);
+}
+
+bool PHP::is_available ()
+{
+	return false;
+}
+
 #endif
