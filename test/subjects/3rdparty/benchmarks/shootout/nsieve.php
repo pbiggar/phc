@@ -20,7 +20,7 @@ function NSieve($m, &$isPrime){
 }
 
 
-$n = $argv[1];
+$n = ($argc == 2) ? $argv[1] : 1;
 $flags = array();
 
 $m = (1<<$n)*10000;

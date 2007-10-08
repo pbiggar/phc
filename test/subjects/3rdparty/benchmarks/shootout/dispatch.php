@@ -131,7 +131,7 @@ function BottleCheck($a1, $a2, $a3, $a4, $a5, $i){
 }
 
 
-$n = $argv[1];
+$n = ($argc == 2) ? $argv[1] : 1;
 
 $b1 = new Bottle(1); $b2 = new Bottle(2);
 $b3 = new Bottle(3); $b4 = new Bottle(4);

@@ -98,7 +98,7 @@ class PiDigitStream {
 }
 
 
-$n = $argv[1];
+$n = ($argc == 2) ? $argv[1] : 1;
 $i = 0;
 $length = 10;
 $pidigit = new PiDigitStream;

@@ -150,7 +150,7 @@ $bodies = array( Body::Sun(), Body::Jupiter(),
                  Body::Saturn(), Body::Uranus(), Body::Neptune() );                 
 Body::OffsetMomentum($bodies);
 
-$n = $argv[1];
+$n = ($argc == 2) ? $argv[1] : 1;
 printf("%0.9f\n", Energy($bodies));
 for ($i=0; $i<$n; $i++){ Advance($bodies,0.01); }
 printf("%0.9f\n", Energy($bodies));

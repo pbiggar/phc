@@ -19,9 +19,10 @@ function nsieve($m)
             ++$count;
             for ($j = $i << 1; $j < $m; $j += $i)
                 $flags[$j] = 'x';
+			}
         
 
-    printf("Primes up to %8d %8d\n", $m, $count)
+    printf("Primes up to %8d %8d\n", $m, $count);
 
 }
 
