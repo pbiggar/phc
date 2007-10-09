@@ -839,6 +839,8 @@ public:
 	}
 
 
+// Virtual destructor to surpress compiler warnings
+virtual ~HIR_fold() {};
 };
 
 template<class T>
