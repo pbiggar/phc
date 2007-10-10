@@ -1254,8 +1254,6 @@ public:
 	}
 
 
-// Virtual destructor to surpress compiler warnings
-virtual ~AST_fold() {};
 };
 
 template<class T>

@@ -130,15 +130,15 @@ PHP_unparser::PHP_unparser(ostream& os) : os(os)
 
 void PHP_unparser::children_php_script(AST_php_script* in)
 {
-	echo("<?php");
-	inc_indent();
+	echo_nl("<?php");
+	if(!args_info.no_leading_tab_flag) inc_indent();
 
 	// We don't want to output the { and }, so we manually traverse the list
 	List<AST_statement*>::const_iterator i;
 	for(i = in->statements->begin(); i != in->statements->end(); i++)
 		visit_statement(*i);
-
-	dec_indent();
+	
+	if(!args_info.no_leading_tab_flag) dec_indent();
 	echo_nl("?>");
 }
 

@@ -23,6 +23,7 @@ option "output" o "Place executable into file FILE" string typestr="FILE" no
 
 section "PRETTY PRINTING OPTIONS"
 option "next-line-curlies" - "Output the opening curly on the next line instead of on the same line" flag off
+option "no-leading-tab" - "Don't start every line in between <?php .. ?> with a tab" flag off
 option "no-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag off hidden 
 option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
 option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
