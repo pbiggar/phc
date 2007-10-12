@@ -1,0 +1,38 @@
+This explains how to create the PHP embed SAPI, for several versions.
+
+Download the PHP tarball. The embed SAPI does not appear to be available in
+binary format (no .rpm or .deb, etc).
+
+There are a few configurations which are useful.
+
+
+------------- Deployment -------------
+Debug symbols are optional, but optimization should be used.
+
+	CC="ccache gcc" CFLAGS="-O3 -g" ./configure --enable-embed $@
+
+This configuration is about 4 times faster than above
+
+
+------------- Development -------------
+To develop, it is worth having debugging symbol and memory leak checker:
+
+	CC="ccache gcc" CFLAGS="-O0 -ggdb3" ./configure --enable-debug --enable-maintainer-zts --enable-embed $@
+
+Some notes:
+	-ggdb3: A lot of the PHP API is macros, and this level of debugging info includes macro data
+	--enable-debug: Turn on debugging mode
+	--enable-maintainer-zts: Enable thread safety - means it will break if we get threading info wrong, sometimes at compile time.
+	--enable-embed: enable the embed SAPI
+
+
+------------- Benchmarking -------------
+In order to do accurate benchmarking, phc must be compiled with -O3. To be fair to PHP, so must the interpreter, and to be fair to phc, it must use an optimized run-time.
+
+	CC="ccache gcc" CFLAGS="-O3 -g -DNDEBUG" ./configure --enable-embed --enable-bcmath --enable-gmp --prefix=/usr/local/php-opt $@
+
+Some notes:
+	--enable-bcmath
+	--enable-gmp: Some of the shootout benchmarks require these.
+	-DNDEBUG: Turn off assertions.
+
