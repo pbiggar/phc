@@ -47,6 +47,11 @@
 			$speedups[$name] = (($phc_time / $php_time) - 1) * -1;
 	}
 
+	# add an average
+	$total = array_sum (array_values ($speedups));
+	$speedups["average"] = $total / count ($speedups);
+
+
 
 	# Make the gnuplot file, we create the entire file in a single file.
 	# Data is in a single column, with the names in an xtics
@@ -118,7 +123,6 @@ set label "PHP faster" at $maxxrange+0.5,-0.2 rotate right
 set label "PHP faster" at           -1.0,-0.2 rotate right
 set label "phc faster" at $maxxrange+0.5, 0.2 rotate left
 set label "phc faster" at           -1.0, 0.2 rotate left
-set ylabel "phc speedup vs PHP 5.2.3"
 set xzeroaxis 1
 plot "-" using 1:2:(0.7)       with boxes fs solid 0.25
 $data
