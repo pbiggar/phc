@@ -99,8 +99,8 @@
 	run ("nsievebits.php-2", 9);
 	run ("objinst", 4000000);
 	run ("partialsums", 4500000);
-	run ("pidigits", 200000000);
-	run ("pidigits.php-2", 200000000);
+	run ("pidigits", 1600);
+	run ("pidigits.php-2", 11000);
 	run ("random", 9000000);
 	run ("raytracer", 5);
 	run ("raytracer.php-2", 5);
