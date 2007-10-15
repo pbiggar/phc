@@ -6,9 +6,9 @@
  * Test the output of a compiled script against php's output for the same script. 
  */
 
+require_once ("lib/async_test.php");
 
-array_push($tests, new CompiledVsInterpreted ());
-class CompiledVsInterpreted extends Test
+class CompiledVsInterpreted extends AsyncTest
 {
 	function check_prerequisites ()
 	{
@@ -16,13 +16,6 @@ class CompiledVsInterpreted extends Test
 #		if (!check_for_program ($gcc)) return false;
 		if (!check_for_program ("$libphp/libphp5.so")) return false;
 		return true;
-	}
-
-	function homogenize_output ($string)
-	{
-		$string = homogenize_filenames_and_line_numbers ($string);
-		$string = homogenize_reference_count ($string);
-		return $string;
 	}
 
 	function get_dependent_test_names ()
@@ -35,52 +28,83 @@ class CompiledVsInterpreted extends Test
 		return get_interpretable_scripts ();
 	}
 
-	function run_test ($subject)
+	function finish ($async)
 	{
-		global $gcc, $phc, $php;
-		$dir_name = dirname($subject);
-
-		// get the output from the interpreter for the file
-		$command1 = get_php_command_line ($subject);
-		list ($out1, $err1, $exit1) = complete_exec($command1);
-		$out1 = $this->homogenize_output ($out1); 
-
-		// generate C
-		$phc_command = "$phc -c $subject";
-		list ($phc_out, $phc_err, $phc_exit) = complete_exec($phc_command);
-		if ($phc_exit or $phc_err)
+		if ($async->outs[0] !== $async->outs[2]
+			or $async->errs[0] !== $async->errs[2]
+			or $async->exits[0] !== $async->exits[2])
 		{
-			$this->mark_failure ($subject,
-				array($command1, $phc_command), 
-				array($exit1, $phc_exit),
-				$phc_out,
-				array($err1, $phc_err));
-			return;
-		}
-
-		// run the program
-		$command2 = " ./a.out";
-		list ($out2, $err2, $exit2) = complete_exec($command2);
-
-		$out2 = $this->homogenize_output ($out2); 
-
-
-		if ($out1 !== $out2 
-			or $err1 !== $err2 
-			or $exit1 !== $exit2) 
-		{
-			$output = diff ($out1, $out2);
-			$this->mark_failure ($subject,
-				array($command1, $phc_command, $command2),
-				array($exit1, $phc_exit, $exit2),
-				$output,
-				array ($err1, $phc_err, $err2));
+			$output = diff ($async->outs[0], $async->outs[2]);
+			$async->outs = $output;
+			$this->mark_failure ("Outputs dont match PHP outputs", $async);
 		}
 		else
 		{
-			$this->mark_success ($subject);
+			$this->mark_success ($async->subject);
 		}
+
+	}
+
+	function homogenize_output ($string)
+	{
+		$string = homogenize_filenames_and_line_numbers ($string);
+		$string = homogenize_reference_count ($string);
+		return $string;
+	}
+
+	function handle_exit_failure ($exit, $async)
+	{
+		if ($exit != 0)
+		{
+			$this->mark_failure ($exit, $async);
+			return false;
+		}
+		return $exit;
+	}
+
+	function handle_err_failure (&$err, $async)
+	{
+		if ($err != "")
+		{
+			$this->mark_failure ($err, $async);
+			return false;
+		}
+		return $err;
+	}
+
+	function mark_failure ($reason, $async)
+	{
+		parent::mark_failure (
+					$async->subject, 
+					$async->commands,
+					$async->exits,
+					$async->outs,
+					$async->errs);
+
+		return false;
+	}
+
+	function run_test ($subject)
+	{
+		global $phc;
+		$async = new Async_steps ($this, $subject);
+
+		$async->commands[0] = get_php_command_line ($subject);
+		$async->out_handlers[0] = "homogenize_output";
+
+		$exe_name = basename ($subject) . ".out";
+		$async->commands[1] = "$phc -c $subject -o $exe_name";
+		$async->err_handlers[1] = "handle_err_failure";
+		$async->exit_handlers[1] = "handle_exit_failure";
+
+		$async->commands[2] = "./$exe_name";
+		$async->out_handlers[2] = "homogenize_output";
+
+		$async->final = "finish";
+
+		$async->start ();
 	}
 }
+array_push($tests, new CompiledVsInterpreted ());
 
 ?>

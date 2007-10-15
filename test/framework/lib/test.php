@@ -372,7 +372,7 @@ abstract class Test
 		$this->successes++;
 		$this->total++;
 		$this->update_count ();
-		log_status ("success", $this->get_name(), $subject);
+		log_status ("success", $this->get_name(), $subject, "");
 	}
 
 	function mark_skipped ($subject, $reason)
@@ -394,6 +394,7 @@ abstract class Test
 
 	function mark_failure ($subject, $commands, $exits = "Not relevent", $out = "Not relevent", $errs = "Not relevent")
 	{
+		$reason = "TODO";
 		global $log_directory;
 
 		write_dependencies ($this->get_name (), $subject, false);
@@ -421,13 +422,13 @@ abstract class Test
 			else
 			{
 				phc_assert (is_array ($exits), "Expected array of return values");
-				phc_assert (count ($exits) == count ($commands), 
-					"Expected same number of commands and return values");
+				phc_assert (count ($exits) == count ($errs), 
+					"Expected same number of exits as exit codes");
 				$command_string = "";
 				$err_string = "";
-				foreach ($commands as $i => $command)
+				foreach ($exits as $i => $exit)
 				{
-					$exit = $exits[$i];
+					$command = $commands[$i];
 					$err = $errs [$i];
 					$command_string .= "{$red}Command $i$reset ($exit): $command\n";
 					if ($err)
@@ -450,7 +451,7 @@ abstract class Test
 		}
 
 		log_failure ($this->get_name(), $subject, $command_string, $out);
-		log_status ("failure", $this->get_name(), $subject);
+		log_status ("failure", $this->get_name(), $subject, $reason);
 		$this->erase_progress_bar();
 
 		$this->display_progress_bar ();

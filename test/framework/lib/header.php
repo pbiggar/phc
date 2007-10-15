@@ -134,6 +134,11 @@ function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)
 		/* make the arg string readable */
 		$args = $frame{"args"};
 		if ($args == NULL) $args = array (); // sometimes args is NULL
+		foreach ($args as &$arg) // cant convert objects to strings
+		{
+			if (is_object ($arg))
+				$arg = "OBJECT";
+		}
 		$args_string = join(", ", $args);
 		$args_string = preg_replace ("/\n/", "", $args_string);
 		$args_string = substr ($args_string, 0, 30);
@@ -178,13 +183,14 @@ function open_status_files ()
 	}
 }
 
-function log_status ($status, $test_name, $subject, $reason = "")
+function log_status ($status, $test_name, $subject, $reason)
 {
 	global $status_files;
 	$file = $status_files[$status];
 
 	$status = ucfirst ($status);
-	fprintf ($file, "%s", "$test_name: $status $subject - $reason\n");
+	if ($reason != "") $reason = " - $reason";
+	fprintf ($file, "%s", "$test_name: $status $subject$reason\n");
 
 	// we frequently stop the test midway, but we want up to the minute results
 	fflush ($file);
@@ -468,7 +474,7 @@ function homogenize_filenames_and_line_numbers ($string)
 //	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
 
 	// general line number and filename removal
-	$string = preg_replace( "/(Warning: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
+	$string = preg_replace(     "/(Warning: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
 	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
 	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
 
@@ -482,7 +488,7 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
-// its still correct if the number of references is off, so look for var_dump output, and remove &s from it
+// This strips off the & from a var_dump. Changing whether smoething is a reference or not isnt correct, but changing the refcount is ok. If a var only has a reference count of 1, then is_ref wont be set, so the & wont be present.
 function homogenize_reference_count ($string)
 {
 # this only actually finds differences in arrays
