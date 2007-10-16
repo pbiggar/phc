@@ -74,6 +74,13 @@ function get_php ()
 	}
 }
 
+// Get a subject in the forms "test/subjects/codegen/000.php.out", and return "test_subjects_codegen_000.php.out"
+function wd_name ($subject)
+{
+	global $working_directory;
+	return "$working_directory/". preg_replace ("/\//", "_", $subject);
+}
+
 
 $strict = false;
 function phc_error_handler ($errno, $errstr, $errfile, $errline, $errcontext)

@@ -92,12 +92,12 @@ class CompiledVsInterpreted extends AsyncTest
 		$async->commands[0] = get_php_command_line ($subject);
 		$async->out_handlers[0] = "homogenize_output";
 
-		$exe_name = basename ($subject) . ".out";
+		$exe_name = wd_name ("$subject.out");
 		$async->commands[1] = "$phc -c $subject -o $exe_name";
 		$async->err_handlers[1] = "handle_err_failure";
 		$async->exit_handlers[1] = "handle_exit_failure";
 
-		$async->commands[2] = "./$exe_name";
+		$async->commands[2] = "$exe_name";
 		$async->out_handlers[2] = "homogenize_output";
 
 		$async->final = "finish";
