@@ -497,3 +497,7 @@ testclean: all test/framework/lib/autovars.php
 			echo PHP support required for test; \
 		fi \
 	fi
+
+
+# Generate tags for the test framework.
+ETAGS_ARGS=--recurse test/framework
