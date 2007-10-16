@@ -92,6 +92,18 @@ class Async_steps
  */
 abstract class AsyncTest extends Test
 {
+	function mark_failure ($reason, $async)
+	{
+		parent::mark_failure (
+					$async->subject, 
+					$async->commands,
+					$async->exits,
+					$async->outs,
+					$async->errs);
+
+		return false;
+	}
+
 	# Add this program to the list of programs waiting to be
 	# run. Start programs waiting to be run
 	function start_program ($command, $object, $continuation, $state)

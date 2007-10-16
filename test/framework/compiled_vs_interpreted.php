@@ -72,18 +72,6 @@ class CompiledVsInterpreted extends AsyncTest
 		return $err;
 	}
 
-	function mark_failure ($reason, $async)
-	{
-		parent::mark_failure (
-					$async->subject, 
-					$async->commands,
-					$async->exits,
-					$async->outs,
-					$async->errs);
-
-		return false;
-	}
-
 	function run_test ($subject)
 	{
 		global $phc;
