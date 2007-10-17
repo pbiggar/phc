@@ -3,6 +3,9 @@ directory.  test/support_files/ are files used by the tests, for example for
 regression.  test/subjects/ are the files used to test phc. Most are designed
 to test some feature or tickle some bug. test/subjects/labels controls what
 tests are run on which subjects. test/logs/ contains logs of failed tests.
+test/dependencies are used to avoid running a test if we know it wont work
+because a previous test failed. test/working contains the working directory for
+each test run.
 
 To run tests:
 
