@@ -9,7 +9,7 @@
 #include "cmdline.h"
 #include "ltdl.h"
 #include "AST_transform.h"
-#include "process_ast/Consistency_check.h"
+#include "process_ast/Invalid_check.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -212,7 +212,8 @@ void Pass_manager::run (AST_php_script* in)
 	{
 		assert ((*i)->name);
 		(*i)->run_pass (in, this);
-		check (in);
+		if (check)
+			::check (in, false);
 		dump (in, *i);
 	}
 }
@@ -236,7 +237,8 @@ void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
 		if (exec == true)
 		{
 			(*i)->run_pass (in, this);
-			check (in);
+			if (check)
+				::check (in, true);
 
 			// check for last pass
 			if (*((*i)->name) == *to)
@@ -256,7 +258,8 @@ void Pass_manager::run_until (String* to, AST_php_script* in)
 		assert ((*i)->name);
 
 		(*i)->run_pass (in, this);
-		check (in);
+		if (check)
+			::check (in, false);
 
 		// check for last pass
 		if (*((*i)->name) == *to)

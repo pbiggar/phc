@@ -9,11 +9,25 @@
  */
 #include "Invalid_check.h"
 
+void check (AST_node* in, bool use_ice)
+{
+	// check validity
+	in->assert_valid();
+	in->visit (new Invalid_check (use_ice));
+}
+
 bool is_ref_literal (AST_expr* in)
 {
 	return ( dynamic_cast <AST_literal*> (in) 
 				|| dynamic_cast <AST_array*> (in)
 				|| dynamic_cast <AST_constant*> (in));
+}
+
+void Invalid_check::run (AST_php_script* in, Pass_manager* pm)
+{
+	in->visit (this);
+	// Indicate that after this pass, ICEs should be used.
+	pm->check = true;
 }
 
 class Check_deep_literals : public AST_visitor

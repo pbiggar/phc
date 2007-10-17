@@ -273,8 +273,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
 	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
 	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
-	phc.$(OBJEXT) Consistency_check.$(OBJEXT) \
-	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
+	phc.$(OBJEXT) DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
 	Pass_manager.$(OBJEXT) PHP_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Strip_comments.$(OBJEXT) \
@@ -434,6 +433,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -609,8 +609,6 @@ src_phc_SOURCES = \
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/phc.cpp													\
-	src/process_ast/Consistency_check.h					\
-	src/process_ast/Consistency_check.cpp				\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
@@ -1007,7 +1005,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Check_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Consistency_check.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
@@ -1803,20 +1800,6 @@ phc.obj: src/phc.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/phc.cpp' object='phc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o phc.obj `if test -f 'src/phc.cpp'; then $(CYGPATH_W) 'src/phc.cpp'; else $(CYGPATH_W) '$(srcdir)/src/phc.cpp'; fi`
-
-Consistency_check.o: src/process_ast/Consistency_check.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Consistency_check.o -MD -MP -MF $(DEPDIR)/Consistency_check.Tpo -c -o Consistency_check.o `test -f 'src/process_ast/Consistency_check.cpp' || echo '$(srcdir)/'`src/process_ast/Consistency_check.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Consistency_check.Tpo $(DEPDIR)/Consistency_check.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Consistency_check.cpp' object='Consistency_check.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Consistency_check.o `test -f 'src/process_ast/Consistency_check.cpp' || echo '$(srcdir)/'`src/process_ast/Consistency_check.cpp
-
-Consistency_check.obj: src/process_ast/Consistency_check.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Consistency_check.obj -MD -MP -MF $(DEPDIR)/Consistency_check.Tpo -c -o Consistency_check.obj `if test -f 'src/process_ast/Consistency_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Consistency_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Consistency_check.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Consistency_check.Tpo $(DEPDIR)/Consistency_check.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Consistency_check.cpp' object='Consistency_check.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Consistency_check.obj `if test -f 'src/process_ast/Consistency_check.cpp'; then $(CYGPATH_W) 'src/process_ast/Consistency_check.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Consistency_check.cpp'; fi`
 
 DOT_unparser.o: src/process_ast/DOT_unparser.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT DOT_unparser.o -MD -MP -MF $(DEPDIR)/DOT_unparser.Tpo -c -o DOT_unparser.o `test -f 'src/process_ast/DOT_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/DOT_unparser.cpp

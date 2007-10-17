@@ -12,7 +12,6 @@
 // For development only
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Consistency_check.h"
 
 
 /*

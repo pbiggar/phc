@@ -12,7 +12,6 @@
 #include "cmdline.h"
 #include "process_ast/Strip_comments.h"
 #include "process_ast/Invalid_check.h"
-#include "process_ast/Consistency_check.h"
 #include "process_ast/Pretty_print.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
@@ -125,8 +124,8 @@ int main(int argc, char** argv)
 	 */
 
 	// Passes to lower the AST to HIR
-	pm->add_pass (new List_passes ()); 
-	pm->add_visitor (new Invalid_check (), "check");
+	pm->add_pass (new List_passes ());
+	pm->add_pass (new Invalid_check ());
 	pm->add_transform (new Remove_concat_null (), "rcn");
 	// TODO add flag for include 
 	pm->add_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));

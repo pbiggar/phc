@@ -119,8 +119,6 @@ src_phc_SOURCES =												\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/phc.cpp													\
-	src/process_ast/Consistency_check.h					\
-	src/process_ast/Consistency_check.cpp				\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\

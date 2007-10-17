@@ -11,7 +11,7 @@
 
 #include "Lower_expr.h"
 #include "fresh.h"
-#include "process_ast/Consistency_check.h"
+#include "process_ast/Invalid_check.h"
 
 List<AST_statement*>* shred (List<AST_statement*>* in);
 List<AST_statement*>* shred (AST_statement* in);

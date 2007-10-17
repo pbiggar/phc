@@ -106,10 +106,12 @@ class Pass_manager : public List<Pass*>
 
 public:
 	gengetopt_args_info* args_info;
+	bool check; // check AST after each pass
 
 	Pass_manager (gengetopt_args_info* args_info)
+	: args_info (args_info),
+	  check (false)
 	{
-		this->args_info = args_info;
 	}
 
 	// TODO make these use Strings
