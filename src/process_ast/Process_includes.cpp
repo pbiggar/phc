@@ -13,7 +13,7 @@
 #include "AST_visitor.h"
 #include "AST.h"
 #include "lib/error.h"
-#include "src/codegen/fresh.h"
+#include "ast_to_hir/fresh.h"
 #include "parsing/parse.h"
 #include "process_ast/PHP_unparser.h"
 

@@ -8,8 +8,8 @@
 #include "AST_transform.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Pass_manager.h"
-#include "codegen/Shredder.h"
+#include "pass_manager/Pass_manager.h"
+#include "ast_to_hir/Shredder.h"
 #include "lib/List.h"
 
 class Debug_zval : public AST_transform

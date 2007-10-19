@@ -12,7 +12,7 @@
 #define PHC_INVALID_CHECK
 
 #include "AST_visitor.h"
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 
 using namespace AST;
 

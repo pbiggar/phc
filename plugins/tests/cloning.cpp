@@ -7,7 +7,7 @@
 
 #include "Collect_all_pointers.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 
 static bool success = true;
 static bool is_run = false;

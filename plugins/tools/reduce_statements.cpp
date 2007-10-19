@@ -8,9 +8,7 @@
 #include "AST_transform.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Pass_manager.h"
-#include "codegen/Shredder.h"
-#include "codegen/fresh.h"
+#include "pass_manager/Pass_manager.h"
 #include "lib/List.h"
 
 /* After removing statements, we may be left with gotos and branches

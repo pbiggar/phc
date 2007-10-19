@@ -10,29 +10,29 @@
 #include <signal.h>
 #include <ltdl.h>
 #include "cmdline.h"
-#include "process_ast/Strip_comments.h"
+#include "codegen/Strip_comments.h"
 #include "process_ast/Invalid_check.h"
 #include "process_ast/Pretty_print.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
-#include "process_ast/Fake_pass.h"
+#include "pass_manager/Fake_pass.h"
 #include "process_ast/Remove_concat_null.h"
 #include "process_ast/Process_includes.h"
 #include "codegen/Lift_functions_and_classes.h"
-#include "codegen/Lower_control_flow.h"
-#include "codegen/Lower_expr_flow.h"
-#include "codegen/Note_top_level_declarations.h"
-#include "codegen/Shredder.h"
+#include "ast_to_hir/Lower_control_flow.h"
+#include "ast_to_hir/Lower_expr_flow.h"
+#include "process_ast/Note_top_level_declarations.h"
+#include "ast_to_hir/Shredder.h"
 #include "codegen/Prune_symbol_table.h"
 #include "codegen/Clarify.h"
-#include "codegen/Obfuscate.h"
+#include "process_hir/Obfuscate.h"
 // Make sure that Generate_C is included late, so that we don't get
 // namespace pollution
 #include "codegen/Generate_C.h"
 #include "codegen/Compile_C.h"
 #include "AST.h"
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 #include "parsing/parse.h"
 #include "embed/embed.h"
 
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 	 *	Compilation
 	 */
 
-	// Passes to lower the AST to HIR
+	// process_ast passes
 	pm->add_pass (new List_passes ());
 	pm->add_pass (new Invalid_check ());
 	pm->add_transform (new Remove_concat_null (), "rcn");
@@ -132,7 +132,9 @@ int main(int argc, char** argv)
 	pm->add_pass (new Fake_pass ("ast"));
 	pm->add_pass (new Pretty_print ());
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
-	pm->add_pass (new Lift_functions_and_classes ());
+
+	// ast_to_hir passes
+	pm->add_pass (new Lift_functions_and_classes ()); // codegen
 	pm->add_transform (new Split_unset_isset (), "sui");
 	pm->add_transform (new Translate_empty (), "empty");
 	pm->add_transform (new Lower_control_flow (), "lcf");
@@ -144,10 +146,13 @@ int main(int argc, char** argv)
 	pm->add_transform (new Shredder (), "shred");
 	pm->add_transform (new Tidy_print (), "tidyp");
 	pm->add_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
+
+	// process_hir passes
 	pm->add_pass (new Fake_pass ("hir"));
-	pm->add_visitor (new Strip_comments (), "decomment");
+	pm->add_visitor (new Strip_comments (), "decomment"); // codegen
 	pm->add_pass (new Obfuscate ());
 
+	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
 	stringstream ss;
 	pm->add_visitor (new Clarify (), "clar");

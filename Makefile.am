@@ -42,34 +42,34 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
-	src/codegen/Check_lowering.cpp						\
-	src/codegen/Check_lowering.h							\
-	src/codegen/Check_uppering.cpp						\
-	src/codegen/Check_uppering.h							\
+	src/ast_to_hir/Check_lowering.cpp					\
+	src/ast_to_hir/Check_lowering.h						\
+	src/ast_to_hir/Check_uppering.cpp					\
+	src/ast_to_hir/Check_uppering.h						\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
-	src/codegen/fresh.cpp									\
-	src/codegen/fresh.h										\
+	src/ast_to_hir/fresh.cpp								\
+	src/ast_to_hir/fresh.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
-	src/codegen/Goto_uppering.cpp							\
-	src/codegen/Goto_uppering.h							\
+	src/process_hir/Goto_uppering.cpp					\
+	src/process_hir/Goto_uppering.h						\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
-	src/codegen/Lower_control_flow.cpp					\
-	src/codegen/Lower_control_flow.h						\
-	src/codegen/Lower_expr.cpp								\
-	src/codegen/Lower_expr_flow.cpp						\
-	src/codegen/Lower_expr_flow.h							\
-	src/codegen/Lower_expr.h								\
-	src/codegen/Note_top_level_declarations.cpp		\
-	src/codegen/Note_top_level_declarations.h			\
+	src/ast_to_hir/Lower_control_flow.cpp				\
+	src/ast_to_hir/Lower_control_flow.h					\
+	src/ast_to_hir/Lower_expr.cpp							\
+	src/ast_to_hir/Lower_expr_flow.cpp					\
+	src/ast_to_hir/Lower_expr_flow.h						\
+	src/ast_to_hir/Lower_expr.h							\
+	src/process_ast/Note_top_level_declarations.cpp	\
+	src/process_ast/Note_top_level_declarations.h	\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
-	src/codegen/Shredder.cpp								\
-	src/codegen/Shredder.h									\
-	src/codegen/AST_to_HIR.h								\
+	src/ast_to_hir/Shredder.cpp							\
+	src/ast_to_hir/Shredder.h								\
+	src/ast_to_hir/AST_to_HIR.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
@@ -123,8 +123,8 @@ src_phc_SOURCES =												\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
 	src/process_ast/Invalid_check.h						\
-	src/process_ast/Pass_manager.cpp						\
-	src/process_ast/Pass_manager.h						\
+	src/pass_manager/Pass_manager.cpp					\
+	src/pass_manager/Pass_manager.h						\
 	src/process_ast/PHP_unparser.cpp						\
 	src/process_ast/PHP_unparser.h						\
 	src/process_ast/Pretty_print.h						\
@@ -135,8 +135,8 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_concat_null.h				\
 	src/process_ast/Remove_parser_temporaries.cpp	\
 	src/process_ast/Remove_parser_temporaries.h		\
-	src/process_ast/Strip_comments.cpp					\
-	src/process_ast/Strip_comments.h						\
+	src/codegen/Strip_comments.cpp						\
+	src/codenge/Strip_comments.h							\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
 	src/process_ast/XML_unparser.cpp						\
@@ -198,8 +198,13 @@ strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/DOT_unparser.h			\
 	src/process_ast/PHP_unparser.h			\
-	src/process_ast/Pass_manager.h			\
 	src/process_ast/XML_unparser.h
+
+strangepassmanagerdir = $(pkgincludedir)/pass_manager
+strangepassmanager_HEADERS =					\
+	src/pass_manager/Pass_manager.h
+
+
 
 strangelibdir = $(pkgincludedir)/lib
 strangelib_HEADERS =		\

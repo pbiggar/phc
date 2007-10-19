@@ -11,8 +11,8 @@
 #define PHC_OBFUSCATE_H
 
 #include "process_ast/PHP_unparser.h"
-#include "codegen/Goto_uppering.h"
-#include "process_ast/Pass_manager.h"
+#include "process_hir/Goto_uppering.h"
+#include "pass_manager/Pass_manager.h"
 
 class Obfuscate : public Pass
 {

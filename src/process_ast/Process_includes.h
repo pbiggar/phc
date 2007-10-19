@@ -9,7 +9,7 @@
 #define PHC_PROCESS_INCLUDES
 
 #include "AST_transform.h"
-#include "Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 
 using namespace AST;
 

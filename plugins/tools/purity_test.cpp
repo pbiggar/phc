@@ -9,7 +9,7 @@
 #include "AST_visitor.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/PHP_unparser.h"
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 #include "lib/List.h"
 
 // search for scripts that are "pure"; ie have no side effects

@@ -9,7 +9,7 @@
 #include "config.h"
 #include "process_ast/XML_unparser.h"
 #include "parsing/XML_parser.h" 
-#include "process_ast/Pass_manager.h" 
+#include "pass_manager/Pass_manager.h" 
 
 using namespace std;
 

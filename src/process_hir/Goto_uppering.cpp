@@ -1,5 +1,5 @@
 #include "Goto_uppering.h"
-#include "Check_uppering.h"
+#include "ast_to_hir/Check_uppering.h"
 
 Goto_uppering::Goto_uppering ()
 {

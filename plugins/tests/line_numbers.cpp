@@ -5,7 +5,7 @@
  * Printout all the tokens with their line numbers.
  */
 
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 #include "process_ast/PHP_unparser.h"
 
 class Print_line_numbers : public AST_visitor

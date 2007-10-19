@@ -5,7 +5,7 @@
  * Add a TODO comment in empty if statement bodies.
  */
 
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 
 using namespace AST;
 

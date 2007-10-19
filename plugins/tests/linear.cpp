@@ -6,7 +6,7 @@
  */
 
 #include "Collect_all_pointers.h"
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 
 /* We add this pass after every other pass in load(),
  * update the variables in run, and print out results in

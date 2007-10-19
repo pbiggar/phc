@@ -3,7 +3,7 @@
  * See doc/license/README.license for licensing information
  */
 
-#include "process_ast/Pass_manager.h"
+#include "pass_manager/Pass_manager.h"
 #include <iostream>
 
 using namespace std;

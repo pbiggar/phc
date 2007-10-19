@@ -23,7 +23,7 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
-#include "AST_to_HIR.h"
+#include "ast_to_hir/AST_to_HIR.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"

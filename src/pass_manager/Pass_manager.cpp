@@ -13,7 +13,7 @@
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/XML_unparser.h"
-#include "codegen/Goto_uppering.h"
+#include "process_hir/Goto_uppering.h"
 #include "Pass_manager.h"
 
 Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)
