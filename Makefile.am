@@ -136,7 +136,7 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_parser_temporaries.cpp	\
 	src/process_ast/Remove_parser_temporaries.h		\
 	src/codegen/Strip_comments.cpp						\
-	src/codenge/Strip_comments.h							\
+	src/codegen/Strip_comments.h							\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
 	src/process_ast/XML_unparser.cpp						\
