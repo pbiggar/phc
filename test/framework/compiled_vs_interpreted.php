@@ -72,16 +72,21 @@ class CompiledVsInterpreted extends AsyncTest
 		return $err;
 	}
 
-	function run_test ($subject)
+	function get_phc_command ($subject, $exe_name)
 	{
 		global $phc;
+		return "$phc -c $subject -o $exe_name";
+	}
+
+	function run_test ($subject)
+	{
 		$async = new Async_steps ($this, $subject);
 
 		$async->commands[0] = get_php_command_line ($subject);
 		$async->out_handlers[0] = "homogenize_output";
 
 		$exe_name = wd_name ("$subject.out");
-		$async->commands[1] = "$phc -c $subject -o $exe_name";
+		$async->commands[1] = $this->get_phc_command ($subject, $exe_name);
 		$async->err_handlers[1] = "handle_err_failure";
 		$async->exit_handlers[1] = "handle_exit_failure";
 

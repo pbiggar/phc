@@ -161,6 +161,7 @@ abstract class Test
 
 	function run()
 	{
+		# TODO remove time limit
 		// increase the timelimit
 		$time_limit = ini_get('max_execution_time');
 		set_time_limit ($time_limit + $this->get_time_limit ());
@@ -197,6 +198,7 @@ abstract class Test
 			}
 			else
 			{
+				# TODO with async test, the timer doesnt make sense
 				$this->start_timer ($subject);
 				$this->run_test ($subject);
 				$this->end_timer ($subject);

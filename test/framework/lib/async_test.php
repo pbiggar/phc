@@ -125,6 +125,7 @@ abstract class AsyncTest extends Test
 		{
 			$this->check_running_programs ();
 		}
+		parent::finish_test ();
 	}
 
 
