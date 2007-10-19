@@ -66,13 +66,12 @@ class BasicParseTest extends AsyncTest
 			return;
 		}
 
+		$this->mark_success ($subject);
 		if ($async->errs[0])
 		{
 			$this->expected_failure_count++;
 			write_dependencies ($this->get_name (), $subject, false);
 		}
-		$this->mark_success ($subject);
-
 	}
 
 	function get_expected_warnings ($subject, &$warnings)
