@@ -23,7 +23,11 @@ class CompileOptimized extends CompiledVsInterpreted
 		return "$phc -c -O3 $subject -o $exe_name";
 	}
 
-#		$command1 = "$phc -O3 --udump=hir $subject | $php";
+	function get_php_command ($subject)
+	{
+		global $phc;
+		return "$phc -O3 --udump=hir $subject | ". get_php_command_line ("");
+	}
 }
 
 ?>

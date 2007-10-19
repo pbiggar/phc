@@ -6,7 +6,14 @@
  * Allows a test to run programs asynchronously
  */
 
-define ("MAX_RUNNING", 1);
+// Allow the number of processes to be specified locally
+$num = 1;
+if (file_exists ("NUM_PROCS"))
+{
+	$num = (int)file_get_contents ("NUM_PROCS");
+	if ($num == 0) $num = 1;
+}
+define ("MAX_RUNNING", $num);
 
 function inst ($string)
 {

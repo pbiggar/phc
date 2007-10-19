@@ -106,7 +106,7 @@ class BasicParseTest extends AsyncTest
 	{
 		parent::run ();
 		$num_skipped = $this->expected_failure_count;
-		echo "\n($num_skipped expected errors)\n";
+		echo "($num_skipped expected errors)\n";
 	}
 }
 array_push($tests, new BasicParseTest());

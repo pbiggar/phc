@@ -6,7 +6,8 @@
  * Conduct a test which is compared to the output of the interpreter
  */
 
-function get_php_command_line ($subject, $pipe = false)
+// For a pipe, just put a blank $subject
+function get_php_command_line ($subject)
 {
 	global $php;
 	global $opt_long;
@@ -17,7 +18,6 @@ function get_php_command_line ($subject, $pipe = false)
 		$max_exe = 5;
 
 	$dir_name = dirname($subject);
-	if ($pipe) $subject = "";
 	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
 }
 
