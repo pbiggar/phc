@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# None of these techinques properly worked. Try oprofile instead. See README.profiling.
+
 set -x
 
 # Notes:

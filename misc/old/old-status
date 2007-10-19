@@ -1,3 +1,8 @@
+-- Aug 4
+
+* Stop using STATUS file, and instead use Google Code Hosting. See
+  http://code.google.com/p/phc/issues. Moving this file to old-status.
+
 -- Aug 3
 
 * Put in a shoutout to Dan as a contributer

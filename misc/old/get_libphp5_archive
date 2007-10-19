@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Creating a libphp5.a file is useful for profiling, but I couldnt get profiling data this way. See README.profiling.
+
 # Call this from within a php directory, with the flags
 #   -t Using threading
 #   -pg Use profiling
