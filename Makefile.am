@@ -69,6 +69,14 @@ src_phc_SOURCES =												\
 	src/codegen/Prune_symbol_table.h						\
 	src/ast_to_hir/Shredder.cpp							\
 	src/ast_to_hir/Shredder.h								\
+	src/ast_to_hir/Annotate.h								\
+	src/ast_to_hir/Desugar.h								\
+	src/ast_to_hir/Echo_split.h							\
+	src/ast_to_hir/List_shredder.h						\
+	src/ast_to_hir/Pre_post_op_shredder.h				\
+	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Tidy_print.h							\
+	src/ast_to_hir/Translate_empty.h						\
 	src/ast_to_hir/AST_to_HIR.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\

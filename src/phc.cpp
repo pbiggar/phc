@@ -140,9 +140,9 @@ int main(int argc, char** argv)
 	pm->add_transform (new Lower_control_flow (), "lcf");
 	pm->add_transform (new Lower_expr_flow (), "lef");
 	pm->add_transform (new Echo_split (), "ecs");
-	pm->add_transform (new Very_early_shredder (), "vrly");
+	pm->add_transform (new Pre_post_op_shredder (), "pps");
 	pm->add_transform (new Desugar (), "desug");
-	pm->add_transform (new Early_shredder (), "rlys");
+	pm->add_transform (new List_shredder (), "lish");
 	pm->add_transform (new Shredder (), "shred");
 	pm->add_transform (new Tidy_print (), "tidyp");
 	pm->add_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));

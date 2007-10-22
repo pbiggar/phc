@@ -484,6 +484,8 @@ class AST_to_HIR : public AST::AST_fold
 		result->attrs = orig->attrs;
 		return result;
 	}
+
+	~AST_to_HIR () {}
 };
 
 #endif // PHC_AST_TO_HIR_H 
