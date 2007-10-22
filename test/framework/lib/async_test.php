@@ -13,7 +13,7 @@ if (file_exists ("NUM_PROCS"))
 	$num = (int)file_get_contents ("NUM_PROCS");
 	if ($num == 0) $num = 1;
 }
-define ("MAX_RUNNING", $num);
+define ("NUM_PROCS", $num);
 
 function inst ($string)
 {
@@ -115,7 +115,7 @@ abstract class AsyncTest extends Test
 	# run. Start programs waiting to be run
 	function start_program ($command, $object, $continuation, $state)
 	{
-		global $running_procs, $waiting_procs;
+		global $waiting_procs;
 	
 		# create a bundle
 		$waiting_procs[] = array ($command, $object, $continuation, $state);
@@ -151,9 +151,6 @@ abstract class AsyncTest extends Test
 			$out =& $proc["out"];
 			$err =& $proc["err"];
 			$pipes =& $proc["pipes"];
-			$command = $proc["command"];
-
-#			print "Checking $command\n";
 
 			$out .= stream_get_contents ($pipes[1]);
 			$err .= stream_get_contents ($pipes[2]);
@@ -169,13 +166,24 @@ abstract class AsyncTest extends Test
 				$state = $proc["state"];
 				$object =& $proc["object"];
 
-				inst ("Continuing $command checking proc $i");
 				$object->$continuation ($proc_info, $state);
 			}
 			else
 			{
-				usleep (100000); // sleep for 1/20 of a second
-				$running_procs[] = $proc;
+				if (time () - $proc["start_time"] > 20)
+				{
+					proc_terminate ($handle);
+					$async = &$proc["object"];
+					$async->exits[] = "Timeout";
+					$async->outs[] = "$out\n--- TIMEOUT ---";
+					$async->errs[] = $err;
+					$this->mark_failure ("timeout", $proc["object"]);
+				}
+				else
+				{
+					usleep (100000); // sleep for 1/20 of a second
+					$running_procs[] = $proc;
+				}
 			}
 		}
 		$this->check_waiting_procs ();
@@ -186,7 +194,7 @@ abstract class AsyncTest extends Test
 	{
 		global $running_procs, $waiting_procs;
 
-		while (count ($running_procs) < MAX_RUNNING)
+		while (count ($running_procs) < NUM_PROCS)
 		{
 			inst ("Poll waiting");
 			if (count ($waiting_procs) == 0)
@@ -202,24 +210,24 @@ abstract class AsyncTest extends Test
 
 	function run_program ($bundle)
 	{
-		inst ("Running prog");
 		global $running_procs;
 		list ($command, $object, $continuation, $state) = $bundle;
 
-#		print "starting program $command\n";
+		inst ("Running prog: $command");
+
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),
 				2 => array("pipe", "w"));
 		$pipes = array();
-		$handle = proc_open($command, $descriptorspec, &$pipes);
+		$handle = proc_open ($command, $descriptorspec, &$pipes);
 		stream_set_blocking ($pipes[1], 0);
 		stream_set_blocking ($pipes[2], 0);
 
 		$proc = array(	"handle"			=> $handle,
 				"pipes"			=> $pipes,
 				"object"			=> $object,
-				"command"		=> $command,
 				"state"			=> $state,
+				"start_time"	=> time (),
 				"continuation" => $continuation);
 
 		$running_procs[] = $proc;
