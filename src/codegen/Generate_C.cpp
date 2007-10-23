@@ -1087,20 +1087,21 @@ public:
 
 	void generate_rhs (bool used)
 	{
+		assert (agn->is_ref == false);
 		assert (used);
 		Copy::generate_rhs (used);
 		if (*cast->value->value == "string")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_STRING);\n";
+			code << "cast_var (p_lhs, IS_STRING);\n";
 		else if (*cast->value->value == "int")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_LONG);\n";
+			code << "cast_var (p_lhs, IS_LONG);\n";
 		else if (*cast->value->value == "array")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_ARRAY);\n";
+			code << "cast_var (p_lhs, IS_ARRAY);\n";
 		else if (*cast->value->value == "null")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_NULL);\n";
+			code << "cast_var (p_lhs, IS_NULL);\n";
 		else if (*cast->value->value == "bool" || *cast->value->value == "boolean")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_BOOL);\n";
+			code << "cast_var (p_lhs, IS_BOOL);\n";
 		else if (*cast->value->value == "real")
-			code << "cast_var (p_lhs, &is_p_rhs_new, IS_DOUBLE);\n";
+			code << "cast_var (p_lhs, IS_DOUBLE);\n";
 		else
 			assert (0 && "unimplemented"); // TODO: unimplemented
 	}

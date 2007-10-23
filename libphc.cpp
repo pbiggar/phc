@@ -815,13 +815,13 @@ fetch_array_arg (zval * var, zval * ind, int *is_arg_new TSRMLS_DC)
 }
 
 static void
-cast_var (zval ** p_zvp, int *is_zvp_new, int type)
+cast_var (zval ** p_zvp, int type)
 {
   assert (type >= 0 && type <= 6);
   if ((*p_zvp)->type == type)
     return;
 
-  sep_copy_on_write (p_zvp, is_zvp_new);
+  sep_copy_on_write_ex (p_zvp);
   zval *zvp = *p_zvp;
 
   switch (type)
