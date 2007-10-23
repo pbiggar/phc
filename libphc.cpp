@@ -889,9 +889,14 @@ isset_array (zval ** p_var, zval * ind TSRMLS_DC)
 {
   if (Z_TYPE_P (*p_var) == IS_STRING)
     {
-		// isset on strings not yet implemented
-    	assert(0);
-	}
+      zvp_clone_ex (&ind);
+      convert_to_long (ind);
+      int result = (Z_LVAL_P (ind) >= 0 
+		    && Z_LVAL_P (ind) < Z_STRLEN_PP (p_var));
+      assert (ind->refcount == 1);
+      zval_ptr_dtor (&ind);
+      return result;
+    }
 
   // NO error required; return false
   if (Z_TYPE_P (*p_var) != IS_ARRAY)
