@@ -241,22 +241,23 @@ ht_update (HashTable * ht, zval * ind, zval * val, zval *** dest)
 static void
 ht_delete (HashTable * ht, zval * ind)
 {
+	// This may fail if the index doesnt exist, which is fine.
   int result;
   if (Z_TYPE_P (ind) == IS_LONG || Z_TYPE_P (ind) == IS_BOOL)
     {
-      result = zend_hash_index_del (ht, Z_LVAL_P (ind));
+      zend_hash_index_del (ht, Z_LVAL_P (ind));
     }
   else if (Z_TYPE_P (ind) == IS_DOUBLE)
     {
-      result = zend_hash_index_del (ht, (long) Z_DVAL_P (ind));
+      zend_hash_index_del (ht, (long) Z_DVAL_P (ind));
     }
   else if (Z_TYPE_P (ind) == IS_NULL)
     {
-      result = zend_hash_del (ht, "", sizeof (""));
+      zend_hash_del (ht, "", sizeof (""));
     }
   else if (Z_TYPE_P (ind) == IS_STRING)
     {
-      result = zend_hash_del (ht, Z_STRVAL_P (ind), Z_STRLEN_P (ind) + 1);
+      zend_hash_del (ht, Z_STRVAL_P (ind), Z_STRLEN_P (ind) + 1);
     }
   else
     {
@@ -267,12 +268,11 @@ ht_delete (HashTable * ht, zval * ind)
       string_index->type = ind->type;
       zval_copy_ctor (string_index);
       convert_to_string (string_index);
-      result = zend_hash_del (ht, Z_STRVAL_P (string_index),
+      zend_hash_del (ht, Z_STRVAL_P (string_index),
 			      Z_STRLEN_P (string_index) + 1);
 
       zval_ptr_dtor (&string_index);
     }
-  assert (result == SUCCESS);
 }
 
 // Check if a key exists in a hashtable 
@@ -682,6 +682,13 @@ push_and_index_ht (zval ** p_var TSRMLS_DC)
     {
       php_error_docref (NULL TSRMLS_CC, E_ERROR,
 			"[] operator not supported for strings");
+    }
+
+  if (Z_TYPE_P (*p_var) == IS_BOOL)
+    {
+      php_error_docref (NULL TSRMLS_CC, E_WARNING,
+			"Cannot use a scalar value as an array");
+      return NULL;
     }
 
   // if its not an array, make it an array

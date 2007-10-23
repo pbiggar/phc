@@ -146,6 +146,7 @@ abstract class AsyncTest extends Test
 		{
 			inst ("Poll running");
 			$proc = array_shift ($running_procs);
+			assert ($proc !== NULL);
 
 			$handle =& $proc["handle"];
 			$out =& $proc["out"];

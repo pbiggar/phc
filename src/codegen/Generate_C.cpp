@@ -815,11 +815,22 @@ public:
 		code << "{\n";
 		int used = not lhs->value->attrs->is_true ("phc.codegen.unused");
 
-		if (used)
+		if (used) // more readable this way
+		{
 			index_lhs (LOCAL, "p_lhs", lhs->value);
 
-		// Generate code for the RHS
-		generate_rhs (used);
+			code <<	"if (p_lhs != NULL)\n{\n";
+
+			// Generate code for the RHS
+			generate_rhs (true);
+
+			code << "}\n";
+		}
+		else
+		{
+			// Generate code for the RHS
+			generate_rhs (false);
+		}
 
 		code << "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
