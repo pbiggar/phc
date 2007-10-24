@@ -7,7 +7,7 @@
  */
 
 // For a pipe, just put a blank $subject
-function get_php_command_line ($subject)
+function get_php_command_line ($subject, $pipe = false)
 {
 	global $php;
 	global $opt_long;
@@ -18,6 +18,7 @@ function get_php_command_line ($subject)
 		$max_exe = 5;
 
 	$dir_name = dirname($subject);
+	if ($pipe) $subject = ""; # we need the subject for the dir_name
 	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
 }
 

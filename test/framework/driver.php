@@ -77,9 +77,10 @@ $tests[] = new CompareWithPHP ("Interpret_ast", "--pretty-print", "BasicParseTes
 $tests[] = new CompareWithPHP ("Interpret_lcf", "--udump=lcf", "Interpret_ast");
 $tests[] = new CompareWithPHP ("Interpret_lef", "--udump=lef", "Interpret_lcf");
 $tests[] = new CompareWithPHP ("Interpret_ecs", "--udump=ecs", "Interpret_lef");
-$tests[] = new CompareWithPHP ("Interpret_rlys", "--udump=rlys", "Interpret_ecs");
-$tests[] = new CompareWithPHP ("Interpret_desug", "--udump=desug", "Interpret_rlys");
-$tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_desug");
+$tests[] = new CompareWithPHP ("Interpret_pps", "--udump=pps", "Interpret_ecs");
+$tests[] = new CompareWithPHP ("Interpret_desug", "--udump=desug", "Interpret_pps");
+$tests[] = new CompareWithPHP ("Interpret_lish", "--udump=lish", "Interpret_desug");
+$tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_lish");
 $tests[] = new CompareWithPHP ("Interpret_tidyp", "--udump=tidyp", "Interpret_shred");
 $tests[] = new CompareWithPHP ("Interpret_hir", "--udump=hir", "Interpret_tidyp");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
