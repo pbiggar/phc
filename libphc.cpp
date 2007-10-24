@@ -110,7 +110,8 @@ read_string_index (zval * var, zval * ind TSRMLS_DC)
 
   if (index >= Z_STRLEN_P (var))
     {
-      ZVAL_STRINGL (result, "", 0, 0);
+      // this is 1 byte long, must be copied
+      ZVAL_STRINGL (result, "", 0, 1);
     }
   else
     {
