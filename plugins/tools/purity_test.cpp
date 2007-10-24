@@ -8,7 +8,7 @@
 
 #include "AST_visitor.h"
 #include "process_ast/XML_unparser.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 #include "lib/List.h"
 
@@ -805,7 +805,7 @@ public:
 	{
 		if (not pure)
 		{
-			PHP_unparser unparser;
+			AST_unparser unparser;
 			cout << "Impure: ";
 			unparser.visit_expr(impurity);
 			cout << endl;

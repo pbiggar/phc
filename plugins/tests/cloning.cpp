@@ -6,7 +6,7 @@
  */
 
 #include "Collect_all_pointers.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 
 static bool success = true;
@@ -34,7 +34,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 	if(!in->equals(dup_script))
 	{
 		ostringstream orig_unparsed, dup_unparsed;
-		PHP_unparser a(orig_unparsed), b(dup_unparsed);
+		AST_unparser a(orig_unparsed), b(dup_unparsed);
 		in->visit(&a);
 		dup_script->visit(&b);
 

@@ -7,7 +7,7 @@
 
 #include "AST_transform.h"
 #include "process_ast/XML_unparser.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 #include "ast_to_hir/Shredder.h"
 #include "ast_to_hir/fresh.h"
@@ -55,7 +55,7 @@ class Demi_eval : public AST_transform
 			{
 				// unparse the statement into a string
 				stringstream ss;
-				PHP_unparser* pup = new PHP_unparser (ss);
+				AST_unparser* pup = new AST_unparser (ss);
 				in->visit (pup);
 				String* eval_string = new String (ss.str ());
 

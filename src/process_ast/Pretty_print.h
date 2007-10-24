@@ -11,7 +11,7 @@
 #ifndef PHC_PRETTY_PRINT_H
 #define PHC_PRETTY_PRINT_H
 
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 
 
@@ -25,7 +25,7 @@ public:
 
 	void run (AST_php_script* in, Pass_manager* pm)
 	{
-		in->visit (new PHP_unparser ());
+		in->visit (new AST_unparser ());
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

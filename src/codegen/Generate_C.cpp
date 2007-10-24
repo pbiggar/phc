@@ -24,6 +24,7 @@
  */
 
 #include "ast_to_hir/AST_to_HIR.h"
+#include "process_hir/HIR_unparser.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
@@ -1911,22 +1912,18 @@ protected:
 
 void Generate_C::children_statement(HIR_statement* in)
 {
-	// Make reading the generated code easier. If we use a /* comment,
-	// then we may get nested /* */ comments, which arent allowed and
-	// result in syntax errors in C. Use // instead.
-	/*
-	 * TODO: this is temporarily disabled because we don't (yet) have
-	 * a pretty-printer for the HIR
 	stringstream ss;
-	in->visit (new PHP_unparser (ss));
+	in->visit (new HIR_unparser (ss));
 
 	while (not ss.eof ())
 	{
+	  // Make reading the generated code easier. If we use a /*
+	  // comment, then we may get nested /* */ comments, which arent
+	  // allowed and result in syntax errors in C. Use // instead.
 		string str;
 		getline (ss, str);
 		code << "// " << str << endl;
 	}
-	*/
 
 	Pattern* patterns[] = 
 	{

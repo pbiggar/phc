@@ -7,7 +7,7 @@
  * curlies.
  */
 
-#include "process_ast/PHP_unparser.h" 
+#include "process_ast/AST_unparser.h" 
 #include "pass_manager/Pass_manager.h" 
 class Clear_user_syntax : public virtual AST_visitor
 {
@@ -18,7 +18,7 @@ class Clear_user_syntax : public virtual AST_visitor
 	}
 };
 
-class Canonical_unparser : public virtual PHP_unparser
+class Canonical_unparser : public virtual AST_unparser
 {
 	bool bracket;
 
@@ -63,7 +63,7 @@ class Canonical_unparser : public virtual PHP_unparser
 	void children_bin_op(AST_bin_op* in)
 	{
 		if (*in->op->value != ",") echo("(");
-		PHP_unparser::children_bin_op (in);
+		AST_unparser::children_bin_op (in);
 		if (*in->op->value != ",") echo(")");
 	}
 

@@ -26,7 +26,7 @@ public:
 	{
 		in = in->clone ();
 		in->visit (new Goto_uppering());
-		in->visit (new PHP_unparser);
+		in->visit (new AST_unparser);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

@@ -10,7 +10,7 @@
 #include "ltdl.h"
 #include "AST_transform.h"
 #include "process_ast/Invalid_check.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_hir/Goto_uppering.h"
@@ -174,7 +174,7 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			in->visit (new PHP_unparser ());
+			in->visit (new AST_unparser ());
 		}
 	}
 
@@ -184,7 +184,7 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 		{
 			in = in->clone ();
 			in->visit (new Goto_uppering ());
-			in->visit (new PHP_unparser ());
+			in->visit (new AST_unparser ());
 		}
 	}
 

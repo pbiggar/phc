@@ -7,7 +7,7 @@
 
 #include "AST_transform.h"
 #include "process_ast/XML_unparser.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 #include "ast_to_hir/Shredder.h"
 #include "lib/List.h"
@@ -38,7 +38,7 @@ public:
 	AST_variable* post_variable (AST_variable* var)
 	{
 		stringstream var_name;
-		var->visit (new PHP_unparser (var_name));
+		var->visit (new AST_unparser (var_name));
 		var_name << ": ";
 
 		// If we dont shred it, we cant generate code for it
