@@ -141,12 +141,10 @@ abstract class AsyncTest extends Test
 		global $running_procs;
 
 		// go through every runnig process and process it a bit more
-		$num_procs = count ($running_procs);
-		for ($i = 0; $i < $num_procs; $i++)
+		while (count ($running_procs))
 		{
 			inst ("Poll running");
 			$proc = array_shift ($running_procs);
-			assert ($proc !== NULL);
 
 			$handle =& $proc["handle"];
 			$out =& $proc["out"];
