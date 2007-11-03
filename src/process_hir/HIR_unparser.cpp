@@ -618,26 +618,21 @@ void HIR_unparser::children_string(Token_string* in)
 	}
 	else
 	{
-		if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
+    // any escaping must already be present in source_rep; any strings that
+    // originate from the user will be escaped as the user escaped them,
+    // and any strings that originate from passes within the compiler should
+    // have been escaped by those passes
+		
+    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
 		{
-			string::iterator i;
-
 			echo("'");
-			// Only thing that can be escaped in an SQ string is the single
-			// quote and the backslash itself 
-			for(i = in->source_rep->begin(); i != in->source_rep->end(); i++)
-			{
-				if(*i == '\'' || *i == '\\') 
-					os << "\\" << *i;
-				else
-					os << *i;
-			}
+			echo(in->source_rep);
 			echo("'");
 		}
 		else 
 		{
-			echo("\"");
-			echo_escaped(in->source_rep);
+      echo("\"");
+			echo(in->source_rep);
 			echo("\"");
 		}
 	}

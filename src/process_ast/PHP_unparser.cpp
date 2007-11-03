@@ -35,43 +35,6 @@ void PHP_unparser::echo(String* str)
 	os << *str;
 }
 
-void PHP_unparser::echo_escaped(string *s)
-{
-	output_tabs();
-
-	string::iterator i;
-	for(i = s->begin(); i != s->end(); i++)
-	{
-		switch(*i)
-		{
-			case '\n':
-				os << "\\n";
-				break;
-			case '\r':
-				os << "\\r";
-				break;
-			case '\t':
-				os << "\\t";
-				break;
-			case '\\':
-			case '$':
-			case '"':
-				os << "\\" << *i;
-				break;
-			default:
-				if(*i < 32 || *i == 127)
-				{
-					os << "\\x" << setw(2) <<
-						setfill('0') << hex << uppercase << (unsigned long int)(unsigned char)*i;
-					os << resetiosflags(cout.flags());
-				}
-				else
-					os << *i;
-				break;
-		}
-	}
-}
-
 void PHP_unparser::inc_indent()
 {
 	indent_level++;

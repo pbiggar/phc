@@ -30,7 +30,6 @@ protected:
 	void echo_nl(const char* s);
 	void echo(String* str);
 
-	void echo_escaped(string *s);
 	void inc_indent();
 	void dec_indent();
 	void newline();

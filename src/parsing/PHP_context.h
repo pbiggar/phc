@@ -58,7 +58,8 @@ public:
 
 // Buffers
 public:
-	string buffer;
+	string value_buffer;
+  string source_rep_buffer;
 
 // Returning multiple tokens from a single production
 public:
@@ -76,6 +77,7 @@ public:
 
 	void schedule_return(long type, const char* lval = 0, long length = -1);
 	void schedule_return(long type, string& s);
+  void schedule_return_string();
 
 // Dealing with in-string syntax
 public:

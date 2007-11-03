@@ -298,14 +298,35 @@ UNSET_CAST		{CS}"unset"{CE}
 								yylval->token_real = r;
 								RETURN(REAL); 
 							}
-<PHP>{STOP}				{ yyextra->buffer = ""; BEGIN(INITIAL); RETURN(';'); }
+<PHP>{STOP}				{ 
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = "";
+								BEGIN(INITIAL); 
+								RETURN(';'); 
+							}
 
 	/* Strings */
 
-<PHP>"'"					{ yyextra->buffer = ""; BEGIN(SQ_STR); }
-<PHP>"`"					{ yyextra->buffer = ""; BEGIN(BT_STR); }
-<PHP>"\""				{ yyextra->buffer = ""; BEGIN(DQ_STR); }
-<PHP>"<<<"" "?			{ yyextra->buffer = ""; BEGIN(HD_STR); }
+<PHP>"'"					{ 
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = "";
+								BEGIN(SQ_STR); 
+							}
+<PHP>"`"					{ 
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = "";
+								BEGIN(BT_STR); 
+							}
+<PHP>"\""				{ 
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = "";
+								BEGIN(DQ_STR); 
+							}
+<PHP>"<<<"" "?			{ 
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = "";
+								BEGIN(HD_STR); 
+							}
 
 	/* Comments */
 
@@ -315,39 +336,45 @@ UNSET_CAST		{CS}"unset"{CE}
 								yyextra->last_comments.push_back(new String(""));
 							}
 <PHP>"/*"				{
-								yyextra->buffer = yytext;	
+								yyextra->value_buffer = yytext;	
 								BEGIN(ML_COMM); 
 							}
 <PHP>#|"//"				{ 
-								yyextra->buffer = yytext;	
+								yyextra->value_buffer = yytext;	
 								BEGIN(SL_COMM); 
 							}
 
 <ML_COMM>"*/"			{ 
-								yyextra->buffer.append(yytext);
+								yyextra->value_buffer.append(yytext);
 								
 								if(yyextra->attach_to_previous)
-									yyextra->attach_comment(new String(yyextra->buffer));
+									yyextra->attach_comment(new String(yyextra->value_buffer));
 								else
-									yyextra->last_comments.push_back(new String(yyextra->buffer));
+									yyextra->last_comments.push_back(new String(yyextra->value_buffer));
 								BEGIN(PHP); 
 							
-								yyextra->buffer = "";
+								yyextra->value_buffer = "";
+								yyextra->source_rep_buffer = "";
 							}
-<ML_COMM>{ANY}			{ yyextra->buffer.push_back(*yytext); }
+<ML_COMM>{ANY}			{ yyextra->value_buffer.push_back(*yytext); }
 
 <SL_COMM>{NL}			{ 
 								if(yyextra->attach_to_previous)
-									yyextra->attach_comment(new String(yyextra->buffer));
+									yyextra->attach_comment(new String(yyextra->value_buffer));
 								else
-									yyextra->last_comments.push_back(new String(yyextra->buffer));
+									yyextra->last_comments.push_back(new String(yyextra->value_buffer));
 								yyextra->attach_to_previous = 0;
 								BEGIN(PHP);
 
-								yyextra->buffer = "";
+								yyextra->value_buffer = "";
+								yyextra->source_rep_buffer = "";
 							}
-<SL_COMM>{PHP_STOP}	{ yyextra->buffer = ""; BEGIN(INITIAL); }
-<SL_COMM>.				{ yyextra->buffer.push_back(*yytext); }	
+<SL_COMM>{PHP_STOP}	{
+								yyextra->value_buffer = ""; 
+								yyextra->source_rep_buffer = ""; 
+								BEGIN(INITIAL); 
+							}
+<SL_COMM>.				{ yyextra->value_buffer.push_back(*yytext); }	
 
 	/* Any other character */
 
@@ -358,24 +385,41 @@ UNSET_CAST		{CS}"unset"{CE}
 
 <SQ_STR>\'			{
 							Token_string* str = new Token_string(
-								new String(yyextra->buffer),
-								new String(yyextra->buffer));
+								new String(yyextra->value_buffer),
+								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
 							str->attrs->set_true("phc.unparser.is_singly_quoted");
 							yylval->token_string = str;
 
 							BEGIN(PHP);
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN(STRING);
 						}
-<SQ_STR>\\			{ BEGIN(SQ_ESC); }
-<SQ_STR>{ANY}		{ yyextra->buffer.push_back(*yytext); }
+<SQ_STR>\\			{
+							yyextra->source_rep_buffer.push_back('\\');
+							BEGIN(SQ_ESC); 
+						}
+<SQ_STR>{ANY}		{ 
+							yyextra->value_buffer.push_back(*yytext); 
+							yyextra->source_rep_buffer.push_back(*yytext);
+						}
 
-<SQ_ESC>\'			{ yyextra->buffer.push_back(*yytext); BEGIN(SQ_STR); }
-<SQ_ESC>\\			{ yyextra->buffer.push_back(*yytext); BEGIN(SQ_STR); }
+<SQ_ESC>\'			{ 
+							yyextra->value_buffer.push_back(*yytext); 
+							yyextra->source_rep_buffer.push_back(*yytext); 
+							BEGIN(SQ_STR); 
+						}
+<SQ_ESC>\\			{
+							yyextra->value_buffer.push_back(*yytext); 
+							yyextra->source_rep_buffer.push_back(*yytext); 
+							BEGIN(SQ_STR); 
+						}
 <SQ_ESC>{ANY}		{
-							yyextra->buffer.push_back('\\');
-							yyextra->buffer.push_back(*yytext);
+							yyextra->value_buffer.push_back('\\');
+							yyextra->value_buffer.push_back(*yytext);
+							// source_rep_buffer already has the '\\'
+							yyextra->source_rep_buffer.push_back(*yytext);
 							BEGIN(SQ_STR); 
 						}
 
@@ -384,30 +428,36 @@ UNSET_CAST		{CS}"unset"{CE}
 <BT_STR>\`			{
 							yyextra->schedule_return(IDENT, "shell_exec");
 							yyextra->schedule_return('(');
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return(')');
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(PHP);
 						}
-<BT_STR>{ANY}		{ yyextra->buffer.push_back(*yytext); }
+<BT_STR>{ANY}		{ 
+							yyextra->value_buffer.push_back(*yytext); 
+							yyextra->source_rep_buffer.push_back(*yytext); 
+						}
 
 	/* Deal with in-string syntax (in DQ_STR, and HD_STR) */
 
 <DQ_STR,HD_MAIN>"$"{IDENT} {
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1]);
 							yyextra->schedule_return('.', ".");
 
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						}	
 <DQ_STR,HD_MAIN>"${"{IDENT}"}" {
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[2], yyleng - 3);
 							yyextra->schedule_return('.', ".");
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						}
 <DQ_STR,HD_MAIN>"$"{IDENT}"["{INT}"]" %{
@@ -416,7 +466,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							left = strchr(yytext, '[') - yytext;
 							right = strchr(yytext, ']') - yytext;
 
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
@@ -424,7 +474,8 @@ UNSET_CAST		{CS}"unset"{CE}
 							yyextra->schedule_return(']');
 							yyextra->schedule_return('.', ".");
 							
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						} 
 						%}
@@ -434,7 +485,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							left = strchr(yytext, '[') - yytext;
 							right = strchr(yytext, ']') - yytext;
 							
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
@@ -442,7 +493,8 @@ UNSET_CAST		{CS}"unset"{CE}
 							yyextra->schedule_return(']');
 							yyextra->schedule_return('.', ".");
 							
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						} 
 						%}
@@ -452,7 +504,7 @@ UNSET_CAST		{CS}"unset"{CE}
 							left = strchr(yytext, '[') - yytext;
 							right = strchr(yytext, ']') - yytext;
 							
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
@@ -460,7 +512,8 @@ UNSET_CAST		{CS}"unset"{CE}
 							yyextra->schedule_return(']');
 							yyextra->schedule_return('.', ".");
 							
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						} 
 						%}
@@ -469,14 +522,15 @@ UNSET_CAST		{CS}"unset"{CE}
 							long arrow;
 							arrow = strchr(yytext, '-') - yytext;
 							
-							yyextra->schedule_return(STRING, yyextra->buffer);
+							yyextra->schedule_return_string();
 							yyextra->schedule_return('.', ".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], arrow - 1);
 							yyextra->schedule_return(O_SINGLEARROW);
 							yyextra->schedule_return(IDENT, &yytext[arrow+2]);
 							yyextra->schedule_return('.', ".");
 
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						} 
 						%}
@@ -486,38 +540,63 @@ UNSET_CAST		{CS}"unset"{CE}
 							yy_push_state(COMPLEX1, yyscanner);
 
 							Token_string* str = new Token_string(
-								new String(yyextra->buffer),
-								new String(yyextra->buffer));
+								new String(yyextra->value_buffer),
+								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
 							yylval->token_string = str;
 
 							yyless(1);
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN(STRING);
 						}
 
-<ESCAPE>n			{ yyextra->buffer.push_back('\n'); yy_pop_state(yyscanner); }
-<ESCAPE>t			{ yyextra->buffer.push_back('\t'); yy_pop_state(yyscanner); }
-<ESCAPE>r			{ yyextra->buffer.push_back('\r'); yy_pop_state(yyscanner); }
-<ESCAPE>\\			{ yyextra->buffer.push_back('\\'); yy_pop_state(yyscanner); }
-<ESCAPE>\$			{ yyextra->buffer.push_back('$');  yy_pop_state(yyscanner); }
+<ESCAPE>n			{ 
+							yyextra->value_buffer.push_back('\n'); 
+							yyextra->source_rep_buffer.push_back('n'); 
+							yy_pop_state(yyscanner); 
+						}
+<ESCAPE>t			{ 
+							yyextra->value_buffer.push_back('\t'); 
+							yyextra->source_rep_buffer.push_back('t'); 
+							yy_pop_state(yyscanner); 
+						}
+<ESCAPE>r			{ 
+							yyextra->value_buffer.push_back('\r'); 
+							yyextra->source_rep_buffer.push_back('r'); 
+							yy_pop_state(yyscanner); 
+						}
+<ESCAPE>\\			{ 
+							yyextra->value_buffer.push_back('\\'); 
+							yyextra->source_rep_buffer.push_back('\\'); 
+							yy_pop_state(yyscanner); 
+						}
+<ESCAPE>\$			{ 
+							yyextra->value_buffer.push_back('$');  
+							yyextra->source_rep_buffer.push_back('$');  
+							yy_pop_state(yyscanner); 
+						}
 <ESCAPE>x[0-9A-Fa-f]{1,2} %{
 						{
 							char c = (char) strtol(yytext + 1, 0, 16);
-							yyextra->buffer.push_back(c);
+							yyextra->value_buffer.push_back(c);
+							yyextra->source_rep_buffer.append(yytext);
 							yy_pop_state(yyscanner);
 						}
 						%}
 <ESCAPE>[0-7]{1,3} %{
 						{
 							char c = (char) strtol(yytext, 0, 8);
-							yyextra->buffer.push_back(c);
+							yyextra->value_buffer.push_back(c);
+							yyextra->source_rep_buffer.append(yytext);
 							yy_pop_state(yyscanner);
 						}
 						%}
 <ESCAPE>{ANY}		{ 
-							yyextra->buffer.push_back('\\');
-							yyextra->buffer.push_back(*yytext);
+							yyextra->value_buffer.push_back('\\');
+							yyextra->value_buffer.push_back(*yytext);
+							// source_rep_buffer already has the '\\'
+							yyextra->source_rep_buffer.push_back(*yytext);
 							yy_pop_state(yyscanner);
 						}
 
@@ -538,19 +617,29 @@ UNSET_CAST		{CS}"unset"{CE}
 
 <DQ_STR>\"			{
 							Token_string* str = new Token_string(
-								new String(yyextra->buffer),
-								new String(yyextra->buffer));
+								new String(yyextra->value_buffer),
+								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
 							yylval->token_string = str;
 
 							BEGIN(PHP);
-							yyextra->buffer = "";
+							yyextra->value_buffer = "";
+							yyextra->source_rep_buffer = "";
 							RETURN(STRING);
 						}
 
-<DQ_STR>\\\"		{ yyextra->buffer.push_back('"'); }
-<DQ_STR>\\			{ yy_push_state(ESCAPE, yyscanner); }
-<DQ_STR>{ANY}		{ yyextra->buffer.push_back(*yytext); }
+<DQ_STR>\\\"		{ 
+							yyextra->value_buffer.push_back('"'); 
+							yyextra->source_rep_buffer.append(yytext);
+						}
+<DQ_STR>\\			{
+							yyextra->source_rep_buffer.push_back('\\');
+							yy_push_state(ESCAPE, yyscanner); 
+						}
+<DQ_STR>{ANY}		{ 
+							yyextra->value_buffer.push_back(*yytext); 
+							yyextra->source_rep_buffer.push_back(*yytext); 
+						}
 
 	/* Heredoc syntax */
 
@@ -573,15 +662,27 @@ UNSET_CAST		{CS}"unset"{CE}
 <HD_NL>{NL}			{ BEGIN(HD_MAIN); }
 <HD_NL>{ANY}		{ RETURN(INVALID_TOKEN);	}
 
-<HD_MAIN>\\			{ yy_push_state(ESCAPE, yyscanner); }
+<HD_MAIN>\\\"		{ 
+							// double quotes (") does not need to be escaped in HD
+							yyextra->value_buffer.append(yytext);
+							// However, the string will be unparsed as a double-quoted
+							// string, where it *does* need to be escaped
+							yyextra->source_rep_buffer.append("\\\\\\\"");
+						}
+<HD_MAIN>\\			{
+							yyextra->source_rep_buffer.push_back('\\');
+							yy_push_state(ESCAPE, yyscanner); 
+						}
 <HD_MAIN>^{ANY}	{
-							yyextra->buffer.push_back(*yytext);
+							yyextra->value_buffer.push_back(*yytext);
+							yyextra->source_rep_buffer.push_back(*yytext);
 
 							if(*yytext == yyextra->heredoc_id[0])
 								yyextra->heredoc_id_ptr = &yyextra->heredoc_id[1];
 						}
 <HD_MAIN>{ANY}		%{
-							yyextra->buffer.push_back(*yytext);
+							yyextra->value_buffer.push_back(*yytext);
+							yyextra->source_rep_buffer.push_back(*yytext);
 
 							if(yyextra->heredoc_id_ptr && (*yyextra->heredoc_id_ptr == *yytext))
 								yyextra->heredoc_id_ptr++;
@@ -596,18 +697,19 @@ UNSET_CAST		{CS}"unset"{CE}
 <HD_END>{NL}|;		%{ 
 							{
 								// Remove heredoc_id from the buffer 
-								long string_len = yyextra->buffer.size() - yyextra->heredoc_id_len;
+								long value_len = yyextra->value_buffer.size() - yyextra->heredoc_id_len;
+								long source_rep_len = yyextra->source_rep_buffer.size() - yyextra->heredoc_id_len;
 
 								// The linebreak of the last line of the HEREDOC
 								// string should also be stripped
-								if(string_len > 0 && yyextra->buffer[string_len - 1] == '\n')
-									string_len--;
-								if(string_len > 0 && yyextra->buffer[string_len - 1] == '\r')
-									string_len--; // Windows file
+								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\n')
+									value_len--, source_rep_len--;
+								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\r')
+									value_len--, source_rep_len--; // Windows file
 						
 								Token_string* str = new Token_string(
-									new String(yyextra->buffer.substr(0, string_len)),
-									new String(yyextra->buffer.substr(0, string_len)));
+									new String(yyextra->value_buffer.substr(0, value_len)),
+									new String(yyextra->source_rep_buffer.substr(0, source_rep_len)));
 								copy_state(str, yyextra);
 								yylval->token_string = str;
 								
@@ -615,12 +717,14 @@ UNSET_CAST		{CS}"unset"{CE}
 									yyless(0);
 								
 								BEGIN(PHP);
-								yyextra->buffer = "";
+								yyextra->value_buffer = "";
+								yyextra->source_rep_buffer = "";
 								RETURN(STRING);
 							}
 						%}
 <HD_END>.			%{
-							yyextra->buffer.push_back(*yytext);
+							yyextra->value_buffer.push_back(*yytext);
+							yyextra->source_rep_buffer.push_back(*yytext);
 							yyextra->heredoc_id_ptr = 0;
 							BEGIN(HD_MAIN);
 						%}
@@ -643,21 +747,21 @@ UNSET_CAST		{CS}"unset"{CE}
 
 	/* Deal with HTML fragments */
 
-"#!".*\n				{
-							if(yyextra->source_line == 1 && yyextra->buffer.empty())
+^"#!".*\n			{
+							if(yyextra->source_line == 1)
 							{
 								yyextra->hash_bang = new String(yytext);
 							}
 							else
 							{
-								yyextra->buffer.append(yytext);
+								yyextra->value_buffer.append(yytext);
 							}
 						}
 {START_ECHO}		{
 							// The logic that deals with returning multiple tokens
 							// needs at least two tokens to work with.
-							if(!yyextra->buffer.empty())
-								yyextra->schedule_return(INLINE_HTML, yyextra->buffer);
+							if(!yyextra->value_buffer.empty())
+								yyextra->schedule_return(INLINE_HTML, yyextra->value_buffer);
 							else
 								yyextra->schedule_return(';');
 
@@ -667,25 +771,26 @@ UNSET_CAST		{CS}"unset"{CE}
 {START}				%{
 							BEGIN(PHP); 
 
-							if(!yyextra->buffer.empty())
+							if(!yyextra->value_buffer.empty())
 							{
-								yylval->string = new String(yyextra->buffer);
+								yylval->string = new String(yyextra->value_buffer);
 								RETURN(INLINE_HTML);
 							}
 						%}
 <<EOF>>				%{
-							if(yyextra->buffer.empty())
+							if(yyextra->value_buffer.empty())
 							{
 								yyterminate();
 							} 
 							else 
 							{
-								yylval->string = new String(yyextra->buffer);	
-								yyextra->buffer = "";
+								yylval->string = new String(yyextra->value_buffer);	
+								yyextra->value_buffer = "";
+								yyextra->source_rep_buffer = "";
 								RETURN(INLINE_HTML);
 							}
 						%}
-{ANY}					{ yyextra->buffer.push_back(*yytext); }
+{ANY}					{ yyextra->value_buffer.push_back(*yytext); }
 
 %%
 
@@ -758,6 +863,13 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 		mt_lval[mt_count].object = NULL;
 	}
 
+	mt_count++;
+}
+
+void PHP_context::schedule_return_string()
+{
+	mt_type[mt_count] = STRING;
+	mt_lval[mt_count].token_string = new Token_string(new String(value_buffer), new String(source_rep_buffer));
 	mt_count++;
 }
 
