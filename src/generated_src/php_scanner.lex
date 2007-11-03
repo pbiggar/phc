@@ -31,13 +31,13 @@
 	 */
 
 	#define RETURN(x) {															\
-		if(false)													\
+		if(false)	            												\
 			printf("%ld: " #x "\n", yyextra->source_line);				\
 		yyextra->after_arrow = (x) == O_SINGLEARROW;						\
 		yyextra->starts_line = false;											\
 		return x; }
 	#define RETURN_OP(t, s) {													\
-		if(false)													\
+		if(false)	            												\
 			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
 		yylval->token_op = new Token_op(new String(s)); 				\
 		copy_state(yylval->token_op, yyextra);								\
@@ -346,7 +346,7 @@ UNSET_CAST		{CS}"unset"{CE}
 
 								yyextra->buffer = "";
 							}
-<SL_COMM>{STOP}		{ yyextra->buffer = ""; BEGIN(INITIAL); }
+<SL_COMM>{PHP_STOP}	{ yyextra->buffer = ""; BEGIN(INITIAL); }
 <SL_COMM>.				{ yyextra->buffer.push_back(*yytext); }	
 
 	/* Any other character */
