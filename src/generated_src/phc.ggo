@@ -28,6 +28,7 @@ option "no-line-numbers" - "Don't show line numbers when dumping DOT/XML" flag o
 option "no-nulls" - "Don't show NULLs when dumping DOT" flag off hidden
 option "no-empty-lists" - "Don't show empty lists when dumping DOT" flag off hidden
 option "tab" - "String to use for tabs while unparsing" string default="\t" no
+option "no-hash-bang" - "Do not output any #! lines" flag off 
 
 section "DEBUGGING PHC"
 option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional

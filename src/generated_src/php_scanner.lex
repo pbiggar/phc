@@ -643,6 +643,16 @@ UNSET_CAST		{CS}"unset"{CE}
 
 	/* Deal with HTML fragments */
 
+"#!".*\n				{
+							if(yyextra->source_line == 1 && yyextra->buffer.empty())
+							{
+								yyextra->hash_bang = new String(yytext);
+							}
+							else
+							{
+								yyextra->buffer.append(yytext);
+							}
+						}
 {START_ECHO}		{
 							// The logic that deals with returning multiple tokens
 							// needs at least two tokens to work with.

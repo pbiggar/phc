@@ -80,7 +80,7 @@ class CompareWithPHP extends TwoCommandTest
 		global $phc;
 		$command = $this->command_line;
 		$pipe_command = get_php_command_line ($subject, "pipe");
-		return "$phc $command $subject | $pipe_command";
+		return "$phc --no-hash-bang $command $subject | $pipe_command";
 	}
 
 	function homogenize_output ($output)

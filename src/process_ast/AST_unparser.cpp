@@ -29,6 +29,9 @@ AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
 
 void AST_unparser::children_php_script(AST_php_script* in)
 {
+  if(in->attrs->has("phc.unparser.hash_bang") && !args_info.no_hash_bang_flag)
+    echo(in->attrs->get_string("phc.unparser.hash_bang"));
+
 	echo_nl("<?php");
 	if(!args_info.no_leading_tab_flag) inc_indent();
 

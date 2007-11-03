@@ -438,6 +438,8 @@ start:
 				$1->push_back(NEW(AST_nop, ()));
 	
 			context->php_script = new AST_php_script($1);	
+      if(context->hash_bang != NULL)
+        context->php_script->attrs->set("phc.unparser.hash_bang", context->hash_bang);
 		}
 	;
 

@@ -20,6 +20,7 @@ PHP_context::PHP_context(FILE* input, String* filename)
 	mt_index = 0;
 	mt_count = 0;
 	last_commented_node = 0;
+  hash_bang = NULL;
 	
 	attach_to_previous = false;
 	after_arrow = false;

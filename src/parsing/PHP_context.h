@@ -45,6 +45,7 @@ public:
 	long source_line;
 	List<String*> last_comments;
 	AST_commented_node* last_commented_node;
+  String* hash_bang;
 
 // Processing comments, HEREDOC strings and keywords
 public: 

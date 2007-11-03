@@ -49,6 +49,7 @@ const char *gengetopt_args_info_help[] = {
   "      --next-line-curlies  Output the opening curly on the next line instead of \n                             on the same line  (default=off)",
   "      --no-leading-tab     Don't start every line in between <?php .. ?> with a \n                             tab  (default=off)",
   "      --tab=STRING         String to use for tabs while unparsing  \n                             (default=`\t')",
+  "      --no-hash-bang       Do not output any #! lines  (default=off)",
     0
 };
 const char *gengetopt_args_info_full_help[] = {
@@ -80,6 +81,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --no-nulls           Don't show NULLs when dumping DOT  (default=off)",
   "      --no-empty-lists     Don't show empty lists when dumping DOT  \n                             (default=off)",
   "      --tab=STRING         String to use for tabs while unparsing  \n                             (default=`\t')",
+  "      --no-hash-bang       Do not output any #! lines  (default=off)",
   "\nDEBUGGING PHC:",
   "  -D, --dump=passname      Dump input as PHP (although potentially with gotos \n                             and labels) after the pass named 'passname'",
   "  -U, --udump=passname     Dump input as runnable PHP after the pass named \n                             'passname'",
@@ -139,6 +141,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_nulls_given = 0 ;
   args_info->no_empty_lists_given = 0 ;
   args_info->tab_given = 0 ;
+  args_info->no_hash_bang_given = 0 ;
   args_info->dump_given = 0 ;
   args_info->udump_given = 0 ;
   args_info->ddump_given = 0 ;
@@ -179,6 +182,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->no_empty_lists_flag = 0;
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
+  args_info->no_hash_bang_flag = 0;
   args_info->dump_arg = NULL;
   args_info->dump_orig = NULL;
   args_info->udump_arg = NULL;
@@ -225,20 +229,21 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_nulls_help = gengetopt_args_info_full_help[25] ;
   args_info->no_empty_lists_help = gengetopt_args_info_full_help[26] ;
   args_info->tab_help = gengetopt_args_info_full_help[27] ;
-  args_info->dump_help = gengetopt_args_info_full_help[29] ;
+  args_info->no_hash_bang_help = gengetopt_args_info_full_help[28] ;
+  args_info->dump_help = gengetopt_args_info_full_help[30] ;
   args_info->dump_min = -1;
   args_info->dump_max = -1;
-  args_info->udump_help = gengetopt_args_info_full_help[30] ;
+  args_info->udump_help = gengetopt_args_info_full_help[31] ;
   args_info->udump_min = -1;
   args_info->udump_max = -1;
-  args_info->ddump_help = gengetopt_args_info_full_help[31] ;
+  args_info->ddump_help = gengetopt_args_info_full_help[32] ;
   args_info->ddump_min = -1;
   args_info->ddump_max = -1;
-  args_info->xdump_help = gengetopt_args_info_full_help[32] ;
+  args_info->xdump_help = gengetopt_args_info_full_help[33] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->list_passes_help = gengetopt_args_info_full_help[33] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[34] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[34] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[35] ;
   
 }
 
@@ -658,6 +663,9 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
       fprintf(outfile, "%s\n", "tab");
     }
   }
+  if (args_info->no_hash_bang_given) {
+    fprintf(outfile, "%s\n", "no-hash-bang");
+  }
   if (args_info->dump_orig)
     {
       for (i = 0; i < args_info->dump_given; ++i)
@@ -1032,6 +1040,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-nulls",	0, NULL, 0 },
         { "no-empty-lists",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
+        { "no-hash-bang",	0, NULL, 0 },
         { "dump",	1, NULL, 'D' },
         { "udump",	1, NULL, 'U' },
         { "ddump",	1, NULL, 0 },
@@ -1493,6 +1502,20 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (args_info->tab_orig)
               free (args_info->tab_orig); /* free previous string */
             args_info->tab_orig = gengetopt_strdup (optarg);
+          }
+          /* Do not output any #! lines.  */
+          else if (strcmp (long_options[option_index].name, "no-hash-bang") == 0)
+          {
+            if (local_args_info.no_hash_bang_given || (check_ambiguity && args_info->no_hash_bang_given))
+              {
+                fprintf (stderr, "%s: `--no-hash-bang' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->no_hash_bang_given && ! override)
+              continue;
+            local_args_info.no_hash_bang_given = 1;
+            args_info->no_hash_bang_given = 1;
+            args_info->no_hash_bang_flag = !(args_info->no_hash_bang_flag);
           }
           /* Dump input as DOT after the pass named 'passname'.  */
           else if (strcmp (long_options[option_index].name, "ddump") == 0)
