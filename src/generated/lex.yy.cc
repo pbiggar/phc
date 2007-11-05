@@ -2142,7 +2142,18 @@ YY_RULE_SETUP
 #line 683 "src/generated_src/php_scanner.lex"
 
 							yyextra->value_buffer.push_back(*yytext);
-							yyextra->source_rep_buffer.push_back(*yytext);
+							switch(*yytext)
+							{
+								case '\n':
+									yyextra->source_rep_buffer.append("\\n");
+									break;
+								case '\r':
+									yyextra->source_rep_buffer.append("\\r");
+									break;
+								default:
+									yyextra->source_rep_buffer.push_back(*yytext);
+									break;
+							}
 
 							if(yyextra->heredoc_id_ptr && (*yyextra->heredoc_id_ptr == *yytext))
 								yyextra->heredoc_id_ptr++;
@@ -2158,7 +2169,7 @@ YY_RULE_SETUP
 case 94:
 /* rule 94 can match eol */
 YY_RULE_SETUP
-#line 697 "src/generated_src/php_scanner.lex"
+#line 708 "src/generated_src/php_scanner.lex"
  
 							{
 								// Remove heredoc_id from the buffer 
@@ -2168,13 +2179,25 @@ YY_RULE_SETUP
 								// The linebreak of the last line of the HEREDOC
 								// string should also be stripped
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\n')
-									value_len--, source_rep_len--;
+								{
+									value_len--;
+									// '\n' is represented as '\\n' in the source_rep
+									source_rep_len -= 2;
+								}
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\r')
-									value_len--, source_rep_len--; // Windows file
+								{
+									// Windows file
+									value_len--;
+									source_rep_len -= 2; 
+								}
 						
 								Token_string* str = new Token_string(
 									new String(yyextra->value_buffer.substr(0, value_len)),
 									new String(yyextra->source_rep_buffer.substr(0, source_rep_len)));
+								
+								// Reset starts_line because we don't output the
+								// string using HEREDOC syntax 
+								yyextra->starts_line = false;
 								copy_state(str, yyextra);
 								yylval->token_string = str;
 								
@@ -2190,7 +2213,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 725 "src/generated_src/php_scanner.lex"
+#line 748 "src/generated_src/php_scanner.lex"
 
 							yyextra->value_buffer.push_back(*yytext);
 							yyextra->source_rep_buffer.push_back(*yytext);
@@ -2202,7 +2225,7 @@ YY_RULE_SETUP
 case 96:
 /* rule 96 can match eol */
 YY_RULE_SETUP
-#line 734 "src/generated_src/php_scanner.lex"
+#line 757 "src/generated_src/php_scanner.lex"
 {
 							yyless(0);
 
@@ -2221,7 +2244,7 @@ YY_RULE_SETUP
 case 97:
 /* rule 97 can match eol */
 YY_RULE_SETUP
-#line 750 "src/generated_src/php_scanner.lex"
+#line 773 "src/generated_src/php_scanner.lex"
 {
 							if(yyextra->source_line == 1)
 							{
@@ -2235,7 +2258,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 760 "src/generated_src/php_scanner.lex"
+#line 783 "src/generated_src/php_scanner.lex"
 {
 							// The logic that deals with returning multiple tokens
 							// needs at least two tokens to work with.
@@ -2251,7 +2274,7 @@ YY_RULE_SETUP
 case 99:
 /* rule 99 can match eol */
 YY_RULE_SETUP
-#line 771 "src/generated_src/php_scanner.lex"
+#line 794 "src/generated_src/php_scanner.lex"
 
 							BEGIN(PHP); 
 
@@ -2278,7 +2301,7 @@ case YY_STATE_EOF(SL_COMM):
 case YY_STATE_EOF(COMPLEX1):
 case YY_STATE_EOF(COMPLEX2):
 case YY_STATE_EOF(RET_MULTI):
-#line 780 "src/generated_src/php_scanner.lex"
+#line 803 "src/generated_src/php_scanner.lex"
 
 							if(yyextra->value_buffer.empty())
 							{
@@ -2296,15 +2319,15 @@ case YY_STATE_EOF(RET_MULTI):
 case 100:
 /* rule 100 can match eol */
 YY_RULE_SETUP
-#line 793 "src/generated_src/php_scanner.lex"
+#line 816 "src/generated_src/php_scanner.lex"
 { yyextra->value_buffer.push_back(*yytext); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 795 "src/generated_src/php_scanner.lex"
+#line 818 "src/generated_src/php_scanner.lex"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2308 "src/generated/lex.yy.cc"
+#line 2331 "src/generated/lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3395,7 +3418,7 @@ void PHP_free (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 795 "src/generated_src/php_scanner.lex"
+#line 818 "src/generated_src/php_scanner.lex"
 
 
 

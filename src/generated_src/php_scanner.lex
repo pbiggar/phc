@@ -682,7 +682,18 @@ UNSET_CAST		{CS}"unset"{CE}
 						}
 <HD_MAIN>{ANY}		%{
 							yyextra->value_buffer.push_back(*yytext);
-							yyextra->source_rep_buffer.push_back(*yytext);
+							switch(*yytext)
+							{
+								case '\n':
+									yyextra->source_rep_buffer.append("\\n");
+									break;
+								case '\r':
+									yyextra->source_rep_buffer.append("\\r");
+									break;
+								default:
+									yyextra->source_rep_buffer.push_back(*yytext);
+									break;
+							}
 
 							if(yyextra->heredoc_id_ptr && (*yyextra->heredoc_id_ptr == *yytext))
 								yyextra->heredoc_id_ptr++;
@@ -703,13 +714,25 @@ UNSET_CAST		{CS}"unset"{CE}
 								// The linebreak of the last line of the HEREDOC
 								// string should also be stripped
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\n')
-									value_len--, source_rep_len--;
+								{
+									value_len--;
+									// '\n' is represented as '\\n' in the source_rep
+									source_rep_len -= 2;
+								}
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\r')
-									value_len--, source_rep_len--; // Windows file
+								{
+									// Windows file
+									value_len--;
+									source_rep_len -= 2; 
+								}
 						
 								Token_string* str = new Token_string(
 									new String(yyextra->value_buffer.substr(0, value_len)),
 									new String(yyextra->source_rep_buffer.substr(0, source_rep_len)));
+								
+								// Reset starts_line because we don't output the
+								// string using HEREDOC syntax 
+								yyextra->starts_line = false;
 								copy_state(str, yyextra);
 								yylval->token_string = str;
 								
