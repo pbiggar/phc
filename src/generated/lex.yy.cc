@@ -2150,6 +2150,9 @@ YY_RULE_SETUP
 								case '\r':
 									yyextra->source_rep_buffer.append("\\r");
 									break;
+								case '"':
+									yyextra->source_rep_buffer.append("\\\"");
+									break;
 								default:
 									yyextra->source_rep_buffer.push_back(*yytext);
 									break;
@@ -2169,7 +2172,7 @@ YY_RULE_SETUP
 case 94:
 /* rule 94 can match eol */
 YY_RULE_SETUP
-#line 708 "src/generated_src/php_scanner.lex"
+#line 711 "src/generated_src/php_scanner.lex"
  
 							{
 								// Remove heredoc_id from the buffer 
@@ -2213,7 +2216,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 748 "src/generated_src/php_scanner.lex"
+#line 751 "src/generated_src/php_scanner.lex"
 
 							yyextra->value_buffer.push_back(*yytext);
 							yyextra->source_rep_buffer.push_back(*yytext);
@@ -2225,7 +2228,7 @@ YY_RULE_SETUP
 case 96:
 /* rule 96 can match eol */
 YY_RULE_SETUP
-#line 757 "src/generated_src/php_scanner.lex"
+#line 760 "src/generated_src/php_scanner.lex"
 {
 							yyless(0);
 
@@ -2244,7 +2247,7 @@ YY_RULE_SETUP
 case 97:
 /* rule 97 can match eol */
 YY_RULE_SETUP
-#line 773 "src/generated_src/php_scanner.lex"
+#line 776 "src/generated_src/php_scanner.lex"
 {
 							if(yyextra->source_line == 1)
 							{
@@ -2258,7 +2261,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 98:
 YY_RULE_SETUP
-#line 783 "src/generated_src/php_scanner.lex"
+#line 786 "src/generated_src/php_scanner.lex"
 {
 							// The logic that deals with returning multiple tokens
 							// needs at least two tokens to work with.
@@ -2274,7 +2277,7 @@ YY_RULE_SETUP
 case 99:
 /* rule 99 can match eol */
 YY_RULE_SETUP
-#line 794 "src/generated_src/php_scanner.lex"
+#line 797 "src/generated_src/php_scanner.lex"
 
 							BEGIN(PHP); 
 
@@ -2301,7 +2304,7 @@ case YY_STATE_EOF(SL_COMM):
 case YY_STATE_EOF(COMPLEX1):
 case YY_STATE_EOF(COMPLEX2):
 case YY_STATE_EOF(RET_MULTI):
-#line 803 "src/generated_src/php_scanner.lex"
+#line 806 "src/generated_src/php_scanner.lex"
 
 							if(yyextra->value_buffer.empty())
 							{
@@ -2319,15 +2322,15 @@ case YY_STATE_EOF(RET_MULTI):
 case 100:
 /* rule 100 can match eol */
 YY_RULE_SETUP
-#line 816 "src/generated_src/php_scanner.lex"
+#line 819 "src/generated_src/php_scanner.lex"
 { yyextra->value_buffer.push_back(*yytext); }
 	YY_BREAK
 case 101:
 YY_RULE_SETUP
-#line 818 "src/generated_src/php_scanner.lex"
+#line 821 "src/generated_src/php_scanner.lex"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2331 "src/generated/lex.yy.cc"
+#line 2334 "src/generated/lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3418,7 +3421,7 @@ void PHP_free (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 818 "src/generated_src/php_scanner.lex"
+#line 821 "src/generated_src/php_scanner.lex"
 
 
 

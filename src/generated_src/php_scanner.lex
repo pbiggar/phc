@@ -690,6 +690,9 @@ UNSET_CAST		{CS}"unset"{CE}
 								case '\r':
 									yyextra->source_rep_buffer.append("\\r");
 									break;
+								case '"':
+									yyextra->source_rep_buffer.append("\\\"");
+									break;
 								default:
 									yyextra->source_rep_buffer.push_back(*yytext);
 									break;
