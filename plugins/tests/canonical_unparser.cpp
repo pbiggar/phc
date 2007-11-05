@@ -13,8 +13,17 @@ class Clear_user_syntax : public virtual AST_visitor
 {
 	void pre_node (AST_node* in)
 	{
-		in->attrs->erase("phc.unparser.needs_user_curlies");
-		in->attrs->erase("phc.unparser.needs_user_brackets");
+		// Remove all the unparser attributes. is_singly_quoted must either be
+		// escaped or removed, however.
+		AttrMap::const_iterator i;
+		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
+		{
+			if((*i).first.find ("phc.unparser") == 0
+				&& (*i).first != "phc.unparser.is_singly_quoted")
+			{
+				in->attrs->erase ((*i).first);
+			}
+		}
 	}
 };
 
