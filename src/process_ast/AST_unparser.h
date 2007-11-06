@@ -10,6 +10,7 @@
 
 #include "AST_visitor.h"
 #include "PHP_unparser.h"
+#include <stack>
 
 using namespace AST;
 
@@ -109,6 +110,9 @@ public:
 	void pre_variable (AST_variable* in);
 	void pre_method_invocation (AST_method_invocation* in);
 	void pre_global (AST_global* in);
+
+protected:
+	stack<bool> in_string;
 };
 
 #endif // PHC_AST_UNPARSER 

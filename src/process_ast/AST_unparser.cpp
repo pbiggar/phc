@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <iomanip> 
+#include <vector>
 #include "AST_unparser.h" 
 #include "cmdline.h"
 
@@ -17,14 +18,93 @@ extern struct gengetopt_args_info args_info;
 
 using namespace std;
 
+/*
+ * Convenient access to the unparser
+ */
+
 void debug (AST_node *in)
 {
 	static AST_unparser *pup = new AST_unparser (cerr);
 	in->visit (pup);
 }
 
+/*
+ * Linearization
+ *
+ * This is used when unparsing concat operators to deal correctly with 
+ * in-string syntax. The lexical analyser marks concat operators inserted by
+ * phc as "phc.unparser.in_string_syntax.simple". The difficulty in using
+ * this information in the unparser stems from the fact that the associativity
+ * of the concat operators is effectively arbitrary. To solve this problem,
+ * linearization does an in-order traversal of the tree, collecting "all"
+ * operands of the concatenation, and then partitioning them into groups
+ * that are part of the same string. For example,
+ * 
+ *   "1 $a 2" . $b . $c . "3 $c 4\n"
+ *
+ * in (linear) partitioned form is
+ *
+ *   {"1 ", $a, " 2"}, {$b}, {$c}, {"3 ", $c, " 04\n"}
+ *
+ * In children_bin_op this partitioning is then used to insert quotes at the
+ * right places.
+ */
+
+class Linearize : public AST_visitor 
+{
+public:
+	std::vector<AST_expr*> exprs;
+	std::vector<int> partition_size;
+	bool start_new_partition;
+
+public:
+	Linearize()
+	{
+		start_new_partition = true;
+	}
+
+public:
+	void append(AST_expr* in)
+	{
+		exprs.push_back(in);
+		
+		if(start_new_partition)
+		{
+			partition_size.push_back(1);
+		}
+		else
+		{
+			partition_size.back() += 1;
+		}
+	}
+	
+	void process_bin_op(AST_bin_op* in)
+	{
+		visit_expr(in->left);
+		start_new_partition = !in->op->attrs->is_true("phc.unparser.in_string_syntax.simple");
+		visit_expr(in->right);
+	}
+
+	// Overriding children_expr because we don't want to traverse into the 
+	// subexpressions of non-bin-ops
+	void children_expr(AST_expr* in)
+	{
+		AST_bin_op* bin_op = dynamic_cast<AST_bin_op*>(in);
+
+		if(bin_op != NULL && *bin_op->op->value == ".")
+			process_bin_op(bin_op);
+		else
+			append(in);
+	}
+};
+
+/*
+ * The unparser proper
+ */
+
 AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
 {
+	in_string.push(false); 
 }
 
 void AST_unparser::children_php_script(AST_php_script* in)
@@ -491,11 +571,57 @@ void AST_unparser::children_unary_op(AST_unary_op* in)
 
 void AST_unparser::children_bin_op(AST_bin_op* in)
 {
-	visit_expr(in->left);
-	if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
-	visit_op(in->op);
-	echo(" ");
-	visit_expr(in->right);
+	if(*in->op->value == ".")
+	{
+		Linearize l;
+		l.visit_expr(in);
+
+		vector<int>::const_iterator ps;
+		int i = 0;
+		for(ps = l.partition_size.begin(); ps != l.partition_size.end(); ps++)
+		{
+			if(i != 0) echo(" . ");
+
+			if(*ps == 1)
+			{
+				visit_expr(l.exprs[i]);
+			}
+			else
+			{
+				in_string.push(true);
+			
+				// If the first element in the partition starts_line set, 
+				// we make the partition start on a new line. We have to do this here
+				// rather than relying on the default action in pre_node to avoid 
+				// the partition being unparsed as
+				//
+				// echo "
+				//       foo $ bar"
+				//
+				// which would normally happen when 'foo' has starts_line set.
+				if(l.exprs[i]->attrs->is_true("phc.unparser.starts_line"))
+				{
+					newline();
+					os << args_info.tab_arg;
+				}
+
+				echo("\"");
+				for(int j = i; j < i + *ps; j++) visit_expr(l.exprs[j]);
+				echo("\"");
+				in_string.pop();
+			}
+
+			i += *ps;
+		}
+	}
+	else
+	{
+		visit_expr(in->left);
+		if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
+		visit_op(in->op);
+		echo(" ");
+		visit_expr(in->right);
+	}
 }
 
 void AST_unparser::children_conditional_expr(AST_conditional_expr* in)
@@ -889,9 +1015,9 @@ void AST_unparser::children_string(Token_string* in)
 		}
 		else 
 		{
-      echo("\"");
+      if(!in_string.top()) echo("\"");
 			echo(in->source_rep);
-			echo("\"");
+			if(!in_string.top()) echo("\"");
 		}
 	}
 }
@@ -909,7 +1035,10 @@ void AST_unparser::children_null(Token_null* in)
 // Generic classes
 void AST_unparser::pre_node(AST_node* in)
 {
-	if(in->attrs->is_true("phc.unparser.starts_line") && !at_start_of_line)
+	if(    in->attrs->is_true("phc.unparser.starts_line")
+	    && !at_start_of_line 
+			&& !in_string.top()
+	  )
 	{
 		newline();
 		os << args_info.tab_arg;

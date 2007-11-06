@@ -1794,9 +1794,9 @@ YY_RULE_SETUP
 #line 444 "src/generated_src/php_scanner.lex"
 {
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1]);
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -1808,9 +1808,9 @@ YY_RULE_SETUP
 #line 454 "src/generated_src/php_scanner.lex"
 {
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->schedule_return(VARIABLE, &yytext[2], yyleng - 3);
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
@@ -1826,12 +1826,12 @@ YY_RULE_SETUP
 							right = strchr(yytext, ']') - yytext;
 
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(INT, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -1849,12 +1849,12 @@ YY_RULE_SETUP
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(STRING, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -1872,12 +1872,12 @@ YY_RULE_SETUP
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(VARIABLE, &yytext[left+2], right - left - 2);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -1894,11 +1894,11 @@ YY_RULE_SETUP
 							arrow = strchr(yytext, '-') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 							yyextra->schedule_return(VARIABLE, &yytext[1], arrow - 1);
 							yyextra->schedule_return(O_SINGLEARROW);
 							yyextra->schedule_return(IDENT, &yytext[arrow+2]);
-							yyextra->schedule_return('.', ".");
+							yyextra->schedule_return_op(".");
 
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -3499,9 +3499,31 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 
 void PHP_context::schedule_return_string()
 {
+   Token_string* token_string;
+   
+   token_string = new Token_string(new String(value_buffer), new String(source_rep_buffer));
+   copy_state(token_string, this);
+
 	mt_type[mt_count] = STRING;
-	mt_lval[mt_count].token_string = new Token_string(new String(value_buffer), new String(source_rep_buffer));
+	mt_lval[mt_count].token_string = token_string; 
 	mt_count++;
+}
+
+void PHP_context::schedule_return_op(const char* op, const char* attr)
+{
+   Token_op* token_op;
+   
+   token_op = new Token_op(new String(op));
+   copy_state(token_op, this);
+
+   if(attr != NULL)
+   {
+      token_op->attrs->set_true(attr);
+   }
+
+   mt_type[mt_count] = *op;
+   mt_lval[mt_count].token_op = token_op;
+   mt_count++;
 }
 
 void PHP_context::schedule_return(long type, string& s)

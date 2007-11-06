@@ -78,6 +78,7 @@ public:
 	void schedule_return(long type, const char* lval = 0, long length = -1);
 	void schedule_return(long type, string& s);
   void schedule_return_string();
+  void schedule_return_op(const char* op, const char* attr = NULL);
 
 // Dealing with in-string syntax
 public:
