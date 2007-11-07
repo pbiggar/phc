@@ -7,13 +7,11 @@
  */
 
 // Allow the number of processes to be specified locally
-$num = 1;
-if (file_exists ("NUM_PROCS"))
-{
-	$num = (int)file_get_contents ("NUM_PROCS");
-	if ($num == 0) $num = 1;
-}
-define ("NUM_PROCS", $num);
+
+$num = $_ENV["PHC_NUM_PROCS"] or 1;
+if ($num === NULL)
+	$num = 1;
+define ("PHC_NUM_PROCS", (int)$num);
 
 function inst ($string)
 {
@@ -193,7 +191,7 @@ abstract class AsyncTest extends Test
 	{
 		global $running_procs, $waiting_procs;
 
-		while (count ($running_procs) < NUM_PROCS)
+		while (count ($running_procs) < PHC_NUM_PROCS)
 		{
 			inst ("Poll waiting");
 			if (count ($waiting_procs) == 0)
