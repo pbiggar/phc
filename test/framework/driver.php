@@ -73,6 +73,7 @@ if ($opt_installed)
 $tests = array ();
 
 require_once ("basic_parse_test.php");
+require_once ("no_whitespace.php");
 $tests[] = new CompareWithPHP ("Interpret_ast", "--pretty-print", "BasicParseTest");
 $tests[] = new CompareWithPHP ("Interpret_lcf", "--udump=lcf", "Interpret_ast");
 $tests[] = new CompareWithPHP ("Interpret_lef", "--udump=lef", "Interpret_lcf");

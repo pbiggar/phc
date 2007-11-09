@@ -8,10 +8,10 @@
 
 // Allow the number of processes to be specified locally
 
-$num = $_ENV["PHC_NUM_PROCS"] or 1;
-if ($num === NULL)
-	$num = 1;
-define ("PHC_NUM_PROCS", (int)$num);
+if (isset($_ENV["PHC_NUM_PROCS"]))
+	define ("PHC_NUM_PROCS", (int)($_ENV["PHC_NUM_PROCS"]));
+else
+	define ("PHC_NUM_PROCS", 1);
 
 function inst ($string)
 {
@@ -61,7 +61,7 @@ class Async_steps
 
 		if (isset ($this->exit_handlers[$state]))
 		{
-			$handler = $this->err_handlers[$state];
+			$handler = $this->exit_handlers[$state];
 			$result = $object->$handler ($exit, $this);
 			if ($result === false)
 				return;
@@ -107,6 +107,16 @@ abstract class AsyncTest extends Test
 					$async->errs);
 
 		return false;
+	}
+
+	function fail_on_output (&$stream, $async)
+	{
+		if ($stream != 0)
+		{
+			$this->mark_failure ($stream, $async);
+			return false;
+		}
+		return $stream;
 	}
 
 	# Add this program to the list of programs waiting to be

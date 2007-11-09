@@ -54,22 +54,12 @@ class CompiledVsInterpreted extends AsyncTest
 
 	function handle_exit_failure ($exit, $async)
 	{
-		if ($exit != 0)
-		{
-			$this->mark_failure ($exit, $async);
-			return false;
-		}
-		return $exit;
+		fail_on_output ($exit, $async);
 	}
 
 	function handle_err_failure (&$err, $async)
 	{
-		if ($err != "")
-		{
-			$this->mark_failure ($err, $async);
-			return false;
-		}
-		return $err;
+		fail_on_output ($exit, $async);
 	}
 
 	function get_php_command ($subject)
@@ -92,8 +82,8 @@ class CompiledVsInterpreted extends AsyncTest
 
 		$exe_name = wd_name ("$subject.out." . $this->get_name ());
 		$async->commands[1] = $this->get_phc_command ($subject, $exe_name);
-		$async->err_handlers[1] = "handle_err_failure";
-		$async->exit_handlers[1] = "handle_exit_failure";
+		$async->err_handlers[1] = "fail_on_output";
+		$async->exit_handlers[1] = "fail_on_output";
 
 		$async->commands[2] = "$exe_name";
 		$async->out_handlers[2] = "homogenize_output";
