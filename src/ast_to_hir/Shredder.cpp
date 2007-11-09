@@ -273,7 +273,13 @@ AST_expr* Shredder::post_array(AST_array* in)
 
 	// We need to cast it in case its empty
 	pieces->push_back(
-		new AST_eval_expr (new AST_assignment (var->clone (), false, new AST_cast("array", var->clone ()))));
+		new AST_eval_expr (new AST_assignment (
+									var->clone (), 
+									false, 
+									new AST_cast(
+										"array", 
+										new String ("array"), 
+										var->clone ()))));
 	
 
 	List<AST_array_elem*>::const_iterator i;
@@ -436,7 +442,7 @@ AST_expr* Translate_empty::pre_method_invocation(AST_method_invocation* in)
 {
 	if(in->method_name->match(new Token_method_name(new String("empty"))))
 	{
-		Token_cast* boolean = new Token_cast(new String("boolean"));
+		Token_cast* boolean = new Token_cast(new String("boolean"), new String("boolean"));
 		AST_actual_parameter* param = *in->actual_parameters->begin();
 		assert(!param->is_ref);
 		return new AST_unary_op(new AST_cast(boolean, param->expr), "!");

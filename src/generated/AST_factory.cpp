@@ -442,12 +442,6 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Token_op(value);
     }
-    if(!strcmp(type_id, "Token_cast"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_cast(value);
-    }
     if(!strcmp(type_id, "Token_constant_name"))
     {
     	String* value = dynamic_cast<String*>(*i++);

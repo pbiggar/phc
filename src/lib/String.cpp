@@ -27,6 +27,10 @@ String::String(char const* s, size_t n) : string(s, n)
 	attrs = new AttrMap();
 }
 
+String::String(const string& s, size_t i, size_t n) : string(s, i, n)
+{
+}
+
 String::~String() 
 {
 }

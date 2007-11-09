@@ -5475,49 +5475,49 @@ yyreduce:
   case 234:
 #line 2066 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("int", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("int", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 235:
 #line 2070 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("real", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("real", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 236:
 #line 2074 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("string", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("string", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 237:
 #line 2078 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("array", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("array", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 238:
 #line 2082 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("object", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("object", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 239:
 #line 2086 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_cast, ("bool", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("bool", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 240:
 #line 2090 "src/generated_src/php_parser.ypp"
     { 
-			(yyval.ast_expr) = NEW(AST_cast, ("unset", (yyvsp[(2) - (2)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_cast, ("unset", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 

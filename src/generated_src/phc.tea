@@ -107,7 +107,7 @@ list_assignment ::= list_element?* expr ;
 list_element ::= variable | nested_list_elements ;
 nested_list_elements ::= list_element?* ;
 
-cast ::= CAST expr ;
+cast ::= CAST<String*> expr ;
 unary_op ::= OP expr ;
 bin_op ::= left:expr OP right:expr ;
 
@@ -148,7 +148,7 @@ commented_node ::=
 
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	| DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME
+	| DIRECTIVE_NAME | CAST<String*> | OP | CONSTANT_NAME
 	| LABEL_NAME
 	;  
 
@@ -538,10 +538,19 @@ public:
 class AST_cast
 {
 public:
-	AST_cast(const char* cast, AST_expr* expr) 
+	AST_cast(const char* type, String* source_rep, AST_expr* expr) 
 	{
-		this->cast = new Token_cast(new String(cast));
+		this->cast = new Token_cast(new String(type), source_rep);
 		this->expr = expr;
+	}
+};
+
+class Token_cast
+{
+public:
+	String* get_value_as_string ()
+	{
+		return value;
 	}
 };
 
@@ -550,6 +559,7 @@ class AST_identifier
 public:
 	virtual String* get_value_as_string() = 0;
 };
+
 
 class AST_literal
 {

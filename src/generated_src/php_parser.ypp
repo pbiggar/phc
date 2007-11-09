@@ -299,13 +299,13 @@
 
 // Casts
 
-%token CAST_INT
-%token CAST_REAL
-%token CAST_STRING
-%token CAST_ARRAY
-%token CAST_OBJECT
-%token CAST_BOOL
-%token CAST_UNSET
+%token <string> CAST_INT
+%token <string> CAST_REAL
+%token <string> CAST_STRING
+%token <string> CAST_ARRAY
+%token <string> CAST_OBJECT
+%token <string> CAST_BOOL
+%token <string> CAST_UNSET
 
 // Other 
 
@@ -2064,31 +2064,31 @@ expr_without_variable:
 		}
 	| CAST_INT expr
 		{
-			$$ = NEW(AST_cast, ("int", $2));
+			$$ = NEW(AST_cast, ("int", $1, $2));
 		}
 	| CAST_REAL expr
 		{
-			$$ = NEW(AST_cast, ("real", $2));
+			$$ = NEW(AST_cast, ("real", $1, $2));
 		}
 	| CAST_STRING expr
 		{
-			$$ = NEW(AST_cast, ("string", $2));
+			$$ = NEW(AST_cast, ("string", $1, $2));
 		}
 	| CAST_ARRAY expr
 		{
-			$$ = NEW(AST_cast, ("array", $2));
+			$$ = NEW(AST_cast, ("array", $1, $2));
 		}
 	| CAST_OBJECT expr
 		{
-			$$ = NEW(AST_cast, ("object", $2));
+			$$ = NEW(AST_cast, ("object", $1, $2));
 		}
 	| CAST_BOOL expr
 		{
-			$$ = NEW(AST_cast, ("bool", $2));
+			$$ = NEW(AST_cast, ("bool", $1, $2));
 		}
 	| CAST_UNSET expr
 		{ 
-			$$ = NEW(AST_cast, ("unset", $2));
+			$$ = NEW(AST_cast, ("unset", $1, $2));
 		}
 	| K_EXIT exit_expr
 		{

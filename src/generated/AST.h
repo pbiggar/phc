@@ -539,7 +539,7 @@ public:
     List<String*>* get_comments();
 };
 
-// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
+// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME;
 class AST_identifier : virtual public AST_node
 {
 public:
@@ -902,7 +902,7 @@ public:
 class Token_cast : virtual public AST_identifier
 {
 public:
-    Token_cast(String* value);
+    Token_cast(String* value, String* source_rep);
 protected:
     Token_cast();
 public:
@@ -910,18 +910,25 @@ public:
     virtual void transform_children(AST_transform* transform);
 public:
     String* value;
-    virtual String* get_value_as_string();
+    String* source_rep;
+    virtual String* get_source_rep();
 public:
     static const int ID = 66;
     virtual int classid();
 public:
     virtual bool match(AST_node* in);
+    virtual bool match_value(Token_cast* that);
 public:
     virtual bool equals(AST_node* in);
+    virtual bool equals_value(Token_cast* that);
 public:
     virtual Token_cast* clone();
+    virtual String* clone_value();
 public:
     virtual void assert_valid();
+    virtual void assert_value_valid();
+public:
+    String* get_value_as_string();
 };
 
 class Token_constant_name : virtual public AST_identifier
@@ -1661,7 +1668,7 @@ public:
     virtual void assert_valid();
 };
 
-// cast ::= CAST expr ;
+// cast ::= CAST<String*> expr ;
 class AST_cast : virtual public AST_expr
 {
 public:
@@ -1686,7 +1693,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    AST_cast(const char* cast, AST_expr* expr);
+    AST_cast(const char* type, String* source_rep, AST_expr* expr);
 };
 
 // unary_op ::= OP expr ;

@@ -26,6 +26,7 @@ public:
 	String(const string& s); 
 	String(char const* s); 
 	String(char const* s, size_t n);
+	String(const string& s, size_t i, size_t n);
 
 	// case insensitive comparison
 	virtual ~String();

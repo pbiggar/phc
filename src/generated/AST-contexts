@@ -60,7 +60,7 @@
 (variable_name,variable_name,)
 (while,statement,*)
 (BOOL<bool>,expr,)
-(CAST,CAST,)
+(CAST<String*>,CAST<String*>,)
 (CLASS_NAME,CLASS_NAME,)
 (CONSTANT_NAME,CONSTANT_NAME,)
 (DIRECTIVE_NAME,DIRECTIVE_NAME,)

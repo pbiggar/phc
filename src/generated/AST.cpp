@@ -2358,14 +2358,16 @@ void Token_op::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-Token_cast::Token_cast(String* value)
+Token_cast::Token_cast(String* value, String* source_rep)
 {
     this->value = value;
+    this->source_rep = source_rep;
 }
 
 Token_cast::Token_cast()
 {
     this->value = 0;
+    this->source_rep = 0;
 }
 
 void Token_cast::visit(AST_visitor* visitor)
@@ -2378,9 +2380,9 @@ void Token_cast::transform_children(AST_transform* transform)
     transform->children_cast(this);
 }
 
-String* Token_cast::get_value_as_string()
+String* Token_cast::get_source_rep()
 {
-    return value;
+    return source_rep;
 }
 
 int Token_cast::classid()
@@ -2398,10 +2400,18 @@ bool Token_cast::match(AST_node* in)
     Token_cast* that = dynamic_cast<Token_cast*>(in);
     if(that == NULL) return false;
     
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
+    if(!match_value(that))
+    	return false;
+    
+    if(this->source_rep != NULL && that->source_rep != NULL)
+    	return (*this->source_rep == *that->source_rep);
     else
     	return true;
+}
+
+bool Token_cast::match_value(Token_cast* that)
+{
+    return true;
 }
 
 bool Token_cast::equals(AST_node* in)
@@ -2409,30 +2419,56 @@ bool Token_cast::equals(AST_node* in)
     Token_cast* that = dynamic_cast<Token_cast*>(in);
     if(that == NULL) return false;
     
-    if(this->value == NULL || that->value == NULL)
+    if(!equals_value(that))
+    	return false;
+    
+    if(this->source_rep == NULL || that->source_rep == NULL)
     {
-    	if(this->value != NULL || that->value != NULL)
+    	if(this->source_rep != NULL || that->source_rep != NULL)
     		return false;
     }
-    else if(*this->value != *that->value)
+    else if(*this->source_rep != *that->source_rep)
     	return false;
     
     if(!AST_node::is_mixin_equal(that)) return false;
     return true;
 }
 
+bool Token_cast::equals_value(Token_cast* that)
+{
+    return (*this->value == *that->value);
+}
+
 Token_cast* Token_cast::clone()
 {
-    String* value = new String(*this->value);
-    Token_cast* clone = new Token_cast(value);
+    String* source_rep = new String(*this->source_rep);
+    value = clone_value();
+    Token_cast* clone = new Token_cast(value, source_rep);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
 
+String* Token_cast::clone_value()
+{
+    return value;
+}
+
 void Token_cast::assert_valid()
 {
-    assert(value != NULL);
+    assert_value_valid();
     AST_node::assert_mixin_valid();
+}
+
+void Token_cast::assert_value_valid()
+{
+    // Assume value is valid
+}
+
+String* Token_cast::get_value_as_string()
+{
+    {
+		return value;
+	}
 }
 
 Token_constant_name::Token_constant_name(String* value)
@@ -6031,10 +6067,10 @@ void AST_cast::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_cast::AST_cast(const char* cast, AST_expr* expr)
+AST_cast::AST_cast(const char* type, String* source_rep, AST_expr* expr)
 {
     {
-		this->cast = new Token_cast(new String(cast));
+		this->cast = new Token_cast(new String(type), source_rep);
 		this->expr = expr;
 	}
 }

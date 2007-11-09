@@ -966,7 +966,7 @@ void AST_unparser::children_directive_name(Token_directive_name* in)
 
 void AST_unparser::children_cast(Token_cast* in)
 {
-	echo(in->value);
+	echo(in->source_rep);
 }
 
 void AST_unparser::children_op(Token_op* in)

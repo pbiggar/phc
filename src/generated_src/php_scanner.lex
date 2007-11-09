@@ -52,6 +52,14 @@
 		*yylval = yyextra->mt_lval[0];		\
 		RETURN(yyextra->mt_type[0]);
 
+	#define RETURN_CAST(x)													\
+		String str(yytext);													\
+		int start = str.find_first_not_of ("\t (");					\
+		int end = str.find_last_not_of ("\t )");						\
+		assert (start < end);												\
+		yylval->string = new String (str, start, end-start+1);	\
+		RETURN(x);
+
 	#define YY_EXTRA_TYPE PHP_context*
 
 	// Defined in php_parser.ypp
@@ -120,15 +128,34 @@ RELATIONAL		[=><]
 OTHER_OP			[.!,?:$@]
 SIMPLE_OP		{BRACKET}|{ARITHMETIC}|{BITWISE}|{RELATIONAL}|{OTHER_OP}
 
-CS					"("{WS}*
-CE					{WS}*")"
-INT_CAST			{CS}("integer"|"int"){CE}
-REAL_CAST		{CS}("float"|"real"|"double"){CE}
-STRING_CAST		{CS}"string"{CE} 
-ARRAY_CAST		{CS}"array"{CE}
-OBJECT_CAST		{CS}"object"{CE} 
-BOOL_CAST		{CS}("bool"|"boolean"){CE}
-UNSET_CAST		{CS}"unset"{CE}
+CAST_WS			[\t ]
+CS					"("{CAST_WS}*
+CE					{CAST_WS}*")"
+
+C_INTEGER		[iI][nN][tT][eE][gG][eE][rR]
+C_INT				[iI][nN][tT]
+INT_CAST			{CS}({C_INTEGER}|{C_INT}){CE}
+
+C_FLOAT			[fF][lL][oO][aA][tT]
+C_REAL			[rR][eE][aA][lL]
+C_DOUBLE			[dD][oO][uU][bB][lL][eE]
+REAL_CAST		{CS}({C_FLOAT}|{C_REAL}|{C_DOUBLE}){CE}
+
+C_STRING			[sS][tT][rR][iI][nN][gG]
+STRING_CAST		{CS}{C_STRING}{CE} 
+
+C_ARRAY			[aA][rR][rR][aA][yY]
+ARRAY_CAST		{CS}{C_ARRAY}{CE}
+
+C_OBJECT			[oO][bB][jJ][eE][cC][tT]
+OBJECT_CAST		{CS}{C_OBJECT}{CE}
+
+C_BOOL			[bB][oO][oO][lL]
+C_BOOLEAN		[bB][oO][oO][lL][eE][aA][nN]
+BOOL_CAST		{CS}({C_BOOL}|{C_BOOLEAN}){CE}
+
+C_UNSET			[uU][nN][sS][eE][tT]
+UNSET_CAST		{CS}{C_UNSET}{CE}
 
 %%
 
@@ -145,13 +172,13 @@ UNSET_CAST		{CS}"unset"{CE}
 
 	/* Casts */
 
-<PHP>{INT_CAST}		{ RETURN(CAST_INT);  }
-<PHP>{REAL_CAST}		{ RETURN(CAST_REAL);  }
-<PHP>{STRING_CAST}	{ RETURN(CAST_STRING);  }
-<PHP>{ARRAY_CAST}		{ RETURN(CAST_ARRAY);  }
-<PHP>{OBJECT_CAST}	{ RETURN(CAST_OBJECT);  }
-<PHP>{BOOL_CAST}		{ RETURN(CAST_BOOL);  }
-<PHP>{UNSET_CAST}		{ RETURN(CAST_UNSET);  }
+<PHP>{INT_CAST}		{ RETURN_CAST (CAST_INT);  }
+<PHP>{REAL_CAST}		{ RETURN_CAST (CAST_REAL);  }
+<PHP>{STRING_CAST}	{ RETURN_CAST (CAST_STRING);  }
+<PHP>{ARRAY_CAST}		{ RETURN_CAST (CAST_ARRAY);  }
+<PHP>{OBJECT_CAST}	{ RETURN_CAST (CAST_OBJECT);  }
+<PHP>{BOOL_CAST}		{ RETURN_CAST (CAST_BOOL);  }
+<PHP>{UNSET_CAST}		{ RETURN_CAST (CAST_UNSET);  }
 
 	/* Operators */
 
