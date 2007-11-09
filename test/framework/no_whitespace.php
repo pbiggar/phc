@@ -42,7 +42,24 @@ class NoWhitespace extends AsyncTest
 	function finish ($async)
 	{
 		if ($async->outs[0] !== $async->outs[1])
+		{
+			$out0 = $async->outs[0];
+			$out1 = $async->outs[1];
+			for ($i = 0; $i < strlen ($out1); $i++)
+			{
+				if ($out0[$i] != $out1[$i])
+				{
+					$async->outs[] = "\nDifference begins with character $i:\n".
+							substr($out0, $i).
+							"\n\nVs.\n\n".
+							substr($out1, $i).
+							"\n";
+					break;
+				}
+			}
+
 			$this->mark_failure ("Whitespace free output doesnt match", $async);
+		}
 		else
 			$this->mark_success ($async->subject);
 
