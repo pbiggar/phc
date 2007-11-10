@@ -935,13 +935,15 @@ void AST_unparser::visit_member_list(List<AST_member*>* in)
 
 void AST_unparser::visit_statement_list(List<AST_statement*>* in)
 {
-	echo("{");
+	bool no_curlies = in->size() == 1 && in->front()->attrs->is_true("phc.unparser.is_wrapped");
+
+	if(!no_curlies) echo("{");
 	inc_indent();
 
 	AST_visitor::visit_statement_list(in);
 
 	dec_indent();
-	echo("}");
+	if(!no_curlies) echo("}");
 }
 
 void AST_unparser::visit_formal_parameter_list(List<AST_formal_parameter*>* in)
@@ -1257,17 +1259,23 @@ void AST_unparser::children_label_name (Token_label_name* in)
 	echo(in->value);
 }
 
-void 
-AST_unparser::children_goto (AST_goto* in)
+void AST_unparser::children_goto (AST_goto* in)
 {
 	echo ("goto ");
 	visit_label_name (in->label_name);
 	echo_nl (";");
 }
 
-void 
-AST_unparser::children_label (AST_label* in)
+void AST_unparser::children_label (AST_label* in)
 {
 	visit_label_name (in->label_name);
 	echo_nl(":");
+}
+
+void AST_unparser::children_nop (AST_nop* in)
+{
+	// If the NOP is the only statement is a block, and there are no curlies
+	// around it, we must output the semi-colon
+	if(in->attrs->is_true("phc.unparser.is_wrapped"))
+		echo(";");
 }

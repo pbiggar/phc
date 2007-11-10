@@ -74,6 +74,8 @@ public:
 	void children_branch (AST_branch* in);
 	void children_goto(AST_goto* in);
 	void children_label(AST_label* in);
+	void children_nop(AST_nop* in);
+
 	void children_interface_name(Token_interface_name* in);
 	void children_class_name(Token_class_name* in);
 	void children_method_name(Token_method_name* in);

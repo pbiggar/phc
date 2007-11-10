@@ -74,6 +74,7 @@
 	/* Return a new list of statements, containing a single statement */
 	static List<AST_statement*>* wrap(AST_statement* statement)
 	{
+		statement->attrs->set_true("phc.unparser.is_wrapped");
 		List<AST_statement*>* result = new List<AST_statement*>;
 		result->push_back(statement);
 		return result;
@@ -492,6 +493,10 @@ start:
 top_statement_list:
 	  top_statement_list top_statement
 	  	{
+			// is_wrapped attribute is not necessary on top-level statements
+			if(!$2->empty())
+				$2->front()->attrs->erase("phc.unparser.is_wrapped");
+
 			$1->push_back_all($2);
 			$$ = $1;
 		}
@@ -878,7 +883,7 @@ unticked_statement:
 		}
 	| ';'
 		{
-			$$ = new List<AST_statement*>;
+			$$ = wrap(NEW(AST_nop, ())); 
 		}
 	| keyword_try block keyword_catch '(' fully_qualified_class_name VARIABLE ')' block additional_catches
 		{ 
@@ -2912,6 +2917,9 @@ block:
 			// If there are any remaining comments, add them as a NOP
 			if(!context->last_comments.empty())
 				$2->push_back(NEW(AST_nop, ()));
+
+			if(!$2->empty())
+				$2->front()->attrs->erase("phc.unparser.is_wrapped");
 
 			$$ = $2;
 		}
