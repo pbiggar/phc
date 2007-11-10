@@ -602,7 +602,9 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 			
 				if(l.exprs[i]->attrs->has("phc.unparser.heredoc_id"))
 				{
-					os << "<<<" << *l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id") << "\n";
+					echo("<<<");
+					echo(l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id"));
+					echo("\n"); // avoid leading tabs
 				}
 				else
 				{
@@ -618,7 +620,7 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 					if(l.exprs[i]->attrs->is_true("phc.unparser.starts_line"))
 					{
 						newline();
-						os << args_info.tab_arg;
+						echo(args_info.tab_arg);
 					}
 
 					echo("\"");
@@ -633,7 +635,8 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 
 				if(l.exprs[i]->attrs->has("phc.unparser.heredoc_id"))
 				{
-					os << "\n" << *l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id");
+					echo("\n");	// avoid leading tabs
+					echo(l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id"));
 					echo_delayed_newline();
 				}
 				else
@@ -1089,11 +1092,12 @@ void AST_unparser::children_string(Token_string* in)
 			}
 			else if(in->attrs->has("phc.unparser.heredoc_id"))
 			{
-				// Explicitly writing to *os here because we want to
-				// avoiding any leading tabs etc.
-				os << "<<<" << *in->attrs->get_string("phc.unparser.heredoc_id") << "\n";
-				os << *in->source_rep; 
-				os << "\n" << *in->attrs->get_string("phc.unparser.heredoc_id");
+				echo("<<<");
+				echo(in->attrs->get_string("phc.unparser.heredoc_id"));
+				echo("\n"); // avoid leading tabs
+				echo(in->source_rep); 
+				echo("\n");
+				echo(in->attrs->get_string("phc.unparser.heredoc_id"));
 				echo_delayed_newline();
 			}
 			else 
@@ -1125,7 +1129,7 @@ void AST_unparser::pre_node(AST_node* in)
 	  )
 	{
 		newline();
-		os << args_info.tab_arg;
+		echo(args_info.tab_arg);
 	}
 }
 
@@ -1218,7 +1222,7 @@ void AST_unparser::post_commented_node(AST_commented_node* in)
 
 void AST_unparser::children_label_name (Token_label_name* in)
 {
-	os << *in->value;
+	echo(in->value);
 }
 
 void 
@@ -1233,5 +1237,5 @@ void
 AST_unparser::children_label (AST_label* in)
 {
 	visit_label_name (in->label_name);
-	os << ":" << endl;
+	echo_nl(":");
 }
