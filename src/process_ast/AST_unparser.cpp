@@ -121,7 +121,10 @@ void AST_unparser::children_php_script(AST_php_script* in)
   if(in->attrs->has("phc.unparser.hash_bang") && !args_info.no_hash_bang_flag)
     echo(in->attrs->get_string("phc.unparser.hash_bang"));
 
-	echo_nl("<?php");
+	// We don't call output_start_tag here, because the first statement
+	// of the script maybe INLINE_HTML. We rely on the infrastructure in
+	// PHP_unparser to output the tags when we need them
+
 	if(!args_info.no_leading_tab_flag) inc_indent();
 
 	// We don't want to output the { and }, so we manually traverse the list
@@ -130,7 +133,10 @@ void AST_unparser::children_php_script(AST_php_script* in)
 		visit_statement(*i);
 	
 	if(!args_info.no_leading_tab_flag) dec_indent();
-	echo_nl("?>");
+
+	// However, to avoid not outputting a closing tag, we do call 
+	// output_end_tag. If one was output already, nothing will happen
+	output_end_tag();
 }
 
 void AST_unparser::children_interface_def(AST_interface_def* in)
@@ -536,10 +542,25 @@ void AST_unparser::children_throw(AST_throw* in)
 
 void AST_unparser::children_eval_expr(AST_eval_expr* in)
 {
-	visit_expr(in->expr);
-	clear_delayed_newline();
-	echo(";");
-	// The newline gets added by post_commented_node
+	if(in->attrs->is_true("phc.unparser.is_inline_html"))
+	{
+		AST_method_invocation* inv;
+		Token_string* str;
+
+		inv = dynamic_cast<AST_method_invocation*>(in->expr);
+		assert(inv);
+		str = dynamic_cast<Token_string*>(inv->actual_parameters->front()->expr);
+		assert(str);
+
+		echo_html(str->source_rep);
+	}
+	else
+	{
+		visit_expr(in->expr);
+		clear_delayed_newline();
+		echo(";");
+		// The newline gets added by post_commented_node
+	}
 }
 
 void AST_unparser::children_assignment(AST_assignment* in)
@@ -1132,7 +1153,6 @@ void AST_unparser::children_null(Token_null* in)
 void AST_unparser::pre_node(AST_node* in)
 {
 	if(    in->attrs->is_true("phc.unparser.starts_line")
-	    && !at_start_of_line 
 			&& !in_string.top()
 	  )
 	{

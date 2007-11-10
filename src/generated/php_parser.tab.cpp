@@ -964,38 +964,38 @@ static const yytype_uint16 yyrline[] =
      533,   539,   543,   547,   551,   558,   569,   576,   583,   590,
      597,   604,   611,   618,   625,   632,   639,   646,   653,   661,
      665,   698,   723,   730,   737,   746,   753,   757,   761,   765,
-     769,   773,   777,   781,   785,   789,   793,   800,   804,   810,
-     818,   843,   869,   876,   880,   897,   904,   909,   916,   923,
-     932,   945,   951,   959,   966,   970,   977,   984,   992,   995,
-    1002,  1002,  1015,  1015,  1026,  1049,  1054,  1059,  1068,  1071,
-    1078,  1086,  1089,  1100,  1103,  1110,  1120,  1131,  1134,  1141,
-    1145,  1153,  1157,  1164,  1168,  1175,  1179,  1186,  1196,  1207,
-    1211,  1215,  1219,  1227,  1230,  1239,  1254,  1255,  1259,  1263,
-    1271,  1274,  1311,  1314,  1344,  1347,  1358,  1361,  1368,  1373,
-    1383,  1394,  1405,  1416,  1427,  1435,  1443,  1451,  1463,  1466,
-    1471,  1479,  1484,  1490,  1496,  1502,  1508,  1513,  1518,  1526,
-    1531,  1541,  1545,  1549,  1557,  1566,  1575,  1585,  1598,  1605,
-    1611,  1623,  1627,  1627,  1643,  1648,  1655,  1664,  1672,  1675,
-    1682,  1686,  1693,  1697,  1701,  1705,  1709,  1713,  1720,  1729,
-    1738,  1748,  1761,  1770,  1789,  1796,  1805,  1808,  1818,  1822,
-    1829,  1833,  1837,  1841,  1845,  1849,  1853,  1858,  1863,  1868,
-    1873,  1878,  1883,  1888,  1893,  1898,  1903,  1908,  1912,  1916,
-    1920,  1924,  1928,  1932,  1936,  1940,  1944,  1948,  1952,  1956,
-    1960,  1970,  1974,  1978,  1982,  1986,  1990,  1994,  1998,  2003,
-    2007,  2011,  2015,  2019,  2023,  2027,  2031,  2035,  2039,  2043,
-    2047,  2051,  2057,  2061,  2065,  2069,  2073,  2077,  2081,  2085,
-    2089,  2093,  2097,  2101,  2105,  2109,  2116,  2122,  2128,  2132,
-    2139,  2147,  2153,  2164,  2177,  2184,  2190,  2197,  2208,  2211,
-    2215,  2223,  2228,  2235,  2239,  2243,  2247,  2251,  2255,  2259,
-    2263,  2267,  2271,  2275,  2282,  2286,  2291,  2296,  2300,  2304,
-    2311,  2321,  2327,  2331,  2339,  2342,  2351,  2353,  2357,  2364,
-    2371,  2379,  2390,  2394,  2401,  2408,  2415,  2439,  2471,  2482,
-    2488,  2517,  2555,  2560,  2566,  2570,  2582,  2590,  2594,  2601,
-    2605,  2614,  2621,  2626,  2634,  2641,  2646,  2655,  2658,  2665,
-    2669,  2681,  2686,  2694,  2704,  2709,  2720,  2724,  2732,  2738,
-    2751,  2755,  2760,  2767,  2770,  2780,  2787,  2794,  2802,  2810,
-    2818,  2826,  2835,  2847,  2852,  2856,  2860,  2864,  2868,  2872,
-    2879,  2886,  2894,  2907
+     769,   773,   777,   781,   785,   789,   793,   803,   807,   813,
+     821,   846,   872,   879,   883,   900,   907,   912,   919,   926,
+     935,   948,   954,   962,   969,   973,   980,   987,   995,   998,
+    1005,  1005,  1018,  1018,  1029,  1052,  1057,  1062,  1071,  1074,
+    1081,  1089,  1092,  1103,  1106,  1113,  1123,  1134,  1137,  1144,
+    1148,  1156,  1160,  1167,  1171,  1178,  1182,  1189,  1199,  1210,
+    1214,  1218,  1222,  1230,  1233,  1242,  1257,  1258,  1262,  1266,
+    1274,  1277,  1314,  1317,  1347,  1350,  1361,  1364,  1371,  1376,
+    1386,  1397,  1408,  1419,  1430,  1438,  1446,  1454,  1466,  1469,
+    1474,  1482,  1487,  1493,  1499,  1505,  1511,  1516,  1521,  1529,
+    1534,  1544,  1548,  1552,  1560,  1569,  1578,  1588,  1601,  1608,
+    1614,  1626,  1630,  1630,  1646,  1651,  1658,  1667,  1675,  1678,
+    1685,  1689,  1696,  1700,  1704,  1708,  1712,  1716,  1723,  1732,
+    1741,  1751,  1764,  1773,  1792,  1799,  1808,  1811,  1821,  1825,
+    1832,  1836,  1840,  1844,  1848,  1852,  1856,  1861,  1866,  1871,
+    1876,  1881,  1886,  1891,  1896,  1901,  1906,  1911,  1915,  1919,
+    1923,  1927,  1931,  1935,  1939,  1943,  1947,  1951,  1955,  1959,
+    1963,  1973,  1977,  1981,  1985,  1989,  1993,  1997,  2001,  2006,
+    2010,  2014,  2018,  2022,  2026,  2030,  2034,  2038,  2042,  2046,
+    2050,  2054,  2060,  2064,  2068,  2072,  2076,  2080,  2084,  2088,
+    2092,  2096,  2100,  2104,  2108,  2112,  2119,  2125,  2131,  2135,
+    2142,  2150,  2156,  2167,  2180,  2187,  2193,  2200,  2211,  2214,
+    2218,  2226,  2231,  2238,  2242,  2246,  2250,  2254,  2258,  2262,
+    2266,  2270,  2274,  2278,  2285,  2289,  2294,  2299,  2303,  2307,
+    2314,  2324,  2330,  2334,  2342,  2345,  2354,  2356,  2360,  2367,
+    2374,  2382,  2393,  2397,  2404,  2411,  2418,  2442,  2474,  2485,
+    2491,  2520,  2558,  2563,  2569,  2573,  2585,  2593,  2597,  2604,
+    2608,  2617,  2624,  2629,  2637,  2644,  2649,  2658,  2661,  2668,
+    2672,  2684,  2689,  2697,  2707,  2712,  2723,  2727,  2735,  2741,
+    2754,  2758,  2763,  2770,  2773,  2783,  2790,  2797,  2805,  2813,
+    2821,  2829,  2838,  2850,  2855,  2859,  2863,  2867,  2871,  2875,
+    2882,  2889,  2897,  2910
 };
 #endif
 
@@ -3831,22 +3831,25 @@ yyreduce:
   case 46:
 #line 794 "src/generated_src/php_parser.ypp"
     {
-			Token_string* scalar = NEW(Token_string, ((yyvsp[(1) - (1)].string), escape((yyvsp[(1) - (1)].string))));
+			Token_string* scalar = NEW(Token_string, ((yyvsp[(1) - (1)].string), (yyvsp[(1) - (1)].string)));
 			AST_expr* fn = NEW(AST_method_invocation, ("echo", scalar));
-	
-			(yyval.list_ast_statement) = wrap(NEW(AST_eval_expr, (fn)));
+			AST_eval_expr* eval_expr = NEW(AST_eval_expr, (fn));
+
+			eval_expr->attrs->set_true("phc.unparser.is_inline_html");
+
+			(yyval.list_ast_statement) = wrap(eval_expr);
 		;}
     break;
 
   case 47:
-#line 801 "src/generated_src/php_parser.ypp"
+#line 804 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = wrap(NEW(AST_eval_expr, ((yyvsp[(1) - (2)].ast_expr))));
 		;}
     break;
 
   case 48:
-#line 805 "src/generated_src/php_parser.ypp"
+#line 808 "src/generated_src/php_parser.ypp"
     {
 			AST_method_invocation* fn;
 			fn = NEW(AST_method_invocation, ("use", (yyvsp[(2) - (3)].token_string)));
@@ -3855,7 +3858,7 @@ yyreduce:
     break;
 
   case 49:
-#line 811 "src/generated_src/php_parser.ypp"
+#line 814 "src/generated_src/php_parser.ypp"
     {
 			AST_method_invocation* fn;
 			Token_method_name* unset;
@@ -3866,7 +3869,7 @@ yyreduce:
     break;
 
   case 50:
-#line 819 "src/generated_src/php_parser.ypp"
+#line 822 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (8)].ast_foreach)->expr = (yyvsp[(3) - (8)].ast_expr);
 			(yyvsp[(1) - (8)].ast_foreach)->statements = (yyvsp[(8) - (8)].list_ast_statement);
@@ -3894,7 +3897,7 @@ yyreduce:
     break;
 
   case 51:
-#line 844 "src/generated_src/php_parser.ypp"
+#line 847 "src/generated_src/php_parser.ypp"
     { 
 			// Duplication of the logic in the previous rule
 			(yyvsp[(1) - (8)].ast_foreach)->expr = (yyvsp[(3) - (8)].ast_expr);
@@ -3923,7 +3926,7 @@ yyreduce:
     break;
 
   case 52:
-#line 870 "src/generated_src/php_parser.ypp"
+#line 873 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (5)].ast_declare)->directives = (yyvsp[(3) - (5)].list_ast_directive);
 			(yyvsp[(1) - (5)].ast_declare)->statements = (yyvsp[(5) - (5)].list_ast_statement);
@@ -3933,14 +3936,14 @@ yyreduce:
     break;
 
   case 53:
-#line 877 "src/generated_src/php_parser.ypp"
+#line 880 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = new List<AST_statement*>;
 		;}
     break;
 
   case 54:
-#line 881 "src/generated_src/php_parser.ypp"
+#line 884 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* var = new Token_variable_name((yyvsp[(6) - (9)].string));
 			
@@ -3960,21 +3963,21 @@ yyreduce:
     break;
 
   case 55:
-#line 898 "src/generated_src/php_parser.ypp"
+#line 901 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = wrap(NEW(AST_throw, ((yyvsp[(2) - (3)].ast_expr)))); 
 		;}
     break;
 
   case 56:
-#line 905 "src/generated_src/php_parser.ypp"
+#line 908 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_catch) = (yyvsp[(1) - (1)].list_ast_catch);
 		;}
     break;
 
   case 57:
-#line 909 "src/generated_src/php_parser.ypp"
+#line 912 "src/generated_src/php_parser.ypp"
     {
 			List<AST_catch*>* catches = new List<AST_catch*>;
 			(yyval.list_ast_catch) = catches; 
@@ -3982,7 +3985,7 @@ yyreduce:
     break;
 
   case 58:
-#line 917 "src/generated_src/php_parser.ypp"
+#line 920 "src/generated_src/php_parser.ypp"
     {
 			List<AST_catch*>* catches = new List<AST_catch*>;
 			catches->push_back((yyvsp[(1) - (1)].ast_catch));
@@ -3992,7 +3995,7 @@ yyreduce:
     break;
 
   case 59:
-#line 924 "src/generated_src/php_parser.ypp"
+#line 927 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (2)].list_ast_catch)->push_back((yyvsp[(2) - (2)].ast_catch));
 			
@@ -4001,7 +4004,7 @@ yyreduce:
     break;
 
   case 60:
-#line 933 "src/generated_src/php_parser.ypp"
+#line 936 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* var = new Token_variable_name((yyvsp[(4) - (6)].string));
 			
@@ -4014,7 +4017,7 @@ yyreduce:
     break;
 
   case 61:
-#line 946 "src/generated_src/php_parser.ypp"
+#line 949 "src/generated_src/php_parser.ypp"
     {
 			List<AST_actual_parameter*>* vars = new List<AST_actual_parameter*>;
 			vars->push_back(new AST_actual_parameter(false, (yyvsp[(1) - (1)].ast_variable)));
@@ -4023,7 +4026,7 @@ yyreduce:
     break;
 
   case 62:
-#line 952 "src/generated_src/php_parser.ypp"
+#line 955 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].list_ast_actual_parameter)->push_back(new AST_actual_parameter(false, (yyvsp[(3) - (3)].ast_variable)));
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (3)].list_ast_actual_parameter); 
@@ -4031,61 +4034,61 @@ yyreduce:
     break;
 
   case 63:
-#line 960 "src/generated_src/php_parser.ypp"
+#line 963 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = expect_variable((yyvsp[(1) - (1)].ast_expr));
 		;}
     break;
 
   case 64:
-#line 967 "src/generated_src/php_parser.ypp"
+#line 970 "src/generated_src/php_parser.ypp"
     {
 			(yyval.token_string) = (yyvsp[(1) - (1)].token_string);	
 		;}
     break;
 
   case 65:
-#line 971 "src/generated_src/php_parser.ypp"
+#line 974 "src/generated_src/php_parser.ypp"
     {
 			(yyval.token_string) = (yyvsp[(2) - (3)].token_string);	
 		;}
     break;
 
   case 66:
-#line 978 "src/generated_src/php_parser.ypp"
+#line 981 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method) = (yyvsp[(1) - (1)].ast_method);
 		;}
     break;
 
   case 67:
-#line 985 "src/generated_src/php_parser.ypp"
+#line 988 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_statement) = (yyvsp[(1) - (1)].ast_statement);
 		;}
     break;
 
   case 68:
-#line 992 "src/generated_src/php_parser.ypp"
+#line 995 "src/generated_src/php_parser.ypp"
     {
 			(yyval.integer) = new Integer(0);
 		;}
     break;
 
   case 69:
-#line 996 "src/generated_src/php_parser.ypp"
+#line 999 "src/generated_src/php_parser.ypp"
     {
 			(yyval.integer) = new Integer(1);
 		;}
     break;
 
   case 70:
-#line 1002 "src/generated_src/php_parser.ypp"
+#line 1005 "src/generated_src/php_parser.ypp"
     {context->current_method = dynamic_cast<String*>((yyvsp[(3) - (3)].string));;}
     break;
 
   case 71:
-#line 1003 "src/generated_src/php_parser.ypp"
+#line 1006 "src/generated_src/php_parser.ypp"
     {
 			Token_method_name* name = new Token_method_name((yyvsp[(3) - (8)].string));
 		
@@ -4098,12 +4101,12 @@ yyreduce:
     break;
 
   case 72:
-#line 1015 "src/generated_src/php_parser.ypp"
+#line 1018 "src/generated_src/php_parser.ypp"
     {context->current_class = dynamic_cast<String*>((yyvsp[(2) - (2)].string));;}
     break;
 
   case 73:
-#line 1016 "src/generated_src/php_parser.ypp"
+#line 1019 "src/generated_src/php_parser.ypp"
     { 
 			Token_class_name* name = new Token_class_name((yyvsp[(2) - (8)].string));
 
@@ -4117,7 +4120,7 @@ yyreduce:
     break;
 
   case 74:
-#line 1027 "src/generated_src/php_parser.ypp"
+#line 1030 "src/generated_src/php_parser.ypp"
     {
 			Token_interface_name* name = new Token_interface_name((yyvsp[(2) - (6)].string));
 
@@ -4130,7 +4133,7 @@ yyreduce:
     break;
 
   case 75:
-#line 1050 "src/generated_src/php_parser.ypp"
+#line 1053 "src/generated_src/php_parser.ypp"
     { 
 			AST_class_mod* mod = NEW(AST_class_mod, (false, false));
 			(yyval.ast_class_def) = NEW(AST_class_def, (mod));
@@ -4138,7 +4141,7 @@ yyreduce:
     break;
 
   case 76:
-#line 1055 "src/generated_src/php_parser.ypp"
+#line 1058 "src/generated_src/php_parser.ypp"
     { 
 			AST_class_mod* mod = NEW(AST_class_mod, (true, false)); 
 			(yyval.ast_class_def) = NEW(AST_class_def, (mod));
@@ -4146,7 +4149,7 @@ yyreduce:
     break;
 
   case 77:
-#line 1060 "src/generated_src/php_parser.ypp"
+#line 1063 "src/generated_src/php_parser.ypp"
     { 
 			AST_class_mod* mod = NEW(AST_class_mod, (false, true)); 
 			(yyval.ast_class_def) = NEW(AST_class_def, (mod));
@@ -4154,56 +4157,56 @@ yyreduce:
     break;
 
   case 78:
-#line 1068 "src/generated_src/php_parser.ypp"
+#line 1071 "src/generated_src/php_parser.ypp"
     {
 			(yyval.token_class_name) = NULL;
 		;}
     break;
 
   case 79:
-#line 1072 "src/generated_src/php_parser.ypp"
+#line 1075 "src/generated_src/php_parser.ypp"
     {
 			(yyval.token_class_name) = (yyvsp[(2) - (2)].token_class_name);
 		;}
     break;
 
   case 80:
-#line 1079 "src/generated_src/php_parser.ypp"
+#line 1082 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_interface_def) = NEW(AST_interface_def, (NULL, NULL, NULL));
 		;}
     break;
 
   case 81:
-#line 1086 "src/generated_src/php_parser.ypp"
+#line 1089 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_token_interface_name) = new List<Token_interface_name*>;
 		;}
     break;
 
   case 82:
-#line 1090 "src/generated_src/php_parser.ypp"
+#line 1093 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_token_interface_name) = (yyvsp[(2) - (2)].list_token_interface_name);
 		;}
     break;
 
   case 83:
-#line 1100 "src/generated_src/php_parser.ypp"
+#line 1103 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_token_interface_name) = new List<Token_interface_name*>;
 		;}
     break;
 
   case 84:
-#line 1104 "src/generated_src/php_parser.ypp"
+#line 1107 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_token_interface_name) = (yyvsp[(2) - (2)].list_token_interface_name);
 		;}
     break;
 
   case 85:
-#line 1111 "src/generated_src/php_parser.ypp"
+#line 1114 "src/generated_src/php_parser.ypp"
     {
 			Token_interface_name* ifn = NEW(Token_interface_name, ((yyvsp[(1) - (1)].token_class_name)->value));
 		
@@ -4216,7 +4219,7 @@ yyreduce:
     break;
 
   case 86:
-#line 1121 "src/generated_src/php_parser.ypp"
+#line 1124 "src/generated_src/php_parser.ypp"
     {
 			Token_interface_name* ifn = NEW(Token_interface_name, ((yyvsp[(3) - (3)].token_class_name)->value));
 			(yyvsp[(1) - (3)].list_token_interface_name)->push_back(ifn);
@@ -4226,28 +4229,28 @@ yyreduce:
     break;
 
   case 87:
-#line 1131 "src/generated_src/php_parser.ypp"
+#line 1134 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = NULL;
 		;}
     break;
 
   case 88:
-#line 1135 "src/generated_src/php_parser.ypp"
+#line 1138 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(2) - (2)].ast_variable);
 		;}
     break;
 
   case 89:
-#line 1142 "src/generated_src/php_parser.ypp"
+#line 1145 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = expect_variable((yyvsp[(1) - (1)].ast_expr));
 		;}
     break;
 
   case 90:
-#line 1146 "src/generated_src/php_parser.ypp"
+#line 1149 "src/generated_src/php_parser.ypp"
     { 
 			(yyvsp[(2) - (2)].ast_expr)->attrs->set_true("phc.parser.is_ref");
 			(yyval.ast_variable) = expect_variable((yyvsp[(2) - (2)].ast_expr)); 
@@ -4255,49 +4258,49 @@ yyreduce:
     break;
 
   case 91:
-#line 1154 "src/generated_src/php_parser.ypp"
+#line 1157 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(1) - (1)].list_ast_statement);
 		;}
     break;
 
   case 92:
-#line 1158 "src/generated_src/php_parser.ypp"
+#line 1161 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(2) - (4)].list_ast_statement);
 		;}
     break;
 
   case 93:
-#line 1165 "src/generated_src/php_parser.ypp"
+#line 1168 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(1) - (1)].list_ast_statement);
 		;}
     break;
 
   case 94:
-#line 1169 "src/generated_src/php_parser.ypp"
+#line 1172 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(2) - (4)].list_ast_statement);
 		;}
     break;
 
   case 95:
-#line 1176 "src/generated_src/php_parser.ypp"
+#line 1179 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(1) - (1)].list_ast_statement);
 		;}
     break;
 
   case 96:
-#line 1180 "src/generated_src/php_parser.ypp"
+#line 1183 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(2) - (4)].list_ast_statement);
 		;}
     break;
 
   case 97:
-#line 1187 "src/generated_src/php_parser.ypp"
+#line 1190 "src/generated_src/php_parser.ypp"
     {
 			Token_directive_name* name = new Token_directive_name((yyvsp[(1) - (3)].string));
 
@@ -4310,7 +4313,7 @@ yyreduce:
     break;
 
   case 98:
-#line 1197 "src/generated_src/php_parser.ypp"
+#line 1200 "src/generated_src/php_parser.ypp"
     {
 			Token_directive_name* name = new Token_directive_name((yyvsp[(3) - (5)].string));	
 			
@@ -4321,42 +4324,42 @@ yyreduce:
     break;
 
   case 99:
-#line 1208 "src/generated_src/php_parser.ypp"
+#line 1211 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_switch_case) = (yyvsp[(2) - (3)].list_ast_switch_case);
 		;}
     break;
 
   case 100:
-#line 1212 "src/generated_src/php_parser.ypp"
+#line 1215 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_switch_case) = (yyvsp[(3) - (4)].list_ast_switch_case);
 		;}
     break;
 
   case 101:
-#line 1216 "src/generated_src/php_parser.ypp"
+#line 1219 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_switch_case) = (yyvsp[(2) - (4)].list_ast_switch_case);
 		;}
     break;
 
   case 102:
-#line 1220 "src/generated_src/php_parser.ypp"
+#line 1223 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_switch_case) = (yyvsp[(3) - (5)].list_ast_switch_case);
 		;}
     break;
 
   case 103:
-#line 1227 "src/generated_src/php_parser.ypp"
+#line 1230 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_switch_case) = new List<AST_switch_case*>;
 		;}
     break;
 
   case 104:
-#line 1231 "src/generated_src/php_parser.ypp"
+#line 1234 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(2) - (5)].ast_switch_case)->statements = (yyvsp[(5) - (5)].list_ast_statement);
 			(yyvsp[(2) - (5)].ast_switch_case)->expr = (yyvsp[(3) - (5)].ast_expr);
@@ -4368,7 +4371,7 @@ yyreduce:
     break;
 
   case 105:
-#line 1240 "src/generated_src/php_parser.ypp"
+#line 1243 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(2) - (4)].ast_switch_case)->statements = (yyvsp[(4) - (4)].list_ast_statement);
 			(yyvsp[(2) - (4)].ast_switch_case)->expr = NULL;
@@ -4380,28 +4383,28 @@ yyreduce:
     break;
 
   case 108:
-#line 1260 "src/generated_src/php_parser.ypp"
+#line 1263 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(1) - (1)].list_ast_statement);
 		;}
     break;
 
   case 109:
-#line 1264 "src/generated_src/php_parser.ypp"
+#line 1267 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(2) - (4)].list_ast_statement);
 		;}
     break;
 
   case 110:
-#line 1271 "src/generated_src/php_parser.ypp"
+#line 1274 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_if) = NULL;
 		;}
     break;
 
   case 111:
-#line 1275 "src/generated_src/php_parser.ypp"
+#line 1278 "src/generated_src/php_parser.ypp"
     {
 			List<AST_statement*>* empty = new List<AST_statement*>;
 			
@@ -4434,14 +4437,14 @@ yyreduce:
     break;
 
   case 112:
-#line 1311 "src/generated_src/php_parser.ypp"
+#line 1314 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_if) = NULL;
 		;}
     break;
 
   case 113:
-#line 1315 "src/generated_src/php_parser.ypp"
+#line 1318 "src/generated_src/php_parser.ypp"
     {
 			List<AST_statement*>* empty = new List<AST_statement*>;
 			
@@ -4470,42 +4473,42 @@ yyreduce:
     break;
 
   case 114:
-#line 1344 "src/generated_src/php_parser.ypp"
+#line 1347 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = new List<AST_statement*>;
 		;}
     break;
 
   case 115:
-#line 1348 "src/generated_src/php_parser.ypp"
+#line 1351 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(2) - (2)].list_ast_statement);
 		;}
     break;
 
   case 116:
-#line 1358 "src/generated_src/php_parser.ypp"
+#line 1361 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = new List<AST_statement*>;
 		;}
     break;
 
   case 117:
-#line 1362 "src/generated_src/php_parser.ypp"
+#line 1365 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(3) - (3)].list_ast_statement);
 		;}
     break;
 
   case 118:
-#line 1369 "src/generated_src/php_parser.ypp"
+#line 1372 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_formal_parameter) = (yyvsp[(1) - (1)].list_ast_formal_parameter);
 		;}
     break;
 
   case 119:
-#line 1373 "src/generated_src/php_parser.ypp"
+#line 1376 "src/generated_src/php_parser.ypp"
     { 
 			List<AST_formal_parameter*>* params = new List<AST_formal_parameter*>;
 			(yyval.list_ast_formal_parameter) = params;
@@ -4513,7 +4516,7 @@ yyreduce:
     break;
 
   case 120:
-#line 1384 "src/generated_src/php_parser.ypp"
+#line 1387 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(2) - (2)].string));
 			
@@ -4527,7 +4530,7 @@ yyreduce:
     break;
 
   case 121:
-#line 1395 "src/generated_src/php_parser.ypp"
+#line 1398 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (3)].string));
 			
@@ -4541,7 +4544,7 @@ yyreduce:
     break;
 
   case 122:
-#line 1406 "src/generated_src/php_parser.ypp"
+#line 1409 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (5)].string));
 			
@@ -4555,7 +4558,7 @@ yyreduce:
     break;
 
   case 123:
-#line 1417 "src/generated_src/php_parser.ypp"
+#line 1420 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(2) - (4)].string));
 			
@@ -4569,7 +4572,7 @@ yyreduce:
     break;
 
   case 124:
-#line 1428 "src/generated_src/php_parser.ypp"
+#line 1431 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(4) - (4)].string));
 			
@@ -4580,7 +4583,7 @@ yyreduce:
     break;
 
   case 125:
-#line 1436 "src/generated_src/php_parser.ypp"
+#line 1439 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(5) - (5)].string));
 			
@@ -4591,7 +4594,7 @@ yyreduce:
     break;
 
   case 126:
-#line 1444 "src/generated_src/php_parser.ypp"
+#line 1447 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(5) - (7)].string));
 			
@@ -4602,7 +4605,7 @@ yyreduce:
     break;
 
   case 127:
-#line 1452 "src/generated_src/php_parser.ypp"
+#line 1455 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(4) - (6)].string));
 			
@@ -4613,14 +4616,14 @@ yyreduce:
     break;
 
   case 128:
-#line 1463 "src/generated_src/php_parser.ypp"
+#line 1466 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_type) = NEW(AST_type, (NULL));
 		;}
     break;
 
   case 129:
-#line 1467 "src/generated_src/php_parser.ypp"
+#line 1470 "src/generated_src/php_parser.ypp"
     { 
 			Token_class_name* class_name = new Token_class_name((yyvsp[(1) - (1)].string));
 			(yyval.ast_type) = NEW(AST_type, (class_name)); 
@@ -4628,7 +4631,7 @@ yyreduce:
     break;
 
   case 130:
-#line 1472 "src/generated_src/php_parser.ypp"
+#line 1475 "src/generated_src/php_parser.ypp"
     {
 			Token_class_name* class_name = new Token_class_name(new String ("array"));
 			(yyval.ast_type) = NEW(AST_type, (class_name)); 
@@ -4636,21 +4639,21 @@ yyreduce:
     break;
 
   case 131:
-#line 1480 "src/generated_src/php_parser.ypp"
+#line 1483 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (1)].list_ast_actual_parameter);
 		;}
     break;
 
   case 132:
-#line 1484 "src/generated_src/php_parser.ypp"
+#line 1487 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_actual_parameter) = new List<AST_actual_parameter*>;
 		;}
     break;
 
   case 133:
-#line 1491 "src/generated_src/php_parser.ypp"
+#line 1494 "src/generated_src/php_parser.ypp"
     {
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
 			list->push_back(NEW(AST_actual_parameter, (false, (yyvsp[(1) - (1)].ast_expr))));
@@ -4659,7 +4662,7 @@ yyreduce:
     break;
 
   case 134:
-#line 1497 "src/generated_src/php_parser.ypp"
+#line 1500 "src/generated_src/php_parser.ypp"
     {
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
 			list->push_back(NEW(AST_actual_parameter, (false, (yyvsp[(1) - (1)].ast_expr))));
@@ -4668,7 +4671,7 @@ yyreduce:
     break;
 
   case 135:
-#line 1503 "src/generated_src/php_parser.ypp"
+#line 1506 "src/generated_src/php_parser.ypp"
     {
 			List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
 			list->push_back(NEW(AST_actual_parameter, (true, (yyvsp[(2) - (2)].ast_expr))));
@@ -4677,7 +4680,7 @@ yyreduce:
     break;
 
   case 136:
-#line 1509 "src/generated_src/php_parser.ypp"
+#line 1512 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].list_ast_actual_parameter)->push_back(NEW(AST_actual_parameter, (false, (yyvsp[(3) - (3)].ast_expr))));
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (3)].list_ast_actual_parameter);
@@ -4685,7 +4688,7 @@ yyreduce:
     break;
 
   case 137:
-#line 1514 "src/generated_src/php_parser.ypp"
+#line 1517 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].list_ast_actual_parameter)->push_back(NEW(AST_actual_parameter, (false, (yyvsp[(3) - (3)].ast_expr))));
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (3)].list_ast_actual_parameter);
@@ -4693,7 +4696,7 @@ yyreduce:
     break;
 
   case 138:
-#line 1519 "src/generated_src/php_parser.ypp"
+#line 1522 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (4)].list_ast_actual_parameter)->push_back(NEW(AST_actual_parameter, (true, (yyvsp[(4) - (4)].ast_expr))));
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (4)].list_ast_actual_parameter); 
@@ -4701,7 +4704,7 @@ yyreduce:
     break;
 
   case 139:
-#line 1527 "src/generated_src/php_parser.ypp"
+#line 1530 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].list_ast_variable_name)->push_back((yyvsp[(3) - (3)].ast_variable_name));
 			(yyval.list_ast_variable_name) = (yyvsp[(1) - (3)].list_ast_variable_name);
@@ -4709,7 +4712,7 @@ yyreduce:
     break;
 
   case 140:
-#line 1532 "src/generated_src/php_parser.ypp"
+#line 1535 "src/generated_src/php_parser.ypp"
     {
 			List<AST_variable_name*>* list = new List<AST_variable_name*>;
 			list->push_back((yyvsp[(1) - (1)].ast_variable_name));
@@ -4719,21 +4722,21 @@ yyreduce:
     break;
 
   case 141:
-#line 1542 "src/generated_src/php_parser.ypp"
+#line 1545 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable_name) = NEW(Token_variable_name, ((yyvsp[(1) - (1)].string)));
 		;}
     break;
 
   case 142:
-#line 1546 "src/generated_src/php_parser.ypp"
+#line 1549 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 143:
-#line 1550 "src/generated_src/php_parser.ypp"
+#line 1553 "src/generated_src/php_parser.ypp"
     { 
 			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr)));
@@ -4741,7 +4744,7 @@ yyreduce:
     break;
 
   case 144:
-#line 1558 "src/generated_src/php_parser.ypp"
+#line 1561 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (3)].string));
 			
@@ -4753,7 +4756,7 @@ yyreduce:
     break;
 
   case 145:
-#line 1567 "src/generated_src/php_parser.ypp"
+#line 1570 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (5)].string));
 
@@ -4765,7 +4768,7 @@ yyreduce:
     break;
 
   case 146:
-#line 1576 "src/generated_src/php_parser.ypp"
+#line 1579 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(1) - (1)].string));
 			
@@ -4778,7 +4781,7 @@ yyreduce:
     break;
 
   case 147:
-#line 1586 "src/generated_src/php_parser.ypp"
+#line 1589 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(1) - (3)].string));
 			
@@ -4791,7 +4794,7 @@ yyreduce:
     break;
 
   case 148:
-#line 1599 "src/generated_src/php_parser.ypp"
+#line 1602 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (2)].list_ast_member)->push_back_all((yyvsp[(2) - (2)].list_ast_member));
 			
@@ -4800,14 +4803,14 @@ yyreduce:
     break;
 
   case 149:
-#line 1605 "src/generated_src/php_parser.ypp"
+#line 1608 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_member) = new List<AST_member*>;
 		;}
     break;
 
   case 150:
-#line 1612 "src/generated_src/php_parser.ypp"
+#line 1615 "src/generated_src/php_parser.ypp"
     {
 			List<AST_member*>::iterator i;
 			for(i = (yyvsp[(2) - (3)].list_ast_member)->begin(); i != (yyvsp[(2) - (3)].list_ast_member)->end(); i++)
@@ -4822,19 +4825,19 @@ yyreduce:
     break;
 
   case 151:
-#line 1624 "src/generated_src/php_parser.ypp"
+#line 1627 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_member) = (yyvsp[(1) - (2)].list_ast_member);
 		;}
     break;
 
   case 152:
-#line 1627 "src/generated_src/php_parser.ypp"
+#line 1630 "src/generated_src/php_parser.ypp"
     {context->current_method = dynamic_cast<String*>((yyvsp[(4) - (4)].string));;}
     break;
 
   case 153:
-#line 1628 "src/generated_src/php_parser.ypp"
+#line 1631 "src/generated_src/php_parser.ypp"
     {
 			Token_method_name* name = new Token_method_name((yyvsp[(4) - (9)].string));
 		
@@ -4850,7 +4853,7 @@ yyreduce:
     break;
 
   case 154:
-#line 1644 "src/generated_src/php_parser.ypp"
+#line 1647 "src/generated_src/php_parser.ypp"
     {
 			// Abstract method
 			(yyval.list_ast_statement) = NULL; 
@@ -4858,14 +4861,14 @@ yyreduce:
     break;
 
   case 155:
-#line 1649 "src/generated_src/php_parser.ypp"
+#line 1652 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_statement) = (yyvsp[(1) - (1)].list_ast_statement);
 		;}
     break;
 
   case 156:
-#line 1656 "src/generated_src/php_parser.ypp"
+#line 1659 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(1) - (1)].ast_method_mod)->is_abstract)
 			{
@@ -4877,84 +4880,84 @@ yyreduce:
     break;
 
   case 157:
-#line 1665 "src/generated_src/php_parser.ypp"
+#line 1668 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_attr_mod) = NEW(AST_attr_mod, (false, false, false, false, false));
 		;}
     break;
 
   case 158:
-#line 1672 "src/generated_src/php_parser.ypp"
+#line 1675 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = new AST_method_mod();
 		;}
     break;
 
   case 159:
-#line 1676 "src/generated_src/php_parser.ypp"
+#line 1679 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = (yyvsp[(1) - (1)].ast_method_mod);
 		;}
     break;
 
   case 160:
-#line 1683 "src/generated_src/php_parser.ypp"
+#line 1686 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = (yyvsp[(1) - (1)].ast_method_mod);
 		;}
     break;
 
   case 161:
-#line 1687 "src/generated_src/php_parser.ypp"
+#line 1690 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = NEW(AST_method_mod, ((yyvsp[(1) - (2)].ast_method_mod), (yyvsp[(2) - (2)].ast_method_mod))); 
 		;}
     break;
 
   case 162:
-#line 1694 "src/generated_src/php_parser.ypp"
+#line 1697 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_PUBLIC();
 		;}
     break;
 
   case 163:
-#line 1698 "src/generated_src/php_parser.ypp"
+#line 1701 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_PROTECTED();
 		;}
     break;
 
   case 164:
-#line 1702 "src/generated_src/php_parser.ypp"
+#line 1705 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_PRIVATE();
 		;}
     break;
 
   case 165:
-#line 1706 "src/generated_src/php_parser.ypp"
+#line 1709 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_STATIC();
 		;}
     break;
 
   case 166:
-#line 1710 "src/generated_src/php_parser.ypp"
+#line 1713 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_ABSTRACT();
 		;}
     break;
 
   case 167:
-#line 1714 "src/generated_src/php_parser.ypp"
+#line 1717 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_mod) = AST_method_mod::new_FINAL();
 		;}
     break;
 
   case 168:
-#line 1721 "src/generated_src/php_parser.ypp"
+#line 1724 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (3)].string));
 			
@@ -4966,7 +4969,7 @@ yyreduce:
     break;
 
   case 169:
-#line 1730 "src/generated_src/php_parser.ypp"
+#line 1733 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (5)].string));
 			
@@ -4978,7 +4981,7 @@ yyreduce:
     break;
 
   case 170:
-#line 1739 "src/generated_src/php_parser.ypp"
+#line 1742 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(1) - (1)].string));
 			List<AST_member*>* members = new List<AST_member*>;
@@ -4991,7 +4994,7 @@ yyreduce:
     break;
 
   case 171:
-#line 1749 "src/generated_src/php_parser.ypp"
+#line 1752 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* name = new Token_variable_name((yyvsp[(1) - (3)].string));
 			List<AST_member*>* members = new List<AST_member*>;
@@ -5004,7 +5007,7 @@ yyreduce:
     break;
 
   case 172:
-#line 1762 "src/generated_src/php_parser.ypp"
+#line 1765 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(3) - (5)].string));
 
@@ -5016,7 +5019,7 @@ yyreduce:
     break;
 
   case 173:
-#line 1771 "src/generated_src/php_parser.ypp"
+#line 1774 "src/generated_src/php_parser.ypp"
     {
 			Token_variable_name* name = new Token_variable_name((yyvsp[(2) - (4)].string));
 			List<AST_member*>* members = new List<AST_member*>;
@@ -5029,7 +5032,7 @@ yyreduce:
     break;
 
   case 174:
-#line 1790 "src/generated_src/php_parser.ypp"
+#line 1793 "src/generated_src/php_parser.ypp"
     {
 			AST_method_invocation* fn = dynamic_cast <AST_method_invocation*> (dynamic_cast<AST_eval_expr*>((yyvsp[(1) - (3)].ast_statement))->expr);
 			fn->actual_parameters->push_back (NEW (AST_actual_parameter, (false, (yyvsp[(3) - (3)].ast_expr))));
@@ -5039,7 +5042,7 @@ yyreduce:
     break;
 
   case 175:
-#line 1797 "src/generated_src/php_parser.ypp"
+#line 1800 "src/generated_src/php_parser.ypp"
     {
 			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", (yyvsp[(1) - (1)].ast_expr)));
 			(yyval.ast_statement) = (NEW(AST_eval_expr, (fn)));
@@ -5047,77 +5050,77 @@ yyreduce:
     break;
 
   case 176:
-#line 1805 "src/generated_src/php_parser.ypp"
+#line 1808 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NULL;
 		;}
     break;
 
   case 177:
-#line 1809 "src/generated_src/php_parser.ypp"
+#line 1812 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr)
 		;}
     break;
 
   case 178:
-#line 1819 "src/generated_src/php_parser.ypp"
+#line 1822 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 179:
-#line 1823 "src/generated_src/php_parser.ypp"
+#line 1826 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 180:
-#line 1830 "src/generated_src/php_parser.ypp"
+#line 1833 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_list_assignment, ((yyvsp[(3) - (6)].ast_nested_list_elements)->list_elements, (yyvsp[(6) - (6)].ast_expr)));
 		;}
     break;
 
   case 181:
-#line 1834 "src/generated_src/php_parser.ypp"
+#line 1837 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_assignment, (expect_variable((yyvsp[(1) - (3)].ast_expr)), false, (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 182:
-#line 1838 "src/generated_src/php_parser.ypp"
+#line 1841 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_assignment, (expect_variable((yyvsp[(1) - (4)].ast_expr)), true, (yyvsp[(4) - (4)].ast_expr)));
 		;}
     break;
 
   case 183:
-#line 1842 "src/generated_src/php_parser.ypp"
+#line 1845 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_assignment, (expect_variable((yyvsp[(1) - (6)].ast_expr)), true, NEW(AST_new, ((yyvsp[(5) - (6)].ast_class_name), (yyvsp[(6) - (6)].list_ast_actual_parameter)))));
 		;}
     break;
 
   case 184:
-#line 1846 "src/generated_src/php_parser.ypp"
+#line 1849 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_new, ((yyvsp[(2) - (3)].ast_class_name), (yyvsp[(3) - (3)].list_ast_actual_parameter)));
 		;}
     break;
 
   case 185:
-#line 1850 "src/generated_src/php_parser.ypp"
+#line 1853 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_method_invocation, ("clone", (yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 
   case 186:
-#line 1854 "src/generated_src/php_parser.ypp"
+#line 1857 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "+", (yyvsp[(3) - (3)].ast_expr));
@@ -5125,7 +5128,7 @@ yyreduce:
     break;
 
   case 187:
-#line 1859 "src/generated_src/php_parser.ypp"
+#line 1862 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "-", (yyvsp[(3) - (3)].ast_expr));
@@ -5133,7 +5136,7 @@ yyreduce:
     break;
 
   case 188:
-#line 1864 "src/generated_src/php_parser.ypp"
+#line 1867 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "*", (yyvsp[(3) - (3)].ast_expr));
@@ -5141,7 +5144,7 @@ yyreduce:
     break;
 
   case 189:
-#line 1869 "src/generated_src/php_parser.ypp"
+#line 1872 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "/", (yyvsp[(3) - (3)].ast_expr));
@@ -5149,7 +5152,7 @@ yyreduce:
     break;
 
   case 190:
-#line 1874 "src/generated_src/php_parser.ypp"
+#line 1877 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, ".", (yyvsp[(3) - (3)].ast_expr));
@@ -5157,7 +5160,7 @@ yyreduce:
     break;
 
   case 191:
-#line 1879 "src/generated_src/php_parser.ypp"
+#line 1882 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "%", (yyvsp[(3) - (3)].ast_expr));
@@ -5165,7 +5168,7 @@ yyreduce:
     break;
 
   case 192:
-#line 1884 "src/generated_src/php_parser.ypp"
+#line 1887 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "&", (yyvsp[(3) - (3)].ast_expr));
@@ -5173,7 +5176,7 @@ yyreduce:
     break;
 
   case 193:
-#line 1889 "src/generated_src/php_parser.ypp"
+#line 1892 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "|", (yyvsp[(3) - (3)].ast_expr));
@@ -5181,7 +5184,7 @@ yyreduce:
     break;
 
   case 194:
-#line 1894 "src/generated_src/php_parser.ypp"
+#line 1897 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "^", (yyvsp[(3) - (3)].ast_expr));
@@ -5189,7 +5192,7 @@ yyreduce:
     break;
 
   case 195:
-#line 1899 "src/generated_src/php_parser.ypp"
+#line 1902 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, "<<", (yyvsp[(3) - (3)].ast_expr));
@@ -5197,7 +5200,7 @@ yyreduce:
     break;
 
   case 196:
-#line 1904 "src/generated_src/php_parser.ypp"
+#line 1907 "src/generated_src/php_parser.ypp"
     {
 			AST_variable* var = expect_variable((yyvsp[(1) - (3)].ast_expr));
 			(yyval.ast_expr) = new AST_op_assignment(var, ">>", (yyvsp[(3) - (3)].ast_expr));
@@ -5205,98 +5208,98 @@ yyreduce:
     break;
 
   case 197:
-#line 1909 "src/generated_src/php_parser.ypp"
+#line 1912 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = NEW(AST_post_op, (expect_variable((yyvsp[(1) - (2)].ast_expr)), "++"));
 		;}
     break;
 
   case 198:
-#line 1913 "src/generated_src/php_parser.ypp"
+#line 1916 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = NEW(AST_pre_op, (expect_variable((yyvsp[(2) - (2)].ast_expr)), "++"));
 		;}
     break;
 
   case 199:
-#line 1917 "src/generated_src/php_parser.ypp"
+#line 1920 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = NEW(AST_post_op, (expect_variable((yyvsp[(1) - (2)].ast_expr)), "--"));
 		;}
     break;
 
   case 200:
-#line 1921 "src/generated_src/php_parser.ypp"
+#line 1924 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = NEW(AST_pre_op, (expect_variable((yyvsp[(2) - (2)].ast_expr)), "--"));
 		;}
     break;
 
   case 201:
-#line 1925 "src/generated_src/php_parser.ypp"
+#line 1928 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 202:
-#line 1929 "src/generated_src/php_parser.ypp"
+#line 1932 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 203:
-#line 1933 "src/generated_src/php_parser.ypp"
+#line 1936 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 204:
-#line 1937 "src/generated_src/php_parser.ypp"
+#line 1940 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 205:
-#line 1941 "src/generated_src/php_parser.ypp"
+#line 1944 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 206:
-#line 1945 "src/generated_src/php_parser.ypp"
+#line 1948 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 207:
-#line 1949 "src/generated_src/php_parser.ypp"
+#line 1952 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 208:
-#line 1953 "src/generated_src/php_parser.ypp"
+#line 1956 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 209:
-#line 1957 "src/generated_src/php_parser.ypp"
+#line 1960 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 210:
-#line 1961 "src/generated_src/php_parser.ypp"
+#line 1964 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (4)].ast_expr), (yyvsp[(2) - (4)].token_op), (yyvsp[(3) - (4)].ast_expr)));
 
@@ -5309,56 +5312,56 @@ yyreduce:
     break;
 
   case 211:
-#line 1971 "src/generated_src/php_parser.ypp"
+#line 1974 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 212:
-#line 1975 "src/generated_src/php_parser.ypp"
+#line 1978 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 213:
-#line 1979 "src/generated_src/php_parser.ypp"
+#line 1982 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 214:
-#line 1983 "src/generated_src/php_parser.ypp"
+#line 1986 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 215:
-#line 1987 "src/generated_src/php_parser.ypp"
+#line 1990 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 216:
-#line 1991 "src/generated_src/php_parser.ypp"
+#line 1994 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 217:
-#line 1995 "src/generated_src/php_parser.ypp"
+#line 1998 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 218:
-#line 1999 "src/generated_src/php_parser.ypp"
+#line 2002 "src/generated_src/php_parser.ypp"
     {
 			// We ignore unary plus
 			(yyval.ast_expr) = (yyvsp[(2) - (2)].ast_expr); 
@@ -5366,91 +5369,91 @@ yyreduce:
     break;
 
   case 219:
-#line 2004 "src/generated_src/php_parser.ypp"
+#line 2007 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_unary_op, ((yyvsp[(1) - (2)].token_op), (yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 
   case 220:
-#line 2008 "src/generated_src/php_parser.ypp"
+#line 2011 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_unary_op, ((yyvsp[(1) - (2)].token_op), (yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 
   case 221:
-#line 2012 "src/generated_src/php_parser.ypp"
+#line 2015 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_unary_op, ((yyvsp[(1) - (2)].token_op), (yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 
   case 222:
-#line 2016 "src/generated_src/php_parser.ypp"
+#line 2019 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 223:
-#line 2020 "src/generated_src/php_parser.ypp"
+#line 2023 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 224:
-#line 2024 "src/generated_src/php_parser.ypp"
+#line 2027 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 225:
-#line 2028 "src/generated_src/php_parser.ypp"
+#line 2031 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 226:
-#line 2032 "src/generated_src/php_parser.ypp"
+#line 2035 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 227:
-#line 2036 "src/generated_src/php_parser.ypp"
+#line 2039 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 228:
-#line 2040 "src/generated_src/php_parser.ypp"
+#line 2043 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 229:
-#line 2044 "src/generated_src/php_parser.ypp"
+#line 2047 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(2) - (3)].token_op), (yyvsp[(3) - (3)].ast_expr)));
 		;}
     break;
 
   case 230:
-#line 2048 "src/generated_src/php_parser.ypp"
+#line 2051 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_instanceof, ((yyvsp[(1) - (3)].ast_expr), (yyvsp[(3) - (3)].ast_class_name)));
 		;}
     break;
 
   case 231:
-#line 2052 "src/generated_src/php_parser.ypp"
+#line 2055 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_user_brackets");
 			
@@ -5459,105 +5462,105 @@ yyreduce:
     break;
 
   case 232:
-#line 2058 "src/generated_src/php_parser.ypp"
+#line 2061 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_conditional_expr, ((yyvsp[(1) - (5)].ast_expr), (yyvsp[(3) - (5)].ast_expr), (yyvsp[(5) - (5)].ast_expr))); 
 		;}
     break;
 
   case 233:
-#line 2062 "src/generated_src/php_parser.ypp"
+#line 2065 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_method_invocation);
 		;}
     break;
 
   case 234:
-#line 2066 "src/generated_src/php_parser.ypp"
+#line 2069 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("int", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 235:
-#line 2070 "src/generated_src/php_parser.ypp"
+#line 2073 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("real", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 236:
-#line 2074 "src/generated_src/php_parser.ypp"
+#line 2077 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("string", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 237:
-#line 2078 "src/generated_src/php_parser.ypp"
+#line 2081 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("array", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 238:
-#line 2082 "src/generated_src/php_parser.ypp"
+#line 2085 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("object", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 239:
-#line 2086 "src/generated_src/php_parser.ypp"
+#line 2089 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_cast, ("bool", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 240:
-#line 2090 "src/generated_src/php_parser.ypp"
+#line 2093 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = NEW(AST_cast, ("unset", (yyvsp[(1) - (2)].string), (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 241:
-#line 2094 "src/generated_src/php_parser.ypp"
+#line 2097 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_method_invocation, ("exit", (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 242:
-#line 2098 "src/generated_src/php_parser.ypp"
+#line 2101 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_ignore_errors, ((yyvsp[(2) - (2)].ast_expr))); 
 		;}
     break;
 
   case 243:
-#line 2102 "src/generated_src/php_parser.ypp"
+#line 2105 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 244:
-#line 2106 "src/generated_src/php_parser.ypp"
+#line 2109 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_array, ((yyvsp[(3) - (4)].list_ast_array_elem))); 
 		;}
     break;
 
   case 245:
-#line 2110 "src/generated_src/php_parser.ypp"
+#line 2113 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_method_invocation, ("print", (yyvsp[(2) - (2)].ast_expr)));	
 		;}
     break;
 
   case 246:
-#line 2117 "src/generated_src/php_parser.ypp"
+#line 2120 "src/generated_src/php_parser.ypp"
     {
 			Token_method_name* fn = new Token_method_name((yyvsp[(1) - (4)].string));
 		
@@ -5566,7 +5569,7 @@ yyreduce:
     break;
 
   case 247:
-#line 2123 "src/generated_src/php_parser.ypp"
+#line 2126 "src/generated_src/php_parser.ypp"
     {
 			Token_method_name* fn = new Token_method_name((yyvsp[(3) - (6)].string));
 
@@ -5575,21 +5578,21 @@ yyreduce:
     break;
 
   case 248:
-#line 2129 "src/generated_src/php_parser.ypp"
+#line 2132 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ((yyvsp[(1) - (6)].token_class_name), NEW(AST_reflection, ((yyvsp[(3) - (6)].ast_variable))), (yyvsp[(5) - (6)].list_ast_actual_parameter)));
 		;}
     break;
 
   case 249:
-#line 2133 "src/generated_src/php_parser.ypp"
+#line 2136 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, (NULL, NEW(AST_reflection, ((yyvsp[(1) - (4)].ast_variable))), (yyvsp[(3) - (4)].list_ast_actual_parameter)));
 		;}
     break;
 
   case 250:
-#line 2140 "src/generated_src/php_parser.ypp"
+#line 2143 "src/generated_src/php_parser.ypp"
     {
 			Token_class_name* name = new Token_class_name((yyvsp[(1) - (1)].string));
 			(yyval.token_class_name) = name; 
@@ -5597,7 +5600,7 @@ yyreduce:
     break;
 
   case 251:
-#line 2148 "src/generated_src/php_parser.ypp"
+#line 2151 "src/generated_src/php_parser.ypp"
     {
 			Token_class_name* name = new Token_class_name((yyvsp[(1) - (1)].string));
 
@@ -5606,14 +5609,14 @@ yyreduce:
     break;
 
   case 252:
-#line 2154 "src/generated_src/php_parser.ypp"
+#line 2157 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_class_name) = NEW(AST_reflection, ((yyvsp[(1) - (1)].ast_variable))); 
 		;}
     break;
 
   case 253:
-#line 2165 "src/generated_src/php_parser.ypp"
+#line 2168 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(3) - (4)].ast_variable)->target = (yyvsp[(1) - (4)].ast_variable);
 
@@ -5629,14 +5632,14 @@ yyreduce:
     break;
 
   case 254:
-#line 2178 "src/generated_src/php_parser.ypp"
+#line 2181 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 255:
-#line 2185 "src/generated_src/php_parser.ypp"
+#line 2188 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (2)].list_ast_variable)->push_back((yyvsp[(2) - (2)].ast_variable));
 			(yyval.list_ast_variable) = (yyvsp[(1) - (2)].list_ast_variable);
@@ -5644,7 +5647,7 @@ yyreduce:
     break;
 
   case 256:
-#line 2190 "src/generated_src/php_parser.ypp"
+#line 2193 "src/generated_src/php_parser.ypp"
     { 
 			List<AST_variable*>* vars = new List<AST_variable*>;
 			(yyval.list_ast_variable) = vars;
@@ -5652,35 +5655,35 @@ yyreduce:
     break;
 
   case 257:
-#line 2198 "src/generated_src/php_parser.ypp"
+#line 2201 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(2) - (2)].ast_variable);
 		;}
     break;
 
   case 258:
-#line 2208 "src/generated_src/php_parser.ypp"
+#line 2211 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(Token_int, (0L));
 		;}
     break;
 
   case 259:
-#line 2212 "src/generated_src/php_parser.ypp"
+#line 2215 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(Token_int, (0L));
 		;}
     break;
 
   case 260:
-#line 2216 "src/generated_src/php_parser.ypp"
+#line 2219 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(2) - (3)].ast_expr);
 		;}
     break;
 
   case 261:
-#line 2223 "src/generated_src/php_parser.ypp"
+#line 2226 "src/generated_src/php_parser.ypp"
     { 
 			List<AST_actual_parameter*>* args = new List<AST_actual_parameter*>;
 			
@@ -5689,98 +5692,98 @@ yyreduce:
     break;
 
   case 262:
-#line 2229 "src/generated_src/php_parser.ypp"
+#line 2232 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_actual_parameter) = (yyvsp[(2) - (3)].list_ast_actual_parameter);
 		;}
     break;
 
   case 263:
-#line 2236 "src/generated_src/php_parser.ypp"
+#line 2239 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_int); 
 		;}
     break;
 
   case 264:
-#line 2240 "src/generated_src/php_parser.ypp"
+#line 2243 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_real);	
 		;}
     break;
 
   case 265:
-#line 2244 "src/generated_src/php_parser.ypp"
+#line 2247 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_string);	
 		;}
     break;
 
   case 266:
-#line 2248 "src/generated_src/php_parser.ypp"
+#line 2251 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_bool); 
 		;}
     break;
 
   case 267:
-#line 2252 "src/generated_src/php_parser.ypp"
+#line 2255 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_bool); 
 		;}
     break;
 
   case 268:
-#line 2256 "src/generated_src/php_parser.ypp"
+#line 2259 "src/generated_src/php_parser.ypp"
     { 
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_null); 
 		;}
     break;
 
   case 269:
-#line 2260 "src/generated_src/php_parser.ypp"
+#line 2263 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_int); 
 		;}
     break;
 
   case 270:
-#line 2264 "src/generated_src/php_parser.ypp"
+#line 2267 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_string); 
 		;}
     break;
 
   case 271:
-#line 2268 "src/generated_src/php_parser.ypp"
+#line 2271 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_string); 
 		;}
     break;
 
   case 272:
-#line 2272 "src/generated_src/php_parser.ypp"
+#line 2275 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_string); 
 		;}
     break;
 
   case 273:
-#line 2276 "src/generated_src/php_parser.ypp"
+#line 2279 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].token_string); 
 		;}
     break;
 
   case 274:
-#line 2283 "src/generated_src/php_parser.ypp"
+#line 2286 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 275:
-#line 2287 "src/generated_src/php_parser.ypp"
+#line 2290 "src/generated_src/php_parser.ypp"
     {
 			Token_constant_name* name = new Token_constant_name((yyvsp[(1) - (1)].string));
 			(yyval.ast_expr) = NEW(AST_constant, (NULL, name)); 
@@ -5788,7 +5791,7 @@ yyreduce:
     break;
 
   case 276:
-#line 2292 "src/generated_src/php_parser.ypp"
+#line 2295 "src/generated_src/php_parser.ypp"
     {
 			// We simply ignore the +
 			(yyval.ast_expr) = (yyvsp[(2) - (2)].ast_expr);
@@ -5796,28 +5799,28 @@ yyreduce:
     break;
 
   case 277:
-#line 2297 "src/generated_src/php_parser.ypp"
+#line 2300 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_unary_op, ((yyvsp[(2) - (2)].ast_expr), "-"));
 		;}
     break;
 
   case 278:
-#line 2301 "src/generated_src/php_parser.ypp"
+#line 2304 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NEW(AST_array, ((yyvsp[(3) - (4)].list_ast_array_elem)));
 		;}
     break;
 
   case 279:
-#line 2305 "src/generated_src/php_parser.ypp"
+#line 2308 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_constant);
 		;}
     break;
 
   case 280:
-#line 2312 "src/generated_src/php_parser.ypp"
+#line 2315 "src/generated_src/php_parser.ypp"
     {
 			Token_class_name* class_name = new Token_class_name((yyvsp[(1) - (3)].string));
 			Token_constant_name* constant = new Token_constant_name((yyvsp[(3) - (3)].string));
@@ -5827,7 +5830,7 @@ yyreduce:
     break;
 
   case 281:
-#line 2322 "src/generated_src/php_parser.ypp"
+#line 2325 "src/generated_src/php_parser.ypp"
     {
 			Token_constant_name* name = new Token_constant_name((yyvsp[(1) - (1)].string));
 
@@ -5836,35 +5839,35 @@ yyreduce:
     break;
 
   case 282:
-#line 2328 "src/generated_src/php_parser.ypp"
+#line 2331 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_constant);
 		;}
     break;
 
   case 283:
-#line 2332 "src/generated_src/php_parser.ypp"
+#line 2335 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 284:
-#line 2339 "src/generated_src/php_parser.ypp"
+#line 2342 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_array_elem) = new List<AST_array_elem*>;
 		;}
     break;
 
   case 285:
-#line 2343 "src/generated_src/php_parser.ypp"
+#line 2346 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_array_elem) = (yyvsp[(1) - (2)].list_ast_array_elem);
 		;}
     break;
 
   case 288:
-#line 2358 "src/generated_src/php_parser.ypp"
+#line 2361 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = NEW(AST_array_elem, ((yyvsp[(3) - (5)].ast_expr), false, (yyvsp[(5) - (5)].ast_expr)));
 			(yyvsp[(1) - (5)].list_ast_array_elem)->push_back(elem);
@@ -5874,7 +5877,7 @@ yyreduce:
     break;
 
   case 289:
-#line 2365 "src/generated_src/php_parser.ypp"
+#line 2368 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, (yyvsp[(3) - (3)].ast_expr)));
 			(yyvsp[(1) - (3)].list_ast_array_elem)->push_back(elem);
@@ -5884,7 +5887,7 @@ yyreduce:
     break;
 
   case 290:
-#line 2372 "src/generated_src/php_parser.ypp"
+#line 2375 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = NEW(AST_array_elem, ((yyvsp[(1) - (3)].ast_expr), false, (yyvsp[(3) - (3)].ast_expr)));
@@ -5895,7 +5898,7 @@ yyreduce:
     break;
 
   case 291:
-#line 2380 "src/generated_src/php_parser.ypp"
+#line 2383 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, (yyvsp[(1) - (1)].ast_expr)));
@@ -5906,42 +5909,42 @@ yyreduce:
     break;
 
   case 292:
-#line 2391 "src/generated_src/php_parser.ypp"
+#line 2394 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 293:
-#line 2395 "src/generated_src/php_parser.ypp"
+#line 2398 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 294:
-#line 2402 "src/generated_src/php_parser.ypp"
+#line 2405 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 295:
-#line 2409 "src/generated_src/php_parser.ypp"
+#line 2412 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 296:
-#line 2416 "src/generated_src/php_parser.ypp"
+#line 2419 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 297:
-#line 2440 "src/generated_src/php_parser.ypp"
+#line 2443 "src/generated_src/php_parser.ypp"
     {
 			List<AST_expr*>::iterator i;
 			for(i = (yyvsp[(2) - (2)].list_ast_expr)->begin(); i != (yyvsp[(2) - (2)].list_ast_expr)->end(); i++)
@@ -5976,14 +5979,14 @@ yyreduce:
     break;
 
   case 298:
-#line 2472 "src/generated_src/php_parser.ypp"
+#line 2475 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 299:
-#line 2483 "src/generated_src/php_parser.ypp"
+#line 2486 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (2)].list_ast_expr)->push_back((yyvsp[(2) - (2)].ast_expr));
 			
@@ -5992,7 +5995,7 @@ yyreduce:
     break;
 
   case 300:
-#line 2489 "src/generated_src/php_parser.ypp"
+#line 2492 "src/generated_src/php_parser.ypp"
     {
 			List<AST_expr*>* props = new List<AST_expr*>;
 			props->push_back((yyvsp[(1) - (1)].ast_expr));
@@ -6002,7 +6005,7 @@ yyreduce:
     break;
 
   case 301:
-#line 2518 "src/generated_src/php_parser.ypp"
+#line 2521 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(3) - (3)].list_ast_actual_parameter))
 			{
@@ -6040,28 +6043,28 @@ yyreduce:
     break;
 
   case 302:
-#line 2556 "src/generated_src/php_parser.ypp"
+#line 2559 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_actual_parameter) = (yyvsp[(2) - (3)].list_ast_actual_parameter);
 		;}
     break;
 
   case 303:
-#line 2560 "src/generated_src/php_parser.ypp"
+#line 2563 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_actual_parameter) = NULL;
 		;}
     break;
 
   case 304:
-#line 2567 "src/generated_src/php_parser.ypp"
+#line 2570 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 305:
-#line 2571 "src/generated_src/php_parser.ypp"
+#line 2574 "src/generated_src/php_parser.ypp"
     {
 			for(long i = 0; i < (yyvsp[(1) - (2)].integer)->value(); i++)
 			{
@@ -6073,7 +6076,7 @@ yyreduce:
     break;
 
   case 306:
-#line 2583 "src/generated_src/php_parser.ypp"
+#line 2586 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(3) - (3)].ast_variable)->target = (yyvsp[(1) - (3)].token_class_name);
 			(yyval.ast_variable) = (yyvsp[(3) - (3)].ast_variable); 
@@ -6081,28 +6084,28 @@ yyreduce:
     break;
 
   case 307:
-#line 2591 "src/generated_src/php_parser.ypp"
+#line 2594 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 308:
-#line 2595 "src/generated_src/php_parser.ypp"
+#line 2598 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_method_invocation);
 		;}
     break;
 
   case 309:
-#line 2602 "src/generated_src/php_parser.ypp"
+#line 2605 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 310:
-#line 2606 "src/generated_src/php_parser.ypp"
+#line 2609 "src/generated_src/php_parser.ypp"
     {
 			for(long i = 0; i < (yyvsp[(1) - (2)].integer)->value(); i++)
 			{
@@ -6114,14 +6117,14 @@ yyreduce:
     break;
 
   case 311:
-#line 2615 "src/generated_src/php_parser.ypp"
+#line 2618 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 312:
-#line 2622 "src/generated_src/php_parser.ypp"
+#line 2625 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (4)].ast_variable)->array_indices->push_back((yyvsp[(3) - (4)].ast_expr));
 			(yyval.ast_variable) = (yyvsp[(1) - (4)].ast_variable);
@@ -6129,7 +6132,7 @@ yyreduce:
     break;
 
   case 313:
-#line 2627 "src/generated_src/php_parser.ypp"
+#line 2630 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(3) - (4)].ast_expr) != NULL)
 				(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.index_curlies");
@@ -6140,14 +6143,14 @@ yyreduce:
     break;
 
   case 314:
-#line 2635 "src/generated_src/php_parser.ypp"
+#line 2638 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = NEW(AST_variable, ((yyvsp[(1) - (1)].ast_variable_name)));
 		;}
     break;
 
   case 315:
-#line 2642 "src/generated_src/php_parser.ypp"
+#line 2645 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* var = new Token_variable_name((yyvsp[(1) - (1)].string));
 			(yyval.ast_variable_name) = var; 
@@ -6155,7 +6158,7 @@ yyreduce:
     break;
 
   case 316:
-#line 2647 "src/generated_src/php_parser.ypp"
+#line 2650 "src/generated_src/php_parser.ypp"
     { 
 			(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(3) - (4)].ast_expr))); 
@@ -6163,28 +6166,28 @@ yyreduce:
     break;
 
   case 317:
-#line 2655 "src/generated_src/php_parser.ypp"
+#line 2658 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = NULL;
 		;}
     break;
 
   case 318:
-#line 2659 "src/generated_src/php_parser.ypp"
+#line 2662 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_expr) = (yyvsp[(1) - (1)].ast_expr);
 		;}
     break;
 
   case 319:
-#line 2666 "src/generated_src/php_parser.ypp"
+#line 2669 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = (yyvsp[(1) - (1)].ast_variable);
 		;}
     break;
 
   case 320:
-#line 2670 "src/generated_src/php_parser.ypp"
+#line 2673 "src/generated_src/php_parser.ypp"
     {
 			// This is a "normal" variable (which includes a $), i.e. $x->$y
 			// So, we need to add a level of indirection
@@ -6193,7 +6196,7 @@ yyreduce:
     break;
 
   case 321:
-#line 2682 "src/generated_src/php_parser.ypp"
+#line 2685 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (4)].ast_variable)->array_indices->push_back((yyvsp[(3) - (4)].ast_expr));
 			(yyval.ast_variable) = (yyvsp[(1) - (4)].ast_variable);
@@ -6201,7 +6204,7 @@ yyreduce:
     break;
 
   case 322:
-#line 2687 "src/generated_src/php_parser.ypp"
+#line 2690 "src/generated_src/php_parser.ypp"
     {
 			if((yyvsp[(3) - (4)].ast_expr) != NULL)
 				(yyvsp[(3) - (4)].ast_expr)->attrs->set_true("phc.unparser.index_curlies");
@@ -6212,14 +6215,14 @@ yyreduce:
     break;
 
   case 323:
-#line 2695 "src/generated_src/php_parser.ypp"
+#line 2698 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_variable) = NEW(AST_variable, ((yyvsp[(1) - (1)].ast_variable_name))); 
 		;}
     break;
 
   case 324:
-#line 2705 "src/generated_src/php_parser.ypp"
+#line 2708 "src/generated_src/php_parser.ypp"
     { 
 			Token_variable_name* var = new Token_variable_name((yyvsp[(1) - (1)].string));
 			(yyval.ast_variable_name) = var; 
@@ -6227,7 +6230,7 @@ yyreduce:
     break;
 
   case 325:
-#line 2710 "src/generated_src/php_parser.ypp"
+#line 2713 "src/generated_src/php_parser.ypp"
     { 
 			(yyvsp[(2) - (3)].ast_expr)->attrs->set_true("phc.unparser.needs_user_curlies");
 			(yyval.ast_variable_name) = NEW(AST_reflection, ((yyvsp[(2) - (3)].ast_expr))); 
@@ -6235,14 +6238,14 @@ yyreduce:
     break;
 
   case 326:
-#line 2721 "src/generated_src/php_parser.ypp"
+#line 2724 "src/generated_src/php_parser.ypp"
     {
 			(yyval.integer) = new Integer(1);
 		;}
     break;
 
   case 327:
-#line 2725 "src/generated_src/php_parser.ypp"
+#line 2728 "src/generated_src/php_parser.ypp"
     {
 			(*(yyvsp[(1) - (2)].integer))++;
 			(yyval.integer) = (yyvsp[(1) - (2)].integer); 
@@ -6250,7 +6253,7 @@ yyreduce:
     break;
 
   case 328:
-#line 2733 "src/generated_src/php_parser.ypp"
+#line 2736 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].ast_nested_list_elements)->list_elements->push_back((yyvsp[(3) - (3)].ast_list_element));
 			
@@ -6259,7 +6262,7 @@ yyreduce:
     break;
 
   case 329:
-#line 2739 "src/generated_src/php_parser.ypp"
+#line 2742 "src/generated_src/php_parser.ypp"
     {
 			List<AST_list_element*>* elements = new List<AST_list_element*>;
 			elements->push_back((yyvsp[(1) - (1)].ast_list_element));
@@ -6269,42 +6272,42 @@ yyreduce:
     break;
 
   case 330:
-#line 2752 "src/generated_src/php_parser.ypp"
+#line 2755 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_list_element) = expect_variable((yyvsp[(1) - (1)].ast_expr)); 
 		;}
     break;
 
   case 331:
-#line 2756 "src/generated_src/php_parser.ypp"
+#line 2759 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_list_element) = (yyvsp[(3) - (4)].ast_nested_list_elements);
 		;}
     break;
 
   case 332:
-#line 2760 "src/generated_src/php_parser.ypp"
+#line 2763 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_list_element) = NULL;
 		;}
     break;
 
   case 333:
-#line 2767 "src/generated_src/php_parser.ypp"
+#line 2770 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_array_elem) = new List<AST_array_elem*>;
 		;}
     break;
 
   case 334:
-#line 2771 "src/generated_src/php_parser.ypp"
+#line 2774 "src/generated_src/php_parser.ypp"
     {
 			(yyval.list_ast_array_elem) = (yyvsp[(1) - (2)].list_ast_array_elem);
 		;}
     break;
 
   case 335:
-#line 2781 "src/generated_src/php_parser.ypp"
+#line 2784 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = NEW(AST_array_elem, ((yyvsp[(3) - (5)].ast_expr), false, (yyvsp[(5) - (5)].ast_expr)));
 			(yyvsp[(1) - (5)].list_ast_array_elem)->push_back(elem);
@@ -6314,7 +6317,7 @@ yyreduce:
     break;
 
   case 336:
-#line 2788 "src/generated_src/php_parser.ypp"
+#line 2791 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, (yyvsp[(3) - (3)].ast_expr)));
 			(yyvsp[(1) - (3)].list_ast_array_elem)->push_back(elem);
@@ -6324,7 +6327,7 @@ yyreduce:
     break;
 
   case 337:
-#line 2795 "src/generated_src/php_parser.ypp"
+#line 2798 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = NEW(AST_array_elem, ((yyvsp[(1) - (3)].ast_expr), false, (yyvsp[(3) - (3)].ast_expr)));
@@ -6335,7 +6338,7 @@ yyreduce:
     break;
 
   case 338:
-#line 2803 "src/generated_src/php_parser.ypp"
+#line 2806 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = NEW(AST_array_elem, (NULL, false, (yyvsp[(1) - (1)].ast_expr)));
@@ -6346,7 +6349,7 @@ yyreduce:
     break;
 
   case 339:
-#line 2811 "src/generated_src/php_parser.ypp"
+#line 2814 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = 
 				NEW(AST_array_elem, ((yyvsp[(3) - (6)].ast_expr), true, (yyvsp[(6) - (6)].ast_expr)));
@@ -6357,7 +6360,7 @@ yyreduce:
     break;
 
   case 340:
-#line 2819 "src/generated_src/php_parser.ypp"
+#line 2822 "src/generated_src/php_parser.ypp"
     {
 			AST_array_elem* elem = 
 				NEW(AST_array_elem, (NULL, true, (yyvsp[(4) - (4)].ast_expr)));
@@ -6368,7 +6371,7 @@ yyreduce:
     break;
 
   case 341:
-#line 2827 "src/generated_src/php_parser.ypp"
+#line 2830 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = 
@@ -6380,7 +6383,7 @@ yyreduce:
     break;
 
   case 342:
-#line 2836 "src/generated_src/php_parser.ypp"
+#line 2839 "src/generated_src/php_parser.ypp"
     {
 			List<AST_array_elem*>* list = new List<AST_array_elem*>;
 			AST_array_elem* elem = 
@@ -6392,7 +6395,7 @@ yyreduce:
     break;
 
   case 343:
-#line 2848 "src/generated_src/php_parser.ypp"
+#line 2851 "src/generated_src/php_parser.ypp"
     {
 			Token_method_name* fn = NEW(Token_method_name, (new String("isset")));
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, (NULL, fn, (yyvsp[(3) - (4)].list_ast_actual_parameter)));
@@ -6400,49 +6403,49 @@ yyreduce:
     break;
 
   case 344:
-#line 2853 "src/generated_src/php_parser.ypp"
+#line 2856 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("empty", (yyvsp[(3) - (4)].ast_expr)));
 		;}
     break;
 
   case 345:
-#line 2857 "src/generated_src/php_parser.ypp"
+#line 2860 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("include", (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 346:
-#line 2861 "src/generated_src/php_parser.ypp"
+#line 2864 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("include_once", (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 347:
-#line 2865 "src/generated_src/php_parser.ypp"
+#line 2868 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("eval", (yyvsp[(3) - (4)].ast_expr)));
 		;}
     break;
 
   case 348:
-#line 2869 "src/generated_src/php_parser.ypp"
+#line 2872 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("require", (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 349:
-#line 2873 "src/generated_src/php_parser.ypp"
+#line 2876 "src/generated_src/php_parser.ypp"
     {
 			(yyval.ast_method_invocation) = NEW(AST_method_invocation, ("require_once", (yyvsp[(2) - (2)].ast_expr)));
 		;}
     break;
 
   case 350:
-#line 2880 "src/generated_src/php_parser.ypp"
+#line 2883 "src/generated_src/php_parser.ypp"
     {
 			List<AST_actual_parameter*>* params = new List<AST_actual_parameter*>;
 			
@@ -6452,7 +6455,7 @@ yyreduce:
     break;
 
   case 351:
-#line 2887 "src/generated_src/php_parser.ypp"
+#line 2890 "src/generated_src/php_parser.ypp"
     {
 			(yyvsp[(1) - (3)].list_ast_actual_parameter)->push_back(NEW(AST_actual_parameter, (false, (yyvsp[(3) - (3)].ast_expr))));
 			(yyval.list_ast_actual_parameter) = (yyvsp[(1) - (3)].list_ast_actual_parameter);
@@ -6460,7 +6463,7 @@ yyreduce:
     break;
 
   case 352:
-#line 2895 "src/generated_src/php_parser.ypp"
+#line 2898 "src/generated_src/php_parser.ypp"
     {
 			Token_constant_name* constant = new Token_constant_name((yyvsp[(3) - (3)].string));
 
@@ -6469,7 +6472,7 @@ yyreduce:
     break;
 
   case 353:
-#line 2908 "src/generated_src/php_parser.ypp"
+#line 2911 "src/generated_src/php_parser.ypp"
     {
 			// If there are any remaining comments, add them as a NOP
 			if(!context->last_comments.empty())
@@ -6481,7 +6484,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 6485 "src/generated/php_parser.tab.cpp"
+#line 6488 "src/generated/php_parser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

@@ -20,13 +20,8 @@ class PHP_unparser
 public:
 	PHP_unparser(ostream& os = cout);
 
-// Unparsing
+// Interface
 protected:
-	ostream& os;
-	int indent_level;
-	bool at_start_of_line;
-	bool delayed_newline;
-
 	void echo(const char* str);
 	void echo_nl(const char* s);
 	void echo(String* str);
@@ -35,12 +30,27 @@ protected:
 	void echo_delayed_newline();
 	void clear_delayed_newline();
 
+	void echo_html(String* str);
+	void output_start_tag();
+	void output_end_tag();
+
 	void inc_indent();
 	void dec_indent();
 	void newline();
 	void output_tabs();
 	void empty_line();
 	void space_or_newline();
+
+// State accessible to unparsers
+protected:
+	bool at_start_of_line;
+
+// Private state 
+private:
+	ostream& os;
+	int indent_level;
+	bool delayed_newline;
+	bool in_php;
 };
 
 #endif // PHC_PHP_UNPARSER 

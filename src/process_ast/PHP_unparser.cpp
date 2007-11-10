@@ -19,6 +19,7 @@ using namespace std;
 
 void PHP_unparser::echo(const char* str)
 {
+	output_start_tag();
 	if(delayed_newline) newline();
 	output_tabs();
 	os << str;
@@ -32,6 +33,7 @@ void PHP_unparser::echo_nl(const char* s)
 
 void PHP_unparser::echo(String* str)
 {
+	output_start_tag();
 	if(delayed_newline) newline();
 	output_tabs();
 	os << *str;
@@ -99,9 +101,36 @@ void PHP_unparser::clear_delayed_newline()
 	delayed_newline = false;
 }
 
+void PHP_unparser::output_start_tag()
+{
+	if(!in_php)
+	{
+		newline();
+		os << "<?php\n";
+		in_php = true;
+	}
+}
+
+void PHP_unparser::output_end_tag()
+{
+	if(in_php)
+	{
+		newline();
+		os << "?>\n";
+		in_php = false;
+	}
+}
+
+void PHP_unparser::echo_html(String* str)
+{
+	output_end_tag();
+	os << *str;
+}
+
 PHP_unparser::PHP_unparser(ostream& os) : os(os)
 {
 	indent_level = 0;
 	at_start_of_line = true;
 	delayed_newline = false;
+	in_php = false;
 }

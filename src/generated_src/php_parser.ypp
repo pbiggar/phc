@@ -792,10 +792,13 @@ unticked_statement:
 		}
 	| INLINE_HTML
 		{
-			Token_string* scalar = NEW(Token_string, ($1, escape($1)));
+			Token_string* scalar = NEW(Token_string, ($1, $1));
 			AST_expr* fn = NEW(AST_method_invocation, ("echo", scalar));
-	
-			$$ = wrap(NEW(AST_eval_expr, (fn)));
+			AST_eval_expr* eval_expr = NEW(AST_eval_expr, (fn));
+
+			eval_expr->attrs->set_true("phc.unparser.is_inline_html");
+
+			$$ = wrap(eval_expr);
 		}
 	| expr ';'
 		{

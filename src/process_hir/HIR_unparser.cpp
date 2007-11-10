@@ -654,7 +654,7 @@ void HIR_unparser::pre_node(HIR_node* in)
 	if(in->attrs->is_true("phc.unparser.starts_line") && !at_start_of_line)
 	{
 		newline();
-		os << args_info.tab_arg;
+		echo(args_info.tab_arg);
 	}
 }
 
@@ -714,7 +714,7 @@ void HIR_unparser::post_expr(HIR_expr* in)
 
 void HIR_unparser::children_label_name (Token_label_name* in)
 {
-	os << *in->value;
+	echo(in->value);
 }
 
 void 
@@ -729,5 +729,5 @@ void
 HIR_unparser::children_label (HIR_label* in)
 {
 	visit_label_name (in->label_name);
-	os << ":" << endl;
+	echo_nl(":");
 }
