@@ -274,7 +274,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 117 "src/generated_src/php_parser.ypp"
+#line 125 "src/generated_src/php_parser.ypp"
 {
 	Object* object;
 	List<AST_statement*>* list_ast_statement;

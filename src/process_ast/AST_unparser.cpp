@@ -529,6 +529,7 @@ void AST_unparser::children_throw(AST_throw* in)
 void AST_unparser::children_eval_expr(AST_eval_expr* in)
 {
 	visit_expr(in->expr);
+	clear_delayed_newline();
 	echo(";");
 	// The newline gets added by post_commented_node
 }
@@ -599,29 +600,47 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 			{
 				in_string.push(true);
 			
-				// If the first element in the partition starts_line set, 
-				// we make the partition start on a new line. We have to do this here
-				// rather than relying on the default action in pre_node to avoid 
-				// the partition being unparsed as
-				//
-				// echo "
-				//       foo $ bar"
-				//
-				// which would normally happen when 'foo' has starts_line set.
-				if(l.exprs[i]->attrs->is_true("phc.unparser.starts_line"))
+				if(l.exprs[i]->attrs->has("phc.unparser.heredoc_id"))
 				{
-					newline();
-					os << args_info.tab_arg;
+					os << "<<<" << *l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id") << "\n";
+				}
+				else
+				{
+					// If the first element in the partition starts_line set, 
+					// we make the partition start on a new line. We have to do this here
+					// rather than relying on the default action in pre_node to avoid 
+					// the partition being unparsed as
+					//
+					// echo "
+					//       foo $ bar"
+					//
+					// which would normally happen when 'foo' has starts_line set.
+					if(l.exprs[i]->attrs->is_true("phc.unparser.starts_line"))
+					{
+						newline();
+						os << args_info.tab_arg;
+					}
+
+					echo("\"");
 				}
 
-				echo("\"");
 				for(int j = i; j < i + *ps; j++) 
 				{
 					last_op.push(l.ops[j]);
 					visit_expr(l.exprs[j]);
 					last_op.pop();
 				}
-				echo("\"");
+
+				if(l.exprs[i]->attrs->has("phc.unparser.heredoc_id"))
+				{
+					os << "\n" << *l.exprs[i]->attrs->get_string("phc.unparser.heredoc_id");
+					echo_delayed_newline();
+				}
+				else
+				{
+					echo("\"");
+				}
+
 				in_string.pop();
 			}
 
@@ -1055,18 +1074,34 @@ void AST_unparser::children_string(Token_string* in)
     // originate from the user will be escaped as the user escaped them,
     // and any strings that originate from passes within the compiler should
     // have been escaped by those passes
-		
-    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
+	
+		if(in_string.top())
 		{
-			echo("'");
 			echo(in->source_rep);
-			echo("'");
 		}
-		else 
+		else
 		{
-      if(!in_string.top()) echo("\"");
-			echo(in->source_rep);
-			if(!in_string.top()) echo("\"");
+	    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
+			{
+				echo("'");
+				echo(in->source_rep);
+				echo("'");
+			}
+			else if(in->attrs->has("phc.unparser.heredoc_id"))
+			{
+				// Explicitly writing to *os here because we want to
+				// avoiding any leading tabs etc.
+				os << "<<<" << *in->attrs->get_string("phc.unparser.heredoc_id") << "\n";
+				os << *in->source_rep; 
+				os << "\n" << *in->attrs->get_string("phc.unparser.heredoc_id");
+				echo_delayed_newline();
+			}
+			else 
+			{
+	      echo("\"");
+				echo(in->source_rep);
+				echo("\"");
+			}
 		}
 	}
 }

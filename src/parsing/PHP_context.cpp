@@ -25,6 +25,8 @@ PHP_context::PHP_context(FILE* input, String* filename)
 	attach_to_previous = false;
 	after_arrow = false;
 	starts_line = true;
+
+	heredoc_attr = NULL;
 }
 
 PHP_context::~PHP_context()

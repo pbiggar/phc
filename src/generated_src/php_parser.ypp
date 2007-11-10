@@ -54,6 +54,14 @@
 			context->last_comments.clear();
 			context->last_commented_node = cnode;
 		}
+		
+		Token_string* str;
+		str = dynamic_cast<Token_string*>(node);
+		if(str && context->heredoc_attr != NULL)
+		{
+			str->attrs->set("phc.unparser.heredoc_id", context->heredoc_attr);
+			context->heredoc_attr = NULL;
+		}
 
 		return node;
 	}

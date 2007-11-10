@@ -25,10 +25,15 @@ protected:
 	ostream& os;
 	int indent_level;
 	bool at_start_of_line;
+	bool delayed_newline;
 
 	void echo(const char* str);
 	void echo_nl(const char* s);
 	void echo(String* str);
+	void echo_nl(String* str);
+
+	void echo_delayed_newline();
+	void clear_delayed_newline();
 
 	void inc_indent();
 	void dec_indent();

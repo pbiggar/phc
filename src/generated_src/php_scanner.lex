@@ -689,6 +689,15 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							
 							if(!strcmp(yytext, "INLINE_C"))
 								yyextra->last_comments.push_back(new String("// phc:inline-c"));
+							else
+							{
+								// We don't know when actual Token_string will be created
+								// (it could be when we see in-string syntax, for example)
+								// Hence, we add it to the parser context and rely on
+								// copy_state to add it to whatever Token_string will be 
+								// created next
+								yyextra->heredoc_attr = new String(yytext);
+							}
 
 							BEGIN(HD_NL);
 						}
@@ -701,13 +710,6 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 <HD_NL>{NL}			{ BEGIN(HD_MAIN); }
 <HD_NL>{ANY}		{ RETURN(INVALID_TOKEN);	}
 
-<HD_MAIN>\\\"		{ 
-							// double quotes (") does not need to be escaped in HD
-							yyextra->value_buffer.append(yytext);
-							// However, the string will be unparsed as a double-quoted
-							// string, where it *does* need to be escaped
-							yyextra->source_rep_buffer.append("\\\\\\\"");
-						}
 <HD_MAIN>\\			{
 							yyextra->source_rep_buffer.push_back('\\');
 							yy_push_state(ESCAPE, yyscanner); 
@@ -721,21 +723,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 						}
 <HD_MAIN>{ANY}		%{
 							yyextra->value_buffer.push_back(*yytext);
-							switch(*yytext)
-							{
-								case '\n':
-									yyextra->source_rep_buffer.append("\\n");
-									break;
-								case '\r':
-									yyextra->source_rep_buffer.append("\\r");
-									break;
-								case '"':
-									yyextra->source_rep_buffer.append("\\\"");
-									break;
-								default:
-									yyextra->source_rep_buffer.push_back(*yytext);
-									break;
-							}
+							yyextra->source_rep_buffer.push_back(*yytext);
 
 							if(yyextra->heredoc_id_ptr && (*yyextra->heredoc_id_ptr == *yytext))
 								yyextra->heredoc_id_ptr++;
@@ -758,14 +746,13 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\n')
 								{
 									value_len--;
-									// '\n' is represented as '\\n' in the source_rep
-									source_rep_len -= 2;
+									source_rep_len--;
 								}
 								if(value_len > 0 && yyextra->value_buffer[value_len - 1] == '\r')
 								{
 									// Windows file
 									value_len--;
-									source_rep_len -= 2; 
+									source_rep_len--; 
 								}
 						
 								Token_string* str = new Token_string(

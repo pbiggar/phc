@@ -55,6 +55,7 @@ public:
 
 	char *heredoc_id, *heredoc_id_ptr;
 	long heredoc_id_len;
+	String* heredoc_attr; // used to set phc.unparser.heredoc_id
 
 // Buffers
 public:
