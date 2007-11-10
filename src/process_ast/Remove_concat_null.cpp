@@ -12,9 +12,19 @@ AST_expr* Remove_concat_null::post_bin_op(AST_bin_op* in)
 	Token_string* empty = new Token_string(new String(""), new String(""));
 	Wildcard<AST_expr>* wildcard = new Wildcard<AST_expr>;
 
+	// Unparsing may break when we start removing concats without clearing
+	// the in_string flags. Hence, we clear all such flags here and this
+	// pass should only be run after the AST (as part of the translation
+	// to the HIR)
+	in->op->attrs->erase("phc.unparser.in_string_syntax.simple");
+	in->op->attrs->erase("phc.unparser.in_string_syntax.delimited");
+	in->op->attrs->erase("phc.unparser.in_string_syntax.complex");
+
 	// Replace with right operand if left operand is the empty string 
 	if(in->match(new AST_bin_op(empty, wildcard, ".")))
+	{
 		return wildcard->value;
+	}
 
 	// Replace with left operand if right operand is the empty string 
 	if(in->match(new AST_bin_op(wildcard, empty, ".")))

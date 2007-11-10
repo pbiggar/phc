@@ -111,8 +111,10 @@ public:
 	void pre_method_invocation (AST_method_invocation* in);
 	void pre_global (AST_global* in);
 
+// State concerning unparsing in-string syntax
 protected:
 	stack<bool> in_string;
+	stack<Token_op*> last_op;
 };
 
 #endif // PHC_AST_UNPARSER 

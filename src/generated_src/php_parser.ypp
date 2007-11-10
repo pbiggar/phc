@@ -295,7 +295,7 @@
 %token O_SLEQ
 %token O_SREQ
 
-%token O_MAGIC_CONCAT
+%token <token_op> O_MAGIC_CONCAT
 
 // Casts
 
@@ -1959,7 +1959,7 @@ expr_without_variable:
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
-			$$ = NEW(AST_bin_op, ($1, $3, "."));
+			$$ = NEW(AST_bin_op, ($1, $2, $3));
 
 			/*
 			 * Interface with the lexer: return to in-string state 

@@ -54,19 +54,23 @@ class Linearize : public AST_visitor
 {
 public:
 	std::vector<AST_expr*> exprs;
+	std::vector<Token_op*> ops;
 	std::vector<int> partition_size;
 	bool start_new_partition;
+	Token_op* last_op;
 
 public:
 	Linearize()
 	{
 		start_new_partition = true;
+		last_op = NULL;
 	}
 
 public:
 	void append(AST_expr* in)
 	{
 		exprs.push_back(in);
+		ops.push_back(last_op);
 		
 		if(start_new_partition)
 		{
@@ -81,7 +85,12 @@ public:
 	void process_bin_op(AST_bin_op* in)
 	{
 		visit_expr(in->left);
-		start_new_partition = !in->op->attrs->is_true("phc.unparser.in_string_syntax.simple");
+		last_op = in->op;
+		start_new_partition = !
+			(    in->op->attrs->is_true("phc.unparser.in_string_syntax.simple")
+			  || in->op->attrs->is_true("phc.unparser.in_string_syntax.delimited")
+				|| in->op->attrs->is_true("phc.unparser.in_string_syntax.complex")
+		 	);
 		visit_expr(in->right);
 	}
 
@@ -606,7 +615,12 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 				}
 
 				echo("\"");
-				for(int j = i; j < i + *ps; j++) visit_expr(l.exprs[j]);
+				for(int j = i; j < i + *ps; j++) 
+				{
+					last_op.push(l.ops[j]);
+					visit_expr(l.exprs[j]);
+					last_op.pop();
+				}
 				echo("\"");
 				in_string.pop();
 			}
@@ -662,6 +676,14 @@ void AST_unparser::children_variable(AST_variable* in)
 	AST_reflection* reflection;
 	AST_variable* name = NULL;
 
+	if(    !last_op.empty() 
+	    && last_op.top() != NULL 
+			&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.complex"))
+	{
+		echo("{");
+		in_string.push(false);
+	}
+
 	if(in->target != NULL)
 	{
 		Token_class_name* class_name = dynamic_cast<Token_class_name*>(in->target);
@@ -691,9 +713,26 @@ void AST_unparser::children_variable(AST_variable* in)
 	}
 	else
 	{
-		visit_variable_name(in->variable_name);
+		if(    !last_op.empty() 
+		    && last_op.top() != NULL 
+				&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.delimited")
+			)
+		{
+			echo("{");
+			visit_variable_name(in->variable_name);
+			echo("}");
+		}
+		else
+		{
+			visit_variable_name(in->variable_name);
+		}
 	}
 
+	// At this point, the only last_op that could possibly be relevant
+	// is one that has attribute "phc.unparser.in_string_syntax.complex" set.
+	// However, that attribute should not apply to any variables used as
+	// array indices. Hence, we push NULL as a new last_op here.
+	last_op.push(NULL);
 	List<AST_expr*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
@@ -709,6 +748,16 @@ void AST_unparser::children_variable(AST_variable* in)
 			if(*i) visit_expr(*i);
 			echo("]");
 		}
+	}
+	last_op.pop();
+
+	if(    !last_op.empty()
+	    && last_op.top() != NULL 
+			&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.complex")
+		)
+	{
+		in_string.pop();
+		echo("}");
 	}
 }
 

@@ -126,7 +126,6 @@ int main(int argc, char** argv)
 	// process_ast passes
 	pm->add_pass (new List_passes ());
 	pm->add_pass (new Invalid_check ());
-	pm->add_transform (new Remove_concat_null (), "rcn");
 	// TODO add flag for include 
 	pm->add_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
 	pm->add_pass (new Fake_pass ("ast"));
@@ -134,6 +133,7 @@ int main(int argc, char** argv)
 	pm->add_visitor (new Note_top_level_declarations (), "ntld");
 
 	// ast_to_hir passes
+	pm->add_transform (new Remove_concat_null (), "rcn");
 	pm->add_pass (new Lift_functions_and_classes ()); // codegen
 	pm->add_transform (new Split_unset_isset (), "sui");
 	pm->add_transform (new Translate_empty (), "empty");

@@ -480,9 +480,9 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 						}	
 <DQ_STR,HD_MAIN>"${"{IDENT}"}" {
 							yyextra->schedule_return_string();
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.delimited");
 							yyextra->schedule_return(VARIABLE, &yytext[2], yyleng - 3);
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
@@ -494,12 +494,12 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							right = strchr(yytext, ']') - yytext;
 
 							yyextra->schedule_return_string();
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(INT, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -513,12 +513,12 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(STRING, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -532,12 +532,12 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							right = strchr(yytext, ']') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
 							yyextra->schedule_return(VARIABLE, &yytext[left+2], right - left - 2);
 							yyextra->schedule_return(']');
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -550,11 +550,11 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							arrow = strchr(yytext, '-') - yytext;
 							
 							yyextra->schedule_return_string();
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], arrow - 1);
 							yyextra->schedule_return(O_SINGLEARROW);
 							yyextra->schedule_return(IDENT, &yytext[arrow+2]);
-							yyextra->schedule_return_op(".");
+							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
@@ -632,12 +632,24 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 <COMPLEX1>{ANY}	{
 							yyless(0);
 							BEGIN(PHP);
+
+							Token_op* op = new Token_op(new String("."));
+							copy_state(op, yyextra);
+							op->attrs->set_true("phc.unparser.in_string_syntax.complex");
+							yylval->token_op = op; 
+
 							RETURN(O_MAGIC_CONCAT);
 						}
 <COMPLEX2>{ANY}	{
 							yyless(0);
 							yy_pop_state(yyscanner);
-							RETURN_OP('.', ".");
+							
+							Token_op* op = new Token_op(new String("."));
+							copy_state(op, yyextra);
+							op->attrs->set_true("phc.unparser.in_string_syntax.simple");
+							yylval->token_op = op;
+
+							RETURN('.');
 						}
 
 	/* Deal with (doubly quoted) strings. */
