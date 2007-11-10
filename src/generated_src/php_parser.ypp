@@ -780,15 +780,7 @@ unticked_statement:
 		}
 	| K_GLOBAL global_var_list ';'
 		{
-			List<AST_statement*>* globals = new List<AST_statement*>;
-			List<AST_variable_name*>::const_iterator i;
-			
-			for(i = $2->begin(); i != $2->end(); i++)
-			{
-				globals->push_back(NEW(AST_global, (*i)));
-			}
-		
-			$$ = globals;
+			$$ = wrap(NEW(AST_global, ($2)));
 		}
 	| K_STATIC static_var_list ';'
 		{

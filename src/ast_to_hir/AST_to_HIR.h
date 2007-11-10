@@ -205,10 +205,13 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_global* fold_impl_global(AST::AST_global* orig, HIR::HIR_variable_name* variable_name) 
+	HIR::HIR_global* fold_impl_global(AST::AST_global* orig, List<HIR::HIR_variable_name*>* variable_names) 
 	{
+		// HIR only takes a single variable per global; should be been taken care of in the shredder
+		assert(variable_names->size() == 1);
+		
 		HIR::HIR_global* result;
-		result = new HIR::HIR_global(variable_name);
+		result = new HIR::HIR_global(variable_names->front());
 		result->attrs = orig->attrs;
 		return result;
 	}

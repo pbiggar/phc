@@ -65,7 +65,7 @@ continue ::= expr? ;
 return ::= expr? ;
 
 static_declaration ::= VARIABLE_NAME expr? ;
-global ::= variable_name ;
+global ::= variable_name* ;
 
 declare ::= directive+ statement* ;
 directive ::= DIRECTIVE_NAME expr ;

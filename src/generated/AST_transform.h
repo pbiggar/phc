@@ -256,7 +256,7 @@ public:
     virtual AST_variable* transform_variable(AST_variable* in);
     virtual List<AST_switch_case*>* transform_switch_case_list(List<AST_switch_case*>* in);
     virtual List<AST_switch_case*>* transform_switch_case(AST_switch_case* in);
-    virtual AST_variable_name* transform_variable_name(AST_variable_name* in);
+    virtual List<AST_variable_name*>* transform_variable_name_list(List<AST_variable_name*>* in);
     virtual List<AST_directive*>* transform_directive_list(List<AST_directive*>* in);
     virtual List<AST_directive*>* transform_directive(AST_directive* in);
     virtual Token_directive_name* transform_directive_name(Token_directive_name* in);
@@ -270,6 +270,7 @@ public:
     virtual Token_constant_name* transform_constant_name(Token_constant_name* in);
     virtual AST_class_name* transform_class_name(AST_class_name* in);
     virtual AST_target* transform_target(AST_target* in);
+    virtual AST_variable_name* transform_variable_name(AST_variable_name* in);
     virtual List<AST_expr*>* transform_expr_list(List<AST_expr*>* in);
     virtual List<AST_array_elem*>* transform_array_elem_list(List<AST_array_elem*>* in);
     virtual List<AST_array_elem*>* transform_array_elem(AST_array_elem* in);

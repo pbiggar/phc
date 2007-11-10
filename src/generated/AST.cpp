@@ -4646,14 +4646,14 @@ void AST_static_declaration::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_global::AST_global(AST_variable_name* variable_name)
+AST_global::AST_global(List<AST_variable_name*>* variable_names)
 {
-    this->variable_name = variable_name;
+    this->variable_names = variable_names;
 }
 
 AST_global::AST_global()
 {
-    this->variable_name = 0;
+    this->variable_names = 0;
 }
 
 void AST_global::visit(AST_visitor* visitor)
@@ -4681,13 +4681,25 @@ bool AST_global::match(AST_node* in)
     AST_global* that = dynamic_cast<AST_global*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->variable_names != NULL && that->variable_names != NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	List<AST_variable_name*>::const_iterator i, j;
+    	for(
+    		i = this->variable_names->begin(), j = that->variable_names->begin();
+    		i != this->variable_names->end() && j != that->variable_names->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->variable_names->end() || j != that->variable_names->end())
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
     
     return true;
 }
@@ -4697,13 +4709,30 @@ bool AST_global::equals(AST_node* in)
     AST_global* that = dynamic_cast<AST_global*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->variable_names == NULL || that->variable_names == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->variable_names != NULL || that->variable_names != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
+    else
+    {
+    	List<AST_variable_name*>::const_iterator i, j;
+    	for(
+    		i = this->variable_names->begin(), j = that->variable_names->begin();
+    		i != this->variable_names->end() && j != that->variable_names->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->variable_names->end() || j != that->variable_names->end())
+    		return false;
+    }
     
     if(!AST_node::is_mixin_equal(that)) return false;
     return true;
@@ -4711,16 +4740,30 @@ bool AST_global::equals(AST_node* in)
 
 AST_global* AST_global::clone()
 {
-    AST_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    AST_global* clone = new AST_global(variable_name);
+    List<AST_variable_name*>* variable_names = NULL;
+    if(this->variable_names != NULL)
+    {
+    	List<AST_variable_name*>::const_iterator i;
+    	variable_names = new List<AST_variable_name*>;
+    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
+    		variable_names->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_global* clone = new AST_global(variable_names);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
 
 void AST_global::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(variable_names != NULL);
+    {
+    	List<AST_variable_name*>::const_iterator i;
+    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
     AST_node::assert_mixin_valid();
 }
 

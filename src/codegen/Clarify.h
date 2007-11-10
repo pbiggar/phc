@@ -29,8 +29,9 @@ class Clarify : public AST_visitor
 	{
 		AST_global* global = 
 			new AST_global (
+				new List<AST_variable_name*> (
 					new Token_variable_name (
-						new String ("GLOBALS")));
+						new String ("GLOBALS"))));
 
 		if (in->statements)
 			in->statements->push_front (global);

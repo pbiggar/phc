@@ -187,9 +187,9 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "AST_global"))
     {
-    	AST_variable_name* variable_name = dynamic_cast<AST_variable_name*>(*i++);
+    	List<AST_variable_name*>* variable_names = dynamic_cast<List<AST_variable_name*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_global(variable_name);
+    	return new AST_global(variable_names);
     }
     if(!strcmp(type_id, "AST_declare"))
     {
@@ -481,6 +481,13 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	List<AST_switch_case*>* list = new List<AST_switch_case*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<AST_switch_case*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "AST_variable_name_list"))
+    {
+    	List<AST_variable_name*>* list = new List<AST_variable_name*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<AST_variable_name*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "AST_directive_list"))

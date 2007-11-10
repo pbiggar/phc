@@ -1336,15 +1336,15 @@ public:
     virtual void assert_valid();
 };
 
-// global ::= variable_name ;
+// global ::= variable_name* ;
 class AST_global : virtual public AST_statement
 {
 public:
-    AST_global(AST_variable_name* variable_name);
+    AST_global(List<AST_variable_name*>* variable_names);
 protected:
     AST_global();
 public:
-    AST_variable_name* variable_name;
+    List<AST_variable_name*>* variable_names;
 public:
     virtual void visit(AST_visitor* visitor);
     virtual void transform_children(AST_transform* transform);

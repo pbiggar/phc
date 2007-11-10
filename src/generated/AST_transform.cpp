@@ -813,7 +813,7 @@ void AST_transform::children_static_declaration(AST_static_declaration* in)
 
 void AST_transform::children_global(AST_global* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->variable_names = transform_variable_name_list(in->variable_names);
 }
 
 void AST_transform::children_declare(AST_declare* in)
@@ -1391,17 +1391,17 @@ List<AST_switch_case*>* AST_transform::transform_switch_case(AST_switch_case* in
     return out2;
 }
 
-AST_variable_name* AST_transform::transform_variable_name(AST_variable_name* in)
+List<AST_variable_name*>* AST_transform::transform_variable_name_list(List<AST_variable_name*>* in)
 {
-    if(in == NULL) return NULL;
+    List<AST_variable_name*>::const_iterator i;
+    List<AST_variable_name*>* out = new List<AST_variable_name*>;
     
-    AST_variable_name* out;
+    if(in == NULL)
+    	return NULL;
     
-    out = pre_variable_name(in);
-    if(out != NULL)
+    for(i = in->begin(); i != in->end(); i++)
     {
-    	children_variable_name(out);
-    	out = post_variable_name(out);
+    	out->push_back(transform_variable_name(*i));
     }
     
     return out;
@@ -1625,6 +1625,22 @@ AST_target* AST_transform::transform_target(AST_target* in)
     {
     	children_target(out);
     	out = post_target(out);
+    }
+    
+    return out;
+}
+
+AST_variable_name* AST_transform::transform_variable_name(AST_variable_name* in)
+{
+    if(in == NULL) return NULL;
+    
+    AST_variable_name* out;
+    
+    out = pre_variable_name(in);
+    if(out != NULL)
+    {
+    	children_variable_name(out);
+    	out = post_variable_name(out);
     }
     
     return out;

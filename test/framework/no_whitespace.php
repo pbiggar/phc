@@ -68,7 +68,11 @@ class NoWhitespace extends AsyncTest
 	// this strings whitespace from strings, so it wont be perfect, but thats a minor, but very difficult to avoid, problem
 	function strip_whitespace ($out, $async)
 	{
-		return preg_replace ("/\s+/", "", $out);
+		$out = preg_replace ("/\s+/", "", $out);
+		// replace <?php by <? so that we don't report differences when the
+		// input uses <? but the output uses <?php
+		$out = preg_replace ("/<\?php/", "<?", $out);
+		return $out;
 	}
 }
 ?>

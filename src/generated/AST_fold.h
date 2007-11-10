@@ -395,9 +395,14 @@ public:
 
 	virtual _AST_global fold_global(AST_global* in)
 	{
-		_AST_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_global(in, variable_name);
+		List<_AST_variable_name>* variable_names = new List<_AST_variable_name>;
+		{
+			List<AST_variable_name*>::const_iterator i;
+			for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
+				if(*i != NULL) variable_names->push_back(fold_variable_name(*i));
+				else variable_names->push_back(0);
+		}
+		return fold_impl_global(in, variable_names);
 	}
 
 	virtual _AST_declare fold_declare(AST_declare* in)
@@ -746,7 +751,7 @@ public:
 	virtual _AST_continue fold_impl_continue(AST_continue* orig, _AST_expr expr) { assert(0); };
 	virtual _AST_return fold_impl_return(AST_return* orig, _AST_expr expr) { assert(0); };
 	virtual _AST_static_declaration fold_impl_static_declaration(AST_static_declaration* orig, _Token_variable_name variable_name, _AST_expr expr) { assert(0); };
-	virtual _AST_global fold_impl_global(AST_global* orig, _AST_variable_name variable_name) { assert(0); };
+	virtual _AST_global fold_impl_global(AST_global* orig, List<_AST_variable_name>* variable_names) { assert(0); };
 	virtual _AST_declare fold_impl_declare(AST_declare* orig, List<_AST_directive>* directives, List<_AST_statement>* statements) { assert(0); };
 	virtual _AST_directive fold_impl_directive(AST_directive* orig, _Token_directive_name directive_name, _AST_expr expr) { assert(0); };
 	virtual _AST_try fold_impl_try(AST_try* orig, List<_AST_statement>* statements, List<_AST_catch>* catches) { assert(0); };

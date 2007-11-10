@@ -428,7 +428,7 @@ public:
     virtual void visit_variable(AST_variable* in);
     virtual void visit_switch_case_list(List<AST_switch_case*>* in);
     virtual void visit_switch_case(AST_switch_case* in);
-    virtual void visit_variable_name(AST_variable_name* in);
+    virtual void visit_variable_name_list(List<AST_variable_name*>* in);
     virtual void visit_directive_list(List<AST_directive*>* in);
     virtual void visit_directive(AST_directive* in);
     virtual void visit_directive_name(Token_directive_name* in);
@@ -442,6 +442,7 @@ public:
     virtual void visit_constant_name(Token_constant_name* in);
     virtual void visit_class_name(AST_class_name* in);
     virtual void visit_target(AST_target* in);
+    virtual void visit_variable_name(AST_variable_name* in);
     virtual void visit_expr_list(List<AST_expr*>* in);
     virtual void visit_array_elem_list(List<AST_array_elem*>* in);
     virtual void visit_array_elem(AST_array_elem* in);

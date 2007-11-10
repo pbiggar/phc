@@ -791,7 +791,7 @@ void AST_visitor::children_static_declaration(AST_static_declaration* in)
 
 void AST_visitor::children_global(AST_global* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name_list(in->variable_names);
 }
 
 void AST_visitor::children_declare(AST_declare* in)
@@ -2365,15 +2365,22 @@ void AST_visitor::visit_switch_case(AST_switch_case* in)
     }
 }
 
-void AST_visitor::visit_variable_name(AST_variable_name* in)
+void AST_visitor::visit_variable_name_list(List<AST_variable_name*>* in)
 {
+    List<AST_variable_name*>::const_iterator i;
+    
     if(in == NULL)
-    	visit_null("AST_variable_name");
+    	visit_null_list("AST_variable_name");
     else
     {
-    	pre_variable_name_chain(in);
-    	children_variable_name(in);
-    	post_variable_name_chain(in);
+    	pre_list("AST_variable_name", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_variable_name(*i);
+    	}
+    
+    	post_list("AST_variable_name", in->size());
     }
 }
 
@@ -2551,6 +2558,18 @@ void AST_visitor::visit_target(AST_target* in)
     	pre_target_chain(in);
     	children_target(in);
     	post_target_chain(in);
+    }
+}
+
+void AST_visitor::visit_variable_name(AST_variable_name* in)
+{
+    if(in == NULL)
+    	visit_null("AST_variable_name");
+    else
+    {
+    	pre_variable_name_chain(in);
+    	children_variable_name(in);
+    	post_variable_name_chain(in);
     }
 }
 

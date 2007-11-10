@@ -449,8 +449,16 @@ void AST_unparser::children_static_declaration(AST_static_declaration* in)
 
 void AST_unparser::children_global(AST_global* in)
 {
-	echo("global $");
-	visit_variable_name(in->variable_name);
+	echo("global ");
+	List<AST_variable_name*>::const_iterator i;
+	for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
+	{
+		if(i != in->variable_names->begin())
+			echo(", ");
+
+		echo("$");
+		visit_variable_name(*i);
+	}
 	echo(";");
 	// newline output by post_commented_node
 }
@@ -1166,9 +1174,13 @@ void AST_unparser::pre_method_invocation (AST_method_invocation* in)
 
 void AST_unparser::pre_global (AST_global* in)
 {
-	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->variable_name);
-	if (reflect && needs_curlies (reflect))
-		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+	List<AST_variable_name*>::const_iterator i;
+	for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
+	{
+		AST_reflection* reflect = dynamic_cast<AST_reflection*>(*i);
+		if (reflect && needs_curlies (reflect))
+			reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+	}
 }
 
 void AST_unparser::pre_expr(AST_expr* in)
