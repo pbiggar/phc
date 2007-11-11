@@ -845,9 +845,7 @@ void AST_unparser::children_array_elem(AST_array_elem* in)
 void AST_unparser::children_method_invocation(AST_method_invocation* in)
 {
 	bool after_arrow = false;
-	bool use_brackets = true;
 	Token_class_name* static_method;
-	Token_method_name* method_name;
 
 	static_method = dynamic_cast<Token_class_name*>(in->target);
 	if(static_method)
@@ -862,27 +860,7 @@ void AST_unparser::children_method_invocation(AST_method_invocation* in)
 		after_arrow = true;
 	}
 
-	// Leave out brackets in calls in builtins
-	method_name = dynamic_cast<Token_method_name*>(in->method_name);
-	if(method_name)
-	{
-		use_brackets &= *method_name->value != "echo";
-		use_brackets &= *method_name->value != "print";
-		use_brackets &= *method_name->value != "include";
-		use_brackets &= *method_name->value != "include_once";
-		use_brackets &= *method_name->value != "require";
-		use_brackets &= *method_name->value != "require_once";
-		use_brackets &= *method_name->value != "use";
-		use_brackets &= *method_name->value != "clone";
-	}
-
-	if(!use_brackets)
-	{
-		visit_method_name(in->method_name);
-		echo(" ");	
-		visit_actual_parameter_list(in->actual_parameters);
-	}
-	else if(in->attrs->is_true("phc.unparser.is_backticked"))
+	if(in->attrs->is_true("phc.unparser.is_backticked"))
 	{
 		assert(in->actual_parameters->size() == 1);
 
@@ -900,13 +878,39 @@ void AST_unparser::children_method_invocation(AST_method_invocation* in)
 		in_string.pop();
 		echo("`");
 	}
+	else if(in->attrs->is_true("phc.unparser.no_brackets"))
+	{
+		visit_method_name(in->method_name);
+
+		if(    in->actual_parameters->size() == 1 
+		    && in->actual_parameters->front()->attrs->is_true("phc.unparser.is_default")
+			)
+		{
+			// output nothing; only argument is marked as 'default' (e.g., exit;)
+		}
+		else
+		{
+			echo(" ");	
+			visit_actual_parameter_list(in->actual_parameters);
+		}
+	}
 	else
 	{
 		visit_method_name(in->method_name);
 
-		echo("(");
-		visit_actual_parameter_list(in->actual_parameters);
-		echo(")");
+		if(    in->actual_parameters->size() == 1 
+		    && in->actual_parameters->front()->attrs->is_true("phc.unparser.is_default")
+			)
+		{
+			// output nothing; only argument is marked as 'default' (e.g., exit();)
+			echo("()");
+		}
+		else
+		{
+			echo("(");
+			visit_actual_parameter_list(in->actual_parameters);
+			echo(")");
+		}
 	}
 }
 
@@ -920,9 +924,18 @@ void AST_unparser::children_new(AST_new* in)
 {
 	echo("new ");
 	visit_class_name(in->class_name);
-	echo("(");
-	visit_actual_parameter_list(in->actual_parameters);
-	echo(")");
+
+	if(in->attrs->is_true("phc.unparser.no_brackets"))
+	{
+		// it is only allowed to omit brackets if there are no parameters
+		assert(in->actual_parameters->size() == 0);
+	}
+	else
+	{
+		echo("(");
+		visit_actual_parameter_list(in->actual_parameters);
+		echo(")");
+	}
 }
 
 void AST_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
@@ -1107,11 +1120,7 @@ void AST_unparser::children_constant_name(Token_constant_name* in)
 
 void AST_unparser::children_int(Token_int* in)
 {
-	// a few function calls take optional integers (such as exit)
-	// when these arguments are marked as phc.unparser.is_default,
-	// we do not unparse them
-	if(!in->attrs->is_true("phc.unparser.is_default"))
-		echo(in->source_rep);
+	echo(in->source_rep);
 }
 
 void AST_unparser::children_real(Token_real* in)

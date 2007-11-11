@@ -176,6 +176,7 @@
 	List<AST_name_with_default*>* list_ast_name_with_default;
 	AST_member* ast_member;
 	AST_attribute* ast_attribute;
+	AST_new* ast_new;
 }
 
 %{
@@ -419,7 +420,7 @@
 %type <ast_method_mod> member_modifier
 %type <list_ast_name_with_default> class_variable_declaration
 %type <ast_attribute> class_constant_declaration
-%type <ast_statement> echo_expr_list
+%type <list_ast_actual_parameter> echo_expr_list
 %type <ast_expr> for_expr
 %type <ast_expr> non_empty_for_expr
 %type <ast_expr> expr_without_variable
@@ -429,8 +430,8 @@
 %type <ast_variable> dynamic_class_name_reference
 %type <list_ast_variable> dynamic_class_name_variable_properties
 %type <ast_variable> dynamic_class_name_variable_property
-%type <ast_expr> exit_expr
-%type <list_ast_actual_parameter> ctor_arguments
+%type <ast_method_invocation> exit_expr
+%type <ast_new> ctor_arguments
 %type <ast_expr> common_scalar
 %type <ast_expr> static_scalar
 %type <ast_constant> static_class_constant
@@ -796,7 +797,14 @@ unticked_statement:
 		}
 	| K_ECHO echo_expr_list ';'
 		{
-			$$ = wrap ($2);
+			AST_method_invocation* inv;
+			inv = NEW(AST_method_invocation,
+				( NULL // target
+				, NEW(Token_method_name, (new String("echo")))
+        , $2)); 
+				
+			inv->attrs->set_true("phc.unparser.no_brackets");
+			$$ = wrap (NEW(AST_eval_expr, (inv)));
 		}
 	| INLINE_HTML
 		{
@@ -816,6 +824,7 @@ unticked_statement:
 		{
 			AST_method_invocation* fn;
 			fn = NEW(AST_method_invocation, ("use", $2));
+			fn->attrs->set_true("phc.unparser.no_brackets");
 			$$ = wrap(NEW(AST_eval_expr, (fn)));
 		}
 	| K_UNSET '(' unset_variables ')' ';'
@@ -1754,7 +1763,9 @@ class_constant_declaration:
 	;
 
 /*
- * "echo foo, bar;" is translated into "echo(foo); echo(bar);"
+ * "echo foo, bar;" is translated into a function call to "echo" with
+ * two arguments.
+ *
  * Note that an echo isnt a function, and behaves slightly differently from
  * functions, in that the result of the evaluation of an argument is printed
  * before the next argument is evaluated.
@@ -1762,15 +1773,13 @@ class_constant_declaration:
 echo_expr_list:
 	  echo_expr_list ',' expr
 		{
-			AST_method_invocation* fn = dynamic_cast <AST_method_invocation*> (dynamic_cast<AST_eval_expr*>($1)->expr);
-			fn->actual_parameters->push_back (NEW (AST_actual_parameter, (false, $3)));
-			
+			$1->push_back (NEW (AST_actual_parameter, (false, $3)));
 			$$ = $1;
 		}
 	| expr
 		{
-			AST_method_invocation* fn = NEW(AST_method_invocation, ("echo", $1));
-			$$ = (NEW(AST_eval_expr, (fn)));
+			$$ = new List<AST_actual_parameter*>;
+			$$->push_back(NEW(AST_actual_parameter, (false, $1)));
 		}
 	;
 
@@ -1814,15 +1823,18 @@ expr_without_variable:
 		}
 	| variable '=' '&' K_NEW class_name_reference ctor_arguments 
 		{
-			$$ = NEW(AST_assignment, (expect_variable($1), true, NEW(AST_new, ($5, $6))));
+			$6->class_name = $5;
+			$$ = NEW(AST_assignment, (expect_variable($1), true, $6));
 		}
 	| K_NEW class_name_reference ctor_arguments
 		{
-			$$ = NEW(AST_new, ($2, $3));
+			$3->class_name = $2;
+			$$ = $3; 
 		}
 	| K_CLONE expr
 		{
 			$$ = NEW(AST_method_invocation, ("clone", $2)); 
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| variable O_PLUSEQ expr
 		{
@@ -2066,7 +2078,7 @@ expr_without_variable:
 		}
 	| K_EXIT exit_expr
 		{
-			$$ = NEW(AST_method_invocation, ("exit", $2));
+			$$ = $2; 
 		}
 	| '@' expr
 		{
@@ -2083,6 +2095,7 @@ expr_without_variable:
 	| K_PRINT expr
 		{
 			$$ = NEW(AST_method_invocation, ("print", $2));	
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	;
 
@@ -2188,30 +2201,53 @@ dynamic_class_name_variable_property:
 exit_expr:
 	  /* empty */
 		{
-			$$ = NEW(Token_int, (0L));
-			$$->attrs->set_true("phc.unparser.is_default");
+			AST_expr* expr = NEW(Token_int, (0L));
+			AST_actual_parameter* arg = NEW(AST_actual_parameter, (false, expr));
+			arg->attrs->set_true("phc.unparser.is_default");
+			$$ = NEW(AST_method_invocation,
+				( NULL
+				, new Token_method_name(new String("exit"))
+				, new List<AST_actual_parameter*>(arg)
+				));
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| '(' ')'
 		{
-			$$ = NEW(Token_int, (0L));
-			$$->attrs->set_true("phc.unparser.is_default");
+			AST_expr* expr = NEW(Token_int, (0L));
+			AST_actual_parameter* arg = NEW(AST_actual_parameter, (false, expr));
+			arg->attrs->set_true("phc.unparser.is_default");
+			$$ = NEW(AST_method_invocation,
+				( NULL
+				, new Token_method_name(new String("exit"))
+				, new List<AST_actual_parameter*>(arg)
+				));
 		}
 	| '(' expr ')'
 		{
-			$$ = $2;
+			AST_actual_parameter* arg = NEW(AST_actual_parameter, (false, $2));
+			$$ = NEW(AST_method_invocation,
+				( NULL
+				, new Token_method_name(new String("exit"))
+				, new List<AST_actual_parameter*>(arg)
+				));
 		}
 	;
 
+/*
+ * We generate the AST_new node here with a NULL class name so that we can
+ * set the phc.unparser.no_brackets attribute if necessary
+ */
 ctor_arguments:
 	  /* empty */
 		{ 
 			List<AST_actual_parameter*>* args = new List<AST_actual_parameter*>;
 			
-			$$ = args; 
+			$$ = NEW(AST_new, (NULL, args)); 
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| '(' function_call_parameter_list ')'
 		{
-			$$ = $2;
+			$$ = NEW(AST_new, (NULL, $2));
 		}
 	;
 
@@ -2840,10 +2876,12 @@ internal_functions_in_yacc:
 	| K_INCLUDE expr 
 		{
 			$$ = NEW(AST_method_invocation, ("include", $2));
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| K_INCLUDE_ONCE expr
 		{
 			$$ = NEW(AST_method_invocation, ("include_once", $2));
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| K_EVAL '(' expr ')'
 		{
@@ -2852,10 +2890,12 @@ internal_functions_in_yacc:
 	| K_REQUIRE expr 
 		{
 			$$ = NEW(AST_method_invocation, ("require", $2));
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	| K_REQUIRE_ONCE expr
 		{
 			$$ = NEW(AST_method_invocation, ("require_once", $2));
+			$$->attrs->set_true("phc.unparser.no_brackets");
 		}
 	;
 

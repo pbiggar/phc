@@ -328,9 +328,10 @@ typedef union YYSTYPE
 	List<AST_name_with_default*>* list_ast_name_with_default;
 	AST_member* ast_member;
 	AST_attribute* ast_attribute;
+	AST_new* ast_new;
 }
 /* Line 1489 of yacc.c.  */
-#line 334 "src/generated/php_parser.tab.hpp"
+#line 335 "src/generated/php_parser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
