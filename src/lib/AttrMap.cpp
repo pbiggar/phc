@@ -73,15 +73,18 @@ void AttrMap::set(string key, Object* value)
 AttrMap* AttrMap::clone()
 {
 	AttrMap* result = new AttrMap;
-	
+	result->clone_all_from(this);
+	return result;
+}
+
+void AttrMap::clone_all_from(AttrMap* other)
+{
 	AttrMap::const_iterator i;
-	for(i = begin(); i != end(); i++)
+	for(i = other->begin(); i != other->end(); i++)
 	{
 		if((*i).second)
-			result->set((*i).first, (*i).second->clone());
+			set((*i).first, (*i).second->clone());
 		else
-			result->set((*i).first, NULL);
+			set((*i).first, NULL);
 	}
-
-	return result;
 }

@@ -42,6 +42,7 @@ public:
 
 public:
 	AttrMap* clone();
+	void clone_all_from(AttrMap* other);
 };
 
 #endif // PHC_MAP

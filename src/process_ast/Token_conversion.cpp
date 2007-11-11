@@ -45,29 +45,40 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 	Wildcard<Token_int>* i = new Wildcard<Token_int>;
 	Wildcard<Token_real>* r = new Wildcard<Token_real>;
 
+	// In all cases, we assign to result, and at the end copy all
+	// attributes from *in to *result
+	AST_expr* result;
+
 	if(in->match(new AST_unary_op(new AST_unary_op(expr, "-"), "-")))
 	{
 		// Double negation; remove both
-		return pre_expr(expr->value);
+		result = pre_expr(expr->value);
 	}
 
 	// TODO add a pass to check for the lack of unary -s
 
-	if(in->match(new AST_unary_op(i, "-")))
+	else if(in->match(new AST_unary_op(i, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *i->value->source_rep;
 		i->value->source_rep = source_rep;
-		return PHP::convert_token (i->value);
+		result = PHP::convert_token (i->value);
 	}
 
-	if(in->match(new AST_unary_op(r, "-")))
+	else if(in->match(new AST_unary_op(r, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *r->value->source_rep;
 		r->value->source_rep = source_rep;
-		return PHP::convert_token (r->value);
+		result = PHP::convert_token (r->value);
 	}
 	
-	return in;
+	else 
+	{
+		// No changes
+		return in;
+	}
+
+	result->attrs->clone_all_from(in->attrs);
+	return result;
 }
