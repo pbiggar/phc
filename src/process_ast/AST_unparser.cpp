@@ -1102,7 +1102,11 @@ void AST_unparser::children_constant_name(Token_constant_name* in)
 
 void AST_unparser::children_int(Token_int* in)
 {
-	echo(in->source_rep);
+	// a few function calls take optional integers (such as exit)
+	// when these arguments are marked as phc.unparser.is_default,
+	// we do not unparse them
+	if(!in->attrs->is_true("phc.unparser.is_default"))
+		echo(in->source_rep);
 }
 
 void AST_unparser::children_real(Token_real* in)

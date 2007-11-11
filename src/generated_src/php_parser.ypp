@@ -2223,10 +2223,12 @@ exit_expr:
 	  /* empty */
 		{
 			$$ = NEW(Token_int, (0L));
+			$$->attrs->set_true("phc.unparser.is_default");
 		}
 	| '(' ')'
 		{
 			$$ = NEW(Token_int, (0L));
+			$$->attrs->set_true("phc.unparser.is_default");
 		}
 	| '(' expr ')'
 		{
