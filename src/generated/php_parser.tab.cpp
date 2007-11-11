@@ -5282,7 +5282,7 @@ yyreduce:
   case 210:
 #line 1947 "src/generated_src/php_parser.ypp"
     {
-			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (4)].ast_expr), (yyvsp[(2) - (4)].token_op), (yyvsp[(3) - (4)].ast_expr)));
+			(yyval.ast_expr) = NEW(AST_bin_op, ((yyvsp[(1) - (4)].ast_expr), (yyvsp[(2) - (4)].token_op), expect_variable((yyvsp[(3) - (4)].ast_expr))));
 
 			/*
 			 * Interface with the lexer: return to in-string state 

@@ -1945,7 +1945,7 @@ expr_without_variable:
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
-			$$ = NEW(AST_bin_op, ($1, $2, $3));
+			$$ = NEW(AST_bin_op, ($1, $2, expect_variable($3)));
 
 			/*
 			 * Interface with the lexer: return to in-string state 

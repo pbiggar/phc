@@ -96,18 +96,4 @@ END;
 	 */
 	
 	echo "a $b[ 0 ] c\n";			// We don't generate an error
-	echo "a {$b + $c} d\n";
-	echo "a {$b . $c} d\n";
-	echo "a {$b . "blah"} d\n";
-	echo "a {$b . "c $d e"} d\n";
-
-	/*
-	 * Nested complex syntax
-	 */
-	 
-	echo "a {$b . "c {$b} e"} d\n";
-
-	echo <<<OUTER
-a {$x . "foo {$x} bar"} b
-OUTER;
 ?>
