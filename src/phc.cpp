@@ -10,31 +10,30 @@
 #include <signal.h>
 #include <ltdl.h>
 #include "cmdline.h"
-#include "codegen/Strip_comments.h"
+#include "AST.h"
+#include "parsing/parse.h"
+#include "embed/embed.h"
 #include "process_ast/Invalid_check.h"
 #include "process_ast/Pretty_print.h"
 #include "process_ast/PHP_unparser.h"
 #include "process_ast/XML_unparser.h"
 #include "process_ast/DOT_unparser.h"
-#include "pass_manager/Fake_pass.h"
 #include "process_ast/Remove_concat_null.h"
 #include "process_ast/Process_includes.h"
-#include "codegen/Lift_functions_and_classes.h"
+#include "process_ast/Note_top_level_declarations.h"
 #include "ast_to_hir/Lower_control_flow.h"
 #include "ast_to_hir/Lower_expr_flow.h"
-#include "process_ast/Note_top_level_declarations.h"
 #include "ast_to_hir/Shredder.h"
+#include "ast_to_hir/Split_multiple_arguments.h"
+#include "process_hir/Obfuscate.h"
+#include "codegen/Strip_comments.h"
+#include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Prune_symbol_table.h"
 #include "codegen/Clarify.h"
-#include "process_hir/Obfuscate.h"
-// Make sure that Generate_C is included late, so that we don't get
-// namespace pollution
 #include "codegen/Generate_C.h"
 #include "codegen/Compile_C.h"
-#include "AST.h"
+#include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
-#include "parsing/parse.h"
-#include "embed/embed.h"
 
 using namespace std;
 
@@ -134,6 +133,7 @@ int main(int argc, char** argv)
 
 	// ast_to_hir passes
 	pm->add_transform (new Remove_concat_null (), "rcn");
+	pm->add_transform (new Split_multiple_arguments (), "sma");
 	pm->add_pass (new Lift_functions_and_classes ()); // codegen
 	pm->add_transform (new Split_unset_isset (), "sui");
 	pm->add_transform (new Translate_empty (), "empty");

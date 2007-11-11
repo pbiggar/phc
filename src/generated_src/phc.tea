@@ -42,11 +42,13 @@ member ::= method | attribute ;
 method ::= signature statement*? ;
 signature ::= method_mod is_ref:"&"? METHOD_NAME formal_parameter* ;
 method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
-formal_parameter ::= type is_ref:"&"? VARIABLE_NAME expr? ;
+formal_parameter ::= type is_ref:"&"? var:name_with_default ;
 type ::= CLASS_NAME? ;
 
-attribute ::= attr_mod VARIABLE_NAME expr? ;
+attribute ::= attr_mod vars:name_with_default* ;
 attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+
+name_with_default ::= VARIABLE_NAME expr? ;
 
 {-
    Statements
@@ -64,7 +66,7 @@ break ::= expr? ;
 continue ::= expr? ;
 return ::= expr? ;
 
-static_declaration ::= VARIABLE_NAME expr? ;
+static_declaration ::= vars:name_with_default* ;
 global ::= variable_name* ;
 
 declare ::= directive+ statement* ;
@@ -411,16 +413,14 @@ public:
 	{
 		this->type = type;
 		this->is_ref = false;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new AST_name_with_default(name, NULL);
 	}
 
 	AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* name) 
 	{ 
 		this->type = type;
 		this->is_ref = is_ref;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new AST_name_with_default(name, NULL);
 	}
 };
 

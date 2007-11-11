@@ -119,13 +119,7 @@ void HIR_unparser::children_formal_parameter(HIR_formal_parameter* in)
 {
 	visit_type(in->type);
 	if(in->is_ref) echo("&");
-	echo("$");
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
-	{
-		echo(" = ");
-		visit_expr(in->expr);
-	}
+	visit_name_with_default(in->var);
 }
 
 void HIR_unparser::children_type(HIR_type* in)
@@ -140,14 +134,16 @@ void HIR_unparser::children_type(HIR_type* in)
 void HIR_unparser::children_attribute(HIR_attribute* in)
 {
 	visit_attr_mod(in->attr_mod);
+
 	// Class attributes get a dollar sign, with the exception of const attributes
 	if(!in->attr_mod->is_const) echo("$"); 
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
+	visit_variable_name(in->var->variable_name);
+	if(in->var->expr != NULL)
 	{
 		echo(" = ");
-		visit_expr(in->expr);
+		visit_expr(in->var->expr);
 	}
+
 	echo(";");
 	// newline is output by post_commented_node
 }
@@ -200,13 +196,8 @@ void HIR_unparser::children_return(HIR_return* in)
 
 void HIR_unparser::children_static_declaration(HIR_static_declaration* in)
 {
-	echo("static $");
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
-	{
-		echo(" = ");
-		visit_expr(in->expr);
-	}
+	echo("static ");
+	visit_name_with_default(in->var);
 	echo(";");
 	// newline output by post_commented_node
 }
@@ -559,6 +550,16 @@ void HIR_unparser::visit_actual_parameter_list(List<HIR_actual_parameter*>* in)
 	}
 }
 
+void HIR_unparser::visit_name_with_default_list(List<HIR_name_with_default*>* in)
+{
+	List<HIR_name_with_default*>::const_iterator i;
+	for(i = in->begin(); i != in->end(); i++)
+	{
+		if(i != in->begin()) echo(", ");
+		visit_name_with_default(*i);
+	}
+}
+
 // Token classes
 void HIR_unparser::children_interface_name(Token_interface_name* in)
 {
@@ -730,4 +731,15 @@ HIR_unparser::children_label (HIR_label* in)
 {
 	visit_label_name (in->label_name);
 	echo_nl(":");
+}
+
+void HIR_unparser::children_name_with_default (HIR_name_with_default* in)
+{
+	echo("$");
+	visit_variable_name(in->variable_name);
+	if(in->expr != NULL)
+	{
+		echo(" = ");
+		visit_expr(in->expr);
+	}
 }

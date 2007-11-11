@@ -31,6 +31,7 @@ template
  class _AST_type,
  class _AST_attribute,
  class _AST_attr_mod,
+ class _AST_name_with_default,
  class _AST_if,
  class _AST_while,
  class _AST_do,
@@ -214,11 +215,9 @@ public:
 		_AST_type type = 0;
 		if(in->type != NULL) type = fold_type(in->type);
 		bool is_ref = in->is_ref;
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_AST_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_formal_parameter(in, type, is_ref, variable_name, expr);
+		_AST_name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_formal_parameter(in, type, is_ref, var);
 	}
 
 	virtual _AST_type fold_type(AST_type* in)
@@ -232,11 +231,14 @@ public:
 	{
 		_AST_attr_mod attr_mod = 0;
 		if(in->attr_mod != NULL) attr_mod = fold_attr_mod(in->attr_mod);
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_AST_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_attribute(in, attr_mod, variable_name, expr);
+		List<_AST_name_with_default>* vars = new List<_AST_name_with_default>;
+		{
+			List<AST_name_with_default*>::const_iterator i;
+			for(i = in->vars->begin(); i != in->vars->end(); i++)
+				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
+				else vars->push_back(0);
+		}
+		return fold_impl_attribute(in, attr_mod, vars);
 	}
 
 	virtual _AST_attr_mod fold_attr_mod(AST_attr_mod* in)
@@ -247,6 +249,15 @@ public:
 		bool is_static = in->is_static;
 		bool is_const = in->is_const;
 		return fold_impl_attr_mod(in, is_public, is_protected, is_private, is_static, is_const);
+	}
+
+	virtual _AST_name_with_default fold_name_with_default(AST_name_with_default* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_AST_expr expr = 0;
+		if(in->expr != NULL) expr = fold_expr(in->expr);
+		return fold_impl_name_with_default(in, variable_name, expr);
 	}
 
 	virtual _AST_if fold_if(AST_if* in)
@@ -386,11 +397,14 @@ public:
 
 	virtual _AST_static_declaration fold_static_declaration(AST_static_declaration* in)
 	{
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_AST_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_static_declaration(in, variable_name, expr);
+		List<_AST_name_with_default>* vars = new List<_AST_name_with_default>;
+		{
+			List<AST_name_with_default*>::const_iterator i;
+			for(i = in->vars->begin(); i != in->vars->end(); i++)
+				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
+				else vars->push_back(0);
+		}
+		return fold_impl_static_declaration(in, vars);
 	}
 
 	virtual _AST_global fold_global(AST_global* in)
@@ -736,10 +750,11 @@ public:
 	virtual _AST_method fold_impl_method(AST_method* orig, _AST_signature signature, List<_AST_statement>* statements) { assert(0); };
 	virtual _AST_signature fold_impl_signature(AST_signature* orig, _AST_method_mod method_mod, bool is_ref, _Token_method_name method_name, List<_AST_formal_parameter>* formal_parameters) { assert(0); };
 	virtual _AST_method_mod fold_impl_method_mod(AST_method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) { assert(0); };
-	virtual _AST_formal_parameter fold_impl_formal_parameter(AST_formal_parameter* orig, _AST_type type, bool is_ref, _Token_variable_name variable_name, _AST_expr expr) { assert(0); };
+	virtual _AST_formal_parameter fold_impl_formal_parameter(AST_formal_parameter* orig, _AST_type type, bool is_ref, _AST_name_with_default var) { assert(0); };
 	virtual _AST_type fold_impl_type(AST_type* orig, _Token_class_name class_name) { assert(0); };
-	virtual _AST_attribute fold_impl_attribute(AST_attribute* orig, _AST_attr_mod attr_mod, _Token_variable_name variable_name, _AST_expr expr) { assert(0); };
+	virtual _AST_attribute fold_impl_attribute(AST_attribute* orig, _AST_attr_mod attr_mod, List<_AST_name_with_default>* vars) { assert(0); };
 	virtual _AST_attr_mod fold_impl_attr_mod(AST_attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
+	virtual _AST_name_with_default fold_impl_name_with_default(AST_name_with_default* orig, _Token_variable_name variable_name, _AST_expr expr) { assert(0); };
 	virtual _AST_if fold_impl_if(AST_if* orig, _AST_expr expr, List<_AST_statement>* iftrue, List<_AST_statement>* iffalse) { assert(0); };
 	virtual _AST_while fold_impl_while(AST_while* orig, _AST_expr expr, List<_AST_statement>* statements) { assert(0); };
 	virtual _AST_do fold_impl_do(AST_do* orig, List<_AST_statement>* statements, _AST_expr expr) { assert(0); };
@@ -750,7 +765,7 @@ public:
 	virtual _AST_break fold_impl_break(AST_break* orig, _AST_expr expr) { assert(0); };
 	virtual _AST_continue fold_impl_continue(AST_continue* orig, _AST_expr expr) { assert(0); };
 	virtual _AST_return fold_impl_return(AST_return* orig, _AST_expr expr) { assert(0); };
-	virtual _AST_static_declaration fold_impl_static_declaration(AST_static_declaration* orig, _Token_variable_name variable_name, _AST_expr expr) { assert(0); };
+	virtual _AST_static_declaration fold_impl_static_declaration(AST_static_declaration* orig, List<_AST_name_with_default>* vars) { assert(0); };
 	virtual _AST_global fold_impl_global(AST_global* orig, List<_AST_variable_name>* variable_names) { assert(0); };
 	virtual _AST_declare fold_impl_declare(AST_declare* orig, List<_AST_directive>* directives, List<_AST_statement>* statements) { assert(0); };
 	virtual _AST_directive fold_impl_directive(AST_directive* orig, _Token_directive_name directive_name, _AST_expr expr) { assert(0); };
@@ -818,6 +833,8 @@ public:
 				return fold_type(dynamic_cast<AST_type*>(in));
 			case AST_attr_mod::ID:
 				return fold_attr_mod(dynamic_cast<AST_attr_mod*>(in));
+			case AST_name_with_default::ID:
+				return fold_name_with_default(dynamic_cast<AST_name_with_default*>(in));
 			case AST_directive::ID:
 				return fold_directive(dynamic_cast<AST_directive*>(in));
 			case AST_variable::ID:
@@ -1262,6 +1279,6 @@ public:
 };
 
 template<class T>
-class AST_uniform_fold : public AST_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class AST_uniform_fold : public AST_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

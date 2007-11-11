@@ -37,6 +37,7 @@ public:
     virtual HIR_type* pre_type(HIR_type* in);
     virtual void pre_attribute(HIR_attribute* in, List<HIR_member*>* out);
     virtual HIR_attr_mod* pre_attr_mod(HIR_attr_mod* in);
+    virtual HIR_name_with_default* pre_name_with_default(HIR_name_with_default* in);
     virtual void pre_return(HIR_return* in, List<HIR_statement*>* out);
     virtual void pre_static_declaration(HIR_static_declaration* in, List<HIR_statement*>* out);
     virtual void pre_global(HIR_global* in, List<HIR_statement*>* out);
@@ -87,6 +88,7 @@ public:
     virtual HIR_type* post_type(HIR_type* in);
     virtual void post_attribute(HIR_attribute* in, List<HIR_member*>* out);
     virtual HIR_attr_mod* post_attr_mod(HIR_attr_mod* in);
+    virtual HIR_name_with_default* post_name_with_default(HIR_name_with_default* in);
     virtual void post_return(HIR_return* in, List<HIR_statement*>* out);
     virtual void post_static_declaration(HIR_static_declaration* in, List<HIR_statement*>* out);
     virtual void post_global(HIR_global* in, List<HIR_statement*>* out);
@@ -137,6 +139,7 @@ public:
     virtual void children_type(HIR_type* in);
     virtual void children_attribute(HIR_attribute* in);
     virtual void children_attr_mod(HIR_attr_mod* in);
+    virtual void children_name_with_default(HIR_name_with_default* in);
     virtual void children_return(HIR_return* in);
     virtual void children_static_declaration(HIR_static_declaration* in);
     virtual void children_global(HIR_global* in);
@@ -193,9 +196,10 @@ public:
     virtual List<HIR_formal_parameter*>* transform_formal_parameter_list(List<HIR_formal_parameter*>* in);
     virtual List<HIR_formal_parameter*>* transform_formal_parameter(HIR_formal_parameter* in);
     virtual HIR_type* transform_type(HIR_type* in);
+    virtual HIR_name_with_default* transform_name_with_default(HIR_name_with_default* in);
+    virtual HIR_attr_mod* transform_attr_mod(HIR_attr_mod* in);
     virtual Token_variable_name* transform_variable_name(Token_variable_name* in);
     virtual HIR_expr* transform_expr(HIR_expr* in);
-    virtual HIR_attr_mod* transform_attr_mod(HIR_attr_mod* in);
     virtual HIR_variable_name* transform_variable_name(HIR_variable_name* in);
     virtual List<HIR_catch*>* transform_catch_list(List<HIR_catch*>* in);
     virtual List<HIR_catch*>* transform_catch(HIR_catch* in);

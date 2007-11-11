@@ -626,20 +626,18 @@ HIR_method_mod* HIR_method_mod::new_FINAL()
 	}
 }
 
-HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* variable_name, HIR_expr* expr)
+HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, bool is_ref, HIR_name_with_default* var)
 {
     this->type = type;
     this->is_ref = is_ref;
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->var = var;
 }
 
 HIR_formal_parameter::HIR_formal_parameter()
 {
     this->type = 0;
     this->is_ref = 0;
-    this->variable_name = 0;
-    this->expr = 0;
+    this->var = 0;
 }
 
 void HIR_formal_parameter::visit(HIR_visitor* visitor)
@@ -676,20 +674,12 @@ bool HIR_formal_parameter::match(HIR_node* in)
     	return false;
     
     that->is_ref = this->is_ref;
-    if(this->variable_name == NULL)
+    if(this->var == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
+    else if(!this->var->match(that->var))
     	return false;
     
     return true;
@@ -711,20 +701,12 @@ bool HIR_formal_parameter::equals(HIR_node* in)
     if(this->is_ref != that->is_ref)
     	return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->var->equals(that->var))
     	return false;
     
     if(!HIR_node::is_mixin_equal(that)) return false;
@@ -735,9 +717,8 @@ HIR_formal_parameter* HIR_formal_parameter::clone()
 {
     HIR_type* type = this->type ? this->type->clone() : NULL;
     bool is_ref = this->is_ref;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_formal_parameter* clone = new HIR_formal_parameter(type, is_ref, variable_name, expr);
+    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
+    HIR_formal_parameter* clone = new HIR_formal_parameter(type, is_ref, var);
     clone->HIR_node::clone_mixin_from(this);
     return clone;
 }
@@ -746,9 +727,8 @@ void HIR_formal_parameter::assert_valid()
 {
     assert(type != NULL);
     type->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(var != NULL);
+    var->assert_valid();
     HIR_node::assert_mixin_valid();
 }
 
@@ -757,8 +737,7 @@ HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, Token_variable_name* 
     {
 		this->type = type;
 		this->is_ref = false;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new HIR_name_with_default(name, NULL);
 	}
 }
 
@@ -767,8 +746,7 @@ HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, bool is_ref, Token_va
     { 
 		this->type = type;
 		this->is_ref = is_ref;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new HIR_name_with_default(name, NULL);
 	}
 }
 
@@ -990,6 +968,104 @@ HIR_attr_mod* HIR_attr_mod::new_CONST()
     {
 		return new HIR_attr_mod(false, false, false, false, true);
 	}
+}
+
+HIR_name_with_default::HIR_name_with_default(Token_variable_name* variable_name, HIR_expr* expr)
+{
+    this->variable_name = variable_name;
+    this->expr = expr;
+}
+
+HIR_name_with_default::HIR_name_with_default()
+{
+    this->variable_name = 0;
+    this->expr = 0;
+}
+
+void HIR_name_with_default::visit(HIR_visitor* visitor)
+{
+    visitor->visit_name_with_default(this);
+}
+
+void HIR_name_with_default::transform_children(HIR_transform* transform)
+{
+    transform->children_name_with_default(this);
+}
+
+int HIR_name_with_default::classid()
+{
+    return ID;
+}
+
+bool HIR_name_with_default::match(HIR_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    HIR_name_with_default* that = dynamic_cast<HIR_name_with_default*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool HIR_name_with_default::equals(HIR_node* in)
+{
+    HIR_name_with_default* that = dynamic_cast<HIR_name_with_default*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!HIR_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+HIR_name_with_default* HIR_name_with_default::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
+    HIR_name_with_default* clone = new HIR_name_with_default(variable_name, expr);
+    clone->HIR_node::clone_mixin_from(this);
+    return clone;
+}
+
+void HIR_name_with_default::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(expr != NULL) expr->assert_valid();
+    HIR_node::assert_mixin_valid();
 }
 
 HIR_catch::HIR_catch(Token_class_name* class_name, Token_variable_name* variable_name, List<HIR_statement*>* statements)
@@ -2005,18 +2081,16 @@ void HIR_method::assert_valid()
     HIR_node::assert_mixin_valid();
 }
 
-HIR_attribute::HIR_attribute(HIR_attr_mod* attr_mod, Token_variable_name* variable_name, HIR_expr* expr)
+HIR_attribute::HIR_attribute(HIR_attr_mod* attr_mod, HIR_name_with_default* var)
 {
     this->attr_mod = attr_mod;
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->var = var;
 }
 
 HIR_attribute::HIR_attribute()
 {
     this->attr_mod = 0;
-    this->variable_name = 0;
-    this->expr = 0;
+    this->var = 0;
 }
 
 void HIR_attribute::visit(HIR_visitor* visitor)
@@ -2052,20 +2126,12 @@ bool HIR_attribute::match(HIR_node* in)
     else if(!this->attr_mod->match(that->attr_mod))
     	return false;
     
-    if(this->variable_name == NULL)
+    if(this->var == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
+    else if(!this->var->match(that->var))
     	return false;
     
     return true;
@@ -2084,20 +2150,12 @@ bool HIR_attribute::equals(HIR_node* in)
     else if(!this->attr_mod->equals(that->attr_mod))
     	return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->var->equals(that->var))
     	return false;
     
     if(!HIR_node::is_mixin_equal(that)) return false;
@@ -2107,9 +2165,8 @@ bool HIR_attribute::equals(HIR_node* in)
 HIR_attribute* HIR_attribute::clone()
 {
     HIR_attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_attribute* clone = new HIR_attribute(attr_mod, variable_name, expr);
+    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
+    HIR_attribute* clone = new HIR_attribute(attr_mod, var);
     clone->HIR_node::clone_mixin_from(this);
     return clone;
 }
@@ -2118,9 +2175,8 @@ void HIR_attribute::assert_valid()
 {
     assert(attr_mod != NULL);
     attr_mod->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(var != NULL);
+    var->assert_valid();
     HIR_node::assert_mixin_valid();
 }
 
@@ -2201,16 +2257,14 @@ void HIR_return::assert_valid()
     HIR_node::assert_mixin_valid();
 }
 
-HIR_static_declaration::HIR_static_declaration(Token_variable_name* variable_name, HIR_expr* expr)
+HIR_static_declaration::HIR_static_declaration(HIR_name_with_default* var)
 {
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->var = var;
 }
 
 HIR_static_declaration::HIR_static_declaration()
 {
-    this->variable_name = 0;
-    this->expr = 0;
+    this->var = 0;
 }
 
 void HIR_static_declaration::visit(HIR_visitor* visitor)
@@ -2238,20 +2292,12 @@ bool HIR_static_declaration::match(HIR_node* in)
     HIR_static_declaration* that = dynamic_cast<HIR_static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->var == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
+    else if(!this->var->match(that->var))
     	return false;
     
     return true;
@@ -2262,20 +2308,12 @@ bool HIR_static_declaration::equals(HIR_node* in)
     HIR_static_declaration* that = dynamic_cast<HIR_static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->var->equals(that->var))
     	return false;
     
     if(!HIR_node::is_mixin_equal(that)) return false;
@@ -2284,18 +2322,16 @@ bool HIR_static_declaration::equals(HIR_node* in)
 
 HIR_static_declaration* HIR_static_declaration::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_static_declaration* clone = new HIR_static_declaration(variable_name, expr);
+    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
+    HIR_static_declaration* clone = new HIR_static_declaration(var);
     clone->HIR_node::clone_mixin_from(this);
     return clone;
 }
 
 void HIR_static_declaration::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(var != NULL);
+    var->assert_valid();
     HIR_node::assert_mixin_valid();
 }
 

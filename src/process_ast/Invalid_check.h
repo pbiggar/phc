@@ -49,9 +49,8 @@ public:
 	void pre_directive (AST_directive *in);
 	void pre_formal_parameter (AST_formal_parameter* in);
 	void pre_method_invocation (AST_method_invocation* in);
-	void pre_attribute (AST_attribute* in);
-	void pre_static_declaration (AST_static_declaration* in);
 	void pre_array_elem (AST_array_elem* in);
+	void pre_name_with_default (AST_name_with_default* var);
 };
 
 #endif // PHC_INVALID_CHECK

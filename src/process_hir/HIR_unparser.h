@@ -60,6 +60,8 @@ public:
 	void children_branch (HIR_branch* in);
 	void children_goto(HIR_goto* in);
 	void children_label(HIR_label* in);
+	void children_name_with_default(HIR_name_with_default* in);
+
 	void children_interface_name(Token_interface_name* in);
 	void children_class_name(Token_class_name* in);
 	void children_method_name(Token_method_name* in);
@@ -82,6 +84,7 @@ public:
 	void visit_expr_list(List<HIR_expr*>* in);
 	void visit_array_elem_list(List<HIR_array_elem*>* in);
 	void visit_actual_parameter_list(List<HIR_actual_parameter*>* in);
+	void visit_name_with_default_list(List<HIR_name_with_default*>* in);
 
 	void pre_node(HIR_node* in);
 	void pre_expr(HIR_expr* in);

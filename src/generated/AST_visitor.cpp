@@ -62,6 +62,10 @@ void AST_visitor::pre_attr_mod(AST_attr_mod* in)
 {
 }
 
+void AST_visitor::pre_name_with_default(AST_name_with_default* in)
+{
+}
+
 void AST_visitor::pre_if(AST_if* in)
 {
 }
@@ -376,6 +380,10 @@ void AST_visitor::post_attribute(AST_attribute* in)
 }
 
 void AST_visitor::post_attr_mod(AST_attr_mod* in)
+{
+}
+
+void AST_visitor::post_name_with_default(AST_name_with_default* in)
 {
 }
 
@@ -695,8 +703,7 @@ void AST_visitor::children_formal_parameter(AST_formal_parameter* in)
 {
     visit_type(in->type);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default(in->var);
 }
 
 void AST_visitor::children_type(AST_type* in)
@@ -707,8 +714,7 @@ void AST_visitor::children_type(AST_type* in)
 void AST_visitor::children_attribute(AST_attribute* in)
 {
     visit_attr_mod(in->attr_mod);
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default_list(in->vars);
 }
 
 void AST_visitor::children_attr_mod(AST_attr_mod* in)
@@ -718,6 +724,12 @@ void AST_visitor::children_attr_mod(AST_attr_mod* in)
     visit_marker("is_private", in->is_private);
     visit_marker("is_static", in->is_static);
     visit_marker("is_const", in->is_const);
+}
+
+void AST_visitor::children_name_with_default(AST_name_with_default* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_expr(in->expr);
 }
 
 void AST_visitor::children_if(AST_if* in)
@@ -785,8 +797,7 @@ void AST_visitor::children_return(AST_return* in)
 
 void AST_visitor::children_static_declaration(AST_static_declaration* in)
 {
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default_list(in->vars);
 }
 
 void AST_visitor::children_global(AST_global* in)
@@ -1126,6 +1137,12 @@ void AST_visitor::pre_attr_mod_chain(AST_attr_mod* in)
 {
     pre_node(in);
     pre_attr_mod(in);
+}
+
+void AST_visitor::pre_name_with_default_chain(AST_name_with_default* in)
+{
+    pre_node(in);
+    pre_name_with_default(in);
 }
 
 void AST_visitor::pre_if_chain(AST_if* in)
@@ -1644,6 +1661,12 @@ void AST_visitor::post_attribute_chain(AST_attribute* in)
 void AST_visitor::post_attr_mod_chain(AST_attr_mod* in)
 {
     post_attr_mod(in);
+    post_node(in);
+}
+
+void AST_visitor::post_name_with_default_chain(AST_name_with_default* in)
+{
+    post_name_with_default(in);
     post_node(in);
 }
 
@@ -2286,6 +2309,49 @@ void AST_visitor::visit_type(AST_type* in)
     }
 }
 
+void AST_visitor::visit_name_with_default(AST_name_with_default* in)
+{
+    if(in == NULL)
+    	visit_null("AST_name_with_default");
+    else
+    {
+    	pre_name_with_default_chain(in);
+    	children_name_with_default(in);
+    	post_name_with_default_chain(in);
+    }
+}
+
+void AST_visitor::visit_attr_mod(AST_attr_mod* in)
+{
+    if(in == NULL)
+    	visit_null("AST_attr_mod");
+    else
+    {
+    	pre_attr_mod_chain(in);
+    	children_attr_mod(in);
+    	post_attr_mod_chain(in);
+    }
+}
+
+void AST_visitor::visit_name_with_default_list(List<AST_name_with_default*>* in)
+{
+    List<AST_name_with_default*>::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("AST_name_with_default");
+    else
+    {
+    	pre_list("AST_name_with_default", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_name_with_default(*i);
+    	}
+    
+    	post_list("AST_name_with_default", in->size());
+    }
+}
+
 void AST_visitor::visit_variable_name(Token_variable_name* in)
 {
     if(in == NULL)
@@ -2307,18 +2373,6 @@ void AST_visitor::visit_expr(AST_expr* in)
     	pre_expr_chain(in);
     	children_expr(in);
     	post_expr_chain(in);
-    }
-}
-
-void AST_visitor::visit_attr_mod(AST_attr_mod* in)
-{
-    if(in == NULL)
-    	visit_null("AST_attr_mod");
-    else
-    {
-    	pre_attr_mod_chain(in);
-    	children_attr_mod(in);
-    	post_attr_mod_chain(in);
     }
 }
 

@@ -61,6 +61,11 @@ AST_attr_mod* AST_transform::pre_attr_mod(AST_attr_mod* in)
     return in;
 }
 
+AST_name_with_default* AST_transform::pre_name_with_default(AST_name_with_default* in)
+{
+    return in;
+}
+
 void AST_transform::pre_if(AST_if* in, List<AST_statement*>* out)
 {
     out->push_back(in);
@@ -397,6 +402,11 @@ AST_attr_mod* AST_transform::post_attr_mod(AST_attr_mod* in)
     return in;
 }
 
+AST_name_with_default* AST_transform::post_name_with_default(AST_name_with_default* in)
+{
+    return in;
+}
+
 void AST_transform::post_if(AST_if* in, List<AST_statement*>* out)
 {
     out->push_back(in);
@@ -723,8 +733,7 @@ void AST_transform::children_method_mod(AST_method_mod* in)
 void AST_transform::children_formal_parameter(AST_formal_parameter* in)
 {
     in->type = transform_type(in->type);
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->var = transform_name_with_default(in->var);
 }
 
 void AST_transform::children_type(AST_type* in)
@@ -735,12 +744,17 @@ void AST_transform::children_type(AST_type* in)
 void AST_transform::children_attribute(AST_attribute* in)
 {
     in->attr_mod = transform_attr_mod(in->attr_mod);
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->vars = transform_name_with_default_list(in->vars);
 }
 
 void AST_transform::children_attr_mod(AST_attr_mod* in)
 {
+}
+
+void AST_transform::children_name_with_default(AST_name_with_default* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->expr = transform_expr(in->expr);
 }
 
 void AST_transform::children_if(AST_if* in)
@@ -807,8 +821,7 @@ void AST_transform::children_return(AST_return* in)
 
 void AST_transform::children_static_declaration(AST_static_declaration* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->vars = transform_name_with_default_list(in->vars);
 }
 
 void AST_transform::children_global(AST_global* in)
@@ -1290,6 +1303,54 @@ AST_type* AST_transform::transform_type(AST_type* in)
     return out;
 }
 
+AST_name_with_default* AST_transform::transform_name_with_default(AST_name_with_default* in)
+{
+    if(in == NULL) return NULL;
+    
+    AST_name_with_default* out;
+    
+    out = pre_name_with_default(in);
+    if(out != NULL)
+    {
+    	children_name_with_default(out);
+    	out = post_name_with_default(out);
+    }
+    
+    return out;
+}
+
+AST_attr_mod* AST_transform::transform_attr_mod(AST_attr_mod* in)
+{
+    if(in == NULL) return NULL;
+    
+    AST_attr_mod* out;
+    
+    out = pre_attr_mod(in);
+    if(out != NULL)
+    {
+    	children_attr_mod(out);
+    	out = post_attr_mod(out);
+    }
+    
+    return out;
+}
+
+List<AST_name_with_default*>* AST_transform::transform_name_with_default_list(List<AST_name_with_default*>* in)
+{
+    List<AST_name_with_default*>::const_iterator i;
+    List<AST_name_with_default*>* out = new List<AST_name_with_default*>;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back(transform_name_with_default(*i));
+    }
+    
+    return out;
+}
+
 Token_variable_name* AST_transform::transform_variable_name(Token_variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1317,22 +1378,6 @@ AST_expr* AST_transform::transform_expr(AST_expr* in)
     {
     	children_expr(out);
     	out = post_expr(out);
-    }
-    
-    return out;
-}
-
-AST_attr_mod* AST_transform::transform_attr_mod(AST_attr_mod* in)
-{
-    if(in == NULL) return NULL;
-    
-    AST_attr_mod* out;
-    
-    out = pre_attr_mod(in);
-    if(out != NULL)
-    {
-    	children_attr_mod(out);
-    	out = post_attr_mod(out);
     }
     
     return out;

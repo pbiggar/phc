@@ -609,20 +609,18 @@ AST_method_mod* AST_method_mod::new_FINAL()
 	}
 }
 
-AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_variable_name* variable_name, AST_expr* expr)
+AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, AST_name_with_default* var)
 {
     this->type = type;
     this->is_ref = is_ref;
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->var = var;
 }
 
 AST_formal_parameter::AST_formal_parameter()
 {
     this->type = 0;
     this->is_ref = 0;
-    this->variable_name = 0;
-    this->expr = 0;
+    this->var = 0;
 }
 
 void AST_formal_parameter::visit(AST_visitor* visitor)
@@ -659,20 +657,12 @@ bool AST_formal_parameter::match(AST_node* in)
     	return false;
     
     that->is_ref = this->is_ref;
-    if(this->variable_name == NULL)
+    if(this->var == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
+    else if(!this->var->match(that->var))
     	return false;
     
     return true;
@@ -694,20 +684,12 @@ bool AST_formal_parameter::equals(AST_node* in)
     if(this->is_ref != that->is_ref)
     	return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->var->equals(that->var))
     	return false;
     
     if(!AST_node::is_mixin_equal(that)) return false;
@@ -718,9 +700,8 @@ AST_formal_parameter* AST_formal_parameter::clone()
 {
     AST_type* type = this->type ? this->type->clone() : NULL;
     bool is_ref = this->is_ref;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    AST_formal_parameter* clone = new AST_formal_parameter(type, is_ref, variable_name, expr);
+    AST_name_with_default* var = this->var ? this->var->clone() : NULL;
+    AST_formal_parameter* clone = new AST_formal_parameter(type, is_ref, var);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -729,9 +710,8 @@ void AST_formal_parameter::assert_valid()
 {
     assert(type != NULL);
     type->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(var != NULL);
+    var->assert_valid();
     AST_node::assert_mixin_valid();
 }
 
@@ -740,8 +720,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, Token_variable_name* 
     {
 		this->type = type;
 		this->is_ref = false;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new AST_name_with_default(name, NULL);
 	}
 }
 
@@ -750,8 +729,7 @@ AST_formal_parameter::AST_formal_parameter(AST_type* type, bool is_ref, Token_va
     { 
 		this->type = type;
 		this->is_ref = is_ref;
-		this->variable_name = name;
-		this->expr = NULL;
+		this->var = new AST_name_with_default(name, NULL);
 	}
 }
 
@@ -973,6 +951,104 @@ AST_attr_mod* AST_attr_mod::new_CONST()
     {
 		return new AST_attr_mod(false, false, false, false, true);
 	}
+}
+
+AST_name_with_default::AST_name_with_default(Token_variable_name* variable_name, AST_expr* expr)
+{
+    this->variable_name = variable_name;
+    this->expr = expr;
+}
+
+AST_name_with_default::AST_name_with_default()
+{
+    this->variable_name = 0;
+    this->expr = 0;
+}
+
+void AST_name_with_default::visit(AST_visitor* visitor)
+{
+    visitor->visit_name_with_default(this);
+}
+
+void AST_name_with_default::transform_children(AST_transform* transform)
+{
+    transform->children_name_with_default(this);
+}
+
+int AST_name_with_default::classid()
+{
+    return ID;
+}
+
+bool AST_name_with_default::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_name_with_default* that = dynamic_cast<AST_name_with_default*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool AST_name_with_default::equals(AST_node* in)
+{
+    AST_name_with_default* that = dynamic_cast<AST_name_with_default*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_name_with_default* AST_name_with_default::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
+    AST_name_with_default* clone = new AST_name_with_default(variable_name, expr);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_name_with_default::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(expr != NULL) expr->assert_valid();
+    AST_node::assert_mixin_valid();
 }
 
 AST_directive::AST_directive(Token_directive_name* directive_name, AST_expr* expr)
@@ -3188,18 +3264,16 @@ void AST_method::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_attribute::AST_attribute(AST_attr_mod* attr_mod, Token_variable_name* variable_name, AST_expr* expr)
+AST_attribute::AST_attribute(AST_attr_mod* attr_mod, List<AST_name_with_default*>* vars)
 {
     this->attr_mod = attr_mod;
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->vars = vars;
 }
 
 AST_attribute::AST_attribute()
 {
     this->attr_mod = 0;
-    this->variable_name = 0;
-    this->expr = 0;
+    this->vars = 0;
 }
 
 void AST_attribute::visit(AST_visitor* visitor)
@@ -3235,21 +3309,25 @@ bool AST_attribute::match(AST_node* in)
     else if(!this->attr_mod->match(that->attr_mod))
     	return false;
     
-    if(this->variable_name == NULL)
+    if(this->vars != NULL && that->vars != NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	List<AST_name_with_default*>::const_iterator i, j;
+    	for(
+    		i = this->vars->begin(), j = that->vars->begin();
+    		i != this->vars->end() && j != that->vars->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->vars->end() || j != that->vars->end())
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
     
     return true;
 }
@@ -3267,21 +3345,30 @@ bool AST_attribute::equals(AST_node* in)
     else if(!this->attr_mod->equals(that->attr_mod))
     	return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->vars == NULL || that->vars == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->vars != NULL || that->vars != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
+    else
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	List<AST_name_with_default*>::const_iterator i, j;
+    	for(
+    		i = this->vars->begin(), j = that->vars->begin();
+    		i != this->vars->end() && j != that->vars->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->vars->end() || j != that->vars->end())
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
-    	return false;
     
     if(!AST_node::is_mixin_equal(that)) return false;
     return true;
@@ -3290,9 +3377,15 @@ bool AST_attribute::equals(AST_node* in)
 AST_attribute* AST_attribute::clone()
 {
     AST_attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    AST_attribute* clone = new AST_attribute(attr_mod, variable_name, expr);
+    List<AST_name_with_default*>* vars = NULL;
+    if(this->vars != NULL)
+    {
+    	List<AST_name_with_default*>::const_iterator i;
+    	vars = new List<AST_name_with_default*>;
+    	for(i = this->vars->begin(); i != this->vars->end(); i++)
+    		vars->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_attribute* clone = new AST_attribute(attr_mod, vars);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
@@ -3301,9 +3394,15 @@ void AST_attribute::assert_valid()
 {
     assert(attr_mod != NULL);
     attr_mod->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(vars != NULL);
+    {
+    	List<AST_name_with_default*>::const_iterator i;
+    	for(i = this->vars->begin(); i != this->vars->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
     AST_node::assert_mixin_valid();
 }
 
@@ -4548,16 +4647,14 @@ void AST_return::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
-AST_static_declaration::AST_static_declaration(Token_variable_name* variable_name, AST_expr* expr)
+AST_static_declaration::AST_static_declaration(List<AST_name_with_default*>* vars)
 {
-    this->variable_name = variable_name;
-    this->expr = expr;
+    this->vars = vars;
 }
 
 AST_static_declaration::AST_static_declaration()
 {
-    this->variable_name = 0;
-    this->expr = 0;
+    this->vars = 0;
 }
 
 void AST_static_declaration::visit(AST_visitor* visitor)
@@ -4585,21 +4682,25 @@ bool AST_static_declaration::match(AST_node* in)
     AST_static_declaration* that = dynamic_cast<AST_static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->vars != NULL && that->vars != NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	List<AST_name_with_default*>::const_iterator i, j;
+    	for(
+    		i = this->vars->begin(), j = that->vars->begin();
+    		i != this->vars->end() && j != that->vars->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->vars->end() || j != that->vars->end())
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
     
     return true;
 }
@@ -4609,21 +4710,30 @@ bool AST_static_declaration::equals(AST_node* in)
     AST_static_declaration* that = dynamic_cast<AST_static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->vars == NULL || that->vars == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->vars != NULL || that->vars != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
+    else
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	List<AST_name_with_default*>::const_iterator i, j;
+    	for(
+    		i = this->vars->begin(), j = that->vars->begin();
+    		i != this->vars->end() && j != that->vars->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->vars->end() || j != that->vars->end())
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
-    	return false;
     
     if(!AST_node::is_mixin_equal(that)) return false;
     return true;
@@ -4631,18 +4741,30 @@ bool AST_static_declaration::equals(AST_node* in)
 
 AST_static_declaration* AST_static_declaration::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    AST_expr* expr = this->expr ? this->expr->clone() : NULL;
-    AST_static_declaration* clone = new AST_static_declaration(variable_name, expr);
+    List<AST_name_with_default*>* vars = NULL;
+    if(this->vars != NULL)
+    {
+    	List<AST_name_with_default*>::const_iterator i;
+    	vars = new List<AST_name_with_default*>;
+    	for(i = this->vars->begin(); i != this->vars->end(); i++)
+    		vars->push_back(*i ? (*i)->clone() : NULL);
+    }
+    AST_static_declaration* clone = new AST_static_declaration(vars);
     clone->AST_node::clone_mixin_from(this);
     return clone;
 }
 
 void AST_static_declaration::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    assert(vars != NULL);
+    {
+    	List<AST_name_with_default*>::const_iterator i;
+    	for(i = this->vars->begin(); i != this->vars->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
     AST_node::assert_mixin_valid();
 }
 

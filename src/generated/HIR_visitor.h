@@ -40,6 +40,7 @@ public:
     virtual void pre_type(HIR_type* in);
     virtual void pre_attribute(HIR_attribute* in);
     virtual void pre_attr_mod(HIR_attr_mod* in);
+    virtual void pre_name_with_default(HIR_name_with_default* in);
     virtual void pre_return(HIR_return* in);
     virtual void pre_static_declaration(HIR_static_declaration* in);
     virtual void pre_global(HIR_global* in);
@@ -100,6 +101,7 @@ public:
     virtual void post_type(HIR_type* in);
     virtual void post_attribute(HIR_attribute* in);
     virtual void post_attr_mod(HIR_attr_mod* in);
+    virtual void post_name_with_default(HIR_name_with_default* in);
     virtual void post_return(HIR_return* in);
     virtual void post_static_declaration(HIR_static_declaration* in);
     virtual void post_global(HIR_global* in);
@@ -157,6 +159,7 @@ public:
     virtual void children_type(HIR_type* in);
     virtual void children_attribute(HIR_attribute* in);
     virtual void children_attr_mod(HIR_attr_mod* in);
+    virtual void children_name_with_default(HIR_name_with_default* in);
     virtual void children_return(HIR_return* in);
     virtual void children_static_declaration(HIR_static_declaration* in);
     virtual void children_global(HIR_global* in);
@@ -217,6 +220,7 @@ public:
     virtual void pre_type_chain(HIR_type* in);
     virtual void pre_attribute_chain(HIR_attribute* in);
     virtual void pre_attr_mod_chain(HIR_attr_mod* in);
+    virtual void pre_name_with_default_chain(HIR_name_with_default* in);
     virtual void pre_return_chain(HIR_return* in);
     virtual void pre_static_declaration_chain(HIR_static_declaration* in);
     virtual void pre_global_chain(HIR_global* in);
@@ -269,6 +273,7 @@ public:
     virtual void post_type_chain(HIR_type* in);
     virtual void post_attribute_chain(HIR_attribute* in);
     virtual void post_attr_mod_chain(HIR_attr_mod* in);
+    virtual void post_name_with_default_chain(HIR_name_with_default* in);
     virtual void post_return_chain(HIR_return* in);
     virtual void post_static_declaration_chain(HIR_static_declaration* in);
     virtual void post_global_chain(HIR_global* in);
@@ -323,9 +328,10 @@ public:
     virtual void visit_formal_parameter_list(List<HIR_formal_parameter*>* in);
     virtual void visit_formal_parameter(HIR_formal_parameter* in);
     virtual void visit_type(HIR_type* in);
+    virtual void visit_name_with_default(HIR_name_with_default* in);
+    virtual void visit_attr_mod(HIR_attr_mod* in);
     virtual void visit_variable_name(Token_variable_name* in);
     virtual void visit_expr(HIR_expr* in);
-    virtual void visit_attr_mod(HIR_attr_mod* in);
     virtual void visit_variable_name(HIR_variable_name* in);
     virtual void visit_catch_list(List<HIR_catch*>* in);
     virtual void visit_catch(HIR_catch* in);

@@ -40,17 +40,7 @@ void Lower_expr::post_branch(AST_branch* in, List<AST_statement*>* out)
 
 void Lower_expr::post_global(AST_global* in, List<AST_statement*>* out)
 {
-	List<AST_variable_name*>::const_iterator i;
-	i = in->variable_names->begin();
-
-	AST_global* first_global = new AST_global(new List<AST_variable_name*>(*i));
-	push_back_pieces(first_global, out);
-
-	// Generate a new global statement for all remaining variables 
-	for(i++; i != in->variable_names->end(); i++)
-	{
-		out->push_back(new AST_global(new List<AST_variable_name*>(*i)));
-	}
+	push_back_pieces(in, out);
 }
 
 void Lower_expr::push_back_pieces(AST_statement* in, List<AST_statement*>* out)

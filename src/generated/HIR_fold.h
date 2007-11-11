@@ -31,6 +31,7 @@ template
  class _HIR_type,
  class _HIR_attribute,
  class _HIR_attr_mod,
+ class _HIR_name_with_default,
  class _HIR_return,
  class _HIR_static_declaration,
  class _HIR_global,
@@ -193,11 +194,9 @@ public:
 		_HIR_type type = 0;
 		if(in->type != NULL) type = fold_type(in->type);
 		bool is_ref = in->is_ref;
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_formal_parameter(in, type, is_ref, variable_name, expr);
+		_HIR_name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_formal_parameter(in, type, is_ref, var);
 	}
 
 	virtual _HIR_type fold_type(HIR_type* in)
@@ -211,11 +210,9 @@ public:
 	{
 		_HIR_attr_mod attr_mod = 0;
 		if(in->attr_mod != NULL) attr_mod = fold_attr_mod(in->attr_mod);
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_attribute(in, attr_mod, variable_name, expr);
+		_HIR_name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_attribute(in, attr_mod, var);
 	}
 
 	virtual _HIR_attr_mod fold_attr_mod(HIR_attr_mod* in)
@@ -228,6 +225,15 @@ public:
 		return fold_impl_attr_mod(in, is_public, is_protected, is_private, is_static, is_const);
 	}
 
+	virtual _HIR_name_with_default fold_name_with_default(HIR_name_with_default* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_HIR_expr expr = 0;
+		if(in->expr != NULL) expr = fold_expr(in->expr);
+		return fold_impl_name_with_default(in, variable_name, expr);
+	}
+
 	virtual _HIR_return fold_return(HIR_return* in)
 	{
 		_HIR_expr expr = 0;
@@ -237,11 +243,9 @@ public:
 
 	virtual _HIR_static_declaration fold_static_declaration(HIR_static_declaration* in)
 	{
-		_Token_variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_static_declaration(in, variable_name, expr);
+		_HIR_name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_static_declaration(in, var);
 	}
 
 	virtual _HIR_global fold_global(HIR_global* in)
@@ -485,12 +489,13 @@ public:
 	virtual _HIR_method fold_impl_method(HIR_method* orig, _HIR_signature signature, List<_HIR_statement>* statements) { assert(0); };
 	virtual _HIR_signature fold_impl_signature(HIR_signature* orig, _HIR_method_mod method_mod, bool is_ref, _Token_method_name method_name, List<_HIR_formal_parameter>* formal_parameters) { assert(0); };
 	virtual _HIR_method_mod fold_impl_method_mod(HIR_method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) { assert(0); };
-	virtual _HIR_formal_parameter fold_impl_formal_parameter(HIR_formal_parameter* orig, _HIR_type type, bool is_ref, _Token_variable_name variable_name, _HIR_expr expr) { assert(0); };
+	virtual _HIR_formal_parameter fold_impl_formal_parameter(HIR_formal_parameter* orig, _HIR_type type, bool is_ref, _HIR_name_with_default var) { assert(0); };
 	virtual _HIR_type fold_impl_type(HIR_type* orig, _Token_class_name class_name) { assert(0); };
-	virtual _HIR_attribute fold_impl_attribute(HIR_attribute* orig, _HIR_attr_mod attr_mod, _Token_variable_name variable_name, _HIR_expr expr) { assert(0); };
+	virtual _HIR_attribute fold_impl_attribute(HIR_attribute* orig, _HIR_attr_mod attr_mod, _HIR_name_with_default var) { assert(0); };
 	virtual _HIR_attr_mod fold_impl_attr_mod(HIR_attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
+	virtual _HIR_name_with_default fold_impl_name_with_default(HIR_name_with_default* orig, _Token_variable_name variable_name, _HIR_expr expr) { assert(0); };
 	virtual _HIR_return fold_impl_return(HIR_return* orig, _HIR_expr expr) { assert(0); };
-	virtual _HIR_static_declaration fold_impl_static_declaration(HIR_static_declaration* orig, _Token_variable_name variable_name, _HIR_expr expr) { assert(0); };
+	virtual _HIR_static_declaration fold_impl_static_declaration(HIR_static_declaration* orig, _HIR_name_with_default var) { assert(0); };
 	virtual _HIR_global fold_impl_global(HIR_global* orig, _HIR_variable_name variable_name) { assert(0); };
 	virtual _HIR_try fold_impl_try(HIR_try* orig, List<_HIR_statement>* statements, List<_HIR_catch>* catches) { assert(0); };
 	virtual _HIR_catch fold_impl_catch(HIR_catch* orig, _Token_class_name class_name, _Token_variable_name variable_name, List<_HIR_statement>* statements) { assert(0); };
@@ -574,6 +579,8 @@ public:
 				return fold_type(dynamic_cast<HIR_type*>(in));
 			case HIR_attr_mod::ID:
 				return fold_attr_mod(dynamic_cast<HIR_attr_mod*>(in));
+			case HIR_name_with_default::ID:
+				return fold_name_with_default(dynamic_cast<HIR_name_with_default*>(in));
 			case HIR_catch::ID:
 				return fold_catch(dynamic_cast<HIR_catch*>(in));
 			case Token_variable_name::ID:
@@ -842,6 +849,6 @@ public:
 };
 
 template<class T>
-class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

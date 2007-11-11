@@ -62,6 +62,10 @@ void HIR_visitor::pre_attr_mod(HIR_attr_mod* in)
 {
 }
 
+void HIR_visitor::pre_name_with_default(HIR_name_with_default* in)
+{
+}
+
 void HIR_visitor::pre_return(HIR_return* in)
 {
 }
@@ -292,6 +296,10 @@ void HIR_visitor::post_attribute(HIR_attribute* in)
 }
 
 void HIR_visitor::post_attr_mod(HIR_attr_mod* in)
+{
+}
+
+void HIR_visitor::post_name_with_default(HIR_name_with_default* in)
 {
 }
 
@@ -527,8 +535,7 @@ void HIR_visitor::children_formal_parameter(HIR_formal_parameter* in)
 {
     visit_type(in->type);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default(in->var);
 }
 
 void HIR_visitor::children_type(HIR_type* in)
@@ -539,8 +546,7 @@ void HIR_visitor::children_type(HIR_type* in)
 void HIR_visitor::children_attribute(HIR_attribute* in)
 {
     visit_attr_mod(in->attr_mod);
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default(in->var);
 }
 
 void HIR_visitor::children_attr_mod(HIR_attr_mod* in)
@@ -552,6 +558,12 @@ void HIR_visitor::children_attr_mod(HIR_attr_mod* in)
     visit_marker("is_const", in->is_const);
 }
 
+void HIR_visitor::children_name_with_default(HIR_name_with_default* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_expr(in->expr);
+}
+
 void HIR_visitor::children_return(HIR_return* in)
 {
     visit_expr(in->expr);
@@ -559,8 +571,7 @@ void HIR_visitor::children_return(HIR_return* in)
 
 void HIR_visitor::children_static_declaration(HIR_static_declaration* in)
 {
-    visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_name_with_default(in->var);
 }
 
 void HIR_visitor::children_global(HIR_global* in)
@@ -840,6 +851,12 @@ void HIR_visitor::pre_attr_mod_chain(HIR_attr_mod* in)
 {
     pre_node(in);
     pre_attr_mod(in);
+}
+
+void HIR_visitor::pre_name_with_default_chain(HIR_name_with_default* in)
+{
+    pre_node(in);
+    pre_name_with_default(in);
 }
 
 void HIR_visitor::pre_return_chain(HIR_return* in)
@@ -1196,6 +1213,12 @@ void HIR_visitor::post_attribute_chain(HIR_attribute* in)
 void HIR_visitor::post_attr_mod_chain(HIR_attr_mod* in)
 {
     post_attr_mod(in);
+    post_node(in);
+}
+
+void HIR_visitor::post_name_with_default_chain(HIR_name_with_default* in)
+{
+    post_name_with_default(in);
     post_node(in);
 }
 
@@ -1680,6 +1703,30 @@ void HIR_visitor::visit_type(HIR_type* in)
     }
 }
 
+void HIR_visitor::visit_name_with_default(HIR_name_with_default* in)
+{
+    if(in == NULL)
+    	visit_null("HIR_name_with_default");
+    else
+    {
+    	pre_name_with_default_chain(in);
+    	children_name_with_default(in);
+    	post_name_with_default_chain(in);
+    }
+}
+
+void HIR_visitor::visit_attr_mod(HIR_attr_mod* in)
+{
+    if(in == NULL)
+    	visit_null("HIR_attr_mod");
+    else
+    {
+    	pre_attr_mod_chain(in);
+    	children_attr_mod(in);
+    	post_attr_mod_chain(in);
+    }
+}
+
 void HIR_visitor::visit_variable_name(Token_variable_name* in)
 {
     if(in == NULL)
@@ -1701,18 +1748,6 @@ void HIR_visitor::visit_expr(HIR_expr* in)
     	pre_expr_chain(in);
     	children_expr(in);
     	post_expr_chain(in);
-    }
-}
-
-void HIR_visitor::visit_attr_mod(HIR_attr_mod* in)
-{
-    if(in == NULL)
-    	visit_null("HIR_attr_mod");
-    else
-    {
-    	pre_attr_mod_chain(in);
-    	children_attr_mod(in);
-    	post_attr_mod_chain(in);
     }
 }
 

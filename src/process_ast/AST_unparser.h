@@ -75,6 +75,7 @@ public:
 	void children_goto(AST_goto* in);
 	void children_label(AST_label* in);
 	void children_nop(AST_nop* in);
+	void children_name_with_default(AST_name_with_default* in);
 
 	void children_interface_name(Token_interface_name* in);
 	void children_class_name(Token_class_name* in);
@@ -102,6 +103,7 @@ public:
 	void visit_expr_list(List<AST_expr*>* in);
 	void visit_array_elem_list(List<AST_array_elem*>* in);
 	void visit_actual_parameter_list(List<AST_actual_parameter*>* in);
+	void visit_name_with_default_list(List<AST_name_with_default*>* in);
 
 	void pre_node(AST_node* in);
 	void pre_expr(AST_expr* in);

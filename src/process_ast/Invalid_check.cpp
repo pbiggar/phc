@@ -125,12 +125,7 @@ void Invalid_check::pre_interface_def (AST_interface_def* in)
 	{
 		Wildcard<AST_attr_mod> *attr_mod = new Wildcard<AST_attr_mod>;
 
-		if ((*i)->match (
-			new AST_attribute (
-				attr_mod, 
-				new Wildcard<Token_variable_name>, 
-				new Wildcard<AST_expr>))
-			)
+		if ((*i)->match (new AST_attribute (attr_mod, NULL)))
 			if (!attr_mod->value->is_const)
 				error ("Interfaces may not include member variables", 
 					attr_mod->value);
@@ -159,39 +154,42 @@ void Invalid_check::pre_directive (AST_directive *in)
 	}
 }
 
+void Invalid_check::pre_name_with_default (AST_name_with_default* in)
+{
+	if (in->expr != NULL && check_deep_literals (in->expr))
+		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
+}
+
 void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 {
 	// function x ($x = f()) {} // syntax error
-	if (in->expr == NULL)
+	if (in->var->expr == NULL)
 		return;
-
-	if (check_deep_literals (in->expr))
-		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
 
 	// if theres no type hint, return
 	if (in->type->class_name == NULL)
 		return;
 
 	// despite the warnings, it appears that constants are OK
-	if (in->expr->classid () == AST_constant::ID)
+	if (in->var->expr->classid () == AST_constant::ID)
 		return;
 
 	// function f (array x = 7) {} // only allowed NULL or array
 	if (*in->type->class_name->value == "array")
 	{
-		if (in->expr->classid () == Token_null::ID)
+		if (in->var->expr->classid () == Token_null::ID)
 			return;
 
-		if (in->expr->classid () != AST_array::ID
-				or (check_deep_literals (in->expr)))
-			error ("Default value for parameters with array type hint can only be an array or NULL", in->expr);
+		if (in->var->expr->classid () != AST_array::ID
+				or (check_deep_literals (in->var->expr)))
+			error ("Default value for parameters with array type hint can only be an array or NULL", in->var->expr);
 
 	}
 	else
 	{
 		// function f (int x = 7) {} // only allowed NULL
-		if (in->expr->classid () != Token_null::ID)
-			error ("Default value for parameters with a class type hint can only be NULL", in->expr);
+		if (in->var->expr->classid () != Token_null::ID)
+			error ("Default value for parameters with a class type hint can only be NULL", in->var->expr);
 	}
 }
 
@@ -219,31 +217,6 @@ void Invalid_check::pre_method_invocation (AST_method_invocation* in)
 				error ("Cannot use [] for reading", var->value);
 		}
 	}
-}
-
-void Invalid_check::pre_attribute (AST_attribute* in)
-{
-	// class X {
-	//   var $x = f(); // also a syntax error
-	// }
-	if (in->expr == NULL)
-		return;
-
-	if (check_deep_literals (in->expr))
-		error ("Default value of an attribute must be a literal value or an array", in->expr);
-}
-
-void Invalid_check::pre_static_declaration (AST_static_declaration* in)
-{
-	// function X () {
-	//   static $x = f(); // also a syntax error
-	// }
-	if (in->expr == NULL)
-		return;
-
-	if (check_deep_literals (in->expr))
-		error ("Default value of a static declaration must be a literal value or an array", in->expr);
-	
 }
 
 void Invalid_check::pre_array_elem (AST_array_elem* in)

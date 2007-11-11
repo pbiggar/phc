@@ -61,6 +61,11 @@ HIR_attr_mod* HIR_transform::pre_attr_mod(HIR_attr_mod* in)
     return in;
 }
 
+HIR_name_with_default* HIR_transform::pre_name_with_default(HIR_name_with_default* in)
+{
+    return in;
+}
+
 void HIR_transform::pre_return(HIR_return* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -302,6 +307,11 @@ HIR_attr_mod* HIR_transform::post_attr_mod(HIR_attr_mod* in)
     return in;
 }
 
+HIR_name_with_default* HIR_transform::post_name_with_default(HIR_name_with_default* in)
+{
+    return in;
+}
+
 void HIR_transform::post_return(HIR_return* in, List<HIR_statement*>* out)
 {
     out->push_back(in);
@@ -533,8 +543,7 @@ void HIR_transform::children_method_mod(HIR_method_mod* in)
 void HIR_transform::children_formal_parameter(HIR_formal_parameter* in)
 {
     in->type = transform_type(in->type);
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->var = transform_name_with_default(in->var);
 }
 
 void HIR_transform::children_type(HIR_type* in)
@@ -545,12 +554,17 @@ void HIR_transform::children_type(HIR_type* in)
 void HIR_transform::children_attribute(HIR_attribute* in)
 {
     in->attr_mod = transform_attr_mod(in->attr_mod);
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->var = transform_name_with_default(in->var);
 }
 
 void HIR_transform::children_attr_mod(HIR_attr_mod* in)
 {
+}
+
+void HIR_transform::children_name_with_default(HIR_name_with_default* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->expr = transform_expr(in->expr);
 }
 
 void HIR_transform::children_return(HIR_return* in)
@@ -560,8 +574,7 @@ void HIR_transform::children_return(HIR_return* in)
 
 void HIR_transform::children_static_declaration(HIR_static_declaration* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->var = transform_name_with_default(in->var);
 }
 
 void HIR_transform::children_global(HIR_global* in)
@@ -987,6 +1000,38 @@ HIR_type* HIR_transform::transform_type(HIR_type* in)
     return out;
 }
 
+HIR_name_with_default* HIR_transform::transform_name_with_default(HIR_name_with_default* in)
+{
+    if(in == NULL) return NULL;
+    
+    HIR_name_with_default* out;
+    
+    out = pre_name_with_default(in);
+    if(out != NULL)
+    {
+    	children_name_with_default(out);
+    	out = post_name_with_default(out);
+    }
+    
+    return out;
+}
+
+HIR_attr_mod* HIR_transform::transform_attr_mod(HIR_attr_mod* in)
+{
+    if(in == NULL) return NULL;
+    
+    HIR_attr_mod* out;
+    
+    out = pre_attr_mod(in);
+    if(out != NULL)
+    {
+    	children_attr_mod(out);
+    	out = post_attr_mod(out);
+    }
+    
+    return out;
+}
+
 Token_variable_name* HIR_transform::transform_variable_name(Token_variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1014,22 +1059,6 @@ HIR_expr* HIR_transform::transform_expr(HIR_expr* in)
     {
     	children_expr(out);
     	out = post_expr(out);
-    }
-    
-    return out;
-}
-
-HIR_attr_mod* HIR_transform::transform_attr_mod(HIR_attr_mod* in)
-{
-    if(in == NULL) return NULL;
-    
-    HIR_attr_mod* out;
-    
-    out = pre_attr_mod(in);
-    if(out != NULL)
-    {
-    	children_attr_mod(out);
-    	out = post_attr_mod(out);
     }
     
     return out;

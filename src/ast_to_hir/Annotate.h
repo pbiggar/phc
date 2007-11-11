@@ -73,11 +73,6 @@ public:
 
 	void pre_attribute(AST_attribute* in)
 	{
-		// Do not generate a temp to hold the default value of an
-		// attribute
-		if(in->expr != NULL)
-			in->expr->attrs->set_true("phc.lower_expr.no_temp");
-
 		generate_array_temps = false;
 	}
 
@@ -100,9 +95,6 @@ public:
 	void pre_static_declaration(AST_static_declaration* in)
 	{
 		generate_array_temps = false;
-		// Do not generate a temp to hold the default value of a static var
-		if(in->expr)
-			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
 	void post_static_declaration(AST_static_declaration* in)
@@ -119,17 +111,19 @@ public:
 
 	void pre_formal_parameter (AST_formal_parameter* in)
 	{
-		// Do not generate a temp to hold the value of a parameter's
-		// default value
-		if (in->expr)
-			in->expr->attrs->set_true("phc.lower_expr.no_temp");
-
 		generate_array_temps = false;
 	}
 
 	void post_formal_parameter (AST_formal_parameter* in)
 	{
 		generate_array_temps = true;
+	}
+
+	void pre_name_with_default (AST_name_with_default* in)
+	{
+		// Never generate a temp for a default value
+		if(in->expr)
+			in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
 
 	// TODO nested functions?

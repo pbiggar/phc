@@ -120,7 +120,7 @@ AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
 void AST_unparser::children_php_script(AST_php_script* in)
 {
   if(in->attrs->has("phc.unparser.hash_bang") && !args_info.no_hash_bang_flag)
-    echo(in->attrs->get_string("phc.unparser.hash_bang"));
+    echo_html(in->attrs->get_string("phc.unparser.hash_bang"));
 
 	// We don't call output_start_tag here, because the first statement
 	// of the script maybe INLINE_HTML. We rely on the infrastructure in
@@ -218,13 +218,7 @@ void AST_unparser::children_formal_parameter(AST_formal_parameter* in)
 {
 	visit_type(in->type);
 	if(in->is_ref) echo("&");
-	echo("$");
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
-	{
-		echo(" = ");
-		visit_expr(in->expr);
-	}
+	visit_name_with_default(in->var);
 }
 
 void AST_unparser::children_type(AST_type* in)
@@ -240,12 +234,19 @@ void AST_unparser::children_attribute(AST_attribute* in)
 {
 	visit_attr_mod(in->attr_mod);
 	// Class attributes get a dollar sign, with the exception of const attributes
-	if(!in->attr_mod->is_const) echo("$"); 
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
+	List<AST_name_with_default*>::const_iterator i;
+	for(i = in->vars->begin(); i != in->vars->end(); i++)
 	{
-		echo(" = ");
-		visit_expr(in->expr);
+		if(i != in->vars->begin())
+			echo(", ");
+
+		if(!in->attr_mod->is_const) echo("$"); 
+		visit_variable_name((*i)->variable_name);
+		if((*i)->expr != NULL)
+		{
+			echo(" = ");
+			visit_expr((*i)->expr);
+		}
 	}
 	echo(";");
 	// newline is output by post_commented_node
@@ -443,13 +444,8 @@ void AST_unparser::children_return(AST_return* in)
 
 void AST_unparser::children_static_declaration(AST_static_declaration* in)
 {
-	echo("static $");
-	visit_variable_name(in->variable_name);
-	if(in->expr != NULL)
-	{
-		echo(" = ");
-		visit_expr(in->expr);
-	}
+	echo("static ");
+	visit_name_with_default_list(in->vars);
 	echo(";");
 	// newline output by post_commented_node
 }
@@ -728,9 +724,14 @@ void AST_unparser::children_variable(AST_variable* in)
 	AST_reflection* reflection;
 	AST_variable* name = NULL;
 
-	if(    !last_op.empty() 
-	    && last_op.top() != NULL 
-			&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.complex"))
+	// last_op.top() applies only to the top-level variable (in), not to 
+	// any variables that may be used inside in. Therefore, we copy 
+	// last_op.top() to a local variable, and then push NULL to last_op
+	Token_op* in_last_op = last_op.empty() ? NULL : last_op.top();
+	last_op.push(NULL);
+
+	if(    in_last_op != NULL   
+			&& in_last_op->attrs->is_true("phc.unparser.in_string_syntax.complex"))
 	{
 		echo("{");
 		in_string.push(false);
@@ -765,9 +766,8 @@ void AST_unparser::children_variable(AST_variable* in)
 	}
 	else
 	{
-		if(    !last_op.empty() 
-		    && last_op.top() != NULL 
-				&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.delimited")
+		if(    in_last_op != NULL   
+				&& in_last_op->attrs->is_true("phc.unparser.in_string_syntax.delimited")
 			)
 		{
 			echo("{");
@@ -780,11 +780,6 @@ void AST_unparser::children_variable(AST_variable* in)
 		}
 	}
 
-	// At this point, the only last_op that could possibly be relevant
-	// is one that has attribute "phc.unparser.in_string_syntax.complex" set.
-	// However, that attribute should not apply to any variables used as
-	// array indices. Hence, we push NULL as a new last_op here.
-	last_op.push(NULL);
 	List<AST_expr*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
@@ -801,16 +796,16 @@ void AST_unparser::children_variable(AST_variable* in)
 			echo("]");
 		}
 	}
-	last_op.pop();
 
-	if(    !last_op.empty()
-	    && last_op.top() != NULL 
-			&& last_op.top()->attrs->is_true("phc.unparser.in_string_syntax.complex")
+	if(    in_last_op != NULL  
+			&& in_last_op->attrs->is_true("phc.unparser.in_string_syntax.complex")
 		)
 	{
 		in_string.pop();
 		echo("}");
 	}
+	
+	last_op.pop();
 }
 
 void AST_unparser::children_reflection(AST_reflection* in)
@@ -1059,6 +1054,16 @@ void AST_unparser::visit_actual_parameter_list(List<AST_actual_parameter*>* in)
 	}
 }
 
+void AST_unparser::visit_name_with_default_list(List<AST_name_with_default*>* in)
+{
+	List<AST_name_with_default*>::const_iterator i;
+	for(i = in->begin(); i != in->end(); i++)
+	{
+		if(i != in->begin()) echo(", ");
+		visit_name_with_default(*i);
+	}
+}
+
 // Token classes
 void AST_unparser::children_interface_name(Token_interface_name* in)
 {
@@ -1301,4 +1306,15 @@ void AST_unparser::children_nop (AST_nop* in)
 	// around it, we must output the semi-colon
 	if(in->attrs->is_true("phc.unparser.is_wrapped"))
 		echo(";");
+}
+
+void AST_unparser::children_name_with_default (AST_name_with_default* in)
+{
+	echo("$");
+	visit_variable_name(in->variable_name);
+	if(in->expr != NULL)
+	{
+		echo(" = ");
+		visit_expr(in->expr);
+	}
 }

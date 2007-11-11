@@ -35,6 +35,7 @@ class AST_to_HIR : public AST::AST_fold
  HIR::HIR_type*,				// AST_type*
  HIR::HIR_attribute*,			// AST_attribute*
  HIR::HIR_attr_mod*,			// AST_attr_mod*
+ HIR::HIR_name_with_default*,	// AST_name_with_default*
  HIR::HIR_statement*,			// AST_if*
  HIR::HIR_statement*,			// AST_while*
  HIR::HIR_statement*,			// AST_do*
@@ -157,10 +158,10 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_formal_parameter* fold_impl_formal_parameter(AST::AST_formal_parameter* orig, HIR::HIR_type* type, bool is_ref, HIR::Token_variable_name* variable_name, HIR::HIR_expr* expr) 
+	HIR::HIR_formal_parameter* fold_impl_formal_parameter(AST::AST_formal_parameter* orig, HIR::HIR_type* type, bool is_ref, HIR::HIR_name_with_default* var) 
 	{
 		HIR::HIR_formal_parameter* result;
-		result = new HIR::HIR_formal_parameter(type, is_ref, variable_name, expr);
+		result = new HIR::HIR_formal_parameter(type, is_ref, var);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -173,10 +174,12 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_attribute* fold_impl_attribute(AST::AST_attribute* orig, HIR::HIR_attr_mod* attr_mod, HIR::Token_variable_name* variable_name, HIR::HIR_expr* expr) 
+	HIR::HIR_attribute* fold_impl_attribute(AST::AST_attribute* orig, HIR::HIR_attr_mod* attr_mod, List<HIR::HIR_name_with_default*>* vars) 
 	{
+		assert(vars->size() == 1);
+
 		HIR::HIR_attribute* result;
-		result = new HIR::HIR_attribute(attr_mod, variable_name, expr);
+		result = new HIR::HIR_attribute(attr_mod, vars->front());
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -185,6 +188,14 @@ class AST_to_HIR : public AST::AST_fold
 	{
 		HIR::HIR_attr_mod* result;
 		result = new HIR::HIR_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+		result->attrs = orig->attrs;
+		return result;
+	}
+	
+	HIR::HIR_name_with_default* fold_impl_name_with_default(AST::AST_name_with_default* orig, HIR::Token_variable_name* variable_name, HIR::HIR_expr* expr) 
+	{ 
+		HIR::HIR_name_with_default* result;
+		result = new HIR::HIR_name_with_default(variable_name, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -197,10 +208,12 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
-	HIR::HIR_static_declaration* fold_impl_static_declaration(AST::AST_static_declaration* orig, HIR::Token_variable_name* variable_name, HIR::HIR_expr* expr) 
+	HIR::HIR_static_declaration* fold_impl_static_declaration(AST::AST_static_declaration* orig, List<HIR::HIR_name_with_default*>* vars) 
 	{
+		assert(vars->size() == 1);
+
 		HIR::HIR_static_declaration* result;
-		result = new HIR::HIR_static_declaration(variable_name, expr);
+		result = new HIR::HIR_static_declaration(vars->front());
 		result->attrs = orig->attrs;
 		return result;
 	}

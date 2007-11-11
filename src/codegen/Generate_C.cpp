@@ -618,7 +618,7 @@ protected:
 				// We model it as an assignment to the named variable,
 				// and call on the code generator to generate the
 				// default assignment for us.
-				if ((*i)->expr)
+				if ((*i)->var->expr)
 				{
 					code 
 						<< "if (num_args <= " << index << ")\n"
@@ -629,9 +629,9 @@ protected:
 								new HIR_assignment (
 									new HIR_variable (
 										NULL,
-										(*i)->variable_name->clone (),
+										(*i)->var->variable_name->clone (),
 										new List<HIR_expr*> ()),
-									false, (*i)->expr->clone ()));
+									false, (*i)->var->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";
@@ -642,9 +642,9 @@ protected:
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
-				if ((*i)->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				if ((*i)->var->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					string name = *get_non_st_name ((*i)->variable_name);
+					string name = *get_non_st_name ((*i)->var->variable_name);
 					code 
 						<< name << " = params[" << index << "];\n";
 				}
@@ -653,15 +653,15 @@ protected:
 					// TODO i dont believe theres a test for this
 					code 
 						<< "zend_hash_quick_add(EG(active_symbol_table), "
-						<<		"\"" << *(*i)->variable_name->value << "\", " 
-						<<		(*i)->variable_name->value->length() + 1 << ", "
-						<<		get_hash ((*i)->variable_name) << ", "
+						<<		"\"" << *(*i)->var->variable_name->value << "\", " 
+						<<		(*i)->var->variable_name->value->length() + 1 << ", "
+						<<		get_hash ((*i)->var->variable_name) << ", "
 						<<		"&params[" << index << "], "
 						<<		"sizeof(zval*), NULL);\n"
 					  ;
 				  }
 
-				if ((*i)->expr)
+				if ((*i)->var->expr)
 					code << "}\n";
 			}
 				
@@ -2015,7 +2015,7 @@ void Generate_C::post_php_script(HIR_php_script* in)
 			code 
 			<< "ZEND_ARG_INFO("
 			<< ((*j)->is_ref ? "1" : "0")
-			<< ", \"" << *(*j)->variable_name->value << "\")\n"; 
+			<< ", \"" << *(*j)->var->variable_name->value << "\")\n"; 
 		}
 
 		code << "ZEND_END_ARG_INFO()\n";

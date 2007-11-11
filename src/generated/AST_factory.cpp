@@ -76,10 +76,9 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     {
     	AST_type* type = dynamic_cast<AST_type*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	AST_name_with_default* var = dynamic_cast<AST_name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new AST_formal_parameter(type, is_ref, variable_name, expr);
+    	return new AST_formal_parameter(type, is_ref, var);
     }
     if(!strcmp(type_id, "AST_type"))
     {
@@ -90,10 +89,9 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "AST_attribute"))
     {
     	AST_attr_mod* attr_mod = dynamic_cast<AST_attr_mod*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	List<AST_name_with_default*>* vars = dynamic_cast<List<AST_name_with_default*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_attribute(attr_mod, variable_name, expr);
+    	return new AST_attribute(attr_mod, vars);
     }
     if(!strcmp(type_id, "AST_attr_mod"))
     {
@@ -104,6 +102,13 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	bool is_const = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
     	return new AST_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+    }
+    if(!strcmp(type_id, "AST_name_with_default"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	assert(i == args->end());
+    	return new AST_name_with_default(variable_name, expr);
     }
     if(!strcmp(type_id, "AST_if"))
     {
@@ -180,10 +185,9 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "AST_static_declaration"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	List<AST_name_with_default*>* vars = dynamic_cast<List<AST_name_with_default*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_static_declaration(variable_name, expr);
+    	return new AST_static_declaration(vars);
     }
     if(!strcmp(type_id, "AST_global"))
     {
@@ -474,6 +478,13 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	List<AST_formal_parameter*>* list = new List<AST_formal_parameter*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<AST_formal_parameter*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "AST_name_with_default_list"))
+    {
+    	List<AST_name_with_default*>* list = new List<AST_name_with_default*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<AST_name_with_default*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "AST_switch_case_list"))

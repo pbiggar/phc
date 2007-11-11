@@ -40,6 +40,7 @@ public:
     virtual void pre_type(AST_type* in);
     virtual void pre_attribute(AST_attribute* in);
     virtual void pre_attr_mod(AST_attr_mod* in);
+    virtual void pre_name_with_default(AST_name_with_default* in);
     virtual void pre_if(AST_if* in);
     virtual void pre_while(AST_while* in);
     virtual void pre_do(AST_do* in);
@@ -121,6 +122,7 @@ public:
     virtual void post_type(AST_type* in);
     virtual void post_attribute(AST_attribute* in);
     virtual void post_attr_mod(AST_attr_mod* in);
+    virtual void post_name_with_default(AST_name_with_default* in);
     virtual void post_if(AST_if* in);
     virtual void post_while(AST_while* in);
     virtual void post_do(AST_do* in);
@@ -199,6 +201,7 @@ public:
     virtual void children_type(AST_type* in);
     virtual void children_attribute(AST_attribute* in);
     virtual void children_attr_mod(AST_attr_mod* in);
+    virtual void children_name_with_default(AST_name_with_default* in);
     virtual void children_if(AST_if* in);
     virtual void children_while(AST_while* in);
     virtual void children_do(AST_do* in);
@@ -278,6 +281,7 @@ public:
     virtual void pre_type_chain(AST_type* in);
     virtual void pre_attribute_chain(AST_attribute* in);
     virtual void pre_attr_mod_chain(AST_attr_mod* in);
+    virtual void pre_name_with_default_chain(AST_name_with_default* in);
     virtual void pre_if_chain(AST_if* in);
     virtual void pre_while_chain(AST_while* in);
     virtual void pre_do_chain(AST_do* in);
@@ -349,6 +353,7 @@ public:
     virtual void post_type_chain(AST_type* in);
     virtual void post_attribute_chain(AST_attribute* in);
     virtual void post_attr_mod_chain(AST_attr_mod* in);
+    virtual void post_name_with_default_chain(AST_name_with_default* in);
     virtual void post_if_chain(AST_if* in);
     virtual void post_while_chain(AST_while* in);
     virtual void post_do_chain(AST_do* in);
@@ -422,9 +427,11 @@ public:
     virtual void visit_formal_parameter_list(List<AST_formal_parameter*>* in);
     virtual void visit_formal_parameter(AST_formal_parameter* in);
     virtual void visit_type(AST_type* in);
+    virtual void visit_name_with_default(AST_name_with_default* in);
+    virtual void visit_attr_mod(AST_attr_mod* in);
+    virtual void visit_name_with_default_list(List<AST_name_with_default*>* in);
     virtual void visit_variable_name(Token_variable_name* in);
     virtual void visit_expr(AST_expr* in);
-    virtual void visit_attr_mod(AST_attr_mod* in);
     virtual void visit_variable(AST_variable* in);
     virtual void visit_switch_case_list(List<AST_switch_case*>* in);
     virtual void visit_switch_case(AST_switch_case* in);

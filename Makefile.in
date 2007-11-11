@@ -262,7 +262,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Check_lowering.$(OBJEXT) Check_uppering.$(OBJEXT) \
 	fresh.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	Lower_expr.$(OBJEXT) Lower_expr_flow.$(OBJEXT) \
-	Shredder.$(OBJEXT) Compile_C.$(OBJEXT) Generate_C.$(OBJEXT) \
+	Shredder.$(OBJEXT) Split_multiple_arguments.$(OBJEXT) \
+	Compile_C.$(OBJEXT) Generate_C.$(OBJEXT) \
 	Lift_functions_and_classes.$(OBJEXT) \
 	Prune_symbol_table.$(OBJEXT) Strip_comments.$(OBJEXT) \
 	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
@@ -437,7 +438,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -559,6 +559,8 @@ src_phc_SOURCES = \
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.h						\
+	src/ast_to_hir/Split_multiple_arguments.cpp		\
+	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -1053,6 +1055,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shredder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
@@ -1416,6 +1419,20 @@ Shredder.obj: src/ast_to_hir/Shredder.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Shredder.cpp' object='Shredder.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/ast_to_hir/Shredder.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Shredder.cpp'; fi`
+
+Split_multiple_arguments.o: src/ast_to_hir/Split_multiple_arguments.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Split_multiple_arguments.o -MD -MP -MF $(DEPDIR)/Split_multiple_arguments.Tpo -c -o Split_multiple_arguments.o `test -f 'src/ast_to_hir/Split_multiple_arguments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Split_multiple_arguments.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Split_multiple_arguments.Tpo $(DEPDIR)/Split_multiple_arguments.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Split_multiple_arguments.cpp' object='Split_multiple_arguments.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Split_multiple_arguments.o `test -f 'src/ast_to_hir/Split_multiple_arguments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Split_multiple_arguments.cpp
+
+Split_multiple_arguments.obj: src/ast_to_hir/Split_multiple_arguments.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Split_multiple_arguments.obj -MD -MP -MF $(DEPDIR)/Split_multiple_arguments.Tpo -c -o Split_multiple_arguments.obj `if test -f 'src/ast_to_hir/Split_multiple_arguments.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Split_multiple_arguments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Split_multiple_arguments.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Split_multiple_arguments.Tpo $(DEPDIR)/Split_multiple_arguments.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Split_multiple_arguments.cpp' object='Split_multiple_arguments.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Split_multiple_arguments.obj `if test -f 'src/ast_to_hir/Split_multiple_arguments.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Split_multiple_arguments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Split_multiple_arguments.cpp'; fi`
 
 Compile_C.o: src/codegen/Compile_C.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.o -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.o `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp

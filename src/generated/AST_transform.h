@@ -37,6 +37,7 @@ public:
     virtual AST_type* pre_type(AST_type* in);
     virtual void pre_attribute(AST_attribute* in, List<AST_member*>* out);
     virtual AST_attr_mod* pre_attr_mod(AST_attr_mod* in);
+    virtual AST_name_with_default* pre_name_with_default(AST_name_with_default* in);
     virtual void pre_if(AST_if* in, List<AST_statement*>* out);
     virtual void pre_while(AST_while* in, List<AST_statement*>* out);
     virtual void pre_do(AST_do* in, List<AST_statement*>* out);
@@ -106,6 +107,7 @@ public:
     virtual AST_type* post_type(AST_type* in);
     virtual void post_attribute(AST_attribute* in, List<AST_member*>* out);
     virtual AST_attr_mod* post_attr_mod(AST_attr_mod* in);
+    virtual AST_name_with_default* post_name_with_default(AST_name_with_default* in);
     virtual void post_if(AST_if* in, List<AST_statement*>* out);
     virtual void post_while(AST_while* in, List<AST_statement*>* out);
     virtual void post_do(AST_do* in, List<AST_statement*>* out);
@@ -175,6 +177,7 @@ public:
     virtual void children_type(AST_type* in);
     virtual void children_attribute(AST_attribute* in);
     virtual void children_attr_mod(AST_attr_mod* in);
+    virtual void children_name_with_default(AST_name_with_default* in);
     virtual void children_if(AST_if* in);
     virtual void children_while(AST_while* in);
     virtual void children_do(AST_do* in);
@@ -250,9 +253,11 @@ public:
     virtual List<AST_formal_parameter*>* transform_formal_parameter_list(List<AST_formal_parameter*>* in);
     virtual List<AST_formal_parameter*>* transform_formal_parameter(AST_formal_parameter* in);
     virtual AST_type* transform_type(AST_type* in);
+    virtual AST_name_with_default* transform_name_with_default(AST_name_with_default* in);
+    virtual AST_attr_mod* transform_attr_mod(AST_attr_mod* in);
+    virtual List<AST_name_with_default*>* transform_name_with_default_list(List<AST_name_with_default*>* in);
     virtual Token_variable_name* transform_variable_name(Token_variable_name* in);
     virtual AST_expr* transform_expr(AST_expr* in);
-    virtual AST_attr_mod* transform_attr_mod(AST_attr_mod* in);
     virtual AST_variable* transform_variable(AST_variable* in);
     virtual List<AST_switch_case*>* transform_switch_case_list(List<AST_switch_case*>* in);
     virtual List<AST_switch_case*>* transform_switch_case(AST_switch_case* in);
