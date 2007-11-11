@@ -2123,9 +2123,17 @@ expr_without_variable:
 function_call:
 	  IDENT '(' function_call_parameter_list ')'
 		{
-			Token_method_name* fn = new Token_method_name($1);
+			Token_method_name* fn;
+
+			if(*$1 == "`")
+				fn = new Token_method_name(new String("shell_exec"));
+			else
+				fn = new Token_method_name($1);
 		
 			$$ = NEW(AST_method_invocation, (NULL, fn, $3));
+
+			if(*$1 == "`")
+				$$->attrs->set_true("phc.unparser.is_backticked");
 		}
 	| fully_qualified_class_name O_COLONCOLON IDENT '(' function_call_parameter_list ')'
 		{

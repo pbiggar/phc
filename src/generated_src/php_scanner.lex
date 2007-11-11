@@ -340,9 +340,17 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 								BEGIN(SQ_STR); 
 							}
 <PHP>"`"					{ 
+								// We don't know when the actual function call will
+								// be constructed, so we cannot set any attributes on
+								// it. Therefore, we generate a function call to '`',
+								// which will be corrected to a function call to 
+								// shell_exec in the parser, which will then set an
+								// attribute phc.unparser.is_backticked
+								yyextra->schedule_return(IDENT, "`");
+								yyextra->schedule_return('(');
 								yyextra->value_buffer = ""; 
 								yyextra->source_rep_buffer = "";
-								BEGIN(BT_STR); 
+								RETURN_ALL(BT_STR);
 							}
 <PHP>"\""				{ 
 								yyextra->value_buffer = ""; 
@@ -453,22 +461,28 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 	/* Deal with backticked strings. */
 
 <BT_STR>\`			{
-							yyextra->schedule_return(IDENT, "shell_exec");
-							yyextra->schedule_return('(');
 							yyextra->schedule_return_string();
 							yyextra->schedule_return(')');
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
 							RETURN_ALL(PHP);
 						}
+<BT_STR>\\\`		{ 
+							yyextra->value_buffer.push_back('`'); 
+							yyextra->source_rep_buffer.append(yytext);
+						}
+<BT_STR>\\			{
+							yyextra->source_rep_buffer.push_back('\\');
+							yy_push_state(ESCAPE, yyscanner); 
+						}
 <BT_STR>{ANY}		{ 
 							yyextra->value_buffer.push_back(*yytext); 
 							yyextra->source_rep_buffer.push_back(*yytext); 
 						}
 
-	/* Deal with in-string syntax (in DQ_STR, and HD_STR) */
+	/* Deal with in-string syntax (in DQ_STR, HD_STR, and BT_STR) */
 
-<DQ_STR,HD_MAIN>"$"{IDENT} {
+<DQ_STR,HD_MAIN,BT_STR>"$"{IDENT} {
 							yyextra->schedule_return_string();
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1]);
@@ -478,7 +492,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						}	
-<DQ_STR,HD_MAIN>"${"{IDENT}"}" {
+<DQ_STR,HD_MAIN,BT_STR>"${"{IDENT}"}" {
 							yyextra->schedule_return_string();
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.delimited");
 							yyextra->schedule_return(VARIABLE, &yytext[2], yyleng - 3);
@@ -487,7 +501,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							yyextra->source_rep_buffer = "";
 							RETURN_ALL(YY_START);
 						}
-<DQ_STR,HD_MAIN>"$"{IDENT}"["{INT}"]" %{
+<DQ_STR,HD_MAIN,BT_STR>"$"{IDENT}"["{INT}"]" %{
 						{
 							long left, right;
 							left = strchr(yytext, '[') - yytext;
@@ -506,7 +520,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							RETURN_ALL(YY_START);
 						} 
 						%}
-<DQ_STR,HD_MAIN>"$"{IDENT}"["{IDENT}"]" %{
+<DQ_STR,HD_MAIN,BT_STR>"$"{IDENT}"["{IDENT}"]" %{
 						{
 							long left, right;
 							left = strchr(yytext, '[') - yytext;
@@ -525,7 +539,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							RETURN_ALL(YY_START);
 						} 
 						%}
-<DQ_STR,HD_MAIN>"$"{IDENT}"[$"{IDENT}"]" %{
+<DQ_STR,HD_MAIN,BT_STR>"$"{IDENT}"[$"{IDENT}"]" %{
 						{
 							long left, right;
 							left = strchr(yytext, '[') - yytext;
@@ -544,7 +558,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							RETURN_ALL(YY_START);
 						} 
 						%}
-<DQ_STR,HD_MAIN>"$"{IDENT}"->"{IDENT} %{
+<DQ_STR,HD_MAIN,BT_STR>"$"{IDENT}"->"{IDENT} %{
 						{
 							long arrow;
 							arrow = strchr(yytext, '-') - yytext;
@@ -562,7 +576,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 						} 
 						%}
 
-<DQ_STR,HD_MAIN>"{$"	{
+<DQ_STR,HD_MAIN,BT_STR>"{$"	{
 							yy_push_state(COMPLEX2, yyscanner);
 							yy_push_state(COMPLEX1, yyscanner);
 

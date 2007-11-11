@@ -13,6 +13,7 @@
 #include <vector>
 #include "AST_unparser.h" 
 #include "cmdline.h"
+#include "lib/demangle.h"
 
 extern struct gengetopt_args_info args_info;
 
@@ -55,7 +56,7 @@ class Linearize : public AST_visitor
 public:
 	std::vector<AST_expr*> exprs;
 	std::vector<Token_op*> ops;
-	std::vector<int> partition_size;
+	std::vector<int> partitions;
 	bool start_new_partition;
 	Token_op* last_op;
 
@@ -74,11 +75,11 @@ public:
 		
 		if(start_new_partition)
 		{
-			partition_size.push_back(1);
+			partitions.push_back(1);
 		}
 		else
 		{
-			partition_size.back() += 1;
+			partitions.back() += 1;
 		}
 	}
 	
@@ -617,7 +618,7 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 
 		vector<int>::const_iterator ps;
 		int i = 0;
-		for(ps = l.partition_size.begin(); ps != l.partition_size.end(); ps++)
+		for(ps = l.partitions.begin(); ps != l.partitions.end(); ps++)
 		{
 			if(i != 0) echo(" . ");
 
@@ -885,6 +886,24 @@ void AST_unparser::children_method_invocation(AST_method_invocation* in)
 		visit_method_name(in->method_name);
 		echo(" ");	
 		visit_actual_parameter_list(in->actual_parameters);
+	}
+	else if(in->attrs->is_true("phc.unparser.is_backticked"))
+	{
+		assert(in->actual_parameters->size() == 1);
+
+		Linearize l;
+		l.visit_expr(in->actual_parameters->front()->expr);
+
+		assert(l.partitions.size() == 1);
+
+		echo("`");
+		in_string.push(true);
+		for(int i = 0; i < l.partitions[0]; i++)
+		{
+			visit_expr(l.exprs[i]);
+		}
+		in_string.pop();
+		echo("`");
 	}
 	else
 	{
