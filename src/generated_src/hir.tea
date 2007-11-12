@@ -2,9 +2,11 @@
  - phc -- the open source PHP compiler
  - See doc/license/README.license for licensing information
  -
- - The phc grammar in .tea format. 
+ - Definition of the HIR
  -
- - This is the authoritative grammar for phc. 
+ - Note that the HIR does not support the 'declare' statement, which nobody
+ - uses or can even define precisely. It does not even seem to be supported
+ - by the interpreter.
  -}
 
 {-
@@ -24,11 +26,15 @@ use namespace "HIR";
 php_script ::= statement* ;
 
 statement ::=
-     class_def | interface_def | method  
-   | return
-   | static_declaration | global
-   | try | throw | eval_expr 
-	| label | goto | branch ;
+     class_def | interface_def | method 
+	  | return | static_declaration | global
+	  | try | throw | eval_expr
+	  | label | goto | branch ;
+--	| assign_var | assign_var_var | assign_array | push_array
+
+{-
+	Class and method definitions
+-}
 
 class_def ::= 
    class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -42,9 +48,11 @@ method ::= signature statement*? ;
 signature ::= method_mod is_ref:"&"? METHOD_NAME formal_parameter* ;
 method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
 formal_parameter ::= type is_ref:"&"? var:name_with_default ;
+-- formal_parameter ::= type is_ref:"&"? VARIABLE_NAME static_value? ;
 type ::= CLASS_NAME? ;
 
 attribute ::= attr_mod var:name_with_default ;
+-- attribute ::= attr_mod VARIABLE_NAME static_value? ;
 attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
 name_with_default ::= VARIABLE_NAME expr? ;
@@ -54,13 +62,17 @@ name_with_default ::= VARIABLE_NAME expr? ;
 -}
 
 return ::= expr? ;
+-- return ::= VARIABLE_NAME? ;
 
 static_declaration ::= var:name_with_default ;
+-- static_declaration ::= VARIABLE_NAME static_value? ;
 global ::= variable_name ;
+-- variable_name ::= VARIABLE_NAME | variable_variable;
 
 try ::= statement* catches:catch* ;
 catch ::= CLASS_NAME VARIABLE_NAME statement* ;
 throw ::= expr ;
+-- throw ::= VARIABLE_NAME ;
 
 eval_expr ::= expr ;
 
@@ -72,6 +84,12 @@ branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 goto ::= LABEL_NAME ;
 label ::= LABEL_NAME ;
 
+-- assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:expr ;
+-- assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
+-- assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
+-- push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
+
+
 {-
    Expressions
 -}
@@ -81,26 +99,36 @@ expr ::=
    | cast | unary_op | bin_op 
    | constant | instanceof
    | variable | pre_op | array
+--   | variable_name | index_array
    | method_invocation | new 
 	| literal ;
 	
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
 assignment ::= variable is_ref:"&"? expr ;
+-- index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
+-- variable_variable ::= VARIABLE_NAME ; 
+
 
 cast ::= CAST expr ;
 unary_op ::= OP expr ;
 bin_op ::= left:expr OP right:expr ;
+-- cast     ::= CAST VARIABLE_NAME ;
+-- unary_op ::= OP VARIABLE_NAME ;
+-- bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
+
 
 constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 instanceof ::= expr class_name ;
+-- instanceof ::= VARIABLE_NAME class_name ;
 
 variable ::= target? variable_name array_indices:expr?* ;
 variable_name ::= VARIABLE_NAME | reflection ;
 reflection ::= expr ;
 
 target ::= expr | CLASS_NAME ;
+-- target ::= VARIABLE_NAME | CLASS_NAME ;
 
 pre_op ::= OP variable ;
 
@@ -109,11 +137,21 @@ array_elem ::= key:expr? is_ref:"&"? val:expr ;
 
 method_invocation ::= target? method_name actual_parameter* ;
 method_name ::= METHOD_NAME | reflection ;
+-- method_name ::= METHOD_NAME | VARIABLE_NAME ;
 
 actual_parameter ::= is_ref:"&"? expr ;
+-- actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
 
 new ::= class_name actual_parameter* ;
 class_name ::= CLASS_NAME | reflection ;
+-- class_name ::= CLASS_NAME | VARIABLE_NAME ;
+
+-- static_value ::= literal | static_array | constant ;
+ 
+-- static_array      ::= static_array_elem* ;
+-- static_array_elem ::= static_array_key? is_ref:"&"? val:static_value ;
+-- static_array_key  ::= literal | constant ; 
+
 
 {-
  - Additional structure 
