@@ -11,6 +11,8 @@
 #include "pass_manager/Pass_manager.h"
 #include "lib/List.h"
 
+using namespace AST;
+
 /* After removing statements, we may be left with gotos and branches
  * to statements which dont exist, which will cause compiler errors.
  * Labels will leave warnings for unused labels, which also trip us

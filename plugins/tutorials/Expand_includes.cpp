@@ -10,15 +10,12 @@
 class Expand_includes : public AST_transform
 {
 private:
-	XML_unparser* xml_unparser;
 	Wildcard<Token_string>* filename;
 	AST_method_invocation* pattern;
 
 public:
 	Expand_includes()
 	{
-		xml_unparser = new XML_unparser(cout, false);
-
 		filename = new Wildcard<Token_string>;
 		pattern = 
 			new AST_method_invocation(
@@ -33,7 +30,7 @@ public:
 public:
 	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 	{
-		// in->visit(xml_unparser);
+		// xdebug (in);
 
 		// Check for calls to include
 		if(in->expr->match(pattern))

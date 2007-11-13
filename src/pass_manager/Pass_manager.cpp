@@ -12,7 +12,7 @@
 #include "process_ast/Invalid_check.h"
 #include "process_ast/AST_unparser.h"
 #include "process_ast/DOT_unparser.h"
-#include "process_ast/XML_unparser.h"
+#include "process_ast/debug.h"
 #include "process_hir/Goto_uppering.h"
 #include "Pass_manager.h"
 
@@ -200,7 +200,7 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	{
 		if (*name == args_info->xdump_arg [i])
 		{
-			in->visit (new XML_unparser ());
+			xadebug (in);
 		}
 	}
 }

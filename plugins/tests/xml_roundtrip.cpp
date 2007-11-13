@@ -28,7 +28,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 
 	// unparse once
 	ostringstream xml_output1;
-	XML_unparser xml_unparser1 (xml_output1);
+	AST_XML_unparser xml_unparser1 (xml_output1);
 	in->visit(&xml_unparser1);
 
 	// reparse
@@ -36,7 +36,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 
 	// unparse a second time
 	ostringstream xml_output2;
-	XML_unparser xml_unparser2 (xml_output2);
+	AST_XML_unparser xml_unparser2 (xml_output2);
 	reparsed1->visit(&xml_unparser2);
 
 	// reparse
@@ -45,10 +45,10 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 	if (not (in->equals(reparsed1) && in->equals(reparsed2)))
 	{
 		printf("Failure\n");
-		XML_unparser unparser;
-		in->visit (new XML_unparser ());
-		reparsed1->visit (new XML_unparser ());
-		reparsed2->visit (new XML_unparser ());
+		AST_XML_unparser unparser;
+		in->visit (new AST_XML_unparser ());
+		reparsed1->visit (new AST_XML_unparser ());
+		reparsed2->visit (new AST_XML_unparser ());
 	}
 #else
 	cout << "XML support not built-in" << endl;

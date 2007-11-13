@@ -273,14 +273,14 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	php_parser.tab.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
 	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
 	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
-	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
-	Pass_manager.$(OBJEXT) phc.$(OBJEXT) AST_unparser.$(OBJEXT) \
+	parse.$(OBJEXT) PHP_context.$(OBJEXT) Pass_manager.$(OBJEXT) \
+	phc.$(OBJEXT) AST_unparser.$(OBJEXT) debug.$(OBJEXT) \
 	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
 	Note_top_level_declarations.$(OBJEXT) PHP_unparser.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
-	XML_unparser.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	HIR_unparser.$(OBJEXT)
+	XML_unparser.$(OBJEXT) Dump_HIR.$(OBJEXT) \
+	Goto_uppering.$(OBJEXT) HIR_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -438,6 +438,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
+SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -618,13 +619,14 @@ src_phc_SOURCES = \
 	src/parsing/parse.h										\
 	src/parsing/PHP_context.cpp							\
 	src/parsing/PHP_context.h								\
-	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
 	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
+	src/process_ast/debug.cpp								\
+	src/process_ast/debug.h									\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
@@ -644,6 +646,8 @@ src_phc_SOURCES = \
 	src/process_ast/Token_conversion.h					\
 	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h						\
+	src/process_hir/Dump_HIR.cpp							\
+	src/process_hir/Dump_HIR.h								\
 	src/process_hir/Goto_uppering.cpp					\
 	src/process_hir/Goto_uppering.h						\
 	src/process_hir/HIR_unparser.cpp						\
@@ -1029,6 +1033,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dump_HIR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
@@ -1059,7 +1064,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
@@ -1068,6 +1072,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cmdline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements_difficult.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/count_statements_easy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug_zval.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demangle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/demi_eval.Plo@am__quote@
@@ -1798,20 +1803,6 @@ PHP_context.obj: src/parsing/PHP_context.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PHP_context.obj `if test -f 'src/parsing/PHP_context.cpp'; then $(CYGPATH_W) 'src/parsing/PHP_context.cpp'; else $(CYGPATH_W) '$(srcdir)/src/parsing/PHP_context.cpp'; fi`
 
-XML_parser.o: src/parsing/XML_parser.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XML_parser.o -MD -MP -MF $(DEPDIR)/XML_parser.Tpo -c -o XML_parser.o `test -f 'src/parsing/XML_parser.cpp' || echo '$(srcdir)/'`src/parsing/XML_parser.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/XML_parser.Tpo $(DEPDIR)/XML_parser.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/XML_parser.cpp' object='XML_parser.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_parser.o `test -f 'src/parsing/XML_parser.cpp' || echo '$(srcdir)/'`src/parsing/XML_parser.cpp
-
-XML_parser.obj: src/parsing/XML_parser.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XML_parser.obj -MD -MP -MF $(DEPDIR)/XML_parser.Tpo -c -o XML_parser.obj `if test -f 'src/parsing/XML_parser.cpp'; then $(CYGPATH_W) 'src/parsing/XML_parser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/parsing/XML_parser.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/XML_parser.Tpo $(DEPDIR)/XML_parser.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/XML_parser.cpp' object='XML_parser.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_parser.obj `if test -f 'src/parsing/XML_parser.cpp'; then $(CYGPATH_W) 'src/parsing/XML_parser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/parsing/XML_parser.cpp'; fi`
-
 Pass_manager.o: src/pass_manager/Pass_manager.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Pass_manager.o -MD -MP -MF $(DEPDIR)/Pass_manager.Tpo -c -o Pass_manager.o `test -f 'src/pass_manager/Pass_manager.cpp' || echo '$(srcdir)/'`src/pass_manager/Pass_manager.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Pass_manager.Tpo $(DEPDIR)/Pass_manager.Po
@@ -1853,6 +1844,20 @@ AST_unparser.obj: src/process_ast/AST_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/AST_unparser.cpp' object='AST_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_unparser.obj `if test -f 'src/process_ast/AST_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/AST_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/AST_unparser.cpp'; fi`
+
+debug.o: src/process_ast/debug.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT debug.o -MD -MP -MF $(DEPDIR)/debug.Tpo -c -o debug.o `test -f 'src/process_ast/debug.cpp' || echo '$(srcdir)/'`src/process_ast/debug.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/debug.Tpo $(DEPDIR)/debug.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/debug.cpp' object='debug.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o debug.o `test -f 'src/process_ast/debug.cpp' || echo '$(srcdir)/'`src/process_ast/debug.cpp
+
+debug.obj: src/process_ast/debug.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT debug.obj -MD -MP -MF $(DEPDIR)/debug.Tpo -c -o debug.obj `if test -f 'src/process_ast/debug.cpp'; then $(CYGPATH_W) 'src/process_ast/debug.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/debug.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/debug.Tpo $(DEPDIR)/debug.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/debug.cpp' object='debug.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o debug.obj `if test -f 'src/process_ast/debug.cpp'; then $(CYGPATH_W) 'src/process_ast/debug.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/debug.cpp'; fi`
 
 DOT_unparser.o: src/process_ast/DOT_unparser.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT DOT_unparser.o -MD -MP -MF $(DEPDIR)/DOT_unparser.Tpo -c -o DOT_unparser.o `test -f 'src/process_ast/DOT_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/DOT_unparser.cpp
@@ -1979,6 +1984,20 @@ XML_unparser.obj: src/process_ast/XML_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/XML_unparser.cpp' object='XML_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_unparser.obj `if test -f 'src/process_ast/XML_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/XML_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/XML_unparser.cpp'; fi`
+
+Dump_HIR.o: src/process_hir/Dump_HIR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dump_HIR.o -MD -MP -MF $(DEPDIR)/Dump_HIR.Tpo -c -o Dump_HIR.o `test -f 'src/process_hir/Dump_HIR.cpp' || echo '$(srcdir)/'`src/process_hir/Dump_HIR.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dump_HIR.Tpo $(DEPDIR)/Dump_HIR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_hir/Dump_HIR.cpp' object='Dump_HIR.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dump_HIR.o `test -f 'src/process_hir/Dump_HIR.cpp' || echo '$(srcdir)/'`src/process_hir/Dump_HIR.cpp
+
+Dump_HIR.obj: src/process_hir/Dump_HIR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dump_HIR.obj -MD -MP -MF $(DEPDIR)/Dump_HIR.Tpo -c -o Dump_HIR.obj `if test -f 'src/process_hir/Dump_HIR.cpp'; then $(CYGPATH_W) 'src/process_hir/Dump_HIR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_hir/Dump_HIR.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dump_HIR.Tpo $(DEPDIR)/Dump_HIR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_hir/Dump_HIR.cpp' object='Dump_HIR.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dump_HIR.obj `if test -f 'src/process_hir/Dump_HIR.cpp'; then $(CYGPATH_W) 'src/process_hir/Dump_HIR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_hir/Dump_HIR.cpp'; fi`
 
 Goto_uppering.o: src/process_hir/Goto_uppering.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Goto_uppering.o -MD -MP -MF $(DEPDIR)/Goto_uppering.Tpo -c -o Goto_uppering.o `test -f 'src/process_hir/Goto_uppering.cpp' || echo '$(srcdir)/'`src/process_hir/Goto_uppering.cpp

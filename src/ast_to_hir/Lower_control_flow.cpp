@@ -18,7 +18,6 @@
 #include "Check_lowering.h"
 #include "fresh.h"
 #include <sstream>
-#include "process_ast/XML_unparser.h"
 #include "Shredder.h"
 
 // TODO if obfuscate is set, we should randomly rearrange the basic blocks
