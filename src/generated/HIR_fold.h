@@ -479,6 +479,7 @@ public:
 	}
 
 
+
 // The user-defined folds
 // Override these methods to get specific functionality
 public:
@@ -532,6 +533,7 @@ public:
 	virtual _Token_cast fold_cast(Token_cast* orig) { assert(0); };
 	virtual _Token_op fold_op(Token_op* orig) { assert(0); };
 	virtual _Token_constant_name fold_constant_name(Token_constant_name* orig) { assert(0); };
+
 
 // Manual dispatching for abstract classes
 // Override only if you know what you are doing!
@@ -846,6 +848,9 @@ public:
 	}
 
 
+
+// Virtual destructor to avoid compiler warnings
+	virtual ~HIR_fold() {}
 };
 
 template<class T>
