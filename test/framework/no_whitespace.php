@@ -25,7 +25,7 @@ class NoWhitespace extends AsyncTest
 	function run_test ($subject)
 	{
 		global $phc;
-		$async = new Async_steps ($this, $subject);
+		$async = new AsyncBundle ($this, $subject);
 
 		$async->commands[0]		= "$phc $subject --pretty-print";
 		$async->out_handlers[0] = "strip_whitespace";

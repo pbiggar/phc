@@ -19,7 +19,7 @@ class BasicParseTest extends AsyncTest
 	function run_test ($subject)
 	{
 		global $phc;
-		$async = new Async_steps ($this, $subject);
+		$async = new AsyncBundle ($this, $subject);
 
 		$async->commands[0] = "$phc $subject";
 		$async->final = "finish";

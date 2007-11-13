@@ -184,7 +184,7 @@ function open_status_files ()
 {
 	global $status_files;
 	global $log_directory;
-	foreach (array ("failure", "skipped", "success") as $status)
+	foreach (array ("failure", "skipped", "success", "timeout") as $status)
 	{
 		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
 	}
@@ -277,8 +277,64 @@ function diff ($string1, $string2)
 	return xdiff_string_diff ("$string1\n", "$string2\n");
 }
 
-function log_failure ($test_name, $subject, $header, $output)
+function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $missing_dependency)
 {
+	$red = red_string();
+	$reset = reset_string();
+
+	// we have 1 or more outputs, only 1 error, and 1 or more commands, with the same number of error codes as commands
+	$err_string = "";
+	if (is_array ($commands))
+	{
+		if ($exits == "Not relevent")
+		{
+			$command_string = "";
+			foreach ($commands as $command)
+			{
+				$command_string .= "{$red}Command:$reset $command\n";
+			}
+		}
+		else
+		{
+			phc_assert (is_array ($exits), "Expected array of return values");
+			phc_assert (count ($exits) == count ($errs), 
+					"Expected same number of exits as exit codes");
+
+			$command_string = "";
+			$err_string = "";
+			foreach ($exits as $i => $exit)
+			{
+				$command = $commands[$i];
+				$err = $errs [$i];
+				$command_string .= "{$red}Command $i$reset ($exit): $command\n";
+				if ($err)
+					$err_string .= "{$red}Error $i$reset: $err\n";
+			}
+		}
+
+	}
+	else
+	{
+		$command_string = "{$red}Command$reset ($exits): $commands\n";
+		if ($errs)
+			$err_string = "{$red}Error$reset: $errs\n";
+	}
+
+	$dependency_string = "";
+	if ($missing_dependency)
+	{
+		$dependency_string = "NOTE: dependency $missing_dependency is missing. This may be the cause of this failure\n";
+	}
+
+	$command_string = $dependency_string.$command_string.$err_string;
+	if (is_array ($outs))
+	{
+		$outs = join ("\n", $outs);
+	}
+
+	$header = $command_string;
+	$output = $outs;
+
 	global $log_directory;
 	$script_name = adjusted_name ($subject);
 	$filename = "$log_directory/$test_name/$script_name.log";

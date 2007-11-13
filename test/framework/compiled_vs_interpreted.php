@@ -75,7 +75,7 @@ class CompiledVsInterpreted extends AsyncTest
 
 	function run_test ($subject)
 	{
-		$async = new Async_steps ($this, $subject);
+		$async = new AsyncBundle ($this, $subject);
 
 		$async->commands[0] = $this->get_php_command ($subject);
 		$async->out_handlers[0] = "homogenize_output";

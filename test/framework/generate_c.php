@@ -41,9 +41,9 @@ class Generate_C extends Test
 		{
 			$this->mark_failure ($subject,
 				$phc_command, 
-				$phc_exit,
 				$phc_out,
-				$phc_err);
+				$phc_err,
+				$phc_exit);
 		}
 		# Blank output wasnt being picked up
 		else if (count (split ("\n", $phc_out)) < 170)

@@ -13,6 +13,7 @@ abstract class Test
 		$this->successes = 0;
 		$this->failures = 0;
 		$this->skipped = 0;
+		$this->timeouts = 0;
 		$this->total = 0;
 		$this->expected_failure_count = 0;
 		$this->timers = array();
@@ -298,6 +299,15 @@ abstract class Test
 		log_status ("success", $this->get_name(), $subject, "");
 	}
 
+	function mark_timeout ($subject, $commands, $outs, $errs, $exits)
+	{
+		$this->timeouts++;
+		$this->total++;
+		$this->update_count ();
+		log_status ("timeout", $this->get_name(), $subject, "");
+//		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, NULL);
+	}
+
 	function mark_skipped ($subject, $reason)
 	{
 		if ($subject == "All")
@@ -315,65 +325,13 @@ abstract class Test
 		$this->update_count ();
 	}
 
-	function mark_failure ($subject, $commands, $exits = "Not relevent", $out = "Not relevent", $errs = "Not relevent")
+	function mark_failure ($subject, $commands, $outs = "Not relevent", $errs = "Not relevent", $exits = "Not relevent")
 	{
 		$reason = "TODO";
-		global $log_directory;
 
 		write_dependencies ($this->get_name (), $subject, false);
-		$dependency_string = "";
-		if (isset ($this->missing_dependency))
-		{
-			$dependency_string = "NOTE: dependency {$this->missing_dependency} is missing. This may be the cause of this failure\n";
-		}
 
-		$red = red_string();
-		$reset = reset_string();
-
-		// we have 1 or more outputs, only 1 error, and 1 or more commands, with the same number of error codes as commands
-		$err_string = "";
-		if (is_array ($commands))
-		{
-			if ($exits == "Not relevent")
-			{
-				$command_string = "";
-				foreach ($commands as $command)
-				{
-					$command_string .= "{$red}Command:$reset $command\n";
-				}
-			}
-			else
-			{
-				phc_assert (is_array ($exits), "Expected array of return values");
-				phc_assert (count ($exits) == count ($errs), 
-					"Expected same number of exits as exit codes");
-				$command_string = "";
-				$err_string = "";
-				foreach ($exits as $i => $exit)
-				{
-					$command = $commands[$i];
-					$err = $errs [$i];
-					$command_string .= "{$red}Command $i$reset ($exit): $command\n";
-					if ($err)
-						$err_string .= "{$red}Error $i$reset: $err\n";
-				}
-			}
-
-		}
-		else
-		{
-			$command_string = "{$red}Command$reset ($exits): $commands\n";
-			if ($errs)
-				$err_string = "{$red}Error$reset: $errs\n";
-		}
-
-		$command_string = $dependency_string.$command_string.$err_string;
-		if (is_array ($out))
-		{
-			$out = join ("\n", $out);
-		}
-
-		log_failure ($this->get_name(), $subject, $command_string, $out);
+		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL);
 		log_status ("failure", $this->get_name(), $subject, $reason);
 		$this->erase_progress_bar();
 
@@ -391,7 +349,7 @@ abstract class Test
 
 	function is_completely_skipped ()
 	{
-		return ($this->failures == 0 and $this->successes == 0 and $this->skipped > 0);
+		return ($this->failures == 0 and $this->successes == 0 and $this->timeouts == 0 and $this->skipped >= 0);
 	}
 
 	function get_appropriate_colour ()
@@ -419,11 +377,12 @@ abstract class Test
 		$reset = reset_string ();
 		$passed = sprintf ("%5s", $this->successes." P");
 		$failed = sprintf ("%5s", $this->failures." F");
+		$timedout = sprintf ("%5s", $this->timeouts ." T");
 		$skipped = sprintf ("%5s", $this->skipped." S");
 		if ($finished)
 		{
 			$colour = $this->get_appropriate_colour ();
-			return "$colour$passed, $failed, $skipped$reset";
+			return "$colour$passed, $failed, $timedout, $skipped$reset";
 		}
 		else
 		{
@@ -431,7 +390,7 @@ abstract class Test
 			$green = green_string ();
 			$red = red_string ();
 			$reset = reset_string ();
-			return "$green$passed$reset, $red$failed$reset, $blue$skipped$reset";
+			return "$green$passed$reset, $red$failed$reset, $blue$timedout$reset, $blue$skipped$reset";
 		}
 	}
 
@@ -480,7 +439,6 @@ abstract class Test
 		$reset = reset_string ();
 
 		$test = $this->get_name();
-		$timing = $this->get_timing_string ();
 		$triple = $this->get_triple_string (true);
 
 		$phrase = $this->get_appropriate_phrase ();
@@ -489,7 +447,7 @@ abstract class Test
 
 		// a color or a reset involves 6 characters, but gets displayed as zero.
 		// Those 6 need to be taken into account for sprintf
-		$string = sprintf("%-27s %-22s %20s %28s", $test, $timing, $word, $triple);
+		$string = sprintf("%-27s %20s %41s", $test, $word, $triple);
 		print "$string\n";
 	}
 

@@ -40,9 +40,9 @@ abstract class TwoCommandTest extends Test
 			$output = diff ($out1, $out2);
 			$this->mark_failure($subject, 
 				array($command1, $command2),
-				array($exit1, $exit2),
 				$output,
-				array ($err1, $err2));
+				array ($err1, $err2),
+				array($exit1, $exit2));
 		}
 		else $this->mark_success ($subject);
 	}

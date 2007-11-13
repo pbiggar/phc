@@ -67,7 +67,7 @@ class CompilePluginTest extends Test
 		list ($out, $err, $exit) = complete_exec ($command); # ignore stdout
 		if ($err or $exit)
 		{
-			$this->mark_failure ($subject, $command, $exit, $out, $err);
+			$this->mark_failure ($subject, $command, $out, $err, $exit);
 			// dont delete the files - leave them as a trail
 			return;
 		}
@@ -76,7 +76,7 @@ class CompilePluginTest extends Test
 		$filename = $files[0];
 		$command = "$phc --run $plugin_name.la $filename";
 		list ($out, $err, $exit) = complete_exec ($command);
-		if ($exit != 0) $this->mark_failure ($subject, $command, $exit, $out, $err);
+		if ($exit != 0) $this->mark_failure ($subject, $command, $out, $err, $exit);
 		else 
 		{
 			$this->mark_success ($subject);

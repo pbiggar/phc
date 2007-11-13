@@ -18,25 +18,33 @@ function inst ($string)
 #	print "\n" . microtime () . " $string\n";
 }
 
-class Async_steps
+class AsyncBundle
 {
 	function __construct ($object, $subject)
 	{
 		$this->object = $object;
 		$this->subject = $subject;
+		$this->state = 0;
 	}
 
 	function start ()
 	{
-		$this->object->start_program ($this->commands[0], $this, "continuation", 0);
+		$this->object->start_program ($this);
 	}
 
-	function continuation ($proc_info, $state)
+	function get_command ()
 	{
-#		print "continuing into state $state of {$this->subject}\n";
-		$out =& $proc_info[0];
-		$err =& $proc_info[1];
-		$exit =& $proc_info[2];
+		return $this->commands[$this->state];
+	}
+
+	function continuation ()
+	{
+		inst ("continuing from state {$this->state} of {$this->subject}\n");
+		// copy first
+		$state = $this->state;
+		$out = $this->out;
+		$err = $this->err;
+		$exit = $this->exit;
 		// state is just an int
 		$this->outs[$state] =& $out;
 		$this->errs[$state] =& $err;
@@ -67,11 +75,12 @@ class Async_steps
 				return;
 			$exit = $result;
 		}
+		$this->state += 1;
+		$state = $this->state;
 
-		if (isset ($this->commands[$state+1]))
+		if (isset ($this->commands[$state]))
 		{
-			$command = $this->commands[$state+1];
-			$object->start_program ($command, $this, "continuation", $state+1);
+			$object->start_program ($this);
 		}
 		elseif (isset ($this->final))
 		{
@@ -102,11 +111,19 @@ abstract class AsyncTest extends Test
 		parent::mark_failure (
 					$async->subject, 
 					$async->commands,
-					$async->exits,
 					$async->outs,
-					$async->errs);
+					$async->errs,
+					$async->exits);
+	}
 
-		return false;
+	function mark_timeout ($reason, $async)
+	{
+		parent::mark_timeout (
+					$async->subject, 
+					$async->commands,
+					$async->outs,
+					$async->errs,
+					$async->exits);
 	}
 
 	function fail_on_output (&$stream, $async)
@@ -121,12 +138,12 @@ abstract class AsyncTest extends Test
 
 	# Add this program to the list of programs waiting to be
 	# run. Start programs waiting to be run
-	function start_program ($command, $object, $continuation, $state)
+	function start_program ($bundle)
 	{
 		global $waiting_procs;
 	
 		# create a bundle
-		$waiting_procs[] = array ($command, $object, $continuation, $state);
+		$waiting_procs[] = $bundle;
 		$this->check_running_programs ();
 
 	}
@@ -152,12 +169,12 @@ abstract class AsyncTest extends Test
 		while (count ($running_procs))
 		{
 			inst ("Poll running");
-			$proc = array_shift ($running_procs);
+			$bundle = array_shift ($running_procs);
 
-			$handle =& $proc["handle"];
-			$out =& $proc["out"];
-			$err =& $proc["err"];
-			$pipes =& $proc["pipes"];
+			$handle	=& $bundle->handle;
+			$out		=& $bundle->out;
+			$err		=& $bundle->err;
+			$pipes	=& $bundle->pipes;
 
 			$out .= stream_get_contents ($pipes[1]);
 			$err .= stream_get_contents ($pipes[2]);
@@ -166,30 +183,29 @@ abstract class AsyncTest extends Test
 
 			if ($status["running"] !== true)
 			{
-				$exit_code = $status["exitcode"];
-				$proc_info = array ($out, $err, $exit_code);
-				// See Greenspun's Tenth Rule of Programming
-				$continuation = $proc["continuation"];
-				$state = $proc["state"];
-				$object =& $proc["object"];
-
-				$object->$continuation ($proc_info, $state);
+				$bundle->exit = $status["exitcode"];
+				$bundle->continuation ();
 			}
 			else
 			{
-				if (time () - $proc["start_time"] > 20)
+				if (time () - $bundle->start_time > 20)
 				{
+					echo "Trying to kill {$status["command"]}\n";
+
+					// if we dont close pipes, we can create deadlock, leaving zombie processes
+					foreach ($pipes as &$pipe) fclose ($pipe);
 					proc_terminate ($handle);
-					$async = &$proc["object"];
-					$async->exits[] = "Timeout";
-					$async->outs[] = "$out\n--- TIMEOUT ---";
-					$async->errs[] = $err;
-					$this->mark_failure ("timeout", $proc["object"]);
+					proc_close ($handle);
+
+					$bundle->exits[] = "Timeout";
+					$bundle->outs[] = "$out\n--- TIMEOUT ---";
+					$bundle->errs[] = $err;
+					$this->mark_timeout ("Timeout", $bundle);
 				}
 				else
 				{
-					usleep (100000); // sleep for 1/20 of a second
-					$running_procs[] = $proc;
+					usleep (100000); // sleep for 1/10 of a second
+					$running_procs[] = $bundle;
 				}
 			}
 		}
@@ -217,27 +233,27 @@ abstract class AsyncTest extends Test
 
 	function run_program ($bundle)
 	{
-		global $running_procs;
-		list ($command, $object, $continuation, $state) = $bundle;
+//		var_dump ($bundle);
+		$command = $bundle->get_command ();
 
 		inst ("Running prog: $command");
 
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),
-				2 => array("pipe", "w"));
+										2 => array("pipe", "w"));
 		$pipes = array();
 		$handle = proc_open ($command, $descriptorspec, &$pipes);
 		stream_set_blocking ($pipes[1], 0);
 		stream_set_blocking ($pipes[2], 0);
 
-		$proc = array(	"handle"			=> $handle,
-				"pipes"			=> $pipes,
-				"object"			=> $object,
-				"state"			=> $state,
-				"start_time"	=> time (),
-				"continuation" => $continuation);
+		$bundle->handle = $handle;
+		$bundle->pipes = $pipes;
+		$bundle->start_time = time ();
+		$bundle->out = "";
+		$bundle->err = "";
 
-		$running_procs[] = $proc;
+		global $running_procs;
+		$running_procs[] = $bundle;
 	}
 }
 

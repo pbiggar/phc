@@ -59,7 +59,7 @@ class RegressionTest extends SupportFileTest
 			// compare to the existing files
 			if ($diff)
 			{
-				$this->mark_failure ($subject, $command, $exit, $diff, $err);
+				$this->mark_failure ($subject, $command, $diff, $err, $exit);
 			}
 			else
 			{

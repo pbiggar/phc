@@ -67,7 +67,7 @@ class PluginTest extends Test
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, $exit, $out, $err);
+			$this->mark_failure ($subject, $command, $out, $err, $exit);
 		}
 	}
 
