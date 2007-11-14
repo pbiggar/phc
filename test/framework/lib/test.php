@@ -447,8 +447,9 @@ abstract class Test
 
 		// a color or a reset involves 6 characters, but gets displayed as zero.
 		// Those 6 need to be taken into account for sprintf
-		$string = sprintf("%-27s %20s %41s", $test, $word, $triple);
-		print "$string\n";
+		$string = sprintf("%-27s %20s %41s\n", $test, $word, $triple);
+		print "$string";
+		write_status ("results", strip_colour ($string));
 	}
 
 	// return true if the subject is marked as an exception

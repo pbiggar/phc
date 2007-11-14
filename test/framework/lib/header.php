@@ -184,7 +184,7 @@ function open_status_files ()
 {
 	global $status_files;
 	global $log_directory;
-	foreach (array ("failure", "skipped", "success", "timeout") as $status)
+	foreach (array ("failure", "skipped", "success", "timeout", "results") as $status)
 	{
 		$status_files[$status] = fopen ("$log_directory/$status", "w") or die ("Cannot open $status file\n");
 	}
@@ -192,12 +192,17 @@ function open_status_files ()
 
 function log_status ($status, $test_name, $subject, $reason)
 {
+	$status_name = ucfirst ($status);
+	if ($reason != "") $reason = " - $reason";
+	write_status ($status, "$test_name: $status_name $subject$reason\n");
+}
+
+function write_status ($status, $string)
+{
 	global $status_files;
 	$file = $status_files[$status];
 
-	$status = ucfirst ($status);
-	if ($reason != "") $reason = " - $reason";
-	fprintf ($file, "%s", "$test_name: $status $subject$reason\n");
+	fwrite ($file, $string);
 
 	// we frequently stop the test midway, but we want up to the minute results
 	fflush ($file);
@@ -244,6 +249,12 @@ function green_string()
 function red_string()
 {
 	return sprintf("%c[1;31m", 27);
+}
+
+function strip_colour	($string)
+{
+	$codes = array (red_string (), green_string (), blue_string (). reset_string ());
+	return str_replace ($codes, "", $string);
 }
 
 
