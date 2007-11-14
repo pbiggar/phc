@@ -11,9 +11,7 @@
 #include "AST_transform.h"
 #include "pass_manager/Pass_manager.h"
 
-using namespace AST;
-
-class Process_includes : public AST_transform, public Pass
+class Process_includes : public AST::AST_transform, public Pass
 {
 public:
 	// This means that the pass should try its hardest to include
@@ -23,15 +21,15 @@ public:
 	String* pass_name;
 	Pass_manager* pm;
 	Process_includes (bool definitive, String* pass_name, Pass_manager* pm, const char* name);
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		in->transform_children (this);
 	}
 	bool pass_is_enabled (Pass_manager* pm);
 
 public:
-	void pre_method(AST_method* in, List<AST_member*>* out);
-	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out);
+	void pre_method(AST::AST_method* in, List<AST::AST_member*>* out);
+	void pre_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
 
 };
 

@@ -8,9 +8,9 @@
 #ifndef PHC_CLARIFY_H
 #define PHC_CLARIFY_H
 
+#include "AST_visitor.h"
 
-
-class Clarify : public AST_visitor
+class Clarify : public AST::AST_visitor
 {
 	// TODO: deal with all superglobals 
 	// TODO: _ENV
@@ -25,18 +25,18 @@ class Clarify : public AST_visitor
 	// TODO: HTTP_POST_FILES
 	// TODO: _REQUEST
 
-	void post_method (AST_method* in)
+	void post_method (AST::AST_method* in)
 	{
-		AST_global* global = 
-			new AST_global (
-				new List<AST_variable_name*> (
-					new Token_variable_name (
+		AST::AST_global* global = 
+			new AST::AST_global (
+				new List<AST::AST_variable_name*> (
+					new AST::Token_variable_name (
 						new String ("GLOBALS"))));
 
 		if (in->statements)
 			in->statements->push_front (global);
 		else
-			in->statements = new List<AST_statement*> (global);
+			in->statements = new List<AST::AST_statement*> (global);
 	}
 };
 

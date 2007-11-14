@@ -25,13 +25,15 @@
 
 #include "ast_to_hir/AST_to_HIR.h"
 #include "process_hir/HIR_unparser.h"
-#include "process_ast/debug.h"
+#include "process_ir/debug.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
 #include "lib/List.h"
 #include "lib/demangle.h"
 #include <set>
+
+using namespace HIR;
 
 // A single pass isnt really sufficient, but we can hack around it
 // with a prologue and an epilogue.

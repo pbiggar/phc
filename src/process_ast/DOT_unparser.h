@@ -12,9 +12,7 @@
 #include <stack>
 #include <map>
 
-using namespace AST;
-
-class DOT_unparser : public virtual AST_visitor
+class DOT_unparser : public virtual AST::AST_visitor
 {
 private:
 	stack<int> node_stack;
@@ -25,11 +23,11 @@ public:
 	virtual ~DOT_unparser(); 
 
 public:
-	void visit_php_script(AST_php_script* in);
-	void pre_node(AST_node* in);
-	void post_node(AST_node* in);
-	void pre_literal(AST_literal* in);
-	void pre_identifier(AST_identifier* in);
+	void visit_php_script(AST::AST_php_script* in);
+	void pre_node(AST::AST_node* in);
+	void post_node(AST::AST_node* in);
+	void pre_literal(AST::AST_literal* in);
+	void pre_identifier(AST::AST_identifier* in);
 
 public:
 	void visit_marker(char const* name, bool value);

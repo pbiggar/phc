@@ -20,6 +20,8 @@
 #include <sstream>
 #include "Shredder.h"
 
+using namespace AST;
+
 // TODO if obfuscate is set, we should randomly rearrange the basic blocks
 
 #define BREAK_ATTR "phc.codegen.break_label"

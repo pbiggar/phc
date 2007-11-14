@@ -10,12 +10,11 @@
 
 #include "AST_transform.h"
 
-using namespace AST;
 
-class Remove_concat_null : public AST_transform
+class Remove_concat_null : public AST::AST_transform
 {
 public:
-	AST_expr* post_bin_op(AST_bin_op* in);
+	AST::AST_expr* post_bin_op(AST::AST_bin_op* in);
 };
 
 #endif // PHC_REMOVE_CONCAT_NULL

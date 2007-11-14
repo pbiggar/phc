@@ -12,16 +12,15 @@
 #include <set>
 #include "AST_visitor.h"
 
-using namespace AST;
 
-class Collect_all_pointers : virtual public AST_visitor 
+class Collect_all_pointers : virtual public AST::AST_visitor 
 {
 public:
 	list<Object*> all_pointers;
 	set<Object*> unique_pointers;
 
 public:
-	void pre_node(AST_node* in)
+	void pre_node(AST::AST_node* in)
 	{
 		all_pointers.push_back(in);
 		unique_pointers.insert(in);

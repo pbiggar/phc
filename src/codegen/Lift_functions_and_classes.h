@@ -11,9 +11,7 @@
 #include "AST_transform.h"
 #include "pass_manager/Pass_manager.h"
 
-using namespace AST;
-
-class Lift_functions_and_classes : public AST_transform, public Pass
+class Lift_functions_and_classes : public AST::AST_transform, public Pass
 {
 public:
 
@@ -22,7 +20,7 @@ public:
 		this->name = new String ("lfc");
 	}
 
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		if (pm->args_info->generate_c_flag
 			or pm->args_info->compile_flag)
@@ -30,7 +28,7 @@ public:
 			in->transform_children (this);
 		}
 	}
-	void children_php_script(AST_php_script* in);
+	void children_php_script(AST::AST_php_script* in);
 };
 
 #endif // PHC_LIFT_FUNCTIONS_AND_CLASSES

@@ -7,6 +7,8 @@
 
 #include "Check_uppering.h"
 
+using namespace AST;
+
 void Check_uppering::post_goto (AST_goto* in)
 {
 	assert (false);

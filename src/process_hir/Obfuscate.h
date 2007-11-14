@@ -10,7 +10,6 @@
 #ifndef PHC_OBFUSCATE_H
 #define PHC_OBFUSCATE_H
 
-#include "process_ast/PHP_unparser.h"
 #include "process_hir/Goto_uppering.h"
 #include "pass_manager/Pass_manager.h"
 
@@ -22,7 +21,7 @@ public:
 		name = new String ("obfuscate");
 	}
 
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		in = in->clone ();
 		in->visit (new Goto_uppering());

@@ -6,12 +6,13 @@
  * Transform the AST into 3AC-like code.
  */
 
+#include "Annotate.h"
 #include "Shredder.h"
+#include "Split_unset_isset.h"
+#include "Translate_empty.h"
 #include "fresh.h"
 
-/*
- * Remove unparser attributes and desugar
- */
+using namespace AST;
 
 /* Shred a list of statements */
 List<AST_statement*>* shred (List<AST_statement*>* in)

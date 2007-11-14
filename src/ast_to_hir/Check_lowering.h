@@ -11,21 +11,19 @@
 
 #include "AST_visitor.h"
 
-using namespace AST;
-
-class Check_lowering : public AST_visitor
+class Check_lowering : public AST::AST_visitor
 {
 	public:
-		void post_while(AST_while* in);
-		void post_do(AST_do* in);
-		void post_for(AST_for* in);
-		void post_foreach(AST_foreach* in);
-		void post_switch(AST_switch* in);
-		void post_if(AST_if* in);
-		void post_break(AST_break* in);
-		void post_continue(AST_continue* in);
-		void post_conditional_expr (AST_conditional_expr* in);
-		void post_bin_op (AST_bin_op* in);
+		void post_while(AST::AST_while* in);
+		void post_do(AST::AST_do* in);
+		void post_for(AST::AST_for* in);
+		void post_foreach(AST::AST_foreach* in);
+		void post_switch(AST::AST_switch* in);
+		void post_if(AST::AST_if* in);
+		void post_break(AST::AST_break* in);
+		void post_continue(AST::AST_continue* in);
+		void post_conditional_expr (AST::AST_conditional_expr* in);
+		void post_bin_op (AST::AST_bin_op* in);
 };
 
 #endif // PHC_CHECK_LOWERING_H

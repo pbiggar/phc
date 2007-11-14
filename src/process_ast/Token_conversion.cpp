@@ -23,6 +23,8 @@
  * parsing, and convert them to their semantic values using this transformation.
  */
 
+using namespace AST;
+
 AST_expr* Token_conversion::pre_int (Token_int* in)
 {
 	if (*in->source_rep == "__LINE__" or *in->source_rep == "__FILE__")

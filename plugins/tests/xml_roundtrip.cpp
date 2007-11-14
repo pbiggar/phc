@@ -7,11 +7,12 @@
 
 #include <iostream>
 #include "config.h"
-#include "process_ast/XML_unparser.h"
+#include "process_ir/XML_unparser.h"
 #include "parsing/XML_parser.h" 
 #include "pass_manager/Pass_manager.h" 
 
 using namespace std;
+using namespace AST;
 
 static bool success = true;
 static bool is_run = false;

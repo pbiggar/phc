@@ -12,6 +12,8 @@
 static bool success = true;
 static bool is_run = false;
 
+using namespace AST;
+
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_after_each_pass (pass);

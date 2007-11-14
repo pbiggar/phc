@@ -5,8 +5,8 @@
  * Convenience debugging functions.
  */
 
-#include "process_ast/debug.h"
-#include "process_ast/XML_unparser.h"
+#include "process_ir/debug.h"
+#include "process_ir/XML_unparser.h"
 
 /* Dump the XML for anynode to stderr. A global function. */
 // these are split so they're easy to call from the debugger

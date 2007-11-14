@@ -14,8 +14,6 @@
 
 #include "AST.h"
 
-using namespace AST;
-
 /*
  * Parse the specified file. Searches for the file in the current working
  * directory, and in any of the directories specified in dirs (if any). 
@@ -28,6 +26,6 @@ using namespace AST;
  *
  * If there is a syntax error, returns NULL.
  */ 
-AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
+AST::AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
 
 #endif // PHC_PARSE

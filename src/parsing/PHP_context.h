@@ -9,7 +9,6 @@
 #define PHC_PHP_CONTEXT
 
 #include "AST.h"
-using namespace AST;
 #include "lib/String.h"
 #include "lib/List.h"
 #include "php_parser.tab.hpp"
@@ -27,7 +26,7 @@ public:
  * State used by the parser
  */
 public:
-	AST_php_script* php_script;
+	AST::AST_php_script* php_script;
 	String* current_method;
 	String* current_class;
 	String* filename;
@@ -44,8 +43,8 @@ public:
 public:
 	long source_line;
 	List<String*> last_comments;
-	AST_commented_node* last_commented_node;
-  String* hash_bang;
+	AST::AST_commented_node* last_commented_node;
+	String* hash_bang;
 
 // Processing comments, HEREDOC strings and keywords
 public: 
@@ -60,7 +59,7 @@ public:
 // Buffers
 public:
 	string value_buffer;
-  string source_rep_buffer;
+	string source_rep_buffer;
 
 // Returning multiple tokens from a single production
 public:
@@ -78,8 +77,8 @@ public:
 
 	void schedule_return(long type, const char* lval = 0, long length = -1);
 	void schedule_return(long type, string& s);
-  void schedule_return_string();
-  void schedule_return_op(const char* op, const char* attr = NULL);
+	void schedule_return_string();
+	void schedule_return_op(const char* op, const char* attr = NULL);
 
 // Dealing with in-string syntax
 public:

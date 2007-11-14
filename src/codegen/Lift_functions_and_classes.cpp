@@ -8,6 +8,8 @@
 
 #include "Lift_functions_and_classes.h"
 
+using namespace AST;
+
 void Lift_functions_and_classes::children_php_script(AST_php_script* in)
 {
 	List<AST_statement*>* main = new List<AST_statement*>;

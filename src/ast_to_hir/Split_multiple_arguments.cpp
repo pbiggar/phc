@@ -9,6 +9,8 @@
 
 #include "Split_multiple_arguments.h"
 
+using namespace AST;
+
 void Split_multiple_arguments::pre_global(AST_global* in, List<AST_statement*>* out)
 {
 	List<AST_variable_name*>::const_iterator i;

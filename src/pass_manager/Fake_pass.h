@@ -12,7 +12,6 @@
 #ifndef PHC_FAKE_PASS_H
 #define PHC_FAKE_PASS_H
 
-#include "process_ast/PHP_unparser.h"
 #include "pass_manager/Pass_manager.h"
 
 class Fake_pass : public Pass
@@ -23,7 +22,7 @@ class Fake_pass : public Pass
 		this->name = new String (name);
 	}
 
-	void run (AST_php_script*, Pass_manager*) {}
+	void run (AST::AST_php_script*, Pass_manager*) {}
 };
 
 

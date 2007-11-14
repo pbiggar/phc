@@ -26,6 +26,8 @@
 #include "cmdline.h"
 extern struct gengetopt_args_info args_info;
 
+using namespace AST;
+
 #define ERR_XML_PARSE "Could not parse the XML (%s)"
 
 XERCES_CPP_NAMESPACE_USE

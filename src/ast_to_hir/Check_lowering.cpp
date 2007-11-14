@@ -8,6 +8,8 @@
 
 #include "Check_lowering.h"
 
+using namespace AST;
+
 void Check_lowering::post_while(AST_while* in)
 {
 	assert (false);

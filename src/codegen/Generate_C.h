@@ -16,9 +16,7 @@
 #include "HIR_visitor.h"
 #include "pass_manager/Pass_manager.h"
 
-using namespace HIR;
-
-class Generate_C : public HIR_visitor, public Pass
+class Generate_C : public HIR::HIR_visitor, public Pass
 {
 public:
 
@@ -28,15 +26,15 @@ public:
 	Generate_C(ostream&);
 
 public:
-	void children_statement(HIR_statement* in);
-	void pre_php_script(HIR_php_script* in);
-	void post_php_script(HIR_php_script* in);
+	void children_statement(HIR::HIR_statement* in);
+	void pre_php_script(HIR::HIR_php_script* in);
+	void post_php_script(HIR::HIR_php_script* in);
 	bool pass_is_enabled (Pass_manager* pm);
 
 public:
 	String* extension_name;
 	bool is_extension;
-	List<HIR_signature*>* methods;	// List of all methods compiled	
+	List<HIR::HIR_signature*>* methods;	// List of all methods compiled	
 	bool return_by_reference; 		// current methods returns by reference	
 };
 

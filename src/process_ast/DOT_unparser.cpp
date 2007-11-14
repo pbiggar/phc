@@ -11,6 +11,7 @@
 #include "cmdline.h"
 
 using namespace std;
+using namespace AST;
 
 extern struct gengetopt_args_info args_info;
 

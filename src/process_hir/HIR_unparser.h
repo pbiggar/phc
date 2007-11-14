@@ -9,7 +9,7 @@
 #define PHC_HIR_UNPARSER
 
 #include "HIR_visitor.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ir/PHP_unparser.h"
 
 void debug (HIR::HIR_node* in);
 

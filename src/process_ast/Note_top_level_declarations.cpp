@@ -8,6 +8,8 @@
 
 #include "Note_top_level_declarations.h"
 
+using namespace AST;
+
 /* PHP treats top level class and function declarations as if they are declared
  * immediately upon loading the script. Dynamic declarations, however, are only
  * loaded when the statement is executed. We mark top-level statements now,

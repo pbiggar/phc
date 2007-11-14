@@ -9,6 +9,8 @@
 #include "Lower_expr.h"
 #include "fresh.h"
 
+using namespace AST;
+
 void Lower_expr::children_php_script(AST_php_script* in)
 {
 	pieces = new List<AST_statement*>;

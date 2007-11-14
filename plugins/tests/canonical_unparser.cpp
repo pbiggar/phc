@@ -9,6 +9,9 @@
 
 #include "process_ast/AST_unparser.h" 
 #include "pass_manager/Pass_manager.h" 
+
+using namespace AST;
+
 class Clear_user_syntax : public virtual AST_visitor
 {
 	void pre_node (AST_node* in)

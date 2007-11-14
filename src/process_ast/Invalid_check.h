@@ -14,13 +14,11 @@
 #include "AST_visitor.h"
 #include "pass_manager/Pass_manager.h"
 
-using namespace AST;
-
 // Returns true if IN is not allowed be on the RHS of a reference assignment.
-bool is_ref_literal (AST_expr* in);
-void check (AST_node* in, bool use_ice);
+bool is_ref_literal (AST::AST_expr* in);
+void check (AST::AST_node* in, bool use_ice);
 
-class Invalid_check : public AST_visitor, public Pass
+class Invalid_check : public AST::AST_visitor, public Pass
 {
 public:
 
@@ -39,18 +37,18 @@ public:
 	}*/
 
 	// decide the error based on whether USE_ICE is set
-	void error (const char* message, AST_node* node);
-	void run (AST_php_script*, Pass_manager*);
+	void error (const char* message, AST::AST_node* node);
+	void run (AST::AST_php_script*, Pass_manager*);
 
-	void pre_statement (AST_statement* in);
-	void pre_assignment (AST_assignment* in);
-	void pre_foreach (AST_foreach* in);
-	void pre_interface_def (AST_interface_def* in);
-	void pre_directive (AST_directive *in);
-	void pre_formal_parameter (AST_formal_parameter* in);
-	void pre_method_invocation (AST_method_invocation* in);
-	void pre_array_elem (AST_array_elem* in);
-	void pre_name_with_default (AST_name_with_default* var);
+	void pre_statement (AST::AST_statement* in);
+	void pre_assignment (AST::AST_assignment* in);
+	void pre_foreach (AST::AST_foreach* in);
+	void pre_interface_def (AST::AST_interface_def* in);
+	void pre_directive (AST::AST_directive *in);
+	void pre_formal_parameter (AST::AST_formal_parameter* in);
+	void pre_method_invocation (AST::AST_method_invocation* in);
+	void pre_array_elem (AST::AST_array_elem* in);
+	void pre_name_with_default (AST::AST_name_with_default* var);
 };
 
 #endif // PHC_INVALID_CHECK

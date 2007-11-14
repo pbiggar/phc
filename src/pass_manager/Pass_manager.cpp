@@ -12,9 +12,11 @@
 #include "process_ast/Invalid_check.h"
 #include "process_ast/AST_unparser.h"
 #include "process_ast/DOT_unparser.h"
-#include "process_ast/debug.h"
+#include "process_ir/debug.h"
 #include "process_hir/Goto_uppering.h"
 #include "Pass_manager.h"
+
+using namespace AST;
 
 Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)
 {

@@ -7,10 +7,11 @@
 
 
 #include "AST_visitor.h"
-#include "process_ast/XML_unparser.h"
 #include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 #include "lib/List.h"
+
+using namespace AST;
 
 // search for scripts that are "pure"; ie have no side effects
 class Purity_test : public AST_visitor

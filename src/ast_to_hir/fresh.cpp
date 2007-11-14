@@ -10,6 +10,8 @@
 #include <ctime>
 #include "cmdline.h"
 
+using namespace AST;
+
 // TODO Globals. Bad. Do this another way.
 extern struct gengetopt_args_info args_info;
 

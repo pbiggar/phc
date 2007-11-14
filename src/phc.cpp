@@ -5,35 +5,41 @@
  * Main application module 
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <ltdl.h>
-#include "cmdline.h"
 #include "AST.h"
-#include "parsing/parse.h"
-#include "embed/embed.h"
-#include "process_ast/Invalid_check.h"
-#include "process_ast/Pretty_print.h"
-#include "process_ast/PHP_unparser.h"
-#include "process_ast/XML_unparser.h"
-#include "process_ast/DOT_unparser.h"
-#include "process_ast/Remove_concat_null.h"
-#include "process_ast/Process_includes.h"
-#include "process_ast/Note_top_level_declarations.h"
 #include "ast_to_hir/Lower_control_flow.h"
 #include "ast_to_hir/Lower_expr_flow.h"
 #include "ast_to_hir/Shredder.h"
 #include "ast_to_hir/Split_multiple_arguments.h"
-#include "process_hir/Obfuscate.h"
-#include "codegen/Strip_comments.h"
+#include "ast_to_hir/Split_unset_isset.h"
+#include "ast_to_hir/Translate_empty.h"
+#include "ast_to_hir/Echo_split.h"
+#include "ast_to_hir/Pre_post_op_shredder.h"
+#include "ast_to_hir/Desugar.h"
+#include "ast_to_hir/List_shredder.h"
+#include "ast_to_hir/Tidy_print.h"
+#include "cmdline.h"
+#include "codegen/Clarify.h"
+#include "codegen/Compile_C.h"
+#include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Prune_symbol_table.h"
-#include "codegen/Clarify.h"
-#include "codegen/Generate_C.h"
-#include "codegen/Compile_C.h"
+#include "codegen/Strip_comments.h"
+#include "embed/embed.h"
+#include <ltdl.h>
+#include "parsing/parse.h"
 #include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
+#include "process_ast/DOT_unparser.h"
+#include "process_ast/Invalid_check.h"
+#include "process_ast/Note_top_level_declarations.h"
+#include "process_ast/Pretty_print.h"
+#include "process_ast/Process_includes.h"
+#include "process_ast/Remove_concat_null.h"
+#include "process_hir/Obfuscate.h"
+#include "process_ir/XML_unparser.h"
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -71,7 +77,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	AST_php_script* php_script = NULL;
+	AST::AST_php_script* php_script = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();

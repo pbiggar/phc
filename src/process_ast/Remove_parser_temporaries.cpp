@@ -5,6 +5,8 @@
 
 #include "Remove_parser_temporaries.h"
 
+using namespace AST;
+
 void Remove_parser_temporaries::pre_node(AST_node* in)
 {
 	in->attrs->erase("phc.parser.is_ref");

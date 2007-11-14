@@ -15,7 +15,9 @@
 #include "lib/error.h"
 #include "ast_to_hir/fresh.h"
 #include "parsing/parse.h"
-#include "process_ast/PHP_unparser.h"
+#include "process_ir/PHP_unparser.h"
+
+using namespace AST;
 
 /*
  * The include functionality is described in http://php.net/include/. 

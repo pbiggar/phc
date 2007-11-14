@@ -7,6 +7,8 @@
 
 #include "Remove_concat_null.h" 
 
+using namespace AST;
+
 AST_expr* Remove_concat_null::post_bin_op(AST_bin_op* in)
 {
 	Token_string* empty = new Token_string(new String(""), new String(""));

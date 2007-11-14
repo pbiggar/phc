@@ -6,12 +6,13 @@
  */
 
 #include "AST_transform.h"
-#include "process_ast/XML_unparser.h"
 #include "process_ast/AST_unparser.h"
 #include "pass_manager/Pass_manager.h"
 #include "ast_to_hir/Shredder.h"
 #include "ast_to_hir/fresh.h"
 #include "lib/List.h"
+
+using namespace AST;
 
 class Demi_eval : public AST_transform
 {

@@ -9,6 +9,8 @@
  */
 #include "Invalid_check.h"
 
+using namespace AST;
+
 void check (AST_node* in, bool use_ice)
 {
 	// check validity

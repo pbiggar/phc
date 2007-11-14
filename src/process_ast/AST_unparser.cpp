@@ -18,6 +18,7 @@
 extern struct gengetopt_args_info args_info;
 
 using namespace std;
+using namespace AST;
 
 /*
  * Convenient access to the unparser

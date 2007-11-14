@@ -1,6 +1,8 @@
 #include "Goto_uppering.h"
 #include "ast_to_hir/Check_uppering.h"
 
+using namespace AST;
+
 Goto_uppering::Goto_uppering ()
 {
 	next = new AST_variable (NULL, new Token_variable_name (new String ("__next")), new List<AST_expr*>);

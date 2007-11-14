@@ -23,7 +23,7 @@ public:
 		this->name = new String ("pretty-print");
 	}
 
-	void run (AST_php_script* in, Pass_manager* pm)
+	void run (AST::AST_php_script* in, Pass_manager* pm)
 	{
 		in->visit (new AST_unparser ());
 	}

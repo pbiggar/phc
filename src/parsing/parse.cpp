@@ -20,6 +20,8 @@
 
 extern struct gengetopt_args_info args_info;
 
+using namespace AST;
+
 String* search_file(String* filename, List<String*>* dirs);
 void run_standard_transforms(AST_php_script* php_script);
 

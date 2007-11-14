@@ -5,7 +5,8 @@
 
 #include "pass_manager/Pass_manager.h"
 #include "parsing/parse.h"
-#include "process_ast/XML_unparser.h"
+
+using namespace AST;
 
 class Expand_includes : public AST_transform
 {

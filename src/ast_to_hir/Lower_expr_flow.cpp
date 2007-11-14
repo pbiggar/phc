@@ -8,6 +8,8 @@
 #include "Lower_expr_flow.h"
 #include "fresh.h"
 
+using namespace AST;
+
 /*
  * Binary operator
  *
