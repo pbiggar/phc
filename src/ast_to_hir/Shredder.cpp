@@ -194,6 +194,11 @@ AST_expr* Shredder::post_method_invocation(AST_method_invocation* in)
 	return eval(in);
 }
 
+AST_expr* Shredder::post_new (AST_new* in)
+{
+	return eval(in);
+}
+
 /*
  * Literals
  */

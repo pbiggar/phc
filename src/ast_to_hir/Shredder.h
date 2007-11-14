@@ -22,6 +22,7 @@ public:
 
 public:
 	AST::AST_variable* post_variable(AST::AST_variable* in);
+	AST::AST_expr* post_new (AST::AST_new* in);
 	AST::AST_expr* post_bin_op(AST::AST_bin_op* in);
 	AST::AST_expr* post_unary_op(AST::AST_unary_op* in);
 	AST::AST_expr* post_cast(AST::AST_cast* in);
