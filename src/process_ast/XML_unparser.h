@@ -8,8 +8,6 @@
 #ifndef PHC_XML_UNPARSER
 #define PHC_XML_UNPARSER
 
-
-
 #include <iostream>
 #include "lib/base64.h"
 #include "lib/demangle.h"
@@ -40,6 +38,7 @@ protected:
 		for(int i = 0; i < indent; i++)
 			os << args_info.tab_arg;
 	}
+
 	bool needs_encoding(String* str)
 	{
 		String::const_iterator i;
@@ -65,9 +64,13 @@ public:
 	{
 		indent = 0;
 	}
-	virtual ~XML_unparser() {}
+
+	virtual ~XML_unparser() 
+	{
+	}
 
 public:
+
 	void visit_marker(char const* name, bool value)
 	{
 		print_indent();
@@ -103,6 +106,7 @@ public:
 	}
 
 public:
+
 	void pre_node(Node* in)
 	{
 		bool is_root = dynamic_cast<Script*>(in);
@@ -261,6 +265,14 @@ class AST_XML_unparser : public XML_unparser
 {
 public:
 	AST_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	: XML_unparser<
+			AST::AST_php_script,
+			AST::AST_node,
+			AST::AST_visitor, 
+			AST::AST_identifier, 
+			AST::AST_literal,
+			AST::Token_null
+		> (os, print_attrs)
 	{
 	}
 };
@@ -278,6 +290,15 @@ class HIR_XML_unparser : public XML_unparser
 {
 public:
 	HIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	: XML_unparser<
+			HIR::HIR_php_script,
+			HIR::HIR_node,
+			HIR::HIR_visitor, 
+			HIR::HIR_identifier, 
+			HIR::HIR_literal,
+			HIR::Token_null
+		> (os, print_attrs)
+
 	{
 	}
 };
