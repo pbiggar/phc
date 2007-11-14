@@ -292,7 +292,9 @@ void index_lhs (Scope scope, string zvp, HIR_variable* var)
 /* wrappers */
 void index_lhs (Scope scope, string zvp, HIR_expr* expr)
 {
-	index_lhs (scope, zvp, dynamic_cast<HIR_variable*> (expr));
+	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
+	assert (var);
+	index_lhs (scope, zvp, var);
 }
 void index_lhs (Scope scope, string zvp, Token_variable_name* var_name)
 {
@@ -392,7 +394,9 @@ void read (Scope scope, string zvp, HIR_variable* var)
 /* wrappers */
 void read (Scope scope, string zvp, HIR_expr* expr)
 {
-	read (scope, zvp, dynamic_cast<HIR_variable*> (expr));
+	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
+	assert (var);
+	read (scope, zvp, var);
 }
 
 void read (Scope scope, string zvp, Token_variable_name* var_name)
@@ -1060,14 +1064,13 @@ class Assign_string : public Assign_literal<Token_string, string>
 };
 
 
-class Copy : public Assignment
+class Assign_var : public Assignment
 {
 public:
-	bool fixed () { return true; }
 	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<Token_variable_name>;
-		return new HIR_variable (rhs);
+		rhs = new Wildcard<HIR_variable>;
+		return rhs;
 	}
 
 	void generate_rhs (bool used)
@@ -1100,10 +1103,10 @@ public:
 	}
 
 protected:
-	Wildcard<Token_variable_name>* rhs;
+	Wildcard<HIR_variable>* rhs;
 };
 
-class Cast : public Copy
+class Cast : public Assignment
 {
 public:
 	HIR_expr* rhs_pattern()
@@ -1117,7 +1120,31 @@ public:
 	{
 		assert (agn->is_ref == false);
 		assert (used);
-		Copy::generate_rhs (used);
+
+		// this much copied from Assign_var
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+			read (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			index_lhs (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
+		// as far as here
+
 		if (*cast->value->value == "string")
 			code << "cast_var (p_lhs, IS_STRING);\n";
 		else if (*cast->value->value == "int")
@@ -1136,6 +1163,7 @@ public:
 
 public:
 	Wildcard<Token_cast>* cast;
+	Wildcard<Token_variable_name>* rhs;
 };
 
 class Global : public Pattern 
@@ -1950,7 +1978,7 @@ void Generate_C::children_statement(HIR_statement* in)
 	,	new Assign_real ()
 	,	new Assign_null ()
 	,	new Assign_constant ()
-	,	new Copy()
+	,	new Assign_var ()
 	,	new Global()
 	,	new Eval()
 	,	new Exit()
