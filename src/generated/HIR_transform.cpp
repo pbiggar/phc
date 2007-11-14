@@ -631,20 +631,20 @@ void HIR_transform::children_assignment(HIR_assignment* in)
 void HIR_transform::children_cast(HIR_cast* in)
 {
     in->cast = transform_cast(in->cast);
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void HIR_transform::children_unary_op(HIR_unary_op* in)
 {
     in->op = transform_op(in->op);
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void HIR_transform::children_bin_op(HIR_bin_op* in)
 {
-    in->left = transform_expr(in->left);
+    in->left = transform_variable_name(in->left);
     in->op = transform_op(in->op);
-    in->right = transform_expr(in->right);
+    in->right = transform_variable_name(in->right);
 }
 
 void HIR_transform::children_constant(HIR_constant* in)
@@ -655,7 +655,7 @@ void HIR_transform::children_constant(HIR_constant* in)
 
 void HIR_transform::children_instanceof(HIR_instanceof* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
     in->class_name = transform_class_name(in->class_name);
 }
 
@@ -668,7 +668,7 @@ void HIR_transform::children_variable(HIR_variable* in)
 
 void HIR_transform::children_reflection(HIR_reflection* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void HIR_transform::children_pre_op(HIR_pre_op* in)

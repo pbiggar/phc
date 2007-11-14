@@ -25,6 +25,7 @@
 
 #include "ast_to_hir/AST_to_HIR.h"
 #include "process_hir/HIR_unparser.h"
+#include "process_ast/debug.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
@@ -217,16 +218,12 @@ Token_variable_name* get_var_name (HIR_expr* var_expr)
 
 Token_variable_name* get_var_name (HIR_reflection* var_refl)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (var_refl->expr);
-	assert (var);
-	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
-	return name;
+	return var_refl->variable_name;
 }
 
 
-void index_lhs (Scope scope, string zvp, HIR_expr* expr)
+void index_lhs (Scope scope, string zvp, HIR_variable* var)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
 	Token_variable_name* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
@@ -292,18 +289,24 @@ void index_lhs (Scope scope, string zvp, HIR_expr* expr)
 	}
 }
 
-/* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (Scope scope, string zvp, HIR_expr* expr)
+/* wrappers */
+void index_lhs (Scope scope, string zvp, HIR_expr* expr)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
-	assert (var);
+	index_lhs (scope, zvp, dynamic_cast<HIR_variable*> (expr));
+}
+void index_lhs (Scope scope, string zvp, Token_variable_name* var_name)
+{
+	index_lhs (scope, zvp, new HIR_variable (NULL, var_name, new List<HIR_expr*>));
+}
+
+
+/* Generate code to read the variable named in VAR to the zval* ZVP */
+void read (Scope scope, string zvp, HIR_variable* var)
+{
+	// TODO: deal with object indexing
 	assert(var->target == NULL);
 
-	// Variable variable or ordinary variable?
-	Token_variable_name* var_name = get_var_name (expr);
-
-	// TODO: deal with object indexing
-
+	HIR_variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
 	{
 		if (var->array_indices->size() == 1)
@@ -385,6 +388,19 @@ void read (Scope scope, string zvp, HIR_expr* expr)
 		}
 	}
 }
+
+/* wrappers */
+void read (Scope scope, string zvp, HIR_expr* expr)
+{
+	read (scope, zvp, dynamic_cast<HIR_variable*> (expr));
+}
+
+void read (Scope scope, string zvp, Token_variable_name* var_name)
+{
+	read (scope, zvp, new HIR_variable (NULL, var_name, new List<HIR_expr*>));
+}
+
+
 
 // Implementation of "global" (used in various places)
 void global (HIR_variable_name* var_name)
@@ -1050,8 +1066,8 @@ public:
 	bool fixed () { return true; }
 	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<HIR_variable>;
-		return rhs;
+		rhs = new Wildcard<Token_variable_name>;
+		return new HIR_variable (rhs);
 	}
 
 	void generate_rhs (bool used)
@@ -1084,7 +1100,7 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* rhs;
+	Wildcard<Token_variable_name>* rhs;
 };
 
 class Cast : public Copy
@@ -1092,7 +1108,7 @@ class Cast : public Copy
 public:
 	HIR_expr* rhs_pattern()
 	{
-		rhs = new Wildcard<HIR_variable>;
+		rhs = new Wildcard<Token_variable_name>;
 		cast = new Wildcard<Token_cast>;
 		return new HIR_cast (cast, rhs);
 	}
@@ -1584,9 +1600,9 @@ class Bin_op : public Assignment
 public:
 	HIR_expr* rhs_pattern()
 	{
-		left = new Wildcard<HIR_variable>;
+		left = new Wildcard<Token_variable_name>;
 		op = new Wildcard<Token_op>;
-		right = new Wildcard<HIR_variable>;
+		right = new Wildcard<Token_variable_name>;
 
 		return new HIR_bin_op (left, op, right); 
 	}
@@ -1599,8 +1615,8 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "left", get_var_name (left->value));
-		read_simple (LOCAL, "right", get_var_name (right->value));
+		read_simple (LOCAL, "left", left->value);
+		read_simple (LOCAL, "right", right->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1628,9 +1644,9 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* left;
+	Wildcard<Token_variable_name>* left;
 	Wildcard<Token_op>* op;
-	Wildcard<HIR_variable>* right;
+	Wildcard<Token_variable_name>* right;
 };
 
 class Pre_op : public Assignment
@@ -1670,9 +1686,9 @@ public:
 	HIR_expr* rhs_pattern()
 	{
 		op = new Wildcard<Token_op>;
-		expr = new Wildcard<HIR_variable>;
+		var_name = new Wildcard<Token_variable_name>;
 
-		return new HIR_unary_op(op, expr);
+		return new HIR_unary_op(op, var_name);
 	}
 
 	void generate_rhs (bool used)
@@ -1683,7 +1699,7 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "expr", get_var_name (expr->value));
+		read_simple (LOCAL, "expr", var_name);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1705,7 +1721,7 @@ public:
 
 protected:
 	Wildcard<Token_op>* op;
-	Wildcard<HIR_variable>* expr;
+	Wildcard<Token_variable_name>* var_name;
 };
 
 class Return : public Pattern
@@ -1965,8 +1981,8 @@ void Generate_C::children_statement(HIR_statement* in)
 	if(not matched)
 	{
 		cerr << "could not generate code for " << demangle(in) << endl;
-		//debug (in);
-		//xdebug (in);
+		debug (in);
+		xdebug (in);
 		abort();
 	}
 }

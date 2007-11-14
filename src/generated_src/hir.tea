@@ -110,25 +110,21 @@ assignment ::= variable is_ref:"&"? expr ;
 -- variable_variable ::= VARIABLE_NAME ; 
 
 
-cast ::= CAST expr ;
-unary_op ::= OP expr ;
-bin_op ::= left:expr OP right:expr ;
--- cast     ::= CAST VARIABLE_NAME ;
--- unary_op ::= OP VARIABLE_NAME ;
--- bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
+cast     ::= CAST VARIABLE_NAME ;
+unary_op ::= OP VARIABLE_NAME ;
+bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
 
 
 constant ::= CLASS_NAME? CONSTANT_NAME ;
 
-instanceof ::= expr class_name ;
--- instanceof ::= VARIABLE_NAME class_name ;
+instanceof ::= VARIABLE_NAME class_name ;
 
 variable ::= target? variable_name array_indices:expr?* ;
 variable_name ::= VARIABLE_NAME | reflection ;
-reflection ::= expr ;
+reflection ::= VARIABLE_NAME ;
 
 target ::= expr | CLASS_NAME ;
--- target ::= VARIABLE_NAME | CLASS_NAME ;
+-- target ::= VARIABLE_NAME | CLASS_NAME;
 
 pre_op ::= OP variable ;
 
@@ -137,14 +133,12 @@ array_elem ::= key:expr? is_ref:"&"? val:expr ;
 
 method_invocation ::= target? method_name actual_parameter* ;
 method_name ::= METHOD_NAME | reflection ;
--- method_name ::= METHOD_NAME | VARIABLE_NAME ;
 
 actual_parameter ::= is_ref:"&"? expr ;
 -- actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
 
 new ::= class_name actual_parameter* ;
 class_name ::= CLASS_NAME | reflection ;
--- class_name ::= CLASS_NAME | VARIABLE_NAME ;
 
 -- static_value ::= literal | static_array | constant ;
  
@@ -475,7 +469,7 @@ public:
 class HIR_bin_op
 {
 public:
-	HIR_bin_op(HIR_expr* left, HIR_expr* right, const char* op) 
+	HIR_bin_op(Token_variable_name* left, Token_variable_name* right, const char* op) 
 	{
 		this->left = left;
 		this->op = new Token_op(new String(op));
@@ -496,9 +490,9 @@ public:
 class HIR_unary_op
 {
 public:
-	HIR_unary_op(HIR_expr* expr, const char* op) 
+	HIR_unary_op(Token_variable_name* variable_name, const char* op) 
 	{
-		this->expr = expr;
+		this->variable_name = variable_name;
 		this->op = new Token_op(new String(op));
 	}
 };
@@ -506,10 +500,10 @@ public:
 class HIR_cast
 {
 public:
-	HIR_cast(const char* cast, HIR_expr* expr) 
+	HIR_cast(const char* cast, Token_variable_name* variable_name) 
 	{
 		this->cast = new Token_cast(new String(cast));
-		this->expr = expr;
+		this->variable_name = variable_name;
 	}
 };
 

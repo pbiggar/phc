@@ -931,15 +931,15 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// reflection ::= expr ;
+// reflection ::= VARIABLE_NAME ;
 class HIR_reflection : virtual public HIR_variable_name, virtual public HIR_method_name, virtual public HIR_class_name
 {
 public:
-    HIR_reflection(HIR_expr* expr);
+    HIR_reflection(Token_variable_name* variable_name);
 protected:
     HIR_reflection();
 public:
-    HIR_expr* expr;
+    Token_variable_name* variable_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1206,16 +1206,16 @@ public:
     virtual void assert_valid();
 };
 
-// cast ::= CAST expr ;
+// cast ::= CAST VARIABLE_NAME ;
 class HIR_cast : virtual public HIR_expr
 {
 public:
-    HIR_cast(Token_cast* cast, HIR_expr* expr);
+    HIR_cast(Token_cast* cast, Token_variable_name* variable_name);
 protected:
     HIR_cast();
 public:
     Token_cast* cast;
-    HIR_expr* expr;
+    Token_variable_name* variable_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1231,19 +1231,19 @@ public:
 public:
     virtual void assert_valid();
 public:
-    HIR_cast(const char* cast, HIR_expr* expr);
+    HIR_cast(const char* cast, Token_variable_name* variable_name);
 };
 
-// unary_op ::= OP expr ;
+// unary_op ::= OP VARIABLE_NAME ;
 class HIR_unary_op : virtual public HIR_expr
 {
 public:
-    HIR_unary_op(Token_op* op, HIR_expr* expr);
+    HIR_unary_op(Token_op* op, Token_variable_name* variable_name);
 protected:
     HIR_unary_op();
 public:
     Token_op* op;
-    HIR_expr* expr;
+    Token_variable_name* variable_name;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1259,20 +1259,20 @@ public:
 public:
     virtual void assert_valid();
 public:
-    HIR_unary_op(HIR_expr* expr, const char* op);
+    HIR_unary_op(Token_variable_name* variable_name, const char* op);
 };
 
-// bin_op ::= left:expr OP right:expr ;
+// bin_op ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ;
 class HIR_bin_op : virtual public HIR_expr
 {
 public:
-    HIR_bin_op(HIR_expr* left, Token_op* op, HIR_expr* right);
+    HIR_bin_op(Token_variable_name* left, Token_op* op, Token_variable_name* right);
 protected:
     HIR_bin_op();
 public:
-    HIR_expr* left;
+    Token_variable_name* left;
     Token_op* op;
-    HIR_expr* right;
+    Token_variable_name* right;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1288,7 +1288,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    HIR_bin_op(HIR_expr* left, HIR_expr* right, const char* op);
+    HIR_bin_op(Token_variable_name* left, Token_variable_name* right, const char* op);
 };
 
 // constant ::= CLASS_NAME? CONSTANT_NAME ;
@@ -1317,15 +1317,15 @@ public:
     virtual void assert_valid();
 };
 
-// instanceof ::= expr class_name ;
+// instanceof ::= VARIABLE_NAME class_name ;
 class HIR_instanceof : virtual public HIR_expr
 {
 public:
-    HIR_instanceof(HIR_expr* expr, HIR_class_name* class_name);
+    HIR_instanceof(Token_variable_name* variable_name, HIR_class_name* class_name);
 protected:
     HIR_instanceof();
 public:
-    HIR_expr* expr;
+    Token_variable_name* variable_name;
     HIR_class_name* class_name;
 public:
     virtual void visit(HIR_visitor* visitor);

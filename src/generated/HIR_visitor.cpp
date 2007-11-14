@@ -629,20 +629,20 @@ void HIR_visitor::children_assignment(HIR_assignment* in)
 void HIR_visitor::children_cast(HIR_cast* in)
 {
     visit_cast(in->cast);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void HIR_visitor::children_unary_op(HIR_unary_op* in)
 {
     visit_op(in->op);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void HIR_visitor::children_bin_op(HIR_bin_op* in)
 {
-    visit_expr(in->left);
+    visit_variable_name(in->left);
     visit_op(in->op);
-    visit_expr(in->right);
+    visit_variable_name(in->right);
 }
 
 void HIR_visitor::children_constant(HIR_constant* in)
@@ -653,7 +653,7 @@ void HIR_visitor::children_constant(HIR_constant* in)
 
 void HIR_visitor::children_instanceof(HIR_instanceof* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_class_name(in->class_name);
 }
 
@@ -666,7 +666,7 @@ void HIR_visitor::children_variable(HIR_variable* in)
 
 void HIR_visitor::children_reflection(HIR_reflection* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void HIR_visitor::children_pre_op(HIR_pre_op* in)

@@ -16,6 +16,7 @@
 extern struct gengetopt_args_info args_info;
 
 using namespace std;
+using namespace HIR;
 
 void debug (HIR_node *in)
 {
@@ -280,22 +281,22 @@ void HIR_unparser::children_cast(HIR_cast* in)
 	echo("(");
 	visit_cast(in->cast);
 	echo(") ");
-	visit_expr(in->expr);
+	visit_variable_name(in->variable_name);
 }
 
 void HIR_unparser::children_unary_op(HIR_unary_op* in)
 {
 	visit_op(in->op);
-	visit_expr(in->expr);
+	visit_variable_name(in->variable_name);
 }
 
 void HIR_unparser::children_bin_op(HIR_bin_op* in)
 {
-	visit_expr(in->left);
+	visit_variable_name(in->left);
 	if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
 	visit_op(in->op);
 	echo(" ");
-	visit_expr(in->right);
+	visit_variable_name(in->right);
 }
 
 void HIR_unparser::children_constant(HIR_constant* in)
@@ -311,7 +312,7 @@ void HIR_unparser::children_constant(HIR_constant* in)
 
 void HIR_unparser::children_instanceof(HIR_instanceof* in)
 {
-	visit_expr(in->expr);
+	visit_variable_name(in->variable_name);
 	echo(" instanceof ");
 	visit_class_name(in->class_name);
 }
@@ -319,7 +320,6 @@ void HIR_unparser::children_instanceof(HIR_instanceof* in)
 void HIR_unparser::children_variable(HIR_variable* in)
 {
 	HIR_reflection* reflection;
-	HIR_variable* name = NULL;
 
 	if(in->target != NULL)
 	{
@@ -345,7 +345,8 @@ void HIR_unparser::children_variable(HIR_variable* in)
 	
 	if(reflection)
 	{
-		name = dynamic_cast<HIR_variable*>(reflection->expr);
+//		TODO this doesnt do anything. Bug?
+//		name = dynamic_cast<HIR_variable*>(reflection->expr);
 		visit_variable_name(in->variable_name);
 	}
 	else
@@ -373,7 +374,7 @@ void HIR_unparser::children_variable(HIR_variable* in)
 
 void HIR_unparser::children_reflection(HIR_reflection* in)
 {
-	visit_expr(in->expr);
+	visit_variable_name (in->variable_name);
 }
 
 void HIR_unparser::children_pre_op(HIR_pre_op* in)
@@ -665,13 +666,7 @@ void HIR_unparser::pre_node(HIR_node* in)
  * ok, and anything else requires curlies. */
 bool needs_curlies (HIR_reflection* in)
 {
-	HIR_variable* var = dynamic_cast <HIR_variable*> (in->expr);
-	if (var 
-		&& var->target == NULL
-		&& var->array_indices->size() == 0)
-		return false;
-
-	return true;
+	return false;
 }
 
 void HIR_unparser::pre_variable (HIR_variable* in)
@@ -679,7 +674,7 @@ void HIR_unparser::pre_variable (HIR_variable* in)
 	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->variable_name);
 	if (reflect && 
 			(needs_curlies (reflect) || in->array_indices->size () > 0))
-		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+		assert (0); // this shouldnt be possible anymore
 }
 
 void HIR_unparser::pre_method_invocation (HIR_method_invocation* in)
@@ -687,14 +682,14 @@ void HIR_unparser::pre_method_invocation (HIR_method_invocation* in)
 	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->method_name);
 	if (in->target
 			&& reflect && needs_curlies (reflect))
-		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+		assert (0); // this shouldnt be possible anymore
 }
 
 void HIR_unparser::pre_global (HIR_global* in)
 {
 	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->variable_name);
 	if (reflect && needs_curlies (reflect))
-		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
+		assert (0); // this shouldnt be possible anymore
 }
 
 void HIR_unparser::pre_expr(HIR_expr* in)

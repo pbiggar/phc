@@ -186,22 +186,22 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "HIR_cast"))
     {
     	Token_cast* cast = dynamic_cast<Token_cast*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_cast(cast, expr);
+    	return new HIR_cast(cast, variable_name);
     }
     if(!strcmp(type_id, "HIR_unary_op"))
     {
     	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_unary_op(op, expr);
+    	return new HIR_unary_op(op, variable_name);
     }
     if(!strcmp(type_id, "HIR_bin_op"))
     {
-    	HIR_expr* left = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* left = dynamic_cast<Token_variable_name*>(*i++);
     	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	HIR_expr* right = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* right = dynamic_cast<Token_variable_name*>(*i++);
     	assert(i == args->end());
     	return new HIR_bin_op(left, op, right);
     }
@@ -214,10 +214,10 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "HIR_instanceof"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
     	HIR_class_name* class_name = dynamic_cast<HIR_class_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_instanceof(expr, class_name);
+    	return new HIR_instanceof(variable_name, class_name);
     }
     if(!strcmp(type_id, "HIR_variable"))
     {
@@ -229,9 +229,9 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "HIR_reflection"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_reflection(expr);
+    	return new HIR_reflection(variable_name);
     }
     if(!strcmp(type_id, "HIR_pre_op"))
     {

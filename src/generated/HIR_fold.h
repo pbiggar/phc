@@ -343,28 +343,28 @@ public:
 	{
 		_Token_cast cast = 0;
 		if(in->cast != NULL) cast = fold_cast(in->cast);
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_cast(in, cast, expr);
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_cast(in, cast, variable_name);
 	}
 
 	virtual _HIR_unary_op fold_unary_op(HIR_unary_op* in)
 	{
 		_Token_op op = 0;
 		if(in->op != NULL) op = fold_op(in->op);
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_unary_op(in, op, expr);
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_unary_op(in, op, variable_name);
 	}
 
 	virtual _HIR_bin_op fold_bin_op(HIR_bin_op* in)
 	{
-		_HIR_expr left = 0;
-		if(in->left != NULL) left = fold_expr(in->left);
+		_Token_variable_name left = 0;
+		if(in->left != NULL) left = fold_variable_name(in->left);
 		_Token_op op = 0;
 		if(in->op != NULL) op = fold_op(in->op);
-		_HIR_expr right = 0;
-		if(in->right != NULL) right = fold_expr(in->right);
+		_Token_variable_name right = 0;
+		if(in->right != NULL) right = fold_variable_name(in->right);
 		return fold_impl_bin_op(in, left, op, right);
 	}
 
@@ -379,11 +379,11 @@ public:
 
 	virtual _HIR_instanceof fold_instanceof(HIR_instanceof* in)
 	{
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_HIR_class_name class_name = 0;
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		return fold_impl_instanceof(in, expr, class_name);
+		return fold_impl_instanceof(in, variable_name, class_name);
 	}
 
 	virtual _HIR_variable fold_variable(HIR_variable* in)
@@ -404,9 +404,9 @@ public:
 
 	virtual _HIR_reflection fold_reflection(HIR_reflection* in)
 	{
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_reflection(in, expr);
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_reflection(in, variable_name);
 	}
 
 	virtual _HIR_pre_op fold_pre_op(HIR_pre_op* in)
@@ -506,13 +506,13 @@ public:
 	virtual _HIR_goto fold_impl_goto(HIR_goto* orig, _Token_label_name label_name) { assert(0); };
 	virtual _HIR_label fold_impl_label(HIR_label* orig, _Token_label_name label_name) { assert(0); };
 	virtual _HIR_assignment fold_impl_assignment(HIR_assignment* orig, _HIR_variable variable, bool is_ref, _HIR_expr expr) { assert(0); };
-	virtual _HIR_cast fold_impl_cast(HIR_cast* orig, _Token_cast cast, _HIR_expr expr) { assert(0); };
-	virtual _HIR_unary_op fold_impl_unary_op(HIR_unary_op* orig, _Token_op op, _HIR_expr expr) { assert(0); };
-	virtual _HIR_bin_op fold_impl_bin_op(HIR_bin_op* orig, _HIR_expr left, _Token_op op, _HIR_expr right) { assert(0); };
+	virtual _HIR_cast fold_impl_cast(HIR_cast* orig, _Token_cast cast, _Token_variable_name variable_name) { assert(0); };
+	virtual _HIR_unary_op fold_impl_unary_op(HIR_unary_op* orig, _Token_op op, _Token_variable_name variable_name) { assert(0); };
+	virtual _HIR_bin_op fold_impl_bin_op(HIR_bin_op* orig, _Token_variable_name left, _Token_op op, _Token_variable_name right) { assert(0); };
 	virtual _HIR_constant fold_impl_constant(HIR_constant* orig, _Token_class_name class_name, _Token_constant_name constant_name) { assert(0); };
-	virtual _HIR_instanceof fold_impl_instanceof(HIR_instanceof* orig, _HIR_expr expr, _HIR_class_name class_name) { assert(0); };
+	virtual _HIR_instanceof fold_impl_instanceof(HIR_instanceof* orig, _Token_variable_name variable_name, _HIR_class_name class_name) { assert(0); };
 	virtual _HIR_variable fold_impl_variable(HIR_variable* orig, _HIR_target target, _HIR_variable_name variable_name, List<_HIR_expr>* array_indices) { assert(0); };
-	virtual _HIR_reflection fold_impl_reflection(HIR_reflection* orig, _HIR_expr expr) { assert(0); };
+	virtual _HIR_reflection fold_impl_reflection(HIR_reflection* orig, _Token_variable_name variable_name) { assert(0); };
 	virtual _HIR_pre_op fold_impl_pre_op(HIR_pre_op* orig, _Token_op op, _HIR_variable variable) { assert(0); };
 	virtual _HIR_array fold_impl_array(HIR_array* orig, List<_HIR_array_elem>* array_elems) { assert(0); };
 	virtual _HIR_array_elem fold_impl_array_elem(HIR_array_elem* orig, _HIR_expr key, bool is_ref, _HIR_expr val) { assert(0); };

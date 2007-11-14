@@ -293,10 +293,22 @@ class AST_to_HIR : public AST::AST_fold
 		return result;
 	}
 
+	HIR::Token_variable_name* var_name_from_expr (HIR::HIR_expr* expr)
+	{
+		HIR::HIR_variable* var = dynamic_cast<HIR::HIR_variable*> (expr);
+		assert (var);
+		assert (var->array_indices->size () == 0);
+		HIR::HIR_variable_name* var_name = var->variable_name;
+		assert (var_name);
+		HIR::Token_variable_name* token = dynamic_cast<HIR::Token_variable_name*> (var_name);
+		assert (token);
+		return token;
+	}
+
 	HIR::HIR_cast* fold_impl_cast(AST::AST_cast* orig, HIR::Token_cast* cast, HIR::HIR_expr* expr) 
 	{
 		HIR::HIR_cast* result;
-		result = new HIR::HIR_cast(cast, expr);
+		result = new HIR::HIR_cast(cast, var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -304,7 +316,7 @@ class AST_to_HIR : public AST::AST_fold
 	HIR::HIR_unary_op* fold_impl_unary_op(AST::AST_unary_op* orig, HIR::Token_op* op, HIR::HIR_expr* expr) 
 	{
 		HIR::HIR_unary_op* result;
-		result = new HIR::HIR_unary_op(op, expr);
+		result = new HIR::HIR_unary_op(op, var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -312,7 +324,7 @@ class AST_to_HIR : public AST::AST_fold
 	HIR::HIR_bin_op* fold_impl_bin_op(AST::AST_bin_op* orig, HIR::HIR_expr* left, HIR::Token_op* op, HIR::HIR_expr* right) 
 	{
 		HIR::HIR_bin_op* result;
-		result = new HIR::HIR_bin_op(left, op, right);
+		result = new HIR::HIR_bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -328,7 +340,7 @@ class AST_to_HIR : public AST::AST_fold
 	HIR::HIR_instanceof* fold_impl_instanceof(AST::AST_instanceof* orig, HIR::HIR_expr* expr, HIR::HIR_class_name* class_name) 
 	{
 		HIR::HIR_instanceof* result;
-		result = new HIR::HIR_instanceof(expr, class_name);
+		result = new HIR::HIR_instanceof(var_name_from_expr (expr), class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -344,7 +356,7 @@ class AST_to_HIR : public AST::AST_fold
 	HIR::HIR_reflection* fold_impl_reflection(AST::AST_reflection* orig, HIR::HIR_expr* expr) 
 	{
 		HIR::HIR_reflection* result;
-		result = new HIR::HIR_reflection(expr);
+		result = new HIR::HIR_reflection(var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}

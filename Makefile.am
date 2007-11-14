@@ -131,6 +131,8 @@ src_phc_SOURCES =												\
 	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
+	src/process_ast/debug.cpp								\
+	src/process_ast/debug.h									\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
@@ -148,7 +150,6 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_parser_temporaries.h		\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
-	src/process_ast/XML_unparser.cpp						\
 	src/process_ast/XML_unparser.h						\
 	src/process_hir/Goto_uppering.cpp					\
 	src/process_hir/Goto_uppering.h						\
