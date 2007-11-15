@@ -85,7 +85,7 @@ $tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_li
 $tests[] = new CompareWithPHP ("Interpret_tidyp", "--udump=tidyp", "Interpret_shred");
 $tests[] = new CompareWithPHP ("Interpret_hir", "--udump=hir", "Interpret_tidyp");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
-$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--udump=hir --run plugins/tests/strip_includes.la", "Interpret_shred");
+$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=hir --run plugins/tests/strip_includes.la", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "Interpret_shred");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
