@@ -21,16 +21,6 @@ using namespace std;
 using namespace AST;
 
 /*
- * Convenient access to the unparser
- */
-
-void debug (AST_node *in)
-{
-	static AST_unparser *pup = new AST_unparser (cerr);
-	in->visit (pup);
-}
-
-/*
  * Linearization
  *
  * This is used when unparsing concat operators to deal correctly with 

@@ -119,7 +119,7 @@ constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 instanceof ::= VARIABLE_NAME class_name ;
 
-variable ::= target? variable_name array_indices:expr?* ;
+variable ::= target? variable_name array_indices:VARIABLE_NAME?* ;
 variable_name ::= VARIABLE_NAME | reflection ;
 reflection ::= VARIABLE_NAME ;
 
@@ -134,8 +134,8 @@ array_elem ::= key:expr? is_ref:"&"? val:expr ;
 method_invocation ::= target? method_name actual_parameter* ;
 method_name ::= METHOD_NAME | reflection ;
 
-actual_parameter ::= is_ref:"&"? expr ;
--- actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
+-- actual_parameter ::= is_ref:"&"? expr ;
+actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
 
 new ::= class_name actual_parameter* ;
 class_name ::= CLASS_NAME | reflection ;
@@ -374,27 +374,25 @@ public:
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<HIR_expr*>;
+		this->array_indices = new List<Token_variable_name*>;
 	}
 };
 
 class HIR_method_invocation
 {
 public:
-	HIR_method_invocation(const char* name, HIR_expr* arg) 
+	HIR_method_invocation(const char* name, HIR_actual_parameter* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = new Token_method_name(new String(name));
-		this->actual_parameters = new List<HIR_actual_parameter*>;
-		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
 	}
 
-	HIR_method_invocation(Token_method_name* name, HIR_expr* arg) 
+	HIR_method_invocation(Token_method_name* name, HIR_actual_parameter* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<HIR_actual_parameter*>;
-		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
 	}
 };
 

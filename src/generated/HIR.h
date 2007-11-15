@@ -499,16 +499,18 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// actual_parameter ::= is_ref:"&" expr ;
+// actual_parameter ::= is_ref:"&" target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
 class HIR_actual_parameter : virtual public HIR_node
 {
 public:
-    HIR_actual_parameter(bool is_ref, HIR_expr* expr);
+    HIR_actual_parameter(bool is_ref, HIR_target* target, Token_variable_name* variable_name, List<Token_variable_name*>* array_indices);
 protected:
     HIR_actual_parameter();
 public:
     bool is_ref;
-    HIR_expr* expr;
+    HIR_target* target;
+    Token_variable_name* variable_name;
+    List<Token_variable_name*>* array_indices;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1343,17 +1345,17 @@ public:
     virtual void assert_valid();
 };
 
-// variable ::= target? variable_name array_indices:expr?* ;
+// variable ::= target? variable_name array_indices:VARIABLE_NAME?* ;
 class HIR_variable : virtual public HIR_expr
 {
 public:
-    HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<HIR_expr*>* array_indices);
+    HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices);
 protected:
     HIR_variable();
 public:
     HIR_target* target;
     HIR_variable_name* variable_name;
-    List<HIR_expr*>* array_indices;
+    List<Token_variable_name*>* array_indices;
 public:
     virtual void visit(HIR_visitor* visitor);
     virtual void transform_children(HIR_transform* transform);
@@ -1451,8 +1453,8 @@ public:
 public:
     virtual void assert_valid();
 public:
-    HIR_method_invocation(const char* name, HIR_expr* arg);
-    HIR_method_invocation(Token_method_name* name, HIR_expr* arg);
+    HIR_method_invocation(const char* name, HIR_actual_parameter* arg);
+    HIR_method_invocation(Token_method_name* name, HIR_actual_parameter* arg);
 };
 
 // new ::= class_name actual_parameter* ;

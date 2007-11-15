@@ -392,11 +392,11 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_HIR_variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_HIR_expr>* array_indices = new List<_HIR_expr>;
+		List<_Token_variable_name>* array_indices = new List<_Token_variable_name>;
 		{
-			List<HIR_expr*>::const_iterator i;
+			List<Token_variable_name*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
-				if(*i != NULL) array_indices->push_back(fold_expr(*i));
+				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
 				else array_indices->push_back(0);
 		}
 		return fold_impl_variable(in, target, variable_name, array_indices);
@@ -459,9 +459,18 @@ public:
 	virtual _HIR_actual_parameter fold_actual_parameter(HIR_actual_parameter* in)
 	{
 		bool is_ref = in->is_ref;
-		_HIR_expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_actual_parameter(in, is_ref, expr);
+		_HIR_target target = 0;
+		if(in->target != NULL) target = fold_target(in->target);
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		List<_Token_variable_name>* array_indices = new List<_Token_variable_name>;
+		{
+			List<Token_variable_name*>::const_iterator i;
+			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
+				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
+				else array_indices->push_back(0);
+		}
+		return fold_impl_actual_parameter(in, is_ref, target, variable_name, array_indices);
 	}
 
 	virtual _HIR_new fold_new(HIR_new* in)
@@ -511,13 +520,13 @@ public:
 	virtual _HIR_bin_op fold_impl_bin_op(HIR_bin_op* orig, _Token_variable_name left, _Token_op op, _Token_variable_name right) { assert(0); };
 	virtual _HIR_constant fold_impl_constant(HIR_constant* orig, _Token_class_name class_name, _Token_constant_name constant_name) { assert(0); };
 	virtual _HIR_instanceof fold_impl_instanceof(HIR_instanceof* orig, _Token_variable_name variable_name, _HIR_class_name class_name) { assert(0); };
-	virtual _HIR_variable fold_impl_variable(HIR_variable* orig, _HIR_target target, _HIR_variable_name variable_name, List<_HIR_expr>* array_indices) { assert(0); };
+	virtual _HIR_variable fold_impl_variable(HIR_variable* orig, _HIR_target target, _HIR_variable_name variable_name, List<_Token_variable_name>* array_indices) { assert(0); };
 	virtual _HIR_reflection fold_impl_reflection(HIR_reflection* orig, _Token_variable_name variable_name) { assert(0); };
 	virtual _HIR_pre_op fold_impl_pre_op(HIR_pre_op* orig, _Token_op op, _HIR_variable variable) { assert(0); };
 	virtual _HIR_array fold_impl_array(HIR_array* orig, List<_HIR_array_elem>* array_elems) { assert(0); };
 	virtual _HIR_array_elem fold_impl_array_elem(HIR_array_elem* orig, _HIR_expr key, bool is_ref, _HIR_expr val) { assert(0); };
 	virtual _HIR_method_invocation fold_impl_method_invocation(HIR_method_invocation* orig, _HIR_target target, _HIR_method_name method_name, List<_HIR_actual_parameter>* actual_parameters) { assert(0); };
-	virtual _HIR_actual_parameter fold_impl_actual_parameter(HIR_actual_parameter* orig, bool is_ref, _HIR_expr expr) { assert(0); };
+	virtual _HIR_actual_parameter fold_impl_actual_parameter(HIR_actual_parameter* orig, bool is_ref, _HIR_target target, _Token_variable_name variable_name, List<_Token_variable_name>* array_indices) { assert(0); };
 	virtual _HIR_new fold_impl_new(HIR_new* orig, _HIR_class_name class_name, List<_HIR_actual_parameter>* actual_parameters) { assert(0); };
 
 	virtual _Token_class_name fold_class_name(Token_class_name* orig) { assert(0); };

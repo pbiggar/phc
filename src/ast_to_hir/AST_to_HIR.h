@@ -10,6 +10,7 @@
 
 #include "AST_fold.h"
 #include "HIR.h"
+#include "process_ir/debug.h"
 
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
@@ -348,7 +349,15 @@ class AST_to_HIR : public AST::AST_fold
 	HIR::HIR_variable* fold_impl_variable(AST::AST_variable* orig, HIR::HIR_target* target, HIR::HIR_variable_name* variable_name, List<HIR::HIR_expr*>* array_indices) 
 	{
 		HIR::HIR_variable* result;
-		result = new HIR::HIR_variable(target, variable_name, array_indices);
+
+		List<HIR::Token_variable_name*>* var_names = new List<HIR::Token_variable_name*>;
+		List<HIR::HIR_expr*>::const_iterator i;
+		for (i = array_indices->begin (); i != array_indices->end (); i++)
+		{
+			var_names->push_back (var_name_from_expr (*i));
+		}
+
+		result = new HIR::HIR_variable(target, variable_name, var_names);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -395,8 +404,15 @@ class AST_to_HIR : public AST::AST_fold
 
 	HIR::HIR_actual_parameter* fold_impl_actual_parameter(AST::AST_actual_parameter* orig, bool is_ref, HIR::HIR_expr* expr) 
 	{
+		HIR::HIR_variable* var = dynamic_cast<HIR::HIR_variable*> (expr);
+		xdebug (expr);
+		assert (var);
+
+		HIR::Token_variable_name* var_name = dynamic_cast<HIR::Token_variable_name*> (var->variable_name);
+		assert (var_name);
+
 		HIR::HIR_actual_parameter* result;
-		result = new HIR::HIR_actual_parameter(is_ref, expr);
+		result = new HIR::HIR_actual_parameter(is_ref, var->target, var_name, var->array_indices);
 		result->attrs = orig->attrs;
 		return result;
 	}

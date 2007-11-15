@@ -35,6 +35,14 @@
 
 using namespace HIR;
 
+// Label supported features
+void phc_unsupported (HIR_node* node)
+{
+	cerr << "This context does not yet support this feature:" << endl;
+	debug (node);
+	xdebug (node);
+}
+
 // A single pass isnt really sufficient, but we can hack around it
 // with a prologue and an epilogue.
 static ostringstream prologue;
@@ -229,7 +237,8 @@ void index_lhs (Scope scope, string zvp, HIR_variable* var)
 	Token_variable_name* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
-	assert (var->target == NULL);
+	if (var->target) phc_unsupported (var);
+
 	code
 		<< "zval** " << zvp << ";\n";
 
@@ -252,7 +261,7 @@ void index_lhs (Scope scope, string zvp, HIR_variable* var)
 
 				code
 					<< "// Array assignment\n";
-				read_simple (scope, zvp_index, get_var_name (var->array_indices->front()));
+				read_simple (scope, zvp_index, var->array_indices->front());
 
 				code
 					<<	zvp << " = get_ht_entry ("
@@ -283,10 +292,9 @@ void index_lhs (Scope scope, string zvp, HIR_variable* var)
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
-		assert (0); // TODO
+		phc_unsupported (var);
 		assert(var->array_indices->size() == 0);
 
-		code << "assert (0); // write_var_var_reference\n";
 //		reference_var_var ();
 	}
 }
@@ -300,7 +308,7 @@ void index_lhs (Scope scope, string zvp, HIR_expr* expr)
 }
 void index_lhs (Scope scope, string zvp, Token_variable_name* var_name)
 {
-	index_lhs (scope, zvp, new HIR_variable (NULL, var_name, new List<HIR_expr*>));
+	index_lhs (scope, zvp, new HIR_variable (NULL, var_name, new List<Token_variable_name*>));
 }
 
 
@@ -308,7 +316,7 @@ void index_lhs (Scope scope, string zvp, Token_variable_name* var_name)
 void read (Scope scope, string zvp, HIR_variable* var)
 {
 	// TODO: deal with object indexing
-	assert(var->target == NULL);
+	if (var->target) phc_unsupported (var);
 
 	HIR_variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
@@ -321,7 +329,7 @@ void read (Scope scope, string zvp, HIR_variable* var)
 				code << "// Read array variable\n";
 
 				read_simple (scope, "r_array", get_var_name (var));
-				read_simple (scope, "ra_index", get_var_name (var->array_indices->front ()));
+				read_simple (scope, "ra_index", var->array_indices->front ());
 
 				code
 					<< "read_array ("
@@ -333,15 +341,15 @@ void read (Scope scope, string zvp, HIR_variable* var)
 					;
 			}
 			else
-				assert (0);
+				phc_unsupported (var);
 		}
 		else
 		{
+			if (var->array_indices->size()) phc_unsupported (var);
 			stringstream ss;
 			ss << zvp << "var";
 			String* name = new String (ss.str ());
 			read_simple (scope, *name, get_var_name (var));
-			assert (var->array_indices->size() == 0);
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
@@ -363,7 +371,7 @@ void read (Scope scope, string zvp, HIR_variable* var)
 				code << "// Read array variable-variable\n";
 
 				read_simple (scope, "refl", get_var_name (refl));
-				read_simple (scope, "refl_index", get_var_name (var->array_indices->front ()));
+				read_simple (scope, "refl_index", var->array_indices->front ());
 
 				code
 					<< "read_var_array ("
@@ -374,7 +382,7 @@ void read (Scope scope, string zvp, HIR_variable* var)
 					<<		" TSRMLS_CC);\n";
 			}
 			else
-				assert (0);
+				phc_unsupported (var);
 		}
 		else
 		{
@@ -403,7 +411,7 @@ void read (Scope scope, string zvp, HIR_expr* expr)
 
 void read (Scope scope, string zvp, Token_variable_name* var_name)
 {
-	read (scope, zvp, new HIR_variable (NULL, var_name, new List<HIR_expr*>));
+	read (scope, zvp, new HIR_variable (NULL, var_name, new List<Token_variable_name*>));
 }
 
 
@@ -413,7 +421,7 @@ void global (HIR_variable_name* var_name)
 {
 	HIR_variable *var = new HIR_variable (NULL,
 					var_name,
-					new List < HIR_expr * >());
+					new List <Token_variable_name*>);
 
 	code << "{\n";
 	index_lhs (GLOBAL, "p_global_var", var); // rhs
@@ -652,7 +660,7 @@ protected:
 									new HIR_variable (
 										NULL,
 										(*i)->var->variable_name->clone (),
-										new List<HIR_expr*> ()),
+										new List<Token_variable_name*>),
 									false, (*i)->var->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
@@ -1244,12 +1252,11 @@ class Eval : public Assignment
 {
 	HIR_expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<HIR_variable>;
+		eval_arg = new Wildcard<HIR_actual_parameter>;
 		return new HIR_method_invocation(
 			NULL,	
 			new Token_method_name( new String("eval")),
-			new List<HIR_actual_parameter*>(
-				new HIR_actual_parameter (false, eval_arg)
+			new List<HIR_actual_parameter*>(eval_arg
 				)
 			);
 	}
@@ -1258,8 +1265,11 @@ class Eval : public Assignment
 	// priority.
 	void generate_rhs (bool used)
 	{
+		if (eval_arg->value->target) phc_unsupported (eval_arg->value);
+		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
+
 		code << "{\n";
-		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value));
+		read_simple (LOCAL, "eval_arg", eval_arg->value->variable_name);
 
 		if (used)
 		{
@@ -1294,7 +1304,7 @@ class Eval : public Assignment
 	}
 
 protected:
-	Wildcard<HIR_variable>* eval_arg;
+	Wildcard<HIR_actual_parameter>* eval_arg;
 };
 
 class Exit : public Pattern
@@ -1302,7 +1312,7 @@ class Exit : public Pattern
 public:
 	bool match (HIR_statement* that)
 	{
-		exit_arg = new Wildcard<HIR_variable> ();
+		exit_arg = new Wildcard<HIR_actual_parameter> ();
 		Wildcard<Token_method_name>* name = new Wildcard <Token_method_name> ();
 		return that->match (
 				new HIR_eval_expr (
@@ -1310,18 +1320,19 @@ public:
 						new HIR_method_invocation(
 							NULL,	
 							name,
-							new List<HIR_actual_parameter*>(
-								new HIR_actual_parameter(false, exit_arg)
+							new List<HIR_actual_parameter*>(exit_arg)
 								)
-							))))
+							)))
 			&& (*name->value->value == "exit" || *name->value->value == "die");
 	}
 
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
+		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
+		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_simple (LOCAL, "arg", get_var_name (exit_arg->value));
+		read_simple (LOCAL, "arg", exit_arg->value->variable_name);
 
 		// Fetch the parameter
 		code
@@ -1332,7 +1343,7 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* exit_arg;
+	Wildcard<HIR_actual_parameter>* exit_arg;
 };
 
 class Method_invocation : public Assignment
@@ -1355,7 +1366,7 @@ public:
 		Token_method_name* name;
 		name = dynamic_cast<Token_method_name*>(rhs->value->method_name);
 
-		assert (name != NULL);
+		if (name == NULL) phc_unsupported (rhs->value);
 
 		declare ("p_rhs");
 		code 
@@ -1443,8 +1454,9 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			HIR_variable* var = dynamic_cast<HIR_variable*> ((*i)->expr);
-			Token_variable_name* var_name = get_var_name ((*i)->expr);
+			if ((*i)->target) phc_unsupported (*i);
+			Token_variable_name* var_name = (*i)->variable_name;
+
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1453,7 +1465,7 @@ public:
 			 * zval*, put it in args, and fetch it into args_ind after.
 			 * (It is difficult to return a zval** which doesnt point
 			 * into its containing hashtable, otherwise. */
-			if (var->array_indices->size ())
+			if ((*i)->array_indices->size ())
 			{
 				// TODO: variables are allowed have more than 1 index
 				// (so long as the indexes are all temporaries). We do
@@ -1461,9 +1473,8 @@ public:
 				// references or not, since we do not know until
 				// run-time whether the function is call-by-reference or
 				// not.
-				assert (var->array_indices->size () == 1);
-				Token_variable_name* ind = 
-					get_var_name (var->array_indices->front ());
+				if ((*i)->array_indices->size () > 1) phc_unsupported (*i);
+				Token_variable_name* ind = (*i)->array_indices->front ();
 
 				code
 					<< "if (by_ref [" << index << "])\n"
@@ -1500,7 +1511,7 @@ public:
 				// TODO: Its correct to handle variable variables here,
 				// since we dont know if they are to be passed by
 				// reference or not, so they cannot be shredder earlier.
-				assert (var_name);
+				if (var_name == NULL) phc_unsupported (*i);
 				code 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
@@ -1807,7 +1818,7 @@ class Unset : public Pattern
 {
 	bool match(HIR_statement* that)
 	{
-		var = new Wildcard<HIR_variable>;
+		var = new Wildcard<HIR_actual_parameter>;
 		return that->match(
 			new HIR_eval_expr(
 				new HIR_method_invocation(
@@ -1820,9 +1831,9 @@ class Unset : public Pattern
 		code << "{\n";
 
 		// TODO: deal with object indexing
-		assert(var->value->target == NULL);
+		if (var->value->target) phc_unsupported (var);
 
-		Token_variable_name* var_name = get_var_name (var->value);
+		Token_variable_name* var_name = var->value->variable_name;
 
 		if (var_name != NULL)
 		{
@@ -1853,7 +1864,7 @@ class Unset : public Pattern
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				Token_variable_name* index = get_var_name (var->value->array_indices->front());
+				Token_variable_name* index = (var->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -1868,20 +1879,20 @@ class Unset : public Pattern
 		{
 			// Variable variable
 			// TODO
-			assert(0);
+			phc_unsupported (var);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<HIR_variable>* var;
+	Wildcard<HIR_actual_parameter>* var;
 };
 
 class Isset : public Assign_unknown_literal
 {
 	HIR_expr* rhs_pattern()
 	{
-		var = new Wildcard<HIR_variable>;
+		var = new Wildcard<HIR_actual_parameter>;
 		return new HIR_method_invocation("isset", var);
 	}
 
@@ -1897,9 +1908,9 @@ class Isset : public Assign_unknown_literal
 		code << "{\n";
 
 		// TODO: deal with object indexing
-		assert(var->value->target == NULL);
+		if (var->value->target) phc_unsupported (var->value);
 
-		Token_variable_name* var_name = get_var_name (var->value);
+		Token_variable_name* var_name = var->value->variable_name;
 
 		if (var_name != NULL)
 		{
@@ -1926,7 +1937,7 @@ class Isset : public Assign_unknown_literal
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				Token_variable_name* index = get_var_name (var->value->array_indices->front());
+				Token_variable_name* index = var->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -1942,13 +1953,13 @@ class Isset : public Assign_unknown_literal
 		{
 			// Variable variable
 			// TODO
-			assert(0);
+			phc_unsupported (var);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<HIR_variable>* var;
+	Wildcard<HIR_actual_parameter>* var;
 };
 
 /*

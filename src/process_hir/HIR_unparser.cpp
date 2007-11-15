@@ -18,12 +18,6 @@ extern struct gengetopt_args_info args_info;
 using namespace std;
 using namespace HIR;
 
-void debug (HIR_node *in)
-{
-	static HIR_unparser *pup = new HIR_unparser (cerr);
-	in->visit (pup);
-}
-
 HIR_unparser::HIR_unparser (ostream& os) : PHP_unparser (os)
 {
 }
@@ -354,19 +348,19 @@ void HIR_unparser::children_variable(HIR_variable* in)
 		visit_variable_name(in->variable_name);
 	}
 
-	List<HIR_expr*>::const_iterator i;
+	List<Token_variable_name*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
 		if(*i && (*i)->attrs->is_true("phc.unparser.index_curlies"))
 		{
 			echo("{");
-			if(*i) visit_expr(*i);
+			if(*i) visit_variable_name (*i);
 			echo("}");
 		}
 		else
 		{
 			echo("[");
-			if(*i) visit_expr(*i);
+			if(*i) visit_variable_name (*i);
 			echo("]");
 		}
 	}
@@ -453,7 +447,16 @@ void HIR_unparser::children_method_invocation(HIR_method_invocation* in)
 void HIR_unparser::children_actual_parameter(HIR_actual_parameter* in)
 {
 	if(in->is_ref) echo("&");
-	visit_expr(in->expr);
+	visit_target (in->target);
+	visit_variable_name (in->variable_name);
+
+	List<Token_variable_name*>::const_iterator i;
+	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
+	{
+			echo("[");
+			if(*i) visit_variable_name (*i);
+			echo("]");
+	}
 }
 
 void HIR_unparser::children_new(HIR_new* in)

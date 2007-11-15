@@ -661,7 +661,7 @@ void HIR_visitor::children_variable(HIR_variable* in)
 {
     visit_target(in->target);
     visit_variable_name(in->variable_name);
-    visit_expr_list(in->array_indices);
+    visit_variable_name_list(in->array_indices);
 }
 
 void HIR_visitor::children_reflection(HIR_reflection* in)
@@ -697,7 +697,9 @@ void HIR_visitor::children_method_invocation(HIR_method_invocation* in)
 void HIR_visitor::children_actual_parameter(HIR_actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
-    visit_expr(in->expr);
+    visit_target(in->target);
+    visit_variable_name(in->variable_name);
+    visit_variable_name_list(in->array_indices);
 }
 
 void HIR_visitor::children_new(HIR_new* in)
@@ -1878,22 +1880,22 @@ void HIR_visitor::visit_target(HIR_target* in)
     }
 }
 
-void HIR_visitor::visit_expr_list(List<HIR_expr*>* in)
+void HIR_visitor::visit_variable_name_list(List<Token_variable_name*>* in)
 {
-    List<HIR_expr*>::const_iterator i;
+    List<Token_variable_name*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_expr");
+    	visit_null_list("Token_variable_name");
     else
     {
-    	pre_list("HIR_expr", in->size());
+    	pre_list("Token_variable_name", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
-    		visit_expr(*i);
+    		visit_variable_name(*i);
     	}
     
-    	post_list("HIR_expr", in->size());
+    	post_list("Token_variable_name", in->size());
     }
 }
 

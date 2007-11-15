@@ -342,7 +342,7 @@ public:
     virtual void visit_constant_name(Token_constant_name* in);
     virtual void visit_class_name(HIR_class_name* in);
     virtual void visit_target(HIR_target* in);
-    virtual void visit_expr_list(List<HIR_expr*>* in);
+    virtual void visit_variable_name_list(List<Token_variable_name*>* in);
     virtual void visit_array_elem_list(List<HIR_array_elem*>* in);
     virtual void visit_array_elem(HIR_array_elem* in);
     virtual void visit_method_name(HIR_method_name* in);

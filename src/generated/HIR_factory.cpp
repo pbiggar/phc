@@ -223,7 +223,7 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     {
     	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
     	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
-    	List<HIR_expr*>* array_indices = dynamic_cast<List<HIR_expr*>*>(*i++);
+    	List<Token_variable_name*>* array_indices = dynamic_cast<List<Token_variable_name*>*>(*i++);
     	assert(i == args->end());
     	return new HIR_variable(target, variable_name, array_indices);
     }
@@ -265,9 +265,11 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "HIR_actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	List<Token_variable_name*>* array_indices = dynamic_cast<List<Token_variable_name*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_actual_parameter(is_ref, expr);
+    	return new HIR_actual_parameter(is_ref, target, variable_name, array_indices);
     }
     if(!strcmp(type_id, "HIR_new"))
     {
@@ -359,11 +361,11 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<HIR_catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_expr_list"))
+    if(!strcmp(type_id, "Token_variable_name_list"))
     {
-    	List<HIR_expr*>* list = new List<HIR_expr*>;
+    	List<Token_variable_name*>* list = new List<Token_variable_name*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_expr*>(*i++));
+    		list->push_back(dynamic_cast<Token_variable_name*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "HIR_array_elem_list"))

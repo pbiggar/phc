@@ -210,7 +210,7 @@ public:
     virtual Token_constant_name* transform_constant_name(Token_constant_name* in);
     virtual HIR_class_name* transform_class_name(HIR_class_name* in);
     virtual HIR_target* transform_target(HIR_target* in);
-    virtual List<HIR_expr*>* transform_expr_list(List<HIR_expr*>* in);
+    virtual List<Token_variable_name*>* transform_variable_name_list(List<Token_variable_name*>* in);
     virtual List<HIR_array_elem*>* transform_array_elem_list(List<HIR_array_elem*>* in);
     virtual List<HIR_array_elem*>* transform_array_elem(HIR_array_elem* in);
     virtual HIR_method_name* transform_method_name(HIR_method_name* in);

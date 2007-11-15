@@ -663,7 +663,7 @@ void HIR_transform::children_variable(HIR_variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->array_indices = transform_expr_list(in->array_indices);
+    in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
 void HIR_transform::children_reflection(HIR_reflection* in)
@@ -697,7 +697,9 @@ void HIR_transform::children_method_invocation(HIR_method_invocation* in)
 
 void HIR_transform::children_actual_parameter(HIR_actual_parameter* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
 void HIR_transform::children_new(HIR_new* in)
@@ -1229,17 +1231,17 @@ HIR_target* HIR_transform::transform_target(HIR_target* in)
     return out;
 }
 
-List<HIR_expr*>* HIR_transform::transform_expr_list(List<HIR_expr*>* in)
+List<Token_variable_name*>* HIR_transform::transform_variable_name_list(List<Token_variable_name*>* in)
 {
-    List<HIR_expr*>::const_iterator i;
-    List<HIR_expr*>* out = new List<HIR_expr*>;
+    List<Token_variable_name*>::const_iterator i;
+    List<Token_variable_name*>* out = new List<Token_variable_name*>;
     
     if(in == NULL)
     	return NULL;
     
     for(i = in->begin(); i != in->end(); i++)
     {
-    	out->push_back(transform_expr(*i));
+    	out->push_back(transform_variable_name(*i));
     }
     
     return out;

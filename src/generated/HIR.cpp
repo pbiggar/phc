@@ -1348,16 +1348,20 @@ HIR_method_name::HIR_method_name()
 {
 }
 
-HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_expr* expr)
+HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_target* target, Token_variable_name* variable_name, List<Token_variable_name*>* array_indices)
 {
     this->is_ref = is_ref;
-    this->expr = expr;
+    this->target = target;
+    this->variable_name = variable_name;
+    this->array_indices = array_indices;
 }
 
 HIR_actual_parameter::HIR_actual_parameter()
 {
     this->is_ref = 0;
-    this->expr = 0;
+    this->target = 0;
+    this->variable_name = 0;
+    this->array_indices = 0;
 }
 
 void HIR_actual_parameter::visit(HIR_visitor* visitor)
@@ -1386,13 +1390,41 @@ bool HIR_actual_parameter::match(HIR_node* in)
     if(that == NULL) return false;
     
     that->is_ref = this->is_ref;
-    if(this->expr == NULL)
+    if(this->target == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->target != NULL && !that->target->match(this->target))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->target->match(that->target))
     	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->array_indices != NULL && that->array_indices != NULL)
+    {
+    	List<Token_variable_name*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
     
     return true;
 }
@@ -1405,13 +1437,46 @@ bool HIR_actual_parameter::equals(HIR_node* in)
     if(this->is_ref != that->is_ref)
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->target == NULL || that->target == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->target != NULL || that->target != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->target->equals(that->target))
     	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->array_indices == NULL || that->array_indices == NULL)
+    {
+    	if(this->array_indices != NULL || that->array_indices != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Token_variable_name*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
     
     if(!HIR_node::is_mixin_equal(that)) return false;
     return true;
@@ -1420,16 +1485,34 @@ bool HIR_actual_parameter::equals(HIR_node* in)
 HIR_actual_parameter* HIR_actual_parameter::clone()
 {
     bool is_ref = this->is_ref;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_actual_parameter* clone = new HIR_actual_parameter(is_ref, expr);
+    HIR_target* target = this->target ? this->target->clone() : NULL;
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Token_variable_name*>* array_indices = NULL;
+    if(this->array_indices != NULL)
+    {
+    	List<Token_variable_name*>::const_iterator i;
+    	array_indices = new List<Token_variable_name*>;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    		array_indices->push_back(*i ? (*i)->clone() : NULL);
+    }
+    HIR_actual_parameter* clone = new HIR_actual_parameter(is_ref, target, variable_name, array_indices);
     clone->HIR_node::clone_mixin_from(this);
     return clone;
 }
 
 void HIR_actual_parameter::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(array_indices != NULL);
+    {
+    	List<Token_variable_name*>::const_iterator i;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    	{
+    		if(*i != NULL) (*i)->assert_valid();
+    	}
+    }
     HIR_node::assert_mixin_valid();
 }
 
@@ -4387,7 +4470,7 @@ void HIR_instanceof::assert_valid()
     HIR_node::assert_mixin_valid();
 }
 
-HIR_variable::HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<HIR_expr*>* array_indices)
+HIR_variable::HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices)
 {
     this->target = target;
     this->variable_name = variable_name;
@@ -4444,7 +4527,7 @@ bool HIR_variable::match(HIR_node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<HIR_expr*>::const_iterator i, j;
+    	List<Token_variable_name*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -4493,7 +4576,7 @@ bool HIR_variable::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_expr*>::const_iterator i, j;
+    	List<Token_variable_name*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -4519,11 +4602,11 @@ HIR_variable* HIR_variable::clone()
 {
     HIR_target* target = this->target ? this->target->clone() : NULL;
     HIR_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<HIR_expr*>* array_indices = NULL;
+    List<Token_variable_name*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<HIR_expr*>::const_iterator i;
-    	array_indices = new List<HIR_expr*>;
+    	List<Token_variable_name*>::const_iterator i;
+    	array_indices = new List<Token_variable_name*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -4539,7 +4622,7 @@ void HIR_variable::assert_valid()
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<HIR_expr*>::const_iterator i;
+    	List<Token_variable_name*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -4553,7 +4636,7 @@ HIR_variable::HIR_variable(HIR_variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<HIR_expr*>;
+		this->array_indices = new List<Token_variable_name*>;
 	}
 }
 
@@ -4947,23 +5030,21 @@ void HIR_method_invocation::assert_valid()
     HIR_node::assert_mixin_valid();
 }
 
-HIR_method_invocation::HIR_method_invocation(const char* name, HIR_expr* arg)
+HIR_method_invocation::HIR_method_invocation(const char* name, HIR_actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = new Token_method_name(new String(name));
-		this->actual_parameters = new List<HIR_actual_parameter*>;
-		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
 	}
 }
 
-HIR_method_invocation::HIR_method_invocation(Token_method_name* name, HIR_expr* arg)
+HIR_method_invocation::HIR_method_invocation(Token_method_name* name, HIR_actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<HIR_actual_parameter*>;
-		this->actual_parameters->push_back(new HIR_actual_parameter(false, arg));
+		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
 	}
 }
 

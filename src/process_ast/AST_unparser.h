@@ -13,8 +13,6 @@
 #include <stack>
 
 
-void debug (AST::AST_node* in);
-
 class AST_unparser : public virtual AST::AST_visitor, public virtual PHP_unparser
 {
 

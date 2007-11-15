@@ -11,8 +11,6 @@
 #include "HIR_visitor.h"
 #include "process_ir/PHP_unparser.h"
 
-void debug (HIR::HIR_node* in);
-
 class HIR_unparser : public virtual HIR::HIR_visitor, public virtual PHP_unparser
 {
 // Constructor; pass in a different ostream to write to a file/string instead

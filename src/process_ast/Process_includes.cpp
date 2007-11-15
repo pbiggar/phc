@@ -13,9 +13,9 @@
 #include "AST_visitor.h"
 #include "AST.h"
 #include "lib/error.h"
+#include "process_ir/debug.h"
 #include "ast_to_hir/fresh.h"
 #include "parsing/parse.h"
-#include "process_ir/PHP_unparser.h"
 
 using namespace AST;
 
@@ -168,8 +168,8 @@ public:
 	}
 };
 
-Process_includes::Process_includes (bool definitive, String* pass_name, Pass_manager* pm, const char* name)
-: definitive (definitive),
+Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, const char* name)
+: hir (hir),
   pass_name (pass_name),
   pm (pm)
 {
@@ -181,17 +181,51 @@ bool Process_includes::pass_is_enabled (Pass_manager* pm)
 	return pm->args_info->include_given;
 }
 
-// look for include statements
-void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+
+void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, List<AST_statement*>* out, AST_actual_parameter* param)
 {
-	Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
-	Wildcard<AST_expr>* expr_filename = new Wildcard<AST_expr>;
+	if (warning)
+	{
+		// issue a warning the first time, then mark the new parameter to not issue a warning.
+		if (!param->expr->attrs->is_true ("phc.process_includes.warned"))
+		{
+			phc_warning("File %s could not be included, and will be included at run-time", warning, in);
+
+			/* Convert
+			 *			include ("myfile.php"); 
+			 *		or include (t());
+			 *	into
+			 *			$T1 = "myfile.php";
+			 *			include $T1;
+			 *		or	$T2 = t() ;
+			 *			include $2;
+			 *
+			 * for future HIR.
+			 */
+			if (param->expr->classid () != AST_variable::ID)
+				param->expr = eval (param->expr);
+			param->expr->attrs->set_true ("phc.process_includes.warned");
+		}
+	}
+
+	pieces->push_back (in);
+}
+
+
+
+/* If it matches, return the filename, else return NULL. If warn is passed,
+ * warn if an include statement is found, but using an expression, not a
+ * string. */
+AST_actual_parameter* matching_param (AST_eval_expr* in, List<AST_statement*>* out) 
+{ 
 
 	// the filename is the only parameter of the include statement
+	Wildcard<AST_actual_parameter>* param = new Wildcard<AST_actual_parameter>;
+	Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
 	AST_method_invocation* pattern = new AST_method_invocation(
 			NULL,
 			method_name,
-			new List<AST_actual_parameter*> (new AST_actual_parameter (false, expr_filename))
+			new List<AST_actual_parameter*> (param)
 			);
 
 	AST_assignment* agn_pattern = new AST_assignment (
@@ -206,69 +240,93 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 			or *(method_name->value->value) == "require"
 			or *(method_name->value->value) == "require_once"))
 	{
-		Token_string* token_filename = dynamic_cast<Token_string*> (expr_filename->value);
-		if (token_filename == NULL)
-		{
-			if (definitive)
-				phc_warning("File with variable filename could not be included, and will be included at run-time", in);
-
-			out->push_back(in);
-			return;
-		}
-
-		String* filename = token_filename->value;
-
-		// Set up search directory
-		List<String*>* dirs = new List<String*>();
-
-		// If the included file starts with "./" or "../", use empty search path
-		// Otherwise, pass in dirname(filename) as the search path
-		if(filename->substr(0, 2) != "./" && filename->substr(0, 3) != "../")
-		{
-			char* directory_name = strdup(in->get_filename()->c_str());
-			directory_name = dirname(directory_name);
-			dirs->push_back(new String(directory_name));
-		}
-
-		// Try to parse the file
-		AST_php_script* php_script = parse(filename, dirs, false);
-		if(php_script == NULL)
-		{
-			// Script could not be found or not be parsed; leave the include in
-			if (definitive)
-				phc_warning("File %s could not be included, and will be included at run-time", in, filename->c_str());
-
-			out->push_back(in);
-			return;
-		}
-
-		// We don't support returning values from included scripts; 
-		// issue a warning and leave the include as-is
-		Return_check rc;
-		rc.visit_statement_list (php_script->statements);
-		if(rc.found)
-		{
-			if (definitive)
-			{
-				AST_label* label = fresh_label ();
-				php_script->transform_children (new Return_transform (label));
-				out->push_back (label);
-			}
-			else
-			{
-				// Dont issue a warning, as it will be included next time
-				out->push_back(in);
-				return;
-			}
-		}
-
-		// bring the statements to the expected level of the IR
-		// TODO why didnt I include this pass?
-		pm->run_until (pass_name, php_script);
-
-		// copy the statements
-		out->push_back_all(php_script->statements);
+		return param->value;
 	}
-	else
-		out->push_back(in);
+
+	return NULL;
+}
+
+String* get_filename_from_param (AST_actual_parameter* param)
+{
+	Token_string* token_filename = dynamic_cast<Token_string*> (param->expr);
+	if (token_filename != NULL)
+		return token_filename->value;
+	return NULL;
+}
+
+List<String*>* get_search_directories (String* filename, AST_node* in)
+{
+	List<String*>* dirs = new List<String*>();
+	// TODO get include path from PHP and allow path to be provided at compile time
+
+	// If the included file starts with "./" or "../", use empty search path.
+	// Otherwise, pass in the current working directory as the search path
+	if(filename->substr(0, 2) != "./" && filename->substr(0, 3) != "../")
+	{
+		char* cwd = strdup(in->get_filename()->c_str());
+		cwd = dirname (cwd);
+		dirs->push_back (new String (cwd));
+	}
+
+	return dirs;
+}
+
+// look for include statements
+void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+{
+	// check if its an include function
+	AST_actual_parameter* param = matching_param (in, out);
+	if (param == NULL)
+	{
+		out->push_back (in);
+		return;
+	}
+
+	// check the parameter is a string
+	String* filename = get_filename_from_param (param);
+	if (filename == NULL)
+	{
+		do_not_include ("with unknown filename", in, out, param);
+		return;
+	}
+
+	// Set up search directory
+	List<String*>* dirs = get_search_directories (filename, in);
+
+	// Try to parse the file
+	AST_php_script* php_script = parse(filename, dirs, false);
+
+	// Script could not be found or not be parsed; leave the include in
+	if(php_script == NULL)
+	{
+		// warn even if this isnt the hir, since the file wont magically appear later.
+		do_not_include (filename->c_str (), in, out, param);
+		return;
+	}
+
+	// We don't support returning values from included scripts; 
+	// issue a warning and leave the include as-is
+	Return_check rc;
+	rc.visit_statement_list (php_script->statements);
+	if(rc.found)
+	{
+		if (hir)
+		{
+			AST_label* label = fresh_label ();
+			php_script->transform_children (new Return_transform (label));
+			out->push_back (label);
+		}
+		else
+		{
+			// no warning; we'll get it next time.
+			do_not_include (NULL, in, out, param);
+			return;
+		}
+	}
+
+	// bring the statements to the expected level of the IR
+	pm->run_until (pass_name, php_script);
+
+	// copy the statements
+	out->push_back_all(php_script->statements);
 }
