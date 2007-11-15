@@ -253,7 +253,7 @@ function red_string()
 
 function strip_colour	($string)
 {
-	$codes = array (red_string (), green_string (), blue_string (). reset_string ());
+	$codes = array (red_string (), green_string (), blue_string (), reset_string ());
 	return str_replace ($codes, "", $string);
 }
 
