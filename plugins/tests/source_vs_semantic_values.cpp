@@ -8,7 +8,7 @@
 /* We assume that both plugins are run, and start the output in the first entry
  * method, and finish it in the last */
 
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 
 using namespace AST;
 

@@ -29,6 +29,7 @@
 #include "parsing/parse.h"
 #include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
+#include "pass_manager/List_passes.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/Invalid_check.h"
 #include "process_ast/Note_top_level_declarations.h"

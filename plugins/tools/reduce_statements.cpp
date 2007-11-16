@@ -6,7 +6,7 @@
  */
 
 #include "AST_transform.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 
 using namespace AST;

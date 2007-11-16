@@ -7,7 +7,7 @@
 
 #include "Collect_all_pointers.h"
 #include "process_ast/AST_unparser.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 
 static bool success = true;
 static bool is_run = false;

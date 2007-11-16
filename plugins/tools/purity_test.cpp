@@ -8,7 +8,7 @@
 
 #include "AST_visitor.h"
 #include "process_ast/AST_unparser.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 
 using namespace AST;

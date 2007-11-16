@@ -7,7 +7,7 @@
  */
 
 #include "AST_visitor.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 
 using namespace AST;
 

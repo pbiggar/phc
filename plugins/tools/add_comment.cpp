@@ -5,7 +5,7 @@
  * After each statement, add a debug_zval_dump call to each variable in the statement.
  */
 
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Plugin_pass.h"
 
 using namespace AST;
 

@@ -8,98 +8,13 @@
 #ifndef PHC_PASS_MANAGER_H
 #define PHC_PASS_MANAGER_H
 
+#include "Pass.h"
 #include "AST_visitor.h"
 #include "AST_transform.h"
-#include "ltdl.h"
 #include "cmdline.h"
+#include "ltdl.h"
 
-class Pass_manager;
-
-class Pass
-{
-public:
-	Pass () : name (NULL), description(NULL), enabled(true) { }
-	String* name;
-	String* description;
-
-public:
-
-	virtual void run (AST::AST_php_script* in, Pass_manager* pm) = 0;
-	virtual void post_process () { }
-
-private:
-	bool enabled;
-
-public:
-	bool is_enabled (Pass_manager* pm) { return enabled && pass_is_enabled (pm); }
-	void set_enabled (bool e) { enabled = e; }
-
-	// Plugin writers should use this
-	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
-
-	void run_pass (AST::AST_php_script* in, Pass_manager* pm)
-	{
-		if (is_enabled (pm))
-			run (in, pm);
-	}
-
-public:
-
-	virtual ~Pass () {}
-
-	// not sure how this should work
-	Pass* clone () { assert (0); }
-};
-
-
-class AST_visitor_pass : public Pass
-{
-	AST::AST_visitor* visitor;
-
-public:
-
-	AST_visitor_pass (AST::AST_visitor* v)
-	{
-		visitor = v;
-	}
-
-	void run (AST::AST_php_script* in, Pass_manager* pm)
-	{
-		in->visit (visitor);
-	}
-};
-
-class AST_transform_pass : public Pass
-{
-	AST::AST_transform* transform;
-
-public:
-
-	AST_transform_pass (AST::AST_transform* t)
-	{
-		transform = t;
-	}
-
-	void run (AST::AST_php_script* in, Pass_manager* pm)
-	{
-		in->transform_children (transform);
-	}
-
-};
-
-class Plugin_pass : public Pass
-{
-	lt_dlhandle handle;
-	String* option;
-public:
-
-	Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option);
-	void run (AST::AST_php_script* in, Pass_manager* pm);
-	void post_process ();
-
-};
-
-
+class Pass;
 
 class Pass_manager : public List<Pass*>
 {
@@ -135,25 +50,5 @@ public:
 
 };
 
-
-// TODO a file of its own
-class List_passes : public Pass
-{
-public:
-	List_passes ()
-	{
-		this->name = new String ("lp");
-	}
-
-	void run (AST::AST_php_script* in, Pass_manager* pm)
-	{
-		pm->list_passes ();
-	}
-
-	bool pass_is_enabled (Pass_manager* pm)
-	{
-		return pm->args_info->list_passes_given;
-	}
-};
 
 #endif // PHC_PASS_MANAGER_H

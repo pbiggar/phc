@@ -14,6 +14,9 @@
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/debug.h"
 #include "process_hir/Goto_uppering.h"
+#include "pass_manager/Visitor_pass.h"
+#include "pass_manager/Transform_pass.h"
+#include "pass_manager/Plugin_pass.h"
 #include "Pass_manager.h"
 
 using namespace AST;
