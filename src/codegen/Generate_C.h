@@ -22,7 +22,7 @@ public:
 
 	ostream& os;
 
-	void run (AST::AST_php_script*, Pass_manager*);
+	void run (IR*, Pass_manager*);
 	Generate_C(ostream&);
 
 public:

@@ -83,10 +83,11 @@ $tests[] = new CompareWithPHP ("Interpret_desug", "--udump=desug", "Interpret_pp
 $tests[] = new CompareWithPHP ("Interpret_lish", "--udump=lish", "Interpret_desug");
 $tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_lish");
 $tests[] = new CompareWithPHP ("Interpret_tidyp", "--udump=tidyp", "Interpret_shred");
-$tests[] = new CompareWithPHP ("Interpret_hir", "--udump=hir", "Interpret_tidyp");
+$tests[] = new CompareWithPHP ("Interpret_hir_as_ast", "--udump=hir_as_ast", "Interpret_tidyp");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=hir --run plugins/tests/strip_includes.la", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "Interpret_shred");
+$tests[] = new CompareWithPHP ("Interpret_hir", "--udump=hir", "Interpret_hir_as_ast");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 require_once ("compile_optimized.php");

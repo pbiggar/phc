@@ -18,7 +18,7 @@ public:
 		this->name = new String ("lp");
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	void run (IR* in, Pass_manager* pm)
 	{
 		pm->list_passes ();
 	}

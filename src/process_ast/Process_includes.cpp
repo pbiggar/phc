@@ -294,10 +294,10 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	List<String*>* dirs = get_search_directories (filename, in);
 
 	// Try to parse the file
-	AST_php_script* php_script = parse(filename, dirs, false);
+	AST_php_script* ast = parse(filename, dirs, false);
 
 	// Script could not be found or not be parsed; leave the include in
-	if(php_script == NULL)
+	if (ast == NULL)
 	{
 		// warn even if this isnt the hir, since the file wont magically appear later.
 		do_not_include (filename->c_str (), in, out, param);
@@ -307,13 +307,13 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	// We don't support returning values from included scripts; 
 	// issue a warning and leave the include as-is
 	Return_check rc;
-	rc.visit_statement_list (php_script->statements);
+	rc.visit_statement_list (ast->statements);
 	if(rc.found)
 	{
 		if (hir)
 		{
 			AST_label* label = fresh_label ();
-			php_script->transform_children (new Return_transform (label));
+			ast->transform_children (new Return_transform (label));
 			out->push_back (label);
 		}
 		else
@@ -325,8 +325,8 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	}
 
 	// bring the statements to the expected level of the IR
-	pm->run_until (pass_name, php_script);
+	pm->run_until (pass_name, new IR (ast));
 
 	// copy the statements
-	out->push_back_all(php_script->statements);
+	out->push_back_all(ast->statements);
 }

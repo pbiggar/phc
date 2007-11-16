@@ -22,7 +22,7 @@ class Fake_pass : public Pass
 		this->name = new String (name);
 	}
 
-	void run (AST::AST_php_script*, Pass_manager*) {}
+	void run (IR*, Pass_manager*) {}
 };
 
 

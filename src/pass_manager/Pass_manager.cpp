@@ -5,21 +5,23 @@
  * Manage all aspects of the pass queue
  */
 
-#include "AST_visitor.h"
 #include "cmdline.h"
 #include "ltdl.h"
-#include "AST_transform.h"
-#include "process_ast/Invalid_check.h"
-#include "process_ast/AST_unparser.h"
-#include "process_ast/DOT_unparser.h"
-#include "process_ir/debug.h"
-#include "process_hir/Goto_uppering.h"
-#include "pass_manager/Visitor_pass.h"
-#include "pass_manager/Transform_pass.h"
-#include "pass_manager/Plugin_pass.h"
 #include "Pass_manager.h"
+#include "Plugin_pass.h"
+#include "Visitor_pass.h"
+#include "Transform_pass.h"
+#include "process_ast/AST_unparser.h"
+#include "process_ir/XML_unparser.h"
+#include "process_ast/DOT_unparser.h"
+#include "process_ast/Invalid_check.h"
+#include "process_hir/Goto_uppering.h"
+#include "process_hir/HIR_unparser.h"
+#include "AST.h"
+#include "HIR.h"
 
 using namespace AST;
+using namespace HIR;
 
 Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)
 {
@@ -28,15 +30,28 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 	this->option = option;
 }
 
-void Plugin_pass::run (AST_php_script* in, Pass_manager* pm)
+void Plugin_pass::run (IR* in, Pass_manager* pm)
 {
 	// RUN
-	typedef void (*run_function)(AST_php_script*, Pass_manager*, String*);
-	run_function func = (run_function) lt_dlsym(handle, "run");
-	// TODO this is mandatory (in the sense that it
-	// doesnt make sense not to use this)
+	typedef void (*ast_function)(AST_php_script*, Pass_manager*, String*);
+	ast_function ast_func = (ast_function) lt_dlsym(handle, "run");
 
-	(*func)(in, pm, option);
+	if (not (ast_func))
+		phc_error ("A plugin must define the AST run () function");
+
+	if (ast_func && in->ast)
+		(*ast_func)(in->ast, pm, option);
+
+/*
+	typedef void (*hir_function)(HIR_php_script*, Pass_manager*, String*);
+	hir_function hir_func = (hir_function) lt_dlsym (handle, "run");
+
+	if (not (ast_func || hir_func))
+		phc_error ("A plugin must use either the HIR run () function or the AST run () function");
+
+	if (hir_func && in->hir)
+		(*hir_func)(in->hir, pm, option);
+*/
 }
 
 void Plugin_pass::post_process ()
@@ -68,7 +83,7 @@ void Pass_manager::add_pass (Pass* pass)
 
 void Pass_manager::add_visitor (AST_visitor* visitor, const char* name)
 {
-	Pass* pass = new AST_visitor_pass (visitor);
+	Pass* pass = new Visitor_pass (visitor);
 	if (name)
 		pass->name = new String (name);
 	add_pass (pass);
@@ -76,7 +91,7 @@ void Pass_manager::add_visitor (AST_visitor* visitor, const char* name)
 
 void Pass_manager::add_transform (AST_transform* transform, const char* name)
 {
-	Pass* pass = new AST_transform_pass (transform);
+	Pass* pass = new Transform_pass (transform);
 	if (name)
 		pass->name = new String (name);
 
@@ -172,14 +187,17 @@ Pass* Pass_manager::get_pass (const char* name)
 	return NULL;
 }
 
-void Pass_manager::dump (AST_php_script* in, Pass* pass)
+void Pass_manager::dump (IR* in, Pass* pass)
 {
 	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->dump_given; i++)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			in->visit (new AST_unparser ());
+			if (in->ast)
+				in->ast->visit (new AST_unparser ());
+			else
+				in->hir->visit (new HIR_unparser ());
 		}
 	}
 
@@ -187,9 +205,14 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
-			in = in->clone ();
-			in->visit (new Goto_uppering ());
-			in->visit (new AST_unparser ());
+			if (in->ast)
+			{
+				AST::AST_php_script* ast = in->ast->clone ();
+				ast->visit (new Goto_uppering ());
+				ast->visit (new AST_unparser ());
+			}
+			else
+				phc_error ("Cannot convert HIR to uppered form for dumping");
 		}
 	}
 
@@ -197,7 +220,12 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	{
 		if (*name == args_info->ddump_arg [i])
 		{
-			in->visit (new DOT_unparser ());
+			if (in->ast)
+			{
+				in->ast->visit (new DOT_unparser ());
+			}
+			else
+				assert (0);
 		}
 	}
 
@@ -205,12 +233,16 @@ void Pass_manager::dump (AST_php_script* in, Pass* pass)
 	{
 		if (*name == args_info->xdump_arg [i])
 		{
-			xadebug (in);
+			if (in->ast)
+				in->ast->visit (new AST_XML_unparser ());
+			else
+				in->hir->visit (new HIR_XML_unparser ());
+
 		}
 	}
 }
 
-void Pass_manager::run (AST_php_script* in)
+void Pass_manager::run (IR* in)
 {
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
@@ -219,12 +251,13 @@ void Pass_manager::run (AST_php_script* in)
 		(*i)->run_pass (in, this);
 		if (check)
 			::check (in, false);
+
 		dump (in, *i);
 	}
 }
 
 /* Run all passes between FROM and TO, inclusive. */
-void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
+void Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
 {
 	bool exec = false;
 	List<Pass*>::const_iterator i;
@@ -248,14 +281,16 @@ void Pass_manager::run_from_to (String* from, String* to, AST_php_script* in)
 			// check for last pass
 			if (*((*i)->name) == *to)
 				exec = false;
+
+			if (dump)
+				this->dump (in, *i);
 		}
 
-		// dont dump
 	}
 }
 
 /* Run all passes until TO, inclusive. */
-void Pass_manager::run_until (String* to, AST_php_script* in)
+void Pass_manager::run_until (String* to, IR* in, bool dump)
 {
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
@@ -264,12 +299,16 @@ void Pass_manager::run_until (String* to, AST_php_script* in)
 
 		(*i)->run_pass (in, this);
 		if (check)
+		{
 			::check (in, false);
+		}
 
 		// check for last pass
 		if (*((*i)->name) == *to)
 			break;
-		// dont dump
+
+		if (dump)
+			this->dump (in, *i);
 	}
 }
 

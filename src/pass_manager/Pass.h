@@ -9,9 +9,43 @@
 #define PHC_PASS_H
 
 #include "Pass_manager.h"
+#include "lib/String.h"
 #include "AST.h"
+#include "HIR.h"
 
 class Pass_manager;
+
+class IR
+{
+public:
+	AST::AST_php_script* ast;
+	HIR::HIR_php_script* hir;
+
+	IR ()
+	{
+		ast = NULL;
+		hir = NULL;
+	}
+
+	IR (AST::AST_php_script* a)
+	{
+		ast = a;
+		hir = NULL;
+	}
+
+
+	IR (HIR::HIR_php_script* h)
+	{
+		ast = NULL;
+		hir = h;
+	}
+
+	IR (AST::AST_php_script* a, HIR::HIR_php_script* h)
+	{
+		ast = a;
+		hir = h;
+	}
+};
 
 class Pass
 {
@@ -22,7 +56,7 @@ public:
 
 public:
 
-	virtual void run (AST::AST_php_script* in, Pass_manager* pm) = 0;
+	virtual void run (IR* in, Pass_manager* pm) = 0;
 	virtual void post_process () { }
 
 private:
@@ -35,7 +69,7 @@ public:
 	// Plugin writers should use this
 	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
 
-	void run_pass (AST::AST_php_script* in, Pass_manager* pm)
+	void run_pass (IR* in, Pass_manager* pm)
 	{
 		if (is_enabled (pm))
 			run (in, pm);

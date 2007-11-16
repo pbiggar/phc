@@ -10,11 +10,14 @@
 
 #include "Pass.h"
 #include "AST_visitor.h"
+#include "HIR_visitor.h"
 #include "AST_transform.h"
+#include "HIR_transform.h"
 #include "cmdline.h"
 #include "ltdl.h"
 
 class Pass;
+class IR;
 
 class Pass_manager : public List<Pass*>
 {
@@ -31,20 +34,25 @@ public:
 
 	// TODO make these use Strings
 	void add_pass (Pass* pass);
+	void add_plugin (lt_dlhandle handle, const char* name, String* option);
+
 	void add_visitor (AST::AST_visitor* visitor, const char* name);
 	void add_transform (AST::AST_transform* transform, const char* name);
-	void add_plugin (lt_dlhandle handle, const char* name, String* option);
+
+	void add_visitor (HIR::HIR_visitor* visitor, const char* name);
+	void add_transform (HIR::HIR_transform* transform, const char* name);
+
 
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, const char* name);
 	void add_before_named_pass (Pass* pass, const char* name);
-	void run_from_to (String* from, String* to, AST::AST_php_script* in);
-	void run_until (String* to, AST::AST_php_script* in);
+	void run_from_until (String* from, String* to, IR* in, bool dump = false);
+	void run_until (String* to, IR* in, bool dump = false);
 	Pass* get_pass (const char* name);
 	void list_passes ();
 
-	void dump (AST::AST_php_script* in, Pass* pass);
-	void run (AST::AST_php_script* in);
+	void dump (IR* in, Pass* pass);
+	void run (IR* in);
 	void post_process ();
 	
 

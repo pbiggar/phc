@@ -17,6 +17,7 @@
 #include "ast_to_hir/Desugar.h"
 #include "ast_to_hir/List_shredder.h"
 #include "ast_to_hir/Tidy_print.h"
+#include "ast_to_hir/AST_to_HIR.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
@@ -78,7 +79,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	AST::AST_php_script* php_script = NULL;
+	AST::AST_php_script* ast = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();
@@ -106,21 +107,21 @@ int main(int argc, char** argv)
 	 */
 	if(args_info.inputs_num == 0)
 	{
-		php_script = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
+		ast = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
 	}
 	else
 	{
 		if (args_info.inputs_num > 1)
 			phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
 
-		php_script = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
-		if (php_script == NULL)
+		ast = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
+		if (ast == NULL)
 		{
 			phc_error("File not found", new String(args_info.inputs[0]), 0);
 		}
 	}
 
-	if(php_script == NULL) return -1;
+	if(ast == NULL) return -1;
 
 	// Make sure the inputs cannot be accessed globally
 	args_info.inputs = NULL;
@@ -155,7 +156,8 @@ int main(int argc, char** argv)
 	pm->add_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 
 	// process_hir passes
-	pm->add_pass (new Fake_pass ("hir"));
+	pm->add_pass (new Fake_pass ("hir_as_ast"));
+	// ~TODO use the HIR after here
 	pm->add_visitor (new Strip_comments (), "decomment"); // codegen
 	pm->add_pass (new Obfuscate ());
 
@@ -172,8 +174,17 @@ int main(int argc, char** argv)
 	init_plugins (pm);
 
 
-	// Launch the pass manager
-	pm->run (php_script);
+	// Run AST passes
+	IR* ir = new IR (ast);
+	pm->run_until (new String ("pst"), ir, true);
+
+	// Run HIR passes
+	AST_to_HIR* tr = new AST_to_HIR ();
+	HIR::HIR_php_script* hir = tr->fold_php_script(ast);
+	ir->ast = NULL;
+	ir->hir = hir;
+	pm->run_from_until (new String ("generate-c"), new String ("compile_c"), ir, true);
+
 	pm->post_process ();
 
 	/*

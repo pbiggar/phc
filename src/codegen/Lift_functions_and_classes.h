@@ -20,12 +20,14 @@ public:
 		this->name = new String ("lfc");
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	// TODO this should be done on HIR, I think
+	void run (IR* in, Pass_manager* pm)
 	{
 		if (pm->args_info->generate_c_flag
 			or pm->args_info->compile_flag)
 		{
-			in->transform_children (this);
+			assert (in->hir == NULL);
+			in->ast->transform_children (this);
 		}
 	}
 	void children_php_script(AST::AST_php_script* in);

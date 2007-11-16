@@ -26,9 +26,10 @@ public:
 
 	String* pass_name;
 	Pass_manager* pm;
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	void run (IR* in, Pass_manager* pm)
 	{
-		in->transform_children (this);
+		assert (in->hir == NULL);
+		in->ast->transform_children (this);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm);

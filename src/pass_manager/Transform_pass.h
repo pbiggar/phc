@@ -9,24 +9,43 @@
 #define PHC_TRANSFORM_PASS_H
 
 #include "AST_transform.h"
+#include "HIR_transform.h"
 
-// TODO generic transform pass
-class AST_transform_pass : public Pass
+class Transform_pass : public Pass
 {
-	AST::AST_transform* transform;
+	AST::AST_transform* ast_transform;
+	HIR::HIR_transform* hir_transform;
 
 public:
 
-	AST_transform_pass (AST::AST_transform* t)
+	Transform_pass (AST::AST_transform* v)
 	{
-		transform = t;
+		ast_transform = v;
+		hir_transform = NULL;
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	Transform_pass (HIR::HIR_transform* v)
 	{
-		in->transform_children (transform);
+		ast_transform = NULL;
+		hir_transform = v;
 	}
 
+	void run (IR* in, Pass_manager* pm)
+	{
+		if (in->ast)
+		{
+			assert (ast_transform);
+			assert (hir_transform == NULL);
+			in->ast->transform_children (ast_transform);
+		}
+		else
+		{
+			assert (in->hir);
+			assert (ast_transform == NULL);
+			assert (hir_transform);
+			in->hir->transform_children (hir_transform);
+		}
+	}
 };
 
 #endif // PHC_TRANSFORM_PASS_H

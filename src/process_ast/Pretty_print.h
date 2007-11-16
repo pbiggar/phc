@@ -23,9 +23,10 @@ public:
 		this->name = new String ("pretty-print");
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	void run (IR* in, Pass_manager* pm)
 	{
-		in->visit (new AST_unparser ());
+		assert (in->hir == NULL);
+		in->ast->visit (new AST_unparser ());
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

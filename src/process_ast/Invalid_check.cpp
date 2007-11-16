@@ -11,23 +11,29 @@
 
 using namespace AST;
 
-void check (AST_node* in, bool use_ice)
+void check (IR* in, bool use_ice)
 {
 	// check validity
-	in->assert_valid();
-	in->visit (new Invalid_check (use_ice));
+	if (in->ast)
+	{
+		in->ast->assert_valid();
+		in->ast->visit (new Invalid_check (use_ice));
+	}
+
+	if (in->hir)
+		in->hir->assert_valid();
 }
 
 bool is_ref_literal (AST_expr* in)
 {
-	return ( dynamic_cast <AST_literal*> (in) 
-				|| dynamic_cast <AST_array*> (in)
-				|| dynamic_cast <AST_constant*> (in));
+	return (	dynamic_cast <AST_literal*> (in) 
+			|| dynamic_cast <AST_array*> (in)
+			|| dynamic_cast <AST_constant*> (in));
 }
 
-void Invalid_check::run (AST_php_script* in, Pass_manager* pm)
+void Invalid_check::run (IR* in, Pass_manager* pm)
 {
-	in->visit (this);
+	in->ast->visit (this);
 	// Indicate that after this pass, ICEs should be used.
 	pm->check = true;
 }

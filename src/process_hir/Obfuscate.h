@@ -21,11 +21,12 @@ public:
 		name = new String ("obfuscate");
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	void run (IR* in, Pass_manager* pm)
 	{
-		in = in->clone ();
-		in->visit (new Goto_uppering());
-		in->visit (new AST_unparser);
+		assert (in->hir == NULL);
+		AST::AST_php_script* ast = in->ast->clone ();
+		ast->visit (new Goto_uppering());
+		ast->visit (new AST_unparser);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

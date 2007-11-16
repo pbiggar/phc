@@ -57,7 +57,7 @@ bool Generate_C::pass_is_enabled (Pass_manager* pm)
 	return pm->args_info->generate_c_flag or pm->args_info->compile_flag;
 }
 
-void Generate_C::run (AST::AST_php_script* in, Pass_manager* pm)
+void Generate_C::run (IR* in, Pass_manager* pm)
 {
 	args_info = pm->args_info;
 	if (not PHP::is_available ())
@@ -82,8 +82,9 @@ void Generate_C::run (AST::AST_php_script* in, Pass_manager* pm)
 		is_extension = false;
 	}
 
-	AST_to_HIR* tr = new AST_to_HIR();
-	tr->fold_php_script(in)->visit (this);
+	assert (in->ast == NULL);
+
+	in->hir->visit (this);
 
 	os << prologue.str ();
 	os << code.str ();

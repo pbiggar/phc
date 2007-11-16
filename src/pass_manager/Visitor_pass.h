@@ -9,22 +9,43 @@
 #define PHC_VISITOR_PASS_H
 
 #include "AST_visitor.h"
+#include "HIR_visitor.h"
 
 // TODO generic visitors, not AST viistors
-class AST_visitor_pass : public Pass
+class Visitor_pass : public Pass
 {
-	AST::AST_visitor* visitor;
+	AST::AST_visitor* ast_visitor;
+	HIR::HIR_visitor* hir_visitor;
 
 public:
 
-	AST_visitor_pass (AST::AST_visitor* v)
+	Visitor_pass (AST::AST_visitor* v)
 	{
-		visitor = v;
+		ast_visitor = v;
+		hir_visitor = NULL;
 	}
 
-	void run (AST::AST_php_script* in, Pass_manager* pm)
+	Visitor_pass (HIR::HIR_visitor* v)
 	{
-		in->visit (visitor);
+		ast_visitor = NULL;
+		hir_visitor = v;
+	}
+
+	void run (IR* in, Pass_manager* pm)
+	{
+		if (in->ast)
+		{
+			assert (ast_visitor);
+			assert (hir_visitor == NULL);
+			in->ast->visit (ast_visitor);
+		}
+		else
+		{
+			assert (in->hir);
+			assert (ast_visitor == NULL);
+			assert (hir_visitor);
+			in->hir->visit (hir_visitor);
+		}
 	}
 };
 

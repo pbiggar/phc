@@ -78,9 +78,9 @@ public:
 		 * mean that we'd have to support passing any AST_node to any point in
 		 * the pass queue. I dont think that's a good idea). */
 		List<AST_statement*>* shredded = new List<AST_statement*> (print, dump);
-		AST_php_script* wrap = new AST_php_script (shredded);
-		pm->run_from_to (new String ("lcf"), new String ("shred"), wrap);
-		debugs->push_back_all (wrap->statements);
+		IR* ir = new IR (new AST_php_script (shredded));
+		pm->run_from_until (new String ("lcf"), new String ("shred"), ir);
+		debugs->push_back_all (shredded);
 
 		return var;
 	}
