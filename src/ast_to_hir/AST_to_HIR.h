@@ -296,6 +296,9 @@ class AST_to_HIR : public AST::AST_fold
 
 	HIR::Token_variable_name* var_name_from_expr (HIR::HIR_expr* expr)
 	{
+		if (expr == NULL) // $x[]
+			return NULL;
+
 		HIR::HIR_variable* var = dynamic_cast<HIR::HIR_variable*> (expr);
 		assert (var);
 		assert (var->array_indices->size () == 0);
