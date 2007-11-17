@@ -27,7 +27,21 @@ class Clear_user_syntax : public virtual AST_visitor
 				in->attrs->erase ((*i).first);
 			}
 		}
-	}
+	} 
+
+#define REMOVE_SOURCE_REP(TYPE)													\
+	void pre##TYPE (Token_##TYPE* in) { in->source_rep = NULL; }
+
+	REMOVE_SOURCE_REP (cast);
+	REMOVE_SOURCE_REP (int);
+	REMOVE_SOURCE_REP (real);
+	REMOVE_SOURCE_REP (bool);
+	REMOVE_SOURCE_REP (null);
+//	REMOVE_SOURCE_REP (string);
+
+#undef REMOVE_SOURCE_REP
+
+
 };
 
 class Canonical_unparser : public virtual AST_unparser
@@ -72,12 +86,25 @@ class Canonical_unparser : public virtual AST_unparser
 #undef WRAP
 #undef EXCEPT_IN
 
+
 	void children_bin_op(AST_bin_op* in)
 	{
 		if (*in->op->value != ",") echo("(");
 		AST_unparser::children_bin_op (in);
 		if (*in->op->value != ",") echo(")");
 	}
+
+#define NO_SOURCE_REP(TYPE)													\
+	void children_##TYPE (Token_##TYPE* in) { echo (in->get_value_as_string ()); }
+
+	NO_SOURCE_REP (cast);
+	NO_SOURCE_REP (int);
+	NO_SOURCE_REP (real);
+	NO_SOURCE_REP (bool);
+	NO_SOURCE_REP (null);
+
+#undef NO_SOURCE_REP
+
 
 };
 
