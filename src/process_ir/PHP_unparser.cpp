@@ -19,16 +19,12 @@ using namespace std;
 
 void PHP_unparser::echo(const char* str)
 {
-	output_start_tag();
-	if(delayed_newline) newline();
-	output_tabs();
-	os << str;
+	echo (new String (str));
 }
 
 void PHP_unparser::echo_nl(const char* s)
 {
-	echo(s);
-	newline();
+	echo_nl (new String (s));
 }
 
 void PHP_unparser::echo(String* str)
