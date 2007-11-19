@@ -20,13 +20,6 @@ abstract class Test
 		$this->timers = array();
 	}
 
-	// override this function if your test takes ages
-	function get_time_limit ()
-	{
-		// basic_parse_tests take 20 seconds on my machine.
-		return 120;
-	}
-
 	function get_name ()
 	{
 		return get_class($this);
@@ -163,11 +156,6 @@ abstract class Test
 
 	function run()
 	{
-		# TODO remove time limit
-		// increase the timelimit
-		$time_limit = ini_get('max_execution_time');
-		set_time_limit ($time_limit + $this->get_time_limit ());
-
 		// do this first so that the progress bar is ready
 		$files = $this->get_test_subjects ();
 		$this->ready_progress_bar (count ($files));

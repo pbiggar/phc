@@ -52,12 +52,6 @@ $phc = get_phc ();
 $php = get_php ();
 $phc_compile_plugin = get_phc_compile_plugin ();
 
-// TODO remove time limit - it doesnt work
-if ($opt_long)
-{
-	set_time_limit (300); // 5 mins for long tests should be grand. Note, this is system time, so time spent waiting for blocking external processes doesnt count
-}
-
 if ($opt_installed)
 {
 	$phc = "$bindir/phc";

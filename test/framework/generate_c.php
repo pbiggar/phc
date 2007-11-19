@@ -17,12 +17,6 @@ class Generate_C extends Test
 		return array ("Interpret_shred");
 	}
 
-	function get_time_limit ()
-	{
-		// TODO this test takes ages and ages. Why?
-		return 400;
-	}
-
 	function get_test_subjects ()
 	{
 		return get_interpretable_scripts ();
