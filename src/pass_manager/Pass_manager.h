@@ -50,9 +50,11 @@ public:
 	void run_until (String* to, IR* in, bool dump = false);
 	Pass* get_pass (const char* name);
 	void list_passes ();
+	bool has_pass_named (String *);
 
 	void dump (IR* in, Pass* pass);
-	void run (IR* in);
+	void run (IR* in, bool dump = false);
+	void run_pass (Pass* pass, IR* in, bool dump = false);
 	void post_process ();
 	
 

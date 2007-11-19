@@ -242,18 +242,24 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	}
 }
 
-void Pass_manager::run (IR* in)
+void Pass_manager::run (IR* in, bool dump)
 {
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
 	{
-		assert ((*i)->name);
-		(*i)->run_pass (in, this);
-		if (check)
-			::check (in, false);
-
-		dump (in, *i);
+		run_pass (*i, in, dump);
 	}
+}
+
+void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
+{
+	assert (pass->name);
+	pass->run_pass (in, this);
+	if (check)
+		::check (in, false);
+
+	if (dump)
+		this->dump (in, pass);
 }
 
 /* Run all passes between FROM and TO, inclusive. */
@@ -263,29 +269,16 @@ void Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
 	{
-		assert ((*i)->name);
-
 		// check for starting pass
-		if (exec == false)
-		{
-			if (*((*i)->name) == *from)
-				exec = true;
-		}
+		if (!exec && *((*i)->name) == *from)
+			exec = true;
 
-		if (exec == true)
-		{
-			(*i)->run_pass (in, this);
-			if (check)
-				::check (in, true);
+		if (exec)
+			run_pass (*i, in, dump);
 
-			// check for last pass
-			if (*((*i)->name) == *to)
-				exec = false;
-
-			if (dump)
-				this->dump (in, *i);
-		}
-
+		// check for last pass
+		if (exec && *((*i)->name) == *to)
+			exec = false;
 	}
 }
 
@@ -295,20 +288,11 @@ void Pass_manager::run_until (String* to, IR* in, bool dump)
 	List<Pass*>::const_iterator i;
 	for (i = begin (); i != end (); i++)
 	{
-		assert ((*i)->name);
-
-		(*i)->run_pass (in, this);
-		if (check)
-		{
-			::check (in, false);
-		}
+		run_pass (*i, in, dump);
 
 		// check for last pass
 		if (*((*i)->name) == *to)
 			break;
-
-		if (dump)
-			this->dump (in, *i);
 	}
 }
 
@@ -320,3 +304,19 @@ void Pass_manager::post_process ()
 		(*i)->post_process ();
 	}
 }
+
+#define for_lci(VAR, TYPE, ITER) for (List<TYPE*>::const_iterator ITER = VAR->begin ();	\
+													ITER != VAR->end ();											\
+													ITER++)
+
+bool Pass_manager::has_pass_named (String* name)
+{
+	for_lci (this, Pass, i)
+	{
+		if (*name == *(*i)->name)
+			return true;
+	}
+	return false;
+}
+
+#undef for_lci

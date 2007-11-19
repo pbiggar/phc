@@ -166,12 +166,28 @@ int main(int argc, char** argv)
 	stringstream ss;
 	pm->add_visitor (new Clarify (), "clar");
 	pm->add_visitor (new Prune_symbol_table (), "pst");
+	pm->add_pass (new Fake_pass ("hir")); // TODO move to hir_as_ast
 	pm->add_pass (new Generate_C (ss));
 	pm->add_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager
 	init_plugins (pm);
+
+
+	// All the passes are added, so check the dumping options
+#define check_passes(FLAG)																		\
+	for (unsigned int i = 0; i < args_info.FLAG##_given; i++)				\
+	{																									\
+		if (! pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
+			phc_error ("No " #FLAG " pass named %s", args_info.FLAG##_arg [i]);	\
+	}
+	check_passes (dump);
+	check_passes (udump);
+	check_passes (xdump);
+	check_passes (ddump);
+
+#undef check_passes
 
 
 	// Run AST passes
@@ -183,7 +199,7 @@ int main(int argc, char** argv)
 	HIR::HIR_php_script* hir = tr->fold_php_script(ast);
 	ir->ast = NULL;
 	ir->hir = hir;
-	pm->run_from_until (new String ("generate-c"), new String ("compile_c"), ir, true);
+	pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);
 
 	pm->post_process ();
 
