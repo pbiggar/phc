@@ -18,7 +18,7 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 	// The prelude contains all static declarations
 	List<AST_statement*> *prelude = new List<AST_statement*> ();
 
-	// this in only contains the while, and the "start" statement.
+	// OUT only contains the while, and the "start" statement.
 	List<AST_statement*> *out = new List<AST_statement*> ();
 
 	// add $next = "start";
@@ -30,14 +30,14 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 	List<AST_switch_case*> *cases = new List<AST_switch_case*> ();
 	AST_switch *switches = new AST_switch (next->clone (), cases);
 
-	// create 'while (true)' and add the switch to it
+	// Add: while (true) { switch ($next) { } }
 	Token_bool *truth = new Token_bool (true, new String ("true"));
 	AST_while *while_stmt = new AST_while (truth, new List<AST_statement*> ());
 	out->push_back (while_stmt);
 	while_stmt->statements->push_back (switches);
 
 
-	// case "start";
+	// Add: case "start";
 	AST_switch_case* current = new AST_switch_case (start->clone (), new List<AST_statement*> ());
 	cases->push_back (current);
 
@@ -50,6 +50,7 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 	AST_branch *branch_pattern = new AST_branch (expr, l1, l2);
 	AST_label *label_pattern = new AST_label (l1);;
 
+	// Convert all the patterns
 	List<AST_statement*>::const_iterator i;
 	for (i = in->begin (); i != in->end (); i++)
 	{
