@@ -60,7 +60,7 @@ foreach ($opts as $opt)
 	}
 }
 if ($opt_command === "") 
-	$opt_command = "--xdump=hir";
+	$opt_command = "--xdump=hir_as_ast";
 
 if ($opt_help || count ($arguments) < 1)
 {
