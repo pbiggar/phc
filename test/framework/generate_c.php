@@ -37,12 +37,13 @@ class Generate_C extends Test
 				$phc_command, 
 				$phc_out,
 				$phc_err,
-				$phc_exit);
+				$phc_exit,
+				"exit or error set");
 		}
 		# Blank output wasnt being picked up
 		else if (count (split ("\n", $phc_out)) < 170)
 		{
-			$this->mark_failure ($subject, $phc_command, $phc_exit, $phc_out, $phc_err); 
+			$this->mark_failure ($subject, $phc_command, $phc_exit, $phc_out, $phc_err, "output is too short"); 
 		}
 		else
 		{

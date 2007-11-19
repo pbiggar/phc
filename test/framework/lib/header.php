@@ -288,7 +288,7 @@ function diff ($string1, $string2)
 	return xdiff_string_diff ("$string1\n", "$string2\n");
 }
 
-function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $missing_dependency)
+function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $missing_dependency, $reason)
 {
 	$red = red_string();
 	$reset = reset_string();
@@ -331,13 +331,15 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 			$err_string = "{$red}Error$reset: $errs\n";
 	}
 
+	$reason_string = "Reason: $reason\n";
+
 	$dependency_string = "";
 	if ($missing_dependency)
 	{
 		$dependency_string = "NOTE: dependency $missing_dependency is missing. This may be the cause of this failure\n";
 	}
 
-	$command_string = $dependency_string.$command_string.$err_string;
+	$command_string = "$reason_string$dependency_string$command_string$err_string";
 	if (is_array ($outs))
 	{
 		$outs = join ("\n", $outs);

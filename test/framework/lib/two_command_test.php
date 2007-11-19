@@ -44,7 +44,8 @@ abstract class TwoCommandTest extends Test
 				array($command1, $command2),
 				$output,
 				array ($err1, $err2),
-				array($exit1, $exit2));
+				array($exit1, $exit2),
+				"Outputs or exit codes differ");
 		}
 		else $this->mark_success ($subject);
 	}

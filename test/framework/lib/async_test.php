@@ -108,31 +108,32 @@ class AsyncBundle
  */
 abstract class AsyncTest extends Test
 {
-	function mark_failure ($reason, $async)
+	function mark_failure ($reason, $bundle)
 	{
 		parent::mark_failure (
-					$async->subject, 
-					$async->commands,
-					$async->outs,
-					$async->errs,
-					$async->exits);
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits,
+					$reason);
 	}
 
-	function mark_timeout ($reason, $async)
+	function mark_timeout ($reason, $bundle)
 	{
 		parent::mark_timeout (
-					$async->subject, 
-					$async->commands,
-					$async->outs,
-					$async->errs,
-					$async->exits);
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits);
 	}
 
-	function fail_on_output (&$stream, $async)
+	function fail_on_output (&$stream, $bundle)
 	{
-		if ($stream != 0)
+		if ($stream !== 0 and $stream !== "")
 		{
-			$this->mark_failure ($stream, $async);
+			$this->mark_failure ("exit or err not clear", $bundle);
 			return false;
 		}
 		return $stream;

@@ -314,13 +314,11 @@ abstract class Test
 		$this->update_count ();
 	}
 
-	function mark_failure ($subject, $commands, $outs = "Not relevent", $errs = "Not relevent", $exits = "Not relevent")
+	function mark_failure ($subject, $commands, $outs = "Not relevent", $errs = "Not relevent", $exits = "Not relevent", $reason = "TODO - no reason given")
 	{
-		$reason = "TODO";
-
 		write_dependencies ($this->get_name (), $subject, false);
 
-		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL);
+		log_failure ($this->get_name(), $subject, $reason, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL);
 		log_status ("failure", $this->get_name(), $subject, $reason);
 		$this->erase_progress_bar();
 
