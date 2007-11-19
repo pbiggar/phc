@@ -6,6 +6,7 @@
  * Base class for tests
  */
 
+require_once ("labels.php");
 abstract class Test
 {
 	function __construct ()

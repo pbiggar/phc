@@ -22,6 +22,8 @@ function get_php_command_line ($subject, $pipe = false)
 	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
 }
 
+require_once ("two_command_test.php");
+
 
 class CompareWithPHP extends TwoCommandTest
 {

@@ -8,6 +8,8 @@
 
 // Allow the number of processes to be specified locally
 
+require_once ("test.php");
+
 if (isset($_ENV["PHC_NUM_PROCS"]))
 	define ("PHC_NUM_PROCS", (int)($_ENV["PHC_NUM_PROCS"]));
 else

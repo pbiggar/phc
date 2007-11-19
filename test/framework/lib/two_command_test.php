@@ -5,6 +5,8 @@
  *
  * Compare the output of two command lines
  */
+
+require_once ("test.php");
 abstract class TwoCommandTest extends Test
 {
 	abstract function get_command_line1 ($subject);

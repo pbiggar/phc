@@ -16,8 +16,8 @@ if (substr (phpversion (), 0, 1) < 5)
 	die("Tests skipped (PHP version 5 required)\n");
 }
 
-$support_dir =		"test/support_files";
-$plugin_dir = "plugins";
+$support_dir =	"test/support_files";
+$plugin_dir =	"plugins";
 
 require_once ("lib/startup.php");
 require_once ("lib/header.php");
@@ -38,25 +38,21 @@ $log_directory =	"test/logs/".date_string ();
 mkdir ($log_directory);
 @unlink ("test/logs/latest");
 symlink ($log_directory, "test/logs/latest");
+print ("Logs in:      $log_directory\n");
 
 //setup working dir
 $working_directory =	"test/working/".date_string ();
 mkdir ($working_directory);
 @unlink ("test/working/latest");
 symlink ($working_directory, "test/working/latest");
-
 print ("Working from: $working_directory\n");
-print ("Logs in:      $log_directory\n");
+
+// setup globals
 $phc = get_phc ();
 $php = get_php ();
 $phc_compile_plugin = get_phc_compile_plugin ();
 
-require_once ("lib/test.php");
-require_once ("lib/plugin_test.php");
-require_once ("lib/two_command_test.php");
-require_once ("lib/compare_with_php_test.php");
-require_once ("lib/regression.php");
-
+// TODO remove time limit - it doesnt work
 if ($opt_long)
 {
 	set_time_limit (300); // 5 mins for long tests should be grand. Note, this is system time, so time spent waiting for blocking external processes doesnt count
@@ -70,10 +66,17 @@ if ($opt_installed)
 	$trunk_CPPFLAGS = ""; // we use these for compiling plugins with phc_compile_plugin
 }
 
+
+require_once ("lib/compare_with_php_test.php");
+require_once ("lib/plugin_test.php");
+require_once ("lib/regression.php");
+
+// Add tests to list
 $tests = array ();
 
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
+require_once ("compare_all_passes.php");
 $tests[] = new CompareWithPHP ("Interpret_ast", "--pretty-print", "BasicParseTest");
 $tests[] = new CompareWithPHP ("Interpret_lcf", "--udump=lcf", "Interpret_ast");
 $tests[] = new CompareWithPHP ("Interpret_lef", "--udump=lef", "Interpret_lcf");
@@ -105,12 +108,13 @@ require_once ("parse_ast_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--ddump=ast", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
 
-require_once ("lib/labels.php");
-open_status_files ();
 
+
+// Run the tests
+open_status_files ();
 foreach ($tests as $test)
 {
-$test_name = $test->get_name ();
+	$test_name = $test->get_name ();
 
 	/* if there are regexes, check them, and skip tests not matching one of them */
 	if (count ($arguments) > 0)
@@ -141,7 +145,6 @@ $test_name = $test->get_name ();
 	}
 	else $test->run ();
 }
-
 close_status_files ();
 
 ?>
