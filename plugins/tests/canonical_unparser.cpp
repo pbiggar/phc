@@ -32,21 +32,30 @@ class Clear_user_syntax : public virtual AST_visitor
 #define REMOVE_SOURCE_REP(TYPE)													\
 	void pre##TYPE (Token_##TYPE* in) { in->source_rep = NULL; }
 
+	/* Not all tokens have source_reps. Those that do should still be unparsable
+	 * if they're set to NULL. */
+	REMOVE_SOURCE_REP (bool); 
 	REMOVE_SOURCE_REP (cast);
+//	REMOVE_SOURCE_REP (class_name); REMOVE_SOURCE_REP (constant_name);
+//	REMOVE_SOURCE_REP (directive_name);
 	REMOVE_SOURCE_REP (int);
-	REMOVE_SOURCE_REP (real);
-	REMOVE_SOURCE_REP (bool);
+//	REMOVE_SOURCE_REP (interface_name); 
+//	REMOVE_SOURCE_REP (label_name);
+//	REMOVE_SOURCE_REP (method_name);
 	REMOVE_SOURCE_REP (null);
-//	REMOVE_SOURCE_REP (string);
+//	REMOVE_SOURCE_REP (op);
+	REMOVE_SOURCE_REP (real);
+	REMOVE_SOURCE_REP (string);
+//	REMOVE_SOURCE_REP (variable_name);
 
 #undef REMOVE_SOURCE_REP
 
 
 };
 
-class Canonical_unparser : public virtual AST_unparser
-{
-	bool bracket;
+/* There is no need to override the unparser methods for tokens. They should be
+ * able to unparse without a source_rep. */
+class Canonical_unparser : public virtual AST_unparser { bool bracket;
 
 	// clear all the users syntax so the PHP_unparser wont print it
 	// out
@@ -86,26 +95,12 @@ class Canonical_unparser : public virtual AST_unparser
 #undef WRAP
 #undef EXCEPT_IN
 
-
 	void children_bin_op(AST_bin_op* in)
 	{
 		if (*in->op->value != ",") echo("(");
 		AST_unparser::children_bin_op (in);
 		if (*in->op->value != ",") echo(")");
 	}
-
-#define NO_SOURCE_REP(TYPE)													\
-	void children_##TYPE (Token_##TYPE* in) { echo (in->get_value_as_string ()); }
-
-	NO_SOURCE_REP (cast);
-	NO_SOURCE_REP (int);
-	NO_SOURCE_REP (real);
-	NO_SOURCE_REP (bool);
-	NO_SOURCE_REP (null);
-
-#undef NO_SOURCE_REP
-
-
 };
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
