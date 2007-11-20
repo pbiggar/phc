@@ -266,7 +266,7 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
     	List<Token_variable_name*>* array_indices = dynamic_cast<List<Token_variable_name*>*>(*i++);
     	assert(i == args->end());
     	return new HIR_actual_parameter(is_ref, target, variable_name, array_indices);

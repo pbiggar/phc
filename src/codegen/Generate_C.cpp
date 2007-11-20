@@ -227,11 +227,12 @@ Token_variable_name* get_var_name (HIR_expr* var_expr)
 	return name;
 }
 
-Token_variable_name* get_var_name (HIR_reflection* var_refl)
+Token_variable_name* get_var_name (HIR_variable_name* var_name)
 {
-	return var_refl->variable_name;
+	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var_name);
+	assert (name);
+	return name;
 }
-
 
 void index_lhs (Scope scope, string zvp, HIR_variable* var)
 {
@@ -1270,7 +1271,7 @@ class Eval : public Assignment
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
 
 		code << "{\n";
-		read_simple (LOCAL, "eval_arg", eval_arg->value->variable_name);
+		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value->variable_name));
 
 		if (used)
 		{
@@ -1333,7 +1334,7 @@ public:
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
 		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_simple (LOCAL, "arg", exit_arg->value->variable_name);
+		read_simple (LOCAL, "arg", get_var_name (exit_arg->value->variable_name));
 
 		// Fetch the parameter
 		code
@@ -1456,7 +1457,7 @@ public:
 			i++, index++)
 		{
 			if ((*i)->target) phc_unsupported (*i);
-			Token_variable_name* var_name = (*i)->variable_name;
+			Token_variable_name* var_name = get_var_name ((*i)->variable_name);
 
 
 			code << "destruct[" << index << "] = 0;\n";
@@ -1834,7 +1835,7 @@ class Unset : public Pattern
 		// TODO: deal with object indexing
 		if (var->value->target) phc_unsupported (var);
 
-		Token_variable_name* var_name = var->value->variable_name;
+		Token_variable_name* var_name = get_var_name (var->value->variable_name);
 
 		if (var_name != NULL)
 		{
@@ -1911,7 +1912,7 @@ class Isset : public Assign_unknown_literal
 		// TODO: deal with object indexing
 		if (var->value->target) phc_unsupported (var->value);
 
-		Token_variable_name* var_name = var->value->variable_name;
+		Token_variable_name* var_name = get_var_name (var->value->variable_name);
 
 		if (var_name != NULL)
 		{

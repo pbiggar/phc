@@ -135,7 +135,7 @@ method_invocation ::= target? method_name actual_parameter* ;
 method_name ::= METHOD_NAME | reflection ;
 
 -- actual_parameter ::= is_ref:"&"? expr ;
-actual_parameter ::= is_ref:"&"? target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
+actual_parameter ::= is_ref:"&"? target? variable_name array_indices:VARIABLE_NAME?* ;
 
 new ::= class_name actual_parameter* ;
 class_name ::= CLASS_NAME | reflection ;

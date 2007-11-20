@@ -499,17 +499,17 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// actual_parameter ::= is_ref:"&" target? VARIABLE_NAME array_indices:VARIABLE_NAME?* ;
+// actual_parameter ::= is_ref:"&" target? variable_name array_indices:VARIABLE_NAME?* ;
 class HIR_actual_parameter : virtual public HIR_node
 {
 public:
-    HIR_actual_parameter(bool is_ref, HIR_target* target, Token_variable_name* variable_name, List<Token_variable_name*>* array_indices);
+    HIR_actual_parameter(bool is_ref, HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices);
 protected:
     HIR_actual_parameter();
 public:
     bool is_ref;
     HIR_target* target;
-    Token_variable_name* variable_name;
+    HIR_variable_name* variable_name;
     List<Token_variable_name*>* array_indices;
 public:
     virtual void visit(HIR_visitor* visitor);

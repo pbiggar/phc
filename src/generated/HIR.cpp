@@ -1348,7 +1348,7 @@ HIR_method_name::HIR_method_name()
 {
 }
 
-HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_target* target, Token_variable_name* variable_name, List<Token_variable_name*>* array_indices)
+HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices)
 {
     this->is_ref = is_ref;
     this->target = target;
@@ -1486,7 +1486,7 @@ HIR_actual_parameter* HIR_actual_parameter::clone()
 {
     bool is_ref = this->is_ref;
     HIR_target* target = this->target ? this->target->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HIR_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
     List<Token_variable_name*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
