@@ -99,36 +99,12 @@ int main(int argc, char** argv)
 	// Passign this struct through the pass manager is a bit hard.
 	error_args_info = args_info;
 
-	// The rest of the compilation is controlled by the pass manager.
+
+	/* 
+	 *	Set up the pass_manager
+	 */
+
 	Pass_manager* pm = new Pass_manager (&args_info);
-
-	/* 
-	 *	Parsing 
-	 */
-	if(args_info.inputs_num == 0)
-	{
-		ast = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
-	}
-	else
-	{
-		if (args_info.inputs_num > 1)
-			phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
-
-		ast = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
-		if (ast == NULL)
-		{
-			phc_error("File not found", new String(args_info.inputs[0]), 0);
-		}
-	}
-
-	if(ast == NULL) return -1;
-
-	// Make sure the inputs cannot be accessed globally
-	args_info.inputs = NULL;
-
-	/* 
-	 *	Compilation
-	 */
 
 	// process_ast passes
 	pm->add_pass (new List_passes ());
@@ -174,7 +150,6 @@ int main(int argc, char** argv)
 	// Plugins add their passes to the pass manager
 	init_plugins (pm);
 
-
 	// All the passes are added, so check the dumping options
 #define check_passes(FLAG)																		\
 	for (unsigned int i = 0; i < args_info.FLAG##_given; i++)				\
@@ -190,22 +165,61 @@ int main(int argc, char** argv)
 #undef check_passes
 
 
-	// Run AST passes
-	IR* ir = new IR (ast);
-	pm->run_until (new String ("pst"), ir, true);
+	/* 
+	 *	Parsing 
+	 */
+	
+	// handle --list-passes the same as --help or --version
+	if (args_info.list_passes_given and args_info.inputs_num == 0)
+	{
+		pm->list_passes ();
+	}
+	else
+	{
+		if(args_info.inputs_num == 0)
+		{
+			ast = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
+		}
+		else
+		{
+			if (args_info.inputs_num > 1)
+				phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
 
-	// Run HIR passes
-	AST_to_HIR* tr = new AST_to_HIR ();
-	HIR::HIR_php_script* hir = tr->fold_php_script(ast);
-	ir->ast = NULL;
-	ir->hir = hir;
-	pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);
+			ast = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
+			if (ast == NULL)
+			{
+				phc_error("File not found", new String(args_info.inputs[0]), 0);
+			}
+		}
 
-	pm->post_process ();
+		if(ast == NULL) return -1;
+
+		// Make sure the inputs cannot be accessed globally
+		args_info.inputs = NULL;
+
+
+		/* 
+		 *	Run the passes
+		 */
+
+		// Run AST passes
+		IR* ir = new IR (ast);
+		pm->run_until (new String ("pst"), ir, true);
+
+		// Run HIR passes
+		AST_to_HIR* tr = new AST_to_HIR ();
+		HIR::HIR_php_script* hir = tr->fold_php_script(ast);
+		ir->ast = NULL;
+		ir->hir = hir;
+		pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);
+
+		pm->post_process ();
+	}
 
 	/*
 	 * Destruction
 	 */
+
 	int ret = lt_dlexit();
 	if (ret != 0) 
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());

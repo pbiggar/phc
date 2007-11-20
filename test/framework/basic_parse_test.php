@@ -46,14 +46,7 @@ class BasicParseTest extends AsyncTest
 		// check exit code
 		if (isset ($expected["exit_code"]))
 		{
-			if ($bundle->exits[0] == $expected["exit_code"])
-			{
-				$this->mark_success ($bundle->subject);
-				$this->expected_failure_count++;
-				write_dependencies ($this->get_name (), $bundle->subject, false);
-				return;
-			}
-			else
+			if ($bundle->exits[0] != $expected["exit_code"])
 			{
 				$this->mark_failure ("Exit doesnt match", $bundle);
 				return;
@@ -70,7 +63,8 @@ class BasicParseTest extends AsyncTest
 		if (isset ($expected["err_regex"]))
 		{
 			$err = $bundle->errs[0];
-			preg_replace ("!{$expected["err_regex"]}!", "", $err);
+			$err = preg_replace ("/Note that line numbers are inaccurate, and will be fixed in a later release\n/", "", $err);
+			$err = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
 			if ($err !== "")
 			{
 				$this->mark_failure ("Error doesnt match: ". $expected["err_regex"], $bundle);
@@ -81,19 +75,29 @@ class BasicParseTest extends AsyncTest
 		// check output
 		if (isset ($expected["out_regex"]))
 		{
-			preg_replace ("!{$expected["out_regex"]}!", "", $bundle->exits[0]);
-			if ($bundle->outs [0] !== "")
+			$out = $bundle->outs[0];
+			$out = preg_replace ("!{$expected["out_regex"]}!ms", "", $out);
+			if ($out !== "")
 			{
-				$this->mark_failure ("output doesnt match", $bundle);
+				$this->mark_failure ("Output doesnt match", $bundle);
 				return;
 			}
 		}
 
+		// So far so good
 		$this->mark_success ($bundle->subject);
+
+		// Was it an expectd failure
+		if ($bundle->exits[0])
+		{
+			$this->expected_failure_count++;
+			write_dependencies ($this->get_name (), $bundle->subject, false);
+		}
 	}
 
+
 	// The format of the brace info is 
-	//		{ options :: output_regex :: err_regex :: exit_code :: no subject }
+	//		{ options :: out_regex :: err_regex :: exit_code :: no subject }
 	//	or { exact_error }
 
 	/* Get a list of expected results from the file
@@ -133,19 +137,21 @@ class BasicParseTest extends AsyncTest
 			return NULL;
 
 		// allow braces which just contain the error
-		if (strpos ("::", $full_expected) === FALSE)
+		if (strpos ($full_expected, "::") === FALSE)
 		{
-			$expected = array ("", "", "[^:]\d+\s$full_expected", "255", "");
+			$full_expected = rtrim ($full_expected);
+			$full_expected = ltrim ($full_expected);
+			$expected = array ("", "", "^[^:]+:\d+:\s" . preg_quote ($full_expected) ."\n", "255", "");
 		}
 		else
 		{
-		$expected = split ("::", $full_expected);
+			$expected = split ("::", $full_expected);
+			$expected = array_map ("rtrim", $expected);
+			$expected = array_map ("ltrim", $expected);
 		}
-		array_map ("rtrim", $expected);
-		array_map ("trim", $expected);
 
-		//	{ options :: output_regex :: err_regex :: exit_code :: no subject }
-		return array_combine (array ("options", "output_regex", "err_regex", "exit_code", "no_subject"), $expected);
+		//	{ options :: out_regex :: err_regex :: exit_code :: no subject }
+		return array_combine (array ("options", "out_regex", "err_regex", "exit_code", "no_subject"), $expected);
 	}
 
 	# we override tests run in order to add a line at the end
