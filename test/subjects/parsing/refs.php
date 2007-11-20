@@ -29,24 +29,24 @@
 
 	$ref = array(1 => &$base_1, 2 => &$base_2);
 
-	var_dump($ref);		// array(2) { [1]=>&int(3) [2]=>&int(4) }
+	var_dump($ref);		// [1]=>&int(3) [2]=>&int(4)
 
 	$base_1 = 5;
 	$base_2 = 6;
 
-	var_dump($ref);		// array(2) { [1]=>&int(5)	[2]=>&int(6) }
+	var_dump($ref);		// [1]=>&int(5)	[2]=>&int(6)
 	
 	$ref[1] = 7;
 	$ref[2] = 8;
 
- 	var_dump($ref);  		// array(2) { [1]=>&int(7) [2]=>&int(8) }
+ 	var_dump($ref);  		// [1]=>&int(7) [2]=>&int(8)
 	var_dump($base_1);	// int(7)
 	var_dump($base_2);	// int(8)
 
 	$base_3 = 9;
 	$ref[2] =& $base_3;
 
-	var_dump($ref);		// array(2) { [1]=>&int(7) [2]=>&int(9) }
+	var_dump($ref);		// [1]=>&int(7) [2]=>&int(9)
 
 	/*
 	 * foreach ::= expr VARIABLE '&' VARIABLE statement*
@@ -56,16 +56,16 @@
 	 */
 
 	$arr = array(1 => 11, 2 => 12);
-	var_dump($arr);		// array(2) { [1]=> int(11) [2]=> int(12) }
+	var_dump($arr);		// [1]=> int(11) [2]=> int(12)
 
 	foreach($arr as $key => $val) { $key += 10; $val *= 2; }
-	var_dump($arr);		// array(2) { [1]=> int(11) [2]=> int(12) }
+	var_dump($arr);		// [1]=> int(11) [2]=> int(12)
 
 	foreach($arr as $key => &$val) { $key += 10; $val *= 2; }
-	var_dump($arr);		// array(2) { [1]=> &int(22) [2]=> &int(24) }
+	var_dump($arr);		// [1]=> &int(22) [2]=> &int(24)
 	
 	foreach($arr as $key => &$val) { $key += 10; $val *= 2; }
-	var_dump($arr);		// array(2) { [1]=> &int(44) [2]=> &int(48) }
+	var_dump($arr);		// [1]=> &int(44) [2]=> &int(48)
 
 	/*
 	 * formal_parameter ::= IDENT? '&'? VARIABLE static_scalar?

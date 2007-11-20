@@ -294,7 +294,6 @@ abstract class Test
 		$this->total++;
 		$this->update_count ();
 		log_status ("timeout", $this->get_name(), $subject, "");
-//		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, NULL);
 	}
 
 	function mark_skipped ($subject, $reason)
@@ -318,7 +317,7 @@ abstract class Test
 	{
 		write_dependencies ($this->get_name (), $subject, false);
 
-		log_failure ($this->get_name(), $subject, $reason, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL);
+		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL, $reason);
 		log_status ("failure", $this->get_name(), $subject, $reason);
 		$this->erase_progress_bar();
 

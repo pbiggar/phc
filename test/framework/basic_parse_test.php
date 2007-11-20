@@ -19,70 +19,94 @@ class BasicParseTest extends AsyncTest
 	function run_test ($subject)
 	{
 		global $phc;
-		$async = new AsyncBundle ($this, $subject);
+		$bundle = new AsyncBundle ($this, $subject);
 
-		$async->commands[0] = "$phc $subject";
-		$async->final = "finish";
-		$async->start ();
+		$bundle->expected = $this->get_expected ($subject);
+
+		$command = "$phc ";
+
+		// add subject
+		if (empty ($bundle->expected["no_subject"]))
+			$command .= " $subject";
+
+		// add options
+		if (isset ($bundle->expected["options"]))
+			$command .= " ". $bundle->expected["options"];
+
+		$bundle->commands[0] = $command;
+		$bundle->final = "finish";
+		$bundle->start ();
 	}
 
-	function finish ($async)
+	function finish ($bundle)
 	{
-		$subject = $async->subject;
-		// check for expected errors and warnings
-		$this->get_expected_warnings ($subject, $warnings);
+		$expected = $bundle->expected;
+		$failed = false;
 
-		// exit codes mean errors, and vice-versa
-		// TODO reinstate this
-//		if ($async->exits[0] xor ($errors[0]))
-//		{
-//			$failure = "No exit code for expected error: $error";
-//		}
-
-		// convert output into a list of actual warnings and errors
-		$actual_output = split ("\n", $async->errs[0]);
-		$actual_output = preg_grep ("/./", $actual_output); 
-		$actual_output = array_diff ($actual_output, array ("Note that line numbers are inaccurate, and will be fixed in a later release"));
-		$actual_output = preg_replace ("/[^:]*:\d+:\s/", "", $actual_output);
-
-		// Check that the results are not different
-		$diff = array_diff ($actual_output, $warnings);
-		if (count ($diff))
+		// check exit code
+		if (isset ($expected["exit_code"]))
 		{
-			$failures = "";
-			foreach ($diff as $warning)
+			if ($bundle->exits[0] == $expected["exit_code"])
 			{
-				if (in_array ($warning, $actual_output))
-				{
-					$failures .= "Unexpected warning found: $warning\n";
-				}
-				else
-				{
-					$failures .= "Expected warning not found: $warning\n";
-				}
+				$this->mark_success ($bundle->subject);
+				$this->expected_failure_count++;
+				write_dependencies ($this->get_name (), $bundle->subject, false);
+				return;
 			}
-			$async->outs[0] .= $failures;
-			$this->mark_failure ($subject, $async);
+			else
+			{
+				$this->mark_failure ("Exit doesnt match", $bundle);
+				return;
+			}
+		}
+		else if ($bundle->exits[0])
+		{
+			$this->mark_failure ("Unexpected exit", $bundle);
 			return;
 		}
 
-		$this->mark_success ($subject);
-		if ($async->errs[0])
+
+		// check error
+		if (isset ($expected["err_regex"]))
 		{
-			$this->expected_failure_count++;
-			write_dependencies ($this->get_name (), $subject, false);
+			$err = $bundle->errs[0];
+			preg_replace ("!{$expected["err_regex"]}!", "", $err);
+			if ($err !== "")
+			{
+				$this->mark_failure ("Error doesnt match: ". $expected["err_regex"], $bundle);
+				return;
+			}
 		}
+
+		// check output
+		if (isset ($expected["out_regex"]))
+		{
+			preg_replace ("!{$expected["out_regex"]}!", "", $bundle->exits[0]);
+			if ($bundle->outs [0] !== "")
+			{
+				$this->mark_failure ("output doesnt match", $bundle);
+				return;
+			}
+		}
+
+		$this->mark_success ($bundle->subject);
 	}
 
-	function get_expected_warnings ($subject, &$warnings)
+	// The format of the brace info is 
+	//		{ options :: output_regex :: err_regex :: exit_code :: no subject }
+	//	or { exact_error }
+
+	/* Get a list of expected results from the file
+	 *		These should be instances of class to check.
+	 *		There should only be 1 per file.
+	 */
+	function get_expected ($subject)
 	{
 		$out = file_get_contents ($subject);
 
 		// match the errors
 		$lines = split ("\n", $out);
 		$pregs = array ("/#(.*)$/", "/\/\/(.*)$/", "/\/\*(.*)\*\//");
-		$error = false;
-		$warnings = array ();
 		foreach ($lines as $line)
 		{
 			// get single line comments
@@ -93,13 +117,36 @@ class BasicParseTest extends AsyncTest
 					// extract the error/warning from the comment
 					if (preg_match ("/\s*\{\s*(\S.*\S)\s*\}\s*$/", $line_match[1], $comment_match))
 					{
-						$warnings[] = $comment_match[1];
+
+						if (isset ($full_expected))
+						{
+							echo "Tests should have only 1 warning/error etc per file\n";
+							assert (0);
+						}
+						$full_expected = $comment_match[1];
 					}
 				}
 			}
 		}
-	}
 
+		if (empty ($full_expected))
+			return NULL;
+
+		// allow braces which just contain the error
+		if (strpos ("::", $full_expected) === FALSE)
+		{
+			$expected = array ("", "", "[^:]\d+\s$full_expected", "255", "");
+		}
+		else
+		{
+		$expected = split ("::", $full_expected);
+		}
+		array_map ("rtrim", $expected);
+		array_map ("trim", $expected);
+
+		//	{ options :: output_regex :: err_regex :: exit_code :: no subject }
+		return array_combine (array ("options", "output_regex", "err_regex", "exit_code", "no_subject"), $expected);
+	}
 
 	# we override tests run in order to add a line at the end
 	function run ()
