@@ -26,7 +26,7 @@ class BasicParseTest extends AsyncTest
 		$command = "$phc ";
 
 		// add subject
-		if (empty ($bundle->expected["no_subject"]))
+		if (empty ($bundle->expected) or $bundle->expected["use_subject"] == true)
 			$command .= " $subject";
 
 		// add options
@@ -141,7 +141,7 @@ class BasicParseTest extends AsyncTest
 		{
 			$full_expected = rtrim ($full_expected);
 			$full_expected = ltrim ($full_expected);
-			$expected = array ("", "", "^[^:]+:\d+:\s" . preg_quote ($full_expected) ."\n", "255", "");
+			$expected = array ("", "", "^[^:]+:\d+:\s" . preg_quote ($full_expected) ."\n", "255", true);
 		}
 		else
 		{
@@ -151,7 +151,7 @@ class BasicParseTest extends AsyncTest
 		}
 
 		//	{ options :: out_regex :: err_regex :: exit_code :: no subject }
-		return array_combine (array ("options", "out_regex", "err_regex", "exit_code", "no_subject"), $expected);
+		return array_combine (array ("options", "out_regex", "err_regex", "exit_code", "use_subject"), $expected);
 	}
 
 	# we override tests run in order to add a line at the end
