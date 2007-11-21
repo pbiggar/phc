@@ -7,6 +7,7 @@
  */
 
 #include "Desugar.h"
+#include "fresh.h"
 
 using namespace AST;
 
@@ -43,7 +44,7 @@ void Desugar::pre_nop(AST_nop* in, List<AST_statement*>* out)
 }
 
 // Replace "-x" by "0 - x"
-AST_expr* Desugar:: pre_unary_op(AST_unary_op* in)
+AST_expr* Desugar::pre_unary_op(AST_unary_op* in)
 {
 	if(*in->op->value == "-") return new AST_bin_op(
 			new Token_int(0),
@@ -63,4 +64,9 @@ void Desugar::pre_return(AST_return* in, List<AST_statement*>* out)
 	}
 
 	out->push_back(in);
+}
+
+void Desugar::pre_declare (AST_declare* in, List<AST_statement*>* out)
+{
+	// Just remove declare statements, they dont make sense in a compiler.
 }

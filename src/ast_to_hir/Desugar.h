@@ -9,17 +9,15 @@
 #ifndef PHC_DESUGAR_H
 #define PHC_DESUGAR_H
 
-#include "Lower_expr.h"
-#include "fresh.h"
-#include "process_ast/Invalid_check.h"
-
+#include "AST_transform.h"
 
 class Desugar : public AST::AST_transform
 {
 	void pre_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
-	void pre_nop(AST::AST_nop* in, List<AST::AST_statement*>* out);
+	void pre_nop(AST::AST_nop*, List<AST::AST_statement*>*);
 	AST::AST_expr* pre_unary_op(AST::AST_unary_op* in);
-	void pre_return(AST::AST_return* in, List<AST::AST_statement*>* out);
+	void pre_return(AST::AST_return*, List<AST::AST_statement*>*);
+	void pre_declare (AST::AST_declare*, List<AST::AST_statement*>*);
 };
 
 #endif // PHC_DESUGAR_H
