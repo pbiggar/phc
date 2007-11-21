@@ -11,6 +11,7 @@
 #include "Split_unset_isset.h"
 #include "Translate_empty.h"
 #include "fresh.h"
+#include "process_ir/debug.h"
 
 using namespace AST;
 
@@ -181,6 +182,15 @@ AST_expr* Shredder::post_unary_op(AST_unary_op* in)
  */
 
 AST_expr* Shredder::post_cast(AST_cast* in)
+{
+	return eval(in);
+}
+
+/*
+ * instanceof
+ */
+
+AST_expr* Shredder::post_instanceof (AST_instanceof* in)
 {
 	return eval(in);
 }

@@ -26,6 +26,7 @@ public:
 	AST::AST_expr* post_bin_op(AST::AST_bin_op* in);
 	AST::AST_expr* post_unary_op(AST::AST_unary_op* in);
 	AST::AST_expr* post_cast(AST::AST_cast* in);
+	AST::AST_expr* post_instanceof(AST::AST_instanceof* in);
 	AST::AST_expr* post_method_invocation(AST::AST_method_invocation* in);
 	AST::AST_expr* post_int(AST::Token_int* in);
 	AST::AST_expr* post_real(AST::Token_real* in);
