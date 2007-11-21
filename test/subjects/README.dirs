@@ -9,7 +9,7 @@ moved to a separate short test.
 		applications in here to test them.
 	
 	bugs/
-		Test cases from bug reports that were filed to use. Named in the order
+		Test cases from bug reports that were sent to us. Named in the order
 		they were filed.
 
 	codegen/
@@ -32,11 +32,12 @@ moved to a separate short test.
 		We allow inlined C to test certain features in codegen. This is for
 		testing only, and should certainly not be used by anybody.
 
-	invalid/
-		Tests which PHP wont parse.
-
 	parsing/
 		Tests to hit every bit of the parser. General tests are also put in here.
+
+	phc/ 
+		Test features of phc, such as command-line options, as opposed to
+		supported PHP features.
 
 	php_bugs/
 		Test cases from bug reports submitted to PHP bugzilla. There help us with
@@ -48,8 +49,9 @@ moved to a separate short test.
 		in the order they are created.
 
 	unsupported/
-		Some things are a combination of silly, not widely used, unsafe, and most
-		importantly, very difficult to support.
+		Some things are a combination of silly, not widely used, unsafe, dont
+		make sense for a compiler, or most importantly, very difficult to
+		support.
 
 	warnings/
 		Currently, the difference between errors and warnings (and sometimes
