@@ -178,7 +178,9 @@ Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* p
 
 bool Process_includes::pass_is_enabled (Pass_manager* pm)
 {
-	return pm->args_info->include_given;
+	// We need to use the pass to tidy up the include for the HIR, even if we
+	// dont have --include set.
+	return true;
 }
 
 
@@ -207,6 +209,11 @@ void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, L
 			param->expr->attrs->set_true ("phc.process_includes.warned");
 		}
 	}
+	else
+	{
+		if (param->expr->classid () != AST_variable::ID)
+			param->expr = eval (param->expr);
+	}
 
 	pieces->push_back (in);
 }
@@ -232,7 +239,7 @@ AST_actual_parameter* matching_param (AST_eval_expr* in, List<AST_statement*>* o
 		new Wildcard<AST_variable>, false, pattern);
 
 	// TODO there is obviously a difference between these forms. In
-	// particular, the once_ versions actually do something
+	// particular, the _once versions actually do something
 	// different. Make tests to demonstrate, then fix.
 	if ((in->expr->match (pattern) or in->expr->match (agn_pattern))
 		and (*(method_name->value->value) == "include" 
@@ -279,6 +286,12 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	if (param == NULL)
 	{
 		out->push_back (in);
+		return;
+	}
+
+	if (not pm->args_info->include_given)
+	{
+		do_not_include (NULL, in, out, param);
 		return;
 	}
 
