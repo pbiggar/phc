@@ -186,33 +186,25 @@ bool Process_includes::pass_is_enabled (Pass_manager* pm)
 
 void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, List<AST_statement*>* out, AST_actual_parameter* param)
 {
-	if (warning)
-	{
-		// issue a warning the first time, then mark the new parameter to not issue a warning.
-		if (!param->expr->attrs->is_true ("phc.process_includes.warned"))
-		{
-			phc_warning("File %s could not be included, and will be included at run-time", warning, in);
+	if (hir && warning)
+		phc_warning("File %s could not be included, and will be included at run-time", warning, in);
 
-			/* Convert
-			 *			include ("myfile.php"); 
-			 *		or include (t());
-			 *	into
-			 *			$T1 = "myfile.php";
-			 *			include $T1;
-			 *		or	$T2 = t() ;
-			 *			include $2;
-			 *
-			 * for future HIR.
-			 */
-			if (param->expr->classid () != AST_variable::ID)
-				param->expr = eval (param->expr);
-			param->expr->attrs->set_true ("phc.process_includes.warned");
-		}
-	}
-	else
+	/* Convert
+	 *			include ("myfile.php"); 
+	 *		or include (t());
+	 *	into
+	 *			$T1 = "myfile.php";
+	 *			include $T1;
+	 *		or	$T2 = t() ;
+	 *			include $2;
+	 *
+	 * for future HIR.
+	 */
+	if (hir && param->expr->classid () != AST_variable::ID)
 	{
-		if (param->expr->classid () != AST_variable::ID)
-			param->expr = eval (param->expr);
+		// This was set in Annotate.
+		param->expr->attrs->erase ("phc.lower_expr.no_temp");
+		param->expr = eval (param->expr);
 	}
 
 	pieces->push_back (in);
