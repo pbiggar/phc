@@ -4319,7 +4319,7 @@ yyreduce:
   case 97:
 #line 1207 "src/generated_src/php_parser.ypp"
     {
-			Token_directive_name* name = new Token_directive_name((yyvsp[(1) - (3)].string));
+			Token_directive_name* name = NEW (Token_directive_name, ((yyvsp[(1) - (3)].string)));
 
 			List<AST_directive*>* dirs = new List<AST_directive*>;
 			AST_directive* dir = NEW(AST_directive, (name, (yyvsp[(3) - (3)].ast_expr)));
@@ -4332,7 +4332,7 @@ yyreduce:
   case 98:
 #line 1217 "src/generated_src/php_parser.ypp"
     {
-			Token_directive_name* name = new Token_directive_name((yyvsp[(3) - (5)].string));	
+			Token_directive_name* name = NEW (Token_directive_name, ((yyvsp[(3) - (5)].string)));	
 			
 			AST_directive* dir = NEW(AST_directive, (name, (yyvsp[(5) - (5)].ast_expr)));
 			(yyvsp[(1) - (5)].list_ast_directive)->push_back(dir);

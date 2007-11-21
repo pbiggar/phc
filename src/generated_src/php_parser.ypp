@@ -1205,7 +1205,7 @@ declare_statement:
 declare_list:
 	  IDENT '=' static_scalar
 	  	{
-			Token_directive_name* name = new Token_directive_name($1);
+			Token_directive_name* name = NEW (Token_directive_name, ($1));
 
 			List<AST_directive*>* dirs = new List<AST_directive*>;
 			AST_directive* dir = NEW(AST_directive, (name, $3));
@@ -1215,7 +1215,7 @@ declare_list:
 		}
 	| declare_list ',' IDENT '=' static_scalar
 		{
-			Token_directive_name* name = new Token_directive_name($3);	
+			Token_directive_name* name = NEW (Token_directive_name, ($3));	
 			
 			AST_directive* dir = NEW(AST_directive, (name, $5));
 			$1->push_back(dir);
