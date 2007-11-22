@@ -13,6 +13,7 @@
 #include "Transform_pass.h"
 #include "process_ast/AST_unparser.h"
 #include "process_ir/XML_unparser.h"
+#include "process_ir/Foreach.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/Invalid_check.h"
 #include "process_hir/Goto_uppering.h"
@@ -305,9 +306,6 @@ void Pass_manager::post_process ()
 	}
 }
 
-#define for_lci(VAR, TYPE, ITER) for (List<TYPE*>::const_iterator ITER = VAR->begin ();	\
-													ITER != VAR->end ();											\
-													ITER++)
 
 bool Pass_manager::has_pass_named (String* name)
 {
@@ -318,5 +316,3 @@ bool Pass_manager::has_pass_named (String* name)
 	}
 	return false;
 }
-
-#undef for_lci

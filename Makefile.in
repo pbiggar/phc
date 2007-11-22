@@ -662,6 +662,7 @@ src_phc_SOURCES = \
 	src/process_hir/Obfuscate.h							\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
+	src/process_ir/Foreach.h								\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.h	

@@ -30,12 +30,6 @@ public:
 		this->name = new String ("check");
 	}
 
-
-/*	Invalid_check ()
-	{
-		Invalid_check (false);
-	}*/
-
 	// decide the error based on whether USE_ICE is set
 	void error (const char* message, AST::AST_node* node);
 	void run (IR*, Pass_manager*);
@@ -49,6 +43,7 @@ public:
 	void pre_method_invocation (AST::AST_method_invocation* in);
 	void pre_array_elem (AST::AST_array_elem* in);
 	void pre_name_with_default (AST::AST_name_with_default* var);
+	void pre_attribute (AST::AST_attribute* in);
 };
 
 #endif // PHC_INVALID_CHECK

@@ -8,6 +8,7 @@
  * the HIR.
  */
 #include "Invalid_check.h"
+#include "process_ir/Foreach.h"
 
 using namespace AST;
 
@@ -38,12 +39,12 @@ void Invalid_check::run (IR* in, Pass_manager* pm)
 	pm->check = true;
 }
 
-class Check_deep_literals : public AST_visitor
+class Contains_only_deep_literals : public AST_visitor
 {
 public:
 
 	bool non_literal_found;
-	Check_deep_literals () : non_literal_found (false) {}
+	Contains_only_deep_literals () : non_literal_found (false) {}
 	// we could override everything with an error, but we just need
 	// expressions
 	void pre_expr (AST_expr *in)
@@ -54,11 +55,11 @@ public:
 };
 
 /* Returns TRUE if any non-literals were found */
-bool check_deep_literals (AST_node *in)
+bool contains_only_deep_literals (AST_node *in)
 {
-	Check_deep_literals cdl;
+	Contains_only_deep_literals cdl;
 	in->visit (&cdl);
-	return cdl.non_literal_found;
+	return not cdl.non_literal_found;
 }
 
 void Invalid_check::error (const char* message, AST_node* node)
@@ -164,8 +165,20 @@ void Invalid_check::pre_directive (AST_directive *in)
 
 void Invalid_check::pre_name_with_default (AST_name_with_default* in)
 {
-	if (in->expr != NULL && check_deep_literals (in->expr))
+	if (in->expr && not contains_only_deep_literals (in->expr))
 		error ("Default value of a formal parameter must be a literal value or an array", in->expr);
+}
+
+void Invalid_check::pre_attribute (AST_attribute* in)
+{
+	if (in->attr_mod->is_const)
+	{
+		for_lci (in->vars, AST_name_with_default, i)
+		{
+			if ((*i)->expr->classid () == AST_array::ID)
+				error ("Arrays are not allowed in class constants", *i);
+		}
+	}
 }
 
 void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
@@ -189,7 +202,7 @@ void Invalid_check::pre_formal_parameter (AST_formal_parameter* in)
 			return;
 
 		if (in->var->expr->classid () != AST_array::ID
-				or (check_deep_literals (in->var->expr)))
+				or (not contains_only_deep_literals (in->var->expr)))
 			error ("Default value for parameters with array type hint can only be an array or NULL", in->var->expr);
 
 	}
