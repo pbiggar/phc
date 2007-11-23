@@ -356,8 +356,8 @@ src/generated/AST_visitor.h 		\
 src/generated/AST_factory.cpp		\
 src/generated/AST_factory.h		\
 src/generated/AST_fold.h			\
-	: src/generated_src/phc.tea @maketea@
-	@maketea@ src/generated_src/phc.tea
+	: src/generated_src/ast.tea @maketea@
+	@maketea@ src/generated_src/ast.tea
 	mv AST.cpp src/generated/
 	mv AST.h src/generated/
 	mv AST_transform.cpp src/generated/
