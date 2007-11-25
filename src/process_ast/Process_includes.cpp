@@ -205,9 +205,10 @@ void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, L
 		// This was set in Annotate.
 		param->expr->attrs->erase ("phc.lower_expr.no_temp");
 		param->expr = eval (param->expr);
+		pieces->push_back (in); // only works after control flow is lowered
 	}
-
-	pieces->push_back (in);
+	else
+		out->push_back (in);
 }
 
 
