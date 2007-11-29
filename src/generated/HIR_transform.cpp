@@ -116,6 +116,36 @@ void HIR_transform::pre_label(HIR_label* in, List<HIR_statement*>* out)
     out->push_back(in);
 }
 
+void HIR_transform::pre_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void HIR_transform::pre_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void HIR_transform::pre_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+HIR_expr* HIR_transform::pre_foreach_has_key(HIR_foreach_has_key* in)
+{
+    return in;
+}
+
+HIR_expr* HIR_transform::pre_foreach_get_key(HIR_foreach_get_key* in)
+{
+    return in;
+}
+
+HIR_expr* HIR_transform::pre_foreach_get_data(HIR_foreach_get_data* in)
+{
+    return in;
+}
+
 HIR_expr* HIR_transform::pre_assignment(HIR_assignment* in)
 {
     return in;
@@ -207,6 +237,11 @@ Token_variable_name* HIR_transform::pre_variable_name(Token_variable_name* in)
 }
 
 Token_label_name* HIR_transform::pre_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_ht_iterator* HIR_transform::pre_ht_iterator(Token_ht_iterator* in)
 {
     return in;
 }
@@ -362,6 +397,36 @@ void HIR_transform::post_label(HIR_label* in, List<HIR_statement*>* out)
     out->push_back(in);
 }
 
+void HIR_transform::post_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void HIR_transform::post_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void HIR_transform::post_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out)
+{
+    out->push_back(in);
+}
+
+HIR_expr* HIR_transform::post_foreach_has_key(HIR_foreach_has_key* in)
+{
+    return in;
+}
+
+HIR_expr* HIR_transform::post_foreach_get_key(HIR_foreach_get_key* in)
+{
+    return in;
+}
+
+HIR_expr* HIR_transform::post_foreach_get_data(HIR_foreach_get_data* in)
+{
+    return in;
+}
+
 HIR_expr* HIR_transform::post_assignment(HIR_assignment* in)
 {
     return in;
@@ -453,6 +518,11 @@ Token_variable_name* HIR_transform::post_variable_name(Token_variable_name* in)
 }
 
 Token_label_name* HIR_transform::post_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_ht_iterator* HIR_transform::post_ht_iterator(Token_ht_iterator* in)
 {
     return in;
 }
@@ -622,6 +692,42 @@ void HIR_transform::children_label(HIR_label* in)
     in->label_name = transform_label_name(in->label_name);
 }
 
+void HIR_transform::children_foreach_reset(HIR_foreach_reset* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void HIR_transform::children_foreach_next(HIR_foreach_next* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void HIR_transform::children_foreach_end(HIR_foreach_end* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void HIR_transform::children_foreach_has_key(HIR_foreach_has_key* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void HIR_transform::children_foreach_get_key(HIR_foreach_get_key* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void HIR_transform::children_foreach_get_data(HIR_foreach_get_data* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
 void HIR_transform::children_assignment(HIR_assignment* in)
 {
     in->variable = transform_variable(in->variable);
@@ -726,6 +832,10 @@ void HIR_transform::children_variable_name(Token_variable_name* in)
 }
 
 void HIR_transform::children_label_name(Token_label_name* in)
+{
+}
+
+void HIR_transform::children_ht_iterator(Token_ht_iterator* in)
 {
 }
 
@@ -1135,6 +1245,22 @@ Token_label_name* HIR_transform::transform_label_name(Token_label_name* in)
     return out;
 }
 
+Token_ht_iterator* HIR_transform::transform_ht_iterator(Token_ht_iterator* in)
+{
+    if(in == NULL) return NULL;
+    
+    Token_ht_iterator* out;
+    
+    out = pre_ht_iterator(in);
+    if(out != NULL)
+    {
+    	children_ht_iterator(out);
+    	out = post_ht_iterator(out);
+    }
+    
+    return out;
+}
+
 HIR_variable* HIR_transform::transform_variable(HIR_variable* in)
 {
     if(in == NULL) return NULL;
@@ -1467,6 +1593,33 @@ void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case HIR_foreach_next::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		pre_foreach_next(dynamic_cast<HIR_foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case HIR_foreach_reset::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		pre_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case HIR_foreach_end::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		pre_foreach_end(dynamic_cast<HIR_foreach_end*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -1516,6 +1669,9 @@ HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case HIR_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case HIR_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case HIR_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     }
     assert(0);
@@ -1560,6 +1716,9 @@ HIR_target* HIR_transform::pre_target(HIR_target* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case HIR_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case HIR_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case HIR_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
     }
@@ -1690,6 +1849,33 @@ void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case HIR_foreach_next::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		post_foreach_next(dynamic_cast<HIR_foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case HIR_foreach_reset::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		post_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case HIR_foreach_end::ID: 
+    	{
+    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
+    		List<HIR_statement*>::const_iterator i;
+    		post_foreach_end(dynamic_cast<HIR_foreach_end*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     }
     assert(0);
 }
@@ -1739,6 +1925,9 @@ HIR_expr* HIR_transform::post_expr(HIR_expr* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case HIR_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case HIR_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case HIR_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     }
     assert(0);
@@ -1783,6 +1972,9 @@ HIR_target* HIR_transform::post_target(HIR_target* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case HIR_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case HIR_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case HIR_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
     }
@@ -1840,6 +2032,15 @@ void HIR_transform::children_statement(HIR_statement* in)
     	break;
     case HIR_branch::ID:
     	children_branch(dynamic_cast<HIR_branch*>(in));
+    	break;
+    case HIR_foreach_next::ID:
+    	children_foreach_next(dynamic_cast<HIR_foreach_next*>(in));
+    	break;
+    case HIR_foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in));
+    	break;
+    case HIR_foreach_end::ID:
+    	children_foreach_end(dynamic_cast<HIR_foreach_end*>(in));
     	break;
     }
 }
@@ -1905,6 +2106,15 @@ void HIR_transform::children_expr(HIR_expr* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    	break;
+    case HIR_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    	break;
+    case HIR_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));
@@ -1986,6 +2196,15 @@ void HIR_transform::children_target(HIR_target* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    	break;
+    case HIR_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    	break;
+    case HIR_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
     	break;
     case HIR_array::ID:
     	children_array(dynamic_cast<HIR_array*>(in));

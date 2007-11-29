@@ -63,6 +63,12 @@ public:
     virtual void pre_branch(AST_branch* in);
     virtual void pre_goto(AST_goto* in);
     virtual void pre_label(AST_label* in);
+    virtual void pre_foreach_reset(AST_foreach_reset* in);
+    virtual void pre_foreach_next(AST_foreach_next* in);
+    virtual void pre_foreach_end(AST_foreach_end* in);
+    virtual void pre_foreach_has_key(AST_foreach_has_key* in);
+    virtual void pre_foreach_get_key(AST_foreach_get_key* in);
+    virtual void pre_foreach_get_data(AST_foreach_get_data* in);
     virtual void pre_expr(AST_expr* in);
     virtual void pre_literal(AST_literal* in);
     virtual void pre_assignment(AST_assignment* in);
@@ -98,6 +104,7 @@ public:
     virtual void pre_variable_name(Token_variable_name* in);
     virtual void pre_directive_name(Token_directive_name* in);
     virtual void pre_label_name(Token_label_name* in);
+    virtual void pre_ht_iterator(Token_ht_iterator* in);
     virtual void pre_int(Token_int* in);
     virtual void pre_real(Token_real* in);
     virtual void pre_string(Token_string* in);
@@ -145,6 +152,12 @@ public:
     virtual void post_branch(AST_branch* in);
     virtual void post_goto(AST_goto* in);
     virtual void post_label(AST_label* in);
+    virtual void post_foreach_reset(AST_foreach_reset* in);
+    virtual void post_foreach_next(AST_foreach_next* in);
+    virtual void post_foreach_end(AST_foreach_end* in);
+    virtual void post_foreach_has_key(AST_foreach_has_key* in);
+    virtual void post_foreach_get_key(AST_foreach_get_key* in);
+    virtual void post_foreach_get_data(AST_foreach_get_data* in);
     virtual void post_expr(AST_expr* in);
     virtual void post_literal(AST_literal* in);
     virtual void post_assignment(AST_assignment* in);
@@ -180,6 +193,7 @@ public:
     virtual void post_variable_name(Token_variable_name* in);
     virtual void post_directive_name(Token_directive_name* in);
     virtual void post_label_name(Token_label_name* in);
+    virtual void post_ht_iterator(Token_ht_iterator* in);
     virtual void post_int(Token_int* in);
     virtual void post_real(Token_real* in);
     virtual void post_string(Token_string* in);
@@ -224,6 +238,12 @@ public:
     virtual void children_branch(AST_branch* in);
     virtual void children_goto(AST_goto* in);
     virtual void children_label(AST_label* in);
+    virtual void children_foreach_reset(AST_foreach_reset* in);
+    virtual void children_foreach_next(AST_foreach_next* in);
+    virtual void children_foreach_end(AST_foreach_end* in);
+    virtual void children_foreach_has_key(AST_foreach_has_key* in);
+    virtual void children_foreach_get_key(AST_foreach_get_key* in);
+    virtual void children_foreach_get_data(AST_foreach_get_data* in);
     virtual void children_assignment(AST_assignment* in);
     virtual void children_op_assignment(AST_op_assignment* in);
     virtual void children_list_assignment(AST_list_assignment* in);
@@ -252,6 +272,7 @@ public:
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_directive_name(Token_directive_name* in);
     virtual void children_label_name(Token_label_name* in);
+    virtual void children_ht_iterator(Token_ht_iterator* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
@@ -304,6 +325,12 @@ public:
     virtual void pre_branch_chain(AST_branch* in);
     virtual void pre_goto_chain(AST_goto* in);
     virtual void pre_label_chain(AST_label* in);
+    virtual void pre_foreach_reset_chain(AST_foreach_reset* in);
+    virtual void pre_foreach_next_chain(AST_foreach_next* in);
+    virtual void pre_foreach_end_chain(AST_foreach_end* in);
+    virtual void pre_foreach_has_key_chain(AST_foreach_has_key* in);
+    virtual void pre_foreach_get_key_chain(AST_foreach_get_key* in);
+    virtual void pre_foreach_get_data_chain(AST_foreach_get_data* in);
     virtual void pre_assignment_chain(AST_assignment* in);
     virtual void pre_op_assignment_chain(AST_op_assignment* in);
     virtual void pre_list_assignment_chain(AST_list_assignment* in);
@@ -330,6 +357,7 @@ public:
     virtual void pre_variable_name_chain(Token_variable_name* in);
     virtual void pre_directive_name_chain(Token_directive_name* in);
     virtual void pre_label_name_chain(Token_label_name* in);
+    virtual void pre_ht_iterator_chain(Token_ht_iterator* in);
     virtual void pre_int_chain(Token_int* in);
     virtual void pre_real_chain(Token_real* in);
     virtual void pre_string_chain(Token_string* in);
@@ -376,6 +404,12 @@ public:
     virtual void post_branch_chain(AST_branch* in);
     virtual void post_goto_chain(AST_goto* in);
     virtual void post_label_chain(AST_label* in);
+    virtual void post_foreach_reset_chain(AST_foreach_reset* in);
+    virtual void post_foreach_next_chain(AST_foreach_next* in);
+    virtual void post_foreach_end_chain(AST_foreach_end* in);
+    virtual void post_foreach_has_key_chain(AST_foreach_has_key* in);
+    virtual void post_foreach_get_key_chain(AST_foreach_get_key* in);
+    virtual void post_foreach_get_data_chain(AST_foreach_get_data* in);
     virtual void post_assignment_chain(AST_assignment* in);
     virtual void post_op_assignment_chain(AST_op_assignment* in);
     virtual void post_list_assignment_chain(AST_list_assignment* in);
@@ -402,6 +436,7 @@ public:
     virtual void post_variable_name_chain(Token_variable_name* in);
     virtual void post_directive_name_chain(Token_directive_name* in);
     virtual void post_label_name_chain(Token_label_name* in);
+    virtual void post_ht_iterator_chain(Token_ht_iterator* in);
     virtual void post_int_chain(Token_int* in);
     virtual void post_real_chain(Token_real* in);
     virtual void post_string_chain(Token_string* in);
@@ -442,6 +477,7 @@ public:
     virtual void visit_catch_list(List<AST_catch*>* in);
     virtual void visit_catch(AST_catch* in);
     virtual void visit_label_name(Token_label_name* in);
+    virtual void visit_ht_iterator(Token_ht_iterator* in);
     virtual void visit_op(Token_op* in);
     virtual void visit_list_element_list(List<AST_list_element*>* in);
     virtual void visit_list_element(AST_list_element* in);

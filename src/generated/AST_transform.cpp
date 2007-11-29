@@ -176,6 +176,36 @@ void AST_transform::pre_label(AST_label* in, List<AST_statement*>* out)
     out->push_back(in);
 }
 
+void AST_transform::pre_foreach_reset(AST_foreach_reset* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::pre_foreach_next(AST_foreach_next* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::pre_foreach_end(AST_foreach_end* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+AST_expr* AST_transform::pre_foreach_has_key(AST_foreach_has_key* in)
+{
+    return in;
+}
+
+AST_expr* AST_transform::pre_foreach_get_key(AST_foreach_get_key* in)
+{
+    return in;
+}
+
+AST_expr* AST_transform::pre_foreach_get_data(AST_foreach_get_data* in)
+{
+    return in;
+}
+
 AST_expr* AST_transform::pre_assignment(AST_assignment* in)
 {
     return in;
@@ -302,6 +332,11 @@ Token_directive_name* AST_transform::pre_directive_name(Token_directive_name* in
 }
 
 Token_label_name* AST_transform::pre_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_ht_iterator* AST_transform::pre_ht_iterator(Token_ht_iterator* in)
 {
     return in;
 }
@@ -517,6 +552,36 @@ void AST_transform::post_label(AST_label* in, List<AST_statement*>* out)
     out->push_back(in);
 }
 
+void AST_transform::post_foreach_reset(AST_foreach_reset* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::post_foreach_next(AST_foreach_next* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+void AST_transform::post_foreach_end(AST_foreach_end* in, List<AST_statement*>* out)
+{
+    out->push_back(in);
+}
+
+AST_expr* AST_transform::post_foreach_has_key(AST_foreach_has_key* in)
+{
+    return in;
+}
+
+AST_expr* AST_transform::post_foreach_get_key(AST_foreach_get_key* in)
+{
+    return in;
+}
+
+AST_expr* AST_transform::post_foreach_get_data(AST_foreach_get_data* in)
+{
+    return in;
+}
+
 AST_expr* AST_transform::post_assignment(AST_assignment* in)
 {
     return in;
@@ -643,6 +708,11 @@ Token_directive_name* AST_transform::post_directive_name(Token_directive_name* i
 }
 
 Token_label_name* AST_transform::post_label_name(Token_label_name* in)
+{
+    return in;
+}
+
+Token_ht_iterator* AST_transform::post_ht_iterator(Token_ht_iterator* in)
 {
     return in;
 }
@@ -885,6 +955,42 @@ void AST_transform::children_label(AST_label* in)
     in->label_name = transform_label_name(in->label_name);
 }
 
+void AST_transform::children_foreach_reset(AST_foreach_reset* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void AST_transform::children_foreach_next(AST_foreach_next* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void AST_transform::children_foreach_end(AST_foreach_end* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void AST_transform::children_foreach_has_key(AST_foreach_has_key* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void AST_transform::children_foreach_get_key(AST_foreach_get_key* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
+void AST_transform::children_foreach_get_data(AST_foreach_get_data* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+}
+
 void AST_transform::children_assignment(AST_assignment* in)
 {
     in->variable = transform_variable(in->variable);
@@ -1027,6 +1133,10 @@ void AST_transform::children_directive_name(Token_directive_name* in)
 }
 
 void AST_transform::children_label_name(Token_label_name* in)
+{
+}
+
+void AST_transform::children_ht_iterator(Token_ht_iterator* in)
 {
 }
 
@@ -1558,6 +1668,22 @@ Token_label_name* AST_transform::transform_label_name(Token_label_name* in)
     return out;
 }
 
+Token_ht_iterator* AST_transform::transform_ht_iterator(Token_ht_iterator* in)
+{
+    if(in == NULL) return NULL;
+    
+    Token_ht_iterator* out;
+    
+    out = pre_ht_iterator(in);
+    if(out != NULL)
+    {
+    	children_ht_iterator(out);
+    	out = post_ht_iterator(out);
+    }
+    
+    return out;
+}
+
 Token_op* AST_transform::transform_op(Token_op* in)
 {
     if(in == NULL) return NULL;
@@ -1927,6 +2053,33 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case AST_foreach_next::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_foreach_next(dynamic_cast<AST_foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_foreach_reset::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_foreach_reset(dynamic_cast<AST_foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_foreach_end::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		pre_foreach_end(dynamic_cast<AST_foreach_end*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case AST_if::ID: 
     	{
     		List<AST_statement*>* local_out = new List<AST_statement*>;
@@ -2066,6 +2219,9 @@ AST_expr* AST_transform::pre_expr(AST_expr* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case AST_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case AST_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case AST_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_post_op::ID: return pre_post_op(dynamic_cast<AST_post_op*>(in));
@@ -2135,6 +2291,9 @@ AST_target* AST_transform::pre_target(AST_target* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case AST_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case AST_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case AST_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_post_op::ID: return pre_post_op(dynamic_cast<AST_post_op*>(in));
@@ -2266,6 +2425,33 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     		List<AST_statement*>* local_out = new List<AST_statement*>;
     		List<AST_statement*>::const_iterator i;
     		post_branch(dynamic_cast<AST_branch*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_foreach_next::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_foreach_next(dynamic_cast<AST_foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_foreach_reset::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_foreach_reset(dynamic_cast<AST_foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case AST_foreach_end::ID: 
+    	{
+    		List<AST_statement*>* local_out = new List<AST_statement*>;
+    		List<AST_statement*>::const_iterator i;
+    		post_foreach_end(dynamic_cast<AST_foreach_end*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2409,6 +2595,9 @@ AST_expr* AST_transform::post_expr(AST_expr* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case AST_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case AST_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case AST_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_post_op::ID: return post_post_op(dynamic_cast<AST_post_op*>(in));
@@ -2478,6 +2667,9 @@ AST_target* AST_transform::post_target(AST_target* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case AST_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case AST_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case AST_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
     case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
     case AST_post_op::ID: return post_post_op(dynamic_cast<AST_post_op*>(in));
@@ -2540,6 +2732,15 @@ void AST_transform::children_statement(AST_statement* in)
     	break;
     case AST_branch::ID:
     	children_branch(dynamic_cast<AST_branch*>(in));
+    	break;
+    case AST_foreach_next::ID:
+    	children_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+    	break;
+    case AST_foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+    	break;
+    case AST_foreach_end::ID:
+    	children_foreach_end(dynamic_cast<AST_foreach_end*>(in));
     	break;
     case AST_if::ID:
     	children_if(dynamic_cast<AST_if*>(in));
@@ -2635,6 +2836,15 @@ void AST_transform::children_expr(AST_expr* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
@@ -2744,6 +2954,15 @@ void AST_transform::children_target(AST_target* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));

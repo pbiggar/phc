@@ -30,6 +30,7 @@ statement ::=
 	  | return | static_declaration | global
 	  | try | throw | eval_expr
 	  | label | goto | branch
+	  | foreach_next | foreach_reset | foreach_end
 --   | assign_var | assign_var_var | assign_array | push_array
 	  ;
 
@@ -85,6 +86,13 @@ branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 goto ::= LABEL_NAME ;
 label ::= LABEL_NAME ;
 
+foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
+
 -- assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:expr ;
 -- assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
 -- assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
@@ -102,6 +110,7 @@ expr ::=
 	  | variable | pre_op 
 	  | method_invocation | new 
 	  | literal 
+	  | foreach_has_key | foreach_get_key | foreach_get_data
 	  | array
 	  --   | variable_name | index_array
 	  ;
@@ -156,7 +165,7 @@ class_name ::= CLASS_NAME | reflection ;
 
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST | OP | CONSTANT_NAME | LABEL_NAME
+	  | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	;  
 
 {-

@@ -28,6 +28,7 @@ statement ::=
 	  | return | static_declaration | global
 	  | try | throw | eval_expr
 	  | label | goto | branch
+	  | foreach_next | foreach_reset | foreach_end
 	  | if | while | do | for | foreach
 	  | switch | break | continue
 	  | declare | nop
@@ -88,11 +89,22 @@ nop ::= ;
 
 {-
    HIR constructs (without a PHP equivalent)
+	TODO: 
+		It would be ideal if these weren't in the AST at all, but were only
+		introduced in the fold. These concepts were created before we have a
+		fold, but moving them inside it would be perfect.
 -}
 
 branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 goto ::= LABEL_NAME ;
 label ::= LABEL_NAME ;
+
+foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
+foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
 
 {-
    Expressions
@@ -105,6 +117,7 @@ expr ::=
 	  | variable | pre_op 
 	  | method_invocation | new 
 	  | literal 
+	  | foreach_has_key | foreach_get_key | foreach_get_data
 	  | op_assignment | list_assignment 
 	  | post_op | array | conditional_expr | ignore_errors 
 	  ;
@@ -159,7 +172,7 @@ commented_node ::=
 
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME
+	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	  | DIRECTIVE_NAME 
 	;  
 

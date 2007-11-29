@@ -2357,6 +2357,83 @@ void Token_label_name::assert_valid()
     AST_node::assert_mixin_valid();
 }
 
+Token_ht_iterator::Token_ht_iterator(String* value)
+{
+    this->value = value;
+}
+
+Token_ht_iterator::Token_ht_iterator()
+{
+    this->value = 0;
+}
+
+void Token_ht_iterator::visit(AST_visitor* visitor)
+{
+    visitor->visit_ht_iterator(this);
+}
+
+void Token_ht_iterator::transform_children(AST_transform* transform)
+{
+    transform->children_ht_iterator(this);
+}
+
+String* Token_ht_iterator::get_value_as_string()
+{
+    return value;
+}
+
+int Token_ht_iterator::classid()
+{
+    return ID;
+}
+
+bool Token_ht_iterator::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Token_ht_iterator* that = dynamic_cast<Token_ht_iterator*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool Token_ht_iterator::equals(AST_node* in)
+{
+    Token_ht_iterator* that = dynamic_cast<Token_ht_iterator*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Token_ht_iterator* Token_ht_iterator::clone()
+{
+    String* value = new String(*this->value);
+    Token_ht_iterator* clone = new Token_ht_iterator(value);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void Token_ht_iterator::assert_valid()
+{
+    assert(value != NULL);
+    AST_node::assert_mixin_valid();
+}
+
 Token_op::Token_op(String* value)
 {
     this->value = value;
@@ -5750,6 +5827,600 @@ void AST_label::assert_valid()
 {
     assert(label_name != NULL);
     label_name->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_reset::AST_foreach_reset(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_reset::AST_foreach_reset()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_reset::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_foreach_reset::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_foreach_reset::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_reset::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_reset* that = dynamic_cast<AST_foreach_reset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_reset::equals(AST_node* in)
+{
+    AST_foreach_reset* that = dynamic_cast<AST_foreach_reset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_reset* AST_foreach_reset::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_reset* clone = new AST_foreach_reset(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_reset::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_next::AST_foreach_next(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_next::AST_foreach_next()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_next::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_foreach_next::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_foreach_next::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_next::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_next* that = dynamic_cast<AST_foreach_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_next::equals(AST_node* in)
+{
+    AST_foreach_next* that = dynamic_cast<AST_foreach_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_next* AST_foreach_next::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_next* clone = new AST_foreach_next(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_next::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_end::AST_foreach_end(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_end::AST_foreach_end()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_end::visit(AST_visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void AST_foreach_end::transform_children(AST_transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int AST_foreach_end::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_end::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_end* that = dynamic_cast<AST_foreach_end*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_end::equals(AST_node* in)
+{
+    AST_foreach_end* that = dynamic_cast<AST_foreach_end*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_end* AST_foreach_end::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_end* clone = new AST_foreach_end(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_end::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_has_key::AST_foreach_has_key(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_has_key::AST_foreach_has_key()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_has_key::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_foreach_has_key::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int AST_foreach_has_key::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_has_key::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_has_key* that = dynamic_cast<AST_foreach_has_key*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_has_key::equals(AST_node* in)
+{
+    AST_foreach_has_key* that = dynamic_cast<AST_foreach_has_key*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_has_key* AST_foreach_has_key::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_has_key* clone = new AST_foreach_has_key(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_has_key::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_get_key::AST_foreach_get_key(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_get_key::AST_foreach_get_key()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_get_key::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_foreach_get_key::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int AST_foreach_get_key::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_get_key::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_get_key* that = dynamic_cast<AST_foreach_get_key*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_get_key::equals(AST_node* in)
+{
+    AST_foreach_get_key* that = dynamic_cast<AST_foreach_get_key*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_get_key* AST_foreach_get_key::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_get_key* clone = new AST_foreach_get_key(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_get_key::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
+    AST_node::assert_mixin_valid();
+}
+
+AST_foreach_get_data::AST_foreach_get_data(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+{
+    this->variable_name = variable_name;
+    this->ht_iterator = ht_iterator;
+}
+
+AST_foreach_get_data::AST_foreach_get_data()
+{
+    this->variable_name = 0;
+    this->ht_iterator = 0;
+}
+
+void AST_foreach_get_data::visit(AST_visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void AST_foreach_get_data::transform_children(AST_transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int AST_foreach_get_data::classid()
+{
+    return ID;
+}
+
+bool AST_foreach_get_data::match(AST_node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    AST_foreach_get_data* that = dynamic_cast<AST_foreach_get_data*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL)
+    {
+    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    		return false;
+    }
+    else if(!this->ht_iterator->match(that->ht_iterator))
+    	return false;
+    
+    return true;
+}
+
+bool AST_foreach_get_data::equals(AST_node* in)
+{
+    AST_foreach_get_data* that = dynamic_cast<AST_foreach_get_data*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    {
+    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    		return false;
+    }
+    else if(!this->ht_iterator->equals(that->ht_iterator))
+    	return false;
+    
+    if(!AST_node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+AST_foreach_get_data* AST_foreach_get_data::clone()
+{
+    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    AST_foreach_get_data* clone = new AST_foreach_get_data(variable_name, ht_iterator);
+    clone->AST_node::clone_mixin_from(this);
+    return clone;
+}
+
+void AST_foreach_get_data::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(ht_iterator != NULL);
+    ht_iterator->assert_valid();
     AST_node::assert_mixin_valid();
 }
 

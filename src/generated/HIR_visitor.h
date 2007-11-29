@@ -51,6 +51,12 @@ public:
     virtual void pre_branch(HIR_branch* in);
     virtual void pre_goto(HIR_goto* in);
     virtual void pre_label(HIR_label* in);
+    virtual void pre_foreach_reset(HIR_foreach_reset* in);
+    virtual void pre_foreach_next(HIR_foreach_next* in);
+    virtual void pre_foreach_end(HIR_foreach_end* in);
+    virtual void pre_foreach_has_key(HIR_foreach_has_key* in);
+    virtual void pre_foreach_get_key(HIR_foreach_get_key* in);
+    virtual void pre_foreach_get_data(HIR_foreach_get_data* in);
     virtual void pre_expr(HIR_expr* in);
     virtual void pre_literal(HIR_literal* in);
     virtual void pre_assignment(HIR_assignment* in);
@@ -77,6 +83,7 @@ public:
     virtual void pre_method_name(Token_method_name* in);
     virtual void pre_variable_name(Token_variable_name* in);
     virtual void pre_label_name(Token_label_name* in);
+    virtual void pre_ht_iterator(Token_ht_iterator* in);
     virtual void pre_int(Token_int* in);
     virtual void pre_real(Token_real* in);
     virtual void pre_string(Token_string* in);
@@ -112,6 +119,12 @@ public:
     virtual void post_branch(HIR_branch* in);
     virtual void post_goto(HIR_goto* in);
     virtual void post_label(HIR_label* in);
+    virtual void post_foreach_reset(HIR_foreach_reset* in);
+    virtual void post_foreach_next(HIR_foreach_next* in);
+    virtual void post_foreach_end(HIR_foreach_end* in);
+    virtual void post_foreach_has_key(HIR_foreach_has_key* in);
+    virtual void post_foreach_get_key(HIR_foreach_get_key* in);
+    virtual void post_foreach_get_data(HIR_foreach_get_data* in);
     virtual void post_expr(HIR_expr* in);
     virtual void post_literal(HIR_literal* in);
     virtual void post_assignment(HIR_assignment* in);
@@ -138,6 +151,7 @@ public:
     virtual void post_method_name(Token_method_name* in);
     virtual void post_variable_name(Token_variable_name* in);
     virtual void post_label_name(Token_label_name* in);
+    virtual void post_ht_iterator(Token_ht_iterator* in);
     virtual void post_int(Token_int* in);
     virtual void post_real(Token_real* in);
     virtual void post_string(Token_string* in);
@@ -170,6 +184,12 @@ public:
     virtual void children_branch(HIR_branch* in);
     virtual void children_goto(HIR_goto* in);
     virtual void children_label(HIR_label* in);
+    virtual void children_foreach_reset(HIR_foreach_reset* in);
+    virtual void children_foreach_next(HIR_foreach_next* in);
+    virtual void children_foreach_end(HIR_foreach_end* in);
+    virtual void children_foreach_has_key(HIR_foreach_has_key* in);
+    virtual void children_foreach_get_key(HIR_foreach_get_key* in);
+    virtual void children_foreach_get_data(HIR_foreach_get_data* in);
     virtual void children_assignment(HIR_assignment* in);
     virtual void children_cast(HIR_cast* in);
     virtual void children_unary_op(HIR_unary_op* in);
@@ -191,6 +211,7 @@ public:
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_label_name(Token_label_name* in);
+    virtual void children_ht_iterator(Token_ht_iterator* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
@@ -231,6 +252,12 @@ public:
     virtual void pre_branch_chain(HIR_branch* in);
     virtual void pre_goto_chain(HIR_goto* in);
     virtual void pre_label_chain(HIR_label* in);
+    virtual void pre_foreach_reset_chain(HIR_foreach_reset* in);
+    virtual void pre_foreach_next_chain(HIR_foreach_next* in);
+    virtual void pre_foreach_end_chain(HIR_foreach_end* in);
+    virtual void pre_foreach_has_key_chain(HIR_foreach_has_key* in);
+    virtual void pre_foreach_get_key_chain(HIR_foreach_get_key* in);
+    virtual void pre_foreach_get_data_chain(HIR_foreach_get_data* in);
     virtual void pre_assignment_chain(HIR_assignment* in);
     virtual void pre_cast_chain(HIR_cast* in);
     virtual void pre_unary_op_chain(HIR_unary_op* in);
@@ -250,6 +277,7 @@ public:
     virtual void pre_method_name_chain(Token_method_name* in);
     virtual void pre_variable_name_chain(Token_variable_name* in);
     virtual void pre_label_name_chain(Token_label_name* in);
+    virtual void pre_ht_iterator_chain(Token_ht_iterator* in);
     virtual void pre_int_chain(Token_int* in);
     virtual void pre_real_chain(Token_real* in);
     virtual void pre_string_chain(Token_string* in);
@@ -284,6 +312,12 @@ public:
     virtual void post_branch_chain(HIR_branch* in);
     virtual void post_goto_chain(HIR_goto* in);
     virtual void post_label_chain(HIR_label* in);
+    virtual void post_foreach_reset_chain(HIR_foreach_reset* in);
+    virtual void post_foreach_next_chain(HIR_foreach_next* in);
+    virtual void post_foreach_end_chain(HIR_foreach_end* in);
+    virtual void post_foreach_has_key_chain(HIR_foreach_has_key* in);
+    virtual void post_foreach_get_key_chain(HIR_foreach_get_key* in);
+    virtual void post_foreach_get_data_chain(HIR_foreach_get_data* in);
     virtual void post_assignment_chain(HIR_assignment* in);
     virtual void post_cast_chain(HIR_cast* in);
     virtual void post_unary_op_chain(HIR_unary_op* in);
@@ -303,6 +337,7 @@ public:
     virtual void post_method_name_chain(Token_method_name* in);
     virtual void post_variable_name_chain(Token_variable_name* in);
     virtual void post_label_name_chain(Token_label_name* in);
+    virtual void post_ht_iterator_chain(Token_ht_iterator* in);
     virtual void post_int_chain(Token_int* in);
     virtual void post_real_chain(Token_real* in);
     virtual void post_string_chain(Token_string* in);
@@ -336,6 +371,7 @@ public:
     virtual void visit_catch_list(List<HIR_catch*>* in);
     virtual void visit_catch(HIR_catch* in);
     virtual void visit_label_name(Token_label_name* in);
+    virtual void visit_ht_iterator(Token_ht_iterator* in);
     virtual void visit_variable(HIR_variable* in);
     virtual void visit_cast(Token_cast* in);
     virtual void visit_op(Token_op* in);

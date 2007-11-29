@@ -48,6 +48,12 @@ public:
     virtual void pre_branch(HIR_branch* in, List<HIR_statement*>* out);
     virtual void pre_goto(HIR_goto* in, List<HIR_statement*>* out);
     virtual void pre_label(HIR_label* in, List<HIR_statement*>* out);
+    virtual void pre_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out);
+    virtual void pre_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out);
+    virtual void pre_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out);
+    virtual HIR_expr* pre_foreach_has_key(HIR_foreach_has_key* in);
+    virtual HIR_expr* pre_foreach_get_key(HIR_foreach_get_key* in);
+    virtual HIR_expr* pre_foreach_get_data(HIR_foreach_get_data* in);
     virtual HIR_expr* pre_assignment(HIR_assignment* in);
     virtual HIR_expr* pre_cast(HIR_cast* in);
     virtual HIR_expr* pre_unary_op(HIR_unary_op* in);
@@ -67,6 +73,7 @@ public:
     virtual Token_method_name* pre_method_name(Token_method_name* in);
     virtual Token_variable_name* pre_variable_name(Token_variable_name* in);
     virtual Token_label_name* pre_label_name(Token_label_name* in);
+    virtual Token_ht_iterator* pre_ht_iterator(Token_ht_iterator* in);
     virtual HIR_expr* pre_int(Token_int* in);
     virtual HIR_expr* pre_real(Token_real* in);
     virtual HIR_expr* pre_string(Token_string* in);
@@ -99,6 +106,12 @@ public:
     virtual void post_branch(HIR_branch* in, List<HIR_statement*>* out);
     virtual void post_goto(HIR_goto* in, List<HIR_statement*>* out);
     virtual void post_label(HIR_label* in, List<HIR_statement*>* out);
+    virtual void post_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out);
+    virtual void post_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out);
+    virtual void post_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out);
+    virtual HIR_expr* post_foreach_has_key(HIR_foreach_has_key* in);
+    virtual HIR_expr* post_foreach_get_key(HIR_foreach_get_key* in);
+    virtual HIR_expr* post_foreach_get_data(HIR_foreach_get_data* in);
     virtual HIR_expr* post_assignment(HIR_assignment* in);
     virtual HIR_expr* post_cast(HIR_cast* in);
     virtual HIR_expr* post_unary_op(HIR_unary_op* in);
@@ -118,6 +131,7 @@ public:
     virtual Token_method_name* post_method_name(Token_method_name* in);
     virtual Token_variable_name* post_variable_name(Token_variable_name* in);
     virtual Token_label_name* post_label_name(Token_label_name* in);
+    virtual Token_ht_iterator* post_ht_iterator(Token_ht_iterator* in);
     virtual HIR_expr* post_int(Token_int* in);
     virtual HIR_expr* post_real(Token_real* in);
     virtual HIR_expr* post_string(Token_string* in);
@@ -150,6 +164,12 @@ public:
     virtual void children_branch(HIR_branch* in);
     virtual void children_goto(HIR_goto* in);
     virtual void children_label(HIR_label* in);
+    virtual void children_foreach_reset(HIR_foreach_reset* in);
+    virtual void children_foreach_next(HIR_foreach_next* in);
+    virtual void children_foreach_end(HIR_foreach_end* in);
+    virtual void children_foreach_has_key(HIR_foreach_has_key* in);
+    virtual void children_foreach_get_key(HIR_foreach_get_key* in);
+    virtual void children_foreach_get_data(HIR_foreach_get_data* in);
     virtual void children_assignment(HIR_assignment* in);
     virtual void children_cast(HIR_cast* in);
     virtual void children_unary_op(HIR_unary_op* in);
@@ -171,6 +191,7 @@ public:
     virtual void children_method_name(Token_method_name* in);
     virtual void children_variable_name(Token_variable_name* in);
     virtual void children_label_name(Token_label_name* in);
+    virtual void children_ht_iterator(Token_ht_iterator* in);
     virtual void children_int(Token_int* in);
     virtual void children_real(Token_real* in);
     virtual void children_string(Token_string* in);
@@ -204,6 +225,7 @@ public:
     virtual List<HIR_catch*>* transform_catch_list(List<HIR_catch*>* in);
     virtual List<HIR_catch*>* transform_catch(HIR_catch* in);
     virtual Token_label_name* transform_label_name(Token_label_name* in);
+    virtual Token_ht_iterator* transform_ht_iterator(Token_ht_iterator* in);
     virtual HIR_variable* transform_variable(HIR_variable* in);
     virtual Token_cast* transform_cast(Token_cast* in);
     virtual Token_op* transform_op(Token_op* in);

@@ -42,6 +42,12 @@ template
  class _HIR_branch,
  class _HIR_goto,
  class _HIR_label,
+ class _HIR_foreach_reset,
+ class _HIR_foreach_next,
+ class _HIR_foreach_end,
+ class _HIR_foreach_has_key,
+ class _HIR_foreach_get_key,
+ class _HIR_foreach_get_data,
  class _HIR_expr,
  class _HIR_literal,
  class _HIR_assignment,
@@ -68,6 +74,7 @@ template
  class _Token_method_name,
  class _Token_variable_name,
  class _Token_label_name,
+ class _Token_ht_iterator,
  class _Token_int,
  class _Token_real,
  class _Token_string,
@@ -329,6 +336,60 @@ public:
 		return fold_impl_label(in, label_name);
 	}
 
+	virtual _HIR_foreach_reset fold_foreach_reset(HIR_foreach_reset* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_reset(in, variable_name, ht_iterator);
+	}
+
+	virtual _HIR_foreach_next fold_foreach_next(HIR_foreach_next* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_next(in, variable_name, ht_iterator);
+	}
+
+	virtual _HIR_foreach_end fold_foreach_end(HIR_foreach_end* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_end(in, variable_name, ht_iterator);
+	}
+
+	virtual _HIR_foreach_has_key fold_foreach_has_key(HIR_foreach_has_key* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_has_key(in, variable_name, ht_iterator);
+	}
+
+	virtual _HIR_foreach_get_key fold_foreach_get_key(HIR_foreach_get_key* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_get_key(in, variable_name, ht_iterator);
+	}
+
+	virtual _HIR_foreach_get_data fold_foreach_get_data(HIR_foreach_get_data* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_get_data(in, variable_name, ht_iterator);
+	}
+
 	virtual _HIR_assignment fold_assignment(HIR_assignment* in)
 	{
 		_HIR_variable variable = 0;
@@ -514,6 +575,12 @@ public:
 	virtual _HIR_branch fold_impl_branch(HIR_branch* orig, _HIR_expr expr, _Token_label_name iftrue, _Token_label_name iffalse) { assert(0); };
 	virtual _HIR_goto fold_impl_goto(HIR_goto* orig, _Token_label_name label_name) { assert(0); };
 	virtual _HIR_label fold_impl_label(HIR_label* orig, _Token_label_name label_name) { assert(0); };
+	virtual _HIR_foreach_reset fold_impl_foreach_reset(HIR_foreach_reset* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _HIR_foreach_next fold_impl_foreach_next(HIR_foreach_next* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _HIR_foreach_end fold_impl_foreach_end(HIR_foreach_end* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _HIR_foreach_has_key fold_impl_foreach_has_key(HIR_foreach_has_key* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _HIR_foreach_get_key fold_impl_foreach_get_key(HIR_foreach_get_key* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _HIR_foreach_get_data fold_impl_foreach_get_data(HIR_foreach_get_data* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
 	virtual _HIR_assignment fold_impl_assignment(HIR_assignment* orig, _HIR_variable variable, bool is_ref, _HIR_expr expr) { assert(0); };
 	virtual _HIR_cast fold_impl_cast(HIR_cast* orig, _Token_cast cast, _Token_variable_name variable_name) { assert(0); };
 	virtual _HIR_unary_op fold_impl_unary_op(HIR_unary_op* orig, _Token_op op, _Token_variable_name variable_name) { assert(0); };
@@ -534,6 +601,7 @@ public:
 	virtual _Token_method_name fold_method_name(Token_method_name* orig) { assert(0); };
 	virtual _Token_variable_name fold_variable_name(Token_variable_name* orig) { assert(0); };
 	virtual _Token_label_name fold_label_name(Token_label_name* orig) { assert(0); };
+	virtual _Token_ht_iterator fold_ht_iterator(Token_ht_iterator* orig) { assert(0); };
 	virtual _Token_int fold_int(Token_int* orig) { assert(0); };
 	virtual _Token_real fold_real(Token_real* orig) { assert(0); };
 	virtual _Token_string fold_string(Token_string* orig) { assert(0); };
@@ -576,6 +644,12 @@ public:
 				return fold_goto(dynamic_cast<HIR_goto*>(in));
 			case HIR_branch::ID:
 				return fold_branch(dynamic_cast<HIR_branch*>(in));
+			case HIR_foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<HIR_foreach_next*>(in));
+			case HIR_foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in));
+			case HIR_foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<HIR_foreach_end*>(in));
 			case HIR_class_mod::ID:
 				return fold_class_mod(dynamic_cast<HIR_class_mod*>(in));
 			case HIR_attribute::ID:
@@ -628,6 +702,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+			case HIR_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+			case HIR_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 			case Token_class_name::ID:
@@ -648,6 +728,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_ht_iterator::ID:
+				return fold_ht_iterator(dynamic_cast<Token_ht_iterator*>(in));
 		}
 		assert(0);
 	}
@@ -680,6 +762,12 @@ public:
 				return fold_goto(dynamic_cast<HIR_goto*>(in));
 			case HIR_branch::ID:
 				return fold_branch(dynamic_cast<HIR_branch*>(in));
+			case HIR_foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<HIR_foreach_next*>(in));
+			case HIR_foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in));
+			case HIR_foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<HIR_foreach_end*>(in));
 		}
 		assert(0);
 	}
@@ -730,6 +818,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+			case HIR_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+			case HIR_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 		}
@@ -800,6 +894,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+			case HIR_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+			case HIR_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
 			case HIR_array::ID:
 				return fold_array(dynamic_cast<HIR_array*>(in));
 			case Token_class_name::ID:
@@ -852,6 +952,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_ht_iterator::ID:
+				return fold_ht_iterator(dynamic_cast<Token_ht_iterator*>(in));
 		}
 		assert(0);
 	}
@@ -863,6 +965,6 @@ public:
 };
 
 template<class T>
-class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class HIR_uniform_fold : public HIR_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

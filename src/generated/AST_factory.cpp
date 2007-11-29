@@ -261,6 +261,48 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new AST_label(label_name);
     }
+    if(!strcmp(type_id, "AST_foreach_reset"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_reset(variable_name, ht_iterator);
+    }
+    if(!strcmp(type_id, "AST_foreach_next"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_next(variable_name, ht_iterator);
+    }
+    if(!strcmp(type_id, "AST_foreach_end"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_end(variable_name, ht_iterator);
+    }
+    if(!strcmp(type_id, "AST_foreach_has_key"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_has_key(variable_name, ht_iterator);
+    }
+    if(!strcmp(type_id, "AST_foreach_get_key"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_get_key(variable_name, ht_iterator);
+    }
+    if(!strcmp(type_id, "AST_foreach_get_data"))
+    {
+    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	assert(i == args->end());
+    	return new AST_foreach_get_data(variable_name, ht_iterator);
+    }
     if(!strcmp(type_id, "AST_assignment"))
     {
     	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
@@ -439,6 +481,12 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new Token_label_name(value);
+    }
+    if(!strcmp(type_id, "Token_ht_iterator"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new Token_ht_iterator(value);
     }
     if(!strcmp(type_id, "Token_op"))
     {

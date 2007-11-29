@@ -54,6 +54,12 @@ template
  class _AST_branch,
  class _AST_goto,
  class _AST_label,
+ class _AST_foreach_reset,
+ class _AST_foreach_next,
+ class _AST_foreach_end,
+ class _AST_foreach_has_key,
+ class _AST_foreach_get_key,
+ class _AST_foreach_get_data,
  class _AST_expr,
  class _AST_literal,
  class _AST_assignment,
@@ -89,6 +95,7 @@ template
  class _Token_variable_name,
  class _Token_directive_name,
  class _Token_label_name,
+ class _Token_ht_iterator,
  class _Token_int,
  class _Token_real,
  class _Token_string,
@@ -526,6 +533,60 @@ public:
 		return fold_impl_label(in, label_name);
 	}
 
+	virtual _AST_foreach_reset fold_foreach_reset(AST_foreach_reset* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_reset(in, variable_name, ht_iterator);
+	}
+
+	virtual _AST_foreach_next fold_foreach_next(AST_foreach_next* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_next(in, variable_name, ht_iterator);
+	}
+
+	virtual _AST_foreach_end fold_foreach_end(AST_foreach_end* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_end(in, variable_name, ht_iterator);
+	}
+
+	virtual _AST_foreach_has_key fold_foreach_has_key(AST_foreach_has_key* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_has_key(in, variable_name, ht_iterator);
+	}
+
+	virtual _AST_foreach_get_key fold_foreach_get_key(AST_foreach_get_key* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_get_key(in, variable_name, ht_iterator);
+	}
+
+	virtual _AST_foreach_get_data fold_foreach_get_data(AST_foreach_get_data* in)
+	{
+		_Token_variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		_Token_ht_iterator ht_iterator = 0;
+		if(in->ht_iterator != NULL) ht_iterator = fold_ht_iterator(in->ht_iterator);
+		return fold_impl_foreach_get_data(in, variable_name, ht_iterator);
+	}
+
 	virtual _AST_assignment fold_assignment(AST_assignment* in)
 	{
 		_AST_variable variable = 0;
@@ -778,6 +839,12 @@ public:
 	virtual _AST_branch fold_impl_branch(AST_branch* orig, _AST_expr expr, _Token_label_name iftrue, _Token_label_name iffalse) { assert(0); };
 	virtual _AST_goto fold_impl_goto(AST_goto* orig, _Token_label_name label_name) { assert(0); };
 	virtual _AST_label fold_impl_label(AST_label* orig, _Token_label_name label_name) { assert(0); };
+	virtual _AST_foreach_reset fold_impl_foreach_reset(AST_foreach_reset* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _AST_foreach_next fold_impl_foreach_next(AST_foreach_next* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _AST_foreach_end fold_impl_foreach_end(AST_foreach_end* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _AST_foreach_has_key fold_impl_foreach_has_key(AST_foreach_has_key* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _AST_foreach_get_key fold_impl_foreach_get_key(AST_foreach_get_key* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
+	virtual _AST_foreach_get_data fold_impl_foreach_get_data(AST_foreach_get_data* orig, _Token_variable_name variable_name, _Token_ht_iterator ht_iterator) { assert(0); };
 	virtual _AST_assignment fold_impl_assignment(AST_assignment* orig, _AST_variable variable, bool is_ref, _AST_expr expr) { assert(0); };
 	virtual _AST_op_assignment fold_impl_op_assignment(AST_op_assignment* orig, _AST_variable variable, _Token_op op, _AST_expr expr) { assert(0); };
 	virtual _AST_list_assignment fold_impl_list_assignment(AST_list_assignment* orig, List<_AST_list_element>* list_elements, _AST_expr expr) { assert(0); };
@@ -805,6 +872,7 @@ public:
 	virtual _Token_variable_name fold_variable_name(Token_variable_name* orig) { assert(0); };
 	virtual _Token_directive_name fold_directive_name(Token_directive_name* orig) { assert(0); };
 	virtual _Token_label_name fold_label_name(Token_label_name* orig) { assert(0); };
+	virtual _Token_ht_iterator fold_ht_iterator(Token_ht_iterator* orig) { assert(0); };
 	virtual _Token_int fold_int(Token_int* orig) { assert(0); };
 	virtual _Token_real fold_real(Token_real* orig) { assert(0); };
 	virtual _Token_string fold_string(Token_string* orig) { assert(0); };
@@ -875,6 +943,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+			case AST_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+			case AST_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
 			case AST_op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
 			case AST_list_assignment::ID:
@@ -921,6 +995,12 @@ public:
 				return fold_goto(dynamic_cast<AST_goto*>(in));
 			case AST_branch::ID:
 				return fold_branch(dynamic_cast<AST_branch*>(in));
+			case AST_foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+			case AST_foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+			case AST_foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<AST_foreach_end*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -955,6 +1035,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_ht_iterator::ID:
+				return fold_ht_iterator(dynamic_cast<Token_ht_iterator*>(in));
 			case Token_directive_name::ID:
 				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 		}
@@ -989,6 +1071,12 @@ public:
 				return fold_goto(dynamic_cast<AST_goto*>(in));
 			case AST_branch::ID:
 				return fold_branch(dynamic_cast<AST_branch*>(in));
+			case AST_foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+			case AST_foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+			case AST_foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<AST_foreach_end*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -1059,6 +1147,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+			case AST_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+			case AST_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
 			case AST_op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
 			case AST_list_assignment::ID:
@@ -1151,6 +1245,12 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+			case AST_foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+			case AST_foreach_get_data::ID:
+				return fold_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
 			case AST_op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
 			case AST_list_assignment::ID:
@@ -1223,6 +1323,12 @@ public:
 				return fold_goto(dynamic_cast<AST_goto*>(in));
 			case AST_branch::ID:
 				return fold_branch(dynamic_cast<AST_branch*>(in));
+			case AST_foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+			case AST_foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+			case AST_foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<AST_foreach_end*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -1271,6 +1377,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_ht_iterator::ID:
+				return fold_ht_iterator(dynamic_cast<Token_ht_iterator*>(in));
 			case Token_directive_name::ID:
 				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 		}
@@ -1284,6 +1392,6 @@ public:
 };
 
 template<class T>
-class AST_uniform_fold : public AST_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class AST_uniform_fold : public AST_fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

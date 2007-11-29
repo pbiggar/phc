@@ -154,6 +154,30 @@ void AST_visitor::pre_label(AST_label* in)
 {
 }
 
+void AST_visitor::pre_foreach_reset(AST_foreach_reset* in)
+{
+}
+
+void AST_visitor::pre_foreach_next(AST_foreach_next* in)
+{
+}
+
+void AST_visitor::pre_foreach_end(AST_foreach_end* in)
+{
+}
+
+void AST_visitor::pre_foreach_has_key(AST_foreach_has_key* in)
+{
+}
+
+void AST_visitor::pre_foreach_get_key(AST_foreach_get_key* in)
+{
+}
+
+void AST_visitor::pre_foreach_get_data(AST_foreach_get_data* in)
+{
+}
+
 void AST_visitor::pre_expr(AST_expr* in)
 {
 }
@@ -291,6 +315,10 @@ void AST_visitor::pre_directive_name(Token_directive_name* in)
 }
 
 void AST_visitor::pre_label_name(Token_label_name* in)
+{
+}
+
+void AST_visitor::pre_ht_iterator(Token_ht_iterator* in)
 {
 }
 
@@ -475,6 +503,30 @@ void AST_visitor::post_label(AST_label* in)
 {
 }
 
+void AST_visitor::post_foreach_reset(AST_foreach_reset* in)
+{
+}
+
+void AST_visitor::post_foreach_next(AST_foreach_next* in)
+{
+}
+
+void AST_visitor::post_foreach_end(AST_foreach_end* in)
+{
+}
+
+void AST_visitor::post_foreach_has_key(AST_foreach_has_key* in)
+{
+}
+
+void AST_visitor::post_foreach_get_key(AST_foreach_get_key* in)
+{
+}
+
+void AST_visitor::post_foreach_get_data(AST_foreach_get_data* in)
+{
+}
+
 void AST_visitor::post_expr(AST_expr* in)
 {
 }
@@ -612,6 +664,10 @@ void AST_visitor::post_directive_name(Token_directive_name* in)
 }
 
 void AST_visitor::post_label_name(Token_label_name* in)
+{
+}
+
+void AST_visitor::post_ht_iterator(Token_ht_iterator* in)
 {
 }
 
@@ -861,6 +917,42 @@ void AST_visitor::children_label(AST_label* in)
     visit_label_name(in->label_name);
 }
 
+void AST_visitor::children_foreach_reset(AST_foreach_reset* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
+void AST_visitor::children_foreach_next(AST_foreach_next* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
+void AST_visitor::children_foreach_end(AST_foreach_end* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
+void AST_visitor::children_foreach_has_key(AST_foreach_has_key* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
+void AST_visitor::children_foreach_get_key(AST_foreach_get_key* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
+void AST_visitor::children_foreach_get_data(AST_foreach_get_data* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_ht_iterator(in->ht_iterator);
+}
+
 void AST_visitor::children_assignment(AST_assignment* in)
 {
     visit_variable(in->variable);
@@ -1006,6 +1098,10 @@ void AST_visitor::children_directive_name(Token_directive_name* in)
 }
 
 void AST_visitor::children_label_name(Token_label_name* in)
+{
+}
+
+void AST_visitor::children_ht_iterator(Token_ht_iterator* in)
 {
 }
 
@@ -1317,6 +1413,54 @@ void AST_visitor::pre_label_chain(AST_label* in)
     pre_label(in);
 }
 
+void AST_visitor::pre_foreach_reset_chain(AST_foreach_reset* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_foreach_reset(in);
+}
+
+void AST_visitor::pre_foreach_next_chain(AST_foreach_next* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_foreach_next(in);
+}
+
+void AST_visitor::pre_foreach_end_chain(AST_foreach_end* in)
+{
+    pre_node(in);
+    pre_commented_node(in);
+    pre_statement(in);
+    pre_foreach_end(in);
+}
+
+void AST_visitor::pre_foreach_has_key_chain(AST_foreach_has_key* in)
+{
+    pre_node(in);
+    pre_target(in);
+    pre_expr(in);
+    pre_foreach_has_key(in);
+}
+
+void AST_visitor::pre_foreach_get_key_chain(AST_foreach_get_key* in)
+{
+    pre_node(in);
+    pre_target(in);
+    pre_expr(in);
+    pre_foreach_get_key(in);
+}
+
+void AST_visitor::pre_foreach_get_data_chain(AST_foreach_get_data* in)
+{
+    pre_node(in);
+    pre_target(in);
+    pre_expr(in);
+    pre_foreach_get_data(in);
+}
+
 void AST_visitor::pre_assignment_chain(AST_assignment* in)
 {
     pre_node(in);
@@ -1518,6 +1662,13 @@ void AST_visitor::pre_label_name_chain(Token_label_name* in)
     pre_node(in);
     pre_identifier(in);
     pre_label_name(in);
+}
+
+void AST_visitor::pre_ht_iterator_chain(Token_ht_iterator* in)
+{
+    pre_node(in);
+    pre_identifier(in);
+    pre_ht_iterator(in);
 }
 
 void AST_visitor::pre_int_chain(Token_int* in)
@@ -1842,6 +1993,54 @@ void AST_visitor::post_label_chain(AST_label* in)
     post_node(in);
 }
 
+void AST_visitor::post_foreach_reset_chain(AST_foreach_reset* in)
+{
+    post_foreach_reset(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_foreach_next_chain(AST_foreach_next* in)
+{
+    post_foreach_next(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_foreach_end_chain(AST_foreach_end* in)
+{
+    post_foreach_end(in);
+    post_statement(in);
+    post_commented_node(in);
+    post_node(in);
+}
+
+void AST_visitor::post_foreach_has_key_chain(AST_foreach_has_key* in)
+{
+    post_foreach_has_key(in);
+    post_expr(in);
+    post_target(in);
+    post_node(in);
+}
+
+void AST_visitor::post_foreach_get_key_chain(AST_foreach_get_key* in)
+{
+    post_foreach_get_key(in);
+    post_expr(in);
+    post_target(in);
+    post_node(in);
+}
+
+void AST_visitor::post_foreach_get_data_chain(AST_foreach_get_data* in)
+{
+    post_foreach_get_data(in);
+    post_expr(in);
+    post_target(in);
+    post_node(in);
+}
+
 void AST_visitor::post_assignment_chain(AST_assignment* in)
 {
     post_assignment(in);
@@ -2041,6 +2240,13 @@ void AST_visitor::post_directive_name_chain(Token_directive_name* in)
 void AST_visitor::post_label_name_chain(Token_label_name* in)
 {
     post_label_name(in);
+    post_identifier(in);
+    post_node(in);
+}
+
+void AST_visitor::post_ht_iterator_chain(Token_ht_iterator* in)
+{
+    post_ht_iterator(in);
     post_identifier(in);
     post_node(in);
 }
@@ -2524,6 +2730,18 @@ void AST_visitor::visit_label_name(Token_label_name* in)
     }
 }
 
+void AST_visitor::visit_ht_iterator(Token_ht_iterator* in)
+{
+    if(in == NULL)
+    	visit_null("Token_ht_iterator");
+    else
+    {
+    	pre_ht_iterator_chain(in);
+    	children_ht_iterator(in);
+    	post_ht_iterator_chain(in);
+    }
+}
+
 void AST_visitor::visit_op(Token_op* in)
 {
     if(in == NULL)
@@ -2774,6 +2992,15 @@ void AST_visitor::pre_statement_chain(AST_statement* in)
     case AST_branch::ID:
     	pre_branch_chain(dynamic_cast<AST_branch*>(in));
     	break;
+    case AST_foreach_next::ID:
+    	pre_foreach_next_chain(dynamic_cast<AST_foreach_next*>(in));
+    	break;
+    case AST_foreach_reset::ID:
+    	pre_foreach_reset_chain(dynamic_cast<AST_foreach_reset*>(in));
+    	break;
+    case AST_foreach_end::ID:
+    	pre_foreach_end_chain(dynamic_cast<AST_foreach_end*>(in));
+    	break;
     case AST_if::ID:
     	pre_if_chain(dynamic_cast<AST_if*>(in));
     	break;
@@ -2868,6 +3095,15 @@ void AST_visitor::pre_expr_chain(AST_expr* in)
     	break;
     case Token_null::ID:
     	pre_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	pre_foreach_has_key_chain(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	pre_foreach_get_key_chain(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	pre_foreach_get_data_chain(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	pre_op_assignment_chain(dynamic_cast<AST_op_assignment*>(in));
@@ -2978,6 +3214,15 @@ void AST_visitor::pre_target_chain(AST_target* in)
     case Token_null::ID:
     	pre_null_chain(dynamic_cast<Token_null*>(in));
     	break;
+    case AST_foreach_has_key::ID:
+    	pre_foreach_has_key_chain(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	pre_foreach_get_key_chain(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	pre_foreach_get_data_chain(dynamic_cast<AST_foreach_get_data*>(in));
+    	break;
     case AST_op_assignment::ID:
     	pre_op_assignment_chain(dynamic_cast<AST_op_assignment*>(in));
     	break;
@@ -3056,6 +3301,15 @@ void AST_visitor::post_statement_chain(AST_statement* in)
     	break;
     case AST_branch::ID:
     	post_branch_chain(dynamic_cast<AST_branch*>(in));
+    	break;
+    case AST_foreach_next::ID:
+    	post_foreach_next_chain(dynamic_cast<AST_foreach_next*>(in));
+    	break;
+    case AST_foreach_reset::ID:
+    	post_foreach_reset_chain(dynamic_cast<AST_foreach_reset*>(in));
+    	break;
+    case AST_foreach_end::ID:
+    	post_foreach_end_chain(dynamic_cast<AST_foreach_end*>(in));
     	break;
     case AST_if::ID:
     	post_if_chain(dynamic_cast<AST_if*>(in));
@@ -3151,6 +3405,15 @@ void AST_visitor::post_expr_chain(AST_expr* in)
     	break;
     case Token_null::ID:
     	post_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	post_foreach_has_key_chain(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	post_foreach_get_key_chain(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	post_foreach_get_data_chain(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	post_op_assignment_chain(dynamic_cast<AST_op_assignment*>(in));
@@ -3261,6 +3524,15 @@ void AST_visitor::post_target_chain(AST_target* in)
     case Token_null::ID:
     	post_null_chain(dynamic_cast<Token_null*>(in));
     	break;
+    case AST_foreach_has_key::ID:
+    	post_foreach_has_key_chain(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	post_foreach_get_key_chain(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	post_foreach_get_data_chain(dynamic_cast<AST_foreach_get_data*>(in));
+    	break;
     case AST_op_assignment::ID:
     	post_op_assignment_chain(dynamic_cast<AST_op_assignment*>(in));
     	break;
@@ -3339,6 +3611,15 @@ void AST_visitor::children_statement(AST_statement* in)
     	break;
     case AST_branch::ID:
     	children_branch(dynamic_cast<AST_branch*>(in));
+    	break;
+    case AST_foreach_next::ID:
+    	children_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+    	break;
+    case AST_foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+    	break;
+    case AST_foreach_end::ID:
+    	children_foreach_end(dynamic_cast<AST_foreach_end*>(in));
     	break;
     case AST_if::ID:
     	children_if(dynamic_cast<AST_if*>(in));
@@ -3434,6 +3715,15 @@ void AST_visitor::children_expr(AST_expr* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
@@ -3543,6 +3833,15 @@ void AST_visitor::children_target(AST_target* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case AST_foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    	break;
+    case AST_foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    	break;
+    case AST_foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
     	break;
     case AST_op_assignment::ID:
     	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));

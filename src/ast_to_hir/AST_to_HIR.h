@@ -59,6 +59,12 @@ class AST_to_HIR : public AST::AST_fold
  HIR::HIR_branch*,				// AST_branch*
  HIR::HIR_goto*,				// AST_goto*
  HIR::HIR_label*,				// AST_label*
+ HIR::HIR_foreach_reset*,	// AST_foreach_reset*
+ HIR::HIR_foreach_next*,	// AST_foreach_next*
+ HIR::HIR_foreach_end*,	// AST_foreach_end*
+ HIR::HIR_foreach_has_key*,	// AST_foreach_has_key*
+ HIR::HIR_foreach_get_key*,	// AST_foreach_get_key*
+ HIR::HIR_foreach_get_data*,	// AST_foreach_get_data*
  HIR::HIR_expr*,				// AST_expr*
  HIR::HIR_literal*,				// AST_literal*
  HIR::HIR_assignment*,			// AST_assignment*
@@ -94,6 +100,7 @@ class AST_to_HIR : public AST::AST_fold
  HIR::Token_variable_name*,		// Token_variable_name*
  HIR::HIR_identifier*,			// Token_directive_name*
  HIR::Token_label_name*,		// Token_label_name*
+ HIR::Token_ht_iterator*,		// Tokwn_ht_iterator*
  HIR::Token_int*,				// Token_int*
  HIR::Token_real*,				// Token_real*
  HIR::Token_string*,			// Token_string*
