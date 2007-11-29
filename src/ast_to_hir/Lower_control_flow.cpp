@@ -22,20 +22,16 @@
 
 using namespace AST;
 
-// TODO if obfuscate is set, we should randomly rearrange the basic blocks
-
-#define BREAK_ATTR "phc.codegen.break_label"
-#define CONTINUE_ATTR "phc.codegen.continue_label"
 template <class T>
 const char* get_attr_name ()
 {
-	if (T::ID == AST_break::ID) return BREAK_ATTR;
-	if (T::ID == AST_continue::ID) return CONTINUE_ATTR;
+	if (T::ID == AST_break::ID) return "phc.codegen.break_label";
+	if (T::ID == AST_continue::ID) return "phc.codegen.continue_label";
 	return NULL;
 }
 
 template<class T> 
-void Lower_control_flow::potentially_add_label (AST_node* in, List<AST_statement*> *out)
+void Lower_control_flow::add_label (AST_node* in, List<AST_statement*> *out)
 {
 	assert (break_levels.back () == in);
 	assert (continue_levels.back () == in);
@@ -149,9 +145,9 @@ void Lower_control_flow::lower_while (AST_while* in, List<AST_statement*>* out)
 
 void Lower_control_flow::post_while (AST_while* in, List<AST_statement*>* out)
 {
-	potentially_add_label<AST_continue> (in, out);
+	add_label<AST_continue> (in, out);
 	lower_while (in, out);
-	potentially_add_label<AST_break> (in, out);
+	add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 }
@@ -183,9 +179,9 @@ void Lower_control_flow::lower_do (AST_do* in, List<AST_statement*>* out)
 
 void Lower_control_flow::post_do (AST_do* in, List<AST_statement*>* out)
 {
-	potentially_add_label<AST_continue> (in, out);
+	add_label<AST_continue> (in, out);
 	lower_do (in, out);
-	potentially_add_label<AST_break> (in, out);
+	add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 }
@@ -223,7 +219,7 @@ void Lower_control_flow::lower_for (AST_for* in, List<AST_statement*>* out)
 	AST_while *while_stmt = new AST_while (in->cond, in->statements);
 
 	// A continue in a for loop lands just before the increment
-	potentially_add_label<AST_continue> (in, while_stmt->statements);
+	add_label<AST_continue> (in, while_stmt->statements);
 	if (in->incr)
 		while_stmt->statements->push_back (new AST_eval_expr (in->incr));
 
@@ -237,7 +233,7 @@ void Lower_control_flow::post_for (AST_for* in, List<AST_statement*>* out)
 {
 	lower_for (in, out);
 	// we add the continue label in lower_for
-	potentially_add_label<AST_break> (in, out);
+	add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 }
@@ -348,7 +344,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
    AST_while* while_stmt = new AST_while (assign, in->statements);
 
 	// A continue in a for loop lands just before the increment
-	potentially_add_label<AST_continue> (in, while_stmt->statements);
+	add_label<AST_continue> (in, while_stmt->statements);
 
 	// push it all back
 	out->push_back (array_copy);
@@ -459,7 +455,7 @@ void Lower_control_flow::lower_foreach (AST_foreach* in, List<AST_statement*>* o
    AST_while* while_stmt = new AST_while (assign, in->statements);
 
 	// A continue in a for loop lands just before the increment
-	potentially_add_label<AST_continue> (in, while_stmt->statements);
+	add_label<AST_continue> (in, while_stmt->statements);
 
 	// reset the lock
 	AST_statement* lock_unset;
@@ -493,8 +489,8 @@ void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out
 {
 	lower_foreach (in, out);
 	// we add the continue label in lower_foreach
-	potentially_add_label<AST_continue> (in, out);
-	potentially_add_label<AST_break> (in, out);
+	add_label<AST_continue> (in, out);
+	add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 }
@@ -551,7 +547,6 @@ void Lower_control_flow::post_foreach(AST_foreach* in, List<AST_statement*>* out
  *	LE:
  *
  */
-
 void Lower_control_flow::lower_switch(AST_switch* in, List<AST_statement*>* out)
 {
 	// val = expr;
@@ -618,8 +613,8 @@ void Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
 {
 	lower_switch (in, out);
 	// A continue is the same as a break, so add the label at the same place
-	potentially_add_label<AST_continue> (in, out);
-	potentially_add_label<AST_break> (in, out);
+	add_label<AST_continue> (in, out);
+	add_label<AST_break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
 }
@@ -639,23 +634,9 @@ void Lower_control_flow::post_switch(AST_switch* in, List<AST_statement*>* out)
  *
  *	where L(2n) is the label at the end of the nth inner loop construct
  */
-void Lower_control_flow::post_break (AST_break* in, List<AST_statement*>* out)
-{
-	lower_exit<AST_break> (in, out);
-}
-
-void Lower_control_flow::post_continue (AST_continue* in, List<AST_statement*>* out)
-{
-	lower_exit<AST_continue> (in, out);
-}
-
 template <class T>
 void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 {
-	/* If this break has a NULL expression, it's much easier (and gives more
-	 * readable output) if we special case it. Also, break 1 is the same as
-	 * break < 1, which is the same as just break. Its easier to handle it all
-	 * together. */
 	List<AST_node*> *levels; // It gets uglier
 	if (AST_break::ID == in->ID) levels = &break_levels;
 	if (AST_continue::ID == in->ID) levels = &continue_levels;
@@ -665,6 +646,11 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 	unsigned int error_depth = 0;
 	Token_int *_int = dynamic_cast<Token_int*> (in->expr);
 
+	/* If this break has a NULL expression, it's much easier (and gives more
+	 * readable output) if we special case it. Also, break 1 is the same as
+	 * break < 1, which is the same as just break. Its easier to handle it all
+	 * together. */
+	// TODO what about 'break "my_string"?'
 	if (in->expr == NULL || (_int && _int->value <= 1))
 		error_depth = 1;
 	else if (_int)
@@ -765,43 +751,50 @@ void Lower_control_flow::lower_exit (T* in, List<AST_statement*>* out)
 				)
 			)
 		);
+}
 
+void Lower_control_flow::post_break (AST_break* in, List<AST_statement*>* out)
+{
+	lower_exit<AST_break> (in, out);
+}
+
+void Lower_control_flow::post_continue (AST_continue* in, List<AST_statement*>* out)
+{
+	lower_exit<AST_continue> (in, out);
+}
+
+
+void Lower_control_flow::pre_control_flow (AST_statement* in, List<AST_statement*>* out)
+{
+	break_levels.push_back (in);
+	continue_levels.push_back (in);
+	out->push_back (in);
 }
 
 
 void Lower_control_flow::pre_while(AST_while* in, List<AST_statement*>* out)
 {
-	break_levels.push_back (in);
-	continue_levels.push_back (in);
-	out->push_back (in);
+	pre_control_flow (in, out);
 }
 
 void Lower_control_flow::pre_do(AST_do* in, List<AST_statement*>* out)
 {
-	break_levels.push_back (in);
-	continue_levels.push_back (in);
-	out->push_back (in);
+	pre_control_flow (in, out);
 }
 
 void Lower_control_flow::pre_for(AST_for* in, List<AST_statement*>* out)
 {
-	break_levels.push_back (in);
-	continue_levels.push_back (in);
-	out->push_back (in);
+	pre_control_flow (in, out);
 }
 
 void Lower_control_flow::pre_foreach(AST_foreach* in, List<AST_statement*>* out)
 {
-	break_levels.push_back (in);
-	continue_levels.push_back (in);
-	out->push_back (in);
+	pre_control_flow (in, out);
 }
 
 void Lower_control_flow::pre_switch(AST_switch* in, List<AST_statement*>* out)
 {
-	break_levels.push_back (in);
-	continue_levels.push_back (in);
-	out->push_back (in);
+	pre_control_flow (in, out);
 }
 
 AST_php_script* Lower_control_flow::post_php_script (AST_php_script* in)

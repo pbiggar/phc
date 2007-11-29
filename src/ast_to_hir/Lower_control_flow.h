@@ -21,7 +21,7 @@ class Lower_control_flow : public AST::AST_transform
 		AST::AST_php_script* post_php_script (AST::AST_php_script* in);
 
 	public:
-		template<class T> void potentially_add_label (AST::AST_node*, List<AST::AST_statement*>*);
+		template<class T> void add_label (AST::AST_node*, List<AST::AST_statement*>*);
 		template<class T> AST::AST_label* exit_label (AST::AST_node*);
 		template<class T> void lower_exit (T*, List<AST::AST_statement*>*);
 		void lower_for (AST::AST_for*, List<AST::AST_statement*>*);
@@ -29,9 +29,10 @@ class Lower_control_flow : public AST::AST_transform
 		void lower_do (AST::AST_do*, List<AST::AST_statement*>*);
 		void lower_if (AST::AST_if*, List<AST::AST_statement*>*);
 		void lower_while (AST::AST_while* in, List<AST::AST_statement*>* out);
-		void lower_switch(AST::AST_switch* in, List<AST::AST_statement*>* out);
+		void lower_switch (AST::AST_switch* in, List<AST::AST_statement*>* out);
 
 	public:
+		void pre_control_flow (AST::AST_statement* in, List<AST::AST_statement*>* out);
 		void pre_while(AST::AST_while* in, List<AST::AST_statement*>* out);
 		void pre_do(AST::AST_do* in, List<AST::AST_statement*>* out);
 		void pre_for(AST::AST_for* in, List<AST::AST_statement*>* out);
