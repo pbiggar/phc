@@ -1509,7 +1509,6 @@ HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
     case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
@@ -1517,6 +1516,7 @@ HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     }
     assert(0);
 }
@@ -1553,7 +1553,6 @@ HIR_target* HIR_transform::pre_target(HIR_target* in)
     case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
     case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
@@ -1561,6 +1560,7 @@ HIR_target* HIR_transform::pre_target(HIR_target* in)
     case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
+    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
     case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
@@ -1732,7 +1732,6 @@ HIR_expr* HIR_transform::post_expr(HIR_expr* in)
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
     case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
@@ -1740,6 +1739,7 @@ HIR_expr* HIR_transform::post_expr(HIR_expr* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     }
     assert(0);
 }
@@ -1776,7 +1776,6 @@ HIR_target* HIR_transform::post_target(HIR_target* in)
     case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
     case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
     case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
     case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
@@ -1784,6 +1783,7 @@ HIR_target* HIR_transform::post_target(HIR_target* in)
     case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
     case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
     case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
+    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
     case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
     }
     assert(0);
@@ -1885,9 +1885,6 @@ void HIR_transform::children_expr(HIR_expr* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -1908,6 +1905,9 @@ void HIR_transform::children_expr(HIR_expr* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	children_array(dynamic_cast<HIR_array*>(in));
     	break;
     }
 }
@@ -1966,9 +1966,6 @@ void HIR_transform::children_target(HIR_target* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -1989,6 +1986,9 @@ void HIR_transform::children_target(HIR_target* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	children_array(dynamic_cast<HIR_array*>(in));
     	break;
     case Token_class_name::ID:
     	children_class_name(dynamic_cast<Token_class_name*>(in));

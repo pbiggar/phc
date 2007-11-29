@@ -26,11 +26,12 @@ use namespace "HIR";
 php_script ::= statement* ;
 
 statement ::=
-     class_def | interface_def | method 
+     class_def | interface_def | method
 	  | return | static_declaration | global
 	  | try | throw | eval_expr
-	  | label | goto | branch ;
---	| assign_var | assign_var_var | assign_array | push_array
+	  | label | goto | branch
+--   | assign_var | assign_var_var | assign_array | push_array
+	  ;
 
 {-
 	Class and method definitions
@@ -96,13 +97,15 @@ label ::= LABEL_NAME ;
 
 expr ::=
      assignment 
-   | cast | unary_op | bin_op 
-   | constant | instanceof
-   | variable | pre_op | array
---   | variable_name | index_array
-   | method_invocation | new 
-	| literal ;
-	
+	  | cast | unary_op | bin_op 
+	  | constant | instanceof
+	  | variable | pre_op 
+	  | method_invocation | new 
+	  | literal 
+	  | array
+	  --   | variable_name | index_array
+	  ;
+
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
 assignment ::= variable is_ref:"&"? expr ;
@@ -153,7 +156,7 @@ class_name ::= CLASS_NAME | reflection ;
 
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	| CAST | OP | CONSTANT_NAME | LABEL_NAME
+	  | CAST | OP | CONSTANT_NAME | LABEL_NAME
 	;  
 
 {-

@@ -849,30 +849,18 @@ public:
 				return fold_reflection(dynamic_cast<AST_reflection*>(in));
 			case AST_assignment::ID:
 				return fold_assignment(dynamic_cast<AST_assignment*>(in));
-			case AST_op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-			case AST_list_assignment::ID:
-				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
 			case AST_cast::ID:
 				return fold_cast(dynamic_cast<AST_cast*>(in));
 			case AST_unary_op::ID:
 				return fold_unary_op(dynamic_cast<AST_unary_op*>(in));
 			case AST_bin_op::ID:
 				return fold_bin_op(dynamic_cast<AST_bin_op*>(in));
-			case AST_conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-			case AST_ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 			case AST_constant::ID:
 				return fold_constant(dynamic_cast<AST_constant*>(in));
 			case AST_instanceof::ID:
 				return fold_instanceof(dynamic_cast<AST_instanceof*>(in));
 			case AST_pre_op::ID:
 				return fold_pre_op(dynamic_cast<AST_pre_op*>(in));
-			case AST_post_op::ID:
-				return fold_post_op(dynamic_cast<AST_post_op*>(in));
-			case AST_array::ID:
-				return fold_array(dynamic_cast<AST_array*>(in));
 			case AST_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<AST_method_invocation*>(in));
 			case AST_new::ID:
@@ -887,6 +875,18 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_op_assignment::ID:
+				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+			case AST_list_assignment::ID:
+				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+			case AST_post_op::ID:
+				return fold_post_op(dynamic_cast<AST_post_op*>(in));
+			case AST_array::ID:
+				return fold_array(dynamic_cast<AST_array*>(in));
+			case AST_conditional_expr::ID:
+				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+			case AST_ignore_errors::ID:
+				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 			case Token_class_name::ID:
 				return fold_class_name(dynamic_cast<Token_class_name*>(in));
 			case AST_array_elem::ID:
@@ -903,6 +903,24 @@ public:
 				return fold_class_def(dynamic_cast<AST_class_def*>(in));
 			case AST_interface_def::ID:
 				return fold_interface_def(dynamic_cast<AST_interface_def*>(in));
+			case AST_return::ID:
+				return fold_return(dynamic_cast<AST_return*>(in));
+			case AST_static_declaration::ID:
+				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
+			case AST_global::ID:
+				return fold_global(dynamic_cast<AST_global*>(in));
+			case AST_try::ID:
+				return fold_try(dynamic_cast<AST_try*>(in));
+			case AST_throw::ID:
+				return fold_throw(dynamic_cast<AST_throw*>(in));
+			case AST_eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
+			case AST_label::ID:
+				return fold_label(dynamic_cast<AST_label*>(in));
+			case AST_goto::ID:
+				return fold_goto(dynamic_cast<AST_goto*>(in));
+			case AST_branch::ID:
+				return fold_branch(dynamic_cast<AST_branch*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -919,36 +937,16 @@ public:
 				return fold_break(dynamic_cast<AST_break*>(in));
 			case AST_continue::ID:
 				return fold_continue(dynamic_cast<AST_continue*>(in));
-			case AST_return::ID:
-				return fold_return(dynamic_cast<AST_return*>(in));
-			case AST_static_declaration::ID:
-				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
-			case AST_global::ID:
-				return fold_global(dynamic_cast<AST_global*>(in));
 			case AST_declare::ID:
 				return fold_declare(dynamic_cast<AST_declare*>(in));
-			case AST_try::ID:
-				return fold_try(dynamic_cast<AST_try*>(in));
-			case AST_throw::ID:
-				return fold_throw(dynamic_cast<AST_throw*>(in));
-			case AST_eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
 			case AST_nop::ID:
 				return fold_nop(dynamic_cast<AST_nop*>(in));
-			case AST_label::ID:
-				return fold_label(dynamic_cast<AST_label*>(in));
-			case AST_goto::ID:
-				return fold_goto(dynamic_cast<AST_goto*>(in));
-			case AST_branch::ID:
-				return fold_branch(dynamic_cast<AST_branch*>(in));
 			case AST_switch_case::ID:
 				return fold_switch_case(dynamic_cast<AST_switch_case*>(in));
 			case AST_catch::ID:
 				return fold_catch(dynamic_cast<AST_catch*>(in));
 			case Token_interface_name::ID:
 				return fold_interface_name(dynamic_cast<Token_interface_name*>(in));
-			case Token_directive_name::ID:
-				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 			case Token_cast::ID:
 				return fold_cast(dynamic_cast<Token_cast*>(in));
 			case Token_op::ID:
@@ -957,6 +955,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_directive_name::ID:
+				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 		}
 		assert(0);
 	}
@@ -971,6 +971,24 @@ public:
 				return fold_interface_def(dynamic_cast<AST_interface_def*>(in));
 			case AST_method::ID:
 				return fold_method(dynamic_cast<AST_method*>(in));
+			case AST_return::ID:
+				return fold_return(dynamic_cast<AST_return*>(in));
+			case AST_static_declaration::ID:
+				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
+			case AST_global::ID:
+				return fold_global(dynamic_cast<AST_global*>(in));
+			case AST_try::ID:
+				return fold_try(dynamic_cast<AST_try*>(in));
+			case AST_throw::ID:
+				return fold_throw(dynamic_cast<AST_throw*>(in));
+			case AST_eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
+			case AST_label::ID:
+				return fold_label(dynamic_cast<AST_label*>(in));
+			case AST_goto::ID:
+				return fold_goto(dynamic_cast<AST_goto*>(in));
+			case AST_branch::ID:
+				return fold_branch(dynamic_cast<AST_branch*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -987,28 +1005,10 @@ public:
 				return fold_break(dynamic_cast<AST_break*>(in));
 			case AST_continue::ID:
 				return fold_continue(dynamic_cast<AST_continue*>(in));
-			case AST_return::ID:
-				return fold_return(dynamic_cast<AST_return*>(in));
-			case AST_static_declaration::ID:
-				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
-			case AST_global::ID:
-				return fold_global(dynamic_cast<AST_global*>(in));
 			case AST_declare::ID:
 				return fold_declare(dynamic_cast<AST_declare*>(in));
-			case AST_try::ID:
-				return fold_try(dynamic_cast<AST_try*>(in));
-			case AST_throw::ID:
-				return fold_throw(dynamic_cast<AST_throw*>(in));
-			case AST_eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
 			case AST_nop::ID:
 				return fold_nop(dynamic_cast<AST_nop*>(in));
-			case AST_label::ID:
-				return fold_label(dynamic_cast<AST_label*>(in));
-			case AST_goto::ID:
-				return fold_goto(dynamic_cast<AST_goto*>(in));
-			case AST_branch::ID:
-				return fold_branch(dynamic_cast<AST_branch*>(in));
 		}
 		assert(0);
 	}
@@ -1031,20 +1031,12 @@ public:
 		{
 			case AST_assignment::ID:
 				return fold_assignment(dynamic_cast<AST_assignment*>(in));
-			case AST_op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-			case AST_list_assignment::ID:
-				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
 			case AST_cast::ID:
 				return fold_cast(dynamic_cast<AST_cast*>(in));
 			case AST_unary_op::ID:
 				return fold_unary_op(dynamic_cast<AST_unary_op*>(in));
 			case AST_bin_op::ID:
 				return fold_bin_op(dynamic_cast<AST_bin_op*>(in));
-			case AST_conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-			case AST_ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 			case AST_constant::ID:
 				return fold_constant(dynamic_cast<AST_constant*>(in));
 			case AST_instanceof::ID:
@@ -1053,10 +1045,6 @@ public:
 				return fold_variable(dynamic_cast<AST_variable*>(in));
 			case AST_pre_op::ID:
 				return fold_pre_op(dynamic_cast<AST_pre_op*>(in));
-			case AST_post_op::ID:
-				return fold_post_op(dynamic_cast<AST_post_op*>(in));
-			case AST_array::ID:
-				return fold_array(dynamic_cast<AST_array*>(in));
 			case AST_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<AST_method_invocation*>(in));
 			case AST_new::ID:
@@ -1071,6 +1059,18 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_op_assignment::ID:
+				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+			case AST_list_assignment::ID:
+				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+			case AST_post_op::ID:
+				return fold_post_op(dynamic_cast<AST_post_op*>(in));
+			case AST_array::ID:
+				return fold_array(dynamic_cast<AST_array*>(in));
+			case AST_conditional_expr::ID:
+				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+			case AST_ignore_errors::ID:
+				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 		}
 		assert(0);
 	}
@@ -1123,20 +1123,12 @@ public:
 		{
 			case AST_assignment::ID:
 				return fold_assignment(dynamic_cast<AST_assignment*>(in));
-			case AST_op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-			case AST_list_assignment::ID:
-				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
 			case AST_cast::ID:
 				return fold_cast(dynamic_cast<AST_cast*>(in));
 			case AST_unary_op::ID:
 				return fold_unary_op(dynamic_cast<AST_unary_op*>(in));
 			case AST_bin_op::ID:
 				return fold_bin_op(dynamic_cast<AST_bin_op*>(in));
-			case AST_conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-			case AST_ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 			case AST_constant::ID:
 				return fold_constant(dynamic_cast<AST_constant*>(in));
 			case AST_instanceof::ID:
@@ -1145,10 +1137,6 @@ public:
 				return fold_variable(dynamic_cast<AST_variable*>(in));
 			case AST_pre_op::ID:
 				return fold_pre_op(dynamic_cast<AST_pre_op*>(in));
-			case AST_post_op::ID:
-				return fold_post_op(dynamic_cast<AST_post_op*>(in));
-			case AST_array::ID:
-				return fold_array(dynamic_cast<AST_array*>(in));
 			case AST_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<AST_method_invocation*>(in));
 			case AST_new::ID:
@@ -1163,6 +1151,18 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case AST_op_assignment::ID:
+				return fold_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+			case AST_list_assignment::ID:
+				return fold_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+			case AST_post_op::ID:
+				return fold_post_op(dynamic_cast<AST_post_op*>(in));
+			case AST_array::ID:
+				return fold_array(dynamic_cast<AST_array*>(in));
+			case AST_conditional_expr::ID:
+				return fold_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+			case AST_ignore_errors::ID:
+				return fold_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
 			case Token_class_name::ID:
 				return fold_class_name(dynamic_cast<Token_class_name*>(in));
 		}
@@ -1205,6 +1205,24 @@ public:
 				return fold_class_def(dynamic_cast<AST_class_def*>(in));
 			case AST_interface_def::ID:
 				return fold_interface_def(dynamic_cast<AST_interface_def*>(in));
+			case AST_return::ID:
+				return fold_return(dynamic_cast<AST_return*>(in));
+			case AST_static_declaration::ID:
+				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
+			case AST_global::ID:
+				return fold_global(dynamic_cast<AST_global*>(in));
+			case AST_try::ID:
+				return fold_try(dynamic_cast<AST_try*>(in));
+			case AST_throw::ID:
+				return fold_throw(dynamic_cast<AST_throw*>(in));
+			case AST_eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
+			case AST_label::ID:
+				return fold_label(dynamic_cast<AST_label*>(in));
+			case AST_goto::ID:
+				return fold_goto(dynamic_cast<AST_goto*>(in));
+			case AST_branch::ID:
+				return fold_branch(dynamic_cast<AST_branch*>(in));
 			case AST_if::ID:
 				return fold_if(dynamic_cast<AST_if*>(in));
 			case AST_while::ID:
@@ -1221,28 +1239,10 @@ public:
 				return fold_break(dynamic_cast<AST_break*>(in));
 			case AST_continue::ID:
 				return fold_continue(dynamic_cast<AST_continue*>(in));
-			case AST_return::ID:
-				return fold_return(dynamic_cast<AST_return*>(in));
-			case AST_static_declaration::ID:
-				return fold_static_declaration(dynamic_cast<AST_static_declaration*>(in));
-			case AST_global::ID:
-				return fold_global(dynamic_cast<AST_global*>(in));
 			case AST_declare::ID:
 				return fold_declare(dynamic_cast<AST_declare*>(in));
-			case AST_try::ID:
-				return fold_try(dynamic_cast<AST_try*>(in));
-			case AST_throw::ID:
-				return fold_throw(dynamic_cast<AST_throw*>(in));
-			case AST_eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<AST_eval_expr*>(in));
 			case AST_nop::ID:
 				return fold_nop(dynamic_cast<AST_nop*>(in));
-			case AST_label::ID:
-				return fold_label(dynamic_cast<AST_label*>(in));
-			case AST_goto::ID:
-				return fold_goto(dynamic_cast<AST_goto*>(in));
-			case AST_branch::ID:
-				return fold_branch(dynamic_cast<AST_branch*>(in));
 			case AST_switch_case::ID:
 				return fold_switch_case(dynamic_cast<AST_switch_case*>(in));
 			case AST_catch::ID:
@@ -1263,8 +1263,6 @@ public:
 				return fold_method_name(dynamic_cast<Token_method_name*>(in));
 			case Token_variable_name::ID:
 				return fold_variable_name(dynamic_cast<Token_variable_name*>(in));
-			case Token_directive_name::ID:
-				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 			case Token_cast::ID:
 				return fold_cast(dynamic_cast<Token_cast*>(in));
 			case Token_op::ID:
@@ -1273,6 +1271,8 @@ public:
 				return fold_constant_name(dynamic_cast<Token_constant_name*>(in));
 			case Token_label_name::ID:
 				return fold_label_name(dynamic_cast<Token_label_name*>(in));
+			case Token_directive_name::ID:
+				return fold_directive_name(dynamic_cast<Token_directive_name*>(in));
 		}
 		assert(0);
 	}

@@ -614,8 +614,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_array::ID:
-				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
 			case HIR_new::ID:
@@ -630,6 +628,8 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_array::ID:
+				return fold_array(dynamic_cast<HIR_array*>(in));
 			case Token_class_name::ID:
 				return fold_class_name(dynamic_cast<Token_class_name*>(in));
 			case HIR_array_elem::ID:
@@ -716,8 +716,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_array::ID:
-				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
 			case HIR_new::ID:
@@ -732,6 +730,8 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_array::ID:
+				return fold_array(dynamic_cast<HIR_array*>(in));
 		}
 		assert(0);
 	}
@@ -786,8 +786,6 @@ public:
 				return fold_variable(dynamic_cast<HIR_variable*>(in));
 			case HIR_pre_op::ID:
 				return fold_pre_op(dynamic_cast<HIR_pre_op*>(in));
-			case HIR_array::ID:
-				return fold_array(dynamic_cast<HIR_array*>(in));
 			case HIR_method_invocation::ID:
 				return fold_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
 			case HIR_new::ID:
@@ -802,6 +800,8 @@ public:
 				return fold_bool(dynamic_cast<Token_bool*>(in));
 			case Token_null::ID:
 				return fold_null(dynamic_cast<Token_null*>(in));
+			case HIR_array::ID:
+				return fold_array(dynamic_cast<HIR_array*>(in));
 			case Token_class_name::ID:
 				return fold_class_name(dynamic_cast<Token_class_name*>(in));
 		}

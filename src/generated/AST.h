@@ -565,7 +565,7 @@ public:
     List<String*>* get_comments();
 };
 
-// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | DIRECTIVE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME;
+// identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
 class AST_identifier : virtual public AST_node
 {
 public:
@@ -587,7 +587,7 @@ public:
     virtual String* get_value_as_string() = 0;
 };
 
-// statement ::= class_def | interface_def | method | if | while | do | for | foreach | switch | break | continue | return | static_declaration | global | declare | try | throw | eval_expr | nop | label | goto | branch;
+// statement ::= class_def | interface_def | method | return | static_declaration | global | try | throw | eval_expr | label | goto | branch | if | while | do | for | foreach | switch | break | continue | declare | nop;
 class AST_statement : virtual public AST_commented_node
 {
 public:
@@ -680,7 +680,7 @@ public:
     virtual void assert_valid();
 };
 
-// expr ::= assignment | op_assignment | list_assignment | cast | unary_op | bin_op | conditional_expr | ignore_errors | constant | instanceof | variable | pre_op | post_op | array | method_invocation | new | literal;
+// expr ::= assignment | cast | unary_op | bin_op | constant | instanceof | variable | pre_op | method_invocation | new | literal | op_assignment | list_assignment | post_op | array | conditional_expr | ignore_errors;
 class AST_expr : virtual public AST_target
 {
 public:

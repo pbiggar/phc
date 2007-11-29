@@ -913,7 +913,7 @@ public:
     virtual void assert_valid();
 };
 
-// expr ::= assignment | cast | unary_op | bin_op | constant | instanceof | variable | pre_op | array | method_invocation | new | literal;
+// expr ::= assignment | cast | unary_op | bin_op | constant | instanceof | variable | pre_op | method_invocation | new | literal | array;
 class HIR_expr : virtual public HIR_target
 {
 public:

@@ -24,12 +24,18 @@ use namespace "AST";
 php_script ::= statement* ;
 
 statement ::=
-     class_def | interface_def | method  
-   | if | while | do | for | foreach 
-   | switch | break | continue | return
-   | static_declaration | global
-   | declare | try | throw | eval_expr | nop 
-	| label | goto | branch ;
+     class_def | interface_def | method
+	  | return | static_declaration | global
+	  | try | throw | eval_expr
+	  | label | goto | branch
+	  | if | while | do | for | foreach
+	  | switch | break | continue
+	  | declare | nop
+	  ;
+
+{-
+	Class and method definitions
+-}
 
 class_def ::= 
    class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
@@ -93,13 +99,16 @@ label ::= LABEL_NAME ;
 -}
 
 expr ::=
-     assignment | op_assignment | list_assignment 
-   | cast | unary_op | bin_op | conditional_expr
-   | ignore_errors | constant | instanceof
-   | variable | pre_op | post_op | array
-   | method_invocation | new 
-	| literal ;
-	
+     assignment 
+	  | cast | unary_op | bin_op 
+	  | constant | instanceof
+	  | variable | pre_op 
+	  | method_invocation | new 
+	  | literal 
+	  | op_assignment | list_assignment 
+	  | post_op | array | conditional_expr | ignore_errors 
+	  ;
+
 literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
    
 assignment ::= variable is_ref:"&"? expr ;
@@ -150,8 +159,8 @@ commented_node ::=
 
 identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	| DIRECTIVE_NAME | CAST<String*> | OP | CONSTANT_NAME
-	| LABEL_NAME
+	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME
+	  | DIRECTIVE_NAME 
 	;  
 
 {-
@@ -559,7 +568,6 @@ class AST_identifier
 public:
 	virtual String* get_value_as_string() = 0;
 };
-
 
 class AST_literal
 {

@@ -2071,9 +2071,6 @@ void HIR_visitor::pre_expr_chain(HIR_expr* in)
     case HIR_pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	pre_array_chain(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	pre_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2094,6 +2091,9 @@ void HIR_visitor::pre_expr_chain(HIR_expr* in)
     	break;
     case Token_null::ID:
     	pre_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	pre_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
     }
 }
@@ -2152,9 +2152,6 @@ void HIR_visitor::pre_target_chain(HIR_target* in)
     case HIR_pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	pre_array_chain(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	pre_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2175,6 +2172,9 @@ void HIR_visitor::pre_target_chain(HIR_target* in)
     	break;
     case Token_null::ID:
     	pre_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	pre_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
     case Token_class_name::ID:
     	pre_class_name_chain(dynamic_cast<Token_class_name*>(in));
@@ -2281,9 +2281,6 @@ void HIR_visitor::post_expr_chain(HIR_expr* in)
     case HIR_pre_op::ID:
     	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	post_array_chain(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	post_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2304,6 +2301,9 @@ void HIR_visitor::post_expr_chain(HIR_expr* in)
     	break;
     case Token_null::ID:
     	post_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	post_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
     }
 }
@@ -2362,9 +2362,6 @@ void HIR_visitor::post_target_chain(HIR_target* in)
     case HIR_pre_op::ID:
     	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	post_array_chain(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	post_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2385,6 +2382,9 @@ void HIR_visitor::post_target_chain(HIR_target* in)
     	break;
     case Token_null::ID:
     	post_null_chain(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	post_array_chain(dynamic_cast<HIR_array*>(in));
     	break;
     case Token_class_name::ID:
     	post_class_name_chain(dynamic_cast<Token_class_name*>(in));
@@ -2491,9 +2491,6 @@ void HIR_visitor::children_expr(HIR_expr* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2514,6 +2511,9 @@ void HIR_visitor::children_expr(HIR_expr* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	children_array(dynamic_cast<HIR_array*>(in));
     	break;
     }
 }
@@ -2572,9 +2572,6 @@ void HIR_visitor::children_target(HIR_target* in)
     case HIR_pre_op::ID:
     	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
-    	break;
     case HIR_method_invocation::ID:
     	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
     	break;
@@ -2595,6 +2592,9 @@ void HIR_visitor::children_target(HIR_target* in)
     	break;
     case Token_null::ID:
     	children_null(dynamic_cast<Token_null*>(in));
+    	break;
+    case HIR_array::ID:
+    	children_array(dynamic_cast<HIR_array*>(in));
     	break;
     case Token_class_name::ID:
     	children_class_name(dynamic_cast<Token_class_name*>(in));
