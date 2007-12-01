@@ -1,0 +1,242 @@
+#!/usr/bin/env php
+<?php
+
+	# TODO update script automatically
+
+	/* Logging detail:
+	 *	All data is stored, in a log. Before the log is created, all
+	 *	data is kept in a string, which is emailed to me on failure.
+	 */
+
+	ob_start (); // keep all output
+
+	$REPO = "http://phc.googlecode.com/svn/trunk";
+	$CWD = getcwd ();
+	$TEST_DIR = "$CWD/testing";
+	$RESULTS_DIR = "$CWD/results";
+	$DB_FILENAME = "$RESULTS_DIR/results.db";
+
+	initialize_db ();
+
+	while (true)
+	{
+		try
+		{
+			$rev = get_working_revision ();
+			initialize_revision_test ($rev);
+			c ("svn export -q --revision=$rev $REPO $TEST_DIR", "SVNError");
+			cd ("touch src/generated/*");
+			cdl ("./configure --prefix=$TEST_DIR/installed", "configure");
+			cdl ("make", "make");
+			$test_results = cdl ("php test/framework/driver.php -p", "test");
+			cdl ("make install", "install");
+			$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
+
+			store_test_results ($test_results, $rev, "tests");
+			store_test_results ($install_results, $rev, "install_tests");
+
+			finalize_revision_test ($rev, $start_time);
+		}
+		catch (SVNError $e)
+		{
+			print "SVN problem: $e. Wait 5 mins";
+			sleep (300);
+		}
+		catch (Exception $e)
+		{
+			save_log ();
+			mail ("paul.biggar@gmail.com", "Script Error in revision $rev");
+		}
+	}
+
+	function strip_console_codes ($string)
+	{
+		// strip console codes
+		$string = preg_replace("/\[1;\d\dm/", "", $string);
+		$string = preg_replace("/\[0m/", "", $string); 
+		return $string;
+	}
+
+	function matcher_xxx ($string)
+	{
+		# TODO InterpretObfuscated  avg  0s; max(135) 11s  Failure ( 25/213 failed)
+	}
+
+	function matcher_902 ($string)
+	{
+		$string = strip_console_codes ($string);
+		#Demi_eval_true     Failure:   0 P,   8 F,   0 T,   2 S
+		$results = preg_match_all ("/(\S+)\s+\S+:\s+(\d+) P,\s*(\d+) F,\s*(\d+) T,\s*(\d+) S/", $string, $matches, PREG_SET_ORDER);
+
+		if ($results)
+		{
+			array_map ("array_shift", &$matches);
+			return $matches;
+		}
+
+		return false;
+	}
+
+	function store_test_results ($result_string, $rev, $table_name)
+	{
+		# there a few different test formats, so add them as we go
+		$matchers[] = "matcher_902";
+		foreach ($matchers as $matcher)
+		{
+			$results = $matcher ($result_string);
+			if ($results !== false)
+				break;
+		}
+
+		if ($results === false)
+		{
+			die ("No matches found");
+		}
+
+		foreach ($results as $result)
+		{
+			list ($name, $pass, $fail, $timeout, $skip) = $result;
+			e ("INSERT INTO $table_name VALUES ($rev, '$name', $pass, $fail, $timeout, $skip)");
+			$total_pass += $pass;
+			$total_fail += $pass;
+			$total_timeout += $pass;
+			$total_skip += $pass;
+		}
+
+		e ("INSERT INTO $table_name VALUES ($rev, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
+	}
+
+	function initialize_db ()
+	{
+		global $DB, $DB_FILENAME;
+		$DB = new PDO ("sqlite:$DB_FILENAME");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time)");
+		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
+		e ("CREATE TABLE IF NOT EXISTS install_tests (revision, testname, pass, fail, timeout, skip)");
+	}
+
+	function initialize_revision_test ($rev)
+	{
+		global $start_time;
+		$time = time ();
+
+		# create directory structure
+		global $LOG_DIR, $TEST_DIR, $RESULTS_DIR;
+		$LOG_DIR = "$RESULTS_DIR/$rev";
+		del_dir ($TEST_DIR);
+		create_dir ($RESULTS_DIR);
+		del_dir ($LOG_DIR);
+		create_dir ($LOG_DIR);
+
+		# set up the log file
+		global $LOG;
+		$LOG = fopen ("$LOG_DIR/log", "w");
+	}
+
+	function save_log ()
+	{
+		global $LOG;
+		$log .= ob_get_contents ();
+		ob_end_clean ();
+		ob_start ();
+		fwrite ($LOG, $log);
+		fclose ($LOG);
+	}
+
+	function finalize_revision_test ($rev)
+	{
+		save_log ();
+
+		global $start_time;
+		$end_time = time ();
+		$time = $end_time - $start_time;
+
+		e ("INSERT INTO complete VALUES ($rev, $time)");
+	}
+
+	// delete contents
+	function del_dir ($dir)	{ c ("rm -Rf $dir"); }
+	function create_dir ($dir) { c ("mkdir -p $dir"); }
+
+	// C for Command. If the command fails, log the result and die
+	function c ($command, $exception_type)
+	{
+		print "Running command '$command'\n";
+		exec ("$command 2>&1", $result, $ret_val);
+		if ($ret_val != 0)
+		{
+			if (class_exists ($exception_type))
+			{
+				eval ("class $exception_type extends Exception {}");
+			}
+			throw new $exception_type ();
+		}
+		assert ($ret_val == 0);
+		$result = join ("\n", $result);
+		print "Returning result '$result'\n";
+		return $result;
+	}
+
+	// CD for Command in Directory. Run the COMMAND from the working
+	// directory.
+	function cd ($command)
+	{
+		global $WORKING_DIR;
+		$cwd = getcwd ();
+		chdir ($WORKING_DIR) or x ("Couldnt change dir to $WORKING_DIR");
+		$result = c ($command);
+		chdir ($cwd);
+		return $result;
+	}
+
+	// CDL for Command in Directory and Log. Run CD, and save the
+	// text in a log file, named by TEST_NAME
+	function cdl ($command, $test_name)
+	{
+		global $LOG_DIR;
+		$result = cd ($command);
+		$log_file = fopen ("$LOG_DIR/$test_name.log", "w");
+		fwrite ($log_file, $result);
+		fclose ($log_file);
+		return $result;
+	}
+
+	// E for Exec
+	function e ($sql)
+	{
+		print "Execing '$sql'\n";
+		global $DB;
+		if ($DB->exec ($sql) === FALSE)
+		{
+			var_dump ($DB->errorInfo());
+			die ($DB->errorInfo());		
+		}
+	}
+
+	/* Find the latest revision from svn, and check if its done. If not, return
+	 * it. If so, find another one to return. */
+	function get_working_revision () 
+	{
+		$latest_svn = get_latest_svn_revision ();
+
+		global $DB;
+		$revs = $DB->query ("SELECT revision FROM complete ORDER BY revision ASC")->fetchAll(PDO::FETCH_COLUMN);
+
+		sort ($revs);
+		for ($i = $latest_svn; $i > 0; $i--)
+		{
+			if (array_pop ($revs) != $i)
+				return $i;
+		}
+		return FALSE;
+	}
+
+	function get_latest_svn_revision ()
+	{
+		global $REPO;
+		$result = c ("svn info $REPO", "SVNError");
+		preg_match ("/Revision: (\d+)/", $result, $matches);
+		return $matches[1];
+	}
+
+?>
