@@ -36,7 +36,7 @@
 using namespace HIR;
 
 // Label supported features
-void phc_unsupported (HIR_node* node)
+void phc_unsupported (Node* node)
 {
 	cerr << "This context does not yet support this feature:" << endl;
 	debug (node);
@@ -108,7 +108,7 @@ void Generate_C::run (IR* in, Pass_manager* pm)
  * After the shredder, many expressions can only contain "simple" variables.
  * For example, where a bin-op could contain arbitrary expressions on the left
  * and right, after the shredder, both of those expressions must be a simple
- * variable; that is, a variable with a Token_variable_name as name, no target,
+ * variable; that is, a variable with a VARIABLE_NAME as name, no target,
  * and no array indices. Wherever we assume this, we use this function
  * "operand" to extract the variable name. That factors out a bit of recurring
  * code, and also flags where we make this assumption.
@@ -133,7 +133,7 @@ string get_hash (String* name)
 	return ss.str ();
 }
 
-string get_hash (Token_variable_name* name)
+string get_hash (VARIABLE_NAME* name)
 {
 	return get_hash (name->value);
 }
@@ -152,7 +152,7 @@ void cleanup (string target)
 		<< "  zval_ptr_dtor (" << target << ");\n";
 }
 
-String* get_non_st_name (Token_variable_name* var_name)
+String* get_non_st_name (VARIABLE_NAME* var_name)
 {
 	assert (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"));
 
@@ -164,7 +164,7 @@ String* get_non_st_name (Token_variable_name* var_name)
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_simple (Scope scope, string zvp, Token_variable_name* var_name)
+void read_simple (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
@@ -192,7 +192,7 @@ void read_simple (Scope scope, string zvp, Token_variable_name* var_name)
 	}
 }
 
-void read_st (Scope scope, string zvp, Token_variable_name* var_name)
+void read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
@@ -219,24 +219,24 @@ void read_st (Scope scope, string zvp, Token_variable_name* var_name)
 }
 
 // Note this can return NULL if its not a variable name
-Token_variable_name* get_var_name (HIR_expr* var_expr)
+VARIABLE_NAME* get_var_name (Expr* var_expr)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (var_expr);
+	Variable* var = dynamic_cast<Variable*> (var_expr);
 	assert (var);
-	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var->variable_name);
+	VARIABLE_NAME* name = dynamic_cast<VARIABLE_NAME*> (var->variable_name);
 	return name;
 }
 
-Token_variable_name* get_var_name (HIR_variable_name* var_name)
+VARIABLE_NAME* get_var_name (Variable_name* var_name)
 {
-	Token_variable_name* name = dynamic_cast<Token_variable_name*> (var_name);
+	VARIABLE_NAME* name = dynamic_cast<VARIABLE_NAME*> (var_name);
 	assert (name);
 	return name;
 }
 
-void index_lhs (Scope scope, string zvp, HIR_variable* var)
+void index_lhs (Scope scope, string zvp, Variable* var)
 {
-	Token_variable_name* var_name = get_var_name (var);
+	VARIABLE_NAME* var_name = get_var_name (var);
 
 	// TODO: deal with object indexing
 	if (var->target) phc_unsupported (var);
@@ -302,25 +302,25 @@ void index_lhs (Scope scope, string zvp, HIR_variable* var)
 }
 
 /* wrappers */
-void index_lhs (Scope scope, string zvp, HIR_expr* expr)
+void index_lhs (Scope scope, string zvp, Expr* expr)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
+	Variable* var = dynamic_cast<Variable*> (expr);
 	assert (var);
 	index_lhs (scope, zvp, var);
 }
-void index_lhs (Scope scope, string zvp, Token_variable_name* var_name)
+void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	index_lhs (scope, zvp, new HIR_variable (NULL, var_name, new List<Token_variable_name*>));
+	index_lhs (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
 }
 
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (Scope scope, string zvp, HIR_variable* var)
+void read (Scope scope, string zvp, Variable* var)
 {
 	// TODO: deal with object indexing
 	if (var->target) phc_unsupported (var);
 
-	HIR_variable_name* var_name  = var->variable_name;
+	Variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
 	{
 		if (var->array_indices->size() == 1)
@@ -362,8 +362,8 @@ void read (Scope scope, string zvp, HIR_variable* var)
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
-		HIR_reflection* refl;
-		refl = dynamic_cast<HIR_reflection*>(var->variable_name);
+		Reflection* refl;
+		refl = dynamic_cast<Reflection*>(var->variable_name);
 
 		if (var->array_indices->size() == 1)
 		{
@@ -404,26 +404,26 @@ void read (Scope scope, string zvp, HIR_variable* var)
 }
 
 /* wrappers */
-void read (Scope scope, string zvp, HIR_expr* expr)
+void read (Scope scope, string zvp, Expr* expr)
 {
-	HIR_variable* var = dynamic_cast<HIR_variable*> (expr);
+	Variable* var = dynamic_cast<Variable*> (expr);
 	assert (var);
 	read (scope, zvp, var);
 }
 
-void read (Scope scope, string zvp, Token_variable_name* var_name)
+void read (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	read (scope, zvp, new HIR_variable (NULL, var_name, new List<Token_variable_name*>));
+	read (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
 }
 
 
 
 // Implementation of "global" (used in various places)
-void global (HIR_variable_name* var_name)
+void global (Variable_name* var_name)
 {
-	HIR_variable *var = new HIR_variable (NULL,
+	Variable *var = new Variable (NULL,
 					var_name,
-					new List <Token_variable_name*>);
+					new List <VARIABLE_NAME*>);
 
 	code << "{\n";
 	index_lhs (GLOBAL, "p_global_var", var); // rhs
@@ -493,18 +493,18 @@ public:
 class Pattern 
 {
 public:
-	virtual bool match(HIR_statement* that) = 0;
+	virtual bool match(Statement* that) = 0;
 	virtual void generate_code(Generate_C* gen) = 0;
 	virtual ~Pattern() {}
 };
 
 
-class Method_definition : public Pattern
+class Pattern_method_definition : public Pattern
 {
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		pattern = new Wildcard<HIR_method>;
+		pattern = new Wildcard<Method>;
 		return that->match(pattern);
 	}
 
@@ -521,8 +521,8 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_method>* pattern;
-	HIR_signature* signature;
+	Wildcard<Method>* pattern;
+	Signature* signature;
 	Generate_C* gen;
 
 protected:
@@ -548,7 +548,7 @@ protected:
 		;
 	}
 
-	class Find_temps : public HIR_visitor
+	class Find_temps : public Visitor
 	{
 		public:
 
@@ -564,7 +564,7 @@ protected:
 			{
 			}
 
-			void pre_variable_name (Token_variable_name* var_name)
+			void pre_variable_name (VARIABLE_NAME* var_name)
 			{
 				if (!in_function && !in_class 
 					&& var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
@@ -575,13 +575,13 @@ protected:
 			}
 
 			// TODO nesting doesnt work anyway
-//			void pre_class_def (HIR_class_def*) { in_class = true; }
-//			void post_class_def (HIR_class_def*) { in_class = false;}
-//			void pre_method (HIR_method*) { in_function = true; }
-//			void post_method (HIR_method*) { in_function = false; }
+//			void pre_class_def (Class_def*) { in_class = true; }
+//			void post_class_def (Class_def*) { in_class = false;}
+//			void pre_method (Method*) { in_function = true; }
+//			void post_method (Method*) { in_function = false; }
 	};
 
-	void generate_non_st_declarations (HIR_method* method, HIR_signature* sig)
+	void generate_non_st_declarations (Method* method, Signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
@@ -623,7 +623,7 @@ protected:
 
 		// debug_argument_stack();
 
-		List<HIR_formal_parameter*>* parameters = signature->formal_parameters;
+		List<Formal_parameter*>* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
 			code 
@@ -636,7 +636,7 @@ protected:
 			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
-			List<HIR_formal_parameter*>::const_iterator i;
+			List<Formal_parameter*>::const_iterator i;
 			int index;	
 			for(i = parameters->begin(), index = 0;
 				i != parameters->end();
@@ -656,13 +656,13 @@ protected:
 						<< "if (num_args <= " << index << ")\n"
 						<< "{\n";
 
-					HIR_statement* assign_default_values = 
-						new HIR_eval_expr (
-								new HIR_assignment (
-									new HIR_variable (
+					Statement* assign_default_values = 
+						new Eval_expr (
+								new Assignment (
+									new Variable (
 										NULL,
 										(*i)->var->variable_name->clone (),
-										new List<Token_variable_name*>),
+										new List<VARIABLE_NAME*>),
 									false, (*i)->var->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
@@ -704,7 +704,7 @@ protected:
 		code << "// Function body\n";
 	}
 
-	void generate_non_st_cleanup (HIR_method* method, HIR_signature* sig)
+	void generate_non_st_cleanup (Method* method, Signature* sig)
 	{
 		Find_temps ft;
 		// collect all the variables
@@ -749,13 +749,13 @@ protected:
 	}
 };
 
-class Label : public Pattern
+class Pattern_label : public Pattern
 {
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		label = new Wildcard<Token_label_name>;
-		return that->match(new HIR_label(label));
+		label = new Wildcard<LABEL_NAME>;
+		return that->match(new Label(label));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -764,18 +764,18 @@ public:
 	}
 
 protected:
-	Wildcard<Token_label_name>* label;
+	Wildcard<LABEL_NAME>* label;
 };
 
-class Branch : public Pattern
+class Pattern_branch : public Pattern
 {
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		cond = new Wildcard<HIR_variable>;
-		iftrue = new Wildcard<Token_label_name>;
-		iffalse = new Wildcard<Token_label_name>;
-		return that->match(new HIR_branch(
+		cond = new Wildcard<Variable>;
+		iftrue = new Wildcard<LABEL_NAME>;
+		iffalse = new Wildcard<LABEL_NAME>;
+		return that->match(new Branch(
 			cond,
 			iftrue, 
 			iffalse
@@ -799,18 +799,18 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* cond;
-	Wildcard<Token_label_name>* iftrue;
-	Wildcard<Token_label_name>* iffalse;
+	Wildcard<Variable>* cond;
+	Wildcard<LABEL_NAME>* iftrue;
+	Wildcard<LABEL_NAME>* iffalse;
 };
 
-class Goto : public Pattern
+class Pattern_goto : public Pattern
 {
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		label = new Wildcard<Token_label_name>;
-		return that->match(new HIR_goto(label));
+		label = new Wildcard<LABEL_NAME>;
+		return that->match(new Goto(label));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -819,7 +819,7 @@ public:
 	}
 
 protected:
-	Wildcard<Token_label_name>* label;
+	Wildcard<LABEL_NAME>* label;
 };
 
 /*
@@ -828,19 +828,19 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
-class Assignment : public Pattern
+class Pattern_assignment : public Pattern
 {
 public:
-	virtual HIR_expr* rhs_pattern() = 0;
+	virtual Expr* rhs_pattern() = 0;
 	virtual void generate_rhs (bool used) = 0;
-	virtual ~Assignment() {}
+	virtual ~Pattern_assignment() {}
 
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		lhs = new Wildcard<HIR_variable>;
-		agn = new HIR_assignment(lhs, /* ignored */ false, rhs_pattern());
-		return that->match(new HIR_eval_expr(agn));
+		lhs = new Wildcard<Variable>;
+		agn = new Assignment(lhs, /* ignored */ false, rhs_pattern());
+		return that->match(new Eval_expr(agn));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -870,8 +870,8 @@ public:
 	}
 
 protected:
-	HIR_assignment* agn;
-	Wildcard<HIR_variable>* lhs;
+	Assignment* agn;
+	Wildcard<Variable>* lhs;
 };
 
 /*
@@ -885,7 +885,7 @@ protected:
  * Assign_unknown_literal is that Assign_literal can do constant pooling.
  */
 
-class Assign_unknown_literal : public Assignment
+class Pattern_assign_unknown_literal : public Pattern_assignment
 {
 public:
 	void generate_rhs (bool used)
@@ -922,10 +922,10 @@ stringstream initializations;
 stringstream finalizations;
 
 template<class T, class K>
-class Assign_literal : public Assign_unknown_literal 
+class Pattern_assign_literal : public Pattern_assign_unknown_literal 
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
 		rhs = new Wildcard<T>;
 		return rhs;
@@ -978,7 +978,7 @@ public:
 		}
 		else
 		{
-			Assign_unknown_literal::generate_rhs(used);
+			Pattern_assign_unknown_literal::generate_rhs(used);
 		}
 	}
 
@@ -989,7 +989,7 @@ protected:
 	Wildcard<T>* rhs;
 };
 
-class Assign_bool : public Assign_literal<Token_bool, bool>
+class Pattern_assign_bool : public Pattern_assign_literal<BOOL, bool>
 {
 	string prefix () { return "phc_const_pool_bool_"; }
 	bool key () { return rhs->value->value; }
@@ -1002,7 +1002,7 @@ class Assign_bool : public Assign_literal<Token_bool, bool>
 
 };
 
-class Assign_int : public Assign_literal<Token_int, long>
+class Pattern_assign_int : public Pattern_assign_literal<INT, long>
 {
 	string prefix () { return "phc_const_pool_int_"; }
 	long key () { return rhs->value->value; }
@@ -1013,7 +1013,7 @@ class Assign_int : public Assign_literal<Token_int, long>
 	}
 };
 
-class Assign_real : public Assign_literal<Token_real, string>
+class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
 {
 	string prefix () { return "phc_const_pool_real_"; }
 	string key () { return *rhs->value->get_source_rep (); }
@@ -1026,7 +1026,7 @@ class Assign_real : public Assign_literal<Token_real, string>
 	}
 };
 
-class Assign_null : public Assign_literal<Token_null, string>
+class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
 {
 	string prefix () { return "phc_const_pool_null_"; }
 	string key () { return ""; }
@@ -1037,7 +1037,7 @@ class Assign_null : public Assign_literal<Token_null, string>
 	}
 };
 
-class Assign_string : public Assign_literal<Token_string, string>
+class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 {
 	string prefix () { return "phc_const_pool_string_"; }
 	string key () { return *rhs->value->get_source_rep (); }
@@ -1076,12 +1076,12 @@ class Assign_string : public Assign_literal<Token_string, string>
 };
 
 
-class Assign_var : public Assignment
+class Pattern_assign_var : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<HIR_variable>;
+		rhs = new Wildcard<Variable>;
 		return rhs;
 	}
 
@@ -1115,17 +1115,17 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* rhs;
+	Wildcard<Variable>* rhs;
 };
 
-class Cast : public Assignment
+class Pattern_cast : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<Token_variable_name>;
-		cast = new Wildcard<Token_cast>;
-		return new HIR_cast (cast, rhs);
+		rhs = new Wildcard<VARIABLE_NAME>;
+		cast = new Wildcard<CAST>;
+		return new Cast (cast, rhs);
 	}
 
 	void generate_rhs (bool used)
@@ -1174,17 +1174,17 @@ public:
 	}
 
 public:
-	Wildcard<Token_cast>* cast;
-	Wildcard<Token_variable_name>* rhs;
+	Wildcard<CAST>* cast;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
-class Global : public Pattern 
+class Pattern_global : public Pattern 
 {
 public:
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		rhs = new Wildcard<HIR_variable_name>;
-		return(that->match(new HIR_global(rhs)));
+		rhs = new Wildcard<Variable_name>;
+		return(that->match(new Global(rhs)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1193,16 +1193,16 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable_name>* rhs;
+	Wildcard<Variable_name>* rhs;
 };
 
-class Assign_constant : public Assignment
+class Pattern_assign_constant : public Pattern_assignment
 {
 public:
 
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<HIR_constant> ();
+		rhs = new Wildcard<Constant> ();
 		return rhs;
 	}
 
@@ -1247,18 +1247,18 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_constant>* rhs;
+	Wildcard<Constant>* rhs;
 };
 
-class Eval : public Assignment
+class Pattern_eval : public Pattern_assignment
 {
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<HIR_actual_parameter>;
-		return new HIR_method_invocation(
+		eval_arg = new Wildcard<Actual_parameter>;
+		return new Method_invocation(
 			NULL,	
-			new Token_method_name( new String("eval")),
-			new List<HIR_actual_parameter*>(eval_arg
+			new METHOD_NAME( new String("eval")),
+			new List<Actual_parameter*>(eval_arg
 				)
 			);
 	}
@@ -1306,23 +1306,23 @@ class Eval : public Assignment
 	}
 
 protected:
-	Wildcard<HIR_actual_parameter>* eval_arg;
+	Wildcard<Actual_parameter>* eval_arg;
 };
 
-class Exit : public Pattern
+class Pattern_exit : public Pattern
 {
 public:
-	bool match (HIR_statement* that)
+	bool match (Statement* that)
 	{
-		exit_arg = new Wildcard<HIR_actual_parameter> ();
-		Wildcard<Token_method_name>* name = new Wildcard <Token_method_name> ();
+		exit_arg = new Wildcard<Actual_parameter> ();
+		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
 		return that->match (
-				new HIR_eval_expr (
-					new HIR_assignment (new Wildcard<HIR_variable>, false, // ignored
-						new HIR_method_invocation(
+				new Eval_expr (
+					new Assignment (new Wildcard<Variable>, false, // ignored
+						new Method_invocation(
 							NULL,	
 							name,
-							new List<HIR_actual_parameter*>(exit_arg)
+							new List<Actual_parameter*>(exit_arg)
 								)
 							)))
 			&& (*name->value->value == "exit" || *name->value->value == "die");
@@ -1345,28 +1345,28 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_actual_parameter>* exit_arg;
+	Wildcard<Actual_parameter>* exit_arg;
 };
 
-class Method_invocation : public Assignment
+class Pattern_method_invocation : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<HIR_method_invocation>;
+		rhs = new Wildcard<Method_invocation>;
 		return rhs;
 	}
 
 	void generate_rhs (bool used)
 	{
-		List<HIR_actual_parameter*>::const_iterator i;
+		List<Actual_parameter*>::const_iterator i;
 		unsigned index;
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
 
 		// Variable function or ordinary function?
-		Token_method_name* name;
-		name = dynamic_cast<Token_method_name*>(rhs->value->method_name);
+		METHOD_NAME* name;
+		name = dynamic_cast<METHOD_NAME*>(rhs->value->method_name);
 
 		if (name == NULL) phc_unsupported (rhs->value);
 
@@ -1457,7 +1457,7 @@ public:
 			i++, index++)
 		{
 			if ((*i)->target) phc_unsupported (*i);
-			Token_variable_name* var_name = get_var_name ((*i)->variable_name);
+			VARIABLE_NAME* var_name = get_var_name ((*i)->variable_name);
 
 
 			code << "destruct[" << index << "] = 0;\n";
@@ -1476,7 +1476,7 @@ public:
 				// run-time whether the function is call-by-reference or
 				// not.
 				if ((*i)->array_indices->size () > 1) phc_unsupported (*i);
-				Token_variable_name* ind = (*i)->array_indices->front ();
+				VARIABLE_NAME* ind = (*i)->array_indices->front ();
 
 				code
 					<< "if (by_ref [" << index << "])\n"
@@ -1635,19 +1635,19 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_method_invocation>* rhs;
+	Wildcard<Method_invocation>* rhs;
 };
 
-class Bin_op : public Assignment
+class Pattern_bin_op : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		left = new Wildcard<Token_variable_name>;
-		op = new Wildcard<Token_op>;
-		right = new Wildcard<Token_variable_name>;
+		left = new Wildcard<VARIABLE_NAME>;
+		op = new Wildcard<OP>;
+		right = new Wildcard<VARIABLE_NAME>;
 
-		return new HIR_bin_op (left, op, right); 
+		return new Bin_op (left, op, right); 
 	}
 
 	void generate_rhs (bool used)
@@ -1687,20 +1687,20 @@ public:
 	}
 
 protected:
-	Wildcard<Token_variable_name>* left;
-	Wildcard<Token_op>* op;
-	Wildcard<Token_variable_name>* right;
+	Wildcard<VARIABLE_NAME>* left;
+	Wildcard<OP>* op;
+	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pre_op : public Assignment
+class Pattern_pre_op : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		op = new Wildcard<Token_op>;
-		var = new Wildcard<HIR_variable>;
+		op = new Wildcard<OP>;
+		var = new Wildcard<Variable>;
 
-		return new HIR_pre_op (op, var); 
+		return new Pre_op (op, var); 
 	}
 
 	void generate_rhs (bool used)
@@ -1719,19 +1719,19 @@ public:
 	}
 
 protected:
-	Wildcard<HIR_variable>* var;
-	Wildcard<Token_op>* op;
+	Wildcard<Variable>* var;
+	Wildcard<OP>* op;
 };
 
-class Unary_op : public Assignment
+class Pattern_unary_op : public Pattern_assignment
 {
 public:
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		op = new Wildcard<Token_op>;
-		var_name = new Wildcard<Token_variable_name>;
+		op = new Wildcard<OP>;
+		var_name = new Wildcard<VARIABLE_NAME>;
 
-		return new HIR_unary_op(op, var_name);
+		return new Unary_op(op, var_name);
 	}
 
 	void generate_rhs (bool used)
@@ -1763,16 +1763,16 @@ public:
 	}
 
 protected:
-	Wildcard<Token_op>* op;
-	Wildcard<Token_variable_name>* var_name;
+	Wildcard<OP>* op;
+	Wildcard<VARIABLE_NAME>* var_name;
 };
 
-class Return : public Pattern
+class Pattern_return : public Pattern
 {
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		expr = new Wildcard<HIR_expr>;
-		return(that->match(new HIR_return(expr)));
+		expr = new Wildcard<Expr>;
+		return(that->match(new Return(expr)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1813,17 +1813,17 @@ class Return : public Pattern
 	}
 
 protected:
-	Wildcard<HIR_expr>* expr;
+	Wildcard<Expr>* expr;
 };
 
-class Unset : public Pattern
+class Pattern_unset : public Pattern
 {
-	bool match(HIR_statement* that)
+	bool match(Statement* that)
 	{
-		var = new Wildcard<HIR_actual_parameter>;
+		var = new Wildcard<Actual_parameter>;
 		return that->match(
-			new HIR_eval_expr(
-				new HIR_method_invocation(
+			new Eval_expr(
+				new Method_invocation(
 					"unset",
 					var)));
 	}
@@ -1835,7 +1835,7 @@ class Unset : public Pattern
 		// TODO: deal with object indexing
 		if (var->value->target) phc_unsupported (var);
 
-		Token_variable_name* var_name = get_var_name (var->value->variable_name);
+		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
 
 		if (var_name != NULL)
 		{
@@ -1866,7 +1866,7 @@ class Unset : public Pattern
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				Token_variable_name* index = (var->value->array_indices->front());
+				VARIABLE_NAME* index = (var->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -1887,15 +1887,15 @@ class Unset : public Pattern
 	}
 
 protected:
-	Wildcard<HIR_actual_parameter>* var;
+	Wildcard<Actual_parameter>* var;
 };
 
-class Isset : public Assign_unknown_literal
+class Pattern_isset : public Pattern_assign_unknown_literal
 {
-	HIR_expr* rhs_pattern()
+	Expr* rhs_pattern()
 	{
-		var = new Wildcard<HIR_actual_parameter>;
-		return new HIR_method_invocation("isset", var);
+		var = new Wildcard<Actual_parameter>;
+		return new Method_invocation("isset", var);
 	}
 
 /*
@@ -1912,7 +1912,7 @@ class Isset : public Assign_unknown_literal
 		// TODO: deal with object indexing
 		if (var->value->target) phc_unsupported (var->value);
 
-		Token_variable_name* var_name = get_var_name (var->value->variable_name);
+		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
 
 		if (var_name != NULL)
 		{
@@ -1939,7 +1939,7 @@ class Isset : public Assign_unknown_literal
 			else 
 			{
 				assert(var->value->array_indices->size() == 1);
-				Token_variable_name* index = var->value->array_indices->front();
+				VARIABLE_NAME* index = var->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -1961,7 +1961,7 @@ class Isset : public Assign_unknown_literal
 	}
 
 protected:
-	Wildcard<HIR_actual_parameter>* var;
+	Wildcard<Actual_parameter>* var;
 };
 
 /*
@@ -1969,7 +1969,7 @@ protected:
  * Visitor for statements uses the patterns defined above.
  */
 
-void Generate_C::children_statement(HIR_statement* in)
+void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
 	in->visit (new HIR_unparser (ss));
@@ -1986,28 +1986,28 @@ void Generate_C::children_statement(HIR_statement* in)
 
 	Pattern* patterns[] = 
 	{
-		new Method_definition()
-	,	new Assign_string ()
-	,	new Assign_int ()
-	,	new Assign_bool ()
-	,	new Assign_real ()
-	,	new Assign_null ()
-	,	new Assign_constant ()
-	,	new Assign_var ()
-	,	new Global()
-	,	new Eval()
-	,	new Exit()
-	,	new Unset()
-	,	new Isset()
-	,	new Method_invocation()
-	,	new Pre_op()
-	,	new Bin_op()
-	,	new Unary_op()
-	,	new Label()
-	,	new Branch()
-	,	new Goto()
-	,	new Return()
-	,	new Cast ()
+		new Pattern_method_definition()
+	,	new Pattern_assign_string ()
+	,	new Pattern_assign_int ()
+	,	new Pattern_assign_bool ()
+	,	new Pattern_assign_real ()
+	,	new Pattern_assign_nil ()
+	,	new Pattern_assign_constant ()
+	,	new Pattern_assign_var ()
+	,	new Pattern_global()
+	,	new Pattern_eval()
+	,	new Pattern_exit()
+	,	new Pattern_unset()
+	,	new Pattern_isset()
+	,	new Pattern_method_invocation()
+	,	new Pattern_pre_op()
+	,	new Pattern_bin_op()
+	,	new Pattern_unary_op()
+	,	new Pattern_label()
+	,	new Pattern_branch()
+	,	new Pattern_goto()
+	,	new Pattern_return()
+	,	new Pattern_cast ()
 	};
 
 	bool matched = false;
@@ -2030,7 +2030,7 @@ void Generate_C::children_statement(HIR_statement* in)
 	}
 }
 
-void Generate_C::pre_php_script(HIR_php_script* in)
+void Generate_C::pre_php_script(PHP_script* in)
 {
 	// For now, we simply include this.
 	ifstream file ("libphc.cpp");
@@ -2047,9 +2047,9 @@ void Generate_C::pre_php_script(HIR_php_script* in)
 	assert (file.is_open () == false);
 }
 
-void Generate_C::post_php_script(HIR_php_script* in)
+void Generate_C::post_php_script(PHP_script* in)
 {
-	List<HIR_signature*>::const_iterator i;
+	List<Signature*>::const_iterator i;
 
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
 	for(i = methods->begin(); i != methods->end(); i++)
@@ -2065,7 +2065,7 @@ void Generate_C::post_php_script(HIR_php_script* in)
 
 		// TODO: deal with type hinting
 
-		List<HIR_formal_parameter*>::const_iterator j;
+		List<Formal_parameter*>::const_iterator j;
 		for(
 			j = (*i)->formal_parameters->begin();
 			j != (*i)->formal_parameters->end();
@@ -2205,6 +2205,6 @@ void Generate_C::post_php_script(HIR_php_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new List<HIR_signature*>;
+	methods = new List<Signature*>;
 	name = new String ("generate-c");
 }

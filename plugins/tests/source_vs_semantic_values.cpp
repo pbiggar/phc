@@ -12,7 +12,7 @@
 
 using namespace AST;
 
-class Get_source_and_semantic_values : public AST_visitor
+class Get_source_and_semantic_values : public Visitor
 {
 public:
 	void print_comparison(String* type, String* value, String* source)
@@ -26,23 +26,23 @@ public:
 		printf ("\t}\n\n");
 	}
 
-	void pre_int(Token_int* in)
+	void pre_int(INT* in)
 	{
 		// We skip __LINE__, because we cannot check whether in->value is correct 
 		if(*in->get_source_rep() == "__LINE__")
 			return;
 
-		print_comparison(new String("Token_int"), in->get_value_as_string(), in->get_source_rep());
+		print_comparison(new String("INT"), in->get_value_as_string(), in->get_source_rep());
 	}
 
-	void pre_bool(Token_bool* in)
+	void pre_bool(BOOL* in)
 	{
-		print_comparison(new String("Token_bool"), in->get_value_as_string(), in->get_source_rep());
+		print_comparison(new String("BOOL"), in->get_value_as_string(), in->get_source_rep());
 	}
 
-	void pre_real(Token_real* in)
+	void pre_real(REAL* in)
 	{
-		print_comparison(new String("Token_real"), in->get_value_as_string(), in->get_source_rep());
+		print_comparison(new String("REAL"), in->get_value_as_string(), in->get_source_rep());
 	}
 };
 
@@ -55,7 +55,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 }
 
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit(new Get_source_and_semantic_values ());
 }

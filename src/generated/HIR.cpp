@@ -4,7 +4,7 @@
 
 namespace HIR{
 //  Return the line number of the node (or 0 if unknown)
-int HIR_node::get_line_number()
+int Node::get_line_number()
 {
     {
 		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
@@ -16,31 +16,31 @@ int HIR_node::get_line_number()
 }
 
 //  Return the filename of the node (or NULL if unknown)
-String* HIR_node::get_filename()
+String* Node::get_filename()
 {
     {
 		return dynamic_cast<String*>(attrs->get("phc.filename"));
 	}
 }
 
-HIR_node::HIR_node()
+Node::Node()
 {
     {
 		// Constructor gets called because all classes inherit from
-		// HIR_node virtually; also, because maketea knows HIR_node is
+		// Node virtually; also, because maketea knows Node is
 		// abstract, it won't add a constructor itself
 		attrs = new AttrMap();
 	}
 }
 
-void HIR_node::clone_mixin_from(HIR_node* in)
+void Node::clone_mixin_from(Node* in)
 {
     {
 		attrs = in->attrs->clone();
 	}
 }
 
-void HIR_node::assert_mixin_valid()
+void Node::assert_mixin_valid()
 {
     {
 		assert(attrs != NULL);
@@ -57,7 +57,7 @@ void HIR_node::assert_mixin_valid()
 	}
 }
 
-bool HIR_node::is_mixin_equal(HIR_node* in)
+bool Node::is_mixin_equal(Node* in)
 {
     {
 		// Compare line number and filename
@@ -83,7 +83,7 @@ bool HIR_node::is_mixin_equal(HIR_node* in)
 }
 
 //  Return the comments associated with the node
-List<String*>* HIR_node::get_comments()
+List<String*>* Node::get_comments()
 {
     {
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
@@ -91,44 +91,44 @@ List<String*>* HIR_node::get_comments()
 	}
 }
 
-HIR_php_script::HIR_php_script(List<HIR_statement*>* statements)
+PHP_script::PHP_script(List<Statement*>* statements)
 {
     this->statements = statements;
 }
 
-HIR_php_script::HIR_php_script()
+PHP_script::PHP_script()
 {
     this->statements = 0;
 }
 
-void HIR_php_script::visit(HIR_visitor* visitor)
+void PHP_script::visit(Visitor* visitor)
 {
     visitor->visit_php_script(this);
 }
 
-void HIR_php_script::transform_children(HIR_transform* transform)
+void PHP_script::transform_children(Transform* transform)
 {
     transform->children_php_script(this);
 }
 
-int HIR_php_script::classid()
+int PHP_script::classid()
 {
     return ID;
 }
 
-bool HIR_php_script::match(HIR_node* in)
+bool PHP_script::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_php_script* that = dynamic_cast<HIR_php_script*>(in);
+    PHP_script* that = dynamic_cast<PHP_script*>(in);
     if(that == NULL) return false;
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -149,9 +149,9 @@ bool HIR_php_script::match(HIR_node* in)
     return true;
 }
 
-bool HIR_php_script::equals(HIR_node* in)
+bool PHP_script::equals(Node* in)
 {
-    HIR_php_script* that = dynamic_cast<HIR_php_script*>(in);
+    PHP_script* that = dynamic_cast<PHP_script*>(in);
     if(that == NULL) return false;
     
     if(this->statements == NULL || that->statements == NULL)
@@ -161,7 +161,7 @@ bool HIR_php_script::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -179,78 +179,78 @@ bool HIR_php_script::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_php_script* HIR_php_script::clone()
+PHP_script* PHP_script::clone()
 {
-    List<HIR_statement*>* statements = NULL;
+    List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i;
-    	statements = new List<HIR_statement*>;
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_php_script* clone = new HIR_php_script(statements);
-    clone->HIR_node::clone_mixin_from(this);
+    PHP_script* clone = new PHP_script(statements);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_php_script::assert_valid()
+void PHP_script::assert_valid()
 {
     assert(statements != NULL);
     {
-    	List<HIR_statement*>::const_iterator i;
+    	List<Statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_statement::HIR_statement()
+Statement::Statement()
 {
 }
 
-HIR_class_mod::HIR_class_mod(bool is_abstract, bool is_final)
+Class_mod::Class_mod(bool is_abstract, bool is_final)
 {
     this->is_abstract = is_abstract;
     this->is_final = is_final;
 }
 
-HIR_class_mod::HIR_class_mod()
+Class_mod::Class_mod()
 {
     this->is_abstract = 0;
     this->is_final = 0;
 }
 
-void HIR_class_mod::visit(HIR_visitor* visitor)
+void Class_mod::visit(Visitor* visitor)
 {
     visitor->visit_class_mod(this);
 }
 
-void HIR_class_mod::transform_children(HIR_transform* transform)
+void Class_mod::transform_children(Transform* transform)
 {
     transform->children_class_mod(this);
 }
 
-int HIR_class_mod::classid()
+int Class_mod::classid()
 {
     return ID;
 }
 
-bool HIR_class_mod::match(HIR_node* in)
+bool Class_mod::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_class_mod* that = dynamic_cast<HIR_class_mod*>(in);
+    Class_mod* that = dynamic_cast<Class_mod*>(in);
     if(that == NULL) return false;
     
     that->is_abstract = this->is_abstract;
@@ -258,9 +258,9 @@ bool HIR_class_mod::match(HIR_node* in)
     return true;
 }
 
-bool HIR_class_mod::equals(HIR_node* in)
+bool Class_mod::equals(Node* in)
 {
-    HIR_class_mod* that = dynamic_cast<HIR_class_mod*>(in);
+    Class_mod* that = dynamic_cast<Class_mod*>(in);
     if(that == NULL) return false;
     
     if(this->is_abstract != that->is_abstract)
@@ -269,29 +269,29 @@ bool HIR_class_mod::equals(HIR_node* in)
     if(this->is_final != that->is_final)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_class_mod* HIR_class_mod::clone()
+Class_mod* Class_mod::clone()
 {
     bool is_abstract = this->is_abstract;
     bool is_final = this->is_final;
-    HIR_class_mod* clone = new HIR_class_mod(is_abstract, is_final);
-    clone->HIR_node::clone_mixin_from(this);
+    Class_mod* clone = new Class_mod(is_abstract, is_final);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_class_mod::assert_valid()
+void Class_mod::assert_valid()
 {
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_member::HIR_member()
+Member::Member()
 {
 }
 
-HIR_signature::HIR_signature(HIR_method_mod* method_mod, bool is_ref, Token_method_name* method_name, List<HIR_formal_parameter*>* formal_parameters)
+Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, List<Formal_parameter*>* formal_parameters)
 {
     this->method_mod = method_mod;
     this->is_ref = is_ref;
@@ -299,7 +299,7 @@ HIR_signature::HIR_signature(HIR_method_mod* method_mod, bool is_ref, Token_meth
     this->formal_parameters = formal_parameters;
 }
 
-HIR_signature::HIR_signature()
+Signature::Signature()
 {
     this->method_mod = 0;
     this->is_ref = 0;
@@ -307,29 +307,29 @@ HIR_signature::HIR_signature()
     this->formal_parameters = 0;
 }
 
-void HIR_signature::visit(HIR_visitor* visitor)
+void Signature::visit(Visitor* visitor)
 {
     visitor->visit_signature(this);
 }
 
-void HIR_signature::transform_children(HIR_transform* transform)
+void Signature::transform_children(Transform* transform)
 {
     transform->children_signature(this);
 }
 
-int HIR_signature::classid()
+int Signature::classid()
 {
     return ID;
 }
 
-bool HIR_signature::match(HIR_node* in)
+bool Signature::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_signature* that = dynamic_cast<HIR_signature*>(in);
+    Signature* that = dynamic_cast<Signature*>(in);
     if(that == NULL) return false;
     
     if(this->method_mod == NULL)
@@ -351,7 +351,7 @@ bool HIR_signature::match(HIR_node* in)
     
     if(this->formal_parameters != NULL && that->formal_parameters != NULL)
     {
-    	List<HIR_formal_parameter*>::const_iterator i, j;
+    	List<Formal_parameter*>::const_iterator i, j;
     	for(
     		i = this->formal_parameters->begin(), j = that->formal_parameters->begin();
     		i != this->formal_parameters->end() && j != that->formal_parameters->end();
@@ -372,9 +372,9 @@ bool HIR_signature::match(HIR_node* in)
     return true;
 }
 
-bool HIR_signature::equals(HIR_node* in)
+bool Signature::equals(Node* in)
 {
-    HIR_signature* that = dynamic_cast<HIR_signature*>(in);
+    Signature* that = dynamic_cast<Signature*>(in);
     if(that == NULL) return false;
     
     if(this->method_mod == NULL || that->method_mod == NULL)
@@ -403,7 +403,7 @@ bool HIR_signature::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_formal_parameter*>::const_iterator i, j;
+    	List<Formal_parameter*>::const_iterator i, j;
     	for(
     		i = this->formal_parameters->begin(), j = that->formal_parameters->begin();
     		i != this->formal_parameters->end() && j != that->formal_parameters->end();
@@ -421,29 +421,29 @@ bool HIR_signature::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_signature* HIR_signature::clone()
+Signature* Signature::clone()
 {
-    HIR_method_mod* method_mod = this->method_mod ? this->method_mod->clone() : NULL;
+    Method_mod* method_mod = this->method_mod ? this->method_mod->clone() : NULL;
     bool is_ref = this->is_ref;
-    Token_method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
-    List<HIR_formal_parameter*>* formal_parameters = NULL;
+    METHOD_NAME* method_name = this->method_name ? this->method_name->clone() : NULL;
+    List<Formal_parameter*>* formal_parameters = NULL;
     if(this->formal_parameters != NULL)
     {
-    	List<HIR_formal_parameter*>::const_iterator i;
-    	formal_parameters = new List<HIR_formal_parameter*>;
+    	List<Formal_parameter*>::const_iterator i;
+    	formal_parameters = new List<Formal_parameter*>;
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     		formal_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_signature* clone = new HIR_signature(method_mod, is_ref, method_name, formal_parameters);
-    clone->HIR_node::clone_mixin_from(this);
+    Signature* clone = new Signature(method_mod, is_ref, method_name, formal_parameters);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_signature::assert_valid()
+void Signature::assert_valid()
 {
     assert(method_mod != NULL);
     method_mod->assert_valid();
@@ -451,27 +451,27 @@ void HIR_signature::assert_valid()
     method_name->assert_valid();
     assert(formal_parameters != NULL);
     {
-    	List<HIR_formal_parameter*>::const_iterator i;
+    	List<Formal_parameter*>::const_iterator i;
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_signature::HIR_signature(const char* name)
+Signature::Signature(const char* name)
 {
     {
-		this->method_mod = HIR_method_mod::new_PUBLIC();
+		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new Token_method_name(new String(name));
-		this->formal_parameters = new List<HIR_formal_parameter*>;
+		this->method_name = new METHOD_NAME(new String(name));
+		this->formal_parameters = new List<Formal_parameter*>;
 	}
 }
 
-HIR_method_mod::HIR_method_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final)
+Method_mod::Method_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final)
 {
     this->is_public = is_public;
     this->is_protected = is_protected;
@@ -481,29 +481,29 @@ HIR_method_mod::HIR_method_mod(bool is_public, bool is_protected, bool is_privat
     this->is_final = is_final;
 }
 
-void HIR_method_mod::visit(HIR_visitor* visitor)
+void Method_mod::visit(Visitor* visitor)
 {
     visitor->visit_method_mod(this);
 }
 
-void HIR_method_mod::transform_children(HIR_transform* transform)
+void Method_mod::transform_children(Transform* transform)
 {
     transform->children_method_mod(this);
 }
 
-int HIR_method_mod::classid()
+int Method_mod::classid()
 {
     return ID;
 }
 
-bool HIR_method_mod::match(HIR_node* in)
+bool Method_mod::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_method_mod* that = dynamic_cast<HIR_method_mod*>(in);
+    Method_mod* that = dynamic_cast<Method_mod*>(in);
     if(that == NULL) return false;
     
     that->is_public = this->is_public;
@@ -515,9 +515,9 @@ bool HIR_method_mod::match(HIR_node* in)
     return true;
 }
 
-bool HIR_method_mod::equals(HIR_node* in)
+bool Method_mod::equals(Node* in)
 {
-    HIR_method_mod* that = dynamic_cast<HIR_method_mod*>(in);
+    Method_mod* that = dynamic_cast<Method_mod*>(in);
     if(that == NULL) return false;
     
     if(this->is_public != that->is_public)
@@ -538,11 +538,11 @@ bool HIR_method_mod::equals(HIR_node* in)
     if(this->is_final != that->is_final)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_method_mod* HIR_method_mod::clone()
+Method_mod* Method_mod::clone()
 {
     bool is_public = this->is_public;
     bool is_protected = this->is_protected;
@@ -550,17 +550,17 @@ HIR_method_mod* HIR_method_mod::clone()
     bool is_static = this->is_static;
     bool is_abstract = this->is_abstract;
     bool is_final = this->is_final;
-    HIR_method_mod* clone = new HIR_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
-    clone->HIR_node::clone_mixin_from(this);
+    Method_mod* clone = new Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_method_mod::assert_valid()
+void Method_mod::assert_valid()
 {
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_method_mod::HIR_method_mod()
+Method_mod::Method_mod()
 {
     {
 		is_public = false;
@@ -572,7 +572,7 @@ HIR_method_mod::HIR_method_mod()
 	}
 }
 
-HIR_method_mod::HIR_method_mod(HIR_method_mod* a, HIR_method_mod* b)
+Method_mod::Method_mod(Method_mod* a, Method_mod* b)
 {
     {
 		this->is_public 		= a->is_public		|| b->is_public;
@@ -584,85 +584,85 @@ HIR_method_mod::HIR_method_mod(HIR_method_mod* a, HIR_method_mod* b)
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_PUBLIC()
+Method_mod* Method_mod::new_PUBLIC()
 {
     {
-		return new HIR_method_mod(true, false, false, false, false, false);		
+		return new Method_mod(true, false, false, false, false, false);		
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_PROTECTED()
+Method_mod* Method_mod::new_PROTECTED()
 {
     { 
-		return new HIR_method_mod(false, true, false, false, false, false);		
+		return new Method_mod(false, true, false, false, false, false);		
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_PRIVATE()
+Method_mod* Method_mod::new_PRIVATE()
 {
     { 
-		return new HIR_method_mod(false, false, true, false, false, false);		
+		return new Method_mod(false, false, true, false, false, false);		
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_STATIC()
+Method_mod* Method_mod::new_STATIC()
 {
     { 
-		return new HIR_method_mod(false, false, false, true, false, false);		
+		return new Method_mod(false, false, false, true, false, false);		
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_ABSTRACT()
+Method_mod* Method_mod::new_ABSTRACT()
 {
     { 
-		return new HIR_method_mod(false, false, false, false, true, false);		
+		return new Method_mod(false, false, false, false, true, false);		
 	}
 }
 
-HIR_method_mod* HIR_method_mod::new_FINAL()
+Method_mod* Method_mod::new_FINAL()
 {
     { 
-		return new HIR_method_mod(false, false, false, false, false, true);		
+		return new Method_mod(false, false, false, false, false, true);		
 	}
 }
 
-HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, bool is_ref, HIR_name_with_default* var)
+Formal_parameter::Formal_parameter(Type* type, bool is_ref, Name_with_default* var)
 {
     this->type = type;
     this->is_ref = is_ref;
     this->var = var;
 }
 
-HIR_formal_parameter::HIR_formal_parameter()
+Formal_parameter::Formal_parameter()
 {
     this->type = 0;
     this->is_ref = 0;
     this->var = 0;
 }
 
-void HIR_formal_parameter::visit(HIR_visitor* visitor)
+void Formal_parameter::visit(Visitor* visitor)
 {
     visitor->visit_formal_parameter(this);
 }
 
-void HIR_formal_parameter::transform_children(HIR_transform* transform)
+void Formal_parameter::transform_children(Transform* transform)
 {
     transform->children_formal_parameter(this);
 }
 
-int HIR_formal_parameter::classid()
+int Formal_parameter::classid()
 {
     return ID;
 }
 
-bool HIR_formal_parameter::match(HIR_node* in)
+bool Formal_parameter::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_formal_parameter* that = dynamic_cast<HIR_formal_parameter*>(in);
+    Formal_parameter* that = dynamic_cast<Formal_parameter*>(in);
     if(that == NULL) return false;
     
     if(this->type == NULL)
@@ -685,9 +685,9 @@ bool HIR_formal_parameter::match(HIR_node* in)
     return true;
 }
 
-bool HIR_formal_parameter::equals(HIR_node* in)
+bool Formal_parameter::equals(Node* in)
 {
-    HIR_formal_parameter* that = dynamic_cast<HIR_formal_parameter*>(in);
+    Formal_parameter* that = dynamic_cast<Formal_parameter*>(in);
     if(that == NULL) return false;
     
     if(this->type == NULL || that->type == NULL)
@@ -709,80 +709,80 @@ bool HIR_formal_parameter::equals(HIR_node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_formal_parameter* HIR_formal_parameter::clone()
+Formal_parameter* Formal_parameter::clone()
 {
-    HIR_type* type = this->type ? this->type->clone() : NULL;
+    Type* type = this->type ? this->type->clone() : NULL;
     bool is_ref = this->is_ref;
-    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
-    HIR_formal_parameter* clone = new HIR_formal_parameter(type, is_ref, var);
-    clone->HIR_node::clone_mixin_from(this);
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Formal_parameter* clone = new Formal_parameter(type, is_ref, var);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_formal_parameter::assert_valid()
+void Formal_parameter::assert_valid()
 {
     assert(type != NULL);
     type->assert_valid();
     assert(var != NULL);
     var->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, Token_variable_name* name)
+Formal_parameter::Formal_parameter(Type* type, VARIABLE_NAME* name)
 {
     {
 		this->type = type;
 		this->is_ref = false;
-		this->var = new HIR_name_with_default(name, NULL);
+		this->var = new Name_with_default(name, NULL);
 	}
 }
 
-HIR_formal_parameter::HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* name)
+Formal_parameter::Formal_parameter(Type* type, bool is_ref, VARIABLE_NAME* name)
 {
     { 
 		this->type = type;
 		this->is_ref = is_ref;
-		this->var = new HIR_name_with_default(name, NULL);
+		this->var = new Name_with_default(name, NULL);
 	}
 }
 
-HIR_type::HIR_type(Token_class_name* class_name)
+Type::Type(CLASS_NAME* class_name)
 {
     this->class_name = class_name;
 }
 
-HIR_type::HIR_type()
+Type::Type()
 {
     this->class_name = 0;
 }
 
-void HIR_type::visit(HIR_visitor* visitor)
+void Type::visit(Visitor* visitor)
 {
     visitor->visit_type(this);
 }
 
-void HIR_type::transform_children(HIR_transform* transform)
+void Type::transform_children(Transform* transform)
 {
     transform->children_type(this);
 }
 
-int HIR_type::classid()
+int Type::classid()
 {
     return ID;
 }
 
-bool HIR_type::match(HIR_node* in)
+bool Type::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_type* that = dynamic_cast<HIR_type*>(in);
+    Type* that = dynamic_cast<Type*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL)
@@ -796,9 +796,9 @@ bool HIR_type::match(HIR_node* in)
     return true;
 }
 
-bool HIR_type::equals(HIR_node* in)
+bool Type::equals(Node* in)
 {
-    HIR_type* that = dynamic_cast<HIR_type*>(in);
+    Type* that = dynamic_cast<Type*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -809,25 +809,25 @@ bool HIR_type::equals(HIR_node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_type* HIR_type::clone()
+Type* Type::clone()
 {
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    HIR_type* clone = new HIR_type(class_name);
-    clone->HIR_node::clone_mixin_from(this);
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Type* clone = new Type(class_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_type::assert_valid()
+void Type::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_attr_mod::HIR_attr_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const)
+Attr_mod::Attr_mod(bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const)
 {
     this->is_public = is_public;
     this->is_protected = is_protected;
@@ -836,29 +836,29 @@ HIR_attr_mod::HIR_attr_mod(bool is_public, bool is_protected, bool is_private, b
     this->is_const = is_const;
 }
 
-void HIR_attr_mod::visit(HIR_visitor* visitor)
+void Attr_mod::visit(Visitor* visitor)
 {
     visitor->visit_attr_mod(this);
 }
 
-void HIR_attr_mod::transform_children(HIR_transform* transform)
+void Attr_mod::transform_children(Transform* transform)
 {
     transform->children_attr_mod(this);
 }
 
-int HIR_attr_mod::classid()
+int Attr_mod::classid()
 {
     return ID;
 }
 
-bool HIR_attr_mod::match(HIR_node* in)
+bool Attr_mod::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_attr_mod* that = dynamic_cast<HIR_attr_mod*>(in);
+    Attr_mod* that = dynamic_cast<Attr_mod*>(in);
     if(that == NULL) return false;
     
     that->is_public = this->is_public;
@@ -869,9 +869,9 @@ bool HIR_attr_mod::match(HIR_node* in)
     return true;
 }
 
-bool HIR_attr_mod::equals(HIR_node* in)
+bool Attr_mod::equals(Node* in)
 {
-    HIR_attr_mod* that = dynamic_cast<HIR_attr_mod*>(in);
+    Attr_mod* that = dynamic_cast<Attr_mod*>(in);
     if(that == NULL) return false;
     
     if(this->is_public != that->is_public)
@@ -889,28 +889,28 @@ bool HIR_attr_mod::equals(HIR_node* in)
     if(this->is_const != that->is_const)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_attr_mod* HIR_attr_mod::clone()
+Attr_mod* Attr_mod::clone()
 {
     bool is_public = this->is_public;
     bool is_protected = this->is_protected;
     bool is_private = this->is_private;
     bool is_static = this->is_static;
     bool is_const = this->is_const;
-    HIR_attr_mod* clone = new HIR_attr_mod(is_public, is_protected, is_private, is_static, is_const);
-    clone->HIR_node::clone_mixin_from(this);
+    Attr_mod* clone = new Attr_mod(is_public, is_protected, is_private, is_static, is_const);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_attr_mod::assert_valid()
+void Attr_mod::assert_valid()
 {
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_attr_mod::HIR_attr_mod()
+Attr_mod::Attr_mod()
 {
     {
 		is_public = false;
@@ -921,7 +921,7 @@ HIR_attr_mod::HIR_attr_mod()
 	}
 }
 
-HIR_attr_mod::HIR_attr_mod(HIR_method_mod* mm)
+Attr_mod::Attr_mod(Method_mod* mm)
 {
     {
 		if(mm->is_final)
@@ -935,76 +935,76 @@ HIR_attr_mod::HIR_attr_mod(HIR_method_mod* mm)
 	}
 }
 
-HIR_attr_mod* HIR_attr_mod::new_PUBLIC()
+Attr_mod* Attr_mod::new_PUBLIC()
 {
     {
-		return new HIR_attr_mod(true, false, false, false, false);
+		return new Attr_mod(true, false, false, false, false);
 	}
 }
 
-HIR_attr_mod* HIR_attr_mod::new_PROTECTED()
+Attr_mod* Attr_mod::new_PROTECTED()
 {
     { 
-		return new HIR_attr_mod(false, true, false, false, false);
+		return new Attr_mod(false, true, false, false, false);
 	}
 }
 
-HIR_attr_mod* HIR_attr_mod::new_PRIVATE()
+Attr_mod* Attr_mod::new_PRIVATE()
 {
     {
-		return new HIR_attr_mod(false, false, true, false, false);
+		return new Attr_mod(false, false, true, false, false);
 	}
 }
 
-HIR_attr_mod* HIR_attr_mod::new_STATIC()
+Attr_mod* Attr_mod::new_STATIC()
 {
     {
-		return new HIR_attr_mod(false, false, false, true, false);
+		return new Attr_mod(false, false, false, true, false);
 	}
 }
 
-HIR_attr_mod* HIR_attr_mod::new_CONST()
+Attr_mod* Attr_mod::new_CONST()
 {
     {
-		return new HIR_attr_mod(false, false, false, false, true);
+		return new Attr_mod(false, false, false, false, true);
 	}
 }
 
-HIR_name_with_default::HIR_name_with_default(Token_variable_name* variable_name, HIR_expr* expr)
+Name_with_default::Name_with_default(VARIABLE_NAME* variable_name, Expr* expr)
 {
     this->variable_name = variable_name;
     this->expr = expr;
 }
 
-HIR_name_with_default::HIR_name_with_default()
+Name_with_default::Name_with_default()
 {
     this->variable_name = 0;
     this->expr = 0;
 }
 
-void HIR_name_with_default::visit(HIR_visitor* visitor)
+void Name_with_default::visit(Visitor* visitor)
 {
     visitor->visit_name_with_default(this);
 }
 
-void HIR_name_with_default::transform_children(HIR_transform* transform)
+void Name_with_default::transform_children(Transform* transform)
 {
     transform->children_name_with_default(this);
 }
 
-int HIR_name_with_default::classid()
+int Name_with_default::classid()
 {
     return ID;
 }
 
-bool HIR_name_with_default::match(HIR_node* in)
+bool Name_with_default::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_name_with_default* that = dynamic_cast<HIR_name_with_default*>(in);
+    Name_with_default* that = dynamic_cast<Name_with_default*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -1026,9 +1026,9 @@ bool HIR_name_with_default::match(HIR_node* in)
     return true;
 }
 
-bool HIR_name_with_default::equals(HIR_node* in)
+bool Name_with_default::equals(Node* in)
 {
-    HIR_name_with_default* that = dynamic_cast<HIR_name_with_default*>(in);
+    Name_with_default* that = dynamic_cast<Name_with_default*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -1047,64 +1047,64 @@ bool HIR_name_with_default::equals(HIR_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_name_with_default* HIR_name_with_default::clone()
+Name_with_default* Name_with_default::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_name_with_default* clone = new HIR_name_with_default(variable_name, expr);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Name_with_default* clone = new Name_with_default(variable_name, expr);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_name_with_default::assert_valid()
+void Name_with_default::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     if(expr != NULL) expr->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_catch::HIR_catch(Token_class_name* class_name, Token_variable_name* variable_name, List<HIR_statement*>* statements)
+Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements)
 {
     this->class_name = class_name;
     this->variable_name = variable_name;
     this->statements = statements;
 }
 
-HIR_catch::HIR_catch()
+Catch::Catch()
 {
     this->class_name = 0;
     this->variable_name = 0;
     this->statements = 0;
 }
 
-void HIR_catch::visit(HIR_visitor* visitor)
+void Catch::visit(Visitor* visitor)
 {
     visitor->visit_catch(this);
 }
 
-void HIR_catch::transform_children(HIR_transform* transform)
+void Catch::transform_children(Transform* transform)
 {
     transform->children_catch(this);
 }
 
-int HIR_catch::classid()
+int Catch::classid()
 {
     return ID;
 }
 
-bool HIR_catch::match(HIR_node* in)
+bool Catch::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_catch* that = dynamic_cast<HIR_catch*>(in);
+    Catch* that = dynamic_cast<Catch*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL)
@@ -1125,7 +1125,7 @@ bool HIR_catch::match(HIR_node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -1146,9 +1146,9 @@ bool HIR_catch::match(HIR_node* in)
     return true;
 }
 
-bool HIR_catch::equals(HIR_node* in)
+bool Catch::equals(Node* in)
 {
-    HIR_catch* that = dynamic_cast<HIR_catch*>(in);
+    Catch* that = dynamic_cast<Catch*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -1174,7 +1174,7 @@ bool HIR_catch::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -1192,28 +1192,28 @@ bool HIR_catch::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_catch* HIR_catch::clone()
+Catch* Catch::clone()
 {
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<HIR_statement*>* statements = NULL;
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i;
-    	statements = new List<HIR_statement*>;
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_catch* clone = new HIR_catch(class_name, variable_name, statements);
-    clone->HIR_node::clone_mixin_from(this);
+    Catch* clone = new Catch(class_name, variable_name, statements);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_catch::assert_valid()
+void Catch::assert_valid()
 {
     assert(class_name != NULL);
     class_name->assert_valid();
@@ -1221,61 +1221,61 @@ void HIR_catch::assert_valid()
     variable_name->assert_valid();
     assert(statements != NULL);
     {
-    	List<HIR_statement*>::const_iterator i;
+    	List<Statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_variable_name::HIR_variable_name()
+Variable_name::Variable_name()
 {
 }
 
-HIR_target::HIR_target()
+Target::Target()
 {
 }
 
-HIR_array_elem::HIR_array_elem(HIR_expr* key, bool is_ref, HIR_expr* val)
+Array_elem::Array_elem(Expr* key, bool is_ref, Expr* val)
 {
     this->key = key;
     this->is_ref = is_ref;
     this->val = val;
 }
 
-HIR_array_elem::HIR_array_elem()
+Array_elem::Array_elem()
 {
     this->key = 0;
     this->is_ref = 0;
     this->val = 0;
 }
 
-void HIR_array_elem::visit(HIR_visitor* visitor)
+void Array_elem::visit(Visitor* visitor)
 {
     visitor->visit_array_elem(this);
 }
 
-void HIR_array_elem::transform_children(HIR_transform* transform)
+void Array_elem::transform_children(Transform* transform)
 {
     transform->children_array_elem(this);
 }
 
-int HIR_array_elem::classid()
+int Array_elem::classid()
 {
     return ID;
 }
 
-bool HIR_array_elem::match(HIR_node* in)
+bool Array_elem::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_array_elem* that = dynamic_cast<HIR_array_elem*>(in);
+    Array_elem* that = dynamic_cast<Array_elem*>(in);
     if(that == NULL) return false;
     
     if(this->key == NULL)
@@ -1298,9 +1298,9 @@ bool HIR_array_elem::match(HIR_node* in)
     return true;
 }
 
-bool HIR_array_elem::equals(HIR_node* in)
+bool Array_elem::equals(Node* in)
 {
-    HIR_array_elem* that = dynamic_cast<HIR_array_elem*>(in);
+    Array_elem* that = dynamic_cast<Array_elem*>(in);
     if(that == NULL) return false;
     
     if(this->key == NULL || that->key == NULL)
@@ -1322,33 +1322,33 @@ bool HIR_array_elem::equals(HIR_node* in)
     else if(!this->val->equals(that->val))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_array_elem* HIR_array_elem::clone()
+Array_elem* Array_elem::clone()
 {
-    HIR_expr* key = this->key ? this->key->clone() : NULL;
+    Expr* key = this->key ? this->key->clone() : NULL;
     bool is_ref = this->is_ref;
-    HIR_expr* val = this->val ? this->val->clone() : NULL;
-    HIR_array_elem* clone = new HIR_array_elem(key, is_ref, val);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* val = this->val ? this->val->clone() : NULL;
+    Array_elem* clone = new Array_elem(key, is_ref, val);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_array_elem::assert_valid()
+void Array_elem::assert_valid()
 {
     if(key != NULL) key->assert_valid();
     assert(val != NULL);
     val->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_method_name::HIR_method_name()
+Method_name::Method_name()
 {
 }
 
-HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices)
+Actual_parameter::Actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
 {
     this->is_ref = is_ref;
     this->target = target;
@@ -1356,7 +1356,7 @@ HIR_actual_parameter::HIR_actual_parameter(bool is_ref, HIR_target* target, HIR_
     this->array_indices = array_indices;
 }
 
-HIR_actual_parameter::HIR_actual_parameter()
+Actual_parameter::Actual_parameter()
 {
     this->is_ref = 0;
     this->target = 0;
@@ -1364,29 +1364,29 @@ HIR_actual_parameter::HIR_actual_parameter()
     this->array_indices = 0;
 }
 
-void HIR_actual_parameter::visit(HIR_visitor* visitor)
+void Actual_parameter::visit(Visitor* visitor)
 {
     visitor->visit_actual_parameter(this);
 }
 
-void HIR_actual_parameter::transform_children(HIR_transform* transform)
+void Actual_parameter::transform_children(Transform* transform)
 {
     transform->children_actual_parameter(this);
 }
 
-int HIR_actual_parameter::classid()
+int Actual_parameter::classid()
 {
     return ID;
 }
 
-bool HIR_actual_parameter::match(HIR_node* in)
+bool Actual_parameter::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_actual_parameter* that = dynamic_cast<HIR_actual_parameter*>(in);
+    Actual_parameter* that = dynamic_cast<Actual_parameter*>(in);
     if(that == NULL) return false;
     
     that->is_ref = this->is_ref;
@@ -1408,7 +1408,7 @@ bool HIR_actual_parameter::match(HIR_node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<Token_variable_name*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -1429,9 +1429,9 @@ bool HIR_actual_parameter::match(HIR_node* in)
     return true;
 }
 
-bool HIR_actual_parameter::equals(HIR_node* in)
+bool Actual_parameter::equals(Node* in)
 {
-    HIR_actual_parameter* that = dynamic_cast<HIR_actual_parameter*>(in);
+    Actual_parameter* that = dynamic_cast<Actual_parameter*>(in);
     if(that == NULL) return false;
     
     if(this->is_ref != that->is_ref)
@@ -1460,7 +1460,7 @@ bool HIR_actual_parameter::equals(HIR_node* in)
     }
     else
     {
-    	List<Token_variable_name*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -1478,53 +1478,53 @@ bool HIR_actual_parameter::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_actual_parameter* HIR_actual_parameter::clone()
+Actual_parameter* Actual_parameter::clone()
 {
     bool is_ref = this->is_ref;
-    HIR_target* target = this->target ? this->target->clone() : NULL;
-    HIR_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Token_variable_name*>* array_indices = NULL;
+    Target* target = this->target ? this->target->clone() : NULL;
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<VARIABLE_NAME*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<Token_variable_name*>::const_iterator i;
-    	array_indices = new List<Token_variable_name*>;
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	array_indices = new List<VARIABLE_NAME*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_actual_parameter* clone = new HIR_actual_parameter(is_ref, target, variable_name, array_indices);
-    clone->HIR_node::clone_mixin_from(this);
+    Actual_parameter* clone = new Actual_parameter(is_ref, target, variable_name, array_indices);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_actual_parameter::assert_valid()
+void Actual_parameter::assert_valid()
 {
     if(target != NULL) target->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<Token_variable_name*>::const_iterator i;
+    	List<VARIABLE_NAME*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_class_name::HIR_class_name()
+Class_name::Class_name()
 {
 }
 
-HIR_identifier::HIR_identifier()
+Identifier::Identifier()
 {
 }
 
-HIR_class_def::HIR_class_def(HIR_class_mod* class_mod, Token_class_name* class_name, Token_class_name* extends, List<Token_interface_name*>* implements, List<HIR_member*>* members)
+Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
 {
     this->class_mod = class_mod;
     this->class_name = class_name;
@@ -1533,7 +1533,7 @@ HIR_class_def::HIR_class_def(HIR_class_mod* class_mod, Token_class_name* class_n
     this->members = members;
 }
 
-HIR_class_def::HIR_class_def()
+Class_def::Class_def()
 {
     this->class_mod = 0;
     this->class_name = 0;
@@ -1542,29 +1542,29 @@ HIR_class_def::HIR_class_def()
     this->members = 0;
 }
 
-void HIR_class_def::visit(HIR_visitor* visitor)
+void Class_def::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_class_def::transform_children(HIR_transform* transform)
+void Class_def::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_class_def::classid()
+int Class_def::classid()
 {
     return ID;
 }
 
-bool HIR_class_def::match(HIR_node* in)
+bool Class_def::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_class_def* that = dynamic_cast<HIR_class_def*>(in);
+    Class_def* that = dynamic_cast<Class_def*>(in);
     if(that == NULL) return false;
     
     if(this->class_mod == NULL)
@@ -1593,7 +1593,7 @@ bool HIR_class_def::match(HIR_node* in)
     
     if(this->implements != NULL && that->implements != NULL)
     {
-    	List<Token_interface_name*>::const_iterator i, j;
+    	List<INTERFACE_NAME*>::const_iterator i, j;
     	for(
     		i = this->implements->begin(), j = that->implements->begin();
     		i != this->implements->end() && j != that->implements->end();
@@ -1613,7 +1613,7 @@ bool HIR_class_def::match(HIR_node* in)
     
     if(this->members != NULL && that->members != NULL)
     {
-    	List<HIR_member*>::const_iterator i, j;
+    	List<Member*>::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -1634,9 +1634,9 @@ bool HIR_class_def::match(HIR_node* in)
     return true;
 }
 
-bool HIR_class_def::equals(HIR_node* in)
+bool Class_def::equals(Node* in)
 {
-    HIR_class_def* that = dynamic_cast<HIR_class_def*>(in);
+    Class_def* that = dynamic_cast<Class_def*>(in);
     if(that == NULL) return false;
     
     if(this->class_mod == NULL || that->class_mod == NULL)
@@ -1670,7 +1670,7 @@ bool HIR_class_def::equals(HIR_node* in)
     }
     else
     {
-    	List<Token_interface_name*>::const_iterator i, j;
+    	List<INTERFACE_NAME*>::const_iterator i, j;
     	for(
     		i = this->implements->begin(), j = that->implements->begin();
     		i != this->implements->end() && j != that->implements->end();
@@ -1695,7 +1695,7 @@ bool HIR_class_def::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_member*>::const_iterator i, j;
+    	List<Member*>::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -1713,37 +1713,37 @@ bool HIR_class_def::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_class_def* HIR_class_def::clone()
+Class_def* Class_def::clone()
 {
-    HIR_class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Token_class_name* extends = this->extends ? this->extends->clone() : NULL;
-    List<Token_interface_name*>* implements = NULL;
+    Class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    CLASS_NAME* extends = this->extends ? this->extends->clone() : NULL;
+    List<INTERFACE_NAME*>* implements = NULL;
     if(this->implements != NULL)
     {
-    	List<Token_interface_name*>::const_iterator i;
-    	implements = new List<Token_interface_name*>;
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	implements = new List<INTERFACE_NAME*>;
     	for(i = this->implements->begin(); i != this->implements->end(); i++)
     		implements->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<HIR_member*>* members = NULL;
+    List<Member*>* members = NULL;
     if(this->members != NULL)
     {
-    	List<HIR_member*>::const_iterator i;
-    	members = new List<HIR_member*>;
+    	List<Member*>::const_iterator i;
+    	members = new List<Member*>;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     		members->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_class_def* clone = new HIR_class_def(class_mod, class_name, extends, implements, members);
-    clone->HIR_node::clone_mixin_from(this);
+    Class_def* clone = new Class_def(class_mod, class_name, extends, implements, members);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_class_def::assert_valid()
+void Class_def::assert_valid()
 {
     assert(class_mod != NULL);
     class_mod->assert_valid();
@@ -1752,7 +1752,7 @@ void HIR_class_def::assert_valid()
     if(extends != NULL) extends->assert_valid();
     assert(implements != NULL);
     {
-    	List<Token_interface_name*>::const_iterator i;
+    	List<INTERFACE_NAME*>::const_iterator i;
     	for(i = this->implements->begin(); i != this->implements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -1761,39 +1761,39 @@ void HIR_class_def::assert_valid()
     }
     assert(members != NULL);
     {
-    	List<HIR_member*>::const_iterator i;
+    	List<Member*>::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_class_def::HIR_class_def(HIR_class_mod* mod)
+Class_def::Class_def(Class_mod* mod)
 {
     {
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<HIR_member*>;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
 	}
 }
 
-HIR_class_def::HIR_class_def(const char* name)
+Class_def::Class_def(const char* name)
 {
     {
-		this->class_mod = new HIR_class_mod(false, false);
-		this->class_name = new Token_class_name(new String(name));
+		this->class_mod = new Class_mod(false, false);
+		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<HIR_member*>;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
 	}
 }
 
-void HIR_class_def::add_member(HIR_member* member)
+void Class_def::add_member(Member* member)
 {
     {
 		this->members->push_back(member);
@@ -1801,13 +1801,13 @@ void HIR_class_def::add_member(HIR_member* member)
 }
 
 //  Returns NULL if the method could not be found
-HIR_method* HIR_class_def::get_method(const char* name)
+Method* Class_def::get_method(const char* name)
 {
     {
-		List<HIR_member*>::const_iterator i;
+		List<Member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
-			HIR_method* method = dynamic_cast<HIR_method*>(*i);
+			Method* method = dynamic_cast<Method*>(*i);
 			if(method && *method->signature->method_name->value == name)
 				return method;
 		}
@@ -1816,43 +1816,43 @@ HIR_method* HIR_class_def::get_method(const char* name)
 	}
 }
 
-HIR_interface_def::HIR_interface_def(Token_interface_name* interface_name, List<Token_interface_name*>* extends, List<HIR_member*>* members)
+Interface_def::Interface_def(INTERFACE_NAME* interface_name, List<INTERFACE_NAME*>* extends, List<Member*>* members)
 {
     this->interface_name = interface_name;
     this->extends = extends;
     this->members = members;
 }
 
-HIR_interface_def::HIR_interface_def()
+Interface_def::Interface_def()
 {
     this->interface_name = 0;
     this->extends = 0;
     this->members = 0;
 }
 
-void HIR_interface_def::visit(HIR_visitor* visitor)
+void Interface_def::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_interface_def::transform_children(HIR_transform* transform)
+void Interface_def::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_interface_def::classid()
+int Interface_def::classid()
 {
     return ID;
 }
 
-bool HIR_interface_def::match(HIR_node* in)
+bool Interface_def::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_interface_def* that = dynamic_cast<HIR_interface_def*>(in);
+    Interface_def* that = dynamic_cast<Interface_def*>(in);
     if(that == NULL) return false;
     
     if(this->interface_name == NULL)
@@ -1865,7 +1865,7 @@ bool HIR_interface_def::match(HIR_node* in)
     
     if(this->extends != NULL && that->extends != NULL)
     {
-    	List<Token_interface_name*>::const_iterator i, j;
+    	List<INTERFACE_NAME*>::const_iterator i, j;
     	for(
     		i = this->extends->begin(), j = that->extends->begin();
     		i != this->extends->end() && j != that->extends->end();
@@ -1885,7 +1885,7 @@ bool HIR_interface_def::match(HIR_node* in)
     
     if(this->members != NULL && that->members != NULL)
     {
-    	List<HIR_member*>::const_iterator i, j;
+    	List<Member*>::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -1906,9 +1906,9 @@ bool HIR_interface_def::match(HIR_node* in)
     return true;
 }
 
-bool HIR_interface_def::equals(HIR_node* in)
+bool Interface_def::equals(Node* in)
 {
-    HIR_interface_def* that = dynamic_cast<HIR_interface_def*>(in);
+    Interface_def* that = dynamic_cast<Interface_def*>(in);
     if(that == NULL) return false;
     
     if(this->interface_name == NULL || that->interface_name == NULL)
@@ -1926,7 +1926,7 @@ bool HIR_interface_def::equals(HIR_node* in)
     }
     else
     {
-    	List<Token_interface_name*>::const_iterator i, j;
+    	List<INTERFACE_NAME*>::const_iterator i, j;
     	for(
     		i = this->extends->begin(), j = that->extends->begin();
     		i != this->extends->end() && j != that->extends->end();
@@ -1951,7 +1951,7 @@ bool HIR_interface_def::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_member*>::const_iterator i, j;
+    	List<Member*>::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -1969,41 +1969,41 @@ bool HIR_interface_def::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_interface_def* HIR_interface_def::clone()
+Interface_def* Interface_def::clone()
 {
-    Token_interface_name* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
-    List<Token_interface_name*>* extends = NULL;
+    INTERFACE_NAME* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
+    List<INTERFACE_NAME*>* extends = NULL;
     if(this->extends != NULL)
     {
-    	List<Token_interface_name*>::const_iterator i;
-    	extends = new List<Token_interface_name*>;
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	extends = new List<INTERFACE_NAME*>;
     	for(i = this->extends->begin(); i != this->extends->end(); i++)
     		extends->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<HIR_member*>* members = NULL;
+    List<Member*>* members = NULL;
     if(this->members != NULL)
     {
-    	List<HIR_member*>::const_iterator i;
-    	members = new List<HIR_member*>;
+    	List<Member*>::const_iterator i;
+    	members = new List<Member*>;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     		members->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_interface_def* clone = new HIR_interface_def(interface_name, extends, members);
-    clone->HIR_node::clone_mixin_from(this);
+    Interface_def* clone = new Interface_def(interface_name, extends, members);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_interface_def::assert_valid()
+void Interface_def::assert_valid()
 {
     assert(interface_name != NULL);
     interface_name->assert_valid();
     assert(extends != NULL);
     {
-    	List<Token_interface_name*>::const_iterator i;
+    	List<INTERFACE_NAME*>::const_iterator i;
     	for(i = this->extends->begin(); i != this->extends->end(); i++)
     	{
     		assert(*i != NULL);
@@ -2012,51 +2012,51 @@ void HIR_interface_def::assert_valid()
     }
     assert(members != NULL);
     {
-    	List<HIR_member*>::const_iterator i;
+    	List<Member*>::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_method::HIR_method(HIR_signature* signature, List<HIR_statement*>* statements)
+Method::Method(Signature* signature, List<Statement*>* statements)
 {
     this->signature = signature;
     this->statements = statements;
 }
 
-HIR_method::HIR_method()
+Method::Method()
 {
     this->signature = 0;
     this->statements = 0;
 }
 
-void HIR_method::visit(HIR_visitor* visitor)
+void Method::visit(Visitor* visitor)
 {
     visitor->visit_member(this);
 }
 
-void HIR_method::transform_children(HIR_transform* transform)
+void Method::transform_children(Transform* transform)
 {
     transform->children_member(this);
 }
 
-int HIR_method::classid()
+int Method::classid()
 {
     return ID;
 }
 
-bool HIR_method::match(HIR_node* in)
+bool Method::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_method* that = dynamic_cast<HIR_method*>(in);
+    Method* that = dynamic_cast<Method*>(in);
     if(that == NULL) return false;
     
     if(this->signature == NULL)
@@ -2069,7 +2069,7 @@ bool HIR_method::match(HIR_node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2090,9 +2090,9 @@ bool HIR_method::match(HIR_node* in)
     return true;
 }
 
-bool HIR_method::equals(HIR_node* in)
+bool Method::equals(Node* in)
 {
-    HIR_method* that = dynamic_cast<HIR_method*>(in);
+    Method* that = dynamic_cast<Method*>(in);
     if(that == NULL) return false;
     
     if(this->signature == NULL || that->signature == NULL)
@@ -2110,7 +2110,7 @@ bool HIR_method::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2128,77 +2128,77 @@ bool HIR_method::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_method* HIR_method::clone()
+Method* Method::clone()
 {
-    HIR_signature* signature = this->signature ? this->signature->clone() : NULL;
-    List<HIR_statement*>* statements = NULL;
+    Signature* signature = this->signature ? this->signature->clone() : NULL;
+    List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i;
-    	statements = new List<HIR_statement*>;
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_method* clone = new HIR_method(signature, statements);
-    clone->HIR_node::clone_mixin_from(this);
+    Method* clone = new Method(signature, statements);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_method::assert_valid()
+void Method::assert_valid()
 {
     assert(signature != NULL);
     signature->assert_valid();
     if(statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i;
+    	List<Statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_attribute::HIR_attribute(HIR_attr_mod* attr_mod, HIR_name_with_default* var)
+Attribute::Attribute(Attr_mod* attr_mod, Name_with_default* var)
 {
     this->attr_mod = attr_mod;
     this->var = var;
 }
 
-HIR_attribute::HIR_attribute()
+Attribute::Attribute()
 {
     this->attr_mod = 0;
     this->var = 0;
 }
 
-void HIR_attribute::visit(HIR_visitor* visitor)
+void Attribute::visit(Visitor* visitor)
 {
     visitor->visit_member(this);
 }
 
-void HIR_attribute::transform_children(HIR_transform* transform)
+void Attribute::transform_children(Transform* transform)
 {
     transform->children_member(this);
 }
 
-int HIR_attribute::classid()
+int Attribute::classid()
 {
     return ID;
 }
 
-bool HIR_attribute::match(HIR_node* in)
+bool Attribute::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_attribute* that = dynamic_cast<HIR_attribute*>(in);
+    Attribute* that = dynamic_cast<Attribute*>(in);
     if(that == NULL) return false;
     
     if(this->attr_mod == NULL)
@@ -2220,9 +2220,9 @@ bool HIR_attribute::match(HIR_node* in)
     return true;
 }
 
-bool HIR_attribute::equals(HIR_node* in)
+bool Attribute::equals(Node* in)
 {
-    HIR_attribute* that = dynamic_cast<HIR_attribute*>(in);
+    Attribute* that = dynamic_cast<Attribute*>(in);
     if(that == NULL) return false;
     
     if(this->attr_mod == NULL || that->attr_mod == NULL)
@@ -2241,61 +2241,61 @@ bool HIR_attribute::equals(HIR_node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_attribute* HIR_attribute::clone()
+Attribute* Attribute::clone()
 {
-    HIR_attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
-    HIR_attribute* clone = new HIR_attribute(attr_mod, var);
-    clone->HIR_node::clone_mixin_from(this);
+    Attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Attribute* clone = new Attribute(attr_mod, var);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_attribute::assert_valid()
+void Attribute::assert_valid()
 {
     assert(attr_mod != NULL);
     attr_mod->assert_valid();
     assert(var != NULL);
     var->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_return::HIR_return(HIR_expr* expr)
+Return::Return(Expr* expr)
 {
     this->expr = expr;
 }
 
-HIR_return::HIR_return()
+Return::Return()
 {
     this->expr = 0;
 }
 
-void HIR_return::visit(HIR_visitor* visitor)
+void Return::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_return::transform_children(HIR_transform* transform)
+void Return::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_return::classid()
+int Return::classid()
 {
     return ID;
 }
 
-bool HIR_return::match(HIR_node* in)
+bool Return::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_return* that = dynamic_cast<HIR_return*>(in);
+    Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL)
@@ -2309,9 +2309,9 @@ bool HIR_return::match(HIR_node* in)
     return true;
 }
 
-bool HIR_return::equals(HIR_node* in)
+bool Return::equals(Node* in)
 {
-    HIR_return* that = dynamic_cast<HIR_return*>(in);
+    Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL || that->expr == NULL)
@@ -2322,57 +2322,57 @@ bool HIR_return::equals(HIR_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_return* HIR_return::clone()
+Return* Return::clone()
 {
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_return* clone = new HIR_return(expr);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Return* clone = new Return(expr);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_return::assert_valid()
+void Return::assert_valid()
 {
     if(expr != NULL) expr->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_static_declaration::HIR_static_declaration(HIR_name_with_default* var)
+Static_declaration::Static_declaration(Name_with_default* var)
 {
     this->var = var;
 }
 
-HIR_static_declaration::HIR_static_declaration()
+Static_declaration::Static_declaration()
 {
     this->var = 0;
 }
 
-void HIR_static_declaration::visit(HIR_visitor* visitor)
+void Static_declaration::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_static_declaration::transform_children(HIR_transform* transform)
+void Static_declaration::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_static_declaration::classid()
+int Static_declaration::classid()
 {
     return ID;
 }
 
-bool HIR_static_declaration::match(HIR_node* in)
+bool Static_declaration::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_static_declaration* that = dynamic_cast<HIR_static_declaration*>(in);
+    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
     if(that == NULL) return false;
     
     if(this->var == NULL)
@@ -2386,9 +2386,9 @@ bool HIR_static_declaration::match(HIR_node* in)
     return true;
 }
 
-bool HIR_static_declaration::equals(HIR_node* in)
+bool Static_declaration::equals(Node* in)
 {
-    HIR_static_declaration* that = dynamic_cast<HIR_static_declaration*>(in);
+    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
     if(that == NULL) return false;
     
     if(this->var == NULL || that->var == NULL)
@@ -2399,58 +2399,58 @@ bool HIR_static_declaration::equals(HIR_node* in)
     else if(!this->var->equals(that->var))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_static_declaration* HIR_static_declaration::clone()
+Static_declaration* Static_declaration::clone()
 {
-    HIR_name_with_default* var = this->var ? this->var->clone() : NULL;
-    HIR_static_declaration* clone = new HIR_static_declaration(var);
-    clone->HIR_node::clone_mixin_from(this);
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Static_declaration* clone = new Static_declaration(var);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_static_declaration::assert_valid()
+void Static_declaration::assert_valid()
 {
     assert(var != NULL);
     var->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_global::HIR_global(HIR_variable_name* variable_name)
+Global::Global(Variable_name* variable_name)
 {
     this->variable_name = variable_name;
 }
 
-HIR_global::HIR_global()
+Global::Global()
 {
     this->variable_name = 0;
 }
 
-void HIR_global::visit(HIR_visitor* visitor)
+void Global::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_global::transform_children(HIR_transform* transform)
+void Global::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_global::classid()
+int Global::classid()
 {
     return ID;
 }
 
-bool HIR_global::match(HIR_node* in)
+bool Global::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_global* that = dynamic_cast<HIR_global*>(in);
+    Global* that = dynamic_cast<Global*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -2464,9 +2464,9 @@ bool HIR_global::match(HIR_node* in)
     return true;
 }
 
-bool HIR_global::equals(HIR_node* in)
+bool Global::equals(Node* in)
 {
-    HIR_global* that = dynamic_cast<HIR_global*>(in);
+    Global* that = dynamic_cast<Global*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -2477,65 +2477,65 @@ bool HIR_global::equals(HIR_node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_global* HIR_global::clone()
+Global* Global::clone()
 {
-    HIR_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_global* clone = new HIR_global(variable_name);
-    clone->HIR_node::clone_mixin_from(this);
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Global* clone = new Global(variable_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_global::assert_valid()
+void Global::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_try::HIR_try(List<HIR_statement*>* statements, List<HIR_catch*>* catches)
+Try::Try(List<Statement*>* statements, List<Catch*>* catches)
 {
     this->statements = statements;
     this->catches = catches;
 }
 
-HIR_try::HIR_try()
+Try::Try()
 {
     this->statements = 0;
     this->catches = 0;
 }
 
-void HIR_try::visit(HIR_visitor* visitor)
+void Try::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_try::transform_children(HIR_transform* transform)
+void Try::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_try::classid()
+int Try::classid()
 {
     return ID;
 }
 
-bool HIR_try::match(HIR_node* in)
+bool Try::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_try* that = dynamic_cast<HIR_try*>(in);
+    Try* that = dynamic_cast<Try*>(in);
     if(that == NULL) return false;
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2555,7 +2555,7 @@ bool HIR_try::match(HIR_node* in)
     
     if(this->catches != NULL && that->catches != NULL)
     {
-    	List<HIR_catch*>::const_iterator i, j;
+    	List<Catch*>::const_iterator i, j;
     	for(
     		i = this->catches->begin(), j = that->catches->begin();
     		i != this->catches->end() && j != that->catches->end();
@@ -2576,9 +2576,9 @@ bool HIR_try::match(HIR_node* in)
     return true;
 }
 
-bool HIR_try::equals(HIR_node* in)
+bool Try::equals(Node* in)
 {
-    HIR_try* that = dynamic_cast<HIR_try*>(in);
+    Try* that = dynamic_cast<Try*>(in);
     if(that == NULL) return false;
     
     if(this->statements == NULL || that->statements == NULL)
@@ -2588,7 +2588,7 @@ bool HIR_try::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_statement*>::const_iterator i, j;
+    	List<Statement*>::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2613,7 +2613,7 @@ bool HIR_try::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_catch*>::const_iterator i, j;
+    	List<Catch*>::const_iterator i, j;
     	for(
     		i = this->catches->begin(), j = that->catches->begin();
     		i != this->catches->end() && j != that->catches->end();
@@ -2631,38 +2631,38 @@ bool HIR_try::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_try* HIR_try::clone()
+Try* Try::clone()
 {
-    List<HIR_statement*>* statements = NULL;
+    List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<HIR_statement*>::const_iterator i;
-    	statements = new List<HIR_statement*>;
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<HIR_catch*>* catches = NULL;
+    List<Catch*>* catches = NULL;
     if(this->catches != NULL)
     {
-    	List<HIR_catch*>::const_iterator i;
-    	catches = new List<HIR_catch*>;
+    	List<Catch*>::const_iterator i;
+    	catches = new List<Catch*>;
     	for(i = this->catches->begin(); i != this->catches->end(); i++)
     		catches->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_try* clone = new HIR_try(statements, catches);
-    clone->HIR_node::clone_mixin_from(this);
+    Try* clone = new Try(statements, catches);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_try::assert_valid()
+void Try::assert_valid()
 {
     assert(statements != NULL);
     {
-    	List<HIR_statement*>::const_iterator i;
+    	List<Statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -2671,49 +2671,49 @@ void HIR_try::assert_valid()
     }
     assert(catches != NULL);
     {
-    	List<HIR_catch*>::const_iterator i;
+    	List<Catch*>::const_iterator i;
     	for(i = this->catches->begin(); i != this->catches->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_throw::HIR_throw(HIR_expr* expr)
+Throw::Throw(Expr* expr)
 {
     this->expr = expr;
 }
 
-HIR_throw::HIR_throw()
+Throw::Throw()
 {
     this->expr = 0;
 }
 
-void HIR_throw::visit(HIR_visitor* visitor)
+void Throw::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_throw::transform_children(HIR_transform* transform)
+void Throw::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_throw::classid()
+int Throw::classid()
 {
     return ID;
 }
 
-bool HIR_throw::match(HIR_node* in)
+bool Throw::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_throw* that = dynamic_cast<HIR_throw*>(in);
+    Throw* that = dynamic_cast<Throw*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL)
@@ -2727,9 +2727,9 @@ bool HIR_throw::match(HIR_node* in)
     return true;
 }
 
-bool HIR_throw::equals(HIR_node* in)
+bool Throw::equals(Node* in)
 {
-    HIR_throw* that = dynamic_cast<HIR_throw*>(in);
+    Throw* that = dynamic_cast<Throw*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL || that->expr == NULL)
@@ -2740,60 +2740,60 @@ bool HIR_throw::equals(HIR_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_throw* HIR_throw::clone()
+Throw* Throw::clone()
 {
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_throw* clone = new HIR_throw(expr);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Throw* clone = new Throw(expr);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_throw::assert_valid()
+void Throw::assert_valid()
 {
     assert(expr != NULL);
     expr->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_eval_expr::HIR_eval_expr(HIR_expr* expr)
+Eval_expr::Eval_expr(Expr* expr)
 {
     this->expr = expr;
     _init();
 }
 
-HIR_eval_expr::HIR_eval_expr()
+Eval_expr::Eval_expr()
 {
     this->expr = 0;
     _init();
 }
 
-void HIR_eval_expr::visit(HIR_visitor* visitor)
+void Eval_expr::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_eval_expr::transform_children(HIR_transform* transform)
+void Eval_expr::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_eval_expr::classid()
+int Eval_expr::classid()
 {
     return ID;
 }
 
-bool HIR_eval_expr::match(HIR_node* in)
+bool Eval_expr::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_eval_expr* that = dynamic_cast<HIR_eval_expr*>(in);
+    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL)
@@ -2807,9 +2807,9 @@ bool HIR_eval_expr::match(HIR_node* in)
     return true;
 }
 
-bool HIR_eval_expr::equals(HIR_node* in)
+bool Eval_expr::equals(Node* in)
 {
-    HIR_eval_expr* that = dynamic_cast<HIR_eval_expr*>(in);
+    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL || that->expr == NULL)
@@ -2820,69 +2820,69 @@ bool HIR_eval_expr::equals(HIR_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_eval_expr* HIR_eval_expr::clone()
+Eval_expr* Eval_expr::clone()
 {
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_eval_expr* clone = new HIR_eval_expr(expr);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Eval_expr* clone = new Eval_expr(expr);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_eval_expr::assert_valid()
+void Eval_expr::assert_valid()
 {
     assert(expr != NULL);
     expr->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-void HIR_eval_expr::_init()
+void Eval_expr::_init()
 {
     {
 		assert (expr != NULL);
 	}
 }
 
-HIR_branch::HIR_branch(HIR_expr* expr, Token_label_name* iftrue, Token_label_name* iffalse)
+Branch::Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
 {
     this->expr = expr;
     this->iftrue = iftrue;
     this->iffalse = iffalse;
 }
 
-HIR_branch::HIR_branch()
+Branch::Branch()
 {
     this->expr = 0;
     this->iftrue = 0;
     this->iffalse = 0;
 }
 
-void HIR_branch::visit(HIR_visitor* visitor)
+void Branch::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_branch::transform_children(HIR_transform* transform)
+void Branch::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_branch::classid()
+int Branch::classid()
 {
     return ID;
 }
 
-bool HIR_branch::match(HIR_node* in)
+bool Branch::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_branch* that = dynamic_cast<HIR_branch*>(in);
+    Branch* that = dynamic_cast<Branch*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL)
@@ -2912,9 +2912,9 @@ bool HIR_branch::match(HIR_node* in)
     return true;
 }
 
-bool HIR_branch::equals(HIR_node* in)
+bool Branch::equals(Node* in)
 {
-    HIR_branch* that = dynamic_cast<HIR_branch*>(in);
+    Branch* that = dynamic_cast<Branch*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL || that->expr == NULL)
@@ -2941,21 +2941,21 @@ bool HIR_branch::equals(HIR_node* in)
     else if(!this->iffalse->equals(that->iffalse))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_branch* HIR_branch::clone()
+Branch* Branch::clone()
 {
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    Token_label_name* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
-    Token_label_name* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    HIR_branch* clone = new HIR_branch(expr, iftrue, iffalse);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    LABEL_NAME* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
+    LABEL_NAME* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
+    Branch* clone = new Branch(expr, iftrue, iffalse);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_branch::assert_valid()
+void Branch::assert_valid()
 {
     assert(expr != NULL);
     expr->assert_valid();
@@ -2963,42 +2963,42 @@ void HIR_branch::assert_valid()
     iftrue->assert_valid();
     assert(iffalse != NULL);
     iffalse->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_goto::HIR_goto(Token_label_name* label_name)
+Goto::Goto(LABEL_NAME* label_name)
 {
     this->label_name = label_name;
 }
 
-HIR_goto::HIR_goto()
+Goto::Goto()
 {
     this->label_name = 0;
 }
 
-void HIR_goto::visit(HIR_visitor* visitor)
+void Goto::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_goto::transform_children(HIR_transform* transform)
+void Goto::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_goto::classid()
+int Goto::classid()
 {
     return ID;
 }
 
-bool HIR_goto::match(HIR_node* in)
+bool Goto::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_goto* that = dynamic_cast<HIR_goto*>(in);
+    Goto* that = dynamic_cast<Goto*>(in);
     if(that == NULL) return false;
     
     if(this->label_name == NULL)
@@ -3012,9 +3012,9 @@ bool HIR_goto::match(HIR_node* in)
     return true;
 }
 
-bool HIR_goto::equals(HIR_node* in)
+bool Goto::equals(Node* in)
 {
-    HIR_goto* that = dynamic_cast<HIR_goto*>(in);
+    Goto* that = dynamic_cast<Goto*>(in);
     if(that == NULL) return false;
     
     if(this->label_name == NULL || that->label_name == NULL)
@@ -3025,58 +3025,58 @@ bool HIR_goto::equals(HIR_node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_goto* HIR_goto::clone()
+Goto* Goto::clone()
 {
-    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
-    HIR_goto* clone = new HIR_goto(label_name);
-    clone->HIR_node::clone_mixin_from(this);
+    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
+    Goto* clone = new Goto(label_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_goto::assert_valid()
+void Goto::assert_valid()
 {
     assert(label_name != NULL);
     label_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_label::HIR_label(Token_label_name* label_name)
+Label::Label(LABEL_NAME* label_name)
 {
     this->label_name = label_name;
 }
 
-HIR_label::HIR_label()
+Label::Label()
 {
     this->label_name = 0;
 }
 
-void HIR_label::visit(HIR_visitor* visitor)
+void Label::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_label::transform_children(HIR_transform* transform)
+void Label::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_label::classid()
+int Label::classid()
 {
     return ID;
 }
 
-bool HIR_label::match(HIR_node* in)
+bool Label::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_label* that = dynamic_cast<HIR_label*>(in);
+    Label* that = dynamic_cast<Label*>(in);
     if(that == NULL) return false;
     
     if(this->label_name == NULL)
@@ -3090,9 +3090,9 @@ bool HIR_label::match(HIR_node* in)
     return true;
 }
 
-bool HIR_label::equals(HIR_node* in)
+bool Label::equals(Node* in)
 {
-    HIR_label* that = dynamic_cast<HIR_label*>(in);
+    Label* that = dynamic_cast<Label*>(in);
     if(that == NULL) return false;
     
     if(this->label_name == NULL || that->label_name == NULL)
@@ -3103,60 +3103,60 @@ bool HIR_label::equals(HIR_node* in)
     else if(!this->label_name->equals(that->label_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_label* HIR_label::clone()
+Label* Label::clone()
 {
-    Token_label_name* label_name = this->label_name ? this->label_name->clone() : NULL;
-    HIR_label* clone = new HIR_label(label_name);
-    clone->HIR_node::clone_mixin_from(this);
+    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
+    Label* clone = new Label(label_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_label::assert_valid()
+void Label::assert_valid()
 {
     assert(label_name != NULL);
     label_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_reset::HIR_foreach_reset(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_reset::Foreach_reset(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_reset::HIR_foreach_reset()
+Foreach_reset::Foreach_reset()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_reset::visit(HIR_visitor* visitor)
+void Foreach_reset::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_foreach_reset::transform_children(HIR_transform* transform)
+void Foreach_reset::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_foreach_reset::classid()
+int Foreach_reset::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_reset::match(HIR_node* in)
+bool Foreach_reset::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_reset* that = dynamic_cast<HIR_foreach_reset*>(in);
+    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -3178,9 +3178,9 @@ bool HIR_foreach_reset::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_reset::equals(HIR_node* in)
+bool Foreach_reset::equals(Node* in)
 {
-    HIR_foreach_reset* that = dynamic_cast<HIR_foreach_reset*>(in);
+    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -3199,63 +3199,63 @@ bool HIR_foreach_reset::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_reset* HIR_foreach_reset::clone()
+Foreach_reset* Foreach_reset::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_reset* clone = new HIR_foreach_reset(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_reset* clone = new Foreach_reset(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_reset::assert_valid()
+void Foreach_reset::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_next::HIR_foreach_next(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_next::Foreach_next(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_next::HIR_foreach_next()
+Foreach_next::Foreach_next()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_next::visit(HIR_visitor* visitor)
+void Foreach_next::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_foreach_next::transform_children(HIR_transform* transform)
+void Foreach_next::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_foreach_next::classid()
+int Foreach_next::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_next::match(HIR_node* in)
+bool Foreach_next::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_next* that = dynamic_cast<HIR_foreach_next*>(in);
+    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -3277,9 +3277,9 @@ bool HIR_foreach_next::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_next::equals(HIR_node* in)
+bool Foreach_next::equals(Node* in)
 {
-    HIR_foreach_next* that = dynamic_cast<HIR_foreach_next*>(in);
+    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -3298,63 +3298,63 @@ bool HIR_foreach_next::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_next* HIR_foreach_next::clone()
+Foreach_next* Foreach_next::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_next* clone = new HIR_foreach_next(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_next* clone = new Foreach_next(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_next::assert_valid()
+void Foreach_next::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_end::HIR_foreach_end(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_end::Foreach_end(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_end::HIR_foreach_end()
+Foreach_end::Foreach_end()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_end::visit(HIR_visitor* visitor)
+void Foreach_end::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void HIR_foreach_end::transform_children(HIR_transform* transform)
+void Foreach_end::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int HIR_foreach_end::classid()
+int Foreach_end::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_end::match(HIR_node* in)
+bool Foreach_end::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_end* that = dynamic_cast<HIR_foreach_end*>(in);
+    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -3376,9 +3376,9 @@ bool HIR_foreach_end::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_end::equals(HIR_node* in)
+bool Foreach_end::equals(Node* in)
 {
-    HIR_foreach_end* that = dynamic_cast<HIR_foreach_end*>(in);
+    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -3397,65 +3397,65 @@ bool HIR_foreach_end::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_end* HIR_foreach_end::clone()
+Foreach_end* Foreach_end::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_end* clone = new HIR_foreach_end(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_end* clone = new Foreach_end(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_end::assert_valid()
+void Foreach_end::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_expr::HIR_expr()
+Expr::Expr()
 {
 }
 
-HIR_reflection::HIR_reflection(Token_variable_name* variable_name)
+Reflection::Reflection(VARIABLE_NAME* variable_name)
 {
     this->variable_name = variable_name;
 }
 
-HIR_reflection::HIR_reflection()
+Reflection::Reflection()
 {
     this->variable_name = 0;
 }
 
-void HIR_reflection::visit(HIR_visitor* visitor)
+void Reflection::visit(Visitor* visitor)
 {
     visitor->visit_class_name(this);
 }
 
-void HIR_reflection::transform_children(HIR_transform* transform)
+void Reflection::transform_children(Transform* transform)
 {
     transform->children_class_name(this);
 }
 
-int HIR_reflection::classid()
+int Reflection::classid()
 {
     return ID;
 }
 
-bool HIR_reflection::match(HIR_node* in)
+bool Reflection::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_reflection* that = dynamic_cast<HIR_reflection*>(in);
+    Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -3469,9 +3469,9 @@ bool HIR_reflection::match(HIR_node* in)
     return true;
 }
 
-bool HIR_reflection::equals(HIR_node* in)
+bool Reflection::equals(Node* in)
 {
-    HIR_reflection* that = dynamic_cast<HIR_reflection*>(in);
+    Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -3482,63 +3482,63 @@ bool HIR_reflection::equals(HIR_node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_reflection* HIR_reflection::clone()
+Reflection* Reflection::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_reflection* clone = new HIR_reflection(variable_name);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Reflection* clone = new Reflection(variable_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_reflection::assert_valid()
+void Reflection::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_class_name::Token_class_name(String* value)
+CLASS_NAME::CLASS_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_class_name::Token_class_name()
+CLASS_NAME::CLASS_NAME()
 {
     this->value = 0;
 }
 
-void Token_class_name::visit(HIR_visitor* visitor)
+void CLASS_NAME::visit(Visitor* visitor)
 {
     visitor->visit_class_name(this);
 }
 
-void Token_class_name::transform_children(HIR_transform* transform)
+void CLASS_NAME::transform_children(Transform* transform)
 {
     transform->children_class_name(this);
 }
 
-String* Token_class_name::get_value_as_string()
+String* CLASS_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_class_name::classid()
+int CLASS_NAME::classid()
 {
     return ID;
 }
 
-bool Token_class_name::match(HIR_node* in)
+bool CLASS_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_class_name* that = dynamic_cast<Token_class_name*>(in);
+    CLASS_NAME* that = dynamic_cast<CLASS_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3547,9 +3547,9 @@ bool Token_class_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_class_name::equals(HIR_node* in)
+bool CLASS_NAME::equals(Node* in)
 {
-    Token_class_name* that = dynamic_cast<Token_class_name*>(in);
+    CLASS_NAME* that = dynamic_cast<CLASS_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3560,62 +3560,62 @@ bool Token_class_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_class_name* Token_class_name::clone()
+CLASS_NAME* CLASS_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_class_name* clone = new Token_class_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    CLASS_NAME* clone = new CLASS_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_class_name::assert_valid()
+void CLASS_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_interface_name::Token_interface_name(String* value)
+INTERFACE_NAME::INTERFACE_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_interface_name::Token_interface_name()
+INTERFACE_NAME::INTERFACE_NAME()
 {
     this->value = 0;
 }
 
-void Token_interface_name::visit(HIR_visitor* visitor)
+void INTERFACE_NAME::visit(Visitor* visitor)
 {
     visitor->visit_interface_name(this);
 }
 
-void Token_interface_name::transform_children(HIR_transform* transform)
+void INTERFACE_NAME::transform_children(Transform* transform)
 {
     transform->children_interface_name(this);
 }
 
-String* Token_interface_name::get_value_as_string()
+String* INTERFACE_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_interface_name::classid()
+int INTERFACE_NAME::classid()
 {
     return ID;
 }
 
-bool Token_interface_name::match(HIR_node* in)
+bool INTERFACE_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
+    INTERFACE_NAME* that = dynamic_cast<INTERFACE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3624,9 +3624,9 @@ bool Token_interface_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_interface_name::equals(HIR_node* in)
+bool INTERFACE_NAME::equals(Node* in)
 {
-    Token_interface_name* that = dynamic_cast<Token_interface_name*>(in);
+    INTERFACE_NAME* that = dynamic_cast<INTERFACE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3637,62 +3637,62 @@ bool Token_interface_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_interface_name* Token_interface_name::clone()
+INTERFACE_NAME* INTERFACE_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_interface_name* clone = new Token_interface_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    INTERFACE_NAME* clone = new INTERFACE_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_interface_name::assert_valid()
+void INTERFACE_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_method_name::Token_method_name(String* value)
+METHOD_NAME::METHOD_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_method_name::Token_method_name()
+METHOD_NAME::METHOD_NAME()
 {
     this->value = 0;
 }
 
-void Token_method_name::visit(HIR_visitor* visitor)
+void METHOD_NAME::visit(Visitor* visitor)
 {
     visitor->visit_method_name(this);
 }
 
-void Token_method_name::transform_children(HIR_transform* transform)
+void METHOD_NAME::transform_children(Transform* transform)
 {
     transform->children_method_name(this);
 }
 
-String* Token_method_name::get_value_as_string()
+String* METHOD_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_method_name::classid()
+int METHOD_NAME::classid()
 {
     return ID;
 }
 
-bool Token_method_name::match(HIR_node* in)
+bool METHOD_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_method_name* that = dynamic_cast<Token_method_name*>(in);
+    METHOD_NAME* that = dynamic_cast<METHOD_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3701,9 +3701,9 @@ bool Token_method_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_method_name::equals(HIR_node* in)
+bool METHOD_NAME::equals(Node* in)
 {
-    Token_method_name* that = dynamic_cast<Token_method_name*>(in);
+    METHOD_NAME* that = dynamic_cast<METHOD_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3714,62 +3714,62 @@ bool Token_method_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_method_name* Token_method_name::clone()
+METHOD_NAME* METHOD_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_method_name* clone = new Token_method_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    METHOD_NAME* clone = new METHOD_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_method_name::assert_valid()
+void METHOD_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_variable_name::Token_variable_name(String* value)
+VARIABLE_NAME::VARIABLE_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_variable_name::Token_variable_name()
+VARIABLE_NAME::VARIABLE_NAME()
 {
     this->value = 0;
 }
 
-void Token_variable_name::visit(HIR_visitor* visitor)
+void VARIABLE_NAME::visit(Visitor* visitor)
 {
     visitor->visit_variable_name(this);
 }
 
-void Token_variable_name::transform_children(HIR_transform* transform)
+void VARIABLE_NAME::transform_children(Transform* transform)
 {
     transform->children_variable_name(this);
 }
 
-String* Token_variable_name::get_value_as_string()
+String* VARIABLE_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_variable_name::classid()
+int VARIABLE_NAME::classid()
 {
     return ID;
 }
 
-bool Token_variable_name::match(HIR_node* in)
+bool VARIABLE_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_variable_name* that = dynamic_cast<Token_variable_name*>(in);
+    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3778,9 +3778,9 @@ bool Token_variable_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_variable_name::equals(HIR_node* in)
+bool VARIABLE_NAME::equals(Node* in)
 {
-    Token_variable_name* that = dynamic_cast<Token_variable_name*>(in);
+    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3791,62 +3791,62 @@ bool Token_variable_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_variable_name* Token_variable_name::clone()
+VARIABLE_NAME* VARIABLE_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_variable_name* clone = new Token_variable_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* clone = new VARIABLE_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_variable_name::assert_valid()
+void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_label_name::Token_label_name(String* value)
+LABEL_NAME::LABEL_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_label_name::Token_label_name()
+LABEL_NAME::LABEL_NAME()
 {
     this->value = 0;
 }
 
-void Token_label_name::visit(HIR_visitor* visitor)
+void LABEL_NAME::visit(Visitor* visitor)
 {
     visitor->visit_label_name(this);
 }
 
-void Token_label_name::transform_children(HIR_transform* transform)
+void LABEL_NAME::transform_children(Transform* transform)
 {
     transform->children_label_name(this);
 }
 
-String* Token_label_name::get_value_as_string()
+String* LABEL_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_label_name::classid()
+int LABEL_NAME::classid()
 {
     return ID;
 }
 
-bool Token_label_name::match(HIR_node* in)
+bool LABEL_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    LABEL_NAME* that = dynamic_cast<LABEL_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3855,9 +3855,9 @@ bool Token_label_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_label_name::equals(HIR_node* in)
+bool LABEL_NAME::equals(Node* in)
 {
-    Token_label_name* that = dynamic_cast<Token_label_name*>(in);
+    LABEL_NAME* that = dynamic_cast<LABEL_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3868,62 +3868,62 @@ bool Token_label_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_label_name* Token_label_name::clone()
+LABEL_NAME* LABEL_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_label_name* clone = new Token_label_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    LABEL_NAME* clone = new LABEL_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_label_name::assert_valid()
+void LABEL_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_ht_iterator::Token_ht_iterator(String* value)
+HT_ITERATOR::HT_ITERATOR(String* value)
 {
     this->value = value;
 }
 
-Token_ht_iterator::Token_ht_iterator()
+HT_ITERATOR::HT_ITERATOR()
 {
     this->value = 0;
 }
 
-void Token_ht_iterator::visit(HIR_visitor* visitor)
+void HT_ITERATOR::visit(Visitor* visitor)
 {
     visitor->visit_ht_iterator(this);
 }
 
-void Token_ht_iterator::transform_children(HIR_transform* transform)
+void HT_ITERATOR::transform_children(Transform* transform)
 {
     transform->children_ht_iterator(this);
 }
 
-String* Token_ht_iterator::get_value_as_string()
+String* HT_ITERATOR::get_value_as_string()
 {
     return value;
 }
 
-int Token_ht_iterator::classid()
+int HT_ITERATOR::classid()
 {
     return ID;
 }
 
-bool Token_ht_iterator::match(HIR_node* in)
+bool HT_ITERATOR::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_ht_iterator* that = dynamic_cast<Token_ht_iterator*>(in);
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -3932,9 +3932,9 @@ bool Token_ht_iterator::match(HIR_node* in)
     	return true;
 }
 
-bool Token_ht_iterator::equals(HIR_node* in)
+bool HT_ITERATOR::equals(Node* in)
 {
-    Token_ht_iterator* that = dynamic_cast<Token_ht_iterator*>(in);
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -3945,62 +3945,62 @@ bool Token_ht_iterator::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_ht_iterator* Token_ht_iterator::clone()
+HT_ITERATOR* HT_ITERATOR::clone()
 {
     String* value = new String(*this->value);
-    Token_ht_iterator* clone = new Token_ht_iterator(value);
-    clone->HIR_node::clone_mixin_from(this);
+    HT_ITERATOR* clone = new HT_ITERATOR(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_ht_iterator::assert_valid()
+void HT_ITERATOR::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_cast::Token_cast(String* value)
+CAST::CAST(String* value)
 {
     this->value = value;
 }
 
-Token_cast::Token_cast()
+CAST::CAST()
 {
     this->value = 0;
 }
 
-void Token_cast::visit(HIR_visitor* visitor)
+void CAST::visit(Visitor* visitor)
 {
     visitor->visit_cast(this);
 }
 
-void Token_cast::transform_children(HIR_transform* transform)
+void CAST::transform_children(Transform* transform)
 {
     transform->children_cast(this);
 }
 
-String* Token_cast::get_value_as_string()
+String* CAST::get_value_as_string()
 {
     return value;
 }
 
-int Token_cast::classid()
+int CAST::classid()
 {
     return ID;
 }
 
-bool Token_cast::match(HIR_node* in)
+bool CAST::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_cast* that = dynamic_cast<Token_cast*>(in);
+    CAST* that = dynamic_cast<CAST*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -4009,9 +4009,9 @@ bool Token_cast::match(HIR_node* in)
     	return true;
 }
 
-bool Token_cast::equals(HIR_node* in)
+bool CAST::equals(Node* in)
 {
-    Token_cast* that = dynamic_cast<Token_cast*>(in);
+    CAST* that = dynamic_cast<CAST*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -4022,62 +4022,62 @@ bool Token_cast::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_cast* Token_cast::clone()
+CAST* CAST::clone()
 {
     String* value = new String(*this->value);
-    Token_cast* clone = new Token_cast(value);
-    clone->HIR_node::clone_mixin_from(this);
+    CAST* clone = new CAST(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_cast::assert_valid()
+void CAST::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_op::Token_op(String* value)
+OP::OP(String* value)
 {
     this->value = value;
 }
 
-Token_op::Token_op()
+OP::OP()
 {
     this->value = 0;
 }
 
-void Token_op::visit(HIR_visitor* visitor)
+void OP::visit(Visitor* visitor)
 {
     visitor->visit_op(this);
 }
 
-void Token_op::transform_children(HIR_transform* transform)
+void OP::transform_children(Transform* transform)
 {
     transform->children_op(this);
 }
 
-String* Token_op::get_value_as_string()
+String* OP::get_value_as_string()
 {
     return value;
 }
 
-int Token_op::classid()
+int OP::classid()
 {
     return ID;
 }
 
-bool Token_op::match(HIR_node* in)
+bool OP::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_op* that = dynamic_cast<Token_op*>(in);
+    OP* that = dynamic_cast<OP*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -4086,9 +4086,9 @@ bool Token_op::match(HIR_node* in)
     	return true;
 }
 
-bool Token_op::equals(HIR_node* in)
+bool OP::equals(Node* in)
 {
-    Token_op* that = dynamic_cast<Token_op*>(in);
+    OP* that = dynamic_cast<OP*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -4099,62 +4099,62 @@ bool Token_op::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_op* Token_op::clone()
+OP* OP::clone()
 {
     String* value = new String(*this->value);
-    Token_op* clone = new Token_op(value);
-    clone->HIR_node::clone_mixin_from(this);
+    OP* clone = new OP(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_op::assert_valid()
+void OP::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_constant_name::Token_constant_name(String* value)
+CONSTANT_NAME::CONSTANT_NAME(String* value)
 {
     this->value = value;
 }
 
-Token_constant_name::Token_constant_name()
+CONSTANT_NAME::CONSTANT_NAME()
 {
     this->value = 0;
 }
 
-void Token_constant_name::visit(HIR_visitor* visitor)
+void CONSTANT_NAME::visit(Visitor* visitor)
 {
     visitor->visit_constant_name(this);
 }
 
-void Token_constant_name::transform_children(HIR_transform* transform)
+void CONSTANT_NAME::transform_children(Transform* transform)
 {
     transform->children_constant_name(this);
 }
 
-String* Token_constant_name::get_value_as_string()
+String* CONSTANT_NAME::get_value_as_string()
 {
     return value;
 }
 
-int Token_constant_name::classid()
+int CONSTANT_NAME::classid()
 {
     return ID;
 }
 
-bool Token_constant_name::match(HIR_node* in)
+bool CONSTANT_NAME::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_constant_name* that = dynamic_cast<Token_constant_name*>(in);
+    CONSTANT_NAME* that = dynamic_cast<CONSTANT_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value != NULL && that->value != NULL)
@@ -4163,9 +4163,9 @@ bool Token_constant_name::match(HIR_node* in)
     	return true;
 }
 
-bool Token_constant_name::equals(HIR_node* in)
+bool CONSTANT_NAME::equals(Node* in)
 {
-    Token_constant_name* that = dynamic_cast<Token_constant_name*>(in);
+    CONSTANT_NAME* that = dynamic_cast<CONSTANT_NAME*>(in);
     if(that == NULL) return false;
     
     if(this->value == NULL || that->value == NULL)
@@ -4176,59 +4176,59 @@ bool Token_constant_name::equals(HIR_node* in)
     else if(*this->value != *that->value)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_constant_name* Token_constant_name::clone()
+CONSTANT_NAME* CONSTANT_NAME::clone()
 {
     String* value = new String(*this->value);
-    Token_constant_name* clone = new Token_constant_name(value);
-    clone->HIR_node::clone_mixin_from(this);
+    CONSTANT_NAME* clone = new CONSTANT_NAME(value);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_constant_name::assert_valid()
+void CONSTANT_NAME::assert_valid()
 {
     assert(value != NULL);
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_has_key::HIR_foreach_has_key(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_has_key::Foreach_has_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_has_key::HIR_foreach_has_key()
+Foreach_has_key::Foreach_has_key()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_has_key::visit(HIR_visitor* visitor)
+void Foreach_has_key::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_foreach_has_key::transform_children(HIR_transform* transform)
+void Foreach_has_key::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_foreach_has_key::classid()
+int Foreach_has_key::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_has_key::match(HIR_node* in)
+bool Foreach_has_key::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_has_key* that = dynamic_cast<HIR_foreach_has_key*>(in);
+    Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -4250,9 +4250,9 @@ bool HIR_foreach_has_key::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_has_key::equals(HIR_node* in)
+bool Foreach_has_key::equals(Node* in)
 {
-    HIR_foreach_has_key* that = dynamic_cast<HIR_foreach_has_key*>(in);
+    Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -4271,63 +4271,63 @@ bool HIR_foreach_has_key::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_has_key* HIR_foreach_has_key::clone()
+Foreach_has_key* Foreach_has_key::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_has_key* clone = new HIR_foreach_has_key(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_has_key* clone = new Foreach_has_key(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_has_key::assert_valid()
+void Foreach_has_key::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_get_key::HIR_foreach_get_key(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_get_key::Foreach_get_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_get_key::HIR_foreach_get_key()
+Foreach_get_key::Foreach_get_key()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_get_key::visit(HIR_visitor* visitor)
+void Foreach_get_key::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_foreach_get_key::transform_children(HIR_transform* transform)
+void Foreach_get_key::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_foreach_get_key::classid()
+int Foreach_get_key::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_get_key::match(HIR_node* in)
+bool Foreach_get_key::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_get_key* that = dynamic_cast<HIR_foreach_get_key*>(in);
+    Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -4349,9 +4349,9 @@ bool HIR_foreach_get_key::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_get_key::equals(HIR_node* in)
+bool Foreach_get_key::equals(Node* in)
 {
-    HIR_foreach_get_key* that = dynamic_cast<HIR_foreach_get_key*>(in);
+    Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -4370,63 +4370,63 @@ bool HIR_foreach_get_key::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_get_key* HIR_foreach_get_key::clone()
+Foreach_get_key* Foreach_get_key::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_get_key* clone = new HIR_foreach_get_key(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_get_key* clone = new Foreach_get_key(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_get_key::assert_valid()
+void Foreach_get_key::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_foreach_get_data::HIR_foreach_get_data(Token_variable_name* variable_name, Token_ht_iterator* ht_iterator)
+Foreach_get_data::Foreach_get_data(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
 {
     this->variable_name = variable_name;
     this->ht_iterator = ht_iterator;
 }
 
-HIR_foreach_get_data::HIR_foreach_get_data()
+Foreach_get_data::Foreach_get_data()
 {
     this->variable_name = 0;
     this->ht_iterator = 0;
 }
 
-void HIR_foreach_get_data::visit(HIR_visitor* visitor)
+void Foreach_get_data::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_foreach_get_data::transform_children(HIR_transform* transform)
+void Foreach_get_data::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_foreach_get_data::classid()
+int Foreach_get_data::classid()
 {
     return ID;
 }
 
-bool HIR_foreach_get_data::match(HIR_node* in)
+bool Foreach_get_data::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_foreach_get_data* that = dynamic_cast<HIR_foreach_get_data*>(in);
+    Foreach_get_data* that = dynamic_cast<Foreach_get_data*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -4448,9 +4448,9 @@ bool HIR_foreach_get_data::match(HIR_node* in)
     return true;
 }
 
-bool HIR_foreach_get_data::equals(HIR_node* in)
+bool Foreach_get_data::equals(Node* in)
 {
-    HIR_foreach_get_data* that = dynamic_cast<HIR_foreach_get_data*>(in);
+    Foreach_get_data* that = dynamic_cast<Foreach_get_data*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -4469,69 +4469,69 @@ bool HIR_foreach_get_data::equals(HIR_node* in)
     else if(!this->ht_iterator->equals(that->ht_iterator))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_foreach_get_data* HIR_foreach_get_data::clone()
+Foreach_get_data* Foreach_get_data::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Token_ht_iterator* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    HIR_foreach_get_data* clone = new HIR_foreach_get_data(variable_name, ht_iterator);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
+    Foreach_get_data* clone = new Foreach_get_data(variable_name, ht_iterator);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_foreach_get_data::assert_valid()
+void Foreach_get_data::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_literal::HIR_literal()
+Literal::Literal()
 {
 }
 
-HIR_assignment::HIR_assignment(HIR_variable* variable, bool is_ref, HIR_expr* expr)
+Assignment::Assignment(Variable* variable, bool is_ref, Expr* expr)
 {
     this->variable = variable;
     this->is_ref = is_ref;
     this->expr = expr;
 }
 
-HIR_assignment::HIR_assignment()
+Assignment::Assignment()
 {
     this->variable = 0;
     this->is_ref = 0;
     this->expr = 0;
 }
 
-void HIR_assignment::visit(HIR_visitor* visitor)
+void Assignment::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_assignment::transform_children(HIR_transform* transform)
+void Assignment::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_assignment::classid()
+int Assignment::classid()
 {
     return ID;
 }
 
-bool HIR_assignment::match(HIR_node* in)
+bool Assignment::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_assignment* that = dynamic_cast<HIR_assignment*>(in);
+    Assignment* that = dynamic_cast<Assignment*>(in);
     if(that == NULL) return false;
     
     if(this->variable == NULL)
@@ -4554,9 +4554,9 @@ bool HIR_assignment::match(HIR_node* in)
     return true;
 }
 
-bool HIR_assignment::equals(HIR_node* in)
+bool Assignment::equals(Node* in)
 {
-    HIR_assignment* that = dynamic_cast<HIR_assignment*>(in);
+    Assignment* that = dynamic_cast<Assignment*>(in);
     if(that == NULL) return false;
     
     if(this->variable == NULL || that->variable == NULL)
@@ -4578,64 +4578,64 @@ bool HIR_assignment::equals(HIR_node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_assignment* HIR_assignment::clone()
+Assignment* Assignment::clone()
 {
-    HIR_variable* variable = this->variable ? this->variable->clone() : NULL;
+    Variable* variable = this->variable ? this->variable->clone() : NULL;
     bool is_ref = this->is_ref;
-    HIR_expr* expr = this->expr ? this->expr->clone() : NULL;
-    HIR_assignment* clone = new HIR_assignment(variable, is_ref, expr);
-    clone->HIR_node::clone_mixin_from(this);
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Assignment* clone = new Assignment(variable, is_ref, expr);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_assignment::assert_valid()
+void Assignment::assert_valid()
 {
     assert(variable != NULL);
     variable->assert_valid();
     assert(expr != NULL);
     expr->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_cast::HIR_cast(Token_cast* cast, Token_variable_name* variable_name)
+Cast::Cast(CAST* cast, VARIABLE_NAME* variable_name)
 {
     this->cast = cast;
     this->variable_name = variable_name;
 }
 
-HIR_cast::HIR_cast()
+Cast::Cast()
 {
     this->cast = 0;
     this->variable_name = 0;
 }
 
-void HIR_cast::visit(HIR_visitor* visitor)
+void Cast::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_cast::transform_children(HIR_transform* transform)
+void Cast::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_cast::classid()
+int Cast::classid()
 {
     return ID;
 }
 
-bool HIR_cast::match(HIR_node* in)
+bool Cast::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_cast* that = dynamic_cast<HIR_cast*>(in);
+    Cast* that = dynamic_cast<Cast*>(in);
     if(that == NULL) return false;
     
     if(this->cast == NULL)
@@ -4657,9 +4657,9 @@ bool HIR_cast::match(HIR_node* in)
     return true;
 }
 
-bool HIR_cast::equals(HIR_node* in)
+bool Cast::equals(Node* in)
 {
-    HIR_cast* that = dynamic_cast<HIR_cast*>(in);
+    Cast* that = dynamic_cast<Cast*>(in);
     if(that == NULL) return false;
     
     if(this->cast == NULL || that->cast == NULL)
@@ -4678,71 +4678,71 @@ bool HIR_cast::equals(HIR_node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_cast* HIR_cast::clone()
+Cast* Cast::clone()
 {
-    Token_cast* cast = this->cast ? this->cast->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_cast* clone = new HIR_cast(cast, variable_name);
-    clone->HIR_node::clone_mixin_from(this);
+    CAST* cast = this->cast ? this->cast->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Cast* clone = new Cast(cast, variable_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_cast::assert_valid()
+void Cast::assert_valid()
 {
     assert(cast != NULL);
     cast->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_cast::HIR_cast(const char* cast, Token_variable_name* variable_name)
+Cast::Cast(const char* cast, VARIABLE_NAME* variable_name)
 {
     {
-		this->cast = new Token_cast(new String(cast));
+		this->cast = new CAST(new String(cast));
 		this->variable_name = variable_name;
 	}
 }
 
-HIR_unary_op::HIR_unary_op(Token_op* op, Token_variable_name* variable_name)
+Unary_op::Unary_op(OP* op, VARIABLE_NAME* variable_name)
 {
     this->op = op;
     this->variable_name = variable_name;
 }
 
-HIR_unary_op::HIR_unary_op()
+Unary_op::Unary_op()
 {
     this->op = 0;
     this->variable_name = 0;
 }
 
-void HIR_unary_op::visit(HIR_visitor* visitor)
+void Unary_op::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_unary_op::transform_children(HIR_transform* transform)
+void Unary_op::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_unary_op::classid()
+int Unary_op::classid()
 {
     return ID;
 }
 
-bool HIR_unary_op::match(HIR_node* in)
+bool Unary_op::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_unary_op* that = dynamic_cast<HIR_unary_op*>(in);
+    Unary_op* that = dynamic_cast<Unary_op*>(in);
     if(that == NULL) return false;
     
     if(this->op == NULL)
@@ -4764,9 +4764,9 @@ bool HIR_unary_op::match(HIR_node* in)
     return true;
 }
 
-bool HIR_unary_op::equals(HIR_node* in)
+bool Unary_op::equals(Node* in)
 {
-    HIR_unary_op* that = dynamic_cast<HIR_unary_op*>(in);
+    Unary_op* that = dynamic_cast<Unary_op*>(in);
     if(that == NULL) return false;
     
     if(this->op == NULL || that->op == NULL)
@@ -4785,73 +4785,73 @@ bool HIR_unary_op::equals(HIR_node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_unary_op* HIR_unary_op::clone()
+Unary_op* Unary_op::clone()
 {
-    Token_op* op = this->op ? this->op->clone() : NULL;
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_unary_op* clone = new HIR_unary_op(op, variable_name);
-    clone->HIR_node::clone_mixin_from(this);
+    OP* op = this->op ? this->op->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Unary_op* clone = new Unary_op(op, variable_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_unary_op::assert_valid()
+void Unary_op::assert_valid()
 {
     assert(op != NULL);
     op->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_unary_op::HIR_unary_op(Token_variable_name* variable_name, const char* op)
+Unary_op::Unary_op(VARIABLE_NAME* variable_name, const char* op)
 {
     {
 		this->variable_name = variable_name;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 	}
 }
 
-HIR_bin_op::HIR_bin_op(Token_variable_name* left, Token_op* op, Token_variable_name* right)
+Bin_op::Bin_op(VARIABLE_NAME* left, OP* op, VARIABLE_NAME* right)
 {
     this->left = left;
     this->op = op;
     this->right = right;
 }
 
-HIR_bin_op::HIR_bin_op()
+Bin_op::Bin_op()
 {
     this->left = 0;
     this->op = 0;
     this->right = 0;
 }
 
-void HIR_bin_op::visit(HIR_visitor* visitor)
+void Bin_op::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_bin_op::transform_children(HIR_transform* transform)
+void Bin_op::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_bin_op::classid()
+int Bin_op::classid()
 {
     return ID;
 }
 
-bool HIR_bin_op::match(HIR_node* in)
+bool Bin_op::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_bin_op* that = dynamic_cast<HIR_bin_op*>(in);
+    Bin_op* that = dynamic_cast<Bin_op*>(in);
     if(that == NULL) return false;
     
     if(this->left == NULL)
@@ -4881,9 +4881,9 @@ bool HIR_bin_op::match(HIR_node* in)
     return true;
 }
 
-bool HIR_bin_op::equals(HIR_node* in)
+bool Bin_op::equals(Node* in)
 {
-    HIR_bin_op* that = dynamic_cast<HIR_bin_op*>(in);
+    Bin_op* that = dynamic_cast<Bin_op*>(in);
     if(that == NULL) return false;
     
     if(this->left == NULL || that->left == NULL)
@@ -4910,21 +4910,21 @@ bool HIR_bin_op::equals(HIR_node* in)
     else if(!this->right->equals(that->right))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_bin_op* HIR_bin_op::clone()
+Bin_op* Bin_op::clone()
 {
-    Token_variable_name* left = this->left ? this->left->clone() : NULL;
-    Token_op* op = this->op ? this->op->clone() : NULL;
-    Token_variable_name* right = this->right ? this->right->clone() : NULL;
-    HIR_bin_op* clone = new HIR_bin_op(left, op, right);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* left = this->left ? this->left->clone() : NULL;
+    OP* op = this->op ? this->op->clone() : NULL;
+    VARIABLE_NAME* right = this->right ? this->right->clone() : NULL;
+    Bin_op* clone = new Bin_op(left, op, right);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_bin_op::assert_valid()
+void Bin_op::assert_valid()
 {
     assert(left != NULL);
     left->assert_valid();
@@ -4932,53 +4932,53 @@ void HIR_bin_op::assert_valid()
     op->assert_valid();
     assert(right != NULL);
     right->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_bin_op::HIR_bin_op(Token_variable_name* left, Token_variable_name* right, const char* op)
+Bin_op::Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op)
 {
     {
 		this->left = left;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 		this->right = right;
 	}
 }
 
-HIR_constant::HIR_constant(Token_class_name* class_name, Token_constant_name* constant_name)
+Constant::Constant(CLASS_NAME* class_name, CONSTANT_NAME* constant_name)
 {
     this->class_name = class_name;
     this->constant_name = constant_name;
 }
 
-HIR_constant::HIR_constant()
+Constant::Constant()
 {
     this->class_name = 0;
     this->constant_name = 0;
 }
 
-void HIR_constant::visit(HIR_visitor* visitor)
+void Constant::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_constant::transform_children(HIR_transform* transform)
+void Constant::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_constant::classid()
+int Constant::classid()
 {
     return ID;
 }
 
-bool HIR_constant::match(HIR_node* in)
+bool Constant::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_constant* that = dynamic_cast<HIR_constant*>(in);
+    Constant* that = dynamic_cast<Constant*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL)
@@ -5000,9 +5000,9 @@ bool HIR_constant::match(HIR_node* in)
     return true;
 }
 
-bool HIR_constant::equals(HIR_node* in)
+bool Constant::equals(Node* in)
 {
-    HIR_constant* that = dynamic_cast<HIR_constant*>(in);
+    Constant* that = dynamic_cast<Constant*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -5021,62 +5021,62 @@ bool HIR_constant::equals(HIR_node* in)
     else if(!this->constant_name->equals(that->constant_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_constant* HIR_constant::clone()
+Constant* Constant::clone()
 {
-    Token_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Token_constant_name* constant_name = this->constant_name ? this->constant_name->clone() : NULL;
-    HIR_constant* clone = new HIR_constant(class_name, constant_name);
-    clone->HIR_node::clone_mixin_from(this);
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    CONSTANT_NAME* constant_name = this->constant_name ? this->constant_name->clone() : NULL;
+    Constant* clone = new Constant(class_name, constant_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_constant::assert_valid()
+void Constant::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
     assert(constant_name != NULL);
     constant_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_instanceof::HIR_instanceof(Token_variable_name* variable_name, HIR_class_name* class_name)
+Instanceof::Instanceof(VARIABLE_NAME* variable_name, Class_name* class_name)
 {
     this->variable_name = variable_name;
     this->class_name = class_name;
 }
 
-HIR_instanceof::HIR_instanceof()
+Instanceof::Instanceof()
 {
     this->variable_name = 0;
     this->class_name = 0;
 }
 
-void HIR_instanceof::visit(HIR_visitor* visitor)
+void Instanceof::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_instanceof::transform_children(HIR_transform* transform)
+void Instanceof::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_instanceof::classid()
+int Instanceof::classid()
 {
     return ID;
 }
 
-bool HIR_instanceof::match(HIR_node* in)
+bool Instanceof::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_instanceof* that = dynamic_cast<HIR_instanceof*>(in);
+    Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL)
@@ -5098,9 +5098,9 @@ bool HIR_instanceof::match(HIR_node* in)
     return true;
 }
 
-bool HIR_instanceof::equals(HIR_node* in)
+bool Instanceof::equals(Node* in)
 {
-    HIR_instanceof* that = dynamic_cast<HIR_instanceof*>(in);
+    Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
     if(this->variable_name == NULL || that->variable_name == NULL)
@@ -5119,65 +5119,65 @@ bool HIR_instanceof::equals(HIR_node* in)
     else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_instanceof* HIR_instanceof::clone()
+Instanceof* Instanceof::clone()
 {
-    Token_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    HIR_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    HIR_instanceof* clone = new HIR_instanceof(variable_name, class_name);
-    clone->HIR_node::clone_mixin_from(this);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
+    Instanceof* clone = new Instanceof(variable_name, class_name);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_instanceof::assert_valid()
+void Instanceof::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(class_name != NULL);
     class_name->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_variable::HIR_variable(HIR_target* target, HIR_variable_name* variable_name, List<Token_variable_name*>* array_indices)
+Variable::Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
 {
     this->target = target;
     this->variable_name = variable_name;
     this->array_indices = array_indices;
 }
 
-HIR_variable::HIR_variable()
+Variable::Variable()
 {
     this->target = 0;
     this->variable_name = 0;
     this->array_indices = 0;
 }
 
-void HIR_variable::visit(HIR_visitor* visitor)
+void Variable::visit(Visitor* visitor)
 {
     visitor->visit_variable(this);
 }
 
-void HIR_variable::transform_children(HIR_transform* transform)
+void Variable::transform_children(Transform* transform)
 {
     transform->children_variable(this);
 }
 
-int HIR_variable::classid()
+int Variable::classid()
 {
     return ID;
 }
 
-bool HIR_variable::match(HIR_node* in)
+bool Variable::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_variable* that = dynamic_cast<HIR_variable*>(in);
+    Variable* that = dynamic_cast<Variable*>(in);
     if(that == NULL) return false;
     
     if(this->target == NULL)
@@ -5198,7 +5198,7 @@ bool HIR_variable::match(HIR_node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<Token_variable_name*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -5219,9 +5219,9 @@ bool HIR_variable::match(HIR_node* in)
     return true;
 }
 
-bool HIR_variable::equals(HIR_node* in)
+bool Variable::equals(Node* in)
 {
-    HIR_variable* that = dynamic_cast<HIR_variable*>(in);
+    Variable* that = dynamic_cast<Variable*>(in);
     if(that == NULL) return false;
     
     if(this->target == NULL || that->target == NULL)
@@ -5247,7 +5247,7 @@ bool HIR_variable::equals(HIR_node* in)
     }
     else
     {
-    	List<Token_variable_name*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -5265,87 +5265,87 @@ bool HIR_variable::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_variable* HIR_variable::clone()
+Variable* Variable::clone()
 {
-    HIR_target* target = this->target ? this->target->clone() : NULL;
-    HIR_variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Token_variable_name*>* array_indices = NULL;
+    Target* target = this->target ? this->target->clone() : NULL;
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<VARIABLE_NAME*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<Token_variable_name*>::const_iterator i;
-    	array_indices = new List<Token_variable_name*>;
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	array_indices = new List<VARIABLE_NAME*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_variable* clone = new HIR_variable(target, variable_name, array_indices);
-    clone->HIR_node::clone_mixin_from(this);
+    Variable* clone = new Variable(target, variable_name, array_indices);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_variable::assert_valid()
+void Variable::assert_valid()
 {
     if(target != NULL) target->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<Token_variable_name*>::const_iterator i;
+    	List<VARIABLE_NAME*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_variable::HIR_variable(HIR_variable_name* name)
+Variable::Variable(Variable_name* name)
 {
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Token_variable_name*>;
+		this->array_indices = new List<VARIABLE_NAME*>;
 	}
 }
 
-HIR_pre_op::HIR_pre_op(Token_op* op, HIR_variable* variable)
+Pre_op::Pre_op(OP* op, Variable* variable)
 {
     this->op = op;
     this->variable = variable;
 }
 
-HIR_pre_op::HIR_pre_op()
+Pre_op::Pre_op()
 {
     this->op = 0;
     this->variable = 0;
 }
 
-void HIR_pre_op::visit(HIR_visitor* visitor)
+void Pre_op::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_pre_op::transform_children(HIR_transform* transform)
+void Pre_op::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_pre_op::classid()
+int Pre_op::classid()
 {
     return ID;
 }
 
-bool HIR_pre_op::match(HIR_node* in)
+bool Pre_op::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_pre_op* that = dynamic_cast<HIR_pre_op*>(in);
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
     if(that == NULL) return false;
     
     if(this->op == NULL)
@@ -5367,9 +5367,9 @@ bool HIR_pre_op::match(HIR_node* in)
     return true;
 }
 
-bool HIR_pre_op::equals(HIR_node* in)
+bool Pre_op::equals(Node* in)
 {
-    HIR_pre_op* that = dynamic_cast<HIR_pre_op*>(in);
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
     if(that == NULL) return false;
     
     if(this->op == NULL || that->op == NULL)
@@ -5388,74 +5388,74 @@ bool HIR_pre_op::equals(HIR_node* in)
     else if(!this->variable->equals(that->variable))
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_pre_op* HIR_pre_op::clone()
+Pre_op* Pre_op::clone()
 {
-    Token_op* op = this->op ? this->op->clone() : NULL;
-    HIR_variable* variable = this->variable ? this->variable->clone() : NULL;
-    HIR_pre_op* clone = new HIR_pre_op(op, variable);
-    clone->HIR_node::clone_mixin_from(this);
+    OP* op = this->op ? this->op->clone() : NULL;
+    Variable* variable = this->variable ? this->variable->clone() : NULL;
+    Pre_op* clone = new Pre_op(op, variable);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_pre_op::assert_valid()
+void Pre_op::assert_valid()
 {
     assert(op != NULL);
     op->assert_valid();
     assert(variable != NULL);
     variable->assert_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_pre_op::HIR_pre_op(HIR_variable* var, const char* op)
+Pre_op::Pre_op(Variable* var, const char* op)
 {
     {
 		this->variable = var;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 	}
 }
 
-HIR_array::HIR_array(List<HIR_array_elem*>* array_elems)
+Array::Array(List<Array_elem*>* array_elems)
 {
     this->array_elems = array_elems;
 }
 
-HIR_array::HIR_array()
+Array::Array()
 {
     this->array_elems = 0;
 }
 
-void HIR_array::visit(HIR_visitor* visitor)
+void Array::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_array::transform_children(HIR_transform* transform)
+void Array::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_array::classid()
+int Array::classid()
 {
     return ID;
 }
 
-bool HIR_array::match(HIR_node* in)
+bool Array::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_array* that = dynamic_cast<HIR_array*>(in);
+    Array* that = dynamic_cast<Array*>(in);
     if(that == NULL) return false;
     
     if(this->array_elems != NULL && that->array_elems != NULL)
     {
-    	List<HIR_array_elem*>::const_iterator i, j;
+    	List<Array_elem*>::const_iterator i, j;
     	for(
     		i = this->array_elems->begin(), j = that->array_elems->begin();
     		i != this->array_elems->end() && j != that->array_elems->end();
@@ -5476,9 +5476,9 @@ bool HIR_array::match(HIR_node* in)
     return true;
 }
 
-bool HIR_array::equals(HIR_node* in)
+bool Array::equals(Node* in)
 {
-    HIR_array* that = dynamic_cast<HIR_array*>(in);
+    Array* that = dynamic_cast<Array*>(in);
     if(that == NULL) return false;
     
     if(this->array_elems == NULL || that->array_elems == NULL)
@@ -5488,7 +5488,7 @@ bool HIR_array::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_array_elem*>::const_iterator i, j;
+    	List<Array_elem*>::const_iterator i, j;
     	for(
     		i = this->array_elems->begin(), j = that->array_elems->begin();
     		i != this->array_elems->end() && j != that->array_elems->end();
@@ -5506,76 +5506,76 @@ bool HIR_array::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_array* HIR_array::clone()
+Array* Array::clone()
 {
-    List<HIR_array_elem*>* array_elems = NULL;
+    List<Array_elem*>* array_elems = NULL;
     if(this->array_elems != NULL)
     {
-    	List<HIR_array_elem*>::const_iterator i;
-    	array_elems = new List<HIR_array_elem*>;
+    	List<Array_elem*>::const_iterator i;
+    	array_elems = new List<Array_elem*>;
     	for(i = this->array_elems->begin(); i != this->array_elems->end(); i++)
     		array_elems->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_array* clone = new HIR_array(array_elems);
-    clone->HIR_node::clone_mixin_from(this);
+    Array* clone = new Array(array_elems);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_array::assert_valid()
+void Array::assert_valid()
 {
     assert(array_elems != NULL);
     {
-    	List<HIR_array_elem*>::const_iterator i;
+    	List<Array_elem*>::const_iterator i;
     	for(i = this->array_elems->begin(); i != this->array_elems->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_method_invocation::HIR_method_invocation(HIR_target* target, HIR_method_name* method_name, List<HIR_actual_parameter*>* actual_parameters)
+Method_invocation::Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters)
 {
     this->target = target;
     this->method_name = method_name;
     this->actual_parameters = actual_parameters;
 }
 
-HIR_method_invocation::HIR_method_invocation()
+Method_invocation::Method_invocation()
 {
     this->target = 0;
     this->method_name = 0;
     this->actual_parameters = 0;
 }
 
-void HIR_method_invocation::visit(HIR_visitor* visitor)
+void Method_invocation::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_method_invocation::transform_children(HIR_transform* transform)
+void Method_invocation::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_method_invocation::classid()
+int Method_invocation::classid()
 {
     return ID;
 }
 
-bool HIR_method_invocation::match(HIR_node* in)
+bool Method_invocation::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_method_invocation* that = dynamic_cast<HIR_method_invocation*>(in);
+    Method_invocation* that = dynamic_cast<Method_invocation*>(in);
     if(that == NULL) return false;
     
     if(this->target == NULL)
@@ -5596,7 +5596,7 @@ bool HIR_method_invocation::match(HIR_node* in)
     
     if(this->actual_parameters != NULL && that->actual_parameters != NULL)
     {
-    	List<HIR_actual_parameter*>::const_iterator i, j;
+    	List<Actual_parameter*>::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -5617,9 +5617,9 @@ bool HIR_method_invocation::match(HIR_node* in)
     return true;
 }
 
-bool HIR_method_invocation::equals(HIR_node* in)
+bool Method_invocation::equals(Node* in)
 {
-    HIR_method_invocation* that = dynamic_cast<HIR_method_invocation*>(in);
+    Method_invocation* that = dynamic_cast<Method_invocation*>(in);
     if(that == NULL) return false;
     
     if(this->target == NULL || that->target == NULL)
@@ -5645,7 +5645,7 @@ bool HIR_method_invocation::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_actual_parameter*>::const_iterator i, j;
+    	List<Actual_parameter*>::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -5663,97 +5663,97 @@ bool HIR_method_invocation::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_method_invocation* HIR_method_invocation::clone()
+Method_invocation* Method_invocation::clone()
 {
-    HIR_target* target = this->target ? this->target->clone() : NULL;
-    HIR_method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
-    List<HIR_actual_parameter*>* actual_parameters = NULL;
+    Target* target = this->target ? this->target->clone() : NULL;
+    Method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
+    List<Actual_parameter*>* actual_parameters = NULL;
     if(this->actual_parameters != NULL)
     {
-    	List<HIR_actual_parameter*>::const_iterator i;
-    	actual_parameters = new List<HIR_actual_parameter*>;
+    	List<Actual_parameter*>::const_iterator i;
+    	actual_parameters = new List<Actual_parameter*>;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_method_invocation* clone = new HIR_method_invocation(target, method_name, actual_parameters);
-    clone->HIR_node::clone_mixin_from(this);
+    Method_invocation* clone = new Method_invocation(target, method_name, actual_parameters);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_method_invocation::assert_valid()
+void Method_invocation::assert_valid()
 {
     if(target != NULL) target->assert_valid();
     assert(method_name != NULL);
     method_name->assert_valid();
     assert(actual_parameters != NULL);
     {
-    	List<HIR_actual_parameter*>::const_iterator i;
+    	List<Actual_parameter*>::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-HIR_method_invocation::HIR_method_invocation(const char* name, HIR_actual_parameter* arg)
+Method_invocation::Method_invocation(const char* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
-		this->method_name = new Token_method_name(new String(name));
-		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
+		this->method_name = new METHOD_NAME(new String(name));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 
-HIR_method_invocation::HIR_method_invocation(Token_method_name* name, HIR_actual_parameter* arg)
+Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 
-HIR_new::HIR_new(HIR_class_name* class_name, List<HIR_actual_parameter*>* actual_parameters)
+New::New(Class_name* class_name, List<Actual_parameter*>* actual_parameters)
 {
     this->class_name = class_name;
     this->actual_parameters = actual_parameters;
 }
 
-HIR_new::HIR_new()
+New::New()
 {
     this->class_name = 0;
     this->actual_parameters = 0;
 }
 
-void HIR_new::visit(HIR_visitor* visitor)
+void New::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void HIR_new::transform_children(HIR_transform* transform)
+void New::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int HIR_new::classid()
+int New::classid()
 {
     return ID;
 }
 
-bool HIR_new::match(HIR_node* in)
+bool New::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    HIR_new* that = dynamic_cast<HIR_new*>(in);
+    New* that = dynamic_cast<New*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL)
@@ -5766,7 +5766,7 @@ bool HIR_new::match(HIR_node* in)
     
     if(this->actual_parameters != NULL && that->actual_parameters != NULL)
     {
-    	List<HIR_actual_parameter*>::const_iterator i, j;
+    	List<Actual_parameter*>::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -5787,9 +5787,9 @@ bool HIR_new::match(HIR_node* in)
     return true;
 }
 
-bool HIR_new::equals(HIR_node* in)
+bool New::equals(Node* in)
 {
-    HIR_new* that = dynamic_cast<HIR_new*>(in);
+    New* that = dynamic_cast<New*>(in);
     if(that == NULL) return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -5807,7 +5807,7 @@ bool HIR_new::equals(HIR_node* in)
     }
     else
     {
-    	List<HIR_actual_parameter*>::const_iterator i, j;
+    	List<Actual_parameter*>::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -5825,82 +5825,82 @@ bool HIR_new::equals(HIR_node* in)
     		return false;
     }
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-HIR_new* HIR_new::clone()
+New* New::clone()
 {
-    HIR_class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    List<HIR_actual_parameter*>* actual_parameters = NULL;
+    Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
+    List<Actual_parameter*>* actual_parameters = NULL;
     if(this->actual_parameters != NULL)
     {
-    	List<HIR_actual_parameter*>::const_iterator i;
-    	actual_parameters = new List<HIR_actual_parameter*>;
+    	List<Actual_parameter*>::const_iterator i;
+    	actual_parameters = new List<Actual_parameter*>;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
-    HIR_new* clone = new HIR_new(class_name, actual_parameters);
-    clone->HIR_node::clone_mixin_from(this);
+    New* clone = new New(class_name, actual_parameters);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void HIR_new::assert_valid()
+void New::assert_valid()
 {
     assert(class_name != NULL);
     class_name->assert_valid();
     assert(actual_parameters != NULL);
     {
-    	List<HIR_actual_parameter*>::const_iterator i;
+    	List<Actual_parameter*>::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
     	}
     }
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-Token_int::Token_int(long value, String* source_rep)
+INT::INT(long value, String* source_rep)
 {
     this->value = value;
     this->source_rep = source_rep;
 }
 
-Token_int::Token_int()
+INT::INT()
 {
     this->value = 0;
     this->source_rep = 0;
 }
 
-void Token_int::visit(HIR_visitor* visitor)
+void INT::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Token_int::transform_children(HIR_transform* transform)
+void INT::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-String* Token_int::get_source_rep()
+String* INT::get_source_rep()
 {
     return source_rep;
 }
 
-int Token_int::classid()
+int INT::classid()
 {
     return ID;
 }
 
-bool Token_int::match(HIR_node* in)
+bool INT::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_int* that = dynamic_cast<Token_int*>(in);
+    INT* that = dynamic_cast<INT*>(in);
     if(that == NULL) return false;
     
     if(!match_value(that))
@@ -5912,14 +5912,14 @@ bool Token_int::match(HIR_node* in)
     	return true;
 }
 
-bool Token_int::match_value(Token_int* that)
+bool INT::match_value(INT* that)
 {
     return true;
 }
 
-bool Token_int::equals(HIR_node* in)
+bool INT::equals(Node* in)
 {
-    Token_int* that = dynamic_cast<Token_int*>(in);
+    INT* that = dynamic_cast<INT*>(in);
     if(that == NULL) return false;
     
     if(!equals_value(that))
@@ -5933,36 +5933,36 @@ bool Token_int::equals(HIR_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-bool Token_int::equals_value(Token_int* that)
+bool INT::equals_value(INT* that)
 {
     return (this->value == that->value);
 }
 
-Token_int* Token_int::clone()
+INT* INT::clone()
 {
     String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    Token_int* clone = new Token_int(value, source_rep);
-    clone->HIR_node::clone_mixin_from(this);
+    INT* clone = new INT(value, source_rep);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-long Token_int::clone_value()
+long INT::clone_value()
 {
     return value;
 }
 
-void Token_int::assert_valid()
+void INT::assert_valid()
 {
     assert_value_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-void Token_int::assert_value_valid()
+void INT::assert_value_valid()
 {
     // Assume value is valid
 }
@@ -5970,7 +5970,7 @@ void Token_int::assert_value_valid()
 //  Constructors can't call virtual functions, so we create a non-virtual to
 //  do the work. This is then called by the virtual function, and is also
 //  safely called from the constructor.
-String* Token_int::_get_value_as_string()
+String* INT::_get_value_as_string()
 {
     {
 		std::ostringstream os;
@@ -5979,14 +5979,14 @@ String* Token_int::_get_value_as_string()
 	}
 }
 
-String* Token_int::get_value_as_string()
+String* INT::get_value_as_string()
 {
     {
 		return _get_value_as_string ();
 	}
 }
 
-Token_int::Token_int(int v)
+INT::INT(int v)
 {
     {
 		value = v;
@@ -5994,46 +5994,46 @@ Token_int::Token_int(int v)
 	}
 }
 
-Token_real::Token_real(double value, String* source_rep)
+REAL::REAL(double value, String* source_rep)
 {
     this->value = value;
     this->source_rep = source_rep;
 }
 
-Token_real::Token_real()
+REAL::REAL()
 {
     this->value = 0;
     this->source_rep = 0;
 }
 
-void Token_real::visit(HIR_visitor* visitor)
+void REAL::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Token_real::transform_children(HIR_transform* transform)
+void REAL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-String* Token_real::get_source_rep()
+String* REAL::get_source_rep()
 {
     return source_rep;
 }
 
-int Token_real::classid()
+int REAL::classid()
 {
     return ID;
 }
 
-bool Token_real::match(HIR_node* in)
+bool REAL::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_real* that = dynamic_cast<Token_real*>(in);
+    REAL* that = dynamic_cast<REAL*>(in);
     if(that == NULL) return false;
     
     if(!match_value(that))
@@ -6045,14 +6045,14 @@ bool Token_real::match(HIR_node* in)
     	return true;
 }
 
-bool Token_real::match_value(Token_real* that)
+bool REAL::match_value(REAL* that)
 {
     return true;
 }
 
-bool Token_real::equals(HIR_node* in)
+bool REAL::equals(Node* in)
 {
-    Token_real* that = dynamic_cast<Token_real*>(in);
+    REAL* that = dynamic_cast<REAL*>(in);
     if(that == NULL) return false;
     
     if(!equals_value(that))
@@ -6066,42 +6066,42 @@ bool Token_real::equals(HIR_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-bool Token_real::equals_value(Token_real* that)
+bool REAL::equals_value(REAL* that)
 {
     return (this->value == that->value);
 }
 
-Token_real* Token_real::clone()
+REAL* REAL::clone()
 {
     String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    Token_real* clone = new Token_real(value, source_rep);
-    clone->HIR_node::clone_mixin_from(this);
+    REAL* clone = new REAL(value, source_rep);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-double Token_real::clone_value()
+double REAL::clone_value()
 {
     return value;
 }
 
-void Token_real::assert_valid()
+void REAL::assert_valid()
 {
     assert_value_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-void Token_real::assert_value_valid()
+void REAL::assert_value_valid()
 {
     // Assume value is valid
 }
 
-//  See comment in Token_int::_get_value_as_string ()
-String* Token_real::_get_value_as_string()
+//  See comment in INT::_get_value_as_string ()
+String* REAL::_get_value_as_string()
 {
     {
 		std::ostringstream os;
@@ -6121,14 +6121,14 @@ String* Token_real::_get_value_as_string()
 	}
 }
 
-String* Token_real::get_value_as_string()
+String* REAL::get_value_as_string()
 {
     {
 		return _get_value_as_string ();
 	}
 }
 
-Token_real::Token_real(double v)
+REAL::REAL(double v)
 {
     {
 		value = v;
@@ -6136,46 +6136,46 @@ Token_real::Token_real(double v)
 	}
 }
 
-Token_string::Token_string(String* value, String* source_rep)
+STRING::STRING(String* value, String* source_rep)
 {
     this->value = value;
     this->source_rep = source_rep;
 }
 
-Token_string::Token_string()
+STRING::STRING()
 {
     this->value = 0;
     this->source_rep = 0;
 }
 
-void Token_string::visit(HIR_visitor* visitor)
+void STRING::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Token_string::transform_children(HIR_transform* transform)
+void STRING::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-String* Token_string::get_source_rep()
+String* STRING::get_source_rep()
 {
     return source_rep;
 }
 
-int Token_string::classid()
+int STRING::classid()
 {
     return ID;
 }
 
-bool Token_string::match(HIR_node* in)
+bool STRING::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_string* that = dynamic_cast<Token_string*>(in);
+    STRING* that = dynamic_cast<STRING*>(in);
     if(that == NULL) return false;
     
     if(!match_value(that))
@@ -6187,14 +6187,14 @@ bool Token_string::match(HIR_node* in)
     	return true;
 }
 
-bool Token_string::match_value(Token_string* that)
+bool STRING::match_value(STRING* that)
 {
     return true;
 }
 
-bool Token_string::equals(HIR_node* in)
+bool STRING::equals(Node* in)
 {
-    Token_string* that = dynamic_cast<Token_string*>(in);
+    STRING* that = dynamic_cast<STRING*>(in);
     if(that == NULL) return false;
     
     if(!equals_value(that))
@@ -6208,57 +6208,57 @@ bool Token_string::equals(HIR_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-bool Token_string::equals_value(Token_string* that)
+bool STRING::equals_value(STRING* that)
 {
     return (*this->value == *that->value);
 }
 
-Token_string* Token_string::clone()
+STRING* STRING::clone()
 {
     String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    Token_string* clone = new Token_string(value, source_rep);
-    clone->HIR_node::clone_mixin_from(this);
+    STRING* clone = new STRING(value, source_rep);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_string::assert_valid()
+void STRING::assert_valid()
 {
     assert_value_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-void Token_string::assert_value_valid()
+void STRING::assert_value_valid()
 {
     // Assume value is valid
 }
 
-String* Token_string::get_value_as_string()
+String* STRING::get_value_as_string()
 {
     {
 		return value;
 	}
 }
 
-bool Token_string::is_value_valid()
+bool STRING::is_value_valid()
 {
     {
 		return value != NULL;
 	}
 }
 
-String* Token_string::clone_value()
+String* STRING::clone_value()
 {
     {
 		return value->clone();
 	}
 }
 
-Token_string::Token_string(String* v)
+STRING::STRING(String* v)
 {
     {
 		value = v;
@@ -6266,46 +6266,46 @@ Token_string::Token_string(String* v)
 	}
 }
 
-Token_bool::Token_bool(bool value, String* source_rep)
+BOOL::BOOL(bool value, String* source_rep)
 {
     this->value = value;
     this->source_rep = source_rep;
 }
 
-Token_bool::Token_bool()
+BOOL::BOOL()
 {
     this->value = 0;
     this->source_rep = 0;
 }
 
-void Token_bool::visit(HIR_visitor* visitor)
+void BOOL::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Token_bool::transform_children(HIR_transform* transform)
+void BOOL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-String* Token_bool::get_source_rep()
+String* BOOL::get_source_rep()
 {
     return source_rep;
 }
 
-int Token_bool::classid()
+int BOOL::classid()
 {
     return ID;
 }
 
-bool Token_bool::match(HIR_node* in)
+bool BOOL::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_bool* that = dynamic_cast<Token_bool*>(in);
+    BOOL* that = dynamic_cast<BOOL*>(in);
     if(that == NULL) return false;
     
     if(!match_value(that))
@@ -6317,14 +6317,14 @@ bool Token_bool::match(HIR_node* in)
     	return true;
 }
 
-bool Token_bool::match_value(Token_bool* that)
+bool BOOL::match_value(BOOL* that)
 {
     return true;
 }
 
-bool Token_bool::equals(HIR_node* in)
+bool BOOL::equals(Node* in)
 {
-    Token_bool* that = dynamic_cast<Token_bool*>(in);
+    BOOL* that = dynamic_cast<BOOL*>(in);
     if(that == NULL) return false;
     
     if(!equals_value(that))
@@ -6338,42 +6338,42 @@ bool Token_bool::equals(HIR_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-bool Token_bool::equals_value(Token_bool* that)
+bool BOOL::equals_value(BOOL* that)
 {
     return (this->value == that->value);
 }
 
-Token_bool* Token_bool::clone()
+BOOL* BOOL::clone()
 {
     String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    Token_bool* clone = new Token_bool(value, source_rep);
-    clone->HIR_node::clone_mixin_from(this);
+    BOOL* clone = new BOOL(value, source_rep);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-bool Token_bool::clone_value()
+bool BOOL::clone_value()
 {
     return value;
 }
 
-void Token_bool::assert_valid()
+void BOOL::assert_valid()
 {
     assert_value_valid();
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-void Token_bool::assert_value_valid()
+void BOOL::assert_value_valid()
 {
     // Assume value is valid
 }
 
-//  See comment in Token_int::_get_value_as_string ()
-String* Token_bool::_get_value_as_string()
+//  See comment in INT::_get_value_as_string ()
+String* BOOL::_get_value_as_string()
 {
     {
 		if(value)
@@ -6383,14 +6383,14 @@ String* Token_bool::_get_value_as_string()
 	}
 }
 
-String* Token_bool::get_value_as_string()
+String* BOOL::get_value_as_string()
 {
     {
 		return _get_value_as_string ();
 	}
 }
 
-Token_bool::Token_bool(bool v)
+BOOL::BOOL(bool v)
 {
     {
 		value = v;
@@ -6398,39 +6398,39 @@ Token_bool::Token_bool(bool v)
 	}
 }
 
-Token_null::Token_null(String* source_rep)
+NIL::NIL(String* source_rep)
 {
     this->source_rep = source_rep;
 }
 
-void Token_null::visit(HIR_visitor* visitor)
+void NIL::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Token_null::transform_children(HIR_transform* transform)
+void NIL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-String* Token_null::get_source_rep()
+String* NIL::get_source_rep()
 {
     return source_rep;
 }
 
-int Token_null::classid()
+int NIL::classid()
 {
     return ID;
 }
 
-bool Token_null::match(HIR_node* in)
+bool NIL::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Token_null* that = dynamic_cast<Token_null*>(in);
+    NIL* that = dynamic_cast<NIL*>(in);
     if(that == NULL) return false;
     
     if(this->source_rep != NULL && that->source_rep != NULL)
@@ -6439,9 +6439,9 @@ bool Token_null::match(HIR_node* in)
     	return true;
 }
 
-bool Token_null::equals(HIR_node* in)
+bool NIL::equals(Node* in)
 {
-    Token_null* that = dynamic_cast<Token_null*>(in);
+    NIL* that = dynamic_cast<NIL*>(in);
     if(that == NULL) return false;
     
     if(this->source_rep == NULL || that->source_rep == NULL)
@@ -6452,31 +6452,31 @@ bool Token_null::equals(HIR_node* in)
     else if(*this->source_rep != *that->source_rep)
     	return false;
     
-    if(!HIR_node::is_mixin_equal(that)) return false;
+    if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Token_null* Token_null::clone()
+NIL* NIL::clone()
 {
     String* source_rep = new String(*this->source_rep);
-    Token_null* clone = new Token_null(source_rep);
-    clone->HIR_node::clone_mixin_from(this);
+    NIL* clone = new NIL(source_rep);
+    clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Token_null::assert_valid()
+void NIL::assert_valid()
 {
-    HIR_node::assert_mixin_valid();
+    Node::assert_mixin_valid();
 }
 
-String* Token_null::get_value_as_string()
+String* NIL::get_value_as_string()
 {
     {
 		return new String("NULL");
 	}
 }
 
-Token_null::Token_null()
+NIL::NIL()
 {
     {
 		source_rep = new String ("NULL");

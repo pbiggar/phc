@@ -8,28 +8,28 @@
 
 using namespace AST;
 
-class Expand_includes : public AST_transform
+class Expand_includes : public Transform
 {
 private:
-	Wildcard<Token_string>* filename;
-	AST_method_invocation* pattern;
+	Wildcard<STRING>* filename;
+	Method_invocation* pattern;
 
 public:
 	Expand_includes()
 	{
-		filename = new Wildcard<Token_string>;
+		filename = new Wildcard<STRING>;
 		pattern = 
-			new AST_method_invocation(
+			new Method_invocation(
 				NULL,
-				new Token_method_name(new String("include")),
-				new List<AST_actual_parameter*>(
-					new AST_actual_parameter(false, filename)
+				new METHOD_NAME(new String("include")),
+				new List<Actual_parameter*>(
+					new Actual_parameter(false, filename)
 				)
 			);
 	}
 
 public:
-	void pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+	void pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 	{
 		// xdebug (in);
 
@@ -37,7 +37,7 @@ public:
 		if(in->expr->match(pattern))
 		{
 			// Matched! Try to parse the file 
-			AST_php_script* php_script = parse(filename->value->value, NULL, false);
+			PHP_script* php_script = parse(filename->value->value, NULL, false);
 			if(php_script == NULL)
 			{
 				cerr 
@@ -62,7 +62,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->transform_children (new Expand_includes ());
 }

@@ -11,13 +11,13 @@
 
 #include "AST_transform.h"
 
-class Desugar : public AST::AST_transform
+class Desugar : public AST::Transform
 {
-	void pre_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
-	void pre_nop(AST::AST_nop*, List<AST::AST_statement*>*);
-	AST::AST_expr* pre_unary_op(AST::AST_unary_op* in);
-	void pre_return(AST::AST_return*, List<AST::AST_statement*>*);
-	void pre_declare (AST::AST_declare*, List<AST::AST_statement*>*);
+	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_nop(AST::Nop*, List<AST::Statement*>*);
+	AST::Expr* pre_unary_op(AST::Unary_op* in);
+	void pre_return(AST::Return*, List<AST::Statement*>*);
+	void pre_declare (AST::Declare*, List<AST::Statement*>*);
 };
 
 #endif // PHC_DESUGAR_H

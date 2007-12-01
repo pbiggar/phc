@@ -37,10 +37,10 @@ void PHP::shutdown_php ()
 	php_embed_shutdown (TSRMLS_C);
 }
 
-AST_literal* PHP::convert_token (AST_literal *token)
+Literal* PHP::convert_token (Literal *token)
 {
 	assert (is_started);
-	AST_literal* result = NULL;
+	Literal* result = NULL;
 	String* representation = token->get_source_rep ();
 	assert (representation);
 
@@ -53,11 +53,11 @@ AST_literal* PHP::convert_token (AST_literal *token)
 	// fetch the var
 	if (Z_TYPE_P (&var) == IS_LONG)
 	{
-		result = new Token_int (Z_LVAL_P (&var), representation);
+		result = new INT (Z_LVAL_P (&var), representation);
 	}
 	else if (Z_TYPE_P (&var) == IS_DOUBLE)
 	{
-		result = new Token_real (Z_DVAL_P (&var), representation);
+		result = new REAL (Z_DVAL_P (&var), representation);
 	}
 	else
 		assert (false);
@@ -94,11 +94,11 @@ void PHP::shutdown_php ()
 	is_started = false;
 }
 
-AST_literal* PHP::convert_token (AST_literal *token)
+Literal* PHP::convert_token (Literal *token)
 {
 	assert (is_started);
 
-	Token_int* in = dynamic_cast<Token_int*> (token);
+	INT* in = dynamic_cast<INT*> (token);
 	if (in == NULL)
 		return token;
 
@@ -123,7 +123,7 @@ AST_literal* PHP::convert_token (AST_literal *token)
 			if(strtoll(in->source_rep->c_str(), NULL, 16) > (long long)(ULONG_MAX))
 			{
 				assert(errno == 0);
-				Token_int* i = new Token_int(LONG_MAX, in->source_rep);
+				INT* i = new INT(LONG_MAX, in->source_rep);
 				i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 				return i;
 			}
@@ -134,7 +134,7 @@ AST_literal* PHP::convert_token (AST_literal *token)
 				{
 					assert(errno == 0);
 					// Why LONG_MIN + 1? Well. Ask the PHP folks :)
-					Token_int* i = new Token_int(LONG_MIN + 1, in->source_rep);
+					INT* i = new INT(LONG_MIN + 1, in->source_rep);
 					i->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 					return i;
 				}
@@ -146,7 +146,7 @@ AST_literal* PHP::convert_token (AST_literal *token)
 					// long time. Since we're processing digits, we can safely go the long way.
 					double value = static_cast<double>(strtoll(in->source_rep->c_str(), NULL, 16));
 					assert(errno == 0);
-					Token_real* r = new Token_real(value, in->source_rep);
+					REAL* r = new REAL(value, in->source_rep);
 					r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 					return r;
 				}
@@ -156,7 +156,7 @@ AST_literal* PHP::convert_token (AST_literal *token)
 		// get a real in the case of overflow
 		double value = strtod(in->source_rep->c_str(), (char **)NULL);
 		assert(errno == 0);
-		Token_real* r = new Token_real(value, in->source_rep);
+		REAL* r = new REAL(value, in->source_rep);
 		r->attrs->set("phc.line_number", in->attrs->get("phc.line_number"));
 		return r;
 	}

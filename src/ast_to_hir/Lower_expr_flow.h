@@ -13,8 +13,8 @@
 class Lower_expr_flow : public Lower_expr 
 {
 public:
-	AST::AST_expr* post_bin_op(AST::AST_bin_op* in);
-	AST::AST_expr* post_conditional_expr(AST::AST_conditional_expr* in);
+	AST::Expr* post_bin_op(AST::Bin_op* in);
+	AST::Expr* post_conditional_expr(AST::Conditional_expr* in);
 };
 
 #endif // PHC_LOWER_EXPR_FLOW_H

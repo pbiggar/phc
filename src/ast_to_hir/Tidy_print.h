@@ -13,9 +13,9 @@
 #include "Shredder.h"
 
 
-class Tidy_print : public AST::AST_transform
+class Tidy_print : public AST::Transform
 {
-	void pre_eval_expr (AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
+	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
 };
 
 #endif // PHC_TIDY_PRINT_H

@@ -11,7 +11,7 @@
 #include "AST_transform.h"
 #include "pass_manager/Pass_manager.h"
 
-class Lift_functions_and_classes : public AST::AST_transform, public Pass
+class Lift_functions_and_classes : public AST::Transform, public Pass
 {
 public:
 
@@ -30,7 +30,7 @@ public:
 			in->ast->transform_children (this);
 		}
 	}
-	void children_php_script(AST::AST_php_script* in);
+	void children_php_script(AST::PHP_script* in);
 };
 
 #endif // PHC_LIFT_FUNCTIONS_AND_CLASSES

@@ -14,14 +14,14 @@ using namespace AST;
  * immediately upon loading the script. Dynamic declarations, however, are only
  * loaded when the statement is executed. We mark top-level statements now,
  * since we'll lose that information later */
-void Note_top_level_declarations::pre_php_script (AST_php_script* in)
+void Note_top_level_declarations::pre_php_script (PHP_script* in)
 {
-	List<AST_statement*>::const_iterator i;
+	List<Statement*>::const_iterator i;
 	for (i = in->statements->begin (); i != in->statements->end (); i++)
 	{
-		if ((*i)->classid () == AST_method::ID
-			|| (*i)->classid () == AST_class_def::ID
-			|| (*i)->classid () == AST_interface_def::ID)
+		if ((*i)->classid () == Method::ID
+			|| (*i)->classid () == Class_def::ID
+			|| (*i)->classid () == Interface_def::ID)
 		{
 			(*i)->attrs->set_true ("phc.lower_control_flow.top_level_declaration");
 		}

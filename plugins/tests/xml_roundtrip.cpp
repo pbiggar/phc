@@ -22,7 +22,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 #ifdef HAVE_XERCES
 	is_run = true;
@@ -33,7 +33,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 	in->visit(&xml_unparser1);
 
 	// reparse
-	AST_php_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
+	PHP_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
 
 	// unparse a second time
 	ostringstream xml_output2;
@@ -41,7 +41,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 	reparsed1->visit(&xml_unparser2);
 
 	// reparse
-	AST_php_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
+	PHP_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
 
 	if (not (in->equals(reparsed1) && in->equals(reparsed2)))
 	{

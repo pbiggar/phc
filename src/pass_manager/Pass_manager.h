@@ -36,11 +36,11 @@ public:
 	void add_pass (Pass* pass);
 	void add_plugin (lt_dlhandle handle, const char* name, String* option);
 
-	void add_visitor (AST::AST_visitor* visitor, const char* name);
-	void add_transform (AST::AST_transform* transform, const char* name);
+	void add_visitor (AST::Visitor* visitor, const char* name);
+	void add_transform (AST::Transform* transform, const char* name);
 
-	void add_visitor (HIR::HIR_visitor* visitor, const char* name);
-	void add_transform (HIR::HIR_transform* transform, const char* name);
+	void add_visitor (HIR::Visitor* visitor, const char* name);
+	void add_transform (HIR::Transform* transform, const char* name);
 
 
 	void add_after_each_pass (Pass* pass);

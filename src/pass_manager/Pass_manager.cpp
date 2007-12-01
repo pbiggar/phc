@@ -34,7 +34,7 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 void Plugin_pass::run (IR* in, Pass_manager* pm)
 {
 	// RUN
-	typedef void (*ast_function)(AST_php_script*, Pass_manager*, String*);
+	typedef void (*ast_function)(AST::PHP_script*, Pass_manager*, String*);
 	ast_function ast_func = (ast_function) lt_dlsym(handle, "run");
 
 	if (not (ast_func))
@@ -44,7 +44,7 @@ void Plugin_pass::run (IR* in, Pass_manager* pm)
 		(*ast_func)(in->ast, pm, option);
 
 /*
-	typedef void (*hir_function)(HIR_php_script*, Pass_manager*, String*);
+	typedef void (*hir_function)(PHP_script*, Pass_manager*, String*);
 	hir_function hir_func = (hir_function) lt_dlsym (handle, "run");
 
 	if (not (ast_func || hir_func))
@@ -82,7 +82,7 @@ void Pass_manager::add_pass (Pass* pass)
 	push_back (pass);
 }
 
-void Pass_manager::add_visitor (AST_visitor* visitor, const char* name)
+void Pass_manager::add_visitor (AST::Visitor* visitor, const char* name)
 {
 	Pass* pass = new Visitor_pass (visitor);
 	if (name)
@@ -90,7 +90,7 @@ void Pass_manager::add_visitor (AST_visitor* visitor, const char* name)
 	add_pass (pass);
 }
 
-void Pass_manager::add_transform (AST_transform* transform, const char* name)
+void Pass_manager::add_transform (AST::Transform* transform, const char* name)
 {
 	Pass* pass = new Transform_pass (transform);
 	if (name)
@@ -208,7 +208,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 		{
 			if (in->ast)
 			{
-				AST::AST_php_script* ast = in->ast->clone ();
+				AST::PHP_script* ast = in->ast->clone ();
 				ast->visit (new Goto_uppering ());
 				ast->visit (new AST_unparser ());
 			}

@@ -22,11 +22,11 @@ using namespace AST;
 //	  print f();
 //
 //	We convert to print simply so the later print transformation is easier.
-void Echo_split::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Echo_split::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
-	AST_method_invocation* echo = new AST_method_invocation (
+	Method_invocation* echo = new Method_invocation (
 			NULL,	
-			new Token_method_name (new String("echo")),
+			new METHOD_NAME (new String("echo")),
 			NULL); // match any list (note this doesnt get populated. Use in STMT get the list.)
 
 	if (not in->expr->match (echo))
@@ -35,18 +35,18 @@ void Echo_split::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
 		return;
 	};
 
-	List<AST_actual_parameter*>* params =
-		(dynamic_cast <AST_method_invocation*> (in->expr))->actual_parameters;
+	List<Actual_parameter*>* params =
+		(dynamic_cast <Method_invocation*> (in->expr))->actual_parameters;
 	assert (params);
 
-	List<AST_actual_parameter*>::const_iterator i;
+	List<Actual_parameter*>::const_iterator i;
 	for (i = params->begin (); i != params->end(); i++)
 	{
-		out->push_back (new AST_eval_expr (
-					new AST_method_invocation (
+		out->push_back (new Eval_expr (
+					new Method_invocation (
 						NULL,
-						new Token_method_name (new String ("print")),
-						new List<AST_actual_parameter*> (*i))));
+						new METHOD_NAME (new String ("print")),
+						new List<Actual_parameter*> (*i))));
 
 	}
 }

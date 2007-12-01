@@ -30,7 +30,7 @@ public:
 	 *	Note that references arent allowed here.
 	 */
 
-	AST::AST_expr* post_list_assignment(AST::AST_list_assignment* in);
+	AST::Expr* post_list_assignment(AST::List_assignment* in);
 };
 
 

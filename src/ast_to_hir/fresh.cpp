@@ -58,21 +58,21 @@ String* fresh(string prefix)
 	return new String(ss.str());
 }
 
-AST_variable* fresh_var(string prefix)
+Variable* fresh_var(string prefix)
 {
-	AST_variable* var = new AST_variable (
+	Variable* var = new Variable (
 		NULL, 
-		new Token_variable_name (fresh (prefix)), 
-		new List<AST_expr*>
+		new VARIABLE_NAME (fresh (prefix)), 
+		new List<Expr*>
 		);
 
 	var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
 	return var;
 }
 
-AST_label* fresh_label ()
+Label* fresh_label ()
 {
-	return new AST_label (
-		new Token_label_name (fresh("L")));
+	return new Label (
+		new LABEL_NAME (fresh("L")));
 }
 

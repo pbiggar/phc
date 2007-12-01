@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	AST::AST_php_script* ast = NULL;
+	AST::PHP_script* ast = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
 
 		// Run HIR passes
 		AST_to_HIR* tr = new AST_to_HIR ();
-		HIR::HIR_php_script* hir = tr->fold_php_script(ast);
+		HIR::PHP_script* hir = tr->fold_php_script(ast);
 		ir->ast = NULL;
 		ir->hir = hir;
 		pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);

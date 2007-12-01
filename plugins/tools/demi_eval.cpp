@@ -14,7 +14,7 @@
 
 using namespace AST;
 
-class Demi_eval : public AST_transform
+class Demi_eval : public Transform
 {
 
 	private:
@@ -36,13 +36,13 @@ class Demi_eval : public AST_transform
 			convert = init;
 		}
 
-		void post_statement (AST_statement *in, List<AST_statement*>* out)
+		void post_statement (Statement *in, List<Statement*>* out)
 		{
-			if (in->classid() == AST_method::ID
-					or in->classid() == AST_class_def::ID
-					or in->classid() == AST_goto::ID
-					or in->classid() == AST_label::ID
-					or in->classid() == AST_branch::ID)
+			if (in->classid() == Method::ID
+					or in->classid() == Class_def::ID
+					or in->classid() == Goto::ID
+					or in->classid() == Label::ID
+					or in->classid() == Branch::ID)
 			{
 				out->push_back (in);
 				return;
@@ -64,22 +64,22 @@ class Demi_eval : public AST_transform
 				/* $TDEs0 = "$x = 5;";
 				 * $TDEr0 = eval ($TDEs0);
 				 */
-				AST_variable* string_var = fresh_var ("TDEs");
-				out->push_back (new AST_eval_expr (
-							new AST_assignment (
+				Variable* string_var = fresh_var ("TDEs");
+				out->push_back (new Eval_expr (
+							new Assignment (
 								string_var,
 								false, 
-								new Token_string (eval_string))));
+								new STRING (eval_string))));
 
-				out->push_back (new AST_eval_expr (
-							new AST_assignment (
+				out->push_back (new Eval_expr (
+							new Assignment (
 								fresh_var ("TDEr"),
 								false,
-								new AST_method_invocation (
+								new Method_invocation (
 									NULL, 
-									new Token_method_name (new String ("eval")), 
-									new List <AST_actual_parameter*> (
-										new AST_actual_parameter (
+									new METHOD_NAME (new String ("eval")), 
+									new List <Actual_parameter*> (
+										new Actual_parameter (
 											false, 
 											string_var->clone ()))))));
 			}
@@ -93,7 +93,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_before_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
+extern "C" void run (Node* in, Pass_manager* pm, String* option)
 {
 	bool bool_option = false;
 	if (*(option) == "true")

@@ -10,7 +10,7 @@
 
 using namespace AST;
 
-class Print_line_numbers : public AST_visitor
+class Print_line_numbers : public Visitor
 {
 	String delimiter;
 	bool read;
@@ -23,82 +23,82 @@ public:
 		
 	}
 
-	void pre_if(AST_if* in)
+	void pre_if(If* in)
 	{
 		cout << "if:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_while(AST_while* in)
+	void pre_while(While* in)
 	{
 		cout << "while:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_do(AST_do* in)
+	void pre_do(Do* in)
 	{
 		cout << "do:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_for(AST_for* in)
+	void pre_for(For* in)
 	{
 		cout << "for:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_foreach(AST_foreach* in)
+	void pre_foreach(Foreach* in)
 	{
 		cout << "foreach:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_switch(AST_switch* in)
+	void pre_switch(Switch* in)
 	{
 		cout << "switch:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_switch_case(AST_switch_case* in)
+	void pre_switch_case(Switch_case* in)
 	{
 		cout << "case:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_break(AST_break* in)
+	void pre_break(Break* in)
 	{
 		cout << "break:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_continue(AST_continue* in)
+	void pre_continue(Continue* in)
 	{
 		cout << "continue:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_return(AST_return* in)
+	void pre_return(Return* in)
 	{
 		cout << "return:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_try(AST_try* in)
+	void pre_try(Try* in)
 	{
 		cout << "try:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_catch(AST_catch* in)
+	void pre_catch(Catch* in)
 	{
 		cout << "catch:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_throw(AST_throw* in)
+	void pre_throw(Throw* in)
 	{
 		cout << "throw:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_new(AST_new* in)
+	void pre_new(New* in)
 	{
 		cout << "new:" << in->get_line_number() << delimiter;
 	}
 
-	void pre_interface_name(Token_interface_name* in)
+	void pre_interface_name(INTERFACE_NAME* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_class_name(Token_class_name* in)
+	void pre_class_name(CLASS_NAME* in)
 	{
 		String* class_name = in->value;
 		if (*class_name != "%MAIN%" and *class_name != "%STDLIB%")
@@ -107,7 +107,7 @@ public:
 		}
 	}
 
-	void pre_method_name(Token_method_name* in)
+	void pre_method_name(METHOD_NAME* in)
 	{
 		/* this could also check that it's in the main class, but its a tad
 		 * complicated for the incredibly limited benefit
@@ -119,32 +119,32 @@ public:
 		}
 	}
 
-	void pre_variable_name(Token_variable_name* in)
+	void pre_variable_name(VARIABLE_NAME* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_directive_name(Token_directive_name* in)
+	void pre_directive_name(DIRECTIVE_NAME* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_cast(Token_cast* in)
+	void pre_cast(CAST* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_op(Token_op* in)
+	void pre_op(OP* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_constant_name(Token_constant_name* in)
+	void pre_constant_name(CONSTANT_NAME* in)
 	{
 		cout << *in->value << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_string(Token_string* in)
+	void pre_string(STRING* in)
 	{
 		string::iterator i;
 		/* We cant use the PHP_unparser here, since that adds "'"s in
@@ -184,22 +184,22 @@ public:
 		cout << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_int (Token_int* in)
+	void pre_int (INT* in)
 	{
 		cout << *in->get_source_rep() << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_real (Token_real* in)
+	void pre_real (REAL* in)
 	{
 		cout << *in->get_source_rep() << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_bool (Token_bool* in)
+	void pre_bool (BOOL* in)
 	{
 		cout << *in->get_source_rep() << ":" << in->get_line_number() << delimiter;
 	}
 
-	void pre_null (Token_null* in)
+	void pre_null (NIL* in)
 	{
 		cout << *in->get_source_rep() << ":" << in->get_line_number() << delimiter;
 	}
@@ -211,7 +211,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit (new Print_line_numbers ());
 	cout << endl;

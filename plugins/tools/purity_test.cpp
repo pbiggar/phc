@@ -14,12 +14,12 @@
 using namespace AST;
 
 // search for scripts that are "pure"; ie have no side effects
-class Purity_test : public AST_visitor
+class Purity_test : public Visitor
 {
 public:
 	bool pure;
-	AST_method_invocation* impurity;
-	List<AST_method_invocation*> recheck;
+	Method_invocation* impurity;
+	List<Method_invocation*> recheck;
 
 	Purity_test()
 	{
@@ -28,7 +28,7 @@ public:
 
 	// the things that we worry about:
 	// backticks: - translated to shell_exec function call
-	void post_method_invocation(AST_method_invocation *in)
+	void post_method_invocation(Method_invocation *in)
 	{
 		if (pure == false) return; // we already know its not pure
 
@@ -773,9 +773,9 @@ public:
 
 		// if overwriting functions is allowed, have to watch for that
 
-		Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
-		AST_method_invocation* method = new AST_method_invocation (
-			new Wildcard<Token_class_name> (),
+		Wildcard<METHOD_NAME>* method_name = new Wildcard<METHOD_NAME>;
+		Method_invocation* method = new Method_invocation (
+			new Wildcard<CLASS_NAME> (),
 			method_name, NULL);
 
 		bool found = false;
@@ -802,7 +802,7 @@ public:
 
 	}
 
-	void post_php_script(AST_php_script* in)
+	void post_php_script(PHP_script* in)
 	{
 		if (not pure)
 		{
@@ -820,7 +820,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit (new Purity_test ());
 }

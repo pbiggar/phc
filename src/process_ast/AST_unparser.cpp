@@ -42,14 +42,14 @@ using namespace AST;
  * right places.
  */
 
-class Linearize : public AST_visitor 
+class Linearize : public Visitor 
 {
 public:
-	std::vector<AST_expr*> exprs;
-	std::vector<Token_op*> ops;
+	std::vector<Expr*> exprs;
+	std::vector<OP*> ops;
 	std::vector<int> partitions;
 	bool start_new_partition;
-	Token_op* last_op;
+	OP* last_op;
 
 public:
 	Linearize()
@@ -59,7 +59,7 @@ public:
 	}
 
 public:
-	void append(AST_expr* in)
+	void append(Expr* in)
 	{
 		exprs.push_back(in);
 		ops.push_back(last_op);
@@ -74,7 +74,7 @@ public:
 		}
 	}
 	
-	void process_bin_op(AST_bin_op* in)
+	void process_bin_op(Bin_op* in)
 	{
 		visit_expr(in->left);
 		last_op = in->op;
@@ -88,9 +88,9 @@ public:
 
 	// Overriding children_expr because we don't want to traverse into the 
 	// subexpressions of non-bin-ops
-	void children_expr(AST_expr* in)
+	void children_expr(Expr* in)
 	{
-		AST_bin_op* bin_op = dynamic_cast<AST_bin_op*>(in);
+		Bin_op* bin_op = dynamic_cast<Bin_op*>(in);
 
 		if(bin_op != NULL && *bin_op->op->value == ".")
 			process_bin_op(bin_op);
@@ -108,7 +108,7 @@ AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
 	in_string.push(false); 
 }
 
-void AST_unparser::children_php_script(AST_php_script* in)
+void AST_unparser::children_php_script(PHP_script* in)
 {
   if(in->attrs->has("phc.unparser.hash_bang") && !args_info.no_hash_bang_flag)
     echo_html(in->attrs->get_string("phc.unparser.hash_bang"));
@@ -120,7 +120,7 @@ void AST_unparser::children_php_script(AST_php_script* in)
 	if(!args_info.no_leading_tab_flag) inc_indent();
 
 	// We don't want to output the { and }, so we manually traverse the list
-	List<AST_statement*>::const_iterator i;
+	List<Statement*>::const_iterator i;
 	for(i = in->statements->begin(); i != in->statements->end(); i++)
 		visit_statement(*i);
 	
@@ -131,7 +131,7 @@ void AST_unparser::children_php_script(AST_php_script* in)
 	output_end_tag();
 }
 
-void AST_unparser::children_interface_def(AST_interface_def* in)
+void AST_unparser::children_interface_def(Interface_def* in)
 {
 	echo("interface ");
 	visit_interface_name(in->interface_name);
@@ -145,7 +145,7 @@ void AST_unparser::children_interface_def(AST_interface_def* in)
 	visit_member_list(in->members);
 }
 
-void AST_unparser::children_class_def(AST_class_def* in)
+void AST_unparser::children_class_def(Class_def* in)
 {
 	visit_class_mod(in->class_mod);
 	echo("class ");
@@ -166,13 +166,13 @@ void AST_unparser::children_class_def(AST_class_def* in)
 	visit_member_list(in->members);
 }
 
-void AST_unparser::children_class_mod(AST_class_mod* in)
+void AST_unparser::children_class_mod(Class_mod* in)
 {
 	if(in->is_abstract) echo("abstract ");
 	if(in->is_final) echo("final ");
 }
 
-void AST_unparser::children_method(AST_method* in)
+void AST_unparser::children_method(Method* in)
 {
 	visit_signature(in->signature);
 	if(in->statements != NULL)
@@ -186,7 +186,7 @@ void AST_unparser::children_method(AST_method* in)
 		echo_nl(";");
 }
 
-void AST_unparser::children_signature(AST_signature* in)
+void AST_unparser::children_signature(Signature* in)
 {
 	visit_method_mod(in->method_mod);
 	echo("function ");
@@ -195,7 +195,7 @@ void AST_unparser::children_signature(AST_signature* in)
 	visit_formal_parameter_list(in->formal_parameters);
 }
 
-void AST_unparser::children_method_mod(AST_method_mod* in)
+void AST_unparser::children_method_mod(Method_mod* in)
 {
 	if(in->is_public)		echo("public ");
 	if(in->is_protected)	echo("protected ");
@@ -205,14 +205,14 @@ void AST_unparser::children_method_mod(AST_method_mod* in)
 	if(in->is_final)		echo("final ");
 }
 
-void AST_unparser::children_formal_parameter(AST_formal_parameter* in)
+void AST_unparser::children_formal_parameter(Formal_parameter* in)
 {
 	visit_type(in->type);
 	if(in->is_ref) echo("&");
 	visit_name_with_default(in->var);
 }
 
-void AST_unparser::children_type(AST_type* in)
+void AST_unparser::children_type(Type* in)
 {
 	if(in->class_name != NULL)
 	{
@@ -221,11 +221,11 @@ void AST_unparser::children_type(AST_type* in)
 	}
 }
 
-void AST_unparser::children_attribute(AST_attribute* in)
+void AST_unparser::children_attribute(Attribute* in)
 {
 	visit_attr_mod(in->attr_mod);
 	// Class attributes get a dollar sign, with the exception of const attributes
-	List<AST_name_with_default*>::const_iterator i;
+	List<Name_with_default*>::const_iterator i;
 	for(i = in->vars->begin(); i != in->vars->end(); i++)
 	{
 		if(i != in->vars->begin())
@@ -243,7 +243,7 @@ void AST_unparser::children_attribute(AST_attribute* in)
 	// newline is output by post_commented_node
 }
 
-void AST_unparser::children_attr_mod(AST_attr_mod* in)
+void AST_unparser::children_attr_mod(Attr_mod* in)
 {
 	if(in->is_public)		echo("public ");
 	if(in->is_protected)	echo("protected ");
@@ -259,7 +259,7 @@ void AST_unparser::children_attr_mod(AST_attr_mod* in)
 			echo("var ");
 }
 
-void AST_unparser::children_if(AST_if* in)
+void AST_unparser::children_if(If* in)
 {
 	if(in->attrs->is_true("phc.unparser.is_elseif")) echo("else");
 	echo("if (");
@@ -271,7 +271,7 @@ void AST_unparser::children_if(AST_if* in)
 
 	if(!in->iffalse->empty())
 	{
-		AST_if* elseif = dynamic_cast<AST_if*>(in->iffalse->front());
+		If* elseif = dynamic_cast<If*>(in->iffalse->front());
 
 		space_or_newline();
 
@@ -293,7 +293,7 @@ void AST_unparser::children_if(AST_if* in)
 
 /* This is simpler than the other if, since there's no user-written code to
  * maintain, and the statements can only be gotos */
-void AST_unparser::children_branch(AST_branch* in)
+void AST_unparser::children_branch(Branch* in)
 {
 	echo("if (");
 	bool in_if_expression = true;
@@ -308,7 +308,7 @@ void AST_unparser::children_branch(AST_branch* in)
 	newline();
 }
 
-void AST_unparser::children_while(AST_while* in)
+void AST_unparser::children_while(While* in)
 {
 	echo("while (");
 	visit_expr(in->expr);
@@ -319,7 +319,7 @@ void AST_unparser::children_while(AST_while* in)
 	newline();
 }
 
-void AST_unparser::children_do(AST_do* in)
+void AST_unparser::children_do(Do* in)
 {
 	echo("do");
 	space_or_newline();
@@ -330,7 +330,7 @@ void AST_unparser::children_do(AST_do* in)
 	echo_nl(");");
 }
 
-void AST_unparser::children_for(AST_for* in)
+void AST_unparser::children_for(For* in)
 {
 	echo("for(");
 	if(in->init != NULL) visit_expr(in->init);
@@ -345,7 +345,7 @@ void AST_unparser::children_for(AST_for* in)
 	newline();
 }
 
-void AST_unparser::children_foreach(AST_foreach* in)
+void AST_unparser::children_foreach(Foreach* in)
 {
 	echo("foreach (");
 	visit_expr(in->expr);
@@ -364,7 +364,7 @@ void AST_unparser::children_foreach(AST_foreach* in)
 	newline();
 }
 
-void AST_unparser::children_switch(AST_switch* in)
+void AST_unparser::children_switch(Switch* in)
 {
 	echo("switch (");
 	visit_expr(in->expr);
@@ -374,7 +374,7 @@ void AST_unparser::children_switch(AST_switch* in)
 	visit_switch_case_list(in->switch_cases);
 }
 
-void AST_unparser::children_switch_case(AST_switch_case* in)
+void AST_unparser::children_switch_case(Switch_case* in)
 {
 	if(in->expr != NULL)
 	{
@@ -390,14 +390,14 @@ void AST_unparser::children_switch_case(AST_switch_case* in)
 	// We don't want curlies here
 	inc_indent();
 
-	List<AST_statement*>::const_iterator i;
+	List<Statement*>::const_iterator i;
 	for(i = in->statements->begin(); i != in->statements->end(); i++)
 		visit_statement(*i);
 
 	dec_indent();
 }
 
-void AST_unparser::children_break(AST_break* in)
+void AST_unparser::children_break(Break* in)
 {
 	echo("break");
 	if(in->expr != NULL)
@@ -409,7 +409,7 @@ void AST_unparser::children_break(AST_break* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_continue(AST_continue* in)
+void AST_unparser::children_continue(Continue* in)
 {
 	echo("continue");
 	if(in->expr != NULL)
@@ -421,7 +421,7 @@ void AST_unparser::children_continue(AST_continue* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_return(AST_return* in)
+void AST_unparser::children_return(Return* in)
 {
 	echo("return");
 	if(in->expr != NULL)
@@ -433,7 +433,7 @@ void AST_unparser::children_return(AST_return* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_static_declaration(AST_static_declaration* in)
+void AST_unparser::children_static_declaration(Static_declaration* in)
 {
 	echo("static ");
 	visit_name_with_default_list(in->vars);
@@ -441,10 +441,10 @@ void AST_unparser::children_static_declaration(AST_static_declaration* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_global(AST_global* in)
+void AST_unparser::children_global(Global* in)
 {
 	echo("global ");
-	List<AST_variable_name*>::const_iterator i;
+	List<Variable_name*>::const_iterator i;
 	for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
 	{
 		if(i != in->variable_names->begin())
@@ -457,7 +457,7 @@ void AST_unparser::children_global(AST_global* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_declare(AST_declare* in)
+void AST_unparser::children_declare(Declare* in)
 {
 	echo("declare");
 	visit_directive_list(in->directives);
@@ -475,14 +475,14 @@ void AST_unparser::children_declare(AST_declare* in)
 	}
 }
 
-void AST_unparser::children_directive(AST_directive* in)
+void AST_unparser::children_directive(Directive* in)
 {
 	visit_directive_name(in->directive_name);
 	echo(" = ");
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_try(AST_try* in)
+void AST_unparser::children_try(Try* in)
 {
 	echo("try");
 	space_or_newline();
@@ -493,7 +493,7 @@ void AST_unparser::children_try(AST_try* in)
 	visit_catch_list(in->catches);
 }
 
-void AST_unparser::children_catch(AST_catch* in)
+void AST_unparser::children_catch(Catch* in)
 {
 	echo("catch (");
 	visit_class_name(in->class_name);
@@ -509,7 +509,7 @@ void AST_unparser::children_catch(AST_catch* in)
 // after every catch (which messes up the layout when using same line curlies)
 // We cannot deal with after-comments here, so we just assert that they don't
 // exist and wait until somebody complains :)
-void AST_unparser::post_catch_chain(AST_catch* in)
+void AST_unparser::post_catch_chain(Catch* in)
 {
 	List<String*>::const_iterator i;
 	List<String*>* comments = in->get_comments();
@@ -520,7 +520,7 @@ void AST_unparser::post_catch_chain(AST_catch* in)
 	}
 }
 
-void AST_unparser::children_throw(AST_throw* in)
+void AST_unparser::children_throw(Throw* in)
 {
 	echo("throw ");
 	visit_expr(in->expr);
@@ -528,16 +528,16 @@ void AST_unparser::children_throw(AST_throw* in)
 	// newline output by post_commented_node
 }
 
-void AST_unparser::children_eval_expr(AST_eval_expr* in)
+void AST_unparser::children_eval_expr(Eval_expr* in)
 {
 	if(in->attrs->is_true("phc.unparser.is_inline_html"))
 	{
-		AST_method_invocation* inv;
-		Token_string* str;
+		Method_invocation* inv;
+		STRING* str;
 
-		inv = dynamic_cast<AST_method_invocation*>(in->expr);
+		inv = dynamic_cast<Method_invocation*>(in->expr);
 		assert(inv);
-		str = dynamic_cast<Token_string*>(inv->actual_parameters->front()->expr);
+		str = dynamic_cast<STRING*>(inv->actual_parameters->front()->expr);
 		assert(str);
 
 		echo_html(str->source_rep);
@@ -551,7 +551,7 @@ void AST_unparser::children_eval_expr(AST_eval_expr* in)
 	}
 }
 
-void AST_unparser::children_assignment(AST_assignment* in)
+void AST_unparser::children_assignment(Assignment* in)
 {
 	visit_variable(in->variable);
 
@@ -564,7 +564,7 @@ void AST_unparser::children_assignment(AST_assignment* in)
 }
 
 // $a += $b;
-void AST_unparser::children_op_assignment(AST_op_assignment* in)
+void AST_unparser::children_op_assignment(Op_assignment* in)
 {
 		visit_variable(in->variable);
 
@@ -575,14 +575,14 @@ void AST_unparser::children_op_assignment(AST_op_assignment* in)
 		visit_expr(in->expr);
 }
 
-void AST_unparser::children_list_assignment(AST_list_assignment* in)
+void AST_unparser::children_list_assignment(List_assignment* in)
 {
 	visit_list_element_list(in->list_elements);
 	echo(" = ");
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_cast(AST_cast* in)
+void AST_unparser::children_cast(Cast* in)
 {
 	echo("(");
 	visit_cast(in->cast);
@@ -590,13 +590,13 @@ void AST_unparser::children_cast(AST_cast* in)
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_unary_op(AST_unary_op* in)
+void AST_unparser::children_unary_op(Unary_op* in)
 {
 	visit_op(in->op);
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_bin_op(AST_bin_op* in)
+void AST_unparser::children_bin_op(Bin_op* in)
 {
 	if(*in->op->value == ".")
 	{
@@ -677,7 +677,7 @@ void AST_unparser::children_bin_op(AST_bin_op* in)
 	}
 }
 
-void AST_unparser::children_conditional_expr(AST_conditional_expr* in)
+void AST_unparser::children_conditional_expr(Conditional_expr* in)
 {
 	visit_expr(in->cond);
 	echo(" ? ");
@@ -686,13 +686,13 @@ void AST_unparser::children_conditional_expr(AST_conditional_expr* in)
 	visit_expr(in->iffalse);
 }
 
-void AST_unparser::children_ignore_errors(AST_ignore_errors* in)
+void AST_unparser::children_ignore_errors(Ignore_errors* in)
 {
 	echo("@");
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_constant(AST_constant* in)
+void AST_unparser::children_constant(Constant* in)
 {
 	if(in->class_name != NULL)
 	{
@@ -703,22 +703,22 @@ void AST_unparser::children_constant(AST_constant* in)
 	visit_constant_name(in->constant_name);
 }
 
-void AST_unparser::children_instanceof(AST_instanceof* in)
+void AST_unparser::children_instanceof(Instanceof* in)
 {
 	visit_expr(in->expr);
 	echo(" instanceof ");
 	visit_class_name(in->class_name);
 }
 
-void AST_unparser::children_variable(AST_variable* in)
+void AST_unparser::children_variable(Variable* in)
 {
-	AST_reflection* reflection;
-	AST_variable* name = NULL;
+	Reflection* reflection;
+	Variable* name = NULL;
 
 	// last_op.top() applies only to the top-level variable (in), not to 
 	// any variables that may be used inside in. Therefore, we copy 
 	// last_op.top() to a local variable, and then push NULL to last_op
-	Token_op* in_last_op = last_op.empty() ? NULL : last_op.top();
+	OP* in_last_op = last_op.empty() ? NULL : last_op.top();
 	last_op.push(NULL);
 
 	if(    in_last_op != NULL   
@@ -730,7 +730,7 @@ void AST_unparser::children_variable(AST_variable* in)
 
 	if(in->target != NULL)
 	{
-		Token_class_name* class_name = dynamic_cast<Token_class_name*>(in->target);
+		CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(in->target);
 
 		if(class_name)
 		{
@@ -748,11 +748,11 @@ void AST_unparser::children_variable(AST_variable* in)
 		echo("$");
 	}
 
-	reflection = dynamic_cast<AST_reflection*>(in->variable_name);
+	reflection = dynamic_cast<Reflection*>(in->variable_name);
 	
 	if(reflection)
 	{
-		name = dynamic_cast<AST_variable*>(reflection->expr);
+		name = dynamic_cast<Variable*>(reflection->expr);
 		visit_variable_name(in->variable_name);
 	}
 	else
@@ -771,7 +771,7 @@ void AST_unparser::children_variable(AST_variable* in)
 		}
 	}
 
-	List<AST_expr*>::const_iterator i;
+	List<Expr*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
 		if(*i && (*i)->attrs->is_true("phc.unparser.index_curlies"))
@@ -799,30 +799,30 @@ void AST_unparser::children_variable(AST_variable* in)
 	last_op.pop();
 }
 
-void AST_unparser::children_reflection(AST_reflection* in)
+void AST_unparser::children_reflection(Reflection* in)
 {
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_pre_op(AST_pre_op* in)
+void AST_unparser::children_pre_op(Pre_op* in)
 {
 	visit_op(in->op);
 	visit_variable(in->variable);
 }
 
-void AST_unparser::children_post_op(AST_post_op* in)
+void AST_unparser::children_post_op(Post_op* in)
 {
 	visit_variable(in->variable);
 	visit_op(in->op);
 }
 
-void AST_unparser::children_array(AST_array* in)
+void AST_unparser::children_array(Array* in)
 {
 	echo("array");
 	visit_array_elem_list(in->array_elems);
 }
 
-void AST_unparser::children_array_elem(AST_array_elem* in)
+void AST_unparser::children_array_elem(Array_elem* in)
 {
 	if(in->key != NULL)
 	{
@@ -833,12 +833,12 @@ void AST_unparser::children_array_elem(AST_array_elem* in)
 	visit_expr(in->val);
 }
 
-void AST_unparser::children_method_invocation(AST_method_invocation* in)
+void AST_unparser::children_method_invocation(Method_invocation* in)
 {
 	bool after_arrow = false;
-	Token_class_name* static_method;
+	CLASS_NAME* static_method;
 
-	static_method = dynamic_cast<Token_class_name*>(in->target);
+	static_method = dynamic_cast<CLASS_NAME*>(in->target);
 	if(static_method)
 	{
 		visit_class_name(static_method);
@@ -905,13 +905,13 @@ void AST_unparser::children_method_invocation(AST_method_invocation* in)
 	}
 }
 
-void AST_unparser::children_actual_parameter(AST_actual_parameter* in)
+void AST_unparser::children_actual_parameter(Actual_parameter* in)
 {
 	if(in->is_ref) echo("&");
 	visit_expr(in->expr);
 }
 
-void AST_unparser::children_new(AST_new* in)
+void AST_unparser::children_new(New* in)
 {
 	echo("new ");
 	visit_class_name(in->class_name);
@@ -929,9 +929,9 @@ void AST_unparser::children_new(AST_new* in)
 	}
 }
 
-void AST_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
+void AST_unparser::visit_interface_name_list(List<INTERFACE_NAME*>* in)
 {
-	List<Token_interface_name*>::const_iterator i;
+	List<INTERFACE_NAME*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -939,35 +939,35 @@ void AST_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
 	}
 }
 
-void AST_unparser::visit_member_list(List<AST_member*>* in)
+void AST_unparser::visit_member_list(List<Member*>* in)
 {
 	newline();
 	echo_nl("{");
 	inc_indent();
 
-	AST_visitor::visit_member_list(in);	
+	Visitor::visit_member_list(in);	
 
 	dec_indent();
 	echo_nl("}");
 }
 
-void AST_unparser::visit_statement_list(List<AST_statement*>* in)
+void AST_unparser::visit_statement_list(List<Statement*>* in)
 {
 	bool no_curlies = in->size() == 1 && in->front()->attrs->is_true("phc.unparser.is_wrapped");
 
 	if(!no_curlies) echo("{");
 	inc_indent();
 
-	AST_visitor::visit_statement_list(in);
+	Visitor::visit_statement_list(in);
 
 	dec_indent();
 	if(!no_curlies) echo("}");
 }
 
-void AST_unparser::visit_formal_parameter_list(List<AST_formal_parameter*>* in)
+void AST_unparser::visit_formal_parameter_list(List<Formal_parameter*>* in)
 {
 	echo("(");
-	List<AST_formal_parameter*>::const_iterator i;
+	List<Formal_parameter*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -976,12 +976,12 @@ void AST_unparser::visit_formal_parameter_list(List<AST_formal_parameter*>* in)
 	echo(")");
 }
 
-void AST_unparser::visit_switch_case_list(List<AST_switch_case*>* in)
+void AST_unparser::visit_switch_case_list(List<Switch_case*>* in)
 {
 	echo_nl("{");
 	inc_indent();
 
-	List<AST_switch_case*>::const_iterator i;
+	List<Switch_case*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 		visit_switch_case(*i);
 
@@ -989,11 +989,11 @@ void AST_unparser::visit_switch_case_list(List<AST_switch_case*>* in)
 	echo_nl("}");
 }
 
-void AST_unparser::visit_directive_list(List<AST_directive*>* in)
+void AST_unparser::visit_directive_list(List<Directive*>* in)
 {
 	echo("(");
 
-	List<AST_directive*>::const_iterator i;
+	List<Directive*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -1003,9 +1003,9 @@ void AST_unparser::visit_directive_list(List<AST_directive*>* in)
 	echo(")");
 }
 
-void AST_unparser::visit_catch_list(List<AST_catch*>* in)
+void AST_unparser::visit_catch_list(List<Catch*>* in)
 {
-	List<AST_catch*>::const_iterator i;
+	List<Catch*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) space_or_newline();
@@ -1013,11 +1013,11 @@ void AST_unparser::visit_catch_list(List<AST_catch*>* in)
 	}
 }
 
-void AST_unparser::visit_list_element_list(List<AST_list_element*>* in)
+void AST_unparser::visit_list_element_list(List<List_element*>* in)
 {
 	echo("list(");
 
-	List<AST_list_element*>::const_iterator i;
+	List<List_element*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -1027,18 +1027,18 @@ void AST_unparser::visit_list_element_list(List<AST_list_element*>* in)
 	echo(")");
 }
 
-void AST_unparser::visit_expr_list(List<AST_expr*>* in)
+void AST_unparser::visit_expr_list(List<Expr*>* in)
 {
-	List<AST_expr*>::const_iterator i;
+	List<Expr*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 		if(*i) visit_expr(*i);
 }
 
-void AST_unparser::visit_array_elem_list(List<AST_array_elem*>* in)
+void AST_unparser::visit_array_elem_list(List<Array_elem*>* in)
 {
 	echo("(");
 
-	List<AST_array_elem*>::const_iterator i;
+	List<Array_elem*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -1048,9 +1048,9 @@ void AST_unparser::visit_array_elem_list(List<AST_array_elem*>* in)
 	echo(")");
 }
 
-void AST_unparser::visit_actual_parameter_list(List<AST_actual_parameter*>* in)
+void AST_unparser::visit_actual_parameter_list(List<Actual_parameter*>* in)
 {
-	List<AST_actual_parameter*>::const_iterator i;
+	List<Actual_parameter*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -1058,9 +1058,9 @@ void AST_unparser::visit_actual_parameter_list(List<AST_actual_parameter*>* in)
 	}
 }
 
-void AST_unparser::visit_name_with_default_list(List<AST_name_with_default*>* in)
+void AST_unparser::visit_name_with_default_list(List<Name_with_default*>* in)
 {
-	List<AST_name_with_default*>::const_iterator i;
+	List<Name_with_default*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -1069,57 +1069,57 @@ void AST_unparser::visit_name_with_default_list(List<AST_name_with_default*>* in
 }
 
 // Token classes
-void AST_unparser::children_interface_name(Token_interface_name* in)
+void AST_unparser::children_interface_name(INTERFACE_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_class_name(Token_class_name* in)
+void AST_unparser::children_class_name(CLASS_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_method_name(Token_method_name* in)
+void AST_unparser::children_method_name(METHOD_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_variable_name(Token_variable_name* in)
+void AST_unparser::children_variable_name(VARIABLE_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_directive_name(Token_directive_name* in)
+void AST_unparser::children_directive_name(DIRECTIVE_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_cast(Token_cast* in)
+void AST_unparser::children_cast(CAST* in)
 {
 	echo(in->source_rep);
 }
 
-void AST_unparser::children_op(Token_op* in)
+void AST_unparser::children_op(OP* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_constant_name(Token_constant_name* in)
+void AST_unparser::children_constant_name(CONSTANT_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_int(Token_int* in)
+void AST_unparser::children_int(INT* in)
 {
 	echo(in->source_rep);
 }
 
-void AST_unparser::children_real(Token_real* in)
+void AST_unparser::children_real(REAL* in)
 {
 	echo(in->source_rep);
 }
 
-void AST_unparser::children_string(Token_string* in)
+void AST_unparser::children_string(STRING* in)
 {
 	if(
 			*in->source_rep == "__FILE__" ||
@@ -1169,18 +1169,18 @@ void AST_unparser::children_string(Token_string* in)
 	}
 }
 
-void AST_unparser::children_bool(Token_bool* in)
+void AST_unparser::children_bool(BOOL* in)
 {
 	echo(in->source_rep);
 }
 
-void AST_unparser::children_null(Token_null* in)
+void AST_unparser::children_nil(NIL* in)
 {
 	echo(in->source_rep);
 }
 
 // Generic classes
-void AST_unparser::pre_node(AST_node* in)
+void AST_unparser::pre_node(Node* in)
 {
 	if(    in->attrs->is_true("phc.unparser.starts_line")
 			&& !in_string.top()
@@ -1195,9 +1195,9 @@ void AST_unparser::pre_node(AST_node* in)
  * involves reflection, and some special cases in the node containing the
  * reflected variable. In general $$$$x (ie any amunt of nested variabels) is
  * ok, and anything else requires curlies. */
-bool needs_curlies (AST_reflection* in)
+bool needs_curlies (Reflection* in)
 {
-	AST_variable* var = dynamic_cast <AST_variable*> (in->expr);
+	Variable* var = dynamic_cast <Variable*> (in->expr);
 	if (var 
 		&& var->target == NULL
 		&& var->array_indices->size() == 0)
@@ -1206,34 +1206,34 @@ bool needs_curlies (AST_reflection* in)
 	return true;
 }
 
-void AST_unparser::pre_variable (AST_variable* in)
+void AST_unparser::pre_variable (Variable* in)
 {
-	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->variable_name);
+	Reflection* reflect = dynamic_cast<Reflection*>(in->variable_name);
 	if (reflect && 
 			(needs_curlies (reflect) || in->array_indices->size () > 0))
 		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
 }
 
-void AST_unparser::pre_method_invocation (AST_method_invocation* in)
+void AST_unparser::pre_method_invocation (Method_invocation* in)
 {
-	AST_reflection* reflect = dynamic_cast<AST_reflection*>(in->method_name);
+	Reflection* reflect = dynamic_cast<Reflection*>(in->method_name);
 	if (in->target
 			&& reflect && needs_curlies (reflect))
 		reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
 }
 
-void AST_unparser::pre_global (AST_global* in)
+void AST_unparser::pre_global (Global* in)
 {
-	List<AST_variable_name*>::const_iterator i;
+	List<Variable_name*>::const_iterator i;
 	for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
 	{
-		AST_reflection* reflect = dynamic_cast<AST_reflection*>(*i);
+		Reflection* reflect = dynamic_cast<Reflection*>(*i);
 		if (reflect && needs_curlies (reflect))
 			reflect->expr->attrs->set_true ("phc.unparser.needs_curlies");
 	}
 }
 
-void AST_unparser::pre_expr(AST_expr* in)
+void AST_unparser::pre_expr(Expr* in)
 {
 	if(in->attrs->is_true("phc.unparser.needs_user_brackets"))
 		echo("(");
@@ -1241,7 +1241,7 @@ void AST_unparser::pre_expr(AST_expr* in)
 		echo("{");
 }
 
-void AST_unparser::post_expr(AST_expr* in)
+void AST_unparser::post_expr(Expr* in)
 {
 	if(in->attrs->is_true("phc.unparser.needs_curlies") or in->attrs->is_true("phc.unparser.needs_user_curlies"))
 		echo("}");
@@ -1249,7 +1249,7 @@ void AST_unparser::post_expr(AST_expr* in)
 		echo(")");
 }
 
-void AST_unparser::pre_commented_node(AST_commented_node* in)
+void AST_unparser::pre_commented_node(Commented_node* in)
 {
 	List<String*>::const_iterator i;
 	List<String*>* comments = in->get_comments();
@@ -1263,8 +1263,8 @@ void AST_unparser::pre_commented_node(AST_commented_node* in)
 	}
 }
 
-// Note: does not get executed for AST_catch (which overrides post_catch_chain)
-void AST_unparser::post_commented_node(AST_commented_node* in)
+// Note: does not get executed for Catch (which overrides post_catch_chain)
+void AST_unparser::post_commented_node(Commented_node* in)
 {
 	List<String*>::const_iterator i;
 	List<String*>* comments = in->get_comments();
@@ -1282,25 +1282,25 @@ void AST_unparser::post_commented_node(AST_commented_node* in)
 	if(!at_start_of_line) newline();
 }
 
-void AST_unparser::children_label_name (Token_label_name* in)
+void AST_unparser::children_label_name (LABEL_NAME* in)
 {
 	echo(in->value);
 }
 
-void AST_unparser::children_goto (AST_goto* in)
+void AST_unparser::children_goto (Goto* in)
 {
 	echo ("goto ");
 	visit_label_name (in->label_name);
 	echo_nl (";");
 }
 
-void AST_unparser::children_label (AST_label* in)
+void AST_unparser::children_label (Label* in)
 {
 	visit_label_name (in->label_name);
 	echo_nl(":");
 }
 
-void AST_unparser::children_nop (AST_nop* in)
+void AST_unparser::children_nop (Nop* in)
 {
 	// If the NOP is the only statement is a block, and there are no curlies
 	// around it, we must output the semi-colon
@@ -1308,7 +1308,7 @@ void AST_unparser::children_nop (AST_nop* in)
 		echo(";");
 }
 
-void AST_unparser::children_name_with_default (AST_name_with_default* in)
+void AST_unparser::children_name_with_default (Name_with_default* in)
 {
 	echo("$");
 	visit_variable_name(in->variable_name);

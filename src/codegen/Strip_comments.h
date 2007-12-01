@@ -10,10 +10,10 @@
 
 #include "AST_visitor.h"
 
-class Strip_comments : public virtual AST::AST_visitor
+class Strip_comments : public virtual AST::Visitor
 {
 public:
-	void pre_commented_node(AST::AST_commented_node* in);
+	void pre_commented_node(AST::Commented_node* in);
 };
 
 #endif // PHC_STRIP_COMMENTS

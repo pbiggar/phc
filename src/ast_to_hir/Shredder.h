@@ -12,34 +12,34 @@
 #include "AST.h"
 #include "Lower_expr.h"
 
-List<AST::AST_statement*>* shred (AST::AST_statement* in);
+List<AST::Statement*>* shred (AST::Statement* in);
 
 class Shredder : public Lower_expr
 {
 public:
-	void children_php_script(AST::AST_php_script* in);
-	void post_nop(AST::AST_nop* in);
+	void children_php_script(AST::PHP_script* in);
+	void post_nop(AST::Nop* in);
 
 public:
-	AST::AST_variable* post_variable(AST::AST_variable* in);
-	AST::AST_expr* post_new (AST::AST_new* in);
-	AST::AST_expr* post_bin_op(AST::AST_bin_op* in);
-	AST::AST_expr* post_unary_op(AST::AST_unary_op* in);
-	AST::AST_expr* post_cast(AST::AST_cast* in);
-	AST::AST_expr* post_instanceof(AST::AST_instanceof* in);
-	AST::AST_expr* post_method_invocation(AST::AST_method_invocation* in);
-	AST::AST_expr* post_int(AST::Token_int* in);
-	AST::AST_expr* post_real(AST::Token_real* in);
-	AST::AST_expr* post_bool(AST::Token_bool* in);
-	AST::AST_expr* post_string(AST::Token_string* in);
-	AST::AST_expr* post_null(AST::Token_null* in);
-	AST::AST_expr* post_constant (AST::AST_constant* in);
-	AST::AST_expr* post_array(AST::AST_array* in);
-	AST::AST_expr* post_assignment(AST::AST_assignment* in);
-	AST::AST_expr* post_op_assignment(AST::AST_op_assignment* in);
-	AST::AST_expr* pre_ignore_errors(AST::AST_ignore_errors* in);
-	AST::AST_expr* post_ignore_errors(AST::AST_ignore_errors* in);
-	void pre_eval_expr (AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
+	AST::Variable* post_variable(AST::Variable* in);
+	AST::Expr* post_new (AST::New* in);
+	AST::Expr* post_bin_op(AST::Bin_op* in);
+	AST::Expr* post_unary_op(AST::Unary_op* in);
+	AST::Expr* post_cast(AST::Cast* in);
+	AST::Expr* post_instanceof(AST::Instanceof* in);
+	AST::Expr* post_method_invocation(AST::Method_invocation* in);
+	AST::Expr* post_int(AST::INT* in);
+	AST::Expr* post_real(AST::REAL* in);
+	AST::Expr* post_bool(AST::BOOL* in);
+	AST::Expr* post_string(AST::STRING* in);
+	AST::Expr* post_nil(AST::NIL* in);
+	AST::Expr* post_constant (AST::Constant* in);
+	AST::Expr* post_array(AST::Array* in);
+	AST::Expr* post_assignment(AST::Assignment* in);
+	AST::Expr* post_op_assignment(AST::Op_assignment* in);
+	AST::Expr* pre_ignore_errors(AST::Ignore_errors* in);
+	AST::Expr* post_ignore_errors(AST::Ignore_errors* in);
+	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
 };
 
 

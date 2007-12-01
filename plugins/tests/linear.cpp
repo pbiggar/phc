@@ -22,7 +22,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 }
 
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	Collect_all_pointers cap;
 	in->visit(&cap);

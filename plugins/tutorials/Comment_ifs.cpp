@@ -9,7 +9,7 @@
 
 using namespace AST;
 
-class Comment_ifs : public AST_visitor
+class Comment_ifs : public Visitor
 {
 private:
    bool comment;
@@ -20,7 +20,7 @@ public:
       comment = false; 
    }
 
-   void children_if(AST_if* in)
+   void children_if(If* in)
    {
       visit_expr(in->expr);
       comment = true;
@@ -30,7 +30,7 @@ public:
       comment = false;
    }
 
-   void post_statement(AST_statement* in)
+   void post_statement(Statement* in)
    {
       if(comment && in->get_comments()->empty())
          in->get_comments()->push_back(new String("/* TODO: Insert comment */"));
@@ -44,7 +44,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit (new Comment_ifs ());
 }

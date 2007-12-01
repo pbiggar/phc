@@ -153,7 +153,7 @@ public:
 		String* value = in->get_value_as_string();
 		String* source_rep = in->get_source_rep();
 
-		// Token_null does not have a value
+		// NIL does not have a value
 		if(!dynamic_cast<Null*>(in))
 		{
 			print_indent();
@@ -255,48 +255,75 @@ protected:
 #include "AST_visitor.h"
 class AST_XML_unparser : public XML_unparser
 <
-	AST::AST_php_script,
-	AST::AST_node,
-	AST::AST_visitor, 
-	AST::AST_identifier, 
-	AST::AST_literal,
-	AST::Token_null
+	AST::PHP_script,
+	AST::Node,
+	AST::Visitor, 
+	AST::Identifier, 
+	AST::Literal,
+	AST::NIL
 >
 {
 public:
 	AST_XML_unparser(ostream& os = cout, bool print_attrs = true)
 	: XML_unparser<
-			AST::AST_php_script,
-			AST::AST_node,
-			AST::AST_visitor, 
-			AST::AST_identifier, 
-			AST::AST_literal,
-			AST::Token_null
+			AST::PHP_script,
+			AST::Node,
+			AST::Visitor, 
+			AST::Identifier, 
+			AST::Literal,
+			AST::NIL
 		> (os, print_attrs)
 	{
+	}
+	
+	// In the AST (but not in the HIR), CAST has a value and a source_rep
+	void pre_identifier(AST::Identifier* in)
+	{
+		AST::CAST* cast = dynamic_cast<AST::CAST*>(in);
+
+		if(cast != NULL)
+		{
+			print_indent();
+			os << "<value>" << *cast->value << "</value>" << endl;
+
+			print_indent();
+			os << "<source_rep>" << *cast->source_rep << "</source_rep>" << endl;
+		}
+		else
+		{
+			XML_unparser
+			<
+				AST::PHP_script,
+				AST::Node,
+				AST::Visitor, 
+				AST::Identifier, 
+				AST::Literal,
+				AST::NIL
+			>::pre_identifier(in);
+		}
 	}
 };
 
 #include "HIR_visitor.h"
 class HIR_XML_unparser : public XML_unparser
 <
-	HIR::HIR_php_script, 
-	HIR::HIR_node, 
-	HIR::HIR_visitor, 
-	HIR::HIR_identifier, 
-	HIR::HIR_literal,
-	HIR::Token_null
+	HIR::PHP_script, 
+	HIR::Node, 
+	HIR::Visitor, 
+	HIR::Identifier, 
+	HIR::Literal,
+	HIR::NIL
 > 
 {
 public:
 	HIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
 	: XML_unparser<
-			HIR::HIR_php_script,
-			HIR::HIR_node,
-			HIR::HIR_visitor, 
-			HIR::HIR_identifier, 
-			HIR::HIR_literal,
-			HIR::Token_null
+			HIR::PHP_script,
+			HIR::Node,
+			HIR::Visitor, 
+			HIR::Identifier, 
+			HIR::Literal,
+			HIR::NIL
 		> (os, print_attrs)
 
 	{

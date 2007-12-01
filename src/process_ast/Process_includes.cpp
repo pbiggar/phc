@@ -99,7 +99,7 @@ using namespace AST;
 // - include_once fails incorrectly
 // - include_once fails correctly
 
-class Return_check : public AST_visitor
+class Return_check : public Visitor
 {
 public:
 	bool found;
@@ -110,12 +110,12 @@ public:
 	}
 
 	// Avoid looking in any defined functions
-	void children_method (AST_method* in)
+	void children_method (Method* in)
 	{
 		// deliberately empty
 	}
 
-	void pre_return(AST_return* in)
+	void pre_return(Return* in)
 	{
 		found = true;
 	}
@@ -130,41 +130,41 @@ public:
  *   ...; // ore included lines
  *   TIG1:
  */
-class Return_transform : public AST_transform
+class Return_transform : public Transform
 {
 public:
 
 	// The label to jump to
-	AST_label* label;
+	Label* label;
 
 	// The variable to be set before jumping
-	AST_variable* variable;
+	Variable* variable;
 
-	Return_transform (AST_label* label, AST_variable* variable = NULL)
+	Return_transform (Label* label, Variable* variable = NULL)
 	: label (label),
 	  variable (variable)
 	{
 	}
 
 	// Avoid looking in any defined functions
-	void children_method (AST_method* in)
+	void children_method (Method* in)
 	{
 		// deliberately empty
 	}
 
-   void pre_return (AST_return* in, List<AST_statement*>* out)
+   void pre_return (Return* in, List<Statement*>* out)
 	{
 		// return 7; => $x = 7;
 		if (variable and in->expr)
-			out->push_back (new AST_eval_expr (
-						new AST_assignment (
+			out->push_back (new Eval_expr (
+						new Assignment (
 							variable->clone(), 
 							false, // we only work on the outer function,
 									 // so return cant be by reference
 							in->expr)));
 
 		// goto TIG;
-		out->push_back (new AST_goto (label->label_name->clone ()));
+		out->push_back (new Goto (label->label_name->clone ()));
 	}
 };
 
@@ -184,7 +184,7 @@ bool Process_includes::pass_is_enabled (Pass_manager* pm)
 }
 
 
-void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, List<AST_statement*>* out, AST_actual_parameter* param)
+void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<Statement*>* out, Actual_parameter* param)
 {
 	if (hir && warning)
 		phc_warning("File %s could not be included, and will be included at run-time", warning, in);
@@ -200,7 +200,7 @@ void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, L
 	 *
 	 * for future HIR.
 	 */
-	if (hir && param->expr->classid () != AST_variable::ID)
+	if (hir && param->expr->classid () != Variable::ID)
 	{
 		// This was set in Annotate.
 		param->expr->attrs->erase ("phc.lower_expr.no_temp");
@@ -216,20 +216,20 @@ void Process_includes::do_not_include (const char* warning, AST_eval_expr* in, L
 /* If it matches, return the filename, else return NULL. If warn is passed,
  * warn if an include statement is found, but using an expression, not a
  * string. */
-AST_actual_parameter* matching_param (AST_eval_expr* in, List<AST_statement*>* out) 
+Actual_parameter* matching_param (Eval_expr* in, List<Statement*>* out) 
 { 
 
 	// the filename is the only parameter of the include statement
-	Wildcard<AST_actual_parameter>* param = new Wildcard<AST_actual_parameter>;
-	Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
-	AST_method_invocation* pattern = new AST_method_invocation(
+	Wildcard<Actual_parameter>* param = new Wildcard<Actual_parameter>;
+	Wildcard<METHOD_NAME>* method_name = new Wildcard<METHOD_NAME>;
+	Method_invocation* pattern = new Method_invocation(
 			NULL,
 			method_name,
-			new List<AST_actual_parameter*> (param)
+			new List<Actual_parameter*> (param)
 			);
 
-	AST_assignment* agn_pattern = new AST_assignment (
-		new Wildcard<AST_variable>, false, pattern);
+	Assignment* agn_pattern = new Assignment (
+		new Wildcard<Variable>, false, pattern);
 
 	// TODO there is obviously a difference between these forms. In
 	// particular, the _once versions actually do something
@@ -246,15 +246,15 @@ AST_actual_parameter* matching_param (AST_eval_expr* in, List<AST_statement*>* o
 	return NULL;
 }
 
-String* get_filename_from_param (AST_actual_parameter* param)
+String* get_filename_from_param (Actual_parameter* param)
 {
-	Token_string* token_filename = dynamic_cast<Token_string*> (param->expr);
+	STRING* token_filename = dynamic_cast<STRING*> (param->expr);
 	if (token_filename != NULL)
 		return token_filename->value;
 	return NULL;
 }
 
-List<String*>* get_search_directories (String* filename, AST_node* in)
+List<String*>* get_search_directories (String* filename, Node* in)
 {
 	List<String*>* dirs = new List<String*>();
 	// TODO get include path from PHP and allow path to be provided at compile time
@@ -272,10 +272,10 @@ List<String*>* get_search_directories (String* filename, AST_node* in)
 }
 
 // look for include statements
-void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
 	// check if its an include function
-	AST_actual_parameter* param = matching_param (in, out);
+	Actual_parameter* param = matching_param (in, out);
 	if (param == NULL)
 	{
 		out->push_back (in);
@@ -300,7 +300,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	List<String*>* dirs = get_search_directories (filename, in);
 
 	// Try to parse the file
-	AST_php_script* ast = parse(filename, dirs, false);
+	PHP_script* ast = parse(filename, dirs, false);
 
 	// Script could not be found or not be parsed; leave the include in
 	if (ast == NULL)
@@ -318,7 +318,7 @@ void Process_includes::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* ou
 	{
 		if (hir)
 		{
-			AST_label* label = fresh_label ();
+			Label* label = fresh_label ();
 			ast->transform_children (new Return_transform (label));
 			out->push_back (label);
 		}

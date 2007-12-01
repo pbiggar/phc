@@ -32,7 +32,7 @@ using namespace AST;
 
 XERCES_CPP_NAMESPACE_USE
 
-AST_php_script* parse_ast_xml(InputSource& inputSource);
+PHP_script* parse_ast_xml(InputSource& inputSource);
 
 class PHC_SAX2Handler : public DefaultHandler {
 private:
@@ -45,7 +45,7 @@ private:
 	const Locator* locator;
 
 public:
-	AST_php_script* result;
+	PHP_script* result;
 	bool no_errors;
 
 public:
@@ -62,7 +62,7 @@ public:
 	{
 		if(no_errors)
 		{
-			result = dynamic_cast<AST_php_script*>(node_stack.top());
+			result = dynamic_cast<PHP_script*>(node_stack.top());
 		}
 	}
 
@@ -135,7 +135,7 @@ public:
 			
 		char* name = XMLString::transcode(localname);
 		Object* node = NULL;
-		AST_node* ast_node = NULL;
+		Node* ast_node = NULL;
 		String* value;
 		String* source_rep;
 
@@ -162,51 +162,60 @@ public:
 			attrs_stack.top()->set(key, node_stack.top());
 			node_stack.pop();
 		}
-		else if(!strcmp(name, "Token_string"))
+		else if(!strcmp(name, "STRING"))
 		{
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new Token_string(value, source_rep);
+			ast_node = new STRING(value, source_rep);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
-		else if(!strcmp(name, "Token_int"))
+		else if(!strcmp(name, "CAST"))
 		{
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new Token_int(strtol(value->c_str(), 0, 0), source_rep);
+			ast_node = new CAST(value, source_rep);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
-		else if(!strcmp(name, "Token_real"))
+		else if(!strcmp(name, "INT"))
 		{
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new Token_real(atof(value->c_str()), source_rep);	
+			ast_node = new INT(strtol(value->c_str(), 0, 0), source_rep);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
-		else if(!strcmp(name, "Token_bool"))
+		else if(!strcmp(name, "REAL"))
 		{
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			// Token_bool::get_value_as_string returns "True" or "False"
+			ast_node = new REAL(atof(value->c_str()), source_rep);	
+			ast_node->attrs = attrs_stack.top();
+			attrs_stack.pop();
+		}
+		else if(!strcmp(name, "BOOL"))
+		{
+			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
+			
+			// BOOL::get_value_as_string returns "True" or "False"
 			if(*value == "True")
-				ast_node = new Token_bool(true, source_rep);
+				ast_node = new BOOL(true, source_rep);
 			else
-				ast_node = new Token_bool(false, source_rep);
+				ast_node = new BOOL(false, source_rep);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
-		else if(!strcmp(name, "Token_null"))
+		else if(!strcmp(name, "NIL"))
 		{
 			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new Token_null(source_rep);
+			ast_node = new NIL(source_rep);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
@@ -244,7 +253,7 @@ public:
 
 			node = string_list;
 		}
-		else if(!strncmp(name, "AST_", 4) || !strncmp(name, "Token_", 6))
+		else 
 		{
 			List<Object*> args;
 
@@ -254,8 +263,13 @@ public:
 				node_stack.pop();
 			}
 		
-			node = AST_factory::create(name, &args);
-			ast_node = dynamic_cast<AST_node*>(node);
+			node = Node_factory::create(name, &args);
+
+			if(node == NULL)
+			{
+				phc_warning("XML parser: cannot deal with tag '%s'", name);
+			}
+			ast_node = dynamic_cast<Node*>(node);
 
 			if(ast_node != NULL)
 			{
@@ -266,10 +280,6 @@ public:
 			{
 				// Must have been a list
 			}
-		}
-		else
-		{
-			phc_warning("XML parser: cannot deal tag '%s'", name);
 		}
 	
 		if(ast_node != NULL)
@@ -313,9 +323,9 @@ public:
 	}
 };
 
-AST_php_script* parse_ast_xml_file(String* filename)
+PHP_script* parse_ast_xml_file(String* filename)
 {
-	AST_php_script* result;
+	PHP_script* result;
 
 	try {
 		XMLPlatformUtils::Initialize();
@@ -336,9 +346,9 @@ AST_php_script* parse_ast_xml_file(String* filename)
 	return result;
 }
 
-AST_php_script* parse_ast_xml_buffer(String* buffer)
+PHP_script* parse_ast_xml_buffer(String* buffer)
 {
-	AST_php_script* result;
+	PHP_script* result;
 
 	try {
 		XMLPlatformUtils::Initialize();
@@ -357,9 +367,9 @@ AST_php_script* parse_ast_xml_buffer(String* buffer)
 	return result;
 }
 
-AST_php_script* parse_ast_xml_stdin()
+PHP_script* parse_ast_xml_stdin()
 {
-	AST_php_script* result;
+	PHP_script* result;
 
 	try {
 		XMLPlatformUtils::Initialize();
@@ -378,7 +388,7 @@ AST_php_script* parse_ast_xml_stdin()
 	return result;
 }
 
-AST_php_script* parse_ast_xml(InputSource& inputSource)
+PHP_script* parse_ast_xml(InputSource& inputSource)
 {
 	SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
 	parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
@@ -419,7 +429,7 @@ AST_php_script* parse_ast_xml(InputSource& inputSource)
 	if(!phcHandler->no_errors)
 		phc_error(ERR_XML_PARSE, "There were XML errors");
 	
-	AST_php_script* result = phcHandler->result; 
+	PHP_script* result = phcHandler->result; 
 
 	delete parser;
 	delete phcHandler;

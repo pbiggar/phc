@@ -17,13 +17,13 @@
 
 /* Dump the XML for anynode to stderr. A global function. */
 // these are split so they're easy to call from the debugger
-void debug (AST::AST_node* in);
-void xdebug (AST::AST_node* in);
-void xadebug (AST::AST_node* in);
+void debug (AST::Node* in);
+void xdebug (AST::Node* in);
+void xadebug (AST::Node* in);
 
-void debug (HIR::HIR_node* in);
-void xdebug (HIR::HIR_node* in);
-void xadebug (HIR::HIR_node* in);
+void debug (HIR::Node* in);
+void xdebug (HIR::Node* in);
+void xadebug (HIR::Node* in);
 
 #endif
 

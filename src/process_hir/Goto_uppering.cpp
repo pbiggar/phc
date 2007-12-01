@@ -5,53 +5,53 @@ using namespace AST;
 
 Goto_uppering::Goto_uppering ()
 {
-	next = new AST_variable (NULL, new Token_variable_name (new String ("__next")), new List<AST_expr*>);
-	start = new Token_string (new String ("start"), new String ("start"));
-	end = new Token_string (new String ("end"), new String ("end"));
+	next = new Variable (NULL, new VARIABLE_NAME (new String ("__next")), new List<Expr*>);
+	start = new STRING (new String ("start"), new String ("start"));
+	end = new STRING (new String ("end"), new String ("end"));
 }
 
 /* We dont want to run this on all statement bodies in the traversal order.  So
  * we call it manually at the right times. */
-List<AST_statement*>*
-Goto_uppering::convert_statement_list (List<AST_statement*> *in)
+List<Statement*>*
+Goto_uppering::convert_statement_list (List<Statement*> *in)
 {
 	// The prelude contains all static declarations
-	List<AST_statement*> *prelude = new List<AST_statement*> ();
+	List<Statement*> *prelude = new List<Statement*> ();
 
 	// OUT only contains the while, and the "start" statement.
-	List<AST_statement*> *out = new List<AST_statement*> ();
+	List<Statement*> *out = new List<Statement*> ();
 
 	// add $next = "start";
-	AST_assignment *init = new AST_assignment (next->clone (), false,
+	Assignment *init = new Assignment (next->clone (), false,
 			start->clone ());
-	out->push_back (new AST_eval_expr (init));
+	out->push_back (new Eval_expr (init));
 
 	// create 'switch ($next)' (cases is to be used later)
-	List<AST_switch_case*> *cases = new List<AST_switch_case*> ();
-	AST_switch *switches = new AST_switch (next->clone (), cases);
+	List<Switch_case*> *cases = new List<Switch_case*> ();
+	Switch *switches = new Switch (next->clone (), cases);
 
 	// Add: while (true) { switch ($next) { } }
-	Token_bool *truth = new Token_bool (true, new String ("true"));
-	AST_while *while_stmt = new AST_while (truth, new List<AST_statement*> ());
+	BOOL *truth = new BOOL (true, new String ("true"));
+	While *while_stmt = new While (truth, new List<Statement*> ());
 	out->push_back (while_stmt);
 	while_stmt->statements->push_back (switches);
 
 
 	// Add: case "start";
-	AST_switch_case* current = new AST_switch_case (start->clone (), new List<AST_statement*> ());
+	Switch_case* current = new Switch_case (start->clone (), new List<Statement*> ());
 	cases->push_back (current);
 
 
 	// set up patterns
-	Wildcard<AST_expr> *expr = new Wildcard<AST_expr> ();
-	Wildcard<Token_label_name> *l1 = new Wildcard<Token_label_name> ();
-	Wildcard<Token_label_name> *l2 = new Wildcard<Token_label_name> ();
-	AST_goto *goto_pattern = new AST_goto (l1);
-	AST_branch *branch_pattern = new AST_branch (expr, l1, l2);
-	AST_label *label_pattern = new AST_label (l1);;
+	Wildcard<Expr> *expr = new Wildcard<Expr> ();
+	Wildcard<LABEL_NAME> *l1 = new Wildcard<LABEL_NAME> ();
+	Wildcard<LABEL_NAME> *l2 = new Wildcard<LABEL_NAME> ();
+	Goto *goto_pattern = new Goto (l1);
+	Branch *branch_pattern = new Branch (expr, l1, l2);
+	Label *label_pattern = new Label (l1);;
 
 	// Convert all the patterns
-	List<AST_statement*>::const_iterator i;
+	List<Statement*>::const_iterator i;
 	for (i = in->begin (); i != in->end (); i++)
 	{
 		// add statements to the current case statement
@@ -59,39 +59,39 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 		{
 			// add the gotos to the current case statement
 			current->statements->push_back (
-					new AST_eval_expr (
-						new AST_assignment (next->clone (), false,
-							new Token_string (l1->value->value, l1->value->value))));
+					new Eval_expr (
+						new Assignment (next->clone (), false,
+							new STRING (l1->value->value, l1->value->value))));
 
-			current->statements->push_back (new AST_continue (NULL));
+			current->statements->push_back (new Continue (NULL));
 		}
 		else if ((*i)->match (branch_pattern))
 		{
 			// add the if and gotos to the current case statement
-			AST_if *iffy = new AST_if (expr->value, 
-					new List<AST_statement*>(), 
-					new List<AST_statement*>());
+			If *iffy = new If (expr->value, 
+					new List<Statement*>(), 
+					new List<Statement*>());
 
 			iffy->iftrue->push_back (
-					new AST_eval_expr (
-						new AST_assignment (next->clone (), false,
-							new Token_string (l1->value->value, l1->value->value) )));
-			iffy->iftrue->push_back (new AST_continue (NULL));
+					new Eval_expr (
+						new Assignment (next->clone (), false,
+							new STRING (l1->value->value, l1->value->value) )));
+			iffy->iftrue->push_back (new Continue (NULL));
 
 			iffy->iffalse->push_back (
-					new AST_eval_expr (
-						new AST_assignment (next->clone (), false,
-							new Token_string (l2->value->value, l2->value->value) )));
-			iffy->iffalse->push_back (new AST_continue (NULL));
+					new Eval_expr (
+						new Assignment (next->clone (), false,
+							new STRING (l2->value->value, l2->value->value) )));
+			iffy->iffalse->push_back (new Continue (NULL));
 
 			current->statements->push_back (iffy);
 		}
 		else if ((*i)->match (label_pattern))
 		{
 			// finish the current case statement and start a new one
-			current = new AST_switch_case (
-					new Token_string (l1->value->value, l1->value->value), 
-					new List<AST_statement*> ());
+			current = new Switch_case (
+					new STRING (l1->value->value, l1->value->value), 
+					new List<Statement*> ());
 			cases->push_back (current);
 		}
 		else
@@ -104,17 +104,17 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 	}
 
 	// add '$next = "end";' after the final statement
-	current->statements->push_back (new AST_eval_expr (
-				new AST_assignment (next->clone (), false,
-					new Token_string (new String ("end"), new String ("end")))));
+	current->statements->push_back (new Eval_expr (
+				new Assignment (next->clone (), false,
+					new STRING (new String ("end"), new String ("end")))));
 
 
 	// add the breaking statement
-	current = new AST_switch_case (
-			new Token_string (new String ("end"), new String ("end")), 
-			new List<AST_statement*> ());
+	current = new Switch_case (
+			new STRING (new String ("end"), new String ("end")), 
+			new List<Statement*> ());
 	cases->push_back (current);
-	current->statements->push_back (new AST_break (new Token_int (2)));
+	current->statements->push_back (new Break (new INT (2)));
 
 
 	// combine the two lists, and output all statements
@@ -123,19 +123,19 @@ Goto_uppering::convert_statement_list (List<AST_statement*> *in)
 }
 
 void 
-Goto_uppering::pre_php_script (AST_php_script *in)
+Goto_uppering::pre_php_script (PHP_script *in)
 {
 	in->statements = convert_statement_list (in->statements);
 }
 
 void 
-Goto_uppering::pre_method (AST_method *in)
+Goto_uppering::pre_method (Method *in)
 {
 	if(in->statements != NULL) // abstract method?
 		in->statements = convert_statement_list (in->statements);
 }
 
-void Goto_uppering::post_php_script (AST_php_script* in)
+void Goto_uppering::post_php_script (PHP_script* in)
 {
 //	in->visit (new Check_uppering ());
 }

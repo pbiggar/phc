@@ -17,13 +17,13 @@ using namespace AST;
  *		$u = ++$x; // mark $u as unused
  *		$x;
  */
-AST_expr* Pre_post_op_shredder::post_pre_op(AST_pre_op* in)
+Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 {
 	// $u = ++$x;
-	AST_variable* unused = fresh_var ("TSpri");
+	Variable* unused = fresh_var ("TSpri");
 	unused->attrs->set_true ("phc.codegen.unused");
-	pieces->push_back (new AST_eval_expr (
-				new AST_assignment (
+	pieces->push_back (new Eval_expr (
+				new Assignment (
 					unused,
 					false,
 					in)));
@@ -41,11 +41,11 @@ AST_expr* Pre_post_op_shredder::post_pre_op(AST_pre_op* in)
  *	This avoids an extra statement being issued by post_post_op.
  *	This should be replaced with data-flow at a later date.
  */
-void Pre_post_op_shredder::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+void Pre_post_op_shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
-	if (AST_post_op* post_op = dynamic_cast<AST_post_op*> (in->expr))
+	if (Post_op* post_op = dynamic_cast<Post_op*> (in->expr))
 	{
-		in->expr = new AST_pre_op (post_op->op, post_op->variable);
+		in->expr = new Pre_op (post_op->op, post_op->variable);
 	}
 	out->push_back (in);
 }
@@ -57,24 +57,24 @@ void Pre_post_op_shredder::pre_eval_expr (AST_eval_expr* in, List<AST_statement*
  *		$u = ++$x; // mark $u as unused
  *		$t;
  */
-AST_expr* Pre_post_op_shredder::post_post_op(AST_post_op* in)
+Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
 {
-	AST_variable* old_value = fresh_var("TS");
+	Variable* old_value = fresh_var("TS");
 
 	// $t = $x
-	pieces->push_back (new AST_eval_expr (new AST_assignment(
+	pieces->push_back (new Eval_expr (new Assignment(
 					old_value->clone (),
 					false,
 					in->variable->clone())));
 
 	// $u = ++$x;
-	AST_variable* unused = fresh_var ("TSpoi");
+	Variable* unused = fresh_var ("TSpoi");
 	unused->attrs->set_true ("phc.codegen.unused");
-	pieces->push_back (new AST_eval_expr (
-				new AST_assignment (
+	pieces->push_back (new Eval_expr (
+				new Assignment (
 					unused,
 					false,
-					new AST_pre_op (
+					new Pre_op (
 						in->op,
 						in->variable))));
 

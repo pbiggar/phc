@@ -13,14 +13,14 @@
 #include "AST_visitor.h"
 
 
-class Collect_all_pointers : virtual public AST::AST_visitor 
+class Collect_all_pointers : virtual public AST::Visitor 
 {
 public:
 	list<Object*> all_pointers;
 	set<Object*> unique_pointers;
 
 public:
-	void pre_node(AST::AST_node* in)
+	void pre_node(AST::Node* in)
 	{
 		all_pointers.push_back(in);
 		unique_pointers.insert(in);

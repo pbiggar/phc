@@ -860,7 +860,7 @@ goto find_rule; \
 	#define RETURN_OP(t, s) {													\
 		if(false)	            												\
 			printf("%ld: SIMPLE_OP %s\n", yyextra->source_line, s);	\
-		yylval->token_op = new Token_op(new String(s)); 				\
+		yylval->token_op = new OP(new String(s)); 				\
 		copy_state(yylval->token_op, yyextra);								\
 		yyextra->after_arrow = false;											\
 		yyextra->starts_line = false;											\
@@ -884,7 +884,7 @@ goto find_rule; \
 	#define YY_EXTRA_TYPE PHP_context*
 
 	// Defined in php_parser.ypp
-	AST_node* copy_state(AST_node* node, PHP_context* context);
+	Node* copy_state(Node* node, PHP_context* context);
 /* Define lexical states */
 
 		
@@ -1484,51 +1484,51 @@ YY_RULE_SETUP
 										case K_AND:
 										case K_OR:
 										case K_XOR:
-											yylval->token_op = new Token_op(
+											yylval->token_op = new OP(
 												new String(yytext));
 											copy_state(yylval->token_op, yyextra);
 											break;
 										case C_FALSE:
-											yylval->token_bool = new Token_bool(false, 
+											yylval->token_bool = new BOOL(false, 
 												new String(yytext));
 											copy_state(yylval->token_bool, yyextra);
 											break;
 										case C_TRUE:
-											yylval->token_bool = new Token_bool(true, 
+											yylval->token_bool = new BOOL(true, 
 												new String(yytext));
 											copy_state(yylval->token_bool, yyextra);
 											break;
 										case C_NULL:
-											yylval->token_null = new Token_null( 
+											yylval->token_null = new NIL( 
 												new String(yytext));
 											copy_state(yylval->token_null, yyextra);
 											break;
 										case K___LINE__:
-											yylval->token_int = new Token_int(
+											yylval->token_int = new INT(
 												yyextra->source_line,
 												new String(yytext));
 											copy_state(yylval->token_int, yyextra);
 											break;
 										case K___FILE__:
-											yylval->token_string = new Token_string(
+											yylval->token_string = new STRING(
 												yyextra->filename,
 												new String("__FILE__"));
 											copy_state(yylval->token_string, yyextra);
 											break;
 										case K___CLASS__:
-											yylval->token_string = new Token_string(
+											yylval->token_string = new STRING(
 												yyextra->current_class,
 												new String("__CLASS__"));
 											copy_state(yylval->token_string, yyextra);
 											break;
 										case K___METHOD__:
-											yylval->token_string = new Token_string(
+											yylval->token_string = new STRING(
 												yyextra->current_method,
 												new String("__METHOD__"));
 											copy_state(yylval->token_string, yyextra);
 											break;
 										case K___FUNCTION__:
-											yylval->token_string = new Token_string(
+											yylval->token_string = new STRING(
 												yyextra->current_method,
 												new String("__FUNCTION__"));
 											copy_state(yylval->token_string, yyextra);
@@ -1552,24 +1552,24 @@ case 40:
 YY_RULE_SETUP
 #line 312 "src/generated_src/php_scanner.lex"
 { 
-								Token_int* i = new Token_int(
+								INT* i = new INT(
 									0, // initialized in Token_conversion
 									new String(yytext));
 								copy_state(i, yyextra);
 								yylval->token_int = i;
-								RETURN(INT); 
+								RETURN(T_INT); 
 							}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 320 "src/generated_src/php_scanner.lex"
 { 
-								Token_real* r = new Token_real(
+								REAL* r = new REAL(
 									0.0, // initialized in Token_conversion
 									new String(yytext));
 								copy_state(r, yyextra);
 								yylval->token_real = r;
-								RETURN(REAL); 
+								RETURN(T_REAL); 
 							}
 	YY_BREAK
 case 42:
@@ -1725,7 +1725,7 @@ case 57:
 YY_RULE_SETUP
 #line 421 "src/generated_src/php_scanner.lex"
 {
-							Token_string* str = new Token_string(
+							STRING* str = new STRING(
 								new String(yyextra->value_buffer),
 								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
@@ -1735,7 +1735,7 @@ YY_RULE_SETUP
 							BEGIN(PHP);
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
-							RETURN(STRING);
+							RETURN(T_STRING);
 						}
 	YY_BREAK
 case 58:
@@ -1863,7 +1863,7 @@ YY_RULE_SETUP
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
-							yyextra->schedule_return(INT, &yytext[left+1], right - left - 1);
+							yyextra->schedule_return(T_INT, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							
@@ -1886,7 +1886,7 @@ YY_RULE_SETUP
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							yyextra->schedule_return(VARIABLE, &yytext[1], left - 1);
 							yyextra->schedule_return('[');
-							yyextra->schedule_return(STRING, &yytext[left+1], right - left - 1);
+							yyextra->schedule_return(T_STRING, &yytext[left+1], right - left - 1);
 							yyextra->schedule_return(']');
 							yyextra->schedule_return_op(".", "phc.unparser.in_string_syntax.simple");
 							
@@ -1947,7 +1947,7 @@ YY_RULE_SETUP
 							yy_push_state(COMPLEX2, yyscanner);
 							yy_push_state(COMPLEX1, yyscanner);
 
-							Token_string* str = new Token_string(
+							STRING* str = new STRING(
 								new String(yyextra->value_buffer),
 								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
@@ -1956,7 +1956,7 @@ YY_RULE_SETUP
 							yyless(1);
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
-							RETURN(STRING);
+							RETURN(T_STRING);
 						}
 	YY_BREAK
 case 74:
@@ -2049,7 +2049,7 @@ YY_RULE_SETUP
 							yyless(0);
 							BEGIN(PHP);
 
-							Token_op* op = new Token_op(new String("."));
+							OP* op = new OP(new String("."));
 							copy_state(op, yyextra);
 							op->attrs->set_true("phc.unparser.in_string_syntax.complex");
 							yylval->token_op = op; 
@@ -2065,7 +2065,7 @@ YY_RULE_SETUP
 							yyless(0);
 							yy_pop_state(yyscanner);
 							
-							Token_op* op = new Token_op(new String("."));
+							OP* op = new OP(new String("."));
 							copy_state(op, yyextra);
 							op->attrs->set_true("phc.unparser.in_string_syntax.simple");
 							yylval->token_op = op;
@@ -2078,7 +2078,7 @@ case 84:
 YY_RULE_SETUP
 #line 671 "src/generated_src/php_scanner.lex"
 {
-							Token_string* str = new Token_string(
+							STRING* str = new STRING(
 								new String(yyextra->value_buffer),
 								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
@@ -2087,7 +2087,7 @@ YY_RULE_SETUP
 							BEGIN(PHP);
 							yyextra->value_buffer = "";
 							yyextra->source_rep_buffer = "";
-							RETURN(STRING);
+							RETURN(T_STRING);
 						}
 	YY_BREAK
 case 85:
@@ -2128,10 +2128,10 @@ YY_RULE_SETUP
 								yyextra->last_comments.push_back(new String("// phc:inline-c"));
 							else
 							{
-								// We don't know when actual Token_string will be created
+								// We don't know when actual STRING will be created
 								// (it could be when we see in-string syntax, for example)
 								// Hence, we add it to the parser context and rely on
-								// copy_state to add it to whatever Token_string will be 
+								// copy_state to add it to whatever STRING will be 
 								// created next
 								yyextra->heredoc_attr = new String(yytext);
 							}
@@ -2223,7 +2223,7 @@ YY_RULE_SETUP
 									source_rep_len--; 
 								}
 						
-								Token_string* str = new Token_string(
+								STRING* str = new STRING(
 									new String(yyextra->value_buffer.substr(0, value_len)),
 									new String(yyextra->source_rep_buffer.substr(0, source_rep_len)));
 								
@@ -2239,7 +2239,7 @@ YY_RULE_SETUP
 								BEGIN(PHP);
 								yyextra->value_buffer = "";
 								yyextra->source_rep_buffer = "";
-								RETURN(STRING);
+								RETURN(T_STRING);
 							}
 
 	YY_BREAK
@@ -3490,26 +3490,26 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 
 	if(lval)
 	{
-		Token_int* i;
-		Token_string* s;
+		INT* i;
+		STRING* s;
 		int len = length == -1 ? strlen(lval) : length;
 		
 		if(type < 256)
 		{
 			// Simple op
-			Token_op* o = new Token_op(new String(lval, len));
+			OP* o = new OP(new String(lval, len));
 			copy_state(o, this);
 			mt_lval[mt_count].token_op = o;
 		}
 		else switch(type)
 		{
-			case INT:
-				i = new Token_int(0, new String(lval, len)); // initialized in Token_conversion
+			case T_INT:
+				i = new INT(0, new String(lval, len)); // initialized in Token_conversion
 				copy_state(i, this);
 				mt_lval[mt_count].token_int = i;
 				break;
-			case STRING:
-				s = new Token_string(new String(lval, len), new String(lval, len));
+			case T_STRING:
+				s = new STRING(new String(lval, len), new String(lval, len));
 				copy_state(s, this);
 				mt_lval[mt_count].token_string = s;
 				break;
@@ -3528,21 +3528,21 @@ void PHP_context::schedule_return(long type, const char* lval, long length)
 
 void PHP_context::schedule_return_string()
 {
-   Token_string* token_string;
+   STRING* token_string;
    
-   token_string = new Token_string(new String(value_buffer), new String(source_rep_buffer));
+   token_string = new STRING(new String(value_buffer), new String(source_rep_buffer));
    copy_state(token_string, this);
 
-	mt_type[mt_count] = STRING;
+	mt_type[mt_count] = T_STRING;
 	mt_lval[mt_count].token_string = token_string; 
 	mt_count++;
 }
 
 void PHP_context::schedule_return_op(const char* op, const char* attr)
 {
-   Token_op* token_op;
+   OP* token_op;
    
-   token_op = new Token_op(new String(op));
+   token_op = new OP(new String(op));
    copy_state(token_op, this);
 
    if(attr != NULL)

@@ -8,51 +8,51 @@
 
 using namespace AST;
 
-class Show_traversal_order : public AST_visitor
+class Show_traversal_order : public Visitor
 {
 public:
-	void pre_node(AST_node* in)
+	void pre_node(Node* in)
 	{
 		cout << "pre_node on " << demangle(in) << endl;
 	}
 
-	void pre_commented_node(AST_commented_node* in)
+	void pre_commented_node(Commented_node* in)
 	{
 		cout << "pre_commented_node on " << demangle(in) << endl;
 	}
 	
-	void pre_statement(AST_statement* in)
+	void pre_statement(Statement* in)
 	{
 		cout << "pre_statement on " << demangle(in) << endl;
 	}
 	
-	void pre_if(AST_if* in)
+	void pre_if(If* in)
 	{
 		cout << "pre_if on " << demangle(in) << endl;
 	}
 
-	void children_if(AST_if* in)
+	void children_if(If* in)
 	{
 		cout << "children_if" << endl;
-		AST_visitor::children_if(in);
+		Visitor::children_if(in);
 	}
 
-	void post_node(AST_node* in)
+	void post_node(Node* in)
 	{
 		cout << "post_node on " << demangle(in) << endl;
 	}
 
-	void post_commented_node(AST_commented_node* in)
+	void post_commented_node(Commented_node* in)
 	{
 		cout << "post_commented_node on " << demangle(in) << endl;
 	}
 	
-	void post_statement(AST_statement* in)
+	void post_statement(Statement* in)
 	{
 		cout << "post_statement on " << demangle(in) << endl;
 	}
 	
-	void post_if(AST_if* in)
+	void post_if(If* in)
 	{
 		cout << "post_if on " << demangle(in) << endl;
 	}
@@ -63,7 +63,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit (new Show_traversal_order ());
 }

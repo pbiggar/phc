@@ -11,14 +11,14 @@
 #include "Lower_expr.h"
 #include "fresh.h"
 
-class Split_unset_isset : public AST::AST_transform
+class Split_unset_isset : public AST::Transform
 {
 public:
 	// Split unset 
-	void pre_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
+	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
 
 	// Split isset
-	AST::AST_expr* pre_method_invocation(AST::AST_method_invocation* in); 
+	AST::Expr* pre_method_invocation(AST::Method_invocation* in); 
 };
 
 #endif // PHC_SPLIT_UNSET_ISSET_H

@@ -10,9 +10,9 @@
 
 #include "AST_transform.h"
 
-class Translate_empty : public AST::AST_transform
+class Translate_empty : public AST::Transform
 {
-	AST::AST_expr* pre_method_invocation(AST::AST_method_invocation* in); 
+	AST::Expr* pre_method_invocation(AST::Method_invocation* in); 
 };
 
 #endif // PHC_TRANSLATE_EMPTY_H

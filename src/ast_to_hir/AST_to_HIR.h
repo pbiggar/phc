@@ -17,520 +17,520 @@
  * implementation in this translation, so that we inherit the default assert(0)
  * implementation from AST_fold. However, to satisfy the typechecker, we must
  * still provide a reasonble type for these nodes. For example, the type we
- * specify for AST_for (which does not have a corresponding HIR construct) is
- * simplify HIR::HIR_statement*. For some constructs, specifying HIR::HIR_node*
+ * specify for For (which does not have a corresponding HIR construct) is
+ * simplify HIR::Statement*. For some constructs, specifying HIR::Node*
  * suffices.
  */
-class AST_to_HIR : public AST::AST_fold
-<HIR::HIR_node*,				// AST_node*
- HIR::HIR_php_script*,			// AST_php_script*
- HIR::HIR_statement*,			// AST_statement*
- HIR::HIR_class_def*,			// AST_class_def*
- HIR::HIR_class_mod*,			// AST_class_mod*
- HIR::HIR_interface_def*,		// AST_interface_def*
- HIR::HIR_member*,				// AST_member*
- HIR::HIR_method*,				// AST_method*
- HIR::HIR_signature*,			// AST_signature*
- HIR::HIR_method_mod*,			// AST_method_mod*
- HIR::HIR_formal_parameter*,	// AST_formal_parameter*
- HIR::HIR_type*,				// AST_type*
- HIR::HIR_attribute*,			// AST_attribute*
- HIR::HIR_attr_mod*,			// AST_attr_mod*
- HIR::HIR_name_with_default*,	// AST_name_with_default*
- HIR::HIR_statement*,			// AST_if*
- HIR::HIR_statement*,			// AST_while*
- HIR::HIR_statement*,			// AST_do*
- HIR::HIR_statement*,			// AST_for*
- HIR::HIR_statement*,			// AST_foreach*
- HIR::HIR_statement*,			// AST_switch*
- HIR::HIR_node*,				// AST_switch_case*
- HIR::HIR_statement*,			// AST_break*
- HIR::HIR_statement*,			// AST_continue*
- HIR::HIR_return*,				// AST_return*
- HIR::HIR_static_declaration*,	// AST_static_declaration*
- HIR::HIR_global*,				// AST_global*
- HIR::HIR_statement*,			// AST_declare*
- HIR::HIR_node*,				// AST_directive*
- HIR::HIR_try*,					// AST_try*
- HIR::HIR_catch*,				// AST_catch*
- HIR::HIR_throw*,				// AST_throw*
- HIR::HIR_eval_expr*,			// AST_eval_expr*
- HIR::HIR_statement*,			// AST_nop*
- HIR::HIR_branch*,				// AST_branch*
- HIR::HIR_goto*,				// AST_goto*
- HIR::HIR_label*,				// AST_label*
- HIR::HIR_foreach_reset*,	// AST_foreach_reset*
- HIR::HIR_foreach_next*,	// AST_foreach_next*
- HIR::HIR_foreach_end*,	// AST_foreach_end*
- HIR::HIR_foreach_has_key*,	// AST_foreach_has_key*
- HIR::HIR_foreach_get_key*,	// AST_foreach_get_key*
- HIR::HIR_foreach_get_data*,	// AST_foreach_get_data*
- HIR::HIR_expr*,				// AST_expr*
- HIR::HIR_literal*,				// AST_literal*
- HIR::HIR_assignment*,			// AST_assignment*
- HIR::HIR_expr*,				// AST_op_assignment*
- HIR::HIR_expr*,				// AST_list_assignment*
- HIR::HIR_node*,				// AST_list_element*
- HIR::HIR_node*,				// AST_nested_list_elements*
- HIR::HIR_cast*,				// AST_cast*
- HIR::HIR_unary_op*,			// AST_unary_op*
- HIR::HIR_bin_op*,				// AST_bin_op*
- HIR::HIR_expr*,				// AST_conditional_expr*
- HIR::HIR_expr*,				// AST_ignore_errors*
- HIR::HIR_constant*,			// AST_constant*
- HIR::HIR_instanceof*,			// AST_instanceof*
- HIR::HIR_variable*,			// AST_variable*
- HIR::HIR_variable_name*,		// AST_variable_name*
- HIR::HIR_reflection*,			// AST_reflection*
- HIR::HIR_target*,				// AST_target*
- HIR::HIR_pre_op*,				// AST_pre_op*
- HIR::HIR_expr*,				// AST_post_op*
- HIR::HIR_array*,				// AST_array*
- HIR::HIR_array_elem*,			// AST_array_elem*
- HIR::HIR_method_invocation*,	// AST_method_invocation*
- HIR::HIR_method_name*,			// AST_method_name*
- HIR::HIR_actual_parameter*,	// AST_actual_parameter*
- HIR::HIR_new*,					// AST_new*
- HIR::HIR_class_name*,			// AST_class_name*
- HIR::HIR_node*,				// AST_commented_node*
- HIR::HIR_identifier*,			// AST_identifier*
- HIR::Token_class_name*,		// Token_class_name*
- HIR::Token_interface_name*,	// Token_interface_name*
- HIR::Token_method_name*,		// Token_method_name*
- HIR::Token_variable_name*,		// Token_variable_name*
- HIR::HIR_identifier*,			// Token_directive_name*
- HIR::Token_label_name*,		// Token_label_name*
- HIR::Token_ht_iterator*,		// Tokwn_ht_iterator*
- HIR::Token_int*,				// Token_int*
- HIR::Token_real*,				// Token_real*
- HIR::Token_string*,			// Token_string*
- HIR::Token_bool*,				// Token_bool*
- HIR::Token_null*,				// Token_null*
- HIR::Token_op*,				// Token_op*
- HIR::Token_cast*,				// Token_cast*
- HIR::Token_constant_name*>		// Token_constant_name*
+class AST_to_HIR : public AST::Fold
+<HIR::Node*,				// Node*
+ HIR::PHP_script*,			// PHP_script*
+ HIR::Statement*,			// Statement*
+ HIR::Class_def*,			// Class_def*
+ HIR::Class_mod*,			// Class_mod*
+ HIR::Interface_def*,		// Interface_def*
+ HIR::Member*,				// Member*
+ HIR::Method*,				// Method*
+ HIR::Signature*,			// Signature*
+ HIR::Method_mod*,			// Method_mod*
+ HIR::Formal_parameter*,	// Formal_parameter*
+ HIR::Type*,				// Type*
+ HIR::Attribute*,			// Attribute*
+ HIR::Attr_mod*,			// Attr_mod*
+ HIR::Name_with_default*,	// Name_with_default*
+ HIR::Statement*,			// If*
+ HIR::Statement*,			// While*
+ HIR::Statement*,			// Do*
+ HIR::Statement*,			// For*
+ HIR::Statement*,			// Foreach*
+ HIR::Statement*,			// Switch*
+ HIR::Node*,				// Switch_case*
+ HIR::Statement*,			// Break*
+ HIR::Statement*,			// Continue*
+ HIR::Return*,				// Return*
+ HIR::Static_declaration*,	// Static_declaration*
+ HIR::Global*,				// Global*
+ HIR::Statement*,			// Declare*
+ HIR::Node*,				// Directive*
+ HIR::Try*,					// Try*
+ HIR::Catch*,				// Catch*
+ HIR::Throw*,				// Throw*
+ HIR::Eval_expr*,			// Eval_expr*
+ HIR::Statement*,			// Nop*
+ HIR::Branch*,				// Branch*
+ HIR::Goto*,				// Goto*
+ HIR::Label*,				// Label*
+ HIR::Foreach_reset*,	// Foreach_reset*
+ HIR::Foreach_next*,	// Foreach_next*
+ HIR::Foreach_end*,	// Foreach_end*
+ HIR::Foreach_has_key*,	// Foreach_has_key*
+ HIR::Foreach_get_key*,	// Foreach_get_key*
+ HIR::Foreach_get_data*,	// Foreach_get_data*
+ HIR::Expr*,				// Expr*
+ HIR::Literal*,				// Literal*
+ HIR::Assignment*,			// Assignment*
+ HIR::Expr*,				// Op_assignment*
+ HIR::Expr*,				// List_assignment*
+ HIR::Node*,				// List_element*
+ HIR::Node*,				// Nested_list_elements*
+ HIR::Cast*,				// Cast*
+ HIR::Unary_op*,			// Unary_op*
+ HIR::Bin_op*,				// Bin_op*
+ HIR::Expr*,				// Conditional_expr*
+ HIR::Expr*,				// Ignore_errors*
+ HIR::Constant*,			// Constant*
+ HIR::Instanceof*,			// Instanceof*
+ HIR::Variable*,			// Variable*
+ HIR::Variable_name*,		// Variable_name*
+ HIR::Reflection*,			// Reflection*
+ HIR::Target*,				// Target*
+ HIR::Pre_op*,				// Pre_op*
+ HIR::Expr*,				// Post_op*
+ HIR::Array*,				// Array*
+ HIR::Array_elem*,			// Array_elem*
+ HIR::Method_invocation*,	// Method_invocation*
+ HIR::Method_name*,			// Method_name*
+ HIR::Actual_parameter*,	// Actual_parameter*
+ HIR::New*,					// New*
+ HIR::Class_name*,			// Class_name*
+ HIR::Node*,				// Commented_node*
+ HIR::Identifier*,			// Identifier*
+ HIR::CLASS_NAME*,		// CLASS_NAME*
+ HIR::INTERFACE_NAME*,	// INTERFACE_NAME*
+ HIR::METHOD_NAME*,		// METHOD_NAME*
+ HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
+ HIR::Identifier*,			// DIRECTIVE_NAME*
+ HIR::LABEL_NAME*,		// LABEL_NAME*
+ HIR::HT_ITERATOR*,		// Tokwn_ht_iterator*
+ HIR::INT*,				// INT*
+ HIR::REAL*,				// REAL*
+ HIR::STRING*,			// STRING*
+ HIR::BOOL*,				// BOOL*
+ HIR::NIL*,				// NIL*
+ HIR::OP*,				// OP*
+ HIR::CAST*,				// CAST*
+ HIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
-	HIR::HIR_php_script* fold_impl_php_script(AST::AST_php_script* orig, List<HIR::HIR_statement*>* statements) 
+	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, List<HIR::Statement*>* statements) 
 	{
-		HIR::HIR_php_script* result;
-		result = new HIR::HIR_php_script(statements);
+		HIR::PHP_script* result;
+		result = new HIR::PHP_script(statements);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_class_def* fold_impl_class_def(AST::AST_class_def* orig, HIR::HIR_class_mod* class_mod, HIR::Token_class_name* class_name, HIR::Token_class_name* extends, List<HIR::Token_interface_name*>* implements, List<HIR::HIR_member*>* members) 
+	HIR::Class_def* fold_impl_class_def(AST::Class_def* orig, HIR::Class_mod* class_mod, HIR::CLASS_NAME* class_name, HIR::CLASS_NAME* extends, List<HIR::INTERFACE_NAME*>* implements, List<HIR::Member*>* members) 
 	{
-		HIR::HIR_class_def* result;
-		result = new HIR::HIR_class_def(class_mod, class_name, extends, implements, members);
+		HIR::Class_def* result;
+		result = new HIR::Class_def(class_mod, class_name, extends, implements, members);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_class_mod* fold_impl_class_mod(AST::AST_class_mod* orig, bool is_abstract, bool is_final) 
+	HIR::Class_mod* fold_impl_class_mod(AST::Class_mod* orig, bool is_abstract, bool is_final) 
 	{
-		HIR::HIR_class_mod* result;
-		result = new HIR::HIR_class_mod(is_abstract, is_final);
+		HIR::Class_mod* result;
+		result = new HIR::Class_mod(is_abstract, is_final);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_interface_def* fold_impl_interface_def(AST::AST_interface_def* orig, HIR::Token_interface_name* interface_name, List<HIR::Token_interface_name*>* extends, List<HIR::HIR_member*>* members) 
+	HIR::Interface_def* fold_impl_interface_def(AST::Interface_def* orig, HIR::INTERFACE_NAME* interface_name, List<HIR::INTERFACE_NAME*>* extends, List<HIR::Member*>* members) 
 	{
-		HIR::HIR_interface_def* result;
-		result = new HIR::HIR_interface_def(interface_name, extends, members);
+		HIR::Interface_def* result;
+		result = new HIR::Interface_def(interface_name, extends, members);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_method* fold_impl_method(AST::AST_method* orig, HIR::HIR_signature* signature, List<HIR::HIR_statement*>* statements) 
+	HIR::Method* fold_impl_method(AST::Method* orig, HIR::Signature* signature, List<HIR::Statement*>* statements) 
 	{
-		HIR::HIR_method* result;
-		result = new HIR::HIR_method(signature, statements);
+		HIR::Method* result;
+		result = new HIR::Method(signature, statements);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_signature* fold_impl_signature(AST::AST_signature* orig, HIR::HIR_method_mod* method_mod, bool is_ref, HIR::Token_method_name* method_name, List<HIR::HIR_formal_parameter*>* formal_parameters) 
+	HIR::Signature* fold_impl_signature(AST::Signature* orig, HIR::Method_mod* method_mod, bool is_ref, HIR::METHOD_NAME* method_name, List<HIR::Formal_parameter*>* formal_parameters) 
 	{
-		HIR::HIR_signature* result;
-		result = new HIR::HIR_signature(method_mod, is_ref, method_name, formal_parameters);
+		HIR::Signature* result;
+		result = new HIR::Signature(method_mod, is_ref, method_name, formal_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_method_mod* fold_impl_method_mod(AST::AST_method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) 
+	HIR::Method_mod* fold_impl_method_mod(AST::Method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) 
 	{
-		HIR::HIR_method_mod* result;
-		result = new HIR::HIR_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
+		HIR::Method_mod* result;
+		result = new HIR::Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_formal_parameter* fold_impl_formal_parameter(AST::AST_formal_parameter* orig, HIR::HIR_type* type, bool is_ref, HIR::HIR_name_with_default* var) 
+	HIR::Formal_parameter* fold_impl_formal_parameter(AST::Formal_parameter* orig, HIR::Type* type, bool is_ref, HIR::Name_with_default* var) 
 	{
-		HIR::HIR_formal_parameter* result;
-		result = new HIR::HIR_formal_parameter(type, is_ref, var);
+		HIR::Formal_parameter* result;
+		result = new HIR::Formal_parameter(type, is_ref, var);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_type* fold_impl_type(AST::AST_type* orig, HIR::Token_class_name* class_name) 
+	HIR::Type* fold_impl_type(AST::Type* orig, HIR::CLASS_NAME* class_name) 
 	{
-		HIR::HIR_type* result;
-		result = new HIR::HIR_type(class_name);
+		HIR::Type* result;
+		result = new HIR::Type(class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_attribute* fold_impl_attribute(AST::AST_attribute* orig, HIR::HIR_attr_mod* attr_mod, List<HIR::HIR_name_with_default*>* vars) 
+	HIR::Attribute* fold_impl_attribute(AST::Attribute* orig, HIR::Attr_mod* attr_mod, List<HIR::Name_with_default*>* vars) 
 	{
 		assert(vars->size() == 1);
 
-		HIR::HIR_attribute* result;
-		result = new HIR::HIR_attribute(attr_mod, vars->front());
+		HIR::Attribute* result;
+		result = new HIR::Attribute(attr_mod, vars->front());
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_attr_mod* fold_impl_attr_mod(AST::AST_attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) 
+	HIR::Attr_mod* fold_impl_attr_mod(AST::Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) 
 	{
-		HIR::HIR_attr_mod* result;
-		result = new HIR::HIR_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+		HIR::Attr_mod* result;
+		result = new HIR::Attr_mod(is_public, is_protected, is_private, is_static, is_const);
 		result->attrs = orig->attrs;
 		return result;
 	}
 	
-	HIR::HIR_name_with_default* fold_impl_name_with_default(AST::AST_name_with_default* orig, HIR::Token_variable_name* variable_name, HIR::HIR_expr* expr) 
+	HIR::Name_with_default* fold_impl_name_with_default(AST::Name_with_default* orig, HIR::VARIABLE_NAME* variable_name, HIR::Expr* expr) 
 	{ 
-		HIR::HIR_name_with_default* result;
-		result = new HIR::HIR_name_with_default(variable_name, expr);
+		HIR::Name_with_default* result;
+		result = new HIR::Name_with_default(variable_name, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_return* fold_impl_return(AST::AST_return* orig, HIR::HIR_expr* expr) 
+	HIR::Return* fold_impl_return(AST::Return* orig, HIR::Expr* expr) 
 	{
-		HIR::HIR_return* result;
-		result = new HIR::HIR_return(expr);
+		HIR::Return* result;
+		result = new HIR::Return(expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_static_declaration* fold_impl_static_declaration(AST::AST_static_declaration* orig, List<HIR::HIR_name_with_default*>* vars) 
+	HIR::Static_declaration* fold_impl_static_declaration(AST::Static_declaration* orig, List<HIR::Name_with_default*>* vars) 
 	{
 		assert(vars->size() == 1);
 
-		HIR::HIR_static_declaration* result;
-		result = new HIR::HIR_static_declaration(vars->front());
+		HIR::Static_declaration* result;
+		result = new HIR::Static_declaration(vars->front());
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_global* fold_impl_global(AST::AST_global* orig, List<HIR::HIR_variable_name*>* variable_names) 
+	HIR::Global* fold_impl_global(AST::Global* orig, List<HIR::Variable_name*>* variable_names) 
 	{
 		// HIR only takes a single variable per global; should be been taken care of in the shredder
 		assert(variable_names->size() == 1);
 		
-		HIR::HIR_global* result;
-		result = new HIR::HIR_global(variable_names->front());
+		HIR::Global* result;
+		result = new HIR::Global(variable_names->front());
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_try* fold_impl_try(AST::AST_try* orig, List<HIR::HIR_statement*>* statements, List<HIR::HIR_catch*>* catches) 
+	HIR::Try* fold_impl_try(AST::Try* orig, List<HIR::Statement*>* statements, List<HIR::Catch*>* catches) 
 	{
-		HIR::HIR_try* result;
-		result = new HIR::HIR_try(statements, catches);
+		HIR::Try* result;
+		result = new HIR::Try(statements, catches);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_catch* fold_impl_catch(AST::AST_catch* orig, HIR::Token_class_name* class_name, HIR::Token_variable_name* variable_name, List<HIR::HIR_statement*>* statements) 
+	HIR::Catch* fold_impl_catch(AST::Catch* orig, HIR::CLASS_NAME* class_name, HIR::VARIABLE_NAME* variable_name, List<HIR::Statement*>* statements) 
 	{
-		HIR::HIR_catch* result;
-		result = new HIR::HIR_catch(class_name, variable_name, statements);
+		HIR::Catch* result;
+		result = new HIR::Catch(class_name, variable_name, statements);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_throw* fold_impl_throw(AST::AST_throw* orig, HIR::HIR_expr* expr) 
+	HIR::Throw* fold_impl_throw(AST::Throw* orig, HIR::Expr* expr) 
 	{
-		HIR::HIR_throw* result;
-		result = new HIR::HIR_throw(expr);
+		HIR::Throw* result;
+		result = new HIR::Throw(expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_eval_expr* fold_impl_eval_expr(AST::AST_eval_expr* orig, HIR::HIR_expr* expr) 
+	HIR::Eval_expr* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
-		HIR::HIR_eval_expr* result;
-		result = new HIR::HIR_eval_expr(expr);
+		HIR::Eval_expr* result;
+		result = new HIR::Eval_expr(expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_branch* fold_impl_branch(AST::AST_branch* orig, HIR::HIR_expr* expr, HIR::Token_label_name* iftrue, HIR::Token_label_name* iffalse) 
+	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::Expr* expr, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
 	{
-		HIR::HIR_branch* result;
-		result = new HIR::HIR_branch(expr, iftrue, iffalse);
+		HIR::Branch* result;
+		result = new HIR::Branch(expr, iftrue, iffalse);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_goto* fold_impl_goto(AST::AST_goto* orig, HIR::Token_label_name* label_name) 
+	HIR::Goto* fold_impl_goto(AST::Goto* orig, HIR::LABEL_NAME* label_name) 
 	{
-		HIR::HIR_goto* result;
-		result = new HIR::HIR_goto(label_name);
+		HIR::Goto* result;
+		result = new HIR::Goto(label_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_label* fold_impl_label(AST::AST_label* orig, HIR::Token_label_name* label_name) 
+	HIR::Label* fold_impl_label(AST::Label* orig, HIR::LABEL_NAME* label_name) 
 	{
-		HIR::HIR_label* result;
-		result = new HIR::HIR_label(label_name);
+		HIR::Label* result;
+		result = new HIR::Label(label_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_assignment* fold_impl_assignment(AST::AST_assignment* orig, HIR::HIR_variable* variable, bool is_ref, HIR::HIR_expr* expr) 
+	HIR::Assignment* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
 	{
-		HIR::HIR_assignment* result;
-		result = new HIR::HIR_assignment(variable, is_ref, expr);
+		HIR::Assignment* result;
+		result = new HIR::Assignment(variable, is_ref, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_variable_name* var_name_from_expr (HIR::HIR_expr* expr)
+	HIR::VARIABLE_NAME* var_name_from_expr (HIR::Expr* expr)
 	{
 		if (expr == NULL) // $x[]
 			return NULL;
 
-		HIR::HIR_variable* var = dynamic_cast<HIR::HIR_variable*> (expr);
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
 		assert (var);
 		assert (var->array_indices->size () == 0);
-		HIR::HIR_variable_name* var_name = var->variable_name;
+		HIR::Variable_name* var_name = var->variable_name;
 		assert (var_name);
-		HIR::Token_variable_name* token = dynamic_cast<HIR::Token_variable_name*> (var_name);
+		HIR::VARIABLE_NAME* token = dynamic_cast<HIR::VARIABLE_NAME*> (var_name);
 		assert (token);
 		return token;
 	}
 
-	HIR::HIR_cast* fold_impl_cast(AST::AST_cast* orig, HIR::Token_cast* cast, HIR::HIR_expr* expr) 
+	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
 	{
-		HIR::HIR_cast* result;
-		result = new HIR::HIR_cast(cast, var_name_from_expr (expr));
+		HIR::Cast* result;
+		result = new HIR::Cast(cast, var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_unary_op* fold_impl_unary_op(AST::AST_unary_op* orig, HIR::Token_op* op, HIR::HIR_expr* expr) 
+	HIR::Unary_op* fold_impl_unary_op(AST::Unary_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
-		HIR::HIR_unary_op* result;
-		result = new HIR::HIR_unary_op(op, var_name_from_expr (expr));
+		HIR::Unary_op* result;
+		result = new HIR::Unary_op(op, var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_bin_op* fold_impl_bin_op(AST::AST_bin_op* orig, HIR::HIR_expr* left, HIR::Token_op* op, HIR::HIR_expr* right) 
+	HIR::Bin_op* fold_impl_bin_op(AST::Bin_op* orig, HIR::Expr* left, HIR::OP* op, HIR::Expr* right) 
 	{
-		HIR::HIR_bin_op* result;
-		result = new HIR::HIR_bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
+		HIR::Bin_op* result;
+		result = new HIR::Bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_constant* fold_impl_constant(AST::AST_constant* orig, HIR::Token_class_name* class_name, HIR::Token_constant_name* constant_name) 
+	HIR::Constant* fold_impl_constant(AST::Constant* orig, HIR::CLASS_NAME* class_name, HIR::CONSTANT_NAME* constant_name) 
 	{
-		HIR::HIR_constant* result;
-		result = new HIR::HIR_constant(class_name, constant_name);
+		HIR::Constant* result;
+		result = new HIR::Constant(class_name, constant_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_instanceof* fold_impl_instanceof(AST::AST_instanceof* orig, HIR::HIR_expr* expr, HIR::HIR_class_name* class_name) 
+	HIR::Instanceof* fold_impl_instanceof(AST::Instanceof* orig, HIR::Expr* expr, HIR::Class_name* class_name) 
 	{
-		HIR::HIR_instanceof* result;
-		result = new HIR::HIR_instanceof(var_name_from_expr (expr), class_name);
+		HIR::Instanceof* result;
+		result = new HIR::Instanceof(var_name_from_expr (expr), class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_variable* fold_impl_variable(AST::AST_variable* orig, HIR::HIR_target* target, HIR::HIR_variable_name* variable_name, List<HIR::HIR_expr*>* array_indices) 
+	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Target* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
 	{
-		HIR::HIR_variable* result;
+		HIR::Variable* result;
 
-		List<HIR::Token_variable_name*>* var_names = new List<HIR::Token_variable_name*>;
-		List<HIR::HIR_expr*>::const_iterator i;
+		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
+		List<HIR::Expr*>::const_iterator i;
 		for (i = array_indices->begin (); i != array_indices->end (); i++)
 		{
 			var_names->push_back (var_name_from_expr (*i));
 		}
 
-		result = new HIR::HIR_variable(target, variable_name, var_names);
+		result = new HIR::Variable(target, variable_name, var_names);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_reflection* fold_impl_reflection(AST::AST_reflection* orig, HIR::HIR_expr* expr) 
+	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
 	{
-		HIR::HIR_reflection* result;
-		result = new HIR::HIR_reflection(var_name_from_expr (expr));
+		HIR::Reflection* result;
+		result = new HIR::Reflection(var_name_from_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_pre_op* fold_impl_pre_op(AST::AST_pre_op* orig, HIR::Token_op* op, HIR::HIR_variable* variable) 
+	HIR::Pre_op* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
 	{
-		HIR::HIR_pre_op* result;
-		result = new HIR::HIR_pre_op(op, variable);
+		HIR::Pre_op* result;
+		result = new HIR::Pre_op(op, variable);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_array* fold_impl_array(AST::AST_array* orig, List<HIR::HIR_array_elem*>* array_elems) 
+	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 
 	{
-		HIR::HIR_array* result;
-		result = new HIR::HIR_array(array_elems);
+		HIR::Array* result;
+		result = new HIR::Array(array_elems);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_array_elem* fold_impl_array_elem(AST::AST_array_elem* orig, HIR::HIR_expr* key, bool is_ref, HIR::HIR_expr* val) 
+	HIR::Array_elem* fold_impl_array_elem(AST::Array_elem* orig, HIR::Expr* key, bool is_ref, HIR::Expr* val) 
 	{
-		HIR::HIR_array_elem* result;
-		result = new HIR::HIR_array_elem(key, is_ref, val);
+		HIR::Array_elem* result;
+		result = new HIR::Array_elem(key, is_ref, val);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_method_invocation* fold_impl_method_invocation(AST::AST_method_invocation* orig, HIR::HIR_target* target, HIR::HIR_method_name* method_name, List<HIR::HIR_actual_parameter*>* actual_parameters) 
+	HIR::Method_invocation* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
-		HIR::HIR_method_invocation* result;
-		result = new HIR::HIR_method_invocation(target, method_name, actual_parameters);
+		HIR::Method_invocation* result;
+		result = new HIR::Method_invocation(target, method_name, actual_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_actual_parameter* fold_impl_actual_parameter(AST::AST_actual_parameter* orig, bool is_ref, HIR::HIR_expr* expr) 
+	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
-		HIR::HIR_variable* var = dynamic_cast<HIR::HIR_variable*> (expr);
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
 		assert (var);
 
-		HIR::HIR_actual_parameter* result;
-		result = new HIR::HIR_actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
+		HIR::Actual_parameter* result;
+		result = new HIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::HIR_new* fold_impl_new(AST::AST_new* orig, HIR::HIR_class_name* class_name, List<HIR::HIR_actual_parameter*>* actual_parameters) 
+	HIR::New* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
-		HIR::HIR_new* result;
-		result = new HIR::HIR_new(class_name, actual_parameters);
+		HIR::New* result;
+		result = new HIR::New(class_name, actual_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_class_name* fold_class_name(AST::Token_class_name* orig) 
+	HIR::CLASS_NAME* fold_class_name(AST::CLASS_NAME* orig) 
 	{
-		HIR::Token_class_name* result;
-		result = new HIR::Token_class_name(orig->value);
+		HIR::CLASS_NAME* result;
+		result = new HIR::CLASS_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_interface_name* fold_interface_name(AST::Token_interface_name* orig) 
+	HIR::INTERFACE_NAME* fold_interface_name(AST::INTERFACE_NAME* orig) 
 	{
-		HIR::Token_interface_name* result;
-		result = new HIR::Token_interface_name(orig->value);
+		HIR::INTERFACE_NAME* result;
+		result = new HIR::INTERFACE_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_method_name* fold_method_name(AST::Token_method_name* orig) 
+	HIR::METHOD_NAME* fold_method_name(AST::METHOD_NAME* orig) 
 	{
-		HIR::Token_method_name* result;
-		result = new HIR::Token_method_name(orig->value);
+		HIR::METHOD_NAME* result;
+		result = new HIR::METHOD_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_variable_name* fold_variable_name(AST::Token_variable_name* orig) 
+	HIR::VARIABLE_NAME* fold_variable_name(AST::VARIABLE_NAME* orig) 
 	{
-		HIR::Token_variable_name* result;
-		result = new HIR::Token_variable_name(orig->value);
+		HIR::VARIABLE_NAME* result;
+		result = new HIR::VARIABLE_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_label_name* fold_label_name(AST::Token_label_name* orig) 
+	HIR::LABEL_NAME* fold_label_name(AST::LABEL_NAME* orig) 
 	{
-		HIR::Token_label_name* result;
-		result = new HIR::Token_label_name(orig->value);
+		HIR::LABEL_NAME* result;
+		result = new HIR::LABEL_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_int* fold_int(AST::Token_int* orig) 
+	HIR::INT* fold_int(AST::INT* orig) 
 	{
-		HIR::Token_int* result;
-		result = new HIR::Token_int(orig->value, orig->source_rep);
+		HIR::INT* result;
+		result = new HIR::INT(orig->value, orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_real* fold_real(AST::Token_real* orig) 
+	HIR::REAL* fold_real(AST::REAL* orig) 
 	{
-		HIR::Token_real* result;
-		result = new HIR::Token_real(orig->value, orig->source_rep);
+		HIR::REAL* result;
+		result = new HIR::REAL(orig->value, orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_string* fold_string(AST::Token_string* orig) 
+	HIR::STRING* fold_string(AST::STRING* orig) 
 	{
-		HIR::Token_string* result;
-		result = new HIR::Token_string(orig->value, orig->source_rep);
+		HIR::STRING* result;
+		result = new HIR::STRING(orig->value, orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_bool* fold_bool(AST::Token_bool* orig) 
+	HIR::BOOL* fold_bool(AST::BOOL* orig) 
 	{
-		HIR::Token_bool* result;
-		result = new HIR::Token_bool(orig->value, orig->source_rep);
+		HIR::BOOL* result;
+		result = new HIR::BOOL(orig->value, orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_null* fold_null(AST::Token_null* orig) 
+	HIR::NIL* fold_nil(AST::NIL* orig) 
 	{
-		HIR::Token_null* result;
-		result = new HIR::Token_null(orig->source_rep);
+		HIR::NIL* result;
+		result = new HIR::NIL(orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_op* fold_op(AST::Token_op* orig) 
+	HIR::OP* fold_op(AST::OP* orig) 
 	{
-		HIR::Token_op* result;
-		result = new HIR::Token_op(orig->value);
+		HIR::OP* result;
+		result = new HIR::OP(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_cast* fold_cast(AST::Token_cast* orig) 
+	HIR::CAST* fold_cast(AST::CAST* orig) 
 	{
-		HIR::Token_cast* result;
-		result = new HIR::Token_cast(orig->value);
+		HIR::CAST* result;
+		result = new HIR::CAST(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Token_constant_name* fold_constant_name(AST::Token_constant_name* orig) 
+	HIR::CONSTANT_NAME* fold_constant_name(AST::CONSTANT_NAME* orig) 
 	{
-		HIR::Token_constant_name* result;
-		result = new HIR::Token_constant_name(orig->value);
+		HIR::CONSTANT_NAME* result;
+		result = new HIR::CONSTANT_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

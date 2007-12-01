@@ -13,18 +13,18 @@
 
 class Transform_pass : public Pass
 {
-	AST::AST_transform* ast_transform;
-	HIR::HIR_transform* hir_transform;
+	AST::Transform* ast_transform;
+	HIR::Transform* hir_transform;
 
 public:
 
-	Transform_pass (AST::AST_transform* v)
+	Transform_pass (AST::Transform* v)
 	{
 		ast_transform = v;
 		hir_transform = NULL;
 	}
 
-	Transform_pass (HIR::HIR_transform* v)
+	Transform_pass (HIR::Transform* v)
 	{
 		ast_transform = NULL;
 		hir_transform = v;

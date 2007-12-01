@@ -22,13 +22,13 @@ HIR_unparser::HIR_unparser (ostream& os) : PHP_unparser (os)
 {
 }
 
-void HIR_unparser::children_php_script(HIR_php_script* in)
+void HIR_unparser::children_php_script(PHP_script* in)
 {
 	echo_nl("<?php");
 	if(!args_info.no_leading_tab_flag) inc_indent();
 
 	// We don't want to output the { and }, so we manually traverse the list
-	List<HIR_statement*>::const_iterator i;
+	List<Statement*>::const_iterator i;
 	for(i = in->statements->begin(); i != in->statements->end(); i++)
 		visit_statement(*i);
 	
@@ -36,7 +36,7 @@ void HIR_unparser::children_php_script(HIR_php_script* in)
 	echo_nl("?>");
 }
 
-void HIR_unparser::children_interface_def(HIR_interface_def* in)
+void HIR_unparser::children_interface_def(Interface_def* in)
 {
 	echo("interface ");
 	visit_interface_name(in->interface_name);
@@ -50,7 +50,7 @@ void HIR_unparser::children_interface_def(HIR_interface_def* in)
 	visit_member_list(in->members);
 }
 
-void HIR_unparser::children_class_def(HIR_class_def* in)
+void HIR_unparser::children_class_def(Class_def* in)
 {
 	visit_class_mod(in->class_mod);
 	echo("class ");
@@ -71,13 +71,13 @@ void HIR_unparser::children_class_def(HIR_class_def* in)
 	visit_member_list(in->members);
 }
 
-void HIR_unparser::children_class_mod(HIR_class_mod* in)
+void HIR_unparser::children_class_mod(Class_mod* in)
 {
 	if(in->is_abstract) echo("abstract ");
 	if(in->is_final) echo("final ");
 }
 
-void HIR_unparser::children_method(HIR_method* in)
+void HIR_unparser::children_method(Method* in)
 {
 	visit_signature(in->signature);
 	if(in->statements != NULL)
@@ -91,7 +91,7 @@ void HIR_unparser::children_method(HIR_method* in)
 		echo_nl(";");
 }
 
-void HIR_unparser::children_signature(HIR_signature* in)
+void HIR_unparser::children_signature(Signature* in)
 {
 	visit_method_mod(in->method_mod);
 	echo("function ");
@@ -100,7 +100,7 @@ void HIR_unparser::children_signature(HIR_signature* in)
 	visit_formal_parameter_list(in->formal_parameters);
 }
 
-void HIR_unparser::children_method_mod(HIR_method_mod* in)
+void HIR_unparser::children_method_mod(Method_mod* in)
 {
 	if(in->is_public)		echo("public ");
 	if(in->is_protected)	echo("protected ");
@@ -110,14 +110,14 @@ void HIR_unparser::children_method_mod(HIR_method_mod* in)
 	if(in->is_final)		echo("final ");
 }
 
-void HIR_unparser::children_formal_parameter(HIR_formal_parameter* in)
+void HIR_unparser::children_formal_parameter(Formal_parameter* in)
 {
 	visit_type(in->type);
 	if(in->is_ref) echo("&");
 	visit_name_with_default(in->var);
 }
 
-void HIR_unparser::children_type(HIR_type* in)
+void HIR_unparser::children_type(Type* in)
 {
 	if(in->class_name != NULL)
 	{
@@ -126,7 +126,7 @@ void HIR_unparser::children_type(HIR_type* in)
 	}
 }
 
-void HIR_unparser::children_attribute(HIR_attribute* in)
+void HIR_unparser::children_attribute(Attribute* in)
 {
 	visit_attr_mod(in->attr_mod);
 
@@ -143,7 +143,7 @@ void HIR_unparser::children_attribute(HIR_attribute* in)
 	// newline is output by post_commented_node
 }
 
-void HIR_unparser::children_attr_mod(HIR_attr_mod* in)
+void HIR_unparser::children_attr_mod(Attr_mod* in)
 {
 	if(in->is_public)		echo("public ");
 	if(in->is_protected)	echo("protected ");
@@ -162,7 +162,7 @@ void HIR_unparser::children_attr_mod(HIR_attr_mod* in)
 
 /* This is simpler than the other if, since there's no user-written code to
  * maintain, and the statements can only be gotos */
-void HIR_unparser::children_branch(HIR_branch* in)
+void HIR_unparser::children_branch(Branch* in)
 {
 	echo("if (");
 	bool in_if_expression = true;
@@ -177,7 +177,7 @@ void HIR_unparser::children_branch(HIR_branch* in)
 	newline();
 }
 
-void HIR_unparser::children_return(HIR_return* in)
+void HIR_unparser::children_return(Return* in)
 {
 	echo("return");
 	if(in->expr != NULL)
@@ -189,7 +189,7 @@ void HIR_unparser::children_return(HIR_return* in)
 	// newline output by post_commented_node
 }
 
-void HIR_unparser::children_static_declaration(HIR_static_declaration* in)
+void HIR_unparser::children_static_declaration(Static_declaration* in)
 {
 	echo("static ");
 	visit_name_with_default(in->var);
@@ -197,7 +197,7 @@ void HIR_unparser::children_static_declaration(HIR_static_declaration* in)
 	// newline output by post_commented_node
 }
 
-void HIR_unparser::children_global(HIR_global* in)
+void HIR_unparser::children_global(Global* in)
 {
 	echo("global $");
 	visit_variable_name(in->variable_name);
@@ -205,7 +205,7 @@ void HIR_unparser::children_global(HIR_global* in)
 	// newline output by post_commented_node
 }
 
-void HIR_unparser::children_try(HIR_try* in)
+void HIR_unparser::children_try(Try* in)
 {
 	echo("try");
 	space_or_newline();
@@ -216,7 +216,7 @@ void HIR_unparser::children_try(HIR_try* in)
 	visit_catch_list(in->catches);
 }
 
-void HIR_unparser::children_catch(HIR_catch* in)
+void HIR_unparser::children_catch(Catch* in)
 {
 	echo("catch (");
 	visit_class_name(in->class_name);
@@ -232,7 +232,7 @@ void HIR_unparser::children_catch(HIR_catch* in)
 // after every catch (which messes up the layout when using same line curlies)
 // We cannot deal with after-comments here, so we just assert that they don't
 // exist and wait until somebody complains :)
-void HIR_unparser::post_catch_chain(HIR_catch* in)
+void HIR_unparser::post_catch_chain(Catch* in)
 {
 	List<String*>::const_iterator i;
 	List<String*>* comments = in->get_comments();
@@ -243,7 +243,7 @@ void HIR_unparser::post_catch_chain(HIR_catch* in)
 	}
 }
 
-void HIR_unparser::children_throw(HIR_throw* in)
+void HIR_unparser::children_throw(Throw* in)
 {
 	echo("throw ");
 	visit_expr(in->expr);
@@ -251,14 +251,14 @@ void HIR_unparser::children_throw(HIR_throw* in)
 	// newline output by post_commented_node
 }
 
-void HIR_unparser::children_eval_expr(HIR_eval_expr* in)
+void HIR_unparser::children_eval_expr(Eval_expr* in)
 {
 	visit_expr(in->expr);
 	echo(";");
 	// The newline gets added by post_commented_node
 }
 
-void HIR_unparser::children_assignment(HIR_assignment* in)
+void HIR_unparser::children_assignment(Assignment* in)
 {
 	visit_variable(in->variable);
 
@@ -270,7 +270,7 @@ void HIR_unparser::children_assignment(HIR_assignment* in)
 	visit_expr(in->expr);
 }
 
-void HIR_unparser::children_cast(HIR_cast* in)
+void HIR_unparser::children_cast(Cast* in)
 {
 	echo("(");
 	visit_cast(in->cast);
@@ -278,13 +278,13 @@ void HIR_unparser::children_cast(HIR_cast* in)
 	visit_variable_name(in->variable_name);
 }
 
-void HIR_unparser::children_unary_op(HIR_unary_op* in)
+void HIR_unparser::children_unary_op(Unary_op* in)
 {
 	visit_op(in->op);
 	visit_variable_name(in->variable_name);
 }
 
-void HIR_unparser::children_bin_op(HIR_bin_op* in)
+void HIR_unparser::children_bin_op(Bin_op* in)
 {
 	visit_variable_name(in->left);
 	if(*in->op->value != ",") echo(" "); // We output "3 + 5", but "3, 5"
@@ -293,7 +293,7 @@ void HIR_unparser::children_bin_op(HIR_bin_op* in)
 	visit_variable_name(in->right);
 }
 
-void HIR_unparser::children_constant(HIR_constant* in)
+void HIR_unparser::children_constant(Constant* in)
 {
 	if(in->class_name != NULL)
 	{
@@ -304,20 +304,20 @@ void HIR_unparser::children_constant(HIR_constant* in)
 	visit_constant_name(in->constant_name);
 }
 
-void HIR_unparser::children_instanceof(HIR_instanceof* in)
+void HIR_unparser::children_instanceof(Instanceof* in)
 {
 	visit_variable_name(in->variable_name);
 	echo(" instanceof ");
 	visit_class_name(in->class_name);
 }
 
-void HIR_unparser::children_variable(HIR_variable* in)
+void HIR_unparser::children_variable(Variable* in)
 {
-	HIR_reflection* reflection;
+	Reflection* reflection;
 
 	if(in->target != NULL)
 	{
-		Token_class_name* class_name = dynamic_cast<Token_class_name*>(in->target);
+		CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(in->target);
 
 		if(class_name)
 		{
@@ -335,12 +335,12 @@ void HIR_unparser::children_variable(HIR_variable* in)
 		echo("$");
 	}
 
-	reflection = dynamic_cast<HIR_reflection*>(in->variable_name);
+	reflection = dynamic_cast<Reflection*>(in->variable_name);
 	
 	if(reflection)
 	{
 //		TODO this doesnt do anything. Bug?
-//		name = dynamic_cast<HIR_variable*>(reflection->expr);
+//		name = dynamic_cast<Variable*>(reflection->expr);
 		visit_variable_name(in->variable_name);
 	}
 	else
@@ -348,7 +348,7 @@ void HIR_unparser::children_variable(HIR_variable* in)
 		visit_variable_name(in->variable_name);
 	}
 
-	List<Token_variable_name*>::const_iterator i;
+	List<VARIABLE_NAME*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
 		if(*i && (*i)->attrs->is_true("phc.unparser.index_curlies"))
@@ -366,24 +366,24 @@ void HIR_unparser::children_variable(HIR_variable* in)
 	}
 }
 
-void HIR_unparser::children_reflection(HIR_reflection* in)
+void HIR_unparser::children_reflection(Reflection* in)
 {
 	visit_variable_name (in->variable_name);
 }
 
-void HIR_unparser::children_pre_op(HIR_pre_op* in)
+void HIR_unparser::children_pre_op(Pre_op* in)
 {
 	visit_op(in->op);
 	visit_variable(in->variable);
 }
 
-void HIR_unparser::children_array(HIR_array* in)
+void HIR_unparser::children_array(Array* in)
 {
 	echo("array");
 	visit_array_elem_list(in->array_elems);
 }
 
-void HIR_unparser::children_array_elem(HIR_array_elem* in)
+void HIR_unparser::children_array_elem(Array_elem* in)
 {
 	if(in->key != NULL)
 	{
@@ -394,14 +394,14 @@ void HIR_unparser::children_array_elem(HIR_array_elem* in)
 	visit_expr(in->val);
 }
 
-void HIR_unparser::children_method_invocation(HIR_method_invocation* in)
+void HIR_unparser::children_method_invocation(Method_invocation* in)
 {
 	bool after_arrow = false;
 	bool use_brackets = true;
-	Token_class_name* static_method;
-	Token_method_name* method_name;
+	CLASS_NAME* static_method;
+	METHOD_NAME* method_name;
 
-	static_method = dynamic_cast<Token_class_name*>(in->target);
+	static_method = dynamic_cast<CLASS_NAME*>(in->target);
 	if(static_method)
 	{
 		visit_class_name(static_method);
@@ -415,7 +415,7 @@ void HIR_unparser::children_method_invocation(HIR_method_invocation* in)
 	}
 
 	// Leave out brackets in calls in builtins
-	method_name = dynamic_cast<Token_method_name*>(in->method_name);
+	method_name = dynamic_cast<METHOD_NAME*>(in->method_name);
 	if(method_name)
 	{
 		use_brackets &= *method_name->value != "echo";
@@ -444,13 +444,13 @@ void HIR_unparser::children_method_invocation(HIR_method_invocation* in)
 	}
 }
 
-void HIR_unparser::children_actual_parameter(HIR_actual_parameter* in)
+void HIR_unparser::children_actual_parameter(Actual_parameter* in)
 {
 	if(in->is_ref) echo("&");
 	visit_target (in->target);
 	visit_variable_name (in->variable_name);
 
-	List<Token_variable_name*>::const_iterator i;
+	List<VARIABLE_NAME*>::const_iterator i;
 	for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 	{
 			echo("[");
@@ -459,7 +459,7 @@ void HIR_unparser::children_actual_parameter(HIR_actual_parameter* in)
 	}
 }
 
-void HIR_unparser::children_new(HIR_new* in)
+void HIR_unparser::children_new(New* in)
 {
 	echo("new ");
 	visit_class_name(in->class_name);
@@ -468,9 +468,9 @@ void HIR_unparser::children_new(HIR_new* in)
 	echo(")");
 }
 
-void HIR_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
+void HIR_unparser::visit_interface_name_list(List<INTERFACE_NAME*>* in)
 {
-	List<Token_interface_name*>::const_iterator i;
+	List<INTERFACE_NAME*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -478,33 +478,33 @@ void HIR_unparser::visit_interface_name_list(List<Token_interface_name*>* in)
 	}
 }
 
-void HIR_unparser::visit_member_list(List<HIR_member*>* in)
+void HIR_unparser::visit_member_list(List<Member*>* in)
 {
 	newline();
 	echo_nl("{");
 	inc_indent();
 
-	HIR_visitor::visit_member_list(in);	
+	Visitor::visit_member_list(in);	
 
 	dec_indent();
 	echo_nl("}");
 }
 
-void HIR_unparser::visit_statement_list(List<HIR_statement*>* in)
+void HIR_unparser::visit_statement_list(List<Statement*>* in)
 {
 	echo("{");
 	inc_indent();
 
-	HIR_visitor::visit_statement_list(in);
+	Visitor::visit_statement_list(in);
 
 	dec_indent();
 	echo("}");
 }
 
-void HIR_unparser::visit_formal_parameter_list(List<HIR_formal_parameter*>* in)
+void HIR_unparser::visit_formal_parameter_list(List<Formal_parameter*>* in)
 {
 	echo("(");
-	List<HIR_formal_parameter*>::const_iterator i;
+	List<Formal_parameter*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -513,9 +513,9 @@ void HIR_unparser::visit_formal_parameter_list(List<HIR_formal_parameter*>* in)
 	echo(")");
 }
 
-void HIR_unparser::visit_catch_list(List<HIR_catch*>* in)
+void HIR_unparser::visit_catch_list(List<Catch*>* in)
 {
-	List<HIR_catch*>::const_iterator i;
+	List<Catch*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) space_or_newline();
@@ -523,18 +523,18 @@ void HIR_unparser::visit_catch_list(List<HIR_catch*>* in)
 	}
 }
 
-void HIR_unparser::visit_expr_list(List<HIR_expr*>* in)
+void HIR_unparser::visit_expr_list(List<Expr*>* in)
 {
-	List<HIR_expr*>::const_iterator i;
+	List<Expr*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 		if(*i) visit_expr(*i);
 }
 
-void HIR_unparser::visit_array_elem_list(List<HIR_array_elem*>* in)
+void HIR_unparser::visit_array_elem_list(List<Array_elem*>* in)
 {
 	echo("(");
 
-	List<HIR_array_elem*>::const_iterator i;
+	List<Array_elem*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -544,9 +544,9 @@ void HIR_unparser::visit_array_elem_list(List<HIR_array_elem*>* in)
 	echo(")");
 }
 
-void HIR_unparser::visit_actual_parameter_list(List<HIR_actual_parameter*>* in)
+void HIR_unparser::visit_actual_parameter_list(List<Actual_parameter*>* in)
 {
-	List<HIR_actual_parameter*>::const_iterator i;
+	List<Actual_parameter*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -554,9 +554,9 @@ void HIR_unparser::visit_actual_parameter_list(List<HIR_actual_parameter*>* in)
 	}
 }
 
-void HIR_unparser::visit_name_with_default_list(List<HIR_name_with_default*>* in)
+void HIR_unparser::visit_name_with_default_list(List<Name_with_default*>* in)
 {
-	List<HIR_name_with_default*>::const_iterator i;
+	List<Name_with_default*>::const_iterator i;
 	for(i = in->begin(); i != in->end(); i++)
 	{
 		if(i != in->begin()) echo(", ");
@@ -565,52 +565,52 @@ void HIR_unparser::visit_name_with_default_list(List<HIR_name_with_default*>* in
 }
 
 // Token classes
-void HIR_unparser::children_interface_name(Token_interface_name* in)
+void HIR_unparser::children_interface_name(INTERFACE_NAME* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_class_name(Token_class_name* in)
+void HIR_unparser::children_class_name(CLASS_NAME* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_method_name(Token_method_name* in)
+void HIR_unparser::children_method_name(METHOD_NAME* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_variable_name(Token_variable_name* in)
+void HIR_unparser::children_variable_name(VARIABLE_NAME* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_cast(Token_cast* in)
+void HIR_unparser::children_cast(CAST* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_op(Token_op* in)
+void HIR_unparser::children_op(OP* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_constant_name(Token_constant_name* in)
+void HIR_unparser::children_constant_name(CONSTANT_NAME* in)
 {
 	echo(in->value);
 }
 
-void HIR_unparser::children_int(Token_int* in)
+void HIR_unparser::children_int(INT* in)
 {
 	echo(in->source_rep);
 }
 
-void HIR_unparser::children_real(Token_real* in)
+void HIR_unparser::children_real(REAL* in)
 {
 	echo(in->source_rep);
 }
 
-void HIR_unparser::children_string(Token_string* in)
+void HIR_unparser::children_string(STRING* in)
 {
 	if(
 			*in->source_rep == "__FILE__" ||
@@ -643,18 +643,18 @@ void HIR_unparser::children_string(Token_string* in)
 	}
 }
 
-void HIR_unparser::children_bool(Token_bool* in)
+void HIR_unparser::children_bool(BOOL* in)
 {
 	echo(in->source_rep);
 }
 
-void HIR_unparser::children_null(Token_null* in)
+void HIR_unparser::children_nil(NIL* in)
 {
 	echo(in->source_rep);
 }
 
 // Generic classes
-void HIR_unparser::pre_node(HIR_node* in)
+void HIR_unparser::pre_node(Node* in)
 {
 	if(in->attrs->is_true("phc.unparser.starts_line") && !at_start_of_line)
 	{
@@ -667,35 +667,35 @@ void HIR_unparser::pre_node(HIR_node* in)
  * involves reflection, and some special cases in the node containing the
  * reflected variable. In general $$$$x (ie any amunt of nested variabels) is
  * ok, and anything else requires curlies. */
-bool needs_curlies (HIR_reflection* in)
+bool needs_curlies (Reflection* in)
 {
 	return false;
 }
 
-void HIR_unparser::pre_variable (HIR_variable* in)
+void HIR_unparser::pre_variable (Variable* in)
 {
-	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->variable_name);
+	Reflection* reflect = dynamic_cast<Reflection*>(in->variable_name);
 	if (reflect && 
 			(needs_curlies (reflect) || in->array_indices->size () > 0))
 		assert (0); // this shouldnt be possible anymore
 }
 
-void HIR_unparser::pre_method_invocation (HIR_method_invocation* in)
+void HIR_unparser::pre_method_invocation (Method_invocation* in)
 {
-	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->method_name);
+	Reflection* reflect = dynamic_cast<Reflection*>(in->method_name);
 	if (in->target
 			&& reflect && needs_curlies (reflect))
 		assert (0); // this shouldnt be possible anymore
 }
 
-void HIR_unparser::pre_global (HIR_global* in)
+void HIR_unparser::pre_global (Global* in)
 {
-	HIR_reflection* reflect = dynamic_cast<HIR_reflection*>(in->variable_name);
+	Reflection* reflect = dynamic_cast<Reflection*>(in->variable_name);
 	if (reflect && needs_curlies (reflect))
 		assert (0); // this shouldnt be possible anymore
 }
 
-void HIR_unparser::pre_expr(HIR_expr* in)
+void HIR_unparser::pre_expr(Expr* in)
 {
 	if(in->attrs->is_true("phc.unparser.needs_user_brackets"))
 		echo("(");
@@ -703,7 +703,7 @@ void HIR_unparser::pre_expr(HIR_expr* in)
 		echo("{");
 }
 
-void HIR_unparser::post_expr(HIR_expr* in)
+void HIR_unparser::post_expr(Expr* in)
 {
 	if(in->attrs->is_true("phc.unparser.needs_curlies") or in->attrs->is_true("phc.unparser.needs_user_curlies"))
 		echo("}");
@@ -711,13 +711,13 @@ void HIR_unparser::post_expr(HIR_expr* in)
 		echo(")");
 }
 
-void HIR_unparser::children_label_name (Token_label_name* in)
+void HIR_unparser::children_label_name (LABEL_NAME* in)
 {
 	echo(in->value);
 }
 
 void 
-HIR_unparser::children_goto (HIR_goto* in)
+HIR_unparser::children_goto (Goto* in)
 {
 	echo ("goto ");
 	visit_label_name (in->label_name);
@@ -725,13 +725,13 @@ HIR_unparser::children_goto (HIR_goto* in)
 }
 
 void 
-HIR_unparser::children_label (HIR_label* in)
+HIR_unparser::children_label (Label* in)
 {
 	visit_label_name (in->label_name);
 	echo_nl(":");
 }
 
-void HIR_unparser::children_name_with_default (HIR_name_with_default* in)
+void HIR_unparser::children_name_with_default (Name_with_default* in)
 {
 	echo("$");
 	visit_variable_name(in->variable_name);

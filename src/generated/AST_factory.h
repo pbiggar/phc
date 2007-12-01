@@ -20,10 +20,10 @@ using namespace std;
 #include "AST.h"
 
 namespace AST{
-class AST_factory
+class Node_factory
 {
 public:
-    // If type_id corresponds to AST node, the elements in args must
+    // If type_id corresponds to an AST node, the elements in args must
     // correspond to the children of the node.
     // 
     // If type_id corresponds to a list (of the form "..._list"),
@@ -33,6 +33,8 @@ public:
     // If type_id corresponds to a token (terminal symbol), args must
     // contain a single node of type String. Terminal symbols
     // with non-default values are not supported.
+    // 
+    // If the node type is not recognized, NULL is returned.
     static Object* create(char const* type_id, List<Object*>* args);
 };
 }

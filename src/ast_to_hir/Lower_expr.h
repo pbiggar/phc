@@ -11,22 +11,22 @@
 
 #include "AST_transform.h"
 
-class Lower_expr : public AST::AST_transform
+class Lower_expr : public AST::Transform
 {
 public:
-	void children_php_script(AST::AST_php_script* in);
+	void children_php_script(AST::PHP_script* in);
 
 public:
-	void post_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
-	void post_return(AST::AST_return* in, List<AST::AST_statement*>* out);
-	void post_branch(AST::AST_branch* in, List<AST::AST_statement*>* out);
-	void post_global(AST::AST_global* in, List<AST::AST_statement*>* out);
+	void post_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
+	void post_return(AST::Return* in, List<AST::Statement*>* out);
+	void post_branch(AST::Branch* in, List<AST::Statement*>* out);
+	void post_global(AST::Global* in, List<AST::Statement*>* out);
 
 protected:
-	AST::AST_expr* eval(AST::AST_expr* in);
-	void eval(AST::AST_expr* in, AST::AST_variable* temp);
-	void push_back_pieces(AST::AST_statement* in, List<AST::AST_statement*>* out);
-	List<AST::AST_statement*>* pieces;
+	AST::Expr* eval(AST::Expr* in);
+	void eval(AST::Expr* in, AST::Variable* temp);
+	void push_back_pieces(AST::Statement* in, List<AST::Statement*>* out);
+	List<AST::Statement*>* pieces;
 };
 
 #endif // PHC_LOWER_EXPR_H

@@ -145,11 +145,11 @@
      CAST_OBJECT = 361,
      CAST_BOOL = 362,
      CAST_UNSET = 363,
-     STRING = 364,
+     T_STRING = 364,
      IDENT = 365,
      VARIABLE = 366,
-     INT = 367,
-     REAL = 368,
+     T_INT = 367,
+     T_REAL = 368,
      INLINE_HTML = 369,
      INVALID_TOKEN = 370
    };
@@ -261,11 +261,11 @@
 #define CAST_OBJECT 361
 #define CAST_BOOL 362
 #define CAST_UNSET 363
-#define STRING 364
+#define T_STRING 364
 #define IDENT 365
 #define VARIABLE 366
-#define INT 367
-#define REAL 368
+#define T_INT 367
+#define T_REAL 368
 #define INLINE_HTML 369
 #define INVALID_TOKEN 370
 
@@ -277,58 +277,58 @@ typedef union YYSTYPE
 #line 126 "src/generated_src/php_parser.ypp"
 {
 	Object* object;
-	List<AST::AST_statement*>* list_ast_statement;
-	List<AST::AST_catch*>* list_ast_catch;
-	AST::AST_catch* ast_catch;
-	List<AST::AST_variable*>* list_ast_variable;
-	AST::AST_variable* ast_variable;
-	AST::Token_string* token_string;
-	AST::AST_method* ast_method;
+	List<AST::Statement*>* list_ast_statement;
+	List<AST::Catch*>* list_ast_catch;
+	AST::Catch* ast_catch;
+	List<AST::Variable*>* list_ast_variable;
+	AST::Variable* ast_variable;
+	AST::STRING* token_string;
+	AST::Method* ast_method;
 	Integer* integer;
-	AST::AST_class_def* ast_class_def;
-	AST::Token_class_name* token_class_name;
-	AST::AST_interface_def* ast_interface_def;
-	List<AST::Token_interface_name*>* list_token_interface_name;
-	List<AST::AST_directive*>* list_ast_directive;
-	List<AST::AST_switch_case*>* switch_ast_case_list;
-	AST::AST_if* ast_if;
-	List<AST::AST_formal_parameter*>* list_ast_formal_parameter;
-	AST::AST_type* ast_type;
-	List<AST::AST_variable_name*>* list_ast_variable_name;
-	AST::AST_variable_name* ast_variable_name;
-	List<AST::AST_member*>* list_ast_member;
-	AST::AST_attr_mod* ast_attr_mod;
-	AST::AST_method_mod* ast_method_mod;
-	AST::AST_expr* ast_expr;
-	AST::AST_method_invocation* ast_method_invocation;
-	AST::AST_class_name* class_name;
-	AST::AST_constant* ast_constant;
-	List<AST::AST_array_elem*>* list_ast_array_elem;
-	List<AST::AST_expr*>* list_ast_expr;
-	AST::AST_nested_list_elements* ast_nested_list_elements;
-	AST::AST_list_element* ast_list_element;
+	AST::Class_def* ast_class_def;
+	AST::CLASS_NAME* token_class_name;
+	AST::Interface_def* ast_interface_def;
+	List<AST::INTERFACE_NAME*>* list_token_interface_name;
+	List<AST::Directive*>* list_ast_directive;
+	List<AST::Switch_case*>* switch_ast_case_list;
+	AST::If* ast_if;
+	List<AST::Formal_parameter*>* list_ast_formal_parameter;
+	AST::Type* ast_type;
+	List<AST::Variable_name*>* list_ast_variable_name;
+	AST::Variable_name* ast_variable_name;
+	List<AST::Member*>* list_ast_member;
+	AST::Attr_mod* ast_attr_mod;
+	AST::Method_mod* ast_method_mod;
+	AST::Expr* ast_expr;
+	AST::Method_invocation* ast_method_invocation;
+	AST::Class_name* class_name;
+	AST::Constant* ast_constant;
+	List<AST::Array_elem*>* list_ast_array_elem;
+	List<AST::Expr*>* list_ast_expr;
+	AST::Nested_list_elements* ast_nested_list_elements;
+	AST::List_element* ast_list_element;
 	String* string;
-	List<AST::AST_actual_parameter*>* list_ast_actual_parameter;
-	AST::AST_class_name* ast_class_name;
-	List<AST::AST_switch_case*>* list_ast_switch_case;
-	AST::AST_switch_case* ast_switch_case;
-	AST::AST_try* ast_try;
-	AST::AST_declare* ast_declare;
-	AST::AST_foreach* ast_foreach;
-	AST::AST_switch* ast_switch;
-	AST::AST_for* ast_for;
-	AST::AST_do* ast_do;
-	AST::AST_while* ast_while;
-	AST::AST_statement* ast_statement;
-	AST::Token_int* token_int;
-	AST::Token_op* token_op;
-	AST::Token_real* token_real;
-	AST::Token_bool* token_bool;
-	AST::Token_null* token_null;
-	List<AST::AST_name_with_default*>* list_ast_name_with_default;
-	AST::AST_member* ast_member;
-	AST::AST_attribute* ast_attribute;
-	AST::AST_new* ast_new;
+	List<AST::Actual_parameter*>* list_ast_actual_parameter;
+	AST::Class_name* ast_class_name;
+	List<AST::Switch_case*>* list_ast_switch_case;
+	AST::Switch_case* ast_switch_case;
+	AST::Try* ast_try;
+	AST::Declare* ast_declare;
+	AST::Foreach* ast_foreach;
+	AST::Switch* ast_switch;
+	AST::For* ast_for;
+	AST::Do* ast_do;
+	AST::While* ast_while;
+	AST::Statement* ast_statement;
+	AST::INT* token_int;
+	AST::OP* token_op;
+	AST::REAL* token_real;
+	AST::BOOL* token_bool;
+	AST::NIL* token_null;
+	List<AST::Name_with_default*>* list_ast_name_with_default;
+	AST::Member* ast_member;
+	AST::Attribute* ast_attribute;
+	AST::New* ast_new;
 }
 /* Line 1489 of yacc.c.  */
 #line 335 "src/generated/php_parser.tab.hpp"

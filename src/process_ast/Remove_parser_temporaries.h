@@ -12,10 +12,10 @@
 
 #include "AST_visitor.h"
 
-class Remove_parser_temporaries : public AST::AST_visitor
+class Remove_parser_temporaries : public AST::Visitor
 {
 public:
-	void pre_node(AST::AST_node* in);
+	void pre_node(AST::Node* in);
 };
 
 #endif // PHC_REMOVE_PARSER_TEMPORARIES

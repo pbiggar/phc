@@ -11,10 +11,10 @@
 
 using namespace AST;
 
-void Lower_expr::children_php_script(AST_php_script* in)
+void Lower_expr::children_php_script(PHP_script* in)
 {
-	pieces = new List<AST_statement*>;
-	AST_transform::children_php_script(in);
+	pieces = new List<Statement*>;
+	Transform::children_php_script(in);
 }
 
 /*
@@ -25,27 +25,27 @@ void Lower_expr::children_php_script(AST_php_script* in)
  * only a limited number of statements to consider here.
  */
 
-void Lower_expr::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Lower_expr::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_return(AST_return* in, List<AST_statement*>* out)
+void Lower_expr::post_return(Return* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_branch(AST_branch* in, List<AST_statement*>* out)
+void Lower_expr::post_branch(Branch* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_global(AST_global* in, List<AST_statement*>* out)
+void Lower_expr::post_global(Global* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
+void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 {
 	out->push_back_all(pieces);
 	out->push_back(in);
@@ -71,7 +71,7 @@ void Lower_expr::push_back_pieces(AST_statement* in, List<AST_statement*>* out)
  * If the node is marked "phc.lower_expr.no_temp", eval simply returns in.
  */
 
-AST_expr* Lower_expr::eval(AST_expr* in)
+Expr* Lower_expr::eval(Expr* in)
 {
 	if(in->attrs->is_true("phc.lower_expr.no_temp"))
 	{
@@ -79,14 +79,14 @@ AST_expr* Lower_expr::eval(AST_expr* in)
 	}
 	else
 	{
-		AST_variable* temp = fresh_var("TLE"); 
+		Variable* temp = fresh_var("TLE"); 
 		eval(in, temp);
 		return temp;
 	}
 }
 
 // Variation on eval that takes in the name of the temp
-void Lower_expr::eval(AST_expr* in, AST_variable* temp)
+void Lower_expr::eval(Expr* in, Variable* temp)
 {
-	pieces->push_back(new AST_eval_expr(new AST_assignment(temp->clone (), false, in->clone ())));
+	pieces->push_back(new Eval_expr(new Assignment(temp->clone (), false, in->clone ())));
 }

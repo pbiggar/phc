@@ -13,22 +13,22 @@
 #include "AST_visitor.h"
 
 
-class Goto_uppering : public AST::AST_visitor
+class Goto_uppering : public AST::Visitor
 {
 private:
-	AST::AST_variable *next;
-	AST::Token_string *start;
-	AST::Token_string *end;
-	AST::AST_switch *switching;
+	AST::Variable *next;
+	AST::STRING *start;
+	AST::STRING *end;
+	AST::Switch *switching;
 
 public:
 	Goto_uppering ();
 
-	List<AST::AST_statement*>* convert_statement_list (List<AST::AST_statement*> *in);
+	List<AST::Statement*>* convert_statement_list (List<AST::Statement*> *in);
 	
-	void pre_php_script (AST::AST_php_script *in);
-	void pre_method (AST::AST_method *in);
-	void post_php_script (AST::AST_php_script* in);
+	void pre_php_script (AST::PHP_script *in);
+	void pre_method (AST::Method *in);
+	void post_php_script (AST::PHP_script* in);
 };
 
 #endif // PHC_GOTO_UPPERING_H

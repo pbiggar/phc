@@ -25,7 +25,7 @@
 
 using namespace AST;
 
-AST_expr* Token_conversion::pre_int (Token_int* in)
+Expr* Token_conversion::pre_int (INT* in)
 {
 	if (*in->source_rep == "__LINE__" or *in->source_rep == "__FILE__")
 		return in;
@@ -34,24 +34,24 @@ AST_expr* Token_conversion::pre_int (Token_int* in)
 	return PHP::convert_token (in);
 }
 
-AST_expr* Token_conversion::pre_real (Token_real* in)
+Expr* Token_conversion::pre_real (REAL* in)
 {
 	assert (in->value == 0.0);
 	return PHP::convert_token (in);
 }
 
 // Convert unary_op(-,int(5)) to int(-5), and similarly for reals
-AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
+Expr* Token_conversion::pre_unary_op(Unary_op* in)
 {
-	Wildcard<AST_expr>* expr = new Wildcard<AST_expr>;
-	Wildcard<Token_int>* i = new Wildcard<Token_int>;
-	Wildcard<Token_real>* r = new Wildcard<Token_real>;
+	Wildcard<Expr>* expr = new Wildcard<Expr>;
+	Wildcard<INT>* i = new Wildcard<INT>;
+	Wildcard<REAL>* r = new Wildcard<REAL>;
 
 	// In all cases, we assign to result, and at the end copy all
 	// attributes from *in to *result
-	AST_expr* result;
+	Expr* result;
 
-	if(in->match(new AST_unary_op(new AST_unary_op(expr, "-"), "-")))
+	if(in->match(new Unary_op(new Unary_op(expr, "-"), "-")))
 	{
 		// Double negation; remove both
 		result = pre_expr(expr->value);
@@ -59,7 +59,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 
 	// TODO add a pass to check for the lack of unary -s
 
-	else if(in->match(new AST_unary_op(i, "-")))
+	else if(in->match(new Unary_op(i, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *i->value->source_rep;
@@ -67,7 +67,7 @@ AST_expr* Token_conversion::pre_unary_op(AST_unary_op* in)
 		result = PHP::convert_token (i->value);
 	}
 
-	else if(in->match(new AST_unary_op(r, "-")))
+	else if(in->match(new Unary_op(r, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *r->value->source_rep;

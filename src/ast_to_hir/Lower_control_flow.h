@@ -11,42 +11,42 @@
 
 #include "AST_transform.h"
 
-class Lower_control_flow : public AST::AST_transform
+class Lower_control_flow : public AST::Transform
 {
 	private:
-		List<AST::AST_node*> break_levels;
-		List<AST::AST_node*> continue_levels;
+		List<AST::Node*> break_levels;
+		List<AST::Node*> continue_levels;
 
 	public:
-		AST::AST_php_script* post_php_script (AST::AST_php_script* in);
+		AST::PHP_script* post_php_script (AST::PHP_script* in);
 
 	public:
-		template<class T> void add_label (AST::AST_node*, List<AST::AST_statement*>*);
-		template<class T> AST::AST_label* exit_label (AST::AST_node*);
-		template<class T> void lower_exit (T*, List<AST::AST_statement*>*);
-		void lower_for (AST::AST_for*, List<AST::AST_statement*>*);
-		void lower_foreach (AST::AST_foreach*, List<AST::AST_statement*>*);
-		void lower_do (AST::AST_do*, List<AST::AST_statement*>*);
-		void lower_if (AST::AST_if*, List<AST::AST_statement*>*);
-		void lower_while (AST::AST_while* in, List<AST::AST_statement*>* out);
-		void lower_switch (AST::AST_switch* in, List<AST::AST_statement*>* out);
+		template<class T> void add_label (AST::Node*, List<AST::Statement*>*);
+		template<class T> AST::Label* exit_label (AST::Node*);
+		template<class T> void lower_exit (T*, List<AST::Statement*>*);
+		void lower_for (AST::For*, List<AST::Statement*>*);
+		void lower_foreach (AST::Foreach*, List<AST::Statement*>*);
+		void lower_do (AST::Do*, List<AST::Statement*>*);
+		void lower_if (AST::If*, List<AST::Statement*>*);
+		void lower_while (AST::While* in, List<AST::Statement*>* out);
+		void lower_switch (AST::Switch* in, List<AST::Statement*>* out);
 
 	public:
-		void pre_control_flow (AST::AST_statement* in, List<AST::AST_statement*>* out);
-		void pre_while(AST::AST_while* in, List<AST::AST_statement*>* out);
-		void pre_do(AST::AST_do* in, List<AST::AST_statement*>* out);
-		void pre_for(AST::AST_for* in, List<AST::AST_statement*>* out);
-		void pre_foreach(AST::AST_foreach* in, List<AST::AST_statement*>* out);
-		void pre_switch(AST::AST_switch* in, List<AST::AST_statement*>* out);
+		void pre_control_flow (AST::Statement* in, List<AST::Statement*>* out);
+		void pre_while(AST::While* in, List<AST::Statement*>* out);
+		void pre_do(AST::Do* in, List<AST::Statement*>* out);
+		void pre_for(AST::For* in, List<AST::Statement*>* out);
+		void pre_foreach(AST::Foreach* in, List<AST::Statement*>* out);
+		void pre_switch(AST::Switch* in, List<AST::Statement*>* out);
 
-		void post_while(AST::AST_while* in, List<AST::AST_statement*>* out);
-		void post_do(AST::AST_do* in, List<AST::AST_statement*>* out);
-		void post_for(AST::AST_for* in, List<AST::AST_statement*>* out);
-		void post_foreach(AST::AST_foreach* in, List<AST::AST_statement*>* out);
-		void post_switch(AST::AST_switch* in, List<AST::AST_statement*>* out);
-		void post_if(AST::AST_if* in, List<AST::AST_statement*>* out);
-		void post_break(AST::AST_break* in, List<AST::AST_statement*>* out);
-		void post_continue(AST::AST_continue* in, List<AST::AST_statement*>* out);
+		void post_while(AST::While* in, List<AST::Statement*>* out);
+		void post_do(AST::Do* in, List<AST::Statement*>* out);
+		void post_for(AST::For* in, List<AST::Statement*>* out);
+		void post_foreach(AST::Foreach* in, List<AST::Statement*>* out);
+		void post_switch(AST::Switch* in, List<AST::Statement*>* out);
+		void post_if(AST::If* in, List<AST::Statement*>* out);
+		void post_break(AST::Break* in, List<AST::Statement*>* out);
+		void post_continue(AST::Continue* in, List<AST::Statement*>* out);
 };
 
 #endif // PHC_LOWER_CONTROL_FLOW_H

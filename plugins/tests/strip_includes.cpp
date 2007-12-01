@@ -10,22 +10,22 @@
 
 using namespace AST;
 
-class Strip_includes : public AST_transform
+class Strip_includes : public Transform
 {
 public:
-	void pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+	void pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 	{
-		Wildcard<Token_string>* token_filename = new Wildcard<Token_string>;
-		Wildcard<Token_method_name>* method_name = new Wildcard<Token_method_name>;
+		Wildcard<STRING>* token_filename = new Wildcard<STRING>;
+		Wildcard<METHOD_NAME>* method_name = new Wildcard<METHOD_NAME>;
 
 		// the filename is the only parameter of the include statement
 
 		// TODO this code is much duplicated
-		if (in->expr->match (new AST_method_invocation(
+		if (in->expr->match (new Method_invocation(
 				NULL,
 				method_name,
-				new List<AST_actual_parameter*>(
-					new AST_actual_parameter(false, token_filename)
+				new List<Actual_parameter*>(
+					new Actual_parameter(false, token_filename)
 					)
 				))
 				and (*(method_name->value->value) == "include"
@@ -47,7 +47,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "incl2");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->transform_children (new Strip_includes ());
 

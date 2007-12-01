@@ -13,18 +13,18 @@ using namespace AST;
 
 static bool success = true;
 static bool is_run = false;
-class Test_pre_vs_post_count : public AST_visitor
+class Test_pre_vs_post_count : public Visitor
 {
 private:
 	int count;
 
 public:
-	void pre_php_script(AST_php_script* in)
+	void pre_php_script(PHP_script* in)
 	{
 		count = 0;
 	}
 
-	void post_php_script(AST_php_script* in)
+	void post_php_script(PHP_script* in)
 	{
 		is_run = true;
 		if (count != 0)
@@ -35,12 +35,12 @@ public:
 		}
 	}
 
-	void pre_node(AST_node* in)
+	void pre_node(Node* in)
 	{
 		count++;
 	}
 
-	void post_node(AST_node* out)
+	void post_node(Node* out)
 	{
 		count--;
 	}
@@ -51,7 +51,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit(new Test_pre_vs_post_count ());
 }

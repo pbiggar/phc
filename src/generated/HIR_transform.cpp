@@ -1,579 +1,579 @@
 #include "HIR_transform.h"
 
 namespace HIR{
-HIR_transform::~HIR_transform()
+Transform::~Transform()
 {
 }
 
 // Invoked before the children are transformed
-HIR_php_script* HIR_transform::pre_php_script(HIR_php_script* in)
+PHP_script* Transform::pre_php_script(PHP_script* in)
 {
     return in;
 }
 
-void HIR_transform::pre_class_def(HIR_class_def* in, List<HIR_statement*>* out)
+void Transform::pre_class_def(Class_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-HIR_class_mod* HIR_transform::pre_class_mod(HIR_class_mod* in)
+Class_mod* Transform::pre_class_mod(Class_mod* in)
 {
     return in;
 }
 
-void HIR_transform::pre_interface_def(HIR_interface_def* in, List<HIR_statement*>* out)
+void Transform::pre_interface_def(Interface_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_method(HIR_method* in, List<HIR_method*>* out)
+void Transform::pre_method(Method* in, List<Method*>* out)
 {
     out->push_back(in);
 }
 
-HIR_signature* HIR_transform::pre_signature(HIR_signature* in)
+Signature* Transform::pre_signature(Signature* in)
 {
     return in;
 }
 
-HIR_method_mod* HIR_transform::pre_method_mod(HIR_method_mod* in)
+Method_mod* Transform::pre_method_mod(Method_mod* in)
 {
     return in;
 }
 
-void HIR_transform::pre_formal_parameter(HIR_formal_parameter* in, List<HIR_formal_parameter*>* out)
+void Transform::pre_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
 {
     out->push_back(in);
 }
 
-HIR_type* HIR_transform::pre_type(HIR_type* in)
+Type* Transform::pre_type(Type* in)
 {
     return in;
 }
 
-void HIR_transform::pre_attribute(HIR_attribute* in, List<HIR_member*>* out)
+void Transform::pre_attribute(Attribute* in, List<Member*>* out)
 {
     out->push_back(in);
 }
 
-HIR_attr_mod* HIR_transform::pre_attr_mod(HIR_attr_mod* in)
+Attr_mod* Transform::pre_attr_mod(Attr_mod* in)
 {
     return in;
 }
 
-HIR_name_with_default* HIR_transform::pre_name_with_default(HIR_name_with_default* in)
+Name_with_default* Transform::pre_name_with_default(Name_with_default* in)
 {
     return in;
 }
 
-void HIR_transform::pre_return(HIR_return* in, List<HIR_statement*>* out)
+void Transform::pre_return(Return* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_static_declaration(HIR_static_declaration* in, List<HIR_statement*>* out)
+void Transform::pre_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_global(HIR_global* in, List<HIR_statement*>* out)
+void Transform::pre_global(Global* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_try(HIR_try* in, List<HIR_statement*>* out)
+void Transform::pre_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_catch(HIR_catch* in, List<HIR_catch*>* out)
+void Transform::pre_catch(Catch* in, List<Catch*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_throw(HIR_throw* in, List<HIR_statement*>* out)
+void Transform::pre_throw(Throw* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_eval_expr(HIR_eval_expr* in, List<HIR_statement*>* out)
+void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_branch(HIR_branch* in, List<HIR_statement*>* out)
+void Transform::pre_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_goto(HIR_goto* in, List<HIR_statement*>* out)
+void Transform::pre_goto(Goto* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_label(HIR_label* in, List<HIR_statement*>* out)
+void Transform::pre_label(Label* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out)
+void Transform::pre_foreach_reset(Foreach_reset* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out)
+void Transform::pre_foreach_next(Foreach_next* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::pre_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out)
+void Transform::pre_foreach_end(Foreach_end* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::pre_foreach_has_key(HIR_foreach_has_key* in)
+Expr* Transform::pre_foreach_has_key(Foreach_has_key* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_foreach_get_key(HIR_foreach_get_key* in)
+Expr* Transform::pre_foreach_get_key(Foreach_get_key* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_foreach_get_data(HIR_foreach_get_data* in)
+Expr* Transform::pre_foreach_get_data(Foreach_get_data* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_assignment(HIR_assignment* in)
+Expr* Transform::pre_assignment(Assignment* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_cast(HIR_cast* in)
+Expr* Transform::pre_cast(Cast* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_unary_op(HIR_unary_op* in)
+Expr* Transform::pre_unary_op(Unary_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_bin_op(HIR_bin_op* in)
+Expr* Transform::pre_bin_op(Bin_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_constant(HIR_constant* in)
+Expr* Transform::pre_constant(Constant* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_instanceof(HIR_instanceof* in)
+Expr* Transform::pre_instanceof(Instanceof* in)
 {
     return in;
 }
 
-HIR_variable* HIR_transform::pre_variable(HIR_variable* in)
+Variable* Transform::pre_variable(Variable* in)
 {
     return in;
 }
 
-HIR_reflection* HIR_transform::pre_reflection(HIR_reflection* in)
+Reflection* Transform::pre_reflection(Reflection* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_pre_op(HIR_pre_op* in)
+Expr* Transform::pre_pre_op(Pre_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_array(HIR_array* in)
+Expr* Transform::pre_array(Array* in)
 {
     return in;
 }
 
-void HIR_transform::pre_array_elem(HIR_array_elem* in, List<HIR_array_elem*>* out)
+void Transform::pre_array_elem(Array_elem* in, List<Array_elem*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::pre_method_invocation(HIR_method_invocation* in)
+Expr* Transform::pre_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-void HIR_transform::pre_actual_parameter(HIR_actual_parameter* in, List<HIR_actual_parameter*>* out)
+void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::pre_new(HIR_new* in)
+Expr* Transform::pre_new(New* in)
 {
     return in;
 }
 
-Token_class_name* HIR_transform::pre_class_name(Token_class_name* in)
+CLASS_NAME* Transform::pre_class_name(CLASS_NAME* in)
 {
     return in;
 }
 
-Token_interface_name* HIR_transform::pre_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::pre_interface_name(INTERFACE_NAME* in)
 {
     return in;
 }
 
-Token_method_name* HIR_transform::pre_method_name(Token_method_name* in)
+METHOD_NAME* Transform::pre_method_name(METHOD_NAME* in)
 {
     return in;
 }
 
-Token_variable_name* HIR_transform::pre_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
 {
     return in;
 }
 
-Token_label_name* HIR_transform::pre_label_name(Token_label_name* in)
+LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
 {
     return in;
 }
 
-Token_ht_iterator* HIR_transform::pre_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_int(Token_int* in)
+Expr* Transform::pre_int(INT* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_real(Token_real* in)
+Expr* Transform::pre_real(REAL* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_string(Token_string* in)
+Expr* Transform::pre_string(STRING* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_bool(Token_bool* in)
+Expr* Transform::pre_bool(BOOL* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::pre_null(Token_null* in)
+Expr* Transform::pre_nil(NIL* in)
 {
     return in;
 }
 
-Token_cast* HIR_transform::pre_cast(Token_cast* in)
+CAST* Transform::pre_cast(CAST* in)
 {
     return in;
 }
 
-Token_op* HIR_transform::pre_op(Token_op* in)
+OP* Transform::pre_op(OP* in)
 {
     return in;
 }
 
-Token_constant_name* HIR_transform::pre_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::pre_constant_name(CONSTANT_NAME* in)
 {
     return in;
 }
 
 // Invoked after the children have been transformed
-HIR_php_script* HIR_transform::post_php_script(HIR_php_script* in)
+PHP_script* Transform::post_php_script(PHP_script* in)
 {
     return in;
 }
 
-void HIR_transform::post_class_def(HIR_class_def* in, List<HIR_statement*>* out)
+void Transform::post_class_def(Class_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-HIR_class_mod* HIR_transform::post_class_mod(HIR_class_mod* in)
+Class_mod* Transform::post_class_mod(Class_mod* in)
 {
     return in;
 }
 
-void HIR_transform::post_interface_def(HIR_interface_def* in, List<HIR_statement*>* out)
+void Transform::post_interface_def(Interface_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_method(HIR_method* in, List<HIR_method*>* out)
+void Transform::post_method(Method* in, List<Method*>* out)
 {
     out->push_back(in);
 }
 
-HIR_signature* HIR_transform::post_signature(HIR_signature* in)
+Signature* Transform::post_signature(Signature* in)
 {
     return in;
 }
 
-HIR_method_mod* HIR_transform::post_method_mod(HIR_method_mod* in)
+Method_mod* Transform::post_method_mod(Method_mod* in)
 {
     return in;
 }
 
-void HIR_transform::post_formal_parameter(HIR_formal_parameter* in, List<HIR_formal_parameter*>* out)
+void Transform::post_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
 {
     out->push_back(in);
 }
 
-HIR_type* HIR_transform::post_type(HIR_type* in)
+Type* Transform::post_type(Type* in)
 {
     return in;
 }
 
-void HIR_transform::post_attribute(HIR_attribute* in, List<HIR_member*>* out)
+void Transform::post_attribute(Attribute* in, List<Member*>* out)
 {
     out->push_back(in);
 }
 
-HIR_attr_mod* HIR_transform::post_attr_mod(HIR_attr_mod* in)
+Attr_mod* Transform::post_attr_mod(Attr_mod* in)
 {
     return in;
 }
 
-HIR_name_with_default* HIR_transform::post_name_with_default(HIR_name_with_default* in)
+Name_with_default* Transform::post_name_with_default(Name_with_default* in)
 {
     return in;
 }
 
-void HIR_transform::post_return(HIR_return* in, List<HIR_statement*>* out)
+void Transform::post_return(Return* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_static_declaration(HIR_static_declaration* in, List<HIR_statement*>* out)
+void Transform::post_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_global(HIR_global* in, List<HIR_statement*>* out)
+void Transform::post_global(Global* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_try(HIR_try* in, List<HIR_statement*>* out)
+void Transform::post_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_catch(HIR_catch* in, List<HIR_catch*>* out)
+void Transform::post_catch(Catch* in, List<Catch*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_throw(HIR_throw* in, List<HIR_statement*>* out)
+void Transform::post_throw(Throw* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_eval_expr(HIR_eval_expr* in, List<HIR_statement*>* out)
+void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_branch(HIR_branch* in, List<HIR_statement*>* out)
+void Transform::post_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_goto(HIR_goto* in, List<HIR_statement*>* out)
+void Transform::post_goto(Goto* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_label(HIR_label* in, List<HIR_statement*>* out)
+void Transform::post_label(Label* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_foreach_reset(HIR_foreach_reset* in, List<HIR_statement*>* out)
+void Transform::post_foreach_reset(Foreach_reset* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_foreach_next(HIR_foreach_next* in, List<HIR_statement*>* out)
+void Transform::post_foreach_next(Foreach_next* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void HIR_transform::post_foreach_end(HIR_foreach_end* in, List<HIR_statement*>* out)
+void Transform::post_foreach_end(Foreach_end* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::post_foreach_has_key(HIR_foreach_has_key* in)
+Expr* Transform::post_foreach_has_key(Foreach_has_key* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_foreach_get_key(HIR_foreach_get_key* in)
+Expr* Transform::post_foreach_get_key(Foreach_get_key* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_foreach_get_data(HIR_foreach_get_data* in)
+Expr* Transform::post_foreach_get_data(Foreach_get_data* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_assignment(HIR_assignment* in)
+Expr* Transform::post_assignment(Assignment* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_cast(HIR_cast* in)
+Expr* Transform::post_cast(Cast* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_unary_op(HIR_unary_op* in)
+Expr* Transform::post_unary_op(Unary_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_bin_op(HIR_bin_op* in)
+Expr* Transform::post_bin_op(Bin_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_constant(HIR_constant* in)
+Expr* Transform::post_constant(Constant* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_instanceof(HIR_instanceof* in)
+Expr* Transform::post_instanceof(Instanceof* in)
 {
     return in;
 }
 
-HIR_variable* HIR_transform::post_variable(HIR_variable* in)
+Variable* Transform::post_variable(Variable* in)
 {
     return in;
 }
 
-HIR_reflection* HIR_transform::post_reflection(HIR_reflection* in)
+Reflection* Transform::post_reflection(Reflection* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_pre_op(HIR_pre_op* in)
+Expr* Transform::post_pre_op(Pre_op* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_array(HIR_array* in)
+Expr* Transform::post_array(Array* in)
 {
     return in;
 }
 
-void HIR_transform::post_array_elem(HIR_array_elem* in, List<HIR_array_elem*>* out)
+void Transform::post_array_elem(Array_elem* in, List<Array_elem*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::post_method_invocation(HIR_method_invocation* in)
+Expr* Transform::post_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-void HIR_transform::post_actual_parameter(HIR_actual_parameter* in, List<HIR_actual_parameter*>* out)
+void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
 
-HIR_expr* HIR_transform::post_new(HIR_new* in)
+Expr* Transform::post_new(New* in)
 {
     return in;
 }
 
-Token_class_name* HIR_transform::post_class_name(Token_class_name* in)
+CLASS_NAME* Transform::post_class_name(CLASS_NAME* in)
 {
     return in;
 }
 
-Token_interface_name* HIR_transform::post_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::post_interface_name(INTERFACE_NAME* in)
 {
     return in;
 }
 
-Token_method_name* HIR_transform::post_method_name(Token_method_name* in)
+METHOD_NAME* Transform::post_method_name(METHOD_NAME* in)
 {
     return in;
 }
 
-Token_variable_name* HIR_transform::post_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
 {
     return in;
 }
 
-Token_label_name* HIR_transform::post_label_name(Token_label_name* in)
+LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
 {
     return in;
 }
 
-Token_ht_iterator* HIR_transform::post_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_int(Token_int* in)
+Expr* Transform::post_int(INT* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_real(Token_real* in)
+Expr* Transform::post_real(REAL* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_string(Token_string* in)
+Expr* Transform::post_string(STRING* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_bool(Token_bool* in)
+Expr* Transform::post_bool(BOOL* in)
 {
     return in;
 }
 
-HIR_expr* HIR_transform::post_null(Token_null* in)
+Expr* Transform::post_nil(NIL* in)
 {
     return in;
 }
 
-Token_cast* HIR_transform::post_cast(Token_cast* in)
+CAST* Transform::post_cast(CAST* in)
 {
     return in;
 }
 
-Token_op* HIR_transform::post_op(Token_op* in)
+OP* Transform::post_op(OP* in)
 {
     return in;
 }
 
-Token_constant_name* HIR_transform::post_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::post_constant_name(CONSTANT_NAME* in)
 {
     return in;
 }
 
 // Transform the children of the node
-void HIR_transform::children_php_script(HIR_php_script* in)
+void Transform::children_php_script(PHP_script* in)
 {
     in->statements = transform_statement_list(in->statements);
 }
 
-void HIR_transform::children_class_def(HIR_class_def* in)
+void Transform::children_class_def(Class_def* in)
 {
     in->class_mod = transform_class_mod(in->class_mod);
     in->class_name = transform_class_name(in->class_name);
@@ -582,301 +582,301 @@ void HIR_transform::children_class_def(HIR_class_def* in)
     in->members = transform_member_list(in->members);
 }
 
-void HIR_transform::children_class_mod(HIR_class_mod* in)
+void Transform::children_class_mod(Class_mod* in)
 {
 }
 
-void HIR_transform::children_interface_def(HIR_interface_def* in)
+void Transform::children_interface_def(Interface_def* in)
 {
     in->interface_name = transform_interface_name(in->interface_name);
     in->extends = transform_interface_name_list(in->extends);
     in->members = transform_member_list(in->members);
 }
 
-void HIR_transform::children_method(HIR_method* in)
+void Transform::children_method(Method* in)
 {
     in->signature = transform_signature(in->signature);
     in->statements = transform_statement_list(in->statements);
 }
 
-void HIR_transform::children_signature(HIR_signature* in)
+void Transform::children_signature(Signature* in)
 {
     in->method_mod = transform_method_mod(in->method_mod);
     in->method_name = transform_method_name(in->method_name);
     in->formal_parameters = transform_formal_parameter_list(in->formal_parameters);
 }
 
-void HIR_transform::children_method_mod(HIR_method_mod* in)
+void Transform::children_method_mod(Method_mod* in)
 {
 }
 
-void HIR_transform::children_formal_parameter(HIR_formal_parameter* in)
+void Transform::children_formal_parameter(Formal_parameter* in)
 {
     in->type = transform_type(in->type);
     in->var = transform_name_with_default(in->var);
 }
 
-void HIR_transform::children_type(HIR_type* in)
+void Transform::children_type(Type* in)
 {
     in->class_name = transform_class_name(in->class_name);
 }
 
-void HIR_transform::children_attribute(HIR_attribute* in)
+void Transform::children_attribute(Attribute* in)
 {
     in->attr_mod = transform_attr_mod(in->attr_mod);
     in->var = transform_name_with_default(in->var);
 }
 
-void HIR_transform::children_attr_mod(HIR_attr_mod* in)
+void Transform::children_attr_mod(Attr_mod* in)
 {
 }
 
-void HIR_transform::children_name_with_default(HIR_name_with_default* in)
+void Transform::children_name_with_default(Name_with_default* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_return(HIR_return* in)
+void Transform::children_return(Return* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_static_declaration(HIR_static_declaration* in)
+void Transform::children_static_declaration(Static_declaration* in)
 {
     in->var = transform_name_with_default(in->var);
 }
 
-void HIR_transform::children_global(HIR_global* in)
+void Transform::children_global(Global* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void HIR_transform::children_try(HIR_try* in)
+void Transform::children_try(Try* in)
 {
     in->statements = transform_statement_list(in->statements);
     in->catches = transform_catch_list(in->catches);
 }
 
-void HIR_transform::children_catch(HIR_catch* in)
+void Transform::children_catch(Catch* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->variable_name = transform_variable_name(in->variable_name);
     in->statements = transform_statement_list(in->statements);
 }
 
-void HIR_transform::children_throw(HIR_throw* in)
+void Transform::children_throw(Throw* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_eval_expr(HIR_eval_expr* in)
+void Transform::children_eval_expr(Eval_expr* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_branch(HIR_branch* in)
+void Transform::children_branch(Branch* in)
 {
     in->expr = transform_expr(in->expr);
     in->iftrue = transform_label_name(in->iftrue);
     in->iffalse = transform_label_name(in->iffalse);
 }
 
-void HIR_transform::children_goto(HIR_goto* in)
+void Transform::children_goto(Goto* in)
 {
     in->label_name = transform_label_name(in->label_name);
 }
 
-void HIR_transform::children_label(HIR_label* in)
+void Transform::children_label(Label* in)
 {
     in->label_name = transform_label_name(in->label_name);
 }
 
-void HIR_transform::children_foreach_reset(HIR_foreach_reset* in)
+void Transform::children_foreach_reset(Foreach_reset* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_foreach_next(HIR_foreach_next* in)
+void Transform::children_foreach_next(Foreach_next* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_foreach_end(HIR_foreach_end* in)
+void Transform::children_foreach_end(Foreach_end* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_foreach_has_key(HIR_foreach_has_key* in)
+void Transform::children_foreach_has_key(Foreach_has_key* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_foreach_get_key(HIR_foreach_get_key* in)
+void Transform::children_foreach_get_key(Foreach_get_key* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_foreach_get_data(HIR_foreach_get_data* in)
+void Transform::children_foreach_get_data(Foreach_get_data* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void HIR_transform::children_assignment(HIR_assignment* in)
+void Transform::children_assignment(Assignment* in)
 {
     in->variable = transform_variable(in->variable);
     in->expr = transform_expr(in->expr);
 }
 
-void HIR_transform::children_cast(HIR_cast* in)
+void Transform::children_cast(Cast* in)
 {
     in->cast = transform_cast(in->cast);
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void HIR_transform::children_unary_op(HIR_unary_op* in)
+void Transform::children_unary_op(Unary_op* in)
 {
     in->op = transform_op(in->op);
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void HIR_transform::children_bin_op(HIR_bin_op* in)
+void Transform::children_bin_op(Bin_op* in)
 {
     in->left = transform_variable_name(in->left);
     in->op = transform_op(in->op);
     in->right = transform_variable_name(in->right);
 }
 
-void HIR_transform::children_constant(HIR_constant* in)
+void Transform::children_constant(Constant* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->constant_name = transform_constant_name(in->constant_name);
 }
 
-void HIR_transform::children_instanceof(HIR_instanceof* in)
+void Transform::children_instanceof(Instanceof* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->class_name = transform_class_name(in->class_name);
 }
 
-void HIR_transform::children_variable(HIR_variable* in)
+void Transform::children_variable(Variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
     in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
-void HIR_transform::children_reflection(HIR_reflection* in)
+void Transform::children_reflection(Reflection* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void HIR_transform::children_pre_op(HIR_pre_op* in)
+void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable = transform_variable(in->variable);
 }
 
-void HIR_transform::children_array(HIR_array* in)
+void Transform::children_array(Array* in)
 {
     in->array_elems = transform_array_elem_list(in->array_elems);
 }
 
-void HIR_transform::children_array_elem(HIR_array_elem* in)
+void Transform::children_array_elem(Array_elem* in)
 {
     in->key = transform_expr(in->key);
     in->val = transform_expr(in->val);
 }
 
-void HIR_transform::children_method_invocation(HIR_method_invocation* in)
+void Transform::children_method_invocation(Method_invocation* in)
 {
     in->target = transform_target(in->target);
     in->method_name = transform_method_name(in->method_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
-void HIR_transform::children_actual_parameter(HIR_actual_parameter* in)
+void Transform::children_actual_parameter(Actual_parameter* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
     in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
-void HIR_transform::children_new(HIR_new* in)
+void Transform::children_new(New* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void HIR_transform::children_class_name(Token_class_name* in)
+void Transform::children_class_name(CLASS_NAME* in)
 {
 }
 
-void HIR_transform::children_interface_name(Token_interface_name* in)
+void Transform::children_interface_name(INTERFACE_NAME* in)
 {
 }
 
-void HIR_transform::children_method_name(Token_method_name* in)
+void Transform::children_method_name(METHOD_NAME* in)
 {
 }
 
-void HIR_transform::children_variable_name(Token_variable_name* in)
+void Transform::children_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void HIR_transform::children_label_name(Token_label_name* in)
+void Transform::children_label_name(LABEL_NAME* in)
 {
 }
 
-void HIR_transform::children_ht_iterator(Token_ht_iterator* in)
+void Transform::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-void HIR_transform::children_int(Token_int* in)
+void Transform::children_int(INT* in)
 {
 }
 
-void HIR_transform::children_real(Token_real* in)
+void Transform::children_real(REAL* in)
 {
 }
 
-void HIR_transform::children_string(Token_string* in)
+void Transform::children_string(STRING* in)
 {
 }
 
-void HIR_transform::children_bool(Token_bool* in)
+void Transform::children_bool(BOOL* in)
 {
 }
 
-void HIR_transform::children_null(Token_null* in)
+void Transform::children_nil(NIL* in)
 {
 }
 
-void HIR_transform::children_cast(Token_cast* in)
+void Transform::children_cast(CAST* in)
 {
 }
 
-void HIR_transform::children_op(Token_op* in)
+void Transform::children_op(OP* in)
 {
 }
 
-void HIR_transform::children_constant_name(Token_constant_name* in)
+void Transform::children_constant_name(CONSTANT_NAME* in)
 {
 }
 
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
-List<HIR_statement*>* HIR_transform::transform_statement_list(List<HIR_statement*>* in)
+List<Statement*>* Transform::transform_statement_list(List<Statement*>* in)
 {
-    List<HIR_statement*>::const_iterator i;
-    List<HIR_statement*>* out = new List<HIR_statement*>;
+    List<Statement*>::const_iterator i;
+    List<Statement*>* out = new List<Statement*>;
     
     if(in == NULL)
     	return NULL;
@@ -889,11 +889,11 @@ List<HIR_statement*>* HIR_transform::transform_statement_list(List<HIR_statement
     return out;
 }
 
-List<HIR_statement*>* HIR_transform::transform_statement(HIR_statement* in)
+List<Statement*>* Transform::transform_statement(Statement* in)
 {
-    List<HIR_statement*>::const_iterator i;
-    List<HIR_statement*>* out1 = new List<HIR_statement*>;
-    List<HIR_statement*>* out2 = new List<HIR_statement*>;
+    List<Statement*>::const_iterator i;
+    List<Statement*>* out1 = new List<Statement*>;
+    List<Statement*>* out2 = new List<Statement*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_statement(in, out1);
@@ -910,11 +910,11 @@ List<HIR_statement*>* HIR_transform::transform_statement(HIR_statement* in)
     return out2;
 }
 
-HIR_class_mod* HIR_transform::transform_class_mod(HIR_class_mod* in)
+Class_mod* Transform::transform_class_mod(Class_mod* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_class_mod* out;
+    Class_mod* out;
     
     out = pre_class_mod(in);
     if(out != NULL)
@@ -926,11 +926,11 @@ HIR_class_mod* HIR_transform::transform_class_mod(HIR_class_mod* in)
     return out;
 }
 
-Token_class_name* HIR_transform::transform_class_name(Token_class_name* in)
+CLASS_NAME* Transform::transform_class_name(CLASS_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_class_name* out;
+    CLASS_NAME* out;
     
     out = pre_class_name(in);
     if(out != NULL)
@@ -942,10 +942,10 @@ Token_class_name* HIR_transform::transform_class_name(Token_class_name* in)
     return out;
 }
 
-List<Token_interface_name*>* HIR_transform::transform_interface_name_list(List<Token_interface_name*>* in)
+List<INTERFACE_NAME*>* Transform::transform_interface_name_list(List<INTERFACE_NAME*>* in)
 {
-    List<Token_interface_name*>::const_iterator i;
-    List<Token_interface_name*>* out = new List<Token_interface_name*>;
+    List<INTERFACE_NAME*>::const_iterator i;
+    List<INTERFACE_NAME*>* out = new List<INTERFACE_NAME*>;
     
     if(in == NULL)
     	return NULL;
@@ -958,10 +958,10 @@ List<Token_interface_name*>* HIR_transform::transform_interface_name_list(List<T
     return out;
 }
 
-List<HIR_member*>* HIR_transform::transform_member_list(List<HIR_member*>* in)
+List<Member*>* Transform::transform_member_list(List<Member*>* in)
 {
-    List<HIR_member*>::const_iterator i;
-    List<HIR_member*>* out = new List<HIR_member*>;
+    List<Member*>::const_iterator i;
+    List<Member*>* out = new List<Member*>;
     
     if(in == NULL)
     	return NULL;
@@ -974,11 +974,11 @@ List<HIR_member*>* HIR_transform::transform_member_list(List<HIR_member*>* in)
     return out;
 }
 
-List<HIR_member*>* HIR_transform::transform_member(HIR_member* in)
+List<Member*>* Transform::transform_member(Member* in)
 {
-    List<HIR_member*>::const_iterator i;
-    List<HIR_member*>* out1 = new List<HIR_member*>;
-    List<HIR_member*>* out2 = new List<HIR_member*>;
+    List<Member*>::const_iterator i;
+    List<Member*>* out1 = new List<Member*>;
+    List<Member*>* out2 = new List<Member*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_member(in, out1);
@@ -995,11 +995,11 @@ List<HIR_member*>* HIR_transform::transform_member(HIR_member* in)
     return out2;
 }
 
-Token_interface_name* HIR_transform::transform_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::transform_interface_name(INTERFACE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_interface_name* out;
+    INTERFACE_NAME* out;
     
     out = pre_interface_name(in);
     if(out != NULL)
@@ -1011,11 +1011,11 @@ Token_interface_name* HIR_transform::transform_interface_name(Token_interface_na
     return out;
 }
 
-HIR_signature* HIR_transform::transform_signature(HIR_signature* in)
+Signature* Transform::transform_signature(Signature* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_signature* out;
+    Signature* out;
     
     out = pre_signature(in);
     if(out != NULL)
@@ -1027,11 +1027,11 @@ HIR_signature* HIR_transform::transform_signature(HIR_signature* in)
     return out;
 }
 
-HIR_method_mod* HIR_transform::transform_method_mod(HIR_method_mod* in)
+Method_mod* Transform::transform_method_mod(Method_mod* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_method_mod* out;
+    Method_mod* out;
     
     out = pre_method_mod(in);
     if(out != NULL)
@@ -1043,11 +1043,11 @@ HIR_method_mod* HIR_transform::transform_method_mod(HIR_method_mod* in)
     return out;
 }
 
-Token_method_name* HIR_transform::transform_method_name(Token_method_name* in)
+METHOD_NAME* Transform::transform_method_name(METHOD_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_method_name* out;
+    METHOD_NAME* out;
     
     out = pre_method_name(in);
     if(out != NULL)
@@ -1059,10 +1059,10 @@ Token_method_name* HIR_transform::transform_method_name(Token_method_name* in)
     return out;
 }
 
-List<HIR_formal_parameter*>* HIR_transform::transform_formal_parameter_list(List<HIR_formal_parameter*>* in)
+List<Formal_parameter*>* Transform::transform_formal_parameter_list(List<Formal_parameter*>* in)
 {
-    List<HIR_formal_parameter*>::const_iterator i;
-    List<HIR_formal_parameter*>* out = new List<HIR_formal_parameter*>;
+    List<Formal_parameter*>::const_iterator i;
+    List<Formal_parameter*>* out = new List<Formal_parameter*>;
     
     if(in == NULL)
     	return NULL;
@@ -1075,11 +1075,11 @@ List<HIR_formal_parameter*>* HIR_transform::transform_formal_parameter_list(List
     return out;
 }
 
-List<HIR_formal_parameter*>* HIR_transform::transform_formal_parameter(HIR_formal_parameter* in)
+List<Formal_parameter*>* Transform::transform_formal_parameter(Formal_parameter* in)
 {
-    List<HIR_formal_parameter*>::const_iterator i;
-    List<HIR_formal_parameter*>* out1 = new List<HIR_formal_parameter*>;
-    List<HIR_formal_parameter*>* out2 = new List<HIR_formal_parameter*>;
+    List<Formal_parameter*>::const_iterator i;
+    List<Formal_parameter*>* out1 = new List<Formal_parameter*>;
+    List<Formal_parameter*>* out2 = new List<Formal_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_formal_parameter(in, out1);
@@ -1096,11 +1096,11 @@ List<HIR_formal_parameter*>* HIR_transform::transform_formal_parameter(HIR_forma
     return out2;
 }
 
-HIR_type* HIR_transform::transform_type(HIR_type* in)
+Type* Transform::transform_type(Type* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_type* out;
+    Type* out;
     
     out = pre_type(in);
     if(out != NULL)
@@ -1112,11 +1112,11 @@ HIR_type* HIR_transform::transform_type(HIR_type* in)
     return out;
 }
 
-HIR_name_with_default* HIR_transform::transform_name_with_default(HIR_name_with_default* in)
+Name_with_default* Transform::transform_name_with_default(Name_with_default* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_name_with_default* out;
+    Name_with_default* out;
     
     out = pre_name_with_default(in);
     if(out != NULL)
@@ -1128,11 +1128,11 @@ HIR_name_with_default* HIR_transform::transform_name_with_default(HIR_name_with_
     return out;
 }
 
-HIR_attr_mod* HIR_transform::transform_attr_mod(HIR_attr_mod* in)
+Attr_mod* Transform::transform_attr_mod(Attr_mod* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_attr_mod* out;
+    Attr_mod* out;
     
     out = pre_attr_mod(in);
     if(out != NULL)
@@ -1144,11 +1144,11 @@ HIR_attr_mod* HIR_transform::transform_attr_mod(HIR_attr_mod* in)
     return out;
 }
 
-Token_variable_name* HIR_transform::transform_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::transform_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_variable_name* out;
+    VARIABLE_NAME* out;
     
     out = pre_variable_name(in);
     if(out != NULL)
@@ -1160,11 +1160,11 @@ Token_variable_name* HIR_transform::transform_variable_name(Token_variable_name*
     return out;
 }
 
-HIR_expr* HIR_transform::transform_expr(HIR_expr* in)
+Expr* Transform::transform_expr(Expr* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_expr* out;
+    Expr* out;
     
     out = pre_expr(in);
     if(out != NULL)
@@ -1176,11 +1176,11 @@ HIR_expr* HIR_transform::transform_expr(HIR_expr* in)
     return out;
 }
 
-HIR_variable_name* HIR_transform::transform_variable_name(HIR_variable_name* in)
+Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_variable_name* out;
+    Variable_name* out;
     
     out = pre_variable_name(in);
     if(out != NULL)
@@ -1192,10 +1192,10 @@ HIR_variable_name* HIR_transform::transform_variable_name(HIR_variable_name* in)
     return out;
 }
 
-List<HIR_catch*>* HIR_transform::transform_catch_list(List<HIR_catch*>* in)
+List<Catch*>* Transform::transform_catch_list(List<Catch*>* in)
 {
-    List<HIR_catch*>::const_iterator i;
-    List<HIR_catch*>* out = new List<HIR_catch*>;
+    List<Catch*>::const_iterator i;
+    List<Catch*>* out = new List<Catch*>;
     
     if(in == NULL)
     	return NULL;
@@ -1208,11 +1208,11 @@ List<HIR_catch*>* HIR_transform::transform_catch_list(List<HIR_catch*>* in)
     return out;
 }
 
-List<HIR_catch*>* HIR_transform::transform_catch(HIR_catch* in)
+List<Catch*>* Transform::transform_catch(Catch* in)
 {
-    List<HIR_catch*>::const_iterator i;
-    List<HIR_catch*>* out1 = new List<HIR_catch*>;
-    List<HIR_catch*>* out2 = new List<HIR_catch*>;
+    List<Catch*>::const_iterator i;
+    List<Catch*>* out1 = new List<Catch*>;
+    List<Catch*>* out2 = new List<Catch*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_catch(in, out1);
@@ -1229,11 +1229,11 @@ List<HIR_catch*>* HIR_transform::transform_catch(HIR_catch* in)
     return out2;
 }
 
-Token_label_name* HIR_transform::transform_label_name(Token_label_name* in)
+LABEL_NAME* Transform::transform_label_name(LABEL_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_label_name* out;
+    LABEL_NAME* out;
     
     out = pre_label_name(in);
     if(out != NULL)
@@ -1245,11 +1245,11 @@ Token_label_name* HIR_transform::transform_label_name(Token_label_name* in)
     return out;
 }
 
-Token_ht_iterator* HIR_transform::transform_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::transform_ht_iterator(HT_ITERATOR* in)
 {
     if(in == NULL) return NULL;
     
-    Token_ht_iterator* out;
+    HT_ITERATOR* out;
     
     out = pre_ht_iterator(in);
     if(out != NULL)
@@ -1261,11 +1261,11 @@ Token_ht_iterator* HIR_transform::transform_ht_iterator(Token_ht_iterator* in)
     return out;
 }
 
-HIR_variable* HIR_transform::transform_variable(HIR_variable* in)
+Variable* Transform::transform_variable(Variable* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_variable* out;
+    Variable* out;
     
     out = pre_variable(in);
     if(out != NULL)
@@ -1277,11 +1277,11 @@ HIR_variable* HIR_transform::transform_variable(HIR_variable* in)
     return out;
 }
 
-Token_cast* HIR_transform::transform_cast(Token_cast* in)
+CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
     
-    Token_cast* out;
+    CAST* out;
     
     out = pre_cast(in);
     if(out != NULL)
@@ -1293,11 +1293,11 @@ Token_cast* HIR_transform::transform_cast(Token_cast* in)
     return out;
 }
 
-Token_op* HIR_transform::transform_op(Token_op* in)
+OP* Transform::transform_op(OP* in)
 {
     if(in == NULL) return NULL;
     
-    Token_op* out;
+    OP* out;
     
     out = pre_op(in);
     if(out != NULL)
@@ -1309,11 +1309,11 @@ Token_op* HIR_transform::transform_op(Token_op* in)
     return out;
 }
 
-Token_constant_name* HIR_transform::transform_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::transform_constant_name(CONSTANT_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_constant_name* out;
+    CONSTANT_NAME* out;
     
     out = pre_constant_name(in);
     if(out != NULL)
@@ -1325,11 +1325,11 @@ Token_constant_name* HIR_transform::transform_constant_name(Token_constant_name*
     return out;
 }
 
-HIR_class_name* HIR_transform::transform_class_name(HIR_class_name* in)
+Class_name* Transform::transform_class_name(Class_name* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_class_name* out;
+    Class_name* out;
     
     out = pre_class_name(in);
     if(out != NULL)
@@ -1341,11 +1341,11 @@ HIR_class_name* HIR_transform::transform_class_name(HIR_class_name* in)
     return out;
 }
 
-HIR_target* HIR_transform::transform_target(HIR_target* in)
+Target* Transform::transform_target(Target* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_target* out;
+    Target* out;
     
     out = pre_target(in);
     if(out != NULL)
@@ -1357,10 +1357,10 @@ HIR_target* HIR_transform::transform_target(HIR_target* in)
     return out;
 }
 
-List<Token_variable_name*>* HIR_transform::transform_variable_name_list(List<Token_variable_name*>* in)
+List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME*>* in)
 {
-    List<Token_variable_name*>::const_iterator i;
-    List<Token_variable_name*>* out = new List<Token_variable_name*>;
+    List<VARIABLE_NAME*>::const_iterator i;
+    List<VARIABLE_NAME*>* out = new List<VARIABLE_NAME*>;
     
     if(in == NULL)
     	return NULL;
@@ -1373,10 +1373,10 @@ List<Token_variable_name*>* HIR_transform::transform_variable_name_list(List<Tok
     return out;
 }
 
-List<HIR_array_elem*>* HIR_transform::transform_array_elem_list(List<HIR_array_elem*>* in)
+List<Array_elem*>* Transform::transform_array_elem_list(List<Array_elem*>* in)
 {
-    List<HIR_array_elem*>::const_iterator i;
-    List<HIR_array_elem*>* out = new List<HIR_array_elem*>;
+    List<Array_elem*>::const_iterator i;
+    List<Array_elem*>* out = new List<Array_elem*>;
     
     if(in == NULL)
     	return NULL;
@@ -1389,11 +1389,11 @@ List<HIR_array_elem*>* HIR_transform::transform_array_elem_list(List<HIR_array_e
     return out;
 }
 
-List<HIR_array_elem*>* HIR_transform::transform_array_elem(HIR_array_elem* in)
+List<Array_elem*>* Transform::transform_array_elem(Array_elem* in)
 {
-    List<HIR_array_elem*>::const_iterator i;
-    List<HIR_array_elem*>* out1 = new List<HIR_array_elem*>;
-    List<HIR_array_elem*>* out2 = new List<HIR_array_elem*>;
+    List<Array_elem*>::const_iterator i;
+    List<Array_elem*>* out1 = new List<Array_elem*>;
+    List<Array_elem*>* out2 = new List<Array_elem*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_array_elem(in, out1);
@@ -1410,11 +1410,11 @@ List<HIR_array_elem*>* HIR_transform::transform_array_elem(HIR_array_elem* in)
     return out2;
 }
 
-HIR_method_name* HIR_transform::transform_method_name(HIR_method_name* in)
+Method_name* Transform::transform_method_name(Method_name* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_method_name* out;
+    Method_name* out;
     
     out = pre_method_name(in);
     if(out != NULL)
@@ -1426,10 +1426,10 @@ HIR_method_name* HIR_transform::transform_method_name(HIR_method_name* in)
     return out;
 }
 
-List<HIR_actual_parameter*>* HIR_transform::transform_actual_parameter_list(List<HIR_actual_parameter*>* in)
+List<Actual_parameter*>* Transform::transform_actual_parameter_list(List<Actual_parameter*>* in)
 {
-    List<HIR_actual_parameter*>::const_iterator i;
-    List<HIR_actual_parameter*>* out = new List<HIR_actual_parameter*>;
+    List<Actual_parameter*>::const_iterator i;
+    List<Actual_parameter*>* out = new List<Actual_parameter*>;
     
     if(in == NULL)
     	return NULL;
@@ -1442,11 +1442,11 @@ List<HIR_actual_parameter*>* HIR_transform::transform_actual_parameter_list(List
     return out;
 }
 
-List<HIR_actual_parameter*>* HIR_transform::transform_actual_parameter(HIR_actual_parameter* in)
+List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter* in)
 {
-    List<HIR_actual_parameter*>::const_iterator i;
-    List<HIR_actual_parameter*>* out1 = new List<HIR_actual_parameter*>;
-    List<HIR_actual_parameter*>* out2 = new List<HIR_actual_parameter*>;
+    List<Actual_parameter*>::const_iterator i;
+    List<Actual_parameter*>* out1 = new List<Actual_parameter*>;
+    List<Actual_parameter*>* out2 = new List<Actual_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_actual_parameter(in, out1);
@@ -1463,11 +1463,11 @@ List<HIR_actual_parameter*>* HIR_transform::transform_actual_parameter(HIR_actua
     return out2;
 }
 
-HIR_php_script* HIR_transform::transform_php_script(HIR_php_script* in)
+PHP_script* Transform::transform_php_script(PHP_script* in)
 {
     if(in == NULL) return NULL;
     
-    HIR_php_script* out;
+    PHP_script* out;
     
     out = pre_php_script(in);
     if(out != NULL)
@@ -1481,141 +1481,141 @@ HIR_php_script* HIR_transform::transform_php_script(HIR_php_script* in)
 
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
+void Transform::pre_statement(Statement* in, List<Statement*>* out)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID: 
+    case Class_def::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_class_def(dynamic_cast<HIR_class_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_interface_def::ID: 
+    case Interface_def::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_interface_def(dynamic_cast<HIR_interface_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_method::ID: 
+    case Method::ID: 
     	{
-    		List<HIR_method*>* local_out = new List<HIR_method*>;
-    		List<HIR_method*>::const_iterator i;
-    		pre_method(dynamic_cast<HIR_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_return::ID: 
+    case Return::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_return(dynamic_cast<HIR_return*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_static_declaration::ID: 
+    case Static_declaration::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_static_declaration(dynamic_cast<HIR_static_declaration*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_global::ID: 
+    case Global::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_global(dynamic_cast<HIR_global*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_try::ID: 
+    case Try::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_try(dynamic_cast<HIR_try*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_throw::ID: 
+    case Throw::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_throw(dynamic_cast<HIR_throw*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_eval_expr::ID: 
+    case Eval_expr::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_eval_expr(dynamic_cast<HIR_eval_expr*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_label::ID: 
+    case Label::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_label(dynamic_cast<HIR_label*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_label(dynamic_cast<Label*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_goto::ID: 
+    case Goto::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_goto(dynamic_cast<HIR_goto*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_goto(dynamic_cast<Goto*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_branch::ID: 
+    case Branch::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_branch(dynamic_cast<HIR_branch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_branch(dynamic_cast<Branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_next::ID: 
+    case Foreach_next::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_foreach_next(dynamic_cast<HIR_foreach_next*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_reset::ID: 
+    case Foreach_reset::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_end::ID: 
+    case Foreach_end::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		pre_foreach_end(dynamic_cast<HIR_foreach_end*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1624,24 +1624,24 @@ void HIR_transform::pre_statement(HIR_statement* in, List<HIR_statement*>* out)
     assert(0);
 }
 
-void HIR_transform::pre_member(HIR_member* in, List<HIR_member*>* out)
+void Transform::pre_member(Member* in, List<Member*>* out)
 {
     switch(in->classid())
     {
-    case HIR_method::ID: 
+    case Method::ID: 
     	{
-    		List<HIR_method*>* local_out = new List<HIR_method*>;
-    		List<HIR_method*>::const_iterator i;
-    		pre_method(dynamic_cast<HIR_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_attribute::ID: 
+    case Attribute::ID: 
     	{
-    		List<HIR_member*>* local_out = new List<HIR_member*>;
-    		List<HIR_member*>::const_iterator i;
-    		pre_attribute(dynamic_cast<HIR_attribute*>(in), local_out);
+    		List<Member*>* local_out = new List<Member*>;
+    		List<Member*>::const_iterator i;
+    		pre_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1650,228 +1650,228 @@ void HIR_transform::pre_member(HIR_member* in, List<HIR_member*>* out)
     assert(0);
 }
 
-HIR_expr* HIR_transform::pre_expr(HIR_expr* in)
+Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID: return pre_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_cast::ID: return pre_cast(dynamic_cast<HIR_cast*>(in));
-    case HIR_unary_op::ID: return pre_unary_op(dynamic_cast<HIR_unary_op*>(in));
-    case HIR_bin_op::ID: return pre_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_constant::ID: return pre_constant(dynamic_cast<HIR_constant*>(in));
-    case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
-    case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
-    case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
-    case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
-    case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return pre_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
-    case HIR_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
-    case HIR_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
-    case HIR_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
-    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
+    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return pre_new(dynamic_cast<New*>(in));
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
+    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     }
     assert(0);
 }
 
-HIR_variable_name* HIR_transform::pre_variable_name(HIR_variable_name* in)
+Variable_name* Transform::pre_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID: return pre_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case HIR_reflection::ID: return pre_reflection(dynamic_cast<HIR_reflection*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-HIR_class_name* HIR_transform::pre_class_name(HIR_class_name* in)
+Class_name* Transform::pre_class_name(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
-    case HIR_reflection::ID: return pre_reflection(dynamic_cast<HIR_reflection*>(in));
+    case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-HIR_target* HIR_transform::pre_target(HIR_target* in)
+Target* Transform::pre_target(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID: return pre_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_cast::ID: return pre_cast(dynamic_cast<HIR_cast*>(in));
-    case HIR_unary_op::ID: return pre_unary_op(dynamic_cast<HIR_unary_op*>(in));
-    case HIR_bin_op::ID: return pre_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_constant::ID: return pre_constant(dynamic_cast<HIR_constant*>(in));
-    case HIR_instanceof::ID: return pre_instanceof(dynamic_cast<HIR_instanceof*>(in));
-    case HIR_variable::ID: return pre_variable(dynamic_cast<HIR_variable*>(in));
-    case HIR_pre_op::ID: return pre_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_method_invocation::ID: return pre_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
-    case HIR_new::ID: return pre_new(dynamic_cast<HIR_new*>(in));
-    case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return pre_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
-    case HIR_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
-    case HIR_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
-    case HIR_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
-    case HIR_array::ID: return pre_array(dynamic_cast<HIR_array*>(in));
-    case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return pre_new(dynamic_cast<New*>(in));
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
+    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
 }
 
-HIR_method_name* HIR_transform::pre_method_name(HIR_method_name* in)
+Method_name* Transform::pre_method_name(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID: return pre_method_name(dynamic_cast<Token_method_name*>(in));
-    case HIR_reflection::ID: return pre_reflection(dynamic_cast<HIR_reflection*>(in));
+    case METHOD_NAME::ID: return pre_method_name(dynamic_cast<METHOD_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
+void Transform::post_statement(Statement* in, List<Statement*>* out)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID: 
+    case Class_def::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_class_def(dynamic_cast<HIR_class_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_interface_def::ID: 
+    case Interface_def::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_interface_def(dynamic_cast<HIR_interface_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_method::ID: 
+    case Method::ID: 
     	{
-    		List<HIR_method*>* local_out = new List<HIR_method*>;
-    		List<HIR_method*>::const_iterator i;
-    		post_method(dynamic_cast<HIR_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_return::ID: 
+    case Return::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_return(dynamic_cast<HIR_return*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_static_declaration::ID: 
+    case Static_declaration::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_static_declaration(dynamic_cast<HIR_static_declaration*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_global::ID: 
+    case Global::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_global(dynamic_cast<HIR_global*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_try::ID: 
+    case Try::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_try(dynamic_cast<HIR_try*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_throw::ID: 
+    case Throw::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_throw(dynamic_cast<HIR_throw*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_eval_expr::ID: 
+    case Eval_expr::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_eval_expr(dynamic_cast<HIR_eval_expr*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_label::ID: 
+    case Label::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_label(dynamic_cast<HIR_label*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_label(dynamic_cast<Label*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_goto::ID: 
+    case Goto::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_goto(dynamic_cast<HIR_goto*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_goto(dynamic_cast<Goto*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_branch::ID: 
+    case Branch::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_branch(dynamic_cast<HIR_branch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_branch(dynamic_cast<Branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_next::ID: 
+    case Foreach_next::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_foreach_next(dynamic_cast<HIR_foreach_next*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_reset::ID: 
+    case Foreach_reset::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_foreach_end::ID: 
+    case Foreach_end::ID: 
     	{
-    		List<HIR_statement*>* local_out = new List<HIR_statement*>;
-    		List<HIR_statement*>::const_iterator i;
-    		post_foreach_end(dynamic_cast<HIR_foreach_end*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1880,24 +1880,24 @@ void HIR_transform::post_statement(HIR_statement* in, List<HIR_statement*>* out)
     assert(0);
 }
 
-void HIR_transform::post_member(HIR_member* in, List<HIR_member*>* out)
+void Transform::post_member(Member* in, List<Member*>* out)
 {
     switch(in->classid())
     {
-    case HIR_method::ID: 
+    case Method::ID: 
     	{
-    		List<HIR_method*>* local_out = new List<HIR_method*>;
-    		List<HIR_method*>::const_iterator i;
-    		post_method(dynamic_cast<HIR_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case HIR_attribute::ID: 
+    case Attribute::ID: 
     	{
-    		List<HIR_member*>* local_out = new List<HIR_member*>;
-    		List<HIR_member*>::const_iterator i;
-    		post_attribute(dynamic_cast<HIR_attribute*>(in), local_out);
+    		List<Member*>* local_out = new List<Member*>;
+    		List<Member*>::const_iterator i;
+    		post_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1906,324 +1906,324 @@ void HIR_transform::post_member(HIR_member* in, List<HIR_member*>* out)
     assert(0);
 }
 
-HIR_expr* HIR_transform::post_expr(HIR_expr* in)
+Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID: return post_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_cast::ID: return post_cast(dynamic_cast<HIR_cast*>(in));
-    case HIR_unary_op::ID: return post_unary_op(dynamic_cast<HIR_unary_op*>(in));
-    case HIR_bin_op::ID: return post_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_constant::ID: return post_constant(dynamic_cast<HIR_constant*>(in));
-    case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
-    case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
-    case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
-    case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
-    case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return post_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
-    case HIR_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
-    case HIR_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
-    case HIR_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
-    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
+    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return post_new(dynamic_cast<New*>(in));
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Array::ID: return post_array(dynamic_cast<Array*>(in));
+    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     }
     assert(0);
 }
 
-HIR_variable_name* HIR_transform::post_variable_name(HIR_variable_name* in)
+Variable_name* Transform::post_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID: return post_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case HIR_reflection::ID: return post_reflection(dynamic_cast<HIR_reflection*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-HIR_class_name* HIR_transform::post_class_name(HIR_class_name* in)
+Class_name* Transform::post_class_name(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
-    case HIR_reflection::ID: return post_reflection(dynamic_cast<HIR_reflection*>(in));
+    case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-HIR_target* HIR_transform::post_target(HIR_target* in)
+Target* Transform::post_target(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID: return post_assignment(dynamic_cast<HIR_assignment*>(in));
-    case HIR_cast::ID: return post_cast(dynamic_cast<HIR_cast*>(in));
-    case HIR_unary_op::ID: return post_unary_op(dynamic_cast<HIR_unary_op*>(in));
-    case HIR_bin_op::ID: return post_bin_op(dynamic_cast<HIR_bin_op*>(in));
-    case HIR_constant::ID: return post_constant(dynamic_cast<HIR_constant*>(in));
-    case HIR_instanceof::ID: return post_instanceof(dynamic_cast<HIR_instanceof*>(in));
-    case HIR_variable::ID: return post_variable(dynamic_cast<HIR_variable*>(in));
-    case HIR_pre_op::ID: return post_pre_op(dynamic_cast<HIR_pre_op*>(in));
-    case HIR_method_invocation::ID: return post_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
-    case HIR_new::ID: return post_new(dynamic_cast<HIR_new*>(in));
-    case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return post_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
-    case HIR_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
-    case HIR_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
-    case HIR_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
-    case HIR_array::ID: return post_array(dynamic_cast<HIR_array*>(in));
-    case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return post_new(dynamic_cast<New*>(in));
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Array::ID: return post_array(dynamic_cast<Array*>(in));
+    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
 }
 
-HIR_method_name* HIR_transform::post_method_name(HIR_method_name* in)
+Method_name* Transform::post_method_name(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID: return post_method_name(dynamic_cast<Token_method_name*>(in));
-    case HIR_reflection::ID: return post_reflection(dynamic_cast<HIR_reflection*>(in));
+    case METHOD_NAME::ID: return post_method_name(dynamic_cast<METHOD_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
-void HIR_transform::children_statement(HIR_statement* in)
+void Transform::children_statement(Statement* in)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID:
-    	children_class_def(dynamic_cast<HIR_class_def*>(in));
+    case Class_def::ID:
+    	children_class_def(dynamic_cast<Class_def*>(in));
     	break;
-    case HIR_interface_def::ID:
-    	children_interface_def(dynamic_cast<HIR_interface_def*>(in));
+    case Interface_def::ID:
+    	children_interface_def(dynamic_cast<Interface_def*>(in));
     	break;
-    case HIR_method::ID:
-    	children_method(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case HIR_return::ID:
-    	children_return(dynamic_cast<HIR_return*>(in));
+    case Return::ID:
+    	children_return(dynamic_cast<Return*>(in));
     	break;
-    case HIR_static_declaration::ID:
-    	children_static_declaration(dynamic_cast<HIR_static_declaration*>(in));
+    case Static_declaration::ID:
+    	children_static_declaration(dynamic_cast<Static_declaration*>(in));
     	break;
-    case HIR_global::ID:
-    	children_global(dynamic_cast<HIR_global*>(in));
+    case Global::ID:
+    	children_global(dynamic_cast<Global*>(in));
     	break;
-    case HIR_try::ID:
-    	children_try(dynamic_cast<HIR_try*>(in));
+    case Try::ID:
+    	children_try(dynamic_cast<Try*>(in));
     	break;
-    case HIR_throw::ID:
-    	children_throw(dynamic_cast<HIR_throw*>(in));
+    case Throw::ID:
+    	children_throw(dynamic_cast<Throw*>(in));
     	break;
-    case HIR_eval_expr::ID:
-    	children_eval_expr(dynamic_cast<HIR_eval_expr*>(in));
+    case Eval_expr::ID:
+    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
-    case HIR_label::ID:
-    	children_label(dynamic_cast<HIR_label*>(in));
+    case Label::ID:
+    	children_label(dynamic_cast<Label*>(in));
     	break;
-    case HIR_goto::ID:
-    	children_goto(dynamic_cast<HIR_goto*>(in));
+    case Goto::ID:
+    	children_goto(dynamic_cast<Goto*>(in));
     	break;
-    case HIR_branch::ID:
-    	children_branch(dynamic_cast<HIR_branch*>(in));
+    case Branch::ID:
+    	children_branch(dynamic_cast<Branch*>(in));
     	break;
-    case HIR_foreach_next::ID:
-    	children_foreach_next(dynamic_cast<HIR_foreach_next*>(in));
+    case Foreach_next::ID:
+    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
     	break;
-    case HIR_foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in));
+    case Foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
     	break;
-    case HIR_foreach_end::ID:
-    	children_foreach_end(dynamic_cast<HIR_foreach_end*>(in));
+    case Foreach_end::ID:
+    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_member(HIR_member* in)
+void Transform::children_member(Member* in)
 {
     switch(in->classid())
     {
-    case HIR_method::ID:
-    	children_method(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case HIR_attribute::ID:
-    	children_attribute(dynamic_cast<HIR_attribute*>(in));
+    case Attribute::ID:
+    	children_attribute(dynamic_cast<Attribute*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_expr(HIR_expr* in)
+void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	children_assignment(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	children_cast(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	children_unary_op(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	children_constant(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	children_instanceof(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	children_variable(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	children_new(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_variable_name(HIR_variable_name* in)
+void Transform::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID:
-    	children_variable_name(dynamic_cast<Token_variable_name*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_class_name(HIR_class_name* in)
+void Transform::children_class_name(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_target(HIR_target* in)
+void Transform::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	children_assignment(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	children_cast(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	children_unary_op(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	children_constant(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	children_instanceof(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	children_variable(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	children_new(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
     }
 }
 
-void HIR_transform::children_method_name(HIR_method_name* in)
+void Transform::children_method_name(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID:
-    	children_method_name(dynamic_cast<Token_method_name*>(in));
+    case METHOD_NAME::ID:
+    	children_method_name(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }

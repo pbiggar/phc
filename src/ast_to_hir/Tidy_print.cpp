@@ -9,9 +9,9 @@
 
 using namespace AST;
 
-void Tidy_print::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
-	AST_assignment* agn = dynamic_cast<AST_assignment*> (in->expr);
+	Assignment* agn = dynamic_cast<Assignment*> (in->expr);
 
 	/* Convert print, in a similar fashion to echo. Print can only have 1 parameter though, and always return 1.
 	 *   $x = print $y;
@@ -22,12 +22,12 @@ void Tidy_print::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
 	 * If $x is unused, we have
 	 *	  $x = printf ("%s", $y);
 	 */
-	Wildcard<AST_expr>* arg = new Wildcard<AST_expr>;
-	AST_method_invocation* print = new AST_method_invocation (
+	Wildcard<Expr>* arg = new Wildcard<Expr>;
+	Method_invocation* print = new Method_invocation (
 			NULL,	
-			new Token_method_name (new String ("print")),
-			new List<AST_actual_parameter*> (
-				new AST_actual_parameter (false, arg) // print can only have 1 argument
+			new METHOD_NAME (new String ("print")),
+			new List<Actual_parameter*> (
+				new Actual_parameter (false, arg) // print can only have 1 argument
 				));
 
 	if (agn && agn->expr->match (print))
@@ -35,21 +35,21 @@ void Tidy_print::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
 		// $t2 = printf ("%s", expr);
 		bool unused = agn->variable->attrs->is_true ("phc.codegen.unused");
 
-		AST_variable* t2 = agn->variable;
+		Variable* t2 = agn->variable;
 		if (not unused)
 			t2 = fresh_var ("TSp");
 
 		out->push_back_all (shred (
-					new AST_eval_expr (
-						new AST_assignment(t2, false,
-							new AST_method_invocation(
+					new Eval_expr (
+						new Assignment(t2, false,
+							new Method_invocation(
 								NULL,
-								new Token_method_name(new String("printf")),
-								new List<AST_actual_parameter*>(
-									new AST_actual_parameter(
+								new METHOD_NAME(new String("printf")),
+								new List<Actual_parameter*>(
+									new Actual_parameter(
 										false, 
-										new Token_string(new String("%s"))),
-									new AST_actual_parameter(
+										new STRING(new String("%s"))),
+									new Actual_parameter(
 										false,
 										arg->value)
 									))))));
@@ -59,9 +59,9 @@ void Tidy_print::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
 		if (not unused)
 		{
 			// $x = 1;
-			out->push_back (new AST_eval_expr (
-						new AST_assignment(agn->variable, false,
-							new Token_int (1))));
+			out->push_back (new Eval_expr (
+						new Assignment(agn->variable, false,
+							new INT (1))));
 		}
 
 		return;

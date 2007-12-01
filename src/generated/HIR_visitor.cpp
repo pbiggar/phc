@@ -1,547 +1,547 @@
 #include "HIR_visitor.h"
 
 namespace HIR{
-HIR_visitor::~HIR_visitor()
+Visitor::~Visitor()
 {
 }
 
 // Invoked before the children are visited
-void HIR_visitor::pre_node(HIR_node* in)
+void Visitor::pre_node(Node* in)
 {
 }
 
-void HIR_visitor::pre_php_script(HIR_php_script* in)
+void Visitor::pre_php_script(PHP_script* in)
 {
 }
 
-void HIR_visitor::pre_statement(HIR_statement* in)
+void Visitor::pre_statement(Statement* in)
 {
 }
 
-void HIR_visitor::pre_class_def(HIR_class_def* in)
+void Visitor::pre_class_def(Class_def* in)
 {
 }
 
-void HIR_visitor::pre_class_mod(HIR_class_mod* in)
+void Visitor::pre_class_mod(Class_mod* in)
 {
 }
 
-void HIR_visitor::pre_interface_def(HIR_interface_def* in)
+void Visitor::pre_interface_def(Interface_def* in)
 {
 }
 
-void HIR_visitor::pre_member(HIR_member* in)
+void Visitor::pre_member(Member* in)
 {
 }
 
-void HIR_visitor::pre_method(HIR_method* in)
+void Visitor::pre_method(Method* in)
 {
 }
 
-void HIR_visitor::pre_signature(HIR_signature* in)
+void Visitor::pre_signature(Signature* in)
 {
 }
 
-void HIR_visitor::pre_method_mod(HIR_method_mod* in)
+void Visitor::pre_method_mod(Method_mod* in)
 {
 }
 
-void HIR_visitor::pre_formal_parameter(HIR_formal_parameter* in)
+void Visitor::pre_formal_parameter(Formal_parameter* in)
 {
 }
 
-void HIR_visitor::pre_type(HIR_type* in)
+void Visitor::pre_type(Type* in)
 {
 }
 
-void HIR_visitor::pre_attribute(HIR_attribute* in)
+void Visitor::pre_attribute(Attribute* in)
 {
 }
 
-void HIR_visitor::pre_attr_mod(HIR_attr_mod* in)
+void Visitor::pre_attr_mod(Attr_mod* in)
 {
 }
 
-void HIR_visitor::pre_name_with_default(HIR_name_with_default* in)
+void Visitor::pre_name_with_default(Name_with_default* in)
 {
 }
 
-void HIR_visitor::pre_return(HIR_return* in)
+void Visitor::pre_return(Return* in)
 {
 }
 
-void HIR_visitor::pre_static_declaration(HIR_static_declaration* in)
+void Visitor::pre_static_declaration(Static_declaration* in)
 {
 }
 
-void HIR_visitor::pre_global(HIR_global* in)
+void Visitor::pre_global(Global* in)
 {
 }
 
-void HIR_visitor::pre_try(HIR_try* in)
+void Visitor::pre_try(Try* in)
 {
 }
 
-void HIR_visitor::pre_catch(HIR_catch* in)
+void Visitor::pre_catch(Catch* in)
 {
 }
 
-void HIR_visitor::pre_throw(HIR_throw* in)
+void Visitor::pre_throw(Throw* in)
 {
 }
 
-void HIR_visitor::pre_eval_expr(HIR_eval_expr* in)
+void Visitor::pre_eval_expr(Eval_expr* in)
 {
 }
 
-void HIR_visitor::pre_branch(HIR_branch* in)
+void Visitor::pre_branch(Branch* in)
 {
 }
 
-void HIR_visitor::pre_goto(HIR_goto* in)
+void Visitor::pre_goto(Goto* in)
 {
 }
 
-void HIR_visitor::pre_label(HIR_label* in)
+void Visitor::pre_label(Label* in)
 {
 }
 
-void HIR_visitor::pre_foreach_reset(HIR_foreach_reset* in)
+void Visitor::pre_foreach_reset(Foreach_reset* in)
 {
 }
 
-void HIR_visitor::pre_foreach_next(HIR_foreach_next* in)
+void Visitor::pre_foreach_next(Foreach_next* in)
 {
 }
 
-void HIR_visitor::pre_foreach_end(HIR_foreach_end* in)
+void Visitor::pre_foreach_end(Foreach_end* in)
 {
 }
 
-void HIR_visitor::pre_foreach_has_key(HIR_foreach_has_key* in)
+void Visitor::pre_foreach_has_key(Foreach_has_key* in)
 {
 }
 
-void HIR_visitor::pre_foreach_get_key(HIR_foreach_get_key* in)
+void Visitor::pre_foreach_get_key(Foreach_get_key* in)
 {
 }
 
-void HIR_visitor::pre_foreach_get_data(HIR_foreach_get_data* in)
+void Visitor::pre_foreach_get_data(Foreach_get_data* in)
 {
 }
 
-void HIR_visitor::pre_expr(HIR_expr* in)
+void Visitor::pre_expr(Expr* in)
 {
 }
 
-void HIR_visitor::pre_literal(HIR_literal* in)
+void Visitor::pre_literal(Literal* in)
 {
 }
 
-void HIR_visitor::pre_assignment(HIR_assignment* in)
+void Visitor::pre_assignment(Assignment* in)
 {
 }
 
-void HIR_visitor::pre_cast(HIR_cast* in)
+void Visitor::pre_cast(Cast* in)
 {
 }
 
-void HIR_visitor::pre_unary_op(HIR_unary_op* in)
+void Visitor::pre_unary_op(Unary_op* in)
 {
 }
 
-void HIR_visitor::pre_bin_op(HIR_bin_op* in)
+void Visitor::pre_bin_op(Bin_op* in)
 {
 }
 
-void HIR_visitor::pre_constant(HIR_constant* in)
+void Visitor::pre_constant(Constant* in)
 {
 }
 
-void HIR_visitor::pre_instanceof(HIR_instanceof* in)
+void Visitor::pre_instanceof(Instanceof* in)
 {
 }
 
-void HIR_visitor::pre_variable(HIR_variable* in)
+void Visitor::pre_variable(Variable* in)
 {
 }
 
-void HIR_visitor::pre_variable_name(HIR_variable_name* in)
+void Visitor::pre_variable_name(Variable_name* in)
 {
 }
 
-void HIR_visitor::pre_reflection(HIR_reflection* in)
+void Visitor::pre_reflection(Reflection* in)
 {
 }
 
-void HIR_visitor::pre_target(HIR_target* in)
+void Visitor::pre_target(Target* in)
 {
 }
 
-void HIR_visitor::pre_pre_op(HIR_pre_op* in)
+void Visitor::pre_pre_op(Pre_op* in)
 {
 }
 
-void HIR_visitor::pre_array(HIR_array* in)
+void Visitor::pre_array(Array* in)
 {
 }
 
-void HIR_visitor::pre_array_elem(HIR_array_elem* in)
+void Visitor::pre_array_elem(Array_elem* in)
 {
 }
 
-void HIR_visitor::pre_method_invocation(HIR_method_invocation* in)
+void Visitor::pre_method_invocation(Method_invocation* in)
 {
 }
 
-void HIR_visitor::pre_method_name(HIR_method_name* in)
+void Visitor::pre_method_name(Method_name* in)
 {
 }
 
-void HIR_visitor::pre_actual_parameter(HIR_actual_parameter* in)
+void Visitor::pre_actual_parameter(Actual_parameter* in)
 {
 }
 
-void HIR_visitor::pre_new(HIR_new* in)
+void Visitor::pre_new(New* in)
 {
 }
 
-void HIR_visitor::pre_class_name(HIR_class_name* in)
+void Visitor::pre_class_name(Class_name* in)
 {
 }
 
-void HIR_visitor::pre_identifier(HIR_identifier* in)
+void Visitor::pre_identifier(Identifier* in)
 {
 }
 
-void HIR_visitor::pre_class_name(Token_class_name* in)
+void Visitor::pre_class_name(CLASS_NAME* in)
 {
 }
 
-void HIR_visitor::pre_interface_name(Token_interface_name* in)
+void Visitor::pre_interface_name(INTERFACE_NAME* in)
 {
 }
 
-void HIR_visitor::pre_method_name(Token_method_name* in)
+void Visitor::pre_method_name(METHOD_NAME* in)
 {
 }
 
-void HIR_visitor::pre_variable_name(Token_variable_name* in)
+void Visitor::pre_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void HIR_visitor::pre_label_name(Token_label_name* in)
+void Visitor::pre_label_name(LABEL_NAME* in)
 {
 }
 
-void HIR_visitor::pre_ht_iterator(Token_ht_iterator* in)
+void Visitor::pre_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-void HIR_visitor::pre_int(Token_int* in)
+void Visitor::pre_int(INT* in)
 {
 }
 
-void HIR_visitor::pre_real(Token_real* in)
+void Visitor::pre_real(REAL* in)
 {
 }
 
-void HIR_visitor::pre_string(Token_string* in)
+void Visitor::pre_string(STRING* in)
 {
 }
 
-void HIR_visitor::pre_bool(Token_bool* in)
+void Visitor::pre_bool(BOOL* in)
 {
 }
 
-void HIR_visitor::pre_null(Token_null* in)
+void Visitor::pre_nil(NIL* in)
 {
 }
 
-void HIR_visitor::pre_cast(Token_cast* in)
+void Visitor::pre_cast(CAST* in)
 {
 }
 
-void HIR_visitor::pre_op(Token_op* in)
+void Visitor::pre_op(OP* in)
 {
 }
 
-void HIR_visitor::pre_constant_name(Token_constant_name* in)
+void Visitor::pre_constant_name(CONSTANT_NAME* in)
 {
 }
 
 // Invoked after the children have been visited
-void HIR_visitor::post_node(HIR_node* in)
+void Visitor::post_node(Node* in)
 {
 }
 
-void HIR_visitor::post_php_script(HIR_php_script* in)
+void Visitor::post_php_script(PHP_script* in)
 {
 }
 
-void HIR_visitor::post_statement(HIR_statement* in)
+void Visitor::post_statement(Statement* in)
 {
 }
 
-void HIR_visitor::post_class_def(HIR_class_def* in)
+void Visitor::post_class_def(Class_def* in)
 {
 }
 
-void HIR_visitor::post_class_mod(HIR_class_mod* in)
+void Visitor::post_class_mod(Class_mod* in)
 {
 }
 
-void HIR_visitor::post_interface_def(HIR_interface_def* in)
+void Visitor::post_interface_def(Interface_def* in)
 {
 }
 
-void HIR_visitor::post_member(HIR_member* in)
+void Visitor::post_member(Member* in)
 {
 }
 
-void HIR_visitor::post_method(HIR_method* in)
+void Visitor::post_method(Method* in)
 {
 }
 
-void HIR_visitor::post_signature(HIR_signature* in)
+void Visitor::post_signature(Signature* in)
 {
 }
 
-void HIR_visitor::post_method_mod(HIR_method_mod* in)
+void Visitor::post_method_mod(Method_mod* in)
 {
 }
 
-void HIR_visitor::post_formal_parameter(HIR_formal_parameter* in)
+void Visitor::post_formal_parameter(Formal_parameter* in)
 {
 }
 
-void HIR_visitor::post_type(HIR_type* in)
+void Visitor::post_type(Type* in)
 {
 }
 
-void HIR_visitor::post_attribute(HIR_attribute* in)
+void Visitor::post_attribute(Attribute* in)
 {
 }
 
-void HIR_visitor::post_attr_mod(HIR_attr_mod* in)
+void Visitor::post_attr_mod(Attr_mod* in)
 {
 }
 
-void HIR_visitor::post_name_with_default(HIR_name_with_default* in)
+void Visitor::post_name_with_default(Name_with_default* in)
 {
 }
 
-void HIR_visitor::post_return(HIR_return* in)
+void Visitor::post_return(Return* in)
 {
 }
 
-void HIR_visitor::post_static_declaration(HIR_static_declaration* in)
+void Visitor::post_static_declaration(Static_declaration* in)
 {
 }
 
-void HIR_visitor::post_global(HIR_global* in)
+void Visitor::post_global(Global* in)
 {
 }
 
-void HIR_visitor::post_try(HIR_try* in)
+void Visitor::post_try(Try* in)
 {
 }
 
-void HIR_visitor::post_catch(HIR_catch* in)
+void Visitor::post_catch(Catch* in)
 {
 }
 
-void HIR_visitor::post_throw(HIR_throw* in)
+void Visitor::post_throw(Throw* in)
 {
 }
 
-void HIR_visitor::post_eval_expr(HIR_eval_expr* in)
+void Visitor::post_eval_expr(Eval_expr* in)
 {
 }
 
-void HIR_visitor::post_branch(HIR_branch* in)
+void Visitor::post_branch(Branch* in)
 {
 }
 
-void HIR_visitor::post_goto(HIR_goto* in)
+void Visitor::post_goto(Goto* in)
 {
 }
 
-void HIR_visitor::post_label(HIR_label* in)
+void Visitor::post_label(Label* in)
 {
 }
 
-void HIR_visitor::post_foreach_reset(HIR_foreach_reset* in)
+void Visitor::post_foreach_reset(Foreach_reset* in)
 {
 }
 
-void HIR_visitor::post_foreach_next(HIR_foreach_next* in)
+void Visitor::post_foreach_next(Foreach_next* in)
 {
 }
 
-void HIR_visitor::post_foreach_end(HIR_foreach_end* in)
+void Visitor::post_foreach_end(Foreach_end* in)
 {
 }
 
-void HIR_visitor::post_foreach_has_key(HIR_foreach_has_key* in)
+void Visitor::post_foreach_has_key(Foreach_has_key* in)
 {
 }
 
-void HIR_visitor::post_foreach_get_key(HIR_foreach_get_key* in)
+void Visitor::post_foreach_get_key(Foreach_get_key* in)
 {
 }
 
-void HIR_visitor::post_foreach_get_data(HIR_foreach_get_data* in)
+void Visitor::post_foreach_get_data(Foreach_get_data* in)
 {
 }
 
-void HIR_visitor::post_expr(HIR_expr* in)
+void Visitor::post_expr(Expr* in)
 {
 }
 
-void HIR_visitor::post_literal(HIR_literal* in)
+void Visitor::post_literal(Literal* in)
 {
 }
 
-void HIR_visitor::post_assignment(HIR_assignment* in)
+void Visitor::post_assignment(Assignment* in)
 {
 }
 
-void HIR_visitor::post_cast(HIR_cast* in)
+void Visitor::post_cast(Cast* in)
 {
 }
 
-void HIR_visitor::post_unary_op(HIR_unary_op* in)
+void Visitor::post_unary_op(Unary_op* in)
 {
 }
 
-void HIR_visitor::post_bin_op(HIR_bin_op* in)
+void Visitor::post_bin_op(Bin_op* in)
 {
 }
 
-void HIR_visitor::post_constant(HIR_constant* in)
+void Visitor::post_constant(Constant* in)
 {
 }
 
-void HIR_visitor::post_instanceof(HIR_instanceof* in)
+void Visitor::post_instanceof(Instanceof* in)
 {
 }
 
-void HIR_visitor::post_variable(HIR_variable* in)
+void Visitor::post_variable(Variable* in)
 {
 }
 
-void HIR_visitor::post_variable_name(HIR_variable_name* in)
+void Visitor::post_variable_name(Variable_name* in)
 {
 }
 
-void HIR_visitor::post_reflection(HIR_reflection* in)
+void Visitor::post_reflection(Reflection* in)
 {
 }
 
-void HIR_visitor::post_target(HIR_target* in)
+void Visitor::post_target(Target* in)
 {
 }
 
-void HIR_visitor::post_pre_op(HIR_pre_op* in)
+void Visitor::post_pre_op(Pre_op* in)
 {
 }
 
-void HIR_visitor::post_array(HIR_array* in)
+void Visitor::post_array(Array* in)
 {
 }
 
-void HIR_visitor::post_array_elem(HIR_array_elem* in)
+void Visitor::post_array_elem(Array_elem* in)
 {
 }
 
-void HIR_visitor::post_method_invocation(HIR_method_invocation* in)
+void Visitor::post_method_invocation(Method_invocation* in)
 {
 }
 
-void HIR_visitor::post_method_name(HIR_method_name* in)
+void Visitor::post_method_name(Method_name* in)
 {
 }
 
-void HIR_visitor::post_actual_parameter(HIR_actual_parameter* in)
+void Visitor::post_actual_parameter(Actual_parameter* in)
 {
 }
 
-void HIR_visitor::post_new(HIR_new* in)
+void Visitor::post_new(New* in)
 {
 }
 
-void HIR_visitor::post_class_name(HIR_class_name* in)
+void Visitor::post_class_name(Class_name* in)
 {
 }
 
-void HIR_visitor::post_identifier(HIR_identifier* in)
+void Visitor::post_identifier(Identifier* in)
 {
 }
 
-void HIR_visitor::post_class_name(Token_class_name* in)
+void Visitor::post_class_name(CLASS_NAME* in)
 {
 }
 
-void HIR_visitor::post_interface_name(Token_interface_name* in)
+void Visitor::post_interface_name(INTERFACE_NAME* in)
 {
 }
 
-void HIR_visitor::post_method_name(Token_method_name* in)
+void Visitor::post_method_name(METHOD_NAME* in)
 {
 }
 
-void HIR_visitor::post_variable_name(Token_variable_name* in)
+void Visitor::post_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void HIR_visitor::post_label_name(Token_label_name* in)
+void Visitor::post_label_name(LABEL_NAME* in)
 {
 }
 
-void HIR_visitor::post_ht_iterator(Token_ht_iterator* in)
+void Visitor::post_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-void HIR_visitor::post_int(Token_int* in)
+void Visitor::post_int(INT* in)
 {
 }
 
-void HIR_visitor::post_real(Token_real* in)
+void Visitor::post_real(REAL* in)
 {
 }
 
-void HIR_visitor::post_string(Token_string* in)
+void Visitor::post_string(STRING* in)
 {
 }
 
-void HIR_visitor::post_bool(Token_bool* in)
+void Visitor::post_bool(BOOL* in)
 {
 }
 
-void HIR_visitor::post_null(Token_null* in)
+void Visitor::post_nil(NIL* in)
 {
 }
 
-void HIR_visitor::post_cast(Token_cast* in)
+void Visitor::post_cast(CAST* in)
 {
 }
 
-void HIR_visitor::post_op(Token_op* in)
+void Visitor::post_op(OP* in)
 {
 }
 
-void HIR_visitor::post_constant_name(Token_constant_name* in)
+void Visitor::post_constant_name(CONSTANT_NAME* in)
 {
 }
 
 // Visit the children of a node
-void HIR_visitor::children_php_script(HIR_php_script* in)
+void Visitor::children_php_script(PHP_script* in)
 {
     visit_statement_list(in->statements);
 }
 
-void HIR_visitor::children_class_def(HIR_class_def* in)
+void Visitor::children_class_def(Class_def* in)
 {
     visit_class_mod(in->class_mod);
     visit_class_name(in->class_name);
@@ -550,26 +550,26 @@ void HIR_visitor::children_class_def(HIR_class_def* in)
     visit_member_list(in->members);
 }
 
-void HIR_visitor::children_class_mod(HIR_class_mod* in)
+void Visitor::children_class_mod(Class_mod* in)
 {
     visit_marker("is_abstract", in->is_abstract);
     visit_marker("is_final", in->is_final);
 }
 
-void HIR_visitor::children_interface_def(HIR_interface_def* in)
+void Visitor::children_interface_def(Interface_def* in)
 {
     visit_interface_name(in->interface_name);
     visit_interface_name_list(in->extends);
     visit_member_list(in->members);
 }
 
-void HIR_visitor::children_method(HIR_method* in)
+void Visitor::children_method(Method* in)
 {
     visit_signature(in->signature);
     visit_statement_list(in->statements);
 }
 
-void HIR_visitor::children_signature(HIR_signature* in)
+void Visitor::children_signature(Signature* in)
 {
     visit_method_mod(in->method_mod);
     visit_marker("is_ref", in->is_ref);
@@ -577,7 +577,7 @@ void HIR_visitor::children_signature(HIR_signature* in)
     visit_formal_parameter_list(in->formal_parameters);
 }
 
-void HIR_visitor::children_method_mod(HIR_method_mod* in)
+void Visitor::children_method_mod(Method_mod* in)
 {
     visit_marker("is_public", in->is_public);
     visit_marker("is_protected", in->is_protected);
@@ -587,25 +587,25 @@ void HIR_visitor::children_method_mod(HIR_method_mod* in)
     visit_marker("is_final", in->is_final);
 }
 
-void HIR_visitor::children_formal_parameter(HIR_formal_parameter* in)
+void Visitor::children_formal_parameter(Formal_parameter* in)
 {
     visit_type(in->type);
     visit_marker("is_ref", in->is_ref);
     visit_name_with_default(in->var);
 }
 
-void HIR_visitor::children_type(HIR_type* in)
+void Visitor::children_type(Type* in)
 {
     visit_class_name(in->class_name);
 }
 
-void HIR_visitor::children_attribute(HIR_attribute* in)
+void Visitor::children_attribute(Attribute* in)
 {
     visit_attr_mod(in->attr_mod);
     visit_name_with_default(in->var);
 }
 
-void HIR_visitor::children_attr_mod(HIR_attr_mod* in)
+void Visitor::children_attr_mod(Attr_mod* in)
 {
     visit_marker("is_public", in->is_public);
     visit_marker("is_protected", in->is_protected);
@@ -614,179 +614,179 @@ void HIR_visitor::children_attr_mod(HIR_attr_mod* in)
     visit_marker("is_const", in->is_const);
 }
 
-void HIR_visitor::children_name_with_default(HIR_name_with_default* in)
+void Visitor::children_name_with_default(Name_with_default* in)
 {
     visit_variable_name(in->variable_name);
     visit_expr(in->expr);
 }
 
-void HIR_visitor::children_return(HIR_return* in)
+void Visitor::children_return(Return* in)
 {
     visit_expr(in->expr);
 }
 
-void HIR_visitor::children_static_declaration(HIR_static_declaration* in)
+void Visitor::children_static_declaration(Static_declaration* in)
 {
     visit_name_with_default(in->var);
 }
 
-void HIR_visitor::children_global(HIR_global* in)
+void Visitor::children_global(Global* in)
 {
     visit_variable_name(in->variable_name);
 }
 
-void HIR_visitor::children_try(HIR_try* in)
+void Visitor::children_try(Try* in)
 {
     visit_statement_list(in->statements);
     visit_catch_list(in->catches);
 }
 
-void HIR_visitor::children_catch(HIR_catch* in)
+void Visitor::children_catch(Catch* in)
 {
     visit_class_name(in->class_name);
     visit_variable_name(in->variable_name);
     visit_statement_list(in->statements);
 }
 
-void HIR_visitor::children_throw(HIR_throw* in)
+void Visitor::children_throw(Throw* in)
 {
     visit_expr(in->expr);
 }
 
-void HIR_visitor::children_eval_expr(HIR_eval_expr* in)
+void Visitor::children_eval_expr(Eval_expr* in)
 {
     visit_expr(in->expr);
 }
 
-void HIR_visitor::children_branch(HIR_branch* in)
+void Visitor::children_branch(Branch* in)
 {
     visit_expr(in->expr);
     visit_label_name(in->iftrue);
     visit_label_name(in->iffalse);
 }
 
-void HIR_visitor::children_goto(HIR_goto* in)
+void Visitor::children_goto(Goto* in)
 {
     visit_label_name(in->label_name);
 }
 
-void HIR_visitor::children_label(HIR_label* in)
+void Visitor::children_label(Label* in)
 {
     visit_label_name(in->label_name);
 }
 
-void HIR_visitor::children_foreach_reset(HIR_foreach_reset* in)
+void Visitor::children_foreach_reset(Foreach_reset* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_foreach_next(HIR_foreach_next* in)
+void Visitor::children_foreach_next(Foreach_next* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_foreach_end(HIR_foreach_end* in)
+void Visitor::children_foreach_end(Foreach_end* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_foreach_has_key(HIR_foreach_has_key* in)
+void Visitor::children_foreach_has_key(Foreach_has_key* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_foreach_get_key(HIR_foreach_get_key* in)
+void Visitor::children_foreach_get_key(Foreach_get_key* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_foreach_get_data(HIR_foreach_get_data* in)
+void Visitor::children_foreach_get_data(Foreach_get_data* in)
 {
     visit_variable_name(in->variable_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void HIR_visitor::children_assignment(HIR_assignment* in)
+void Visitor::children_assignment(Assignment* in)
 {
     visit_variable(in->variable);
     visit_marker("is_ref", in->is_ref);
     visit_expr(in->expr);
 }
 
-void HIR_visitor::children_cast(HIR_cast* in)
+void Visitor::children_cast(Cast* in)
 {
     visit_cast(in->cast);
     visit_variable_name(in->variable_name);
 }
 
-void HIR_visitor::children_unary_op(HIR_unary_op* in)
+void Visitor::children_unary_op(Unary_op* in)
 {
     visit_op(in->op);
     visit_variable_name(in->variable_name);
 }
 
-void HIR_visitor::children_bin_op(HIR_bin_op* in)
+void Visitor::children_bin_op(Bin_op* in)
 {
     visit_variable_name(in->left);
     visit_op(in->op);
     visit_variable_name(in->right);
 }
 
-void HIR_visitor::children_constant(HIR_constant* in)
+void Visitor::children_constant(Constant* in)
 {
     visit_class_name(in->class_name);
     visit_constant_name(in->constant_name);
 }
 
-void HIR_visitor::children_instanceof(HIR_instanceof* in)
+void Visitor::children_instanceof(Instanceof* in)
 {
     visit_variable_name(in->variable_name);
     visit_class_name(in->class_name);
 }
 
-void HIR_visitor::children_variable(HIR_variable* in)
+void Visitor::children_variable(Variable* in)
 {
     visit_target(in->target);
     visit_variable_name(in->variable_name);
     visit_variable_name_list(in->array_indices);
 }
 
-void HIR_visitor::children_reflection(HIR_reflection* in)
+void Visitor::children_reflection(Reflection* in)
 {
     visit_variable_name(in->variable_name);
 }
 
-void HIR_visitor::children_pre_op(HIR_pre_op* in)
+void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable(in->variable);
 }
 
-void HIR_visitor::children_array(HIR_array* in)
+void Visitor::children_array(Array* in)
 {
     visit_array_elem_list(in->array_elems);
 }
 
-void HIR_visitor::children_array_elem(HIR_array_elem* in)
+void Visitor::children_array_elem(Array_elem* in)
 {
     visit_expr(in->key);
     visit_marker("is_ref", in->is_ref);
     visit_expr(in->val);
 }
 
-void HIR_visitor::children_method_invocation(HIR_method_invocation* in)
+void Visitor::children_method_invocation(Method_invocation* in)
 {
     visit_target(in->target);
     visit_method_name(in->method_name);
     visit_actual_parameter_list(in->actual_parameters);
 }
 
-void HIR_visitor::children_actual_parameter(HIR_actual_parameter* in)
+void Visitor::children_actual_parameter(Actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
     visit_target(in->target);
@@ -794,119 +794,119 @@ void HIR_visitor::children_actual_parameter(HIR_actual_parameter* in)
     visit_variable_name_list(in->array_indices);
 }
 
-void HIR_visitor::children_new(HIR_new* in)
+void Visitor::children_new(New* in)
 {
     visit_class_name(in->class_name);
     visit_actual_parameter_list(in->actual_parameters);
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void HIR_visitor::children_class_name(Token_class_name* in)
+void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
 
-void HIR_visitor::children_interface_name(Token_interface_name* in)
+void Visitor::children_interface_name(INTERFACE_NAME* in)
 {
 }
 
-void HIR_visitor::children_method_name(Token_method_name* in)
+void Visitor::children_method_name(METHOD_NAME* in)
 {
 }
 
-void HIR_visitor::children_variable_name(Token_variable_name* in)
+void Visitor::children_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void HIR_visitor::children_label_name(Token_label_name* in)
+void Visitor::children_label_name(LABEL_NAME* in)
 {
 }
 
-void HIR_visitor::children_ht_iterator(Token_ht_iterator* in)
+void Visitor::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-void HIR_visitor::children_int(Token_int* in)
+void Visitor::children_int(INT* in)
 {
 }
 
-void HIR_visitor::children_real(Token_real* in)
+void Visitor::children_real(REAL* in)
 {
 }
 
-void HIR_visitor::children_string(Token_string* in)
+void Visitor::children_string(STRING* in)
 {
 }
 
-void HIR_visitor::children_bool(Token_bool* in)
+void Visitor::children_bool(BOOL* in)
 {
 }
 
-void HIR_visitor::children_null(Token_null* in)
+void Visitor::children_nil(NIL* in)
 {
 }
 
-void HIR_visitor::children_cast(Token_cast* in)
+void Visitor::children_cast(CAST* in)
 {
 }
 
-void HIR_visitor::children_op(Token_op* in)
+void Visitor::children_op(OP* in)
 {
 }
 
-void HIR_visitor::children_constant_name(Token_constant_name* in)
+void Visitor::children_constant_name(CONSTANT_NAME* in)
 {
 }
 
 // Unparser support
-void HIR_visitor::visit_marker(char const* name, bool value)
+void Visitor::visit_marker(char const* name, bool value)
 {
 }
 
-void HIR_visitor::visit_null(char const* type_id)
+void Visitor::visit_null(char const* type_id)
 {
 }
 
-void HIR_visitor::visit_null_list(char const* type_id)
+void Visitor::visit_null_list(char const* type_id)
 {
 }
 
-void HIR_visitor::pre_list(char const* type_id, int size)
+void Visitor::pre_list(char const* type_id, int size)
 {
 }
 
-void HIR_visitor::post_list(char const* type_id, int size)
+void Visitor::post_list(char const* type_id, int size)
 {
 }
 
 // Invoke the chain of pre-visit methods along the inheritance hierachy
 // Do not override unless you know what you are doing
-void HIR_visitor::pre_php_script_chain(HIR_php_script* in)
+void Visitor::pre_php_script_chain(PHP_script* in)
 {
     pre_node(in);
     pre_php_script(in);
 }
 
-void HIR_visitor::pre_class_def_chain(HIR_class_def* in)
+void Visitor::pre_class_def_chain(Class_def* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_class_def(in);
 }
 
-void HIR_visitor::pre_class_mod_chain(HIR_class_mod* in)
+void Visitor::pre_class_mod_chain(Class_mod* in)
 {
     pre_node(in);
     pre_class_mod(in);
 }
 
-void HIR_visitor::pre_interface_def_chain(HIR_interface_def* in)
+void Visitor::pre_interface_def_chain(Interface_def* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_interface_def(in);
 }
 
-void HIR_visitor::pre_method_chain(HIR_method* in)
+void Visitor::pre_method_chain(Method* in)
 {
     pre_node(in);
     pre_statement(in);
@@ -914,140 +914,140 @@ void HIR_visitor::pre_method_chain(HIR_method* in)
     pre_method(in);
 }
 
-void HIR_visitor::pre_signature_chain(HIR_signature* in)
+void Visitor::pre_signature_chain(Signature* in)
 {
     pre_node(in);
     pre_signature(in);
 }
 
-void HIR_visitor::pre_method_mod_chain(HIR_method_mod* in)
+void Visitor::pre_method_mod_chain(Method_mod* in)
 {
     pre_node(in);
     pre_method_mod(in);
 }
 
-void HIR_visitor::pre_formal_parameter_chain(HIR_formal_parameter* in)
+void Visitor::pre_formal_parameter_chain(Formal_parameter* in)
 {
     pre_node(in);
     pre_formal_parameter(in);
 }
 
-void HIR_visitor::pre_type_chain(HIR_type* in)
+void Visitor::pre_type_chain(Type* in)
 {
     pre_node(in);
     pre_type(in);
 }
 
-void HIR_visitor::pre_attribute_chain(HIR_attribute* in)
+void Visitor::pre_attribute_chain(Attribute* in)
 {
     pre_node(in);
     pre_member(in);
     pre_attribute(in);
 }
 
-void HIR_visitor::pre_attr_mod_chain(HIR_attr_mod* in)
+void Visitor::pre_attr_mod_chain(Attr_mod* in)
 {
     pre_node(in);
     pre_attr_mod(in);
 }
 
-void HIR_visitor::pre_name_with_default_chain(HIR_name_with_default* in)
+void Visitor::pre_name_with_default_chain(Name_with_default* in)
 {
     pre_node(in);
     pre_name_with_default(in);
 }
 
-void HIR_visitor::pre_return_chain(HIR_return* in)
+void Visitor::pre_return_chain(Return* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_return(in);
 }
 
-void HIR_visitor::pre_static_declaration_chain(HIR_static_declaration* in)
+void Visitor::pre_static_declaration_chain(Static_declaration* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_static_declaration(in);
 }
 
-void HIR_visitor::pre_global_chain(HIR_global* in)
+void Visitor::pre_global_chain(Global* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_global(in);
 }
 
-void HIR_visitor::pre_try_chain(HIR_try* in)
+void Visitor::pre_try_chain(Try* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_try(in);
 }
 
-void HIR_visitor::pre_catch_chain(HIR_catch* in)
+void Visitor::pre_catch_chain(Catch* in)
 {
     pre_node(in);
     pre_catch(in);
 }
 
-void HIR_visitor::pre_throw_chain(HIR_throw* in)
+void Visitor::pre_throw_chain(Throw* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_throw(in);
 }
 
-void HIR_visitor::pre_eval_expr_chain(HIR_eval_expr* in)
+void Visitor::pre_eval_expr_chain(Eval_expr* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_eval_expr(in);
 }
 
-void HIR_visitor::pre_branch_chain(HIR_branch* in)
+void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_branch(in);
 }
 
-void HIR_visitor::pre_goto_chain(HIR_goto* in)
+void Visitor::pre_goto_chain(Goto* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_goto(in);
 }
 
-void HIR_visitor::pre_label_chain(HIR_label* in)
+void Visitor::pre_label_chain(Label* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_label(in);
 }
 
-void HIR_visitor::pre_foreach_reset_chain(HIR_foreach_reset* in)
+void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_foreach_reset(in);
 }
 
-void HIR_visitor::pre_foreach_next_chain(HIR_foreach_next* in)
+void Visitor::pre_foreach_next_chain(Foreach_next* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_foreach_next(in);
 }
 
-void HIR_visitor::pre_foreach_end_chain(HIR_foreach_end* in)
+void Visitor::pre_foreach_end_chain(Foreach_end* in)
 {
     pre_node(in);
     pre_statement(in);
     pre_foreach_end(in);
 }
 
-void HIR_visitor::pre_foreach_has_key_chain(HIR_foreach_has_key* in)
+void Visitor::pre_foreach_has_key_chain(Foreach_has_key* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1055,7 +1055,7 @@ void HIR_visitor::pre_foreach_has_key_chain(HIR_foreach_has_key* in)
     pre_foreach_has_key(in);
 }
 
-void HIR_visitor::pre_foreach_get_key_chain(HIR_foreach_get_key* in)
+void Visitor::pre_foreach_get_key_chain(Foreach_get_key* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1063,7 +1063,7 @@ void HIR_visitor::pre_foreach_get_key_chain(HIR_foreach_get_key* in)
     pre_foreach_get_key(in);
 }
 
-void HIR_visitor::pre_foreach_get_data_chain(HIR_foreach_get_data* in)
+void Visitor::pre_foreach_get_data_chain(Foreach_get_data* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1071,7 +1071,7 @@ void HIR_visitor::pre_foreach_get_data_chain(HIR_foreach_get_data* in)
     pre_foreach_get_data(in);
 }
 
-void HIR_visitor::pre_assignment_chain(HIR_assignment* in)
+void Visitor::pre_assignment_chain(Assignment* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1079,7 +1079,7 @@ void HIR_visitor::pre_assignment_chain(HIR_assignment* in)
     pre_assignment(in);
 }
 
-void HIR_visitor::pre_cast_chain(HIR_cast* in)
+void Visitor::pre_cast_chain(Cast* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1087,7 +1087,7 @@ void HIR_visitor::pre_cast_chain(HIR_cast* in)
     pre_cast(in);
 }
 
-void HIR_visitor::pre_unary_op_chain(HIR_unary_op* in)
+void Visitor::pre_unary_op_chain(Unary_op* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1095,7 +1095,7 @@ void HIR_visitor::pre_unary_op_chain(HIR_unary_op* in)
     pre_unary_op(in);
 }
 
-void HIR_visitor::pre_bin_op_chain(HIR_bin_op* in)
+void Visitor::pre_bin_op_chain(Bin_op* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1103,7 +1103,7 @@ void HIR_visitor::pre_bin_op_chain(HIR_bin_op* in)
     pre_bin_op(in);
 }
 
-void HIR_visitor::pre_constant_chain(HIR_constant* in)
+void Visitor::pre_constant_chain(Constant* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1111,7 +1111,7 @@ void HIR_visitor::pre_constant_chain(HIR_constant* in)
     pre_constant(in);
 }
 
-void HIR_visitor::pre_instanceof_chain(HIR_instanceof* in)
+void Visitor::pre_instanceof_chain(Instanceof* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1119,7 +1119,7 @@ void HIR_visitor::pre_instanceof_chain(HIR_instanceof* in)
     pre_instanceof(in);
 }
 
-void HIR_visitor::pre_variable_chain(HIR_variable* in)
+void Visitor::pre_variable_chain(Variable* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1127,7 +1127,7 @@ void HIR_visitor::pre_variable_chain(HIR_variable* in)
     pre_variable(in);
 }
 
-void HIR_visitor::pre_reflection_chain(HIR_reflection* in)
+void Visitor::pre_reflection_chain(Reflection* in)
 {
     pre_node(in);
     pre_variable_name(in);
@@ -1136,7 +1136,7 @@ void HIR_visitor::pre_reflection_chain(HIR_reflection* in)
     pre_reflection(in);
 }
 
-void HIR_visitor::pre_pre_op_chain(HIR_pre_op* in)
+void Visitor::pre_pre_op_chain(Pre_op* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1144,7 +1144,7 @@ void HIR_visitor::pre_pre_op_chain(HIR_pre_op* in)
     pre_pre_op(in);
 }
 
-void HIR_visitor::pre_array_chain(HIR_array* in)
+void Visitor::pre_array_chain(Array* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1152,13 +1152,13 @@ void HIR_visitor::pre_array_chain(HIR_array* in)
     pre_array(in);
 }
 
-void HIR_visitor::pre_array_elem_chain(HIR_array_elem* in)
+void Visitor::pre_array_elem_chain(Array_elem* in)
 {
     pre_node(in);
     pre_array_elem(in);
 }
 
-void HIR_visitor::pre_method_invocation_chain(HIR_method_invocation* in)
+void Visitor::pre_method_invocation_chain(Method_invocation* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1166,13 +1166,13 @@ void HIR_visitor::pre_method_invocation_chain(HIR_method_invocation* in)
     pre_method_invocation(in);
 }
 
-void HIR_visitor::pre_actual_parameter_chain(HIR_actual_parameter* in)
+void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
 {
     pre_node(in);
     pre_actual_parameter(in);
 }
 
-void HIR_visitor::pre_new_chain(HIR_new* in)
+void Visitor::pre_new_chain(New* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1180,7 +1180,7 @@ void HIR_visitor::pre_new_chain(HIR_new* in)
     pre_new(in);
 }
 
-void HIR_visitor::pre_class_name_chain(Token_class_name* in)
+void Visitor::pre_class_name_chain(CLASS_NAME* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1189,14 +1189,14 @@ void HIR_visitor::pre_class_name_chain(Token_class_name* in)
     pre_class_name(in);
 }
 
-void HIR_visitor::pre_interface_name_chain(Token_interface_name* in)
+void Visitor::pre_interface_name_chain(INTERFACE_NAME* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_interface_name(in);
 }
 
-void HIR_visitor::pre_method_name_chain(Token_method_name* in)
+void Visitor::pre_method_name_chain(METHOD_NAME* in)
 {
     pre_node(in);
     pre_method_name(in);
@@ -1204,7 +1204,7 @@ void HIR_visitor::pre_method_name_chain(Token_method_name* in)
     pre_method_name(in);
 }
 
-void HIR_visitor::pre_variable_name_chain(Token_variable_name* in)
+void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node(in);
     pre_variable_name(in);
@@ -1212,21 +1212,21 @@ void HIR_visitor::pre_variable_name_chain(Token_variable_name* in)
     pre_variable_name(in);
 }
 
-void HIR_visitor::pre_label_name_chain(Token_label_name* in)
+void Visitor::pre_label_name_chain(LABEL_NAME* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_label_name(in);
 }
 
-void HIR_visitor::pre_ht_iterator_chain(Token_ht_iterator* in)
+void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_ht_iterator(in);
 }
 
-void HIR_visitor::pre_int_chain(Token_int* in)
+void Visitor::pre_int_chain(INT* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1235,7 +1235,7 @@ void HIR_visitor::pre_int_chain(Token_int* in)
     pre_int(in);
 }
 
-void HIR_visitor::pre_real_chain(Token_real* in)
+void Visitor::pre_real_chain(REAL* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1244,7 +1244,7 @@ void HIR_visitor::pre_real_chain(Token_real* in)
     pre_real(in);
 }
 
-void HIR_visitor::pre_string_chain(Token_string* in)
+void Visitor::pre_string_chain(STRING* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1253,7 +1253,7 @@ void HIR_visitor::pre_string_chain(Token_string* in)
     pre_string(in);
 }
 
-void HIR_visitor::pre_bool_chain(Token_bool* in)
+void Visitor::pre_bool_chain(BOOL* in)
 {
     pre_node(in);
     pre_target(in);
@@ -1262,30 +1262,30 @@ void HIR_visitor::pre_bool_chain(Token_bool* in)
     pre_bool(in);
 }
 
-void HIR_visitor::pre_null_chain(Token_null* in)
+void Visitor::pre_nil_chain(NIL* in)
 {
     pre_node(in);
     pre_target(in);
     pre_expr(in);
     pre_literal(in);
-    pre_null(in);
+    pre_nil(in);
 }
 
-void HIR_visitor::pre_cast_chain(Token_cast* in)
+void Visitor::pre_cast_chain(CAST* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_cast(in);
 }
 
-void HIR_visitor::pre_op_chain(Token_op* in)
+void Visitor::pre_op_chain(OP* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_op(in);
 }
 
-void HIR_visitor::pre_constant_name_chain(Token_constant_name* in)
+void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
 {
     pre_node(in);
     pre_identifier(in);
@@ -1295,33 +1295,33 @@ void HIR_visitor::pre_constant_name_chain(Token_constant_name* in)
 // Invoke the chain of post-visit methods along the inheritance hierarchy
 // (invoked in opposite order to the pre-chain)
 // Do not override unless you know what you are doing
-void HIR_visitor::post_php_script_chain(HIR_php_script* in)
+void Visitor::post_php_script_chain(PHP_script* in)
 {
     post_php_script(in);
     post_node(in);
 }
 
-void HIR_visitor::post_class_def_chain(HIR_class_def* in)
+void Visitor::post_class_def_chain(Class_def* in)
 {
     post_class_def(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_class_mod_chain(HIR_class_mod* in)
+void Visitor::post_class_mod_chain(Class_mod* in)
 {
     post_class_mod(in);
     post_node(in);
 }
 
-void HIR_visitor::post_interface_def_chain(HIR_interface_def* in)
+void Visitor::post_interface_def_chain(Interface_def* in)
 {
     post_interface_def(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_method_chain(HIR_method* in)
+void Visitor::post_method_chain(Method* in)
 {
     post_method(in);
     post_member(in);
@@ -1329,140 +1329,140 @@ void HIR_visitor::post_method_chain(HIR_method* in)
     post_node(in);
 }
 
-void HIR_visitor::post_signature_chain(HIR_signature* in)
+void Visitor::post_signature_chain(Signature* in)
 {
     post_signature(in);
     post_node(in);
 }
 
-void HIR_visitor::post_method_mod_chain(HIR_method_mod* in)
+void Visitor::post_method_mod_chain(Method_mod* in)
 {
     post_method_mod(in);
     post_node(in);
 }
 
-void HIR_visitor::post_formal_parameter_chain(HIR_formal_parameter* in)
+void Visitor::post_formal_parameter_chain(Formal_parameter* in)
 {
     post_formal_parameter(in);
     post_node(in);
 }
 
-void HIR_visitor::post_type_chain(HIR_type* in)
+void Visitor::post_type_chain(Type* in)
 {
     post_type(in);
     post_node(in);
 }
 
-void HIR_visitor::post_attribute_chain(HIR_attribute* in)
+void Visitor::post_attribute_chain(Attribute* in)
 {
     post_attribute(in);
     post_member(in);
     post_node(in);
 }
 
-void HIR_visitor::post_attr_mod_chain(HIR_attr_mod* in)
+void Visitor::post_attr_mod_chain(Attr_mod* in)
 {
     post_attr_mod(in);
     post_node(in);
 }
 
-void HIR_visitor::post_name_with_default_chain(HIR_name_with_default* in)
+void Visitor::post_name_with_default_chain(Name_with_default* in)
 {
     post_name_with_default(in);
     post_node(in);
 }
 
-void HIR_visitor::post_return_chain(HIR_return* in)
+void Visitor::post_return_chain(Return* in)
 {
     post_return(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_static_declaration_chain(HIR_static_declaration* in)
+void Visitor::post_static_declaration_chain(Static_declaration* in)
 {
     post_static_declaration(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_global_chain(HIR_global* in)
+void Visitor::post_global_chain(Global* in)
 {
     post_global(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_try_chain(HIR_try* in)
+void Visitor::post_try_chain(Try* in)
 {
     post_try(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_catch_chain(HIR_catch* in)
+void Visitor::post_catch_chain(Catch* in)
 {
     post_catch(in);
     post_node(in);
 }
 
-void HIR_visitor::post_throw_chain(HIR_throw* in)
+void Visitor::post_throw_chain(Throw* in)
 {
     post_throw(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_eval_expr_chain(HIR_eval_expr* in)
+void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
     post_eval_expr(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_branch_chain(HIR_branch* in)
+void Visitor::post_branch_chain(Branch* in)
 {
     post_branch(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_goto_chain(HIR_goto* in)
+void Visitor::post_goto_chain(Goto* in)
 {
     post_goto(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_label_chain(HIR_label* in)
+void Visitor::post_label_chain(Label* in)
 {
     post_label(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_reset_chain(HIR_foreach_reset* in)
+void Visitor::post_foreach_reset_chain(Foreach_reset* in)
 {
     post_foreach_reset(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_next_chain(HIR_foreach_next* in)
+void Visitor::post_foreach_next_chain(Foreach_next* in)
 {
     post_foreach_next(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_end_chain(HIR_foreach_end* in)
+void Visitor::post_foreach_end_chain(Foreach_end* in)
 {
     post_foreach_end(in);
     post_statement(in);
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_has_key_chain(HIR_foreach_has_key* in)
+void Visitor::post_foreach_has_key_chain(Foreach_has_key* in)
 {
     post_foreach_has_key(in);
     post_expr(in);
@@ -1470,7 +1470,7 @@ void HIR_visitor::post_foreach_has_key_chain(HIR_foreach_has_key* in)
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_get_key_chain(HIR_foreach_get_key* in)
+void Visitor::post_foreach_get_key_chain(Foreach_get_key* in)
 {
     post_foreach_get_key(in);
     post_expr(in);
@@ -1478,7 +1478,7 @@ void HIR_visitor::post_foreach_get_key_chain(HIR_foreach_get_key* in)
     post_node(in);
 }
 
-void HIR_visitor::post_foreach_get_data_chain(HIR_foreach_get_data* in)
+void Visitor::post_foreach_get_data_chain(Foreach_get_data* in)
 {
     post_foreach_get_data(in);
     post_expr(in);
@@ -1486,7 +1486,7 @@ void HIR_visitor::post_foreach_get_data_chain(HIR_foreach_get_data* in)
     post_node(in);
 }
 
-void HIR_visitor::post_assignment_chain(HIR_assignment* in)
+void Visitor::post_assignment_chain(Assignment* in)
 {
     post_assignment(in);
     post_expr(in);
@@ -1494,7 +1494,7 @@ void HIR_visitor::post_assignment_chain(HIR_assignment* in)
     post_node(in);
 }
 
-void HIR_visitor::post_cast_chain(HIR_cast* in)
+void Visitor::post_cast_chain(Cast* in)
 {
     post_cast(in);
     post_expr(in);
@@ -1502,7 +1502,7 @@ void HIR_visitor::post_cast_chain(HIR_cast* in)
     post_node(in);
 }
 
-void HIR_visitor::post_unary_op_chain(HIR_unary_op* in)
+void Visitor::post_unary_op_chain(Unary_op* in)
 {
     post_unary_op(in);
     post_expr(in);
@@ -1510,7 +1510,7 @@ void HIR_visitor::post_unary_op_chain(HIR_unary_op* in)
     post_node(in);
 }
 
-void HIR_visitor::post_bin_op_chain(HIR_bin_op* in)
+void Visitor::post_bin_op_chain(Bin_op* in)
 {
     post_bin_op(in);
     post_expr(in);
@@ -1518,7 +1518,7 @@ void HIR_visitor::post_bin_op_chain(HIR_bin_op* in)
     post_node(in);
 }
 
-void HIR_visitor::post_constant_chain(HIR_constant* in)
+void Visitor::post_constant_chain(Constant* in)
 {
     post_constant(in);
     post_expr(in);
@@ -1526,7 +1526,7 @@ void HIR_visitor::post_constant_chain(HIR_constant* in)
     post_node(in);
 }
 
-void HIR_visitor::post_instanceof_chain(HIR_instanceof* in)
+void Visitor::post_instanceof_chain(Instanceof* in)
 {
     post_instanceof(in);
     post_expr(in);
@@ -1534,7 +1534,7 @@ void HIR_visitor::post_instanceof_chain(HIR_instanceof* in)
     post_node(in);
 }
 
-void HIR_visitor::post_variable_chain(HIR_variable* in)
+void Visitor::post_variable_chain(Variable* in)
 {
     post_variable(in);
     post_expr(in);
@@ -1542,7 +1542,7 @@ void HIR_visitor::post_variable_chain(HIR_variable* in)
     post_node(in);
 }
 
-void HIR_visitor::post_reflection_chain(HIR_reflection* in)
+void Visitor::post_reflection_chain(Reflection* in)
 {
     post_reflection(in);
     post_class_name(in);
@@ -1551,7 +1551,7 @@ void HIR_visitor::post_reflection_chain(HIR_reflection* in)
     post_node(in);
 }
 
-void HIR_visitor::post_pre_op_chain(HIR_pre_op* in)
+void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op(in);
     post_expr(in);
@@ -1559,7 +1559,7 @@ void HIR_visitor::post_pre_op_chain(HIR_pre_op* in)
     post_node(in);
 }
 
-void HIR_visitor::post_array_chain(HIR_array* in)
+void Visitor::post_array_chain(Array* in)
 {
     post_array(in);
     post_expr(in);
@@ -1567,13 +1567,13 @@ void HIR_visitor::post_array_chain(HIR_array* in)
     post_node(in);
 }
 
-void HIR_visitor::post_array_elem_chain(HIR_array_elem* in)
+void Visitor::post_array_elem_chain(Array_elem* in)
 {
     post_array_elem(in);
     post_node(in);
 }
 
-void HIR_visitor::post_method_invocation_chain(HIR_method_invocation* in)
+void Visitor::post_method_invocation_chain(Method_invocation* in)
 {
     post_method_invocation(in);
     post_expr(in);
@@ -1581,13 +1581,13 @@ void HIR_visitor::post_method_invocation_chain(HIR_method_invocation* in)
     post_node(in);
 }
 
-void HIR_visitor::post_actual_parameter_chain(HIR_actual_parameter* in)
+void Visitor::post_actual_parameter_chain(Actual_parameter* in)
 {
     post_actual_parameter(in);
     post_node(in);
 }
 
-void HIR_visitor::post_new_chain(HIR_new* in)
+void Visitor::post_new_chain(New* in)
 {
     post_new(in);
     post_expr(in);
@@ -1595,7 +1595,7 @@ void HIR_visitor::post_new_chain(HIR_new* in)
     post_node(in);
 }
 
-void HIR_visitor::post_class_name_chain(Token_class_name* in)
+void Visitor::post_class_name_chain(CLASS_NAME* in)
 {
     post_class_name(in);
     post_identifier(in);
@@ -1604,14 +1604,14 @@ void HIR_visitor::post_class_name_chain(Token_class_name* in)
     post_node(in);
 }
 
-void HIR_visitor::post_interface_name_chain(Token_interface_name* in)
+void Visitor::post_interface_name_chain(INTERFACE_NAME* in)
 {
     post_interface_name(in);
     post_identifier(in);
     post_node(in);
 }
 
-void HIR_visitor::post_method_name_chain(Token_method_name* in)
+void Visitor::post_method_name_chain(METHOD_NAME* in)
 {
     post_method_name(in);
     post_identifier(in);
@@ -1619,7 +1619,7 @@ void HIR_visitor::post_method_name_chain(Token_method_name* in)
     post_node(in);
 }
 
-void HIR_visitor::post_variable_name_chain(Token_variable_name* in)
+void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
 {
     post_variable_name(in);
     post_identifier(in);
@@ -1627,21 +1627,21 @@ void HIR_visitor::post_variable_name_chain(Token_variable_name* in)
     post_node(in);
 }
 
-void HIR_visitor::post_label_name_chain(Token_label_name* in)
+void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
     post_label_name(in);
     post_identifier(in);
     post_node(in);
 }
 
-void HIR_visitor::post_ht_iterator_chain(Token_ht_iterator* in)
+void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
 {
     post_ht_iterator(in);
     post_identifier(in);
     post_node(in);
 }
 
-void HIR_visitor::post_int_chain(Token_int* in)
+void Visitor::post_int_chain(INT* in)
 {
     post_int(in);
     post_literal(in);
@@ -1650,7 +1650,7 @@ void HIR_visitor::post_int_chain(Token_int* in)
     post_node(in);
 }
 
-void HIR_visitor::post_real_chain(Token_real* in)
+void Visitor::post_real_chain(REAL* in)
 {
     post_real(in);
     post_literal(in);
@@ -1659,7 +1659,7 @@ void HIR_visitor::post_real_chain(Token_real* in)
     post_node(in);
 }
 
-void HIR_visitor::post_string_chain(Token_string* in)
+void Visitor::post_string_chain(STRING* in)
 {
     post_string(in);
     post_literal(in);
@@ -1668,7 +1668,7 @@ void HIR_visitor::post_string_chain(Token_string* in)
     post_node(in);
 }
 
-void HIR_visitor::post_bool_chain(Token_bool* in)
+void Visitor::post_bool_chain(BOOL* in)
 {
     post_bool(in);
     post_literal(in);
@@ -1677,30 +1677,30 @@ void HIR_visitor::post_bool_chain(Token_bool* in)
     post_node(in);
 }
 
-void HIR_visitor::post_null_chain(Token_null* in)
+void Visitor::post_nil_chain(NIL* in)
 {
-    post_null(in);
+    post_nil(in);
     post_literal(in);
     post_expr(in);
     post_target(in);
     post_node(in);
 }
 
-void HIR_visitor::post_cast_chain(Token_cast* in)
+void Visitor::post_cast_chain(CAST* in)
 {
     post_cast(in);
     post_identifier(in);
     post_node(in);
 }
 
-void HIR_visitor::post_op_chain(Token_op* in)
+void Visitor::post_op_chain(OP* in)
 {
     post_op(in);
     post_identifier(in);
     post_node(in);
 }
 
-void HIR_visitor::post_constant_name_chain(Token_constant_name* in)
+void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 {
     post_constant_name(in);
     post_identifier(in);
@@ -1709,29 +1709,29 @@ void HIR_visitor::post_constant_name_chain(Token_constant_name* in)
 
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
-void HIR_visitor::visit_statement_list(List<HIR_statement*>* in)
+void Visitor::visit_statement_list(List<Statement*>* in)
 {
-    List<HIR_statement*>::const_iterator i;
+    List<Statement*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_statement");
+    	visit_null_list("Statement");
     else
     {
-    	pre_list("HIR_statement", in->size());
+    	pre_list("Statement", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_statement(*i);
     	}
     
-    	post_list("HIR_statement", in->size());
+    	post_list("Statement", in->size());
     }
 }
 
-void HIR_visitor::visit_statement(HIR_statement* in)
+void Visitor::visit_statement(Statement* in)
 {
     if(in == NULL)
-    	visit_null("HIR_statement");
+    	visit_null("Statement");
     else
     {
     	pre_statement_chain(in);
@@ -1740,10 +1740,10 @@ void HIR_visitor::visit_statement(HIR_statement* in)
     }
 }
 
-void HIR_visitor::visit_class_mod(HIR_class_mod* in)
+void Visitor::visit_class_mod(Class_mod* in)
 {
     if(in == NULL)
-    	visit_null("HIR_class_mod");
+    	visit_null("Class_mod");
     else
     {
     	pre_class_mod_chain(in);
@@ -1752,10 +1752,10 @@ void HIR_visitor::visit_class_mod(HIR_class_mod* in)
     }
 }
 
-void HIR_visitor::visit_class_name(Token_class_name* in)
+void Visitor::visit_class_name(CLASS_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_class_name");
+    	visit_null("CLASS_NAME");
     else
     {
     	pre_class_name_chain(in);
@@ -1764,48 +1764,48 @@ void HIR_visitor::visit_class_name(Token_class_name* in)
     }
 }
 
-void HIR_visitor::visit_interface_name_list(List<Token_interface_name*>* in)
+void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
 {
-    List<Token_interface_name*>::const_iterator i;
+    List<INTERFACE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Token_interface_name");
+    	visit_null_list("INTERFACE_NAME");
     else
     {
-    	pre_list("Token_interface_name", in->size());
+    	pre_list("INTERFACE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_interface_name(*i);
     	}
     
-    	post_list("Token_interface_name", in->size());
+    	post_list("INTERFACE_NAME", in->size());
     }
 }
 
-void HIR_visitor::visit_member_list(List<HIR_member*>* in)
+void Visitor::visit_member_list(List<Member*>* in)
 {
-    List<HIR_member*>::const_iterator i;
+    List<Member*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_member");
+    	visit_null_list("Member");
     else
     {
-    	pre_list("HIR_member", in->size());
+    	pre_list("Member", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_member(*i);
     	}
     
-    	post_list("HIR_member", in->size());
+    	post_list("Member", in->size());
     }
 }
 
-void HIR_visitor::visit_member(HIR_member* in)
+void Visitor::visit_member(Member* in)
 {
     if(in == NULL)
-    	visit_null("HIR_member");
+    	visit_null("Member");
     else
     {
     	pre_member_chain(in);
@@ -1814,10 +1814,10 @@ void HIR_visitor::visit_member(HIR_member* in)
     }
 }
 
-void HIR_visitor::visit_interface_name(Token_interface_name* in)
+void Visitor::visit_interface_name(INTERFACE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_interface_name");
+    	visit_null("INTERFACE_NAME");
     else
     {
     	pre_interface_name_chain(in);
@@ -1826,10 +1826,10 @@ void HIR_visitor::visit_interface_name(Token_interface_name* in)
     }
 }
 
-void HIR_visitor::visit_signature(HIR_signature* in)
+void Visitor::visit_signature(Signature* in)
 {
     if(in == NULL)
-    	visit_null("HIR_signature");
+    	visit_null("Signature");
     else
     {
     	pre_signature_chain(in);
@@ -1838,10 +1838,10 @@ void HIR_visitor::visit_signature(HIR_signature* in)
     }
 }
 
-void HIR_visitor::visit_method_mod(HIR_method_mod* in)
+void Visitor::visit_method_mod(Method_mod* in)
 {
     if(in == NULL)
-    	visit_null("HIR_method_mod");
+    	visit_null("Method_mod");
     else
     {
     	pre_method_mod_chain(in);
@@ -1850,10 +1850,10 @@ void HIR_visitor::visit_method_mod(HIR_method_mod* in)
     }
 }
 
-void HIR_visitor::visit_method_name(Token_method_name* in)
+void Visitor::visit_method_name(METHOD_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_method_name");
+    	visit_null("METHOD_NAME");
     else
     {
     	pre_method_name_chain(in);
@@ -1862,29 +1862,29 @@ void HIR_visitor::visit_method_name(Token_method_name* in)
     }
 }
 
-void HIR_visitor::visit_formal_parameter_list(List<HIR_formal_parameter*>* in)
+void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
 {
-    List<HIR_formal_parameter*>::const_iterator i;
+    List<Formal_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_formal_parameter");
+    	visit_null_list("Formal_parameter");
     else
     {
-    	pre_list("HIR_formal_parameter", in->size());
+    	pre_list("Formal_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_formal_parameter(*i);
     	}
     
-    	post_list("HIR_formal_parameter", in->size());
+    	post_list("Formal_parameter", in->size());
     }
 }
 
-void HIR_visitor::visit_formal_parameter(HIR_formal_parameter* in)
+void Visitor::visit_formal_parameter(Formal_parameter* in)
 {
     if(in == NULL)
-    	visit_null("HIR_formal_parameter");
+    	visit_null("Formal_parameter");
     else
     {
     	pre_formal_parameter_chain(in);
@@ -1893,10 +1893,10 @@ void HIR_visitor::visit_formal_parameter(HIR_formal_parameter* in)
     }
 }
 
-void HIR_visitor::visit_type(HIR_type* in)
+void Visitor::visit_type(Type* in)
 {
     if(in == NULL)
-    	visit_null("HIR_type");
+    	visit_null("Type");
     else
     {
     	pre_type_chain(in);
@@ -1905,10 +1905,10 @@ void HIR_visitor::visit_type(HIR_type* in)
     }
 }
 
-void HIR_visitor::visit_name_with_default(HIR_name_with_default* in)
+void Visitor::visit_name_with_default(Name_with_default* in)
 {
     if(in == NULL)
-    	visit_null("HIR_name_with_default");
+    	visit_null("Name_with_default");
     else
     {
     	pre_name_with_default_chain(in);
@@ -1917,10 +1917,10 @@ void HIR_visitor::visit_name_with_default(HIR_name_with_default* in)
     }
 }
 
-void HIR_visitor::visit_attr_mod(HIR_attr_mod* in)
+void Visitor::visit_attr_mod(Attr_mod* in)
 {
     if(in == NULL)
-    	visit_null("HIR_attr_mod");
+    	visit_null("Attr_mod");
     else
     {
     	pre_attr_mod_chain(in);
@@ -1929,10 +1929,10 @@ void HIR_visitor::visit_attr_mod(HIR_attr_mod* in)
     }
 }
 
-void HIR_visitor::visit_variable_name(Token_variable_name* in)
+void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_variable_name");
+    	visit_null("VARIABLE_NAME");
     else
     {
     	pre_variable_name_chain(in);
@@ -1941,10 +1941,10 @@ void HIR_visitor::visit_variable_name(Token_variable_name* in)
     }
 }
 
-void HIR_visitor::visit_expr(HIR_expr* in)
+void Visitor::visit_expr(Expr* in)
 {
     if(in == NULL)
-    	visit_null("HIR_expr");
+    	visit_null("Expr");
     else
     {
     	pre_expr_chain(in);
@@ -1953,10 +1953,10 @@ void HIR_visitor::visit_expr(HIR_expr* in)
     }
 }
 
-void HIR_visitor::visit_variable_name(HIR_variable_name* in)
+void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
-    	visit_null("HIR_variable_name");
+    	visit_null("Variable_name");
     else
     {
     	pre_variable_name_chain(in);
@@ -1965,29 +1965,29 @@ void HIR_visitor::visit_variable_name(HIR_variable_name* in)
     }
 }
 
-void HIR_visitor::visit_catch_list(List<HIR_catch*>* in)
+void Visitor::visit_catch_list(List<Catch*>* in)
 {
-    List<HIR_catch*>::const_iterator i;
+    List<Catch*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_catch");
+    	visit_null_list("Catch");
     else
     {
-    	pre_list("HIR_catch", in->size());
+    	pre_list("Catch", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_catch(*i);
     	}
     
-    	post_list("HIR_catch", in->size());
+    	post_list("Catch", in->size());
     }
 }
 
-void HIR_visitor::visit_catch(HIR_catch* in)
+void Visitor::visit_catch(Catch* in)
 {
     if(in == NULL)
-    	visit_null("HIR_catch");
+    	visit_null("Catch");
     else
     {
     	pre_catch_chain(in);
@@ -1996,10 +1996,10 @@ void HIR_visitor::visit_catch(HIR_catch* in)
     }
 }
 
-void HIR_visitor::visit_label_name(Token_label_name* in)
+void Visitor::visit_label_name(LABEL_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_label_name");
+    	visit_null("LABEL_NAME");
     else
     {
     	pre_label_name_chain(in);
@@ -2008,10 +2008,10 @@ void HIR_visitor::visit_label_name(Token_label_name* in)
     }
 }
 
-void HIR_visitor::visit_ht_iterator(Token_ht_iterator* in)
+void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 {
     if(in == NULL)
-    	visit_null("Token_ht_iterator");
+    	visit_null("HT_ITERATOR");
     else
     {
     	pre_ht_iterator_chain(in);
@@ -2020,10 +2020,10 @@ void HIR_visitor::visit_ht_iterator(Token_ht_iterator* in)
     }
 }
 
-void HIR_visitor::visit_variable(HIR_variable* in)
+void Visitor::visit_variable(Variable* in)
 {
     if(in == NULL)
-    	visit_null("HIR_variable");
+    	visit_null("Variable");
     else
     {
     	pre_variable_chain(in);
@@ -2032,10 +2032,10 @@ void HIR_visitor::visit_variable(HIR_variable* in)
     }
 }
 
-void HIR_visitor::visit_cast(Token_cast* in)
+void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
-    	visit_null("Token_cast");
+    	visit_null("CAST");
     else
     {
     	pre_cast_chain(in);
@@ -2044,10 +2044,10 @@ void HIR_visitor::visit_cast(Token_cast* in)
     }
 }
 
-void HIR_visitor::visit_op(Token_op* in)
+void Visitor::visit_op(OP* in)
 {
     if(in == NULL)
-    	visit_null("Token_op");
+    	visit_null("OP");
     else
     {
     	pre_op_chain(in);
@@ -2056,10 +2056,10 @@ void HIR_visitor::visit_op(Token_op* in)
     }
 }
 
-void HIR_visitor::visit_constant_name(Token_constant_name* in)
+void Visitor::visit_constant_name(CONSTANT_NAME* in)
 {
     if(in == NULL)
-    	visit_null("Token_constant_name");
+    	visit_null("CONSTANT_NAME");
     else
     {
     	pre_constant_name_chain(in);
@@ -2068,10 +2068,10 @@ void HIR_visitor::visit_constant_name(Token_constant_name* in)
     }
 }
 
-void HIR_visitor::visit_class_name(HIR_class_name* in)
+void Visitor::visit_class_name(Class_name* in)
 {
     if(in == NULL)
-    	visit_null("HIR_class_name");
+    	visit_null("Class_name");
     else
     {
     	pre_class_name_chain(in);
@@ -2080,10 +2080,10 @@ void HIR_visitor::visit_class_name(HIR_class_name* in)
     }
 }
 
-void HIR_visitor::visit_target(HIR_target* in)
+void Visitor::visit_target(Target* in)
 {
     if(in == NULL)
-    	visit_null("HIR_target");
+    	visit_null("Target");
     else
     {
     	pre_target_chain(in);
@@ -2092,48 +2092,48 @@ void HIR_visitor::visit_target(HIR_target* in)
     }
 }
 
-void HIR_visitor::visit_variable_name_list(List<Token_variable_name*>* in)
+void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
 {
-    List<Token_variable_name*>::const_iterator i;
+    List<VARIABLE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Token_variable_name");
+    	visit_null_list("VARIABLE_NAME");
     else
     {
-    	pre_list("Token_variable_name", in->size());
+    	pre_list("VARIABLE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_variable_name(*i);
     	}
     
-    	post_list("Token_variable_name", in->size());
+    	post_list("VARIABLE_NAME", in->size());
     }
 }
 
-void HIR_visitor::visit_array_elem_list(List<HIR_array_elem*>* in)
+void Visitor::visit_array_elem_list(List<Array_elem*>* in)
 {
-    List<HIR_array_elem*>::const_iterator i;
+    List<Array_elem*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_array_elem");
+    	visit_null_list("Array_elem");
     else
     {
-    	pre_list("HIR_array_elem", in->size());
+    	pre_list("Array_elem", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_array_elem(*i);
     	}
     
-    	post_list("HIR_array_elem", in->size());
+    	post_list("Array_elem", in->size());
     }
 }
 
-void HIR_visitor::visit_array_elem(HIR_array_elem* in)
+void Visitor::visit_array_elem(Array_elem* in)
 {
     if(in == NULL)
-    	visit_null("HIR_array_elem");
+    	visit_null("Array_elem");
     else
     {
     	pre_array_elem_chain(in);
@@ -2142,10 +2142,10 @@ void HIR_visitor::visit_array_elem(HIR_array_elem* in)
     }
 }
 
-void HIR_visitor::visit_method_name(HIR_method_name* in)
+void Visitor::visit_method_name(Method_name* in)
 {
     if(in == NULL)
-    	visit_null("HIR_method_name");
+    	visit_null("Method_name");
     else
     {
     	pre_method_name_chain(in);
@@ -2154,29 +2154,29 @@ void HIR_visitor::visit_method_name(HIR_method_name* in)
     }
 }
 
-void HIR_visitor::visit_actual_parameter_list(List<HIR_actual_parameter*>* in)
+void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
 {
-    List<HIR_actual_parameter*>::const_iterator i;
+    List<Actual_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR_actual_parameter");
+    	visit_null_list("Actual_parameter");
     else
     {
-    	pre_list("HIR_actual_parameter", in->size());
+    	pre_list("Actual_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_actual_parameter(*i);
     	}
     
-    	post_list("HIR_actual_parameter", in->size());
+    	post_list("Actual_parameter", in->size());
     }
 }
 
-void HIR_visitor::visit_actual_parameter(HIR_actual_parameter* in)
+void Visitor::visit_actual_parameter(Actual_parameter* in)
 {
     if(in == NULL)
-    	visit_null("HIR_actual_parameter");
+    	visit_null("Actual_parameter");
     else
     {
     	pre_actual_parameter_chain(in);
@@ -2185,10 +2185,10 @@ void HIR_visitor::visit_actual_parameter(HIR_actual_parameter* in)
     }
 }
 
-void HIR_visitor::visit_php_script(HIR_php_script* in)
+void Visitor::visit_php_script(PHP_script* in)
 {
     if(in == NULL)
-    	visit_null("HIR_php_script");
+    	visit_null("PHP_script");
     else
     {
     	pre_php_script_chain(in);
@@ -2199,711 +2199,711 @@ void HIR_visitor::visit_php_script(HIR_php_script* in)
 
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
-void HIR_visitor::pre_statement_chain(HIR_statement* in)
+void Visitor::pre_statement_chain(Statement* in)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID:
-    	pre_class_def_chain(dynamic_cast<HIR_class_def*>(in));
+    case Class_def::ID:
+    	pre_class_def_chain(dynamic_cast<Class_def*>(in));
     	break;
-    case HIR_interface_def::ID:
-    	pre_interface_def_chain(dynamic_cast<HIR_interface_def*>(in));
+    case Interface_def::ID:
+    	pre_interface_def_chain(dynamic_cast<Interface_def*>(in));
     	break;
-    case HIR_method::ID:
-    	pre_method_chain(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	pre_method_chain(dynamic_cast<Method*>(in));
     	break;
-    case HIR_return::ID:
-    	pre_return_chain(dynamic_cast<HIR_return*>(in));
+    case Return::ID:
+    	pre_return_chain(dynamic_cast<Return*>(in));
     	break;
-    case HIR_static_declaration::ID:
-    	pre_static_declaration_chain(dynamic_cast<HIR_static_declaration*>(in));
+    case Static_declaration::ID:
+    	pre_static_declaration_chain(dynamic_cast<Static_declaration*>(in));
     	break;
-    case HIR_global::ID:
-    	pre_global_chain(dynamic_cast<HIR_global*>(in));
+    case Global::ID:
+    	pre_global_chain(dynamic_cast<Global*>(in));
     	break;
-    case HIR_try::ID:
-    	pre_try_chain(dynamic_cast<HIR_try*>(in));
+    case Try::ID:
+    	pre_try_chain(dynamic_cast<Try*>(in));
     	break;
-    case HIR_throw::ID:
-    	pre_throw_chain(dynamic_cast<HIR_throw*>(in));
+    case Throw::ID:
+    	pre_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case HIR_eval_expr::ID:
-    	pre_eval_expr_chain(dynamic_cast<HIR_eval_expr*>(in));
+    case Eval_expr::ID:
+    	pre_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
-    case HIR_label::ID:
-    	pre_label_chain(dynamic_cast<HIR_label*>(in));
+    case Label::ID:
+    	pre_label_chain(dynamic_cast<Label*>(in));
     	break;
-    case HIR_goto::ID:
-    	pre_goto_chain(dynamic_cast<HIR_goto*>(in));
+    case Goto::ID:
+    	pre_goto_chain(dynamic_cast<Goto*>(in));
     	break;
-    case HIR_branch::ID:
-    	pre_branch_chain(dynamic_cast<HIR_branch*>(in));
+    case Branch::ID:
+    	pre_branch_chain(dynamic_cast<Branch*>(in));
     	break;
-    case HIR_foreach_next::ID:
-    	pre_foreach_next_chain(dynamic_cast<HIR_foreach_next*>(in));
+    case Foreach_next::ID:
+    	pre_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
     	break;
-    case HIR_foreach_reset::ID:
-    	pre_foreach_reset_chain(dynamic_cast<HIR_foreach_reset*>(in));
+    case Foreach_reset::ID:
+    	pre_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
     	break;
-    case HIR_foreach_end::ID:
-    	pre_foreach_end_chain(dynamic_cast<HIR_foreach_end*>(in));
+    case Foreach_end::ID:
+    	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_member_chain(HIR_member* in)
+void Visitor::pre_member_chain(Member* in)
 {
     switch(in->classid())
     {
-    case HIR_method::ID:
-    	pre_method_chain(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	pre_method_chain(dynamic_cast<Method*>(in));
     	break;
-    case HIR_attribute::ID:
-    	pre_attribute_chain(dynamic_cast<HIR_attribute*>(in));
+    case Attribute::ID:
+    	pre_attribute_chain(dynamic_cast<Attribute*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_expr_chain(HIR_expr* in)
+void Visitor::pre_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	pre_assignment_chain(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	pre_cast_chain(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	pre_cast_chain(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	pre_unary_op_chain(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	pre_unary_op_chain(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	pre_bin_op_chain(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	pre_bin_op_chain(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	pre_constant_chain(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	pre_constant_chain(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	pre_instanceof_chain(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	pre_instanceof_chain(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	pre_variable_chain(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	pre_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	pre_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	pre_new_chain(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	pre_new_chain(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	pre_int_chain(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	pre_real_chain(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	pre_string_chain(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	pre_bool_chain(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	pre_null_chain(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	pre_foreach_has_key_chain(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	pre_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	pre_foreach_get_key_chain(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	pre_foreach_get_data_chain(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	pre_array_chain(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	pre_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_variable_name_chain(HIR_variable_name* in)
+void Visitor::pre_variable_name_chain(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID:
-    	pre_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	pre_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_class_name_chain(HIR_class_name* in)
+void Visitor::pre_class_name_chain(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID:
-    	pre_class_name_chain(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	pre_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_target_chain(HIR_target* in)
+void Visitor::pre_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	pre_assignment_chain(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	pre_cast_chain(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	pre_cast_chain(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	pre_unary_op_chain(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	pre_unary_op_chain(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	pre_bin_op_chain(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	pre_bin_op_chain(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	pre_constant_chain(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	pre_constant_chain(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	pre_instanceof_chain(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	pre_instanceof_chain(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	pre_variable_chain(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	pre_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	pre_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	pre_new_chain(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	pre_new_chain(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	pre_int_chain(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	pre_real_chain(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	pre_string_chain(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	pre_bool_chain(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	pre_null_chain(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	pre_foreach_has_key_chain(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	pre_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	pre_foreach_get_key_chain(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	pre_foreach_get_data_chain(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	pre_array_chain(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	pre_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
     	break;
-    case Token_class_name::ID:
-    	pre_class_name_chain(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
     }
 }
 
-void HIR_visitor::pre_method_name_chain(HIR_method_name* in)
+void Visitor::pre_method_name_chain(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID:
-    	pre_method_name_chain(dynamic_cast<Token_method_name*>(in));
+    case METHOD_NAME::ID:
+    	pre_method_name_chain(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	pre_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
 // Invoke the right post-chain (manual dispatching)
 // Do not override unless you know what you are doing
-void HIR_visitor::post_statement_chain(HIR_statement* in)
+void Visitor::post_statement_chain(Statement* in)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID:
-    	post_class_def_chain(dynamic_cast<HIR_class_def*>(in));
+    case Class_def::ID:
+    	post_class_def_chain(dynamic_cast<Class_def*>(in));
     	break;
-    case HIR_interface_def::ID:
-    	post_interface_def_chain(dynamic_cast<HIR_interface_def*>(in));
+    case Interface_def::ID:
+    	post_interface_def_chain(dynamic_cast<Interface_def*>(in));
     	break;
-    case HIR_method::ID:
-    	post_method_chain(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	post_method_chain(dynamic_cast<Method*>(in));
     	break;
-    case HIR_return::ID:
-    	post_return_chain(dynamic_cast<HIR_return*>(in));
+    case Return::ID:
+    	post_return_chain(dynamic_cast<Return*>(in));
     	break;
-    case HIR_static_declaration::ID:
-    	post_static_declaration_chain(dynamic_cast<HIR_static_declaration*>(in));
+    case Static_declaration::ID:
+    	post_static_declaration_chain(dynamic_cast<Static_declaration*>(in));
     	break;
-    case HIR_global::ID:
-    	post_global_chain(dynamic_cast<HIR_global*>(in));
+    case Global::ID:
+    	post_global_chain(dynamic_cast<Global*>(in));
     	break;
-    case HIR_try::ID:
-    	post_try_chain(dynamic_cast<HIR_try*>(in));
+    case Try::ID:
+    	post_try_chain(dynamic_cast<Try*>(in));
     	break;
-    case HIR_throw::ID:
-    	post_throw_chain(dynamic_cast<HIR_throw*>(in));
+    case Throw::ID:
+    	post_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case HIR_eval_expr::ID:
-    	post_eval_expr_chain(dynamic_cast<HIR_eval_expr*>(in));
+    case Eval_expr::ID:
+    	post_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
-    case HIR_label::ID:
-    	post_label_chain(dynamic_cast<HIR_label*>(in));
+    case Label::ID:
+    	post_label_chain(dynamic_cast<Label*>(in));
     	break;
-    case HIR_goto::ID:
-    	post_goto_chain(dynamic_cast<HIR_goto*>(in));
+    case Goto::ID:
+    	post_goto_chain(dynamic_cast<Goto*>(in));
     	break;
-    case HIR_branch::ID:
-    	post_branch_chain(dynamic_cast<HIR_branch*>(in));
+    case Branch::ID:
+    	post_branch_chain(dynamic_cast<Branch*>(in));
     	break;
-    case HIR_foreach_next::ID:
-    	post_foreach_next_chain(dynamic_cast<HIR_foreach_next*>(in));
+    case Foreach_next::ID:
+    	post_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
     	break;
-    case HIR_foreach_reset::ID:
-    	post_foreach_reset_chain(dynamic_cast<HIR_foreach_reset*>(in));
+    case Foreach_reset::ID:
+    	post_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
     	break;
-    case HIR_foreach_end::ID:
-    	post_foreach_end_chain(dynamic_cast<HIR_foreach_end*>(in));
+    case Foreach_end::ID:
+    	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_member_chain(HIR_member* in)
+void Visitor::post_member_chain(Member* in)
 {
     switch(in->classid())
     {
-    case HIR_method::ID:
-    	post_method_chain(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	post_method_chain(dynamic_cast<Method*>(in));
     	break;
-    case HIR_attribute::ID:
-    	post_attribute_chain(dynamic_cast<HIR_attribute*>(in));
+    case Attribute::ID:
+    	post_attribute_chain(dynamic_cast<Attribute*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_expr_chain(HIR_expr* in)
+void Visitor::post_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	post_assignment_chain(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	post_assignment_chain(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	post_cast_chain(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	post_cast_chain(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	post_unary_op_chain(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	post_unary_op_chain(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	post_bin_op_chain(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	post_bin_op_chain(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	post_constant_chain(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	post_constant_chain(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	post_instanceof_chain(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	post_instanceof_chain(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	post_variable_chain(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	post_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	post_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	post_new_chain(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	post_new_chain(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	post_int_chain(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	post_real_chain(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	post_string_chain(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	post_bool_chain(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	post_null_chain(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	post_foreach_has_key_chain(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	post_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	post_foreach_get_key_chain(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	post_foreach_get_data_chain(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	post_array_chain(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	post_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_variable_name_chain(HIR_variable_name* in)
+void Visitor::post_variable_name_chain(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID:
-    	post_variable_name_chain(dynamic_cast<Token_variable_name*>(in));
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	post_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	post_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_class_name_chain(HIR_class_name* in)
+void Visitor::post_class_name_chain(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID:
-    	post_class_name_chain(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	post_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	post_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_target_chain(HIR_target* in)
+void Visitor::post_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	post_assignment_chain(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	post_assignment_chain(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	post_cast_chain(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	post_cast_chain(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	post_unary_op_chain(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	post_unary_op_chain(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	post_bin_op_chain(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	post_bin_op_chain(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	post_constant_chain(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	post_constant_chain(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	post_instanceof_chain(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	post_instanceof_chain(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	post_variable_chain(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	post_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	post_method_invocation_chain(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	post_new_chain(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	post_new_chain(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	post_int_chain(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	post_real_chain(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	post_string_chain(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	post_bool_chain(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	post_null_chain(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	post_foreach_has_key_chain(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	post_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	post_foreach_get_key_chain(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	post_foreach_get_data_chain(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	post_array_chain(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	post_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
     	break;
-    case Token_class_name::ID:
-    	post_class_name_chain(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
     }
 }
 
-void HIR_visitor::post_method_name_chain(HIR_method_name* in)
+void Visitor::post_method_name_chain(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID:
-    	post_method_name_chain(dynamic_cast<Token_method_name*>(in));
+    case METHOD_NAME::ID:
+    	post_method_name_chain(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	post_reflection_chain(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	post_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
 // Invoke the right visit-children (manual dispatching)
 // Do not override unless you know what you are doing
-void HIR_visitor::children_statement(HIR_statement* in)
+void Visitor::children_statement(Statement* in)
 {
     switch(in->classid())
     {
-    case HIR_class_def::ID:
-    	children_class_def(dynamic_cast<HIR_class_def*>(in));
+    case Class_def::ID:
+    	children_class_def(dynamic_cast<Class_def*>(in));
     	break;
-    case HIR_interface_def::ID:
-    	children_interface_def(dynamic_cast<HIR_interface_def*>(in));
+    case Interface_def::ID:
+    	children_interface_def(dynamic_cast<Interface_def*>(in));
     	break;
-    case HIR_method::ID:
-    	children_method(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case HIR_return::ID:
-    	children_return(dynamic_cast<HIR_return*>(in));
+    case Return::ID:
+    	children_return(dynamic_cast<Return*>(in));
     	break;
-    case HIR_static_declaration::ID:
-    	children_static_declaration(dynamic_cast<HIR_static_declaration*>(in));
+    case Static_declaration::ID:
+    	children_static_declaration(dynamic_cast<Static_declaration*>(in));
     	break;
-    case HIR_global::ID:
-    	children_global(dynamic_cast<HIR_global*>(in));
+    case Global::ID:
+    	children_global(dynamic_cast<Global*>(in));
     	break;
-    case HIR_try::ID:
-    	children_try(dynamic_cast<HIR_try*>(in));
+    case Try::ID:
+    	children_try(dynamic_cast<Try*>(in));
     	break;
-    case HIR_throw::ID:
-    	children_throw(dynamic_cast<HIR_throw*>(in));
+    case Throw::ID:
+    	children_throw(dynamic_cast<Throw*>(in));
     	break;
-    case HIR_eval_expr::ID:
-    	children_eval_expr(dynamic_cast<HIR_eval_expr*>(in));
+    case Eval_expr::ID:
+    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
-    case HIR_label::ID:
-    	children_label(dynamic_cast<HIR_label*>(in));
+    case Label::ID:
+    	children_label(dynamic_cast<Label*>(in));
     	break;
-    case HIR_goto::ID:
-    	children_goto(dynamic_cast<HIR_goto*>(in));
+    case Goto::ID:
+    	children_goto(dynamic_cast<Goto*>(in));
     	break;
-    case HIR_branch::ID:
-    	children_branch(dynamic_cast<HIR_branch*>(in));
+    case Branch::ID:
+    	children_branch(dynamic_cast<Branch*>(in));
     	break;
-    case HIR_foreach_next::ID:
-    	children_foreach_next(dynamic_cast<HIR_foreach_next*>(in));
+    case Foreach_next::ID:
+    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
     	break;
-    case HIR_foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<HIR_foreach_reset*>(in));
+    case Foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
     	break;
-    case HIR_foreach_end::ID:
-    	children_foreach_end(dynamic_cast<HIR_foreach_end*>(in));
+    case Foreach_end::ID:
+    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_member(HIR_member* in)
+void Visitor::children_member(Member* in)
 {
     switch(in->classid())
     {
-    case HIR_method::ID:
-    	children_method(dynamic_cast<HIR_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case HIR_attribute::ID:
-    	children_attribute(dynamic_cast<HIR_attribute*>(in));
+    case Attribute::ID:
+    	children_attribute(dynamic_cast<Attribute*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_expr(HIR_expr* in)
+void Visitor::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	children_assignment(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	children_cast(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	children_unary_op(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	children_constant(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	children_instanceof(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	children_variable(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	children_new(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_variable_name(HIR_variable_name* in)
+void Visitor::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID:
-    	children_variable_name(dynamic_cast<Token_variable_name*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_class_name(HIR_class_name* in)
+void Visitor::children_class_name(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_target(HIR_target* in)
+void Visitor::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case HIR_assignment::ID:
-    	children_assignment(dynamic_cast<HIR_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case HIR_cast::ID:
-    	children_cast(dynamic_cast<HIR_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case HIR_unary_op::ID:
-    	children_unary_op(dynamic_cast<HIR_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case HIR_bin_op::ID:
-    	children_bin_op(dynamic_cast<HIR_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case HIR_constant::ID:
-    	children_constant(dynamic_cast<HIR_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case HIR_instanceof::ID:
-    	children_instanceof(dynamic_cast<HIR_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case HIR_variable::ID:
-    	children_variable(dynamic_cast<HIR_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case HIR_pre_op::ID:
-    	children_pre_op(dynamic_cast<HIR_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case HIR_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<HIR_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case HIR_new::ID:
-    	children_new(dynamic_cast<HIR_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case HIR_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<HIR_foreach_has_key*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case HIR_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<HIR_foreach_get_key*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case HIR_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<HIR_foreach_get_data*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case HIR_array::ID:
-    	children_array(dynamic_cast<HIR_array*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
     }
 }
 
-void HIR_visitor::children_method_name(HIR_method_name* in)
+void Visitor::children_method_name(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID:
-    	children_method_name(dynamic_cast<Token_method_name*>(in));
+    case METHOD_NAME::ID:
+    	children_method_name(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case HIR_reflection::ID:
-    	children_reflection(dynamic_cast<HIR_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }

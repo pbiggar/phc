@@ -23,147 +23,144 @@ use namespace "HIR";
    Top-level structure	
 -}
 
-php_script ::= statement* ;
+PHP_script ::= Statement* ;
 
-statement ::=
-     class_def | interface_def | method
-	  | return | static_declaration | global
-	  | try | throw | eval_expr
-	  | label | goto | branch
-	  | foreach_next | foreach_reset | foreach_end
---   | assign_var | assign_var_var | assign_array | push_array
-	  ;
+Statement ::=
+     Class_def | Interface_def | Method
+	| Return | Static_declaration | Global
+	| Try | Throw | Eval_expr
+	| Label | Goto | Branch
+	| Foreach_next | Foreach_reset | Foreach_end
+-- | Assign_var | Assign_var_var | Assign_array | Push_array
+	;
 
 {-
 	Class and method definitions
 -}
 
-class_def ::= 
-   class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* member* ;
-class_mod ::= "abstract"? "final"? ;
+Class_def ::= 
+   Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ;
+Class_mod ::= "abstract"? "final"? ;
 
-interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* member* ;
+Interface_def ::= INTERFACE_NAME extends:INTERFACE_NAME* Member* ;
 
-member ::= method | attribute ;
+Member ::= Method | Attribute ;
 
-method ::= signature statement*? ;
-signature ::= method_mod is_ref:"&"? METHOD_NAME formal_parameter* ;
-method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
-formal_parameter ::= type is_ref:"&"? var:name_with_default ;
--- formal_parameter ::= type is_ref:"&"? VARIABLE_NAME static_value? ;
-type ::= CLASS_NAME? ;
+Method ::= Signature Statement*? ;
+Signature ::= Method_mod is_ref:"&"? METHOD_NAME Formal_parameter* ;
+Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? ;
+Formal_parameter ::= Type is_ref:"&"? var:Name_with_default ;
+Type ::= CLASS_NAME? ;
 
-attribute ::= attr_mod var:name_with_default ;
--- attribute ::= attr_mod VARIABLE_NAME static_value? ;
-attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
+Attribute ::= Attr_mod var:Name_with_default ;
+Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
-name_with_default ::= VARIABLE_NAME expr? ;
+Name_with_default ::= VARIABLE_NAME Expr? ;
 
 {-
    Statements
 -}
 
-return ::= expr? ;
--- return ::= VARIABLE_NAME? ;
+Return ::= Expr? ;
+-- Return ::= VARIABLE_NAME? ;
 
-static_declaration ::= var:name_with_default ;
--- static_declaration ::= VARIABLE_NAME static_value? ;
-global ::= variable_name ;
--- variable_name ::= VARIABLE_NAME | variable_variable;
+Static_declaration ::= var:Name_with_default ;
+Global ::= Variable_name ;
+-- Variable_name ::= VARIABLE_NAME | Variable_variable;
 
-try ::= statement* catches:catch* ;
-catch ::= CLASS_NAME VARIABLE_NAME statement* ;
-throw ::= expr ;
--- throw ::= VARIABLE_NAME ;
+Try ::= Statement* catches:Catch* ;
+Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
+Throw ::= Expr ;
+-- Throw ::= VARIABLE_NAME ;
 
-eval_expr ::= expr ;
+Eval_expr ::= Expr ;
 
 {-
    HIR constructs (without a PHP equivalent)
 -}
 
-branch ::= expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
-goto ::= LABEL_NAME ;
-label ::= LABEL_NAME ;
+Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+Goto ::= LABEL_NAME ;
+Label ::= LABEL_NAME ;
 
-foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
-foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
-foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
-foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
-foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
-foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
 
--- assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:expr ;
--- assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
--- assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
--- push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
+-- Assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:Expr ;
+-- Assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
+-- Assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
+-- Push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
 
 
 {-
    Expressions
 -}
 
-expr ::=
-     assignment 
-	  | cast | unary_op | bin_op 
-	  | constant | instanceof
-	  | variable | pre_op 
-	  | method_invocation | new 
-	  | literal 
-	  | foreach_has_key | foreach_get_key | foreach_get_data
-	  | array
-	  --   | variable_name | index_array
-	  ;
+Expr ::=
+     Assignment 
+	| Cast | Unary_op | Bin_op 
+	| Constant | Instanceof
+	| Variable | Pre_op 
+	| Method_invocation | New 
+	| Literal 
+	| Array
+-- | Variable_name | Index_array
+	| Foreach_has_key | Foreach_get_key | Foreach_get_data
+	;
 
-literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NULL<> ;
+Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    
-assignment ::= variable is_ref:"&"? expr ;
--- index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
--- variable_variable ::= VARIABLE_NAME ; 
+Assignment ::= Variable is_ref:"&"? Expr ;
+-- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
+-- Variable_variable ::= VARIABLE_NAME ; 
 
 
-cast     ::= CAST VARIABLE_NAME ;
-unary_op ::= OP VARIABLE_NAME ;
-bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
+Cast     ::= CAST VARIABLE_NAME ;
+Unary_op ::= OP VARIABLE_NAME ;
+Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
 
 
-constant ::= CLASS_NAME? CONSTANT_NAME ;
+Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
-instanceof ::= VARIABLE_NAME class_name ;
+Instanceof ::= VARIABLE_NAME Class_name ;
 
-variable ::= target? variable_name array_indices:VARIABLE_NAME?* ;
-variable_name ::= VARIABLE_NAME | reflection ;
-reflection ::= VARIABLE_NAME ;
+Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ;
+Variable_name ::= VARIABLE_NAME | Reflection ;
+Reflection ::= VARIABLE_NAME ;
 
-target ::= expr | CLASS_NAME ;
--- target ::= VARIABLE_NAME | CLASS_NAME;
+Target ::= Expr | CLASS_NAME ;
+-- Target ::= VARIABLE_NAME | CLASS_NAME;
 
-pre_op ::= OP variable ;
+Pre_op ::= OP Variable ;
 
-array ::= array_elem* ;
-array_elem ::= key:expr? is_ref:"&"? val:expr ;
+Array ::= Array_elem* ;
+Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
 
-method_invocation ::= target? method_name actual_parameter* ;
-method_name ::= METHOD_NAME | reflection ;
+Method_invocation ::= Target? Method_name Actual_parameter* ;
+Method_name ::= METHOD_NAME | Reflection ;
 
--- actual_parameter ::= is_ref:"&"? expr ;
-actual_parameter ::= is_ref:"&"? target? variable_name array_indices:VARIABLE_NAME?* ;
+-- Actual_parameter ::= is_ref:"&"? Expr ;
+Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NAME?* ;
 
-new ::= class_name actual_parameter* ;
-class_name ::= CLASS_NAME | reflection ;
+New ::= Class_name Actual_parameter* ;
+Class_name ::= CLASS_NAME | Reflection ;
 
--- static_value ::= literal | static_array | constant ;
+-- Static_value ::= Literal | Static_array | Constant ;
  
--- static_array      ::= static_array_elem* ;
--- static_array_elem ::= static_array_key? is_ref:"&"? val:static_value ;
--- static_array_key  ::= literal | constant ; 
+-- Static_array      ::= Static_array_elem* ;
+-- Static_array_elem ::= Static_array_key? is_ref:"&"? val:Static_value ;
+-- Static_array_key  ::= Literal | Constant ; 
 
 
 {-
  - Additional structure 
  -}
 
-identifier ::=
+Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
 	  | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	;  
@@ -183,7 +180,7 @@ identifier ::=
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 
-class HIR_node : Object 
+class Node : Object 
 {
 public:
 	AttrMap* attrs;
@@ -204,15 +201,15 @@ public:
 		return dynamic_cast<String*>(attrs->get("phc.filename"));
 	}
 
-	HIR_node()
+	Node()
 	{
 		// Constructor gets called because all classes inherit from
-		// HIR_node virtually; also, because maketea knows HIR_node is
+		// Node virtually; also, because maketea knows Node is
 		// abstract, it won't add a constructor itself
 		attrs = new AttrMap();
 	}
 
-	void clone_mixin_from(HIR_node* in)
+	void clone_mixin_from(Node* in)
 	{
 		attrs = in->attrs->clone();
 	}
@@ -232,7 +229,7 @@ public:
 		}
 	}
 
-	bool is_mixin_equal(HIR_node* in)
+	bool is_mixin_equal(Node* in)
 	{
 		// Compare line number and filename
 		// (We can't compare the entire attrs map because Object cannot
@@ -263,22 +260,22 @@ public:
 	}
 };
 
-class HIR_signature 
+class Signature 
 {
 public:
-	HIR_signature(const char* name) 
+	Signature(const char* name) 
 	{
-		this->method_mod = HIR_method_mod::new_PUBLIC();
+		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new Token_method_name(new String(name));
-		this->formal_parameters = new List<HIR_formal_parameter*>;
+		this->method_name = new METHOD_NAME(new String(name));
+		this->formal_parameters = new List<Formal_parameter*>;
 	}
 };
 
-class HIR_method_mod 
+class Method_mod 
 {
 public:
-	HIR_method_mod()
+	Method_mod()
 	{
 		is_public = false;
 		is_protected = false;
@@ -288,7 +285,7 @@ public:
 		is_final = false;
 	}
 
-	HIR_method_mod(HIR_method_mod* a, HIR_method_mod* b) 
+	Method_mod(Method_mod* a, Method_mod* b) 
 	{
 		this->is_public 		= a->is_public		|| b->is_public;
 		this->is_protected	= a->is_protected	|| b->is_protected;
@@ -298,70 +295,70 @@ public:
 		this->is_final			= a->is_final		|| b->is_final;
 	}
 
-	static HIR_method_mod* new_PUBLIC() 
+	static Method_mod* new_PUBLIC() 
 	{
-		return new HIR_method_mod(true, false, false, false, false, false);		
+		return new Method_mod(true, false, false, false, false, false);		
 	}
 
-	static HIR_method_mod* new_PROTECTED() 
+	static Method_mod* new_PROTECTED() 
 	{ 
-		return new HIR_method_mod(false, true, false, false, false, false);		
+		return new Method_mod(false, true, false, false, false, false);		
 	}
 
-	static HIR_method_mod* new_PRIVATE() 
+	static Method_mod* new_PRIVATE() 
 	{ 
-		return new HIR_method_mod(false, false, true, false, false, false);		
+		return new Method_mod(false, false, true, false, false, false);		
 	}
 
-	static HIR_method_mod* new_STATIC() 
+	static Method_mod* new_STATIC() 
 	{ 
-		return new HIR_method_mod(false, false, false, true, false, false);		
+		return new Method_mod(false, false, false, true, false, false);		
 	}
 
-	static HIR_method_mod* new_ABSTRACT() 
+	static Method_mod* new_ABSTRACT() 
 	{ 
-		return new HIR_method_mod(false, false, false, false, true, false);		
+		return new Method_mod(false, false, false, false, true, false);		
 	}
 
-	static HIR_method_mod* new_FINAL() 
+	static Method_mod* new_FINAL() 
 	{ 
-		return new HIR_method_mod(false, false, false, false, false, true);		
+		return new Method_mod(false, false, false, false, false, true);		
 	}
 };
 
-class HIR_class_def
+class Class_def
 {
 public:
-	HIR_class_def(HIR_class_mod* mod) 
+	Class_def(Class_mod* mod) 
 	{
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<HIR_member*>;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
 	}
 
-	HIR_class_def(const char* name)
+	Class_def(const char* name)
 	{
-		this->class_mod = new HIR_class_mod(false, false);
-		this->class_name = new Token_class_name(new String(name));
+		this->class_mod = new Class_mod(false, false);
+		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<Token_interface_name*>;
-		this->members = new List<HIR_member*>;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
 	}
 
-	void add_member(HIR_member* member) 
+	void add_member(Member* member) 
 	{
 		this->members->push_back(member);
 	}
 
 	// Returns NULL if the method could not be found
-	HIR_method* get_method(const char* name)
+	Method* get_method(const char* name)
 	{
-		List<HIR_member*>::const_iterator i;
+		List<Member*>::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
-			HIR_method* method = dynamic_cast<HIR_method*>(*i);
+			Method* method = dynamic_cast<Method*>(*i);
 			if(method && *method->signature->method_name->value == name)
 				return method;
 		}
@@ -370,7 +367,7 @@ public:
 	}
 };
 
-class HIR_eval_expr
+class Eval_expr
 {
 public:
 	void _init()
@@ -379,57 +376,57 @@ public:
 	}
 };
 
-class HIR_variable
+class Variable
 {
 public:
-	HIR_variable(HIR_variable_name* name) 
+	Variable(Variable_name* name) 
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Token_variable_name*>;
+		this->array_indices = new List<VARIABLE_NAME*>;
 	}
 };
 
-class HIR_method_invocation
+class Method_invocation
 {
 public:
-	HIR_method_invocation(const char* name, HIR_actual_parameter* arg) 
+	Method_invocation(const char* name, Actual_parameter* arg) 
 	{ 
 		this->target = NULL;
-		this->method_name = new Token_method_name(new String(name));
-		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
+		this->method_name = new METHOD_NAME(new String(name));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 
-	HIR_method_invocation(Token_method_name* name, HIR_actual_parameter* arg) 
+	Method_invocation(METHOD_NAME* name, Actual_parameter* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<HIR_actual_parameter*> (arg);
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 };
 
-class HIR_formal_parameter
+class Formal_parameter
 {
 public:
-	HIR_formal_parameter(HIR_type* type, Token_variable_name* name) 
+	Formal_parameter(Type* type, VARIABLE_NAME* name) 
 	{
 		this->type = type;
 		this->is_ref = false;
-		this->var = new HIR_name_with_default(name, NULL);
+		this->var = new Name_with_default(name, NULL);
 	}
 
-	HIR_formal_parameter(HIR_type* type, bool is_ref, Token_variable_name* name) 
+	Formal_parameter(Type* type, bool is_ref, VARIABLE_NAME* name) 
 	{ 
 		this->type = type;
 		this->is_ref = is_ref;
-		this->var = new HIR_name_with_default(name, NULL);
+		this->var = new Name_with_default(name, NULL);
 	}
 };
 
-class HIR_attr_mod
+class Attr_mod
 {
 public:
-	HIR_attr_mod()
+	Attr_mod()
 	{
 		is_public = false;
 		is_protected = false;
@@ -438,7 +435,7 @@ public:
 		is_const = false;
 	}
 
-	HIR_attr_mod(HIR_method_mod* mm) 
+	Attr_mod(Method_mod* mm) 
 	{
 		if(mm->is_final)
 			phc_error("The final modifier is only allowed for methods", mm->get_filename(), mm->get_line_number());
@@ -450,87 +447,87 @@ public:
 		this->is_const = false;
 	}
 
-	static HIR_attr_mod* new_PUBLIC() 
+	static Attr_mod* new_PUBLIC() 
 	{
-		return new HIR_attr_mod(true, false, false, false, false);
+		return new Attr_mod(true, false, false, false, false);
 	}
 
-	static HIR_attr_mod* new_PROTECTED() 
+	static Attr_mod* new_PROTECTED() 
 	{ 
-		return new HIR_attr_mod(false, true, false, false, false);
+		return new Attr_mod(false, true, false, false, false);
 	}
 
-	static HIR_attr_mod* new_PRIVATE() 
+	static Attr_mod* new_PRIVATE() 
 	{
-		return new HIR_attr_mod(false, false, true, false, false);
+		return new Attr_mod(false, false, true, false, false);
 	}
 
-	static HIR_attr_mod* new_STATIC() 
+	static Attr_mod* new_STATIC() 
 	{
-		return new HIR_attr_mod(false, false, false, true, false);
+		return new Attr_mod(false, false, false, true, false);
 	}
 	
-	static HIR_attr_mod* new_CONST() 
+	static Attr_mod* new_CONST() 
 	{
-		return new HIR_attr_mod(false, false, false, false, true);
+		return new Attr_mod(false, false, false, false, true);
 	}
 };
 
-class HIR_bin_op
+class Bin_op
 {
 public:
-	HIR_bin_op(Token_variable_name* left, Token_variable_name* right, const char* op) 
+	Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op) 
 	{
 		this->left = left;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 		this->right = right;
 	}
 };
 
-class HIR_pre_op
+class Pre_op
 {
 public:
-	HIR_pre_op(HIR_variable* var, const char* op) 
+	Pre_op(Variable* var, const char* op) 
 	{
 		this->variable = var;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 	}
 };
 
-class HIR_unary_op
+class Unary_op
 {
 public:
-	HIR_unary_op(Token_variable_name* variable_name, const char* op) 
+	Unary_op(VARIABLE_NAME* variable_name, const char* op) 
 	{
 		this->variable_name = variable_name;
-		this->op = new Token_op(new String(op));
+		this->op = new OP(new String(op));
 	}
 };
 
-class HIR_cast
+class Cast
 {
 public:
-	HIR_cast(const char* cast, Token_variable_name* variable_name) 
+	Cast(const char* cast, VARIABLE_NAME* variable_name) 
 	{
-		this->cast = new Token_cast(new String(cast));
+		this->cast = new CAST(new String(cast));
 		this->variable_name = variable_name;
 	}
 };
 
-class HIR_identifier
+class Identifier
 {
 public:
 	virtual String* get_value_as_string() = 0;
 };
 
-class HIR_literal
+class Literal
 {
 public:
 	virtual String* get_value_as_string() = 0;
 	virtual String* get_source_rep() = 0;
 };
 
-class Token_int
+class INT
 {
 private:
 
@@ -550,18 +547,18 @@ public:
 		return _get_value_as_string ();
 	}
 
-	Token_int (int v)
+	INT (int v)
 	{
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
 };
 
-class Token_real
+class REAL
 {
 private:
 
-	// See comment in Token_int::_get_value_as_string ()
+	// See comment in INT::_get_value_as_string ()
 	String* _get_value_as_string()
 	{
 		std::ostringstream os;
@@ -586,17 +583,17 @@ public:
 		return _get_value_as_string ();
 	}
 
-	Token_real (double v)
+	REAL (double v)
 	{
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
 };
 
-class Token_bool
+class BOOL
 {
 private:
-	// See comment in Token_int::_get_value_as_string ()
+	// See comment in INT::_get_value_as_string ()
 	String* _get_value_as_string()
 	{
 		if(value)
@@ -611,14 +608,14 @@ public:
 		return _get_value_as_string ();
 	}
 
-	Token_bool (bool v)
+	BOOL (bool v)
 	{
 		value = v;
 		source_rep = _get_value_as_string ();
 	}
 };
 
-class Token_string
+class STRING
 {
 public:
 	virtual String* get_value_as_string()
@@ -636,21 +633,21 @@ public:
 		return value->clone();
 	}
 
-	Token_string (String* v)
+	STRING (String* v)
 	{
 		value = v;
 		source_rep = v;
 	}
 };
 
-class Token_null
+class NIL
 {
 public:
 	virtual String* get_value_as_string()
 	{
 		return new String("NULL");
 	}
-	Token_null ()
+	NIL ()
 	{
 		source_rep = new String ("NULL");
 	}

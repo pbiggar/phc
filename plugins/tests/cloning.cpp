@@ -19,7 +19,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	is_run = true;
 
@@ -28,7 +28,7 @@ extern "C" void run (AST_php_script* in, Pass_manager* pm)
 	in->visit(&orig_cap);
 
 	// make a duplicate
-	AST_php_script* dup_script = in->clone();
+	PHP_script* dup_script = in->clone();
 	Collect_all_pointers dup_cap;
 	dup_script->visit(&dup_cap);
 

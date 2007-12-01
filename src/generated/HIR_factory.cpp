@@ -1,7 +1,7 @@
 #include "HIR_factory.h"
 
 namespace HIR{
-// If type_id corresponds to HIR node, the elements in args must
+// If type_id corresponds to an AST node, the elements in args must
 // correspond to the children of the node.
 // 
 // If type_id corresponds to a list (of the form "..._list"),
@@ -11,57 +11,59 @@ namespace HIR{
 // If type_id corresponds to a token (terminal symbol), args must
 // contain a single node of type String. Terminal symbols
 // with non-default values are not supported.
-Object* HIR_factory::create(char const* type_id, List<Object*>* args)
+// 
+// If the node type is not recognized, NULL is returned.
+Object* Node_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
-    if(!strcmp(type_id, "HIR_php_script"))
+    if(!strcmp(type_id, "PHP_script"))
     {
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_php_script(statements);
+    	return new PHP_script(statements);
     }
-    if(!strcmp(type_id, "HIR_class_def"))
+    if(!strcmp(type_id, "Class_def"))
     {
-    	HIR_class_mod* class_mod = dynamic_cast<HIR_class_mod*>(*i++);
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_class_name* extends = dynamic_cast<Token_class_name*>(*i++);
-    	List<Token_interface_name*>* implements = dynamic_cast<List<Token_interface_name*>*>(*i++);
-    	List<HIR_member*>* members = dynamic_cast<List<HIR_member*>*>(*i++);
+    	Class_mod* class_mod = dynamic_cast<Class_mod*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	CLASS_NAME* extends = dynamic_cast<CLASS_NAME*>(*i++);
+    	List<INTERFACE_NAME*>* implements = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
+    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_class_def(class_mod, class_name, extends, implements, members);
+    	return new Class_def(class_mod, class_name, extends, implements, members);
     }
-    if(!strcmp(type_id, "HIR_class_mod"))
+    if(!strcmp(type_id, "Class_mod"))
     {
     	bool is_abstract = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_final = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new HIR_class_mod(is_abstract, is_final);
+    	return new Class_mod(is_abstract, is_final);
     }
-    if(!strcmp(type_id, "HIR_interface_def"))
+    if(!strcmp(type_id, "Interface_def"))
     {
-    	Token_interface_name* interface_name = dynamic_cast<Token_interface_name*>(*i++);
-    	List<Token_interface_name*>* extends = dynamic_cast<List<Token_interface_name*>*>(*i++);
-    	List<HIR_member*>* members = dynamic_cast<List<HIR_member*>*>(*i++);
+    	INTERFACE_NAME* interface_name = dynamic_cast<INTERFACE_NAME*>(*i++);
+    	List<INTERFACE_NAME*>* extends = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
+    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_interface_def(interface_name, extends, members);
+    	return new Interface_def(interface_name, extends, members);
     }
-    if(!strcmp(type_id, "HIR_method"))
+    if(!strcmp(type_id, "Method"))
     {
-    	HIR_signature* signature = dynamic_cast<HIR_signature*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
+    	Signature* signature = dynamic_cast<Signature*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_method(signature, statements);
+    	return new Method(signature, statements);
     }
-    if(!strcmp(type_id, "HIR_signature"))
+    if(!strcmp(type_id, "Signature"))
     {
-    	HIR_method_mod* method_mod = dynamic_cast<HIR_method_mod*>(*i++);
+    	Method_mod* method_mod = dynamic_cast<Method_mod*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Token_method_name* method_name = dynamic_cast<Token_method_name*>(*i++);
-    	List<HIR_formal_parameter*>* formal_parameters = dynamic_cast<List<HIR_formal_parameter*>*>(*i++);
+    	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
+    	List<Formal_parameter*>* formal_parameters = dynamic_cast<List<Formal_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_signature(method_mod, is_ref, method_name, formal_parameters);
+    	return new Signature(method_mod, is_ref, method_name, formal_parameters);
     }
-    if(!strcmp(type_id, "HIR_method_mod"))
+    if(!strcmp(type_id, "Method_mod"))
     {
     	bool is_public = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_protected = dynamic_cast<Boolean*>(*i++)->value();
@@ -70,30 +72,30 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	bool is_abstract = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_final = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new HIR_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
+    	return new Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
     }
-    if(!strcmp(type_id, "HIR_formal_parameter"))
+    if(!strcmp(type_id, "Formal_parameter"))
     {
-    	HIR_type* type = dynamic_cast<HIR_type*>(*i++);
+    	Type* type = dynamic_cast<Type*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_name_with_default* var = dynamic_cast<HIR_name_with_default*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new HIR_formal_parameter(type, is_ref, var);
+    	return new Formal_parameter(type, is_ref, var);
     }
-    if(!strcmp(type_id, "HIR_type"))
+    if(!strcmp(type_id, "Type"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_type(class_name);
+    	return new Type(class_name);
     }
-    if(!strcmp(type_id, "HIR_attribute"))
+    if(!strcmp(type_id, "Attribute"))
     {
-    	HIR_attr_mod* attr_mod = dynamic_cast<HIR_attr_mod*>(*i++);
-    	HIR_name_with_default* var = dynamic_cast<HIR_name_with_default*>(*i++);
+    	Attr_mod* attr_mod = dynamic_cast<Attr_mod*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new HIR_attribute(attr_mod, var);
+    	return new Attribute(attr_mod, var);
     }
-    if(!strcmp(type_id, "HIR_attr_mod"))
+    if(!strcmp(type_id, "Attr_mod"))
     {
     	bool is_public = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_protected = dynamic_cast<Boolean*>(*i++)->value();
@@ -101,336 +103,335 @@ Object* HIR_factory::create(char const* type_id, List<Object*>* args)
     	bool is_static = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_const = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new HIR_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+    	return new Attr_mod(is_public, is_protected, is_private, is_static, is_const);
     }
-    if(!strcmp(type_id, "HIR_name_with_default"))
+    if(!strcmp(type_id, "Name_with_default"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_name_with_default(variable_name, expr);
+    	return new Name_with_default(variable_name, expr);
     }
-    if(!strcmp(type_id, "HIR_return"))
+    if(!strcmp(type_id, "Return"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_return(expr);
+    	return new Return(expr);
     }
-    if(!strcmp(type_id, "HIR_static_declaration"))
+    if(!strcmp(type_id, "Static_declaration"))
     {
-    	HIR_name_with_default* var = dynamic_cast<HIR_name_with_default*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new HIR_static_declaration(var);
+    	return new Static_declaration(var);
     }
-    if(!strcmp(type_id, "HIR_global"))
+    if(!strcmp(type_id, "Global"))
     {
-    	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_global(variable_name);
+    	return new Global(variable_name);
     }
-    if(!strcmp(type_id, "HIR_try"))
+    if(!strcmp(type_id, "Try"))
     {
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
-    	List<HIR_catch*>* catches = dynamic_cast<List<HIR_catch*>*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	List<Catch*>* catches = dynamic_cast<List<Catch*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_try(statements, catches);
+    	return new Try(statements, catches);
     }
-    if(!strcmp(type_id, "HIR_catch"))
+    if(!strcmp(type_id, "Catch"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	List<HIR_statement*>* statements = dynamic_cast<List<HIR_statement*>*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_catch(class_name, variable_name, statements);
+    	return new Catch(class_name, variable_name, statements);
     }
-    if(!strcmp(type_id, "HIR_throw"))
+    if(!strcmp(type_id, "Throw"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_throw(expr);
+    	return new Throw(expr);
     }
-    if(!strcmp(type_id, "HIR_eval_expr"))
+    if(!strcmp(type_id, "Eval_expr"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_eval_expr(expr);
+    	return new Eval_expr(expr);
     }
-    if(!strcmp(type_id, "HIR_branch"))
+    if(!strcmp(type_id, "Branch"))
     {
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
-    	Token_label_name* iftrue = dynamic_cast<Token_label_name*>(*i++);
-    	Token_label_name* iffalse = dynamic_cast<Token_label_name*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	LABEL_NAME* iftrue = dynamic_cast<LABEL_NAME*>(*i++);
+    	LABEL_NAME* iffalse = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_branch(expr, iftrue, iffalse);
+    	return new Branch(expr, iftrue, iffalse);
     }
-    if(!strcmp(type_id, "HIR_goto"))
+    if(!strcmp(type_id, "Goto"))
     {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_goto(label_name);
+    	return new Goto(label_name);
     }
-    if(!strcmp(type_id, "HIR_label"))
+    if(!strcmp(type_id, "Label"))
     {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_label(label_name);
+    	return new Label(label_name);
     }
-    if(!strcmp(type_id, "HIR_foreach_reset"))
+    if(!strcmp(type_id, "Foreach_reset"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_reset(variable_name, ht_iterator);
+    	return new Foreach_reset(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_foreach_next"))
+    if(!strcmp(type_id, "Foreach_next"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_next(variable_name, ht_iterator);
+    	return new Foreach_next(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_foreach_end"))
+    if(!strcmp(type_id, "Foreach_end"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_end(variable_name, ht_iterator);
+    	return new Foreach_end(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_foreach_has_key"))
+    if(!strcmp(type_id, "Foreach_has_key"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_has_key(variable_name, ht_iterator);
+    	return new Foreach_has_key(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_foreach_get_key"))
+    if(!strcmp(type_id, "Foreach_get_key"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_get_key(variable_name, ht_iterator);
+    	return new Foreach_get_key(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_foreach_get_data"))
+    if(!strcmp(type_id, "Foreach_get_data"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new HIR_foreach_get_data(variable_name, ht_iterator);
+    	return new Foreach_get_data(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "HIR_assignment"))
+    if(!strcmp(type_id, "Assignment"))
     {
-    	HIR_variable* variable = dynamic_cast<HIR_variable*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_expr* expr = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_assignment(variable, is_ref, expr);
+    	return new Assignment(variable, is_ref, expr);
     }
-    if(!strcmp(type_id, "HIR_cast"))
+    if(!strcmp(type_id, "Cast"))
     {
-    	Token_cast* cast = dynamic_cast<Token_cast*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	CAST* cast = dynamic_cast<CAST*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_cast(cast, variable_name);
+    	return new Cast(cast, variable_name);
     }
-    if(!strcmp(type_id, "HIR_unary_op"))
+    if(!strcmp(type_id, "Unary_op"))
     {
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_unary_op(op, variable_name);
+    	return new Unary_op(op, variable_name);
     }
-    if(!strcmp(type_id, "HIR_bin_op"))
+    if(!strcmp(type_id, "Bin_op"))
     {
-    	Token_variable_name* left = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	Token_variable_name* right = dynamic_cast<Token_variable_name*>(*i++);
+    	VARIABLE_NAME* left = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	VARIABLE_NAME* right = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_bin_op(left, op, right);
+    	return new Bin_op(left, op, right);
     }
-    if(!strcmp(type_id, "HIR_constant"))
+    if(!strcmp(type_id, "Constant"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_constant_name* constant_name = dynamic_cast<Token_constant_name*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	CONSTANT_NAME* constant_name = dynamic_cast<CONSTANT_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_constant(class_name, constant_name);
+    	return new Constant(class_name, constant_name);
     }
-    if(!strcmp(type_id, "HIR_instanceof"))
+    if(!strcmp(type_id, "Instanceof"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	HIR_class_name* class_name = dynamic_cast<HIR_class_name*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
     	assert(i == args->end());
-    	return new HIR_instanceof(variable_name, class_name);
+    	return new Instanceof(variable_name, class_name);
     }
-    if(!strcmp(type_id, "HIR_variable"))
+    if(!strcmp(type_id, "Variable"))
     {
-    	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
-    	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
-    	List<Token_variable_name*>* array_indices = dynamic_cast<List<Token_variable_name*>*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_variable(target, variable_name, array_indices);
+    	return new Variable(target, variable_name, array_indices);
     }
-    if(!strcmp(type_id, "HIR_reflection"))
+    if(!strcmp(type_id, "Reflection"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new HIR_reflection(variable_name);
+    	return new Reflection(variable_name);
     }
-    if(!strcmp(type_id, "HIR_pre_op"))
+    if(!strcmp(type_id, "Pre_op"))
     {
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	HIR_variable* variable = dynamic_cast<HIR_variable*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
     	assert(i == args->end());
-    	return new HIR_pre_op(op, variable);
+    	return new Pre_op(op, variable);
     }
-    if(!strcmp(type_id, "HIR_array"))
+    if(!strcmp(type_id, "Array"))
     {
-    	List<HIR_array_elem*>* array_elems = dynamic_cast<List<HIR_array_elem*>*>(*i++);
+    	List<Array_elem*>* array_elems = dynamic_cast<List<Array_elem*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_array(array_elems);
+    	return new Array(array_elems);
     }
-    if(!strcmp(type_id, "HIR_array_elem"))
+    if(!strcmp(type_id, "Array_elem"))
     {
-    	HIR_expr* key = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* key = dynamic_cast<Expr*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_expr* val = dynamic_cast<HIR_expr*>(*i++);
+    	Expr* val = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new HIR_array_elem(key, is_ref, val);
+    	return new Array_elem(key, is_ref, val);
     }
-    if(!strcmp(type_id, "HIR_method_invocation"))
+    if(!strcmp(type_id, "Method_invocation"))
     {
-    	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
-    	HIR_method_name* method_name = dynamic_cast<HIR_method_name*>(*i++);
-    	List<HIR_actual_parameter*>* actual_parameters = dynamic_cast<List<HIR_actual_parameter*>*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Method_name* method_name = dynamic_cast<Method_name*>(*i++);
+    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_method_invocation(target, method_name, actual_parameters);
+    	return new Method_invocation(target, method_name, actual_parameters);
     }
-    if(!strcmp(type_id, "HIR_actual_parameter"))
+    if(!strcmp(type_id, "Actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	HIR_target* target = dynamic_cast<HIR_target*>(*i++);
-    	HIR_variable_name* variable_name = dynamic_cast<HIR_variable_name*>(*i++);
-    	List<Token_variable_name*>* array_indices = dynamic_cast<List<Token_variable_name*>*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_actual_parameter(is_ref, target, variable_name, array_indices);
+    	return new Actual_parameter(is_ref, target, variable_name, array_indices);
     }
-    if(!strcmp(type_id, "HIR_new"))
+    if(!strcmp(type_id, "New"))
     {
-    	HIR_class_name* class_name = dynamic_cast<HIR_class_name*>(*i++);
-    	List<HIR_actual_parameter*>* actual_parameters = dynamic_cast<List<HIR_actual_parameter*>*>(*i++);
+    	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
+    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new HIR_new(class_name, actual_parameters);
+    	return new New(class_name, actual_parameters);
     }
-    if(!strcmp(type_id, "Token_class_name"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new Token_class_name(value);
-    }
-    if(!strcmp(type_id, "Token_interface_name"))
+    if(!strcmp(type_id, "CLASS_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_interface_name(value);
+    	return new CLASS_NAME(value);
     }
-    if(!strcmp(type_id, "Token_method_name"))
+    if(!strcmp(type_id, "INTERFACE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_method_name(value);
+    	return new INTERFACE_NAME(value);
     }
-    if(!strcmp(type_id, "Token_variable_name"))
+    if(!strcmp(type_id, "METHOD_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_variable_name(value);
+    	return new METHOD_NAME(value);
     }
-    if(!strcmp(type_id, "Token_label_name"))
+    if(!strcmp(type_id, "VARIABLE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_label_name(value);
+    	return new VARIABLE_NAME(value);
     }
-    if(!strcmp(type_id, "Token_ht_iterator"))
+    if(!strcmp(type_id, "LABEL_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_ht_iterator(value);
+    	return new LABEL_NAME(value);
     }
-    if(!strcmp(type_id, "Token_cast"))
+    if(!strcmp(type_id, "HT_ITERATOR"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_cast(value);
+    	return new HT_ITERATOR(value);
     }
-    if(!strcmp(type_id, "Token_op"))
+    if(!strcmp(type_id, "CAST"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_op(value);
+    	return new CAST(value);
     }
-    if(!strcmp(type_id, "Token_constant_name"))
+    if(!strcmp(type_id, "OP"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_constant_name(value);
+    	return new OP(value);
     }
-    if(!strcmp(type_id, "HIR_statement_list"))
+    if(!strcmp(type_id, "CONSTANT_NAME"))
     {
-    	List<HIR_statement*>* list = new List<HIR_statement*>;
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new CONSTANT_NAME(value);
+    }
+    if(!strcmp(type_id, "Statement_list"))
+    {
+    	List<Statement*>* list = new List<Statement*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_statement*>(*i++));
+    		list->push_back(dynamic_cast<Statement*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Token_interface_name_list"))
+    if(!strcmp(type_id, "INTERFACE_NAME_list"))
     {
-    	List<Token_interface_name*>* list = new List<Token_interface_name*>;
+    	List<INTERFACE_NAME*>* list = new List<INTERFACE_NAME*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Token_interface_name*>(*i++));
+    		list->push_back(dynamic_cast<INTERFACE_NAME*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_member_list"))
+    if(!strcmp(type_id, "Member_list"))
     {
-    	List<HIR_member*>* list = new List<HIR_member*>;
+    	List<Member*>* list = new List<Member*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_member*>(*i++));
+    		list->push_back(dynamic_cast<Member*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_formal_parameter_list"))
+    if(!strcmp(type_id, "Formal_parameter_list"))
     {
-    	List<HIR_formal_parameter*>* list = new List<HIR_formal_parameter*>;
+    	List<Formal_parameter*>* list = new List<Formal_parameter*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_formal_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_catch_list"))
+    if(!strcmp(type_id, "Catch_list"))
     {
-    	List<HIR_catch*>* list = new List<HIR_catch*>;
+    	List<Catch*>* list = new List<Catch*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_catch*>(*i++));
+    		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Token_variable_name_list"))
+    if(!strcmp(type_id, "VARIABLE_NAME_list"))
     {
-    	List<Token_variable_name*>* list = new List<Token_variable_name*>;
+    	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Token_variable_name*>(*i++));
+    		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_array_elem_list"))
+    if(!strcmp(type_id, "Array_elem_list"))
     {
-    	List<HIR_array_elem*>* list = new List<HIR_array_elem*>;
+    	List<Array_elem*>* list = new List<Array_elem*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_array_elem*>(*i++));
+    		list->push_back(dynamic_cast<Array_elem*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "HIR_actual_parameter_list"))
+    if(!strcmp(type_id, "Actual_parameter_list"))
     {
-    	List<HIR_actual_parameter*>* list = new List<HIR_actual_parameter*>;
+    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<HIR_actual_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;
     }
-    assert(0);
     return NULL;
 }
 }

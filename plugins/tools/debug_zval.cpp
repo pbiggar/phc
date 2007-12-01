@@ -12,7 +12,7 @@
 
 using namespace AST;
 
-class Debug_zval : public AST_transform
+class Debug_zval : public Transform
 {
 
 protected:
@@ -20,22 +20,22 @@ protected:
 	// can run after the HIR.
 	Pass_manager* pm; 
 
-	List<AST_statement*>* debugs;
+	List<Statement*>* debugs;
 public:
 
 	Debug_zval (Pass_manager* pm) : pm(pm)
 	{
-		debugs = new List<AST_statement*> ();
+		debugs = new List<Statement*> ();
 	}
 
-	void post_statement (AST_statement *in, List<AST_statement*>* out)
+	void post_statement (Statement *in, List<Statement*>* out)
 	{
 		out->push_back (in);
 		out->push_back_all (debugs);
 		debugs->clear ();
 	}
 
-	AST_variable* post_variable (AST_variable* var)
+	Variable* post_variable (Variable* var)
 	{
 		stringstream var_name;
 		var->visit (new AST_unparser (var_name));
@@ -44,19 +44,19 @@ public:
 		// If we dont shred it, we cant generate code for it
 
 		// printf ("\$var: ");
-		AST_statement* print = new AST_eval_expr (
-				new AST_method_invocation (
+		Statement* print = new Eval_expr (
+				new Method_invocation (
 					NULL,
-					new Token_method_name (new String ("printf")),
-					new List<AST_actual_parameter*> (
-						new AST_actual_parameter (false, 
-							new Token_string (new String (var_name.str ())))//,
-//						new AST_actual_parameter (false, 
-//							new Token_string (new String (": ")))
+					new METHOD_NAME (new String ("printf")),
+					new List<Actual_parameter*> (
+						new Actual_parameter (false, 
+							new STRING (new String (var_name.str ())))//,
+//						new Actual_parameter (false, 
+//							new STRING (new String (": ")))
 							)));
 
 		// Replace $x[] with just $x
-		AST_variable* dumped_var = var;
+		Variable* dumped_var = var;
 		if (var->array_indices->size () == 1 && var->array_indices->front() == NULL)
 		{
 			dumped_var = var->clone ();
@@ -64,21 +64,21 @@ public:
 		}
 
 		// debug_zval_dump ($var);
-		AST_statement* dump = new AST_eval_expr (
-				new AST_method_invocation (
+		Statement* dump = new Eval_expr (
+				new Method_invocation (
 					NULL,
-					new Token_method_name (new String ("debug_zval_dump")),
-					new List<AST_actual_parameter*> (
-						new AST_actual_parameter (false, dumped_var))));
+					new METHOD_NAME (new String ("debug_zval_dump")),
+					new List<Actual_parameter*> (
+						new Actual_parameter (false, dumped_var))));
 
 
-		/* In order to shred these, they must be wrapped in a AST_php_script
+		/* In order to shred these, they must be wrapped in a PHP_script
 		 * first
 		 * (Its hard to decide if this is a bug or not. Declaring it a bug would
-		 * mean that we'd have to support passing any AST_node to any point in
+		 * mean that we'd have to support passing any Node to any point in
 		 * the pass queue. I dont think that's a good idea). */
-		List<AST_statement*>* shredded = new List<AST_statement*> (print, dump);
-		IR* ir = new IR (new AST_php_script (shredded));
+		List<Statement*>* shredded = new List<Statement*> (print, dump);
+		IR* ir = new IR (new PHP_script (shredded));
 		pm->run_from_until (new String ("lcf"), new String ("shred"), ir);
 		debugs->push_back_all (shredded);
 
@@ -91,7 +91,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_before_named_pass (pass, "hir");
 }
 
-extern "C" void run (AST_node* in, Pass_manager* pm)
+extern "C" void run (Node* in, Pass_manager* pm)
 {
 	// We run the pass manager again on the generated code. We need to make sure
 	// we dont cause infinite recursion

@@ -51,7 +51,7 @@ void phc_internal_error (const char* message, String* filename, int line, ...)
 		exit(-1);
 }
 
-void phc_internal_error (const char* message, AST_node* node, ...)
+void phc_internal_error (const char* message, Node* node, ...)
 {
 	va_list argp;
 	va_start(argp, node);
@@ -84,7 +84,7 @@ void phc_error (const char* message, String* filename, int line, ...)
 		exit(-1);
 }
 
-void phc_error (const char* message, AST_node* node, ...)
+void phc_error (const char* message, Node* node, ...)
 {
 	va_list argp;
 	va_start(argp, node);
@@ -115,7 +115,7 @@ void phc_warning (const char* message, String* filename, int line, ...)
 	va_end(argp);
 }
 
-void phc_warning (const char* message, AST_node* node, ...)
+void phc_warning (const char* message, Node* node, ...)
 {
 	va_list argp;
 	va_start(argp, node);

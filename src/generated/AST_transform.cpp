@@ -1,769 +1,769 @@
 #include "AST_transform.h"
 
 namespace AST{
-AST_transform::~AST_transform()
+Transform::~Transform()
 {
 }
 
 // Invoked before the children are transformed
-AST_php_script* AST_transform::pre_php_script(AST_php_script* in)
+PHP_script* Transform::pre_php_script(PHP_script* in)
 {
     return in;
 }
 
-void AST_transform::pre_class_def(AST_class_def* in, List<AST_statement*>* out)
+void Transform::pre_class_def(Class_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-AST_class_mod* AST_transform::pre_class_mod(AST_class_mod* in)
+Class_mod* Transform::pre_class_mod(Class_mod* in)
 {
     return in;
 }
 
-void AST_transform::pre_interface_def(AST_interface_def* in, List<AST_statement*>* out)
+void Transform::pre_interface_def(Interface_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_method(AST_method* in, List<AST_method*>* out)
+void Transform::pre_method(Method* in, List<Method*>* out)
 {
     out->push_back(in);
 }
 
-AST_signature* AST_transform::pre_signature(AST_signature* in)
+Signature* Transform::pre_signature(Signature* in)
 {
     return in;
 }
 
-AST_method_mod* AST_transform::pre_method_mod(AST_method_mod* in)
+Method_mod* Transform::pre_method_mod(Method_mod* in)
 {
     return in;
 }
 
-void AST_transform::pre_formal_parameter(AST_formal_parameter* in, List<AST_formal_parameter*>* out)
+void Transform::pre_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
 {
     out->push_back(in);
 }
 
-AST_type* AST_transform::pre_type(AST_type* in)
+Type* Transform::pre_type(Type* in)
 {
     return in;
 }
 
-void AST_transform::pre_attribute(AST_attribute* in, List<AST_member*>* out)
+void Transform::pre_attribute(Attribute* in, List<Member*>* out)
 {
     out->push_back(in);
 }
 
-AST_attr_mod* AST_transform::pre_attr_mod(AST_attr_mod* in)
+Attr_mod* Transform::pre_attr_mod(Attr_mod* in)
 {
     return in;
 }
 
-AST_name_with_default* AST_transform::pre_name_with_default(AST_name_with_default* in)
+Name_with_default* Transform::pre_name_with_default(Name_with_default* in)
 {
     return in;
 }
 
-void AST_transform::pre_if(AST_if* in, List<AST_statement*>* out)
+void Transform::pre_if(If* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_while(AST_while* in, List<AST_statement*>* out)
+void Transform::pre_while(While* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_do(AST_do* in, List<AST_statement*>* out)
+void Transform::pre_do(Do* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_for(AST_for* in, List<AST_statement*>* out)
+void Transform::pre_for(For* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_foreach(AST_foreach* in, List<AST_statement*>* out)
+void Transform::pre_foreach(Foreach* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_switch(AST_switch* in, List<AST_statement*>* out)
+void Transform::pre_switch(Switch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_switch_case(AST_switch_case* in, List<AST_switch_case*>* out)
+void Transform::pre_switch_case(Switch_case* in, List<Switch_case*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_break(AST_break* in, List<AST_statement*>* out)
+void Transform::pre_break(Break* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_continue(AST_continue* in, List<AST_statement*>* out)
+void Transform::pre_continue(Continue* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_return(AST_return* in, List<AST_statement*>* out)
+void Transform::pre_return(Return* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_static_declaration(AST_static_declaration* in, List<AST_statement*>* out)
+void Transform::pre_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_global(AST_global* in, List<AST_statement*>* out)
+void Transform::pre_global(Global* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_declare(AST_declare* in, List<AST_statement*>* out)
+void Transform::pre_declare(Declare* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_directive(AST_directive* in, List<AST_directive*>* out)
+void Transform::pre_directive(Directive* in, List<Directive*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_try(AST_try* in, List<AST_statement*>* out)
+void Transform::pre_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_catch(AST_catch* in, List<AST_catch*>* out)
+void Transform::pre_catch(Catch* in, List<Catch*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_throw(AST_throw* in, List<AST_statement*>* out)
+void Transform::pre_throw(Throw* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_nop(AST_nop* in, List<AST_statement*>* out)
+void Transform::pre_nop(Nop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_branch(AST_branch* in, List<AST_statement*>* out)
+void Transform::pre_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_goto(AST_goto* in, List<AST_statement*>* out)
+void Transform::pre_goto(Goto* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_label(AST_label* in, List<AST_statement*>* out)
+void Transform::pre_label(Label* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_foreach_reset(AST_foreach_reset* in, List<AST_statement*>* out)
+void Transform::pre_foreach_reset(Foreach_reset* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_foreach_next(AST_foreach_next* in, List<AST_statement*>* out)
+void Transform::pre_foreach_next(Foreach_next* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::pre_foreach_end(AST_foreach_end* in, List<AST_statement*>* out)
+void Transform::pre_foreach_end(Foreach_end* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::pre_foreach_has_key(AST_foreach_has_key* in)
+Expr* Transform::pre_foreach_has_key(Foreach_has_key* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_foreach_get_key(AST_foreach_get_key* in)
+Expr* Transform::pre_foreach_get_key(Foreach_get_key* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_foreach_get_data(AST_foreach_get_data* in)
+Expr* Transform::pre_foreach_get_data(Foreach_get_data* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_assignment(AST_assignment* in)
+Expr* Transform::pre_assignment(Assignment* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_op_assignment(AST_op_assignment* in)
+Expr* Transform::pre_op_assignment(Op_assignment* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_list_assignment(AST_list_assignment* in)
+Expr* Transform::pre_list_assignment(List_assignment* in)
 {
     return in;
 }
 
-void AST_transform::pre_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out)
+void Transform::pre_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::pre_cast(AST_cast* in)
+Expr* Transform::pre_cast(Cast* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_unary_op(AST_unary_op* in)
+Expr* Transform::pre_unary_op(Unary_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_bin_op(AST_bin_op* in)
+Expr* Transform::pre_bin_op(Bin_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_conditional_expr(AST_conditional_expr* in)
+Expr* Transform::pre_conditional_expr(Conditional_expr* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_ignore_errors(AST_ignore_errors* in)
+Expr* Transform::pre_ignore_errors(Ignore_errors* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_constant(AST_constant* in)
+Expr* Transform::pre_constant(Constant* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_instanceof(AST_instanceof* in)
+Expr* Transform::pre_instanceof(Instanceof* in)
 {
     return in;
 }
 
-AST_variable* AST_transform::pre_variable(AST_variable* in)
+Variable* Transform::pre_variable(Variable* in)
 {
     return in;
 }
 
-AST_reflection* AST_transform::pre_reflection(AST_reflection* in)
+Reflection* Transform::pre_reflection(Reflection* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_pre_op(AST_pre_op* in)
+Expr* Transform::pre_pre_op(Pre_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_post_op(AST_post_op* in)
+Expr* Transform::pre_post_op(Post_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_array(AST_array* in)
+Expr* Transform::pre_array(Array* in)
 {
     return in;
 }
 
-void AST_transform::pre_array_elem(AST_array_elem* in, List<AST_array_elem*>* out)
+void Transform::pre_array_elem(Array_elem* in, List<Array_elem*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::pre_method_invocation(AST_method_invocation* in)
+Expr* Transform::pre_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-void AST_transform::pre_actual_parameter(AST_actual_parameter* in, List<AST_actual_parameter*>* out)
+void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::pre_new(AST_new* in)
+Expr* Transform::pre_new(New* in)
 {
     return in;
 }
 
-Token_class_name* AST_transform::pre_class_name(Token_class_name* in)
+CLASS_NAME* Transform::pre_class_name(CLASS_NAME* in)
 {
     return in;
 }
 
-Token_interface_name* AST_transform::pre_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::pre_interface_name(INTERFACE_NAME* in)
 {
     return in;
 }
 
-Token_method_name* AST_transform::pre_method_name(Token_method_name* in)
+METHOD_NAME* Transform::pre_method_name(METHOD_NAME* in)
 {
     return in;
 }
 
-Token_variable_name* AST_transform::pre_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
 {
     return in;
 }
 
-Token_directive_name* AST_transform::pre_directive_name(Token_directive_name* in)
+DIRECTIVE_NAME* Transform::pre_directive_name(DIRECTIVE_NAME* in)
 {
     return in;
 }
 
-Token_label_name* AST_transform::pre_label_name(Token_label_name* in)
+LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
 {
     return in;
 }
 
-Token_ht_iterator* AST_transform::pre_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_int(Token_int* in)
+Expr* Transform::pre_int(INT* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_real(Token_real* in)
+Expr* Transform::pre_real(REAL* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_string(Token_string* in)
+Expr* Transform::pre_string(STRING* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_bool(Token_bool* in)
+Expr* Transform::pre_bool(BOOL* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::pre_null(Token_null* in)
+Expr* Transform::pre_nil(NIL* in)
 {
     return in;
 }
 
-Token_op* AST_transform::pre_op(Token_op* in)
+OP* Transform::pre_op(OP* in)
 {
     return in;
 }
 
-Token_cast* AST_transform::pre_cast(Token_cast* in)
+CAST* Transform::pre_cast(CAST* in)
 {
     return in;
 }
 
-Token_constant_name* AST_transform::pre_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::pre_constant_name(CONSTANT_NAME* in)
 {
     return in;
 }
 
 // Invoked after the children have been transformed
-AST_php_script* AST_transform::post_php_script(AST_php_script* in)
+PHP_script* Transform::post_php_script(PHP_script* in)
 {
     return in;
 }
 
-void AST_transform::post_class_def(AST_class_def* in, List<AST_statement*>* out)
+void Transform::post_class_def(Class_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-AST_class_mod* AST_transform::post_class_mod(AST_class_mod* in)
+Class_mod* Transform::post_class_mod(Class_mod* in)
 {
     return in;
 }
 
-void AST_transform::post_interface_def(AST_interface_def* in, List<AST_statement*>* out)
+void Transform::post_interface_def(Interface_def* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_method(AST_method* in, List<AST_method*>* out)
+void Transform::post_method(Method* in, List<Method*>* out)
 {
     out->push_back(in);
 }
 
-AST_signature* AST_transform::post_signature(AST_signature* in)
+Signature* Transform::post_signature(Signature* in)
 {
     return in;
 }
 
-AST_method_mod* AST_transform::post_method_mod(AST_method_mod* in)
+Method_mod* Transform::post_method_mod(Method_mod* in)
 {
     return in;
 }
 
-void AST_transform::post_formal_parameter(AST_formal_parameter* in, List<AST_formal_parameter*>* out)
+void Transform::post_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
 {
     out->push_back(in);
 }
 
-AST_type* AST_transform::post_type(AST_type* in)
+Type* Transform::post_type(Type* in)
 {
     return in;
 }
 
-void AST_transform::post_attribute(AST_attribute* in, List<AST_member*>* out)
+void Transform::post_attribute(Attribute* in, List<Member*>* out)
 {
     out->push_back(in);
 }
 
-AST_attr_mod* AST_transform::post_attr_mod(AST_attr_mod* in)
+Attr_mod* Transform::post_attr_mod(Attr_mod* in)
 {
     return in;
 }
 
-AST_name_with_default* AST_transform::post_name_with_default(AST_name_with_default* in)
+Name_with_default* Transform::post_name_with_default(Name_with_default* in)
 {
     return in;
 }
 
-void AST_transform::post_if(AST_if* in, List<AST_statement*>* out)
+void Transform::post_if(If* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_while(AST_while* in, List<AST_statement*>* out)
+void Transform::post_while(While* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_do(AST_do* in, List<AST_statement*>* out)
+void Transform::post_do(Do* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_for(AST_for* in, List<AST_statement*>* out)
+void Transform::post_for(For* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_foreach(AST_foreach* in, List<AST_statement*>* out)
+void Transform::post_foreach(Foreach* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_switch(AST_switch* in, List<AST_statement*>* out)
+void Transform::post_switch(Switch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_switch_case(AST_switch_case* in, List<AST_switch_case*>* out)
+void Transform::post_switch_case(Switch_case* in, List<Switch_case*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_break(AST_break* in, List<AST_statement*>* out)
+void Transform::post_break(Break* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_continue(AST_continue* in, List<AST_statement*>* out)
+void Transform::post_continue(Continue* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_return(AST_return* in, List<AST_statement*>* out)
+void Transform::post_return(Return* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_static_declaration(AST_static_declaration* in, List<AST_statement*>* out)
+void Transform::post_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_global(AST_global* in, List<AST_statement*>* out)
+void Transform::post_global(Global* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_declare(AST_declare* in, List<AST_statement*>* out)
+void Transform::post_declare(Declare* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_directive(AST_directive* in, List<AST_directive*>* out)
+void Transform::post_directive(Directive* in, List<Directive*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_try(AST_try* in, List<AST_statement*>* out)
+void Transform::post_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_catch(AST_catch* in, List<AST_catch*>* out)
+void Transform::post_catch(Catch* in, List<Catch*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_throw(AST_throw* in, List<AST_statement*>* out)
+void Transform::post_throw(Throw* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_nop(AST_nop* in, List<AST_statement*>* out)
+void Transform::post_nop(Nop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_branch(AST_branch* in, List<AST_statement*>* out)
+void Transform::post_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_goto(AST_goto* in, List<AST_statement*>* out)
+void Transform::post_goto(Goto* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_label(AST_label* in, List<AST_statement*>* out)
+void Transform::post_label(Label* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_foreach_reset(AST_foreach_reset* in, List<AST_statement*>* out)
+void Transform::post_foreach_reset(Foreach_reset* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_foreach_next(AST_foreach_next* in, List<AST_statement*>* out)
+void Transform::post_foreach_next(Foreach_next* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-void AST_transform::post_foreach_end(AST_foreach_end* in, List<AST_statement*>* out)
+void Transform::post_foreach_end(Foreach_end* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::post_foreach_has_key(AST_foreach_has_key* in)
+Expr* Transform::post_foreach_has_key(Foreach_has_key* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_foreach_get_key(AST_foreach_get_key* in)
+Expr* Transform::post_foreach_get_key(Foreach_get_key* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_foreach_get_data(AST_foreach_get_data* in)
+Expr* Transform::post_foreach_get_data(Foreach_get_data* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_assignment(AST_assignment* in)
+Expr* Transform::post_assignment(Assignment* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_op_assignment(AST_op_assignment* in)
+Expr* Transform::post_op_assignment(Op_assignment* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_list_assignment(AST_list_assignment* in)
+Expr* Transform::post_list_assignment(List_assignment* in)
 {
     return in;
 }
 
-void AST_transform::post_nested_list_elements(AST_nested_list_elements* in, List<AST_list_element*>* out)
+void Transform::post_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::post_cast(AST_cast* in)
+Expr* Transform::post_cast(Cast* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_unary_op(AST_unary_op* in)
+Expr* Transform::post_unary_op(Unary_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_bin_op(AST_bin_op* in)
+Expr* Transform::post_bin_op(Bin_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_conditional_expr(AST_conditional_expr* in)
+Expr* Transform::post_conditional_expr(Conditional_expr* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_ignore_errors(AST_ignore_errors* in)
+Expr* Transform::post_ignore_errors(Ignore_errors* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_constant(AST_constant* in)
+Expr* Transform::post_constant(Constant* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_instanceof(AST_instanceof* in)
+Expr* Transform::post_instanceof(Instanceof* in)
 {
     return in;
 }
 
-AST_variable* AST_transform::post_variable(AST_variable* in)
+Variable* Transform::post_variable(Variable* in)
 {
     return in;
 }
 
-AST_reflection* AST_transform::post_reflection(AST_reflection* in)
+Reflection* Transform::post_reflection(Reflection* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_pre_op(AST_pre_op* in)
+Expr* Transform::post_pre_op(Pre_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_post_op(AST_post_op* in)
+Expr* Transform::post_post_op(Post_op* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_array(AST_array* in)
+Expr* Transform::post_array(Array* in)
 {
     return in;
 }
 
-void AST_transform::post_array_elem(AST_array_elem* in, List<AST_array_elem*>* out)
+void Transform::post_array_elem(Array_elem* in, List<Array_elem*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::post_method_invocation(AST_method_invocation* in)
+Expr* Transform::post_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-void AST_transform::post_actual_parameter(AST_actual_parameter* in, List<AST_actual_parameter*>* out)
+void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
 
-AST_expr* AST_transform::post_new(AST_new* in)
+Expr* Transform::post_new(New* in)
 {
     return in;
 }
 
-Token_class_name* AST_transform::post_class_name(Token_class_name* in)
+CLASS_NAME* Transform::post_class_name(CLASS_NAME* in)
 {
     return in;
 }
 
-Token_interface_name* AST_transform::post_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::post_interface_name(INTERFACE_NAME* in)
 {
     return in;
 }
 
-Token_method_name* AST_transform::post_method_name(Token_method_name* in)
+METHOD_NAME* Transform::post_method_name(METHOD_NAME* in)
 {
     return in;
 }
 
-Token_variable_name* AST_transform::post_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
 {
     return in;
 }
 
-Token_directive_name* AST_transform::post_directive_name(Token_directive_name* in)
+DIRECTIVE_NAME* Transform::post_directive_name(DIRECTIVE_NAME* in)
 {
     return in;
 }
 
-Token_label_name* AST_transform::post_label_name(Token_label_name* in)
+LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
 {
     return in;
 }
 
-Token_ht_iterator* AST_transform::post_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_int(Token_int* in)
+Expr* Transform::post_int(INT* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_real(Token_real* in)
+Expr* Transform::post_real(REAL* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_string(Token_string* in)
+Expr* Transform::post_string(STRING* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_bool(Token_bool* in)
+Expr* Transform::post_bool(BOOL* in)
 {
     return in;
 }
 
-AST_expr* AST_transform::post_null(Token_null* in)
+Expr* Transform::post_nil(NIL* in)
 {
     return in;
 }
 
-Token_op* AST_transform::post_op(Token_op* in)
+OP* Transform::post_op(OP* in)
 {
     return in;
 }
 
-Token_cast* AST_transform::post_cast(Token_cast* in)
+CAST* Transform::post_cast(CAST* in)
 {
     return in;
 }
 
-Token_constant_name* AST_transform::post_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::post_constant_name(CONSTANT_NAME* in)
 {
     return in;
 }
 
 // Transform the children of the node
-void AST_transform::children_php_script(AST_php_script* in)
+void Transform::children_php_script(PHP_script* in)
 {
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_class_def(AST_class_def* in)
+void Transform::children_class_def(Class_def* in)
 {
     in->class_mod = transform_class_mod(in->class_mod);
     in->class_name = transform_class_name(in->class_name);
@@ -772,81 +772,81 @@ void AST_transform::children_class_def(AST_class_def* in)
     in->members = transform_member_list(in->members);
 }
 
-void AST_transform::children_class_mod(AST_class_mod* in)
+void Transform::children_class_mod(Class_mod* in)
 {
 }
 
-void AST_transform::children_interface_def(AST_interface_def* in)
+void Transform::children_interface_def(Interface_def* in)
 {
     in->interface_name = transform_interface_name(in->interface_name);
     in->extends = transform_interface_name_list(in->extends);
     in->members = transform_member_list(in->members);
 }
 
-void AST_transform::children_method(AST_method* in)
+void Transform::children_method(Method* in)
 {
     in->signature = transform_signature(in->signature);
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_signature(AST_signature* in)
+void Transform::children_signature(Signature* in)
 {
     in->method_mod = transform_method_mod(in->method_mod);
     in->method_name = transform_method_name(in->method_name);
     in->formal_parameters = transform_formal_parameter_list(in->formal_parameters);
 }
 
-void AST_transform::children_method_mod(AST_method_mod* in)
+void Transform::children_method_mod(Method_mod* in)
 {
 }
 
-void AST_transform::children_formal_parameter(AST_formal_parameter* in)
+void Transform::children_formal_parameter(Formal_parameter* in)
 {
     in->type = transform_type(in->type);
     in->var = transform_name_with_default(in->var);
 }
 
-void AST_transform::children_type(AST_type* in)
+void Transform::children_type(Type* in)
 {
     in->class_name = transform_class_name(in->class_name);
 }
 
-void AST_transform::children_attribute(AST_attribute* in)
+void Transform::children_attribute(Attribute* in)
 {
     in->attr_mod = transform_attr_mod(in->attr_mod);
     in->vars = transform_name_with_default_list(in->vars);
 }
 
-void AST_transform::children_attr_mod(AST_attr_mod* in)
+void Transform::children_attr_mod(Attr_mod* in)
 {
 }
 
-void AST_transform::children_name_with_default(AST_name_with_default* in)
+void Transform::children_name_with_default(Name_with_default* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_if(AST_if* in)
+void Transform::children_if(If* in)
 {
     in->expr = transform_expr(in->expr);
     in->iftrue = transform_statement_list(in->iftrue);
     in->iffalse = transform_statement_list(in->iffalse);
 }
 
-void AST_transform::children_while(AST_while* in)
+void Transform::children_while(While* in)
 {
     in->expr = transform_expr(in->expr);
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_do(AST_do* in)
+void Transform::children_do(Do* in)
 {
     in->statements = transform_statement_list(in->statements);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_for(AST_for* in)
+void Transform::children_for(For* in)
 {
     in->init = transform_expr(in->init);
     in->cond = transform_expr(in->cond);
@@ -854,7 +854,7 @@ void AST_transform::children_for(AST_for* in)
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_foreach(AST_foreach* in)
+void Transform::children_foreach(Foreach* in)
 {
     in->expr = transform_expr(in->expr);
     in->key = transform_variable(in->key);
@@ -862,322 +862,322 @@ void AST_transform::children_foreach(AST_foreach* in)
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_switch(AST_switch* in)
+void Transform::children_switch(Switch* in)
 {
     in->expr = transform_expr(in->expr);
     in->switch_cases = transform_switch_case_list(in->switch_cases);
 }
 
-void AST_transform::children_switch_case(AST_switch_case* in)
+void Transform::children_switch_case(Switch_case* in)
 {
     in->expr = transform_expr(in->expr);
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_break(AST_break* in)
+void Transform::children_break(Break* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_continue(AST_continue* in)
+void Transform::children_continue(Continue* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_return(AST_return* in)
+void Transform::children_return(Return* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_static_declaration(AST_static_declaration* in)
+void Transform::children_static_declaration(Static_declaration* in)
 {
     in->vars = transform_name_with_default_list(in->vars);
 }
 
-void AST_transform::children_global(AST_global* in)
+void Transform::children_global(Global* in)
 {
     in->variable_names = transform_variable_name_list(in->variable_names);
 }
 
-void AST_transform::children_declare(AST_declare* in)
+void Transform::children_declare(Declare* in)
 {
     in->directives = transform_directive_list(in->directives);
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_directive(AST_directive* in)
+void Transform::children_directive(Directive* in)
 {
     in->directive_name = transform_directive_name(in->directive_name);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_try(AST_try* in)
+void Transform::children_try(Try* in)
 {
     in->statements = transform_statement_list(in->statements);
     in->catches = transform_catch_list(in->catches);
 }
 
-void AST_transform::children_catch(AST_catch* in)
+void Transform::children_catch(Catch* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->variable_name = transform_variable_name(in->variable_name);
     in->statements = transform_statement_list(in->statements);
 }
 
-void AST_transform::children_throw(AST_throw* in)
+void Transform::children_throw(Throw* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_eval_expr(AST_eval_expr* in)
+void Transform::children_eval_expr(Eval_expr* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_nop(AST_nop* in)
+void Transform::children_nop(Nop* in)
 {
 }
 
-void AST_transform::children_branch(AST_branch* in)
+void Transform::children_branch(Branch* in)
 {
     in->expr = transform_expr(in->expr);
     in->iftrue = transform_label_name(in->iftrue);
     in->iffalse = transform_label_name(in->iffalse);
 }
 
-void AST_transform::children_goto(AST_goto* in)
+void Transform::children_goto(Goto* in)
 {
     in->label_name = transform_label_name(in->label_name);
 }
 
-void AST_transform::children_label(AST_label* in)
+void Transform::children_label(Label* in)
 {
     in->label_name = transform_label_name(in->label_name);
 }
 
-void AST_transform::children_foreach_reset(AST_foreach_reset* in)
+void Transform::children_foreach_reset(Foreach_reset* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_foreach_next(AST_foreach_next* in)
+void Transform::children_foreach_next(Foreach_next* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_foreach_end(AST_foreach_end* in)
+void Transform::children_foreach_end(Foreach_end* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_foreach_has_key(AST_foreach_has_key* in)
+void Transform::children_foreach_has_key(Foreach_has_key* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_foreach_get_key(AST_foreach_get_key* in)
+void Transform::children_foreach_get_key(Foreach_get_key* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_foreach_get_data(AST_foreach_get_data* in)
+void Transform::children_foreach_get_data(Foreach_get_data* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void AST_transform::children_assignment(AST_assignment* in)
+void Transform::children_assignment(Assignment* in)
 {
     in->variable = transform_variable(in->variable);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_op_assignment(AST_op_assignment* in)
+void Transform::children_op_assignment(Op_assignment* in)
 {
     in->variable = transform_variable(in->variable);
     in->op = transform_op(in->op);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_list_assignment(AST_list_assignment* in)
+void Transform::children_list_assignment(List_assignment* in)
 {
     in->list_elements = transform_list_element_list(in->list_elements);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_nested_list_elements(AST_nested_list_elements* in)
+void Transform::children_nested_list_elements(Nested_list_elements* in)
 {
     in->list_elements = transform_list_element_list(in->list_elements);
 }
 
-void AST_transform::children_cast(AST_cast* in)
+void Transform::children_cast(Cast* in)
 {
     in->cast = transform_cast(in->cast);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_unary_op(AST_unary_op* in)
+void Transform::children_unary_op(Unary_op* in)
 {
     in->op = transform_op(in->op);
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_bin_op(AST_bin_op* in)
+void Transform::children_bin_op(Bin_op* in)
 {
     in->left = transform_expr(in->left);
     in->op = transform_op(in->op);
     in->right = transform_expr(in->right);
 }
 
-void AST_transform::children_conditional_expr(AST_conditional_expr* in)
+void Transform::children_conditional_expr(Conditional_expr* in)
 {
     in->cond = transform_expr(in->cond);
     in->iftrue = transform_expr(in->iftrue);
     in->iffalse = transform_expr(in->iffalse);
 }
 
-void AST_transform::children_ignore_errors(AST_ignore_errors* in)
+void Transform::children_ignore_errors(Ignore_errors* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_constant(AST_constant* in)
+void Transform::children_constant(Constant* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->constant_name = transform_constant_name(in->constant_name);
 }
 
-void AST_transform::children_instanceof(AST_instanceof* in)
+void Transform::children_instanceof(Instanceof* in)
 {
     in->expr = transform_expr(in->expr);
     in->class_name = transform_class_name(in->class_name);
 }
 
-void AST_transform::children_variable(AST_variable* in)
+void Transform::children_variable(Variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
     in->array_indices = transform_expr_list(in->array_indices);
 }
 
-void AST_transform::children_reflection(AST_reflection* in)
+void Transform::children_reflection(Reflection* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_pre_op(AST_pre_op* in)
+void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable = transform_variable(in->variable);
 }
 
-void AST_transform::children_post_op(AST_post_op* in)
+void Transform::children_post_op(Post_op* in)
 {
     in->variable = transform_variable(in->variable);
     in->op = transform_op(in->op);
 }
 
-void AST_transform::children_array(AST_array* in)
+void Transform::children_array(Array* in)
 {
     in->array_elems = transform_array_elem_list(in->array_elems);
 }
 
-void AST_transform::children_array_elem(AST_array_elem* in)
+void Transform::children_array_elem(Array_elem* in)
 {
     in->key = transform_expr(in->key);
     in->val = transform_expr(in->val);
 }
 
-void AST_transform::children_method_invocation(AST_method_invocation* in)
+void Transform::children_method_invocation(Method_invocation* in)
 {
     in->target = transform_target(in->target);
     in->method_name = transform_method_name(in->method_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
-void AST_transform::children_actual_parameter(AST_actual_parameter* in)
+void Transform::children_actual_parameter(Actual_parameter* in)
 {
     in->expr = transform_expr(in->expr);
 }
 
-void AST_transform::children_new(AST_new* in)
+void Transform::children_new(New* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void AST_transform::children_class_name(Token_class_name* in)
+void Transform::children_class_name(CLASS_NAME* in)
 {
 }
 
-void AST_transform::children_interface_name(Token_interface_name* in)
+void Transform::children_interface_name(INTERFACE_NAME* in)
 {
 }
 
-void AST_transform::children_method_name(Token_method_name* in)
+void Transform::children_method_name(METHOD_NAME* in)
 {
 }
 
-void AST_transform::children_variable_name(Token_variable_name* in)
+void Transform::children_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void AST_transform::children_directive_name(Token_directive_name* in)
+void Transform::children_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
-void AST_transform::children_label_name(Token_label_name* in)
+void Transform::children_label_name(LABEL_NAME* in)
 {
 }
 
-void AST_transform::children_ht_iterator(Token_ht_iterator* in)
+void Transform::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
-void AST_transform::children_int(Token_int* in)
+void Transform::children_int(INT* in)
 {
 }
 
-void AST_transform::children_real(Token_real* in)
+void Transform::children_real(REAL* in)
 {
 }
 
-void AST_transform::children_string(Token_string* in)
+void Transform::children_string(STRING* in)
 {
 }
 
-void AST_transform::children_bool(Token_bool* in)
+void Transform::children_bool(BOOL* in)
 {
 }
 
-void AST_transform::children_null(Token_null* in)
+void Transform::children_nil(NIL* in)
 {
 }
 
-void AST_transform::children_op(Token_op* in)
+void Transform::children_op(OP* in)
 {
 }
 
-void AST_transform::children_cast(Token_cast* in)
+void Transform::children_cast(CAST* in)
 {
 }
 
-void AST_transform::children_constant_name(Token_constant_name* in)
+void Transform::children_constant_name(CONSTANT_NAME* in)
 {
 }
 
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
-List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement*>* in)
+List<Statement*>* Transform::transform_statement_list(List<Statement*>* in)
 {
-    List<AST_statement*>::const_iterator i;
-    List<AST_statement*>* out = new List<AST_statement*>;
+    List<Statement*>::const_iterator i;
+    List<Statement*>* out = new List<Statement*>;
     
     if(in == NULL)
     	return NULL;
@@ -1190,11 +1190,11 @@ List<AST_statement*>* AST_transform::transform_statement_list(List<AST_statement
     return out;
 }
 
-List<AST_statement*>* AST_transform::transform_statement(AST_statement* in)
+List<Statement*>* Transform::transform_statement(Statement* in)
 {
-    List<AST_statement*>::const_iterator i;
-    List<AST_statement*>* out1 = new List<AST_statement*>;
-    List<AST_statement*>* out2 = new List<AST_statement*>;
+    List<Statement*>::const_iterator i;
+    List<Statement*>* out1 = new List<Statement*>;
+    List<Statement*>* out2 = new List<Statement*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_statement(in, out1);
@@ -1211,11 +1211,11 @@ List<AST_statement*>* AST_transform::transform_statement(AST_statement* in)
     return out2;
 }
 
-AST_class_mod* AST_transform::transform_class_mod(AST_class_mod* in)
+Class_mod* Transform::transform_class_mod(Class_mod* in)
 {
     if(in == NULL) return NULL;
     
-    AST_class_mod* out;
+    Class_mod* out;
     
     out = pre_class_mod(in);
     if(out != NULL)
@@ -1227,11 +1227,11 @@ AST_class_mod* AST_transform::transform_class_mod(AST_class_mod* in)
     return out;
 }
 
-Token_class_name* AST_transform::transform_class_name(Token_class_name* in)
+CLASS_NAME* Transform::transform_class_name(CLASS_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_class_name* out;
+    CLASS_NAME* out;
     
     out = pre_class_name(in);
     if(out != NULL)
@@ -1243,10 +1243,10 @@ Token_class_name* AST_transform::transform_class_name(Token_class_name* in)
     return out;
 }
 
-List<Token_interface_name*>* AST_transform::transform_interface_name_list(List<Token_interface_name*>* in)
+List<INTERFACE_NAME*>* Transform::transform_interface_name_list(List<INTERFACE_NAME*>* in)
 {
-    List<Token_interface_name*>::const_iterator i;
-    List<Token_interface_name*>* out = new List<Token_interface_name*>;
+    List<INTERFACE_NAME*>::const_iterator i;
+    List<INTERFACE_NAME*>* out = new List<INTERFACE_NAME*>;
     
     if(in == NULL)
     	return NULL;
@@ -1259,10 +1259,10 @@ List<Token_interface_name*>* AST_transform::transform_interface_name_list(List<T
     return out;
 }
 
-List<AST_member*>* AST_transform::transform_member_list(List<AST_member*>* in)
+List<Member*>* Transform::transform_member_list(List<Member*>* in)
 {
-    List<AST_member*>::const_iterator i;
-    List<AST_member*>* out = new List<AST_member*>;
+    List<Member*>::const_iterator i;
+    List<Member*>* out = new List<Member*>;
     
     if(in == NULL)
     	return NULL;
@@ -1275,11 +1275,11 @@ List<AST_member*>* AST_transform::transform_member_list(List<AST_member*>* in)
     return out;
 }
 
-List<AST_member*>* AST_transform::transform_member(AST_member* in)
+List<Member*>* Transform::transform_member(Member* in)
 {
-    List<AST_member*>::const_iterator i;
-    List<AST_member*>* out1 = new List<AST_member*>;
-    List<AST_member*>* out2 = new List<AST_member*>;
+    List<Member*>::const_iterator i;
+    List<Member*>* out1 = new List<Member*>;
+    List<Member*>* out2 = new List<Member*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_member(in, out1);
@@ -1296,11 +1296,11 @@ List<AST_member*>* AST_transform::transform_member(AST_member* in)
     return out2;
 }
 
-Token_interface_name* AST_transform::transform_interface_name(Token_interface_name* in)
+INTERFACE_NAME* Transform::transform_interface_name(INTERFACE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_interface_name* out;
+    INTERFACE_NAME* out;
     
     out = pre_interface_name(in);
     if(out != NULL)
@@ -1312,11 +1312,11 @@ Token_interface_name* AST_transform::transform_interface_name(Token_interface_na
     return out;
 }
 
-AST_signature* AST_transform::transform_signature(AST_signature* in)
+Signature* Transform::transform_signature(Signature* in)
 {
     if(in == NULL) return NULL;
     
-    AST_signature* out;
+    Signature* out;
     
     out = pre_signature(in);
     if(out != NULL)
@@ -1328,11 +1328,11 @@ AST_signature* AST_transform::transform_signature(AST_signature* in)
     return out;
 }
 
-AST_method_mod* AST_transform::transform_method_mod(AST_method_mod* in)
+Method_mod* Transform::transform_method_mod(Method_mod* in)
 {
     if(in == NULL) return NULL;
     
-    AST_method_mod* out;
+    Method_mod* out;
     
     out = pre_method_mod(in);
     if(out != NULL)
@@ -1344,11 +1344,11 @@ AST_method_mod* AST_transform::transform_method_mod(AST_method_mod* in)
     return out;
 }
 
-Token_method_name* AST_transform::transform_method_name(Token_method_name* in)
+METHOD_NAME* Transform::transform_method_name(METHOD_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_method_name* out;
+    METHOD_NAME* out;
     
     out = pre_method_name(in);
     if(out != NULL)
@@ -1360,10 +1360,10 @@ Token_method_name* AST_transform::transform_method_name(Token_method_name* in)
     return out;
 }
 
-List<AST_formal_parameter*>* AST_transform::transform_formal_parameter_list(List<AST_formal_parameter*>* in)
+List<Formal_parameter*>* Transform::transform_formal_parameter_list(List<Formal_parameter*>* in)
 {
-    List<AST_formal_parameter*>::const_iterator i;
-    List<AST_formal_parameter*>* out = new List<AST_formal_parameter*>;
+    List<Formal_parameter*>::const_iterator i;
+    List<Formal_parameter*>* out = new List<Formal_parameter*>;
     
     if(in == NULL)
     	return NULL;
@@ -1376,11 +1376,11 @@ List<AST_formal_parameter*>* AST_transform::transform_formal_parameter_list(List
     return out;
 }
 
-List<AST_formal_parameter*>* AST_transform::transform_formal_parameter(AST_formal_parameter* in)
+List<Formal_parameter*>* Transform::transform_formal_parameter(Formal_parameter* in)
 {
-    List<AST_formal_parameter*>::const_iterator i;
-    List<AST_formal_parameter*>* out1 = new List<AST_formal_parameter*>;
-    List<AST_formal_parameter*>* out2 = new List<AST_formal_parameter*>;
+    List<Formal_parameter*>::const_iterator i;
+    List<Formal_parameter*>* out1 = new List<Formal_parameter*>;
+    List<Formal_parameter*>* out2 = new List<Formal_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_formal_parameter(in, out1);
@@ -1397,11 +1397,11 @@ List<AST_formal_parameter*>* AST_transform::transform_formal_parameter(AST_forma
     return out2;
 }
 
-AST_type* AST_transform::transform_type(AST_type* in)
+Type* Transform::transform_type(Type* in)
 {
     if(in == NULL) return NULL;
     
-    AST_type* out;
+    Type* out;
     
     out = pre_type(in);
     if(out != NULL)
@@ -1413,11 +1413,11 @@ AST_type* AST_transform::transform_type(AST_type* in)
     return out;
 }
 
-AST_name_with_default* AST_transform::transform_name_with_default(AST_name_with_default* in)
+Name_with_default* Transform::transform_name_with_default(Name_with_default* in)
 {
     if(in == NULL) return NULL;
     
-    AST_name_with_default* out;
+    Name_with_default* out;
     
     out = pre_name_with_default(in);
     if(out != NULL)
@@ -1429,11 +1429,11 @@ AST_name_with_default* AST_transform::transform_name_with_default(AST_name_with_
     return out;
 }
 
-AST_attr_mod* AST_transform::transform_attr_mod(AST_attr_mod* in)
+Attr_mod* Transform::transform_attr_mod(Attr_mod* in)
 {
     if(in == NULL) return NULL;
     
-    AST_attr_mod* out;
+    Attr_mod* out;
     
     out = pre_attr_mod(in);
     if(out != NULL)
@@ -1445,10 +1445,10 @@ AST_attr_mod* AST_transform::transform_attr_mod(AST_attr_mod* in)
     return out;
 }
 
-List<AST_name_with_default*>* AST_transform::transform_name_with_default_list(List<AST_name_with_default*>* in)
+List<Name_with_default*>* Transform::transform_name_with_default_list(List<Name_with_default*>* in)
 {
-    List<AST_name_with_default*>::const_iterator i;
-    List<AST_name_with_default*>* out = new List<AST_name_with_default*>;
+    List<Name_with_default*>::const_iterator i;
+    List<Name_with_default*>* out = new List<Name_with_default*>;
     
     if(in == NULL)
     	return NULL;
@@ -1461,11 +1461,11 @@ List<AST_name_with_default*>* AST_transform::transform_name_with_default_list(Li
     return out;
 }
 
-Token_variable_name* AST_transform::transform_variable_name(Token_variable_name* in)
+VARIABLE_NAME* Transform::transform_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_variable_name* out;
+    VARIABLE_NAME* out;
     
     out = pre_variable_name(in);
     if(out != NULL)
@@ -1477,11 +1477,11 @@ Token_variable_name* AST_transform::transform_variable_name(Token_variable_name*
     return out;
 }
 
-AST_expr* AST_transform::transform_expr(AST_expr* in)
+Expr* Transform::transform_expr(Expr* in)
 {
     if(in == NULL) return NULL;
     
-    AST_expr* out;
+    Expr* out;
     
     out = pre_expr(in);
     if(out != NULL)
@@ -1493,11 +1493,11 @@ AST_expr* AST_transform::transform_expr(AST_expr* in)
     return out;
 }
 
-AST_variable* AST_transform::transform_variable(AST_variable* in)
+Variable* Transform::transform_variable(Variable* in)
 {
     if(in == NULL) return NULL;
     
-    AST_variable* out;
+    Variable* out;
     
     out = pre_variable(in);
     if(out != NULL)
@@ -1509,10 +1509,10 @@ AST_variable* AST_transform::transform_variable(AST_variable* in)
     return out;
 }
 
-List<AST_switch_case*>* AST_transform::transform_switch_case_list(List<AST_switch_case*>* in)
+List<Switch_case*>* Transform::transform_switch_case_list(List<Switch_case*>* in)
 {
-    List<AST_switch_case*>::const_iterator i;
-    List<AST_switch_case*>* out = new List<AST_switch_case*>;
+    List<Switch_case*>::const_iterator i;
+    List<Switch_case*>* out = new List<Switch_case*>;
     
     if(in == NULL)
     	return NULL;
@@ -1525,11 +1525,11 @@ List<AST_switch_case*>* AST_transform::transform_switch_case_list(List<AST_switc
     return out;
 }
 
-List<AST_switch_case*>* AST_transform::transform_switch_case(AST_switch_case* in)
+List<Switch_case*>* Transform::transform_switch_case(Switch_case* in)
 {
-    List<AST_switch_case*>::const_iterator i;
-    List<AST_switch_case*>* out1 = new List<AST_switch_case*>;
-    List<AST_switch_case*>* out2 = new List<AST_switch_case*>;
+    List<Switch_case*>::const_iterator i;
+    List<Switch_case*>* out1 = new List<Switch_case*>;
+    List<Switch_case*>* out2 = new List<Switch_case*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_switch_case(in, out1);
@@ -1546,10 +1546,10 @@ List<AST_switch_case*>* AST_transform::transform_switch_case(AST_switch_case* in
     return out2;
 }
 
-List<AST_variable_name*>* AST_transform::transform_variable_name_list(List<AST_variable_name*>* in)
+List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name*>* in)
 {
-    List<AST_variable_name*>::const_iterator i;
-    List<AST_variable_name*>* out = new List<AST_variable_name*>;
+    List<Variable_name*>::const_iterator i;
+    List<Variable_name*>* out = new List<Variable_name*>;
     
     if(in == NULL)
     	return NULL;
@@ -1562,10 +1562,10 @@ List<AST_variable_name*>* AST_transform::transform_variable_name_list(List<AST_v
     return out;
 }
 
-List<AST_directive*>* AST_transform::transform_directive_list(List<AST_directive*>* in)
+List<Directive*>* Transform::transform_directive_list(List<Directive*>* in)
 {
-    List<AST_directive*>::const_iterator i;
-    List<AST_directive*>* out = new List<AST_directive*>;
+    List<Directive*>::const_iterator i;
+    List<Directive*>* out = new List<Directive*>;
     
     if(in == NULL)
     	return NULL;
@@ -1578,11 +1578,11 @@ List<AST_directive*>* AST_transform::transform_directive_list(List<AST_directive
     return out;
 }
 
-List<AST_directive*>* AST_transform::transform_directive(AST_directive* in)
+List<Directive*>* Transform::transform_directive(Directive* in)
 {
-    List<AST_directive*>::const_iterator i;
-    List<AST_directive*>* out1 = new List<AST_directive*>;
-    List<AST_directive*>* out2 = new List<AST_directive*>;
+    List<Directive*>::const_iterator i;
+    List<Directive*>* out1 = new List<Directive*>;
+    List<Directive*>* out2 = new List<Directive*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_directive(in, out1);
@@ -1599,11 +1599,11 @@ List<AST_directive*>* AST_transform::transform_directive(AST_directive* in)
     return out2;
 }
 
-Token_directive_name* AST_transform::transform_directive_name(Token_directive_name* in)
+DIRECTIVE_NAME* Transform::transform_directive_name(DIRECTIVE_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_directive_name* out;
+    DIRECTIVE_NAME* out;
     
     out = pre_directive_name(in);
     if(out != NULL)
@@ -1615,10 +1615,10 @@ Token_directive_name* AST_transform::transform_directive_name(Token_directive_na
     return out;
 }
 
-List<AST_catch*>* AST_transform::transform_catch_list(List<AST_catch*>* in)
+List<Catch*>* Transform::transform_catch_list(List<Catch*>* in)
 {
-    List<AST_catch*>::const_iterator i;
-    List<AST_catch*>* out = new List<AST_catch*>;
+    List<Catch*>::const_iterator i;
+    List<Catch*>* out = new List<Catch*>;
     
     if(in == NULL)
     	return NULL;
@@ -1631,11 +1631,11 @@ List<AST_catch*>* AST_transform::transform_catch_list(List<AST_catch*>* in)
     return out;
 }
 
-List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
+List<Catch*>* Transform::transform_catch(Catch* in)
 {
-    List<AST_catch*>::const_iterator i;
-    List<AST_catch*>* out1 = new List<AST_catch*>;
-    List<AST_catch*>* out2 = new List<AST_catch*>;
+    List<Catch*>::const_iterator i;
+    List<Catch*>* out1 = new List<Catch*>;
+    List<Catch*>* out2 = new List<Catch*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_catch(in, out1);
@@ -1652,11 +1652,11 @@ List<AST_catch*>* AST_transform::transform_catch(AST_catch* in)
     return out2;
 }
 
-Token_label_name* AST_transform::transform_label_name(Token_label_name* in)
+LABEL_NAME* Transform::transform_label_name(LABEL_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_label_name* out;
+    LABEL_NAME* out;
     
     out = pre_label_name(in);
     if(out != NULL)
@@ -1668,11 +1668,11 @@ Token_label_name* AST_transform::transform_label_name(Token_label_name* in)
     return out;
 }
 
-Token_ht_iterator* AST_transform::transform_ht_iterator(Token_ht_iterator* in)
+HT_ITERATOR* Transform::transform_ht_iterator(HT_ITERATOR* in)
 {
     if(in == NULL) return NULL;
     
-    Token_ht_iterator* out;
+    HT_ITERATOR* out;
     
     out = pre_ht_iterator(in);
     if(out != NULL)
@@ -1684,11 +1684,11 @@ Token_ht_iterator* AST_transform::transform_ht_iterator(Token_ht_iterator* in)
     return out;
 }
 
-Token_op* AST_transform::transform_op(Token_op* in)
+OP* Transform::transform_op(OP* in)
 {
     if(in == NULL) return NULL;
     
-    Token_op* out;
+    OP* out;
     
     out = pre_op(in);
     if(out != NULL)
@@ -1700,10 +1700,10 @@ Token_op* AST_transform::transform_op(Token_op* in)
     return out;
 }
 
-List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_list_element*>* in)
+List<List_element*>* Transform::transform_list_element_list(List<List_element*>* in)
 {
-    List<AST_list_element*>::const_iterator i;
-    List<AST_list_element*>* out = new List<AST_list_element*>;
+    List<List_element*>::const_iterator i;
+    List<List_element*>* out = new List<List_element*>;
     
     if(in == NULL)
     	return NULL;
@@ -1716,11 +1716,11 @@ List<AST_list_element*>* AST_transform::transform_list_element_list(List<AST_lis
     return out;
 }
 
-List<AST_list_element*>* AST_transform::transform_list_element(AST_list_element* in)
+List<List_element*>* Transform::transform_list_element(List_element* in)
 {
-    List<AST_list_element*>::const_iterator i;
-    List<AST_list_element*>* out1 = new List<AST_list_element*>;
-    List<AST_list_element*>* out2 = new List<AST_list_element*>;
+    List<List_element*>::const_iterator i;
+    List<List_element*>* out1 = new List<List_element*>;
+    List<List_element*>* out2 = new List<List_element*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_list_element(in, out1);
@@ -1737,11 +1737,11 @@ List<AST_list_element*>* AST_transform::transform_list_element(AST_list_element*
     return out2;
 }
 
-Token_cast* AST_transform::transform_cast(Token_cast* in)
+CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
     
-    Token_cast* out;
+    CAST* out;
     
     out = pre_cast(in);
     if(out != NULL)
@@ -1753,11 +1753,11 @@ Token_cast* AST_transform::transform_cast(Token_cast* in)
     return out;
 }
 
-Token_constant_name* AST_transform::transform_constant_name(Token_constant_name* in)
+CONSTANT_NAME* Transform::transform_constant_name(CONSTANT_NAME* in)
 {
     if(in == NULL) return NULL;
     
-    Token_constant_name* out;
+    CONSTANT_NAME* out;
     
     out = pre_constant_name(in);
     if(out != NULL)
@@ -1769,11 +1769,11 @@ Token_constant_name* AST_transform::transform_constant_name(Token_constant_name*
     return out;
 }
 
-AST_class_name* AST_transform::transform_class_name(AST_class_name* in)
+Class_name* Transform::transform_class_name(Class_name* in)
 {
     if(in == NULL) return NULL;
     
-    AST_class_name* out;
+    Class_name* out;
     
     out = pre_class_name(in);
     if(out != NULL)
@@ -1785,11 +1785,11 @@ AST_class_name* AST_transform::transform_class_name(AST_class_name* in)
     return out;
 }
 
-AST_target* AST_transform::transform_target(AST_target* in)
+Target* Transform::transform_target(Target* in)
 {
     if(in == NULL) return NULL;
     
-    AST_target* out;
+    Target* out;
     
     out = pre_target(in);
     if(out != NULL)
@@ -1801,11 +1801,11 @@ AST_target* AST_transform::transform_target(AST_target* in)
     return out;
 }
 
-AST_variable_name* AST_transform::transform_variable_name(AST_variable_name* in)
+Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
     
-    AST_variable_name* out;
+    Variable_name* out;
     
     out = pre_variable_name(in);
     if(out != NULL)
@@ -1817,10 +1817,10 @@ AST_variable_name* AST_transform::transform_variable_name(AST_variable_name* in)
     return out;
 }
 
-List<AST_expr*>* AST_transform::transform_expr_list(List<AST_expr*>* in)
+List<Expr*>* Transform::transform_expr_list(List<Expr*>* in)
 {
-    List<AST_expr*>::const_iterator i;
-    List<AST_expr*>* out = new List<AST_expr*>;
+    List<Expr*>::const_iterator i;
+    List<Expr*>* out = new List<Expr*>;
     
     if(in == NULL)
     	return NULL;
@@ -1833,10 +1833,10 @@ List<AST_expr*>* AST_transform::transform_expr_list(List<AST_expr*>* in)
     return out;
 }
 
-List<AST_array_elem*>* AST_transform::transform_array_elem_list(List<AST_array_elem*>* in)
+List<Array_elem*>* Transform::transform_array_elem_list(List<Array_elem*>* in)
 {
-    List<AST_array_elem*>::const_iterator i;
-    List<AST_array_elem*>* out = new List<AST_array_elem*>;
+    List<Array_elem*>::const_iterator i;
+    List<Array_elem*>* out = new List<Array_elem*>;
     
     if(in == NULL)
     	return NULL;
@@ -1849,11 +1849,11 @@ List<AST_array_elem*>* AST_transform::transform_array_elem_list(List<AST_array_e
     return out;
 }
 
-List<AST_array_elem*>* AST_transform::transform_array_elem(AST_array_elem* in)
+List<Array_elem*>* Transform::transform_array_elem(Array_elem* in)
 {
-    List<AST_array_elem*>::const_iterator i;
-    List<AST_array_elem*>* out1 = new List<AST_array_elem*>;
-    List<AST_array_elem*>* out2 = new List<AST_array_elem*>;
+    List<Array_elem*>::const_iterator i;
+    List<Array_elem*>* out1 = new List<Array_elem*>;
+    List<Array_elem*>* out2 = new List<Array_elem*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_array_elem(in, out1);
@@ -1870,11 +1870,11 @@ List<AST_array_elem*>* AST_transform::transform_array_elem(AST_array_elem* in)
     return out2;
 }
 
-AST_method_name* AST_transform::transform_method_name(AST_method_name* in)
+Method_name* Transform::transform_method_name(Method_name* in)
 {
     if(in == NULL) return NULL;
     
-    AST_method_name* out;
+    Method_name* out;
     
     out = pre_method_name(in);
     if(out != NULL)
@@ -1886,10 +1886,10 @@ AST_method_name* AST_transform::transform_method_name(AST_method_name* in)
     return out;
 }
 
-List<AST_actual_parameter*>* AST_transform::transform_actual_parameter_list(List<AST_actual_parameter*>* in)
+List<Actual_parameter*>* Transform::transform_actual_parameter_list(List<Actual_parameter*>* in)
 {
-    List<AST_actual_parameter*>::const_iterator i;
-    List<AST_actual_parameter*>* out = new List<AST_actual_parameter*>;
+    List<Actual_parameter*>::const_iterator i;
+    List<Actual_parameter*>* out = new List<Actual_parameter*>;
     
     if(in == NULL)
     	return NULL;
@@ -1902,11 +1902,11 @@ List<AST_actual_parameter*>* AST_transform::transform_actual_parameter_list(List
     return out;
 }
 
-List<AST_actual_parameter*>* AST_transform::transform_actual_parameter(AST_actual_parameter* in)
+List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter* in)
 {
-    List<AST_actual_parameter*>::const_iterator i;
-    List<AST_actual_parameter*>* out1 = new List<AST_actual_parameter*>;
-    List<AST_actual_parameter*>* out2 = new List<AST_actual_parameter*>;
+    List<Actual_parameter*>::const_iterator i;
+    List<Actual_parameter*>* out1 = new List<Actual_parameter*>;
+    List<Actual_parameter*>* out2 = new List<Actual_parameter*>;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_actual_parameter(in, out1);
@@ -1923,11 +1923,11 @@ List<AST_actual_parameter*>* AST_transform::transform_actual_parameter(AST_actua
     return out2;
 }
 
-AST_php_script* AST_transform::transform_php_script(AST_php_script* in)
+PHP_script* Transform::transform_php_script(PHP_script* in)
 {
     if(in == NULL) return NULL;
     
-    AST_php_script* out;
+    PHP_script* out;
     
     out = pre_php_script(in);
     if(out != NULL)
@@ -1941,231 +1941,231 @@ AST_php_script* AST_transform::transform_php_script(AST_php_script* in)
 
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
+void Transform::pre_statement(Statement* in, List<Statement*>* out)
 {
     switch(in->classid())
     {
-    case AST_class_def::ID: 
+    case Class_def::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_class_def(dynamic_cast<AST_class_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_interface_def::ID: 
+    case Interface_def::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_interface_def(dynamic_cast<AST_interface_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_method::ID: 
+    case Method::ID: 
     	{
-    		List<AST_method*>* local_out = new List<AST_method*>;
-    		List<AST_method*>::const_iterator i;
-    		pre_method(dynamic_cast<AST_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_return::ID: 
+    case Return::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_return(dynamic_cast<AST_return*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_static_declaration::ID: 
+    case Static_declaration::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_static_declaration(dynamic_cast<AST_static_declaration*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_global::ID: 
+    case Global::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_global(dynamic_cast<AST_global*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_try::ID: 
+    case Try::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_try(dynamic_cast<AST_try*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_throw::ID: 
+    case Throw::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_throw(dynamic_cast<AST_throw*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_eval_expr::ID: 
+    case Eval_expr::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_eval_expr(dynamic_cast<AST_eval_expr*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_label::ID: 
+    case If::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_label(dynamic_cast<AST_label*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_if(dynamic_cast<If*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_goto::ID: 
+    case While::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_goto(dynamic_cast<AST_goto*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_while(dynamic_cast<While*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_branch::ID: 
+    case Do::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_branch(dynamic_cast<AST_branch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_do(dynamic_cast<Do*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_next::ID: 
+    case For::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_foreach_next(dynamic_cast<AST_foreach_next*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_for(dynamic_cast<For*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_reset::ID: 
+    case Foreach::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_foreach_reset(dynamic_cast<AST_foreach_reset*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach(dynamic_cast<Foreach*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_end::ID: 
+    case Switch::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_foreach_end(dynamic_cast<AST_foreach_end*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_switch(dynamic_cast<Switch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_if::ID: 
+    case Break::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_if(dynamic_cast<AST_if*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_break(dynamic_cast<Break*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_while::ID: 
+    case Continue::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_while(dynamic_cast<AST_while*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_continue(dynamic_cast<Continue*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_do::ID: 
+    case Declare::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_do(dynamic_cast<AST_do*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_declare(dynamic_cast<Declare*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_for::ID: 
+    case Nop::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_for(dynamic_cast<AST_for*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_nop(dynamic_cast<Nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach::ID: 
+    case Label::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_foreach(dynamic_cast<AST_foreach*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_label(dynamic_cast<Label*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_switch::ID: 
+    case Goto::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_switch(dynamic_cast<AST_switch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_goto(dynamic_cast<Goto*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_break::ID: 
+    case Branch::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_break(dynamic_cast<AST_break*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_branch(dynamic_cast<Branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_continue::ID: 
+    case Foreach_next::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_continue(dynamic_cast<AST_continue*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_declare::ID: 
+    case Foreach_reset::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_declare(dynamic_cast<AST_declare*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_nop::ID: 
+    case Foreach_end::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		pre_nop(dynamic_cast<AST_nop*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2174,86 +2174,24 @@ void AST_transform::pre_statement(AST_statement* in, List<AST_statement*>* out)
     assert(0);
 }
 
-void AST_transform::pre_member(AST_member* in, List<AST_member*>* out)
+void Transform::pre_member(Member* in, List<Member*>* out)
 {
     switch(in->classid())
     {
-    case AST_method::ID: 
+    case Method::ID: 
     	{
-    		List<AST_method*>* local_out = new List<AST_method*>;
-    		List<AST_method*>::const_iterator i;
-    		pre_method(dynamic_cast<AST_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_attribute::ID: 
+    case Attribute::ID: 
     	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
-    		pre_attribute(dynamic_cast<AST_attribute*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-AST_expr* AST_transform::pre_expr(AST_expr* in)
-{
-    switch(in->classid())
-    {
-    case AST_assignment::ID: return pre_assignment(dynamic_cast<AST_assignment*>(in));
-    case AST_cast::ID: return pre_cast(dynamic_cast<AST_cast*>(in));
-    case AST_unary_op::ID: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case AST_bin_op::ID: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case AST_constant::ID: return pre_constant(dynamic_cast<AST_constant*>(in));
-    case AST_instanceof::ID: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case AST_variable::ID: return pre_variable(dynamic_cast<AST_variable*>(in));
-    case AST_pre_op::ID: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case AST_method_invocation::ID: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case AST_new::ID: return pre_new(dynamic_cast<AST_new*>(in));
-    case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return pre_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
-    case AST_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
-    case AST_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
-    case AST_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
-    case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-    case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case AST_post_op::ID: return pre_post_op(dynamic_cast<AST_post_op*>(in));
-    case AST_array::ID: return pre_array(dynamic_cast<AST_array*>(in));
-    case AST_conditional_expr::ID: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case AST_ignore_errors::ID: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    }
-    assert(0);
-}
-
-AST_variable_name* AST_transform::pre_variable_name(AST_variable_name* in)
-{
-    switch(in->classid())
-    {
-    case Token_variable_name::ID: return pre_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case AST_reflection::ID: return pre_reflection(dynamic_cast<AST_reflection*>(in));
-    }
-    assert(0);
-}
-
-void AST_transform::pre_list_element(AST_list_element* in, List<AST_list_element*>* out)
-{
-    switch(in->classid())
-    {
-    case AST_variable::ID: 
-    	out->push_back(pre_variable(dynamic_cast<AST_variable*>(in)));
-    	return;
-    case AST_nested_list_elements::ID: 
-    	{
-    		List<AST_list_element*>* local_out = new List<AST_list_element*>;
-    		List<AST_list_element*>::const_iterator i;
-    		pre_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in), local_out);
+    		List<Member*>* local_out = new List<Member*>;
+    		List<Member*>::const_iterator i;
+    		pre_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2262,286 +2200,348 @@ void AST_transform::pre_list_element(AST_list_element* in, List<AST_list_element
     assert(0);
 }
 
-AST_class_name* AST_transform::pre_class_name(AST_class_name* in)
+Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
-    case AST_reflection::ID: return pre_reflection(dynamic_cast<AST_reflection*>(in));
+    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return pre_new(dynamic_cast<New*>(in));
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
+    case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
+    case Post_op::ID: return pre_post_op(dynamic_cast<Post_op*>(in));
+    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
+    case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
+    case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
+    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     }
     assert(0);
 }
 
-AST_target* AST_transform::pre_target(AST_target* in)
+Variable_name* Transform::pre_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case AST_assignment::ID: return pre_assignment(dynamic_cast<AST_assignment*>(in));
-    case AST_cast::ID: return pre_cast(dynamic_cast<AST_cast*>(in));
-    case AST_unary_op::ID: return pre_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case AST_bin_op::ID: return pre_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case AST_constant::ID: return pre_constant(dynamic_cast<AST_constant*>(in));
-    case AST_instanceof::ID: return pre_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case AST_variable::ID: return pre_variable(dynamic_cast<AST_variable*>(in));
-    case AST_pre_op::ID: return pre_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case AST_method_invocation::ID: return pre_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case AST_new::ID: return pre_new(dynamic_cast<AST_new*>(in));
-    case Token_int::ID: return pre_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return pre_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return pre_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return pre_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return pre_null(dynamic_cast<Token_null*>(in));
-    case AST_foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
-    case AST_foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
-    case AST_foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
-    case AST_op_assignment::ID: return pre_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-    case AST_list_assignment::ID: return pre_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case AST_post_op::ID: return pre_post_op(dynamic_cast<AST_post_op*>(in));
-    case AST_array::ID: return pre_array(dynamic_cast<AST_array*>(in));
-    case AST_conditional_expr::ID: return pre_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case AST_ignore_errors::ID: return pre_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case Token_class_name::ID: return pre_class_name(dynamic_cast<Token_class_name*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-AST_method_name* AST_transform::pre_method_name(AST_method_name* in)
+void Transform::pre_list_element(List_element* in, List<List_element*>* out)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID: return pre_method_name(dynamic_cast<Token_method_name*>(in));
-    case AST_reflection::ID: return pre_reflection(dynamic_cast<AST_reflection*>(in));
+    case Variable::ID: 
+    	out->push_back(pre_variable(dynamic_cast<Variable*>(in)));
+    	return;
+    case Nested_list_elements::ID: 
+    	{
+    		List<List_element*>* local_out = new List<List_element*>;
+    		List<List_element*>::const_iterator i;
+    		pre_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
+Class_name* Transform::pre_class_name(Class_name* in)
+{
+    switch(in->classid())
+    {
+    case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
+    }
+    assert(0);
+}
+
+Target* Transform::pre_target(Target* in)
+{
+    switch(in->classid())
+    {
+    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return pre_new(dynamic_cast<New*>(in));
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
+    case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
+    case Post_op::ID: return pre_post_op(dynamic_cast<Post_op*>(in));
+    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
+    case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
+    case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
+    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
+    }
+    assert(0);
+}
+
+Method_name* Transform::pre_method_name(Method_name* in)
+{
+    switch(in->classid())
+    {
+    case METHOD_NAME::ID: return pre_method_name(dynamic_cast<METHOD_NAME*>(in));
+    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
+void Transform::post_statement(Statement* in, List<Statement*>* out)
 {
     switch(in->classid())
     {
-    case AST_class_def::ID: 
+    case Class_def::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_class_def(dynamic_cast<AST_class_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_interface_def::ID: 
+    case Interface_def::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_interface_def(dynamic_cast<AST_interface_def*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_method::ID: 
+    case Method::ID: 
     	{
-    		List<AST_method*>* local_out = new List<AST_method*>;
-    		List<AST_method*>::const_iterator i;
-    		post_method(dynamic_cast<AST_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_return::ID: 
+    case Return::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_return(dynamic_cast<AST_return*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_static_declaration::ID: 
+    case Static_declaration::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_static_declaration(dynamic_cast<AST_static_declaration*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_global::ID: 
+    case Global::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_global(dynamic_cast<AST_global*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_try::ID: 
+    case Try::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_try(dynamic_cast<AST_try*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_throw::ID: 
+    case Throw::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_throw(dynamic_cast<AST_throw*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_eval_expr::ID: 
+    case Eval_expr::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_eval_expr(dynamic_cast<AST_eval_expr*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_label::ID: 
+    case If::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_label(dynamic_cast<AST_label*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_if(dynamic_cast<If*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_goto::ID: 
+    case While::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_goto(dynamic_cast<AST_goto*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_while(dynamic_cast<While*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_branch::ID: 
+    case Do::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_branch(dynamic_cast<AST_branch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_do(dynamic_cast<Do*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_next::ID: 
+    case For::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_foreach_next(dynamic_cast<AST_foreach_next*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_for(dynamic_cast<For*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_reset::ID: 
+    case Foreach::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_foreach_reset(dynamic_cast<AST_foreach_reset*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach(dynamic_cast<Foreach*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach_end::ID: 
+    case Switch::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_foreach_end(dynamic_cast<AST_foreach_end*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_switch(dynamic_cast<Switch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_if::ID: 
+    case Break::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_if(dynamic_cast<AST_if*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_break(dynamic_cast<Break*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_while::ID: 
+    case Continue::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_while(dynamic_cast<AST_while*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_continue(dynamic_cast<Continue*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_do::ID: 
+    case Declare::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_do(dynamic_cast<AST_do*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_declare(dynamic_cast<Declare*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_for::ID: 
+    case Nop::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_for(dynamic_cast<AST_for*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_nop(dynamic_cast<Nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_foreach::ID: 
+    case Label::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_foreach(dynamic_cast<AST_foreach*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_label(dynamic_cast<Label*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_switch::ID: 
+    case Goto::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_switch(dynamic_cast<AST_switch*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_goto(dynamic_cast<Goto*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_break::ID: 
+    case Branch::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_break(dynamic_cast<AST_break*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_branch(dynamic_cast<Branch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_continue::ID: 
+    case Foreach_next::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_continue(dynamic_cast<AST_continue*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_declare::ID: 
+    case Foreach_reset::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_declare(dynamic_cast<AST_declare*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_nop::ID: 
+    case Foreach_end::ID: 
     	{
-    		List<AST_statement*>* local_out = new List<AST_statement*>;
-    		List<AST_statement*>::const_iterator i;
-    		post_nop(dynamic_cast<AST_nop*>(in), local_out);
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2550,86 +2550,24 @@ void AST_transform::post_statement(AST_statement* in, List<AST_statement*>* out)
     assert(0);
 }
 
-void AST_transform::post_member(AST_member* in, List<AST_member*>* out)
+void Transform::post_member(Member* in, List<Member*>* out)
 {
     switch(in->classid())
     {
-    case AST_method::ID: 
+    case Method::ID: 
     	{
-    		List<AST_method*>* local_out = new List<AST_method*>;
-    		List<AST_method*>::const_iterator i;
-    		post_method(dynamic_cast<AST_method*>(in), local_out);
+    		List<Method*>* local_out = new List<Method*>;
+    		List<Method*>::const_iterator i;
+    		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
     	return;
-    case AST_attribute::ID: 
+    case Attribute::ID: 
     	{
-    		List<AST_member*>* local_out = new List<AST_member*>;
-    		List<AST_member*>::const_iterator i;
-    		post_attribute(dynamic_cast<AST_attribute*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    }
-    assert(0);
-}
-
-AST_expr* AST_transform::post_expr(AST_expr* in)
-{
-    switch(in->classid())
-    {
-    case AST_assignment::ID: return post_assignment(dynamic_cast<AST_assignment*>(in));
-    case AST_cast::ID: return post_cast(dynamic_cast<AST_cast*>(in));
-    case AST_unary_op::ID: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case AST_bin_op::ID: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case AST_constant::ID: return post_constant(dynamic_cast<AST_constant*>(in));
-    case AST_instanceof::ID: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case AST_variable::ID: return post_variable(dynamic_cast<AST_variable*>(in));
-    case AST_pre_op::ID: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case AST_method_invocation::ID: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case AST_new::ID: return post_new(dynamic_cast<AST_new*>(in));
-    case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return post_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
-    case AST_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
-    case AST_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
-    case AST_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
-    case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-    case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case AST_post_op::ID: return post_post_op(dynamic_cast<AST_post_op*>(in));
-    case AST_array::ID: return post_array(dynamic_cast<AST_array*>(in));
-    case AST_conditional_expr::ID: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case AST_ignore_errors::ID: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    }
-    assert(0);
-}
-
-AST_variable_name* AST_transform::post_variable_name(AST_variable_name* in)
-{
-    switch(in->classid())
-    {
-    case Token_variable_name::ID: return post_variable_name(dynamic_cast<Token_variable_name*>(in));
-    case AST_reflection::ID: return post_reflection(dynamic_cast<AST_reflection*>(in));
-    }
-    assert(0);
-}
-
-void AST_transform::post_list_element(AST_list_element* in, List<AST_list_element*>* out)
-{
-    switch(in->classid())
-    {
-    case AST_variable::ID: 
-    	out->push_back(post_variable(dynamic_cast<AST_variable*>(in)));
-    	return;
-    case AST_nested_list_elements::ID: 
-    	{
-    		List<AST_list_element*>* local_out = new List<AST_list_element*>;
-    		List<AST_list_element*>::const_iterator i;
-    		post_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in), local_out);
+    		List<Member*>* local_out = new List<Member*>;
+    		List<Member*>::const_iterator i;
+    		post_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2638,365 +2576,427 @@ void AST_transform::post_list_element(AST_list_element* in, List<AST_list_elemen
     assert(0);
 }
 
-AST_class_name* AST_transform::post_class_name(AST_class_name* in)
+Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
-    case AST_reflection::ID: return post_reflection(dynamic_cast<AST_reflection*>(in));
+    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return post_new(dynamic_cast<New*>(in));
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
+    case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
+    case Post_op::ID: return post_post_op(dynamic_cast<Post_op*>(in));
+    case Array::ID: return post_array(dynamic_cast<Array*>(in));
+    case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
+    case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
+    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     }
     assert(0);
 }
 
-AST_target* AST_transform::post_target(AST_target* in)
+Variable_name* Transform::post_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case AST_assignment::ID: return post_assignment(dynamic_cast<AST_assignment*>(in));
-    case AST_cast::ID: return post_cast(dynamic_cast<AST_cast*>(in));
-    case AST_unary_op::ID: return post_unary_op(dynamic_cast<AST_unary_op*>(in));
-    case AST_bin_op::ID: return post_bin_op(dynamic_cast<AST_bin_op*>(in));
-    case AST_constant::ID: return post_constant(dynamic_cast<AST_constant*>(in));
-    case AST_instanceof::ID: return post_instanceof(dynamic_cast<AST_instanceof*>(in));
-    case AST_variable::ID: return post_variable(dynamic_cast<AST_variable*>(in));
-    case AST_pre_op::ID: return post_pre_op(dynamic_cast<AST_pre_op*>(in));
-    case AST_method_invocation::ID: return post_method_invocation(dynamic_cast<AST_method_invocation*>(in));
-    case AST_new::ID: return post_new(dynamic_cast<AST_new*>(in));
-    case Token_int::ID: return post_int(dynamic_cast<Token_int*>(in));
-    case Token_real::ID: return post_real(dynamic_cast<Token_real*>(in));
-    case Token_string::ID: return post_string(dynamic_cast<Token_string*>(in));
-    case Token_bool::ID: return post_bool(dynamic_cast<Token_bool*>(in));
-    case Token_null::ID: return post_null(dynamic_cast<Token_null*>(in));
-    case AST_foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
-    case AST_foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
-    case AST_foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
-    case AST_op_assignment::ID: return post_op_assignment(dynamic_cast<AST_op_assignment*>(in));
-    case AST_list_assignment::ID: return post_list_assignment(dynamic_cast<AST_list_assignment*>(in));
-    case AST_post_op::ID: return post_post_op(dynamic_cast<AST_post_op*>(in));
-    case AST_array::ID: return post_array(dynamic_cast<AST_array*>(in));
-    case AST_conditional_expr::ID: return post_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
-    case AST_ignore_errors::ID: return post_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
-    case Token_class_name::ID: return post_class_name(dynamic_cast<Token_class_name*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
-AST_method_name* AST_transform::post_method_name(AST_method_name* in)
+void Transform::post_list_element(List_element* in, List<List_element*>* out)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID: return post_method_name(dynamic_cast<Token_method_name*>(in));
-    case AST_reflection::ID: return post_reflection(dynamic_cast<AST_reflection*>(in));
+    case Variable::ID: 
+    	out->push_back(post_variable(dynamic_cast<Variable*>(in)));
+    	return;
+    case Nested_list_elements::ID: 
+    	{
+    		List<List_element*>* local_out = new List<List_element*>;
+    		List<List_element*>::const_iterator i;
+    		post_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
+Class_name* Transform::post_class_name(Class_name* in)
+{
+    switch(in->classid())
+    {
+    case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
+    }
+    assert(0);
+}
+
+Target* Transform::post_target(Target* in)
+{
+    switch(in->classid())
+    {
+    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
+    case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
+    case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
+    case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
+    case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
+    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
+    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
+    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
+    case New::ID: return post_new(dynamic_cast<New*>(in));
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
+    case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
+    case Post_op::ID: return post_post_op(dynamic_cast<Post_op*>(in));
+    case Array::ID: return post_array(dynamic_cast<Array*>(in));
+    case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
+    case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
+    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
+    }
+    assert(0);
+}
+
+Method_name* Transform::post_method_name(Method_name* in)
+{
+    switch(in->classid())
+    {
+    case METHOD_NAME::ID: return post_method_name(dynamic_cast<METHOD_NAME*>(in));
+    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
     }
     assert(0);
 }
 
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
-void AST_transform::children_statement(AST_statement* in)
+void Transform::children_statement(Statement* in)
 {
     switch(in->classid())
     {
-    case AST_class_def::ID:
-    	children_class_def(dynamic_cast<AST_class_def*>(in));
+    case Class_def::ID:
+    	children_class_def(dynamic_cast<Class_def*>(in));
     	break;
-    case AST_interface_def::ID:
-    	children_interface_def(dynamic_cast<AST_interface_def*>(in));
+    case Interface_def::ID:
+    	children_interface_def(dynamic_cast<Interface_def*>(in));
     	break;
-    case AST_method::ID:
-    	children_method(dynamic_cast<AST_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case AST_return::ID:
-    	children_return(dynamic_cast<AST_return*>(in));
+    case Return::ID:
+    	children_return(dynamic_cast<Return*>(in));
     	break;
-    case AST_static_declaration::ID:
-    	children_static_declaration(dynamic_cast<AST_static_declaration*>(in));
+    case Static_declaration::ID:
+    	children_static_declaration(dynamic_cast<Static_declaration*>(in));
     	break;
-    case AST_global::ID:
-    	children_global(dynamic_cast<AST_global*>(in));
+    case Global::ID:
+    	children_global(dynamic_cast<Global*>(in));
     	break;
-    case AST_try::ID:
-    	children_try(dynamic_cast<AST_try*>(in));
+    case Try::ID:
+    	children_try(dynamic_cast<Try*>(in));
     	break;
-    case AST_throw::ID:
-    	children_throw(dynamic_cast<AST_throw*>(in));
+    case Throw::ID:
+    	children_throw(dynamic_cast<Throw*>(in));
     	break;
-    case AST_eval_expr::ID:
-    	children_eval_expr(dynamic_cast<AST_eval_expr*>(in));
+    case Eval_expr::ID:
+    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
-    case AST_label::ID:
-    	children_label(dynamic_cast<AST_label*>(in));
+    case If::ID:
+    	children_if(dynamic_cast<If*>(in));
     	break;
-    case AST_goto::ID:
-    	children_goto(dynamic_cast<AST_goto*>(in));
+    case While::ID:
+    	children_while(dynamic_cast<While*>(in));
     	break;
-    case AST_branch::ID:
-    	children_branch(dynamic_cast<AST_branch*>(in));
+    case Do::ID:
+    	children_do(dynamic_cast<Do*>(in));
     	break;
-    case AST_foreach_next::ID:
-    	children_foreach_next(dynamic_cast<AST_foreach_next*>(in));
+    case For::ID:
+    	children_for(dynamic_cast<For*>(in));
     	break;
-    case AST_foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<AST_foreach_reset*>(in));
+    case Foreach::ID:
+    	children_foreach(dynamic_cast<Foreach*>(in));
     	break;
-    case AST_foreach_end::ID:
-    	children_foreach_end(dynamic_cast<AST_foreach_end*>(in));
+    case Switch::ID:
+    	children_switch(dynamic_cast<Switch*>(in));
     	break;
-    case AST_if::ID:
-    	children_if(dynamic_cast<AST_if*>(in));
+    case Break::ID:
+    	children_break(dynamic_cast<Break*>(in));
     	break;
-    case AST_while::ID:
-    	children_while(dynamic_cast<AST_while*>(in));
+    case Continue::ID:
+    	children_continue(dynamic_cast<Continue*>(in));
     	break;
-    case AST_do::ID:
-    	children_do(dynamic_cast<AST_do*>(in));
+    case Declare::ID:
+    	children_declare(dynamic_cast<Declare*>(in));
     	break;
-    case AST_for::ID:
-    	children_for(dynamic_cast<AST_for*>(in));
+    case Nop::ID:
+    	children_nop(dynamic_cast<Nop*>(in));
     	break;
-    case AST_foreach::ID:
-    	children_foreach(dynamic_cast<AST_foreach*>(in));
+    case Label::ID:
+    	children_label(dynamic_cast<Label*>(in));
     	break;
-    case AST_switch::ID:
-    	children_switch(dynamic_cast<AST_switch*>(in));
+    case Goto::ID:
+    	children_goto(dynamic_cast<Goto*>(in));
     	break;
-    case AST_break::ID:
-    	children_break(dynamic_cast<AST_break*>(in));
+    case Branch::ID:
+    	children_branch(dynamic_cast<Branch*>(in));
     	break;
-    case AST_continue::ID:
-    	children_continue(dynamic_cast<AST_continue*>(in));
+    case Foreach_next::ID:
+    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
     	break;
-    case AST_declare::ID:
-    	children_declare(dynamic_cast<AST_declare*>(in));
+    case Foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
     	break;
-    case AST_nop::ID:
-    	children_nop(dynamic_cast<AST_nop*>(in));
+    case Foreach_end::ID:
+    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
     	break;
     }
 }
 
-void AST_transform::children_member(AST_member* in)
+void Transform::children_member(Member* in)
 {
     switch(in->classid())
     {
-    case AST_method::ID:
-    	children_method(dynamic_cast<AST_method*>(in));
+    case Method::ID:
+    	children_method(dynamic_cast<Method*>(in));
     	break;
-    case AST_attribute::ID:
-    	children_attribute(dynamic_cast<AST_attribute*>(in));
+    case Attribute::ID:
+    	children_attribute(dynamic_cast<Attribute*>(in));
     	break;
     }
 }
 
-void AST_transform::children_expr(AST_expr* in)
+void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case AST_assignment::ID:
-    	children_assignment(dynamic_cast<AST_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case AST_cast::ID:
-    	children_cast(dynamic_cast<AST_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case AST_unary_op::ID:
-    	children_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case AST_bin_op::ID:
-    	children_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case AST_constant::ID:
-    	children_constant(dynamic_cast<AST_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case AST_instanceof::ID:
-    	children_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case AST_variable::ID:
-    	children_variable(dynamic_cast<AST_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case AST_pre_op::ID:
-    	children_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case AST_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case AST_new::ID:
-    	children_new(dynamic_cast<AST_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case AST_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case Op_assignment::ID:
+    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
-    case AST_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case List_assignment::ID:
+    	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case AST_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
+    case Post_op::ID:
+    	children_post_op(dynamic_cast<Post_op*>(in));
     	break;
-    case AST_op_assignment::ID:
-    	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case AST_list_assignment::ID:
-    	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case Conditional_expr::ID:
+    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
-    case AST_post_op::ID:
-    	children_post_op(dynamic_cast<AST_post_op*>(in));
+    case Ignore_errors::ID:
+    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case AST_array::ID:
-    	children_array(dynamic_cast<AST_array*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case AST_conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case AST_ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
     }
 }
 
-void AST_transform::children_variable_name(AST_variable_name* in)
+void Transform::children_variable_name(Variable_name* in)
 {
     switch(in->classid())
     {
-    case Token_variable_name::ID:
-    	children_variable_name(dynamic_cast<Token_variable_name*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case AST_reflection::ID:
-    	children_reflection(dynamic_cast<AST_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void AST_transform::children_list_element(AST_list_element* in)
+void Transform::children_list_element(List_element* in)
 {
     switch(in->classid())
     {
-    case AST_variable::ID:
-    	children_variable(dynamic_cast<AST_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case AST_nested_list_elements::ID:
-    	children_nested_list_elements(dynamic_cast<AST_nested_list_elements*>(in));
+    case Nested_list_elements::ID:
+    	children_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
 
-void AST_transform::children_class_name(AST_class_name* in)
+void Transform::children_class_name(Class_name* in)
 {
     switch(in->classid())
     {
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case AST_reflection::ID:
-    	children_reflection(dynamic_cast<AST_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
 
-void AST_transform::children_target(AST_target* in)
+void Transform::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case AST_assignment::ID:
-    	children_assignment(dynamic_cast<AST_assignment*>(in));
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
     	break;
-    case AST_cast::ID:
-    	children_cast(dynamic_cast<AST_cast*>(in));
+    case Cast::ID:
+    	children_cast(dynamic_cast<Cast*>(in));
     	break;
-    case AST_unary_op::ID:
-    	children_unary_op(dynamic_cast<AST_unary_op*>(in));
+    case Unary_op::ID:
+    	children_unary_op(dynamic_cast<Unary_op*>(in));
     	break;
-    case AST_bin_op::ID:
-    	children_bin_op(dynamic_cast<AST_bin_op*>(in));
+    case Bin_op::ID:
+    	children_bin_op(dynamic_cast<Bin_op*>(in));
     	break;
-    case AST_constant::ID:
-    	children_constant(dynamic_cast<AST_constant*>(in));
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
-    case AST_instanceof::ID:
-    	children_instanceof(dynamic_cast<AST_instanceof*>(in));
+    case Instanceof::ID:
+    	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case AST_variable::ID:
-    	children_variable(dynamic_cast<AST_variable*>(in));
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case AST_pre_op::ID:
-    	children_pre_op(dynamic_cast<AST_pre_op*>(in));
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case AST_method_invocation::ID:
-    	children_method_invocation(dynamic_cast<AST_method_invocation*>(in));
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
-    case AST_new::ID:
-    	children_new(dynamic_cast<AST_new*>(in));
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
     	break;
-    case Token_int::ID:
-    	children_int(dynamic_cast<Token_int*>(in));
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
     	break;
-    case Token_real::ID:
-    	children_real(dynamic_cast<Token_real*>(in));
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
     	break;
-    case Token_string::ID:
-    	children_string(dynamic_cast<Token_string*>(in));
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
     	break;
-    case Token_bool::ID:
-    	children_bool(dynamic_cast<Token_bool*>(in));
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
     	break;
-    case Token_null::ID:
-    	children_null(dynamic_cast<Token_null*>(in));
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case AST_foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<AST_foreach_has_key*>(in));
+    case Op_assignment::ID:
+    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
-    case AST_foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<AST_foreach_get_key*>(in));
+    case List_assignment::ID:
+    	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case AST_foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<AST_foreach_get_data*>(in));
+    case Post_op::ID:
+    	children_post_op(dynamic_cast<Post_op*>(in));
     	break;
-    case AST_op_assignment::ID:
-    	children_op_assignment(dynamic_cast<AST_op_assignment*>(in));
+    case Array::ID:
+    	children_array(dynamic_cast<Array*>(in));
     	break;
-    case AST_list_assignment::ID:
-    	children_list_assignment(dynamic_cast<AST_list_assignment*>(in));
+    case Conditional_expr::ID:
+    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
-    case AST_post_op::ID:
-    	children_post_op(dynamic_cast<AST_post_op*>(in));
+    case Ignore_errors::ID:
+    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case AST_array::ID:
-    	children_array(dynamic_cast<AST_array*>(in));
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
-    case AST_conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<AST_conditional_expr*>(in));
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case AST_ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<AST_ignore_errors*>(in));
+    case Foreach_get_data::ID:
+    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
     	break;
-    case Token_class_name::ID:
-    	children_class_name(dynamic_cast<Token_class_name*>(in));
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
     }
 }
 
-void AST_transform::children_method_name(AST_method_name* in)
+void Transform::children_method_name(Method_name* in)
 {
     switch(in->classid())
     {
-    case Token_method_name::ID:
-    	children_method_name(dynamic_cast<Token_method_name*>(in));
+    case METHOD_NAME::ID:
+    	children_method_name(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case AST_reflection::ID:
-    	children_reflection(dynamic_cast<AST_reflection*>(in));
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }

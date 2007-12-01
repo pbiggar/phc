@@ -18,8 +18,8 @@ class Pass_manager;
 class IR
 {
 public:
-	AST::AST_php_script* ast;
-	HIR::HIR_php_script* hir;
+	AST::PHP_script* ast;
+	HIR::PHP_script* hir;
 
 	IR ()
 	{
@@ -27,20 +27,20 @@ public:
 		hir = NULL;
 	}
 
-	IR (AST::AST_php_script* a)
+	IR (AST::PHP_script* a)
 	{
 		ast = a;
 		hir = NULL;
 	}
 
 
-	IR (HIR::HIR_php_script* h)
+	IR (HIR::PHP_script* h)
 	{
 		ast = NULL;
 		hir = h;
 	}
 
-	IR (AST::AST_php_script* a, HIR::HIR_php_script* h)
+	IR (AST::PHP_script* a, HIR::PHP_script* h)
 	{
 		ast = a;
 		hir = h;

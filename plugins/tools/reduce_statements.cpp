@@ -19,7 +19,7 @@ using namespace AST;
  * something that involves a label, we want to remove other stuff
  * with that label in them. (this is the sort of thing you do if you
  * dont have data-flow :(). */
-class Strip_labels : public AST_transform
+class Strip_labels : public Transform
 {
 	public:
 		map<string, bool>* labels;
@@ -29,7 +29,7 @@ class Strip_labels : public AST_transform
 		this->labels = labels;
 	}
 
-	void post_branch (AST_branch* in, List<AST_statement*>* out)
+	void post_branch (Branch* in, List<Statement*>* out)
 	{
 		if (!remove_label (in->iftrue) && !remove_label (in->iffalse))
 		{
@@ -37,7 +37,7 @@ class Strip_labels : public AST_transform
 		}
 	}
 
-	void post_goto (AST_goto* in, List<AST_statement*>* out)
+	void post_goto (Goto* in, List<Statement*>* out)
 	{
 		if (!remove_label (in->label_name))
 		{
@@ -46,7 +46,7 @@ class Strip_labels : public AST_transform
 	}
 
 
-	void post_label (AST_label* in, List<AST_statement*>* out)
+	void post_label (Label* in, List<Statement*>* out)
 	{
 		if (!remove_label (in->label_name))
 		{
@@ -55,14 +55,14 @@ class Strip_labels : public AST_transform
 	}
 
 	/* return true if the label should be removed */
-	bool remove_label (Token_label_name* in)
+	bool remove_label (LABEL_NAME* in)
 	{
 		return (labels->find (*in->value) != labels->end ());
 	}
 
 };
 
-class Reduce : public AST_transform
+class Reduce : public Transform
 {
 	private:
 		int start;
@@ -83,63 +83,63 @@ class Reduce : public AST_transform
 
 		// Only remove statements where its sub-statements have been removed
 		// Declarations
-		bool should_remove (AST_class_def* in)
+		bool should_remove (Class_def* in)
 		{
 			return in->members->size () == 0;
 		}
 
-		bool should_remove (AST_interface_def* in)
+		bool should_remove (Interface_def* in)
 		{
 			return in->members->size () == 0;
 		}
 
-		bool should_remove (AST_method* in)
+		bool should_remove (Method* in)
 		{
 			return in->statements->size () == 0;
 		}
 
 		// Control-flow with sub-statements
-		bool should_remove (AST_if* in)
+		bool should_remove (If* in)
 		{
 			return in->iftrue->size () == 0 && in->iffalse->size () == 0;
 		}
 
-		bool should_remove (AST_while* in)
+		bool should_remove (While* in)
 		{
 			return in->statements->size () == 0;
 		}
 
-		bool should_remove (AST_do* in)
+		bool should_remove (Do* in)
 		{
 			return in->statements->size () == 0;
 		}
 
-		bool should_remove (AST_for* in)
+		bool should_remove (For* in)
 		{
 			return in->statements->size () == 0;
 		}
 		
-		bool should_remove (AST_foreach* in)
+		bool should_remove (Foreach* in)
 		{
 			return in->statements->size () == 0;
 		}
 
-		bool should_remove (AST_switch* in)
+		bool should_remove (Switch* in)
 		{
 			return in->switch_cases->size () == 0;
 		}
 
-		bool should_remove (AST_switch_case* in)
+		bool should_remove (Switch_case* in)
 		{
 			return in->statements->size () == 0;
 		}
 
-		bool should_remove (AST_try* in)
+		bool should_remove (Try* in)
 		{
 			return in->statements->size () == 0 && in->catches->size () == 0;
 		}
 
-		bool should_remove (AST_catch* in)
+		bool should_remove (Catch* in)
 		{
 			return in->statements->size () == 0;
 		}
@@ -147,42 +147,42 @@ class Reduce : public AST_transform
 
 
 		// Catch everything else
-		bool should_remove (AST_statement* in)
+		bool should_remove (Statement* in)
 		{
 			return true;
 		}
 
 
 		// Things which can be removed
-		void post_statement (AST_statement *in, List<AST_statement*>* out)
+		void post_statement (Statement *in, List<Statement*>* out)
 		{
-			potentially_remove<AST_statement> (in, out);
+			potentially_remove<Statement> (in, out);
 
 			// If we remove a label, remove everything associated with that label.
 			// Otherwise we'll get compiler warnings and errors.
-			if (AST_goto* go = dynamic_cast <AST_goto*> (in))
+			if (Goto* go = dynamic_cast <Goto*> (in))
 			{
 				mark_label (go->label_name);
 			}
-			else if (AST_branch* branch = dynamic_cast <AST_branch*> (in))
+			else if (Branch* branch = dynamic_cast <Branch*> (in))
 			{
 				mark_label (branch->iftrue);
 				mark_label (branch->iffalse);
 			}
-			else if (AST_label* label = dynamic_cast <AST_label*> (in))
+			else if (Label* label = dynamic_cast <Label*> (in))
 			{
 				mark_label (label->label_name);
 			}
 		}
 
-		void post_switch_case (AST_switch_case *in, List<AST_switch_case*>* out)
+		void post_switch_case (Switch_case *in, List<Switch_case*>* out)
 		{
-			potentially_remove<AST_switch_case> (in, out);
+			potentially_remove<Switch_case> (in, out);
 		}
 
-		void post_catch (AST_catch *in, List<AST_catch*>* out)
+		void post_catch (Catch *in, List<Catch*>* out)
 		{
-			potentially_remove<AST_catch> (in, out);
+			potentially_remove<Catch> (in, out);
 		}
 
 
@@ -200,7 +200,7 @@ class Reduce : public AST_transform
 		}
 
 
-		void mark_label (Token_label_name* name)
+		void mark_label (LABEL_NAME* name)
 		{
 			(*labels)[*name->value] = true;
 		}
@@ -213,7 +213,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_pass (pass);
 }
 
-extern "C" void run (AST_node* in, Pass_manager* pm, String* option)
+extern "C" void run (Node* in, Pass_manager* pm, String* option)
 {
 	int colon_index = -1;
 	for (unsigned int i = 0; i < option->size (); i++)

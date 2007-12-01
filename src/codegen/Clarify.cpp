@@ -22,16 +22,16 @@ using namespace AST;
 // TODO: HTTP_POST_FILES
 // TODO: _REQUEST
 
-void post_method (AST_method* in)
+void post_method (Method* in)
 {
-	AST_global* global = 
-		new AST_global (
-				new List<AST_variable_name*> (
-					new Token_variable_name (
+	Global* global = 
+		new Global (
+				new List<Variable_name*> (
+					new VARIABLE_NAME (
 						new String ("GLOBALS"))));
 
 	if (in->statements)
 		in->statements->push_front (global);
 	else
-		in->statements = new List<AST_statement*> (global);
+		in->statements = new List<Statement*> (global);
 }

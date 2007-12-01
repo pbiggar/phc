@@ -32,7 +32,7 @@ using namespace AST;
 // updated when we do.
 
 // We do the "analysis" in the pre_ methods, and update in the post_ methods.
-void Prune_symbol_table::pre_method (AST_method* in)
+void Prune_symbol_table::pre_method (Method* in)
 {
 	// reset
 	prune = true;
@@ -45,16 +45,16 @@ void Prune_symbol_table::pre_method (AST_method* in)
 
 // TODO this is over-conservative, as it will stop variable
 // functions, which are fine.
-void Prune_symbol_table::pre_reflection (AST_reflection* in)
+void Prune_symbol_table::pre_reflection (Reflection* in)
 {
 	prune = false;
 }
 
-void Prune_symbol_table::pre_method_invocation (AST_method_invocation* in)
+void Prune_symbol_table::pre_method_invocation (Method_invocation* in)
 {
 	/* To be able to support includes with return statements, without
 	 * dataflow, we dont shred their string arguments */
-	Token_method_name* name = dynamic_cast<Token_method_name*>(in->method_name);
+	METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
 	if (name && (
 				*name->value == "eval"
 				or *name->value == "include"
@@ -72,14 +72,14 @@ void Prune_symbol_table::pre_method_invocation (AST_method_invocation* in)
 }
 
 
-void Prune_symbol_table::post_variable_name (Token_variable_name* in)
+void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 {
 	if (prune)
 		in->attrs->set_true ("phc.codegen.st_entry_not_required");
 }
 
 /* Also mark the function. */
-void Prune_symbol_table::post_method (AST_method* in)
+void Prune_symbol_table::post_method (Method* in)
 {
 	if (prune)
 	{

@@ -1,7 +1,7 @@
 #include "AST_factory.h"
 
 namespace AST{
-// If type_id corresponds to AST node, the elements in args must
+// If type_id corresponds to an AST node, the elements in args must
 // correspond to the children of the node.
 // 
 // If type_id corresponds to a list (of the form "..._list"),
@@ -11,57 +11,59 @@ namespace AST{
 // If type_id corresponds to a token (terminal symbol), args must
 // contain a single node of type String. Terminal symbols
 // with non-default values are not supported.
-Object* AST_factory::create(char const* type_id, List<Object*>* args)
+// 
+// If the node type is not recognized, NULL is returned.
+Object* Node_factory::create(char const* type_id, List<Object*>* args)
 {
     List<Object*>::const_iterator i = args->begin();
-    if(!strcmp(type_id, "AST_php_script"))
+    if(!strcmp(type_id, "PHP_script"))
     {
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_php_script(statements);
+    	return new PHP_script(statements);
     }
-    if(!strcmp(type_id, "AST_class_def"))
+    if(!strcmp(type_id, "Class_def"))
     {
-    	AST_class_mod* class_mod = dynamic_cast<AST_class_mod*>(*i++);
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_class_name* extends = dynamic_cast<Token_class_name*>(*i++);
-    	List<Token_interface_name*>* implements = dynamic_cast<List<Token_interface_name*>*>(*i++);
-    	List<AST_member*>* members = dynamic_cast<List<AST_member*>*>(*i++);
+    	Class_mod* class_mod = dynamic_cast<Class_mod*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	CLASS_NAME* extends = dynamic_cast<CLASS_NAME*>(*i++);
+    	List<INTERFACE_NAME*>* implements = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
+    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_class_def(class_mod, class_name, extends, implements, members);
+    	return new Class_def(class_mod, class_name, extends, implements, members);
     }
-    if(!strcmp(type_id, "AST_class_mod"))
+    if(!strcmp(type_id, "Class_mod"))
     {
     	bool is_abstract = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_final = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new AST_class_mod(is_abstract, is_final);
+    	return new Class_mod(is_abstract, is_final);
     }
-    if(!strcmp(type_id, "AST_interface_def"))
+    if(!strcmp(type_id, "Interface_def"))
     {
-    	Token_interface_name* interface_name = dynamic_cast<Token_interface_name*>(*i++);
-    	List<Token_interface_name*>* extends = dynamic_cast<List<Token_interface_name*>*>(*i++);
-    	List<AST_member*>* members = dynamic_cast<List<AST_member*>*>(*i++);
+    	INTERFACE_NAME* interface_name = dynamic_cast<INTERFACE_NAME*>(*i++);
+    	List<INTERFACE_NAME*>* extends = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
+    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_interface_def(interface_name, extends, members);
+    	return new Interface_def(interface_name, extends, members);
     }
-    if(!strcmp(type_id, "AST_method"))
+    if(!strcmp(type_id, "Method"))
     {
-    	AST_signature* signature = dynamic_cast<AST_signature*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Signature* signature = dynamic_cast<Signature*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_method(signature, statements);
+    	return new Method(signature, statements);
     }
-    if(!strcmp(type_id, "AST_signature"))
+    if(!strcmp(type_id, "Signature"))
     {
-    	AST_method_mod* method_mod = dynamic_cast<AST_method_mod*>(*i++);
+    	Method_mod* method_mod = dynamic_cast<Method_mod*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Token_method_name* method_name = dynamic_cast<Token_method_name*>(*i++);
-    	List<AST_formal_parameter*>* formal_parameters = dynamic_cast<List<AST_formal_parameter*>*>(*i++);
+    	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
+    	List<Formal_parameter*>* formal_parameters = dynamic_cast<List<Formal_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_signature(method_mod, is_ref, method_name, formal_parameters);
+    	return new Signature(method_mod, is_ref, method_name, formal_parameters);
     }
-    if(!strcmp(type_id, "AST_method_mod"))
+    if(!strcmp(type_id, "Method_mod"))
     {
     	bool is_public = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_protected = dynamic_cast<Boolean*>(*i++)->value();
@@ -70,30 +72,30 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	bool is_abstract = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_final = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new AST_method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
+    	return new Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
     }
-    if(!strcmp(type_id, "AST_formal_parameter"))
+    if(!strcmp(type_id, "Formal_parameter"))
     {
-    	AST_type* type = dynamic_cast<AST_type*>(*i++);
+    	Type* type = dynamic_cast<Type*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	AST_name_with_default* var = dynamic_cast<AST_name_with_default*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new AST_formal_parameter(type, is_ref, var);
+    	return new Formal_parameter(type, is_ref, var);
     }
-    if(!strcmp(type_id, "AST_type"))
+    if(!strcmp(type_id, "Type"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	assert(i == args->end());
-    	return new AST_type(class_name);
+    	return new Type(class_name);
     }
-    if(!strcmp(type_id, "AST_attribute"))
+    if(!strcmp(type_id, "Attribute"))
     {
-    	AST_attr_mod* attr_mod = dynamic_cast<AST_attr_mod*>(*i++);
-    	List<AST_name_with_default*>* vars = dynamic_cast<List<AST_name_with_default*>*>(*i++);
+    	Attr_mod* attr_mod = dynamic_cast<Attr_mod*>(*i++);
+    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_attribute(attr_mod, vars);
+    	return new Attribute(attr_mod, vars);
     }
-    if(!strcmp(type_id, "AST_attr_mod"))
+    if(!strcmp(type_id, "Attr_mod"))
     {
     	bool is_public = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_protected = dynamic_cast<Boolean*>(*i++)->value();
@@ -101,497 +103,496 @@ Object* AST_factory::create(char const* type_id, List<Object*>* args)
     	bool is_static = dynamic_cast<Boolean*>(*i++)->value();
     	bool is_const = dynamic_cast<Boolean*>(*i++)->value();
     	assert(i == args->end());
-    	return new AST_attr_mod(is_public, is_protected, is_private, is_static, is_const);
+    	return new Attr_mod(is_public, is_protected, is_private, is_static, is_const);
     }
-    if(!strcmp(type_id, "AST_name_with_default"))
+    if(!strcmp(type_id, "Name_with_default"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_name_with_default(variable_name, expr);
+    	return new Name_with_default(variable_name, expr);
     }
-    if(!strcmp(type_id, "AST_if"))
+    if(!strcmp(type_id, "If"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	List<AST_statement*>* iftrue = dynamic_cast<List<AST_statement*>*>(*i++);
-    	List<AST_statement*>* iffalse = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	List<Statement*>* iftrue = dynamic_cast<List<Statement*>*>(*i++);
+    	List<Statement*>* iffalse = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_if(expr, iftrue, iffalse);
+    	return new If(expr, iftrue, iffalse);
     }
-    if(!strcmp(type_id, "AST_while"))
+    if(!strcmp(type_id, "While"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_while(expr, statements);
+    	return new While(expr, statements);
     }
-    if(!strcmp(type_id, "AST_do"))
+    if(!strcmp(type_id, "Do"))
     {
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_do(statements, expr);
+    	return new Do(statements, expr);
     }
-    if(!strcmp(type_id, "AST_for"))
+    if(!strcmp(type_id, "For"))
     {
-    	AST_expr* init = dynamic_cast<AST_expr*>(*i++);
-    	AST_expr* cond = dynamic_cast<AST_expr*>(*i++);
-    	AST_expr* incr = dynamic_cast<AST_expr*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Expr* init = dynamic_cast<Expr*>(*i++);
+    	Expr* cond = dynamic_cast<Expr*>(*i++);
+    	Expr* incr = dynamic_cast<Expr*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_for(init, cond, incr, statements);
+    	return new For(init, cond, incr, statements);
     }
-    if(!strcmp(type_id, "AST_foreach"))
+    if(!strcmp(type_id, "Foreach"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	AST_variable* key = dynamic_cast<AST_variable*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Variable* key = dynamic_cast<Variable*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	AST_variable* val = dynamic_cast<AST_variable*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Variable* val = dynamic_cast<Variable*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach(expr, key, is_ref, val, statements);
+    	return new Foreach(expr, key, is_ref, val, statements);
     }
-    if(!strcmp(type_id, "AST_switch"))
+    if(!strcmp(type_id, "Switch"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	List<AST_switch_case*>* switch_cases = dynamic_cast<List<AST_switch_case*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	List<Switch_case*>* switch_cases = dynamic_cast<List<Switch_case*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_switch(expr, switch_cases);
+    	return new Switch(expr, switch_cases);
     }
-    if(!strcmp(type_id, "AST_switch_case"))
+    if(!strcmp(type_id, "Switch_case"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_switch_case(expr, statements);
+    	return new Switch_case(expr, statements);
     }
-    if(!strcmp(type_id, "AST_break"))
+    if(!strcmp(type_id, "Break"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_break(expr);
+    	return new Break(expr);
     }
-    if(!strcmp(type_id, "AST_continue"))
+    if(!strcmp(type_id, "Continue"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_continue(expr);
+    	return new Continue(expr);
     }
-    if(!strcmp(type_id, "AST_return"))
+    if(!strcmp(type_id, "Return"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_return(expr);
+    	return new Return(expr);
     }
-    if(!strcmp(type_id, "AST_static_declaration"))
+    if(!strcmp(type_id, "Static_declaration"))
     {
-    	List<AST_name_with_default*>* vars = dynamic_cast<List<AST_name_with_default*>*>(*i++);
+    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_static_declaration(vars);
+    	return new Static_declaration(vars);
     }
-    if(!strcmp(type_id, "AST_global"))
+    if(!strcmp(type_id, "Global"))
     {
-    	List<AST_variable_name*>* variable_names = dynamic_cast<List<AST_variable_name*>*>(*i++);
+    	List<Variable_name*>* variable_names = dynamic_cast<List<Variable_name*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_global(variable_names);
+    	return new Global(variable_names);
     }
-    if(!strcmp(type_id, "AST_declare"))
+    if(!strcmp(type_id, "Declare"))
     {
-    	List<AST_directive*>* directives = dynamic_cast<List<AST_directive*>*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	List<Directive*>* directives = dynamic_cast<List<Directive*>*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_declare(directives, statements);
+    	return new Declare(directives, statements);
     }
-    if(!strcmp(type_id, "AST_directive"))
+    if(!strcmp(type_id, "Directive"))
     {
-    	Token_directive_name* directive_name = dynamic_cast<Token_directive_name*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	DIRECTIVE_NAME* directive_name = dynamic_cast<DIRECTIVE_NAME*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_directive(directive_name, expr);
+    	return new Directive(directive_name, expr);
     }
-    if(!strcmp(type_id, "AST_try"))
+    if(!strcmp(type_id, "Try"))
     {
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
-    	List<AST_catch*>* catches = dynamic_cast<List<AST_catch*>*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	List<Catch*>* catches = dynamic_cast<List<Catch*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_try(statements, catches);
+    	return new Try(statements, catches);
     }
-    if(!strcmp(type_id, "AST_catch"))
+    if(!strcmp(type_id, "Catch"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	List<AST_statement*>* statements = dynamic_cast<List<AST_statement*>*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_catch(class_name, variable_name, statements);
+    	return new Catch(class_name, variable_name, statements);
     }
-    if(!strcmp(type_id, "AST_throw"))
+    if(!strcmp(type_id, "Throw"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_throw(expr);
+    	return new Throw(expr);
     }
-    if(!strcmp(type_id, "AST_eval_expr"))
+    if(!strcmp(type_id, "Eval_expr"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_eval_expr(expr);
+    	return new Eval_expr(expr);
     }
-    if(!strcmp(type_id, "AST_nop"))
+    if(!strcmp(type_id, "Nop"))
     {
     	assert(i == args->end());
-    	return new AST_nop();
+    	return new Nop();
     }
-    if(!strcmp(type_id, "AST_branch"))
+    if(!strcmp(type_id, "Branch"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	Token_label_name* iftrue = dynamic_cast<Token_label_name*>(*i++);
-    	Token_label_name* iffalse = dynamic_cast<Token_label_name*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	LABEL_NAME* iftrue = dynamic_cast<LABEL_NAME*>(*i++);
+    	LABEL_NAME* iffalse = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new AST_branch(expr, iftrue, iffalse);
+    	return new Branch(expr, iftrue, iffalse);
     }
-    if(!strcmp(type_id, "AST_goto"))
+    if(!strcmp(type_id, "Goto"))
     {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new AST_goto(label_name);
+    	return new Goto(label_name);
     }
-    if(!strcmp(type_id, "AST_label"))
+    if(!strcmp(type_id, "Label"))
     {
-    	Token_label_name* label_name = dynamic_cast<Token_label_name*>(*i++);
+    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new AST_label(label_name);
+    	return new Label(label_name);
     }
-    if(!strcmp(type_id, "AST_foreach_reset"))
+    if(!strcmp(type_id, "Foreach_reset"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_reset(variable_name, ht_iterator);
+    	return new Foreach_reset(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_foreach_next"))
+    if(!strcmp(type_id, "Foreach_next"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_next(variable_name, ht_iterator);
+    	return new Foreach_next(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_foreach_end"))
+    if(!strcmp(type_id, "Foreach_end"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_end(variable_name, ht_iterator);
+    	return new Foreach_end(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_foreach_has_key"))
+    if(!strcmp(type_id, "Foreach_has_key"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_has_key(variable_name, ht_iterator);
+    	return new Foreach_has_key(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_foreach_get_key"))
+    if(!strcmp(type_id, "Foreach_get_key"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_get_key(variable_name, ht_iterator);
+    	return new Foreach_get_key(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_foreach_get_data"))
+    if(!strcmp(type_id, "Foreach_get_data"))
     {
-    	Token_variable_name* variable_name = dynamic_cast<Token_variable_name*>(*i++);
-    	Token_ht_iterator* ht_iterator = dynamic_cast<Token_ht_iterator*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new AST_foreach_get_data(variable_name, ht_iterator);
+    	return new Foreach_get_data(variable_name, ht_iterator);
     }
-    if(!strcmp(type_id, "AST_assignment"))
+    if(!strcmp(type_id, "Assignment"))
     {
-    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_assignment(variable, is_ref, expr);
+    	return new Assignment(variable, is_ref, expr);
     }
-    if(!strcmp(type_id, "AST_op_assignment"))
+    if(!strcmp(type_id, "Op_assignment"))
     {
-    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_op_assignment(variable, op, expr);
+    	return new Op_assignment(variable, op, expr);
     }
-    if(!strcmp(type_id, "AST_list_assignment"))
+    if(!strcmp(type_id, "List_assignment"))
     {
-    	List<AST_list_element*>* list_elements = dynamic_cast<List<AST_list_element*>*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	List<List_element*>* list_elements = dynamic_cast<List<List_element*>*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_list_assignment(list_elements, expr);
+    	return new List_assignment(list_elements, expr);
     }
-    if(!strcmp(type_id, "AST_nested_list_elements"))
+    if(!strcmp(type_id, "Nested_list_elements"))
     {
-    	List<AST_list_element*>* list_elements = dynamic_cast<List<AST_list_element*>*>(*i++);
+    	List<List_element*>* list_elements = dynamic_cast<List<List_element*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_nested_list_elements(list_elements);
+    	return new Nested_list_elements(list_elements);
     }
-    if(!strcmp(type_id, "AST_cast"))
+    if(!strcmp(type_id, "Cast"))
     {
-    	Token_cast* cast = dynamic_cast<Token_cast*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	CAST* cast = dynamic_cast<CAST*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_cast(cast, expr);
+    	return new Cast(cast, expr);
     }
-    if(!strcmp(type_id, "AST_unary_op"))
+    if(!strcmp(type_id, "Unary_op"))
     {
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_unary_op(op, expr);
+    	return new Unary_op(op, expr);
     }
-    if(!strcmp(type_id, "AST_bin_op"))
+    if(!strcmp(type_id, "Bin_op"))
     {
-    	AST_expr* left = dynamic_cast<AST_expr*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	AST_expr* right = dynamic_cast<AST_expr*>(*i++);
+    	Expr* left = dynamic_cast<Expr*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	Expr* right = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_bin_op(left, op, right);
+    	return new Bin_op(left, op, right);
     }
-    if(!strcmp(type_id, "AST_conditional_expr"))
+    if(!strcmp(type_id, "Conditional_expr"))
     {
-    	AST_expr* cond = dynamic_cast<AST_expr*>(*i++);
-    	AST_expr* iftrue = dynamic_cast<AST_expr*>(*i++);
-    	AST_expr* iffalse = dynamic_cast<AST_expr*>(*i++);
+    	Expr* cond = dynamic_cast<Expr*>(*i++);
+    	Expr* iftrue = dynamic_cast<Expr*>(*i++);
+    	Expr* iffalse = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_conditional_expr(cond, iftrue, iffalse);
+    	return new Conditional_expr(cond, iftrue, iffalse);
     }
-    if(!strcmp(type_id, "AST_ignore_errors"))
+    if(!strcmp(type_id, "Ignore_errors"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_ignore_errors(expr);
+    	return new Ignore_errors(expr);
     }
-    if(!strcmp(type_id, "AST_constant"))
+    if(!strcmp(type_id, "Constant"))
     {
-    	Token_class_name* class_name = dynamic_cast<Token_class_name*>(*i++);
-    	Token_constant_name* constant_name = dynamic_cast<Token_constant_name*>(*i++);
+    	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
+    	CONSTANT_NAME* constant_name = dynamic_cast<CONSTANT_NAME*>(*i++);
     	assert(i == args->end());
-    	return new AST_constant(class_name, constant_name);
+    	return new Constant(class_name, constant_name);
     }
-    if(!strcmp(type_id, "AST_instanceof"))
+    if(!strcmp(type_id, "Instanceof"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
-    	AST_class_name* class_name = dynamic_cast<AST_class_name*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
     	assert(i == args->end());
-    	return new AST_instanceof(expr, class_name);
+    	return new Instanceof(expr, class_name);
     }
-    if(!strcmp(type_id, "AST_variable"))
+    if(!strcmp(type_id, "Variable"))
     {
-    	AST_target* target = dynamic_cast<AST_target*>(*i++);
-    	AST_variable_name* variable_name = dynamic_cast<AST_variable_name*>(*i++);
-    	List<AST_expr*>* array_indices = dynamic_cast<List<AST_expr*>*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<Expr*>* array_indices = dynamic_cast<List<Expr*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_variable(target, variable_name, array_indices);
+    	return new Variable(target, variable_name, array_indices);
     }
-    if(!strcmp(type_id, "AST_reflection"))
+    if(!strcmp(type_id, "Reflection"))
     {
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_reflection(expr);
+    	return new Reflection(expr);
     }
-    if(!strcmp(type_id, "AST_pre_op"))
+    if(!strcmp(type_id, "Pre_op"))
     {
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
-    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
     	assert(i == args->end());
-    	return new AST_pre_op(op, variable);
+    	return new Pre_op(op, variable);
     }
-    if(!strcmp(type_id, "AST_post_op"))
+    if(!strcmp(type_id, "Post_op"))
     {
-    	AST_variable* variable = dynamic_cast<AST_variable*>(*i++);
-    	Token_op* op = dynamic_cast<Token_op*>(*i++);
+    	Variable* variable = dynamic_cast<Variable*>(*i++);
+    	OP* op = dynamic_cast<OP*>(*i++);
     	assert(i == args->end());
-    	return new AST_post_op(variable, op);
+    	return new Post_op(variable, op);
     }
-    if(!strcmp(type_id, "AST_array"))
+    if(!strcmp(type_id, "Array"))
     {
-    	List<AST_array_elem*>* array_elems = dynamic_cast<List<AST_array_elem*>*>(*i++);
+    	List<Array_elem*>* array_elems = dynamic_cast<List<Array_elem*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_array(array_elems);
+    	return new Array(array_elems);
     }
-    if(!strcmp(type_id, "AST_array_elem"))
+    if(!strcmp(type_id, "Array_elem"))
     {
-    	AST_expr* key = dynamic_cast<AST_expr*>(*i++);
+    	Expr* key = dynamic_cast<Expr*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	AST_expr* val = dynamic_cast<AST_expr*>(*i++);
+    	Expr* val = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_array_elem(key, is_ref, val);
+    	return new Array_elem(key, is_ref, val);
     }
-    if(!strcmp(type_id, "AST_method_invocation"))
+    if(!strcmp(type_id, "Method_invocation"))
     {
-    	AST_target* target = dynamic_cast<AST_target*>(*i++);
-    	AST_method_name* method_name = dynamic_cast<AST_method_name*>(*i++);
-    	List<AST_actual_parameter*>* actual_parameters = dynamic_cast<List<AST_actual_parameter*>*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Method_name* method_name = dynamic_cast<Method_name*>(*i++);
+    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_method_invocation(target, method_name, actual_parameters);
+    	return new Method_invocation(target, method_name, actual_parameters);
     }
-    if(!strcmp(type_id, "AST_actual_parameter"))
+    if(!strcmp(type_id, "Actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	AST_expr* expr = dynamic_cast<AST_expr*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new AST_actual_parameter(is_ref, expr);
+    	return new Actual_parameter(is_ref, expr);
     }
-    if(!strcmp(type_id, "AST_new"))
+    if(!strcmp(type_id, "New"))
     {
-    	AST_class_name* class_name = dynamic_cast<AST_class_name*>(*i++);
-    	List<AST_actual_parameter*>* actual_parameters = dynamic_cast<List<AST_actual_parameter*>*>(*i++);
+    	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
+    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
-    	return new AST_new(class_name, actual_parameters);
+    	return new New(class_name, actual_parameters);
     }
-    if(!strcmp(type_id, "Token_class_name"))
+    if(!strcmp(type_id, "CLASS_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_class_name(value);
+    	return new CLASS_NAME(value);
     }
-    if(!strcmp(type_id, "Token_interface_name"))
+    if(!strcmp(type_id, "INTERFACE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_interface_name(value);
+    	return new INTERFACE_NAME(value);
     }
-    if(!strcmp(type_id, "Token_method_name"))
+    if(!strcmp(type_id, "METHOD_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_method_name(value);
+    	return new METHOD_NAME(value);
     }
-    if(!strcmp(type_id, "Token_variable_name"))
+    if(!strcmp(type_id, "VARIABLE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_variable_name(value);
+    	return new VARIABLE_NAME(value);
     }
-    if(!strcmp(type_id, "Token_directive_name"))
+    if(!strcmp(type_id, "DIRECTIVE_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_directive_name(value);
+    	return new DIRECTIVE_NAME(value);
     }
-    if(!strcmp(type_id, "Token_label_name"))
+    if(!strcmp(type_id, "LABEL_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_label_name(value);
+    	return new LABEL_NAME(value);
     }
-    if(!strcmp(type_id, "Token_ht_iterator"))
+    if(!strcmp(type_id, "HT_ITERATOR"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_ht_iterator(value);
+    	return new HT_ITERATOR(value);
     }
-    if(!strcmp(type_id, "Token_op"))
+    if(!strcmp(type_id, "OP"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_op(value);
+    	return new OP(value);
     }
-    if(!strcmp(type_id, "Token_constant_name"))
+    if(!strcmp(type_id, "CONSTANT_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
-    	return new Token_constant_name(value);
+    	return new CONSTANT_NAME(value);
     }
-    if(!strcmp(type_id, "AST_statement_list"))
+    if(!strcmp(type_id, "Statement_list"))
     {
-    	List<AST_statement*>* list = new List<AST_statement*>;
+    	List<Statement*>* list = new List<Statement*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_statement*>(*i++));
+    		list->push_back(dynamic_cast<Statement*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Token_interface_name_list"))
+    if(!strcmp(type_id, "INTERFACE_NAME_list"))
     {
-    	List<Token_interface_name*>* list = new List<Token_interface_name*>;
+    	List<INTERFACE_NAME*>* list = new List<INTERFACE_NAME*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Token_interface_name*>(*i++));
+    		list->push_back(dynamic_cast<INTERFACE_NAME*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_member_list"))
+    if(!strcmp(type_id, "Member_list"))
     {
-    	List<AST_member*>* list = new List<AST_member*>;
+    	List<Member*>* list = new List<Member*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_member*>(*i++));
+    		list->push_back(dynamic_cast<Member*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_formal_parameter_list"))
+    if(!strcmp(type_id, "Formal_parameter_list"))
     {
-    	List<AST_formal_parameter*>* list = new List<AST_formal_parameter*>;
+    	List<Formal_parameter*>* list = new List<Formal_parameter*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_formal_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_name_with_default_list"))
+    if(!strcmp(type_id, "Name_with_default_list"))
     {
-    	List<AST_name_with_default*>* list = new List<AST_name_with_default*>;
+    	List<Name_with_default*>* list = new List<Name_with_default*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_name_with_default*>(*i++));
+    		list->push_back(dynamic_cast<Name_with_default*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_switch_case_list"))
+    if(!strcmp(type_id, "Switch_case_list"))
     {
-    	List<AST_switch_case*>* list = new List<AST_switch_case*>;
+    	List<Switch_case*>* list = new List<Switch_case*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_switch_case*>(*i++));
+    		list->push_back(dynamic_cast<Switch_case*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_variable_name_list"))
+    if(!strcmp(type_id, "Variable_name_list"))
     {
-    	List<AST_variable_name*>* list = new List<AST_variable_name*>;
+    	List<Variable_name*>* list = new List<Variable_name*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_variable_name*>(*i++));
+    		list->push_back(dynamic_cast<Variable_name*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_directive_list"))
+    if(!strcmp(type_id, "Directive_list"))
     {
-    	List<AST_directive*>* list = new List<AST_directive*>;
+    	List<Directive*>* list = new List<Directive*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_directive*>(*i++));
+    		list->push_back(dynamic_cast<Directive*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_catch_list"))
+    if(!strcmp(type_id, "Catch_list"))
     {
-    	List<AST_catch*>* list = new List<AST_catch*>;
+    	List<Catch*>* list = new List<Catch*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_catch*>(*i++));
+    		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_list_element_list"))
+    if(!strcmp(type_id, "List_element_list"))
     {
-    	List<AST_list_element*>* list = new List<AST_list_element*>;
+    	List<List_element*>* list = new List<List_element*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_list_element*>(*i++));
+    		list->push_back(dynamic_cast<List_element*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_expr_list"))
+    if(!strcmp(type_id, "Expr_list"))
     {
-    	List<AST_expr*>* list = new List<AST_expr*>;
+    	List<Expr*>* list = new List<Expr*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_expr*>(*i++));
+    		list->push_back(dynamic_cast<Expr*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_array_elem_list"))
+    if(!strcmp(type_id, "Array_elem_list"))
     {
-    	List<AST_array_elem*>* list = new List<AST_array_elem*>;
+    	List<Array_elem*>* list = new List<Array_elem*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_array_elem*>(*i++));
+    		list->push_back(dynamic_cast<Array_elem*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "AST_actual_parameter_list"))
+    if(!strcmp(type_id, "Actual_parameter_list"))
     {
-    	List<AST_actual_parameter*>* list = new List<AST_actual_parameter*>;
+    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<AST_actual_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;
     }
-    assert(0);
     return NULL;
 }
 }

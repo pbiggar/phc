@@ -16,21 +16,21 @@
 using namespace AST;
 
 /* Shred a list of statements */
-List<AST_statement*>* shred (List<AST_statement*>* in)
+List<Statement*>* shred (List<Statement*>* in)
 {
-	AST_php_script* script = new AST_php_script (in);
+	PHP_script* script = new PHP_script (in);
 	script->transform_children (new Shredder ());
 	return script->statements;
 }
 
-List<AST_statement*>* shred (AST_statement* in)
+List<Statement*>* shred (Statement* in)
 {
-	AST_php_script* script = new AST_php_script (new List<AST_statement*> (in));
+	PHP_script* script = new PHP_script (new List<Statement*> (in));
 	script->transform_children (new Shredder ());
 	return script->statements;
 }
 
-void Shredder::children_php_script(AST_php_script* in)
+void Shredder::children_php_script(PHP_script* in)
 {
 	Annotate ann;
 	in->visit(&ann);
@@ -70,12 +70,12 @@ void Shredder::children_php_script(AST_php_script* in)
  * reference, or reference assignment is used.
  */
 
-AST_variable* Shredder::post_variable(AST_variable* in)
+Variable* Shredder::post_variable(Variable* in)
 {
 	if (in->attrs->is_true ("phc.shredder.dont_shred"))
 		return in;
 
-	AST_variable* prev = in;
+	Variable* prev = in;
 	
 	int num_pieces = 
 		  (in->target != NULL ? 1 : 0) 
@@ -84,18 +84,18 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	// translate ${$x}[1] to $T =& ${$x}; $T[1] but only if no target is set
 	if(in->target == NULL 
-		&& in->variable_name->classid() == AST_reflection::ID
+		&& in->variable_name->classid() == Reflection::ID
 		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
 	{
-		AST_variable* temp = fresh_var("TSr");
+		Variable* temp = fresh_var("TSr");
 
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
+		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (), 
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable (
+			new Variable (
 				NULL,
 				in->variable_name,
-				new List<AST_expr*>()
+				new List<Expr*>()
 			))));
 
 		prev = temp;
@@ -103,14 +103,14 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	if(in->target != NULL && num_pieces > 0)
 	{
-		AST_variable* temp = fresh_var("TSt");
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
+		Variable* temp = fresh_var("TSt");
+		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable (
+			new Variable (
 				in->target,
 				in->variable_name->clone(),
-				new List<AST_expr*>()
+				new List<Expr*>()
 			))));
 		prev = temp;
 		num_pieces--;
@@ -121,14 +121,14 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 
 	while(num_pieces > 0)
 	{
-		AST_variable* temp = fresh_var("TSi");
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
+		Variable* temp = fresh_var("TSi");
+		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
 			in->attrs->is_true ("phc.shredder.need_addr"),
-			new AST_variable (
+			new Variable (
 				NULL, 
 				prev->variable_name->clone(), 
-				new List<AST_expr*>(in->array_indices->front()->clone ())))));
+				new List<Expr*>(in->array_indices->front()->clone ())))));
 		prev = temp;
 		num_pieces--;
 
@@ -139,7 +139,7 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 	if(prev != in && !in->array_indices->empty())
 	{
 		prev = prev->clone();
-		AST_expr* front = in->array_indices->front();
+		Expr* front = in->array_indices->front();
 		in->array_indices->pop_front();
 
 		if (front) // NULL expressions are allowed
@@ -154,9 +154,9 @@ AST_variable* Shredder::post_variable(AST_variable* in)
 /* Remove statements which consist of a single variable. These can be
  * introduced by the list lowering. We use the pre_ form, since the post_ form
  * overrides Lower_expr::post_eval_expr.*/
-void Shredder::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
+void Shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
-	if (in->expr->classid () != AST_variable::ID)
+	if (in->expr->classid () != Variable::ID)
 		out->push_back (in);
 }
 
@@ -167,12 +167,12 @@ void Shredder::pre_eval_expr (AST_eval_expr* in, List<AST_statement*>* out)
  * but in the lowering pass. Pre and post operators are handled in Early_Shredder.
  */
 
-AST_expr* Shredder::post_bin_op(AST_bin_op* in)
+Expr* Shredder::post_bin_op(Bin_op* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_unary_op(AST_unary_op* in)
+Expr* Shredder::post_unary_op(Unary_op* in)
 {
 	return eval(in);
 }
@@ -181,7 +181,7 @@ AST_expr* Shredder::post_unary_op(AST_unary_op* in)
  * Casts
  */
 
-AST_expr* Shredder::post_cast(AST_cast* in)
+Expr* Shredder::post_cast(Cast* in)
 {
 	return eval(in);
 }
@@ -190,7 +190,7 @@ AST_expr* Shredder::post_cast(AST_cast* in)
  * instanceof
  */
 
-AST_expr* Shredder::post_instanceof (AST_instanceof* in)
+Expr* Shredder::post_instanceof (Instanceof* in)
 {
 	return eval(in);
 }
@@ -199,12 +199,12 @@ AST_expr* Shredder::post_instanceof (AST_instanceof* in)
  * Method invocation
  */
 
-AST_expr* Shredder::post_method_invocation(AST_method_invocation* in)
+Expr* Shredder::post_method_invocation(Method_invocation* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_new (AST_new* in)
+Expr* Shredder::post_new (New* in)
 {
 	return eval(in);
 }
@@ -213,32 +213,32 @@ AST_expr* Shredder::post_new (AST_new* in)
  * Literals
  */
 
-AST_expr* Shredder::post_int(Token_int* in)
+Expr* Shredder::post_int(INT* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_real(Token_real* in)
+Expr* Shredder::post_real(REAL* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_string(Token_string* in)
+Expr* Shredder::post_string(STRING* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_bool(Token_bool* in)
+Expr* Shredder::post_bool(BOOL* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_null(Token_null* in)
+Expr* Shredder::post_nil(NIL* in)
 {
 	return eval(in);
 }
 
-AST_expr* Shredder::post_constant (AST_constant* in)
+Expr* Shredder::post_constant (Constant* in)
 {
 	return eval(in);
 }
@@ -257,14 +257,14 @@ AST_expr* Shredder::post_constant (AST_constant* in)
  *	  $t1 = $y;
  *	  $x = $t1;
  */
-AST_expr* Shredder::post_assignment (AST_assignment* in)
+Expr* Shredder::post_assignment (Assignment* in)
 {
 	if (in->attrs->is_true ("phc.shredder.non_nested_assignment"))
 		return in;
 
 	// dont replace with the same variable, since it may be assigned to multiple
 	// times in the same expression.
-	pieces->push_back (new AST_eval_expr (in));
+	pieces->push_back (new Eval_expr (in));
 	return eval (in->variable);
 }
 
@@ -272,68 +272,68 @@ AST_expr* Shredder::post_assignment (AST_assignment* in)
  * Array literals
  */
 
-AST_expr* Shredder::post_array(AST_array* in)
+Expr* Shredder::post_array(Array* in)
 {
 	if (in->attrs->is_true("phc.lower_expr.no_temp"))
 		return in;
 
-	AST_variable* var = fresh_var ("TSa");
+	Variable* var = fresh_var ("TSa");
 
 	// We need to unset TS in case its run in a loop
-	pieces->push_back(new AST_eval_expr(new AST_method_invocation("unset", var->clone ())));
+	pieces->push_back(new Eval_expr(new Method_invocation("unset", var->clone ())));
 
 	// We need to cast it in case its empty
 	pieces->push_back(
-		new AST_eval_expr (new AST_assignment (
+		new Eval_expr (new Assignment (
 									var->clone (), 
 									false, 
-									new AST_cast(
+									new Cast(
 										"array", 
 										new String ("array"), 
 										var->clone ()))));
 	
 
-	List<AST_array_elem*>::const_iterator i;
+	List<Array_elem*>::const_iterator i;
 	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
 	{
-		AST_expr* key;
+		Expr* key;
 
 		if((*i)->key != NULL)
 			key = (*i)->key;
 		else
 			key = NULL;
 
-		pieces->push_back(new AST_eval_expr(new AST_assignment(
-						new AST_variable (
+		pieces->push_back(new Eval_expr(new Assignment(
+						new Variable (
 							NULL,
 							var->variable_name->clone(),
-							new List<AST_expr*>(key)),
+							new List<Expr*>(key)),
 						(*i)->is_ref,
 						(*i)->val
 						)));
 	}
 
-	return new AST_variable (
+	return new Variable (
 			NULL,
 			var->variable_name->clone (),
-			new List<AST_expr*>());
+			new List<Expr*>());
 }
 
-AST_expr* Shredder::post_op_assignment(AST_op_assignment* in)
+Expr* Shredder::post_op_assignment(Op_assignment* in)
 {
-	AST_assignment* assignment;
+	Assignment* assignment;
 
 	// The LHS may be of the form $x[$y], but that should occur
 	// as an operand to a binary operator. Hence, we must visit the RHS again
 	// clearing the need_addr flag
-	AST_expr* left = in->variable->clone();
+	Expr* left = in->variable->clone();
 	left->attrs->erase("phc.shredder.need_addr");
 	left = transform_expr(left);
 
-	assignment = new AST_assignment(
+	assignment = new Assignment(
 		in->variable,
 		false,
-		new AST_bin_op(
+		new Bin_op(
 			left,
 			in->op,
 			in->expr)
@@ -343,34 +343,34 @@ AST_expr* Shredder::post_op_assignment(AST_op_assignment* in)
 	return post_assignment(assignment); 
 }
 
-AST_expr* Shredder::pre_ignore_errors(AST_ignore_errors* in)
+Expr* Shredder::pre_ignore_errors(Ignore_errors* in)
 {
-	AST_variable* zero = fresh_var("TSie");
-	AST_variable* temp = fresh_var("TSie");
-	pieces->push_back(new AST_eval_expr(new AST_assignment(
+	Variable* zero = fresh_var("TSie");
+	Variable* temp = fresh_var("TSie");
+	pieces->push_back(new Eval_expr(new Assignment(
 		zero,
 		false,
-		new Token_int(0))));
-	pieces->push_back(new AST_eval_expr(new AST_assignment(
+		new INT(0))));
+	pieces->push_back(new Eval_expr(new Assignment(
 		temp,
 		false,
-		new AST_method_invocation(
+		new Method_invocation(
 			"error_reporting",
 			zero))));
 	in->attrs->set("phc.shredder.old_error_level", temp);
 	return in;
 }
 
-AST_expr* Shredder::post_ignore_errors(AST_ignore_errors* in)
+Expr* Shredder::post_ignore_errors(Ignore_errors* in)
 {
-	AST_variable* temp = fresh_var("TSie");
-	AST_variable* old = dynamic_cast<AST_variable*>(in->attrs->get("phc.shredder.old_error_level"));
+	Variable* temp = fresh_var("TSie");
+	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.shredder.old_error_level"));
 	assert(old);
 	
-	pieces->push_back(new AST_eval_expr(new AST_assignment(
+	pieces->push_back(new Eval_expr(new Assignment(
 		temp,
 		false,
-		new AST_method_invocation(
+		new Method_invocation(
 			"error_reporting",
 			old))));
 	
@@ -385,26 +385,26 @@ AST_expr* Shredder::post_ignore_errors(AST_ignore_errors* in)
  *		unset($y);
  * 	unset($z);
  */
-void Split_unset_isset::pre_eval_expr(AST_eval_expr * in, List<AST_statement*>* out)
+void Split_unset_isset::pre_eval_expr(Eval_expr * in, List<Statement*>* out)
 {
-	AST_expr* unset = new AST_method_invocation(
+	Expr* unset = new Method_invocation(
 		NULL, 	// NULL target
-		new Token_method_name(new String("unset")),
+		new METHOD_NAME(new String("unset")),
 		NULL	// Arbitrary list of parameters
 		);
 
 	if(in->expr->match(unset))
 	{
-		AST_method_invocation* inv = dynamic_cast<AST_method_invocation*>(in->expr);
+		Method_invocation* inv = dynamic_cast<Method_invocation*>(in->expr);
 		assert(inv);
 
-		List<AST_actual_parameter*>::const_iterator i;
+		List<Actual_parameter*>::const_iterator i;
 		for(i = inv->actual_parameters->begin();
 			i != inv->actual_parameters->end();
 			i++)
 		{
 			assert(!(*i)->is_ref);
-			out->push_back(new AST_eval_expr(new AST_method_invocation("unset", (*i)->expr)));
+			out->push_back(new Eval_expr(new Method_invocation("unset", (*i)->expr)));
 		}
 	}
 	else
@@ -419,26 +419,26 @@ void Split_unset_isset::pre_eval_expr(AST_eval_expr * in, List<AST_statement*>* 
  * into
  * 		isset($x) && isset($y) && isset($z)
  */
-AST_expr* Split_unset_isset::pre_method_invocation(AST_method_invocation* in)
+Expr* Split_unset_isset::pre_method_invocation(Method_invocation* in)
 {
-	if(in->method_name->match(new Token_method_name(new String("isset"))))
+	if(in->method_name->match(new METHOD_NAME(new String("isset"))))
 	{
-		List<AST_expr*>* terms = new List<AST_expr*>;
+		List<Expr*>* terms = new List<Expr*>;
 
-		List<AST_actual_parameter*>::const_iterator i;
+		List<Actual_parameter*>::const_iterator i;
 		for(i = in->actual_parameters->begin();
 			i != in->actual_parameters->end();
 			i++)
 		{
 			assert(!(*i)->is_ref);
-			terms->push_back(new AST_method_invocation("isset", (*i)->expr));
+			terms->push_back(new Method_invocation("isset", (*i)->expr));
 		}
 
-		List<AST_expr*>::const_iterator j = terms->begin();
-		AST_expr* result = *j++;
+		List<Expr*>::const_iterator j = terms->begin();
+		Expr* result = *j++;
 		for( ; j != terms->end(); j++)
 		{
-			result = new AST_bin_op(result, *j, "&&");	
+			result = new Bin_op(result, *j, "&&");	
 		}
 
 		return result;
@@ -449,14 +449,14 @@ AST_expr* Split_unset_isset::pre_method_invocation(AST_method_invocation* in)
 	}
 }
 
-AST_expr* Translate_empty::pre_method_invocation(AST_method_invocation* in)
+Expr* Translate_empty::pre_method_invocation(Method_invocation* in)
 {
-	if(in->method_name->match(new Token_method_name(new String("empty"))))
+	if(in->method_name->match(new METHOD_NAME(new String("empty"))))
 	{
-		Token_cast* boolean = new Token_cast(new String("boolean"), new String("boolean"));
-		AST_actual_parameter* param = *in->actual_parameters->begin();
+		CAST* boolean = new CAST(new String("boolean"), new String("boolean"));
+		Actual_parameter* param = *in->actual_parameters->begin();
 		assert(!param->is_ref);
-		return new AST_unary_op(new AST_cast(boolean, param->expr), "!");
+		return new Unary_op(new Cast(boolean, param->expr), "!");
 	}
 	else
 	{

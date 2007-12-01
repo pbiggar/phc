@@ -14,18 +14,18 @@
 // TODO generic visitors, not AST viistors
 class Visitor_pass : public Pass
 {
-	AST::AST_visitor* ast_visitor;
-	HIR::HIR_visitor* hir_visitor;
+	AST::Visitor* ast_visitor;
+	HIR::Visitor* hir_visitor;
 
 public:
 
-	Visitor_pass (AST::AST_visitor* v)
+	Visitor_pass (AST::Visitor* v)
 	{
 		ast_visitor = v;
 		hir_visitor = NULL;
 	}
 
-	Visitor_pass (HIR::HIR_visitor* v)
+	Visitor_pass (HIR::Visitor* v)
 	{
 		ast_visitor = NULL;
 		hir_visitor = v;

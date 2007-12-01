@@ -34,25 +34,25 @@ using namespace AST;
  * The conditional expressions are then taken care of by post_conditional_expr
  */
 
-AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
+Expr* Lower_expr_flow::post_bin_op(Bin_op* in)
 {
 	if(*in->op->value == ",")
 	{
-		pieces->push_back(new AST_eval_expr(in->left));
+		pieces->push_back(new Eval_expr(in->left));
 		return in->right;
 	}
 	else if(*in->op->value == "||" || *in->op->value == "or")
 	{
-		AST_variable* temp = dynamic_cast<AST_variable*>(eval(in->left));
+		Variable* temp = dynamic_cast<Variable*>(eval(in->left));
 		assert(temp);
-		return post_conditional_expr(new AST_conditional_expr(
+		return post_conditional_expr(new Conditional_expr(
 			temp->clone(), temp->clone(), in->right));
 	}
 	else if(*in->op->value == "&&" || *in->op->value == "and")
 	{
-		AST_variable* temp = dynamic_cast<AST_variable*>(eval(in->left));
+		Variable* temp = dynamic_cast<Variable*>(eval(in->left));
 		assert(temp);
-		return post_conditional_expr(new AST_conditional_expr(
+		return post_conditional_expr(new Conditional_expr(
 			temp->clone(), in->right, temp->clone()));
 	}
 	else 
@@ -74,20 +74,20 @@ AST_expr* Lower_expr_flow::post_bin_op(AST_bin_op* in)
  *  	foo($TEF2);
  */
 
-AST_expr* Lower_expr_flow::post_conditional_expr(AST_conditional_expr* in)
+Expr* Lower_expr_flow::post_conditional_expr(Conditional_expr* in)
 {
-	AST_label* label1 = fresh_label();
-	AST_label* label2 = fresh_label();
-	AST_label* label3 = fresh_label();
-	AST_variable* temp = fresh_var("TEF");
+	Label* label1 = fresh_label();
+	Label* label2 = fresh_label();
+	Label* label3 = fresh_label();
+	Variable* temp = fresh_var("TEF");
 
-	pieces->push_back(new AST_branch(in->cond, label1->label_name->clone (), label2->label_name->clone ()));
+	pieces->push_back(new Branch(in->cond, label1->label_name->clone (), label2->label_name->clone ()));
 	pieces->push_back(label1);
 	eval(in->iftrue, temp->clone ());
-	pieces->push_back(new AST_goto(label3->label_name->clone ()));
+	pieces->push_back(new Goto(label3->label_name->clone ()));
 	pieces->push_back(label2);
 	eval(in->iffalse, temp->clone ());
-	pieces->push_back(new AST_goto(label3->label_name->clone ()));
+	pieces->push_back(new Goto(label3->label_name->clone ()));
 	pieces->push_back(label3);
 	
 	return temp;

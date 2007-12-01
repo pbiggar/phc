@@ -1,15 +1,15 @@
 #include "AST_visitor.h"
 
-class Rename_foo_to_bar : public AST_visitor
+class Rename_foo_to_bar : public Visitor
 {
-   void pre_method_name(Token_method_name* in)
+   void pre_method_name(METHOD_NAME* in)
    {
       if(*in->value == "foo")
          in->value = new String("bar");
    }
 };
 
-extern "C" void process_ast(AST_php_script* php_script)
+extern "C" void process_ast(PHP_script* php_script)
 {
 	Rename_foo_to_bar f2b;
 	php_script->visit(&f2b);

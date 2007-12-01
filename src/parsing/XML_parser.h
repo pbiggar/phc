@@ -12,9 +12,9 @@
 
 #ifdef HAVE_XERCES
 #include "AST.h"
-AST::AST_php_script* parse_ast_xml_file(String* filename);
-AST::AST_php_script* parse_ast_xml_buffer(String* buffer);
-AST::AST_php_script* parse_ast_xml_stdin();
+AST::PHP_script* parse_ast_xml_file(String* filename);
+AST::PHP_script* parse_ast_xml_buffer(String* buffer);
+AST::PHP_script* parse_ast_xml_stdin();
 #endif // HAVE_XERCES
 
 #endif // PHC_XML_PARSER_H

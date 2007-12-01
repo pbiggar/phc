@@ -10,9 +10,9 @@
 
 #include "AST_visitor.h"
 
-class Note_top_level_declarations : public virtual AST::AST_visitor
+class Note_top_level_declarations : public virtual AST::Visitor
 {
-	void pre_php_script (AST::AST_php_script* in);
+	void pre_php_script (AST::PHP_script* in);
 };
 
 #endif // NOTE_TOP_LEVEL_DECLARATIONS_H

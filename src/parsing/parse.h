@@ -26,6 +26,6 @@
  *
  * If there is a syntax error, returns NULL.
  */ 
-AST::AST_php_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
+AST::PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
 
 #endif // PHC_PARSE

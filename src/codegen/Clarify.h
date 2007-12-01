@@ -10,7 +10,7 @@
 
 #include "AST_visitor.h"
 
-class Clarify : public AST::AST_visitor
+class Clarify : public AST::Visitor
 {
 	// TODO: deal with all superglobals 
 	// TODO: _ENV
@@ -25,18 +25,18 @@ class Clarify : public AST::AST_visitor
 	// TODO: HTTP_POST_FILES
 	// TODO: _REQUEST
 
-	void post_method (AST::AST_method* in)
+	void post_method (AST::Method* in)
 	{
-		AST::AST_global* global = 
-			new AST::AST_global (
-				new List<AST::AST_variable_name*> (
-					new AST::Token_variable_name (
+		AST::Global* global = 
+			new AST::Global (
+				new List<AST::Variable_name*> (
+					new AST::VARIABLE_NAME (
 						new String ("GLOBALS"))));
 
 		if (in->statements)
 			in->statements->push_front (global);
 		else
-			in->statements = new List<AST::AST_statement*> (global);
+			in->statements = new List<AST::Statement*> (global);
 	}
 };
 

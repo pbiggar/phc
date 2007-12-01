@@ -9,6 +9,6 @@ class PHP
 		static bool is_available ();
 		static void startup_php ();
 		static void shutdown_php ();
-		static AST::AST_literal* convert_token (AST::AST_literal* token);
+		static AST::Literal* convert_token (AST::Literal* token);
 		static unsigned long get_hash (String* string);
 };

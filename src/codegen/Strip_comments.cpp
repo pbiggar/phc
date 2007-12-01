@@ -9,7 +9,7 @@
 
 using namespace AST;
 
-void Strip_comments::pre_commented_node(AST_commented_node* in)
+void Strip_comments::pre_commented_node(Commented_node* in)
 {
 	in->attrs->set ("phc.comments", new List<String*> ());
 }

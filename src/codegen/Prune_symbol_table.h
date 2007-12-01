@@ -11,7 +11,7 @@
 
 #include "AST_visitor.h"
 
-class Prune_symbol_table : public AST::AST_visitor
+class Prune_symbol_table : public AST::Visitor
 {
 	bool prune;
 
@@ -19,13 +19,13 @@ public:
 	Prune_symbol_table () : prune (true) {}
 
 	// do the analysis
-	void pre_method (AST::AST_method* in);
-	void pre_reflection (AST::AST_reflection* in);
-	void pre_method_invocation (AST::AST_method_invocation* in);
+	void pre_method (AST::Method* in);
+	void pre_reflection (AST::Reflection* in);
+	void pre_method_invocation (AST::Method_invocation* in);
 
 	// mark methods and variable_names
-	void post_method (AST::AST_method* in);
-	void post_variable_name (AST::Token_variable_name* in);
+	void post_method (AST::Method* in);
+	void post_variable_name (AST::VARIABLE_NAME* in);
 };
 
 #endif  // _PRUNE_SYMBOL_TABLE_H_

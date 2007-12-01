@@ -10,9 +10,9 @@
 
 #include "AST_transform.h"
 
-class Echo_split : public AST::AST_transform
+class Echo_split : public AST::Transform
 {
-	void pre_eval_expr(AST::AST_eval_expr* in, List<AST::AST_statement*>* out);
+	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
 };
 
 

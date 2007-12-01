@@ -11,12 +11,12 @@
 
 #include "AST_transform.h"
 
-class Token_conversion : public AST::AST_transform
+class Token_conversion : public AST::Transform
 {
 public:
-	AST::AST_expr* pre_int (AST::Token_int* in);
-	AST::AST_expr* pre_real (AST::Token_real* in);
-	AST::AST_expr* pre_unary_op (AST::AST_unary_op* in);
+	AST::Expr* pre_int (AST::INT* in);
+	AST::Expr* pre_real (AST::REAL* in);
+	AST::Expr* pre_unary_op (AST::Unary_op* in);
 };
 
 #endif // PHC_TOKEN_CONVERSION

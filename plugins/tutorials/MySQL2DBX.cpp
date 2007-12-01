@@ -7,17 +7,17 @@
 
 using namespace AST;
 
-class MySQL2DBX : public AST_visitor
+class MySQL2DBX : public Visitor
 {
 public:
-   void post_method_invocation(AST_method_invocation* in)
+   void post_method_invocation(Method_invocation* in)
    {
-      List<AST_actual_parameter*>::iterator pos;
-      Token_constant_name* module_name;
-      AST_constant* module_constant;
-      AST_actual_parameter* param;
+      List<Actual_parameter*>::iterator pos;
+      CONSTANT_NAME* module_name;
+      Constant* module_constant;
+      Actual_parameter* param;
  
-      if(in->method_name->match(new Token_method_name(new String("mysql_connect"))))
+      if(in->method_name->match(new METHOD_NAME(new String("mysql_connect"))))
       {
          // Check for too many parameters
          if(in->actual_parameters->size() > 3)
@@ -28,17 +28,17 @@ public:
          }
       
          // Modify name
-         in->method_name = new Token_method_name(new String("dbx_connect"));
+         in->method_name = new METHOD_NAME(new String("dbx_connect"));
 		
          // Modify parameters
-         module_name = new Token_constant_name(new String("DBX_MYSQL"));
-         module_constant = new AST_constant(NULL, module_name);
+         module_name = new CONSTANT_NAME(new String("DBX_MYSQL"));
+         module_constant = new Constant(NULL, module_name);
          
 		 pos = in->actual_parameters->begin();
-         param = new AST_actual_parameter(false, module_constant);
+         param = new Actual_parameter(false, module_constant);
          in->actual_parameters->insert(pos, param); pos++;
          /* Skip host */ pos++;
-         param = new AST_actual_parameter(false, new Token_null(new String("NULL")));
+         param = new Actual_parameter(false, new NIL(new String("NULL")));
          in->actual_parameters->insert(pos, param); 
       }
    }
@@ -49,7 +49,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
 	in->visit (new MySQL2DBX ());
 }

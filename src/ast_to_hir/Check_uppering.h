@@ -16,15 +16,15 @@ class Check_uppering : public Check_lowering
 	public:
 
 		// these statements are removed
-		void post_goto (AST::AST_goto* in);
-		void post_label (AST::AST_label* in);
+		void post_goto (AST::Goto* in);
+		void post_label (AST::Label* in);
 
 		// these statements are re-added
-		void post_continue (AST::AST_continue* in);
-		void post_switch (AST::AST_switch* in);
-		void post_if (AST::AST_if* in);
-		void post_break (AST::AST_break* in);
-		void post_while (AST::AST_while* in);
+		void post_continue (AST::Continue* in);
+		void post_switch (AST::Switch* in);
+		void post_if (AST::If* in);
+		void post_break (AST::Break* in);
+		void post_while (AST::While* in);
 };
 
 #endif // PHC_CHECK_UPPERING_H

@@ -9,42 +9,42 @@
 
 using namespace AST;
 
-void Check_uppering::post_goto (AST_goto* in)
+void Check_uppering::post_goto (Goto* in)
 {
 	assert (false);
 }
 
-void Check_uppering::post_label (AST_label* in)
+void Check_uppering::post_label (Label* in)
 {
 	assert (false);
 }
 
-void Check_uppering::post_continue (AST_continue* in)
+void Check_uppering::post_continue (Continue* in)
 {
 	// these are allowed again, since we add them
 }
 
-void Check_uppering::post_switch (AST_switch* in)
+void Check_uppering::post_switch (Switch* in)
 {
 	// these are allowed again, since we add them
 }
 
-void Check_uppering::post_if (AST_if* in)
+void Check_uppering::post_if (If* in)
 {
 	// these are allowed again, since we add them
 }
 
-void Check_uppering::post_break (AST_break* in)
+void Check_uppering::post_break (Break* in)
 {
-	if (not in->match (new AST_break (new Token_int (2, NULL))))
+	if (not in->match (new Break (new INT (2, NULL))))
 	{
 		phc_internal_error ("The single break should jump two levels", in);
 	}
 }
 
-void Check_uppering::post_while (AST_while* in)
+void Check_uppering::post_while (While* in)
 {
-	if (not in->match (new AST_while (new Token_bool (true, NULL), NULL)))
+	if (not in->match (new While (new BOOL (true, NULL), NULL)))
 	{
 		phc_internal_error ("The single while should be while true", in);
 	}

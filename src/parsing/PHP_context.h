@@ -26,7 +26,7 @@ public:
  * State used by the parser
  */
 public:
-	AST::AST_php_script* php_script;
+	AST::PHP_script* php_script;
 	String* current_method;
 	String* current_class;
 	String* filename;
@@ -43,7 +43,7 @@ public:
 public:
 	long source_line;
 	List<String*> last_comments;
-	AST::AST_commented_node* last_commented_node;
+	AST::Commented_node* last_commented_node;
 	String* hash_bang;
 
 // Processing comments, HEREDOC strings and keywords

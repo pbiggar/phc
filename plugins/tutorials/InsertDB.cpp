@@ -7,26 +7,26 @@
 
 using namespace AST;
 
-class InsertDB : public AST_visitor
+class InsertDB : public Visitor
 {
 private:
    int uses_dbx;
    
 public:
-   void pre_method(AST_method* in)
+   void pre_method(Method* in)
    {
       uses_dbx = false;   
    }
 
-   void post_method(AST_method* in)
+   void post_method(Method* in)
    {
       if(uses_dbx)
          in->signature->method_name->value->append("_DB");
    }
 
-   void post_method_invocation(AST_method_invocation* in)
+   void post_method_invocation(Method_invocation* in)
    {
-      Wildcard<Token_method_name>* pattern = new Wildcard<Token_method_name>;
+      Wildcard<METHOD_NAME>* pattern = new Wildcard<METHOD_NAME>;
       
       // Check for dbx_
       if(in->method_name->match(pattern) && 
@@ -43,7 +43,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 }
 
 
-extern "C" void run (AST_php_script* in, Pass_manager* pm)
+extern "C" void run (PHP_script* in, Pass_manager* pm)
 {
    in->visit (new InsertDB ());
 }

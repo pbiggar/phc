@@ -12,12 +12,12 @@
 
 #include "AST_transform.h"
 
-class Split_multiple_arguments : public AST::AST_transform
+class Split_multiple_arguments : public AST::Transform
 {
 public:
-	void pre_global(AST::AST_global* in, List<AST::AST_statement*>* out);
-	void pre_static_declaration(AST::AST_static_declaration* in, List<AST::AST_statement*>* out);
-	void pre_attribute(AST::AST_attribute* in, List<AST::AST_member*>* out);
+	void pre_global(AST::Global* in, List<AST::Statement*>* out);
+	void pre_static_declaration(AST::Static_declaration* in, List<AST::Statement*>* out);
+	void pre_attribute(AST::Attribute* in, List<AST::Member*>* out);
 };
 
 #endif // PHC_SPLIT_MULTIPLE_ARGUMENTS_H

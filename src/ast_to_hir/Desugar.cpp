@@ -14,40 +14,40 @@ using namespace AST;
 
 // All eval_expr must be assignments; if they are not, we generate
 // a dummy assignment on the LHS
-void Desugar::pre_eval_expr(AST_eval_expr* in, List<AST_statement*>* out)
+void Desugar::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
 	// remove variables on their own
-	if (in->expr->classid() == AST_variable::ID)
+	if (in->expr->classid() == Variable::ID)
 		return;
 
 	// Don't generate an assignment for unset
-	AST_expr* unset = new AST_method_invocation("unset", new Wildcard<AST_expr>);
+	Expr* unset = new Method_invocation("unset", new Wildcard<Expr>);
 
-	if(in->expr->classid() != AST_assignment::ID && 
-			in->expr->classid() != AST_op_assignment::ID &&
-			in->expr->classid() != AST_list_assignment::ID &&
+	if(in->expr->classid() != Assignment::ID && 
+			in->expr->classid() != Op_assignment::ID &&
+			in->expr->classid() != List_assignment::ID &&
 			!in->expr->match(unset))
 	{
-		AST_variable* var = fresh_var ("TSe");
+		Variable* var = fresh_var ("TSe");
 		var->attrs->set_true ("phc.codegen.unused");
 
-		in->expr = new AST_assignment(var, false, in->expr);
+		in->expr = new Assignment(var, false, in->expr);
 	}
 
 	out->push_back(in);
 }
 
 // NOP statements are removed
-void Desugar::pre_nop(AST_nop* in, List<AST_statement*>* out)
+void Desugar::pre_nop(Nop* in, List<Statement*>* out)
 {
 	// Leave "out" empty 
 }
 
 // Replace "-x" by "0 - x"
-AST_expr* Desugar::pre_unary_op(AST_unary_op* in)
+Expr* Desugar::pre_unary_op(Unary_op* in)
 {
-	if(*in->op->value == "-") return new AST_bin_op(
-			new Token_int(0),
+	if(*in->op->value == "-") return new Bin_op(
+			new INT(0),
 			in->op,
 			in->expr);
 	else
@@ -55,18 +55,18 @@ AST_expr* Desugar::pre_unary_op(AST_unary_op* in)
 }
 
 // All return statements must get an argument (NULL if none specified)
-void Desugar::pre_return(AST_return* in, List<AST_statement*>* out)
+void Desugar::pre_return(Return* in, List<Statement*>* out)
 {
 	if(in->expr == NULL)
 	{
-		in->expr = new Token_null(new String("NULL"));
+		in->expr = new NIL(new String("NULL"));
 		in->expr->attrs->set_true ("phc.codegen.unused");
 	}
 
 	out->push_back(in);
 }
 
-void Desugar::pre_declare (AST_declare* in, List<AST_statement*>* out)
+void Desugar::pre_declare (Declare* in, List<Statement*>* out)
 {
 	// Just remove declare statements, they dont make sense in a compiler.
 }
