@@ -2731,7 +2731,7 @@ test/framework/lib/autovars.php: Makefile test/framework/lib/autovars.php.in
 	sed -e 's,@valgrind\@,$(valgrind),g; s,@graphviz_gc\@,$(graphviz_gc),g;s,@dot\@,$(dot),g; s,@php\@,$(php),g; s,@CC\@,$(CC),g; s,@diff\@,$(diff),g;s,@php_install_path\@,$(php_install_path),g; s,@bindir\@,$(bindir),g; s,@EXEEXT\@,$(EXEEXT),g; s,@pkglibdir\@,$(pkglibdir),g; s,@xerces_compiled_in\@,$(use_libXerces),g; s,@AM_CPPFLAGS\@,$(AM_CPPFLAGS),g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
 # Just delete the contents - the directory is in svn
 clean-local:
-	rm -rf test/logs/* 
+	rm -rf test/logs/* test/working/*
 distclean-local:
 	rm -rf autom4te.cache
 # Just delete the contents - the directory is in svn
