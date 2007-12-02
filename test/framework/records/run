@@ -6,7 +6,7 @@
 	 *	data is kept in a string, which is emailed to me on failure.
 	 */
 
-	ob_start (); // keep all output
+#	ob_start (); // keep all output
 
 	$REPO = "http://phc.googlecode.com/svn/trunk";
 	$CWD = getcwd ();
@@ -176,11 +176,13 @@
 	// directory.
 	function cd ($command)
 	{
-		global $WORKING_DIR;
+		global $TEST_DIR;
 		$cwd = getcwd ();
-		chdir ($WORKING_DIR) or x ("Couldnt change dir to $WORKING_DIR");
+		print "Entering $TEST_DIR\n";
+		chdir ($TEST_DIR) or x ("Couldnt change dir to $TEST_DIR");
 		$result = c ($command);
 		chdir ($cwd);
+		print "Leaving $TEST_DIR for $cwd\n";
 		return $result;
 	}
 
