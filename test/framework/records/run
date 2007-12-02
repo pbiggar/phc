@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-	# TODO update script automatically
-
 	/* Logging detail:
 	 *	All data is stored, in a log. Before the log is created, all
 	 *	data is kept in a string, which is emailed to me on failure.
@@ -18,35 +16,32 @@
 
 	initialize_db ();
 
-	while (true)
+	try
 	{
-		try
-		{
-			$rev = get_working_revision ();
-			initialize_revision_test ($rev);
-			c ("svn export -q --revision=$rev $REPO $TEST_DIR", "SVNError");
-			cd ("touch src/generated/*");
-			cdl ("./configure --prefix=$TEST_DIR/installed", "configure");
-			cdl ("make", "make");
-			$test_results = cdl ("php test/framework/driver.php -p", "test");
-			cdl ("make install", "install");
-			$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
+		$rev = get_working_revision ();
+		initialize_revision_test ($rev);
+		c ("svn export -q --revision=$rev $REPO $TEST_DIR", "SVNError");
+		cd ("touch src/generated/*");
+		cdl ("./configure --prefix=$TEST_DIR/installed", "configure");
+		cdl ("make", "make");
+		$test_results = cdl ("php test/framework/driver.php -p", "test");
+		cdl ("make install", "install");
+		$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
 
-			store_test_results ($test_results, $rev, "tests");
-			store_test_results ($install_results, $rev, "install_tests");
+		store_test_results ($test_results, $rev, "tests");
+		store_test_results ($install_results, $rev, "install_tests");
 
-			finalize_revision_test ($rev, $start_time);
-		}
-		catch (SVNError $e)
-		{
-			print "SVN problem: $e. Wait 5 mins";
-			sleep (300);
-		}
-		catch (Exception $e)
-		{
-			save_log ();
-			mail ("paul.biggar@gmail.com", "Script Error in revision $rev");
-		}
+		finalize_revision_test ($rev, $start_time);
+	}
+	catch (SVNError $e)
+	{
+		print "SVN problem: $e. Wait 5 mins";
+		sleep (300);
+	}
+	catch (Exception $e)
+	{
+		save_log ();
+		mail ("paul.biggar@gmail.com", "Script Error in revision $rev");
 	}
 
 	function strip_console_codes ($string)
@@ -159,11 +154,11 @@
 	function create_dir ($dir) { c ("mkdir -p $dir"); }
 
 	// C for Command. If the command fails, log the result and die
-	function c ($command, $exception_type)
+	function c ($command, $exception_type = NULL)
 	{
 		print "Running command '$command'\n";
 		exec ("$command 2>&1", $result, $ret_val);
-		if ($ret_val != 0)
+		if ($ret_val != 0 && $exception_type)
 		{
 			if (class_exists ($exception_type))
 			{
