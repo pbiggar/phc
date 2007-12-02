@@ -26,8 +26,7 @@ public:
 		if (pm->args_info->generate_c_flag
 			or pm->args_info->compile_flag)
 		{
-			assert (in->hir == NULL);
-			in->ast->transform_children (this);
+			in->transform_children(this);
 		}
 	}
 	void children_php_script(AST::PHP_script* in);

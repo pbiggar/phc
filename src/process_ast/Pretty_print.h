@@ -25,8 +25,7 @@ public:
 
 	void run (IR* in, Pass_manager* pm)
 	{
-		assert (in->hir == NULL);
-		in->ast->visit (new AST_unparser ());
+		in->visit(new AST_unparser());
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

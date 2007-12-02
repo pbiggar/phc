@@ -282,7 +282,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Goto_uppering.$(OBJEXT) HIR_unparser.$(OBJEXT) debug.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT)
+	PHP_unparser.$(OBJEXT) IR.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -440,7 +440,6 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -665,7 +664,9 @@ src_phc_SOURCES = \
 	src/process_ir/Foreach.h								\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
-	src/process_ir/XML_unparser.h	
+	src/process_ir/XML_unparser.h							\
+	src/process_ir/IR.cpp									\
+	src/process_ir/IR.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
@@ -1057,6 +1058,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/InsertDB.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Integer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Invalid_check.Po@am__quote@
@@ -2114,6 +2116,20 @@ PHP_unparser.obj: src/process_ir/PHP_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/PHP_unparser.cpp' object='PHP_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PHP_unparser.obj `if test -f 'src/process_ir/PHP_unparser.cpp'; then $(CYGPATH_W) 'src/process_ir/PHP_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/PHP_unparser.cpp'; fi`
+
+IR.o: src/process_ir/IR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT IR.o -MD -MP -MF $(DEPDIR)/IR.Tpo -c -o IR.o `test -f 'src/process_ir/IR.cpp' || echo '$(srcdir)/'`src/process_ir/IR.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/IR.Tpo $(DEPDIR)/IR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/IR.cpp' object='IR.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o IR.o `test -f 'src/process_ir/IR.cpp' || echo '$(srcdir)/'`src/process_ir/IR.cpp
+
+IR.obj: src/process_ir/IR.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT IR.obj -MD -MP -MF $(DEPDIR)/IR.Tpo -c -o IR.obj `if test -f 'src/process_ir/IR.cpp'; then $(CYGPATH_W) 'src/process_ir/IR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/IR.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/IR.Tpo $(DEPDIR)/IR.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/IR.cpp' object='IR.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o IR.obj `if test -f 'src/process_ir/IR.cpp'; then $(CYGPATH_W) 'src/process_ir/IR.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/IR.cpp'; fi`
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

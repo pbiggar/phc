@@ -82,9 +82,7 @@ void Generate_C::run (IR* in, Pass_manager* pm)
 		is_extension = false;
 	}
 
-	assert (in->ast == NULL);
-
-	in->hir->visit (this);
+	in->visit(this);
 
 	os << prologue.str ();
 	os << code.str ();

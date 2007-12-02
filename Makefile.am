@@ -168,7 +168,9 @@ src_phc_SOURCES =												\
 	src/process_ir/Foreach.h								\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
-	src/process_ir/XML_unparser.h	
+	src/process_ir/XML_unparser.h							\
+	src/process_ir/IR.cpp									\
+	src/process_ir/IR.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\

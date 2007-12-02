@@ -8,6 +8,7 @@
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
+#include "process_ir/IR.h"
 #include <list>
 #include <string>
 #include <assert.h>

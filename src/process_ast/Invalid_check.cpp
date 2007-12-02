@@ -14,15 +14,10 @@ using namespace AST;
 
 void check (IR* in, bool use_ice)
 {
-	// check validity
-	if (in->ast)
-	{
-		in->ast->assert_valid();
-		in->ast->visit (new Invalid_check (use_ice));
-	}
+	in->assert_valid();
 
-	if (in->hir)
-		in->hir->assert_valid();
+	if (in->is_AST())
+		in->visit(new Invalid_check (use_ice));
 }
 
 bool is_ref_literal (Expr* in)
@@ -34,7 +29,7 @@ bool is_ref_literal (Expr* in)
 
 void Invalid_check::run (IR* in, Pass_manager* pm)
 {
-	in->ast->visit (this);
+	in->visit(this);
 	// Indicate that after this pass, ICEs should be used.
 	pm->check = true;
 }

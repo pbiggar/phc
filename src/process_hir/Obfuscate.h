@@ -23,8 +23,7 @@ public:
 
 	void run (IR* in, Pass_manager* pm)
 	{
-		assert (in->hir == NULL);
-		AST::PHP_script* ast = in->ast->clone ();
+		AST::PHP_script* ast = in->as_AST()->clone ();
 		ast->visit (new Goto_uppering());
 		ast->visit (new AST_unparser);
 	}

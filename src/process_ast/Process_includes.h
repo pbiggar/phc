@@ -28,8 +28,7 @@ public:
 	Pass_manager* pm;
 	void run (IR* in, Pass_manager* pm)
 	{
-		assert (in->hir == NULL);
-		in->ast->transform_children (this);
+		in->transform_children(this);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm);

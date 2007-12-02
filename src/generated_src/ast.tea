@@ -13,6 +13,7 @@
 
 prefix "AST";
 external class "Object";
+external class "IR";
 use list "List";
 use string "String";
 use namespace "AST";
@@ -190,6 +191,7 @@ Identifier ::=
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
+#include "process_ir/IR.h"
 
 class Node : Object 
 {
@@ -279,6 +281,10 @@ public:
 		assert(comments);
 		return comments;
 	}
+};
+
+class PHP_script : IR
+{
 };
 
 class Signature 

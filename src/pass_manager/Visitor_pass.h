@@ -33,19 +33,10 @@ public:
 
 	void run (IR* in, Pass_manager* pm)
 	{
-		if (in->ast)
-		{
-			assert (ast_visitor);
-			assert (hir_visitor == NULL);
-			in->ast->visit (ast_visitor);
-		}
+		if(ast_visitor != NULL)
+			in->visit(ast_visitor);
 		else
-		{
-			assert (in->hir);
-			assert (ast_visitor == NULL);
-			assert (hir_visitor);
-			in->hir->visit (hir_visitor);
-		}
+			in->visit(hir_visitor);
 	}
 };
 

@@ -78,7 +78,7 @@ public:
 		 * mean that we'd have to support passing any Node to any point in
 		 * the pass queue. I dont think that's a good idea). */
 		List<Statement*>* shredded = new List<Statement*> (print, dump);
-		IR* ir = new IR (new PHP_script (shredded));
+		PHP_script* ir = new PHP_script (shredded);
 		pm->run_from_until (new String ("lcf"), new String ("shred"), ir);
 		debugs->push_back_all (shredded);
 

@@ -15,6 +15,7 @@
 
 prefix "HIR";
 external class "Object";
+external class "IR";
 use list "List";
 use string "String";
 use namespace "HIR";
@@ -179,6 +180,7 @@ Identifier ::=
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
+#include "process_ir/IR.h"
 
 class Node : Object 
 {
@@ -258,6 +260,10 @@ public:
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
 		return comments;
 	}
+};
+
+class PHP_script : IR
+{
 };
 
 class Signature 

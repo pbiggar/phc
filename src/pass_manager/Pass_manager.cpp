@@ -40,8 +40,8 @@ void Plugin_pass::run (IR* in, Pass_manager* pm)
 	if (not (ast_func))
 		phc_error ("A plugin must define the AST run () function");
 
-	if (ast_func && in->ast)
-		(*ast_func)(in->ast, pm, option);
+	if (ast_func && in->is_AST())
+		(*ast_func)(in->as_AST(), pm, option);
 
 /*
 	typedef void (*hir_function)(PHP_script*, Pass_manager*, String*);
@@ -195,10 +195,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			if (in->ast)
-				in->ast->visit (new AST_unparser ());
-			else
-				in->hir->visit (new HIR_unparser ());
+			in->visit(new AST_unparser(), new HIR_unparser());
 		}
 	}
 
@@ -206,9 +203,9 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
-			if (in->ast)
+			if (in->is_AST())
 			{
-				AST::PHP_script* ast = in->ast->clone ();
+				AST::PHP_script* ast = in->as_AST()->clone ();
 				ast->visit (new Goto_uppering ());
 				ast->visit (new AST_unparser ());
 			}
@@ -221,12 +218,8 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->ddump_arg [i])
 		{
-			if (in->ast)
-			{
-				in->ast->visit (new DOT_unparser ());
-			}
-			else
-				assert (0);
+			// Works on AST only
+			in->visit(new DOT_unparser());
 		}
 	}
 
@@ -234,11 +227,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->xdump_arg [i])
 		{
-			if (in->ast)
-				in->ast->visit (new AST_XML_unparser ());
-			else
-				in->hir->visit (new HIR_XML_unparser ());
-
+			in->visit(new AST_XML_unparser(), new HIR_XML_unparser());
 		}
 	}
 }

@@ -15,38 +15,6 @@
 
 class Pass_manager;
 
-class IR
-{
-public:
-	AST::PHP_script* ast;
-	HIR::PHP_script* hir;
-
-	IR ()
-	{
-		ast = NULL;
-		hir = NULL;
-	}
-
-	IR (AST::PHP_script* a)
-	{
-		ast = a;
-		hir = NULL;
-	}
-
-
-	IR (HIR::PHP_script* h)
-	{
-		ast = NULL;
-		hir = h;
-	}
-
-	IR (AST::PHP_script* a, HIR::PHP_script* h)
-	{
-		ast = a;
-		hir = h;
-	}
-};
-
 class Pass
 {
 public:

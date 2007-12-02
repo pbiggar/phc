@@ -203,14 +203,13 @@ int main(int argc, char** argv)
 		 */
 
 		// Run AST passes
-		IR* ir = new IR (ast);
+		IR* ir = ast; 
 		pm->run_until (new String ("pst"), ir, true);
 
 		// Run HIR passes
 		AST_to_HIR* tr = new AST_to_HIR ();
 		HIR::PHP_script* hir = tr->fold_php_script(ast);
-		ir->ast = NULL;
-		ir->hir = hir;
+		ir = hir;
 		pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);
 
 		pm->post_process ();

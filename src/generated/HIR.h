@@ -11,6 +11,7 @@
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
+#include "process_ir/IR.h"
 #include <list>
 #include <string>
 #include <assert.h>
@@ -119,7 +120,7 @@ public:
 };
 
 // PHP_script ::= Statement* ;
-class PHP_script : virtual public Node
+class PHP_script : virtual public Node, virtual public IR
 {
 public:
     PHP_script(List<Statement*>* statements);

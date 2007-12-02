@@ -32,19 +32,10 @@ public:
 
 	void run (IR* in, Pass_manager* pm)
 	{
-		if (in->ast)
-		{
-			assert (ast_transform);
-			assert (hir_transform == NULL);
-			in->ast->transform_children (ast_transform);
-		}
+		if (ast_transform != NULL)
+			in->transform_children (ast_transform);
 		else
-		{
-			assert (in->hir);
-			assert (ast_transform == NULL);
-			assert (hir_transform);
-			in->hir->transform_children (hir_transform);
-		}
+			in->transform_children (hir_transform);
 	}
 };
 

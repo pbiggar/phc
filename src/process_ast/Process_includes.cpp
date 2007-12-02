@@ -331,7 +331,7 @@ void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 	}
 
 	// bring the statements to the expected level of the IR
-	pm->run_until (pass_name, new IR (ast));
+	pm->run_until (pass_name, ast);
 
 	// copy the statements
 	out->push_back_all(ast->statements);
