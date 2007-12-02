@@ -13,8 +13,7 @@
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
-	$REVISION =  // use SVN to get this
-		$LastChangedRevision$; 
+	$REVISION =  get_current_revision (); // use SVN to get this
 
 	initialize_db ();
 
@@ -30,6 +29,7 @@
 		$test_results = cdl ("php test/framework/driver.php -p", "test");
 		cdl ("make install", "install");
 		$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
+		c ("mv $TEST_DIR/test/logs/latest $LOG_DIR/logs"); // save the logs
 
 		store_test_results ($test_results, $rev, "tests");
 		store_test_results ($install_results, $rev, "install_tests");
@@ -247,6 +247,14 @@
 		}
 		return FALSE;
 	}
+
+	function get_current_revision ()
+	{
+		$REVISION_STRING = "$LastChangedRevision$";
+		preg_match ("/: (\d+)/", $REVISION_STRING, $matched);
+		return $matched[1];
+	}
+
 
 
 ?>
