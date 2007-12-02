@@ -51,6 +51,10 @@ private:
 	int indent_level;
 	bool delayed_newline;
 	bool in_php;
+
+// Escaping a string
+public:
+	static String* escape(String* s);
 };
 
 #endif // PHC_PHP_UNPARSER 

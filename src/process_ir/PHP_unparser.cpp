@@ -130,3 +130,42 @@ PHP_unparser::PHP_unparser(ostream& os) : os(os)
 	delayed_newline = false;
 	in_php = false;
 }
+	
+String* PHP_unparser::escape(String* s)
+{
+	stringstream os;
+
+	string::iterator i;
+	for(i = s->begin(); i != s->end(); i++)
+	{
+		switch(*i)
+		{
+			case '\n':
+				os << "\\n";
+				break;
+			case '\r':
+				os << "\\r";
+				break;
+			case '\t':
+				os << "\\t";
+				break;
+			case '\\':
+			case '$':
+			case '"':
+				os << "\\" << *i;
+				break;
+			default:
+				if(*i < 32 || *i == 127)
+				{
+						os << "\\x" << setw(2) <<
+							setfill('0') << hex << uppercase << (unsigned long int)(unsigned char)*i;
+						os << resetiosflags(cout.flags());
+				}
+				else
+					os << *i;
+				break;
+		}
+	}
+	
+	return new String(os.str());	
+}

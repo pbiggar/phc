@@ -20,10 +20,7 @@ template
 <
 	class Script,
 	class Node,
-	class Visitor,
-	class Identifier,
-	class Literal,
-	class Null
+	class Visitor
 >
 class XML_unparser : public Visitor 
 {
@@ -136,40 +133,6 @@ public:
 		os << "</" << demangle(in) << ">" << endl;
 	}
 
-	void pre_identifier(Identifier* in)
-	{
-		String* value = in->get_value_as_string();
-
-		print_indent();
-		if(needs_encoding(value))
-			os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-		else
-			os << "<value>" << *value << "</value>" << endl;;
-
-	}
-
-	void pre_literal(Literal* in)
-	{
-		String* value = in->get_value_as_string();
-		String* source_rep = in->get_source_rep();
-
-		// NIL does not have a value
-		if(!dynamic_cast<Null*>(in))
-		{
-			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else	
-				os << "<value>" << *value << "</value>" << endl;
-		}
-
-		print_indent();
-		if(needs_encoding(source_rep))
-			os << "<source_rep encoding=\"base64\">" << *base64_encode(source_rep) << "</source_rep>" << endl;
-		else	
-			os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
-	}
-
 protected:
 
 	void print_attributes(Node* in)
@@ -257,10 +220,7 @@ class AST_XML_unparser : public XML_unparser
 <
 	AST::PHP_script,
 	AST::Node,
-	AST::Visitor, 
-	AST::Identifier, 
-	AST::Literal,
-	AST::NIL
+	AST::Visitor
 >
 {
 public:
@@ -268,15 +228,11 @@ public:
 	: XML_unparser<
 			AST::PHP_script,
 			AST::Node,
-			AST::Visitor, 
-			AST::Identifier, 
-			AST::Literal,
-			AST::NIL
+			AST::Visitor
 		> (os, print_attrs)
 	{
 	}
 	
-	// In the AST (but not in the HIR), CAST has a value and a source_rep
 	void pre_identifier(AST::Identifier* in)
 	{
 		AST::CAST* cast = dynamic_cast<AST::CAST*>(in);
@@ -291,17 +247,38 @@ public:
 		}
 		else
 		{
-			XML_unparser
-			<
-				AST::PHP_script,
-				AST::Node,
-				AST::Visitor, 
-				AST::Identifier, 
-				AST::Literal,
-				AST::NIL
-			>::pre_identifier(in);
+			String* value = in->get_value_as_string();
+
+			print_indent();
+			if(needs_encoding(value))
+				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+			else
+				os << "<value>" << *value << "</value>" << endl;;
 		}
 	}
+
+	void pre_literal(AST::Literal* in)
+	{
+		String* value = in->get_value_as_string();
+		String* source_rep = in->get_source_rep();
+
+		// NIL does not have a value
+		if(!dynamic_cast<AST::NIL*>(in))
+		{
+			print_indent();
+			if(needs_encoding(value))
+				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+			else	
+				os << "<value>" << *value << "</value>" << endl;
+		}
+
+		print_indent();
+		if(needs_encoding(source_rep))
+			os << "<source_rep encoding=\"base64\">" << *base64_encode(source_rep) << "</source_rep>" << endl;
+		else	
+			os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
+	}
+
 };
 
 #include "HIR_visitor.h"
@@ -309,10 +286,7 @@ class HIR_XML_unparser : public XML_unparser
 <
 	HIR::PHP_script, 
 	HIR::Node, 
-	HIR::Visitor, 
-	HIR::Identifier, 
-	HIR::Literal,
-	HIR::NIL
+	HIR::Visitor
 > 
 {
 public:
@@ -320,13 +294,36 @@ public:
 	: XML_unparser<
 			HIR::PHP_script,
 			HIR::Node,
-			HIR::Visitor, 
-			HIR::Identifier, 
-			HIR::Literal,
-			HIR::NIL
+			HIR::Visitor
 		> (os, print_attrs)
-
 	{
+	}
+	
+	void pre_identifier(HIR::Identifier* in)
+	{
+		String* value = in->get_value_as_string();
+
+		print_indent();
+		if(needs_encoding(value))
+			os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+		else
+			os << "<value>" << *value << "</value>" << endl;;
+
+	}
+
+	void pre_literal(HIR::Literal* in)
+	{
+		String* value = in->get_value_as_string();
+
+		// NIL does not have a value
+		if(!dynamic_cast<HIR::NIL*>(in))
+		{
+			print_indent();
+			if(needs_encoding(value))
+				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+			else	
+				os << "<value>" << *value << "</value>" << endl;
+		}
 	}
 };
 

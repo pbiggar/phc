@@ -474,7 +474,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::INT* fold_int(AST::INT* orig) 
 	{
 		HIR::INT* result;
-		result = new HIR::INT(orig->value, orig->source_rep);
+		result = new HIR::INT(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -482,15 +482,16 @@ class AST_to_HIR : public AST::Fold
 	HIR::REAL* fold_real(AST::REAL* orig) 
 	{
 		HIR::REAL* result;
-		result = new HIR::REAL(orig->value, orig->source_rep);
+		result = new HIR::REAL(orig->value);
 		result->attrs = orig->attrs;
+		result->source_rep = orig->source_rep;
 		return result;
 	}
 
 	HIR::STRING* fold_string(AST::STRING* orig) 
 	{
 		HIR::STRING* result;
-		result = new HIR::STRING(orig->value, orig->source_rep);
+		result = new HIR::STRING(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -498,7 +499,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::BOOL* fold_bool(AST::BOOL* orig) 
 	{
 		HIR::BOOL* result;
-		result = new HIR::BOOL(orig->value, orig->source_rep);
+		result = new HIR::BOOL(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -506,7 +507,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::NIL* fold_nil(AST::NIL* orig) 
 	{
 		HIR::NIL* result;
-		result = new HIR::NIL(orig->source_rep);
+		result = new HIR::NIL();
 		result->attrs = orig->attrs;
 		return result;
 	}

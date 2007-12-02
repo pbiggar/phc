@@ -5861,16 +5861,14 @@ void New::assert_valid()
     Node::assert_mixin_valid();
 }
 
-INT::INT(long value, String* source_rep)
+INT::INT(long value)
 {
     this->value = value;
-    this->source_rep = source_rep;
 }
 
 INT::INT()
 {
     this->value = 0;
-    this->source_rep = 0;
 }
 
 void INT::visit(Visitor* visitor)
@@ -5881,11 +5879,6 @@ void INT::visit(Visitor* visitor)
 void INT::transform_children(Transform* transform)
 {
     transform->children_expr(this);
-}
-
-String* INT::get_source_rep()
-{
-    return source_rep;
 }
 
 int INT::classid()
@@ -5905,9 +5898,6 @@ bool INT::match(Node* in)
     
     if(!match_value(that))
     	return false;
-    
-    if(this->source_rep != NULL && that->source_rep != NULL)
-    	return (*this->source_rep == *that->source_rep);
     else
     	return true;
 }
@@ -5925,14 +5915,6 @@ bool INT::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(this->source_rep == NULL || that->source_rep == NULL)
-    {
-    	if(this->source_rep != NULL || that->source_rep != NULL)
-    		return false;
-    }
-    else if(*this->source_rep != *that->source_rep)
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -5944,9 +5926,8 @@ bool INT::equals_value(INT* that)
 
 INT* INT::clone()
 {
-    String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    INT* clone = new INT(value, source_rep);
+    INT* clone = new INT(value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -5986,24 +5967,14 @@ String* INT::get_value_as_string()
 	}
 }
 
-INT::INT(int v)
-{
-    {
-		value = v;
-		source_rep = _get_value_as_string ();
-	}
-}
-
-REAL::REAL(double value, String* source_rep)
+REAL::REAL(double value)
 {
     this->value = value;
-    this->source_rep = source_rep;
 }
 
 REAL::REAL()
 {
     this->value = 0;
-    this->source_rep = 0;
 }
 
 void REAL::visit(Visitor* visitor)
@@ -6014,11 +5985,6 @@ void REAL::visit(Visitor* visitor)
 void REAL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
-}
-
-String* REAL::get_source_rep()
-{
-    return source_rep;
 }
 
 int REAL::classid()
@@ -6038,9 +6004,6 @@ bool REAL::match(Node* in)
     
     if(!match_value(that))
     	return false;
-    
-    if(this->source_rep != NULL && that->source_rep != NULL)
-    	return (*this->source_rep == *that->source_rep);
     else
     	return true;
 }
@@ -6058,14 +6021,6 @@ bool REAL::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(this->source_rep == NULL || that->source_rep == NULL)
-    {
-    	if(this->source_rep != NULL || that->source_rep != NULL)
-    		return false;
-    }
-    else if(*this->source_rep != *that->source_rep)
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -6077,9 +6032,8 @@ bool REAL::equals_value(REAL* that)
 
 REAL* REAL::clone()
 {
-    String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    REAL* clone = new REAL(value, source_rep);
+    REAL* clone = new REAL(value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6128,24 +6082,14 @@ String* REAL::get_value_as_string()
 	}
 }
 
-REAL::REAL(double v)
-{
-    {
-		value = v;
-		source_rep = _get_value_as_string ();
-	}
-}
-
-STRING::STRING(String* value, String* source_rep)
+STRING::STRING(String* value)
 {
     this->value = value;
-    this->source_rep = source_rep;
 }
 
 STRING::STRING()
 {
     this->value = 0;
-    this->source_rep = 0;
 }
 
 void STRING::visit(Visitor* visitor)
@@ -6156,11 +6100,6 @@ void STRING::visit(Visitor* visitor)
 void STRING::transform_children(Transform* transform)
 {
     transform->children_expr(this);
-}
-
-String* STRING::get_source_rep()
-{
-    return source_rep;
 }
 
 int STRING::classid()
@@ -6180,9 +6119,6 @@ bool STRING::match(Node* in)
     
     if(!match_value(that))
     	return false;
-    
-    if(this->source_rep != NULL && that->source_rep != NULL)
-    	return (*this->source_rep == *that->source_rep);
     else
     	return true;
 }
@@ -6200,14 +6136,6 @@ bool STRING::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(this->source_rep == NULL || that->source_rep == NULL)
-    {
-    	if(this->source_rep != NULL || that->source_rep != NULL)
-    		return false;
-    }
-    else if(*this->source_rep != *that->source_rep)
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -6219,9 +6147,8 @@ bool STRING::equals_value(STRING* that)
 
 STRING* STRING::clone()
 {
-    String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    STRING* clone = new STRING(value, source_rep);
+    STRING* clone = new STRING(value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6258,24 +6185,14 @@ String* STRING::clone_value()
 	}
 }
 
-STRING::STRING(String* v)
-{
-    {
-		value = v;
-		source_rep = v;
-	}
-}
-
-BOOL::BOOL(bool value, String* source_rep)
+BOOL::BOOL(bool value)
 {
     this->value = value;
-    this->source_rep = source_rep;
 }
 
 BOOL::BOOL()
 {
     this->value = 0;
-    this->source_rep = 0;
 }
 
 void BOOL::visit(Visitor* visitor)
@@ -6286,11 +6203,6 @@ void BOOL::visit(Visitor* visitor)
 void BOOL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
-}
-
-String* BOOL::get_source_rep()
-{
-    return source_rep;
 }
 
 int BOOL::classid()
@@ -6310,9 +6222,6 @@ bool BOOL::match(Node* in)
     
     if(!match_value(that))
     	return false;
-    
-    if(this->source_rep != NULL && that->source_rep != NULL)
-    	return (*this->source_rep == *that->source_rep);
     else
     	return true;
 }
@@ -6330,14 +6239,6 @@ bool BOOL::equals(Node* in)
     if(!equals_value(that))
     	return false;
     
-    if(this->source_rep == NULL || that->source_rep == NULL)
-    {
-    	if(this->source_rep != NULL || that->source_rep != NULL)
-    		return false;
-    }
-    else if(*this->source_rep != *that->source_rep)
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -6349,9 +6250,8 @@ bool BOOL::equals_value(BOOL* that)
 
 BOOL* BOOL::clone()
 {
-    String* source_rep = new String(*this->source_rep);
     value = clone_value();
-    BOOL* clone = new BOOL(value, source_rep);
+    BOOL* clone = new BOOL(value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6390,17 +6290,8 @@ String* BOOL::get_value_as_string()
 	}
 }
 
-BOOL::BOOL(bool v)
+NIL::NIL()
 {
-    {
-		value = v;
-		source_rep = _get_value_as_string ();
-	}
-}
-
-NIL::NIL(String* source_rep)
-{
-    this->source_rep = source_rep;
 }
 
 void NIL::visit(Visitor* visitor)
@@ -6411,11 +6302,6 @@ void NIL::visit(Visitor* visitor)
 void NIL::transform_children(Transform* transform)
 {
     transform->children_expr(this);
-}
-
-String* NIL::get_source_rep()
-{
-    return source_rep;
 }
 
 int NIL::classid()
@@ -6433,10 +6319,7 @@ bool NIL::match(Node* in)
     NIL* that = dynamic_cast<NIL*>(in);
     if(that == NULL) return false;
     
-    if(this->source_rep != NULL && that->source_rep != NULL)
-    	return (*this->source_rep == *that->source_rep);
-    else
-    	return true;
+    return true;
 }
 
 bool NIL::equals(Node* in)
@@ -6444,22 +6327,13 @@ bool NIL::equals(Node* in)
     NIL* that = dynamic_cast<NIL*>(in);
     if(that == NULL) return false;
     
-    if(this->source_rep == NULL || that->source_rep == NULL)
-    {
-    	if(this->source_rep != NULL || that->source_rep != NULL)
-    		return false;
-    }
-    else if(*this->source_rep != *that->source_rep)
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
 NIL* NIL::clone()
 {
-    String* source_rep = new String(*this->source_rep);
-    NIL* clone = new NIL(source_rep);
+    NIL* clone = new NIL();
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6473,13 +6347,6 @@ String* NIL::get_value_as_string()
 {
     {
 		return new String("NULL");
-	}
-}
-
-NIL::NIL()
-{
-    {
-		source_rep = new String ("NULL");
 	}
 }
 

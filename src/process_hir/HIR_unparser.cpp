@@ -602,7 +602,7 @@ void HIR_unparser::children_constant_name(CONSTANT_NAME* in)
 
 void HIR_unparser::children_int(INT* in)
 {
-	echo(in->source_rep);
+	echo(in->get_value_as_string());
 }
 
 void HIR_unparser::children_real(REAL* in)
@@ -612,45 +612,19 @@ void HIR_unparser::children_real(REAL* in)
 
 void HIR_unparser::children_string(STRING* in)
 {
-	if(
-			*in->source_rep == "__FILE__" ||
-			*in->source_rep == "__CLASS__" ||
-			*in->source_rep == "__METHOD__" ||
-			*in->source_rep == "__FUNCTION__"
-	  )
-	{
-		echo(in->source_rep);
-	}
-	else
-	{
-    // any escaping must already be present in source_rep; any strings that
-    // originate from the user will be escaped as the user escaped them,
-    // and any strings that originate from passes within the compiler should
-    // have been escaped by those passes
-		
-    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
-		{
-			echo("'");
-			echo(in->source_rep);
-			echo("'");
-		}
-		else 
-		{
-      echo("\"");
-			echo(in->source_rep);
-			echo("\"");
-		}
-	}
+  echo("\"");
+	echo(escape(in->value));
+	echo("\"");
 }
 
 void HIR_unparser::children_bool(BOOL* in)
 {
-	echo(in->source_rep);
+	echo(in->get_value_as_string());
 }
 
 void HIR_unparser::children_nil(NIL* in)
 {
-	echo(in->source_rep);
+	echo(in->get_value_as_string());
 }
 
 // Generic classes

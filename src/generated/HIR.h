@@ -1367,7 +1367,6 @@ public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
-    virtual String* get_source_rep() = 0;
 };
 
 // Assignment ::= Variable is_ref:"&" Expr ;
@@ -1675,7 +1674,7 @@ public:
 class INT : virtual public Literal
 {
 public:
-    INT(long value, String* source_rep);
+    INT(long value);
 protected:
     INT();
 public:
@@ -1683,8 +1682,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     long value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 49;
     virtual int classid();
@@ -1707,13 +1704,12 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    INT(int v);
 };
 
 class REAL : virtual public Literal
 {
 public:
-    REAL(double value, String* source_rep);
+    REAL(double value);
 protected:
     REAL();
 public:
@@ -1721,8 +1717,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     double value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 50;
     virtual int classid();
@@ -1743,13 +1737,15 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    REAL(double v);
+public:
+    //  TODO: we still need the source_rep for code generation-but we shouldn't
+    String* source_rep;
 };
 
 class STRING : virtual public Literal
 {
 public:
-    STRING(String* value, String* source_rep);
+    STRING(String* value);
 protected:
     STRING();
 public:
@@ -1757,8 +1753,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     String* value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 51;
     virtual int classid();
@@ -1777,13 +1771,12 @@ public:
     virtual String* get_value_as_string();
     bool is_value_valid();
     String* clone_value();
-    STRING(String* v);
 };
 
 class BOOL : virtual public Literal
 {
 public:
-    BOOL(bool value, String* source_rep);
+    BOOL(bool value);
 protected:
     BOOL();
 public:
@@ -1791,8 +1784,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     bool value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 52;
     virtual int classid();
@@ -1813,19 +1804,15 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    BOOL(bool v);
 };
 
 class NIL : virtual public Literal
 {
 public:
-    NIL(String* source_rep);
+    NIL();
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
-public:
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 53;
     virtual int classid();
@@ -1839,7 +1826,6 @@ public:
     virtual void assert_valid();
 public:
     virtual String* get_value_as_string();
-    NIL();
 };
 
 

@@ -19,6 +19,7 @@ external class "IR";
 use list "List";
 use string "String";
 use namespace "HIR";
+no source_rep;
 
 {-
    Top-level structure	
@@ -530,7 +531,6 @@ class Literal
 {
 public:
 	virtual String* get_value_as_string() = 0;
-	virtual String* get_source_rep() = 0;
 };
 
 class INT
@@ -551,12 +551,6 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return _get_value_as_string ();
-	}
-
-	INT (int v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
 	}
 };
 
@@ -589,11 +583,9 @@ public:
 		return _get_value_as_string ();
 	}
 
-	REAL (double v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
-	}
+public:
+	// TODO: we still need the source_rep for code generation-but we shouldn't
+	String* source_rep;
 };
 
 class BOOL
@@ -612,12 +604,6 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return _get_value_as_string ();
-	}
-
-	BOOL (bool v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
 	}
 };
 
@@ -638,12 +624,6 @@ public:
 	{
 		return value->clone();
 	}
-
-	STRING (String* v)
-	{
-		value = v;
-		source_rep = v;
-	}
 };
 
 class NIL
@@ -652,9 +632,5 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return new String("NULL");
-	}
-	NIL ()
-	{
-		source_rep = new String ("NULL");
 	}
 };

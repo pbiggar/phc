@@ -1014,11 +1014,11 @@ class Pattern_assign_int : public Pattern_assign_literal<INT, long>
 class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
 {
 	string prefix () { return "phc_const_pool_real_"; }
-	string key () { return *rhs->value->get_source_rep (); }
+	string key () { return *rhs->value->source_rep ; }
 
 	void initialize (ostream& os, string var)
 	{
-		os	<< "zend_eval_string(\"" << *rhs->value->get_source_rep () << ";\","
+		os	<< "zend_eval_string(\"" << *rhs->value->source_rep << ";\","
 			<<		var << ", "
 			<<		"\"literal\" TSRMLS_CC);\n";
 	}
@@ -1038,7 +1038,7 @@ class Pattern_assign_nil : public Pattern_assign_literal<NIL, string>
 class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 {
 	string prefix () { return "phc_const_pool_string_"; }
-	string key () { return *rhs->value->get_source_rep (); }
+	string key () { return *rhs->value->value; }
 
 	void initialize (ostream& os, string var)
 	{
