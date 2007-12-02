@@ -13,12 +13,15 @@
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
+	$REVISION =  // use SVN to get this
+		$LastChangedRevision$; 
 
 	initialize_db ();
 
 	try
 	{
-		$rev = get_working_revision ();
+		$start_time = time ();
+		list ($rev, $author, $date) = get_working_revision ();
 		initialize_revision_test ($rev);
 		c ("svn export -q --revision=$rev $REPO $TEST_DIR", "SVNError");
 		cd ("touch src/generated/*");
@@ -31,7 +34,7 @@
 		store_test_results ($test_results, $rev, "tests");
 		store_test_results ($install_results, $rev, "install_tests");
 
-		finalize_revision_test ($rev, $start_time);
+		finalize_revision_test ($rev, $author, $date, $start_time);
 	}
 	catch (SVNError $e)
 	{
@@ -105,7 +108,7 @@
 	{
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 		e ("CREATE TABLE IF NOT EXISTS install_tests (revision, testname, pass, fail, timeout, skip)");
 	}
@@ -138,15 +141,15 @@
 		fclose ($LOG);
 	}
 
-	function finalize_revision_test ($rev)
+	function finalize_revision_test ($rev, $author, $date, $start_time)
 	{
 		save_log ();
 
-		global $start_time;
+		global $REVISION;
 		$end_time = time ();
 		$time = $end_time - $start_time;
 
-		e ("INSERT INTO complete VALUES ($rev, $time)");
+		e ("INSERT INTO complete VALUES ($rev, $time, $REVISION, '$author', '$date')");
 	}
 
 	// delete contents
@@ -160,7 +163,7 @@
 		exec ("$command 2>&1", $result, $ret_val);
 		if ($ret_val != 0 && $exception_type)
 		{
-			if (class_exists ($exception_type))
+			if (! class_exists ($exception_type))
 			{
 				eval ("class $exception_type extends Exception {}");
 			}
@@ -210,30 +213,40 @@
 		}
 	}
 
+	function get_svn_info ($rev)
+	{
+		$output = c ("svn info $REPO -r $rev");
+
+		preg_match ("/^Last Changed Author: (.*)$/m", $output, $matches);
+		$author = $matches[1];
+
+		preg_match ("/^Revision: (.*?)$/m", $output, $matches);
+		$revision = $matches[1];
+		assert ($revision == $rev);
+
+		preg_match ("/^Last Changed Date: (.*)$/m", $output, $matches);
+		$date = $matches[1];
+
+		return array ($rev, $author, $date);
+
+	}
+
 	/* Find the latest revision from svn, and check if its done. If not, return
 	 * it. If so, find another one to return. */
 	function get_working_revision () 
 	{
-		$latest_svn = get_latest_svn_revision ();
-
+		global $REVISION;
 		global $DB;
 		$revs = $DB->query ("SELECT revision FROM complete ORDER BY revision ASC")->fetchAll(PDO::FETCH_COLUMN);
 
 		sort ($revs);
-		for ($i = $latest_svn; $i > 0; $i--)
+		for ($i = $REVISION; $i > 0; $i--)
 		{
 			if (array_pop ($revs) != $i)
-				return $i;
+				return get_svn_info ($i);
 		}
 		return FALSE;
 	}
 
-	function get_latest_svn_revision ()
-	{
-		global $REPO;
-		$result = c ("svn info $REPO", "SVNError");
-		preg_match ("/Revision: (\d+)/", $result, $matches);
-		return $matches[1];
-	}
 
 ?>
