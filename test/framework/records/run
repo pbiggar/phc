@@ -6,7 +6,7 @@
 	 *	data is kept in a string, which is emailed to me on failure.
 	 */
 
-#	ob_start (); // keep all output
+	ob_start (); // keep all output
 
 	$REPO = "http://phc.googlecode.com/svn/trunk";
 	$CWD = getcwd ();
@@ -29,7 +29,9 @@
 		$test_results = cdl ("php test/framework/driver.php -p", "test");
 		cdl ("make install", "install");
 		$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
-		c ("mv $TEST_DIR/test/logs/latest $LOG_DIR/logs"); // save the logs
+
+		// save the logs
+		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/logs"); 
 
 		store_test_results ($test_results, $rev, "tests");
 		store_test_results ($install_results, $rev, "install_tests");
@@ -143,13 +145,13 @@
 
 	function finalize_revision_test ($rev, $author, $date, $start_time)
 	{
-		save_log ();
-
 		global $REVISION;
 		$end_time = time ();
 		$time = $end_time - $start_time;
 
 		e ("INSERT INTO complete VALUES ($rev, $time, $REVISION, '$author', '$date')");
+
+		save_log ();
 	}
 
 	// delete contents
