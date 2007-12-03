@@ -98,9 +98,9 @@
 			list ($name, $pass, $fail, $timeout, $skip) = $result;
 			e ("INSERT INTO $table_name VALUES ($rev, '$name', $pass, $fail, $timeout, $skip)");
 			$total_pass += $pass;
-			$total_fail += $pass;
-			$total_timeout += $pass;
-			$total_skip += $pass;
+			$total_fail += $fail;
+			$total_timeout += $timeout;
+			$total_skip += $skip;
 		}
 
 		e ("INSERT INTO $table_name VALUES ($rev, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
@@ -131,6 +131,10 @@
 		# set up the log file
 		global $LOG;
 		$LOG = fopen ("$LOG_DIR/log", "w");
+
+		e ("DELETE FROM complete WHERE revision == $rev");
+		e ("DELETE FROM tests WHERE revision == $rev");
+		e ("DELETE FROM install_tests WHERE revision == $rev");
 	}
 
 	function save_log ()
