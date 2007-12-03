@@ -110,7 +110,7 @@
 
 	$string = <<<GNUPLOT
 set term postscript eps enhanced
-set output "results/times_10.eps"
+set output "results/$title.eps"
 set nokey
 $labels
 set yrange [$minyrange:$maxyrange]
