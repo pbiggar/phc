@@ -1524,6 +1524,106 @@ Identifier::Identifier()
 {
 }
 
+HT_ITERATOR::HT_ITERATOR()
+{
+    this->value = 0;
+}
+
+void HT_ITERATOR::visit(Visitor* visitor)
+{
+    visitor->visit_ht_iterator(this);
+}
+
+void HT_ITERATOR::transform_children(Transform* transform)
+{
+    transform->children_ht_iterator(this);
+}
+
+int HT_ITERATOR::classid()
+{
+    return ID;
+}
+
+bool HT_ITERATOR::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
+    if(that == NULL) return false;
+    
+    if(!match_value(that))
+    	return false;
+    else
+    	return true;
+}
+
+bool HT_ITERATOR::match_value(HT_ITERATOR* that)
+{
+    return true;
+}
+
+bool HT_ITERATOR::equals(Node* in)
+{
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
+    if(that == NULL) return false;
+    
+    if(!equals_value(that))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+bool HT_ITERATOR::equals_value(HT_ITERATOR* that)
+{
+    return (this->value == that->value);
+}
+
+HT_ITERATOR* HT_ITERATOR::clone()
+{
+    value = clone_value();
+    HT_ITERATOR* clone = new HT_ITERATOR(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+long HT_ITERATOR::clone_value()
+{
+    return value;
+}
+
+void HT_ITERATOR::assert_valid()
+{
+    assert_value_valid();
+    Node::assert_mixin_valid();
+}
+
+void HT_ITERATOR::assert_value_valid()
+{
+    // Assume value is valid
+}
+
+HT_ITERATOR::HT_ITERATOR(long identifier)
+{
+    {
+		value = identifier;
+		std::ostringstream os;
+		os << "ht_iterator_" << value;
+	}
+}
+
+String* HT_ITERATOR::get_value_as_string()
+{
+    {
+		std::ostringstream os;
+		os << "ht_iterator_" << value;
+		return new String(os.str());
+	}
+}
+
 Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
 {
     this->class_mod = class_mod;
@@ -3122,15 +3222,15 @@ void Label::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_reset::Foreach_reset(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_reset::Foreach_reset(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
 Foreach_reset::Foreach_reset()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
@@ -3159,12 +3259,12 @@ bool Foreach_reset::match(Node* in)
     Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -3183,12 +3283,12 @@ bool Foreach_reset::equals(Node* in)
     Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -3205,31 +3305,31 @@ bool Foreach_reset::equals(Node* in)
 
 Foreach_reset* Foreach_reset::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_reset* clone = new Foreach_reset(variable_name, ht_iterator);
+    Foreach_reset* clone = new Foreach_reset(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_reset::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_next::Foreach_next(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_next::Foreach_next(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
 Foreach_next::Foreach_next()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
@@ -3258,12 +3358,12 @@ bool Foreach_next::match(Node* in)
     Foreach_next* that = dynamic_cast<Foreach_next*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -3282,12 +3382,12 @@ bool Foreach_next::equals(Node* in)
     Foreach_next* that = dynamic_cast<Foreach_next*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -3304,31 +3404,31 @@ bool Foreach_next::equals(Node* in)
 
 Foreach_next* Foreach_next::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_next* clone = new Foreach_next(variable_name, ht_iterator);
+    Foreach_next* clone = new Foreach_next(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_next::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_end::Foreach_end(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_end::Foreach_end(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
 Foreach_end::Foreach_end()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
@@ -3357,12 +3457,12 @@ bool Foreach_end::match(Node* in)
     Foreach_end* that = dynamic_cast<Foreach_end*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -3381,12 +3481,12 @@ bool Foreach_end::equals(Node* in)
     Foreach_end* that = dynamic_cast<Foreach_end*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -3403,17 +3503,17 @@ bool Foreach_end::equals(Node* in)
 
 Foreach_end* Foreach_end::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_end* clone = new Foreach_end(variable_name, ht_iterator);
+    Foreach_end* clone = new Foreach_end(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_end::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();
@@ -3886,83 +3986,6 @@ void LABEL_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
-HT_ITERATOR::HT_ITERATOR(String* value)
-{
-    this->value = value;
-}
-
-HT_ITERATOR::HT_ITERATOR()
-{
-    this->value = 0;
-}
-
-void HT_ITERATOR::visit(Visitor* visitor)
-{
-    visitor->visit_ht_iterator(this);
-}
-
-void HT_ITERATOR::transform_children(Transform* transform)
-{
-    transform->children_ht_iterator(this);
-}
-
-String* HT_ITERATOR::get_value_as_string()
-{
-    return value;
-}
-
-int HT_ITERATOR::classid()
-{
-    return ID;
-}
-
-bool HT_ITERATOR::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool HT_ITERATOR::equals(Node* in)
-{
-    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-HT_ITERATOR* HT_ITERATOR::clone()
-{
-    String* value = new String(*this->value);
-    HT_ITERATOR* clone = new HT_ITERATOR(value);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void HT_ITERATOR::assert_valid()
-{
-    assert(value != NULL);
-    Node::assert_mixin_valid();
-}
-
 CAST::CAST(String* value)
 {
     this->value = value;
@@ -4194,15 +4217,15 @@ void CONSTANT_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_has_key::Foreach_has_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
 Foreach_has_key::Foreach_has_key()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
@@ -4231,12 +4254,12 @@ bool Foreach_has_key::match(Node* in)
     Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -4255,12 +4278,12 @@ bool Foreach_has_key::equals(Node* in)
     Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -4277,31 +4300,31 @@ bool Foreach_has_key::equals(Node* in)
 
 Foreach_has_key* Foreach_has_key::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_has_key* clone = new Foreach_has_key(variable_name, ht_iterator);
+    Foreach_has_key* clone = new Foreach_has_key(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_has_key::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_get_key::Foreach_get_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_get_key::Foreach_get_key(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
 Foreach_get_key::Foreach_get_key()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
@@ -4330,12 +4353,12 @@ bool Foreach_get_key::match(Node* in)
     Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -4354,12 +4377,12 @@ bool Foreach_get_key::equals(Node* in)
     Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -4376,65 +4399,65 @@ bool Foreach_get_key::equals(Node* in)
 
 Foreach_get_key* Foreach_get_key::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_get_key* clone = new Foreach_get_key(variable_name, ht_iterator);
+    Foreach_get_key* clone = new Foreach_get_key(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_get_key::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_get_data::Foreach_get_data(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator)
+Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator)
 {
-    this->variable_name = variable_name;
+    this->array_name = array_name;
     this->ht_iterator = ht_iterator;
 }
 
-Foreach_get_data::Foreach_get_data()
+Foreach_get_val::Foreach_get_val()
 {
-    this->variable_name = 0;
+    this->array_name = 0;
     this->ht_iterator = 0;
 }
 
-void Foreach_get_data::visit(Visitor* visitor)
+void Foreach_get_val::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Foreach_get_data::transform_children(Transform* transform)
+void Foreach_get_val::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int Foreach_get_data::classid()
+int Foreach_get_val::classid()
 {
     return ID;
 }
 
-bool Foreach_get_data::match(Node* in)
+bool Foreach_get_val::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Foreach_get_data* that = dynamic_cast<Foreach_get_data*>(in);
+    Foreach_get_val* that = dynamic_cast<Foreach_get_val*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->array_name == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->array_name != NULL && !that->array_name->match(this->array_name))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->array_name->match(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL)
@@ -4448,17 +4471,17 @@ bool Foreach_get_data::match(Node* in)
     return true;
 }
 
-bool Foreach_get_data::equals(Node* in)
+bool Foreach_get_val::equals(Node* in)
 {
-    Foreach_get_data* that = dynamic_cast<Foreach_get_data*>(in);
+    Foreach_get_val* that = dynamic_cast<Foreach_get_val*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->array_name == NULL || that->array_name == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->array_name != NULL || that->array_name != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->array_name->equals(that->array_name))
     	return false;
     
     if(this->ht_iterator == NULL || that->ht_iterator == NULL)
@@ -4473,19 +4496,19 @@ bool Foreach_get_data::equals(Node* in)
     return true;
 }
 
-Foreach_get_data* Foreach_get_data::clone()
+Foreach_get_val* Foreach_get_val::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* array_name = this->array_name ? this->array_name->clone() : NULL;
     HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_get_data* clone = new Foreach_get_data(variable_name, ht_iterator);
+    Foreach_get_val* clone = new Foreach_get_val(array_name, ht_iterator);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Foreach_get_data::assert_valid()
+void Foreach_get_val::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(array_name != NULL);
+    array_name->assert_valid();
     assert(ht_iterator != NULL);
     ht_iterator->assert_valid();
     Node::assert_mixin_valid();

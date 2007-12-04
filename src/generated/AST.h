@@ -38,6 +38,7 @@ class Actual_parameter;
 class Class_name;
 class Commented_node;
 class Identifier;
+class HT_ITERATOR;
 class Statement;
 class Member;
 class Switch_case;
@@ -51,7 +52,6 @@ class METHOD_NAME;
 class VARIABLE_NAME;
 class DIRECTIVE_NAME;
 class LABEL_NAME;
-class HT_ITERATOR;
 class OP;
 class CAST;
 class CONSTANT_NAME;
@@ -83,7 +83,7 @@ class Foreach_next;
 class Foreach_end;
 class Foreach_has_key;
 class Foreach_get_key;
-class Foreach_get_data;
+class Foreach_get_val;
 class Literal;
 class Assignment;
 class Op_assignment;
@@ -110,7 +110,7 @@ class NIL;
 class Transform;
 class Visitor;
 
-// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Identifier;
+// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Identifier | HT_ITERATOR<long>;
 class Node : virtual public Object
 {
 public:
@@ -573,7 +573,7 @@ public:
     List<String*>* get_comments();
 };
 
-// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR | DIRECTIVE_NAME;
+// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
 class Identifier : virtual public Node
 {
 public:
@@ -593,6 +593,39 @@ public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
+};
+
+class HT_ITERATOR : virtual public Node
+{
+public:
+    HT_ITERATOR(long value, String* source_rep);
+protected:
+    HT_ITERATOR();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    long value;
+    String* source_rep;
+    virtual String* get_source_rep();
+public:
+    static const int ID = 61;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+    virtual bool match_value(HT_ITERATOR* that);
+public:
+    virtual bool equals(Node* in);
+    virtual bool equals_value(HT_ITERATOR* that);
+public:
+    virtual HT_ITERATOR* clone();
+    virtual long clone_value();
+public:
+    virtual void assert_valid();
+    virtual void assert_value_valid();
+public:
+    HT_ITERATOR(long identifier);
+    String* get_value_as_string();
 };
 
 // Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end;
@@ -688,7 +721,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | Foreach_has_key | Foreach_get_key | Foreach_get_data;
+// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | Foreach_has_key | Foreach_get_key | Foreach_get_val;
 class Expr : virtual public Target
 {
 public:
@@ -771,7 +804,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 61;
+    static const int ID = 62;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -796,7 +829,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 62;
+    static const int ID = 63;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -821,7 +854,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 63;
+    static const int ID = 64;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -846,7 +879,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 64;
+    static const int ID = 65;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -871,7 +904,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 65;
+    static const int ID = 66;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -896,31 +929,6 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 66;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual LABEL_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class HT_ITERATOR : virtual public Identifier
-{
-public:
-    HT_ITERATOR(String* value);
-protected:
-    HT_ITERATOR();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
     static const int ID = 67;
     virtual int classid();
 public:
@@ -928,7 +936,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual HT_ITERATOR* clone();
+    virtual LABEL_NAME* clone();
 public:
     virtual void assert_valid();
 };
@@ -1620,15 +1628,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
+// Foreach_reset ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 class Foreach_reset : virtual public Statement
 {
 public:
-    Foreach_reset(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_reset(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
     Foreach_reset();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1646,15 +1654,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
+// Foreach_next ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 class Foreach_next : virtual public Statement
 {
 public:
-    Foreach_next(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_next(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
     Foreach_next();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1672,15 +1680,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
+// Foreach_end ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 class Foreach_end : virtual public Statement
 {
 public:
-    Foreach_end(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_end(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
     Foreach_end();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1698,15 +1706,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
+// Foreach_has_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 class Foreach_has_key : virtual public Expr
 {
 public:
-    Foreach_has_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_has_key(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
     Foreach_has_key();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1724,15 +1732,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
+// Foreach_get_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 class Foreach_get_key : virtual public Expr
 {
 public:
-    Foreach_get_key(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_get_key(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
     Foreach_get_key();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1750,15 +1758,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
-class Foreach_get_data : virtual public Expr
+// Foreach_get_val ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+class Foreach_get_val : virtual public Expr
 {
 public:
-    Foreach_get_data(VARIABLE_NAME* variable_name, HT_ITERATOR* ht_iterator);
+    Foreach_get_val(VARIABLE_NAME* array_name, HT_ITERATOR* ht_iterator);
 protected:
-    Foreach_get_data();
+    Foreach_get_val();
 public:
-    VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* array_name;
     HT_ITERATOR* ht_iterator;
 public:
     virtual void visit(Visitor* visitor);
@@ -1771,7 +1779,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Foreach_get_data* clone();
+    virtual Foreach_get_val* clone();
 public:
     virtual void assert_valid();
 };

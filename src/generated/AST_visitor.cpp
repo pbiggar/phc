@@ -174,7 +174,7 @@ void Visitor::pre_foreach_get_key(Foreach_get_key* in)
 {
 }
 
-void Visitor::pre_foreach_get_data(Foreach_get_data* in)
+void Visitor::pre_foreach_get_val(Foreach_get_val* in)
 {
 }
 
@@ -294,6 +294,10 @@ void Visitor::pre_identifier(Identifier* in)
 {
 }
 
+void Visitor::pre_ht_iterator(HT_ITERATOR* in)
+{
+}
+
 void Visitor::pre_class_name(CLASS_NAME* in)
 {
 }
@@ -315,10 +319,6 @@ void Visitor::pre_directive_name(DIRECTIVE_NAME* in)
 }
 
 void Visitor::pre_label_name(LABEL_NAME* in)
-{
-}
-
-void Visitor::pre_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -523,7 +523,7 @@ void Visitor::post_foreach_get_key(Foreach_get_key* in)
 {
 }
 
-void Visitor::post_foreach_get_data(Foreach_get_data* in)
+void Visitor::post_foreach_get_val(Foreach_get_val* in)
 {
 }
 
@@ -643,6 +643,10 @@ void Visitor::post_identifier(Identifier* in)
 {
 }
 
+void Visitor::post_ht_iterator(HT_ITERATOR* in)
+{
+}
+
 void Visitor::post_class_name(CLASS_NAME* in)
 {
 }
@@ -664,10 +668,6 @@ void Visitor::post_directive_name(DIRECTIVE_NAME* in)
 }
 
 void Visitor::post_label_name(LABEL_NAME* in)
-{
-}
-
-void Visitor::post_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -919,37 +919,37 @@ void Visitor::children_label(Label* in)
 
 void Visitor::children_foreach_reset(Foreach_reset* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_next(Foreach_next* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_end(Foreach_end* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_has_key(Foreach_has_key* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_get_key(Foreach_get_key* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
-void Visitor::children_foreach_get_data(Foreach_get_data* in)
+void Visitor::children_foreach_get_val(Foreach_get_val* in)
 {
-    visit_variable_name(in->variable_name);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
@@ -1077,6 +1077,10 @@ void Visitor::children_new(New* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
+void Visitor::children_ht_iterator(HT_ITERATOR* in)
+{
+}
+
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1098,10 +1102,6 @@ void Visitor::children_directive_name(DIRECTIVE_NAME* in)
 }
 
 void Visitor::children_label_name(LABEL_NAME* in)
-{
-}
-
-void Visitor::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -1453,12 +1453,12 @@ void Visitor::pre_foreach_get_key_chain(Foreach_get_key* in)
     pre_foreach_get_key(in);
 }
 
-void Visitor::pre_foreach_get_data_chain(Foreach_get_data* in)
+void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
 {
     pre_node(in);
     pre_target(in);
     pre_expr(in);
-    pre_foreach_get_data(in);
+    pre_foreach_get_val(in);
 }
 
 void Visitor::pre_assignment_chain(Assignment* in)
@@ -1618,6 +1618,12 @@ void Visitor::pre_new_chain(New* in)
     pre_new(in);
 }
 
+void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
+{
+    pre_node(in);
+    pre_ht_iterator(in);
+}
+
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
 {
     pre_node(in);
@@ -1662,13 +1668,6 @@ void Visitor::pre_label_name_chain(LABEL_NAME* in)
     pre_node(in);
     pre_identifier(in);
     pre_label_name(in);
-}
-
-void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_ht_iterator(in);
 }
 
 void Visitor::pre_int_chain(INT* in)
@@ -2033,9 +2032,9 @@ void Visitor::post_foreach_get_key_chain(Foreach_get_key* in)
     post_node(in);
 }
 
-void Visitor::post_foreach_get_data_chain(Foreach_get_data* in)
+void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
 {
-    post_foreach_get_data(in);
+    post_foreach_get_val(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2198,6 +2197,12 @@ void Visitor::post_new_chain(New* in)
     post_node(in);
 }
 
+void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
+{
+    post_ht_iterator(in);
+    post_node(in);
+}
+
 void Visitor::post_class_name_chain(CLASS_NAME* in)
 {
     post_class_name(in);
@@ -2240,13 +2245,6 @@ void Visitor::post_directive_name_chain(DIRECTIVE_NAME* in)
 void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
     post_label_name(in);
-    post_identifier(in);
-    post_node(in);
-}
-
-void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
-{
-    post_ht_iterator(in);
     post_identifier(in);
     post_node(in);
 }
@@ -3120,8 +3118,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case Foreach_get_key::ID:
     	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	pre_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -3238,8 +3236,8 @@ void Visitor::pre_target_chain(Target* in)
     case Foreach_get_key::ID:
     	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	pre_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3430,8 +3428,8 @@ void Visitor::post_expr_chain(Expr* in)
     case Foreach_get_key::ID:
     	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	post_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -3548,8 +3546,8 @@ void Visitor::post_target_chain(Target* in)
     case Foreach_get_key::ID:
     	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	post_foreach_get_data_chain(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3740,8 +3738,8 @@ void Visitor::children_expr(Expr* in)
     case Foreach_get_key::ID:
     	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -3858,8 +3856,8 @@ void Visitor::children_target(Target* in)
     case Foreach_get_key::ID:
     	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

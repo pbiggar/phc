@@ -100,12 +100,12 @@ Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= VARIABLE_NAME HT_ITERATOR ;
-Foreach_next ::= VARIABLE_NAME HT_ITERATOR ;
-Foreach_end ::= VARIABLE_NAME HT_ITERATOR ;
-Foreach_has_key ::= VARIABLE_NAME HT_ITERATOR ;
-Foreach_get_key ::= VARIABLE_NAME HT_ITERATOR ;
-Foreach_get_data ::= VARIABLE_NAME HT_ITERATOR ;
+Foreach_reset ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_next ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_end ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_has_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_get_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_get_val ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 
 {-
    Expressions
@@ -120,7 +120,7 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
-	| Foreach_has_key | Foreach_get_key | Foreach_get_data
+	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
@@ -173,7 +173,7 @@ Commented_node ::=
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
+	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME 
 	  | DIRECTIVE_NAME 
 	;  
 
@@ -581,6 +581,27 @@ public:
 		return value;
 	}
 };
+
+class HT_ITERATOR
+{
+public:
+	HT_ITERATOR (long identifier)
+	{
+		value = identifier;
+		std::ostringstream os;
+		os << "ht_iterator_" << value;
+		source_rep = new String(os.str());
+	}
+
+	String* get_value_as_string ()
+	{
+		std::ostringstream os;
+		os << "ht_iterator_" << value;
+		return new String(os.str());
+	}
+};
+
+
 
 class Identifier
 {

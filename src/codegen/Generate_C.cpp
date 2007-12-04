@@ -873,17 +873,16 @@ protected:
 };
 
 /*
- * Assign_unknown_literal is a specialization of Assignment for literal
- * assignments (such as calls to isset) which takes care of creating a new
- * zval for the LHS if necessary.
+ * Assign_zval is a specialization of Assignment for assignments to a simple
+ * zval which takes care of creating a new zval for the LHS if necessary.
  *
  * Assign_literal is a further specialization for those literal assignment
  * where the value of the literal is known at compile time (assigning a token
  * int, for example). The main difference between Assign_literal and 
- * Assign_unknown_literal is that Assign_literal can do constant pooling.
+ * Assign_zval is that Assign_literal can do constant pooling.
  */
 
-class Pattern_assign_unknown_literal : public Pattern_assignment
+class Pattern_assign_zval : public Pattern_assignment
 {
 public:
 	void generate_rhs (bool used)
@@ -892,24 +891,25 @@ public:
 			return;
 
 		code
-			<<	"zval* literal;\n"
 			<< "if ((*p_lhs)->is_ref)\n"
 			<< "{\n"
-			<<		"// avoid allocating memory\n"
-			<<		"zval val;\n"
-			<<		"INIT_ZVAL (val);\n";
-		initialize (code, "&val");
+			<<	"	// avoid allocating memory\n"
+			<<	"	zval val;\n"
+			<<	"	INIT_ZVAL (val);\n"
+			<<	"	zval* p_val = &val;\n";
+		initialize (code, "p_val");
 		code
-			<<		"// the memory will have been freshly allocated, so we dont need to call the copy constuctor\n"
-			<<		"overwrite_lhs_no_copy (*p_lhs, &val);\n"
+			<<	"	// the memory will have been freshly allocated, so we dont need to call the copy constuctor\n"
+			<<	"	overwrite_lhs_no_copy (*p_lhs, p_val);\n"
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
-			<<		"ALLOC_INIT_ZVAL (literal);\n";
+			<<	"	zval* literal;\n"
+			<<	"	ALLOC_INIT_ZVAL (literal);\n";
 		initialize (code, "literal");
 		code
-			<<		"zval_ptr_dtor (p_lhs);\n"
-			<<		"*p_lhs = literal;\n"
+			<<	"	zval_ptr_dtor (p_lhs);\n"
+			<<	"	*p_lhs = literal;\n"
 			<< "}\n";
 	}
 
@@ -920,7 +920,7 @@ stringstream initializations;
 stringstream finalizations;
 
 template<class T, class K>
-class Pattern_assign_literal : public Pattern_assign_unknown_literal 
+class Pattern_assign_literal : public Pattern_assign_zval 
 {
 public:
 	Expr* rhs_pattern()
@@ -976,7 +976,7 @@ public:
 		}
 		else
 		{
-			Pattern_assign_unknown_literal::generate_rhs(used);
+			Pattern_assign_zval::generate_rhs(used);
 		}
 	}
 
@@ -1888,7 +1888,7 @@ protected:
 	Wildcard<Actual_parameter>* var;
 };
 
-class Pattern_isset : public Pattern_assign_unknown_literal
+class Pattern_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
@@ -1963,6 +1963,193 @@ protected:
 };
 
 /*
+ * Foreach patterns
+ */
+
+class Pattern_foreach_reset: public Pattern
+{
+	bool match (Statement* that)
+	{
+		reset = new Wildcard<Foreach_reset>;
+		return that->match (reset);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		// declare the external iterator so outside local scope blocks
+		code
+			<< "HashPosition pos" << reset->value->ht_iterator->value << ";\n"
+			<< "{\n";
+
+		read_simple (LOCAL, "fe_array", reset->value->array_name);
+		code 
+			<< "zend_hash_internal_pointer_reset_ex ("
+			<< "						fe_array->value.ht, "
+			<< "						&pos" << reset->value->ht_iterator->value << ");\n"
+			<< "}\n";
+	}
+
+protected:
+	Wildcard<Foreach_reset>* reset;
+};
+
+class Pattern_foreach_has_key : public Pattern_assign_zval
+{
+
+	Expr* rhs_pattern()
+	{
+		has_key = new Wildcard<Foreach_has_key>;
+		return has_key;
+	}
+
+	void initialize (ostream& os, string var)
+	{
+		read_simple (LOCAL, "fe_array", has_key->value->array_name);
+		os
+			<< "int type = zend_hash_get_current_key_type_ex ("
+			<< "						fe_array->value.ht, "
+			<< "						&pos" << has_key->value->ht_iterator->value << ");\n"
+			<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
+	}
+
+protected:
+	Wildcard<Foreach_has_key>* has_key;
+};
+
+class Pattern_foreach_get_key : public Pattern_assign_zval
+{
+	Expr* rhs_pattern()
+	{
+		get_key = new Wildcard<Foreach_get_key>;
+		return get_key;
+	}
+
+	void initialize (ostream& os, string var)
+	{
+		read_simple (LOCAL, "fe_array", get_key->value->array_name);
+		os
+			<< "char* str_index = NULL;\n"
+			<< "uint str_length;\n"
+			<< "ulong num_index;\n"
+			<< "int result = zend_hash_get_current_key_ex (\n"
+			<< "						fe_array->value.ht,"
+			<< "						&str_index, &str_length, &num_index, "
+			<< "						0, "
+			<< "						&pos" << get_key->value->ht_iterator->value << ");\n"
+			<< "if (result == HASH_KEY_IS_LONG)\n"
+			<< "{\n"
+			<< "	ZVAL_LONG (" << var << ", num_index);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<< "	ZVAL_STRINGL (" << var << ", str_index, str_length - 1, 1);\n"
+			<< "}\n";
+	}
+
+protected:
+	Wildcard<Foreach_get_key>* get_key;
+};
+
+class Pattern_foreach_get_val : public Pattern_assignment
+{
+	Expr* rhs_pattern()
+	{
+		get_val = new Wildcard<Foreach_get_val>;
+		return get_val;
+	}
+
+	void generate_rhs (bool used)
+	{
+		// FIXME: this happens because of strange, multi-stage lowering
+		if (not used)
+			return;
+
+		read_simple (LOCAL, "fe_array", get_val->value->array_name);
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n"
+				<< "int result = zend_hash_get_current_data_ex (\n"
+				<< "						fe_array->value.ht, "
+				<<							"(void**)(&p_rhs), "
+				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "assert (result == SUCCESS);\n"
+				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			code 
+				<< "zval** p_rhs = NULL;\n"
+				<< "int result = zend_hash_get_current_data_ex (\n"
+				<< "						fe_array->value.ht, "
+				<<							"(void**)(&p_rhs), "
+				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "assert (result == SUCCESS);\n"
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
+	}
+
+protected:
+	Wildcard<Foreach_get_val>* get_val;
+};
+
+class Pattern_foreach_next: public Pattern
+{
+	bool match (Statement* that)
+	{
+		next = new Wildcard<Foreach_next>;
+		return that->match (next);
+	}
+
+	void generate_code (Generate_C* gen)
+	{
+		code << "{\n";
+		read_simple (LOCAL, "fe_array", next->value->array_name);
+		code 
+			<< "int result = zend_hash_move_forward_ex ("
+			<<							"fe_array->value.ht, "
+			<<							"&pos" << next->value->ht_iterator->value << ");\n"
+			<< "assert (result == SUCCESS);\n";
+		code << "}\n";
+	}
+
+protected:
+	Wildcard<Foreach_next>* next;
+};
+
+class Pattern_foreach_end : public Pattern
+{
+	bool match (Statement* that)
+	{
+		end = new Wildcard<Foreach_end>;
+		return that->match (end);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code << "{\n";
+		read_simple (LOCAL, "fe_array", end->value->array_name);
+		code 
+			<< "zend_hash_internal_pointer_end_ex ("
+			<<							"fe_array->value.ht, "
+			<<							"&pos" << end->value->ht_iterator->value << ");\n";
+		code << "}\n";
+	}
+
+protected:
+	Wildcard<Foreach_end>* end;
+};
+
+
+
+/*
  * Visitor methods to generate C code
  * Visitor for statements uses the patterns defined above.
  */
@@ -2006,6 +2193,12 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_goto()
 	,	new Pattern_return()
 	,	new Pattern_cast ()
+	,	new Pattern_foreach_reset ()
+	,	new Pattern_foreach_has_key ()
+	,	new Pattern_foreach_get_key ()
+	,	new Pattern_foreach_get_val ()
+	,	new Pattern_foreach_next ()
+	,	new Pattern_foreach_end ()
 	};
 
 	bool matched = false;

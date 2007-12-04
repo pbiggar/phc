@@ -13,5 +13,6 @@
 AST::Variable* fresh_var (string prefix);
 AST::Label* fresh_label ();
 String* fresh(string prefix);
+AST::HT_ITERATOR* fresh_iter ();
 
 #endif // PHC_FRESH_H

@@ -141,7 +141,7 @@ Expr* Transform::pre_foreach_get_key(Foreach_get_key* in)
     return in;
 }
 
-Expr* Transform::pre_foreach_get_data(Foreach_get_data* in)
+Expr* Transform::pre_foreach_get_val(Foreach_get_val* in)
 {
     return in;
 }
@@ -216,6 +216,11 @@ Expr* Transform::pre_new(New* in)
     return in;
 }
 
+HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
+{
+    return in;
+}
+
 CLASS_NAME* Transform::pre_class_name(CLASS_NAME* in)
 {
     return in;
@@ -237,11 +242,6 @@ VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
 }
 
 LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
-{
-    return in;
-}
-
-HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
@@ -422,7 +422,7 @@ Expr* Transform::post_foreach_get_key(Foreach_get_key* in)
     return in;
 }
 
-Expr* Transform::post_foreach_get_data(Foreach_get_data* in)
+Expr* Transform::post_foreach_get_val(Foreach_get_val* in)
 {
     return in;
 }
@@ -497,6 +497,11 @@ Expr* Transform::post_new(New* in)
     return in;
 }
 
+HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
+{
+    return in;
+}
+
 CLASS_NAME* Transform::post_class_name(CLASS_NAME* in)
 {
     return in;
@@ -518,11 +523,6 @@ VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
 }
 
 LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
-{
-    return in;
-}
-
-HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
@@ -694,37 +694,37 @@ void Transform::children_label(Label* in)
 
 void Transform::children_foreach_reset(Foreach_reset* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
 void Transform::children_foreach_next(Foreach_next* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
 void Transform::children_foreach_end(Foreach_end* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
 void Transform::children_foreach_has_key(Foreach_has_key* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
 void Transform::children_foreach_get_key(Foreach_get_key* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
-void Transform::children_foreach_get_data(Foreach_get_data* in)
+void Transform::children_foreach_get_val(Foreach_get_val* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_name = transform_variable_name(in->array_name);
     in->ht_iterator = transform_ht_iterator(in->ht_iterator);
 }
 
@@ -815,6 +815,10 @@ void Transform::children_new(New* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
+void Transform::children_ht_iterator(HT_ITERATOR* in)
+{
+}
+
 void Transform::children_class_name(CLASS_NAME* in)
 {
 }
@@ -832,10 +836,6 @@ void Transform::children_variable_name(VARIABLE_NAME* in)
 }
 
 void Transform::children_label_name(LABEL_NAME* in)
-{
-}
-
-void Transform::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -1672,7 +1672,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     }
     assert(0);
 }
@@ -1719,7 +1719,7 @@ Target* Transform::pre_target(Target* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_data::ID: return pre_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -1928,7 +1928,7 @@ Expr* Transform::post_expr(Expr* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     }
     assert(0);
 }
@@ -1975,7 +1975,7 @@ Target* Transform::post_target(Target* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_data::ID: return post_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2116,8 +2116,8 @@ void Transform::children_expr(Expr* in)
     case Foreach_get_key::ID:
     	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -2206,8 +2206,8 @@ void Transform::children_target(Target* in)
     case Foreach_get_key::ID:
     	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     	break;
-    case Foreach_get_data::ID:
-    	children_foreach_get_data(dynamic_cast<Foreach_get_data*>(in));
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

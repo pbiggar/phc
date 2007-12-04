@@ -17,6 +17,7 @@
 #include "Lower_control_flow.h"
 #include "Check_lowering.h"
 #include "fresh.h"
+#include "process_ir/debug.h"
 #include <sstream>
 #include "Shredder.h"
 
@@ -239,6 +240,118 @@ void Lower_control_flow::post_for (For* in, List<Statement*>* out)
 }
 
 /* Convert 
+ *   foreach (expr() as $key => $value)
+ *   {
+ *		 ...;
+ *   }
+ * into
+ *		$array = expr ();
+ *		foreach_reset ($arr, iter); 
+ *		while ($x = foreach_has_key ($arr, iter))
+ *		{
+ *			$key = foreach_get_key ($arr, iter); 
+ *			$val = foreach_get_val ($arr, iter); // optional
+ *			....  
+ *			foreach_next ($arr, iter); 
+ *		}
+ *		foreach_end ($arr, iter);
+ */
+
+// TODO move shredder earlier. this is made a lot more complicated by non-shredded expressions
+void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
+{
+ 	// $array = expr (); (only is array is not var)
+	Variable* var; 
+	VARIABLE_NAME* arr;
+	if (not ((var = dynamic_cast<Variable*> (in->expr))
+		&& var->variable_name->classid () == VARIABLE_NAME::ID
+		&& var->target == NULL
+		&& var->array_indices->size () == 0))
+	{
+		var = fresh_var ("LCF_ARRAY_");
+		out->push_back (new Eval_expr (new Assignment (var, false, in->expr)));
+	}
+	arr = dynamic_cast <VARIABLE_NAME*> (var->variable_name);
+
+	// foreach_reset ($arr, iter); 
+	HT_ITERATOR* iter = fresh_iter ();
+	out->push_back (new Foreach_reset (arr->clone (), iter));
+
+	// while ($x = foreach_has_key ($arr, iter))
+	Variable* x = fresh_var ("LCF_HAS_KEY_");
+   While* while_stmt = 
+		new While (
+			new Assignment (
+				x,
+				false, 
+				new Foreach_has_key (
+					arr->clone (),
+					iter->clone ())),
+			new List<Statement*>);
+
+	// $key = foreach_get_key ($arr, iter); 
+	
+	// TODO havent taken into account a key with indices
+	// The key may not be present, but we create it anyway for the unparser.
+	Variable* key;
+	if (in->key)
+		key = in->key;
+	else
+		key = fresh_var ("LCF_KEY_");
+
+	Statement* get_key = 
+			new Eval_expr (
+				new Assignment (
+					key->clone (),
+					false,
+					new Foreach_get_key (
+						arr->clone (),
+						iter->clone ())));
+
+
+	// only push it back if necessary
+	if (in->key)
+		while_stmt->statements->push_back (get_key);
+	
+
+	// $val = foreach_get_val ($arr, $key, iter); 
+	Foreach_get_val* get_val = new Foreach_get_val (
+														arr->clone (),
+														iter->clone ());
+
+	// only add the key if it wont be found already
+	if (not in->key)
+		get_val->attrs->set ("phc.unparser.foreach_get_key", get_key);
+
+	get_val->attrs->set ("phc.unparser.foreach_key", key);
+
+	while_stmt->statements->push_back (	new Eval_expr (
+														new Assignment (
+															in->val->clone (),
+															in->is_ref,
+															get_val)));
+
+	// ....  
+	while_stmt->statements->push_back_all (in->statements);
+
+	// foreach_next ($arr, iter); 
+	while_stmt->statements->push_back (
+		new Foreach_next (
+			arr->clone (),
+			iter->clone ()));
+
+	lower_while (while_stmt, out);
+
+
+	// foreach_end ($arr, iter);
+	out->push_back (
+		new Foreach_end (
+			arr->clone (),
+			iter->clone ()));
+
+}
+
+/* Convert 
  *   foreach ($array as $key => $value)
  *   {
  *		 ...;
@@ -263,7 +376,7 @@ void Lower_control_flow::post_for (For* in, List<Statement*>* out)
  *	  believe are just refcounts anyway.
  */
 
-
+#if 0
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	Variable* temp_array = fresh_var ("LCF_ARRAY_");
@@ -353,7 +466,6 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	lower_while (while_stmt, out);
 }
 
-#if 0
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	// use the same lock variable throughout the program

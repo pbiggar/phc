@@ -42,16 +42,19 @@ unique_random ()
 	return num;
 }
 
+int fresh_suffix (string prefix)
+{
+	static map<string, int> temps;
+	if (args_info.obfuscate_flag)
+		return unique_random ();
+	else
+		return temps[prefix]++;
+}
+
 
 String* fresh(string prefix)
 {
-	int t;
-	static map<string, int> temps;
-	if (args_info.obfuscate_flag)
-		t = unique_random ();
-	else
-		t = temps[prefix]++;
-
+	int t = fresh_suffix (prefix);
 	stringstream ss;
 	ss << prefix << t;
 
@@ -68,6 +71,11 @@ Variable* fresh_var(string prefix)
 
 	var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
 	return var;
+}
+
+HT_ITERATOR* fresh_iter ()
+{
+	return new HT_ITERATOR (fresh_suffix ("I"));
 }
 
 Label* fresh_label ()
