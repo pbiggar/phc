@@ -1,86 +1,69 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
-	<head>
-		<title>phc -- the open source PHP compiler</title>
-		<link rel="stylesheet" type="text/css" href="phc.css">
-	</head>
-	<body>
-		<table>
-			<tr>
-				<td>
-					<table width="100%" cellpadding="5">
-						<tr>
-							<th>Revision</th>
-							<th>Author</th>
-							<th>Passes</th>
-							<th>Fails</th>
-							<th>Skips</th>
-							<th>Timeouts</th>
 <?php
 
-	$DB = new PDO ("sqlite:results/results.db");
-	$query = $DB->query ("
-			SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout
-			FROM		complete AS c, tests AS t
-			WHERE		t.revision == c.revision AND t.testname == 'Total'
-			ORDER BY c.revision DESC
-			");
-	
-	$completes = $query->fetchAll(PDO::FETCH_ASSOC);
+	include ("common.php");
 
-	# arrange by revision
-	foreach ($completes as $complete)
+	function run_main ()
 	{
-		$rev = (int)$complete["revision"];
-		$revisions[$rev] = $complete;
-	}
+		global $DB;
 
-	# process data
-	foreach ($revisions as $rev => &$data)
-	{
-		$data["difference"] = add_difference ("pass", $data, $revisions[$rev-1]);
-		add_difference ("fail", $data, $revisions[$rev-1]);
-		add_difference ("skip", $data, $revisions[$rev-1]);
-		add_difference ("timeout", $data, $revisions[$rev-1]);
-	}
-
-
-	# print out rows
-	foreach ($revisions as $rev => $data)
-	{
 		print "<tr>\n";
+		print "<th>Revision</th>\n";
+		print "<th>Author</th>\n";
+		print "<th>Passes</th>\n";
+		print "<th>Fails</th>\n";
+		print "<th>Skips</th>\n";
+		print "<th>Timeouts</th>\n";
 
-		# pick a color
-		$color = "white";
-		if ($data["difference"] > 0)
-			$color = "green";
-		elseif ($data["difference"] < 0)
-			$color = "red";
-		unset ($data["difference"]);
+		$query = $DB->query ("
+				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout
+				FROM		complete AS c, tests AS t
+				WHERE		t.revision == c.revision AND t.testname == 'Total'
+				ORDER BY c.revision DESC
+				");
+		
+		$completes = $query->fetchAll(PDO::FETCH_ASSOC);
 
-
-		foreach ($data as $key => $value)
+		# arrange by revision
+		foreach ($completes as $complete)
 		{
-			print "<td style=\"color: $color; background-color: #8a7640;\" >$value</td>";
+			$rev = (int)$complete["revision"];
+			$revisions[$rev] = $complete;
 		}
-		print "</tr>\n";
-	}
 
-	# add a string with the difference of the old data to the new data
-	function add_difference ($name, &$new, $old)
-	{
-		if ($old)
+		# process data
+		foreach ($revisions as $rev => &$data)
 		{
-			$difference = $new [$name] - $old[$name];
-			if ($difference < 0)
-				$new[$name] .= " ($difference)";
-			elseif ($difference > 0)
-				$new[$name] .= " (+$difference)";
+			$data["difference"] = add_difference ("pass", $data, $revisions[$rev-1]);
+			add_difference ("fail", $data, $revisions[$rev-1]);
+			add_difference ("skip", $data, $revisions[$rev-1]);
+			add_difference ("timeout", $data, $revisions[$rev-1]);
 		}
-		return $difference;
-	}
 
+
+		# print out rows
+		foreach ($revisions as $rev => $data)
+		{
+			print "<tr>\n";
+
+			# pick a color
+			$color = "white";
+			if ($data["difference"] > 0)
+				$color = "green";
+			elseif ($data["difference"] < 0)
+				$color = "red";
+			unset ($data["difference"]);
+
+			# add a link to revision
+			$data["revision"] = "<a href=\"details.php?rev=$rev\">$rev</a>";
+
+
+			foreach ($data as $key => $value)
+			{
+				print "<td style=\"color:$color;\" >$value</td>\n";
+			}
+			print "<a/></tr>\n";
+		}
+
+	}
 ?>
-		</table>
-	</body>
-</html>
+
