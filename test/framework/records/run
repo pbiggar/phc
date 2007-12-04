@@ -27,11 +27,11 @@
 		cdl ("./configure --prefix=$TEST_DIR/installed", "configure");
 		cdl ("make", "make");
 		$test_results = cdl ("php test/framework/driver.php -p", "test");
+		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/test_logs"); 
 		cdl ("make install", "install");
 		$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
+		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/install_test_logs"); 
 
-		// save the logs
-		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/logs"); 
 
 		store_test_results ($test_results, $rev, "tests");
 		store_test_results ($install_results, $rev, "install_tests");
@@ -110,7 +110,7 @@
 	{
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 		e ("CREATE TABLE IF NOT EXISTS install_tests (revision, testname, pass, fail, timeout, skip)");
 	}
@@ -153,7 +153,7 @@
 		$end_time = time ();
 		$time = $end_time - $start_time;
 
-		e ("INSERT INTO complete VALUES ($rev, $time, $REVISION, '$author', '$date')");
+		e ("INSERT INTO complete VALUES ($rev, $time, $REVISION, '$author', '$date', $end_time)");
 
 		save_log ();
 	}
@@ -237,8 +237,6 @@
 
 	}
 
-	/* Find the latest revision from svn, and check if its done. If not, return
-	 * it. If so, find another one to return. */
 	function get_working_revision () 
 	{
 		global $REVISION;
