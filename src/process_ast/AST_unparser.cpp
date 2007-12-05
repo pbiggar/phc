@@ -368,7 +368,7 @@ void AST_unparser::children_foreach_reset (Foreach_reset* in)
 {
 	visit_ht_iterator (in->ht_iterator);
 	echo (" = new ArrayObject (");
-	visit_variable (new Variable (NULL, in->array_name, new List <Expr*> ()));
+	visit_variable (in->variable);
 	echo (");");
 	newline ();
 	visit_ht_iterator (in->ht_iterator);
@@ -419,7 +419,7 @@ void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
 		assert (key);
 		expr = key;
 	}
-	visit_variable (new Variable (NULL, in->array_name, new List<Expr*> (expr)));
+	visit_variable (in->variable);
 }
 
 

@@ -34,6 +34,7 @@ public:
 	AST::Expr* post_string(AST::STRING* in);
 	AST::Expr* post_nil(AST::NIL* in);
 	AST::Expr* post_constant (AST::Constant* in);
+	AST::Expr* post_foreach_has_key (AST::Foreach_has_key* in);
 	AST::Expr* post_array(AST::Array* in);
 	AST::Expr* post_assignment(AST::Assignment* in);
 	AST::Expr* post_op_assignment(AST::Op_assignment* in);

@@ -196,6 +196,15 @@ Expr* Shredder::post_instanceof (Instanceof* in)
 }
 
 /*
+ * foreach
+ */
+
+Expr* Shredder::post_foreach_has_key (Foreach_has_key* in)
+{
+	return eval(in);
+}
+
+/*
  * Method invocation
  */
 

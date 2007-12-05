@@ -6,6 +6,7 @@
  */
 
 #include "Annotate.h"
+#include "process_ir/debug.h"
 
 using namespace AST;
 

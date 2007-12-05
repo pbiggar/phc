@@ -261,33 +261,27 @@ void Lower_control_flow::post_for (For* in, List<Statement*>* out)
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
  	// $array = expr (); (only is array is not var)
-	Variable* var; 
-	VARIABLE_NAME* arr;
-	if (not ((var = dynamic_cast<Variable*> (in->expr))
-		&& var->variable_name->classid () == VARIABLE_NAME::ID
-		&& var->target == NULL
-		&& var->array_indices->size () == 0))
+	Variable* arr; 
+	if (not ((arr = dynamic_cast<Variable*> (in->expr))
+		&& arr->variable_name->classid () == VARIABLE_NAME::ID
+		&& arr->target == NULL
+		&& arr->array_indices->size () == 0))
 	{
-		var = fresh_var ("LCF_ARRAY_");
-		out->push_back (new Eval_expr (new Assignment (var, false, in->expr)));
+		arr = fresh_var ("LCF_ARRAY_");
+		out->push_back (new Eval_expr (new Assignment (arr, false, in->expr)));
 	}
-	arr = dynamic_cast <VARIABLE_NAME*> (var->variable_name);
 
 	// foreach_reset ($arr, iter); 
 	HT_ITERATOR* iter = fresh_iter ();
 	out->push_back (new Foreach_reset (arr->clone (), iter));
 
-	// while ($x = foreach_has_key ($arr, iter))
-	Variable* x = fresh_var ("LCF_HAS_KEY_");
+	// while (foreach_has_key ($arr, iter))
    While* while_stmt = 
 		new While (
-			new Assignment (
-				x,
-				false, 
 				new Foreach_has_key (
 					arr->clone (),
-					iter->clone ())),
-			new List<Statement*>);
+					iter->clone ()),
+				new List<Statement*>);
 
 	// $key = foreach_get_key ($arr, iter); 
 	

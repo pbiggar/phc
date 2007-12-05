@@ -100,12 +100,12 @@ Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
-Foreach_next ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
-Foreach_end ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
-Foreach_has_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
-Foreach_get_key ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
-Foreach_get_val ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
+Foreach_reset ::= Variable HT_ITERATOR<long> ;
+Foreach_next ::= Variable HT_ITERATOR<long> ;
+Foreach_end ::= Variable HT_ITERATOR<long> ;
+Foreach_has_key ::= Variable HT_ITERATOR<long> ;
+Foreach_get_key ::= Variable HT_ITERATOR<long> ;
+Foreach_get_val ::= Variable HT_ITERATOR<long> ;
 
 {-
    Expressions

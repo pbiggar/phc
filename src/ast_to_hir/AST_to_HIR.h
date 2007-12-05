@@ -293,50 +293,50 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_reset* result;
-		result = new HIR::Foreach_reset (variable_name, ht_iterator);
+		result = new HIR::Foreach_reset (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_next* result;
-		result = new HIR::Foreach_next (variable_name, ht_iterator);
+		result = new HIR::Foreach_next (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_end* result;
-		result = new HIR::Foreach_end (variable_name, ht_iterator);
+		result = new HIR::Foreach_end (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_has_key* result;
-		result = new HIR::Foreach_has_key (variable_name, ht_iterator);
+		result = new HIR::Foreach_has_key (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_get_key* result;
-		result = new HIR::Foreach_get_key (variable_name, ht_iterator);
+		result = new HIR::Foreach_get_key (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::VARIABLE_NAME* array, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_get_val* result;
-		result = new HIR::Foreach_get_val (array, ht_iterator);
+		result = new HIR::Foreach_get_val (var_name_from_expr (variable), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
