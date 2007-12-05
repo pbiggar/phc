@@ -893,14 +893,10 @@ public:
 		code
 			<< "if ((*p_lhs)->is_ref)\n"
 			<< "{\n"
-			<<	"	// avoid allocating memory\n"
-			<<	"	zval val;\n"
-			<<	"	INIT_ZVAL (val);\n"
-			<<	"	zval* p_val = &val;\n";
-		initialize (code, "p_val");
+			<< "  zval* paz_lhs = *p_lhs;\n"
+			<< "  zval_dtor (paz_lhs);\n";
+		initialize (code, "paz_lhs");
 		code
-			<<	"	// the memory will have been freshly allocated, so we dont need to call the copy constuctor\n"
-			<<	"	overwrite_lhs_no_copy (*p_lhs, p_val);\n"
 			<< "}\n"
 			<< "else\n"
 			<< "{\n"
