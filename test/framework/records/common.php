@@ -3,13 +3,13 @@
 	<head>
 		<title>phc -- the open source PHP compiler</title>
 		<style type="text/css">
-			table.info { width: 100% padding: 5 }
-			table.info td { color: white; background-color: #8a7640 }
-			table.info th { color: black; background-color: #8a7640 }
+			table.layout { width: 100% }
+			table.info { width: 100%; }
+			table.info td { color: gray; background-color: #efdba7 }
+			table.info th { color: black; background-color: #efdba7 }
 		</style>
 	</head>
 	<body>
-		<table class=layout>
 <?php
 	$DB = new PDO ("sqlite:results/results.db");
 
@@ -29,9 +29,15 @@
 		return $difference;
 	}
 
+	function date_from_timestamp ($timestamp)
+	{
+		# 2007-12-03 19:02:25 +0000 (Mon, 03 Dec 2007)
+		return date ("D, d M Y h:i:s ", $timestamp);
+	}
+
+	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }
+	function get_bad_color ()	{ return " style=\"color:red; font-weight: bold;\""; }
 
 ?>
-
-		</table>
 	</body>
 </html>

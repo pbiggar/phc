@@ -10,7 +10,7 @@ include ("common.php");
 			die ("Invalid revision: {$_GET["rev"]}.");
 
 		print_revision_details ($rev);
-		print "<table width=\100%><tr><td>\n";
+		print "<table class=layout><tr><td>\n";
 		print_test_details ($rev, "tests");
 		print "</td><td>\n";
 		print_test_details ($rev, "install_tests");
@@ -30,25 +30,37 @@ include ("common.php");
 		$complete_data = $complete_data[0];
 
 		print "<table class=layout>";
-		print "<tr><td>\n";
+		print "	<tr><td>\n";
+
 		print "<table class=info>";
-		print "<tr>\n";
-		print "<th>Revision:			</th><td>"	.$complete_data["revision"].	"</td>";
-		print "<th>Author:			</th><td>"	.$complete_data["author"].		"</td>";
-		print "</tr><tr>\n";
-		print "<th>Test duration:	</th><td>"	.($complete_data["time"]/60.0).	"m	</td>";
-		print "<th>Commit date:		</th><td>"	.$complete_data["commit_date"].	"	</td>";
-		print "</tr></table>\n";
-		print "</td><td><table class=info><tr>\n";
-		print "<th><a href=\"results/$rev/log\">					Log					</a>	</th>";
-		print "<th><a href=\"results/$rev/configure.log\">		Configure log		</a>	</th>";
-		print "</tr><tr>\n";
-		print "<th><a href=\"results/$rev/make.log\">			Build log			</a>	</th>";
-		print "<th><a href=\"results/$rev/install.log\">		Install log			</a>	</th>";
-		print "</tr><tr>\n";
-		print "<th><a href=\"results/$rev/test.log\">			Test log				</a>	</th>";
-		print "<th><a href=\"results/$rev/install_test.log\">	Install Test log	</a>	</th>";
-		print "</tr></table></td></tr></table>";
+		print "	<tr>\n";
+		print "		<th>Revision:					</th><td>"	.$complete_data["revision"].	"</td>";
+		print "		<th>Author:						</th><td>"	.$complete_data["author"].		"</td>";
+		print "	</tr><tr>\n";
+		print "		<th>Test duration:			</th><td>"	.($complete_data["time"]/60.0).	"m	</td>";
+		print "		<th>Commit date:				</th><td>"	.$complete_data["commit_date"].	"	</td>";
+		print "	</tr><tr>\n";
+		print "		<th>Testing Date:				</th><td>"	.date_from_timestamp ($complete_data["test_date"]).		"</td>";
+		print "		<th>Tested with revision:	</th><td>"	.$complete_data["test_revision"]."</td>";
+		print "	</tr>\n";
+		print "</table>\n";
+
+		print "	</td><td>\n";
+
+		print "<table class=info>\n";
+		print "	<tr>\n";
+		print "		<th><a href=\"results/$rev/log\">					Log					</a>	</th>";
+		print "		<th><a href=\"results/$rev/configure.log\">		Configure log		</a>	</th>";
+		print "	</tr><tr>\n";
+		print "		<th><a href=\"results/$rev/make.log\">				Build log			</a>	</th>";
+		print "		<th><a href=\"results/$rev/install.log\">			Install log			</a>	</th>";
+		print "	</tr><tr>\n";
+		print "		<th><a href=\"results/$rev/test.log\">				Test log				</a>	</th>";
+		print "		<th><a href=\"results/$rev/install_test.log\">	Install Test log	</a>	</th>";
+		print "	</tr></table>";
+
+		print "	</td></tr>";
+		print "</table>\n";
 	}
 
 	function print_test_details ($rev, $table)
@@ -91,11 +103,11 @@ include ("common.php");
 			unset ($row["revision"]);
 
 			# pick a color
-			$color = "white";
+			$color = "";
 			if ($row["difference"] > 0)
-				$color = "green";
+				$color = get_good_color ();
 			elseif ($row["difference"] < 0)
-				$color = "red";
+				$color = get_bad_color ();
 			unset ($row["difference"]);
 
 			# add a link onto the name
@@ -108,7 +120,7 @@ include ("common.php");
 			print "<tr>\n";
 			foreach ($row as $key => $entry)
 			{
-				print "<td style=\"color: $color;\">$entry</td>";
+				print "<td$color>$entry</td>";
 			}
 			print "</tr>\n";
 		}

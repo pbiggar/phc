@@ -6,6 +6,7 @@
 	{
 		global $DB;
 
+		print "<table class=info>\n";
 		print "<tr>\n";
 		print "<th>Revision</th>\n";
 		print "<th>Author</th>\n";
@@ -46,11 +47,11 @@
 			print "<tr>\n";
 
 			# pick a color
-			$color = "white";
+			$color = "";
 			if ($data["difference"] > 0)
-				$color = "green";
+				$color = get_good_color ();
 			elseif ($data["difference"] < 0)
-				$color = "red";
+				$color = get_bad_color ();
 			unset ($data["difference"]);
 
 			# add a link to revision
@@ -59,7 +60,7 @@
 
 			foreach ($data as $key => $value)
 			{
-				print "<td style=\"color:$color;\" >$value</td>\n";
+				print "<td$color>$value</td>\n";
 			}
 			print "<a/></tr>\n";
 		}
