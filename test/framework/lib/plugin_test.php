@@ -60,7 +60,7 @@ class PluginTest extends AsyncTest
 			and $async->exits[0] === 0
 			and $async->errs[0] === "")
 		{
-			$this->mark_success ($subject);
+			$this->mark_success ($async->subject);
 		}
 		elseif ($async->outs[0] === "Skipped\n")
 		{

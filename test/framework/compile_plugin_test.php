@@ -6,7 +6,7 @@
  * Compile a plugin using phc_compile_plugin, and check it works
  */
 
-class CompilePluginTest extends Test
+class CompilePluginTest extends AsyncTest
 {
 	function check_prerequisites ()
 	{
@@ -25,73 +25,79 @@ class CompilePluginTest extends Test
 		return array (); // the subjects arent used elsewhere
 	}
 
+	function copy_headers ()
+	{
+		global $working_directory;
+
+		// copy the header files from the plugin's directory to
+		// working dir
+		$headers = split ("\n", chop (`find plugins/ -name "*.h"`));
+		$new_headers = array ();
+		if ($headers !== array (""))
+		{
+			foreach ($headers as $header)
+			{
+				$dest = "$working_directory/".basename ($header);
+				if (!copy ($header, $dest))
+				{
+					$this->mark_failure ($subject, "Copying headers failed", "$header to $dest");
+					return;
+				}
+			}
+		}
+	}
+
+	function run ()
+	{
+		$this->copy_headers ();
+		parent::run ();
+	}
+
 	function run_test ($subject)
 	{
-		global $phc;
-		global $trunk_CPPFLAGS;
-		global $phc_compile_plugin;
-		$plugin_name = tempnam (".", "plugin");
-		unlink ("$plugin_name");
+		global $phc, $trunk_CPPFLAGS, $phc_compile_plugin, $working_directory;
 
+		// setup the files
+		$plugin_name = tempnam ($working_directory, "plugin");
+		unlink ("$plugin_name");
 		if (!copy ($subject, "$plugin_name.cpp"))
 		{
 			$this->mark_failure ($subject, "Copy failed");
 			return;
 		}
 
-		// copy the header files from the plugin's directory to ./
-		$dirname = dirname ($subject);
-		$headers = split ("\n", chop (`find $dirname -name "*.h"`));
-		$new_headers = array ();
-		if ($headers !== array (""))
-		{
-			foreach ($headers as $header)
-			{
-				$dest = "./".basename ($header);
-				if (!copy ($header, $dest))
-				{
-					$this->mark_failure ($subject, "Copying headers failed", "$header to $dest");
-					return;
-				}
-				$new_headers[] = $dest; // we need to delete them later
-			}
-		}
+		$async = new AsyncBundle ($this, $subject);
 
-		# phc_compile_plugin only allows CFLAGS and LDFLAGS, even though we use CPPFLAGS
+
+		# phc_compile_plugin only allows CFLAGS and LDFLAGS, even
+		# though we use CPPFLAGS
 		if ($trunk_CPPFLAGS)
 			$CPPFLAGS = "CFLAGS=$trunk_CPPFLAGS";
 		else
 			$CPPFLAGS = "";
 
-		$command = "$CPPFLAGS $phc_compile_plugin $plugin_name.cpp";
-		list ($out, $err, $exit) = complete_exec ($command); # ignore stdout
-		if ($err or $exit)
-		{
-			$this->mark_failure ($subject, $command, $out, $err, $exit);
-			// dont delete the files - leave them as a trail
-			return;
-		}
+		$async->commands[0] = "$CPPFLAGS $phc_compile_plugin $plugin_name.cpp";
+		$async->err_handlers[0] = "fail_on_output";
+		$async->exit_handlers[0] = "fail_on_output";
 
+
+		// Check it runs under phc
 		$files = get_all_scripts ();
 		$filename = $files[0];
-		$command = "$phc --run $plugin_name.la $filename";
-		list ($out, $err, $exit) = complete_exec ($command);
-		if ($exit != 0) $this->mark_failure ($subject, $command, $out, $err, $exit);
-		else 
-		{
-			$this->mark_success ($subject);
-			// add files created on other platforms here
-			unlink ("$plugin_name.cpp");
-			// TODO libtool --mode-clean plugin.lo will clean up these files
-			unlink ("$plugin_name.o");
-			unlink ("$plugin_name.lo");
-			unlink ("$plugin_name.la");
-			foreach ($new_headers as $header)
-			{
-				unlink ($header);
-			}
-		}
+		$async->commands[1] = "$phc --run $plugin_name.la $filename";
+		$async->err_handlers[1] = "fail_on_output";
+		$async->exit_handlers[1] = "fail_on_output";
+
+		$async->final = "finish";
+
+		$async->start ();
 	}
+
+	function finish ($async)
+	{
+		$this->mark_success ($async->subject);
+	}
+
 }
 
 
