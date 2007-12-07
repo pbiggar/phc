@@ -6,7 +6,9 @@
  * Run phc with the required plugin, checking for known success conditions.
  */
 
-class PluginTest extends Test
+require_once ("async_test.php");
+
+class PluginTest extends AsyncTest
 {
 	function __construct ($plugin_name, $other_commands = "")
 	{
@@ -52,23 +54,34 @@ class PluginTest extends Test
 		return "$phc $commands --run $plugin_dir/tests/$plugin.la $subject";
 	}
 
-	function run_test ($subject)
+	function finish ($async)
 	{
-		$command = $this->get_command_line ($subject);
-		list ($out, $err, $exit) = complete_exec($command);
-		if ($out == "Success\n" and $exit == 0 and $err == "")
+		if ($async->outs[0] === "Success\n" 
+			and $async->exits[0] === 0
+			and $async->errs[0] === "")
 		{
 			$this->mark_success ($subject);
 		}
-		elseif ($out == "Skipped\n")
+		elseif ($async->outs[0] === "Skipped\n")
 		{
 			$name = $this->plugin_name;
-			$this->mark_skipped ($subject, "Plugin $name returns skipped");
+			$this->mark_skipped ("Plugin $name returns skipped", $async);
 		}
 		else
 		{
-			$this->mark_failure ($subject, $command, $out, $err, $exit);
+			$this->mark_failure ("Not success or skipped", $async);
 		}
+	}
+
+	function run_test ($subject)
+	{
+		$async = new AsyncBundle ($this, $subject);
+
+		$async->commands[0] = $this->get_command_line ($subject);
+
+		$async->final = "finish";
+
+		$async->start ();
 	}
 
 }

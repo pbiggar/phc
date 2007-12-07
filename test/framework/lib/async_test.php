@@ -129,6 +129,15 @@ abstract class AsyncTest extends Test
 					$bundle->exits);
 	}
 
+	function mark_skipped ($reason, $bundle)
+	{
+		parent::mark_timeout (
+					$bundle->subject, 
+					$reason);
+	}
+
+
+
 	function fail_on_output (&$stream, $bundle)
 	{
 		if ($stream !== 0 and $stream !== "")
