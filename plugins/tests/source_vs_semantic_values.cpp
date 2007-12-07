@@ -48,16 +48,16 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_each_pass (pass);
+	pm->add_after_each_ast_pass (pass);
 
 	// print a header
 	cout << "<?php\n\n$success = true;\n\n";
 }
 
 
-extern "C" void run (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
 {
-	in->visit(new Get_source_and_semantic_values ());
+	in->visit (new Get_source_and_semantic_values ());
 }
 
 extern "C" void unload ()

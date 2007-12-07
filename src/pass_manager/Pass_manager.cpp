@@ -90,15 +90,32 @@ void Pass_manager::add_plugin (lt_dlhandle handle, const char* name, String* opt
 	
 }
 
+void Pass_manager::add_after_each_ast_pass (Pass* pass)
+{
+	add_after_each_pass (pass, ast_queue);
+}
+
+void Pass_manager::add_after_each_hir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, hir_queue);
+}
+
+void Pass_manager::add_after_each_pass (Pass* pass, List<Pass*>* queue)
+{
+	for_li (queue, Pass, p)
+	{
+		p++;
+		p = queue->insert (p, pass);
+	}
+}
+
 void Pass_manager::add_after_each_pass (Pass* pass)
 {
 	for_lci (queues, List<Pass*>, q)
-		for_li (ast_queue, Pass, p) 
-		{
-			(*q)->insert (p, pass);
-			p++;
-		}
+		add_after_each_pass (pass, *q);
 }
+
+
 
 void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
 {
@@ -145,7 +162,7 @@ void Pass_manager::list_passes ()
 		for_lci (*q, Pass, p) 
 		{
 			String* desc = (*p)->description;
-			printf ("%-15s\t(%-8s - %s)\t%s\n", 
+			printf ("%-30s\t(%-8s - %s)\t%s\n", 
 					(*p)->name->c_str (),
 					(*p)->is_enabled (this) ? "enabled" : "disabled",
 					(*q) == ast_queue ? "AST" : "HIR",

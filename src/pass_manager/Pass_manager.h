@@ -39,16 +39,19 @@ public:
 	void add_ast_pass (Pass* pass);
 	void add_ast_visitor (AST::Visitor* visitor, const char* name);
 	void add_ast_transform (AST::Transform* transform, const char* name);
+	void add_after_each_ast_pass (Pass* pass);
 
 	// Add HIR passes
 	void add_hir_pass (Pass* pass);
 	void add_hir_visitor (HIR::Visitor* visitor, const char* name);
 	void add_hir_transform (HIR::Transform* transform, const char* name);
+	void add_after_each_hir_pass (Pass* pass);
 
 	// Add passes of any kind
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, const char* name);
 	void add_before_named_pass (Pass* pass, const char* name);
+	void add_after_each_pass (Pass* pass, List<Pass*>*);
 
 	// Run (returns passed IR, or new IR if lowered
 	IR* run_from_until (String* from, String* to, IR* in, bool dump = false);

@@ -11,32 +11,38 @@
 #include <algorithm>
 #include <set>
 #include "AST_visitor.h"
+#include "HIR_visitor.h"
+#include "process_ir/General.h"
 
 
-class Collect_all_pointers : virtual public AST::Visitor 
+class Collect_all_pointers : virtual public AST::Visitor, public HIR::Visitor
 {
 public:
 	list<Object*> all_pointers;
 	set<Object*> unique_pointers;
 
 public:
-	void pre_node(AST::Node* in)
-	{
-		all_pointers.push_back(in);
-		unique_pointers.insert(in);
+	void pre_node (AST::Node* in) { collect (in, in->attrs); }
+	void pre_node (HIR::Node* in) { collect (in, in->attrs); }
 
-		// Push back all the pointer in attrs, too
+	void collect (Object* obj, AttrMap* attrs)
+	{
+		all_pointers.push_back (obj);
+		unique_pointers.insert (obj);
+
+		// Push back all the pointer obj attrs, too
 		// (We ignore keys) 
 		AttrMap::const_iterator i;
-		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
+		for(i = attrs->begin(); i != attrs->end(); i++)
 		{
-			if((*i).second == NULL)
+			if ((*i).second == NULL)
 				continue;
 
-			all_pointers.push_back((*i).second);			
-			unique_pointers.insert((*i).second);			
+			all_pointers.push_back ((*i).second);			
+			unique_pointers.insert ((*i).second);			
 		}
 	}
+
 };
 
 #endif

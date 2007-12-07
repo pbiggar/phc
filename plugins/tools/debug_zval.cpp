@@ -88,10 +88,10 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "hir");
+	pm->add_before_named_pass (pass, "hir_as_ast");
 }
 
-extern "C" void run (Node* in, Pass_manager* pm)
+extern "C" void run_ast (Node* in, Pass_manager* pm)
 {
 	// We run the pass manager again on the generated code. We need to make sure
 	// we dont cause infinite recursion

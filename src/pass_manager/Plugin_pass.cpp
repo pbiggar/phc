@@ -16,26 +16,28 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 
 void Plugin_pass::run (IR* in, Pass_manager* pm)
 {
-	// RUN
-	typedef void (*ast_function)(AST::PHP_script*, Pass_manager*, String*);
-	ast_function ast_func = (ast_function) lt_dlsym(handle, "run");
+	/* The ltdl interface uses C, so overloading on type doesnt work. We must
+	 * use different names instead. */
+	if (in->is_AST ())
+	{
+		typedef void (*ast_function)(IR*, Pass_manager*, String*);
+		ast_function ast_func = (ast_function) lt_dlsym(handle, "run_ast");
 
-	if (not (ast_func))
-		phc_error ("A plugin must define the AST run () function");
+		if (not (ast_func))
+			phc_error ("Plugins which operate on the AST must define a run_ast() function.");
 
-	if (ast_func && in->is_AST())
 		(*ast_func)(in->as_AST(), pm, option);
+	}
+	else
+	{
+		typedef void (*hir_function)(IR*, Pass_manager*, String*);
+		hir_function hir_func = (hir_function) lt_dlsym (handle, "run_hir");
 
-/*
-	typedef void (*hir_function)(PHP_script*, Pass_manager*, String*);
-	hir_function hir_func = (hir_function) lt_dlsym (handle, "run");
+		if (not (hir_func))
+			phc_error ("Plugins which operate on the HIR must define a run_hir() function.");
 
-	if (not (ast_func || hir_func))
-		phc_error ("A plugin must use either the HIR run () function or the AST run () function");
-
-	if (hir_func && in->hir)
-		(*hir_func)(in->hir, pm, option);
-*/
+		(*hir_func)(in->as_HIR (), pm, option);
+	}
 }
 
 void Plugin_pass::post_process ()

@@ -14,15 +14,12 @@
 static bool success = true;
 static bool is_run = false;
 
-using namespace AST;
-
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_after_each_pass (pass);
 }
 
-
-extern "C" void run (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm)
 {
 	Collect_all_pointers cap;
 	in->visit(&cap);
@@ -32,6 +29,19 @@ extern "C" void run (PHP_script* in, Pass_manager* pm)
 	if(cap.all_pointers.size() != cap.unique_pointers.size())
 		success = false;
 }
+
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm)
+{
+	Collect_all_pointers cap;
+	in->visit(&cap);
+
+	is_run = true;
+
+	if(cap.all_pointers.size() != cap.unique_pointers.size())
+		success = false;
+}
+
+
 
 extern "C" void unload ()
 {

@@ -38,7 +38,7 @@ class PluginTest extends Test
 
 	function get_name ()
 	{
-		$name = $this->plugin_name;
+		$name = "plugin_{$this->plugin_name}";
 		if ($this->other_commands)
 			$name .= "_with_". $this->commands_as_string;
 		return $name;
