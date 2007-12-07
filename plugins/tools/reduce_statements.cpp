@@ -209,8 +209,8 @@ class Reduce : public Transform
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	// We arent interested in running any other passes on this.
-	pm->clear ();
-	pm->add_pass (pass);
+	pm->remove_all ();
+	pm->add_ast_pass (pass);
 }
 
 extern "C" void run (Node* in, Pass_manager* pm, String* option)

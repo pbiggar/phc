@@ -30,7 +30,6 @@
 #include "parsing/parse.h"
 #include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
-#include "pass_manager/List_passes.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/Invalid_check.h"
 #include "process_ast/Note_top_level_declarations.h"
@@ -79,7 +78,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	AST::PHP_script* ast = NULL;
+	IR* ir = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();
@@ -107,44 +106,45 @@ int main(int argc, char** argv)
 	Pass_manager* pm = new Pass_manager (&args_info);
 
 	// process_ast passes
-	pm->add_pass (new List_passes ());
-	pm->add_pass (new Invalid_check ());
+	pm->add_ast_pass (new Invalid_check ());
 	// TODO add flag for include 
-	pm->add_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
-	pm->add_pass (new Fake_pass ("ast"));
-	pm->add_pass (new Pretty_print ());
-	pm->add_visitor (new Note_top_level_declarations (), "ntld");
+	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
+	pm->add_ast_pass (new Fake_pass ("ast"));
+	pm->add_ast_pass (new Pretty_print ());
+	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
 	// ast_to_hir passes
-	pm->add_transform (new Remove_concat_null (), "rcn");
-	pm->add_transform (new Split_multiple_arguments (), "sma");
-	pm->add_pass (new Lift_functions_and_classes ()); // codegen
-	pm->add_transform (new Split_unset_isset (), "sui");
-	pm->add_transform (new Translate_empty (), "empty");
-	pm->add_transform (new Lower_control_flow (), "lcf");
-	pm->add_transform (new Lower_expr_flow (), "lef");
-	pm->add_transform (new Echo_split (), "ecs");
-	pm->add_transform (new Pre_post_op_shredder (), "pps");
-	pm->add_transform (new Desugar (), "desug");
-	pm->add_transform (new List_shredder (), "lish");
-	pm->add_transform (new Shredder (), "shred");
-	pm->add_transform (new Tidy_print (), "tidyp");
-	pm->add_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
+	pm->add_ast_transform (new Remove_concat_null (), "rcn");
+	pm->add_ast_transform (new Split_multiple_arguments (), "sma");
+	pm->add_ast_pass (new Lift_functions_and_classes ()); // codegen
+	pm->add_ast_transform (new Split_unset_isset (), "sui");
+	pm->add_ast_transform (new Translate_empty (), "empty");
+	pm->add_ast_transform (new Lower_control_flow (), "lcf");
+	pm->add_ast_transform (new Lower_expr_flow (), "lef");
+	pm->add_ast_transform (new Echo_split (), "ecs");
+	pm->add_ast_transform (new Pre_post_op_shredder (), "pps");
+	pm->add_ast_transform (new Desugar (), "desug");
+	pm->add_ast_transform (new List_shredder (), "lish");
+	pm->add_ast_transform (new Shredder (), "shred");
+	pm->add_ast_transform (new Tidy_print (), "tidyp");
+
+	// TODO move to the MIR
+	pm->add_ast_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 
 	// process_hir passes
-	pm->add_pass (new Fake_pass ("hir_as_ast"));
+	pm->add_ast_pass (new Fake_pass ("hir_as_ast"));
 	// ~TODO use the HIR after here
-	pm->add_visitor (new Strip_comments (), "decomment"); // codegen
-	pm->add_pass (new Obfuscate ());
+	pm->add_ast_visitor (new Strip_comments (), "decomment"); // codegen
+	pm->add_ast_pass (new Obfuscate ()); // TODO move to MIR
 
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
 	stringstream ss;
-	pm->add_visitor (new Clarify (), "clar");
-	pm->add_visitor (new Prune_symbol_table (), "pst");
-	pm->add_pass (new Fake_pass ("hir")); // TODO move to hir_as_ast
-	pm->add_pass (new Generate_C (ss));
-	pm->add_pass (new Compile_C (ss));
+	pm->add_ast_visitor (new Clarify (), "clar"); // TODO move to MIR
+	pm->add_ast_visitor (new Prune_symbol_table (), "pst");
+	pm->add_ast_pass (new Fake_pass ("hir")); // TODO move to hir_as_ast
+	pm->add_hir_pass (new Generate_C (ss));
+	pm->add_hir_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager
@@ -170,29 +170,32 @@ int main(int argc, char** argv)
 	 */
 	
 	// handle --list-passes the same as --help or --version
-	if (args_info.list_passes_given and args_info.inputs_num == 0)
-	{
+	if (args_info.list_passes_given)
 		pm->list_passes ();
+
+	if (args_info.list_passes_given && args_info.inputs_num == 0)
+	{
+		// do nothing
 	}
 	else
 	{
 		if(args_info.inputs_num == 0)
 		{
-			ast = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
+			ir = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
 		}
 		else
 		{
 			if (args_info.inputs_num > 1)
 				phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
 
-			ast = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
-			if (ast == NULL)
+			ir = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
+			if (ir == NULL)
 			{
 				phc_error("File not found", new String(args_info.inputs[0]), 0);
 			}
 		}
 
-		if(ast == NULL) return -1;
+		if(ir== NULL) return -1;
 
 		// Make sure the inputs cannot be accessed globally
 		args_info.inputs = NULL;
@@ -201,16 +204,7 @@ int main(int argc, char** argv)
 		/* 
 		 *	Run the passes
 		 */
-
-		// Run AST passes
-		IR* ir = ast; 
-		pm->run_until (new String ("pst"), ir, true);
-
-		// Run HIR passes
-		AST_to_HIR* tr = new AST_to_HIR ();
-		HIR::PHP_script* hir = tr->fold_php_script(ast);
-		ir = hir;
-		pm->run_from_until (new String ("hir"), new String ("compile_c"), ir, true);
+		ir = pm->run (ir, true);
 
 		pm->post_process ();
 	}

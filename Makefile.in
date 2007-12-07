@@ -276,9 +276,9 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
 	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
 	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
-	Pass_manager.$(OBJEXT) phc.$(OBJEXT) AST_unparser.$(OBJEXT) \
-	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
-	Note_top_level_declarations.$(OBJEXT) \
+	Pass_manager.$(OBJEXT) Plugin_pass.$(OBJEXT) phc.$(OBJEXT) \
+	AST_unparser.$(OBJEXT) DOT_unparser.$(OBJEXT) \
+	Invalid_check.$(OBJEXT) Note_top_level_declarations.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	Goto_uppering.$(OBJEXT) HIR_unparser.$(OBJEXT) debug.$(OBJEXT) \
@@ -630,11 +630,11 @@ src_phc_SOURCES = \
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
-	src/pass_manager/List_passes.h						\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
 	src/pass_manager/Plugin_pass.h						\
+	src/pass_manager/Plugin_pass.cpp						\
 	src/pass_manager/Transform_pass.h					\
 	src/pass_manager/Visitor_pass.h						\
 	src/phc.cpp													\
@@ -1074,6 +1074,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pre_post_op_shredder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Process_includes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Po@am__quote@
@@ -1935,6 +1936,20 @@ Pass_manager.obj: src/pass_manager/Pass_manager.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/pass_manager/Pass_manager.cpp' object='Pass_manager.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Pass_manager.obj `if test -f 'src/pass_manager/Pass_manager.cpp'; then $(CYGPATH_W) 'src/pass_manager/Pass_manager.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pass_manager/Pass_manager.cpp'; fi`
+
+Plugin_pass.o: src/pass_manager/Plugin_pass.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Plugin_pass.o -MD -MP -MF $(DEPDIR)/Plugin_pass.Tpo -c -o Plugin_pass.o `test -f 'src/pass_manager/Plugin_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Plugin_pass.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Plugin_pass.Tpo $(DEPDIR)/Plugin_pass.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/pass_manager/Plugin_pass.cpp' object='Plugin_pass.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Plugin_pass.o `test -f 'src/pass_manager/Plugin_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Plugin_pass.cpp
+
+Plugin_pass.obj: src/pass_manager/Plugin_pass.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Plugin_pass.obj -MD -MP -MF $(DEPDIR)/Plugin_pass.Tpo -c -o Plugin_pass.obj `if test -f 'src/pass_manager/Plugin_pass.cpp'; then $(CYGPATH_W) 'src/pass_manager/Plugin_pass.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pass_manager/Plugin_pass.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Plugin_pass.Tpo $(DEPDIR)/Plugin_pass.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/pass_manager/Plugin_pass.cpp' object='Plugin_pass.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Plugin_pass.obj `if test -f 'src/pass_manager/Plugin_pass.cpp'; then $(CYGPATH_W) 'src/pass_manager/Plugin_pass.cpp'; else $(CYGPATH_W) '$(srcdir)/src/pass_manager/Plugin_pass.cpp'; fi`
 
 phc.o: src/phc.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT phc.o -MD -MP -MF $(DEPDIR)/phc.Tpo -c -o phc.o `test -f 'src/phc.cpp' || echo '$(srcdir)/'`src/phc.cpp

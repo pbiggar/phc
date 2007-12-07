@@ -19,14 +19,16 @@ class Visitor_pass : public Pass
 
 public:
 
-	Visitor_pass (AST::Visitor* v)
+	Visitor_pass (AST::Visitor* v, String* name)
 	{
+		this->name = name;
 		ast_visitor = v;
 		hir_visitor = NULL;
 	}
 
-	Visitor_pass (HIR::Visitor* v)
+	Visitor_pass (HIR::Visitor* v, String* name)
 	{
+		this->name = name;
 		ast_visitor = NULL;
 		hir_visitor = v;
 	}

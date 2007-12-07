@@ -8,6 +8,8 @@
 #include "IR.h"
 #include "AST.h"
 #include "HIR.h"
+#include "ast_to_hir/AST_to_HIR.h"
+
 
 void IR::assert_valid()
 {
@@ -75,4 +77,12 @@ HIR::PHP_script* IR::as_HIR()
 	HIR::PHP_script* hir = dynamic_cast<HIR::PHP_script*>(this);
 	assert(hir != NULL);
 	return hir;
+}
+
+IR* IR::fold_lower ()
+{
+	if (is_AST ())
+		return (new AST_to_HIR ())->fold_php_script (as_AST ());
+	else 
+		return NULL;
 }

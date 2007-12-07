@@ -48,6 +48,7 @@ public:
 	virtual bool is_HIR();
 	virtual AST::PHP_script* as_AST();
 	virtual HIR::PHP_script* as_HIR();
+	virtual IR* fold_lower ();
 
 // Make sure IR is virtual
 public:

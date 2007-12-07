@@ -133,11 +133,11 @@ src_phc_SOURCES =												\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
-	src/pass_manager/List_passes.h						\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
 	src/pass_manager/Plugin_pass.h						\
+	src/pass_manager/Plugin_pass.cpp						\
 	src/pass_manager/Transform_pass.h					\
 	src/pass_manager/Visitor_pass.h						\
 	src/phc.cpp													\

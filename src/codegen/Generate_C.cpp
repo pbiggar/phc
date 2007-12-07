@@ -23,7 +23,6 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
-#include "ast_to_hir/AST_to_HIR.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_ir/debug.h"
 #include <fstream>

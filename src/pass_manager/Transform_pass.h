@@ -18,14 +18,16 @@ class Transform_pass : public Pass
 
 public:
 
-	Transform_pass (AST::Transform* v)
+	Transform_pass (AST::Transform* v, String* name)
 	{
+		this->name = name;
 		ast_transform = v;
 		hir_transform = NULL;
 	}
 
-	Transform_pass (HIR::Transform* v)
+	Transform_pass (HIR::Transform* v, String* name)
 	{
+		this->name = name;
 		ast_transform = NULL;
 		hir_transform = v;
 	}

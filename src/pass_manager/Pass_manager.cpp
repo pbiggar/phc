@@ -7,8 +7,8 @@
 
 #include "cmdline.h"
 #include "ltdl.h"
-#include "Pass_manager.h"
 #include "Plugin_pass.h"
+#include "Pass_manager.h"
 #include "Visitor_pass.h"
 #include "Transform_pass.h"
 #include "process_ast/AST_unparser.h"
@@ -21,84 +21,60 @@
 #include "AST.h"
 #include "HIR.h"
 
-using namespace AST;
-using namespace HIR;
 
-Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)
+
+Pass_manager::Pass_manager (gengetopt_args_info* args_info)
+: args_info (args_info),
+  check (false)
 {
-	this->handle = handle;
-	this->name = name;
-	this->option = option;
+	ast_queue = new List<Pass*>;
+	hir_queue = new List<Pass*>;
+	queues = new List <List<Pass*>* > (ast_queue, hir_queue);
 }
 
-void Plugin_pass::run (IR* in, Pass_manager* pm)
+void Pass_manager::add_ast_visitor (AST::Visitor* visitor, const char* name)
 {
-	// RUN
-	typedef void (*ast_function)(AST::PHP_script*, Pass_manager*, String*);
-	ast_function ast_func = (ast_function) lt_dlsym(handle, "run");
-
-	if (not (ast_func))
-		phc_error ("A plugin must define the AST run () function");
-
-	if (ast_func && in->is_AST())
-		(*ast_func)(in->as_AST(), pm, option);
-
-/*
-	typedef void (*hir_function)(PHP_script*, Pass_manager*, String*);
-	hir_function hir_func = (hir_function) lt_dlsym (handle, "run");
-
-	if (not (ast_func || hir_func))
-		phc_error ("A plugin must use either the HIR run () function or the AST run () function");
-
-	if (hir_func && in->hir)
-		(*hir_func)(in->hir, pm, option);
-*/
+	Pass* pass = new Visitor_pass (visitor, new String (name));
+	add_pass (pass, ast_queue);
 }
 
-void Plugin_pass::post_process ()
+void Pass_manager::add_ast_transform (AST::Transform* transform, const char* name)
 {
-	// only do this once per instance of a pass, even though
-	// it might appear at multiple locations in the pass
-	// queue
-	if (this->handle == NULL)
-		return;
-
-	// UNLOAD
-	typedef void (*unload_function)();
-	unload_function func = (unload_function) lt_dlsym(handle, "unload");
-
-	if (func)
-		(*func)();
-
-	int ret = lt_dlclose (handle);
-	if (ret != 0) 
-		phc_error ("Error closing %s plugin with error: %s", name, lt_dlerror ());
-
-	this->handle = NULL;
+	Pass* pass = new Transform_pass (transform, new String (name));
+	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_pass (Pass* pass)
+void Pass_manager::add_ast_pass (Pass* pass)
 {
-	push_back (pass);
+	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_visitor (AST::Visitor* visitor, const char* name)
+void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name)
 {
-	Pass* pass = new Visitor_pass (visitor);
-	if (name)
-		pass->name = new String (name);
-	add_pass (pass);
+	Pass* pass = new Visitor_pass (visitor, new String (name));
+	add_pass (pass, hir_queue);
 }
 
-void Pass_manager::add_transform (AST::Transform* transform, const char* name)
+void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name)
 {
-	Pass* pass = new Transform_pass (transform);
-	if (name)
-		pass->name = new String (name);
+	Pass* pass = new Transform_pass (transform, new String (name));
+	add_pass (pass, hir_queue);
+}
 
+void Pass_manager::add_hir_pass (Pass* pass)
+{
+	add_pass (pass, hir_queue);
+}
+
+
+
+void Pass_manager::add_pass (Pass* pass, List<Pass*>* queue)
+{
 	assert (pass->name);
-	add_pass (pass);
+	queue->push_back (pass);
 }
+
+
 
 void Pass_manager::add_plugin (lt_dlhandle handle, const char* name, String* option)
 {
@@ -116,26 +92,26 @@ void Pass_manager::add_plugin (lt_dlhandle handle, const char* name, String* opt
 
 void Pass_manager::add_after_each_pass (Pass* pass)
 {
-	List<Pass*>::iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		insert (i, pass);
-		i++;
-	}
+	for_lci (queues, List<Pass*>, q)
+		for_li (ast_queue, Pass, p) 
+		{
+			(*q)->insert (p, pass);
+			p++;
+		}
 }
 
 void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
 {
 	String* n = new String (name);
-	List<Pass*>::iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		if (*n == *((*i)->name))
-		{
-			insert (i, pass);
-			return;
-		}
-	}
+
+	for_lci (queues, List<Pass*>, q)
+		for_li (*q, Pass, p) 
+			if (*n == *((*p)->name))
+			{
+				(*q)->insert (p, pass);
+				return;
+			}
+
 
 	phc_error ("No pass with name %s was found", name);
 }
@@ -143,49 +119,38 @@ void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
 void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
 {
 	String* n = new String (name);
-	List<Pass*>::iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		if (*n == *((*i)->name))
-		{
-			if (i == end ())
-				push_back (pass);
-			else
+
+	for_lci (queues, List<Pass*>, q)
+		for_li (*q, Pass, p) 
+			if (*n == *((*p)->name))
 			{
-				// insert before the next item
-				i++;
-				insert (i, pass);
+				if (p == (*q)->end ())
+					(*q)->push_back (pass);
+				else
+				{
+					// insert before the next item
+					p++;
+					(*q)->insert (p, pass);
+				}
+				return;
 			}
-			return;
-		}
-	}
 
 	phc_error ("No pass with name %s was found", name);
 }
 
 void Pass_manager::list_passes ()
 {
-	List<Pass*>::iterator i;
 	cout << "Passes:\n";
-	for (i = begin (); i != end (); i++)
-	{
-		String* desc = (*i)->description;
-		printf ("%-15s\t(%s)\t%s\n", 
-			(*i)->name->c_str (),
-			(*i)->is_enabled (this) ? "enabled" : "disabled",
-			desc ? desc->c_str () : "No description");
-	}
-}
-
-Pass* Pass_manager::get_pass (const char* name)
-{
-	List<Pass*>::iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		if (*(*i)->name == name)
-			return (*i);
-	}
-	return NULL;
+	for_lci (queues, List<Pass*>, q)
+		for_lci (*q, Pass, p) 
+		{
+			String* desc = (*p)->description;
+			printf ("%-15s\t(%-8s - %s)\t%s\n", 
+					(*p)->name->c_str (),
+					(*p)->is_enabled (this) ? "enabled" : "disabled",
+					(*q) == ast_queue ? "AST" : "HIR",
+					desc ? desc->c_str () : "No description");
+		}
 }
 
 void Pass_manager::dump (IR* in, Pass* pass)
@@ -232,14 +197,20 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	}
 }
 
-void Pass_manager::run (IR* in, bool dump)
+IR* Pass_manager::run (IR* in, bool dump)
 {
-	List<Pass*>::const_iterator i;
-	for (i = begin (); i != end (); i++)
+	for_lci (queues, List<Pass*>, q)
 	{
-		run_pass (*i, in, dump);
+		for_lci (*q, Pass, p)
+		{
+			run_pass (*p, in, dump);
+		}
+
+		in = in->fold_lower ();
 	}
+	return in;
 }
+
 
 void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 {
@@ -253,55 +224,64 @@ void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 }
 
 /* Run all passes between FROM and TO, inclusive. */
-void Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
+IR* Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
 {
 	bool exec = false;
-	List<Pass*>::const_iterator i;
-	for (i = begin (); i != end (); i++)
+	for_lci (queues, List<Pass*>, q)
 	{
-		// check for starting pass
-		if (!exec && *((*i)->name) == *from)
-			exec = true;
+		for_lci (*q, Pass, p)
+		{
+			// check for starting pass
+			if (!exec && *((*p)->name) == *from)
+				exec = true;
 
-		if (exec)
-			run_pass (*i, in, dump);
+			if (exec)
+				run_pass (*p, in, dump);
 
-		// check for last pass
-		if (exec && *((*i)->name) == *to)
-			exec = false;
+			// check for last pass
+			if (exec && *((*p)->name) == *to)
+				return in;
+		}
+		in = in->fold_lower ();
 	}
+	return in;
 }
 
 /* Run all passes until TO, inclusive. */
-void Pass_manager::run_until (String* to, IR* in, bool dump)
+IR* Pass_manager::run_until (String* to, IR* in, bool dump)
 {
-	List<Pass*>::const_iterator i;
-	for (i = begin (); i != end (); i++)
+	for_lci (queues, List<Pass*>, q)
 	{
-		run_pass (*i, in, dump);
+		for_lci (*q, Pass, p)
+		{
+			run_pass (*p, in, dump);
 
-		// check for last pass
-		if (*((*i)->name) == *to)
-			break;
+			// check for last pass
+			if (*((*p)->name) == *to)
+				return in;
+		}
+		in = in->fold_lower ();
 	}
+	return in;
 }
 
 void Pass_manager::post_process ()
 {
-	List<Pass*>::const_iterator i;
-	for (i = begin (); i != end (); i++)
-	{
-		(*i)->post_process ();
-	}
+	for_lci (queues, List<Pass*>, q)
+		for_lci (*q, Pass, p)
+		{
+			(*p)->post_process ();
+		}
 }
 
 
 bool Pass_manager::has_pass_named (String* name)
 {
-	for_lci (this, Pass, i)
-	{
-		if (*name == *(*i)->name)
-			return true;
-	}
+	for_lci (queues, List<Pass*>, q)
+		for_lci (*q, Pass, p)
+		{
+			if (*name == *(*p)->name)
+				return true;
+		}
 	return false;
 }
