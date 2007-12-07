@@ -17,8 +17,8 @@ else
 		exit 1
 	fi
 fi
-_OBJECT="`basename $_FILENAME .cpp`.lo"
-_OUTPUT="`basename $_FILENAME .cpp`.la"
+_OBJECT="${_FILENAME%.cpp}.lo"
+_OUTPUT="${_FILENAME%.cpp}.la"
 
 # these are set by configure
 _INSTALL_DIR="@pkglibdir@"
@@ -45,7 +45,7 @@ if [ ! -x $_LIBTOOL ]; then
 fi
 
 # We only support gcc, but @CXX@ might be a non-default version.
-_COMPILE="$_LIBTOOL --mode=compile @CXX@ $_INCLUDES $CFLAGS -c $_FILENAME"
+_COMPILE="$_LIBTOOL --mode=compile @CXX@ $_INCLUDES $CFLAGS -c $_FILENAME -o $_OBJECT"
 _LINK="$_LIBTOOL --mode=link @CXX@ -module $LDFLAGS $_OBJECT -o $_OUTPUT -rpath $_INSTALL_DIR"
 
 if [ $# -ne 1 ]
