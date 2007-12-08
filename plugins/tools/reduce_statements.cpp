@@ -213,7 +213,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_ast_pass (pass);
 }
 
-extern "C" void run (Node* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
 {
 	int colon_index = -1;
 	for (unsigned int i = 0; i < option->size (); i++)

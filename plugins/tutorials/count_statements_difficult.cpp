@@ -28,7 +28,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_named_pass (pass, "ast");
 }
 
-extern "C" void run (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
 {
 	int num_statements = count(in->statements);
 	cout << num_statements << " statements found" << endl;

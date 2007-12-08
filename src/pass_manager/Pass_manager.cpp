@@ -109,6 +109,16 @@ void Pass_manager::add_after_each_pass (Pass* pass, List<Pass*>* queue)
 	}
 }
 
+void Pass_manager::remove_all ()
+{
+	for_li (queues, List<Pass*>, q)
+	{
+		(*q)->clear ();
+	}
+}
+
+
+
 void Pass_manager::add_after_each_pass (Pass* pass)
 {
 	for_lci (queues, List<Pass*>, q)

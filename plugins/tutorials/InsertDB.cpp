@@ -43,7 +43,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 }
 
 
-extern "C" void run (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
 {
    in->visit (new InsertDB ());
 }
