@@ -64,17 +64,19 @@ if ($opt_installed)
 require_once ("lib/compare_with_php_test.php");
 require_once ("lib/plugin_test.php");
 require_once ("lib/regression.php");
+require_once ("lib/compare_backwards.php");
 
 // Add tests to list
 $tests = array ();
 
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
-require_once ("compare_all_passes.php");
+$tests[] = new CompareBackwards ("ast");
+$tests[] = new CompareBackwards ("hir", "dump", "ast");
+$tests[] = new CompareBackwards ("mir", "udump", "hir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=hir_as_ast --run plugins/tests/strip_includes.la", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "Interpret_shred");
-require_once ("compare_hir.php");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 require_once ("compile_optimized.php");

@@ -27,11 +27,11 @@ require_once ("two_command_test.php");
 
 class CompareWithPHP extends TwoCommandTest
 {
-	function __construct ($name, $command_line, $dependecies = array ())
+	function __construct ($name, $command_line, $dependecy)
 	{
 		$this->name = $name;
 		$this->command_line = $command_line;
-		$this->dependencies = $dependecies;
+		$this->dependencies = array ($dependecy);
 		parent::__construct ();
 	}
 

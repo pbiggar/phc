@@ -54,6 +54,8 @@ class AsyncBundle
 
 		$object = $this->object;
 
+		// Handlers let you modify the stdout, stderr or the exit
+		// code. They return FALSE for failure.
 		if (isset ($this->out_handlers[$state]))
 		{
 			$handler = $this->out_handlers[$state];
@@ -77,6 +79,18 @@ class AsyncBundle
 				return;
 			$exit = $result;
 		}
+
+		// The callback doesnt modify, just calls a function given
+		// stdout, stderr and exit_code.
+		if (isset ($this->callbacks [$state]))
+		{
+			$callback = $this->callbacks [$state];
+			$result = $object->$callback ($out, $err, $exit, $this);
+			if ($result === false)
+				return;
+		}
+
+
 		$this->state += 1;
 		$state = $this->state;
 
