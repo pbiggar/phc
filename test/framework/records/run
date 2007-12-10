@@ -44,7 +44,7 @@
 
 		// make
 		save (cd ("make"), "make");
-		$results = save (cd ("php test/framework/driver.php -q -p"), "test");
+		$results = save (cd ("php test/framework/driver.php -p"), "test");
 		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/test_logs"); 
 		store_test_results ($results, "tests");
 
