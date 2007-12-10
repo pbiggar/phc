@@ -16,27 +16,35 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 
 void Plugin_pass::run (IR* in, Pass_manager* pm)
 {
+	typedef void (*run_function)(IR*, Pass_manager*, String*);
 	/* The ltdl interface uses C, so overloading on type doesnt work. We must
 	 * use different names instead. */
 	if (in->is_AST ())
 	{
-		typedef void (*ast_function)(IR*, Pass_manager*, String*);
-		ast_function ast_func = (ast_function) lt_dlsym(handle, "run_ast");
+		run_function ast_func = (run_function) lt_dlsym(handle, "run_ast");
 
 		if (not (ast_func))
 			phc_error ("Plugins which operate on the AST must define a run_ast() function.");
 
 		(*ast_func)(in->as_AST(), pm, option);
 	}
-	else
+	else if (in->is_HIR ())
 	{
-		typedef void (*hir_function)(IR*, Pass_manager*, String*);
-		hir_function hir_func = (hir_function) lt_dlsym (handle, "run_hir");
+		run_function mir_func = (run_function) lt_dlsym (handle, "run_hir");
 
-		if (not (hir_func))
+		if (not (mir_func))
 			phc_error ("Plugins which operate on the HIR must define a run_hir() function.");
 
-		(*hir_func)(in->as_HIR (), pm, option);
+		(*mir_func)(in->as_HIR (), pm, option);
+	}
+	else
+	{
+		run_function mir_func = (run_function) lt_dlsym (handle, "run_mir");
+
+		if (not (mir_func))
+			phc_error ("Plugins which operate on the MIR must define a run_mir() function.");
+
+		(*mir_func)(in->as_MIR (), pm, option);
 	}
 }
 

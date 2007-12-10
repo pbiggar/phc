@@ -1,6 +1,6 @@
-#include "HIR_visitor.h"
+#include "MIR_visitor.h"
 
-namespace HIR{
+namespace MIR{
 Visitor::~Visitor()
 {
 }
@@ -66,42 +66,6 @@ void Visitor::pre_name_with_default(Name_with_default* in)
 {
 }
 
-void Visitor::pre_if(If* in)
-{
-}
-
-void Visitor::pre_while(While* in)
-{
-}
-
-void Visitor::pre_do(Do* in)
-{
-}
-
-void Visitor::pre_for(For* in)
-{
-}
-
-void Visitor::pre_foreach(Foreach* in)
-{
-}
-
-void Visitor::pre_switch(Switch* in)
-{
-}
-
-void Visitor::pre_switch_case(Switch_case* in)
-{
-}
-
-void Visitor::pre_break(Break* in)
-{
-}
-
-void Visitor::pre_continue(Continue* in)
-{
-}
-
 void Visitor::pre_return(Return* in)
 {
 }
@@ -111,14 +75,6 @@ void Visitor::pre_static_declaration(Static_declaration* in)
 }
 
 void Visitor::pre_global(Global* in)
-{
-}
-
-void Visitor::pre_declare(Declare* in)
-{
-}
-
-void Visitor::pre_directive(Directive* in)
 {
 }
 
@@ -135,10 +91,6 @@ void Visitor::pre_throw(Throw* in)
 }
 
 void Visitor::pre_eval_expr(Eval_expr* in)
-{
-}
-
-void Visitor::pre_nop(Nop* in)
 {
 }
 
@@ -190,22 +142,6 @@ void Visitor::pre_assignment(Assignment* in)
 {
 }
 
-void Visitor::pre_op_assignment(Op_assignment* in)
-{
-}
-
-void Visitor::pre_list_assignment(List_assignment* in)
-{
-}
-
-void Visitor::pre_list_element(List_element* in)
-{
-}
-
-void Visitor::pre_nested_list_elements(Nested_list_elements* in)
-{
-}
-
 void Visitor::pre_cast(Cast* in)
 {
 }
@@ -215,14 +151,6 @@ void Visitor::pre_unary_op(Unary_op* in)
 }
 
 void Visitor::pre_bin_op(Bin_op* in)
-{
-}
-
-void Visitor::pre_conditional_expr(Conditional_expr* in)
-{
-}
-
-void Visitor::pre_ignore_errors(Ignore_errors* in)
 {
 }
 
@@ -254,10 +182,6 @@ void Visitor::pre_pre_op(Pre_op* in)
 {
 }
 
-void Visitor::pre_post_op(Post_op* in)
-{
-}
-
 void Visitor::pre_array(Array* in)
 {
 }
@@ -286,10 +210,6 @@ void Visitor::pre_class_name(Class_name* in)
 {
 }
 
-void Visitor::pre_commented_node(Commented_node* in)
-{
-}
-
 void Visitor::pre_identifier(Identifier* in)
 {
 }
@@ -311,10 +231,6 @@ void Visitor::pre_method_name(METHOD_NAME* in)
 }
 
 void Visitor::pre_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::pre_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
@@ -342,11 +258,11 @@ void Visitor::pre_nil(NIL* in)
 {
 }
 
-void Visitor::pre_op(OP* in)
+void Visitor::pre_cast(CAST* in)
 {
 }
 
-void Visitor::pre_cast(CAST* in)
+void Visitor::pre_op(OP* in)
 {
 }
 
@@ -415,42 +331,6 @@ void Visitor::post_name_with_default(Name_with_default* in)
 {
 }
 
-void Visitor::post_if(If* in)
-{
-}
-
-void Visitor::post_while(While* in)
-{
-}
-
-void Visitor::post_do(Do* in)
-{
-}
-
-void Visitor::post_for(For* in)
-{
-}
-
-void Visitor::post_foreach(Foreach* in)
-{
-}
-
-void Visitor::post_switch(Switch* in)
-{
-}
-
-void Visitor::post_switch_case(Switch_case* in)
-{
-}
-
-void Visitor::post_break(Break* in)
-{
-}
-
-void Visitor::post_continue(Continue* in)
-{
-}
-
 void Visitor::post_return(Return* in)
 {
 }
@@ -460,14 +340,6 @@ void Visitor::post_static_declaration(Static_declaration* in)
 }
 
 void Visitor::post_global(Global* in)
-{
-}
-
-void Visitor::post_declare(Declare* in)
-{
-}
-
-void Visitor::post_directive(Directive* in)
 {
 }
 
@@ -484,10 +356,6 @@ void Visitor::post_throw(Throw* in)
 }
 
 void Visitor::post_eval_expr(Eval_expr* in)
-{
-}
-
-void Visitor::post_nop(Nop* in)
 {
 }
 
@@ -539,22 +407,6 @@ void Visitor::post_assignment(Assignment* in)
 {
 }
 
-void Visitor::post_op_assignment(Op_assignment* in)
-{
-}
-
-void Visitor::post_list_assignment(List_assignment* in)
-{
-}
-
-void Visitor::post_list_element(List_element* in)
-{
-}
-
-void Visitor::post_nested_list_elements(Nested_list_elements* in)
-{
-}
-
 void Visitor::post_cast(Cast* in)
 {
 }
@@ -564,14 +416,6 @@ void Visitor::post_unary_op(Unary_op* in)
 }
 
 void Visitor::post_bin_op(Bin_op* in)
-{
-}
-
-void Visitor::post_conditional_expr(Conditional_expr* in)
-{
-}
-
-void Visitor::post_ignore_errors(Ignore_errors* in)
 {
 }
 
@@ -603,10 +447,6 @@ void Visitor::post_pre_op(Pre_op* in)
 {
 }
 
-void Visitor::post_post_op(Post_op* in)
-{
-}
-
 void Visitor::post_array(Array* in)
 {
 }
@@ -635,10 +475,6 @@ void Visitor::post_class_name(Class_name* in)
 {
 }
 
-void Visitor::post_commented_node(Commented_node* in)
-{
-}
-
 void Visitor::post_identifier(Identifier* in)
 {
 }
@@ -660,10 +496,6 @@ void Visitor::post_method_name(METHOD_NAME* in)
 }
 
 void Visitor::post_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::post_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
@@ -691,11 +523,11 @@ void Visitor::post_nil(NIL* in)
 {
 }
 
-void Visitor::post_op(OP* in)
+void Visitor::post_cast(CAST* in)
 {
 }
 
-void Visitor::post_cast(CAST* in)
+void Visitor::post_op(OP* in)
 {
 }
 
@@ -770,7 +602,7 @@ void Visitor::children_type(Type* in)
 void Visitor::children_attribute(Attribute* in)
 {
     visit_attr_mod(in->attr_mod);
-    visit_name_with_default_list(in->vars);
+    visit_name_with_default(in->var);
 }
 
 void Visitor::children_attr_mod(Attr_mod* in)
@@ -788,64 +620,6 @@ void Visitor::children_name_with_default(Name_with_default* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_if(If* in)
-{
-    visit_expr(in->expr);
-    visit_statement_list(in->iftrue);
-    visit_statement_list(in->iffalse);
-}
-
-void Visitor::children_while(While* in)
-{
-    visit_expr(in->expr);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_do(Do* in)
-{
-    visit_statement_list(in->statements);
-    visit_expr(in->expr);
-}
-
-void Visitor::children_for(For* in)
-{
-    visit_expr(in->init);
-    visit_expr(in->cond);
-    visit_expr(in->incr);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_foreach(Foreach* in)
-{
-    visit_expr(in->expr);
-    visit_variable(in->key);
-    visit_marker("is_ref", in->is_ref);
-    visit_variable(in->val);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_switch(Switch* in)
-{
-    visit_expr(in->expr);
-    visit_switch_case_list(in->switch_cases);
-}
-
-void Visitor::children_switch_case(Switch_case* in)
-{
-    visit_expr(in->expr);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_break(Break* in)
-{
-    visit_expr(in->expr);
-}
-
-void Visitor::children_continue(Continue* in)
-{
-    visit_expr(in->expr);
-}
-
 void Visitor::children_return(Return* in)
 {
     visit_expr(in->expr);
@@ -853,24 +627,12 @@ void Visitor::children_return(Return* in)
 
 void Visitor::children_static_declaration(Static_declaration* in)
 {
-    visit_name_with_default_list(in->vars);
+    visit_name_with_default(in->var);
 }
 
 void Visitor::children_global(Global* in)
 {
-    visit_variable_name_list(in->variable_names);
-}
-
-void Visitor::children_declare(Declare* in)
-{
-    visit_directive_list(in->directives);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_directive(Directive* in)
-{
-    visit_directive_name(in->directive_name);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_try(Try* in)
@@ -896,10 +658,6 @@ void Visitor::children_eval_expr(Eval_expr* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_nop(Nop* in)
-{
-}
-
 void Visitor::children_branch(Branch* in)
 {
     visit_expr(in->expr);
@@ -919,37 +677,37 @@ void Visitor::children_label(Label* in)
 
 void Visitor::children_foreach_reset(Foreach_reset* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_next(Foreach_next* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_end(Foreach_end* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_has_key(Foreach_has_key* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_get_key(Foreach_get_key* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
 void Visitor::children_foreach_get_val(Foreach_get_val* in)
 {
-    visit_variable(in->variable);
+    visit_variable_name(in->array_name);
     visit_ht_iterator(in->ht_iterator);
 }
 
@@ -960,53 +718,23 @@ void Visitor::children_assignment(Assignment* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_op_assignment(Op_assignment* in)
-{
-    visit_variable(in->variable);
-    visit_op(in->op);
-    visit_expr(in->expr);
-}
-
-void Visitor::children_list_assignment(List_assignment* in)
-{
-    visit_list_element_list(in->list_elements);
-    visit_expr(in->expr);
-}
-
-void Visitor::children_nested_list_elements(Nested_list_elements* in)
-{
-    visit_list_element_list(in->list_elements);
-}
-
 void Visitor::children_cast(Cast* in)
 {
     visit_cast(in->cast);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_unary_op(Unary_op* in)
 {
     visit_op(in->op);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_bin_op(Bin_op* in)
 {
-    visit_expr(in->left);
+    visit_variable_name(in->left);
     visit_op(in->op);
-    visit_expr(in->right);
-}
-
-void Visitor::children_conditional_expr(Conditional_expr* in)
-{
-    visit_expr(in->cond);
-    visit_expr(in->iftrue);
-    visit_expr(in->iffalse);
-}
-
-void Visitor::children_ignore_errors(Ignore_errors* in)
-{
-    visit_expr(in->expr);
+    visit_variable_name(in->right);
 }
 
 void Visitor::children_constant(Constant* in)
@@ -1017,7 +745,7 @@ void Visitor::children_constant(Constant* in)
 
 void Visitor::children_instanceof(Instanceof* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_class_name(in->class_name);
 }
 
@@ -1025,24 +753,18 @@ void Visitor::children_variable(Variable* in)
 {
     visit_target(in->target);
     visit_variable_name(in->variable_name);
-    visit_expr_list(in->array_indices);
+    visit_variable_name_list(in->array_indices);
 }
 
 void Visitor::children_reflection(Reflection* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable(in->variable);
-}
-
-void Visitor::children_post_op(Post_op* in)
-{
-    visit_variable(in->variable);
-    visit_op(in->op);
 }
 
 void Visitor::children_array(Array* in)
@@ -1067,7 +789,9 @@ void Visitor::children_method_invocation(Method_invocation* in)
 void Visitor::children_actual_parameter(Actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
-    visit_expr(in->expr);
+    visit_target(in->target);
+    visit_variable_name(in->variable_name);
+    visit_variable_name_list(in->array_indices);
 }
 
 void Visitor::children_new(New* in)
@@ -1097,10 +821,6 @@ void Visitor::children_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void Visitor::children_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
 void Visitor::children_label_name(LABEL_NAME* in)
 {
 }
@@ -1125,11 +845,11 @@ void Visitor::children_nil(NIL* in)
 {
 }
 
-void Visitor::children_op(OP* in)
+void Visitor::children_cast(CAST* in)
 {
 }
 
-void Visitor::children_cast(CAST* in)
+void Visitor::children_op(OP* in)
 {
 }
 
@@ -1169,7 +889,6 @@ void Visitor::pre_php_script_chain(PHP_script* in)
 void Visitor::pre_class_def_chain(Class_def* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_class_def(in);
 }
@@ -1183,7 +902,6 @@ void Visitor::pre_class_mod_chain(Class_mod* in)
 void Visitor::pre_interface_def_chain(Interface_def* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_interface_def(in);
 }
@@ -1191,9 +909,8 @@ void Visitor::pre_interface_def_chain(Interface_def* in)
 void Visitor::pre_method_chain(Method* in)
 {
     pre_node(in);
-    pre_commented_node(in);
-    pre_member(in);
     pre_statement(in);
+    pre_member(in);
     pre_method(in);
 }
 
@@ -1224,7 +941,6 @@ void Visitor::pre_type_chain(Type* in)
 void Visitor::pre_attribute_chain(Attribute* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_member(in);
     pre_attribute(in);
 }
@@ -1241,81 +957,9 @@ void Visitor::pre_name_with_default_chain(Name_with_default* in)
     pre_name_with_default(in);
 }
 
-void Visitor::pre_if_chain(If* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_if(in);
-}
-
-void Visitor::pre_while_chain(While* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_while(in);
-}
-
-void Visitor::pre_do_chain(Do* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_do(in);
-}
-
-void Visitor::pre_for_chain(For* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_for(in);
-}
-
-void Visitor::pre_foreach_chain(Foreach* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_foreach(in);
-}
-
-void Visitor::pre_switch_chain(Switch* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_switch(in);
-}
-
-void Visitor::pre_switch_case_chain(Switch_case* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_switch_case(in);
-}
-
-void Visitor::pre_break_chain(Break* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_break(in);
-}
-
-void Visitor::pre_continue_chain(Continue* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_continue(in);
-}
-
 void Visitor::pre_return_chain(Return* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_return(in);
 }
@@ -1323,7 +967,6 @@ void Visitor::pre_return_chain(Return* in)
 void Visitor::pre_static_declaration_chain(Static_declaration* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_static_declaration(in);
 }
@@ -1331,29 +974,13 @@ void Visitor::pre_static_declaration_chain(Static_declaration* in)
 void Visitor::pre_global_chain(Global* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_global(in);
-}
-
-void Visitor::pre_declare_chain(Declare* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_declare(in);
-}
-
-void Visitor::pre_directive_chain(Directive* in)
-{
-    pre_node(in);
-    pre_directive(in);
 }
 
 void Visitor::pre_try_chain(Try* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_try(in);
 }
@@ -1361,14 +988,12 @@ void Visitor::pre_try_chain(Try* in)
 void Visitor::pre_catch_chain(Catch* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_catch(in);
 }
 
 void Visitor::pre_throw_chain(Throw* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_throw(in);
 }
@@ -1376,23 +1001,13 @@ void Visitor::pre_throw_chain(Throw* in)
 void Visitor::pre_eval_expr_chain(Eval_expr* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_eval_expr(in);
-}
-
-void Visitor::pre_nop_chain(Nop* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_nop(in);
 }
 
 void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_branch(in);
 }
@@ -1400,7 +1015,6 @@ void Visitor::pre_branch_chain(Branch* in)
 void Visitor::pre_goto_chain(Goto* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_goto(in);
 }
@@ -1408,7 +1022,6 @@ void Visitor::pre_goto_chain(Goto* in)
 void Visitor::pre_label_chain(Label* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_label(in);
 }
@@ -1416,7 +1029,6 @@ void Visitor::pre_label_chain(Label* in)
 void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_reset(in);
 }
@@ -1424,7 +1036,6 @@ void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 void Visitor::pre_foreach_next_chain(Foreach_next* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_next(in);
 }
@@ -1432,7 +1043,6 @@ void Visitor::pre_foreach_next_chain(Foreach_next* in)
 void Visitor::pre_foreach_end_chain(Foreach_end* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_end(in);
 }
@@ -1469,29 +1079,6 @@ void Visitor::pre_assignment_chain(Assignment* in)
     pre_assignment(in);
 }
 
-void Visitor::pre_op_assignment_chain(Op_assignment* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_op_assignment(in);
-}
-
-void Visitor::pre_list_assignment_chain(List_assignment* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_list_assignment(in);
-}
-
-void Visitor::pre_nested_list_elements_chain(Nested_list_elements* in)
-{
-    pre_node(in);
-    pre_list_element(in);
-    pre_nested_list_elements(in);
-}
-
 void Visitor::pre_cast_chain(Cast* in)
 {
     pre_node(in);
@@ -1516,22 +1103,6 @@ void Visitor::pre_bin_op_chain(Bin_op* in)
     pre_bin_op(in);
 }
 
-void Visitor::pre_conditional_expr_chain(Conditional_expr* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_conditional_expr(in);
-}
-
-void Visitor::pre_ignore_errors_chain(Ignore_errors* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_ignore_errors(in);
-}
-
 void Visitor::pre_constant_chain(Constant* in)
 {
     pre_node(in);
@@ -1551,7 +1122,6 @@ void Visitor::pre_instanceof_chain(Instanceof* in)
 void Visitor::pre_variable_chain(Variable* in)
 {
     pre_node(in);
-    pre_list_element(in);
     pre_target(in);
     pre_expr(in);
     pre_variable(in);
@@ -1572,14 +1142,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
     pre_target(in);
     pre_expr(in);
     pre_pre_op(in);
-}
-
-void Visitor::pre_post_op_chain(Post_op* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_post_op(in);
 }
 
 void Visitor::pre_array_chain(Array* in)
@@ -1656,13 +1218,6 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
     pre_variable_name(in);
 }
 
-void Visitor::pre_directive_name_chain(DIRECTIVE_NAME* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_directive_name(in);
-}
-
 void Visitor::pre_label_name_chain(LABEL_NAME* in)
 {
     pre_node(in);
@@ -1715,18 +1270,18 @@ void Visitor::pre_nil_chain(NIL* in)
     pre_nil(in);
 }
 
-void Visitor::pre_op_chain(OP* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_op(in);
-}
-
 void Visitor::pre_cast_chain(CAST* in)
 {
     pre_node(in);
     pre_identifier(in);
     pre_cast(in);
+}
+
+void Visitor::pre_op_chain(OP* in)
+{
+    pre_node(in);
+    pre_identifier(in);
+    pre_op(in);
 }
 
 void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
@@ -1749,7 +1304,6 @@ void Visitor::post_class_def_chain(Class_def* in)
 {
     post_class_def(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1763,16 +1317,14 @@ void Visitor::post_interface_def_chain(Interface_def* in)
 {
     post_interface_def(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
 void Visitor::post_method_chain(Method* in)
 {
     post_method(in);
-    post_statement(in);
     post_member(in);
-    post_commented_node(in);
+    post_statement(in);
     post_node(in);
 }
 
@@ -1804,7 +1356,6 @@ void Visitor::post_attribute_chain(Attribute* in)
 {
     post_attribute(in);
     post_member(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1820,82 +1371,10 @@ void Visitor::post_name_with_default_chain(Name_with_default* in)
     post_node(in);
 }
 
-void Visitor::post_if_chain(If* in)
-{
-    post_if(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_while_chain(While* in)
-{
-    post_while(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_do_chain(Do* in)
-{
-    post_do(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_for_chain(For* in)
-{
-    post_for(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_foreach_chain(Foreach* in)
-{
-    post_foreach(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_switch_chain(Switch* in)
-{
-    post_switch(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_switch_case_chain(Switch_case* in)
-{
-    post_switch_case(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_break_chain(Break* in)
-{
-    post_break(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_continue_chain(Continue* in)
-{
-    post_continue(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
 void Visitor::post_return_chain(Return* in)
 {
     post_return(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1903,7 +1382,6 @@ void Visitor::post_static_declaration_chain(Static_declaration* in)
 {
     post_static_declaration(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1911,21 +1389,6 @@ void Visitor::post_global_chain(Global* in)
 {
     post_global(in);
     post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_declare_chain(Declare* in)
-{
-    post_declare(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_directive_chain(Directive* in)
-{
-    post_directive(in);
     post_node(in);
 }
 
@@ -1933,14 +1396,12 @@ void Visitor::post_try_chain(Try* in)
 {
     post_try(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
 void Visitor::post_catch_chain(Catch* in)
 {
     post_catch(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1948,7 +1409,6 @@ void Visitor::post_throw_chain(Throw* in)
 {
     post_throw(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1956,15 +1416,6 @@ void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
     post_eval_expr(in);
     post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_nop_chain(Nop* in)
-{
-    post_nop(in);
-    post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1972,7 +1423,6 @@ void Visitor::post_branch_chain(Branch* in)
 {
     post_branch(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1980,7 +1430,6 @@ void Visitor::post_goto_chain(Goto* in)
 {
     post_goto(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1988,7 +1437,6 @@ void Visitor::post_label_chain(Label* in)
 {
     post_label(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1996,7 +1444,6 @@ void Visitor::post_foreach_reset_chain(Foreach_reset* in)
 {
     post_foreach_reset(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -2004,7 +1451,6 @@ void Visitor::post_foreach_next_chain(Foreach_next* in)
 {
     post_foreach_next(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -2012,7 +1458,6 @@ void Visitor::post_foreach_end_chain(Foreach_end* in)
 {
     post_foreach_end(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -2048,29 +1493,6 @@ void Visitor::post_assignment_chain(Assignment* in)
     post_node(in);
 }
 
-void Visitor::post_op_assignment_chain(Op_assignment* in)
-{
-    post_op_assignment(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_list_assignment_chain(List_assignment* in)
-{
-    post_list_assignment(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_nested_list_elements_chain(Nested_list_elements* in)
-{
-    post_nested_list_elements(in);
-    post_list_element(in);
-    post_node(in);
-}
-
 void Visitor::post_cast_chain(Cast* in)
 {
     post_cast(in);
@@ -2090,22 +1512,6 @@ void Visitor::post_unary_op_chain(Unary_op* in)
 void Visitor::post_bin_op_chain(Bin_op* in)
 {
     post_bin_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_conditional_expr_chain(Conditional_expr* in)
-{
-    post_conditional_expr(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_ignore_errors_chain(Ignore_errors* in)
-{
-    post_ignore_errors(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2132,7 +1538,6 @@ void Visitor::post_variable_chain(Variable* in)
     post_variable(in);
     post_expr(in);
     post_target(in);
-    post_list_element(in);
     post_node(in);
 }
 
@@ -2148,14 +1553,6 @@ void Visitor::post_reflection_chain(Reflection* in)
 void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_post_op_chain(Post_op* in)
-{
-    post_post_op(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2235,13 +1632,6 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_node(in);
 }
 
-void Visitor::post_directive_name_chain(DIRECTIVE_NAME* in)
-{
-    post_directive_name(in);
-    post_identifier(in);
-    post_node(in);
-}
-
 void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
     post_label_name(in);
@@ -2294,16 +1684,16 @@ void Visitor::post_nil_chain(NIL* in)
     post_node(in);
 }
 
-void Visitor::post_op_chain(OP* in)
+void Visitor::post_cast_chain(CAST* in)
 {
-    post_op(in);
+    post_cast(in);
     post_identifier(in);
     post_node(in);
 }
 
-void Visitor::post_cast_chain(CAST* in)
+void Visitor::post_op_chain(OP* in)
 {
-    post_cast(in);
+    post_op(in);
     post_identifier(in);
     post_node(in);
 }
@@ -2537,25 +1927,6 @@ void Visitor::visit_attr_mod(Attr_mod* in)
     }
 }
 
-void Visitor::visit_name_with_default_list(List<Name_with_default*>* in)
-{
-    List<Name_with_default*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Name_with_default");
-    else
-    {
-    	pre_list("Name_with_default", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_name_with_default(*i);
-    	}
-    
-    	post_list("Name_with_default", in->size());
-    }
-}
-
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL)
@@ -2580,108 +1951,15 @@ void Visitor::visit_expr(Expr* in)
     }
 }
 
-void Visitor::visit_variable(Variable* in)
+void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
-    	visit_null("Variable");
+    	visit_null("Variable_name");
     else
     {
-    	pre_variable_chain(in);
-    	children_variable(in);
-    	post_variable_chain(in);
-    }
-}
-
-void Visitor::visit_switch_case_list(List<Switch_case*>* in)
-{
-    List<Switch_case*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Switch_case");
-    else
-    {
-    	pre_list("Switch_case", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_switch_case(*i);
-    	}
-    
-    	post_list("Switch_case", in->size());
-    }
-}
-
-void Visitor::visit_switch_case(Switch_case* in)
-{
-    if(in == NULL)
-    	visit_null("Switch_case");
-    else
-    {
-    	pre_switch_case_chain(in);
-    	children_switch_case(in);
-    	post_switch_case_chain(in);
-    }
-}
-
-void Visitor::visit_variable_name_list(List<Variable_name*>* in)
-{
-    List<Variable_name*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Variable_name");
-    else
-    {
-    	pre_list("Variable_name", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_variable_name(*i);
-    	}
-    
-    	post_list("Variable_name", in->size());
-    }
-}
-
-void Visitor::visit_directive_list(List<Directive*>* in)
-{
-    List<Directive*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Directive");
-    else
-    {
-    	pre_list("Directive", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_directive(*i);
-    	}
-    
-    	post_list("Directive", in->size());
-    }
-}
-
-void Visitor::visit_directive(Directive* in)
-{
-    if(in == NULL)
-    	visit_null("Directive");
-    else
-    {
-    	pre_directive_chain(in);
-    	children_directive(in);
-    	post_directive_chain(in);
-    }
-}
-
-void Visitor::visit_directive_name(DIRECTIVE_NAME* in)
-{
-    if(in == NULL)
-    	visit_null("DIRECTIVE_NAME");
-    else
-    {
-    	pre_directive_name_chain(in);
-    	children_directive_name(in);
-    	post_directive_name_chain(in);
+    	pre_variable_name_chain(in);
+    	children_variable_name(in);
+    	post_variable_name_chain(in);
     }
 }
 
@@ -2740,46 +2018,15 @@ void Visitor::visit_ht_iterator(HT_ITERATOR* in)
     }
 }
 
-void Visitor::visit_op(OP* in)
+void Visitor::visit_variable(Variable* in)
 {
     if(in == NULL)
-    	visit_null("OP");
+    	visit_null("Variable");
     else
     {
-    	pre_op_chain(in);
-    	children_op(in);
-    	post_op_chain(in);
-    }
-}
-
-void Visitor::visit_list_element_list(List<List_element*>* in)
-{
-    List<List_element*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("List_element");
-    else
-    {
-    	pre_list("List_element", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_list_element(*i);
-    	}
-    
-    	post_list("List_element", in->size());
-    }
-}
-
-void Visitor::visit_list_element(List_element* in)
-{
-    if(in == NULL)
-    	visit_null("List_element");
-    else
-    {
-    	pre_list_element_chain(in);
-    	children_list_element(in);
-    	post_list_element_chain(in);
+    	pre_variable_chain(in);
+    	children_variable(in);
+    	post_variable_chain(in);
     }
 }
 
@@ -2792,6 +2039,18 @@ void Visitor::visit_cast(CAST* in)
     	pre_cast_chain(in);
     	children_cast(in);
     	post_cast_chain(in);
+    }
+}
+
+void Visitor::visit_op(OP* in)
+{
+    if(in == NULL)
+    	visit_null("OP");
+    else
+    {
+    	pre_op_chain(in);
+    	children_op(in);
+    	post_op_chain(in);
     }
 }
 
@@ -2831,34 +2090,22 @@ void Visitor::visit_target(Target* in)
     }
 }
 
-void Visitor::visit_variable_name(Variable_name* in)
+void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
 {
-    if(in == NULL)
-    	visit_null("Variable_name");
-    else
-    {
-    	pre_variable_name_chain(in);
-    	children_variable_name(in);
-    	post_variable_name_chain(in);
-    }
-}
-
-void Visitor::visit_expr_list(List<Expr*>* in)
-{
-    List<Expr*>::const_iterator i;
+    List<VARIABLE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Expr");
+    	visit_null_list("VARIABLE_NAME");
     else
     {
-    	pre_list("Expr", in->size());
+    	pre_list("VARIABLE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
-    		visit_expr(*i);
+    		visit_variable_name(*i);
     	}
     
-    	post_list("Expr", in->size());
+    	post_list("VARIABLE_NAME", in->size());
     }
 }
 
@@ -2981,36 +2228,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Eval_expr::ID:
     	pre_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
-    case If::ID:
-    	pre_if_chain(dynamic_cast<If*>(in));
-    	break;
-    case While::ID:
-    	pre_while_chain(dynamic_cast<While*>(in));
-    	break;
-    case Do::ID:
-    	pre_do_chain(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	pre_for_chain(dynamic_cast<For*>(in));
-    	break;
-    case Foreach::ID:
-    	pre_foreach_chain(dynamic_cast<Foreach*>(in));
-    	break;
-    case Switch::ID:
-    	pre_switch_chain(dynamic_cast<Switch*>(in));
-    	break;
-    case Break::ID:
-    	pre_break_chain(dynamic_cast<Break*>(in));
-    	break;
-    case Continue::ID:
-    	pre_continue_chain(dynamic_cast<Continue*>(in));
-    	break;
-    case Declare::ID:
-    	pre_declare_chain(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	pre_nop_chain(dynamic_cast<Nop*>(in));
-    	break;
     case Label::ID:
     	pre_label_chain(dynamic_cast<Label*>(in));
     	break;
@@ -3094,23 +2311,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	pre_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	pre_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -3133,19 +2335,6 @@ void Visitor::pre_variable_name_chain(Variable_name* in)
     	break;
     case Reflection::ID:
     	pre_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::pre_list_element_chain(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	pre_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	pre_nested_list_elements_chain(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -3212,23 +2401,8 @@ void Visitor::pre_target_chain(Target* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	pre_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	pre_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -3290,36 +2464,6 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case Eval_expr::ID:
     	post_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
-    	break;
-    case If::ID:
-    	post_if_chain(dynamic_cast<If*>(in));
-    	break;
-    case While::ID:
-    	post_while_chain(dynamic_cast<While*>(in));
-    	break;
-    case Do::ID:
-    	post_do_chain(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	post_for_chain(dynamic_cast<For*>(in));
-    	break;
-    case Foreach::ID:
-    	post_foreach_chain(dynamic_cast<Foreach*>(in));
-    	break;
-    case Switch::ID:
-    	post_switch_chain(dynamic_cast<Switch*>(in));
-    	break;
-    case Break::ID:
-    	post_break_chain(dynamic_cast<Break*>(in));
-    	break;
-    case Continue::ID:
-    	post_continue_chain(dynamic_cast<Continue*>(in));
-    	break;
-    case Declare::ID:
-    	post_declare_chain(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	post_nop_chain(dynamic_cast<Nop*>(in));
     	break;
     case Label::ID:
     	post_label_chain(dynamic_cast<Label*>(in));
@@ -3404,23 +2548,8 @@ void Visitor::post_expr_chain(Expr* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	post_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	post_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -3443,19 +2572,6 @@ void Visitor::post_variable_name_chain(Variable_name* in)
     	break;
     case Reflection::ID:
     	post_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::post_list_element_chain(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	post_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	post_nested_list_elements_chain(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -3522,23 +2638,8 @@ void Visitor::post_target_chain(Target* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	post_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	post_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -3600,36 +2701,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Eval_expr::ID:
     	children_eval_expr(dynamic_cast<Eval_expr*>(in));
-    	break;
-    case If::ID:
-    	children_if(dynamic_cast<If*>(in));
-    	break;
-    case While::ID:
-    	children_while(dynamic_cast<While*>(in));
-    	break;
-    case Do::ID:
-    	children_do(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	children_for(dynamic_cast<For*>(in));
-    	break;
-    case Foreach::ID:
-    	children_foreach(dynamic_cast<Foreach*>(in));
-    	break;
-    case Switch::ID:
-    	children_switch(dynamic_cast<Switch*>(in));
-    	break;
-    case Break::ID:
-    	children_break(dynamic_cast<Break*>(in));
-    	break;
-    case Continue::ID:
-    	children_continue(dynamic_cast<Continue*>(in));
-    	break;
-    case Declare::ID:
-    	children_declare(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	children_nop(dynamic_cast<Nop*>(in));
     	break;
     case Label::ID:
     	children_label(dynamic_cast<Label*>(in));
@@ -3714,23 +2785,8 @@ void Visitor::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -3753,19 +2809,6 @@ void Visitor::children_variable_name(Variable_name* in)
     	break;
     case Reflection::ID:
     	children_reflection(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_list_element(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	children_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -3832,23 +2875,8 @@ void Visitor::children_target(Target* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
-    	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));

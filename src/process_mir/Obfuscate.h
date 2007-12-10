@@ -10,7 +10,7 @@
 #ifndef PHC_OBFUSCATE_H
 #define PHC_OBFUSCATE_H
 
-#include "process_hir/Goto_uppering.h"
+#include "process_mir/Goto_uppering.h"
 #include "pass_manager/Pass_manager.h"
 
 class Obfuscate : public Pass

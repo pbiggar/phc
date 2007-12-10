@@ -8,7 +8,7 @@
 #include "process_ir/debug.h"
 #include "process_ir/XML_unparser.h"
 #include "process_ast/AST_unparser.h"
-#include "process_hir/HIR_unparser.h"
+#include "process_mir/MIR_unparser.h"
 
 /* Dump the XML for anynode to stderr. A global function. */
 // these are split so they're easy to call from the debugger
@@ -32,20 +32,20 @@ void xadebug (AST::Node* in)
 }
 
 
-void debug (HIR::Node *in)
+void debug (MIR::Node *in)
 {
-	static HIR_unparser *pup = new HIR_unparser (cerr);
+	static MIR_unparser *pup = new MIR_unparser (cerr);
 	in->visit (pup);
 }
 
-void xdebug (HIR::Node* in)
+void xdebug (MIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cerr, false);
+	MIR_XML_unparser *xup = new MIR_XML_unparser (cerr, false);
 	in->visit (xup);
 }
 
-void xadebug (HIR::Node* in)
+void xadebug (MIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cerr, true);
+	MIR_XML_unparser *xup = new MIR_XML_unparser (cerr, true);
 	in->visit (xup);
 }

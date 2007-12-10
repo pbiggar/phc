@@ -9,13 +9,13 @@
 #define PHC_VISITOR_PASS_H
 
 #include "AST_visitor.h"
-#include "HIR_visitor.h"
+#include "MIR_visitor.h"
 
 // TODO generic visitors, not AST viistors
 class Visitor_pass : public Pass
 {
 	AST::Visitor* ast_visitor;
-	HIR::Visitor* hir_visitor;
+	MIR::Visitor* mir_visitor;
 
 public:
 
@@ -23,14 +23,14 @@ public:
 	{
 		this->name = name;
 		ast_visitor = v;
-		hir_visitor = NULL;
+		mir_visitor = NULL;
 	}
 
-	Visitor_pass (HIR::Visitor* v, String* name)
+	Visitor_pass (MIR::Visitor* v, String* name)
 	{
 		this->name = name;
 		ast_visitor = NULL;
-		hir_visitor = v;
+		mir_visitor = v;
 	}
 
 	void run (IR* in, Pass_manager* pm)
@@ -38,7 +38,7 @@ public:
 		if(ast_visitor != NULL)
 			in->visit(ast_visitor);
 		else
-			in->visit(hir_visitor);
+			in->visit(mir_visitor);
 	}
 };
 

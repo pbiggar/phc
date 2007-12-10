@@ -13,10 +13,10 @@
 
 #include <sstream>
 #include "cmdline.h"
-#include "HIR_visitor.h"
+#include "MIR_visitor.h"
 #include "pass_manager/Pass_manager.h"
 
-class Generate_C : public HIR::Visitor, public Pass
+class Generate_C : public MIR::Visitor, public Pass
 {
 public:
 
@@ -26,15 +26,15 @@ public:
 	Generate_C(ostream&);
 
 public:
-	void children_statement(HIR::Statement* in);
-	void pre_php_script(HIR::PHP_script* in);
-	void post_php_script(HIR::PHP_script* in);
+	void children_statement(MIR::Statement* in);
+	void pre_php_script(MIR::PHP_script* in);
+	void post_php_script(MIR::PHP_script* in);
 	bool pass_is_enabled (Pass_manager* pm);
 
 public:
 	String* extension_name;
 	bool is_extension;
-	List<HIR::Signature*>* methods;	// List of all methods compiled	
+	List<MIR::Signature*>* methods;	// List of all methods compiled	
 	bool return_by_reference; 		// current methods returns by reference	
 };
 

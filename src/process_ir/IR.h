@@ -22,6 +22,13 @@ namespace HIR
 	class Transform;
 }
 
+namespace MIR
+{
+	class PHP_script;
+	class Visitor;
+	class Transform;
+}
+
 class IR
 {
 // Operations that are defined over all IRs
@@ -32,22 +39,28 @@ public:
 public:
 	virtual void visit(AST::Visitor* ast_visitor);
 	virtual void visit(HIR::Visitor* hir_visitor);
+	virtual void visit(MIR::Visitor* mir_visitor);
 	virtual void visit(AST::Visitor* ast_visitor,
-	                   HIR::Visitor* hir_visitor);
+	                   HIR::Visitor* hir_visitor,
+	                   MIR::Visitor* mir_visitor);
 	
 // Transform
 public:
 	virtual void transform_children(AST::Transform* ast_transform);
 	virtual void transform_children(HIR::Transform* hir_transform);
+	virtual void transform_children(MIR::Transform* mir_transform);
 	virtual void transform_children(AST::Transform* ast_transform,
-	                                HIR::Transform* hir_transform);
+	                                HIR::Transform* hir_transform,
+	                                MIR::Transform* mir_transform);
 
 // Conversion
 public:
 	virtual bool is_AST();
 	virtual bool is_HIR();
+	virtual bool is_MIR();
 	virtual AST::PHP_script* as_AST();
 	virtual HIR::PHP_script* as_HIR();
+	virtual MIR::PHP_script* as_MIR();
 	virtual IR* fold_lower ();
 
 // Make sure IR is virtual

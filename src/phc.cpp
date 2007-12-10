@@ -6,18 +6,18 @@
  */
 
 #include "AST.h"
-#include "ast_to_hir/Lower_control_flow.h"
-#include "ast_to_hir/Lower_expr_flow.h"
-#include "ast_to_hir/Shredder.h"
-#include "ast_to_hir/Split_multiple_arguments.h"
-#include "ast_to_hir/Split_unset_isset.h"
-#include "ast_to_hir/Translate_empty.h"
-#include "ast_to_hir/Echo_split.h"
-#include "ast_to_hir/Pre_post_op_shredder.h"
-#include "ast_to_hir/Desugar.h"
-#include "ast_to_hir/List_shredder.h"
-#include "ast_to_hir/Tidy_print.h"
-#include "ast_to_hir/AST_to_HIR.h"
+#include "hir_to_mir/Lower_control_flow.h"
+#include "hir_to_mir/Lower_expr_flow.h"
+#include "hir_to_mir/Shredder.h"
+#include "hir_to_mir/Split_multiple_arguments.h"
+#include "hir_to_mir/Split_unset_isset.h"
+#include "hir_to_mir/Translate_empty.h"
+#include "hir_to_mir/Echo_split.h"
+#include "hir_to_mir/Pre_post_op_shredder.h"
+#include "hir_to_mir/Desugar.h"
+#include "hir_to_mir/List_shredder.h"
+#include "hir_to_mir/Tidy_print.h"
+#include "hir_to_mir/HIR_to_MIR.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
@@ -36,7 +36,7 @@
 #include "process_ast/Pretty_print.h"
 #include "process_ast/Process_includes.h"
 #include "process_ast/Remove_concat_null.h"
-#include "process_hir/Obfuscate.h"
+#include "process_mir/Obfuscate.h"
 #include "process_ir/XML_unparser.h"
 #include <signal.h>
 #include <stdio.h>
@@ -143,8 +143,8 @@ int main(int argc, char** argv)
 	pm->add_ast_visitor (new Clarify (), "clar"); // TODO move to MIR
 	pm->add_ast_visitor (new Prune_symbol_table (), "pst");
 	pm->add_ast_pass (new Fake_pass ("hir")); // TODO move to hir_as_ast
-	pm->add_hir_pass (new Generate_C (ss));
-	pm->add_hir_pass (new Compile_C (ss));
+	pm->add_mir_pass (new Generate_C (ss));
+	pm->add_mir_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager

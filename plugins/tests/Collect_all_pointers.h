@@ -10,20 +10,17 @@
 
 #include <algorithm>
 #include <set>
-#include "AST_visitor.h"
-#include "HIR_visitor.h"
 #include "process_ir/General.h"
 
-
-class Collect_all_pointers : virtual public AST::Visitor, public HIR::Visitor
+template <class Node, class Visitor>
+class Collect_all_pointers : virtual public Visitor
 {
 public:
 	list<Object*> all_pointers;
 	set<Object*> unique_pointers;
 
 public:
-	void pre_node (AST::Node* in) { collect (in, in->attrs); }
-	void pre_node (HIR::Node* in) { collect (in, in->attrs); }
+	void pre_node (Node* in) { collect (in, in->attrs); }
 
 	void collect (Object* obj, AttrMap* attrs)
 	{

@@ -14,7 +14,7 @@
 #include "AST.h"
 #include "lib/error.h"
 #include "process_ir/debug.h"
-#include "ast_to_hir/fresh.h"
+#include "hir_to_mir/fresh.h"
 #include "parsing/parse.h"
 
 using namespace AST;

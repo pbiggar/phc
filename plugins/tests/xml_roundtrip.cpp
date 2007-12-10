@@ -21,34 +21,35 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-void run_ast (AST::PHP_script* in, Pass_manager* pm)
+template <class PHP_script, class XML_unparser>
+void run (PHP_script* in)
 {
 #ifdef HAVE_XERCES
 	is_run = true;
 
 	// unparse once
 	ostringstream xml_output1;
-	AST_XML_unparser xml_unparser1 (xml_output1);
+	XML_unparser xml_unparser1 (xml_output1);
 	in->visit(&xml_unparser1);
 
 	// reparse
-	AST::PHP_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
+	PHP_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
 
 	// unparse a second time
 	ostringstream xml_output2;
-	AST_XML_unparser xml_unparser2 (xml_output2);
+	XML_unparser xml_unparser2 (xml_output2);
 	reparsed1->visit(&xml_unparser2);
 
 	// reparse
-	AST::PHP_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
+	PHP_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
 
 	if (not (in->equals(reparsed1) && in->equals(reparsed2)))
 	{
 		printf("Failure\n");
-		AST_XML_unparser unparser;
-		in->visit (new AST_XML_unparser ());
-		reparsed1->visit (new AST_XML_unparser ());
-		reparsed2->visit (new AST_XML_unparser ());
+		XML_unparser unparser;
+		in->visit (new XML_unparser ());
+		reparsed1->visit (new XML_unparser ());
+		reparsed2->visit (new XML_unparser ());
 	}
 #else
 	cout << "XML support not built-in" << endl;
@@ -56,40 +57,23 @@ void run_ast (AST::PHP_script* in, Pass_manager* pm)
 
 }
 
-void run_hir (HIR::PHP_script* in, Pass_manager* pm)
+
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager*)
 {
-#ifdef HAVE_XERCES
-	is_run = true;
+	run <AST::PHP_script, AST_XML_unparser> (in);
+}
 
-	// unparse once
-	ostringstream xml_output1;
-	HIR_XML_unparser xml_unparser1 (xml_output1);
-	in->visit(&xml_unparser1);
-
-	// reparse
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*)
+{
+	// TODO These functions wont work until parse_ast_xml_buffer returns an IR
 	assert (0);
-/*	HIR::PHP_script* reparsed1 = parse_ast_xml_buffer(new String(xml_output1.str()));
+//	run <HIR::PHP_script, HIR_XML_unparser> (in);
+}
 
-	// unparse a second time
-	ostringstream xml_output2;
-	HIR_XML_unparser xml_unparser2 (xml_output2);
-	reparsed1->visit(&xml_unparser2);
-
-	// reparse
-	HIR::PHP_script* reparsed2 = parse_ast_xml_buffer(new String(xml_output2.str()));
-
-	if (not (in->equals(reparsed1) && in->equals(reparsed2)))
-	{
-		printf("Failure\n");
-		HIR_XML_unparser unparser;
-		in->visit (new HIR_XML_unparser ());
-		reparsed1->visit (new HIR_XML_unparser ());
-		reparsed2->visit (new HIR_XML_unparser ());
-	}
-*/
-#else
-	cout << "XML support not built-in" << endl;
-#endif
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*)
+{
+	assert (0);
+//	run <MIR::PHP_script, MIR_XML_unparser> (in);
 }
 
 extern "C" void unload ()

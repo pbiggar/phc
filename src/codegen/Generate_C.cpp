@@ -4,7 +4,7 @@
  *
  * Generate C code
  *
- * Currently, the C code is generated from HIR; once we have an LIR,
+ * Currently, the C code is generated from MIR; once we have an LIR,
  * the C code will be generated from the LIR instead.
  *
  * We define a virtual class "Pattern" which corresponds to a particular kind
@@ -23,7 +23,7 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
-#include "process_hir/HIR_unparser.h"
+#include "process_mir/MIR_unparser.h"
 #include "process_ir/debug.h"
 #include <fstream>
 #include "Generate_C.h"
@@ -32,7 +32,7 @@
 #include "lib/demangle.h"
 #include <set>
 
-using namespace HIR;
+using namespace MIR;
 
 // Label supported features
 void phc_unsupported (Node* node)
@@ -2152,7 +2152,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
-	in->visit (new HIR_unparser (ss));
+	in->visit (new MIR_unparser (ss));
 
 	while (not ss.eof ())
 	{

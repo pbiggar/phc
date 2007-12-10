@@ -10,9 +10,9 @@
 
 #include "Pass.h"
 #include "AST_visitor.h"
-#include "HIR_visitor.h"
+#include "MIR_visitor.h"
 #include "AST_transform.h"
-#include "HIR_transform.h"
+#include "MIR_transform.h"
 #include "cmdline.h"
 #include "ltdl.h"
 
@@ -43,9 +43,15 @@ public:
 
 	// Add HIR passes
 	void add_hir_pass (Pass* pass);
-	void add_hir_visitor (HIR::Visitor* visitor, const char* name);
-	void add_hir_transform (HIR::Transform* transform, const char* name);
+	void add_hir_visitor (MIR::Visitor* visitor, const char* name);
+	void add_hir_transform (MIR::Transform* transform, const char* name);
 	void add_after_each_hir_pass (Pass* pass);
+
+	// Add MIR passes
+	void add_mir_pass (Pass* pass);
+	void add_mir_visitor (MIR::Visitor* visitor, const char* name);
+	void add_mir_transform (MIR::Transform* transform, const char* name);
+	void add_after_each_mir_pass (Pass* pass);
 
 	// Add passes of any kind
 	void add_after_each_pass (Pass* pass);
@@ -68,6 +74,7 @@ public:
 protected:
 	List<Pass*>* ast_queue;
 	List<Pass*>* hir_queue;
+	List<Pass*>* mir_queue;
 	List< List<Pass*>* >* queues;
 	
 

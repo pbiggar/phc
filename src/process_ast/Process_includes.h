@@ -8,7 +8,7 @@
 #ifndef PHC_PROCESS_INCLUDES
 #define PHC_PROCESS_INCLUDES
 
-#include "ast_to_hir/Lower_expr.h"
+#include "hir_to_mir/Lower_expr.h"
 #include "pass_manager/Pass_manager.h"
 
 class Process_includes : public Lower_expr, public Pass

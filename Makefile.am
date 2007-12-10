@@ -42,37 +42,7 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
-	src/ast_to_hir/Annotate.cpp							\
-	src/ast_to_hir/Annotate.h								\
 	src/ast_to_hir/AST_to_HIR.h							\
-	src/ast_to_hir/Check_lowering.cpp					\
-	src/ast_to_hir/Check_lowering.h						\
-	src/ast_to_hir/Check_uppering.cpp					\
-	src/ast_to_hir/Check_uppering.h						\
-	src/ast_to_hir/Desugar.cpp								\
-	src/ast_to_hir/Desugar.h								\
-	src/ast_to_hir/Echo_split.cpp							\
-	src/ast_to_hir/Echo_split.h							\
-	src/ast_to_hir/fresh.cpp								\
-	src/ast_to_hir/fresh.h									\
-	src/ast_to_hir/List_shredder.cpp						\
-	src/ast_to_hir/List_shredder.h						\
-	src/ast_to_hir/Lower_control_flow.cpp				\
-	src/ast_to_hir/Lower_control_flow.h					\
-	src/ast_to_hir/Lower_expr.cpp							\
-	src/ast_to_hir/Lower_expr_flow.cpp					\
-	src/ast_to_hir/Lower_expr_flow.h						\
-	src/ast_to_hir/Lower_expr.h							\
-	src/ast_to_hir/Pre_post_op_shredder.cpp			\
-	src/ast_to_hir/Pre_post_op_shredder.h				\
-	src/ast_to_hir/Shredder.cpp							\
-	src/ast_to_hir/Shredder.h								\
-	src/ast_to_hir/Split_multiple_arguments.cpp		\
-	src/ast_to_hir/Split_multiple_arguments.h			\
-	src/ast_to_hir/Split_unset_isset.h					\
-	src/ast_to_hir/Tidy_print.cpp							\
-	src/ast_to_hir/Tidy_print.h							\
-	src/ast_to_hir/Translate_empty.h						\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -108,7 +78,47 @@ src_phc_SOURCES =												\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
+	src/generated/MIR.cpp									\
+	src/generated/MIR_factory.cpp							\
+	src/generated/MIR_factory.h							\
+	src/generated/MIR_fold.h								\
+	src/generated/MIR.h										\
+	src/generated/MIR_transform.cpp						\
+	src/generated/MIR_transform.h							\
+	src/generated/MIR_visitor.cpp							\
+	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/hir_to_mir/Annotate.cpp							\
+	src/hir_to_mir/Annotate.h								\
+	src/hir_to_mir/Check_lowering.cpp					\
+	src/hir_to_mir/Check_lowering.h						\
+	src/hir_to_mir/Check_uppering.cpp					\
+	src/hir_to_mir/Check_uppering.h						\
+	src/hir_to_mir/Desugar.cpp								\
+	src/hir_to_mir/Desugar.h								\
+	src/hir_to_mir/Echo_split.cpp							\
+	src/hir_to_mir/Echo_split.h							\
+	src/hir_to_mir/fresh.cpp								\
+	src/hir_to_mir/fresh.h									\
+	src/hir_to_mir/HIR_to_MIR.h							\
+	src/hir_to_mir/List_shredder.cpp						\
+	src/hir_to_mir/List_shredder.h						\
+	src/hir_to_mir/Lower_control_flow.cpp				\
+	src/hir_to_mir/Lower_control_flow.h					\
+	src/hir_to_mir/Lower_expr.cpp							\
+	src/hir_to_mir/Lower_expr_flow.cpp					\
+	src/hir_to_mir/Lower_expr_flow.h						\
+	src/hir_to_mir/Lower_expr.h							\
+	src/hir_to_mir/Pre_post_op_shredder.cpp			\
+	src/hir_to_mir/Pre_post_op_shredder.h				\
+	src/hir_to_mir/Shredder.cpp							\
+	src/hir_to_mir/Shredder.h								\
+	src/hir_to_mir/Split_multiple_arguments.cpp		\
+	src/hir_to_mir/Split_multiple_arguments.h			\
+	src/hir_to_mir/Split_unset_isset.h					\
+	src/hir_to_mir/Tidy_print.cpp							\
+	src/hir_to_mir/Tidy_print.h							\
+	src/hir_to_mir/Translate_empty.h						\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -136,8 +146,8 @@ src_phc_SOURCES =												\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
-	src/pass_manager/Plugin_pass.h						\
 	src/pass_manager/Plugin_pass.cpp						\
+	src/pass_manager/Plugin_pass.h						\
 	src/pass_manager/Transform_pass.h					\
 	src/pass_manager/Visitor_pass.h						\
 	src/phc.cpp													\
@@ -158,43 +168,54 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_parser_temporaries.h		\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
-	src/process_hir/Goto_uppering.cpp					\
-	src/process_hir/Goto_uppering.h						\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
-	src/process_hir/Obfuscate.h							\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
 	src/process_ir/Foreach.h								\
+	src/process_ir/IR.cpp									\
+	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.h							\
-	src/process_ir/IR.cpp									\
-	src/process_ir/IR.h
+	src/process_mir/Goto_uppering.cpp					\
+	src/process_mir/Goto_uppering.h						\
+	src/process_mir/MIR_unparser.cpp						\
+	src/process_mir/MIR_unparser.h						\
+	src/process_mir/Obfuscate.h
 
 BUILT_SOURCES = \
 	src/generated/AST.cpp									\
+	src/generated/AST_factory.cpp							\
+	src/generated/AST_factory.h							\
+	src/generated/AST_fold.h								\
 	src/generated/AST.h										\
 	src/generated/AST_transform.cpp						\
 	src/generated/AST_transform.h							\
 	src/generated/AST_visitor.cpp							\
 	src/generated/AST_visitor.h							\
-	src/generated/AST_factory.cpp							\
-	src/generated/AST_factory.h							\
-	src/generated/AST_fold.h								\
+	src/generated/cmdline.c									\
+	src/generated/cmdline.h									\
 	src/generated/HIR.cpp									\
+	src/generated/HIR_factory.cpp							\
+	src/generated/HIR_factory.h							\
+	src/generated/HIR_fold.h								\
 	src/generated/HIR.h										\
 	src/generated/HIR_transform.cpp						\
 	src/generated/HIR_transform.h							\
 	src/generated/HIR_visitor.cpp							\
 	src/generated/HIR_visitor.h							\
-	src/generated/HIR_factory.cpp							\
-	src/generated/HIR_factory.h							\
-	src/generated/HIR_fold.h								\
-	src/generated/cmdline.c									\
-	src/generated/cmdline.h									\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
+	src/generated/MIR.cpp									\
+	src/generated/MIR_factory.cpp							\
+	src/generated/MIR_factory.h							\
+	src/generated/MIR_fold.h								\
+	src/generated/MIR.h										\
+	src/generated/MIR_transform.cpp						\
+	src/generated/MIR_transform.h							\
+	src/generated/MIR_visitor.cpp							\
+	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
 	test/framework/lib/autovars.php
 
@@ -209,15 +230,19 @@ BUILT_SOURCES = \
 strangephcdir = $(pkgincludedir)
 strangephc_HEADERS =							\
 	config.h										\
+	src/generated/AST_fold.h				\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
-	src/generated/AST_fold.h				\
+	src/generated/cmdline.h					\
+	src/generated/HIR_fold.h				\
 	src/generated/HIR.h						\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_visitor.h			\
-	src/generated/HIR_fold.h				\
-	src/generated/cmdline.h
+	src/generated/MIR_fold.h				\
+	src/generated/MIR.h						\
+	src/generated/MIR_transform.h			\
+	src/generated/MIR_visitor.h
 
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS =					\
@@ -258,11 +283,11 @@ plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.c
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
-plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp
+plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
-plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp
+plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
@@ -393,6 +418,29 @@ src/generated/HIR_fold.h			\
 	mv HIR_factory.h src/generated/
 	mv HIR_fold.h src/generated/
 	mv HIR-contexts src/generated/
+#	mv schema.xsd src/generated/phc-1.0.xsd#
+
+src/generated/MIR.cpp 				\
+src/generated/MIR.h 					\
+src/generated/MIR_transform.cpp 	\
+src/generated/MIR_transform.h		\
+src/generated/MIR_visitor.cpp 	\
+src/generated/MIR_visitor.h 		\
+src/generated/MIR_factory.cpp		\
+src/generated/MIR_factory.h		\
+src/generated/MIR_fold.h			\
+	: src/generated_src/mir.tea @maketea@
+	@maketea@ src/generated_src/mir.tea
+	mv MIR.cpp src/generated/
+	mv MIR.h src/generated/
+	mv MIR_transform.cpp src/generated/
+	mv MIR_transform.h src/generated/
+	mv MIR_visitor.cpp src/generated/
+	mv MIR_visitor.h src/generated/
+	mv MIR_factory.cpp src/generated/
+	mv MIR_factory.h src/generated/
+	mv MIR_fold.h src/generated/
+	mv MIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 

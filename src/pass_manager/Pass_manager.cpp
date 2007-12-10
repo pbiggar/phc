@@ -16,10 +16,12 @@
 #include "process_ir/Foreach.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/Invalid_check.h"
-#include "process_hir/Goto_uppering.h"
+#include "process_mir/Goto_uppering.h"
+#include "process_mir/MIR_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "AST.h"
 #include "HIR.h"
+#include "MIR.h"
 
 
 
@@ -29,7 +31,8 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 {
 	ast_queue = new List<Pass*>;
 	hir_queue = new List<Pass*>;
-	queues = new List <List<Pass*>* > (ast_queue, hir_queue);
+	mir_queue = new List<Pass*>;
+	queues = new List <List<Pass*>* > (ast_queue, hir_queue, mir_queue);
 }
 
 void Pass_manager::add_ast_visitor (AST::Visitor* visitor, const char* name)
@@ -49,21 +52,21 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name)
+void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, const char* name)
 {
 	Pass* pass = new Visitor_pass (visitor, new String (name));
-	add_pass (pass, hir_queue);
+	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name)
+void Pass_manager::add_mir_transform (MIR::Transform* transform, const char* name)
 {
 	Pass* pass = new Transform_pass (transform, new String (name));
-	add_pass (pass, hir_queue);
+	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_hir_pass (Pass* pass)
+void Pass_manager::add_mir_pass (Pass* pass)
 {
-	add_pass (pass, hir_queue);
+	add_pass (pass, mir_queue);
 }
 
 
@@ -95,9 +98,9 @@ void Pass_manager::add_after_each_ast_pass (Pass* pass)
 	add_after_each_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_after_each_hir_pass (Pass* pass)
+void Pass_manager::add_after_each_mir_pass (Pass* pass)
 {
-	add_after_each_pass (pass, hir_queue);
+	add_after_each_pass (pass, mir_queue);
 }
 
 void Pass_manager::add_after_each_pass (Pass* pass, List<Pass*>* queue)
@@ -175,7 +178,7 @@ void Pass_manager::list_passes ()
 			printf ("%-30s\t(%-8s - %s)\t%s\n", 
 					(*p)->name->c_str (),
 					(*p)->is_enabled (this) ? "enabled" : "disabled",
-					(*q) == ast_queue ? "AST" : "HIR",
+					(*q) == ast_queue ? "AST" : "MIR",
 					desc ? desc->c_str () : "No description");
 		}
 }
@@ -187,7 +190,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			in->visit(new AST_unparser(), new HIR_unparser());
+			in->visit (new AST_unparser (), new HIR_unparser (), new MIR_unparser ());
 		}
 	}
 
@@ -202,7 +205,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 				ast->visit (new AST_unparser ());
 			}
 			else
-				phc_error ("Cannot convert HIR to uppered form for dumping");
+				phc_error ("Cannot convert MIR to uppered form for dumping");
 		}
 	}
 
@@ -219,7 +222,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->xdump_arg [i])
 		{
-			in->visit(new AST_XML_unparser(), new HIR_XML_unparser());
+			in->visit(new AST_XML_unparser(), new HIR_XML_unparser(), new MIR_XML_unparser ());
 		}
 	}
 }

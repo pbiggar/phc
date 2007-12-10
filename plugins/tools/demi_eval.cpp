@@ -8,8 +8,8 @@
 #include "AST_transform.h"
 #include "process_ast/AST_unparser.h"
 #include "pass_manager/Plugin_pass.h"
-#include "ast_to_hir/Shredder.h"
-#include "ast_to_hir/fresh.h"
+#include "hir_to_mir/Shredder.h"
+#include "hir_to_mir/fresh.h"
 #include "lib/List.h"
 
 using namespace AST;

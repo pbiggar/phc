@@ -284,10 +284,10 @@ public:
 #include "HIR_visitor.h"
 class HIR_XML_unparser : public XML_unparser
 <
-	HIR::PHP_script, 
-	HIR::Node, 
+	HIR::PHP_script,
+	HIR::Node,
 	HIR::Visitor
-> 
+>
 {
 public:
 	HIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
@@ -301,6 +301,72 @@ public:
 	
 	void pre_identifier(HIR::Identifier* in)
 	{
+		HIR::CAST* cast = dynamic_cast<HIR::CAST*>(in);
+
+		if(cast != NULL)
+		{
+			print_indent();
+			os << "<value>" << *cast->value << "</value>" << endl;
+
+			print_indent();
+			os << "<source_rep>" << *cast->source_rep << "</source_rep>" << endl;
+		}
+		else
+		{
+			String* value = in->get_value_as_string();
+
+			print_indent();
+			if(needs_encoding(value))
+				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+			else
+				os << "<value>" << *value << "</value>" << endl;;
+		}
+	}
+
+	void pre_literal(HIR::Literal* in)
+	{
+		String* value = in->get_value_as_string();
+		String* source_rep = in->get_source_rep();
+
+		// NIL does not have a value
+		if(!dynamic_cast<HIR::NIL*>(in))
+		{
+			print_indent();
+			if(needs_encoding(value))
+				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
+			else	
+				os << "<value>" << *value << "</value>" << endl;
+		}
+
+		print_indent();
+		if(needs_encoding(source_rep))
+			os << "<source_rep encoding=\"base64\">" << *base64_encode(source_rep) << "</source_rep>" << endl;
+		else	
+			os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
+	}
+
+};
+
+#include "MIR_visitor.h"
+class MIR_XML_unparser : public XML_unparser
+<
+	MIR::PHP_script, 
+	MIR::Node, 
+	MIR::Visitor
+> 
+{
+public:
+	MIR_XML_unparser(ostream& os = cout, bool print_attrs = true)
+	: XML_unparser<
+			MIR::PHP_script,
+			MIR::Node,
+			MIR::Visitor
+		> (os, print_attrs)
+	{
+	}
+	
+	void pre_identifier(MIR::Identifier* in)
+	{
 		String* value = in->get_value_as_string();
 
 		print_indent();
@@ -311,12 +377,12 @@ public:
 
 	}
 
-	void pre_literal(HIR::Literal* in)
+	void pre_literal(MIR::Literal* in)
 	{
 		String* value = in->get_value_as_string();
 
 		// NIL does not have a value
-		if(!dynamic_cast<HIR::NIL*>(in))
+		if(!dynamic_cast<MIR::NIL*>(in))
 		{
 			print_indent();
 			if(needs_encoding(value))

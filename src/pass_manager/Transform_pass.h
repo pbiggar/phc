@@ -9,12 +9,12 @@
 #define PHC_TRANSFORM_PASS_H
 
 #include "AST_transform.h"
-#include "HIR_transform.h"
+#include "MIR_transform.h"
 
 class Transform_pass : public Pass
 {
 	AST::Transform* ast_transform;
-	HIR::Transform* hir_transform;
+	MIR::Transform* mir_transform;
 
 public:
 
@@ -22,14 +22,14 @@ public:
 	{
 		this->name = name;
 		ast_transform = v;
-		hir_transform = NULL;
+		mir_transform = NULL;
 	}
 
-	Transform_pass (HIR::Transform* v, String* name)
+	Transform_pass (MIR::Transform* v, String* name)
 	{
 		this->name = name;
 		ast_transform = NULL;
-		hir_transform = v;
+		mir_transform = v;
 	}
 
 	void run (IR* in, Pass_manager* pm)
@@ -37,7 +37,7 @@ public:
 		if (ast_transform != NULL)
 			in->transform_children (ast_transform);
 		else
-			in->transform_children (hir_transform);
+			in->transform_children (mir_transform);
 	}
 };
 

@@ -10,7 +10,7 @@
 
 #include "AST_fold.h"
 #include "HIR.h"
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
@@ -37,25 +37,25 @@ class AST_to_HIR : public AST::Fold
  HIR::Attribute*,			// Attribute*
  HIR::Attr_mod*,			// Attr_mod*
  HIR::Name_with_default*,	// Name_with_default*
- HIR::Statement*,			// If*
- HIR::Statement*,			// While*
- HIR::Statement*,			// Do*
- HIR::Statement*,			// For*
- HIR::Statement*,			// Foreach*
- HIR::Statement*,			// Switch*
- HIR::Node*,				// Switch_case*
- HIR::Statement*,			// Break*
- HIR::Statement*,			// Continue*
+ HIR::If*,			// If*
+ HIR::While*,			// While*
+ HIR::Do*,			// Do*
+ HIR::For*,			// For*
+ HIR::Foreach*,			// Foreach*
+ HIR::Switch*,			// Switch*
+ HIR::Switch_case*,				// Switch_case*
+ HIR::Break*,			// Break*
+ HIR::Continue*,			// Continue*
  HIR::Return*,				// Return*
  HIR::Static_declaration*,	// Static_declaration*
  HIR::Global*,				// Global*
- HIR::Statement*,			// Declare*
- HIR::Node*,				// Directive*
+ HIR::Declare*,			// Declare*
+ HIR::Directive*,				// Directive*
  HIR::Try*,					// Try*
  HIR::Catch*,				// Catch*
  HIR::Throw*,				// Throw*
  HIR::Eval_expr*,			// Eval_expr*
- HIR::Statement*,			// Nop*
+ HIR::Nop*,			// Nop*
  HIR::Branch*,				// Branch*
  HIR::Goto*,				// Goto*
  HIR::Label*,				// Label*
@@ -68,15 +68,15 @@ class AST_to_HIR : public AST::Fold
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
- HIR::Expr*,				// Op_assignment*
- HIR::Expr*,				// List_assignment*
- HIR::Node*,				// List_element*
- HIR::Node*,				// Nested_list_elements*
+ HIR::Op_assignment*,				// Op_assignment*
+ HIR::List_assignment*,				// List_assignment*
+ HIR::List_element*,				// List_element*
+ HIR::Nested_list_elements*,				// Nested_list_elements*
  HIR::Cast*,				// Cast*
  HIR::Unary_op*,			// Unary_op*
  HIR::Bin_op*,				// Bin_op*
- HIR::Expr*,				// Conditional_expr*
- HIR::Expr*,				// Ignore_errors*
+ HIR::Conditional_expr*,				// Conditional_expr*
+ HIR::Ignore_errors*,				// Ignore_errors*
  HIR::Constant*,			// Constant*
  HIR::Instanceof*,			// Instanceof*
  HIR::Variable*,			// Variable*
@@ -84,7 +84,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Reflection*,			// Reflection*
  HIR::Target*,				// Target*
  HIR::Pre_op*,				// Pre_op*
- HIR::Expr*,				// Post_op*
+ HIR::Post_op*,				// Post_op*
  HIR::Array*,				// Array*
  HIR::Array_elem*,			// Array_elem*
  HIR::Method_invocation*,	// Method_invocation*
@@ -92,7 +92,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::New*,					// New*
  HIR::Class_name*,			// Class_name*
- HIR::Node*,				// Commented_node*
+ HIR::Commented_node*,				// Commented_node*
  HIR::Identifier*,			// Identifier*
  HIR::HT_ITERATOR*,		// HT_ITERATOR*
  HIR::CLASS_NAME*,		// CLASS_NAME*
@@ -187,7 +187,7 @@ class AST_to_HIR : public AST::Fold
 		assert(vars->size() == 1);
 
 		HIR::Attribute* result;
-		result = new HIR::Attribute(attr_mod, vars->front());
+		result = new HIR::Attribute(attr_mod, vars);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -221,7 +221,7 @@ class AST_to_HIR : public AST::Fold
 		assert(vars->size() == 1);
 
 		HIR::Static_declaration* result;
-		result = new HIR::Static_declaration(vars->front());
+		result = new HIR::Static_declaration(vars);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -232,7 +232,7 @@ class AST_to_HIR : public AST::Fold
 		assert(variable_names->size() == 1);
 		
 		HIR::Global* result;
-		result = new HIR::Global(variable_names->front());
+		result = new HIR::Global(variable_names);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -296,7 +296,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_reset* result;
-		result = new HIR::Foreach_reset (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_reset (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -304,7 +304,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_next* result;
-		result = new HIR::Foreach_next (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_next (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -312,7 +312,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_end* result;
-		result = new HIR::Foreach_end (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_end (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -320,7 +320,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_has_key* result;
-		result = new HIR::Foreach_has_key (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_has_key (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -328,7 +328,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_get_key* result;
-		result = new HIR::Foreach_get_key (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_get_key (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -336,7 +336,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_get_val* result;
-		result = new HIR::Foreach_get_val (var_name_from_expr (variable), ht_iterator);
+		result = new HIR::Foreach_get_val (variable, ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -349,25 +349,10 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::VARIABLE_NAME* var_name_from_expr (HIR::Expr* expr)
-	{
-		if (expr == NULL) // $x[]
-			return NULL;
-
-		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
-		assert (var);
-		assert (var->array_indices->size () == 0);
-		HIR::Variable_name* var_name = var->variable_name;
-		assert (var_name);
-		HIR::VARIABLE_NAME* token = dynamic_cast<HIR::VARIABLE_NAME*> (var_name);
-		assert (token);
-		return token;
-	}
-
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
 	{
 		HIR::Cast* result;
-		result = new HIR::Cast(cast, var_name_from_expr (expr));
+		result = new HIR::Cast(cast, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -375,7 +360,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Unary_op* fold_impl_unary_op(AST::Unary_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
 		HIR::Unary_op* result;
-		result = new HIR::Unary_op(op, var_name_from_expr (expr));
+		result = new HIR::Unary_op(op, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -383,7 +368,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Bin_op* fold_impl_bin_op(AST::Bin_op* orig, HIR::Expr* left, HIR::OP* op, HIR::Expr* right) 
 	{
 		HIR::Bin_op* result;
-		result = new HIR::Bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
+		result = new HIR::Bin_op(left, op, right);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -399,7 +384,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Instanceof* fold_impl_instanceof(AST::Instanceof* orig, HIR::Expr* expr, HIR::Class_name* class_name) 
 	{
 		HIR::Instanceof* result;
-		result = new HIR::Instanceof(var_name_from_expr (expr), class_name);
+		result = new HIR::Instanceof(expr, class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -408,11 +393,10 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Variable* result;
 
-		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
-		List<HIR::Expr*>::const_iterator i;
-		for (i = array_indices->begin (); i != array_indices->end (); i++)
+		List<HIR::Expr*>* var_names = new List<HIR::Expr*>;
+		for_lci (array_indices, HIR::Expr, i)
 		{
-			var_names->push_back (var_name_from_expr (*i));
+			var_names->push_back (*i);
 		}
 
 		result = new HIR::Variable(target, variable_name, var_names);
@@ -423,7 +407,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
 	{
 		HIR::Reflection* result;
-		result = new HIR::Reflection(var_name_from_expr (expr));
+		result = new HIR::Reflection (expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -462,11 +446,8 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
-		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
-		assert (var);
-
 		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
+		result = new HIR::Actual_parameter(is_ref, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -579,7 +560,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::CAST* fold_cast(AST::CAST* orig) 
 	{
 		HIR::CAST* result;
-		result = new HIR::CAST(orig->value);
+		result = new HIR::CAST(orig->value, orig->source_rep);
 		result->attrs = orig->attrs;
 		return result;
 	}
