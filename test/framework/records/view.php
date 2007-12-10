@@ -14,9 +14,11 @@
 		print "<th>Fails</th>\n";
 		print "<th>Skips</th>\n";
 		print "<th>Timeouts</th>\n";
+		print "<th>Test Date</th>\n";
+		print "<th>Testing revision</th>\n";
 
 		$query = $DB->query ("
-				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout
+				SELECT	c.revision, c.author, t.pass, t.fail, t.skip, t.timeout, c.test_date, c.test_revision
 				FROM		complete AS c, tests AS t
 				WHERE		t.revision == c.revision AND t.testname == 'Total'
 				ORDER BY c.revision DESC
@@ -38,6 +40,8 @@
 			add_difference ("fail", $data, $revisions[$rev-1]);
 			add_difference ("skip", $data, $revisions[$rev-1]);
 			add_difference ("timeout", $data, $revisions[$rev-1]);
+
+			$data["test_date"] = date_from_timestamp ($data["test_date"]);
 		}
 
 

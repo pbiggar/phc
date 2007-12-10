@@ -31,8 +31,7 @@
 
 	function date_from_timestamp ($timestamp)
 	{
-		# 2007-12-03 19:02:25 +0000 (Mon, 03 Dec 2007)
-		return date ("D, d M Y h:i:s ", $timestamp);
+		return date ("D, d M Y H:i:s ", $timestamp);
 	}
 
 	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }

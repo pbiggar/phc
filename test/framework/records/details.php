@@ -11,9 +11,9 @@ include ("common.php");
 
 		print_revision_details ($rev);
 		print "<table class=layout><tr><td>\n";
-		print_test_details ($rev, "tests");
+		print_test_details ($rev, "test");
 		print "</td><td>\n";
-		print_test_details ($rev, "install_tests");
+		print_test_details ($rev, "install_test");
 		print "</td></tr></table>\n";
 
 	}
@@ -63,26 +63,26 @@ include ("common.php");
 		print "</table>\n";
 	}
 
-	function print_test_details ($rev, $table)
+	function print_test_details ($rev, $table_name)
 	{
-		global $DB, $td, $th;;
+		global $DB, $td, $th;
 
 		# fetch the current revisions data
 		$test_data = $DB->query ("
 				SELECT	revision, testname, pass, fail, timeout, skip
-				FROM		$table
+				FROM		{$table_name}s
 				WHERE		revision == $rev
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		print "<table class=info>";
-		print "<tr><th colspan=5>$table</th></tr>\n";
+		print "<tr><th colspan=5>{$table_name}s</th></tr>\n";
 		print "<tr><th>Test name</th><th>Passes</th><th>Fails</th><th>Timeouts</th><th>Skips</th></tr>\n";
 
 		# fetch the previous revisions data, for comparison
 		$old_rev = $rev - 1;
 		$old_test_data = $DB->query ("
 				SELECT	revision, testname, pass, fail, timeout, skip
-				FROM		$table
+				FROM		{$table_name}s
 				WHERE		revision == $old_rev
 				")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -113,9 +113,9 @@ include ("common.php");
 			# add a link onto the name
 			$name = $row["testname"];
 			if ($name == "Total")
-				$row["testname"] = "<a href=\"results/$rev/{$table}_logs/\">$name</a>";
+				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/\">$name</a>";
 			else
-				$row["testname"] = "<a href=\"results/$rev/{$table}_logs/$name/\">$name</a>";
+				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/$name/\">$name</a>";
 
 			print "<tr>\n";
 			foreach ($row as $key => $entry)
