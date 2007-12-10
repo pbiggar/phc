@@ -13,40 +13,83 @@
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
-	$REVISION =  get_current_revision (); // use SVN to get this
+	$LATEST_REVISION =  get_current_revision (); // use SVN to get this
 
+	// start the DB
 	initialize_db ();
 
+	// Prepare the test
+	$start_time = time ();
+	list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
+	$PREV_REV = $REV - 1;
+	initialize_revision_test ();
+
+	// Do SVN work - fails mean tet wasnt affected
 	try
 	{
-		$start_time = time ();
-		list ($rev, $author, $date) = get_working_revision ();
-		initialize_revision_test ($rev);
-		c ("svn export -q --revision=$rev $REPO $TEST_DIR", "SVNError");
+		$log = c ("svn log -r $REV $REPO");
+		$diff = c ("svn diff -r $REV:$PREV_REV");
+
+		save ("LOG:\n$log\n\nDIFF:\n$diff", "svn_log");
+
+		c ("svn export -q --revision=$REV $REPO $TEST_DIR");
+	}
+	catch (Exception $e) { svn_problem (); }
+
+	// Do test work - fails mean test doesnt work
+	try
+	{
 		cd ("touch src/generated/*");
-		cdl ("./configure --prefix=$TEST_DIR/installed", "configure");
-		cdl ("make", "make");
-		$test_results = cdl ("php test/framework/driver.php -p", "test");
+		save (cd ("./configure --prefix=$TEST_DIR/installed"), "configure");
+
+		// make
+		save (cd ("make"), "make");
+		$results = save (cd ("php test/framework/driver.php -q -p"), "test");
 		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/test_logs"); 
-		cdl ("make install", "install");
-		$install_results = cdl ("php test/framework/driver.php -q -i -p", "install_test");
-		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/install_test_logs"); 
+		store_test_results ($results, "tests");
 
+		// make install
+		save (cd ("make install"), "install");
+		$results = save (cd ("php test/framework/driver.php -q -i -p"), "install_test");
+		c ("mv ".readlink("$TEST_DIR/test/logs/latest")." $LOG_DIR/install_test_logs"); 
+		store_test_results ($results, "install_tests");
 
-		store_test_results ($test_results, $rev, "tests");
-		store_test_results ($install_results, $rev, "install_tests");
-
-		finalize_revision_test ($rev, $author, $date, $start_time);
+		// Finish up
+		finalize_revision_test ();
 	}
-	catch (SVNError $e)
+	catch (Exception $e) { test_problem (); }
+
+
+
+	function svn_problem ()
 	{
-		print "SVN problem: $e. Wait 5 mins";
-		sleep (300);
-	}
-	catch (Exception $e)
-	{
+		print "SVN problem. Wait 5 mins";
 		save_log ();
-		mail ("paul.biggar@gmail.com", "Script Error in revision $rev");
+		print "SVN problem. Wait 5 mins";
+		sleep (300);
+		die ();
+	}
+
+	function script_problem ()
+	{
+		print "Test problem, saving and mailing error\n";
+		save_log ();
+
+		$info = ob_get_contents ();
+		mail ("paul.biggar@gmail.com", "Script error", $info);
+
+		die ();
+	}
+
+	function test_problem ()
+	{
+		global $REV, $AUTHOR, $DATE, $LATEST_REVISION;
+		$end_time = time ();
+		print "Test problem, saving error\n";
+		e ("INSERT INTO complete VALUES ($REV, NULL, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1)");
+
+		save_log ();
+		die ();
 	}
 
 	function strip_console_codes ($string)
@@ -77,8 +120,9 @@
 		return false;
 	}
 
-	function store_test_results ($result_string, $rev, $table_name)
+	function store_test_results ($result_string, $table_name)
 	{
+		global $REV;
 		# there a few different test formats, so add them as we go
 		$matchers[] = "matcher_902";
 		foreach ($matchers as $matcher)
@@ -96,64 +140,58 @@
 		foreach ($results as $result)
 		{
 			list ($name, $pass, $fail, $timeout, $skip) = $result;
-			e ("INSERT INTO $table_name VALUES ($rev, '$name', $pass, $fail, $timeout, $skip)");
+			e ("INSERT INTO $table_name VALUES ($REV, '$name', $pass, $fail, $timeout, $skip)");
 			$total_pass += $pass;
 			$total_fail += $fail;
 			$total_timeout += $timeout;
 			$total_skip += $skip;
 		}
 
-		e ("INSERT INTO $table_name VALUES ($rev, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
+		e ("INSERT INTO $table_name VALUES ($REV, 'Total', $total_pass, $total_fail, $total_timeout, $total_skip)");
 	}
 
 	function initialize_db ()
 	{
+		global $RESULTS_DIR;
+		create_dir ($RESULTS_DIR);
+
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 		e ("CREATE TABLE IF NOT EXISTS install_tests (revision, testname, pass, fail, timeout, skip)");
 	}
 
-	function initialize_revision_test ($rev)
+	function initialize_revision_test ()
 	{
-		global $start_time;
+		global $start_time, $REV, $LOG_DIR, $TEST_DIR, $RESULTS_DIR;
 		$time = time ();
 
 		# create directory structure
-		global $LOG_DIR, $TEST_DIR, $RESULTS_DIR;
-		$LOG_DIR = "$RESULTS_DIR/$rev";
+		$LOG_DIR = "$RESULTS_DIR/$REV";
 		del_dir ($TEST_DIR);
-		create_dir ($RESULTS_DIR);
 		del_dir ($LOG_DIR);
 		create_dir ($LOG_DIR);
 
-		# set up the log file
-		global $LOG;
-		$LOG = fopen ("$LOG_DIR/log", "w");
-
-		e ("DELETE FROM complete WHERE revision == $rev");
-		e ("DELETE FROM tests WHERE revision == $rev");
-		e ("DELETE FROM install_tests WHERE revision == $rev");
+		e ("DELETE FROM complete WHERE revision == $REV");
+		e ("DELETE FROM tests WHERE revision == $REV");
+		e ("DELETE FROM install_tests WHERE revision == $REV");
 	}
 
 	function save_log ()
 	{
-		global $LOG;
-		$log .= ob_get_contents ();
-		ob_end_clean ();
-		ob_start ();
-		fwrite ($LOG, $log);
-		fclose ($LOG);
+		$log = ob_get_contents ();
+		var_dump ($log);
+		save ($log, "log");
 	}
 
-	function finalize_revision_test ($rev, $author, $date, $start_time)
+	function finalize_revision_test ()
 	{
-		global $REVISION;
+		global $LATEST_REVISION, $REV, $AUTHOR, $START_TIME, $DATE;
 		$end_time = time ();
-		$time = $end_time - $start_time;
+		$time = $end_time - $START_TIME;
 
-		e ("INSERT INTO complete VALUES ($rev, $time, $REVISION, '$author', '$date', $end_time)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0)");
 
 		save_log ();
 	}
@@ -163,19 +201,13 @@
 	function create_dir ($dir) { c ("mkdir -p $dir"); }
 
 	// C for Command. If the command fails, log the result and die
-	function c ($command, $exception_type = NULL)
+	function c ($command)
 	{
 		print "Running command '$command'\n";
 		exec ("$command 2>&1", $result, $ret_val);
-		if ($ret_val != 0 && $exception_type)
-		{
-			if (! class_exists ($exception_type))
-			{
-				eval ("class $exception_type extends Exception {}");
-			}
-			throw new $exception_type ();
-		}
-		assert ($ret_val == 0);
+		if ($ret_val !== 0)
+			throw new Exception ();
+
 		$result = join ("\n", $result);
 		print "Returning result '$result'\n";
 		return $result;
@@ -195,17 +227,15 @@
 		return $result;
 	}
 
-	// CDL for Command in Directory and Log. Run CD, and save the
-	// text in a log file, named by TEST_NAME
-	function cdl ($command, $test_name)
+	function save ($string, $log_name)
 	{
 		global $LOG_DIR;
-		$result = cd ($command);
-		$log_file = fopen ("$LOG_DIR/$test_name.log", "w");
-		fwrite ($log_file, $result);
-		fclose ($log_file);
-		return $result;
+		assert (isset ($LOG_DIR));
+		file_put_contents ("$LOG_DIR/$log_name.log", $string);
+
+		return $string;
 	}
+
 
 	// E for Exec
 	function e ($sql)
@@ -215,7 +245,7 @@
 		if ($DB->exec ($sql) === FALSE)
 		{
 			var_dump ($DB->errorInfo());
-			die ($DB->errorInfo());		
+			script_problem ();
 		}
 	}
 
@@ -234,17 +264,17 @@
 		$date = $matches[1];
 
 		return array ($rev, $author, $date);
-
 	}
 
 	function get_working_revision () 
 	{
-		global $REVISION;
-		global $DB;
+		// Get list of processed revisions
+		global $LATEST_REVISION, $DB;
 		$revs = $DB->query ("SELECT revision FROM complete ORDER BY revision ASC")->fetchAll(PDO::FETCH_COLUMN);
 
+		// Go backwards until we find an unprocessed revision
 		sort ($revs);
-		for ($i = $REVISION; $i > 0; $i--)
+		for ($i = $LATEST_REVISION; $i > 0; $i--)
 		{
 			if (array_pop ($revs) != $i)
 				return get_svn_info ($i);
@@ -254,11 +284,10 @@
 
 	function get_current_revision ()
 	{
+		// This is done using SVN
 		$REVISION_STRING = "$LastChangedRevision$";
 		preg_match ("/: (\d+)/", $REVISION_STRING, $matched);
 		return $matched[1];
 	}
-
-
 
 ?>
