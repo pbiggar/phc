@@ -71,16 +71,6 @@ $tests = array ();
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
 require_once ("compare_all_passes.php");
-$tests[] = new CompareWithPHP ("Interpret_ast", "--pretty-print", "BasicParseTest");
-$tests[] = new CompareWithPHP ("Interpret_lcf", "--udump=lcf", "Interpret_ast");
-$tests[] = new CompareWithPHP ("Interpret_lef", "--udump=lef", "Interpret_lcf");
-$tests[] = new CompareWithPHP ("Interpret_ecs", "--udump=ecs", "Interpret_lef");
-$tests[] = new CompareWithPHP ("Interpret_pps", "--udump=pps", "Interpret_ecs");
-$tests[] = new CompareWithPHP ("Interpret_desug", "--udump=desug", "Interpret_pps");
-$tests[] = new CompareWithPHP ("Interpret_lish", "--udump=lish", "Interpret_desug");
-$tests[] = new CompareWithPHP ("Interpret_shred", "--udump=shred", "Interpret_lish");
-$tests[] = new CompareWithPHP ("Interpret_tidyp", "--udump=tidyp", "Interpret_shred");
-$tests[] = new CompareWithPHP ("Interpret_hir_as_ast", "--udump=hir_as_ast", "Interpret_tidyp");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=hir_as_ast --run plugins/tests/strip_includes.la", "Interpret_shred");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "Interpret_shred");

@@ -117,6 +117,9 @@ abstract class Test
 		while ($shallow_dependencies)
 		{
 			$dependency = array_pop ($shallow_dependencies);
+			if (in_array ($dependency, $dependencies))
+				continue;
+
 			$dependencies[] = $dependency;
 			foreach ($tests as $test) # find it in the set of tests
 			{
