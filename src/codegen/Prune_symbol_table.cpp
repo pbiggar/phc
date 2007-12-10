@@ -25,8 +25,12 @@
 
 #include "Prune_symbol_table.h"
 
-using namespace AST;
+using namespace MIR;
 
+Prune_symbol_table::Prune_symbol_table () 
+:  prune (true) 
+{
+}
 
 // TODO we cant compile nested functions anyway, but this needs to be
 // updated when we do.

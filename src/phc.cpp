@@ -133,16 +133,18 @@ int main(int argc, char** argv)
 
 	// process_hir passes
 	pm->add_ast_pass (new Fake_pass ("hir_as_ast"));
-	// ~TODO use the HIR after here
+
+
 	pm->add_ast_visitor (new Strip_comments (), "decomment"); // codegen
 	pm->add_ast_pass (new Obfuscate ()); // TODO move to MIR
+	pm->add_hir_pass (new Fake_pass ("hir"));
+	pm->add_mir_pass (new Fake_pass ("mir"));
 
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
 	stringstream ss;
-	pm->add_ast_visitor (new Clarify (), "clar"); // TODO move to MIR
-	pm->add_ast_visitor (new Prune_symbol_table (), "pst");
-	pm->add_ast_pass (new Fake_pass ("hir")); // TODO move to hir_as_ast
+	pm->add_mir_visitor (new Clarify (), "clar"); // TODO move to MIR
+	pm->add_mir_visitor (new Prune_symbol_table (), "pst");
 	pm->add_mir_pass (new Generate_C (ss));
 	pm->add_mir_pass (new Compile_C (ss));
 

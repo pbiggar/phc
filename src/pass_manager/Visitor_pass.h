@@ -15,6 +15,7 @@
 class Visitor_pass : public Pass
 {
 	AST::Visitor* ast_visitor;
+	HIR::Visitor* hir_visitor;
 	MIR::Visitor* mir_visitor;
 
 public:
@@ -23,6 +24,15 @@ public:
 	{
 		this->name = name;
 		ast_visitor = v;
+		hir_visitor = NULL;
+		mir_visitor = NULL;
+	}
+
+	Visitor_pass (HIR::Visitor* v, String* name)
+	{
+		this->name = name;
+		ast_visitor = NULL;
+		hir_visitor = v;
 		mir_visitor = NULL;
 	}
 
@@ -30,15 +40,20 @@ public:
 	{
 		this->name = name;
 		ast_visitor = NULL;
+		hir_visitor = NULL;
 		mir_visitor = v;
 	}
 
+
+
 	void run (IR* in, Pass_manager* pm)
 	{
-		if(ast_visitor != NULL)
-			in->visit(ast_visitor);
-		else
-			in->visit(mir_visitor);
+		if (ast_visitor)
+			in->visit (ast_visitor);
+		else if (hir_visitor)
+			in->visit (hir_visitor);
+		else 
+			in->visit (mir_visitor);
 	}
 };
 

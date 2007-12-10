@@ -52,6 +52,25 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
+void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name)
+{
+	Pass* pass = new Visitor_pass (visitor, new String (name));
+	add_pass (pass, hir_queue);
+}
+
+void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name)
+{
+	Pass* pass = new Transform_pass (transform, new String (name));
+	add_pass (pass, hir_queue);
+}
+
+void Pass_manager::add_hir_pass (Pass* pass)
+{
+	add_pass (pass, hir_queue);
+}
+
+
+
 void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, const char* name)
 {
 	Pass* pass = new Visitor_pass (visitor, new String (name));

@@ -43,8 +43,8 @@ public:
 
 	// Add HIR passes
 	void add_hir_pass (Pass* pass);
-	void add_hir_visitor (MIR::Visitor* visitor, const char* name);
-	void add_hir_transform (MIR::Transform* transform, const char* name);
+	void add_hir_visitor (HIR::Visitor* visitor, const char* name);
+	void add_hir_transform (HIR::Transform* transform, const char* name);
 	void add_after_each_hir_pass (Pass* pass);
 
 	// Add MIR passes
