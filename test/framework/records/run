@@ -19,12 +19,12 @@
 	initialize_db ();
 
 	// Prepare the test
-	$start_time = time ();
+	$START_TIME = time ();
 	list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
 	$PREV_REV = $REV - 1;
 	initialize_revision_test ();
 
-	// Do SVN work - fails mean tet wasnt affected
+	// Do SVN work - fails mean test wasnt affected
 	try
 	{
 		$log = c ("svn log -r $REV $REPO");
@@ -83,10 +83,11 @@
 
 	function test_problem ()
 	{
-		global $REV, $AUTHOR, $DATE, $LATEST_REVISION;
+		global $REV, $AUTHOR, $DATE, $LATEST_REVISION, $START_TIME;
 		$end_time = time ();
+		$time = $end_time - $START_TIME;
 		print "Test problem, saving error\n";
-		e ("INSERT INTO complete VALUES ($REV, NULL, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1)");
 
 		save_log ();
 		die ();
@@ -134,7 +135,7 @@
 
 		if ($results === false)
 		{
-			die ("No matches found");
+			test_problem ();
 		}
 
 		foreach ($results as $result)
