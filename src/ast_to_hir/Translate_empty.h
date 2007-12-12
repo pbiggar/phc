@@ -8,11 +8,11 @@
 #ifndef PHC_TRANSLATE_EMPTY_H
 #define PHC_TRANSLATE_EMPTY_H
 
-#include "HIR_transform.h"
+#include "AST_transform.h"
 
-class Translate_empty : public HIR::Transform
+class Translate_empty : public AST::Transform
 {
-	HIR::Expr* pre_method_invocation(HIR::Method_invocation* in); 
+	AST::Expr* pre_method_invocation(AST::Method_invocation* in); 
 };
 
 #endif // PHC_TRANSLATE_EMPTY_H

@@ -7,7 +7,7 @@
 
 #include "Split_unset_isset.h"
 
-using namespace HIR;
+using namespace AST;
 
 /*
  * Convert

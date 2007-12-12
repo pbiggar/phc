@@ -9,9 +9,9 @@
 #ifndef PHC_LOWER_CONTROL_FLOW_H
 #define PHC_LOWER_CONTROL_FLOW_H
 
-#include "HIR_transform.h"
+#include "HIR_lower_expr.h"
 
-class Lower_control_flow : public HIR::Transform
+class Lower_control_flow : public Lower_expr
 {
 	private:
 		List<HIR::Node*> break_levels;

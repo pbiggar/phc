@@ -108,19 +108,31 @@ int main(int argc, char** argv)
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
 	pm->add_ast_pass (new Fake_pass ("ast"));
-	// TODO add flag for include 
+
 	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
+
+	// This fixes unparser problems, so run before pretty-rpint
+	pm->add_ast_transform (new Remove_concat_null (), "rcn");
+
 	pm->add_ast_pass (new Pretty_print ());
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
 	// TODO move most of these to AST
-	// ast_to_hir passes
-	pm->add_ast_transform (new Remove_concat_null (), "rcn");
-	pm->add_ast_transform (new Split_multiple_arguments (), "sma");
+
+	// Required passes to lower AST constructs to HIR constructs
 	pm->add_ast_pass (new Lift_functions_and_classes ()); // codegen
-	pm->add_hir_transform (new Split_unset_isset (), "sui");
-	pm->add_hir_transform (new Translate_empty (), "empty");
-	pm->add_hir_transform (new Echo_split (), "ecs");
+
+	// TODO make lower_expr work from here, redo all the passes using
+	// lower_expr, and move shredder much higher so that all the passes are
+	// simpler
+
+	// these passes could really go to either AST, or HIR.
+	// TODO move these to the end of the AST, just before the HIR
+	pm->add_ast_transform (new Split_multiple_arguments (), "sma");
+	pm->add_ast_transform (new Split_unset_isset (), "sui");
+	pm->add_ast_transform (new Translate_empty (), "empty");
+	pm->add_ast_transform (new Echo_split (), "ecs");
+
 	pm->add_hir_transform (new Lower_control_flow (), "lcf");
 	pm->add_hir_transform (new Lower_expr_flow (), "lef");
 	pm->add_hir_transform (new Pre_post_op_shredder (), "pps");

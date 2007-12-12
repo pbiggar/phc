@@ -7,7 +7,7 @@
 
 #include "Translate_empty.h"
 
-using namespace HIR;
+using namespace AST;
 
 Expr* Translate_empty::pre_method_invocation(Method_invocation* in)
 {

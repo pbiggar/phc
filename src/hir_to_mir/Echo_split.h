@@ -8,11 +8,11 @@
 #ifndef PHC_ECHO_SPLIT_H
 #define PHC_ECHO_SPLIT_H
 
-#include "HIR_transform.h"
+#include "AST_transform.h"
 
-class Echo_split : public HIR::Transform
+class Echo_split : public AST::Transform
 {
-	void pre_eval_expr(HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
 };
 
 
