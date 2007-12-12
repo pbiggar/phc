@@ -49,18 +49,28 @@ include ("common.php");
 
 		print "<table class=info>\n";
 		print "	<tr>\n";
-		print "		<th><a href=\"results/$rev/log\">					Log					</a>	</th>";
-		print "		<th><a href=\"results/$rev/configure.log\">		Configure log		</a>	</th>";
+		print "		<th>". maybe_link ("results/$rev/log.log", "Full Log") ."</th>";
+		print "		<th>". maybe_link ("results/$rev/configure.log", "Configure Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th><a href=\"results/$rev/make.log\">				Build log			</a>	</th>";
-		print "		<th><a href=\"results/$rev/install.log\">			Install log			</a>	</th>";
+		print "		<th>". maybe_link ("results/$rev/make.log", "Build Log") ."</th>";
+		print "		<th>". maybe_link ("results/$rev/install.log", "Install Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th><a href=\"results/$rev/test.log\">				Test log				</a>	</th>";
-		print "		<th><a href=\"results/$rev/install_test.log\">	Install Test log	</a>	</th>";
+		print "		<th>". maybe_link ("results/$rev/test.log", "Test Log") ."</th>";
+		print "		<th>". maybe_link ("results/$rev/install_test.log", "Install Test Log") ."</th>";
+		print "	</tr><tr>\n";
+		print "		<th colspan=2>". maybe_link ("results/$rev/svn_log.log", "Subversion Log") ."</th>";
 		print "	</tr></table>";
 
 		print "	</td></tr>";
 		print "</table>\n";
+	}
+
+	function maybe_link ($file, $name)
+	{
+		if (file_exists ($file))
+			return "<a href=\"$file\">$name</a>";
+		else
+			return $name;
 	}
 
 	function print_test_details ($rev, $table_name)
@@ -114,7 +124,7 @@ include ("common.php");
 			$name = $row["testname"];
 			if ($name == "Total")
 				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/\">$name</a>";
-			else
+			else if ($row["fail"])
 				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/$name/\">$name</a>";
 
 			print "<tr>\n";
