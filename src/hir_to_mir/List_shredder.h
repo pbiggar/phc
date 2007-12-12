@@ -8,8 +8,8 @@
 #ifndef PHC_EARLY_SHREDDER_H
 #define PHC_EARLY_SHREDDER_H
 
-#include "Lower_expr.h"
-#include "fresh.h"
+#include "HIR_lower_expr.h"
+#include "process_ir/fresh.h"
 
 // Some shredding will create variables which may be missed if done
 // at the same time as the variable shredding.
@@ -30,7 +30,7 @@ public:
 	 *	Note that references arent allowed here.
 	 */
 
-	AST::Expr* post_list_assignment(AST::List_assignment* in);
+	HIR::Expr* post_list_assignment(HIR::List_assignment* in);
 };
 
 

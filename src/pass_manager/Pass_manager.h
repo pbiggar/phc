@@ -30,8 +30,9 @@ public:
 
 	void add_plugin (lt_dlhandle handle, const char* name, String* option);
 
-	// Remove all passes from all queues
+	// Remove passes
 	void remove_all ();
+	void remove_after_named_pass (const char* name);
 
 	void add_pass (Pass* pass, List<Pass*>* ast_queue);
 
@@ -62,7 +63,7 @@ public:
 	// Run (returns passed IR, or new IR if lowered
 	IR* run_from_until (String* from, String* to, IR* in, bool dump = false);
 	IR* run_until (String* to, IR* in, bool dump = false);
-	IR* run (IR* in, bool dump = false);
+	void run (IR* in, bool dump = false);
 	void run_pass (Pass* pass, IR* in, bool dump = false);
 	void post_process ();
 

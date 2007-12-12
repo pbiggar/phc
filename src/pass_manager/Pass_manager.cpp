@@ -139,6 +139,26 @@ void Pass_manager::remove_all ()
 	}
 }
 
+void Pass_manager::remove_after_named_pass (const char* name)
+{
+	String* n = new String (name);
+
+	bool remove = false;
+	for_li (queues, List<Pass*>, q)
+	{
+		for_li (*q, Pass, p) 
+		{
+			if (remove)
+			{
+				p = (*q)->erase (p); // advance
+				p--; // for_li has an implicit p++
+			}
+			else if (*n == *((*p)->name))
+				remove = true;
+		}
+	}
+}
+
 
 
 void Pass_manager::add_after_each_pass (Pass* pass)
@@ -246,18 +266,31 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	}
 }
 
-IR* Pass_manager::run (IR* in, bool dump)
+void Pass_manager::run (IR* in, bool dump)
 {
-	for_lci (queues, List<Pass*>, q)
-	{
-		for_lci (*q, Pass, p)
-		{
-			run_pass (*p, in, dump);
-		}
+	// AST
+	for_lci (ast_queue, Pass, p)
+		run_pass (*p, in, dump);
 
-		in = in->fold_lower ();
-	}
-	return in;
+	// Sometimes folding can crash. If you went out of your way to remove the
+	// passes in the later queues, dont fold.
+	if (hir_queue->size() == 0 && mir_queue->size () == 0)
+		return;
+
+	// HIR
+	in = in->fold_lower ();
+
+	for_lci (hir_queue, Pass, p)
+		run_pass (*p, in, dump);
+
+	if (mir_queue->size () == 0)
+		return;
+
+	// MIR
+	in = in->fold_lower ();
+
+	for_lci (mir_queue, Pass, p)
+		run_pass (*p, in, dump);
 }
 
 
@@ -265,11 +298,12 @@ void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 {
 	assert (pass->name);
 	pass->run_pass (in, this);
+	if (dump)
+		this->dump (in, pass);
+
 	if (check)
 		::check (in, false);
 
-	if (dump)
-		this->dump (in, pass);
 }
 
 /* Run all passes between FROM and TO, inclusive. */

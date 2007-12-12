@@ -34,6 +34,7 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
+	pm->remove_after_named_pass ("ast");
 	pm->add_after_named_pass (pass, "ast");
 }
 

@@ -16,12 +16,12 @@
 
 #include "Lower_control_flow.h"
 #include "Check_lowering.h"
-#include "fresh.h"
-#include "process_ir/debug.h"
+#include "process_ir/fresh.h"
+#include "process_ir/General.h"
 #include <sstream>
 #include "Shredder.h"
 
-using namespace AST;
+using namespace HIR;
 
 template <class T>
 const char* get_attr_name ()
@@ -901,10 +901,4 @@ void Lower_control_flow::pre_foreach(Foreach* in, List<Statement*>* out)
 void Lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 {
 	pre_control_flow (in, out);
-}
-
-PHP_script* Lower_control_flow::post_php_script (PHP_script* in)
-{
-	in->visit (new Check_lowering ());
-	return in;
 }

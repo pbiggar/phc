@@ -8,7 +8,7 @@
 #include "List_shredder.h"
 #include "process_ast/Invalid_check.h"
 
-using namespace AST;
+using namespace HIR;
 
 // Some shredding will create variables which may be missed if done
 // at the same time as the variable shredding.

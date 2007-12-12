@@ -5,14 +5,14 @@
  * After each statement, add a debug_zval_dump call to each variable in the statement.
  */
 
-#include "AST_transform.h"
-#include "process_ast/AST_unparser.h"
+#include "HIR_transform.h"
+#include "process_hir/HIR_unparser.h"
 #include "pass_manager/Plugin_pass.h"
 #include "hir_to_mir/Shredder.h"
-#include "hir_to_mir/fresh.h"
+#include "process_ir/fresh.h"
 #include "lib/List.h"
 
-using namespace AST;
+using namespace HIR;
 
 class Demi_eval : public Transform
 {
@@ -56,7 +56,7 @@ class Demi_eval : public Transform
 			{
 				// unparse the statement into a string
 				stringstream ss;
-				AST_unparser* pup = new AST_unparser (ss);
+				HIR_unparser* pup = new HIR_unparser (ss);
 				in->visit (pup);
 				String* eval_string = new String (ss.str ());
 

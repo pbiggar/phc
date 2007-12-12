@@ -39,7 +39,7 @@ require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdD");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -47,6 +47,7 @@ list ($opts, $arguments) = $opt_result;
 $opt_verbose = 0;
 $opt_help = false;
 $opt_command = "";
+$opt_file = NULL;
 foreach ($opts as $opt) 
 {
 	switch ($opt[0])
@@ -57,6 +58,7 @@ foreach ($opts as $opt)
 		case 'r': $opt_command .= "--run plugins/tools/debug_zval.la --xdump=plugins/tools/debug_zval.la"; break;
 		case 'd': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=true --xdump=plugins/tools/demi_eval.la"; break;
 		case 'D': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=false --xdump=plugins/tools/demi_eval.la"; break;
+		case 'f': $opt_file = $opt[1]; break;
 	}
 }
 if ($opt_command === "") 
@@ -78,6 +80,7 @@ Options:
     -r     Mnemonic: refcount. The equivalent of "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
     -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=true".
     -D     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=false".
+    -f     Use the passed XML file as the the first program, instead of calling phc.
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
@@ -98,10 +101,16 @@ $filename = $arguments[0];
 
 $num_steps = 0;
 
-
-list ($xprogram, $err, $exit) = run ("src/phc $opt_command $filename");
-if ($err || $exit)
-	die ("Program failed. Try -v -v for more info\n");
+if ($opt_file)
+{
+	$xprogram = file_get_contents ($opt_file);
+}
+else
+{
+	list ($xprogram, $err, $exit) = run ("src/phc $opt_command $filename");
+	if ($err || $exit)
+		die ("Program failed. Try -v -v for more info\n");
+}
 
 $N = count_statements ($xprogram);
 $original = $N;
@@ -158,7 +167,7 @@ function reduce ($xprogram_string, $start, $num)
 function convert ($xprogram_string, $upper)
 {
 	$upper = $upper ? "u" : "";
-	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=ast", $xprogram_string);
+	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=ast --run=plugins/tools/remove_all.la", $xprogram_string);
 	return $out;
 }
 

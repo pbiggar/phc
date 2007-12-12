@@ -8,7 +8,7 @@
 #include "Annotate.h"
 #include "process_ir/debug.h"
 
-using namespace AST;
+using namespace HIR;
 
 Annotate::Annotate() 
 : generate_array_temps(true) 

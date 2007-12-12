@@ -43,6 +43,12 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
 	src/ast_to_hir/AST_to_HIR.h							\
+	src/ast_to_hir/Split_unset_isset.cpp				\
+	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Translate_empty.cpp					\
+	src/ast_to_hir/Translate_empty.h						\
+	src/ast_to_hir/AST_lower_expr.cpp					\
+	src/ast_to_hir/AST_lower_expr.h						\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -98,27 +104,23 @@ src_phc_SOURCES =												\
 	src/hir_to_mir/Desugar.h								\
 	src/hir_to_mir/Echo_split.cpp							\
 	src/hir_to_mir/Echo_split.h							\
-	src/hir_to_mir/fresh.cpp								\
-	src/hir_to_mir/fresh.h									\
+	src/hir_to_mir/HIR_lower_expr.cpp					\
+	src/hir_to_mir/HIR_lower_expr.h						\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/List_shredder.cpp						\
 	src/hir_to_mir/List_shredder.h						\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
-	src/hir_to_mir/Lower_expr.cpp							\
 	src/hir_to_mir/Lower_expr_flow.cpp					\
 	src/hir_to_mir/Lower_expr_flow.h						\
-	src/hir_to_mir/Lower_expr.h							\
 	src/hir_to_mir/Pre_post_op_shredder.cpp			\
 	src/hir_to_mir/Pre_post_op_shredder.h				\
 	src/hir_to_mir/Shredder.cpp							\
 	src/hir_to_mir/Shredder.h								\
 	src/hir_to_mir/Split_multiple_arguments.cpp		\
 	src/hir_to_mir/Split_multiple_arguments.h			\
-	src/hir_to_mir/Split_unset_isset.h					\
 	src/hir_to_mir/Tidy_print.cpp							\
 	src/hir_to_mir/Tidy_print.h							\
-	src/hir_to_mir/Translate_empty.h						\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -173,6 +175,8 @@ src_phc_SOURCES =												\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
 	src/process_ir/Foreach.h								\
+	src/process_ir/fresh.cpp								\
+	src/process_ir/fresh.h									\
 	src/process_ir/IR.cpp									\
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
@@ -313,6 +317,10 @@ plugins_tests_xml_roundtrip_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES += plugins/tools/add_comment.la
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tools/remove_all.la
+plugins_tools_remove_all_la_SOURCES = plugins/tools/remove_all.cpp
+plugins_tools_remove_all_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tools/purity_test.la
 plugins_tools_purity_test_la_SOURCES = plugins/tools/purity_test.cpp

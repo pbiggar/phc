@@ -9,15 +9,15 @@
 #ifndef PHC_DESUGAR_H
 #define PHC_DESUGAR_H
 
-#include "AST_transform.h"
+#include "HIR_transform.h"
 
-class Desugar : public AST::Transform
+class Desugar : public HIR::Transform
 {
-	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
-	void pre_nop(AST::Nop*, List<AST::Statement*>*);
-	AST::Expr* pre_unary_op(AST::Unary_op* in);
-	void pre_return(AST::Return*, List<AST::Statement*>*);
-	void pre_declare (AST::Declare*, List<AST::Statement*>*);
+	void pre_eval_expr(HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_nop(HIR::Nop*, List<HIR::Statement*>*);
+	HIR::Expr* pre_unary_op(HIR::Unary_op* in);
+	void pre_return(HIR::Return*, List<HIR::Statement*>*);
+	void pre_declare (HIR::Declare*, List<HIR::Statement*>*);
 };
 
 #endif // PHC_DESUGAR_H

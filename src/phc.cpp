@@ -10,8 +10,8 @@
 #include "hir_to_mir/Lower_expr_flow.h"
 #include "hir_to_mir/Shredder.h"
 #include "hir_to_mir/Split_multiple_arguments.h"
-#include "hir_to_mir/Split_unset_isset.h"
-#include "hir_to_mir/Translate_empty.h"
+#include "ast_to_hir/Split_unset_isset.h"
+#include "ast_to_hir/Translate_empty.h"
 #include "hir_to_mir/Echo_split.h"
 #include "hir_to_mir/Pre_post_op_shredder.h"
 #include "hir_to_mir/Desugar.h"
@@ -107,36 +107,37 @@ int main(int argc, char** argv)
 
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
+	pm->add_ast_pass (new Fake_pass ("ast"));
 	// TODO add flag for include 
 	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
-	pm->add_ast_pass (new Fake_pass ("ast"));
 	pm->add_ast_pass (new Pretty_print ());
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
+	// TODO move most of these to AST
 	// ast_to_hir passes
 	pm->add_ast_transform (new Remove_concat_null (), "rcn");
 	pm->add_ast_transform (new Split_multiple_arguments (), "sma");
 	pm->add_ast_pass (new Lift_functions_and_classes ()); // codegen
-	pm->add_ast_transform (new Split_unset_isset (), "sui");
-	pm->add_ast_transform (new Translate_empty (), "empty");
-	pm->add_ast_transform (new Lower_control_flow (), "lcf");
-	pm->add_ast_transform (new Lower_expr_flow (), "lef");
-	pm->add_ast_transform (new Echo_split (), "ecs");
-	pm->add_ast_transform (new Pre_post_op_shredder (), "pps");
-	pm->add_ast_transform (new Desugar (), "desug");
-	pm->add_ast_transform (new List_shredder (), "lish");
-	pm->add_ast_transform (new Shredder (), "shred");
-	pm->add_ast_transform (new Tidy_print (), "tidyp");
+	pm->add_hir_transform (new Split_unset_isset (), "sui");
+	pm->add_hir_transform (new Translate_empty (), "empty");
+	pm->add_hir_transform (new Echo_split (), "ecs");
+	pm->add_hir_transform (new Lower_control_flow (), "lcf");
+	pm->add_hir_transform (new Lower_expr_flow (), "lef");
+	pm->add_hir_transform (new Pre_post_op_shredder (), "pps");
+	pm->add_hir_transform (new Desugar (), "desug");
+	pm->add_hir_transform (new List_shredder (), "lish");
+	pm->add_hir_transform (new Shredder (), "shred");
+	pm->add_hir_transform (new Tidy_print (), "tidyp");
 
-	// TODO move to the MIR
-	pm->add_ast_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
+	// TODO move to the MIR - re-add
+//	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 
 	// process_hir passes
-	pm->add_ast_pass (new Fake_pass ("hir_as_ast"));
+	pm->add_hir_pass (new Fake_pass ("hir_as_ast"));
 
 
-	pm->add_ast_visitor (new Strip_comments (), "decomment"); // codegen
-	pm->add_ast_pass (new Obfuscate ()); // TODO move to MIR
+	pm->add_hir_visitor (new Strip_comments (), "decomment"); // codegen
+	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
 	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_mir_pass (new Fake_pass ("mir"));
 
@@ -206,7 +207,7 @@ int main(int argc, char** argv)
 		/* 
 		 *	Run the passes
 		 */
-		ir = pm->run (ir, true);
+		pm->run (ir, true);
 
 		pm->post_process ();
 	}

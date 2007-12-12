@@ -7,7 +7,7 @@
 
 #include "Tidy_print.h"
 
-using namespace AST;
+using namespace HIR;
 
 void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {

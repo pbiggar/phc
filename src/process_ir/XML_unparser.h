@@ -210,7 +210,7 @@ protected:
 			os << "<!-- skipping NULL attribute " << name << " -->" << endl;
 		}
 		else
-			phc_warning("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	
+			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	
 	}
 
 };

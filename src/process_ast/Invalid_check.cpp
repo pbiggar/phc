@@ -17,7 +17,11 @@ void check (IR* in, bool use_ice)
 	in->assert_valid();
 
 	if (in->is_AST())
+	{
+		// TODO move to all passes
+		in->fold_lower (); // check folding works
 		in->visit(new Invalid_check (use_ice));
+	}
 }
 
 bool is_ref_literal (Expr* in)
@@ -26,6 +30,16 @@ bool is_ref_literal (Expr* in)
 			|| dynamic_cast <Array*> (in)
 			|| dynamic_cast <Constant*> (in));
 }
+
+// TODO avoid duplication
+bool is_ref_literal (HIR::Expr* in)
+{
+	return (	dynamic_cast <HIR::Literal*> (in) 
+			|| dynamic_cast <HIR::Array*> (in)
+			|| dynamic_cast <HIR::Constant*> (in));
+}
+
+
 
 void Invalid_check::run (IR* in, Pass_manager* pm)
 {

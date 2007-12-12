@@ -10,8 +10,6 @@
 #include <ctime>
 #include "cmdline.h"
 
-using namespace AST;
-
 // TODO Globals. Bad. Do this another way.
 extern struct gengetopt_args_info args_info;
 
@@ -52,7 +50,7 @@ int fresh_suffix (string prefix)
 }
 
 
-String* fresh(string prefix)
+String* fresh (string prefix)
 {
 	int t = fresh_suffix (prefix);
 	stringstream ss;
@@ -61,26 +59,57 @@ String* fresh(string prefix)
 	return new String(ss.str());
 }
 
-Variable* fresh_var(string prefix)
+namespace AST
 {
-	Variable* var = new Variable (
-		NULL, 
-		new VARIABLE_NAME (fresh (prefix)), 
-		new List<Expr*>
-		);
 
-	var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
-	return var;
+	Variable* fresh_var(string prefix)
+	{
+		Variable* var = new Variable (
+				NULL, 
+				new VARIABLE_NAME (fresh (prefix)), 
+				new List<Expr*>
+				);
+
+		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
+		return var;
+	}
+
+	HT_ITERATOR* fresh_iter ()
+	{
+		return new HT_ITERATOR (fresh_suffix ("I"));
+	}
+
+	Label* fresh_label ()
+	{
+		return new Label (
+				new LABEL_NAME (fresh("L")));
+	}
 }
 
-HT_ITERATOR* fresh_iter ()
-{
-	return new HT_ITERATOR (fresh_suffix ("I"));
-}
 
-Label* fresh_label ()
+namespace HIR
 {
-	return new Label (
-		new LABEL_NAME (fresh("L")));
-}
 
+	Variable* fresh_var(string prefix)
+	{
+		Variable* var = new Variable (
+				NULL, 
+				new VARIABLE_NAME (fresh (prefix)), 
+				new List<Expr*>
+				);
+
+		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
+		return var;
+	}
+
+	HT_ITERATOR* fresh_iter ()
+	{
+		return new HT_ITERATOR (fresh_suffix ("I"));
+	}
+
+	Label* fresh_label ()
+	{
+		return new Label (
+				new LABEL_NAME (fresh("L")));
+	}
+}

@@ -6,8 +6,8 @@
  * multiple statements
  */
 
-#include "Lower_expr.h"
-#include "fresh.h"
+#include "AST_lower_expr.h"
+#include "process_ir/fresh.h"
 
 using namespace AST;
 

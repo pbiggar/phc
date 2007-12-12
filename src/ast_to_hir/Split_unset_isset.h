@@ -8,17 +8,18 @@
 #ifndef PHC_SPLIT_UNSET_ISSET_H
 #define PHC_SPLIT_UNSET_ISSET_H
 
-#include "Lower_expr.h"
-#include "fresh.h"
+#include "hir_to_mir/HIR_lower_expr.h"
+#include "HIR_transform.h"
+#include "process_ir/fresh.h"
 
-class Split_unset_isset : public AST::Transform
+class Split_unset_isset : public HIR::Transform
 {
 public:
 	// Split unset 
-	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_eval_expr(HIR::Eval_expr* in, List<HIR::Statement*>* out);
 
 	// Split isset
-	AST::Expr* pre_method_invocation(AST::Method_invocation* in); 
+	HIR::Expr* pre_method_invocation(HIR::Method_invocation* in); 
 };
 
 #endif // PHC_SPLIT_UNSET_ISSET_H

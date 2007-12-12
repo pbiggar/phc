@@ -8,7 +8,7 @@
 #include "Pre_post_op_shredder.h"
 #include "process_ast/Invalid_check.h"
 
-using namespace AST;
+using namespace HIR;
 
 
 /* Convert

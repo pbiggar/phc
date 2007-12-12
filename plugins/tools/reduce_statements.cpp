@@ -2,13 +2,14 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * After each statement, add a debug_zval_dump call to each variable in the statement.
+ * Remove a given number of statements, from a given offset, to help reduce the problem size.
  */
 
 #include "AST_transform.h"
 #include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 
+/* TODO We want to support as much of the   */
 using namespace AST;
 
 /* After removing statements, we may be left with gotos and branches
@@ -19,7 +20,7 @@ using namespace AST;
  * something that involves a label, we want to remove other stuff
  * with that label in them. (this is the sort of thing you do if you
  * dont have data-flow :(). */
-class Strip_labels : public Transform
+/*class Strip_labels : public Transform
 {
 	public:
 		map<string, bool>* labels;
@@ -54,156 +55,119 @@ class Strip_labels : public Transform
 		}
 	}
 
-	/* return true if the label should be removed */
+	// return true if the label should be removed
 	bool remove_label (LABEL_NAME* in)
 	{
 		return (labels->find (*in->value) != labels->end ());
 	}
 
 };
-
+*/
 class Reduce : public Transform
 {
-	private:
-		int start;
-		int length;
-		int index;
+private:
+	int start;
+	int length;
+	int index;
 
-	public:
-		map<string, bool>* labels;
+public:
+	map<string, bool>* labels;
 
-	public:
-		Reduce (int start, int length)
+public:
+	Reduce (int start, int length)
+	{
+		this->start = start;
+		this->length = length;
+		this->index = 0;
+		this->labels = new map<string, bool> ();
+	}
+
+	// Only remove statements where its sub-statements have been removed
+	// Declarations
+	bool should_remove (Class_def* in) { return in->members->size () == 0; }
+	bool should_remove (Interface_def* in) { return in->members->size () == 0; }
+	bool should_remove (Method* in) { return in->statements->size () == 0; }
+
+	// Control-flow with sub-statements
+	bool should_remove (If* in)
+	{
+		return in->iftrue->size () == 0 && in->iffalse->size () == 0;
+	}
+
+	bool should_remove (While* in) { return in->statements->size () == 0; }
+	bool should_remove (Do* in) { return in->statements->size () == 0; }
+	bool should_remove (For* in) { return in->statements->size () == 0; }
+	bool should_remove (Foreach* in) { return in->statements->size () == 0; }
+	bool should_remove (Switch* in) { return in->switch_cases->size () == 0; }
+	bool should_remove (Switch_case* in) { return in->statements->size () == 0; }
+
+	bool should_remove (Try* in)
+	{
+		return in->statements->size () == 0 && in->catches->size () == 0;
+	}
+
+	bool should_remove (Catch* in) { return in->statements->size () == 0; }
+
+
+
+	// Catch everything else
+	bool should_remove (Statement* in)
+	{
+		return true;
+	}
+
+
+	// Things which can be removed
+	void post_statement (Statement *in, List<Statement*>* out)
+	{
+		potentially_remove<Statement> (in, out);
+
+		// If we remove a label, remove everything associated with that label.
+		// Otherwise we'll get compiler warnings and errors.
+/*			if (Goto* go = dynamic_cast <Goto*> (in))
 		{
-			this->start = start;
-			this->length = length;
-			this->index = 0;
-			this->labels = new map<string, bool> ();
+			mark_label (go->label_name);
+		}
+		else if (Branch* branch = dynamic_cast <Branch*> (in))
+		{
+			mark_label (branch->iftrue);
+			mark_label (branch->iffalse);
+		}
+		else if (Label* label = dynamic_cast <Label*> (in))
+		{
+			mark_label (label->label_name);
+		}*/
+	}
+
+	void post_switch_case (Switch_case *in, List<Switch_case*>* out)
+	{
+		potentially_remove<Switch_case> (in, out);
+	}
+
+	void post_catch (Catch *in, List<Catch*>* out)
+	{
+		potentially_remove<Catch> (in, out);
+	}
+
+
+
+	template <class T>
+	void potentially_remove (T* in, List<T*>* out)
+	{
+		if (!(index >= start && index < (start + length)) 
+				|| !should_remove (in))
+		{
+			out->push_back (in);
 		}
 
-		// Only remove statements where its sub-statements have been removed
-		// Declarations
-		bool should_remove (Class_def* in)
-		{
-			return in->members->size () == 0;
-		}
-
-		bool should_remove (Interface_def* in)
-		{
-			return in->members->size () == 0;
-		}
-
-		bool should_remove (Method* in)
-		{
-			return in->statements->size () == 0;
-		}
-
-		// Control-flow with sub-statements
-		bool should_remove (If* in)
-		{
-			return in->iftrue->size () == 0 && in->iffalse->size () == 0;
-		}
-
-		bool should_remove (While* in)
-		{
-			return in->statements->size () == 0;
-		}
-
-		bool should_remove (Do* in)
-		{
-			return in->statements->size () == 0;
-		}
-
-		bool should_remove (For* in)
-		{
-			return in->statements->size () == 0;
-		}
-		
-		bool should_remove (Foreach* in)
-		{
-			return in->statements->size () == 0;
-		}
-
-		bool should_remove (Switch* in)
-		{
-			return in->switch_cases->size () == 0;
-		}
-
-		bool should_remove (Switch_case* in)
-		{
-			return in->statements->size () == 0;
-		}
-
-		bool should_remove (Try* in)
-		{
-			return in->statements->size () == 0 && in->catches->size () == 0;
-		}
-
-		bool should_remove (Catch* in)
-		{
-			return in->statements->size () == 0;
-		}
+		this->index++;
+	}
 
 
-
-		// Catch everything else
-		bool should_remove (Statement* in)
-		{
-			return true;
-		}
-
-
-		// Things which can be removed
-		void post_statement (Statement *in, List<Statement*>* out)
-		{
-			potentially_remove<Statement> (in, out);
-
-			// If we remove a label, remove everything associated with that label.
-			// Otherwise we'll get compiler warnings and errors.
-			if (Goto* go = dynamic_cast <Goto*> (in))
-			{
-				mark_label (go->label_name);
-			}
-			else if (Branch* branch = dynamic_cast <Branch*> (in))
-			{
-				mark_label (branch->iftrue);
-				mark_label (branch->iffalse);
-			}
-			else if (Label* label = dynamic_cast <Label*> (in))
-			{
-				mark_label (label->label_name);
-			}
-		}
-
-		void post_switch_case (Switch_case *in, List<Switch_case*>* out)
-		{
-			potentially_remove<Switch_case> (in, out);
-		}
-
-		void post_catch (Catch *in, List<Catch*>* out)
-		{
-			potentially_remove<Catch> (in, out);
-		}
-
-
-
-		template <class T>
-		void potentially_remove (T* in, List<T*>* out)
-		{
-			if (!(index >= start && index < (start + length)) 
-					|| !should_remove (in))
-			{
-				out->push_back (in);
-			}
-
-			this->index++;
-		}
-
-
-		void mark_label (LABEL_NAME* name)
-		{
-			(*labels)[*name->value] = true;
-		}
+/*	void mark_label (LABEL_NAME* name)
+	{
+		(*labels)[*name->value] = true;
+	}*/
 };
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
@@ -211,10 +175,14 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	// We arent interested in running any other passes on this.
 	pm->remove_all ();
 	pm->add_ast_pass (pass);
+	// TODO re-add
+//	pm->add_hir_pass (pass);
+//	pm->add_mir_pass (pass);
 }
 
-extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
+void run (IR* in, String* option)
 {
+	// Read START and LENGTH from the option string (\d+:\d+)
 	int colon_index = -1;
 	for (unsigned int i = 0; i < option->size (); i++)
 	{
@@ -242,5 +210,20 @@ extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
 
 	Reduce* red = new Reduce (start, length);
 	in->transform_children (red);
-	in->transform_children (new Strip_labels (red->labels));
+//	in->transform_children (new Strip_labels (red->labels));
+}
+
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
+{
+	run (in, option);
+}
+
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
+{
+	run (in, option);
+}
+
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option)
+{
+	run (in, option);
 }

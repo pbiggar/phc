@@ -14,7 +14,7 @@
 #include "AST.h"
 #include "lib/error.h"
 #include "process_ir/debug.h"
-#include "hir_to_mir/fresh.h"
+#include "process_ir/fresh.h"
 #include "parsing/parse.h"
 
 using namespace AST;
@@ -186,6 +186,8 @@ bool Process_includes::pass_is_enabled (Pass_manager* pm)
 
 void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<Statement*>* out, Actual_parameter* param)
 {
+	// TODO bring this back
+#if 0
 	if (hir && warning)
 		phc_warning("File %s could not be included, and will be included at run-time", warning, in);
 
@@ -209,6 +211,7 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 	}
 	else
 		out->push_back (in);
+#endif
 }
 
 
@@ -318,9 +321,10 @@ void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 	{
 		if (hir)
 		{
-			Label* label = fresh_label ();
-			ast->transform_children (new Return_transform (label));
-			out->push_back (label);
+			assert (0); // TODO re-enable
+//			Label* label = fresh_label ();
+//			ast->transform_children (new Return_transform (label));
+//			out->push_back (label);
 		}
 		else
 		{

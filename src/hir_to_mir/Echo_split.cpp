@@ -7,7 +7,7 @@
 
 #include "Echo_split.h"
 
-using namespace AST;
+using namespace HIR;
 
 // Split echos into multiple statements. Normal function calls evaluate all
 // their actual parameters at once, and then call the expression with the

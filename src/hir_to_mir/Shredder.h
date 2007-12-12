@@ -3,44 +3,44 @@
  * See doc/license/README.license for licensing information
  *
  * shredder (n.): a machine that tears objects into smaller pieces.
- * (Transform the AST into 3AC-like code)
+ * (Transform the HIR into 3AC-like code)
  */
 
 #ifndef PHC_SHREDDER_H
 #define PHC_SHREDDER_H
 
-#include "AST.h"
-#include "Lower_expr.h"
+#include "HIR.h"
+#include "HIR_lower_expr.h"
 
-List<AST::Statement*>* shred (AST::Statement* in);
+List<HIR::Statement*>* shred (HIR::Statement* in);
 
 class Shredder : public Lower_expr
 {
 public:
-	void children_php_script(AST::PHP_script* in);
-	void post_nop(AST::Nop* in);
+	void children_php_script(HIR::PHP_script* in);
+	void post_nop(HIR::Nop* in);
 
 public:
-	AST::Variable* post_variable(AST::Variable* in);
-	AST::Expr* post_new (AST::New* in);
-	AST::Expr* post_bin_op(AST::Bin_op* in);
-	AST::Expr* post_unary_op(AST::Unary_op* in);
-	AST::Expr* post_cast(AST::Cast* in);
-	AST::Expr* post_instanceof(AST::Instanceof* in);
-	AST::Expr* post_method_invocation(AST::Method_invocation* in);
-	AST::Expr* post_int(AST::INT* in);
-	AST::Expr* post_real(AST::REAL* in);
-	AST::Expr* post_bool(AST::BOOL* in);
-	AST::Expr* post_string(AST::STRING* in);
-	AST::Expr* post_nil(AST::NIL* in);
-	AST::Expr* post_constant (AST::Constant* in);
-	AST::Expr* post_foreach_has_key (AST::Foreach_has_key* in);
-	AST::Expr* post_array(AST::Array* in);
-	AST::Expr* post_assignment(AST::Assignment* in);
-	AST::Expr* post_op_assignment(AST::Op_assignment* in);
-	AST::Expr* pre_ignore_errors(AST::Ignore_errors* in);
-	AST::Expr* post_ignore_errors(AST::Ignore_errors* in);
-	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
+	HIR::Variable* post_variable(HIR::Variable* in);
+	HIR::Expr* post_new (HIR::New* in);
+	HIR::Expr* post_bin_op(HIR::Bin_op* in);
+	HIR::Expr* post_unary_op(HIR::Unary_op* in);
+	HIR::Expr* post_cast(HIR::Cast* in);
+	HIR::Expr* post_instanceof(HIR::Instanceof* in);
+	HIR::Expr* post_method_invocation(HIR::Method_invocation* in);
+	HIR::Expr* post_int(HIR::INT* in);
+	HIR::Expr* post_real(HIR::REAL* in);
+	HIR::Expr* post_bool(HIR::BOOL* in);
+	HIR::Expr* post_string(HIR::STRING* in);
+	HIR::Expr* post_nil(HIR::NIL* in);
+	HIR::Expr* post_constant (HIR::Constant* in);
+	HIR::Expr* post_foreach_has_key (HIR::Foreach_has_key* in);
+	HIR::Expr* post_array(HIR::Array* in);
+	HIR::Expr* post_assignment(HIR::Assignment* in);
+	HIR::Expr* post_op_assignment(HIR::Op_assignment* in);
+	HIR::Expr* pre_ignore_errors(HIR::Ignore_errors* in);
+	HIR::Expr* post_ignore_errors(HIR::Ignore_errors* in);
+	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
 };
 
 

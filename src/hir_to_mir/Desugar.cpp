@@ -7,9 +7,9 @@
  */
 
 #include "Desugar.h"
-#include "fresh.h"
+#include "process_ir/fresh.h"
 
-using namespace AST;
+using namespace HIR;
 
 
 // All eval_expr must be assignments; if they are not, we generate

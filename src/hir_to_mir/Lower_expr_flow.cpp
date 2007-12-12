@@ -6,9 +6,9 @@
  */
 
 #include "Lower_expr_flow.h"
-#include "fresh.h"
+#include "process_ir/fresh.h"
 
-using namespace AST;
+using namespace HIR;
 
 /*
  * Binary operator
