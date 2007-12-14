@@ -64,6 +64,15 @@
 
 	// Defined in php_parser.ypp
 	Node* copy_state(Node* node, PHP_context* context);
+
+	#define YY_INPUT(buf,result,max_size)		\
+	{														\
+		istream& stream = yyextra->stream;		\
+		stream.read (buf, max_size);				\
+		result = stream.gcount ();					\
+		if (result == 0 && stream.eofbit)		\
+			result = YY_NULL;							\
+	}
 %}
 
 %option reentrant
@@ -865,11 +874,11 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
  * need access to the BEGIN and COMPLEX2 macros defined in lex.yy.cc
  */
 
-void PHP_context::init_scanner(FILE* input)
+void PHP_context::init_scanner(FILE*)
 {
 	yylex_init(&scanner);
 	yyset_extra(this, scanner);
-	yyset_in(input, scanner);
+	yyset_in(NULL, scanner);
 }
 
 void PHP_context::destroy_scanner()

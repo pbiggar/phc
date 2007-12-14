@@ -6,6 +6,7 @@
  */
 
 #include <fstream>
+#include <istream>
 #include "config.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,20 +50,15 @@ PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 	}
 	else
 	{
-		FILE* input = NULL;
+		ifstream file_input;
+		istream& input = (*full_path == "-") ? cin : file_input;
 
-		if(*full_path == "-")
+		if(*full_path != "-")
 		{
-			input = stdin;
-		}
-		else
-		{
-			input = fopen(full_path->c_str(), "r");
-			if(!input) return NULL;
+			file_input.open (full_path->c_str(), ifstream::in);
+			if (not file_input.is_open ()) return NULL;
 		}
 	
-		assert(input);
-		
 		// Compile
 		PHP_context* context = new PHP_context(input, full_path);
 
@@ -82,7 +78,7 @@ PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 			}
 		}
 	
-		if(input != stdin) fclose(input);
+		if(file_input.is_open ()) file_input.close ();
 	}
 
 	php_script->assert_valid();

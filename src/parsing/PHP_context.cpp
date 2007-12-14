@@ -7,9 +7,10 @@
 
 #include "PHP_context.h"
 
-PHP_context::PHP_context(FILE* input, String* filename)
+PHP_context::PHP_context(istream& input, String* filename)
+: stream (input)
 {	
-	init_scanner(input);
+	init_scanner(NULL);
 
 	php_script = NULL;
 	current_method = new String("[outside any method]");
