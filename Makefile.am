@@ -170,6 +170,7 @@ src_phc_SOURCES =												\
 	src/process_ast/Remove_parser_temporaries.h		\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
+	src/process_hir/HIR_to_AST.h							\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
 	src/process_ir/debug.cpp								\
