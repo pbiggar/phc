@@ -106,21 +106,19 @@ int main(int argc, char** argv)
 
 	pm = new Pass_manager (&args_info);
 
-	// This fixes unparser problems, so run first
-	pm->add_ast_transform (new Remove_concat_null (), "rcn");
-
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
 	pm->add_ast_pass (new Fake_pass ("ast"));
-
 	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
-
-
 	pm->add_ast_pass (new Pretty_print ());
+
+	// Begin lowering to hir
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
-	// TODO move most of these to AST
+	// Small optimization on the AST
+	pm->add_ast_transform (new Remove_concat_null (), "rcn");
 
+	// TODO move most of these to AST
 
 	/* Before shredding: these passes may introduce construct which
 	 * are not shredded, such as $x = 0 + $y;
