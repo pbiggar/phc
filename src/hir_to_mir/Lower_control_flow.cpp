@@ -831,32 +831,14 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 
 	// Print an error, and die with 255
 	stringstream ss;
-	ss << " levels in " << *(in->get_filename ()) << " on line " << in->get_line_number () << "\n";
+	ss <<	"<?php echo (\"\nFatal error: Cannot break/continue \\$"
+		<< *(dynamic_cast<VARIABLE_NAME*> (lhs->variable_name)->value)
+		<< " levels in " << *(in->get_filename ()) 
+		<< " on line " << in->get_line_number () << " \n\");\n"
+		<< "die (255);?>";
 
-	out->push_back (new Eval_expr (
-			new Method_invocation (
-				NULL, 
-				new METHOD_NAME (new String ("echo")), 
-				new List<Actual_parameter*> (
-					new Actual_parameter (
-						false, 
-						new Bin_op (
-							new Bin_op (
-								new STRING (new String ("\nFatal error: Cannot break/continue ")),
-								lhs->clone (),
-								"."),
-							new STRING (new String (ss.str())),
-							"."))))));
-
-	out->push_back (new Eval_expr (
-			new Method_invocation (
-				NULL, 
-				new METHOD_NAME (new String ("die")), 
-				new List<Actual_parameter*> (
-					new Actual_parameter (false, new INT (255)))
-				)
-			)
-		);
+	out->push_back_all (parse_to_hir (new String (ss.str()), in));
+ 
 }
 
 void Lower_control_flow::post_break (Break* in, List<Statement*>* out)

@@ -28,4 +28,7 @@
  */ 
 AST::PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
 
+/* Parse CODE, assuming that it comes from FILENAME:LINE_NUMBER */
+AST::PHP_script* parse_code (String* code, String* filename, int line_number);
+
 #endif // PHC_PARSE

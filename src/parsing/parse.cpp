@@ -26,6 +26,33 @@ using namespace AST;
 String* search_file(String* filename, List<String*>* dirs);
 void run_standard_transforms(PHP_script* php_script);
 
+PHP_script* parse_code (String* code, String* filename, int line_number)
+{
+	assert (code);
+	assert (filename);
+
+	stringstream ss;
+	ss << *code;
+
+	PHP_script* php_script = NULL;
+
+	// Compile
+	PHP_context* context = new PHP_context(ss, filename);
+	context->source_line = line_number;
+
+	// TODO remove duplication
+	if(!PHP_parse(context))
+	{
+		php_script = context->php_script;
+		php_script->attrs->set ("phc.filename", filename);
+		run_standard_transforms(php_script);
+	}
+
+	php_script->assert_valid();
+	return php_script;
+}
+
+
 PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 {
 	assert(filename);
@@ -45,7 +72,7 @@ PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 		else
 			php_script = parse_ast_xml_file(full_path);
 		#else
-			phc_error("XML support not built-in; install Xerces C development library");
+		phc_error("XML support not built-in; install Xerces C development library");
 		#endif
 	}
 	else
