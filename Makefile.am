@@ -486,9 +486,6 @@ MOSTLYCLEANFILES =
 
 # - Otherwise, if make built it, then clean should delete it.
 CLEANFILES =  src/phc_compile_plugin test/framework/lib/autovars.php
-# Just delete the contents - the directory is in svn
-clean-local:
-	rm -rf test/logs/* test/working/*
 
 # - If configure built it, then distclean should delete it.
 DISTCLEANFILES = aclocal.m4

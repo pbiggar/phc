@@ -50,7 +50,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
 	$(strangeprocessast_HEADERS) $(top_srcdir)/configure ChangeLog \
-	config/config.guess config/config.sub config/depcomp \
+	TODO config/config.guess config/config.sub config/depcomp \
 	config/install-sh config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
@@ -2762,7 +2762,7 @@ maintainer-clean-generic:
 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool clean-local \
+clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 	clean-nobase_pkglibLTLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
@@ -2835,7 +2835,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
 	all all-am am--refresh check check-am check-local clean \
-	clean-binPROGRAMS clean-generic clean-libtool clean-local \
+	clean-binPROGRAMS clean-generic clean-libtool \
 	clean-nobase_pkglibLTLIBRARIES ctags ctags-recursive dist \
 	dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ dist-zip \
 	distcheck distclean distclean-compile distclean-generic \
@@ -2961,9 +2961,6 @@ src/phc_compile_plugin: Makefile src/phc_compile_plugin.in
 
 test/framework/lib/autovars.php: Makefile test/framework/lib/autovars.php.in
 	sed -e 's,@valgrind\@,$(valgrind),g; s,@graphviz_gc\@,$(graphviz_gc),g;s,@dot\@,$(dot),g; s,@php\@,$(php),g; s,@CC\@,$(CC),g; s,@diff\@,$(diff),g;s,@php_install_path\@,$(php_install_path),g; s,@bindir\@,$(bindir),g; s,@EXEEXT\@,$(EXEEXT),g; s,@pkglibdir\@,$(pkglibdir),g; s,@xerces_compiled_in\@,$(use_libXerces),g; s,@AM_CPPFLAGS\@,$(AM_CPPFLAGS),g;' $(srcdir)/test/framework/lib/autovars.php.in > test/framework/lib/autovars.php
-# Just delete the contents - the directory is in svn
-clean-local:
-	rm -rf test/logs/* test/working/*
 distclean-local:
 	rm -rf autom4te.cache
 # Just delete the contents - the directory is in svn
