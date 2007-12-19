@@ -21,6 +21,10 @@ void debug (AST::Node* in);
 void xdebug (AST::Node* in);
 void xadebug (AST::Node* in);
 
+void debug (HIR::Node* in);
+void xdebug (HIR::Node* in);
+void xadebug (HIR::Node* in);
+
 void debug (MIR::Node* in);
 void xdebug (MIR::Node* in);
 void xadebug (MIR::Node* in);
