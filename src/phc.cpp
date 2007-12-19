@@ -70,6 +70,7 @@ void sighandler(int signum)
 
 extern struct gengetopt_args_info error_args_info;
 struct gengetopt_args_info args_info;
+Pass_manager* pm;
 
 int main(int argc, char** argv)
 {
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
 	 *	Set up the pass_manager
 	 */
 
-	Pass_manager* pm = new Pass_manager (&args_info);
+	pm = new Pass_manager (&args_info);
 
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
@@ -133,6 +134,7 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Translate_empty (), "empty");
 	pm->add_ast_transform (new Echo_split (), "ecs");
 
+	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf");
 	pm->add_hir_transform (new Lower_expr_flow (), "lef");
 	pm->add_hir_transform (new Pre_post_op_shredder (), "pps");
@@ -150,7 +152,6 @@ int main(int argc, char** argv)
 
 	pm->add_hir_visitor (new Strip_comments (), "decomment"); // codegen
 	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
-	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_mir_pass (new Fake_pass ("mir"));
 
 	// codegen passes

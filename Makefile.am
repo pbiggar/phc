@@ -178,6 +178,8 @@ src_phc_SOURCES =												\
 	src/process_ir/Foreach.h								\
 	src/process_ir/fresh.cpp								\
 	src/process_ir/fresh.h									\
+	src/process_ir/General.cpp								\
+	src/process_ir/General.h								\
 	src/process_ir/IR.cpp									\
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\

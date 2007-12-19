@@ -293,8 +293,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	HIR_unparser.$(OBJEXT) debug.$(OBJEXT) fresh.$(OBJEXT) \
-	IR.$(OBJEXT) PHP_unparser.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	MIR_unparser.$(OBJEXT)
+	General.$(OBJEXT) IR.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	Goto_uppering.$(OBJEXT) MIR_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -689,6 +689,8 @@ src_phc_SOURCES = \
 	src/process_ir/Foreach.h								\
 	src/process_ir/fresh.cpp								\
 	src/process_ir/fresh.h									\
+	src/process_ir/General.cpp								\
+	src/process_ir/General.h								\
 	src/process_ir/IR.cpp									\
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
@@ -1102,6 +1104,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR.Po@am__quote@
@@ -2267,6 +2270,20 @@ fresh.obj: src/process_ir/fresh.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/fresh.cpp' object='fresh.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fresh.obj `if test -f 'src/process_ir/fresh.cpp'; then $(CYGPATH_W) 'src/process_ir/fresh.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/fresh.cpp'; fi`
+
+General.o: src/process_ir/General.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT General.o -MD -MP -MF $(DEPDIR)/General.Tpo -c -o General.o `test -f 'src/process_ir/General.cpp' || echo '$(srcdir)/'`src/process_ir/General.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/General.Tpo $(DEPDIR)/General.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/General.cpp' object='General.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o General.o `test -f 'src/process_ir/General.cpp' || echo '$(srcdir)/'`src/process_ir/General.cpp
+
+General.obj: src/process_ir/General.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT General.obj -MD -MP -MF $(DEPDIR)/General.Tpo -c -o General.obj `if test -f 'src/process_ir/General.cpp'; then $(CYGPATH_W) 'src/process_ir/General.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/General.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/General.Tpo $(DEPDIR)/General.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/General.cpp' object='General.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o General.obj `if test -f 'src/process_ir/General.cpp'; then $(CYGPATH_W) 'src/process_ir/General.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/General.cpp'; fi`
 
 IR.o: src/process_ir/IR.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT IR.o -MD -MP -MF $(DEPDIR)/IR.Tpo -c -o IR.o `test -f 'src/process_ir/IR.cpp' || echo '$(srcdir)/'`src/process_ir/IR.cpp

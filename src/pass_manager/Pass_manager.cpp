@@ -325,7 +325,12 @@ IR* Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
 			if (exec && *((*p)->name) == *to)
 				return in;
 		}
-		in = in->fold_lower ();
+
+		// TODO dirty hack
+		if ((*q == ast_queue && in->is_AST ())
+				or (*q == hir_queue && in->is_HIR ()))
+			in = in->fold_lower ();
+
 	}
 	return in;
 }
@@ -343,7 +348,12 @@ IR* Pass_manager::run_until (String* to, IR* in, bool dump)
 			if (*((*p)->name) == *to)
 				return in;
 		}
-		in = in->fold_lower ();
+
+		// TODO dirty hack
+		if ((*q == ast_queue && in->is_AST ())
+				or (*q == hir_queue && in->is_HIR ()))
+			in = in->fold_lower ();
+
 	}
 	return in;
 }

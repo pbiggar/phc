@@ -13,21 +13,6 @@
 
 using namespace HIR;
 
-/* Shred a list of statements */
-List<Statement*>* shred (List<Statement*>* in)
-{
-	PHP_script* script = new PHP_script (in);
-	script->transform_children (new Shredder ());
-	return script->statements;
-}
-
-List<Statement*>* shred (Statement* in)
-{
-	PHP_script* script = new PHP_script (new List<Statement*> (in));
-	script->transform_children (new Shredder ());
-	return script->statements;
-}
-
 void Shredder::children_php_script(PHP_script* in)
 {
 	Annotate ann;

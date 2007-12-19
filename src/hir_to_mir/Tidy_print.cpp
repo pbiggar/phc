@@ -6,6 +6,7 @@
  */
 
 #include "Tidy_print.h"
+#include "process_ir/General.h"
 
 using namespace HIR;
 
@@ -39,7 +40,7 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		if (not unused)
 			t2 = fresh_var ("TSp");
 
-		out->push_back_all (shred (
+		out->push_back_all (lower_to_hir ("tidyp",
 					new Eval_expr (
 						new Assignment(t2, false,
 							new Method_invocation(
