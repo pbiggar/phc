@@ -8,7 +8,7 @@
 
 #include "Lift_functions_and_classes.h"
 
-using namespace AST;
+using namespace MIR;
 
 void Lift_functions_and_classes::children_php_script(PHP_script* in)
 {

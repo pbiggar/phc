@@ -106,22 +106,29 @@ int main(int argc, char** argv)
 
 	pm = new Pass_manager (&args_info);
 
+	// This fixes unparser problems, so run first
+	pm->add_ast_transform (new Remove_concat_null (), "rcn");
+
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
 	pm->add_ast_pass (new Fake_pass ("ast"));
 
 	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
 
-	// This fixes unparser problems, so run before pretty-rpint
-	pm->add_ast_transform (new Remove_concat_null (), "rcn");
 
 	pm->add_ast_pass (new Pretty_print ());
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
 	// TODO move most of these to AST
 
+
+	/* Before shredding: these passes may introduce construct which
+	 * are not shredded, such as $x = 0 + $y;
+	 * */
+
+	/* After shredding: all constructs introduced must be shredded */
+
 	// Required passes to lower AST constructs to HIR constructs
-	pm->add_ast_pass (new Lift_functions_and_classes ()); // codegen
 
 	// TODO make lower_expr work from here, redo all the passes using
 	// lower_expr, and move shredder much higher so that all the passes are
@@ -156,9 +163,10 @@ int main(int argc, char** argv)
 
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
-	stringstream ss;
+	pm->add_mir_pass (new Lift_functions_and_classes ());
 	pm->add_mir_visitor (new Clarify (), "clar"); // TODO move to MIR
 	pm->add_mir_visitor (new Prune_symbol_table (), "pst");
+	stringstream ss;
 	pm->add_mir_pass (new Generate_C (ss));
 	pm->add_mir_pass (new Compile_C (ss));
 

@@ -8,10 +8,10 @@
 #ifndef PHC_LIFT_FUNCTIONS_AND_CLASSES_H
 #define PHC_LIFT_FUNCTIONS_AND_CLASSES_H
 
-#include "AST_transform.h"
+#include "MIR_transform.h"
 #include "pass_manager/Pass_manager.h"
 
-class Lift_functions_and_classes : public AST::Transform, public Pass
+class Lift_functions_and_classes : public MIR::Transform, public Pass
 {
 public:
 
@@ -29,7 +29,7 @@ public:
 			in->transform_children(this);
 		}
 	}
-	void children_php_script(AST::PHP_script* in);
+	void children_php_script(MIR::PHP_script* in);
 };
 
 #endif // PHC_LIFT_FUNCTIONS_AND_CLASSES
