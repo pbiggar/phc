@@ -213,11 +213,14 @@ void Pass_manager::list_passes ()
 	for_lci (queues, List<Pass*>, q)
 		for_lci (*q, Pass, p) 
 		{
+			const char* name = "AST";
+			if ((*q) == hir_queue) name = "HIR";
+			if ((*q) == mir_queue) name = "MIR";
 			String* desc = (*p)->description;
 			printf ("%-30s\t(%-8s - %s)\t%s\n", 
 					(*p)->name->c_str (),
 					(*p)->is_enabled (this) ? "enabled" : "disabled",
-					(*q) == ast_queue ? "AST" : "MIR",
+					name,
 					desc ? desc->c_str () : "No description");
 		}
 }
