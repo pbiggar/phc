@@ -26,6 +26,7 @@ public:
 	void run (IR* in, Pass_manager* pm)
 	{
 		in->visit(new AST_unparser());
+		set_enabled (false);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)
