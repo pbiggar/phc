@@ -18,8 +18,6 @@ void check (IR* in, bool use_ice)
 
 	if (in->is_AST())
 	{
-		// TODO move to all passes
-		in->fold_lower (); // check folding works
 		in->visit(new Invalid_check (use_ice));
 	}
 }
