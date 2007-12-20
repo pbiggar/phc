@@ -102,6 +102,8 @@ src_phc_SOURCES =												\
 	src/hir_to_mir/Check_uppering.h						\
 	src/hir_to_mir/Desugar.cpp								\
 	src/hir_to_mir/Desugar.h								\
+	src/hir_to_mir/Early_lower_control_flow.cpp		\
+	src/hir_to_mir/Early_lower_control_flow.h			\
 	src/hir_to_mir/Echo_split.cpp							\
 	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\

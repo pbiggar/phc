@@ -279,14 +279,15 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	MIR_visitor.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	Annotate.$(OBJEXT) Check_lowering.$(OBJEXT) \
 	Check_uppering.$(OBJEXT) Desugar.$(OBJEXT) \
-	Echo_split.$(OBJEXT) HIR_lower_expr.$(OBJEXT) \
-	List_shredder.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
-	Lower_expr_flow.$(OBJEXT) Pre_post_op_shredder.$(OBJEXT) \
-	Shredder.$(OBJEXT) Split_multiple_arguments.$(OBJEXT) \
-	Tidy_print.$(OBJEXT) AttrMap.$(OBJEXT) base64.$(OBJEXT) \
-	Boolean.$(OBJEXT) demangle.$(OBJEXT) error.$(OBJEXT) \
-	Integer.$(OBJEXT) Object.$(OBJEXT) String.$(OBJEXT) \
-	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
+	Early_lower_control_flow.$(OBJEXT) Echo_split.$(OBJEXT) \
+	HIR_lower_expr.$(OBJEXT) List_shredder.$(OBJEXT) \
+	Lower_control_flow.$(OBJEXT) Lower_expr_flow.$(OBJEXT) \
+	Pre_post_op_shredder.$(OBJEXT) Shredder.$(OBJEXT) \
+	Split_multiple_arguments.$(OBJEXT) Tidy_print.$(OBJEXT) \
+	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
+	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
+	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
+	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
 	Pass_manager.$(OBJEXT) Plugin_pass.$(OBJEXT) phc.$(OBJEXT) \
 	AST_unparser.$(OBJEXT) DOT_unparser.$(OBJEXT) \
 	Invalid_check.$(OBJEXT) Note_top_level_declarations.$(OBJEXT) \
@@ -613,6 +614,8 @@ src_phc_SOURCES = \
 	src/hir_to_mir/Check_uppering.h						\
 	src/hir_to_mir/Desugar.cpp								\
 	src/hir_to_mir/Desugar.h								\
+	src/hir_to_mir/Early_lower_control_flow.cpp		\
+	src/hir_to_mir/Early_lower_control_flow.h			\
 	src/hir_to_mir/Echo_split.cpp							\
 	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
@@ -1102,6 +1105,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Po@am__quote@
@@ -1794,6 +1798,20 @@ Desugar.obj: src/hir_to_mir/Desugar.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Desugar.cpp' object='Desugar.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Desugar.obj `if test -f 'src/hir_to_mir/Desugar.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Desugar.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Desugar.cpp'; fi`
+
+Early_lower_control_flow.o: src/hir_to_mir/Early_lower_control_flow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Early_lower_control_flow.o -MD -MP -MF $(DEPDIR)/Early_lower_control_flow.Tpo -c -o Early_lower_control_flow.o `test -f 'src/hir_to_mir/Early_lower_control_flow.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Early_lower_control_flow.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Early_lower_control_flow.Tpo $(DEPDIR)/Early_lower_control_flow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Early_lower_control_flow.cpp' object='Early_lower_control_flow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Early_lower_control_flow.o `test -f 'src/hir_to_mir/Early_lower_control_flow.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Early_lower_control_flow.cpp
+
+Early_lower_control_flow.obj: src/hir_to_mir/Early_lower_control_flow.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Early_lower_control_flow.obj -MD -MP -MF $(DEPDIR)/Early_lower_control_flow.Tpo -c -o Early_lower_control_flow.obj `if test -f 'src/hir_to_mir/Early_lower_control_flow.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Early_lower_control_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Early_lower_control_flow.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Early_lower_control_flow.Tpo $(DEPDIR)/Early_lower_control_flow.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Early_lower_control_flow.cpp' object='Early_lower_control_flow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Early_lower_control_flow.obj `if test -f 'src/hir_to_mir/Early_lower_control_flow.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Early_lower_control_flow.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Early_lower_control_flow.cpp'; fi`
 
 Echo_split.o: src/hir_to_mir/Echo_split.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Echo_split.o -MD -MP -MF $(DEPDIR)/Echo_split.Tpo -c -o Echo_split.o `test -f 'src/hir_to_mir/Echo_split.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Echo_split.cpp

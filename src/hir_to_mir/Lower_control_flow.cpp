@@ -833,7 +833,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 	stringstream ss;
 	ss <<	"<?php echo (\"\nFatal error: Cannot break/continue \\$"
 		<< *(dynamic_cast<VARIABLE_NAME*> (lhs->variable_name)->value)
-		<< " levels in " << *(in->get_filename ()) 
+		<< " levels in " << *(in->get_filename ())
 		<< " on line " << in->get_line_number () << " \n\");\n"
 		<< "die (255);?>";
 
