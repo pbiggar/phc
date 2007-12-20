@@ -140,19 +140,15 @@ int main(int argc, char** argv)
 
 	// Required passes to lower AST constructs to HIR constructs
 
-	// TODO make lower_expr work from here, redo all the passes using
-	// lower_expr, and move shredder much higher so that all the passes are
-	// simpler
-
 	pm->add_hir_pass (new Fake_pass ("hir"));
-	pm->add_hir_transform (new Early_lower_control_flow (), "elcf");
-	pm->add_hir_transform (new Lower_control_flow (), "lcf");
-	pm->add_hir_transform (new Lower_expr_flow (), "lef");
-	pm->add_hir_transform (new Pre_post_op_shredder (), "pps");
-	pm->add_hir_transform (new Desugar (), "desug");
-	pm->add_hir_transform (new List_shredder (), "lish");
-	pm->add_hir_transform (new Shredder (), "shred");
-	pm->add_hir_transform (new Tidy_print (), "tidyp");
+	pm->add_hir_transform (new Early_lower_control_flow (), "elcf"); // AST
+	pm->add_hir_transform (new Lower_expr_flow (), "lef"); // AST
+	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
+	pm->add_hir_transform (new Pre_post_op_shredder (), "pps"); // AST
+	pm->add_hir_transform (new Desugar (), "desug"); // AST
+	pm->add_hir_transform (new List_shredder (), "lish"); // AST
+	pm->add_hir_transform (new Shredder (), "shred"); // AST (and HIR?)
+	pm->add_hir_transform (new Tidy_print (), "tidyp"); // AST
 
 	// TODO move to the MIR - re-add
 //	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));

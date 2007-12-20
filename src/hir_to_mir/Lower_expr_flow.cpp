@@ -63,32 +63,18 @@ Expr* Lower_expr_flow::post_bin_op(Bin_op* in)
  * Translate
  * 		foo(f() ? g() : h());
  * into
- * 		if(f()) goto L1 else goto L2;
- *  L1:
- *  	$TEF2 = g();
- *  	goto L3;
- *  L2:
- *  	$TEF2 = h();
- *  	goto L3;
- *  L3:
+ * 		if(f()) $TEF2 = g ();
+ * 		else $TEF2 = h ();
  *  	foo($TEF2);
  */
 
 Expr* Lower_expr_flow::post_conditional_expr(Conditional_expr* in)
 {
-	Label* label1 = fresh_label();
-	Label* label2 = fresh_label();
-	Label* label3 = fresh_label();
 	Variable* temp = fresh_var("TEF");
 
-	pieces->push_back(new Branch(in->cond, label1->label_name->clone (), label2->label_name->clone ()));
-	pieces->push_back(label1);
-	eval(in->iftrue, temp->clone ());
-	pieces->push_back(new Goto(label3->label_name->clone ()));
-	pieces->push_back(label2);
-	eval(in->iffalse, temp->clone ());
-	pieces->push_back(new Goto(label3->label_name->clone ()));
-	pieces->push_back(label3);
+	pieces->push_back(new If (in->cond, 
+		new List<Statement*> (new Eval_expr (new Assignment (temp->clone (), false, in->iftrue))),
+		new List<Statement*> (new Eval_expr (new Assignment (temp->clone (), false, in->iffalse)))));
 	
 	return temp;
 }
