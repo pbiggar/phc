@@ -140,9 +140,9 @@ int main(int argc, char** argv)
 
 	// Required passes to lower AST constructs to HIR constructs
 
+	pm->add_ast_transform (new Early_lower_control_flow (), "elcf"); // AST
+	pm->add_ast_transform (new Lower_expr_flow (), "lef"); // AST
 	pm->add_hir_pass (new Fake_pass ("hir"));
-	pm->add_hir_transform (new Early_lower_control_flow (), "elcf"); // AST
-	pm->add_hir_transform (new Lower_expr_flow (), "lef"); // AST
 	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
 	pm->add_hir_transform (new Pre_post_op_shredder (), "pps"); // AST
 	pm->add_hir_transform (new Desugar (), "desug"); // AST

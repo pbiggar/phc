@@ -13,7 +13,7 @@
 #include "process_ast/Invalid_check.h"
 
 
-class Pre_post_op_shredder : public Lower_expr
+class Pre_post_op_shredder : public HIR::Lower_expr
 {
 	HIR::Expr* post_pre_op(HIR::Pre_op* in);
 	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);

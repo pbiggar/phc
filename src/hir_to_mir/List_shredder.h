@@ -13,7 +13,7 @@
 
 // Some shredding will create variables which may be missed if done
 // at the same time as the variable shredding.
-class List_shredder : public Lower_expr
+class List_shredder : public HIR::Lower_expr
 {
 public:
 

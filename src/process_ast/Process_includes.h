@@ -11,7 +11,7 @@
 #include "ast_to_hir/AST_lower_expr.h"
 #include "pass_manager/Pass_manager.h"
 
-class Process_includes : public Lower_expr, public Pass
+class Process_includes : public AST::Lower_expr, public Pass
 {
 public:
 	// This means that the pass should try its hardest to include

@@ -8,13 +8,13 @@
 #ifndef PHC_LOWER_EXPR_FLOW_H
 #define PHC_LOWER_EXPR_FLOW_H
 
-#include "HIR_lower_expr.h"
+#include "ast_to_hir/AST_lower_expr.h"
 
-class Lower_expr_flow : public Lower_expr 
+class Lower_expr_flow : public AST::Lower_expr 
 {
 public:
-	HIR::Expr* post_bin_op(HIR::Bin_op* in);
-	HIR::Expr* post_conditional_expr(HIR::Conditional_expr* in);
+	AST::Expr* post_bin_op(AST::Bin_op* in);
+	AST::Expr* post_conditional_expr(AST::Conditional_expr* in);
 };
 
 #endif // PHC_LOWER_EXPR_FLOW_H

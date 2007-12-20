@@ -9,12 +9,11 @@
 #ifndef PHC_SHREDDER_H
 #define PHC_SHREDDER_H
 
-#include "HIR.h"
 #include "HIR_lower_expr.h"
 
 List<HIR::Statement*>* shred (HIR::Statement* in);
 
-class Shredder : public Lower_expr
+class Shredder : public HIR::Lower_expr
 {
 public:
 	void children_php_script(HIR::PHP_script* in);

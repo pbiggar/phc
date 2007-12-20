@@ -10,9 +10,8 @@
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
-#include "Shredder.h"
 
-using namespace HIR;
+using namespace AST;
 
 /* Convert
  *			while ($x) { y (); }

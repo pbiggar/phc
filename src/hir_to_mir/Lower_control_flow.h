@@ -11,7 +11,7 @@
 
 #include "HIR_lower_expr.h"
 
-class Lower_control_flow : public Lower_expr
+class Lower_control_flow : public HIR::Lower_expr
 {
 	private:
 		List<HIR::Node*> break_levels;
