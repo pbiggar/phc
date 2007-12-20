@@ -60,7 +60,7 @@ class Interface_def;
 class Method;
 class Attribute;
 class If;
-class While;
+class Loop;
 class Do;
 class For;
 class Foreach;
@@ -628,7 +628,7 @@ public:
     String* get_value_as_string();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | Loop | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end;
 class Statement : virtual public Commented_node
 {
 public:
@@ -1166,15 +1166,14 @@ public:
     If(Expr* expr);
 };
 
-// While ::= Expr Statement* ;
-class While : virtual public Statement
+// Loop ::= Statement* ;
+class Loop : virtual public Statement
 {
 public:
-    While(Expr* expr, List<Statement*>* statements);
+    Loop(List<Statement*>* statements);
 protected:
-    While();
+    Loop();
 public:
-    Expr* expr;
     List<Statement*>* statements;
 public:
     virtual void visit(Visitor* visitor);
@@ -1187,7 +1186,7 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual While* clone();
+    virtual Loop* clone();
 public:
     virtual void assert_valid();
 };

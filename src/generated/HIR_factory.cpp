@@ -120,12 +120,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new If(expr, iftrue, iffalse);
     }
-    if(!strcmp(type_id, "While"))
+    if(!strcmp(type_id, "Loop"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new While(expr, statements);
+    	return new Loop(statements);
     }
     if(!strcmp(type_id, "Do"))
     {

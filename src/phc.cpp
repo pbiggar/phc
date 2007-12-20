@@ -142,6 +142,7 @@ int main(int argc, char** argv)
 
 	pm->add_ast_transform (new Early_lower_control_flow (), "elcf"); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), "lef"); // AST
+	pm->add_ast_pass (new Fake_pass ("AST-to-HIR"));
 	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
 	pm->add_hir_transform (new Pre_post_op_shredder (), "pps"); // AST
@@ -154,11 +155,11 @@ int main(int argc, char** argv)
 //	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 
 	// process_hir passes
-	pm->add_hir_pass (new Fake_pass ("hir_as_ast"));
 
 
 	pm->add_hir_visitor (new Strip_comments (), "decomment");
 	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
+	pm->add_hir_pass (new Fake_pass ("HIR-to-MIR"));
 	pm->add_mir_pass (new Fake_pass ("mir"));
 
 	// codegen passes

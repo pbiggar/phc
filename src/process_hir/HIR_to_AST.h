@@ -38,7 +38,7 @@ class HIR_to_AST : public HIR::Fold
  AST::Attr_mod*,			// Attr_mod*
  AST::Name_with_default*,	// Name_with_default*
  AST::If*,			// If*
- AST::While*,			// While*
+ AST::While*,			// Loop*
  AST::Do*,			// Do*
  AST::For*,			// For*
  AST::Foreach*,			// Foreach*
@@ -343,10 +343,10 @@ class HIR_to_AST : public HIR::Fold
 	}
 
 
-	AST::While* fold_impl_while (HIR::While* orig, AST::Expr* expr, List<AST::Statement*>* statements)
+	AST::While* fold_impl_loop (HIR::Loop* orig, List<AST::Statement*>* statements)
 	{
 		AST::While* result;
-		result = new AST::While(expr, statements);
+		result = new AST::While(new AST::BOOL (true), statements);
 		result->attrs = orig->attrs;
 		return result;
 	}

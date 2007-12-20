@@ -34,7 +34,7 @@ template
  class _Attr_mod,
  class _Name_with_default,
  class _If,
- class _While,
+ class _Loop,
  class _Do,
  class _For,
  class _Foreach,
@@ -289,10 +289,8 @@ public:
 		return fold_impl_if(in, expr, iftrue, iffalse);
 	}
 
-	virtual _While fold_while(While* in)
+	virtual _Loop fold_loop(Loop* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
 		List<_Statement>* statements = new List<_Statement>;
 		{
 			List<Statement*>::const_iterator i;
@@ -300,7 +298,7 @@ public:
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
 		}
-		return fold_impl_while(in, expr, statements);
+		return fold_impl_loop(in, statements);
 	}
 
 	virtual _Do fold_do(Do* in)
@@ -819,7 +817,7 @@ public:
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
 	virtual _If fold_impl_if(If* orig, _Expr expr, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
-	virtual _While fold_impl_while(While* orig, _Expr expr, List<_Statement>* statements) { assert(0); };
+	virtual _Loop fold_impl_loop(Loop* orig, List<_Statement>* statements) { assert(0); };
 	virtual _Do fold_impl_do(Do* orig, List<_Statement>* statements, _Expr expr) { assert(0); };
 	virtual _For fold_impl_for(For* orig, _Expr init, _Expr cond, _Expr incr, List<_Statement>* statements) { assert(0); };
 	virtual _Foreach fold_impl_foreach(Foreach* orig, _Expr expr, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
@@ -992,8 +990,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case If::ID:
 				return fold_if(dynamic_cast<If*>(in));
-			case While::ID:
-				return fold_while(dynamic_cast<While*>(in));
+			case Loop::ID:
+				return fold_loop(dynamic_cast<Loop*>(in));
 			case Do::ID:
 				return fold_do(dynamic_cast<Do*>(in));
 			case For::ID:
@@ -1068,8 +1066,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case If::ID:
 				return fold_if(dynamic_cast<If*>(in));
-			case While::ID:
-				return fold_while(dynamic_cast<While*>(in));
+			case Loop::ID:
+				return fold_loop(dynamic_cast<Loop*>(in));
 			case Do::ID:
 				return fold_do(dynamic_cast<Do*>(in));
 			case For::ID:
@@ -1320,8 +1318,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case If::ID:
 				return fold_if(dynamic_cast<If*>(in));
-			case While::ID:
-				return fold_while(dynamic_cast<While*>(in));
+			case Loop::ID:
+				return fold_loop(dynamic_cast<Loop*>(in));
 			case Do::ID:
 				return fold_do(dynamic_cast<Do*>(in));
 			case For::ID:

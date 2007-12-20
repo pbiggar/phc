@@ -70,7 +70,7 @@ void Visitor::pre_if(If* in)
 {
 }
 
-void Visitor::pre_while(While* in)
+void Visitor::pre_loop(Loop* in)
 {
 }
 
@@ -419,7 +419,7 @@ void Visitor::post_if(If* in)
 {
 }
 
-void Visitor::post_while(While* in)
+void Visitor::post_loop(Loop* in)
 {
 }
 
@@ -795,9 +795,8 @@ void Visitor::children_if(If* in)
     visit_statement_list(in->iffalse);
 }
 
-void Visitor::children_while(While* in)
+void Visitor::children_loop(Loop* in)
 {
-    visit_expr(in->expr);
     visit_statement_list(in->statements);
 }
 
@@ -1249,12 +1248,12 @@ void Visitor::pre_if_chain(If* in)
     pre_if(in);
 }
 
-void Visitor::pre_while_chain(While* in)
+void Visitor::pre_loop_chain(Loop* in)
 {
     pre_node(in);
     pre_commented_node(in);
     pre_statement(in);
-    pre_while(in);
+    pre_loop(in);
 }
 
 void Visitor::pre_do_chain(Do* in)
@@ -1828,9 +1827,9 @@ void Visitor::post_if_chain(If* in)
     post_node(in);
 }
 
-void Visitor::post_while_chain(While* in)
+void Visitor::post_loop_chain(Loop* in)
 {
-    post_while(in);
+    post_loop(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -2984,8 +2983,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case If::ID:
     	pre_if_chain(dynamic_cast<If*>(in));
     	break;
-    case While::ID:
-    	pre_while_chain(dynamic_cast<While*>(in));
+    case Loop::ID:
+    	pre_loop_chain(dynamic_cast<Loop*>(in));
     	break;
     case Do::ID:
     	pre_do_chain(dynamic_cast<Do*>(in));
@@ -3294,8 +3293,8 @@ void Visitor::post_statement_chain(Statement* in)
     case If::ID:
     	post_if_chain(dynamic_cast<If*>(in));
     	break;
-    case While::ID:
-    	post_while_chain(dynamic_cast<While*>(in));
+    case Loop::ID:
+    	post_loop_chain(dynamic_cast<Loop*>(in));
     	break;
     case Do::ID:
     	post_do_chain(dynamic_cast<Do*>(in));
@@ -3604,8 +3603,8 @@ void Visitor::children_statement(Statement* in)
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
     	break;
-    case While::ID:
-    	children_while(dynamic_cast<While*>(in));
+    case Loop::ID:
+    	children_loop(dynamic_cast<Loop*>(in));
     	break;
     case Do::ID:
     	children_do(dynamic_cast<Do*>(in));

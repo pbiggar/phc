@@ -71,7 +71,7 @@ void Transform::pre_if(If* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_while(While* in, List<Statement*>* out)
+void Transform::pre_loop(Loop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -447,7 +447,7 @@ void Transform::post_if(If* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::post_while(While* in, List<Statement*>* out)
+void Transform::post_loop(Loop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -834,9 +834,8 @@ void Transform::children_if(If* in)
     in->iffalse = transform_statement_list(in->iffalse);
 }
 
-void Transform::children_while(While* in)
+void Transform::children_loop(Loop* in)
 {
-    in->expr = transform_expr(in->expr);
     in->statements = transform_statement_list(in->statements);
 }
 
@@ -2035,11 +2034,11 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case While::ID: 
+    case Loop::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
     		List<Statement*>::const_iterator i;
-    		pre_while(dynamic_cast<While*>(in), local_out);
+    		pre_loop(dynamic_cast<Loop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2411,11 +2410,11 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case While::ID: 
+    case Loop::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
     		List<Statement*>::const_iterator i;
-    		post_while(dynamic_cast<While*>(in), local_out);
+    		post_loop(dynamic_cast<Loop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2727,8 +2726,8 @@ void Transform::children_statement(Statement* in)
     case If::ID:
     	children_if(dynamic_cast<If*>(in));
     	break;
-    case While::ID:
-    	children_while(dynamic_cast<While*>(in));
+    case Loop::ID:
+    	children_loop(dynamic_cast<Loop*>(in));
     	break;
     case Do::ID:
     	children_do(dynamic_cast<Do*>(in));

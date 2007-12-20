@@ -3744,50 +3744,40 @@ If::If(Expr* expr)
 	}
 }
 
-While::While(Expr* expr, List<Statement*>* statements)
+Loop::Loop(List<Statement*>* statements)
 {
-    this->expr = expr;
     this->statements = statements;
 }
 
-While::While()
+Loop::Loop()
 {
-    this->expr = 0;
     this->statements = 0;
 }
 
-void While::visit(Visitor* visitor)
+void Loop::visit(Visitor* visitor)
 {
     visitor->visit_statement(this);
 }
 
-void While::transform_children(Transform* transform)
+void Loop::transform_children(Transform* transform)
 {
     transform->children_statement(this);
 }
 
-int While::classid()
+int Loop::classid()
 {
     return ID;
 }
 
-bool While::match(Node* in)
+bool Loop::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    While* that = dynamic_cast<While*>(in);
+    Loop* that = dynamic_cast<Loop*>(in);
     if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
     
     if(this->statements != NULL && that->statements != NULL)
     {
@@ -3812,18 +3802,10 @@ bool While::match(Node* in)
     return true;
 }
 
-bool While::equals(Node* in)
+bool Loop::equals(Node* in)
 {
-    While* that = dynamic_cast<While*>(in);
+    Loop* that = dynamic_cast<Loop*>(in);
     if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
     
     if(this->statements == NULL || that->statements == NULL)
     {
@@ -3854,9 +3836,8 @@ bool While::equals(Node* in)
     return true;
 }
 
-While* While::clone()
+Loop* Loop::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
     List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
@@ -3865,15 +3846,13 @@ While* While::clone()
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    While* clone = new While(expr, statements);
+    Loop* clone = new Loop(statements);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void While::assert_valid()
+void Loop::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
     assert(statements != NULL);
     {
     	List<Statement*>::const_iterator i;

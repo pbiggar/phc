@@ -21,24 +21,21 @@ class Lower_control_flow : public HIR::Lower_expr
 		template<class T> void add_label (HIR::Node*, List<HIR::Statement*>*);
 		template<class T> HIR::Label* exit_label (HIR::Node*);
 		template<class T> void lower_exit (T*, List<HIR::Statement*>*);
-		void lower_for (HIR::For*, List<HIR::Statement*>*);
 		void lower_foreach (HIR::Foreach*, List<HIR::Statement*>*);
 		void lower_do (HIR::Do*, List<HIR::Statement*>*);
 		void lower_if (HIR::If*, List<HIR::Statement*>*);
-		void lower_while (HIR::While* in, List<HIR::Statement*>* out);
+		void lower_loop (HIR::Loop* in, List<HIR::Statement*>* out);
 		void lower_switch (HIR::Switch* in, List<HIR::Statement*>* out);
 
 	public:
 		void pre_control_flow (HIR::Statement* in, List<HIR::Statement*>* out);
-		void pre_while(HIR::While* in, List<HIR::Statement*>* out);
+		void pre_loop(HIR::Loop* in, List<HIR::Statement*>* out);
 		void pre_do(HIR::Do* in, List<HIR::Statement*>* out);
-		void pre_for(HIR::For* in, List<HIR::Statement*>* out);
 		void pre_foreach(HIR::Foreach* in, List<HIR::Statement*>* out);
 		void pre_switch(HIR::Switch* in, List<HIR::Statement*>* out);
 
-		void post_while(HIR::While* in, List<HIR::Statement*>* out);
+		void post_loop(HIR::Loop* in, List<HIR::Statement*>* out);
 		void post_do(HIR::Do* in, List<HIR::Statement*>* out);
-		void post_for(HIR::For* in, List<HIR::Statement*>* out);
 		void post_foreach(HIR::Foreach* in, List<HIR::Statement*>* out);
 		void post_switch(HIR::Switch* in, List<HIR::Statement*>* out);
 		void post_if(HIR::If* in, List<HIR::Statement*>* out);

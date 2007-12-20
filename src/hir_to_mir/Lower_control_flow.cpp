@@ -117,37 +117,25 @@ void Lower_control_flow::post_if(If* in, List<Statement*>* out)
  *			while ($x) { y (); }
  * into
  *		L0:
- *			if ($x) goto L1;
- *			else goto L2;
- *		L1:
  *			y ();
  *			goto L0
- *		L2:
  */
 
-void Lower_control_flow::lower_while (While* in, List<Statement*>* out)
+void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
 {
 	Label *l0 = fresh_label ();
-	Label *l1 = fresh_label ();
-	Label *l2 = fresh_label ();
 	Goto *goto_l0 = new Goto (l0->label_name->clone ());
-
-	// create the if statement
-	Branch *branch = new Branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate code
 	out->push_back (l0);
-	out->push_back (branch);
-	out->push_back (l1);
 	out->push_back_all (in->statements);
 	out->push_back (goto_l0);
-	out->push_back (l2);
 }
 
-void Lower_control_flow::post_while (While* in, List<Statement*>* out)
+void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 {
 	add_label<Continue> (in, out);
-	lower_while (in, out);
+	lower_loop (in, out);
 	add_label<Break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
@@ -187,58 +175,6 @@ void Lower_control_flow::post_do (Do* in, List<Statement*>* out)
 	continue_levels.pop_back ();
 }
 
-/* Convert
- *			for (i = 0; i < N; i++) y ();
- * into
- *			i = 0;
- *		L1
- *			if (i < N) nop
- *			else goto L2
- *			y ();
- *			i++;
- *			goto L2
- *		L2
- *
- * This is done by converting into
- *			i = 0
- *			while (i < N)
- *			{
- *				y ();
- *				i++;
- *			}
- *	which is then lowered by post_while. */
-
-void Lower_control_flow::lower_for (For* in, List<Statement*>* out)
-{
-	/* Note that any of in->expr, in->init and in->incr can be NULL (eg in "for
-	 * (;;)", so we have to handle all those cases. */
-
-	if (in->cond == NULL) 
-		in->cond = new BOOL (true);
-
-	// create the while
-	While *while_stmt = new While (in->cond, in->statements);
-
-	// A continue in a for loop lands just before the increment
-	add_label<Continue> (in, while_stmt->statements);
-	if (in->incr)
-		while_stmt->statements->push_back (new Eval_expr (in->incr));
-
-	// push it all back
-	if (in->init)
-		out->push_back (new Eval_expr (in->init));
-	lower_while (while_stmt, out);
-}
-
-void Lower_control_flow::post_for (For* in, List<Statement*>* out)
-{
-	lower_for (in, out);
-	// we add the continue label in lower_for
-	add_label<Break> (in, out);
-	break_levels.pop_back ();
-	continue_levels.pop_back ();
-}
-
 /* Convert 
  *   foreach (expr() as $key => $value)
  *   {
@@ -247,12 +183,16 @@ void Lower_control_flow::post_for (For* in, List<Statement*>* out)
  * into
  *		$array = expr ();
  *		foreach_reset ($arr, iter); 
- *		while ($x = foreach_has_key ($arr, iter))
+ *		loop()
  *		{
+ *			$T = foreach_has_key ($arr, iter);
+ *			if ($T) goto L1; else goto L2;
+ *		L1:
  *			$key = foreach_get_key ($arr, iter); 
  *			$val = foreach_get_val ($arr, iter); // optional
  *			....  
  *			foreach_next ($arr, iter); 
+ *		L2:
  *		}
  *		foreach_end ($arr, iter);
  */
@@ -275,13 +215,31 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	HT_ITERATOR* iter = fresh_iter ();
 	out->push_back (new Foreach_reset (arr->clone (), iter));
 
-	// while (foreach_has_key ($arr, iter))
-   While* while_stmt = 
-		new While (
+	// loop ()
+	Loop* loop = new Loop (new List<Statement*>);
+	Variable* has_key = fresh_var ("THK");
+
+	// $T = foreach_has_key ($arr, iter);
+	loop->statements->push_back (
+		new Eval_expr (
+			new Assignment (
+				has_key,
+				false, 
 				new Foreach_has_key (
 					arr->clone (),
-					iter->clone ()),
-				new List<Statement*>);
+					iter->clone ()))));
+
+	Label* l1 = fresh_label ();
+	Label* l2 = fresh_label ();
+
+	// if ($T) goto L1; else goto L2;
+	loop->statements->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+
+	// L1:
+	loop->statements->push_back (l1);
+
+
+
 
 	// $key = foreach_get_key ($arr, iter); 
 	
@@ -305,7 +263,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	// only push it back if necessary
 	if (in->key)
-		while_stmt->statements->push_back (get_key);
+		loop->statements->push_back (get_key);
 	
 
 	// $val = foreach_get_val ($arr, $key, iter); 
@@ -319,22 +277,25 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	get_val->attrs->set ("phc.unparser.foreach_key", key);
 
-	while_stmt->statements->push_back (	new Eval_expr (
+	loop->statements->push_back (	new Eval_expr (
 														new Assignment (
 															in->val->clone (),
 															in->is_ref,
 															get_val)));
 
 	// ....  
-	while_stmt->statements->push_back_all (in->statements);
+	loop->statements->push_back_all (in->statements);
 
 	// foreach_next ($arr, iter); 
-	while_stmt->statements->push_back (
+	loop->statements->push_back (
 		new Foreach_next (
 			arr->clone (),
 			iter->clone ()));
 
-	lower_while (while_stmt, out);
+	// L2:
+	loop->statements->push_back (l2);
+
+	lower_loop (loop, out);
 
 
 	// foreach_end ($arr, iter);
@@ -448,7 +409,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		);
 
 	// while (list ($key, ) = each ($temp_array))
-   While* while_stmt = new While (assign, in->statements);
+   Loop* while_stmt = new Loop (assign, in->statements);
 
 	// A continue in a for loop lands just before the increment
 	add_label<Continue> (in, while_stmt->statements);
@@ -457,7 +418,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	out->push_back (array_copy);
 	if (reset) out->push_back (reset);
 //	out->push_back (unset);
-	lower_while (while_stmt, out);
+	lower_loop (while_stmt, out);
 }
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
@@ -558,7 +519,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	in->statements->push_front (new Eval_expr (fetch_val));
 
 	// while (list ($key, ) = each ($temp_array))
-   While* while_stmt = new While (assign, in->statements);
+   Loop* while_stmt = new Loop (assign, in->statements);
 
 	// A continue in a for loop lands just before the increment
 	add_label<Continue> (in, while_stmt->statements);
@@ -586,7 +547,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	out->push_back (copy);
 	if (array_ref) lower_if (check_lock, out);
 //	if (reset) out->push_back (reset);
-	lower_while (while_stmt, out);
+	lower_loop (while_stmt, out);
 	if (array_ref) out->push_back (lock_unset);
 }
 #endif
@@ -860,17 +821,12 @@ void Lower_control_flow::pre_control_flow (Statement* in, List<Statement*>* out)
 }
 
 
-void Lower_control_flow::pre_while(While* in, List<Statement*>* out)
+void Lower_control_flow::pre_loop(Loop* in, List<Statement*>* out)
 {
 	pre_control_flow (in, out);
 }
 
 void Lower_control_flow::pre_do(Do* in, List<Statement*>* out)
-{
-	pre_control_flow (in, out);
-}
-
-void Lower_control_flow::pre_for(For* in, List<Statement*>* out)
 {
 	pre_control_flow (in, out);
 }

@@ -38,7 +38,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Attr_mod*,			// Attr_mod*
  HIR::Name_with_default*,	// Name_with_default*
  HIR::If*,			// If*
- HIR::While*,			// While*
+ HIR::Loop*,			// While*
  HIR::Do*,			// Do*
  HIR::For*,			// For*
  HIR::Foreach*,			// Foreach*
@@ -343,10 +343,14 @@ class AST_to_HIR : public AST::Fold
 	}
 
 
-	HIR::While* fold_impl_while (AST::While* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
+	HIR::Loop* fold_impl_while (AST::While* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
 	{
-		HIR::While* result;
-		result = new HIR::While(expr, statements);
+		// All while's must be true
+		HIR::BOOL* b = dynamic_cast<HIR::BOOL*> (expr);
+		assert (b && b->value);
+
+		HIR::Loop* result;
+		result = new HIR::Loop(statements);
 		result->attrs = orig->attrs;
 		return result;
 	}
