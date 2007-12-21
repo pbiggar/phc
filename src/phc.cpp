@@ -146,12 +146,12 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Desugar (), "desug"); // AST
 	pm->add_ast_transform (new Pre_post_op_shredder (), "pps"); // AST
 	pm->add_ast_transform (new List_shredder (), "lish"); // AST
-	pm->add_ast_transform (new AST::Shredder (), "shred"); // AST
+	pm->add_ast_transform (new AST::Shredder (), "ashred"); // AST
 	pm->add_ast_transform (new Tidy_print (), "tidyp"); // AST
 	pm->add_ast_pass (new Fake_pass ("AST-to-HIR"));
 	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
-	pm->add_hir_transform (new HIR::Shredder (), "shred"); // HIR
+	pm->add_hir_transform (new HIR::Shredder (), "hshred"); // HIR
 
 	// TODO move to the MIR - re-add
 //	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
