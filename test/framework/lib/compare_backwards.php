@@ -53,9 +53,10 @@ class CompareBackwards extends AsyncTest
 		$bundle->out_handlers[0] = "homogenize_output";
 		$bundle->callbacks[0] = NULL;
 
+		$commands = array ();
 		foreach (get_pass_list () as $pass)
 		{
-			$commands[] = $this->get_command_line ($subject, $this->dump, $pass);
+			array_unshift ($commands, $this->get_command_line ($subject, $this->dump, $pass));
 			if ($this->last_pass == $pass)
 				break;
 		}
