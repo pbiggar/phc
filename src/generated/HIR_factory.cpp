@@ -180,20 +180,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Global(variable_names);
     }
-    if(!strcmp(type_id, "Declare"))
-    {
-    	List<Directive*>* directives = dynamic_cast<List<Directive*>*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new Declare(directives, statements);
-    }
-    if(!strcmp(type_id, "Directive"))
-    {
-    	DIRECTIVE_NAME* directive_name = dynamic_cast<DIRECTIVE_NAME*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Directive(directive_name, expr);
-    }
     if(!strcmp(type_id, "Try"))
     {
     	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
@@ -220,11 +206,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
     	return new Eval_expr(expr);
-    }
-    if(!strcmp(type_id, "Nop"))
-    {
-    	assert(i == args->end());
-    	return new Nop();
     }
     if(!strcmp(type_id, "Branch"))
     {
@@ -455,12 +436,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new VARIABLE_NAME(value);
     }
-    if(!strcmp(type_id, "DIRECTIVE_NAME"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new DIRECTIVE_NAME(value);
-    }
     if(!strcmp(type_id, "LABEL_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
@@ -526,13 +501,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Variable_name*>* list = new List<Variable_name*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Variable_name*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Directive_list"))
-    {
-    	List<Directive*>* list = new List<Directive*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Directive*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Catch_list"))

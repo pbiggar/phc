@@ -47,13 +47,10 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Return*,				// Return*
  MIR::Static_declaration*,	// Static_declaration*
  MIR::Global*,				// Global*
- MIR::Statement*,			// Declare*
- MIR::Node*,				// Directive*
  MIR::Try*,					// Try*
  MIR::Catch*,				// Catch*
  MIR::Throw*,				// Throw*
  MIR::Eval_expr*,			// Eval_expr*
- MIR::Statement*,			// Nop*
  MIR::Branch*,				// Branch*
  MIR::Goto*,				// Goto*
  MIR::Label*,				// Label*
@@ -97,7 +94,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::INTERFACE_NAME*,	// INTERFACE_NAME*
  MIR::METHOD_NAME*,		// METHOD_NAME*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::Identifier*,			// DIRECTIVE_NAME*
  MIR::LABEL_NAME*,		// LABEL_NAME*
  MIR::INT*,				// INT*
  MIR::REAL*,				// REAL*

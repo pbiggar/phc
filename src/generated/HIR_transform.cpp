@@ -116,16 +116,6 @@ void Transform::pre_global(Global* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_declare(Declare* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_directive(Directive* in, List<Directive*>* out)
-{
-    out->push_back(in);
-}
-
 void Transform::pre_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -142,11 +132,6 @@ void Transform::pre_throw(Throw* in, List<Statement*>* out)
 }
 
 void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_nop(Nop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -321,11 +306,6 @@ VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
     return in;
 }
 
-DIRECTIVE_NAME* Transform::pre_directive_name(DIRECTIVE_NAME* in)
-{
-    return in;
-}
-
 LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
 {
     return in;
@@ -482,16 +462,6 @@ void Transform::post_global(Global* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::post_declare(Declare* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_directive(Directive* in, List<Directive*>* out)
-{
-    out->push_back(in);
-}
-
 void Transform::post_try(Try* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -508,11 +478,6 @@ void Transform::post_throw(Throw* in, List<Statement*>* out)
 }
 
 void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_nop(Nop* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -683,11 +648,6 @@ METHOD_NAME* Transform::post_method_name(METHOD_NAME* in)
 }
 
 VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
-{
-    return in;
-}
-
-DIRECTIVE_NAME* Transform::post_directive_name(DIRECTIVE_NAME* in)
 {
     return in;
 }
@@ -864,18 +824,6 @@ void Transform::children_global(Global* in)
     in->variable_names = transform_variable_name_list(in->variable_names);
 }
 
-void Transform::children_declare(Declare* in)
-{
-    in->directives = transform_directive_list(in->directives);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void Transform::children_directive(Directive* in)
-{
-    in->directive_name = transform_directive_name(in->directive_name);
-    in->expr = transform_expr(in->expr);
-}
-
 void Transform::children_try(Try* in)
 {
     in->statements = transform_statement_list(in->statements);
@@ -897,10 +845,6 @@ void Transform::children_throw(Throw* in)
 void Transform::children_eval_expr(Eval_expr* in)
 {
     in->expr = transform_expr(in->expr);
-}
-
-void Transform::children_nop(Nop* in)
-{
 }
 
 void Transform::children_branch(Branch* in)
@@ -1094,10 +1038,6 @@ void Transform::children_method_name(METHOD_NAME* in)
 }
 
 void Transform::children_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Transform::children_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
@@ -1522,59 +1462,6 @@ List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_variable_name(*i));
-    }
-    
-    return out;
-}
-
-List<Directive*>* Transform::transform_directive_list(List<Directive*>* in)
-{
-    List<Directive*>::const_iterator i;
-    List<Directive*>* out = new List<Directive*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_directive(*i));
-    }
-    
-    return out;
-}
-
-List<Directive*>* Transform::transform_directive(Directive* in)
-{
-    List<Directive*>::const_iterator i;
-    List<Directive*>* out1 = new List<Directive*>;
-    List<Directive*>* out2 = new List<Directive*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_directive(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_directive(*i);
-    		post_directive(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
-DIRECTIVE_NAME* Transform::transform_directive_name(DIRECTIVE_NAME* in)
-{
-    if(in == NULL) return NULL;
-    
-    DIRECTIVE_NAME* out;
-    
-    out = pre_directive_name(in);
-    if(out != NULL)
-    {
-    	children_directive_name(out);
-    	out = post_directive_name(out);
     }
     
     return out;
@@ -2045,24 +1932,6 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Declare::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_declare(dynamic_cast<Declare*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Nop::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_nop(dynamic_cast<Nop*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Label::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2403,24 +2272,6 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Declare::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_declare(dynamic_cast<Declare*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Nop::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_nop(dynamic_cast<Nop*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Label::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2670,12 +2521,6 @@ void Transform::children_statement(Statement* in)
     	break;
     case Continue::ID:
     	children_continue(dynamic_cast<Continue*>(in));
-    	break;
-    case Declare::ID:
-    	children_declare(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	children_nop(dynamic_cast<Nop*>(in));
     	break;
     case Label::ID:
     	children_label(dynamic_cast<Label*>(in));

@@ -47,13 +47,10 @@ class HIR_to_AST : public HIR::Fold
  AST::Return*,				// Return*
  AST::Static_declaration*,	// Static_declaration*
  AST::Global*,				// Global*
- AST::Declare*,			// Declare*
- AST::Directive*,				// Directive*
  AST::Try*,					// Try*
  AST::Catch*,				// Catch*
  AST::Throw*,				// Throw*
  AST::Eval_expr*,			// Eval_expr*
- AST::Nop*,			// Nop*
  AST::Branch*,				// Branch*
  AST::Goto*,				// Goto*
  AST::Label*,				// Label*
@@ -97,7 +94,6 @@ class HIR_to_AST : public HIR::Fold
  AST::INTERFACE_NAME*,	// INTERFACE_NAME*
  AST::METHOD_NAME*,		// METHOD_NAME*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::DIRECTIVE_NAME*,			// DIRECTIVE_NAME*
  AST::LABEL_NAME*,		// LABEL_NAME*
  AST::INT*,				// INT*
  AST::REAL*,				// REAL*
@@ -292,14 +288,6 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Nop* fold_impl_nop (HIR::Nop* orig)
-	{
-		AST::Nop* result;
-		result = new AST::Nop ();
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Break* fold_impl_break (HIR::Break* orig, AST::Expr* expr)
 	{
 		AST::Break* result;
@@ -387,30 +375,6 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::Nested_list_elements* result;
 		result = new AST::Nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::DIRECTIVE_NAME* fold_directive_name(HIR::DIRECTIVE_NAME* orig)
-	{
-		AST::DIRECTIVE_NAME* result;
-		result = new AST::DIRECTIVE_NAME (orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Declare* fold_impl_declare (HIR::Declare* orig, List<AST::Directive*>* directives, List<AST::Statement*>* statements)
-	{
-		AST::Declare* result;
-		result = new AST::Declare(directives, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Directive* fold_impl_directive(HIR::Directive* orig, AST::DIRECTIVE_NAME* directive_name, AST::Expr* expr)
-	{
-		AST::Directive* result;
-		result = new AST::Directive(directive_name, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

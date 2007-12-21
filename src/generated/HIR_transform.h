@@ -49,13 +49,10 @@ public:
     virtual void pre_return(Return* in, List<Statement*>* out);
     virtual void pre_static_declaration(Static_declaration* in, List<Statement*>* out);
     virtual void pre_global(Global* in, List<Statement*>* out);
-    virtual void pre_declare(Declare* in, List<Statement*>* out);
-    virtual void pre_directive(Directive* in, List<Directive*>* out);
     virtual void pre_try(Try* in, List<Statement*>* out);
     virtual void pre_catch(Catch* in, List<Catch*>* out);
     virtual void pre_throw(Throw* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
-    virtual void pre_nop(Nop* in, List<Statement*>* out);
     virtual void pre_branch(Branch* in, List<Statement*>* out);
     virtual void pre_goto(Goto* in, List<Statement*>* out);
     virtual void pre_label(Label* in, List<Statement*>* out);
@@ -90,7 +87,6 @@ public:
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
     virtual VARIABLE_NAME* pre_variable_name(VARIABLE_NAME* in);
-    virtual DIRECTIVE_NAME* pre_directive_name(DIRECTIVE_NAME* in);
     virtual LABEL_NAME* pre_label_name(LABEL_NAME* in);
     virtual Expr* pre_int(INT* in);
     virtual Expr* pre_real(REAL* in);
@@ -124,13 +120,10 @@ public:
     virtual void post_return(Return* in, List<Statement*>* out);
     virtual void post_static_declaration(Static_declaration* in, List<Statement*>* out);
     virtual void post_global(Global* in, List<Statement*>* out);
-    virtual void post_declare(Declare* in, List<Statement*>* out);
-    virtual void post_directive(Directive* in, List<Directive*>* out);
     virtual void post_try(Try* in, List<Statement*>* out);
     virtual void post_catch(Catch* in, List<Catch*>* out);
     virtual void post_throw(Throw* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
-    virtual void post_nop(Nop* in, List<Statement*>* out);
     virtual void post_branch(Branch* in, List<Statement*>* out);
     virtual void post_goto(Goto* in, List<Statement*>* out);
     virtual void post_label(Label* in, List<Statement*>* out);
@@ -165,7 +158,6 @@ public:
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
     virtual VARIABLE_NAME* post_variable_name(VARIABLE_NAME* in);
-    virtual DIRECTIVE_NAME* post_directive_name(DIRECTIVE_NAME* in);
     virtual LABEL_NAME* post_label_name(LABEL_NAME* in);
     virtual Expr* post_int(INT* in);
     virtual Expr* post_real(REAL* in);
@@ -199,13 +191,10 @@ public:
     virtual void children_return(Return* in);
     virtual void children_static_declaration(Static_declaration* in);
     virtual void children_global(Global* in);
-    virtual void children_declare(Declare* in);
-    virtual void children_directive(Directive* in);
     virtual void children_try(Try* in);
     virtual void children_catch(Catch* in);
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
-    virtual void children_nop(Nop* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);
@@ -242,7 +231,6 @@ public:
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
     virtual void children_variable_name(VARIABLE_NAME* in);
-    virtual void children_directive_name(DIRECTIVE_NAME* in);
     virtual void children_label_name(LABEL_NAME* in);
     virtual void children_int(INT* in);
     virtual void children_real(REAL* in);
@@ -278,9 +266,6 @@ public:
     virtual List<Switch_case*>* transform_switch_case_list(List<Switch_case*>* in);
     virtual List<Switch_case*>* transform_switch_case(Switch_case* in);
     virtual List<Variable_name*>* transform_variable_name_list(List<Variable_name*>* in);
-    virtual List<Directive*>* transform_directive_list(List<Directive*>* in);
-    virtual List<Directive*>* transform_directive(Directive* in);
-    virtual DIRECTIVE_NAME* transform_directive_name(DIRECTIVE_NAME* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
     virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);

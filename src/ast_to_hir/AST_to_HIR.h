@@ -49,13 +49,13 @@ class AST_to_HIR : public AST::Fold
  HIR::Return*,				// Return*
  HIR::Static_declaration*,	// Static_declaration*
  HIR::Global*,				// Global*
- HIR::Declare*,			// Declare*
- HIR::Directive*,				// Directive*
+ HIR::Statement*,			// Declare*
+ HIR::Statement*,				// Directive*
  HIR::Try*,					// Try*
  HIR::Catch*,				// Catch*
  HIR::Throw*,				// Throw*
  HIR::Eval_expr*,			// Eval_expr*
- HIR::Nop*,			// Nop*
+ HIR::Statement*,			// Nop*
  HIR::Branch*,				// Branch*
  HIR::Goto*,				// Goto*
  HIR::Label*,				// Label*
@@ -99,7 +99,7 @@ class AST_to_HIR : public AST::Fold
  HIR::INTERFACE_NAME*,	// INTERFACE_NAME*
  HIR::METHOD_NAME*,		// METHOD_NAME*
  HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- HIR::DIRECTIVE_NAME*,			// DIRECTIVE_NAME*
+ HIR::Identifier*,			// DIRECTIVE_NAME*
  HIR::LABEL_NAME*,		// LABEL_NAME*
  HIR::INT*,				// INT*
  HIR::REAL*,				// REAL*
@@ -294,14 +294,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Nop* fold_impl_nop (AST::Nop* orig)
-	{
-		HIR::Nop* result;
-		result = new HIR::Nop ();
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
 	{
 		HIR::Break* result;
@@ -393,30 +385,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Nested_list_elements* result;
 		result = new HIR::Nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::DIRECTIVE_NAME* fold_directive_name(AST::DIRECTIVE_NAME* orig)
-	{
-		HIR::DIRECTIVE_NAME* result;
-		result = new HIR::DIRECTIVE_NAME (orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Declare* fold_impl_declare (AST::Declare* orig, List<HIR::Directive*>* directives, List<HIR::Statement*>* statements)
-	{
-		HIR::Declare* result;
-		result = new HIR::Declare(directives, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Directive* fold_impl_directive(AST::Directive* orig, HIR::DIRECTIVE_NAME* directive_name, HIR::Expr* expr)
-	{
-		HIR::Directive* result;
-		result = new HIR::Directive(directive_name, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -30,7 +30,6 @@ Statement ::=
 	| Try | Throw | Eval_expr
 	| If | Loop | Foreach
 	| Switch | Break | Continue
-	| Declare | Nop
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
 	;
@@ -75,16 +74,11 @@ Return ::= Expr? ;
 Static_declaration ::= vars:Name_with_default* ;
 Global ::= Variable_name* ;
 
-Declare ::= Directive+ Statement* ;
-Directive ::= DIRECTIVE_NAME Expr ;
-
 Try ::= Statement* catches:Catch* ;
 Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
 Throw ::= Expr ;
 
 Eval_expr ::= Expr ;
-
-Nop ::= ;
 
 {-
    HIR constructs (without a PHP equivalent)
@@ -172,7 +166,6 @@ Commented_node ::=
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
 	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME 
-	  | DIRECTIVE_NAME 
 	;  
 
 {-

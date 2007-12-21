@@ -43,13 +43,10 @@ template
  class _Return,
  class _Static_declaration,
  class _Global,
- class _Declare,
- class _Directive,
  class _Try,
  class _Catch,
  class _Throw,
  class _Eval_expr,
- class _Nop,
  class _Branch,
  class _Goto,
  class _Label,
@@ -93,7 +90,6 @@ template
  class _INTERFACE_NAME,
  class _METHOD_NAME,
  class _VARIABLE_NAME,
- class _DIRECTIVE_NAME,
  class _LABEL_NAME,
  class _INT,
  class _REAL,
@@ -391,34 +387,6 @@ public:
 		return fold_impl_global(in, variable_names);
 	}
 
-	virtual _Declare fold_declare(Declare* in)
-	{
-		List<_Directive>* directives = new List<_Directive>;
-		{
-			List<Directive*>::const_iterator i;
-			for(i = in->directives->begin(); i != in->directives->end(); i++)
-				if(*i != NULL) directives->push_back(fold_directive(*i));
-				else directives->push_back(0);
-		}
-		List<_Statement>* statements = new List<_Statement>;
-		{
-			List<Statement*>::const_iterator i;
-			for(i = in->statements->begin(); i != in->statements->end(); i++)
-				if(*i != NULL) statements->push_back(fold_statement(*i));
-				else statements->push_back(0);
-		}
-		return fold_impl_declare(in, directives, statements);
-	}
-
-	virtual _Directive fold_directive(Directive* in)
-	{
-		_DIRECTIVE_NAME directive_name = 0;
-		if(in->directive_name != NULL) directive_name = fold_directive_name(in->directive_name);
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_directive(in, directive_name, expr);
-	}
-
 	virtual _Try fold_try(Try* in)
 	{
 		List<_Statement>* statements = new List<_Statement>;
@@ -466,11 +434,6 @@ public:
 		_Expr expr = 0;
 		if(in->expr != NULL) expr = fold_expr(in->expr);
 		return fold_impl_eval_expr(in, expr);
-	}
-
-	virtual _Nop fold_nop(Nop* in)
-	{
-		return fold_impl_nop(in);
 	}
 
 	virtual _Branch fold_branch(Branch* in)
@@ -792,13 +755,10 @@ public:
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, List<_Name_with_default>* vars) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, List<_Variable_name>* variable_names) { assert(0); };
-	virtual _Declare fold_impl_declare(Declare* orig, List<_Directive>* directives, List<_Statement>* statements) { assert(0); };
-	virtual _Directive fold_impl_directive(Directive* orig, _DIRECTIVE_NAME directive_name, _Expr expr) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
-	virtual _Nop fold_impl_nop(Nop* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
@@ -834,7 +794,6 @@ public:
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
 	virtual _VARIABLE_NAME fold_variable_name(VARIABLE_NAME* orig) { assert(0); };
-	virtual _DIRECTIVE_NAME fold_directive_name(DIRECTIVE_NAME* orig) { assert(0); };
 	virtual _LABEL_NAME fold_label_name(LABEL_NAME* orig) { assert(0); };
 	virtual _INT fold_int(INT* orig) { assert(0); };
 	virtual _REAL fold_real(REAL* orig) { assert(0); };
@@ -868,8 +827,6 @@ public:
 				return fold_attr_mod(dynamic_cast<Attr_mod*>(in));
 			case Name_with_default::ID:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
-			case Directive::ID:
-				return fold_directive(dynamic_cast<Directive*>(in));
 			case Variable::ID:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Nested_list_elements::ID:
@@ -964,10 +921,6 @@ public:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
 				return fold_continue(dynamic_cast<Continue*>(in));
-			case Declare::ID:
-				return fold_declare(dynamic_cast<Declare*>(in));
-			case Nop::ID:
-				return fold_nop(dynamic_cast<Nop*>(in));
 			case Label::ID:
 				return fold_label(dynamic_cast<Label*>(in));
 			case Goto::ID:
@@ -994,8 +947,6 @@ public:
 				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
 			case LABEL_NAME::ID:
 				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
-			case DIRECTIVE_NAME::ID:
-				return fold_directive_name(dynamic_cast<DIRECTIVE_NAME*>(in));
 			case HT_ITERATOR::ID:
 				return fold_ht_iterator(dynamic_cast<HT_ITERATOR*>(in));
 		}
@@ -1036,10 +987,6 @@ public:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
 				return fold_continue(dynamic_cast<Continue*>(in));
-			case Declare::ID:
-				return fold_declare(dynamic_cast<Declare*>(in));
-			case Nop::ID:
-				return fold_nop(dynamic_cast<Nop*>(in));
 			case Label::ID:
 				return fold_label(dynamic_cast<Label*>(in));
 			case Goto::ID:
@@ -1284,10 +1231,6 @@ public:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
 				return fold_continue(dynamic_cast<Continue*>(in));
-			case Declare::ID:
-				return fold_declare(dynamic_cast<Declare*>(in));
-			case Nop::ID:
-				return fold_nop(dynamic_cast<Nop*>(in));
 			case Label::ID:
 				return fold_label(dynamic_cast<Label*>(in));
 			case Goto::ID:
@@ -1328,8 +1271,6 @@ public:
 				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
 			case LABEL_NAME::ID:
 				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
-			case DIRECTIVE_NAME::ID:
-				return fold_directive_name(dynamic_cast<DIRECTIVE_NAME*>(in));
 		}
 		assert(0);
 	}
@@ -1341,6 +1282,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

@@ -16,9 +16,6 @@ namespace HIR
 	class Shredder : public Lower_expr
 	{
 	public:
-		void post_nop(Nop* in);
-
-	public:
 		Expr* post_new (New* in);
 		Expr* post_bin_op(Bin_op* in);
 		Expr* post_unary_op(Unary_op* in);

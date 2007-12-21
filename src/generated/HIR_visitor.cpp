@@ -106,14 +106,6 @@ void Visitor::pre_global(Global* in)
 {
 }
 
-void Visitor::pre_declare(Declare* in)
-{
-}
-
-void Visitor::pre_directive(Directive* in)
-{
-}
-
 void Visitor::pre_try(Try* in)
 {
 }
@@ -127,10 +119,6 @@ void Visitor::pre_throw(Throw* in)
 }
 
 void Visitor::pre_eval_expr(Eval_expr* in)
-{
-}
-
-void Visitor::pre_nop(Nop* in)
 {
 }
 
@@ -306,10 +294,6 @@ void Visitor::pre_variable_name(VARIABLE_NAME* in)
 {
 }
 
-void Visitor::pre_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
 void Visitor::pre_label_name(LABEL_NAME* in)
 {
 }
@@ -447,14 +431,6 @@ void Visitor::post_global(Global* in)
 {
 }
 
-void Visitor::post_declare(Declare* in)
-{
-}
-
-void Visitor::post_directive(Directive* in)
-{
-}
-
 void Visitor::post_try(Try* in)
 {
 }
@@ -468,10 +444,6 @@ void Visitor::post_throw(Throw* in)
 }
 
 void Visitor::post_eval_expr(Eval_expr* in)
-{
-}
-
-void Visitor::post_nop(Nop* in)
 {
 }
 
@@ -644,10 +616,6 @@ void Visitor::post_method_name(METHOD_NAME* in)
 }
 
 void Visitor::post_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::post_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
@@ -830,18 +798,6 @@ void Visitor::children_global(Global* in)
     visit_variable_name_list(in->variable_names);
 }
 
-void Visitor::children_declare(Declare* in)
-{
-    visit_directive_list(in->directives);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_directive(Directive* in)
-{
-    visit_directive_name(in->directive_name);
-    visit_expr(in->expr);
-}
-
 void Visitor::children_try(Try* in)
 {
     visit_statement_list(in->statements);
@@ -863,10 +819,6 @@ void Visitor::children_throw(Throw* in)
 void Visitor::children_eval_expr(Eval_expr* in)
 {
     visit_expr(in->expr);
-}
-
-void Visitor::children_nop(Nop* in)
-{
 }
 
 void Visitor::children_branch(Branch* in)
@@ -1063,10 +1015,6 @@ void Visitor::children_method_name(METHOD_NAME* in)
 }
 
 void Visitor::children_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::children_directive_name(DIRECTIVE_NAME* in)
 {
 }
 
@@ -1289,20 +1237,6 @@ void Visitor::pre_global_chain(Global* in)
     pre_global(in);
 }
 
-void Visitor::pre_declare_chain(Declare* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_declare(in);
-}
-
-void Visitor::pre_directive_chain(Directive* in)
-{
-    pre_node(in);
-    pre_directive(in);
-}
-
 void Visitor::pre_try_chain(Try* in)
 {
     pre_node(in);
@@ -1332,14 +1266,6 @@ void Visitor::pre_eval_expr_chain(Eval_expr* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_eval_expr(in);
-}
-
-void Visitor::pre_nop_chain(Nop* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_nop(in);
 }
 
 void Visitor::pre_branch_chain(Branch* in)
@@ -1609,13 +1535,6 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
     pre_variable_name(in);
 }
 
-void Visitor::pre_directive_name_chain(DIRECTIVE_NAME* in)
-{
-    pre_node(in);
-    pre_identifier(in);
-    pre_directive_name(in);
-}
-
 void Visitor::pre_label_name_chain(LABEL_NAME* in)
 {
     pre_node(in);
@@ -1852,20 +1771,6 @@ void Visitor::post_global_chain(Global* in)
     post_node(in);
 }
 
-void Visitor::post_declare_chain(Declare* in)
-{
-    post_declare(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_directive_chain(Directive* in)
-{
-    post_directive(in);
-    post_node(in);
-}
-
 void Visitor::post_try_chain(Try* in)
 {
     post_try(in);
@@ -1892,14 +1797,6 @@ void Visitor::post_throw_chain(Throw* in)
 void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
     post_eval_expr(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_nop_chain(Nop* in)
-{
-    post_nop(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -2169,13 +2066,6 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_variable_name(in);
     post_identifier(in);
     post_variable_name(in);
-    post_node(in);
-}
-
-void Visitor::post_directive_name_chain(DIRECTIVE_NAME* in)
-{
-    post_directive_name(in);
-    post_identifier(in);
     post_node(in);
 }
 
@@ -2579,49 +2469,6 @@ void Visitor::visit_variable_name_list(List<Variable_name*>* in)
     }
 }
 
-void Visitor::visit_directive_list(List<Directive*>* in)
-{
-    List<Directive*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Directive");
-    else
-    {
-    	pre_list("Directive", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_directive(*i);
-    	}
-    
-    	post_list("Directive", in->size());
-    }
-}
-
-void Visitor::visit_directive(Directive* in)
-{
-    if(in == NULL)
-    	visit_null("Directive");
-    else
-    {
-    	pre_directive_chain(in);
-    	children_directive(in);
-    	post_directive_chain(in);
-    }
-}
-
-void Visitor::visit_directive_name(DIRECTIVE_NAME* in)
-{
-    if(in == NULL)
-    	visit_null("DIRECTIVE_NAME");
-    else
-    {
-    	pre_directive_name_chain(in);
-    	children_directive_name(in);
-    	post_directive_name_chain(in);
-    }
-}
-
 void Visitor::visit_catch_list(List<Catch*>* in)
 {
     List<Catch*>::const_iterator i;
@@ -2936,12 +2783,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Continue::ID:
     	pre_continue_chain(dynamic_cast<Continue*>(in));
     	break;
-    case Declare::ID:
-    	pre_declare_chain(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	pre_nop_chain(dynamic_cast<Nop*>(in));
-    	break;
     case Label::ID:
     	pre_label_chain(dynamic_cast<Label*>(in));
     	break;
@@ -3240,12 +3081,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Continue::ID:
     	post_continue_chain(dynamic_cast<Continue*>(in));
     	break;
-    case Declare::ID:
-    	post_declare_chain(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	post_nop_chain(dynamic_cast<Nop*>(in));
-    	break;
     case Label::ID:
     	post_label_chain(dynamic_cast<Label*>(in));
     	break;
@@ -3543,12 +3378,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Continue::ID:
     	children_continue(dynamic_cast<Continue*>(in));
-    	break;
-    case Declare::ID:
-    	children_declare(dynamic_cast<Declare*>(in));
-    	break;
-    case Nop::ID:
-    	children_nop(dynamic_cast<Nop*>(in));
     	break;
     case Label::ID:
     	children_label(dynamic_cast<Label*>(in));
