@@ -8,12 +8,12 @@
 #ifndef PHC_EARLY_SHREDDER_H
 #define PHC_EARLY_SHREDDER_H
 
-#include "HIR_lower_expr.h"
+#include "ast_to_hir/AST_lower_expr.h"
 #include "process_ir/fresh.h"
 
 // Some shredding will create variables which may be missed if done
 // at the same time as the variable shredding.
-class List_shredder : public HIR::Lower_expr
+class List_shredder : public AST::Lower_expr
 {
 public:
 
@@ -30,7 +30,7 @@ public:
 	 *	Note that references arent allowed here.
 	 */
 
-	HIR::Expr* post_list_assignment(HIR::List_assignment* in);
+	AST::Expr* post_list_assignment(AST::List_assignment* in);
 };
 
 

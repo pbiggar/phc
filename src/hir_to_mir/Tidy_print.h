@@ -8,14 +8,12 @@
 #ifndef PHC_TIDY_PRINT_H
 #define PHC_TIDY_PRINT_H
 
-#include "HIR_transform.h"
-#include "process_ir/fresh.h"
-#include "Shredder.h"
+#include "AST_transform.h"
 
 
-class Tidy_print : public HIR::Transform
+class Tidy_print : public AST::Transform
 {
-	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
 };
 
 #endif // PHC_TIDY_PRINT_H

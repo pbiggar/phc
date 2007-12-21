@@ -7,8 +7,9 @@
 
 #include "Tidy_print.h"
 #include "process_ir/General.h"
+#include "process_ir/fresh.h"
 
-using namespace HIR;
+using namespace AST;
 
 void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
@@ -40,7 +41,7 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		if (not unused)
 			t2 = fresh_var ("TSp");
 
-		out->push_back_all (lower_to_hir ("tidyp",
+		out->push_back_all (lower_ast ("tidyp",
 					new Eval_expr (
 						new Assignment(t2, false,
 							new Method_invocation(
