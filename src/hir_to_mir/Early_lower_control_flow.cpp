@@ -67,7 +67,7 @@ void Early_lower_control_flow::post_do (Do* in, List<Statement*>* out)
 			new List<Statement*> (b = new Break (NULL))));	// else break;
 
 	b->clone_mixin_from (in); // get line numbers
-	out->push_back (in);
+	out->push_back (w);
 }
 
 /* Convert

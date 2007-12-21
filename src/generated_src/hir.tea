@@ -28,7 +28,7 @@ Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
 	| Try | Throw | Eval_expr
-	| If | Loop | Do | For | Foreach
+	| If | Loop | Foreach
 	| Switch | Break | Continue
 	| Declare | Nop
 	| Label | Goto | Branch
@@ -64,8 +64,6 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
 
 If ::= Expr iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
-Do ::= Statement* Expr ;
-For ::= init:Expr? cond:Expr? incr:Expr? Statement* ;
 Foreach ::= Expr key:Variable? is_ref:"&"? val:Variable Statement* ;
 
 Switch ::= Expr Switch_case* ;

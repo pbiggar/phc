@@ -41,8 +41,6 @@ public:
     virtual Name_with_default* pre_name_with_default(Name_with_default* in);
     virtual void pre_if(If* in, List<Statement*>* out);
     virtual void pre_loop(Loop* in, List<Statement*>* out);
-    virtual void pre_do(Do* in, List<Statement*>* out);
-    virtual void pre_for(For* in, List<Statement*>* out);
     virtual void pre_foreach(Foreach* in, List<Statement*>* out);
     virtual void pre_switch(Switch* in, List<Statement*>* out);
     virtual void pre_switch_case(Switch_case* in, List<Switch_case*>* out);
@@ -118,8 +116,6 @@ public:
     virtual Name_with_default* post_name_with_default(Name_with_default* in);
     virtual void post_if(If* in, List<Statement*>* out);
     virtual void post_loop(Loop* in, List<Statement*>* out);
-    virtual void post_do(Do* in, List<Statement*>* out);
-    virtual void post_for(For* in, List<Statement*>* out);
     virtual void post_foreach(Foreach* in, List<Statement*>* out);
     virtual void post_switch(Switch* in, List<Statement*>* out);
     virtual void post_switch_case(Switch_case* in, List<Switch_case*>* out);
@@ -195,8 +191,6 @@ public:
     virtual void children_name_with_default(Name_with_default* in);
     virtual void children_if(If* in);
     virtual void children_loop(Loop* in);
-    virtual void children_do(Do* in);
-    virtual void children_for(For* in);
     virtual void children_foreach(Foreach* in);
     virtual void children_switch(Switch* in);
     virtual void children_switch_case(Switch_case* in);

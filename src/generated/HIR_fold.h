@@ -35,8 +35,6 @@ template
  class _Name_with_default,
  class _If,
  class _Loop,
- class _Do,
- class _For,
  class _Foreach,
  class _Switch,
  class _Switch_case,
@@ -299,38 +297,6 @@ public:
 				else statements->push_back(0);
 		}
 		return fold_impl_loop(in, statements);
-	}
-
-	virtual _Do fold_do(Do* in)
-	{
-		List<_Statement>* statements = new List<_Statement>;
-		{
-			List<Statement*>::const_iterator i;
-			for(i = in->statements->begin(); i != in->statements->end(); i++)
-				if(*i != NULL) statements->push_back(fold_statement(*i));
-				else statements->push_back(0);
-		}
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_do(in, statements, expr);
-	}
-
-	virtual _For fold_for(For* in)
-	{
-		_Expr init = 0;
-		if(in->init != NULL) init = fold_expr(in->init);
-		_Expr cond = 0;
-		if(in->cond != NULL) cond = fold_expr(in->cond);
-		_Expr incr = 0;
-		if(in->incr != NULL) incr = fold_expr(in->incr);
-		List<_Statement>* statements = new List<_Statement>;
-		{
-			List<Statement*>::const_iterator i;
-			for(i = in->statements->begin(); i != in->statements->end(); i++)
-				if(*i != NULL) statements->push_back(fold_statement(*i));
-				else statements->push_back(0);
-		}
-		return fold_impl_for(in, init, cond, incr, statements);
 	}
 
 	virtual _Foreach fold_foreach(Foreach* in)
@@ -818,8 +784,6 @@ public:
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
 	virtual _If fold_impl_if(If* orig, _Expr expr, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
 	virtual _Loop fold_impl_loop(Loop* orig, List<_Statement>* statements) { assert(0); };
-	virtual _Do fold_impl_do(Do* orig, List<_Statement>* statements, _Expr expr) { assert(0); };
-	virtual _For fold_impl_for(For* orig, _Expr init, _Expr cond, _Expr incr, List<_Statement>* statements) { assert(0); };
 	virtual _Foreach fold_impl_foreach(Foreach* orig, _Expr expr, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
 	virtual _Switch fold_impl_switch(Switch* orig, _Expr expr, List<_Switch_case>* switch_cases) { assert(0); };
 	virtual _Switch_case fold_impl_switch_case(Switch_case* orig, _Expr expr, List<_Statement>* statements) { assert(0); };
@@ -992,10 +956,6 @@ public:
 				return fold_if(dynamic_cast<If*>(in));
 			case Loop::ID:
 				return fold_loop(dynamic_cast<Loop*>(in));
-			case Do::ID:
-				return fold_do(dynamic_cast<Do*>(in));
-			case For::ID:
-				return fold_for(dynamic_cast<For*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
 			case Switch::ID:
@@ -1068,10 +1028,6 @@ public:
 				return fold_if(dynamic_cast<If*>(in));
 			case Loop::ID:
 				return fold_loop(dynamic_cast<Loop*>(in));
-			case Do::ID:
-				return fold_do(dynamic_cast<Do*>(in));
-			case For::ID:
-				return fold_for(dynamic_cast<For*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
 			case Switch::ID:
@@ -1320,10 +1276,6 @@ public:
 				return fold_if(dynamic_cast<If*>(in));
 			case Loop::ID:
 				return fold_loop(dynamic_cast<Loop*>(in));
-			case Do::ID:
-				return fold_do(dynamic_cast<Do*>(in));
-			case For::ID:
-				return fold_for(dynamic_cast<For*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
 			case Switch::ID:
@@ -1389,6 +1341,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

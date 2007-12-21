@@ -76,16 +76,6 @@ void Transform::pre_loop(Loop* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_do(Do* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_for(For* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
 void Transform::pre_foreach(Foreach* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -448,16 +438,6 @@ void Transform::post_if(If* in, List<Statement*>* out)
 }
 
 void Transform::post_loop(Loop* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_do(Do* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_for(For* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -836,20 +816,6 @@ void Transform::children_if(If* in)
 
 void Transform::children_loop(Loop* in)
 {
-    in->statements = transform_statement_list(in->statements);
-}
-
-void Transform::children_do(Do* in)
-{
-    in->statements = transform_statement_list(in->statements);
-    in->expr = transform_expr(in->expr);
-}
-
-void Transform::children_for(For* in)
-{
-    in->init = transform_expr(in->init);
-    in->cond = transform_expr(in->cond);
-    in->incr = transform_expr(in->incr);
     in->statements = transform_statement_list(in->statements);
 }
 
@@ -2043,24 +2009,6 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Do::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_do(dynamic_cast<Do*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case For::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_for(dynamic_cast<For*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Foreach::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2419,24 +2367,6 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Do::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_do(dynamic_cast<Do*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case For::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_for(dynamic_cast<For*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Foreach::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2728,12 +2658,6 @@ void Transform::children_statement(Statement* in)
     	break;
     case Loop::ID:
     	children_loop(dynamic_cast<Loop*>(in));
-    	break;
-    case Do::ID:
-    	children_do(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	children_for(dynamic_cast<For*>(in));
     	break;
     case Foreach::ID:
     	children_foreach(dynamic_cast<Foreach*>(in));

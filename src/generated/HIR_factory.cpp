@@ -126,22 +126,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Loop(statements);
     }
-    if(!strcmp(type_id, "Do"))
-    {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Do(statements, expr);
-    }
-    if(!strcmp(type_id, "For"))
-    {
-    	Expr* init = dynamic_cast<Expr*>(*i++);
-    	Expr* cond = dynamic_cast<Expr*>(*i++);
-    	Expr* incr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new For(init, cond, incr, statements);
-    }
     if(!strcmp(type_id, "Foreach"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);

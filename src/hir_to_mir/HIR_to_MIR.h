@@ -39,8 +39,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Name_with_default*,	// Name_with_default*
  MIR::Statement*,			// If*
  MIR::Statement*,			// While*
- MIR::Statement*,			// Do*
- MIR::Statement*,			// For*
  MIR::Statement*,			// Foreach*
  MIR::Statement*,			// Switch*
  MIR::Node*,				// Switch_case*

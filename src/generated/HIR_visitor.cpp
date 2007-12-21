@@ -74,14 +74,6 @@ void Visitor::pre_loop(Loop* in)
 {
 }
 
-void Visitor::pre_do(Do* in)
-{
-}
-
-void Visitor::pre_for(For* in)
-{
-}
-
 void Visitor::pre_foreach(Foreach* in)
 {
 }
@@ -420,14 +412,6 @@ void Visitor::post_if(If* in)
 }
 
 void Visitor::post_loop(Loop* in)
-{
-}
-
-void Visitor::post_do(Do* in)
-{
-}
-
-void Visitor::post_for(For* in)
 {
 }
 
@@ -797,20 +781,6 @@ void Visitor::children_if(If* in)
 
 void Visitor::children_loop(Loop* in)
 {
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_do(Do* in)
-{
-    visit_statement_list(in->statements);
-    visit_expr(in->expr);
-}
-
-void Visitor::children_for(For* in)
-{
-    visit_expr(in->init);
-    visit_expr(in->cond);
-    visit_expr(in->incr);
     visit_statement_list(in->statements);
 }
 
@@ -1254,22 +1224,6 @@ void Visitor::pre_loop_chain(Loop* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_loop(in);
-}
-
-void Visitor::pre_do_chain(Do* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_do(in);
-}
-
-void Visitor::pre_for_chain(For* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_for(in);
 }
 
 void Visitor::pre_foreach_chain(Foreach* in)
@@ -1830,22 +1784,6 @@ void Visitor::post_if_chain(If* in)
 void Visitor::post_loop_chain(Loop* in)
 {
     post_loop(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_do_chain(Do* in)
-{
-    post_do(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_for_chain(For* in)
-{
-    post_for(in);
     post_statement(in);
     post_commented_node(in);
     post_node(in);
@@ -2986,12 +2924,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Loop::ID:
     	pre_loop_chain(dynamic_cast<Loop*>(in));
     	break;
-    case Do::ID:
-    	pre_do_chain(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	pre_for_chain(dynamic_cast<For*>(in));
-    	break;
     case Foreach::ID:
     	pre_foreach_chain(dynamic_cast<Foreach*>(in));
     	break;
@@ -3296,12 +3228,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Loop::ID:
     	post_loop_chain(dynamic_cast<Loop*>(in));
     	break;
-    case Do::ID:
-    	post_do_chain(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	post_for_chain(dynamic_cast<For*>(in));
-    	break;
     case Foreach::ID:
     	post_foreach_chain(dynamic_cast<Foreach*>(in));
     	break;
@@ -3605,12 +3531,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Loop::ID:
     	children_loop(dynamic_cast<Loop*>(in));
-    	break;
-    case Do::ID:
-    	children_do(dynamic_cast<Do*>(in));
-    	break;
-    case For::ID:
-    	children_for(dynamic_cast<For*>(in));
     	break;
     case Foreach::ID:
     	children_foreach(dynamic_cast<Foreach*>(in));

@@ -39,8 +39,8 @@ class AST_to_HIR : public AST::Fold
  HIR::Name_with_default*,	// Name_with_default*
  HIR::If*,			// If*
  HIR::Loop*,			// While*
- HIR::Do*,			// Do*
- HIR::For*,			// For*
+ HIR::Statement*,		// Do*
+ HIR::Statement*,			// For*
  HIR::Foreach*,			// Foreach*
  HIR::Switch*,			// Switch*
  HIR::Switch_case*,				// Switch_case*
@@ -302,14 +302,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::For* fold_impl_for (AST::For* orig, HIR::Expr* init, HIR::Expr* cond, HIR::Expr* incr, List<HIR::Statement*>* statements)
-	{
-		HIR::For* result;
-		result = new HIR::For (init, cond, incr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
 	{
 		HIR::Break* result;
@@ -433,14 +425,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Switch_case* result;
 		result = new HIR::Switch_case (expr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Do* fold_impl_do(AST::Do* orig, List<HIR::Statement*>* statements, HIR::Expr* expr)
-	{
-		HIR::Do* result;
-		result = new HIR::Do (statements, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

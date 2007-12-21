@@ -141,40 +141,6 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 	continue_levels.pop_back ();
 }
 
-/* Convert
- *		do { y (); } 
- *		while ($x)
- * into
- *		L1:
- *			y ();
- *			if ($x) goto L1:
- *			else goto L2:
- *		L2:
- */
-void Lower_control_flow::lower_do (Do* in, List<Statement*>* out)
-{
-	Label* l1 = fresh_label ();
-	Label* l2 = fresh_label ();
-
-	// make the if
-	Branch* branch = new Branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
-
-	// generate the code
-	out->push_back (l1);
-	out->push_back_all (in->statements);
-	out->push_back (branch);
-	out->push_back (l2);
-}
-
-void Lower_control_flow::post_do (Do* in, List<Statement*>* out)
-{
-	add_label<Continue> (in, out);
-	lower_do (in, out);
-	add_label<Break> (in, out);
-	break_levels.pop_back ();
-	continue_levels.pop_back ();
-}
-
 /* Convert 
  *   foreach (expr() as $key => $value)
  *   {
@@ -822,11 +788,6 @@ void Lower_control_flow::pre_control_flow (Statement* in, List<Statement*>* out)
 
 
 void Lower_control_flow::pre_loop(Loop* in, List<Statement*>* out)
-{
-	pre_control_flow (in, out);
-}
-
-void Lower_control_flow::pre_do(Do* in, List<Statement*>* out)
 {
 	pre_control_flow (in, out);
 }

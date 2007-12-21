@@ -61,8 +61,6 @@ class Method;
 class Attribute;
 class If;
 class Loop;
-class Do;
-class For;
 class Foreach;
 class Switch;
 class Break;
@@ -386,7 +384,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 26;
+    static const int ID = 24;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -473,7 +471,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 57;
+    static const int ID = 55;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -519,7 +517,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 59;
+    static const int ID = 57;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -609,7 +607,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 61;
+    static const int ID = 59;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -628,7 +626,7 @@ public:
     String* get_value_as_string();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | Loop | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | Loop | Foreach | Switch | Break | Continue | Declare | Nop | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end;
 class Statement : virtual public Commented_node
 {
 public:
@@ -682,7 +680,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 19;
+    static const int ID = 17;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -709,7 +707,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 28;
+    static const int ID = 26;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -754,7 +752,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 44;
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -779,7 +777,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 53;
+    static const int ID = 51;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -804,7 +802,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 62;
+    static const int ID = 60;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -829,7 +827,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 63;
+    static const int ID = 61;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -854,7 +852,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 64;
+    static const int ID = 62;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -879,7 +877,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 65;
+    static const int ID = 63;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -904,7 +902,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 66;
+    static const int ID = 64;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -929,7 +927,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 67;
+    static const int ID = 65;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -954,7 +952,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 73;
+    static const int ID = 71;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -980,7 +978,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 74;
+    static const int ID = 72;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1011,7 +1009,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 75;
+    static const int ID = 73;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1191,60 +1189,6 @@ public:
     virtual void assert_valid();
 };
 
-// Do ::= Statement* Expr ;
-class Do : virtual public Statement
-{
-public:
-    Do(List<Statement*>* statements, Expr* expr);
-protected:
-    Do();
-public:
-    List<Statement*>* statements;
-    Expr* expr;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 15;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Do* clone();
-public:
-    virtual void assert_valid();
-};
-
-// For ::= init:Expr? cond:Expr? incr:Expr? Statement* ;
-class For : virtual public Statement
-{
-public:
-    For(Expr* init, Expr* cond, Expr* incr, List<Statement*>* statements);
-protected:
-    For();
-public:
-    Expr* init;
-    Expr* cond;
-    Expr* incr;
-    List<Statement*>* statements;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 16;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual For* clone();
-public:
-    virtual void assert_valid();
-};
-
 // Foreach ::= Expr key:Variable? is_ref:"&" val:Variable Statement* ;
 class Foreach : virtual public Statement
 {
@@ -1262,7 +1206,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 17;
+    static const int ID = 15;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1288,7 +1232,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 18;
+    static const int ID = 16;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1313,7 +1257,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 20;
+    static const int ID = 18;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1338,7 +1282,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 21;
+    static const int ID = 19;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1363,7 +1307,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 22;
+    static const int ID = 20;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1388,7 +1332,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 23;
+    static const int ID = 21;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1413,7 +1357,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 24;
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1439,7 +1383,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 25;
+    static const int ID = 23;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1465,7 +1409,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 27;
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1490,7 +1434,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 29;
+    static const int ID = 27;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1515,7 +1459,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 30;
+    static const int ID = 28;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1538,7 +1482,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 31;
+    static const int ID = 29;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1565,7 +1509,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 32;
+    static const int ID = 30;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1590,7 +1534,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 33;
+    static const int ID = 31;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1615,7 +1559,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 34;
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1641,7 +1585,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 35;
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1667,7 +1611,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 36;
+    static const int ID = 34;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1693,7 +1637,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 37;
+    static const int ID = 35;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1719,7 +1663,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 38;
+    static const int ID = 36;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1745,7 +1689,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 39;
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1771,7 +1715,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 40;
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1821,7 +1765,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 41;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1848,7 +1792,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 42;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1876,7 +1820,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 43;
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1902,7 +1846,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 45;
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1930,7 +1874,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 46;
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1959,7 +1903,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 47;
+    static const int ID = 45;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1988,7 +1932,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 48;
+    static const int ID = 46;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2013,7 +1957,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 49;
+    static const int ID = 47;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2039,7 +1983,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 50;
+    static const int ID = 48;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2065,7 +2009,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 51;
+    static const int ID = 49;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2092,7 +2036,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 52;
+    static const int ID = 50;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2120,7 +2064,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 54;
+    static const int ID = 52;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2148,7 +2092,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 55;
+    static const int ID = 53;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2175,7 +2119,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 56;
+    static const int ID = 54;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2202,7 +2146,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 58;
+    static const int ID = 56;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2231,7 +2175,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 60;
+    static const int ID = 58;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2257,7 +2201,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 68;
+    static const int ID = 66;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2295,7 +2239,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 69;
+    static const int ID = 67;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2331,7 +2275,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 70;
+    static const int ID = 68;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2365,7 +2309,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 71;
+    static const int ID = 69;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2398,7 +2342,7 @@ public:
     String* source_rep;
     virtual String* get_source_rep();
 public:
-    static const int ID = 72;
+    static const int ID = 70;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2485,7 +2429,7 @@ public:
 	}
 
 public:
-	static const int ID = 76;
+	static const int ID = 74;
 	int classid()
 	{
 		return ID;
