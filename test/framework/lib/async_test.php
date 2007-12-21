@@ -250,8 +250,10 @@ abstract class AsyncTest extends Test
 
 	function run_program ($bundle)
 	{
-//		var_dump ($bundle);
 		$command = $bundle->get_command ();
+		global $opt_verbose;
+		if ($opt_verbose)
+			print "Running command: $command\n";
 
 		inst ("Running prog: $command");
 
