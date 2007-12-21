@@ -18,7 +18,7 @@ protected:
 
 public:
 	HIR_unparser(ostream& os = cout);
-	void pre_node(HIR::Node* in);
+	void pre_php_script (HIR::PHP_script* in);
 };
 
 #endif // PHC_HIR_UNPARSER 

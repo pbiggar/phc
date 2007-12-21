@@ -19,8 +19,8 @@ HIR_unparser::HIR_unparser (ostream& os): os(os)
 {
 }
 
-void HIR_unparser::pre_node (Node* in)
+void HIR_unparser::pre_php_script (PHP_script* in)
 {
-	AST::Node* ast = (new HIR_to_AST ())->fold_node (in);
-	ast -> visit (new AST_unparser ());
+	AST::PHP_script* ast = (new HIR_to_AST ())->fold_php_script (in);
+	ast->visit (new AST_unparser ());
 }
