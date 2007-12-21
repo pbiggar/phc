@@ -69,14 +69,14 @@ public:
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
-    virtual Expr* pre_conditional_expr(Conditional_expr* in);
+    virtual Conditional_expr* pre_conditional_expr(Conditional_expr* in);
     virtual Expr* pre_ignore_errors(Ignore_errors* in);
     virtual Expr* pre_constant(Constant* in);
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Variable* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
     virtual Expr* pre_pre_op(Pre_op* in);
-    virtual Expr* pre_post_op(Post_op* in);
+    virtual Post_op* pre_post_op(Post_op* in);
     virtual Expr* pre_array(Array* in);
     virtual void pre_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* pre_method_invocation(Method_invocation* in);
@@ -140,14 +140,14 @@ public:
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
-    virtual Expr* post_conditional_expr(Conditional_expr* in);
+    virtual Conditional_expr* post_conditional_expr(Conditional_expr* in);
     virtual Expr* post_ignore_errors(Ignore_errors* in);
     virtual Expr* post_constant(Constant* in);
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Variable* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
     virtual Expr* post_pre_op(Pre_op* in);
-    virtual Expr* post_post_op(Post_op* in);
+    virtual Post_op* post_post_op(Post_op* in);
     virtual Expr* post_array(Array* in);
     virtual void post_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* post_method_invocation(Method_invocation* in);
@@ -285,6 +285,8 @@ public:
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
+    virtual Conditional_expr* transform_conditional_expr(Conditional_expr* in);
+    virtual Post_op* transform_post_op(Post_op* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 public:

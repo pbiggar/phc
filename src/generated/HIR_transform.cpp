@@ -216,7 +216,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
     return in;
 }
 
-Expr* Transform::pre_conditional_expr(Conditional_expr* in)
+Conditional_expr* Transform::pre_conditional_expr(Conditional_expr* in)
 {
     return in;
 }
@@ -251,7 +251,7 @@ Expr* Transform::pre_pre_op(Pre_op* in)
     return in;
 }
 
-Expr* Transform::pre_post_op(Post_op* in)
+Post_op* Transform::pre_post_op(Post_op* in)
 {
     return in;
 }
@@ -562,7 +562,7 @@ Expr* Transform::post_bin_op(Bin_op* in)
     return in;
 }
 
-Expr* Transform::post_conditional_expr(Conditional_expr* in)
+Conditional_expr* Transform::post_conditional_expr(Conditional_expr* in)
 {
     return in;
 }
@@ -597,7 +597,7 @@ Expr* Transform::post_pre_op(Pre_op* in)
     return in;
 }
 
-Expr* Transform::post_post_op(Post_op* in)
+Post_op* Transform::post_post_op(Post_op* in)
 {
     return in;
 }
@@ -1791,6 +1791,38 @@ PHP_script* Transform::transform_php_script(PHP_script* in)
     return out;
 }
 
+Conditional_expr* Transform::transform_conditional_expr(Conditional_expr* in)
+{
+    if(in == NULL) return NULL;
+    
+    Conditional_expr* out;
+    
+    out = pre_conditional_expr(in);
+    if(out != NULL)
+    {
+    	children_conditional_expr(out);
+    	out = post_conditional_expr(out);
+    }
+    
+    return out;
+}
+
+Post_op* Transform::transform_post_op(Post_op* in)
+{
+    if(in == NULL) return NULL;
+    
+    Post_op* out;
+    
+    out = pre_post_op(in);
+    if(out != NULL)
+    {
+    	children_post_op(out);
+    	out = post_post_op(out);
+    }
+    
+    return out;
+}
+
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 void Transform::pre_statement(Statement* in, List<Statement*>* out)
@@ -2037,9 +2069,7 @@ Expr* Transform::pre_expr(Expr* in)
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
-    case Post_op::ID: return pre_post_op(dynamic_cast<Post_op*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
-    case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
@@ -2109,9 +2139,7 @@ Target* Transform::pre_target(Target* in)
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
-    case Post_op::ID: return pre_post_op(dynamic_cast<Post_op*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
-    case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
@@ -2377,9 +2405,7 @@ Expr* Transform::post_expr(Expr* in)
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
-    case Post_op::ID: return post_post_op(dynamic_cast<Post_op*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
-    case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
@@ -2449,9 +2475,7 @@ Target* Transform::post_target(Target* in)
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
-    case Post_op::ID: return post_post_op(dynamic_cast<Post_op*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
-    case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
@@ -2611,14 +2635,8 @@ void Transform::children_expr(Expr* in)
     case List_assignment::ID:
     	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
@@ -2729,14 +2747,8 @@ void Transform::children_target(Target* in)
     case List_assignment::ID:
     	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));

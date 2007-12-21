@@ -29,7 +29,6 @@ namespace HIR
 		Expr* post_nil(NIL* in);
 		Expr* post_constant (Constant* in);
 		Expr* post_foreach_has_key (Foreach_has_key* in);
-		Expr* post_array(Array* in);
 		Expr* post_assignment(Assignment* in);
 		Expr* post_op_assignment(Op_assignment* in);
 		Expr* pre_ignore_errors(Ignore_errors* in);

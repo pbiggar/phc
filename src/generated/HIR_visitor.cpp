@@ -1398,8 +1398,6 @@ void Visitor::pre_bin_op_chain(Bin_op* in)
 void Visitor::pre_conditional_expr_chain(Conditional_expr* in)
 {
     pre_node(in);
-    pre_target(in);
-    pre_expr(in);
     pre_conditional_expr(in);
 }
 
@@ -1456,8 +1454,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
 void Visitor::pre_post_op_chain(Post_op* in)
 {
     pre_node(in);
-    pre_target(in);
-    pre_expr(in);
     pre_post_op(in);
 }
 
@@ -1932,8 +1928,6 @@ void Visitor::post_bin_op_chain(Bin_op* in)
 void Visitor::post_conditional_expr_chain(Conditional_expr* in)
 {
     post_conditional_expr(in);
-    post_expr(in);
-    post_target(in);
     post_node(in);
 }
 
@@ -1990,8 +1984,6 @@ void Visitor::post_pre_op_chain(Pre_op* in)
 void Visitor::post_post_op_chain(Post_op* in)
 {
     post_post_op(in);
-    post_expr(in);
-    post_target(in);
     post_node(in);
 }
 
@@ -2732,6 +2724,30 @@ void Visitor::visit_php_script(PHP_script* in)
     }
 }
 
+void Visitor::visit_conditional_expr(Conditional_expr* in)
+{
+    if(in == NULL)
+    	visit_null("Conditional_expr");
+    else
+    {
+    	pre_conditional_expr_chain(in);
+    	children_conditional_expr(in);
+    	post_conditional_expr_chain(in);
+    }
+}
+
+void Visitor::visit_post_op(Post_op* in)
+{
+    if(in == NULL)
+    	visit_null("Post_op");
+    else
+    {
+    	pre_post_op_chain(in);
+    	children_post_op(in);
+    	post_post_op_chain(in);
+    }
+}
+
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 void Visitor::pre_statement_chain(Statement* in)
@@ -2872,14 +2888,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case List_assignment::ID:
     	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	pre_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	pre_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
@@ -2990,14 +3000,8 @@ void Visitor::pre_target_chain(Target* in)
     case List_assignment::ID:
     	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	pre_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	pre_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
@@ -3170,14 +3174,8 @@ void Visitor::post_expr_chain(Expr* in)
     case List_assignment::ID:
     	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	post_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	post_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
@@ -3288,14 +3286,8 @@ void Visitor::post_target_chain(Target* in)
     case List_assignment::ID:
     	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	post_post_op_chain(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	post_conditional_expr_chain(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
@@ -3468,14 +3460,8 @@ void Visitor::children_expr(Expr* in)
     case List_assignment::ID:
     	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
@@ -3586,14 +3572,8 @@ void Visitor::children_target(Target* in)
     case List_assignment::ID:
     	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
-    case Post_op::ID:
-    	children_post_op(dynamic_cast<Post_op*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Conditional_expr::ID:
-    	children_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     	break;
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));

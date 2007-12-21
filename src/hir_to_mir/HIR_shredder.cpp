@@ -139,57 +139,6 @@ Expr* Shredder::post_assignment (Assignment* in)
 	return eval (in->variable);
 }
 
-/*
- * Array literals
- */
-
-Expr* Shredder::post_array(Array* in)
-{
-	if (in->attrs->is_true("phc.lower_expr.no_temp"))
-		return in;
-
-	Variable* var = fresh_var ("TSa");
-
-	// We need to unset TS in case its run in a loop
-	pieces->push_back(new Eval_expr(new Method_invocation("unset", var->clone ())));
-
-	// We need to cast it in case its empty
-	pieces->push_back(
-		new Eval_expr (new Assignment (
-									var->clone (), 
-									false, 
-									new Cast(
-										"array", 
-										new String ("array"), 
-										var->clone ()))));
-	
-
-	List<Array_elem*>::const_iterator i;
-	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
-	{
-		Expr* key;
-
-		if((*i)->key != NULL)
-			key = (*i)->key;
-		else
-			key = NULL;
-
-		pieces->push_back(new Eval_expr(new Assignment(
-						new Variable (
-							NULL,
-							var->variable_name->clone(),
-							new List<Expr*>(key)),
-						(*i)->is_ref,
-						(*i)->val
-						)));
-	}
-
-	return new Variable (
-			NULL,
-			var->variable_name->clone (),
-			new List<Expr*>());
-}
-
 Expr* Shredder::post_op_assignment(Op_assignment* in)
 {
 	Assignment* assignment;

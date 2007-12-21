@@ -75,7 +75,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Cast*,				// Cast*
  HIR::Unary_op*,			// Unary_op*
  HIR::Bin_op*,				// Bin_op*
- HIR::Conditional_expr*,				// Conditional_expr*
+ HIR::Expr*,				// Conditional_expr*
  HIR::Ignore_errors*,				// Ignore_errors*
  HIR::Constant*,			// Constant*
  HIR::Instanceof*,			// Instanceof*
@@ -84,7 +84,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Reflection*,			// Reflection*
  HIR::Target*,				// Target*
  HIR::Pre_op*,				// Pre_op*
- HIR::Post_op*,				// Post_op*
+ HIR::Expr*,				// Post_op*
  HIR::Array*,				// Array*
  HIR::Array_elem*,			// Array_elem*
  HIR::Method_invocation*,	// Method_invocation*
@@ -310,14 +310,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Conditional_expr* fold_impl_conditional_expr (AST::Conditional_expr* orig, HIR::Expr* cond, HIR::Expr* iftrue, HIR::Expr* iffalse)
-	{
-		HIR::Conditional_expr* result;
-		result = new HIR::Conditional_expr (cond, iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::Op_assignment* fold_impl_op_assignment(AST::Op_assignment* orig, HIR::Variable* variable, HIR::OP* op, HIR::Expr* expr)
 	{
 		HIR::Op_assignment* result;
@@ -325,7 +317,6 @@ class AST_to_HIR : public AST::Fold
 		result->attrs = orig->attrs;
 		return result;
 	}
-
 
 	HIR::Loop* fold_impl_while (AST::While* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
 	{
@@ -517,15 +508,6 @@ class AST_to_HIR : public AST::Fold
 		result->attrs = orig->attrs;
 		return result;
 	}
-
-	HIR::Post_op* fold_impl_post_op(AST::Post_op* orig, HIR::Variable* variable, HIR::OP* op)
-	{
-		HIR::Post_op* result;
-		result = new HIR::Post_op(variable, op);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 
 	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 
 	{

@@ -29,8 +29,10 @@ class Type;
 class Attr_mod;
 class Name_with_default;
 class List_element;
+class Conditional_expr;
 class Variable_name;
 class Target;
+class Post_op;
 class Array_elem;
 class Method_name;
 class Actual_parameter;
@@ -85,13 +87,11 @@ class List_assignment;
 class Cast;
 class Unary_op;
 class Bin_op;
-class Conditional_expr;
 class Ignore_errors;
 class Constant;
 class Instanceof;
 class Variable;
 class Pre_op;
-class Post_op;
 class Array;
 class Method_invocation;
 class New;
@@ -104,7 +104,7 @@ class NIL;
 class Transform;
 class Visitor;
 
-// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Identifier | HT_ITERATOR<long>;
+// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | List_element | Conditional_expr | Variable_name | Target | Post_op | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Identifier | HT_ITERATOR<long>;
 class Node : virtual public Object
 {
 public:
@@ -386,6 +386,33 @@ public:
     virtual void assert_valid() = 0;
 };
 
+// Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ;
+class Conditional_expr : virtual public Node
+{
+public:
+    Conditional_expr(Expr* cond, Expr* iftrue, Expr* iffalse);
+protected:
+    Conditional_expr();
+public:
+    Expr* cond;
+    Expr* iftrue;
+    Expr* iffalse;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 43;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Conditional_expr* clone();
+public:
+    virtual void assert_valid();
+};
+
 // Variable_name ::= VARIABLE_NAME | Reflection;
 class Variable_name : virtual public Node
 {
@@ -424,6 +451,34 @@ public:
     virtual Target* clone() = 0;
 public:
     virtual void assert_valid() = 0;
+};
+
+// Post_op ::= Variable OP ;
+class Post_op : virtual public Node
+{
+public:
+    Post_op(Variable* variable, OP* op);
+protected:
+    Post_op();
+public:
+    Variable* variable;
+    OP* op;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 50;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Post_op* clone();
+public:
+    virtual void assert_valid();
+public:
+    Post_op(Variable* var, const char* op);
 };
 
 // Array_elem ::= key:Expr? is_ref:"&" val:Expr ;
@@ -689,7 +744,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | Foreach_has_key | Foreach_get_key | Foreach_get_val;
+// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Array | Ignore_errors | Foreach_has_key | Foreach_get_key | Foreach_get_val;
 class Expr : virtual public Target
 {
 public:
@@ -1815,33 +1870,6 @@ public:
     Bin_op(Expr* left, Expr* right, const char* op);
 };
 
-// Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ;
-class Conditional_expr : virtual public Expr
-{
-public:
-    Conditional_expr(Expr* cond, Expr* iftrue, Expr* iffalse);
-protected:
-    Conditional_expr();
-public:
-    Expr* cond;
-    Expr* iftrue;
-    Expr* iffalse;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 43;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Conditional_expr* clone();
-public:
-    virtual void assert_valid();
-};
-
 // Ignore_errors ::= Expr ;
 class Ignore_errors : virtual public Expr
 {
@@ -1974,34 +2002,6 @@ public:
     virtual void assert_valid();
 public:
     Pre_op(Variable* var, const char* op);
-};
-
-// Post_op ::= Variable OP ;
-class Post_op : virtual public Expr
-{
-public:
-    Post_op(Variable* variable, OP* op);
-protected:
-    Post_op();
-public:
-    Variable* variable;
-    OP* op;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 50;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Post_op* clone();
-public:
-    virtual void assert_valid();
-public:
-    Post_op(Variable* var, const char* op);
 };
 
 // Array ::= Array_elem* ;

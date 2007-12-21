@@ -461,6 +461,8 @@ public:
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
     virtual void visit_php_script(PHP_script* in);
+    virtual void visit_conditional_expr(Conditional_expr* in);
+    virtual void visit_post_op(Post_op* in);
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 public:

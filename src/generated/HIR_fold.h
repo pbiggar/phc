@@ -831,6 +831,8 @@ public:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Nested_list_elements::ID:
 				return fold_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
+			case Conditional_expr::ID:
+				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Reflection::ID:
@@ -867,12 +869,8 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case List_assignment::ID:
 				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
-			case Post_op::ID:
-				return fold_post_op(dynamic_cast<Post_op*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:
@@ -883,6 +881,8 @@ public:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
+			case Post_op::ID:
+				return fold_post_op(dynamic_cast<Post_op*>(in));
 			case Array_elem::ID:
 				return fold_array_elem(dynamic_cast<Array_elem*>(in));
 			case METHOD_NAME::ID:
@@ -1053,12 +1053,8 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case List_assignment::ID:
 				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
-			case Post_op::ID:
-				return fold_post_op(dynamic_cast<Post_op*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:
@@ -1151,12 +1147,8 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case List_assignment::ID:
 				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
-			case Post_op::ID:
-				return fold_post_op(dynamic_cast<Post_op*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:

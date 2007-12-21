@@ -1055,12 +1055,239 @@ List_element::List_element()
 {
 }
 
+Conditional_expr::Conditional_expr(Expr* cond, Expr* iftrue, Expr* iffalse)
+{
+    this->cond = cond;
+    this->iftrue = iftrue;
+    this->iffalse = iffalse;
+}
+
+Conditional_expr::Conditional_expr()
+{
+    this->cond = 0;
+    this->iftrue = 0;
+    this->iffalse = 0;
+}
+
+void Conditional_expr::visit(Visitor* visitor)
+{
+    visitor->visit_conditional_expr(this);
+}
+
+void Conditional_expr::transform_children(Transform* transform)
+{
+    transform->children_conditional_expr(this);
+}
+
+int Conditional_expr::classid()
+{
+    return ID;
+}
+
+bool Conditional_expr::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
+    if(that == NULL) return false;
+    
+    if(this->cond == NULL)
+    {
+    	if(that->cond != NULL && !that->cond->match(this->cond))
+    		return false;
+    }
+    else if(!this->cond->match(that->cond))
+    	return false;
+    
+    if(this->iftrue == NULL)
+    {
+    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
+    		return false;
+    }
+    else if(!this->iftrue->match(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL)
+    {
+    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
+    		return false;
+    }
+    else if(!this->iffalse->match(that->iffalse))
+    	return false;
+    
+    return true;
+}
+
+bool Conditional_expr::equals(Node* in)
+{
+    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
+    if(that == NULL) return false;
+    
+    if(this->cond == NULL || that->cond == NULL)
+    {
+    	if(this->cond != NULL || that->cond != NULL)
+    		return false;
+    }
+    else if(!this->cond->equals(that->cond))
+    	return false;
+    
+    if(this->iftrue == NULL || that->iftrue == NULL)
+    {
+    	if(this->iftrue != NULL || that->iftrue != NULL)
+    		return false;
+    }
+    else if(!this->iftrue->equals(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL || that->iffalse == NULL)
+    {
+    	if(this->iffalse != NULL || that->iffalse != NULL)
+    		return false;
+    }
+    else if(!this->iffalse->equals(that->iffalse))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Conditional_expr* Conditional_expr::clone()
+{
+    Expr* cond = this->cond ? this->cond->clone() : NULL;
+    Expr* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
+    Expr* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
+    Conditional_expr* clone = new Conditional_expr(cond, iftrue, iffalse);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Conditional_expr::assert_valid()
+{
+    assert(cond != NULL);
+    cond->assert_valid();
+    assert(iftrue != NULL);
+    iftrue->assert_valid();
+    assert(iffalse != NULL);
+    iffalse->assert_valid();
+    Node::assert_mixin_valid();
+}
+
 Variable_name::Variable_name()
 {
 }
 
 Target::Target()
 {
+}
+
+Post_op::Post_op(Variable* variable, OP* op)
+{
+    this->variable = variable;
+    this->op = op;
+}
+
+Post_op::Post_op()
+{
+    this->variable = 0;
+    this->op = 0;
+}
+
+void Post_op::visit(Visitor* visitor)
+{
+    visitor->visit_post_op(this);
+}
+
+void Post_op::transform_children(Transform* transform)
+{
+    transform->children_post_op(this);
+}
+
+int Post_op::classid()
+{
+    return ID;
+}
+
+bool Post_op::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Post_op* that = dynamic_cast<Post_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable == NULL)
+    {
+    	if(that->variable != NULL && !that->variable->match(this->variable))
+    		return false;
+    }
+    else if(!this->variable->match(that->variable))
+    	return false;
+    
+    if(this->op == NULL)
+    {
+    	if(that->op != NULL && !that->op->match(this->op))
+    		return false;
+    }
+    else if(!this->op->match(that->op))
+    	return false;
+    
+    return true;
+}
+
+bool Post_op::equals(Node* in)
+{
+    Post_op* that = dynamic_cast<Post_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable == NULL || that->variable == NULL)
+    {
+    	if(this->variable != NULL || that->variable != NULL)
+    		return false;
+    }
+    else if(!this->variable->equals(that->variable))
+    	return false;
+    
+    if(this->op == NULL || that->op == NULL)
+    {
+    	if(this->op != NULL || that->op != NULL)
+    		return false;
+    }
+    else if(!this->op->equals(that->op))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Post_op* Post_op::clone()
+{
+    Variable* variable = this->variable ? this->variable->clone() : NULL;
+    OP* op = this->op ? this->op->clone() : NULL;
+    Post_op* clone = new Post_op(variable, op);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Post_op::assert_valid()
+{
+    assert(variable != NULL);
+    variable->assert_valid();
+    assert(op != NULL);
+    op->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Post_op::Post_op(Variable* var, const char* op)
+{
+    {
+		this->variable = var;
+		this->op = new OP(new String(op));
+	}
 }
 
 Array_elem::Array_elem(Expr* key, bool is_ref, Expr* val)
@@ -6437,126 +6664,6 @@ Bin_op::Bin_op(Expr* left, Expr* right, const char* op)
 	}
 }
 
-Conditional_expr::Conditional_expr(Expr* cond, Expr* iftrue, Expr* iffalse)
-{
-    this->cond = cond;
-    this->iftrue = iftrue;
-    this->iffalse = iffalse;
-}
-
-Conditional_expr::Conditional_expr()
-{
-    this->cond = 0;
-    this->iftrue = 0;
-    this->iffalse = 0;
-}
-
-void Conditional_expr::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Conditional_expr::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Conditional_expr::classid()
-{
-    return ID;
-}
-
-bool Conditional_expr::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->cond == NULL)
-    {
-    	if(that->cond != NULL && !that->cond->match(this->cond))
-    		return false;
-    }
-    else if(!this->cond->match(that->cond))
-    	return false;
-    
-    if(this->iftrue == NULL)
-    {
-    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
-    		return false;
-    }
-    else if(!this->iftrue->match(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL)
-    {
-    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
-    		return false;
-    }
-    else if(!this->iffalse->match(that->iffalse))
-    	return false;
-    
-    return true;
-}
-
-bool Conditional_expr::equals(Node* in)
-{
-    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->cond == NULL || that->cond == NULL)
-    {
-    	if(this->cond != NULL || that->cond != NULL)
-    		return false;
-    }
-    else if(!this->cond->equals(that->cond))
-    	return false;
-    
-    if(this->iftrue == NULL || that->iftrue == NULL)
-    {
-    	if(this->iftrue != NULL || that->iftrue != NULL)
-    		return false;
-    }
-    else if(!this->iftrue->equals(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL || that->iffalse == NULL)
-    {
-    	if(this->iffalse != NULL || that->iffalse != NULL)
-    		return false;
-    }
-    else if(!this->iffalse->equals(that->iffalse))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Conditional_expr* Conditional_expr::clone()
-{
-    Expr* cond = this->cond ? this->cond->clone() : NULL;
-    Expr* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
-    Expr* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    Conditional_expr* clone = new Conditional_expr(cond, iftrue, iffalse);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Conditional_expr::assert_valid()
-{
-    assert(cond != NULL);
-    cond->assert_valid();
-    assert(iftrue != NULL);
-    iftrue->assert_valid();
-    assert(iffalse != NULL);
-    iffalse->assert_valid();
-    Node::assert_mixin_valid();
-}
-
 Ignore_errors::Ignore_errors(Expr* expr)
 {
     this->expr = expr;
@@ -7102,113 +7209,6 @@ void Pre_op::assert_valid()
 }
 
 Pre_op::Pre_op(Variable* var, const char* op)
-{
-    {
-		this->variable = var;
-		this->op = new OP(new String(op));
-	}
-}
-
-Post_op::Post_op(Variable* variable, OP* op)
-{
-    this->variable = variable;
-    this->op = op;
-}
-
-Post_op::Post_op()
-{
-    this->variable = 0;
-    this->op = 0;
-}
-
-void Post_op::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Post_op::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Post_op::classid()
-{
-    return ID;
-}
-
-bool Post_op::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Post_op* that = dynamic_cast<Post_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    if(this->op == NULL)
-    {
-    	if(that->op != NULL && !that->op->match(this->op))
-    		return false;
-    }
-    else if(!this->op->match(that->op))
-    	return false;
-    
-    return true;
-}
-
-bool Post_op::equals(Node* in)
-{
-    Post_op* that = dynamic_cast<Post_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->op == NULL || that->op == NULL)
-    {
-    	if(this->op != NULL || that->op != NULL)
-    		return false;
-    }
-    else if(!this->op->equals(that->op))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Post_op* Post_op::clone()
-{
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    OP* op = this->op ? this->op->clone() : NULL;
-    Post_op* clone = new Post_op(variable, op);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Post_op::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(op != NULL);
-    op->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Post_op::Post_op(Variable* var, const char* op)
 {
     {
 		this->variable = var;
