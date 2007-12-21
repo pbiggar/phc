@@ -251,11 +251,6 @@ Expr* Transform::pre_pre_op(Pre_op* in)
     return in;
 }
 
-Post_op* Transform::pre_post_op(Post_op* in)
-{
-    return in;
-}
-
 Expr* Transform::pre_array(Array* in)
 {
     return in;
@@ -593,11 +588,6 @@ Reflection* Transform::post_reflection(Reflection* in)
 }
 
 Expr* Transform::post_pre_op(Pre_op* in)
-{
-    return in;
-}
-
-Post_op* Transform::post_post_op(Post_op* in)
 {
     return in;
 }
@@ -983,12 +973,6 @@ void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable = transform_variable(in->variable);
-}
-
-void Transform::children_post_op(Post_op* in)
-{
-    in->variable = transform_variable(in->variable);
-    in->op = transform_op(in->op);
 }
 
 void Transform::children_array(Array* in)
@@ -1802,22 +1786,6 @@ Conditional_expr* Transform::transform_conditional_expr(Conditional_expr* in)
     {
     	children_conditional_expr(out);
     	out = post_conditional_expr(out);
-    }
-    
-    return out;
-}
-
-Post_op* Transform::transform_post_op(Post_op* in)
-{
-    if(in == NULL) return NULL;
-    
-    Post_op* out;
-    
-    out = pre_post_op(in);
-    if(out != NULL)
-    {
-    	children_post_op(out);
-    	out = post_post_op(out);
     }
     
     return out;

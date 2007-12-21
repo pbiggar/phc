@@ -4723,10 +4723,10 @@ void Cast::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Cast::Cast(const char* cast, VARIABLE_NAME* variable_name)
+Cast::Cast(const char* type, VARIABLE_NAME* variable_name)
 {
     {
-		this->cast = new CAST(new String(cast));
+		this->cast = new CAST(new String(type));
 		this->variable_name = variable_name;
 	}
 }

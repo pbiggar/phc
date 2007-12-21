@@ -60,7 +60,7 @@
 (Variable,Variable,)
 (Variable_name,Variable_name,)
 (BOOL<bool>,Expr,)
-(CAST<String*>,CAST<String*>,)
+(CAST,CAST,)
 (CLASS_NAME,CLASS_NAME,)
 (CONSTANT_NAME,CONSTANT_NAME,)
 (HT_ITERATOR<long>,HT_ITERATOR<long>,)

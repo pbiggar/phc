@@ -514,9 +514,9 @@ public:
 class Cast
 {
 public:
-	Cast(const char* cast, VARIABLE_NAME* variable_name) 
+	Cast(const char* type, VARIABLE_NAME* variable_name) 
 	{
-		this->cast = new CAST(new String(cast));
+		this->cast = new CAST(new String(type));
 		this->variable_name = variable_name;
 	}
 };

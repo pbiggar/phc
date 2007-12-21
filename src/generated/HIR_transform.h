@@ -76,7 +76,6 @@ public:
     virtual Variable* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
     virtual Expr* pre_pre_op(Pre_op* in);
-    virtual Post_op* pre_post_op(Post_op* in);
     virtual Expr* pre_array(Array* in);
     virtual void pre_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* pre_method_invocation(Method_invocation* in);
@@ -147,7 +146,6 @@ public:
     virtual Variable* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
     virtual Expr* post_pre_op(Pre_op* in);
-    virtual Post_op* post_post_op(Post_op* in);
     virtual Expr* post_array(Array* in);
     virtual void post_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* post_method_invocation(Method_invocation* in);
@@ -218,7 +216,6 @@ public:
     virtual void children_variable(Variable* in);
     virtual void children_reflection(Reflection* in);
     virtual void children_pre_op(Pre_op* in);
-    virtual void children_post_op(Post_op* in);
     virtual void children_array(Array* in);
     virtual void children_array_elem(Array_elem* in);
     virtual void children_method_invocation(Method_invocation* in);
@@ -286,7 +283,6 @@ public:
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
     virtual Conditional_expr* transform_conditional_expr(Conditional_expr* in);
-    virtual Post_op* transform_post_op(Post_op* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 public:

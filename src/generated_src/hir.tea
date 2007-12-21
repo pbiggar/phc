@@ -2,9 +2,12 @@
  - phc -- the open source PHP compiler
  - See doc/license/README.license for licensing information
  -
- - The phc grammar in .tea format. 
+ - Definition of the HIR
  -
- - This is the authoritative grammar for phc. 
+ - Note that the HIR does not support the 'declare' statement, which nobody
+ - uses or can even define precisely. It does not even seem to be supported
+ - by the interpreter.
+ -
  -}
 
 {-
@@ -17,6 +20,7 @@ external class "IR";
 use list "List";
 use string "String";
 use namespace "HIR";
+no source_rep;
 
 {-
    Top-level structure	
@@ -124,7 +128,7 @@ List_assignment ::= List_element?* Expr ;
 List_element ::= Variable | Nested_list_elements ;
 Nested_list_elements ::= List_element?* ;
 
-Cast ::= CAST<String*> Expr ;
+Cast ::= CAST Expr ;
 Unary_op ::= OP Expr ;
 Bin_op ::= left:Expr OP right:Expr ;
 
@@ -142,7 +146,6 @@ Reflection ::= Expr ;
 Target ::= Expr | CLASS_NAME ;
 
 Pre_op ::= OP Variable ;
-Post_op ::= Variable OP ;
 
 Array ::= Array_elem* ;
 Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
@@ -165,7 +168,7 @@ Commented_node ::=
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME 
+	  | CAST | OP | CONSTANT_NAME | LABEL_NAME
 	;  
 
 {-
@@ -515,16 +518,6 @@ public:
 	}
 };
 
-class Post_op
-{
-public:
-	Post_op(Variable* var, const char* op) 
-	{
-		this->variable = var;
-		this->op = new OP(new String(op));
-	}
-};
-
 class Pre_op
 {
 public:
@@ -557,19 +550,10 @@ public:
 class Cast
 {
 public:
-	Cast(const char* type, String* source_rep, Expr* expr) 
+	Cast(const char* type, Expr* expr) 
 	{
-		this->cast = new CAST(new String(type), source_rep);
+		this->cast = new CAST(new String(type));
 		this->expr = expr;
-	}
-};
-
-class CAST
-{
-public:
-	String* get_value_as_string ()
-	{
-		return value;
 	}
 };
 
@@ -581,7 +565,6 @@ public:
 		value = identifier;
 		std::ostringstream os;
 		os << "ht_iterator_" << value;
-		source_rep = new String(os.str());
 	}
 
 	String* get_value_as_string ()
@@ -591,7 +574,6 @@ public:
 		return new String(os.str());
 	}
 };
-
 
 
 class Identifier
@@ -604,7 +586,6 @@ class Literal
 {
 public:
 	virtual String* get_value_as_string() = 0;
-	virtual String* get_source_rep() = 0;
 };
 
 class INT
@@ -625,12 +606,6 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return _get_value_as_string ();
-	}
-
-	INT (int v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
 	}
 };
 
@@ -663,11 +638,9 @@ public:
 		return _get_value_as_string ();
 	}
 
-	REAL (double v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
-	}
+public:
+	// TODO: we still need the source_rep for code generation-but we shouldn't
+	String* source_rep;
 };
 
 class BOOL
@@ -686,12 +659,6 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return _get_value_as_string ();
-	}
-
-	BOOL (bool v)
-	{
-		value = v;
-		source_rep = _get_value_as_string ();
 	}
 };
 
@@ -712,12 +679,6 @@ public:
 	{
 		return value->clone();
 	}
-
-	STRING (String* v)
-	{
-		value = v;
-		source_rep = v;
-	}
 };
 
 class NIL
@@ -726,9 +687,5 @@ public:
 	virtual String* get_value_as_string()
 	{
 		return new String("NULL");
-	}
-	NIL ()
-	{
-		source_rep = new String ("NULL");
 	}
 };

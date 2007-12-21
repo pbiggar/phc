@@ -79,7 +79,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Reflection*,			// Reflection*
  MIR::Target*,				// Target*
  MIR::Pre_op*,				// Pre_op*
- MIR::Expr*,				// Post_op*
  MIR::Array*,				// Array*
  MIR::Array_elem*,			// Array_elem*
  MIR::Method_invocation*,	// Method_invocation*

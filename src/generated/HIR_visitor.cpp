@@ -234,10 +234,6 @@ void Visitor::pre_pre_op(Pre_op* in)
 {
 }
 
-void Visitor::pre_post_op(Post_op* in)
-{
-}
-
 void Visitor::pre_array(Array* in)
 {
 }
@@ -556,10 +552,6 @@ void Visitor::post_target(Target* in)
 }
 
 void Visitor::post_pre_op(Pre_op* in)
-{
-}
-
-void Visitor::post_post_op(Post_op* in)
 {
 }
 
@@ -958,12 +950,6 @@ void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable(in->variable);
-}
-
-void Visitor::children_post_op(Post_op* in)
-{
-    visit_variable(in->variable);
-    visit_op(in->op);
 }
 
 void Visitor::children_array(Array* in)
@@ -1449,12 +1435,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
     pre_target(in);
     pre_expr(in);
     pre_pre_op(in);
-}
-
-void Visitor::pre_post_op_chain(Post_op* in)
-{
-    pre_node(in);
-    pre_post_op(in);
 }
 
 void Visitor::pre_array_chain(Array* in)
@@ -1978,12 +1958,6 @@ void Visitor::post_pre_op_chain(Pre_op* in)
     post_pre_op(in);
     post_expr(in);
     post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_post_op_chain(Post_op* in)
-{
-    post_post_op(in);
     post_node(in);
 }
 
@@ -2733,18 +2707,6 @@ void Visitor::visit_conditional_expr(Conditional_expr* in)
     	pre_conditional_expr_chain(in);
     	children_conditional_expr(in);
     	post_conditional_expr_chain(in);
-    }
-}
-
-void Visitor::visit_post_op(Post_op* in)
-{
-    if(in == NULL)
-    	visit_null("Post_op");
-    else
-    {
-    	pre_post_op_chain(in);
-    	children_post_op(in);
-    	post_post_op_chain(in);
     }
 }
 

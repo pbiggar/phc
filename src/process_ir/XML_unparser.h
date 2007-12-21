@@ -301,32 +301,18 @@ public:
 	
 	void pre_identifier(HIR::Identifier* in)
 	{
-		HIR::CAST* cast = dynamic_cast<HIR::CAST*>(in);
+		String* value = in->get_value_as_string();
 
-		if(cast != NULL)
-		{
-			print_indent();
-			os << "<value>" << *cast->value << "</value>" << endl;
-
-			print_indent();
-			os << "<source_rep>" << *cast->source_rep << "</source_rep>" << endl;
-		}
+		print_indent();
+		if(needs_encoding(value))
+			os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
 		else
-		{
-			String* value = in->get_value_as_string();
-
-			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else
-				os << "<value>" << *value << "</value>" << endl;;
-		}
+			os << "<value>" << *value << "</value>" << endl;;
 	}
 
 	void pre_literal(HIR::Literal* in)
 	{
 		String* value = in->get_value_as_string();
-		String* source_rep = in->get_source_rep();
 
 		// NIL does not have a value
 		if(!dynamic_cast<HIR::NIL*>(in))
@@ -337,12 +323,6 @@ public:
 			else	
 				os << "<value>" << *value << "</value>" << endl;
 		}
-
-		print_indent();
-		if(needs_encoding(source_rep))
-			os << "<source_rep encoding=\"base64\">" << *base64_encode(source_rep) << "</source_rep>" << endl;
-		else	
-			os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
 	}
 
 };

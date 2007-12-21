@@ -75,7 +75,6 @@ template
  class _Reflection,
  class _Target,
  class _Pre_op,
- class _Post_op,
  class _Array,
  class _Array_elem,
  class _Method_invocation,
@@ -659,15 +658,6 @@ public:
 		return fold_impl_pre_op(in, op, variable);
 	}
 
-	virtual _Post_op fold_post_op(Post_op* in)
-	{
-		_Variable variable = 0;
-		if(in->variable != NULL) variable = fold_variable(in->variable);
-		_OP op = 0;
-		if(in->op != NULL) op = fold_op(in->op);
-		return fold_impl_post_op(in, variable, op);
-	}
-
 	virtual _Array fold_array(Array* in)
 	{
 		List<_Array_elem>* array_elems = new List<_Array_elem>;
@@ -782,7 +772,6 @@ public:
 	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, List<_Expr>* array_indices) { assert(0); };
 	virtual _Reflection fold_impl_reflection(Reflection* orig, _Expr expr) { assert(0); };
 	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _Variable variable) { assert(0); };
-	virtual _Post_op fold_impl_post_op(Post_op* orig, _Variable variable, _OP op) { assert(0); };
 	virtual _Array fold_impl_array(Array* orig, List<_Array_elem>* array_elems) { assert(0); };
 	virtual _Array_elem fold_impl_array_elem(Array_elem* orig, _Expr key, bool is_ref, _Expr val) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
@@ -881,8 +870,6 @@ public:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
-			case Post_op::ID:
-				return fold_post_op(dynamic_cast<Post_op*>(in));
 			case Array_elem::ID:
 				return fold_array_elem(dynamic_cast<Array_elem*>(in));
 			case METHOD_NAME::ID:
@@ -1274,6 +1261,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

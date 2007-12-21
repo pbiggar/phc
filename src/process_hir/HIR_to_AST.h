@@ -79,7 +79,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Reflection*,			// Reflection*
  AST::Target*,				// Target*
  AST::Pre_op*,				// Pre_op*
- AST::Post_op*,				// Post_op*
  AST::Array*,				// Array*
  AST::Array_elem*,			// Array_elem*
  AST::Method_invocation*,	// Method_invocation*
@@ -508,15 +507,6 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Post_op* fold_impl_post_op(HIR::Post_op* orig, AST::Variable* variable, AST::OP* op)
-	{
-		AST::Post_op* result;
-		result = new AST::Post_op(variable, op);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-
 	AST::Array* fold_impl_array(HIR::Array* orig, List<AST::Array_elem*>* array_elems) 
 	{
 		AST::Array* result;
@@ -657,7 +647,7 @@ class HIR_to_AST : public HIR::Fold
 	AST::CAST* fold_cast(HIR::CAST* orig) 
 	{
 		AST::CAST* result;
-		result = new AST::CAST(orig->value, orig->source_rep);
+		result = new AST::CAST(orig->value, orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

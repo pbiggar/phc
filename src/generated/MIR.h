@@ -1425,7 +1425,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Cast(const char* cast, VARIABLE_NAME* variable_name);
+    Cast(const char* type, VARIABLE_NAME* variable_name);
 };
 
 // Unary_op ::= OP VARIABLE_NAME ;

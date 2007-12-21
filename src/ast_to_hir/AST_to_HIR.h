@@ -649,7 +649,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::CAST* fold_cast(AST::CAST* orig) 
 	{
 		HIR::CAST* result;
-		result = new HIR::CAST(orig->value, orig->source_rep);
+		result = new HIR::CAST(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
