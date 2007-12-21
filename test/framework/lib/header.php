@@ -342,11 +342,14 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 	$command_string = "$reason_string$dependency_string$command_string$err_string";
 	if (is_array ($outs))
 	{
-		$outs = join ("\n", $outs);
+		$output = "";
+		foreach ($outs as $i => $out)
+		{
+			$output .= "{$red}Output $i$reset:\n$out\n";
+		}
 	}
 
 	$header = $command_string;
-	$output = $outs;
 
 	global $log_directory;
 	$script_name = adjusted_name ($subject);
