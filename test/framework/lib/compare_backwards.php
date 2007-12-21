@@ -8,12 +8,20 @@
 
 function get_pass_list ()
 {
-	list ($out, $err, $exit) = complete_exec ("src/phc --list-passes");
-	assert ($out and $err === "" and $exit === 0);
+	global $phc;
+	static $cache = false; // we only need to call this once
 
-	preg_match_all ("/([a-zA-Z-_0-9]+)\s+\((enabled|disabled)\s+- (AST|HIR|MIR|LIR)\)\s+.+/", $out, $matches);
+	if ($cache === false)
+	{
+		list ($out, $err, $exit) = complete_exec ("$phc --list-passes");
+		assert ($out and $err === "" and $exit === 0);
 
-	return $matches[1];
+		preg_match_all ("/([a-zA-Z-_0-9]+)\s+\((enabled|disabled)\s+- (AST|HIR|MIR|LIR)\)\s+.+/", $out, $matches);
+
+		$cache = $matches[1];
+	}
+
+	return $cache;
 }
 
 
