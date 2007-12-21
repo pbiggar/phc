@@ -10,7 +10,6 @@
 
 #include "ast_to_hir/AST_lower_expr.h"
 #include "AST_transform.h"
-#include "process_ir/fresh.h"
 
 class Split_unset_isset : public AST::Transform
 {

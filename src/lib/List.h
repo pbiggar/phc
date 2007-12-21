@@ -8,7 +8,6 @@
 #ifndef PHC_LIST
 #define PHC_LIST
 
-#include <assert.h>
 #include <list>
 #include "lib/Object.h"
 

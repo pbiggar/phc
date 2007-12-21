@@ -2,9 +2,14 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * 
+ * A pass to wrap plugins.
  */
+
 #include "Plugin_pass.h"
+#include "lib/error.h"
+#include "AST.h"
+#include "HIR.h"
+#include "MIR.h"
 
 
 Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option)

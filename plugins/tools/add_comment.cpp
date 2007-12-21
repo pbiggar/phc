@@ -6,6 +6,7 @@
  */
 
 #include "pass_manager/Plugin_pass.h"
+#include "AST.h"
 
 using namespace AST;
 

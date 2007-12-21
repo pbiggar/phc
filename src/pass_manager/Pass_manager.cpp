@@ -5,24 +5,24 @@
  * Manage all aspects of the pass queue
  */
 
+#include "Pass_manager.h"
+#include "process_ir/General.h"
+
 #include "cmdline.h"
 #include "ltdl.h"
+
 #include "Plugin_pass.h"
-#include "Pass_manager.h"
 #include "Visitor_pass.h"
 #include "Transform_pass.h"
-#include "process_ast/AST_unparser.h"
+
 #include "process_ir/XML_unparser.h"
-#include "process_ir/Foreach.h"
+#include "process_ast/AST_unparser.h"
+#include "process_hir/HIR_unparser.h"
+#include "process_mir/MIR_unparser.h"
 #include "process_ast/DOT_unparser.h"
+
 #include "process_ast/Invalid_check.h"
 #include "process_mir/Goto_uppering.h"
-#include "process_mir/MIR_unparser.h"
-#include "process_hir/HIR_unparser.h"
-#include "AST.h"
-#include "HIR.h"
-#include "MIR.h"
-
 
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)

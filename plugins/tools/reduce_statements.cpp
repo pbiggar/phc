@@ -6,6 +6,8 @@
  */
 
 #include "AST_transform.h"
+#include "HIR_transform.h"
+#include "MIR_transform.h"
 #include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
 

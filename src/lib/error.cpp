@@ -5,12 +5,16 @@
  * Error handling 
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "lib/error.h"
+
 #include "AST.h"
 #include "HIR.h"
 #include "MIR.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 #include "cmdline.h"
 
 // Generally we pass this through the pass manager. However, this is

@@ -8,7 +8,7 @@
  * the HIR.
  */
 #include "Invalid_check.h"
-#include "process_ir/Foreach.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 

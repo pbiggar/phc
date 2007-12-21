@@ -5,6 +5,7 @@
 
 #include "pass_manager/Plugin_pass.h"
 #include "parsing/parse.h"
+#include "AST_transform.h"
 
 using namespace AST;
 

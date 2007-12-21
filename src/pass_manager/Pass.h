@@ -8,10 +8,8 @@
 #ifndef PHC_PASS_H
 #define PHC_PASS_H
 
-#include "Pass_manager.h"
+#include "process_ir/IR.h"
 #include "lib/String.h"
-#include "AST.h"
-#include "HIR.h"
 
 class Pass_manager;
 

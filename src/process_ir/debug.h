@@ -13,7 +13,9 @@
 #ifndef PHC_DEBUG
 #define PHC_DEBUG
 
-#include "generated/MIR.h"
+#include "AST.h"
+#include "HIR.h"
+#include "MIR.h"
 
 /* Dump the XML for anynode to stderr. A global function. */
 // these are split so they're easy to call from the debugger

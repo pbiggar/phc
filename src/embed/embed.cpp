@@ -1,3 +1,10 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Wrap the embedded PHP run-time
+ */
+
 #include "embed.h"
 #include <assert.h>
 

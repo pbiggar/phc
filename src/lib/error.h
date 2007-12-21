@@ -9,7 +9,6 @@
 #define PHC_ERROR
 
 #include "lib/String.h"
-#include <stdarg.h>
 
 namespace AST { class Node; }
 namespace HIR { class Node; }

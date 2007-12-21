@@ -1,3 +1,12 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Convert goto statements, branches and labels into a FSM, which will consist
+ * of a while loop, a switch statement, a state variable, and a lot of
+ * continues.
+ */
+
 #include "Goto_uppering.h"
 #include "hir_to_mir/Check_uppering.h"
 

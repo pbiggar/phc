@@ -12,6 +12,7 @@
 #define PHC_INVALID_CHECK
 
 #include "AST_visitor.h"
+#include "HIR.h"
 #include "pass_manager/Pass_manager.h"
 
 // Returns true if IN is not allowed be on the RHS of a reference assignment.

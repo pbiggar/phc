@@ -7,6 +7,8 @@
  */
 
 #include "pass_manager/Plugin_pass.h"
+#include "pass_manager/Pass_manager.h"
+#include "AST_transform.h"
 
 using namespace AST;
 

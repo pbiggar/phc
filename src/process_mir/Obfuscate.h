@@ -5,8 +5,6 @@
  * Goto-upper and print IR if the --obfuscate optiopn is given
  */
 
-
-
 #ifndef PHC_OBFUSCATE_H
 #define PHC_OBFUSCATE_H
 

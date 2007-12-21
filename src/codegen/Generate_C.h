@@ -11,8 +11,6 @@
 #ifndef GENERATE_C
 #define GENERATE_C
 
-#include <sstream>
-#include "cmdline.h"
 #include "MIR_visitor.h"
 #include "pass_manager/Pass_manager.h"
 

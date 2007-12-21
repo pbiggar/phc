@@ -13,7 +13,7 @@
 #include "AST_visitor.h"
 #include "AST.h"
 #include "lib/error.h"
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 #include "process_ir/fresh.h"
 #include "parsing/parse.h"
 

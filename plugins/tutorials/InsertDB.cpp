@@ -4,6 +4,7 @@
  */
 
 #include "pass_manager/Plugin_pass.h"
+#include "AST_visitor.h"
 
 using namespace AST;
 

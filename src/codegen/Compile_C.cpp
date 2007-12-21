@@ -7,6 +7,8 @@
 
 #include "codegen/Compile_C.h"
 #include <vector>
+#include <sstream>
+#include <iostream>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/types.h>

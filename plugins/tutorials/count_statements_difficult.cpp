@@ -1,4 +1,10 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ */
+
 #include "pass_manager/Plugin_pass.h"
+#include "AST.h"
 
 using namespace AST;
 

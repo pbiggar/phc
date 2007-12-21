@@ -9,10 +9,8 @@
 #define PHC_PASS_MANAGER_H
 
 #include "Pass.h"
-#include "AST_visitor.h"
-#include "MIR_visitor.h"
-#include "AST_transform.h"
-#include "MIR_transform.h"
+#include "lib/List.h"
+
 #include "cmdline.h"
 #include "ltdl.h"
 

@@ -8,7 +8,6 @@
 #ifndef PHC_PLUGIN_PASS_H
 #define PHC_PLUGIN_PASS_H
 
-#include "Pass.h"
 #include "Pass_manager.h"
 
 class Plugin_pass : public Pass

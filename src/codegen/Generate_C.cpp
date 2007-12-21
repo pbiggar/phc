@@ -24,7 +24,7 @@
  */
 
 #include "process_mir/MIR_unparser.h"
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"

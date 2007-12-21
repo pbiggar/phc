@@ -9,8 +9,6 @@
 #define PHC_HIR_UNPARSER
 
 #include "HIR_visitor.h"
-#include "process_ir/PHP_unparser.h"
-#include <stack>
 
 
 class HIR_unparser : public virtual HIR::Visitor

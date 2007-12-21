@@ -10,7 +10,6 @@
 
 #include "AST_visitor.h"
 #include <stack>
-#include <map>
 
 class DOT_unparser : public virtual AST::Visitor
 {
