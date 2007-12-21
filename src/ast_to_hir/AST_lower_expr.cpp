@@ -8,6 +8,7 @@
 
 #include "AST_lower_expr.h"
 #include "process_ir/fresh.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -20,30 +21,91 @@ void Lower_expr::children_php_script(PHP_script* in)
 /*
  * For each statement that contains an expression, we push back the
  * pieces created for each part of the expression.
- *
- * Note that we assume that control flow has been lowered, so there is
- * only a limited number of statements to consider here.
  */
 
-void Lower_expr::post_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Lower_expr::post_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_return(Return* in, List<Statement*>* out)
+void Lower_expr::post_global (Global* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_branch(Branch* in, List<Statement*>* out)
+void Lower_expr::post_return (Return* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_global(Global* in, List<Statement*>* out)
+/*
+ * For each control-flow statement that contains an expression, we push
+ * back the pieces created for each part of the expression, but before
+ * the statement, since it can contain sub-statements.
+ */
+
+/* Avoid putting the pieces from the expression into the body */
+void Lower_expr::children_if (If* in)
+{
+	// save the expression's pieces
+	in->expr = transform_expr(in->expr);
+	List<Statement*>* saved_pieces = pieces;
+	pieces = new List<Statement*> ();
+
+	// run the rest of the transform
+	in->iftrue = transform_statement_list(in->iftrue);
+	in->iffalse = transform_statement_list(in->iffalse);
+
+	// restore the pieces for post_if
+	pieces = saved_pieces;
+}
+
+void Lower_expr::post_if (If* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
+
+void Lower_expr::children_while (While* in)
+{
+	// save the expression's pieces
+	in->expr = transform_expr(in->expr);
+	List<Statement*>* saved_pieces = pieces;
+	pieces = new List<Statement*> ();
+
+	// run the rest of the transform
+	in->statements = transform_statement_list(in->statements);
+
+	// restore the pieces for post_if
+	pieces = saved_pieces;
+}
+
+void Lower_expr::post_while (While* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+void Lower_expr::children_foreach (Foreach* in)
+{
+	// save the expression's pieces
+	in->expr = transform_expr(in->expr);
+	in->key = transform_variable(in->key);
+	in->val = transform_variable(in->val);
+	List<Statement*>* saved_pieces = pieces;
+	pieces = new List<Statement*> ();
+
+	// run the rest of the transform
+	in->statements = transform_statement_list(in->statements);
+
+	// restore the pieces for post_if
+	pieces = saved_pieces;
+}
+
+void Lower_expr::post_foreach (Foreach* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+
 
 void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 {

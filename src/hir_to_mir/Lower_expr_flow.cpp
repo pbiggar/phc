@@ -65,7 +65,7 @@ Expr* Lower_expr_flow::post_bin_op(Bin_op* in)
  * into
  * 		if(f()) $TEF2 = g ();
  * 		else $TEF2 = h ();
- *  	foo($TEF2);
+ *			foo($TEF2);
  */
 
 Expr* Lower_expr_flow::post_conditional_expr(Conditional_expr* in)

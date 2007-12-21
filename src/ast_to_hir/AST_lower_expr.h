@@ -19,10 +19,19 @@ namespace AST
 		void children_php_script(PHP_script* in);
 
 	public:
-		void post_eval_expr(Eval_expr* in, List<Statement*>* out);
-		void post_return(Return* in, List<Statement*>* out);
-		void post_branch(Branch* in, List<Statement*>* out);
-		void post_global(Global* in, List<Statement*>* out);
+		void children_if (If* in);
+		void post_if (If* in, List<Statement*>* out);
+
+		void children_while (While* in);
+		void post_while (While* in, List<Statement*>* out);
+
+		void children_foreach (Foreach* in);
+		void post_foreach (Foreach* in, List<Statement*>* out);
+
+
+		void post_eval_expr (Eval_expr* in, List<Statement*>* out);
+		void post_return (Return* in, List<Statement*>* out);
+		void post_global (Global* in, List<Statement*>* out);
 
 	protected:
 		Expr* eval(Expr* in);
