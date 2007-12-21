@@ -9,7 +9,8 @@
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Early_lower_control_flow.h"
 #include "hir_to_mir/Lower_expr_flow.h"
-#include "hir_to_mir/Shredder.h"
+#include "hir_to_mir/HIR_shredder.h"
+#include "ast_to_hir/AST_shredder.h"
 #include "hir_to_mir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Translate_empty.h"
@@ -145,11 +146,12 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Desugar (), "desug"); // AST
 	pm->add_ast_transform (new Pre_post_op_shredder (), "pps"); // AST
 	pm->add_ast_transform (new List_shredder (), "lish"); // AST
+	pm->add_ast_transform (new AST::Shredder (), "shred"); // AST
 	pm->add_ast_transform (new Tidy_print (), "tidyp"); // AST
 	pm->add_ast_pass (new Fake_pass ("AST-to-HIR"));
 	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
-	pm->add_hir_transform (new Shredder (), "shred"); // AST (and HIR?)
+	pm->add_hir_transform (new HIR::Shredder (), "shred"); // HIR
 
 	// TODO move to the MIR - re-add
 //	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));

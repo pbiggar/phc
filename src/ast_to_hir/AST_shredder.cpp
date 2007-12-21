@@ -3,15 +3,15 @@
  * See doc/license/README.license for licensing information
  *
  * shredder (n.): a machine that tears objects into smaller pieces.
- * Transform the HIR into 3AC-like code.
+ * Transform the AST into 3AC-like code.
  */
 
-#include "Annotate.h"
-#include "Shredder.h"
+#include "hir_to_mir/Annotate.h"
+#include "AST_shredder.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 
-using namespace HIR;
+using namespace AST;
 
 void Shredder::children_php_script(PHP_script* in)
 {

@@ -8,7 +8,7 @@
 #include "Annotate.h"
 #include "process_ir/debug.h"
 
-using namespace HIR;
+using namespace AST;
 
 Annotate::Annotate() 
 : generate_array_temps(true) 
@@ -190,4 +190,18 @@ void Annotate::pre_eval_expr (Eval_expr* in)
 		// Do not generate temps for top-level method invocations
 		in->expr->attrs->set_true("phc.lower_expr.no_temp");
 	}
+}
+
+/* A while should have TRUE as its parameter, after early_lower_control_flow. */
+void Annotate::pre_while (While* in)
+{
+	in->expr->attrs->set_true("phc.lower_expr.no_temp");
+}
+
+/* To print compile-time error messages for breaks, we must keep this for now.
+ * When the errors are done in data-flow, we can remove this. */
+void Annotate::pre_break (Break* in)
+{
+	if (in->expr)
+		in->expr->attrs->set_true("phc.lower_expr.no_temp");
 }

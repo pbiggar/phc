@@ -267,9 +267,10 @@ plugins_tutorials_show_traversal_order_la_LINK = $(LIBTOOL) --tag=CXX \
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
+	AST_lower_expr.$(OBJEXT) AST_shredder.$(OBJEXT) \
 	Split_unset_isset.$(OBJEXT) Translate_empty.$(OBJEXT) \
-	AST_lower_expr.$(OBJEXT) Compile_C.$(OBJEXT) \
-	Generate_C.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
+	Compile_C.$(OBJEXT) Generate_C.$(OBJEXT) \
+	Lift_functions_and_classes.$(OBJEXT) \
 	Prune_symbol_table.$(OBJEXT) Strip_comments.$(OBJEXT) \
 	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
@@ -280,9 +281,9 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Annotate.$(OBJEXT) Check_lowering.$(OBJEXT) \
 	Check_uppering.$(OBJEXT) Desugar.$(OBJEXT) \
 	Early_lower_control_flow.$(OBJEXT) Echo_split.$(OBJEXT) \
-	HIR_lower_expr.$(OBJEXT) List_shredder.$(OBJEXT) \
-	Lower_control_flow.$(OBJEXT) Lower_expr_flow.$(OBJEXT) \
-	Pre_post_op_shredder.$(OBJEXT) Shredder.$(OBJEXT) \
+	HIR_lower_expr.$(OBJEXT) HIR_shredder.$(OBJEXT) \
+	List_shredder.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
+	Lower_expr_flow.$(OBJEXT) Pre_post_op_shredder.$(OBJEXT) \
 	Split_multiple_arguments.$(OBJEXT) Tidy_print.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
@@ -554,13 +555,15 @@ src_phc_SOURCES = \
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/ast_to_hir/AST_lower_expr.cpp					\
+	src/ast_to_hir/AST_lower_expr.h						\
+	src/ast_to_hir/AST_shredder.cpp						\
+	src/ast_to_hir/AST_shredder.h							\
 	src/ast_to_hir/AST_to_HIR.h							\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Translate_empty.cpp					\
 	src/ast_to_hir/Translate_empty.h						\
-	src/ast_to_hir/AST_lower_expr.cpp					\
-	src/ast_to_hir/AST_lower_expr.h						\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -620,6 +623,8 @@ src_phc_SOURCES = \
 	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
+	src/hir_to_mir/HIR_shredder.cpp						\
+	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/List_shredder.cpp						\
 	src/hir_to_mir/List_shredder.h						\
@@ -629,8 +634,6 @@ src_phc_SOURCES = \
 	src/hir_to_mir/Lower_expr_flow.h						\
 	src/hir_to_mir/Pre_post_op_shredder.cpp			\
 	src/hir_to_mir/Pre_post_op_shredder.h				\
-	src/hir_to_mir/Shredder.cpp							\
-	src/hir_to_mir/Shredder.h								\
 	src/hir_to_mir/Split_multiple_arguments.cpp		\
 	src/hir_to_mir/Split_multiple_arguments.h			\
 	src/hir_to_mir/Tidy_print.cpp							\
@@ -1093,6 +1096,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_lower_expr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_shredder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Po@am__quote@
@@ -1114,6 +1118,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_lower_expr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_shredder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Po@am__quote@
@@ -1142,7 +1147,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Shredder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
@@ -1421,6 +1425,34 @@ show_traversal_order.lo: plugins/tutorials/show_traversal_order.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o show_traversal_order.lo `test -f 'plugins/tutorials/show_traversal_order.cpp' || echo '$(srcdir)/'`plugins/tutorials/show_traversal_order.cpp
 
+AST_lower_expr.o: src/ast_to_hir/AST_lower_expr.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_lower_expr.o -MD -MP -MF $(DEPDIR)/AST_lower_expr.Tpo -c -o AST_lower_expr.o `test -f 'src/ast_to_hir/AST_lower_expr.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_lower_expr.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_lower_expr.Tpo $(DEPDIR)/AST_lower_expr.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_lower_expr.cpp' object='AST_lower_expr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_lower_expr.o `test -f 'src/ast_to_hir/AST_lower_expr.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_lower_expr.cpp
+
+AST_lower_expr.obj: src/ast_to_hir/AST_lower_expr.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_lower_expr.obj -MD -MP -MF $(DEPDIR)/AST_lower_expr.Tpo -c -o AST_lower_expr.obj `if test -f 'src/ast_to_hir/AST_lower_expr.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_lower_expr.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_lower_expr.Tpo $(DEPDIR)/AST_lower_expr.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_lower_expr.cpp' object='AST_lower_expr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_lower_expr.obj `if test -f 'src/ast_to_hir/AST_lower_expr.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_lower_expr.cpp'; fi`
+
+AST_shredder.o: src/ast_to_hir/AST_shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_shredder.o -MD -MP -MF $(DEPDIR)/AST_shredder.Tpo -c -o AST_shredder.o `test -f 'src/ast_to_hir/AST_shredder.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_shredder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_shredder.Tpo $(DEPDIR)/AST_shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_shredder.cpp' object='AST_shredder.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_shredder.o `test -f 'src/ast_to_hir/AST_shredder.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_shredder.cpp
+
+AST_shredder.obj: src/ast_to_hir/AST_shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_shredder.obj -MD -MP -MF $(DEPDIR)/AST_shredder.Tpo -c -o AST_shredder.obj `if test -f 'src/ast_to_hir/AST_shredder.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_shredder.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_shredder.Tpo $(DEPDIR)/AST_shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_shredder.cpp' object='AST_shredder.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_shredder.obj `if test -f 'src/ast_to_hir/AST_shredder.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_shredder.cpp'; fi`
+
 Split_unset_isset.o: src/ast_to_hir/Split_unset_isset.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Split_unset_isset.o -MD -MP -MF $(DEPDIR)/Split_unset_isset.Tpo -c -o Split_unset_isset.o `test -f 'src/ast_to_hir/Split_unset_isset.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Split_unset_isset.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Split_unset_isset.Tpo $(DEPDIR)/Split_unset_isset.Po
@@ -1448,20 +1480,6 @@ Translate_empty.obj: src/ast_to_hir/Translate_empty.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Translate_empty.cpp' object='Translate_empty.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Translate_empty.obj `if test -f 'src/ast_to_hir/Translate_empty.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Translate_empty.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Translate_empty.cpp'; fi`
-
-AST_lower_expr.o: src/ast_to_hir/AST_lower_expr.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_lower_expr.o -MD -MP -MF $(DEPDIR)/AST_lower_expr.Tpo -c -o AST_lower_expr.o `test -f 'src/ast_to_hir/AST_lower_expr.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_lower_expr.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_lower_expr.Tpo $(DEPDIR)/AST_lower_expr.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_lower_expr.cpp' object='AST_lower_expr.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_lower_expr.o `test -f 'src/ast_to_hir/AST_lower_expr.cpp' || echo '$(srcdir)/'`src/ast_to_hir/AST_lower_expr.cpp
-
-AST_lower_expr.obj: src/ast_to_hir/AST_lower_expr.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AST_lower_expr.obj -MD -MP -MF $(DEPDIR)/AST_lower_expr.Tpo -c -o AST_lower_expr.obj `if test -f 'src/ast_to_hir/AST_lower_expr.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_lower_expr.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AST_lower_expr.Tpo $(DEPDIR)/AST_lower_expr.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/AST_lower_expr.cpp' object='AST_lower_expr.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_lower_expr.obj `if test -f 'src/ast_to_hir/AST_lower_expr.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/AST_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/AST_lower_expr.cpp'; fi`
 
 Compile_C.o: src/codegen/Compile_C.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.o -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.o `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp
@@ -1841,6 +1859,20 @@ HIR_lower_expr.obj: src/hir_to_mir/HIR_lower_expr.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_lower_expr.obj `if test -f 'src/hir_to_mir/HIR_lower_expr.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_lower_expr.cpp'; fi`
 
+HIR_shredder.o: src/hir_to_mir/HIR_shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_shredder.o -MD -MP -MF $(DEPDIR)/HIR_shredder.Tpo -c -o HIR_shredder.o `test -f 'src/hir_to_mir/HIR_shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_shredder.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_shredder.Tpo $(DEPDIR)/HIR_shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_shredder.cpp' object='HIR_shredder.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_shredder.o `test -f 'src/hir_to_mir/HIR_shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_shredder.cpp
+
+HIR_shredder.obj: src/hir_to_mir/HIR_shredder.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_shredder.obj -MD -MP -MF $(DEPDIR)/HIR_shredder.Tpo -c -o HIR_shredder.obj `if test -f 'src/hir_to_mir/HIR_shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_shredder.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_shredder.Tpo $(DEPDIR)/HIR_shredder.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_shredder.cpp' object='HIR_shredder.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_shredder.obj `if test -f 'src/hir_to_mir/HIR_shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_shredder.cpp'; fi`
+
 List_shredder.o: src/hir_to_mir/List_shredder.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT List_shredder.o -MD -MP -MF $(DEPDIR)/List_shredder.Tpo -c -o List_shredder.o `test -f 'src/hir_to_mir/List_shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/List_shredder.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/List_shredder.Tpo $(DEPDIR)/List_shredder.Po
@@ -1896,20 +1928,6 @@ Pre_post_op_shredder.obj: src/hir_to_mir/Pre_post_op_shredder.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Pre_post_op_shredder.cpp' object='Pre_post_op_shredder.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Pre_post_op_shredder.obj `if test -f 'src/hir_to_mir/Pre_post_op_shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Pre_post_op_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Pre_post_op_shredder.cpp'; fi`
-
-Shredder.o: src/hir_to_mir/Shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.o -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.o `test -f 'src/hir_to_mir/Shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Shredder.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Shredder.cpp' object='Shredder.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.o `test -f 'src/hir_to_mir/Shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Shredder.cpp
-
-Shredder.obj: src/hir_to_mir/Shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Shredder.obj -MD -MP -MF $(DEPDIR)/Shredder.Tpo -c -o Shredder.obj `if test -f 'src/hir_to_mir/Shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Shredder.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Shredder.Tpo $(DEPDIR)/Shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Shredder.cpp' object='Shredder.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Shredder.obj `if test -f 'src/hir_to_mir/Shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/Shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/Shredder.cpp'; fi`
 
 Split_multiple_arguments.o: src/hir_to_mir/Split_multiple_arguments.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Split_multiple_arguments.o -MD -MP -MF $(DEPDIR)/Split_multiple_arguments.Tpo -c -o Split_multiple_arguments.o `test -f 'src/hir_to_mir/Split_multiple_arguments.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Split_multiple_arguments.cpp

@@ -19,7 +19,7 @@
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
-#include "Shredder.h"
+#include "ast_to_hir/AST_shredder.h"
 
 using namespace HIR;
 

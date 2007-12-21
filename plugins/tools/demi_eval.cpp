@@ -8,7 +8,6 @@
 #include "HIR_transform.h"
 #include "process_hir/HIR_unparser.h"
 #include "pass_manager/Plugin_pass.h"
-#include "hir_to_mir/Shredder.h"
 #include "process_ir/fresh.h"
 #include "lib/List.h"
 

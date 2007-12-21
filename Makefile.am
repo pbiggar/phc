@@ -42,13 +42,15 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/ast_to_hir/AST_lower_expr.cpp					\
+	src/ast_to_hir/AST_lower_expr.h						\
+	src/ast_to_hir/AST_shredder.cpp						\
+	src/ast_to_hir/AST_shredder.h							\
 	src/ast_to_hir/AST_to_HIR.h							\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Translate_empty.cpp					\
 	src/ast_to_hir/Translate_empty.h						\
-	src/ast_to_hir/AST_lower_expr.cpp					\
-	src/ast_to_hir/AST_lower_expr.h						\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -108,6 +110,8 @@ src_phc_SOURCES =												\
 	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
+	src/hir_to_mir/HIR_shredder.cpp						\
+	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/List_shredder.cpp						\
 	src/hir_to_mir/List_shredder.h						\
@@ -117,8 +121,6 @@ src_phc_SOURCES =												\
 	src/hir_to_mir/Lower_expr_flow.h						\
 	src/hir_to_mir/Pre_post_op_shredder.cpp			\
 	src/hir_to_mir/Pre_post_op_shredder.h				\
-	src/hir_to_mir/Shredder.cpp							\
-	src/hir_to_mir/Shredder.h								\
 	src/hir_to_mir/Split_multiple_arguments.cpp		\
 	src/hir_to_mir/Split_multiple_arguments.h			\
 	src/hir_to_mir/Tidy_print.cpp							\
