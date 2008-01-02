@@ -339,18 +339,20 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 		$dependency_string = "NOTE: dependency $missing_dependency is missing. This may be the cause of this failure\n";
 	}
 
-	$command_string = "$reason_string$dependency_string$command_string$err_string";
-	if (is_array ($outs))
+	$header = "$reason_string$dependency_string$command_string$err_string";
+
+
+	// create the stdout logs
+	if (!is_array ($outs))
+		$outs = array ($outs);
+
+	$out_string = "";
+	foreach ($outs as $i => $out)
 	{
-		$output = "";
-		foreach ($outs as $i => $out)
-		{
-			$output .= "{$red}Output $i$reset:\n$out\n";
-		}
+		$out_string .= "{$red}Output $i$reset:\n$out\n";
 	}
 
-	$header = $command_string;
-
+	// save and print it
 	global $log_directory;
 	$script_name = adjusted_name ($subject);
 	$filename = "$log_directory/$test_name/$script_name.log";
@@ -362,7 +364,7 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 	}
 
 	file_put_contents($filename, $header);
-	file_put_contents($filename, rtrim($output), FILE_APPEND);
+	file_put_contents($filename, rtrim($out_string), FILE_APPEND);
 	file_put_contents($filename, "\n", FILE_APPEND);
 }
 
