@@ -135,6 +135,24 @@ public:
 
 protected:
 
+	void maybe_encode (const char* tag_name, String* value)
+	{
+		os << "<" << tag_name;
+
+		if(needs_encoding(value))
+		{
+			os << " encoding=\"base64\">";
+			os << *base64_encode(value);
+		}
+		else
+		{
+			os << ">";
+			os << *value;
+		}
+
+		os << "</" << tag_name << ">" << endl;
+	}
+
 	void print_attributes(Node* in)
 	{
 		if(in->attrs->size() == 0)
@@ -166,7 +184,9 @@ protected:
 
 		if(String* str = dynamic_cast<String*>(attr))
 		{
-			os << "<attr key=\"" << name << "\"><string>" << *str << "</string></attr>" << endl;
+			os << "<attr key=\"" << name << "\">";
+			maybe_encode ("string", str);
+			os << "</attr>" << endl;
 		}
 		else if(Integer* i = dynamic_cast<Integer*>(attr))
 		{
@@ -185,20 +205,7 @@ protected:
 			for(j = ls->begin(); j != ls->end(); j++)
 			{
 				print_indent();
-				os << "<string";
-
-				if(needs_encoding(*j))
-				{
-					os << " encoding=\"base64\">";
-					os << *base64_encode(*j);
-				}
-				else	
-				{
-					os << ">";
-					os << **j;
-				}
-
-				os << "</string>" << endl;
+				maybe_encode ("string", *j);
 			}
 
 			indent--;
@@ -241,42 +248,26 @@ public:
 		{
 			print_indent();
 			os << "<value>" << *cast->value << "</value>" << endl;
-
-			print_indent();
-			os << "<source_rep>" << *cast->source_rep << "</source_rep>" << endl;
 		}
 		else
 		{
 			String* value = in->get_value_as_string();
 
 			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else
-				os << "<value>" << *value << "</value>" << endl;;
+			maybe_encode ("value", value);
 		}
 	}
 
 	void pre_literal(AST::Literal* in)
 	{
 		String* value = in->get_value_as_string();
-		String* source_rep = in->get_source_rep();
 
 		// NIL does not have a value
 		if(!dynamic_cast<AST::NIL*>(in))
 		{
 			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else	
-				os << "<value>" << *value << "</value>" << endl;
+			maybe_encode ("value", value);
 		}
-
-		print_indent();
-		if(needs_encoding(source_rep))
-			os << "<source_rep encoding=\"base64\">" << *base64_encode(source_rep) << "</source_rep>" << endl;
-		else	
-			os << "<source_rep>" << *source_rep << "</source_rep>" << endl;
 	}
 
 };
@@ -304,10 +295,7 @@ public:
 		String* value = in->get_value_as_string();
 
 		print_indent();
-		if(needs_encoding(value))
-			os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-		else
-			os << "<value>" << *value << "</value>" << endl;;
+		maybe_encode ("value", value);
 	}
 
 	void pre_literal(HIR::Literal* in)
@@ -318,10 +306,7 @@ public:
 		if(!dynamic_cast<HIR::NIL*>(in))
 		{
 			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else	
-				os << "<value>" << *value << "</value>" << endl;
+			maybe_encode ("value", value);
 		}
 	}
 
@@ -350,10 +335,7 @@ public:
 		String* value = in->get_value_as_string();
 
 		print_indent();
-		if(needs_encoding(value))
-			os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-		else
-			os << "<value>" << *value << "</value>" << endl;;
+		maybe_encode ("value", value);
 
 	}
 
@@ -365,10 +347,7 @@ public:
 		if(!dynamic_cast<MIR::NIL*>(in))
 		{
 			print_indent();
-			if(needs_encoding(value))
-				os << "<value encoding=\"base64\">" << *base64_encode(value) << "</value>" << endl;
-			else	
-				os << "<value>" << *value << "</value>" << endl;
+			maybe_encode ("value", value);
 		}
 	}
 };

@@ -605,7 +605,7 @@ void AST_unparser::children_eval_expr(Eval_expr* in)
 		str = dynamic_cast<STRING*>(inv->actual_parameters->front()->expr);
 		assert(str);
 
-		echo_html(str->source_rep);
+		echo_html(str->get_source_rep ());
 	}
 	else
 	{
@@ -1161,7 +1161,7 @@ void AST_unparser::children_directive_name(DIRECTIVE_NAME* in)
 
 void AST_unparser::children_cast(CAST* in)
 {
-	echo(in->source_rep);
+	echo(in->get_source_rep ());
 }
 
 void AST_unparser::children_op(OP* in)
@@ -1176,24 +1176,24 @@ void AST_unparser::children_constant_name(CONSTANT_NAME* in)
 
 void AST_unparser::children_int(INT* in)
 {
-	echo(in->source_rep);
+	echo(in->get_source_rep ());
 }
 
 void AST_unparser::children_real(REAL* in)
 {
-	echo(in->source_rep);
+	echo(in->get_source_rep ());
 }
 
 void AST_unparser::children_string(STRING* in)
 {
 	if(
-			*in->source_rep == "__FILE__" ||
-			*in->source_rep == "__CLASS__" ||
-			*in->source_rep == "__METHOD__" ||
-			*in->source_rep == "__FUNCTION__"
+			*in->get_source_rep () == "__FILE__" ||
+			*in->get_source_rep () == "__CLASS__" ||
+			*in->get_source_rep () == "__METHOD__" ||
+			*in->get_source_rep () == "__FUNCTION__"
 	  )
 	{
-		echo(in->source_rep);
+		echo(in->get_source_rep ());
 	}
 	else
 	{
@@ -1204,14 +1204,14 @@ void AST_unparser::children_string(STRING* in)
 	
 		if(in_string.top())
 		{
-			echo(in->source_rep);
+			echo(in->get_source_rep ());
 		}
 		else
 		{
 	    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
 			{
 				echo("'");
-				echo(in->source_rep);
+				echo(in->get_source_rep ());
 				echo("'");
 			}
 			else if(in->attrs->has("phc.unparser.heredoc_id"))
@@ -1219,7 +1219,7 @@ void AST_unparser::children_string(STRING* in)
 				echo("<<<");
 				echo(in->attrs->get_string("phc.unparser.heredoc_id"));
 				echo("\n"); // avoid leading tabs
-				echo(in->source_rep); 
+				echo(in->get_source_rep ()); 
 				echo("\n");
 				echo(in->attrs->get_string("phc.unparser.heredoc_id"));
 				echo_delayed_newline();
@@ -1227,7 +1227,7 @@ void AST_unparser::children_string(STRING* in)
 			else 
 			{
 	      echo("\"");
-				echo(in->source_rep);
+				echo(in->get_source_rep ());
 				echo("\"");
 			}
 		}
@@ -1236,12 +1236,12 @@ void AST_unparser::children_string(STRING* in)
 
 void AST_unparser::children_bool(BOOL* in)
 {
-	echo(in->source_rep);
+	echo(in->get_source_rep ());
 }
 
 void AST_unparser::children_nil(NIL* in)
 {
-	echo(in->source_rep);
+	echo(in->get_source_rep ());
 }
 
 // Generic classes

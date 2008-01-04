@@ -11,7 +11,7 @@ using namespace AST;
 
 Expr* Remove_concat_null::post_bin_op(Bin_op* in)
 {
-	STRING* empty = new STRING(new String(""), new String(""));
+	STRING* empty = new STRING(new String(""));
 	Wildcard<Expr>* wildcard = new Wildcard<Expr>;
 
 	// Unparsing may break when we start removing concats without clearing

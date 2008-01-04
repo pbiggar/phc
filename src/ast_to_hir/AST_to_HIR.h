@@ -94,6 +94,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Class_name*,			// Class_name*
  HIR::Commented_node*,				// Commented_node*
  HIR::Identifier*,			// Identifier*
+ HIR::Node*,			// Source_rep*
  HIR::HT_ITERATOR*,		// HT_ITERATOR*
  HIR::CLASS_NAME*,		// CLASS_NAME*
  HIR::INTERFACE_NAME*,	// INTERFACE_NAME*
@@ -610,7 +611,6 @@ class AST_to_HIR : public AST::Fold
 		HIR::REAL* result;
 		result = new HIR::REAL(orig->value);
 		result->attrs = orig->attrs;
-		result->source_rep = orig->source_rep;
 		return result;
 	}
 

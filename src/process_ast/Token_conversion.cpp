@@ -27,7 +27,7 @@ using namespace AST;
 
 Expr* Token_conversion::pre_int (INT* in)
 {
-	if (*in->source_rep == "__LINE__" or *in->source_rep == "__FILE__")
+	if (*in->get_source_rep () == "__LINE__" or *in->get_source_rep () == "__FILE__")
 		return in;
 
 	assert (in->value == 0);
@@ -62,25 +62,27 @@ Expr* Token_conversion::pre_unary_op(Unary_op* in)
 	else if(in->match(new Unary_op(i, "-")))
 	{
 		String* source_rep = new String("-");
-		*source_rep += *i->value->source_rep;
-		i->value->source_rep = source_rep;
+		*source_rep += *i->value->get_source_rep ();
+		i->value->set_source_rep (source_rep);
 		result = PHP::convert_token (i->value);
 	}
 
 	else if(in->match(new Unary_op(r, "-")))
 	{
 		String* source_rep = new String("-");
-		*source_rep += *r->value->source_rep;
-		r->value->source_rep = source_rep;
+		*source_rep += *r->value->get_source_rep ();
+		r->value->set_source_rep (source_rep);
 		result = PHP::convert_token (r->value);
 	}
-	
-	else 
+
+	else
 	{
 		// No changes
 		return in;
 	}
 
+	// TODO Does this overwrite the source_rep from above?
 	result->attrs->clone_all_from(in->attrs);
+
 	return result;
 }

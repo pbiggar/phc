@@ -15,8 +15,8 @@ using namespace AST;
 Goto_uppering::Goto_uppering ()
 {
 	next = new Variable (NULL, new VARIABLE_NAME (new String ("__next")), new List<Expr*>);
-	start = new STRING (new String ("start"), new String ("start"));
-	end = new STRING (new String ("end"), new String ("end"));
+	start = new STRING (new String ("start"));
+	end = new STRING (new String ("end"));
 }
 
 /* We dont want to run this on all statement bodies in the traversal order.  So
@@ -40,7 +40,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	Switch *switches = new Switch (next->clone (), cases);
 
 	// Add: while (true) { switch ($next) { } }
-	BOOL *truth = new BOOL (true, new String ("true"));
+	BOOL *truth = new BOOL (true);
 	While *while_stmt = new While (truth, new List<Statement*> ());
 	out->push_back (while_stmt);
 	while_stmt->statements->push_back (switches);
@@ -70,7 +70,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 			current->statements->push_back (
 					new Eval_expr (
 						new Assignment (next->clone (), false,
-							new STRING (l1->value->value, l1->value->value))));
+							new STRING (l1->value->value))));
 
 			current->statements->push_back (new Continue (NULL));
 		}
@@ -84,13 +84,13 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 			iffy->iftrue->push_back (
 					new Eval_expr (
 						new Assignment (next->clone (), false,
-							new STRING (l1->value->value, l1->value->value) )));
+							new STRING (l1->value->value) )));
 			iffy->iftrue->push_back (new Continue (NULL));
 
 			iffy->iffalse->push_back (
 					new Eval_expr (
 						new Assignment (next->clone (), false,
-							new STRING (l2->value->value, l2->value->value) )));
+							new STRING (l2->value->value) )));
 			iffy->iffalse->push_back (new Continue (NULL));
 
 			current->statements->push_back (iffy);
@@ -99,7 +99,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 		{
 			// finish the current case statement and start a new one
 			current = new Switch_case (
-					new STRING (l1->value->value, l1->value->value), 
+					new STRING (l1->value->value), 
 					new List<Statement*> ());
 			cases->push_back (current);
 		}
@@ -115,12 +115,12 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	// add '$next = "end";' after the final statement
 	current->statements->push_back (new Eval_expr (
 				new Assignment (next->clone (), false,
-					new STRING (new String ("end"), new String ("end")))));
+					end->clone ())));
 
 
 	// add the breaking statement
 	current = new Switch_case (
-			new STRING (new String ("end"), new String ("end")), 
+			end->clone (),
 			new List<Statement*> ());
 	cases->push_back (current);
 	current->statements->push_back (new Break (new INT (2)));

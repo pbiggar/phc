@@ -99,6 +99,7 @@ public:
     virtual void pre_class_name(Class_name* in);
     virtual void pre_commented_node(Commented_node* in);
     virtual void pre_identifier(Identifier* in);
+    virtual void pre_source_rep(Source_rep* in);
     virtual void pre_ht_iterator(HT_ITERATOR* in);
     virtual void pre_class_name(CLASS_NAME* in);
     virtual void pre_interface_name(INTERFACE_NAME* in);
@@ -188,6 +189,7 @@ public:
     virtual void post_class_name(Class_name* in);
     virtual void post_commented_node(Commented_node* in);
     virtual void post_identifier(Identifier* in);
+    virtual void post_source_rep(Source_rep* in);
     virtual void post_ht_iterator(HT_ITERATOR* in);
     virtual void post_class_name(CLASS_NAME* in);
     virtual void post_interface_name(INTERFACE_NAME* in);

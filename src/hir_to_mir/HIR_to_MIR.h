@@ -533,7 +533,6 @@ class HIR_to_MIR : public HIR::Fold
 		MIR::REAL* result;
 		result = new MIR::REAL(orig->value);
 		result->attrs = orig->attrs;
-		result->source_rep = orig->source_rep;
 		return result;
 	}
 

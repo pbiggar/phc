@@ -18,7 +18,12 @@ AttrMap::~AttrMap()
 
 Object* AttrMap::get(string key)
 {
-	return (*this)[key];
+	// Using [] automatically creates the element.
+	AttrMap::const_iterator i = find (key);
+	if (i != end ())
+		return (*i).second;
+	
+	return NULL;
 }
 
 Boolean* AttrMap::get_boolean(string key)
@@ -82,9 +87,7 @@ void AttrMap::clone_all_from(AttrMap* other)
 	AttrMap::const_iterator i;
 	for(i = other->begin(); i != other->end(); i++)
 	{
-		if((*i).second)
-			set((*i).first, (*i).second->clone());
-		else
-			set((*i).first, NULL);
+		assert ((*i).second != NULL);
+		set((*i).first, (*i).second->clone());
 	}
 }

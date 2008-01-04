@@ -294,6 +294,10 @@ void Visitor::pre_identifier(Identifier* in)
 {
 }
 
+void Visitor::pre_source_rep(Source_rep* in)
+{
+}
+
 void Visitor::pre_ht_iterator(HT_ITERATOR* in)
 {
 }
@@ -640,6 +644,10 @@ void Visitor::post_commented_node(Commented_node* in)
 }
 
 void Visitor::post_identifier(Identifier* in)
+{
+}
+
+void Visitor::post_source_rep(Source_rep* in)
 {
 }
 
@@ -1629,6 +1637,7 @@ void Visitor::pre_class_name_chain(CLASS_NAME* in)
     pre_node(in);
     pre_target(in);
     pre_class_name(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_class_name(in);
 }
@@ -1636,6 +1645,7 @@ void Visitor::pre_class_name_chain(CLASS_NAME* in)
 void Visitor::pre_interface_name_chain(INTERFACE_NAME* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_interface_name(in);
 }
@@ -1644,6 +1654,7 @@ void Visitor::pre_method_name_chain(METHOD_NAME* in)
 {
     pre_node(in);
     pre_method_name(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_method_name(in);
 }
@@ -1652,6 +1663,7 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node(in);
     pre_variable_name(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_variable_name(in);
 }
@@ -1659,6 +1671,7 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 void Visitor::pre_directive_name_chain(DIRECTIVE_NAME* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_directive_name(in);
 }
@@ -1666,6 +1679,7 @@ void Visitor::pre_directive_name_chain(DIRECTIVE_NAME* in)
 void Visitor::pre_label_name_chain(LABEL_NAME* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_label_name(in);
 }
@@ -1675,6 +1689,7 @@ void Visitor::pre_int_chain(INT* in)
     pre_node(in);
     pre_target(in);
     pre_expr(in);
+    pre_source_rep(in);
     pre_literal(in);
     pre_int(in);
 }
@@ -1684,6 +1699,7 @@ void Visitor::pre_real_chain(REAL* in)
     pre_node(in);
     pre_target(in);
     pre_expr(in);
+    pre_source_rep(in);
     pre_literal(in);
     pre_real(in);
 }
@@ -1693,6 +1709,7 @@ void Visitor::pre_string_chain(STRING* in)
     pre_node(in);
     pre_target(in);
     pre_expr(in);
+    pre_source_rep(in);
     pre_literal(in);
     pre_string(in);
 }
@@ -1702,6 +1719,7 @@ void Visitor::pre_bool_chain(BOOL* in)
     pre_node(in);
     pre_target(in);
     pre_expr(in);
+    pre_source_rep(in);
     pre_literal(in);
     pre_bool(in);
 }
@@ -1711,6 +1729,7 @@ void Visitor::pre_nil_chain(NIL* in)
     pre_node(in);
     pre_target(in);
     pre_expr(in);
+    pre_source_rep(in);
     pre_literal(in);
     pre_nil(in);
 }
@@ -1718,6 +1737,7 @@ void Visitor::pre_nil_chain(NIL* in)
 void Visitor::pre_op_chain(OP* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_op(in);
 }
@@ -1725,6 +1745,7 @@ void Visitor::pre_op_chain(OP* in)
 void Visitor::pre_cast_chain(CAST* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_cast(in);
 }
@@ -1732,6 +1753,7 @@ void Visitor::pre_cast_chain(CAST* in)
 void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
 {
     pre_node(in);
+    pre_source_rep(in);
     pre_identifier(in);
     pre_constant_name(in);
 }
@@ -2207,6 +2229,7 @@ void Visitor::post_class_name_chain(CLASS_NAME* in)
 {
     post_class_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_class_name(in);
     post_target(in);
     post_node(in);
@@ -2216,6 +2239,7 @@ void Visitor::post_interface_name_chain(INTERFACE_NAME* in)
 {
     post_interface_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 
@@ -2223,6 +2247,7 @@ void Visitor::post_method_name_chain(METHOD_NAME* in)
 {
     post_method_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_method_name(in);
     post_node(in);
 }
@@ -2231,6 +2256,7 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
 {
     post_variable_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_variable_name(in);
     post_node(in);
 }
@@ -2239,6 +2265,7 @@ void Visitor::post_directive_name_chain(DIRECTIVE_NAME* in)
 {
     post_directive_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 
@@ -2246,6 +2273,7 @@ void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
     post_label_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 
@@ -2253,6 +2281,7 @@ void Visitor::post_int_chain(INT* in)
 {
     post_int(in);
     post_literal(in);
+    post_source_rep(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2262,6 +2291,7 @@ void Visitor::post_real_chain(REAL* in)
 {
     post_real(in);
     post_literal(in);
+    post_source_rep(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2271,6 +2301,7 @@ void Visitor::post_string_chain(STRING* in)
 {
     post_string(in);
     post_literal(in);
+    post_source_rep(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2280,6 +2311,7 @@ void Visitor::post_bool_chain(BOOL* in)
 {
     post_bool(in);
     post_literal(in);
+    post_source_rep(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2289,6 +2321,7 @@ void Visitor::post_nil_chain(NIL* in)
 {
     post_nil(in);
     post_literal(in);
+    post_source_rep(in);
     post_expr(in);
     post_target(in);
     post_node(in);
@@ -2298,6 +2331,7 @@ void Visitor::post_op_chain(OP* in)
 {
     post_op(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 
@@ -2305,6 +2339,7 @@ void Visitor::post_cast_chain(CAST* in)
 {
     post_cast(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 
@@ -2312,6 +2347,7 @@ void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 {
     post_constant_name(in);
     post_identifier(in);
+    post_source_rep(in);
     post_node(in);
 }
 

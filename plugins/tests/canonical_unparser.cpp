@@ -29,33 +29,13 @@ class Clear_user_syntax : public virtual Visitor
 		}
 	} 
 
-#define REMOVE_SOURCE_REP(TYPE_V, TYPE_C)													\
-	void pre##TYPE_V (TYPE_C* in) { in->source_rep = NULL; }
-
-	/* Not all tokens have source_reps. Those that do should still be unparsable
-	 * if they're set to NULL. */
-	REMOVE_SOURCE_REP (bool, BOOL); 
-	REMOVE_SOURCE_REP (cast, CAST);
-//	REMOVE_SOURCE_REP (class_name); REMOVE_SOURCE_REP (constant_name);
-//	REMOVE_SOURCE_REP (directive_name);
-	REMOVE_SOURCE_REP (int, INT);
-//	REMOVE_SOURCE_REP (interface_name); 
-//	REMOVE_SOURCE_REP (label_name);
-//	REMOVE_SOURCE_REP (method_name);
-	REMOVE_SOURCE_REP (nil, NIL);
-//	REMOVE_SOURCE_REP (op);
-	REMOVE_SOURCE_REP (real, REAL);
-	REMOVE_SOURCE_REP (string, STRING);
-//	REMOVE_SOURCE_REP (variable_name);
-
-#undef REMOVE_SOURCE_REP
-
-
 };
 
 /* There is no need to override the unparser methods for tokens. They should be
  * able to unparse without a source_rep. */
-class Canonical_unparser : public virtual AST_unparser { bool bracket;
+class Canonical_unparser : public virtual AST_unparser 
+{ 
+	bool bracket;
 
 	// clear all the users syntax so the PHP_unparser wont print it
 	// out

@@ -608,7 +608,6 @@ class HIR_to_AST : public HIR::Fold
 		AST::REAL* result;
 		result = new AST::REAL(orig->value);
 		result->attrs = orig->attrs;
-		result->source_rep = orig->source_rep;
 		return result;
 	}
 
@@ -647,7 +646,7 @@ class HIR_to_AST : public HIR::Fold
 	AST::CAST* fold_cast(HIR::CAST* orig) 
 	{
 		AST::CAST* result;
-		result = new AST::CAST(orig->value, orig->value);
+		result = new AST::CAST(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

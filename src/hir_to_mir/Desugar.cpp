@@ -59,7 +59,7 @@ void Desugar::pre_return(Return* in, List<Statement*>* out)
 {
 	if(in->expr == NULL)
 	{
-		in->expr = new NIL(new String("NULL"));
+		in->expr = new NIL();
 		in->expr->attrs->set_true ("phc.codegen.unused");
 	}
 

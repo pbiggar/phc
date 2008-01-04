@@ -17,6 +17,7 @@ external class "IR";
 use list "List";
 use string "String";
 use namespace "AST";
+no source_rep;
 
 {-
    Top-level structure	
@@ -175,7 +176,9 @@ Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
 	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME 
 	  | DIRECTIVE_NAME 
-	;  
+	; 
+
+Source_rep ::= Identifier | Literal ;
 
 {-
  - Extra attributes and methods (mixin code)
@@ -568,7 +571,8 @@ class Cast
 public:
 	Cast(const char* type, String* source_rep, Expr* expr) 
 	{
-		this->cast = new CAST(new String(type), source_rep);
+		this->cast = new CAST(new String(type));
+		this->cast->set_source_rep (source_rep);
 		this->expr = expr;
 	}
 };
@@ -585,14 +589,6 @@ public:
 class HT_ITERATOR
 {
 public:
-	HT_ITERATOR (long identifier)
-	{
-		value = identifier;
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-		source_rep = new String(os.str());
-	}
-
 	String* get_value_as_string ()
 	{
 		std::ostringstream os;
@@ -602,19 +598,27 @@ public:
 };
 
 
-
-class Identifier
+class Source_rep
 {
 public:
 	virtual String* get_value_as_string() = 0;
+
+	String* get_source_rep()
+	{
+		String* result = dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep"));
+		if (result == NULL)
+			result = get_value_as_string ();
+
+		return result;
+	}
+
+	void set_source_rep (String* source_rep)
+	{
+		assert (source_rep != NULL);
+		attrs->set ("phc.unparser.source_rep", source_rep);
+	}
 };
 
-class Literal
-{
-public:
-	virtual String* get_value_as_string() = 0;
-	virtual String* get_source_rep() = 0;
-};
 
 class INT
 {
@@ -636,10 +640,10 @@ public:
 		return _get_value_as_string ();
 	}
 
-	INT (int v)
+	INT (long v, String* source_rep)
 	{
 		value = v;
-		source_rep = _get_value_as_string ();
+		set_source_rep (source_rep);
 	}
 };
 
@@ -672,10 +676,10 @@ public:
 		return _get_value_as_string ();
 	}
 
-	REAL (double v)
+	REAL (double v, String* source_rep)
 	{
 		value = v;
-		source_rep = _get_value_as_string ();
+		set_source_rep (source_rep);
 	}
 };
 
@@ -697,11 +701,12 @@ public:
 		return _get_value_as_string ();
 	}
 
-	BOOL (bool v)
+	BOOL (bool v, String* source_rep)
 	{
 		value = v;
-		source_rep = _get_value_as_string ();
+		set_source_rep (source_rep);
 	}
+
 };
 
 class STRING
@@ -722,11 +727,12 @@ public:
 		return value->clone();
 	}
 
-	STRING (String* v)
+	STRING (String* v, String* source_rep)
 	{
 		value = v;
-		source_rep = v;
+		set_source_rep (source_rep);
 	}
+
 };
 
 class NIL
@@ -736,8 +742,9 @@ public:
 	{
 		return new String("NULL");
 	}
-	NIL ()
+
+	NIL (String* source_rep)
 	{
-		source_rep = new String ("NULL");
+		set_source_rep (source_rep);
 	}
 };

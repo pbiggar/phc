@@ -36,7 +36,7 @@ void Check_uppering::post_if (If* in)
 
 void Check_uppering::post_break (Break* in)
 {
-	if (not in->match (new Break (new INT (2, NULL))))
+	if (not in->match (new Break (new INT (2))))
 	{
 		phc_internal_error ("The single break should jump two levels", in);
 	}
@@ -44,7 +44,7 @@ void Check_uppering::post_break (Break* in)
 
 void Check_uppering::post_while (While* in)
 {
-	if (not in->match (new While (new BOOL (true, NULL), NULL)))
+	if (not in->match (new While (new BOOL (true), NULL)))
 	{
 		phc_internal_error ("The single while should be while true", in);
 	}

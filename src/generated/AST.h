@@ -37,7 +37,7 @@ class Method_name;
 class Actual_parameter;
 class Class_name;
 class Commented_node;
-class Identifier;
+class Source_rep;
 class HT_ITERATOR;
 class Statement;
 class Member;
@@ -46,15 +46,7 @@ class Catch;
 class Expr;
 class Nested_list_elements;
 class Reflection;
-class CLASS_NAME;
-class INTERFACE_NAME;
-class METHOD_NAME;
-class VARIABLE_NAME;
-class DIRECTIVE_NAME;
-class LABEL_NAME;
-class OP;
-class CAST;
-class CONSTANT_NAME;
+class Identifier;
 class Class_def;
 class Interface_def;
 class Method;
@@ -101,6 +93,15 @@ class Post_op;
 class Array;
 class Method_invocation;
 class New;
+class CLASS_NAME;
+class INTERFACE_NAME;
+class METHOD_NAME;
+class VARIABLE_NAME;
+class DIRECTIVE_NAME;
+class LABEL_NAME;
+class OP;
+class CAST;
+class CONSTANT_NAME;
 class INT;
 class REAL;
 class STRING;
@@ -110,7 +111,7 @@ class NIL;
 class Transform;
 class Visitor;
 
-// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Identifier | HT_ITERATOR<long>;
+// Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Source_rep | HT_ITERATOR<long>;
 class Node : virtual public Object
 {
 public:
@@ -573,11 +574,11 @@ public:
     List<String*>* get_comments();
 };
 
-// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
-class Identifier : virtual public Node
+// Source_rep ::= Identifier | Literal;
+class Source_rep : virtual public Node
 {
 public:
-    Identifier();
+    Source_rep();
 public:
     virtual void visit(Visitor* visitor) = 0;
     virtual void transform_children(Transform* transform) = 0;
@@ -588,17 +589,19 @@ public:
 public:
     virtual bool equals(Node* in) = 0;
 public:
-    virtual Identifier* clone() = 0;
+    virtual Source_rep* clone() = 0;
 public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
+    String* get_source_rep();
+    void set_source_rep(String* source_rep);
 };
 
 class HT_ITERATOR : virtual public Node
 {
 public:
-    HT_ITERATOR(long value, String* source_rep);
+    HT_ITERATOR(long value);
 protected:
     HT_ITERATOR();
 public:
@@ -606,8 +609,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     long value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 61;
     virtual int classid();
@@ -624,7 +625,6 @@ public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 public:
-    HT_ITERATOR(long identifier);
     String* get_value_as_string();
 };
 
@@ -791,236 +791,24 @@ public:
     virtual void assert_valid();
 };
 
-class CLASS_NAME : virtual public Target, virtual public Class_name, virtual public Identifier
+// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
+class Identifier : virtual public Source_rep
 {
 public:
-    CLASS_NAME(String* value);
-protected:
-    CLASS_NAME();
+    Identifier();
 public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
+    virtual void visit(Visitor* visitor) = 0;
+    virtual void transform_children(Transform* transform) = 0;
 public:
-    String* value;
-    virtual String* get_value_as_string();
+    virtual int classid() = 0;
 public:
-    static const int ID = 62;
-    virtual int classid();
+    virtual bool match(Node* in) = 0;
 public:
-    virtual bool match(Node* in);
+    virtual bool equals(Node* in) = 0;
 public:
-    virtual bool equals(Node* in);
+    virtual Identifier* clone() = 0;
 public:
-    virtual CLASS_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class INTERFACE_NAME : virtual public Identifier
-{
-public:
-    INTERFACE_NAME(String* value);
-protected:
-    INTERFACE_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 63;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual INTERFACE_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class METHOD_NAME : virtual public Method_name, virtual public Identifier
-{
-public:
-    METHOD_NAME(String* value);
-protected:
-    METHOD_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 64;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual METHOD_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class VARIABLE_NAME : virtual public Variable_name, virtual public Identifier
-{
-public:
-    VARIABLE_NAME(String* value);
-protected:
-    VARIABLE_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 65;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual VARIABLE_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class DIRECTIVE_NAME : virtual public Identifier
-{
-public:
-    DIRECTIVE_NAME(String* value);
-protected:
-    DIRECTIVE_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 66;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual DIRECTIVE_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class LABEL_NAME : virtual public Identifier
-{
-public:
-    LABEL_NAME(String* value);
-protected:
-    LABEL_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 67;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual LABEL_NAME* clone();
-public:
-    virtual void assert_valid();
-};
-
-class OP : virtual public Identifier
-{
-public:
-    OP(String* value);
-protected:
-    OP();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 73;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual OP* clone();
-public:
-    virtual void assert_valid();
-};
-
-class CAST : virtual public Identifier
-{
-public:
-    CAST(String* value, String* source_rep);
-protected:
-    CAST();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    String* source_rep;
-    virtual String* get_source_rep();
-public:
-    static const int ID = 74;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-    virtual bool match_value(CAST* that);
-public:
-    virtual bool equals(Node* in);
-    virtual bool equals_value(CAST* that);
-public:
-    virtual CAST* clone();
-    virtual String* clone_value();
-public:
-    virtual void assert_valid();
-    virtual void assert_value_valid();
-public:
-    String* get_value_as_string();
-};
-
-class CONSTANT_NAME : virtual public Identifier
-{
-public:
-    CONSTANT_NAME(String* value);
-protected:
-    CONSTANT_NAME();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    String* value;
-    virtual String* get_value_as_string();
-public:
-    static const int ID = 75;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual CONSTANT_NAME* clone();
-public:
-    virtual void assert_valid();
+    virtual void assert_valid() = 0;
 };
 
 // Class_def ::= Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ;
@@ -1785,7 +1573,7 @@ public:
 };
 
 // Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;
-class Literal : virtual public Expr
+class Literal : virtual public Expr, virtual public Source_rep
 {
 public:
     Literal();
@@ -1802,9 +1590,6 @@ public:
     virtual Literal* clone() = 0;
 public:
     virtual void assert_valid() = 0;
-public:
-    virtual String* get_value_as_string() = 0;
-    virtual String* get_source_rep() = 0;
 };
 
 // Assignment ::= Variable is_ref:"&" Expr ;
@@ -2244,10 +2029,240 @@ public:
     virtual void assert_valid();
 };
 
+class CLASS_NAME : virtual public Target, virtual public Class_name, virtual public Identifier
+{
+public:
+    CLASS_NAME(String* value);
+protected:
+    CLASS_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 62;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual CLASS_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class INTERFACE_NAME : virtual public Identifier
+{
+public:
+    INTERFACE_NAME(String* value);
+protected:
+    INTERFACE_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 63;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual INTERFACE_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class METHOD_NAME : virtual public Method_name, virtual public Identifier
+{
+public:
+    METHOD_NAME(String* value);
+protected:
+    METHOD_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 64;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual METHOD_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class VARIABLE_NAME : virtual public Variable_name, virtual public Identifier
+{
+public:
+    VARIABLE_NAME(String* value);
+protected:
+    VARIABLE_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 65;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual VARIABLE_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class DIRECTIVE_NAME : virtual public Identifier
+{
+public:
+    DIRECTIVE_NAME(String* value);
+protected:
+    DIRECTIVE_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 66;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual DIRECTIVE_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class LABEL_NAME : virtual public Identifier
+{
+public:
+    LABEL_NAME(String* value);
+protected:
+    LABEL_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 67;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual LABEL_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
+class OP : virtual public Identifier
+{
+public:
+    OP(String* value);
+protected:
+    OP();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 73;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual OP* clone();
+public:
+    virtual void assert_valid();
+};
+
+class CAST : virtual public Identifier
+{
+public:
+    CAST(String* value);
+protected:
+    CAST();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+public:
+    static const int ID = 74;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+    virtual bool match_value(CAST* that);
+public:
+    virtual bool equals(Node* in);
+    virtual bool equals_value(CAST* that);
+public:
+    virtual CAST* clone();
+    virtual String* clone_value();
+public:
+    virtual void assert_valid();
+    virtual void assert_value_valid();
+public:
+    String* get_value_as_string();
+};
+
+class CONSTANT_NAME : virtual public Identifier
+{
+public:
+    CONSTANT_NAME(String* value);
+protected:
+    CONSTANT_NAME();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 75;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual CONSTANT_NAME* clone();
+public:
+    virtual void assert_valid();
+};
+
 class INT : virtual public Literal
 {
 public:
-    INT(long value, String* source_rep);
+    INT(long value);
 protected:
     INT();
 public:
@@ -2255,8 +2270,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     long value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 68;
     virtual int classid();
@@ -2279,13 +2292,13 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    INT(int v);
+    INT(long v, String* source_rep);
 };
 
 class REAL : virtual public Literal
 {
 public:
-    REAL(double value, String* source_rep);
+    REAL(double value);
 protected:
     REAL();
 public:
@@ -2293,8 +2306,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     double value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 69;
     virtual int classid();
@@ -2315,13 +2326,13 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    REAL(double v);
+    REAL(double v, String* source_rep);
 };
 
 class STRING : virtual public Literal
 {
 public:
-    STRING(String* value, String* source_rep);
+    STRING(String* value);
 protected:
     STRING();
 public:
@@ -2329,8 +2340,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     String* value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 70;
     virtual int classid();
@@ -2349,13 +2358,13 @@ public:
     virtual String* get_value_as_string();
     bool is_value_valid();
     String* clone_value();
-    STRING(String* v);
+    STRING(String* v, String* source_rep);
 };
 
 class BOOL : virtual public Literal
 {
 public:
-    BOOL(bool value, String* source_rep);
+    BOOL(bool value);
 protected:
     BOOL();
 public:
@@ -2363,8 +2372,6 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     bool value;
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 71;
     virtual int classid();
@@ -2385,19 +2392,16 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
-    BOOL(bool v);
+    BOOL(bool v, String* source_rep);
 };
 
 class NIL : virtual public Literal
 {
 public:
-    NIL(String* source_rep);
+    NIL();
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
-public:
-    String* source_rep;
-    virtual String* get_source_rep();
 public:
     static const int ID = 72;
     virtual int classid();
@@ -2411,7 +2415,7 @@ public:
     virtual void assert_valid();
 public:
     virtual String* get_value_as_string();
-    NIL();
+    NIL(String* source_rep);
 };
 
 

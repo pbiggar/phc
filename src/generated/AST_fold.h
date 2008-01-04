@@ -90,6 +90,7 @@ template
  class _Class_name,
  class _Commented_node,
  class _Identifier,
+ class _Source_rep,
  class _HT_ITERATOR,
  class _CLASS_NAME,
  class _INTERFACE_NAME,
@@ -1384,6 +1385,42 @@ public:
 		assert(0);
 	}
 
+	virtual _Source_rep fold_source_rep(Source_rep* in)
+	{
+		switch(in->classid())
+		{
+			case INTERFACE_NAME::ID:
+				return fold_interface_name(dynamic_cast<INTERFACE_NAME*>(in));
+			case CLASS_NAME::ID:
+				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
+			case METHOD_NAME::ID:
+				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
+			case VARIABLE_NAME::ID:
+				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+			case CAST::ID:
+				return fold_cast(dynamic_cast<CAST*>(in));
+			case OP::ID:
+				return fold_op(dynamic_cast<OP*>(in));
+			case CONSTANT_NAME::ID:
+				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
+			case LABEL_NAME::ID:
+				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
+			case DIRECTIVE_NAME::ID:
+				return fold_directive_name(dynamic_cast<DIRECTIVE_NAME*>(in));
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
+			case REAL::ID:
+				return fold_real(dynamic_cast<REAL*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
+			case BOOL::ID:
+				return fold_bool(dynamic_cast<BOOL*>(in));
+			case NIL::ID:
+				return fold_nil(dynamic_cast<NIL*>(in));
+		}
+		assert(0);
+	}
+
 
 
 // Virtual destructor to avoid compiler warnings
@@ -1391,6 +1428,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

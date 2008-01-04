@@ -39,7 +39,7 @@ public:
          param = new Actual_parameter(false, module_constant);
          in->actual_parameters->insert(pos, param); pos++;
          /* Skip host */ pos++;
-         param = new Actual_parameter(false, new NIL(new String("NULL")));
+         param = new Actual_parameter(false, new NIL());
          in->actual_parameters->insert(pos, param); 
       }
    }

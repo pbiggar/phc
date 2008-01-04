@@ -137,7 +137,6 @@ public:
 		Object* node = NULL;
 		Node* ast_node = NULL;
 		String* value;
-		String* source_rep;
 
 		// Number of children of the node we are about to create
 		int num_children = num_children_stack.top();
@@ -164,64 +163,57 @@ public:
 		}
 		else if(!strcmp(name, "STRING"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new STRING(value, source_rep);
+			ast_node = new STRING(value);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(!strcmp(name, "CAST"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new CAST(value, source_rep);
+			ast_node = new CAST(value);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(!strcmp(name, "INT"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new INT(strtol(value->c_str(), 0, 0), source_rep);
+			ast_node = new INT(strtol(value->c_str(), 0, 0));
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(!strcmp(name, "REAL"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new REAL(atof(value->c_str()), source_rep);	
+			ast_node = new REAL(atof(value->c_str()));	
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(!strcmp(name, "BOOL"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			// BOOL::get_value_as_string returns "True" or "False"
 			if(*value == "True")
-				ast_node = new BOOL(true, source_rep);
+				ast_node = new BOOL(true);
 			else
-				ast_node = new BOOL(false, source_rep);
+				ast_node = new BOOL(false);
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(!strcmp(name, "NIL"))
 		{
-			source_rep = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
-			ast_node = new NIL(source_rep);
+			ast_node = new NIL();
 			ast_node->attrs = attrs_stack.top();
 			attrs_stack.pop();
 		}
 		else if(
  			 !strcmp(name, "value") 
-		  || !strcmp(name, "source_rep")
 		  || !strcmp(name, "string")
 		  )
 		{
