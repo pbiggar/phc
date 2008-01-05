@@ -39,7 +39,7 @@ const char *gengetopt_args_info_help[] = {
   "      --run=STRING         Run the specified plugin (may be specified multiple \n                             times)",
   "      --r-option=STRING    Pass option to a plugin (specify multiple flags in \n                             the same order as multiple plugins - 1 option only \n                             per plugin)",
   "\nINPUT OPTIONS:",
-  "      --read-ast-xml       Assume the input is a phc AST in XML format  \n                             (default=off)",
+  "      --read-xml=passname  Assume the input is in XML format. Start processing \n                             after the named pass",
   "\nCOMPILATION OPTIONS:",
   "  -C, --c-option=STRING    Pass option to the C compile (e.g., -C-g; can be \n                             specified multiple times)",
   "      --extension=NAME     Generate a PHP extension called NAME instead of a \n                             standalone application",
@@ -65,7 +65,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --run=STRING         Run the specified plugin (may be specified multiple \n                             times)",
   "      --r-option=STRING    Pass option to a plugin (specify multiple flags in \n                             the same order as multiple plugins - 1 option only \n                             per plugin)",
   "\nINPUT OPTIONS:",
-  "      --read-ast-xml       Assume the input is a phc AST in XML format  \n                             (default=off)",
+  "      --read-xml=passname  Assume the input is in XML format. Start processing \n                             after the named pass",
   "      --no-validation      Toggle XML validation  (default=on)",
   "      --include            Parse included or required files at compile-time  \n                             (default=off)",
   "\nCOMPILATION OPTIONS:",
@@ -126,7 +126,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->obfuscate_given = 0 ;
   args_info->run_given = 0 ;
   args_info->r_option_given = 0 ;
-  args_info->read_ast_xml_given = 0 ;
+  args_info->read_xml_given = 0 ;
   args_info->no_validation_given = 0 ;
   args_info->include_given = 0 ;
   args_info->c_option_given = 0 ;
@@ -161,7 +161,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->run_orig = NULL;
   args_info->r_option_arg = NULL;
   args_info->r_option_orig = NULL;
-  args_info->read_ast_xml_flag = 0;
+  args_info->read_xml_arg = NULL;
+  args_info->read_xml_orig = NULL;
   args_info->no_validation_flag = 1;
   args_info->include_flag = 0;
   args_info->c_option_arg = NULL;
@@ -212,7 +213,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->r_option_help = gengetopt_args_info_full_help[9] ;
   args_info->r_option_min = -1;
   args_info->r_option_max = -1;
-  args_info->read_ast_xml_help = gengetopt_args_info_full_help[11] ;
+  args_info->read_xml_help = gengetopt_args_info_full_help[11] ;
   args_info->no_validation_help = gengetopt_args_info_full_help[12] ;
   args_info->include_help = gengetopt_args_info_full_help[13] ;
   args_info->c_option_help = gengetopt_args_info_full_help[15] ;
@@ -348,6 +349,16 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
       args_info->r_option_arg = 0;
       free (args_info->r_option_orig); /* free previous argument */
       args_info->r_option_orig = 0;
+    }
+  if (args_info->read_xml_arg)
+    {
+      free (args_info->read_xml_arg); /* free previous argument */
+      args_info->read_xml_arg = 0;
+    }
+  if (args_info->read_xml_orig)
+    {
+      free (args_info->read_xml_orig); /* free previous argument */
+      args_info->read_xml_orig = 0;
     }
   if (args_info->c_option_arg)
     {
@@ -574,8 +585,12 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
             }
         }
     }
-  if (args_info->read_ast_xml_given) {
-    fprintf(outfile, "%s\n", "read-ast-xml");
+  if (args_info->read_xml_given) {
+    if (args_info->read_xml_orig) {
+      fprintf(outfile, "%s=\"%s\"\n", "read-xml", args_info->read_xml_orig);
+    } else {
+      fprintf(outfile, "%s\n", "read-xml");
+    }
   }
   if (args_info->no_validation_given) {
     fprintf(outfile, "%s\n", "no-validation");
@@ -973,7 +988,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "obfuscate",	0, NULL, 0 },
         { "run",	1, NULL, 0 },
         { "r-option",	1, NULL, 0 },
-        { "read-ast-xml",	0, NULL, 0 },
+        { "read-xml",	1, NULL, 0 },
         { "no-validation",	0, NULL, 0 },
         { "include",	0, NULL, 0 },
         { "c-option",	1, NULL, 'C' },
@@ -1267,19 +1282,24 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               }
             break;
           }
-          /* Assume the input is a phc AST in XML format.  */
-          else if (strcmp (long_options[option_index].name, "read-ast-xml") == 0)
+          /* Assume the input is in XML format. Start processing after the named pass.  */
+          else if (strcmp (long_options[option_index].name, "read-xml") == 0)
           {
-            if (local_args_info.read_ast_xml_given)
+            if (local_args_info.read_xml_given)
               {
-                fprintf (stderr, "%s: `--read-ast-xml' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                fprintf (stderr, "%s: `--read-xml' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
                 goto failure;
               }
-            if (args_info->read_ast_xml_given && ! override)
+            if (args_info->read_xml_given && ! override)
               continue;
-            local_args_info.read_ast_xml_given = 1;
-            args_info->read_ast_xml_given = 1;
-            args_info->read_ast_xml_flag = !(args_info->read_ast_xml_flag);
+            local_args_info.read_xml_given = 1;
+            args_info->read_xml_given = 1;
+            if (args_info->read_xml_arg)
+              free (args_info->read_xml_arg); /* free previous string */
+            args_info->read_xml_arg = gengetopt_strdup (optarg);
+            if (args_info->read_xml_orig)
+              free (args_info->read_xml_orig); /* free previous string */
+            args_info->read_xml_orig = gengetopt_strdup (optarg);
           }
           /* Toggle XML validation.  */
           else if (strcmp (long_options[option_index].name, "no-validation") == 0)

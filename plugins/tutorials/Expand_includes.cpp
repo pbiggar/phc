@@ -38,7 +38,7 @@ public:
 		if(in->expr->match(pattern))
 		{
 			// Matched! Try to parse the file 
-			PHP_script* php_script = parse(filename->value->value, NULL, false);
+			PHP_script* php_script = parse(filename->value->value, NULL);
 			if(php_script == NULL)
 			{
 				cerr 

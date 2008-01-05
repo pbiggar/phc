@@ -50,7 +50,7 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
 	$(strangeprocessast_HEADERS) $(top_srcdir)/configure ChangeLog \
-	TODO config/config.guess config/config.sub config/depcomp \
+	config/config.guess config/config.sub config/depcomp \
 	config/install-sh config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \

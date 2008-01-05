@@ -26,7 +26,7 @@
  *
  * If there is a syntax error, returns NULL.
  */ 
-AST::PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml = false);
+AST::PHP_script* parse(String* filename, List<String*>* dirs);
 
 /* Parse CODE, assuming that it comes from FILENAME:LINE_NUMBER */
 AST::PHP_script* parse_code (String* code, String* filename, int line_number);

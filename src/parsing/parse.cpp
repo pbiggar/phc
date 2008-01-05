@@ -14,7 +14,6 @@
 #include "parse.h"
 #include "cmdline.h"
 #include "php_parser.tab.hpp"
-#include "parsing/XML_parser.h"
 #include "parsing/PHP_context.h"
 #include "process_ast/Remove_parser_temporaries.h"
 #include "process_ast/Token_conversion.h"
@@ -53,7 +52,7 @@ PHP_script* parse_code (String* code, String* filename, int line_number)
 }
 
 
-PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
+PHP_script* parse(String* filename, List<String*>* dirs)
 {
 	assert(filename);
 	
@@ -64,49 +63,35 @@ PHP_script* parse(String* filename, List<String*>* dirs, bool is_ast_xml)
 	if(full_path == NULL)
 		return NULL;
 
-	if(is_ast_xml)
-	{
-		#ifdef HAVE_XERCES
-		if(*full_path == "-")
-			php_script = parse_ast_xml_stdin();
-		else
-			php_script = parse_ast_xml_file(full_path);
-		#else
-		phc_error("XML support not built-in; install Xerces C development library");
-		#endif
-	}
-	else
-	{
-		ifstream file_input;
-		istream& input = (*full_path == "-") ? cin : file_input;
+	ifstream file_input;
+	istream& input = (*full_path == "-") ? cin : file_input;
 
-		if(*full_path != "-")
-		{
-			file_input.open (full_path->c_str(), ifstream::in);
-			if (not file_input.is_open ()) return NULL;
-		}
-	
-		// Compile
-		PHP_context* context = new PHP_context(input, full_path);
-
-//		if(is_dump_option ("tokens"))
-		{
-			// run the lexer only
-			// TODO: reenable
-			// while(parser.php_lexer->yylex());
-		}
-//		else
-		{
-			if(!PHP_parse(context))
-			{
-				php_script = context->php_script;
-				php_script->attrs->set ("phc.filename", filename);
-				run_standard_transforms(php_script);
-			}
-		}
-	
-		if(file_input.is_open ()) file_input.close ();
+	if(*full_path != "-")
+	{
+		file_input.open (full_path->c_str(), ifstream::in);
+		if (not file_input.is_open ()) return NULL;
 	}
+
+	// Compile
+	PHP_context* context = new PHP_context(input, full_path);
+
+	//		if(is_dump_option ("tokens"))
+	{
+		// run the lexer only
+		// TODO: reenable
+		// while(parser.php_lexer->yylex());
+	}
+	//		else
+	{
+		if(!PHP_parse(context))
+		{
+			php_script = context->php_script;
+			php_script->attrs->set ("phc.filename", filename);
+			run_standard_transforms(php_script);
+		}
+	}
+
+	if(file_input.is_open ()) file_input.close ();
 
 	php_script->assert_valid();
 	return php_script;

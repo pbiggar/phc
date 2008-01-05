@@ -310,6 +310,30 @@ void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 }
 
 /* Run all passes between FROM and TO, inclusive. */
+IR* Pass_manager::run_from (String* from, IR* in, bool dump)
+{
+	bool exec = false;
+	for_lci (queues, List<Pass*>, q)
+	{
+		for_lci (*q, Pass, p)
+		{
+			// check for starting pass
+			if (!exec && *((*p)->name) == *from)
+				exec = true;
+
+			if (exec)
+				run_pass (*p, in, dump);
+		}
+
+		// TODO dirty hack
+		if ((*q == ast_queue && in->is_AST ())
+				or (*q == hir_queue && in->is_HIR ()))
+			in = in->fold_lower ();
+	}
+	return in;
+}
+
+/* Run all passes between FROM and TO, inclusive. */
 IR* Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
 {
 	bool exec = false;
@@ -380,4 +404,29 @@ bool Pass_manager::has_pass_named (String* name)
 				return true;
 		}
 	return false;
+}
+
+bool is_queue_pass (String* name, List<Pass*>* queue)
+{
+	for_lci (queue, Pass, p)
+	{
+		if (*name == *(*p)->name)
+			return true;
+	}
+	return false;
+}
+
+bool Pass_manager::is_ast_pass (String* name)
+{
+	return is_queue_pass (name, ast_queue);
+}
+
+bool Pass_manager::is_hir_pass (String* name)
+{
+	return is_queue_pass (name, hir_queue);
+}
+
+bool Pass_manager::is_mir_pass (String* name)
+{
+	return is_queue_pass (name, mir_queue);
 }

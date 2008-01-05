@@ -30,6 +30,7 @@
 #include "embed/embed.h"
 #include <ltdl.h>
 #include "parsing/parse.h"
+#include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
 #include "process_ast/DOT_unparser.h"
@@ -85,6 +86,9 @@ int main(int argc, char** argv)
 
 	// Start the embedded interpreter
 	PHP::startup_php ();
+
+	// Ready XERCES
+	init_xml ();
 
 	// Synchronise C and C++ I/O
 	ios_base::sync_with_stdio();
@@ -195,7 +199,7 @@ int main(int argc, char** argv)
 	/* 
 	 *	Parsing 
 	 */
-	
+
 	// handle --list-passes the same as --help or --version
 	if (args_info.list_passes_given)
 		pm->list_passes ();
@@ -204,34 +208,73 @@ int main(int argc, char** argv)
 	{
 		// do nothing
 	}
+	
 	else
 	{
-		if(args_info.inputs_num == 0)
-		{
-			ir = parse(new String("-"), NULL, args_info.read_ast_xml_flag);
-		}
-		else
-		{
-			if (args_info.inputs_num > 1)
-				phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
+		if (args_info.inputs_num > 1)
+			phc_error ("Only 1 input file can be processed. Input file '%s' is ignored.", args_info.inputs[1]);
 
-			ir = parse(new String(args_info.inputs[0]), NULL, args_info.read_ast_xml_flag);
-			if (ir == NULL)
-			{
-				phc_error("File not found", new String(args_info.inputs[0]), 0);
-			}
-		}
-
-		if(ir== NULL) return -1;
+		String* filename;
+		if (args_info.inputs_num == 0)
+			filename = new String ("-");
+		else 
+			filename = new String (args_info.inputs[0]);
 
 		// Make sure the inputs cannot be accessed globally
 		args_info.inputs = NULL;
 
+		if (args_info.read_xml_given)
+		{
+			#ifndef HAVE_XERCES
+				phc_error("XML support not built-in; install Xerces C development library");
+			#else
 
-		/* 
-		 *	Run the passes
-		 */
-		pm->run (ir, true);
+			String* pass_name = new String (args_info.read_xml_arg);
+			if (not pm->has_pass_named (pass_name))
+				phc_error ("Specified pass is not valid");
+
+			if (pm->is_ast_pass (pass_name))
+			{
+				AST_XML_parser parser;
+				if(args_info.inputs_num == 0)
+					ir = parser.parse_xml_stdin();
+				else
+					ir = parser.parse_xml_file (filename);
+			}
+			else if (pm->is_hir_pass (pass_name))
+			{
+				HIR_XML_parser parser;
+				if(args_info.inputs_num == 0)
+					ir = parser.parse_xml_stdin();
+				else
+					ir = parser.parse_xml_file (filename);
+			}
+			else if (pm->is_mir_pass (pass_name))
+			{
+				MIR_XML_parser parser;
+				if(args_info.inputs_num == 0)
+					ir = parser.parse_xml_stdin();
+				else
+					ir = parser.parse_xml_file (filename);
+			}
+			pm->run_from (pass_name, ir);
+
+			#endif
+		}
+		else
+		{
+			ir = parse (filename, NULL);
+
+			// print error
+			if (ir == NULL)
+				if (args_info.inputs_num != 0)
+					phc_error("File not found", filename, 0);
+				else
+					return -1;
+
+			// run passes
+			pm->run (ir, true);
+		}
 
 		pm->post_process ();
 	}
@@ -245,6 +288,8 @@ int main(int argc, char** argv)
 		phc_error ("Error closing ltdl plugin infrastructure: %s", lt_dlerror ());
 
 	PHP::shutdown_php ();
+
+	shutdown_xml ();
 
 	return 0;
 }

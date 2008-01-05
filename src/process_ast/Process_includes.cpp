@@ -303,7 +303,7 @@ void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 	List<String*>* dirs = get_search_directories (filename, in);
 
 	// Try to parse the file
-	PHP_script* ast = parse(filename, dirs, false);
+	PHP_script* ast = parse(filename, dirs);
 
 	// Script could not be found or not be parsed; leave the include in
 	if (ast == NULL)

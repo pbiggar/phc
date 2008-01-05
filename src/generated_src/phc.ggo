@@ -9,7 +9,7 @@ option "run" - "Run the specified plugin (may be specified multiple times)" stri
 option "r-option" - "Pass option to a plugin (specify multiple flags in the same order as multiple plugins - 1 option only per plugin)" string no multiple 
 
 section "INPUT OPTIONS"
-option "read-ast-xml" - "Assume the input is a phc AST in XML format" flag off # TODO this should be readable at any point, really
+option "read-xml" - "Assume the input is in XML format. Start processing after the named pass" string typestr="passname" optional
 option "no-validation" - "Toggle XML validation"  flag on hidden 
 option "include" - "Parse included or required files at compile-time" flag off hidden 
 
