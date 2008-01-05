@@ -48,7 +48,7 @@ class BasicParseTest extends AsyncTest
 		{
 			if ($bundle->exits[0] != $expected["exit_code"])
 			{
-				$this->mark_failure ("Exit doesnt match", $bundle);
+				$this->mark_failure ("Exit doesnt match, expected: " . $expected["exit_code"], $bundle);
 				return;
 			}
 		}
@@ -67,7 +67,7 @@ class BasicParseTest extends AsyncTest
 			$err = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
 			if ($err !== "")
 			{
-				$this->mark_failure ("Error doesnt match: ". $expected["err_regex"], $bundle);
+				$this->mark_failure ("Error doesnt match, expected: \"". $expected["err_regex"] . "\"", $bundle);
 				return;
 			}
 		}
