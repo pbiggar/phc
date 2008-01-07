@@ -177,7 +177,7 @@ class HIR_to_AST : public HIR::Fold
 
 	AST::Attribute* fold_impl_attribute(HIR::Attribute* orig, AST::Attr_mod* attr_mod, List<AST::Name_with_default*>* vars) 
 	{
-//		assert(vars->size() == 1); // TODO reinstate this
+		assert(vars->size() == 1);
 
 		AST::Attribute* result;
 		result = new AST::Attribute(attr_mod, vars);
@@ -221,9 +221,7 @@ class HIR_to_AST : public HIR::Fold
 
 	AST::Global* fold_impl_global(HIR::Global* orig, List<AST::Variable_name*>* variable_names) 
 	{
-		// AST only takes a single variable per global; should be been taken care of in the shredder
-		// TODO reinstate
-//		assert(variable_names->size() == 1);
+		assert(variable_names->size() == 1);
 		
 		AST::Global* result;
 		result = new AST::Global(variable_names);
