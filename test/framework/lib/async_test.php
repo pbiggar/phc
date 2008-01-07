@@ -39,6 +39,14 @@ class AsyncBundle
 		return $this->commands[$this->state];
 	}
 
+	function get_in ()
+	{
+		if (isset ($this->ins))
+			return $this->ins[$this->state];
+
+		return NULL;
+	}
+
 	function continuation ()
 	{
 		inst ("continuing from state {$this->state} of {$this->subject}\n");
@@ -260,10 +268,20 @@ abstract class AsyncTest extends Test
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),
 										2 => array("pipe", "w"));
+
+		$in = $bundle-> get_in ();
+		if ($in)
+			$descriptorspec[0] = array ("pipe", "r");
 		$pipes = array();
 		$handle = proc_open ($command, $descriptorspec, &$pipes);
 		stream_set_blocking ($pipes[1], 0);
 		stream_set_blocking ($pipes[2], 0);
+		if ($in)
+		{
+			fwrite ($pipes[0], $in);
+			fclose ($pipes[0]);
+		}
+
 
 		$bundle->handle = $handle;
 		$bundle->pipes = $pipes;
