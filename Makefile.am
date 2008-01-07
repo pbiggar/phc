@@ -317,10 +317,6 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/source_vs_semantic_values.la
 plugins_tests_source_vs_semantic_values_la_SOURCES = plugins/tests/source_vs_semantic_values.cpp
 plugins_tests_source_vs_semantic_values_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/xml_roundtrip.la
-plugins_tests_xml_roundtrip_la_SOURCES = plugins/tests/xml_roundtrip.cpp
-plugins_tests_xml_roundtrip_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
 nobase_pkglib_LTLIBRARIES += plugins/tools/add_comment.la
 plugins_tools_add_comment_la_SOURCES = plugins/tools/add_comment.cpp
 plugins_tools_add_comment_la_LDFLAGS = ${PLUGIN_LDFLAGS}
