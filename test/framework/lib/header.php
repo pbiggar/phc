@@ -341,18 +341,7 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 
 	$header = "$reason_string$dependency_string$command_string$err_string";
 
-
-	// create the stdout logs
-	if (!is_array ($outs))
-		$outs = array ($outs);
-
-	$out_string = "";
-	foreach ($outs as $i => $out)
-	{
-		$out_string .= "{$red}Output $i$reset:\n$out\n";
-	}
-
-	// save and print it
+	// ready the output information
 	global $log_directory;
 	$script_name = adjusted_name ($subject);
 	$filename = "$log_directory/$test_name/$script_name.log";
@@ -363,6 +352,25 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 		phc_assert (is_dir($dirname), "directory not created");
 	}
 
+
+	// create the stdout logs
+	if (!is_array ($outs))
+		$outs = array ($outs);
+
+	$out_string = "";
+	foreach ($outs as $i => $out)
+	{
+		$output_contents = "Command: ${commands[$i]}\n" . $out;
+		file_put_contents ("$filename.out.$i", $output_contents);
+
+		if (strlen ($out) > 1000)
+			$out = substr ($out, 0, 1000) . "... [truncated]\n";
+
+		$out_string .= "{$red}Output $i$reset:\n$out\n";
+	}
+
+
+	// print the output
 	file_put_contents($filename, $header);
 	file_put_contents($filename, rtrim($out_string), FILE_APPEND);
 	file_put_contents($filename, "\n", FILE_APPEND);
