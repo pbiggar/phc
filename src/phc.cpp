@@ -228,37 +228,35 @@ int main(int argc, char** argv)
 			#ifndef HAVE_XERCES
 				phc_error("XML support not built-in; install Xerces C development library");
 			#else
+				String* pass_name = new String (args_info.read_xml_arg);
+				if (not pm->has_pass_named (pass_name))
+					phc_error ("Specified pass %s is not valid", pass_name->c_str ());
 
-			String* pass_name = new String (args_info.read_xml_arg);
-			if (not pm->has_pass_named (pass_name))
-				phc_error ("Specified pass is not valid");
-
-			if (pm->is_ast_pass (pass_name))
-			{
-				AST_XML_parser parser;
-				if(args_info.inputs_num == 0)
-					ir = parser.parse_xml_stdin();
-				else
-					ir = parser.parse_xml_file (filename);
-			}
-			else if (pm->is_hir_pass (pass_name))
-			{
-				HIR_XML_parser parser;
-				if(args_info.inputs_num == 0)
-					ir = parser.parse_xml_stdin();
-				else
-					ir = parser.parse_xml_file (filename);
-			}
-			else if (pm->is_mir_pass (pass_name))
-			{
-				MIR_XML_parser parser;
-				if(args_info.inputs_num == 0)
-					ir = parser.parse_xml_stdin();
-				else
-					ir = parser.parse_xml_file (filename);
-			}
-			pm->run_from (pass_name, ir);
-
+				if (pm->is_ast_pass (pass_name))
+				{
+					AST_XML_parser parser;
+					if(args_info.inputs_num == 0)
+						ir = parser.parse_xml_stdin();
+					else
+						ir = parser.parse_xml_file (filename);
+				}
+				else if (pm->is_hir_pass (pass_name))
+				{
+					HIR_XML_parser parser;
+					if(args_info.inputs_num == 0)
+						ir = parser.parse_xml_stdin();
+					else
+						ir = parser.parse_xml_file (filename);
+				}
+				else if (pm->is_mir_pass (pass_name))
+				{
+					MIR_XML_parser parser;
+					if(args_info.inputs_num == 0)
+						ir = parser.parse_xml_stdin();
+					else
+						ir = parser.parse_xml_file (filename);
+				}
+				pm->run_from (pass_name, ir, true);
 			#endif
 		}
 		else
