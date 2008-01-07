@@ -39,6 +39,7 @@ public:
 
 public:
 	void set(string key, Object* value);
+	void erase_with_prefix (string key_prefix);
 
 public:
 	AttrMap* clone();

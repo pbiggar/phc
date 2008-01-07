@@ -72,7 +72,8 @@ $tests = array ();
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");
-$tests[] = new CompareBackwards ("hir", "dump", "ast");
+$tests[] = new CompareBackwards ("sua", "dump", "ast");
+$tests[] = new CompareBackwards ("hir", "dump", "sua");
 $tests[] = new CompareBackwards ("mir", "udump", "hir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=hir_as_ast --run plugins/tests/strip_includes.la", "Interpret_shred");

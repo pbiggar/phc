@@ -75,6 +75,14 @@ void AttrMap::set(string key, Object* value)
 	(*this)[key] = value;
 }
 
+void AttrMap::erase_with_prefix (string key_prefix)
+{
+	AttrMap::iterator i;
+	for(i = begin(); i != end(); i++)
+		if ((*i).first.find (key_prefix, 0) != string::npos)
+			erase (i);
+}
+
 AttrMap* AttrMap::clone()
 {
 	AttrMap* result = new AttrMap;

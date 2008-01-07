@@ -285,7 +285,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	AST_unparser.$(OBJEXT) DOT_unparser.$(OBJEXT) \
 	Invalid_check.$(OBJEXT) Note_top_level_declarations.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
-	Remove_parser_temporaries.$(OBJEXT) Token_conversion.$(OBJEXT) \
+	Remove_parser_temporaries.$(OBJEXT) \
+	Strip_unparser_attributes.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	HIR_unparser.$(OBJEXT) debug.$(OBJEXT) fresh.$(OBJEXT) \
 	General.$(OBJEXT) IR.$(OBJEXT) PHP_unparser.$(OBJEXT) \
 	Goto_uppering.$(OBJEXT) MIR_unparser.$(OBJEXT)
@@ -675,6 +676,8 @@ src_phc_SOURCES = \
 	src/process_ast/Remove_concat_null.h				\
 	src/process_ast/Remove_parser_temporaries.cpp	\
 	src/process_ast/Remove_parser_temporaries.h		\
+	src/process_ast/Strip_unparser_attributes.cpp	\
+	src/process_ast/Strip_unparser_attributes.h		\
 	src/process_ast/Token_conversion.cpp				\
 	src/process_ast/Token_conversion.h					\
 	src/process_hir/HIR_to_AST.h							\
@@ -1136,6 +1139,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/String.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tidy_print.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Translate_empty.Po@am__quote@
@@ -2227,6 +2231,20 @@ Remove_parser_temporaries.obj: src/process_ast/Remove_parser_temporaries.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Remove_parser_temporaries.cpp' object='Remove_parser_temporaries.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Remove_parser_temporaries.obj `if test -f 'src/process_ast/Remove_parser_temporaries.cpp'; then $(CYGPATH_W) 'src/process_ast/Remove_parser_temporaries.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Remove_parser_temporaries.cpp'; fi`
+
+Strip_unparser_attributes.o: src/process_ast/Strip_unparser_attributes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_unparser_attributes.o -MD -MP -MF $(DEPDIR)/Strip_unparser_attributes.Tpo -c -o Strip_unparser_attributes.o `test -f 'src/process_ast/Strip_unparser_attributes.cpp' || echo '$(srcdir)/'`src/process_ast/Strip_unparser_attributes.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_unparser_attributes.Tpo $(DEPDIR)/Strip_unparser_attributes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Strip_unparser_attributes.cpp' object='Strip_unparser_attributes.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_unparser_attributes.o `test -f 'src/process_ast/Strip_unparser_attributes.cpp' || echo '$(srcdir)/'`src/process_ast/Strip_unparser_attributes.cpp
+
+Strip_unparser_attributes.obj: src/process_ast/Strip_unparser_attributes.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_unparser_attributes.obj -MD -MP -MF $(DEPDIR)/Strip_unparser_attributes.Tpo -c -o Strip_unparser_attributes.obj `if test -f 'src/process_ast/Strip_unparser_attributes.cpp'; then $(CYGPATH_W) 'src/process_ast/Strip_unparser_attributes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Strip_unparser_attributes.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_unparser_attributes.Tpo $(DEPDIR)/Strip_unparser_attributes.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Strip_unparser_attributes.cpp' object='Strip_unparser_attributes.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_unparser_attributes.obj `if test -f 'src/process_ast/Strip_unparser_attributes.cpp'; then $(CYGPATH_W) 'src/process_ast/Strip_unparser_attributes.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Strip_unparser_attributes.cpp'; fi`
 
 Token_conversion.o: src/process_ast/Token_conversion.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Token_conversion.o -MD -MP -MF $(DEPDIR)/Token_conversion.Tpo -c -o Token_conversion.o `test -f 'src/process_ast/Token_conversion.cpp' || echo '$(srcdir)/'`src/process_ast/Token_conversion.cpp

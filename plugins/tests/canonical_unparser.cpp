@@ -12,27 +12,6 @@
 
 using namespace AST;
 
-class Clear_user_syntax : public virtual Visitor
-{
-	void pre_node (Node* in)
-	{
-		// Remove all the unparser attributes. is_singly_quoted must either be
-		// escaped or removed, however.
-		AttrMap::const_iterator i;
-		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
-		{
-			if((*i).first.find ("phc.unparser") == 0
-				&& (*i).first != "phc.unparser.is_singly_quoted")
-			{
-				in->attrs->erase ((*i).first);
-			}
-		}
-	} 
-
-};
-
-/* There is no need to override the unparser methods for tokens. They should be
- * able to unparse without a source_rep. */
 class Canonical_unparser : public virtual AST_unparser 
 { 
 	bool bracket;
@@ -41,9 +20,6 @@ class Canonical_unparser : public virtual AST_unparser
 	// out
 	void pre_php_script (PHP_script* in)
 	{
-		Clear_user_syntax cus;
-		in->visit(&cus);
-
 		bracket = true;
 	}
 
@@ -85,7 +61,7 @@ class Canonical_unparser : public virtual AST_unparser
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "ast");
+	pm->add_after_named_pass (pass, "sua");
 }
 
 extern "C" void run_ast (PHP_script* in, Pass_manager* pm)

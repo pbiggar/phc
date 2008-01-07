@@ -13,6 +13,7 @@
 #include "ast_to_hir/AST_shredder.h"
 #include "hir_to_mir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
+#include "process_ast/Strip_unparser_attributes.h"
 #include "ast_to_hir/Translate_empty.h"
 #include "hir_to_mir/Echo_split.h"
 #include "hir_to_mir/Pre_post_op_shredder.h"
@@ -119,6 +120,7 @@ int main(int argc, char** argv)
 	pm->add_ast_pass (new Pretty_print ());
 
 	// Begin lowering to hir
+	pm->add_ast_visitor (new Strip_unparser_attributes (), "sua");
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
 
 	// Small optimization on the AST
@@ -134,17 +136,6 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Echo_split (), "ecs");
 	pm->add_ast_transform (new Translate_empty (), "empty");
 
-	// TODO move most of these to AST
-
-	/* Before shredding: these passes may introduce construct which
-	 * are not shredded, such as $x = 0 + $y; */
-	
-
-
-	/* After shredding: all constructs introduced must be shredded */
-
-	// Required passes to lower AST constructs to HIR constructs
-
 	pm->add_ast_transform (new Early_lower_control_flow (), "elcf"); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), "lef"); // AST
 	pm->add_ast_transform (new Desugar (), "desug"); // AST
@@ -153,23 +144,25 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new AST::Shredder (), "ashred"); // AST
 	pm->add_ast_transform (new Tidy_print (), "tidyp"); // AST
 	pm->add_ast_pass (new Fake_pass ("AST-to-HIR"));
+
+
 	pm->add_hir_pass (new Fake_pass ("hir"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
 	pm->add_hir_transform (new HIR::Shredder (), "hshred"); // HIR
 
-	// TODO move to the MIR - re-add
-//	pm->add_mir_pass (new Process_includes (true, new String ("hir"), pm, "incl2"));
 
 	// process_hir passes
-
-
 	pm->add_hir_visitor (new Strip_comments (), "decomment");
 	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
 	pm->add_hir_pass (new Fake_pass ("HIR-to-MIR"));
-	pm->add_mir_pass (new Fake_pass ("mir"));
+
+
+	// TODO move to the MIR - re-add
+//	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
+	pm->add_mir_pass (new Fake_pass ("mir"));
 	pm->add_mir_pass (new Lift_functions_and_classes ());
 	pm->add_mir_visitor (new Clarify (), "clar");
 	pm->add_mir_visitor (new Prune_symbol_table (), "pst");
