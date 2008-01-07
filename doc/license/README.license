@@ -6,7 +6,7 @@ Additionally, phc uses tools and code from several sources, each with their own
 license, which we believe to be compatible with phc's BSD license. These are
 listed below. You need to be aware of these if you plan on redistributing phc,
 either as part of a product (open source or not), or if you plan on making
-source or binary distributions (ie for use with dpkg, apt or emerge).
+source or binary distributions (ie for use with apt, rpm or emerge).
 
    php:
 		- We base our parser on the Zend engine parser, which is licensed under
@@ -38,7 +38,8 @@ source or binary distributions (ie for use with dpkg, apt or emerge).
    gperf (GNU gperf 3.0.1):
 		- No copyright notices are included in the output files.
 
-RESPONSIBILITIES
+
+RESPONSIBILITIES:
 
 If you plan on distributing software (source or binary) which includes phc,
 whether as part of your own project, or when packaging phc (for example as an
@@ -48,5 +49,5 @@ rpm), you have the following responsibilities (to our knowledge):
 	  and abide by phc's BSD license.
 	- You must include flex copyright notices (flex_copyright_notices.txt) in
 	  binary distributions only and abide by flex's Modified BSD license.
-	- You must abide by the acknowledgement and and advertising clauses from the
+	- You must abide by the acknowledgement and advertising clauses from the
 	  Zend license, and include the license in any distribution.
