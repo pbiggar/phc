@@ -150,7 +150,7 @@ protected:
 			os << *value;
 		}
 
-		os << "</" << tag_name << ">" << endl;
+		os << "</" << tag_name << ">";
 	}
 
 	void print_attributes(Node* in)
@@ -255,6 +255,7 @@ public:
 
 			print_indent();
 			maybe_encode ("value", value);
+			os << endl;
 		}
 	}
 
@@ -267,6 +268,7 @@ public:
 		{
 			print_indent();
 			maybe_encode ("value", value);
+			os << endl;
 		}
 	}
 
@@ -296,6 +298,7 @@ public:
 
 		print_indent();
 		maybe_encode ("value", value);
+		os << endl;
 	}
 
 	void pre_literal(HIR::Literal* in)
@@ -307,6 +310,7 @@ public:
 		{
 			print_indent();
 			maybe_encode ("value", value);
+			os << endl;
 		}
 	}
 
@@ -336,6 +340,7 @@ public:
 
 		print_indent();
 		maybe_encode ("value", value);
+		os << endl;
 
 	}
 
@@ -348,6 +353,7 @@ public:
 		{
 			print_indent();
 			maybe_encode ("value", value);
+			os << endl;
 		}
 	}
 };

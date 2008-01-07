@@ -93,6 +93,7 @@ require_once ("line_numbers.php");
 require_once ("parse_ast_dot.php");
 $tests[] = new RegressionTest ("regression_dump_ast", "--ddump=ast", "dot");
 $tests[] = new RegressionTest ("regression_dump_php", "--pretty-print --tab=\"   \"", "unparsed");
+$tests[] = new RegressionTest ("regression_dump_xml", "--xdump=ast --xdump=hir --xdump=mir", "unparsed");
 
 
 
