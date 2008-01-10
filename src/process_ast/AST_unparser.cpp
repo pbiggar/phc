@@ -950,6 +950,14 @@ void AST_unparser::children_method_invocation(Method_invocation* in)
 			visit_actual_parameter_list(in->actual_parameters);
 		}
 	}
+	else if (in->match (new Method_invocation (NULL, new METHOD_NAME (new String ("echo")), NULL)))
+	{
+		visit_method_name(in->method_name);
+
+		// echo ($x, $y) can't be parsed properly.
+		echo(" ");
+		visit_actual_parameter_list(in->actual_parameters);
+	}
 	else
 	{
 		visit_method_name(in->method_name);
