@@ -1208,11 +1208,11 @@ void AST_unparser::children_string(STRING* in)
 		}
 		else
 		{
-	    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
+	    if(in->attrs->is_true("phc.unparser.is_doubly_quoted"))
 			{
-				echo("'");
+				echo("\"");
 				echo(in->get_source_rep ());
-				echo("'");
+				echo("\"");
 			}
 			else if(in->attrs->has("phc.unparser.heredoc_id"))
 			{
@@ -1226,9 +1226,9 @@ void AST_unparser::children_string(STRING* in)
 			}
 			else 
 			{
-	      echo("\"");
+				echo("'");
 				echo(in->get_source_rep ());
-				echo("\"");
+				echo("'");
 			}
 		}
 	}

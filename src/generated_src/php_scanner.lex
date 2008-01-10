@@ -432,7 +432,6 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 								new String(yyextra->value_buffer),
 								new String(yyextra->source_rep_buffer));
 							copy_state(str, yyextra);
-							str->attrs->set_true("phc.unparser.is_singly_quoted");
 							yylval->token_string = str;
 
 							BEGIN(PHP);
@@ -681,6 +680,7 @@ UNSET_CAST		{CS}{C_UNSET}{CE}
 							STRING* str = new STRING(
 								new String(yyextra->value_buffer),
 								new String(yyextra->source_rep_buffer));
+							str->attrs->set_true("phc.unparser.is_doubly_quoted");
 							copy_state(str, yyextra);
 							yylval->token_string = str;
 
