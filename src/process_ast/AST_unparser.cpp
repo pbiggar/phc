@@ -1227,7 +1227,10 @@ void AST_unparser::children_string(STRING* in)
 			else 
 			{
 				echo("'");
-				echo(in->get_source_rep ());
+				if (in->has_source_rep ())
+					echo(in->get_source_rep ());
+				else
+					echo(escape_sq (in->get_source_rep ()));
 				echo("'");
 			}
 		}

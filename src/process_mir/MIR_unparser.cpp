@@ -612,8 +612,8 @@ void MIR_unparser::children_real(REAL* in)
 
 void MIR_unparser::children_string(STRING* in)
 {
-  echo("\"");
-	echo(escape(in->value));
+	echo("\"");
+	echo(escape_dq(in->value));
 	echo("\"");
 }
 

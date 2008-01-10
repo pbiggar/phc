@@ -131,7 +131,7 @@ PHP_unparser::PHP_unparser(ostream& os) : os(os)
 	in_php = false;
 }
 	
-String* PHP_unparser::escape(String* s)
+String* PHP_unparser::escape_dq(String* s)
 {
 	stringstream os;
 
@@ -165,6 +165,22 @@ String* PHP_unparser::escape(String* s)
 					os << *i;
 				break;
 		}
+	}
+	
+	return new String(os.str());	
+}
+
+String* PHP_unparser::escape_sq(String* s)
+{
+	stringstream os;
+
+	string::iterator i;
+	for(i = s->begin(); i != s->end(); i++)
+	{
+		if (*i == '\'')
+			os << "\\'";
+		else
+			os << *i;
 	}
 	
 	return new String(os.str());	

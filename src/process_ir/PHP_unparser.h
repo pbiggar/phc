@@ -54,7 +54,8 @@ private:
 
 // Escaping a string
 public:
-	static String* escape(String* s);
+	static String* escape_dq(String* s);
+	static String* escape_sq(String* s);
 };
 
 #endif // PHC_PHP_UNPARSER 

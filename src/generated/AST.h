@@ -594,6 +594,7 @@ public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
+    bool has_source_rep();
     String* get_source_rep();
     void set_source_rep(String* source_rep);
 };

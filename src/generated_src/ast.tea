@@ -603,6 +603,11 @@ class Source_rep
 public:
 	virtual String* get_value_as_string() = 0;
 
+	bool has_source_rep ()
+	{
+		return (dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep")) != NULL);
+	}
+
 	String* get_source_rep()
 	{
 		String* result = dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep"));

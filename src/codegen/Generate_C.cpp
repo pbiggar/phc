@@ -1042,6 +1042,8 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 			<<		rhs->value->value->length() << ", 1);\n";
 	}
 
+	// Escape according to C rules (this varies slightly from unparsing for PHP
+	// and dot).
 	string escape(String* s)
 	{
 		stringstream ss;

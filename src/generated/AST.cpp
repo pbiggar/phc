@@ -1381,6 +1381,13 @@ Source_rep::Source_rep()
 {
 }
 
+bool Source_rep::has_source_rep()
+{
+    {
+		return (dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep")) != NULL);
+	}
+}
+
 String* Source_rep::get_source_rep()
 {
     {

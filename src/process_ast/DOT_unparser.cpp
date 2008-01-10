@@ -58,6 +58,8 @@ void DOT_unparser::pre_literal(Literal* in)
 	ostringstream escaped;
 	unsigned i;
 
+	// escape according to dot rules (this varies slightly from
+	// escaping for PHP or C).
 	for(i = 0; i < 10 && i < str.size(); i++)
 	{
 		switch(str[i])
