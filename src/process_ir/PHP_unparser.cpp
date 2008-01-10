@@ -177,10 +177,16 @@ String* PHP_unparser::escape_sq(String* s)
 	string::iterator i;
 	for(i = s->begin(); i != s->end(); i++)
 	{
-		if (*i == '\'')
-			os << "\\'";
-		else
-			os << *i;
+		switch (*i)
+		{
+			case '\'': // single quote
+			case '\\': // backslash
+				os << '\\' << *i;
+				break;
+			default:
+				os << *i;
+				break;
+		}
 	}
 	
 	return new String(os.str());	
