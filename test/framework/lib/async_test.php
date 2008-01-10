@@ -215,8 +215,6 @@ abstract class AsyncTest extends Test
 			{
 				if (time () - $bundle->start_time > 20)
 				{
-					echo "Trying to kill {$status["command"]}\n";
-
 					// if we dont close pipes, we can create deadlock, leaving zombie processes
 					foreach ($pipes as &$pipe) fclose ($pipe);
 					proc_terminate ($handle);
