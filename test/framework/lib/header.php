@@ -353,22 +353,28 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 	}
 
 
-	// create the stdout logs
 	if (!is_array ($outs))
 		$outs = array ($outs);
 
 	$out_string = "";
+	// create the stdout logs - but only if there is more than 1 log
+	if (count ($outs) > 1 && count (array_filter ($outs, "strlen")))
+	{
+		foreach ($outs as $i => $out)
+		{
+			$output_contents = "Command: ${commands[$i]}\n" . $out;
+			file_put_contents ("$filename.out.$i", $output_contents);
+		}
+	}
+
+	// write to the main log file
 	foreach ($outs as $i => $out)
 	{
-		$output_contents = "Command: ${commands[$i]}\n" . $out;
-		file_put_contents ("$filename.out.$i", $output_contents);
-
 		if (strlen ($out) > 1000)
 			$out = substr ($out, 0, 1000) . "... [truncated]\n";
 
 		$out_string .= "{$red}Output $i$reset:\n$out\n";
 	}
-
 
 	// print the output
 	file_put_contents($filename, $header);
