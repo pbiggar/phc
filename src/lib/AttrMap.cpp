@@ -18,31 +18,28 @@ AttrMap::~AttrMap()
 
 Object* AttrMap::get(string key)
 {
-	// Using [] automatically creates the element.
-	AttrMap::const_iterator i = find (key);
-	if (i != end ())
-		return (*i).second;
-	
-	return NULL;
+	if (!has (key)) return NULL;
+
+	return (*this)[key];
 }
 
 Boolean* AttrMap::get_boolean(string key)
 {
-	Boolean* ret = dynamic_cast<Boolean*>((*this)[key]);
+	Boolean* ret = dynamic_cast<Boolean*> (get (key));
 	assert(ret != NULL);
 	return ret;
 }
 
 Integer* AttrMap::get_integer(string key)
 {
-	Integer* ret = dynamic_cast<Integer*>((*this)[key]);
+	Integer* ret = dynamic_cast<Integer*> (get (key));
 	assert(ret != NULL);
 	return ret;
 }
 
 String* AttrMap::get_string(string key)
 {
-	String* ret = dynamic_cast<String*>((*this)[key]);
+	String* ret = dynamic_cast<String*> (get (key));
 	assert(ret != NULL);
 	return ret;
 }
