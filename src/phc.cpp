@@ -157,12 +157,10 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass ("HIR-to-MIR"));
 
 
-	// TODO move to the MIR - re-add
-//	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
-
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
 	pm->add_mir_pass (new Fake_pass ("mir"));
+//	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_pass (new Lift_functions_and_classes ());
 	pm->add_mir_visitor (new Clarify (), "clar");
 	pm->add_mir_visitor (new Prune_symbol_table (), "pst");

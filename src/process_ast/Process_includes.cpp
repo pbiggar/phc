@@ -210,8 +210,8 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 		pieces->push_back (in); // only works after control flow is lowered
 	}
 	else
-		out->push_back (in);
 #endif
+	out->push_back (in);
 }
 
 

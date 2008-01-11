@@ -141,9 +141,10 @@ void Annotate::post_return (Return* in)
 
 void Annotate::post_method_invocation (Method_invocation* in)
 {
+	// TODO: Disabled as cannot fold without it
 	/* To be able to support includes with return statements, without
 	 * dataflow, we dont shred their string arguments */
-	METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
+/*	METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
 	if (name && (
 				*name->value == "include"
 				or *name->value == "require" 
@@ -158,7 +159,7 @@ void Annotate::post_method_invocation (Method_invocation* in)
 		}
 
 	}
-
+*/
 	/* It isn't correct to shred variables which may be references at
 	 * run-time, but where we cannot tell if they are at compile-time. The
 	 * only occurrence of this in PHP is actual parameters. */
