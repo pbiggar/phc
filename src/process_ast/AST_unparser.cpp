@@ -1325,6 +1325,18 @@ void AST_unparser::post_expr(Expr* in)
 		echo(")");
 }
 
+void AST_unparser::pre_bin_op (Bin_op* in)
+{
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets"))
+		echo("(");
+}
+
+void AST_unparser::post_bin_op (Bin_op* in)
+{
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets"))
+		echo(")");
+}
+
 void AST_unparser::pre_commented_node(Commented_node* in)
 {
 	List<String*>::const_iterator i;

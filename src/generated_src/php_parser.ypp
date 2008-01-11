@@ -1762,6 +1762,7 @@ non_empty_for_expr:
 	  non_empty_for_expr ',' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr
 		{
@@ -1871,42 +1872,52 @@ expr_without_variable:
 	| expr O_LOGICOR expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_LOGICAND expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr K_OR expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr K_AND expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr K_XOR expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '|' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '&' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '^' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '.' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_MAGIC_CONCAT expr '}'
 		{
 			$$ = NEW(Bin_op, ($1, $2, expect_variable($3)));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 
 			/*
 			 * Interface with the lexer: return to in-string state 
@@ -1917,30 +1928,37 @@ expr_without_variable:
    | expr '+' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '-' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '*' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '/' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | expr '%' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_SL expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_SR expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
    | '+' expr
 		{
@@ -1962,34 +1980,42 @@ expr_without_variable:
 	| expr O_EQEQEQ expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_NOTEQEQ expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_EQEQ expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_NOTEQ expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr '<' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_LE expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr '>' expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr O_GE expr
 		{
 			$$ = NEW(Bin_op, ($1, $2, $3));
+			$$->attrs->set_true("phc.unparser.no_binop_brackets");
 		}
 	| expr K_INSTANCEOF class_name_reference
 		{
