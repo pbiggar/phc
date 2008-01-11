@@ -285,10 +285,10 @@
 
 	function get_current_revision ()
 	{
-		// This is done using SVN
-		$REVISION_STRING = "$LastChangedRevision$";
-		preg_match ("/: (\d+)/", $REVISION_STRING, $matched);
-		return $matched[1];
+		global $REPO;
+		$result = c ("svn info $REPO", "SVNError");
+		preg_match ("/Revision: (\d+)/", $result, $matches);
+		return $matches[1];
 	}
 
 ?>
