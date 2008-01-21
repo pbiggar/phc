@@ -1327,13 +1327,15 @@ void AST_unparser::post_expr(Expr* in)
 
 void AST_unparser::pre_bin_op (Bin_op* in)
 {
-	if(!in->attrs->is_true("phc.unparser.no_binop_brackets"))
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets")
+		&& (*in->op->value != ","))
 		echo("(");
 }
 
 void AST_unparser::post_bin_op (Bin_op* in)
 {
-	if(!in->attrs->is_true("phc.unparser.no_binop_brackets"))
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets")
+		&& (*in->op->value != ","))
 		echo(")");
 }
 
