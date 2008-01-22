@@ -650,6 +650,11 @@ public:
 		value = v;
 		set_source_rep (source_rep);
 	}
+
+	bool match_value (INT* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class REAL
@@ -686,6 +691,11 @@ public:
 		value = v;
 		set_source_rep (source_rep);
 	}
+
+	bool match_value (REAL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class BOOL
@@ -712,6 +722,10 @@ public:
 		set_source_rep (source_rep);
 	}
 
+	bool match_value (BOOL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class STRING
@@ -738,6 +752,10 @@ public:
 		set_source_rep (source_rep);
 	}
 
+	bool match_value (STRING* that)
+	{
+		return (*that->value == *value);
+	}
 };
 
 class NIL

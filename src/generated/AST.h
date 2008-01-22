@@ -2276,7 +2276,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(INT* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(INT* that);
@@ -2294,6 +2293,7 @@ private:
 public:
     virtual String* get_value_as_string();
     INT(long v, String* source_rep);
+    bool match_value(INT* that);
 };
 
 class REAL : virtual public Literal
@@ -2312,7 +2312,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(REAL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(REAL* that);
@@ -2328,6 +2327,7 @@ private:
 public:
     virtual String* get_value_as_string();
     REAL(double v, String* source_rep);
+    bool match_value(REAL* that);
 };
 
 class STRING : virtual public Literal
@@ -2346,7 +2346,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(STRING* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(STRING* that);
@@ -2360,6 +2359,7 @@ public:
     bool is_value_valid();
     String* clone_value();
     STRING(String* v, String* source_rep);
+    bool match_value(STRING* that);
 };
 
 class BOOL : virtual public Literal
@@ -2378,7 +2378,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(BOOL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(BOOL* that);
@@ -2394,6 +2393,7 @@ private:
 public:
     virtual String* get_value_as_string();
     BOOL(bool v, String* source_rep);
+    bool match_value(BOOL* that);
 };
 
 class NIL : virtual public Literal

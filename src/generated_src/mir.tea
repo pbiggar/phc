@@ -571,6 +571,11 @@ public:
 	{
 		return _get_value_as_string ();
 	}
+
+	bool match_value (INT* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class REAL
@@ -605,6 +610,11 @@ public:
 public:
 	// TODO: we still need the source_rep for code generation-but we shouldn't
 	String* source_rep;
+
+	bool match_value (REAL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class BOOL
@@ -624,6 +634,11 @@ public:
 	{
 		return _get_value_as_string ();
 	}
+
+	bool match_value (BOOL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class STRING
@@ -642,6 +657,11 @@ public:
 	String* clone_value()
 	{
 		return value->clone();
+	}
+
+	bool match_value (STRING* that)
+	{
+		return (*that->value == *value);
 	}
 };
 

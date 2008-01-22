@@ -1691,7 +1691,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(INT* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(INT* that);
@@ -1708,6 +1707,7 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
+    bool match_value(INT* that);
 };
 
 class REAL : virtual public Literal
@@ -1726,7 +1726,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(REAL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(REAL* that);
@@ -1744,6 +1743,7 @@ public:
 public:
     //  TODO: we still need the source_rep for code generation-but we shouldn't
     String* source_rep;
+    bool match_value(REAL* that);
 };
 
 class STRING : virtual public Literal
@@ -1762,7 +1762,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(STRING* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(STRING* that);
@@ -1775,6 +1774,7 @@ public:
     virtual String* get_value_as_string();
     bool is_value_valid();
     String* clone_value();
+    bool match_value(STRING* that);
 };
 
 class BOOL : virtual public Literal
@@ -1793,7 +1793,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(BOOL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(BOOL* that);
@@ -1808,6 +1807,7 @@ private:
     String* _get_value_as_string();
 public:
     virtual String* get_value_as_string();
+    bool match_value(BOOL* that);
 };
 
 class NIL : virtual public Literal

@@ -8443,11 +8443,6 @@ bool INT::match(Node* in)
     	return true;
 }
 
-bool INT::match_value(INT* that)
-{
-    return true;
-}
-
 bool INT::equals(Node* in)
 {
     INT* that = dynamic_cast<INT*>(in);
@@ -8516,6 +8511,13 @@ INT::INT(long v, String* source_rep)
 	}
 }
 
+bool INT::match_value(INT* that)
+{
+    {
+		return (that->value == value);
+	}
+}
+
 REAL::REAL(double value)
 {
     this->value = value;
@@ -8555,11 +8557,6 @@ bool REAL::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool REAL::match_value(REAL* that)
-{
-    return true;
 }
 
 bool REAL::equals(Node* in)
@@ -8639,6 +8636,13 @@ REAL::REAL(double v, String* source_rep)
 	}
 }
 
+bool REAL::match_value(REAL* that)
+{
+    {
+		return (that->value == value);
+	}
+}
+
 STRING::STRING(String* value)
 {
     this->value = value;
@@ -8678,11 +8682,6 @@ bool STRING::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool STRING::match_value(STRING* that)
-{
-    return true;
 }
 
 bool STRING::equals(Node* in)
@@ -8750,6 +8749,13 @@ STRING::STRING(String* v, String* source_rep)
 	}
 }
 
+bool STRING::match_value(STRING* that)
+{
+    {
+		return (*that->value == *value);
+	}
+}
+
 BOOL::BOOL(bool value)
 {
     this->value = value;
@@ -8789,11 +8795,6 @@ bool BOOL::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool BOOL::match_value(BOOL* that)
-{
-    return true;
 }
 
 bool BOOL::equals(Node* in)
@@ -8860,6 +8861,13 @@ BOOL::BOOL(bool v, String* source_rep)
     {
 		value = v;
 		set_source_rep (source_rep);
+	}
+}
+
+bool BOOL::match_value(BOOL* that)
+{
+    {
+		return (that->value == value);
 	}
 }
 
