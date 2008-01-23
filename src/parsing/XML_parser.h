@@ -10,6 +10,9 @@
 
 #include "config.h"
 
+void init_xml ();
+void shutdown_xml ();
+
 #ifdef HAVE_XERCES
 
 #include "AST.h"
@@ -35,10 +38,6 @@ extern struct gengetopt_args_info args_info;
 #define ERR_XML_PARSE "Could not parse the XML (%s)"
 
 XERCES_CPP_NAMESPACE_USE
-
-void init_xml ();
-void shutdown_xml ();
-
 
 
 template<class PHP_script, class Node, class Node_factory, class STRING, class CAST, class INT, class REAL, class BOOL, class NIL>

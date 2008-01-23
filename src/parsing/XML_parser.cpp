@@ -27,4 +27,9 @@ void shutdown_xml ()
 	XMLPlatformUtils::Terminate();
 }
 
+#else
+
+void init_xml () {};
+void shutdown_xml () {};
+
 #endif // HAVE_XERCES

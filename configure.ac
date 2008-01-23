@@ -50,6 +50,15 @@ AC_ARG_WITH([maketea],
   [AC_PATH_PROG([maketea], [maketea])]
   )
 
+dnl This seems like more of a --enable/disable option, but the maketea and php options both use --with/without
+dnl AC_CHECK_LIB_XERCES
+AC_ARG_WITH([xerces],
+	[AS_HELP_STRING([--with-xerces], [support XML input @<:@default=check@:>@])],
+	[], # with_xerces is set to true false anyway
+	[with_xerces=check]
+	)
+
+
 AC_ARG_WITH([php], 
 	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
 	[
@@ -103,8 +112,9 @@ dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
-AC_CHECK_LIB_XERCES
 AC_CHECK_LIB([gc], [main], [AC_DEFINE([HAVE_GC_LIB], [1])])
+dnl check xerces unless disabled
+AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
 
 dnl checks for header files
 AC_CHECK_HEADER([gc/gc_cpp.h], [AC_DEFINE([HAVE_GC_INC], [1])])
