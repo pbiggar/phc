@@ -39,7 +39,7 @@ Expr* List_shredder::post_list_assignment(List_assignment* in)
 
 
 	// reverse order
-	List<List_element*>::const_reverse_iterator i;
+	List<List_element*>::reverse_iterator i;
 	int counter = in->list_elements->size () - 1;
 	for (i = in->list_elements->rbegin (); 
 			i != in->list_elements->rend ();
