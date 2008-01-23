@@ -12,7 +12,7 @@ include ("common.php");
 		print_revision_details ($rev);
 		print "<table class=layout><tr><td>\n";
 		print_test_details ($rev, "test");
-		print "</td><td>\n";
+		print "</td><td valign=top>\n";
 		print_test_details ($rev, "install_test");
 		print "</td></tr></table>\n";
 
