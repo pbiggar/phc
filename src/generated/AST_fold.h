@@ -114,9 +114,10 @@ class Fold
 public:
 	virtual _PHP_script fold_php_script(PHP_script* in)
 	{
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -133,17 +134,19 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_CLASS_NAME extends = 0;
 		if(in->extends != NULL) extends = fold_class_name(in->extends);
-		List<_INTERFACE_NAME>* implements = new List<_INTERFACE_NAME>;
+		List<_INTERFACE_NAME>* implements = 0;
 	
 		{
+			implements = new List<_INTERFACE_NAME>;
 			List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->implements->begin(); i != in->implements->end(); i++)
 				if(*i != NULL) implements->push_back(fold_interface_name(*i));
 				else implements->push_back(0);
 		}
-		List<_Member>* members = new List<_Member>;
+		List<_Member>* members = 0;
 	
 		{
+			members = new List<_Member>;
 			List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
@@ -163,17 +166,19 @@ public:
 	{
 		_INTERFACE_NAME interface_name = 0;
 		if(in->interface_name != NULL) interface_name = fold_interface_name(in->interface_name);
-		List<_INTERFACE_NAME>* extends = new List<_INTERFACE_NAME>;
+		List<_INTERFACE_NAME>* extends = 0;
 	
 		{
+			extends = new List<_INTERFACE_NAME>;
 			List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->extends->begin(); i != in->extends->end(); i++)
 				if(*i != NULL) extends->push_back(fold_interface_name(*i));
 				else extends->push_back(0);
 		}
-		List<_Member>* members = new List<_Member>;
+		List<_Member>* members = 0;
 	
 		{
+			members = new List<_Member>;
 			List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
@@ -186,9 +191,10 @@ public:
 	{
 		_Signature signature = 0;
 		if(in->signature != NULL) signature = fold_signature(in->signature);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	if (in->statements)
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -204,9 +210,10 @@ public:
 		bool is_ref = in->is_ref;
 		_METHOD_NAME method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Formal_parameter>* formal_parameters = new List<_Formal_parameter>;
+		List<_Formal_parameter>* formal_parameters = 0;
 	
 		{
+			formal_parameters = new List<_Formal_parameter>;
 			List<Formal_parameter*>::const_iterator i;
 			for(i = in->formal_parameters->begin(); i != in->formal_parameters->end(); i++)
 				if(*i != NULL) formal_parameters->push_back(fold_formal_parameter(*i));
@@ -247,9 +254,10 @@ public:
 	{
 		_Attr_mod attr_mod = 0;
 		if(in->attr_mod != NULL) attr_mod = fold_attr_mod(in->attr_mod);
-		List<_Name_with_default>* vars = new List<_Name_with_default>;
+		List<_Name_with_default>* vars = 0;
 	
 		{
+			vars = new List<_Name_with_default>;
 			List<Name_with_default*>::const_iterator i;
 			for(i = in->vars->begin(); i != in->vars->end(); i++)
 				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
@@ -281,17 +289,19 @@ public:
 	{
 		_Expr expr = 0;
 		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Statement>* iftrue = new List<_Statement>;
+		List<_Statement>* iftrue = 0;
 	
 		{
+			iftrue = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->iftrue->begin(); i != in->iftrue->end(); i++)
 				if(*i != NULL) iftrue->push_back(fold_statement(*i));
 				else iftrue->push_back(0);
 		}
-		List<_Statement>* iffalse = new List<_Statement>;
+		List<_Statement>* iffalse = 0;
 	
 		{
+			iffalse = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->iffalse->begin(); i != in->iffalse->end(); i++)
 				if(*i != NULL) iffalse->push_back(fold_statement(*i));
@@ -304,9 +314,10 @@ public:
 	{
 		_Expr expr = 0;
 		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -317,9 +328,10 @@ public:
 
 	virtual _Do fold_do(Do* in)
 	{
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -338,9 +350,10 @@ public:
 		if(in->cond != NULL) cond = fold_expr(in->cond);
 		_Expr incr = 0;
 		if(in->incr != NULL) incr = fold_expr(in->incr);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -358,9 +371,10 @@ public:
 		bool is_ref = in->is_ref;
 		_Variable val = 0;
 		if(in->val != NULL) val = fold_variable(in->val);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -373,9 +387,10 @@ public:
 	{
 		_Expr expr = 0;
 		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Switch_case>* switch_cases = new List<_Switch_case>;
+		List<_Switch_case>* switch_cases = 0;
 	
 		{
+			switch_cases = new List<_Switch_case>;
 			List<Switch_case*>::const_iterator i;
 			for(i = in->switch_cases->begin(); i != in->switch_cases->end(); i++)
 				if(*i != NULL) switch_cases->push_back(fold_switch_case(*i));
@@ -388,9 +403,10 @@ public:
 	{
 		_Expr expr = 0;
 		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -422,9 +438,10 @@ public:
 
 	virtual _Static_declaration fold_static_declaration(Static_declaration* in)
 	{
-		List<_Name_with_default>* vars = new List<_Name_with_default>;
+		List<_Name_with_default>* vars = 0;
 	
 		{
+			vars = new List<_Name_with_default>;
 			List<Name_with_default*>::const_iterator i;
 			for(i = in->vars->begin(); i != in->vars->end(); i++)
 				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
@@ -435,9 +452,10 @@ public:
 
 	virtual _Global fold_global(Global* in)
 	{
-		List<_Variable_name>* variable_names = new List<_Variable_name>;
+		List<_Variable_name>* variable_names = 0;
 	
 		{
+			variable_names = new List<_Variable_name>;
 			List<Variable_name*>::const_iterator i;
 			for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
 				if(*i != NULL) variable_names->push_back(fold_variable_name(*i));
@@ -448,17 +466,19 @@ public:
 
 	virtual _Declare fold_declare(Declare* in)
 	{
-		List<_Directive>* directives = new List<_Directive>;
+		List<_Directive>* directives = 0;
 	
 		{
+			directives = new List<_Directive>;
 			List<Directive*>::const_iterator i;
 			for(i = in->directives->begin(); i != in->directives->end(); i++)
 				if(*i != NULL) directives->push_back(fold_directive(*i));
 				else directives->push_back(0);
 		}
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -478,17 +498,19 @@ public:
 
 	virtual _Try fold_try(Try* in)
 	{
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
 		}
-		List<_Catch>* catches = new List<_Catch>;
+		List<_Catch>* catches = 0;
 	
 		{
+			catches = new List<_Catch>;
 			List<Catch*>::const_iterator i;
 			for(i = in->catches->begin(); i != in->catches->end(); i++)
 				if(*i != NULL) catches->push_back(fold_catch(*i));
@@ -503,9 +525,10 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
 	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -635,9 +658,10 @@ public:
 
 	virtual _List_assignment fold_list_assignment(List_assignment* in)
 	{
-		List<_List_element>* list_elements = new List<_List_element>;
+		List<_List_element>* list_elements = 0;
 	
 		{
+			list_elements = new List<_List_element>;
 			List<List_element*>::const_iterator i;
 			for(i = in->list_elements->begin(); i != in->list_elements->end(); i++)
 				if(*i != NULL) list_elements->push_back(fold_list_element(*i));
@@ -650,9 +674,10 @@ public:
 
 	virtual _Nested_list_elements fold_nested_list_elements(Nested_list_elements* in)
 	{
-		List<_List_element>* list_elements = new List<_List_element>;
+		List<_List_element>* list_elements = 0;
 	
 		{
+			list_elements = new List<_List_element>;
 			List<List_element*>::const_iterator i;
 			for(i = in->list_elements->begin(); i != in->list_elements->end(); i++)
 				if(*i != NULL) list_elements->push_back(fold_list_element(*i));
@@ -732,9 +757,10 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_Expr>* array_indices = new List<_Expr>;
+		List<_Expr>* array_indices = 0;
 	
 		{
+			array_indices = new List<_Expr>;
 			List<Expr*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 				if(*i != NULL) array_indices->push_back(fold_expr(*i));
@@ -770,9 +796,10 @@ public:
 
 	virtual _Array fold_array(Array* in)
 	{
-		List<_Array_elem>* array_elems = new List<_Array_elem>;
+		List<_Array_elem>* array_elems = 0;
 	
 		{
+			array_elems = new List<_Array_elem>;
 			List<Array_elem*>::const_iterator i;
 			for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
 				if(*i != NULL) array_elems->push_back(fold_array_elem(*i));
@@ -797,9 +824,10 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Method_name method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Actual_parameter>* actual_parameters = new List<_Actual_parameter>;
+		List<_Actual_parameter>* actual_parameters = 0;
 	
 		{
+			actual_parameters = new List<_Actual_parameter>;
 			List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
@@ -820,9 +848,10 @@ public:
 	{
 		_Class_name class_name = 0;
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		List<_Actual_parameter>* actual_parameters = new List<_Actual_parameter>;
+		List<_Actual_parameter>* actual_parameters = 0;
 	
 		{
+			actual_parameters = new List<_Actual_parameter>;
 			List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
