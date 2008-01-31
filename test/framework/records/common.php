@@ -37,6 +37,28 @@
 	function get_good_color () { return " style=\"color:green; font-weight: bold\""; }
 	function get_bad_color ()	{ return " style=\"color:red; font-weight: bold;\""; }
 
+	// TODO coppied from lib/header.php. Avoid duplication
+	/* Prints diffs if the xdiff extension is available, and simple outputs both
+	 * strings otherwise. 
+	 * To install xdiff:
+	 *   install libxdiff from http://www.xmailserver.org/xdiff-lib.html 
+	 *   install xdiff from pecl with "pecl install xdiff". 
+	 *   There is no need to load xdiff.so in your php.ini file. */
+	function diff ($string1, $string2)
+	{
+		if (!extension_loaded ("xdiff"))
+		{
+			$result = @dl ("xdiff.so"); // avoid the E_WARNING
+			if (!$result)
+			{
+				return "Note: xdiff not available for diffing. Outputting both strings:\nString1:\n$string1\nString2:\n$string2";
+			}
+		}
+		return xdiff_string_diff ("$string1\n", "$string2\n");
+	}
+
+
+
 ?>
 	</body>
 </html>

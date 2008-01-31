@@ -1,0 +1,49 @@
+<?php
+
+	include ("common.php");
+
+	function run_main ()
+	{
+		$old_rev = (int)$_GET["old_rev"];
+		$new_rev = (int)$_GET["new_rev"];
+		$unsafe_filename = $_GET["filename"];
+
+		# Sanitize the revisions: 0 < old_rev < new_rev < 2000
+		if (!(0 < $old_rev)) bad ();
+		if (!($old_rev < $new_rev)) bad ();
+		if (!($new_rev < 2000)) bad ();
+
+		# Sanitize the inputs: the file should be within the results/$rev subdirectory
+		$relative_filename = "results/$new_rev/$unsafe_filename";
+		$real_filename = realpath ($relative_filename);
+
+		# We find the dir by checking the fullname of this script, and stripping off the script name at the end
+		$real_scriptname = realpath (__FILE__);
+		$scriptname = "test/framework/records/diff.php";
+		$script_dir = str_replace ($scriptname, "", $real_scriptname);
+
+		# Check that the script is within these bounds
+		if (strpos ($real_filename, $script_dir) !== 0) # FALSE is a fail, but 0 isnt
+			bad ();
+
+		$old_filename = realpath ("results/$old_rev/$unsafe_filename");
+		$new_filename = realpath ("results/$new_rev/$unsafe_filename");
+
+		if (!file_exists ($old_filename))
+			die ("No old file");
+
+		if (!file_exists ($new_filename))
+			die ("No new file");
+
+
+		echo "<pre>" .diff (file_get_contents ($old_filename), file_get_contents ($new_filename)) ."</pre>\n";
+
+	}
+
+	function bad ()
+	{
+		die ("An error has been made with input variables");
+	}
+
+
+?>
