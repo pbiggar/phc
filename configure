@@ -19916,12 +19916,14 @@ else
 fi
 
 
-
+# check PHP path
 
 # Check whether --with-php was given.
 if test "${with_php+set}" = set; then
   withval=$with_php;
-		# Extract the first word of "php", so it can be a program name with args.
+		if test "x$with_php" != xno; then
+
+	# Extract the first word of "php", so it can be a program name with args.
 set dummy php; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
@@ -19934,7 +19936,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in ${withval}/bin
+for as_dir in ""$withval"/bin"
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -19961,83 +19963,30 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-		# For config.h:
-		cat >>confdefs.h <<_ACEOF
-#define PHP_INSTALL_PATH "$withval"
+	# For config.h:
+	cat >>confdefs.h <<_ACEOF
+#define PHP_INSTALL_PATH ""$withval""
 _ACEOF
 
-		# For autovars.php.in:
-		php_install_path="$withval"
+	# For autovars.php.in:
+	php_install_path=""$withval""
 
-		# For use below:
-		PHP_INSTALL_PATH=$withval
+	# For use below:
+	PHP_INSTALL_PATH="$withval"
 
-else
-
-		# Extract the first word of "php", so it can be a program name with args.
-set dummy php; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_php+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $php in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_php="$php" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in /usr/local/bin
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_php="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  ;;
-esac
-fi
-php=$ac_cv_path_php
-if test -n "$php"; then
-  { echo "$as_me:$LINENO: result: $php" >&5
-echo "${ECHO_T}$php" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-		cat >>confdefs.h <<\_ACEOF
-#define PHP_INSTALL_PATH "/usr/local"
-_ACEOF
-
-		php_install_path="/usr/local"
-
-		PHP_INSTALL_PATH="/usr/local"
-
-fi
-
-
-
-OLD_LDFLAGS=$LDFLAGS
-OLD_CFLAGS=$CFLAGS
-LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
-CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
-{ echo "$as_me:$LINENO: checking for zend_eval_string in -lphp5" >&5
+				found_embed_sapi=no
+	OLD_LDFLAGS=$LDFLAGS
+	OLD_CFLAGS=$CFLAGS
+	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
+	CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
+	{ echo "$as_me:$LINENO: checking for zend_eval_string in -lphp5" >&5
 echo $ECHO_N "checking for zend_eval_string in -lphp5... $ECHO_C" >&6; }
 if test "${ac_cv_lib_php5_zend_eval_string+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
 LIBS="-lphp5
-	 $LIBS"
+		 $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -20094,22 +20043,22 @@ fi
 echo "${ECHO_T}$ac_cv_lib_php5_zend_eval_string" >&6; }
 if test $ac_cv_lib_php5_zend_eval_string = yes; then
 
-		found_embed_sapi=yes
-		cat >>confdefs.h <<\_ACEOF
+			found_embed_sapi=yes
+			cat >>confdefs.h <<\_ACEOF
 #define HAVE_EMBED 1
 _ACEOF
 
-		libphp_headers="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"
+			libphp_headers="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"
 
-		LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
+			LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
 
 else
 
-		found_embed_sapi=no
+			found_embed_sapi=no
 
 fi
 
-{ echo "$as_me:$LINENO: checking for sapi/embed/php_embed.h" >&5
+	{ echo "$as_me:$LINENO: checking for sapi/embed/php_embed.h" >&5
 echo $ECHO_N "checking for sapi/embed/php_embed.h... $ECHO_C" >&6; }
 if test "${ac_cv_header_sapi_embed_php_embed_h+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -20161,8 +20110,209 @@ else
 fi
 
 
-CFLAGS=$OLD_CFLAGS
-LDFLAGS=$OLD_LDFLAGS
+	CFLAGS=$OLD_CFLAGS
+	LDFLAGS=$OLD_LDFLAGS
+
+fi
+
+
+else
+
+
+	# Extract the first word of "php", so it can be a program name with args.
+set dummy php; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_path_php+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $php in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_php="$php" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in ""/usr/local"/bin"
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_php="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+php=$ac_cv_path_php
+if test -n "$php"; then
+  { echo "$as_me:$LINENO: result: $php" >&5
+echo "${ECHO_T}$php" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+	# For config.h:
+	cat >>confdefs.h <<_ACEOF
+#define PHP_INSTALL_PATH ""/usr/local""
+_ACEOF
+
+	# For autovars.php.in:
+	php_install_path=""/usr/local""
+
+	# For use below:
+	PHP_INSTALL_PATH="/usr/local"
+
+				found_embed_sapi=no
+	OLD_LDFLAGS=$LDFLAGS
+	OLD_CFLAGS=$CFLAGS
+	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
+	CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
+	{ echo "$as_me:$LINENO: checking for zend_eval_string in -lphp5" >&5
+echo $ECHO_N "checking for zend_eval_string in -lphp5... $ECHO_C" >&6; }
+if test "${ac_cv_lib_php5_zend_eval_string+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lphp5
+		 $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char zend_eval_string ();
+int
+main ()
+{
+return zend_eval_string ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_php5_zend_eval_string=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_php5_zend_eval_string=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_php5_zend_eval_string" >&5
+echo "${ECHO_T}$ac_cv_lib_php5_zend_eval_string" >&6; }
+if test $ac_cv_lib_php5_zend_eval_string = yes; then
+
+			found_embed_sapi=yes
+			cat >>confdefs.h <<\_ACEOF
+#define HAVE_EMBED 1
+_ACEOF
+
+			libphp_headers="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"
+
+			LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
+
+else
+
+			found_embed_sapi=no
+
+fi
+
+	{ echo "$as_me:$LINENO: checking for sapi/embed/php_embed.h" >&5
+echo $ECHO_N "checking for sapi/embed/php_embed.h... $ECHO_C" >&6; }
+if test "${ac_cv_header_sapi_embed_php_embed_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+
+
+#include <sapi/embed/php_embed.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_cv_header_sapi_embed_php_embed_h=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_header_sapi_embed_php_embed_h=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_header_sapi_embed_php_embed_h" >&5
+echo "${ECHO_T}$ac_cv_header_sapi_embed_php_embed_h" >&6; }
+if test $ac_cv_header_sapi_embed_php_embed_h = yes; then
+  :
+else
+  found_embed_sapi=no
+fi
+
+
+	CFLAGS=$OLD_CFLAGS
+	LDFLAGS=$OLD_LDFLAGS
+
+
+fi
+
+
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'

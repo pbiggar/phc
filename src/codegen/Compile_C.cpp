@@ -6,6 +6,7 @@
  */
 
 #include "codegen/Compile_C.h"
+#include <lib/error.h>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -39,7 +40,14 @@ void Compile_C::run (IR* in, Pass_manager* pm)
 	if(pm->args_info->with_php_given)
 		php_path = pm->args_info->with_php_arg;
 	else
-		php_path = PHP_INSTALL_PATH;
+	{
+		#ifdef PHP_INSTALL_PATH
+			php_path = PHP_INSTALL_PATH;
+		#else
+			phc_error ("PHP_INSTALL_PATH not configured. Please use the --with-php flag to compile");
+			assert (0); // in the case of --dont-fail, still fail here.
+		#endif
+	}
 
 
 	// Argument array for gcc
