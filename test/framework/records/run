@@ -28,7 +28,7 @@
 	try
 	{
 		$log = c ("svn log -r $REV $REPO");
-		$diff = c ("svn diff -r $REV:$PREV_REV");
+		$diff = c ("svn diff -r $PREV_REV:$REV");
 
 		save ("LOG:\n$log\n\nDIFF:\n$diff", "svn_log");
 
