@@ -1,0 +1,96 @@
+#!/usr/bin/php
+<?
+	// Get the argument -- there has to be only one arg
+	if($argc != 2) die("This script takes exactly one argument.");  	
+	$file_name = $argv[1];
+	$file = fopen($file_name, "r") or die("Can't open file");
+	$lines = file($file_name);
+
+	$error_count = 0;
+
+
+	$processing = 0;
+	// Process the lines
+	foreach ($lines as $line_num => $line) {
+   		//echo "Line #$line_num: ". $line . "\n";
+		$size = strlen($line);
+		if($size == 0) continue;
+		
+		// if processing is false and we see a @, set processing to true.
+		// throw away the color line
+		if(!$processing && $line[0] == '@')
+		{
+			$to_add = ""; //reset the buffer 
+			$processing = 1;
+			
+			
+		}
+	
+		// get the line number and error message
+		if($processing == 2)
+		{
+
+			// parse and add to buffer
+			list ($line_num_tagged, $color, $error_msg) = split(' ', $line, 3); // we are only interested in the first two empty spaces.
+			
+			// remove the @ from the line number
+			$line_num = substr($line_num_tagged, 1);
+		
+
+			$to_add = $to_add . $line_num . ": " . $error_msg;
+			
+
+			
+		}
+
+		if($processing == 3)
+		{
+			// get the filename
+			$error_file = substr($line, 1);
+			$to_add = $to_add . $error_file ."\n";
+			
+		}
+
+		// every error report has g lines, so set it back to 1.
+		if($processing == 7) $processing = 1;
+
+		// trim the line for checking "=>" just in case some inspection results have trailing spaces.
+		$trimmed = trim($line);
+		if($processing && strlen($trimmed) > 0)
+		{
+			$uni_string = strtolower($line);
+		
+			// there can be errors that are not annotated -- set processing state back to false.
+			if(strstr($uni_string, "cil_body"))
+			{
+				$processing = 0;
+			}
+			
+			else if($size < 3 && $trimmed[0] == '@') $processing++;
+			
+			
+			else if($trimmed[0] != '=' && $trimmed[1] != '>') 
+			{
+				$processing++;
+			
+			}
+			// now we've found an inspection and the error report is ended.
+			// set processing to false and if the inspection says the error
+			// is correct, output the current errors to an output file.
+			else
+			{
+				$processing = 0;
+				
+				
+				if(strstr($uni_string, "correct"))
+				{
+					$error_count++;
+					$to_add = "----------REPORT# ". $error_count . "-----------\n \n" . $to_add ."\n";
+					echo "$to_add \n";
+				}
+			}
+		}
+		
+	}
+
+?>

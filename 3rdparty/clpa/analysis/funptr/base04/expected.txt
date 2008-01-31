@@ -1,0 +1,8 @@
+str_indirect("use_contain","*d->mine.func","bar").
+str_indirect("use_contain","*d->mine.func","foo").
+str_indirect("use_contain","**d->mine.ofunc","bar").
+str_indirect("use_contain","**d->mine.ofunc","foo").
+str_indirect("use","*d->func","bar").
+str_indirect("use","*d->func","foo").
+str_indirect("use_wierd","**data->ofunc","bar").
+str_indirect("use_wierd","**data->ofunc","foo").

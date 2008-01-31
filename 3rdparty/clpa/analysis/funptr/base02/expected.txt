@@ -1,0 +1,3 @@
+str_indirect("bar","**addr_1","fnptr").
+str_indirect("bar","**addr_2","fnptr").
+str_indirect("who","*s->addr","fnptr").

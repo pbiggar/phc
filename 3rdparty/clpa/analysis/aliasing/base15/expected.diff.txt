@@ -1,0 +1,4 @@
+3c3
+< str_spoints("hidden",s_func,fn_exit,"return","__arg0*.$str0$8").
+---
+> str_spoints("hidden",s_func,fn_exit,"return","__arg0*.$str0$4").

@@ -1,0 +1,12 @@
+"**NC** 	0	0"
+"**SC** 	0	0"
+"DNF Size: " 1
+"CNF Size: " 1
+"**NC** 	2	2"
+"**SC** 	2	2"
+"DNF Size: " 1
+"CNF Size: " 1
+"**NC** 	0	0"
+"**SC** 	0	0"
+"DNF Size: " 1
+"CNF Size: " 1

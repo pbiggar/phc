@@ -1,0 +1,16 @@
+str_spoints("basic2",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("basic2",s_loop{"s#0"},fn_entry,"__arg0*","__arg1**").
+str_spoints("basic2",s_loop{"s#0"},fn_exit,"__arg0*","__arg1**").
+str_spoints("basic",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("basic",s_loop{"s#0"},fn_exit,"__arg0*","__arg1**").
+str_spoints("down",s_loop{"s#1"},fn_entry,"__arg0","t*").
+str_spoints("inter",s_func,fn_exit,"__arg0*","__arg2*").
+str_spoints("inter",s_func,fn_exit,"__arg1*","__arg2*").
+str_spoints("inter",s_loop{"s#0"},fn_exit,"__arg0","__arg1*").
+str_spoints("multi",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("multi",s_loop{"s#0"},fn_exit,"__arg0","__arg1*").
+str_spoints("multi",s_loop{"s#4"},fn_entry,"__arg0","__arg1*").
+str_spoints("multi",s_loop{"s#4"},fn_exit,"__arg0*","__arg1**").
+str_spoints("temporary",s_loop{"s#0"},fn_exit,"tmp","__arg0*").
+str_spoints("whata",s_func,fn_entry,"__arg0","__arg1*").
+str_spoints("whatb",s_func,fn_entry,"__arg0","__arg1*").

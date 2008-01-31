@@ -1,0 +1,5 @@
+rm *.dot *.db 2> /dev/null
+cilcc test.c
+clpa --quiet run.clp $*
+clpa --quiet runi.clp $*
+clpa --quiet runs.clp $*

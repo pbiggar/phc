@@ -1,0 +1,4 @@
+exitval("copy",fld{drf{root{arg{1}}},"f","foo"},drf{fld{drf{root{arg{0}}},"f","foo"}},_).
+exitval("copy",fld{drf{root{arg{1}}},"g","foo"},drf{fld{drf{root{arg{0}}},"g","foo"}},_).
+exitval("fresh",drf{root{arg{0}}},drf{root{temp{"__$"#2"","malloc"}}},_).
+exitval("fresh",drf{root{arg{1}}},drf{root{temp{"__$"#2"","malloc"}}},_).

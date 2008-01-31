@@ -1,0 +1,54 @@
+@red
+@14 red Possible NULL dereference of *(p+1)
+@test.c
+@Intraprocedural  Null error
+@None
+@
+@red
+@21 red Possible NULL dereference of *p
+@test.c
+@Intraprocedural  Null error
+@None
+@
+@red
+@28 red Possible NULL dereference of *(p+1)
+@test.c
+@Intraprocedural  Null error
+@None
+@
+@orange
+@35 orange (INCONSISTENT USE) Possible null dereference of variable *(p+1). This variable is checked for Null at lines: 34
+@test.c
+@Inconsistency error
+@None
+@
+@orange
+@42 orange (INCONSISTENT USE) Possible null dereference of variable *(p+2). This variable is checked for Null at lines: 41
+@test.c
+@Inconsistency error
+@None
+@
+@orange
+@49 orange (INCONSISTENT USE) Possible null dereference of variable *(p+1). This variable is checked for Null at lines: 48
+@test.c
+@Inconsistency error
+@None
+@
+@orange
+@56 orange (INCONSISTENT USE) Possible null dereference of variable *(p+i). This variable is checked for Null at lines: 55
+@test.c
+@Inconsistency error
+@None
+@
+@orange
+@64 orange (INCONSISTENT USE) Possible null dereference of variable p. This variable is checked for Null at lines: 63
+@test.c
+@Inconsistency error
+@None
+@
+@violet
+@92 violet (INCONSISTENT USE) Possible null dereference __arg0. This variable is checked for Null at lines: 91, and is dereferenced through call chain: test11 (92:test.c),  final site of dereference is: (85:test.c)
+@test.c
+@Interprocedural inconsistency error
+@None
+@

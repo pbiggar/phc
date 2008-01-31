@@ -1,0 +1,16 @@
+Readme; see License.txt for copyright and terms of use
+-*-text-*-
+
+                          Build Interceptor
+                 http://build-interceptor.tigris.org/
+
+                         Daniel S. Wilkerson
+
+Welcome!  Build Interceptor is a collection of scripts for recording
+the .i files generated during a build of C or C++ programs with the
+gcc toolchain.  No modification to the original build process is
+necessary.
+
+The main Readme file is now maintained as part of the web page.
+Please just view the main website above or you can find it in
+www/index.html

@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+
+my $usage = "Usage: cronus-spawn-server <output-file> <binary-directory> <num-workers> [clpa-argument]+\n";
+
+my $output = shift or die $usage;
+my $binary_directory = shift or die $usage;
+my $num_workers = shift or die $usage;
+
+my $allargs = "";
+while (my $arg = shift) {
+    $allargs .= " " if $allargs ne "";
+    $allargs .= $arg;
+}
+
+system("qsub -v CLPA_OUT=$output,CLPA_BIN=$binary_directory,CLPA_WORKERS=$num_workers,CLPA_ARGS='$allargs' $binary_directory/cronus-server");

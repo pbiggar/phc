@@ -1,0 +1,3 @@
+str_comp_spoints("str",".fld2","fn").
+str_comp_spoints("str",".fld3","fn").
+str_comp_spoints("str",".fld","fn").

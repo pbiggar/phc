@@ -1,0 +1,17 @@
+#!/bin/sh
+# Run the build interceptor script to intercept a build
+
+export BUILD_INTERCEPTOR_DONT_EMBED_PREPROC=1
+export BUILD_INTERCEPTOR_CONFIG="`dirname $0`/../build-intercept/interceptor.config" 
+
+
+if [ ! -r "$BUILD_INTERCEPTOR_CONFIG" ]; then
+    cat << EOF 1>&2
+clpa-intercept: Invalid or missing build-intercept/interceptor.config.
+   Perhaps you forgot to copy interceptor.config.example to interceptor.config
+   and configure it for your local system?
+EOF
+    exit 1
+fi
+
+exec "`dirname $0`/../build-intercept/intercept" "$@"

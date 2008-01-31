@@ -1,0 +1,6 @@
+counts("fanout",s_func,7,8).
+counts("loopy",s_func,0,1).
+counts("loopy",s_loop{"s#1"},1,2).
+counts("loopy",s_loop{"s#4"},1,2).
+counts("loopy",s_loop{"s#7"},1,2).
+counts("merge",s_func,3,8).

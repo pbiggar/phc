@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo `hostname`": Worker $CLPA_WORKER $CLPA_HOST $CLPA_PORT."
+echo `hostname` "$CLPA_WORKER" "$CLPA_HOST" "$CLPA_PORT"
+"$CLPA_WORKER" "$CLPA_HOST" "$CLPA_PORT"
+echo `hostname`": Worker finished."

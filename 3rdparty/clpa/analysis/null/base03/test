@@ -1,0 +1,15 @@
+#!/bin/bash
+rm -rf temp.txt
+rm -rf temp2.txt
+rm -rf *.db
+./run >/dev/null
+#for i in `seq 1 82`;
+#do
+	
+#rm -rf only.txt
+	#echo "cil_body(\"test$i\")" > only.txt
+
+#clpa --only-analyze only.txt ./../null.clp | grep "@" | tee -a temp.txt >/dev/null
+#done
+./regress > temp2.txt
+diff temp2.txt expected.txt

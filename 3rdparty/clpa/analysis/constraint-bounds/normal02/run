@@ -1,0 +1,8 @@
+rm *.dot *.db *.dot 2> /dev/null
+cilcc test.c
+clpa --quiet ../../base/sumbody.clp
+clpa --quiet ../../aliasing/aliasing.clp ../../funptr/funptr.clp
+clpa --quiet ../topdown.clp
+clpa --quiet ../return-bounds.clp
+clpa --quiet run.clp
+

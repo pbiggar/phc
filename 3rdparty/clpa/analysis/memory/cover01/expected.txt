@@ -1,0 +1,6 @@
+broken("get_offset","&(struct kiocb*)0->ki_list","exp_eval").
+brokeni("get_offset","&(struct kiocb*)0->ki_list","exp_eval").
+brokeni("test.c:list_kiocb","&(struct kiocb*)0->ki_list","exp_eval").
+brokens("get_offset","&(struct kiocb*)0->ki_list","exp_eval").
+brokens("test.c:list_kiocb","&(struct kiocb*)0->ki_list","exp_eval").
+broken("test.c:list_kiocb","&(struct kiocb*)0->ki_list","exp_eval").

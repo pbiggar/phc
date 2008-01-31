@@ -1,0 +1,8 @@
+str_comp_spoints("str",".b","g*").
+str_spoints("assign",s_func,fn_exit,"__arg0.a*","__arg1*").
+str_spoints("flatcopy",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("more_assign",s_func,fn_exit,"__arg0*","__arg1*").
+str_spoints("more_flatcopy",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("stack_effect",s_func,fn_exit,"__arg0.a*","__arg1*").
+str_spoints("stack_indir",s_func,fn_exit,"__arg0.a*","__arg1*").
+str_spoints("stack_struct",s_func,fn_exit,"__arg0*","__arg1*").

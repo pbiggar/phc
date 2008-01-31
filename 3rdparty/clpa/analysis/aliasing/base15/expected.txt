@@ -1,0 +1,4 @@
+str_comp_spoints("str0",".eqg","g*").
+str_spoints("framebuffer_alloc",s_func,fn_exit,"return*.device","__arg1*").
+str_spoints("hidden",s_func,fn_exit,"return","__arg0*.$str0$4").
+str_spoints("increment",s_func,fn_exit,"return","__arg0*").

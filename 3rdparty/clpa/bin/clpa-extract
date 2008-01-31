@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <logic directory> <1 or more binaries to analyze>"
+    exit 1
+fi
+
+INTERCEPTDIR="`dirname $0`/../build-intercept"
+BINDIR="`dirname $0`"
+LOGICDIR="$1"
+PREPROCDIR=`mktemp -d`
+
+shift;
+
+ARGS=""
+while [ $# -ge 1 ]; do
+    ARGS="$ARGS --infile '$1'"
+    shift
+done
+
+"$INTERCEPTDIR/extract_preproc.pl" $ARGS --outdir "$PREPROCDIR"
+
+if [ "$?" -ne "0" ]; then
+  exit 1
+fi
+
+echo "Compiling preprocessed files into CIL trees in $LOGICDIR..."
+for I in $PREPROCDIR/*.c ; do
+    echo "$I"
+    "$BINDIR/cilcc" --logicdir "$LOGICDIR" $I
+done
+
+rm -rf "$PREPROCDIR"

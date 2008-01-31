@@ -1,0 +1,3 @@
+str_glob_spoints("BSDoptarg","BSDoptarg","test.c:place*").
+str_spoints("BSDgetopt",s_func,fn_exit,"BSDoptarg","__arg1**").
+str_spoints("BSDgetopt",s_func,fn_exit,"test.c:place","__arg1**").

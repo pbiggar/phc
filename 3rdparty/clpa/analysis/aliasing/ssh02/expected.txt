@@ -1,0 +1,5 @@
+str_spoints("mmtree_RB_REMOVE_COLOR",s_func,fn_exit,"__arg0*.rbh_root","__arg1*").
+str_spoints("mmtree_RB_REMOVE_COLOR",s_loop{"s#0"},fn_entry,"__arg1","__arg2*").
+str_spoints("mmtree_RB_REMOVE_COLOR",s_loop{"s#0"},fn_exit,"__arg0*.rbh_root","__arg1*").
+str_spoints("mmtree_RB_REMOVE_COLOR",s_loop{"s#0"},fn_exit,"__arg2","__arg1*").
+str_spoints("mmtree_RB_REMOVE_COLOR",s_loop{"s#0"},fn_exit,"tmp","__arg1*").

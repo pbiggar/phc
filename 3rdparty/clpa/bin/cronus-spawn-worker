@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ $# != 4 ] ; then
+  echo "Usage: $0 <worker script> <clpa worker binary> <server ip> <server port>"
+  exit 1
+fi
+
+qsub -v CLPA_WORKER="$2",CLPA_HOST="$3",CLPA_PORT="$4" "$1"

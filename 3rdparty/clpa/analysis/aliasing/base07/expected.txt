@@ -1,0 +1,10 @@
+str_spoints("append",s_func,fn_exit,"__arg0*.next","__arg1*").
+str_spoints("parsePGArray",s_loop{"s#1"},fn_exit,"items*","strings*").
+str_spoints("register_dns_rr",s_func,fn_exit,"base","__arg0*").
+str_spoints("register_dns_rr",s_loop{"s#1"},fn_exit,"rp","rp**.next").
+str_spoints("register_dns_rr",s_loop{"s#1"},fn_exit,"r","rp**").
+str_spoints("update_all",s_func,fn_entry,"__arg0*.data","__arg1*").
+str_spoints("update_all",s_func,fn_exit,"__arg0*.data","__arg1*").
+str_spoints("weirdAdvance",s_loop{"s#0"},fn_exit,"__arg0","__arg0*.next").
+str_spoints("weirdReverse",s_loop{"s#0"},fn_exit,"__arg0","__arg0*^next").
+str_spoints("wrap_update",s_func,fn_exit,"__arg0*.data","__arg1*").

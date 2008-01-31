@@ -1,0 +1,4 @@
+str_spoints("glob_array",s_func,fn_exit,"glob","__arg0*").
+str_spoints("glob_array",s_func,fn_exit,"glob","__arg1*").
+str_spoints("parm_buffer",s_func,fn_exit,"__arg0*","__arg1*").
+str_spoints("parm_buffer",s_func,fn_exit,"__arg0*","__arg2*").

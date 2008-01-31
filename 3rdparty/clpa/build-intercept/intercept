@@ -1,0 +1,9 @@
+#!/usr/bin/perl -w
+
+use strict;
+use warnings;
+use FindBin;
+use lib "${FindBin::RealBin}";
+use BuildInterceptor ':all';
+
+intercept_prog();

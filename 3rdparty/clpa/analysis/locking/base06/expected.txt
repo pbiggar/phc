@@ -1,0 +1,7 @@
+fedge("forgot",drf{root{arg{0}}},unlocked,unlocked).
+fedge("forgot",drf{root{arg{0}}},locked,error).
+fedge("forgot",drf{root{arg{0}}},unlocked,locked).
+fedge("maybe_lock",drf{root{arg{0}}},locked,locked).
+fedge("maybe_lock",drf{root{arg{0}}},unlocked,locked).
+fedge("maybe_lock",drf{root{arg{0}}},locked,error).
+fedge("maybe_lock",drf{root{arg{0}}},unlocked,unlocked).

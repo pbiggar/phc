@@ -1,0 +1,68 @@
+<!-- each "display" is a single view into the code base,
+     and can have any number of highlighted lines or additional text -->
+<element name="display" minOccurs="1" maxOccurs="1">
+  <complexType>
+    <sequence>
+
+      <!-- unique name for this display, not shown on screen -->
+      <element name="name" type="string"/>
+
+      <!-- category and printed title for this display -->
+      <element name="category" type="string"/>
+      <element name="title" type="title"/>
+
+      <!-- source code info, with min and max line #s to fetch -->
+      <element name="function" type="string"/>
+      <element name="file" type="string"/>
+      <element name="minline" type="integer"/>
+      <element name="maxline" type="integer"/>
+
+      <!-- line to put initial viewer focus on -->
+      <element name="focusline" type="integer"/>
+
+      <!-- draw a particular line with a particular style -->
+      <element name="linestyle" minOccurs="0" maxOccurs="unbounded">
+        <complexType>
+          <sequence>
+            <element name="line" type="integer"/>
+            <element name="cssclass" type="string"/>
+          </sequence>
+        </complexType>
+      </element>
+
+      <!-- draw some text around a particular line -->
+      <element name="linetext" minOccurs="0" maxOccurs="unbounded">
+        <complexType>
+          <sequence>
+            <element name="line" type="integer"/>
+            <element name="cssclass" type="string"/>
+
+            <!-- where to draw the text relative to the line itself -->
+            <element name="position">
+              <simpleType>
+                <restriction base="string">
+                  <enumeration value="left"/>
+                  <enumeration value="right"/>
+                  <enumeration value="top"/>
+                  <enumeration value="bottom"/>
+                </restriction>
+              </simpleType>
+            </element>
+
+            <element name="text" type="string"/>
+
+            <!-- clickable link to another named display -->
+            <element name="link" minOccurs="0" maxOccurs="unbounded">
+              <complexType>
+                <sequence>
+                  <element name="name" type="string"/>
+                  <element name="text" type="string"/>
+                </sequence>
+              </complexType>
+            </element>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+</element>

@@ -1,0 +1,6 @@
+str_spoints("bar1",s_func,fn_exit,"__arg0*","__arg1*").
+str_spoints("bar2",s_func,fn_exit,"__arg0*","__arg1*").
+str_spoints("buffer_compress",s_func,fn_exit,"outgoing_stream.next_in","__arg0*.buf*").
+str_spoints("buffer_ptr",s_func,fn_exit,"return","__arg0*.buf*").
+str_spoints("foo1",s_func,fn_exit,"__arg0*","__arg1*").
+str_spoints("foo2",s_func,fn_exit,"__arg0*","__arg1*").

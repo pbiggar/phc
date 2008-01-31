@@ -1,0 +1,8 @@
+exit_fn().
+"infinite" "is an exit function."
+exit_fn().
+"init" "is an exit function."
+exit_fn().
+"test.c:bar" "is an exit function."
+exit_fn().
+"breakout_bar" "is an exit function."

@@ -1,0 +1,5 @@
+str_spoints("diff_field",s_func,fn_entry,"__arg0","__arg1*").
+str_spoints("glob",s_func,fn_entry,"__arg0","g*").
+str_spoints("same_field",s_func,fn_entry,"__arg0","__arg1*").
+str_spoints("with_body",s_func,fn_entry,"__arg0","__arg1*").
+str_spoints("wrap_glob",s_func,fn_entry,"__arg0","g*").

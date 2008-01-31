@@ -1,0 +1,10 @@
+1,2c1,6
+< str_comp_spoints("irqaction",".name","fake_pci*.data*.name*").
+< str_spoints("b1pci_pci_probe",s_func,fn_exit,"irq_desc.action*.name","__arg0*.data*.name*").
+---
+> str_comp_spoints("irqaction",".handler","b1_interrupt").
+> str_spoints("b1_interrupt",s_func,fn_entry,"__arg1","fake_pci*.data*").
+> str_spoints("b1pci_pci_probe",s_func,fn_exit,"irq_desc.action*.dev_id","__arg0*.data*").
+> str_spoints("b1pci_pci_probe",s_func,fn_exit,"irq_desc.action*.handler","b1_interrupt").
+> str_spoints("fake_b1pci",s_func,fn_exit,"irq_desc.action*.handler","b1_interrupt").
+> str_spoints("request_irq",s_func,fn_exit,"irq_desc.action*.dev_id","__arg4*").

@@ -1,0 +1,2 @@
+str_glob_spoints("g","g","f").
+str_spoints("foo",s_func,fn_entry,"__arg0","f*").

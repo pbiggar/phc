@@ -1,0 +1,6 @@
+str_spoints("addtl",s_func,fn_exit,"__arg0*.fld*.etc","__arg1*").
+str_spoints("call_addtl",s_func,fn_exit,"__arg0*.fld*.etc","__arg1*").
+str_spoints("call_explicit",s_func,fn_exit,"__arg0*^member.etc","__arg1*").
+str_spoints("call_implicit",s_func,fn_exit,"__arg0*.fld*^member.etc","__arg1*").
+str_spoints("explicit",s_func,fn_exit,"__arg0*^member.etc","__arg1*").
+str_spoints("implicit",s_func,fn_exit,"__arg0*.fld*^member.etc","__arg1*").

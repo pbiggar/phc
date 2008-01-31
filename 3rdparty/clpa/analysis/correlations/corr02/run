@@ -1,0 +1,7 @@
+rm *.dot *.db *.dot 2> /dev/null
+cilcc test.c
+
+clpa --quiet ../../aliasing/aliasing.clp ../../funptr/funptr.clp
+clpa --quiet --no-fixpoint  ../topdown-correlation.clp
+clpa --quiet run.clp
+#clpa ../guardsize.clp

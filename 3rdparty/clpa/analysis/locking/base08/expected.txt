@@ -1,0 +1,16 @@
+fedge("bar",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("bar",drf{root{arg{0}}},locked,locked,false).
+fedge("bar",drf{root{arg{0}}},locked,error,false).
+fedge("baz",drf{root{arg{0}}},unlocked,locked,false).
+fedge("baz",drf{root{arg{0}}},locked,error,false).
+fedge("foo",drf{root{arg{0}}},locked,error,false).
+fedge("foo",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("sip",drf{root{arg{0}}},locked,locked,false).
+fedge("sip",drf{root{arg{0}}},unlocked,locked,true).
+fedge("sip",drf{root{arg{0}}},locked,error,true).
+fedge("sip",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("wrong",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("wrong",drf{root{arg{0}}},locked,locked,false).
+fedge("sap",drf{root{arg{0}}},locked,error,false).
+fedge("sap",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("sap",drf{root{arg{0}}},locked,locked,false).

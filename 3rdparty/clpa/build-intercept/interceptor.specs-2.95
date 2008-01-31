@@ -1,0 +1,11 @@
+### specs for gcc 2.95 -*-sh-*-
+
+# We use cpp0_interceptor.pl to remove -P from the command-line.
+
+# It is nice if we can find out the name of the original file to help
+# in creating a name for the temporary file.
+*cc1:
++ ---build-interceptor-orig_filename=%i
+
+*cc1plus:
++ ---build-interceptor-orig_filename=%i

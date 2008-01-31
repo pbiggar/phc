@@ -1,0 +1,11 @@
+str_comp_spoints("contain_cntr",".c","glob1^member").
+str_comp_spoints("contain_cntr",".c","glob2^member").
+str_glob_spoints("glob1","glob1.next","glob2").
+str_spoints("allocate",s_func,fn_exit,"__arg0*^member.etc","__arg1*").
+str_spoints("iterate",s_func,fn_exit,"__arg0*^member.etc","__arg1*").
+str_spoints("iterate",s_loop{"s#1"},fn_entry,"n","pos*").
+str_spoints("iterate",s_loop{"s#1"},fn_exit,"__mptr___1","n*.member").
+str_spoints("iterate",s_loop{"s#1"},fn_exit,"n*.etc","__arg1*").
+str_spoints("iterate",s_loop{"s#1"},fn_exit,"pos*.etc","__arg1*").
+str_spoints("iterate",s_loop{"s#1"},fn_exit,"pos","n*").
+str_spoints("simple",s_func,fn_exit,"return","__arg0*^member").

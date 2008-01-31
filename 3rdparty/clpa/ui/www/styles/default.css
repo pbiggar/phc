@@ -1,0 +1,95 @@
+body {
+	font-family: verdana,helvetica;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+
+li {
+	font-size: smaller
+}
+
+.sc {
+	font-variant: small-caps
+}
+
+/* Display tables */
+
+table.display {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: separate;
+	font-family: arial
+}
+
+table.display td {
+	border-width: 1px 1px 1px 1px;
+	padding: 0px 0px 0px 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(224, 255, 238);
+        white-space: pre;
+        font-family: monospace;
+}
+
+/* Display table cells */
+
+table.display td.pathline {
+        font-weight: bold;
+}
+
+table.display td.pathevent {
+        color: green;
+        font-weight: bold;
+}
+
+table.display td.pathevent_text {
+        font-size: small;
+	background-color: rgb(221, 170, 102);
+}
+
+table.display td.warning {
+        color: red;
+        font-weight: bold;
+}
+
+table.display td.warning_text {
+	padding: 0px 0px 0px 20px;
+	background-color: rgb(221, 170, 102);
+}
+
+/* Table of contents */
+
+table.toc {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 4px;
+	border-style: solid solid solid solid;
+	border-color: blue blue blue blue;
+	border-collapse: separate;
+	background-color: rgb(255, 250, 250);
+}
+
+table.toc th {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px 1px 1px 1px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(255, 255, 200);
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.toc td {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px 15px 1px 1px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(255, 250, 250);
+	-moz-border-radius: 0px 0px 0px 0px;
+}

@@ -1,0 +1,12 @@
+str_spoints("bar",s_func,fn_exit,"__arg1*","__arg0**").
+str_spoints("baz",s_func,fn_exit,"return","__arg0**").
+str_spoints("baz_wrap1",s_func,fn_exit,"return","__arg0**").
+str_spoints("baz_wrap2",s_func,fn_exit,"return","__arg0**").
+str_spoints("complex",s_func,fn_exit,"__arg0**","__arg1***").
+str_spoints("foo",s_func,fn_exit,"__arg0*","__arg1**").
+str_spoints("intcpy",s_func,fn_exit,"return","__arg0*").
+str_spoints("intcpy_wrap",s_func,fn_exit,"__arg2*","__arg0*").
+str_spoints("multiple_one",s_func,fn_exit,"__arg1*","__arg0***.b").
+str_spoints("multiple_two",s_func,fn_exit,"__arg0*","__arg1**^b.a").
+str_spoints("offset",s_func,fn_exit,"return","__arg0*.b").
+str_spoints("offset_wrap",s_func,fn_exit,"return","__arg0*.b").

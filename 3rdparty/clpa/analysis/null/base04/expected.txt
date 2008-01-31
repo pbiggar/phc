@@ -1,0 +1,12 @@
+@orange
+@158 orange (INCONSISTENT USE) Possible null dereference of variable buf+0. This variable is checked for Null at lines: 163
+@test.c
+@Inconsistency error
+@None
+@
+@red
+@111 red Return value from function test4 may be null.
+@test.c
+@Return Null error
+@None
+@

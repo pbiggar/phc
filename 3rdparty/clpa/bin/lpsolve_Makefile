@@ -1,0 +1,3 @@
+all:
+	sh ccc
+	cp liblpsolve55.a ..

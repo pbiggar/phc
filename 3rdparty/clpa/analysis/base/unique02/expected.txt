@@ -1,0 +1,12 @@
+field_used("main1","overlap$clone1","x").
+field_used("main1","overlap$clone1","y").
+field_used("main1","overlap","x").
+field_used("main1","overlap","y").
+field_used("main2","overlap$clone1","x").
+field_used("main2","overlap$clone1","y").
+field_used("main2","overlap","x").
+field_used("main2","overlap","y").
+field_used("reader","overlap","x").
+field_used("reader","overlap","y").
+field_used("writer","overlap$clone1","x").
+field_used("writer","overlap$clone1","y").

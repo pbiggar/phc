@@ -1,0 +1,36 @@
+@violet
+@91 violet (INCONSISTENT USE) Possible null dereference __arg0. This variable is checked for Null at lines: 90, and is dereferenced through call chain: test12 (91:test.c),  final site of dereference is: (82:test.c)
+@test.c
+@Interprocedural inconsistency error
+@None
+@
+@violet
+@113 violet (INCONSISTENT USE) Possible null dereference __arg1. This variable is checked for Null at lines: 112, and is dereferenced through call chain: test15 (113:test.c),  final site of dereference is: (105:test.c)
+@test.c
+@Interprocedural inconsistency error
+@None
+@
+@blue
+@22 blue __arg0 of function test1 can evaluate to NULL test1 (22:test.c),  final site of dereference is: (10:test.c)
+@test.c
+@Null pointer is passed to a function which dereferences it.
+@None
+@
+@blue
+@43 blue __arg0 of function test1 can evaluate to NULL test1 (43:test.c),  final site of dereference is: (10:test.c)
+@test.c
+@Null pointer is passed to a function which dereferences it.
+@None
+@
+@blue
+@58 blue __arg0 of function test7 can evaluate to NULL test7 (58:test.c),  final site of dereference is: (50:test.c)
+@test.c
+@Null pointer is passed to a function which dereferences it.
+@None
+@
+@blue
+@76 blue __arg0 of function test1 can evaluate to NULL test9 (76:test.c), test1 (64:test.c),  final site of dereference is: (10:test.c)
+@test.c
+@Null pointer is passed to a function which dereferences it.
+@None
+@

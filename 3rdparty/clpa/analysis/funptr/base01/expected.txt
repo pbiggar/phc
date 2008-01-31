@@ -1,0 +1,10 @@
+str_indirect("bar","*my_other_static_ptr.ptr","fnptr").
+str_indirect("bar","*my_other_static_ptr.ptr","xfnptr").
+str_indirect("bar","*my_static_ptr.ptr2","fnptr2").
+str_indirect("baz","*fn","fnptr").
+str_indirect("baz","*fn","xfnptr").
+str_indirect("baz","*fn","yfnptr").
+str_indirect("callarr","*funcs[i]","fnptr").
+str_indirect("callarr","*funcs[i]","yafunptr").
+str_indirect("foo","*ciltmp","fnptr").
+str_indirect("static_local","*ptr","fnptr").

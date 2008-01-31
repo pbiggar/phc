@@ -1,0 +1,187 @@
+OCAMLMAKEFILE = util/OCamlMakefile
+
+CILROOT = cil
+
+# can't use absolute path 'coz of the way the cil library is compiled
+CILOBJDIR = $(CILROOT)/obj/x86_LINUX
+
+ifdef PROFILE
+  PROFILING = 1
+  export PROFILING
+endif
+
+INCDIRS =
+LIBDIRS =
+OCAMLNCFLAGS = 
+OCAMLLDFLAGS =
+PRE_TARGETS = 
+CLIBS =
+
+BSOURCES = util/gzstr.c bdb/cl_bdb.c bdb/bdb.mli bdb/bdb.ml
+
+SOURCES = $(BSOURCES)
+SOURCES += mlevent/event_stubs.c mlevent/libevent.ml 
+SOURCES += util/vector.mli util/vector.ml util/lwhash.ml
+SOURCES += util/graph.mli util/graph.ml
+SOURCES += util/hashcons.mli util/hashcons.ml
+
+SOURCES += util/clpautil.ml util/signal.ml
+SOURCES += util/flags.mli util/flags.ml
+SOURCES += util/prioqueue.mli util/prioqueue.ml
+SOURCES += util/streamio.mli util/streamio.ml
+SOURCES += util/pp.mli util/pp.ml
+SOURCES += util/pputil.mli util/pputil.ml
+SOURCES += util/mlrlimit.c util/rlimit.ml
+
+SOURCES += lang/spec.mli lang/spec.ml
+SOURCES += lang/specio.mli lang/specio.ml
+SOURCES += lang/ast.mli lang/ast.ml
+SOURCES += lang/type_check.mli lang/type_check.ml
+SOURCES += lang/mode_check.mli lang/mode_check.ml
+SOURCES += lang/ast_transform.mli lang/ast_transform.ml
+SOURCES += lang/specparser.mli lang/specparser.ml
+SOURCES += lang/speclexer.ml
+SOURCES += lang/frontend.mli lang/frontend.ml
+SOURCES += lang/mlr.mli lang/mlr.ml
+SOURCES += lang/ordering.mli lang/ordering.ml
+SOURCES += lang/builtin.ml lang/builtin.mli
+SOURCES += lang/intops.ml lang/strops.ml lang/mapops.ml
+SOURCES += lang/dotty.ml lang/error.ml lang/display.ml
+
+SOURCES += solve/mlminisat/mlminisat.cc solve/mlminisat/minisat.ml
+SOURCES += solve/biteval.mli solve/biteval.ml
+SOURCES += solve/solvebit.mli solve/solvebit.ml
+SOURCES += solve/sat_minisat.ml 
+SOURCES += solve/solvevector.ml
+
+SOURCES += translate/transcil.ml
+
+# zChaff is optional
+ifeq (no, yes)
+SOURCES += solve/mlzc/mlzchaff.cc solve/mlzc/zchaff.ml solve/sat_zchaff.ml
+OCAMLLDFLAGS += -cclib -L -cclib -lsat
+INCDIRS += 
+CLIBS += sat
+PRE_TARGETS += /libsat.a
+endif
+
+# lp_solve is optional
+ifeq (no, yes)
+SOURCES += solve/mllp/mllpsolve.c solve/mllp/lpsolve.ml
+SOURCES += solve/solvemip.mli solve/solvemip.ml solve/polybit.ml
+OCAMLLDFLAGS += -ccopt -L -cclib -llpsolve55
+INCDIRS += 
+CLIBS += lpsolve55
+PRE_TARGETS += /liblpsolve55.a
+endif
+
+# STP is optional
+ifeq (no, yes)
+SOURCES += solve/mlstp/mlstp.cc solve/mlstp/stp.ml solve/solvestp.ml
+OCAMLLDFLAGS += -cclib -lstp 
+CLIBS += stp
+endif
+
+# switch based on the output binary
+
+ifeq ($(OBJ_NAME), clpa)
+SOURCES += lang/clpamain.ml
+endif
+
+ifeq ($(OBJ_NAME), clpa-worker)
+SOURCES += lang/workermain.ml
+endif
+
+ifeq ($(OBJ_NAME), cilcc)
+SOURCES += translate/cilmain.ml
+endif
+
+ifeq ($(OBJ_NAME), dbfind)
+SOURCES = $(BSOURCES)
+SOURCES += util/dbfindmain.ml
+endif
+
+ifeq ($(OBJ_NAME), dbfindc)
+SOURCES += util/dbfindcmain.ml
+endif
+
+ifeq ($(OBJ_NAME), dbkeys)
+SOURCES = $(BSOURCES)
+SOURCES += util/dbkeysmain.ml
+endif
+
+ifeq ($(OBJ_NAME), clpacoq)
+SOURCES += lang/coqxlate.ml
+endif
+
+RESULT = bin/$(OBJ_NAME)
+
+ifdef NATIVECAML
+CMXA	= cmxa
+else
+CMXA	= cma
+endif
+
+CLIBS += db z pthread
+
+PRE_TARGETS += solve/minisat/Solver.o \
+        bdb/cl_bdb.o \
+	lang/specparser.ml lang/specparser.mli lang/speclexer.ml \
+	$(CILOBJDIR)/cil.$(CMXA)
+
+OCAMLLDFLAGS += -cc g++ \
+		-cclib solve/minisat/Solver.o \
+		libevent/*.o
+
+ifeq (no, yes)
+OCAMLLDFLAGS += -cclib -static
+endif
+
+ifeq (no, yes)
+# Disable inlining if we want native backtraces
+OCAMLNCFLAGS += -gb
+OCAMLLDFLAGS += -gb
+else
+OCAMLNCFLAGS = -inline 100
+endif
+
+CXX = g++
+CXXFLAGS = -g -O2 
+CFLAGS = -g -O2 
+CPPFLAGS = 
+LDFLAGS = 
+INCDIRS += solve/minisat $(CILOBJDIR) mlevent libevent
+LIBDIRS += $(CILOBJDIR)
+LIBS = unix nums str $(CILOBJDIR)/cil
+
+debug:
+	$(MAKE) -f makefile-clpa all TARGET=dc
+
+native:
+	$(MAKE) -f makefile-clpa all TARGET=nc NATIVECAML=1
+
+all: $(TARGET)
+
+-include $(OCAMLMAKEFILE)
+
+solve/minisat/Solver.o:
+	$(MAKE) -C solve/minisat
+
+/libsat.a:
+	$(MAKE) -C 
+
+/liblpsolve55.a:
+	cp bin/lpsolve_Makefile /lpsolve55/Makefile
+	$(MAKE) -C /lpsolve55
+
+lang/specparser.ml:
+lang/specparser.mli:
+	ocamlyacc lang/specparser.mly
+
+lang/speclexer.ml:
+	ocamllex lang/speclexer.mll
+
+$(CILOBJDIR)/cil.$(CMXA):
+	make -C $(CILROOT) cillib
+
+bdb/cl_bdb.o: bdb/cl_bdb.c

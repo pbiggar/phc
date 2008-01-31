@@ -1,0 +1,4 @@
+rm *.dot *.db *.dot 2> /dev/null
+gcc -E test.c -o test.i 2> /dev/null
+cilcc test.i 2> /dev/null
+clpa --quiet run.clp

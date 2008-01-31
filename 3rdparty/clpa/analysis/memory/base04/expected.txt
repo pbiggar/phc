@@ -1,0 +1,4 @@
+overlap("arrays",p_io{"#2"},root{local{"buf"}},nrep{[s|F|F;F;F;F]},trace{drf{root{local{"buf"}}}}).
+overlap("arrays",p_so{"s#1"},root{local{"buf"}},nrep{[s|F|F;F;F;F]},nrep{[s|F|T;F;F;F]}).
+overlap("arrays",p_so{"s#1"},root{local{"buf"}},nrep{[s|F|F;F;F;F]},trace{drf{root{local{"buf"}}}}).
+overlap("arrays",p_so{"s#1"},root{local{"buf"}},nrep{[s|F|T;F;F;F]},trace{drf{root{local{"buf"}}}}).

@@ -1,0 +1,5 @@
+[] [3] [2; 3] [2; 3] [1; 2; 3] [1; 2] [1,2] [1; 2]
+[] [3 -> "hello"] [2 -> "bonjour"; 3 -> "hello"] [2 -> "bonjour"; 3 -> "hello"] [1 -> "hola"; 2 -> "bonjour"; 3 -> "hello"] [1 -> "hola"; 2 -> "bonjour"] [pair{1,"hola"},pair{2,"bonjour"}] [1 -> "hola"; 2 -> "bonjour"]
+analysis: warning: No 'analyze session_name(...)' directive supplied; using empty session.
+ERROR: ./run.clp:32: \/foo(K,V):map_all(K,V,M): Duplicate keys in matching predicates
+"set_all" [1; 2; 3]

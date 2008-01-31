@@ -1,0 +1,6 @@
+str_comp_spoints("str",".fld2","fn").
+str_comp_spoints("str",".fld3","fn").
+str_comp_spoints("str",".fld","fn").
+str_indirect("callme","*b.s[0].fld","fn").
+str_indirect("callme","*s.fld2","fn").
+str_indirect("callme","*s.fld3","fn").

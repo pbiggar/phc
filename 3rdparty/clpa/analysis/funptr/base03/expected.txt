@@ -1,0 +1,7 @@
+str_indirect("use2","*ciltmp->func","bar").
+str_indirect("use2","*ciltmp->func","foo").
+str_indirect("use","*cur->func","bar").
+str_indirect("use","*cur->func","foo").
+str_indirect("wrap1","*func","bar").
+str_indirect("wrap1","*func","foo").
+str_spoints("get",s_func,fn_exit,"return","funptrs").

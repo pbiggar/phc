@@ -1,0 +1,7 @@
+name = "event"
+version = "0.5.0"
+description = "OCaml wrapper for libevent"
+requires = "unix"
+archive(byte) = "libevent.cma"
+archive(native) = "libevent.cmxa"
+linkopts = ""

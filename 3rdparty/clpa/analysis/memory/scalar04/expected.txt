@@ -1,0 +1,4 @@
+may_deref("foo",drf{root{arg{0}}}).
+may_deref("baz",drf{root{arg{1}}}).
+may_deref("bar",drf{root{arg{0}}}).
+may_deref("bar",drf{root{arg{1}}}).

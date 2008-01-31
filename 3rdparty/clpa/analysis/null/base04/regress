@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+use Cwd;
+use File::Find;
+
+$cwd = getcwd();
+
+system("rm *.dot *.db *.dot 2> /dev/null");
+system("cilcc test.c");
+
+ if (system("clpa run.clp > temp.txt") != 0) {
+        print "CRASHED\n";
+        exit 0;
+    }
+
+
+
+ open(IN,"< temp.txt");
+
+my @result = ();
+$i=0;
+    while ($line = <IN>) {
+	#print "LINE: $line\n";
+	if($line=~ m/cil_body/)
+	{
+	    
+	    if($line =~ m/(\d+)/)
+	    {
+	        $result[$i]=$cur_string;
+		$i=$1;
+		#print "++++++++$cur_string:$1 \n";
+		#print "]]]]]]]]]]]]]]]]]]]]]]\n";
+		$cur_string = "\n".$line;
+	
+	    }
+	    #$line = ~m/[0-9]+/;
+	    $cur_string = $line;
+	}
+	else
+	{
+	
+	    $cur_string = $cur_string.$line;
+	}
+	
+    }
+$result[$i]=$cur_string;
+#system("rm -rf temp.txt");
+
+for($i=0; $i < @result; $i++)
+{
+    print  $result[$i];
+}

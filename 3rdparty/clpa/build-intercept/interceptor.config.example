@@ -1,0 +1,37 @@
+# Build interception configuration file
+
+[Paths]
+# All the paths must be absolute paths.
+#
+# intercept_scripts should be the build-intercept/ subdirectory of your clpa
+# tree.
+# intercept_library should point to 'libintercept.so' (usually in the same 
+# directory).
+# intercept_home can be anywhere where the interceptor can dump stuff. I 
+# recommend not on a network directory.
+intercept_home=/export/sc1/bhackett/build
+intercept_scripts=/afs/cs.stanford.edu/u/bhackett/clpa/build-intercept
+intercept_library=/afs/cs.stanford.edu/u/bhackett/clpa/build-intercept/libintercept.so
+
+[Redirections]
+# Each entry in the redirections section specifies a diversion that should
+# happen during the build process. The left hand side is a POSIX regular 
+# expression that is matched against the absolute path to each binary that 
+# is executed. If the regular expression matches then the script on the
+# right hand side is executed instead. Usually each script does something 
+# and then calls the original program.
+# The right hand side of each redirection is taken relative to the 
+# intercept_scripts directory.
+# If multiple regular expressions match, then the first matching redirection
+# will be used.
+#
+^/usr/bin/cc$=gcc_interceptor.pl
+^.*usr/bin/gcc[0-9]*$=gcc_interceptor.pl
+^.*usr/bin/c\+\+$=gcc_interceptor.pl
+^.*usr/bin/g\+\+[0-9]*$=gcc_interceptor.pl
+^.*/as$=as_interceptor.pl
+^.*/ld$=ld_interceptor.pl 
+#^.*/collect2$=collect2_interceptor.pl
+^.*/cc1$=cc1_interceptor.pl
+^.*/cc1plus$=cc1plus_interceptor.pl
+^.*/cpp0$=cpp0_interceptor.pl

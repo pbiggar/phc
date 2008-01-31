@@ -1,0 +1,81 @@
+            Installing Saturn on a Linux machine
+            ------------------------------------
+
+PREREQUISITES:
+
+* Version 3.08 or newer of the OCaml compiler (http://caml.inria.fr/)
+
+* Version 4.2 or newer of Berkeley DB
+
+* Recent version of gcc and associated tools
+
+INSTALLATION INSTRUCTIONS:
+
+1. Configure the system. From the top-level directory, run:
+
+    ./configure
+
+This generates the files "Makefile" and "makefile-clpa" used to build Saturn.
+
+The "configure" script accepts various options, which can be enumerated by
+running "./configure --help". The most important of these are:
+
+--with-zchaff[=DIR]
+    Build and use of the zChaff SAT solver (not included),
+    with header and source files in DIR, or solve/zchaff if DIR not used.
+    Replaces the default SAT solver MiniSAT
+
+--with-lpsolve[=DIR]
+    Build and use the lp_solve mixed integer constraint solver (not included),
+    with header and source files in DIR, or solve/lp_solve if DIR not used.
+    Required to use the supplied integer constraint solving package.
+
+2. Build the system. From the top-level directory, run:
+
+    make
+
+This builds Saturn from scratch, producing optimized native binaries.
+The "make" command also accepts various other targets, including:
+
+debug
+    Build Saturn using the OCaml bytecode compiler, producing executables that
+    are suitable for debugging
+
+profile
+    Build Saturn using the OCaml bytecode compiler, producing executables that
+    are suitable for profiling 
+
+nativeprofile
+    Build Saturn using the OCaml native code compiler, producing executables 
+    that are suitable for profiling using gprof.
+
+clean
+    Cleanup the Saturn source tree, but do not clean all of the libraries 
+    included in the source tree, such as CIL.
+
+realclean
+    Cleanup the Saturn source tree, together with all of the libraries that
+    are not part of Saturn but are included in the Saturn source tree.
+
+One important option that can be added to the make command line is:
+
+VERBOSE=y
+    Don't hide commands executed by the Saturn build process. Can be combined
+    with any target for "make".
+
+3. Add the bin/ subdirectory to your shell's PATH
+
+At this point Saturn does not support installation or 'make install'.
+Updating your shell's PATH with this directory is needed to run
+the regressions below.
+
+4. Run the regression tests. From the analysis/ subdirectory, run:
+
+    runregr
+
+The runregr script is located in the top level bin/ subdirectory.
+Running 'runregr' in a directory searches for and runs all regressions
+contained within that directory.
+
+For further information about how to run and develop program analyses using 
+Saturn, consult the documentation in the docs/ subdirectory.

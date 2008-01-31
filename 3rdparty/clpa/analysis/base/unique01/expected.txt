@@ -1,0 +1,9 @@
+dircall_line("test1.c",6,"main","checkargs").
+dircall_line("test1.c",7,"main","common").
+dircall_line("test1.c",8,"main","use1").
+dircall_line("test2.c",6,"main$clone1","checkargs$clone1").
+dircall_line("test2.c",7,"main$clone1","common").
+dircall_line("test2.c",8,"main$clone1","use2").
+dircall_line("test3.c",6,"main$clone2","checkargs$clone2").
+dircall_line("test3.c",7,"main$clone2","common$clone1").
+dircall_line("test3.c",8,"main$clone2","use3").

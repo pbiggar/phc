@@ -1,0 +1,5 @@
+str_comp_spoints("__anonstruct_anonymous_2",".ptr","g1").
+str_comp_spoints("__anonstruct_anonymous_2",".ptr","g2").
+str_comp_spoints("__anonstruct_anonymous_4",".argh","g3").
+str_comp_spoints("__anonunion_anonu_6",".a","g5").
+str_comp_spoints("__anonunion_anonu_6",".a","g6").

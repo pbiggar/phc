@@ -1,0 +1,7 @@
+fedge("bar",drf{root{arg{0}}},locked,error,false).
+fedge("bar",drf{root{arg{0}}},locked,locked,false).
+fedge("bar",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("baz",drf{root{arg{0}}},locked,error,false).
+fedge("baz",drf{root{arg{0}}},unlocked,locked,false).
+fedge("foo",drf{root{arg{0}}},locked,error,false).
+fedge("foo",drf{root{arg{0}}},unlocked,unlocked,false).

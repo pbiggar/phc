@@ -1,0 +1,74 @@
+/home/isil/SATURN/clpa/analysis/null_intsym/base02: clpa run.clp
+Entering cil_body("test1")...
+Entering cil_body("test2")...
+Entering cil_body("test3")...
+@blue
+@22 blue NULL 2 dereference in function call (__arg0):  called in (test1)
+@test.c
+@Null error
+@None
+@
+Entering cil_body("test4")...
+Entering cil_body("test5")...
+Entering cil_body("test6")...
+@blue
+@43 blue NULL 2 dereference in function call (__arg0):  called in (test1)
+@test.c
+@Null error
+@None
+@
+Entering cil_body("test7")...
+Entering cil_body("test8")...
+@blue
+@58 blue NULL 2 dereference in function call (__arg0):  called in (test7)
+@test.c
+@Null error
+@None
+@
+Entering cil_body("test9")...
+Entering cil_body("test10")...
+Entering cil_body("test11")...
+@blue
+@76 blue NULL 2 dereference in function call (__arg0):  called in (test9, test1)
+@test.c
+@Null error
+@None
+@
+Analysis finished successfully.
+Allocations:
+main:                     283.7MB
+add_rules:                137.9MB
+parse:                    114.7MB
+sat_solve:                  9.9MB
+load_session_str:         555.5KB
+dependency_dump:           29.3KB
+bdb_load_session:          28.0KB
+dump_session_str:          26.7KB
+add_dependency_edge:       25.0KB
+update_work_dependency:    18.6KB
+finish_work_session:        9.6KB
+next_work_session:          6.5KB
+dependency_load:            6.4KB
+merge_session_str:          4.2KB
+bdb_merge_session_preds:    4.2KB
+Timers:
+main:          0:02
+add_rules:     0:01
+Entering cil_body("test12")...
+Entering cil_body("test13")...
+@violet
+@91 violet (INCONSISTENT USE) Possible null dereference  with gls {__arg0} checked at (90:test.c) called in  (test12)
+@test.c
+@Interprocedural inconsistency error
+@None
+@
+Entering cil_body("test14")...
+Entering cil_body("test15")...
+Entering cil_body("test16")...
+@violet
+@113 violet (INCONSISTENT USE) Possible null dereference  with gls {__arg1} checked at (112:test.c) called in  (test15)
+@test.c
+@Interprocedural inconsistency error
+@None
+@
+Entering cil_body("test17")...

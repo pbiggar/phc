@@ -1,0 +1,210 @@
+"RETURN COMPARISON GUARD: " "foo11" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo11"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo11" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo11"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo12" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo12"}}}},sk_int{false,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo12" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo12"}}}},sk_int{false,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo13" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo13"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo13" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo13"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo4" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo4"}}}},sk_int{false,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo4" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo4"}}}},sk_int{false,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo6" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo6"}}}},sk_int{false,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo6" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo6"}}}},sk_int{false,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo7" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo7"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo7" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo7"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo8" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo8"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo8" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo8"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo9" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo9"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo9" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo9"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo6" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo6"}}}},sk_int{false,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo6" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo6"}}}},sk_int{false,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "foo1" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo1"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo1" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo1"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo2" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo2" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_ge,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "foo3" !br_cmp{sc{sc_eq,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo3"}}}},sk_int{true,32}},s_int_const{1,true,32}}} "=======>" !br_cmp{sc{sc_eq,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{1,true,32}}}
+"RETURN COMPARISON GUARD: " "foo3" br_cmp{sc{sc_eq,s_unconstrained{vr_t{drf{root{temp{"ciltmp","foo3"}}}},sk_int{true,32}},s_int_const{1,true,32}}} "=======>" br_cmp{sc{sc_eq,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{1,true,32}}}
+"RETURN COMPARISON GUARD: " "malloc" !br_cmp{sc_eqz{s_cast{s_unconstrained{vr_t{drf{root{temp{"ciltmp","malloc"}}}},sk_int{true,32}},sk_int{false,32}}}} "=======>" !br_cmp{sc_eqz{s_cast{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "malloc" br_cmp{sc_eqz{s_cast{s_unconstrained{vr_t{drf{root{temp{"ciltmp","malloc"}}}},sk_int{true,32}},sk_int{false,32}}}} "=======>" br_cmp{sc_eqz{s_cast{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},sk_int{false,32}}}}
+"RETURN COMPARISON GUARD: " "rand" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp___0","rand"}}}},sk_int{true,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"RETURN COMPARISON GUARD: " "rand" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp___0","rand"}}}},sk_int{true,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"RETURN COMPARISON GUARD: " "random1" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"__$"#7"","random1"}}}},sk_int{true,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"RETURN COMPARISON GUARD: " "random2" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"__$"#39"","random2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "random2" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"__$"#39"","random2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "random1" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"__$"#7"","random1"}}}},sk_int{true,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"RETURN COMPARISON GUARD: " "random2" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"__$"#55"","random2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" !br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "random2" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{temp{"__$"#55"","random2"}}}},sk_int{true,32}},s_int_const{0,true,32}}} "=======>" br_cmp{sc{sc_lt,s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}},s_int_const{0,true,32}}}
+"RETURN COMPARISON GUARD: " "fun1" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","*fn"}}}},sk_int{true,32}}}} "=======>" !br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"RETURN COMPARISON GUARD: " "fun1" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{temp{"ciltmp","*fn"}}}},sk_int{true,32}}}} "=======>" br_cmp{sc_eqz{s_unconstrained{vr_t{drf{root{return}}},sk_int{true,32}}}}
+"NECESSARY COND: " "foo1" "return* >= 0" "__arg0* || __arg1*"
+"NECESSARY COND: " "foo1" "!(return* >= 0)" "!__arg0* && !__arg1*"
+"SUFFICIENT COND: " "foo1" "return* >= 0" "__arg0* || __arg1*"
+"SUFFICIENT COND: " "foo1" "!(return* >= 0)" "!__arg0* && !__arg1*"
+"DNF Size: " 2
+"CNF Size: " 2
+"NECESSARY COND: " "foo11" "return* >= 0" "__arg0**"
+"NECESSARY COND: " "foo11" "!(return* >= 0)" "!__arg0**"
+"SUFFICIENT COND: " "foo11" "return* >= 0" "__arg0**"
+"SUFFICIENT COND: " "foo11" "!(return* >= 0)" "!__arg0**"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo12" "!return*" "!(__arg1* > 353653535)"
+"NECESSARY COND: " "foo12" "return*" "__arg1* > 353653535"
+"SUFFICIENT COND: " "foo12" "!return*" "!(__arg1* > 353653535)"
+"SUFFICIENT COND: " "foo12" "return*" "__arg1* > 353653535"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo13" "return* >= 0" "__arg0**"
+"NECESSARY COND: " "foo13" "!(return* >= 0)" "!__arg0**"
+"SUFFICIENT COND: " "foo13" "return* >= 0" "__arg0**"
+"SUFFICIENT COND: " "foo13" "!(return* >= 0)" "!__arg0**"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo2" "return* >= 0" "__arg0*"
+"NECESSARY COND: " "foo2" "!(return* >= 0)" "!__arg0*"
+"SUFFICIENT COND: " "foo2" "return* >= 0" "__arg0*"
+"SUFFICIENT COND: " "foo2" "!(return* >= 0)" "!__arg0*"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo3" "return* == 1" "__arg0*"
+"NECESSARY COND: " "foo3" "!(return* == 1)" "!__arg0*"
+"SUFFICIENT COND: " "foo3" "return* == 1" "__arg0*"
+"SUFFICIENT COND: " "foo3" "!(return* == 1)" "!__arg0*"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo4" "!return*" "!(__arg1* > 35)"
+"NECESSARY COND: " "foo4" "return*" "__arg1* > 35"
+"SUFFICIENT COND: " "foo4" "!return*" "!(__arg1* > 35)"
+"SUFFICIENT COND: " "foo4" "return*" "__arg1* > 35"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo6" "!return*" "!__arg2*"
+"NECESSARY COND: " "foo6" "return*" "__arg2*"
+"SUFFICIENT COND: " "foo6" "!return*" "!__arg2*"
+"SUFFICIENT COND: " "foo6" "return*" "__arg2*"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo7" "!(return* < 0)" "!(__arg0** > 43)"
+"NECESSARY COND: " "foo7" "return* < 0" "__arg0** > 43"
+"SUFFICIENT COND: " "foo7" "!(return* < 0)" "!(__arg0** > 43)"
+"SUFFICIENT COND: " "foo7" "return* < 0" "__arg0** > 43"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo8" "return* >= 0" "true"
+"NECESSARY COND: " "foo8" "!(return* >= 0)" "true"
+"SUFFICIENT COND: " "foo8" "return* >= 0" "false"
+"SUFFICIENT COND: " "foo8" "!(return* >= 0)" "false"
+"DNF Size: " 1
+"CNF Size: " 1
+"NECESSARY COND: " "foo9" "return* >= 0" "!(10 < __arg2*) || __arg1**"
+"NECESSARY COND: " "foo9" "!(return* >= 0)" "true"
+"SUFFICIENT COND: " "foo9" "return* >= 0" "false"
+"SUFFICIENT COND: " "foo9" "!(return* >= 0)" "10 < __arg2* && !__arg1**"
+"DNF Size: " 2
+"CNF Size: " 1
+"CNF Size: " 2
+"DNF Size: " 1
+"NECESSARY COND: " "fun1" "!return*" "3 < __arg0*"
+"NECESSARY COND: " "fun1" "return*" "!(3 < __arg0*)"
+"SUFFICIENT COND: " "fun1" "!return*" "3 < __arg0*"
+"SUFFICIENT COND: " "fun1" "return*" "!(3 < __arg0*)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " fld{drf{root{arg{0}}},"control","msghdr"} "!(__arg0*.controllen* < 5)"
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " fld{drf{root{arg{0}}},"control","msghdr"} "!(__arg0*.controllen* < 5)"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "__arg1* > 353653535"
+"Necessary cond for deref: " root{arg{1}} "!(__arg1* > 353653535)"
+"Sufficient cond for deref: " root{arg{0}} "__arg1* > 353653535"
+"Sufficient cond for deref: " root{arg{1}} "!(__arg1* > 353653535)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "__arg1* > 35"
+"Necessary cond for deref: " root{arg{1}} "!(__arg1* > 35)"
+"Sufficient cond for deref: " root{arg{0}} "__arg1* > 35"
+"Sufficient cond for deref: " root{arg{1}} "!(__arg1* > 35)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{local{"ptr"}} "3 < __arg1*"
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{local{"ptr"}} "3 < __arg1*"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{local{"p"}} "__arg1* == 8 && !(__arg0** > 43)"
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{local{"p"}} "__arg1* == 8 && !(__arg0** > 43)"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 2
+"CNF Size: " 1
+"CNF Size: " 2
+"DNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{arg{0}} "false"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "!(10 < __arg2*) || __arg1**"
+"Necessary cond for deref: " root{arg{1}} "10 < __arg2*"
+"Sufficient cond for deref: " root{arg{0}} "__arg2* > 10 && __arg1**"
+"Sufficient cond for deref: " root{arg{1}} "10 < __arg2*"
+"DNF Size: " 2
+"CNF Size: " 1
+"CNF Size: " 2
+"DNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "__arg1* || __arg2* || __arg3*"
+"Sufficient cond for deref: " root{arg{0}} "__arg1* || __arg2* || __arg3*"
+"DNF Size: " 2
+"CNF Size: " 2
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " drf{root{arg{0}}} "__arg0**"
+"Necessary cond for deref: " root{arg{0}} "__arg0**"
+"Sufficient cond for deref: " drf{root{arg{0}}} "__arg0**"
+"Sufficient cond for deref: " root{arg{0}} "__arg0**"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "!(__arg0* > 353653535)"
+"Sufficient cond for deref: " root{arg{0}} "!(__arg0* > 353653535)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " drf{root{arg{0}}} "__arg0**"
+"Necessary cond for deref: " root{arg{0}} "__arg0**"
+"Sufficient cond for deref: " drf{root{arg{0}}} "__arg0**"
+"Sufficient cond for deref: " root{arg{0}} "__arg0**"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "__arg0*"
+"Sufficient cond for deref: " root{arg{0}} "__arg0*"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "__arg0*"
+"Sufficient cond for deref: " root{arg{0}} "__arg0*"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "!(__arg0* > 35)"
+"Sufficient cond for deref: " root{arg{0}} "!(__arg0* > 35)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "true"
+"Sufficient cond for deref: " root{arg{0}} "true"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "!(__arg0** > 43)"
+"Sufficient cond for deref: " root{arg{0}} "!(__arg0** > 43)"
+"DNF Size: " 1
+"CNF Size: " 1
+"Necessary cond for deref: " root{arg{0}} "false"
+"Sufficient cond for deref: " root{arg{0}} "false"
+"DNF Size: " 1
+"CNF Size: " 1

@@ -1,0 +1,13 @@
+fedge("forgot",drf{root{arg{0}}},locked,error,false).
+fedge("forgot",drf{root{arg{0}}},locked,error,true).
+fedge("forgot",drf{root{arg{0}}},unlocked,locked,true).
+fedge("forgot",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("forgot",drf{root{arg{0}}},unlocked,unlocked,true).
+fedge("maybe_lock",drf{root{arg{0}}},locked,error,true).
+fedge("maybe_lock",drf{root{arg{0}}},locked,locked,false).
+fedge("maybe_lock",drf{root{arg{0}}},unlocked,locked,true).
+fedge("maybe_lock",drf{root{arg{0}}},unlocked,unlocked,false).
+fedge("trylock_wrap",drf{root{arg{0}}},locked,error,true).
+fedge("trylock_wrap",drf{root{arg{0}}},locked,locked,false).
+fedge("trylock_wrap",drf{root{arg{0}}},unlocked,locked,true).
+fedge("trylock_wrap",drf{root{arg{0}}},unlocked,unlocked,false).

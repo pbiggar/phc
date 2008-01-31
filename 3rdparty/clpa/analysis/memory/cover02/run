@@ -1,0 +1,5 @@
+rm *.dot *.db 2> /dev/null
+cilcc test.c 2> /dev/null
+clpa --quiet --only-analyze funcs.txt run.clp $@
+clpa --quiet --only-analyze funcs.txt runi.clp $@
+clpa --quiet --only-analyze funcs.txt runs.clp $@

@@ -1,0 +1,6 @@
+rm *.dot *.db 2> /dev/null
+cilcc test.c
+clpa --quiet ../../base/sumbody.clp
+clpa --quiet ../../aliasing/aliasing.clp ../../aliasing/aliasinginit.clp ../funptrprint.clp $*
+clpa --quiet ../../base/sumcallers_infer.clp
+clpa --quiet ../../aliasing/indexui_body.clp ../../aliasing/indexui_comp.clp ../../aliasing/indexui_glob.clp

@@ -1,0 +1,3 @@
+exitval("vis",drf{root{arg{0}}},drf{drf{root{arg{0}}}},_).
+exitval("vis",drf{root{arg{0}}},drf{root{arg{1}}},_).
+exitval("vis",root{return},drf{root{arg{0}}},_).

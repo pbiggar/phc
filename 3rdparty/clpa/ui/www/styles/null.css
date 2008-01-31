@@ -1,0 +1,119 @@
+body {
+	font-family: verdana,helvetica;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+
+li {
+	font-size: smaller
+}
+
+.sc {
+	font-variant: small-caps
+}
+
+/* Display tables */
+
+table.display {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	border-collapse: separate;
+	font-family: arial
+}
+
+table.display td {
+	border-width: 1px 1px 1px 1px;
+	padding: 0px 0px 0px 0px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(224, 255, 238);
+        white-space: pre;
+        font-family: monospace;
+}
+
+/* Display table cells */
+
+table.display td.nullevent {
+        color: #00ab40;
+}
+
+table.display td.nullevent_text {
+	background-color: rgb(221, 170, 102);
+}
+
+table.display td.warning_blue {
+        color: #0800ac;
+        font-weight: bold;
+}
+
+table.display td.warning_red {
+        color: #c80000;
+        font-weight: bold;
+}
+
+table.display td.warning_green {
+        color: #00ab40;
+        font-weight: bold;
+}
+
+table.display td.warning_orange {
+        color: #e0a300;
+        font-weight: bold;
+}
+
+table.display td.warning_violet {
+        color: #a400bc;
+        font-weight: bold;
+}
+
+table.display td.warning_text {
+	padding: 0px 0px 0px 20px;
+	background-color: rgb(221, 170, 102);
+}
+
+table.display td.summary_text {
+	padding: 0px 0px 0px 20px;
+	background-color: rgb(100, 220, 220);
+}
+
+table.display td.id_summary_text {
+	padding: 0px 0px 0px 20px;
+	background-color: rgb(100, 220, 220);
+}
+
+/* Table of contents */
+
+table.toc {
+	border-width: 1px 1px 1px 1px;
+	border-spacing: 4px;
+	border-style: solid solid solid solid;
+	border-color: blue blue blue blue;
+	border-collapse: separate;
+	background-color: rgb(255, 250, 250);
+}
+
+table.toc th {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px 1px 1px 1px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(255, 255, 200);
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.toc td {
+	border-width: 1px 1px 1px 1px;
+	padding: 1px 15px 1px 1px;
+	border-style: none none none none;
+	border-color: gray gray gray gray;
+	background-color: rgb(255, 250, 250);
+	-moz-border-radius: 0px 0px 0px 0px;
+}

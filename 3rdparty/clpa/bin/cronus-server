@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+$CLPA_OUT = $ENV{"CLPA_OUT"};
+$CLPA_BIN = $ENV{"CLPA_BIN"};
+$CLPA_WORKERS = $ENV{"CLPA_WORKERS"};
+$CLPA_ARGS = $ENV{"CLPA_ARGS"};
+
+chdir $ENV{"PBS_O_WORKDIR"};
+
+unlink $CLPA_OUT if (-e $CLPA_OUT);
+open(OUT,"> $CLPA_OUT");
+print OUT "cronus-spawn-server $CLPA_OUT $CLPA_BIN $CLPA_WORKERS $CLPA_ARGS\n";
+print OUT "host: $ENV{'PBS_O_HOST'}\n";
+close(OUT);
+
+exec("$CLPA_BIN/clpa --use-workers --spawn-workers $CLPA_WORKERS --spawn-cmd \"$CLPA_BIN/cronus-spawn-worker $CLPA_BIN/cronus-worker $CLPA_BIN/clpa-worker\" $CLPA_ARGS >> $CLPA_OUT");

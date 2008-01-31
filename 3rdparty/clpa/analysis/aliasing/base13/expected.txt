@@ -1,0 +1,5 @@
+str_glob_spoints("pg1","pg1","g1").
+str_glob_spoints("ppg1","ppg1","pg1").
+str_glob_spoints("ppg2","ppg2*","g2").
+str_spoints("local_seta",s_func,fn_exit,"pg3","__arg0*").
+str_spoints("twoargs3",s_func,fn_entry,"__arg0","__arg1*").

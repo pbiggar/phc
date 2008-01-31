@@ -1,0 +1,100 @@
+#!/usr/bin/perl
+
+# use qsub to start the distributed analysis running from a bagels terminal
+# lots of the paths here are hard-wired
+
+use strict;
+
+my $home = "/home/bhackett";
+my $bin = "$home/suhabe/trunk/bin";
+
+my $usage = "Usage: qclpa num-workers worker-name output [clpa-arg]*\n";
+
+my $workers = $ARGV[0] or die $usage;
+my $workername = $ARGV[1] or die $usage;
+my $output = $ARGV[2] or die $usage;
+
+my $size;
+my $rounds;
+if ($workers =~ /^([0-9]*)$/) {
+    $size = $1;
+    $rounds = 1;
+}
+elsif ($workers =~ /^([0-9]*)x([0-9]*)$/) {
+    $size = $1;
+    $rounds = $2;
+}
+else {
+    die "num-workers must be N or NxM\n";
+}
+
+my $clpacmd = "qsub -cwd -b y -o $output -V "
+            . "-N clpa-$workername $bin/clpa --use-workers";
+my $clpafile = "";
+foreach my $argnum (3 .. $#ARGV) {
+    $clpacmd .= " $ARGV[$argnum]";
+    $clpafile = $ARGV[$argnum] if ($ARGV[$argnum] =~ /\.clp$/);
+}
+
+if ($clpafile eq "") {
+    print("Missing .clp analysis file from clpa arguments\n");
+    exit -1;
+}
+
+system("rm $output 2> /dev/null");
+system("$clpacmd > /tmp/clpa.j");
+
+my $serverjob;
+
+open(CJOB,"/tmp/clpa.j");
+my $line = <CJOB> or die "bad clpa.j";
+$line =~ "^Your job ([0-9]*)" or die "bad clpa.j";
+$serverjob = $1;
+print("Server started [$serverjob]\n");
+close(CJOB);
+
+# wait for the server to output its address/port
+my $address;
+my $port;
+my $found = 0;
+foreach $_ (1..600) {
+    open(COUT,$output);
+    while (my $line = <COUT>) {
+	if ($line =~ "^Listening on ([0-9 \.]*):([0-9]*)") {
+	    $address = $1;
+	    $port = $2;
+	    $found = 1;
+	    last;
+	}
+    }
+    last if ($found == 1);
+    close(COUT);
+    open(EOUT,"clpa-$workername.e$serverjob");
+    last if (my $line = <EOUT>);
+    close(EOUT);
+    sleep(1);
+}
+
+if ($found == 0) {
+    print("Server failure:\n");
+    open(CERR,"clpa-$workername.e$serverjob");
+    while (my $line = <CERR>) {
+	print $line;
+    }
+    close(CERR);
+    exit -1;
+}
+
+print("Server listening on $address:$port\n");
+
+my $workcmd = "qsub -b y -t 1-$size -V "
+            . "-N $workername $bin/clpa-worker $address $port";
+
+foreach $_ (1..$rounds) {
+    system("$workcmd > /tmp/work.j");
+    open(WJOB,"/tmp/work.j");
+    my $line = <WJOB> or die "bad work.j";
+    $line =~ "^Your job ([0-9]*)" or die "bad work.j";
+    print("$size workers started [$1]\n");
+    close(WJOB);
+}

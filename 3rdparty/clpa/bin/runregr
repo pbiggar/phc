@@ -1,0 +1,104 @@
+#!/usr/bin/perl
+
+use strict;
+use Cwd;
+
+my $cwd = getcwd();
+my $match = shift or "";
+
+my $max = 0;
+my %regrdirs;
+
+sub addregrs;
+sub addregrs {
+    my $dir = shift;
+    return if (-e "$dir/ignore");
+
+    my $regr = substr($dir,length($cwd)+1,length($dir));
+    if ((-e "$dir/run") && (-e "$dir/expected.txt")) {
+        if ($regr =~ /$match/ || $match eq "") {
+            $regr = "current" if ($regr eq "");
+            $regrdirs{$regr} = $dir;
+            $max = length($regr) if (length($regr) > $max);
+        }
+    }
+
+    opendir(DIR,$dir);
+    my @subdirs = readdir(DIR);
+    closedir(DIR);
+
+    for my $subdir (@subdirs) {
+        if (-d "$dir/$subdir" && not ($subdir =~ /^[.]/)) {
+            addregrs "$dir/$subdir";
+        }
+    }
+}
+addregrs $cwd;
+
+my $start = time();
+
+foreach my $regr (sort keys %regrdirs) {
+    printf("%-*s", $max + 3, "$regr:");
+
+    chdir("$regrdirs{$regr}");
+
+    system("rm *.db *.dot 2> /dev/null");
+    if (system("./run > regr.out.txt") != 0) {
+        print "CRASHED\n";
+        exit 0;
+    }
+    system("cat regr.out.txt | sort | uniq > regr.sort.txt");
+    system("cat expected.txt | sort | uniq > regr.exp.txt");
+    system("diff regr.sort.txt regr.exp.txt > regr.diff.txt");
+
+    my @okdiffs;
+    if (-e "expected.diff.txt") {
+        open(DIFFS,"< expected.diff.txt");
+        my @curdiff;
+        while (my $line = <DIFFS>) {
+            chop $line;
+            if ($line eq "") {
+                push(@okdiffs,[@curdiff]);
+                @curdiff = ();
+            }
+            else {
+                push(@curdiff,$line);
+            }
+        }
+        push(@okdiffs,[@curdiff]);
+        close(DIFFS);
+    }
+
+    open(IN,"< regr.diff.txt");
+    my @diff = <IN>;
+    close(IN);
+
+    my $passed = 0;
+    if (@diff == 0) {
+        $passed = 1;
+    }
+    else {
+        foreach my $rdiff (@okdiffs) {
+            if (@diff == @$rdiff) {
+                my $same = 1;
+                for (my $i = 0; $i < @diff; $i++) {
+                    $same = 0 if $diff[$i] ne "$rdiff->[$i]\n";
+                }
+                $passed = 1 if $same == 1;
+            }
+        }
+    }
+    close(IN);
+    print "OK\n"     if ($passed == 1);
+    print "FAILED\n" if ($passed == 0);
+    if ($passed == 0) {
+        foreach my $line (@diff) {
+            print $line;
+        }
+    }
+
+    system("rm *.db *.dot regr.*.txt 2> /dev/null");
+}
+
+my $total = time() - $start;
+print "Total time: $total seconds\n";

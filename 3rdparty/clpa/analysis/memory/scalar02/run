@@ -1,0 +1,5 @@
+rm *.dot *.db 2> /dev/null
+cilcc test.c
+clpa --quiet ../../base/sumbody.clp
+clpa --quiet ../../aliasing/aliasing.clp
+clpa --quiet -I ../.. run.clp $*

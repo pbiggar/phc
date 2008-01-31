@@ -1,0 +1,138 @@
+#!/usr/bin/perl
+
+# Use qsub to start the distributed analysis running from the biox head node 
+# XXX: Lots of the paths here are hard-wired
+
+use strict;
+use Cwd;
+
+my $home = "/home/hawkinsp";
+my $bin = "$home/bin";
+my $clpatmpdir= "$home/clpa-tmp";
+my $cwd = getcwd;
+
+my $usage = "Usage: qclpa jobtime num-workers worker-name output [clpa-arg]*\n";
+
+my $jobtime = $ARGV[0] or die $usage;
+my $workers = $ARGV[1] or die $usage;
+my $workername = $ARGV[2] or die $usage;
+my $output = $ARGV[3] or die $usage;
+
+my $size;
+my $rounds;
+if ($workers =~ /^([0-9]*)$/) {
+    $size = $1;
+    $rounds = 1;
+}
+elsif ($workers =~ /^([0-9]*)x([0-9]*)$/) {
+    $size = $1;
+    $rounds = $2;
+}
+else {
+    die "num-workers must be N or NxM\n";
+}
+
+
+my $clpaserverscript = $clpatmpdir."/run-clpa-server";
+my $clpacmd = "qsub -V -l nodes=1:ppn=2,walltime=$jobtime "
+            . "-N clpa-$workername $clpaserverscript";
+my $clpaservercmd = "$bin/clpa --use-workers";
+my $clpafile = "";
+foreach my $argnum (4 .. $#ARGV) {
+    $clpaservercmd .= " $ARGV[$argnum]";
+    $clpafile = $ARGV[$argnum] if ($ARGV[$argnum] =~ /\.clp$/);
+}
+if ($clpafile eq "") {
+    print("Missing .clp analysis file from clpa arguments\n");
+    exit -1;
+}
+
+system("rm $clpatmpdir/*");
+
+# Create a script to be invoked on the server node
+print "Server script: $clpaserverscript\n";
+open(SRVSCRIPT, ">$clpaserverscript");
+print SRVSCRIPT <<EOF;
+#!/bin/sh
+cd \$TMPDIR
+mkdir data
+echo -n "Copying trees to server node... @ " ; date
+cp $cwd/*.db data/
+echo -n "Finished copying trees. Running server... @ " ; date
+cd data
+echo -n "Current working directory: " ; pwd
+time $clpaservercmd >& $cwd/$output
+echo -n "Server terminated @ " ; date
+cd ..
+echo -n "Tarring the results... @ " ; date
+tar cvf results.tar data/
+echo -n "Copying results back to head node... @ " ; date
+cp results.tar $cwd/
+echo -n "All done. @ " ; date
+EOF
+
+close(SRVSCRIPT);
+
+print("Starting server job: $clpacmd\n");
+system("chmod a+x $clpaserverscript");
+system("$clpacmd > /tmp/clpa.j");
+
+my $serverjob;
+
+open(CJOB,"/tmp/clpa.j");
+my $line = <CJOB> or die "bad clpa.j";
+$line =~ "^([0-9]*).bioxcluster.stanford.edu" or die "bad clpa.j";
+$serverjob = $1;
+print("Server started [$serverjob]. Waiting for server hostname/port...\n");
+close(CJOB);
+
+# wait for the server to output its address/port
+my $address;
+my $port;
+my $found = 0;
+foreach $_ (1..3600) {
+    open(COUT,"$cwd/$output");
+    while (my $line = <COUT>) {
+	if ($line =~ "^Listening on ([0-9 \.]*):([0-9]*)") {
+	    $address = $1;
+	    $port = $2;
+	    $found = 1;
+	    last;
+	}
+    }
+    last if ($found == 1);
+    close(COUT);
+    open(EOUT,"clpa-$workername.e$serverjob");
+    last if (my $line = <EOUT>);
+    close(EOUT);
+    sleep(1);
+}
+
+if ($found == 0) {
+    print("Server failure:\n");
+    open(CERR,"clpa-$workername.e$serverjob");
+    while (my $line = <CERR>) {
+	print $line;
+    }
+    close(CERR);
+    exit -1;
+}
+
+print("Server listening on $address:$port\n");
+
+my $workcmd = "qsub -V -l nodes=1,walltime=$jobtime "
+            . "-N $workername $clpatmpdir/run-clpa-worker";
+
+my $clpaworkcmd = "$bin/clpa-worker $address $port";
+system("echo $clpaworkcmd > $clpatmpdir/run-clpa-worker");
+
+foreach $_ (1..$rounds) {
+    foreach $_ (1..$size) {
+	    system("$workcmd > /tmp/work.j");
+	    open(WJOB,"/tmp/work.j");
+	    my $line = <WJOB> or die "bad work.j";
+	    $line =~ "^([0-9]*).bioxcluster.stanford.edu" or die "bad work.j";
+    }
+    print("$size workers started [$1]\n");
+    close(WJOB);
+}

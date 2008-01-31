@@ -1,0 +1,3 @@
+str_spoints("foo",s_func,fn_exit,"return","__arg0**").
+str_spoints("other_deeper",s_func,fn_exit,"__arg0**","__arg1*").
+str_spoints("other_foo",s_func,fn_exit,"return","__arg0**").

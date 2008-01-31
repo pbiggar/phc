@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use POSIX qw(setsid);
+
+my $output = $ARGV[0] or die "usage: fork output cmd args ...\n";
+my $cmd = $ARGV[1] or die "usage: fork output cmd args ...\n";
+for ($i = 2; $i <= $#ARGV; $i++) {
+  $cmd .= " \"$ARGV[$i]\"";
+}
+$cmd .= " >& $output";
+
+defined(my $pid = fork) or die "Can't fork";
+if ($pid) {
+    print "Forked, exiting...\n";
+    exit;
+}
+setsid or die "Can't setsid";
+
+system($cmd);
