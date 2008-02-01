@@ -1,0 +1,309 @@
+<?xml version="1.0"?>
+<PHP_script xmlns="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<attrs>
+		<attr key="phc.filename"><string>hello.php</string></attr>
+	</attrs>
+	<Statement_list>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE2</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<STRING>
+					<attrs>
+						<attr key="phc.filename"><string>hello.php</string></attr>
+						<attr key="phc.line_number"><integer>2</integer></attr>
+						<attr key="phc.unparser.source_rep"><string>hello\n</string></attr>
+					</attrs>
+					<value encoding="base64">aGVsbG8K</value>
+				</STRING>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE0</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE2</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE3</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE0</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Variable>
+				<attrs />
+				<Target xsi:nil="true" />
+				<VARIABLE_NAME>
+					<attrs>
+						<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+					</attrs>
+					<value>TLE3</value>
+				</VARIABLE_NAME>
+				<Expr_list>
+				</Expr_list>
+			</Variable>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE4</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<STRING>
+					<attrs />
+					<value>%s</value>
+				</STRING>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE1</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE4</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs />
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE5</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<Variable>
+					<attrs />
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TLE1</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+			</Assignment>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Variable>
+				<attrs />
+				<Target xsi:nil="true" />
+				<VARIABLE_NAME>
+					<attrs>
+						<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+					</attrs>
+					<value>TLE5</value>
+				</VARIABLE_NAME>
+				<Expr_list>
+				</Expr_list>
+			</Variable>
+		</Eval_expr>
+		<Eval_expr>
+			<attrs>
+				<attr key="phc.comments"><string_list>
+				</string_list></attr>
+			</attrs>
+			<Assignment>
+				<attrs>
+					<attr key="phc.shredder.non_nested_assignment"><bool>true</bool></attr>
+				</attrs>
+				<Variable>
+					<attrs>
+						<attr key="phc.codegen.unused"><bool>true</bool></attr>
+						<attr key="phc.shredder.need_addr"><bool>true</bool></attr>
+					</attrs>
+					<Target xsi:nil="true" />
+					<VARIABLE_NAME>
+						<attrs>
+							<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+						</attrs>
+						<value>TSe0</value>
+					</VARIABLE_NAME>
+					<Expr_list>
+					</Expr_list>
+				</Variable>
+				<bool><!-- is_ref -->false</bool>
+				<Method_invocation>
+					<attrs>
+						<attr key="phc.lower_expr.no_temp"><bool>true</bool></attr>
+					</attrs>
+					<Target xsi:nil="true" />
+					<METHOD_NAME>
+						<attrs />
+						<value>printf</value>
+					</METHOD_NAME>
+					<Actual_parameter_list>
+						<Actual_parameter>
+							<attrs />
+							<bool><!-- is_ref -->false</bool>
+							<Variable>
+								<attrs />
+								<Target xsi:nil="true" />
+								<VARIABLE_NAME>
+									<attrs>
+										<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+									</attrs>
+									<value>TLE1</value>
+								</VARIABLE_NAME>
+								<Expr_list>
+								</Expr_list>
+							</Variable>
+						</Actual_parameter>
+						<Actual_parameter>
+							<attrs />
+							<bool><!-- is_ref -->false</bool>
+							<Variable>
+								<attrs>
+									<attr key="phc.shredder.dont_shred"><bool>true</bool></attr>
+								</attrs>
+								<Target xsi:nil="true" />
+								<VARIABLE_NAME>
+									<attrs>
+										<attr key="phc.codegen.st_entry_not_required"><bool>true</bool></attr>
+									</attrs>
+									<value>TLE0</value>
+								</VARIABLE_NAME>
+								<Expr_list>
+								</Expr_list>
+							</Variable>
+						</Actual_parameter>
+					</Actual_parameter_list>
+				</Method_invocation>
+			</Assignment>
+		</Eval_expr>
+	</Statement_list>
+</PHP_script>

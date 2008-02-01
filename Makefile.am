@@ -592,4 +592,4 @@ testclean: all test/framework/lib/autovars.php
 
 
 # Generate tags for the test framework.
-ETAGS_ARGS=--recurse test/framework
+ETAGS_ARGS=--recurse test/framework 3rdparty/clpa

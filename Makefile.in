@@ -869,7 +869,7 @@ DISTCLEANFILES = aclocal.m4
 MAINTAINERCLEANFILES = Makefile.in src/generated/README.TreeTransform
 
 # Generate tags for the test framework.
-ETAGS_ARGS = --recurse test/framework
+ETAGS_ARGS = --recurse test/framework 3rdparty/clpa
 all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

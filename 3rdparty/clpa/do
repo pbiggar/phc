@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Attempts at parsing xml
+
+ocamlc -pp "camlp4o pa_ioXML.cmo" -I +camlp4 -c test.mli
+ocamlc -pp "camlp4o pa_ioXML.cmo" -I +camlp4 -c test.ml
+
+camlp4o pa_ioXML.cmo pr_o.cmo -sep "\n\n" test.mli
+camlp4o pa_ioXML.cmo pr_o.cmo -sep "\n\n" test.ml
+
+ocamlc -I +camlp4 ioXML.cmo

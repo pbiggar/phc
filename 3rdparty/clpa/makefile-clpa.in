@@ -55,6 +55,7 @@ SOURCES += solve/sat_minisat.ml
 SOURCES += solve/solvevector.ml
 
 SOURCES += translate/transcil.ml
+SOURCES += translate/transphc.ml
 
 # zChaff is optional
 ifeq (@USE_ZCHAFF@, yes)
@@ -94,6 +95,10 @@ endif
 
 ifeq ($(OBJ_NAME), cilcc)
 SOURCES += translate/cilmain.ml
+endif
+
+ifeq ($(OBJ_NAME), phccc)
+SOURCES += translate/phcmain.ml
 endif
 
 ifeq ($(OBJ_NAME), dbfind)
