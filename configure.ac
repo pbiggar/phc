@@ -63,10 +63,10 @@ AC_ARG_WITH([php],
 	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
 	[
 		AS_IF([test "x$with_php" != xno], 
-			[AC_CHECK_PHP(["$withval"])])
+			[AC_CHECK_PHP([$withval])], [AS_VAR_SET([found_embed_sapi], [no])])
 	], 
 	[
-		AC_CHECK_PHP(["/usr/local"])
+		AC_CHECK_PHP([/usr/local])
 	])
 
 

@@ -19936,7 +19936,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in ""$withval"/bin"
+for as_dir in "$withval/bin"
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -19965,16 +19965,16 @@ fi
 
 	# For config.h:
 	cat >>confdefs.h <<_ACEOF
-#define PHP_INSTALL_PATH ""$withval""
+#define PHP_INSTALL_PATH "$withval"
 _ACEOF
 
 	# For autovars.php.in:
-	php_install_path=""$withval""
+	php_install_path="$withval"
 
 	# For use below:
-	PHP_INSTALL_PATH="$withval"
+	PHP_INSTALL_PATH=$withval
 
-				found_embed_sapi=no
+				found_embed_sapi=yes
 	OLD_LDFLAGS=$LDFLAGS
 	OLD_CFLAGS=$CFLAGS
 	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
@@ -20113,6 +20113,8 @@ fi
 	CFLAGS=$OLD_CFLAGS
 	LDFLAGS=$OLD_LDFLAGS
 
+else
+  found_embed_sapi=no
 fi
 
 
@@ -20132,7 +20134,7 @@ else
   ;;
   *)
   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in ""/usr/local"/bin"
+for as_dir in "/usr/local/bin"
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
@@ -20161,16 +20163,16 @@ fi
 
 	# For config.h:
 	cat >>confdefs.h <<_ACEOF
-#define PHP_INSTALL_PATH ""/usr/local""
+#define PHP_INSTALL_PATH "/usr/local"
 _ACEOF
 
 	# For autovars.php.in:
-	php_install_path=""/usr/local""
+	php_install_path="/usr/local"
 
 	# For use below:
-	PHP_INSTALL_PATH="/usr/local"
+	PHP_INSTALL_PATH=/usr/local
 
-				found_embed_sapi=no
+				found_embed_sapi=yes
 	OLD_LDFLAGS=$LDFLAGS
 	OLD_CFLAGS=$CFLAGS
 	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
