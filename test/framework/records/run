@@ -20,13 +20,13 @@
 
 	// Prepare the test
 	$START_TIME = time ();
-	list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
-	$PREV_REV = $REV - 1;
-	initialize_revision_test ();
-
 	// Do SVN work - fails mean test wasnt affected
 	try
 	{
+		list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
+		$PREV_REV = $REV - 1;
+		initialize_revision_test ();
+
 		$log = c ("svn log -r $REV $REPO");
 		$diff = c ("svn diff -r $PREV_REV:$REV");
 
@@ -206,11 +206,14 @@
 	{
 		print "Running command '$command'\n";
 		exec ("$command 2>&1", $result, $ret_val);
+
+		// print before the program ends 
+		$result = join ("\n", $result);
+		print "Returning result '$result'\n";
+
 		if ($ret_val !== 0)
 			throw new Exception ();
 
-		$result = join ("\n", $result);
-		print "Returning result '$result'\n";
 		return $result;
 	}
 
