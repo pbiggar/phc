@@ -31,7 +31,7 @@ class AsyncBundle
 
 	function start ()
 	{
-		$this->object->start_program ($this);
+		$this->object->start_new_program ($this);
 	}
 
 	function get_command ()
@@ -104,10 +104,12 @@ class AsyncBundle
 
 		if (isset ($this->commands[$state]))
 		{
+			inst ("Start next program: {$this->commands[$state]}");
 			$object->start_program ($this);
 		}
 		elseif (isset ($this->final))
 		{
+			inst ("Finalize");
 			$object->{$this->final} ($this);
 		}
 		else
@@ -130,6 +132,13 @@ class AsyncBundle
  */
 abstract class AsyncTest extends Test
 {
+	function __construct ()
+	{
+		$this->waiting_procs = array ();
+		$this->running_procs = array ();
+		parent::__construct ();
+	}
+
 	function mark_failure ($reason, $bundle)
 	{
 		parent::mark_failure (
@@ -161,41 +170,62 @@ abstract class AsyncTest extends Test
 		return $stream;
 	}
 
-	# Add this program to the list of programs waiting to be
-	# run. Start programs waiting to be run
+	# Put this program to the front of the queue, and start waiting progs
 	function start_program ($bundle)
 	{
-		global $waiting_procs;
-	
-		# create a bundle
-		$waiting_procs[] = $bundle;
-		$this->check_running_programs ();
+		array_unshift ($this->waiting_procs, $bundle);
 
+		$this->check_capacity ();
 	}
+
+	# Put this program to the back of the queue, and start waiting progs
+	function start_new_program ($bundle)
+	{
+		$this->waiting_procs[] = $bundle;
+
+		$this->check_capacity ();
+	}
+
+
 
 
 	function finish_test ()
 	{
-		global $running_procs;
-
-		while (count ($running_procs))
+		while (count ($this->running_procs) or count ($this->waiting_procs))
 		{
-			$this->check_running_programs ();
+			usleep (30000);
+			$this->run_waiting_procs ();
+			$this->check_running_procs ();
 		}
 		parent::finish_test ();
 	}
 
-
-	function check_running_programs ()
+	function check_capacity ()
 	{
-		global $running_procs;
-
-		// go through every runnig process and process it a bit more
-		while (count ($running_procs))
+		if (count ($this->running_procs) >= PHC_NUM_PROCS)
 		{
-			inst ("Poll running");
-			$bundle = array_shift ($running_procs);
+			// check each and see if we can remove some
+			$this->check_running_procs ();
+		}
 
+		if (count ($this->waiting_procs) > 1)
+		{
+			// start some programs
+			$this->run_waiting_procs ();
+		}
+		else
+			; // return and carry no adding programs to the queue
+
+	}
+
+	function check_running_procs ()
+	{
+		// try to keep this really lightweight
+		inst ("Check running");
+
+		foreach ($this->running_procs as $index => $bundle)
+		{
+			// process a little bit
 			$handle	=& $bundle->handle;
 			$out		=& $bundle->out;
 			$err		=& $bundle->err;
@@ -204,52 +234,48 @@ abstract class AsyncTest extends Test
 			$out .= stream_get_contents ($pipes[1]);
 			$err .= stream_get_contents ($pipes[2]);
 
+			// is it done?
 			$status = proc_get_status ($handle);
 
 			if ($status["running"] !== true)
 			{
 				$bundle->exit = $status["exitcode"];
-				$bundle->continuation ();
+				unset ($this->running_procs [$index]); // remove from the running list
+				$bundle->continuation (); // start the next bit straight away
+			}
+			else if (time () - $bundle->start_time > 20)
+			{
+				echo "Trying to kill {$status["command"]}\n";
+
+				// if we dont close pipes, we can create deadlock, leaving zombie processes
+				foreach ($pipes as &$pipe) fclose ($pipe);
+				proc_terminate ($handle);
+				proc_close ($handle);
+
+				$bundle->exits[] = "Timeout";
+				$bundle->outs[] = "$out\n--- TIMEOUT ---";
+				$bundle->errs[] = $err;
+				$this->mark_timeout ("Timeout", $bundle);
+
+				unset ($this->running_procs [$index]); // remove from the running list
 			}
 			else
-			{
-				if (time () - $bundle->start_time > 20)
-				{
-					// if we dont close pipes, we can create deadlock, leaving zombie processes
-					foreach ($pipes as &$pipe) fclose ($pipe);
-					proc_terminate ($handle);
-					proc_close ($handle);
-
-					$bundle->exits[] = "Timeout";
-					$bundle->outs[] = "$out\n--- TIMEOUT ---";
-					$bundle->errs[] = $err;
-					$this->mark_timeout ("Timeout", $bundle);
-				}
-				else
-				{
-					usleep (100000); // sleep for 1/10 of a second
-					$running_procs[] = $bundle;
-				}
-			}
+				; // let it keep running
 		}
-		$this->check_waiting_procs ();
 	}
 
-
-	function check_waiting_procs ()
+	function run_waiting_procs ()
 	{
-		global $running_procs, $waiting_procs;
-
-		while (count ($running_procs) < PHC_NUM_PROCS)
+		while (count ($this->running_procs) < PHC_NUM_PROCS)
 		{
 			inst ("Poll waiting");
-			if (count ($waiting_procs) == 0)
+			if (count ($this->waiting_procs) == 0)
 			{
 				inst ("No procs waiting");
 				break;
 			}
 
-			$bundle = array_shift ($waiting_procs);
+			$bundle = array_shift ($this->waiting_procs);
 			$this->run_program ($bundle);
 		}
 	}
@@ -287,8 +313,7 @@ abstract class AsyncTest extends Test
 		$bundle->out = "";
 		$bundle->err = "";
 
-		global $running_procs;
-		$running_procs[] = $bundle;
+		$this->running_procs[] = $bundle;
 	}
 }
 
