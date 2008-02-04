@@ -564,14 +564,14 @@ function homogenize_xml ($string)
 function homogenize_filenames_and_line_numbers ($string)
 {
 	// specific errors and warnings
-	$string = preg_replace( "/(Warning: ).*(\(\) expects the argument \(.*\) to be a valid callback in ).*( on line )\d+/" , "$1$2$3", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
-//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
+	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/" , "$1$2$3", $string);
+	$string = preg_replace( "/(Fatal error: Cannot redeclare \S+\(\) \(previously declared in )\S+:\d+\)/" , "$1:)", $string);
+//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
 	// general line number and filename removal
-	$string = preg_replace(     "/(Warning: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
-	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
-	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Warning: )(\S*: )?(\S* in )\S* on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Fatal error: )(\S*: )?(\S* in )\S* on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Catchable fatal error: \S* in )\S* on line \d+/", "$1", $string);
 
 	return $string;
 }
@@ -613,7 +613,5 @@ function copy_to_working_dir ($file)
 	chmod ($new_file, fileperms ($file));
 	return $new_file;
 }
-
-
 
 ?>
