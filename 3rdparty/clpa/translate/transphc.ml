@@ -85,16 +85,16 @@ let add_pred_to_sessions sesslist name = List.iter (fun s ->
   ) sesslist
 
 let new_sess name =
-  let name = "cil_" ^ name in
+  let name = "phc_" ^ name in
     H.add sessions name [];
     (name, fun a -> rep2pred (name,[|str2val a|]))
 
-let new_p1 sessions name os a0 = let name = "cil_" ^ name in
+let new_p1 sessions name os a0 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0|]),os);
   add_pred_to_sessions sessions name;
   fun a0 -> add_top_logic name [|a0|]
 
-let new_p2 sessions name os a0 a1 = let name = "cil_" ^ name in
+let new_p2 sessions name os a0 a1 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0;a1|]),os);
   add_pred_to_sessions sessions name;
   fun a0 a1 -> add_top_logic  name [|a0;a1|]
@@ -576,6 +576,7 @@ let rec get_cil_macro id =
            par::_ when par <> -1 -> mk_macro_x_parent idv (get_cil_macro par)
          | _ -> ())
   end; idv
+
 
 let rec do_cil_global = function
     GType(ti,l) -> if ti.tname <> "" then ignore (get_cil_typeinfo ti l)
@@ -1109,22 +1110,181 @@ let _ = register_package { empty_package with
   p_abstypes = !abstypes;
 }
 
-(*
+(* PHC work starts here *)
+
 (* Simplified IR for helloworld *)
-PHP_script ::= Statement* ;
-Statement ::= Eval_expr ;
-Eval_expr ::= Expr ;
-Expr ::= Assignment | Variable | Method_invocation | Literal ;
-Assignment ::= Variable is_ref:"&"? Expr ;
-Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ;
-Literal ::= STRING<String*> ;
-Method_invocation ::= Target? Method_name Actual_parameter* ;
-Actual_parameter ::= Variable_name array_indices:VARIABLE_NAME?* ;
-Method_name ::= METHOD_NAME ;
-Variable_name ::= VARIABLE_NAME ;
-Target ::= CLASS_NAME ;
+
+(* PHP_script ::= Statement* ; *)
+type php_script = {statements : statement list}
+
+(* Statement ::= Eval_expr ; *)
+and statement = 
+	| Eval_expr of eval_expr
+
+(* Eval_expr ::= Expr ; *)
+and eval_expr =
+	| Expr of expr
+
+(* Expr ::= Assignment | Variable | Method_invocation | Literal ; *)
+and expr =
+	| Assignment of assignment
+	| Variable of variable
+	| Method_invocation of method_invocation
+	| Literal of literal
+
+(* Assignment ::= Variable is_ref:"&"? Expr ; *)
+and assignment = {
+	variable : variable;
+	is_ref : bool;
+	expr : expr
+}
+
+(* Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ; *)
+and variable = {
+	target : target option;
+	variable_name : variable_name;
+	array_indices: token_variable_name option list
+}
+
+(* Target ::= Expr | CLASS_NAME ; *)
+and target =
+	| Expr of expr
+	| Token_class_name of string
+
+(* Literal ::= STRING<String*> ; *)
+and literal =
+	| String of string
+
+(* Method_invocation ::= Target? Method_name Actual_parameter* ; *)
+and method_invocation = {
+	mi_target : target option;
+	method_name : method_name;
+	actual_parameters : actual_parameter list
+}
+
+(* Actual_parameter ::= Variable_name array_indices:VARIABLE_NAME?* ; *)
+and actual_parameter = {
+	ap_variable_name : variable_name;
+	ap_array_indices : token_variable_name list
+}
+
+(* Method_name ::= METHOD_NAME ; *)
+and method_name =
+	| Token_method_name of string
+(*	| Reflection of reflection *)
 
 
+(* Variable_name ::= VARIABLE_NAME ; *)
+and variable_name =
+	| Token_variable_name of string
+(*	| Reflection of reflection *)
+
+and token_method_name = { value : string } 
+
+(* Variable_name ::= VARIABLE_NAME ; *)
+and token_variable_name = { value : string };;
+
+(* $TLE0 = "hello world"; *)
+(* $TLE1 = "%s"; *)
+(*	$TSe0 = printf ($TLE1, $TLE0); *)
+
+let ass1 = Eval_expr (Expr (Assignment
+({
+	variable = 
+	{
+		target = None;
+		variable_name = Token_variable_name ("TLE0");
+		array_indices = []
+	};
+	is_ref = false;
+	expr = Literal (String ("helloworld"))
+})));;
+
+let ass2 = Eval_expr (Expr (Assignment
+({
+	variable = 
+	{
+		target = None;
+		variable_name = Token_variable_name ("TLE1");
+		array_indices = []
+	};
+	is_ref = false;
+	expr = Literal (String ("%s"))
+})));;
+
+let param1 : actual_parameter = {
+	ap_variable_name = Token_variable_name ("TLE1");
+	ap_array_indices = []
+};;
+
+let param2 : actual_parameter = {
+	ap_variable_name = Token_variable_name ("TLE0");
+	ap_array_indices = []
+};;
+
+
+let call1 = Eval_expr (Expr (Assignment
+({
+	variable = 
+	{
+		target = None;
+		variable_name = Token_variable_name ("TSe0");
+		array_indices = []
+	};
+	is_ref = false;
+	expr = Method_invocation
+	({
+		mi_target = None;
+		method_name = Token_method_name ("printf");
+		actual_parameters =
+		[
+			param1;
+			param2;
+		]
+	})
+})));;
+
+
+
+let helloworld : php_script = 
+{
+	statements = 
+	[
+		ass1;
+		ass2;
+		call1
+	]
+};;
+
+
+	
+(*
+let add_main_function =
+	let (idv,idr) = root_id "" in
+		pushs (mk_s_body "main")
+		mk_curfn (str2val "main")
+		get_phc_block idr "main"  BLOCK;
+
+(* init the .db files *)
+IO.bdb_init !logic_dir;
+
+add_main_function;
+*)
+
+(* This is how cillcc does it, but we have an XML stream, not access to the compiler structures *)
+(*
+let gref = ref [] in
+  List.iter do_cil_global !gref;
+  bdb_add_process_edges f.fileName !process_edges;
+  Hashtbl.iter (fun n s ->
+		bdb_dump_session (full_string_of_pred n) (dump_session_str s))
+	 all_sessions;
+  process_preprocessed_lines f.fileName;
+  IO.bdb_finish();
+*)
+
+
+(*
 let input = ref ""
 
 let read_phc_xml_stdin =
