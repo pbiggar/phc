@@ -564,14 +564,14 @@ function homogenize_xml ($string)
 function homogenize_filenames_and_line_numbers ($string)
 {
 	// specific errors and warnings
-	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/" , "$1$2$3", $string);
+	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/", "$1$2$3", $string);
 	$string = preg_replace( "/(Fatal error: Cannot redeclare \S+\(\) \(previously declared in )\S+:\d+\)/" , "$1:)", $string);
 //	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
 	// general line number and filename removal
-	$string = preg_replace( "/(Warning: )(\S*: )?(\S* in )\S* on line \d+/", "$1$3", $string);
-	$string = preg_replace( "/(Fatal error: )(\S*: )?(\S* in )\S* on line \d+/", "$1$3", $string);
-	$string = preg_replace( "/(Catchable fatal error: \S* in )\S* on line \d+/", "$1", $string);
+	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
 
 	return $string;
 }
@@ -583,16 +583,25 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
-// This strips off the & from a var_dump. Changing whether smoething is a reference or not isnt correct, but changing the refcount is ok. If a var only has a reference count of 1, then is_ref wont be set, so the & wont be present.
+// This strips off the & from a var_dump. Changing whether smoething
+// is a reference or not isnt correct, but changing the refcount is
+// ok. If a var only has a reference count of 1, then is_ref wont be
+// set, so the & wont be present.
 function homogenize_reference_count ($string)
 {
-# this only actually finds differences in arrays
+	// A var dump for an array looks like this:
+	//		array(2) {
+	//			["a"]=>
+	//			&string(1) "a"
+	//			["b"]=>
+	//			string(1) "b"
+	//		}
 	$string = preg_replace(
 		"/
 					(\s+\[.*?\]=>\s+)		# key and newline
 					&							# we want to delete this
 					(.*?\s+)					# dont go too far
-		/smx", "$1$2", $string);
+		/Ssmx", "$1$2", $string); // s=DOTALL,m=MULTILINE,x=EXTENDED,S=STUDY(?)
 	return $string;
 }
 
