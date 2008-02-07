@@ -15,10 +15,10 @@ if (isset($_ENV["PHC_NUM_PROCS"]))
 else
 	define ("PHC_NUM_PROCS", 1);
 
-function inst ($string)
-{
+#function inst ($string)
+#{
 #	print "\n" . microtime () . " $string\n";
-}
+#}
 
 class AsyncBundle
 {
@@ -49,7 +49,7 @@ class AsyncBundle
 
 	function continuation ()
 	{
-		inst ("continuing from state {$this->state} of {$this->subject}\n");
+#		inst ("continuing from state {$this->state} of {$this->subject}\n");
 		// copy first
 		$state = $this->state;
 		$out = $this->out;
@@ -104,12 +104,12 @@ class AsyncBundle
 
 		if (isset ($this->commands[$state]))
 		{
-			inst ("Start next program: {$this->commands[$state]}");
+#			inst ("Start next program: {$this->commands[$state]}");
 			$object->start_program ($this);
 		}
 		elseif (isset ($this->final))
 		{
-			inst ("Finalize");
+#			inst ("Finalize");
 			$object->{$this->final} ($this);
 		}
 		else
@@ -221,7 +221,7 @@ abstract class AsyncTest extends Test
 	function check_running_procs ()
 	{
 		// try to keep this really lightweight
-		inst ("Check running");
+#		inst ("Check running");
 
 		foreach ($this->running_procs as $index => $bundle)
 		{
@@ -266,10 +266,10 @@ abstract class AsyncTest extends Test
 	{
 		while (count ($this->running_procs) < PHC_NUM_PROCS)
 		{
-			inst ("Poll waiting");
+#			inst ("Poll waiting");
 			if (count ($this->waiting_procs) == 0)
 			{
-				inst ("No procs waiting");
+#				inst ("No procs waiting");
 				break;
 			}
 
@@ -285,7 +285,7 @@ abstract class AsyncTest extends Test
 		if ($opt_verbose)
 			print "Running command: $command\n";
 
-		inst ("Running prog: $command");
+#		inst ("Running prog: $command");
 
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),
