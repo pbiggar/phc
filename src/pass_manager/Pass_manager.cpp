@@ -397,13 +397,18 @@ void Pass_manager::post_process ()
 
 bool Pass_manager::has_pass_named (String* name)
 {
+	return (get_pass_named (name) != NULL);
+}
+
+Pass* Pass_manager::get_pass_named (String* name)
+{
 	for_lci (queues, List<Pass*>, q)
 		for_lci (*q, Pass, p)
 		{
 			if (*name == *(*p)->name)
-				return true;
+				return *p;
 		}
-	return false;
+	return NULL;
 }
 
 bool is_queue_pass (String* name, List<Pass*>* queue)

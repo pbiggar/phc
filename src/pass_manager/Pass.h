@@ -32,7 +32,7 @@ public:
 	bool is_enabled (Pass_manager* pm) { return enabled && pass_is_enabled (pm); }
 	void set_enabled (bool e) { enabled = e; }
 
-	// Plugin writers should use this
+	// Used for passes should use this
 	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
 
 	void run_pass (IR* in, Pass_manager* pm)

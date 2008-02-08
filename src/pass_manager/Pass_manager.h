@@ -60,7 +60,9 @@ public:
 	void add_after_named_pass (Pass* pass, const char* name);
 	void add_before_named_pass (Pass* pass, const char* name);
 	void add_after_each_pass (Pass* pass, List<Pass*>*);
+
 	bool has_pass_named (String *);
+	Pass* get_pass_named (String* name);
 
 	// Run (returns passed IR, or new IR if lowered
 	IR* run_from (String* from, IR* in, bool dump = false);
