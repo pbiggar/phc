@@ -50,16 +50,11 @@ class AsyncBundle
 	function continuation ()
 	{
 #		inst ("continuing from state {$this->state} of {$this->subject}\n");
-		// copy first
-		$state = $this->state;
-		$out = $this->out;
-		$err = $this->err;
-		$exit = $this->exit;
-		// state is just an int
-		$this->outs[$state] =& $out;
-		$this->errs[$state] =& $err;
-		$this->exits[$state] =& $exit;
 
+		$state = $this->state; // state is just an int
+		$this->outs[$state] = $this->out; // copy
+		$this->errs[$state] = $this->err; // copy
+		$this->exits[$state] = $this->exit; // copy
 		$object = $this->object;
 
 		// Handlers let you modify the stdout, stderr or the exit
@@ -67,25 +62,25 @@ class AsyncBundle
 		if (isset ($this->out_handlers[$state]))
 		{
 			$handler = $this->out_handlers[$state];
-			$out = $object->$handler ($out, $this);
+			$this->outs[$state] = $object->$handler ($this->out, $this);
 		}
 
 		if (isset ($this->err_handlers[$state]))
 		{
 			$handler = $this->err_handlers[$state];
-			$result = $object->$handler ($err, $this);
+			$result = $object->$handler ($this->err, $this);
 			if ($result === false)
 				return;
-			$err = $result;
+			$this->errs[$state] = $result;
 		}
 
 		if (isset ($this->exit_handlers[$state]))
 		{
 			$handler = $this->exit_handlers[$state];
-			$result = $object->$handler ($exit, $this);
+			$result = $object->$handler ($this->exit, $this);
 			if ($result === false)
 				return;
-			$exit = $result;
+			$this->exits[$state] = $result;
 		}
 
 		// The callback doesnt modify, just calls a function given
@@ -93,7 +88,7 @@ class AsyncBundle
 		if (isset ($this->callbacks [$state]))
 		{
 			$callback = $this->callbacks [$state];
-			$result = $object->$callback ($out, $err, $exit, $this);
+			$result = $object->$callback ($this->outs[$state], $this->errs[$state], $this->exits[$state], $this);
 			if ($result === false)
 				return;
 		}
@@ -117,6 +112,13 @@ class AsyncBundle
 			die ("uhoh\n");
 		}
 	}
+
+	function read_streams ()
+	{
+		$this->out = stream_get_contents ($this->pipes[1]);
+		$this->err = stream_get_contents ($this->pipes[2]);
+	}
+
 }
 
 /* In order to take advantage of multiple cores, and to avoid
@@ -225,34 +227,29 @@ abstract class AsyncTest extends Test
 
 		foreach ($this->running_procs as $index => $bundle)
 		{
-			// process a little bit
-			$handle	=& $bundle->handle;
-			$out		=& $bundle->out;
-			$err		=& $bundle->err;
-			$pipes	=& $bundle->pipes;
-
-			$out .= stream_get_contents ($pipes[1]);
-			$err .= stream_get_contents ($pipes[2]);
 
 			// is it done?
-			$status = proc_get_status ($handle);
+			$status = proc_get_status ($bundle->handle);
 
 			if ($status["running"] !== true)
 			{
+				$bundle->read_streams ();
 				$bundle->exit = $status["exitcode"];
 				unset ($this->running_procs [$index]); // remove from the running list
 				$bundle->continuation (); // start the next bit straight away
 			}
 			else if (time () - $bundle->start_time > 20)
 			{
+				$bundle->read_streams ();
+
 				// if we dont close pipes, we can create deadlock, leaving zombie processes
-				foreach ($pipes as &$pipe) fclose ($pipe);
-				proc_terminate ($handle);
-				proc_close ($handle);
+				foreach ($bundle->pipes as &$pipe) fclose ($pipe);
+				proc_terminate ($bundle->handle);
+				proc_close ($bundle->handle);
 
 				$bundle->exits[] = "Timeout";
-				$bundle->outs[] = "$out\n--- TIMEOUT ---";
-				$bundle->errs[] = $err;
+				$bundle->outs[] = "$bundle->out\n--- TIMEOUT ---";
+				$bundle->errs[] = $bundle->err;
 				$this->mark_timeout ("Timeout", $bundle);
 
 				unset ($this->running_procs [$index]); // remove from the running list
@@ -310,6 +307,7 @@ abstract class AsyncTest extends Test
 		$bundle->start_time = time ();
 		$bundle->out = "";
 		$bundle->err = "";
+		unset ($bundle->exit);
 
 		$this->running_procs[] = $bundle;
 	}
