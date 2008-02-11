@@ -300,6 +300,10 @@ void Pass_manager::run (IR* in, bool dump)
 void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 {
 	assert (pass->name);
+
+	if (args_info->verbose_flag)
+		cout << "Running pass: " << *pass->name << endl;
+
 	pass->run_pass (in, this);
 	if (dump)
 		this->dump (in, pass);
