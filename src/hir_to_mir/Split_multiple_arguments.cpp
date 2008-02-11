@@ -8,13 +8,13 @@
  */
 
 #include "Split_multiple_arguments.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
 void Split_multiple_arguments::pre_global(Global* in, List<Statement*>* out)
 {
-	List<Variable_name*>::const_iterator i;
-	for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
+	for_lci (in->variable_names, Variable_name, i)
 	{
 		Global* global = new Global(new List<Variable_name*>(*i));
 		global->attrs = in->attrs->clone();
@@ -24,8 +24,7 @@ void Split_multiple_arguments::pre_global(Global* in, List<Statement*>* out)
 	
 void Split_multiple_arguments::pre_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
-	List<Name_with_default*>::const_iterator i;
-	for(i = in->vars->begin(); i != in->vars->end(); i++)
+	for_lci (in->vars, Name_with_default, i)
 	{
 		Static_declaration* stat = new Static_declaration(new List<Name_with_default*>(*i));
 		stat->attrs = in->attrs->clone();
@@ -35,10 +34,9 @@ void Split_multiple_arguments::pre_static_declaration(Static_declaration* in, Li
 	
 void Split_multiple_arguments::pre_attribute(Attribute* in, List<Member*>* out)
 {
-	List<Name_with_default*>::const_iterator i;
-	for(i = in->vars->begin(); i != in->vars->end(); i++)
+	for_lci (in->vars, Name_with_default, i)
 	{
-		Attribute* attr = new Attribute(in->attr_mod, new List<Name_with_default*>(*i));
+		Attribute* attr = new Attribute(in->attr_mod->clone (), new List<Name_with_default*>(*i));
 		attr->attrs = in->attrs->clone();
 		out->push_back(attr);
 	}
