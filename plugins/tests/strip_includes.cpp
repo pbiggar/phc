@@ -46,7 +46,8 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "incl2");
+	// TODO after incl2 goes back in, put this back to incl2.
+	pm->add_after_named_pass (pass, "incl1");
 }
 
 extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
