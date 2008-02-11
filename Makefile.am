@@ -265,13 +265,31 @@ strangeparsing_HEADERS =					\
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/AST_unparser.h			\
-	src/process_ast/DOT_unparser.h			\
+	src/process_ast/DOT_unparser.h
+
+strangeprocesshirdir = $(pkgincludedir)/process_hir
+strangeprocesshir_HEADERS =					\
+	src/process_hir/HIR_unparser.h
+
+strangeprocessmirdir = $(pkgincludedir)/process_mir
+strangeprocessmir_HEADERS =					\
+	src/process_mir/MIR_unparser.h
+
+strangeprocessirdir = $(pkgincludedir)/process_ir
+strangeprocessir_HEADERS =						\
+	src/process_ir/debug.h						\
+	src/process_ir/Foreach.h					\
+	src/process_ir/fresh.h						\
+	src/process_ir/General.h					\
+	src/process_ir/IR.h							\
 	src/process_ir/PHP_unparser.h				\
 	src/process_ir/XML_unparser.h
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS =					\
-	src/pass_manager/Pass_manager.h
+	src/pass_manager/Pass.h						\
+	src/pass_manager/Pass_manager.h			\
+	src/pass_manager/Plugin_pass.h
 
 
 

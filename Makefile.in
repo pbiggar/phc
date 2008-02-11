@@ -49,9 +49,11 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS) $(top_srcdir)/configure ChangeLog \
-	config/config.guess config/config.sub config/depcomp \
-	config/install-sh config/ltmain.sh config/missing
+	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS) \
+	$(top_srcdir)/configure ChangeLog config/config.guess \
+	config/config.sub config/depcomp config/install-sh \
+	config/ltmain.sh config/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -73,7 +75,10 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" \
 	"$(DESTDIR)$(strangepassmanagerdir)" \
 	"$(DESTDIR)$(strangephcdir)" \
-	"$(DESTDIR)$(strangeprocessastdir)"
+	"$(DESTDIR)$(strangeprocessastdir)" \
+	"$(DESTDIR)$(strangeprocesshirdir)" \
+	"$(DESTDIR)$(strangeprocessirdir)" \
+	"$(DESTDIR)$(strangeprocessmirdir)"
 nobase_pkglibLTLIBRARIES_INSTALL = $(install_sh) -c
 LTLIBRARIES = $(nobase_pkglib_LTLIBRARIES)
 plugins_tests_canonical_unparser_la_LIBADD =
@@ -375,9 +380,13 @@ strangeparsingHEADERS_INSTALL = $(INSTALL_HEADER)
 strangepassmanagerHEADERS_INSTALL = $(INSTALL_HEADER)
 strangephcHEADERS_INSTALL = $(INSTALL_HEADER)
 strangeprocessastHEADERS_INSTALL = $(INSTALL_HEADER)
+strangeprocesshirHEADERS_INSTALL = $(INSTALL_HEADER)
+strangeprocessirHEADERS_INSTALL = $(INSTALL_HEADER)
+strangeprocessmirHEADERS_INSTALL = $(INSTALL_HEADER)
 HEADERS = $(strangelib_HEADERS) $(strangeparsing_HEADERS) \
 	$(strangepassmanager_HEADERS) $(strangephc_HEADERS) \
-	$(strangeprocessast_HEADERS)
+	$(strangeprocessast_HEADERS) $(strangeprocesshir_HEADERS) \
+	$(strangeprocessir_HEADERS) $(strangeprocessmir_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -770,13 +779,31 @@ strangeparsing_HEADERS = \
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS = \
 	src/process_ast/AST_unparser.h			\
-	src/process_ast/DOT_unparser.h			\
+	src/process_ast/DOT_unparser.h
+
+strangeprocesshirdir = $(pkgincludedir)/process_hir
+strangeprocesshir_HEADERS = \
+	src/process_hir/HIR_unparser.h
+
+strangeprocessmirdir = $(pkgincludedir)/process_mir
+strangeprocessmir_HEADERS = \
+	src/process_mir/MIR_unparser.h
+
+strangeprocessirdir = $(pkgincludedir)/process_ir
+strangeprocessir_HEADERS = \
+	src/process_ir/debug.h						\
+	src/process_ir/Foreach.h					\
+	src/process_ir/fresh.h						\
+	src/process_ir/General.h					\
+	src/process_ir/IR.h							\
 	src/process_ir/PHP_unparser.h				\
 	src/process_ir/XML_unparser.h
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS = \
-	src/pass_manager/Pass_manager.h
+	src/pass_manager/Pass.h						\
+	src/pass_manager/Pass_manager.h			\
+	src/pass_manager/Plugin_pass.h
 
 strangelibdir = $(pkgincludedir)/lib
 strangelib_HEADERS = \
@@ -2489,6 +2516,57 @@ uninstall-strangeprocessastHEADERS:
 	  echo " rm -f '$(DESTDIR)$(strangeprocessastdir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(strangeprocessastdir)/$$f"; \
 	done
+install-strangeprocesshirHEADERS: $(strangeprocesshir_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeprocesshirdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeprocesshirdir)"
+	@list='$(strangeprocesshir_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(strangeprocesshirHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeprocesshirdir)/$$f'"; \
+	  $(strangeprocesshirHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeprocesshirdir)/$$f"; \
+	done
+
+uninstall-strangeprocesshirHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeprocesshir_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(strangeprocesshirdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(strangeprocesshirdir)/$$f"; \
+	done
+install-strangeprocessirHEADERS: $(strangeprocessir_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeprocessirdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeprocessirdir)"
+	@list='$(strangeprocessir_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(strangeprocessirHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeprocessirdir)/$$f'"; \
+	  $(strangeprocessirHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeprocessirdir)/$$f"; \
+	done
+
+uninstall-strangeprocessirHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeprocessir_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(strangeprocessirdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(strangeprocessirdir)/$$f"; \
+	done
+install-strangeprocessmirHEADERS: $(strangeprocessmir_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(strangeprocessmirdir)" || $(MKDIR_P) "$(DESTDIR)$(strangeprocessmirdir)"
+	@list='$(strangeprocessmir_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(strangeprocessmirHEADERS_INSTALL) '$$d$$p' '$(DESTDIR)$(strangeprocessmirdir)/$$f'"; \
+	  $(strangeprocessmirHEADERS_INSTALL) "$$d$$p" "$(DESTDIR)$(strangeprocessmirdir)/$$f"; \
+	done
+
+uninstall-strangeprocessmirHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(strangeprocessmir_HEADERS)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(strangeprocessmirdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(strangeprocessmirdir)/$$f"; \
+	done
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -2771,7 +2849,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(SCRIPTS) $(HEADERS) \
 		config.h
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)"; do \
+	for dir in "$(DESTDIR)$(pkglibdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(strangelibdir)" "$(DESTDIR)$(strangeparsingdir)" "$(DESTDIR)$(strangepassmanagerdir)" "$(DESTDIR)$(strangephcdir)" "$(DESTDIR)$(strangeprocessastdir)" "$(DESTDIR)$(strangeprocesshirdir)" "$(DESTDIR)$(strangeprocessirdir)" "$(DESTDIR)$(strangeprocessmirdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -2833,7 +2911,10 @@ info-am:
 install-data-am: install-strangelibHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
-	install-strangeprocessastHEADERS
+	install-strangeprocessastHEADERS \
+	install-strangeprocesshirHEADERS \
+	install-strangeprocessirHEADERS \
+	install-strangeprocessmirHEADERS
 
 install-dvi: install-dvi-recursive
 
@@ -2876,7 +2957,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libexecSCRIPTS uninstall-nobase_pkglibLTLIBRARIES \
 	uninstall-strangelibHEADERS uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
-	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS
+	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
+	uninstall-strangeprocesshirHEADERS \
+	uninstall-strangeprocessirHEADERS \
+	uninstall-strangeprocessmirHEADERS
 
 .MAKE: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) install-am \
 	install-strip
@@ -2898,7 +2982,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	install-ps install-ps-am install-strangelibHEADERS \
 	install-strangeparsingHEADERS \
 	install-strangepassmanagerHEADERS install-strangephcHEADERS \
-	install-strangeprocessastHEADERS install-strip installcheck \
+	install-strangeprocessastHEADERS \
+	install-strangeprocesshirHEADERS \
+	install-strangeprocessirHEADERS \
+	install-strangeprocessmirHEADERS install-strip installcheck \
 	installcheck-am installcheck-local installdirs installdirs-am \
 	maintainer-clean maintainer-clean-generic mostlyclean \
 	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
@@ -2907,7 +2994,10 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 	uninstall-libexecSCRIPTS uninstall-nobase_pkglibLTLIBRARIES \
 	uninstall-strangelibHEADERS uninstall-strangeparsingHEADERS \
 	uninstall-strangepassmanagerHEADERS \
-	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS
+	uninstall-strangephcHEADERS uninstall-strangeprocessastHEADERS \
+	uninstall-strangeprocesshirHEADERS \
+	uninstall-strangeprocessirHEADERS \
+	uninstall-strangeprocessmirHEADERS
 
 
 # - In order to have separate build directories (aka VPATH), we would prepend
