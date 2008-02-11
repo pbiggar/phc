@@ -5,6 +5,7 @@
  * Test whether the tree is actually a tree (and not a graph) 
  */
 
+#include "process_ir/General.h"
 #include "Collect_all_pointers.h"
 #include "pass_manager/Plugin_pass.h"
 #include "AST_visitor.h"
@@ -26,7 +27,26 @@ void run (PHP_script* in)
 	is_run = true;
 
 	if(cap.all_pointers.size() != cap.unique_pointers.size())
+	{
 		success = false;
+		
+		// get a bit more information here. We want to print information if it all fails.
+		cap.all_nodes.sort ();
+		Node* last = NULL;
+		for (typename List<Node*>::const_iterator n = cap.all_nodes.begin(); n != cap.all_nodes.end(); n++)
+		{
+			if (last)
+			{
+				if ((*n) == last)
+				{
+					printf ("Problem found: (%p)\n", *n);
+					debug (*n);
+					xdebug (*n);
+				}
+			}
+			last = *n;
+		}
+	}
 }
 
 

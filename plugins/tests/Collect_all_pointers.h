@@ -16,27 +16,35 @@ template <class Node, class Visitor>
 class Collect_all_pointers : virtual public Visitor
 {
 public:
-	list<Object*> all_pointers;
-	set<Object*> unique_pointers;
+	List<Node*> all_nodes;
+	set<Node*> unique_nodes;
 
+	List<Object*> all_attrs;
+	set<Object*> unique_attrs;
+
+	List<Object*> all_pointers;
+	set<Object*> unique_pointers;
 public:
 	void pre_node (Node* in) { collect (in, in->attrs); }
 
-	void collect (Object* obj, AttrMap* attrs)
+	void collect (Node* in, AttrMap* attrs)
 	{
-		all_pointers.push_back (obj);
-		unique_pointers.insert (obj);
+		all_nodes.push_back (in);
+		all_pointers.push_back (in);
+
+		unique_nodes.insert (in);
+		unique_pointers.insert (in);
 
 		// Push back all the pointer obj attrs, too
 		// (We ignore keys) 
 		AttrMap::const_iterator i;
 		for(i = attrs->begin(); i != attrs->end(); i++)
 		{
-			if ((*i).second == NULL)
-				continue;
+			all_attrs.push_back ((*i).second);
+			all_pointers.push_back ((*i).second);
 
-			all_pointers.push_back ((*i).second);			
-			unique_pointers.insert ((*i).second);			
+			unique_attrs.insert ((*i).second);
+			unique_pointers.insert ((*i).second);
 		}
 	}
 
