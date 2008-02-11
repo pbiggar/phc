@@ -348,8 +348,8 @@ Expr* Shredder::pre_ignore_errors(Ignore_errors* in)
 		false,
 		new Method_invocation(
 			"error_reporting",
-			zero))));
-	in->attrs->set("phc.shredder.old_error_level", temp);
+			zero->clone ()))));
+	in->attrs->set("phc.shredder.old_error_level", temp->clone ());
 	return in;
 }
 
