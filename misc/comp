@@ -55,10 +55,10 @@ if [[ $? != 0 ]]; then
 fi
 
 # generate uppered HIR
-src/phc $PHP_NAME $PHC_ARGS --udump=hir_as_ast > $NAME.uhir.php
+src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR > $NAME.uhir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --udump=hir_as_ast
+		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR
 	fi
 	exit 1
 fi

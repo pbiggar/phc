@@ -87,7 +87,7 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "hir_as_ast");
+	pm->add_before_named_pass (pass, "AST-to-HIR");
 }
 
 extern "C" void run_ast (Node* in, Pass_manager* pm)
