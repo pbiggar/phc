@@ -330,9 +330,13 @@ IR* Pass_manager::run_from (String* from, IR* in, bool dump)
 		}
 
 		// TODO dirty hack
-		if ((*q == ast_queue && in->is_AST ())
-				or (*q == hir_queue && in->is_HIR ()))
-			in = in->fold_lower ();
+		if (*q == ast_queue and in->is_AST () and hir_queue->size () == 0 and mir_queue->size () == 0)
+			return in;
+
+		if (*q == hir_queue and in->is_HIR () and mir_queue->size () == 0)
+			return in;
+
+		in = in->fold_lower ();
 	}
 	return in;
 }
