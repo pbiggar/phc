@@ -99,22 +99,22 @@ let new_p2 sessions name os a0 a1 = let name = "phc_" ^ name in
   add_pred_to_sessions sessions name;
   fun a0 a1 -> add_top_logic  name [|a0;a1|]
 
-let new_p3 sessions name os a0 a1 a2 = let name = "cil_" ^ name in
+let new_p3 sessions name os a0 a1 a2 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0;a1;a2|]),os);
   add_pred_to_sessions sessions name;
   fun a0 a1 a2 -> add_top_logic name [|a0;a1;a2|]
 
-let new_p4 sessions name os a0 a1 a2 a3 = let name = "cil_" ^ name in
+let new_p4 sessions name os a0 a1 a2 a3 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0;a1;a2;a3|]),os);
   add_pred_to_sessions sessions name;
   fun a0 a1 a2 a3 -> add_top_logic name [|a0;a1;a2;a3|]
 
-let new_p5 sessions name os a0 a1 a2 a3 a4 = let name = "cil_" ^ name in
+let new_p5 sessions name os a0 a1 a2 a3 a4 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0;a1;a2;a3;a4|]),os);
   add_pred_to_sessions sessions name;
   fun a0 a1 a2 a3 a4 -> add_top_logic name [|a0;a1;a2;a3;a4|]
 
-let new_p6 sessions name os a0 a1 a2 a3 a4 a5 = let name = "cil_" ^ name in
+let new_p6 sessions name os a0 a1 a2 a3 a4 a5 = let name = "phc_" ^ name in
   prepend predicates ((name,[|a0;a1;a2;a3;a4;a5|]),os);
   add_pred_to_sessions sessions name;
   fun a0 a1 a2 a3 a4 a5-> add_top_logic name [|a0;a1;a2;a3;a4;a5|]
@@ -1498,9 +1498,12 @@ let helloworld : php_script =
 (* init the .db files *)
 IO.bdb_init !logic_dir;
 
-(*  bdb_add_process_edges "filename" !process_edges; TODO *)
+pushs (mk_s_body "main");
+mk_curfn (str2val "main");
 get_php_script helloworld;
+pops ();
 
+(*  bdb_add_process_edges "filename" !process_edges; TODO *)
 	Hashtbl.iter (fun n s ->
 		bdb_dump_session 
 			(full_string_of_pred n) (dump_session_str s))

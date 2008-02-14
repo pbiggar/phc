@@ -1,3 +1,0 @@
-(* TODO licensing *)
-
-open Transphc ;;
