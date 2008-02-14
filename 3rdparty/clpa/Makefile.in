@@ -73,3 +73,6 @@ $(ALLOWED_TARGETS):
 	@$(MAKE) -f makefile-clpa \
 		OBJ_NAME=$* clean $(OUTPUT_REDIR)
 	@echo "done!"
+
+tags:
+	otags -r -vi .

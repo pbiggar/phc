@@ -1113,17 +1113,132 @@ let _ = register_package { empty_package with
 (* PHC work starts here *)
 
 (* Simplified IR for helloworld *)
+(* TODO: I believe this might be true: An abstype is a concrete type
+ *	for phc, vs a sumtype which is abstract. So Expr is an abstype,
+ *	while binop is a sumtype *)
+
+(* Concrete types *)
+let vt_php_script = new_abstype "php_script"
+let vt_eval_expr = new_abstype "eval_expr"
+let vt_assignment = new_abstype "assignment"
+let vt_variable = new_abstype "variable"
+let vt_method_invocation = new_abstype "method_invocation"
+let vt_actual_parameter = new_abstype "actual_parameter"
+
+(* Base types *)
+let vt_bool = new_abstype "bool"
+let vt_string = new_abstype "string"
+
+(* Tokens *)
+let vt_token_class_name = new_abstype "string"
+let vt_token_variable_name = new_abstype "string"
+let vt_token_method_name = new_abstype "string"
+
+(* Abstract types *)
+let vt_literal = new_sumtype "literal" [
+  ("int",[|vt_int|]);
+  ("string",[|vt_string|]);
+]
+
+let vt_expr = new_sumtype "expr" [
+  ("assignment",[|vt_assignment|]);
+  ("variable",[|vt_variable|]);
+  ("method_invocation",[|vt_method_invocation|]);
+  ("literal",[|vt_literal|]);
+]
+
+let vt_statement = new_sumtype "statement" [
+	("eval_expr",[|vt_eval_expr|]);
+]
+
+let vt_target = new_sumtype "target" [
+  ("expr",[|vt_expr|]);
+  ("token_class_name",[|vt_token_class_name|]);
+]
+
+let vt_variable_name = new_sumtype "variable_name" [
+  ("token_variable_name",[|vt_token_variable_name|]);
+]
+
+let vt_method_name = new_sumtype "method_name" [
+  ("token_method_name",[|vt_token_method_name|]);
+]
+
+
+(* List types *)
+let vt_statement_list = new_abstype "statement_list"
+let vt_variable_name_list = new_abstype "variable_name_list"
+let vt_actual_parameter_list = new_abstype "actual_parameter_list"
+let vt_token_variable_name_list = new_abstype "token_variable_name_list"
+
+
+
+
+(* mk_* functions are for concrete types. The first parameter can be an abstract type, however. *)
+
+(* Types *)
+let mk_php_script =
+	new_p2 [s_body] "php_script" [] vt_php_script 
+		vt_statement_list
+
+and mk_assignment =
+	new_p4 [s_body] "assignment" [] vt_assignment 
+		vt_variable vt_bool vt_expr
+
+and mk_actual_parameter =
+	new_p3 [s_body] "actual_parameter" [] vt_actual_parameter 
+		vt_variable_name vt_variable_name_list
+
+and mk_eval_expr =
+	new_p2 [s_body] "eval_expr" [] vt_eval_expr vt_expr
+
+and mk_variable =
+	new_p4 [s_body] "variable" [] vt_variable 
+		vt_target vt_variable_name vt_token_variable_name_list
+
+and mk_method_invocation =
+	new_p4 [s_body] "method_invocation" [] vt_method_invocation 
+			vt_target vt_method_name vt_actual_parameter_list
+
+(* Lists *)
+and mk_variable_name_list =
+	new_p2 [s_body] "variable_name_list" [] vt_variable_name_list
+		(vt_list vt_actual_parameter)
+
+and mk_actual_parameter_list =
+	new_p2 [s_body] "actual_parameter" [] vt_actual_parameter_list 
+		(vt_list vt_actual_parameter)
+
+and mk_statement_list =
+	new_p2 [s_body] "statement_list" [] vt_statement_list 
+		(vt_list vt_statement)
+
+and mk_token_variable_name_list =
+	new_p2 [s_body] "token_variable_name_list" [] 
+		vt_token_variable_name_list 
+			(vt_list vt_token_variable_name)
+
+(* Literals *)
+and mk_string =
+	new_p2 [s_body] "string" [] vt_literal vt_string
+
+and mk_int =
+	new_p2 [s_body] "int" [] vt_literal vt_int
+
 
 (* PHP_script ::= Statement* ; *)
-type php_script = {statements : statement list}
+type php_script = {
+	statements : statement list
+}
 
 (* Statement ::= Eval_expr ; *)
 and statement = 
 	| Eval_expr of eval_expr
 
 (* Eval_expr ::= Expr ; *)
-and eval_expr =
-	| Expr of expr
+and eval_expr = {
+	ee_expr : expr
+}
 
 (* Expr ::= Assignment | Variable | Method_invocation | Literal ; *)
 and expr =
@@ -1135,15 +1250,22 @@ and expr =
 (* Assignment ::= Variable is_ref:"&"? Expr ; *)
 and assignment = {
 	variable : variable;
-	is_ref : bool;
+	is_ref : int; (* TODO use a bool *)
 	expr : expr
 }
 
 (* Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ; *)
 and variable = {
-	target : target option;
-	variable_name : variable_name;
-	array_indices: token_variable_name option list
+	v_target : target option;
+	v_variable_name : variable_name;
+	v_array_indices: token_variable_name list
+}
+
+(* Method_invocation ::= Target? Method_name Actual_parameter* ; *)
+and method_invocation = {
+	mi_target : target option;
+	mi_method_name : method_name;
+	mi_actual_parameters : actual_parameter list
 }
 
 (* Target ::= Expr | CLASS_NAME ; *)
@@ -1151,16 +1273,10 @@ and target =
 	| Expr of expr
 	| Token_class_name of string
 
-(* Literal ::= STRING<String*> ; *)
+(* Literal ::= STRING<String*> | INT<long>; *)
 and literal =
 	| String of string
-
-(* Method_invocation ::= Target? Method_name Actual_parameter* ; *)
-and method_invocation = {
-	mi_target : target option;
-	method_name : method_name;
-	actual_parameters : actual_parameter list
-}
+	| Int of Big_int.big_int (* the type of vt_int *)
 
 (* Actual_parameter ::= Variable_name array_indices:VARIABLE_NAME?* ; *)
 and actual_parameter = {
@@ -1176,75 +1292,198 @@ and method_name =
 
 (* Variable_name ::= VARIABLE_NAME ; *)
 and variable_name =
-	| Token_variable_name of string
+	| Token_variable_name of token_variable_name
 (*	| Reflection of reflection *)
 
-and token_method_name = { value : string } 
+and token_method_name = { tmn_value : string } 
 
 (* Variable_name ::= VARIABLE_NAME ; *)
-and token_variable_name = { value : string };;
+and token_variable_name = { tvn_value : string };;
+
+
+(*		pushs (mk_s_body "__PHC__MAIN__");
+		mk_curfn (str2val "__PHC__MAIN__");
+		mk_fundec_name TODO *)
+
+
+let rec get_php_script php_script = 
+	let (idv,idr) = root_id "" in
+		mk_php_script idv (get_statements idr php_script.statements);
+
+and get_statements idr statements = 
+	let idv = next_id idr in
+		mk_statement_list idv (list2val None (List.map (get_statement idr) statements));
+	idv
+
+and get_statement idr statement = 
+	let idv = match statement with
+	|	Eval_expr(e) -> get_eval_expr idr e in
+	idv
+
+and get_eval_expr idr eval_expr =
+	let idv = next_id idr in
+		mk_eval_expr idv (get_expr idr eval_expr.ee_expr);
+	idv
+
+and get_expr idr e = 
+	let idv = match e with
+	|	Assignment(a) -> get_assignment idr a
+	|	Variable(v) -> get_variable idr v
+	|	Method_invocation (m) -> get_method_invocation idr m
+	|	Literal (l) -> get_literal idr l in
+	idv
+
+and get_assignment idr a =
+	let idv = next_id idr in
+		mk_assignment idv
+			(get_variable idr a.variable) 
+			(sint2val a.is_ref)
+			(get_expr idr a.expr);
+	idv
+
+and get_variable idr v =
+	let idv = next_id idr in
+		mk_variable idv
+			(get_target idr v.v_target) 
+			(get_variable_name idr v.v_variable_name)
+			(get_token_variable_names idr v.v_array_indices);
+	idv
+	
+and get_method_invocation idr mi = 
+	let idv = next_id idr in
+		mk_method_invocation idv 
+			(get_target idr mi.mi_target)
+			(get_method_name idr mi.mi_method_name)
+			(get_actual_parameters idr mi.mi_actual_parameters);
+	idv
+
+and get_literal idr l = 
+	let idv = next_id idr in
+	let _ = match l with
+	|	String (v) -> mk_string idv (str2val v)
+	|  Int (i) -> mk_int idv (int2val i) in
+	idv
+
+and get_target idr t = 
+	let idv = next_id idr in
+	let _ = match t with
+	| Some (Expr (e)) -> get_expr idr e;
+	| Some (Token_class_name (tcn)) -> idv (* mk_string idv (str2val tcn) *)
+	| None -> idv in
+	idv
+
+
+and get_token_variable_names idr vnos =
+	let idv = next_id idr in
+		mk_token_variable_name_list idv (list2val None (List.map (get_token_variable_name idr) vnos));
+	idv
+
+and get_variable_name idr v =
+	let idv = next_id idr in
+	let _ = match v with
+	| Token_variable_name (tvn) -> mk_string idv (str2val tvn.tvn_value) in
+	idv
+
+and get_token_variable_name idr tvn =
+	let idv = next_id idr in
+		mk_string idv (str2val tvn.tvn_value);
+	idv
+
+and get_method_name idr m =
+	let idv = next_id idr in
+	let _ = match m with
+	| Token_method_name (tmn) -> mk_string idv (str2val tmn) in
+	idv
+
+and get_variable_names idr variable_names =
+	let idv = next_id idr in
+		mk_variable_name_list idv (list2val None (List.map (get_variable_name idr) variable_names));
+	idv
+
+and get_actual_parameters idr actual_parameters =
+	let idv = next_id idr in
+		mk_actual_parameter_list idv (list2val None (List.map (get_actual_parameter idr) actual_parameters));
+	idv
+
+and get_actual_parameter idr ap =
+	let idv = next_id idr in
+		mk_actual_parameter idv 
+			(get_variable_name idr ap.ap_variable_name)
+			(get_token_variable_names idr ap.ap_array_indices);
+	idv;;
+
+
 
 (* $TLE0 = "hello world"; *)
 (* $TLE1 = "%s"; *)
 (*	$TSe0 = printf ($TLE1, $TLE0); *)
 
-let ass1 = Eval_expr (Expr (Assignment
+let ass1 = Eval_expr 
 ({
-	variable = 
-	{
-		target = None;
-		variable_name = Token_variable_name ("TLE0");
-		array_indices = []
-	};
-	is_ref = false;
-	expr = Literal (String ("helloworld"))
-})));;
+	ee_expr = Assignment
+		({
+			variable = 
+			{
+				v_target = None;
+				v_variable_name = Token_variable_name 
+					({ tvn_value = "TLE0" });
+				v_array_indices = []
+			};
+			is_ref = 0;
+			expr = Literal (String ("helloworld"))
+		})
+});;
 
-let ass2 = Eval_expr (Expr (Assignment
+let ass2 = Eval_expr 
 ({
-	variable = 
-	{
-		target = None;
-		variable_name = Token_variable_name ("TLE1");
-		array_indices = []
-	};
-	is_ref = false;
-	expr = Literal (String ("%s"))
-})));;
+	ee_expr = Assignment
+		({
+			variable = 
+			{
+				v_target = None;
+				v_variable_name = Token_variable_name 
+					({ tvn_value = "TLE1" });
+				v_array_indices = []
+			};
+			is_ref = 0;
+			expr = Literal (String ("%s"))
+		})
+});;
 
 let param1 : actual_parameter = {
-	ap_variable_name = Token_variable_name ("TLE1");
+	ap_variable_name = Token_variable_name ({tvn_value = "TLE1"});
 	ap_array_indices = []
 };;
 
 let param2 : actual_parameter = {
-	ap_variable_name = Token_variable_name ("TLE0");
+	ap_variable_name = Token_variable_name ({tvn_value = "TLE0"});
 	ap_array_indices = []
 };;
 
 
-let call1 = Eval_expr (Expr (Assignment
+let call1 = Eval_expr 
 ({
-	variable = 
-	{
-		target = None;
-		variable_name = Token_variable_name ("TSe0");
-		array_indices = []
-	};
-	is_ref = false;
-	expr = Method_invocation
+	ee_expr = Assignment
 	({
-		mi_target = None;
-		method_name = Token_method_name ("printf");
-		actual_parameters =
-		[
-			param1;
-			param2;
-		]
+		variable = 
+		{
+			v_target = None;
+			v_variable_name = Token_variable_name ({tvn_value="TSe0"});
+			v_array_indices = []
+		};
+		is_ref = 0;
+		expr = Method_invocation
+		({
+			mi_target = None;
+			mi_method_name = Token_method_name ("printf");
+			mi_actual_parameters =
+			[
+				param1;
+				param2;
+			]
+		})
 	})
-})));;
-
-
+});;
 
 let helloworld : php_script = 
 {
@@ -1256,6 +1495,18 @@ let helloworld : php_script =
 	]
 };;
 
+(* init the .db files *)
+IO.bdb_init !logic_dir;
+
+(*  bdb_add_process_edges "filename" !process_edges; TODO *)
+get_php_script helloworld;
+
+	Hashtbl.iter (fun n s ->
+		bdb_dump_session 
+			(full_string_of_pred n) (dump_session_str s))
+			all_sessions;
+
+IO.bdb_finish();
 
 	
 (*
@@ -1265,13 +1516,11 @@ let add_main_function =
 		mk_curfn (str2val "main")
 		get_phc_block idr "main"  BLOCK;
 
-(* init the .db files *)
-IO.bdb_init !logic_dir;
-
 add_main_function;
 *)
 
-(* This is how cillcc does it, but we have an XML stream, not access to the compiler structures *)
+(* This is how cillcc does it, but we have an XML stream, not access
+to the compiler structures *)
 (*
 let gref = ref [] in
   List.iter do_cil_global !gref;
