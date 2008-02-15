@@ -1367,11 +1367,10 @@ and get_literal idr l =
 and get_target idr t = 
 	let idv = next_id idr in
 	let _ = match t with
-	| Some (Expr (e)) -> get_expr idr e;
-	| Some (Token_class_name (tcn)) -> idv (* mk_string idv (str2val tcn) *)
-	| None -> idv in
+	| Some (Expr (e)) -> ignore (get_expr idr e);
+	| Some (Token_class_name (tcn)) -> mk_string idv (str2val tcn)
+	| None -> () in
 	idv
-
 
 and get_token_variable_names idr vnos =
 	let idv = next_id idr in
