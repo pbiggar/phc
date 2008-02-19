@@ -412,33 +412,38 @@ function adjusted_name ($script_name, $adjust_for_regression = 0)
 	return $script_name;
 }
 
-function complete_exec($command)
+function complete_exec($command, $stdin = NULL)
 {
 	global $opt_verbose;
 	if ($opt_verbose)
 		print "Running command: $command\n";
 
-	$descriptorspec = array(1 => array("pipe", "w"),
+	$descriptorspec = array(0 => array("pipe", "r"),
+									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
 	$handle = proc_open($command, $descriptorspec, &$pipes);
+
+	# read stdin into the process
+	if ($stdin !== NULL)
+		fwrite ($pipes[0], $stdin);
+
+	fclose ($pipes[0]);
+	unset ($pipes[0]);
 
 	// set non blocking to avoid infinite loops on stuck programs
 	stream_set_blocking ($pipes[1], 0);
 	stream_set_blocking ($pipes[2], 0);
 	
-	$out = "";
-	$err = "";
 	$start_time = time ();
 	do
 	{
-		$out .= stream_get_contents ($pipes[1]);
-		$err .= stream_get_contents ($pipes[2]);
 		$status = proc_get_status ($handle);
 
 		// 20 second timeout on any command
 		if (time () > $start_time + 20)
 		{
+			foreach ($pipes as &$pipe) fclose ($pipe);
 			proc_terminate ($handle); // catch run away programs
 			proc_close ($handle);
 			return array ("", "Timeout", -1);
@@ -450,14 +455,20 @@ function complete_exec($command)
 		usleep (1000);
 	}
 	while ($status["running"]);
+
 	stream_set_blocking ($pipes[1], 1);
 	stream_set_blocking ($pipes[2], 1);
-	$out .= stream_get_contents ($pipes[1]);
-	$err .= stream_get_contents ($pipes[2]);
+	$out = stream_get_contents ($pipes[1]);
+	$err = stream_get_contents ($pipes[2]);
+
 	# contrary to popular opinion, proc_close doesnt return the exit
 	# status
 	$exit_code = $status["exitcode"];
+	
+	foreach ($pipes as &$pipe) fclose ($pipe);
+	proc_terminate ($handle); // catch run away programs
 	proc_close ($handle);
+
 	return array ($out, $err, $exit_code);
 }
 
