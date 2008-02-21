@@ -15,7 +15,6 @@
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
 #include "Lower_control_flow.h"
-#include "Check_lowering.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>

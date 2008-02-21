@@ -8,7 +8,6 @@
  */
 
 #include "Goto_uppering.h"
-#include "hir_to_mir/Check_uppering.h"
 
 using namespace AST;
 
