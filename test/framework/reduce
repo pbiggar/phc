@@ -296,17 +296,18 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		else $phc_error = true;
 	}
 
+	if ($phc_error)
+	{
+		debug (1, "phc error. Skip.");
+		return false;
+	}
+
 	if ($php_err === "Timeout" || $my_err === "Timeout")
 	{
 		debug (1, "Timeouts. Skip.");
 		return false;
 	}
 
-	if ($phc_error)
-	{
-		debug (1, "phc error. Skip.");
-		return false;
-	}
 	if (		($php_err !== $my_err)
 			|| ($php_exit !== $my_exit)
 			|| ($php_out !== $my_out)) // success, we've reduced it while keeping the bug in
