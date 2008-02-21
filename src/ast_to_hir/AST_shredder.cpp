@@ -6,7 +6,7 @@
  * Transform the AST into 3AC-like code.
  */
 
-#include "hir_to_mir/Annotate.h"
+#include "Annotate.h"
 #include "AST_shredder.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"

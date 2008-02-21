@@ -6,7 +6,6 @@
  * Transform the HIR into 3AC-like code.
  */
 
-#include "Annotate.h"
 #include "HIR_shredder.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"

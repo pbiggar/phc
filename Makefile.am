@@ -42,13 +42,31 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/ast_to_hir/Annotate.cpp							\
+	src/ast_to_hir/Annotate.h								\
 	src/ast_to_hir/AST_lower_expr.cpp					\
 	src/ast_to_hir/AST_lower_expr.h						\
 	src/ast_to_hir/AST_shredder.cpp						\
 	src/ast_to_hir/AST_shredder.h							\
 	src/ast_to_hir/AST_to_HIR.h							\
+	src/ast_to_hir/Desugar.cpp								\
+	src/ast_to_hir/Desugar.h								\
+	src/ast_to_hir/Early_lower_control_flow.cpp		\
+	src/ast_to_hir/Early_lower_control_flow.h			\
+	src/ast_to_hir/Echo_split.cpp							\
+	src/ast_to_hir/Echo_split.h							\
+	src/ast_to_hir/List_shredder.cpp						\
+	src/ast_to_hir/List_shredder.h						\
+	src/ast_to_hir/Lower_expr_flow.cpp					\
+	src/ast_to_hir/Lower_expr_flow.h						\
+	src/ast_to_hir/Pre_post_op_shredder.cpp			\
+	src/ast_to_hir/Pre_post_op_shredder.h				\
+	src/ast_to_hir/Split_multiple_arguments.cpp		\
+	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Tidy_print.cpp							\
+	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.cpp					\
 	src/ast_to_hir/Translate_empty.h						\
 	src/codegen/Clarify.h									\
@@ -96,35 +114,13 @@ src_phc_SOURCES =												\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
-	src/hir_to_mir/Annotate.cpp							\
-	src/hir_to_mir/Annotate.h								\
-	src/hir_to_mir/Check_lowering.cpp					\
-	src/hir_to_mir/Check_lowering.h						\
-	src/hir_to_mir/Check_uppering.cpp					\
-	src/hir_to_mir/Check_uppering.h						\
-	src/hir_to_mir/Desugar.cpp								\
-	src/hir_to_mir/Desugar.h								\
-	src/hir_to_mir/Early_lower_control_flow.cpp		\
-	src/hir_to_mir/Early_lower_control_flow.h			\
-	src/hir_to_mir/Echo_split.cpp							\
-	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
 	src/hir_to_mir/HIR_shredder.cpp						\
 	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
-	src/hir_to_mir/List_shredder.cpp						\
-	src/hir_to_mir/List_shredder.h						\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
-	src/hir_to_mir/Lower_expr_flow.cpp					\
-	src/hir_to_mir/Lower_expr_flow.h						\
-	src/hir_to_mir/Pre_post_op_shredder.cpp			\
-	src/hir_to_mir/Pre_post_op_shredder.h				\
-	src/hir_to_mir/Split_multiple_arguments.cpp		\
-	src/hir_to_mir/Split_multiple_arguments.h			\
-	src/hir_to_mir/Tidy_print.cpp							\
-	src/hir_to_mir/Tidy_print.h							\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\

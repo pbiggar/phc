@@ -6,7 +6,6 @@
  */
 
 #include "Early_lower_control_flow.h"
-#include "Check_lowering.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
