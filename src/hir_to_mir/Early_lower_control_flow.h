@@ -17,6 +17,7 @@ class Early_lower_control_flow : public AST::Transform
 		void post_for (AST::For*, List<AST::Statement*>*);
 		void post_do (AST::Do*, List<AST::Statement*>*);
 		void post_while (AST::While* in, List<AST::Statement*>* out);
+		void pre_switch(AST::Switch* in, List<AST::Statement*>* out);
 
 };
 

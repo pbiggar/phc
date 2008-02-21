@@ -81,16 +81,6 @@ void Transform::pre_foreach(Foreach* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_switch(Switch* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_switch_case(Switch_case* in, List<Switch_case*>* out)
-{
-    out->push_back(in);
-}
-
 void Transform::pre_break(Break* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -418,16 +408,6 @@ void Transform::post_loop(Loop* in, List<Statement*>* out)
 }
 
 void Transform::post_foreach(Foreach* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_switch(Switch* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_switch_case(Switch_case* in, List<Switch_case*>* out)
 {
     out->push_back(in);
 }
@@ -774,18 +754,6 @@ void Transform::children_foreach(Foreach* in)
     in->expr = transform_expr(in->expr);
     in->key = transform_variable(in->key);
     in->val = transform_variable(in->val);
-    in->statements = transform_statement_list(in->statements);
-}
-
-void Transform::children_switch(Switch* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->switch_cases = transform_switch_case_list(in->switch_cases);
-}
-
-void Transform::children_switch_case(Switch_case* in)
-{
-    in->expr = transform_expr(in->expr);
     in->statements = transform_statement_list(in->statements);
 }
 
@@ -1398,43 +1366,6 @@ Variable* Transform::transform_variable(Variable* in)
     return out;
 }
 
-List<Switch_case*>* Transform::transform_switch_case_list(List<Switch_case*>* in)
-{
-    List<Switch_case*>::const_iterator i;
-    List<Switch_case*>* out = new List<Switch_case*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_switch_case(*i));
-    }
-    
-    return out;
-}
-
-List<Switch_case*>* Transform::transform_switch_case(Switch_case* in)
-{
-    List<Switch_case*>::const_iterator i;
-    List<Switch_case*>* out1 = new List<Switch_case*>;
-    List<Switch_case*>* out2 = new List<Switch_case*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_switch_case(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_switch_case(*i);
-    		post_switch_case(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
 List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name*>* in)
 {
     List<Variable_name*>::const_iterator i;
@@ -1905,15 +1836,6 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Switch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_switch(dynamic_cast<Switch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Break::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2241,15 +2163,6 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Switch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_switch(dynamic_cast<Switch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Break::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2504,9 +2417,6 @@ void Transform::children_statement(Statement* in)
     	break;
     case Foreach::ID:
     	children_foreach(dynamic_cast<Foreach*>(in));
-    	break;
-    case Switch::ID:
-    	children_switch(dynamic_cast<Switch*>(in));
     	break;
     case Break::ID:
     	children_break(dynamic_cast<Break*>(in));

@@ -40,8 +40,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Statement*,			// If*
  MIR::Statement*,			// While*
  MIR::Statement*,			// Foreach*
- MIR::Statement*,			// Switch*
- MIR::Node*,				// Switch_case*
  MIR::Statement*,			// Break*
  MIR::Statement*,			// Continue*
  MIR::Return*,				// Return*

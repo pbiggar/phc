@@ -42,8 +42,6 @@ public:
     virtual void pre_if(If* in, List<Statement*>* out);
     virtual void pre_loop(Loop* in, List<Statement*>* out);
     virtual void pre_foreach(Foreach* in, List<Statement*>* out);
-    virtual void pre_switch(Switch* in, List<Statement*>* out);
-    virtual void pre_switch_case(Switch_case* in, List<Switch_case*>* out);
     virtual void pre_break(Break* in, List<Statement*>* out);
     virtual void pre_continue(Continue* in, List<Statement*>* out);
     virtual void pre_return(Return* in, List<Statement*>* out);
@@ -112,8 +110,6 @@ public:
     virtual void post_if(If* in, List<Statement*>* out);
     virtual void post_loop(Loop* in, List<Statement*>* out);
     virtual void post_foreach(Foreach* in, List<Statement*>* out);
-    virtual void post_switch(Switch* in, List<Statement*>* out);
-    virtual void post_switch_case(Switch_case* in, List<Switch_case*>* out);
     virtual void post_break(Break* in, List<Statement*>* out);
     virtual void post_continue(Continue* in, List<Statement*>* out);
     virtual void post_return(Return* in, List<Statement*>* out);
@@ -182,8 +178,6 @@ public:
     virtual void children_if(If* in);
     virtual void children_loop(Loop* in);
     virtual void children_foreach(Foreach* in);
-    virtual void children_switch(Switch* in);
-    virtual void children_switch_case(Switch_case* in);
     virtual void children_break(Break* in);
     virtual void children_continue(Continue* in);
     virtual void children_return(Return* in);
@@ -260,8 +254,6 @@ public:
     virtual VARIABLE_NAME* transform_variable_name(VARIABLE_NAME* in);
     virtual Expr* transform_expr(Expr* in);
     virtual Variable* transform_variable(Variable* in);
-    virtual List<Switch_case*>* transform_switch_case_list(List<Switch_case*>* in);
-    virtual List<Switch_case*>* transform_switch_case(Switch_case* in);
     virtual List<Variable_name*>* transform_variable_name_list(List<Variable_name*>* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);

@@ -33,7 +33,7 @@ Statement ::=
 	| Return | Static_declaration | Global
 	| Try | Throw | Eval_expr
 	| If | Loop | Foreach
-	| Switch | Break | Continue
+	| Break | Continue
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
 	;
@@ -69,8 +69,6 @@ If ::= Expr iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
 Foreach ::= Expr key:Variable? is_ref:"&"? val:Variable Statement* ;
 
-Switch ::= Expr Switch_case* ;
-Switch_case ::= Expr? Statement* ;
 Break ::= Expr? ;
 Continue ::= Expr? ;
 Return ::= Expr? ;
@@ -163,7 +161,7 @@ Class_name ::= CLASS_NAME | Reflection ;
  -}
 
 Commented_node ::= 
-	  Member | Statement | Interface_def | Class_def | Switch_case | Catch 
+	  Member | Statement | Interface_def | Class_def | Catch 
 	;
 
 Identifier ::=
@@ -202,10 +200,17 @@ public:
 			return 0;
 	}
 
-	// Return the filename of the node (or NULL if unknown)
+	// Return the filename of the node. If unknown, use "<unknown>",
+	// which is what the interpreter uses.
+	// TODO In the future, make sure we always have filenames and
+	// line numbers.
 	String* get_filename()
 	{
-		return dynamic_cast<String*>(attrs->get("phc.filename"));
+		String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
+		if (result == NULL)
+			result = new String ("<unknown>");
+
+		return result;
 	}
 
 	Node()

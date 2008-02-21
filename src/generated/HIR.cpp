@@ -15,11 +15,18 @@ int Node::get_line_number()
 	}
 }
 
-//  Return the filename of the node (or NULL if unknown)
+//  Return the filename of the node. If unknown, use "<unknown>",
+//  which is what the interpreter uses.
+//  TODO In the future, make sure we always have filenames and
+//  line numbers.
 String* Node::get_filename()
 {
     {
-		return dynamic_cast<String*>(attrs->get("phc.filename"));
+		String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
+		if (result == NULL)
+			result = new String ("<unknown>");
+
+		return result;
 	}
 }
 
@@ -1508,147 +1515,6 @@ Statement::Statement()
 
 Member::Member()
 {
-}
-
-Switch_case::Switch_case(Expr* expr, List<Statement*>* statements)
-{
-    this->expr = expr;
-    this->statements = statements;
-}
-
-Switch_case::Switch_case()
-{
-    this->expr = 0;
-    this->statements = 0;
-}
-
-void Switch_case::visit(Visitor* visitor)
-{
-    visitor->visit_switch_case(this);
-}
-
-void Switch_case::transform_children(Transform* transform)
-{
-    transform->children_switch_case(this);
-}
-
-int Switch_case::classid()
-{
-    return ID;
-}
-
-bool Switch_case::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Switch_case* that = dynamic_cast<Switch_case*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Switch_case::equals(Node* in)
-{
-    Switch_case* that = dynamic_cast<Switch_case*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Switch_case* Switch_case::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Switch_case* clone = new Switch_case(expr, statements);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Switch_case::assert_valid()
-{
-    if(expr != NULL) expr->assert_valid();
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
 }
 
 Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements)
@@ -3930,148 +3796,6 @@ void Foreach::assert_valid()
     {
     	List<Statement*>::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Switch::Switch(Expr* expr, List<Switch_case*>* switch_cases)
-{
-    this->expr = expr;
-    this->switch_cases = switch_cases;
-}
-
-Switch::Switch()
-{
-    this->expr = 0;
-    this->switch_cases = 0;
-}
-
-void Switch::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Switch::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Switch::classid()
-{
-    return ID;
-}
-
-bool Switch::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Switch* that = dynamic_cast<Switch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->switch_cases != NULL && that->switch_cases != NULL)
-    {
-    	List<Switch_case*>::const_iterator i, j;
-    	for(
-    		i = this->switch_cases->begin(), j = that->switch_cases->begin();
-    		i != this->switch_cases->end() && j != that->switch_cases->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->switch_cases->end() || j != that->switch_cases->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Switch::equals(Node* in)
-{
-    Switch* that = dynamic_cast<Switch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->switch_cases == NULL || that->switch_cases == NULL)
-    {
-    	if(this->switch_cases != NULL || that->switch_cases != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Switch_case*>::const_iterator i, j;
-    	for(
-    		i = this->switch_cases->begin(), j = that->switch_cases->begin();
-    		i != this->switch_cases->end() && j != that->switch_cases->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->switch_cases->end() || j != that->switch_cases->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Switch* Switch::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Switch_case*>* switch_cases = NULL;
-    if(this->switch_cases != NULL)
-    {
-    	List<Switch_case*>::const_iterator i;
-    	switch_cases = new List<Switch_case*>;
-    	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
-    		switch_cases->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Switch* clone = new Switch(expr, switch_cases);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Switch::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    assert(switch_cases != NULL);
-    {
-    	List<Switch_case*>::const_iterator i;
-    	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();

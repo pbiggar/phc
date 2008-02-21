@@ -78,14 +78,6 @@ void Visitor::pre_foreach(Foreach* in)
 {
 }
 
-void Visitor::pre_switch(Switch* in)
-{
-}
-
-void Visitor::pre_switch_case(Switch_case* in)
-{
-}
-
 void Visitor::pre_break(Break* in)
 {
 }
@@ -396,14 +388,6 @@ void Visitor::post_loop(Loop* in)
 }
 
 void Visitor::post_foreach(Foreach* in)
-{
-}
-
-void Visitor::post_switch(Switch* in)
-{
-}
-
-void Visitor::post_switch_case(Switch_case* in)
 {
 }
 
@@ -750,18 +734,6 @@ void Visitor::children_foreach(Foreach* in)
     visit_variable(in->key);
     visit_marker("is_ref", in->is_ref);
     visit_variable(in->val);
-    visit_statement_list(in->statements);
-}
-
-void Visitor::children_switch(Switch* in)
-{
-    visit_expr(in->expr);
-    visit_switch_case_list(in->switch_cases);
-}
-
-void Visitor::children_switch_case(Switch_case* in)
-{
-    visit_expr(in->expr);
     visit_statement_list(in->statements);
 }
 
@@ -1166,21 +1138,6 @@ void Visitor::pre_foreach_chain(Foreach* in)
     pre_commented_node(in);
     pre_statement(in);
     pre_foreach(in);
-}
-
-void Visitor::pre_switch_chain(Switch* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_statement(in);
-    pre_switch(in);
-}
-
-void Visitor::pre_switch_case_chain(Switch_case* in)
-{
-    pre_node(in);
-    pre_commented_node(in);
-    pre_switch_case(in);
 }
 
 void Visitor::pre_break_chain(Break* in)
@@ -1688,21 +1645,6 @@ void Visitor::post_foreach_chain(Foreach* in)
 {
     post_foreach(in);
     post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_switch_chain(Switch* in)
-{
-    post_switch(in);
-    post_statement(in);
-    post_commented_node(in);
-    post_node(in);
-}
-
-void Visitor::post_switch_case_chain(Switch_case* in)
-{
-    post_switch_case(in);
     post_commented_node(in);
     post_node(in);
 }
@@ -2385,37 +2327,6 @@ void Visitor::visit_variable(Variable* in)
     }
 }
 
-void Visitor::visit_switch_case_list(List<Switch_case*>* in)
-{
-    List<Switch_case*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Switch_case");
-    else
-    {
-    	pre_list("Switch_case", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_switch_case(*i);
-    	}
-    
-    	post_list("Switch_case", in->size());
-    }
-}
-
-void Visitor::visit_switch_case(Switch_case* in)
-{
-    if(in == NULL)
-    	visit_null("Switch_case");
-    else
-    {
-    	pre_switch_case_chain(in);
-    	children_switch_case(in);
-    	post_switch_case_chain(in);
-    }
-}
-
 void Visitor::visit_variable_name_list(List<Variable_name*>* in)
 {
     List<Variable_name*>::const_iterator i;
@@ -2752,9 +2663,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Foreach::ID:
     	pre_foreach_chain(dynamic_cast<Foreach*>(in));
     	break;
-    case Switch::ID:
-    	pre_switch_chain(dynamic_cast<Switch*>(in));
-    	break;
     case Break::ID:
     	pre_break_chain(dynamic_cast<Break*>(in));
     	break;
@@ -3038,9 +2946,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Foreach::ID:
     	post_foreach_chain(dynamic_cast<Foreach*>(in));
     	break;
-    case Switch::ID:
-    	post_switch_chain(dynamic_cast<Switch*>(in));
-    	break;
     case Break::ID:
     	post_break_chain(dynamic_cast<Break*>(in));
     	break;
@@ -3323,9 +3228,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Foreach::ID:
     	children_foreach(dynamic_cast<Foreach*>(in));
-    	break;
-    case Switch::ID:
-    	children_switch(dynamic_cast<Switch*>(in));
     	break;
     case Break::ID:
     	children_break(dynamic_cast<Break*>(in));

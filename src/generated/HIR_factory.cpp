@@ -136,20 +136,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Foreach(expr, key, is_ref, val, statements);
     }
-    if(!strcmp(type_id, "Switch"))
-    {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Switch_case*>* switch_cases = dynamic_cast<List<Switch_case*>*>(*i++);
-    	assert(i == args->end());
-    	return new Switch(expr, switch_cases);
-    }
-    if(!strcmp(type_id, "Switch_case"))
-    {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	assert(i == args->end());
-    	return new Switch_case(expr, statements);
-    }
     if(!strcmp(type_id, "Break"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
@@ -486,13 +472,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Name_with_default*>* list = new List<Name_with_default*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Name_with_default*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Switch_case_list"))
-    {
-    	List<Switch_case*>* list = new List<Switch_case*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Switch_case*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Variable_name_list"))

@@ -36,8 +36,6 @@ template
  class _If,
  class _Loop,
  class _Foreach,
- class _Switch,
- class _Switch_case,
  class _Break,
  class _Continue,
  class _Return,
@@ -335,38 +333,6 @@ public:
 				else statements->push_back(0);
 		}
 		return fold_impl_foreach(in, expr, key, is_ref, val, statements);
-	}
-
-	virtual _Switch fold_switch(Switch* in)
-	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Switch_case>* switch_cases = 0;
-	
-		{
-			switch_cases = new List<_Switch_case>;
-			List<Switch_case*>::const_iterator i;
-			for(i = in->switch_cases->begin(); i != in->switch_cases->end(); i++)
-				if(*i != NULL) switch_cases->push_back(fold_switch_case(*i));
-				else switch_cases->push_back(0);
-		}
-		return fold_impl_switch(in, expr, switch_cases);
-	}
-
-	virtual _Switch_case fold_switch_case(Switch_case* in)
-	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		List<_Statement>* statements = 0;
-	
-		{
-			statements = new List<_Statement>;
-			List<Statement*>::const_iterator i;
-			for(i = in->statements->begin(); i != in->statements->end(); i++)
-				if(*i != NULL) statements->push_back(fold_statement(*i));
-				else statements->push_back(0);
-		}
-		return fold_impl_switch_case(in, expr, statements);
 	}
 
 	virtual _Break fold_break(Break* in)
@@ -788,8 +754,6 @@ public:
 	virtual _If fold_impl_if(If* orig, _Expr expr, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
 	virtual _Loop fold_impl_loop(Loop* orig, List<_Statement>* statements) { assert(0); };
 	virtual _Foreach fold_impl_foreach(Foreach* orig, _Expr expr, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
-	virtual _Switch fold_impl_switch(Switch* orig, _Expr expr, List<_Switch_case>* switch_cases) { assert(0); };
-	virtual _Switch_case fold_impl_switch_case(Switch_case* orig, _Expr expr, List<_Statement>* statements) { assert(0); };
 	virtual _Break fold_impl_break(Break* orig, _Expr expr) { assert(0); };
 	virtual _Continue fold_impl_continue(Continue* orig, _Expr expr) { assert(0); };
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
@@ -952,8 +916,6 @@ public:
 				return fold_loop(dynamic_cast<Loop*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
-			case Switch::ID:
-				return fold_switch(dynamic_cast<Switch*>(in));
 			case Break::ID:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
@@ -970,8 +932,6 @@ public:
 				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
 			case Foreach_end::ID:
 				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
-			case Switch_case::ID:
-				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
 				return fold_catch(dynamic_cast<Catch*>(in));
 			case INTERFACE_NAME::ID:
@@ -1018,8 +978,6 @@ public:
 				return fold_loop(dynamic_cast<Loop*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
-			case Switch::ID:
-				return fold_switch(dynamic_cast<Switch*>(in));
 			case Break::ID:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
@@ -1254,8 +1212,6 @@ public:
 				return fold_loop(dynamic_cast<Loop*>(in));
 			case Foreach::ID:
 				return fold_foreach(dynamic_cast<Foreach*>(in));
-			case Switch::ID:
-				return fold_switch(dynamic_cast<Switch*>(in));
 			case Break::ID:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
@@ -1272,8 +1228,6 @@ public:
 				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
 			case Foreach_end::ID:
 				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
-			case Switch_case::ID:
-				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
 				return fold_catch(dynamic_cast<Catch*>(in));
 		}
@@ -1311,6 +1265,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

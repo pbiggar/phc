@@ -50,8 +50,6 @@
 (Signature,Signature,)
 (Statement,Statement,*)
 (Static_declaration,Statement,*)
-(Switch,Statement,*)
-(Switch_case,Switch_case,*)
 (Target,Target,?)
 (Throw,Statement,*)
 (Try,Statement,*)

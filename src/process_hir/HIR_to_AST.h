@@ -40,8 +40,6 @@ class HIR_to_AST : public HIR::Fold
  AST::If*,			// If*
  AST::While*,			// Loop*
  AST::Foreach*,			// Foreach*
- AST::Switch*,			// Switch*
- AST::Switch_case*,				// Switch_case*
  AST::Break*,			// Break*
  AST::Continue*,			// Continue*
  AST::Return*,				// Return*
@@ -342,14 +340,6 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Switch* fold_impl_switch(HIR::Switch* orig, AST::Expr* expr, List<AST::Switch_case*>* switch_cases)
-	{
-		AST::Switch* result;
-		result = new AST::Switch (expr, switch_cases);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Continue* fold_impl_continue(HIR::Continue* orig, AST::Expr* expr)
 	{
 		AST::Continue* result;
@@ -372,14 +362,6 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::Nested_list_elements* result;
 		result = new AST::Nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Switch_case* fold_impl_switch_case(HIR::Switch_case* orig, AST::Expr* expr, List<AST::Statement*>* statements)
-	{
-		AST::Switch_case* result;
-		result = new AST::Switch_case (expr, statements);
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -45,8 +45,6 @@ public:
     virtual void pre_if(If* in);
     virtual void pre_loop(Loop* in);
     virtual void pre_foreach(Foreach* in);
-    virtual void pre_switch(Switch* in);
-    virtual void pre_switch_case(Switch_case* in);
     virtual void pre_break(Break* in);
     virtual void pre_continue(Continue* in);
     virtual void pre_return(Return* in);
@@ -127,8 +125,6 @@ public:
     virtual void post_if(If* in);
     virtual void post_loop(Loop* in);
     virtual void post_foreach(Foreach* in);
-    virtual void post_switch(Switch* in);
-    virtual void post_switch_case(Switch_case* in);
     virtual void post_break(Break* in);
     virtual void post_continue(Continue* in);
     virtual void post_return(Return* in);
@@ -206,8 +202,6 @@ public:
     virtual void children_if(If* in);
     virtual void children_loop(Loop* in);
     virtual void children_foreach(Foreach* in);
-    virtual void children_switch(Switch* in);
-    virtual void children_switch_case(Switch_case* in);
     virtual void children_break(Break* in);
     virtual void children_continue(Continue* in);
     virtual void children_return(Return* in);
@@ -286,8 +280,6 @@ public:
     virtual void pre_if_chain(If* in);
     virtual void pre_loop_chain(Loop* in);
     virtual void pre_foreach_chain(Foreach* in);
-    virtual void pre_switch_chain(Switch* in);
-    virtual void pre_switch_case_chain(Switch_case* in);
     virtual void pre_break_chain(Break* in);
     virtual void pre_continue_chain(Continue* in);
     virtual void pre_return_chain(Return* in);
@@ -358,8 +350,6 @@ public:
     virtual void post_if_chain(If* in);
     virtual void post_loop_chain(Loop* in);
     virtual void post_foreach_chain(Foreach* in);
-    virtual void post_switch_chain(Switch* in);
-    virtual void post_switch_case_chain(Switch_case* in);
     virtual void post_break_chain(Break* in);
     virtual void post_continue_chain(Continue* in);
     virtual void post_return_chain(Return* in);
@@ -434,8 +424,6 @@ public:
     virtual void visit_variable_name(VARIABLE_NAME* in);
     virtual void visit_expr(Expr* in);
     virtual void visit_variable(Variable* in);
-    virtual void visit_switch_case_list(List<Switch_case*>* in);
-    virtual void visit_switch_case(Switch_case* in);
     virtual void visit_variable_name_list(List<Variable_name*>* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
