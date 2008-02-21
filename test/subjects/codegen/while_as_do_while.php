@@ -23,5 +23,6 @@
 
 		echo "x\n";
 	}
+	while (true);
 
 ?>
