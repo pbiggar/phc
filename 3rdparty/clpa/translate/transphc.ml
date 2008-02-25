@@ -121,15 +121,15 @@ let new_p6 sessions name os a0 a1 a2 a3 a4 a5 = let name = "phc_" ^ name in
 
 (* make the type as well as a factory predicate handler for making new ones *)
 let new_abstype name =
-  let typ = make_type ("c_" ^ name) [||] in
+  let typ = make_type ("php_" ^ name) [||] in
     prepend abstypes typ;
     prepend find_handlers 
-      (("cil_make_" ^ name,[|vt_any;vt_any;typ|]),
+      (("phc_make_" ^ name,[|vt_any;vt_any;typ|]),
       [[|true;true;false|],[Sk_once]],
        fun (pname,args) ->
          if not (is_val_const args.(0)) || not (is_val_const args.(1)) then
            pred_unexpected "Arguments not const";
-         let res = sum2val ("c_" ^ name,[|args.(0);args.(1)|]) in
+         let res = sum2val ("php_" ^ name,[|args.(0);args.(1)|]) in
            [pname,[|args.(0);args.(1);res|]]);
     typ
 
@@ -1101,15 +1101,6 @@ let psessions = H.fold (fun s cs sl ->
     ((s,[|vt_str|]), Some cs)::sl
   ) sessions []
 
-let _ = register_package { empty_package with
-  p_name = "translatephc";
-  p_find_handlers = !find_handlers;
-  p_predicates = !predicates;
-  p_sessions = psessions;
-  p_sumtypes = !sumtypes;
-  p_abstypes = !abstypes;
-}
-
 (* PHC work starts here *)
 
 (* Simplified IR for helloworld *)
@@ -1130,9 +1121,9 @@ let vt_bool = new_abstype "bool"
 let vt_string = new_abstype "string"
 
 (* Tokens *)
-let vt_token_class_name = new_abstype "string"
-let vt_token_variable_name = new_abstype "string"
-let vt_token_method_name = new_abstype "string"
+let vt_token_class_name = new_abstype "token_class_name"
+let vt_token_variable_name = new_abstype "token_variable_name"
+let vt_token_method_name = new_abstype "token_method_name"
 
 (* Abstract types *)
 let vt_literal = new_sumtype "literal" [
@@ -1144,7 +1135,7 @@ let vt_expr = new_sumtype "expr" [
   ("assignment",[|vt_assignment|]);
   ("variable",[|vt_variable|]);
   ("method_invocation",[|vt_method_invocation|]);
-  ("literal",[|vt_literal|]);
+  ("e_literal",[|vt_literal|]);
 ]
 
 let vt_statement = new_sumtype "statement" [
@@ -1152,7 +1143,7 @@ let vt_statement = new_sumtype "statement" [
 ]
 
 let vt_target = new_sumtype "target" [
-  ("expr",[|vt_expr|]);
+  ("t_expr",[|vt_expr|]);
   ("token_class_name",[|vt_token_class_name|]);
 ]
 
@@ -1206,7 +1197,7 @@ and mk_variable_name_list =
 		(vt_list vt_actual_parameter)
 
 and mk_actual_parameter_list =
-	new_p2 [s_body] "actual_parameter" [] vt_actual_parameter_list 
+	new_p2 [s_body] "actual_parameter_list" [] vt_actual_parameter_list 
 		(vt_list vt_actual_parameter)
 
 and mk_statement_list =
@@ -1250,7 +1241,7 @@ and expr =
 (* Assignment ::= Variable is_ref:"&"? Expr ; *)
 and assignment = {
 	variable : variable;
-	is_ref : int; (* TODO use a bool *)
+	is_ref : bool;
 	expr : expr
 }
 
@@ -1337,7 +1328,7 @@ and get_assignment idr a =
 	let idv = next_id idr in
 		mk_assignment idv
 			(get_variable idr a.variable) 
-			(sint2val a.is_ref)
+			(bool2val a.is_ref)
 			(get_expr idr a.expr);
 	idv
 
@@ -1428,7 +1419,7 @@ let ass1 = Eval_expr
 					({ tvn_value = "TLE0" });
 				v_array_indices = []
 			};
-			is_ref = 0;
+			is_ref = false;
 			expr = Literal (String ("helloworld"))
 		})
 });;
@@ -1444,7 +1435,7 @@ let ass2 = Eval_expr
 					({ tvn_value = "TLE1" });
 				v_array_indices = []
 			};
-			is_ref = 0;
+			is_ref = false;
 			expr = Literal (String ("%s"))
 		})
 });;
@@ -1470,7 +1461,7 @@ let call1 = Eval_expr
 			v_variable_name = Token_variable_name ({tvn_value="TSe0"});
 			v_array_indices = []
 		};
-		is_ref = 0;
+		is_ref = false;
 		expr = Method_invocation
 		({
 			mi_target = None;
@@ -1494,21 +1485,23 @@ let helloworld : php_script =
 	]
 };;
 
-(* init the .db files *)
-IO.bdb_init !logic_dir;
+let run = (fun f -> 
+	(* init the .db files *)
+	IO.bdb_init !logic_dir;
 
-pushs (mk_s_body "main");
-mk_curfn (str2val "main");
-get_php_script helloworld;
-pops ();
+	pushs (mk_s_body "main");
+	mk_curfn (str2val "main");
+	get_php_script helloworld;
+	pops ();
 
-(*  bdb_add_process_edges "filename" !process_edges; TODO *)
+	(*  bdb_add_process_edges "filename" !process_edges; TODO *)
 	Hashtbl.iter (fun n s ->
 		bdb_dump_session 
 			(full_string_of_pred n) (dump_session_str s))
-			all_sessions;
+		all_sessions;
 
-IO.bdb_finish();
+	IO.bdb_finish();
+	)
 
 	
 (*
@@ -1549,3 +1542,14 @@ let read_phc_xml_stdin =
 
 (*let _ = print_string !input;;*)
 *)
+
+(* Spec integration *)
+  
+let _ = register_package { empty_package with
+  p_name = "translatephc";
+  p_find_handlers = !find_handlers;
+  p_predicates = !predicates;
+  p_sessions = psessions;
+  p_sumtypes = !sumtypes;
+  p_abstypes = !abstypes;
+}
