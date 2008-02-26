@@ -24,6 +24,9 @@
 #include "process_ast/Invalid_check.h"
 #include "process_mir/Goto_uppering.h"
 
+#include "process_hir/HIR_to_AST.h"
+#include "process_mir/MIR_to_AST.h"
+
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
@@ -240,14 +243,21 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
+			AST::PHP_script* ast = NULL;
+
+			// TODO uppering should be built in to this
+			if (in->is_MIR ())
+				ast = (new MIR_to_AST ())->fold_php_script (in->as_MIR ());
+
+			// TODO we shouldnt upper here
+			if (in->is_HIR ())
+				ast = (new HIR_to_AST ())->fold_php_script (in->as_HIR ());
+
 			if (in->is_AST())
-			{
-				AST::PHP_script* ast = in->as_AST()->clone ();
-				ast->visit (new Goto_uppering ());
-				ast->visit (new AST_unparser ());
-			}
-			else
-				phc_error ("Cannot convert MIR to uppered form for dumping");
+				ast = in->as_AST()->clone ();
+
+			ast->visit (new Goto_uppering ());
+			ast->visit (new AST_unparser ());
 		}
 	}
 

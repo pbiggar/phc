@@ -702,6 +702,7 @@ src_phc_SOURCES = \
 	src/process_ir/XML_unparser.h							\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
+	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
