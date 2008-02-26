@@ -2,12 +2,14 @@
  - phc -- the open source PHP compiler
  - See doc/license/README.license for licensing information
  -
- - Definition of the HIR
+ - Definition of the HIR.
+ -
+ - The HIR is the lowest common denominator into which all programs
+ - can be transformed, while still being PHP.
  -
  - Note that the HIR does not support the 'declare' statement, which nobody
  - uses or can even define precisely. It does not even seem to be supported
  - by the interpreter.
- -
  -}
 
 {-
@@ -36,6 +38,7 @@ Statement ::=
 	| Break | Continue
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
+-- | Assign_var | Assign_var_var | Assign_array | Push_array
 	;
 
 {-
@@ -72,13 +75,16 @@ Foreach ::= Expr key:Variable? is_ref:"&"? val:Variable Statement* ;
 Break ::= Expr? ;
 Continue ::= Expr? ;
 Return ::= Expr? ;
+-- Return ::= VARIABLE_NAME? ;
 
 Static_declaration ::= vars:Name_with_default* ;
 Global ::= Variable_name* ;
+-- Variable_name ::= VARIABLE_NAME | Variable_variable;
 
 Try ::= Statement* catches:Catch* ;
 Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
 Throw ::= Expr ;
+-- Throw ::= VARIABLE_NAME ;
 
 Eval_expr ::= Expr ;
 
@@ -101,6 +107,11 @@ Foreach_has_key ::= Variable HT_ITERATOR<long> ;
 Foreach_get_key ::= Variable HT_ITERATOR<long> ;
 Foreach_get_val ::= Variable HT_ITERATOR<long> ;
 
+-- Assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:Expr ;
+-- Assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
+-- Assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
+-- Push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
+
 {-
    Expressions
 -}
@@ -114,6 +125,7 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Array | Ignore_errors 
+-- | Variable_name | Index_array
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	;
 
@@ -142,6 +154,7 @@ Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= Expr ;
 
 Target ::= Expr | CLASS_NAME ;
+-- Target ::= VARIABLE_NAME | CLASS_NAME;
 
 Pre_op ::= OP Variable ;
 
@@ -151,10 +164,18 @@ Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
 
+-- Actual_parameter ::= is_ref:"&"? Expr ;
 Actual_parameter ::= is_ref:"&"? Expr ;
 
 New ::= Class_name Actual_parameter* ;
 Class_name ::= CLASS_NAME | Reflection ;
+
+-- Static_value ::= Literal | Static_array | Constant ;
+ 
+-- Static_array      ::= Static_array_elem* ;
+-- Static_array_elem ::= Static_array_key? is_ref:"&"? val:Static_value ;
+-- Static_array_key  ::= Literal | Constant ; 
+
 
 {-
  - Additional structure 
@@ -680,7 +701,6 @@ public:
 	{
 		return (that->value == value);
 	}
-
 };
 
 class STRING

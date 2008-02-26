@@ -2,11 +2,12 @@
  - phc -- the open source PHP compiler
  - See doc/license/README.license for licensing information
  -
- - Definition of the MIR
+ - Definition of the MIR.
  -
- - Note that the MIR does not support the 'declare' statement, which nobody
- - uses or can even define precisely. It does not even seem to be supported
- - by the interpreter.
+ - The MIR is slightly lower than the HIR, and includes concepts
+ - which we use for code generation, but are not PHP, such as GOTOs,
+ - Labels, and features such as exception targets and break targets.
+ -
  -}
 
 {-
@@ -96,7 +97,6 @@ Foreach_get_val ::= array_name:VARIABLE_NAME HT_ITERATOR<long> ;
 -- Assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
 -- Assign_var_var ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ;
 -- Push_array     ::= lhs:VARIABLE_NAME                     is_ref:"&"? rhs:VARIABLE_NAME ; 
-
 
 {-
    Expressions
