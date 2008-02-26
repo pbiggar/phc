@@ -67,9 +67,6 @@ public:
     virtual void pre_literal(Literal* in);
     virtual void pre_assignment(Assignment* in);
     virtual void pre_op_assignment(Op_assignment* in);
-    virtual void pre_list_assignment(List_assignment* in);
-    virtual void pre_list_element(List_element* in);
-    virtual void pre_nested_list_elements(Nested_list_elements* in);
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
     virtual void pre_bin_op(Bin_op* in);
@@ -147,9 +144,6 @@ public:
     virtual void post_literal(Literal* in);
     virtual void post_assignment(Assignment* in);
     virtual void post_op_assignment(Op_assignment* in);
-    virtual void post_list_assignment(List_assignment* in);
-    virtual void post_list_element(List_element* in);
-    virtual void post_nested_list_elements(Nested_list_elements* in);
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
     virtual void post_bin_op(Bin_op* in);
@@ -222,8 +216,6 @@ public:
     virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
-    virtual void children_list_assignment(List_assignment* in);
-    virtual void children_nested_list_elements(Nested_list_elements* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -300,8 +292,6 @@ public:
     virtual void pre_foreach_get_val_chain(Foreach_get_val* in);
     virtual void pre_assignment_chain(Assignment* in);
     virtual void pre_op_assignment_chain(Op_assignment* in);
-    virtual void pre_list_assignment_chain(List_assignment* in);
-    virtual void pre_nested_list_elements_chain(Nested_list_elements* in);
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
@@ -370,8 +360,6 @@ public:
     virtual void post_foreach_get_val_chain(Foreach_get_val* in);
     virtual void post_assignment_chain(Assignment* in);
     virtual void post_op_assignment_chain(Op_assignment* in);
-    virtual void post_list_assignment_chain(List_assignment* in);
-    virtual void post_nested_list_elements_chain(Nested_list_elements* in);
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
@@ -429,8 +417,6 @@ public:
     virtual void visit_label_name(LABEL_NAME* in);
     virtual void visit_ht_iterator(HT_ITERATOR* in);
     virtual void visit_op(OP* in);
-    virtual void visit_list_element_list(List<List_element*>* in);
-    virtual void visit_list_element(List_element* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
@@ -450,7 +436,6 @@ public:
     virtual void pre_member_chain(Member* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
-    virtual void pre_list_element_chain(List_element* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_target_chain(Target* in);
     virtual void pre_method_name_chain(Method_name* in);
@@ -461,7 +446,6 @@ public:
     virtual void post_member_chain(Member* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
-    virtual void post_list_element_chain(List_element* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_target_chain(Target* in);
     virtual void post_method_name_chain(Method_name* in);
@@ -472,7 +456,6 @@ public:
     virtual void children_member(Member* in);
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
-    virtual void children_list_element(List_element* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_target(Target* in);
     virtual void children_method_name(Method_name* in);

@@ -69,9 +69,9 @@ class AST_to_HIR : public AST::Fold
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
  HIR::Op_assignment*,				// Op_assignment*
- HIR::List_assignment*,				// List_assignment*
- HIR::List_element*,				// List_element*
- HIR::Nested_list_elements*,				// Nested_list_elements*
+ HIR::Expr*,				// List_assignment*
+ HIR::Expr*,				// List_element*
+ HIR::Expr*,				// Nested_list_elements*
  HIR::Cast*,				// Cast*
  HIR::Unary_op*,			// Unary_op*
  HIR::Bin_op*,				// Bin_op*
@@ -353,24 +353,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-
-	HIR::List_assignment* fold_impl_list_assignment(AST::List_assignment* orig, List<HIR::List_element*>* list_elements, HIR::Expr* expr)
-	{
-		HIR::List_assignment* result;
-		result = new HIR::List_assignment(list_elements, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-
-	HIR::Nested_list_elements* fold_impl_nested_list_elements(AST::Nested_list_elements* orig, List<HIR::List_element*>* list_elements)
-	{
-		HIR::Nested_list_elements* result;
-		result = new HIR::Nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{
 		HIR::Foreach_reset* result;
@@ -378,7 +360,6 @@ class AST_to_HIR : public AST::Fold
 		result->attrs = orig->attrs;
 		return result;
 	}
-
 
 	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
 	{

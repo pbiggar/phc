@@ -62,9 +62,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Literal*,				// Literal*
  AST::Assignment*,			// Assignment*
  AST::Op_assignment*,				// Op_assignment*
- AST::List_assignment*,				// List_assignment*
- AST::List_element*,				// List_element*
- AST::Nested_list_elements*,				// Nested_list_elements*
  AST::Cast*,				// Cast*
  AST::Unary_op*,			// Unary_op*
  AST::Bin_op*,				// Bin_op*
@@ -338,24 +335,6 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::Continue* result;
 		result = new AST::Continue(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-
-	AST::List_assignment* fold_impl_list_assignment(HIR::List_assignment* orig, List<AST::List_element*>* list_elements, AST::Expr* expr)
-	{
-		AST::List_assignment* result;
-		result = new AST::List_assignment(list_elements, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-
-	AST::Nested_list_elements* fold_impl_nested_list_elements(HIR::Nested_list_elements* orig, List<AST::List_element*>* list_elements)
-	{
-		AST::Nested_list_elements* result;
-		result = new AST::Nested_list_elements(list_elements);
 		result->attrs = orig->attrs;
 		return result;
 	}

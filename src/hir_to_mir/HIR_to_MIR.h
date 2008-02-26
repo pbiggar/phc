@@ -62,9 +62,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Literal*,				// Literal*
  MIR::Assignment*,			// Assignment*
  MIR::Expr*,				// Op_assignment*
- MIR::Expr*,				// List_assignment*
- MIR::Node*,				// List_element*
- MIR::Node*,				// Nested_list_elements*
  MIR::Cast*,				// Cast*
  MIR::Unary_op*,			// Unary_op*
  MIR::Bin_op*,				// Bin_op*

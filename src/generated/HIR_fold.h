@@ -58,9 +58,6 @@ template
  class _Literal,
  class _Assignment,
  class _Op_assignment,
- class _List_assignment,
- class _List_element,
- class _Nested_list_elements,
  class _Cast,
  class _Unary_op,
  class _Bin_op,
@@ -518,36 +515,6 @@ public:
 		return fold_impl_op_assignment(in, variable, op, expr);
 	}
 
-	virtual _List_assignment fold_list_assignment(List_assignment* in)
-	{
-		List<_List_element>* list_elements = 0;
-	
-		{
-			list_elements = new List<_List_element>;
-			List<List_element*>::const_iterator i;
-			for(i = in->list_elements->begin(); i != in->list_elements->end(); i++)
-				if(*i != NULL) list_elements->push_back(fold_list_element(*i));
-				else list_elements->push_back(0);
-		}
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_list_assignment(in, list_elements, expr);
-	}
-
-	virtual _Nested_list_elements fold_nested_list_elements(Nested_list_elements* in)
-	{
-		List<_List_element>* list_elements = 0;
-	
-		{
-			list_elements = new List<_List_element>;
-			List<List_element*>::const_iterator i;
-			for(i = in->list_elements->begin(); i != in->list_elements->end(); i++)
-				if(*i != NULL) list_elements->push_back(fold_list_element(*i));
-				else list_elements->push_back(0);
-		}
-		return fold_impl_nested_list_elements(in, list_elements);
-	}
-
 	virtual _Cast fold_cast(Cast* in)
 	{
 		_CAST cast = 0;
@@ -753,8 +720,6 @@ public:
 	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _Variable variable, _HT_ITERATOR ht_iterator) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
-	virtual _List_assignment fold_impl_list_assignment(List_assignment* orig, List<_List_element>* list_elements, _Expr expr) { assert(0); };
-	virtual _Nested_list_elements fold_impl_nested_list_elements(Nested_list_elements* orig, List<_List_element>* list_elements) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _Expr expr) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _Expr expr) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _Expr left, _OP op, _Expr right) { assert(0); };
@@ -809,10 +774,6 @@ public:
 				return fold_attr_mod(dynamic_cast<Attr_mod*>(in));
 			case Name_with_default::ID:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
-			case Variable::ID:
-				return fold_variable(dynamic_cast<Variable*>(in));
-			case Nested_list_elements::ID:
-				return fold_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
 			case Conditional_expr::ID:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case VARIABLE_NAME::ID:
@@ -831,6 +792,8 @@ public:
 				return fold_constant(dynamic_cast<Constant*>(in));
 			case Instanceof::ID:
 				return fold_instanceof(dynamic_cast<Instanceof*>(in));
+			case Variable::ID:
+				return fold_variable(dynamic_cast<Variable*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case Method_invocation::ID:
@@ -849,8 +812,6 @@ public:
 				return fold_nil(dynamic_cast<NIL*>(in));
 			case Op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
-			case List_assignment::ID:
-				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Ignore_errors::ID:
@@ -1025,8 +986,6 @@ public:
 				return fold_nil(dynamic_cast<NIL*>(in));
 			case Op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
-			case List_assignment::ID:
-				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Ignore_errors::ID:
@@ -1055,18 +1014,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-		}
-		assert(0);
-	}
-
-	virtual _List_element fold_list_element(List_element* in)
-	{
-		switch(in->classid())
-		{
-			case Variable::ID:
-				return fold_variable(dynamic_cast<Variable*>(in));
-			case Nested_list_elements::ID:
-				return fold_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
 		}
 		assert(0);
 	}
@@ -1119,8 +1066,6 @@ public:
 				return fold_nil(dynamic_cast<NIL*>(in));
 			case Op_assignment::ID:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
-			case List_assignment::ID:
-				return fold_list_assignment(dynamic_cast<List_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Ignore_errors::ID:
@@ -1244,6 +1189,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

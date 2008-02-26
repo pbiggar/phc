@@ -166,18 +166,6 @@ void Visitor::pre_op_assignment(Op_assignment* in)
 {
 }
 
-void Visitor::pre_list_assignment(List_assignment* in)
-{
-}
-
-void Visitor::pre_list_element(List_element* in)
-{
-}
-
-void Visitor::pre_nested_list_elements(Nested_list_elements* in)
-{
-}
-
 void Visitor::pre_cast(Cast* in)
 {
 }
@@ -476,18 +464,6 @@ void Visitor::post_assignment(Assignment* in)
 }
 
 void Visitor::post_op_assignment(Op_assignment* in)
-{
-}
-
-void Visitor::post_list_assignment(List_assignment* in)
-{
-}
-
-void Visitor::post_list_element(List_element* in)
-{
-}
-
-void Visitor::post_nested_list_elements(Nested_list_elements* in)
 {
 }
 
@@ -850,17 +826,6 @@ void Visitor::children_op_assignment(Op_assignment* in)
     visit_variable(in->variable);
     visit_op(in->op);
     visit_expr(in->expr);
-}
-
-void Visitor::children_list_assignment(List_assignment* in)
-{
-    visit_list_element_list(in->list_elements);
-    visit_expr(in->expr);
-}
-
-void Visitor::children_nested_list_elements(Nested_list_elements* in)
-{
-    visit_list_element_list(in->list_elements);
 }
 
 void Visitor::children_cast(Cast* in)
@@ -1299,21 +1264,6 @@ void Visitor::pre_op_assignment_chain(Op_assignment* in)
     pre_op_assignment(in);
 }
 
-void Visitor::pre_list_assignment_chain(List_assignment* in)
-{
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_list_assignment(in);
-}
-
-void Visitor::pre_nested_list_elements_chain(Nested_list_elements* in)
-{
-    pre_node(in);
-    pre_list_element(in);
-    pre_nested_list_elements(in);
-}
-
 void Visitor::pre_cast_chain(Cast* in)
 {
     pre_node(in);
@@ -1371,7 +1321,6 @@ void Visitor::pre_instanceof_chain(Instanceof* in)
 void Visitor::pre_variable_chain(Variable* in)
 {
     pre_node(in);
-    pre_list_element(in);
     pre_target(in);
     pre_expr(in);
     pre_variable(in);
@@ -1808,21 +1757,6 @@ void Visitor::post_op_assignment_chain(Op_assignment* in)
     post_node(in);
 }
 
-void Visitor::post_list_assignment_chain(List_assignment* in)
-{
-    post_list_assignment(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
-}
-
-void Visitor::post_nested_list_elements_chain(Nested_list_elements* in)
-{
-    post_nested_list_elements(in);
-    post_list_element(in);
-    post_node(in);
-}
-
 void Visitor::post_cast_chain(Cast* in)
 {
     post_cast(in);
@@ -1882,7 +1816,6 @@ void Visitor::post_variable_chain(Variable* in)
     post_variable(in);
     post_expr(in);
     post_target(in);
-    post_list_element(in);
     post_node(in);
 }
 
@@ -2387,37 +2320,6 @@ void Visitor::visit_op(OP* in)
     }
 }
 
-void Visitor::visit_list_element_list(List<List_element*>* in)
-{
-    List<List_element*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("List_element");
-    else
-    {
-    	pre_list("List_element", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_list_element(*i);
-    	}
-    
-    	post_list("List_element", in->size());
-    }
-}
-
-void Visitor::visit_list_element(List_element* in)
-{
-    if(in == NULL)
-    	visit_null("List_element");
-    else
-    {
-    	pre_list_element_chain(in);
-    	children_list_element(in);
-    	post_list_element_chain(in);
-    }
-}
-
 void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
@@ -2717,9 +2619,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case Op_assignment::ID:
     	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
     	break;
-    case List_assignment::ID:
-    	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
     	break;
@@ -2747,19 +2646,6 @@ void Visitor::pre_variable_name_chain(Variable_name* in)
     	break;
     case Reflection::ID:
     	pre_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::pre_list_element_chain(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	pre_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	pre_nested_list_elements_chain(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -2828,9 +2714,6 @@ void Visitor::pre_target_chain(Target* in)
     	break;
     case Op_assignment::ID:
     	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	pre_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
@@ -3000,9 +2883,6 @@ void Visitor::post_expr_chain(Expr* in)
     case Op_assignment::ID:
     	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
     	break;
-    case List_assignment::ID:
-    	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
     	break;
@@ -3030,19 +2910,6 @@ void Visitor::post_variable_name_chain(Variable_name* in)
     	break;
     case Reflection::ID:
     	post_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::post_list_element_chain(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	post_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	post_nested_list_elements_chain(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -3111,9 +2978,6 @@ void Visitor::post_target_chain(Target* in)
     	break;
     case Op_assignment::ID:
     	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	post_list_assignment_chain(dynamic_cast<List_assignment*>(in));
     	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
@@ -3283,9 +3147,6 @@ void Visitor::children_expr(Expr* in)
     case Op_assignment::ID:
     	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
@@ -3313,19 +3174,6 @@ void Visitor::children_variable_name(Variable_name* in)
     	break;
     case Reflection::ID:
     	children_reflection(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_list_element(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	children_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -3394,9 +3242,6 @@ void Visitor::children_target(Target* in)
     	break;
     case Op_assignment::ID:
     	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));

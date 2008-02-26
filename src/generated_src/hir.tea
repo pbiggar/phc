@@ -123,8 +123,8 @@ Expr ::=
 	| Variable | Pre_op 
 	| Method_invocation | New 
 	| Literal 
-	| Op_assignment | List_assignment 
-	| Array | Ignore_errors 
+	| Op_assignment
+	| Array | Ignore_errors
 -- | Variable_name | Index_array
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	;
@@ -133,10 +133,8 @@ Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    
 Assignment ::= Variable is_ref:"&"? Expr ;
 Op_assignment ::= Variable OP Expr ;
-
-List_assignment ::= List_element?* Expr ;
-List_element ::= Variable | Nested_list_elements ;
-Nested_list_elements ::= List_element?* ;
+-- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
+-- Variable_variable ::= VARIABLE_NAME ; 
 
 Cast ::= CAST Expr ;
 Unary_op ::= OP Expr ;

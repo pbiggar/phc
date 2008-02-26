@@ -181,16 +181,6 @@ Expr* Transform::pre_op_assignment(Op_assignment* in)
     return in;
 }
 
-Expr* Transform::pre_list_assignment(List_assignment* in)
-{
-    return in;
-}
-
-void Transform::pre_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::pre_cast(Cast* in)
 {
     return in;
@@ -510,16 +500,6 @@ Expr* Transform::post_assignment(Assignment* in)
 Expr* Transform::post_op_assignment(Op_assignment* in)
 {
     return in;
-}
-
-Expr* Transform::post_list_assignment(List_assignment* in)
-{
-    return in;
-}
-
-void Transform::post_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
-{
-    out->push_back(in);
 }
 
 Expr* Transform::post_cast(Cast* in)
@@ -869,17 +849,6 @@ void Transform::children_op_assignment(Op_assignment* in)
     in->variable = transform_variable(in->variable);
     in->op = transform_op(in->op);
     in->expr = transform_expr(in->expr);
-}
-
-void Transform::children_list_assignment(List_assignment* in)
-{
-    in->list_elements = transform_list_element_list(in->list_elements);
-    in->expr = transform_expr(in->expr);
-}
-
-void Transform::children_nested_list_elements(Nested_list_elements* in)
-{
-    in->list_elements = transform_list_element_list(in->list_elements);
 }
 
 void Transform::children_cast(Cast* in)
@@ -1451,43 +1420,6 @@ OP* Transform::transform_op(OP* in)
     return out;
 }
 
-List<List_element*>* Transform::transform_list_element_list(List<List_element*>* in)
-{
-    List<List_element*>::const_iterator i;
-    List<List_element*>* out = new List<List_element*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_list_element(*i));
-    }
-    
-    return out;
-}
-
-List<List_element*>* Transform::transform_list_element(List_element* in)
-{
-    List<List_element*>::const_iterator i;
-    List<List_element*>* out1 = new List<List_element*>;
-    List<List_element*>* out2 = new List<List_element*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_list_element(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_list_element(*i);
-    		post_list_element(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
 CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
@@ -1926,7 +1858,6 @@ Expr* Transform::pre_expr(Expr* in)
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
-    case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -1942,26 +1873,6 @@ Variable_name* Transform::pre_variable_name(Variable_name* in)
     {
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
-    }
-    assert(0);
-}
-
-void Transform::pre_list_element(List_element* in, List<List_element*>* out)
-{
-    switch(in->classid())
-    {
-    case Variable::ID: 
-    	out->push_back(pre_variable(dynamic_cast<Variable*>(in)));
-    	return;
-    case Nested_list_elements::ID: 
-    	{
-    		List<List_element*>* local_out = new List<List_element*>;
-    		List<List_element*>::const_iterator i;
-    		pre_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     }
     assert(0);
 }
@@ -1996,7 +1907,6 @@ Target* Transform::pre_target(Target* in)
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
-    case List_assignment::ID: return pre_list_assignment(dynamic_cast<List_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2253,7 +2163,6 @@ Expr* Transform::post_expr(Expr* in)
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
-    case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2269,26 +2178,6 @@ Variable_name* Transform::post_variable_name(Variable_name* in)
     {
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
-    }
-    assert(0);
-}
-
-void Transform::post_list_element(List_element* in, List<List_element*>* out)
-{
-    switch(in->classid())
-    {
-    case Variable::ID: 
-    	out->push_back(post_variable(dynamic_cast<Variable*>(in)));
-    	return;
-    case Nested_list_elements::ID: 
-    	{
-    		List<List_element*>* local_out = new List<List_element*>;
-    		List<List_element*>::const_iterator i;
-    		post_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     }
     assert(0);
 }
@@ -2323,7 +2212,6 @@ Target* Transform::post_target(Target* in)
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
-    case List_assignment::ID: return post_list_assignment(dynamic_cast<List_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2478,9 +2366,6 @@ void Transform::children_expr(Expr* in)
     case Op_assignment::ID:
     	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
@@ -2508,19 +2393,6 @@ void Transform::children_variable_name(Variable_name* in)
     	break;
     case Reflection::ID:
     	children_reflection(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
-void Transform::children_list_element(List_element* in)
-{
-    switch(in->classid())
-    {
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Nested_list_elements::ID:
-    	children_nested_list_elements(dynamic_cast<Nested_list_elements*>(in));
     	break;
     }
 }
@@ -2589,9 +2461,6 @@ void Transform::children_target(Target* in)
     	break;
     case Op_assignment::ID:
     	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
-    case List_assignment::ID:
-    	children_list_assignment(dynamic_cast<List_assignment*>(in));
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));

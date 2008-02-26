@@ -62,8 +62,6 @@ public:
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
     virtual Expr* pre_assignment(Assignment* in);
     virtual Expr* pre_op_assignment(Op_assignment* in);
-    virtual Expr* pre_list_assignment(List_assignment* in);
-    virtual void pre_nested_list_elements(Nested_list_elements* in, List<List_element*>* out);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -130,8 +128,6 @@ public:
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
     virtual Expr* post_assignment(Assignment* in);
     virtual Expr* post_op_assignment(Op_assignment* in);
-    virtual Expr* post_list_assignment(List_assignment* in);
-    virtual void post_nested_list_elements(Nested_list_elements* in, List<List_element*>* out);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
@@ -198,8 +194,6 @@ public:
     virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
-    virtual void children_list_assignment(List_assignment* in);
-    virtual void children_nested_list_elements(Nested_list_elements* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -259,8 +253,6 @@ public:
     virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);
     virtual HT_ITERATOR* transform_ht_iterator(HT_ITERATOR* in);
     virtual OP* transform_op(OP* in);
-    virtual List<List_element*>* transform_list_element_list(List<List_element*>* in);
-    virtual List<List_element*>* transform_list_element(List_element* in);
     virtual CAST* transform_cast(CAST* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
@@ -280,7 +272,6 @@ public:
     virtual void pre_member(Member* in, List<Member*>* out);
     virtual Expr* pre_expr(Expr* in);
     virtual Variable_name* pre_variable_name(Variable_name* in);
-    virtual void pre_list_element(List_element* in, List<List_element*>* out);
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Target* pre_target(Target* in);
     virtual Method_name* pre_method_name(Method_name* in);
@@ -291,7 +282,6 @@ public:
     virtual void post_member(Member* in, List<Member*>* out);
     virtual Expr* post_expr(Expr* in);
     virtual Variable_name* post_variable_name(Variable_name* in);
-    virtual void post_list_element(List_element* in, List<List_element*>* out);
     virtual Class_name* post_class_name(Class_name* in);
     virtual Target* post_target(Target* in);
     virtual Method_name* post_method_name(Method_name* in);
@@ -302,7 +292,6 @@ public:
     virtual void children_member(Member* in);
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
-    virtual void children_list_element(List_element* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_target(Target* in);
     virtual void children_method_name(Method_name* in);
