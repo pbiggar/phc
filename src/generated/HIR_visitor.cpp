@@ -698,7 +698,7 @@ void Visitor::children_type(Type* in)
 void Visitor::children_attribute(Attribute* in)
 {
     visit_attr_mod(in->attr_mod);
-    visit_name_with_default_list(in->vars);
+    visit_name_with_default(in->var);
 }
 
 void Visitor::children_attr_mod(Attr_mod* in)
@@ -754,12 +754,12 @@ void Visitor::children_return(Return* in)
 
 void Visitor::children_static_declaration(Static_declaration* in)
 {
-    visit_name_with_default_list(in->vars);
+    visit_name_with_default(in->var);
 }
 
 void Visitor::children_global(Global* in)
 {
-    visit_variable_name_list(in->variable_names);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_try(Try* in)
@@ -2272,25 +2272,6 @@ void Visitor::visit_attr_mod(Attr_mod* in)
     }
 }
 
-void Visitor::visit_name_with_default_list(List<Name_with_default*>* in)
-{
-    List<Name_with_default*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("Name_with_default");
-    else
-    {
-    	pre_list("Name_with_default", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_name_with_default(*i);
-    	}
-    
-    	post_list("Name_with_default", in->size());
-    }
-}
-
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL)
@@ -2327,22 +2308,15 @@ void Visitor::visit_variable(Variable* in)
     }
 }
 
-void Visitor::visit_variable_name_list(List<Variable_name*>* in)
+void Visitor::visit_variable_name(Variable_name* in)
 {
-    List<Variable_name*>::const_iterator i;
-    
     if(in == NULL)
-    	visit_null_list("Variable_name");
+    	visit_null("Variable_name");
     else
     {
-    	pre_list("Variable_name", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_variable_name(*i);
-    	}
-    
-    	post_list("Variable_name", in->size());
+    	pre_variable_name_chain(in);
+    	children_variable_name(in);
+    	post_variable_name_chain(in);
     }
 }
 
@@ -2489,18 +2463,6 @@ void Visitor::visit_target(Target* in)
     	pre_target_chain(in);
     	children_target(in);
     	post_target_chain(in);
-    }
-}
-
-void Visitor::visit_variable_name(Variable_name* in)
-{
-    if(in == NULL)
-    	visit_null("Variable_name");
-    else
-    {
-    	pre_variable_name_chain(in);
-    	children_variable_name(in);
-    	post_variable_name_chain(in);
     }
 }
 

@@ -185,10 +185,10 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Attribute* fold_impl_attribute(AST::Attribute* orig, HIR::Attr_mod* attr_mod, List<HIR::Name_with_default*>* vars) 
 	{
-//		assert(vars->size() == 1); // TODO reinstate this
+		assert(vars->size() == 1);
 
 		HIR::Attribute* result;
-		result = new HIR::Attribute(attr_mod, vars);
+		result = new HIR::Attribute(attr_mod, vars->front ());
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -222,19 +222,17 @@ class AST_to_HIR : public AST::Fold
 		assert(vars->size() == 1);
 
 		HIR::Static_declaration* result;
-		result = new HIR::Static_declaration(vars);
+		result = new HIR::Static_declaration(vars->front ());
 		result->attrs = orig->attrs;
 		return result;
 	}
 
 	HIR::Global* fold_impl_global(AST::Global* orig, List<HIR::Variable_name*>* variable_names) 
 	{
-		// HIR only takes a single variable per global; should be been taken care of in the shredder
-		// TODO reinstate
-//		assert(variable_names->size() == 1);
+		assert(variable_names->size() == 1);
 		
 		HIR::Global* result;
-		result = new HIR::Global(variable_names);
+		result = new HIR::Global(variable_names->front ());
 		result->attrs = orig->attrs;
 		return result;
 	}

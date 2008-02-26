@@ -59,7 +59,7 @@ Method_mod ::= "public"? "protected"? "private"? "static"? "abstract"? "final"? 
 Formal_parameter ::= Type is_ref:"&"? var:Name_with_default ;
 Type ::= CLASS_NAME? ;
 
-Attribute ::= Attr_mod vars:Name_with_default* ;
+Attribute ::= Attr_mod var:Name_with_default ;
 Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
 Name_with_default ::= VARIABLE_NAME Expr? ;
@@ -77,8 +77,8 @@ Continue ::= Expr? ;
 Return ::= Expr? ;
 -- Return ::= VARIABLE_NAME? ;
 
-Static_declaration ::= vars:Name_with_default* ;
-Global ::= Variable_name* ;
+Static_declaration ::= var:Name_with_default ;
+Global ::= Variable_name ;
 -- Variable_name ::= VARIABLE_NAME | Variable_variable;
 
 Try ::= Statement* catches:Catch* ;

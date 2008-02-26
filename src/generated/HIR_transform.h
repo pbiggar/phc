@@ -250,11 +250,10 @@ public:
     virtual Type* transform_type(Type* in);
     virtual Name_with_default* transform_name_with_default(Name_with_default* in);
     virtual Attr_mod* transform_attr_mod(Attr_mod* in);
-    virtual List<Name_with_default*>* transform_name_with_default_list(List<Name_with_default*>* in);
     virtual VARIABLE_NAME* transform_variable_name(VARIABLE_NAME* in);
     virtual Expr* transform_expr(Expr* in);
     virtual Variable* transform_variable(Variable* in);
-    virtual List<Variable_name*>* transform_variable_name_list(List<Variable_name*>* in);
+    virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
     virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);
@@ -266,7 +265,6 @@ public:
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
     virtual Target* transform_target(Target* in);
-    virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual List<Expr*>* transform_expr_list(List<Expr*>* in);
     virtual List<Array_elem*>* transform_array_elem_list(List<Array_elem*>* in);
     virtual List<Array_elem*>* transform_array_elem(Array_elem* in);

@@ -244,16 +244,9 @@ public:
 	{
 		_Attr_mod attr_mod = 0;
 		if(in->attr_mod != NULL) attr_mod = fold_attr_mod(in->attr_mod);
-		List<_Name_with_default>* vars = 0;
-	
-		{
-			vars = new List<_Name_with_default>;
-			List<Name_with_default*>::const_iterator i;
-			for(i = in->vars->begin(); i != in->vars->end(); i++)
-				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
-				else vars->push_back(0);
-		}
-		return fold_impl_attribute(in, attr_mod, vars);
+		_Name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_attribute(in, attr_mod, var);
 	}
 
 	virtual _Attr_mod fold_attr_mod(Attr_mod* in)
@@ -358,30 +351,16 @@ public:
 
 	virtual _Static_declaration fold_static_declaration(Static_declaration* in)
 	{
-		List<_Name_with_default>* vars = 0;
-	
-		{
-			vars = new List<_Name_with_default>;
-			List<Name_with_default*>::const_iterator i;
-			for(i = in->vars->begin(); i != in->vars->end(); i++)
-				if(*i != NULL) vars->push_back(fold_name_with_default(*i));
-				else vars->push_back(0);
-		}
-		return fold_impl_static_declaration(in, vars);
+		_Name_with_default var = 0;
+		if(in->var != NULL) var = fold_name_with_default(in->var);
+		return fold_impl_static_declaration(in, var);
 	}
 
 	virtual _Global fold_global(Global* in)
 	{
-		List<_Variable_name>* variable_names = 0;
-	
-		{
-			variable_names = new List<_Variable_name>;
-			List<Variable_name*>::const_iterator i;
-			for(i = in->variable_names->begin(); i != in->variable_names->end(); i++)
-				if(*i != NULL) variable_names->push_back(fold_variable_name(*i));
-				else variable_names->push_back(0);
-		}
-		return fold_impl_global(in, variable_names);
+		_Variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_global(in, variable_name);
 	}
 
 	virtual _Try fold_try(Try* in)
@@ -748,7 +727,7 @@ public:
 	virtual _Method_mod fold_impl_method_mod(Method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) { assert(0); };
 	virtual _Formal_parameter fold_impl_formal_parameter(Formal_parameter* orig, _Type type, bool is_ref, _Name_with_default var) { assert(0); };
 	virtual _Type fold_impl_type(Type* orig, _CLASS_NAME class_name) { assert(0); };
-	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, List<_Name_with_default>* vars) { assert(0); };
+	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, _Name_with_default var) { assert(0); };
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
 	virtual _If fold_impl_if(If* orig, _Expr expr, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
@@ -757,8 +736,8 @@ public:
 	virtual _Break fold_impl_break(Break* orig, _Expr expr) { assert(0); };
 	virtual _Continue fold_impl_continue(Continue* orig, _Expr expr) { assert(0); };
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
-	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, List<_Name_with_default>* vars) { assert(0); };
-	virtual _Global fold_impl_global(Global* orig, List<_Variable_name>* variable_names) { assert(0); };
+	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
+	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };

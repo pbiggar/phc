@@ -1044,16 +1044,16 @@ public:
     virtual void assert_valid();
 };
 
-// Attribute ::= Attr_mod vars:Name_with_default* ;
+// Attribute ::= Attr_mod var:Name_with_default ;
 class Attribute : virtual public Member
 {
 public:
-    Attribute(Attr_mod* attr_mod, List<Name_with_default*>* vars);
+    Attribute(Attr_mod* attr_mod, Name_with_default* var);
 protected:
     Attribute();
 public:
     Attr_mod* attr_mod;
-    List<Name_with_default*>* vars;
+    Name_with_default* var;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1228,15 +1228,15 @@ public:
     virtual void assert_valid();
 };
 
-// Static_declaration ::= vars:Name_with_default* ;
+// Static_declaration ::= var:Name_with_default ;
 class Static_declaration : virtual public Statement
 {
 public:
-    Static_declaration(List<Name_with_default*>* vars);
+    Static_declaration(Name_with_default* var);
 protected:
     Static_declaration();
 public:
-    List<Name_with_default*>* vars;
+    Name_with_default* var;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1253,15 +1253,15 @@ public:
     virtual void assert_valid();
 };
 
-// Global ::= Variable_name* ;
+// Global ::= Variable_name ;
 class Global : virtual public Statement
 {
 public:
-    Global(List<Variable_name*>* variable_names);
+    Global(Variable_name* variable_name);
 protected:
     Global();
 public:
-    List<Variable_name*>* variable_names;
+    Variable_name* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);

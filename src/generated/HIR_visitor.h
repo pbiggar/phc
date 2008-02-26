@@ -420,11 +420,10 @@ public:
     virtual void visit_type(Type* in);
     virtual void visit_name_with_default(Name_with_default* in);
     virtual void visit_attr_mod(Attr_mod* in);
-    virtual void visit_name_with_default_list(List<Name_with_default*>* in);
     virtual void visit_variable_name(VARIABLE_NAME* in);
     virtual void visit_expr(Expr* in);
     virtual void visit_variable(Variable* in);
-    virtual void visit_variable_name_list(List<Variable_name*>* in);
+    virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
     virtual void visit_label_name(LABEL_NAME* in);
@@ -436,7 +435,6 @@ public:
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
     virtual void visit_target(Target* in);
-    virtual void visit_variable_name(Variable_name* in);
     virtual void visit_expr_list(List<Expr*>* in);
     virtual void visit_array_elem_list(List<Array_elem*>* in);
     virtual void visit_array_elem(Array_elem* in);

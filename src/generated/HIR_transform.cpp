@@ -724,7 +724,7 @@ void Transform::children_type(Type* in)
 void Transform::children_attribute(Attribute* in)
 {
     in->attr_mod = transform_attr_mod(in->attr_mod);
-    in->vars = transform_name_with_default_list(in->vars);
+    in->var = transform_name_with_default(in->var);
 }
 
 void Transform::children_attr_mod(Attr_mod* in)
@@ -774,12 +774,12 @@ void Transform::children_return(Return* in)
 
 void Transform::children_static_declaration(Static_declaration* in)
 {
-    in->vars = transform_name_with_default_list(in->vars);
+    in->var = transform_name_with_default(in->var);
 }
 
 void Transform::children_global(Global* in)
 {
-    in->variable_names = transform_variable_name_list(in->variable_names);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_try(Try* in)
@@ -1302,22 +1302,6 @@ Attr_mod* Transform::transform_attr_mod(Attr_mod* in)
     return out;
 }
 
-List<Name_with_default*>* Transform::transform_name_with_default_list(List<Name_with_default*>* in)
-{
-    List<Name_with_default*>::const_iterator i;
-    List<Name_with_default*>* out = new List<Name_with_default*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back(transform_name_with_default(*i));
-    }
-    
-    return out;
-}
-
 VARIABLE_NAME* Transform::transform_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL) return NULL;
@@ -1366,17 +1350,17 @@ Variable* Transform::transform_variable(Variable* in)
     return out;
 }
 
-List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name*>* in)
+Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
-    List<Variable_name*>::const_iterator i;
-    List<Variable_name*>* out = new List<Variable_name*>;
+    if(in == NULL) return NULL;
     
-    if(in == NULL)
-    	return NULL;
+    Variable_name* out;
     
-    for(i = in->begin(); i != in->end(); i++)
+    out = pre_variable_name(in);
+    if(out != NULL)
     {
-    	out->push_back(transform_variable_name(*i));
+    	children_variable_name(out);
+    	out = post_variable_name(out);
     }
     
     return out;
@@ -1563,22 +1547,6 @@ Target* Transform::transform_target(Target* in)
     {
     	children_target(out);
     	out = post_target(out);
-    }
-    
-    return out;
-}
-
-Variable_name* Transform::transform_variable_name(Variable_name* in)
-{
-    if(in == NULL) return NULL;
-    
-    Variable_name* out;
-    
-    out = pre_variable_name(in);
-    if(out != NULL)
-    {
-    	children_variable_name(out);
-    	out = post_variable_name(out);
     }
     
     return out;

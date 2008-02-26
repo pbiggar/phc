@@ -173,12 +173,10 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Attribute* fold_impl_attribute(HIR::Attribute* orig, MIR::Attr_mod* attr_mod, List<MIR::Name_with_default*>* vars) 
+	MIR::Attribute* fold_impl_attribute(HIR::Attribute* orig, MIR::Attr_mod* attr_mod, MIR::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		MIR::Attribute* result;
-		result = new MIR::Attribute(attr_mod, vars->front());
+		result = new MIR::Attribute(attr_mod, var);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -207,23 +205,18 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Static_declaration* fold_impl_static_declaration(HIR::Static_declaration* orig, List<MIR::Name_with_default*>* vars) 
+	MIR::Static_declaration* fold_impl_static_declaration(HIR::Static_declaration* orig, MIR::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		MIR::Static_declaration* result;
-		result = new MIR::Static_declaration(vars->front());
+		result = new MIR::Static_declaration(var);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Global* fold_impl_global(HIR::Global* orig, List<MIR::Variable_name*>* variable_names) 
+	MIR::Global* fold_impl_global(HIR::Global* orig, MIR::Variable_name* variable_name) 
 	{
-		// MIR only takes a single variable per global; should be been taken care of in the shredder
-		assert(variable_names->size() == 1);
-		
 		MIR::Global* result;
-		result = new MIR::Global(variable_names->front());
+		result = new MIR::Global(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

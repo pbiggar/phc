@@ -91,9 +91,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Attribute"))
     {
     	Attr_mod* attr_mod = dynamic_cast<Attr_mod*>(*i++);
-    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new Attribute(attr_mod, vars);
+    	return new Attribute(attr_mod, var);
     }
     if(!strcmp(type_id, "Attr_mod"))
     {
@@ -156,15 +156,15 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Static_declaration"))
     {
-    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
+    	Name_with_default* var = dynamic_cast<Name_with_default*>(*i++);
     	assert(i == args->end());
-    	return new Static_declaration(vars);
+    	return new Static_declaration(var);
     }
     if(!strcmp(type_id, "Global"))
     {
-    	List<Variable_name*>* variable_names = dynamic_cast<List<Variable_name*>*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
     	assert(i == args->end());
-    	return new Global(variable_names);
+    	return new Global(variable_name);
     }
     if(!strcmp(type_id, "Try"))
     {
@@ -465,20 +465,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Formal_parameter*>* list = new List<Formal_parameter*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Name_with_default_list"))
-    {
-    	List<Name_with_default*>* list = new List<Name_with_default*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Name_with_default*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Variable_name_list"))
-    {
-    	List<Variable_name*>* list = new List<Variable_name*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Variable_name*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Catch_list"))

@@ -3138,16 +3138,16 @@ void Method::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Attribute::Attribute(Attr_mod* attr_mod, List<Name_with_default*>* vars)
+Attribute::Attribute(Attr_mod* attr_mod, Name_with_default* var)
 {
     this->attr_mod = attr_mod;
-    this->vars = vars;
+    this->var = var;
 }
 
 Attribute::Attribute()
 {
     this->attr_mod = 0;
-    this->vars = 0;
+    this->var = 0;
 }
 
 void Attribute::visit(Visitor* visitor)
@@ -3183,25 +3183,13 @@ bool Attribute::match(Node* in)
     else if(!this->attr_mod->match(that->attr_mod))
     	return false;
     
-    if(this->vars != NULL && that->vars != NULL)
+    if(this->var == NULL)
     {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
+    else if(!this->var->match(that->var))
+    	return false;
     
     return true;
 }
@@ -3219,30 +3207,13 @@ bool Attribute::equals(Node* in)
     else if(!this->attr_mod->equals(that->attr_mod))
     	return false;
     
-    if(this->vars == NULL || that->vars == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->vars != NULL || that->vars != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
+    else if(!this->var->equals(that->var))
+    	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
@@ -3251,15 +3222,8 @@ bool Attribute::equals(Node* in)
 Attribute* Attribute::clone()
 {
     Attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    List<Name_with_default*>* vars = NULL;
-    if(this->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    		vars->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Attribute* clone = new Attribute(attr_mod, vars);
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Attribute* clone = new Attribute(attr_mod, var);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -3268,15 +3232,8 @@ void Attribute::assert_valid()
 {
     assert(attr_mod != NULL);
     attr_mod->assert_valid();
-    assert(vars != NULL);
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
+    assert(var != NULL);
+    var->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -4035,14 +3992,14 @@ void Return::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Static_declaration::Static_declaration(List<Name_with_default*>* vars)
+Static_declaration::Static_declaration(Name_with_default* var)
 {
-    this->vars = vars;
+    this->var = var;
 }
 
 Static_declaration::Static_declaration()
 {
-    this->vars = 0;
+    this->var = 0;
 }
 
 void Static_declaration::visit(Visitor* visitor)
@@ -4070,25 +4027,13 @@ bool Static_declaration::match(Node* in)
     Static_declaration* that = dynamic_cast<Static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->vars != NULL && that->vars != NULL)
+    if(this->var == NULL)
     {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
+    	if(that->var != NULL && !that->var->match(this->var))
     		return false;
     }
+    else if(!this->var->match(that->var))
+    	return false;
     
     return true;
 }
@@ -4098,30 +4043,13 @@ bool Static_declaration::equals(Node* in)
     Static_declaration* that = dynamic_cast<Static_declaration*>(in);
     if(that == NULL) return false;
     
-    if(this->vars == NULL || that->vars == NULL)
+    if(this->var == NULL || that->var == NULL)
     {
-    	if(this->vars != NULL || that->vars != NULL)
+    	if(this->var != NULL || that->var != NULL)
     		return false;
     }
-    else
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
+    else if(!this->var->equals(that->var))
+    	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
@@ -4129,41 +4057,27 @@ bool Static_declaration::equals(Node* in)
 
 Static_declaration* Static_declaration::clone()
 {
-    List<Name_with_default*>* vars = NULL;
-    if(this->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    		vars->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Static_declaration* clone = new Static_declaration(vars);
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Static_declaration* clone = new Static_declaration(var);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Static_declaration::assert_valid()
 {
-    assert(vars != NULL);
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
+    assert(var != NULL);
+    var->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Global::Global(List<Variable_name*>* variable_names)
+Global::Global(Variable_name* variable_name)
 {
-    this->variable_names = variable_names;
+    this->variable_name = variable_name;
 }
 
 Global::Global()
 {
-    this->variable_names = 0;
+    this->variable_name = 0;
 }
 
 void Global::visit(Visitor* visitor)
@@ -4191,25 +4105,13 @@ bool Global::match(Node* in)
     Global* that = dynamic_cast<Global*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_names != NULL && that->variable_names != NULL)
+    if(this->variable_name == NULL)
     {
-    	List<Variable_name*>::const_iterator i, j;
-    	for(
-    		i = this->variable_names->begin(), j = that->variable_names->begin();
-    		i != this->variable_names->end() && j != that->variable_names->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->variable_names->end() || j != that->variable_names->end())
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
     
     return true;
 }
@@ -4219,30 +4121,13 @@ bool Global::equals(Node* in)
     Global* that = dynamic_cast<Global*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_names == NULL || that->variable_names == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->variable_names != NULL || that->variable_names != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else
-    {
-    	List<Variable_name*>::const_iterator i, j;
-    	for(
-    		i = this->variable_names->begin(), j = that->variable_names->begin();
-    		i != this->variable_names->end() && j != that->variable_names->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->variable_names->end() || j != that->variable_names->end())
-    		return false;
-    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
@@ -4250,30 +4135,16 @@ bool Global::equals(Node* in)
 
 Global* Global::clone()
 {
-    List<Variable_name*>* variable_names = NULL;
-    if(this->variable_names != NULL)
-    {
-    	List<Variable_name*>::const_iterator i;
-    	variable_names = new List<Variable_name*>;
-    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
-    		variable_names->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Global* clone = new Global(variable_names);
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Global* clone = new Global(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Global::assert_valid()
 {
-    assert(variable_names != NULL);
-    {
-    	List<Variable_name*>::const_iterator i;
-    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
