@@ -83,6 +83,7 @@ require_once ("compiled_vs_interpreted.php");
 require_once ("compile_optimized.php");
 require_once ("refcounts.php");
 require_once ("demi_eval.php");
+$tests[] = new PluginTest ("limit_assignments");
 $tests[] = new PluginTest ("linear");
 $tests[] = new PluginTest ("cloning");
 $tests[] = new PluginTest ("pre_vs_post_count");
