@@ -337,34 +337,35 @@ class HIR_to_MIR : public HIR::Fold
 
 		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
 		assert (var);
+		assert (var->target == NULL);
+		assert (var->variable_name);
 		assert (var->array_indices->size () == 0);
-		MIR::Variable_name* var_name = var->variable_name;
+
+		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
 		assert (var_name);
-		MIR::VARIABLE_NAME* token = dynamic_cast<MIR::VARIABLE_NAME*> (var_name);
-		assert (token);
-		return token;
+		return var_name;
 	}
 
-	MIR::Cast* fold_impl_cast(HIR::Cast* orig, MIR::CAST* cast, MIR::Expr* expr) 
+	MIR::Cast* fold_impl_cast(HIR::Cast* orig, MIR::CAST* cast, MIR::VARIABLE_NAME* expr) 
 	{
 		MIR::Cast* result;
-		result = new MIR::Cast(cast, var_name_from_expr (expr));
+		result = new MIR::Cast(cast, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, MIR::OP* op, MIR::Expr* expr) 
+	MIR::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, MIR::OP* op, MIR::VARIABLE_NAME* expr) 
 	{
 		MIR::Unary_op* result;
-		result = new MIR::Unary_op(op, var_name_from_expr (expr));
+		result = new MIR::Unary_op(op, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, MIR::Expr* left, MIR::OP* op, MIR::Expr* right) 
+	MIR::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, MIR::VARIABLE_NAME* left, MIR::OP* op, MIR::VARIABLE_NAME* right) 
 	{
 		MIR::Bin_op* result;
-		result = new MIR::Bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
+		result = new MIR::Bin_op(left, op, right);
 		result->attrs = orig->attrs;
 		return result;
 	}

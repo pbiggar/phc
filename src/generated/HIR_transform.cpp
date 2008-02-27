@@ -854,20 +854,20 @@ void Transform::children_op_assignment(Op_assignment* in)
 void Transform::children_cast(Cast* in)
 {
     in->cast = transform_cast(in->cast);
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_unary_op(Unary_op* in)
 {
     in->op = transform_op(in->op);
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_bin_op(Bin_op* in)
 {
-    in->left = transform_expr(in->left);
+    in->left = transform_variable_name(in->left);
     in->op = transform_op(in->op);
-    in->right = transform_expr(in->right);
+    in->right = transform_variable_name(in->right);
 }
 
 void Transform::children_conditional_expr(Conditional_expr* in)

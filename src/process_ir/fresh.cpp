@@ -102,6 +102,13 @@ namespace HIR
 		return var;
 	}
 
+	VARIABLE_NAME* fresh_var_name (string prefix)
+	{
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		result->attrs->set_true ("phc.codegen.st_entry_not_required");
+		return result;
+	}
+
 	HT_ITERATOR* fresh_iter ()
 	{
 		return new HT_ITERATOR (fresh_suffix ("I"));

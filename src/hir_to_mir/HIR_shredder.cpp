@@ -129,7 +129,7 @@ Expr* Shredder::post_constant (Constant* in)
  */
 Expr* Shredder::post_assignment (Assignment* in)
 {
-	if (in->attrs->is_true ("phc.shredder.non_nested_assignment"))
+	if (in->attrs->is_true ("phc.hir_shredder.non_nested_assignment"))
 		return in;
 
 	// dont replace with the same variable, since it may be assigned to multiple
@@ -146,16 +146,16 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	// as an operand to a binary operator. Hence, we must visit the RHS again
 	// clearing the need_addr flag
 	Expr* left = in->variable->clone();
-	left->attrs->erase("phc.shredder.need_addr");
+	left->attrs->erase("phc.hir_shredder.need_addr");
 	left = transform_expr(left);
 
 	assignment = new Assignment(
 		in->variable,
 		false,
 		new Bin_op(
-			left,
+			eval_var (left),
 			in->op,
-			in->expr)
+			eval_var (in->expr))
 		);
 	assignment->attrs = in->attrs;
 	
@@ -176,14 +176,14 @@ Expr* Shredder::pre_ignore_errors(Ignore_errors* in)
 		new Method_invocation(
 			"error_reporting",
 			zero))));
-	in->attrs->set("phc.shredder.old_error_level", temp);
+	in->attrs->set("phc.hir_shredder.old_error_level", temp);
 	return in;
 }
 
 Expr* Shredder::post_ignore_errors(Ignore_errors* in)
 {
 	Variable* temp = fresh_var("TSie");
-	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.shredder.old_error_level"));
+	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.hir_shredder.old_error_level"));
 	assert(old);
 	
 	pieces->push_back(new Eval_expr(new Assignment(

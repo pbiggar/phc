@@ -18,7 +18,6 @@
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
-#include "ast_to_hir/AST_shredder.h"
 
 using namespace HIR;
 
@@ -615,7 +614,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 				// Create: if ($TB1 == depth)
 				OP* op = new OP (new String ("=="));
 				INT* branch_num = new INT (depth);
-				Bin_op* compare = new Bin_op (lhs->clone (), op, branch_num);
+				Bin_op* compare = new Bin_op (eval_var (lhs->clone ()), op, eval_var (branch_num));
 
 				// We break to depth 1 for any expr <= 1
 				if (depth == 1)

@@ -205,7 +205,7 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 	if (hir && param->expr->classid () != Variable::ID)
 	{
 		// This was set in Annotate.
-		param->expr->attrs->erase ("phc.lower_expr.no_temp");
+		param->expr->attrs->erase ("phc.ast_lower_expr.no_temp");
 		param->expr = eval (param->expr);
 		pieces->push_back (in); // only works after control flow is lowered
 	}

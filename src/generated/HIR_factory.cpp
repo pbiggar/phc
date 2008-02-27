@@ -274,22 +274,22 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Cast"))
     {
     	CAST* cast = dynamic_cast<CAST*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Cast(cast, expr);
+    	return new Cast(cast, variable_name);
     }
     if(!strcmp(type_id, "Unary_op"))
     {
     	OP* op = dynamic_cast<OP*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Unary_op(op, expr);
+    	return new Unary_op(op, variable_name);
     }
     if(!strcmp(type_id, "Bin_op"))
     {
-    	Expr* left = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* left = dynamic_cast<VARIABLE_NAME*>(*i++);
     	OP* op = dynamic_cast<OP*>(*i++);
-    	Expr* right = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* right = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
     	return new Bin_op(left, op, right);
     }

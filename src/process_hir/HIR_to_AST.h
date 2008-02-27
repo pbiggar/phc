@@ -98,6 +98,11 @@ class HIR_to_AST : public HIR::Fold
  AST::CAST*,				// CAST*
  AST::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
+	{
+		return new AST::Variable (NULL, var_name, new List<AST::Expr*>);
+	}
+
 	AST::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<AST::Statement*>* statements) 
 	{
 		AST::PHP_script* result;
@@ -396,26 +401,26 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Cast* fold_impl_cast(HIR::Cast* orig, AST::CAST* cast, AST::Expr* expr) 
+	AST::Cast* fold_impl_cast(HIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Cast* result;
-		result = new AST::Cast(cast, expr);
+		result = new AST::Cast(cast, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, AST::OP* op, AST::Expr* expr) 
+	AST::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, AST::OP* op, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Unary_op* result;
-		result = new AST::Unary_op(op, expr);
+		result = new AST::Unary_op(op, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::Expr* left, AST::OP* op, AST::Expr* right) 
+	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::VARIABLE_NAME* left, AST::OP* op, AST::VARIABLE_NAME* right) 
 	{
 		AST::Bin_op* result;
-		result = new AST::Bin_op(left, op, right);
+		result = new AST::Bin_op(wrap_var_name (left), op, wrap_var_name (right));
 		result->attrs = orig->attrs;
 		return result;
 	}

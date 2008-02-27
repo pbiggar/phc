@@ -111,6 +111,33 @@ class AST_to_HIR : public AST::Fold
  HIR::CAST*,				// CAST*
  HIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+
+	// The HIR expects variable names where the AST has expressions.
+	// Find the VARIABLE_NAME within the expression.
+	bool is_wrapped_var_name (HIR::Expr* expr)
+	{
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		if (	var == NULL 
+			|| var->variable_name == NULL
+			|| var->target != NULL
+			|| var->array_indices->size () != 0)
+			return false;
+
+		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
+	}
+
+	HIR::VARIABLE_NAME* var_name_to_expr (HIR::Expr* expr)
+	{
+		if (expr == NULL) // $x[]
+			return NULL;
+
+		assert (is_wrapped_var_name (expr));
+
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		HIR::VARIABLE_NAME* var_name = dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name);
+		return var_name;
+	}
+
 	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, List<HIR::Statement*>* statements) 
 	{
 		HIR::PHP_script* result;
@@ -412,7 +439,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
 	{
 		HIR::Cast* result;
-		result = new HIR::Cast(cast, expr);
+		result = new HIR::Cast(cast, var_name_to_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -420,7 +447,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Unary_op* fold_impl_unary_op(AST::Unary_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
 		HIR::Unary_op* result;
-		result = new HIR::Unary_op(op, expr);
+		result = new HIR::Unary_op(op, var_name_to_expr (expr));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -428,7 +455,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Bin_op* fold_impl_bin_op(AST::Bin_op* orig, HIR::Expr* left, HIR::OP* op, HIR::Expr* right) 
 	{
 		HIR::Bin_op* result;
-		result = new HIR::Bin_op(left, op, right);
+		result = new HIR::Bin_op(var_name_to_expr (left), op, var_name_to_expr (right));
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -1619,16 +1619,16 @@ public:
     Op_assignment(Variable* variable, const char* op, Expr* expr);
 };
 
-// Cast ::= CAST Expr ;
+// Cast ::= CAST VARIABLE_NAME ;
 class Cast : virtual public Expr
 {
 public:
-    Cast(CAST* cast, Expr* expr);
+    Cast(CAST* cast, VARIABLE_NAME* variable_name);
 protected:
     Cast();
 public:
     CAST* cast;
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1644,19 +1644,19 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Cast(const char* type, Expr* expr);
+    Cast(const char* type, VARIABLE_NAME* variable_name);
 };
 
-// Unary_op ::= OP Expr ;
+// Unary_op ::= OP VARIABLE_NAME ;
 class Unary_op : virtual public Expr
 {
 public:
-    Unary_op(OP* op, Expr* expr);
+    Unary_op(OP* op, VARIABLE_NAME* variable_name);
 protected:
     Unary_op();
 public:
     OP* op;
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1672,20 +1672,20 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Unary_op(Expr* expr, const char* op);
+    Unary_op(VARIABLE_NAME* variable_name, const char* op);
 };
 
-// Bin_op ::= left:Expr OP right:Expr ;
+// Bin_op ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ;
 class Bin_op : virtual public Expr
 {
 public:
-    Bin_op(Expr* left, OP* op, Expr* right);
+    Bin_op(VARIABLE_NAME* left, OP* op, VARIABLE_NAME* right);
 protected:
     Bin_op();
 public:
-    Expr* left;
+    VARIABLE_NAME* left;
     OP* op;
-    Expr* right;
+    VARIABLE_NAME* right;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1701,7 +1701,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Bin_op(Expr* left, Expr* right, const char* op);
+    Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op);
 };
 
 // Ignore_errors ::= Expr ;

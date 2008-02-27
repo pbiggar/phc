@@ -136,9 +136,9 @@ Op_assignment ::= Variable OP Expr ;
 -- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
 -- Variable_variable ::= VARIABLE_NAME ; 
 
-Cast ::= CAST Expr ;
-Unary_op ::= OP Expr ;
-Bin_op ::= left:Expr OP right:Expr ;
+Cast     ::= CAST VARIABLE_NAME ;
+Unary_op ::= OP VARIABLE_NAME ;
+Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
 
 Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ;
 Ignore_errors ::= Expr ;
@@ -534,7 +534,7 @@ public:
 class Bin_op
 {
 public:
-	Bin_op(Expr* left, Expr* right, const char* op) 
+	Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op) 
 	{
 		this->left = left;
 		this->op = new OP(new String(op));
@@ -555,9 +555,9 @@ public:
 class Unary_op
 {
 public:
-	Unary_op(Expr* expr, const char* op) 
+	Unary_op(VARIABLE_NAME* variable_name, const char* op) 
 	{
-		this->expr = expr;
+		this->variable_name = variable_name;
 		this->op = new OP(new String(op));
 	}
 };
@@ -574,10 +574,10 @@ public:
 class Cast
 {
 public:
-	Cast(const char* type, Expr* expr) 
+	Cast(const char* type, VARIABLE_NAME* variable_name) 
 	{
 		this->cast = new CAST(new String(type));
-		this->expr = expr;
+		this->variable_name = variable_name;
 	}
 };
 

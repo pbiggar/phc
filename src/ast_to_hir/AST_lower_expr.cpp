@@ -135,7 +135,7 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 
 Expr* Lower_expr::eval(Expr* in)
 {
-	if(in->attrs->is_true("phc.lower_expr.no_temp"))
+	if(in->attrs->is_true("phc.ast_lower_expr.no_temp"))
 	{
 		return in;
 	}

@@ -5483,16 +5483,16 @@ Op_assignment::Op_assignment(Variable* variable, const char* op, Expr* expr)
    }
 }
 
-Cast::Cast(CAST* cast, Expr* expr)
+Cast::Cast(CAST* cast, VARIABLE_NAME* variable_name)
 {
     this->cast = cast;
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Cast::Cast()
 {
     this->cast = 0;
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Cast::visit(Visitor* visitor)
@@ -5528,12 +5528,12 @@ bool Cast::match(Node* in)
     else if(!this->cast->match(that->cast))
     	return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -5552,12 +5552,12 @@ bool Cast::equals(Node* in)
     else if(!this->cast->equals(that->cast))
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5567,8 +5567,8 @@ bool Cast::equals(Node* in)
 Cast* Cast::clone()
 {
     CAST* cast = this->cast ? this->cast->clone() : NULL;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Cast* clone = new Cast(cast, expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Cast* clone = new Cast(cast, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -5577,29 +5577,29 @@ void Cast::assert_valid()
 {
     assert(cast != NULL);
     cast->assert_valid();
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Cast::Cast(const char* type, Expr* expr)
+Cast::Cast(const char* type, VARIABLE_NAME* variable_name)
 {
     {
 		this->cast = new CAST(new String(type));
-		this->expr = expr;
+		this->variable_name = variable_name;
 	}
 }
 
-Unary_op::Unary_op(OP* op, Expr* expr)
+Unary_op::Unary_op(OP* op, VARIABLE_NAME* variable_name)
 {
     this->op = op;
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Unary_op::Unary_op()
 {
     this->op = 0;
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Unary_op::visit(Visitor* visitor)
@@ -5635,12 +5635,12 @@ bool Unary_op::match(Node* in)
     else if(!this->op->match(that->op))
     	return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -5659,12 +5659,12 @@ bool Unary_op::equals(Node* in)
     else if(!this->op->equals(that->op))
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5674,8 +5674,8 @@ bool Unary_op::equals(Node* in)
 Unary_op* Unary_op::clone()
 {
     OP* op = this->op ? this->op->clone() : NULL;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Unary_op* clone = new Unary_op(op, expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Unary_op* clone = new Unary_op(op, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -5684,20 +5684,20 @@ void Unary_op::assert_valid()
 {
     assert(op != NULL);
     op->assert_valid();
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Unary_op::Unary_op(Expr* expr, const char* op)
+Unary_op::Unary_op(VARIABLE_NAME* variable_name, const char* op)
 {
     {
-		this->expr = expr;
+		this->variable_name = variable_name;
 		this->op = new OP(new String(op));
 	}
 }
 
-Bin_op::Bin_op(Expr* left, OP* op, Expr* right)
+Bin_op::Bin_op(VARIABLE_NAME* left, OP* op, VARIABLE_NAME* right)
 {
     this->left = left;
     this->op = op;
@@ -5798,9 +5798,9 @@ bool Bin_op::equals(Node* in)
 
 Bin_op* Bin_op::clone()
 {
-    Expr* left = this->left ? this->left->clone() : NULL;
+    VARIABLE_NAME* left = this->left ? this->left->clone() : NULL;
     OP* op = this->op ? this->op->clone() : NULL;
-    Expr* right = this->right ? this->right->clone() : NULL;
+    VARIABLE_NAME* right = this->right ? this->right->clone() : NULL;
     Bin_op* clone = new Bin_op(left, op, right);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -5817,7 +5817,7 @@ void Bin_op::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Bin_op::Bin_op(Expr* left, Expr* right, const char* op)
+Bin_op::Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op)
 {
     {
 		this->left = left;

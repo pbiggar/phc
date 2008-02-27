@@ -23,6 +23,7 @@ namespace AST
 namespace HIR
 {
 	HIR::Variable* fresh_var (string prefix);
+	HIR::VARIABLE_NAME* fresh_var_name (string prefix);
 	HIR::Label* fresh_label ();
 	HIR::HT_ITERATOR* fresh_iter ();
 }

@@ -519,28 +519,28 @@ public:
 	{
 		_CAST cast = 0;
 		if(in->cast != NULL) cast = fold_cast(in->cast);
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_cast(in, cast, expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_cast(in, cast, variable_name);
 	}
 
 	virtual _Unary_op fold_unary_op(Unary_op* in)
 	{
 		_OP op = 0;
 		if(in->op != NULL) op = fold_op(in->op);
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_unary_op(in, op, expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_unary_op(in, op, variable_name);
 	}
 
 	virtual _Bin_op fold_bin_op(Bin_op* in)
 	{
-		_Expr left = 0;
-		if(in->left != NULL) left = fold_expr(in->left);
+		_VARIABLE_NAME left = 0;
+		if(in->left != NULL) left = fold_variable_name(in->left);
 		_OP op = 0;
 		if(in->op != NULL) op = fold_op(in->op);
-		_Expr right = 0;
-		if(in->right != NULL) right = fold_expr(in->right);
+		_VARIABLE_NAME right = 0;
+		if(in->right != NULL) right = fold_variable_name(in->right);
 		return fold_impl_bin_op(in, left, op, right);
 	}
 
@@ -720,9 +720,9 @@ public:
 	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _Variable variable, _HT_ITERATOR ht_iterator) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
-	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _Expr expr) { assert(0); };
-	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _Expr expr) { assert(0); };
-	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _Expr left, _OP op, _Expr right) { assert(0); };
+	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
 	virtual _Conditional_expr fold_impl_conditional_expr(Conditional_expr* orig, _Expr cond, _Expr iftrue, _Expr iffalse) { assert(0); };
 	virtual _Ignore_errors fold_impl_ignore_errors(Ignore_errors* orig, _Expr expr) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };

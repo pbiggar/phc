@@ -27,6 +27,8 @@ namespace HIR
 	protected:
 		HIR::Expr* eval(HIR::Expr* in);
 		void eval(HIR::Expr* in, HIR::Variable* temp);
+		HIR::VARIABLE_NAME* eval_var(HIR::Expr* in);
+		void eval_var(HIR::Expr* in, HIR::VARIABLE_NAME* temp);
 		void push_back_pieces(HIR::Statement* in, List<HIR::Statement*>* out);
 		List<HIR::Statement*>* pieces;
 	};

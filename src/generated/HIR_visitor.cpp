@@ -831,20 +831,20 @@ void Visitor::children_op_assignment(Op_assignment* in)
 void Visitor::children_cast(Cast* in)
 {
     visit_cast(in->cast);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_unary_op(Unary_op* in)
 {
     visit_op(in->op);
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_bin_op(Bin_op* in)
 {
-    visit_expr(in->left);
+    visit_variable_name(in->left);
     visit_op(in->op);
-    visit_expr(in->right);
+    visit_variable_name(in->right);
 }
 
 void Visitor::children_conditional_expr(Conditional_expr* in)
