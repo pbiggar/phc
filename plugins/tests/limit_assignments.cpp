@@ -12,8 +12,6 @@
 #include "pass_manager/Plugin_pass.h"
 #include "process_ir/General.h"
 
-static bool success = true;
-
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	pm->add_after_each_pass (pass);
@@ -35,7 +33,8 @@ class Check_assignment : public Visitor
 			{
 				debug (in);
 				xadebug (in);
-				success = false;
+				printf ("Failure\n");
+				exit (-1);
 			}
 		}
 	}
@@ -58,8 +57,5 @@ extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*)
 
 extern "C" void unload ()
 {
-	if (success)
-		printf("Success\n");
-	else
-		printf("Failure\n");
+	printf("Success\n");
 }
