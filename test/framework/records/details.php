@@ -58,7 +58,7 @@
 		print "		<th>". maybe_link ($rev, "test.log", "Test Log") ."</th>";
 		print "		<th>". maybe_link ($rev, "install_test.log", "Install Test Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th colspan=2>". maybe_link ($rev, "svn_log.log", "Subversion Log") ."</th>";
+		print "		<th colspan=2><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
 		print "	</tr></table>";
 
 		print "	</td></tr>";
