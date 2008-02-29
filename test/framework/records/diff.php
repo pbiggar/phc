@@ -7,6 +7,7 @@
 		$old_rev = (int)$_GET["old_rev"];
 		$new_rev = (int)$_GET["new_rev"];
 		$unsafe_filename = $_GET["filename"];
+		$sort_first = $_GET["sort"] or false;
 
 		# Sanitize the revisions: 0 < old_rev < new_rev < 2000
 		if (!(0 < $old_rev)) bad ();
@@ -35,8 +36,24 @@
 		if (!file_exists ($new_filename))
 			die ("No new file");
 
+		$old = file_get_contents ($old_filename);
+		if ($sort_first)
+		{
+			$split = split ("\n", $old);
+			sort ($split);
+			$old = join ("\n", $split);
+		}
 
-		echo "<pre>" .diff (file_get_contents ($old_filename), file_get_contents ($new_filename)) ."</pre>\n";
+		$new = file_get_contents ($new_filename);
+		if ($sort_first)
+		{
+			$split = split ("\n", $new);
+			sort ($split);
+			$new = join ("\n", $split);
+		}
+
+
+		echo "<pre>" .diff ($old, $new) ."</pre>\n";
 
 	}
 

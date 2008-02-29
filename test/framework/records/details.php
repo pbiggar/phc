@@ -65,7 +65,7 @@
 		print "</table>\n";
 	}
 
-	function maybe_link ($rev, $filename, $name)
+	function maybe_link ($rev, $filename, $name, $sort = false)
 	{
 		$file = "results/$rev/$filename";
 		if (file_exists ($file))
@@ -73,7 +73,7 @@
 			$old_rev = $rev - 1;
 			$old_file = "results/$old_rev/$filename";
 			if (file_exists ($old_file))
-				return "<a href=\"$file\">$name</a> (<a href=\"diff.php?new_rev=$rev&old_rev=$old_rev&filename=$filename\">D</a>)";
+				return "<a href=\"$file\">$name</a> (<a href=\"diff.php?new_rev=$rev&old_rev=$old_rev&sort=$sort&filename=$filename\">D</a>)";
 			else
 				return "<a href=\"$file\">$name</a>";
 		}
@@ -95,10 +95,10 @@
 		print "<table class=info>";
 		print "<tr><th colspan=5>{$table_name}s</th></tr>\n";
 		print "<tr><th>Test name</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/success", "Passes") ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/failure", "Fails") ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/timeout", "Timeouts") ."</th><th>"
-			. maybe_link ($rev, "{$table_name}_logs/skipped", "Skips") ."</th></tr>\n";
+			. maybe_link ($rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/timeout", "Timeouts", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/skipped", "Skips", true) ."</th></tr>\n";
 
 		# fetch the previous revisions data, for comparison
 		$old_rev = $rev - 1;
