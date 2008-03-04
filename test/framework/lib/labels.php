@@ -53,8 +53,10 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	global $opposite_label;
 	global $labels;
 	global $exceptions;
+	global $opt_one;
 
 	$files = get_all_scripts_in_dir ($directory);
+
 
 	// labelled files is a table indexed by filename, containing tables indexed
 	// by default labels, which are set to 1 or 0 for default and non-default
@@ -89,6 +91,19 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 		$line = trim($line); // remove superfluous whitespace
 		if ($line == "") continue; // skip blank lines
 		process_label_file_line ("3rdparty/".$line, $files, &$labelled_files);
+	}
+
+	# if -O is provided, remove all other files
+	if ($opt_one)
+	{
+		foreach ($labelled_files as $key => $value)
+		{
+			if ($key !== $opt_one)
+			{
+				unset ($labelled_files[$key]);
+				$files = array ($opt_one);
+			}
+		}
 	}
 
 	# init the label struct
@@ -144,7 +159,7 @@ function create_label_struct ($directory, $label_filename, $third_party_filename
 	{
 		sort($label_struct{$label});
 	}
-	
+
 	return $label_struct;
 }
 
