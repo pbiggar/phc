@@ -16,10 +16,6 @@ using namespace AST;
 // a dummy assignment on the LHS
 void Desugar::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
-	// remove variables on their own
-	if (in->expr->classid() == Variable::ID)
-		return;
-
 	// Don't generate an assignment for unset
 	Expr* unset = new Method_invocation("unset", new Wildcard<Expr>);
 
