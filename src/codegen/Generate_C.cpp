@@ -2395,4 +2395,5 @@ Generate_C::Generate_C(ostream& os) : os (os)
 {
 	methods = new List<Signature*>;
 	name = new String ("generate-c");
+	description = new String ("Generate C code from the MIR");
 }

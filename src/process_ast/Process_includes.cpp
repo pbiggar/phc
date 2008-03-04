@@ -174,6 +174,7 @@ Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* p
   pm (pm)
 {
 	this->name = new String (name);
+	this->description = new String ("Insert included and required files into the AST");
 }
 
 bool Process_includes::pass_is_enabled (Pass_manager* pm)

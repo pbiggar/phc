@@ -36,22 +36,22 @@ public:
 
 	// Add AST passes
 	void add_ast_pass (Pass* pass);
-	void add_ast_visitor (AST::Visitor* visitor, const char* name);
-	void add_ast_transform (AST::Transform* transform, const char* name);
+	void add_ast_visitor (AST::Visitor* visitor, const char* name, const char* description);
+	void add_ast_transform (AST::Transform* transform, const char* name, const char* description);
 	void add_after_each_ast_pass (Pass* pass);
 	bool is_ast_pass (String* name);
 
 	// Add HIR passes
 	void add_hir_pass (Pass* pass);
-	void add_hir_visitor (HIR::Visitor* visitor, const char* name);
-	void add_hir_transform (HIR::Transform* transform, const char* name);
+	void add_hir_visitor (HIR::Visitor* visitor, const char* name, const char* description);
+	void add_hir_transform (HIR::Transform* transform, const char* name, const char* description);
 	void add_after_each_hir_pass (Pass* pass);
 	bool is_hir_pass (String* name);
 
 	// Add MIR passes
 	void add_mir_pass (Pass* pass);
-	void add_mir_visitor (MIR::Visitor* visitor, const char* name);
-	void add_mir_transform (MIR::Transform* transform, const char* name);
+	void add_mir_visitor (MIR::Visitor* visitor, const char* name, const char* description);
+	void add_mir_transform (MIR::Transform* transform, const char* name, const char* description);
 	void add_after_each_mir_pass (Pass* pass);
 	bool is_mir_pass (String* name);
 

@@ -18,7 +18,8 @@
 Compile_C::Compile_C (stringstream& os)
 : os(os)
 {
-	this->name = new String ("compile_c");
+	this->name = new String ("compile-c");
+	this->description = new String ("Compile C code into an executable");
 }
 
 stringstream& new_arg (vector<stringstream*> &args)

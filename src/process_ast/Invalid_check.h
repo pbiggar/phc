@@ -26,11 +26,7 @@ public:
 
 	// If this is set, use phc_internal_error instead of phc_error
 	bool use_ice; // ice == Internal Compiler Error
-	Invalid_check (bool use_ice = false) 
-	: use_ice (use_ice)
-	{
-		this->name = new String ("check");
-	}
+	Invalid_check (bool use_ice = false);
 
 	// decide the error based on whether USE_ICE is set
 	void error (const char* message, AST::Node* node);

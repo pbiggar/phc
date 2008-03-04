@@ -17,6 +17,7 @@ public:
 	Obfuscate ()
 	{
 		name = new String ("obfuscate");
+		description = new String ("Print program with obfuscated control-flow");
 	}
 
 	void run (IR* in, Pass_manager* pm)

@@ -30,6 +30,7 @@ using namespace MIR;
 Prune_symbol_table::Prune_symbol_table () 
 :  prune (true) 
 {
+
 }
 
 // TODO we cant compile nested functions anyway, but this needs to be

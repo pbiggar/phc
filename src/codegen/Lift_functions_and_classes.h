@@ -18,6 +18,7 @@ public:
 	Lift_functions_and_classes () 
 	{
 		this->name = new String ("lfc");
+		this->description = new String ("Move statements from global scope into __MAIN__ method");
 	}
 
 	// TODO this should be done on HIR, I think

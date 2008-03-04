@@ -38,15 +38,15 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	queues = new List <List<Pass*>* > (ast_queue, hir_queue, mir_queue);
 }
 
-void Pass_manager::add_ast_visitor (AST::Visitor* visitor, const char* name)
+void Pass_manager::add_ast_visitor (AST::Visitor* visitor, const char* name, const char* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name));
+	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
 	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_ast_transform (AST::Transform* transform, const char* name)
+void Pass_manager::add_ast_transform (AST::Transform* transform, const char* name, const char* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name));
+	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
 	add_pass (pass, ast_queue);
 }
 
@@ -55,15 +55,15 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name)
+void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name, const char* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name));
+	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
 	add_pass (pass, hir_queue);
 }
 
-void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name)
+void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name, const char* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name));
+	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
 	add_pass (pass, hir_queue);
 }
 
@@ -74,15 +74,15 @@ void Pass_manager::add_hir_pass (Pass* pass)
 
 
 
-void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, const char* name)
+void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, const char* name, const char* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name));
+	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
 	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_mir_transform (MIR::Transform* transform, const char* name)
+void Pass_manager::add_mir_transform (MIR::Transform* transform, const char* name, const char* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name));
+	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
 	add_pass (pass, mir_queue);
 }
 
@@ -210,6 +210,52 @@ void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
 	phc_error ("No pass with name %s was found", name);
 }
 
+// TODO this could be much nicer, but its not important
+/* Format the string so that each line in LENGTH long, and all lines except the
+ * first have WHITESPACE of leading whitespace */
+String* format (String* str, int prefix_length)
+{
+	const int LINE_LENGTH = 80;
+	assert (prefix_length < LINE_LENGTH);
+	stringstream result;
+	stringstream line;
+	stringstream word;
+
+	string leading_whitespace (prefix_length, ' ');
+
+
+	for (unsigned int i = 0; i < str->size (); i++)
+	{
+		// add the letter to the word
+		word << (*str)[i];
+
+		// end of word
+		if ((*str)[i] == ' ')
+		{
+			line << word.str();
+			word.str(""); // erase
+		}
+		else
+		{
+			// end of line?
+			if (line.str().size() + word.str().size() > (unsigned int)(LINE_LENGTH - prefix_length))
+			{
+				result << line.str() << "\n";
+				line.str (""); // erase
+				line << leading_whitespace;
+
+				// only use the prefix on the first line
+				prefix_length = 0;
+			}
+		}
+	}
+
+	// flush the remainder of the string
+	result << line.str () << word.str ();
+
+	return new String (result.str ());
+}
+
 void Pass_manager::list_passes ()
 {
 	cout << "Passes:\n";
@@ -219,8 +265,9 @@ void Pass_manager::list_passes ()
 			const char* name = "AST";
 			if ((*q) == hir_queue) name = "HIR";
 			if ((*q) == mir_queue) name = "MIR";
-			String* desc = (*p)->description;
-			printf ("%-30s\t(%-8s - %s)\t%s\n", 
+			String* desc = format ((*p)->description, 39);
+
+			printf ("%-15s    (%-8s - %3s)    %s\n", 
 					(*p)->name->c_str (),
 					(*p)->is_enabled (this) ? "enabled" : "disabled",
 					name,

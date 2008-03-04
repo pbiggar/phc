@@ -21,6 +21,7 @@ public:
 	Pretty_print ()
 	{
 		this->name = new String ("pretty-print");
+		this->description = new String ("Print the formatted program source");
 	}
 
 	void run (IR* in, Pass_manager* pm)

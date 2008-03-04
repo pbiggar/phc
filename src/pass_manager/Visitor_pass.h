@@ -20,25 +20,28 @@ class Visitor_pass : public Pass
 
 public:
 
-	Visitor_pass (AST::Visitor* v, String* name)
+	Visitor_pass (AST::Visitor* v, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_visitor = v;
 		hir_visitor = NULL;
 		mir_visitor = NULL;
 	}
 
-	Visitor_pass (HIR::Visitor* v, String* name)
+	Visitor_pass (HIR::Visitor* v, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_visitor = NULL;
 		hir_visitor = v;
 		mir_visitor = NULL;
 	}
 
-	Visitor_pass (MIR::Visitor* v, String* name)
+	Visitor_pass (MIR::Visitor* v, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_visitor = NULL;
 		hir_visitor = NULL;
 		mir_visitor = v;

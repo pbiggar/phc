@@ -19,25 +19,28 @@ class Transform_pass : public Pass
 
 public:
 
-	Transform_pass (AST::Transform* t, String* name)
+	Transform_pass (AST::Transform* t, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_transform = t;
 		hir_transform = NULL;
 		mir_transform = NULL;
 	}
 
-	Transform_pass (MIR::Transform* t, String* name)
+	Transform_pass (MIR::Transform* t, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_transform = NULL;
 		hir_transform = NULL;
 		mir_transform = t;
 	}
 
-	Transform_pass (HIR::Transform* t, String* name)
+	Transform_pass (HIR::Transform* t, String* name, String* description)
 	{
 		this->name = name;
+		this->description = description;
 		ast_transform = NULL;
 		hir_transform = t;
 		mir_transform = NULL;

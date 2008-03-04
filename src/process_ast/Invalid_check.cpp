@@ -37,6 +37,14 @@ bool is_ref_literal (HIR::Expr* in)
 			|| dynamic_cast <HIR::Constant*> (in));
 }
 
+Invalid_check::Invalid_check (bool use_ice) 
+: Pass ()
+, use_ice (use_ice)
+{
+	this->name = new String ("check");
+	this->description = new String ("Check for invalid PHP statements");
+}
+
 
 
 void Invalid_check::run (IR* in, Pass_manager* pm)
