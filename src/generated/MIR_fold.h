@@ -92,8 +92,10 @@ class Fold
 public:
 	virtual _PHP_script fold_php_script(PHP_script* in)
 	{
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
+	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -110,15 +112,19 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_CLASS_NAME extends = 0;
 		if(in->extends != NULL) extends = fold_class_name(in->extends);
-		List<_INTERFACE_NAME>* implements = new List<_INTERFACE_NAME>;
+		List<_INTERFACE_NAME>* implements = 0;
+	
 		{
+			implements = new List<_INTERFACE_NAME>;
 			List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->implements->begin(); i != in->implements->end(); i++)
 				if(*i != NULL) implements->push_back(fold_interface_name(*i));
 				else implements->push_back(0);
 		}
-		List<_Member>* members = new List<_Member>;
+		List<_Member>* members = 0;
+	
 		{
+			members = new List<_Member>;
 			List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
@@ -138,15 +144,19 @@ public:
 	{
 		_INTERFACE_NAME interface_name = 0;
 		if(in->interface_name != NULL) interface_name = fold_interface_name(in->interface_name);
-		List<_INTERFACE_NAME>* extends = new List<_INTERFACE_NAME>;
+		List<_INTERFACE_NAME>* extends = 0;
+	
 		{
+			extends = new List<_INTERFACE_NAME>;
 			List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->extends->begin(); i != in->extends->end(); i++)
 				if(*i != NULL) extends->push_back(fold_interface_name(*i));
 				else extends->push_back(0);
 		}
-		List<_Member>* members = new List<_Member>;
+		List<_Member>* members = 0;
+	
 		{
+			members = new List<_Member>;
 			List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
@@ -159,8 +169,10 @@ public:
 	{
 		_Signature signature = 0;
 		if(in->signature != NULL) signature = fold_signature(in->signature);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
+	if (in->statements)
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -176,8 +188,10 @@ public:
 		bool is_ref = in->is_ref;
 		_METHOD_NAME method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Formal_parameter>* formal_parameters = new List<_Formal_parameter>;
+		List<_Formal_parameter>* formal_parameters = 0;
+	
 		{
+			formal_parameters = new List<_Formal_parameter>;
 			List<Formal_parameter*>::const_iterator i;
 			for(i = in->formal_parameters->begin(); i != in->formal_parameters->end(); i++)
 				if(*i != NULL) formal_parameters->push_back(fold_formal_parameter(*i));
@@ -265,15 +279,19 @@ public:
 
 	virtual _Try fold_try(Try* in)
 	{
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
+	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
 		}
-		List<_Catch>* catches = new List<_Catch>;
+		List<_Catch>* catches = 0;
+	
 		{
+			catches = new List<_Catch>;
 			List<Catch*>::const_iterator i;
 			for(i = in->catches->begin(); i != in->catches->end(); i++)
 				if(*i != NULL) catches->push_back(fold_catch(*i));
@@ -288,8 +306,10 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_Statement>* statements = new List<_Statement>;
+		List<_Statement>* statements = 0;
+	
 		{
+			statements = new List<_Statement>;
 			List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
@@ -454,8 +474,10 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_VARIABLE_NAME>* array_indices = new List<_VARIABLE_NAME>;
+		List<_VARIABLE_NAME>* array_indices = 0;
+	
 		{
+			array_indices = new List<_VARIABLE_NAME>;
 			List<VARIABLE_NAME*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
@@ -482,8 +504,10 @@ public:
 
 	virtual _Array fold_array(Array* in)
 	{
-		List<_Array_elem>* array_elems = new List<_Array_elem>;
+		List<_Array_elem>* array_elems = 0;
+	
 		{
+			array_elems = new List<_Array_elem>;
 			List<Array_elem*>::const_iterator i;
 			for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
 				if(*i != NULL) array_elems->push_back(fold_array_elem(*i));
@@ -508,8 +532,10 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Method_name method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Actual_parameter>* actual_parameters = new List<_Actual_parameter>;
+		List<_Actual_parameter>* actual_parameters = 0;
+	
 		{
+			actual_parameters = new List<_Actual_parameter>;
 			List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
@@ -525,8 +551,10 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_VARIABLE_NAME>* array_indices = new List<_VARIABLE_NAME>;
+		List<_VARIABLE_NAME>* array_indices = 0;
+	
 		{
+			array_indices = new List<_VARIABLE_NAME>;
 			List<VARIABLE_NAME*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
@@ -539,8 +567,10 @@ public:
 	{
 		_Class_name class_name = 0;
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		List<_Actual_parameter>* actual_parameters = new List<_Actual_parameter>;
+		List<_Actual_parameter>* actual_parameters = 0;
+	
 		{
+			actual_parameters = new List<_Actual_parameter>;
 			List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));

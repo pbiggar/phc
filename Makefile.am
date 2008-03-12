@@ -64,6 +64,7 @@ src_phc_SOURCES =												\
 	src/codegen/Strip_comments.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
+	src/generated/AST.clp									\
 	src/generated/AST.cpp									\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
@@ -75,6 +76,7 @@ src_phc_SOURCES =												\
 	src/generated/AST_visitor.h							\
 	src/generated/cmdline.c									\
 	src/generated/cmdline.h									\
+	src/generated/HIR.clp									\
 	src/generated/HIR.cpp									\
 	src/generated/HIR_factory.cpp							\
 	src/generated/HIR_factory.h							\
@@ -86,6 +88,7 @@ src_phc_SOURCES =												\
 	src/generated/HIR_visitor.h							\
 	src/generated/keywords.h								\
 	src/generated/lex.yy.cc									\
+	src/generated/MIR.clp									\
 	src/generated/MIR.cpp									\
 	src/generated/MIR_factory.cpp							\
 	src/generated/MIR_factory.h							\
@@ -387,6 +390,7 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 #   the correct way is so onerous, that this way seems much better.
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
+src/generated/AST.clp 				\
 src/generated/AST.cpp 				\
 src/generated/AST.h 					\
 src/generated/AST_transform.cpp 	\
@@ -398,6 +402,7 @@ src/generated/AST_factory.h		\
 src/generated/AST_fold.h			\
 	: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
+	mv AST.clp src/generated/
 	mv AST.cpp src/generated/
 	mv AST.h src/generated/
 	mv AST_transform.cpp src/generated/
@@ -410,6 +415,7 @@ src/generated/AST_fold.h			\
 	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
+src/generated/HIR.clp 				\
 src/generated/HIR.cpp 				\
 src/generated/HIR.h 					\
 src/generated/HIR_transform.cpp 	\
@@ -421,6 +427,7 @@ src/generated/HIR_factory.h		\
 src/generated/HIR_fold.h			\
 	: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
+	mv HIR.clp src/generated/
 	mv HIR.cpp src/generated/
 	mv HIR.h src/generated/
 	mv HIR_transform.cpp src/generated/
@@ -433,6 +440,7 @@ src/generated/HIR_fold.h			\
 	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd#
 
+src/generated/MIR.clp 				\
 src/generated/MIR.cpp 				\
 src/generated/MIR.h 					\
 src/generated/MIR_transform.cpp 	\
@@ -444,6 +452,7 @@ src/generated/MIR_factory.h		\
 src/generated/MIR_fold.h			\
 	: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
+	mv MIR.clp src/generated/
 	mv MIR.cpp src/generated/
 	mv MIR.h src/generated/
 	mv MIR_transform.cpp src/generated/

@@ -1,14 +1,9 @@
-type php_variable = string.
-type php_expr = string.
-type php_assigment ::= php_assignment {php_variable, bool, php_expr}.
+import "../../src/generated/HIR.clp".
 
+% TODO by declaring the types, we get strong typing
 session phc_body (FUNCTION:string).
-
-
-	
-
-predicate phc_assignment (ID:STRING, V:php_variable, IS_REF:bool, EXPR:php_expr).
 
 analyze session_name("phc_body").
 
-?- phc_assignment (ID, A, false, C).
+?- phc_assignment (A, false, C).
+?- phc_php_script (STATEMENTS).
