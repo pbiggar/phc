@@ -21,7 +21,6 @@ namespace HIR
 	public:
 
 		Annotate();
-		void pre_node(HIR::Node* in);
 		void pre_assignment(HIR::Assignment* in);
 		void pre_op_assignment(HIR::Op_assignment* in);
 		void pre_pre_op (HIR::Pre_op* in);

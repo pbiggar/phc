@@ -15,42 +15,32 @@ Annotate::Annotate()
 {
 }
 
-void Annotate::pre_node(Node* in)
-{
-	in->attrs->erase("phc.unparser.is_global_stmt");
-	in->attrs->erase("phc.unparser.starts_line");
-	in->attrs->erase("phc.unparser.needs_curlies");
-	in->attrs->erase("phc.unparser.needs_user_curlies");
-	in->attrs->erase("phc.unparser.needs_brackets");
-	in->attrs->erase("phc.unparser.needs_user_brackets");
-}
-
 void Annotate::pre_assignment(Assignment* in)
 {
 	// Assignments of the form $$e =& $d dont work if $$e is split
 	// into a temporary first
 	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID)
-		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
+		in->variable->attrs->set_true("phc.hir_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.hir_shredder.need_addr");
 
 	// Variables on the RHS need references if $x =& $y is being used
 	Wildcard<Variable>* rhs = new Wildcard<Variable> ();
 	if (in->is_ref && in->match (new Assignment (new Wildcard<Variable>(), false /*ignore*/, rhs)))
-		rhs->value->attrs->set_true ("phc.ast_shredder.need_addr");
+		rhs->value->attrs->set_true ("phc.hir_shredder.need_addr");
 
 	// Is is not necessary to generate a temporary for the
 	// top-level expression of an assignment
 	if (in->expr->classid () != Array::ID)
-		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+		in->expr->attrs->set_true("phc.hir_lower_expr.no_temp");
 }
 
 // op_assignments are never by reference
 void Annotate::pre_op_assignment(Op_assignment* in)
 {
 	// We need references if we shred $x[0][1][etc] = ...;
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.hir_shredder.need_addr");
 
 	// We do need a temporary for the expression of the op_assignment,
 	// because it will be the right operand to a binary operator
@@ -58,7 +48,7 @@ void Annotate::pre_op_assignment(Op_assignment* in)
 
 void Annotate::pre_pre_op (Pre_op* in)
 {
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.hir_shredder.need_addr");
 }
 
 void Annotate::pre_attribute(Attribute* in)
@@ -76,9 +66,9 @@ void Annotate::pre_array_elem (Array_elem* in)
 	if (generate_array_temps == false)
 	{
 		if(in->key)
-			in->key->attrs->set_true("phc.ast_lower_expr.no_temp");
+			in->key->attrs->set_true("phc.hir_lower_expr.no_temp");
 		if(in->val)
-			in->val->attrs->set_true("phc.ast_lower_expr.no_temp");
+			in->val->attrs->set_true("phc.hir_lower_expr.no_temp");
 	}
 }
 
@@ -106,7 +96,7 @@ void Annotate::pre_name_with_default (Name_with_default* in)
 {
 	// Never generate a temp for a default value
 	if(in->expr)
-		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+		in->expr->attrs->set_true("phc.hir_lower_expr.no_temp");
 }
 
 // TODO nested functions?
@@ -124,7 +114,7 @@ void Annotate::post_return (Return* in)
 {
 	if (return_by_ref 
 			&& in->expr->classid () == Variable::ID)
-		in->expr->attrs->set_true ("phc.ast_shredder.need_addr");
+		in->expr->attrs->set_true ("phc.hir_shredder.need_addr");
 }
 
 void Annotate::post_method_invocation (Method_invocation* in)
@@ -143,7 +133,7 @@ void Annotate::post_method_invocation (Method_invocation* in)
 		for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
 		{
 			if (dynamic_cast<STRING*> ((*i)->expr))
-				(*i)->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+				(*i)->expr->attrs->set_true("phc.hir_lower_expr.no_temp");
 		}
 
 	}
@@ -155,7 +145,7 @@ void Annotate::post_method_invocation (Method_invocation* in)
 	for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
 	{
 		if (dynamic_cast<Variable*> ((*i)->expr))
-			(*i)->expr->attrs->set_true("phc.ast_shredder.dont_shred");
+			(*i)->expr->attrs->set_true("phc.hir_shredder.dont_shred");
 	}
 
 }
@@ -170,13 +160,13 @@ void Annotate::pre_eval_expr (Eval_expr* in)
 	if (in->expr->classid() == Assignment::ID ||
 			in->expr->classid() == Op_assignment::ID)
 	{
-		in->expr->attrs->set_true("phc.ast_shredder.non_nested_assignment");
+		in->expr->attrs->set_true("phc.hir_shredder.non_nested_assignment");
 	}
 
 	if (in->expr->classid() == Method_invocation::ID)
 	{
 		// Do not generate temps for top-level method invocations
-		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+		in->expr->attrs->set_true("phc.hir_lower_expr.no_temp");
 	}
 }
 
@@ -185,5 +175,5 @@ void Annotate::pre_eval_expr (Eval_expr* in)
 void Annotate::pre_break (Break* in)
 {
 	if (in->expr)
-		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+		in->expr->attrs->set_true("phc.hir_lower_expr.no_temp");
 }
