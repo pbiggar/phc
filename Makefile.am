@@ -42,8 +42,8 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
-	src/ast_to_hir/Annotate.cpp							\
-	src/ast_to_hir/Annotate.h								\
+	src/ast_to_hir/AST_annotate.cpp						\
+	src/ast_to_hir/AST_annotate.h							\
 	src/ast_to_hir/AST_lower_expr.cpp					\
 	src/ast_to_hir/AST_lower_expr.h						\
 	src/ast_to_hir/AST_shredder.cpp						\
@@ -114,6 +114,8 @@ src_phc_SOURCES =												\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
+	src/hir_to_mir/HIR_annotate.cpp						\
+	src/hir_to_mir/HIR_annotate.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
 	src/hir_to_mir/HIR_shredder.cpp						\

@@ -5,10 +5,10 @@
  * Annotate nodes so they can be correctly shredded.
  */
 
-#include "Annotate.h"
+#include "HIR_annotate.h"
 #include "process_ir/debug.h"
 
-using namespace AST;
+using namespace HIR;
 
 Annotate::Annotate() 
 : generate_array_temps(true) 
@@ -56,11 +56,6 @@ void Annotate::pre_op_assignment(Op_assignment* in)
 	// because it will be the right operand to a binary operator
 }
 
-void Annotate::pre_post_op (Post_op* in)
-{
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
-}
-
 void Annotate::pre_pre_op (Pre_op* in)
 {
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
@@ -95,13 +90,6 @@ void Annotate::pre_static_declaration(Static_declaration* in)
 void Annotate::post_static_declaration(Static_declaration* in)
 {
 	generate_array_temps = true;
-}
-
-void Annotate::pre_directive (Directive* in)
-{
-	// Do not generate a temp to hold the value of a directive
-	// variable
-	in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
 }
 
 void Annotate::pre_formal_parameter (Formal_parameter* in)
@@ -180,8 +168,7 @@ void Annotate::post_method_invocation (Method_invocation* in)
 void Annotate::pre_eval_expr (Eval_expr* in)
 {
 	if (in->expr->classid() == Assignment::ID ||
-			in->expr->classid() == Op_assignment::ID ||
-			in->expr->classid() == List_assignment::ID)
+			in->expr->classid() == Op_assignment::ID)
 	{
 		in->expr->attrs->set_true("phc.ast_shredder.non_nested_assignment");
 	}
@@ -191,12 +178,6 @@ void Annotate::pre_eval_expr (Eval_expr* in)
 		// Do not generate temps for top-level method invocations
 		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
 	}
-}
-
-/* A while should have TRUE as its parameter, after early_lower_control_flow. */
-void Annotate::pre_while (While* in)
-{
-	in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
 }
 
 /* To print compile-time error messages for breaks, we must keep this for now.
