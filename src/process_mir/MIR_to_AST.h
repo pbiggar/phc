@@ -89,6 +89,25 @@ class MIR_to_AST : public MIR::Fold
  AST::OP*,				// OP*
  AST::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+
+
+	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
+	{
+		return new AST::Variable (NULL, var_name, new List<AST::Expr*>);
+	}
+
+	List<AST::Expr*>* wrap_var_list (List<AST::VARIABLE_NAME*>* var_names)
+	{
+		List<AST::Expr*>* result = new List<AST::Expr*>;
+		for_lci (var_names, AST::VARIABLE_NAME, i)
+		{
+			result->push_back (wrap_var_name (*i));
+		}
+		return result;
+	}
+
+
+
 	AST::PHP_script* fold_impl_php_script(MIR::PHP_script* orig, List<AST::Statement*>* statements) 
 	{
 		AST::PHP_script* result;
@@ -368,10 +387,16 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
 		AST::Variable* result;
-		result = new AST::Variable(target, variable_name, array_indices);
+		List<AST::Expr*>* new_ais = new List<AST::Expr*>;
+		for_lci (array_indices, AST::VARIABLE_NAME, i)
+		{
+			new_ais->push_back (wrap_var_name (*i));
+		}
+
+		result = new AST::Variable(target, variable_name, new_ais);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -416,10 +441,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Expr* expr) 
+	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Target* target, AST::Variable_name* var_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
 		AST::Actual_parameter* result;
-		result = new AST::Actual_parameter(is_ref, expr);
+		result = new AST::Actual_parameter(is_ref, new AST::Variable (target, var_name, wrap_var_list (array_indices)));
 		result->attrs = orig->attrs;
 		return result;
 	}
