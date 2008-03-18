@@ -191,7 +191,7 @@ function count_statements ($xprogram_string)
 {
 	debug (2, "Counting statements");
 	list ($out, $err, $exit) = run ("src/phc --read-xml=plugins/tutorials/count_statements_easy.la --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
-	if ($err || $exit != 0)
+	if ($err || $exit !== 0)
 	  die ("Error reading number of statements\n");
 	debug (2, "Output is: $out");
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
@@ -203,7 +203,7 @@ function run ($command, $stdin = NULL)
 	debug (2, "Running command: $command");
 	$result = complete_exec ($command, $stdin);
 
-	if ($result == "Timeout")
+	if ($result[1] == "Timeout")
 		debug (2, "Command timed out");
 
 	return $result;
