@@ -423,7 +423,7 @@ function complete_exec($command, $stdin = NULL)
 									2 => array("pipe", "w"));
 	$pipes = array();
 	$handle = proc_open($command, $descriptorspec, &$pipes);
-
+	
 	# read stdin into the process
 	if ($stdin !== NULL)
 		fwrite ($pipes[0], $stdin);
@@ -434,11 +434,21 @@ function complete_exec($command, $stdin = NULL)
 	// set non blocking to avoid infinite loops on stuck programs
 	stream_set_blocking ($pipes[1], 0);
 	stream_set_blocking ($pipes[2], 0);
-	
+
+	$out = "";
+	$err = "";
+
 	$start_time = time ();
 	do
 	{
 		$status = proc_get_status ($handle);
+
+		// It seems that with a large amount fo output, the process
+		// won't finish unless the buffers are periodically cleared.
+		// (This doesn't seem to be the case is async_test. I don't
+		// know why).
+		$out .= stream_get_contents ($pipes[1]);
+		$err .= stream_get_contents ($pipes[2]);
 
 		// 20 second timeout on any command
 		if (time () > $start_time + 20)
@@ -458,8 +468,8 @@ function complete_exec($command, $stdin = NULL)
 
 	stream_set_blocking ($pipes[1], 1);
 	stream_set_blocking ($pipes[2], 1);
-	$out = stream_get_contents ($pipes[1]);
-	$err = stream_get_contents ($pipes[2]);
+	$out .= stream_get_contents ($pipes[1]);
+	$err .= stream_get_contents ($pipes[2]);
 
 	# contrary to popular opinion, proc_close doesnt return the exit
 	# status
