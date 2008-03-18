@@ -50,5 +50,9 @@ codegen/for_varying_cond.php		non-interpretable # infinite loops
 
 parsing/instring.php					non-interpretable # php's parser doesnt like this
 
+# declare doesn't make sense after the ast
+parsing/comments_declare.php		no-cb_hir 
+parsing/capital_ticks.php			no-cb_hir
+
 #.*										long
 #unsupported/.*						short

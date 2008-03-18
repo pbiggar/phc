@@ -103,12 +103,6 @@
 			break;
 	}
 
-	// 24 Declare statement
-	declare(TICKS = 24)
-	{
-		echo "break 24";
-	}
-
 	// 25 Try statement
 	try
 	{
