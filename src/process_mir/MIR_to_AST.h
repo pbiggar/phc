@@ -93,6 +93,9 @@ class MIR_to_AST : public MIR::Fold
 
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
 	{
+		if (var_name == NULL)
+			return NULL;
+
 		return new AST::Variable (NULL, var_name, new List<AST::Expr*>);
 	}
 
