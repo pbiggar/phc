@@ -272,16 +272,20 @@ public:
 class Commented_node 
 {
 public:
-	Commented_node()
+
+	Commented_node ()
 	{
-		attrs->set("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new List<String*>);
 	}
 
 	// Return the comments associated with the node
 	List<String*>* get_comments()
 	{
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
+
+		if (comments == NULL)
+			return new List<String*>;
+
 		return comments;
 	}
 };

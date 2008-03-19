@@ -1363,7 +1363,7 @@ Class_name::Class_name()
 Commented_node::Commented_node()
 {
     {
-		attrs->set("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new List<String*>);
 	}
 }
 
@@ -1372,7 +1372,10 @@ List<String*>* Commented_node::get_comments()
 {
     {
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
+
+		if (comments == NULL)
+			return new List<String*>;
+
 		return comments;
 	}
 }

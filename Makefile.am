@@ -65,6 +65,8 @@ src_phc_SOURCES =												\
 	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Strip_comments.cpp					\
+	src/ast_to_hir/Strip_comments.h						\
 	src/ast_to_hir/Tidy_print.cpp							\
 	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.cpp					\
@@ -78,8 +80,6 @@ src_phc_SOURCES =												\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
-	src/codegen/Strip_comments.cpp						\
-	src/codegen/Strip_comments.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\

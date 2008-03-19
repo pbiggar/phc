@@ -7,7 +7,7 @@
 
 #include "Strip_comments.h"
 
-using namespace HIR;
+using namespace AST;
 
 void Strip_comments::pre_commented_node(Commented_node* in)
 {

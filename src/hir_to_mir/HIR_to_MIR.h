@@ -81,7 +81,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Actual_parameter*,	// Actual_parameter*
  MIR::New*,					// New*
  MIR::Class_name*,			// Class_name*
- MIR::Node*,				// Commented_node*
  MIR::Identifier*,			// Identifier*
  MIR::HT_ITERATOR*,		// HT_ITERATOR*
  MIR::CLASS_NAME*,		// CLASS_NAME*

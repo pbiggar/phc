@@ -81,7 +81,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Actual_parameter*,	// Actual_parameter*
  AST::New*,					// New*
  AST::Class_name*,			// Class_name*
- AST::Commented_node*,				// Commented_node*
  AST::Identifier*,			// Identifier*
  AST::HT_ITERATOR*,		// HT_ITERATOR*
  AST::CLASS_NAME*,		// CLASS_NAME*

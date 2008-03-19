@@ -179,10 +179,6 @@ Class_name ::= CLASS_NAME | Reflection ;
  - Additional structure 
  -}
 
-Commented_node ::= 
-	  Member | Statement | Interface_def | Class_def | Catch 
-	;
-
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
 	  | CAST | OP | CONSTANT_NAME | LABEL_NAME
@@ -281,23 +277,6 @@ public:
 		}
 
 		return true;
-	}
-};
-
-class Commented_node 
-{
-public:
-	Commented_node()
-	{
-		attrs->set("phc.comments", new List<String*>);
-	}
-
-	// Return the comments associated with the node
-	List<String*>* get_comments()
-	{
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
-		return comments;
 	}
 };
 

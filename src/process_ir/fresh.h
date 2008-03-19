@@ -16,8 +16,6 @@ String* fresh(string prefix);
 namespace AST
 {
 	AST::Variable* fresh_var (string prefix);
-	AST::Label* fresh_label ();
-	AST::HT_ITERATOR* fresh_iter ();
 }
 
 namespace HIR

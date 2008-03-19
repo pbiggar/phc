@@ -77,7 +77,6 @@ template
  class _Actual_parameter,
  class _New,
  class _Class_name,
- class _Commented_node,
  class _Identifier,
  class _HT_ITERATOR,
  class _CLASS_NAME,
@@ -760,8 +759,50 @@ public:
 		{
 			case PHP_script::ID:
 				return fold_php_script(dynamic_cast<PHP_script*>(in));
+			case Class_def::ID:
+				return fold_class_def(dynamic_cast<Class_def*>(in));
+			case Interface_def::ID:
+				return fold_interface_def(dynamic_cast<Interface_def*>(in));
+			case Method::ID:
+				return fold_method(dynamic_cast<Method*>(in));
+			case Return::ID:
+				return fold_return(dynamic_cast<Return*>(in));
+			case Static_declaration::ID:
+				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
+			case Global::ID:
+				return fold_global(dynamic_cast<Global*>(in));
+			case Try::ID:
+				return fold_try(dynamic_cast<Try*>(in));
+			case Throw::ID:
+				return fold_throw(dynamic_cast<Throw*>(in));
+			case Eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
+			case If::ID:
+				return fold_if(dynamic_cast<If*>(in));
+			case Loop::ID:
+				return fold_loop(dynamic_cast<Loop*>(in));
+			case Foreach::ID:
+				return fold_foreach(dynamic_cast<Foreach*>(in));
+			case Break::ID:
+				return fold_break(dynamic_cast<Break*>(in));
+			case Continue::ID:
+				return fold_continue(dynamic_cast<Continue*>(in));
+			case Label::ID:
+				return fold_label(dynamic_cast<Label*>(in));
+			case Goto::ID:
+				return fold_goto(dynamic_cast<Goto*>(in));
+			case Branch::ID:
+				return fold_branch(dynamic_cast<Branch*>(in));
+			case Foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
+			case Foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
+			case Foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
 			case Class_mod::ID:
 				return fold_class_mod(dynamic_cast<Class_mod*>(in));
+			case Attribute::ID:
+				return fold_attribute(dynamic_cast<Attribute*>(in));
 			case Signature::ID:
 				return fold_signature(dynamic_cast<Signature*>(in));
 			case Method_mod::ID:
@@ -774,6 +815,8 @@ public:
 				return fold_attr_mod(dynamic_cast<Attr_mod*>(in));
 			case Name_with_default::ID:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
+			case Catch::ID:
+				return fold_catch(dynamic_cast<Catch*>(in));
 			case Conditional_expr::ID:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case VARIABLE_NAME::ID:
@@ -830,50 +873,6 @@ public:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case Actual_parameter::ID:
 				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
-			case Method::ID:
-				return fold_method(dynamic_cast<Method*>(in));
-			case Attribute::ID:
-				return fold_attribute(dynamic_cast<Attribute*>(in));
-			case Class_def::ID:
-				return fold_class_def(dynamic_cast<Class_def*>(in));
-			case Interface_def::ID:
-				return fold_interface_def(dynamic_cast<Interface_def*>(in));
-			case Return::ID:
-				return fold_return(dynamic_cast<Return*>(in));
-			case Static_declaration::ID:
-				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
-			case Global::ID:
-				return fold_global(dynamic_cast<Global*>(in));
-			case Try::ID:
-				return fold_try(dynamic_cast<Try*>(in));
-			case Throw::ID:
-				return fold_throw(dynamic_cast<Throw*>(in));
-			case Eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
-			case If::ID:
-				return fold_if(dynamic_cast<If*>(in));
-			case Loop::ID:
-				return fold_loop(dynamic_cast<Loop*>(in));
-			case Foreach::ID:
-				return fold_foreach(dynamic_cast<Foreach*>(in));
-			case Break::ID:
-				return fold_break(dynamic_cast<Break*>(in));
-			case Continue::ID:
-				return fold_continue(dynamic_cast<Continue*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
-			case Catch::ID:
-				return fold_catch(dynamic_cast<Catch*>(in));
 			case INTERFACE_NAME::ID:
 				return fold_interface_name(dynamic_cast<INTERFACE_NAME*>(in));
 			case CAST::ID:
@@ -1106,58 +1105,6 @@ public:
 		assert(0);
 	}
 
-	virtual _Commented_node fold_commented_node(Commented_node* in)
-	{
-		switch(in->classid())
-		{
-			case Method::ID:
-				return fold_method(dynamic_cast<Method*>(in));
-			case Attribute::ID:
-				return fold_attribute(dynamic_cast<Attribute*>(in));
-			case Class_def::ID:
-				return fold_class_def(dynamic_cast<Class_def*>(in));
-			case Interface_def::ID:
-				return fold_interface_def(dynamic_cast<Interface_def*>(in));
-			case Return::ID:
-				return fold_return(dynamic_cast<Return*>(in));
-			case Static_declaration::ID:
-				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
-			case Global::ID:
-				return fold_global(dynamic_cast<Global*>(in));
-			case Try::ID:
-				return fold_try(dynamic_cast<Try*>(in));
-			case Throw::ID:
-				return fold_throw(dynamic_cast<Throw*>(in));
-			case Eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
-			case If::ID:
-				return fold_if(dynamic_cast<If*>(in));
-			case Loop::ID:
-				return fold_loop(dynamic_cast<Loop*>(in));
-			case Foreach::ID:
-				return fold_foreach(dynamic_cast<Foreach*>(in));
-			case Break::ID:
-				return fold_break(dynamic_cast<Break*>(in));
-			case Continue::ID:
-				return fold_continue(dynamic_cast<Continue*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
-			case Catch::ID:
-				return fold_catch(dynamic_cast<Catch*>(in));
-		}
-		assert(0);
-	}
-
 	virtual _Identifier fold_identifier(Identifier* in)
 	{
 		switch(in->classid())
@@ -1189,6 +1136,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

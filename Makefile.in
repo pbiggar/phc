@@ -278,15 +278,15 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	List_shredder.$(OBJEXT) Lower_expr_flow.$(OBJEXT) \
 	Pre_post_op_shredder.$(OBJEXT) \
 	Split_multiple_arguments.$(OBJEXT) Split_unset_isset.$(OBJEXT) \
-	Tidy_print.$(OBJEXT) Translate_empty.$(OBJEXT) \
-	Compile_C.$(OBJEXT) Generate_C.$(OBJEXT) \
-	Lift_functions_and_classes.$(OBJEXT) \
-	Prune_symbol_table.$(OBJEXT) Strip_comments.$(OBJEXT) \
-	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
-	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	cmdline.$(OBJEXT) HIR.$(OBJEXT) HIR_factory.$(OBJEXT) \
-	HIR_transform.$(OBJEXT) HIR_visitor.$(OBJEXT) lex.yy.$(OBJEXT) \
-	MIR.$(OBJEXT) MIR_factory.$(OBJEXT) MIR_transform.$(OBJEXT) \
+	Strip_comments.$(OBJEXT) Tidy_print.$(OBJEXT) \
+	Translate_empty.$(OBJEXT) Compile_C.$(OBJEXT) \
+	Generate_C.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
+	Prune_symbol_table.$(OBJEXT) embed.$(OBJEXT) AST.$(OBJEXT) \
+	AST_factory.$(OBJEXT) AST_transform.$(OBJEXT) \
+	AST_visitor.$(OBJEXT) cmdline.$(OBJEXT) HIR.$(OBJEXT) \
+	HIR_factory.$(OBJEXT) HIR_transform.$(OBJEXT) \
+	HIR_visitor.$(OBJEXT) lex.yy.$(OBJEXT) MIR.$(OBJEXT) \
+	MIR_factory.$(OBJEXT) MIR_transform.$(OBJEXT) \
 	MIR_visitor.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	HIR_lower_expr.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
@@ -587,6 +587,8 @@ src_phc_SOURCES = \
 	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Strip_comments.cpp					\
+	src/ast_to_hir/Strip_comments.h						\
 	src/ast_to_hir/Tidy_print.cpp							\
 	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.cpp					\
@@ -600,8 +602,6 @@ src_phc_SOURCES = \
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
-	src/codegen/Strip_comments.cpp						\
-	src/codegen/Strip_comments.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
@@ -1601,6 +1601,20 @@ Split_unset_isset.obj: src/ast_to_hir/Split_unset_isset.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Split_unset_isset.obj `if test -f 'src/ast_to_hir/Split_unset_isset.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Split_unset_isset.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Split_unset_isset.cpp'; fi`
 
+Strip_comments.o: src/ast_to_hir/Strip_comments.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_comments.o -MD -MP -MF $(DEPDIR)/Strip_comments.Tpo -c -o Strip_comments.o `test -f 'src/ast_to_hir/Strip_comments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Strip_comments.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_comments.Tpo $(DEPDIR)/Strip_comments.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Strip_comments.cpp' object='Strip_comments.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.o `test -f 'src/ast_to_hir/Strip_comments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Strip_comments.cpp
+
+Strip_comments.obj: src/ast_to_hir/Strip_comments.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_comments.obj -MD -MP -MF $(DEPDIR)/Strip_comments.Tpo -c -o Strip_comments.obj `if test -f 'src/ast_to_hir/Strip_comments.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Strip_comments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Strip_comments.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_comments.Tpo $(DEPDIR)/Strip_comments.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Strip_comments.cpp' object='Strip_comments.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.obj `if test -f 'src/ast_to_hir/Strip_comments.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Strip_comments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Strip_comments.cpp'; fi`
+
 Tidy_print.o: src/ast_to_hir/Tidy_print.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Tidy_print.o -MD -MP -MF $(DEPDIR)/Tidy_print.Tpo -c -o Tidy_print.o `test -f 'src/ast_to_hir/Tidy_print.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Tidy_print.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Tidy_print.Tpo $(DEPDIR)/Tidy_print.Po
@@ -1684,20 +1698,6 @@ Prune_symbol_table.obj: src/codegen/Prune_symbol_table.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Prune_symbol_table.cpp' object='Prune_symbol_table.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.obj `if test -f 'src/codegen/Prune_symbol_table.cpp'; then $(CYGPATH_W) 'src/codegen/Prune_symbol_table.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Prune_symbol_table.cpp'; fi`
-
-Strip_comments.o: src/codegen/Strip_comments.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_comments.o -MD -MP -MF $(DEPDIR)/Strip_comments.Tpo -c -o Strip_comments.o `test -f 'src/codegen/Strip_comments.cpp' || echo '$(srcdir)/'`src/codegen/Strip_comments.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_comments.Tpo $(DEPDIR)/Strip_comments.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Strip_comments.cpp' object='Strip_comments.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.o `test -f 'src/codegen/Strip_comments.cpp' || echo '$(srcdir)/'`src/codegen/Strip_comments.cpp
-
-Strip_comments.obj: src/codegen/Strip_comments.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Strip_comments.obj -MD -MP -MF $(DEPDIR)/Strip_comments.Tpo -c -o Strip_comments.obj `if test -f 'src/codegen/Strip_comments.cpp'; then $(CYGPATH_W) 'src/codegen/Strip_comments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Strip_comments.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Strip_comments.Tpo $(DEPDIR)/Strip_comments.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Strip_comments.cpp' object='Strip_comments.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.obj `if test -f 'src/codegen/Strip_comments.cpp'; then $(CYGPATH_W) 'src/codegen/Strip_comments.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Strip_comments.cpp'; fi`
 
 embed.o: src/embed/embed.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.o -MD -MP -MF $(DEPDIR)/embed.Tpo -c -o embed.o `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp

@@ -23,7 +23,7 @@
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Prune_symbol_table.h"
-#include "codegen/Strip_comments.h"
+#include "ast_to_hir/Strip_comments.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
@@ -128,8 +128,7 @@ int main(int argc, char** argv)
 
 
 	// Make simple statements simpler
-	// these passes could really go to either AST, or HIR.
-	// TODO move these to the end of the AST, just before the HIR
+	pm->add_ast_visitor (new Strip_comments (), "decomment", "Remove comments");
 	pm->add_ast_transform (new Split_multiple_arguments (), "sma", "Split multiple arguments for globals, attributes and static declarations");
 	pm->add_ast_transform (new Split_unset_isset (), "sui", "Split unset() and isset() into multiple calls with one argument each");
 	pm->add_ast_transform (new Echo_split (), "ecs", "Split echo() into multiple calls with one argument each");
@@ -150,7 +149,6 @@ int main(int argc, char** argv)
 
 
 	// process_hir passes
-	pm->add_hir_visitor (new Strip_comments (), "decomment", "Remove comments"); // TODO move to AST
 	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
 	pm->add_hir_pass (new Fake_pass ("HIR-to-MIR", "The MIR in HIR form"));
 

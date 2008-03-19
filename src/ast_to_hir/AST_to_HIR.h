@@ -43,7 +43,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Statement*,			// For*
  HIR::Foreach*,			// Foreach*
  HIR::Statement*,			// Switch*
- HIR::Commented_node*,				// Switch_case*
+ HIR::Node*,				// Switch_case*
  HIR::Break*,			// Break*
  HIR::Continue*,			// Continue*
  HIR::Return*,				// Return*
@@ -92,7 +92,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::New*,					// New*
  HIR::Class_name*,			// Class_name*
- HIR::Commented_node*,				// Commented_node*
+ HIR::Node*,				// Commented_node*
  HIR::Identifier*,			// Identifier*
  HIR::Node*,			// Source_rep*
  HIR::HT_ITERATOR*,		// HT_ITERATOR*

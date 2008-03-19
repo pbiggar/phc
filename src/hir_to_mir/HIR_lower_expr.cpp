@@ -50,13 +50,6 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 	out->push_back_all(pieces);
 	out->push_back(in);
 
-	// Move comment to the first piece (if any)
-	if(!pieces->empty())
-	{
-		pieces->front()->attrs->set("phc.comments", in->get_comments());
-		in->attrs->set("phc.comments", new List<String*>);
-	}
-
 	pieces->clear();
 }
 

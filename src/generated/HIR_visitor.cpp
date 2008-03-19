@@ -242,10 +242,6 @@ void Visitor::pre_class_name(Class_name* in)
 {
 }
 
-void Visitor::pre_commented_node(Commented_node* in)
-{
-}
-
 void Visitor::pre_identifier(Identifier* in)
 {
 }
@@ -540,10 +536,6 @@ void Visitor::post_new(New* in)
 }
 
 void Visitor::post_class_name(Class_name* in)
-{
-}
-
-void Visitor::post_commented_node(Commented_node* in)
 {
 }
 
@@ -1009,7 +1001,6 @@ void Visitor::pre_php_script_chain(PHP_script* in)
 void Visitor::pre_class_def_chain(Class_def* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_class_def(in);
 }
@@ -1023,7 +1014,6 @@ void Visitor::pre_class_mod_chain(Class_mod* in)
 void Visitor::pre_interface_def_chain(Interface_def* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_interface_def(in);
 }
@@ -1031,9 +1021,8 @@ void Visitor::pre_interface_def_chain(Interface_def* in)
 void Visitor::pre_method_chain(Method* in)
 {
     pre_node(in);
-    pre_commented_node(in);
-    pre_member(in);
     pre_statement(in);
+    pre_member(in);
     pre_method(in);
 }
 
@@ -1064,7 +1053,6 @@ void Visitor::pre_type_chain(Type* in)
 void Visitor::pre_attribute_chain(Attribute* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_member(in);
     pre_attribute(in);
 }
@@ -1084,7 +1072,6 @@ void Visitor::pre_name_with_default_chain(Name_with_default* in)
 void Visitor::pre_if_chain(If* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_if(in);
 }
@@ -1092,7 +1079,6 @@ void Visitor::pre_if_chain(If* in)
 void Visitor::pre_loop_chain(Loop* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_loop(in);
 }
@@ -1100,7 +1086,6 @@ void Visitor::pre_loop_chain(Loop* in)
 void Visitor::pre_foreach_chain(Foreach* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach(in);
 }
@@ -1108,7 +1093,6 @@ void Visitor::pre_foreach_chain(Foreach* in)
 void Visitor::pre_break_chain(Break* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_break(in);
 }
@@ -1116,7 +1100,6 @@ void Visitor::pre_break_chain(Break* in)
 void Visitor::pre_continue_chain(Continue* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_continue(in);
 }
@@ -1124,7 +1107,6 @@ void Visitor::pre_continue_chain(Continue* in)
 void Visitor::pre_return_chain(Return* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_return(in);
 }
@@ -1132,7 +1114,6 @@ void Visitor::pre_return_chain(Return* in)
 void Visitor::pre_static_declaration_chain(Static_declaration* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_static_declaration(in);
 }
@@ -1140,7 +1121,6 @@ void Visitor::pre_static_declaration_chain(Static_declaration* in)
 void Visitor::pre_global_chain(Global* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_global(in);
 }
@@ -1148,7 +1128,6 @@ void Visitor::pre_global_chain(Global* in)
 void Visitor::pre_try_chain(Try* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_try(in);
 }
@@ -1156,14 +1135,12 @@ void Visitor::pre_try_chain(Try* in)
 void Visitor::pre_catch_chain(Catch* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_catch(in);
 }
 
 void Visitor::pre_throw_chain(Throw* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_throw(in);
 }
@@ -1171,7 +1148,6 @@ void Visitor::pre_throw_chain(Throw* in)
 void Visitor::pre_eval_expr_chain(Eval_expr* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_eval_expr(in);
 }
@@ -1179,7 +1155,6 @@ void Visitor::pre_eval_expr_chain(Eval_expr* in)
 void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_branch(in);
 }
@@ -1187,7 +1162,6 @@ void Visitor::pre_branch_chain(Branch* in)
 void Visitor::pre_goto_chain(Goto* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_goto(in);
 }
@@ -1195,7 +1169,6 @@ void Visitor::pre_goto_chain(Goto* in)
 void Visitor::pre_label_chain(Label* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_label(in);
 }
@@ -1203,7 +1176,6 @@ void Visitor::pre_label_chain(Label* in)
 void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_reset(in);
 }
@@ -1211,7 +1183,6 @@ void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 void Visitor::pre_foreach_next_chain(Foreach_next* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_next(in);
 }
@@ -1219,7 +1190,6 @@ void Visitor::pre_foreach_next_chain(Foreach_next* in)
 void Visitor::pre_foreach_end_chain(Foreach_end* in)
 {
     pre_node(in);
-    pre_commented_node(in);
     pre_statement(in);
     pre_foreach_end(in);
 }
@@ -1503,7 +1473,6 @@ void Visitor::post_class_def_chain(Class_def* in)
 {
     post_class_def(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1517,16 +1486,14 @@ void Visitor::post_interface_def_chain(Interface_def* in)
 {
     post_interface_def(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
 void Visitor::post_method_chain(Method* in)
 {
     post_method(in);
-    post_statement(in);
     post_member(in);
-    post_commented_node(in);
+    post_statement(in);
     post_node(in);
 }
 
@@ -1558,7 +1525,6 @@ void Visitor::post_attribute_chain(Attribute* in)
 {
     post_attribute(in);
     post_member(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1578,7 +1544,6 @@ void Visitor::post_if_chain(If* in)
 {
     post_if(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1586,7 +1551,6 @@ void Visitor::post_loop_chain(Loop* in)
 {
     post_loop(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1594,7 +1558,6 @@ void Visitor::post_foreach_chain(Foreach* in)
 {
     post_foreach(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1602,7 +1565,6 @@ void Visitor::post_break_chain(Break* in)
 {
     post_break(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1610,7 +1572,6 @@ void Visitor::post_continue_chain(Continue* in)
 {
     post_continue(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1618,7 +1579,6 @@ void Visitor::post_return_chain(Return* in)
 {
     post_return(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1626,7 +1586,6 @@ void Visitor::post_static_declaration_chain(Static_declaration* in)
 {
     post_static_declaration(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1634,7 +1593,6 @@ void Visitor::post_global_chain(Global* in)
 {
     post_global(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1642,14 +1600,12 @@ void Visitor::post_try_chain(Try* in)
 {
     post_try(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
 void Visitor::post_catch_chain(Catch* in)
 {
     post_catch(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1657,7 +1613,6 @@ void Visitor::post_throw_chain(Throw* in)
 {
     post_throw(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1665,7 +1620,6 @@ void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
     post_eval_expr(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1673,7 +1627,6 @@ void Visitor::post_branch_chain(Branch* in)
 {
     post_branch(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1681,7 +1634,6 @@ void Visitor::post_goto_chain(Goto* in)
 {
     post_goto(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1689,7 +1641,6 @@ void Visitor::post_label_chain(Label* in)
 {
     post_label(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1697,7 +1648,6 @@ void Visitor::post_foreach_reset_chain(Foreach_reset* in)
 {
     post_foreach_reset(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1705,7 +1655,6 @@ void Visitor::post_foreach_next_chain(Foreach_next* in)
 {
     post_foreach_next(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
@@ -1713,7 +1662,6 @@ void Visitor::post_foreach_end_chain(Foreach_end* in)
 {
     post_foreach_end(in);
     post_statement(in);
-    post_commented_node(in);
     post_node(in);
 }
 
