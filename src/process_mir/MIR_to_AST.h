@@ -286,35 +286,35 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Foreach_reset* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_reset* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_reset* result;
-		result = new AST::Foreach_reset (variable, ht_iterator);
+		result = new AST::Foreach_reset (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
 
-	AST::Foreach_next* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_next* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_next* result;
-		result = new AST::Foreach_next (variable, ht_iterator);
+		result = new AST::Foreach_next (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_end* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_end* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_end* result;
-		result = new AST::Foreach_end (variable, ht_iterator);
+		result = new AST::Foreach_end (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_has_key* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_has_key* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_has_key* result;
-		result = new AST::Foreach_has_key (variable, ht_iterator);
+		result = new AST::Foreach_has_key (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -327,10 +327,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Foreach_get_val* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_get_val* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_get_val* result;
-		result = new AST::Foreach_get_val (variable, ht_iterator);
+		result = new AST::Foreach_get_val (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
