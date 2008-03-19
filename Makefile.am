@@ -114,12 +114,8 @@ src_phc_SOURCES =												\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
-	src/hir_to_mir/HIR_annotate.cpp						\
-	src/hir_to_mir/HIR_annotate.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
-	src/hir_to_mir/HIR_shredder.cpp						\
-	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\

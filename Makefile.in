@@ -288,8 +288,7 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	HIR_transform.$(OBJEXT) HIR_visitor.$(OBJEXT) lex.yy.$(OBJEXT) \
 	MIR.$(OBJEXT) MIR_factory.$(OBJEXT) MIR_transform.$(OBJEXT) \
 	MIR_visitor.$(OBJEXT) php_parser.tab.$(OBJEXT) \
-	HIR_annotate.$(OBJEXT) HIR_lower_expr.$(OBJEXT) \
-	HIR_shredder.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
+	HIR_lower_expr.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
 	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
@@ -637,12 +636,8 @@ src_phc_SOURCES = \
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
-	src/hir_to_mir/HIR_annotate.cpp						\
-	src/hir_to_mir/HIR_annotate.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
-	src/hir_to_mir/HIR_shredder.cpp						\
-	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
@@ -1143,10 +1138,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_annotate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_factory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_lower_expr.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_shredder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_transform.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HIR_visitor.Po@am__quote@
@@ -1916,20 +1909,6 @@ php_parser.tab.obj: src/generated/php_parser.tab.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o php_parser.tab.obj `if test -f 'src/generated/php_parser.tab.cpp'; then $(CYGPATH_W) 'src/generated/php_parser.tab.cpp'; else $(CYGPATH_W) '$(srcdir)/src/generated/php_parser.tab.cpp'; fi`
 
-HIR_annotate.o: src/hir_to_mir/HIR_annotate.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_annotate.o -MD -MP -MF $(DEPDIR)/HIR_annotate.Tpo -c -o HIR_annotate.o `test -f 'src/hir_to_mir/HIR_annotate.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_annotate.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_annotate.Tpo $(DEPDIR)/HIR_annotate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_annotate.cpp' object='HIR_annotate.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_annotate.o `test -f 'src/hir_to_mir/HIR_annotate.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_annotate.cpp
-
-HIR_annotate.obj: src/hir_to_mir/HIR_annotate.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_annotate.obj -MD -MP -MF $(DEPDIR)/HIR_annotate.Tpo -c -o HIR_annotate.obj `if test -f 'src/hir_to_mir/HIR_annotate.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_annotate.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_annotate.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_annotate.Tpo $(DEPDIR)/HIR_annotate.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_annotate.cpp' object='HIR_annotate.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_annotate.obj `if test -f 'src/hir_to_mir/HIR_annotate.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_annotate.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_annotate.cpp'; fi`
-
 HIR_lower_expr.o: src/hir_to_mir/HIR_lower_expr.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_lower_expr.o -MD -MP -MF $(DEPDIR)/HIR_lower_expr.Tpo -c -o HIR_lower_expr.o `test -f 'src/hir_to_mir/HIR_lower_expr.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_lower_expr.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_lower_expr.Tpo $(DEPDIR)/HIR_lower_expr.Po
@@ -1943,20 +1922,6 @@ HIR_lower_expr.obj: src/hir_to_mir/HIR_lower_expr.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_lower_expr.cpp' object='HIR_lower_expr.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_lower_expr.obj `if test -f 'src/hir_to_mir/HIR_lower_expr.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_lower_expr.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_lower_expr.cpp'; fi`
-
-HIR_shredder.o: src/hir_to_mir/HIR_shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_shredder.o -MD -MP -MF $(DEPDIR)/HIR_shredder.Tpo -c -o HIR_shredder.o `test -f 'src/hir_to_mir/HIR_shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_shredder.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_shredder.Tpo $(DEPDIR)/HIR_shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_shredder.cpp' object='HIR_shredder.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_shredder.o `test -f 'src/hir_to_mir/HIR_shredder.cpp' || echo '$(srcdir)/'`src/hir_to_mir/HIR_shredder.cpp
-
-HIR_shredder.obj: src/hir_to_mir/HIR_shredder.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT HIR_shredder.obj -MD -MP -MF $(DEPDIR)/HIR_shredder.Tpo -c -o HIR_shredder.obj `if test -f 'src/hir_to_mir/HIR_shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_shredder.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/HIR_shredder.Tpo $(DEPDIR)/HIR_shredder.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/HIR_shredder.cpp' object='HIR_shredder.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_shredder.obj `if test -f 'src/hir_to_mir/HIR_shredder.cpp'; then $(CYGPATH_W) 'src/hir_to_mir/HIR_shredder.cpp'; else $(CYGPATH_W) '$(srcdir)/src/hir_to_mir/HIR_shredder.cpp'; fi`
 
 Lower_control_flow.o: src/hir_to_mir/Lower_control_flow.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_control_flow.o -MD -MP -MF $(DEPDIR)/Lower_control_flow.Tpo -c -o Lower_control_flow.o `test -f 'src/hir_to_mir/Lower_control_flow.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Lower_control_flow.cpp

@@ -5,7 +5,7 @@
  * Generic utilities for which the need is ubiquitous.
  */
 
-#include "hir_to_mir/HIR_shredder.h"
+#include "HIR.h"
 #include "pass_manager/Pass_manager.h"
 #include "parsing/parse.h"
 

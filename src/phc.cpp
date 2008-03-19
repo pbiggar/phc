@@ -25,7 +25,6 @@
 #include "codegen/Prune_symbol_table.h"
 #include "codegen/Strip_comments.h"
 #include "embed/embed.h"
-#include "hir_to_mir/HIR_shredder.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
 #include <ltdl.h>
@@ -148,7 +147,6 @@ int main(int argc, char** argv)
 
 	pm->add_hir_pass (new Fake_pass ("hir", "High-level Internal Representation - the smallest subset of PHP which can represent the entire language"));
 	pm->add_hir_transform (new Lower_control_flow (), "lcf", "Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues");
-	pm->add_hir_transform (new HIR::Shredder (), "hshred", "HIR Shredder - Shred contructs introduced by the compiler into 3-address-code");
 
 
 	// process_hir passes
