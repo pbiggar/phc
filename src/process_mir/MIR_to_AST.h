@@ -180,12 +180,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Attribute* fold_impl_attribute(MIR::Attribute* orig, AST::Attr_mod* attr_mod, List<AST::Name_with_default*>* vars) 
+	AST::Attribute* fold_impl_attribute(MIR::Attribute* orig, AST::Attr_mod* attr_mod, AST::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		AST::Attribute* result;
-		result = new AST::Attribute(attr_mod, vars);
+		result = new AST::Attribute(attr_mod, new List<AST::Name_with_default*> (var));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -224,12 +222,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Global* fold_impl_global(MIR::Global* orig, List<AST::Variable_name*>* variable_names) 
+	AST::Global* fold_impl_global(MIR::Global* orig, AST::Variable_name* variable_name) 
 	{
-		assert(variable_names->size() == 1);
-		
 		AST::Global* result;
-		result = new AST::Global(variable_names);
+		result = new AST::Global(new List<AST::Variable_name*> (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -347,10 +343,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::Expr* expr) 
+	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Cast* result;
-		result = new AST::Cast(cast, expr);
+		result = new AST::Cast(cast, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -401,10 +397,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Reflection* fold_impl_reflection(MIR::Reflection* orig, AST::Expr* expr) 
+	AST::Reflection* fold_impl_reflection(MIR::Reflection* orig, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Reflection* result;
-		result = new AST::Reflection (expr);
+		result = new AST::Reflection (wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
