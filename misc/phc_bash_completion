@@ -1,24 +1,31 @@
 _phc()
 {
-	local cur prev
+	local cur prev shortOpts longOpts paramOpts
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	shortOpts="-h -V -v -c -C -O -c -D -U -X"
+	longOpts="--help --full-help --version --verbose --compile --pretty-print --obfuscate	\
+				 --no-validation --include --generate-c --next-line-curlies --no-leading-tab	\
+				 --no-line-numbers --no-nulls --no-empty-lists --no-hash-bang --list-passes	\
+				 --dont-fail"
+
+	# TODO provide context sensitive completion for these options, with an = and no space
+	paramOpts="--run --read-xml  --c-option --extension --with-php --optimize	\
+				  --output --tab --dump --udump --ddump --xdump"
+
+
 	# options completion
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-h --help --full-help -V --version \
-		-v --verbose -c --compile --pretty-print --obfuscate \
-		--run --read-ast-xml --no-validation -C \
-		--c-option --generate-c --extension= \
-		--with-php --compile-time-includes --dump-ast-dot \
-		--dump-ast-xml  --next-line-curlies --no-line-numbers \
-		--tab= --dump-tokens --run-lifting --run-lowering \
-		--run-shredder --run-goto-uppering \ 
-		' -- $cur) )
+		COMPREPLY=( $( compgen -f -W "$shortOpts $longOpts $paramOpts" -- $cur ) )
+		return 0
 	else
-# we could be specifying a plugin, or a gcc command line
-#		_filedir *.php
-		_filedir
+		# complete on php, xml and la files.
+		COMPREPLY=( $( compgen -f -X '!*.@(php|xml|la)' -- $cur) )
+		# TODO only complete .xml files after --read-xml
+		# TODO only complete .la files after --run=
+		return 0
 	fi
 }
-complete -F _phc $filenames phc
+# note that we need to add the space ourselves where necessary
+complete -F _phc -d phc
