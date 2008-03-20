@@ -39,7 +39,7 @@ require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:U");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:Uu");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -49,14 +49,16 @@ $opt_help = false;
 $opt_command = "";
 $opt_file = NULL;
 $opt_interpret = false;
-$opt_never_upper = false;
+$opt_dont_upper = false;
+$opt_upper = false;
 foreach ($opts as $opt) 
 {
 	switch ($opt[0])
 	{
 		case 'h': $opt_help = true; break;
 		case 'v': $opt_verbose += 1; break;
-		case 'U': $opt_never_upper = true; break;
+		case 'U': $opt_dont_upper = true; break;
+		case 'u': $opt_upper = true; break;
 		case 'c': $opt_command .= $opt[1]; break;
 		case 'r': $opt_command .= "--run plugins/tools/debug_zval.la --xdump=plugins/tools/debug_zval.la"; break;
 		case 'd': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=true --xdump=plugins/tools/demi_eval.la"; break;
@@ -71,7 +73,7 @@ if ($opt_command === "")
 if ($opt_help || count ($arguments) < 1)
 {
 	die (<<<EOL
-reduce - A program to automatically reduce test cases for phc- phpcompiler.org
+reduce - A program to automatically reduce test cases for phc - phpcompiler.org
 
 Usage: reduce [OPTIONS] filename
 
@@ -85,8 +87,9 @@ Options:
     -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=true".
     -D     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=false".
     -f     Use the passed XML file as the the first program, instead of calling phc.
-	 -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the specified pass and interpret it.
-	 -U     Never 'upper'
+    -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the specified pass and interpret it.
+    -U     Don't print 'upper' debug files (not related to -u)
+    -u     Used with -i, 'upper's before dumping (not related to -U)
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
@@ -179,8 +182,8 @@ function reduce ($xprogram_string, $start, $num)
 
 function convert ($xprogram_string, $upper)
 {
-	global $opt_never_upper;
-	if ($opt_never_upper) $upper = false;
+	global $opt_dont_upper;
+	if ($opt_dont_upper) $upper = false;
 	debug (2, "Converting to PHP from XML" . ($upper ? " (uppered)" : ""));
 	$upper = $upper ? "u" : ""; // TODO: if this is to be uppered, then we cant remove all?
 	list ($out) = run ("src/phc --read-xml=ast --{$upper}dump=ast --run=plugins/tools/remove_all.la", $xprogram_string);
@@ -272,7 +275,10 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	{
 		# Run it through PHP til the specified pass, then run the output through PHP
 		debug (2, "Getting PHP output after running through phc");
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --dump=$opt_interpret", $xnew_program);
+
+		global $opt_upper;
+		$upper = $opt_upper ? "u" : "";
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret", $xnew_program);
 		if ($phc_err === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run ("php", $phc_out);
@@ -301,7 +307,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		return false;
 	}
 
-	if ($php_err === "Timeout" || $my_err === "Timeout")
+	if ($php_err === "Timeout") # if my_err is timeout, we've kept the bug in
 	{
 		debug (1, "Timeouts. Skip.");
 		return false;
