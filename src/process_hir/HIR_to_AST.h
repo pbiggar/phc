@@ -388,7 +388,25 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::Foreach_get_val* result;
 		result = new AST::Foreach_get_val (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result->attrs = orig->attrs->clone ();
+
+		// This can have an MIR::Variable or MIR::Eval_expr attribute, which
+		// should be folded aswell.
+		if (result->attrs->has ("phc.unparser.foreach_get_key"))
+		{
+			Object* obj = result->attrs->get ("phc.unparser.foreach_get_key");
+			HIR::Eval_expr* get_key = dynamic_cast<HIR::Eval_expr*> (obj);
+			assert (get_key);
+			result->attrs->set ("phc.unparser.foreach_get_key", fold_eval_expr (get_key));
+		}
+
+		if (result->attrs->has ("phc.unparser.foreach_key"))
+		{
+			Object* obj = result->attrs->get ("phc.unparser.foreach_key");
+			HIR::Variable* key = dynamic_cast<HIR::Variable*> (obj);
+			assert (key);
+			result->attrs->set ("phc.unparser.foreach_key", fold_variable (key));
+		}
 		return result;
 	}
 	

@@ -322,10 +322,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Foreach_get_key* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_get_key* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* variable_name, AST::HT_ITERATOR* ht_iterator) 
 	{
 		AST::Foreach_get_key* result;
-		result = new AST::Foreach_get_key (variable, ht_iterator);
+		result = new AST::Foreach_get_key (wrap_var_name (variable_name), ht_iterator);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -334,7 +334,25 @@ class MIR_to_AST : public MIR::Fold
 	{
 		AST::Foreach_get_val* result;
 		result = new AST::Foreach_get_val (wrap_var_name (variable_name), ht_iterator);
-		result->attrs = orig->attrs;
+		result->attrs = orig->attrs->clone ();
+
+		// This can have an MIR::Variable or MIR::Eval_expr attribute, which
+		// should be folded aswell.
+		if (result->attrs->has ("phc.unparser.foreach_get_key"))
+		{
+			Object* obj = result->attrs->get ("phc.unparser.foreach_get_key");
+			MIR::Eval_expr* get_key = dynamic_cast<MIR::Eval_expr*> (obj);
+			assert (get_key);
+			result->attrs->set ("phc.unparser.foreach_get_key", fold_eval_expr (get_key));
+		}
+
+		if (result->attrs->has ("phc.unparser.foreach_key"))
+		{
+			Object* obj = result->attrs->get ("phc.unparser.foreach_key");
+			MIR::Variable* key = dynamic_cast<MIR::Variable*> (obj);
+			assert (key);
+			result->attrs->set ("phc.unparser.foreach_key", fold_variable (key));
+		}
 		return result;
 	}
 	
