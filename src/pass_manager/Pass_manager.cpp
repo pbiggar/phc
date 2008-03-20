@@ -353,12 +353,14 @@ void Pass_manager::run (IR* in, bool dump)
 		run_pass (*p, in, dump);
 }
 
-
+// The pass manager is used to parse and transform small snippets of
+// compiler-generated code aswell as the whole file. Set DUMP to false for
+// small snippets, and to true for the main program.
 void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 {
 	assert (pass->name);
 
-	if (args_info->verbose_flag)
+	if (args_info->verbose_flag && dump)
 		cout << "Running pass: " << *pass->name << endl;
 
 	pass->run_pass (in, this);
