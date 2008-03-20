@@ -39,7 +39,7 @@ void DOT_unparser::visit_php_script(PHP_script* in)
 
 void DOT_unparser::pre_node(Node* in)
 {
-	new_node(demangle(in), in->get_line_number());
+	new_node(demangle(in, false), in->get_line_number());
 }
 
 void DOT_unparser::post_node(Node* in)
@@ -89,7 +89,7 @@ void DOT_unparser::visit_marker(char const* name, bool value)
 	}
 }
 
-void DOT_unparser::visit_null(char const* type_id)
+void DOT_unparser::visit_null(char const* name_space, char const* type_id)
 {
 	if(!args_info.no_nulls_flag)
 	{
@@ -98,7 +98,7 @@ void DOT_unparser::visit_null(char const* type_id)
 	}
 }
 
-void DOT_unparser::visit_null_list(char const* type_id)
+void DOT_unparser::visit_null_list(char const* name_space, char const* type_id)
 {
 	if(!args_info.no_nulls_flag)
 	{
@@ -107,7 +107,7 @@ void DOT_unparser::visit_null_list(char const* type_id)
 	}
 }
 
-void DOT_unparser::pre_list(char const* type_id, int size)
+void DOT_unparser::pre_list(char const* name_space, char const* type_id, int size)
 {
 	if(!args_info.no_empty_lists_flag || size > 0)
 	{
@@ -117,7 +117,7 @@ void DOT_unparser::pre_list(char const* type_id, int size)
 	}
 }
 
-void DOT_unparser::post_list(char const* type_id, int size)
+void DOT_unparser::post_list(char const* name_space, char const* type_id, int size)
 {
 	if(!args_info.no_empty_lists_flag || size > 0)
 	{

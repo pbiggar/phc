@@ -30,10 +30,10 @@ public:
 
 public:
 	void visit_marker(char const* name, bool value);
-	void visit_null(char const* type_id);
-	void visit_null_list(char const* type_id);
-	void pre_list(char const* type_id, int size);
-	void post_list(char const* type_id, int size);
+	void visit_null(char const* name_space, char const* type_id);
+	void visit_null_list(char const* name_space, char const* type_id);
+	void pre_list(char const* name_space, char const* type_id, int size);
+	void post_list(char const* name_space, char const* type_id, int size);
 
 protected:
 	void new_node(char const* label, int line_number);

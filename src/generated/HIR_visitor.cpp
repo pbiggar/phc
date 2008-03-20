@@ -974,19 +974,19 @@ void Visitor::visit_marker(char const* name, bool value)
 {
 }
 
-void Visitor::visit_null(char const* type_id)
+void Visitor::visit_null(char const* name_space, char const* type_id)
 {
 }
 
-void Visitor::visit_null_list(char const* type_id)
+void Visitor::visit_null_list(char const* name_space, char const* type_id)
 {
 }
 
-void Visitor::pre_list(char const* type_id, int size)
+void Visitor::pre_list(char const* name_space, char const* type_id, int size)
 {
 }
 
-void Visitor::post_list(char const* type_id, int size)
+void Visitor::post_list(char const* name_space, char const* type_id, int size)
 {
 }
 
@@ -1938,24 +1938,24 @@ void Visitor::visit_statement_list(List<Statement*>* in)
     List<Statement*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Statement");
+    	visit_null_list("HIR", "Statement");
     else
     {
-    	pre_list("Statement", in->size());
+    	pre_list("HIR", "Statement", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_statement(*i);
     	}
     
-    	post_list("Statement", in->size());
+    	post_list("HIR", "Statement", in->size());
     }
 }
 
 void Visitor::visit_statement(Statement* in)
 {
     if(in == NULL)
-    	visit_null("Statement");
+    	visit_null("HIR", "Statement");
     else
     {
     	pre_statement_chain(in);
@@ -1967,7 +1967,7 @@ void Visitor::visit_statement(Statement* in)
 void Visitor::visit_class_mod(Class_mod* in)
 {
     if(in == NULL)
-    	visit_null("Class_mod");
+    	visit_null("HIR", "Class_mod");
     else
     {
     	pre_class_mod_chain(in);
@@ -1979,7 +1979,7 @@ void Visitor::visit_class_mod(Class_mod* in)
 void Visitor::visit_class_name(CLASS_NAME* in)
 {
     if(in == NULL)
-    	visit_null("CLASS_NAME");
+    	visit_null("HIR", "CLASS_NAME");
     else
     {
     	pre_class_name_chain(in);
@@ -1993,17 +1993,17 @@ void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
     List<INTERFACE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("INTERFACE_NAME");
+    	visit_null_list("HIR", "INTERFACE_NAME");
     else
     {
-    	pre_list("INTERFACE_NAME", in->size());
+    	pre_list("HIR", "INTERFACE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_interface_name(*i);
     	}
     
-    	post_list("INTERFACE_NAME", in->size());
+    	post_list("HIR", "INTERFACE_NAME", in->size());
     }
 }
 
@@ -2012,24 +2012,24 @@ void Visitor::visit_member_list(List<Member*>* in)
     List<Member*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Member");
+    	visit_null_list("HIR", "Member");
     else
     {
-    	pre_list("Member", in->size());
+    	pre_list("HIR", "Member", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_member(*i);
     	}
     
-    	post_list("Member", in->size());
+    	post_list("HIR", "Member", in->size());
     }
 }
 
 void Visitor::visit_member(Member* in)
 {
     if(in == NULL)
-    	visit_null("Member");
+    	visit_null("HIR", "Member");
     else
     {
     	pre_member_chain(in);
@@ -2041,7 +2041,7 @@ void Visitor::visit_member(Member* in)
 void Visitor::visit_interface_name(INTERFACE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("INTERFACE_NAME");
+    	visit_null("HIR", "INTERFACE_NAME");
     else
     {
     	pre_interface_name_chain(in);
@@ -2053,7 +2053,7 @@ void Visitor::visit_interface_name(INTERFACE_NAME* in)
 void Visitor::visit_signature(Signature* in)
 {
     if(in == NULL)
-    	visit_null("Signature");
+    	visit_null("HIR", "Signature");
     else
     {
     	pre_signature_chain(in);
@@ -2065,7 +2065,7 @@ void Visitor::visit_signature(Signature* in)
 void Visitor::visit_method_mod(Method_mod* in)
 {
     if(in == NULL)
-    	visit_null("Method_mod");
+    	visit_null("HIR", "Method_mod");
     else
     {
     	pre_method_mod_chain(in);
@@ -2077,7 +2077,7 @@ void Visitor::visit_method_mod(Method_mod* in)
 void Visitor::visit_method_name(METHOD_NAME* in)
 {
     if(in == NULL)
-    	visit_null("METHOD_NAME");
+    	visit_null("HIR", "METHOD_NAME");
     else
     {
     	pre_method_name_chain(in);
@@ -2091,24 +2091,24 @@ void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
     List<Formal_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Formal_parameter");
+    	visit_null_list("HIR", "Formal_parameter");
     else
     {
-    	pre_list("Formal_parameter", in->size());
+    	pre_list("HIR", "Formal_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_formal_parameter(*i);
     	}
     
-    	post_list("Formal_parameter", in->size());
+    	post_list("HIR", "Formal_parameter", in->size());
     }
 }
 
 void Visitor::visit_formal_parameter(Formal_parameter* in)
 {
     if(in == NULL)
-    	visit_null("Formal_parameter");
+    	visit_null("HIR", "Formal_parameter");
     else
     {
     	pre_formal_parameter_chain(in);
@@ -2120,7 +2120,7 @@ void Visitor::visit_formal_parameter(Formal_parameter* in)
 void Visitor::visit_type(Type* in)
 {
     if(in == NULL)
-    	visit_null("Type");
+    	visit_null("HIR", "Type");
     else
     {
     	pre_type_chain(in);
@@ -2132,7 +2132,7 @@ void Visitor::visit_type(Type* in)
 void Visitor::visit_name_with_default(Name_with_default* in)
 {
     if(in == NULL)
-    	visit_null("Name_with_default");
+    	visit_null("HIR", "Name_with_default");
     else
     {
     	pre_name_with_default_chain(in);
@@ -2144,7 +2144,7 @@ void Visitor::visit_name_with_default(Name_with_default* in)
 void Visitor::visit_attr_mod(Attr_mod* in)
 {
     if(in == NULL)
-    	visit_null("Attr_mod");
+    	visit_null("HIR", "Attr_mod");
     else
     {
     	pre_attr_mod_chain(in);
@@ -2156,7 +2156,7 @@ void Visitor::visit_attr_mod(Attr_mod* in)
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("VARIABLE_NAME");
+    	visit_null("HIR", "VARIABLE_NAME");
     else
     {
     	pre_variable_name_chain(in);
@@ -2168,7 +2168,7 @@ void Visitor::visit_variable_name(VARIABLE_NAME* in)
 void Visitor::visit_expr(Expr* in)
 {
     if(in == NULL)
-    	visit_null("Expr");
+    	visit_null("HIR", "Expr");
     else
     {
     	pre_expr_chain(in);
@@ -2180,7 +2180,7 @@ void Visitor::visit_expr(Expr* in)
 void Visitor::visit_variable(Variable* in)
 {
     if(in == NULL)
-    	visit_null("Variable");
+    	visit_null("HIR", "Variable");
     else
     {
     	pre_variable_chain(in);
@@ -2192,7 +2192,7 @@ void Visitor::visit_variable(Variable* in)
 void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
-    	visit_null("Variable_name");
+    	visit_null("HIR", "Variable_name");
     else
     {
     	pre_variable_name_chain(in);
@@ -2206,24 +2206,24 @@ void Visitor::visit_catch_list(List<Catch*>* in)
     List<Catch*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Catch");
+    	visit_null_list("HIR", "Catch");
     else
     {
-    	pre_list("Catch", in->size());
+    	pre_list("HIR", "Catch", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_catch(*i);
     	}
     
-    	post_list("Catch", in->size());
+    	post_list("HIR", "Catch", in->size());
     }
 }
 
 void Visitor::visit_catch(Catch* in)
 {
     if(in == NULL)
-    	visit_null("Catch");
+    	visit_null("HIR", "Catch");
     else
     {
     	pre_catch_chain(in);
@@ -2235,7 +2235,7 @@ void Visitor::visit_catch(Catch* in)
 void Visitor::visit_label_name(LABEL_NAME* in)
 {
     if(in == NULL)
-    	visit_null("LABEL_NAME");
+    	visit_null("HIR", "LABEL_NAME");
     else
     {
     	pre_label_name_chain(in);
@@ -2247,7 +2247,7 @@ void Visitor::visit_label_name(LABEL_NAME* in)
 void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 {
     if(in == NULL)
-    	visit_null("HT_ITERATOR");
+    	visit_null("HIR", "HT_ITERATOR");
     else
     {
     	pre_ht_iterator_chain(in);
@@ -2259,7 +2259,7 @@ void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 void Visitor::visit_op(OP* in)
 {
     if(in == NULL)
-    	visit_null("OP");
+    	visit_null("HIR", "OP");
     else
     {
     	pre_op_chain(in);
@@ -2271,7 +2271,7 @@ void Visitor::visit_op(OP* in)
 void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
-    	visit_null("CAST");
+    	visit_null("HIR", "CAST");
     else
     {
     	pre_cast_chain(in);
@@ -2283,7 +2283,7 @@ void Visitor::visit_cast(CAST* in)
 void Visitor::visit_constant_name(CONSTANT_NAME* in)
 {
     if(in == NULL)
-    	visit_null("CONSTANT_NAME");
+    	visit_null("HIR", "CONSTANT_NAME");
     else
     {
     	pre_constant_name_chain(in);
@@ -2295,7 +2295,7 @@ void Visitor::visit_constant_name(CONSTANT_NAME* in)
 void Visitor::visit_class_name(Class_name* in)
 {
     if(in == NULL)
-    	visit_null("Class_name");
+    	visit_null("HIR", "Class_name");
     else
     {
     	pre_class_name_chain(in);
@@ -2307,7 +2307,7 @@ void Visitor::visit_class_name(Class_name* in)
 void Visitor::visit_target(Target* in)
 {
     if(in == NULL)
-    	visit_null("Target");
+    	visit_null("HIR", "Target");
     else
     {
     	pre_target_chain(in);
@@ -2321,17 +2321,17 @@ void Visitor::visit_expr_list(List<Expr*>* in)
     List<Expr*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Expr");
+    	visit_null_list("HIR", "Expr");
     else
     {
-    	pre_list("Expr", in->size());
+    	pre_list("HIR", "Expr", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_expr(*i);
     	}
     
-    	post_list("Expr", in->size());
+    	post_list("HIR", "Expr", in->size());
     }
 }
 
@@ -2340,24 +2340,24 @@ void Visitor::visit_array_elem_list(List<Array_elem*>* in)
     List<Array_elem*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Array_elem");
+    	visit_null_list("HIR", "Array_elem");
     else
     {
-    	pre_list("Array_elem", in->size());
+    	pre_list("HIR", "Array_elem", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_array_elem(*i);
     	}
     
-    	post_list("Array_elem", in->size());
+    	post_list("HIR", "Array_elem", in->size());
     }
 }
 
 void Visitor::visit_array_elem(Array_elem* in)
 {
     if(in == NULL)
-    	visit_null("Array_elem");
+    	visit_null("HIR", "Array_elem");
     else
     {
     	pre_array_elem_chain(in);
@@ -2369,7 +2369,7 @@ void Visitor::visit_array_elem(Array_elem* in)
 void Visitor::visit_method_name(Method_name* in)
 {
     if(in == NULL)
-    	visit_null("Method_name");
+    	visit_null("HIR", "Method_name");
     else
     {
     	pre_method_name_chain(in);
@@ -2383,24 +2383,24 @@ void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
     List<Actual_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Actual_parameter");
+    	visit_null_list("HIR", "Actual_parameter");
     else
     {
-    	pre_list("Actual_parameter", in->size());
+    	pre_list("HIR", "Actual_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_actual_parameter(*i);
     	}
     
-    	post_list("Actual_parameter", in->size());
+    	post_list("HIR", "Actual_parameter", in->size());
     }
 }
 
 void Visitor::visit_actual_parameter(Actual_parameter* in)
 {
     if(in == NULL)
-    	visit_null("Actual_parameter");
+    	visit_null("HIR", "Actual_parameter");
     else
     {
     	pre_actual_parameter_chain(in);
@@ -2412,7 +2412,7 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
 void Visitor::visit_php_script(PHP_script* in)
 {
     if(in == NULL)
-    	visit_null("PHP_script");
+    	visit_null("HIR", "PHP_script");
     else
     {
     	pre_php_script_chain(in);
@@ -2424,7 +2424,7 @@ void Visitor::visit_php_script(PHP_script* in)
 void Visitor::visit_conditional_expr(Conditional_expr* in)
 {
     if(in == NULL)
-    	visit_null("Conditional_expr");
+    	visit_null("HIR", "Conditional_expr");
     else
     {
     	pre_conditional_expr_chain(in);

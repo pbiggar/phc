@@ -2211,7 +2211,7 @@ void Generate_C::children_statement(Statement* in)
 
 	if(not matched)
 	{
-		cerr << "could not generate code for " << demangle(in) << endl;
+		cerr << "could not generate code for " << demangle(in, true) << endl;
 		debug (in);
 		xdebug (in);
 		abort();
