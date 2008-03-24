@@ -15,10 +15,12 @@ class MIR_unparser : public virtual MIR::Visitor
 {
 protected:
 	ostream& os;
+	MIR::Node* entry_node;
 
 public:
 	MIR_unparser(ostream& os = cout);
-	void pre_php_script (MIR::PHP_script* in);
+	void pre_node (MIR::Node* in);
+	void post_node (MIR::Node* in);
 };
 
 #endif // PHC_MIR_UNPARSER 
