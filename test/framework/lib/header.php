@@ -453,9 +453,7 @@ function complete_exec($command, $stdin = NULL)
 		// 20 second timeout on any command
 		if (time () > $start_time + 20)
 		{
-			foreach ($pipes as &$pipe) fclose ($pipe);
-			proc_terminate ($handle); // catch run away programs
-			proc_close ($handle);
+			kill_properly ($handle, $pipes);
 			return array ("", "Timeout", -1);
 		}
 
@@ -471,15 +469,37 @@ function complete_exec($command, $stdin = NULL)
 	$out .= stream_get_contents ($pipes[1]);
 	$err .= stream_get_contents ($pipes[2]);
 
-	# contrary to popular opinion, proc_close doesnt return the exit
-	# status
 	$exit_code = $status["exitcode"];
 	
-	foreach ($pipes as &$pipe) fclose ($pipe);
-	proc_terminate ($handle); // catch run away programs
-	proc_close ($handle);
+	kill_properly ($handle, $pipes);
 
 	return array ($out, $err, $exit_code);
+}
+
+# Kill the process, and close the pipes.
+function kill_properly (&$handle, &$pipes)
+{
+	$status = proc_get_status ($handle);
+
+	# proc_terminate kills the shell process, but won't kill a runaway infinite
+	# loop. Get the child processes using ps, before killing the parent.
+	$ppid = $status["pid"];
+	$pids = split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
+
+	# if we dont close pipes, we can create deadlock, leaving zombie processes.
+	foreach ($pipes as &$pipe) fclose ($pipe);
+	proc_terminate ($handle);
+	proc_close ($handle);
+
+	// Not necessarily available.
+	if (function_exists ("posix_kill"))
+	{
+		foreach ($pids as $pid)
+		{
+			if (is_numeric ($pid))
+				posix_kill ($pid, 9);
+		}
+	}
 }
 
 function check_for_plugin ($plugin_name)

@@ -227,8 +227,6 @@ abstract class AsyncTest extends Test
 
 		foreach ($this->running_procs as $index => $bundle)
 		{
-
-			// is it done?
 			$status = proc_get_status ($bundle->handle);
 
 			if ($status["running"] !== true)
@@ -238,14 +236,11 @@ abstract class AsyncTest extends Test
 				unset ($this->running_procs [$index]); // remove from the running list
 				$bundle->continuation (); // start the next bit straight away
 			}
-			else if (time () - $bundle->start_time > 20)
+			else if (time () > $bundle->start_time + 20)
 			{
 				$bundle->read_streams ();
 
-				// if we dont close pipes, we can create deadlock, leaving zombie processes
-				foreach ($bundle->pipes as &$pipe) fclose ($pipe);
-				proc_terminate ($bundle->handle);
-				proc_close ($bundle->handle);
+				kill_properly ($bundle->handle, $bundle->pipes);
 
 				$bundle->exits[] = "Timeout";
 				$bundle->outs[] = "$bundle->out\n--- TIMEOUT ---";
