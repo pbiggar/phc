@@ -15,7 +15,7 @@ function get_phc ()
 	// (the right directory contains ./phc - if you get this far you
 	// have the tests)
 	$phc = "src/phc$phc_suffix";
-	if (!file_exists($phc) and is_file($phc) and is_executable($phc))
+	if (!(file_exists($phc) and is_file($phc) and is_executable($phc)))
 	{
 		$cwd = getcwd ();
 		die ("Error: The current directory, $cwd, does not contain the phc executable '$phc'\n");
