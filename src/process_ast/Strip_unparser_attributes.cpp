@@ -9,7 +9,13 @@
 
 using namespace AST;
 
-void Strip_unparser_attributes::pre_node (Node* in)
+void Strip_unparser_attributes::pre_real (REAL* in)
+{
+	// we need the source_rep for codegen for REALs.
+	in->attrs->set ("phc.codegen.source_rep", in->attrs->get ("phc.unparser.source_rep"));
+}
+
+void Strip_unparser_attributes::post_node (Node* in)
 {
 	in->attrs->erase_with_prefix ("phc.unparser");
 }

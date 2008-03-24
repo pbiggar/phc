@@ -1962,8 +1962,6 @@ private:
 public:
     virtual String* get_value_as_string();
 public:
-    //  TODO: we still need the source_rep for code generation-but we shouldn't
-    String* source_rep;
     bool match_value(REAL* that);
 };
 

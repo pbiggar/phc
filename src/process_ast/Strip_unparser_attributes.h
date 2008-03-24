@@ -12,7 +12,8 @@
 
 class Strip_unparser_attributes : public virtual AST::Visitor
 {
-	void pre_node (AST::Node* in);
+	void pre_real (AST::REAL* in);
+	void post_node (AST::Node* in);
 };
 
 #endif // STRIP_UNPARSER_ATTRIBUTES_H
