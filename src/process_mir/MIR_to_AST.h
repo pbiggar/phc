@@ -215,12 +215,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Static_declaration* fold_impl_static_declaration(MIR::Static_declaration* orig, List<AST::Name_with_default*>* vars) 
+	AST::Static_declaration* fold_impl_static_declaration(MIR::Static_declaration* orig, AST::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		AST::Static_declaration* result;
-		result = new AST::Static_declaration(vars);
+		result = new AST::Static_declaration(new List<AST::Name_with_default*> (var));
 		result->attrs = orig->attrs;
 		return result;
 	}
