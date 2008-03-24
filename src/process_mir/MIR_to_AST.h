@@ -394,10 +394,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Instanceof* fold_impl_instanceof(MIR::Instanceof* orig, AST::Expr* expr, AST::Class_name* class_name) 
+	AST::Instanceof* fold_impl_instanceof(MIR::Instanceof* orig, AST::VARIABLE_NAME* variable_name, AST::Class_name* class_name) 
 	{
 		AST::Instanceof* result;
-		result = new AST::Instanceof(expr, class_name);
+		result = new AST::Instanceof(wrap_var_name (variable_name), class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
