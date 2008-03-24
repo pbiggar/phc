@@ -76,8 +76,8 @@ $tests[] = new CompareBackwards ("sua", "dump", "ast");
 $tests[] = new CompareBackwards ("hir", "dump", "sua");
 $tests[] = new CompareBackwards ("mir", "udump", "hir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
-$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=AST-to-HIR --run plugins/tests/strip_includes.la", "Interpret_shred");
-$tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "Interpret_shred");
+$tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --udump=AST-to-HIR --run plugins/tests/strip_includes.la", "cb_sua");
+$tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_hir");
 require_once ("generate_c.php");
 require_once ("compiled_vs_interpreted.php");
 require_once ("compile_optimized.php");
