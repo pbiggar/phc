@@ -48,7 +48,6 @@ void Early_lower_control_flow::post_foreach (Foreach* in, List<Statement*>* out)
 		in->key = temp->clone ();
 	}
 
-
 	out->push_back (in);
 }
 
