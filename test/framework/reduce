@@ -203,7 +203,16 @@ function count_statements ($xprogram_string)
 
 function run ($command, $stdin = NULL)
 {
+
+	debug (2, "Running command: $command");
+
+	# complete_exec prints commands at opt_verbose = 1, but we want it at 2
+	global $opt_verbose;
+	$old = $opt_verbose;
+	$opt_verbose = false;
+
 	$result = complete_exec ($command, $stdin);
+	$opt_verbose = $old;
 
 	if ($result[1] == "Timeout")
 		debug (2, "Command timed out");
