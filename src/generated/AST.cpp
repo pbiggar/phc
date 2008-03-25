@@ -7036,6 +7036,16 @@ Variable::Variable(Variable_name* name)
 	}
 }
 
+bool Variable::is_simple_variable()
+{
+    {
+		return (
+				target == NULL
+			&& array_indices->size () == 0
+			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
+	}
+}
+
 Pre_op::Pre_op(OP* op, Variable* variable)
 {
     this->op = op;

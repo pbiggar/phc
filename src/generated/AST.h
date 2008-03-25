@@ -1891,6 +1891,7 @@ public:
     virtual void assert_valid();
 public:
     Variable(Variable_name* name);
+    bool is_simple_variable();
 };
 
 // Pre_op ::= OP Variable ;

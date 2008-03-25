@@ -419,6 +419,14 @@ public:
 		this->variable_name = name;
 		this->array_indices = new List<Expr*>;
 	}
+
+	bool is_simple_variable ()
+	{
+		return (
+				target == NULL
+			&& array_indices->size () == 0
+			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
+	}
 };
 
 class Method_invocation

@@ -13,6 +13,46 @@
 using namespace AST;
 
 /* Convert
+ *		foreach ($x as $y[$z] => $w[4]) { ... }
+ *	into
+ *		foreach ($x as $T => $T2)
+ *		{
+ *			$y[$z] = $T; // & is not allowed in PPHP
+ *			$w[4] = $T2; // & is allowed here
+ *		}
+ */
+void Early_lower_control_flow::post_foreach (Foreach* in, List<Statement*>* out)
+{
+	// We use push_front, so do value first
+	if (not in->val->is_simple_variable ())
+	{
+		Variable* temp = fresh_var ("Elcfv");
+		in->statements->push_front (
+			new Eval_expr (
+				new Assignment (
+					in->val,
+					in->is_ref,
+					temp)));
+		in->val = temp->clone ();
+	}
+	
+	if (in->key && not in->key->is_simple_variable ())
+	{
+		Variable* temp = fresh_var ("Elfck");
+		in->statements->push_front (
+			new Eval_expr (
+				new Assignment (
+					in->key,
+					false,
+					temp)));
+		in->key = temp->clone ();
+	}
+
+
+	out->push_back (in);
+}
+
+/* Convert
  *			while ($x) { y (); }
  * into
  *			while (true)
