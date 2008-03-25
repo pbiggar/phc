@@ -38,6 +38,11 @@ void Lower_expr::post_return (Return* in, List<Statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Lower_expr::post_throw (Throw* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 /*
  * For each control-flow statement that contains an expression, we push
  * back the pieces created for each part of the expression, but before

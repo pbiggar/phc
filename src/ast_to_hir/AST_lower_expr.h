@@ -32,6 +32,7 @@ namespace AST
 		void post_eval_expr (Eval_expr* in, List<Statement*>* out);
 		void post_return (Return* in, List<Statement*>* out);
 		void post_global (Global* in, List<Statement*>* out);
+		void post_throw (Throw* in, List<Statement*>* out);
 
 	protected:
 		Expr* eval(Expr* in);
