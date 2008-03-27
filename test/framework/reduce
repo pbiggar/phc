@@ -214,7 +214,7 @@ function run ($command, $stdin = NULL)
 	$result = complete_exec ($command, $stdin);
 	$opt_verbose = $old;
 
-	if ($result[1] == "Timeout")
+	if ($result[0] == "Timeout")
 		debug (2, "Command timed out");
 
 	return $result;
@@ -310,7 +310,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		else $phc_error = true;
 	}
 
-	if ($phc_error)
+	if ($php_out === "Timeout" || $my_out === "Timeout")
 	{
 		debug (1, "phc error. Skip.");
 		return false;

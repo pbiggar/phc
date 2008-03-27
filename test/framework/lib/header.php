@@ -412,7 +412,7 @@ function adjusted_name ($script_name, $adjust_for_regression = 0)
 	return $script_name;
 }
 
-function complete_exec($command, $stdin = NULL)
+function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = false)
 {
 	global $opt_verbose;
 	if ($opt_verbose)
@@ -422,7 +422,7 @@ function complete_exec($command, $stdin = NULL)
 									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
-	$handle = proc_open($command, $descriptorspec, &$pipes);
+	$handle = proc_open($command, $descriptorspec, &$pipes, getcwd());
 	
 	# read stdin into the process
 	if ($stdin !== NULL)
@@ -447,23 +447,34 @@ function complete_exec($command, $stdin = NULL)
 		// won't finish unless the buffers are periodically cleared.
 		// (This doesn't seem to be the case is async_test. I don't
 		// know why).
-		$out .= stream_get_contents ($pipes[1]);
-		$err .= stream_get_contents ($pipes[2]);
+		$new_out = stream_get_contents ($pipes[1]);
+		$new_err = stream_get_contents ($pipes[2]);
+		$out .= $new_out;
+		$err .= $new_err;
+
+		if ($pass_through)
+		{
+			print $new_out;
+			file_put_contents ("php://stderr", $new_err);
+		}
 
 		// 20 second timeout on any command
-		if (time () > $start_time + 20)
+		if (time () > $start_time + $timeout)
 		{
+			$out = stream_get_contents ($pipes[1]);
+			$err = stream_get_contents ($pipes[2]);
+
 			kill_properly ($handle, $pipes);
-			return array ("", "Timeout", -1);
+
+			return array ("Timeout", $out, $err);
 		}
 
 		// Since we use non-blocking, the for loop could well take 100%
 		// CPU. time of 1000 - 10000 seems OK. 100000 slows down the
 		// program by 50%.
-		usleep (1000);
+		usleep (10000);
 	}
 	while ($status["running"]);
-
 	stream_set_blocking ($pipes[1], 1);
 	stream_set_blocking ($pipes[2], 1);
 	$out .= stream_get_contents ($pipes[1]);
