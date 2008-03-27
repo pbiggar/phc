@@ -157,12 +157,11 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *			$val = foreach_get_val ($arr, iter); // optional
  *			....  
  *			foreach_next ($arr, iter); 
- *		L2:
  *		}
+ *		L2:
  *		foreach_end ($arr, iter);
  */
 
-// TODO move shredder earlier. this is made a lot more complicated by non-shredded expressions
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
  	// $array = expr (); (only is array is not var)
@@ -257,11 +256,10 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			arr->clone (),
 			iter->clone ()));
 
+	lower_loop(loop, out);
+
 	// L2:
-	loop->statements->push_back (l2);
-
-	lower_loop (loop, out);
-
+	out->push_back (l2);
 
 	// foreach_end ($arr, iter);
 	out->push_back (
