@@ -165,106 +165,104 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
  	// $array = expr (); (only is array is not var)
-	Variable* arr; 
-	if (not ((arr = dynamic_cast<Variable*> (in->expr))
-		&& arr->variable_name->classid () == VARIABLE_NAME::ID
-		&& arr->target == NULL
-		&& arr->array_indices->size () == 0))
+	Variable* array = dynamic_cast<Variable*> (in->expr); 
+	if (array == NULL || array->is_simple_variable ())
 	{
-		arr = fresh_var ("LCF_ARRAY_");
-		out->push_back (new Eval_expr (new Assignment (arr, false, in->expr)));
+		array = fresh_var ("LCF_ARRAY_");
+		out->push_back (
+			new Eval_expr (
+				new Assignment (
+					array , 
+					false, 
+					in->expr)));
 	}
+	VARIABLE_NAME*	array_name = dynamic_cast<VARIABLE_NAME*> (array->variable_name);
+
 
 	// foreach_reset ($arr, iter); 
 	HT_ITERATOR* iter = fresh_iter ();
-	out->push_back (new Foreach_reset (arr->clone (), iter));
+	out->push_back (new Foreach_reset (array_name->clone (), iter));
+
 
 	// loop ()
 	Loop* loop = new Loop (new List<Statement*>);
-	Variable* has_key = fresh_var ("THK");
+
 
 	// $T = foreach_has_key ($arr, iter);
+	Variable* has_key = fresh_var ("THK");
 	loop->statements->push_back (
 		new Eval_expr (
 			new Assignment (
 				has_key,
 				false, 
 				new Foreach_has_key (
-					arr->clone (),
+					array_name->clone (),
 					iter->clone ()))));
 
-	Label* l1 = fresh_label ();
-	Label* l2 = fresh_label ();
 
 	// if ($T) goto L1; else goto L2;
+	Label* l1 = fresh_label ();
+	Label* l2 = fresh_label ();
 	loop->statements->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+
 
 	// L1:
 	loop->statements->push_back (l1);
 
 
-
-
 	// $key = foreach_get_key ($arr, iter); 
-	
-	// TODO havent taken into account a key with indices
-	// The key may not be present, but we create it anyway for the unparser.
-	Variable* key;
-	if (in->key)
-		key = in->key;
-	else
+	Foreach_get_key* get_key = new Foreach_get_key (
+		array_name->clone (),
+		iter->clone ());
+
+	// The key may not be present, but we create it anyway for the unparser. 
+	get_key->attrs->set ("phc.codegen.use_get_key", new Boolean (in->key));
+
+	Variable* key = in->key;
+	if (key == NULL)
 		key = fresh_var ("LCF_KEY_");
 
-	Statement* get_key = 
-			new Eval_expr (
-				new Assignment (
-					key->clone (),
-					false,
-					new Foreach_get_key (
-						arr->clone (),
-						iter->clone ())));
+	assert (key->is_simple_variable ());
 
-
-	// only push it back if necessary
-	if (in->key)
-		loop->statements->push_back (get_key);
+	loop->statements->push_back (new Eval_expr (
+			new Assignment (
+				key,
+				false,
+				get_key)));
 	
 
-	// $val = foreach_get_val ($arr, $key, iter); 
-	Foreach_get_val* get_val = new Foreach_get_val (
-														arr->clone (),
-														iter->clone ());
+	// $val = foreach_get_val ($arr, $get_key, iter); 
+	loop->statements->push_back (new Eval_expr (
+		new Assignment (
+		in->val->clone (),
+		in->is_ref,
+		new Foreach_get_val (
+			array_name->clone (),
+			(dynamic_cast<VARIABLE_NAME*>(key->variable_name))->clone(),
+			iter->clone ()))));
 
-	// only add the key if it wont be found already
-	if (not in->key)
-		get_val->attrs->set ("phc.unparser.foreach_get_key", get_key);
-
-	get_val->attrs->set ("phc.unparser.foreach_key", key);
-
-	loop->statements->push_back (	new Eval_expr (
-														new Assignment (
-															in->val->clone (),
-															in->is_ref,
-															get_val)));
 
 	// ....  
 	loop->statements->push_back_all (in->statements);
 
+
 	// foreach_next ($arr, iter); 
 	loop->statements->push_back (
 		new Foreach_next (
-			arr->clone (),
+			array_name->clone (),
 			iter->clone ()));
 
 	lower_loop(loop, out);
 
+
 	// L2:
 	out->push_back (l2);
+
 
 	// foreach_end ($arr, iter);
 	out->push_back (
 		new Foreach_end (
-			arr->clone (),
+			array_name->clone (),
 			iter->clone ()));
 
 }

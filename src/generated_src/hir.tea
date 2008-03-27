@@ -100,12 +100,12 @@ Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= Variable HT_ITERATOR<long> ;
-Foreach_next ::= Variable HT_ITERATOR<long> ;
-Foreach_end ::= Variable HT_ITERATOR<long> ;
-Foreach_has_key ::= Variable HT_ITERATOR<long> ;
-Foreach_get_key ::= Variable HT_ITERATOR<long> ;
-Foreach_get_val ::= Variable HT_ITERATOR<long> ;
+Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 
 -- Assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:Expr ;
 -- Assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
@@ -408,6 +408,14 @@ public:
 		this->target = NULL;
 		this->variable_name = name;
 		this->array_indices = new List<Expr*>;
+	}
+
+	bool is_simple_variable ()
+	{
+		return (
+				target == NULL
+			&& array_indices->size () == 0
+			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 };
 

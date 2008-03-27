@@ -97,6 +97,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::CAST*,				// CAST*
  MIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
 	{
 		MIR::PHP_script* result;
@@ -273,70 +274,51 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_reset* result;
-		result = new MIR::Foreach_reset (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_reset (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_next* result;
-		result = new MIR::Foreach_next (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_next (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_end* result;
-		result = new MIR::Foreach_end (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_end (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_has_key* result;
-		result = new MIR::Foreach_has_key (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_has_key (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_get_key* result;
-		result = new MIR::Foreach_get_key (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_get_key (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, MIR::VARIABLE_NAME* array, MIR::VARIABLE_NAME* key, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_get_val* result;
-		result = new MIR::Foreach_get_val (var_name_from_expr (variable), ht_iterator);
-		result->attrs = orig->attrs->clone ();
-
-		// This can have an HIR::Variable or HIR::Eval_expr attribute, which
-		// should be folded aswell.
-		if (result->attrs->has ("phc.unparser.foreach_get_key"))
-		{
-			Object* obj = result->attrs->get ("phc.unparser.foreach_get_key");
-			HIR::Eval_expr* get_key = dynamic_cast<HIR::Eval_expr*> (obj);
-			assert (get_key);
-			result->attrs->set ("phc.unparser.foreach_get_key", fold_eval_expr (get_key));
-		}
-
-		if (result->attrs->has ("phc.unparser.foreach_key"))
-		{
-			Object* obj = result->attrs->get ("phc.unparser.foreach_key");
-			HIR::Variable* key = dynamic_cast<HIR::Variable*> (obj);
-			assert (key);
-			result->attrs->set ("phc.unparser.foreach_key", fold_variable (key));
-		}
-
+		result = new MIR::Foreach_get_val (array, key, iter);
+		result->attrs = orig->attrs;
 		return result;
 	}
 	

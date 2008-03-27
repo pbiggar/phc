@@ -1975,14 +1975,14 @@ class Pattern_foreach_reset: public Pattern
 	{
 		// declare the external iterator so outside local scope blocks
 		code
-			<< "HashPosition pos" << reset->value->ht_iterator->value << ";\n"
+			<< "HashPosition pos" << reset->value->iter->value << ";\n"
 			<< "{\n";
 
-		read_simple (LOCAL, "fe_array", reset->value->array_name);
+		read_simple (LOCAL, "fe_array", reset->value->array);
 		code 
 			<< "zend_hash_internal_pointer_reset_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << reset->value->ht_iterator->value << ");\n"
+			<< "						&pos" << reset->value->iter->value << ");\n"
 			<< "}\n";
 	}
 
@@ -2001,11 +2001,11 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", has_key->value->array_name);
+		read_simple (LOCAL, "fe_array", has_key->value->array);
 		os
 			<< "int type = zend_hash_get_current_key_type_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << has_key->value->ht_iterator->value << ");\n"
+			<< "						&pos" << has_key->value->iter->value << ");\n"
 			<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
 	}
 
@@ -2023,7 +2023,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", get_key->value->array_name);
+		read_simple (LOCAL, "fe_array", get_key->value->array);
 		os
 			<< "char* str_index = NULL;\n"
 			<< "uint str_length;\n"
@@ -2032,7 +2032,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 			<< "						fe_array->value.ht,"
 			<< "						&str_index, &str_length, &num_index, "
 			<< "						0, "
-			<< "						&pos" << get_key->value->ht_iterator->value << ");\n"
+			<< "						&pos" << get_key->value->iter->value << ");\n"
 			<< "if (result == HASH_KEY_IS_LONG)\n"
 			<< "{\n"
 			<< "	ZVAL_LONG (" << var << ", num_index);\n"
@@ -2061,7 +2061,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 		if (not used)
 			return;
 
-		read_simple (LOCAL, "fe_array", get_val->value->array_name);
+		read_simple (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -2071,7 +2071,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "						&pos" << get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
@@ -2083,7 +2083,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "						&pos" << get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
@@ -2108,11 +2108,11 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", next->value->array_name);
+		read_simple (LOCAL, "fe_array", next->value->array);
 		code 
 			<< "int result = zend_hash_move_forward_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << next->value->ht_iterator->value << ");\n"
+			<<							"&pos" << next->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n";
 		code << "}\n";
 	}
@@ -2132,11 +2132,11 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", end->value->array_name);
+		read_simple (LOCAL, "fe_array", end->value->array);
 		code 
 			<< "zend_hash_internal_pointer_end_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << end->value->ht_iterator->value << ");\n";
+			<<							"&pos" << end->value->iter->value << ");\n";
 		code << "}\n";
 	}
 

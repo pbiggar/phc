@@ -694,38 +694,39 @@ void Transform::children_label(Label* in)
 
 void Transform::children_foreach_reset(Foreach_reset* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_foreach_next(Foreach_next* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_foreach_end(Foreach_end* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_foreach_has_key(Foreach_has_key* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_foreach_get_key(Foreach_get_key* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_foreach_get_val(Foreach_get_val* in)
 {
-    in->array_name = transform_variable_name(in->array_name);
-    in->ht_iterator = transform_ht_iterator(in->ht_iterator);
+    in->array = transform_variable_name(in->array);
+    in->key = transform_variable_name(in->key);
+    in->iter = transform_ht_iterator(in->iter);
 }
 
 void Transform::children_assignment(Assignment* in)

@@ -772,38 +772,39 @@ void Visitor::children_label(Label* in)
 
 void Visitor::children_foreach_reset(Foreach_reset* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_next(Foreach_next* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_end(Foreach_end* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_has_key(Foreach_has_key* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_get_key(Foreach_get_key* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_get_val(Foreach_get_val* in)
 {
-    visit_variable(in->variable);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_variable_name(in->key);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_assignment(Assignment* in)

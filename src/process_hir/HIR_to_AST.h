@@ -343,70 +343,51 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_reset* result;
-		result = new AST::Foreach_reset (variable, ht_iterator);
+		result = new AST::Foreach_reset (wrap_var_name (array), iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-
-	AST::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_next* result;
-		result = new AST::Foreach_next (variable, ht_iterator);
+		result = new AST::Foreach_next (wrap_var_name (array), iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_end* result;
-		result = new AST::Foreach_end (variable, ht_iterator);
+		result = new AST::Foreach_end (wrap_var_name (array), iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_has_key* result;
-		result = new AST::Foreach_has_key (variable, ht_iterator);
+		result = new AST::Foreach_has_key (wrap_var_name (array), iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_get_key* result;
-		result = new AST::Foreach_get_key (variable, ht_iterator);
+		result = new AST::Foreach_get_key (wrap_var_name (array), iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, AST::Variable* variable, AST::HT_ITERATOR* ht_iterator) 
+	AST::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::HT_ITERATOR* iter) 
 	{
 		AST::Foreach_get_val* result;
-		result = new AST::Foreach_get_val (variable, ht_iterator);
-		result->attrs = orig->attrs->clone ();
-
-		// This can have an MIR::Variable or MIR::Eval_expr attribute, which
-		// should be folded aswell.
-		if (result->attrs->has ("phc.unparser.foreach_get_key"))
-		{
-			Object* obj = result->attrs->get ("phc.unparser.foreach_get_key");
-			HIR::Eval_expr* get_key = dynamic_cast<HIR::Eval_expr*> (obj);
-			assert (get_key);
-			result->attrs->set ("phc.unparser.foreach_get_key", fold_eval_expr (get_key));
-		}
-
-		if (result->attrs->has ("phc.unparser.foreach_key"))
-		{
-			Object* obj = result->attrs->get ("phc.unparser.foreach_key");
-			HIR::Variable* key = dynamic_cast<HIR::Variable*> (obj);
-			assert (key);
-			result->attrs->set ("phc.unparser.foreach_key", fold_variable (key));
-		}
+		result = new AST::Foreach_get_val (wrap_var_name (array), wrap_var_name (key), iter);
+		result->attrs = orig->attrs;
 		return result;
 	}
 	

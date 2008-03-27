@@ -366,20 +366,20 @@ void AST_unparser::children_foreach(Foreach* in)
 
 void AST_unparser::children_foreach_reset (Foreach_reset* in)
 {
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo (" = new ArrayObject (");
-	visit_variable (in->variable);
+	visit_variable (in->array);
 	echo (");");
 	newline ();
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo (" = ");
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo ("->getIterator ();");
 }
 
 void AST_unparser::children_foreach_next (Foreach_next* in)
 {
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo ("->next ();");
 }
 
@@ -389,13 +389,13 @@ void AST_unparser::children_foreach_end (Foreach_end* in)
 
 void AST_unparser::children_foreach_has_key (Foreach_has_key* in)
 {
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo ("->valid ()");
 }
 
 void AST_unparser::children_foreach_get_key (Foreach_get_key* in)
 {
-	visit_ht_iterator (in->ht_iterator);
+	visit_ht_iterator (in->iter);
 	echo ("->key ()");
 }
 
@@ -403,23 +403,9 @@ void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
 {
 	// If there is no key in the AST, we need to unparse one anyway, so we can
 	// access it.
-	Expr* expr;
-	if (in->attrs->has ("phc.unparser.foreach_get_key"))
-	{
-		Object* obj = in->attrs->get ("phc.unparser.foreach_get_key");
-		Eval_expr* get_key = dynamic_cast<Eval_expr*> (obj);
-		assert (get_key);
-		expr = get_key->expr;
-	}
-	else
-	{
-		// The key isnt in the AST, so it was added as an attribute instead.
-		Object* obj = in->attrs->get ("phc.unparser.foreach_key");
-		Variable* key = dynamic_cast<Variable*> (obj);
-		assert (key);
-		expr = key;
-	}
-	visit_variable (in->variable);
+	Variable* var = in->array->clone ();
+	var->array_indices->push_back (in->key);
+	visit_variable (var);
 }
 
 
