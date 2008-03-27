@@ -18,6 +18,7 @@
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
+#include <vector>
 
 using namespace HIR;
 
@@ -527,6 +528,11 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 }
 
 
+Variable* var_name_to_var (VARIABLE_NAME* var_name)
+{
+	return new Variable (NULL, var_name, new List<Expr*>);
+}
+
 /* Transform:
  *		break $x;
  *	into:
@@ -542,105 +548,112 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
  *
  *	where L(2n) is the label at the end of the nth inner loop construct
  */
+// TODO: what about 'break "my_string" (and then break '17')?
+// TODO: FYI: Objects/strings evaluate to 0
 template <class T>
 void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 {
-	List<Node*> *levels; // It gets uglier
+	vector<Node*> *levels;
 	if (Break::ID == in->ID) levels = &break_levels;
 	if (Continue::ID == in->ID) levels = &continue_levels;
 	assert (levels);
+	int num_levels = (int)(levels->size ());
 
-	// check that we arent being asked to jump further than we know we can go
-	unsigned int error_depth = 0;
+
+	int error_depth;
+	// 'break', 'break 1', and all coefficients < 1 are all the same. 
 	INT *_int = dynamic_cast<INT*> (in->expr);
-
-	/* If this break has a NULL expression, it's much easier (and gives more
-	 * readable output) if we special case it. Also, break 1 is the same as
-	 * break < 1, which is the same as just break. Its easier to handle it all
-	 * together. */
-	// TODO what about 'break "my_string"?'
 	if (in->expr == NULL || (_int && _int->value <= 1))
+	{
 		error_depth = 1;
+		in->expr = new INT (1);
+		in->expr->clone_mixin_from (in);
+	}
 	else if (_int)
 		error_depth = _int->value;
+	else
+		error_depth = -1; // we don't know
 
-	if (error_depth > levels->size ())
+
+	// Check that we arent being asked to jump further than we know
+	// we can go
+	if (error_depth > num_levels || num_levels == 0)
 	{
 		// find a good node to put the error on
 		Node* error_node = in->expr;
 		if (error_node == NULL)
 			error_node = in;
+
+		if (error_depth == -1)
+			error_depth = 1; // TODO need a better error message
+
 		phc_error ("Cannot break/continue %d levels", error_node, error_depth);
 	}
 
-	// Since we compare to the expression, we need to create a variable for it.
-	Variable *lhs = fresh_var ("TB");
+	// if we survived, we expect there to be a target
+	assert (num_levels);
 
-	if (in->expr)
-		out->push_back (new Eval_expr (
-					new Assignment (lhs, false, in->expr)));
-	else
-		out->push_back (new Eval_expr (
-					new Assignment (lhs, false, new INT (1))));
 
-	if (levels->size ())
+	if (error_depth != -1) // We know exactly where we're jumping to
 	{
-		INT *_int = dynamic_cast<INT*> (in->expr);
-		if (in->expr == NULL || (_int && _int->value <= 1))
-		{
-			// Create a label, pushback a goto to it, and attach it as an attribute
-			// of the innermost looping construct.
-			Node* level = levels->back ();
-			out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
-		}
-		else
-		{
-			// Otherwise we create a label and a goto for each possible loop, and attach
-			// the label it the loop.
-
-			// 1 branch and label per level:
-			//		if ($TB1 = 1) goto L1; else goto L2;
-			//	L2:
-			List<Node*>::reverse_iterator i;
-			unsigned int depth = 1;
-			for (i = levels->rbegin (); i != levels->rend (); i++)
-			{
-				// FYI: Objects/strings evaluate to 0
-				Node* level = (*i);
-
-				// Attach the break target to the loop construct.
-				Label* iftrue = exit_label<T> (level)->clone ();
-
-				// Create: if ($TB1 == depth)
-				OP* op = new OP (new String ("=="));
-				INT* branch_num = new INT (depth);
-				Bin_op* compare = new Bin_op (eval_var (lhs->clone ()), op, eval_var (branch_num));
-
-				// We break to depth 1 for any expr <= 1
-				if (depth == 1)
-					compare->op = new OP (new String ("<="));
-
-				Label* iffalse = fresh_label ();
-				Branch* branch = new Branch (compare, iftrue->label_name->clone (), iffalse->label_name->clone ());
-
-				out->push_back (branch);
-				out->push_back (iffalse);
-				depth ++;
-			}
-			assert (depth == break_levels.size () + 1);
-		}
+		// Create a label, pushback a goto to it, and attach it as an attribute
+		// of the appropriate looping construct.
+		Node* level = (*levels)[num_levels - error_depth];
+		out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
 	}
+	else
+	{
+		// Otherwise we create a label and a goto for each possible loop, and attach
+		// the label to the goto.
+		//
+		// $TB1 = $x;
+		VARIABLE_NAME* lhs = fresh_var_name ("TB");
+		out->push_back (
+			new Eval_expr (
+				new Assignment (
+					var_name_to_var (lhs), // TODO: remove var_name_to_var when changing IR definition
+					false, 
+					in->expr)));
 
-	// Print an error, and die with 255
-	stringstream ss;
-	ss <<	"<?php echo (\"\nFatal error: Cannot break/continue \\$"
-		<< *(dynamic_cast<VARIABLE_NAME*> (lhs->variable_name)->value)
-		<< " levels in " << *(in->get_filename ())
-		<< " on line " << in->get_line_number () << " \n\");\n"
-		<< "die (255);?>";
+		// 1 branch and label per level:
+		//		if ($TB1 = 1) goto L1; else goto L2;
+		//	L2:
+		vector<Node*>::reverse_iterator i;
+		int depth;
+		for (i = levels->rbegin (), depth = 1; i != levels->rend (); i++, depth++)
+		{
+			// We break to depth 1 for any expr <= 1
+			OP* op = new OP (new String ("=="));
+			if (depth == 1)
+				op = new OP (new String ("<="));
 
-	out->push_back_all (parse_to_hir (new String (ss.str()), in));
- 
+			//	if ($TB1 == depth) goto L1; else goto L2;
+			Label* iffalse = fresh_label ();
+			push_back_pieces ( // push the pieces from the eval_var back
+				new Branch (
+					var_name_to_var (eval_var (new Bin_op ( // TODO remove var_name_to_var when changing IR definition
+						lhs->clone(),
+						op,
+						eval_var (new INT (depth))))),
+					exit_label<T> (*i)->label_name, // get the label from this depth
+					iffalse->label_name->clone ()),
+				out);
+
+			//	L2:
+			out->push_back (iffalse);
+		}
+		assert (depth == num_levels + 1);
+
+		// Print an error, and die with 255
+		stringstream ss;
+		ss <<	"<?php echo (\"\nFatal error: Cannot break/continue $"
+			<< (*lhs->value)
+			<< " levels in " << *(in->get_filename ())
+			<< " on line " << in->get_line_number () << "\n\");\n"
+			<< "die (255);?>";
+
+		out->push_back_all (parse_to_hir (new String (ss.str()), in));
+	}
 }
 
 void Lower_control_flow::post_break (Break* in, List<Statement*>* out)

@@ -10,12 +10,13 @@
 #define PHC_LOWER_CONTROL_FLOW_H
 
 #include "HIR_lower_expr.h"
+#include "vector"
 
 class Lower_control_flow : public HIR::Lower_expr
 {
 	private:
-		List<HIR::Node*> break_levels;
-		List<HIR::Node*> continue_levels;
+		vector<HIR::Node*> break_levels;
+		vector<HIR::Node*> continue_levels;
 
 	public:
 		template<class T> void add_label (HIR::Node*, List<HIR::Statement*>*);
