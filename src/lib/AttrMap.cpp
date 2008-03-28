@@ -75,9 +75,18 @@ void AttrMap::set(string key, Object* value)
 void AttrMap::erase_with_prefix (string key_prefix)
 {
 	AttrMap::iterator i;
-	for(i = begin(); i != end(); i++)
+	// erasing using an iterator may invalidate the iterator
+	for(i = begin(); i != end(); )
+	{
 		if ((*i).first.find (key_prefix, 0) != string::npos)
-			erase (i);
+		{
+			string key = (*i).first;
+			i++; // advance the iterator before deleting
+			erase (key);
+		}
+		else
+			i++;
+	}
 }
 
 AttrMap* AttrMap::clone()
