@@ -265,13 +265,13 @@ void Pass_manager::list_passes ()
 			const char* name = "AST";
 			if ((*q) == hir_queue) name = "HIR";
 			if ((*q) == mir_queue) name = "MIR";
-			String* desc = format ((*p)->description, 39);
+			String* desc = (*p)->description;
 
 			printf ("%-15s    (%-8s - %3s)    %s\n", 
 					(*p)->name->c_str (),
 					(*p)->is_enabled (this) ? "enabled" : "disabled",
 					name,
-					desc ? desc->c_str () : "No description");
+					desc ? (format (desc, 39)->c_str ()) : "No description");
 		}
 }
 
