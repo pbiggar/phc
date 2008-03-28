@@ -126,6 +126,12 @@ class AST_to_HIR : public AST::Fold
 		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
 	}
 
+	void copy_attrs (HIR::Node* target, AST::Node* source)
+	{
+		target->attrs = source->attrs;
+		target->attrs->erase ("phc.comments");
+	}
+
 	HIR::VARIABLE_NAME* expr_to_var_name (HIR::Expr* expr)
 	{
 		if (expr == NULL) // $x[]
@@ -142,7 +148,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::PHP_script* result;
 		result = new HIR::PHP_script(statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -150,7 +156,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Class_def* result;
 		result = new HIR::Class_def(class_mod, class_name, extends, implements, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -158,7 +164,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Class_mod* result;
 		result = new HIR::Class_mod(is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -166,7 +172,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Interface_def* result;
 		result = new HIR::Interface_def(interface_name, extends, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -174,7 +180,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method* result;
 		result = new HIR::Method(signature, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -182,7 +188,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Signature* result;
 		result = new HIR::Signature(method_mod, is_ref, method_name, formal_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -190,7 +196,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method_mod* result;
 		result = new HIR::Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -198,7 +204,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Formal_parameter* result;
 		result = new HIR::Formal_parameter(type, is_ref, var);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -206,7 +212,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Type* result;
 		result = new HIR::Type(class_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -216,7 +222,7 @@ class AST_to_HIR : public AST::Fold
 
 		HIR::Attribute* result;
 		result = new HIR::Attribute(attr_mod, vars->front ());
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -224,7 +230,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Attr_mod* result;
 		result = new HIR::Attr_mod(is_public, is_protected, is_private, is_static, is_const);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 	
@@ -232,7 +238,7 @@ class AST_to_HIR : public AST::Fold
 	{ 
 		HIR::Name_with_default* result;
 		result = new HIR::Name_with_default(variable_name, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -240,7 +246,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Return* result;
 		result = new HIR::Return(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -250,7 +256,7 @@ class AST_to_HIR : public AST::Fold
 
 		HIR::Static_declaration* result;
 		result = new HIR::Static_declaration(vars->front ());
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -260,7 +266,7 @@ class AST_to_HIR : public AST::Fold
 		
 		HIR::Global* result;
 		result = new HIR::Global(variable_names->front ());
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -268,7 +274,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Try* result;
 		result = new HIR::Try(statements, catches);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -276,7 +282,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Catch* result;
 		result = new HIR::Catch(class_name, variable_name, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -284,7 +290,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Throw* result;
 		result = new HIR::Throw(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -292,7 +298,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Eval_expr* result;
 		result = new HIR::Eval_expr(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -300,7 +306,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Branch* result;
 		result = new HIR::Branch(expr, iftrue, iffalse);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -308,7 +314,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Goto* result;
 		result = new HIR::Goto(label_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -316,7 +322,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Label* result;
 		result = new HIR::Label(label_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -324,7 +330,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Break* result;
 		result = new HIR::Break (expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -332,7 +338,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::If* result;
 		result = new HIR::If (expr, iftrue, iffalse);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -340,7 +346,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Op_assignment* result;
 		result = new HIR::Op_assignment (variable, op, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -352,7 +358,7 @@ class AST_to_HIR : public AST::Fold
 
 		HIR::Loop* result;
 		result = new HIR::Loop(statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -360,7 +366,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach* result;
 		result = new HIR::Foreach(expr, key, is_ref, val, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -368,7 +374,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Ignore_errors* result;
 		result = new HIR::Ignore_errors (expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -376,7 +382,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Continue* result;
 		result = new HIR::Continue(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -384,7 +390,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_reset* result;
 		result = new HIR::Foreach_reset (variable_name, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -392,7 +398,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_next* result;
 		result = new HIR::Foreach_next (variable_name, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -400,7 +406,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_end* result;
 		result = new HIR::Foreach_end (variable_name, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -408,7 +414,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_has_key* result;
 		result = new HIR::Foreach_has_key (variable_name, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -416,7 +422,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_get_key* result;
 		result = new HIR::Foreach_get_key (variable_name, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -424,7 +430,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach_get_val* result;
 		result = new HIR::Foreach_get_val (variable_name, key, iter);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 	
@@ -432,7 +438,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Assignment* result;
 		result = new HIR::Assignment(variable, is_ref, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -440,7 +446,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Cast* result;
 		result = new HIR::Cast(cast, expr_to_var_name (expr));
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -448,7 +454,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Unary_op* result;
 		result = new HIR::Unary_op(op, expr_to_var_name (expr));
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -456,7 +462,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Bin_op* result;
 		result = new HIR::Bin_op(expr_to_var_name (left), op, expr_to_var_name (right));
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -464,7 +470,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Constant* result;
 		result = new HIR::Constant(class_name, constant_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -472,7 +478,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Instanceof* result;
 		result = new HIR::Instanceof(expr, class_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -480,7 +486,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Variable* result;
 		result = new HIR::Variable(target, variable_name, array_indices);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -488,7 +494,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Reflection* result;
 		result = new HIR::Reflection (expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -496,7 +502,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -504,7 +510,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Array* result;
 		result = new HIR::Array(array_elems);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -512,7 +518,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Array_elem* result;
 		result = new HIR::Array_elem(key, is_ref, val);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -520,7 +526,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method_invocation* result;
 		result = new HIR::Method_invocation(target, method_name, actual_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -528,7 +534,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Actual_parameter* result;
 		result = new HIR::Actual_parameter(is_ref, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -536,7 +542,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -544,7 +550,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::HT_ITERATOR* result;
 		result = new HIR::HT_ITERATOR (orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -552,7 +558,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CLASS_NAME* result;
 		result = new HIR::CLASS_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -560,7 +566,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::INTERFACE_NAME* result;
 		result = new HIR::INTERFACE_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -568,7 +574,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::METHOD_NAME* result;
 		result = new HIR::METHOD_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -576,7 +582,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::VARIABLE_NAME* result;
 		result = new HIR::VARIABLE_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -584,7 +590,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::LABEL_NAME* result;
 		result = new HIR::LABEL_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -592,7 +598,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::INT* result;
 		result = new HIR::INT(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -600,7 +606,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::REAL* result;
 		result = new HIR::REAL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -608,7 +614,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::STRING* result;
 		result = new HIR::STRING(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -616,7 +622,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::BOOL* result;
 		result = new HIR::BOOL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -624,7 +630,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::NIL* result;
 		result = new HIR::NIL();
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -632,7 +638,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::OP* result;
 		result = new HIR::OP(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -640,7 +646,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CAST* result;
 		result = new HIR::CAST(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -648,7 +654,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CONSTANT_NAME* result;
 		result = new HIR::CONSTANT_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 

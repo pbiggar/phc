@@ -119,6 +119,7 @@ int main(int argc, char** argv)
 	pm->add_ast_pass (new Pretty_print ());
 
 	// Begin lowering to hir
+	pm->add_ast_visitor (new Strip_comments (), "decomment", "Remove comments");
 	pm->add_ast_visitor (new Strip_unparser_attributes (), "sua", "Remove the attributes used to pretty-print source code");
 	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld", "Make a note of top-level-declarations before the information is lost");
 
@@ -128,7 +129,6 @@ int main(int argc, char** argv)
 
 
 	// Make simple statements simpler
-	pm->add_ast_visitor (new Strip_comments (), "decomment", "Remove comments");
 	pm->add_ast_transform (new Split_multiple_arguments (), "sma", "Split multiple arguments for globals, attributes and static declarations");
 	pm->add_ast_transform (new Split_unset_isset (), "sui", "Split unset() and isset() into multiple calls with one argument each");
 	pm->add_ast_transform (new Echo_split (), "ecs", "Split echo() into multiple calls with one argument each");
