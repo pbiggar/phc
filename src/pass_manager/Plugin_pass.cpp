@@ -21,11 +21,11 @@ Plugin_pass::Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, St
 
 void Plugin_pass::run (IR* in, Pass_manager* pm)
 {
-	typedef void (*run_function)(IR*, Pass_manager*, String*);
 	/* The ltdl interface uses C, so overloading on type doesnt work. We must
 	 * use different names instead. */
 	if (in->is_AST ())
 	{
+		typedef void (*run_function)(AST::PHP_script*, Pass_manager*, String*); 
 		run_function ast_func = (run_function) lt_dlsym(handle, "run_ast");
 
 		if (not (ast_func))
@@ -35,15 +35,17 @@ void Plugin_pass::run (IR* in, Pass_manager* pm)
 	}
 	else if (in->is_HIR ())
 	{
-		run_function mir_func = (run_function) lt_dlsym (handle, "run_hir");
+		typedef void (*run_function)(HIR::PHP_script*, Pass_manager*, String*);
+		run_function hir_func = (run_function) lt_dlsym (handle, "run_hir");
 
-		if (not (mir_func))
+		if (not (hir_func))
 			phc_error ("Plugins which operate on the HIR must define a run_hir() function.");
 
-		(*mir_func)(in->as_HIR (), pm, option);
+		(*hir_func)(in->as_HIR (), pm, option);
 	}
 	else
 	{
+		typedef void (*run_function)(MIR::PHP_script*, Pass_manager*, String*);
 		run_function mir_func = (run_function) lt_dlsym (handle, "run_mir");
 
 		if (not (mir_func))
@@ -74,5 +76,3 @@ void Plugin_pass::post_process ()
 
 	this->handle = NULL;
 }
-
-

@@ -50,19 +50,19 @@ void run (PHP_script* in)
 }
 
 
-extern "C" void run_ast (AST::PHP_script* in, Pass_manager*) 
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager*, String* option)
 { 
-	run <AST::PHP_script, AST::Node, AST::Visitor> (in); 
+	run <AST::PHP_script, AST::Node, AST::Visitor> (in);
 }
 
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*) 
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*, String* option)
 {
 	run <HIR::PHP_script, HIR::Node, HIR::Visitor> (in);
 }
 
-extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*) 
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*, String* option)
 {
-	run <MIR::PHP_script, MIR::Node, MIR::Visitor> (in); 
+	run <MIR::PHP_script, MIR::Node, MIR::Visitor> (in);
 }
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)

@@ -40,17 +40,17 @@ class Check_assignment : public Visitor
 	}
 };
 
-extern "C" void run_ast (AST::PHP_script* in, Pass_manager*) 
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager*, String* option) 
 {
 	in->visit (new Check_assignment <AST::Visitor, AST::Variable, AST::Assignment> );
 }
 
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*) 
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*, String* option) 
 {
 	in->visit (new Check_assignment <HIR::Visitor, HIR::Variable, HIR::Assignment> );
 }
 
-extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*)
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*, String* option)
 { 
 	in->visit (new Check_assignment <MIR::Visitor, MIR::Variable, MIR::Assignment> );
 }

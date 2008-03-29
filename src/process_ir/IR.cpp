@@ -30,14 +30,14 @@ void IR::visit(AST::Visitor* ast_visitor)
 	as_AST()->visit(ast_visitor);
 }
 
-void IR::visit(MIR::Visitor* mir_visitor)
-{
-	as_MIR()->visit(mir_visitor);
-}
-
 void IR::visit(HIR::Visitor* hir_visitor)
 {
 	as_HIR()->visit(hir_visitor);
+}
+
+void IR::visit(MIR::Visitor* mir_visitor)
+{
+	as_MIR()->visit(mir_visitor);
 }
 
 void IR::visit(AST::Visitor* ast_visitor, HIR::Visitor* hir_visitor, MIR::Visitor* mir_visitor)
@@ -58,14 +58,14 @@ void IR::transform_children(AST::Transform* ast_transform)
 	as_AST()->transform_children(ast_transform);
 }
 
-void IR::transform_children(MIR::Transform* mir_transform)
-{
-	as_MIR()->transform_children(mir_transform);
-}
-
 void IR::transform_children(HIR::Transform* hir_transform)
 {
 	as_HIR()->transform_children(hir_transform);
+}
+
+void IR::transform_children(MIR::Transform* mir_transform)
+{
+	as_MIR()->transform_children(mir_transform);
 }
 
 void IR::transform_children(AST::Transform* ast_transform, HIR::Transform* hir_transform, MIR::Transform* mir_transform)
@@ -111,13 +111,13 @@ HIR::PHP_script* IR::as_HIR()
 }
 
 
-
 MIR::PHP_script* IR::as_MIR()
 {
 	MIR::PHP_script* mir = dynamic_cast<MIR::PHP_script*>(this);
 	assert(mir != NULL);
 	return mir;
 }
+
 
 IR* IR::fold_lower ()
 {

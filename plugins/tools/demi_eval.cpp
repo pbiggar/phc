@@ -89,10 +89,10 @@ class Demi_eval : public Transform
 // Fresh variables are marked as not needing a symbol table entry automatically. We cant get one in an eval (for now).
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "ast");
+	pm->add_before_named_pass (pass, "hir");
 }
 
-extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
 {
 	bool bool_option = false;
 	if (*(option) == "true")

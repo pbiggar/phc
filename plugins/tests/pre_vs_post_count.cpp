@@ -44,17 +44,17 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
 	in->visit (new Test_pre_vs_post_count <AST::PHP_script, AST::Node, AST::Visitor> ());
 }
 
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm)
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
 {
 	in->visit (new Test_pre_vs_post_count <HIR::PHP_script, HIR::Node, HIR::Visitor> ());
 }
 
-extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm)
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option)
 {
 	in->visit (new Test_pre_vs_post_count <MIR::PHP_script, MIR::Node, MIR::Visitor> ());
 }
