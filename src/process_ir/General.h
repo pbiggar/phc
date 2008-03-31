@@ -1,5 +1,16 @@
+/*
+ * phc -- the open source PHP compiler
+ * See doc/license/README.license for licensing information
+ *
+ * Convenience functions and headers
+ */
+
+#ifndef PHC_GENERAL
+#define PHC_GENERAL
+
 #include "debug.h"
 #include "Foreach.h"
+#include "Clone_blank_mixins.h"
 
 #include "HIR.h"
 #include "AST.h"
@@ -17,3 +28,5 @@ List<HIR::Statement*>* parse_to_hir (String* code, HIR::Node* node);
 /* Parse CODE into a list of AST statements, using NODE as the source for
  * filenames and line numbers. */
 List<AST::Statement*>* parse_to_ast (String* code, AST::Node* node);
+
+#endif // PHC_GENERAL

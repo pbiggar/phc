@@ -265,6 +265,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			array_name->clone (),
 			iter->clone ()));
 
+	clone_blank_mixins_from (in, out);
 }
 
 /* Convert 
