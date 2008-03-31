@@ -6,6 +6,7 @@
  */
 
 #include "HIR.h"
+#include "process_ir/General.h"
 #include "pass_manager/Pass_manager.h"
 #include "parsing/parse.h"
 
@@ -52,7 +53,7 @@ List<AST::Statement*>* parse_to_ast (String* code_string, AST::Node* node)
 {
 	AST::PHP_script* ast = parse_code (code_string, node->get_filename (), node->get_line_number ());
 
-	AST::PHP_script* hir = pm->run_until (new String ("ast"), ast)->as_AST ();
+	ast = pm->run_until (new String ("ast"), ast)->as_AST ();
 
-	return hir->statements;
+	return ast->statements;
 }
