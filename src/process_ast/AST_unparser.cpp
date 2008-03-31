@@ -366,46 +366,56 @@ void AST_unparser::children_foreach(Foreach* in)
 
 void AST_unparser::children_foreach_reset (Foreach_reset* in)
 {
+	echo ("foreach_reset($");
+	visit_variable_name (in->array);
+	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo (" = new ArrayObject (");
-	visit_variable (in->array);
 	echo (");");
-	newline ();
-	visit_ht_iterator (in->iter);
-	echo (" = ");
-	visit_ht_iterator (in->iter);
-	echo ("->getIterator ();");
 }
 
 void AST_unparser::children_foreach_next (Foreach_next* in)
 {
+	echo ("foreach_next($");
+	visit_variable_name (in->array);
+	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo ("->next ();");
+	echo (");");
 }
 
 void AST_unparser::children_foreach_end (Foreach_end* in)
 {
+	echo ("foreach_end($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (");");
 }
 
 void AST_unparser::children_foreach_has_key (Foreach_has_key* in)
 {
+	echo ("foreach_has_key($");
+	visit_variable_name (in->array);
+	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo ("->valid ()");
+	echo (")");
 }
 
 void AST_unparser::children_foreach_get_key (Foreach_get_key* in)
 {
+	echo ("foreach_get_key($");
+	visit_variable_name (in->array);
+	echo (", ");
 	visit_ht_iterator (in->iter);
-	echo ("->key ()");
+	echo (")");
 }
 
 void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
 {
-	// If there is no key in the AST, we need to unparse one anyway, so we can
-	// access it.
-	Variable* var = in->array->clone ();
-	var->array_indices->push_back (in->key);
-	visit_variable (var);
+	echo ("foreach_get_val($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (")");
 }
 
 

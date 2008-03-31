@@ -301,8 +301,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Strip_unparser_attributes.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	HIR_unparser.$(OBJEXT) Clone_blank_mixins.$(OBJEXT) \
 	debug.$(OBJEXT) fresh.$(OBJEXT) General.$(OBJEXT) IR.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	MIR_unparser.$(OBJEXT)
+	PHP_unparser.$(OBJEXT) Foreach_uppering.$(OBJEXT) \
+	Goto_uppering.$(OBJEXT) MIR_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -710,6 +710,8 @@ src_phc_SOURCES = \
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.h							\
+	src/process_mir/Foreach_uppering.cpp				\
+	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
@@ -1138,6 +1140,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Foreach_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Goto_uppering.Po@am__quote@
@@ -2360,6 +2363,20 @@ PHP_unparser.obj: src/process_ir/PHP_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/PHP_unparser.cpp' object='PHP_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PHP_unparser.obj `if test -f 'src/process_ir/PHP_unparser.cpp'; then $(CYGPATH_W) 'src/process_ir/PHP_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/PHP_unparser.cpp'; fi`
+
+Foreach_uppering.o: src/process_mir/Foreach_uppering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Foreach_uppering.o -MD -MP -MF $(DEPDIR)/Foreach_uppering.Tpo -c -o Foreach_uppering.o `test -f 'src/process_mir/Foreach_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Foreach_uppering.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Foreach_uppering.Tpo $(DEPDIR)/Foreach_uppering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_mir/Foreach_uppering.cpp' object='Foreach_uppering.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Foreach_uppering.o `test -f 'src/process_mir/Foreach_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Foreach_uppering.cpp
+
+Foreach_uppering.obj: src/process_mir/Foreach_uppering.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Foreach_uppering.obj -MD -MP -MF $(DEPDIR)/Foreach_uppering.Tpo -c -o Foreach_uppering.obj `if test -f 'src/process_mir/Foreach_uppering.cpp'; then $(CYGPATH_W) 'src/process_mir/Foreach_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_mir/Foreach_uppering.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Foreach_uppering.Tpo $(DEPDIR)/Foreach_uppering.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_mir/Foreach_uppering.cpp' object='Foreach_uppering.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Foreach_uppering.obj `if test -f 'src/process_mir/Foreach_uppering.cpp'; then $(CYGPATH_W) 'src/process_mir/Foreach_uppering.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_mir/Foreach_uppering.cpp'; fi`
 
 Goto_uppering.o: src/process_mir/Goto_uppering.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Goto_uppering.o -MD -MP -MF $(DEPDIR)/Goto_uppering.Tpo -c -o Goto_uppering.o `test -f 'src/process_mir/Goto_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Goto_uppering.cpp

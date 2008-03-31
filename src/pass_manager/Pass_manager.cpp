@@ -23,6 +23,7 @@
 
 #include "process_ast/Invalid_check.h"
 #include "process_mir/Goto_uppering.h"
+#include "process_mir/Foreach_uppering.h"
 
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
@@ -303,8 +304,9 @@ void Pass_manager::dump (IR* in, Pass* pass)
 			if (in->is_AST())
 				ast = in->as_AST()->clone ();
 
-			ast->visit (new Goto_uppering ());
-			ast->visit (new AST_unparser ());
+			ast->transform_children (new Foreach_uppering);
+			ast->visit (new Goto_uppering);
+			ast->visit (new AST_unparser);
 		}
 	}
 

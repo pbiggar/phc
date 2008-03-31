@@ -187,6 +187,8 @@ src_phc_SOURCES =												\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.h							\
+	src/process_mir/Foreach_uppering.cpp				\
+	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\

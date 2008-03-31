@@ -5153,7 +5153,7 @@ void Label::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_reset::Foreach_reset(Variable* array, HT_ITERATOR* iter)
+Foreach_reset::Foreach_reset(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
     this->iter = iter;
@@ -5236,7 +5236,7 @@ bool Foreach_reset::equals(Node* in)
 
 Foreach_reset* Foreach_reset::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_reset* clone = new Foreach_reset(array, iter);
     clone->Node::clone_mixin_from(this);
@@ -5252,7 +5252,7 @@ void Foreach_reset::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_next::Foreach_next(Variable* array, HT_ITERATOR* iter)
+Foreach_next::Foreach_next(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
     this->iter = iter;
@@ -5335,7 +5335,7 @@ bool Foreach_next::equals(Node* in)
 
 Foreach_next* Foreach_next::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_next* clone = new Foreach_next(array, iter);
     clone->Node::clone_mixin_from(this);
@@ -5351,7 +5351,7 @@ void Foreach_next::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_end::Foreach_end(Variable* array, HT_ITERATOR* iter)
+Foreach_end::Foreach_end(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
     this->iter = iter;
@@ -5434,7 +5434,7 @@ bool Foreach_end::equals(Node* in)
 
 Foreach_end* Foreach_end::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_end* clone = new Foreach_end(array, iter);
     clone->Node::clone_mixin_from(this);
@@ -5450,7 +5450,7 @@ void Foreach_end::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_has_key::Foreach_has_key(Variable* array, HT_ITERATOR* iter)
+Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
     this->iter = iter;
@@ -5533,7 +5533,7 @@ bool Foreach_has_key::equals(Node* in)
 
 Foreach_has_key* Foreach_has_key::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_has_key* clone = new Foreach_has_key(array, iter);
     clone->Node::clone_mixin_from(this);
@@ -5549,7 +5549,7 @@ void Foreach_has_key::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_get_key::Foreach_get_key(Variable* array, HT_ITERATOR* iter)
+Foreach_get_key::Foreach_get_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
     this->iter = iter;
@@ -5632,7 +5632,7 @@ bool Foreach_get_key::equals(Node* in)
 
 Foreach_get_key* Foreach_get_key::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_get_key* clone = new Foreach_get_key(array, iter);
     clone->Node::clone_mixin_from(this);
@@ -5648,7 +5648,7 @@ void Foreach_get_key::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_get_val::Foreach_get_val(Variable* array, Variable* key, HT_ITERATOR* iter)
+Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter)
 {
     this->array = array;
     this->key = key;
@@ -5749,8 +5749,8 @@ bool Foreach_get_val::equals(Node* in)
 
 Foreach_get_val* Foreach_get_val::clone()
 {
-    Variable* array = this->array ? this->array->clone() : NULL;
-    Variable* key = this->key ? this->key->clone() : NULL;
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* key = this->key ? this->key->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
     Foreach_get_val* clone = new Foreach_get_val(array, key, iter);
     clone->Node::clone_mixin_from(this);

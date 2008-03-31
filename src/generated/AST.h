@@ -1417,15 +1417,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_reset ::= array:Variable iter:HT_ITERATOR<long> ;
+// Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_reset : virtual public Statement
 {
 public:
-    Foreach_reset(Variable* array, HT_ITERATOR* iter);
+    Foreach_reset(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_reset();
 public:
-    Variable* array;
+    VARIABLE_NAME* array;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
@@ -1443,15 +1443,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_next ::= array:Variable iter:HT_ITERATOR<long> ;
+// Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_next : virtual public Statement
 {
 public:
-    Foreach_next(Variable* array, HT_ITERATOR* iter);
+    Foreach_next(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_next();
 public:
-    Variable* array;
+    VARIABLE_NAME* array;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
@@ -1469,15 +1469,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_end ::= array:Variable iter:HT_ITERATOR<long> ;
+// Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_end : virtual public Statement
 {
 public:
-    Foreach_end(Variable* array, HT_ITERATOR* iter);
+    Foreach_end(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_end();
 public:
-    Variable* array;
+    VARIABLE_NAME* array;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
@@ -1495,15 +1495,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_has_key ::= array:Variable iter:HT_ITERATOR<long> ;
+// Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_has_key : virtual public Expr
 {
 public:
-    Foreach_has_key(Variable* array, HT_ITERATOR* iter);
+    Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_has_key();
 public:
-    Variable* array;
+    VARIABLE_NAME* array;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
@@ -1521,15 +1521,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_key ::= array:Variable iter:HT_ITERATOR<long> ;
+// Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_get_key : virtual public Expr
 {
 public:
-    Foreach_get_key(Variable* array, HT_ITERATOR* iter);
+    Foreach_get_key(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_get_key();
 public:
-    Variable* array;
+    VARIABLE_NAME* array;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
@@ -1547,16 +1547,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_val ::= array:Variable key:Variable iter:HT_ITERATOR<long> ;
+// Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_get_val : virtual public Expr
 {
 public:
-    Foreach_get_val(Variable* array, Variable* key, HT_ITERATOR* iter);
+    Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter);
 protected:
     Foreach_get_val();
 public:
-    Variable* array;
-    Variable* key;
+    VARIABLE_NAME* array;
+    VARIABLE_NAME* key;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);

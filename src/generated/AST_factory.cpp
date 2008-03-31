@@ -265,43 +265,43 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Foreach_reset"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_reset(array, iter);
     }
     if(!strcmp(type_id, "Foreach_next"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_next(array, iter);
     }
     if(!strcmp(type_id, "Foreach_end"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_end(array, iter);
     }
     if(!strcmp(type_id, "Foreach_has_key"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_has_key(array, iter);
     }
     if(!strcmp(type_id, "Foreach_get_key"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_get_key(array, iter);
     }
     if(!strcmp(type_id, "Foreach_get_val"))
     {
-    	Variable* array = dynamic_cast<Variable*>(*i++);
-    	Variable* key = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* key = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_get_val(array, key, iter);

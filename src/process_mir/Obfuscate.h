@@ -9,6 +9,7 @@
 #define PHC_OBFUSCATE_H
 
 #include "process_mir/Goto_uppering.h"
+#include "process_mir/Foreach_uppering.h"
 #include "pass_manager/Pass_manager.h"
 
 class Obfuscate : public Pass
@@ -23,7 +24,8 @@ public:
 	void run (IR* in, Pass_manager* pm)
 	{
 		AST::PHP_script* ast = in->as_AST()->clone ();
-		ast->visit (new Goto_uppering());
+		ast->transform_children (new Foreach_uppering);
+		ast->visit (new Goto_uppering);
 		ast->visit (new AST_unparser);
 	}
 

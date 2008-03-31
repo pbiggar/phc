@@ -27,8 +27,15 @@ void run_standard_transforms(PHP_script* php_script);
 
 PHP_script* parse_code (String* code, String* filename, int line_number)
 {
-	assert (code);
+	// TODO: It is important to have this, but this also substancially slows
+	// down my work. Since it already doesn't work in the general case, and line
+	// numbers aren't available properly a lot of the time, it is best to
+	// disable this assertion for now, and fix it later.
+	if (filename == NULL)
+		filename = new String ("");
 	assert (filename);
+
+	assert (code);
 
 	stringstream ss;
 	ss << *code;
