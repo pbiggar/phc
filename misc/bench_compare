@@ -7,6 +7,16 @@
 # times. It will then calculate the speedup, and plot them on a single graph,
 # NAME.plot.
 
+if (count ($argv) < 1)
+{
+	print ("usage: bench_compare php_NAME\n
+			  or:    bench_compare phc_NAME\n 
+			  or:    bench_compare NAME\n
+			  
+			  to compare php_NAME.txt with phc_NAME.txt");
+	die ();
+}
+
 	# return a hashtable of test_name => time
 	function parse ($filename)
 	{
@@ -14,6 +24,16 @@
 		$results_strings = split ("\n", chop (file_get_contents ($filename)));
 		foreach ($results_strings as $res)
 		{
+			# by default, the bench results include lines like ackermann(7). Strip off the (7)
+			$res = preg_replace ("/\(\d+\)/", "", $res);
+
+			# skip the blank and the last line
+			if ($res === "------------------------")
+				break;
+
+			# check the format
+			if (!preg_match ("/^\w+\s+[0-9\.]+$/", $res))
+				die ("bad line: '$res'");
 			list ($name, $time) = split ("[ ]+", $res);
 			$results [$name] = $time;
 		}
@@ -133,9 +153,5 @@ GNUPLOT;
 	
 	file_put_contents ("results/$title.plot", $string);
 	`gnuplot results/$title.plot`;
-
-
-
-
 
 ?>
