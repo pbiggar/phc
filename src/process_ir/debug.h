@@ -31,6 +31,4 @@ void debug (MIR::Node* in);
 void xdebug (MIR::Node* in);
 void xadebug (MIR::Node* in);
 
-#endif
-
-
+#endif // PHC_DEBUG
