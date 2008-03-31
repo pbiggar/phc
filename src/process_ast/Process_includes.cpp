@@ -168,12 +168,12 @@ public:
 	}
 };
 
-Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, const char* name)
+Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, String* name)
 : hir (hir),
   pass_name (pass_name),
   pm (pm)
 {
-	this->name = new String (name);
+	this->name = name;
 	this->description = new String ("Insert included and required files into the AST");
 }
 

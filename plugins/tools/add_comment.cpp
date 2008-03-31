@@ -7,12 +7,13 @@
 
 #include "pass_manager/Plugin_pass.h"
 #include "AST.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "ast");
+	pm->add_before_named_pass (pass, s("ast"));
 }
 
 extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)

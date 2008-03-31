@@ -17,10 +17,10 @@
 class Fake_pass : public Pass
 {
 	public:
-	Fake_pass (const char* name, const char* description)
+	Fake_pass (String* name, String* description)
 	{
-		this->name = new String (name);
-		this->description = new String (description);
+		this->name = name;
+		this->description = description;
 	}
 
 	void run (IR*, Pass_manager*) {}

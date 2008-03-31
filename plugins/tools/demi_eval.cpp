@@ -10,6 +10,7 @@
 #include "pass_manager/Plugin_pass.h"
 #include "process_ir/fresh.h"
 #include "lib/List.h"
+#include "process_ir/General.h"
 
 using namespace HIR;
 
@@ -89,7 +90,7 @@ class Demi_eval : public Transform
 // Fresh variables are marked as not needing a symbol table entry automatically. We cant get one in an eval (for now).
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "hir");
+	pm->add_before_named_pass (pass, s("hir"));
 }
 
 extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)

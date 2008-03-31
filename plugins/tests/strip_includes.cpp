@@ -9,6 +9,7 @@
 #include "pass_manager/Plugin_pass.h"
 #include "pass_manager/Pass_manager.h"
 #include "AST_transform.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -47,7 +48,7 @@ public:
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	// TODO after incl2 goes back in, put this back to incl2.
-	pm->add_after_named_pass (pass, "incl1");
+	pm->add_after_named_pass (pass, s("incl1"));
 }
 
 extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)

@@ -39,15 +39,15 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	queues = new List <List<Pass*>* > (ast_queue, hir_queue, mir_queue);
 }
 
-void Pass_manager::add_ast_visitor (AST::Visitor* visitor, const char* name, const char* description)
+void Pass_manager::add_ast_visitor (AST::Visitor* visitor, String* name, String* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
+	Pass* pass = new Visitor_pass (visitor, name, description);
 	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_ast_transform (AST::Transform* transform, const char* name, const char* description)
+void Pass_manager::add_ast_transform (AST::Transform* transform, String* name, String* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
+	Pass* pass = new Transform_pass (transform, name, description);
 	add_pass (pass, ast_queue);
 }
 
@@ -56,15 +56,15 @@ void Pass_manager::add_ast_pass (Pass* pass)
 	add_pass (pass, ast_queue);
 }
 
-void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, const char* name, const char* description)
+void Pass_manager::add_hir_visitor (HIR::Visitor* visitor, String* name, String* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
+	Pass* pass = new Visitor_pass (visitor, name, description);
 	add_pass (pass, hir_queue);
 }
 
-void Pass_manager::add_hir_transform (HIR::Transform* transform, const char* name, const char* description)
+void Pass_manager::add_hir_transform (HIR::Transform* transform, String* name, String* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
+	Pass* pass = new Transform_pass (transform, name, description);
 	add_pass (pass, hir_queue);
 }
 
@@ -75,15 +75,15 @@ void Pass_manager::add_hir_pass (Pass* pass)
 
 
 
-void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, const char* name, const char* description)
+void Pass_manager::add_mir_visitor (MIR::Visitor* visitor, String* name, String* description)
 {
-	Pass* pass = new Visitor_pass (visitor, new String (name), new String (description));
+	Pass* pass = new Visitor_pass (visitor, name, description);
 	add_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_mir_transform (MIR::Transform* transform, const char* name, const char* description)
+void Pass_manager::add_mir_transform (MIR::Transform* transform, String* name, String* description)
 {
-	Pass* pass = new Transform_pass (transform, new String (name), new String (description));
+	Pass* pass = new Transform_pass (transform, name, description);
 	add_pass (pass, mir_queue);
 }
 
@@ -102,9 +102,9 @@ void Pass_manager::add_pass (Pass* pass, List<Pass*>* queue)
 
 
 
-void Pass_manager::add_plugin (lt_dlhandle handle, const char* name, String* option)
+void Pass_manager::add_plugin (lt_dlhandle handle, String* name, String* option)
 {
-	Plugin_pass* pp = new Plugin_pass (new String (name), handle, this, option);
+	Plugin_pass* pp = new Plugin_pass (name, handle, this, option);
 
 	// LOAD
 	typedef void (*load_function)(Pass_manager*, Plugin_pass*);
@@ -143,9 +143,9 @@ void Pass_manager::remove_all ()
 	}
 }
 
-void Pass_manager::remove_after_named_pass (const char* name)
+void Pass_manager::remove_after_named_pass (String* name)
 {
-	String* n = new String (name);
+	String* n = name;
 
 	bool remove = false;
 	for_li (queues, List<Pass*>, q)
@@ -173,9 +173,9 @@ void Pass_manager::add_after_each_pass (Pass* pass)
 
 
 
-void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
+void Pass_manager::add_before_named_pass (Pass* pass, String* name)
 {
-	String* n = new String (name);
+	String* n = name;
 
 	for_lci (queues, List<Pass*>, q)
 		for_li (*q, Pass, p) 
@@ -189,9 +189,9 @@ void Pass_manager::add_before_named_pass (Pass* pass, const char* name)
 	phc_error ("No pass with name %s was found", name);
 }
 
-void Pass_manager::add_after_named_pass (Pass* pass, const char* name)
+void Pass_manager::add_after_named_pass (Pass* pass, String* name)
 {
-	String* n = new String (name);
+	String* n = name;
 
 	for_lci (queues, List<Pass*>, q)
 		for_li (*q, Pass, p) 
@@ -254,7 +254,7 @@ String* format (String* str, int prefix_length)
 	// flush the remainder of the string
 	result << line.str () << word.str ();
 
-	return new String (result.str ());
+	return s(result.str ());
 }
 
 void Pass_manager::list_passes ()

@@ -57,3 +57,8 @@ List<AST::Statement*>* parse_to_ast (String* code_string, AST::Node* node)
 
 	return ast->statements;
 }
+
+String* s (string str)
+{
+	return new String (str);
+}

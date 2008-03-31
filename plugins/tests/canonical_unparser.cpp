@@ -9,6 +9,7 @@
 
 #include "process_ast/AST_unparser.h" 
 #include "pass_manager/Plugin_pass.h" 
+#include "process_ir/General.h" 
 
 using namespace AST;
 
@@ -63,7 +64,7 @@ Plugin_pass* this_pass;
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "sua");
+	pm->add_after_named_pass (pass, s("sua"));
 	this_pass = pass;
 }
 

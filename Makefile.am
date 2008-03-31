@@ -276,6 +276,7 @@ strangeprocessmir_HEADERS =					\
 
 strangeprocessirdir = $(pkgincludedir)/process_ir
 strangeprocessir_HEADERS =						\
+	src/process_ir/Clone_blank_mixins.h		\
 	src/process_ir/debug.h						\
 	src/process_ir/Foreach.h					\
 	src/process_ir/fresh.h						\
