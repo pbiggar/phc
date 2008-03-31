@@ -3028,16 +3028,6 @@ src/generated/AST_factory.h		\
 src/generated/AST_fold.h			\
 	: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
-	mv AST.cpp src/generated/
-	mv AST.h src/generated/
-	mv AST_transform.cpp src/generated/
-	mv AST_transform.h src/generated/
-	mv AST_visitor.cpp src/generated/
-	mv AST_visitor.h src/generated/
-	mv AST_factory.cpp src/generated/
-	mv AST_factory.h src/generated/
-	mv AST_fold.h src/generated/
-	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/HIR.cpp 				\
@@ -3051,16 +3041,6 @@ src/generated/HIR_factory.h		\
 src/generated/HIR_fold.h			\
 	: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
-	mv HIR.cpp src/generated/
-	mv HIR.h src/generated/
-	mv HIR_transform.cpp src/generated/
-	mv HIR_transform.h src/generated/
-	mv HIR_visitor.cpp src/generated/
-	mv HIR_visitor.h src/generated/
-	mv HIR_factory.cpp src/generated/
-	mv HIR_factory.h src/generated/
-	mv HIR_fold.h src/generated/
-	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd#
 
 src/generated/MIR.cpp 				\
@@ -3074,16 +3054,6 @@ src/generated/MIR_factory.h		\
 src/generated/MIR_fold.h			\
 	: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
-	mv MIR.cpp src/generated/
-	mv MIR.h src/generated/
-	mv MIR_transform.cpp src/generated/
-	mv MIR_transform.h src/generated/
-	mv MIR_visitor.cpp src/generated/
-	mv MIR_visitor.h src/generated/
-	mv MIR_factory.cpp src/generated/
-	mv MIR_factory.h src/generated/
-	mv MIR_fold.h src/generated/
-	mv MIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 
