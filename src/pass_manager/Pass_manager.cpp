@@ -163,6 +163,18 @@ void Pass_manager::remove_after_named_pass (String* name)
 	}
 }
 
+void Pass_manager::remove_pass_named (String* name)
+{
+	for_li (queues, List<Pass*>, q)
+	{
+		for_li (*q, Pass, p) 
+		{
+			if (*name == *((*p)->name))
+				p = (*q)->erase (p);
+		}
+	}
+}
+
 
 
 void Pass_manager::add_after_each_pass (Pass* pass)

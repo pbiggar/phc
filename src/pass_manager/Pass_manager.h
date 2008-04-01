@@ -21,6 +21,10 @@ class Pass_manager
 {
 
 public:
+
+	// TODO: this is getting out of hand. It might be best to turn this into an
+	// iterable data structure, with [] operators etc. If it could be done with
+	// two maps, name -> pass and index -> name, that would be ideal.
 	gengetopt_args_info* args_info;
 	bool check; // check IR after each pass
 
@@ -28,6 +32,7 @@ public:
 
 	// Remove passes
 	void remove_all ();
+	void remove_pass_named (String* name);
 	void remove_after_named_pass (String* name);
 
 	// Add single passes
