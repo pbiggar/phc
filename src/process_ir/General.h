@@ -20,10 +20,11 @@ String* s (string s);
 
 
 /* Lower IN by running all the passes between "hir" and NAME on it. */
-List<HIR::Statement*>* lower_hir (const char* name, HIR::Statement* in);
+List<HIR::Statement*>* lower_hir (String* name, HIR::Statement* in);
 
 /* Lower IN by running all the passes between "ast" and NAME on it. */
-List<AST::Statement*>* lower_ast (const char* name, AST::Statement* in);
+List<AST::Statement*>* lower_ast (String* name, AST::Statement* in);
+List<AST::Statement*>* lower_ast (String* name, List<AST::Statement*>* in);
 
 
 /* Parse CODE into a list of HIR statements, using NODE as the source for

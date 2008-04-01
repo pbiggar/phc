@@ -41,7 +41,7 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		if (not unused)
 			t2 = fresh_var ("TSp");
 
-		out->push_back_all (lower_ast ("tidyp",
+		out->push_back_all (lower_ast (s("tidyp"),
 					new Eval_expr (
 						new Assignment(t2, false,
 							new Method_invocation(
