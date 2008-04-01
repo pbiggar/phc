@@ -153,6 +153,17 @@ public:
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
 
+#define copy_attrs()									\
+do															\
+{															\
+	if (attrs_stack.size() > 0)					\
+	{														\
+		ir_node->attrs = attrs_stack.top();		\
+		attrs_stack.pop();							\
+	}														\
+}															\
+while (0)
+
 		if(is_nil)
 		{
 			node_stack.push(NULL);
@@ -174,32 +185,28 @@ public:
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 
 			ir_node = new STRING(value);
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(!strcmp(name, "CAST"))
 		{
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 
 			ir_node = new CAST(value);
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(!strcmp(name, "INT"))
 		{
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			ir_node = new INT(strtol(value->c_str(), 0, 0));
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(!strcmp(name, "REAL"))
 		{
 			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
 			
 			ir_node = new REAL(atof(value->c_str()));	
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(!strcmp(name, "BOOL"))
 		{
@@ -210,14 +217,12 @@ public:
 				ir_node = new BOOL(true);
 			else
 				ir_node = new BOOL(false);
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(!strcmp(name, "NIL"))
 		{
 			ir_node = new NIL();
-			ir_node->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			copy_attrs ();
 		}
 		else if(
  			 !strcmp(name, "value") 
@@ -272,8 +277,7 @@ public:
 
 			if(ir_node != NULL)
 			{
-				ir_node->attrs = attrs_stack.top();
-				attrs_stack.pop();
+				copy_attrs ();
 			}
 			else
 			{
