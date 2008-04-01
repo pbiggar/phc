@@ -103,9 +103,10 @@ public:
  * The unparser proper
  */
 
-AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
+AST_unparser::AST_unparser (ostream& os, bool in_php) : PHP_unparser (os, in_php)
 {
-	in_string.push(false); 
+	in_string.push(false);
+	this->in_php = in_php;
 }
 
 void AST_unparser::children_php_script(PHP_script* in)

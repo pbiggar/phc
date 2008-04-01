@@ -18,7 +18,7 @@ class PHP_unparser
 // Constructor; pass in a different ostream to write to a file/string instead
 // of standard output
 public:
-	PHP_unparser(ostream& os = cout);
+	PHP_unparser(ostream& os = cout, bool in_php = false);
 
 // Interface
 protected:
@@ -44,13 +44,13 @@ protected:
 // State accessible to unparsers
 protected:
 	bool at_start_of_line;
+	bool in_php;
 
 // Private state 
 private:
 	ostream& os;
 	int indent_level;
 	bool delayed_newline;
-	bool in_php;
 
 // Escaping a string
 public:

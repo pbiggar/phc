@@ -17,7 +17,7 @@ class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 
 public:
-	AST_unparser(ostream& os = cout);
+	AST_unparser(ostream& os = cout, bool in_php = false);
 
 public:
 	void children_php_script(AST::PHP_script* in);

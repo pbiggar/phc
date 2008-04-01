@@ -15,7 +15,8 @@
 using namespace std;
 using namespace MIR;
 
-MIR_unparser::MIR_unparser (ostream& os): os(os), entry_node(NULL)
+MIR_unparser::MIR_unparser (ostream& os, bool in_php)
+: ast_unparser (os, in_php), entry_node(NULL)
 {
 }
 
@@ -34,7 +35,7 @@ void MIR_unparser::pre_node (Node* in)
 	// would merely convert it directly, allowing it to be printed verbatim.
 	// TODO: This goes well with the foreign idea.
 	AST::Node* ast = (new MIR_to_AST ())->fold_node (in);
-	ast->visit (new AST_unparser (os));
+	ast->visit (&ast_unparser);
 }
 
 
