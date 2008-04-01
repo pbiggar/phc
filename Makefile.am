@@ -136,6 +136,8 @@ src_phc_SOURCES =												\
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/parsing/Parse_buffer.cpp							\
+	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
 	src/parsing/PHP_context.cpp							\

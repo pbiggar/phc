@@ -291,8 +291,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	HIR_lower_expr.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
 	demangle.$(OBJEXT) error.$(OBJEXT) Integer.$(OBJEXT) \
-	Object.$(OBJEXT) String.$(OBJEXT) parse.$(OBJEXT) \
-	PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
+	Object.$(OBJEXT) String.$(OBJEXT) Parse_buffer.$(OBJEXT) \
+	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
 	Pass_manager.$(OBJEXT) Plugin_pass.$(OBJEXT) phc.$(OBJEXT) \
 	AST_unparser.$(OBJEXT) DOT_unparser.$(OBJEXT) \
 	Invalid_check.$(OBJEXT) Note_top_level_declarations.$(OBJEXT) \
@@ -659,6 +659,8 @@ src_phc_SOURCES = \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/parsing/Parse_buffer.cpp							\
+	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
 	src/parsing/PHP_context.cpp							\
@@ -1169,6 +1171,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parse_buffer.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pre_post_op_shredder.Po@am__quote@
@@ -2056,6 +2059,20 @@ String.obj: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/String.cpp' object='String.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.obj `if test -f 'src/lib/String.cpp'; then $(CYGPATH_W) 'src/lib/String.cpp'; else $(CYGPATH_W) '$(srcdir)/src/lib/String.cpp'; fi`
+
+Parse_buffer.o: src/parsing/Parse_buffer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Parse_buffer.o -MD -MP -MF $(DEPDIR)/Parse_buffer.Tpo -c -o Parse_buffer.o `test -f 'src/parsing/Parse_buffer.cpp' || echo '$(srcdir)/'`src/parsing/Parse_buffer.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Parse_buffer.Tpo $(DEPDIR)/Parse_buffer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/Parse_buffer.cpp' object='Parse_buffer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Parse_buffer.o `test -f 'src/parsing/Parse_buffer.cpp' || echo '$(srcdir)/'`src/parsing/Parse_buffer.cpp
+
+Parse_buffer.obj: src/parsing/Parse_buffer.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Parse_buffer.obj -MD -MP -MF $(DEPDIR)/Parse_buffer.Tpo -c -o Parse_buffer.obj `if test -f 'src/parsing/Parse_buffer.cpp'; then $(CYGPATH_W) 'src/parsing/Parse_buffer.cpp'; else $(CYGPATH_W) '$(srcdir)/src/parsing/Parse_buffer.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Parse_buffer.Tpo $(DEPDIR)/Parse_buffer.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/Parse_buffer.cpp' object='Parse_buffer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Parse_buffer.obj `if test -f 'src/parsing/Parse_buffer.cpp'; then $(CYGPATH_W) 'src/parsing/Parse_buffer.cpp'; else $(CYGPATH_W) '$(srcdir)/src/parsing/Parse_buffer.cpp'; fi`
 
 parse.o: src/parsing/parse.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT parse.o -MD -MP -MF $(DEPDIR)/parse.Tpo -c -o parse.o `test -f 'src/parsing/parse.cpp' || echo '$(srcdir)/'`src/parsing/parse.cpp

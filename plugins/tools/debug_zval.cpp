@@ -8,6 +8,7 @@
 #include "AST_transform.h"
 #include "process_ast/AST_unparser.h"
 #include "pass_manager/Plugin_pass.h"
+#include "parsing/Parse_buffer.h"
 #include "process_ir/General.h"
 
 using namespace AST;
@@ -37,23 +38,10 @@ public:
 
 	Variable* post_variable (Variable* var)
 	{
-		stringstream var_name;
-		var->visit (new AST_unparser (var_name));
-		var_name << ": ";
-
-		// If we dont shred it, we cant generate code for it
-
-		// printf ("\$var: ");
-		Statement* print = new Eval_expr (
-				new Method_invocation (
-					NULL,
-					new METHOD_NAME (new String ("printf")),
-					new List<Actual_parameter*> (
-						new Actual_parameter (false, 
-							new STRING (new String (var_name.str ())))//,
-//						new Actual_parameter (false, 
-//							new STRING (new String (": ")))
-							)));
+		// printf ("$var: ");
+		(*debugs 
+			<< "printf (\"\\" << var << ": \");"
+		).to_pass (s("tidyp"), var); // TODO do relative to current pass
 
 		// Replace $x[] with just $x
 		Variable* dumped_var = var;
@@ -64,23 +52,9 @@ public:
 		}
 
 		// debug_zval_dump ($var);
-		Statement* dump = new Eval_expr (
-				new Method_invocation (
-					NULL,
-					new METHOD_NAME (new String ("debug_zval_dump")),
-					new List<Actual_parameter*> (
-						new Actual_parameter (false, dumped_var))));
-
-
-		/* In order to shred these, they must be wrapped in a PHP_script
-		 * first
-		 * (Its hard to decide if this is a bug or not. Declaring it a bug would
-		 * mean that we'd have to support passing any Node to any point in
-		 * the pass queue. I dont think that's a good idea). */
-		List<Statement*>* shredded = new List<Statement*> (print, dump);
-		PHP_script* ir = new PHP_script (shredded);
-		pm->run_from_until (new String ("lcf"), new String ("shred"), ir);
-		debugs->push_back_all (shredded);
+		(*debugs 
+			<< "debug_zval_dump (" << dumped_var << ");"
+		).to_pass (s("tidyp"), var); // TODO do relative to current pass
 
 		return var;
 	}
