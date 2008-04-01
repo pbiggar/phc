@@ -110,6 +110,8 @@ struct gengetopt_args_info
   const char *list_passes_help; /* List the passes to be run help description.  */
   int dont_fail_flag;	/* Dont fail on error (after parsing) (default=off).  */
   const char *dont_fail_help; /* Dont fail on error (after parsing) help description.  */
+  int no_xml_attrs_flag;	/* When dumping XML, omit node attributes (default=off).  */
+  const char *no_xml_attrs_help; /* When dumping XML, omit node attributes help description.  */
   
   int help_given ;	/* Whether help was given.  */
   int full_help_given ;	/* Whether full-help was given.  */
@@ -142,6 +144,7 @@ struct gengetopt_args_info
   unsigned int xdump_given ;	/* Whether xdump was given.  */
   int list_passes_given ;	/* Whether list-passes was given.  */
   int dont_fail_given ;	/* Whether dont-fail was given.  */
+  int no_xml_attrs_given ;	/* Whether no-xml-attrs was given.  */
 
   char **inputs ; /* unamed options */
   unsigned inputs_num ; /* unamed options number */

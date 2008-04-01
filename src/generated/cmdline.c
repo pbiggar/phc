@@ -90,6 +90,7 @@ const char *gengetopt_args_info_full_help[] = {
   "  -X, --xdump=passname     Dump input as XML after the pass named 'passname'",
   "      --list-passes        List the passes to be run  (default=off)",
   "      --dont-fail          Dont fail on error (after parsing)  (default=off)",
+  "      --no-xml-attrs       When dumping XML, omit node attributes  \n                             (default=off)",
     0
 };
 
@@ -148,6 +149,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->xdump_given = 0 ;
   args_info->list_passes_given = 0 ;
   args_info->dont_fail_given = 0 ;
+  args_info->no_xml_attrs_given = 0 ;
 }
 
 static
@@ -194,6 +196,7 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->xdump_orig = NULL;
   args_info->list_passes_flag = 0;
   args_info->dont_fail_flag = 0;
+  args_info->no_xml_attrs_flag = 0;
   
 }
 
@@ -245,6 +248,7 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->xdump_max = -1;
   args_info->list_passes_help = gengetopt_args_info_full_help[34] ;
   args_info->dont_fail_help = gengetopt_args_info_full_help[35] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[36] ;
   
 }
 
@@ -710,6 +714,9 @@ cmdline_parser_file_save(const char *filename, struct gengetopt_args_info *args_
   if (args_info->dont_fail_given) {
     fprintf(outfile, "%s\n", "dont-fail");
   }
+  if (args_info->no_xml_attrs_given) {
+    fprintf(outfile, "%s\n", "no-xml-attrs");
+  }
   
   fclose (outfile);
 
@@ -1010,6 +1017,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "xdump",	1, NULL, 'X' },
         { "list-passes",	0, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
+        { "no-xml-attrs",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
@@ -1538,6 +1546,20 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             local_args_info.dont_fail_given = 1;
             args_info->dont_fail_given = 1;
             args_info->dont_fail_flag = !(args_info->dont_fail_flag);
+          }
+          /* When dumping XML, omit node attributes.  */
+          else if (strcmp (long_options[option_index].name, "no-xml-attrs") == 0)
+          {
+            if (local_args_info.no_xml_attrs_given)
+              {
+                fprintf (stderr, "%s: `--no-xml-attrs' option given more than once%s\n", argv[0], (additional_error ? additional_error : ""));
+                goto failure;
+              }
+            if (args_info->no_xml_attrs_given && ! override)
+              continue;
+            local_args_info.no_xml_attrs_given = 1;
+            args_info->no_xml_attrs_given = 1;
+            args_info->no_xml_attrs_flag = !(args_info->no_xml_attrs_flag);
           }
           
           break;

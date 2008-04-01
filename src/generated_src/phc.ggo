@@ -37,5 +37,6 @@ option "ddump" - "Dump input as DOT after the pass named 'passname'" string type
 option "xdump" X "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "list-passes" - "List the passes to be run" flag off hidden
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
+option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
 
 #option "marked-only" - "When used in conjunction with --dump-ast, dump only AST nodes that are marked with a comment '//-DOT'" flag off 

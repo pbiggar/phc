@@ -335,7 +335,10 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	{
 		if (*name == args_info->xdump_arg [i])
 		{
-			in->visit(new AST_XML_unparser(), new HIR_XML_unparser(), new MIR_XML_unparser ());
+			bool attrs = !args_info->no_xml_attrs_flag;
+			in->visit(	new AST_XML_unparser (cout, attrs),
+							new HIR_XML_unparser (cout, attrs), 
+							new MIR_XML_unparser (cout, attrs));
 		}
 	}
 }
