@@ -43,7 +43,7 @@ Node::Node()
 void Node::clone_mixin_from(Node* in)
 {
     {
-		attrs = in->attrs->clone();
+		attrs->clone_all_from (in->attrs);
 	}
 }
 
