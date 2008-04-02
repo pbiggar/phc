@@ -78,6 +78,8 @@ src_phc_SOURCES =												\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
+	src/codegen/Propagate_copies.cpp						\
+	src/codegen/Propagate_copies.h						\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
 	src/embed/embed.cpp										\

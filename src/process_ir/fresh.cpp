@@ -71,6 +71,7 @@ namespace AST
 				);
 
 		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
+		var->variable_name->attrs->set_true ("phc.codegen.compiler_generated");
 		return var;
 	}
 
@@ -99,6 +100,7 @@ namespace HIR
 				);
 
 		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
+		var->variable_name->attrs->set_true ("phc.codegen.compiler_generated");
 		return var;
 	}
 
@@ -106,6 +108,7 @@ namespace HIR
 	{
 		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
+		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
 	}
 
