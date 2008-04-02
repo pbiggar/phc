@@ -81,6 +81,7 @@ public:
 
 	void list_passes ();
 	void dump (IR* in, Pass* pass);
+	void maybe_enable_debug (Pass* pass);
 
 protected:
 	List<Pass*>* ast_queue;

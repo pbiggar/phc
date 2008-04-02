@@ -94,6 +94,11 @@ struct gengetopt_args_info
   const char *tab_help; /**< @brief String to use for tabs while unparsing help description.  */
   int no_hash_bang_flag;	/**< @brief Do not output any #! lines (default=off).  */
   const char *no_hash_bang_help; /**< @brief Do not output any #! lines help description.  */
+  char ** debug_arg;	/**< @brief Print debugging information for the pass named 'passname.  */
+  char ** debug_orig;	/**< @brief Print debugging information for the pass named 'passname original value given at command line.  */
+  int debug_min; /**< @brief Print debugging information for the pass named 'passname's minimum occurreces */
+  int debug_max; /**< @brief Print debugging information for the pass named 'passname's maximum occurreces */
+  const char *debug_help; /**< @brief Print debugging information for the pass named 'passname help description.  */
   char ** dump_arg;	/**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'.  */
   char ** dump_orig;	/**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname' original value given at command line.  */
   int dump_min; /**< @brief Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname''s minimum occurreces */
@@ -146,6 +151,7 @@ struct gengetopt_args_info
   unsigned int no_empty_lists_given ;	/**< @brief Whether no-empty-lists was given.  */
   unsigned int tab_given ;	/**< @brief Whether tab was given.  */
   unsigned int no_hash_bang_given ;	/**< @brief Whether no-hash-bang was given.  */
+  unsigned int debug_given ;	/**< @brief Whether debug was given.  */
   unsigned int dump_given ;	/**< @brief Whether dump was given.  */
   unsigned int udump_given ;	/**< @brief Whether udump was given.  */
   unsigned int ddump_given ;	/**< @brief Whether ddump was given.  */

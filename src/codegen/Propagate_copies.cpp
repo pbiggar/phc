@@ -161,7 +161,7 @@ void print_map (map<string, int>& in)
 {
 	map<string, int>::const_iterator i;
 	for(i = in.begin(); i != in.end(); i++)
-		cout << (*i).first << ": " << (*i).second << endl;
+		cdebug << (*i).first << ": " << (*i).second << endl;
 }
 
 bool extract_simple_assignment (Eval_expr* in, VARIABLE_NAME*& lhs, VARIABLE_NAME*& rhs, Assignment*& assignment)
@@ -188,38 +188,40 @@ void Propagate_copies::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		return;
 	}
 
-//	debug (in);
+	cdebug << "TEST" << endl;
+
+	debug (in);
 
 	// get useful variables
 	VARIABLE_NAME *lhs, *rhs;
 	Assignment* assignment;
 	if (extract_simple_assignment (in, lhs, rhs, assignment))
 	{
-//		xadebug (lhs);
-//		xadebug (rhs);
-//		cout << "is simple assignment" << endl;
+		xadebug (lhs);
+		xadebug (rhs);
+		cdebug << "is simple assignment" << endl;
 		string slhs = *lhs->value;
 		string srhs = *rhs->value;
 
 		// add to the list of for future consideration
 		if (lhs->attrs->is_true ("phc.codegen.compiler_generated"))
 		{
-//			cout << "lhs is compiler generated" << endl;
+			cdebug << "lhs is compiler generated" << endl;
 			assert (replaceable.find (slhs) == replaceable.end ());
 			replaceable [slhs] = assignment;
 		}
 
-//		cout << "use counts" << endl;
-//		print_map (use_counts);
-//		cout << "def counts" << endl;
-//		print_map (def_counts);
+		cdebug << "use counts" << endl;
+		print_map (use_counts);
+		cdebug << "def counts" << endl;
+		print_map (def_counts);
 
 		// be conservative
 		if (replaceable.find (srhs) != replaceable.end ()
 				&&	use_counts [srhs] == 1
 				&&	def_counts [srhs] == 1)
 		{
-//			cout << "r s is replacable" << endl;
+			cdebug << "r s is replacable" << endl;
 			replaceable [srhs]->variable = new Variable (NULL, new VARIABLE_NAME (s(slhs)), new List<Expr*>);
 			// note lack of out->push_back (in);
 			return;

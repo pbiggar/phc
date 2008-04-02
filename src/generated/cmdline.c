@@ -58,10 +58,11 @@ const char *gengetopt_args_info_full_help[] = {
   "      --tab=STRING         String to use for tabs while unparsing  \n                             (default=`\t')",
   "      --no-hash-bang       Do not output any #! lines  (default=off)",
   "\nDEBUGGING PHC:",
-  "  -D, --dump=passname      Dump input as PHP (although potentially with gotos \n                             and labels) after the pass named 'passname'",
-  "  -U, --udump=passname     Dump input as runnable PHP after the pass named \n                             'passname'",
+  "      --debug=passname     Print debugging information for the pass named \n                             'passname",
+  "      --dump=passname      Dump input as PHP (although potentially with gotos \n                             and labels) after the pass named 'passname'",
+  "      --udump=passname     Dump input as runnable PHP after the pass named \n                             'passname'",
   "      --ddump=passname     Dump input as DOT after the pass named 'passname'",
-  "  -X, --xdump=passname     Dump input as XML after the pass named 'passname'",
+  "      --xdump=passname     Dump input as XML after the pass named 'passname'",
   "      --list-passes        List the passes to be run  (default=off)",
   "      --dont-fail          Dont fail on error (after parsing)  (default=off)",
   "      --no-xml-attrs       When dumping XML, omit node attributes  \n                             (default=off)",
@@ -147,6 +148,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->no_empty_lists_given = 0 ;
   args_info->tab_given = 0 ;
   args_info->no_hash_bang_given = 0 ;
+  args_info->debug_given = 0 ;
   args_info->dump_given = 0 ;
   args_info->udump_given = 0 ;
   args_info->ddump_given = 0 ;
@@ -190,6 +192,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->tab_arg = gengetopt_strdup ("\t");
   args_info->tab_orig = NULL;
   args_info->no_hash_bang_flag = 0;
+  args_info->debug_arg = NULL;
+  args_info->debug_orig = NULL;
   args_info->dump_arg = NULL;
   args_info->dump_orig = NULL;
   args_info->udump_arg = NULL;
@@ -240,21 +244,24 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->no_empty_lists_help = gengetopt_args_info_full_help[26] ;
   args_info->tab_help = gengetopt_args_info_full_help[27] ;
   args_info->no_hash_bang_help = gengetopt_args_info_full_help[28] ;
-  args_info->dump_help = gengetopt_args_info_full_help[30] ;
+  args_info->debug_help = gengetopt_args_info_full_help[30] ;
+  args_info->debug_min = -1;
+  args_info->debug_max = -1;
+  args_info->dump_help = gengetopt_args_info_full_help[31] ;
   args_info->dump_min = -1;
   args_info->dump_max = -1;
-  args_info->udump_help = gengetopt_args_info_full_help[31] ;
+  args_info->udump_help = gengetopt_args_info_full_help[32] ;
   args_info->udump_min = -1;
   args_info->udump_max = -1;
-  args_info->ddump_help = gengetopt_args_info_full_help[32] ;
+  args_info->ddump_help = gengetopt_args_info_full_help[33] ;
   args_info->ddump_min = -1;
   args_info->ddump_max = -1;
-  args_info->xdump_help = gengetopt_args_info_full_help[33] ;
+  args_info->xdump_help = gengetopt_args_info_full_help[34] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->list_passes_help = gengetopt_args_info_full_help[34] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[35] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[36] ;
+  args_info->list_passes_help = gengetopt_args_info_full_help[35] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[36] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[37] ;
   
 }
 
@@ -403,6 +410,7 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_string_field (&(args_info->output_orig));
   free_string_field (&(args_info->tab_arg));
   free_string_field (&(args_info->tab_orig));
+  free_multiple_string_field (args_info->debug_given, &(args_info->debug_arg), &(args_info->debug_orig));
   free_multiple_string_field (args_info->dump_given, &(args_info->dump_arg), &(args_info->dump_orig));
   free_multiple_string_field (args_info->udump_given, &(args_info->udump_arg), &(args_info->udump_orig));
   free_multiple_string_field (args_info->ddump_given, &(args_info->ddump_arg), &(args_info->ddump_orig));
@@ -496,6 +504,7 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
     write_into_file(outfile, "tab", args_info->tab_orig, 0);
   if (args_info->no_hash_bang_given)
     write_into_file(outfile, "no-hash-bang", 0, 0 );
+  write_multiple_into_file(outfile, args_info->debug_given, "debug", args_info->debug_orig, 0);
   write_multiple_into_file(outfile, args_info->dump_given, "dump", args_info->dump_orig, 0);
   write_multiple_into_file(outfile, args_info->udump_given, "udump", args_info->udump_orig, 0);
   write_multiple_into_file(outfile, args_info->ddump_given, "ddump", args_info->ddump_orig, 0);
@@ -764,16 +773,19 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->c_option_given, args_info->c_option_min, args_info->c_option_max, "'--c-option' ('-C')"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->dump_given, args_info->dump_min, args_info->dump_max, "'--dump' ('-D')"))
+  if (check_multiple_option_occurrences(prog_name, args_info->debug_given, args_info->debug_min, args_info->debug_max, "'--debug'"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->udump_given, args_info->udump_min, args_info->udump_max, "'--udump' ('-U')"))
+  if (check_multiple_option_occurrences(prog_name, args_info->dump_given, args_info->dump_min, args_info->dump_max, "'--dump'"))
+     error = 1;
+  
+  if (check_multiple_option_occurrences(prog_name, args_info->udump_given, args_info->udump_min, args_info->udump_max, "'--udump'"))
      error = 1;
   
   if (check_multiple_option_occurrences(prog_name, args_info->ddump_given, args_info->ddump_min, args_info->ddump_max, "'--ddump'"))
      error = 1;
   
-  if (check_multiple_option_occurrences(prog_name, args_info->xdump_given, args_info->xdump_min, args_info->xdump_max, "'--xdump' ('-X')"))
+  if (check_multiple_option_occurrences(prog_name, args_info->xdump_given, args_info->xdump_min, args_info->xdump_max, "'--xdump'"))
      error = 1;
   
   
@@ -1010,6 +1022,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   struct generic_list * run_list = NULL;
   struct generic_list * r_option_list = NULL;
   struct generic_list * c_option_list = NULL;
+  struct generic_list * debug_list = NULL;
   struct generic_list * dump_list = NULL;
   struct generic_list * udump_list = NULL;
   struct generic_list * ddump_list = NULL;
@@ -1069,17 +1082,18 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "no-empty-lists",	0, NULL, 0 },
         { "tab",	1, NULL, 0 },
         { "no-hash-bang",	0, NULL, 0 },
-        { "dump",	1, NULL, 'D' },
-        { "udump",	1, NULL, 'U' },
+        { "debug",	1, NULL, 0 },
+        { "dump",	1, NULL, 0 },
+        { "udump",	1, NULL, 0 },
         { "ddump",	1, NULL, 0 },
-        { "xdump",	1, NULL, 'X' },
+        { "xdump",	1, NULL, 0 },
         { "list-passes",	0, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
         { NULL,	0, NULL, 0 }
       };
 
-      c = getopt_long (argc, argv, "hVvcC:O:o:D:U:X:", long_options, &option_index);
+      c = getopt_long (argc, argv, "hVvcC:O:o:", long_options, &option_index);
 
       if (c == -1) break;	/* Exit from `while (1)' loop.  */
 
@@ -1144,33 +1158,6 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               &(local_args_info.output_given), optarg, 0, 0, ARG_STRING,
               check_ambiguity, override, 0, 0,
               "output", 'o',
-              additional_error))
-            goto failure;
-        
-          break;
-        case 'D':	/* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'.  */
-        
-          if (update_multiple_arg_temp(&dump_list, 
-              &(local_args_info.dump_given), optarg, 0, 0, ARG_STRING,
-              "dump", 'D',
-              additional_error))
-            goto failure;
-        
-          break;
-        case 'U':	/* Dump input as runnable PHP after the pass named 'passname'.  */
-        
-          if (update_multiple_arg_temp(&udump_list, 
-              &(local_args_info.udump_given), optarg, 0, 0, ARG_STRING,
-              "udump", 'U',
-              additional_error))
-            goto failure;
-        
-          break;
-        case 'X':	/* Dump input as XML after the pass named 'passname'.  */
-        
-          if (update_multiple_arg_temp(&xdump_list, 
-              &(local_args_info.xdump_given), optarg, 0, 0, ARG_STRING,
-              "xdump", 'X',
               additional_error))
             goto failure;
         
@@ -1393,6 +1380,39 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
+          /* Print debugging information for the pass named 'passname.  */
+          else if (strcmp (long_options[option_index].name, "debug") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&debug_list, 
+                &(local_args_info.debug_given), optarg, 0, 0, ARG_STRING,
+                "debug", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'.  */
+          else if (strcmp (long_options[option_index].name, "dump") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&dump_list, 
+                &(local_args_info.dump_given), optarg, 0, 0, ARG_STRING,
+                "dump", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump input as runnable PHP after the pass named 'passname'.  */
+          else if (strcmp (long_options[option_index].name, "udump") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&udump_list, 
+                &(local_args_info.udump_given), optarg, 0, 0, ARG_STRING,
+                "udump", '-',
+                additional_error))
+              goto failure;
+          
+          }
           /* Dump input as DOT after the pass named 'passname'.  */
           else if (strcmp (long_options[option_index].name, "ddump") == 0)
           {
@@ -1400,6 +1420,17 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
             if (update_multiple_arg_temp(&ddump_list, 
                 &(local_args_info.ddump_given), optarg, 0, 0, ARG_STRING,
                 "ddump", '-',
+                additional_error))
+              goto failure;
+          
+          }
+          /* Dump input as XML after the pass named 'passname'.  */
+          else if (strcmp (long_options[option_index].name, "xdump") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&xdump_list, 
+                &(local_args_info.xdump_given), optarg, 0, 0, ARG_STRING,
+                "xdump", '-',
                 additional_error))
               goto failure;
           
@@ -1465,6 +1496,10 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     &(args_info->c_option_orig), args_info->c_option_given,
     local_args_info.c_option_given, 0 , 
     ARG_STRING, c_option_list);
+  update_multiple_arg((void *)&(args_info->debug_arg),
+    &(args_info->debug_orig), args_info->debug_given,
+    local_args_info.debug_given, 0 , 
+    ARG_STRING, debug_list);
   update_multiple_arg((void *)&(args_info->dump_arg),
     &(args_info->dump_orig), args_info->dump_given,
     local_args_info.dump_given, 0 , 
@@ -1488,6 +1523,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   local_args_info.r_option_given = 0;
   args_info->c_option_given += local_args_info.c_option_given;
   local_args_info.c_option_given = 0;
+  args_info->debug_given += local_args_info.debug_given;
+  local_args_info.debug_given = 0;
   args_info->dump_given += local_args_info.dump_given;
   local_args_info.dump_given = 0;
   args_info->udump_given += local_args_info.udump_given;
@@ -1537,6 +1574,7 @@ failure:
   free_list (run_list, 1 );
   free_list (r_option_list, 1 );
   free_list (c_option_list, 1 );
+  free_list (debug_list, 1 );
   free_list (dump_list, 1 );
   free_list (udump_list, 1 );
   free_list (ddump_list, 1 );

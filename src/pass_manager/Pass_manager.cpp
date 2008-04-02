@@ -288,6 +288,20 @@ void Pass_manager::list_passes ()
 		}
 }
 
+void Pass_manager::maybe_enable_debug (Pass* pass)
+{
+	disable_cdebug ();
+
+	String* name = pass->name;
+	for (unsigned int i = 0; i < args_info->debug_given; i++)
+	{
+		if (*name == args_info->debug_arg [i])
+		{
+			enable_cdebug ();
+		}
+	}
+}
+
 void Pass_manager::dump (IR* in, Pass* pass)
 {
 	String* name = pass->name;
@@ -379,6 +393,8 @@ void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 
 	if (args_info->verbose_flag && dump)
 		cout << "Running pass: " << *pass->name << endl;
+
+	maybe_enable_debug (pass);
 
 	pass->run_pass (in, this);
 	if (dump)

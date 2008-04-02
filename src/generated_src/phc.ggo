@@ -31,10 +31,11 @@ option "tab" - "String to use for tabs while unparsing" string default="\t" no
 option "no-hash-bang" - "Do not output any #! lines" flag off 
 
 section "DEBUGGING PHC"
-option "dump" D "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "udump" U "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "debug" - "Print debugging information for the pass named 'passname" string typestr="passname" multiple hidden optional
+option "dump" - "Dump input as PHP (although potentially with gotos and labels) after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "udump" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "ddump" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
-option "xdump" X "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "xdump" - "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "list-passes" - "List the passes to be run" flag off hidden
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden
