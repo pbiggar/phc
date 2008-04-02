@@ -64,8 +64,8 @@ class BasicParseTest extends AsyncTest
 		{
 			$err = $bundle->errs[0];
 			$err = preg_replace ("/Note that line numbers are inaccurate, and will be fixed in a later release\n/", "", $err);
-			$err = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
-			if ($err !== "")
+			$replaced = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
+			if ($replaced !== "" || ($err == "" && $expected["err_regex"] != ""))
 			{
 				$this->mark_failure ("Error doesnt match, expected: \"". $expected["err_regex"] . "\"", $bundle);
 				return;
@@ -76,8 +76,8 @@ class BasicParseTest extends AsyncTest
 		if (isset ($expected["out_regex"]))
 		{
 			$out = $bundle->outs[0];
-			$out = preg_replace ("!{$expected["out_regex"]}!ms", "", $out);
-			if ($out !== "")
+			$replaced = preg_replace ("!{$expected["out_regex"]}!ms", "", $out);
+			if ($replaced !== "" || ($out == "" && $expected["out_regex"] != ""))
 			{
 				$this->mark_failure ("Output doesnt match", $bundle);
 				return;
