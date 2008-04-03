@@ -15,8 +15,8 @@
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
 	// pst adds the annotation for optimization. That's fine, so don't check it.
-	pm->remove_pass_named (s("pst"));
-	pm->add_after_each_pass (pass);
+	pm->add_after_named_pass (pass, s("dce"));
+	pm->add_after_named_pass (pass, s("mir"));
 }
 
 template <
