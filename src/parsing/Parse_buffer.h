@@ -34,6 +34,7 @@ public:
 
 // Left-most
 Parse_buffer& operator<<(List<AST::Statement*>& stmts, const char* in);
+Parse_buffer& operator<<(List<AST::Statement*>& stmts, AST::Node* in);
 Parse_buffer& operator<<(Parse_buffer& out, AST::Node* in);
 Parse_buffer& operator<<(Parse_buffer& out, const char* in);
 

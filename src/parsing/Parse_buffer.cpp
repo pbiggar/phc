@@ -37,6 +37,20 @@ Parse_buffer::Parse_buffer& operator<<(List<AST::Statement*>& stmts, const char*
 	return out;
 }
 
+Parse_buffer::Parse_buffer& operator<<(List<AST::Statement*>& stmts, AST::Node* in)
+{
+	Parse_buffer& out = *(new Parse_buffer (&stmts));
+	out.ss << "<?php ";
+
+	stringstream ss;
+	in->visit (new AST_unparser (ss, true));
+	out.ss << ss.str ();
+
+	return out;
+}
+
+
+
 Parse_buffer::Parse_buffer& operator<<(Parse_buffer& out, AST::Node* in)
 {
 	// Use the unparser

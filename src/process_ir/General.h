@@ -11,6 +11,7 @@
 #include "debug.h"
 #include "Foreach.h"
 #include "Clone_blank_mixins.h"
+#include "parsing/Parse_buffer.h"
 
 #include "HIR.h"
 #include "AST.h"

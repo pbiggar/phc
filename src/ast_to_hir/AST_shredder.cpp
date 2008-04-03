@@ -359,12 +359,9 @@ Expr* Shredder::post_ignore_errors(Ignore_errors* in)
 	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.ast_shredder.old_error_level"));
 	assert(old);
 	
-	pieces->push_back(new Eval_expr(new Assignment(
-		temp,
-		false,
-		new Method_invocation(
-			"error_reporting",
-			old))));
-	
+	(*pieces
+		<< temp << " = error_reporting (" << old << ");"
+	).finish (in);
+
 	return in->expr;
 }
