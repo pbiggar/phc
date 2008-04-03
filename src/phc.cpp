@@ -181,8 +181,17 @@ int main(int argc, char** argv)
 	check_passes (udump);
 	check_passes (xdump);
 	check_passes (ddump);
+	check_passes (debug);
+	check_passes (disable);
 
 #undef check_passes
+
+	// Disable passes if asked
+	for (unsigned int i = 0; i < args_info.disable_given; i++)
+	{
+		pm->get_pass_named (s(args_info.disable_arg [i]))->set_enabled (false);
+	}
+
 
 
 	/* 
