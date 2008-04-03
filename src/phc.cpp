@@ -15,15 +15,17 @@
 #include "ast_to_hir/Pre_post_op_shredder.h"
 #include "ast_to_hir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
+#include "ast_to_hir/Strip_comments.h"
 #include "ast_to_hir/Tidy_print.h"
 #include "ast_to_hir/Translate_empty.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
+#include "codegen/Copy_propagation.h"
+#include "codegen/Dead_code_elimination.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Prune_symbol_table.h"
-#include "ast_to_hir/Strip_comments.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
@@ -41,8 +43,6 @@
 #include "process_ast/Strip_unparser_attributes.h"
 #include "process_ir/XML_unparser.h"
 #include "process_mir/Obfuscate.h"
-#include "codegen/Propagate_copies.h"
-#include "codegen/Dead_code_elimination.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
-	pm->add_hir_transform (new Propagate_copies (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
+	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
 	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 

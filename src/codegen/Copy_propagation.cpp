@@ -50,19 +50,19 @@
  *	-	We only work in methods, not in the global statement list
  */
 
-#include "Propagate_copies.h"
+#include "Copy_propagation.h"
 #include "Use_def_counter.h"
 #include "process_ir/General.h"
 #include "HIR_visitor.h"
 
 using namespace HIR;
 
-Propagate_copies::Propagate_copies ()
+Copy_propagation::Copy_propagation ()
 : in_method (false)
 {
 }
 
-void Propagate_copies::pre_method (Method* in, List<Method*>* out)
+void Copy_propagation::pre_method (Method* in, List<Method*>* out)
 {
 
 	// each function is separate
@@ -78,12 +78,12 @@ void Propagate_copies::pre_method (Method* in, List<Method*>* out)
 	out->push_back (in);
 }
 
-void Propagate_copies::post_method (Method* in, List<Method*>* out)
+void Copy_propagation::post_method (Method* in, List<Method*>* out)
 {
 	in_method = false;
 	out->push_back (in);
 }
-void Propagate_copies::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
 	// only method, not the global part
 	if (!in_method)

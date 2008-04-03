@@ -50,8 +50,8 @@
  *	-	We only work in methods, not in the global statement list
  */
 
-#ifndef PHC_PROPAGATE_COPIES
-#define PHC_PROPAGATE_COPIES
+#ifndef PHC_COPY_PROPAGATION
+#define PHC_COPY_PROPAGATION
 
 // TODO assignments by reference
 // TODO function calls by reference
@@ -92,7 +92,7 @@ foreach function as f:
 #include "Fix_point.h"
 #include <map>
 
-class Propagate_copies : public Fix_point
+class Copy_propagation : public Fix_point
 {
 private:
 	map<string, int> use_counts;
@@ -101,11 +101,11 @@ private:
 	bool in_method;
 
 public:
-	Propagate_copies ();
+	Copy_propagation ();
 
 	void pre_method (HIR::Method* in, List<HIR::Method*>* out);
 	void post_method (HIR::Method* in, List<HIR::Method*>* out);
 	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
 };
 
-#endif // PHC_PROPAGATE_COPIES
+#endif // PHC_COPY_PROPAGATION
