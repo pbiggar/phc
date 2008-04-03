@@ -660,7 +660,7 @@ void Visitor::children_eval_expr(Eval_expr* in)
 
 void Visitor::children_branch(Branch* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_label_name(in->iftrue);
     visit_label_name(in->iffalse);
 }

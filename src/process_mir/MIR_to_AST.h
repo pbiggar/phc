@@ -263,10 +263,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Branch* fold_impl_branch(MIR::Branch* orig, AST::Expr* expr, AST::LABEL_NAME* iftrue, AST::LABEL_NAME* iffalse) 
+	AST::Branch* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::LABEL_NAME* iftrue, AST::LABEL_NAME* iffalse) 
 	{
 		AST::Branch* result;
-		result = new AST::Branch(expr, iftrue, iffalse);
+		result = new AST::Branch(wrap_var_name (variable_name), iftrue, iffalse);
 		result->attrs = orig->attrs;
 		return result;
 	}

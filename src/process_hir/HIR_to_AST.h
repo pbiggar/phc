@@ -286,10 +286,10 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::If* fold_impl_if(HIR::If* orig, AST::Expr* expr, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
+	AST::If* fold_impl_if(HIR::If* orig, AST::VARIABLE_NAME* variable_name, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
 	{
 		AST::If* result;
-		result = new AST::If (expr, iftrue, iffalse);
+		result = new AST::If (wrap_var_name (variable_name), iftrue, iffalse);
 		result->attrs = orig->attrs;
 		return result;
 	}

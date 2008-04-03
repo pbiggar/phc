@@ -302,10 +302,10 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::Expr* expr, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
+	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::VARIABLE_NAME* variable_name, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
 	{
 		HIR::Branch* result;
-		result = new HIR::Branch(expr, iftrue, iffalse);
+		result = new HIR::Branch(variable_name, iftrue, iffalse);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -337,7 +337,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::If* fold_impl_if(AST::If* orig, HIR::Expr* expr, List<HIR::Statement*>* iftrue, List<HIR::Statement*>* iffalse)
 	{
 		HIR::If* result;
-		result = new HIR::If (expr, iftrue, iffalse);
+		result = new HIR::If (expr_to_var_name (expr), iftrue, iffalse);
 		copy_attrs (result, orig);
 		return result;
 	}

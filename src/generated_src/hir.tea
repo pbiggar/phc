@@ -69,7 +69,7 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
    Statements
 -}
 
-If ::= Expr iftrue:Statement* iffalse:Statement* ;
+If ::= VARIABLE_NAME iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
 Foreach ::= Expr key:Variable? is_ref:"&"? val:Variable Statement* ;
 
@@ -97,7 +97,7 @@ Eval_expr ::= Expr ;
 		fold, but moving them inside it would be perfect.
 -}
 
-Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
@@ -553,9 +553,9 @@ public:
 class If
 {
 public:
-	If(Expr* expr)
+	If(VARIABLE_NAME* variable_name)
 	{
-		If (expr, new List<Statement*> (), new List<Statement*>);
+		If (variable_name, new List<Statement*> (), new List<Statement*>);
 	}
 };
 

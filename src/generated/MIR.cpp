@@ -2946,16 +2946,16 @@ void Eval_expr::_init()
 	}
 }
 
-Branch::Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
+Branch::Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
     this->iftrue = iftrue;
     this->iffalse = iffalse;
 }
 
 Branch::Branch()
 {
-    this->expr = 0;
+    this->variable_name = 0;
     this->iftrue = 0;
     this->iffalse = 0;
 }
@@ -2985,12 +2985,12 @@ bool Branch::match(Node* in)
     Branch* that = dynamic_cast<Branch*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     if(this->iftrue == NULL)
@@ -3017,12 +3017,12 @@ bool Branch::equals(Node* in)
     Branch* that = dynamic_cast<Branch*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(this->iftrue == NULL || that->iftrue == NULL)
@@ -3047,18 +3047,18 @@ bool Branch::equals(Node* in)
 
 Branch* Branch::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
     LABEL_NAME* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
     LABEL_NAME* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    Branch* clone = new Branch(expr, iftrue, iffalse);
+    Branch* clone = new Branch(variable_name, iftrue, iffalse);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Branch::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     assert(iftrue != NULL);
     iftrue->assert_valid();
     assert(iffalse != NULL);

@@ -83,7 +83,7 @@ Eval_expr ::= Expr ;
    MIR constructs (without a PHP equivalent)
 -}
 
-Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
+Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 

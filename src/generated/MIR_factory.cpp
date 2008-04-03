@@ -159,11 +159,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Branch"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	LABEL_NAME* iftrue = dynamic_cast<LABEL_NAME*>(*i++);
     	LABEL_NAME* iffalse = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Branch(expr, iftrue, iffalse);
+    	return new Branch(variable_name, iftrue, iffalse);
     }
     if(!strcmp(type_id, "Goto"))
     {

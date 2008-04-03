@@ -769,7 +769,7 @@ class Pattern_branch : public Pattern
 public:
 	bool match(Statement* that)
 	{
-		cond = new Wildcard<Variable>;
+		cond = new Wildcard<VARIABLE_NAME>;
 		iftrue = new Wildcard<LABEL_NAME>;
 		iffalse = new Wildcard<LABEL_NAME>;
 		return that->match(new Branch(
@@ -783,7 +783,7 @@ public:
 	{
 		code
 			<< "{\n";
-		read_simple (LOCAL, "p_cond", get_var_name (cond->value));
+		read_simple (LOCAL, "p_cond", cond->value);
 		code 
 			<< "zend_bool bcond = zend_is_true (p_cond);\n";
 		code 
@@ -796,7 +796,7 @@ public:
 	}
 
 protected:
-	Wildcard<Variable>* cond;
+	Wildcard<VARIABLE_NAME>* cond;
 	Wildcard<LABEL_NAME>* iftrue;
 	Wildcard<LABEL_NAME>* iffalse;
 };

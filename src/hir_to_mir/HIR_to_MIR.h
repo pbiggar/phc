@@ -250,10 +250,10 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Branch* fold_impl_branch(HIR::Branch* orig, MIR::Expr* expr, MIR::LABEL_NAME* iftrue, MIR::LABEL_NAME* iffalse) 
+	MIR::Branch* fold_impl_branch(HIR::Branch* orig, MIR::VARIABLE_NAME* variable_name, MIR::LABEL_NAME* iftrue, MIR::LABEL_NAME* iffalse) 
 	{
 		MIR::Branch* result;
-		result = new MIR::Branch(expr, iftrue, iffalse);
+		result = new MIR::Branch(variable_name, iftrue, iffalse);
 		result->attrs = orig->attrs;
 		return result;
 	}

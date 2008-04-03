@@ -94,7 +94,7 @@ void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 	Goto *l2_goto_l3 = new Goto (l3->label_name->clone ());
 
 	// make the if
-	Branch *branch = new Branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
+	Branch *branch = new Branch (in->variable_name, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate the code
 	out->push_back (branch);
@@ -189,11 +189,11 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// $T = foreach_has_key ($arr, iter);
-	Variable* has_key = fresh_var ("THK");
+	VARIABLE_NAME* has_key = fresh_var_name ("THK");
 	loop->statements->push_back (
 		new Eval_expr (
 			new Assignment (
-				has_key,
+				new Variable (NULL, has_key, new List<Expr*>),
 				false, 
 				new Foreach_has_key (
 					array_name->clone (),
@@ -628,7 +628,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 			Label* iffalse = fresh_label ();
 			push_back_pieces ( // push the pieces from the eval_var back
 				new Branch (
-					var_name_to_var (eval_var (new Bin_op ( // TODO remove var_name_to_var when changing IR definition
+					(eval_var (new Bin_op (
 						lhs->clone(),
 						op,
 						eval_var (new INT (depth))))),

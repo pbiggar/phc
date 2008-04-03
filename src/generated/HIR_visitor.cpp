@@ -686,7 +686,7 @@ void Visitor::children_name_with_default(Name_with_default* in)
 
 void Visitor::children_if(If* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_statement_list(in->iftrue);
     visit_statement_list(in->iffalse);
 }
@@ -755,7 +755,7 @@ void Visitor::children_eval_expr(Eval_expr* in)
 
 void Visitor::children_branch(Branch* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_label_name(in->iftrue);
     visit_label_name(in->iffalse);
 }

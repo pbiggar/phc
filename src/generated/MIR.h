@@ -873,15 +873,15 @@ public:
     void _init();
 };
 
-// Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME ;
+// Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
 class Branch : virtual public Statement
 {
 public:
-    Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse);
+    Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse);
 protected:
     Branch();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
     LABEL_NAME* iftrue;
     LABEL_NAME* iffalse;
 public:

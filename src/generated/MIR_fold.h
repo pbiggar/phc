@@ -334,13 +334,13 @@ public:
 
 	virtual _Branch fold_branch(Branch* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_LABEL_NAME iftrue = 0;
 		if(in->iftrue != NULL) iftrue = fold_label_name(in->iftrue);
 		_LABEL_NAME iffalse = 0;
 		if(in->iffalse != NULL) iffalse = fold_label_name(in->iffalse);
-		return fold_impl_branch(in, expr, iftrue, iffalse);
+		return fold_impl_branch(in, variable_name, iftrue, iffalse);
 	}
 
 	virtual _Goto fold_goto(Goto* in)
@@ -605,7 +605,7 @@ public:
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
-	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
+	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Foreach_reset fold_impl_foreach_reset(Foreach_reset* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };

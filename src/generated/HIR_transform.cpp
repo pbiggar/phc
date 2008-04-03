@@ -719,7 +719,7 @@ void Transform::children_name_with_default(Name_with_default* in)
 
 void Transform::children_if(If* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
     in->iftrue = transform_statement_list(in->iftrue);
     in->iffalse = transform_statement_list(in->iffalse);
 }
@@ -787,7 +787,7 @@ void Transform::children_eval_expr(Eval_expr* in)
 
 void Transform::children_branch(Branch* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
     in->iftrue = transform_label_name(in->iftrue);
     in->iffalse = transform_label_name(in->iffalse);
 }

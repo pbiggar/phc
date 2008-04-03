@@ -266,8 +266,8 @@ public:
 
 	virtual _If fold_if(If* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		List<_Statement>* iftrue = 0;
 	
 		{
@@ -286,7 +286,7 @@ public:
 				if(*i != NULL) iffalse->push_back(fold_statement(*i));
 				else iffalse->push_back(0);
 		}
-		return fold_impl_if(in, expr, iftrue, iffalse);
+		return fold_impl_if(in, variable_name, iftrue, iffalse);
 	}
 
 	virtual _Loop fold_loop(Loop* in)
@@ -416,13 +416,13 @@ public:
 
 	virtual _Branch fold_branch(Branch* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_LABEL_NAME iftrue = 0;
 		if(in->iftrue != NULL) iftrue = fold_label_name(in->iftrue);
 		_LABEL_NAME iffalse = 0;
 		if(in->iffalse != NULL) iffalse = fold_label_name(in->iffalse);
-		return fold_impl_branch(in, expr, iftrue, iffalse);
+		return fold_impl_branch(in, variable_name, iftrue, iffalse);
 	}
 
 	virtual _Goto fold_goto(Goto* in)
@@ -698,7 +698,7 @@ public:
 	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, _Name_with_default var) { assert(0); };
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
-	virtual _If fold_impl_if(If* orig, _Expr expr, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
+	virtual _If fold_impl_if(If* orig, _VARIABLE_NAME variable_name, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
 	virtual _Loop fold_impl_loop(Loop* orig, List<_Statement>* statements) { assert(0); };
 	virtual _Foreach fold_impl_foreach(Foreach* orig, _Expr expr, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
 	virtual _Break fold_impl_break(Break* orig, _Expr expr) { assert(0); };
@@ -710,7 +710,7 @@ public:
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
-	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
+	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Foreach_reset fold_impl_foreach_reset(Foreach_reset* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };

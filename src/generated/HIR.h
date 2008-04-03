@@ -754,15 +754,15 @@ public:
     virtual void assert_valid();
 };
 
-// If ::= Expr iftrue:Statement* iffalse:Statement* ;
+// If ::= VARIABLE_NAME iftrue:Statement* iffalse:Statement* ;
 class If : virtual public Statement
 {
 public:
-    If(Expr* expr, List<Statement*>* iftrue, List<Statement*>* iffalse);
+    If(VARIABLE_NAME* variable_name, List<Statement*>* iftrue, List<Statement*>* iffalse);
 protected:
     If();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
     List<Statement*>* iftrue;
     List<Statement*>* iffalse;
 public:
@@ -780,7 +780,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    If(Expr* expr);
+    If(VARIABLE_NAME* variable_name);
 };
 
 // Loop ::= Statement* ;
@@ -1040,15 +1040,15 @@ public:
     void _init();
 };
 
-// Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME ;
+// Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
 class Branch : virtual public Statement
 {
 public:
-    Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse);
+    Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse);
 protected:
     Branch();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
     LABEL_NAME* iftrue;
     LABEL_NAME* iffalse;
 public:
