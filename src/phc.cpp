@@ -42,6 +42,7 @@
 #include "process_ir/XML_unparser.h"
 #include "process_mir/Obfuscate.h"
 #include "codegen/Propagate_copies.h"
+#include "codegen/Dead_code_elimination.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,6 +148,7 @@ int main(int argc, char** argv)
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	pm->add_hir_transform (new Propagate_copies (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
+	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 
 

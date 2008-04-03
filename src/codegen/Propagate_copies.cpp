@@ -51,6 +51,7 @@
  */
 
 #include "Propagate_copies.h"
+#include "Use_def_counter.h"
 #include "process_ir/General.h"
 #include "HIR_visitor.h"
 
@@ -60,80 +61,6 @@ Propagate_copies::Propagate_copies ()
 : in_method (false)
 {
 }
-
-VARIABLE_NAME* simple_var (Expr* in)
-{
-	Variable* var = dynamic_cast<Variable*> (in);
-	if (!var)
-		return NULL;
-
-	// Normal vars only, not array_indices or var-vars
-	if (var->array_indices->size () > 0
-		|| var->target)
-		return NULL;
-
-	return dynamic_cast<VARIABLE_NAME*> (var->variable_name);
-}
-
-/* Entering at the method level, count the total occurences of a variable, and
- * the number of defintions, and the uses is the difference of the two. */
-class Use_def_counter : public HIR::Visitor
-{
-	map<string, int>& uses;
-	map<string, int>& defs;
-	map<string, int> occurences;
-
-public:
-	Use_def_counter (map<string, int>& uses, map<string, int>& defs)
-	: uses (uses)
-	, defs (defs)
-	, occurences ()
-	{
-	}
-
-	void pre_method (Method* in)
-	{
-		uses.clear ();
-		defs.clear ();
-		occurences.clear ();
-	}
-
-	void pre_assignment (Assignment* in)
-	{
-		if (VARIABLE_NAME* var_name = simple_var (in->variable))
-			defs [*var_name->value] ++;
-	}
-
-	void pre_variable_name (VARIABLE_NAME* in)
-	{
-		occurences [*in->value] ++;
-	}
-
-
-	void post_method (Method* in)
-	{
-		// our exit point - work out the uses from the occurences and
-		// the defs
-
-		// first if either occurences or defs are missing a variable,
-		// add it.
-		map<string, int>::const_iterator i;
-      for(i = defs.begin(); i != defs.end(); i++)
-			if (occurences.find ((*i).first) == defs.end ())
-				occurences [(*i).first] = 0;
-
-      for(i = occurences.begin(); i != occurences.end(); i++)
-			if (defs.find ((*i).first) == defs.end ())
-				defs [(*i).first] = 0;
-
-
-      for(i = occurences.begin(); i != occurences.end(); i++)
-		{
-			string key = (*i).first;
-			uses [key] = occurences [key] - defs [key];
-		}
-	}
-};
 
 void Propagate_copies::pre_method (Method* in, List<Method*>* out)
 {
@@ -156,29 +83,6 @@ void Propagate_copies::post_method (Method* in, List<Method*>* out)
 	in_method = false;
 	out->push_back (in);
 }
-
-void print_map (map<string, int>& in)
-{
-	map<string, int>::const_iterator i;
-	for(i = in.begin(); i != in.end(); i++)
-		cdebug << (*i).first << ": " << (*i).second << endl;
-}
-
-bool extract_simple_assignment (Eval_expr* in, VARIABLE_NAME*& lhs, VARIABLE_NAME*& rhs, Assignment*& assignment)
-{
-	assignment = dynamic_cast<Assignment*> (in->expr);
-	if (assignment == NULL)
-		return false;
-
-	lhs = simple_var (assignment->variable);
-	rhs = simple_var (assignment->expr);
-
-	if (lhs == NULL || rhs == NULL)
-		return false;
-
-	return true;
-}
-
 void Propagate_copies::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
 	// only method, not the global part
@@ -187,8 +91,6 @@ void Propagate_copies::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		out->push_back (in);
 		return;
 	}
-
-	cdebug << "TEST" << endl;
 
 	debug (in);
 
@@ -223,7 +125,9 @@ void Propagate_copies::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		{
 			cdebug << "r s is replacable" << endl;
 			replaceable [srhs]->variable = new Variable (NULL, new VARIABLE_NAME (s(slhs)), new List<Expr*>);
+
 			// note lack of out->push_back (in);
+			iterate_again = true;
 			return;
 		}
 	}

@@ -89,10 +89,10 @@ foreach function as f:
 	}
 */
 
-#include "HIR_transform.h"
+#include "Fix_point.h"
 #include <map>
 
-class Propagate_copies : public HIR::Transform
+class Propagate_copies : public Fix_point
 {
 private:
 	map<string, int> use_counts;

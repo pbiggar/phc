@@ -74,6 +74,10 @@ src_phc_SOURCES =												\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
+	src/codegen/Dead_code_elimination.cpp				\
+	src/codegen/Dead_code_elimination.h					\
+	src/codegen/Fix_point.cpp								\
+	src/codegen/Fix_point.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lift_functions_and_classes.cpp		\
@@ -82,6 +86,8 @@ src_phc_SOURCES =												\
 	src/codegen/Propagate_copies.h						\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
+	src/codegen/Use_def_counter.cpp 						\
+	src/codegen/Use_def_counter.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\

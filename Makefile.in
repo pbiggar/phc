@@ -288,13 +288,15 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Split_multiple_arguments.$(OBJEXT) Split_unset_isset.$(OBJEXT) \
 	Strip_comments.$(OBJEXT) Tidy_print.$(OBJEXT) \
 	Translate_empty.$(OBJEXT) Compile_C.$(OBJEXT) \
+	Dead_code_elimination.$(OBJEXT) Fix_point.$(OBJEXT) \
 	Generate_C.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
 	Propagate_copies.$(OBJEXT) Prune_symbol_table.$(OBJEXT) \
-	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
-	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
-	cmdline.$(OBJEXT) HIR.$(OBJEXT) HIR_factory.$(OBJEXT) \
-	HIR_transform.$(OBJEXT) HIR_visitor.$(OBJEXT) lex.yy.$(OBJEXT) \
-	MIR.$(OBJEXT) MIR_factory.$(OBJEXT) MIR_transform.$(OBJEXT) \
+	Use_def_counter.$(OBJEXT) embed.$(OBJEXT) AST.$(OBJEXT) \
+	AST_factory.$(OBJEXT) AST_transform.$(OBJEXT) \
+	AST_visitor.$(OBJEXT) cmdline.$(OBJEXT) HIR.$(OBJEXT) \
+	HIR_factory.$(OBJEXT) HIR_transform.$(OBJEXT) \
+	HIR_visitor.$(OBJEXT) lex.yy.$(OBJEXT) MIR.$(OBJEXT) \
+	MIR_factory.$(OBJEXT) MIR_transform.$(OBJEXT) \
 	MIR_visitor.$(OBJEXT) php_parser.tab.$(OBJEXT) \
 	HIR_lower_expr.$(OBJEXT) Lower_control_flow.$(OBJEXT) \
 	AttrMap.$(OBJEXT) base64.$(OBJEXT) Boolean.$(OBJEXT) \
@@ -607,6 +609,10 @@ src_phc_SOURCES = \
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
+	src/codegen/Dead_code_elimination.cpp				\
+	src/codegen/Dead_code_elimination.h					\
+	src/codegen/Fix_point.cpp								\
+	src/codegen/Fix_point.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lift_functions_and_classes.cpp		\
@@ -615,6 +621,8 @@ src_phc_SOURCES = \
 	src/codegen/Propagate_copies.h						\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
+	src/codegen/Use_def_counter.cpp 						\
+	src/codegen/Use_def_counter.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
@@ -1155,10 +1163,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Fix_point.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Foreach_uppering.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Po@am__quote@
@@ -1204,6 +1214,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Tidy_print.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Translate_empty.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
@@ -1693,6 +1704,34 @@ Compile_C.obj: src/codegen/Compile_C.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Compile_C.obj `if test -f 'src/codegen/Compile_C.cpp'; then $(CYGPATH_W) 'src/codegen/Compile_C.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Compile_C.cpp'; fi`
 
+Dead_code_elimination.o: src/codegen/Dead_code_elimination.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_code_elimination.o -MD -MP -MF $(DEPDIR)/Dead_code_elimination.Tpo -c -o Dead_code_elimination.o `test -f 'src/codegen/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/codegen/Dead_code_elimination.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dead_code_elimination.Tpo $(DEPDIR)/Dead_code_elimination.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Dead_code_elimination.cpp' object='Dead_code_elimination.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_code_elimination.o `test -f 'src/codegen/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/codegen/Dead_code_elimination.cpp
+
+Dead_code_elimination.obj: src/codegen/Dead_code_elimination.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_code_elimination.obj -MD -MP -MF $(DEPDIR)/Dead_code_elimination.Tpo -c -o Dead_code_elimination.obj `if test -f 'src/codegen/Dead_code_elimination.cpp'; then $(CYGPATH_W) 'src/codegen/Dead_code_elimination.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Dead_code_elimination.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dead_code_elimination.Tpo $(DEPDIR)/Dead_code_elimination.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Dead_code_elimination.cpp' object='Dead_code_elimination.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_code_elimination.obj `if test -f 'src/codegen/Dead_code_elimination.cpp'; then $(CYGPATH_W) 'src/codegen/Dead_code_elimination.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Dead_code_elimination.cpp'; fi`
+
+Fix_point.o: src/codegen/Fix_point.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.o -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.o `test -f 'src/codegen/Fix_point.cpp' || echo '$(srcdir)/'`src/codegen/Fix_point.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Fix_point.Tpo $(DEPDIR)/Fix_point.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Fix_point.cpp' object='Fix_point.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.o `test -f 'src/codegen/Fix_point.cpp' || echo '$(srcdir)/'`src/codegen/Fix_point.cpp
+
+Fix_point.obj: src/codegen/Fix_point.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.obj -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.obj `if test -f 'src/codegen/Fix_point.cpp'; then $(CYGPATH_W) 'src/codegen/Fix_point.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Fix_point.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Fix_point.Tpo $(DEPDIR)/Fix_point.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Fix_point.cpp' object='Fix_point.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.obj `if test -f 'src/codegen/Fix_point.cpp'; then $(CYGPATH_W) 'src/codegen/Fix_point.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Fix_point.cpp'; fi`
+
 Generate_C.o: src/codegen/Generate_C.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Generate_C.o -MD -MP -MF $(DEPDIR)/Generate_C.Tpo -c -o Generate_C.o `test -f 'src/codegen/Generate_C.cpp' || echo '$(srcdir)/'`src/codegen/Generate_C.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Generate_C.Tpo $(DEPDIR)/Generate_C.Po
@@ -1748,6 +1787,20 @@ Prune_symbol_table.obj: src/codegen/Prune_symbol_table.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Prune_symbol_table.cpp' object='Prune_symbol_table.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Prune_symbol_table.obj `if test -f 'src/codegen/Prune_symbol_table.cpp'; then $(CYGPATH_W) 'src/codegen/Prune_symbol_table.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Prune_symbol_table.cpp'; fi`
+
+Use_def_counter.o: src/codegen/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.o -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.o `test -f 'src/codegen/Use_def_counter.cpp' || echo '$(srcdir)/'`src/codegen/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Use_def_counter.Tpo $(DEPDIR)/Use_def_counter.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Use_def_counter.cpp' object='Use_def_counter.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.o `test -f 'src/codegen/Use_def_counter.cpp' || echo '$(srcdir)/'`src/codegen/Use_def_counter.cpp
+
+Use_def_counter.obj: src/codegen/Use_def_counter.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.obj -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.obj `if test -f 'src/codegen/Use_def_counter.cpp'; then $(CYGPATH_W) 'src/codegen/Use_def_counter.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Use_def_counter.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Use_def_counter.Tpo $(DEPDIR)/Use_def_counter.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Use_def_counter.cpp' object='Use_def_counter.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Use_def_counter.obj `if test -f 'src/codegen/Use_def_counter.cpp'; then $(CYGPATH_W) 'src/codegen/Use_def_counter.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Use_def_counter.cpp'; fi`
 
 embed.o: src/embed/embed.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT embed.o -MD -MP -MF $(DEPDIR)/embed.Tpo -c -o embed.o `test -f 'src/embed/embed.cpp' || echo '$(srcdir)/'`src/embed/embed.cpp
