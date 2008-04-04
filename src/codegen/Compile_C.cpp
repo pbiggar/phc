@@ -96,11 +96,14 @@ void Compile_C::run (IR* in, Pass_manager* pm)
 	for(unsigned int i = 0; i < args.size (); i++) 
 		argv[i] = strdup(args[i]->str().c_str());
 
+	// convert to a string in case of error
+	stringstream command;
+	for(unsigned int i = 0; i < args.size (); i++)
+		command << argv[i] << " ";
+
 	if(pm->args_info->verbose_flag)
 	{
-		for(unsigned int i = 0; i < args.size (); i++)
-			cout << argv[i] << " ";
-		cout << endl;
+		cout << command.str () << endl;
 	}
 
 
@@ -109,17 +112,11 @@ void Compile_C::run (IR* in, Pass_manager* pm)
 #define READ_END 0
 #define WRITE_END 1
 	if(pipe(pfd) == -1) 
-	{
-		cerr << "Could not create pipe" << endl;
-		exit(-1);
-	}
+		phc_error ("Could not create pipe");
 
 	int cpid = fork();
 	if(cpid == -1)
-	{
-		cerr << "Could not fork" << endl;
-		exit(-1);
-	}
+		phc_error ("Could not fork");
 
 	if(cpid == 0)
 	{
@@ -146,8 +143,13 @@ void Compile_C::run (IR* in, Pass_manager* pm)
 		close(STDOUT_FILENO);
 		close(pfd[WRITE_END]);
 
-		// Wait for gcc to finish
-		waitpid(cpid, NULL, 0);
+		// Wait for gcc to finish (get the exit code)
+		int exit_code;
+		waitpid(cpid, &exit_code, 0);
+		if (WEXITSTATUS (exit_code))
+		{
+			phc_error ("gcc exited with error %d (executed via '%s')", exit_code, command.str().c_str ());
+		}
 
 		// Restore stdout
 		dup(old_stdout);
