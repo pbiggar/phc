@@ -29,7 +29,7 @@ public:
 		else if (!in->attrs->is_true ("phc.lost_attributes.test"))
 		{
 			debug (in);
-			xdebug (in);
+			xadebug (in);
 			cout << "Failure" << endl;
 			exit (-1);
 		}
