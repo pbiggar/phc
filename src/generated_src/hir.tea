@@ -19,7 +19,8 @@
 output_dir "src/generated";
 prefix "HIR";
 external class "Object";
-external class "IR";
+external class "IR::Node";
+external class "IR::PHP_script";
 use list "List";
 use string "String";
 use namespace "HIR";
@@ -201,42 +202,9 @@ Identifier ::=
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
 
-class Node : Object 
+class Node : IR::Node
 {
 public:
-	AttrMap* attrs;
-
-	// Return the line number of the node (or 0 if unknown)
-	int get_line_number()
-	{
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if(i != NULL)
-			return i->value();
-		else
-			return 0;
-	}
-
-	// Return the filename of the node. If unknown, use "<unknown>",
-	// which is what the interpreter uses.
-	// TODO In the future, make sure we always have filenames and
-	// line numbers.
-	String* get_filename()
-	{
-		String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
-		if (result == NULL)
-			result = new String ("<unknown>");
-
-		return result;
-	}
-
-	Node()
-	{
-		// Constructor gets called because all classes inherit from
-		// Node virtually; also, because maketea knows Node is
-		// abstract, it won't add a constructor itself
-		attrs = new AttrMap();
-	}
-
 	void clone_mixin_from(Node* in)
 	{
 		attrs->clone_all_from (in->attrs);
@@ -279,11 +247,10 @@ public:
 
 		return true;
 	}
+
 };
 
-class PHP_script : IR
-{
-};
+class PHP_script : IR::PHP_script {};
 
 class Signature 
 {

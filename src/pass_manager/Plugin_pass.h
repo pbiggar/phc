@@ -17,7 +17,7 @@ class Plugin_pass : public Pass
 public:
 
 	Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option);
-	void run (IR* in, Pass_manager* pm);
+	void run (IR::PHP_script* in, Pass_manager* pm);
 	void post_process ();
 
 };

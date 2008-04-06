@@ -302,7 +302,7 @@ void Pass_manager::maybe_enable_debug (Pass* pass)
 	}
 }
 
-void Pass_manager::dump (IR* in, Pass* pass)
+void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 {
 	String* name = pass->name;
 	for (unsigned int i = 0; i < args_info->dump_given; i++)
@@ -357,7 +357,7 @@ void Pass_manager::dump (IR* in, Pass* pass)
 	}
 }
 
-void Pass_manager::run (IR* in, bool dump)
+void Pass_manager::run (IR::PHP_script* in, bool dump)
 {
 	// AST
 	for_lci (ast_queue, Pass, p)
@@ -387,7 +387,7 @@ void Pass_manager::run (IR* in, bool dump)
 // The pass manager is used to parse and transform small snippets of
 // compiler-generated code aswell as the whole file. Set DUMP to false for
 // small snippets, and to true for the main program.
-void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
+void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool dump)
 {
 	assert (pass->name);
 
@@ -406,13 +406,13 @@ void Pass_manager::run_pass (Pass* pass, IR* in, bool dump)
 }
 
 /* Run all passes between FROM and TO, inclusive. */
-IR* Pass_manager::run_from (String* from, IR* in, bool dump)
+IR::PHP_script* Pass_manager::run_from (String* from, IR::PHP_script* in, bool dump)
 {
 	return run_from_until (from, NULL, in, dump);
 }
 
 /* Run all passes until TO, inclusive. */
-IR* Pass_manager::run_until (String* to, IR* in, bool dump)
+IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool dump)
 {
 	return run_from_until (NULL, to, in, dump);
 }
@@ -420,7 +420,7 @@ IR* Pass_manager::run_until (String* to, IR* in, bool dump)
 
 
 /* Run all passes between FROM and TO, inclusive. */
-IR* Pass_manager::run_from_until (String* from, String* to, IR* in, bool dump)
+IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool dump)
 {
 	bool exec = false;
 	for_lci (queues, List<Pass*>, q)

@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	IR* ir = NULL;
+	IR::PHP_script* ir = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();

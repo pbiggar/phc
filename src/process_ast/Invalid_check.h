@@ -18,7 +18,7 @@
 // Returns true if IN is not allowed be on the RHS of a reference assignment.
 bool is_ref_literal (AST::Expr* in);
 bool is_ref_literal (HIR::Expr* in); // todo avoid duplication
-void check (IR* in, bool use_ice);
+void check (IR::PHP_script* in, bool use_ice);
 
 class Invalid_check : public AST::Visitor, public Pass
 {
@@ -30,7 +30,7 @@ public:
 
 	// decide the error based on whether USE_ICE is set
 	void error (const char* message, AST::Node* node);
-	void run (IR*, Pass_manager*);
+	void run (IR::PHP_script*, Pass_manager*);
 
 	void pre_statement (AST::Statement* in);
 	void pre_assignment (AST::Assignment* in);

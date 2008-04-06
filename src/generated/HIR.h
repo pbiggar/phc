@@ -98,8 +98,10 @@ class Transform;
 class Visitor;
 
 // Node ::= PHP_script | Statement | Class_mod | Member | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Catch | Conditional_expr | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Identifier | HT_ITERATOR<long>;
-class Node : virtual public Object
+class Node : virtual public IR::Node
 {
+public:
+    Node();
 public:
     virtual void visit(Visitor* visitor) = 0;
     virtual void transform_children(Transform* transform) = 0;
@@ -114,22 +116,13 @@ public:
 public:
     virtual void assert_valid() = 0;
 public:
-    AttrMap* attrs;
-    //  Return the line number of the node (or 0 if unknown)
-    int get_line_number();
-    //  Return the filename of the node. If unknown, use "<unknown>",
-    //  which is what the interpreter uses.
-    //  TODO In the future, make sure we always have filenames and
-    //  line numbers.
-    String* get_filename();
-    Node();
     void clone_mixin_from(Node* in);
     void assert_mixin_valid();
     bool is_mixin_equal(Node* in);
 };
 
 // PHP_script ::= Statement* ;
-class PHP_script : virtual public Node, virtual public IR
+class PHP_script : virtual public Node, virtual public IR::PHP_script
 {
 public:
     PHP_script(List<Statement*>* statements);

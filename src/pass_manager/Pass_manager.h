@@ -15,7 +15,7 @@
 #include "ltdl.h"
 
 class Pass;
-class IR;
+class IR::PHP_script;
 
 class Pass_manager
 {
@@ -70,17 +70,17 @@ public:
 	Pass* get_pass_named (String* name);
 
 	// Run (returns passed IR, or new IR if lowered
-	IR* run_from (String* from, IR* in, bool dump = false);
-	IR* run_from_until (String* from, String* to, IR* in, bool dump = false);
-	IR* run_until (String* to, IR* in, bool dump = false);
+	IR::PHP_script* run_from (String* from, IR::PHP_script* in, bool dump = false);
+	IR::PHP_script* run_from_until (String* from, String* to, IR::PHP_script* in, bool dump = false);
+	IR::PHP_script* run_until (String* to, IR::PHP_script* in, bool dump = false);
 
-	void run (IR* in, bool dump = false);
-	void run_pass (Pass* pass, IR* in, bool dump = false);
+	void run (IR::PHP_script* in, bool dump = false);
+	void run_pass (Pass* pass, IR::PHP_script* in, bool dump = false);
 	void post_process ();
 
 
 	void list_passes ();
-	void dump (IR* in, Pass* pass);
+	void dump (IR::PHP_script* in, Pass* pass);
 	void maybe_enable_debug (Pass* pass);
 
 protected:

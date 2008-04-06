@@ -5,7 +5,7 @@
  * Generate C code
  *
  * Currently, the C code is generated directly from the AST; once we have an
- * IR, the C code will be generated from the IR instead.
+ * LIR, the C code will be generated from the LIR instead.
  */
 
 #ifndef GENERATE_C
@@ -20,7 +20,7 @@ public:
 
 	ostream& os;
 
-	void run (IR*, Pass_manager*);
+	void run (IR::PHP_script*, Pass_manager*);
 	Generate_C(ostream&);
 
 public:

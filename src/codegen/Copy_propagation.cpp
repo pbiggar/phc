@@ -47,7 +47,6 @@
  *	-	$L1 must be assigned exactly once.
  *	-	$L1 must be used exactly once - in the assignment to $L2.
  *	-	$L2 is assigned exactly once, by $R1
- *	-	We only work in methods, not in the global statement list
  */
 
 #include "Copy_propagation.h"
@@ -93,12 +92,12 @@ void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 			replaceable [slhs] = assignment;
 		}
 
-		// be conservative
+		// consider for immediate removal
 		if (replaceable.find (srhs) != replaceable.end ()
 				&&	rhs->attrs->get_integer ("phc.use_defs.use_count")->value () == 1
 				&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
 		{
-			cdebug << "r s is replacable" << endl;
+			cdebug << "rhs is replacable" << endl;
 			replaceable [srhs]->variable = new Variable (
 				NULL, 
 				new VARIABLE_NAME (s(slhs)), 

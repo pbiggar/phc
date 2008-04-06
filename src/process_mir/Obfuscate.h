@@ -21,7 +21,7 @@ public:
 		description = new String ("Print program with obfuscated control-flow");
 	}
 
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		AST::PHP_script* ast = in->as_AST()->clone ();
 		ast->transform_children (new Foreach_uppering);

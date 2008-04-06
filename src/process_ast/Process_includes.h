@@ -26,7 +26,7 @@ public:
 
 	String* pass_name;
 	Pass_manager* pm;
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		in->transform_children(this);
 	}

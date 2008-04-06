@@ -56,7 +56,7 @@ bool Generate_C::pass_is_enabled (Pass_manager* pm)
 	return pm->args_info->generate_c_flag or pm->args_info->compile_flag;
 }
 
-void Generate_C::run (IR* in, Pass_manager* pm)
+void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	args_info = pm->args_info;
 	if (not PHP::is_available ())
@@ -1387,8 +1387,8 @@ public:
 			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
 			<< 	"if (result == FAILURE) // check for missing function\n"
 			<< 	"{\n"
-			<<			"phc_setup_error (1, " 
-			<< 			rhs->get_filename () << ", " 
+			<<			"phc_setup_error (1, \"" 
+			<< 			*rhs->get_filename () << "\", " 
 			<< 			rhs->get_line_number () << ", "
 			<<				"NULL TSRMLS_CC);\n"
 						// die
@@ -1537,8 +1537,8 @@ public:
 		}
 
 		code
-			<< "phc_setup_error (1, " 
-			<<				rhs->get_filename () << ", " 
+			<< "phc_setup_error (1, \""
+			<<				*rhs->get_filename () << "\", " 
 			<<				rhs->get_line_number () << ", "
 			<< "			NULL TSRMLS_CC);\n"
 

@@ -49,7 +49,7 @@ public:
 
 
 
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		if (ast_visitor)
 			in->visit (ast_visitor);

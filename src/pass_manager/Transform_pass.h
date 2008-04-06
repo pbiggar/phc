@@ -46,7 +46,7 @@ public:
 		mir_transform = NULL;
 	}
 
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		if (ast_transform)
 			in->transform_children (ast_transform);

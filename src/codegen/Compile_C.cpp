@@ -34,7 +34,7 @@ bool Compile_C::pass_is_enabled (Pass_manager* pm)
 	return pm->args_info->compile_flag;
 }
 
-void Compile_C::run (IR* in, Pass_manager* pm)
+void Compile_C::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	// Find PHP installation path
 	const char* php_path;

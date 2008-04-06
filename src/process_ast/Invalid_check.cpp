@@ -12,7 +12,7 @@
 
 using namespace AST;
 
-void check (IR* in, bool use_ice)
+void check (IR::PHP_script* in, bool use_ice)
 {
 	in->assert_valid();
 
@@ -47,7 +47,7 @@ Invalid_check::Invalid_check (bool use_ice)
 
 
 
-void Invalid_check::run (IR* in, Pass_manager* pm)
+void Invalid_check::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	in->visit(this);
 	// Indicate that after this pass, ICEs should be used.

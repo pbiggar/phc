@@ -23,7 +23,7 @@ class Fake_pass : public Pass
 		this->description = description;
 	}
 
-	void run (IR*, Pass_manager*) {}
+	void run (IR::PHP_script*, Pass_manager*) {}
 };
 
 

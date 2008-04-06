@@ -3,34 +3,8 @@
 #include "MIR_visitor.h"
 
 namespace MIR{
-//  Return the line number of the node (or 0 if unknown)
-int Node::get_line_number()
-{
-    {
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if(i != NULL)
-			return i->value();
-		else
-			return 0;
-	}
-}
-
-//  Return the filename of the node (or NULL if unknown)
-String* Node::get_filename()
-{
-    {
-		return dynamic_cast<String*>(attrs->get("phc.filename"));
-	}
-}
-
 Node::Node()
 {
-    {
-		// Constructor gets called because all classes inherit from
-		// Node virtually; also, because maketea knows Node is
-		// abstract, it won't add a constructor itself
-		attrs = new AttrMap();
-	}
 }
 
 void Node::clone_mixin_from(Node* in)
@@ -79,15 +53,6 @@ bool Node::is_mixin_equal(Node* in)
 		}
 
 		return true;
-	}
-}
-
-//  Return the comments associated with the node
-List<String*>* Node::get_comments()
-{
-    {
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		return comments;
 	}
 }
 
