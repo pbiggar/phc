@@ -25,51 +25,33 @@
 using namespace HIR;
 
 Dead_code_elimination::Dead_code_elimination ()
-: in_method (false)
 {
 }
 
-void Dead_code_elimination::pre_method (Method* in, List<Method*>* out)
+void Dead_code_elimination::children_php_script (PHP_script* in)
 {
-	// each function is separate
-	use_counts.clear ();
-	def_counts.clear ();
+	in->visit (new Use_def_counter ());
 
-	// count uses and defs
-	in->visit (new Use_def_counter (use_counts, def_counts));
+	Transform::children_php_script (in);
 
-	in_method = true;
-
-	out->push_back (in);
-}
-
-void Dead_code_elimination::post_method (Method* in, List<Method*>* out)
-{
-	in_method = false;
-	out->push_back (in);
+	in->visit (new Clear_use_defs);
 }
 
 void Dead_code_elimination::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
-	// only method, not the global part
-	if (!in_method)
-	{
-		cdebug << "Ignore non-method" << endl;;
-		out->push_back (in);
-		return;
-	}
-
 	// get useful variables
 	VARIABLE_NAME *lhs, *rhs;
 	Assignment* assignment;
 	if (extract_simple_assignment (in, lhs, rhs, assignment))
 	{
 		cdebug << "is simple assignment" << endl;
+		xdebug (lhs);
+		xdebug (rhs);
 	
 		// Remove statement
 		if (lhs->attrs->is_true ("phc.codegen.compiler_generated")
-			&& use_counts [*lhs->value] == 0
-			&& def_counts [*lhs->value] == 1)
+			&& lhs->attrs->get_integer ("phc.use_defs.use_count")->value() == 0
+			&& lhs->attrs->get_integer ("phc.use_defs.def_count")->value() == 1)
 		{
 			cdebug << "removing statement" << endl;
 
@@ -83,5 +65,6 @@ void Dead_code_elimination::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 			debug (in);
 		}
 	}
+
 	out->push_back (in);
 }

@@ -91,20 +91,17 @@ foreach function as f:
 
 #include "Fix_point.h"
 #include <map>
+#include "Use_def_counter.h"
 
 class Copy_propagation : public Fix_point
 {
 private:
-	map<string, int> use_counts;
-	map<string, int> def_counts;
 	map<string, HIR::Assignment*> replaceable;
-	bool in_method;
 
 public:
 	Copy_propagation ();
 
-	void pre_method (HIR::Method* in, List<HIR::Method*>* out);
-	void post_method (HIR::Method* in, List<HIR::Method*>* out);
+	void children_php_script (HIR::PHP_script* in);
 	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
 };
 

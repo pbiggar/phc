@@ -58,40 +58,21 @@
 using namespace HIR;
 
 Copy_propagation::Copy_propagation ()
-: in_method (false)
 {
 }
 
-void Copy_propagation::pre_method (Method* in, List<Method*>* out)
+void Copy_propagation::children_php_script (PHP_script* in)
 {
-
-	// each function is separate
-	replaceable.clear ();
-	use_counts.clear ();
-	def_counts.clear ();
-
 	// count uses and defs
-	in->visit (new Use_def_counter (use_counts, def_counts));
+	in->visit (new Use_def_counter);
 
-	in_method = true;
+	Transform::children_php_script (in);
 
-	out->push_back (in);
+	in->visit (new Clear_use_defs);
 }
 
-void Copy_propagation::post_method (Method* in, List<Method*>* out)
-{
-	in_method = false;
-	out->push_back (in);
-}
 void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 {
-	// only method, not the global part
-	if (!in_method)
-	{
-		out->push_back (in);
-		return;
-	}
-
 	debug (in);
 
 	// get useful variables
@@ -109,22 +90,19 @@ void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		if (lhs->attrs->is_true ("phc.codegen.compiler_generated"))
 		{
 			cdebug << "lhs is compiler generated" << endl;
-			assert (replaceable.find (slhs) == replaceable.end ());
 			replaceable [slhs] = assignment;
 		}
 
-		cdebug << "use counts" << endl;
-		print_map (use_counts);
-		cdebug << "def counts" << endl;
-		print_map (def_counts);
-
 		// be conservative
 		if (replaceable.find (srhs) != replaceable.end ()
-				&&	use_counts [srhs] == 1
-				&&	def_counts [srhs] == 1)
+				&&	rhs->attrs->get_integer ("phc.use_defs.use_count")->value () == 1
+				&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
 		{
 			cdebug << "r s is replacable" << endl;
-			replaceable [srhs]->variable = new Variable (NULL, new VARIABLE_NAME (s(slhs)), new List<Expr*>);
+			replaceable [srhs]->variable = new Variable (
+				NULL, 
+				new VARIABLE_NAME (s(slhs)), 
+				new List<Expr*>);
 
 			// note lack of out->push_back (in);
 			iterate_again = true;

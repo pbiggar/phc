@@ -17,29 +17,50 @@
  *
  */
 
+#ifndef PHC_USE_DEF_COUNTER
+#define PHC_USE_DEF_COUNTER
+
 #include "process_ir/General.h"
 #include "HIR_visitor.h"
+#include "stack"
+#include "map"
+#include "HIR.h"
 
-using namespace HIR;
-VARIABLE_NAME* simple_var (Expr* in);
-void print_map (map<string, int>& in);
-bool extract_simple_assignment (Eval_expr* in, VARIABLE_NAME*& lhs, VARIABLE_NAME*& rhs, Assignment*& assignment);
+HIR::VARIABLE_NAME* simple_var (HIR::Expr* in);
+bool extract_simple_assignment (HIR::Eval_expr* in, HIR::VARIABLE_NAME*& lhs, HIR::VARIABLE_NAME*& rhs, HIR::Assignment*& assignment);
 
 /* Entering at the method level, count the total occurences of a
  * variable, and the number of defintions, and the uses is the
  * difference of the two. */
 class Use_def_counter : public HIR::Visitor
 {
-	map<string, int>& uses;
-	map<string, int>& defs;
-	map<string, int> occurences;
-	bool ignore_methods; // for global
+	// For analysis
+private:
+	stack< map<string, int>* > analysis_defs;
+	stack< map<string, int>* > analysis_occurences;
+
+	void pre_method (HIR::Method* in);
+	void pre_assignment (HIR::Assignment* in);
+	void pre_variable_name (HIR::VARIABLE_NAME* in);
+	void post_method (HIR::Method* in);
+	void children_php_script (HIR::PHP_script* in);
+
+	// start analysing a new method
+	void init_analysis ();
+	void finish_analysis (List<HIR::Statement*>* in);
 
 public:
-	Use_def_counter (map<string, int>& uses, map<string, int>& defs);
-
-	void pre_method (Method* in);
-	void pre_assignment (Assignment* in);
-	void pre_variable_name (VARIABLE_NAME* in);
-	void post_method (Method* in);
+	Use_def_counter ();
 };
+
+
+class Clear_use_defs : public HIR::Visitor
+{
+	void pre_node (HIR::Node* in)
+	{
+		in->attrs->erase_with_prefix ("phc.use_defs");
+	}
+};
+
+#endif // PHC_USE_DEF_COUNTER
+
