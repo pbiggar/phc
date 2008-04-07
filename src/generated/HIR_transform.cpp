@@ -196,16 +196,6 @@ Expr* Transform::pre_bin_op(Bin_op* in)
     return in;
 }
 
-Conditional_expr* Transform::pre_conditional_expr(Conditional_expr* in)
-{
-    return in;
-}
-
-Expr* Transform::pre_ignore_errors(Ignore_errors* in)
-{
-    return in;
-}
-
 Expr* Transform::pre_constant(Constant* in)
 {
     return in;
@@ -513,16 +503,6 @@ Expr* Transform::post_unary_op(Unary_op* in)
 }
 
 Expr* Transform::post_bin_op(Bin_op* in)
-{
-    return in;
-}
-
-Conditional_expr* Transform::post_conditional_expr(Conditional_expr* in)
-{
-    return in;
-}
-
-Expr* Transform::post_ignore_errors(Ignore_errors* in)
 {
     return in;
 }
@@ -869,18 +849,6 @@ void Transform::children_bin_op(Bin_op* in)
     in->left = transform_variable_name(in->left);
     in->op = transform_op(in->op);
     in->right = transform_variable_name(in->right);
-}
-
-void Transform::children_conditional_expr(Conditional_expr* in)
-{
-    in->cond = transform_expr(in->cond);
-    in->iftrue = transform_expr(in->iftrue);
-    in->iffalse = transform_expr(in->iffalse);
-}
-
-void Transform::children_ignore_errors(Ignore_errors* in)
-{
-    in->expr = transform_expr(in->expr);
 }
 
 void Transform::children_constant(Constant* in)
@@ -1607,22 +1575,6 @@ PHP_script* Transform::transform_php_script(PHP_script* in)
     return out;
 }
 
-Conditional_expr* Transform::transform_conditional_expr(Conditional_expr* in)
-{
-    if(in == NULL) return NULL;
-    
-    Conditional_expr* out;
-    
-    out = pre_conditional_expr(in);
-    if(out != NULL)
-    {
-    	children_conditional_expr(out);
-    	out = post_conditional_expr(out);
-    }
-    
-    return out;
-}
-
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 void Transform::pre_statement(Statement* in, List<Statement*>* out)
@@ -1860,7 +1812,6 @@ Expr* Transform::pre_expr(Expr* in)
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
-    case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -1909,7 +1860,6 @@ Target* Transform::pre_target(Target* in)
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
-    case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -2165,7 +2115,6 @@ Expr* Transform::post_expr(Expr* in)
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
-    case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -2214,7 +2163,6 @@ Target* Transform::post_target(Target* in)
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
-    case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -2370,9 +2318,6 @@ void Transform::children_expr(Expr* in)
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -2465,9 +2410,6 @@ void Transform::children_target(Target* in)
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));

@@ -66,8 +66,8 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
    Statements
 -}
 
+-- These need to be Expr because we don't know if they should be return by reference or by copy.
 Return ::= Expr? ;
--- Return ::= VARIABLE_NAME? ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;
@@ -125,7 +125,6 @@ Assignment ::= Variable is_ref:"&"? Expr ;
 Cast     ::= CAST VARIABLE_NAME ;
 Unary_op ::= OP VARIABLE_NAME ;
 Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
-
 
 Constant ::= CLASS_NAME? CONSTANT_NAME ;
 

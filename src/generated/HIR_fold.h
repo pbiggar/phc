@@ -61,8 +61,6 @@ template
  class _Cast,
  class _Unary_op,
  class _Bin_op,
- class _Conditional_expr,
- class _Ignore_errors,
  class _Constant,
  class _Instanceof,
  class _Variable,
@@ -545,24 +543,6 @@ public:
 		return fold_impl_bin_op(in, left, op, right);
 	}
 
-	virtual _Conditional_expr fold_conditional_expr(Conditional_expr* in)
-	{
-		_Expr cond = 0;
-		if(in->cond != NULL) cond = fold_expr(in->cond);
-		_Expr iftrue = 0;
-		if(in->iftrue != NULL) iftrue = fold_expr(in->iftrue);
-		_Expr iffalse = 0;
-		if(in->iffalse != NULL) iffalse = fold_expr(in->iffalse);
-		return fold_impl_conditional_expr(in, cond, iftrue, iffalse);
-	}
-
-	virtual _Ignore_errors fold_ignore_errors(Ignore_errors* in)
-	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_ignore_errors(in, expr);
-	}
-
 	virtual _Constant fold_constant(Constant* in)
 	{
 		_CLASS_NAME class_name = 0;
@@ -724,8 +704,6 @@ public:
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
-	virtual _Conditional_expr fold_impl_conditional_expr(Conditional_expr* orig, _Expr cond, _Expr iftrue, _Expr iffalse) { assert(0); };
-	virtual _Ignore_errors fold_impl_ignore_errors(Ignore_errors* orig, _Expr expr) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _Expr expr, _Class_name class_name) { assert(0); };
 	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, List<_Expr>* array_indices) { assert(0); };
@@ -819,8 +797,6 @@ public:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
 			case Catch::ID:
 				return fold_catch(dynamic_cast<Catch*>(in));
-			case Conditional_expr::ID:
-				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Reflection::ID:
@@ -859,8 +835,6 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -989,8 +963,6 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -1069,8 +1041,6 @@ public:
 				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
-			case Ignore_errors::ID:
-				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -1138,6 +1108,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

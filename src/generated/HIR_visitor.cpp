@@ -178,14 +178,6 @@ void Visitor::pre_bin_op(Bin_op* in)
 {
 }
 
-void Visitor::pre_conditional_expr(Conditional_expr* in)
-{
-}
-
-void Visitor::pre_ignore_errors(Ignore_errors* in)
-{
-}
-
 void Visitor::pre_constant(Constant* in)
 {
 }
@@ -472,14 +464,6 @@ void Visitor::post_unary_op(Unary_op* in)
 }
 
 void Visitor::post_bin_op(Bin_op* in)
-{
-}
-
-void Visitor::post_conditional_expr(Conditional_expr* in)
-{
-}
-
-void Visitor::post_ignore_errors(Ignore_errors* in)
 {
 }
 
@@ -838,18 +822,6 @@ void Visitor::children_bin_op(Bin_op* in)
     visit_variable_name(in->left);
     visit_op(in->op);
     visit_variable_name(in->right);
-}
-
-void Visitor::children_conditional_expr(Conditional_expr* in)
-{
-    visit_expr(in->cond);
-    visit_expr(in->iftrue);
-    visit_expr(in->iffalse);
-}
-
-void Visitor::children_ignore_errors(Ignore_errors* in)
-{
-    visit_expr(in->expr);
 }
 
 void Visitor::children_constant(Constant* in)
@@ -1257,20 +1229,6 @@ void Visitor::pre_bin_op_chain(Bin_op* in)
     pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_bin_op((Bin_op*) in);
-}
-
-void Visitor::pre_conditional_expr_chain(Conditional_expr* in)
-{
-    pre_node((Node*) in);
-    pre_conditional_expr((Conditional_expr*) in);
-}
-
-void Visitor::pre_ignore_errors_chain(Ignore_errors* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_ignore_errors((Ignore_errors*) in);
 }
 
 void Visitor::pre_constant_chain(Constant* in)
@@ -1725,20 +1683,6 @@ void Visitor::post_unary_op_chain(Unary_op* in)
 void Visitor::post_bin_op_chain(Bin_op* in)
 {
     post_bin_op((Bin_op*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_conditional_expr_chain(Conditional_expr* in)
-{
-    post_conditional_expr((Conditional_expr*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_ignore_errors_chain(Ignore_errors* in)
-{
-    post_ignore_errors((Ignore_errors*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -2422,18 +2366,6 @@ void Visitor::visit_php_script(PHP_script* in)
     }
 }
 
-void Visitor::visit_conditional_expr(Conditional_expr* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "Conditional_expr");
-    else
-    {
-    	pre_conditional_expr_chain(in);
-    	children_conditional_expr(in);
-    	post_conditional_expr_chain(in);
-    }
-}
-
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 void Visitor::pre_statement_chain(Statement* in)
@@ -2571,9 +2503,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case Ignore_errors::ID:
-    	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
-    	break;
     case Foreach_has_key::ID:
     	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -2666,9 +2595,6 @@ void Visitor::pre_target_chain(Target* in)
     	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -2835,9 +2761,6 @@ void Visitor::post_expr_chain(Expr* in)
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
     	break;
-    case Ignore_errors::ID:
-    	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
-    	break;
     case Foreach_has_key::ID:
     	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -2930,9 +2853,6 @@ void Visitor::post_target_chain(Target* in)
     	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
@@ -3099,9 +3019,6 @@ void Visitor::children_expr(Expr* in)
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -3194,9 +3111,6 @@ void Visitor::children_target(Target* in)
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Ignore_errors::ID:
-    	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));

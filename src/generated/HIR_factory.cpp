@@ -294,20 +294,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Bin_op(left, op, right);
     }
-    if(!strcmp(type_id, "Conditional_expr"))
-    {
-    	Expr* cond = dynamic_cast<Expr*>(*i++);
-    	Expr* iftrue = dynamic_cast<Expr*>(*i++);
-    	Expr* iffalse = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Conditional_expr(cond, iftrue, iffalse);
-    }
-    if(!strcmp(type_id, "Ignore_errors"))
-    {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Ignore_errors(expr);
-    }
     if(!strcmp(type_id, "Constant"))
     {
     	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);

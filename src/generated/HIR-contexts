@@ -27,7 +27,6 @@
 (Global,Statement,*)
 (Goto,Statement,*)
 (If,Statement,*)
-(Ignore_errors,Expr,)
 (Instanceof,Expr,)
 (Interface_def,Statement,*)
 (Label,Statement,*)

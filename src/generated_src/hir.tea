@@ -74,10 +74,12 @@ If ::= VARIABLE_NAME iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
 Foreach ::= VARIABLE_NAME key:Variable? is_ref:"&"? val:Variable Statement* ;
 
+-- We need to retain the Expr to lower these in the HIR
 Break ::= Expr? ;
 Continue ::= Expr? ;
+
+-- These need to be Expr because we don't know if they should be return by reference or by copy.
 Return ::= Expr? ;
--- Return ::= VARIABLE_NAME? ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;
@@ -126,7 +128,7 @@ Expr ::=
 	| Method_invocation | New 
 	| Literal 
 	| Op_assignment
-	| Array | Ignore_errors
+	| Array
 -- | Variable_name | Index_array
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	;
@@ -141,9 +143,6 @@ Op_assignment ::= Variable OP Expr ;
 Cast     ::= CAST VARIABLE_NAME ;
 Unary_op ::= OP VARIABLE_NAME ;
 Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
-
-Conditional_expr ::= cond:Expr iftrue:Expr iffalse:Expr ;
-Ignore_errors ::= Expr ;
 
 Constant ::= CLASS_NAME? CONSTANT_NAME ;
 

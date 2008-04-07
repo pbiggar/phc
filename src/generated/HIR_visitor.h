@@ -70,8 +70,6 @@ public:
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
     virtual void pre_bin_op(Bin_op* in);
-    virtual void pre_conditional_expr(Conditional_expr* in);
-    virtual void pre_ignore_errors(Ignore_errors* in);
     virtual void pre_constant(Constant* in);
     virtual void pre_instanceof(Instanceof* in);
     virtual void pre_variable(Variable* in);
@@ -146,8 +144,6 @@ public:
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
     virtual void post_bin_op(Bin_op* in);
-    virtual void post_conditional_expr(Conditional_expr* in);
-    virtual void post_ignore_errors(Ignore_errors* in);
     virtual void post_constant(Constant* in);
     virtual void post_instanceof(Instanceof* in);
     virtual void post_variable(Variable* in);
@@ -217,8 +213,6 @@ public:
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
-    virtual void children_conditional_expr(Conditional_expr* in);
-    virtual void children_ignore_errors(Ignore_errors* in);
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
     virtual void children_variable(Variable* in);
@@ -293,8 +287,6 @@ public:
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
-    virtual void pre_conditional_expr_chain(Conditional_expr* in);
-    virtual void pre_ignore_errors_chain(Ignore_errors* in);
     virtual void pre_constant_chain(Constant* in);
     virtual void pre_instanceof_chain(Instanceof* in);
     virtual void pre_variable_chain(Variable* in);
@@ -361,8 +353,6 @@ public:
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
-    virtual void post_conditional_expr_chain(Conditional_expr* in);
-    virtual void post_ignore_errors_chain(Ignore_errors* in);
     virtual void post_constant_chain(Constant* in);
     virtual void post_instanceof_chain(Instanceof* in);
     virtual void post_variable_chain(Variable* in);
@@ -426,7 +416,6 @@ public:
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
     virtual void visit_php_script(PHP_script* in);
-    virtual void visit_conditional_expr(Conditional_expr* in);
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 public:

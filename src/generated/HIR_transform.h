@@ -65,8 +65,6 @@ public:
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
-    virtual Conditional_expr* pre_conditional_expr(Conditional_expr* in);
-    virtual Expr* pre_ignore_errors(Ignore_errors* in);
     virtual Expr* pre_constant(Constant* in);
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Variable* pre_variable(Variable* in);
@@ -131,8 +129,6 @@ public:
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
-    virtual Conditional_expr* post_conditional_expr(Conditional_expr* in);
-    virtual Expr* post_ignore_errors(Ignore_errors* in);
     virtual Expr* post_constant(Constant* in);
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Variable* post_variable(Variable* in);
@@ -197,8 +193,6 @@ public:
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
-    virtual void children_conditional_expr(Conditional_expr* in);
-    virtual void children_ignore_errors(Ignore_errors* in);
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
     virtual void children_variable(Variable* in);
@@ -264,7 +258,6 @@ public:
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
-    virtual Conditional_expr* transform_conditional_expr(Conditional_expr* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
 public:

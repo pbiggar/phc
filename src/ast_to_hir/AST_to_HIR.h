@@ -76,7 +76,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Unary_op*,			// Unary_op*
  HIR::Bin_op*,				// Bin_op*
  HIR::Expr*,				// Conditional_expr*
- HIR::Ignore_errors*,				// Ignore_errors*
+ HIR::Expr*,				// Ignore_errors*
  HIR::Constant*,			// Constant*
  HIR::Instanceof*,			// Instanceof*
  HIR::Variable*,			// Variable*
@@ -366,14 +366,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Foreach* result;
 		result = new HIR::Foreach(expr_to_var_name (expr), key, is_ref, val, statements);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Ignore_errors* fold_impl_ignore_errors(AST::Ignore_errors* orig, HIR::Expr* expr)
-	{
-		HIR::Ignore_errors* result;
-		result = new HIR::Ignore_errors (expr);
 		copy_attrs (result, orig);
 		return result;
 	}

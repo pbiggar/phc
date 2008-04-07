@@ -65,8 +65,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Cast*,				// Cast*
  MIR::Unary_op*,			// Unary_op*
  MIR::Bin_op*,				// Bin_op*
- MIR::Expr*,				// Conditional_expr*
- MIR::Expr*,				// Ignore_errors*
  MIR::Constant*,			// Constant*
  MIR::Instanceof*,			// Instanceof*
  MIR::Variable*,			// Variable*

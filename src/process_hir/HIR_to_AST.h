@@ -65,8 +65,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Cast*,				// Cast*
  AST::Unary_op*,			// Unary_op*
  AST::Bin_op*,				// Bin_op*
- AST::Conditional_expr*,				// Conditional_expr*
- AST::Ignore_errors*,				// Ignore_errors*
  AST::Constant*,			// Constant*
  AST::Instanceof*,			// Instanceof*
  AST::Variable*,			// Variable*
@@ -294,14 +292,6 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Conditional_expr* fold_impl_conditional_expr (HIR::Conditional_expr* orig, AST::Expr* cond, AST::Expr* iftrue, AST::Expr* iffalse)
-	{
-		AST::Conditional_expr* result;
-		result = new AST::Conditional_expr (cond, iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Op_assignment* fold_impl_op_assignment(HIR::Op_assignment* orig, AST::Variable* variable, AST::OP* op, AST::Expr* expr)
 	{
 		AST::Op_assignment* result;
@@ -323,14 +313,6 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::Foreach* result;
 		result = new AST::Foreach(wrap_var_name (expr), key, is_ref, val, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Ignore_errors* fold_impl_ignore_errors(HIR::Ignore_errors* orig, AST::Expr* expr)
-	{
-		AST::Ignore_errors* result;
-		result = new AST::Ignore_errors (expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
