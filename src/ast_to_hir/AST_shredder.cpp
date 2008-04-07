@@ -72,14 +72,12 @@ Variable* Shredder::post_variable(Variable* in)
 	{
 		Variable* temp = fresh_var("TSr");
 
-		pieces->push_back(new Eval_expr(new Assignment(
-			temp->clone (), 
-			in->attrs->is_true ("phc.ast_shredder.need_addr"),
-			new Variable (
-				NULL,
-				in->variable_name,
-				new List<Expr*>()
-			))));
+		pieces->push_back(
+			new Eval_expr(
+				new Assignment(
+					temp->clone (), 
+					in->attrs->is_true ("phc.ast_shredder.need_addr"),
+					new Variable (in->variable_name))));
 
 		prev = temp;
 	}
@@ -295,20 +293,18 @@ Expr* Shredder::post_array(Array* in)
 		else
 			key = NULL;
 
-		pieces->push_back(new Eval_expr(new Assignment(
-						new Variable (
-							NULL,
-							var->variable_name->clone(),
-							new List<Expr*>(key)),
-						(*i)->is_ref,
-						(*i)->val
-						)));
+		pieces->push_back(
+			new Eval_expr(
+				new Assignment(
+					new Variable (
+						NULL,
+						var->variable_name->clone(),
+						new List<Expr*>(key)),
+					(*i)->is_ref,
+					(*i)->val)));
 	}
 
-	return new Variable (
-			NULL,
-			var->variable_name->clone (),
-			new List<Expr*>());
+	return new Variable (var->variable_name->clone ());
 }
 
 Expr* Shredder::post_op_assignment(Op_assignment* in)

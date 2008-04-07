@@ -16,6 +16,7 @@ String* fresh(string prefix);
 namespace AST
 {
 	AST::Variable* fresh_var (string prefix);
+	AST::VARIABLE_NAME* fresh_var_name (string prefix);
 }
 
 namespace HIR

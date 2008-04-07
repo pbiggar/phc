@@ -307,7 +307,7 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 }
 void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	index_lhs (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
+	index_lhs (scope, zvp, new Variable (var_name));
 }
 
 
@@ -410,7 +410,7 @@ void read (Scope scope, string zvp, Expr* expr)
 
 void read (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	read (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
+	read (scope, zvp, new Variable (var_name));
 }
 
 
@@ -655,12 +655,11 @@ protected:
 
 					Statement* assign_default_values = 
 						new Eval_expr (
-								new Assignment (
-									new Variable (
-										NULL,
-										(*i)->var->variable_name->clone (),
-										new List<VARIABLE_NAME*>),
-									false, (*i)->var->expr->clone ()));
+							new Assignment (
+								new Variable (
+									(*i)->var->variable_name->clone ()),
+								false, 
+								(*i)->var->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";

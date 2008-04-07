@@ -8,14 +8,15 @@
  */
 
 #include "Goto_uppering.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
 Goto_uppering::Goto_uppering ()
 {
-	next = new Variable (NULL, new VARIABLE_NAME (new String ("__next")), new List<Expr*>);
-	start = new STRING (new String ("start"));
-	end = new STRING (new String ("end"));
+	next = new Variable (new VARIABLE_NAME (s("__next")));
+	start = new STRING (s("start"));
+	end = new STRING (s("end"));
 }
 
 /* We dont want to run this on all statement bodies in the traversal order.  So

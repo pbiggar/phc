@@ -99,9 +99,7 @@ void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		{
 			cdebug << "rhs is replacable" << endl;
 			replaceable [srhs]->variable = new Variable (
-				NULL, 
-				new VARIABLE_NAME (s(slhs)), 
-				new List<Expr*>);
+				new VARIABLE_NAME (s(slhs)));
 
 			// note lack of out->push_back (in);
 			iterate_again = true;

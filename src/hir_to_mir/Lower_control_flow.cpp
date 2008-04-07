@@ -179,7 +179,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	loop->statements->push_back (
 		new Eval_expr (
 			new Assignment (
-				new Variable (NULL, has_key, new List<Expr*>),
+				new Variable (has_key),
 				false, 
 				new Foreach_has_key (
 					array_name->clone (),
@@ -511,11 +511,6 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 }
 
 
-Variable* var_name_to_var (VARIABLE_NAME* var_name)
-{
-	return new Variable (NULL, var_name, new List<Expr*>);
-}
-
 /* Transform:
  *		break $x;
  *	into:
@@ -594,7 +589,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		out->push_back (
 			new Eval_expr (
 				new Assignment (
-					var_name_to_var (lhs), // TODO: remove var_name_to_var when changing IR definition
+					new Variable (lhs),
 					false, 
 					in->expr)));
 

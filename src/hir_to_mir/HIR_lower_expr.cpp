@@ -64,52 +64,41 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
  * If the node is marked "phc.hir_lower_expr.no_temp", eval simply returns in.
  */
 
-// TODO we ignore the results of Annotate here, even though they're relevant
 Expr* Lower_expr::eval(Expr* in)
 {
-	// TODO what if its already a var
-	if(in->attrs->is_true("phc.hir_lower_expr.no_temp"))
-	{
-		assert (false);
-		return in;
-	}
-	else
-	{
-		Variable* temp = fresh_var("TLE"); 
-		eval(in, temp);
-		return temp;
-	}
+	Variable* temp = fresh_var("TLE"); 
+	eval(in, temp);
+	return temp;
 }
 
 // Variation on eval that takes in the name of the temp
 void Lower_expr::eval(Expr* in, Variable* temp)
 {
-	pieces->push_back(new Eval_expr(new Assignment(temp->clone (), false, in->clone ())));
+	pieces->push_back(
+		new Eval_expr(
+			new Assignment(
+				temp->clone (), 
+				false, 
+				in->clone ())));
 }
 
 
 VARIABLE_NAME* Lower_expr::eval_var(Expr* in)
 {
-	if(in->attrs->is_true("phc.hir_lower_expr.no_temp"))
-	{
-		// TODO
-		assert (false); 
-		return NULL;
-	}
-	else
-	{
-		VARIABLE_NAME* temp = fresh_var_name("TLE"); 
-		eval_var(in, temp);
-		return temp;
-	}
+	VARIABLE_NAME* temp = fresh_var_name("TLE"); 
+	eval_var(in, temp);
+	return temp;
 }
 
 void Lower_expr::eval_var(Expr* in, VARIABLE_NAME* temp)
 {
-	pieces->push_back(new Eval_expr(new Assignment(
-		new Variable (NULL, temp->clone (), new List<Expr*>),
-		false, 
-		in->clone ())));
+	pieces->push_back(
+		new Eval_expr(
+			new Assignment(
+				new Variable (
+					temp->clone ()),
+					false, 
+					in->clone ())));
 }
 
 

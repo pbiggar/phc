@@ -61,29 +61,17 @@ String* fresh (string prefix)
 
 namespace AST
 {
-
 	Variable* fresh_var(string prefix)
 	{
-		Variable* var = new Variable (
-				NULL, 
-				new VARIABLE_NAME (fresh (prefix)), 
-				new List<Expr*>
-				);
-
-		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
-		var->variable_name->attrs->set_true ("phc.codegen.compiler_generated");
-		return var;
+		return new Variable (fresh_var_name (prefix));
 	}
 
-	HT_ITERATOR* fresh_iter ()
+	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		return new HT_ITERATOR (fresh_suffix ("I"));
-	}
-
-	Label* fresh_label ()
-	{
-		return new Label (
-				new LABEL_NAME (fresh("L")));
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		result->attrs->set_true ("phc.codegen.st_entry_not_required");
+		result->attrs->set_true ("phc.codegen.compiler_generated");
+		return result;
 	}
 }
 
@@ -92,11 +80,7 @@ namespace HIR
 {
 	Variable* fresh_var(string prefix)
 	{
-		return new Variable (
-				NULL,
-				fresh_var_name (prefix),
-				new List<Expr*>
-				);
+		return new Variable (fresh_var_name (prefix));
 	}
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
