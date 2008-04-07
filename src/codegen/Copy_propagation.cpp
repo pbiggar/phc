@@ -98,8 +98,7 @@ void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 				&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
 		{
 			cdebug << "rhs is replacable" << endl;
-			replaceable [srhs]->variable = new Variable (
-				new VARIABLE_NAME (s(slhs)));
+			replaceable [srhs]->variable = new Variable (lhs->clone ());
 
 			// note lack of out->push_back (in);
 			iterate_again = true;
