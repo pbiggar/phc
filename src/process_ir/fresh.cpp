@@ -90,18 +90,13 @@ namespace AST
 
 namespace HIR
 {
-
 	Variable* fresh_var(string prefix)
 	{
-		Variable* var = new Variable (
-				NULL, 
-				new VARIABLE_NAME (fresh (prefix)), 
+		return new Variable (
+				NULL,
+				fresh_var_name (prefix),
 				new List<Expr*>
 				);
-
-		var->variable_name->attrs->set_true ("phc.codegen.st_entry_not_required");
-		var->variable_name->attrs->set_true ("phc.codegen.compiler_generated");
-		return var;
 	}
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
