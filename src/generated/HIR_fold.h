@@ -305,8 +305,8 @@ public:
 
 	virtual _Foreach fold_foreach(Foreach* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_Variable key = 0;
 		if(in->key != NULL) key = fold_variable(in->key);
 		bool is_ref = in->is_ref;
@@ -321,7 +321,7 @@ public:
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
 		}
-		return fold_impl_foreach(in, expr, key, is_ref, val, statements);
+		return fold_impl_foreach(in, variable_name, key, is_ref, val, statements);
 	}
 
 	virtual _Break fold_break(Break* in)
@@ -700,7 +700,7 @@ public:
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
 	virtual _If fold_impl_if(If* orig, _VARIABLE_NAME variable_name, List<_Statement>* iftrue, List<_Statement>* iffalse) { assert(0); };
 	virtual _Loop fold_impl_loop(Loop* orig, List<_Statement>* statements) { assert(0); };
-	virtual _Foreach fold_impl_foreach(Foreach* orig, _Expr expr, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
+	virtual _Foreach fold_impl_foreach(Foreach* orig, _VARIABLE_NAME variable_name, _Variable key, bool is_ref, _Variable val, List<_Statement>* statements) { assert(0); };
 	virtual _Break fold_impl_break(Break* orig, _Expr expr) { assert(0); };
 	virtual _Continue fold_impl_continue(Continue* orig, _Expr expr) { assert(0); };
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };

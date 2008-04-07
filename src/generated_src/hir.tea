@@ -72,7 +72,7 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
 
 If ::= VARIABLE_NAME iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
-Foreach ::= Expr key:Variable? is_ref:"&"? val:Variable Statement* ;
+Foreach ::= VARIABLE_NAME key:Variable? is_ref:"&"? val:Variable Statement* ;
 
 Break ::= Expr? ;
 Continue ::= Expr? ;

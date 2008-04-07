@@ -141,12 +141,11 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 }
 
 /* Convert 
- *   foreach (expr() as $key => $value)
+ *   foreach ($arr as $key => $value)
  *   {
  *		 ...;
  *   }
  * into
- *		$array = expr ();
  *		foreach_reset ($arr, iter); 
  *		loop()
  *		{
@@ -164,20 +163,7 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
- 	// $array = expr (); (only is array is not var)
-	Variable* array = dynamic_cast<Variable*> (in->expr); 
-	if (array == NULL || array->is_simple_variable ())
-	{
-		array = fresh_var ("LCF_ARRAY_");
-		out->push_back (
-			new Eval_expr (
-				new Assignment (
-					array , 
-					false, 
-					in->expr)));
-	}
-	VARIABLE_NAME*	array_name = dynamic_cast<VARIABLE_NAME*> (array->variable_name);
-
+	VARIABLE_NAME*	array_name = in->variable_name;
 
 	// foreach_reset ($arr, iter); 
 	HT_ITERATOR* iter = fresh_iter ();

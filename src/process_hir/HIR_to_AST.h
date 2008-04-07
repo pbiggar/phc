@@ -319,10 +319,10 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::Expr* expr, AST::Variable* key, bool is_ref, AST::Variable* val, List<AST::Statement*>* statements)
+	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::VARIABLE_NAME* expr, AST::Variable* key, bool is_ref, AST::Variable* val, List<AST::Statement*>* statements)
 	{
 		AST::Foreach* result;
-		result = new AST::Foreach(expr, key, is_ref, val, statements);
+		result = new AST::Foreach(wrap_var_name (expr), key, is_ref, val, statements);
 		result->attrs = orig->attrs;
 		return result;
 	}

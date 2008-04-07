@@ -128,13 +128,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Foreach"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	Variable* key = dynamic_cast<Variable*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Variable* val = dynamic_cast<Variable*>(*i++);
     	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
     	assert(i == args->end());
-    	return new Foreach(expr, key, is_ref, val, statements);
+    	return new Foreach(variable_name, key, is_ref, val, statements);
     }
     if(!strcmp(type_id, "Break"))
     {

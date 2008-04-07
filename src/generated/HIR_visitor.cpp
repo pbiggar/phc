@@ -698,7 +698,7 @@ void Visitor::children_loop(Loop* in)
 
 void Visitor::children_foreach(Foreach* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_variable(in->key);
     visit_marker("is_ref", in->is_ref);
     visit_variable(in->val);

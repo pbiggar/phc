@@ -801,15 +801,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach ::= Expr key:Variable? is_ref:"&" val:Variable Statement* ;
+// Foreach ::= VARIABLE_NAME key:Variable? is_ref:"&" val:Variable Statement* ;
 class Foreach : virtual public Statement
 {
 public:
-    Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements);
+    Foreach(VARIABLE_NAME* variable_name, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements);
 protected:
     Foreach();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
     Variable* key;
     bool is_ref;
     Variable* val;

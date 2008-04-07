@@ -731,7 +731,7 @@ void Transform::children_loop(Loop* in)
 
 void Transform::children_foreach(Foreach* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
     in->key = transform_variable(in->key);
     in->val = transform_variable(in->val);
     in->statements = transform_statement_list(in->statements);
