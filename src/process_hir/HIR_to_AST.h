@@ -97,7 +97,10 @@ class HIR_to_AST : public HIR::Fold
 {
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
 	{
-		return new AST::Variable (NULL, var_name, new List<AST::Expr*>);
+		if (var_name == NULL)
+			return NULL;
+
+		return new AST::Variable (var_name);
 	}
 
 	AST::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<AST::Statement*>* statements) 
@@ -413,26 +416,32 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, AST::Expr* expr, AST::Class_name* class_name) 
+	AST::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, AST::VARIABLE_NAME* variable_name, AST::Class_name* class_name) 
 	{
 		AST::Instanceof* result;
-		result = new AST::Instanceof(expr, class_name);
+		result = new AST::Instanceof(wrap_var_name (variable_name), class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
+		List<AST::Expr*>* exprs = new List<AST::Expr*>;
+		for_lci (array_indices, AST::VARIABLE_NAME, i)
+		{
+			exprs->push_back (wrap_var_name (*i));
+		}
+
 		AST::Variable* result;
-		result = new AST::Variable(target, variable_name, array_indices);
+		result = new AST::Variable(target, variable_name, exprs);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Reflection* fold_impl_reflection(HIR::Reflection* orig, AST::Expr* expr) 
+	AST::Reflection* fold_impl_reflection(HIR::Reflection* orig, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Reflection* result;
-		result = new AST::Reflection (expr);
+		result = new AST::Reflection (wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}

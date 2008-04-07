@@ -554,11 +554,11 @@ public:
 
 	virtual _Instanceof fold_instanceof(Instanceof* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_Class_name class_name = 0;
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		return fold_impl_instanceof(in, expr, class_name);
+		return fold_impl_instanceof(in, variable_name, class_name);
 	}
 
 	virtual _Variable fold_variable(Variable* in)
@@ -567,13 +567,13 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_Expr>* array_indices = 0;
+		List<_VARIABLE_NAME>* array_indices = 0;
 	
 		{
-			array_indices = new List<_Expr>;
-			List<Expr*>::const_iterator i;
+			array_indices = new List<_VARIABLE_NAME>;
+			List<VARIABLE_NAME*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
-				if(*i != NULL) array_indices->push_back(fold_expr(*i));
+				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
 				else array_indices->push_back(0);
 		}
 		return fold_impl_variable(in, target, variable_name, array_indices);
@@ -581,9 +581,9 @@ public:
 
 	virtual _Reflection fold_reflection(Reflection* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_reflection(in, expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_reflection(in, variable_name);
 	}
 
 	virtual _Pre_op fold_pre_op(Pre_op* in)
@@ -705,9 +705,9 @@ public:
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
-	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _Expr expr, _Class_name class_name) { assert(0); };
-	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, List<_Expr>* array_indices) { assert(0); };
-	virtual _Reflection fold_impl_reflection(Reflection* orig, _Expr expr) { assert(0); };
+	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
+	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
+	virtual _Reflection fold_impl_reflection(Reflection* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _Variable variable) { assert(0); };
 	virtual _Array fold_impl_array(Array* orig, List<_Array_elem>* array_elems) { assert(0); };
 	virtual _Array_elem fold_impl_array_elem(Array_elem* orig, _Expr key, bool is_ref, _Expr val) { assert(0); };

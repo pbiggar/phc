@@ -135,7 +135,7 @@ Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
 Target ::= Expr | CLASS_NAME ;
--- Target ::= VARIABLE_NAME | CLASS_NAME;
+-- Target ::= VARIABLE_NAME | CLASS_NAME ;
 
 Pre_op ::= OP Variable ;
 
@@ -145,7 +145,6 @@ Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
 
--- Actual_parameter ::= is_ref:"&"? Expr ;
 Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NAME?* ;
 
 New ::= Class_name Actual_parameter* ;

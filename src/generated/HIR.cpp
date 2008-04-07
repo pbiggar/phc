@@ -4083,14 +4083,14 @@ Expr::Expr()
 {
 }
 
-Reflection::Reflection(Expr* expr)
+Reflection::Reflection(VARIABLE_NAME* variable_name)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Reflection::Reflection()
 {
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Reflection::visit(Visitor* visitor)
@@ -4118,12 +4118,12 @@ bool Reflection::match(Node* in)
     Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -4134,12 +4134,12 @@ bool Reflection::equals(Node* in)
     Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -4148,16 +4148,16 @@ bool Reflection::equals(Node* in)
 
 Reflection* Reflection::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Reflection* clone = new Reflection(expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Reflection* clone = new Reflection(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Reflection::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -5775,15 +5775,15 @@ void Constant::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Instanceof::Instanceof(Expr* expr, Class_name* class_name)
+Instanceof::Instanceof(VARIABLE_NAME* variable_name, Class_name* class_name)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
     this->class_name = class_name;
 }
 
 Instanceof::Instanceof()
 {
-    this->expr = 0;
+    this->variable_name = 0;
     this->class_name = 0;
 }
 
@@ -5812,12 +5812,12 @@ bool Instanceof::match(Node* in)
     Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     if(this->class_name == NULL)
@@ -5836,12 +5836,12 @@ bool Instanceof::equals(Node* in)
     Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -5858,23 +5858,23 @@ bool Instanceof::equals(Node* in)
 
 Instanceof* Instanceof::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
     Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Instanceof* clone = new Instanceof(expr, class_name);
+    Instanceof* clone = new Instanceof(variable_name, class_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Instanceof::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     assert(class_name != NULL);
     class_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name, List<Expr*>* array_indices)
+Variable::Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
 {
     this->target = target;
     this->variable_name = variable_name;
@@ -5931,7 +5931,7 @@ bool Variable::match(Node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -5980,7 +5980,7 @@ bool Variable::equals(Node* in)
     }
     else
     {
-    	List<Expr*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -6006,11 +6006,11 @@ Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Expr*>* array_indices = NULL;
+    List<VARIABLE_NAME*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i;
-    	array_indices = new List<Expr*>;
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	array_indices = new List<VARIABLE_NAME*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -6026,7 +6026,7 @@ void Variable::assert_valid()
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<Expr*>::const_iterator i;
+    	List<VARIABLE_NAME*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -6040,7 +6040,7 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new List<VARIABLE_NAME*>;
 	}
 }
 
@@ -6444,23 +6444,21 @@ void Method_invocation::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Method_invocation::Method_invocation(const char* name, Expr* arg)
+Method_invocation::Method_invocation(const char* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 
-Method_invocation::Method_invocation(METHOD_NAME* name, Expr* arg)
+Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 

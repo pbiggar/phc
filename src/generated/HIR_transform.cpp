@@ -859,7 +859,7 @@ void Transform::children_constant(Constant* in)
 
 void Transform::children_instanceof(Instanceof* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
     in->class_name = transform_class_name(in->class_name);
 }
 
@@ -867,12 +867,12 @@ void Transform::children_variable(Variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->array_indices = transform_expr_list(in->array_indices);
+    in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
 void Transform::children_reflection(Reflection* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_pre_op(Pre_op* in)
@@ -1453,17 +1453,17 @@ Target* Transform::transform_target(Target* in)
     return out;
 }
 
-List<Expr*>* Transform::transform_expr_list(List<Expr*>* in)
+List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME*>* in)
 {
-    List<Expr*>::const_iterator i;
-    List<Expr*>* out = new List<Expr*>;
+    List<VARIABLE_NAME*>::const_iterator i;
+    List<VARIABLE_NAME*>* out = new List<VARIABLE_NAME*>;
     
     if(in == NULL)
     	return NULL;
     
     for(i = in->begin(); i != in->end(); i++)
     {
-    	out->push_back(transform_expr(*i));
+    	out->push_back(transform_variable_name(*i));
     }
     
     return out;

@@ -146,11 +146,11 @@ Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ;
 
 Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
-Instanceof ::= Expr Class_name ;
+Instanceof ::= VARIABLE_NAME Class_name ;
 
-Variable ::= Target? Variable_name array_indices:Expr?* ;
+Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ;
 Variable_name ::= VARIABLE_NAME | Reflection ;
-Reflection ::= Expr ;
+Reflection ::= VARIABLE_NAME ;
 
 Target ::= Expr | CLASS_NAME ;
 -- Target ::= VARIABLE_NAME | CLASS_NAME;
@@ -163,7 +163,7 @@ Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
 
--- Actual_parameter ::= is_ref:"&"? Expr ;
+-- Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NAME?* ;
 Actual_parameter ::= is_ref:"&"? Expr ;
 
 New ::= Class_name Actual_parameter* ;
@@ -374,7 +374,7 @@ public:
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new List<VARIABLE_NAME*>;
 	}
 
 	bool is_simple_variable ()
@@ -389,20 +389,18 @@ public:
 class Method_invocation
 {
 public:
-	Method_invocation(const char* name, Expr* arg) 
+	Method_invocation(const char* name, Actual_parameter* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 
-	Method_invocation(METHOD_NAME* name, Expr* arg) 
+	Method_invocation(METHOD_NAME* name, Actual_parameter* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 };
 

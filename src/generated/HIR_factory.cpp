@@ -303,24 +303,24 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Instanceof"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
     	assert(i == args->end());
-    	return new Instanceof(expr, class_name);
+    	return new Instanceof(variable_name, class_name);
     }
     if(!strcmp(type_id, "Variable"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<Expr*>* array_indices = dynamic_cast<List<Expr*>*>(*i++);
+    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
     	assert(i == args->end());
     	return new Variable(target, variable_name, array_indices);
     }
     if(!strcmp(type_id, "Reflection"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Reflection(expr);
+    	return new Reflection(variable_name);
     }
     if(!strcmp(type_id, "Pre_op"))
     {
@@ -448,11 +448,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Expr_list"))
+    if(!strcmp(type_id, "VARIABLE_NAME_list"))
     {
-    	List<Expr*>* list = new List<Expr*>;
+    	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Expr*>(*i++));
+    		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Array_elem_list"))

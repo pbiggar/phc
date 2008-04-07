@@ -832,7 +832,7 @@ void Visitor::children_constant(Constant* in)
 
 void Visitor::children_instanceof(Instanceof* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_class_name(in->class_name);
 }
 
@@ -840,12 +840,12 @@ void Visitor::children_variable(Variable* in)
 {
     visit_target(in->target);
     visit_variable_name(in->variable_name);
-    visit_expr_list(in->array_indices);
+    visit_variable_name_list(in->array_indices);
 }
 
 void Visitor::children_reflection(Reflection* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_pre_op(Pre_op* in)
@@ -2261,22 +2261,22 @@ void Visitor::visit_target(Target* in)
     }
 }
 
-void Visitor::visit_expr_list(List<Expr*>* in)
+void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
 {
-    List<Expr*>::const_iterator i;
+    List<VARIABLE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR", "Expr");
+    	visit_null_list("HIR", "VARIABLE_NAME");
     else
     {
-    	pre_list("HIR", "Expr", in->size());
+    	pre_list("HIR", "VARIABLE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
-    		visit_expr(*i);
+    		visit_variable_name(*i);
     	}
     
-    	post_list("HIR", "Expr", in->size());
+    	post_list("HIR", "VARIABLE_NAME", in->size());
     }
 }
 

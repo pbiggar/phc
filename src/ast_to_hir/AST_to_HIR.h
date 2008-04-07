@@ -469,15 +469,20 @@ class AST_to_HIR : public AST::Fold
 	HIR::Instanceof* fold_impl_instanceof(AST::Instanceof* orig, HIR::Expr* expr, HIR::Class_name* class_name) 
 	{
 		HIR::Instanceof* result;
-		result = new HIR::Instanceof(expr, class_name);
+		result = new HIR::Instanceof(expr_to_var_name (expr), class_name);
 		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Target* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
 	{
+		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
+		for_lci (array_indices, HIR::Expr, i)
+		{
+			var_names->push_back (expr_to_var_name (*i));
+		}
 		HIR::Variable* result;
-		result = new HIR::Variable(target, variable_name, array_indices);
+		result = new HIR::Variable(target, variable_name, var_names);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -485,7 +490,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
 	{
 		HIR::Reflection* result;
-		result = new HIR::Reflection (expr);
+		result = new HIR::Reflection (expr_to_var_name (expr));
 		copy_attrs (result, orig);
 		return result;
 	}

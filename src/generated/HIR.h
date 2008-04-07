@@ -1179,15 +1179,15 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Reflection ::= Expr ;
+// Reflection ::= VARIABLE_NAME ;
 class Reflection : virtual public Variable_name, virtual public Method_name, virtual public Class_name
 {
 public:
-    Reflection(Expr* expr);
+    Reflection(VARIABLE_NAME* variable_name);
 protected:
     Reflection();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1672,15 +1672,15 @@ public:
     virtual void assert_valid();
 };
 
-// Instanceof ::= Expr Class_name ;
+// Instanceof ::= VARIABLE_NAME Class_name ;
 class Instanceof : virtual public Expr
 {
 public:
-    Instanceof(Expr* expr, Class_name* class_name);
+    Instanceof(VARIABLE_NAME* variable_name, Class_name* class_name);
 protected:
     Instanceof();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
     Class_name* class_name;
 public:
     virtual void visit(Visitor* visitor);
@@ -1698,17 +1698,17 @@ public:
     virtual void assert_valid();
 };
 
-// Variable ::= Target? Variable_name array_indices:Expr?* ;
+// Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ;
 class Variable : virtual public Expr
 {
 public:
-    Variable(Target* target, Variable_name* variable_name, List<Expr*>* array_indices);
+    Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices);
 protected:
     Variable();
 public:
     Target* target;
     Variable_name* variable_name;
-    List<Expr*>* array_indices;
+    List<VARIABLE_NAME*>* array_indices;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1807,8 +1807,8 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Method_invocation(const char* name, Expr* arg);
-    Method_invocation(METHOD_NAME* name, Expr* arg);
+    Method_invocation(const char* name, Actual_parameter* arg);
+    Method_invocation(METHOD_NAME* name, Actual_parameter* arg);
 };
 
 // New ::= Class_name Actual_parameter* ;
