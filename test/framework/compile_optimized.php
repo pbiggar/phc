@@ -26,7 +26,7 @@ class CompileOptimized extends CompiledVsInterpreted
 	function get_php_command ($subject)
 	{
 		global $phc;
-		return "$phc -O3 --udump=AST-to-HIR $subject | ". get_php_command_line ("");
+		return "$phc -O3 --dump=sua $subject | ". get_php_command_line ("");
 	}
 }
 
