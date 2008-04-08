@@ -1,0 +1,68 @@
+# HTTP server information
+httpd_hostname = sci23
+httpd_port = 80
+
+# C/JDBC server to monitor (if any)
+cjdbc_hostname =
+
+# Precise which version to use. Valid options are : PHP, Servlets, EJB
+httpd_use_version = Servlets
+
+# EJB server information
+ejb_server =
+ejb_html_path =
+ejb_script_path =
+
+# Servlets server information
+servlets_server = sci21 
+servlets_html_path = /Servlet_HTML
+servlets_script_path = /servlet
+
+# PHP information
+php_html_path = /PHP
+php_script_path = /PHP
+
+#Database information
+database_server = sci22
+
+# Workload: precise which transition table to use
+workload_remote_client_nodes =
+workload_remote_client_command = /usr/local/jdk1.3.1/bin/java -classpath RUBBoS edu.rice.rubbos.client.ClientEmulator
+workload_number_of_clients_per_node = 200
+
+workload_user_transition_table = /users/cecchet/RUBBoS/workload/user_transitions.txt
+workload_author_transition_table = /users/cecchet/RUBBoS/workload/author_transitions.txt
+workload_number_of_columns = 24
+workload_number_of_rows = 26
+workload_maximum_number_of_transitions = 1000
+workload_use_tpcw_think_time = yes
+workload_number_of_stories_per_page = 20
+workload_up_ramp_time_in_ms = 150000
+workload_up_ramp_slowdown_factor = 2
+workload_session_run_time_in_ms = 900000
+workload_down_ramp_time_in_ms = 150000
+workload_down_ramp_slowdown_factor = 3
+workload_percentage_of_author = 10
+
+# Users policy
+database_number_of_authors = 50
+database_number_of_users = 500000
+
+# Stories policy
+database_story_dictionnary = /users/cecchet/RUBBoS/database/dictionary
+database_story_maximum_length = 1024
+database_oldest_story_year = 1998
+database_oldest_story_month = 1
+
+# Comments policy
+database_comment_max_length = 1024
+
+
+# Monitoring Information
+monitoring_debug_level = 0
+monitoring_program = /usr/bin/sar
+monitoring_options = -n DEV -n SOCK -rubcw
+monitoring_sampling_in_seconds = 1
+monitoring_rsh = /usr/bin/rsh
+monitoring_scp = /usr/bin/scp
+monitoring_gnuplot_terminal = gif
