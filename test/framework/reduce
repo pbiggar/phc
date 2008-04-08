@@ -273,6 +273,14 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		return false;
 	}
 
+	debug (2, "Checking syntax errors");
+	list ($php_out, $php_err, $php_exit) = run ("php -l", $unew_program);
+	if ($php_exit || $php_err) // if the reduced case causes a PHP error, ignore.
+	{
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
+		return false;
+	}
+
 	# do this all here to avoid littering the function with it
 	if ($opt_failure)
 	{
@@ -294,11 +302,6 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	# Run through PHP
 	debug (2, "Getting PHP output");
 	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
-	if ($php_err || $php_exit) // if the reduced case causes a PHP error, ignore.
-	{
-		debug (1, "Error running through PHP. Skip.");
-		return false;
-	}
 	$php_out = homogenize_all ($php_out);
 	dump ("$filename.php_out_$id", $php_out);
 
@@ -333,21 +336,25 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		else $phc_error = true;
 	}
 
-	if ($php_out === "Timeout" || $my_out === "Timeout")
+	if (!$phc_error)
 	{
-		debug (1, "phc error. Skip.");
-		return false;
+		if ($php_out === "Timeout" || $my_out === "Timeout")
+		{
+			debug (1, "phc error. Skip.");
+			return false;
+		}
+
+		if ($php_err === "Timeout") # if my_err is timeout, we've kept the bug in
+		{
+			debug (1, "Timeouts. Skip.");
+			return false;
+		}
 	}
 
-	if ($php_err === "Timeout") # if my_err is timeout, we've kept the bug in
-	{
-		debug (1, "Timeouts. Skip.");
-		return false;
-	}
-
-	if (		($php_err !== $my_err)
-			|| ($php_exit !== $my_exit)
-			|| ($php_out !== $my_out)) // success, we've reduced it while keeping the bug in
+	if (  $phc_error
+		|| $php_err !== $my_err
+		|| $php_exit !== $my_exit
+		|| $php_out !== $my_out) // success, we've reduced it while keeping the bug in
 	{
 		debug (2, "Success, bug kept in");
 		dump ("$filename.xsuccess_$id", $xnew_program);
