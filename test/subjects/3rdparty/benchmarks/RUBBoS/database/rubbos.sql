@@ -1,4 +1,4 @@
-CREATE Database rubbos;
+CREATE DATABASE rubbos;
 connect rubbos;
 
 CREATE TABLE categories (
