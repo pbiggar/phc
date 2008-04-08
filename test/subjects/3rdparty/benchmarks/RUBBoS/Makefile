@@ -8,15 +8,15 @@
 #    Environment variables   #
 ##############################
 
-JAVA  = /usr/java/jdk1.3.1/bin/java
+JAVA  = /usr/bin/java
 # JAVAC = /usr/java/jdk1.3.1/bin/javac
 JAVAC = /usr/bin/jikes
 JAVACOPTS = +E -deprecation
 JAVACC = $(JAVAC) $(JAVACOPTS)
-RMIC = /usr/java/jdk1.3.1/bin/rmic
-RMIREGISTRY= /usr/java/jdk1.3.1/bin/rmiregistry 
+RMIC = /usr/bin/rmic
+RMIREGISTRY= /usr/bin/rmiregistry
 CLASSPATH = .:/usr/java/j2sdkee1.3/lib/j2ee.jar:/usr/java/jdk1.3.1/jre/lib/rt.jar:/opt/jakarta-tomcat-3.2.3/lib/servlet.jar
-JAVADOC = /usr/java/jdk1.3.1/bin/javadoc
+JAVADOC = /usr/bin/javadoc
 
 
 ####################
@@ -73,19 +73,29 @@ clean_servlets:
 #       Client     #
 ####################
 
-ClientFiles = URLGenerator URLGeneratorPHP RUBBoSProperties Stats \
-	      TransitionTable ClientEmulator UserSession 
+# This is a merge of the provided Client/Makefile and Makefile.
+
+ClientFiles = URLGenerator URLGeneratorServlets URLGeneratorPHP RUBBoSProperties Stats \
+	      TransitionTable ClientEmulator UserSession  ../beans/TimeManagement
 
 all_client_sources =  $(addprefix edu/rice/rubbos/client/, $(addsuffix .java, $(ClientFiles)))
-all_client_obj = $(addprefix edu/rice/rubbos/client/, $(addsuffix .class, $(ClientFiles))) edu/rice/rubbos/beans/TimeManagement.class
+# this suffix wasnt in Client/Makefile
+#all_client_obj = $(addprefix edu/rice/rubbos/client/, $(addsuffix .class, $(ClientFiles))) edu/rice/rubbos/beans/TimeManagement.class
+all_client_obj = $(addprefix edu/rice/rubbos/client/, $(addsuffix .class, $(ClientFiles)))
 
 client: $(all_client_obj)
+	${JAR} cvf rubbos_client.jar $(all_client_obj)
 
 initDB:
 	${JAVA} -classpath .:./database edu.rice.rubbos.client.InitDB ${PARAM}
 
+#from Client/Makefile
+#all: client
+
 emulator:
 	${JAVA} -classpath . edu.rice.rubbos.client.ClientEmulator
+# from Client makefile
+#	${JAVA} -Xmx256m -Xms128m -server -classpath . edu.rice.rubbos.client.ClientEmulator
 
 
 ############################

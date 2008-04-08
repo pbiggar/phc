@@ -2,10 +2,9 @@
 #    Environment variables   #
 ##############################
 
+JAVA_HOME=/usr
 JAVA  = $(JAVA_HOME)/bin/java
-# JAVAC = $(JAVA_HOME)/bin/javac
-JAVAC = /usr/local/bin/jikes
-JAVACOPTS = +E -deprecation
+JAVAC = $(JAVA_HOME)/bin/javac
 JAVACC = $(JAVAC) $(JAVACOPTS)
 RMIC = $(JAVA_HOME)/bin/rmic
 RMIREGISTRY= $(JAVA_HOME)/bin/rmiregistry

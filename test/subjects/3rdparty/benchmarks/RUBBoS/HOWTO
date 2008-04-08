@@ -1,3 +1,7 @@
+Version 1.2.2 from http://jmob.objectweb.org/rubbos.html doesn't work well for
+PHP. However, there seems to be a lot of changes since 1.0, so its best to port
+changes forward, rather than backwards (since the data is for 1.2.2).
+
 Note that this is designed for PHP4. It seems to work out of the box with PHP5.
 
 The following packages are used (debian/ubuntu):
@@ -6,15 +10,14 @@ The following packages are used (debian/ubuntu):
 	php5-mysql
 	mysql-server-5.0
 	mysql-client-5.0
+	tcsh
+	java
+	javac
 
 
 The following webpages provide documentation:
 
-	http://jmob.objectweb.org/rubbos.html 
-		- Poor documentation, main home page. Release 2.x dont have docs, look for release 1.0.
-
 	http://www.cs.rice.edu/CS/Systems/DynaServer/
-	http://www.cs.rice.edu/CS/Systems/DynaServer/RUBBoS/download.html
 		- Contains release 1.0, which includes the docs.
 
 	http://www.cs.rice.edu/CS/Systems/DynaServer/dyna_bottleneck.pdf
@@ -23,6 +26,19 @@ The following webpages provide documentation:
 
 
 Howto run the benchmark:
+
+Step 0 - get the benchmark and docs:
+
+	Download v1.2.2 from:
+		http://jmob.objectweb.org/rubbos.html
+
+	Download v1.0 from:
+		http://www.cs.rice.edu/CS/Systems/DynaServer/RUBBoS/download.html
+
+	We use 1.2.2, and port some changes from 1.0 where 1.2.2 breaks.
+
+	The docs are in the doc folder of the 1.0 download.
+
 
 Step 1 - get the webserver running:
 
@@ -64,4 +80,19 @@ Step 2 - Set up the databases
 		- On line 5 of PHPprinter.php, change 'cecchet' to 'rubbos'
 
 
+Step 3 - Build the client
 
+	Move edu/ to make the Makefiles work. From the base directory:
+		$ mv Client/edu .
+
+
+
+Step 4 - Run the test
+
+	Setup the workload files:
+
+	Modify the benchamrk script:
+		- 
+	Run the benchmark script from bench/
+		$ ./rubbos.sh
+		
