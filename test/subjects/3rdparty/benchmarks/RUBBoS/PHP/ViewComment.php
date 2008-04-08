@@ -20,7 +20,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
 	  {
 	    for ($i = 0 ; $i < $level ; $i++)
 	      printf(" &nbsp &nbsp &nbsp ");
-	    print("<a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["id"]."&filter=$filter&display=$display\">".$follow_row["subject"]."</a> by ".getUserName($follow_row["writer"], $link)." on ".$follow_row["date"]."<br>\n");
+	    print("<a href=\"ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["id"]."&filter=$filter&display=$display\">".$follow_row["subject"]."</a> by ".getUserName($follow_row["writer"], $link)." on ".$follow_row["date"]."<br>\n");
 	  }
 	else
 	  {
@@ -28,7 +28,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
 	    print("<TABLE bgcolor=\"#CCCCFF\"><TR>");
 	    for ($i = 0 ; $i < $level ; $i++)
 	      printf("<TD>&nbsp&nbsp&nbsp");
-	    print("<TD><FONT size=\"4\" color=\"#000000\"><B><a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["id"]."&filter=$filter&display=$display\">".$follow_row["subject"]."</a></B>&nbsp</FONT> (Score:".$follow_row["rating"].")</TABLE>\n");
+	    print("<TD><FONT size=\"4\" color=\"#000000\"><B><a href=\"ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["id"]."&filter=$filter&display=$display\">".$follow_row["subject"]."</a></B>&nbsp</FONT> (Score:".$follow_row["rating"].")</TABLE>\n");
 	    print("<TABLE>");
 	    for ($i = 0 ; $i < $level ; $i++)
 	      printf("<TD>&nbsp&nbsp&nbsp");
@@ -38,9 +38,9 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
 	    print("<TD>".$follow_row["comment"]."<TR>");
 	    for ($i = 0 ; $i < $level ; $i++)
 	      printf("<TD>&nbsp&nbsp&nbsp");
-	    print("<TD><p>[ <a href=\"/PHP/PostComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&parent=".$follow_row["id"]."\">Reply to this</a>".
-		  "&nbsp|&nbsp<a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["parent"].
-		  "&filter=$filter&display=$display\">Parent</a>&nbsp|&nbsp<a href=\"/PHP/ModerateComment.php?comment_table=$comment_table&commentId=".
+	    print("<TD><p>[ <a href=\"PostComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&parent=".$follow_row["id"]."\">Reply to this</a>".
+		  "&nbsp|&nbsp<a href=\"ViewComment.php?comment_table=$comment_table&storyId=".$follow_row["story_id"]."&commentId=".$follow_row["parent"].
+		  "&filter=$filter&display=$display\">Parent</a>&nbsp|&nbsp<a href=\"ModerateComment.php?comment_table=$comment_table&commentId=".
 		  $follow_row["id"]."\">Moderate</a> ]</TABLE><br>");
 	  }
       }
@@ -120,7 +120,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     printHTMLheader("RUBBoS: Viewing comments");
 
     // Display comment filter chooser
-    print("<center><form action=\"/PHP/ViewComment.php\" method=POST>\n".
+    print("<center><form action=\"ViewComment.php\" method=POST>\n".
           "<input type=hidden name=commentId value=$commentId>\n".
           "<input type=hidden name=storyId value=$storyId>\n".
           "<input type=hidden name=comment_table value=$comment_table>\n".
@@ -174,12 +174,12 @@ $comment = mysql_query("SELECT * FROM $comment_table WHERE story_id=$storyId AND
 	  $separator=true;
 	  print("<br><hr><br>");
 	  $username = getUserName($comment_row["writer"], $link);
-	  print("<TABLE width=\"100%\" bgcolor=\"#CCCCFF\"><TR><TD><FONT size=\"4\" color=\"#000000\"><B><a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=$storyId&commentId=".$comment_row["id"]."&filter=$filter&display=$display\">".$comment_row["subject"]."</a></B>&nbsp</FONT> (Score:".$comment_row["rating"].")</TABLE>\n");
+	  print("<TABLE width=\"100%\" bgcolor=\"#CCCCFF\"><TR><TD><FONT size=\"4\" color=\"#000000\"><B><a href=\"ViewComment.php?comment_table=$comment_table&storyId=$storyId&commentId=".$comment_row["id"]."&filter=$filter&display=$display\">".$comment_row["subject"]."</a></B>&nbsp</FONT> (Score:".$comment_row["rating"].")</TABLE>\n");
 	  print("<TABLE><TR><TD><B>Posted by ".$username." on ".$comment_row["date"]."</B><p>\n");
 	  print("<TR><TD>".$comment_row["comment"]);
-	  print("<TR><TD><p>[ <a href=\"/PHP/PostComment.php?comment_table=$comment_table&storyId=$storyId&parent=".$comment_row["id"]."\">Reply to this</a>&nbsp|&nbsp".
-		"<a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=$storyId&commentId=".$comment_row["parent"]."&filter=$filter&display=$display\">Parent</a>".
-		"&nbsp|&nbsp<a href=\"/PHP/ModerateComment.php?comment_table=$comment_table&commentId=".$comment_row["id"]."\">Moderate</a> ]</TABLE>\n");
+	  print("<TR><TD><p>[ <a href=\"PostComment.php?comment_table=$comment_table&storyId=$storyId&parent=".$comment_row["id"]."\">Reply to this</a>&nbsp|&nbsp".
+		"<a href=\"ViewComment.php?comment_table=$comment_table&storyId=$storyId&commentId=".$comment_row["parent"]."&filter=$filter&display=$display\">Parent</a>".
+		"&nbsp|&nbsp<a href=\"ModerateComment.php?comment_table=$comment_table&commentId=".$comment_row["id"]."\">Moderate</a> ]</TABLE>\n");
 	}
       if (($display > 0) &&($comment_row["childs"] > 0))
         display_follow_up($comment_row["id"], 1, $display, $filter, $link, $comment_table, $separator);

@@ -54,7 +54,7 @@
     {
       printHTMLheader("RUBBoS: Author page");
       print("<p><center><h2>Which administrative task do you want to do ?</h2></center>\n", 
-            "<p><p><a href=\"/PHP/ReviewStories.php?authorId=$userId\">Review submitted stories</a><br>\n");
+            "<p><p><a href=\"ReviewStories.php?authorId=$userId\">Review submitted stories</a><br>\n");
     }
 
     mysql_close($link);

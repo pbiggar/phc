@@ -40,7 +40,7 @@
 
     printHTMLheader("RUBBoS: Comment submission");
     print("<p><br><center><h2>Post a comment !</h2><br>\n".
-          "<form action=\"/PHP/StoreComment.php\" method=POST>\n".
+          "<form action=\"StoreComment.php\" method=POST>\n".
           "<input type=hidden name=storyId value=$storyId>\n".
           "<input type=hidden name=parent value=$parent>\n".
           "<input type=hidden name=comment_table value=$comment_table>\n".

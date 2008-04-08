@@ -1,29 +1,60 @@
-http://jmob.objectweb.org/rubbos.html 
-	Poor documentation, main home page. Release 2.x dont have docs, look for release 1.0.
+Note that this is designed for PHP4. It seems to work out of the box with PHP5.
 
-http://www.cs.rice.edu/CS/Systems/DynaServer/
-	Better documentation (included in doc/ of their release)
-
-http://www.cs.rice.edu/CS/Systems/DynaServer/RUBBoS/download.html
-	Release 1.0 includes the docs.
-
-http://www.cs.rice.edu/CS/Systems/DynaServer/dyna_bottleneck.pdf
-	Section 4 describes benchmarks utilization.
+The following packages are used (debian/ubuntu):
+	apache2
+	libapache2-mod-php5
+	php5-mysql
+	mysql-server-5.0
+	mysql-client-5.0
 
 
-Step 1:
+The following webpages provide documentation:
 
-	Get the data:
-		http://download.forge.objectweb.org/rubbos/rubbos-expanded-dataset.tar.bz2
+	http://jmob.objectweb.org/rubbos.html 
+		- Poor documentation, main home page. Release 2.x dont have docs, look for release 1.0.
 
-Step 2:
+	http://www.cs.rice.edu/CS/Systems/DynaServer/
+	http://www.cs.rice.edu/CS/Systems/DynaServer/RUBBoS/download.html
+		- Contains release 1.0, which includes the docs.
 
-	Get the webserver working:
-		- I put a symlink to the PHP directory from within ~/public_html, and access it at
-		  http://localhost/~me/RUBBoS
+	http://www.cs.rice.edu/CS/Systems/DynaServer/dyna_bottleneck.pdf
+		- Section 4 describes benchmarks utilization.
+		- There is another paper of this ilk.
 
 
+Howto run the benchmark:
 
-OK, so step 1 is setting up the server with PHP.
+Step 1 - get the webserver running:
 
-	
+	I put a symlink to the RUBBos directory from within ~/public_html, and access it at
+	http://localhost/~me/RUBBoS/
+
+	apache needs the php module, and PHP needs the mysql module. On ubuntu:
+		$ sudo a2enmod userdir
+		$ sudo a2enmod php5
+
+	None of the links work in this config, so they need to be patched. In the PHP/ directory:
+		$ sed -i 's!/PHP/!!g' *.php
+		$ sed -i 's!/PHP/!!g' *.html
+
+Step 2 - Set up the databases
+
+	Download the database:
+		- http://download.forge.objectweb.org/rubbos/rubbos-expanded-dataset.tar.bz2
+
+	Create a user for the database
+		- I created 'rubbos' with no password (I did this with phpmyadmin, not sure how to do
+		  otherwise).
+
+	The database directory has 3 files to set up the DB:
+		Create the tables and the DB.
+			- I created a DB rubbos when I created the user, so didn't need the first line of rubbos.sql.
+			$ mysql -u rubbos < rubbos.sql
+
+		Load the data from the downloaded, unzipped rubbos-expanded-dataset into the database.
+			- Need top change the filenames before executing.
+			$ mysql -u rubbos < load.sql
+
+		- test.sql
+			TODO, not sure yet.
+

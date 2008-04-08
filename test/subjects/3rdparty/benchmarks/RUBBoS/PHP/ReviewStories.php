@@ -22,7 +22,7 @@
       $username = getUserName($row["writer"], $link);
       print("<B>Posted by ".$username." on ".$row["date"]."</B><br>\n");
       print($row["body"]);
-      print("<br><p><center><B>[ <a href=\"/PHP/AcceptStory.php?storyId=".$row["id"]."\">Accept</a> | <a href=\"/PHP/RejectStory.php?storyId=".$row["id"]."\">Reject</a> ]</B><p>\n");
+      print("<br><p><center><B>[ <a href=\"AcceptStory.php?storyId=".$row["id"]."\">Accept</a> | <a href=\"RejectStory.php?storyId=".$row["id"]."\">Reject</a> ]</B><p>\n");
     }
     mysql_free_result($result);
     mysql_close($link);

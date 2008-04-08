@@ -19,7 +19,7 @@
     while ($row = mysql_fetch_array($result))
     {
       print("<br><hr>\n");
-      printHTMLHighlighted("<a href=\"/PHP/ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a>");
+      printHTMLHighlighted("<a href=\"ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a>");
       $username = getUserName($row["writer"], $link);
       print("<B>Posted by ".$username." on ".$row["date"]."</B><br>\n");
       if (strlen($row["body"]) > $bodySizeLimit)

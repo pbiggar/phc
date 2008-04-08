@@ -11,7 +11,7 @@
     printHTMLheader("RUBBoS: Story submission");
 
     print("<center><h2>Submit your incredible story !</h2><br>\n");
-    print("<form action=\"/PHP/StoreStory.php\" method=POST>\n".
+    print("<form action=\"StoreStory.php\" method=POST>\n".
           "<center><table>\n".
           "<tr><td><b>Nickname</b><td><input type=text size=20 name=nickname>\n".
           "<tr><td><b>Password</b><td><input type=text size=20 name=password>\n".

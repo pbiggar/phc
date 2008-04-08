@@ -39,7 +39,7 @@
     printHTMLheader("RUBBoS search");
 
     // Display the search form
-    print("<form action=\"/PHP/Search.php\" method=POST>\n".
+    print("<form action=\"Search.php\" method=POST>\n".
           "<center><table>\n".
           "<tr><td><b>Search</b><td><input type=text size=50 name=search value=$search>\n".
           "<tr><td><b>in</b><td><SELECT name=type>\n");
@@ -91,7 +91,7 @@
           else
           {
             print("<h2>Sorry, but there are no more stories available matching <i>$search</i>.</h2><br>\n");
-            print("<p><CENTER>\n<a href=\"/PHP/Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
+            print("<p><CENTER>\n<a href=\"Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
           }
           mysql_free_result($result);
           mysql_close($link);
@@ -115,7 +115,7 @@
           else
           {
             print("<h2>Sorry, but there are no more comments available matching <i>$search</i>.</h2><br>\n");
-            print("<p><CENTER>\n<a href=\"/PHP/Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
+            print("<p><CENTER>\n<a href=\"Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
           }
           mysql_free_result($result);
           mysql_close($link);
@@ -126,7 +126,7 @@
         {
           // Print the comment subject and author
           while ($row = mysql_fetch_array($result))
-            print("<a href=\"/PHP/ViewComment.php?comment_table=$comment_table&storyId=".$row["story_id"]."&commentId=".$row["id"]."&filter=0&display=0\">".$row["subject"]."</a> by ".getUserName($row["writer"], $link)." on ".$row["date"]."<br>\n");
+            print("<a href=\"ViewComment.php?comment_table=$comment_table&storyId=".$row["story_id"]."&commentId=".$row["id"]."&filter=0&display=0\">".$row["subject"]."</a> by ".getUserName($row["writer"], $link)." on ".$row["date"]."<br>\n");
         }
         
       }
@@ -142,7 +142,7 @@
           else
           {
             print("<h2>Sorry, but there are no more stories available with author matching <i>$search</i>.</h2><br>\n");
-            print("<p><CENTER>\n<a href=\"/PHP/Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
+            print("<p><CENTER>\n<a href=\"Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
           }
           mysql_free_result($result);
           mysql_close($link);
@@ -157,16 +157,16 @@
         while ($row = mysql_fetch_array($result))
         {
           $username = getUserName($row["writer"], $link);
-          print("<a href=\"/PHP/ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
+          print("<a href=\"ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
         }
       }
           
       // Previous/Next links
       if ($page == 0)
-        print("<p><CENTER>\n<a href=\"/PHP/Search.php?search=".urlencode($search)."&type=$type&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n</CENTER>\n");
+        print("<p><CENTER>\n<a href=\"Search.php?search=".urlencode($search)."&type=$type&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n</CENTER>\n");
       else
-        print("<p><CENTER>\n<a href=\"/PHP/Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n&nbsp&nbsp&nbsp".
-              "<a href=\"/PHP/Search.php?category=$search=".urlencode($search)."&type=$type&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n\n</CENTER>\n");
+        print("<p><CENTER>\n<a href=\"Search.php?search=".urlencode($search)."&type=$type&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n&nbsp&nbsp&nbsp".
+              "<a href=\"Search.php?category=$search=".urlencode($search)."&type=$type&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n\n</CENTER>\n");
       
       mysql_free_result($result);
       mysql_close($link);          

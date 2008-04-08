@@ -56,7 +56,7 @@
       else
       {
         print("<h2>Sorry, but there are no more stories available at this time.</h2><br>\n");
-        print("<p><CENTER>\n<a href=\"/PHP/BrowseStoriesByCategory.php?category=$categoryId".
+        print("<p><CENTER>\n<a href=\"BrowseStoriesByCategory.php?category=$categoryId".
               "&categoryName=".urlencode($categoryName)."&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
       }
       mysql_free_result($result);
@@ -69,17 +69,17 @@
     while ($row = mysql_fetch_array($result))
     {
       $username = getUserName($row["writer"], $link);
-      print("<a href=\"/PHP/ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
+      print("<a href=\"ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
     }
 
     // Previous/Next links
     if ($page == 0)
-      print("<p><CENTER>\n<a href=\"/PHP/BrowseStoriesByCategory.php?category=$categoryId".
+      print("<p><CENTER>\n<a href=\"BrowseStoriesByCategory.php?category=$categoryId".
            "&categoryName=".urlencode($categoryName)."&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n</CENTER>\n");
     else
-      print("<p><CENTER>\n<a href=\"/PHP/BrowseStoriesByCategory.php?category=$categoryId".
+      print("<p><CENTER>\n<a href=\"BrowseStoriesByCategory.php?category=$categoryId".
             "&categoryName=".urlencode($categoryName)."&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n&nbsp&nbsp&nbsp".
-            "<a href=\"/PHP/BrowseStoriesByCategory.php?category=$categoryId".
+            "<a href=\"BrowseStoriesByCategory.php?category=$categoryId".
             "&categoryName=".urlencode($categoryName)."&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n\n</CENTER>\n");
 
     mysql_free_result($result);

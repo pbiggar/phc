@@ -43,7 +43,7 @@
     printHTMLheader("RUBBoS Older Stories");
 
     // Display the date chooser
-    print("<form action=\"/PHP/OlderStories.php\" method=POST>\n");
+    print("<form action=\"OlderStories.php\" method=POST>\n");
     print("<center><B>Date (day/month/year):</B><SELECT name=day>\n");
     for ($i = 1 ; $i < 32 ; $i++)
       print("<OPTION value=\"$i\">$i</OPTION>\n");      
@@ -75,7 +75,7 @@
         else
         {
           print("<h2>Sorry, but there is no more stories available for this date.</h2><br>\n");
-          print("<p><CENTER>\n<a href=\"/PHP/OlderStories.php?day=$day&month=$month&year=$year&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
+          print("<p><CENTER>\n<a href=\"OlderStories.php?day=$day&month=$month&year=$year&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n</CENTER>\n");
         }
         mysql_free_result($result);
         mysql_close($link);
@@ -87,15 +87,15 @@
       while ($row = mysql_fetch_array($result))
       {
         $username = getUserName($row["writer"], $link);
-        print("<a href=\"/PHP/ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
+        print("<a href=\"ViewStory.php?storyId=".$row["id"]."\">".$row["title"]."</a> by ".$username." on ".$row["date"]."<br>\n");
       }
       
       // Previous/Next links
       if ($page == 0)
-        print("<p><CENTER>\n<a href=\"/PHP/OlderStories.php?day=$day&month=$month&year=$year&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n</CENTER>\n");
+        print("<p><CENTER>\n<a href=\"OlderStories.php?day=$day&month=$month&year=$year&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n</CENTER>\n");
       else
-        print("<p><CENTER>\n<a href=\"/PHP/OlderStories.php?day=$day&month=$month&year=$year&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n&nbsp&nbsp&nbsp".
-              "<a href=\"/PHP/OlderStories.php?category=$day=$day&month=$month&year=$year&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n\n</CENTER>\n");
+        print("<p><CENTER>\n<a href=\"OlderStories.php?day=$day&month=$month&year=$year&page=".($page-1)."&nbOfStories=$nbOfStories\">Previous page</a>\n&nbsp&nbsp&nbsp".
+              "<a href=\"OlderStories.php?category=$day=$day&month=$month&year=$year&page=".($page+1)."&nbOfStories=$nbOfStories\">Next page</a>\n\n</CENTER>\n");
       
       mysql_free_result($result);
       mysql_close($link);
