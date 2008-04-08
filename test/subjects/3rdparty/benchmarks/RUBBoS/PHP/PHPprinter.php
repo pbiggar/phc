@@ -2,7 +2,7 @@
  
 function getDatabaseLink(&$link)
 {
-  $link = mysql_pconnect("localhost", "cecchet", "") or die ("ERROR: Could not connect to database");
+  $link = mysql_pconnect("localhost", "rubbos", "") or die ("ERROR: Could not connect to database");
   mysql_select_db("rubbos", $link) or die("ERROR: Couldn't select RUBBoS database");
 }
 

@@ -53,8 +53,15 @@ Step 2 - Set up the databases
 
 		Load the data from the downloaded, unzipped rubbos-expanded-dataset into the database.
 			- Need top change the filenames before executing.
-			$ mysql -u rubbos < load.sql
+			$ mysql -u rubbos rubbos < load.sql
+				(I had a problem with this, so had to use
+					$ mysql -u root rubbos < load.sql )
 
 		- test.sql
-			TODO, not sure yet.
+			$ mysql -u rubbos rubbos < test.sql
+
+	Change the PHP scripts for your user:
+		- On line 5 of PHPprinter.php, change 'cecchet' to 'rubbos'
+
+
 
