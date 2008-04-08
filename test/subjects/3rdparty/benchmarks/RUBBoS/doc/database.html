@@ -1,0 +1,190 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (Win95; U) [Netscape]">
+   <meta name="Author" content="Julie Marguerite and Emmanuel Cecchet">
+   <title>RUBBoS database</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center><img SRC="RUBBoS_logo.jpg" height=100 width=291></center>
+
+<center>
+<h1>
+<font color="#CC0000">&nbsp;</font><font color="#FF6600">RUBBoS database
+description</font></h1></center>
+
+<ul>
+<li>
+<a NAME="categories"></a><b><font color="#006600">Table categories</font></b></li>
+</ul>
+<tt>CREATE TABLE categories (</tt>
+<br><tt>&nbsp;&nbsp; id INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; name VARCHAR(50),</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id)</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<a NAME="users"></a><b><font color="#006600">Table users</font></b></li>
+</ul>
+<tt>CREATE TABLE users (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; firstname&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(20),</tt>
+<br><tt>&nbsp;&nbsp; lastname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(20),</tt>
+<br><tt>&nbsp;&nbsp; nickname&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(20)
+NOT NULL UNIQUE,</tt>
+<br><tt>&nbsp;&nbsp; password&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(20)
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VARCHAR(50) NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; rating&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER,</tt>
+<br><tt>&nbsp;&nbsp; access&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER,</tt>
+<br><tt>&nbsp;&nbsp; creation_date DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX auth (nickname,password),</tt>
+<br><tt>&nbsp;&nbsp; INDEX search (nickname)</tt>
+<br><tt>);</tt>
+<p><tt>INSERT INTO users VALUES (0, "Anonymous", "Coward", "Anonymous Coward",
+"+_)(*&amp;^%$#@!", "anonymous@rubbos.com", 0, 0, NOW());</tt>
+<br><tt>UPDATE users SET id=0 WHERE nickname="Anonymous Coward";</tt>
+<ul>
+<li>
+<a NAME="stories"></a><b><font color="#006600">Table stories</font></b></li>
+</ul>
+<tt>CREATE TABLE stories (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VARCHAR(100),</tt>
+<br><tt>&nbsp;&nbsp; body&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TEXT,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; writer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; category&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER UNSIGNED
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX writer_id (writer),</tt>
+<br><tt>&nbsp;&nbsp; INDEX category_id (category),</tt>
+<br><tt>&nbsp;&nbsp; INDEX search (title(10)),</tt>
+<br><tt>&nbsp;&nbsp; INDEX day (date)</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<b><font color="#006600">Table old_stories</font></b></li>
+</ul>
+<tt>CREATE TABLE old_stories (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VARCHAR(100),</tt>
+<br><tt>&nbsp;&nbsp; body&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TEXT,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; writer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; category&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER UNSIGNED
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX writer_id (writer),</tt>
+<br><tt>&nbsp;&nbsp; INDEX category_id (category),</tt>
+<br><tt>&nbsp;&nbsp; INDEX search (title(10)),</tt>
+<br><tt>&nbsp;&nbsp; INDEX day (date)</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<a NAME="submissions"></a><b><font color="#006600">Table submissions</font></b></li>
+</ul>
+<tt>CREATE TABLE submissions (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VARCHAR(100),</tt>
+<br><tt>&nbsp;&nbsp; body&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+TEXT,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; writer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; category&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER UNSIGNED
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX writer_id (writer),</tt>
+<br><tt>&nbsp;&nbsp; INDEX category_id (category)</tt>
+<br><tt>&nbsp;&nbsp; INDEX day (date)</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<a NAME="comments"></a><b><font color="#006600">Table comments</font></b></li>
+</ul>
+<tt>CREATE TABLE comments (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; writer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; story_id&nbsp;&nbsp;&nbsp;&nbsp; INTEGER UNSIGNED
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; parent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; childs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; rating&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(100),</tt>
+<br><tt>&nbsp;&nbsp; comment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TEXT,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX story (story_id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX search (subject(10))</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<b><font color="#006600">Table old_comments</font></b></li>
+</ul>
+<tt>CREATE TABLE old_comments (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; writer&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; story_id&nbsp;&nbsp;&nbsp;&nbsp; INTEGER UNSIGNED
+NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; parent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; childs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER
+UNSIGNED,</tt>
+<br><tt>&nbsp;&nbsp; rating&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; subject&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; VARCHAR(100),</tt>
+<br><tt>&nbsp;&nbsp; comment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TEXT,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX story (story_id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX search (subject(10))</tt>
+<br><tt>);</tt>
+<ul>
+<li>
+<a NAME="moderator"></a><b><font color="#006600">Table moderator_log</font></b></li>
+</ul>
+<tt>CREATE TABLE moderator_log (</tt>
+<br><tt>&nbsp;&nbsp; id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER UNSIGNED NOT NULL UNIQUE AUTO_INCREMENT,</tt>
+<br><tt>&nbsp;&nbsp; moderator_id INTEGER UNSIGNED NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; comment_id&nbsp;&nbsp; INTEGER UNSIGNED NOT NULL,</tt>
+<br><tt>&nbsp;&nbsp; rating&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INTEGER,</tt>
+<br><tt>&nbsp;&nbsp; date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DATETIME,</tt>
+<br><tt>&nbsp;&nbsp; PRIMARY KEY(id),</tt>
+<br><tt>&nbsp;&nbsp; INDEX comment (comment_id)</tt>
+<br><tt>);</tt>
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<center>&nbsp;<i>RUBBoS (C) 2001 - Rice University/INRIA</i>
+<br><img SRC="rice.gif" height=40 width=138><img SRC="logo_inria.gif" height=55 width=185></center>
+
+</body>
+</html>
