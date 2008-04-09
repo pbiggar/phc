@@ -6,7 +6,7 @@
 // Display the nested comments
 function display_follow_up($cid, $level, $display, $filter, $link, $comment_table)
 {
-  $follow = mysql_query("SELECT id,subject,writer,date FROM $comment_table WHERE parent=$cid", $link) or die("ERROR: Query failed");
+  $follow = mysql_query("SELECT story_id,id,subject,writer,date FROM $comment_table WHERE parent=$cid", $link) or die("ERROR: Query failed");
   while ($follow_row = mysql_fetch_array($follow))
   {
     for ($i = 0 ; $i < $level ; $i++)
