@@ -1,4 +1,4 @@
-#!/bin/awk -f
+#!/usr/bin/awk -f
 
 # Caller must set nbscript and path values on the command line.
 # Example: compute_global_stats.awk -v path=2001-10-10@14:55:23/ -v nbscript=2 2001-10-10@14:55:23/stat_client0.html

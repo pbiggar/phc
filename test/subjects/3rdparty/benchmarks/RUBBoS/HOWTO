@@ -1,3 +1,7 @@
+Step described below are marked with a * if they are required for code provided
+with phc. Other steps are documentation for changes made from the original
+1.2.2 code RUBBoS code release.
+
 Version 1.2.2 from http://jmob.objectweb.org/rubbos.html doesn't work well for
 PHP. However, there seems to be a lot of changes since 1.0, so its best to port
 changes forward, rather than backwards (since the data is for 1.2.2).
@@ -10,9 +14,12 @@ The following packages are used (debian/ubuntu):
 	php5-mysql
 	mysql-server-5.0
 	mysql-client-5.0
-	tcsh
+	tcsh (to run bench/rubbos.sh)
 	java
 	javac
+	sysstat (for sar)
+	make 
+	gcc (for flush_cache)
 
 
 The following webpages provide documentation:
@@ -25,7 +32,9 @@ The following webpages provide documentation:
 		- There is another paper of this ilk.
 
 
-Howto run the benchmark:
+
+How to run the benchmark:
+
 
 Step 0 - get the benchmark and docs:
 
@@ -40,12 +49,13 @@ Step 0 - get the benchmark and docs:
 	The docs are in the doc folder of the 1.0 download.
 
 
+
 Step 1 - get the webserver running:
 
-	I put a symlink to the RUBBos directory from within ~/public_html, and access it at
+*	I put a symlink to the RUBBos directory from within ~/public_html, and access it at
 	http://localhost/~me/RUBBoS/
 
-	apache needs the php module, and PHP needs the mysql module. On ubuntu:
+*	apache needs the php module, and PHP needs the mysql module. On ubuntu:
 		$ sudo a2enmod userdir
 		$ sudo a2enmod php5
 
@@ -53,31 +63,37 @@ Step 1 - get the webserver running:
 		$ sed -i 's!/PHP/!!g' *.php
 		$ sed -i 's!/PHP/!!g' *.html
 
+	Make minor changes to the server scripts:
+		- TODO prepare a diff
+
+
+
 Step 2 - Set up the databases
 
-	Download the database:
+*	Download the database:
 		- http://download.forge.objectweb.org/rubbos/rubbos-expanded-dataset.tar.bz2
 
-	Create a user for the database
+*	Create a user for the database
 		- I created 'rubbos' with no password (I did this with phpmyadmin, not sure how to do
 		  otherwise).
 
-	The database directory has 3 files to set up the DB:
+*	The database directory has 3 files to set up the DB:
 		Create the tables and the DB.
 			- I created a DB rubbos when I created the user, so didn't need the first line of rubbos.sql.
 			$ mysql -u rubbos < rubbos.sql
 
-		Load the data from the downloaded, unzipped rubbos-expanded-dataset into the database.
+*		Load the data from the downloaded, unzipped rubbos-expanded-dataset into the database.
 			- Need top change the filenames before executing.
 			$ mysql -u rubbos rubbos < load.sql
 				(I had a problem with this, so had to use
 					$ mysql -u root rubbos < load.sql )
 
-		- test.sql
+*		- test.sql
 			$ mysql -u rubbos rubbos < test.sql
 
 	Change the PHP scripts for your user:
 		- On line 5 of PHPprinter.php, change 'cecchet' to 'rubbos'
+
 
 
 Step 3 - Build the client
@@ -85,14 +101,64 @@ Step 3 - Build the client
 	Move edu/ to make the Makefiles work. From the base directory:
 		$ mv Client/edu .
 
+	Make minor changes to client files:
+		- TODO: prepare a diff
+
+	Merge the Makefile:
+		- TODO: prepare a diff with version
+		- InitDB can be ignored, that comes from RUBis
+
+*	Make the client:
+		$ make client
+
+*	Don't use 'make emulator'. That gets run by bench/rubbos.sh. However, do
+	make sure it runs (ignore errors about missing rubbos.properties. This is
+	copied by the test script.
 
 
-Step 4 - Run the test
 
-	Setup the workload files:
+Step 4 - Ready the test
 
-	Modify the benchamrk script:
-		- 
-	Run the benchmark script from bench/
+*	Setup the workload files:
+		- edit each of bench/rubbos_properties_* for your config.
+
+*	Add extra properties files:
+		- the tar.gz only comes with _100 to _500.
+		- TODO: copy figures from v1.0
+
+	Fix flush_cache:
+		- Copy flush_cache.c from RUBiS (separate download).
+*		$ make flush_cache
+
+	Edit bench/rubbos.sh
+*		- Fix the rsh lines. Set up keys for ssh to web server and/or database server.
+		- TODO: currently testing on local machine
+		- flush_cache is in bench/. Change references to flush_cache to bench/flush_cache
+
+
+
+Step 5 - Run the test with PHP
+
+*	Clear the database of benchmark data:
+		- Tidy is an added script to clear any data created after 2008.
+		$ mysql -u rubbos rubbos < database/tidy.sql
+
+*	Run the benchmark script from bench/
 		$ ./rubbos.sh
-		
+
+
+
+Step 6 - Run the test with phc.
+
+*	Compile the application:
+		$ TODO
+
+*	Clear the database of benchmark data:
+		- See step 5
+
+*	Run the benchmark script from bench/
+		$ ./rubbos.sh
+
+
+
+TODO change relative database dict and workload user to absolute

@@ -9,13 +9,15 @@
 ##############################
 
 JAVA  = /usr/bin/java
-# JAVAC = /usr/java/jdk1.3.1/bin/javac
-JAVAC = /usr/bin/jikes
-JAVACOPTS = +E -deprecation
+JAR  = /usr/bin/jar
+JAVAC = /usr/bin/javac
+#JAVAC = /usr/bin/jikes
+#JAVACOPTS = +E -deprecation
 JAVACC = $(JAVAC) $(JAVACOPTS)
 RMIC = /usr/bin/rmic
 RMIREGISTRY= /usr/bin/rmiregistry
-CLASSPATH = .:/usr/java/j2sdkee1.3/lib/j2ee.jar:/usr/java/jdk1.3.1/jre/lib/rt.jar:/opt/jakarta-tomcat-3.2.3/lib/servlet.jar
+#CLASSPATH = .:/usr/java/j2sdkee1.3/lib/j2ee.jar:/usr/java/jdk1.3.1/jre/lib/rt.jar:/opt/jakarta-tomcat-3.2.3/lib/servlet.jar
+CLASSPATH = .
 JAVADOC = /usr/bin/javadoc
 
 
@@ -79,18 +81,10 @@ ClientFiles = URLGenerator URLGeneratorServlets URLGeneratorPHP RUBBoSProperties
 	      TransitionTable ClientEmulator UserSession  ../beans/TimeManagement
 
 all_client_sources =  $(addprefix edu/rice/rubbos/client/, $(addsuffix .java, $(ClientFiles)))
-# this suffix wasnt in Client/Makefile
-#all_client_obj = $(addprefix edu/rice/rubbos/client/, $(addsuffix .class, $(ClientFiles))) edu/rice/rubbos/beans/TimeManagement.class
 all_client_obj = $(addprefix edu/rice/rubbos/client/, $(addsuffix .class, $(ClientFiles)))
 
 client: $(all_client_obj)
 	${JAR} cvf rubbos_client.jar $(all_client_obj)
-
-initDB:
-	${JAVA} -classpath .:./database edu.rice.rubbos.client.InitDB ${PARAM}
-
-#from Client/Makefile
-#all: client
 
 emulator:
 	${JAVA} -classpath . edu.rice.rubbos.client.ClientEmulator
