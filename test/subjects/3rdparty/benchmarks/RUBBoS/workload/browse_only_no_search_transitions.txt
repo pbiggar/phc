@@ -1,0 +1,40 @@
+RUBBoS Transition Table	Browse only no search transition set																								
+																									
+"To >>>
+From vvvv  "	Stories of the day	Reg.	Reg. User	Browse	Br. Cat.	Br Stories Cat.	Older stories	View Story	Post com	Store com	View com	Mod com	Store mod log	Submit story	Store story	Search	Search stories	Search com	Search users	Author login	Author task	Review stories	Accept story	Reject story	Transition waiting time
+StoriesOfTheDay	0	0	0	0.19	0	0.1	0.1	0.1	0.1	0.4	0.1	0.1	0.5	0.1	0.5	0.1	0.1	0.1	0.1	0.1	0.1	0.1	0.5	0.5	7000
+Register	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+RegisterUser	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+Browse	0.3	0	0	0	0.01	0.01	0.01	0.01	0.01	0.5	0.01	0.01	0.4	0.01	0.4	0.01	0.01	0.01	0.01	0.01	0.01	0.01	0.4	0.4	7000
+BrowseCategories	0	0	0	0.4	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+BrowseStoriesInCategory	0	0	0	0	0.99	0.3	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+OlderStories	0	0	0	0.4	0	0	0.35	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+ViewStory	0.6	0	0	0	0	0.44	0.49	0	0	0	0	0	0	0	0	0	0.49	0	0.49	0	0	0	0	0	7000
+PostComment	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+StoreComment	0	0	0	0	0	0	0	0	0.99	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+ViewComment	0	0	0	0	0	0	0	0.49	0	0	0.3	0	0	0	0	0	0	0.49	0	0	0	0	0	0	7000
+ModerateComment	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+StoreModerateLog	0	0	0	0	0	0	0	0	0	0	0	0.89	0	0	0	0	0	0	0	0	0	0	0	0	7000
+SubmitStory	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+StoreStory	0	0	0	0	0	0	0	0	0	0	0	0	0	0.89	0	0	0	0	0	0	0	0	0	0	7000
+Search	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+SearchInStories	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.5	0.3	0	0	0	0	0	0	0	7000
+SearchInComments	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.3	0	0.3	0	0	0	0	0	0	7000
+SearchInUsers	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.09	0	0	0.3	0	0	0	0	0	7000
+Author (login)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	7000
+Author (task)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.99	0	0	0	0	7000
+ReviewStories	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.99	0	0	0	7000
+AcceptStory	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.5	0	0	7000
+RejectStory	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.49	0	0	7000
+Back probability	0	0	0	0	0	0.1	0	0.3	0	0	0.5	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+End of Session	0.1	0	0.1	0	0	0.05	0.05	0.1	0	0.1	0.1	0	0.1	0	0.1	0	0.1	0.1	0.1	0	0	0.1	0.1	0.1	0
+Header probability	0.3	0.01	1	0.01	0.01	0.01	0.01	0.01	0.01	0.5	0.01	0.01	0.4	0.01	0.4	0.01	0.01	0.01	0.01	0.01	0.01	0.01	0.4	0.4	
+
+																									
+Probabilities for header					
+RegisterProb	0			0	Value that is automatically computed
+BrowseProb	1			0	Value that has to be set manually
+SubmitStoryProb	0			0	State where we can potentially go back (value must be set to 0)
+SearchProb	0				
+AuthorProb	0				
+Total	1				
