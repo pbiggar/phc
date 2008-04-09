@@ -579,10 +579,15 @@ public class UserSession extends Thread
     String word = null;
     try
     {
-      int pos = rand.nextInt((int)dictionary.length());
-      dictionary.seek(pos);
-      word = dictionary.readLine(); // we surely only get the end of a word
-      word = dictionary.readLine(); // this one should be ok
+		while (word == null)
+		{
+			int pos = rand.nextInt((int)dictionary.length());
+			dictionary.seek(pos);
+			word = dictionary.readLine(); // we surely only get the end of a word
+			word = dictionary.readLine(); // this one should be ok
+
+			// word can still be null here, if the stream is at the end of the file
+		}
     }
     catch (Exception e)
     {
