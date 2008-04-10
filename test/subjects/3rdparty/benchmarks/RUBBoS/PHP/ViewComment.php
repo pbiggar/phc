@@ -9,7 +9,7 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
   $follow = mysql_query("SELECT * FROM $comment_table WHERE parent=$cid AND rating>=$filter", $link) or die("ERROR: Query failed");
   while ($follow_row = mysql_fetch_array($follow))
   {
-    if ($rating >= $filter)
+    if ($follow_row["rating"] >= $filter)
       {
 	if (!$separator)
 	  {
@@ -165,11 +165,11 @@ function display_follow_up($cid, $level, $display, $filter, $link, $comment_tabl
     print("</SELECT>&nbsp&nbsp&nbsp&nbsp<input type=submit value=\"Refresh display\"></center><p>\n");          
 
     // Display the comments
-$comment = mysql_query("SELECT * FROM $comment_table WHERE story_id=$storyId AND parent=0", $link) or die("ERROR: Query failed");
+$comment = mysql_query("SELECT * FROM $comment_table WHERE story_id=$storyId AND parent=$parent", $link) or die("ERROR: Query failed");
     while ($comment_row = mysql_fetch_array($comment))
     {
       $separator=false;
-      if ($rating>= $filter)
+      if ($comment_row["rating"] >= $filter)
 	{
 	  $separator=true;
 	  print("<br><hr><br>");
