@@ -655,6 +655,20 @@ void AST_unparser::children_cast(Cast* in)
 void AST_unparser::children_unary_op(Unary_op* in)
 {
 	visit_op(in->op);
+
+	// Special case for '-': avoid --1 (-+ or +- is OK)
+	Literal* lit;
+	Wildcard<Expr> outer, inner;
+
+	if (in->match (new Unary_op (&outer, "-")))
+	{
+		if (outer.value->match (new Unary_op (&inner, "-"))
+				|| ((lit = dynamic_cast<Literal*> (outer.value))
+					&& (*lit->get_value_as_string ())[0] == '-'))
+			echo (" ");
+	}
+
+
 	visit_expr(in->expr);
 }
 
