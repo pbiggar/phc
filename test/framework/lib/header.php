@@ -558,7 +558,7 @@ function date_string ()
  * information, or not available at all. This will result in people searching
  * for bugs in the wrong places, or not being able to identify actual bugs.
  *
- * The final chosen solution is to have a single directory (test/failures/),
+ * The final chosen solution is to have a single directory (test/dependecnies/),
  * containing one directory for each test, and each of these containing 1 file
  * per test subject. The contents of this file is "Pass" or "Fail". The file is
  * read each time we want to resolve a dependency, and never cached. 

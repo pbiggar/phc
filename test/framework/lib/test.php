@@ -18,6 +18,7 @@ abstract class Test
 		$this->total = 0;
 		$this->expected_failure_count = 0;
 		$this->timers = array();
+		$this->missing_dependencies = array ();
 	}
 
 	function get_name ()
@@ -138,7 +139,7 @@ abstract class Test
 			if ($depend == "Fail")
 				return false;
 			elseif ($depend == "missing")
-				$this->missing_dependency = $dependency;
+				$this->missing_dependencies[$subject] = $dependency;
 		}
 		return true;
 	}
@@ -320,7 +321,7 @@ abstract class Test
 	{
 		write_dependencies ($this->get_name (), $subject, false);
 
-		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, isset ($this->missing_dependency) ? $this->missing_dependency : NULL, $reason);
+		log_failure ($this->get_name(), $subject, $commands, $outs, $errs, $exits, isset ($this->missing_dependencies[$subject]) ? $this->missing_dependencies[$subject] : NULL, $reason);
 		log_status ("failure", $this->get_name(), $subject, $reason);
 		$this->erase_progress_bar();
 
