@@ -6,7 +6,7 @@
  */
 
 #include "Lower_expr_flow.h"
-#include "process_ir/fresh.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -23,19 +23,20 @@ using namespace AST;
  * 		foo(f() || g());
  * into
  * 		$TEF1 = f();
- * 		foo($TEF1 ? $TEF1 : g());
+ * 		foo((bool)($TEF1 ? $TEF1 : g()));
  *
  * Convert
  * 		foo(f() && g());
  * into
- * 		$TEF1 = g();
- * 		foo($TEF1 ? g() : $TEF1);
+ * 		$TEF1 = f();
+ * 		foo((bool)($TEF1 ? g() : $TEF1));
  *
  * The conditional expressions are then taken care of by post_conditional_expr
  */
 
 Expr* Lower_expr_flow::post_bin_op(Bin_op* in)
 {
+	Conditional_expr* result;
 	if(*in->op->value == ",")
 	{
 		pieces->push_back(new Eval_expr(in->left));
@@ -45,18 +46,25 @@ Expr* Lower_expr_flow::post_bin_op(Bin_op* in)
 	{
 		Variable* temp = dynamic_cast<Variable*>(eval(in->left));
 		assert(temp);
-		return post_conditional_expr(new Conditional_expr(
-			temp->clone(), temp->clone(), in->right));
+		result = new Conditional_expr(
+			temp->clone(), 
+			temp->clone(),
+			in->right);
 	}
 	else if(*in->op->value == "&&" || *in->op->value == "and")
 	{
 		Variable* temp = dynamic_cast<Variable*>(eval(in->left));
 		assert(temp);
-		return post_conditional_expr(new Conditional_expr(
-			temp->clone(), in->right, temp->clone()));
+		result = new Conditional_expr (
+			temp->clone(), 
+			in->right,
+			temp->clone());
 	}
 	else 
 		return in;
+
+	// && and || automatically turn their parameters into bools
+	return new Cast (new CAST (s("bool")), post_conditional_expr (result));
 }
 
 /*
