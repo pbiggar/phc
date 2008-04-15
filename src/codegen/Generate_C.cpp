@@ -299,17 +299,14 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 }
 
 /* wrappers */
-void index_lhs (Scope scope, string zvp, Expr* expr)
-{
-	Variable* var = dynamic_cast<Variable*> (expr);
-	assert (var);
-	index_lhs (scope, zvp, var);
-}
 void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	index_lhs (scope, zvp, new Variable (var_name));
 }
-
+void index_lhs (Scope scope, string zvp, Expr* expr)
+{
+	index_lhs (scope, zvp, get_var_name (expr));
+}
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read (Scope scope, string zvp, Variable* var)
@@ -401,17 +398,15 @@ void read (Scope scope, string zvp, Variable* var)
 }
 
 /* wrappers */
-void read (Scope scope, string zvp, Expr* expr)
-{
-	Variable* var = dynamic_cast<Variable*> (expr);
-	assert (var);
-	read (scope, zvp, var);
-}
-
 void read (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
 	read (scope, zvp, new Variable (var_name));
 }
+void read (Scope scope, string zvp, Expr* expr)
+{
+	read (scope, zvp, get_var_name (expr));
+}
+
 
 
 
