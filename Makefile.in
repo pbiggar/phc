@@ -304,8 +304,9 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Object.$(OBJEXT) String.$(OBJEXT) Parse_buffer.$(OBJEXT) \
 	parse.$(OBJEXT) PHP_context.$(OBJEXT) XML_parser.$(OBJEXT) \
 	Pass_manager.$(OBJEXT) Plugin_pass.$(OBJEXT) phc.$(OBJEXT) \
-	AST_unparser.$(OBJEXT) DOT_unparser.$(OBJEXT) \
-	Invalid_check.$(OBJEXT) Note_top_level_declarations.$(OBJEXT) \
+	AST_unparser.$(OBJEXT) Constant_folding.$(OBJEXT) \
+	DOT_unparser.$(OBJEXT) Invalid_check.$(OBJEXT) \
+	Note_top_level_declarations.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) \
 	Strip_unparser_attributes.$(OBJEXT) Token_conversion.$(OBJEXT) \
@@ -698,6 +699,8 @@ src_phc_SOURCES = \
 	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
+	src/process_ast/Constant_folding.cpp				\
+	src/process_ast/Constant_folding.h					\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
@@ -1162,6 +1165,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clone_blank_mixins.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Copy_propagation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Po@am__quote@
@@ -2263,6 +2267,20 @@ AST_unparser.obj: src/process_ast/AST_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/AST_unparser.cpp' object='AST_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o AST_unparser.obj `if test -f 'src/process_ast/AST_unparser.cpp'; then $(CYGPATH_W) 'src/process_ast/AST_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/AST_unparser.cpp'; fi`
+
+Constant_folding.o: src/process_ast/Constant_folding.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Constant_folding.o -MD -MP -MF $(DEPDIR)/Constant_folding.Tpo -c -o Constant_folding.o `test -f 'src/process_ast/Constant_folding.cpp' || echo '$(srcdir)/'`src/process_ast/Constant_folding.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Constant_folding.Tpo $(DEPDIR)/Constant_folding.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Constant_folding.cpp' object='Constant_folding.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Constant_folding.o `test -f 'src/process_ast/Constant_folding.cpp' || echo '$(srcdir)/'`src/process_ast/Constant_folding.cpp
+
+Constant_folding.obj: src/process_ast/Constant_folding.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Constant_folding.obj -MD -MP -MF $(DEPDIR)/Constant_folding.Tpo -c -o Constant_folding.obj `if test -f 'src/process_ast/Constant_folding.cpp'; then $(CYGPATH_W) 'src/process_ast/Constant_folding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Constant_folding.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Constant_folding.Tpo $(DEPDIR)/Constant_folding.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ast/Constant_folding.cpp' object='Constant_folding.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Constant_folding.obj `if test -f 'src/process_ast/Constant_folding.cpp'; then $(CYGPATH_W) 'src/process_ast/Constant_folding.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ast/Constant_folding.cpp'; fi`
 
 DOT_unparser.o: src/process_ast/DOT_unparser.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT DOT_unparser.o -MD -MP -MF $(DEPDIR)/DOT_unparser.Tpo -c -o DOT_unparser.o `test -f 'src/process_ast/DOT_unparser.cpp' || echo '$(srcdir)/'`src/process_ast/DOT_unparser.cpp

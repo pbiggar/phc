@@ -163,6 +163,8 @@ src_phc_SOURCES =												\
 	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
+	src/process_ast/Constant_folding.cpp				\
+	src/process_ast/Constant_folding.h					\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
