@@ -16,7 +16,7 @@ abstract class Test
 		$this->skipped = 0;
 		$this->timeouts = 0;
 		$this->total = 0;
-		$this->expected_failure_count = 0;
+		$this->solo_tests = 0;
 		$this->timers = array();
 		$this->missing_dependencies = array ();
 	}
