@@ -65,6 +65,19 @@ define_explicit_message_func (internal_error, INTERNAL_ERROR);
 define_explicit_message_func (error, ERROR);
 define_explicit_message_func (warning, WARNING);
 
+#define define_va_list_message_func(NAME, TYPE)					\
+void phc_##NAME (const char* message, va_list argp,			\
+						String* filename, int line)					\
+{																				\
+	phc_message(TYPE, message, filename, line, argp);			\
+	va_end(argp);															\
+}
+
+define_va_list_message_func (internal_error, INTERNAL_ERROR);
+define_va_list_message_func (error, ERROR);
+define_va_list_message_func (warning, WARNING);
+
+
 // No filename or line number
 #define define_null_message_func(NAME, TYPE)						\
 void phc_##NAME (const char* message, ... )						\
