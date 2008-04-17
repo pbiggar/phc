@@ -33,7 +33,8 @@
 			}
 			else
 			{
-#				print "Skipping result line: $line\n";
+				if (!($line == "" || preg_match ("/^-*$/", $line)))
+					print "Skipping result line: $line\n";
 			}
 
 		}
