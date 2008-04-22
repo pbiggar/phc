@@ -39,7 +39,7 @@ require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:Z");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -52,6 +52,7 @@ $opt_interpret = false;
 $opt_dont_upper = false;
 $opt_upper = false;
 $opt_failure = false;
+$opt_zero = true;
 foreach ($opts as $opt) 
 {
 	switch ($opt[0])
@@ -67,6 +68,7 @@ foreach ($opts as $opt)
 		case 'f': $opt_file = $opt[1]; break;
 		case 'i': $opt_interpret = $opt[1]; break;
 		case 'F': $opt_failure = $opt[1]; break;
+		case 'Z': $opt_zero = true; break;
 	}
 }
 if ($opt_command === "") 
@@ -94,6 +96,7 @@ Options:
     -u     Used with -i, 'upper's before dumping (not related to -U)
     -F     Mnemonic: Failure. Used for plugins which print "Failure" to indicate error. Run phc with the plugin to determine failure.
     -X     No XML attrs (pass --no-xml-attrs with --xdumps)
+    -Z     Require script to return zero when run through interpreter
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
@@ -252,7 +255,7 @@ function dump ($filename, $output)
 # reduced program otherwise.
 function do_main_step ($xprogram, $start, $num, $filename)
 {
-	global $num_steps, $opt_interpret, $opt_failure;
+	global $num_steps, $opt_interpret, $opt_failure, $opt_zero;
 	$num_steps++;
 
 	# Reduce
@@ -304,6 +307,12 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
 	$php_out = homogenize_all ($php_out);
 	dump ("$filename.php_out_$id", $php_out);
+	if ($opt_zero && $php_exit)
+	{
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
+		return false;
+	}
+
 
 	$phc_error = false;
 	if ($opt_interpret)
