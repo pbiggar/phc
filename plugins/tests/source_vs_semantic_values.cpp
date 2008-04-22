@@ -18,13 +18,14 @@ class Get_source_and_semantic_values : public Visitor
 public:
 	void print_comparison(String* type, String* value, String* source)
 	{
-		cout 
-			<< "test ("
-			<< '"' << *type	<< "\", "
-			<< '"' << *value	<< "\", "
-			<< *value	<< ", "
-			<< '"' << *source	<< "\", "
-			<< *source	<< ");" << endl;
+		if (*value != *source)
+			cout 
+				<< "test ("
+				<< '"' << *type	<< "\", "
+				<< '"' << *value	<< "\", "
+				<< *value	<< ", "
+				<< '"' << *source	<< "\", "
+				<< *source	<< ");" << endl;
 	}
 
 	void pre_int(INT* in)
