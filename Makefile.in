@@ -287,10 +287,10 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Pre_post_op_shredder.$(OBJEXT) \
 	Split_multiple_arguments.$(OBJEXT) Split_unset_isset.$(OBJEXT) \
 	Strip_comments.$(OBJEXT) Tidy_print.$(OBJEXT) \
-	Translate_empty.$(OBJEXT) Compile_C.$(OBJEXT) \
-	Copy_propagation.$(OBJEXT) Dead_code_elimination.$(OBJEXT) \
-	Fix_point.$(OBJEXT) Generate_C.$(OBJEXT) \
-	Lift_functions_and_classes.$(OBJEXT) \
+	Translate_empty.$(OBJEXT) Clarify.$(OBJEXT) \
+	Compile_C.$(OBJEXT) Copy_propagation.$(OBJEXT) \
+	Dead_code_elimination.$(OBJEXT) Fix_point.$(OBJEXT) \
+	Generate_C.$(OBJEXT) Lift_functions_and_classes.$(OBJEXT) \
 	Prune_symbol_table.$(OBJEXT) Use_def_counter.$(OBJEXT) \
 	embed.$(OBJEXT) AST.$(OBJEXT) AST_factory.$(OBJEXT) \
 	AST_transform.$(OBJEXT) AST_visitor.$(OBJEXT) \
@@ -607,6 +607,7 @@ src_phc_SOURCES = \
 	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.cpp					\
 	src/ast_to_hir/Translate_empty.h						\
+	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
@@ -1162,6 +1163,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clarify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clone_blank_mixins.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
@@ -1693,6 +1695,20 @@ Translate_empty.obj: src/ast_to_hir/Translate_empty.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Translate_empty.cpp' object='Translate_empty.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Translate_empty.obj `if test -f 'src/ast_to_hir/Translate_empty.cpp'; then $(CYGPATH_W) 'src/ast_to_hir/Translate_empty.cpp'; else $(CYGPATH_W) '$(srcdir)/src/ast_to_hir/Translate_empty.cpp'; fi`
+
+Clarify.o: src/codegen/Clarify.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.o -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.o `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clarify.Tpo $(DEPDIR)/Clarify.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Clarify.cpp' object='Clarify.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.o `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp
+
+Clarify.obj: src/codegen/Clarify.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.obj -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.obj `if test -f 'src/codegen/Clarify.cpp'; then $(CYGPATH_W) 'src/codegen/Clarify.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Clarify.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clarify.Tpo $(DEPDIR)/Clarify.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/codegen/Clarify.cpp' object='Clarify.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clarify.obj `if test -f 'src/codegen/Clarify.cpp'; then $(CYGPATH_W) 'src/codegen/Clarify.cpp'; else $(CYGPATH_W) '$(srcdir)/src/codegen/Clarify.cpp'; fi`
 
 Compile_C.o: src/codegen/Compile_C.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Compile_C.o -MD -MP -MF $(DEPDIR)/Compile_C.Tpo -c -o Compile_C.o `test -f 'src/codegen/Compile_C.cpp' || echo '$(srcdir)/'`src/codegen/Compile_C.cpp

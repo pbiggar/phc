@@ -7,7 +7,7 @@
 
 #include "Clarify.h"
 
-using namespace AST;
+using namespace MIR;
 
 // TODO: deal with all superglobals 
 // TODO: _ENV
@@ -22,16 +22,16 @@ using namespace AST;
 // TODO: HTTP_POST_FILES
 // TODO: _REQUEST
 
-void post_method (Method* in)
+
+void Clarify::post_method (MIR::Method* in)
 {
-	Global* global = 
-		new Global (
-				new List<Variable_name*> (
-					new VARIABLE_NAME (
-						new String ("GLOBALS"))));
+	MIR::Global* global = 
+		new MIR::Global (
+			new MIR::VARIABLE_NAME (
+				new String ("GLOBALS")));
 
 	if (in->statements)
 		in->statements->push_front (global);
 	else
-		in->statements = new List<Statement*> (global);
+		in->statements = new List<MIR::Statement*> (global);
 }
