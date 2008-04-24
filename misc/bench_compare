@@ -86,6 +86,6 @@ BARGRAPH;
 
 	
 	file_put_contents ("results/$title.plot", $string);
-	echo `bargraph.pl results/$title.plot > results/title.eps`;
+	echo `bargraph.pl results/$title.plot > results/$title.eps`;
 
 ?>

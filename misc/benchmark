@@ -44,34 +44,30 @@ EOL
 
 # use long benchmark for -l
 $filename = "test/subjects/3rdparty/benchmarks/zend/bench.php";
-$later_command = "./bench.out";
 
 if ($opt_long)
 {
 	$filename = "test/subjects/3rdparty/benchmarks/zend/long_bench.php";
-	$later_command = "./long_bench.out";
+	$command = "./long_bench.out";
 }
 
-
 # which programs to use for testing
-$first_command = "misc/comp -O $filename";
-
 if ($opt_php)
+	$command = "/usr/local/php-opt/bin/php $filename";
+else
 {
-	$first_command = "/usr/local/php-opt/bin/php $filename";
-	$later_command = "/usr/local/php-opt/bin/php $filename";
+	print "Initializing test\n";
+	`misc/comp -O $filename`;
+
+	$command = "./bench.out";
 }
 
 
 # run the benchmark
-print "Starting benchmark 0\n";
-$results = `$first_command`;
-process_results ($results);
-
-for ($i = 1; $i < 10; $i++)
+for ($i = 0; $i < 10; $i++)
 {
 	print "Starting benchmark $i: ";
-	$results = `$later_command`;
+	$results = `$command`;
 	process_results ($results);
 	echo "\n";
 }
