@@ -16,6 +16,9 @@ do
 	elif [ "-$var" = "--V" ]
 	then
 		EXEC_NAME="valgrind "
+	elif [ "-$var" = "--M" ]
+	then
+		EXEC_NAME="valgrind --tool=massif "
 	elif [ "-$var" = "--O" ]
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
