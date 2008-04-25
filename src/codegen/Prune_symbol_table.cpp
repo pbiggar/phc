@@ -21,14 +21,22 @@
  *
  *		means we need a symbol table entry, but that is true of
  *		anything which uses reflection.
+ *
+ * Pruning globals:
+ *		We add global declarations of all the superglobals --- GLOBALS,
+ *		HTTP_POST_VARS etc --- in Clarify. Here we check if they are used. If a
+ *		global is not used, we remove them. Since we use post_variable_name to do
+ *		this, we must avoid going into the VARIABLE_NAME belonging to global $X -
+ *		that would defeat the purpose.
  */
 
 #include "Prune_symbol_table.h"
+#include "MIR_transform.h"
 
 using namespace MIR;
 
 Prune_symbol_table::Prune_symbol_table () 
-:  prune (true) 
+:  prune (false) 
 {
 
 }
@@ -41,6 +49,9 @@ void Prune_symbol_table::pre_method (Method* in)
 {
 	// reset
 	prune = true;
+	var_reflection_present = false;;
+	record_globals = true;
+	vars.clear();
 
 	if (*in->signature->method_name->value == "__MAIN__")
 	{
@@ -57,8 +68,6 @@ void Prune_symbol_table::pre_reflection (Reflection* in)
 
 void Prune_symbol_table::pre_method_invocation (Method_invocation* in)
 {
-	/* To be able to support includes with return statements, without
-	 * dataflow, we dont shred their string arguments */
 	METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
 	if (name && (
 				*name->value == "eval"
@@ -76,12 +85,62 @@ void Prune_symbol_table::pre_method_invocation (Method_invocation* in)
 	}
 }
 
+void Prune_symbol_table::pre_global (Global* in)
+{
+	// Don't mark children variable names
+	record_globals = false;
+}
+
+void Prune_symbol_table::post_global (Global* in)
+{
+	record_globals = true;
+}
+
 
 void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 {
 	if (prune)
+	{
 		in->attrs->set_true ("phc.codegen.st_entry_not_required");
+
+		// record variable names for removing globals in post_method
+		if (record_globals)
+			vars[*in->value] = true;
+	}
 }
+
+
+void Prune_symbol_table::post_variable_name (Variable_name* in)
+{
+	// reflection means we cant remove any globals
+	if (in->classid () == Reflection::ID)
+		var_reflection_present = true;
+}
+
+class Remove_globals : public Transform
+{
+private:
+	map<string, bool> var_names;
+
+public:
+	Remove_globals (map<string, bool> *var_names) 
+	: var_names (*var_names) 
+	{
+	}
+
+	void pre_global (Global* in, List<Statement*>* out)
+	{
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (in->variable_name);
+		assert (var_name); // if there were any reflection, we wouldnt be here
+
+		// if the key is there, we need the global
+		if (var_names.find (*var_name->value) != var_names.end ())
+			out->push_back (in);
+		else
+			; // we dont need the global
+	}
+};
+
 
 /* Also mark the function. */
 void Prune_symbol_table::post_method (Method* in)
@@ -90,5 +149,12 @@ void Prune_symbol_table::post_method (Method* in)
 	{
 		assert (*in->signature->method_name->value != "__MAIN__");
 		in->signature->method_name->attrs->set_true ("phc.codegen.st_entry_not_required");
+
+		// Go through the globals and check if they're used
+		if (!var_reflection_present)
+			in->transform_children (new Remove_globals (&vars));
 	}
 }
+
+
+
