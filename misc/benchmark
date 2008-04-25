@@ -42,9 +42,10 @@ EOL
 }
 
 
-# use long benchmark for -l
 $filename = "test/subjects/3rdparty/benchmarks/zend/bench.php";
+$command = "./bench.out";
 
+# use long benchmark for -l
 if ($opt_long)
 {
 	$filename = "test/subjects/3rdparty/benchmarks/zend/long_bench.php";
@@ -58,8 +59,6 @@ else
 {
 	print "Initializing test\n";
 	`misc/comp -O $filename`;
-
-	$command = "./bench.out";
 }
 
 
