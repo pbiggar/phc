@@ -953,15 +953,18 @@ public:
 				initialize (initializations, var);
 			}
 			code
-				<< "assert (!" << var << "->is_ref);\n"
-				<< "if ((*p_lhs)->is_ref)\n"
-				<<		"overwrite_lhs (*p_lhs, " << var << ");\n"
-				<<	"else\n"
+				<< "if (" << var << " != *p_lhs)\n"
 				<< "{\n"
-				<<		var << "->refcount++;\n"
-				<<		"zval_ptr_dtor (p_lhs);\n"
-				<<		"*p_lhs = " << var << ";\n"
-				<< "}\n";
+				<<		"assert (!" << var << "->is_ref);\n"
+				<<		"if ((*p_lhs)->is_ref)\n"
+				<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
+				<<		"else\n"
+				<<		"{\n"
+				<<			var << "->refcount++;\n"
+				<<			"zval_ptr_dtor (p_lhs);\n"
+				<<			"*p_lhs = " << var << ";\n"
+				<<		"}\n"
+				<<	"}\n";
 		}
 		else
 		{
@@ -1088,7 +1091,8 @@ public:
 				<< "p_rhs = &temp;\n";
 			read (LOCAL, "p_rhs", rhs->value);
 			code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "if (*p_lhs != *p_rhs)\n"
+				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
 		}
 		else
