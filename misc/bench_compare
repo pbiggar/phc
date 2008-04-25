@@ -73,11 +73,12 @@ if (count ($argv) < 1)
 
 	
 
+//=base1
 	$string = <<<BARGRAPH
-=base1
 yformat=%g
-ylabel=Speed-up of compiled benchmark
+ylabel=Speedup of compiled benchmark
 =arithmean
+=sort
 
 $speedups
 
