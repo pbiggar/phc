@@ -491,6 +491,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new OP(value);
     }
+    if(!strcmp(type_id, "CAST"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new CAST(value);
+    }
     if(!strcmp(type_id, "CONSTANT_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);

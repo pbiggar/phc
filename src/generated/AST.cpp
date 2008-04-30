@@ -8259,6 +8259,11 @@ void CAST::transform_children(Transform* transform)
     transform->children_cast(this);
 }
 
+String* CAST::get_value_as_string()
+{
+    return value;
+}
+
 int CAST::classid()
 {
     return ID;
@@ -8274,15 +8279,10 @@ bool CAST::match(Node* in)
     CAST* that = dynamic_cast<CAST*>(in);
     if(that == NULL) return false;
     
-    if(!match_value(that))
-    	return false;
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
     else
     	return true;
-}
-
-bool CAST::match_value(CAST* that)
-{
-    return true;
 }
 
 bool CAST::equals(Node* in)
@@ -8290,47 +8290,30 @@ bool CAST::equals(Node* in)
     CAST* that = dynamic_cast<CAST*>(in);
     if(that == NULL) return false;
     
-    if(!equals_value(that))
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-bool CAST::equals_value(CAST* that)
-{
-    return (*this->value == *that->value);
-}
-
 CAST* CAST::clone()
 {
-    value = clone_value();
+    String* value = new String(*this->value);
     CAST* clone = new CAST(value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-String* CAST::clone_value()
-{
-    return value;
-}
-
 void CAST::assert_valid()
 {
-    assert_value_valid();
+    assert(value != NULL);
     Node::assert_mixin_valid();
-}
-
-void CAST::assert_value_valid()
-{
-    // Assume value is valid
-}
-
-String* CAST::get_value_as_string()
-{
-    {
-		return value;
-	}
 }
 
 CONSTANT_NAME::CONSTANT_NAME(String* value)
