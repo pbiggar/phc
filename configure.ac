@@ -58,6 +58,20 @@ AC_ARG_WITH([xerces],
 	[with_xerces=check]
 	)
 
+dnl Check for BDB. If this leads to syntax errors, install the autoconf-archive
+dnl package, and run "aclocal -I /usr/share/autoconf-archive/"
+AX_PATH_BDB([4],
+	[
+		LIBS="$BDB_LDFLAGS $LIBS"
+		LDFLAGS="$BDB_LDFLAGS $LD_FLAGS"
+		CFLAGS="$BDB_CFLAGS $CFLAGS"
+		HAVE_BDB=yes
+	], 
+	[
+		HAVE_BDB=no
+	]
+)
+
 # check PHP path
 AC_ARG_WITH([php], 
 	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
