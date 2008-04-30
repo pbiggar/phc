@@ -98,24 +98,17 @@ public:
 	 * happens in post_node. */
 	void pre_node(Node* in)
 	{
-		cdebug << "Adding: " << demangle(in, true);
-		debug(in);
-		cdebug << endl;
 		in->attrs->set ("phc.clpa.id", get_id (in));
 		ids.push (in);
 	}
 
 	void pre_identifier (Identifier* in)
 	{
-		cdebug << "Adding value: " << demangle(in, true);
-		cdebug << endl;
 		ids.push (in->get_value_as_string ());
 	}
 
 	void pre_literal (Literal* in)
 	{
-		cdebug << "Adding value: " << demangle(in, true);
-		cdebug << endl;
 		ids.push (in->get_value_as_string ());
 	}
 
@@ -125,9 +118,6 @@ public:
 	 * node, then all subnodes will be parameters to this node. */
 	void post_node(Node* in)
 	{
-		cout << "phc_" << demangle(in, false) << " (";
-
-		
 		// The params are either IDs or literals
 		List<String*>* params = new List<String*>;
 		while (ids.top () != in)
@@ -139,15 +129,11 @@ public:
 			if (dynamic_cast<Literal*> (obj))
 			{
 				Literal* lit = dynamic_cast<Literal*> (obj);
-				debug (lit);
-				cdebug << endl;
 				params->push_back (lit->get_value_as_string ());
 			}
 			else if (dynamic_cast<Node*> (obj))
 			{
 				Node* node = dynamic_cast<Node*> (obj);
-				debug (node);
-				cdebug << endl;
 				params->push_back (node->attrs->get_string ("phc.clpa.id"));
 			}
 /*			else if (dynamic_cast<Boolean*> (obj))
@@ -161,10 +147,7 @@ public:
 				params->push_back (b);
 			}
 			else
-			{
-				cout << "TODO" << endl;
 				assert (0);
-			}
 
 			ids.pop ();
 		}
@@ -201,63 +184,6 @@ protected:
 			id++;
 		}
 		return string_id;
-	}
-
-
-	void print_attributes(Node* in)
-	{
-		if(in->attrs->size() == 0)
-		{
-			cout << "<attrs />" << endl;
-		}
-		else
-		{
-			cout << "<attrs>" << endl;
-
-			AttrMap::const_iterator i;
-			for(i = in->attrs->begin(); i != in->attrs->end(); i++)
-			{
-//				print_attribute((*i).first, (*i).second);
-			}
-
-			cout << "</attrs>" << endl;
-		}
-	}
-
-	void print_attribute(string name, Object* attr)
-	{
-		if(String* str = dynamic_cast<String*>(attr))
-		{
-			cout << "<attr key=\"" << name << "\">";
-//			maybe_encode ("string", str);
-			cout << "</attr>" << endl;
-		}
-		else if(Integer* i = dynamic_cast<Integer*>(attr))
-		{
-			cout << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>" << endl;
-		}
-		else if(Boolean* b = dynamic_cast<Boolean*>(attr))
-		{
-			cout << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
-		}
-		else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
-		{
-			cout << "<attr key=\"" << name << "\"><string_list>" << endl;
-
-			List<String*>::const_iterator j;
-			for(j = ls->begin(); j != ls->end(); j++)
-			{
-//				maybe_encode ("string", *j);
-			}
-
-			cout << "</string_list></attr>" << endl;
-		}
-		else if (attr == NULL)
-		{
-			cout << "<!-- skipping NULL attribute " << name << " -->" << endl;
-		}
-		else
-			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr, false));	
 	}
 
 };
