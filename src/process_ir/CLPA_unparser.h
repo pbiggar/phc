@@ -16,6 +16,52 @@
 #include "lib/String.h"
 #include "lib/List.h"
 
+/* We want to dump our IR pretty much directly into Calypso, using the
+ * predicates defined by maketea.
+ *
+ * A simple hello-world program would look like this:
+ *
+ *		phc_actual_parameter("#20","#22","#21")
+ *		phc_actual_parameter("#23","#25","#24")
+ *		phc_token_variable_name_list("#6",[])
+ *		phc_token_variable_name_list("#13",[])
+ *		phc_token_variable_name_list("#21",[])
+ *		phc_token_variable_name_list("#24",[])
+ *		phc_token_variable_name_list("#29",[])
+ *		phc_eval_expr("#2","#3")
+ *		phc_eval_expr("#9","#10")
+ *		phc_eval_expr("#16","#17")
+ *		phc_assignment("#3","#5",false,"#4")
+ *		phc_assignment("#10","#12",false,"#11")
+ *		phc_assignment("#17","#28",false,"#18")
+ *		phc_variable("#5","#8","#7","#6")
+ *		phc_variable("#12","#15","#14","#13")
+ *		phc_variable("#28","#31","#30","#29")
+ *		phc_actual_parameter_list("#19",["#20","#23"])
+ *		phc_method_invocation("#18","#27","#26","#19")
+ *		phc_string("#4","helloworld")
+ *		phc_string("#7","TLE0")
+ *		phc_string("#11","%s")
+ *		phc_string("#14","TLE1")
+ *		phc_string("#22","TLE1")
+ *		phc_string("#25","TLE0")
+ *		phc_string("#26","printf")
+ *		phc_string("#30","TSe0")
+ *		phc_curfn("main")
+ *		phc_php_script("#0","#1")
+ *		phc_statement_list("#1",["#2","#9","#16"])
+ *
+ *	The first string is gererally the ID. So the PHP_script #0 has 1 param,
+ *	named #1. #1 is a statement_list containing #2, #9 and #16. And so on.
+ *
+ *
+ * This is quite simple with a visitor. On descending the tree, we add each
+ * node to a stack. On re-ascending, every node leaves itself on the stack. For
+ * each node, we search the stack looking for itself, and all nodes which we
+ * pop are parameters to the predicate.
+ */
+
+
 template
 <
 	class Script,
