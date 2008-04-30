@@ -119,6 +119,11 @@ struct gengetopt_args_info
   int xdump_min; /**< @brief Dump input as XML after the pass named 'passname''s minimum occurreces */
   int xdump_max; /**< @brief Dump input as XML after the pass named 'passname''s maximum occurreces */
   const char *xdump_help; /**< @brief Dump input as XML after the pass named 'passname' help description.  */
+  char ** sdump_arg;	/**< @brief Dump input into Saturn databases after the pass named 'passname'.  */
+  char ** sdump_orig;	/**< @brief Dump input into Saturn databases after the pass named 'passname' original value given at command line.  */
+  int sdump_min; /**< @brief Dump input into Saturn databases after the pass named 'passname''s minimum occurreces */
+  int sdump_max; /**< @brief Dump input into Saturn databases after the pass named 'passname''s maximum occurreces */
+  const char *sdump_help; /**< @brief Dump input into Saturn databases after the pass named 'passname' help description.  */
   int list_passes_flag;	/**< @brief List the passes to be run (default=off).  */
   const char *list_passes_help; /**< @brief List the passes to be run help description.  */
   int dont_fail_flag;	/**< @brief Dont fail on error (after parsing) (default=off).  */
@@ -161,6 +166,7 @@ struct gengetopt_args_info
   unsigned int udump_given ;	/**< @brief Whether udump was given.  */
   unsigned int ddump_given ;	/**< @brief Whether ddump was given.  */
   unsigned int xdump_given ;	/**< @brief Whether xdump was given.  */
+  unsigned int sdump_given ;	/**< @brief Whether sdump was given.  */
   unsigned int list_passes_given ;	/**< @brief Whether list-passes was given.  */
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */
   unsigned int no_xml_attrs_given ;	/**< @brief Whether no-xml-attrs was given.  */

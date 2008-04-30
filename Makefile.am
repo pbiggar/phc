@@ -191,6 +191,7 @@ src_phc_SOURCES =												\
 	src/process_hir/HIR_unparser.h						\
 	src/process_ir/Clone_blank_mixins.cpp				\
 	src/process_ir/Clone_blank_mixins.h					\
+	src/process_ir/CLPA_unparser.h						\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
 	src/process_ir/Foreach.h								\
@@ -607,4 +608,4 @@ testclean: all test/framework/lib/autovars.php
 
 
 # Generate tags for the test framework.
-ETAGS_ARGS=--recurse test/framework 3rdparty/clpa
+ETAGS_ARGS=--recurse test/framework

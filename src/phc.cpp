@@ -185,6 +185,7 @@ int main(int argc, char** argv)
 	check_passes (udump);
 	check_passes (xdump);
 	check_passes (ddump);
+	check_passes (sdump);
 	check_passes (debug);
 	check_passes (disable);
 

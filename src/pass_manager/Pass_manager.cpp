@@ -16,6 +16,7 @@
 #include "Transform_pass.h"
 
 #include "process_ir/XML_unparser.h"
+#include "process_ir/CLPA_unparser.h"
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
@@ -353,6 +354,14 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			in->visit(	new AST_XML_unparser (cout, attrs),
 							new HIR_XML_unparser (cout, attrs), 
 							new MIR_XML_unparser (cout, attrs));
+		}
+	}
+
+	for (unsigned int i = 0; i < args_info->sdump_given; i++)
+	{
+		if (*name == args_info->sdump_arg [i])
+		{
+			in->visit(new AST_CLPA_unparser(), new HIR_CLPA_unparser(), new MIR_CLPA_unparser ());
 		}
 	}
 }

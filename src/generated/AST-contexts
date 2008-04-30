@@ -67,7 +67,7 @@
 (Variable_name,Variable_name,)
 (While,Statement,*)
 (BOOL<bool>,Expr,)
-(CAST<String*>,CAST<String*>,)
+(CAST,CAST,)
 (CLASS_NAME,CLASS_NAME,)
 (CONSTANT_NAME,CONSTANT_NAME,)
 (DIRECTIVE_NAME,DIRECTIVE_NAME,)

@@ -788,7 +788,7 @@ public:
     virtual void assert_valid();
 };
 
-// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
+// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME | DIRECTIVE_NAME;
 class Identifier : virtual public Source_rep
 {
 public:
@@ -806,6 +806,8 @@ public:
     virtual Identifier* clone() = 0;
 public:
     virtual void assert_valid() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
 };
 
 // Class_def ::= Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ;
@@ -1588,6 +1590,8 @@ public:
     virtual Literal* clone() = 0;
 public:
     virtual void assert_valid() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
 };
 
 // Assignment ::= Variable is_ref:"&" Expr ;
@@ -1672,7 +1676,7 @@ public:
     virtual void assert_valid();
 };
 
-// Cast ::= CAST<String*> Expr ;
+// Cast ::= CAST Expr ;
 class Cast : virtual public Expr
 {
 public:
@@ -2214,23 +2218,18 @@ public:
     virtual void transform_children(Transform* transform);
 public:
     String* value;
+    virtual String* get_value_as_string();
 public:
     static const int ID = 74;
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(CAST* that);
 public:
     virtual bool equals(Node* in);
-    virtual bool equals_value(CAST* that);
 public:
     virtual CAST* clone();
-    virtual String* clone_value();
 public:
     virtual void assert_valid();
-    virtual void assert_value_valid();
-public:
-    String* get_value_as_string();
 };
 
 class CONSTANT_NAME : virtual public Identifier

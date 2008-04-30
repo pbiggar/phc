@@ -135,7 +135,7 @@ List_assignment ::= List_element?* Expr ;
 List_element ::= Variable | Nested_list_elements ;
 Nested_list_elements ::= List_element?* ;
 
-Cast ::= CAST<String*> Expr ;
+Cast ::= CAST Expr ;
 Unary_op ::= OP Expr ;
 Bin_op ::= left:Expr OP right:Expr ;
 
@@ -176,7 +176,7 @@ Commented_node ::=
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST<String*> | OP | CONSTANT_NAME | LABEL_NAME 
+	  | CAST | OP | CONSTANT_NAME | LABEL_NAME 
 	  | DIRECTIVE_NAME 
 	; 
 
@@ -564,15 +564,6 @@ public:
 	}
 };
 
-class CAST
-{
-public:
-	String* get_value_as_string ()
-	{
-		return value;
-	}
-};
-
 class HT_ITERATOR
 {
 public:
@@ -609,6 +600,18 @@ public:
 		assert (source_rep != NULL);
 		attrs->set ("phc.unparser.source_rep", source_rep);
 	}
+};
+
+class Identifier
+{
+public:
+	virtual String* get_value_as_string() = 0;
+};
+
+class Literal
+{
+public:
+	virtual String* get_value_as_string() = 0;
 };
 
 
