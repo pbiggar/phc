@@ -50,13 +50,6 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 	out->push_back_all(pieces);
 	out->push_back(in);
 
-	// Move comment to the first piece (if any)
-	if(!pieces->empty())
-	{
-		pieces->front()->attrs->set("phc.comments", in->get_comments());
-		in->attrs->set("phc.comments", new List<String*>);
-	}
-
 	pieces->clear();
 }
 
@@ -68,25 +61,44 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
  *
  * the value returned is the expression "T". 
  *
- * If the node is marked "phc.lower_expr.no_temp", eval simply returns in.
+ * If the node is marked "phc.hir_lower_expr.no_temp", eval simply returns in.
  */
 
 Expr* Lower_expr::eval(Expr* in)
 {
-	if(in->attrs->is_true("phc.lower_expr.no_temp"))
-	{
-		return in;
-	}
-	else
-	{
-		Variable* temp = fresh_var("TLE"); 
-		eval(in, temp);
-		return temp;
-	}
+	Variable* temp = fresh_var("TLE"); 
+	eval(in, temp);
+	return temp;
 }
 
 // Variation on eval that takes in the name of the temp
 void Lower_expr::eval(Expr* in, Variable* temp)
 {
-	pieces->push_back(new Eval_expr(new Assignment(temp->clone (), false, in->clone ())));
+	pieces->push_back(
+		new Eval_expr(
+			new Assignment(
+				temp->clone (), 
+				false, 
+				in->clone ())));
 }
+
+
+VARIABLE_NAME* Lower_expr::eval_var(Expr* in)
+{
+	VARIABLE_NAME* temp = fresh_var_name("TLE"); 
+	eval_var(in, temp);
+	return temp;
+}
+
+void Lower_expr::eval_var(Expr* in, VARIABLE_NAME* temp)
+{
+	pieces->push_back(
+		new Eval_expr(
+			new Assignment(
+				new Variable (
+					temp->clone ()),
+					false, 
+					in->clone ())));
+}
+
+

@@ -6,42 +6,44 @@
  */
 
 #include "AST.h"
-#include "hir_to_mir/Lower_control_flow.h"
-#include "hir_to_mir/Early_lower_control_flow.h"
-#include "hir_to_mir/Lower_expr_flow.h"
-#include "hir_to_mir/HIR_shredder.h"
 #include "ast_to_hir/AST_shredder.h"
-#include "hir_to_mir/Split_multiple_arguments.h"
+#include "ast_to_hir/Desugar.h"
+#include "ast_to_hir/Early_lower_control_flow.h"
+#include "ast_to_hir/Echo_split.h"
+#include "ast_to_hir/List_shredder.h"
+#include "ast_to_hir/Lower_expr_flow.h"
+#include "ast_to_hir/Pre_post_op_shredder.h"
+#include "ast_to_hir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
-#include "process_ast/Strip_unparser_attributes.h"
+#include "ast_to_hir/Strip_comments.h"
+#include "ast_to_hir/Tidy_print.h"
 #include "ast_to_hir/Translate_empty.h"
-#include "hir_to_mir/Echo_split.h"
-#include "hir_to_mir/Pre_post_op_shredder.h"
-#include "hir_to_mir/Desugar.h"
-#include "hir_to_mir/List_shredder.h"
-#include "hir_to_mir/Tidy_print.h"
-#include "hir_to_mir/HIR_to_MIR.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
+#include "codegen/Copy_propagation.h"
+#include "codegen/Dead_code_elimination.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "codegen/Prune_symbol_table.h"
-#include "codegen/Strip_comments.h"
 #include "embed/embed.h"
+#include "hir_to_mir/HIR_to_MIR.h"
+#include "hir_to_mir/Lower_control_flow.h"
 #include <ltdl.h>
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
 #include "pass_manager/Pass_manager.h"
+#include "process_ast/Constant_folding.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ast/Invalid_check.h"
 #include "process_ast/Note_top_level_declarations.h"
 #include "process_ast/Pretty_print.h"
 #include "process_ast/Process_includes.h"
 #include "process_ast/Remove_concat_null.h"
-#include "process_mir/Obfuscate.h"
+#include "process_ast/Strip_unparser_attributes.h"
 #include "process_ir/XML_unparser.h"
+#include "process_mir/Obfuscate.h"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,7 +85,7 @@ int main(int argc, char** argv)
 	 *	Startup
 	 */
 
-	IR* ir = NULL;
+	IR::PHP_script* ir = NULL;
 
 	// Start the embedded interpreter
 	PHP::startup_php ();
@@ -115,57 +117,55 @@ int main(int argc, char** argv)
 
 	// process_ast passes
 	pm->add_ast_pass (new Invalid_check ());
-	pm->add_ast_pass (new Fake_pass ("ast"));
-	pm->add_ast_pass (new Process_includes (false, new String ("ast"), pm, "incl1"));
+	pm->add_ast_pass (new Fake_pass (s("ast"), s("Abstract Syntax Tree - a representation of the PHP program, as written")));
+	pm->add_ast_pass (new Process_includes (false, s("ast"), pm, s("incl1")));
 	pm->add_ast_pass (new Pretty_print ());
 
 	// Begin lowering to hir
-	pm->add_ast_visitor (new Strip_unparser_attributes (), "sua");
-	pm->add_ast_visitor (new Note_top_level_declarations (), "ntld");
+	pm->add_ast_visitor (new Strip_comments (), s("decomment"), s("Remove comments"));
+	pm->add_ast_visitor (new Strip_unparser_attributes (), s("sua"), s("Remove the attributes used to pretty-print source code"));
+	pm->add_ast_visitor (new Note_top_level_declarations (), s("ntld"), s("Make a note of top-level-declarations before the information is lost"));
 
 	// Small optimization on the AST
-	pm->add_ast_transform (new Remove_concat_null (), "rcn");
+	pm->add_ast_transform (new Constant_folding(), s("const-fold"), s("Fold constant expressions"));
+	pm->add_ast_transform (new Remove_concat_null (), s("rcn"), s("Remove concatentations with \")\""));
 
 
 
 	// Make simple statements simpler
-	// these passes could really go to either AST, or HIR.
-	// TODO move these to the end of the AST, just before the HIR
-	pm->add_ast_transform (new Split_multiple_arguments (), "sma");
-	pm->add_ast_transform (new Split_unset_isset (), "sui");
-	pm->add_ast_transform (new Echo_split (), "ecs");
-	pm->add_ast_transform (new Translate_empty (), "empty");
+	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
+	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
+	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
+	pm->add_ast_transform (new Translate_empty (), s("empty"), s("Translate calls to empty() into casts"));
 
-	pm->add_ast_transform (new Early_lower_control_flow (), "elcf"); // AST
-	pm->add_ast_transform (new Lower_expr_flow (), "lef"); // AST
-	pm->add_ast_transform (new Desugar (), "desug"); // AST
-	pm->add_ast_transform (new Pre_post_op_shredder (), "pps"); // AST
-	pm->add_ast_transform (new List_shredder (), "lish"); // AST
-	pm->add_ast_transform (new AST::Shredder (), "ashred"); // AST
-	pm->add_ast_transform (new Tidy_print (), "tidyp"); // AST
-	pm->add_ast_pass (new Fake_pass ("AST-to-HIR"));
+	pm->add_ast_transform (new Early_lower_control_flow (), s("elcf"), s("Early Lower Control Flow - lower for, while, do and switch statements")); // AST
+	pm->add_ast_transform (new Lower_expr_flow (), s("lef"), s("Lower Expression Flow - Lower ||, && and ?: expressions"));
+	pm->add_ast_transform (new Desugar (), s("desug"), s("Desugar"));
+	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
+	pm->add_ast_transform (new List_shredder (), s("lish"), s("List shredder - simplify to array assignments"));
+	pm->add_ast_transform (new AST::Shredder (), s("ashred"), s("Shredder - turn the AST into three-address-code, replacing complex expressions with a temporary variable"));
+	pm->add_ast_transform (new Tidy_print (), s("tidyp"), s("Replace calls to echo() and print() with printf()"));
+	pm->add_ast_pass (new Fake_pass (s("AST-to-HIR"), s("The HIR in AST form")));
 
 
-	pm->add_hir_pass (new Fake_pass ("hir"));
-	pm->add_hir_transform (new Lower_control_flow (), "lcf"); // HIR
-	pm->add_hir_transform (new HIR::Shredder (), "hshred"); // HIR
+	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
+	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
+	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
+	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 
 
 	// process_hir passes
-	pm->add_hir_visitor (new Strip_comments (), "decomment");
 	pm->add_hir_pass (new Obfuscate ()); // TODO move to MIR
-	pm->add_hir_pass (new Fake_pass ("HIR-to-MIR"));
+	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
 
-
-	// TODO move to the MIR - re-add
-//	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 
 	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
-	pm->add_mir_pass (new Fake_pass ("mir"));
-	pm->add_mir_pass (new Lift_functions_and_classes ());
-	pm->add_mir_visitor (new Clarify (), "clar");
-	pm->add_mir_visitor (new Prune_symbol_table (), "pst");
+	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code.")));
+//	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
+	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
+	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
+	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	stringstream ss;
 	pm->add_mir_pass (new Generate_C (ss));
 	pm->add_mir_pass (new Compile_C (ss));
@@ -185,8 +185,17 @@ int main(int argc, char** argv)
 	check_passes (udump);
 	check_passes (xdump);
 	check_passes (ddump);
+	check_passes (debug);
+	check_passes (disable);
 
 #undef check_passes
+
+	// Disable passes if asked
+	for (unsigned int i = 0; i < args_info.disable_given; i++)
+	{
+		pm->get_pass_named (s(args_info.disable_arg [i]))->set_enabled (false);
+	}
+
 
 
 	/* 
@@ -341,7 +350,7 @@ void init_plugins (Pass_manager* pm)
 		}
 
 		// Save for later
-		pm->add_plugin (handle, name, new String (option));
+		pm->add_plugin (handle, s(name), s(option));
 
 	}
 }

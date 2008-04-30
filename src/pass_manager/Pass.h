@@ -22,20 +22,21 @@ public:
 
 public:
 
-	virtual void run (IR* in, Pass_manager* pm) = 0;
+	virtual void run (IR::PHP_script* in, Pass_manager* pm) = 0;
 	virtual void post_process () { }
 
 private:
+	// Passes should not play with this, and should instead use pass_is_enabled ().
 	bool enabled;
 
 public:
 	bool is_enabled (Pass_manager* pm) { return enabled && pass_is_enabled (pm); }
 	void set_enabled (bool e) { enabled = e; }
 
-	// Plugin writers should use this
+	// Passes should use this to control their activation
 	virtual bool pass_is_enabled (Pass_manager* pm) { return true; }
 
-	void run_pass (IR* in, Pass_manager* pm)
+	void run_pass (IR::PHP_script* in, Pass_manager* pm)
 	{
 		if (is_enabled (pm))
 			run (in, pm);

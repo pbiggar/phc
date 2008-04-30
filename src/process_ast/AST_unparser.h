@@ -17,7 +17,7 @@ class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 
 public:
-	AST_unparser(ostream& os = cout);
+	AST_unparser(ostream& os = cout, bool in_php = false);
 
 public:
 	void children_php_script(AST::PHP_script* in);
@@ -111,6 +111,8 @@ public:
 	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
 
 	void pre_node(AST::Node* in);
+	void pre_bin_op(AST::Bin_op* in);
+	void post_bin_op(AST::Bin_op* in);
 	void pre_expr(AST::Expr* in);
 	void post_expr(AST::Expr* in);
 	void pre_commented_node(AST::Commented_node* in);

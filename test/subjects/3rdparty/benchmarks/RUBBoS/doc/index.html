@@ -1,0 +1,119 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (Win95; U) [Netscape]">
+   <meta name="Author" content="Julie Marguerite and Emmanuel Cecchet">
+   <title>RUBBoS: Rice University Bulletin Board System</title>
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<center>
+<h2>
+<img SRC="RUBBoS_logo.jpg" height=100 width=291></h2></center>
+
+<center>
+<h1>
+<font color="#006600">&nbsp;</font><font color="#CC6600">Bulletin Board
+Benchmark</font></h1></center>
+
+<p><br>
+<p>RUBBoS is a bulletin board benchmark modeled after an online news forum
+like <a href="http://www.slashdot.org">Slashdot</a>. We originally considered
+using the Perl-based <a href="http://www.slashcode.org">Slashcode</a>,
+which is freely available, but we concluded that the code was too complex
+to serve as a benchmark.&nbsp; Instead, we implemented the essential bulletin
+board features of the Slashdot site in PHP. In particular, as in Slashcode,
+we support discussion threads. A discussion thread is a logical tree, containing
+a story at its root and a number of comments for that story, which may
+be nested. Users have two different levels of authorized access: regular
+user and moderator. Regular users browse and submit stories and comments.
+Moderators in addition review stories and rate comments.
+<p><b><font color="#006600">PHP (Hypertext Preprocessor)</font></b>
+<br><a href="http://www.php.net/manual/en/">PHP</a> is a scripting language
+that can be seen as an extension of the HTML language: PHP code can be
+directly embedded into an HTML page. Built as an HTTP server module, PHP
+is executed within a Web server process and does not incur any inter-process
+communication overhead. When the HTTP server identifies a PHP tag, it invokes
+the PHP interpreter that executes the script. Requests to the database
+are performed using an ad hoc interface.
+<br>PHP scripts are easy to write and reasonably efficient, but the database
+interfaces are ad hoc. This makes code maintenance awkward, because new
+code needs to be written for each new database to which the scripts need
+to access. PHP scripts execute in the same process (address space) as the
+Web server, thereby minimizing communication overheads between the Web
+server and the scripts.
+<p><b>For more information about installing and configuring RUBBoS go <a href="install.html">here</a>.</b>
+<br>&nbsp;
+<h2>
+<b><font color="#FF6600">Database</font></b></h2>
+The main tables in the database are the users, stories, comments, and submissions
+tables. The <a href="database.html#users">users table</a> contains each
+user’s real name and nickname, contact information (email), password, level
+of authorized access, and rating. The <a href="database.html#stories">stories
+table</a> contains each story’s title and body, the nickname of the story’s
+author, the date the story was posted, the number of comments at the outermost
+nesting level, and the category the story fits under. The <a href="database.html#categories">categories
+table </a>contains the same categories as the Slashdot site. The <a href="database.html#comments">comments
+table</a> contains the comment’s subject and body, the nickname of the
+comment’s author, the date the comment was posted, the identifier of the
+story or the parent comment it belongs to, and a comment rating. Each submitted
+story is initially placed in the <a href="database.html#submissions">submissions
+table</a>, unless submitted by a moderator. We maintain a <a href="database.html#moderator">moderator_log
+table</a>, which stores the moderator ratings for comments. Regular user
+ratings are computed based on the ratings of the comments they have posted.
+<p>For efficiency reasons, we split both the stories and comments tables
+into separate new and old tables. In the new stories table we keep the
+most recent stories with a cut-off of one month. We keep old stories for
+a period of two years. The new and old comments tables correspond to the
+new and old stories respectively. The majority of the browsing requests
+are expected to access the new stories and comments tables, which are much
+smaller and therefore much more efficiently accessible. A daemon is activated
+periodically to move stories and comments from the new to the old tables
+as appropriate.
+<p>We generate the story and comment bodies with words from a given dictionary
+and lengths between 1KB and 8KB. Short stories and comments are much more
+common, so we use a Zipf-like distribution for story length. The database
+contains 2 years of stories and comments. We use an average of 15 to 25
+stories per day and between 20 and 50 comments per story, as we observed
+on Slashdot. We emulate 500,000 total users, out of which 10% have moderator
+access privilege. With these parameters, the database size is 439MB. We
+also created a larger database of 1.4GB containing more old stories and
+comments. The results are very similar as the majority of the requests
+access the new stories and comments.
+<br>&nbsp;
+<h2>
+<b><font color="#FF6600">Benchmark tool</font></b></h2>
+<font color="#000000">We implement a client-browser emulator. A session
+is a sequence of interactions for the same customer. For each customer
+session, the client emulator opens a persistent HTTP connection to the
+Web server and closes it at the end of the session. Each emulated client
+waits for a certain think time before initiating the next interaction.
+The next interaction is determined by a state transition matrix that specifies
+the probability to go from one interaction to another one.</font>
+<br><font color="#000000">The think time and session time for all benchmarks
+are generated from a negative exponential distribution with a mean of 7
+seconds and 15 minutes, respectively. We vary the load on the site by varying
+the number of clients.</font>
+<p>We have defined 24 Web interactions. The main ones are: generate the
+stories of the day, browse new stories, older stories, or stories by category,
+show a particular story with different options on filtering comments, search
+for keywords in story titles, comments and user names, submit a story,
+add a comment, review submitted stories and rate comments at the moderator
+level. Full text search is currently not supported. Without additional
+support, it requires a prohibitive processing time in a general-purpose
+relational database. Typically, an external search engine would be used
+to perform this task.
+<p>We use two workload mixes: a browsing mix and a submission mix. The
+browsing mix is a read-only workload that does not allow users to post
+stories or comments. The submission mix contains 85% read-only interactions,
+with the remaining 15% being story and comment submissions and moderation
+interactions.
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<center>&nbsp;<i>RUBBoS (C) 2001 - Rice University/INRIA</i>
+<br><img SRC="rice.gif" height=40 width=138><img SRC="logo_inria.gif" height=55 width=185></center>
+
+</body>
+</html>

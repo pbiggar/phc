@@ -9,6 +9,7 @@
 
 #include "process_ast/AST_unparser.h" 
 #include "pass_manager/Plugin_pass.h" 
+#include "process_ir/General.h" 
 
 using namespace AST;
 
@@ -59,12 +60,22 @@ class Canonical_unparser : public virtual AST_unparser
 	}
 };
 
+Plugin_pass* this_pass;
+
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "sua");
+	pm->add_after_named_pass (pass, s("sua"));
+	this_pass = pass;
 }
 
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
-	in->clone()->visit (new Canonical_unparser ());
+	in->visit (new Canonical_unparser ());
+
+	// HACK: 
+	// The pass queue is used multiple times, when we parse some code within the
+	// compiler. This leads to code being printed multiple times. As a result,
+	// we turn this off after it runs once.
+	
+	this_pass->set_enabled (false);
 }

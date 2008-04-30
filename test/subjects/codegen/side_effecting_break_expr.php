@@ -6,9 +6,14 @@
 		static $x = 0;
 		echo $x++;
 
-		return 7;
+		return 0;
 	}
 
-	break x ();
+	do
+	{
+		break x ();
+		echo "error\n";
+	}
+	while (false);
 
 ?>

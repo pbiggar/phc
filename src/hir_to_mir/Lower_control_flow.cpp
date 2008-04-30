@@ -15,11 +15,10 @@
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
 #include "Lower_control_flow.h"
-#include "Check_lowering.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
-#include "ast_to_hir/AST_shredder.h"
+#include <vector>
 
 using namespace HIR;
 
@@ -95,7 +94,7 @@ void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 	Goto *l2_goto_l3 = new Goto (l3->label_name->clone ());
 
 	// make the if
-	Branch *branch = new Branch (in->expr, l1->label_name->clone (), l2->label_name->clone ());
+	Branch *branch = new Branch (in->variable_name, l1->label_name->clone (), l2->label_name->clone ());
 
 	// generate the code
 	out->push_back (branch);
@@ -142,12 +141,11 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 }
 
 /* Convert 
- *   foreach (expr() as $key => $value)
+ *   foreach ($arr as $key => $value)
  *   {
  *		 ...;
  *   }
  * into
- *		$array = expr ();
  *		foreach_reset ($arr, iter); 
  *		loop()
  *		{
@@ -158,118 +156,102 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *			$val = foreach_get_val ($arr, iter); // optional
  *			....  
  *			foreach_next ($arr, iter); 
- *		L2:
  *		}
+ *		L2:
  *		foreach_end ($arr, iter);
  */
 
-// TODO move shredder earlier. this is made a lot more complicated by non-shredded expressions
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
- 	// $array = expr (); (only is array is not var)
-	Variable* arr; 
-	if (not ((arr = dynamic_cast<Variable*> (in->expr))
-		&& arr->variable_name->classid () == VARIABLE_NAME::ID
-		&& arr->target == NULL
-		&& arr->array_indices->size () == 0))
-	{
-		arr = fresh_var ("LCF_ARRAY_");
-		out->push_back (new Eval_expr (new Assignment (arr, false, in->expr)));
-	}
+	VARIABLE_NAME*	array_name = in->variable_name;
 
 	// foreach_reset ($arr, iter); 
 	HT_ITERATOR* iter = fresh_iter ();
-	out->push_back (new Foreach_reset (arr->clone (), iter));
+	out->push_back (new Foreach_reset (array_name->clone (), iter));
+
 
 	// loop ()
 	Loop* loop = new Loop (new List<Statement*>);
-	Variable* has_key = fresh_var ("THK");
+
 
 	// $T = foreach_has_key ($arr, iter);
+	VARIABLE_NAME* has_key = fresh_var_name ("THK");
 	loop->statements->push_back (
 		new Eval_expr (
 			new Assignment (
-				has_key,
+				new Variable (has_key),
 				false, 
 				new Foreach_has_key (
-					arr->clone (),
+					array_name->clone (),
 					iter->clone ()))));
 
-	Label* l1 = fresh_label ();
-	Label* l2 = fresh_label ();
 
 	// if ($T) goto L1; else goto L2;
+	Label* l1 = fresh_label ();
+	Label* l2 = fresh_label ();
 	loop->statements->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+
 
 	// L1:
 	loop->statements->push_back (l1);
 
 
-
-
 	// $key = foreach_get_key ($arr, iter); 
-	
-	// TODO havent taken into account a key with indices
-	// The key may not be present, but we create it anyway for the unparser.
-	Variable* key;
-	if (in->key)
-		key = in->key;
-	else
+	Foreach_get_key* get_key = new Foreach_get_key (
+		array_name->clone (),
+		iter->clone ());
+
+	// The key may not be present, but we create it anyway for the unparser. 
+	get_key->attrs->set ("phc.codegen.use_get_key", new Boolean (in->key));
+
+	Variable* key = in->key;
+	if (key == NULL)
 		key = fresh_var ("LCF_KEY_");
 
-	Statement* get_key = 
-			new Eval_expr (
-				new Assignment (
-					key->clone (),
-					false,
-					new Foreach_get_key (
-						arr->clone (),
-						iter->clone ())));
+	assert (key->is_simple_variable ());
 
-
-	// only push it back if necessary
-	if (in->key)
-		loop->statements->push_back (get_key);
+	loop->statements->push_back (new Eval_expr (
+			new Assignment (
+				key,
+				false,
+				get_key)));
 	
 
-	// $val = foreach_get_val ($arr, $key, iter); 
-	Foreach_get_val* get_val = new Foreach_get_val (
-														arr->clone (),
-														iter->clone ());
+	// $val = foreach_get_val ($arr, $get_key, iter); 
+	loop->statements->push_back (new Eval_expr (
+		new Assignment (
+		in->val->clone (),
+		in->is_ref,
+		new Foreach_get_val (
+			array_name->clone (),
+			(dynamic_cast<VARIABLE_NAME*>(key->variable_name))->clone(),
+			iter->clone ()))));
 
-	// only add the key if it wont be found already
-	if (not in->key)
-		get_val->attrs->set ("phc.unparser.foreach_get_key", get_key);
-
-	get_val->attrs->set ("phc.unparser.foreach_key", key);
-
-	loop->statements->push_back (	new Eval_expr (
-														new Assignment (
-															in->val->clone (),
-															in->is_ref,
-															get_val)));
 
 	// ....  
 	loop->statements->push_back_all (in->statements);
 
+
 	// foreach_next ($arr, iter); 
 	loop->statements->push_back (
 		new Foreach_next (
-			arr->clone (),
+			array_name->clone (),
 			iter->clone ()));
 
-	// L2:
-	loop->statements->push_back (l2);
+	lower_loop(loop, out);
 
-	lower_loop (loop, out);
+
+	// L2:
+	out->push_back (l2);
 
 
 	// foreach_end ($arr, iter);
 	out->push_back (
 		new Foreach_end (
-			arr->clone (),
+			array_name->clone (),
 			iter->clone ()));
 
+	clone_blank_mixins_from (in, out);
 }
 
 /* Convert 
@@ -528,129 +510,6 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 	continue_levels.pop_back ();
 }
 
-/* Switch is a little complicated aswell. In theory, it would be nice to
- * convert this to a jump table in the generated code, but we can't really do
- * that with the C output. We could use GCC extensions, but we probably dont
- * want to go down that road. So we'll convert this to simple if's.
- *
- * Note that the blocks always fall-through. We will rely on a break
- * transform to escape the blocks.
- *
- * These need to e separated since the default must be after the last
- * comparison, but must fall through in the specified order.
- *
- * Convert
- *		switch (expr)
- *		{
- *			case expr1:
- *				x1 ();
- *			case expr2:
- *				x2 ();
- *				break;
- *			...
- *			default exprD:
- *				xD ();
- *
- *			case expr3:
- *				x3 ();
- *		}
- *
- *	into
- *		val = expr;
- *		if (val == expr1) goto L1; else goto N1;
- *	N1:
- *		if (val == expr2) goto L2; else goto N2;
- *	N2:
- *		if (val == expr3) goto L3; else goto N3;
- *	N3:
- *		goto LD;
- *	L1:
- *		x1 ();
- *		goto L2;
- *	L2:
- *		x2 ();
- *		break; // to become goto LE
- *		goto LD;
- *	LD:
- *		xD ();
- *		goto L3;
- *	L3:
- *		x3 ();
- *		goto LE:
- *	LE:
- *
- */
-void Lower_control_flow::lower_switch(Switch* in, List<Statement*>* out)
-{
-	// val = expr;
-	Variable *lhs = fresh_var ("TL");
-	Assignment* assign = new Assignment (lhs, false, in->expr);
-	out->push_back (new Eval_expr (assign));
-
-	List<Statement*> *branches = new List<Statement*> ();
-	List<Statement*> *blocks = new List<Statement*> ();
-
-	List<Switch_case*> *cases = in->switch_cases;
-	List<Switch_case*>::const_iterator i;
-
-	// we need to know the header of the next block ahead of time
-	Label* next_block_header = fresh_label ();
-	Goto* _default = NULL;
-	for (i = cases->begin (); i != cases->end (); i++)
-	{
-		Label* header = next_block_header;
-		next_block_header = fresh_label ();
-
-		if ((*i)->expr == NULL) // default
-		{
-			assert (_default == NULL);
-			_default = new Goto (header->label_name->clone ());
-		}
-		else
-		{
-			// the else branch just goes to the next line. We dont allow NULL else
-			// statements (perhaps we should?).
-			Label* next = fresh_label ();
-
-			// make the comparison
-			Branch* branch = new Branch (
-					new Bin_op (
-						lhs->clone (), 
-						new OP (new String ("==")),
-						(*i)->expr
-					),
-					header->label_name->clone (),
-					next->label_name->clone ()
-				);
-
-			branches->push_back (branch);
-			branches->push_back (next);
-		}
-
-		blocks->push_back (header);
-		blocks->push_back_all ((*i)->statements);
-		blocks->push_back (new Goto (next_block_header->label_name->clone ())); // fallthrough
-	}
-	blocks->push_back (next_block_header);
-
-	if (_default) 
-		branches->push_back (_default);
-	else // if default is blank jump to the end
-		branches->push_back (new Goto (next_block_header->label_name->clone ()));
-
-	out->push_back_all (branches);
-	out->push_back_all (blocks);
-}
-
-void Lower_control_flow::post_switch(Switch* in, List<Statement*>* out)
-{
-	lower_switch (in, out);
-	// A continue is the same as a break, so add the label at the same place
-	add_label<Continue> (in, out);
-	add_label<Break> (in, out);
-	break_levels.pop_back ();
-	continue_levels.pop_back ();
-}
 
 /* Transform:
  *		break $x;
@@ -667,105 +526,112 @@ void Lower_control_flow::post_switch(Switch* in, List<Statement*>* out)
  *
  *	where L(2n) is the label at the end of the nth inner loop construct
  */
+// TODO: what about 'break "my_string" (and then break '17')?
+// TODO: FYI: Objects/strings evaluate to 0
 template <class T>
 void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 {
-	List<Node*> *levels; // It gets uglier
+	vector<Node*> *levels;
 	if (Break::ID == in->ID) levels = &break_levels;
 	if (Continue::ID == in->ID) levels = &continue_levels;
 	assert (levels);
+	int num_levels = (int)(levels->size ());
 
-	// check that we arent being asked to jump further than we know we can go
-	unsigned int error_depth = 0;
+
+	int error_depth;
+	// 'break', 'break 1', and all coefficients < 1 are all the same. 
 	INT *_int = dynamic_cast<INT*> (in->expr);
-
-	/* If this break has a NULL expression, it's much easier (and gives more
-	 * readable output) if we special case it. Also, break 1 is the same as
-	 * break < 1, which is the same as just break. Its easier to handle it all
-	 * together. */
-	// TODO what about 'break "my_string"?'
 	if (in->expr == NULL || (_int && _int->value <= 1))
+	{
 		error_depth = 1;
+		in->expr = new INT (1);
+		in->expr->clone_mixin_from (in);
+	}
 	else if (_int)
 		error_depth = _int->value;
+	else
+		error_depth = -1; // we don't know
 
-	if (error_depth > levels->size ())
+
+	// Check that we arent being asked to jump further than we know
+	// we can go
+	if (error_depth > num_levels || num_levels == 0)
 	{
 		// find a good node to put the error on
 		Node* error_node = in->expr;
 		if (error_node == NULL)
 			error_node = in;
+
+		if (error_depth == -1)
+			error_depth = 1; // TODO need a better error message
+
 		phc_error ("Cannot break/continue %d levels", error_node, error_depth);
 	}
 
-	// Since we compare to the expression, we need to create a variable for it.
-	Variable *lhs = fresh_var ("TB");
+	// if we survived, we expect there to be a target
+	assert (num_levels);
 
-	if (in->expr)
-		out->push_back (new Eval_expr (
-					new Assignment (lhs, false, in->expr)));
-	else
-		out->push_back (new Eval_expr (
-					new Assignment (lhs, false, new INT (1))));
 
-	if (levels->size ())
+	if (error_depth != -1) // We know exactly where we're jumping to
 	{
-		INT *_int = dynamic_cast<INT*> (in->expr);
-		if (in->expr == NULL || (_int && _int->value <= 1))
-		{
-			// Create a label, pushback a goto to it, and attach it as an attribute
-			// of the innermost looping construct.
-			Node* level = levels->back ();
-			out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
-		}
-		else
-		{
-			// Otherwise we create a label and a goto for each possible loop, and attach
-			// the label it the loop.
-
-			// 1 branch and label per level:
-			//		if ($TB1 = 1) goto L1; else goto L2;
-			//	L2:
-			List<Node*>::reverse_iterator i;
-			unsigned int depth = 1;
-			for (i = levels->rbegin (); i != levels->rend (); i++)
-			{
-				// FYI: Objects/strings evaluate to 0
-				Node* level = (*i);
-
-				// Attach the break target to the loop construct.
-				Label* iftrue = exit_label<T> (level)->clone ();
-
-				// Create: if ($TB1 == depth)
-				OP* op = new OP (new String ("=="));
-				INT* branch_num = new INT (depth);
-				Bin_op* compare = new Bin_op (lhs->clone (), op, branch_num);
-
-				// We break to depth 1 for any expr <= 1
-				if (depth == 1)
-					compare->op = new OP (new String ("<="));
-
-				Label* iffalse = fresh_label ();
-				Branch* branch = new Branch (compare, iftrue->label_name->clone (), iffalse->label_name->clone ());
-
-				out->push_back (branch);
-				out->push_back (iffalse);
-				depth ++;
-			}
-			assert (depth == break_levels.size () + 1);
-		}
+		// Create a label, pushback a goto to it, and attach it as an attribute
+		// of the appropriate looping construct.
+		Node* level = (*levels)[num_levels - error_depth];
+		out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
 	}
+	else
+	{
+		// Otherwise we create a label and a goto for each possible loop, and attach
+		// the label to the goto.
+		//
+		// $TB1 = $x;
+		VARIABLE_NAME* lhs = fresh_var_name ("TB");
+		out->push_back (
+			new Eval_expr (
+				new Assignment (
+					new Variable (lhs),
+					false, 
+					in->expr)));
 
-	// Print an error, and die with 255
-	stringstream ss;
-	ss <<	"<?php echo (\"\nFatal error: Cannot break/continue \\$"
-		<< *(dynamic_cast<VARIABLE_NAME*> (lhs->variable_name)->value)
-		<< " levels in " << *(in->get_filename ())
-		<< " on line " << in->get_line_number () << " \n\");\n"
-		<< "die (255);?>";
+		// 1 branch and label per level:
+		//		if ($TB1 = 1) goto L1; else goto L2;
+		//	L2:
+		vector<Node*>::reverse_iterator i;
+		int depth;
+		for (i = levels->rbegin (), depth = 1; i != levels->rend (); i++, depth++)
+		{
+			// We break to depth 1 for any expr <= 1
+			OP* op = new OP (new String ("=="));
+			if (depth == 1)
+				op = new OP (new String ("<="));
 
-	out->push_back_all (parse_to_hir (new String (ss.str()), in));
- 
+			//	if ($TB1 == depth) goto L1; else goto L2;
+			Label* iffalse = fresh_label ();
+			push_back_pieces ( // push the pieces from the eval_var back
+				new Branch (
+					(eval_var (new Bin_op (
+						lhs->clone(),
+						op,
+						eval_var (new INT (depth))))),
+					exit_label<T> (*i)->label_name, // get the label from this depth
+					iffalse->label_name->clone ()),
+				out);
+
+			//	L2:
+			out->push_back (iffalse);
+		}
+		assert (depth == num_levels + 1);
+
+		// Print an error, and die with 255
+		stringstream ss;
+		ss <<	"<?php echo (\"\nFatal error: Cannot break/continue $"
+			<< (*lhs->value)
+			<< " levels in " << *(in->get_filename ())
+			<< " on line " << in->get_line_number () << "\n\");\n"
+			<< "die (255);?>";
+
+		out->push_back_all (parse_to_hir (new String (ss.str()), in));
+	}
 }
 
 void Lower_control_flow::post_break (Break* in, List<Statement*>* out)
@@ -793,11 +659,6 @@ void Lower_control_flow::pre_loop(Loop* in, List<Statement*>* out)
 }
 
 void Lower_control_flow::pre_foreach(Foreach* in, List<Statement*>* out)
-{
-	pre_control_flow (in, out);
-}
-
-void Lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 {
 	pre_control_flow (in, out);
 }

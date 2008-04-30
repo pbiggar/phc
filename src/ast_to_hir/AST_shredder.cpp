@@ -6,7 +6,7 @@
  * Transform the AST into 3AC-like code.
  */
 
-#include "hir_to_mir/Annotate.h"
+#include "AST_annotate.h"
 #include "AST_shredder.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
@@ -55,7 +55,7 @@ void Shredder::children_php_script(PHP_script* in)
 
 Variable* Shredder::post_variable(Variable* in)
 {
-	if (in->attrs->is_true ("phc.shredder.dont_shred"))
+	if (in->attrs->is_true ("phc.ast_shredder.dont_shred"))
 		return in;
 
 	Variable* prev = in;
@@ -63,23 +63,21 @@ Variable* Shredder::post_variable(Variable* in)
 	int num_pieces = 
 		  (in->target != NULL ? 1 : 0) 
 		+ in->array_indices->size()
-		- (in->attrs->is_true("phc.shredder.need_addr") ? 1 : 0);
+		- (in->attrs->is_true("phc.ast_shredder.need_addr") ? 1 : 0);
 
 	// translate ${$x}[1] to $T =& ${$x}; $T[1] but only if no target is set
 	if(in->target == NULL 
 		&& in->variable_name->classid() == Reflection::ID
-		&& !in->attrs->is_true ("phc.lower_expr.no_temp"))
+		&& !in->attrs->is_true ("phc.ast_lower_expr.no_temp"))
 	{
 		Variable* temp = fresh_var("TSr");
 
-		pieces->push_back(new Eval_expr(new Assignment(
-			temp->clone (), 
-			in->attrs->is_true ("phc.shredder.need_addr"),
-			new Variable (
-				NULL,
-				in->variable_name,
-				new List<Expr*>()
-			))));
+		pieces->push_back(
+			new Eval_expr(
+				new Assignment(
+					temp->clone (), 
+					in->attrs->is_true ("phc.ast_shredder.need_addr"),
+					new Variable (in->variable_name))));
 
 		prev = temp;
 	}
@@ -89,7 +87,7 @@ Variable* Shredder::post_variable(Variable* in)
 		Variable* temp = fresh_var("TSt");
 		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
-			in->attrs->is_true ("phc.shredder.need_addr"),
+			in->attrs->is_true ("phc.ast_shredder.need_addr"),
 			new Variable (
 				in->target,
 				in->variable_name->clone(),
@@ -107,7 +105,7 @@ Variable* Shredder::post_variable(Variable* in)
 		Variable* temp = fresh_var("TSi");
 		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
-			in->attrs->is_true ("phc.shredder.need_addr"),
+			in->attrs->is_true ("phc.ast_shredder.need_addr"),
 			new Variable (
 				NULL, 
 				prev->variable_name->clone(), 
@@ -181,7 +179,7 @@ Expr* Shredder::post_instanceof (Instanceof* in)
 /*
  * foreach
  */
-
+// TODO remove
 Expr* Shredder::post_foreach_has_key (Foreach_has_key* in)
 {
 	return eval(in);
@@ -251,7 +249,7 @@ Expr* Shredder::post_constant (Constant* in)
  */
 Expr* Shredder::post_assignment (Assignment* in)
 {
-	if (in->attrs->is_true ("phc.shredder.non_nested_assignment"))
+	if (in->attrs->is_true ("phc.ast_shredder.non_nested_assignment"))
 		return in;
 
 	// dont replace with the same variable, since it may be assigned to multiple
@@ -266,7 +264,7 @@ Expr* Shredder::post_assignment (Assignment* in)
 
 Expr* Shredder::post_array(Array* in)
 {
-	if (in->attrs->is_true("phc.lower_expr.no_temp"))
+	if (in->attrs->is_true("phc.ast_lower_expr.no_temp"))
 		return in;
 
 	Variable* var = fresh_var ("TSa");
@@ -295,20 +293,18 @@ Expr* Shredder::post_array(Array* in)
 		else
 			key = NULL;
 
-		pieces->push_back(new Eval_expr(new Assignment(
-						new Variable (
-							NULL,
-							var->variable_name->clone(),
-							new List<Expr*>(key)),
-						(*i)->is_ref,
-						(*i)->val
-						)));
+		pieces->push_back(
+			new Eval_expr(
+				new Assignment(
+					new Variable (
+						NULL,
+						var->variable_name->clone(),
+						new List<Expr*>(key)),
+					(*i)->is_ref,
+					(*i)->val)));
 	}
 
-	return new Variable (
-			NULL,
-			var->variable_name->clone (),
-			new List<Expr*>());
+	return new Variable (var->variable_name->clone ());
 }
 
 Expr* Shredder::post_op_assignment(Op_assignment* in)
@@ -319,7 +315,7 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	// as an operand to a binary operator. Hence, we must visit the RHS again
 	// clearing the need_addr flag
 	Expr* left = in->variable->clone();
-	left->attrs->erase("phc.shredder.need_addr");
+	left->attrs->erase("phc.ast_shredder.need_addr");
 	left = transform_expr(left);
 
 	assignment = new Assignment(
@@ -348,23 +344,20 @@ Expr* Shredder::pre_ignore_errors(Ignore_errors* in)
 		false,
 		new Method_invocation(
 			"error_reporting",
-			zero))));
-	in->attrs->set("phc.shredder.old_error_level", temp);
+			zero->clone ()))));
+	in->attrs->set("phc.ast_shredder.old_error_level", temp->clone ());
 	return in;
 }
 
 Expr* Shredder::post_ignore_errors(Ignore_errors* in)
 {
 	Variable* temp = fresh_var("TSie");
-	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.shredder.old_error_level"));
+	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.ast_shredder.old_error_level"));
 	assert(old);
 	
-	pieces->push_back(new Eval_expr(new Assignment(
-		temp,
-		false,
-		new Method_invocation(
-			"error_reporting",
-			old))));
-	
+	(*pieces
+		<< temp << " = error_reporting (" << old << ");"
+	).finish (in);
+
 	return in->expr;
 }

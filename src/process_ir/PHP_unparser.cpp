@@ -123,15 +123,16 @@ void PHP_unparser::echo_html(String* str)
 	os << *str;
 }
 
-PHP_unparser::PHP_unparser(ostream& os) : os(os)
+PHP_unparser::PHP_unparser(ostream& os, bool in_php)
+: in_php (in_php)
+, os(os)
 {
 	indent_level = 0;
 	at_start_of_line = true;
 	delayed_newline = false;
-	in_php = false;
 }
 	
-String* PHP_unparser::escape(String* s)
+String* PHP_unparser::escape_dq(String* s)
 {
 	stringstream os;
 
@@ -163,6 +164,28 @@ String* PHP_unparser::escape(String* s)
 				}
 				else
 					os << *i;
+				break;
+		}
+	}
+	
+	return new String(os.str());	
+}
+
+String* PHP_unparser::escape_sq(String* s)
+{
+	stringstream os;
+
+	string::iterator i;
+	for(i = s->begin(); i != s->end(); i++)
+	{
+		switch (*i)
+		{
+			case '\'': // single quote
+			case '\\': // backslash
+				os << '\\' << *i;
+				break;
+			default:
+				os << *i;
 				break;
 		}
 	}

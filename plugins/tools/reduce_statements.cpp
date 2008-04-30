@@ -182,7 +182,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 //	pm->add_mir_pass (pass);
 }
 
-void run (IR* in, String* option)
+void run (IR::PHP_script* in, String* option)
 {
 	// Read START and LENGTH from the option string (\d+:\d+)
 	int colon_index = -1;

@@ -112,8 +112,10 @@ class Transform;
 class Visitor;
 
 // Node ::= PHP_script | Class_mod | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Directive | List_element | Variable_name | Target | Array_elem | Method_name | Actual_parameter | Class_name | Commented_node | Source_rep | HT_ITERATOR<long>;
-class Node : virtual public Object
+class Node : virtual public IR::Node
 {
+public:
+    Node();
 public:
     virtual void visit(Visitor* visitor) = 0;
     virtual void transform_children(Transform* transform) = 0;
@@ -128,19 +130,13 @@ public:
 public:
     virtual void assert_valid() = 0;
 public:
-    AttrMap* attrs;
-    //  Return the line number of the node (or 0 if unknown)
-    int get_line_number();
-    //  Return the filename of the node (or NULL if unknown)
-    String* get_filename();
-    Node();
     void clone_mixin_from(Node* in);
     void assert_mixin_valid();
     bool is_mixin_equal(Node* in);
 };
 
 // PHP_script ::= Statement* ;
-class PHP_script : virtual public Node, virtual public IR
+class PHP_script : virtual public Node, virtual public IR::PHP_script
 {
 public:
     PHP_script(List<Statement*>* statements);
@@ -594,6 +590,7 @@ public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
+    bool has_source_rep();
     String* get_source_rep();
     void set_source_rep(String* source_rep);
 };
@@ -1416,16 +1413,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_reset ::= Variable HT_ITERATOR<long> ;
+// Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_reset : virtual public Statement
 {
 public:
-    Foreach_reset(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_reset(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_reset();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1442,16 +1439,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_next ::= Variable HT_ITERATOR<long> ;
+// Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_next : virtual public Statement
 {
 public:
-    Foreach_next(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_next(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_next();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1468,16 +1465,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_end ::= Variable HT_ITERATOR<long> ;
+// Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_end : virtual public Statement
 {
 public:
-    Foreach_end(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_end(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_end();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1494,16 +1491,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_has_key ::= Variable HT_ITERATOR<long> ;
+// Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_has_key : virtual public Expr
 {
 public:
-    Foreach_has_key(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_has_key();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1520,16 +1517,16 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_key ::= Variable HT_ITERATOR<long> ;
+// Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_get_key : virtual public Expr
 {
 public:
-    Foreach_get_key(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_get_key(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_get_key();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1546,16 +1543,17 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_val ::= Variable HT_ITERATOR<long> ;
+// Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_get_val : virtual public Expr
 {
 public:
-    Foreach_get_val(Variable* variable, HT_ITERATOR* ht_iterator);
+    Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter);
 protected:
     Foreach_get_val();
 public:
-    Variable* variable;
-    HT_ITERATOR* ht_iterator;
+    VARIABLE_NAME* array;
+    VARIABLE_NAME* key;
+    HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1890,6 +1888,7 @@ public:
     virtual void assert_valid();
 public:
     Variable(Variable_name* name);
+    bool is_simple_variable();
 };
 
 // Pre_op ::= OP Variable ;
@@ -2275,7 +2274,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(INT* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(INT* that);
@@ -2293,6 +2291,7 @@ private:
 public:
     virtual String* get_value_as_string();
     INT(long v, String* source_rep);
+    bool match_value(INT* that);
 };
 
 class REAL : virtual public Literal
@@ -2311,7 +2310,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(REAL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(REAL* that);
@@ -2327,6 +2325,7 @@ private:
 public:
     virtual String* get_value_as_string();
     REAL(double v, String* source_rep);
+    bool match_value(REAL* that);
 };
 
 class STRING : virtual public Literal
@@ -2345,7 +2344,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(STRING* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(STRING* that);
@@ -2359,6 +2357,7 @@ public:
     bool is_value_valid();
     String* clone_value();
     STRING(String* v, String* source_rep);
+    bool match_value(STRING* that);
 };
 
 class BOOL : virtual public Literal
@@ -2377,7 +2376,6 @@ public:
     virtual int classid();
 public:
     virtual bool match(Node* in);
-    virtual bool match_value(BOOL* that);
 public:
     virtual bool equals(Node* in);
     virtual bool equals_value(BOOL* that);
@@ -2393,6 +2391,7 @@ private:
 public:
     virtual String* get_value_as_string();
     BOOL(bool v, String* source_rep);
+    bool match_value(BOOL* that);
 };
 
 class NIL : virtual public Literal

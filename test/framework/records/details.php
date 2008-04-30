@@ -1,6 +1,6 @@
 <?php
 
-include ("common.php");
+	include ("common.php");
 
 	function run_main ()
 	{
@@ -12,7 +12,7 @@ include ("common.php");
 		print_revision_details ($rev);
 		print "<table class=layout><tr><td>\n";
 		print_test_details ($rev, "test");
-		print "</td><td>\n";
+		print "</td><td valign=top>\n";
 		print_test_details ($rev, "install_test");
 		print "</td></tr></table>\n";
 
@@ -49,26 +49,34 @@ include ("common.php");
 
 		print "<table class=info>\n";
 		print "	<tr>\n";
-		print "		<th>". maybe_link ("results/$rev/log.log", "Full Log") ."</th>";
-		print "		<th>". maybe_link ("results/$rev/configure.log", "Configure Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "log.log", "Full Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "configure.log", "Configure Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th>". maybe_link ("results/$rev/make.log", "Build Log") ."</th>";
-		print "		<th>". maybe_link ("results/$rev/install.log", "Install Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "make.log", "Build Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "install.log", "Install Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th>". maybe_link ("results/$rev/test.log", "Test Log") ."</th>";
-		print "		<th>". maybe_link ("results/$rev/install_test.log", "Install Test Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "test.log", "Test Log") ."</th>";
+		print "		<th>". maybe_link ($rev, "install_test.log", "Install Test Log") ."</th>";
 		print "	</tr><tr>\n";
-		print "		<th colspan=2>". maybe_link ("results/$rev/svn_log.log", "Subversion Log") ."</th>";
+		print "		<th colspan=2><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
 		print "	</tr></table>";
 
 		print "	</td></tr>";
 		print "</table>\n";
 	}
 
-	function maybe_link ($file, $name)
+	function maybe_link ($rev, $filename, $name, $sort = false)
 	{
+		$file = "results/$rev/$filename";
 		if (file_exists ($file))
-			return "<a href=\"$file\">$name</a>";
+		{
+			$old_rev = $rev - 1;
+			$old_file = "results/$old_rev/$filename";
+			if (file_exists ($old_file))
+				return "<a href=\"$file\">$name</a> (<a href=\"diff.php?new_rev=$rev&old_rev=$old_rev&sort=$sort&filename=$filename\">D</a>)";
+			else
+				return "<a href=\"$file\">$name</a>";
+		}
 		else
 			return $name;
 	}
@@ -86,7 +94,11 @@ include ("common.php");
 
 		print "<table class=info>";
 		print "<tr><th colspan=5>{$table_name}s</th></tr>\n";
-		print "<tr><th>Test name</th><th>Passes</th><th>Fails</th><th>Timeouts</th><th>Skips</th></tr>\n";
+		print "<tr><th>Test name</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/timeout", "Timeouts", true) ."</th><th>"
+			. maybe_link ($rev, "{$table_name}_logs/skipped", "Skips", true) ."</th></tr>\n";
 
 		# fetch the previous revisions data, for comparison
 		$old_rev = $rev - 1;

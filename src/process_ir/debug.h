@@ -16,6 +16,7 @@
 #include "AST.h"
 #include "HIR.h"
 #include "MIR.h"
+#include <ostream>
 
 /* Dump the XML for anynode to stderr. A global function. */
 // these are split so they're easy to call from the debugger
@@ -31,6 +32,8 @@ void debug (MIR::Node* in);
 void xdebug (MIR::Node* in);
 void xadebug (MIR::Node* in);
 
-#endif
+extern ostream& cdebug;
+void enable_cdebug ();
+void disable_cdebug ();
 
-
+#endif // PHC_DEBUG

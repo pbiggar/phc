@@ -7,21 +7,21 @@
 
 #include "pass_manager/Plugin_pass.h"
 #include "AST.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, "ast");
+	pm->add_before_named_pass (pass, s("ast"));
 }
 
-extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
-	String * comment = new String ("// ");
+	String* comment = new String ("// ");
 	comment->append (*option);
 	// Add a comment to the first statement
-	PHP_script *script = dynamic_cast <PHP_script*> (in);
-	if (script->statements->size () == 0)
+	if (in->statements->size () == 0)
 	{
 		// create a statement for the comment
 		Nop* nop = new Nop ();
@@ -30,6 +30,6 @@ extern "C" void run_ast (Node* in, Pass_manager* pm, String* option)
 	else
 	{
 		// attach the comment to the first statement
-		script->statements->front ()->get_comments ()->push_front (comment);
+		in->statements->front ()->get_comments ()->push_front (comment);
 	}
 }

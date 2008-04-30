@@ -3,40 +3,14 @@
 #include "HIR_visitor.h"
 
 namespace HIR{
-//  Return the line number of the node (or 0 if unknown)
-int Node::get_line_number()
-{
-    {
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if(i != NULL)
-			return i->value();
-		else
-			return 0;
-	}
-}
-
-//  Return the filename of the node (or NULL if unknown)
-String* Node::get_filename()
-{
-    {
-		return dynamic_cast<String*>(attrs->get("phc.filename"));
-	}
-}
-
 Node::Node()
 {
-    {
-		// Constructor gets called because all classes inherit from
-		// Node virtually; also, because maketea knows Node is
-		// abstract, it won't add a constructor itself
-		attrs = new AttrMap();
-	}
 }
 
 void Node::clone_mixin_from(Node* in)
 {
     {
-		attrs = in->attrs->clone();
+		attrs->clone_all_from (in->attrs);
 	}
 }
 
@@ -203,6 +177,10 @@ void PHP_script::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Statement::Statement()
+{
+}
+
 Class_mod::Class_mod(bool is_abstract, bool is_final)
 {
     this->is_abstract = is_abstract;
@@ -272,6 +250,10 @@ Class_mod* Class_mod::clone()
 void Class_mod::assert_valid()
 {
     Node::assert_mixin_valid();
+}
+
+Member::Member()
+{
 }
 
 Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, List<Formal_parameter*>* formal_parameters)
@@ -1051,127 +1033,166 @@ void Name_with_default::assert_valid()
     Node::assert_mixin_valid();
 }
 
-List_element::List_element()
+Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements)
 {
+    this->class_name = class_name;
+    this->variable_name = variable_name;
+    this->statements = statements;
 }
 
-Conditional_expr::Conditional_expr(Expr* cond, Expr* iftrue, Expr* iffalse)
+Catch::Catch()
 {
-    this->cond = cond;
-    this->iftrue = iftrue;
-    this->iffalse = iffalse;
+    this->class_name = 0;
+    this->variable_name = 0;
+    this->statements = 0;
 }
 
-Conditional_expr::Conditional_expr()
+void Catch::visit(Visitor* visitor)
 {
-    this->cond = 0;
-    this->iftrue = 0;
-    this->iffalse = 0;
+    visitor->visit_catch(this);
 }
 
-void Conditional_expr::visit(Visitor* visitor)
+void Catch::transform_children(Transform* transform)
 {
-    visitor->visit_conditional_expr(this);
+    transform->children_catch(this);
 }
 
-void Conditional_expr::transform_children(Transform* transform)
-{
-    transform->children_conditional_expr(this);
-}
-
-int Conditional_expr::classid()
+int Catch::classid()
 {
     return ID;
 }
 
-bool Conditional_expr::match(Node* in)
+bool Catch::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
+    Catch* that = dynamic_cast<Catch*>(in);
     if(that == NULL) return false;
     
-    if(this->cond == NULL)
+    if(this->class_name == NULL)
     {
-    	if(that->cond != NULL && !that->cond->match(this->cond))
+    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
     		return false;
     }
-    else if(!this->cond->match(that->cond))
+    else if(!this->class_name->match(that->class_name))
     	return false;
     
-    if(this->iftrue == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->iftrue->match(that->iftrue))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
-    if(this->iffalse == NULL)
+    if(this->statements != NULL && that->statements != NULL)
     {
-    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
     		return false;
     }
-    else if(!this->iffalse->match(that->iffalse))
-    	return false;
     
     return true;
 }
 
-bool Conditional_expr::equals(Node* in)
+bool Catch::equals(Node* in)
 {
-    Conditional_expr* that = dynamic_cast<Conditional_expr*>(in);
+    Catch* that = dynamic_cast<Catch*>(in);
     if(that == NULL) return false;
     
-    if(this->cond == NULL || that->cond == NULL)
+    if(this->class_name == NULL || that->class_name == NULL)
     {
-    	if(this->cond != NULL || that->cond != NULL)
+    	if(this->class_name != NULL || that->class_name != NULL)
     		return false;
     }
-    else if(!this->cond->equals(that->cond))
+    else if(!this->class_name->equals(that->class_name))
     	return false;
     
-    if(this->iftrue == NULL || that->iftrue == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->iftrue != NULL || that->iftrue != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->iftrue->equals(that->iftrue))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(this->iffalse == NULL || that->iffalse == NULL)
+    if(this->statements == NULL || that->statements == NULL)
     {
-    	if(this->iffalse != NULL || that->iffalse != NULL)
+    	if(this->statements != NULL || that->statements != NULL)
     		return false;
     }
-    else if(!this->iffalse->equals(that->iffalse))
-    	return false;
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Conditional_expr* Conditional_expr::clone()
+Catch* Catch::clone()
 {
-    Expr* cond = this->cond ? this->cond->clone() : NULL;
-    Expr* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
-    Expr* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    Conditional_expr* clone = new Conditional_expr(cond, iftrue, iffalse);
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Statement*>* statements = NULL;
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Catch* clone = new Catch(class_name, variable_name, statements);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Conditional_expr::assert_valid()
+void Catch::assert_valid()
 {
-    assert(cond != NULL);
-    cond->assert_valid();
-    assert(iftrue != NULL);
-    iftrue->assert_valid();
-    assert(iffalse != NULL);
-    iffalse->assert_valid();
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(statements != NULL);
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
     Node::assert_mixin_valid();
 }
 
@@ -1381,23 +1402,6 @@ Class_name::Class_name()
 {
 }
 
-Commented_node::Commented_node()
-{
-    {
-		attrs->set("phc.comments", new List<String*>);
-	}
-}
-
-//  Return the comments associated with the node
-List<String*>* Commented_node::get_comments()
-{
-    {
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
-		return comments;
-	}
-}
-
 Identifier::Identifier()
 {
 }
@@ -1502,49 +1506,1302 @@ String* HT_ITERATOR::get_value_as_string()
 	}
 }
 
-Statement::Statement()
+Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
 {
+    this->class_mod = class_mod;
+    this->class_name = class_name;
+    this->extends = extends;
+    this->implements = implements;
+    this->members = members;
 }
 
-Member::Member()
+Class_def::Class_def()
 {
+    this->class_mod = 0;
+    this->class_name = 0;
+    this->extends = 0;
+    this->implements = 0;
+    this->members = 0;
 }
 
-Switch_case::Switch_case(Expr* expr, List<Statement*>* statements)
+void Class_def::visit(Visitor* visitor)
 {
-    this->expr = expr;
-    this->statements = statements;
+    visitor->visit_statement(this);
 }
 
-Switch_case::Switch_case()
+void Class_def::transform_children(Transform* transform)
 {
-    this->expr = 0;
-    this->statements = 0;
+    transform->children_statement(this);
 }
 
-void Switch_case::visit(Visitor* visitor)
-{
-    visitor->visit_switch_case(this);
-}
-
-void Switch_case::transform_children(Transform* transform)
-{
-    transform->children_switch_case(this);
-}
-
-int Switch_case::classid()
+int Class_def::classid()
 {
     return ID;
 }
 
-bool Switch_case::match(Node* in)
+bool Class_def::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Switch_case* that = dynamic_cast<Switch_case*>(in);
+    Class_def* that = dynamic_cast<Class_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_mod == NULL)
+    {
+    	if(that->class_mod != NULL && !that->class_mod->match(this->class_mod))
+    		return false;
+    }
+    else if(!this->class_mod->match(that->class_mod))
+    	return false;
+    
+    if(this->class_name == NULL)
+    {
+    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
+    		return false;
+    }
+    else if(!this->class_name->match(that->class_name))
+    	return false;
+    
+    if(this->extends == NULL)
+    {
+    	if(that->extends != NULL && !that->extends->match(this->extends))
+    		return false;
+    }
+    else if(!this->extends->match(that->extends))
+    	return false;
+    
+    if(this->implements != NULL && that->implements != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	for(
+    		i = this->implements->begin(), j = that->implements->begin();
+    		i != this->implements->end() && j != that->implements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->implements->end() || j != that->implements->end())
+    		return false;
+    }
+    
+    if(this->members != NULL && that->members != NULL)
+    {
+    	List<Member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Class_def::equals(Node* in)
+{
+    Class_def* that = dynamic_cast<Class_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->class_mod == NULL || that->class_mod == NULL)
+    {
+    	if(this->class_mod != NULL || that->class_mod != NULL)
+    		return false;
+    }
+    else if(!this->class_mod->equals(that->class_mod))
+    	return false;
+    
+    if(this->class_name == NULL || that->class_name == NULL)
+    {
+    	if(this->class_name != NULL || that->class_name != NULL)
+    		return false;
+    }
+    else if(!this->class_name->equals(that->class_name))
+    	return false;
+    
+    if(this->extends == NULL || that->extends == NULL)
+    {
+    	if(this->extends != NULL || that->extends != NULL)
+    		return false;
+    }
+    else if(!this->extends->equals(that->extends))
+    	return false;
+    
+    if(this->implements == NULL || that->implements == NULL)
+    {
+    	if(this->implements != NULL || that->implements != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	for(
+    		i = this->implements->begin(), j = that->implements->begin();
+    		i != this->implements->end() && j != that->implements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->implements->end() || j != that->implements->end())
+    		return false;
+    }
+    
+    if(this->members == NULL || that->members == NULL)
+    {
+    	if(this->members != NULL || that->members != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Class_def* Class_def::clone()
+{
+    Class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
+    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
+    CLASS_NAME* extends = this->extends ? this->extends->clone() : NULL;
+    List<INTERFACE_NAME*>* implements = NULL;
+    if(this->implements != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	implements = new List<INTERFACE_NAME*>;
+    	for(i = this->implements->begin(); i != this->implements->end(); i++)
+    		implements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<Member*>* members = NULL;
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	members = new List<Member*>;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    		members->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Class_def* clone = new Class_def(class_mod, class_name, extends, implements, members);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Class_def::assert_valid()
+{
+    assert(class_mod != NULL);
+    class_mod->assert_valid();
+    assert(class_name != NULL);
+    class_name->assert_valid();
+    if(extends != NULL) extends->assert_valid();
+    assert(implements != NULL);
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(i = this->implements->begin(); i != this->implements->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    assert(members != NULL);
+    {
+    	List<Member*>::const_iterator i;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Class_def::Class_def(Class_mod* mod)
+{
+    {
+		this->class_mod = mod;
+		this->class_name = NULL;
+		this->extends = NULL;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
+	}
+}
+
+Class_def::Class_def(const char* name)
+{
+    {
+		this->class_mod = new Class_mod(false, false);
+		this->class_name = new CLASS_NAME(new String(name));
+		this->extends = NULL;
+		this->implements = new List<INTERFACE_NAME*>;
+		this->members = new List<Member*>;
+	}
+}
+
+void Class_def::add_member(Member* member)
+{
+    {
+		this->members->push_back(member);
+	}
+}
+
+//  Returns NULL if the method could not be found
+Method* Class_def::get_method(const char* name)
+{
+    {
+		List<Member*>::const_iterator i;
+		for(i = members->begin(); i != members->end(); i++)
+		{
+			Method* method = dynamic_cast<Method*>(*i);
+			if(method && *method->signature->method_name->value == name)
+				return method;
+		}
+
+		return NULL;
+	}
+}
+
+Interface_def::Interface_def(INTERFACE_NAME* interface_name, List<INTERFACE_NAME*>* extends, List<Member*>* members)
+{
+    this->interface_name = interface_name;
+    this->extends = extends;
+    this->members = members;
+}
+
+Interface_def::Interface_def()
+{
+    this->interface_name = 0;
+    this->extends = 0;
+    this->members = 0;
+}
+
+void Interface_def::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Interface_def::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Interface_def::classid()
+{
+    return ID;
+}
+
+bool Interface_def::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Interface_def* that = dynamic_cast<Interface_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->interface_name == NULL)
+    {
+    	if(that->interface_name != NULL && !that->interface_name->match(this->interface_name))
+    		return false;
+    }
+    else if(!this->interface_name->match(that->interface_name))
+    	return false;
+    
+    if(this->extends != NULL && that->extends != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	for(
+    		i = this->extends->begin(), j = that->extends->begin();
+    		i != this->extends->end() && j != that->extends->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->extends->end() || j != that->extends->end())
+    		return false;
+    }
+    
+    if(this->members != NULL && that->members != NULL)
+    {
+    	List<Member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Interface_def::equals(Node* in)
+{
+    Interface_def* that = dynamic_cast<Interface_def*>(in);
+    if(that == NULL) return false;
+    
+    if(this->interface_name == NULL || that->interface_name == NULL)
+    {
+    	if(this->interface_name != NULL || that->interface_name != NULL)
+    		return false;
+    }
+    else if(!this->interface_name->equals(that->interface_name))
+    	return false;
+    
+    if(this->extends == NULL || that->extends == NULL)
+    {
+    	if(this->extends != NULL || that->extends != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	for(
+    		i = this->extends->begin(), j = that->extends->begin();
+    		i != this->extends->end() && j != that->extends->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->extends->end() || j != that->extends->end())
+    		return false;
+    }
+    
+    if(this->members == NULL || that->members == NULL)
+    {
+    	if(this->members != NULL || that->members != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Member*>::const_iterator i, j;
+    	for(
+    		i = this->members->begin(), j = that->members->begin();
+    		i != this->members->end() && j != that->members->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->members->end() || j != that->members->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Interface_def* Interface_def::clone()
+{
+    INTERFACE_NAME* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
+    List<INTERFACE_NAME*>* extends = NULL;
+    if(this->extends != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	extends = new List<INTERFACE_NAME*>;
+    	for(i = this->extends->begin(); i != this->extends->end(); i++)
+    		extends->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<Member*>* members = NULL;
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	members = new List<Member*>;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    		members->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Interface_def* clone = new Interface_def(interface_name, extends, members);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Interface_def::assert_valid()
+{
+    assert(interface_name != NULL);
+    interface_name->assert_valid();
+    assert(extends != NULL);
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(i = this->extends->begin(); i != this->extends->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    assert(members != NULL);
+    {
+    	List<Member*>::const_iterator i;
+    	for(i = this->members->begin(); i != this->members->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Method::Method(Signature* signature, List<Statement*>* statements)
+{
+    this->signature = signature;
+    this->statements = statements;
+}
+
+Method::Method()
+{
+    this->signature = 0;
+    this->statements = 0;
+}
+
+void Method::visit(Visitor* visitor)
+{
+    visitor->visit_member(this);
+}
+
+void Method::transform_children(Transform* transform)
+{
+    transform->children_member(this);
+}
+
+int Method::classid()
+{
+    return ID;
+}
+
+bool Method::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Method* that = dynamic_cast<Method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->signature == NULL)
+    {
+    	if(that->signature != NULL && !that->signature->match(this->signature))
+    		return false;
+    }
+    else if(!this->signature->match(that->signature))
+    	return false;
+    
+    if(this->statements != NULL && that->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Method::equals(Node* in)
+{
+    Method* that = dynamic_cast<Method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->signature == NULL || that->signature == NULL)
+    {
+    	if(this->signature != NULL || that->signature != NULL)
+    		return false;
+    }
+    else if(!this->signature->equals(that->signature))
+    	return false;
+    
+    if(this->statements == NULL || that->statements == NULL)
+    {
+    	if(this->statements != NULL || that->statements != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Method* Method::clone()
+{
+    Signature* signature = this->signature ? this->signature->clone() : NULL;
+    List<Statement*>* statements = NULL;
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Method* clone = new Method(signature, statements);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Method::assert_valid()
+{
+    assert(signature != NULL);
+    signature->assert_valid();
+    if(statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Attribute::Attribute(Attr_mod* attr_mod, Name_with_default* var)
+{
+    this->attr_mod = attr_mod;
+    this->var = var;
+}
+
+Attribute::Attribute()
+{
+    this->attr_mod = 0;
+    this->var = 0;
+}
+
+void Attribute::visit(Visitor* visitor)
+{
+    visitor->visit_member(this);
+}
+
+void Attribute::transform_children(Transform* transform)
+{
+    transform->children_member(this);
+}
+
+int Attribute::classid()
+{
+    return ID;
+}
+
+bool Attribute::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Attribute* that = dynamic_cast<Attribute*>(in);
+    if(that == NULL) return false;
+    
+    if(this->attr_mod == NULL)
+    {
+    	if(that->attr_mod != NULL && !that->attr_mod->match(this->attr_mod))
+    		return false;
+    }
+    else if(!this->attr_mod->match(that->attr_mod))
+    	return false;
+    
+    if(this->var == NULL)
+    {
+    	if(that->var != NULL && !that->var->match(this->var))
+    		return false;
+    }
+    else if(!this->var->match(that->var))
+    	return false;
+    
+    return true;
+}
+
+bool Attribute::equals(Node* in)
+{
+    Attribute* that = dynamic_cast<Attribute*>(in);
+    if(that == NULL) return false;
+    
+    if(this->attr_mod == NULL || that->attr_mod == NULL)
+    {
+    	if(this->attr_mod != NULL || that->attr_mod != NULL)
+    		return false;
+    }
+    else if(!this->attr_mod->equals(that->attr_mod))
+    	return false;
+    
+    if(this->var == NULL || that->var == NULL)
+    {
+    	if(this->var != NULL || that->var != NULL)
+    		return false;
+    }
+    else if(!this->var->equals(that->var))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Attribute* Attribute::clone()
+{
+    Attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Attribute* clone = new Attribute(attr_mod, var);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Attribute::assert_valid()
+{
+    assert(attr_mod != NULL);
+    attr_mod->assert_valid();
+    assert(var != NULL);
+    var->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+If::If(VARIABLE_NAME* variable_name, List<Statement*>* iftrue, List<Statement*>* iffalse)
+{
+    this->variable_name = variable_name;
+    this->iftrue = iftrue;
+    this->iffalse = iffalse;
+}
+
+If::If()
+{
+    this->variable_name = 0;
+    this->iftrue = 0;
+    this->iffalse = 0;
+}
+
+void If::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void If::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int If::classid()
+{
+    return ID;
+}
+
+bool If::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    If* that = dynamic_cast<If*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->iftrue != NULL && that->iftrue != NULL)
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->iftrue->begin(), j = that->iftrue->begin();
+    		i != this->iftrue->end() && j != that->iftrue->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->iftrue->end() || j != that->iftrue->end())
+    		return false;
+    }
+    
+    if(this->iffalse != NULL && that->iffalse != NULL)
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->iffalse->begin(), j = that->iffalse->begin();
+    		i != this->iffalse->end() && j != that->iffalse->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->iffalse->end() || j != that->iffalse->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool If::equals(Node* in)
+{
+    If* that = dynamic_cast<If*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->iftrue == NULL || that->iftrue == NULL)
+    {
+    	if(this->iftrue != NULL || that->iftrue != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->iftrue->begin(), j = that->iftrue->begin();
+    		i != this->iftrue->end() && j != that->iftrue->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->iftrue->end() || j != that->iftrue->end())
+    		return false;
+    }
+    
+    if(this->iffalse == NULL || that->iffalse == NULL)
+    {
+    	if(this->iffalse != NULL || that->iffalse != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->iffalse->begin(), j = that->iffalse->begin();
+    		i != this->iffalse->end() && j != that->iffalse->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->iffalse->end() || j != that->iffalse->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+If* If::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Statement*>* iftrue = NULL;
+    if(this->iftrue != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	iftrue = new List<Statement*>;
+    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
+    		iftrue->push_back(*i ? (*i)->clone() : NULL);
+    }
+    List<Statement*>* iffalse = NULL;
+    if(this->iffalse != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	iffalse = new List<Statement*>;
+    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
+    		iffalse->push_back(*i ? (*i)->clone() : NULL);
+    }
+    If* clone = new If(variable_name, iftrue, iffalse);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void If::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(iftrue != NULL);
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    assert(iffalse != NULL);
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+If::If(VARIABLE_NAME* variable_name)
+{
+    {
+		If (variable_name, new List<Statement*> (), new List<Statement*>);
+	}
+}
+
+Loop::Loop(List<Statement*>* statements)
+{
+    this->statements = statements;
+}
+
+Loop::Loop()
+{
+    this->statements = 0;
+}
+
+void Loop::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Loop::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Loop::classid()
+{
+    return ID;
+}
+
+bool Loop::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Loop* that = dynamic_cast<Loop*>(in);
+    if(that == NULL) return false;
+    
+    if(this->statements != NULL && that->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Loop::equals(Node* in)
+{
+    Loop* that = dynamic_cast<Loop*>(in);
+    if(that == NULL) return false;
+    
+    if(this->statements == NULL || that->statements == NULL)
+    {
+    	if(this->statements != NULL || that->statements != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Loop* Loop::clone()
+{
+    List<Statement*>* statements = NULL;
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Loop* clone = new Loop(statements);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Loop::assert_valid()
+{
+    assert(statements != NULL);
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Foreach::Foreach(VARIABLE_NAME* variable_name, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements)
+{
+    this->variable_name = variable_name;
+    this->key = key;
+    this->is_ref = is_ref;
+    this->val = val;
+    this->statements = statements;
+}
+
+Foreach::Foreach()
+{
+    this->variable_name = 0;
+    this->key = 0;
+    this->is_ref = 0;
+    this->val = 0;
+    this->statements = 0;
+}
+
+void Foreach::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Foreach::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Foreach::classid()
+{
+    return ID;
+}
+
+bool Foreach::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreach* that = dynamic_cast<Foreach*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->key == NULL)
+    {
+    	if(that->key != NULL && !that->key->match(this->key))
+    		return false;
+    }
+    else if(!this->key->match(that->key))
+    	return false;
+    
+    that->is_ref = this->is_ref;
+    if(this->val == NULL)
+    {
+    	if(that->val != NULL && !that->val->match(this->val))
+    		return false;
+    }
+    else if(!this->val->match(that->val))
+    	return false;
+    
+    if(this->statements != NULL && that->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Foreach::equals(Node* in)
+{
+    Foreach* that = dynamic_cast<Foreach*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->key == NULL || that->key == NULL)
+    {
+    	if(this->key != NULL || that->key != NULL)
+    		return false;
+    }
+    else if(!this->key->equals(that->key))
+    	return false;
+    
+    if(this->is_ref != that->is_ref)
+    	return false;
+    
+    if(this->val == NULL || that->val == NULL)
+    {
+    	if(this->val != NULL || that->val != NULL)
+    		return false;
+    }
+    else if(!this->val->equals(that->val))
+    	return false;
+    
+    if(this->statements == NULL || that->statements == NULL)
+    {
+    	if(this->statements != NULL || that->statements != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Statement*>::const_iterator i, j;
+    	for(
+    		i = this->statements->begin(), j = that->statements->begin();
+    		i != this->statements->end() && j != that->statements->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->statements->end() || j != that->statements->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreach* Foreach::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Variable* key = this->key ? this->key->clone() : NULL;
+    bool is_ref = this->is_ref;
+    Variable* val = this->val ? this->val->clone() : NULL;
+    List<Statement*>* statements = NULL;
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Foreach* clone = new Foreach(variable_name, key, is_ref, val, statements);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Foreach::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    if(key != NULL) key->assert_valid();
+    assert(val != NULL);
+    val->assert_valid();
+    assert(statements != NULL);
+    {
+    	List<Statement*>::const_iterator i;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Break::Break(Expr* expr)
+{
+    this->expr = expr;
+}
+
+Break::Break()
+{
+    this->expr = 0;
+}
+
+void Break::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Break::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Break::classid()
+{
+    return ID;
+}
+
+bool Break::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Break* that = dynamic_cast<Break*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL)
@@ -1555,32 +2812,12 @@ bool Switch_case::match(Node* in)
     else if(!this->expr->match(that->expr))
     	return false;
     
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
     return true;
 }
 
-bool Switch_case::equals(Node* in)
+bool Break::equals(Node* in)
 {
-    Switch_case* that = dynamic_cast<Switch_case*>(in);
+    Break* that = dynamic_cast<Break*>(in);
     if(that == NULL) return false;
     
     if(this->expr == NULL || that->expr == NULL)
@@ -1591,112 +2828,290 @@ bool Switch_case::equals(Node* in)
     else if(!this->expr->equals(that->expr))
     	return false;
     
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Switch_case* Switch_case::clone()
+Break* Break::clone()
 {
     Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Switch_case* clone = new Switch_case(expr, statements);
+    Break* clone = new Break(expr);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Switch_case::assert_valid()
+void Break::assert_valid()
 {
     if(expr != NULL) expr->assert_valid();
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
     Node::assert_mixin_valid();
 }
 
-Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements)
+Continue::Continue(Expr* expr)
 {
-    this->class_name = class_name;
-    this->variable_name = variable_name;
-    this->statements = statements;
+    this->expr = expr;
 }
 
-Catch::Catch()
+Continue::Continue()
 {
-    this->class_name = 0;
-    this->variable_name = 0;
-    this->statements = 0;
+    this->expr = 0;
 }
 
-void Catch::visit(Visitor* visitor)
+void Continue::visit(Visitor* visitor)
 {
-    visitor->visit_catch(this);
+    visitor->visit_statement(this);
 }
 
-void Catch::transform_children(Transform* transform)
+void Continue::transform_children(Transform* transform)
 {
-    transform->children_catch(this);
+    transform->children_statement(this);
 }
 
-int Catch::classid()
+int Continue::classid()
 {
     return ID;
 }
 
-bool Catch::match(Node* in)
+bool Continue::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Catch* that = dynamic_cast<Catch*>(in);
+    Continue* that = dynamic_cast<Continue*>(in);
     if(that == NULL) return false;
     
-    if(this->class_name == NULL)
+    if(this->expr == NULL)
     {
-    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
+    	if(that->expr != NULL && !that->expr->match(this->expr))
     		return false;
     }
-    else if(!this->class_name->match(that->class_name))
+    else if(!this->expr->match(that->expr))
     	return false;
+    
+    return true;
+}
+
+bool Continue::equals(Node* in)
+{
+    Continue* that = dynamic_cast<Continue*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Continue* Continue::clone()
+{
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Continue* clone = new Continue(expr);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Continue::assert_valid()
+{
+    if(expr != NULL) expr->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Return::Return(Expr* expr)
+{
+    this->expr = expr;
+}
+
+Return::Return()
+{
+    this->expr = 0;
+}
+
+void Return::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Return::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Return::classid()
+{
+    return ID;
+}
+
+bool Return::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Return* that = dynamic_cast<Return*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool Return::equals(Node* in)
+{
+    Return* that = dynamic_cast<Return*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Return* Return::clone()
+{
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Return* clone = new Return(expr);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Return::assert_valid()
+{
+    if(expr != NULL) expr->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Static_declaration::Static_declaration(Name_with_default* var)
+{
+    this->var = var;
+}
+
+Static_declaration::Static_declaration()
+{
+    this->var = 0;
+}
+
+void Static_declaration::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Static_declaration::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Static_declaration::classid()
+{
+    return ID;
+}
+
+bool Static_declaration::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
+    if(that == NULL) return false;
+    
+    if(this->var == NULL)
+    {
+    	if(that->var != NULL && !that->var->match(this->var))
+    		return false;
+    }
+    else if(!this->var->match(that->var))
+    	return false;
+    
+    return true;
+}
+
+bool Static_declaration::equals(Node* in)
+{
+    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
+    if(that == NULL) return false;
+    
+    if(this->var == NULL || that->var == NULL)
+    {
+    	if(this->var != NULL || that->var != NULL)
+    		return false;
+    }
+    else if(!this->var->equals(that->var))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Static_declaration* Static_declaration::clone()
+{
+    Name_with_default* var = this->var ? this->var->clone() : NULL;
+    Static_declaration* clone = new Static_declaration(var);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Static_declaration::assert_valid()
+{
+    assert(var != NULL);
+    var->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Global::Global(Variable_name* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Global::Global()
+{
+    this->variable_name = 0;
+}
+
+void Global::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Global::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Global::classid()
+{
+    return ID;
+}
+
+bool Global::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Global* that = dynamic_cast<Global*>(in);
+    if(that == NULL) return false;
     
     if(this->variable_name == NULL)
     {
@@ -1705,6 +3120,78 @@ bool Catch::match(Node* in)
     }
     else if(!this->variable_name->match(that->variable_name))
     	return false;
+    
+    return true;
+}
+
+bool Global::equals(Node* in)
+{
+    Global* that = dynamic_cast<Global*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Global* Global::clone()
+{
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Global* clone = new Global(variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Global::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Try::Try(List<Statement*>* statements, List<Catch*>* catches)
+{
+    this->statements = statements;
+    this->catches = catches;
+}
+
+Try::Try()
+{
+    this->statements = 0;
+    this->catches = 0;
+}
+
+void Try::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Try::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Try::classid()
+{
+    return ID;
+}
+
+bool Try::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Try* that = dynamic_cast<Try*>(in);
+    if(that == NULL) return false;
     
     if(this->statements != NULL && that->statements != NULL)
     {
@@ -1726,29 +3213,33 @@ bool Catch::match(Node* in)
     		return false;
     }
     
+    if(this->catches != NULL && that->catches != NULL)
+    {
+    	List<Catch*>::const_iterator i, j;
+    	for(
+    		i = this->catches->begin(), j = that->catches->begin();
+    		i != this->catches->end() && j != that->catches->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->catches->end() || j != that->catches->end())
+    		return false;
+    }
+    
     return true;
 }
 
-bool Catch::equals(Node* in)
+bool Try::equals(Node* in)
 {
-    Catch* that = dynamic_cast<Catch*>(in);
+    Try* that = dynamic_cast<Try*>(in);
     if(that == NULL) return false;
-    
-    if(this->class_name == NULL || that->class_name == NULL)
-    {
-    	if(this->class_name != NULL || that->class_name != NULL)
-    		return false;
-    }
-    else if(!this->class_name->equals(that->class_name))
-    	return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
     
     if(this->statements == NULL || that->statements == NULL)
     {
@@ -1775,123 +3266,17 @@ bool Catch::equals(Node* in)
     		return false;
     }
     
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Catch* Catch::clone()
-{
-    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
+    if(this->catches == NULL || that->catches == NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Catch* clone = new Catch(class_name, variable_name, statements);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Catch::assert_valid()
-{
-    assert(class_name != NULL);
-    class_name->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Expr::Expr()
-{
-}
-
-Nested_list_elements::Nested_list_elements(List<List_element*>* list_elements)
-{
-    this->list_elements = list_elements;
-}
-
-Nested_list_elements::Nested_list_elements()
-{
-    this->list_elements = 0;
-}
-
-void Nested_list_elements::visit(Visitor* visitor)
-{
-    visitor->visit_list_element(this);
-}
-
-void Nested_list_elements::transform_children(Transform* transform)
-{
-    transform->children_list_element(this);
-}
-
-int Nested_list_elements::classid()
-{
-    return ID;
-}
-
-bool Nested_list_elements::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Nested_list_elements* that = dynamic_cast<Nested_list_elements*>(in);
-    if(that == NULL) return false;
-    
-    if(this->list_elements != NULL && that->list_elements != NULL)
-    {
-    	List<List_element*>::const_iterator i, j;
-    	for(
-    		i = this->list_elements->begin(), j = that->list_elements->begin();
-    		i != this->list_elements->end() && j != that->list_elements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->list_elements->end() || j != that->list_elements->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Nested_list_elements::equals(Node* in)
-{
-    Nested_list_elements* that = dynamic_cast<Nested_list_elements*>(in);
-    if(that == NULL) return false;
-    
-    if(this->list_elements == NULL || that->list_elements == NULL)
-    {
-    	if(this->list_elements != NULL || that->list_elements != NULL)
+    	if(this->catches != NULL || that->catches != NULL)
     		return false;
     }
     else
     {
-    	List<List_element*>::const_iterator i, j;
+    	List<Catch*>::const_iterator i, j;
     	for(
-    		i = this->list_elements->begin(), j = that->list_elements->begin();
-    		i != this->list_elements->end() && j != that->list_elements->end();
+    		i = this->catches->begin(), j = that->catches->begin();
+    		i != this->catches->end() && j != that->catches->end();
     		i++, j++)
     	{
     		if(*i == NULL || *j == NULL)
@@ -1902,7 +3287,7 @@ bool Nested_list_elements::equals(Node* in)
     		else if(!(*i)->equals(*j))
     			return false;
     	}
-    	if(i != this->list_elements->end() || j != that->list_elements->end())
+    	if(i != this->catches->end() || j != that->catches->end())
     		return false;
     }
     
@@ -1910,42 +3295,802 @@ bool Nested_list_elements::equals(Node* in)
     return true;
 }
 
-Nested_list_elements* Nested_list_elements::clone()
+Try* Try::clone()
 {
-    List<List_element*>* list_elements = NULL;
-    if(this->list_elements != NULL)
+    List<Statement*>* statements = NULL;
+    if(this->statements != NULL)
     {
-    	List<List_element*>::const_iterator i;
-    	list_elements = new List<List_element*>;
-    	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
-    		list_elements->push_back(*i ? (*i)->clone() : NULL);
+    	List<Statement*>::const_iterator i;
+    	statements = new List<Statement*>;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
+    		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    Nested_list_elements* clone = new Nested_list_elements(list_elements);
+    List<Catch*>* catches = NULL;
+    if(this->catches != NULL)
+    {
+    	List<Catch*>::const_iterator i;
+    	catches = new List<Catch*>;
+    	for(i = this->catches->begin(); i != this->catches->end(); i++)
+    		catches->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Try* clone = new Try(statements, catches);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-void Nested_list_elements::assert_valid()
+void Try::assert_valid()
 {
-    assert(list_elements != NULL);
+    assert(statements != NULL);
     {
-    	List<List_element*>::const_iterator i;
-    	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
+    	List<Statement*>::const_iterator i;
+    	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
-    		if(*i != NULL) (*i)->assert_valid();
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    assert(catches != NULL);
+    {
+    	List<Catch*>::const_iterator i;
+    	for(i = this->catches->begin(); i != this->catches->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
     Node::assert_mixin_valid();
 }
 
-Reflection::Reflection(Expr* expr)
+Throw::Throw(Expr* expr)
 {
     this->expr = expr;
 }
 
-Reflection::Reflection()
+Throw::Throw()
 {
     this->expr = 0;
+}
+
+void Throw::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Throw::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Throw::classid()
+{
+    return ID;
+}
+
+bool Throw::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Throw* that = dynamic_cast<Throw*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool Throw::equals(Node* in)
+{
+    Throw* that = dynamic_cast<Throw*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Throw* Throw::clone()
+{
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Throw* clone = new Throw(expr);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Throw::assert_valid()
+{
+    assert(expr != NULL);
+    expr->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Eval_expr::Eval_expr(Expr* expr)
+{
+    this->expr = expr;
+    _init();
+}
+
+Eval_expr::Eval_expr()
+{
+    this->expr = 0;
+    _init();
+}
+
+void Eval_expr::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Eval_expr::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Eval_expr::classid()
+{
+    return ID;
+}
+
+bool Eval_expr::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool Eval_expr::equals(Node* in)
+{
+    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
+    if(that == NULL) return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Eval_expr* Eval_expr::clone()
+{
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Eval_expr* clone = new Eval_expr(expr);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Eval_expr::assert_valid()
+{
+    assert(expr != NULL);
+    expr->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+void Eval_expr::_init()
+{
+    {
+		assert (expr != NULL);
+	}
+}
+
+Branch::Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
+{
+    this->variable_name = variable_name;
+    this->iftrue = iftrue;
+    this->iffalse = iffalse;
+}
+
+Branch::Branch()
+{
+    this->variable_name = 0;
+    this->iftrue = 0;
+    this->iffalse = 0;
+}
+
+void Branch::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Branch::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Branch::classid()
+{
+    return ID;
+}
+
+bool Branch::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Branch* that = dynamic_cast<Branch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->iftrue == NULL)
+    {
+    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
+    		return false;
+    }
+    else if(!this->iftrue->match(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL)
+    {
+    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
+    		return false;
+    }
+    else if(!this->iffalse->match(that->iffalse))
+    	return false;
+    
+    return true;
+}
+
+bool Branch::equals(Node* in)
+{
+    Branch* that = dynamic_cast<Branch*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->iftrue == NULL || that->iftrue == NULL)
+    {
+    	if(this->iftrue != NULL || that->iftrue != NULL)
+    		return false;
+    }
+    else if(!this->iftrue->equals(that->iftrue))
+    	return false;
+    
+    if(this->iffalse == NULL || that->iffalse == NULL)
+    {
+    	if(this->iffalse != NULL || that->iffalse != NULL)
+    		return false;
+    }
+    else if(!this->iffalse->equals(that->iffalse))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Branch* Branch::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    LABEL_NAME* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
+    LABEL_NAME* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
+    Branch* clone = new Branch(variable_name, iftrue, iffalse);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Branch::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(iftrue != NULL);
+    iftrue->assert_valid();
+    assert(iffalse != NULL);
+    iffalse->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Goto::Goto(LABEL_NAME* label_name)
+{
+    this->label_name = label_name;
+}
+
+Goto::Goto()
+{
+    this->label_name = 0;
+}
+
+void Goto::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Goto::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Goto::classid()
+{
+    return ID;
+}
+
+bool Goto::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Goto* that = dynamic_cast<Goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool Goto::equals(Node* in)
+{
+    Goto* that = dynamic_cast<Goto*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Goto* Goto::clone()
+{
+    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
+    Goto* clone = new Goto(label_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Goto::assert_valid()
+{
+    assert(label_name != NULL);
+    label_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Label::Label(LABEL_NAME* label_name)
+{
+    this->label_name = label_name;
+}
+
+Label::Label()
+{
+    this->label_name = 0;
+}
+
+void Label::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Label::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Label::classid()
+{
+    return ID;
+}
+
+bool Label::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Label* that = dynamic_cast<Label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL)
+    {
+    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
+    		return false;
+    }
+    else if(!this->label_name->match(that->label_name))
+    	return false;
+    
+    return true;
+}
+
+bool Label::equals(Node* in)
+{
+    Label* that = dynamic_cast<Label*>(in);
+    if(that == NULL) return false;
+    
+    if(this->label_name == NULL || that->label_name == NULL)
+    {
+    	if(this->label_name != NULL || that->label_name != NULL)
+    		return false;
+    }
+    else if(!this->label_name->equals(that->label_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Label* Label::clone()
+{
+    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
+    Label* clone = new Label(label_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Label::assert_valid()
+{
+    assert(label_name != NULL);
+    label_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Foreach_reset::Foreach_reset(VARIABLE_NAME* array, HT_ITERATOR* iter)
+{
+    this->array = array;
+    this->iter = iter;
+}
+
+Foreach_reset::Foreach_reset()
+{
+    this->array = 0;
+    this->iter = 0;
+}
+
+void Foreach_reset::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Foreach_reset::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Foreach_reset::classid()
+{
+    return ID;
+}
+
+bool Foreach_reset::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL)
+    {
+    	if(that->array != NULL && !that->array->match(this->array))
+    		return false;
+    }
+    else if(!this->array->match(that->array))
+    	return false;
+    
+    if(this->iter == NULL)
+    {
+    	if(that->iter != NULL && !that->iter->match(this->iter))
+    		return false;
+    }
+    else if(!this->iter->match(that->iter))
+    	return false;
+    
+    return true;
+}
+
+bool Foreach_reset::equals(Node* in)
+{
+    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL || that->array == NULL)
+    {
+    	if(this->array != NULL || that->array != NULL)
+    		return false;
+    }
+    else if(!this->array->equals(that->array))
+    	return false;
+    
+    if(this->iter == NULL || that->iter == NULL)
+    {
+    	if(this->iter != NULL || that->iter != NULL)
+    		return false;
+    }
+    else if(!this->iter->equals(that->iter))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreach_reset* Foreach_reset::clone()
+{
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_reset* clone = new Foreach_reset(array, iter);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Foreach_reset::assert_valid()
+{
+    assert(array != NULL);
+    array->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Foreach_next::Foreach_next(VARIABLE_NAME* array, HT_ITERATOR* iter)
+{
+    this->array = array;
+    this->iter = iter;
+}
+
+Foreach_next::Foreach_next()
+{
+    this->array = 0;
+    this->iter = 0;
+}
+
+void Foreach_next::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Foreach_next::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Foreach_next::classid()
+{
+    return ID;
+}
+
+bool Foreach_next::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL)
+    {
+    	if(that->array != NULL && !that->array->match(this->array))
+    		return false;
+    }
+    else if(!this->array->match(that->array))
+    	return false;
+    
+    if(this->iter == NULL)
+    {
+    	if(that->iter != NULL && !that->iter->match(this->iter))
+    		return false;
+    }
+    else if(!this->iter->match(that->iter))
+    	return false;
+    
+    return true;
+}
+
+bool Foreach_next::equals(Node* in)
+{
+    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL || that->array == NULL)
+    {
+    	if(this->array != NULL || that->array != NULL)
+    		return false;
+    }
+    else if(!this->array->equals(that->array))
+    	return false;
+    
+    if(this->iter == NULL || that->iter == NULL)
+    {
+    	if(this->iter != NULL || that->iter != NULL)
+    		return false;
+    }
+    else if(!this->iter->equals(that->iter))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreach_next* Foreach_next::clone()
+{
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_next* clone = new Foreach_next(array, iter);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Foreach_next::assert_valid()
+{
+    assert(array != NULL);
+    array->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Foreach_end::Foreach_end(VARIABLE_NAME* array, HT_ITERATOR* iter)
+{
+    this->array = array;
+    this->iter = iter;
+}
+
+Foreach_end::Foreach_end()
+{
+    this->array = 0;
+    this->iter = 0;
+}
+
+void Foreach_end::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Foreach_end::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Foreach_end::classid()
+{
+    return ID;
+}
+
+bool Foreach_end::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL)
+    {
+    	if(that->array != NULL && !that->array->match(this->array))
+    		return false;
+    }
+    else if(!this->array->match(that->array))
+    	return false;
+    
+    if(this->iter == NULL)
+    {
+    	if(that->iter != NULL && !that->iter->match(this->iter))
+    		return false;
+    }
+    else if(!this->iter->match(that->iter))
+    	return false;
+    
+    return true;
+}
+
+bool Foreach_end::equals(Node* in)
+{
+    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
+    if(that == NULL) return false;
+    
+    if(this->array == NULL || that->array == NULL)
+    {
+    	if(this->array != NULL || that->array != NULL)
+    		return false;
+    }
+    else if(!this->array->equals(that->array))
+    	return false;
+    
+    if(this->iter == NULL || that->iter == NULL)
+    {
+    	if(this->iter != NULL || that->iter != NULL)
+    		return false;
+    }
+    else if(!this->iter->equals(that->iter))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreach_end* Foreach_end::clone()
+{
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_end* clone = new Foreach_end(array, iter);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+void Foreach_end::assert_valid()
+{
+    assert(array != NULL);
+    array->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Expr::Expr()
+{
+}
+
+Reflection::Reflection(VARIABLE_NAME* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Reflection::Reflection()
+{
+    this->variable_name = 0;
 }
 
 void Reflection::visit(Visitor* visitor)
@@ -1973,12 +4118,12 @@ bool Reflection::match(Node* in)
     Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -1989,12 +4134,12 @@ bool Reflection::equals(Node* in)
     Reflection* that = dynamic_cast<Reflection*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -2003,16 +4148,16 @@ bool Reflection::equals(Node* in)
 
 Reflection* Reflection::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Reflection* clone = new Reflection(expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Reflection* clone = new Reflection(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Reflection::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -2632,2860 +4777,16 @@ void CONSTANT_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
+Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
-    this->class_mod = class_mod;
-    this->class_name = class_name;
-    this->extends = extends;
-    this->implements = implements;
-    this->members = members;
-}
-
-Class_def::Class_def()
-{
-    this->class_mod = 0;
-    this->class_name = 0;
-    this->extends = 0;
-    this->implements = 0;
-    this->members = 0;
-}
-
-void Class_def::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Class_def::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Class_def::classid()
-{
-    return ID;
-}
-
-bool Class_def::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Class_def* that = dynamic_cast<Class_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_mod == NULL)
-    {
-    	if(that->class_mod != NULL && !that->class_mod->match(this->class_mod))
-    		return false;
-    }
-    else if(!this->class_mod->match(that->class_mod))
-    	return false;
-    
-    if(this->class_name == NULL)
-    {
-    	if(that->class_name != NULL && !that->class_name->match(this->class_name))
-    		return false;
-    }
-    else if(!this->class_name->match(that->class_name))
-    	return false;
-    
-    if(this->extends == NULL)
-    {
-    	if(that->extends != NULL && !that->extends->match(this->extends))
-    		return false;
-    }
-    else if(!this->extends->match(that->extends))
-    	return false;
-    
-    if(this->implements != NULL && that->implements != NULL)
-    {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->implements->begin(), j = that->implements->begin();
-    		i != this->implements->end() && j != that->implements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->implements->end() || j != that->implements->end())
-    		return false;
-    }
-    
-    if(this->members != NULL && that->members != NULL)
-    {
-    	List<Member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Class_def::equals(Node* in)
-{
-    Class_def* that = dynamic_cast<Class_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->class_mod == NULL || that->class_mod == NULL)
-    {
-    	if(this->class_mod != NULL || that->class_mod != NULL)
-    		return false;
-    }
-    else if(!this->class_mod->equals(that->class_mod))
-    	return false;
-    
-    if(this->class_name == NULL || that->class_name == NULL)
-    {
-    	if(this->class_name != NULL || that->class_name != NULL)
-    		return false;
-    }
-    else if(!this->class_name->equals(that->class_name))
-    	return false;
-    
-    if(this->extends == NULL || that->extends == NULL)
-    {
-    	if(this->extends != NULL || that->extends != NULL)
-    		return false;
-    }
-    else if(!this->extends->equals(that->extends))
-    	return false;
-    
-    if(this->implements == NULL || that->implements == NULL)
-    {
-    	if(this->implements != NULL || that->implements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->implements->begin(), j = that->implements->begin();
-    		i != this->implements->end() && j != that->implements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->implements->end() || j != that->implements->end())
-    		return false;
-    }
-    
-    if(this->members == NULL || that->members == NULL)
-    {
-    	if(this->members != NULL || that->members != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Class_def* Class_def::clone()
-{
-    Class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
-    CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
-    CLASS_NAME* extends = this->extends ? this->extends->clone() : NULL;
-    List<INTERFACE_NAME*>* implements = NULL;
-    if(this->implements != NULL)
-    {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	implements = new List<INTERFACE_NAME*>;
-    	for(i = this->implements->begin(); i != this->implements->end(); i++)
-    		implements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<Member*>* members = NULL;
-    if(this->members != NULL)
-    {
-    	List<Member*>::const_iterator i;
-    	members = new List<Member*>;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    		members->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Class_def* clone = new Class_def(class_mod, class_name, extends, implements, members);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Class_def::assert_valid()
-{
-    assert(class_mod != NULL);
-    class_mod->assert_valid();
-    assert(class_name != NULL);
-    class_name->assert_valid();
-    if(extends != NULL) extends->assert_valid();
-    assert(implements != NULL);
-    {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	for(i = this->implements->begin(); i != this->implements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    assert(members != NULL);
-    {
-    	List<Member*>::const_iterator i;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Class_def::Class_def(Class_mod* mod)
-{
-    {
-		this->class_mod = mod;
-		this->class_name = NULL;
-		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
-	}
-}
-
-Class_def::Class_def(const char* name)
-{
-    {
-		this->class_mod = new Class_mod(false, false);
-		this->class_name = new CLASS_NAME(new String(name));
-		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
-	}
-}
-
-void Class_def::add_member(Member* member)
-{
-    {
-		this->members->push_back(member);
-	}
-}
-
-//  Returns NULL if the method could not be found
-Method* Class_def::get_method(const char* name)
-{
-    {
-		List<Member*>::const_iterator i;
-		for(i = members->begin(); i != members->end(); i++)
-		{
-			Method* method = dynamic_cast<Method*>(*i);
-			if(method && *method->signature->method_name->value == name)
-				return method;
-		}
-
-		return NULL;
-	}
-}
-
-Interface_def::Interface_def(INTERFACE_NAME* interface_name, List<INTERFACE_NAME*>* extends, List<Member*>* members)
-{
-    this->interface_name = interface_name;
-    this->extends = extends;
-    this->members = members;
-}
-
-Interface_def::Interface_def()
-{
-    this->interface_name = 0;
-    this->extends = 0;
-    this->members = 0;
-}
-
-void Interface_def::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Interface_def::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Interface_def::classid()
-{
-    return ID;
-}
-
-bool Interface_def::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Interface_def* that = dynamic_cast<Interface_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->interface_name == NULL)
-    {
-    	if(that->interface_name != NULL && !that->interface_name->match(this->interface_name))
-    		return false;
-    }
-    else if(!this->interface_name->match(that->interface_name))
-    	return false;
-    
-    if(this->extends != NULL && that->extends != NULL)
-    {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->extends->begin(), j = that->extends->begin();
-    		i != this->extends->end() && j != that->extends->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->extends->end() || j != that->extends->end())
-    		return false;
-    }
-    
-    if(this->members != NULL && that->members != NULL)
-    {
-    	List<Member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Interface_def::equals(Node* in)
-{
-    Interface_def* that = dynamic_cast<Interface_def*>(in);
-    if(that == NULL) return false;
-    
-    if(this->interface_name == NULL || that->interface_name == NULL)
-    {
-    	if(this->interface_name != NULL || that->interface_name != NULL)
-    		return false;
-    }
-    else if(!this->interface_name->equals(that->interface_name))
-    	return false;
-    
-    if(this->extends == NULL || that->extends == NULL)
-    {
-    	if(this->extends != NULL || that->extends != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->extends->begin(), j = that->extends->begin();
-    		i != this->extends->end() && j != that->extends->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->extends->end() || j != that->extends->end())
-    		return false;
-    }
-    
-    if(this->members == NULL || that->members == NULL)
-    {
-    	if(this->members != NULL || that->members != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Member*>::const_iterator i, j;
-    	for(
-    		i = this->members->begin(), j = that->members->begin();
-    		i != this->members->end() && j != that->members->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->members->end() || j != that->members->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Interface_def* Interface_def::clone()
-{
-    INTERFACE_NAME* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
-    List<INTERFACE_NAME*>* extends = NULL;
-    if(this->extends != NULL)
-    {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	extends = new List<INTERFACE_NAME*>;
-    	for(i = this->extends->begin(); i != this->extends->end(); i++)
-    		extends->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<Member*>* members = NULL;
-    if(this->members != NULL)
-    {
-    	List<Member*>::const_iterator i;
-    	members = new List<Member*>;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    		members->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Interface_def* clone = new Interface_def(interface_name, extends, members);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Interface_def::assert_valid()
-{
-    assert(interface_name != NULL);
-    interface_name->assert_valid();
-    assert(extends != NULL);
-    {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	for(i = this->extends->begin(); i != this->extends->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    assert(members != NULL);
-    {
-    	List<Member*>::const_iterator i;
-    	for(i = this->members->begin(); i != this->members->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Method::Method(Signature* signature, List<Statement*>* statements)
-{
-    this->signature = signature;
-    this->statements = statements;
-}
-
-Method::Method()
-{
-    this->signature = 0;
-    this->statements = 0;
-}
-
-void Method::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Method::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Method::classid()
-{
-    return ID;
-}
-
-bool Method::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Method* that = dynamic_cast<Method*>(in);
-    if(that == NULL) return false;
-    
-    if(this->signature == NULL)
-    {
-    	if(that->signature != NULL && !that->signature->match(this->signature))
-    		return false;
-    }
-    else if(!this->signature->match(that->signature))
-    	return false;
-    
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Method::equals(Node* in)
-{
-    Method* that = dynamic_cast<Method*>(in);
-    if(that == NULL) return false;
-    
-    if(this->signature == NULL || that->signature == NULL)
-    {
-    	if(this->signature != NULL || that->signature != NULL)
-    		return false;
-    }
-    else if(!this->signature->equals(that->signature))
-    	return false;
-    
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Method* Method::clone()
-{
-    Signature* signature = this->signature ? this->signature->clone() : NULL;
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Method* clone = new Method(signature, statements);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Method::assert_valid()
-{
-    assert(signature != NULL);
-    signature->assert_valid();
-    if(statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Attribute::Attribute(Attr_mod* attr_mod, List<Name_with_default*>* vars)
-{
-    this->attr_mod = attr_mod;
-    this->vars = vars;
-}
-
-Attribute::Attribute()
-{
-    this->attr_mod = 0;
-    this->vars = 0;
-}
-
-void Attribute::visit(Visitor* visitor)
-{
-    visitor->visit_member(this);
-}
-
-void Attribute::transform_children(Transform* transform)
-{
-    transform->children_member(this);
-}
-
-int Attribute::classid()
-{
-    return ID;
-}
-
-bool Attribute::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Attribute* that = dynamic_cast<Attribute*>(in);
-    if(that == NULL) return false;
-    
-    if(this->attr_mod == NULL)
-    {
-    	if(that->attr_mod != NULL && !that->attr_mod->match(this->attr_mod))
-    		return false;
-    }
-    else if(!this->attr_mod->match(that->attr_mod))
-    	return false;
-    
-    if(this->vars != NULL && that->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Attribute::equals(Node* in)
-{
-    Attribute* that = dynamic_cast<Attribute*>(in);
-    if(that == NULL) return false;
-    
-    if(this->attr_mod == NULL || that->attr_mod == NULL)
-    {
-    	if(this->attr_mod != NULL || that->attr_mod != NULL)
-    		return false;
-    }
-    else if(!this->attr_mod->equals(that->attr_mod))
-    	return false;
-    
-    if(this->vars == NULL || that->vars == NULL)
-    {
-    	if(this->vars != NULL || that->vars != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Attribute* Attribute::clone()
-{
-    Attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    List<Name_with_default*>* vars = NULL;
-    if(this->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    		vars->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Attribute* clone = new Attribute(attr_mod, vars);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Attribute::assert_valid()
-{
-    assert(attr_mod != NULL);
-    attr_mod->assert_valid();
-    assert(vars != NULL);
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-If::If(Expr* expr, List<Statement*>* iftrue, List<Statement*>* iffalse)
-{
-    this->expr = expr;
-    this->iftrue = iftrue;
-    this->iffalse = iffalse;
-}
-
-If::If()
-{
-    this->expr = 0;
-    this->iftrue = 0;
-    this->iffalse = 0;
-}
-
-void If::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void If::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int If::classid()
-{
-    return ID;
-}
-
-bool If::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    If* that = dynamic_cast<If*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->iftrue != NULL && that->iftrue != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->iftrue->begin(), j = that->iftrue->begin();
-    		i != this->iftrue->end() && j != that->iftrue->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->iftrue->end() || j != that->iftrue->end())
-    		return false;
-    }
-    
-    if(this->iffalse != NULL && that->iffalse != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->iffalse->begin(), j = that->iffalse->begin();
-    		i != this->iffalse->end() && j != that->iffalse->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->iffalse->end() || j != that->iffalse->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool If::equals(Node* in)
-{
-    If* that = dynamic_cast<If*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->iftrue == NULL || that->iftrue == NULL)
-    {
-    	if(this->iftrue != NULL || that->iftrue != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->iftrue->begin(), j = that->iftrue->begin();
-    		i != this->iftrue->end() && j != that->iftrue->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->iftrue->end() || j != that->iftrue->end())
-    		return false;
-    }
-    
-    if(this->iffalse == NULL || that->iffalse == NULL)
-    {
-    	if(this->iffalse != NULL || that->iffalse != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->iffalse->begin(), j = that->iffalse->begin();
-    		i != this->iffalse->end() && j != that->iffalse->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->iffalse->end() || j != that->iffalse->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-If* If::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* iftrue = NULL;
-    if(this->iftrue != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	iftrue = new List<Statement*>;
-    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
-    		iftrue->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<Statement*>* iffalse = NULL;
-    if(this->iffalse != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	iffalse = new List<Statement*>;
-    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
-    		iffalse->push_back(*i ? (*i)->clone() : NULL);
-    }
-    If* clone = new If(expr, iftrue, iffalse);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void If::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    assert(iftrue != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    assert(iffalse != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-If::If(Expr* expr)
-{
-    {
-		If (expr, new List<Statement*> (), new List<Statement*>);
-	}
-}
-
-Loop::Loop(List<Statement*>* statements)
-{
-    this->statements = statements;
-}
-
-Loop::Loop()
-{
-    this->statements = 0;
-}
-
-void Loop::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Loop::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Loop::classid()
-{
-    return ID;
-}
-
-bool Loop::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Loop* that = dynamic_cast<Loop*>(in);
-    if(that == NULL) return false;
-    
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Loop::equals(Node* in)
-{
-    Loop* that = dynamic_cast<Loop*>(in);
-    if(that == NULL) return false;
-    
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Loop* Loop::clone()
-{
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Loop* clone = new Loop(statements);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Loop::assert_valid()
-{
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Foreach::Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements)
-{
-    this->expr = expr;
-    this->key = key;
-    this->is_ref = is_ref;
-    this->val = val;
-    this->statements = statements;
-}
-
-Foreach::Foreach()
-{
-    this->expr = 0;
-    this->key = 0;
-    this->is_ref = 0;
-    this->val = 0;
-    this->statements = 0;
-}
-
-void Foreach::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreach::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreach::classid()
-{
-    return ID;
-}
-
-bool Foreach::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreach* that = dynamic_cast<Foreach*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->key == NULL)
-    {
-    	if(that->key != NULL && !that->key->match(this->key))
-    		return false;
-    }
-    else if(!this->key->match(that->key))
-    	return false;
-    
-    that->is_ref = this->is_ref;
-    if(this->val == NULL)
-    {
-    	if(that->val != NULL && !that->val->match(this->val))
-    		return false;
-    }
-    else if(!this->val->match(that->val))
-    	return false;
-    
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Foreach::equals(Node* in)
-{
-    Foreach* that = dynamic_cast<Foreach*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->key == NULL || that->key == NULL)
-    {
-    	if(this->key != NULL || that->key != NULL)
-    		return false;
-    }
-    else if(!this->key->equals(that->key))
-    	return false;
-    
-    if(this->is_ref != that->is_ref)
-    	return false;
-    
-    if(this->val == NULL || that->val == NULL)
-    {
-    	if(this->val != NULL || that->val != NULL)
-    		return false;
-    }
-    else if(!this->val->equals(that->val))
-    	return false;
-    
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreach* Foreach::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Variable* key = this->key ? this->key->clone() : NULL;
-    bool is_ref = this->is_ref;
-    Variable* val = this->val ? this->val->clone() : NULL;
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Foreach* clone = new Foreach(expr, key, is_ref, val, statements);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Foreach::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    if(key != NULL) key->assert_valid();
-    assert(val != NULL);
-    val->assert_valid();
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Switch::Switch(Expr* expr, List<Switch_case*>* switch_cases)
-{
-    this->expr = expr;
-    this->switch_cases = switch_cases;
-}
-
-Switch::Switch()
-{
-    this->expr = 0;
-    this->switch_cases = 0;
-}
-
-void Switch::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Switch::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Switch::classid()
-{
-    return ID;
-}
-
-bool Switch::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Switch* that = dynamic_cast<Switch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->switch_cases != NULL && that->switch_cases != NULL)
-    {
-    	List<Switch_case*>::const_iterator i, j;
-    	for(
-    		i = this->switch_cases->begin(), j = that->switch_cases->begin();
-    		i != this->switch_cases->end() && j != that->switch_cases->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->switch_cases->end() || j != that->switch_cases->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Switch::equals(Node* in)
-{
-    Switch* that = dynamic_cast<Switch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->switch_cases == NULL || that->switch_cases == NULL)
-    {
-    	if(this->switch_cases != NULL || that->switch_cases != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Switch_case*>::const_iterator i, j;
-    	for(
-    		i = this->switch_cases->begin(), j = that->switch_cases->begin();
-    		i != this->switch_cases->end() && j != that->switch_cases->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->switch_cases->end() || j != that->switch_cases->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Switch* Switch::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Switch_case*>* switch_cases = NULL;
-    if(this->switch_cases != NULL)
-    {
-    	List<Switch_case*>::const_iterator i;
-    	switch_cases = new List<Switch_case*>;
-    	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
-    		switch_cases->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Switch* clone = new Switch(expr, switch_cases);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Switch::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    assert(switch_cases != NULL);
-    {
-    	List<Switch_case*>::const_iterator i;
-    	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Break::Break(Expr* expr)
-{
-    this->expr = expr;
-}
-
-Break::Break()
-{
-    this->expr = 0;
-}
-
-void Break::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Break::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Break::classid()
-{
-    return ID;
-}
-
-bool Break::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Break* that = dynamic_cast<Break*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Break::equals(Node* in)
-{
-    Break* that = dynamic_cast<Break*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Break* Break::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Break* clone = new Break(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Break::assert_valid()
-{
-    if(expr != NULL) expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Continue::Continue(Expr* expr)
-{
-    this->expr = expr;
-}
-
-Continue::Continue()
-{
-    this->expr = 0;
-}
-
-void Continue::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Continue::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Continue::classid()
-{
-    return ID;
-}
-
-bool Continue::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Continue* that = dynamic_cast<Continue*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Continue::equals(Node* in)
-{
-    Continue* that = dynamic_cast<Continue*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Continue* Continue::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Continue* clone = new Continue(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Continue::assert_valid()
-{
-    if(expr != NULL) expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Return::Return(Expr* expr)
-{
-    this->expr = expr;
-}
-
-Return::Return()
-{
-    this->expr = 0;
-}
-
-void Return::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Return::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Return::classid()
-{
-    return ID;
-}
-
-bool Return::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Return* that = dynamic_cast<Return*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Return::equals(Node* in)
-{
-    Return* that = dynamic_cast<Return*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Return* Return::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Return* clone = new Return(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Return::assert_valid()
-{
-    if(expr != NULL) expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Static_declaration::Static_declaration(List<Name_with_default*>* vars)
-{
-    this->vars = vars;
-}
-
-Static_declaration::Static_declaration()
-{
-    this->vars = 0;
-}
-
-void Static_declaration::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Static_declaration::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Static_declaration::classid()
-{
-    return ID;
-}
-
-bool Static_declaration::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
-    if(that == NULL) return false;
-    
-    if(this->vars != NULL && that->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Static_declaration::equals(Node* in)
-{
-    Static_declaration* that = dynamic_cast<Static_declaration*>(in);
-    if(that == NULL) return false;
-    
-    if(this->vars == NULL || that->vars == NULL)
-    {
-    	if(this->vars != NULL || that->vars != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Name_with_default*>::const_iterator i, j;
-    	for(
-    		i = this->vars->begin(), j = that->vars->begin();
-    		i != this->vars->end() && j != that->vars->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->vars->end() || j != that->vars->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Static_declaration* Static_declaration::clone()
-{
-    List<Name_with_default*>* vars = NULL;
-    if(this->vars != NULL)
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    		vars->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Static_declaration* clone = new Static_declaration(vars);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Static_declaration::assert_valid()
-{
-    assert(vars != NULL);
-    {
-    	List<Name_with_default*>::const_iterator i;
-    	for(i = this->vars->begin(); i != this->vars->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Global::Global(List<Variable_name*>* variable_names)
-{
-    this->variable_names = variable_names;
-}
-
-Global::Global()
-{
-    this->variable_names = 0;
-}
-
-void Global::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Global::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Global::classid()
-{
-    return ID;
-}
-
-bool Global::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Global* that = dynamic_cast<Global*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_names != NULL && that->variable_names != NULL)
-    {
-    	List<Variable_name*>::const_iterator i, j;
-    	for(
-    		i = this->variable_names->begin(), j = that->variable_names->begin();
-    		i != this->variable_names->end() && j != that->variable_names->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->variable_names->end() || j != that->variable_names->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Global::equals(Node* in)
-{
-    Global* that = dynamic_cast<Global*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_names == NULL || that->variable_names == NULL)
-    {
-    	if(this->variable_names != NULL || that->variable_names != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Variable_name*>::const_iterator i, j;
-    	for(
-    		i = this->variable_names->begin(), j = that->variable_names->begin();
-    		i != this->variable_names->end() && j != that->variable_names->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->variable_names->end() || j != that->variable_names->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Global* Global::clone()
-{
-    List<Variable_name*>* variable_names = NULL;
-    if(this->variable_names != NULL)
-    {
-    	List<Variable_name*>::const_iterator i;
-    	variable_names = new List<Variable_name*>;
-    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
-    		variable_names->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Global* clone = new Global(variable_names);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Global::assert_valid()
-{
-    assert(variable_names != NULL);
-    {
-    	List<Variable_name*>::const_iterator i;
-    	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Try::Try(List<Statement*>* statements, List<Catch*>* catches)
-{
-    this->statements = statements;
-    this->catches = catches;
-}
-
-Try::Try()
-{
-    this->statements = 0;
-    this->catches = 0;
-}
-
-void Try::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Try::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Try::classid()
-{
-    return ID;
-}
-
-bool Try::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Try* that = dynamic_cast<Try*>(in);
-    if(that == NULL) return false;
-    
-    if(this->statements != NULL && that->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(this->catches != NULL && that->catches != NULL)
-    {
-    	List<Catch*>::const_iterator i, j;
-    	for(
-    		i = this->catches->begin(), j = that->catches->begin();
-    		i != this->catches->end() && j != that->catches->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->catches->end() || j != that->catches->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Try::equals(Node* in)
-{
-    Try* that = dynamic_cast<Try*>(in);
-    if(that == NULL) return false;
-    
-    if(this->statements == NULL || that->statements == NULL)
-    {
-    	if(this->statements != NULL || that->statements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Statement*>::const_iterator i, j;
-    	for(
-    		i = this->statements->begin(), j = that->statements->begin();
-    		i != this->statements->end() && j != that->statements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->statements->end() || j != that->statements->end())
-    		return false;
-    }
-    
-    if(this->catches == NULL || that->catches == NULL)
-    {
-    	if(this->catches != NULL || that->catches != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Catch*>::const_iterator i, j;
-    	for(
-    		i = this->catches->begin(), j = that->catches->begin();
-    		i != this->catches->end() && j != that->catches->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->catches->end() || j != that->catches->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Try* Try::clone()
-{
-    List<Statement*>* statements = NULL;
-    if(this->statements != NULL)
-    {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    		statements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    List<Catch*>* catches = NULL;
-    if(this->catches != NULL)
-    {
-    	List<Catch*>::const_iterator i;
-    	catches = new List<Catch*>;
-    	for(i = this->catches->begin(); i != this->catches->end(); i++)
-    		catches->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Try* clone = new Try(statements, catches);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Try::assert_valid()
-{
-    assert(statements != NULL);
-    {
-    	List<Statement*>::const_iterator i;
-    	for(i = this->statements->begin(); i != this->statements->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    assert(catches != NULL);
-    {
-    	List<Catch*>::const_iterator i;
-    	for(i = this->catches->begin(); i != this->catches->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
-    Node::assert_mixin_valid();
-}
-
-Throw::Throw(Expr* expr)
-{
-    this->expr = expr;
-}
-
-Throw::Throw()
-{
-    this->expr = 0;
-}
-
-void Throw::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Throw::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Throw::classid()
-{
-    return ID;
-}
-
-bool Throw::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Throw* that = dynamic_cast<Throw*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Throw::equals(Node* in)
-{
-    Throw* that = dynamic_cast<Throw*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Throw* Throw::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Throw* clone = new Throw(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Throw::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Eval_expr::Eval_expr(Expr* expr)
-{
-    this->expr = expr;
-    _init();
-}
-
-Eval_expr::Eval_expr()
-{
-    this->expr = 0;
-    _init();
-}
-
-void Eval_expr::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Eval_expr::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Eval_expr::classid()
-{
-    return ID;
-}
-
-bool Eval_expr::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Eval_expr::equals(Node* in)
-{
-    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Eval_expr* Eval_expr::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Eval_expr* clone = new Eval_expr(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Eval_expr::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-void Eval_expr::_init()
-{
-    {
-		assert (expr != NULL);
-	}
-}
-
-Branch::Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
-{
-    this->expr = expr;
-    this->iftrue = iftrue;
-    this->iffalse = iffalse;
-}
-
-Branch::Branch()
-{
-    this->expr = 0;
-    this->iftrue = 0;
-    this->iffalse = 0;
-}
-
-void Branch::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Branch::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Branch::classid()
-{
-    return ID;
-}
-
-bool Branch::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Branch* that = dynamic_cast<Branch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    if(this->iftrue == NULL)
-    {
-    	if(that->iftrue != NULL && !that->iftrue->match(this->iftrue))
-    		return false;
-    }
-    else if(!this->iftrue->match(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL)
-    {
-    	if(that->iffalse != NULL && !that->iffalse->match(this->iffalse))
-    		return false;
-    }
-    else if(!this->iffalse->match(that->iffalse))
-    	return false;
-    
-    return true;
-}
-
-bool Branch::equals(Node* in)
-{
-    Branch* that = dynamic_cast<Branch*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(this->iftrue == NULL || that->iftrue == NULL)
-    {
-    	if(this->iftrue != NULL || that->iftrue != NULL)
-    		return false;
-    }
-    else if(!this->iftrue->equals(that->iftrue))
-    	return false;
-    
-    if(this->iffalse == NULL || that->iffalse == NULL)
-    {
-    	if(this->iffalse != NULL || that->iffalse != NULL)
-    		return false;
-    }
-    else if(!this->iffalse->equals(that->iffalse))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Branch* Branch::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    LABEL_NAME* iftrue = this->iftrue ? this->iftrue->clone() : NULL;
-    LABEL_NAME* iffalse = this->iffalse ? this->iffalse->clone() : NULL;
-    Branch* clone = new Branch(expr, iftrue, iffalse);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Branch::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    assert(iftrue != NULL);
-    iftrue->assert_valid();
-    assert(iffalse != NULL);
-    iffalse->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Goto::Goto(LABEL_NAME* label_name)
-{
-    this->label_name = label_name;
-}
-
-Goto::Goto()
-{
-    this->label_name = 0;
-}
-
-void Goto::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Goto::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Goto::classid()
-{
-    return ID;
-}
-
-bool Goto::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Goto* that = dynamic_cast<Goto*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL)
-    {
-    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
-    		return false;
-    }
-    else if(!this->label_name->match(that->label_name))
-    	return false;
-    
-    return true;
-}
-
-bool Goto::equals(Node* in)
-{
-    Goto* that = dynamic_cast<Goto*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL || that->label_name == NULL)
-    {
-    	if(this->label_name != NULL || that->label_name != NULL)
-    		return false;
-    }
-    else if(!this->label_name->equals(that->label_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Goto* Goto::clone()
-{
-    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
-    Goto* clone = new Goto(label_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Goto::assert_valid()
-{
-    assert(label_name != NULL);
-    label_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Label::Label(LABEL_NAME* label_name)
-{
-    this->label_name = label_name;
-}
-
-Label::Label()
-{
-    this->label_name = 0;
-}
-
-void Label::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Label::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Label::classid()
-{
-    return ID;
-}
-
-bool Label::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Label* that = dynamic_cast<Label*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL)
-    {
-    	if(that->label_name != NULL && !that->label_name->match(this->label_name))
-    		return false;
-    }
-    else if(!this->label_name->match(that->label_name))
-    	return false;
-    
-    return true;
-}
-
-bool Label::equals(Node* in)
-{
-    Label* that = dynamic_cast<Label*>(in);
-    if(that == NULL) return false;
-    
-    if(this->label_name == NULL || that->label_name == NULL)
-    {
-    	if(this->label_name != NULL || that->label_name != NULL)
-    		return false;
-    }
-    else if(!this->label_name->equals(that->label_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Label* Label::clone()
-{
-    LABEL_NAME* label_name = this->label_name ? this->label_name->clone() : NULL;
-    Label* clone = new Label(label_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Label::assert_valid()
-{
-    assert(label_name != NULL);
-    label_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Foreach_reset::Foreach_reset(Variable* variable, HT_ITERATOR* ht_iterator)
-{
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
-}
-
-Foreach_reset::Foreach_reset()
-{
-    this->variable = 0;
-    this->ht_iterator = 0;
-}
-
-void Foreach_reset::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreach_reset::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreach_reset::classid()
-{
-    return ID;
-}
-
-bool Foreach_reset::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL)
-    {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
-    		return false;
-    }
-    else if(!this->ht_iterator->match(that->ht_iterator))
-    	return false;
-    
-    return true;
-}
-
-bool Foreach_reset::equals(Node* in)
-{
-    Foreach_reset* that = dynamic_cast<Foreach_reset*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
-    {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
-    		return false;
-    }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreach_reset* Foreach_reset::clone()
-{
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_reset* clone = new Foreach_reset(variable, ht_iterator);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Foreach_reset::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Foreach_next::Foreach_next(Variable* variable, HT_ITERATOR* ht_iterator)
-{
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
-}
-
-Foreach_next::Foreach_next()
-{
-    this->variable = 0;
-    this->ht_iterator = 0;
-}
-
-void Foreach_next::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreach_next::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreach_next::classid()
-{
-    return ID;
-}
-
-bool Foreach_next::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL)
-    {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
-    		return false;
-    }
-    else if(!this->ht_iterator->match(that->ht_iterator))
-    	return false;
-    
-    return true;
-}
-
-bool Foreach_next::equals(Node* in)
-{
-    Foreach_next* that = dynamic_cast<Foreach_next*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
-    {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
-    		return false;
-    }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreach_next* Foreach_next::clone()
-{
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_next* clone = new Foreach_next(variable, ht_iterator);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Foreach_next::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Foreach_end::Foreach_end(Variable* variable, HT_ITERATOR* ht_iterator)
-{
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
-}
-
-Foreach_end::Foreach_end()
-{
-    this->variable = 0;
-    this->ht_iterator = 0;
-}
-
-void Foreach_end::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreach_end::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreach_end::classid()
-{
-    return ID;
-}
-
-bool Foreach_end::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL)
-    {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
-    		return false;
-    }
-    else if(!this->ht_iterator->match(that->ht_iterator))
-    	return false;
-    
-    return true;
-}
-
-bool Foreach_end::equals(Node* in)
-{
-    Foreach_end* that = dynamic_cast<Foreach_end*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
-    {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
-    		return false;
-    }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreach_end* Foreach_end::clone()
-{
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_end* clone = new Foreach_end(variable, ht_iterator);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Foreach_end::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Foreach_has_key::Foreach_has_key(Variable* variable, HT_ITERATOR* ht_iterator)
-{
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
+    this->array = array;
+    this->iter = iter;
 }
 
 Foreach_has_key::Foreach_has_key()
 {
-    this->variable = 0;
-    this->ht_iterator = 0;
+    this->array = 0;
+    this->iter = 0;
 }
 
 void Foreach_has_key::visit(Visitor* visitor)
@@ -5513,20 +4814,20 @@ bool Foreach_has_key::match(Node* in)
     Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL)
+    if(this->array == NULL)
     {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
+    	if(that->array != NULL && !that->array->match(this->array))
     		return false;
     }
-    else if(!this->variable->match(that->variable))
+    else if(!this->array->match(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL)
+    if(this->iter == NULL)
     {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    	if(that->iter != NULL && !that->iter->match(this->iter))
     		return false;
     }
-    else if(!this->ht_iterator->match(that->ht_iterator))
+    else if(!this->iter->match(that->iter))
     	return false;
     
     return true;
@@ -5537,20 +4838,20 @@ bool Foreach_has_key::equals(Node* in)
     Foreach_has_key* that = dynamic_cast<Foreach_has_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL || that->variable == NULL)
+    if(this->array == NULL || that->array == NULL)
     {
-    	if(this->variable != NULL || that->variable != NULL)
+    	if(this->array != NULL || that->array != NULL)
     		return false;
     }
-    else if(!this->variable->equals(that->variable))
+    else if(!this->array->equals(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    if(this->iter == NULL || that->iter == NULL)
     {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    	if(this->iter != NULL || that->iter != NULL)
     		return false;
     }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
+    else if(!this->iter->equals(that->iter))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5559,32 +4860,32 @@ bool Foreach_has_key::equals(Node* in)
 
 Foreach_has_key* Foreach_has_key::clone()
 {
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_has_key* clone = new Foreach_has_key(variable, ht_iterator);
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_has_key* clone = new Foreach_has_key(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_has_key::assert_valid()
 {
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
+    assert(array != NULL);
+    array->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_get_key::Foreach_get_key(Variable* variable, HT_ITERATOR* ht_iterator)
+Foreach_get_key::Foreach_get_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
+    this->array = array;
+    this->iter = iter;
 }
 
 Foreach_get_key::Foreach_get_key()
 {
-    this->variable = 0;
-    this->ht_iterator = 0;
+    this->array = 0;
+    this->iter = 0;
 }
 
 void Foreach_get_key::visit(Visitor* visitor)
@@ -5612,20 +4913,20 @@ bool Foreach_get_key::match(Node* in)
     Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL)
+    if(this->array == NULL)
     {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
+    	if(that->array != NULL && !that->array->match(this->array))
     		return false;
     }
-    else if(!this->variable->match(that->variable))
+    else if(!this->array->match(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL)
+    if(this->iter == NULL)
     {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    	if(that->iter != NULL && !that->iter->match(this->iter))
     		return false;
     }
-    else if(!this->ht_iterator->match(that->ht_iterator))
+    else if(!this->iter->match(that->iter))
     	return false;
     
     return true;
@@ -5636,20 +4937,20 @@ bool Foreach_get_key::equals(Node* in)
     Foreach_get_key* that = dynamic_cast<Foreach_get_key*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL || that->variable == NULL)
+    if(this->array == NULL || that->array == NULL)
     {
-    	if(this->variable != NULL || that->variable != NULL)
+    	if(this->array != NULL || that->array != NULL)
     		return false;
     }
-    else if(!this->variable->equals(that->variable))
+    else if(!this->array->equals(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    if(this->iter == NULL || that->iter == NULL)
     {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    	if(this->iter != NULL || that->iter != NULL)
     		return false;
     }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
+    else if(!this->iter->equals(that->iter))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5658,32 +4959,34 @@ bool Foreach_get_key::equals(Node* in)
 
 Foreach_get_key* Foreach_get_key::clone()
 {
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_get_key* clone = new Foreach_get_key(variable, ht_iterator);
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_get_key* clone = new Foreach_get_key(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_get_key::assert_valid()
 {
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
+    assert(array != NULL);
+    array->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Foreach_get_val::Foreach_get_val(Variable* variable, HT_ITERATOR* ht_iterator)
+Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter)
 {
-    this->variable = variable;
-    this->ht_iterator = ht_iterator;
+    this->array = array;
+    this->key = key;
+    this->iter = iter;
 }
 
 Foreach_get_val::Foreach_get_val()
 {
-    this->variable = 0;
-    this->ht_iterator = 0;
+    this->array = 0;
+    this->key = 0;
+    this->iter = 0;
 }
 
 void Foreach_get_val::visit(Visitor* visitor)
@@ -5711,20 +5014,28 @@ bool Foreach_get_val::match(Node* in)
     Foreach_get_val* that = dynamic_cast<Foreach_get_val*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL)
+    if(this->array == NULL)
     {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
+    	if(that->array != NULL && !that->array->match(this->array))
     		return false;
     }
-    else if(!this->variable->match(that->variable))
+    else if(!this->array->match(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL)
+    if(this->key == NULL)
     {
-    	if(that->ht_iterator != NULL && !that->ht_iterator->match(this->ht_iterator))
+    	if(that->key != NULL && !that->key->match(this->key))
     		return false;
     }
-    else if(!this->ht_iterator->match(that->ht_iterator))
+    else if(!this->key->match(that->key))
+    	return false;
+    
+    if(this->iter == NULL)
+    {
+    	if(that->iter != NULL && !that->iter->match(this->iter))
+    		return false;
+    }
+    else if(!this->iter->match(that->iter))
     	return false;
     
     return true;
@@ -5735,20 +5046,28 @@ bool Foreach_get_val::equals(Node* in)
     Foreach_get_val* that = dynamic_cast<Foreach_get_val*>(in);
     if(that == NULL) return false;
     
-    if(this->variable == NULL || that->variable == NULL)
+    if(this->array == NULL || that->array == NULL)
     {
-    	if(this->variable != NULL || that->variable != NULL)
+    	if(this->array != NULL || that->array != NULL)
     		return false;
     }
-    else if(!this->variable->equals(that->variable))
+    else if(!this->array->equals(that->array))
     	return false;
     
-    if(this->ht_iterator == NULL || that->ht_iterator == NULL)
+    if(this->key == NULL || that->key == NULL)
     {
-    	if(this->ht_iterator != NULL || that->ht_iterator != NULL)
+    	if(this->key != NULL || that->key != NULL)
     		return false;
     }
-    else if(!this->ht_iterator->equals(that->ht_iterator))
+    else if(!this->key->equals(that->key))
+    	return false;
+    
+    if(this->iter == NULL || that->iter == NULL)
+    {
+    	if(this->iter != NULL || that->iter != NULL)
+    		return false;
+    }
+    else if(!this->iter->equals(that->iter))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5757,19 +5076,22 @@ bool Foreach_get_val::equals(Node* in)
 
 Foreach_get_val* Foreach_get_val::clone()
 {
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    HT_ITERATOR* ht_iterator = this->ht_iterator ? this->ht_iterator->clone() : NULL;
-    Foreach_get_val* clone = new Foreach_get_val(variable, ht_iterator);
+    VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
+    VARIABLE_NAME* key = this->key ? this->key->clone() : NULL;
+    HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
+    Foreach_get_val* clone = new Foreach_get_val(array, key, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Foreach_get_val::assert_valid()
 {
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(ht_iterator != NULL);
-    ht_iterator->assert_valid();
+    assert(array != NULL);
+    array->assert_valid();
+    assert(key != NULL);
+    key->assert_valid();
+    assert(iter != NULL);
+    iter->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -6012,157 +5334,16 @@ Op_assignment::Op_assignment(Variable* variable, const char* op, Expr* expr)
    }
 }
 
-List_assignment::List_assignment(List<List_element*>* list_elements, Expr* expr)
-{
-    this->list_elements = list_elements;
-    this->expr = expr;
-}
-
-List_assignment::List_assignment()
-{
-    this->list_elements = 0;
-    this->expr = 0;
-}
-
-void List_assignment::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void List_assignment::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int List_assignment::classid()
-{
-    return ID;
-}
-
-bool List_assignment::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    List_assignment* that = dynamic_cast<List_assignment*>(in);
-    if(that == NULL) return false;
-    
-    if(this->list_elements != NULL && that->list_elements != NULL)
-    {
-    	List<List_element*>::const_iterator i, j;
-    	for(
-    		i = this->list_elements->begin(), j = that->list_elements->begin();
-    		i != this->list_elements->end() && j != that->list_elements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->list_elements->end() || j != that->list_elements->end())
-    		return false;
-    }
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool List_assignment::equals(Node* in)
-{
-    List_assignment* that = dynamic_cast<List_assignment*>(in);
-    if(that == NULL) return false;
-    
-    if(this->list_elements == NULL || that->list_elements == NULL)
-    {
-    	if(this->list_elements != NULL || that->list_elements != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<List_element*>::const_iterator i, j;
-    	for(
-    		i = this->list_elements->begin(), j = that->list_elements->begin();
-    		i != this->list_elements->end() && j != that->list_elements->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->list_elements->end() || j != that->list_elements->end())
-    		return false;
-    }
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-List_assignment* List_assignment::clone()
-{
-    List<List_element*>* list_elements = NULL;
-    if(this->list_elements != NULL)
-    {
-    	List<List_element*>::const_iterator i;
-    	list_elements = new List<List_element*>;
-    	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
-    		list_elements->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List_assignment* clone = new List_assignment(list_elements, expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void List_assignment::assert_valid()
-{
-    assert(list_elements != NULL);
-    {
-    	List<List_element*>::const_iterator i;
-    	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
-    	{
-    		if(*i != NULL) (*i)->assert_valid();
-    	}
-    }
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Cast::Cast(CAST* cast, Expr* expr)
+Cast::Cast(CAST* cast, VARIABLE_NAME* variable_name)
 {
     this->cast = cast;
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Cast::Cast()
 {
     this->cast = 0;
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Cast::visit(Visitor* visitor)
@@ -6198,12 +5379,12 @@ bool Cast::match(Node* in)
     else if(!this->cast->match(that->cast))
     	return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -6222,12 +5403,12 @@ bool Cast::equals(Node* in)
     else if(!this->cast->equals(that->cast))
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -6237,8 +5418,8 @@ bool Cast::equals(Node* in)
 Cast* Cast::clone()
 {
     CAST* cast = this->cast ? this->cast->clone() : NULL;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Cast* clone = new Cast(cast, expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Cast* clone = new Cast(cast, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6247,29 +5428,29 @@ void Cast::assert_valid()
 {
     assert(cast != NULL);
     cast->assert_valid();
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Cast::Cast(const char* type, Expr* expr)
+Cast::Cast(const char* type, VARIABLE_NAME* variable_name)
 {
     {
 		this->cast = new CAST(new String(type));
-		this->expr = expr;
+		this->variable_name = variable_name;
 	}
 }
 
-Unary_op::Unary_op(OP* op, Expr* expr)
+Unary_op::Unary_op(OP* op, VARIABLE_NAME* variable_name)
 {
     this->op = op;
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Unary_op::Unary_op()
 {
     this->op = 0;
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Unary_op::visit(Visitor* visitor)
@@ -6305,12 +5486,12 @@ bool Unary_op::match(Node* in)
     else if(!this->op->match(that->op))
     	return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -6329,12 +5510,12 @@ bool Unary_op::equals(Node* in)
     else if(!this->op->equals(that->op))
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -6344,8 +5525,8 @@ bool Unary_op::equals(Node* in)
 Unary_op* Unary_op::clone()
 {
     OP* op = this->op ? this->op->clone() : NULL;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Unary_op* clone = new Unary_op(op, expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Unary_op* clone = new Unary_op(op, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6354,20 +5535,20 @@ void Unary_op::assert_valid()
 {
     assert(op != NULL);
     op->assert_valid();
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Unary_op::Unary_op(Expr* expr, const char* op)
+Unary_op::Unary_op(VARIABLE_NAME* variable_name, const char* op)
 {
     {
-		this->expr = expr;
+		this->variable_name = variable_name;
 		this->op = new OP(new String(op));
 	}
 }
 
-Bin_op::Bin_op(Expr* left, OP* op, Expr* right)
+Bin_op::Bin_op(VARIABLE_NAME* left, OP* op, VARIABLE_NAME* right)
 {
     this->left = left;
     this->op = op;
@@ -6468,9 +5649,9 @@ bool Bin_op::equals(Node* in)
 
 Bin_op* Bin_op::clone()
 {
-    Expr* left = this->left ? this->left->clone() : NULL;
+    VARIABLE_NAME* left = this->left ? this->left->clone() : NULL;
     OP* op = this->op ? this->op->clone() : NULL;
-    Expr* right = this->right ? this->right->clone() : NULL;
+    VARIABLE_NAME* right = this->right ? this->right->clone() : NULL;
     Bin_op* clone = new Bin_op(left, op, right);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -6487,91 +5668,13 @@ void Bin_op::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Bin_op::Bin_op(Expr* left, Expr* right, const char* op)
+Bin_op::Bin_op(VARIABLE_NAME* left, VARIABLE_NAME* right, const char* op)
 {
     {
 		this->left = left;
 		this->op = new OP(new String(op));
 		this->right = right;
 	}
-}
-
-Ignore_errors::Ignore_errors(Expr* expr)
-{
-    this->expr = expr;
-}
-
-Ignore_errors::Ignore_errors()
-{
-    this->expr = 0;
-}
-
-void Ignore_errors::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Ignore_errors::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Ignore_errors::classid()
-{
-    return ID;
-}
-
-bool Ignore_errors::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Ignore_errors* that = dynamic_cast<Ignore_errors*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Ignore_errors::equals(Node* in)
-{
-    Ignore_errors* that = dynamic_cast<Ignore_errors*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Ignore_errors* Ignore_errors::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Ignore_errors* clone = new Ignore_errors(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-void Ignore_errors::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
 }
 
 Constant::Constant(CLASS_NAME* class_name, CONSTANT_NAME* constant_name)
@@ -6672,15 +5775,15 @@ void Constant::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Instanceof::Instanceof(Expr* expr, Class_name* class_name)
+Instanceof::Instanceof(VARIABLE_NAME* variable_name, Class_name* class_name)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
     this->class_name = class_name;
 }
 
 Instanceof::Instanceof()
 {
-    this->expr = 0;
+    this->variable_name = 0;
     this->class_name = 0;
 }
 
@@ -6709,12 +5812,12 @@ bool Instanceof::match(Node* in)
     Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     if(this->class_name == NULL)
@@ -6733,12 +5836,12 @@ bool Instanceof::equals(Node* in)
     Instanceof* that = dynamic_cast<Instanceof*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(this->class_name == NULL || that->class_name == NULL)
@@ -6755,23 +5858,23 @@ bool Instanceof::equals(Node* in)
 
 Instanceof* Instanceof::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
     Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    Instanceof* clone = new Instanceof(expr, class_name);
+    Instanceof* clone = new Instanceof(variable_name, class_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
 void Instanceof::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     assert(class_name != NULL);
     class_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name, List<Expr*>* array_indices)
+Variable::Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
 {
     this->target = target;
     this->variable_name = variable_name;
@@ -6828,7 +5931,7 @@ bool Variable::match(Node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -6877,7 +5980,7 @@ bool Variable::equals(Node* in)
     }
     else
     {
-    	List<Expr*>::const_iterator i, j;
+    	List<VARIABLE_NAME*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -6903,11 +6006,11 @@ Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Expr*>* array_indices = NULL;
+    List<VARIABLE_NAME*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i;
-    	array_indices = new List<Expr*>;
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	array_indices = new List<VARIABLE_NAME*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -6923,7 +6026,7 @@ void Variable::assert_valid()
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<Expr*>::const_iterator i;
+    	List<VARIABLE_NAME*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -6937,7 +6040,17 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new List<VARIABLE_NAME*>;
+	}
+}
+
+bool Variable::is_simple_variable()
+{
+    {
+		return (
+				target == NULL
+			&& array_indices->size () == 0
+			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 }
 
@@ -7331,23 +6444,21 @@ void Method_invocation::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Method_invocation::Method_invocation(const char* name, Expr* arg)
+Method_invocation::Method_invocation(const char* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 
-Method_invocation::Method_invocation(METHOD_NAME* name, Expr* arg)
+Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		this->actual_parameters = new List<Actual_parameter*> (arg);
 	}
 }
 
@@ -7534,11 +6645,6 @@ bool INT::match(Node* in)
     	return true;
 }
 
-bool INT::match_value(INT* that)
-{
-    return true;
-}
-
 bool INT::equals(Node* in)
 {
     INT* that = dynamic_cast<INT*>(in);
@@ -7599,6 +6705,13 @@ String* INT::get_value_as_string()
 	}
 }
 
+bool INT::match_value(INT* that)
+{
+    {
+		return (that->value == value);
+	}
+}
+
 REAL::REAL(double value)
 {
     this->value = value;
@@ -7638,11 +6751,6 @@ bool REAL::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool REAL::match_value(REAL* that)
-{
-    return true;
 }
 
 bool REAL::equals(Node* in)
@@ -7714,6 +6822,13 @@ String* REAL::get_value_as_string()
 	}
 }
 
+bool REAL::match_value(REAL* that)
+{
+    {
+		return (that->value == value);
+	}
+}
+
 STRING::STRING(String* value)
 {
     this->value = value;
@@ -7753,11 +6868,6 @@ bool STRING::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool STRING::match_value(STRING* that)
-{
-    return true;
 }
 
 bool STRING::equals(Node* in)
@@ -7817,6 +6927,13 @@ String* STRING::clone_value()
 	}
 }
 
+bool STRING::match_value(STRING* that)
+{
+    {
+		return (*that->value == *value);
+	}
+}
+
 BOOL::BOOL(bool value)
 {
     this->value = value;
@@ -7856,11 +6973,6 @@ bool BOOL::match(Node* in)
     	return false;
     else
     	return true;
-}
-
-bool BOOL::match_value(BOOL* that)
-{
-    return true;
 }
 
 bool BOOL::equals(Node* in)
@@ -7919,6 +7031,13 @@ String* BOOL::get_value_as_string()
 {
     {
 		return _get_value_as_string ();
+	}
+}
+
+bool BOOL::match_value(BOOL* that)
+{
+    {
+		return (that->value == value);
 	}
 }
 

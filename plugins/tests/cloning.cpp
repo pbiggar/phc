@@ -62,9 +62,9 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run_ast (AST::PHP_script* in, Pass_manager*) { run <AST::PHP_script, AST::Node, AST_unparser, AST::Visitor> (in); }
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*) { run <HIR::PHP_script, HIR::Node, HIR_unparser, HIR::Visitor> (in); }
-extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*) { run <MIR::PHP_script, MIR::Node, MIR_unparser, MIR::Visitor> (in); }
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager*, String* option) { run <AST::PHP_script, AST::Node, AST_unparser, AST::Visitor> (in); }
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*, String* option) { run <HIR::PHP_script, HIR::Node, HIR_unparser, HIR::Visitor> (in); }
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*, String* option) { run <MIR::PHP_script, MIR::Node, MIR_unparser, MIR::Visitor> (in); }
 
 extern "C" void unload ()
 {

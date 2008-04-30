@@ -18,7 +18,7 @@ public:
 	// things, and issue warnings on anything that remains.
 	bool hir;
 
-	Process_includes (bool hir, String* pass_name, Pass_manager* pm, const char* name);
+	Process_includes (bool hir, String* pass_name, Pass_manager* pm, String* name);
 	void do_not_include (const char*, AST::Eval_expr*, List<AST::Statement*>*, AST::Actual_parameter*);
 
 	// Pass information
@@ -26,7 +26,7 @@ public:
 
 	String* pass_name;
 	Pass_manager* pm;
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		in->transform_children(this);
 	}

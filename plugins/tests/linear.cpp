@@ -5,6 +5,7 @@
  * Test whether the tree is actually a tree (and not a graph) 
  */
 
+#include "process_ir/General.h"
 #include "Collect_all_pointers.h"
 #include "pass_manager/Plugin_pass.h"
 #include "AST_visitor.h"
@@ -26,23 +27,42 @@ void run (PHP_script* in)
 	is_run = true;
 
 	if(cap.all_pointers.size() != cap.unique_pointers.size())
+	{
 		success = false;
+		
+		// get a bit more information here. We want to print information if it all fails.
+		cap.all_nodes.sort ();
+		Node* last = NULL;
+		for (typename List<Node*>::const_iterator n = cap.all_nodes.begin(); n != cap.all_nodes.end(); n++)
+		{
+			if (last)
+			{
+				if ((*n) == last)
+				{
+					printf ("Problem found: (%p)\n", *n);
+					debug (*n);
+					xdebug (*n);
+				}
+			}
+			last = *n;
+		}
+	}
 }
 
 
-extern "C" void run_ast (AST::PHP_script* in, Pass_manager*) 
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager*, String* option)
 { 
-	run <AST::PHP_script, AST::Node, AST::Visitor> (in); 
+	run <AST::PHP_script, AST::Node, AST::Visitor> (in);
 }
 
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*) 
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager*, String* option)
 {
 	run <HIR::PHP_script, HIR::Node, HIR::Visitor> (in);
 }
 
-extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*) 
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager*, String* option)
 {
-	run <MIR::PHP_script, MIR::Node, MIR::Visitor> (in); 
+	run <MIR::PHP_script, MIR::Node, MIR::Visitor> (in);
 }
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)

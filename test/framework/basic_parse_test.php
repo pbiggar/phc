@@ -64,8 +64,8 @@ class BasicParseTest extends AsyncTest
 		{
 			$err = $bundle->errs[0];
 			$err = preg_replace ("/Note that line numbers are inaccurate, and will be fixed in a later release\n/", "", $err);
-			$err = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
-			if ($err !== "")
+			$replaced = preg_replace ("!{$expected["err_regex"]}!ms", "", $err);
+			if ($replaced !== "" || ($err == "" && $expected["err_regex"] != ""))
 			{
 				$this->mark_failure ("Error doesnt match, expected: \"". $expected["err_regex"] . "\"", $bundle);
 				return;
@@ -76,8 +76,8 @@ class BasicParseTest extends AsyncTest
 		if (isset ($expected["out_regex"]))
 		{
 			$out = $bundle->outs[0];
-			$out = preg_replace ("!{$expected["out_regex"]}!ms", "", $out);
-			if ($out !== "")
+			$replaced = preg_replace ("!{$expected["out_regex"]}!ms", "", $out);
+			if ($replaced !== "" || ($out == "" && $expected["out_regex"] != ""))
 			{
 				$this->mark_failure ("Output doesnt match", $bundle);
 				return;
@@ -88,9 +88,9 @@ class BasicParseTest extends AsyncTest
 		$this->mark_success ($bundle->subject);
 
 		// Was it an expectd failure
-		if ($bundle->exits[0])
+		if ($bundle->expected)
 		{
-			$this->expected_failure_count++;
+			$this->solo_tests++;
 			write_dependencies ($this->get_name (), $bundle->subject, false);
 		}
 	}
@@ -136,12 +136,17 @@ class BasicParseTest extends AsyncTest
 		if (empty ($full_expected))
 			return NULL;
 
-		// allow braces which just contain the error
+		// allow braces which just contain the error/warning
 		if (strpos ($full_expected, "::") === FALSE)
 		{
 			$full_expected = rtrim ($full_expected);
 			$full_expected = ltrim ($full_expected);
-			$expected = array ("", "", "^[^:]+:\d+:\s" . preg_quote ($full_expected) ."\n", "255", true);
+
+			$exit = "255";
+			if (preg_match ("/^Warning/", $full_expected))
+				$exit = "0";
+
+			$expected = array ("", "", "^[^:]+:\d+:\s" . preg_quote ($full_expected) ."\n", $exit, true);
 		}
 		else
 		{
@@ -158,8 +163,8 @@ class BasicParseTest extends AsyncTest
 	function run ()
 	{
 		parent::run ();
-		$num_skipped = $this->expected_failure_count;
-		echo "($num_skipped expected errors)\n";
+		$num_skipped = $this->solo_tests;
+		echo "($num_skipped solo tests)\n";
 	}
 }
 array_push($tests, new BasicParseTest());

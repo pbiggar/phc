@@ -29,10 +29,22 @@ Some notes:
 ------------- Benchmarking -------------
 In order to do accurate benchmarking, phc must be compiled with -O3. To be fair to PHP, so must the interpreter, and to be fair to phc, it must use an optimized run-time.
 
-	CC="ccache gcc" CFLAGS="-O3 -g -DNDEBUG" ./configure --enable-embed --enable-bcmath --enable-gmp --prefix=/usr/local/php-opt $@
+	CC="ccache gcc" CFLAGS="-O3 -DNDEBUG" ./configure --enable-embed --enable-bcmath --with-gmp --prefix=/usr/local/php-opt $@
 
 Some notes:
 	--enable-bcmath
-	--enable-gmp: Some of the shootout benchmarks require these.
+	--with-gmp: Some of the shootout benchmarks require these.
 	-DNDEBUG: Turn off assertions.
 
+------------- Server Benchmarking -------------
+Some benchmarks require MySQL, and apache modules.
+
+	CC="ccache gcc" CFLAGS="-O3 -DNDEBUG" ./configure --enable-embed --enable-bcmath --enable-gmp --prefix=/usr/local/php-server --with-apxs2=/usr/bin/apxs2 --with-mysql $@
+
+Some notes:
+	--with-apxs2=/usr/bin/apxs2: Apache 2.0 Handler module
+	--with-mysql: Enable mysql.
+	Currently there are bugs in apache2 on ubuntu. Add the following to
+	/etc/apache2/httpd.conf if there are configure problems with --with-apxs2:
+		#comment
+		#LoadModule vhost_alias_module /usr/lib/apache2/modules

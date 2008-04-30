@@ -5,6 +5,7 @@
 
 #include "pass_manager/Plugin_pass.h"
 #include "AST.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -31,10 +32,10 @@ int count(List<Statement*>* in)
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "ast");
+	pm->add_after_named_pass (pass, s("ast"));
 }
 
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
 	int num_statements = count(in->statements);
 	cout << num_statements << " statements found" << endl;

@@ -168,12 +168,13 @@ public:
 	}
 };
 
-Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, const char* name)
+Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, String* name)
 : hir (hir),
   pass_name (pass_name),
   pm (pm)
 {
-	this->name = new String (name);
+	this->name = name;
+	this->description = new String ("Insert included and required files into the AST");
 }
 
 bool Process_includes::pass_is_enabled (Pass_manager* pm)
@@ -205,13 +206,13 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 	if (hir && param->expr->classid () != Variable::ID)
 	{
 		// This was set in Annotate.
-		param->expr->attrs->erase ("phc.lower_expr.no_temp");
+		param->expr->attrs->erase ("phc.ast_lower_expr.no_temp");
 		param->expr = eval (param->expr);
 		pieces->push_back (in); // only works after control flow is lowered
 	}
 	else
-		out->push_back (in);
 #endif
+	out->push_back (in);
 }
 
 

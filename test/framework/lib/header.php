@@ -15,7 +15,7 @@ function get_phc ()
 	// (the right directory contains ./phc - if you get this far you
 	// have the tests)
 	$phc = "src/phc$phc_suffix";
-	if (!file_exists($phc) and is_file($phc) and is_executable($phc))
+	if (!(file_exists($phc) and is_file($phc) and is_executable($phc)))
 	{
 		$cwd = getcwd ();
 		die ("Error: The current directory, $cwd, does not contain the phc executable '$phc'\n");
@@ -353,22 +353,28 @@ function log_failure ($test_name, $subject, $commands, $outs, $errs, $exits, $mi
 	}
 
 
-	// create the stdout logs
 	if (!is_array ($outs))
 		$outs = array ($outs);
 
 	$out_string = "";
+	// create the stdout logs - but only if there is more than 1 log
+	if (count ($outs) > 1 && count (array_filter ($outs, "strlen")))
+	{
+		foreach ($outs as $i => $out)
+		{
+			$output_contents = "Command: ${commands[$i]}\n" . $out;
+			file_put_contents ("$filename.out.$i", $output_contents);
+		}
+	}
+
+	// write to the main log file
 	foreach ($outs as $i => $out)
 	{
-		$output_contents = "Command: ${commands[$i]}\n" . $out;
-		file_put_contents ("$filename.out.$i", $output_contents);
-
 		if (strlen ($out) > 1000)
 			$out = substr ($out, 0, 1000) . "... [truncated]\n";
 
 		$out_string .= "{$red}Output $i$reset:\n$out\n";
 	}
-
 
 	// print the output
 	file_put_contents($filename, $header);
@@ -406,53 +412,105 @@ function adjusted_name ($script_name, $adjust_for_regression = 0)
 	return $script_name;
 }
 
-function complete_exec($command)
+function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = false)
 {
 	global $opt_verbose;
 	if ($opt_verbose)
 		print "Running command: $command\n";
 
-	$descriptorspec = array(1 => array("pipe", "w"),
+	$descriptorspec = array(0 => array("pipe", "r"),
+									1 => array("pipe", "w"),
 									2 => array("pipe", "w"));
 	$pipes = array();
-	$handle = proc_open($command, $descriptorspec, &$pipes);
+	$handle = proc_open($command, $descriptorspec, &$pipes, getcwd());
+	
+	# read stdin into the process
+	if ($stdin !== NULL)
+		fwrite ($pipes[0], $stdin);
+
+	fclose ($pipes[0]);
+	unset ($pipes[0]);
 
 	// set non blocking to avoid infinite loops on stuck programs
 	stream_set_blocking ($pipes[1], 0);
 	stream_set_blocking ($pipes[2], 0);
-	
+
 	$out = "";
 	$err = "";
+
 	$start_time = time ();
 	do
 	{
-		$out .= stream_get_contents ($pipes[1]);
-		$err .= stream_get_contents ($pipes[2]);
 		$status = proc_get_status ($handle);
 
-		// 20 second timeout on any command
-		if (time () > $start_time + 20)
+		// It seems that with a large amount fo output, the process
+		// won't finish unless the buffers are periodically cleared.
+		// (This doesn't seem to be the case is async_test. I don't
+		// know why).
+		$new_out = stream_get_contents ($pipes[1]);
+		$new_err = stream_get_contents ($pipes[2]);
+		$out .= $new_out;
+		$err .= $new_err;
+
+		if ($pass_through)
 		{
-			proc_terminate ($handle); // catch run away programs
-			proc_close ($handle);
-			return array ("", "Timeout", -1);
+			print $new_out;
+			file_put_contents ("php://stderr", $new_err);
+		}
+
+		// 20 second timeout on any command
+		if (time () > $start_time + $timeout)
+		{
+			$out = stream_get_contents ($pipes[1]);
+			$err = stream_get_contents ($pipes[2]);
+
+			kill_properly ($handle, $pipes);
+
+			return array ("Timeout", $out, $err);
 		}
 
 		// Since we use non-blocking, the for loop could well take 100%
 		// CPU. time of 1000 - 10000 seems OK. 100000 slows down the
 		// program by 50%.
-		usleep (1000);
+		usleep (10000);
 	}
 	while ($status["running"]);
 	stream_set_blocking ($pipes[1], 1);
 	stream_set_blocking ($pipes[2], 1);
 	$out .= stream_get_contents ($pipes[1]);
 	$err .= stream_get_contents ($pipes[2]);
-	# contrary to popular opinion, proc_close doesnt return the exit
-	# status
+
 	$exit_code = $status["exitcode"];
-	proc_close ($handle);
+	
+	kill_properly ($handle, $pipes);
+
 	return array ($out, $err, $exit_code);
+}
+
+# Kill the process, and close the pipes.
+function kill_properly (&$handle, &$pipes)
+{
+	$status = proc_get_status ($handle);
+
+	# proc_terminate kills the shell process, but won't kill a runaway infinite
+	# loop. Get the child processes using ps, before killing the parent.
+	$ppid = $status["pid"];
+	$pids = split ("/\s+/", trim (`ps -o pid --no-heading --ppid $ppid`));
+
+	# if we dont close pipes, we can create deadlock, leaving zombie processes.
+	foreach ($pipes as &$pipe) fclose ($pipe);
+	proc_terminate ($handle);
+	proc_close ($handle);
+
+	// Not necessarily available.
+	if (function_exists ("posix_kill"))
+	{
+		foreach ($pids as $pid)
+		{
+			if (is_numeric ($pid))
+				posix_kill ($pid, 9);
+		}
+	}
 }
 
 function check_for_plugin ($plugin_name)
@@ -500,7 +558,7 @@ function date_string ()
  * information, or not available at all. This will result in people searching
  * for bugs in the wrong places, or not being able to identify actual bugs.
  *
- * The final chosen solution is to have a single directory (test/failures/),
+ * The final chosen solution is to have a single directory (test/dependecnies/),
  * containing one directory for each test, and each of these containing 1 file
  * per test subject. The contents of this file is "Pass" or "Fail". The file is
  * read each time we want to resolve a dependency, and never cached. 
@@ -558,14 +616,14 @@ function homogenize_xml ($string)
 function homogenize_filenames_and_line_numbers ($string)
 {
 	// specific errors and warnings
-	$string = preg_replace( "/(Warning: ).*(\(\) expects the argument \(.*\) to be a valid callback in ).*( on line )\d+/" , "$1$2$3", $string);
-	$string = preg_replace( "/(Fatal error: Cannot redeclare .*\(\) \(previously declared in ).*(:)\d+(\))/" , "$1$2$3", $string);
-//	$string = preg_replace("/(Fatal error: Allowed memory size of )\d+( bytes exhausted at ).*( \(tried to allocate )\d+( bytes\) in ).*( on line )\d+/", "$1$2$3$4", $string);
+	$string = preg_replace( "/(Warning: )\S*(\(\) expects the argument \(\S*\) to be a valid callback in )\S*( on line )\d+/", "$1$2$3", $string);
+	$string = preg_replace( "/(Fatal error: Cannot redeclare \S+\(\) \(previously declared in )\S+:\d+\)/" , "$1:)", $string);
+//	$string = preg_replace( "/(Fatal error: Allowed memory size of )\d+( bytes exhausted at )\S*( \(tried to allocate )\d+( bytes\) in )\S*( on line )\d+/", "$1$2$3$4", $string);
 
 	// general line number and filename removal
-	$string = preg_replace(     "/(Warning: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
-	$string = preg_replace( "/(Fatal error: )(.*: )?(.* in ).*( on line )\d+/", "$1$3$4", $string);
-	$string = preg_replace( "/(Catchable fatal error: .* in ).*( on line )\d+/", "$1$2", $string);
+	$string = preg_replace( "/(Warning: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Fatal error: )(\S*: )?(.+? in )\S+ on line \d+/", "$1$3", $string);
+	$string = preg_replace( "/(Catchable fatal error: .+? in )\S+ on line \d+/", "$1", $string);
 
 	return $string;
 }
@@ -577,16 +635,25 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
-// This strips off the & from a var_dump. Changing whether smoething is a reference or not isnt correct, but changing the refcount is ok. If a var only has a reference count of 1, then is_ref wont be set, so the & wont be present.
+// This strips off the & from a var_dump. Changing whether smoething
+// is a reference or not isnt correct, but changing the refcount is
+// ok. If a var only has a reference count of 1, then is_ref wont be
+// set, so the & wont be present.
 function homogenize_reference_count ($string)
 {
-# this only actually finds differences in arrays
+	// A var dump for an array looks like this:
+	//		array(2) {
+	//			["a"]=>
+	//			&string(1) "a"
+	//			["b"]=>
+	//			string(1) "b"
+	//		}
 	$string = preg_replace(
 		"/
 					(\s+\[.*?\]=>\s+)		# key and newline
 					&							# we want to delete this
 					(.*?\s+)					# dont go too far
-		/smx", "$1$2", $string);
+		/Ssmx", "$1$2", $string); // s=DOTALL,m=MULTILINE,x=EXTENDED,S=STUDY(?)
 	return $string;
 }
 
@@ -594,7 +661,7 @@ function homogenize_all ($string)
 {
 	$string = homogenize_reference_count ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
-//	$string = homogenize_break_levels ($string);
+	$string = homogenize_break_levels ($string);
 	return $string;
 }
 
@@ -607,7 +674,5 @@ function copy_to_working_dir ($file)
 	chmod ($new_file, fileperms ($file));
 	return $new_file;
 }
-
-
 
 ?>

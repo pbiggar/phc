@@ -17,11 +17,17 @@ class Plugin_pass : public Pass
 public:
 
 	Plugin_pass (String* name, lt_dlhandle handle, Pass_manager* pm, String* option);
-	void run (IR* in, Pass_manager* pm);
+	void run (IR::PHP_script* in, Pass_manager* pm);
 	void post_process ();
 
 };
 
+// declare these for type checking
+extern "C" void load (Pass_manager* pm, Plugin_pass* pass);
+extern "C" void unload ();
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option);
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option);
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option);
 
 
 

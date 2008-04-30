@@ -6,8 +6,9 @@
  */
 
 #include "Clarify.h"
+#include "process_ir/General.h"
 
-using namespace AST;
+using namespace MIR;
 
 // TODO: deal with all superglobals 
 // TODO: _ENV
@@ -22,16 +23,31 @@ using namespace AST;
 // TODO: HTTP_POST_FILES
 // TODO: _REQUEST
 
-void post_method (Method* in)
-{
-	Global* global = 
-		new Global (
-				new List<Variable_name*> (
-					new VARIABLE_NAME (
-						new String ("GLOBALS"))));
 
-	if (in->statements)
-		in->statements->push_front (global);
-	else
-		in->statements = new List<Statement*> (global);
+void Clarify::post_method (MIR::Method* in)
+{
+	if (in->statements == NULL)
+		return;
+
+	List<String*>* var_names = new List<String*>;
+	var_names->push_back (s("GLOBALS"));
+	var_names->push_back (s("_ENV"));
+	var_names->push_back (s("HTTP_ENV_VARS"));
+	var_names->push_back (s("_POST"));
+	var_names->push_back (s("HTTP_POST_VARS"));
+	var_names->push_back (s("_GET"));
+	var_names->push_back (s("HTTP_GET_VARS"));
+	var_names->push_back (s("_COOKIE"));
+	var_names->push_back (s("HTTP_COOKIE_VARS"));
+	var_names->push_back (s("_FILES"));
+	var_names->push_back (s("HTTP_FILES_VARS"));
+	var_names->push_back (s("_REQUEST"));
+	var_names->push_back (s("HTTP_REQUEST_VARS"));
+	for_lci(var_names,String,i)
+	{
+		in->statements->push_front (
+			new MIR::Global (
+				new MIR::VARIABLE_NAME (
+					*i)));
+	}
 }

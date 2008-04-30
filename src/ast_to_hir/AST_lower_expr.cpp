@@ -2,8 +2,8 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Generic superclass for transformations that replace expressions by
- * multiple statements
+ * Generic superclass for transformations that replace expressions
+ * by multiple statements
  */
 
 #include "AST_lower_expr.h"
@@ -38,10 +38,15 @@ void Lower_expr::post_return (Return* in, List<Statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Lower_expr::post_throw (Throw* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 /*
- * For each control-flow statement that contains an expression, we push
- * back the pieces created for each part of the expression, but before
- * the statement, since it can contain sub-statements.
+ * For each control-flow statement that contains an expression, we
+ * push back the pieces created for each part of the expression, but
+ * before the statement, since it can contain sub-statements.
  */
 
 /* Avoid putting the pieces from the expression into the body */
@@ -75,7 +80,7 @@ void Lower_expr::children_while (While* in)
 	// run the rest of the transform
 	in->statements = transform_statement_list(in->statements);
 
-	// restore the pieces for post_if
+	// restore the pieces for post_while
 	pieces = saved_pieces;
 }
 
@@ -88,15 +93,17 @@ void Lower_expr::children_foreach (Foreach* in)
 {
 	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
-	in->key = transform_variable(in->key);
-	in->val = transform_variable(in->val);
+
+	// No need to mess with the key and val, as they are written to,
+	// not read from. Early_lower_control_flow deals with them.
+
 	List<Statement*>* saved_pieces = pieces;
 	pieces = new List<Statement*> ();
 
 	// run the rest of the transform
 	in->statements = transform_statement_list(in->statements);
 
-	// restore the pieces for post_if
+	// restore the pieces for post_foreach
 	pieces = saved_pieces;
 }
 
@@ -124,18 +131,20 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 
 /*
  * A common pattern is captured by "eval", which takes an argument
- * an expression e, generates a new temporary T, and pushes back the statement
+ * an expression e, generates a new temporary T, and pushes back the
+ * statement
  *  
  *   T = e;
  *
  * the value returned is the expression "T". 
  *
- * If the node is marked "phc.lower_expr.no_temp", eval simply returns in.
+ * If the node is marked "phc.lower_expr.no_temp", eval simply
+ * returns in.
  */
 
 Expr* Lower_expr::eval(Expr* in)
 {
-	if(in->attrs->is_true("phc.lower_expr.no_temp"))
+	if(in->attrs->is_true("phc.ast_lower_expr.no_temp"))
 	{
 		return in;
 	}

@@ -12,7 +12,7 @@
 
 using namespace AST;
 
-void check (IR* in, bool use_ice)
+void check (IR::PHP_script* in, bool use_ice)
 {
 	in->assert_valid();
 
@@ -37,9 +37,17 @@ bool is_ref_literal (HIR::Expr* in)
 			|| dynamic_cast <HIR::Constant*> (in));
 }
 
+Invalid_check::Invalid_check (bool use_ice) 
+: Pass ()
+, use_ice (use_ice)
+{
+	this->name = new String ("check");
+	this->description = new String ("Check for invalid PHP statements");
+}
 
 
-void Invalid_check::run (IR* in, Pass_manager* pm)
+
+void Invalid_check::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	in->visit(this);
 	// Indicate that after this pass, ICEs should be used.

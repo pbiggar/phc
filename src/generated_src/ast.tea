@@ -11,9 +11,11 @@
 	Configuration
 -}
 
+output_dir "src/generated";
 prefix "AST";
 external class "Object";
-external class "IR";
+external class "IR::Node";
+external class "IR::PHP_script";
 use list "List";
 use string "String";
 use namespace "AST";
@@ -101,12 +103,12 @@ Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= Variable HT_ITERATOR<long> ;
-Foreach_next ::= Variable HT_ITERATOR<long> ;
-Foreach_end ::= Variable HT_ITERATOR<long> ;
-Foreach_has_key ::= Variable HT_ITERATOR<long> ;
-Foreach_get_key ::= Variable HT_ITERATOR<long> ;
-Foreach_get_val ::= Variable HT_ITERATOR<long> ;
+Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 
 {-
    Expressions
@@ -196,38 +198,12 @@ Source_rep ::= Identifier | Literal ;
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
 
-class Node : Object 
+class Node : IR::Node
 {
 public:
-	AttrMap* attrs;
-
-	// Return the line number of the node (or 0 if unknown)
-	int get_line_number()
-	{
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if(i != NULL)
-			return i->value();
-		else
-			return 0;
-	}
-
-	// Return the filename of the node (or NULL if unknown)
-	String* get_filename()
-	{
-		return dynamic_cast<String*>(attrs->get("phc.filename"));
-	}
-
-	Node()
-	{
-		// Constructor gets called because all classes inherit from
-		// Node virtually; also, because maketea knows Node is
-		// abstract, it won't add a constructor itself
-		attrs = new AttrMap();
-	}
-
 	void clone_mixin_from(Node* in)
 	{
-		attrs = in->attrs->clone();
+		attrs->clone_all_from (in->attrs);
 	}
 
 	void assert_mixin_valid()
@@ -267,27 +243,30 @@ public:
 
 		return true;
 	}
+
 };
+
+class PHP_script : IR::PHP_script {};
 
 class Commented_node 
 {
 public:
-	Commented_node()
+
+	Commented_node ()
 	{
-		attrs->set("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new List<String*>);
 	}
 
 	// Return the comments associated with the node
 	List<String*>* get_comments()
 	{
 		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
-		assert(comments);
+
+		if (comments == NULL)
+			return new List<String*>;
+
 		return comments;
 	}
-};
-
-class PHP_script : IR
-{
 };
 
 class Signature 
@@ -414,6 +393,14 @@ public:
 		this->target = NULL;
 		this->variable_name = name;
 		this->array_indices = new List<Expr*>;
+	}
+
+	bool is_simple_variable ()
+	{
+		return (
+				target == NULL
+			&& array_indices->size () == 0
+			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 };
 
@@ -603,6 +590,11 @@ class Source_rep
 public:
 	virtual String* get_value_as_string() = 0;
 
+	bool has_source_rep ()
+	{
+		return (dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep")) != NULL);
+	}
+
 	String* get_source_rep()
 	{
 		String* result = dynamic_cast<String*> (attrs->get ("phc.unparser.source_rep"));
@@ -645,6 +637,11 @@ public:
 		value = v;
 		set_source_rep (source_rep);
 	}
+
+	bool match_value (INT* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class REAL
@@ -681,6 +678,11 @@ public:
 		value = v;
 		set_source_rep (source_rep);
 	}
+
+	bool match_value (REAL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class BOOL
@@ -707,6 +709,10 @@ public:
 		set_source_rep (source_rep);
 	}
 
+	bool match_value (BOOL* that)
+	{
+		return (that->value == value);
+	}
 };
 
 class STRING
@@ -733,6 +739,10 @@ public:
 		set_source_rep (source_rep);
 	}
 
+	bool match_value (STRING* that)
+	{
+		return (*that->value == *value);
+	}
 };
 
 class NIL

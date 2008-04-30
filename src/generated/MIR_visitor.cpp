@@ -660,7 +660,7 @@ void Visitor::children_eval_expr(Eval_expr* in)
 
 void Visitor::children_branch(Branch* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
     visit_label_name(in->iftrue);
     visit_label_name(in->iffalse);
 }
@@ -677,38 +677,39 @@ void Visitor::children_label(Label* in)
 
 void Visitor::children_foreach_reset(Foreach_reset* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_next(Foreach_next* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_end(Foreach_end* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_has_key(Foreach_has_key* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_get_key(Foreach_get_key* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_foreach_get_val(Foreach_get_val* in)
 {
-    visit_variable_name(in->array_name);
-    visit_ht_iterator(in->ht_iterator);
+    visit_variable_name(in->array);
+    visit_variable_name(in->key);
+    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_assignment(Assignment* in)
@@ -862,19 +863,19 @@ void Visitor::visit_marker(char const* name, bool value)
 {
 }
 
-void Visitor::visit_null(char const* type_id)
+void Visitor::visit_null(char const* name_space, char const* type_id)
 {
 }
 
-void Visitor::visit_null_list(char const* type_id)
+void Visitor::visit_null_list(char const* name_space, char const* type_id)
 {
 }
 
-void Visitor::pre_list(char const* type_id, int size)
+void Visitor::pre_list(char const* name_space, char const* type_id, int size)
 {
 }
 
-void Visitor::post_list(char const* type_id, int size)
+void Visitor::post_list(char const* name_space, char const* type_id, int size)
 {
 }
 
@@ -882,413 +883,413 @@ void Visitor::post_list(char const* type_id, int size)
 // Do not override unless you know what you are doing
 void Visitor::pre_php_script_chain(PHP_script* in)
 {
-    pre_node(in);
-    pre_php_script(in);
+    pre_node((Node*) in);
+    pre_php_script((PHP_script*) in);
 }
 
 void Visitor::pre_class_def_chain(Class_def* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_class_def(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_class_def((Class_def*) in);
 }
 
 void Visitor::pre_class_mod_chain(Class_mod* in)
 {
-    pre_node(in);
-    pre_class_mod(in);
+    pre_node((Node*) in);
+    pre_class_mod((Class_mod*) in);
 }
 
 void Visitor::pre_interface_def_chain(Interface_def* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_interface_def(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_interface_def((Interface_def*) in);
 }
 
 void Visitor::pre_method_chain(Method* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_member(in);
-    pre_method(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_member((Member*) in);
+    pre_method((Method*) in);
 }
 
 void Visitor::pre_signature_chain(Signature* in)
 {
-    pre_node(in);
-    pre_signature(in);
+    pre_node((Node*) in);
+    pre_signature((Signature*) in);
 }
 
 void Visitor::pre_method_mod_chain(Method_mod* in)
 {
-    pre_node(in);
-    pre_method_mod(in);
+    pre_node((Node*) in);
+    pre_method_mod((Method_mod*) in);
 }
 
 void Visitor::pre_formal_parameter_chain(Formal_parameter* in)
 {
-    pre_node(in);
-    pre_formal_parameter(in);
+    pre_node((Node*) in);
+    pre_formal_parameter((Formal_parameter*) in);
 }
 
 void Visitor::pre_type_chain(Type* in)
 {
-    pre_node(in);
-    pre_type(in);
+    pre_node((Node*) in);
+    pre_type((Type*) in);
 }
 
 void Visitor::pre_attribute_chain(Attribute* in)
 {
-    pre_node(in);
-    pre_member(in);
-    pre_attribute(in);
+    pre_node((Node*) in);
+    pre_member((Member*) in);
+    pre_attribute((Attribute*) in);
 }
 
 void Visitor::pre_attr_mod_chain(Attr_mod* in)
 {
-    pre_node(in);
-    pre_attr_mod(in);
+    pre_node((Node*) in);
+    pre_attr_mod((Attr_mod*) in);
 }
 
 void Visitor::pre_name_with_default_chain(Name_with_default* in)
 {
-    pre_node(in);
-    pre_name_with_default(in);
+    pre_node((Node*) in);
+    pre_name_with_default((Name_with_default*) in);
 }
 
 void Visitor::pre_return_chain(Return* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_return(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_return((Return*) in);
 }
 
 void Visitor::pre_static_declaration_chain(Static_declaration* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_static_declaration(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_static_declaration((Static_declaration*) in);
 }
 
 void Visitor::pre_global_chain(Global* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_global(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_global((Global*) in);
 }
 
 void Visitor::pre_try_chain(Try* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_try(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_try((Try*) in);
 }
 
 void Visitor::pre_catch_chain(Catch* in)
 {
-    pre_node(in);
-    pre_catch(in);
+    pre_node((Node*) in);
+    pre_catch((Catch*) in);
 }
 
 void Visitor::pre_throw_chain(Throw* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_throw(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_throw((Throw*) in);
 }
 
 void Visitor::pre_eval_expr_chain(Eval_expr* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_eval_expr(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_eval_expr((Eval_expr*) in);
 }
 
 void Visitor::pre_branch_chain(Branch* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_branch(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_branch((Branch*) in);
 }
 
 void Visitor::pre_goto_chain(Goto* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_goto(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_goto((Goto*) in);
 }
 
 void Visitor::pre_label_chain(Label* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_label(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_label((Label*) in);
 }
 
 void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_foreach_reset(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_foreach_reset((Foreach_reset*) in);
 }
 
 void Visitor::pre_foreach_next_chain(Foreach_next* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_foreach_next(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_foreach_next((Foreach_next*) in);
 }
 
 void Visitor::pre_foreach_end_chain(Foreach_end* in)
 {
-    pre_node(in);
-    pre_statement(in);
-    pre_foreach_end(in);
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_foreach_end((Foreach_end*) in);
 }
 
 void Visitor::pre_foreach_has_key_chain(Foreach_has_key* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_foreach_has_key(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_foreach_has_key((Foreach_has_key*) in);
 }
 
 void Visitor::pre_foreach_get_key_chain(Foreach_get_key* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_foreach_get_key(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_foreach_get_key((Foreach_get_key*) in);
 }
 
 void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_foreach_get_val(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_foreach_get_val((Foreach_get_val*) in);
 }
 
 void Visitor::pre_assignment_chain(Assignment* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_assignment(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_assignment((Assignment*) in);
 }
 
 void Visitor::pre_cast_chain(Cast* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_cast(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_cast((Cast*) in);
 }
 
 void Visitor::pre_unary_op_chain(Unary_op* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_unary_op(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_unary_op((Unary_op*) in);
 }
 
 void Visitor::pre_bin_op_chain(Bin_op* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_bin_op(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_bin_op((Bin_op*) in);
 }
 
 void Visitor::pre_constant_chain(Constant* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_constant(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_constant((Constant*) in);
 }
 
 void Visitor::pre_instanceof_chain(Instanceof* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_instanceof(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_instanceof((Instanceof*) in);
 }
 
 void Visitor::pre_variable_chain(Variable* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_variable(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_variable((Variable*) in);
 }
 
 void Visitor::pre_reflection_chain(Reflection* in)
 {
-    pre_node(in);
-    pre_variable_name(in);
-    pre_method_name(in);
-    pre_class_name(in);
-    pre_reflection(in);
+    pre_node((Node*) in);
+    pre_variable_name((Variable_name*) in);
+    pre_method_name((Method_name*) in);
+    pre_class_name((Class_name*) in);
+    pre_reflection((Reflection*) in);
 }
 
 void Visitor::pre_pre_op_chain(Pre_op* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_pre_op(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_pre_op((Pre_op*) in);
 }
 
 void Visitor::pre_array_chain(Array* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_array(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_array((Array*) in);
 }
 
 void Visitor::pre_array_elem_chain(Array_elem* in)
 {
-    pre_node(in);
-    pre_array_elem(in);
+    pre_node((Node*) in);
+    pre_array_elem((Array_elem*) in);
 }
 
 void Visitor::pre_method_invocation_chain(Method_invocation* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_method_invocation(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_method_invocation((Method_invocation*) in);
 }
 
 void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
 {
-    pre_node(in);
-    pre_actual_parameter(in);
+    pre_node((Node*) in);
+    pre_actual_parameter((Actual_parameter*) in);
 }
 
 void Visitor::pre_new_chain(New* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_new(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_new((New*) in);
 }
 
 void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
 {
-    pre_node(in);
-    pre_ht_iterator(in);
+    pre_node((Node*) in);
+    pre_ht_iterator((HT_ITERATOR*) in);
 }
 
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_class_name(in);
-    pre_identifier(in);
-    pre_class_name(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_class_name((Class_name*) in);
+    pre_identifier((Identifier*) in);
+    pre_class_name((CLASS_NAME*) in);
 }
 
 void Visitor::pre_interface_name_chain(INTERFACE_NAME* in)
 {
-    pre_node(in);
-    pre_identifier(in);
-    pre_interface_name(in);
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_interface_name((INTERFACE_NAME*) in);
 }
 
 void Visitor::pre_method_name_chain(METHOD_NAME* in)
 {
-    pre_node(in);
-    pre_method_name(in);
-    pre_identifier(in);
-    pre_method_name(in);
+    pre_node((Node*) in);
+    pre_method_name((Method_name*) in);
+    pre_identifier((Identifier*) in);
+    pre_method_name((METHOD_NAME*) in);
 }
 
 void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
-    pre_node(in);
-    pre_variable_name(in);
-    pre_identifier(in);
-    pre_variable_name(in);
+    pre_node((Node*) in);
+    pre_variable_name((Variable_name*) in);
+    pre_identifier((Identifier*) in);
+    pre_variable_name((VARIABLE_NAME*) in);
 }
 
 void Visitor::pre_label_name_chain(LABEL_NAME* in)
 {
-    pre_node(in);
-    pre_identifier(in);
-    pre_label_name(in);
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_label_name((LABEL_NAME*) in);
 }
 
 void Visitor::pre_int_chain(INT* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_int(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_literal((Literal*) in);
+    pre_int((INT*) in);
 }
 
 void Visitor::pre_real_chain(REAL* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_real(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_literal((Literal*) in);
+    pre_real((REAL*) in);
 }
 
 void Visitor::pre_string_chain(STRING* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_string(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_literal((Literal*) in);
+    pre_string((STRING*) in);
 }
 
 void Visitor::pre_bool_chain(BOOL* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_bool(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_literal((Literal*) in);
+    pre_bool((BOOL*) in);
 }
 
 void Visitor::pre_nil_chain(NIL* in)
 {
-    pre_node(in);
-    pre_target(in);
-    pre_expr(in);
-    pre_literal(in);
-    pre_nil(in);
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_literal((Literal*) in);
+    pre_nil((NIL*) in);
 }
 
 void Visitor::pre_cast_chain(CAST* in)
 {
-    pre_node(in);
-    pre_identifier(in);
-    pre_cast(in);
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_cast((CAST*) in);
 }
 
 void Visitor::pre_op_chain(OP* in)
 {
-    pre_node(in);
-    pre_identifier(in);
-    pre_op(in);
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_op((OP*) in);
 }
 
 void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
 {
-    pre_node(in);
-    pre_identifier(in);
-    pre_constant_name(in);
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_constant_name((CONSTANT_NAME*) in);
 }
 
 // Invoke the chain of post-visit methods along the inheritance hierarchy
@@ -1296,413 +1297,413 @@ void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
 // Do not override unless you know what you are doing
 void Visitor::post_php_script_chain(PHP_script* in)
 {
-    post_php_script(in);
-    post_node(in);
+    post_php_script((PHP_script*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_class_def_chain(Class_def* in)
 {
-    post_class_def(in);
-    post_statement(in);
-    post_node(in);
+    post_class_def((Class_def*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_class_mod_chain(Class_mod* in)
 {
-    post_class_mod(in);
-    post_node(in);
+    post_class_mod((Class_mod*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_interface_def_chain(Interface_def* in)
 {
-    post_interface_def(in);
-    post_statement(in);
-    post_node(in);
+    post_interface_def((Interface_def*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_method_chain(Method* in)
 {
-    post_method(in);
-    post_member(in);
-    post_statement(in);
-    post_node(in);
+    post_method((Method*) in);
+    post_member((Member*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_signature_chain(Signature* in)
 {
-    post_signature(in);
-    post_node(in);
+    post_signature((Signature*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_method_mod_chain(Method_mod* in)
 {
-    post_method_mod(in);
-    post_node(in);
+    post_method_mod((Method_mod*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_formal_parameter_chain(Formal_parameter* in)
 {
-    post_formal_parameter(in);
-    post_node(in);
+    post_formal_parameter((Formal_parameter*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_type_chain(Type* in)
 {
-    post_type(in);
-    post_node(in);
+    post_type((Type*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_attribute_chain(Attribute* in)
 {
-    post_attribute(in);
-    post_member(in);
-    post_node(in);
+    post_attribute((Attribute*) in);
+    post_member((Member*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_attr_mod_chain(Attr_mod* in)
 {
-    post_attr_mod(in);
-    post_node(in);
+    post_attr_mod((Attr_mod*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_name_with_default_chain(Name_with_default* in)
 {
-    post_name_with_default(in);
-    post_node(in);
+    post_name_with_default((Name_with_default*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_return_chain(Return* in)
 {
-    post_return(in);
-    post_statement(in);
-    post_node(in);
+    post_return((Return*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_static_declaration_chain(Static_declaration* in)
 {
-    post_static_declaration(in);
-    post_statement(in);
-    post_node(in);
+    post_static_declaration((Static_declaration*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_global_chain(Global* in)
 {
-    post_global(in);
-    post_statement(in);
-    post_node(in);
+    post_global((Global*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_try_chain(Try* in)
 {
-    post_try(in);
-    post_statement(in);
-    post_node(in);
+    post_try((Try*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_catch_chain(Catch* in)
 {
-    post_catch(in);
-    post_node(in);
+    post_catch((Catch*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_throw_chain(Throw* in)
 {
-    post_throw(in);
-    post_statement(in);
-    post_node(in);
+    post_throw((Throw*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
-    post_eval_expr(in);
-    post_statement(in);
-    post_node(in);
+    post_eval_expr((Eval_expr*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_branch_chain(Branch* in)
 {
-    post_branch(in);
-    post_statement(in);
-    post_node(in);
+    post_branch((Branch*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_goto_chain(Goto* in)
 {
-    post_goto(in);
-    post_statement(in);
-    post_node(in);
+    post_goto((Goto*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_label_chain(Label* in)
 {
-    post_label(in);
-    post_statement(in);
-    post_node(in);
+    post_label((Label*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_reset_chain(Foreach_reset* in)
 {
-    post_foreach_reset(in);
-    post_statement(in);
-    post_node(in);
+    post_foreach_reset((Foreach_reset*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_next_chain(Foreach_next* in)
 {
-    post_foreach_next(in);
-    post_statement(in);
-    post_node(in);
+    post_foreach_next((Foreach_next*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_end_chain(Foreach_end* in)
 {
-    post_foreach_end(in);
-    post_statement(in);
-    post_node(in);
+    post_foreach_end((Foreach_end*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_has_key_chain(Foreach_has_key* in)
 {
-    post_foreach_has_key(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_foreach_has_key((Foreach_has_key*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_get_key_chain(Foreach_get_key* in)
 {
-    post_foreach_get_key(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_foreach_get_key((Foreach_get_key*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
 {
-    post_foreach_get_val(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_foreach_get_val((Foreach_get_val*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_assignment_chain(Assignment* in)
 {
-    post_assignment(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_assignment((Assignment*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_cast_chain(Cast* in)
 {
-    post_cast(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_cast((Cast*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_unary_op_chain(Unary_op* in)
 {
-    post_unary_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_unary_op((Unary_op*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_bin_op_chain(Bin_op* in)
 {
-    post_bin_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_bin_op((Bin_op*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_constant_chain(Constant* in)
 {
-    post_constant(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_constant((Constant*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_instanceof_chain(Instanceof* in)
 {
-    post_instanceof(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_instanceof((Instanceof*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_variable_chain(Variable* in)
 {
-    post_variable(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_variable((Variable*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_reflection_chain(Reflection* in)
 {
-    post_reflection(in);
-    post_class_name(in);
-    post_method_name(in);
-    post_variable_name(in);
-    post_node(in);
+    post_reflection((Reflection*) in);
+    post_class_name((Class_name*) in);
+    post_method_name((Method_name*) in);
+    post_variable_name((Variable_name*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_pre_op_chain(Pre_op* in)
 {
-    post_pre_op(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_pre_op((Pre_op*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_array_chain(Array* in)
 {
-    post_array(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_array((Array*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_array_elem_chain(Array_elem* in)
 {
-    post_array_elem(in);
-    post_node(in);
+    post_array_elem((Array_elem*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_method_invocation_chain(Method_invocation* in)
 {
-    post_method_invocation(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_method_invocation((Method_invocation*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_actual_parameter_chain(Actual_parameter* in)
 {
-    post_actual_parameter(in);
-    post_node(in);
+    post_actual_parameter((Actual_parameter*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_new_chain(New* in)
 {
-    post_new(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_new((New*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
 {
-    post_ht_iterator(in);
-    post_node(in);
+    post_ht_iterator((HT_ITERATOR*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_class_name_chain(CLASS_NAME* in)
 {
-    post_class_name(in);
-    post_identifier(in);
-    post_class_name(in);
-    post_target(in);
-    post_node(in);
+    post_class_name((CLASS_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_class_name((Class_name*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_interface_name_chain(INTERFACE_NAME* in)
 {
-    post_interface_name(in);
-    post_identifier(in);
-    post_node(in);
+    post_interface_name((INTERFACE_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_method_name_chain(METHOD_NAME* in)
 {
-    post_method_name(in);
-    post_identifier(in);
-    post_method_name(in);
-    post_node(in);
+    post_method_name((METHOD_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_method_name((Method_name*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
 {
-    post_variable_name(in);
-    post_identifier(in);
-    post_variable_name(in);
-    post_node(in);
+    post_variable_name((VARIABLE_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_variable_name((Variable_name*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
-    post_label_name(in);
-    post_identifier(in);
-    post_node(in);
+    post_label_name((LABEL_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_int_chain(INT* in)
 {
-    post_int(in);
-    post_literal(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_int((INT*) in);
+    post_literal((Literal*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_real_chain(REAL* in)
 {
-    post_real(in);
-    post_literal(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_real((REAL*) in);
+    post_literal((Literal*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_string_chain(STRING* in)
 {
-    post_string(in);
-    post_literal(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_string((STRING*) in);
+    post_literal((Literal*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_bool_chain(BOOL* in)
 {
-    post_bool(in);
-    post_literal(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_bool((BOOL*) in);
+    post_literal((Literal*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_nil_chain(NIL* in)
 {
-    post_nil(in);
-    post_literal(in);
-    post_expr(in);
-    post_target(in);
-    post_node(in);
+    post_nil((NIL*) in);
+    post_literal((Literal*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_cast_chain(CAST* in)
 {
-    post_cast(in);
-    post_identifier(in);
-    post_node(in);
+    post_cast((CAST*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_op_chain(OP* in)
 {
-    post_op(in);
-    post_identifier(in);
-    post_node(in);
+    post_op((OP*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
 }
 
 void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 {
-    post_constant_name(in);
-    post_identifier(in);
-    post_node(in);
+    post_constant_name((CONSTANT_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
 }
 
 // Call the pre-chain, visit children and post-chain in order
@@ -1712,24 +1713,24 @@ void Visitor::visit_statement_list(List<Statement*>* in)
     List<Statement*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Statement");
+    	visit_null_list("MIR", "Statement");
     else
     {
-    	pre_list("Statement", in->size());
+    	pre_list("MIR", "Statement", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_statement(*i);
     	}
     
-    	post_list("Statement", in->size());
+    	post_list("MIR", "Statement", in->size());
     }
 }
 
 void Visitor::visit_statement(Statement* in)
 {
     if(in == NULL)
-    	visit_null("Statement");
+    	visit_null("MIR", "Statement");
     else
     {
     	pre_statement_chain(in);
@@ -1741,7 +1742,7 @@ void Visitor::visit_statement(Statement* in)
 void Visitor::visit_class_mod(Class_mod* in)
 {
     if(in == NULL)
-    	visit_null("Class_mod");
+    	visit_null("MIR", "Class_mod");
     else
     {
     	pre_class_mod_chain(in);
@@ -1753,7 +1754,7 @@ void Visitor::visit_class_mod(Class_mod* in)
 void Visitor::visit_class_name(CLASS_NAME* in)
 {
     if(in == NULL)
-    	visit_null("CLASS_NAME");
+    	visit_null("MIR", "CLASS_NAME");
     else
     {
     	pre_class_name_chain(in);
@@ -1767,17 +1768,17 @@ void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
     List<INTERFACE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("INTERFACE_NAME");
+    	visit_null_list("MIR", "INTERFACE_NAME");
     else
     {
-    	pre_list("INTERFACE_NAME", in->size());
+    	pre_list("MIR", "INTERFACE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_interface_name(*i);
     	}
     
-    	post_list("INTERFACE_NAME", in->size());
+    	post_list("MIR", "INTERFACE_NAME", in->size());
     }
 }
 
@@ -1786,24 +1787,24 @@ void Visitor::visit_member_list(List<Member*>* in)
     List<Member*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Member");
+    	visit_null_list("MIR", "Member");
     else
     {
-    	pre_list("Member", in->size());
+    	pre_list("MIR", "Member", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_member(*i);
     	}
     
-    	post_list("Member", in->size());
+    	post_list("MIR", "Member", in->size());
     }
 }
 
 void Visitor::visit_member(Member* in)
 {
     if(in == NULL)
-    	visit_null("Member");
+    	visit_null("MIR", "Member");
     else
     {
     	pre_member_chain(in);
@@ -1815,7 +1816,7 @@ void Visitor::visit_member(Member* in)
 void Visitor::visit_interface_name(INTERFACE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("INTERFACE_NAME");
+    	visit_null("MIR", "INTERFACE_NAME");
     else
     {
     	pre_interface_name_chain(in);
@@ -1827,7 +1828,7 @@ void Visitor::visit_interface_name(INTERFACE_NAME* in)
 void Visitor::visit_signature(Signature* in)
 {
     if(in == NULL)
-    	visit_null("Signature");
+    	visit_null("MIR", "Signature");
     else
     {
     	pre_signature_chain(in);
@@ -1839,7 +1840,7 @@ void Visitor::visit_signature(Signature* in)
 void Visitor::visit_method_mod(Method_mod* in)
 {
     if(in == NULL)
-    	visit_null("Method_mod");
+    	visit_null("MIR", "Method_mod");
     else
     {
     	pre_method_mod_chain(in);
@@ -1851,7 +1852,7 @@ void Visitor::visit_method_mod(Method_mod* in)
 void Visitor::visit_method_name(METHOD_NAME* in)
 {
     if(in == NULL)
-    	visit_null("METHOD_NAME");
+    	visit_null("MIR", "METHOD_NAME");
     else
     {
     	pre_method_name_chain(in);
@@ -1865,24 +1866,24 @@ void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
     List<Formal_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Formal_parameter");
+    	visit_null_list("MIR", "Formal_parameter");
     else
     {
-    	pre_list("Formal_parameter", in->size());
+    	pre_list("MIR", "Formal_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_formal_parameter(*i);
     	}
     
-    	post_list("Formal_parameter", in->size());
+    	post_list("MIR", "Formal_parameter", in->size());
     }
 }
 
 void Visitor::visit_formal_parameter(Formal_parameter* in)
 {
     if(in == NULL)
-    	visit_null("Formal_parameter");
+    	visit_null("MIR", "Formal_parameter");
     else
     {
     	pre_formal_parameter_chain(in);
@@ -1894,7 +1895,7 @@ void Visitor::visit_formal_parameter(Formal_parameter* in)
 void Visitor::visit_type(Type* in)
 {
     if(in == NULL)
-    	visit_null("Type");
+    	visit_null("MIR", "Type");
     else
     {
     	pre_type_chain(in);
@@ -1906,7 +1907,7 @@ void Visitor::visit_type(Type* in)
 void Visitor::visit_name_with_default(Name_with_default* in)
 {
     if(in == NULL)
-    	visit_null("Name_with_default");
+    	visit_null("MIR", "Name_with_default");
     else
     {
     	pre_name_with_default_chain(in);
@@ -1918,7 +1919,7 @@ void Visitor::visit_name_with_default(Name_with_default* in)
 void Visitor::visit_attr_mod(Attr_mod* in)
 {
     if(in == NULL)
-    	visit_null("Attr_mod");
+    	visit_null("MIR", "Attr_mod");
     else
     {
     	pre_attr_mod_chain(in);
@@ -1930,7 +1931,7 @@ void Visitor::visit_attr_mod(Attr_mod* in)
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
     if(in == NULL)
-    	visit_null("VARIABLE_NAME");
+    	visit_null("MIR", "VARIABLE_NAME");
     else
     {
     	pre_variable_name_chain(in);
@@ -1942,7 +1943,7 @@ void Visitor::visit_variable_name(VARIABLE_NAME* in)
 void Visitor::visit_expr(Expr* in)
 {
     if(in == NULL)
-    	visit_null("Expr");
+    	visit_null("MIR", "Expr");
     else
     {
     	pre_expr_chain(in);
@@ -1954,7 +1955,7 @@ void Visitor::visit_expr(Expr* in)
 void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
-    	visit_null("Variable_name");
+    	visit_null("MIR", "Variable_name");
     else
     {
     	pre_variable_name_chain(in);
@@ -1968,24 +1969,24 @@ void Visitor::visit_catch_list(List<Catch*>* in)
     List<Catch*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Catch");
+    	visit_null_list("MIR", "Catch");
     else
     {
-    	pre_list("Catch", in->size());
+    	pre_list("MIR", "Catch", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_catch(*i);
     	}
     
-    	post_list("Catch", in->size());
+    	post_list("MIR", "Catch", in->size());
     }
 }
 
 void Visitor::visit_catch(Catch* in)
 {
     if(in == NULL)
-    	visit_null("Catch");
+    	visit_null("MIR", "Catch");
     else
     {
     	pre_catch_chain(in);
@@ -1997,7 +1998,7 @@ void Visitor::visit_catch(Catch* in)
 void Visitor::visit_label_name(LABEL_NAME* in)
 {
     if(in == NULL)
-    	visit_null("LABEL_NAME");
+    	visit_null("MIR", "LABEL_NAME");
     else
     {
     	pre_label_name_chain(in);
@@ -2009,7 +2010,7 @@ void Visitor::visit_label_name(LABEL_NAME* in)
 void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 {
     if(in == NULL)
-    	visit_null("HT_ITERATOR");
+    	visit_null("MIR", "HT_ITERATOR");
     else
     {
     	pre_ht_iterator_chain(in);
@@ -2021,7 +2022,7 @@ void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 void Visitor::visit_variable(Variable* in)
 {
     if(in == NULL)
-    	visit_null("Variable");
+    	visit_null("MIR", "Variable");
     else
     {
     	pre_variable_chain(in);
@@ -2033,7 +2034,7 @@ void Visitor::visit_variable(Variable* in)
 void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
-    	visit_null("CAST");
+    	visit_null("MIR", "CAST");
     else
     {
     	pre_cast_chain(in);
@@ -2045,7 +2046,7 @@ void Visitor::visit_cast(CAST* in)
 void Visitor::visit_op(OP* in)
 {
     if(in == NULL)
-    	visit_null("OP");
+    	visit_null("MIR", "OP");
     else
     {
     	pre_op_chain(in);
@@ -2057,7 +2058,7 @@ void Visitor::visit_op(OP* in)
 void Visitor::visit_constant_name(CONSTANT_NAME* in)
 {
     if(in == NULL)
-    	visit_null("CONSTANT_NAME");
+    	visit_null("MIR", "CONSTANT_NAME");
     else
     {
     	pre_constant_name_chain(in);
@@ -2069,7 +2070,7 @@ void Visitor::visit_constant_name(CONSTANT_NAME* in)
 void Visitor::visit_class_name(Class_name* in)
 {
     if(in == NULL)
-    	visit_null("Class_name");
+    	visit_null("MIR", "Class_name");
     else
     {
     	pre_class_name_chain(in);
@@ -2081,7 +2082,7 @@ void Visitor::visit_class_name(Class_name* in)
 void Visitor::visit_target(Target* in)
 {
     if(in == NULL)
-    	visit_null("Target");
+    	visit_null("MIR", "Target");
     else
     {
     	pre_target_chain(in);
@@ -2095,17 +2096,17 @@ void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
     List<VARIABLE_NAME*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("VARIABLE_NAME");
+    	visit_null_list("MIR", "VARIABLE_NAME");
     else
     {
-    	pre_list("VARIABLE_NAME", in->size());
+    	pre_list("MIR", "VARIABLE_NAME", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_variable_name(*i);
     	}
     
-    	post_list("VARIABLE_NAME", in->size());
+    	post_list("MIR", "VARIABLE_NAME", in->size());
     }
 }
 
@@ -2114,24 +2115,24 @@ void Visitor::visit_array_elem_list(List<Array_elem*>* in)
     List<Array_elem*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Array_elem");
+    	visit_null_list("MIR", "Array_elem");
     else
     {
-    	pre_list("Array_elem", in->size());
+    	pre_list("MIR", "Array_elem", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_array_elem(*i);
     	}
     
-    	post_list("Array_elem", in->size());
+    	post_list("MIR", "Array_elem", in->size());
     }
 }
 
 void Visitor::visit_array_elem(Array_elem* in)
 {
     if(in == NULL)
-    	visit_null("Array_elem");
+    	visit_null("MIR", "Array_elem");
     else
     {
     	pre_array_elem_chain(in);
@@ -2143,7 +2144,7 @@ void Visitor::visit_array_elem(Array_elem* in)
 void Visitor::visit_method_name(Method_name* in)
 {
     if(in == NULL)
-    	visit_null("Method_name");
+    	visit_null("MIR", "Method_name");
     else
     {
     	pre_method_name_chain(in);
@@ -2157,24 +2158,24 @@ void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
     List<Actual_parameter*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("Actual_parameter");
+    	visit_null_list("MIR", "Actual_parameter");
     else
     {
-    	pre_list("Actual_parameter", in->size());
+    	pre_list("MIR", "Actual_parameter", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_actual_parameter(*i);
     	}
     
-    	post_list("Actual_parameter", in->size());
+    	post_list("MIR", "Actual_parameter", in->size());
     }
 }
 
 void Visitor::visit_actual_parameter(Actual_parameter* in)
 {
     if(in == NULL)
-    	visit_null("Actual_parameter");
+    	visit_null("MIR", "Actual_parameter");
     else
     {
     	pre_actual_parameter_chain(in);
@@ -2186,7 +2187,7 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
 void Visitor::visit_php_script(PHP_script* in)
 {
     if(in == NULL)
-    	visit_null("PHP_script");
+    	visit_null("MIR", "PHP_script");
     else
     {
     	pre_php_script_chain(in);

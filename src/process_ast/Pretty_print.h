@@ -21,9 +21,10 @@ public:
 	Pretty_print ()
 	{
 		this->name = new String ("pretty-print");
+		this->description = new String ("Print the formatted program source");
 	}
 
-	void run (IR* in, Pass_manager* pm)
+	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
 		in->visit(new AST_unparser());
 		set_enabled (false);

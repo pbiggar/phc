@@ -15,10 +15,10 @@ if (isset($_ENV["PHC_NUM_PROCS"]))
 else
 	define ("PHC_NUM_PROCS", 1);
 
-function inst ($string)
-{
+#function inst ($string)
+#{
 #	print "\n" . microtime () . " $string\n";
-}
+#}
 
 class AsyncBundle
 {
@@ -31,7 +31,7 @@ class AsyncBundle
 
 	function start ()
 	{
-		$this->object->start_program ($this);
+		$this->object->start_new_program ($this);
 	}
 
 	function get_command ()
@@ -49,17 +49,12 @@ class AsyncBundle
 
 	function continuation ()
 	{
-		inst ("continuing from state {$this->state} of {$this->subject}\n");
-		// copy first
-		$state = $this->state;
-		$out = $this->out;
-		$err = $this->err;
-		$exit = $this->exit;
-		// state is just an int
-		$this->outs[$state] =& $out;
-		$this->errs[$state] =& $err;
-		$this->exits[$state] =& $exit;
+#		inst ("continuing from state {$this->state} of {$this->subject}\n");
 
+		$state = $this->state; // state is just an int
+		$this->outs[$state] = $this->out; // copy
+		$this->errs[$state] = $this->err; // copy
+		$this->exits[$state] = $this->exit; // copy
 		$object = $this->object;
 
 		// Handlers let you modify the stdout, stderr or the exit
@@ -67,25 +62,25 @@ class AsyncBundle
 		if (isset ($this->out_handlers[$state]))
 		{
 			$handler = $this->out_handlers[$state];
-			$out = $object->$handler ($out, $this);
+			$this->outs[$state] = $object->$handler ($this->out, $this);
 		}
 
 		if (isset ($this->err_handlers[$state]))
 		{
 			$handler = $this->err_handlers[$state];
-			$result = $object->$handler ($err, $this);
+			$result = $object->$handler ($this->err, $this);
 			if ($result === false)
 				return;
-			$err = $result;
+			$this->errs[$state] = $result;
 		}
 
 		if (isset ($this->exit_handlers[$state]))
 		{
 			$handler = $this->exit_handlers[$state];
-			$result = $object->$handler ($exit, $this);
+			$result = $object->$handler ($this->exit, $this);
 			if ($result === false)
 				return;
-			$exit = $result;
+			$this->exits[$state] = $result;
 		}
 
 		// The callback doesnt modify, just calls a function given
@@ -93,7 +88,7 @@ class AsyncBundle
 		if (isset ($this->callbacks [$state]))
 		{
 			$callback = $this->callbacks [$state];
-			$result = $object->$callback ($out, $err, $exit, $this);
+			$result = $object->$callback ($this->outs[$state], $this->errs[$state], $this->exits[$state], $this);
 			if ($result === false)
 				return;
 		}
@@ -104,10 +99,12 @@ class AsyncBundle
 
 		if (isset ($this->commands[$state]))
 		{
+#			inst ("Start next program: {$this->commands[$state]}");
 			$object->start_program ($this);
 		}
 		elseif (isset ($this->final))
 		{
+#			inst ("Finalize");
 			$object->{$this->final} ($this);
 		}
 		else
@@ -115,6 +112,13 @@ class AsyncBundle
 			die ("uhoh\n");
 		}
 	}
+
+	function read_streams ()
+	{
+		$this->out = stream_get_contents ($this->pipes[1]);
+		$this->err = stream_get_contents ($this->pipes[2]);
+	}
+
 }
 
 /* In order to take advantage of multiple cores, and to avoid
@@ -130,6 +134,13 @@ class AsyncBundle
  */
 abstract class AsyncTest extends Test
 {
+	function __construct ()
+	{
+		$this->waiting_procs = array ();
+		$this->running_procs = array ();
+		parent::__construct ();
+	}
+
 	function mark_failure ($reason, $bundle)
 	{
 		parent::mark_failure (
@@ -161,97 +172,100 @@ abstract class AsyncTest extends Test
 		return $stream;
 	}
 
-	# Add this program to the list of programs waiting to be
-	# run. Start programs waiting to be run
+	# Put this program to the front of the queue, and start waiting progs
 	function start_program ($bundle)
 	{
-		global $waiting_procs;
-	
-		# create a bundle
-		$waiting_procs[] = $bundle;
-		$this->check_running_programs ();
+		array_unshift ($this->waiting_procs, $bundle);
 
+		$this->check_capacity ();
 	}
+
+	# Put this program to the back of the queue, and start waiting progs
+	function start_new_program ($bundle)
+	{
+		$this->waiting_procs[] = $bundle;
+
+		$this->check_capacity ();
+	}
+
+
 
 
 	function finish_test ()
 	{
-		global $running_procs;
-
-		while (count ($running_procs))
+		while (count ($this->running_procs) or count ($this->waiting_procs))
 		{
-			$this->check_running_programs ();
+			usleep (30000);
+			$this->run_waiting_procs ();
+			$this->check_running_procs ();
 		}
 		parent::finish_test ();
 	}
 
-
-	function check_running_programs ()
+	function check_capacity ()
 	{
-		global $running_procs;
-
-		// go through every runnig process and process it a bit more
-		while (count ($running_procs))
+		if (count ($this->running_procs) >= PHC_NUM_PROCS)
 		{
-			inst ("Poll running");
-			$bundle = array_shift ($running_procs);
+			// check each and see if we can remove some
+			$this->check_running_procs ();
+		}
 
-			$handle	=& $bundle->handle;
-			$out		=& $bundle->out;
-			$err		=& $bundle->err;
-			$pipes	=& $bundle->pipes;
+		if (count ($this->waiting_procs) > 1)
+		{
+			// start some programs
+			$this->run_waiting_procs ();
+		}
+		else
+			; // return and carry no adding programs to the queue
 
-			$out .= stream_get_contents ($pipes[1]);
-			$err .= stream_get_contents ($pipes[2]);
+	}
 
-			$status = proc_get_status ($handle);
+	function check_running_procs ()
+	{
+		// try to keep this really lightweight
+#		inst ("Check running");
+
+		foreach ($this->running_procs as $index => $bundle)
+		{
+			$status = proc_get_status ($bundle->handle);
 
 			if ($status["running"] !== true)
 			{
+				$bundle->read_streams ();
 				$bundle->exit = $status["exitcode"];
-				$bundle->continuation ();
+				unset ($this->running_procs [$index]); // remove from the running list
+				$bundle->continuation (); // start the next bit straight away
+			}
+			else if (time () > $bundle->start_time + 20)
+			{
+				$bundle->read_streams ();
+
+				kill_properly ($bundle->handle, $bundle->pipes);
+
+				$bundle->exits[] = "Timeout";
+				$bundle->outs[] = "$bundle->out\n--- TIMEOUT ---";
+				$bundle->errs[] = $bundle->err;
+				$this->mark_timeout ("Timeout", $bundle);
+
+				unset ($this->running_procs [$index]); // remove from the running list
 			}
 			else
-			{
-				if (time () - $bundle->start_time > 20)
-				{
-					echo "Trying to kill {$status["command"]}\n";
-
-					// if we dont close pipes, we can create deadlock, leaving zombie processes
-					foreach ($pipes as &$pipe) fclose ($pipe);
-					proc_terminate ($handle);
-					proc_close ($handle);
-
-					$bundle->exits[] = "Timeout";
-					$bundle->outs[] = "$out\n--- TIMEOUT ---";
-					$bundle->errs[] = $err;
-					$this->mark_timeout ("Timeout", $bundle);
-				}
-				else
-				{
-					usleep (100000); // sleep for 1/10 of a second
-					$running_procs[] = $bundle;
-				}
-			}
+				; // let it keep running
 		}
-		$this->check_waiting_procs ();
 	}
 
-
-	function check_waiting_procs ()
+	function run_waiting_procs ()
 	{
-		global $running_procs, $waiting_procs;
-
-		while (count ($running_procs) < PHC_NUM_PROCS)
+		while (count ($this->running_procs) < PHC_NUM_PROCS)
 		{
-			inst ("Poll waiting");
-			if (count ($waiting_procs) == 0)
+#			inst ("Poll waiting");
+			if (count ($this->waiting_procs) == 0)
 			{
-				inst ("No procs waiting");
+#				inst ("No procs waiting");
 				break;
 			}
 
-			$bundle = array_shift ($waiting_procs);
+			$bundle = array_shift ($this->waiting_procs);
 			$this->run_program ($bundle);
 		}
 	}
@@ -263,7 +277,7 @@ abstract class AsyncTest extends Test
 		if ($opt_verbose)
 			print "Running command: $command\n";
 
-		inst ("Running prog: $command");
+#		inst ("Running prog: $command");
 
 		// now start this process and add it to the list
 		$descriptorspec = array(1 => array("pipe", "w"),
@@ -288,9 +302,9 @@ abstract class AsyncTest extends Test
 		$bundle->start_time = time ();
 		$bundle->out = "";
 		$bundle->err = "";
+		unset ($bundle->exit);
 
-		global $running_procs;
-		$running_procs[] = $bundle;
+		$this->running_procs[] = $bundle;
 	}
 }
 

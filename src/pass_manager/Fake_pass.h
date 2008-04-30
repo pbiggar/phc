@@ -17,12 +17,13 @@
 class Fake_pass : public Pass
 {
 	public:
-	Fake_pass (const char* name)
+	Fake_pass (String* name, String* description)
 	{
-		this->name = new String (name);
+		this->name = name;
+		this->description = description;
 	}
 
-	void run (IR*, Pass_manager*) {}
+	void run (IR::PHP_script*, Pass_manager*) {}
 };
 
 

@@ -10,6 +10,7 @@
 #include "process_ast/AST_unparser.h"
 #include "pass_manager/Plugin_pass.h"
 #include "lib/List.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -817,10 +818,10 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_after_named_pass (pass, "ast");
+	pm->add_after_named_pass (pass, s("ast"));
 }
 
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm)
+extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
 	in->visit (new Purity_test ());
 }

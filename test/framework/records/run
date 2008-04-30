@@ -6,6 +6,8 @@
 	 *	data is kept in a string, which is emailed to me on failure.
 	 */
 
+	require_once ("test/framework/lib/header.php");
+
 	ob_start (); // keep all output
 
 	$REPO = "http://phc.googlecode.com/svn/trunk";
@@ -13,24 +15,22 @@
 	$TEST_DIR = "$CWD/testing";
 	$RESULTS_DIR = "$CWD/results";
 	$DB_FILENAME = "$RESULTS_DIR/results.db";
-	$LATEST_REVISION =  get_current_revision (); // use SVN to get this
+	$LATEST_REVISION = get_current_revision (); // use SVN to get this
 
 	// start the DB
 	initialize_db ();
 
 	// Prepare the test
 	$START_TIME = time ();
-	list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
-	$PREV_REV = $REV - 1;
-	initialize_revision_test ();
-
 	// Do SVN work - fails mean test wasnt affected
 	try
 	{
-		$log = c ("svn log -r $REV $REPO");
-		$diff = c ("svn diff -r $REV:$PREV_REV");
+		list ($REV, $AUTHOR, $DATE) = get_working_revision () or svn_problem ();
+		$PREV_REV = $REV - 1;
+		initialize_revision_test ();
 
-		save ("LOG:\n$log\n\nDIFF:\n$diff", "svn_log");
+		$log = c ("svn log -r $REV $REPO");
+		$diff = c ("svn diff -r $PREV_REV:$REV", "svn_log");
 
 		c ("svn export -q --revision=$REV $REPO $TEST_DIR");
 	}
@@ -40,17 +40,17 @@
 	try
 	{
 		cd ("touch src/generated/*");
-		save (cd ("./configure --prefix=$TEST_DIR/installed"), "configure");
+		cd ("./configure --prefix=$TEST_DIR/installed", "configure");
 
 		// make
-		save (cd ("make"), "make");
-		$results = save (cd ("php test/framework/driver.php -p"), "test");
+		cd ("make", "make");
+		$results = cd ("php test/framework/driver.php -p", "test");
 		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/test_logs"); 
 		store_test_results ($results, "tests");
 
 		// make install
-		save (cd ("make install"), "install");
-		$results = save (cd ("php test/framework/driver.php -q -i -p"), "install_test");
+		cd ("make install", "install");
+		$results = cd ("php test/framework/driver.php -q -i -p", "install_test");
 		c ("mv ".readlink("$TEST_DIR/test/logs/latest")." $LOG_DIR/install_test_logs"); 
 		store_test_results ($results, "install_tests");
 
@@ -72,7 +72,7 @@
 
 	function script_problem ()
 	{
-		print "Test problem, saving and mailing error\n";
+		print "Script problem, saving and mailing error\n";
 		save_log ();
 
 		$info = ob_get_contents ();
@@ -138,6 +138,10 @@
 			test_problem ();
 		}
 
+		$total_pass = 0; // whats the point of auto-initialized vars if they dont work for +=
+		$total_fail = 0;
+		$total_timeout = 0;
+		$total_skip = 0;
 		foreach ($results as $result)
 		{
 			list ($name, $pass, $fail, $timeout, $skip) = $result;
@@ -182,7 +186,6 @@
 	function save_log ()
 	{
 		$log = ob_get_contents ();
-		var_dump ($log);
 		save ($log, "log");
 	}
 
@@ -201,40 +204,57 @@
 	function del_dir ($dir)	{ c ("rm -Rf $dir"); }
 	function create_dir ($dir) { c ("mkdir -p $dir"); }
 
-	// C for Command. If the command fails, log the result and die
-	function c ($command)
-	{
-		print "Running command '$command'\n";
-		exec ("$command 2>&1", $result, $ret_val);
-		if ($ret_val !== 0)
-			throw new Exception ();
-
-		$result = join ("\n", $result);
-		print "Returning result '$result'\n";
-		return $result;
-	}
-
-	// CD for Command in Directory. Run the COMMAND from the working
-	// directory.
-	function cd ($command)
-	{
-		global $TEST_DIR;
-		$cwd = getcwd ();
-		print "Entering $TEST_DIR\n";
-		chdir ($TEST_DIR) or x ("Couldnt change dir to $TEST_DIR");
-		$result = c ($command);
-		chdir ($cwd);
-		print "Leaving $TEST_DIR for $cwd\n";
-		return $result;
-	}
-
 	function save ($string, $log_name)
 	{
 		global $LOG_DIR;
 		assert (isset ($LOG_DIR));
 		file_put_contents ("$LOG_DIR/$log_name.log", $string);
+	}
 
-		return $string;
+	// C for Command. If the command fails, log the result and die
+	function c ($command, $log_name = false)
+	{
+		print "Running command '$command'\n";
+		list ($out, $err, $exit) = complete_exec ($command, NULL, 60*60*12, true); // allow no more than 12 hours for the process
+
+		if ($log_name)
+		{
+			save ("Exit: $exit\n\nError:\n$err\n\nOutput:\n$out", $log_name);
+		}
+
+		if ($out === "Timeout")
+		{
+			$out = $err; $err = $exit;
+			print "Timeout\nOutput:$out\nError:$err\n";
+			throw new Exception;
+		}
+
+		// print before the program ends 
+		print "Returning result '$out'\n";
+		print "Returning error '$err'\n";
+		print "Returning exit '$exit'\n";
+
+		if ($exit !== 0)
+		{
+			print "Exit code is not zero: $exit\n";
+			throw new Exception ();
+		}
+
+		return $out;
+	}
+
+	// CD for Command in Directory. Run the COMMAND from the working
+	// directory.
+	function cd ($command, $log_name = NULL)
+	{
+		global $TEST_DIR;
+		$cwd = getcwd ();
+		print "Entering $TEST_DIR\n";
+		chdir ($TEST_DIR) or x ("Couldnt change dir to $TEST_DIR");
+		$result = c ($command, $log_name);
+		chdir ($cwd);
+		print "Leaving $TEST_DIR for $cwd\n";
+		return $result;
 	}
 
 
@@ -252,6 +272,7 @@
 
 	function get_svn_info ($rev)
 	{
+		global $REPO;
 		$output = c ("svn info $REPO -r $rev");
 
 		preg_match ("/^Last Changed Author: (.*)$/m", $output, $matches);
@@ -285,10 +306,10 @@
 
 	function get_current_revision ()
 	{
-		// This is done using SVN
-		$REVISION_STRING = "$LastChangedRevision$";
-		preg_match ("/: (\d+)/", $REVISION_STRING, $matched);
-		return $matched[1];
+		global $REPO;
+		$result = c ("svn info $REPO");
+		preg_match ("/Revision: (\d+)/", $result, $matches);
+		return $matches[1];
 	}
 
 ?>

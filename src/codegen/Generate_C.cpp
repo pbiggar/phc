@@ -56,7 +56,7 @@ bool Generate_C::pass_is_enabled (Pass_manager* pm)
 	return pm->args_info->generate_c_flag or pm->args_info->compile_flag;
 }
 
-void Generate_C::run (IR* in, Pass_manager* pm)
+void Generate_C::run (IR::PHP_script* in, Pass_manager* pm)
 {
 	args_info = pm->args_info;
 	if (not PHP::is_available ())
@@ -299,17 +299,14 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 }
 
 /* wrappers */
-void index_lhs (Scope scope, string zvp, Expr* expr)
-{
-	Variable* var = dynamic_cast<Variable*> (expr);
-	assert (var);
-	index_lhs (scope, zvp, var);
-}
 void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	index_lhs (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
+	index_lhs (scope, zvp, new Variable (var_name));
 }
-
+void index_lhs (Scope scope, string zvp, Expr* expr)
+{
+	index_lhs (scope, zvp, get_var_name (expr));
+}
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read (Scope scope, string zvp, Variable* var)
@@ -401,17 +398,15 @@ void read (Scope scope, string zvp, Variable* var)
 }
 
 /* wrappers */
-void read (Scope scope, string zvp, Expr* expr)
-{
-	Variable* var = dynamic_cast<Variable*> (expr);
-	assert (var);
-	read (scope, zvp, var);
-}
-
 void read (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	read (scope, zvp, new Variable (NULL, var_name, new List<VARIABLE_NAME*>));
+	read (scope, zvp, new Variable (var_name));
 }
+void read (Scope scope, string zvp, Expr* expr)
+{
+	read (scope, zvp, get_var_name (expr));
+}
+
 
 
 
@@ -655,12 +650,11 @@ protected:
 
 					Statement* assign_default_values = 
 						new Eval_expr (
-								new Assignment (
-									new Variable (
-										NULL,
-										(*i)->var->variable_name->clone (),
-										new List<VARIABLE_NAME*>),
-									false, (*i)->var->expr->clone ()));
+							new Assignment (
+								new Variable (
+									(*i)->var->variable_name->clone ()),
+								false, 
+								(*i)->var->expr->clone ()));
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";
@@ -769,7 +763,7 @@ class Pattern_branch : public Pattern
 public:
 	bool match(Statement* that)
 	{
-		cond = new Wildcard<Variable>;
+		cond = new Wildcard<VARIABLE_NAME>;
 		iftrue = new Wildcard<LABEL_NAME>;
 		iffalse = new Wildcard<LABEL_NAME>;
 		return that->match(new Branch(
@@ -783,7 +777,7 @@ public:
 	{
 		code
 			<< "{\n";
-		read_simple (LOCAL, "p_cond", get_var_name (cond->value));
+		read_simple (LOCAL, "p_cond", cond->value);
 		code 
 			<< "zend_bool bcond = zend_is_true (p_cond);\n";
 		code 
@@ -796,7 +790,7 @@ public:
 	}
 
 protected:
-	Wildcard<Variable>* cond;
+	Wildcard<VARIABLE_NAME>* cond;
 	Wildcard<LABEL_NAME>* iftrue;
 	Wildcard<LABEL_NAME>* iffalse;
 };
@@ -959,15 +953,18 @@ public:
 				initialize (initializations, var);
 			}
 			code
-				<< "assert (!" << var << "->is_ref);\n"
-				<< "if ((*p_lhs)->is_ref)\n"
-				<<		"overwrite_lhs (*p_lhs, " << var << ");\n"
-				<<	"else\n"
+				<< "if (" << var << " != *p_lhs)\n"
 				<< "{\n"
-				<<		var << "->refcount++;\n"
-				<<		"zval_ptr_dtor (p_lhs);\n"
-				<<		"*p_lhs = " << var << ";\n"
-				<< "}\n";
+				<<		"assert (!" << var << "->is_ref);\n"
+				<<		"if ((*p_lhs)->is_ref)\n"
+				<<			"overwrite_lhs (*p_lhs, " << var << ");\n"
+				<<		"else\n"
+				<<		"{\n"
+				<<			var << "->refcount++;\n"
+				<<			"zval_ptr_dtor (p_lhs);\n"
+				<<			"*p_lhs = " << var << ";\n"
+				<<		"}\n"
+				<<	"}\n";
 		}
 		else
 		{
@@ -1009,11 +1006,11 @@ class Pattern_assign_int : public Pattern_assign_literal<INT, long>
 class Pattern_assign_real : public Pattern_assign_literal<REAL, string>
 {
 	string prefix () { return "phc_const_pool_real_"; }
-	string key () { return *rhs->value->source_rep ; }
+	string key () { return *(dynamic_cast<String*>(rhs->value->attrs->get("phc.codegen.source_rep"))); }
 
 	void initialize (ostream& os, string var)
 	{
-		os	<< "zend_eval_string(\"" << *rhs->value->source_rep << ";\","
+		os	<< "zend_eval_string(\"" << key() << ";\","
 			<<		var << ", "
 			<<		"\"literal\" TSRMLS_CC);\n";
 	}
@@ -1042,6 +1039,8 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 			<<		rhs->value->value->length() << ", 1);\n";
 	}
 
+	// Escape according to C rules (this varies slightly from unparsing for PHP
+	// and dot).
 	string escape(String* s)
 	{
 		stringstream ss;
@@ -1092,7 +1091,8 @@ public:
 				<< "p_rhs = &temp;\n";
 			read (LOCAL, "p_rhs", rhs->value);
 			code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "if (*p_lhs != *p_rhs)\n"
+				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
 		}
 		else
@@ -1385,8 +1385,8 @@ public:
 			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
 			<< 	"if (result == FAILURE) // check for missing function\n"
 			<< 	"{\n"
-			<<			"phc_setup_error (1, " 
-			<< 			rhs->get_filename () << ", " 
+			<<			"phc_setup_error (1, \"" 
+			<< 			*rhs->get_filename () << "\", " 
 			<< 			rhs->get_line_number () << ", "
 			<<				"NULL TSRMLS_CC);\n"
 						// die
@@ -1535,8 +1535,8 @@ public:
 		}
 
 		code
-			<< "phc_setup_error (1, " 
-			<<				rhs->get_filename () << ", " 
+			<< "phc_setup_error (1, \""
+			<<				*rhs->get_filename () << "\", " 
 			<<				rhs->get_line_number () << ", "
 			<< "			NULL TSRMLS_CC);\n"
 
@@ -1973,14 +1973,14 @@ class Pattern_foreach_reset: public Pattern
 	{
 		// declare the external iterator so outside local scope blocks
 		code
-			<< "HashPosition pos" << reset->value->ht_iterator->value << ";\n"
+			<< "HashPosition pos" << reset->value->iter->value << ";\n"
 			<< "{\n";
 
-		read_simple (LOCAL, "fe_array", reset->value->array_name);
+		read_simple (LOCAL, "fe_array", reset->value->array);
 		code 
 			<< "zend_hash_internal_pointer_reset_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << reset->value->ht_iterator->value << ");\n"
+			<< "						&pos" << reset->value->iter->value << ");\n"
 			<< "}\n";
 	}
 
@@ -1999,11 +1999,11 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", has_key->value->array_name);
+		read_simple (LOCAL, "fe_array", has_key->value->array);
 		os
 			<< "int type = zend_hash_get_current_key_type_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << has_key->value->ht_iterator->value << ");\n"
+			<< "						&pos" << has_key->value->iter->value << ");\n"
 			<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
 	}
 
@@ -2021,7 +2021,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", get_key->value->array_name);
+		read_simple (LOCAL, "fe_array", get_key->value->array);
 		os
 			<< "char* str_index = NULL;\n"
 			<< "uint str_length;\n"
@@ -2030,7 +2030,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 			<< "						fe_array->value.ht,"
 			<< "						&str_index, &str_length, &num_index, "
 			<< "						0, "
-			<< "						&pos" << get_key->value->ht_iterator->value << ");\n"
+			<< "						&pos" << get_key->value->iter->value << ");\n"
 			<< "if (result == HASH_KEY_IS_LONG)\n"
 			<< "{\n"
 			<< "	ZVAL_LONG (" << var << ", num_index);\n"
@@ -2059,7 +2059,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 		if (not used)
 			return;
 
-		read_simple (LOCAL, "fe_array", get_val->value->array_name);
+		read_simple (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -2069,7 +2069,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "						&pos" << get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
@@ -2081,7 +2081,7 @@ class Pattern_foreach_get_val : public Pattern_assignment
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->ht_iterator->value << ");\n"
+				<< "						&pos" << get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
@@ -2106,11 +2106,11 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", next->value->array_name);
+		read_simple (LOCAL, "fe_array", next->value->array);
 		code 
 			<< "int result = zend_hash_move_forward_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << next->value->ht_iterator->value << ");\n"
+			<<							"&pos" << next->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n";
 		code << "}\n";
 	}
@@ -2130,11 +2130,11 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", end->value->array_name);
+		read_simple (LOCAL, "fe_array", end->value->array);
 		code 
 			<< "zend_hash_internal_pointer_end_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << end->value->ht_iterator->value << ");\n";
+			<<							"&pos" << end->value->iter->value << ");\n";
 		code << "}\n";
 	}
 
@@ -2209,7 +2209,7 @@ void Generate_C::children_statement(Statement* in)
 
 	if(not matched)
 	{
-		cerr << "could not generate code for " << demangle(in) << endl;
+		cerr << "could not generate code for " << demangle(in, true) << endl;
 		debug (in);
 		xdebug (in);
 		abort();
@@ -2393,4 +2393,5 @@ Generate_C::Generate_C(ostream& os) : os (os)
 {
 	methods = new List<Signature*>;
 	name = new String ("generate-c");
+	description = new String ("Generate C code from the MIR");
 }

@@ -45,8 +45,6 @@ public:
     virtual void pre_if(If* in);
     virtual void pre_loop(Loop* in);
     virtual void pre_foreach(Foreach* in);
-    virtual void pre_switch(Switch* in);
-    virtual void pre_switch_case(Switch_case* in);
     virtual void pre_break(Break* in);
     virtual void pre_continue(Continue* in);
     virtual void pre_return(Return* in);
@@ -69,14 +67,9 @@ public:
     virtual void pre_literal(Literal* in);
     virtual void pre_assignment(Assignment* in);
     virtual void pre_op_assignment(Op_assignment* in);
-    virtual void pre_list_assignment(List_assignment* in);
-    virtual void pre_list_element(List_element* in);
-    virtual void pre_nested_list_elements(Nested_list_elements* in);
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
     virtual void pre_bin_op(Bin_op* in);
-    virtual void pre_conditional_expr(Conditional_expr* in);
-    virtual void pre_ignore_errors(Ignore_errors* in);
     virtual void pre_constant(Constant* in);
     virtual void pre_instanceof(Instanceof* in);
     virtual void pre_variable(Variable* in);
@@ -91,7 +84,6 @@ public:
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_new(New* in);
     virtual void pre_class_name(Class_name* in);
-    virtual void pre_commented_node(Commented_node* in);
     virtual void pre_identifier(Identifier* in);
     virtual void pre_ht_iterator(HT_ITERATOR* in);
     virtual void pre_class_name(CLASS_NAME* in);
@@ -127,8 +119,6 @@ public:
     virtual void post_if(If* in);
     virtual void post_loop(Loop* in);
     virtual void post_foreach(Foreach* in);
-    virtual void post_switch(Switch* in);
-    virtual void post_switch_case(Switch_case* in);
     virtual void post_break(Break* in);
     virtual void post_continue(Continue* in);
     virtual void post_return(Return* in);
@@ -151,14 +141,9 @@ public:
     virtual void post_literal(Literal* in);
     virtual void post_assignment(Assignment* in);
     virtual void post_op_assignment(Op_assignment* in);
-    virtual void post_list_assignment(List_assignment* in);
-    virtual void post_list_element(List_element* in);
-    virtual void post_nested_list_elements(Nested_list_elements* in);
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
     virtual void post_bin_op(Bin_op* in);
-    virtual void post_conditional_expr(Conditional_expr* in);
-    virtual void post_ignore_errors(Ignore_errors* in);
     virtual void post_constant(Constant* in);
     virtual void post_instanceof(Instanceof* in);
     virtual void post_variable(Variable* in);
@@ -173,7 +158,6 @@ public:
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_new(New* in);
     virtual void post_class_name(Class_name* in);
-    virtual void post_commented_node(Commented_node* in);
     virtual void post_identifier(Identifier* in);
     virtual void post_ht_iterator(HT_ITERATOR* in);
     virtual void post_class_name(CLASS_NAME* in);
@@ -206,8 +190,6 @@ public:
     virtual void children_if(If* in);
     virtual void children_loop(Loop* in);
     virtual void children_foreach(Foreach* in);
-    virtual void children_switch(Switch* in);
-    virtual void children_switch_case(Switch_case* in);
     virtual void children_break(Break* in);
     virtual void children_continue(Continue* in);
     virtual void children_return(Return* in);
@@ -228,13 +210,9 @@ public:
     virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
-    virtual void children_list_assignment(List_assignment* in);
-    virtual void children_nested_list_elements(Nested_list_elements* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
-    virtual void children_conditional_expr(Conditional_expr* in);
-    virtual void children_ignore_errors(Ignore_errors* in);
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
     virtual void children_variable(Variable* in);
@@ -264,10 +242,10 @@ public:
 // Unparser support
 public:
     virtual void visit_marker(char const* name, bool value);
-    virtual void visit_null(char const* type_id);
-    virtual void visit_null_list(char const* type_id);
-    virtual void pre_list(char const* type_id, int size);
-    virtual void post_list(char const* type_id, int size);
+    virtual void visit_null(char const* name_space, char const* type_id);
+    virtual void visit_null_list(char const* name_space, char const* type_id);
+    virtual void pre_list(char const* name_space, char const* type_id, int size);
+    virtual void post_list(char const* name_space, char const* type_id, int size);
 // Invoke the chain of pre-visit methods along the inheritance hierachy
 // Do not override unless you know what you are doing
 public:
@@ -286,8 +264,6 @@ public:
     virtual void pre_if_chain(If* in);
     virtual void pre_loop_chain(Loop* in);
     virtual void pre_foreach_chain(Foreach* in);
-    virtual void pre_switch_chain(Switch* in);
-    virtual void pre_switch_case_chain(Switch_case* in);
     virtual void pre_break_chain(Break* in);
     virtual void pre_continue_chain(Continue* in);
     virtual void pre_return_chain(Return* in);
@@ -308,13 +284,9 @@ public:
     virtual void pre_foreach_get_val_chain(Foreach_get_val* in);
     virtual void pre_assignment_chain(Assignment* in);
     virtual void pre_op_assignment_chain(Op_assignment* in);
-    virtual void pre_list_assignment_chain(List_assignment* in);
-    virtual void pre_nested_list_elements_chain(Nested_list_elements* in);
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
-    virtual void pre_conditional_expr_chain(Conditional_expr* in);
-    virtual void pre_ignore_errors_chain(Ignore_errors* in);
     virtual void pre_constant_chain(Constant* in);
     virtual void pre_instanceof_chain(Instanceof* in);
     virtual void pre_variable_chain(Variable* in);
@@ -358,8 +330,6 @@ public:
     virtual void post_if_chain(If* in);
     virtual void post_loop_chain(Loop* in);
     virtual void post_foreach_chain(Foreach* in);
-    virtual void post_switch_chain(Switch* in);
-    virtual void post_switch_case_chain(Switch_case* in);
     virtual void post_break_chain(Break* in);
     virtual void post_continue_chain(Continue* in);
     virtual void post_return_chain(Return* in);
@@ -380,13 +350,9 @@ public:
     virtual void post_foreach_get_val_chain(Foreach_get_val* in);
     virtual void post_assignment_chain(Assignment* in);
     virtual void post_op_assignment_chain(Op_assignment* in);
-    virtual void post_list_assignment_chain(List_assignment* in);
-    virtual void post_nested_list_elements_chain(Nested_list_elements* in);
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
-    virtual void post_conditional_expr_chain(Conditional_expr* in);
-    virtual void post_ignore_errors_chain(Ignore_errors* in);
     virtual void post_constant_chain(Constant* in);
     virtual void post_instanceof_chain(Instanceof* in);
     virtual void post_variable_chain(Variable* in);
@@ -430,33 +396,26 @@ public:
     virtual void visit_type(Type* in);
     virtual void visit_name_with_default(Name_with_default* in);
     virtual void visit_attr_mod(Attr_mod* in);
-    virtual void visit_name_with_default_list(List<Name_with_default*>* in);
     virtual void visit_variable_name(VARIABLE_NAME* in);
     virtual void visit_expr(Expr* in);
     virtual void visit_variable(Variable* in);
-    virtual void visit_switch_case_list(List<Switch_case*>* in);
-    virtual void visit_switch_case(Switch_case* in);
-    virtual void visit_variable_name_list(List<Variable_name*>* in);
+    virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
     virtual void visit_label_name(LABEL_NAME* in);
     virtual void visit_ht_iterator(HT_ITERATOR* in);
     virtual void visit_op(OP* in);
-    virtual void visit_list_element_list(List<List_element*>* in);
-    virtual void visit_list_element(List_element* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
     virtual void visit_target(Target* in);
-    virtual void visit_variable_name(Variable_name* in);
-    virtual void visit_expr_list(List<Expr*>* in);
+    virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
     virtual void visit_array_elem_list(List<Array_elem*>* in);
     virtual void visit_array_elem(Array_elem* in);
     virtual void visit_method_name(Method_name* in);
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
     virtual void visit_php_script(PHP_script* in);
-    virtual void visit_conditional_expr(Conditional_expr* in);
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 public:
@@ -464,7 +423,6 @@ public:
     virtual void pre_member_chain(Member* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
-    virtual void pre_list_element_chain(List_element* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_target_chain(Target* in);
     virtual void pre_method_name_chain(Method_name* in);
@@ -475,7 +433,6 @@ public:
     virtual void post_member_chain(Member* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
-    virtual void post_list_element_chain(List_element* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_target_chain(Target* in);
     virtual void post_method_name_chain(Method_name* in);
@@ -486,7 +443,6 @@ public:
     virtual void children_member(Member* in);
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
-    virtual void children_list_element(List_element* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_target(Target* in);
     virtual void children_method_name(Method_name* in);

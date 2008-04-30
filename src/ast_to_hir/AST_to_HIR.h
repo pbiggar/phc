@@ -42,8 +42,8 @@ class AST_to_HIR : public AST::Fold
  HIR::Statement*,		// Do*
  HIR::Statement*,			// For*
  HIR::Foreach*,			// Foreach*
- HIR::Switch*,			// Switch*
- HIR::Switch_case*,				// Switch_case*
+ HIR::Statement*,			// Switch*
+ HIR::Node*,				// Switch_case*
  HIR::Break*,			// Break*
  HIR::Continue*,			// Continue*
  HIR::Return*,				// Return*
@@ -69,14 +69,14 @@ class AST_to_HIR : public AST::Fold
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
  HIR::Op_assignment*,				// Op_assignment*
- HIR::List_assignment*,				// List_assignment*
- HIR::List_element*,				// List_element*
- HIR::Nested_list_elements*,				// Nested_list_elements*
+ HIR::Expr*,				// List_assignment*
+ HIR::Expr*,				// List_element*
+ HIR::Expr*,				// Nested_list_elements*
  HIR::Cast*,				// Cast*
  HIR::Unary_op*,			// Unary_op*
  HIR::Bin_op*,				// Bin_op*
  HIR::Expr*,				// Conditional_expr*
- HIR::Ignore_errors*,				// Ignore_errors*
+ HIR::Expr*,				// Ignore_errors*
  HIR::Constant*,			// Constant*
  HIR::Instanceof*,			// Instanceof*
  HIR::Variable*,			// Variable*
@@ -92,7 +92,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::New*,					// New*
  HIR::Class_name*,			// Class_name*
- HIR::Commented_node*,				// Commented_node*
+ HIR::Node*,				// Commented_node*
  HIR::Identifier*,			// Identifier*
  HIR::Node*,			// Source_rep*
  HIR::HT_ITERATOR*,		// HT_ITERATOR*
@@ -111,11 +111,44 @@ class AST_to_HIR : public AST::Fold
  HIR::CAST*,				// CAST*
  HIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+
+	// The HIR expects variable names where the AST has expressions.
+	// Find the VARIABLE_NAME within the expression.
+	bool is_wrapped_var_name (HIR::Expr* expr)
+	{
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		if (	var == NULL 
+			|| var->variable_name == NULL
+			|| var->target != NULL
+			|| var->array_indices->size () != 0)
+			return false;
+
+		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
+	}
+
+	void copy_attrs (HIR::Node* target, AST::Node* source)
+	{
+		target->attrs = source->attrs;
+		target->attrs->erase ("phc.comments");
+	}
+
+	HIR::VARIABLE_NAME* expr_to_var_name (HIR::Expr* expr)
+	{
+		if (expr == NULL) // $x[]
+			return NULL;
+
+		assert (is_wrapped_var_name (expr));
+
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		HIR::VARIABLE_NAME* var_name = dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name);
+		return var_name;
+	}
+
 	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, List<HIR::Statement*>* statements) 
 	{
 		HIR::PHP_script* result;
 		result = new HIR::PHP_script(statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -123,7 +156,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Class_def* result;
 		result = new HIR::Class_def(class_mod, class_name, extends, implements, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -131,7 +164,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Class_mod* result;
 		result = new HIR::Class_mod(is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -139,7 +172,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Interface_def* result;
 		result = new HIR::Interface_def(interface_name, extends, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -147,7 +180,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method* result;
 		result = new HIR::Method(signature, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -155,7 +188,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Signature* result;
 		result = new HIR::Signature(method_mod, is_ref, method_name, formal_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -163,7 +196,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method_mod* result;
 		result = new HIR::Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -171,7 +204,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Formal_parameter* result;
 		result = new HIR::Formal_parameter(type, is_ref, var);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -179,17 +212,17 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Type* result;
 		result = new HIR::Type(class_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Attribute* fold_impl_attribute(AST::Attribute* orig, HIR::Attr_mod* attr_mod, List<HIR::Name_with_default*>* vars) 
 	{
-//		assert(vars->size() == 1); // TODO reinstate this
+		assert(vars->size() == 1);
 
 		HIR::Attribute* result;
-		result = new HIR::Attribute(attr_mod, vars);
-		result->attrs = orig->attrs;
+		result = new HIR::Attribute(attr_mod, vars->front ());
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -197,7 +230,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Attr_mod* result;
 		result = new HIR::Attr_mod(is_public, is_protected, is_private, is_static, is_const);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 	
@@ -205,7 +238,7 @@ class AST_to_HIR : public AST::Fold
 	{ 
 		HIR::Name_with_default* result;
 		result = new HIR::Name_with_default(variable_name, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -213,7 +246,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Return* result;
 		result = new HIR::Return(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -222,20 +255,18 @@ class AST_to_HIR : public AST::Fold
 		assert(vars->size() == 1);
 
 		HIR::Static_declaration* result;
-		result = new HIR::Static_declaration(vars);
-		result->attrs = orig->attrs;
+		result = new HIR::Static_declaration(vars->front ());
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Global* fold_impl_global(AST::Global* orig, List<HIR::Variable_name*>* variable_names) 
 	{
-		// HIR only takes a single variable per global; should be been taken care of in the shredder
-		// TODO reinstate
-//		assert(variable_names->size() == 1);
+		assert(variable_names->size() == 1);
 		
 		HIR::Global* result;
-		result = new HIR::Global(variable_names);
-		result->attrs = orig->attrs;
+		result = new HIR::Global(variable_names->front ());
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -243,7 +274,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Try* result;
 		result = new HIR::Try(statements, catches);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -251,7 +282,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Catch* result;
 		result = new HIR::Catch(class_name, variable_name, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -259,7 +290,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Throw* result;
 		result = new HIR::Throw(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -267,15 +298,15 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Eval_expr* result;
 		result = new HIR::Eval_expr(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::Expr* expr, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
+	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::VARIABLE_NAME* variable_name, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
 	{
 		HIR::Branch* result;
-		result = new HIR::Branch(expr, iftrue, iffalse);
-		result->attrs = orig->attrs;
+		result = new HIR::Branch(variable_name, iftrue, iffalse);
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -283,7 +314,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Goto* result;
 		result = new HIR::Goto(label_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -291,7 +322,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Label* result;
 		result = new HIR::Label(label_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -299,15 +330,15 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Break* result;
 		result = new HIR::Break (expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::If* fold_impl_if(AST::If* orig, HIR::Expr* expr, List<HIR::Statement*>* iftrue, List<HIR::Statement*>* iffalse)
 	{
 		HIR::If* result;
-		result = new HIR::If (expr, iftrue, iffalse);
-		result->attrs = orig->attrs;
+		result = new HIR::If (expr_to_var_name (expr), iftrue, iffalse);
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -315,7 +346,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Op_assignment* result;
 		result = new HIR::Op_assignment (variable, op, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -327,31 +358,15 @@ class AST_to_HIR : public AST::Fold
 
 		HIR::Loop* result;
 		result = new HIR::Loop(statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* expr, HIR::Variable* key, bool is_ref, HIR::Variable* val, List<HIR::Statement*>* statements)
 	{
 		HIR::Foreach* result;
-		result = new HIR::Foreach(expr, key, is_ref, val, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Ignore_errors* fold_impl_ignore_errors(AST::Ignore_errors* orig, HIR::Expr* expr)
-	{
-		HIR::Ignore_errors* result;
-		result = new HIR::Ignore_errors (expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Switch* fold_impl_switch(AST::Switch* orig, HIR::Expr* expr, List<HIR::Switch_case*>* switch_cases)
-	{
-		HIR::Switch* result;
-		result = new HIR::Switch (expr, switch_cases);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach(expr_to_var_name (expr), key, is_ref, val, statements);
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -359,82 +374,55 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Continue* result;
 		result = new HIR::Continue(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
-
-	HIR::List_assignment* fold_impl_list_assignment(AST::List_assignment* orig, List<HIR::List_element*>* list_elements, HIR::Expr* expr)
-	{
-		HIR::List_assignment* result;
-		result = new HIR::List_assignment(list_elements, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-
-	HIR::Nested_list_elements* fold_impl_nested_list_elements(AST::Nested_list_elements* orig, List<HIR::List_element*>* list_elements)
-	{
-		HIR::Nested_list_elements* result;
-		result = new HIR::Nested_list_elements(list_elements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Switch_case* fold_impl_switch_case(AST::Switch_case* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
-	{
-		HIR::Switch_case* result;
-		result = new HIR::Switch_case (expr, statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_reset* result;
-		result = new HIR::Foreach_reset (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_reset (variable_name, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 
-
-	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_next* result;
-		result = new HIR::Foreach_next (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_next (variable_name, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_end* result;
-		result = new HIR::Foreach_end (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_end (variable_name, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_has_key* result;
-		result = new HIR::Foreach_has_key (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_has_key (variable_name, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_get_key* result;
-		result = new HIR::Foreach_get_key (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_get_key (variable_name, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::Variable* variable, HIR::HT_ITERATOR* ht_iterator) 
+	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::VARIABLE_NAME* variable_name, HIR::VARIABLE_NAME* key, HIR::HT_ITERATOR* iter) 
 	{
 		HIR::Foreach_get_val* result;
-		result = new HIR::Foreach_get_val (variable, ht_iterator);
-		result->attrs = orig->attrs;
+		result = new HIR::Foreach_get_val (variable_name, key, iter);
+		copy_attrs (result, orig);
 		return result;
 	}
 	
@@ -442,31 +430,31 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Assignment* result;
 		result = new HIR::Assignment(variable, is_ref, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
 	{
 		HIR::Cast* result;
-		result = new HIR::Cast(cast, expr);
-		result->attrs = orig->attrs;
+		result = new HIR::Cast(cast, expr_to_var_name (expr));
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Unary_op* fold_impl_unary_op(AST::Unary_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
 		HIR::Unary_op* result;
-		result = new HIR::Unary_op(op, expr);
-		result->attrs = orig->attrs;
+		result = new HIR::Unary_op(op, expr_to_var_name (expr));
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Bin_op* fold_impl_bin_op(AST::Bin_op* orig, HIR::Expr* left, HIR::OP* op, HIR::Expr* right) 
 	{
 		HIR::Bin_op* result;
-		result = new HIR::Bin_op(left, op, right);
-		result->attrs = orig->attrs;
+		result = new HIR::Bin_op(expr_to_var_name (left), op, expr_to_var_name (right));
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -474,31 +462,36 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Constant* result;
 		result = new HIR::Constant(class_name, constant_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Instanceof* fold_impl_instanceof(AST::Instanceof* orig, HIR::Expr* expr, HIR::Class_name* class_name) 
 	{
 		HIR::Instanceof* result;
-		result = new HIR::Instanceof(expr, class_name);
-		result->attrs = orig->attrs;
+		result = new HIR::Instanceof(expr_to_var_name (expr), class_name);
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Target* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
 	{
+		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
+		for_lci (array_indices, HIR::Expr, i)
+		{
+			var_names->push_back (expr_to_var_name (*i));
+		}
 		HIR::Variable* result;
-		result = new HIR::Variable(target, variable_name, array_indices);
-		result->attrs = orig->attrs;
+		result = new HIR::Variable(target, variable_name, var_names);
+		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
 	{
 		HIR::Reflection* result;
-		result = new HIR::Reflection (expr);
-		result->attrs = orig->attrs;
+		result = new HIR::Reflection (expr_to_var_name (expr));
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -506,7 +499,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -514,7 +507,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Array* result;
 		result = new HIR::Array(array_elems);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -522,7 +515,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Array_elem* result;
 		result = new HIR::Array_elem(key, is_ref, val);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -530,7 +523,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Method_invocation* result;
 		result = new HIR::Method_invocation(target, method_name, actual_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -538,7 +531,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Actual_parameter* result;
 		result = new HIR::Actual_parameter(is_ref, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -546,7 +539,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -554,7 +547,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::HT_ITERATOR* result;
 		result = new HIR::HT_ITERATOR (orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -562,7 +555,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CLASS_NAME* result;
 		result = new HIR::CLASS_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -570,7 +563,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::INTERFACE_NAME* result;
 		result = new HIR::INTERFACE_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -578,7 +571,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::METHOD_NAME* result;
 		result = new HIR::METHOD_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -586,7 +579,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::VARIABLE_NAME* result;
 		result = new HIR::VARIABLE_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -594,7 +587,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::LABEL_NAME* result;
 		result = new HIR::LABEL_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -602,7 +595,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::INT* result;
 		result = new HIR::INT(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -610,7 +603,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::REAL* result;
 		result = new HIR::REAL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -618,7 +611,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::STRING* result;
 		result = new HIR::STRING(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -626,7 +619,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::BOOL* result;
 		result = new HIR::BOOL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -634,7 +627,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::NIL* result;
 		result = new HIR::NIL();
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -642,7 +635,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::OP* result;
 		result = new HIR::OP(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -650,7 +643,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CAST* result;
 		result = new HIR::CAST(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -658,7 +651,7 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::CONSTANT_NAME* result;
 		result = new HIR::CONSTANT_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 

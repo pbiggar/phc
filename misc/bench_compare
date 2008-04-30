@@ -7,6 +7,18 @@
 # times. It will then calculate the speedup, and plot them on a single graph,
 # NAME.plot.
 
+# bargraph.pl is available from http://www.burningcutlery.com/derek/bargraph/
+
+if (count ($argv) < 1)
+{
+	print ("usage: bench_compare php_NAME\n
+			  or:    bench_compare phc_NAME\n 
+			  or:    bench_compare NAME\n
+			  
+			  to compare php_NAME.txt with phc_NAME.txt");
+	die ();
+}
+
 	# return a hashtable of test_name => time
 	function parse ($filename)
 	{
@@ -14,7 +26,21 @@
 		$results_strings = split ("\n", chop (file_get_contents ($filename)));
 		foreach ($results_strings as $res)
 		{
+			# by default, the bench results include lines like ackermann(7). Strip off the (7)
+			$res = preg_replace ("/\(\d+\)/", "", $res);
+
+			# skip the blank and the last line
+			if ($res === "------------------------")
+				break;
+
+			# check the format
+			if (!preg_match ("/^\w+\s+[0-9\.]+$/", $res))
+				die ("bad line: '$res'");
 			list ($name, $time) = split ("[ ]+", $res);
+
+			if ($name == "Total") // ignore total
+				continue;
+
 			$results [$name] = $time;
 		}
 		return $results;
@@ -38,104 +64,29 @@
 	$phc_results = parse ("$dirname/phc_$title.txt");
 
 	# work out the speedups
-	foreach ($php_results as $name => $php_time)
+	foreach ($php_results as $name => $php)
 	{
-		$phc_time = $phc_results[$name];
-		if ($php_time > $phc_time) # php is slower
-			$speedups[$name] = ($php_time / $phc_time) - 1;
-		else
-			$speedups[$name] = (($phc_time / $php_time) - 1) * -1;
+		$phc = $phc_results[$name];
+		$time = ($php / $phc);
+		$speedups .= "$name $time\n";
 	}
 
-	# add an average
-	$total = array_sum (array_values ($speedups));
-	$speedups["average"] = $total / count ($speedups);
+	
 
+//=base1
+	$string = <<<BARGRAPH
+yformat=%g
+ylabel=Speedup of compiled benchmark
+=arithmean
+=sort
 
+$speedups
 
-	# Make the gnuplot file, we create the entire file in a single file.
-	# Data is in a single column, with the names in an xtics
-	# command. We plot from a zero centered bar graph.
-
-
-	# find the range
-	$maxxrange = count ($speedups) - 0.5;
-
-	# add labels
-	$labels = "";
-	foreach (array_keys ($speedups) as $i => $name)
-	{
-		if ($speedups[$name] < 0)
-			$labels .= "set label \"$name\" at $i,0.2 rotate left\n";
-		else
-			$labels .= "set label \"$name\" at $i,-0.2 rotate right\n";
-	}
-
-	# format the data
-	foreach (array_values ($speedups) as $i => $float)
-		$data .= "$i $float\n";
-
-	# create the y tics (3x 2x 1x 2x 3x etc)
-	$minyrange = array_reduce (
-						array_values ($speedups), 
-						create_function ('$x, $y', 'return min ((float)($x), (float)($y));'));
-	$intminyrange = (int)($minyrange) - 1;
-
-	$maxyrange = array_reduce (
-						array_values ($speedups), 
-						create_function ('$x, $y', 'return max ((float)($x), (float)($y));'));
-	$intmaxyrange = (int)($maxyrange) + 1;
-
-	$ytics = " (";
-	for ($i = $intminyrange; $i < 0; $i++)
-	{
-		$times = -$i + 1;
-		$ytics .= "\"{$times}x\" $i, ";
-	}
-
-	$ytics .= "\"\" 0, ";
-
-	for (++$i; $i <= $intmaxyrange; $i++)
-	{
-		$times = $i + 1;
-		$ytics .= "\"{$times}x\" $i, ";
-	}
-	$ytics .= "\"\" $i)";
-
-
-	// create a bit more space 
-	$minyrange *= 1.05;
-	$maxyrange *= 1.05;
-		
-
-	$string = <<<GNUPLOT
-set term postscript eps enhanced
-set output "results/$title.eps"
-set nokey
-$labels
-set yrange [$minyrange:$maxyrange]
-set noxtics
-set ytics $ytics rotate
-set y2tics $ytics rotate
-set y2tics out
-set ytics out
-set label "PHP faster" at $maxxrange+0.5,-0.2 rotate right
-set label "PHP faster" at           -1.0,-0.2 rotate right
-set label "phc faster" at $maxxrange+0.5, 0.2 rotate left
-set label "phc faster" at           -1.0, 0.2 rotate left
-set xzeroaxis 1
-plot "-" using 1:2:(0.7)       with boxes fs solid 0.25
-$data
-end
-
-GNUPLOT;
+ 
+BARGRAPH;
 
 	
 	file_put_contents ("results/$title.plot", $string);
-	`gnuplot results/$title.plot`;
-
-
-
-
+	echo `bargraph.pl results/$title.plot > results/$title.eps`;
 
 ?>

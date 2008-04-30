@@ -9,6 +9,6 @@
 #define PHC_DEMANGLE
 
 #include "lib/Object.h"
-const char* demangle(Object* obj);
+const char* demangle(Object* obj, bool include_namespace);
 
 #endif // PHC_DEMANGLE

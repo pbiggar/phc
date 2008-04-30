@@ -42,26 +42,53 @@ src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
+	src/ast_to_hir/AST_annotate.cpp						\
+	src/ast_to_hir/AST_annotate.h							\
 	src/ast_to_hir/AST_lower_expr.cpp					\
 	src/ast_to_hir/AST_lower_expr.h						\
 	src/ast_to_hir/AST_shredder.cpp						\
 	src/ast_to_hir/AST_shredder.h							\
 	src/ast_to_hir/AST_to_HIR.h							\
+	src/ast_to_hir/Desugar.cpp								\
+	src/ast_to_hir/Desugar.h								\
+	src/ast_to_hir/Early_lower_control_flow.cpp		\
+	src/ast_to_hir/Early_lower_control_flow.h			\
+	src/ast_to_hir/Echo_split.cpp							\
+	src/ast_to_hir/Echo_split.h							\
+	src/ast_to_hir/List_shredder.cpp						\
+	src/ast_to_hir/List_shredder.h						\
+	src/ast_to_hir/Lower_expr_flow.cpp					\
+	src/ast_to_hir/Lower_expr_flow.h						\
+	src/ast_to_hir/Pre_post_op_shredder.cpp			\
+	src/ast_to_hir/Pre_post_op_shredder.h				\
+	src/ast_to_hir/Split_multiple_arguments.cpp		\
+	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/ast_to_hir/Split_unset_isset.cpp				\
 	src/ast_to_hir/Split_unset_isset.h					\
+	src/ast_to_hir/Strip_comments.cpp					\
+	src/ast_to_hir/Strip_comments.h						\
+	src/ast_to_hir/Tidy_print.cpp							\
+	src/ast_to_hir/Tidy_print.h							\
 	src/ast_to_hir/Translate_empty.cpp					\
 	src/ast_to_hir/Translate_empty.h						\
+	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
+	src/codegen/Copy_propagation.cpp						\
+	src/codegen/Copy_propagation.h						\
+	src/codegen/Dead_code_elimination.cpp				\
+	src/codegen/Dead_code_elimination.h					\
+	src/codegen/Fix_point.cpp								\
+	src/codegen/Fix_point.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
 	src/codegen/Prune_symbol_table.cpp					\
 	src/codegen/Prune_symbol_table.h						\
-	src/codegen/Strip_comments.cpp						\
-	src/codegen/Strip_comments.h							\
+	src/codegen/Use_def_counter.cpp 						\
+	src/codegen/Use_def_counter.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.clp									\
@@ -99,35 +126,11 @@ src_phc_SOURCES =												\
 	src/generated/MIR_visitor.cpp							\
 	src/generated/MIR_visitor.h							\
 	src/generated/php_parser.tab.cpp						\
-	src/hir_to_mir/Annotate.cpp							\
-	src/hir_to_mir/Annotate.h								\
-	src/hir_to_mir/Check_lowering.cpp					\
-	src/hir_to_mir/Check_lowering.h						\
-	src/hir_to_mir/Check_uppering.cpp					\
-	src/hir_to_mir/Check_uppering.h						\
-	src/hir_to_mir/Desugar.cpp								\
-	src/hir_to_mir/Desugar.h								\
-	src/hir_to_mir/Early_lower_control_flow.cpp		\
-	src/hir_to_mir/Early_lower_control_flow.h			\
-	src/hir_to_mir/Echo_split.cpp							\
-	src/hir_to_mir/Echo_split.h							\
 	src/hir_to_mir/HIR_lower_expr.cpp					\
 	src/hir_to_mir/HIR_lower_expr.h						\
-	src/hir_to_mir/HIR_shredder.cpp						\
-	src/hir_to_mir/HIR_shredder.h							\
 	src/hir_to_mir/HIR_to_MIR.h							\
-	src/hir_to_mir/List_shredder.cpp						\
-	src/hir_to_mir/List_shredder.h						\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
-	src/hir_to_mir/Lower_expr_flow.cpp					\
-	src/hir_to_mir/Lower_expr_flow.h						\
-	src/hir_to_mir/Pre_post_op_shredder.cpp			\
-	src/hir_to_mir/Pre_post_op_shredder.h				\
-	src/hir_to_mir/Split_multiple_arguments.cpp		\
-	src/hir_to_mir/Split_multiple_arguments.h			\
-	src/hir_to_mir/Tidy_print.cpp							\
-	src/hir_to_mir/Tidy_print.h							\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -145,6 +148,8 @@ src_phc_SOURCES =												\
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/parsing/Parse_buffer.cpp							\
+	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
 	src/parsing/parse.h										\
 	src/parsing/PHP_context.cpp							\
@@ -162,6 +167,8 @@ src_phc_SOURCES =												\
 	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
+	src/process_ast/Constant_folding.cpp				\
+	src/process_ast/Constant_folding.h					\
 	src/process_ast/DOT_unparser.cpp						\
 	src/process_ast/DOT_unparser.h						\
 	src/process_ast/Invalid_check.cpp					\
@@ -182,6 +189,8 @@ src_phc_SOURCES =												\
 	src/process_hir/HIR_to_AST.h							\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
+	src/process_ir/Clone_blank_mixins.cpp				\
+	src/process_ir/Clone_blank_mixins.h					\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
 	src/process_ir/Foreach.h								\
@@ -194,8 +203,11 @@ src_phc_SOURCES =												\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
 	src/process_ir/XML_unparser.h							\
+	src/process_mir/Foreach_uppering.cpp				\
+	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
+	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
@@ -268,13 +280,32 @@ strangeparsing_HEADERS =					\
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/AST_unparser.h			\
-	src/process_ast/DOT_unparser.h			\
+	src/process_ast/DOT_unparser.h
+
+strangeprocesshirdir = $(pkgincludedir)/process_hir
+strangeprocesshir_HEADERS =					\
+	src/process_hir/HIR_unparser.h
+
+strangeprocessmirdir = $(pkgincludedir)/process_mir
+strangeprocessmir_HEADERS =					\
+	src/process_mir/MIR_unparser.h
+
+strangeprocessirdir = $(pkgincludedir)/process_ir
+strangeprocessir_HEADERS =						\
+	src/process_ir/Clone_blank_mixins.h		\
+	src/process_ir/debug.h						\
+	src/process_ir/Foreach.h					\
+	src/process_ir/fresh.h						\
+	src/process_ir/General.h					\
+	src/process_ir/IR.h							\
 	src/process_ir/PHP_unparser.h				\
 	src/process_ir/XML_unparser.h
 
 strangepassmanagerdir = $(pkgincludedir)/pass_manager
 strangepassmanager_HEADERS =					\
-	src/pass_manager/Pass_manager.h
+	src/pass_manager/Pass.h						\
+	src/pass_manager/Pass_manager.h			\
+	src/pass_manager/Plugin_pass.h
 
 
 
@@ -302,9 +333,17 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
+nobase_pkglib_LTLIBRARIES += plugins/tests/limit_assignments.la
+plugins_tests_limit_assignments_la_SOURCES = plugins/tests/limit_assignments.cpp
+plugins_tests_limit_assignments_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
 nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+
+nobase_pkglib_LTLIBRARIES += plugins/tests/lost_attributes.la
+plugins_tests_lost_attributes_la_SOURCES = plugins/tests/lost_attributes.cpp
+plugins_tests_lost_attributes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
 plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
@@ -402,17 +441,6 @@ src/generated/AST_factory.h		\
 src/generated/AST_fold.h			\
 	: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
-	mv AST.clp src/generated/
-	mv AST.cpp src/generated/
-	mv AST.h src/generated/
-	mv AST_transform.cpp src/generated/
-	mv AST_transform.h src/generated/
-	mv AST_visitor.cpp src/generated/
-	mv AST_visitor.h src/generated/
-	mv AST_factory.cpp src/generated/
-	mv AST_factory.h src/generated/
-	mv AST_fold.h src/generated/
-	mv AST-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/HIR.clp 				\
@@ -427,17 +455,6 @@ src/generated/HIR_factory.h		\
 src/generated/HIR_fold.h			\
 	: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
-	mv HIR.clp src/generated/
-	mv HIR.cpp src/generated/
-	mv HIR.h src/generated/
-	mv HIR_transform.cpp src/generated/
-	mv HIR_transform.h src/generated/
-	mv HIR_visitor.cpp src/generated/
-	mv HIR_visitor.h src/generated/
-	mv HIR_factory.cpp src/generated/
-	mv HIR_factory.h src/generated/
-	mv HIR_fold.h src/generated/
-	mv HIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd#
 
 src/generated/MIR.clp 				\
@@ -452,17 +469,6 @@ src/generated/MIR_factory.h		\
 src/generated/MIR_fold.h			\
 	: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
-	mv MIR.clp src/generated/
-	mv MIR.cpp src/generated/
-	mv MIR.h src/generated/
-	mv MIR_transform.cpp src/generated/
-	mv MIR_transform.h src/generated/
-	mv MIR_visitor.cpp src/generated/
-	mv MIR_visitor.h src/generated/
-	mv MIR_factory.cpp src/generated/
-	mv MIR_factory.h src/generated/
-	mv MIR_fold.h src/generated/
-	mv MIR-contexts src/generated/
 #	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 

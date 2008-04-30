@@ -8,6 +8,12 @@
 #ifndef PHC_IR_H
 #define PHC_IR_H
 
+#include "lib/Object.h"
+#include "lib/AttrMap.h"
+#include "lib/Integer.h"
+#include "lib/String.h"
+#include <string>
+
 namespace AST 
 {
 	class PHP_script;
@@ -29,7 +35,50 @@ namespace MIR
 	class Transform;
 }
 
-class IR
+namespace IR
+{
+
+class Node : public Object
+{
+public:
+	AttrMap* attrs;
+
+	// Return the line number of the node (or 0 if unknown)
+	int get_line_number()
+	{
+		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
+		if(i != NULL)
+			return i->value();
+		else
+			return 0;
+	}
+
+	// Return the filename of the node. If unknown, use "<unknown>",
+	// which is what the interpreter uses.
+	// TODO In the future, make sure we always have filenames and
+	// line numbers.
+	String* get_filename()
+	{
+		String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
+		if (result == NULL)
+			result = new String ("<unknown>");
+
+		return result;
+	}
+
+	Node()
+	{
+		// Constructor gets called because all classes inherit from
+		// Node virtually; also, because maketea knows Node is
+		// abstract, it won't add a constructor itself
+		attrs = new AttrMap();
+	}
+
+	virtual ~Node() {}
+};
+
+
+class PHP_script
 {
 // Operations that are defined over all IRs
 public:
@@ -61,11 +110,13 @@ public:
 	virtual AST::PHP_script* as_AST();
 	virtual HIR::PHP_script* as_HIR();
 	virtual MIR::PHP_script* as_MIR();
-	virtual IR* fold_lower ();
+	virtual PHP_script* fold_lower ();
 
 // Make sure IR is virtual
 public:
-	virtual ~IR() {}
+	virtual ~PHP_script() {}
 };
+
+}
 
 #endif // PHC_IR_H

@@ -50,61 +50,33 @@ AC_ARG_WITH([maketea],
   [AC_PATH_PROG([maketea], [maketea])]
   )
 
+dnl This seems like more of a --enable/disable option, but the maketea and php options both use --with/without
+dnl AC_CHECK_LIB_XERCES
+AC_ARG_WITH([xerces],
+	[AS_HELP_STRING([--with-xerces], [support XML input @<:@default=check@:>@])],
+	[], # with_xerces is set to true false anyway
+	[with_xerces=check]
+	)
+
+# check PHP path
 AC_ARG_WITH([php], 
 	AS_HELP_STRING([--with-php=PATH], [PHP installation path (defaults to /usr/local)]), 
 	[
-		AC_PATH_PROG([php], [php], [], [${withval}/bin])
-		# For config.h:
-		AC_DEFINE_UNQUOTED([PHP_INSTALL_PATH], ["$withval"])
-		# For autovars.php.in:
-		AC_SUBST([php_install_path], ["$withval"])
-		# For use below:
-		PHP_INSTALL_PATH=$withval
+		AS_IF([test "x$with_php" != xno], 
+			[AC_CHECK_PHP([$withval])], [AS_VAR_SET([found_embed_sapi], [no])])
 	], 
 	[
-		AC_PATH_PROG([php], [php], [], [/usr/local/bin])
-		AC_DEFINE([PHP_INSTALL_PATH], ["/usr/local"])
-		AC_SUBST([php_install_path], ["/usr/local"])
-		PHP_INSTALL_PATH=["/usr/local"]
+		AC_CHECK_PHP([/usr/local])
 	])
 
-
-dnl To check if the PHP embed SAPI has been installed, we temporarily add the
-dnl PHP installation path to LDFLAGS and CFLAGS, and restore it later (since 
-dnl we do not need that path to build phc itself).
-OLD_LDFLAGS=$LDFLAGS
-OLD_CFLAGS=$CFLAGS
-LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"	
-CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
-AC_CHECK_LIB(
-	[php5], 
-	[zend_eval_string], 
-	[
-		AS_VAR_SET(found_embed_sapi, yes)
-		AC_DEFINE(HAVE_EMBED, 1)
-		AC_SUBST([libphp_headers], ["-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"])
-		LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
-	], 
-	[
-		AS_VAR_SET(found_embed_sapi, no)
-	], 
-	[]
-	)
-AC_CHECK_HEADER(
-	[sapi/embed/php_embed.h], 
-	[], 
-	[AS_VAR_SET(found_embed_sapi, no)],
-	[]
-	)
-CFLAGS=$OLD_CFLAGS
-LDFLAGS=$OLD_LDFLAGS
 
 dnl checks for libraries
 AC_LANG([C++])
 AC_CHECK_COVARIANCE
 AC_CHECK_LIB_CRUN
-AC_CHECK_LIB_XERCES
 AC_CHECK_LIB([gc], [main], [AC_DEFINE([HAVE_GC_LIB], [1])])
+dnl check xerces unless disabled
+AS_IF([test "x$with_xerces" != xno], [AC_CHECK_LIB_XERCES], [])
 
 dnl checks for header files
 AC_CHECK_HEADER([gc/gc_cpp.h], [AC_DEFINE([HAVE_GC_INC], [1])])

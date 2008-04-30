@@ -13,7 +13,7 @@
 #include <vector>
 #include "AST_unparser.h" 
 #include "cmdline.h"
-#include "lib/demangle.h"
+#include "process_ir/General.h"
 
 extern struct gengetopt_args_info args_info;
 
@@ -103,9 +103,10 @@ public:
  * The unparser proper
  */
 
-AST_unparser::AST_unparser (ostream& os) : PHP_unparser (os)
+AST_unparser::AST_unparser (ostream& os, bool in_php) : PHP_unparser (os, in_php)
 {
-	in_string.push(false); 
+	in_string.push(false);
+	this->in_php = in_php;
 }
 
 void AST_unparser::children_php_script(PHP_script* in)
@@ -366,60 +367,56 @@ void AST_unparser::children_foreach(Foreach* in)
 
 void AST_unparser::children_foreach_reset (Foreach_reset* in)
 {
-	visit_ht_iterator (in->ht_iterator);
-	echo (" = new ArrayObject (");
-	visit_variable (in->variable);
+	echo ("foreach_reset($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
 	echo (");");
-	newline ();
-	visit_ht_iterator (in->ht_iterator);
-	echo (" = ");
-	visit_ht_iterator (in->ht_iterator);
-	echo ("->getIterator ();");
 }
 
 void AST_unparser::children_foreach_next (Foreach_next* in)
 {
-	visit_ht_iterator (in->ht_iterator);
-	echo ("->next ();");
+	echo ("foreach_next($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (");");
 }
 
 void AST_unparser::children_foreach_end (Foreach_end* in)
 {
+	echo ("foreach_end($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (");");
 }
 
 void AST_unparser::children_foreach_has_key (Foreach_has_key* in)
 {
-	visit_ht_iterator (in->ht_iterator);
-	echo ("->valid ()");
+	echo ("foreach_has_key($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (")");
 }
 
 void AST_unparser::children_foreach_get_key (Foreach_get_key* in)
 {
-	visit_ht_iterator (in->ht_iterator);
-	echo ("->key ()");
+	echo ("foreach_get_key($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (")");
 }
 
 void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
 {
-	// If there is no key in the AST, we need to unparse one anyway, so we can
-	// access it.
-	Expr* expr;
-	if (in->attrs->has ("phc.unparser.foreach_get_key"))
-	{
-		Object* obj = in->attrs->get ("phc.unparser.foreach_get_key");
-		Eval_expr* get_key = dynamic_cast<Eval_expr*> (obj);
-		assert (get_key);
-		expr = get_key->expr;
-	}
-	else
-	{
-		// The key isnt in the AST, so it was added as an attribute instead.
-		Object* obj = in->attrs->get ("phc.unparser.foreach_key");
-		Variable* key = dynamic_cast<Variable*> (obj);
-		assert (key);
-		expr = key;
-	}
-	visit_variable (in->variable);
+	echo ("foreach_get_val($");
+	visit_variable_name (in->array);
+	echo (", ");
+	visit_ht_iterator (in->iter);
+	echo (")");
 }
 
 
@@ -658,6 +655,20 @@ void AST_unparser::children_cast(Cast* in)
 void AST_unparser::children_unary_op(Unary_op* in)
 {
 	visit_op(in->op);
+
+	// Special case for '-': avoid --1 (-+ or +- is OK)
+	Literal* lit;
+	Wildcard<Expr> outer, inner;
+
+	if (in->match (new Unary_op (&outer, "-")))
+	{
+		if (outer.value->match (new Unary_op (&inner, "-"))
+				|| ((lit = dynamic_cast<Literal*> (outer.value))
+					&& (*lit->get_value_as_string ())[0] == '-'))
+			echo (" ");
+	}
+
+
 	visit_expr(in->expr);
 }
 
@@ -950,6 +961,14 @@ void AST_unparser::children_method_invocation(Method_invocation* in)
 			visit_actual_parameter_list(in->actual_parameters);
 		}
 	}
+	else if (in->match (new Method_invocation (NULL, new METHOD_NAME (new String ("echo")), NULL)))
+	{
+		visit_method_name(in->method_name);
+
+		// echo ($x, $y) can't be parsed properly.
+		echo(" ");
+		visit_actual_parameter_list(in->actual_parameters);
+	}
 	else
 	{
 		visit_method_name(in->method_name);
@@ -1208,11 +1227,11 @@ void AST_unparser::children_string(STRING* in)
 		}
 		else
 		{
-	    if(in->attrs->is_true("phc.unparser.is_singly_quoted"))
+	    if(in->attrs->is_true("phc.unparser.is_doubly_quoted"))
 			{
-				echo("'");
+				echo("\"");
 				echo(in->get_source_rep ());
-				echo("'");
+				echo("\"");
 			}
 			else if(in->attrs->has("phc.unparser.heredoc_id"))
 			{
@@ -1226,9 +1245,12 @@ void AST_unparser::children_string(STRING* in)
 			}
 			else 
 			{
-	      echo("\"");
-				echo(in->get_source_rep ());
-				echo("\"");
+				echo("'");
+				if (in->has_source_rep ())
+					echo(in->get_source_rep ());
+				else
+					echo(escape_sq (in->get_source_rep ()));
+				echo("'");
 			}
 		}
 	}
@@ -1311,6 +1333,20 @@ void AST_unparser::post_expr(Expr* in)
 	if(in->attrs->is_true("phc.unparser.needs_curlies") or in->attrs->is_true("phc.unparser.needs_user_curlies"))
 		echo("}");
 	if(in->attrs->is_true("phc.unparser.needs_user_brackets"))
+		echo(")");
+}
+
+void AST_unparser::pre_bin_op (Bin_op* in)
+{
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets")
+		&& (*in->op->value != ","))
+		echo("(");
+}
+
+void AST_unparser::post_bin_op (Bin_op* in)
+{
+	if(!in->attrs->is_true("phc.unparser.no_binop_brackets")
+		&& (*in->op->value != ","))
 		echo(")");
 }
 

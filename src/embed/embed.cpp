@@ -6,6 +6,8 @@
  */
 
 #include "embed.h"
+#include "process_ir/General.h"
+#include "process_ast/AST_unparser.h"
 #include <assert.h>
 
 using namespace AST;
@@ -15,6 +17,7 @@ using namespace AST;
 #if HAVE_EMBED
 
 #include <sapi/embed/php_embed.h>
+#include <Zend/zend.h>
 
 // copied straight from book, p266
 #ifdef ZTS
@@ -44,39 +47,133 @@ void PHP::shutdown_php ()
 	php_embed_shutdown (TSRMLS_C);
 }
 
-Literal* PHP::convert_token (Literal *token)
+Literal* zval_to_literal (zval* value)
 {
-	assert (is_started);
-	Literal* result = NULL;
-	String* representation = token->get_source_rep ();
-	assert (representation);
-
-	// no return or semi-colon required.
-	char* eval = const_cast <char*> (representation->c_str ());
-
-	zval var;
-	zend_eval_string (eval, &var, "Evaluate literal" TSRMLS_CC);
-
-	// fetch the var
-	if (Z_TYPE_P (&var) == IS_LONG)
+	switch (Z_TYPE_P (value))
 	{
-		result = new INT (Z_LVAL_P (&var));
+		case IS_NULL:
+			return new NIL ();
+		case IS_LONG:
+			return new INT (Z_LVAL_P (value));
+		case IS_DOUBLE:
+			return new REAL (Z_DVAL_P (value));
+		case IS_BOOL:
+			return new BOOL (Z_BVAL_P (value));
+		case IS_STRING:
+			return new STRING (
+				new String (
+					Z_STRVAL_P (value), 
+					Z_STRLEN_P (value)));
+		default:
+			/* We only want literals */
+			assert (0);
 	}
-	else if (Z_TYPE_P (&var) == IS_DOUBLE)
-	{
-		result = new REAL (Z_DVAL_P (&var));
-	}
-	else
-		assert (false);
-
-	result->attrs->clone_all_from (token->attrs);
-	return result;
-
 }
+
 
 unsigned long PHP::get_hash (String* string)
 {
   return zend_get_hash_value (const_cast <char*> (string->c_str ()), string->size () + 1);
+}
+
+
+/* Wrap eval_string, trapping errors and warnings */
+
+// TODO: This isn't re-entrant. I'm not sure how to pass state to handle_php_error_cb
+static AST::Node* current_anchor;
+
+/* Handlers for PHP errors */
+int myapp_php_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
+{
+	assert (0);
+}
+
+void handle_php_log_message(char *message) 
+{
+	assert (0);
+}
+
+void handle_php_sapi_error(int type, const char *fmt, ...) 
+{
+	assert (0);
+}
+
+int handle_php_ub_write(const char *str, unsigned int str_length TSRMLS_DC)
+{
+	assert (0);
+}
+
+void handle_php_error_cb(int type, const char *error_filename, const uint error_lineno,
+const char *format, va_list argp)
+{
+	phc_warning (format, argp, current_anchor->get_filename(), current_anchor->get_line_number ());
+	zend_bailout (); // goto zend_catch
+}
+
+// Eval CODE with the PHP interpreter, catch and warn in the case of errors,
+// using ANCHOR's filename and line number, then return true/false for
+// success/failure.
+bool eval_string (String* code, zval* result, Node* anchor)
+{
+	// Save the anchor for filenames and linenumbers
+	current_anchor = anchor;
+
+	// Divert output and error
+	zend_error_cb = handle_php_error_cb;
+	php_embed_module.ub_write = handle_php_ub_write;
+	php_embed_module.log_message = handle_php_log_message;
+	php_embed_module.sapi_error = handle_php_sapi_error;
+	zend_first_try 
+	{
+		zend_eval_string (const_cast<char*>(code->c_str ()), result, "Evaluate literal" TSRMLS_CC);
+	}
+	zend_catch
+	{
+		return false;
+	}
+	zend_end_try ();
+	return true;
+}
+
+Literal* PHP::convert_token (Literal *in)
+{
+	String* code = in->get_source_rep ();
+	assert (code);
+
+	zval value;
+	bool ret_val = eval_string (code, &value, in);
+	assert (ret_val);
+
+	Literal* result = zval_to_literal (&value);
+	result->attrs->clone_all_from (in->attrs);
+	return result;
+}
+
+
+Expr* PHP::fold_constant_expr (Expr* in)
+{
+	// Avoid parse errors due to '{'
+	Expr* clone = in->clone ();
+	clone->attrs->erase_with_prefix ("phc.unparser");
+
+	stringstream ss;
+	clone->visit (new AST_unparser (ss, true));
+	String* code = new String (ss.str());
+
+
+	zval value;
+	bool ret = eval_string (code, &value, in);
+	if (!ret)
+	{
+		cdebug << "Error, can not fold constants: ";
+		debug (in);
+		return in;
+	}
+
+	Literal* result = zval_to_literal (&value);
+	zval_dtor (&value); // clear out string structure
+	result->attrs->clone_all_from (in->attrs);
+	return result;
 }
 
 #else
@@ -181,6 +278,11 @@ unsigned long PHP::get_hash (String* string)
 bool PHP::is_available ()
 {
 	return false;
+}
+
+Expr* PHP::fold_constant_expr (Expr* in)
+{
+	return in;
 }
 
 #endif

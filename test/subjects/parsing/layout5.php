@@ -37,9 +37,6 @@
 			break;
 	}
 
-	declare(ticks=1)
-		echo "no idea what this does";
-
 	try
 	{
 		echo "do something that could fail";

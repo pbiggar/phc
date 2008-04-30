@@ -40,10 +40,10 @@ Expr* Token_conversion::pre_real (REAL* in)
 	return PHP::convert_token (in);
 }
 
-// Convert unary_op(-,int(5)) to int(-5), and similarly for reals
+// Convert unary_op(-,int(5)) to int(-5), and similarly for reals. Note that
+// multiple '-' unary ops are allowed.
 Expr* Token_conversion::pre_unary_op(Unary_op* in)
 {
-	Wildcard<Expr>* expr = new Wildcard<Expr>;
 	Wildcard<INT>* i = new Wildcard<INT>;
 	Wildcard<REAL>* r = new Wildcard<REAL>;
 
@@ -51,22 +51,13 @@ Expr* Token_conversion::pre_unary_op(Unary_op* in)
 	// attributes from *in to *result
 	Expr* result;
 
-	if(in->match(new Unary_op(new Unary_op(expr, "-"), "-")))
-	{
-		// Double negation; remove both
-		result = pre_expr(expr->value);
-	}
-
-	// TODO add a pass to check for the lack of unary -s
-
-	else if(in->match(new Unary_op(i, "-")))
+	if(in->match(new Unary_op(i, "-")))
 	{
 		String* source_rep = new String("-");
 		*source_rep += *i->value->get_source_rep ();
 		i->value->set_source_rep (source_rep);
 		result = PHP::convert_token (i->value);
 	}
-
 	else if(in->match(new Unary_op(r, "-")))
 	{
 		String* source_rep = new String("-");
@@ -74,7 +65,6 @@ Expr* Token_conversion::pre_unary_op(Unary_op* in)
 		r->value->set_source_rep (source_rep);
 		result = PHP::convert_token (r->value);
 	}
-
 	else
 	{
 		// No changes

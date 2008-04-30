@@ -39,7 +39,7 @@ require_once ("Console/Getopt.php");
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
-$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:");
+$opt_result = $cg->getopt($cg->readPHPArgv(), "vhc:rdDf:i:UuF:Z");
 if (!is_array ($opt_result))
 	die ($opt_result->message."\n");
 
@@ -48,26 +48,36 @@ $opt_verbose = 0;
 $opt_help = false;
 $opt_command = "";
 $opt_file = NULL;
+$opt_interpret = false;
+$opt_dont_upper = false;
+$opt_upper = false;
+$opt_failure = false;
+$opt_zero = true;
 foreach ($opts as $opt) 
 {
 	switch ($opt[0])
 	{
 		case 'h': $opt_help = true; break;
 		case 'v': $opt_verbose += 1; break;
+		case 'U': $opt_dont_upper = true; break;
+		case 'u': $opt_upper = true; break;
 		case 'c': $opt_command .= $opt[1]; break;
 		case 'r': $opt_command .= "--run plugins/tools/debug_zval.la --xdump=plugins/tools/debug_zval.la"; break;
 		case 'd': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=true --xdump=plugins/tools/demi_eval.la"; break;
 		case 'D': $opt_command .= "--run plugins/tools/demi_eval.la --r-option=false --xdump=plugins/tools/demi_eval.la"; break;
 		case 'f': $opt_file = $opt[1]; break;
+		case 'i': $opt_interpret = $opt[1]; break;
+		case 'F': $opt_failure = $opt[1]; break;
+		case 'Z': $opt_zero = true; break;
 	}
 }
 if ($opt_command === "") 
-	$opt_command = "--xdump=hir_as_ast";
+	$opt_command = "--xdump=AST-to-HIR --no-xml-attrs";
 
 if ($opt_help || count ($arguments) < 1)
 {
 	die (<<<EOL
-reduce - A program to automatically reduce test cases for phc- phpcompiler.org
+reduce - A program to automatically reduce test cases for phc - phpcompiler.org
 
 Usage: reduce [OPTIONS] filename
 
@@ -81,11 +91,18 @@ Options:
     -d     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=true".
     -D     The equivalent of "-c--run plugins/tools/demi_eval.la -xdump=plugins/tools/demi_eval.la --r-option=false".
     -f     Use the passed XML file as the the first program, instead of calling phc.
+    -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the specified pass and interpret it.
+    -U     Don't print 'upper' debug files (not related to -u)
+    -u     Used with -i, 'upper's before dumping (not related to -U)
+    -F     Mnemonic: Failure. Used for plugins which print "Failure" to indicate error. Run phc with the plugin to determine failure.
+    -X     No XML attrs (pass --no-xml-attrs with --xdumps)
+    -Z     Require script to return zero when run through interpreter
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
     reduce "-c--run plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la" test/subjects/codegen/0001.php
     reduce -v 0001.uhir.php
+    reduce -F plugins/tests/limit_assignments.la test/subjects/codegen/bench_simple.php
 
 EOL
 	);
@@ -107,6 +124,7 @@ if ($opt_file)
 }
 else
 {
+	debug (2, "Getting initial XML input");
 	list ($xprogram, $err, $exit) = run ("src/phc $opt_command $filename");
 	if ($err || $exit)
 		die ("Program failed. Try -v -v for more info\n");
@@ -118,6 +136,10 @@ debug (1, "$N statements");
 
 if ($N == 0)
   die ("No statements. Failing. Try -v -v for more info\n");
+
+# confirm that we can find the bug automatically
+if (!do_main_step ($xprogram, 0, 0, $filename))
+	die ("Program does not appear to have a bug. Failing");
 
 
 for ($k = (int)($N/2); $k >= 1; $k = (int)($k/2))
@@ -151,14 +173,16 @@ file_put_contents ("$filename.reduced", $pprogram);
 
 function add_comment ($xprogram)
 {
+	debug (2, "Adding comment");
 	global $command_line;
-	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=plugins/tools/add_comment.la", $xprogram);
+	list ($out) = run ("src/phc --read-xml=plugins/tools/add_comment.la --run plugins/tools/add_comment.la --r-option=\"Reduced with command line '$command_line'\" --xdump=plugins/tools/add_comment.la", $xprogram);
 	return $out;
 }
 
 function reduce ($xprogram_string, $start, $num)
 {
-	list ($out) = run ("src/phc --read-ast-xml --run plugins/tools/reduce_statements.la"
+	debug (2, "Reducing");
+	list ($out) = run ("src/phc --read-xml=plugins/tools/reduce_statements.la --run plugins/tools/reduce_statements.la"
 							 ." --r-option=$start:$num --xdump=plugins/tools/reduce_statements.la",
 							 $xprogram_string);
 	return $out;
@@ -166,15 +190,19 @@ function reduce ($xprogram_string, $start, $num)
 
 function convert ($xprogram_string, $upper)
 {
-	$upper = $upper ? "u" : "";
-	list ($out) = run ("src/phc --read-ast-xml --{$upper}dump=ast --run=plugins/tools/remove_all.la", $xprogram_string);
+	global $opt_dont_upper;
+	if ($opt_dont_upper) $upper = false;
+	debug (2, "Converting to PHP from XML" . ($upper ? " (uppered)" : ""));
+	$upper = $upper ? "u" : ""; // TODO: if this is to be uppered, then we cant remove all?
+	list ($out) = run ("src/phc --read-xml=ast --{$upper}dump=ast --run=plugins/tools/remove_all.la", $xprogram_string);
 	return $out;
 }
 
 function count_statements ($xprogram_string)
 {
-	list ($out, $err, $exit) = run ("src/phc --read-ast-xml --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
-	if ($err || $exit != 0)
+	debug (2, "Counting statements");
+	list ($out, $err, $exit) = run ("src/phc --read-xml=plugins/tutorials/count_statements_easy.la --run plugins/tutorials/count_statements_easy.la", $xprogram_string);
+	if ($err || $exit !== 0)
 	  die ("Error reading number of statements\n");
 	debug (2, "Output is: $out");
 	preg_match ("/(\d+) statements found/", $out, $matched) or die ();
@@ -183,52 +211,21 @@ function count_statements ($xprogram_string)
 
 function run ($command, $stdin = NULL)
 {
+
 	debug (2, "Running command: $command");
-	$descriptorspec = array(0 => array("pipe", "r"),
-									1 => array("pipe", "w"),
-									2 => array("pipe", "w"));
 
-	$pipes = array();
+	# complete_exec prints commands at opt_verbose = 1, but we want it at 2
+	global $opt_verbose;
+	$old = $opt_verbose;
+	$opt_verbose = false;
 
-	$handle = proc_open($command, $descriptorspec, &$pipes);
-	if ($stdin !== NULL)
-	{
-		fwrite ($pipes[0], $stdin);
-	}
-	fclose ($pipes[0]);
+	$result = complete_exec ($command, $stdin);
+	$opt_verbose = $old;
 
-	stream_set_blocking ($pipes[1], 0);
-	stream_set_blocking ($pipes[2], 0);
-	
-	$out = "";
-	$err = "";
-	$start_time = time ();
-	do
-	{
-		$out .= stream_get_contents ($pipes[1]);
-		$err .= stream_get_contents ($pipes[2]);
-		$status = proc_get_status ($handle);
+	if ($result[0] == "Timeout")
+		debug (2, "Command timed out");
 
-		// assume a process times out in 10 seconds
-		if (time () > $start_time + 4)
-		{
-			debug (2, "Command timed out");
-			proc_terminate ($handle);
-			proc_close ($handle);
-			return array ("", "Timeout", -1);
-		}
-	}
-	while ($status["running"]);
-	stream_set_blocking ($pipes[1], 1);
-	stream_set_blocking ($pipes[2], 1);
-	$out .= stream_get_contents ($pipes[1]);
-	$err .= stream_get_contents ($pipes[2]);
-	# contrary to popular opinion, proc_close doesnt return the exit
-	# status
-	$exit_code = $status["exitcode"];
-	proc_close ($handle);
-	debug (2, "Command exited with $exit_code and error: '$err'");
-	return array ($out, $err, $exit_code);
+	return $result;
 }
 
 function above_debug_threshold ($level)
@@ -237,24 +234,18 @@ function above_debug_threshold ($level)
 	return ($level <= $opt_verbose);
 }
 
-function debug ($level, $message = NULL)
+function debug ($level, $message)
 {
-	$above = above_debug_threshold ($level);
-	if ($message !== NULL && $above)
+	if (above_debug_threshold ($level))
 		print "$level: $message\n";
-
-	return ($above);
 }
 
-function dump ($level, $filename, $output)
+function dump ($filename, $output)
 {
-	debug ($level, "Dumping to $filename");
+	debug (3, "Dumping to $filename");
 
-	$above = above_debug_threshold ($level);
-	if ($above)
+	if (above_debug_threshold (3))
 		file_put_contents($filename, $output);
-
-	return $above;
 }
 
 # Reduce and test the program, passed as XML in $xprogram. Reduce it starting
@@ -264,7 +255,7 @@ function dump ($level, $filename, $output)
 # reduced program otherwise.
 function do_main_step ($xprogram, $start, $num, $filename)
 {
-	global $num_steps;
+	global $num_steps, $opt_interpret, $opt_failure, $opt_zero;
 	$num_steps++;
 
 	# Reduce
@@ -273,46 +264,115 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	$pnew_program = convert ($xnew_program, 0); // converted to PHP
 	$unew_program = convert ($xnew_program, 1); // uppered
 	$id = "{$num}_$start";
-	dump (3, "$filename.xreduced_$id", $xnew_program);
-	dump (3, "$filename.preduced_$id", $pnew_program);
-	dump (3, "$filename.ureduced_$id", $unew_program);
+	dump ("$filename.xreduced_$id", $xnew_program);
+	dump ("$filename.preduced_$id", $pnew_program);
+	dump ("$filename.ureduced_$id", $unew_program);
 
-	if ($xprogram == $xnew_program)
+	if ($xprogram == $xnew_program && $num != 0)
 	{
 		// this would happen if we dont remove any statements
+		// if $num == 0, then this is intentional
 		debug (1, "The two programs are identical. Skip.");
 		return false;
 	}
 
-	# Run through PHP
-	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
-	if ($php_err || $php_exit) // if the reduced case causes a PHP error, ignore.
+	debug (2, "Checking syntax errors");
+	list ($php_out, $php_err, $php_exit) = run ("php -l", $unew_program);
+	if ($php_exit || $php_err) // if the reduced case causes a PHP error, ignore.
 	{
-		debug (1, "Error running through PHP. Skip.");
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
 		return false;
 	}
-	$php_out = homogenize_all ($php_out);
-	dump (3, "$filename.php_out_$id", $php_out);
 
-	# Run through phc
-	list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-ast-xml -c", $xnew_program);
-	if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
+	# do this all here to avoid littering the function with it
+	if ($opt_failure)
 	{
-		list ($aout_out, $aout_err, $aout_exit) = run ("./a.out");
-		$aout_out = homogenize_all ($aout_out);
-		dump (3, "$filename.phc_out_$id", $aout_out);
+		debug (2, "Getting output when run with failure plugin");
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --run $opt_failure", $xnew_program);
+		if (preg_match ("/Failure$/", $phc_out))
+		{
+			debug (2, "Success, bug kept in");
+			dump ("$filename.phc_out_$id", $phc_out);
+			dump ("$filename.xsuccess_$id", $xnew_program);
+			dump ("$filename.psuccess_$id", $pnew_program);
+			dump ("$filename.usuccess_$id", $unew_program);
+			return $xnew_program;
+		}
+		else
+			return false;
 	}
 
-	if ($phc_out || $phc_err || $phc_exit 
-		|| $aout_err || $aout_exit 
-		|| ($php_out !== $aout_out)) // success, we've reduced it while keeping the bug in
+	# Run through PHP
+	debug (2, "Getting PHP output");
+	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
+	$php_out = homogenize_all ($php_out);
+	dump ("$filename.php_out_$id", $php_out);
+	if ($opt_zero && $php_exit)
 	{
-		dump (3, "$filename.xsuccess_$id", $xnew_program);
-		dump (3, "$filename.psuccess_$id", $pnew_program);
-		dump (3, "$filename.usuccess_$id", $unew_program);
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
+		return false;
+	}
+
+
+	$phc_error = false;
+	if ($opt_interpret)
+	{
+		# Run it through PHP til the specified pass, then run the output through PHP
+		debug (2, "Getting PHP output after running through phc");
+
+		global $opt_upper;
+		$upper = $opt_upper ? "u" : "";
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret", $xnew_program);
+		if ($phc_err === "" && $phc_exit === 0)
+		{
+			list ($my_out, $my_err, $my_exit) = run ("php", $phc_out);
+			$my_out = homogenize_all ($my_out);
+			dump ("$filename.phci_out_$id", $my_out);
+		}
+		else $phc_error = true;
+	}
+	else
+	{
+		# Compile and run
+		debug (2, "Getting compiled phc output");
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast -c", $xnew_program);
+		if ($phc_err === "" && $phc_out === "" && $phc_exit === 0)
+		{
+			list ($my_out, $my_err, $my_exit) = run ("./a.out");
+			$my_out = homogenize_all ($my_out);
+			dump ("$filename.phc_out_$id", $my_out);
+		}
+		else $phc_error = true;
+	}
+
+	if (!$phc_error)
+	{
+		if ($php_out === "Timeout" || $my_out === "Timeout")
+		{
+			debug (1, "phc error. Skip.");
+			return false;
+		}
+
+		if ($php_err === "Timeout") # if my_err is timeout, we've kept the bug in
+		{
+			debug (1, "Timeouts. Skip.");
+			return false;
+		}
+	}
+
+	if (  $phc_error
+		|| $php_err !== $my_err
+		|| $php_exit !== $my_exit
+		|| $php_out !== $my_out) // success, we've reduced it while keeping the bug in
+	{
+		debug (2, "Success, bug kept in");
+		dump ("$filename.xsuccess_$id", $xnew_program);
+		dump ("$filename.psuccess_$id", $pnew_program);
+		dump ("$filename.usuccess_$id", $unew_program);
 		return $xnew_program;
 	}
 
+	debug (2, "Bug removed. Skip.");
 	return false;
 }
 ?>

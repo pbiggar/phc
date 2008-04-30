@@ -159,11 +159,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Branch"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	LABEL_NAME* iftrue = dynamic_cast<LABEL_NAME*>(*i++);
     	LABEL_NAME* iffalse = dynamic_cast<LABEL_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Branch(expr, iftrue, iffalse);
+    	return new Branch(variable_name, iftrue, iffalse);
     }
     if(!strcmp(type_id, "Goto"))
     {
@@ -179,45 +179,46 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Foreach_reset"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_reset(array_name, ht_iterator);
+    	return new Foreach_reset(array, iter);
     }
     if(!strcmp(type_id, "Foreach_next"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_next(array_name, ht_iterator);
+    	return new Foreach_next(array, iter);
     }
     if(!strcmp(type_id, "Foreach_end"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_end(array_name, ht_iterator);
+    	return new Foreach_end(array, iter);
     }
     if(!strcmp(type_id, "Foreach_has_key"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_has_key(array_name, ht_iterator);
+    	return new Foreach_has_key(array, iter);
     }
     if(!strcmp(type_id, "Foreach_get_key"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_get_key(array_name, ht_iterator);
+    	return new Foreach_get_key(array, iter);
     }
     if(!strcmp(type_id, "Foreach_get_val"))
     {
-    	VARIABLE_NAME* array_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	HT_ITERATOR* ht_iterator = dynamic_cast<HT_ITERATOR*>(*i++);
+    	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* key = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_get_val(array_name, ht_iterator);
+    	return new Foreach_get_val(array, key, iter);
     }
     if(!strcmp(type_id, "Assignment"))
     {

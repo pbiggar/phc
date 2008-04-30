@@ -25,6 +25,7 @@ template
 class XML_unparser : public Visitor 
 {
 protected:
+	string xmlns; // XML namespace
 	ostream& os;
 	int indent;
 	bool print_attrs;
@@ -56,8 +57,8 @@ protected:
 	}
 
 public:
-	XML_unparser(ostream& os = cout, bool print_attrs = true)
-		: os(os), print_attrs (print_attrs)
+	XML_unparser(string xmlns, ostream& os = cout, bool print_attrs = true)
+		: xmlns(xmlns), os(os), print_attrs (print_attrs)
 	{
 		indent = 0;
 	}
@@ -76,33 +77,47 @@ public:
 			<< (value ? "true" : "false") << "</bool>" << endl;
 	}
 
-	void visit_null(char const* type_id)
+	void visit_null(char const* name_space, char const* type_id)
 	{
 		print_indent();
-		os << "<" << type_id << " xsi:nil=\"true\" />" << endl;
+		os << "<" << name_space << ":" << type_id << " xsi:nil=\"true\" />" << endl;
 	}
 
-	void visit_null_list(char const* type_id)
+	void visit_null_list(char const* name_space, char const* type_id)
 	{
 		print_indent();
-		os << "<" << type_id << "_list xsi:nil=\"true\" />" << endl;
+		os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />" << endl;
 	}
 
-	void pre_list(char const* type_id, int size)
+	void pre_list(char const* name_space, char const* type_id, int size)
 	{
 		print_indent();
-		os << "<" << type_id << "_list>" << endl;
+		os << "<" << name_space << ":" << type_id << "_list>" << endl;
 		indent++;
 	}
 
-	void post_list(char const* type_id, int size)
+	void post_list(char const* name_space, char const* type_id, int size)
 	{
 		indent--;
 		print_indent();
-		os << "</" << type_id << "_list>" << endl;
+		os << "</" << name_space << ":" << type_id << "_list>" << endl;
 	}
 
 public:
+
+	
+	// Demangle and convert type names qualified with a namespace into XML
+	// namespaces (eg AST::If into AST:If)
+	const char* demangle_xml (Node* node)
+	{
+		String* demangled = new String (demangle (node, true));
+		size_t index = demangled->find_first_of (':');
+		if (index != string::npos)
+		{
+			demangled->erase (index, 1);
+		}
+		return demangled->c_str ();
+	}
 
 	void pre_node(Node* in)
 	{
@@ -112,11 +127,12 @@ public:
 			os << "<?xml version=\"1.0\"?>" << endl;
 
 		print_indent();
-		os << "<" << demangle(in);
+
+		os << "<" << demangle_xml (in);
 
 		if(is_root)
 		{
-			os << " xmlns=\"http://www.phpcompiler.org/phc-1.1\"";
+			os << " xmlns:" << xmlns << "=\"http://www.phpcompiler.org/phc-1.1\"";
 			os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
@@ -130,7 +146,7 @@ public:
 	{
 		indent--;
 		print_indent();
-		os << "</" << demangle(in) << ">" << endl;
+		os << "</" << demangle_xml(in) << ">" << endl;
 	}
 
 protected:
@@ -217,7 +233,7 @@ protected:
 			os << "<!-- skipping NULL attribute " << name << " -->" << endl;
 		}
 		else
-			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr));	
+			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr, true));	
 	}
 
 };
@@ -236,7 +252,7 @@ public:
 			AST::PHP_script,
 			AST::Node,
 			AST::Visitor
-		> (os, print_attrs)
+		> ("AST", os, print_attrs)
 	{
 	}
 	
@@ -288,7 +304,7 @@ public:
 			HIR::PHP_script,
 			HIR::Node,
 			HIR::Visitor
-		> (os, print_attrs)
+		> ("HIR", os, print_attrs)
 	{
 	}
 	
@@ -330,7 +346,7 @@ public:
 			MIR::PHP_script,
 			MIR::Node,
 			MIR::Visitor
-		> (os, print_attrs)
+		> ("MIR", os, print_attrs)
 	{
 	}
 	

@@ -14,7 +14,7 @@ class Generate_C extends Test
 {
 	function get_dependent_test_names ()
 	{
-		return array ("Interpret_hir");
+		return array ("cb_hir");
 	}
 
 	function get_test_subjects ()

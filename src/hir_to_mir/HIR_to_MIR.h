@@ -40,8 +40,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Statement*,			// If*
  MIR::Statement*,			// While*
  MIR::Statement*,			// Foreach*
- MIR::Statement*,			// Switch*
- MIR::Node*,				// Switch_case*
  MIR::Statement*,			// Break*
  MIR::Statement*,			// Continue*
  MIR::Return*,				// Return*
@@ -64,14 +62,9 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Literal*,				// Literal*
  MIR::Assignment*,			// Assignment*
  MIR::Expr*,				// Op_assignment*
- MIR::Expr*,				// List_assignment*
- MIR::Node*,				// List_element*
- MIR::Node*,				// Nested_list_elements*
  MIR::Cast*,				// Cast*
  MIR::Unary_op*,			// Unary_op*
  MIR::Bin_op*,				// Bin_op*
- MIR::Expr*,				// Conditional_expr*
- MIR::Expr*,				// Ignore_errors*
  MIR::Constant*,			// Constant*
  MIR::Instanceof*,			// Instanceof*
  MIR::Variable*,			// Variable*
@@ -86,7 +79,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Actual_parameter*,	// Actual_parameter*
  MIR::New*,					// New*
  MIR::Class_name*,			// Class_name*
- MIR::Node*,				// Commented_node*
  MIR::Identifier*,			// Identifier*
  MIR::HT_ITERATOR*,		// HT_ITERATOR*
  MIR::CLASS_NAME*,		// CLASS_NAME*
@@ -103,6 +95,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::CAST*,				// CAST*
  MIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
+
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
 	{
 		MIR::PHP_script* result;
@@ -175,12 +168,10 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Attribute* fold_impl_attribute(HIR::Attribute* orig, MIR::Attr_mod* attr_mod, List<MIR::Name_with_default*>* vars) 
+	MIR::Attribute* fold_impl_attribute(HIR::Attribute* orig, MIR::Attr_mod* attr_mod, MIR::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		MIR::Attribute* result;
-		result = new MIR::Attribute(attr_mod, vars->front());
+		result = new MIR::Attribute(attr_mod, var);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -209,23 +200,18 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Static_declaration* fold_impl_static_declaration(HIR::Static_declaration* orig, List<MIR::Name_with_default*>* vars) 
+	MIR::Static_declaration* fold_impl_static_declaration(HIR::Static_declaration* orig, MIR::Name_with_default* var) 
 	{
-		assert(vars->size() == 1);
-
 		MIR::Static_declaration* result;
-		result = new MIR::Static_declaration(vars->front());
+		result = new MIR::Static_declaration(var);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Global* fold_impl_global(HIR::Global* orig, List<MIR::Variable_name*>* variable_names) 
+	MIR::Global* fold_impl_global(HIR::Global* orig, MIR::Variable_name* variable_name) 
 	{
-		// MIR only takes a single variable per global; should be been taken care of in the shredder
-		assert(variable_names->size() == 1);
-		
 		MIR::Global* result;
-		result = new MIR::Global(variable_names->front());
+		result = new MIR::Global(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -262,10 +248,10 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Branch* fold_impl_branch(HIR::Branch* orig, MIR::Expr* expr, MIR::LABEL_NAME* iftrue, MIR::LABEL_NAME* iffalse) 
+	MIR::Branch* fold_impl_branch(HIR::Branch* orig, MIR::VARIABLE_NAME* variable_name, MIR::LABEL_NAME* iftrue, MIR::LABEL_NAME* iffalse) 
 	{
 		MIR::Branch* result;
-		result = new MIR::Branch(expr, iftrue, iffalse);
+		result = new MIR::Branch(variable_name, iftrue, iffalse);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -286,50 +272,50 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_reset* fold_impl_foreach_reset (HIR::Foreach_reset* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_reset* result;
-		result = new MIR::Foreach_reset (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_reset (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_next* fold_impl_foreach_next (HIR::Foreach_next* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_next* result;
-		result = new MIR::Foreach_next (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_next (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_end* fold_impl_foreach_end (HIR::Foreach_end* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_end* result;
-		result = new MIR::Foreach_end (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_end (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_has_key* fold_impl_foreach_has_key (HIR::Foreach_has_key* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_has_key* result;
-		result = new MIR::Foreach_has_key (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_has_key (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_get_key* fold_impl_foreach_get_key (HIR::Foreach_get_key* orig, MIR::VARIABLE_NAME* variable_name, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_get_key* result;
-		result = new MIR::Foreach_get_key (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_get_key (variable_name, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, MIR::Variable* variable, MIR::HT_ITERATOR* ht_iterator) 
+	MIR::Foreach_get_val* fold_impl_foreach_get_val (HIR::Foreach_get_val* orig, MIR::VARIABLE_NAME* array, MIR::VARIABLE_NAME* key, MIR::HT_ITERATOR* iter) 
 	{
 		MIR::Foreach_get_val* result;
-		result = new MIR::Foreach_get_val (var_name_from_expr (variable), ht_iterator);
+		result = new MIR::Foreach_get_val (array, key, iter);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -349,34 +335,35 @@ class HIR_to_MIR : public HIR::Fold
 
 		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
 		assert (var);
+		assert (var->target == NULL);
+		assert (var->variable_name);
 		assert (var->array_indices->size () == 0);
-		MIR::Variable_name* var_name = var->variable_name;
+
+		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
 		assert (var_name);
-		MIR::VARIABLE_NAME* token = dynamic_cast<MIR::VARIABLE_NAME*> (var_name);
-		assert (token);
-		return token;
+		return var_name;
 	}
 
-	MIR::Cast* fold_impl_cast(HIR::Cast* orig, MIR::CAST* cast, MIR::Expr* expr) 
+	MIR::Cast* fold_impl_cast(HIR::Cast* orig, MIR::CAST* cast, MIR::VARIABLE_NAME* expr) 
 	{
 		MIR::Cast* result;
-		result = new MIR::Cast(cast, var_name_from_expr (expr));
+		result = new MIR::Cast(cast, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, MIR::OP* op, MIR::Expr* expr) 
+	MIR::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, MIR::OP* op, MIR::VARIABLE_NAME* expr) 
 	{
 		MIR::Unary_op* result;
-		result = new MIR::Unary_op(op, var_name_from_expr (expr));
+		result = new MIR::Unary_op(op, expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, MIR::Expr* left, MIR::OP* op, MIR::Expr* right) 
+	MIR::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, MIR::VARIABLE_NAME* left, MIR::OP* op, MIR::VARIABLE_NAME* right) 
 	{
 		MIR::Bin_op* result;
-		result = new MIR::Bin_op(var_name_from_expr (left), op, var_name_from_expr (right));
+		result = new MIR::Bin_op(left, op, right);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -389,34 +376,26 @@ class HIR_to_MIR : public HIR::Fold
 		return result;
 	}
 
-	MIR::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, MIR::Expr* expr, MIR::Class_name* class_name) 
+	MIR::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, MIR::VARIABLE_NAME* variable_name, MIR::Class_name* class_name) 
 	{
 		MIR::Instanceof* result;
-		result = new MIR::Instanceof(var_name_from_expr (expr), class_name);
+		result = new MIR::Instanceof(variable_name, class_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Expr*>* array_indices) 
+	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::VARIABLE_NAME*>* array_indices) 
 	{
 		MIR::Variable* result;
-
-		List<MIR::VARIABLE_NAME*>* var_names = new List<MIR::VARIABLE_NAME*>;
-		List<MIR::Expr*>::const_iterator i;
-		for (i = array_indices->begin (); i != array_indices->end (); i++)
-		{
-			var_names->push_back (var_name_from_expr (*i));
-		}
-
-		result = new MIR::Variable(target, variable_name, var_names);
+		result = new MIR::Variable(target, variable_name, array_indices);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Reflection* fold_impl_reflection(HIR::Reflection* orig, MIR::Expr* expr) 
+	MIR::Reflection* fold_impl_reflection(HIR::Reflection* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Reflection* result;
-		result = new MIR::Reflection(var_name_from_expr (expr));
+		result = new MIR::Reflection(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
