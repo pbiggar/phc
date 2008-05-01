@@ -67,6 +67,7 @@ template
 	class Script,
 	class Node,
 	class Literal,
+	class STRING,
 	class Identifier,
 	class Visitor
 >
@@ -77,21 +78,28 @@ protected:
 
 public:
 
+	void pre_php_script (Script* in)
+	{
+		cout << "import \"AST.clp\".\n" << endl;
+	}
+
+	class List_end : public List<Object*> {};
+
 /*	void visit_marker(char const* name, bool value)
 	{
 		ids.push (new Boolean (value));
 	}
 */
-	void pre_list(char const* type_id, int size)
+	void post_list(char const* name_space, char const* type_id, int size)
 	{
-		cout << "LIST" << endl;
-		cout << "<" << type_id << "_list>" << endl;
-	}
-
-	void post_list(char const* type_id, int size)
-	{
-		cout << "POST_LIST" << endl;
-		cout << "</" << type_id << "_list>" << endl;
+		// Fetch SIZE items off the list and add them within
+		List_end* le = new List_end ();
+		for(int i = 0; i < size; i++)
+		{
+			le->push_back (ids.top());
+			ids.pop ();
+		}
+		ids.push (le);
 	}
 
 	/* Get an id for this node, and add it to the stack. The magic
@@ -102,68 +110,107 @@ public:
 		ids.push (in);
 	}
 
+	String* wrap_in_quotes (String* str)
+	{
+		stringstream ss;
+		ss << '"' << *str << '"';
+		return s(ss.str ());
+	}
+
 	void pre_identifier (Identifier* in)
 	{
-		ids.push (in->get_value_as_string ());
+		// Strings need to be wrapped in quotes
+		ids.push (wrap_in_quotes (in->get_value_as_string ()));
 	}
 
 	void pre_literal (Literal* in)
 	{
-		ids.push (in->get_value_as_string ());
+		String* value = in->get_value_as_string ();
+
+		// Strings need to be wrapped in quotes
+		if (in->classid () == STRING::ID)
+			value = wrap_in_quotes (value);
+
+		ids.push (value);
 	}
 
 
+	/* We need to recurse for lists. */
+	void handle_stack_object (Object* obj, List<String*>* params)
+	{
+		// Get IDs for nodes
+		if (dynamic_cast<Node*> (obj))
+		{
+			Node* node = dynamic_cast<Node*> (obj);
+			params->push_front (node->attrs->get_string ("phc.clpa.id"));
+		}
+		else if (dynamic_cast<Boolean*> (obj))
+		{
+			// Markers are wrapped in bools
+			Boolean* b = dynamic_cast<Boolean*> (obj);
+			params->push_back (s(b->value() ? "true" : "false"));
+		}
+		else if (dynamic_cast<String*> (obj))
+		{
+			// Literals come pre-packed into strings
+			String* s = dynamic_cast<String*> (obj);
+			params->push_front (s);
+		}
+		else if (dynamic_cast<List_end*> (obj))
+		{
+			// Combine all elements of the list into a single param
+			List_end* le = dynamic_cast<List_end*> (obj);
+
+			// Get strings for each list element
+			List<String*> list_params;
+			for_lci (le, Object, i)
+			{
+				handle_stack_object (*i, &list_params);
+			}
+
+			// Combine into 1 string
+			stringstream ss;
+			ss << "[";
+			List<String*>::const_iterator i = list_params.begin ();;
+			while (i != list_params.end ())
+			{
+				ss << **i;
+				i++;
+
+				if (i != list_params.end ())
+					ss << ", ";
+
+			}
+			ss << "]";
+
+			params->push_back (s (ss.str ()));
+		}
+
+	}
 
 	/* If we search backwards down the stack until we find our own
 	 * node, then all subnodes will be parameters to this node. */
 	void post_node(Node* in)
 	{
-		// The params are either IDs or literals
+		// Add all parameters to PARAMS from the stack
 		List<String*>* params = new List<String*>;
 		while (ids.top () != in)
 		{
 			Object* obj = ids.top();
-			cdebug << "Removing: " << demangle(obj, true);
-
-			// Get IDs for nodes
-			if (dynamic_cast<Literal*> (obj))
-			{
-				Literal* lit = dynamic_cast<Literal*> (obj);
-				params->push_back (lit->get_value_as_string ());
-			}
-			else if (dynamic_cast<Node*> (obj))
-			{
-				Node* node = dynamic_cast<Node*> (obj);
-				params->push_back (node->attrs->get_string ("phc.clpa.id"));
-			}
-/*			else if (dynamic_cast<Boolean*> (obj))
-			{
-				Boolean* b = dynamic_cast<Boolean*> (obj);
-				params->push_back (s(b->value() ? "true" : "false"));
-			}
-*/			else if (dynamic_cast<String*> (obj))
-			{
-				String* b = dynamic_cast<String*> (obj);
-				params->push_back (b);
-			}
-			else
-				assert (0);
-
+			handle_stack_object (obj, params);
 			ids.pop ();
 		}
 
-		List<String*>::const_iterator i = params->begin ();
-		while (i != params->end ())
+		// Print out params
+		cout 
+			<< "phc_" << demangle(in, false) << " ("
+			<< *in->attrs->get_string ("phc.clpa.id");
+
+		for_lci (params, String, i)
 		{
-			cout << **i;
-			i++;
-
-			// no comma on final iteration
-			if (i != params->end ())
-				cout << ", ";
-
+			cout << ", " << **i;
 		}
-		cout << ")" << endl;
+		cout << ")." << endl;
 	}
 
 protected:
@@ -178,7 +225,7 @@ protected:
 		else
 		{
 			stringstream ss;
-			ss << "#" << id;
+			ss << "\"#" << id << "\"";
 			string_id = new String(ss.str());
 			node->attrs->set ("phc.clpa.id", string_id);
 			id++;
@@ -194,6 +241,7 @@ class AST_CLPA_unparser : public CLPA_unparser
 	AST::PHP_script,
 	AST::Node,
 	AST::Literal,
+	AST::STRING,
 	AST::Identifier,
 	AST::Visitor
 >
@@ -207,6 +255,7 @@ class HIR_CLPA_unparser : public CLPA_unparser
 	HIR::PHP_script,
 	HIR::Node,
 	HIR::Literal,
+	HIR::STRING,
 	HIR::Identifier,
 	HIR::Visitor
 >
@@ -219,6 +268,7 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR::PHP_script,
 	MIR::Node,
 	MIR::Literal,
+	MIR::STRING,
 	MIR::Identifier,
 	MIR::Visitor
 >
