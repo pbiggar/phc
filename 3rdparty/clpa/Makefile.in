@@ -1,4 +1,4 @@
-ALLOWED_TARGETS	= clpa clpa-worker cilcc dbfind dbfindc dbkeys phccc
+ALLOWED_TARGETS	= clpa clpa-worker cilcc dbfind dbfindc dbkeys
 
 OUTPUT_REDIR =
 ifndef VERBOSE

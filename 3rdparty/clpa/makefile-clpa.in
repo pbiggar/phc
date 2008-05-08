@@ -97,10 +97,6 @@ ifeq ($(OBJ_NAME), cilcc)
 SOURCES += translate/cilmain.ml
 endif
 
-ifeq ($(OBJ_NAME), phccc)
-SOURCES += translate/phcmain.ml
-endif
-
 ifeq ($(OBJ_NAME), dbfind)
 SOURCES = $(BSOURCES)
 SOURCES += util/dbfindmain.ml
