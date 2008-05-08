@@ -8,11 +8,11 @@ _phc()
 	longOpts="--help --full-help --version --verbose --compile --pretty-print --obfuscate	\
 				 --no-validation --include --generate-c --next-line-curlies --no-leading-tab	\
 				 --no-line-numbers --no-nulls --no-empty-lists --no-hash-bang --list-passes	\
-				 --dont-fail"
+				 --dont-fail --no-xml-attrs"
 
 	# TODO provide context sensitive completion for these options, with an = and no space
-	paramOpts="--run --read-xml  --c-option --extension --with-php --optimize	\
-				  --output --tab --dump --udump --ddump --xdump"
+	paramOpts="	--run --read-xml  --c-option --extension --with-php --optimize --output		\
+					--tab --debug --dump --udump --ddump --xdump --sdump --disable"
 
 
 	# options completion
