@@ -128,6 +128,8 @@ public:
 public:
     virtual Node* clone() = 0;
 public:
+    virtual Node* find(Node* in) = 0;
+public:
     virtual void assert_valid() = 0;
 public:
     void clone_mixin_from(Node* in);
@@ -157,6 +159,8 @@ public:
 public:
     virtual PHP_script* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -182,6 +186,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Class_mod* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -210,6 +216,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Signature* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -240,6 +248,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Method_mod* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -277,6 +287,8 @@ public:
 public:
     virtual Formal_parameter* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 public:
     Formal_parameter(Type* type, VARIABLE_NAME* name);
@@ -305,6 +317,8 @@ public:
 public:
     virtual Type* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -331,6 +345,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Attr_mod* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -366,6 +382,8 @@ public:
 public:
     virtual Name_with_default* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -392,6 +410,8 @@ public:
 public:
     virtual Directive* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -411,6 +431,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual List_element* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -432,6 +454,8 @@ public:
 public:
     virtual Variable_name* clone() = 0;
 public:
+    virtual Node* find(Node* in) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -451,6 +475,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Target* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -479,6 +505,8 @@ public:
 public:
     virtual Array_elem* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -498,6 +526,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Method_name* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -525,6 +555,8 @@ public:
 public:
     virtual Actual_parameter* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -545,6 +577,8 @@ public:
 public:
     virtual Class_name* clone() = 0;
 public:
+    virtual Node* find(Node* in) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -562,6 +596,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Commented_node* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -586,6 +622,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Source_rep* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -619,6 +657,8 @@ public:
     virtual HT_ITERATOR* clone();
     virtual long clone_value();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 public:
@@ -642,6 +682,8 @@ public:
 public:
     virtual Statement* clone() = 0;
 public:
+    virtual Node* find(Node* in) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -661,6 +703,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Member* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -687,6 +731,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Switch_case* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -715,6 +761,8 @@ public:
 public:
     virtual Catch* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -734,6 +782,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Expr* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -760,6 +810,8 @@ public:
 public:
     virtual Nested_list_elements* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -785,6 +837,8 @@ public:
 public:
     virtual Reflection* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -804,6 +858,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Identifier* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -833,6 +889,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Class_def* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -867,6 +925,8 @@ public:
 public:
     virtual Interface_def* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -892,6 +952,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Method* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -919,6 +981,8 @@ public:
 public:
     virtual Attribute* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -945,6 +1009,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual If* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -974,6 +1040,8 @@ public:
 public:
     virtual While* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -999,6 +1067,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Do* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1027,6 +1097,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual For* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1057,6 +1129,8 @@ public:
 public:
     virtual Foreach* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1083,6 +1157,8 @@ public:
 public:
     virtual Switch* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1107,6 +1183,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Break* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1133,6 +1211,8 @@ public:
 public:
     virtual Continue* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1157,6 +1237,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Return* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1183,6 +1265,8 @@ public:
 public:
     virtual Static_declaration* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1207,6 +1291,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Global* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1234,6 +1320,8 @@ public:
 public:
     virtual Declare* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1260,6 +1348,8 @@ public:
 public:
     virtual Try* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1284,6 +1374,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Throw* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1310,6 +1402,8 @@ public:
 public:
     virtual Eval_expr* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 public:
     void _init();
@@ -1332,6 +1426,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Nop* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1360,6 +1456,8 @@ public:
 public:
     virtual Branch* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1385,6 +1483,8 @@ public:
 public:
     virtual Goto* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1409,6 +1509,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Label* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1436,6 +1538,8 @@ public:
 public:
     virtual Foreach_reset* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1461,6 +1565,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Foreach_next* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1488,6 +1594,8 @@ public:
 public:
     virtual Foreach_end* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1514,6 +1622,8 @@ public:
 public:
     virtual Foreach_has_key* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1539,6 +1649,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Foreach_get_key* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1567,6 +1679,8 @@ public:
 public:
     virtual Foreach_get_val* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1586,6 +1700,8 @@ public:
     virtual bool equals(Node* in) = 0;
 public:
     virtual Literal* clone() = 0;
+public:
+    virtual Node* find(Node* in) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -1614,6 +1730,8 @@ public:
 public:
     virtual Assignment* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1640,6 +1758,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Op_assignment* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -1669,6 +1789,8 @@ public:
 public:
     virtual List_assignment* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1694,6 +1816,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Cast* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -1722,6 +1846,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Unary_op* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -1752,6 +1878,8 @@ public:
 public:
     virtual Bin_op* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 public:
     Bin_op(Expr* left, Expr* right, const char* op);
@@ -1781,6 +1909,8 @@ public:
 public:
     virtual Conditional_expr* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1805,6 +1935,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Ignore_errors* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1832,6 +1964,8 @@ public:
 public:
     virtual Constant* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1857,6 +1991,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Instanceof* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -1884,6 +2020,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Variable* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -1914,6 +2052,8 @@ public:
 public:
     virtual Pre_op* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 public:
     Pre_op(Variable* var, const char* op);
@@ -1942,6 +2082,8 @@ public:
 public:
     virtual Post_op* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 public:
     Post_op(Variable* var, const char* op);
@@ -1969,6 +2111,8 @@ public:
 public:
     virtual Array* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -1995,6 +2139,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Method_invocation* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -2025,6 +2171,8 @@ public:
 public:
     virtual New* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -2049,6 +2197,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual CLASS_NAME* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -2075,6 +2225,8 @@ public:
 public:
     virtual INTERFACE_NAME* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -2099,6 +2251,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual METHOD_NAME* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -2125,6 +2279,8 @@ public:
 public:
     virtual VARIABLE_NAME* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -2149,6 +2305,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual DIRECTIVE_NAME* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -2175,6 +2333,8 @@ public:
 public:
     virtual LABEL_NAME* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -2199,6 +2359,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual OP* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -2225,6 +2387,8 @@ public:
 public:
     virtual CAST* clone();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
 };
 
@@ -2249,6 +2413,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual CONSTANT_NAME* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
@@ -2275,6 +2441,8 @@ public:
 public:
     virtual INT* clone();
     virtual long clone_value();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2312,6 +2480,8 @@ public:
     virtual REAL* clone();
     virtual double clone_value();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
@@ -2344,6 +2514,8 @@ public:
     virtual bool equals_value(STRING* that);
 public:
     virtual STRING* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2378,6 +2550,8 @@ public:
     virtual BOOL* clone();
     virtual bool clone_value();
 public:
+    virtual Node* find(Node* in);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
@@ -2405,6 +2579,8 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual NIL* clone();
+public:
+    virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 public:
@@ -2481,6 +2657,12 @@ public:
 	{
 		if(value != NULL)
 			value->transform_children(transform);
+	}
+
+	virtual Node* find(Node* in)
+	{
+		assert (0); // I'm not sure what this would mean
+		return NULL;
 	}
 
 public:
