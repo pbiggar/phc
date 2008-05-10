@@ -623,14 +623,14 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		assert (depth == num_levels + 1);
 
 		// Print an error, and die with 255
-		stringstream ss;
-		ss <<	"<?php echo (\"\nFatal error: Cannot break/continue $"
-			<< (*lhs->value)
-			<< " levels in " << *(in->get_filename ())
+		(*out
+			<<	"echo (\"\nFatal error: Cannot break/continue $"
+			<< lhs
+			<< " levels in " << in->get_filename ()
 			<< " on line " << in->get_line_number () << "\n\");\n"
-			<< "die (255);?>";
+			<< "die (255);"
+		).finish (in);
 
-		out->push_back_all (parse_to_hir (new String (ss.str()), in));
 	}
 }
 

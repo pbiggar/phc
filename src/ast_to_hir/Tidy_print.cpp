@@ -41,22 +41,10 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 		if (not unused)
 			t2 = fresh_var ("TSp");
 
-		out->push_back_all (lower_ast (s("tidyp"),
-					new Eval_expr (
-						new Assignment(t2, false,
-							new Method_invocation(
-								NULL,
-								new METHOD_NAME(new String("printf")),
-								new List<Actual_parameter*>(
-									new Actual_parameter(
-										false, 
-										new STRING(new String("%s"))),
-									new Actual_parameter(
-										false,
-										arg->value)
-									))))));
-
-
+		(*out
+			<< t2 << " = printf (\"%s\", " << arg->value << ");"
+		).to_pass (s("tidyp"), agn);
+		
 		// This isnt necessary 
 		if (not unused)
 		{

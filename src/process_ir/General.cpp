@@ -14,10 +14,10 @@ extern Pass_manager* pm;
 
 List<HIR::Statement*>* lower_hir (String* name, HIR::Statement* in)
 {
+	assert (pm->has_pass_named (name));
+
 	HIR::PHP_script* script = new HIR::PHP_script (
 			new List<HIR::Statement*> (in));
-
-	assert (pm->has_pass_named (name));
 
 	IR::PHP_script* new_script = pm->run_from_until (s("hir"), name, script);
 
@@ -32,10 +32,9 @@ List<AST::Statement*>* lower_ast (String* name, AST::Statement* in)
 
 List<AST::Statement*>* lower_ast (String* name, List<AST::Statement*>* in)
 {
-	AST::PHP_script* script = new AST::PHP_script (in);
-
 	assert (pm->has_pass_named (name));
 
+	AST::PHP_script* script = new AST::PHP_script (in);
 	IR::PHP_script* new_script = pm->run_from_until (s("ast"), name, script);
 
 	// TODO the typing is here is quite poor
@@ -44,19 +43,17 @@ List<AST::Statement*>* lower_ast (String* name, List<AST::Statement*>* in)
 
 
 
-List<HIR::Statement*>* parse_to_hir (String* code_string, HIR::Node* node)
+List<HIR::Statement*>* parse_to_hir (String* code_string)
 {
-	AST::PHP_script* ast = parse_code (code_string, node->get_filename (), node->get_line_number ());
-
+	AST::PHP_script* ast = parse_code (code_string, NULL, 0);
 	HIR::PHP_script* hir = pm->run_until (new String ("hir"), ast)->as_HIR ();
 
 	return hir->statements;
 }
 
-List<AST::Statement*>* parse_to_ast (String* code_string, AST::Node* node)
+List<AST::Statement*>* parse_to_ast (String* code_string)
 {
-	AST::PHP_script* ast = parse_code (code_string, node->get_filename (), node->get_line_number ());
-
+	AST::PHP_script* ast = parse_code (code_string, NULL, 0);
 	ast = pm->run_until (new String ("ast"), ast)->as_AST ();
 
 	return ast->statements;
