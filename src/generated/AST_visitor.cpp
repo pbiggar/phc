@@ -1151,6 +1151,10 @@ void Visitor::visit_marker(char const* name, bool value)
 {
 }
 
+void Visitor::visit_type(char const* name_space, char const* type_id)
+{
+}
+
 void Visitor::visit_null(char const* name_space, char const* type_id)
 {
 }
@@ -2375,6 +2379,7 @@ void Visitor::visit_statement_list(List<Statement*>* in)
 
 void Visitor::visit_statement(Statement* in)
 {
+    visit_type("AST", "Statement");
     if(in == NULL)
     	visit_null("AST", "Statement");
     else
@@ -2387,6 +2392,7 @@ void Visitor::visit_statement(Statement* in)
 
 void Visitor::visit_class_mod(Class_mod* in)
 {
+    visit_type("AST", "Class_mod");
     if(in == NULL)
     	visit_null("AST", "Class_mod");
     else
@@ -2399,6 +2405,7 @@ void Visitor::visit_class_mod(Class_mod* in)
 
 void Visitor::visit_class_name(CLASS_NAME* in)
 {
+    visit_type("AST", "CLASS_NAME");
     if(in == NULL)
     	visit_null("AST", "CLASS_NAME");
     else
@@ -2449,6 +2456,7 @@ void Visitor::visit_member_list(List<Member*>* in)
 
 void Visitor::visit_member(Member* in)
 {
+    visit_type("AST", "Member");
     if(in == NULL)
     	visit_null("AST", "Member");
     else
@@ -2461,6 +2469,7 @@ void Visitor::visit_member(Member* in)
 
 void Visitor::visit_interface_name(INTERFACE_NAME* in)
 {
+    visit_type("AST", "INTERFACE_NAME");
     if(in == NULL)
     	visit_null("AST", "INTERFACE_NAME");
     else
@@ -2473,6 +2482,7 @@ void Visitor::visit_interface_name(INTERFACE_NAME* in)
 
 void Visitor::visit_signature(Signature* in)
 {
+    visit_type("AST", "Signature");
     if(in == NULL)
     	visit_null("AST", "Signature");
     else
@@ -2485,6 +2495,7 @@ void Visitor::visit_signature(Signature* in)
 
 void Visitor::visit_method_mod(Method_mod* in)
 {
+    visit_type("AST", "Method_mod");
     if(in == NULL)
     	visit_null("AST", "Method_mod");
     else
@@ -2497,6 +2508,7 @@ void Visitor::visit_method_mod(Method_mod* in)
 
 void Visitor::visit_method_name(METHOD_NAME* in)
 {
+    visit_type("AST", "METHOD_NAME");
     if(in == NULL)
     	visit_null("AST", "METHOD_NAME");
     else
@@ -2528,6 +2540,7 @@ void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
 
 void Visitor::visit_formal_parameter(Formal_parameter* in)
 {
+    visit_type("AST", "Formal_parameter");
     if(in == NULL)
     	visit_null("AST", "Formal_parameter");
     else
@@ -2540,6 +2553,7 @@ void Visitor::visit_formal_parameter(Formal_parameter* in)
 
 void Visitor::visit_type(Type* in)
 {
+    visit_type("AST", "Type");
     if(in == NULL)
     	visit_null("AST", "Type");
     else
@@ -2552,6 +2566,7 @@ void Visitor::visit_type(Type* in)
 
 void Visitor::visit_name_with_default(Name_with_default* in)
 {
+    visit_type("AST", "Name_with_default");
     if(in == NULL)
     	visit_null("AST", "Name_with_default");
     else
@@ -2564,6 +2579,7 @@ void Visitor::visit_name_with_default(Name_with_default* in)
 
 void Visitor::visit_attr_mod(Attr_mod* in)
 {
+    visit_type("AST", "Attr_mod");
     if(in == NULL)
     	visit_null("AST", "Attr_mod");
     else
@@ -2595,6 +2611,7 @@ void Visitor::visit_name_with_default_list(List<Name_with_default*>* in)
 
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
+    visit_type("AST", "VARIABLE_NAME");
     if(in == NULL)
     	visit_null("AST", "VARIABLE_NAME");
     else
@@ -2607,6 +2624,7 @@ void Visitor::visit_variable_name(VARIABLE_NAME* in)
 
 void Visitor::visit_expr(Expr* in)
 {
+    visit_type("AST", "Expr");
     if(in == NULL)
     	visit_null("AST", "Expr");
     else
@@ -2619,6 +2637,7 @@ void Visitor::visit_expr(Expr* in)
 
 void Visitor::visit_variable(Variable* in)
 {
+    visit_type("AST", "Variable");
     if(in == NULL)
     	visit_null("AST", "Variable");
     else
@@ -2650,6 +2669,7 @@ void Visitor::visit_switch_case_list(List<Switch_case*>* in)
 
 void Visitor::visit_switch_case(Switch_case* in)
 {
+    visit_type("AST", "Switch_case");
     if(in == NULL)
     	visit_null("AST", "Switch_case");
     else
@@ -2700,6 +2720,7 @@ void Visitor::visit_directive_list(List<Directive*>* in)
 
 void Visitor::visit_directive(Directive* in)
 {
+    visit_type("AST", "Directive");
     if(in == NULL)
     	visit_null("AST", "Directive");
     else
@@ -2712,6 +2733,7 @@ void Visitor::visit_directive(Directive* in)
 
 void Visitor::visit_directive_name(DIRECTIVE_NAME* in)
 {
+    visit_type("AST", "DIRECTIVE_NAME");
     if(in == NULL)
     	visit_null("AST", "DIRECTIVE_NAME");
     else
@@ -2743,6 +2765,7 @@ void Visitor::visit_catch_list(List<Catch*>* in)
 
 void Visitor::visit_catch(Catch* in)
 {
+    visit_type("AST", "Catch");
     if(in == NULL)
     	visit_null("AST", "Catch");
     else
@@ -2755,6 +2778,7 @@ void Visitor::visit_catch(Catch* in)
 
 void Visitor::visit_label_name(LABEL_NAME* in)
 {
+    visit_type("AST", "LABEL_NAME");
     if(in == NULL)
     	visit_null("AST", "LABEL_NAME");
     else
@@ -2767,6 +2791,7 @@ void Visitor::visit_label_name(LABEL_NAME* in)
 
 void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 {
+    visit_type("AST", "HT_ITERATOR");
     if(in == NULL)
     	visit_null("AST", "HT_ITERATOR");
     else
@@ -2779,6 +2804,7 @@ void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 
 void Visitor::visit_op(OP* in)
 {
+    visit_type("AST", "OP");
     if(in == NULL)
     	visit_null("AST", "OP");
     else
@@ -2810,6 +2836,7 @@ void Visitor::visit_list_element_list(List<List_element*>* in)
 
 void Visitor::visit_list_element(List_element* in)
 {
+    visit_type("AST", "List_element");
     if(in == NULL)
     	visit_null("AST", "List_element");
     else
@@ -2822,6 +2849,7 @@ void Visitor::visit_list_element(List_element* in)
 
 void Visitor::visit_cast(CAST* in)
 {
+    visit_type("AST", "CAST");
     if(in == NULL)
     	visit_null("AST", "CAST");
     else
@@ -2834,6 +2862,7 @@ void Visitor::visit_cast(CAST* in)
 
 void Visitor::visit_constant_name(CONSTANT_NAME* in)
 {
+    visit_type("AST", "CONSTANT_NAME");
     if(in == NULL)
     	visit_null("AST", "CONSTANT_NAME");
     else
@@ -2846,6 +2875,7 @@ void Visitor::visit_constant_name(CONSTANT_NAME* in)
 
 void Visitor::visit_class_name(Class_name* in)
 {
+    visit_type("AST", "Class_name");
     if(in == NULL)
     	visit_null("AST", "Class_name");
     else
@@ -2858,6 +2888,7 @@ void Visitor::visit_class_name(Class_name* in)
 
 void Visitor::visit_target(Target* in)
 {
+    visit_type("AST", "Target");
     if(in == NULL)
     	visit_null("AST", "Target");
     else
@@ -2870,6 +2901,7 @@ void Visitor::visit_target(Target* in)
 
 void Visitor::visit_variable_name(Variable_name* in)
 {
+    visit_type("AST", "Variable_name");
     if(in == NULL)
     	visit_null("AST", "Variable_name");
     else
@@ -2920,6 +2952,7 @@ void Visitor::visit_array_elem_list(List<Array_elem*>* in)
 
 void Visitor::visit_array_elem(Array_elem* in)
 {
+    visit_type("AST", "Array_elem");
     if(in == NULL)
     	visit_null("AST", "Array_elem");
     else
@@ -2932,6 +2965,7 @@ void Visitor::visit_array_elem(Array_elem* in)
 
 void Visitor::visit_method_name(Method_name* in)
 {
+    visit_type("AST", "Method_name");
     if(in == NULL)
     	visit_null("AST", "Method_name");
     else
@@ -2963,6 +2997,7 @@ void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
 
 void Visitor::visit_actual_parameter(Actual_parameter* in)
 {
+    visit_type("AST", "Actual_parameter");
     if(in == NULL)
     	visit_null("AST", "Actual_parameter");
     else
@@ -2975,6 +3010,7 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
 
 void Visitor::visit_php_script(PHP_script* in)
 {
+    visit_type("AST", "PHP_script");
     if(in == NULL)
     	visit_null("AST", "PHP_script");
     else

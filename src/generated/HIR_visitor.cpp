@@ -947,6 +947,10 @@ void Visitor::visit_marker(char const* name, bool value)
 {
 }
 
+void Visitor::visit_type(char const* name_space, char const* type_id)
+{
+}
+
 void Visitor::visit_null(char const* name_space, char const* type_id)
 {
 }
@@ -1899,6 +1903,7 @@ void Visitor::visit_statement_list(List<Statement*>* in)
 
 void Visitor::visit_statement(Statement* in)
 {
+    visit_type("HIR", "Statement");
     if(in == NULL)
     	visit_null("HIR", "Statement");
     else
@@ -1911,6 +1916,7 @@ void Visitor::visit_statement(Statement* in)
 
 void Visitor::visit_class_mod(Class_mod* in)
 {
+    visit_type("HIR", "Class_mod");
     if(in == NULL)
     	visit_null("HIR", "Class_mod");
     else
@@ -1923,6 +1929,7 @@ void Visitor::visit_class_mod(Class_mod* in)
 
 void Visitor::visit_class_name(CLASS_NAME* in)
 {
+    visit_type("HIR", "CLASS_NAME");
     if(in == NULL)
     	visit_null("HIR", "CLASS_NAME");
     else
@@ -1973,6 +1980,7 @@ void Visitor::visit_member_list(List<Member*>* in)
 
 void Visitor::visit_member(Member* in)
 {
+    visit_type("HIR", "Member");
     if(in == NULL)
     	visit_null("HIR", "Member");
     else
@@ -1985,6 +1993,7 @@ void Visitor::visit_member(Member* in)
 
 void Visitor::visit_interface_name(INTERFACE_NAME* in)
 {
+    visit_type("HIR", "INTERFACE_NAME");
     if(in == NULL)
     	visit_null("HIR", "INTERFACE_NAME");
     else
@@ -1997,6 +2006,7 @@ void Visitor::visit_interface_name(INTERFACE_NAME* in)
 
 void Visitor::visit_signature(Signature* in)
 {
+    visit_type("HIR", "Signature");
     if(in == NULL)
     	visit_null("HIR", "Signature");
     else
@@ -2009,6 +2019,7 @@ void Visitor::visit_signature(Signature* in)
 
 void Visitor::visit_method_mod(Method_mod* in)
 {
+    visit_type("HIR", "Method_mod");
     if(in == NULL)
     	visit_null("HIR", "Method_mod");
     else
@@ -2021,6 +2032,7 @@ void Visitor::visit_method_mod(Method_mod* in)
 
 void Visitor::visit_method_name(METHOD_NAME* in)
 {
+    visit_type("HIR", "METHOD_NAME");
     if(in == NULL)
     	visit_null("HIR", "METHOD_NAME");
     else
@@ -2052,6 +2064,7 @@ void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
 
 void Visitor::visit_formal_parameter(Formal_parameter* in)
 {
+    visit_type("HIR", "Formal_parameter");
     if(in == NULL)
     	visit_null("HIR", "Formal_parameter");
     else
@@ -2064,6 +2077,7 @@ void Visitor::visit_formal_parameter(Formal_parameter* in)
 
 void Visitor::visit_type(Type* in)
 {
+    visit_type("HIR", "Type");
     if(in == NULL)
     	visit_null("HIR", "Type");
     else
@@ -2076,6 +2090,7 @@ void Visitor::visit_type(Type* in)
 
 void Visitor::visit_name_with_default(Name_with_default* in)
 {
+    visit_type("HIR", "Name_with_default");
     if(in == NULL)
     	visit_null("HIR", "Name_with_default");
     else
@@ -2088,6 +2103,7 @@ void Visitor::visit_name_with_default(Name_with_default* in)
 
 void Visitor::visit_attr_mod(Attr_mod* in)
 {
+    visit_type("HIR", "Attr_mod");
     if(in == NULL)
     	visit_null("HIR", "Attr_mod");
     else
@@ -2100,6 +2116,7 @@ void Visitor::visit_attr_mod(Attr_mod* in)
 
 void Visitor::visit_variable_name(VARIABLE_NAME* in)
 {
+    visit_type("HIR", "VARIABLE_NAME");
     if(in == NULL)
     	visit_null("HIR", "VARIABLE_NAME");
     else
@@ -2112,6 +2129,7 @@ void Visitor::visit_variable_name(VARIABLE_NAME* in)
 
 void Visitor::visit_expr(Expr* in)
 {
+    visit_type("HIR", "Expr");
     if(in == NULL)
     	visit_null("HIR", "Expr");
     else
@@ -2124,6 +2142,7 @@ void Visitor::visit_expr(Expr* in)
 
 void Visitor::visit_variable(Variable* in)
 {
+    visit_type("HIR", "Variable");
     if(in == NULL)
     	visit_null("HIR", "Variable");
     else
@@ -2136,6 +2155,7 @@ void Visitor::visit_variable(Variable* in)
 
 void Visitor::visit_variable_name(Variable_name* in)
 {
+    visit_type("HIR", "Variable_name");
     if(in == NULL)
     	visit_null("HIR", "Variable_name");
     else
@@ -2167,6 +2187,7 @@ void Visitor::visit_catch_list(List<Catch*>* in)
 
 void Visitor::visit_catch(Catch* in)
 {
+    visit_type("HIR", "Catch");
     if(in == NULL)
     	visit_null("HIR", "Catch");
     else
@@ -2179,6 +2200,7 @@ void Visitor::visit_catch(Catch* in)
 
 void Visitor::visit_label_name(LABEL_NAME* in)
 {
+    visit_type("HIR", "LABEL_NAME");
     if(in == NULL)
     	visit_null("HIR", "LABEL_NAME");
     else
@@ -2191,6 +2213,7 @@ void Visitor::visit_label_name(LABEL_NAME* in)
 
 void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 {
+    visit_type("HIR", "HT_ITERATOR");
     if(in == NULL)
     	visit_null("HIR", "HT_ITERATOR");
     else
@@ -2203,6 +2226,7 @@ void Visitor::visit_ht_iterator(HT_ITERATOR* in)
 
 void Visitor::visit_op(OP* in)
 {
+    visit_type("HIR", "OP");
     if(in == NULL)
     	visit_null("HIR", "OP");
     else
@@ -2215,6 +2239,7 @@ void Visitor::visit_op(OP* in)
 
 void Visitor::visit_cast(CAST* in)
 {
+    visit_type("HIR", "CAST");
     if(in == NULL)
     	visit_null("HIR", "CAST");
     else
@@ -2227,6 +2252,7 @@ void Visitor::visit_cast(CAST* in)
 
 void Visitor::visit_constant_name(CONSTANT_NAME* in)
 {
+    visit_type("HIR", "CONSTANT_NAME");
     if(in == NULL)
     	visit_null("HIR", "CONSTANT_NAME");
     else
@@ -2239,6 +2265,7 @@ void Visitor::visit_constant_name(CONSTANT_NAME* in)
 
 void Visitor::visit_class_name(Class_name* in)
 {
+    visit_type("HIR", "Class_name");
     if(in == NULL)
     	visit_null("HIR", "Class_name");
     else
@@ -2251,6 +2278,7 @@ void Visitor::visit_class_name(Class_name* in)
 
 void Visitor::visit_target(Target* in)
 {
+    visit_type("HIR", "Target");
     if(in == NULL)
     	visit_null("HIR", "Target");
     else
@@ -2301,6 +2329,7 @@ void Visitor::visit_array_elem_list(List<Array_elem*>* in)
 
 void Visitor::visit_array_elem(Array_elem* in)
 {
+    visit_type("HIR", "Array_elem");
     if(in == NULL)
     	visit_null("HIR", "Array_elem");
     else
@@ -2313,6 +2342,7 @@ void Visitor::visit_array_elem(Array_elem* in)
 
 void Visitor::visit_method_name(Method_name* in)
 {
+    visit_type("HIR", "Method_name");
     if(in == NULL)
     	visit_null("HIR", "Method_name");
     else
@@ -2344,6 +2374,7 @@ void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
 
 void Visitor::visit_actual_parameter(Actual_parameter* in)
 {
+    visit_type("HIR", "Actual_parameter");
     if(in == NULL)
     	visit_null("HIR", "Actual_parameter");
     else
@@ -2356,6 +2387,7 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
 
 void Visitor::visit_php_script(PHP_script* in)
 {
+    visit_type("HIR", "PHP_script");
     if(in == NULL)
     	visit_null("HIR", "PHP_script");
     else
