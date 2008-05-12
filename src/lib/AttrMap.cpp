@@ -72,6 +72,12 @@ void AttrMap::set(string key, Object* value)
 	(*this)[key] = value;
 }
 
+void AttrMap::set_integer(string key, int value)
+{
+	(*this)[key] = new Integer (value);
+}
+
+
 void AttrMap::erase_with_prefix (string key_prefix)
 {
 	AttrMap::iterator i;

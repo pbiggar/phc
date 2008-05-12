@@ -23,22 +23,29 @@ public:
 	AttrMap();
 	virtual ~AttrMap();
 
-// Retrieve attributes of various types
+// General
 public:
-	Object* get(string key);
-	Boolean* get_boolean(string key);
-	Integer* get_integer(string key);
-	String* get_string(string key);
 	bool has(string key);
+	Object* get(string key);
+	void set(string key, Object* value);
 	
-// Special support for bools
+// Bools
 public:
+	Boolean* get_boolean(string key);
 	void set_true(string key);
 	void set_false(string key);
 	bool is_true(string key); // is_true returns false is not has(key)
 
+// Integers
 public:
-	void set(string key, Object* value);
+	Integer* get_integer(string key);
+	void set_integer (string key, int value);
+
+// Strings
+public:
+	String* get_string(string key);
+
+public:
 	void erase_with_prefix (string key_prefix);
 
 public:

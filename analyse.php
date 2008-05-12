@@ -1,13 +1,17 @@
 #!/usr/bin/env php
 <?php
 
-	$filename = $argv[0];
+	if ($argc != 2)
+		die ("usage: ./analyse.php FILENAME\n");
+
+	$filename = $argv[1];
+	$base = basename ($filename, ".php");
 
 	// create .db files in the current directory
-	print `src/phc --xdump=mir $filename 2>&1 | 3rdparty/clpa/bin/phccc 2>&1`;
+	`src/phc --sdump=ast $filename > $base.clp`;
 
 	// run clpa with a sample analysis on it
-	print `3rdparty/clpa/bin/clpa analyses/sample_analysis.clp`;
+	print `3rdparty/clpa/bin/clpa $base.clp 2>&1`;
 
 
 ?>

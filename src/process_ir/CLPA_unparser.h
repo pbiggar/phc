@@ -19,46 +19,84 @@
 /* We want to dump our IR pretty much directly into Calypso, using the
  * predicates defined by maketea.
  *
- * A simple hello-world program would look like this:
+ * A simple program would look like this (this is slightly simplied already):
  *
- *		phc_actual_parameter("#20","#22","#21")
- *		phc_actual_parameter("#23","#25","#24")
- *		phc_token_variable_name_list("#6",[])
- *		phc_token_variable_name_list("#13",[])
- *		phc_token_variable_name_list("#21",[])
- *		phc_token_variable_name_list("#24",[])
- *		phc_token_variable_name_list("#29",[])
- *		phc_eval_expr("#2","#3")
- *		phc_eval_expr("#9","#10")
- *		phc_eval_expr("#16","#17")
- *		phc_assignment("#3","#5",false,"#4")
- *		phc_assignment("#10","#12",false,"#11")
- *		phc_assignment("#17","#28",false,"#18")
- *		phc_variable("#5","#8","#7","#6")
- *		phc_variable("#12","#15","#14","#13")
- *		phc_variable("#28","#31","#30","#29")
- *		phc_actual_parameter_list("#19",["#20","#23"])
- *		phc_method_invocation("#18","#27","#26","#19")
- *		phc_string("#4","helloworld")
- *		phc_string("#7","TLE0")
- *		phc_string("#11","%s")
- *		phc_string("#14","TLE1")
- *		phc_string("#22","TLE1")
- *		phc_string("#25","TLE0")
- *		phc_string("#26","printf")
- *		phc_string("#30","TSe0")
- *		phc_curfn("main")
- *		phc_php_script("#0","#1")
- *		phc_statement_list("#1",["#2","#9","#16"])
+ *		+ast_VARIABLE_NAME (
+ *			phc_VARIABLE_NAME_id{4}, 
+ *			"a").
  *
- *	The first string is gererally the ID. So the PHP_script #0 has 1 param,
- *	named #1. #1 is a statement_list containing #2, #9 and #16. And so on.
+ *		+ast_VARIABLE_NAME (
+ *			phc_VARIABLE_NAME_id{9}, 
+ *			"TSe0").
  *
+ *		+ast_VARIABLE_NAME (
+ *			phc_VARIABLE_NAME_id{13}, 
+ *			"a").
+ *
+ *		+ast_METHOD_NAME (
+ *			phc_METHOD_NAME_id{11}, 
+ *			"var_dump").
+ *
+ *		+ast_Variable (
+ *			phc_Variable_id{3}, 
+ *			phc_VARIABLE_NAME_id{4}).
+ *
+ *		+ast_Variable (
+ *			phc_Variable_id{8}, 
+ *			phc_VARIABLE_NAME_id{9}).
+ *
+ *		+ast_Variable (
+ *			phc_Variable_id{20}, 
+ *			phc_VARIABLE_NAME_id{13}).
+ *
+ *		+ast_Assignment (
+ *			phc_Assignment_id{2},
+ *			phc_Variable_id{3}, 
+ *			phc_Expr_IntLiteral_id{phc_Literal_INT_id{phc_INT_id{102}}}).
+ *
+ *		+ast_INT (
+ *			phc_INT_id{102}, 
+ *			5).
+ *
+ *		+ast_Eval_expr (
+ *			phc_Eval_expr_id{1}, 
+ *			phc_Expr_Assignment_id{phc_Assignment_id{9}}).
+ *
+ *		+ast_Actual_parameter (
+ *			phc_Actual_parameter_id{12}, 
+ *			false, 
+ *			phc_Expr_Variable_id{phc_Variable_id{20}}).
+ *
+ *		+ast_Method_invocation (
+ *			phc_Method_invocation_id{10}, 
+ *			phc_METHOD_NAME_id{11}, 
+ *			[
+ *				phc_Actual_parameter_id{12}
+ *			]).
+ *
+ *		+ast_Assignment (
+ *			phc_Assignment_id{7}, 
+ *			phc_Variable_id{10}, 
+ *			phc_Expr_Method_invocation_id{phc_Method_invocation_id{10}}).
+ *
+ *		+ast_Eval_expr (
+ *			phc_Eval_expr_id{6}, 
+ *			phc_Expr_Assignment_id{phc_Assignment_id{7}}).
+ *
+ *		+ast_PHP_script (
+ *			phc_PHP_script_id{0}, 
+ *			[
+ *				phc_Statement_Eval_expr_id{phc_Eval_expr_id{1}}, 
+ *				phc_Statement_Eval_expr_id{phc_Eval_expr_id{6}}
+ *			]).
+ *
+ *	The first parameter is the ID. So the PHP_script 0 has 1 param,
+ *	which is a list nodes 1 and 6.
  *
  * This is quite simple with a visitor. On descending the tree, we add each
- * node to a stack. On re-ascending, every node leaves itself on the stack. For
- * each node, we search the stack looking for itself, and all nodes which we
- * pop are parameters to the predicate.
+ * node to a stack. On re-ascending, every node leaves itself on the stack.
+ * For each node, we search the stack looking for itself, and all nodes which
+ * we pop are parameters to the predicate.
  */
 
 
@@ -75,21 +113,46 @@ class CLPA_unparser : public Visitor
 {
 protected:
 	stack<Object*> ids;
+	stack<String*> types;
 
 public:
 
 	void pre_php_script (Script* in)
 	{
-		cout << "import \"AST.clp\".\n" << endl;
+		cout << "import \"src/generated/AST.clp\".\n" << endl;
 	}
 
 	class List_end : public List<Object*> {};
 
-/*	void visit_marker(char const* name, bool value)
+	void visit_marker(char const* name, bool value)
 	{
 		ids.push (new Boolean (value));
 	}
-*/
+
+	void visit_null(char const* name_space, char const* type_id)
+	{
+		ids.push (NULL);
+	}
+
+	/* Disjunctive types are represented in the .clp definition as 
+	 *		ast_Target ::= 
+	 *			ast_Target_ast_Assignment_id {t_ast_Assignment} 
+	 *			| ast_Target_ast_Cast_id {t_ast_target}
+	 *			| etc ...
+	 *
+	 *	When we have an ast_Target as a parameter, we need the fact that a
+	 *	Target is expected. Since we don't have reflexive access to the type
+	 *	hierarchy, we only know that we have an Assignment (note that is skips
+	 *	right through Expr, though the hierarchy is target -> expr ->
+	 *	assignment). We need to make a note of target at some point, which
+	 *	visit_type allows us to do. It records the expected type, which is then
+	 *	at the top of the stack.
+	 */
+	void visit_type (char const* name_space, char const* type_id)
+	{
+		types.push (new String (type_id));
+	}
+	
 	void post_list(char const* name_space, char const* type_id, int size)
 	{
 		// Fetch SIZE items off the list and add them within
@@ -135,24 +198,33 @@ public:
 	}
 
 
-	/* We need to recurse for lists. */
-	void handle_stack_object (Object* obj, List<String*>* params)
+	void handle_parameter (Object* obj, List<String*>* params)
 	{
-		// Get IDs for nodes
-		if (dynamic_cast<Node*> (obj))
+		if (obj == NULL)
 		{
+			// NULL in the IR
+			params->push_front (new String ("no"));
+
+			// we dont need this type
+			types.pop ();
+		}
+		else if (dynamic_cast<Node*> (obj))
+		{
+			// Get IDs for nodes
 			Node* node = dynamic_cast<Node*> (obj);
-			params->push_front (node->attrs->get_string ("phc.clpa.id"));
+			params->push_front (get_param_id_string (node));
+
+			types.pop();
 		}
 		else if (dynamic_cast<Boolean*> (obj))
 		{
 			// Markers are wrapped in bools
 			Boolean* b = dynamic_cast<Boolean*> (obj);
-			params->push_back (s(b->value() ? "true" : "false"));
+			params->push_front (s(b->value() ? "true" : "false"));
 		}
 		else if (dynamic_cast<String*> (obj))
 		{
-			// Literals come pre-packed into strings
+			// All literals come pre-packed into strings
 			String* s = dynamic_cast<String*> (obj);
 			params->push_front (s);
 		}
@@ -165,7 +237,7 @@ public:
 			List<String*> list_params;
 			for_lci (le, Object, i)
 			{
-				handle_stack_object (*i, &list_params);
+				handle_parameter (*i, &list_params);
 			}
 
 			// Combine into 1 string
@@ -174,17 +246,21 @@ public:
 			List<String*>::const_iterator i = list_params.begin ();;
 			while (i != list_params.end ())
 			{
-				ss << **i;
+				ss << "\n\t\t" << **i;
 				i++;
 
 				if (i != list_params.end ())
 					ss << ", ";
 
 			}
+			if (list_params.size () != 0)
+				ss << "\n\t"; // allow [] for empty lists
 			ss << "]";
 
 			params->push_back (s (ss.str ()));
 		}
+		else
+			assert (0);
 
 	}
 
@@ -197,41 +273,75 @@ public:
 		while (ids.top () != in)
 		{
 			Object* obj = ids.top();
-			handle_stack_object (obj, params);
+			handle_parameter (obj, params);
 			ids.pop ();
 		}
 
 		// Print out params
 		cout 
-			<< "phc_" << demangle(in, false) << " ("
-			<< *in->attrs->get_string ("phc.clpa.id");
+			<< "+ast_" << demangle(in, false) << " (\n\t"
+			<< *get_subject_id_string (in);
 
 		for_lci (params, String, i)
 		{
-			cout << ", " << **i;
+			cout << ",\n\t" << **i;
 		}
-		cout << ")." << endl;
+		cout << ").\n" << endl;
 	}
 
 protected:
 
-	String* get_id (Node* node)
+	Integer* get_id (Node* node)
 	{
 		static int id = 0;
-		String* string_id;
 
 		if (node->attrs->has ("phc.clpa.id"))
-			string_id = node->attrs->get_string ("phc.clpa.id");
+			return node->attrs->get_integer ("phc.clpa.id");
 		else
 		{
-			stringstream ss;
-			ss << "\"#" << id << "\"";
-			string_id = new String(ss.str());
-			node->attrs->set ("phc.clpa.id", string_id);
+			node->attrs->set_integer ("phc.clpa.id", id);
 			id++;
+
+			return new Integer (id);
 		}
-		return string_id;
 	}
+
+	// SUBJECT is the first parameter to a predicate (aka the 'this' parameter)
+	String* get_subject_id_string (Node* in)
+	{
+		int id = in->attrs->get_integer ("phc.clpa.id")->value();
+
+		stringstream ss;
+		ss << "t_ast_" << demangle(in, false) 
+			<< "_id {" << id << "}";
+		return new String(ss.str());
+	}
+
+	String* get_param_id_string (Node* in)
+	{
+		int id = in->attrs->get_integer ("phc.clpa.id")->value();
+
+		String* type = s (demangle (in, false));
+		String* base_type = types.top ();
+
+		stringstream ss;
+		if (*base_type == *type)
+		{
+			ss << "t_ast_" << *type
+				<< "_id { " << id << "}";
+		}
+		else
+		{
+			ss << "t_ast_" << *base_type
+				<< "_t_ast_" << *type
+				<< "_id { "
+				<< "t_ast_" << *type << "_id {" << id << "} }";
+		}
+
+		return new String(ss.str());
+	}
+
+
 
 };
 
