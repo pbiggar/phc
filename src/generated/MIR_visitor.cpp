@@ -545,7 +545,8 @@ void Visitor::children_class_def(Class_def* in)
 {
     visit_class_mod(in->class_mod);
     visit_class_name(in->class_name);
-    visit_class_name(in->extends);
+    visit_optional (in->extends == NULL);
+	visit_class_name(in->extends);
     visit_interface_name_list(in->implements);
     visit_member_list(in->members);
 }
@@ -566,7 +567,8 @@ void Visitor::children_interface_def(Interface_def* in)
 void Visitor::children_method(Method* in)
 {
     visit_signature(in->signature);
-    visit_statement_list(in->statements);
+    visit_optional (in->statements == NULL);
+	visit_statement_list(in->statements);
 }
 
 void Visitor::children_signature(Signature* in)
@@ -596,7 +598,8 @@ void Visitor::children_formal_parameter(Formal_parameter* in)
 
 void Visitor::children_type(Type* in)
 {
-    visit_class_name(in->class_name);
+    visit_optional (in->class_name == NULL);
+	visit_class_name(in->class_name);
 }
 
 void Visitor::children_attribute(Attribute* in)
@@ -617,12 +620,14 @@ void Visitor::children_attr_mod(Attr_mod* in)
 void Visitor::children_name_with_default(Name_with_default* in)
 {
     visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_optional (in->expr == NULL);
+	visit_expr(in->expr);
 }
 
 void Visitor::children_return(Return* in)
 {
-    visit_expr(in->expr);
+    visit_optional (in->expr == NULL);
+	visit_expr(in->expr);
 }
 
 void Visitor::children_static_declaration(Static_declaration* in)
@@ -740,7 +745,8 @@ void Visitor::children_bin_op(Bin_op* in)
 
 void Visitor::children_constant(Constant* in)
 {
-    visit_class_name(in->class_name);
+    visit_optional (in->class_name == NULL);
+	visit_class_name(in->class_name);
     visit_constant_name(in->constant_name);
 }
 
@@ -752,7 +758,8 @@ void Visitor::children_instanceof(Instanceof* in)
 
 void Visitor::children_variable(Variable* in)
 {
-    visit_target(in->target);
+    visit_optional (in->target == NULL);
+	visit_target(in->target);
     visit_variable_name(in->variable_name);
     visit_variable_name_list(in->array_indices);
 }
@@ -775,14 +782,16 @@ void Visitor::children_array(Array* in)
 
 void Visitor::children_array_elem(Array_elem* in)
 {
-    visit_expr(in->key);
+    visit_optional (in->key == NULL);
+	visit_expr(in->key);
     visit_marker("is_ref", in->is_ref);
     visit_expr(in->val);
 }
 
 void Visitor::children_method_invocation(Method_invocation* in)
 {
-    visit_target(in->target);
+    visit_optional (in->target == NULL);
+	visit_target(in->target);
     visit_method_name(in->method_name);
     visit_actual_parameter_list(in->actual_parameters);
 }
@@ -790,7 +799,8 @@ void Visitor::children_method_invocation(Method_invocation* in)
 void Visitor::children_actual_parameter(Actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
-    visit_target(in->target);
+    visit_optional (in->target == NULL);
+	visit_target(in->target);
     visit_variable_name(in->variable_name);
     visit_variable_name_list(in->array_indices);
 }
@@ -867,6 +877,10 @@ void Visitor::visit_type(char const* name_space, char const* type_id)
 {
 }
 
+void Visitor::visit_optional(bool is_null)
+{
+}
+
 void Visitor::visit_null(char const* name_space, char const* type_id)
 {
 }
@@ -875,11 +889,11 @@ void Visitor::visit_null_list(char const* name_space, char const* type_id)
 {
 }
 
-void Visitor::pre_list(char const* name_space, char const* type_id, int size)
+void Visitor::pre_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 {
 }
 
-void Visitor::post_list(char const* name_space, char const* type_id, int size)
+void Visitor::post_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 {
 }
 
@@ -1720,14 +1734,14 @@ void Visitor::visit_statement_list(List<Statement*>* in)
     	visit_null_list("MIR", "Statement");
     else
     {
-    	pre_list("MIR", "Statement", in->size());
+    	pre_list("MIR", "Statement", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_statement(*i);
     	}
     
-    	post_list("MIR", "Statement", in->size());
+    	post_list("MIR", "Statement", in->size(), false);
     }
 }
 
@@ -1778,14 +1792,14 @@ void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
     	visit_null_list("MIR", "INTERFACE_NAME");
     else
     {
-    	pre_list("MIR", "INTERFACE_NAME", in->size());
+    	pre_list("MIR", "INTERFACE_NAME", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_interface_name(*i);
     	}
     
-    	post_list("MIR", "INTERFACE_NAME", in->size());
+    	post_list("MIR", "INTERFACE_NAME", in->size(), false);
     }
 }
 
@@ -1797,14 +1811,14 @@ void Visitor::visit_member_list(List<Member*>* in)
     	visit_null_list("MIR", "Member");
     else
     {
-    	pre_list("MIR", "Member", in->size());
+    	pre_list("MIR", "Member", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_member(*i);
     	}
     
-    	post_list("MIR", "Member", in->size());
+    	post_list("MIR", "Member", in->size(), false);
     }
 }
 
@@ -1881,14 +1895,14 @@ void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
     	visit_null_list("MIR", "Formal_parameter");
     else
     {
-    	pre_list("MIR", "Formal_parameter", in->size());
+    	pre_list("MIR", "Formal_parameter", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_formal_parameter(*i);
     	}
     
-    	post_list("MIR", "Formal_parameter", in->size());
+    	post_list("MIR", "Formal_parameter", in->size(), false);
     }
 }
 
@@ -1991,14 +2005,14 @@ void Visitor::visit_catch_list(List<Catch*>* in)
     	visit_null_list("MIR", "Catch");
     else
     {
-    	pre_list("MIR", "Catch", in->size());
+    	pre_list("MIR", "Catch", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_catch(*i);
     	}
     
-    	post_list("MIR", "Catch", in->size());
+    	post_list("MIR", "Catch", in->size(), false);
     }
 }
 
@@ -2127,14 +2141,14 @@ void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
     	visit_null_list("MIR", "VARIABLE_NAME");
     else
     {
-    	pre_list("MIR", "VARIABLE_NAME", in->size());
+    	pre_list("MIR", "VARIABLE_NAME", in->size(), true);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_variable_name(*i);
     	}
     
-    	post_list("MIR", "VARIABLE_NAME", in->size());
+    	post_list("MIR", "VARIABLE_NAME", in->size(), true);
     }
 }
 
@@ -2146,14 +2160,14 @@ void Visitor::visit_array_elem_list(List<Array_elem*>* in)
     	visit_null_list("MIR", "Array_elem");
     else
     {
-    	pre_list("MIR", "Array_elem", in->size());
+    	pre_list("MIR", "Array_elem", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_array_elem(*i);
     	}
     
-    	post_list("MIR", "Array_elem", in->size());
+    	post_list("MIR", "Array_elem", in->size(), false);
     }
 }
 
@@ -2191,14 +2205,14 @@ void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
     	visit_null_list("MIR", "Actual_parameter");
     else
     {
-    	pre_list("MIR", "Actual_parameter", in->size());
+    	pre_list("MIR", "Actual_parameter", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_actual_parameter(*i);
     	}
     
-    	post_list("MIR", "Actual_parameter", in->size());
+    	post_list("MIR", "Actual_parameter", in->size(), false);
     }
 }
 

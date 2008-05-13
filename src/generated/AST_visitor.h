@@ -288,10 +288,11 @@ public:
 public:
     virtual void visit_marker(char const* name, bool value);
     virtual void visit_type(char const* name_space, char const* type_id);
+    virtual void visit_optional(bool is_null);
     virtual void visit_null(char const* name_space, char const* type_id);
     virtual void visit_null_list(char const* name_space, char const* type_id);
-    virtual void pre_list(char const* name_space, char const* type_id, int size);
-    virtual void post_list(char const* name_space, char const* type_id, int size);
+    virtual void pre_list(char const* name_space, char const* type_id, int size, bool nullable_elements);
+    virtual void post_list(char const* name_space, char const* type_id, int size, bool nullable_elements);
 // Invoke the chain of pre-visit methods along the inheritance hierachy
 // Do not override unless you know what you are doing
 public:

@@ -19,85 +19,83 @@
 /* We want to dump our IR pretty much directly into Calypso, using the
  * predicates defined by maketea.
  *
- * A simple program would look like this (this is slightly simplied already):
+ * A simple program would look like this:
  *
- *		+ast_VARIABLE_NAME (
- *			phc_VARIABLE_NAME_id{4}, 
- *			"a").
+ * import "src/generated/AST.clp".
+ * 
+ * +ast_VARIABLE_NAME (
+ * 	t_ast_VARIABLE_NAME_id {5},
+ * 	"x").
+ * 
+ * +ast_VARIABLE_NAME (
+ * 	t_ast_VARIABLE_NAME_id {7},
+ * 	"i").
+ * 
+ * +ast_Variable (
+ * 	t_ast_Variable_id {6},
+ * 	no,
+ * 	t_ast_Variable_name_t_ast_VARIABLE_NAME_id { t_ast_VARIABLE_NAME_id {7} },
+ * 	[]).
+ * 
+ * +ast_Variable (
+ * 	t_ast_Variable_id {4},
+ * 	no,
+ * 	t_ast_Variable_name_t_ast_VARIABLE_NAME_id { t_ast_VARIABLE_NAME_id {5} },
+ * 	[
+ * 		yes { t_ast_Expr_t_ast_Variable_id { t_ast_Variable_id {6} } }
+ * 	]).
+ * 
+ * +ast_STRING (
+ * 	t_ast_STRING_id {8},
+ * 	"xxxxx").
+ * 
+ * +ast_Assignment (
+ * 	t_ast_Assignment_id {3},
+ * 	t_ast_Variable_id {4},
+ * 	false,
+ * 	t_ast_Expr_t_ast_STRING_id { t_ast_STRING_id {8} }).
+ * 
+ * +ast_Eval_expr (
+ * 	t_ast_Eval_expr_id {2},
+ * 	t_ast_Expr_t_ast_Assignment_id { t_ast_Assignment_id {3} }).
+ * 
+ * +ast_Nop (
+ * 	t_ast_Nop_id {9}).
+ * 
+ * +ast_PHP_script (
+ * 	t_ast_PHP_script_id {1},
+ * 	[
+ * 		t_ast_Statement_t_ast_Eval_expr_id { t_ast_Eval_expr_id {2} }, 
+ * 		t_ast_Statement_t_ast_Nop_id { t_ast_Nop_id {9} }
+ * 	]).
+ *	The first parameter is the ID. So the PHP_script 1 has 1 param,
+ *	which is a list nodes 2 and 9.
  *
- *		+ast_VARIABLE_NAME (
- *			phc_VARIABLE_NAME_id{9}, 
- *			"TSe0").
+ *	The type system is defined using maketea, in src/generated/*.clp. Each IR
+ *	type has an associated ast_TYPE, which is a predicate, and a type
+ *	t_ast_TYPE. Each predicate has its initial parameter being its ID, and
+ *	subsequent parameters are the IDs of its arguments. Lists use Calypsos
+ *	built-in lists ([...]), rather something along the lines of
+ *	ast_statement_list.  Nullable parameters use the Calypso 'maybe' type, whose
+ *	constructors are 'yes{}' and 'no'. Lists of Nullable parameters need to be
+ *	wrapped as well. All parts are strongly typed. t_ast_Nop_id (9) indicates a
+ *	Nop with ID 9. t_ast_Statement_t_ast_Eval_expr_id means it expects a
+ *	statement and we've given it an Eval_expr (which is a subtype of statement).
  *
- *		+ast_VARIABLE_NAME (
- *			phc_VARIABLE_NAME_id{13}, 
- *			"a").
+ * Creating the basic structure is simple enough with a visitor, but there is
+ * some subtlety. On descending the tree, we add each node to a stack. On
+ * re-ascending, we search the stack looking the current node, and all nodes
+ * which we pop are parameters to the predicate for the current node.
  *
- *		+ast_METHOD_NAME (
- *			phc_METHOD_NAME_id{11}, 
- *			"var_dump").
+ * For markers, we push Bools onto the stack. For literals, we push Strings
+ * containing the literal's value. For NULL nullable parameters, we push NULL.
+ * For NULL lists, we push NULL. For nullable parameters which are not NULL,
+ * we push the node and an instance of Optional (which will be below the node
+ * on the stack). For Lists, we fetch SIZE parameters from the stack into the
+ * list, and push a List structure on instead. For lists of optional
+ * parameters, we put an Optional into the list after each element.
  *
- *		+ast_Variable (
- *			phc_Variable_id{3}, 
- *			phc_VARIABLE_NAME_id{4}).
- *
- *		+ast_Variable (
- *			phc_Variable_id{8}, 
- *			phc_VARIABLE_NAME_id{9}).
- *
- *		+ast_Variable (
- *			phc_Variable_id{20}, 
- *			phc_VARIABLE_NAME_id{13}).
- *
- *		+ast_Assignment (
- *			phc_Assignment_id{2},
- *			phc_Variable_id{3}, 
- *			phc_Expr_Int_id{phc_INT_id{102}}).
- *
- *		+ast_INT (
- *			phc_INT_id{102}, 
- *			5).
- *
- *		+ast_Eval_expr (
- *			phc_Eval_expr_id{1}, 
- *			phc_Expr_Assignment_id{phc_Assignment_id{9}}).
- *
- *		+ast_Actual_parameter (
- *			phc_Actual_parameter_id{12}, 
- *			false, 
- *			phc_Expr_Variable_id{phc_Variable_id{20}}).
- *
- *		+ast_Method_invocation (
- *			phc_Method_invocation_id{10}, 
- *			phc_METHOD_NAME_id{11}, 
- *			[
- *				phc_Actual_parameter_id{12}
- *			]).
- *
- *		+ast_Assignment (
- *			phc_Assignment_id{7}, 
- *			phc_Variable_id{10}, 
- *			phc_Expr_Method_invocation_id{phc_Method_invocation_id{10}}).
- *
- *		+ast_Eval_expr (
- *			phc_Eval_expr_id{6}, 
- *			phc_Expr_Assignment_id{phc_Assignment_id{7}}).
- *
- *		+ast_PHP_script (
- *			phc_PHP_script_id{0}, 
- *			[
- *				phc_Statement_Eval_expr_id{phc_Eval_expr_id{1}}, 
- *				phc_Statement_Eval_expr_id{phc_Eval_expr_id{6}}
- *			]).
- *
- *	The first parameter is the ID. So the PHP_script 0 has 1 param,
- *	which is a list nodes 1 and 6.
- *
- * This is quite simple with a visitor. On descending the tree, we add each
- * node to a stack. On re-ascending, every node leaves itself on the stack.
- * For each node, we search the stack looking for itself, and all nodes which
- * we pop are parameters to the predicate.
- */
+ * */
 
 
 template
@@ -123,16 +121,29 @@ public:
 		cout << "import \"src/generated/AST.clp\".\n" << endl;
 	}
 
-	class List_end : public List<Object*> {};
-
+	/* BOOLs are pushed for markers */
 	void visit_marker(char const* name, bool value)
 	{
 		ids.push (new Boolean (value));
 	}
 
+	/* NULLs get pushed for null values */
 	void visit_null(char const* name_space, char const* type_id)
 	{
 		ids.push (NULL);
+	}
+	void visit_null_list(char const* name_space, char const* type_id)
+	{
+		ids.push (NULL);
+	}
+
+	/* Nullable elements get an Optional pushed onto the stack below the element
+	 * itself. */
+	class Optional : public Object {Object* clone () { return NULL;}};
+	void visit_optional(bool is_null)
+	{
+		if (!is_null)
+			ids.push (new Optional);
 	}
 
 	/* Disjunctive types are represented in the .clp definition as 
@@ -147,21 +158,28 @@ public:
 	 *	right through Expr, though the hierarchy is target -> expr ->
 	 *	assignment). We need to make a note of target at some point, which
 	 *	visit_type allows us to do. It records the expected type, which is then
-	 *	at the top of the stack.
+	 *	at the top of the types stack.
 	 */
 	void visit_type (char const* name_space, char const* type_id)
 	{
 		types.push (new String (type_id));
 	}
-	
-	void post_list(char const* name_space, char const* type_id, int size)
+
+	/* Take off as many elements as there are in the list, and replace them with the list. */
+	class List_end : public List<Object*> {};
+	void post_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 	{
 		// Fetch SIZE items off the list and add them within
 		List_end* le = new List_end ();
 		for(int i = 0; i < size; i++)
 		{
-			le->push_back (ids.top());
+			Object* obj = ids.top ();
+			le->push_back (obj);
 			ids.pop ();
+
+			// Optional lists need optional nodes added behind them.
+			if (nullable_elements && obj != NULL)
+				le->push_back (new Optional);
 		}
 		ids.push (le);
 	}
@@ -174,49 +192,22 @@ public:
 		ids.push (in);
 	}
 
-	String* wrap_in_quotes (String* str)
-	{
-		stringstream ss;
-		ss << '"' << *str << '"';
-		return s(ss.str ());
-	}
-
+	
 	void pre_identifier (Identifier* in)
 	{
 		// Strings need to be wrapped in quotes
 		ids.push (wrap_in_quotes (in->get_value_as_string ()));
 	}
 
-	String* escape(String* s)
-	{
-		stringstream ss;
-
-		string::iterator i;
-		for(i = s->begin(); i != s->end(); i++)
-		{
-			switch (*i)
-			{
-				case '\n': // newline
-					ss << "\\n";
-					break;
-				default:
-					ss << *i;
-					break;
-			}
-		}
-
-		return new String(ss.str());	
-	}
-
 	void pre_literal (Literal* in)
 	{
 		String* value = in->get_value_as_string ();
 
-		// Strings need to be wrapped in quotes, and must be on a single line
+		// String literals need to be wrapped in quotes, and must be on a single line
 		if (in->classid () == STRING::ID)
 			value = wrap_in_quotes (escape(value));
 
-		// Bools must be entirely lower case
+		// Bools must be entirely lower case, or Calypso will think they are variable names
 		if (in->classid () == BOOL::ID)
 			value->toLower();
 
@@ -224,6 +215,7 @@ public:
 	}
 
 
+	/* Turn a stack element into a parameter */
 	void handle_parameter (Object* obj, List<String*>* params)
 	{
 		if (obj == NULL)
@@ -239,8 +231,6 @@ public:
 			// Get IDs for nodes
 			Node* node = dynamic_cast<Node*> (obj);
 			params->push_front (get_param_id_string (node));
-
-			types.pop();
 		}
 		else if (dynamic_cast<Boolean*> (obj))
 		{
@@ -285,6 +275,15 @@ public:
 
 			params->push_back (s (ss.str ()));
 		}
+		else if (dynamic_cast<Optional*> (obj))
+		{
+			// wrap in "yes{}"
+			stringstream ss;
+			ss << "yes { " << *params->front () << "}";
+
+			params->pop_front ();
+			params->push_front (new String (ss.str ()));
+		}
 		else
 			assert (0);
 
@@ -294,7 +293,9 @@ public:
 	 * node, then all subnodes will be parameters to this node. */
 	void post_node(Node* in)
 	{
-		// Add all parameters to PARAMS from the stack
+//		print_stacks (in);
+
+		// All elements above IN on the stack are parameters to INs predicate. Move them into PARAMS.
 		List<String*>* params = new List<String*>;
 		while (ids.top () != in)
 		{
@@ -303,7 +304,7 @@ public:
 			ids.pop ();
 		}
 
-		// Print out params
+		// Print out the predicate.
 		cout 
 			<< "+ast_" << demangle(in, false) << " (\n\t"
 			<< *get_subject_id_string (in);
@@ -316,7 +317,6 @@ public:
 	}
 
 protected:
-
 	Integer* get_id (Node* node)
 	{
 		static int id = 0;
@@ -349,22 +349,126 @@ protected:
 
 		String* type = s (demangle (in, false));
 		String* base_type = types.top ();
+		types.pop ();
 
 		stringstream ss;
 		if (*base_type == *type)
 		{
 			ss << "t_ast_" << *type
-				<< "_id { " << id << "}";
+				<< "_id {" << id << "}";
 		}
 		else
 		{
+			// see comment at visit_type().
 			ss << "t_ast_" << *base_type
 				<< "_t_ast_" << *type
 				<< "_id { "
-				<< "t_ast_" << *type << "_id {" << id << "} }";
+				<< "t_ast_" << *type 
+				<< "_id {" << id << "} }";
 		}
 
 		return new String(ss.str());
+	}
+
+	String* escape(String* s)
+	{
+		stringstream ss;
+
+		string::iterator i;
+		for(i = s->begin(); i != s->end(); i++)
+		{
+			switch (*i)
+			{
+				case '\n': // newline
+					ss << "\\n";
+					break;
+				default:
+					ss << *i;
+					break;
+			}
+		}
+
+		return new String(ss.str());	
+	}
+
+	String* wrap_in_quotes (String* str)
+	{
+		stringstream ss;
+		ss << '"' << *str << '"';
+		return s(ss.str ());
+	}
+
+	// Debugging. This is very very slow.
+	void print_stack_element (Object * obj)
+	{
+		cdebug << "*\t";
+		if (obj == NULL)
+		{
+			cdebug << "Optional (no): NULL";
+		}
+		else if (dynamic_cast<Node*> (obj))
+		{
+			Node* node = dynamic_cast<Node*> (obj);
+			cdebug << "Node: " << demangle (obj, false) << " -- id=" << node->attrs->get_integer ("phc.clpa.id")->value ();
+		}
+		else if (dynamic_cast<Boolean*> (obj))
+		{
+			Boolean* b = dynamic_cast<Boolean*> (obj);
+			cdebug << "Marker: " << b->value();
+		}
+		else if (dynamic_cast<String*> (obj))
+		{
+			// All literals come pre-packed into strings
+			String* s = dynamic_cast<String*> (obj);
+			cdebug << "Literal: " << *s;
+		}
+		else if (dynamic_cast<List_end*> (obj))
+		{
+			List_end* le = dynamic_cast<List_end*> (obj);
+			cdebug << "Start List (" << le->size () << ")\n";
+
+			// Get strings for each list element
+			List<String*> list_params;
+			for_lci (le, Object, i)
+			{
+				cdebug << "\t";
+				print_stack_element (*i);
+			}
+			cdebug << "End List (" << le->size () << ")\n";
+		}
+		else if (dynamic_cast<Optional*> (obj))
+		{
+			cdebug << "Optional (yes)";
+		}
+		else
+			assert (0);
+
+		cdebug << endl;
+	}
+
+	void print_stacks (Node* in)
+	{
+		// We cant iterate over a stack. Instead we pop all the items, storing
+		// them in reverse order in the other stack. Then repeat in reverse.
+		stack<Object*> copy;
+		cdebug << "START_STACK: " << demangle (in, false) << ": \""; 
+		debug (in);
+		cdebug << "\" ************" << endl;
+		while (not ids.empty ())
+		{
+			Object* obj = ids.top ();
+			print_stack_element (obj);
+			ids.pop ();
+			copy.push (obj);
+		}
+
+		while (not copy.empty ())
+		{
+			Object* obj = copy.top ();
+			copy.pop ();
+			ids.push (obj);
+		}
+		cdebug << "END STACK******************************************" << endl;
 	}
 
 
