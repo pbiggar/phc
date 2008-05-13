@@ -62,7 +62,10 @@ class AsyncBundle
 		if (isset ($this->out_handlers[$state]))
 		{
 			$handler = $this->out_handlers[$state];
-			$this->outs[$state] = $object->$handler ($this->out, $this);
+			$result = $object->$handler ($this->out, $this);
+			if ($result === false)
+				return;
+			$this->outs[$state] = $result;
 		}
 
 		if (isset ($this->err_handlers[$state]))
@@ -141,9 +144,9 @@ abstract class AsyncTest extends Test
 		parent::__construct ();
 	}
 
-	function mark_failure ($reason, $bundle)
+	function async_failure ($reason, $bundle)
 	{
-		parent::mark_failure (
+		$this->mark_failure (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
@@ -152,9 +155,29 @@ abstract class AsyncTest extends Test
 					$reason);
 	}
 
-	function mark_timeout ($reason, $bundle)
+	function async_timeout ($reason, $bundle)
 	{
-		parent::mark_timeout (
+		$this->mark_timeout (
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits);
+	}
+
+	function async_success ($bundle)
+	{
+		$this->mark_success (
+					$bundle->subject, 
+					$bundle->commands,
+					$bundle->outs,
+					$bundle->errs,
+					$bundle->exits);
+	}
+
+	function async_skipped ($bundle)
+	{
+		$this->mark_skipped (
 					$bundle->subject, 
 					$bundle->commands,
 					$bundle->outs,
@@ -164,12 +187,11 @@ abstract class AsyncTest extends Test
 
 	function fail_on_output (&$stream, $bundle)
 	{
-		if ($stream !== 0 and $stream !== "")
-		{
-			$this->mark_failure ("exit or err not clear", $bundle);
-			return false;
-		}
-		return $stream;
+		if ($stream === 0 or $stream === "")
+			return $stream;
+
+		$this->async_failure ("exit or err not clear", $bundle);
+		return false;
 	}
 
 	# Put this program to the front of the queue, and start waiting progs
@@ -245,7 +267,7 @@ abstract class AsyncTest extends Test
 				$bundle->exits[] = "Timeout";
 				$bundle->outs[] = "$bundle->out\n--- TIMEOUT ---";
 				$bundle->errs[] = $bundle->err;
-				$this->mark_timeout ("Timeout", $bundle);
+				$this->async_timeout ("Timeout", $bundle);
 
 				unset ($this->running_procs [$index]); // remove from the running list
 			}

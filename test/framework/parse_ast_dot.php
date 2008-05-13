@@ -7,7 +7,7 @@
  */
 
 array_push($tests, new ParseASTDot ());
-class ParseASTDot extends Test
+class ParseASTDot extends AsyncTest
 {
 	function get_test_subjects ()
 	{
@@ -30,22 +30,14 @@ class ParseASTDot extends Test
 		global $phc;
 		global $graphviz_gc;
 
-		// this is a bit odd. It throws away STDOUT,
-		// and traps STDERR instead.  Changing the
-		// order of 2> and > changes this behaviour.
-		// TODO this only works on systems with
-		// /dev/null - ie probably not cygwin
-		$command = "$phc --ddump=ast $subject | $graphviz_gc";
-		list ($out, $err, $exit) = complete_exec($command);
+		$async = new AsyncBundle ($this, $subject);
 
-		if ($err or $exit) # ignore out
-		{
-			$this->mark_failure ($subject, $command, $exit, $out, $err);
-		}
-		else
-		{
-			$this->mark_success ($subject);
-		}
+		$async->commands[0]		= "$phc --ddump=ast $subject | $graphviz_gc";
+		// there is output. Dont fail.
+		$async->err_handlers[0] = "fail_on_output";
+
+		$async->final = "async_success";
+		$async->start ();
 	}
 }
 

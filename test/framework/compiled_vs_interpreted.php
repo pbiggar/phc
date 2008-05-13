@@ -36,11 +36,11 @@ class CompiledVsInterpreted extends AsyncTest
 		{
 			$output = diff ($async->outs[0], $async->outs[2]);
 			$async->outs = $output;
-			$this->mark_failure ("Outputs dont match PHP outputs", $async);
+			$this->async_failure ("Outputs dont match PHP outputs", $async);
 		}
 		else
 		{
-			$this->mark_success ($async->subject);
+			$this->async_success ($async);
 		}
 
 	}

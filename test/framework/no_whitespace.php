@@ -42,13 +42,14 @@ class NoWhitespace extends AsyncTest
 	function finish ($async)
 	{
 		if ($async->outs[0] !== $async->outs[1])
-			$this->mark_failure ("Whitespace free output doesnt match", $async);
+			$this->async_failure ("Whitespace free output doesnt match", $async);
 		else
-			$this->mark_success ($async->subject);
+			$this->async_success ($async);
 
 	}
 
-	// this strings whitespace from strings, so it wont be perfect, but thats a minor, but very difficult to avoid, problem
+	// This strings whitespace from strings, so it wont be perfect, but thats
+	// a minor, but very difficult to avoid, problem
 	function strip_whitespace ($out, $async)
 	{
 		$out = preg_replace ("/\s+/", "", $out);

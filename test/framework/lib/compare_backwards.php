@@ -95,12 +95,12 @@ class CompareBackwards extends AsyncTest
 			if ($bundle->state == 1)
 			{
 				// right first time
-				$this->mark_success ($bundle->subject);
+				$this->async_success ($bundle);
 			}
 			else
 			{
 				// the pass which succeeded isnt the last pass
-				$this->mark_failure ("Latest pass fails", $bundle);
+				$this->async_failure ("Latest pass fails", $bundle);
 			}
 			return false; // dont process again
 		}
@@ -117,7 +117,7 @@ class CompareBackwards extends AsyncTest
 
 	function finish ($bundle)
 	{
-		$this->mark_failure ("Every pass fails", $bundle);
+		$this->async_failure ("Every pass fails", $bundle);
 	}
 
 	function homogenize_output ($output)

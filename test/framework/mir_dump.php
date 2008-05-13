@@ -29,13 +29,8 @@ class MIR_Dump extends AsyncTest
 		$async->commands[0]		= "$phc $subject --dump=mir";
 		$async->err_handlers[0] = "fail_on_output";
 
-		$async->final = "finish";
+		$async->final = "async_success";
 		$async->start ();
-	}
-
-	function finish ($async)
-	{
-		$this->mark_success ($async->subject);
 	}
 }
 ?>
