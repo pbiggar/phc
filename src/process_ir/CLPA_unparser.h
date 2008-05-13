@@ -52,7 +52,7 @@
  *		+ast_Assignment (
  *			phc_Assignment_id{2},
  *			phc_Variable_id{3}, 
- *			phc_Expr_IntLiteral_id{phc_Literal_INT_id{phc_INT_id{102}}}).
+ *			phc_Expr_Int_id{phc_INT_id{102}}).
  *
  *		+ast_INT (
  *			phc_INT_id{102}, 
@@ -106,6 +106,7 @@ template
 	class Node,
 	class Literal,
 	class STRING,
+	class BOOL,
 	class Identifier,
 	class Visitor
 >
@@ -186,13 +187,38 @@ public:
 		ids.push (wrap_in_quotes (in->get_value_as_string ()));
 	}
 
+	String* escape(String* s)
+	{
+		stringstream ss;
+
+		string::iterator i;
+		for(i = s->begin(); i != s->end(); i++)
+		{
+			switch (*i)
+			{
+				case '\n': // newline
+					ss << "\\n";
+					break;
+				default:
+					ss << *i;
+					break;
+			}
+		}
+
+		return new String(ss.str());	
+	}
+
 	void pre_literal (Literal* in)
 	{
 		String* value = in->get_value_as_string ();
 
-		// Strings need to be wrapped in quotes
+		// Strings need to be wrapped in quotes, and must be on a single line
 		if (in->classid () == STRING::ID)
-			value = wrap_in_quotes (value);
+			value = wrap_in_quotes (escape(value));
+
+		// Bools must be entirely lower case
+		if (in->classid () == BOOL::ID)
+			value->toLower();
 
 		ids.push (value);
 	}
@@ -352,6 +378,7 @@ class AST_CLPA_unparser : public CLPA_unparser
 	AST::Node,
 	AST::Literal,
 	AST::STRING,
+	AST::BOOL,
 	AST::Identifier,
 	AST::Visitor
 >
@@ -366,6 +393,7 @@ class HIR_CLPA_unparser : public CLPA_unparser
 	HIR::Node,
 	HIR::Literal,
 	HIR::STRING,
+	HIR::BOOL,
 	HIR::Identifier,
 	HIR::Visitor
 >
@@ -379,6 +407,7 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR::Node,
 	MIR::Literal,
 	MIR::STRING,
+	MIR::BOOL,
 	MIR::Identifier,
 	MIR::Visitor
 >

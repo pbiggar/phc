@@ -62,3 +62,8 @@ bool String::ci_compare (const string& s)
 
 	return *s1 == *s2;
 }
+
+void String::toLower ()
+{
+	transform (begin(), end(), begin (), phc_tolower);
+}
