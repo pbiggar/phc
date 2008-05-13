@@ -23,7 +23,7 @@
 struct gengetopt_args_info error_args_info;
 
 enum Error_type { WARNING=0, ERROR=1, INTERNAL_ERROR=2 };
-static char* error_messages[] = { "Warning", "Error", "Internal error" };
+static const char* error_messages[] = { "Warning", "Error", "Internal error" };
 
 void phc_message (Error_type type, const char* message_template, String* filename, int line, va_list argp)
 {
