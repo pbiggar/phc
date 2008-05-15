@@ -130,6 +130,8 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
+public:
     virtual void assert_valid() = 0;
 public:
     void clone_mixin_from(Node* in);
@@ -161,6 +163,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -188,6 +192,8 @@ public:
     virtual Class_mod* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -218,6 +224,8 @@ public:
     virtual Signature* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -250,6 +258,8 @@ public:
     virtual Method_mod* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -289,6 +299,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 public:
     Formal_parameter(Type* type, VARIABLE_NAME* name);
@@ -319,6 +331,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -347,6 +361,8 @@ public:
     virtual Attr_mod* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -384,6 +400,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -412,6 +430,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -433,6 +453,8 @@ public:
     virtual List_element* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -456,6 +478,8 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -477,6 +501,8 @@ public:
     virtual Target* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -507,6 +533,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -528,6 +556,8 @@ public:
     virtual Method_name* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -557,6 +587,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -579,6 +611,8 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -598,6 +632,8 @@ public:
     virtual Commented_node* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -624,6 +660,8 @@ public:
     virtual Source_rep* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -659,6 +697,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 public:
@@ -684,6 +724,8 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
+public:
     virtual void assert_valid() = 0;
 };
 
@@ -705,6 +747,8 @@ public:
     virtual Member* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -733,6 +777,8 @@ public:
     virtual Switch_case* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -763,6 +809,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -784,6 +832,8 @@ public:
     virtual Expr* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -812,6 +862,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -839,6 +891,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -860,6 +914,8 @@ public:
     virtual Identifier* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -891,6 +947,8 @@ public:
     virtual Class_def* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -927,6 +985,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -954,6 +1014,8 @@ public:
     virtual Method* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -983,6 +1045,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1011,6 +1075,8 @@ public:
     virtual If* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -1042,6 +1108,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1069,6 +1137,8 @@ public:
     virtual Do* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1099,6 +1169,8 @@ public:
     virtual For* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1131,6 +1203,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1159,6 +1233,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1185,6 +1261,8 @@ public:
     virtual Break* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1213,6 +1291,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1239,6 +1319,8 @@ public:
     virtual Return* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1267,6 +1349,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1293,6 +1377,8 @@ public:
     virtual Global* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1322,6 +1408,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1350,6 +1438,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1376,6 +1466,8 @@ public:
     virtual Throw* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1404,6 +1496,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 public:
     void _init();
@@ -1428,6 +1522,8 @@ public:
     virtual Nop* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1458,6 +1554,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1485,6 +1583,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1511,6 +1611,8 @@ public:
     virtual Label* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1540,6 +1642,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1567,6 +1671,8 @@ public:
     virtual Foreach_next* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1596,6 +1702,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1624,6 +1732,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1651,6 +1761,8 @@ public:
     virtual Foreach_get_key* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1681,6 +1793,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1702,6 +1816,8 @@ public:
     virtual Literal* clone() = 0;
 public:
     virtual Node* find(Node* in) = 0;
+public:
+    virtual void findAll(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -1732,6 +1848,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1760,6 +1878,8 @@ public:
     virtual Op_assignment* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -1791,6 +1911,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1818,6 +1940,8 @@ public:
     virtual Cast* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -1848,6 +1972,8 @@ public:
     virtual Unary_op* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -1880,6 +2006,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 public:
     Bin_op(Expr* left, Expr* right, const char* op);
@@ -1911,6 +2039,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1937,6 +2067,8 @@ public:
     virtual Ignore_errors* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -1966,6 +2098,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -1993,6 +2127,8 @@ public:
     virtual Instanceof* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2022,6 +2158,8 @@ public:
     virtual Variable* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -2054,6 +2192,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 public:
     Pre_op(Variable* var, const char* op);
@@ -2084,6 +2224,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 public:
     Post_op(Variable* var, const char* op);
@@ -2113,6 +2255,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2141,6 +2285,8 @@ public:
     virtual Method_invocation* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -2173,6 +2319,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2199,6 +2347,8 @@ public:
     virtual CLASS_NAME* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2227,6 +2377,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2253,6 +2405,8 @@ public:
     virtual METHOD_NAME* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2281,6 +2435,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2307,6 +2463,8 @@ public:
     virtual DIRECTIVE_NAME* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2335,6 +2493,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2361,6 +2521,8 @@ public:
     virtual OP* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2389,6 +2551,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
 };
 
@@ -2415,6 +2579,8 @@ public:
     virtual CONSTANT_NAME* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 };
@@ -2443,6 +2609,8 @@ public:
     virtual long clone_value();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2482,6 +2650,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
@@ -2516,6 +2686,8 @@ public:
     virtual STRING* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2552,6 +2724,8 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
+    virtual void findAll(Node* in, List<Node*>* out);
+public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 private:
@@ -2581,6 +2755,8 @@ public:
     virtual NIL* clone();
 public:
     virtual Node* find(Node* in);
+public:
+    virtual void findAll(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
 public:
@@ -2665,6 +2841,10 @@ public:
 		return NULL;
 	}
 
+	virtual void findAll(Node* in, List<Node*>* out)
+	{
+		assert (0); // I'm not sure what this would mean
+	}
 public:
 	static const int ID = 76;
 	int classid()

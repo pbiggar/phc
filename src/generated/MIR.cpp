@@ -187,6 +187,28 @@ Node* PHP_script::find(Node* in)
     return NULL;
 }
 
+void PHP_script::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void PHP_script::assert_valid()
 {
     assert(statements != NULL);
@@ -277,6 +299,13 @@ Node* Class_mod::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void Class_mod::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
 }
 
 void Class_mod::assert_valid()
@@ -470,6 +499,32 @@ Node* Signature::find(Node* in)
     return NULL;
 }
 
+void Signature::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    method_mod->findAll(in, out);
+    
+    method_name->findAll(in, out);
+    
+    if(this->formal_parameters != NULL)
+    {
+    	List<Formal_parameter*>::const_iterator i;
+    	for(
+    		i = this->formal_parameters->begin();
+    		i != this->formal_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Signature::assert_valid()
 {
     assert(method_mod != NULL);
@@ -588,6 +643,13 @@ Node* Method_mod::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void Method_mod::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
 }
 
 void Method_mod::assert_valid()
@@ -772,6 +834,17 @@ Node* Formal_parameter::find(Node* in)
     return NULL;
 }
 
+void Formal_parameter::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    type->findAll(in, out);
+    
+    var->findAll(in, out);
+    
+}
+
 void Formal_parameter::assert_valid()
 {
     assert(type != NULL);
@@ -881,6 +954,15 @@ Node* Type::find(Node* in)
     return NULL;
 }
 
+void Type::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    class_name->findAll(in, out);
+    
+}
+
 void Type::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
@@ -971,6 +1053,13 @@ Node* Attr_mod::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void Attr_mod::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
 }
 
 void Attr_mod::assert_valid()
@@ -1140,6 +1229,17 @@ Node* Name_with_default::find(Node* in)
     if (expr_res) return expr_res;
     
     return NULL;
+}
+
+void Name_with_default::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable_name->findAll(in, out);
+    
+    expr->findAll(in, out);
+    
 }
 
 void Name_with_default::assert_valid()
@@ -1325,6 +1425,32 @@ Node* Catch::find(Node* in)
     return NULL;
 }
 
+void Catch::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    class_name->findAll(in, out);
+    
+    variable_name->findAll(in, out);
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Catch::assert_valid()
 {
     assert(class_name != NULL);
@@ -1460,6 +1586,17 @@ Node* Array_elem::find(Node* in)
     if (val_res) return val_res;
     
     return NULL;
+}
+
+void Array_elem::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    key->findAll(in, out);
+    
+    val->findAll(in, out);
+    
 }
 
 void Array_elem::assert_valid()
@@ -1656,6 +1793,32 @@ Node* Actual_parameter::find(Node* in)
     return NULL;
 }
 
+void Actual_parameter::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    target->findAll(in, out);
+    
+    variable_name->findAll(in, out);
+    
+    if(this->array_indices != NULL)
+    {
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Actual_parameter::assert_valid()
 {
     if(target != NULL) target->assert_valid();
@@ -1757,6 +1920,12 @@ Node* HT_ITERATOR::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void HT_ITERATOR::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void HT_ITERATOR::assert_valid()
@@ -2056,6 +2225,49 @@ Node* Class_def::find(Node* in)
     return NULL;
 }
 
+void Class_def::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    class_mod->findAll(in, out);
+    
+    class_name->findAll(in, out);
+    
+    extends->findAll(in, out);
+    
+    if(this->implements != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(
+    		i = this->implements->begin();
+    		i != this->implements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	for(
+    		i = this->members->begin();
+    		i != this->members->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Class_def::assert_valid()
 {
     assert(class_mod != NULL);
@@ -2353,6 +2565,45 @@ Node* Interface_def::find(Node* in)
     return NULL;
 }
 
+void Interface_def::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    interface_name->findAll(in, out);
+    
+    if(this->extends != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(
+    		i = this->extends->begin();
+    		i != this->extends->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	for(
+    		i = this->members->begin();
+    		i != this->members->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Interface_def::assert_valid()
 {
     assert(interface_name != NULL);
@@ -2531,6 +2782,30 @@ Node* Method::find(Node* in)
     return NULL;
 }
 
+void Method::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    signature->findAll(in, out);
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Method::assert_valid()
 {
     assert(signature != NULL);
@@ -2651,6 +2926,17 @@ Node* Attribute::find(Node* in)
     return NULL;
 }
 
+void Attribute::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    attr_mod->findAll(in, out);
+    
+    var->findAll(in, out);
+    
+}
+
 void Attribute::assert_valid()
 {
     assert(attr_mod != NULL);
@@ -2742,6 +3028,15 @@ Node* Return::find(Node* in)
     return NULL;
 }
 
+void Return::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    expr->findAll(in, out);
+    
+}
+
 void Return::assert_valid()
 {
     if(expr != NULL) expr->assert_valid();
@@ -2828,6 +3123,15 @@ Node* Static_declaration::find(Node* in)
     if (var_res) return var_res;
     
     return NULL;
+}
+
+void Static_declaration::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    var->findAll(in, out);
+    
 }
 
 void Static_declaration::assert_valid()
@@ -2917,6 +3221,15 @@ Node* Global::find(Node* in)
     if (variable_name_res) return variable_name_res;
     
     return NULL;
+}
+
+void Global::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable_name->findAll(in, out);
+    
 }
 
 void Global::assert_valid()
@@ -3128,6 +3441,43 @@ Node* Try::find(Node* in)
     return NULL;
 }
 
+void Try::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+    if(this->catches != NULL)
+    {
+    	List<Catch*>::const_iterator i;
+    	for(
+    		i = this->catches->begin();
+    		i != this->catches->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Try::assert_valid()
 {
     assert(statements != NULL);
@@ -3233,6 +3583,15 @@ Node* Throw::find(Node* in)
     return NULL;
 }
 
+void Throw::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    expr->findAll(in, out);
+    
+}
+
 void Throw::assert_valid()
 {
     assert(expr != NULL);
@@ -3322,6 +3681,15 @@ Node* Eval_expr::find(Node* in)
     if (expr_res) return expr_res;
     
     return NULL;
+}
+
+void Eval_expr::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    expr->findAll(in, out);
+    
 }
 
 void Eval_expr::assert_valid()
@@ -3464,6 +3832,19 @@ Node* Branch::find(Node* in)
     return NULL;
 }
 
+void Branch::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable_name->findAll(in, out);
+    
+    iftrue->findAll(in, out);
+    
+    iffalse->findAll(in, out);
+    
+}
+
 void Branch::assert_valid()
 {
     assert(variable_name != NULL);
@@ -3557,6 +3938,15 @@ Node* Goto::find(Node* in)
     return NULL;
 }
 
+void Goto::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    label_name->findAll(in, out);
+    
+}
+
 void Goto::assert_valid()
 {
     assert(label_name != NULL);
@@ -3644,6 +4034,15 @@ Node* Label::find(Node* in)
     if (label_name_res) return label_name_res;
     
     return NULL;
+}
+
+void Label::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    label_name->findAll(in, out);
+    
 }
 
 void Label::assert_valid()
@@ -3755,6 +4154,17 @@ Node* Foreach_reset::find(Node* in)
     if (iter_res) return iter_res;
     
     return NULL;
+}
+
+void Foreach_reset::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
 }
 
 void Foreach_reset::assert_valid()
@@ -3870,6 +4280,17 @@ Node* Foreach_next::find(Node* in)
     return NULL;
 }
 
+void Foreach_next::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
+}
+
 void Foreach_next::assert_valid()
 {
     assert(array != NULL);
@@ -3983,6 +4404,17 @@ Node* Foreach_end::find(Node* in)
     return NULL;
 }
 
+void Foreach_end::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
+}
+
 void Foreach_end::assert_valid()
 {
     assert(array != NULL);
@@ -4078,6 +4510,15 @@ Node* Reflection::find(Node* in)
     return NULL;
 }
 
+void Reflection::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable_name->findAll(in, out);
+    
+}
+
 void Reflection::assert_valid()
 {
     assert(variable_name != NULL);
@@ -4162,6 +4603,12 @@ Node* CLASS_NAME::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void CLASS_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void CLASS_NAME::assert_valid()
@@ -4249,6 +4696,12 @@ Node* INTERFACE_NAME::find(Node* in)
     return NULL;
 }
 
+void INTERFACE_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void INTERFACE_NAME::assert_valid()
 {
     assert(value != NULL);
@@ -4332,6 +4785,12 @@ Node* METHOD_NAME::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void METHOD_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void METHOD_NAME::assert_valid()
@@ -4419,6 +4878,12 @@ Node* VARIABLE_NAME::find(Node* in)
     return NULL;
 }
 
+void VARIABLE_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
@@ -4502,6 +4967,12 @@ Node* LABEL_NAME::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void LABEL_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void LABEL_NAME::assert_valid()
@@ -4589,6 +5060,12 @@ Node* CAST::find(Node* in)
     return NULL;
 }
 
+void CAST::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void CAST::assert_valid()
 {
     assert(value != NULL);
@@ -4674,6 +5151,12 @@ Node* OP::find(Node* in)
     return NULL;
 }
 
+void OP::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void OP::assert_valid()
 {
     assert(value != NULL);
@@ -4757,6 +5240,12 @@ Node* CONSTANT_NAME::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void CONSTANT_NAME::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void CONSTANT_NAME::assert_valid()
@@ -4867,6 +5356,17 @@ Node* Foreach_has_key::find(Node* in)
     if (iter_res) return iter_res;
     
     return NULL;
+}
+
+void Foreach_has_key::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
 }
 
 void Foreach_has_key::assert_valid()
@@ -4980,6 +5480,17 @@ Node* Foreach_get_key::find(Node* in)
     if (iter_res) return iter_res;
     
     return NULL;
+}
+
+void Foreach_get_key::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
 }
 
 void Foreach_get_key::assert_valid()
@@ -5117,6 +5628,19 @@ Node* Foreach_get_val::find(Node* in)
     return NULL;
 }
 
+void Foreach_get_val::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    array->findAll(in, out);
+    
+    key->findAll(in, out);
+    
+    iter->findAll(in, out);
+    
+}
+
 void Foreach_get_val::assert_valid()
 {
     assert(array != NULL);
@@ -5243,6 +5767,17 @@ Node* Assignment::find(Node* in)
     return NULL;
 }
 
+void Assignment::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable->findAll(in, out);
+    
+    expr->findAll(in, out);
+    
+}
+
 void Assignment::assert_valid()
 {
     assert(variable != NULL);
@@ -5354,6 +5889,17 @@ Node* Cast::find(Node* in)
     if (variable_name_res) return variable_name_res;
     
     return NULL;
+}
+
+void Cast::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    cast->findAll(in, out);
+    
+    variable_name->findAll(in, out);
+    
 }
 
 void Cast::assert_valid()
@@ -5475,6 +6021,17 @@ Node* Unary_op::find(Node* in)
     if (variable_name_res) return variable_name_res;
     
     return NULL;
+}
+
+void Unary_op::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    op->findAll(in, out);
+    
+    variable_name->findAll(in, out);
+    
 }
 
 void Unary_op::assert_valid()
@@ -5620,6 +6177,19 @@ Node* Bin_op::find(Node* in)
     return NULL;
 }
 
+void Bin_op::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    left->findAll(in, out);
+    
+    op->findAll(in, out);
+    
+    right->findAll(in, out);
+    
+}
+
 void Bin_op::assert_valid()
 {
     assert(left != NULL);
@@ -5744,6 +6314,17 @@ Node* Constant::find(Node* in)
     return NULL;
 }
 
+void Constant::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    class_name->findAll(in, out);
+    
+    constant_name->findAll(in, out);
+    
+}
+
 void Constant::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
@@ -5854,6 +6435,17 @@ Node* Instanceof::find(Node* in)
     if (class_name_res) return class_name_res;
     
     return NULL;
+}
+
+void Instanceof::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    variable_name->findAll(in, out);
+    
+    class_name->findAll(in, out);
+    
 }
 
 void Instanceof::assert_valid()
@@ -6040,6 +6632,32 @@ Node* Variable::find(Node* in)
     return NULL;
 }
 
+void Variable::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    target->findAll(in, out);
+    
+    variable_name->findAll(in, out);
+    
+    if(this->array_indices != NULL)
+    {
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Variable::assert_valid()
 {
     if(target != NULL) target->assert_valid();
@@ -6167,6 +6785,17 @@ Node* Pre_op::find(Node* in)
     if (variable_res) return variable_res;
     
     return NULL;
+}
+
+void Pre_op::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    op->findAll(in, out);
+    
+    variable->findAll(in, out);
+    
 }
 
 void Pre_op::assert_valid()
@@ -6315,6 +6944,28 @@ Node* Array::find(Node* in)
     }
     
     return NULL;
+}
+
+void Array::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    if(this->array_elems != NULL)
+    {
+    	List<Array_elem*>::const_iterator i;
+    	for(
+    		i = this->array_elems->begin();
+    		i != this->array_elems->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
 }
 
 void Array::assert_valid()
@@ -6506,6 +7157,32 @@ Node* Method_invocation::find(Node* in)
     return NULL;
 }
 
+void Method_invocation::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    target->findAll(in, out);
+    
+    method_name->findAll(in, out);
+    
+    if(this->actual_parameters != NULL)
+    {
+    	List<Actual_parameter*>::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void Method_invocation::assert_valid()
 {
     if(target != NULL) target->assert_valid();
@@ -6694,6 +7371,30 @@ Node* New::find(Node* in)
     return NULL;
 }
 
+void New::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+    
+    class_name->findAll(in, out);
+    
+    if(this->actual_parameters != NULL)
+    {
+    	List<Actual_parameter*>::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->findAll (in, out);
+    		}
+    	}
+    }
+    
+}
+
 void New::assert_valid()
 {
     assert(class_name != NULL);
@@ -6787,6 +7488,12 @@ Node* INT::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void INT::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void INT::assert_valid()
@@ -6903,6 +7610,12 @@ Node* REAL::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void REAL::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void REAL::assert_valid()
@@ -7025,6 +7738,12 @@ Node* STRING::find(Node* in)
     return NULL;
 }
 
+void STRING::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void STRING::assert_valid()
 {
     assert_value_valid();
@@ -7143,6 +7862,12 @@ Node* BOOL::find(Node* in)
     return NULL;
 }
 
+void BOOL::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
+}
+
 void BOOL::assert_valid()
 {
     assert_value_valid();
@@ -7233,6 +7958,12 @@ Node* NIL::find(Node* in)
     	return this;
     
     return NULL;
+}
+
+void NIL::findAll(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (in);
 }
 
 void NIL::assert_valid()
