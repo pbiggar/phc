@@ -11,13 +11,19 @@
  *		long way to copy attributes from the top-level to nodes without attributes.
  */
 
+#ifndef PHC_PARSE_BUFFER
+#define PHC_PARSE_BUFFER
+
 #include "process_ir/General.h"
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
+#include "process_ir/Clone_blank_mixins.h"
+#include "pass_manager/Pass_manager.h"
 
-#ifndef PHC_PARSE_BUFFER
-#define PHC_PARSE_BUFFER
+
+#include "parsing/parse.h"
+extern Pass_manager* pm;
 
 // TODO: figure out how to get rid of these nasty hacks
 #define create_parse_buffer_declaration(NS,LC)										\
@@ -36,18 +42,14 @@ public:																							\
 																									\
 	void finish (NS::Node* anchor)														\
 	{																								\
-		List<NS::Statement*>* stmts = parse_to_##LC (s(ss.str ()));				\
-		(new Clone_blank_mixins<NS::Node, NS::Visitor> (anchor))->				\
-			visit_statement_list (stmts);													\
-		out->push_back_all (stmts);														\
+		return to_pass (s(#LC), anchor);													\
 	}																								\
 	void to_pass (String* pass, NS::Node* anchor)									\
 	{																								\
-		List<NS::Statement*>* stmts = lower_##LC (									\
-			pass, parse_to_##LC (s(ss.str ())));										\
-		(new Clone_blank_mixins<NS::Node, NS::Visitor> (anchor))->				\
-			visit_statement_list (stmts);													\
-		out->push_back_all (stmts);														\
+		AST::PHP_script* ast = parse_code (s(ss.str ()), NULL, 0);				\
+		NS::PHP_script* script = pm->run_until (pass, ast)->as_##NS();			\
+		script->visit (new Clone_blank_mixins<NS::Node, NS::Visitor> (anchor));\
+		out->push_back_all (script->statements);										\
 	};																								\
 };																									\
 																									\

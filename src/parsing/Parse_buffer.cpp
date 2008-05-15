@@ -6,12 +6,10 @@
  */
 
 #include "Parse_buffer.h"
-#include "process_ast/AST_unparser.h"
 
 #include "process_ast/AST_unparser.h"
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
-
 
 #define create_parse_buffer_definition(TYPE,LC)											\
 /* When given a list of IR statements, use the << operator to parse the	*/		\
@@ -64,11 +62,6 @@ TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(TYPE##_Parse_buffer& out, i
 }
 
 
-
-
-
-
 create_parse_buffer_definition(AST,ast);
 create_parse_buffer_definition(HIR,hir);
 create_parse_buffer_definition(MIR,mir);
-
