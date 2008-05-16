@@ -11,57 +11,59 @@
 #include "process_hir/HIR_unparser.h"
 #include "process_mir/MIR_unparser.h"
 
-#define create_parse_buffer_definition(TYPE,LC)											\
+#define create_parse_buffer_definition(NS)												\
 /* When given a list of IR statements, use the << operator to parse the	*/		\
 /* given	string into it. When a IR::Node is passed, use the appropriate */		\
 /* unparser to	generate ssource from it. */												\
 																										\
 /* Left-most */																					\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(List<TYPE::Statement*>& stmts, string in)\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(List<NS::Statement*>& stmts, string in)\
 {																										\
-	TYPE##_Parse_buffer& out = *(new TYPE##_Parse_buffer (&stmts));				\
+	NS##_parse_buffer& out = *(new NS##_parse_buffer ());								\
+	out.stmts = &stmts;																			\
 	out.ss << "<?php " << in;																	\
 	return out;																						\
 }																										\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(List<TYPE::Statement*>& stmts, TYPE::Node* in)\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(List<NS::Statement*>& stmts, NS::Node* in)\
 {																										\
-	TYPE##_Parse_buffer& out = *(new TYPE##_Parse_buffer (&stmts));				\
+	NS##_parse_buffer& out = *(new NS##_parse_buffer ());								\
+	out.stmts = &stmts;																			\
 	out.ss << "<?php ";																			\
 																										\
 	stringstream ss;																				\
-	in->visit (new TYPE##_unparser (ss, true));											\
+	in->visit (new NS##_unparser (ss, true));												\
 	out.ss << ss.str ();																			\
 																										\
 	return out;																						\
 }																										\
 																										\
 																										\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(TYPE##_Parse_buffer& out, TYPE::Node* in)		\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(NS##_parse_buffer& out, NS::Node* in)\
 {																										\
 	stringstream ss;																				\
-	in->visit (new TYPE##_unparser (ss, true));											\
+	in->visit (new NS##_unparser (ss, true));												\
 	out.ss << ss.str ();																			\
 																										\
 	return out;																						\
 }																										\
 																										\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(TYPE##_Parse_buffer& out, string in)		\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(NS##_parse_buffer& out, string in)\
 {																										\
 	out.ss << in;																					\
 	return out;																						\
 }																										\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(TYPE##_Parse_buffer& out, String* in)		\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(NS##_parse_buffer& out, String* in)\
 {																										\
 	out.ss << in;																					\
 	return out;																						\
 }																										\
-TYPE##_Parse_buffer::TYPE##_Parse_buffer& operator<<(TYPE##_Parse_buffer& out, int in)		\
+NS##_parse_buffer::NS##_parse_buffer& operator<<(NS##_parse_buffer& out, int in)\
 {																										\
 	out.ss << in;																					\
 	return out;																						\
 }
 
 
-create_parse_buffer_definition(AST,ast);
-create_parse_buffer_definition(HIR,hir);
-create_parse_buffer_definition(MIR,mir);
+create_parse_buffer_definition(AST);
+create_parse_buffer_definition(HIR);
+create_parse_buffer_definition(MIR);

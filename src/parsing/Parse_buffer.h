@@ -20,52 +20,77 @@
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/Clone_blank_mixins.h"
 #include "pass_manager/Pass_manager.h"
+#include "lib/demangle.h"
 
 
 #include "parsing/parse.h"
 extern Pass_manager* pm;
 
 // TODO: figure out how to get rid of these nasty hacks
-#define create_parse_buffer_declaration(NS,LC)										\
-class NS##_Parse_buffer																		\
+template <
+	class Node,
+	class Statement,
+	class PHP_script,
+	class Visitor>
+class Parse_buffer
+{
+	/* TODO: make these private and give protected access to << via */
+	/* a friend declaration. */
+public:
+	/* provides line numbers */
+	List<Statement*>* stmts;
+	stringstream ss;
+
+public:
+
+	void finish (Node* anchor)
+	{
+		// Get the namespace - a hack, but avoids the nastiness with macros
+		// otherwise.
+		String* pass = s (demangle (anchor, true));
+		pass = s (pass->substr (0, 3));
+		pass->toLower ();
+		assert (*pass == "ast" || *pass == "hir" || *pass == "mir");
+		return to_pass (pass, anchor);
+	}
+
+	void to_pass (String* pass, Node* anchor)
+	{
+		AST::PHP_script* ast = parse_code (s(ss.str ()), NULL, 0);
+		IR::PHP_script* ir = pm->run_until (pass, ast);
+		PHP_script* script = NULL;
+
+		// Sigh. Another hack. Anytime we try to do anything generic it ends up
+		// like this.
+		if (ir->is_AST ())
+			script = dynamic_cast<PHP_script*> (ir->as_AST ());
+		else if (ir->is_HIR ())
+			script = dynamic_cast<PHP_script*> (ir->as_HIR ());
+		else
+			script = dynamic_cast<PHP_script*> (ir->as_MIR ());
+
+		script->visit (new Clone_blank_mixins<Node, Visitor> (anchor));
+		stmts->push_back_all (script->statements);
+	};
+};
+
+#define create_parse_buffer_declaration(NS)											\
+class NS##_parse_buffer :																	\
+	public Parse_buffer<NS::Node, NS::Statement, NS::PHP_script, NS::Visitor>\
 {																									\
-	/* TODO: make these private and give protected access to << via */		\
-	/* a friend declaration. */															\
-public:																							\
-	/* provides line numbers */															\
-	List<NS::Statement*>* out;																\
-	stringstream ss;																			\
-																									\
-public:																							\
-																									\
-	NS##_Parse_buffer (List<NS::Statement*>* out) : out (out) {}				\
-																									\
-	void finish (NS::Node* anchor)														\
-	{																								\
-		return to_pass (s(#LC), anchor);													\
-	}																								\
-	void to_pass (String* pass, NS::Node* anchor)									\
-	{																								\
-		AST::PHP_script* ast = parse_code (s(ss.str ()), NULL, 0);				\
-		NS::PHP_script* script = pm->run_until (pass, ast)->as_##NS();			\
-		script->visit (new Clone_blank_mixins<NS::Node, NS::Visitor> (anchor));\
-		out->push_back_all (script->statements);										\
-	};																								\
 };																									\
-																									\
 /* These can start the buffer */															\
-NS##_Parse_buffer& operator<<(List<NS::Statement*>& stmts, string in);		\
-NS##_Parse_buffer& operator<<(List<NS::Statement*>& stmts, NS::Node* in);	\
+NS##_parse_buffer& operator<<(List<NS::Statement*>& stmts, string in);		\
+NS##_parse_buffer& operator<<(List<NS::Statement*>& stmts, NS::Node* in);	\
 																									\
 /* These can continue the stream */														\
-NS##_Parse_buffer& operator<<(NS##_Parse_buffer& out, NS::Node* in);			\
-NS##_Parse_buffer& operator<<(NS##_Parse_buffer& out, string in);				\
-NS##_Parse_buffer& operator<<(NS##_Parse_buffer& out, String* in);			\
-NS##_Parse_buffer& operator<<(NS##_Parse_buffer& out, int in);
+NS##_parse_buffer& operator<<(NS##_parse_buffer& out, NS::Node* in);			\
+NS##_parse_buffer& operator<<(NS##_parse_buffer& out, string in);				\
+NS##_parse_buffer& operator<<(NS##_parse_buffer& out, String* in);			\
+NS##_parse_buffer& operator<<(NS##_parse_buffer& out, int in);
 
-
-create_parse_buffer_declaration(AST,ast);
-create_parse_buffer_declaration(HIR,hir);
-create_parse_buffer_declaration(MIR,mir);
+create_parse_buffer_declaration(AST);
+create_parse_buffer_declaration(HIR);
+create_parse_buffer_declaration(MIR);
 
 #endif // PHC_PARSE_BUFFER
