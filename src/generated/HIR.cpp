@@ -187,10 +187,10 @@ Node* PHP_script::find(Node* in)
     return NULL;
 }
 
-void PHP_script::findAll(Node* in, List<Node*>* out)
+void PHP_script::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
     if(this->statements != NULL)
     {
@@ -202,7 +202,7 @@ void PHP_script::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -301,10 +301,10 @@ Node* Class_mod::find(Node* in)
     return NULL;
 }
 
-void Class_mod::findAll(Node* in, List<Node*>* out)
+void Class_mod::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
 }
 
@@ -474,11 +474,17 @@ Node* Signature::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* method_mod_res = method_mod->find(in);
-    if (method_mod_res) return method_mod_res;
+    if (this->method_mod != NULL)
+    {
+    	Node* method_mod_res = this->method_mod->find(in);
+    	if (method_mod_res) return method_mod_res;
+    }
     
-    Node* method_name_res = method_name->find(in);
-    if (method_name_res) return method_name_res;
+    if (this->method_name != NULL)
+    {
+    	Node* method_name_res = this->method_name->find(in);
+    	if (method_name_res) return method_name_res;
+    }
     
     if(this->formal_parameters != NULL)
     {
@@ -499,14 +505,16 @@ Node* Signature::find(Node* in)
     return NULL;
 }
 
-void Signature::findAll(Node* in, List<Node*>* out)
+void Signature::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    method_mod->findAll(in, out);
+    if (this->method_mod != NULL)
+    	this->method_mod->find_all(in, out);
     
-    method_name->findAll(in, out);
+    if (this->method_name != NULL)
+    	this->method_name->find_all(in, out);
     
     if(this->formal_parameters != NULL)
     {
@@ -518,7 +526,7 @@ void Signature::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -645,10 +653,10 @@ Node* Method_mod::find(Node* in)
     return NULL;
 }
 
-void Method_mod::findAll(Node* in, List<Node*>* out)
+void Method_mod::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
 }
 
@@ -825,23 +833,31 @@ Node* Formal_parameter::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* type_res = type->find(in);
-    if (type_res) return type_res;
+    if (this->type != NULL)
+    {
+    	Node* type_res = this->type->find(in);
+    	if (type_res) return type_res;
+    }
     
-    Node* var_res = var->find(in);
-    if (var_res) return var_res;
+    if (this->var != NULL)
+    {
+    	Node* var_res = this->var->find(in);
+    	if (var_res) return var_res;
+    }
     
     return NULL;
 }
 
-void Formal_parameter::findAll(Node* in, List<Node*>* out)
+void Formal_parameter::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    type->findAll(in, out);
+    if (this->type != NULL)
+    	this->type->find_all(in, out);
     
-    var->findAll(in, out);
+    if (this->var != NULL)
+    	this->var->find_all(in, out);
     
 }
 
@@ -948,18 +964,22 @@ Node* Type::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
     return NULL;
 }
 
-void Type::findAll(Node* in, List<Node*>* out)
+void Type::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
 }
 
@@ -1055,10 +1075,10 @@ Node* Attr_mod::find(Node* in)
     return NULL;
 }
 
-void Attr_mod::findAll(Node* in, List<Node*>* out)
+void Attr_mod::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
 }
 
@@ -1222,23 +1242,31 @@ Node* Name_with_default::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Name_with_default::findAll(Node* in, List<Node*>* out)
+void Name_with_default::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -1400,11 +1428,17 @@ Node* Catch::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     if(this->statements != NULL)
     {
@@ -1425,14 +1459,16 @@ Node* Catch::find(Node* in)
     return NULL;
 }
 
-void Catch::findAll(Node* in, List<Node*>* out)
+void Catch::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
     if(this->statements != NULL)
     {
@@ -1444,7 +1480,7 @@ void Catch::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -1579,23 +1615,31 @@ Node* Array_elem::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* key_res = key->find(in);
-    if (key_res) return key_res;
+    if (this->key != NULL)
+    {
+    	Node* key_res = this->key->find(in);
+    	if (key_res) return key_res;
+    }
     
-    Node* val_res = val->find(in);
-    if (val_res) return val_res;
+    if (this->val != NULL)
+    {
+    	Node* val_res = this->val->find(in);
+    	if (val_res) return val_res;
+    }
     
     return NULL;
 }
 
-void Array_elem::findAll(Node* in, List<Node*>* out)
+void Array_elem::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    key->findAll(in, out);
+    if (this->key != NULL)
+    	this->key->find_all(in, out);
     
-    val->findAll(in, out);
+    if (this->val != NULL)
+    	this->val->find_all(in, out);
     
 }
 
@@ -1694,18 +1738,22 @@ Node* Actual_parameter::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Actual_parameter::findAll(Node* in, List<Node*>* out)
+void Actual_parameter::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -1803,10 +1851,10 @@ Node* HT_ITERATOR::find(Node* in)
     return NULL;
 }
 
-void HT_ITERATOR::findAll(Node* in, List<Node*>* out)
+void HT_ITERATOR::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void HT_ITERATOR::assert_valid()
@@ -2062,14 +2110,23 @@ Node* Class_def::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* class_mod_res = class_mod->find(in);
-    if (class_mod_res) return class_mod_res;
+    if (this->class_mod != NULL)
+    {
+    	Node* class_mod_res = this->class_mod->find(in);
+    	if (class_mod_res) return class_mod_res;
+    }
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
-    Node* extends_res = extends->find(in);
-    if (extends_res) return extends_res;
+    if (this->extends != NULL)
+    {
+    	Node* extends_res = this->extends->find(in);
+    	if (extends_res) return extends_res;
+    }
     
     if(this->implements != NULL)
     {
@@ -2106,16 +2163,19 @@ Node* Class_def::find(Node* in)
     return NULL;
 }
 
-void Class_def::findAll(Node* in, List<Node*>* out)
+void Class_def::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    class_mod->findAll(in, out);
+    if (this->class_mod != NULL)
+    	this->class_mod->find_all(in, out);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
-    extends->findAll(in, out);
+    if (this->extends != NULL)
+    	this->extends->find_all(in, out);
     
     if(this->implements != NULL)
     {
@@ -2127,7 +2187,7 @@ void Class_def::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -2142,7 +2202,7 @@ void Class_def::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -2408,8 +2468,11 @@ Node* Interface_def::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* interface_name_res = interface_name->find(in);
-    if (interface_name_res) return interface_name_res;
+    if (this->interface_name != NULL)
+    {
+    	Node* interface_name_res = this->interface_name->find(in);
+    	if (interface_name_res) return interface_name_res;
+    }
     
     if(this->extends != NULL)
     {
@@ -2446,12 +2509,13 @@ Node* Interface_def::find(Node* in)
     return NULL;
 }
 
-void Interface_def::findAll(Node* in, List<Node*>* out)
+void Interface_def::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    interface_name->findAll(in, out);
+    if (this->interface_name != NULL)
+    	this->interface_name->find_all(in, out);
     
     if(this->extends != NULL)
     {
@@ -2463,7 +2527,7 @@ void Interface_def::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -2478,7 +2542,7 @@ void Interface_def::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -2641,8 +2705,11 @@ Node* Method::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* signature_res = signature->find(in);
-    if (signature_res) return signature_res;
+    if (this->signature != NULL)
+    {
+    	Node* signature_res = this->signature->find(in);
+    	if (signature_res) return signature_res;
+    }
     
     if(this->statements != NULL)
     {
@@ -2663,12 +2730,13 @@ Node* Method::find(Node* in)
     return NULL;
 }
 
-void Method::findAll(Node* in, List<Node*>* out)
+void Method::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    signature->findAll(in, out);
+    if (this->signature != NULL)
+    	this->signature->find_all(in, out);
     
     if(this->statements != NULL)
     {
@@ -2680,7 +2748,7 @@ void Method::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -2798,23 +2866,31 @@ Node* Attribute::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* attr_mod_res = attr_mod->find(in);
-    if (attr_mod_res) return attr_mod_res;
+    if (this->attr_mod != NULL)
+    {
+    	Node* attr_mod_res = this->attr_mod->find(in);
+    	if (attr_mod_res) return attr_mod_res;
+    }
     
-    Node* var_res = var->find(in);
-    if (var_res) return var_res;
+    if (this->var != NULL)
+    {
+    	Node* var_res = this->var->find(in);
+    	if (var_res) return var_res;
+    }
     
     return NULL;
 }
 
-void Attribute::findAll(Node* in, List<Node*>* out)
+void Attribute::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    attr_mod->findAll(in, out);
+    if (this->attr_mod != NULL)
+    	this->attr_mod->find_all(in, out);
     
-    var->findAll(in, out);
+    if (this->var != NULL)
+    	this->var->find_all(in, out);
     
 }
 
@@ -3013,8 +3089,11 @@ Node* If::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     if(this->iftrue != NULL)
     {
@@ -3051,12 +3130,13 @@ Node* If::find(Node* in)
     return NULL;
 }
 
-void If::findAll(Node* in, List<Node*>* out)
+void If::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
     if(this->iftrue != NULL)
     {
@@ -3068,7 +3148,7 @@ void If::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -3083,7 +3163,7 @@ void If::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -3253,10 +3333,10 @@ Node* Loop::find(Node* in)
     return NULL;
 }
 
-void Loop::findAll(Node* in, List<Node*>* out)
+void Loop::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
     if(this->statements != NULL)
     {
@@ -3268,7 +3348,7 @@ void Loop::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -3465,14 +3545,23 @@ Node* Foreach::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
-    Node* key_res = key->find(in);
-    if (key_res) return key_res;
+    if (this->key != NULL)
+    {
+    	Node* key_res = this->key->find(in);
+    	if (key_res) return key_res;
+    }
     
-    Node* val_res = val->find(in);
-    if (val_res) return val_res;
+    if (this->val != NULL)
+    {
+    	Node* val_res = this->val->find(in);
+    	if (val_res) return val_res;
+    }
     
     if(this->statements != NULL)
     {
@@ -3493,16 +3582,19 @@ Node* Foreach::find(Node* in)
     return NULL;
 }
 
-void Foreach::findAll(Node* in, List<Node*>* out)
+void Foreach::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
-    key->findAll(in, out);
+    if (this->key != NULL)
+    	this->key->find_all(in, out);
     
-    val->findAll(in, out);
+    if (this->val != NULL)
+    	this->val->find_all(in, out);
     
     if(this->statements != NULL)
     {
@@ -3514,7 +3606,7 @@ void Foreach::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -3616,18 +3708,22 @@ Node* Break::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Break::findAll(Node* in, List<Node*>* out)
+void Break::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -3713,18 +3809,22 @@ Node* Continue::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Continue::findAll(Node* in, List<Node*>* out)
+void Continue::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -3810,18 +3910,22 @@ Node* Return::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Return::findAll(Node* in, List<Node*>* out)
+void Return::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -3907,18 +4011,22 @@ Node* Static_declaration::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* var_res = var->find(in);
-    if (var_res) return var_res;
+    if (this->var != NULL)
+    {
+    	Node* var_res = this->var->find(in);
+    	if (var_res) return var_res;
+    }
     
     return NULL;
 }
 
-void Static_declaration::findAll(Node* in, List<Node*>* out)
+void Static_declaration::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    var->findAll(in, out);
+    if (this->var != NULL)
+    	this->var->find_all(in, out);
     
 }
 
@@ -4005,18 +4113,22 @@ Node* Global::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     return NULL;
 }
 
-void Global::findAll(Node* in, List<Node*>* out)
+void Global::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
@@ -4229,10 +4341,10 @@ Node* Try::find(Node* in)
     return NULL;
 }
 
-void Try::findAll(Node* in, List<Node*>* out)
+void Try::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
     if(this->statements != NULL)
     {
@@ -4244,7 +4356,7 @@ void Try::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -4259,7 +4371,7 @@ void Try::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -4365,18 +4477,22 @@ Node* Throw::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Throw::findAll(Node* in, List<Node*>* out)
+void Throw::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -4465,18 +4581,22 @@ Node* Eval_expr::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Eval_expr::findAll(Node* in, List<Node*>* out)
+void Eval_expr::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -4608,28 +4728,40 @@ Node* Branch::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
-    Node* iftrue_res = iftrue->find(in);
-    if (iftrue_res) return iftrue_res;
+    if (this->iftrue != NULL)
+    {
+    	Node* iftrue_res = this->iftrue->find(in);
+    	if (iftrue_res) return iftrue_res;
+    }
     
-    Node* iffalse_res = iffalse->find(in);
-    if (iffalse_res) return iffalse_res;
+    if (this->iffalse != NULL)
+    {
+    	Node* iffalse_res = this->iffalse->find(in);
+    	if (iffalse_res) return iffalse_res;
+    }
     
     return NULL;
 }
 
-void Branch::findAll(Node* in, List<Node*>* out)
+void Branch::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
-    iftrue->findAll(in, out);
+    if (this->iftrue != NULL)
+    	this->iftrue->find_all(in, out);
     
-    iffalse->findAll(in, out);
+    if (this->iffalse != NULL)
+    	this->iffalse->find_all(in, out);
     
 }
 
@@ -4720,18 +4852,22 @@ Node* Goto::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* label_name_res = label_name->find(in);
-    if (label_name_res) return label_name_res;
+    if (this->label_name != NULL)
+    {
+    	Node* label_name_res = this->label_name->find(in);
+    	if (label_name_res) return label_name_res;
+    }
     
     return NULL;
 }
 
-void Goto::findAll(Node* in, List<Node*>* out)
+void Goto::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    label_name->findAll(in, out);
+    if (this->label_name != NULL)
+    	this->label_name->find_all(in, out);
     
 }
 
@@ -4818,18 +4954,22 @@ Node* Label::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* label_name_res = label_name->find(in);
-    if (label_name_res) return label_name_res;
+    if (this->label_name != NULL)
+    {
+    	Node* label_name_res = this->label_name->find(in);
+    	if (label_name_res) return label_name_res;
+    }
     
     return NULL;
 }
 
-void Label::findAll(Node* in, List<Node*>* out)
+void Label::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    label_name->findAll(in, out);
+    if (this->label_name != NULL)
+    	this->label_name->find_all(in, out);
     
 }
 
@@ -4935,23 +5075,31 @@ Node* Foreach_reset::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_reset::findAll(Node* in, List<Node*>* out)
+void Foreach_reset::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -5059,23 +5207,31 @@ Node* Foreach_next::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_next::findAll(Node* in, List<Node*>* out)
+void Foreach_next::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -5183,23 +5339,31 @@ Node* Foreach_end::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_end::findAll(Node* in, List<Node*>* out)
+void Foreach_end::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -5292,18 +5456,22 @@ Node* Reflection::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     return NULL;
 }
 
-void Reflection::findAll(Node* in, List<Node*>* out)
+void Reflection::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
@@ -5393,10 +5561,10 @@ Node* CLASS_NAME::find(Node* in)
     return NULL;
 }
 
-void CLASS_NAME::findAll(Node* in, List<Node*>* out)
+void CLASS_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void CLASS_NAME::assert_valid()
@@ -5484,10 +5652,10 @@ Node* INTERFACE_NAME::find(Node* in)
     return NULL;
 }
 
-void INTERFACE_NAME::findAll(Node* in, List<Node*>* out)
+void INTERFACE_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void INTERFACE_NAME::assert_valid()
@@ -5575,10 +5743,10 @@ Node* METHOD_NAME::find(Node* in)
     return NULL;
 }
 
-void METHOD_NAME::findAll(Node* in, List<Node*>* out)
+void METHOD_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void METHOD_NAME::assert_valid()
@@ -5666,10 +5834,10 @@ Node* VARIABLE_NAME::find(Node* in)
     return NULL;
 }
 
-void VARIABLE_NAME::findAll(Node* in, List<Node*>* out)
+void VARIABLE_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void VARIABLE_NAME::assert_valid()
@@ -5757,10 +5925,10 @@ Node* LABEL_NAME::find(Node* in)
     return NULL;
 }
 
-void LABEL_NAME::findAll(Node* in, List<Node*>* out)
+void LABEL_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void LABEL_NAME::assert_valid()
@@ -5848,10 +6016,10 @@ Node* OP::find(Node* in)
     return NULL;
 }
 
-void OP::findAll(Node* in, List<Node*>* out)
+void OP::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void OP::assert_valid()
@@ -5939,10 +6107,10 @@ Node* CAST::find(Node* in)
     return NULL;
 }
 
-void CAST::findAll(Node* in, List<Node*>* out)
+void CAST::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void CAST::assert_valid()
@@ -6030,10 +6198,10 @@ Node* CONSTANT_NAME::find(Node* in)
     return NULL;
 }
 
-void CONSTANT_NAME::findAll(Node* in, List<Node*>* out)
+void CONSTANT_NAME::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void CONSTANT_NAME::assert_valid()
@@ -6137,23 +6305,31 @@ Node* Foreach_has_key::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_has_key::findAll(Node* in, List<Node*>* out)
+void Foreach_has_key::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -6261,23 +6437,31 @@ Node* Foreach_get_key::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_get_key::findAll(Node* in, List<Node*>* out)
+void Foreach_get_key::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -6404,28 +6588,40 @@ Node* Foreach_get_val::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* array_res = array->find(in);
-    if (array_res) return array_res;
+    if (this->array != NULL)
+    {
+    	Node* array_res = this->array->find(in);
+    	if (array_res) return array_res;
+    }
     
-    Node* key_res = key->find(in);
-    if (key_res) return key_res;
+    if (this->key != NULL)
+    {
+    	Node* key_res = this->key->find(in);
+    	if (key_res) return key_res;
+    }
     
-    Node* iter_res = iter->find(in);
-    if (iter_res) return iter_res;
+    if (this->iter != NULL)
+    {
+    	Node* iter_res = this->iter->find(in);
+    	if (iter_res) return iter_res;
+    }
     
     return NULL;
 }
 
-void Foreach_get_val::findAll(Node* in, List<Node*>* out)
+void Foreach_get_val::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    array->findAll(in, out);
+    if (this->array != NULL)
+    	this->array->find_all(in, out);
     
-    key->findAll(in, out);
+    if (this->key != NULL)
+    	this->key->find_all(in, out);
     
-    iter->findAll(in, out);
+    if (this->iter != NULL)
+    	this->iter->find_all(in, out);
     
 }
 
@@ -6546,23 +6742,31 @@ Node* Assignment::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_res = variable->find(in);
-    if (variable_res) return variable_res;
+    if (this->variable != NULL)
+    {
+    	Node* variable_res = this->variable->find(in);
+    	if (variable_res) return variable_res;
+    }
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Assignment::findAll(Node* in, List<Node*>* out)
+void Assignment::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable->findAll(in, out);
+    if (this->variable != NULL)
+    	this->variable->find_all(in, out);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -6689,28 +6893,40 @@ Node* Op_assignment::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_res = variable->find(in);
-    if (variable_res) return variable_res;
+    if (this->variable != NULL)
+    {
+    	Node* variable_res = this->variable->find(in);
+    	if (variable_res) return variable_res;
+    }
     
-    Node* op_res = op->find(in);
-    if (op_res) return op_res;
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
     
-    Node* expr_res = expr->find(in);
-    if (expr_res) return expr_res;
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
     
     return NULL;
 }
 
-void Op_assignment::findAll(Node* in, List<Node*>* out)
+void Op_assignment::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable->findAll(in, out);
+    if (this->variable != NULL)
+    	this->variable->find_all(in, out);
     
-    op->findAll(in, out);
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
     
-    expr->findAll(in, out);
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
     
 }
 
@@ -6829,23 +7045,31 @@ Node* Cast::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* cast_res = cast->find(in);
-    if (cast_res) return cast_res;
+    if (this->cast != NULL)
+    {
+    	Node* cast_res = this->cast->find(in);
+    	if (cast_res) return cast_res;
+    }
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     return NULL;
 }
 
-void Cast::findAll(Node* in, List<Node*>* out)
+void Cast::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    cast->findAll(in, out);
+    if (this->cast != NULL)
+    	this->cast->find_all(in, out);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
@@ -6961,23 +7185,31 @@ Node* Unary_op::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* op_res = op->find(in);
-    if (op_res) return op_res;
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     return NULL;
 }
 
-void Unary_op::findAll(Node* in, List<Node*>* out)
+void Unary_op::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    op->findAll(in, out);
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
@@ -7112,28 +7344,40 @@ Node* Bin_op::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* left_res = left->find(in);
-    if (left_res) return left_res;
+    if (this->left != NULL)
+    {
+    	Node* left_res = this->left->find(in);
+    	if (left_res) return left_res;
+    }
     
-    Node* op_res = op->find(in);
-    if (op_res) return op_res;
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
     
-    Node* right_res = right->find(in);
-    if (right_res) return right_res;
+    if (this->right != NULL)
+    {
+    	Node* right_res = this->right->find(in);
+    	if (right_res) return right_res;
+    }
     
     return NULL;
 }
 
-void Bin_op::findAll(Node* in, List<Node*>* out)
+void Bin_op::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    left->findAll(in, out);
+    if (this->left != NULL)
+    	this->left->find_all(in, out);
     
-    op->findAll(in, out);
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
     
-    right->findAll(in, out);
+    if (this->right != NULL)
+    	this->right->find_all(in, out);
     
 }
 
@@ -7252,23 +7496,31 @@ Node* Constant::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
-    Node* constant_name_res = constant_name->find(in);
-    if (constant_name_res) return constant_name_res;
+    if (this->constant_name != NULL)
+    {
+    	Node* constant_name_res = this->constant_name->find(in);
+    	if (constant_name_res) return constant_name_res;
+    }
     
     return NULL;
 }
 
-void Constant::findAll(Node* in, List<Node*>* out)
+void Constant::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
-    constant_name->findAll(in, out);
+    if (this->constant_name != NULL)
+    	this->constant_name->find_all(in, out);
     
 }
 
@@ -7375,23 +7627,31 @@ Node* Instanceof::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
     return NULL;
 }
 
-void Instanceof::findAll(Node* in, List<Node*>* out)
+void Instanceof::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
 }
 
@@ -7554,11 +7814,17 @@ Node* Variable::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* target_res = target->find(in);
-    if (target_res) return target_res;
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
     
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
     
     if(this->array_indices != NULL)
     {
@@ -7579,14 +7845,16 @@ Node* Variable::find(Node* in)
     return NULL;
 }
 
-void Variable::findAll(Node* in, List<Node*>* out)
+void Variable::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    target->findAll(in, out);
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
     
-    variable_name->findAll(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
     if(this->array_indices != NULL)
     {
@@ -7598,7 +7866,7 @@ void Variable::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -7735,23 +8003,31 @@ Node* Pre_op::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* op_res = op->find(in);
-    if (op_res) return op_res;
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
     
-    Node* variable_res = variable->find(in);
-    if (variable_res) return variable_res;
+    if (this->variable != NULL)
+    {
+    	Node* variable_res = this->variable->find(in);
+    	if (variable_res) return variable_res;
+    }
     
     return NULL;
 }
 
-void Pre_op::findAll(Node* in, List<Node*>* out)
+void Pre_op::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    op->findAll(in, out);
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
     
-    variable->findAll(in, out);
+    if (this->variable != NULL)
+    	this->variable->find_all(in, out);
     
 }
 
@@ -7903,10 +8179,10 @@ Node* Array::find(Node* in)
     return NULL;
 }
 
-void Array::findAll(Node* in, List<Node*>* out)
+void Array::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
     if(this->array_elems != NULL)
     {
@@ -7918,7 +8194,7 @@ void Array::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -8089,11 +8365,17 @@ Node* Method_invocation::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* target_res = target->find(in);
-    if (target_res) return target_res;
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
     
-    Node* method_name_res = method_name->find(in);
-    if (method_name_res) return method_name_res;
+    if (this->method_name != NULL)
+    {
+    	Node* method_name_res = this->method_name->find(in);
+    	if (method_name_res) return method_name_res;
+    }
     
     if(this->actual_parameters != NULL)
     {
@@ -8114,14 +8396,16 @@ Node* Method_invocation::find(Node* in)
     return NULL;
 }
 
-void Method_invocation::findAll(Node* in, List<Node*>* out)
+void Method_invocation::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    target->findAll(in, out);
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
     
-    method_name->findAll(in, out);
+    if (this->method_name != NULL)
+    	this->method_name->find_all(in, out);
     
     if(this->actual_parameters != NULL)
     {
@@ -8133,7 +8417,7 @@ void Method_invocation::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -8306,8 +8590,11 @@ Node* New::find(Node* in)
     if (this->match (in))
     	return this;
     
-    Node* class_name_res = class_name->find(in);
-    if (class_name_res) return class_name_res;
+    if (this->class_name != NULL)
+    {
+    	Node* class_name_res = this->class_name->find(in);
+    	if (class_name_res) return class_name_res;
+    }
     
     if(this->actual_parameters != NULL)
     {
@@ -8328,12 +8615,13 @@ Node* New::find(Node* in)
     return NULL;
 }
 
-void New::findAll(Node* in, List<Node*>* out)
+void New::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
     
-    class_name->findAll(in, out);
+    if (this->class_name != NULL)
+    	this->class_name->find_all(in, out);
     
     if(this->actual_parameters != NULL)
     {
@@ -8345,7 +8633,7 @@ void New::findAll(Node* in, List<Node*>* out)
     	{
     		if(*i != NULL)
     		{
-    			(*i)->findAll (in, out);
+    			(*i)->find_all (in, out);
     		}
     	}
     }
@@ -8447,10 +8735,10 @@ Node* INT::find(Node* in)
     return NULL;
 }
 
-void INT::findAll(Node* in, List<Node*>* out)
+void INT::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void INT::assert_valid()
@@ -8569,10 +8857,10 @@ Node* REAL::find(Node* in)
     return NULL;
 }
 
-void REAL::findAll(Node* in, List<Node*>* out)
+void REAL::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void REAL::assert_valid()
@@ -8695,10 +8983,10 @@ Node* STRING::find(Node* in)
     return NULL;
 }
 
-void STRING::findAll(Node* in, List<Node*>* out)
+void STRING::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void STRING::assert_valid()
@@ -8819,10 +9107,10 @@ Node* BOOL::find(Node* in)
     return NULL;
 }
 
-void BOOL::findAll(Node* in, List<Node*>* out)
+void BOOL::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void BOOL::assert_valid()
@@ -8917,10 +9205,10 @@ Node* NIL::find(Node* in)
     return NULL;
 }
 
-void NIL::findAll(Node* in, List<Node*>* out)
+void NIL::find_all(Node* in, List<Node*>* out)
 {
     if (this->match (in))
-    	out->push_back (in);
+    	out->push_back (this);
 }
 
 void NIL::assert_valid()
