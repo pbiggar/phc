@@ -57,14 +57,23 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 
-# generate uppered HIR
-src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR > $NAME.uhir.php
+# generate MIR
+src/phc $PHP_NAME $PHC_ARGS --dump=mir > $NAME.mir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR
+		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --dump=mir
 	fi
 	exit 1
 fi
+
+# generate uppered HIR
+#src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR > $NAME.uhir.php
+#if [[ $? != 0 ]]; then
+#	if [[ $DEBUG_PHC != 0 ]]; then 
+#		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR
+#	fi
+#	exit 1
+#fi
 
 # generate C
 src/phc --generate-c $PHC_ARGS $PHP_NAME > $NAME.c

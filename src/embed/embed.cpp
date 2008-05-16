@@ -125,7 +125,7 @@ bool eval_string (String* code, zval* result, Node* anchor)
 	php_embed_module.sapi_error = handle_php_sapi_error;
 	zend_first_try 
 	{
-		zend_eval_string (const_cast<char*>(code->c_str ()), result, "Evaluate literal" TSRMLS_CC);
+		zend_eval_string (const_cast<char*>(code->c_str ()), result, const_cast<char*>("Evaluate literal") TSRMLS_CC);
 	}
 	zend_catch
 	{

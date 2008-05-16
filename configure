@@ -20357,7 +20357,7 @@ _ACEOF
 	OLD_LDFLAGS=$LDFLAGS
 	OLD_CFLAGS=$CFLAGS
 	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
-	CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
+	CFLAGS="-isystem${PHP_INSTALL_PATH}/include/php -isystem${PHP_INSTALL_PATH}/include/php/main -isystem${PHP_INSTALL_PATH}/include/php/TSRM -isystem${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
 	{ echo "$as_me:$LINENO: checking for zend_eval_string in -lphp5" >&5
 echo $ECHO_N "checking for zend_eval_string in -lphp5... $ECHO_C" >&6; }
 if test "${ac_cv_lib_php5_zend_eval_string+set}" = set; then
@@ -20427,7 +20427,7 @@ if test $ac_cv_lib_php5_zend_eval_string = yes; then
 #define HAVE_EMBED 1
 _ACEOF
 
-			libphp_headers="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"
+			libphp_headers="-isystem${PHP_INSTALL_PATH}/include/php -isystem${PHP_INSTALL_PATH}/include/php/main -isystem${PHP_INSTALL_PATH}/include/php/TSRM -isystem${PHP_INSTALL_PATH}/include/php/Zend"
 
 			LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
 
@@ -20555,7 +20555,7 @@ _ACEOF
 	OLD_LDFLAGS=$LDFLAGS
 	OLD_CFLAGS=$CFLAGS
 	LDFLAGS="-L${PHP_INSTALL_PATH}/lib $LDFLAGS"
-	CFLAGS="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
+	CFLAGS="-isystem${PHP_INSTALL_PATH}/include/php -isystem${PHP_INSTALL_PATH}/include/php/main -isystem${PHP_INSTALL_PATH}/include/php/TSRM -isystem${PHP_INSTALL_PATH}/include/php/Zend $CFLAGS"
 	{ echo "$as_me:$LINENO: checking for zend_eval_string in -lphp5" >&5
 echo $ECHO_N "checking for zend_eval_string in -lphp5... $ECHO_C" >&6; }
 if test "${ac_cv_lib_php5_zend_eval_string+set}" = set; then
@@ -20625,7 +20625,7 @@ if test $ac_cv_lib_php5_zend_eval_string = yes; then
 #define HAVE_EMBED 1
 _ACEOF
 
-			libphp_headers="-I${PHP_INSTALL_PATH}/include/php -I${PHP_INSTALL_PATH}/include/php/main -I${PHP_INSTALL_PATH}/include/php/TSRM -I${PHP_INSTALL_PATH}/include/php/Zend"
+			libphp_headers="-isystem${PHP_INSTALL_PATH}/include/php -isystem${PHP_INSTALL_PATH}/include/php/main -isystem${PHP_INSTALL_PATH}/include/php/TSRM -isystem${PHP_INSTALL_PATH}/include/php/Zend"
 
 			LIBS="-lphp5 -L${PHP_INSTALL_PATH}/lib -R${PHP_INSTALL_PATH}/lib $LIBS"
 

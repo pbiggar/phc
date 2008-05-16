@@ -40,7 +40,7 @@ class CompilePluginTest extends AsyncTest
 				$dest = "$working_directory/".basename ($header);
 				if (!copy ($header, $dest))
 				{
-					$this->mark_failure ($subject, "Copying headers failed", "$header to $dest");
+					$this->async_failure ($subject, "Copying headers failed", "$header to $dest");
 					return;
 				}
 			}
@@ -62,7 +62,7 @@ class CompilePluginTest extends AsyncTest
 		unlink ("$plugin_name");
 		if (!copy ($subject, "$plugin_name.cpp"))
 		{
-			$this->mark_failure ($subject, "Copy failed");
+			$this->async_failure ($subject, "Copy failed");
 			return;
 		}
 
@@ -88,16 +88,10 @@ class CompilePluginTest extends AsyncTest
 		$async->err_handlers[1] = "fail_on_output";
 		$async->exit_handlers[1] = "fail_on_output";
 
-		$async->final = "finish";
+		$async->final = "async_success";
 
 		$async->start ();
 	}
-
-	function finish ($async)
-	{
-		$this->mark_success ($async->subject);
-	}
-
 }
 
 

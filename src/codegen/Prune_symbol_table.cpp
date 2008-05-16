@@ -136,8 +136,10 @@ public:
 		// if the key is there, we need the global
 		if (var_names.find (*var_name->value) != var_names.end ())
 			out->push_back (in);
-		else
-			; // we dont need the global
+		else 
+		{
+			// we dont need the global
+		}
 	}
 };
 

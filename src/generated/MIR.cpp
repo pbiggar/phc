@@ -163,6 +163,30 @@ PHP_script* PHP_script::clone()
     return clone;
 }
 
+Node* PHP_script::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void PHP_script::assert_valid()
 {
     assert(statements != NULL);
@@ -245,6 +269,14 @@ Class_mod* Class_mod::clone()
     Class_mod* clone = new Class_mod(is_abstract, is_final);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Class_mod::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void Class_mod::assert_valid()
@@ -408,6 +440,36 @@ Signature* Signature::clone()
     return clone;
 }
 
+Node* Signature::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* method_mod_res = method_mod->find(in);
+    if (method_mod_res) return method_mod_res;
+    
+    Node* method_name_res = method_name->find(in);
+    if (method_name_res) return method_name_res;
+    
+    if(this->formal_parameters != NULL)
+    {
+    	List<Formal_parameter*>::const_iterator i;
+    	for(
+    		i = this->formal_parameters->begin();
+    		i != this->formal_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Signature::assert_valid()
 {
     assert(method_mod != NULL);
@@ -518,6 +580,14 @@ Method_mod* Method_mod::clone()
     Method_mod* clone = new Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Method_mod::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void Method_mod::assert_valid()
@@ -688,6 +758,20 @@ Formal_parameter* Formal_parameter::clone()
     return clone;
 }
 
+Node* Formal_parameter::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* type_res = type->find(in);
+    if (type_res) return type_res;
+    
+    Node* var_res = var->find(in);
+    if (var_res) return var_res;
+    
+    return NULL;
+}
+
 void Formal_parameter::assert_valid()
 {
     assert(type != NULL);
@@ -786,6 +870,17 @@ Type* Type::clone()
     return clone;
 }
 
+Node* Type::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    return NULL;
+}
+
 void Type::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
@@ -868,6 +963,14 @@ Attr_mod* Attr_mod::clone()
     Attr_mod* clone = new Attr_mod(is_public, is_protected, is_private, is_static, is_const);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Attr_mod::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void Attr_mod::assert_valid()
@@ -1025,6 +1128,20 @@ Name_with_default* Name_with_default::clone()
     return clone;
 }
 
+Node* Name_with_default::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    Node* expr_res = expr->find(in);
+    if (expr_res) return expr_res;
+    
+    return NULL;
+}
+
 void Name_with_default::assert_valid()
 {
     assert(variable_name != NULL);
@@ -1178,6 +1295,36 @@ Catch* Catch::clone()
     return clone;
 }
 
+Node* Catch::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Catch::assert_valid()
 {
     assert(class_name != NULL);
@@ -1299,6 +1446,20 @@ Array_elem* Array_elem::clone()
     Array_elem* clone = new Array_elem(key, is_ref, val);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Array_elem::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* key_res = key->find(in);
+    if (key_res) return key_res;
+    
+    Node* val_res = val->find(in);
+    if (val_res) return val_res;
+    
+    return NULL;
 }
 
 void Array_elem::assert_valid()
@@ -1465,6 +1626,36 @@ Actual_parameter* Actual_parameter::clone()
     return clone;
 }
 
+Node* Actual_parameter::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* target_res = target->find(in);
+    if (target_res) return target_res;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    if(this->array_indices != NULL)
+    {
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Actual_parameter::assert_valid()
 {
     if(target != NULL) target->assert_valid();
@@ -1558,6 +1749,14 @@ HT_ITERATOR* HT_ITERATOR::clone()
 long HT_ITERATOR::clone_value()
 {
     return value;
+}
+
+Node* HT_ITERATOR::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void HT_ITERATOR::assert_valid()
@@ -1806,6 +2005,55 @@ Class_def* Class_def::clone()
     Class_def* clone = new Class_def(class_mod, class_name, extends, implements, members);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Class_def::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* class_mod_res = class_mod->find(in);
+    if (class_mod_res) return class_mod_res;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    Node* extends_res = extends->find(in);
+    if (extends_res) return extends_res;
+    
+    if(this->implements != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(
+    		i = this->implements->begin();
+    		i != this->implements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	for(
+    		i = this->members->begin();
+    		i != this->members->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
 }
 
 void Class_def::assert_valid()
@@ -2062,6 +2310,49 @@ Interface_def* Interface_def::clone()
     return clone;
 }
 
+Node* Interface_def::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* interface_name_res = interface_name->find(in);
+    if (interface_name_res) return interface_name_res;
+    
+    if(this->extends != NULL)
+    {
+    	List<INTERFACE_NAME*>::const_iterator i;
+    	for(
+    		i = this->extends->begin();
+    		i != this->extends->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    if(this->members != NULL)
+    {
+    	List<Member*>::const_iterator i;
+    	for(
+    		i = this->members->begin();
+    		i != this->members->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Interface_def::assert_valid()
 {
     assert(interface_name != NULL);
@@ -2213,6 +2504,33 @@ Method* Method::clone()
     return clone;
 }
 
+Node* Method::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* signature_res = signature->find(in);
+    if (signature_res) return signature_res;
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Method::assert_valid()
 {
     assert(signature != NULL);
@@ -2319,6 +2637,20 @@ Attribute* Attribute::clone()
     return clone;
 }
 
+Node* Attribute::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* attr_mod_res = attr_mod->find(in);
+    if (attr_mod_res) return attr_mod_res;
+    
+    Node* var_res = var->find(in);
+    if (var_res) return var_res;
+    
+    return NULL;
+}
+
 void Attribute::assert_valid()
 {
     assert(attr_mod != NULL);
@@ -2399,6 +2731,17 @@ Return* Return::clone()
     return clone;
 }
 
+Node* Return::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* expr_res = expr->find(in);
+    if (expr_res) return expr_res;
+    
+    return NULL;
+}
+
 void Return::assert_valid()
 {
     if(expr != NULL) expr->assert_valid();
@@ -2474,6 +2817,17 @@ Static_declaration* Static_declaration::clone()
     Static_declaration* clone = new Static_declaration(var);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Static_declaration::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* var_res = var->find(in);
+    if (var_res) return var_res;
+    
+    return NULL;
 }
 
 void Static_declaration::assert_valid()
@@ -2552,6 +2906,17 @@ Global* Global::clone()
     Global* clone = new Global(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Global::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
 }
 
 void Global::assert_valid()
@@ -2723,6 +3088,46 @@ Try* Try::clone()
     return clone;
 }
 
+Node* Try::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if(this->statements != NULL)
+    {
+    	List<Statement*>::const_iterator i;
+    	for(
+    		i = this->statements->begin();
+    		i != this->statements->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    if(this->catches != NULL)
+    {
+    	List<Catch*>::const_iterator i;
+    	for(
+    		i = this->catches->begin();
+    		i != this->catches->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Try::assert_valid()
 {
     assert(statements != NULL);
@@ -2817,6 +3222,17 @@ Throw* Throw::clone()
     return clone;
 }
 
+Node* Throw::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* expr_res = expr->find(in);
+    if (expr_res) return expr_res;
+    
+    return NULL;
+}
+
 void Throw::assert_valid()
 {
     assert(expr != NULL);
@@ -2895,6 +3311,17 @@ Eval_expr* Eval_expr::clone()
     Eval_expr* clone = new Eval_expr(expr);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Eval_expr::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* expr_res = expr->find(in);
+    if (expr_res) return expr_res;
+    
+    return NULL;
 }
 
 void Eval_expr::assert_valid()
@@ -3020,6 +3447,23 @@ Branch* Branch::clone()
     return clone;
 }
 
+Node* Branch::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    Node* iftrue_res = iftrue->find(in);
+    if (iftrue_res) return iftrue_res;
+    
+    Node* iffalse_res = iffalse->find(in);
+    if (iffalse_res) return iffalse_res;
+    
+    return NULL;
+}
+
 void Branch::assert_valid()
 {
     assert(variable_name != NULL);
@@ -3102,6 +3546,17 @@ Goto* Goto::clone()
     return clone;
 }
 
+Node* Goto::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* label_name_res = label_name->find(in);
+    if (label_name_res) return label_name_res;
+    
+    return NULL;
+}
+
 void Goto::assert_valid()
 {
     assert(label_name != NULL);
@@ -3178,6 +3633,17 @@ Label* Label::clone()
     Label* clone = new Label(label_name);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Label::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* label_name_res = label_name->find(in);
+    if (label_name_res) return label_name_res;
+    
+    return NULL;
 }
 
 void Label::assert_valid()
@@ -3275,6 +3741,20 @@ Foreach_reset* Foreach_reset::clone()
     Foreach_reset* clone = new Foreach_reset(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Foreach_reset::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
 }
 
 void Foreach_reset::assert_valid()
@@ -3376,6 +3856,20 @@ Foreach_next* Foreach_next::clone()
     return clone;
 }
 
+Node* Foreach_next::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
+}
+
 void Foreach_next::assert_valid()
 {
     assert(array != NULL);
@@ -3475,6 +3969,20 @@ Foreach_end* Foreach_end::clone()
     return clone;
 }
 
+Node* Foreach_end::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
+}
+
 void Foreach_end::assert_valid()
 {
     assert(array != NULL);
@@ -3559,6 +4067,17 @@ Reflection* Reflection::clone()
     return clone;
 }
 
+Node* Reflection::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
+}
+
 void Reflection::assert_valid()
 {
     assert(variable_name != NULL);
@@ -3635,6 +4154,14 @@ CLASS_NAME* CLASS_NAME::clone()
     CLASS_NAME* clone = new CLASS_NAME(value);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* CLASS_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void CLASS_NAME::assert_valid()
@@ -3714,6 +4241,14 @@ INTERFACE_NAME* INTERFACE_NAME::clone()
     return clone;
 }
 
+Node* INTERFACE_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void INTERFACE_NAME::assert_valid()
 {
     assert(value != NULL);
@@ -3789,6 +4324,14 @@ METHOD_NAME* METHOD_NAME::clone()
     METHOD_NAME* clone = new METHOD_NAME(value);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* METHOD_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void METHOD_NAME::assert_valid()
@@ -3868,6 +4411,14 @@ VARIABLE_NAME* VARIABLE_NAME::clone()
     return clone;
 }
 
+Node* VARIABLE_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
@@ -3943,6 +4494,14 @@ LABEL_NAME* LABEL_NAME::clone()
     LABEL_NAME* clone = new LABEL_NAME(value);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* LABEL_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void LABEL_NAME::assert_valid()
@@ -4022,6 +4581,14 @@ CAST* CAST::clone()
     return clone;
 }
 
+Node* CAST::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void CAST::assert_valid()
 {
     assert(value != NULL);
@@ -4099,6 +4666,14 @@ OP* OP::clone()
     return clone;
 }
 
+Node* OP::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void OP::assert_valid()
 {
     assert(value != NULL);
@@ -4174,6 +4749,14 @@ CONSTANT_NAME* CONSTANT_NAME::clone()
     CONSTANT_NAME* clone = new CONSTANT_NAME(value);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* CONSTANT_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void CONSTANT_NAME::assert_valid()
@@ -4270,6 +4853,20 @@ Foreach_has_key* Foreach_has_key::clone()
     Foreach_has_key* clone = new Foreach_has_key(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Foreach_has_key::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
 }
 
 void Foreach_has_key::assert_valid()
@@ -4369,6 +4966,20 @@ Foreach_get_key* Foreach_get_key::clone()
     Foreach_get_key* clone = new Foreach_get_key(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Foreach_get_key::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
 }
 
 void Foreach_get_key::assert_valid()
@@ -4489,6 +5100,23 @@ Foreach_get_val* Foreach_get_val::clone()
     return clone;
 }
 
+Node* Foreach_get_val::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* array_res = array->find(in);
+    if (array_res) return array_res;
+    
+    Node* key_res = key->find(in);
+    if (key_res) return key_res;
+    
+    Node* iter_res = iter->find(in);
+    if (iter_res) return iter_res;
+    
+    return NULL;
+}
+
 void Foreach_get_val::assert_valid()
 {
     assert(array != NULL);
@@ -4601,6 +5229,20 @@ Assignment* Assignment::clone()
     return clone;
 }
 
+Node* Assignment::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_res = variable->find(in);
+    if (variable_res) return variable_res;
+    
+    Node* expr_res = expr->find(in);
+    if (expr_res) return expr_res;
+    
+    return NULL;
+}
+
 void Assignment::assert_valid()
 {
     assert(variable != NULL);
@@ -4698,6 +5340,20 @@ Cast* Cast::clone()
     Cast* clone = new Cast(cast, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Cast::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* cast_res = cast->find(in);
+    if (cast_res) return cast_res;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
 }
 
 void Cast::assert_valid()
@@ -4805,6 +5461,20 @@ Unary_op* Unary_op::clone()
     Unary_op* clone = new Unary_op(op, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Unary_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* op_res = op->find(in);
+    if (op_res) return op_res;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
 }
 
 void Unary_op::assert_valid()
@@ -4933,6 +5603,23 @@ Bin_op* Bin_op::clone()
     return clone;
 }
 
+Node* Bin_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* left_res = left->find(in);
+    if (left_res) return left_res;
+    
+    Node* op_res = op->find(in);
+    if (op_res) return op_res;
+    
+    Node* right_res = right->find(in);
+    if (right_res) return right_res;
+    
+    return NULL;
+}
+
 void Bin_op::assert_valid()
 {
     assert(left != NULL);
@@ -5043,6 +5730,20 @@ Constant* Constant::clone()
     return clone;
 }
 
+Node* Constant::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    Node* constant_name_res = constant_name->find(in);
+    if (constant_name_res) return constant_name_res;
+    
+    return NULL;
+}
+
 void Constant::assert_valid()
 {
     if(class_name != NULL) class_name->assert_valid();
@@ -5139,6 +5840,20 @@ Instanceof* Instanceof::clone()
     Instanceof* clone = new Instanceof(variable_name, class_name);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Instanceof::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    return NULL;
 }
 
 void Instanceof::assert_valid()
@@ -5295,6 +6010,36 @@ Variable* Variable::clone()
     return clone;
 }
 
+Node* Variable::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* target_res = target->find(in);
+    if (target_res) return target_res;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    if(this->array_indices != NULL)
+    {
+    	List<VARIABLE_NAME*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void Variable::assert_valid()
 {
     if(target != NULL) target->assert_valid();
@@ -5408,6 +6153,20 @@ Pre_op* Pre_op::clone()
     Pre_op* clone = new Pre_op(op, variable);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Pre_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* op_res = op->find(in);
+    if (op_res) return op_res;
+    
+    Node* variable_res = variable->find(in);
+    if (variable_res) return variable_res;
+    
+    return NULL;
 }
 
 void Pre_op::assert_valid()
@@ -5532,6 +6291,30 @@ Array* Array::clone()
     Array* clone = new Array(array_elems);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Array::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if(this->array_elems != NULL)
+    {
+    	List<Array_elem*>::const_iterator i;
+    	for(
+    		i = this->array_elems->begin();
+    		i != this->array_elems->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
 }
 
 void Array::assert_valid()
@@ -5691,6 +6474,36 @@ Method_invocation* Method_invocation::clone()
     Method_invocation* clone = new Method_invocation(target, method_name, actual_parameters);
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* Method_invocation::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* target_res = target->find(in);
+    if (target_res) return target_res;
+    
+    Node* method_name_res = method_name->find(in);
+    if (method_name_res) return method_name_res;
+    
+    if(this->actual_parameters != NULL)
+    {
+    	List<Actual_parameter*>::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
 }
 
 void Method_invocation::assert_valid()
@@ -5854,6 +6667,33 @@ New* New::clone()
     return clone;
 }
 
+Node* New::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* class_name_res = class_name->find(in);
+    if (class_name_res) return class_name_res;
+    
+    if(this->actual_parameters != NULL)
+    {
+    	List<Actual_parameter*>::const_iterator i;
+    	for(
+    		i = this->actual_parameters->begin();
+    		i != this->actual_parameters->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
 void New::assert_valid()
 {
     assert(class_name != NULL);
@@ -5939,6 +6779,14 @@ INT* INT::clone()
 long INT::clone_value()
 {
     return value;
+}
+
+Node* INT::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void INT::assert_valid()
@@ -6047,6 +6895,14 @@ REAL* REAL::clone()
 double REAL::clone_value()
 {
     return value;
+}
+
+Node* REAL::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void REAL::assert_valid()
@@ -6161,6 +7017,14 @@ STRING* STRING::clone()
     return clone;
 }
 
+Node* STRING::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void STRING::assert_valid()
 {
     assert_value_valid();
@@ -6271,6 +7135,14 @@ bool BOOL::clone_value()
     return value;
 }
 
+Node* BOOL::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
 void BOOL::assert_valid()
 {
     assert_value_valid();
@@ -6353,6 +7225,14 @@ NIL* NIL::clone()
     NIL* clone = new NIL();
     clone->Node::clone_mixin_from(this);
     return clone;
+}
+
+Node* NIL::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
 }
 
 void NIL::assert_valid()

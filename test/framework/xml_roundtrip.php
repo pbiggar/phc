@@ -88,7 +88,7 @@ class XML_roundtrip extends AsyncTest
 		$expected_final_xml = $bundle->outs[0];
 		$final_xml = $bundle->outs[1];
 		if ($final_xml === $expected_final_xml)
-			$this->mark_success ($bundle->subject);
+			$this->async_success ($bundle);
 		else
 		{
 			$pass_string = "";
@@ -114,7 +114,7 @@ class XML_roundtrip extends AsyncTest
 				}
 			}
 
-			$this->mark_failure ("Final output doesnt match expected$pass_string", $bundle);
+			$this->async_failure ("Final output doesnt match expected$pass_string", $bundle);
 		}
 	}
 
