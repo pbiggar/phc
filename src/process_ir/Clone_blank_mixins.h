@@ -16,6 +16,20 @@
 #include "HIR_visitor.h"
 #include "MIR_visitor.h"
 
+// Derived from Collect_all_pointers.h. Collects all nodes in a tree.
+template <class Node, class Visitor>
+class Collect_all_nodes: virtual public Visitor
+{
+public:
+	Collect_all_nodes (List<Node*>* container)
+	: all_nodes (container) {};
+
+   List<Node*>* all_nodes;
+public:
+   void pre_node (Node* in) { all_nodes->push_back (in); }
+};
+
+
 template
 <
 	class Node,
@@ -24,27 +38,36 @@ template
 class Clone_blank_mixins : public Visitor
 {
 private:
-	Node* source;
+	// if a node matches nothing, clone_mixin from here
+	Node* anchor; 
+
+	// All the subnodes of the original nodes. We need to copy attributes not
+	// only from a node, but all its children too (deeply).
+	List<Node*>* deep_originals; 
 
 public:
-	Clone_blank_mixins (Node* source) : source (source)
+	Clone_blank_mixins (Node* anchor, List<Node*>* originals) 
+	: anchor (anchor)
 	{
+		deep_originals = new List<Node*>;
+		tfor_lci (originals, Node, i)
+		{
+			(*i)->visit (new Collect_all_nodes<Node, Visitor> (deep_originals));
+		}
 	}
 
 	void pre_node (Node* in)
 	{
-		if (in->attrs->size () == 0)
-			in->clone_mixin_from (source);
+		tfor_lci (deep_originals, Node, i)
+		{
+			// TODO is there a problem with copying values markers here?
+			if ((*i)->match (in))
+				in->clone_mixin_from (*i);
+			else
+				in->clone_mixin_from (anchor);
+		}
 	}
 };
 
-void clone_blank_mixins_from (AST::Node* source, AST::Node* container);
-void clone_blank_mixins_from (AST::Node* source, List<AST::Statement*>* containers);
-
-void clone_blank_mixins_from (HIR::Node* source, HIR::Node* container);
-void clone_blank_mixins_from (HIR::Node* source, List<HIR::Statement*>* containers);
-
-void clone_blank_mixins_from (MIR::Node* source, MIR::Node* container);
-void clone_blank_mixins_from (MIR::Node* source, List<MIR::Statement*>* containers);
 
 #endif // PHC_CLONE_BLANK_MIXINS

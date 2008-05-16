@@ -310,10 +310,10 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Process_includes.$(OBJEXT) Remove_concat_null.$(OBJEXT) \
 	Remove_parser_temporaries.$(OBJEXT) \
 	Strip_unparser_attributes.$(OBJEXT) Token_conversion.$(OBJEXT) \
-	HIR_unparser.$(OBJEXT) Clone_blank_mixins.$(OBJEXT) \
-	debug.$(OBJEXT) fresh.$(OBJEXT) General.$(OBJEXT) IR.$(OBJEXT) \
-	PHP_unparser.$(OBJEXT) Foreach_uppering.$(OBJEXT) \
-	Goto_uppering.$(OBJEXT) MIR_unparser.$(OBJEXT)
+	HIR_unparser.$(OBJEXT) debug.$(OBJEXT) fresh.$(OBJEXT) \
+	General.$(OBJEXT) IR.$(OBJEXT) PHP_unparser.$(OBJEXT) \
+	Foreach_uppering.$(OBJEXT) Goto_uppering.$(OBJEXT) \
+	MIR_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -724,7 +724,6 @@ src_phc_SOURCES = \
 	src/process_hir/HIR_to_AST.h							\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
-	src/process_ir/Clone_blank_mixins.cpp				\
 	src/process_ir/Clone_blank_mixins.h					\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\
@@ -1166,7 +1165,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clarify.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Clone_blank_mixins.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Comment_ifs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Compile_C.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Po@am__quote@
@@ -2425,20 +2423,6 @@ HIR_unparser.obj: src/process_hir/HIR_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_hir/HIR_unparser.cpp' object='HIR_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o HIR_unparser.obj `if test -f 'src/process_hir/HIR_unparser.cpp'; then $(CYGPATH_W) 'src/process_hir/HIR_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_hir/HIR_unparser.cpp'; fi`
-
-Clone_blank_mixins.o: src/process_ir/Clone_blank_mixins.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clone_blank_mixins.o -MD -MP -MF $(DEPDIR)/Clone_blank_mixins.Tpo -c -o Clone_blank_mixins.o `test -f 'src/process_ir/Clone_blank_mixins.cpp' || echo '$(srcdir)/'`src/process_ir/Clone_blank_mixins.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clone_blank_mixins.Tpo $(DEPDIR)/Clone_blank_mixins.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/Clone_blank_mixins.cpp' object='Clone_blank_mixins.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clone_blank_mixins.o `test -f 'src/process_ir/Clone_blank_mixins.cpp' || echo '$(srcdir)/'`src/process_ir/Clone_blank_mixins.cpp
-
-Clone_blank_mixins.obj: src/process_ir/Clone_blank_mixins.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clone_blank_mixins.obj -MD -MP -MF $(DEPDIR)/Clone_blank_mixins.Tpo -c -o Clone_blank_mixins.obj `if test -f 'src/process_ir/Clone_blank_mixins.cpp'; then $(CYGPATH_W) 'src/process_ir/Clone_blank_mixins.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/Clone_blank_mixins.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Clone_blank_mixins.Tpo $(DEPDIR)/Clone_blank_mixins.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/Clone_blank_mixins.cpp' object='Clone_blank_mixins.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Clone_blank_mixins.obj `if test -f 'src/process_ir/Clone_blank_mixins.cpp'; then $(CYGPATH_W) 'src/process_ir/Clone_blank_mixins.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/Clone_blank_mixins.cpp'; fi`
 
 debug.o: src/process_ir/debug.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT debug.o -MD -MP -MF $(DEPDIR)/debug.Tpo -c -o debug.o `test -f 'src/process_ir/debug.cpp' || echo '$(srcdir)/'`src/process_ir/debug.cpp

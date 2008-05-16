@@ -186,7 +186,6 @@ src_phc_SOURCES =												\
 	src/process_hir/HIR_to_AST.h							\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
-	src/process_ir/Clone_blank_mixins.cpp				\
 	src/process_ir/Clone_blank_mixins.h					\
 	src/process_ir/debug.cpp								\
 	src/process_ir/debug.h									\

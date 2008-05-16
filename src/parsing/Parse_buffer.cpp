@@ -41,6 +41,7 @@ operator<<(NS##_parse_buffer& out, NS::Node* in)									\
 	in->visit (new NS##_unparser (ss, true));											\
 	out.ss << ss.str ();																		\
 																									\
+	out.used_nodes.push_back (in);														\
 	return out;																					\
 }																									\
 																									\

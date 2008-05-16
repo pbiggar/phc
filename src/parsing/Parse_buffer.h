@@ -37,9 +37,12 @@ class Parse_buffer
 	/* TODO: make these private and give protected access to << via */
 	/* a friend declaration. */
 public:
-	/* provides line numbers */
 	List<Statement*>* stmts;
 	stringstream ss;
+
+	/* These nodes are unparsed into the stream, so we need to find
+	 * matching statements into which to copy their attributes. */
+	List<Node*> used_nodes;
 
 public:
 
@@ -69,9 +72,9 @@ public:
 		else
 			script = dynamic_cast<PHP_script*> (ir->as_MIR ());
 
-		script->visit (new Clone_blank_mixins<Node, Visitor> (anchor));
+		script->visit (new Clone_blank_mixins<Node, Visitor> (anchor, &used_nodes));
 		stmts->push_back_all (script->statements);
-	};
+	}
 };
 
 #define create_parse_buffer_declaration(NS)											\
