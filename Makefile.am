@@ -425,56 +425,57 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 #   the correct way is so onerous, that this way seems much better.
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
-src/generated/AST.cpp 				\
-src/generated/AST.h 					\
-src/generated/AST_transform.cpp 	\
-src/generated/AST_transform.h		\
-src/generated/AST_visitor.cpp 	\
-src/generated/AST_visitor.h 		\
-src/generated/AST_factory.cpp		\
-src/generated/AST_factory.h		\
-src/generated/AST_fold.h			\
-	: src/generated_src/ast.tea @maketea@
+src/generated/AST.cpp: 				src/generated/AST.h
+src/generated/AST_transform.cpp:	src/generated/AST.h
+src/generated/AST_transform.h:	src/generated/AST.h
+src/generated/AST_visitor.cpp:	src/generated/AST.h
+src/generated/AST_visitor.h:		src/generated/AST.h
+src/generated/AST_factory.cpp:	src/generated/AST.h
+src/generated/AST_factory.h:		src/generated/AST.h
+src/generated/AST_fold.h:			src/generated/AST.h
+#src/generated/schema.xsd:			src/generated/AST.h
+
+src/generated/AST.h: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd
 
-src/generated/HIR.cpp 				\
-src/generated/HIR.h 					\
-src/generated/HIR_transform.cpp 	\
-src/generated/HIR_transform.h		\
-src/generated/HIR_visitor.cpp 	\
-src/generated/HIR_visitor.h 		\
-src/generated/HIR_factory.cpp		\
-src/generated/HIR_factory.h		\
-src/generated/HIR_fold.h			\
-	: src/generated_src/hir.tea @maketea@
+src/generated/HIR.cpp: 				src/generated/HIR.h
+src/generated/HIR_transform.cpp:	src/generated/HIR.h
+src/generated/HIR_transform.h:	src/generated/HIR.h
+src/generated/HIR_visitor.cpp:	src/generated/HIR.h
+src/generated/HIR_visitor.h:		src/generated/HIR.h
+src/generated/HIR_factory.cpp:	src/generated/HIR.h
+src/generated/HIR_factory.h:		src/generated/HIR.h
+src/generated/HIR_fold.h:			src/generated/HIR.h
+#src/generated/schema.xsd:			src/generated/HIR.h
+
+src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd#
 
-src/generated/MIR.cpp 				\
-src/generated/MIR.h 					\
-src/generated/MIR_transform.cpp 	\
-src/generated/MIR_transform.h		\
-src/generated/MIR_visitor.cpp 	\
-src/generated/MIR_visitor.h 		\
-src/generated/MIR_factory.cpp		\
-src/generated/MIR_factory.h		\
-src/generated/MIR_fold.h			\
-	: src/generated_src/mir.tea @maketea@
+src/generated/MIR.cpp: 				src/generated/MIR.h
+src/generated/MIR_transform.cpp:	src/generated/MIR.h
+src/generated/MIR_transform.h:	src/generated/MIR.h
+src/generated/MIR_visitor.cpp:	src/generated/MIR.h
+src/generated/MIR_visitor.h:		src/generated/MIR.h
+src/generated/MIR_factory.cpp:	src/generated/MIR.h
+src/generated/MIR_factory.h:		src/generated/MIR.h
+src/generated/MIR_fold.h:			src/generated/MIR.h
+#src/generated/schema.xsd:			src/generated/MIR.h
+
+src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
-src/generated/cmdline.c \
+src/generated/cmdline.c: src/generated/cmdline.h
 src/generated/cmdline.h: src/generated_src/phc.ggo
 	@gengetopt@ --unamed-opts --input=src/generated_src/phc.ggo --file-name=src/generated/cmdline
 
 src/generated/lex.yy.cc: src/generated_src/php_scanner.lex
 	@flex@ -s -osrc/generated/lex.yy.cc src/generated_src/php_scanner.lex
 
-src/generated/php_parser.tab.cpp src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
+src/generated/php_parser.tab.cpp: src/generated/php_parser.tab.hpp
+src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
 	@bison@ -o src/generated/php_parser.tab.cpp -d src/generated_src/php_parser.ypp
 
 # - Without the second \@, autoconf with replace the @CFLAGS\@ etc
