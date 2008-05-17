@@ -565,6 +565,13 @@ AM_CPPFLAGS = \
 # hear about. 
 AM_CXXFLAGS = -Wextra -Wno-unused-parameter
 
+# Note about warnings: automake does not support per-file flags. If they did,
+# we could set -Wall -Wextra -Werror, and fix things as they came up. However,
+# since we do not control some of our source (Zend headers, generated code from
+# other tools), we cannot do this. There is an alternative (google for
+# 'automake per-object flag emulation'), but this is cumbersome, since we have
+# 5 or 6 files which require special rules.
+
 # -export-dynammic: Special libtool flag for later plugin loading
 # -R: search for libraries (ie libphp5) in php's lib install dir
 src_phc_LDFLAGS = -export-dynamic
