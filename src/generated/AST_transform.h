@@ -58,6 +58,7 @@ public:
     virtual void pre_throw(Throw* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void pre_nop(Nop* in, List<Statement*>* out);
+    virtual Foreign* pre_foreign(Foreign* in);
     virtual void pre_branch(Branch* in, List<Statement*>* out);
     virtual void pre_goto(Goto* in, List<Statement*>* out);
     virtual void pre_label(Label* in, List<Statement*>* out);
@@ -135,6 +136,7 @@ public:
     virtual void post_throw(Throw* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void post_nop(Nop* in, List<Statement*>* out);
+    virtual Foreign* post_foreign(Foreign* in);
     virtual void post_branch(Branch* in, List<Statement*>* out);
     virtual void post_goto(Goto* in, List<Statement*>* out);
     virtual void post_label(Label* in, List<Statement*>* out);
@@ -212,6 +214,7 @@ public:
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_nop(Nop* in);
+    virtual void children_foreign(Foreign* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);

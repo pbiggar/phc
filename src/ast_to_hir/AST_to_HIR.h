@@ -56,6 +56,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Throw*,				// Throw*
  HIR::Eval_expr*,			// Eval_expr*
  HIR::Statement*,			// Nop*
+ HIR::Foreign*,			// Foreign*
  HIR::Branch*,				// Branch*
  HIR::Goto*,				// Goto*
  HIR::Label*,				// Label*

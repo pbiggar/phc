@@ -36,6 +36,7 @@ Statement ::=
 	| Declare | Nop
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
+	| Foreign
 	;
 
 {-
@@ -90,6 +91,7 @@ Throw ::= Expr ;
 Eval_expr ::= Expr ;
 
 Nop ::= ;
+Foreign ::= ;
 
 {-
    HIR constructs (without a PHP equivalent)
@@ -124,6 +126,7 @@ Expr ::=
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
+	| Foreign
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
@@ -748,4 +751,10 @@ public:
 	{
 		set_source_rep (source_rep);
 	}
+};
+
+class Foreign
+{
+public:
+       Object* foreign;
 };

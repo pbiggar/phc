@@ -49,6 +49,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Catch*,				// Catch*
  MIR::Throw*,				// Throw*
  MIR::Eval_expr*,			// Eval_expr*
+ MIR::Foreign*,			// Foreign*
  MIR::Branch*,				// Branch*
  MIR::Goto*,				// Goto*
  MIR::Label*,				// Label*

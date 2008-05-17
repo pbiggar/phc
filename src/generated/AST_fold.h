@@ -52,6 +52,7 @@ template
  class _Throw,
  class _Eval_expr,
  class _Nop,
+ class _Foreign,
  class _Branch,
  class _Goto,
  class _Label,
@@ -556,6 +557,11 @@ public:
 		return fold_impl_nop(in);
 	}
 
+	virtual _Foreign fold_foreign(Foreign* in)
+	{
+		return fold_impl_foreign(in);
+	}
+
 	virtual _Branch fold_branch(Branch* in)
 	{
 		_Expr expr = 0;
@@ -898,6 +904,7 @@ public:
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Nop fold_impl_nop(Nop* orig) { assert(0); };
+	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
@@ -1023,6 +1030,8 @@ public:
 				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
 			case Foreach_get_val::ID:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Array_elem::ID:
@@ -1159,6 +1168,8 @@ public:
 				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
 			case Foreach_end::ID:
 				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 		}
 		assert(0);
 	}
@@ -1227,6 +1238,8 @@ public:
 				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
 			case Foreach_get_val::ID:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 		}
 		assert(0);
 	}
@@ -1325,6 +1338,8 @@ public:
 				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
 			case Foreach_get_val::ID:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 		}
@@ -1411,6 +1426,8 @@ public:
 				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
 			case Foreach_end::ID:
 				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case Switch_case::ID:
 				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
@@ -1488,6 +1505,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

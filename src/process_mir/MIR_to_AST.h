@@ -44,6 +44,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Catch*,				// Catch*
  AST::Throw*,				// Throw*
  AST::Eval_expr*,			// Eval_expr*
+ AST::Foreign*,			// Foreign*
  AST::Branch*,				// Branch*
  AST::Goto*,				// Goto*
  AST::Label*,				// Label*
