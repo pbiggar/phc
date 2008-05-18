@@ -422,7 +422,7 @@ void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
 
 void AST_unparser::children_ht_iterator(HT_ITERATOR* in)
 {
-	echo ("$");
+	// we leave out the $ to mimic VARIABLE_NAME
 	echo (in->get_value_as_string ());
 }
 
