@@ -320,8 +320,14 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			AST::PHP_script* ast = NULL;
 
 			// TODO uppering should be built in to this
+			// TODO this should be built into to MIR_unparser
+			// TODO remove code duplication from Obfuscate.h
 			if (in->is_MIR ())
-				ast = (new MIR_to_AST ())->fold_php_script (in->as_MIR ());
+			{
+				MIR::PHP_script* mir = in->as_MIR ();
+				mir->transform_children (new Foreach_uppering);
+				ast = (new MIR_to_AST ())->fold_php_script (mir);
+			}
 
 			// TODO we shouldnt upper here
 			if (in->is_HIR ())
@@ -330,7 +336,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			if (in->is_AST())
 				ast = in->as_AST()->clone ();
 
-			ast->transform_children (new Foreach_uppering);
+			// TODO: this should happen in the MIR
 			ast->visit (new Goto_uppering);
 			ast->visit (new AST_unparser);
 		}
