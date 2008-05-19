@@ -32,7 +32,7 @@ public:
 
 		AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
 		ast->visit (new Goto_uppering);
-		ast->visit (new AST_unparser);
+		AST_unparser().unparse (ast);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

@@ -15,9 +15,9 @@
 
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
-
 public:
 	AST_unparser(ostream& os = cout, bool in_php = false);
+	void unparse (IR::Node* in);
 
 public:
 	void children_php_script(AST::PHP_script* in);
@@ -72,17 +72,17 @@ public:
 	void children_branch (AST::Branch* in);
 	void children_goto(AST::Goto* in);
 	void children_label(AST::Label* in);
-   void children_foreach_reset(AST::Foreach_reset* in);
-   void children_foreach_next(AST::Foreach_next* in);
-   void children_foreach_end(AST::Foreach_end* in);
-   void children_foreach_has_key(AST::Foreach_has_key* in);
-   void children_foreach_get_key(AST::Foreach_get_key* in);
-   void children_foreach_get_val(AST::Foreach_get_val* in);
+	void children_foreach_reset(AST::Foreach_reset* in);
+	void children_foreach_next(AST::Foreach_next* in);
+	void children_foreach_end(AST::Foreach_end* in);
+	void children_foreach_has_key(AST::Foreach_has_key* in);
+	void children_foreach_get_key(AST::Foreach_get_key* in);
+	void children_foreach_get_val(AST::Foreach_get_val* in);
 	void children_nop(AST::Nop* in);
 	void children_name_with_default(AST::Name_with_default* in);
 
 	void children_interface_name(AST::INTERFACE_NAME* in);
-   void children_ht_iterator(AST::HT_ITERATOR* in);
+	void children_ht_iterator(AST::HT_ITERATOR* in);
 	void children_class_name(AST::CLASS_NAME* in);
 	void children_method_name(AST::METHOD_NAME* in);
 	void children_variable_name(AST::VARIABLE_NAME* in);

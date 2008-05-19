@@ -109,6 +109,13 @@ AST_unparser::AST_unparser (ostream& os, bool in_php) : PHP_unparser (os, in_php
 	this->in_php = in_php;
 }
 
+void AST_unparser::unparse (IR::Node* in)
+{
+	Node* ast = dynamic_cast<Node*> (in);
+	assert (ast);
+	ast->visit (this);
+}
+
 void AST_unparser::children_php_script(PHP_script* in)
 {
   if(in->attrs->has("phc.unparser.hash_bang") && !args_info.no_hash_bang_flag)

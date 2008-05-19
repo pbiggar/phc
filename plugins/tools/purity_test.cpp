@@ -809,7 +809,7 @@ public:
 		{
 			AST_unparser unparser;
 			cout << "Impure: ";
-			unparser.visit_expr(impurity);
+			unparser.unparse (impurity);
 			cout << endl;
 		}
 	}

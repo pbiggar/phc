@@ -38,7 +38,7 @@ NS##_parse_buffer::NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, NS::Node* in)									\
 {																									\
 	stringstream ss;																			\
-	in->visit (new NS##_unparser (ss, true));											\
+	NS##_unparser (ss, true).unparse (in);												\
 	out.ss << ss.str ();																		\
 																									\
 	out.used_nodes.push_back (in);														\

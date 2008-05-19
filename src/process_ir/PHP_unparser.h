@@ -19,6 +19,7 @@ class PHP_unparser
 // of standard output
 public:
 	PHP_unparser(ostream& os = cout, bool in_php = false);
+	virtual void unparse (IR::Node* in) = 0;
 
 // Interface
 protected:

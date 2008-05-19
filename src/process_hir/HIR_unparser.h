@@ -8,20 +8,17 @@
 #ifndef PHC_HIR_UNPARSER
 #define PHC_HIR_UNPARSER
 
-#include "HIR_visitor.h"
+#include "HIR.h"
 #include "process_ast/AST_unparser.h"
 
-
-class HIR_unparser : public virtual HIR::Visitor
+class HIR_unparser
 {
-protected:
-	AST_unparser ast_unparser;
-	HIR::Node* entry_node;
-
 public:
 	HIR_unparser(ostream& os = cout, bool in_php = false);
-	void pre_node (HIR::Node* in);
-	void post_node (HIR::Node* in);
+	void unparse (IR::Node* in);
+
+protected:
+	AST_unparser ast_unparser;
 };
 
 #endif // PHC_HIR_UNPARSER 

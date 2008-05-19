@@ -8,20 +8,17 @@
 #ifndef PHC_MIR_UNPARSER
 #define PHC_MIR_UNPARSER
 
-#include "MIR_visitor.h"
+#include "MIR.h"
 #include "process_ast/AST_unparser.h"
 
-
-class MIR_unparser : public virtual MIR::Visitor
+class MIR_unparser
 {
-protected:
-	AST_unparser ast_unparser;
-	MIR::Node* entry_node;
-
 public:
 	MIR_unparser(ostream& os = cout, bool in_php = false);
-	void pre_node (MIR::Node* in);
-	void post_node (MIR::Node* in);
+	void unparse (IR::Node* in);
+
+protected:
+	AST_unparser ast_unparser;
 };
 
 #endif // PHC_MIR_UNPARSER 

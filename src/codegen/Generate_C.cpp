@@ -2152,7 +2152,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
-	in->visit (new MIR_unparser (ss));
+	MIR_unparser (ss).unparse (in);
 
 	while (not ss.eof ())
 	{

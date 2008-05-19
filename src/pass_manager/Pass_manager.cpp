@@ -309,7 +309,10 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			in->visit (new AST_unparser (), new HIR_unparser (), new MIR_unparser ());
+			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
+			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
+			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
+			else assert (0);
 		}
 	}
 
@@ -338,7 +341,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 			// TODO: this should happen in the MIR
 			ast->visit (new Goto_uppering);
-			ast->visit (new AST_unparser);
+			AST_unparser().unparse (ast);
 		}
 	}
 

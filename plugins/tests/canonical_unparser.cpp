@@ -70,7 +70,7 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 
 extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
 {
-	in->visit (new Canonical_unparser ());
+	Canonical_unparser ().unparse (in);
 
 	// HACK: 
 	// The pass queue is used multiple times, when we parse some code within the

@@ -157,7 +157,7 @@ Expr* PHP::fold_constant_expr (Expr* in)
 	clone->attrs->erase_with_prefix ("phc.unparser");
 
 	stringstream ss;
-	clone->visit (new AST_unparser (ss, true));
+	AST_unparser (ss, true).unparse (clone);
 	String* code = new String (ss.str());
 
 
