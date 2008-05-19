@@ -9,15 +9,25 @@
 	$filename = $argv[1];
 	$base = basename ($filename, ".php");
 
-	// create .db files in the current directory
-	$opt_verbose = true;
-	var_dump (complete_exec ("rm *.db"));
-	var_dump (complete_exec ("src/phc --sdump=ast $filename > $base.clp"));
-	var_dump (complete_exec ("3rdparty/clpa/bin/clpa --debug parse_warnings $base.clp"));
-#	var_dump (complete_exec ("rm $base.clp"));
+	$commands = array (
+		// create .db files in the current directory
+		"rm -f *.db",
+		"src/phc --sdump=mir $filename > $base.clp",
+		"3rdparty/clpa/bin/clpa --debug parse_warnings $base.clp",
+		"rm $base.clp",
 
-	// run clpa with a sample analysis on it
-	var_dump (complete_exec ("3rdparty/clpa/bin/clpa src/analyse/cfgdot.clp"));
+		// run clpa with a sample analysis on it
+		"3rdparty/clpa/bin/clpa src/analyse/cfgdot.clp");
+
+	foreach ($commands as $command)
+	{
+		print "Command: $command\n";
+		list ($out, $err, $exit) = complete_exec ($command);
+		if ($out or $err or $exit)
+			print "out: '$out', err: '$err', exit: '$exit'\n";
+		if ($exit !== 0)
+			die ("Bad exit code\n");
+	}
 
 
 ?>

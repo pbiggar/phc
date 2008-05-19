@@ -10,11 +10,7 @@
 
 #include <iostream>
 #include <stack>
-#include "lib/base64.h"
-#include "lib/demangle.h"
-#include "lib/error.h"
-#include "lib/String.h"
-#include "lib/List.h"
+#include "General.h"
 
 /* We want to dump our IR pretty much directly into Calypso, using the
  * predicates defined by maketea.
@@ -119,13 +115,22 @@ protected:
 	stack<Object*> ids;
 	stack<String*> types;
 	String* filename; // due to bugs, it may not be available everywhere
+	String* uc_prefix;
+	String* prefix;
 
 public:
 
 	void pre_php_script (Script* in)
 	{
-		cout << "import \"src/generated/AST.clp\".\n" << endl;
 		filename = in->get_filename ();
+
+		// get prefix in upper and lower case
+		uc_prefix = s (demangle (in, true));
+		uc_prefix = s (uc_prefix->substr (0, 3));
+		prefix  = s (*uc_prefix);
+		prefix->toLower ();
+
+		cout << "import \"src/generated/" << *uc_prefix << ".clp\".\n" << endl;
 	}
 
 	/* BOOLs are pushed for markers */
@@ -313,7 +318,7 @@ public:
 
 		// Print out the predicate.
 		cout 
-			<< "+ast(\"" << *filename << "\")->ast_" << demangle(in, false) << " (\n\t"
+			<< "+" << *prefix << "(\"" << *filename << "\")->" << *prefix << "_" << demangle(in, false) << " (\n\t"
 			<< *get_subject_id_string (in);
 
 		for_lci (params, String, i)
@@ -345,7 +350,7 @@ protected:
 		int id = in->attrs->get_integer ("phc.clpa.id")->value();
 
 		stringstream ss;
-		ss << "t_ast_" << demangle(in, false) 
+		ss << "t_" << *prefix << "_" << demangle(in, false) 
 			<< "_id {" << id << "}";
 		return new String(ss.str());
 	}
@@ -361,16 +366,16 @@ protected:
 		stringstream ss;
 		if (*base_type == *type)
 		{
-			ss << "t_ast_" << *type
+			ss << "t_" << *prefix << "_" << *type
 				<< "_id {" << id << "}";
 		}
 		else
 		{
 			// see comment at visit_type().
-			ss << "t_ast_" << *base_type
-				<< "_t_ast_" << *type
+			ss << "t_" << *prefix << "_" << *base_type
+				<< "_t_" << *prefix << "_" << *type
 				<< "_id { "
-				<< "t_ast_" << *type 
+				<< "t_" << *prefix << "_" << *type
 				<< "_id {" << id << "} }";
 		}
 
