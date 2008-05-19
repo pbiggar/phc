@@ -2213,6 +2213,10 @@ public:
 		return NULL;
 	}
 
+	virtual void find_all(Node* in, List<Node*>* out)
+	{
+		assert (0); // I'm not sure what this would mean
+	}
 public:
 	static const int ID = 63;
 	int classid()

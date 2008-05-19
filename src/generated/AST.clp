@@ -1,3 +1,4 @@
+session ast (PROG:string).
 
 % Type not supplied by Saturn
 type null.
