@@ -21,8 +21,13 @@
  *
  * A simple program would look like this:
  *
+ * session ast (PROG:string).
+ *
  * import "src/generated/AST.clp".
  * 
+ * % this is what they should look like, but we've abreviated
+ * % +ast("myprog.php")->ast_VARIABLE_NAME (
+ *
  * +ast_VARIABLE_NAME (
  * 	t_ast_VARIABLE_NAME_id {5},
  * 	"x").
@@ -71,7 +76,7 @@
  *	The first parameter is the ID. So the PHP_script 1 has 1 param,
  *	which is a list nodes 2 and 9.
  *
- *	The type system is defined using maketea, in src/generated/*.clp. Each IR
+ *	The type system is defined using maketea, in src/generated/?.clp. Each IR
  *	type has an associated ast_TYPE, which is a predicate, and a type
  *	t_ast_TYPE. Each predicate has its initial parameter being its ID, and
  *	subsequent parameters are the IDs of its arguments. Lists use Calypsos
@@ -113,12 +118,14 @@ class CLPA_unparser : public Visitor
 protected:
 	stack<Object*> ids;
 	stack<String*> types;
+	String* filename; // due to bugs, it may not be available everywhere
 
 public:
 
 	void pre_php_script (Script* in)
 	{
 		cout << "import \"src/generated/AST.clp\".\n" << endl;
+		filename = in->get_filename ();
 	}
 
 	/* BOOLs are pushed for markers */
@@ -306,7 +313,7 @@ public:
 
 		// Print out the predicate.
 		cout 
-			<< "+ast_" << demangle(in, false) << " (\n\t"
+			<< "+ast(\"" << *filename << "\")->ast_" << demangle(in, false) << " (\n\t"
 			<< *get_subject_id_string (in);
 
 		for_lci (params, String, i)
