@@ -42,11 +42,31 @@ class Parse_clp extends AsyncTest
 		$async->out_handlers[0] = "fail_on_output";
 
 		$async->commands[1]		= "3rdparty/clpa/bin/clpa $clp_name";
-		$async->err_handlers[1] = "fail_on_output";
-		$async->out_handlers[1] = "fail_on_output";
+		$async->err_handlers[1] = "expect_parse_error";
+		$async->out_handlers[1] = "expect_analysis_warning";
+		$async->clp_name = $clp_name;
 
 		$async->final = "async_success";
 		$async->start ();
 	}
+
+	function expect_parse_error (&$stream, $bundle)
+	{
+		if ($stream === "parse error: Warnings treated as errors\n")
+			return $stream;
+
+		$this->async_failure ("Parse error not present", $bundle);
+		return false;
+	}
+
+	function expect_analysis_warning (&$stream, $bundle)
+	{
+		if (preg_match ("!^.*saturn: 3rdparty/clpa/bin/clpa {$bundle->clp_name}\nanalysis: warning: No 'analyze session_name\(...\)' directive supplied; using empty session.\n$!m", $stream))
+			return $stream;
+
+		$this->async_failure ("Warning not present", $bundle);
+		return false;
+	}
+
 }
 ?>
