@@ -66,11 +66,15 @@ require_once ("lib/plugin_test.php");
 require_once ("lib/regression.php");
 require_once ("lib/compare_backwards.php");
 require_once ("lib/pass_dump.php");
+require_once ("lib/parse_clp.php");
 
 // Add tests to list
 $tests = array ();
 
 require_once ("basic_parse_test.php");
+$tests[] = new Parse_clp ("ast");
+$tests[] = new Parse_clp ("hir");
+$tests[] = new Parse_clp ("mir");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");
 $tests[] = new CompareBackwards ("sua",			"dump",	"cb_ast");
