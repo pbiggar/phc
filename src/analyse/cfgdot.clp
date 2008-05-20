@@ -1,7 +1,6 @@
-import "src/generated/AST.clp".
+import "src/generated/MIR.clp".
 
-analyze session_name("ast").
+analyze session_name("mir").
 
-?- ast_VARIABLE_NAME (A,B).
-?- ast_Nop (A).
+?- mir_VARIABLE_NAME (A,B).
 
