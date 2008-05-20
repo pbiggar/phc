@@ -52,15 +52,10 @@ template
  class _Throw,
  class _Eval_expr,
  class _Nop,
+ class _Foreign,
  class _Branch,
  class _Goto,
  class _Label,
- class _Foreach_reset,
- class _Foreach_next,
- class _Foreach_end,
- class _Foreach_has_key,
- class _Foreach_get_key,
- class _Foreach_get_val,
  class _Expr,
  class _Literal,
  class _Assignment,
@@ -91,7 +86,6 @@ template
  class _Commented_node,
  class _Identifier,
  class _Source_rep,
- class _HT_ITERATOR,
  class _CLASS_NAME,
  class _INTERFACE_NAME,
  class _METHOD_NAME,
@@ -556,6 +550,11 @@ public:
 		return fold_impl_nop(in);
 	}
 
+	virtual _Foreign fold_foreign(Foreign* in)
+	{
+		return fold_impl_foreign(in);
+	}
+
 	virtual _Branch fold_branch(Branch* in)
 	{
 		_Expr expr = 0;
@@ -579,62 +578,6 @@ public:
 		_LABEL_NAME label_name = 0;
 		if(in->label_name != NULL) label_name = fold_label_name(in->label_name);
 		return fold_impl_label(in, label_name);
-	}
-
-	virtual _Foreach_reset fold_foreach_reset(Foreach_reset* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_reset(in, array, iter);
-	}
-
-	virtual _Foreach_next fold_foreach_next(Foreach_next* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_next(in, array, iter);
-	}
-
-	virtual _Foreach_end fold_foreach_end(Foreach_end* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_end(in, array, iter);
-	}
-
-	virtual _Foreach_has_key fold_foreach_has_key(Foreach_has_key* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_has_key(in, array, iter);
-	}
-
-	virtual _Foreach_get_key fold_foreach_get_key(Foreach_get_key* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_get_key(in, array, iter);
-	}
-
-	virtual _Foreach_get_val fold_foreach_get_val(Foreach_get_val* in)
-	{
-		_VARIABLE_NAME array = 0;
-		if(in->array != NULL) array = fold_variable_name(in->array);
-		_VARIABLE_NAME key = 0;
-		if(in->key != NULL) key = fold_variable_name(in->key);
-		_HT_ITERATOR iter = 0;
-		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_get_val(in, array, key, iter);
 	}
 
 	virtual _Assignment fold_assignment(Assignment* in)
@@ -898,15 +841,10 @@ public:
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Nop fold_impl_nop(Nop* orig) { assert(0); };
+	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
-	virtual _Foreach_reset fold_impl_foreach_reset(Foreach_reset* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_next fold_impl_foreach_next(Foreach_next* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_end fold_impl_foreach_end(Foreach_end* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
 	virtual _List_assignment fold_impl_list_assignment(List_assignment* orig, List<_List_element>* list_elements, _Expr expr) { assert(0); };
@@ -928,7 +866,6 @@ public:
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Expr expr) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 
-	virtual _HT_ITERATOR fold_ht_iterator(HT_ITERATOR* orig) { assert(0); };
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
@@ -1017,12 +954,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreach_has_key::ID:
-				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-			case Foreach_get_key::ID:
-				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-			case Foreach_get_val::ID:
-				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Array_elem::ID:
@@ -1077,12 +1010,6 @@ public:
 				return fold_goto(dynamic_cast<Goto*>(in));
 			case Branch::ID:
 				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
 			case Switch_case::ID:
 				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
@@ -1099,8 +1026,6 @@ public:
 				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
 			case DIRECTIVE_NAME::ID:
 				return fold_directive_name(dynamic_cast<DIRECTIVE_NAME*>(in));
-			case HT_ITERATOR::ID:
-				return fold_ht_iterator(dynamic_cast<HT_ITERATOR*>(in));
 		}
 		assert(0);
 	}
@@ -1153,12 +1078,8 @@ public:
 				return fold_goto(dynamic_cast<Goto*>(in));
 			case Branch::ID:
 				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 		}
 		assert(0);
 	}
@@ -1221,12 +1142,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreach_has_key::ID:
-				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-			case Foreach_get_key::ID:
-				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-			case Foreach_get_val::ID:
-				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 		}
 		assert(0);
 	}
@@ -1319,12 +1236,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreach_has_key::ID:
-				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-			case Foreach_get_key::ID:
-				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-			case Foreach_get_val::ID:
-				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 		}
@@ -1405,12 +1318,8 @@ public:
 				return fold_goto(dynamic_cast<Goto*>(in));
 			case Branch::ID:
 				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case Switch_case::ID:
 				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
@@ -1488,6 +1397,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

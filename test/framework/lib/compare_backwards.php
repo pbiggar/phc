@@ -31,8 +31,6 @@ class CompareBackwards extends AsyncTest
 	{
 		$this->last_pass = $last_pass;
 		$this->name = "cb_$last_pass";
-		if ($dependency != "BasicParseTest")
-			$dependency = "cb_$dependency";
 
 		// this might be udump
 		$this->dump = $dump;

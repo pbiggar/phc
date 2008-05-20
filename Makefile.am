@@ -24,6 +24,13 @@ bin_PROGRAMS = src/phc
 # hear about. 
 AM_CXXFLAGS = -Wextra -Wno-unused-parameter
 
+# Note about warnings: automake does not support per-file flags. If they did,
+# we could set -Wall -Wextra -Werror, and fix things as they came up. However,
+# since we do not control some of our source (Zend headers, generated code from
+# other tools), we cannot do this. There is an alternative (google for
+# 'automake per-object flag emulation'), but this is cumbersome, since we have
+# 5 or 6 files which require special rules.
+
 # -export-dynammic: Special libtool flag for later plugin loading
 # -R: search for libraries (ie libphp5) in php's lib install dir
 src_phc_LDFLAGS = -export-dynamic
@@ -189,7 +196,6 @@ src_phc_SOURCES =												\
 	src/process_hir/HIR_to_AST.h							\
 	src/process_hir/HIR_unparser.cpp						\
 	src/process_hir/HIR_unparser.h						\
-	src/process_ir/Clone_blank_mixins.cpp				\
 	src/process_ir/Clone_blank_mixins.h					\
 	src/process_ir/CLPA_unparser.h						\
 	src/process_ir/debug.cpp								\
@@ -430,59 +436,61 @@ plugins_tutorials_show_traversal_order_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 #   the correct way is so onerous, that this way seems much better.
 # - sed (also rm, mv and echo, below) are amongst the allowed programs to use
 #   in a Makefile. See GNU coding standards 7.2.2.
-src/generated/AST.clp 				\
-src/generated/AST.cpp 				\
-src/generated/AST.h 					\
-src/generated/AST_transform.cpp 	\
-src/generated/AST_transform.h		\
-src/generated/AST_visitor.cpp 	\
-src/generated/AST_visitor.h 		\
-src/generated/AST_factory.cpp		\
-src/generated/AST_factory.h		\
-src/generated/AST_fold.h			\
-	: src/generated_src/ast.tea @maketea@
+
+src/generated/AST.clp: 				src/generated/AST.h
+src/generated/AST.cpp: 				src/generated/AST.h
+src/generated/AST_transform.cpp:	src/generated/AST.h
+src/generated/AST_transform.h:	src/generated/AST.h
+src/generated/AST_visitor.cpp:	src/generated/AST.h
+src/generated/AST_visitor.h:		src/generated/AST.h
+src/generated/AST_factory.cpp:	src/generated/AST.h
+src/generated/AST_factory.h:		src/generated/AST.h
+src/generated/AST_fold.h:			src/generated/AST.h
+#src/generated/schema.xsd:			src/generated/AST.h
+
+src/generated/AST.h: src/generated_src/ast.tea @maketea@
 	@maketea@ src/generated_src/ast.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd
 
-src/generated/HIR.clp 				\
-src/generated/HIR.cpp 				\
-src/generated/HIR.h 					\
-src/generated/HIR_transform.cpp 	\
-src/generated/HIR_transform.h		\
-src/generated/HIR_visitor.cpp 	\
-src/generated/HIR_visitor.h 		\
-src/generated/HIR_factory.cpp		\
-src/generated/HIR_factory.h		\
-src/generated/HIR_fold.h			\
-	: src/generated_src/hir.tea @maketea@
+src/generated/HIR.clp: 				src/generated/HIR.h
+src/generated/HIR.cpp: 				src/generated/HIR.h
+src/generated/HIR_transform.cpp:	src/generated/HIR.h
+src/generated/HIR_transform.h:	src/generated/HIR.h
+src/generated/HIR_visitor.cpp:	src/generated/HIR.h
+src/generated/HIR_visitor.h:		src/generated/HIR.h
+src/generated/HIR_factory.cpp:	src/generated/HIR.h
+src/generated/HIR_factory.h:		src/generated/HIR.h
+src/generated/HIR_fold.h:			src/generated/HIR.h
+#src/generated/schema.xsd:			src/generated/HIR.h
+
+src/generated/HIR.h: src/generated_src/hir.tea @maketea@
 	@maketea@ src/generated_src/hir.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd#
 
-src/generated/MIR.clp 				\
-src/generated/MIR.cpp 				\
-src/generated/MIR.h 					\
-src/generated/MIR_transform.cpp 	\
-src/generated/MIR_transform.h		\
-src/generated/MIR_visitor.cpp 	\
-src/generated/MIR_visitor.h 		\
-src/generated/MIR_factory.cpp		\
-src/generated/MIR_factory.h		\
-src/generated/MIR_fold.h			\
-	: src/generated_src/mir.tea @maketea@
+src/generated/MIR.clp: 				src/generated/MIR.h
+src/generated/MIR.cpp: 				src/generated/MIR.h
+src/generated/MIR_transform.cpp:	src/generated/MIR.h
+src/generated/MIR_transform.h:	src/generated/MIR.h
+src/generated/MIR_visitor.cpp:	src/generated/MIR.h
+src/generated/MIR_visitor.h:		src/generated/MIR.h
+src/generated/MIR_factory.cpp:	src/generated/MIR.h
+src/generated/MIR_factory.h:		src/generated/MIR.h
+src/generated/MIR_fold.h:			src/generated/MIR.h
+#src/generated/schema.xsd:			src/generated/MIR.h
+
+src/generated/MIR.h: src/generated_src/mir.tea @maketea@
 	@maketea@ src/generated_src/mir.tea
-#	mv schema.xsd src/generated/phc-1.0.xsd
 
 src/generated/keywords.h: src/generated_src/php.gperf 
 	@gperf@ --language=ANSI-C --includes --readonly-tables --struct-type --ignore-case --output-file=src/generated/keywords.h src/generated_src/php.gperf
 
-src/generated/cmdline.c \
+src/generated/cmdline.c: src/generated/cmdline.h
 src/generated/cmdline.h: src/generated_src/phc.ggo
 	@gengetopt@ --unamed-opts --input=src/generated_src/phc.ggo --file-name=src/generated/cmdline
 
 src/generated/lex.yy.cc: src/generated_src/php_scanner.lex
 	@flex@ -s -osrc/generated/lex.yy.cc src/generated_src/php_scanner.lex
 
-src/generated/php_parser.tab.cpp src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
+src/generated/php_parser.tab.cpp: src/generated/php_parser.tab.hpp
+src/generated/php_parser.tab.hpp: src/generated_src/php_parser.ypp
 	@bison@ -o src/generated/php_parser.tab.cpp -d src/generated_src/php_parser.ypp
 
 # - Without the second \@, autoconf with replace the @CFLAGS\@ etc

@@ -142,6 +142,10 @@ void Visitor::pre_nop(Nop* in)
 {
 }
 
+void Visitor::pre_foreign(Foreign* in)
+{
+}
+
 void Visitor::pre_branch(Branch* in)
 {
 }
@@ -151,30 +155,6 @@ void Visitor::pre_goto(Goto* in)
 }
 
 void Visitor::pre_label(Label* in)
-{
-}
-
-void Visitor::pre_foreach_reset(Foreach_reset* in)
-{
-}
-
-void Visitor::pre_foreach_next(Foreach_next* in)
-{
-}
-
-void Visitor::pre_foreach_end(Foreach_end* in)
-{
-}
-
-void Visitor::pre_foreach_has_key(Foreach_has_key* in)
-{
-}
-
-void Visitor::pre_foreach_get_key(Foreach_get_key* in)
-{
-}
-
-void Visitor::pre_foreach_get_val(Foreach_get_val* in)
 {
 }
 
@@ -295,10 +275,6 @@ void Visitor::pre_identifier(Identifier* in)
 }
 
 void Visitor::pre_source_rep(Source_rep* in)
-{
-}
-
-void Visitor::pre_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -495,6 +471,10 @@ void Visitor::post_nop(Nop* in)
 {
 }
 
+void Visitor::post_foreign(Foreign* in)
+{
+}
+
 void Visitor::post_branch(Branch* in)
 {
 }
@@ -504,30 +484,6 @@ void Visitor::post_goto(Goto* in)
 }
 
 void Visitor::post_label(Label* in)
-{
-}
-
-void Visitor::post_foreach_reset(Foreach_reset* in)
-{
-}
-
-void Visitor::post_foreach_next(Foreach_next* in)
-{
-}
-
-void Visitor::post_foreach_end(Foreach_end* in)
-{
-}
-
-void Visitor::post_foreach_has_key(Foreach_has_key* in)
-{
-}
-
-void Visitor::post_foreach_get_key(Foreach_get_key* in)
-{
-}
-
-void Visitor::post_foreach_get_val(Foreach_get_val* in)
 {
 }
 
@@ -648,10 +604,6 @@ void Visitor::post_identifier(Identifier* in)
 }
 
 void Visitor::post_source_rep(Source_rep* in)
-{
-}
-
-void Visitor::post_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -920,6 +872,10 @@ void Visitor::children_nop(Nop* in)
 {
 }
 
+void Visitor::children_foreign(Foreign* in)
+{
+}
+
 void Visitor::children_branch(Branch* in)
 {
     visit_expr(in->expr);
@@ -935,43 +891,6 @@ void Visitor::children_goto(Goto* in)
 void Visitor::children_label(Label* in)
 {
     visit_label_name(in->label_name);
-}
-
-void Visitor::children_foreach_reset(Foreach_reset* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_next(Foreach_next* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_end(Foreach_end* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_has_key(Foreach_has_key* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_get_key(Foreach_get_key* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_get_val(Foreach_get_val* in)
-{
-    visit_variable_name(in->array);
-    visit_variable_name(in->key);
-    visit_ht_iterator(in->iter);
 }
 
 void Visitor::children_assignment(Assignment* in)
@@ -1102,10 +1021,6 @@ void Visitor::children_new(New* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void Visitor::children_ht_iterator(HT_ITERATOR* in)
-{
-}
-
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1422,6 +1337,16 @@ void Visitor::pre_nop_chain(Nop* in)
     pre_nop((Nop*) in);
 }
 
+void Visitor::pre_foreign_chain(Foreign* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_commented_node((Commented_node*) in);
+    pre_statement((Statement*) in);
+    pre_foreign((Foreign*) in);
+}
+
 void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node((Node*) in);
@@ -1444,54 +1369,6 @@ void Visitor::pre_label_chain(Label* in)
     pre_commented_node((Commented_node*) in);
     pre_statement((Statement*) in);
     pre_label((Label*) in);
-}
-
-void Visitor::pre_foreach_reset_chain(Foreach_reset* in)
-{
-    pre_node((Node*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_foreach_reset((Foreach_reset*) in);
-}
-
-void Visitor::pre_foreach_next_chain(Foreach_next* in)
-{
-    pre_node((Node*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_foreach_next((Foreach_next*) in);
-}
-
-void Visitor::pre_foreach_end_chain(Foreach_end* in)
-{
-    pre_node((Node*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_foreach_end((Foreach_end*) in);
-}
-
-void Visitor::pre_foreach_has_key_chain(Foreach_has_key* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_foreach_has_key((Foreach_has_key*) in);
-}
-
-void Visitor::pre_foreach_get_key_chain(Foreach_get_key* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_foreach_get_key((Foreach_get_key*) in);
-}
-
-void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_foreach_get_val((Foreach_get_val*) in);
 }
 
 void Visitor::pre_assignment_chain(Assignment* in)
@@ -1649,12 +1526,6 @@ void Visitor::pre_new_chain(New* in)
     pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_new((New*) in);
-}
-
-void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
-{
-    pre_node((Node*) in);
-    pre_ht_iterator((HT_ITERATOR*) in);
 }
 
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
@@ -2015,6 +1886,16 @@ void Visitor::post_nop_chain(Nop* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_foreign_chain(Foreign* in)
+{
+    post_foreign((Foreign*) in);
+    post_statement((Statement*) in);
+    post_commented_node((Commented_node*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_branch_chain(Branch* in)
 {
     post_branch((Branch*) in);
@@ -2036,54 +1917,6 @@ void Visitor::post_label_chain(Label* in)
     post_label((Label*) in);
     post_statement((Statement*) in);
     post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_reset_chain(Foreach_reset* in)
-{
-    post_foreach_reset((Foreach_reset*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_next_chain(Foreach_next* in)
-{
-    post_foreach_next((Foreach_next*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_end_chain(Foreach_end* in)
-{
-    post_foreach_end((Foreach_end*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_has_key_chain(Foreach_has_key* in)
-{
-    post_foreach_has_key((Foreach_has_key*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_get_key_chain(Foreach_get_key* in)
-{
-    post_foreach_get_key((Foreach_get_key*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
-{
-    post_foreach_get_val((Foreach_get_val*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -2241,12 +2074,6 @@ void Visitor::post_new_chain(New* in)
     post_new((New*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
-{
-    post_ht_iterator((HT_ITERATOR*) in);
     post_node((Node*) in);
 }
 
@@ -2809,19 +2636,6 @@ void Visitor::visit_label_name(LABEL_NAME* in)
     }
 }
 
-void Visitor::visit_ht_iterator(HT_ITERATOR* in)
-{
-    visit_type("AST", "HT_ITERATOR");
-    if(in == NULL)
-    	visit_null("AST", "HT_ITERATOR");
-    else
-    {
-    	pre_ht_iterator_chain(in);
-    	children_ht_iterator(in);
-    	post_ht_iterator_chain(in);
-    }
-}
-
 void Visitor::visit_op(OP* in)
 {
     visit_type("AST", "OP");
@@ -3113,14 +2927,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Branch::ID:
     	pre_branch_chain(dynamic_cast<Branch*>(in));
     	break;
-    case Foreach_next::ID:
-    	pre_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	pre_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3205,14 +3013,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3323,14 +3125,8 @@ void Visitor::pre_target_chain(Target* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3423,14 +3219,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Branch::ID:
     	post_branch_chain(dynamic_cast<Branch*>(in));
     	break;
-    case Foreach_next::ID:
-    	post_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	post_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3515,14 +3305,8 @@ void Visitor::post_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3633,14 +3417,8 @@ void Visitor::post_target_chain(Target* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3733,14 +3511,8 @@ void Visitor::children_statement(Statement* in)
     case Branch::ID:
     	children_branch(dynamic_cast<Branch*>(in));
     	break;
-    case Foreach_next::ID:
-    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3825,14 +3597,8 @@ void Visitor::children_expr(Expr* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -3943,14 +3709,8 @@ void Visitor::children_target(Target* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

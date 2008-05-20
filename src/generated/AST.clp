@@ -36,15 +36,10 @@ type t_Catch.
 type t_Throw.
 type t_Eval_expr.
 type t_Nop.
+type t_Foreign.
 type t_Branch.
 type t_Goto.
 type t_Label.
-type t_Foreach_reset.
-type t_Foreach_next.
-type t_Foreach_end.
-type t_Foreach_has_key.
-type t_Foreach_get_key.
-type t_Foreach_get_val.
 type t_Assignment.
 type t_Op_assignment.
 type t_List_assignment.
@@ -84,7 +79,6 @@ type t_Source_rep.
 
 
 % Token declarations
-type t_HT_ITERATOR ::= t_HT_ITERATOR_id {id}.
 type t_CLASS_NAME ::= t_CLASS_NAME_id {id}.
 type t_INTERFACE_NAME ::= t_INTERFACE_NAME_id {id}.
 type t_METHOD_NAME ::= t_METHOD_NAME_id {id}.
@@ -133,15 +127,10 @@ type t_Catch ::= t_Catch_id {id}.
 type t_Throw ::= t_Throw_id {id}.
 type t_Eval_expr ::= t_Eval_expr_id {id}.
 type t_Nop ::= t_Nop_id {id}.
+type t_Foreign ::= t_Foreign_id {id}.
 type t_Branch ::= t_Branch_id {id}.
 type t_Goto ::= t_Goto_id {id}.
 type t_Label ::= t_Label_id {id}.
-type t_Foreach_reset ::= t_Foreach_reset_id {id}.
-type t_Foreach_next ::= t_Foreach_next_id {id}.
-type t_Foreach_end ::= t_Foreach_end_id {id}.
-type t_Foreach_has_key ::= t_Foreach_has_key_id {id}.
-type t_Foreach_get_key ::= t_Foreach_get_key_id {id}.
-type t_Foreach_get_val ::= t_Foreach_get_val_id {id}.
 type t_Assignment ::= t_Assignment_id {id}.
 type t_Op_assignment ::= t_Op_assignment_id {id}.
 type t_List_assignment ::= t_List_assignment_id {id}.
@@ -216,9 +205,7 @@ type t_Commented_node ::=
 		| commented_node_Label_id { t_Label } 
 		| commented_node_Goto_id { t_Goto } 
 		| commented_node_Branch_id { t_Branch } 
-		| commented_node_Foreach_next_id { t_Foreach_next } 
-		| commented_node_Foreach_reset_id { t_Foreach_reset } 
-		| commented_node_Foreach_end_id { t_Foreach_end } 
+		| commented_node_Foreign_id { t_Foreign } 
 		| commented_node_Switch_case_id { t_Switch_case } 
 		| commented_node_Catch_id { t_Catch } 
 		.
@@ -252,9 +239,7 @@ type t_Target ::=
 		| target_Array_id { t_Array } 
 		| target_Conditional_expr_id { t_Conditional_expr } 
 		| target_Ignore_errors_id { t_Ignore_errors } 
-		| target_Foreach_has_key_id { t_Foreach_has_key } 
-		| target_Foreach_get_key_id { t_Foreach_get_key } 
-		| target_Foreach_get_val_id { t_Foreach_get_val } 
+		| target_Foreign_id { t_Foreign } 
 		| target_CLASS_NAME_id { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -294,9 +279,7 @@ type t_Expr ::=
 		| expr_Array_id { t_Array } 
 		| expr_Conditional_expr_id { t_Conditional_expr } 
 		| expr_Ignore_errors_id { t_Ignore_errors } 
-		| expr_Foreach_has_key_id { t_Foreach_has_key } 
-		| expr_Foreach_get_key_id { t_Foreach_get_key } 
-		| expr_Foreach_get_val_id { t_Foreach_get_val } 
+		| expr_Foreign_id { t_Foreign } 
 		.
 type t_Member ::= 
 		  member_Method_id { t_Method } 
@@ -325,9 +308,7 @@ type t_Statement ::=
 		| statement_Label_id { t_Label } 
 		| statement_Goto_id { t_Goto } 
 		| statement_Branch_id { t_Branch } 
-		| statement_Foreach_next_id { t_Foreach_next } 
-		| statement_Foreach_reset_id { t_Foreach_reset } 
-		| statement_Foreach_end_id { t_Foreach_end } 
+		| statement_Foreign_id { t_Foreign } 
 		.
 type t_Node ::= 
 		  node_PHP_script_id { t_PHP_script } 
@@ -363,9 +344,7 @@ type t_Node ::=
 		| node_Array_id { t_Array } 
 		| node_Conditional_expr_id { t_Conditional_expr } 
 		| node_Ignore_errors_id { t_Ignore_errors } 
-		| node_Foreach_has_key_id { t_Foreach_has_key } 
-		| node_Foreach_get_key_id { t_Foreach_get_key } 
-		| node_Foreach_get_val_id { t_Foreach_get_val } 
+		| node_Foreign_id { t_Foreign } 
 		| node_CLASS_NAME_id { t_CLASS_NAME } 
 		| node_Array_elem_id { t_Array_elem } 
 		| node_METHOD_NAME_id { t_METHOD_NAME } 
@@ -393,9 +372,6 @@ type t_Node ::=
 		| node_Label_id { t_Label } 
 		| node_Goto_id { t_Goto } 
 		| node_Branch_id { t_Branch } 
-		| node_Foreach_next_id { t_Foreach_next } 
-		| node_Foreach_reset_id { t_Foreach_reset } 
-		| node_Foreach_end_id { t_Foreach_end } 
 		| node_Switch_case_id { t_Switch_case } 
 		| node_Catch_id { t_Catch } 
 		| node_INTERFACE_NAME_id { t_INTERFACE_NAME } 
@@ -404,7 +380,6 @@ type t_Node ::=
 		| node_CONSTANT_NAME_id { t_CONSTANT_NAME } 
 		| node_LABEL_NAME_id { t_LABEL_NAME } 
 		| node_DIRECTIVE_NAME_id { t_DIRECTIVE_NAME } 
-		| node_HT_ITERATOR_id { t_HT_ITERATOR } 
 		.
 
 
@@ -440,15 +415,10 @@ predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_N
 predicate throw (ID:t_Throw, EXPR:t_Expr).
 predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
 predicate nop (ID:t_Nop).
+predicate foreign (ID:t_Foreign).
 predicate branch (ID:t_Branch, EXPR:t_Expr, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME).
 predicate goto (ID:t_Goto, LABEL_NAME:t_LABEL_NAME).
 predicate label (ID:t_Label, LABEL_NAME:t_LABEL_NAME).
-predicate foreach_reset (ID:t_Foreach_reset, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_next (ID:t_Foreach_next, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_end (ID:t_Foreach_end, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_has_key (ID:t_Foreach_has_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_get_key (ID:t_Foreach_get_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_get_val (ID:t_Foreach_get_val, ARRAY:t_VARIABLE_NAME, KEY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
 predicate assignment (ID:t_Assignment, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr).
 predicate op_assignment (ID:t_Op_assignment, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr).
 predicate list_assignment (ID:t_List_assignment, LIST_ELEMENTS:list[maybe[t_List_element]], EXPR:t_Expr).
@@ -470,7 +440,6 @@ predicate method_invocation (ID:t_Method_invocation, TARGET:maybe[t_Target], MET
 predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, EXPR:t_Expr).
 predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
 
-predicate hT_ITERATOR (ID:t_HT_ITERATOR, VALUE:int).
 predicate cLASS_NAME (ID:t_CLASS_NAME, VALUE:string).
 predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
 predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).

@@ -57,7 +57,7 @@ class Demi_eval : public Transform
 				// unparse the statement into a string
 				stringstream ss;
 				HIR_unparser* pup = new HIR_unparser (ss);
-				in->visit (pup);
+				pup->unparse (in);
 				String* eval_string = new String (ss.str ());
 
 

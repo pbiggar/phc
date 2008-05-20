@@ -26,7 +26,7 @@ public:
 
 	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
-		in->visit(new AST_unparser());
+		AST_unparser().unparse (in->as_AST ());
 		set_enabled (false);
 	}
 

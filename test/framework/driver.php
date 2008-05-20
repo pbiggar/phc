@@ -65,6 +65,7 @@ require_once ("lib/compare_with_php_test.php");
 require_once ("lib/plugin_test.php");
 require_once ("lib/regression.php");
 require_once ("lib/compare_backwards.php");
+require_once ("lib/pass_dump.php");
 
 // Add tests to list
 $tests = array ();
@@ -72,10 +73,14 @@ $tests = array ();
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");
-$tests[] = new CompareBackwards ("sua", "dump", "ast");
-$tests[] = new CompareBackwards ("hir", "dump", "sua");
-$tests[] = new CompareBackwards ("mir", "udump", "hir");
-require_once ("mir_dump.php");
+$tests[] = new CompareBackwards ("sua",			"dump",	"cb_ast");
+$tests[] = new CompareBackwards ("AST-to-HIR",	"dump",	"cb_sua");
+$tests[] = new CompareBackwards ("hir",			"dump",	"cb_AST-to-HIR");
+$tests[] = new CompareBackwards ("HIR-to-MIR",	"udump",	"cb_hir");
+// if it needs to be uppered, check it doesnt segfault while dumping normally
+$tests[] = new Pass_dump (			"HIR-to-MIR",	"dump",	"cb_hir");
+$tests[] = new CompareBackwards ("mir",			"udump",	"cb_hir");
+$tests[] = new Pass_dump (			"mir",			"dump",	"cb_mir");
 $tests[] = new CompareWithPHP ("InterpretCanonicalUnparsed", "--run plugins/tests/canonical_unparser.la", "BasicParseTest"); // not necessarily dependent of InterpretUnparsed
 $tests[] = new CompareWithPHP ("InterpretStrippedIncludes", "--include --dump=sua --run plugins/tests/strip_includes.la", "cb_sua");
 $tests[] = new CompareWithPHP ("InterpretObfuscated", "--obfuscate", "cb_hir");

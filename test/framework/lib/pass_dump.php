@@ -8,17 +8,27 @@
  */
 
 
-array_push($tests, new MIR_Dump());
-class MIR_Dump extends AsyncTest
+class Pass_dump extends AsyncTest
 {
+	function __construct ($pass, $dump = "dump", $dependency = "BasicParseTest")
+	{
+		$this->pass = $pass;
+
+		// this might be udump
+		$this->dump = $dump;
+
+		$this->dependencies = array ($dependency);
+		parent::__construct ();
+	}
+
+	function get_name ()
+	{
+		return "{$this->pass}_dump";
+	}
+
 	function get_test_subjects ()
 	{
 		return get_all_scripts ();
-	}
-
-	function get_dependent_test_names ()
-	{
-		return array ("cb_mir");
 	}
 
 	function run_test ($subject)
@@ -26,7 +36,7 @@ class MIR_Dump extends AsyncTest
 		global $phc;
 		$async = new AsyncBundle ($this, $subject);
 
-		$async->commands[0]		= "$phc $subject --dump=mir";
+		$async->commands[0]		= "$phc $subject --{$this->dump}={$this->pass}";
 		$async->err_handlers[0] = "fail_on_output";
 
 		$async->final = "async_success";

@@ -33,8 +33,8 @@ void run (PHP_script* in)
 	{
 		ostringstream orig_unparsed, dup_unparsed;
 		Unparser a(orig_unparsed), b(dup_unparsed);
-		in->visit(&a);
-		dup_script->visit(&b);
+		a.unparse (in);
+		b.unparse (dup_script);
 
 		printf("Failure\n");
 		printf("Unparsing yields different results\n");

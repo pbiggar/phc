@@ -310,7 +310,10 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->dump_arg [i])
 		{
-			in->visit (new AST_unparser (), new HIR_unparser (), new MIR_unparser ());
+			if (in->is_AST ()) AST_unparser ().unparse (in->as_AST ());
+			else if (in->is_HIR ()) HIR_unparser ().unparse (in->as_HIR ());
+			else if (in->is_MIR ()) MIR_unparser ().unparse (in->as_MIR ());
+			else assert (0);
 		}
 	}
 
@@ -318,22 +321,36 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
-			AST::PHP_script* ast = NULL;
-
 			// TODO uppering should be built in to this
+			// TODO this should be built into to MIR_unparser
+			// TODO remove code duplication from Obfuscate.h
 			if (in->is_MIR ())
-				ast = (new MIR_to_AST ())->fold_php_script (in->as_MIR ());
+			{
+				MIR::PHP_script* mir = in->as_MIR ();
+				mir->transform_children (new Foreach_uppering);
+				AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
+				ast->visit (new Goto_uppering);
+				AST_unparser().unparse (ast);
+			}
 
-			// TODO we shouldnt upper here
+			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
 			if (in->is_HIR ())
-				ast = (new HIR_to_AST ())->fold_php_script (in->as_HIR ());
+			{
+				// this needs to be fixed. It probably used to work when the HIR
+				// was lowered to AST then uppered. However, since the uppering is
+				// now in the MIR, we've nothing to upper this. I think
+				// templatizing the Foreach_uppering should work. However, we want
+				// to replace nodes which need uppering with foreign nodes, so
+				// we'll leave this as-is for now.
 
+				assert (0); 
+				HIR_unparser().unparse (in->as_HIR ());
+			}
+
+			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
 			if (in->is_AST())
-				ast = in->as_AST()->clone ();
+				AST_unparser().unparse (in->as_AST()->clone ()); // TODO do we still need to clone?
 
-			ast->transform_children (new Foreach_uppering);
-			ast->visit (new Goto_uppering);
-			ast->visit (new AST_unparser);
 		}
 	}
 

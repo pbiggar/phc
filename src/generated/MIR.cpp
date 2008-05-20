@@ -4765,6 +4765,67 @@ void CONSTANT_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Foreign::Foreign()
+{
+}
+
+void Foreign::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Foreign::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Foreign::classid()
+{
+    return ID;
+}
+
+bool Foreign::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreign* that = dynamic_cast<Foreign*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool Foreign::equals(Node* in)
+{
+    Foreign* that = dynamic_cast<Foreign*>(in);
+    if(that == NULL) return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreign* Foreign::clone()
+{
+    Foreign* clone = new Foreign();
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Foreign::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void Foreign::assert_valid()
+{
+    Node::assert_mixin_valid();
+}
+
 Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;

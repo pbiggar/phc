@@ -193,6 +193,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Eval_expr(expr);
     }
+    if(!strcmp(type_id, "Foreign"))
+    {
+    	assert(i == args->end());
+    	return new Foreign();
+    }
     if(!strcmp(type_id, "Branch"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);

@@ -20,6 +20,7 @@
 (Foreach_has_key,Expr,)
 (Foreach_next,Statement,*)
 (Foreach_reset,Statement,*)
+(Foreign,Foreign,)
 (Formal_parameter,Formal_parameter,*)
 (Global,Statement,*)
 (Goto,Statement,*)

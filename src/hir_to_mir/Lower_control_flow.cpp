@@ -251,7 +251,8 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			array_name->clone (),
 			iter->clone ()));
 
-	clone_blank_mixins_from (in, out);
+	// wrap it in a PHP script to call visit
+	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new List<Node*>)); // TODO we should have nodes here
 }
 
 /* Convert 

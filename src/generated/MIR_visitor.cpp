@@ -94,6 +94,10 @@ void Visitor::pre_eval_expr(Eval_expr* in)
 {
 }
 
+void Visitor::pre_foreign(Foreign* in)
+{
+}
+
 void Visitor::pre_branch(Branch* in)
 {
 }
@@ -356,6 +360,10 @@ void Visitor::post_throw(Throw* in)
 }
 
 void Visitor::post_eval_expr(Eval_expr* in)
+{
+}
+
+void Visitor::post_foreign(Foreign* in)
 {
 }
 
@@ -661,6 +669,10 @@ void Visitor::children_throw(Throw* in)
 void Visitor::children_eval_expr(Eval_expr* in)
 {
     visit_expr(in->expr);
+}
+
+void Visitor::children_foreign(Foreign* in)
+{
 }
 
 void Visitor::children_branch(Branch* in)
@@ -1022,6 +1034,15 @@ void Visitor::pre_eval_expr_chain(Eval_expr* in)
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_eval_expr((Eval_expr*) in);
+}
+
+void Visitor::pre_foreign_chain(Foreign* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_foreign((Foreign*) in);
 }
 
 void Visitor::pre_branch_chain(Branch* in)
@@ -1434,6 +1455,15 @@ void Visitor::post_throw_chain(Throw* in)
 void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
     post_eval_expr((Eval_expr*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_foreign_chain(Foreign* in)
+{
+    post_foreign((Foreign*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -2293,6 +2323,9 @@ void Visitor::pre_statement_chain(Statement* in)
     case Foreach_end::ID:
     	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
     	break;
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    	break;
     }
 }
 
@@ -2369,6 +2402,9 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case Foreach_get_val::ID:
     	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    	break;
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -2460,6 +2496,9 @@ void Visitor::pre_target_chain(Target* in)
     case Foreach_get_val::ID:
     	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
+    case Foreign::ID:
+    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
@@ -2529,6 +2568,9 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case Foreach_end::ID:
     	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -2606,6 +2648,9 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case Foreach_get_val::ID:
     	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
+    	break;
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -2697,6 +2742,9 @@ void Visitor::post_target_chain(Target* in)
     case Foreach_get_val::ID:
     	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
+    case Foreign::ID:
+    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
@@ -2766,6 +2814,9 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Foreach_end::ID:
     	children_foreach_end(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -2843,6 +2894,9 @@ void Visitor::children_expr(Expr* in)
     	break;
     case Foreach_get_val::ID:
     	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    	break;
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     }
 }
@@ -2933,6 +2987,9 @@ void Visitor::children_target(Target* in)
     	break;
     case Foreach_get_val::ID:
     	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    	break;
+    case Foreign::ID:
+    	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

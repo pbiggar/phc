@@ -12,6 +12,8 @@
 #include "process_mir/Foreach_uppering.h"
 #include "pass_manager/Pass_manager.h"
 
+#include "process_mir/MIR_to_AST.h"
+
 class Obfuscate : public Pass
 {
 public:
@@ -23,10 +25,14 @@ public:
 
 	void run (IR::PHP_script* in, Pass_manager* pm)
 	{
-		AST::PHP_script* ast = in->as_AST()->clone ();
-		ast->transform_children (new Foreach_uppering);
+		// TODO this should be built into to MIR_unparser
+		// TODO remove code duplication from Pass_manager.cpp
+		MIR::PHP_script* mir = in->as_MIR ()->clone ();
+		mir->transform_children (new Foreach_uppering);
+
+		AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
 		ast->visit (new Goto_uppering);
-		ast->visit (new AST_unparser);
+		AST_unparser().unparse (ast);
 	}
 
 	bool pass_is_enabled (Pass_manager* pm)

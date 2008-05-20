@@ -49,6 +49,7 @@ public:
     virtual void pre_catch(Catch* in);
     virtual void pre_throw(Throw* in);
     virtual void pre_eval_expr(Eval_expr* in);
+    virtual void pre_foreign(Foreign* in);
     virtual void pre_branch(Branch* in);
     virtual void pre_goto(Goto* in);
     virtual void pre_label(Label* in);
@@ -117,6 +118,7 @@ public:
     virtual void post_catch(Catch* in);
     virtual void post_throw(Throw* in);
     virtual void post_eval_expr(Eval_expr* in);
+    virtual void post_foreign(Foreign* in);
     virtual void post_branch(Branch* in);
     virtual void post_goto(Goto* in);
     virtual void post_label(Label* in);
@@ -182,6 +184,7 @@ public:
     virtual void children_catch(Catch* in);
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
+    virtual void children_foreign(Foreign* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);
@@ -252,6 +255,7 @@ public:
     virtual void pre_catch_chain(Catch* in);
     virtual void pre_throw_chain(Throw* in);
     virtual void pre_eval_expr_chain(Eval_expr* in);
+    virtual void pre_foreign_chain(Foreign* in);
     virtual void pre_branch_chain(Branch* in);
     virtual void pre_goto_chain(Goto* in);
     virtual void pre_label_chain(Label* in);
@@ -312,6 +316,7 @@ public:
     virtual void post_catch_chain(Catch* in);
     virtual void post_throw_chain(Throw* in);
     virtual void post_eval_expr_chain(Eval_expr* in);
+    virtual void post_foreign_chain(Foreign* in);
     virtual void post_branch_chain(Branch* in);
     virtual void post_goto_chain(Goto* in);
     virtual void post_label_chain(Label* in);

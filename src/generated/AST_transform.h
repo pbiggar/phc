@@ -58,15 +58,10 @@ public:
     virtual void pre_throw(Throw* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void pre_nop(Nop* in, List<Statement*>* out);
+    virtual Foreign* pre_foreign(Foreign* in);
     virtual void pre_branch(Branch* in, List<Statement*>* out);
     virtual void pre_goto(Goto* in, List<Statement*>* out);
     virtual void pre_label(Label* in, List<Statement*>* out);
-    virtual void pre_foreach_reset(Foreach_reset* in, List<Statement*>* out);
-    virtual void pre_foreach_next(Foreach_next* in, List<Statement*>* out);
-    virtual void pre_foreach_end(Foreach_end* in, List<Statement*>* out);
-    virtual Expr* pre_foreach_has_key(Foreach_has_key* in);
-    virtual Expr* pre_foreach_get_key(Foreach_get_key* in);
-    virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
     virtual Expr* pre_assignment(Assignment* in);
     virtual Expr* pre_op_assignment(Op_assignment* in);
     virtual Expr* pre_list_assignment(List_assignment* in);
@@ -87,7 +82,6 @@ public:
     virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
-    virtual HT_ITERATOR* pre_ht_iterator(HT_ITERATOR* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
@@ -135,15 +129,10 @@ public:
     virtual void post_throw(Throw* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void post_nop(Nop* in, List<Statement*>* out);
+    virtual Foreign* post_foreign(Foreign* in);
     virtual void post_branch(Branch* in, List<Statement*>* out);
     virtual void post_goto(Goto* in, List<Statement*>* out);
     virtual void post_label(Label* in, List<Statement*>* out);
-    virtual void post_foreach_reset(Foreach_reset* in, List<Statement*>* out);
-    virtual void post_foreach_next(Foreach_next* in, List<Statement*>* out);
-    virtual void post_foreach_end(Foreach_end* in, List<Statement*>* out);
-    virtual Expr* post_foreach_has_key(Foreach_has_key* in);
-    virtual Expr* post_foreach_get_key(Foreach_get_key* in);
-    virtual Expr* post_foreach_get_val(Foreach_get_val* in);
     virtual Expr* post_assignment(Assignment* in);
     virtual Expr* post_op_assignment(Op_assignment* in);
     virtual Expr* post_list_assignment(List_assignment* in);
@@ -164,7 +153,6 @@ public:
     virtual Expr* post_method_invocation(Method_invocation* in);
     virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
-    virtual HT_ITERATOR* post_ht_iterator(HT_ITERATOR* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
@@ -212,15 +200,10 @@ public:
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_nop(Nop* in);
+    virtual void children_foreign(Foreign* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);
-    virtual void children_foreach_reset(Foreach_reset* in);
-    virtual void children_foreach_next(Foreach_next* in);
-    virtual void children_foreach_end(Foreach_end* in);
-    virtual void children_foreach_has_key(Foreach_has_key* in);
-    virtual void children_foreach_get_key(Foreach_get_key* in);
-    virtual void children_foreach_get_val(Foreach_get_val* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_list_assignment(List_assignment* in);
@@ -243,7 +226,6 @@ public:
     virtual void children_new(New* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_ht_iterator(HT_ITERATOR* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
@@ -290,7 +272,6 @@ public:
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
     virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);
-    virtual HT_ITERATOR* transform_ht_iterator(HT_ITERATOR* in);
     virtual OP* transform_op(OP* in);
     virtual List<List_element*>* transform_list_element_list(List<List_element*>* in);
     virtual List<List_element*>* transform_list_element(List_element* in);

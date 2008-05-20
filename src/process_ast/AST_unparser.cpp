@@ -103,10 +103,18 @@ public:
  * The unparser proper
  */
 
-AST_unparser::AST_unparser (ostream& os, bool in_php) : PHP_unparser (os, in_php)
+AST_unparser::AST_unparser (ostream& os, bool in_php, PHP_unparser* foreign_unparser) 
+: PHP_unparser (os, in_php)
+, foreign_unparser(foreign_unparser)
 {
 	in_string.push(false);
-	this->in_php = in_php;
+}
+
+void AST_unparser::unparse (IR::Node* in)
+{
+	Node* ast = dynamic_cast<Node*> (in);
+	assert (ast);
+	ast->visit (this);
 }
 
 void AST_unparser::children_php_script(PHP_script* in)
@@ -363,67 +371,6 @@ void AST_unparser::children_foreach(Foreach* in)
 
 	visit_statement_list(in->statements);
 	newline();
-}
-
-void AST_unparser::children_foreach_reset (Foreach_reset* in)
-{
-	echo ("foreach_reset($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void AST_unparser::children_foreach_next (Foreach_next* in)
-{
-	echo ("foreach_next($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void AST_unparser::children_foreach_end (Foreach_end* in)
-{
-	echo ("foreach_end($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void AST_unparser::children_foreach_has_key (Foreach_has_key* in)
-{
-	echo ("foreach_has_key($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-void AST_unparser::children_foreach_get_key (Foreach_get_key* in)
-{
-	echo ("foreach_get_key($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-void AST_unparser::children_foreach_get_val (Foreach_get_val* in)
-{
-	echo ("foreach_get_val($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-
-void AST_unparser::children_ht_iterator(HT_ITERATOR* in)
-{
-	echo ("$");
-	echo (in->get_value_as_string ());
 }
 
 void AST_unparser::children_switch(Switch* in)
@@ -1418,4 +1365,20 @@ void AST_unparser::children_name_with_default (Name_with_default* in)
 		echo(" = ");
 		visit_expr(in->expr);
 	}
+}
+
+
+void AST_unparser::unparse_foreign (IR::Node* in)
+{
+	// The AST doesn't use foreign nodes
+	assert (false);
+}
+
+void AST_unparser::children_foreign(Foreign* in)
+{
+	// If there are foreign nodes in this IR, we must have some way to print
+	// them out.
+	assert (foreign_unparser);
+
+	foreign_unparser->unparse_foreign (in->foreign);
 }

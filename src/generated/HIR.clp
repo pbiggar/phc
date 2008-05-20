@@ -29,6 +29,7 @@ type t_Try.
 type t_Catch.
 type t_Throw.
 type t_Eval_expr.
+type t_Foreign.
 type t_Branch.
 type t_Goto.
 type t_Label.
@@ -110,6 +111,7 @@ type t_Try ::= t_Try_id {id}.
 type t_Catch ::= t_Catch_id {id}.
 type t_Throw ::= t_Throw_id {id}.
 type t_Eval_expr ::= t_Eval_expr_id {id}.
+type t_Foreign ::= t_Foreign_id {id}.
 type t_Branch ::= t_Branch_id {id}.
 type t_Goto ::= t_Goto_id {id}.
 type t_Label ::= t_Label_id {id}.
@@ -176,6 +178,7 @@ type t_Target ::=
 		| target_Foreach_has_key_id { t_Foreach_has_key } 
 		| target_Foreach_get_key_id { t_Foreach_get_key } 
 		| target_Foreach_get_val_id { t_Foreach_get_val } 
+		| target_Foreign_id { t_Foreign } 
 		| target_CLASS_NAME_id { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -210,6 +213,7 @@ type t_Expr ::=
 		| expr_Foreach_has_key_id { t_Foreach_has_key } 
 		| expr_Foreach_get_key_id { t_Foreach_get_key } 
 		| expr_Foreach_get_val_id { t_Foreach_get_val } 
+		| expr_Foreign_id { t_Foreign } 
 		.
 type t_Member ::= 
 		  member_Method_id { t_Method } 
@@ -236,6 +240,7 @@ type t_Statement ::=
 		| statement_Foreach_next_id { t_Foreach_next } 
 		| statement_Foreach_reset_id { t_Foreach_reset } 
 		| statement_Foreach_end_id { t_Foreach_end } 
+		| statement_Foreign_id { t_Foreign } 
 		.
 type t_Node ::= 
 		  node_PHP_script_id { t_PHP_script } 
@@ -259,6 +264,7 @@ type t_Node ::=
 		| node_Foreach_next_id { t_Foreach_next } 
 		| node_Foreach_reset_id { t_Foreach_reset } 
 		| node_Foreach_end_id { t_Foreach_end } 
+		| node_Foreign_id { t_Foreign } 
 		| node_Class_mod_id { t_Class_mod } 
 		| node_Attribute_id { t_Attribute } 
 		| node_Signature_id { t_Signature } 
@@ -328,6 +334,7 @@ predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHES:list[t_Catch]).
 predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
 predicate throw (ID:t_Throw, EXPR:t_Expr).
 predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
+predicate foreign (ID:t_Foreign).
 predicate branch (ID:t_Branch, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME).
 predicate goto (ID:t_Goto, LABEL_NAME:t_LABEL_NAME).
 predicate label (ID:t_Label, LABEL_NAME:t_LABEL_NAME).
