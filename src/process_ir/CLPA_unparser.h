@@ -21,66 +21,62 @@
  *
  * import "src/generated/AST.clp".
  * 
- * % this is what they should look like, but we've abreviated
- * % +ast("myprog.php")->ast_VARIABLE_NAME (
- *
- * +ast_VARIABLE_NAME (
- * 	t_ast_VARIABLE_NAME_id {5},
+ * +ast("myprog.php")->vARIABLE_NAME (
+ * 	vARIABLE_NAME_id {5},
  * 	"x").
  * 
- * +ast_VARIABLE_NAME (
- * 	t_ast_VARIABLE_NAME_id {7},
+ * +ast("myprog.php")->vARIABLE_NAME (
+ * 	vARIABLE_NAME_id {7},
  * 	"i").
  * 
- * +ast_Variable (
- * 	t_ast_Variable_id {6},
+ * +ast("myprog.php")->variable (
+ * 	variable_id {6},
  * 	no,
- * 	t_ast_Variable_name_t_ast_VARIABLE_NAME_id { t_ast_VARIABLE_NAME_id {7} },
+ * 	variable_name_VARIABLE_NAME_id { vARIABLE_NAME_id {7} },
  * 	[]).
  * 
- * +ast_Variable (
- * 	t_ast_Variable_id {4},
+ * +ast("myprog.php")->variable (
+ * 	variable_id {4},
  * 	no,
- * 	t_ast_Variable_name_t_ast_VARIABLE_NAME_id { t_ast_VARIABLE_NAME_id {5} },
+ * 	variable_name_VARIABLE_NAME_id { vARIABLE_NAME_id {5} },
  * 	[
- * 		yes { t_ast_Expr_t_ast_Variable_id { t_ast_Variable_id {6} } }
+ * 		yes { expr_Variable_id { Variable_id {6} } }
  * 	]).
  * 
- * +ast_STRING (
- * 	t_ast_STRING_id {8},
+ * +ast("myprog.php")->sTRING (
+ * 	sTRING_id {8},
  * 	"xxxxx").
  * 
- * +ast_Assignment (
- * 	t_ast_Assignment_id {3},
- * 	t_ast_Variable_id {4},
+ * +ast("myprog.php")->assignment (
+ * 	assignment_id {3},
+ * 	variable_id {4},
  * 	false,
- * 	t_ast_Expr_t_ast_STRING_id { t_ast_STRING_id {8} }).
+ * 	expr_STRING_id { sTRING_id {8} }).
  * 
- * +ast_Eval_expr (
- * 	t_ast_Eval_expr_id {2},
- * 	t_ast_Expr_t_ast_Assignment_id { t_ast_Assignment_id {3} }).
+ * +ast("myprog.php")->eval_expr (
+ * 	Eval_expr_id {2},
+ * 	Expr_Assignment_id { Assignment_id {3} }).
  * 
- * +ast_Nop (
- * 	t_ast_Nop_id {9}).
+ * +ast("myprog.php")->nop (
+ * 	nop_id {9}).
  * 
- * +ast_PHP_script (
- * 	t_ast_PHP_script_id {1},
+ * +ast("myprog.php")->pHP_script (
+ * 	pHP_script_id {1},
  * 	[
- * 		t_ast_Statement_t_ast_Eval_expr_id { t_ast_Eval_expr_id {2} }, 
- * 		t_ast_Statement_t_ast_Nop_id { t_ast_Nop_id {9} }
+ * 		statement_Eval_expr_id { eval_expr_id {2} }, 
+ * 		statement_Nop_id { nop_id {9} }
  * 	]).
  *	The first parameter is the ID. So the PHP_script 1 has 1 param,
  *	which is a list nodes 2 and 9.
  *
  *	The type system is defined using maketea, in src/generated/?.clp. Each IR
- *	type has an associated ast_TYPE, which is a predicate, and a type
- *	t_ast_TYPE. Each predicate has its initial parameter being its ID, and
- *	subsequent parameters are the IDs of its arguments. Lists use Calypsos
- *	built-in lists ([...]), rather something along the lines of
- *	ast_statement_list.  Nullable parameters use the Calypso 'maybe' type, whose
- *	constructors are 'yes{}' and 'no'. Lists of Nullable parameters need to be
- *	wrapped as well. All parts are strongly typed. t_ast_Nop_id (9) indicates a
- *	Nop with ID 9. t_ast_Statement_t_ast_Eval_expr_id means it expects a
+ *	type has an associated predicate, and a type TYPE. Each predicate has its
+ *	initial parameter being its ID, and subsequent parameters are the IDs of its
+ *	arguments. Lists use Calypsos built-in lists ([...]), rather something along
+ *	the lines of t_statement_list.  Nullable parameters use the Calypso
+ *	'maybe' type, whose constructors are 'yes{}' and 'no'. Lists of Nullable
+ *	parameters need to be wrapped as well. All parts are strongly typed. nop_id
+ *	{9} indicates a Nop with ID 9. statement_Eval_expr_id means it expects a
  *	statement and we've given it an Eval_expr (which is a subtype of statement).
  *
  * Creating the basic structure is simple enough with a visitor, but there is
@@ -117,6 +113,7 @@ protected:
 	String* filename; // due to bugs, it may not be available everywhere
 	String* uc_prefix;
 	String* prefix;
+	List<String*> keywords;
 
 public:
 
@@ -130,7 +127,35 @@ public:
 		prefix  = s (*uc_prefix);
 		prefix->toLower ();
 
+		init_keywords ();
+
 		cout << "import \"src/generated/" << *uc_prefix << ".clp\".\n" << endl;
+	}
+
+	void init_keywords ()
+	{
+		keywords.push_back (s("type"));
+		keywords.push_back (s("predicate"));
+		keywords.push_back (s("session"));
+		keywords.push_back (s("analyse"));
+		keywords.push_back (s("using"));
+		keywords.push_back (s("import"));
+	}
+
+	// If its a keyword, then we need to prefix it
+	String* check_for_keywords (String* name, String* prefix)
+	{
+		for_lci (&keywords, String, i)
+		{
+			if (**i == *name)
+			{
+				// append prefix
+				stringstream ss;
+				ss << *prefix << "_" << *name;
+				return s (ss.str ());
+			}
+		}
+		return name;
 	}
 
 	/* BOOLs are pushed for markers */
@@ -159,9 +184,9 @@ public:
 	}
 
 	/* Disjunctive types are represented in the .clp definition as 
-	 *		ast_Target ::= 
-	 *			ast_Target_ast_Assignment_id {t_ast_Assignment} 
-	 *			| ast_Target_ast_Cast_id {t_ast_target}
+	 *		t_Target ::= 
+	 *			target_Assignment_id {t_Assignment} 
+	 *			| target_Cast_id {t_cast}
 	 *			| etc ...
 	 *
 	 *	When we have an ast_Target as a parameter, we need the fact that a
@@ -318,7 +343,7 @@ public:
 
 		// Print out the predicate.
 		cout 
-			<< "+" << *prefix << "(\"" << *filename << "\")->" << *prefix << "_" << demangle(in, false) << " (\n\t"
+			<< "+" << *prefix << "(\"" << *filename << "\")->" << *pred_name (in) << " (\n\t"
 			<< *get_subject_id_string (in);
 
 		for_lci (params, String, i)
@@ -350,8 +375,7 @@ protected:
 		int id = in->attrs->get_integer ("phc.clpa.id")->value();
 
 		stringstream ss;
-		ss << "t_" << *prefix << "_" << demangle(in, false) 
-			<< "_id {" << id << "}";
+		ss << *constructor_name (in) << " {" << id << "}";
 		return new String(ss.str());
 	}
 
@@ -359,27 +383,63 @@ protected:
 	{
 		int id = in->attrs->get_integer ("phc.clpa.id")->value();
 
-		String* type = s (demangle (in, false));
+		String* type = type_name (in);
 		String* base_type = types.top ();
 		types.pop ();
 
 		stringstream ss;
 		if (*base_type == *type)
 		{
-			ss << "t_" << *prefix << "_" << *type
-				<< "_id {" << id << "}";
+			ss << *constructor_name (in) << " {" << id << "}";
 		}
 		else
 		{
 			// see comment at visit_type().
-			ss << "t_" << *prefix << "_" << *base_type
-				<< "_t_" << *prefix << "_" << *type
-				<< "_id { "
-				<< "t_" << *prefix << "_" << *type
-				<< "_id {" << id << "} }";
+			ss << *disj_constructor_name (base_type, in)
+				<< " { "
+				<< *constructor_name (in) << "{" << id << "} }";
 		}
 
 		return new String(ss.str());
+	}
+
+	String* pred_name (Node* in)
+	{
+		stringstream ss;
+		const char* name = demangle (in, false);
+		ss << (char)(tolower (name[0]));
+		ss << &name[1];
+
+		return check_for_keywords (s (ss.str ()), s("p"));
+	}
+
+	String* constructor_name (Node* in)
+	{
+		stringstream ss;
+		const char* name = demangle (in, false);
+		ss << (char)(tolower (name[0]));
+		ss << (&name[1]);
+		ss << "_id";
+		return s (ss.str ());
+	}
+
+	String* disj_constructor_name (String* base_type, Node* sub_type)
+	{
+		stringstream ss;
+		const char* name = base_type->c_str ();
+		ss << (char)(tolower (name[0]));
+		ss << (&name[1]);
+		ss << "_";
+		ss << *type_name (sub_type);
+		return s (ss.str ());
+	}
+
+	String* type_name (Node* in)
+	{
+		stringstream ss;
+		const char* name = demangle (in, false);
+		ss << name;
+		return s (ss.str ());
 	}
 
 	String* escape(String* s)
@@ -393,6 +453,12 @@ protected:
 			{
 				case '\n': // newline
 					ss << "\\n";
+					break;
+				case '\\': // newline
+					ss << "\\\\";
+					break;
+				case '"': // newline
+					ss << "\\\"";
 					break;
 				default:
 					ss << *i;
