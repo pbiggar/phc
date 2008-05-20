@@ -1553,7 +1553,8 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Object* foreign;
+    Foreign(IR::Node* foreign);
+    IR::Node* foreign;
 };
 
 // Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME ;

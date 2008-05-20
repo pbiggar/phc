@@ -16,8 +16,9 @@
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 public:
-	AST_unparser(ostream& os = cout, bool in_php = false);
+	AST_unparser (ostream& os = cout, bool in_php = false, PHP_unparser* foreign_unparser = NULL);
 	void unparse (IR::Node* in);
+	void unparse_foreign (IR::Node* in);
 
 public:
 	void children_php_script(AST::PHP_script* in);
@@ -72,17 +73,10 @@ public:
 	void children_branch (AST::Branch* in);
 	void children_goto(AST::Goto* in);
 	void children_label(AST::Label* in);
-	void children_foreach_reset(AST::Foreach_reset* in);
-	void children_foreach_next(AST::Foreach_next* in);
-	void children_foreach_end(AST::Foreach_end* in);
-	void children_foreach_has_key(AST::Foreach_has_key* in);
-	void children_foreach_get_key(AST::Foreach_get_key* in);
-	void children_foreach_get_val(AST::Foreach_get_val* in);
 	void children_nop(AST::Nop* in);
 	void children_name_with_default(AST::Name_with_default* in);
 
 	void children_interface_name(AST::INTERFACE_NAME* in);
-	void children_ht_iterator(AST::HT_ITERATOR* in);
 	void children_class_name(AST::CLASS_NAME* in);
 	void children_method_name(AST::METHOD_NAME* in);
 	void children_variable_name(AST::VARIABLE_NAME* in);
@@ -96,6 +90,7 @@ public:
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
 	void children_label_name(AST::LABEL_NAME* in);
+	void children_foreign(AST::Foreign* in);
 	
 	void visit_interface_name_list(List<AST::INTERFACE_NAME*>* in);
 	void visit_member_list(List<AST::Member*>* in);
@@ -126,6 +121,10 @@ public:
 protected:
 	stack<bool> in_string;
 	stack<AST::OP*> last_op;
+
+	// Use this to parse foreign nodes
+public:
+	PHP_unparser* foreign_unparser;
 };
 
 #endif // PHC_AST_UNPARSER 

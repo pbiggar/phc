@@ -19,7 +19,13 @@ class PHP_unparser
 // of standard output
 public:
 	PHP_unparser(ostream& os = cout, bool in_php = false);
+
+	// unparse the node
 	virtual void unparse (IR::Node* in) = 0;
+
+	// Other unparsers can call this unparser to unparse Foreign nodes from
+	// their IR.
+	virtual void unparse_foreign (IR::Node* in) = 0;
 
 // Interface
 protected:

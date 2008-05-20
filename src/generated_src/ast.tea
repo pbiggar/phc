@@ -756,5 +756,10 @@ public:
 class Foreign
 {
 public:
-       Object* foreign;
+	Foreign (IR::Node* foreign)
+	{
+		this->foreign = foreign;
+	}
+
+	IR::Node* foreign;
 };

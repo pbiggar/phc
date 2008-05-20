@@ -6535,6 +6535,13 @@ void Foreign::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Foreign::Foreign(IR::Node* foreign)
+{
+    {
+		this->foreign = foreign;
+	}
+}
+
 Branch::Branch(Expr* expr, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
 {
     this->expr = expr;
