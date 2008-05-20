@@ -5,335 +5,335 @@ type null.
 type id = int.
 
 % Forward declarations for conjunctive types
-type t_mir_PHP_script.
-type t_mir_Class_def.
-type t_mir_Class_mod.
-type t_mir_Interface_def.
-type t_mir_Method.
-type t_mir_Signature.
-type t_mir_Method_mod.
-type t_mir_Formal_parameter.
-type t_mir_Type.
-type t_mir_Attribute.
-type t_mir_Attr_mod.
-type t_mir_Name_with_default.
-type t_mir_Return.
-type t_mir_Static_declaration.
-type t_mir_Global.
-type t_mir_Try.
-type t_mir_Catch.
-type t_mir_Throw.
-type t_mir_Eval_expr.
-type t_mir_Branch.
-type t_mir_Goto.
-type t_mir_Label.
-type t_mir_Foreach_reset.
-type t_mir_Foreach_next.
-type t_mir_Foreach_end.
-type t_mir_Foreach_has_key.
-type t_mir_Foreach_get_key.
-type t_mir_Foreach_get_val.
-type t_mir_Assignment.
-type t_mir_Cast.
-type t_mir_Unary_op.
-type t_mir_Bin_op.
-type t_mir_Constant.
-type t_mir_Instanceof.
-type t_mir_Variable.
-type t_mir_Reflection.
-type t_mir_Pre_op.
-type t_mir_Array.
-type t_mir_Array_elem.
-type t_mir_Method_invocation.
-type t_mir_Actual_parameter.
-type t_mir_New.
+type t_PHP_script.
+type t_Class_def.
+type t_Class_mod.
+type t_Interface_def.
+type t_Method.
+type t_Signature.
+type t_Method_mod.
+type t_Formal_parameter.
+type t_Type.
+type t_Attribute.
+type t_Attr_mod.
+type t_Name_with_default.
+type t_Return.
+type t_Static_declaration.
+type t_Global.
+type t_Try.
+type t_Catch.
+type t_Throw.
+type t_Eval_expr.
+type t_Branch.
+type t_Goto.
+type t_Label.
+type t_Foreach_reset.
+type t_Foreach_next.
+type t_Foreach_end.
+type t_Foreach_has_key.
+type t_Foreach_get_key.
+type t_Foreach_get_val.
+type t_Assignment.
+type t_Cast.
+type t_Unary_op.
+type t_Bin_op.
+type t_Constant.
+type t_Instanceof.
+type t_Variable.
+type t_Reflection.
+type t_Pre_op.
+type t_Array.
+type t_Array_elem.
+type t_Method_invocation.
+type t_Actual_parameter.
+type t_New.
 
 
 % Forward declarations for disjunctive types
-type t_mir_Node.
-type t_mir_Statement.
-type t_mir_Member.
-type t_mir_Expr.
-type t_mir_Literal.
-type t_mir_Variable_name.
-type t_mir_Target.
-type t_mir_Method_name.
-type t_mir_Class_name.
-type t_mir_Identifier.
+type t_Node.
+type t_Statement.
+type t_Member.
+type t_Expr.
+type t_Literal.
+type t_Variable_name.
+type t_Target.
+type t_Method_name.
+type t_Class_name.
+type t_Identifier.
 
 
 % Token declarations
-type t_mir_HT_ITERATOR ::= t_mir_HT_ITERATOR_id {id}.
-type t_mir_CLASS_NAME ::= t_mir_CLASS_NAME_id {id}.
-type t_mir_INTERFACE_NAME ::= t_mir_INTERFACE_NAME_id {id}.
-type t_mir_METHOD_NAME ::= t_mir_METHOD_NAME_id {id}.
-type t_mir_VARIABLE_NAME ::= t_mir_VARIABLE_NAME_id {id}.
-type t_mir_LABEL_NAME ::= t_mir_LABEL_NAME_id {id}.
-type t_mir_INT ::= t_mir_INT_id {id}.
-type t_mir_REAL ::= t_mir_REAL_id {id}.
-type t_mir_STRING ::= t_mir_STRING_id {id}.
-type t_mir_BOOL ::= t_mir_BOOL_id {id}.
-type t_mir_NIL ::= t_mir_NIL_id {id}.
-type t_mir_CAST ::= t_mir_CAST_id {id}.
-type t_mir_OP ::= t_mir_OP_id {id}.
-type t_mir_CONSTANT_NAME ::= t_mir_CONSTANT_NAME_id {id}.
+type t_HT_ITERATOR ::= t_HT_ITERATOR_id {id}.
+type t_CLASS_NAME ::= t_CLASS_NAME_id {id}.
+type t_INTERFACE_NAME ::= t_INTERFACE_NAME_id {id}.
+type t_METHOD_NAME ::= t_METHOD_NAME_id {id}.
+type t_VARIABLE_NAME ::= t_VARIABLE_NAME_id {id}.
+type t_LABEL_NAME ::= t_LABEL_NAME_id {id}.
+type t_INT ::= t_INT_id {id}.
+type t_REAL ::= t_REAL_id {id}.
+type t_STRING ::= t_STRING_id {id}.
+type t_BOOL ::= t_BOOL_id {id}.
+type t_NIL ::= t_NIL_id {id}.
+type t_CAST ::= t_CAST_id {id}.
+type t_OP ::= t_OP_id {id}.
+type t_CONSTANT_NAME ::= t_CONSTANT_NAME_id {id}.
 
 
 % Conjunctive types
-type t_mir_PHP_script ::= t_mir_PHP_script_id {id}.
-type t_mir_Class_def ::= t_mir_Class_def_id {id}.
-type t_mir_Class_mod ::= t_mir_Class_mod_id {id}.
-type t_mir_Interface_def ::= t_mir_Interface_def_id {id}.
-type t_mir_Method ::= t_mir_Method_id {id}.
-type t_mir_Signature ::= t_mir_Signature_id {id}.
-type t_mir_Method_mod ::= t_mir_Method_mod_id {id}.
-type t_mir_Formal_parameter ::= t_mir_Formal_parameter_id {id}.
-type t_mir_Type ::= t_mir_Type_id {id}.
-type t_mir_Attribute ::= t_mir_Attribute_id {id}.
-type t_mir_Attr_mod ::= t_mir_Attr_mod_id {id}.
-type t_mir_Name_with_default ::= t_mir_Name_with_default_id {id}.
-type t_mir_Return ::= t_mir_Return_id {id}.
-type t_mir_Static_declaration ::= t_mir_Static_declaration_id {id}.
-type t_mir_Global ::= t_mir_Global_id {id}.
-type t_mir_Try ::= t_mir_Try_id {id}.
-type t_mir_Catch ::= t_mir_Catch_id {id}.
-type t_mir_Throw ::= t_mir_Throw_id {id}.
-type t_mir_Eval_expr ::= t_mir_Eval_expr_id {id}.
-type t_mir_Branch ::= t_mir_Branch_id {id}.
-type t_mir_Goto ::= t_mir_Goto_id {id}.
-type t_mir_Label ::= t_mir_Label_id {id}.
-type t_mir_Foreach_reset ::= t_mir_Foreach_reset_id {id}.
-type t_mir_Foreach_next ::= t_mir_Foreach_next_id {id}.
-type t_mir_Foreach_end ::= t_mir_Foreach_end_id {id}.
-type t_mir_Foreach_has_key ::= t_mir_Foreach_has_key_id {id}.
-type t_mir_Foreach_get_key ::= t_mir_Foreach_get_key_id {id}.
-type t_mir_Foreach_get_val ::= t_mir_Foreach_get_val_id {id}.
-type t_mir_Assignment ::= t_mir_Assignment_id {id}.
-type t_mir_Cast ::= t_mir_Cast_id {id}.
-type t_mir_Unary_op ::= t_mir_Unary_op_id {id}.
-type t_mir_Bin_op ::= t_mir_Bin_op_id {id}.
-type t_mir_Constant ::= t_mir_Constant_id {id}.
-type t_mir_Instanceof ::= t_mir_Instanceof_id {id}.
-type t_mir_Variable ::= t_mir_Variable_id {id}.
-type t_mir_Reflection ::= t_mir_Reflection_id {id}.
-type t_mir_Pre_op ::= t_mir_Pre_op_id {id}.
-type t_mir_Array ::= t_mir_Array_id {id}.
-type t_mir_Array_elem ::= t_mir_Array_elem_id {id}.
-type t_mir_Method_invocation ::= t_mir_Method_invocation_id {id}.
-type t_mir_Actual_parameter ::= t_mir_Actual_parameter_id {id}.
-type t_mir_New ::= t_mir_New_id {id}.
+type t_PHP_script ::= t_PHP_script_id {id}.
+type t_Class_def ::= t_Class_def_id {id}.
+type t_Class_mod ::= t_Class_mod_id {id}.
+type t_Interface_def ::= t_Interface_def_id {id}.
+type t_Method ::= t_Method_id {id}.
+type t_Signature ::= t_Signature_id {id}.
+type t_Method_mod ::= t_Method_mod_id {id}.
+type t_Formal_parameter ::= t_Formal_parameter_id {id}.
+type t_Type ::= t_Type_id {id}.
+type t_Attribute ::= t_Attribute_id {id}.
+type t_Attr_mod ::= t_Attr_mod_id {id}.
+type t_Name_with_default ::= t_Name_with_default_id {id}.
+type t_Return ::= t_Return_id {id}.
+type t_Static_declaration ::= t_Static_declaration_id {id}.
+type t_Global ::= t_Global_id {id}.
+type t_Try ::= t_Try_id {id}.
+type t_Catch ::= t_Catch_id {id}.
+type t_Throw ::= t_Throw_id {id}.
+type t_Eval_expr ::= t_Eval_expr_id {id}.
+type t_Branch ::= t_Branch_id {id}.
+type t_Goto ::= t_Goto_id {id}.
+type t_Label ::= t_Label_id {id}.
+type t_Foreach_reset ::= t_Foreach_reset_id {id}.
+type t_Foreach_next ::= t_Foreach_next_id {id}.
+type t_Foreach_end ::= t_Foreach_end_id {id}.
+type t_Foreach_has_key ::= t_Foreach_has_key_id {id}.
+type t_Foreach_get_key ::= t_Foreach_get_key_id {id}.
+type t_Foreach_get_val ::= t_Foreach_get_val_id {id}.
+type t_Assignment ::= t_Assignment_id {id}.
+type t_Cast ::= t_Cast_id {id}.
+type t_Unary_op ::= t_Unary_op_id {id}.
+type t_Bin_op ::= t_Bin_op_id {id}.
+type t_Constant ::= t_Constant_id {id}.
+type t_Instanceof ::= t_Instanceof_id {id}.
+type t_Variable ::= t_Variable_id {id}.
+type t_Reflection ::= t_Reflection_id {id}.
+type t_Pre_op ::= t_Pre_op_id {id}.
+type t_Array ::= t_Array_id {id}.
+type t_Array_elem ::= t_Array_elem_id {id}.
+type t_Method_invocation ::= t_Method_invocation_id {id}.
+type t_Actual_parameter ::= t_Actual_parameter_id {id}.
+type t_New ::= t_New_id {id}.
 
 
 % Disjunctive types
-type t_mir_Identifier ::= 
-		  t_mir_Identifier_t_mir_INTERFACE_NAME_id { t_mir_INTERFACE_NAME } 
-		| t_mir_Identifier_t_mir_CLASS_NAME_id { t_mir_CLASS_NAME } 
-		| t_mir_Identifier_t_mir_METHOD_NAME_id { t_mir_METHOD_NAME } 
-		| t_mir_Identifier_t_mir_VARIABLE_NAME_id { t_mir_VARIABLE_NAME } 
-		| t_mir_Identifier_t_mir_CAST_id { t_mir_CAST } 
-		| t_mir_Identifier_t_mir_OP_id { t_mir_OP } 
-		| t_mir_Identifier_t_mir_CONSTANT_NAME_id { t_mir_CONSTANT_NAME } 
-		| t_mir_Identifier_t_mir_LABEL_NAME_id { t_mir_LABEL_NAME } 
+type t_Identifier ::= 
+		  identifier_INTERFACE_NAME_id { t_INTERFACE_NAME } 
+		| identifier_CLASS_NAME_id { t_CLASS_NAME } 
+		| identifier_METHOD_NAME_id { t_METHOD_NAME } 
+		| identifier_VARIABLE_NAME_id { t_VARIABLE_NAME } 
+		| identifier_CAST_id { t_CAST } 
+		| identifier_OP_id { t_OP } 
+		| identifier_CONSTANT_NAME_id { t_CONSTANT_NAME } 
+		| identifier_LABEL_NAME_id { t_LABEL_NAME } 
 		.
-type t_mir_Class_name ::= 
-		  t_mir_Class_name_t_mir_CLASS_NAME_id { t_mir_CLASS_NAME } 
-		| t_mir_Class_name_t_mir_Reflection_id { t_mir_Reflection } 
+type t_Class_name ::= 
+		  class_name_CLASS_NAME_id { t_CLASS_NAME } 
+		| class_name_Reflection_id { t_Reflection } 
 		.
-type t_mir_Method_name ::= 
-		  t_mir_Method_name_t_mir_METHOD_NAME_id { t_mir_METHOD_NAME } 
-		| t_mir_Method_name_t_mir_Reflection_id { t_mir_Reflection } 
+type t_Method_name ::= 
+		  method_name_METHOD_NAME_id { t_METHOD_NAME } 
+		| method_name_Reflection_id { t_Reflection } 
 		.
-type t_mir_Target ::= 
-		  t_mir_Target_t_mir_Assignment_id { t_mir_Assignment } 
-		| t_mir_Target_t_mir_Cast_id { t_mir_Cast } 
-		| t_mir_Target_t_mir_Unary_op_id { t_mir_Unary_op } 
-		| t_mir_Target_t_mir_Bin_op_id { t_mir_Bin_op } 
-		| t_mir_Target_t_mir_Constant_id { t_mir_Constant } 
-		| t_mir_Target_t_mir_Instanceof_id { t_mir_Instanceof } 
-		| t_mir_Target_t_mir_Variable_id { t_mir_Variable } 
-		| t_mir_Target_t_mir_Pre_op_id { t_mir_Pre_op } 
-		| t_mir_Target_t_mir_Method_invocation_id { t_mir_Method_invocation } 
-		| t_mir_Target_t_mir_New_id { t_mir_New } 
-		| t_mir_Target_t_mir_INT_id { t_mir_INT } 
-		| t_mir_Target_t_mir_REAL_id { t_mir_REAL } 
-		| t_mir_Target_t_mir_STRING_id { t_mir_STRING } 
-		| t_mir_Target_t_mir_BOOL_id { t_mir_BOOL } 
-		| t_mir_Target_t_mir_NIL_id { t_mir_NIL } 
-		| t_mir_Target_t_mir_Array_id { t_mir_Array } 
-		| t_mir_Target_t_mir_Foreach_has_key_id { t_mir_Foreach_has_key } 
-		| t_mir_Target_t_mir_Foreach_get_key_id { t_mir_Foreach_get_key } 
-		| t_mir_Target_t_mir_Foreach_get_val_id { t_mir_Foreach_get_val } 
-		| t_mir_Target_t_mir_CLASS_NAME_id { t_mir_CLASS_NAME } 
+type t_Target ::= 
+		  target_Assignment_id { t_Assignment } 
+		| target_Cast_id { t_Cast } 
+		| target_Unary_op_id { t_Unary_op } 
+		| target_Bin_op_id { t_Bin_op } 
+		| target_Constant_id { t_Constant } 
+		| target_Instanceof_id { t_Instanceof } 
+		| target_Variable_id { t_Variable } 
+		| target_Pre_op_id { t_Pre_op } 
+		| target_Method_invocation_id { t_Method_invocation } 
+		| target_New_id { t_New } 
+		| target_INT_id { t_INT } 
+		| target_REAL_id { t_REAL } 
+		| target_STRING_id { t_STRING } 
+		| target_BOOL_id { t_BOOL } 
+		| target_NIL_id { t_NIL } 
+		| target_Array_id { t_Array } 
+		| target_Foreach_has_key_id { t_Foreach_has_key } 
+		| target_Foreach_get_key_id { t_Foreach_get_key } 
+		| target_Foreach_get_val_id { t_Foreach_get_val } 
+		| target_CLASS_NAME_id { t_CLASS_NAME } 
 		.
-type t_mir_Variable_name ::= 
-		  t_mir_Variable_name_t_mir_VARIABLE_NAME_id { t_mir_VARIABLE_NAME } 
-		| t_mir_Variable_name_t_mir_Reflection_id { t_mir_Reflection } 
+type t_Variable_name ::= 
+		  variable_name_VARIABLE_NAME_id { t_VARIABLE_NAME } 
+		| variable_name_Reflection_id { t_Reflection } 
 		.
-type t_mir_Literal ::= 
-		  t_mir_Literal_t_mir_INT_id { t_mir_INT } 
-		| t_mir_Literal_t_mir_REAL_id { t_mir_REAL } 
-		| t_mir_Literal_t_mir_STRING_id { t_mir_STRING } 
-		| t_mir_Literal_t_mir_BOOL_id { t_mir_BOOL } 
-		| t_mir_Literal_t_mir_NIL_id { t_mir_NIL } 
+type t_Literal ::= 
+		  literal_INT_id { t_INT } 
+		| literal_REAL_id { t_REAL } 
+		| literal_STRING_id { t_STRING } 
+		| literal_BOOL_id { t_BOOL } 
+		| literal_NIL_id { t_NIL } 
 		.
-type t_mir_Expr ::= 
-		  t_mir_Expr_t_mir_Assignment_id { t_mir_Assignment } 
-		| t_mir_Expr_t_mir_Cast_id { t_mir_Cast } 
-		| t_mir_Expr_t_mir_Unary_op_id { t_mir_Unary_op } 
-		| t_mir_Expr_t_mir_Bin_op_id { t_mir_Bin_op } 
-		| t_mir_Expr_t_mir_Constant_id { t_mir_Constant } 
-		| t_mir_Expr_t_mir_Instanceof_id { t_mir_Instanceof } 
-		| t_mir_Expr_t_mir_Variable_id { t_mir_Variable } 
-		| t_mir_Expr_t_mir_Pre_op_id { t_mir_Pre_op } 
-		| t_mir_Expr_t_mir_Method_invocation_id { t_mir_Method_invocation } 
-		| t_mir_Expr_t_mir_New_id { t_mir_New } 
-		| t_mir_Expr_t_mir_INT_id { t_mir_INT } 
-		| t_mir_Expr_t_mir_REAL_id { t_mir_REAL } 
-		| t_mir_Expr_t_mir_STRING_id { t_mir_STRING } 
-		| t_mir_Expr_t_mir_BOOL_id { t_mir_BOOL } 
-		| t_mir_Expr_t_mir_NIL_id { t_mir_NIL } 
-		| t_mir_Expr_t_mir_Array_id { t_mir_Array } 
-		| t_mir_Expr_t_mir_Foreach_has_key_id { t_mir_Foreach_has_key } 
-		| t_mir_Expr_t_mir_Foreach_get_key_id { t_mir_Foreach_get_key } 
-		| t_mir_Expr_t_mir_Foreach_get_val_id { t_mir_Foreach_get_val } 
+type t_Expr ::= 
+		  expr_Assignment_id { t_Assignment } 
+		| expr_Cast_id { t_Cast } 
+		| expr_Unary_op_id { t_Unary_op } 
+		| expr_Bin_op_id { t_Bin_op } 
+		| expr_Constant_id { t_Constant } 
+		| expr_Instanceof_id { t_Instanceof } 
+		| expr_Variable_id { t_Variable } 
+		| expr_Pre_op_id { t_Pre_op } 
+		| expr_Method_invocation_id { t_Method_invocation } 
+		| expr_New_id { t_New } 
+		| expr_INT_id { t_INT } 
+		| expr_REAL_id { t_REAL } 
+		| expr_STRING_id { t_STRING } 
+		| expr_BOOL_id { t_BOOL } 
+		| expr_NIL_id { t_NIL } 
+		| expr_Array_id { t_Array } 
+		| expr_Foreach_has_key_id { t_Foreach_has_key } 
+		| expr_Foreach_get_key_id { t_Foreach_get_key } 
+		| expr_Foreach_get_val_id { t_Foreach_get_val } 
 		.
-type t_mir_Member ::= 
-		  t_mir_Member_t_mir_Method_id { t_mir_Method } 
-		| t_mir_Member_t_mir_Attribute_id { t_mir_Attribute } 
+type t_Member ::= 
+		  member_Method_id { t_Method } 
+		| member_Attribute_id { t_Attribute } 
 		.
-type t_mir_Statement ::= 
-		  t_mir_Statement_t_mir_Class_def_id { t_mir_Class_def } 
-		| t_mir_Statement_t_mir_Interface_def_id { t_mir_Interface_def } 
-		| t_mir_Statement_t_mir_Method_id { t_mir_Method } 
-		| t_mir_Statement_t_mir_Return_id { t_mir_Return } 
-		| t_mir_Statement_t_mir_Static_declaration_id { t_mir_Static_declaration } 
-		| t_mir_Statement_t_mir_Global_id { t_mir_Global } 
-		| t_mir_Statement_t_mir_Try_id { t_mir_Try } 
-		| t_mir_Statement_t_mir_Throw_id { t_mir_Throw } 
-		| t_mir_Statement_t_mir_Eval_expr_id { t_mir_Eval_expr } 
-		| t_mir_Statement_t_mir_Label_id { t_mir_Label } 
-		| t_mir_Statement_t_mir_Goto_id { t_mir_Goto } 
-		| t_mir_Statement_t_mir_Branch_id { t_mir_Branch } 
-		| t_mir_Statement_t_mir_Foreach_next_id { t_mir_Foreach_next } 
-		| t_mir_Statement_t_mir_Foreach_reset_id { t_mir_Foreach_reset } 
-		| t_mir_Statement_t_mir_Foreach_end_id { t_mir_Foreach_end } 
+type t_Statement ::= 
+		  statement_Class_def_id { t_Class_def } 
+		| statement_Interface_def_id { t_Interface_def } 
+		| statement_Method_id { t_Method } 
+		| statement_Return_id { t_Return } 
+		| statement_Static_declaration_id { t_Static_declaration } 
+		| statement_Global_id { t_Global } 
+		| statement_Try_id { t_Try } 
+		| statement_Throw_id { t_Throw } 
+		| statement_Eval_expr_id { t_Eval_expr } 
+		| statement_Label_id { t_Label } 
+		| statement_Goto_id { t_Goto } 
+		| statement_Branch_id { t_Branch } 
+		| statement_Foreach_next_id { t_Foreach_next } 
+		| statement_Foreach_reset_id { t_Foreach_reset } 
+		| statement_Foreach_end_id { t_Foreach_end } 
 		.
-type t_mir_Node ::= 
-		  t_mir_Node_t_mir_PHP_script_id { t_mir_PHP_script } 
-		| t_mir_Node_t_mir_Class_def_id { t_mir_Class_def } 
-		| t_mir_Node_t_mir_Interface_def_id { t_mir_Interface_def } 
-		| t_mir_Node_t_mir_Method_id { t_mir_Method } 
-		| t_mir_Node_t_mir_Return_id { t_mir_Return } 
-		| t_mir_Node_t_mir_Static_declaration_id { t_mir_Static_declaration } 
-		| t_mir_Node_t_mir_Global_id { t_mir_Global } 
-		| t_mir_Node_t_mir_Try_id { t_mir_Try } 
-		| t_mir_Node_t_mir_Throw_id { t_mir_Throw } 
-		| t_mir_Node_t_mir_Eval_expr_id { t_mir_Eval_expr } 
-		| t_mir_Node_t_mir_Label_id { t_mir_Label } 
-		| t_mir_Node_t_mir_Goto_id { t_mir_Goto } 
-		| t_mir_Node_t_mir_Branch_id { t_mir_Branch } 
-		| t_mir_Node_t_mir_Foreach_next_id { t_mir_Foreach_next } 
-		| t_mir_Node_t_mir_Foreach_reset_id { t_mir_Foreach_reset } 
-		| t_mir_Node_t_mir_Foreach_end_id { t_mir_Foreach_end } 
-		| t_mir_Node_t_mir_Class_mod_id { t_mir_Class_mod } 
-		| t_mir_Node_t_mir_Attribute_id { t_mir_Attribute } 
-		| t_mir_Node_t_mir_Signature_id { t_mir_Signature } 
-		| t_mir_Node_t_mir_Method_mod_id { t_mir_Method_mod } 
-		| t_mir_Node_t_mir_Formal_parameter_id { t_mir_Formal_parameter } 
-		| t_mir_Node_t_mir_Type_id { t_mir_Type } 
-		| t_mir_Node_t_mir_Attr_mod_id { t_mir_Attr_mod } 
-		| t_mir_Node_t_mir_Name_with_default_id { t_mir_Name_with_default } 
-		| t_mir_Node_t_mir_Catch_id { t_mir_Catch } 
-		| t_mir_Node_t_mir_VARIABLE_NAME_id { t_mir_VARIABLE_NAME } 
-		| t_mir_Node_t_mir_Reflection_id { t_mir_Reflection } 
-		| t_mir_Node_t_mir_Assignment_id { t_mir_Assignment } 
-		| t_mir_Node_t_mir_Cast_id { t_mir_Cast } 
-		| t_mir_Node_t_mir_Unary_op_id { t_mir_Unary_op } 
-		| t_mir_Node_t_mir_Bin_op_id { t_mir_Bin_op } 
-		| t_mir_Node_t_mir_Constant_id { t_mir_Constant } 
-		| t_mir_Node_t_mir_Instanceof_id { t_mir_Instanceof } 
-		| t_mir_Node_t_mir_Variable_id { t_mir_Variable } 
-		| t_mir_Node_t_mir_Pre_op_id { t_mir_Pre_op } 
-		| t_mir_Node_t_mir_Method_invocation_id { t_mir_Method_invocation } 
-		| t_mir_Node_t_mir_New_id { t_mir_New } 
-		| t_mir_Node_t_mir_INT_id { t_mir_INT } 
-		| t_mir_Node_t_mir_REAL_id { t_mir_REAL } 
-		| t_mir_Node_t_mir_STRING_id { t_mir_STRING } 
-		| t_mir_Node_t_mir_BOOL_id { t_mir_BOOL } 
-		| t_mir_Node_t_mir_NIL_id { t_mir_NIL } 
-		| t_mir_Node_t_mir_Array_id { t_mir_Array } 
-		| t_mir_Node_t_mir_Foreach_has_key_id { t_mir_Foreach_has_key } 
-		| t_mir_Node_t_mir_Foreach_get_key_id { t_mir_Foreach_get_key } 
-		| t_mir_Node_t_mir_Foreach_get_val_id { t_mir_Foreach_get_val } 
-		| t_mir_Node_t_mir_CLASS_NAME_id { t_mir_CLASS_NAME } 
-		| t_mir_Node_t_mir_Array_elem_id { t_mir_Array_elem } 
-		| t_mir_Node_t_mir_METHOD_NAME_id { t_mir_METHOD_NAME } 
-		| t_mir_Node_t_mir_Actual_parameter_id { t_mir_Actual_parameter } 
-		| t_mir_Node_t_mir_INTERFACE_NAME_id { t_mir_INTERFACE_NAME } 
-		| t_mir_Node_t_mir_CAST_id { t_mir_CAST } 
-		| t_mir_Node_t_mir_OP_id { t_mir_OP } 
-		| t_mir_Node_t_mir_CONSTANT_NAME_id { t_mir_CONSTANT_NAME } 
-		| t_mir_Node_t_mir_LABEL_NAME_id { t_mir_LABEL_NAME } 
-		| t_mir_Node_t_mir_HT_ITERATOR_id { t_mir_HT_ITERATOR } 
+type t_Node ::= 
+		  node_PHP_script_id { t_PHP_script } 
+		| node_Class_def_id { t_Class_def } 
+		| node_Interface_def_id { t_Interface_def } 
+		| node_Method_id { t_Method } 
+		| node_Return_id { t_Return } 
+		| node_Static_declaration_id { t_Static_declaration } 
+		| node_Global_id { t_Global } 
+		| node_Try_id { t_Try } 
+		| node_Throw_id { t_Throw } 
+		| node_Eval_expr_id { t_Eval_expr } 
+		| node_Label_id { t_Label } 
+		| node_Goto_id { t_Goto } 
+		| node_Branch_id { t_Branch } 
+		| node_Foreach_next_id { t_Foreach_next } 
+		| node_Foreach_reset_id { t_Foreach_reset } 
+		| node_Foreach_end_id { t_Foreach_end } 
+		| node_Class_mod_id { t_Class_mod } 
+		| node_Attribute_id { t_Attribute } 
+		| node_Signature_id { t_Signature } 
+		| node_Method_mod_id { t_Method_mod } 
+		| node_Formal_parameter_id { t_Formal_parameter } 
+		| node_Type_id { t_Type } 
+		| node_Attr_mod_id { t_Attr_mod } 
+		| node_Name_with_default_id { t_Name_with_default } 
+		| node_Catch_id { t_Catch } 
+		| node_VARIABLE_NAME_id { t_VARIABLE_NAME } 
+		| node_Reflection_id { t_Reflection } 
+		| node_Assignment_id { t_Assignment } 
+		| node_Cast_id { t_Cast } 
+		| node_Unary_op_id { t_Unary_op } 
+		| node_Bin_op_id { t_Bin_op } 
+		| node_Constant_id { t_Constant } 
+		| node_Instanceof_id { t_Instanceof } 
+		| node_Variable_id { t_Variable } 
+		| node_Pre_op_id { t_Pre_op } 
+		| node_Method_invocation_id { t_Method_invocation } 
+		| node_New_id { t_New } 
+		| node_INT_id { t_INT } 
+		| node_REAL_id { t_REAL } 
+		| node_STRING_id { t_STRING } 
+		| node_BOOL_id { t_BOOL } 
+		| node_NIL_id { t_NIL } 
+		| node_Array_id { t_Array } 
+		| node_Foreach_has_key_id { t_Foreach_has_key } 
+		| node_Foreach_get_key_id { t_Foreach_get_key } 
+		| node_Foreach_get_val_id { t_Foreach_get_val } 
+		| node_CLASS_NAME_id { t_CLASS_NAME } 
+		| node_Array_elem_id { t_Array_elem } 
+		| node_METHOD_NAME_id { t_METHOD_NAME } 
+		| node_Actual_parameter_id { t_Actual_parameter } 
+		| node_INTERFACE_NAME_id { t_INTERFACE_NAME } 
+		| node_CAST_id { t_CAST } 
+		| node_OP_id { t_OP } 
+		| node_CONSTANT_NAME_id { t_CONSTANT_NAME } 
+		| node_LABEL_NAME_id { t_LABEL_NAME } 
+		| node_HT_ITERATOR_id { t_HT_ITERATOR } 
 		.
 
 
 % Predicates
-predicate mir_PHP_script (ID:t_mir_PHP_script, STATEMENTS:list[t_mir_Statement]).
-predicate mir_Class_def (ID:t_mir_Class_def, CLASS_MOD:t_mir_Class_mod, CLASS_NAME:t_mir_CLASS_NAME, EXTENDS:maybe[t_mir_CLASS_NAME], IMPLEMENTS:list[t_mir_INTERFACE_NAME], MEMBERS:list[t_mir_Member]).
-predicate mir_Class_mod (ID:t_mir_Class_mod, IS_ABSTRACT:bool, IS_FINAL:bool).
-predicate mir_Interface_def (ID:t_mir_Interface_def, INTERFACE_NAME:t_mir_INTERFACE_NAME, EXTENDS:list[t_mir_INTERFACE_NAME], MEMBERS:list[t_mir_Member]).
-predicate mir_Method (ID:t_mir_Method, SIGNATURE:t_mir_Signature, STATEMENTS:maybe[list[t_mir_Statement]]).
-predicate mir_Signature (ID:t_mir_Signature, METHOD_MOD:t_mir_Method_mod, IS_REF:bool, METHOD_NAME:t_mir_METHOD_NAME, FORMAL_PARAMETERS:list[t_mir_Formal_parameter]).
-predicate mir_Method_mod (ID:t_mir_Method_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool).
-predicate mir_Formal_parameter (ID:t_mir_Formal_parameter, TYPE:t_mir_Type, IS_REF:bool, VAR:t_mir_Name_with_default).
-predicate mir_Type (ID:t_mir_Type, CLASS_NAME:maybe[t_mir_CLASS_NAME]).
-predicate mir_Attribute (ID:t_mir_Attribute, ATTR_MOD:t_mir_Attr_mod, VAR:t_mir_Name_with_default).
-predicate mir_Attr_mod (ID:t_mir_Attr_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool).
-predicate mir_Name_with_default (ID:t_mir_Name_with_default, VARIABLE_NAME:t_mir_VARIABLE_NAME, EXPR:maybe[t_mir_Expr]).
-predicate mir_Return (ID:t_mir_Return, EXPR:maybe[t_mir_Expr]).
-predicate mir_Static_declaration (ID:t_mir_Static_declaration, VAR:t_mir_Name_with_default).
-predicate mir_Global (ID:t_mir_Global, VARIABLE_NAME:t_mir_Variable_name).
-predicate mir_Try (ID:t_mir_Try, STATEMENTS:list[t_mir_Statement], CATCHES:list[t_mir_Catch]).
-predicate mir_Catch (ID:t_mir_Catch, CLASS_NAME:t_mir_CLASS_NAME, VARIABLE_NAME:t_mir_VARIABLE_NAME, STATEMENTS:list[t_mir_Statement]).
-predicate mir_Throw (ID:t_mir_Throw, EXPR:t_mir_Expr).
-predicate mir_Eval_expr (ID:t_mir_Eval_expr, EXPR:t_mir_Expr).
-predicate mir_Branch (ID:t_mir_Branch, VARIABLE_NAME:t_mir_VARIABLE_NAME, IFTRUE:t_mir_LABEL_NAME, IFFALSE:t_mir_LABEL_NAME).
-predicate mir_Goto (ID:t_mir_Goto, LABEL_NAME:t_mir_LABEL_NAME).
-predicate mir_Label (ID:t_mir_Label, LABEL_NAME:t_mir_LABEL_NAME).
-predicate mir_Foreach_reset (ID:t_mir_Foreach_reset, ARRAY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Foreach_next (ID:t_mir_Foreach_next, ARRAY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Foreach_end (ID:t_mir_Foreach_end, ARRAY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Foreach_has_key (ID:t_mir_Foreach_has_key, ARRAY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Foreach_get_key (ID:t_mir_Foreach_get_key, ARRAY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Foreach_get_val (ID:t_mir_Foreach_get_val, ARRAY:t_mir_VARIABLE_NAME, KEY:t_mir_VARIABLE_NAME, ITER:t_mir_HT_ITERATOR).
-predicate mir_Assignment (ID:t_mir_Assignment, VARIABLE:t_mir_Variable, IS_REF:bool, EXPR:t_mir_Expr).
-predicate mir_Cast (ID:t_mir_Cast, CAST:t_mir_CAST, VARIABLE_NAME:t_mir_VARIABLE_NAME).
-predicate mir_Unary_op (ID:t_mir_Unary_op, OP:t_mir_OP, VARIABLE_NAME:t_mir_VARIABLE_NAME).
-predicate mir_Bin_op (ID:t_mir_Bin_op, LEFT:t_mir_VARIABLE_NAME, OP:t_mir_OP, RIGHT:t_mir_VARIABLE_NAME).
-predicate mir_Constant (ID:t_mir_Constant, CLASS_NAME:maybe[t_mir_CLASS_NAME], CONSTANT_NAME:t_mir_CONSTANT_NAME).
-predicate mir_Instanceof (ID:t_mir_Instanceof, VARIABLE_NAME:t_mir_VARIABLE_NAME, CLASS_NAME:t_mir_Class_name).
-predicate mir_Variable (ID:t_mir_Variable, TARGET:maybe[t_mir_Target], VARIABLE_NAME:t_mir_Variable_name, ARRAY_INDICES:list[maybe[t_mir_VARIABLE_NAME]]).
-predicate mir_Reflection (ID:t_mir_Reflection, VARIABLE_NAME:t_mir_VARIABLE_NAME).
-predicate mir_Pre_op (ID:t_mir_Pre_op, OP:t_mir_OP, VARIABLE:t_mir_Variable).
-predicate mir_Array (ID:t_mir_Array, ARRAY_ELEMS:list[t_mir_Array_elem]).
-predicate mir_Array_elem (ID:t_mir_Array_elem, KEY:maybe[t_mir_Expr], IS_REF:bool, VAL:t_mir_Expr).
-predicate mir_Method_invocation (ID:t_mir_Method_invocation, TARGET:maybe[t_mir_Target], METHOD_NAME:t_mir_Method_name, ACTUAL_PARAMETERS:list[t_mir_Actual_parameter]).
-predicate mir_Actual_parameter (ID:t_mir_Actual_parameter, IS_REF:bool, TARGET:maybe[t_mir_Target], VARIABLE_NAME:t_mir_Variable_name, ARRAY_INDICES:list[maybe[t_mir_VARIABLE_NAME]]).
-predicate mir_New (ID:t_mir_New, CLASS_NAME:t_mir_Class_name, ACTUAL_PARAMETERS:list[t_mir_Actual_parameter]).
+predicate pHP_script (ID:t_PHP_script, STATEMENTS:list[t_Statement]).
+predicate class_def (ID:t_Class_def, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
+predicate class_mod (ID:t_Class_mod, IS_ABSTRACT:bool, IS_FINAL:bool).
+predicate interface_def (ID:t_Interface_def, INTERFACE_NAME:t_INTERFACE_NAME, EXTENDS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
+predicate method (ID:t_Method, SIGNATURE:t_Signature, STATEMENTS:maybe[list[t_Statement]]).
+predicate signature (ID:t_Signature, METHOD_MOD:t_Method_mod, IS_REF:bool, METHOD_NAME:t_METHOD_NAME, FORMAL_PARAMETERS:list[t_Formal_parameter]).
+predicate method_mod (ID:t_Method_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool).
+predicate formal_parameter (ID:t_Formal_parameter, TYPE:t_Type, IS_REF:bool, VAR:t_Name_with_default).
+predicate type (ID:t_Type, CLASS_NAME:maybe[t_CLASS_NAME]).
+predicate attribute (ID:t_Attribute, ATTR_MOD:t_Attr_mod, VAR:t_Name_with_default).
+predicate attr_mod (ID:t_Attr_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool).
+predicate name_with_default (ID:t_Name_with_default, VARIABLE_NAME:t_VARIABLE_NAME, EXPR:maybe[t_Expr]).
+predicate return (ID:t_Return, EXPR:maybe[t_Expr]).
+predicate static_declaration (ID:t_Static_declaration, VAR:t_Name_with_default).
+predicate global (ID:t_Global, VARIABLE_NAME:t_Variable_name).
+predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHES:list[t_Catch]).
+predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
+predicate throw (ID:t_Throw, EXPR:t_Expr).
+predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
+predicate branch (ID:t_Branch, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME).
+predicate goto (ID:t_Goto, LABEL_NAME:t_LABEL_NAME).
+predicate label (ID:t_Label, LABEL_NAME:t_LABEL_NAME).
+predicate foreach_reset (ID:t_Foreach_reset, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate foreach_next (ID:t_Foreach_next, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate foreach_end (ID:t_Foreach_end, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate foreach_has_key (ID:t_Foreach_has_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate foreach_get_key (ID:t_Foreach_get_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate foreach_get_val (ID:t_Foreach_get_val, ARRAY:t_VARIABLE_NAME, KEY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
+predicate assignment (ID:t_Assignment, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr).
+predicate cast (ID:t_Cast, CAST:t_CAST, VARIABLE_NAME:t_VARIABLE_NAME).
+predicate unary_op (ID:t_Unary_op, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME).
+predicate bin_op (ID:t_Bin_op, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME).
+predicate constant (ID:t_Constant, CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME).
+predicate instanceof (ID:t_Instanceof, VARIABLE_NAME:t_VARIABLE_NAME, CLASS_NAME:t_Class_name).
+predicate variable (ID:t_Variable, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[maybe[t_VARIABLE_NAME]]).
+predicate reflection (ID:t_Reflection, VARIABLE_NAME:t_VARIABLE_NAME).
+predicate pre_op (ID:t_Pre_op, OP:t_OP, VARIABLE:t_Variable).
+predicate array (ID:t_Array, ARRAY_ELEMS:list[t_Array_elem]).
+predicate array_elem (ID:t_Array_elem, KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr).
+predicate method_invocation (ID:t_Method_invocation, TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
+predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[maybe[t_VARIABLE_NAME]]).
+predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
 
-predicate mir_HT_ITERATOR (ID:t_mir_HT_ITERATOR, VALUE:int).
-predicate mir_CLASS_NAME (ID:t_mir_CLASS_NAME, VALUE:string).
-predicate mir_INTERFACE_NAME (ID:t_mir_INTERFACE_NAME, VALUE:string).
-predicate mir_METHOD_NAME (ID:t_mir_METHOD_NAME, VALUE:string).
-predicate mir_VARIABLE_NAME (ID:t_mir_VARIABLE_NAME, VALUE:string).
-predicate mir_LABEL_NAME (ID:t_mir_LABEL_NAME, VALUE:string).
-predicate mir_INT (ID:t_mir_INT, VALUE:int).
-predicate mir_REAL (ID:t_mir_REAL, VALUE:float).
-predicate mir_STRING (ID:t_mir_STRING, VALUE:string).
-predicate mir_BOOL (ID:t_mir_BOOL, VALUE:bool).
-predicate mir_NIL (ID:t_mir_NIL, VALUE:null).
-predicate mir_CAST (ID:t_mir_CAST, VALUE:string).
-predicate mir_OP (ID:t_mir_OP, VALUE:string).
-predicate mir_CONSTANT_NAME (ID:t_mir_CONSTANT_NAME, VALUE:string).
+predicate hT_ITERATOR (ID:t_HT_ITERATOR, VALUE:int).
+predicate cLASS_NAME (ID:t_CLASS_NAME, VALUE:string).
+predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
+predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).
+predicate vARIABLE_NAME (ID:t_VARIABLE_NAME, VALUE:string).
+predicate lABEL_NAME (ID:t_LABEL_NAME, VALUE:string).
+predicate iNT (ID:t_INT, VALUE:int).
+predicate rEAL (ID:t_REAL, VALUE:float).
+predicate sTRING (ID:t_STRING, VALUE:string).
+predicate bOOL (ID:t_BOOL, VALUE:bool).
+predicate nIL (ID:t_NIL, VALUE:null).
+predicate cAST (ID:t_CAST, VALUE:string).
+predicate oP (ID:t_OP, VALUE:string).
+predicate cONSTANT_NAME (ID:t_CONSTANT_NAME, VALUE:string).
 
