@@ -18,6 +18,9 @@ public:
 	void unparse (IR::Node* in);
 	void unparse_foreign (IR::Node* in);
 
+protected:
+	AST_unparser ast_unparser;
+
 public:
 	// handle MIR-only contructs here, using unparse_foreign
 	void children_foreach_reset(MIR::Foreach_reset* in);
@@ -29,8 +32,6 @@ public:
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 
 
-protected:
-	AST_unparser ast_unparser;
 };
 
 #endif // PHC_MIR_UNPARSER 

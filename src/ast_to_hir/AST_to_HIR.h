@@ -60,12 +60,6 @@ class AST_to_HIR : public AST::Fold
  HIR::Branch*,				// Branch*
  HIR::Goto*,				// Goto*
  HIR::Label*,				// Label*
- HIR::Foreach_reset*,	// Foreach_reset*
- HIR::Foreach_next*,	// Foreach_next*
- HIR::Foreach_end*,	// Foreach_end*
- HIR::Foreach_has_key*,	// Foreach_has_key*
- HIR::Foreach_get_key*,	// Foreach_get_key*
- HIR::Foreach_get_val*,	// Foreach_get_val*
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
@@ -96,7 +90,6 @@ class AST_to_HIR : public AST::Fold
  HIR::Node*,				// Commented_node*
  HIR::Identifier*,			// Identifier*
  HIR::Node*,			// Source_rep*
- HIR::HT_ITERATOR*,		// HT_ITERATOR*
  HIR::CLASS_NAME*,		// CLASS_NAME*
  HIR::INTERFACE_NAME*,	// INTERFACE_NAME*
  HIR::METHOD_NAME*,		// METHOD_NAME*
@@ -379,54 +372,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Foreach_reset* fold_impl_foreach_reset (AST::Foreach_reset* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_reset* result;
-		result = new HIR::Foreach_reset (variable_name, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Foreach_next* fold_impl_foreach_next (AST::Foreach_next* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_next* result;
-		result = new HIR::Foreach_next (variable_name, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Foreach_end* fold_impl_foreach_end (AST::Foreach_end* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_end* result;
-		result = new HIR::Foreach_end (variable_name, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Foreach_has_key* fold_impl_foreach_has_key (AST::Foreach_has_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_has_key* result;
-		result = new HIR::Foreach_has_key (variable_name, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Foreach_get_key* fold_impl_foreach_get_key (AST::Foreach_get_key* orig, HIR::VARIABLE_NAME* variable_name, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_get_key* result;
-		result = new HIR::Foreach_get_key (variable_name, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Foreach_get_val* fold_impl_foreach_get_val (AST::Foreach_get_val* orig, HIR::VARIABLE_NAME* variable_name, HIR::VARIABLE_NAME* key, HIR::HT_ITERATOR* iter) 
-	{
-		HIR::Foreach_get_val* result;
-		result = new HIR::Foreach_get_val (variable_name, key, iter);
-		copy_attrs (result, orig);
-		return result;
-	}
-	
 	HIR::Assignment* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
 	{
 		HIR::Assignment* result;
@@ -540,14 +485,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::HT_ITERATOR* fold_ht_iterator (AST::HT_ITERATOR* orig)
-	{
-		HIR::HT_ITERATOR* result;
-		result = new HIR::HT_ITERATOR (orig->value);
 		copy_attrs (result, orig);
 		return result;
 	}

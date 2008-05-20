@@ -35,7 +35,6 @@ Statement ::=
 	| Switch | Break | Continue
 	| Declare | Nop
 	| Label | Goto | Branch
-	| Foreach_next | Foreach_reset | Foreach_end
 	| Foreign
 	;
 
@@ -105,13 +104,6 @@ Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-
 {-
    Expressions
 -}
@@ -125,7 +117,6 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
-	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	| Foreign
 	;
 
