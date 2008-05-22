@@ -17,10 +17,12 @@
 		"rm $base.clp",
 
 		// run clpa with a sample analysis on it
-		"3rdparty/clpa/bin/clpa --debug add_rule src/analyse/cfgdot.clp",
+#		"3rdparty/clpa/bin/clpa --debug eval_rule src/analyse/cfgdot.clp",
+		"3rdparty/clpa/bin/clpa src/analyse/cfgdot.clp",
 
-		// create graph
-		"dot -Tps Test.dot > Test.ps"
+		// create graphs
+		"dot -Tps CFG.dot > CFG.ps",
+		"dot -Tps PPs.dot > PPs.ps",
 	);
 
 	foreach ($commands as $command)

@@ -55,7 +55,7 @@ build_pps (PREV, [H|STMTs]),
 
 % Build a .dot file to view the PPs
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
-	Name = "Test",
+	Name = "PPs",
 	\/(loc (P), N = dg_node{P,[]}):list_all(N, Nodes),
 	\/(pp_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
 
@@ -67,70 +67,70 @@ type cfg_node ::=
 |	nexit						% function exit
 |	n_block{t_Statement}	% basic block (BBs only have 1 statement in them)
 |	n_branch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
+|	n_label{t_Label}		% branch target
 .
 
 predicate cfg_edge (N0:cfg_node, N1:cfg_node).
 
-% Do a depth-first search of the pp graph, starting at P, returning N for the
-% node repesenting P, and adding edges as you go.
-predicate dfs (P:pp, N:cfg_node).
+% Add a CFG edge between FROM and a cfg_node created from TO (which is in the
+% pp_graph).
+predicate dfs (FROM:cfg_node, TO:pp).
 
 % Start at the top
-pp_edge (p_entry, P), dfs (P, N), +cfg_edge (nentry, N).
+pp_edge (p_entry, P), +dfs (nentry, P).
+
+% End condition
+dfs (N, p_exit), +cfg_edge (N, nexit).
 
 % Normal statement - add edge and recurse
-dfs (p_s{S}, N), S \= statement_Branch{_}, S = statement_Goto{_},
-	N = n_block{S}, % bind N for returning the node
+dfs (N, p_s{S}), 
+	S \= statement_Branch{_}, S \= statement_Goto{_},
+	N1 = n_block{S},
+	+cfg_edge (N, N1),
 	% recurse
-	pp_edge (p_s{S}, P1), dfs (P1, N1),
-	+cfg_edge (N, N1).
+		pp_edge (p_s{S}, P1), % get next pp
+		+dfs (N1, P1).
 
-dfs (p_exit, N), N = nexit, +cfg_edge (N, N).
+% Branch
+dfs (N, p_s{S}),
+	S = statement_Branch{B},
+	branch (B, VAR, IFT_ID, IFF_ID),
+	N1 = n_branch {VAR},
+	+cfg_edge (N, N1),
+	% find targets and recurse
+		% find the names of the labels for the branch targets
+			lABEL_NAME (IFT_ID, IFT_NAME), 
+			lABEL_NAME (IFF_ID, IFF_NAME),
+		% find the pp for the TRUE target
+			label (L_IFTRUE, L_IFT_ID), lABEL_NAME (L_IFT_ID, IFT_NAME),
+			loc (LOC_TRUE), LOC_TRUE = p_s{statement_Label{L_IFTRUE}},
+			+dfs (N1, LOC_TRUE),
+		% and the FALSE target
+			label (L_IFFALSE, L_IFF_ID), lABEL_NAME (L_IFF_ID, IFF_NAME),
+			loc (LOC_FALSE), LOC_FALSE = p_s{statement_Label{L_IFFALSE}},
+			+dfs (N1, LOC_FALSE).
 
-
-
-
-
-% Create CFG edges the a branch
-%loc(p_s{statement_Branch{B}}),
-%	 % find the labels for the branch
-%	branch (B, VAR, lABEL_NAME_ID{IFT}, lABEL_NAME_ID{IFF}),
-%	% the target of the label will have the same VALUE, not the same ID
-%	label (IFT, LABEL_VALUE_TRUE),
-%	label (IFF, LABEL_VALUE_FALSE),
-%	% TODO we have to extract the value from a LABEL_NAME token here, do it in
-%	% a minute. I need to change this structure, it blows.
-%	% Find the program points for these labels
-%	
-%	
-%	+cfg_edge (NB, NT), +cfg_edge (NB, NF),
-%
-%
-%cfg_edge (N0, N1) :- pp_edge (P0, P1), 
-%	node_for_pp (N0, P0),
-%	node_for_pp (N1, P1).
-%
-%% Get a node to represent the program point
-%predicate node_for_pp (P:pp, n:cfg_node).
-%
-%node_for_pp (p_exit, n_exit).
-%node_for_pp (p_s{statement_Branch{B}, n_branch{B}).
-%
-%% now turn into CFG
-%%predicate ebranch (P:pp, COND:t_VARIABLE_NAME, P0:pp, P1:pp).
-
-% Branches and gotos
-%build_cfg (PREV, [statement_Goto{GOTO}|STMTs]),
-%	goto (GOTO, L1, L2),
-	% we need the statement after a label_name, but that isnt avaialbe.
-	% Construct program_points first
-%	la
-%	+edge (PREV, TARGET)
-	
-
-%build_cfg (PREV, [statement_Branch{_}|_]),
+% Goto
+dfs (N, p_s{S}),
+	S = statement_Goto{G},
+	goto (G, LABEL_ID),
+	N1 = n_block {S},
+	+cfg_edge (N, N1),
+	% find targets and recurse
+		% find the names of the labels for the branch targets
+			lABEL_NAME (LABEL_ID, LABEL_NAME), 
+		% find the pp for the TRUE target
+			label (FOUND_LABEL, FOUND_NAME_ID), lABEL_NAME (FOUND_NAME_ID, LABEL_NAME),
+			loc (LOC), LOC = p_s{statement_Label{FOUND_LABEL}},
+			+dfs (N1, LOC).
 
 
-%?- loc (P).
+% Build a .dot file to view the CFG
+dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
+	Name = "CFG",
+	\/(cfg_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
+
+
+
+%?- dfs (P, N).
 ?- cfg_edge (P0, P1).
-
