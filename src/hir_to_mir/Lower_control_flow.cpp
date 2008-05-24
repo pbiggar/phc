@@ -146,9 +146,8 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *		 ...;
  *   }
  * into
- *		foreach_reset ($arr, iter); 
- *		loop()
- *		{
+ *			foreach_reset ($arr, iter); 
+ *		L0:
  *			$T = foreach_has_key ($arr, iter);
  *			if ($T) goto L1; else goto L2;
  *		L1:
@@ -156,9 +155,9 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *			$val = foreach_get_val ($arr, iter); // optional
  *			....  
  *			foreach_next ($arr, iter); 
- *		}
+ *			goto L0:
  *		L2:
- *		foreach_end ($arr, iter);
+ *			foreach_end ($arr, iter);
  */
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
@@ -170,13 +169,14 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	out->push_back (new Foreach_reset (array_name->clone (), iter));
 
 
-	// loop ()
-	Loop* loop = new Loop (new List<Statement*>);
+	// L0:
+	Label* l0 = fresh_label ();
+	out->push_back (new Label (l0->label_name));
 
 
 	// $T = foreach_has_key ($arr, iter);
 	VARIABLE_NAME* has_key = fresh_var_name ("THK");
-	loop->statements->push_back (
+	out->push_back (
 		new Eval_expr (
 			new Assignment (
 				new Variable (has_key),
@@ -189,11 +189,11 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// if ($T) goto L1; else goto L2;
 	Label* l1 = fresh_label ();
 	Label* l2 = fresh_label ();
-	loop->statements->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+	out->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
 
 
 	// L1:
-	loop->statements->push_back (l1);
+	out->push_back (l1);
 
 
 	// $key = foreach_get_key ($arr, iter); 
@@ -210,7 +210,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	assert (key->is_simple_variable ());
 
-	loop->statements->push_back (new Eval_expr (
+	out->push_back (new Eval_expr (
 			new Assignment (
 				key,
 				false,
@@ -218,7 +218,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
-	loop->statements->push_back (new Eval_expr (
+	out->push_back (new Eval_expr (
 		new Assignment (
 		in->val->clone (),
 		in->is_ref,
@@ -229,16 +229,17 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// ....  
-	loop->statements->push_back_all (in->statements);
+	out->push_back_all (in->statements);
 
 
 	// foreach_next ($arr, iter); 
-	loop->statements->push_back (
+	out->push_back (
 		new Foreach_next (
 			array_name->clone (),
 			iter->clone ()));
 
-	lower_loop(loop, out);
+	// goto L0:
+	out->push_back (new Goto (l0->label_name->clone ()));
 
 
 	// L2:
@@ -254,252 +255,6 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// wrap it in a PHP script to call visit
 	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new List<Node*>)); // TODO we should have nodes here
 }
-
-/* Convert 
- *   foreach ($array as $key => $value)
- *   {
- *		 ...;
- *   }
- * into
- *	  if ($array->refcount)
- *		$temp_array = $array; // copy by val
- *	  else
- *		$temp_array =& $array; // copy by ref
- *
- *	// (if array is an expression, use former form)
- *
- *	  unset ($value);
- *	  while (list ($Tkey, ) = each ($temp_array))
- *	  {
- *	   $key =& $Tkey;
- *		$value = $temp_array [$Tkey]; // use =& form for an array reference
- *		 ...
- *	  }
- *
- *	  This saves from messing about with locks, and such, which I
- *	  believe are just refcounts anyway.
- */
-
-#if 0
-void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
-{
-	Variable* temp_array = fresh_var ("LCF_ARRAY_");
-
-	// we need a temporary even if the key is provided
-	Variable* Tkey = fresh_var ("LCF_KEY_");
-
-	// If the expression is a varaible then we may want to use a
-	// reference. Otherwise, we just use a copy.
-	// $temp_array =& $array
-//	bool array_ref = (dynamic_cast<Variable*>(in->expr) != NULL);
-	Eval_expr* array_copy = new Eval_expr (
-		new Assignment (temp_array, in->is_ref, in->expr));
-
-	Eval_expr* reset = NULL;
-	if (in->is_ref)
-	{
-		// reset ($temp_array);
-		reset = new Eval_expr (
-				new Method_invocation (
-					NULL,
-					new METHOD_NAME (new String ("reset")),
-					new List<Actual_parameter*> (
-						new Actual_parameter (false, temp_array->clone ())
-					)
-				)
-			);
-	}
-
-	// unset ($value);
-/*	List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-	unset_params->push_back (new Actual_parameter (false, in->val));
-	Eval_expr* unset = new Eval_expr (
-			new Method_invocation (NULL, 
-				new METHOD_NAME (new String ("unset")),
-				unset_params)
-			);
-*/
-
-	// list ($Tkey, ) = each ($temp_array);
-	List_assignment *assign = new List_assignment (
-			new List<List_element*> (Tkey),
-			new Method_invocation (
-				NULL, 
-				new METHOD_NAME (new String ("each")),
-				new List<Actual_parameter*> (
-					new Actual_parameter (false, temp_array->clone ())
-				)
-			)
-		);
-
-	// $key &= $Tkey;
-	if (in->key)
-		in->statements->push_front (
-				new Eval_expr (
-					new Assignment (
-						in->key,
-						false,
-						Tkey->clone ())));
-
-
-	// $value = $temp_array [$Tkey]
-	// or
-	// $value =& $temp_array [$Tkey]
-	in->statements->push_front (
-			new Eval_expr (
-				new Assignment (
-					in->val,
-					in->is_ref,
-					new Variable (
-						NULL,
-						temp_array->variable_name->clone (), 
-						new List<Expr*> (Tkey->clone ())))
-			)
-		);
-
-	// while (list ($key, ) = each ($temp_array))
-   Loop* while_stmt = new Loop (assign, in->statements);
-
-	// A continue in a for loop lands just before the increment
-	add_label<Continue> (in, while_stmt->statements);
-
-	// push it all back
-	out->push_back (array_copy);
-	if (reset) out->push_back (reset);
-//	out->push_back (unset);
-	lower_loop (while_stmt, out);
-}
-
-void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
-{
-	// use the same lock variable throughout the program
-	static Variable* locks = fresh_var ("LCF_LOCK_");
-
-	Variable* temp_array = fresh_var ("LCF_ARRAY_");
-
-	// if no key is provided, use a temporary
-	Variable* Tkey;
-	if (in->key) Tkey = in->key;
-	else Tkey = fresh_var ("LCF_KEY_");
-
-	// If the expression is a varaible then we may want to use a
-	// reference. Otherwise, we just use a copy.
-	bool array_ref = (dynamic_cast<Variable*>(in->expr) != NULL);
-	Eval_expr* copy  = new Eval_expr (
-		new Assignment (temp_array, array_ref, in->expr));
-
-	List <Statement*>* lock_check = new List<Statement*> ();
-	Variable* lock_created;
-	// if ($locks[$x]) {
-	if (array_ref)
-	{
-
-		lock_created = fresh_var ("LCF_LOCK_CREATED_");
-
-		// $tmp = $x;
-		List<Statement*>* by_copy = new List<Statement*> ();
-		by_copy->push_back (new Eval_expr (
-					new Assignment (temp_array->clone (), true, in->expr)));
-		// lock_created = false;
-		by_copy->push_back (new Eval_expr (
-					new Assignment (lock_created->clone (), false, new BOOL (false))));
-
-
-		// else 
-		// { 
-		//		$tmp =& $x;
-		List<Statement*>* by_ref = new List<Statement*> ();
-		by_ref->push_back (new Eval_expr (
-					new Assignment (temp_array->clone (), false, in->expr)));
-		//		lock_created = true;
-		by_ref->push_back (new Eval_expr (
-					new Assignment (lock_created->clone (), false, new BOOL (false))));
-
-		//		$locks[$x] = true; 
-		// }
-		by_ref->push_back (new Eval_expr (
-					new Assignment (get_lock_access (in->expr), true, in->expr)));
-
-		// Finally create the if
-		lock_check->push_back (new If (get_lock_access (in->expr), by_ref, by_copy));
-
-	}
-
-	// reset ($temp_array);
-/*	List<Actual_parameter*> *reset_params 
-	= new List<Actual_parameter*> ();
-	reset_params->push_back (new Actual_parameter (false, temp_array));
-	Eval_expr* reset = new Eval_expr (
-		new Method_invocation (NULL, 
-			new METHOD_NAME (new String ("reset")),
-			reset_params)
-		);
-*/
-	// unset ($value);
-/*	List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-	unset_params->push_back (new Actual_parameter (false, in->val));
-	Eval_expr* unset = new Eval_expr (
-			new Method_invocation (NULL, 
-				new METHOD_NAME (new String ("unset")),
-				unset_params)
-			);
-*/
-
-	// each ($temp_array)
-	List<Actual_parameter*> *each_params 
-		= new List<Actual_parameter*> ();
-	each_params->push_back (new Actual_parameter (false, temp_array));
-	Method_invocation *each = new Method_invocation (NULL, 
-			new METHOD_NAME (new String ("each")),
-			each_params);
-
-	// list ($key, ) = each ($temp_array);
-	List<List_element*> *lhss = new List< List_element*> ();
-	lhss->push_back (Tkey);
-	List_assignment *assign = new List_assignment (lhss, each);
-
-	// $value = $temp_array [$Tkey]
-	// or
-	// $value =& $temp_array [$Tkey]
-	List<Expr*> *indices = new List<Expr*> ();
-	indices->push_back (Tkey);
-	Variable *val = new Variable (NULL, temp_array->variable_name, indices);
-	Assignment *fetch_val = new Assignment (in->val, in->is_ref, val);
-	in->statements->push_front (new Eval_expr (fetch_val));
-
-	// while (list ($key, ) = each ($temp_array))
-   Loop* while_stmt = new Loop (assign, in->statements);
-
-	// A continue in a for loop lands just before the increment
-	add_label<Continue> (in, while_stmt->statements);
-
-	// reset the lock
-	Statement* lock_unset;
-	if (array_ref)
-	{
-		//		if (lock_created);
-		lock_unset = If (new Eval_expr (lock_created->clone ()));
-
-
-		// unset ($lock [$asrray]);
-		List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-		unset_params->push_back (new Actual_parameter (false, get_lock_access (in->expr)));
-		lock_unset->iftrue->push_back (new Eval_expr (
-				new Method_invocation (NULL, 
-					new METHOD_NAME (new String ("unset")),
-					unset_params)
-				));
-	}
-
-
-	// push it all back
-	out->push_back (copy);
-	if (array_ref) lower_if (check_lock, out);
-//	if (reset) out->push_back (reset);
-	lower_loop (while_stmt, out);
-	if (array_ref) out->push_back (lock_unset);
-}
-#endif
 
 void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 {
