@@ -28,23 +28,50 @@ void run (PHP_script* in)
 
 	if(cap.all_pointers.size() != cap.unique_pointers.size())
 	{
+		// Only print the first time
+		if (success)
+			printf ("Failure\n");
+
 		success = false;
 		
 		// get a bit more information here. We want to print information if it all fails.
-		cap.all_nodes.sort ();
-		Node* last = NULL;
-		for (typename List<Node*>::const_iterator n = cap.all_nodes.begin(); n != cap.all_nodes.end(); n++)
+		cap.all_pointers.sort ();
+		Object* last = NULL;
+		tfor_lci (&cap.all_pointers, Object, i)
 		{
 			if (last)
 			{
-				if ((*n) == last)
+				if ((*i) == last)
 				{
-					printf ("Problem found: (%p)\n", *n);
-					debug (*n);
-					xdebug (*n);
+					printf ("Problem found: (%p)\n", *i);
+					if (Node* node = dynamic_cast<Node*> (*i))
+					{
+						// Print the nodes
+						debug (node);
+						xdebug (node);
+					}
+					else
+					{
+						// Find the owners of the attribute
+						tfor_lci (&cap.all_nodes, Node, n)
+						{
+							AttrMap::const_iterator a;
+							for(a = (*n)->attrs->begin(); a != (*n)->attrs->end(); a++)
+							{
+								if ((*a).second == *i)
+								{
+									printf ("In parent node: (%p), attribute name %s\n", *n, (*a).first.c_str ());
+									debug (*n);
+									xadebug (*n);
+								}
+							}
+
+						}
+
+					}
 				}
 			}
-			last = *n;
+			last = *i;
 		}
 	}
 }
@@ -72,8 +99,12 @@ extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 
 extern "C" void unload ()
 {
-	if (is_run && success)
+	if (!is_run)
+		printf("Failure\n");
+	else if (success)
 		printf("Success\n");
 	else
-		printf("Failure\n");
+	{
+		; // Failure will already be printed above
+	}
 }
