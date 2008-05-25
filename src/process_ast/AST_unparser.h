@@ -90,7 +90,6 @@ public:
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
 	void children_label_name(AST::LABEL_NAME* in);
-	void children_foreign(AST::Foreign* in);
 	
 	void visit_interface_name_list(List<AST::INTERFACE_NAME*>* in);
 	void visit_member_list(List<AST::Member*>* in);
@@ -105,6 +104,7 @@ public:
 	void visit_actual_parameter_list(List<AST::Actual_parameter*>* in);
 	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
 
+	void pre_foreign(AST::Foreign* in);
 	void pre_node(AST::Node* in);
 	void pre_bin_op(AST::Bin_op* in);
 	void post_bin_op(AST::Bin_op* in);

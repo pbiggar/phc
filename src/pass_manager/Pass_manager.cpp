@@ -346,7 +346,6 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 				HIR_unparser().unparse (in->as_HIR ());
 			}
 
-			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
 			if (in->is_AST())
 				AST_unparser().unparse (in->as_AST()->clone ()); // TODO do we still need to clone?
 

@@ -161,9 +161,14 @@ void Transform::pre_nop(Nop* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Foreign* Transform::pre_foreign(Foreign* in)
+Expr* Transform::pre_foreign_expr(Foreign_expr* in)
 {
     return in;
+}
+
+void Transform::pre_foreign_statement(Foreign_statement* in, List<Statement*>* out)
+{
+    out->push_back(in);
 }
 
 void Transform::pre_branch(Branch* in, List<Statement*>* out)
@@ -507,9 +512,14 @@ void Transform::post_nop(Nop* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Foreign* Transform::post_foreign(Foreign* in)
+Expr* Transform::post_foreign_expr(Foreign_expr* in)
 {
     return in;
+}
+
+void Transform::post_foreign_statement(Foreign_statement* in, List<Statement*>* out)
+{
+    out->push_back(in);
 }
 
 void Transform::post_branch(Branch* in, List<Statement*>* out)
@@ -878,7 +888,11 @@ void Transform::children_nop(Nop* in)
 {
 }
 
-void Transform::children_foreign(Foreign* in)
+void Transform::children_foreign_expr(Foreign_expr* in)
+{
+}
+
+void Transform::children_foreign_statement(Foreign_statement* in)
 {
 }
 
@@ -2031,8 +2045,14 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(pre_foreign(dynamic_cast<Foreign*>(in)));
+    case Foreign_statement::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreign_statement(dynamic_cast<Foreign_statement*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
     	return;
     }
     assert(0);
@@ -2089,7 +2109,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
     assert(0);
 }
@@ -2159,7 +2179,7 @@ Target* Transform::pre_target(Target* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2379,8 +2399,14 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(post_foreign(dynamic_cast<Foreign*>(in)));
+    case Foreign_statement::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreign_statement(dynamic_cast<Foreign_statement*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
     	return;
     }
     assert(0);
@@ -2437,7 +2463,7 @@ Expr* Transform::post_expr(Expr* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
     assert(0);
 }
@@ -2507,7 +2533,7 @@ Target* Transform::post_target(Target* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2595,8 +2621,8 @@ void Transform::children_statement(Statement* in)
     case Branch::ID:
     	children_branch(dynamic_cast<Branch*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_statement::ID:
+    	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
     	break;
     }
 }
@@ -2681,8 +2707,8 @@ void Transform::children_expr(Expr* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     	break;
     }
 }
@@ -2793,8 +2819,8 @@ void Transform::children_target(Target* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

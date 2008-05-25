@@ -1374,7 +1374,7 @@ void AST_unparser::unparse_foreign (IR::Node* in)
 	assert (false);
 }
 
-void AST_unparser::children_foreign(Foreign* in)
+void AST_unparser::pre_foreign(Foreign* in)
 {
 	// If there are foreign nodes in this IR, we must have some way to print
 	// them out.

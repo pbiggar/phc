@@ -53,6 +53,8 @@ template
  class _Eval_expr,
  class _Nop,
  class _Foreign,
+ class _Foreign_expr,
+ class _Foreign_statement,
  class _Branch,
  class _Goto,
  class _Label,
@@ -550,9 +552,14 @@ public:
 		return fold_impl_nop(in);
 	}
 
-	virtual _Foreign fold_foreign(Foreign* in)
+	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
 	{
-		return fold_impl_foreign(in);
+		return fold_impl_foreign_expr(in);
+	}
+
+	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
+	{
+		return fold_impl_foreign_statement(in);
 	}
 
 	virtual _Branch fold_branch(Branch* in)
@@ -841,7 +848,8 @@ public:
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Nop fold_impl_nop(Nop* orig) { assert(0); };
-	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
+	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
+	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _Expr expr, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
@@ -906,6 +914,10 @@ public:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
 			case Directive::ID:
 				return fold_directive(dynamic_cast<Directive*>(in));
+			case Foreign_expr::ID:
+				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+			case Foreign_statement::ID:
+				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 			case Variable::ID:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Nested_list_elements::ID:
@@ -954,8 +966,6 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Array_elem::ID:
@@ -1078,8 +1088,8 @@ public:
 				return fold_goto(dynamic_cast<Goto*>(in));
 			case Branch::ID:
 				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Foreign_statement::ID:
+				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 		}
 		assert(0);
 	}
@@ -1092,6 +1102,18 @@ public:
 				return fold_method(dynamic_cast<Method*>(in));
 			case Attribute::ID:
 				return fold_attribute(dynamic_cast<Attribute*>(in));
+		}
+		assert(0);
+	}
+
+	virtual _Foreign fold_foreign(Foreign* in)
+	{
+		switch(in->classid())
+		{
+			case Foreign_expr::ID:
+				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+			case Foreign_statement::ID:
+				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 		}
 		assert(0);
 	}
@@ -1142,8 +1164,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Foreign_expr::ID:
+				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
 		}
 		assert(0);
 	}
@@ -1236,8 +1258,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Foreign_expr::ID:
+				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 		}
@@ -1318,8 +1340,8 @@ public:
 				return fold_goto(dynamic_cast<Goto*>(in));
 			case Branch::ID:
 				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Foreign_statement::ID:
+				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 			case Switch_case::ID:
 				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:
@@ -1397,6 +1419,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

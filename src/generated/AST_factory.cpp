@@ -243,10 +243,15 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Nop();
     }
-    if(!strcmp(type_id, "Foreign"))
+    if(!strcmp(type_id, "Foreign_expr"))
     {
     	assert(i == args->end());
-    	return new Foreign();
+    	return new Foreign_expr();
+    }
+    if(!strcmp(type_id, "Foreign_statement"))
+    {
+    	assert(i == args->end());
+    	return new Foreign_statement();
     }
     if(!strcmp(type_id, "Branch"))
     {

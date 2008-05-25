@@ -15,6 +15,7 @@
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
 #include "Lower_control_flow.h"
+#include "HIR_to_MIR.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
@@ -162,11 +163,15 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
-	VARIABLE_NAME*	array_name = in->variable_name;
+	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
+	 * them first. */
+	HIR_to_MIR* folder = new HIR_to_MIR;
+	MIR::VARIABLE_NAME* array_name = folder->fold_variable_name (in->variable_name);
 
 	// foreach_reset ($arr, iter); 
-	HT_ITERATOR* iter = fresh_iter ();
-	out->push_back (new Foreach_reset (array_name->clone (), iter));
+	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();
+	out->push_back (new Foreign_statement (
+		new MIR::Foreach_reset (array_name->clone (), iter)));
 
 
 	// L0:
@@ -180,10 +185,11 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		new Eval_expr (
 			new Assignment (
 				new Variable (has_key),
-				false, 
-				new Foreach_has_key (
-					array_name->clone (),
-					iter->clone ()))));
+				false,
+				new Foreign_expr (
+					new MIR::Foreach_has_key (
+						array_name->clone (),
+						iter->clone ())))));
 
 
 	// if ($T) goto L1; else goto L2;
@@ -197,7 +203,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// $key = foreach_get_key ($arr, iter); 
-	Foreach_get_key* get_key = new Foreach_get_key (
+	MIR::Foreach_get_key* get_key = new MIR::Foreach_get_key (
 		array_name->clone (),
 		iter->clone ());
 
@@ -214,18 +220,23 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			new Assignment (
 				key,
 				false,
-				get_key)));
+				new Foreign_expr (get_key))));
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
+	MIR::VARIABLE_NAME* mir_key = 
+		folder->fold_variable_name (
+			dynamic_cast<VARIABLE_NAME*> (key->variable_name));
+
 	out->push_back (new Eval_expr (
 		new Assignment (
 		in->val->clone (),
 		in->is_ref,
-		new Foreach_get_val (
-			array_name->clone (),
-			(dynamic_cast<VARIABLE_NAME*>(key->variable_name))->clone(),
-			iter->clone ()))));
+		new Foreign_expr (
+			new MIR::Foreach_get_val (
+				array_name->clone (),
+				mir_key,
+				iter->clone ())))));
 
 
 	// ....  
@@ -233,10 +244,10 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// foreach_next ($arr, iter); 
-	out->push_back (
-		new Foreach_next (
-			array_name->clone (),
-			iter->clone ()));
+	out->push_back (new Foreign_statement (
+			new MIR::Foreach_next (
+				array_name->clone (),
+				iter->clone ())));
 
 	// goto L0:
 	out->push_back (new Goto (l0->label_name->clone ()));
@@ -247,10 +258,10 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// foreach_end ($arr, iter);
-	out->push_back (
-		new Foreach_end (
+	out->push_back (new Foreign_statement (
+		new MIR::Foreach_end (
 			array_name->clone (),
-			iter->clone ()));
+			iter->clone ())));
 
 	// wrap it in a PHP script to call visit
 	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new List<Node*>)); // TODO we should have nodes here

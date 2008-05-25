@@ -45,15 +45,17 @@ class MIR_to_AST : public MIR::Fold
  AST::Throw*,				// Throw*
  AST::Eval_expr*,			// Eval_expr*
  AST::Foreign*,			// Foreign*
+ AST::Foreign_statement*,	// Foreign_statement*
+ AST::Foreign_expr*,			// Foreign_expr*
  AST::Branch*,				// Branch*
  AST::Goto*,				// Goto*
  AST::Label*,				// Label*
- AST::Foreign*,			// Foreach_reset*
- AST::Foreign*,			// Foreach_next*
- AST::Foreign*,			// Foreach_end*
- AST::Foreign*,			// Foreach_has_key*
- AST::Foreign*,			// Foreach_get_key*
- AST::Foreign*,			// Foreach_get_val*
+ AST::Foreign_statement*,	// Foreach_reset*
+ AST::Foreign_statement*,	// Foreach_next*
+ AST::Foreign_statement*,	// Foreach_end*
+ AST::Foreign_expr*,			// Foreach_has_key*
+ AST::Foreign_expr*,			// Foreach_get_key*
+ AST::Foreign_expr*,			// Foreach_get_val*
  AST::Expr*,				// Expr*
  AST::Literal*,				// Literal*
  AST::Assignment*,			// Assignment*
@@ -75,7 +77,7 @@ class MIR_to_AST : public MIR::Fold
  AST::New*,					// New*
  AST::Class_name*,			// Class_name*
  AST::Identifier*,			// Identifier*
- AST::Foreign*,			// HT_ITERATOR*
+ AST::Foreign_expr*,	// HT_ITERATOR*
  AST::CLASS_NAME*,		// CLASS_NAME*
  AST::INTERFACE_NAME*,	// INTERFACE_NAME*
  AST::METHOD_NAME*,		// METHOD_NAME*
@@ -288,34 +290,34 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Foreign* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Foreign* iter) 
+	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
 	
 	AST::Assignment* fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
@@ -436,9 +438,9 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Foreign* fold_ht_iterator (MIR::HT_ITERATOR* orig)
+	AST::Foreign_expr* fold_ht_iterator (MIR::HT_ITERATOR* orig)
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
 
 	AST::CLASS_NAME* fold_class_name(MIR::CLASS_NAME* orig) 

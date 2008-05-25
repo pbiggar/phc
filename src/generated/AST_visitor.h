@@ -62,6 +62,8 @@ public:
     virtual void pre_eval_expr(Eval_expr* in);
     virtual void pre_nop(Nop* in);
     virtual void pre_foreign(Foreign* in);
+    virtual void pre_foreign_expr(Foreign_expr* in);
+    virtual void pre_foreign_statement(Foreign_statement* in);
     virtual void pre_branch(Branch* in);
     virtual void pre_goto(Goto* in);
     virtual void pre_label(Label* in);
@@ -146,6 +148,8 @@ public:
     virtual void post_eval_expr(Eval_expr* in);
     virtual void post_nop(Nop* in);
     virtual void post_foreign(Foreign* in);
+    virtual void post_foreign_expr(Foreign_expr* in);
+    virtual void post_foreign_statement(Foreign_statement* in);
     virtual void post_branch(Branch* in);
     virtual void post_goto(Goto* in);
     virtual void post_label(Label* in);
@@ -226,7 +230,8 @@ public:
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_nop(Nop* in);
-    virtual void children_foreign(Foreign* in);
+    virtual void children_foreign_expr(Foreign_expr* in);
+    virtual void children_foreign_statement(Foreign_statement* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);
@@ -307,7 +312,8 @@ public:
     virtual void pre_throw_chain(Throw* in);
     virtual void pre_eval_expr_chain(Eval_expr* in);
     virtual void pre_nop_chain(Nop* in);
-    virtual void pre_foreign_chain(Foreign* in);
+    virtual void pre_foreign_expr_chain(Foreign_expr* in);
+    virtual void pre_foreign_statement_chain(Foreign_statement* in);
     virtual void pre_branch_chain(Branch* in);
     virtual void pre_goto_chain(Goto* in);
     virtual void pre_label_chain(Label* in);
@@ -380,7 +386,8 @@ public:
     virtual void post_throw_chain(Throw* in);
     virtual void post_eval_expr_chain(Eval_expr* in);
     virtual void post_nop_chain(Nop* in);
-    virtual void post_foreign_chain(Foreign* in);
+    virtual void post_foreign_expr_chain(Foreign_expr* in);
+    virtual void post_foreign_statement_chain(Foreign_statement* in);
     virtual void post_branch_chain(Branch* in);
     virtual void post_goto_chain(Goto* in);
     virtual void post_label_chain(Label* in);
