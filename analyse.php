@@ -12,7 +12,7 @@
 	$commands = array (
 		// create .db files in the current directory
 		"rm -f *.db",
-		"src/phc --sdump=mir $filename > $base.clp",
+		"src/phc --sdump=clar $filename > $base.clp",
 		"3rdparty/clpa/bin/clpa --debug parse_warnings $base.clp",
 		"rm $base.clp",
 
@@ -22,7 +22,9 @@
 
 		// create graphs
 		"dot -Tps CFG.dot > CFG.ps",
+		"rm CFG.dot",
 		"dot -Tps PPs.dot > PPs.ps",
+		"rm PPs.dot",
 	);
 
 	foreach ($commands as $command)

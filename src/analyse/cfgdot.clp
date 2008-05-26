@@ -3,6 +3,7 @@ using dotty.
 
 analyze session_name("mir").
 
+session cfg (PROG:string, METHOD:string).
 
 % To build the CFG, we go through 3 phases. First, we create the linked list
 % of nodes, using program points. Secondly, we do a top-down pass through
@@ -39,7 +40,7 @@ predicate pp_edge (P0:pp, P1:pp).
 predicate build_pps (P:pp, STMTS:list[t_Statement]).
 
 % Annotate a script with program points
-pHP_script (_, STMTs),
+method (_, _, yes{STMTs}),
 	A = p_entry,
 	+loc(A),							% entry point
 	+build_pps (A, STMTs).		% connect to statements
@@ -138,4 +139,3 @@ dfs (N, p_s{S}),
 dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
 	Name = "CFG",
 	\/(cfg_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
-

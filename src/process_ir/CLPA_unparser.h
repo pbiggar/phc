@@ -129,7 +129,10 @@ public:
 
 		init_keywords ();
 
-		cout << "import \"src/generated/" << *uc_prefix << ".clp\".\n" << endl;
+		cout 
+			<< "import \"src/generated/" << *uc_prefix << ".clp\".\n"
+			<< "import \"src/analyse/base.clp\".\n\n"
+			<< "+filename (\"" << *filename << "\").\n" << endl;
 	}
 
 	void init_keywords ()
