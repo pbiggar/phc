@@ -354,6 +354,31 @@ public:
 			cout << ",\n\t" << **i;
 		}
 		cout << ").\n" << endl;
+
+		// Print out the attributes
+		AttrMap::const_iterator i;
+		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
+		{
+			cout 
+				<< "+" << *prefix << "(\"" << *filename << "\")->attr ("
+				<< get_id (in)->value() << ", "
+				<< "\"" << (*i).first << "\", ";
+
+			Object* attr = (*i).second;
+
+			if(String* str = dynamic_cast<String*>(attr))
+				cout << "attr_str{\"" << *str << "\"}";
+			else if(Integer* _int = dynamic_cast<Integer*>(attr))
+				cout << "attr_int{" << _int->value () << "}";
+			else if(Boolean* b = dynamic_cast<Boolean*>(attr))
+				cout << "attr_bool{" << (b->value () ? "true" : "false") << "}";
+			else
+				cout << "attr_unavaiable";
+
+			cout << ").\n";
+		}
+
+		cout << endl;
 	}
 
 protected:

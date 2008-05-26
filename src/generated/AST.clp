@@ -1,8 +1,6 @@
-session ast (PROG:string).
+import "src/analyse/base.clp".
 
-% Type not supplied by Saturn
-type null.
-type id = int.
+session ast (PROG:string).
 
 % Forward declarations for conjunctive types
 type t_PHP_script.
