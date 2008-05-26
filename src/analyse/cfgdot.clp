@@ -67,7 +67,7 @@ type cfg_node ::=
 |	nexit						% function exit
 |	n_block{t_Statement}	% basic block (BBs only have 1 statement in them)
 |	n_branch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
-|	n_label{t_Label}		% branch target
+|	n_empty{t_Statement}		% branch target, generally
 .
 
 predicate cfg_edge (N0:cfg_node, N1:cfg_node).
@@ -85,7 +85,11 @@ dfs (N, p_exit), +cfg_edge (N, nexit).
 % Normal statement - add edge and recurse
 dfs (N, p_s{S}), 
 	S \= statement_Branch{_}, S \= statement_Goto{_},
-	N1 = n_block{S},
+	(
+		S = statement_Label{_}, N1 = n_empty{S}
+	; 
+		S \= statement_Label{_}, N1 = n_block{S}
+	),
 	+cfg_edge (N, N1),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
@@ -135,7 +139,3 @@ dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
 	Name = "CFG",
 	\/(cfg_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
 
-
-
-%?- dfs (P, N).
-?- cfg_edge (P0, P1).
