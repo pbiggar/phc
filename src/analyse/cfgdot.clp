@@ -91,39 +91,44 @@ dfs (N, p_s{S}),
 		pp_edge (p_s{S}, P1), % get next pp
 		+dfs (N1, P1).
 
+% find the PP for a LABEL_NAME
+predicate label_name_loc (in LABEL_NAME:string, out PP:pp).
+
+label_name_loc (NAME_VAL, PP) :-
+	lABEL_NAME (NAME_ID, NAME_VAL),
+	label (LABEL_ID, NAME_ID),
+	loc (LOC), LOC = p_s{statement_Label{LABEL_ID}},
+	PP = LOC.
+
+
 % Branch
 dfs (N, p_s{S}),
 	S = statement_Branch{B},
-	branch (B, VAR, IFT_ID, IFF_ID),
+	branch (B, VAR, TRUE_LABEL, FALSE_LABEL),
 	N1 = n_branch {VAR},
 	+cfg_edge (N, N1),
 	% find targets and recurse
 		% find the names of the labels for the branch targets
-			lABEL_NAME (IFT_ID, IFT_NAME), 
-			lABEL_NAME (IFF_ID, IFF_NAME),
-		% find the pp for the TRUE target
-			label (L_IFTRUE, L_IFT_ID), lABEL_NAME (L_IFT_ID, IFT_NAME),
-			loc (LOC_TRUE), LOC_TRUE = p_s{statement_Label{L_IFTRUE}},
-			+dfs (N1, LOC_TRUE),
-		% and the FALSE target
-			label (L_IFFALSE, L_IFF_ID), lABEL_NAME (L_IFF_ID, IFF_NAME),
-			loc (LOC_FALSE), LOC_FALSE = p_s{statement_Label{L_IFFALSE}},
-			+dfs (N1, LOC_FALSE).
+			lABEL_NAME (TRUE_LABEL, TRUE_LABEL_NAME), 
+			lABEL_NAME (FALSE_LABEL, FALSE_LABEL_NAME), 
+		% find their PPs
+			label_name_loc (TRUE_LABEL_NAME, TRUE_PP),
+			label_name_loc (FALSE_LABEL_NAME, FALSE_PP),
+		% recurse
+			+dfs (N1, TRUE_PP),
+			+dfs (N1, FALSE_PP).
 
 % Goto
 dfs (N, p_s{S}),
 	S = statement_Goto{G},
-	goto (G, LABEL_ID),
+	goto (G, LABEL),
 	N1 = n_block {S},
 	+cfg_edge (N, N1),
-	% find targets and recurse
+	% find target and recurse
 		% find the names of the labels for the branch targets
-			lABEL_NAME (LABEL_ID, LABEL_NAME), 
-		% find the pp for the TRUE target
-			label (FOUND_LABEL, FOUND_NAME_ID), lABEL_NAME (FOUND_NAME_ID, LABEL_NAME),
-			loc (LOC), LOC = p_s{statement_Label{FOUND_LABEL}},
-			+dfs (N1, LOC).
-
+			lABEL_NAME (LABEL, LABEL_NAME), 
+			label_name_loc (LABEL_NAME, PP),
+			+dfs (N1, PP).
 
 % Build a .dot file to view the CFG
 dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
