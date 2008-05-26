@@ -63,6 +63,13 @@ class Demi_eval : public Transform
 			}
 			convert = !convert;
 		}
+
+		// We will now need a symbol table entry for all the variables in this program. */
+		VARIABLE_NAME* post_variable_name (VARIABLE_NAME* in)
+		{
+			in->attrs->erase ("phc.codegen.st_entry_not_required");
+			return in;
+		}
 };
 
 // Fresh variables are marked as not needing a symbol table entry automatically. We cant get one in an eval (for now).
