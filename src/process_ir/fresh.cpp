@@ -90,12 +90,6 @@ namespace HIR
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
 	}
-
-	Label* fresh_label ()
-	{
-		return new Label (
-				new LABEL_NAME (fresh("L")));
-	}
 }
 
 namespace MIR

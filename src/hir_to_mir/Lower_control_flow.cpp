@@ -42,26 +42,31 @@ void Lower_control_flow::add_label (Node* in, List<Statement*> *out)
 	if (!in->attrs->has (attr_name))
 		return;
 
-	Label* label = dynamic_cast<Label*> (in->attrs->get (attr_name));
+	MIR::Label* label = dynamic_cast<MIR::Label*> (in->attrs->get (attr_name));
 	assert (label != NULL);
-	out->push_back (label->clone ());
+	out->push_back (new Foreign_statement (label->clone ()));
 }
 
 // Get IN's exit label, or create one for it, and return it.
 template <class T>
-Label* Lower_control_flow::exit_label (Node* in)
+MIR::Label* Lower_control_flow::exit_label (Node* in)
 {
 	const char* attr_name = get_attr_name <T> ();
 	if (in->attrs->has (attr_name))
 	{
-		Label *label = dynamic_cast <Label*> (in->attrs->get (attr_name));
+		MIR::Label *label = dynamic_cast <MIR::Label*> (in->attrs->get (attr_name));
 		assert (label);
 		return label;
 	}
 
-	Label *label = fresh_label ();
+	MIR::Label *label = MIR::fresh_label ();
 	in->attrs->set (attr_name, label);
 	return label;
+}
+
+MIR::VARIABLE_NAME* Lower_control_flow::fold_var (VARIABLE_NAME* in)
+{
+	return folder.fold_variable_name (in);
 }
 
 
@@ -86,26 +91,29 @@ Label* Lower_control_flow::exit_label (Node* in)
 void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 {
 	// Don't lower them if they're already lowered
-	Label *l1 = fresh_label ();
-	Label *l2 = fresh_label ();
-	Label *l3 = fresh_label ();
+	MIR::Label *l1 = MIR::fresh_label ();
+	MIR::Label *l2 = MIR::fresh_label ();
+	MIR::Label *l3 = MIR::fresh_label ();
 
 	// create the gotos
-	Goto *l1_goto_l3 = new Goto (l3->label_name->clone ());
-	Goto *l2_goto_l3 = new Goto (l3->label_name->clone ());
+	MIR::Goto *l1_goto_l3 = new MIR::Goto (l3->label_name->clone ());
+	MIR::Goto *l2_goto_l3 = new MIR::Goto (l3->label_name->clone ());
 
 	// make the if
-	Branch *branch = new Branch (in->variable_name, l1->label_name->clone (), l2->label_name->clone ());
+	MIR::Branch *branch = new MIR::Branch (
+		fold_var (in->variable_name), 
+		l1->label_name->clone (), 
+		l2->label_name->clone ());
 
 	// generate the code
-	out->push_back (branch);
-	out->push_back (l1);
+	out->push_back (new Foreign_statement (branch));
+	out->push_back (new Foreign_statement (l1));
 	out->push_back_all (in->iftrue);
-	out->push_back (l1_goto_l3);
-	out->push_back (l2);
+	out->push_back (new Foreign_statement (l1_goto_l3));
+	out->push_back (new Foreign_statement (l2));
 	out->push_back_all (in->iffalse);
-	out->push_back (l2_goto_l3);
-	out->push_back (l3);
+	out->push_back (new Foreign_statement (l2_goto_l3));
+	out->push_back (new Foreign_statement (l3));
 }
 
 void Lower_control_flow::post_if(If* in, List<Statement*>* out)
@@ -123,13 +131,13 @@ void Lower_control_flow::post_if(If* in, List<Statement*>* out)
 
 void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
 {
-	Label *l0 = fresh_label ();
-	Goto *goto_l0 = new Goto (l0->label_name->clone ());
+	MIR::Label *l0 = MIR::fresh_label ();
+	MIR::Goto *goto_l0 = new MIR::Goto (l0->label_name->clone ());
 
 	// generate code
-	out->push_back (l0);
+	out->push_back (new Foreign_statement (l0));
 	out->push_back_all (in->statements);
-	out->push_back (goto_l0);
+	out->push_back (new Foreign_statement (goto_l0));
 }
 
 void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
@@ -165,8 +173,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
-	HIR_to_MIR* folder = new HIR_to_MIR;
-	MIR::VARIABLE_NAME* array_name = folder->fold_variable_name (in->variable_name);
+	MIR::VARIABLE_NAME* array_name = fold_var (in->variable_name);
 
 	// foreach_reset ($arr, iter); 
 	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();
@@ -175,8 +182,9 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// L0:
-	Label* l0 = fresh_label ();
-	out->push_back (new Label (l0->label_name));
+	MIR::Label* l0 = MIR::fresh_label ();
+	out->push_back (new Foreign_statement (
+		new MIR::Label (l0->label_name)));
 
 
 	// $T = foreach_has_key ($arr, iter);
@@ -193,13 +201,17 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// if ($T) goto L1; else goto L2;
-	Label* l1 = fresh_label ();
-	Label* l2 = fresh_label ();
-	out->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+	MIR::Label* l1 = MIR::fresh_label ();
+	MIR::Label* l2 = MIR::fresh_label ();
+	out->push_back (new Foreign_statement (
+		new MIR::Branch (
+			fold_var (has_key),
+			l1->label_name->clone (), 
+			l2->label_name->clone ())));
 
 
 	// L1:
-	out->push_back (l1);
+	out->push_back (new Foreign_statement (l1));
 
 
 	// $key = foreach_get_key ($arr, iter); 
@@ -225,7 +237,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
 	MIR::VARIABLE_NAME* mir_key = 
-		folder->fold_variable_name (
+		folder.fold_variable_name (
 			dynamic_cast<VARIABLE_NAME*> (key->variable_name));
 
 	out->push_back (new Eval_expr (
@@ -250,11 +262,11 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 				iter->clone ())));
 
 	// goto L0:
-	out->push_back (new Goto (l0->label_name->clone ()));
+	out->push_back (new Foreign_statement (new MIR::Goto (l0->label_name->clone ())));
 
 
 	// L2:
-	out->push_back (l2);
+	out->push_back (new Foreign_statement (l2));
 
 
 	// foreach_end ($arr, iter);
@@ -344,7 +356,8 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// Create a label, pushback a goto to it, and attach it as an attribute
 		// of the appropriate looping construct.
 		Node* level = (*levels)[num_levels - error_depth];
-		out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
+		out->push_back (new Foreign_statement (
+			new MIR::Goto ((exit_label<T> (level))->label_name->clone ())));
 	}
 	else
 	{
@@ -373,19 +386,21 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 				op = new OP (new String ("<="));
 
 			//	if ($TB1 == depth) goto L1; else goto L2;
-			Label* iffalse = fresh_label ();
+			MIR::Label* iffalse = MIR::fresh_label ();
 			push_back_pieces ( // push the pieces from the eval_var back
-				new Branch (
-					(eval_var (new Bin_op (
-						lhs->clone(),
-						op,
-						eval_var (new INT (depth))))),
-					exit_label<T> (*i)->label_name, // get the label from this depth
-					iffalse->label_name->clone ()),
+				new Foreign_statement (
+					new MIR::Branch (
+						(fold_var (eval_var (
+							new Bin_op (
+								lhs->clone(),
+								op,
+								eval_var (new INT (depth)))))),
+						exit_label<T> (*i)->label_name, // get the label from this depth
+						iffalse->label_name->clone ())),
 				out);
 
 			//	L2:
-			out->push_back (iffalse);
+			out->push_back (new Foreign_statement (iffalse));
 		}
 		assert (depth == num_levels + 1);
 

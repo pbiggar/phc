@@ -52,9 +52,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Node*,			// Foreign*
  MIR::Expr*,			// Foreign_expr*
  MIR::Statement*,			// Foreign_statement*
- MIR::Branch*,				// Branch*
- MIR::Goto*,				// Goto*
- MIR::Label*,				// Label*
  MIR::Expr*,				// Expr*
  MIR::Literal*,				// Literal*
  MIR::Assignment*,			// Assignment*
@@ -81,7 +78,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::INTERFACE_NAME*,	// INTERFACE_NAME*
  MIR::METHOD_NAME*,		// METHOD_NAME*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::LABEL_NAME*,		// LABEL_NAME*
  MIR::INT*,				// INT*
  MIR::REAL*,				// REAL*
  MIR::STRING*,			// STRING*
@@ -256,30 +252,6 @@ public:
 		return dynamic_cast<MIR::Statement*> (orig->foreign);
 	}
 
-	MIR::Branch* fold_impl_branch(HIR::Branch* orig, MIR::VARIABLE_NAME* variable_name, MIR::LABEL_NAME* iftrue, MIR::LABEL_NAME* iffalse) 
-	{
-		MIR::Branch* result;
-		result = new MIR::Branch(variable_name, iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Goto* fold_impl_goto(HIR::Goto* orig, MIR::LABEL_NAME* label_name) 
-	{
-		MIR::Goto* result;
-		result = new MIR::Goto(label_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Label* fold_impl_label(HIR::Label* orig, MIR::LABEL_NAME* label_name) 
-	{
-		MIR::Label* result;
-		result = new MIR::Label(label_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	MIR::Assignment* fold_impl_assignment(HIR::Assignment* orig, MIR::Variable* variable, bool is_ref, MIR::Expr* expr) 
 	{
 		MIR::Assignment* result;
@@ -440,14 +412,6 @@ public:
 		MIR::VARIABLE_NAME* result;
 		result = new MIR::VARIABLE_NAME(orig->value);
 		result->attrs = orig->attrs->clone ();
-		return result;
-	}
-
-	MIR::LABEL_NAME* fold_label_name(HIR::LABEL_NAME* orig) 
-	{
-		MIR::LABEL_NAME* result;
-		result = new MIR::LABEL_NAME(orig->value);
-		result->attrs = orig->attrs;
 		return result;
 	}
 

@@ -203,26 +203,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Foreign_statement();
     }
-    if(!strcmp(type_id, "Branch"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	LABEL_NAME* iftrue = dynamic_cast<LABEL_NAME*>(*i++);
-    	LABEL_NAME* iffalse = dynamic_cast<LABEL_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Branch(variable_name, iftrue, iffalse);
-    }
-    if(!strcmp(type_id, "Goto"))
-    {
-    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Goto(label_name);
-    }
-    if(!strcmp(type_id, "Label"))
-    {
-    	LABEL_NAME* label_name = dynamic_cast<LABEL_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Label(label_name);
-    }
     if(!strcmp(type_id, "Assignment"))
     {
     	Variable* variable = dynamic_cast<Variable*>(*i++);
@@ -355,12 +335,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new VARIABLE_NAME(value);
-    }
-    if(!strcmp(type_id, "LABEL_NAME"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new LABEL_NAME(value);
     }
     if(!strcmp(type_id, "OP"))
     {

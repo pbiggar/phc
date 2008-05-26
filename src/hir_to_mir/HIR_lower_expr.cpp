@@ -35,11 +35,6 @@ void Lower_expr::post_return(Return* in, List<Statement*>* out)
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_branch(Branch* in, List<Statement*>* out)
-{
-	push_back_pieces(in, out);
-}
-
 void Lower_expr::post_global(Global* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);

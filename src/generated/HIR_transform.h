@@ -53,9 +53,6 @@ public:
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual void pre_branch(Branch* in, List<Statement*>* out);
-    virtual void pre_goto(Goto* in, List<Statement*>* out);
-    virtual void pre_label(Label* in, List<Statement*>* out);
     virtual Expr* pre_assignment(Assignment* in);
     virtual Expr* pre_op_assignment(Op_assignment* in);
     virtual Expr* pre_cast(Cast* in);
@@ -75,7 +72,6 @@ public:
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
     virtual VARIABLE_NAME* pre_variable_name(VARIABLE_NAME* in);
-    virtual LABEL_NAME* pre_label_name(LABEL_NAME* in);
     virtual Expr* pre_int(INT* in);
     virtual Expr* pre_real(REAL* in);
     virtual Expr* pre_string(STRING* in);
@@ -112,9 +108,6 @@ public:
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual void post_branch(Branch* in, List<Statement*>* out);
-    virtual void post_goto(Goto* in, List<Statement*>* out);
-    virtual void post_label(Label* in, List<Statement*>* out);
     virtual Expr* post_assignment(Assignment* in);
     virtual Expr* post_op_assignment(Op_assignment* in);
     virtual Expr* post_cast(Cast* in);
@@ -134,7 +127,6 @@ public:
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
     virtual VARIABLE_NAME* post_variable_name(VARIABLE_NAME* in);
-    virtual LABEL_NAME* post_label_name(LABEL_NAME* in);
     virtual Expr* post_int(INT* in);
     virtual Expr* post_real(REAL* in);
     virtual Expr* post_string(STRING* in);
@@ -171,9 +163,6 @@ public:
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_foreign_statement(Foreign_statement* in);
-    virtual void children_branch(Branch* in);
-    virtual void children_goto(Goto* in);
-    virtual void children_label(Label* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_cast(Cast* in);
@@ -195,7 +184,6 @@ public:
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
     virtual void children_variable_name(VARIABLE_NAME* in);
-    virtual void children_label_name(LABEL_NAME* in);
     virtual void children_int(INT* in);
     virtual void children_real(REAL* in);
     virtual void children_string(STRING* in);
@@ -229,7 +217,6 @@ public:
     virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
-    virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);
     virtual OP* transform_op(OP* in);
     virtual CAST* transform_cast(CAST* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);

@@ -48,9 +48,6 @@ template
  class _Foreign,
  class _Foreign_expr,
  class _Foreign_statement,
- class _Branch,
- class _Goto,
- class _Label,
  class _Expr,
  class _Literal,
  class _Assignment,
@@ -77,7 +74,6 @@ template
  class _INTERFACE_NAME,
  class _METHOD_NAME,
  class _VARIABLE_NAME,
- class _LABEL_NAME,
  class _INT,
  class _REAL,
  class _STRING,
@@ -418,31 +414,6 @@ public:
 		return fold_impl_foreign_statement(in);
 	}
 
-	virtual _Branch fold_branch(Branch* in)
-	{
-		_VARIABLE_NAME variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_LABEL_NAME iftrue = 0;
-		if(in->iftrue != NULL) iftrue = fold_label_name(in->iftrue);
-		_LABEL_NAME iffalse = 0;
-		if(in->iffalse != NULL) iffalse = fold_label_name(in->iffalse);
-		return fold_impl_branch(in, variable_name, iftrue, iffalse);
-	}
-
-	virtual _Goto fold_goto(Goto* in)
-	{
-		_LABEL_NAME label_name = 0;
-		if(in->label_name != NULL) label_name = fold_label_name(in->label_name);
-		return fold_impl_goto(in, label_name);
-	}
-
-	virtual _Label fold_label(Label* in)
-	{
-		_LABEL_NAME label_name = 0;
-		if(in->label_name != NULL) label_name = fold_label_name(in->label_name);
-		return fold_impl_label(in, label_name);
-	}
-
 	virtual _Assignment fold_assignment(Assignment* in)
 	{
 		_Variable variable = 0;
@@ -642,9 +613,6 @@ public:
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
-	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
-	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
-	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
@@ -665,7 +633,6 @@ public:
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
 	virtual _VARIABLE_NAME fold_variable_name(VARIABLE_NAME* orig) { assert(0); };
-	virtual _LABEL_NAME fold_label_name(LABEL_NAME* orig) { assert(0); };
 	virtual _INT fold_int(INT* orig) { assert(0); };
 	virtual _REAL fold_real(REAL* orig) { assert(0); };
 	virtual _STRING fold_string(STRING* orig) { assert(0); };
@@ -712,12 +679,6 @@ public:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
 				return fold_continue(dynamic_cast<Continue*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 			case Class_mod::ID:
@@ -794,8 +755,6 @@ public:
 				return fold_op(dynamic_cast<OP*>(in));
 			case CONSTANT_NAME::ID:
 				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
-			case LABEL_NAME::ID:
-				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
 		}
 		assert(0);
 	}
@@ -832,12 +791,6 @@ public:
 				return fold_break(dynamic_cast<Break*>(in));
 			case Continue::ID:
 				return fold_continue(dynamic_cast<Continue*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 		}
@@ -1030,8 +983,6 @@ public:
 				return fold_op(dynamic_cast<OP*>(in));
 			case CONSTANT_NAME::ID:
 				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
-			case LABEL_NAME::ID:
-				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
 		}
 		assert(0);
 	}
@@ -1043,6 +994,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

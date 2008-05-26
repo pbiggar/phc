@@ -59,9 +59,11 @@ class AST_to_HIR : public AST::Fold
  HIR::Foreign*,			// Foreign*
  HIR::Foreign_expr*,			// Foreign_expr*
  HIR::Foreign_statement*,			// Foreign_statement*
- HIR::Branch*,				// Branch*
- HIR::Goto*,				// Goto*
- HIR::Label*,				// Label*
+ // ASTs which have branches are never converted to HIRs
+ // TODO remove AST branch statement
+ HIR::Statement*,				// Branch*
+ HIR::Statement*,				// Goto*
+ HIR::Statement*,				// Label*
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
@@ -97,7 +99,7 @@ class AST_to_HIR : public AST::Fold
  HIR::METHOD_NAME*,		// METHOD_NAME*
  HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
  HIR::Identifier*,			// DIRECTIVE_NAME*
- HIR::LABEL_NAME*,		// LABEL_NAME*
+ HIR::Identifier*,		// LABEL_NAME*
  HIR::INT*,				// INT*
  HIR::REAL*,				// REAL*
  HIR::STRING*,			// STRING*
@@ -294,30 +296,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::Eval_expr* result;
 		result = new HIR::Eval_expr(expr);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::VARIABLE_NAME* variable_name, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
-	{
-		HIR::Branch* result;
-		result = new HIR::Branch(variable_name, iftrue, iffalse);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Goto* fold_impl_goto(AST::Goto* orig, HIR::LABEL_NAME* label_name) 
-	{
-		HIR::Goto* result;
-		result = new HIR::Goto(label_name);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Label* fold_impl_label(AST::Label* orig, HIR::LABEL_NAME* label_name) 
-	{
-		HIR::Label* result;
-		result = new HIR::Label(label_name);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -519,14 +497,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::VARIABLE_NAME* result;
 		result = new HIR::VARIABLE_NAME(orig->value);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::LABEL_NAME* fold_label_name(AST::LABEL_NAME* orig) 
-	{
-		HIR::LABEL_NAME* result;
-		result = new HIR::LABEL_NAME(orig->value);
 		copy_attrs (result, orig);
 		return result;
 	}

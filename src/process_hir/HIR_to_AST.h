@@ -52,9 +52,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Foreign*,			// Foreign*
  AST::Foreign_expr*,			// Foreign_expr*
  AST::Foreign_statement*,	// Foreign_statement*
- AST::Branch*,				// Branch*
- AST::Goto*,				// Goto*
- AST::Label*,				// Label*
  AST::Expr*,				// Expr*
  AST::Literal*,				// Literal*
  AST::Assignment*,			// Assignment*
@@ -81,7 +78,6 @@ class HIR_to_AST : public HIR::Fold
  AST::INTERFACE_NAME*,	// INTERFACE_NAME*
  AST::METHOD_NAME*,		// METHOD_NAME*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::LABEL_NAME*,		// LABEL_NAME*
  AST::INT*,				// INT*
  AST::REAL*,				// REAL*
  AST::STRING*,			// STRING*
@@ -266,30 +262,6 @@ class HIR_to_AST : public HIR::Fold
 		result->attrs = orig->attrs;
 		return result;
 	};
-
-	AST::Branch* fold_impl_branch(HIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::LABEL_NAME* iftrue, AST::LABEL_NAME* iffalse) 
-	{
-		AST::Branch* result;
-		result = new AST::Branch(wrap_var_name (variable_name), iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Goto* fold_impl_goto(HIR::Goto* orig, AST::LABEL_NAME* label_name) 
-	{
-		AST::Goto* result;
-		result = new AST::Goto(label_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Label* fold_impl_label(HIR::Label* orig, AST::LABEL_NAME* label_name) 
-	{
-		AST::Label* result;
-		result = new AST::Label(label_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
 
 	AST::Break* fold_impl_break (HIR::Break* orig, AST::Expr* expr)
 	{
@@ -486,14 +458,6 @@ class HIR_to_AST : public HIR::Fold
 	{
 		AST::VARIABLE_NAME* result;
 		result = new AST::VARIABLE_NAME(orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::LABEL_NAME* fold_label_name(HIR::LABEL_NAME* orig) 
-	{
-		AST::LABEL_NAME* result;
-		result = new AST::LABEL_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}
