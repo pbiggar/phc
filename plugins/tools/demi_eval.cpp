@@ -2,17 +2,15 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * After each statement, add a debug_zval_dump call to each variable in the statement.
+ * Replace every second statement with an eval () of the string with the string representation of the statement.
  */
 
-#include "HIR_transform.h"
-#include "process_hir/HIR_unparser.h"
+#include "MIR_transform.h"
+#include "process_mir/MIR_unparser.h"
 #include "pass_manager/Plugin_pass.h"
-#include "process_ir/fresh.h"
-#include "lib/List.h"
 #include "process_ir/General.h"
 
-using namespace HIR;
+using namespace MIR;
 
 class Demi_eval : public Transform
 {
@@ -21,9 +19,6 @@ class Demi_eval : public Transform
 		Demi_eval () {} // dont allow this constructor
 
 	protected:
-		// we use the pass manager to lower some constructs we create, so that we
-		// can run after the HIR.
-		Pass_manager* pm;
 
 		// We convert every second statement to an eval, so this keeps track. It
 		// gets initialized by INIT in the constructor.
@@ -54,34 +49,17 @@ class Demi_eval : public Transform
 			}
 			else
 			{
-				// unparse the statement into a string
+				// We can't simplify this because we need to properly quote the
+				// string. The easiest way is to unparse it, and put it into a
+				// STRING, so it will be properly unparsed.
 				stringstream ss;
-				HIR_unparser* pup = new HIR_unparser (ss);
+				MIR_unparser* pup = new MIR_unparser (ss, true);
 				pup->unparse (in);
-				String* eval_string = new String (ss.str ());
+				STRING* eval_str = new STRING (s (ss.str ()));
+				
 
-
-				/* $TDEs0 = "$x = 5;";
-				 * $TDEr0 = eval ($TDEs0);
-				 */
-				Variable* string_var = fresh_var ("TDEs");
-				out->push_back (new Eval_expr (
-							new Assignment (
-								string_var,
-								false, 
-								new STRING (eval_string))));
-
-				out->push_back (new Eval_expr (
-							new Assignment (
-								fresh_var ("TDEr"),
-								false,
-								new Method_invocation (
-									NULL, 
-									new METHOD_NAME (new String ("eval")), 
-									new List <Actual_parameter*> (
-										new Actual_parameter (
-											false, 
-											string_var->clone ()))))));
+				// eval ("$x = 5");
+				(*out << "eval (" << eval_str << ");").finish (in);
 			}
 			convert = !convert;
 		}
@@ -90,10 +68,10 @@ class Demi_eval : public Transform
 // Fresh variables are marked as not needing a symbol table entry automatically. We cant get one in an eval (for now).
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->add_before_named_pass (pass, s("hir"));
+	pm->add_after_named_pass (pass, s("mir"));
 }
 
-extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option)
 {
 	bool bool_option = false;
 	if (*(option) == "true")
