@@ -94,3 +94,38 @@ void MIR_unparser::children_ht_iterator(HT_ITERATOR* in)
 	// we leave out the $ to handle in the same manner as VARIABLE_NAME
 	echo (in->get_value_as_string ());
 }
+
+/* This is simpler than the other if, since there's no user-written code to
+ * maintain, and the statements can only be gotos */
+void MIR_unparser::children_branch(Branch* in)
+{
+	echo("if (");
+	bool in_if_expression = true;
+	visit_variable_name(in->variable_name);
+	in_if_expression = false;
+	echo(") goto ");
+	visit_label_name (in->iftrue);
+	echo (" else goto ");
+	visit_label_name (in->iffalse);
+	echo (";");
+
+	newline();
+}
+
+void MIR_unparser::children_goto (Goto* in)
+{
+	echo ("goto ");
+	visit_label_name (in->label_name);
+	echo_nl (";");
+}
+
+void MIR_unparser::children_label (Label* in)
+{
+	visit_label_name (in->label_name);
+	echo_nl(":");
+}
+
+void MIR_unparser::children_label_name (LABEL_NAME* in)
+{
+	echo(in->value);
+}

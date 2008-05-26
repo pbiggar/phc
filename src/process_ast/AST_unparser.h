@@ -70,9 +70,6 @@ public:
 	void children_method_invocation(AST::Method_invocation* in);
 	void children_actual_parameter(AST::Actual_parameter* in);
 	void children_new(AST::New* in);
-	void children_branch (AST::Branch* in);
-	void children_goto(AST::Goto* in);
-	void children_label(AST::Label* in);
 	void children_nop(AST::Nop* in);
 	void children_name_with_default(AST::Name_with_default* in);
 
@@ -89,7 +86,6 @@ public:
 	void children_string(AST::STRING* in);
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
-	void children_label_name(AST::LABEL_NAME* in);
 	
 	void visit_interface_name_list(List<AST::INTERFACE_NAME*>* in);
 	void visit_member_list(List<AST::Member*>* in);

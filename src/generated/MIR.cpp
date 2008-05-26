@@ -3885,6 +3885,14 @@ void Foreign_statement::assert_valid()
     Node::assert_mixin_valid();
 }
 
+//  TODO: modify maketea to allow contructors with :
+Foreign_statement::Foreign_statement(IR ::Node* foreign)
+{
+    {
+		this->foreign = foreign;
+	}
+}
+
 Branch::Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
 {
     this->variable_name = variable_name;
@@ -5547,6 +5555,13 @@ void Foreign_expr::find_all(Node* in, List<Node*>* out)
 void Foreign_expr::assert_valid()
 {
     Node::assert_mixin_valid();
+}
+
+Foreign_expr::Foreign_expr(IR ::Node* foreign)
+{
+    {
+		this->foreign = foreign;
+	}
 }
 
 Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter)

@@ -653,3 +653,22 @@ public:
 
 	IR::Node* foreign;
 };
+
+class Foreign_statement
+{
+	// TODO: modify maketea to allow contructors with :
+public:
+	Foreign_statement (IR::Node* foreign)
+	{
+		this->foreign = foreign;
+	}
+};
+
+class Foreign_expr
+{
+public:
+	Foreign_expr (IR::Node* foreign)
+	{
+		this->foreign = foreign;
+	}
+};

@@ -10,25 +10,25 @@
 #ifndef PHC_GOTO_UPPERING_H
 #define PHC_GOTO_UPPERING_H
 
-#include "AST_visitor.h"
+#include "MIR_visitor.h"
+#include "AST.h"
 
 
-class Goto_uppering : public AST::Visitor
+class Goto_uppering : public MIR::Visitor
 {
 private:
-	AST::Variable *next;
-	AST::STRING *start;
-	AST::STRING *end;
-	AST::Switch *switching;
+	AST::Variable* ast_next;
+	MIR::VARIABLE_NAME* next;
+	AST::Switch* switching;
 
 public:
 	Goto_uppering ();
 
-	List<AST::Statement*>* convert_statement_list (List<AST::Statement*> *in);
+	List<MIR::Statement*>* convert_statement_list (List<MIR::Statement*> *in);
 	
-	void pre_php_script (AST::PHP_script *in);
-	void pre_method (AST::Method *in);
-	void post_php_script (AST::PHP_script* in);
+	void pre_php_script (MIR::PHP_script *in);
+	void pre_method (MIR::Method *in);
+	void post_php_script (MIR::PHP_script* in);
 };
 
 #endif // PHC_GOTO_UPPERING_H

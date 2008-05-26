@@ -32,6 +32,10 @@ public:
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 
 
+	void children_branch (MIR::Branch* in);
+	void children_goto (MIR::Goto* in);
+	void children_label (MIR::Label* in);
+	void children_label_name(MIR::LABEL_NAME* in);
 };
 
 #endif // PHC_MIR_UNPARSER 

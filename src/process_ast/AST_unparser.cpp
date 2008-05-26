@@ -300,23 +300,6 @@ void AST_unparser::children_if(If* in)
 	newline();
 }
 
-/* This is simpler than the other if, since there's no user-written code to
- * maintain, and the statements can only be gotos */
-void AST_unparser::children_branch(Branch* in)
-{
-	echo("if (");
-	bool in_if_expression = true;
-	visit_expr(in->expr);
-	in_if_expression = false;
-	echo(") goto ");
-	visit_label_name (in->iftrue);
-	echo (" else goto ");
-	visit_label_name (in->iffalse);
-	echo (";");
-
-	newline();
-}
-
 void AST_unparser::children_while(While* in)
 {
 	echo("while (");
@@ -1330,24 +1313,6 @@ void AST_unparser::post_commented_node(Commented_node* in)
 	if(!at_start_of_line) newline();
 }
 
-void AST_unparser::children_label_name (LABEL_NAME* in)
-{
-	echo(in->value);
-}
-
-void AST_unparser::children_goto (Goto* in)
-{
-	echo ("goto ");
-	visit_label_name (in->label_name);
-	echo_nl (";");
-}
-
-void AST_unparser::children_label (Label* in)
-{
-	visit_label_name (in->label_name);
-	echo_nl(":");
-}
-
 void AST_unparser::children_nop (Nop* in)
 {
 	// If the NOP is the only statement is a block, and there are no curlies
@@ -1379,6 +1344,7 @@ void AST_unparser::pre_foreign(Foreign* in)
 	// If there are foreign nodes in this IR, we must have some way to print
 	// them out.
 	assert (foreign_unparser);
+	assert (in->foreign);
 
 	foreign_unparser->unparse_foreign (in->foreign);
 }

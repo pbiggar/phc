@@ -54,7 +54,7 @@ operator<<(NS##_parse_buffer& out, string in)										\
 NS##_parse_buffer::NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, String* in)										\
 {																									\
-	out.ss << in;																				\
+	out.ss << *in;																				\
 	return out;																					\
 }																									\
 NS##_parse_buffer::NS##_parse_buffer&													\

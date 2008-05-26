@@ -44,12 +44,12 @@ class MIR_to_AST : public MIR::Fold
  AST::Catch*,				// Catch*
  AST::Throw*,				// Throw*
  AST::Eval_expr*,			// Eval_expr*
- AST::Foreign*,			// Foreign*
- AST::Foreign_statement*,	// Foreign_statement*
- AST::Foreign_expr*,			// Foreign_expr*
- AST::Branch*,				// Branch*
- AST::Goto*,				// Goto*
- AST::Label*,				// Label*
+ AST::Node*,			// Foreign*
+ AST::Statement*,			// Foreign_statement*
+ AST::Expr*,				// Foreign_expr*
+ AST::Foreign_statement*,	// Branch*
+ AST::Foreign_statement*,	// Goto*
+ AST::Foreign_statement*,	// Label*
  AST::Foreign_statement*,	// Foreach_reset*
  AST::Foreign_statement*,	// Foreach_next*
  AST::Foreign_statement*,	// Foreach_end*
@@ -82,7 +82,7 @@ class MIR_to_AST : public MIR::Fold
  AST::INTERFACE_NAME*,	// INTERFACE_NAME*
  AST::METHOD_NAME*,		// METHOD_NAME*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::LABEL_NAME*,		// LABEL_NAME*
+ AST::Identifier*,		// LABEL_NAME*
  AST::INT*,				// INT*
  AST::REAL*,				// REAL*
  AST::STRING*,			// STRING*
@@ -266,28 +266,27 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Branch* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::LABEL_NAME* iftrue, AST::LABEL_NAME* iffalse) 
+	AST::Foreign_statement* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
 	{
-		AST::Branch* result;
-		result = new AST::Branch(wrap_var_name (variable_name), iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Goto* fold_impl_goto(MIR::Goto* orig, AST::LABEL_NAME* label_name) 
+	AST::Foreign_statement* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
 	{
-		AST::Goto* result;
-		result = new AST::Goto(label_name);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Label* fold_impl_label(MIR::Label* orig, AST::LABEL_NAME* label_name) 
+	AST::Foreign_statement* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
 	{
-		AST::Label* result;
-		result = new AST::Label(label_name);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Identifier* fold_label_name(MIR::LABEL_NAME* orig) 
+	{
+		// do nothing. LABEL_NAMEs are always wrapped, but there will be an
+		// attempt to fold them, so we need to supply a definition so that it
+		// doesnt fail.
+		return NULL;
 	}
 
 	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
@@ -475,14 +474,6 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::LABEL_NAME* fold_label_name(MIR::LABEL_NAME* orig) 
-	{
-		AST::LABEL_NAME* result;
-		result = new AST::LABEL_NAME(orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::INT* fold_int(MIR::INT* orig) 
 	{
 		AST::INT* result;
@@ -544,6 +535,14 @@ class MIR_to_AST : public MIR::Fold
 		AST::CONSTANT_NAME* result;
 		result = new AST::CONSTANT_NAME(orig->value);
 		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Statement* fold_impl_foreign_statement(MIR::Foreign_statement* orig)
+	{
+		AST::Statement* result;
+		result = dynamic_cast<AST::Statement*> (orig->foreign);
+		assert (result);
 		return result;
 	}
 

@@ -64,9 +64,6 @@ public:
     virtual void pre_foreign(Foreign* in);
     virtual void pre_foreign_expr(Foreign_expr* in);
     virtual void pre_foreign_statement(Foreign_statement* in);
-    virtual void pre_branch(Branch* in);
-    virtual void pre_goto(Goto* in);
-    virtual void pre_label(Label* in);
     virtual void pre_expr(Expr* in);
     virtual void pre_literal(Literal* in);
     virtual void pre_assignment(Assignment* in);
@@ -102,7 +99,6 @@ public:
     virtual void pre_method_name(METHOD_NAME* in);
     virtual void pre_variable_name(VARIABLE_NAME* in);
     virtual void pre_directive_name(DIRECTIVE_NAME* in);
-    virtual void pre_label_name(LABEL_NAME* in);
     virtual void pre_int(INT* in);
     virtual void pre_real(REAL* in);
     virtual void pre_string(STRING* in);
@@ -150,9 +146,6 @@ public:
     virtual void post_foreign(Foreign* in);
     virtual void post_foreign_expr(Foreign_expr* in);
     virtual void post_foreign_statement(Foreign_statement* in);
-    virtual void post_branch(Branch* in);
-    virtual void post_goto(Goto* in);
-    virtual void post_label(Label* in);
     virtual void post_expr(Expr* in);
     virtual void post_literal(Literal* in);
     virtual void post_assignment(Assignment* in);
@@ -188,7 +181,6 @@ public:
     virtual void post_method_name(METHOD_NAME* in);
     virtual void post_variable_name(VARIABLE_NAME* in);
     virtual void post_directive_name(DIRECTIVE_NAME* in);
-    virtual void post_label_name(LABEL_NAME* in);
     virtual void post_int(INT* in);
     virtual void post_real(REAL* in);
     virtual void post_string(STRING* in);
@@ -232,9 +224,6 @@ public:
     virtual void children_nop(Nop* in);
     virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_foreign_statement(Foreign_statement* in);
-    virtual void children_branch(Branch* in);
-    virtual void children_goto(Goto* in);
-    virtual void children_label(Label* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_list_assignment(List_assignment* in);
@@ -262,7 +251,6 @@ public:
     virtual void children_method_name(METHOD_NAME* in);
     virtual void children_variable_name(VARIABLE_NAME* in);
     virtual void children_directive_name(DIRECTIVE_NAME* in);
-    virtual void children_label_name(LABEL_NAME* in);
     virtual void children_int(INT* in);
     virtual void children_real(REAL* in);
     virtual void children_string(STRING* in);
@@ -314,9 +302,6 @@ public:
     virtual void pre_nop_chain(Nop* in);
     virtual void pre_foreign_expr_chain(Foreign_expr* in);
     virtual void pre_foreign_statement_chain(Foreign_statement* in);
-    virtual void pre_branch_chain(Branch* in);
-    virtual void pre_goto_chain(Goto* in);
-    virtual void pre_label_chain(Label* in);
     virtual void pre_assignment_chain(Assignment* in);
     virtual void pre_op_assignment_chain(Op_assignment* in);
     virtual void pre_list_assignment_chain(List_assignment* in);
@@ -342,7 +327,6 @@ public:
     virtual void pre_method_name_chain(METHOD_NAME* in);
     virtual void pre_variable_name_chain(VARIABLE_NAME* in);
     virtual void pre_directive_name_chain(DIRECTIVE_NAME* in);
-    virtual void pre_label_name_chain(LABEL_NAME* in);
     virtual void pre_int_chain(INT* in);
     virtual void pre_real_chain(REAL* in);
     virtual void pre_string_chain(STRING* in);
@@ -388,9 +372,6 @@ public:
     virtual void post_nop_chain(Nop* in);
     virtual void post_foreign_expr_chain(Foreign_expr* in);
     virtual void post_foreign_statement_chain(Foreign_statement* in);
-    virtual void post_branch_chain(Branch* in);
-    virtual void post_goto_chain(Goto* in);
-    virtual void post_label_chain(Label* in);
     virtual void post_assignment_chain(Assignment* in);
     virtual void post_op_assignment_chain(Op_assignment* in);
     virtual void post_list_assignment_chain(List_assignment* in);
@@ -416,7 +397,6 @@ public:
     virtual void post_method_name_chain(METHOD_NAME* in);
     virtual void post_variable_name_chain(VARIABLE_NAME* in);
     virtual void post_directive_name_chain(DIRECTIVE_NAME* in);
-    virtual void post_label_name_chain(LABEL_NAME* in);
     virtual void post_int_chain(INT* in);
     virtual void post_real_chain(REAL* in);
     virtual void post_string_chain(STRING* in);
@@ -456,7 +436,6 @@ public:
     virtual void visit_directive_name(DIRECTIVE_NAME* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
-    virtual void visit_label_name(LABEL_NAME* in);
     virtual void visit_op(OP* in);
     virtual void visit_list_element_list(List<List_element*>* in);
     virtual void visit_list_element(List_element* in);

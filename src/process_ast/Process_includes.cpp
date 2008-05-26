@@ -130,6 +130,7 @@ public:
  *   ...; // ore included lines
  *   TIG1:
  */
+/*
 class Return_transform : public Transform
 {
 public:
@@ -167,7 +168,7 @@ public:
 		out->push_back (new Goto (label->label_name->clone ()));
 	}
 };
-
+*/
 Process_includes::Process_includes (bool hir, String* pass_name, Pass_manager* pm, String* name)
 : hir (hir),
   pass_name (pass_name),

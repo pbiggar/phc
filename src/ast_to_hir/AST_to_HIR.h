@@ -58,12 +58,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Statement*,			// Nop*
  HIR::Foreign*,			// Foreign*
  HIR::Foreign_expr*,			// Foreign_expr*
- HIR::Foreign_statement*,			// Foreign_statement*
- // ASTs which have branches are never converted to HIRs
- // TODO remove AST branch statement
- HIR::Statement*,				// Branch*
- HIR::Statement*,				// Goto*
- HIR::Statement*,				// Label*
+ HIR::Foreign_statement*,	// Foreign_statement*
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
  HIR::Assignment*,			// Assignment*
@@ -99,7 +94,6 @@ class AST_to_HIR : public AST::Fold
  HIR::METHOD_NAME*,		// METHOD_NAME*
  HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
  HIR::Identifier*,			// DIRECTIVE_NAME*
- HIR::Identifier*,		// LABEL_NAME*
  HIR::INT*,				// INT*
  HIR::REAL*,				// REAL*
  HIR::STRING*,			// STRING*

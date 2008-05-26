@@ -327,9 +327,9 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			{
 				MIR::PHP_script* mir = in->as_MIR ();
 				mir->transform_children (new Foreach_uppering);
+				mir->visit (new Goto_uppering);
 				AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
-				ast->visit (new Goto_uppering);
-				AST_unparser().unparse (ast);
+				AST_unparser(cout, false, new MIR_unparser (cout, true)).unparse (ast);
 			}
 
 			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
@@ -342,7 +342,6 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 				// to replace nodes which need uppering with foreign nodes, so
 				// we'll leave this as-is for now.
 
-				assert (0); 
 				HIR_unparser().unparse (in->as_HIR ());
 			}
 
@@ -373,11 +372,11 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	}
 }
 
-void Pass_manager::run (IR::PHP_script* in, bool dump)
+void Pass_manager::run (IR::PHP_script* in, bool main)
 {
 	// AST
 	for_lci (ast_queue, Pass, p)
-		run_pass (*p, in, dump);
+		run_pass (*p, in, main);
 
 	// Sometimes folding can crash. If you went out of your way to remove the
 	// passes in the later queues, dont fold.
@@ -388,7 +387,7 @@ void Pass_manager::run (IR::PHP_script* in, bool dump)
 	in = in->fold_lower ();
 
 	for_lci (hir_queue, Pass, p)
-		run_pass (*p, in, dump);
+		run_pass (*p, in, main);
 
 	if (mir_queue->size () == 0)
 		return;
@@ -397,23 +396,24 @@ void Pass_manager::run (IR::PHP_script* in, bool dump)
 	in = in->fold_lower ();
 
 	for_lci (mir_queue, Pass, p)
-		run_pass (*p, in, dump);
+		run_pass (*p, in, main);
 }
 
 // The pass manager is used to parse and transform small snippets of
-// compiler-generated code aswell as the whole file. Set DUMP to false for
+// compiler-generated code aswell as the whole file. Set MAIN to false for
 // small snippets, and to true for the main program.
-void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool dump)
+void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool main)
 {
 	assert (pass->name);
 
-	if (args_info->verbose_flag && dump)
+	if (args_info->verbose_flag && main)
 		cout << "Running pass: " << *pass->name << endl;
 
-	maybe_enable_debug (pass);
+	if (main)
+		maybe_enable_debug (pass);
 
 	pass->run_pass (in, this);
-	if (dump)
+	if (main)
 		this->dump (in, pass);
 
 	if (check)
@@ -422,21 +422,21 @@ void Pass_manager::run_pass (Pass* pass, IR::PHP_script* in, bool dump)
 }
 
 /* Run all passes between FROM and TO, inclusive. */
-IR::PHP_script* Pass_manager::run_from (String* from, IR::PHP_script* in, bool dump)
+IR::PHP_script* Pass_manager::run_from (String* from, IR::PHP_script* in, bool main)
 {
-	return run_from_until (from, NULL, in, dump);
+	return run_from_until (from, NULL, in, main);
 }
 
 /* Run all passes until TO, inclusive. */
-IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool dump)
+IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool main)
 {
-	return run_from_until (NULL, to, in, dump);
+	return run_from_until (NULL, to, in, main);
 }
 
 
 
 /* Run all passes between FROM and TO, inclusive. */
-IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool dump)
+IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool main)
 {
 	bool exec = false;
 	for_lci (queues, List<Pass*>, q)
@@ -449,7 +449,7 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 				exec = true;
 
 			if (exec)
-				run_pass (*p, in, dump);
+				run_pass (*p, in, main);
 
 			// check for last pass
 			if (exec && (to != NULL) && *((*p)->name) == *to)

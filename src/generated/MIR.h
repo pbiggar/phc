@@ -1040,6 +1040,9 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+//  TODO: modify maketea to allow contructors with :
+public:
+    Foreign_statement(IR ::Node* foreign);
 };
 
 // Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
@@ -1529,6 +1532,8 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+public:
+    Foreign_expr(IR ::Node* foreign);
 };
 
 // Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;

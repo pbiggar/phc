@@ -34,7 +34,6 @@ Statement ::=
 	| If | While | Do | For | Foreach
 	| Switch | Break | Continue
 	| Declare | Nop
-	| Label | Goto | Branch
 	| Foreign_statement
 	;
 
@@ -107,18 +106,6 @@ Foreign_expr ::= ;
 Foreign_statement ::= ;
 
 {-
-   HIR constructs (without a PHP equivalent)
-	TODO: 
-		It would be ideal if these weren't in the AST at all, but were only
-		introduced in the fold. These concepts were created before we have a
-		fold, but moving them inside it would be perfect.
--}
-
-Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
-Goto ::= LABEL_NAME ;
-Label ::= LABEL_NAME ;
-
-{-
    Expressions
 -}
 
@@ -184,7 +171,7 @@ Commented_node ::=
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST | OP | CONSTANT_NAME | LABEL_NAME 
+	  | CAST | OP | CONSTANT_NAME
 	  | DIRECTIVE_NAME 
 	; 
 

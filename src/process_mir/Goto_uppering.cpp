@@ -8,15 +8,15 @@
  */
 
 #include "Goto_uppering.h"
+#include "MIR_to_AST.h"
 #include "process_ir/General.h"
 
-using namespace AST;
+using namespace MIR;
 
 Goto_uppering::Goto_uppering ()
 {
-	next = new Variable (new VARIABLE_NAME (s("__next")));
-	start = new STRING (s("start"));
-	end = new STRING (s("end"));
+	ast_next = new AST::Variable (new AST::VARIABLE_NAME (s("__next")));
+	next = new MIR::VARIABLE_NAME (s("__next"));
 }
 
 /* We dont want to run this on all statement bodies in the traversal order.  So
@@ -24,39 +24,49 @@ Goto_uppering::Goto_uppering ()
 List<Statement*>*
 Goto_uppering::convert_statement_list (List<Statement*> *in)
 {
-	// The prelude contains all static declarations
+	// The prelude contains all class and function declarations
 	List<Statement*> *prelude = new List<Statement*> ();
 
 	// OUT only contains the while, and the "start" statement.
 	List<Statement*> *out = new List<Statement*> ();
 
-	// add $next = "start";
-	Assignment *init = new Assignment (next->clone (), false,
-			start->clone ());
-	out->push_back (new Eval_expr (init));
 
-	// create 'switch ($next)' (cases is to be used later)
-	List<Switch_case*> *cases = new List<Switch_case*> ();
-	Switch *switches = new Switch (next->clone (), cases);
+	// $next = "start";
+	(*out
+		<< "$__next = \"start\";"
+	).finish (next);
 
-	// Add: while (true) { switch ($next) { } }
-	BOOL *truth = new BOOL (true);
-	While *while_stmt = new While (truth, new List<Statement*> ());
-	out->push_back (while_stmt);
-	while_stmt->statements->push_back (switches);
+	// switch ($next)
+	List<AST::Switch_case*> *cases = new List<AST::Switch_case*> ();
+	AST::Switch *switches = 
+		new AST::Switch (
+			ast_next->clone (),
+			cases);
 
 
-	// Add: case "start";
-	Switch_case* current = new Switch_case (start->clone (), new List<Statement*> ());
+	// while (true) { switch ($next) { } }
+	out->push_back (new Foreign_statement (
+		new AST::While (
+			new AST::BOOL (true),
+			new List<AST::Statement*> (
+				switches))));
+
+
+	// case "start";
+	AST::Switch_case* current = 
+		new AST::Switch_case (
+			new AST::STRING (s("start")),
+			new List<AST::Statement*> ());
+
 	cases->push_back (current);
 
 
 	// set up patterns
-	Wildcard<Expr> *expr = new Wildcard<Expr> ();
+	Wildcard<VARIABLE_NAME> *var_name = new Wildcard<VARIABLE_NAME> ();
 	Wildcard<LABEL_NAME> *l1 = new Wildcard<LABEL_NAME> ();
 	Wildcard<LABEL_NAME> *l2 = new Wildcard<LABEL_NAME> ();
 	Goto *goto_pattern = new Goto (l1);
-	Branch *branch_pattern = new Branch (expr, l1, l2);
+	Branch *branch_pattern = new Branch (var_name, l1, l2);
 	Label *label_pattern = new Label (l1);;
 
 	// Convert all the patterns
@@ -67,40 +77,34 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 		if ((*i)->match (goto_pattern))
 		{
 			// add the gotos to the current case statement
-			current->statements->push_back (
-					new Eval_expr (
-						new Assignment (next->clone (), false,
-							new STRING (l1->value->value))));
-
-			current->statements->push_back (new Continue (NULL));
+			(*current->statements 
+				<<	ast_next << " = \"" << l1->value->value << "\";"
+				<< "continue;"
+			).finish (ast_next); // we dont care about attributes
 		}
 		else if ((*i)->match (branch_pattern))
 		{
 			// add the if and gotos to the current case statement
-			If *iffy = new If (expr->value, 
-					new List<Statement*>(), 
-					new List<Statement*>());
-
-			iffy->iftrue->push_back (
-					new Eval_expr (
-						new Assignment (next->clone (), false,
-							new STRING (l1->value->value) )));
-			iffy->iftrue->push_back (new Continue (NULL));
-
-			iffy->iffalse->push_back (
-					new Eval_expr (
-						new Assignment (next->clone (), false,
-							new STRING (l2->value->value) )));
-			iffy->iffalse->push_back (new Continue (NULL));
-
-			current->statements->push_back (iffy);
+			(*current->statements 
+				<< "if ($" << *var_name->value->value << ")"
+				<< "{"
+				<<		ast_next << " = \"" << l1->value->value << "\";"
+				<<	"	continue;"
+				<< "}"
+				<< "else"
+				<< "{"
+				<<		ast_next << " = \"" << l2->value->value << "\";"
+				<<	"	continue;"
+				<< "}"
+			).finish (ast_next); // we dont care about attributes
 		}
 		else if ((*i)->match (label_pattern))
 		{
-			// finish the current case statement and start a new one
-			current = new Switch_case (
-					new STRING (l1->value->value), 
-					new List<Statement*> ());
+			// case "l1":
+			current = new AST::Switch_case (
+				new AST::STRING (l1->value->value), 
+				new List<AST::Statement*> ());
+
 			cases->push_back (current);
 		}
 		else
@@ -108,22 +112,24 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 			if (((*i)->attrs->is_true ("phc.lower_control_flow.top_level_declaration")))
 				prelude->push_back(*i);
 			else
-				current->statements->push_back(*i);
+				current->statements->push_back((new MIR_to_AST ())->fold_statement (*i));
 		}
 	}
 
 	// add '$next = "end";' after the final statement
-	current->statements->push_back (new Eval_expr (
-				new Assignment (next->clone (), false,
-					end->clone ())));
-
+	(*current->statements
+		<<	ast_next << " = \"end\";"
+	).finish (ast_next);
 
 	// add the breaking statement
-	current = new Switch_case (
-			end->clone (),
-			new List<Statement*> ());
+	current = new AST::Switch_case (
+			new AST::STRING (s("end")),
+			new List<AST::Statement*> ());
 	cases->push_back (current);
-	current->statements->push_back (new Break (new INT (2)));
+
+	(*current->statements
+		<< "break 2;"
+	).finish (ast_next);
 
 
 	// combine the two lists, and output all statements

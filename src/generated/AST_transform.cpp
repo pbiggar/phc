@@ -171,21 +171,6 @@ void Transform::pre_foreign_statement(Foreign_statement* in, List<Statement*>* o
     out->push_back(in);
 }
 
-void Transform::pre_branch(Branch* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_goto(Goto* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::pre_label(Label* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::pre_assignment(Assignment* in)
 {
     return in;
@@ -307,11 +292,6 @@ VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
 }
 
 DIRECTIVE_NAME* Transform::pre_directive_name(DIRECTIVE_NAME* in)
-{
-    return in;
-}
-
-LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
 {
     return in;
 }
@@ -522,21 +502,6 @@ void Transform::post_foreign_statement(Foreign_statement* in, List<Statement*>* 
     out->push_back(in);
 }
 
-void Transform::post_branch(Branch* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_goto(Goto* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-void Transform::post_label(Label* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::post_assignment(Assignment* in)
 {
     return in;
@@ -658,11 +623,6 @@ VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
 }
 
 DIRECTIVE_NAME* Transform::post_directive_name(DIRECTIVE_NAME* in)
-{
-    return in;
-}
-
-LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
 {
     return in;
 }
@@ -896,23 +856,6 @@ void Transform::children_foreign_statement(Foreign_statement* in)
 {
 }
 
-void Transform::children_branch(Branch* in)
-{
-    in->expr = transform_expr(in->expr);
-    in->iftrue = transform_label_name(in->iftrue);
-    in->iffalse = transform_label_name(in->iffalse);
-}
-
-void Transform::children_goto(Goto* in)
-{
-    in->label_name = transform_label_name(in->label_name);
-}
-
-void Transform::children_label(Label* in)
-{
-    in->label_name = transform_label_name(in->label_name);
-}
-
 void Transform::children_assignment(Assignment* in)
 {
     in->variable = transform_variable(in->variable);
@@ -1051,10 +994,6 @@ void Transform::children_variable_name(VARIABLE_NAME* in)
 }
 
 void Transform::children_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
-void Transform::children_label_name(LABEL_NAME* in)
 {
 }
 
@@ -1570,22 +1509,6 @@ List<Catch*>* Transform::transform_catch(Catch* in)
     return out2;
 }
 
-LABEL_NAME* Transform::transform_label_name(LABEL_NAME* in)
-{
-    if(in == NULL) return NULL;
-    
-    LABEL_NAME* out;
-    
-    out = pre_label_name(in);
-    if(out != NULL)
-    {
-    	children_label_name(out);
-    	out = post_label_name(out);
-    }
-    
-    return out;
-}
-
 OP* Transform::transform_op(OP* in)
 {
     if(in == NULL) return NULL;
@@ -2018,33 +1941,6 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Label::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_label(dynamic_cast<Label*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Goto::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_goto(dynamic_cast<Goto*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Branch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_branch(dynamic_cast<Branch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Foreign_statement::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2372,33 +2268,6 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Label::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_label(dynamic_cast<Label*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Goto::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_goto(dynamic_cast<Goto*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Branch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_branch(dynamic_cast<Branch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Foreign_statement::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2611,15 +2480,6 @@ void Transform::children_statement(Statement* in)
     	break;
     case Nop::ID:
     	children_nop(dynamic_cast<Nop*>(in));
-    	break;
-    case Label::ID:
-    	children_label(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	children_goto(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	children_branch(dynamic_cast<Branch*>(in));
     	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
