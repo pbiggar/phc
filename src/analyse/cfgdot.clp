@@ -3,7 +3,7 @@ using dotty.
 
 analyze session_name("mir").
 
-session cfg (PROG:string, METHOD:string).
+session cfg (METHOD:string).
 
 % To build the CFG, we go through 3 phases. First, we create the linked list
 % of nodes, using program points. Secondly, we do a top-down pass through
@@ -28,8 +28,8 @@ session cfg (PROG:string, METHOD:string).
 % Program point in a function
 type pp ::=
     p_s{t_Statement}			% point of the of statement
-  | p_entry						% entry point of function/script
-  | p_exit						% exit point of function/script
+  | p_entry{t_Method}		% entry point of function/script
+  | p_exit{t_Method}			% exit point of function/script
   . 
 
 % The first step is to add program points. Each point is a statement, but
@@ -37,22 +37,22 @@ type pp ::=
 % in the list (for labels and gotos/branches)
 predicate loc (P:pp).
 predicate pp_edge (P0:pp, P1:pp).
-predicate build_pps (P:pp, STMTS:list[t_Statement]).
+predicate build_pps (P:pp, STMTS:list[t_Statement], METHOD:t_Method).
 
 % Annotate a script with program points
-method (_, _, yes{STMTs}),
-	A = p_entry,
+method (ID, _, yes{STMTs}),
+	A = p_entry{ID},
 	+loc(A),							% entry point
-	+build_pps (A, STMTs).		% connect to statements
+	+build_pps (A, STMTs, ID).		% connect to statements
 
 % Handle a list of statements - base case
-build_pps (PREV, []), +loc(p_exit), +pp_edge (PREV, p_exit).
+build_pps (PREV, [], METHOD), +loc(p_exit{METHOD}), +pp_edge (PREV, p_exit{METHOD}).
 
 % Handle a list of statements - Recursive case
-build_pps (PREV, [H|STMTs]),
+build_pps (PREV, [H|STMTs], METHOD),
 	P = p_s{H},
 	+loc(P), +pp_edge (PREV, P),
-	+build_pps (P, STMTs).
+	+build_pps (P, STMTs, METHOD).
 
 % Build a .dot file to view the PPs
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
@@ -64,11 +64,11 @@ dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 
 % Phase 2: Build the CFG
 type cfg_node ::=
-	nentry					% function entry
-|	nexit						% function exit
-|	n_block{t_Statement}	% basic block (BBs only have 1 statement in them)
+	nentry{t_Method}				% function entry
+|	nexit{t_Method}				% function exit
+|	n_block{t_Statement}			% basic block (BBs only have 1 statement in them)
 |	n_branch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
-|	n_empty{t_Statement}		% branch target, generally
+|	n_empty{t_Statement}			% branch target, generally
 .
 
 predicate cfg_edge (N0:cfg_node, N1:cfg_node).
@@ -78,10 +78,10 @@ predicate cfg_edge (N0:cfg_node, N1:cfg_node).
 predicate dfs (FROM:cfg_node, TO:pp).
 
 % Start at the top
-pp_edge (p_entry, P), +dfs (nentry, P).
+pp_edge (p_entry{METHOD}, P), +dfs (nentry{METHOD}, P).
 
 % End condition
-dfs (N, p_exit), +cfg_edge (N, nexit).
+dfs (N, p_exit{METHOD}), +cfg_edge (N, nexit{METHOD}).
 
 % Normal statement - add edge and recurse
 dfs (N, p_s{S}), 
@@ -139,3 +139,17 @@ dfs (N, p_s{S}),
 dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
 	Name = "CFG",
 	\/(cfg_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
+
+% Save the CFGs.
+predicate save_cfg (METHOD_NAME:string, N:cfg_node).
+
+cfg_edge (nentry{METHOD}, N),
+	% get the name
+		method (METHOD, SIG, _), 
+		signature (SIG, _, _, NAME_ID, _),
+		mETHOD_NAME (NAME_ID, NAME),
+	% add it to a session
+	+cfg(NAME)->cfg_edge (nentry{METHOD}, N), +save_cfg (NAME, N).
+
+save_cfg (METHOD, N), cfg_edge (N, N1),
+	+cfg(METHOD)->cfg_edge (N, N1), +save_cfg (METHOD, N1).
