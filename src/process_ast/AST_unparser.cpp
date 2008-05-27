@@ -99,13 +99,23 @@ public:
 	}
 };
 
-/*
- * The unparser proper
- */
-
-AST_unparser::AST_unparser (ostream& os, bool in_php, PHP_unparser* foreign_unparser) 
+AST_unparser::AST_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, foreign_unparser(foreign_unparser)
+, foreign_unparser(NULL)
+{
+	in_string.push(false);
+}
+
+AST_unparser::AST_unparser (Unparser_state* ups)
+: PHP_unparser (ups)
+, foreign_unparser (NULL)
+{
+	in_string.push(false);
+}
+
+AST_unparser::AST_unparser (PHP_unparser* foreign_unparser)
+: PHP_unparser (foreign_unparser->ups)
+, foreign_unparser (foreign_unparser)
 {
 	in_string.push(false);
 }
@@ -116,6 +126,10 @@ void AST_unparser::unparse (IR::Node* in)
 	assert (ast);
 	ast->visit (this);
 }
+
+/*
+ * The unparser proper
+ */
 
 void AST_unparser::children_php_script(PHP_script* in)
 {
@@ -1304,13 +1318,13 @@ void AST_unparser::post_commented_node(Commented_node* in)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
-			if(!at_start_of_line) echo(" ");
+			if(!ups->at_start_of_line) echo(" ");
 			echo(*i);
 			newline();
 		}
 	}
 
-	if(!at_start_of_line) newline();
+	if(!ups->at_start_of_line) newline();
 }
 
 void AST_unparser::children_nop (Nop* in)
@@ -1336,6 +1350,11 @@ void AST_unparser::children_name_with_default (Name_with_default* in)
 void AST_unparser::unparse_foreign (IR::Node* in)
 {
 	// The AST doesn't use foreign nodes
+	if (HIR::Node* hir = dynamic_cast<HIR::Node*> (in))
+		xdebug (hir);
+	else if (MIR::Node* mir = dynamic_cast<MIR::Node*> (in))
+		xdebug (mir);
+
 	assert (false);
 }
 

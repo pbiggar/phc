@@ -30,9 +30,9 @@ void PHP_unparser::echo_nl(const char* s)
 void PHP_unparser::echo(String* str)
 {
 	output_start_tag();
-	if(delayed_newline) newline();
+	if(ups->delayed_newline) newline();
 	output_tabs();
-	os << *str;
+	ups->os << *str;
 }
 
 void PHP_unparser::echo_nl(String* str)
@@ -43,22 +43,22 @@ void PHP_unparser::echo_nl(String* str)
 
 void PHP_unparser::inc_indent()
 {
-	indent_level++;
+	ups->indent_level++;
 	newline();
 }
 
 void PHP_unparser::dec_indent()
 {
-	indent_level--;
+	ups->indent_level--;
 	newline();
 }
 
 void PHP_unparser::newline()
 {
-	if(!at_start_of_line)
+	if(!ups->at_start_of_line)
 	{
-		at_start_of_line = true;
-		os << endl;
+		ups->at_start_of_line = true;
+		ups->os << endl;
 	}
 
 	clear_delayed_newline();
@@ -66,17 +66,17 @@ void PHP_unparser::newline()
 
 void PHP_unparser::output_tabs()
 {
-	if(at_start_of_line)
-		for(long i = 0; i < indent_level; i++)
-			os << args_info.tab_arg;
+	if(ups->at_start_of_line)
+		for(long i = 0; i < ups->indent_level; i++)
+			ups->os << args_info.tab_arg;
 
-	at_start_of_line = false;
+	ups->at_start_of_line = false;
 }
 
 void PHP_unparser::empty_line()
 {
-	at_start_of_line = true;
-	os << endl;
+	ups->at_start_of_line = true;
+	ups->os << endl;
 }
 
 void PHP_unparser::space_or_newline()
@@ -89,41 +89,51 @@ void PHP_unparser::space_or_newline()
 
 void PHP_unparser::echo_delayed_newline()
 {
-	delayed_newline = true;
+	ups->delayed_newline = true;
 }
 
 void PHP_unparser::clear_delayed_newline()
 {
-	delayed_newline = false;
+	ups->delayed_newline = false;
 }
 
 void PHP_unparser::output_start_tag()
 {
-	if(!in_php)
+	if(!ups->in_php)
 	{
 		newline();
-		os << "<?php\n";
-		in_php = true;
+		ups->os << "<?php\n";
+		ups->in_php = true;
 	}
 }
 
 void PHP_unparser::output_end_tag()
 {
-	if(in_php)
+	if(ups->in_php)
 	{
 		newline();
-		os << "?>\n";
-		in_php = false;
+		ups->os << "?>\n";
+		ups->in_php = false;
 	}
 }
 
 void PHP_unparser::echo_html(String* str)
 {
 	output_end_tag();
-	os << *str;
+	ups->os << *str;
 }
 
 PHP_unparser::PHP_unparser(ostream& os, bool in_php)
+{
+	ups = new Unparser_state (os, in_php);
+}
+
+PHP_unparser::PHP_unparser(Unparser_state* ups)
+: ups (ups)
+{
+}
+
+PHP_unparser::Unparser_state::Unparser_state (ostream& os, bool in_php)
 : in_php (in_php)
 , os(os)
 {

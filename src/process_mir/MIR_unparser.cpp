@@ -16,15 +16,21 @@ using namespace MIR;
 
 MIR_unparser::MIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, ast_unparser (os, in_php, this)
 {
+	ast_unparser = new AST_unparser (this);
+}
+
+MIR_unparser::MIR_unparser (Unparser_state* ups)
+: PHP_unparser (ups)
+{
+	ast_unparser = new AST_unparser (this);
 }
 
 void MIR_unparser::unparse (IR::Node* in)
 {
 	Node* mir = dynamic_cast<Node*> (in);
 	AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
-	ast_unparser.unparse (ast);
+	ast_unparser->unparse (ast);
 }
 
 void MIR_unparser::unparse_foreign (IR::Node* in)

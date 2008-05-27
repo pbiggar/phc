@@ -16,9 +16,17 @@
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 public:
-	AST_unparser (ostream& os = cout, bool in_php = false, PHP_unparser* foreign_unparser = NULL);
+	AST_unparser (ostream& os = cout, bool in_php = false);
+	AST_unparser (Unparser_state* ups);
+
+	// Use FOREIGN_UNPARSER's state.
+	AST_unparser (PHP_unparser* foreign_unparser);
+
+
 	void unparse (IR::Node* in);
 	void unparse_foreign (IR::Node* in);
+
+protected:
 
 public:
 	void children_php_script(AST::PHP_script* in);

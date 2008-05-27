@@ -329,7 +329,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 				mir->transform_children (new Foreach_uppering);
 				mir->visit (new Goto_uppering);
 				AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
-				AST_unparser(cout, false, new MIR_unparser (cout, true)).unparse (ast);
+				AST_unparser(new MIR_unparser ()).unparse (ast) ;
 			}
 
 			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?

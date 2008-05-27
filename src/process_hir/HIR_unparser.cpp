@@ -14,17 +14,20 @@
 using namespace std;
 using namespace HIR;
 
-HIR_unparser::HIR_unparser::HIR_unparser (ostream& os, bool in_php)
+HIR_unparser::HIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, ast_unparser (os, in_php, this)
 {
+	// We unparse by converting to AST, but keeping foreign nodes in. Unparsing
+	// the foreign nodes are delegated here, and then on to the MIR_unparser.
+	ast_unparser = new AST_unparser (this);
+	mir_unparser = new MIR_unparser (ups);
 }
 
 void HIR_unparser::unparse (IR::Node* in)
 {
 	Node* hir = dynamic_cast<Node*> (in);
 	AST::Node* ast = (new HIR_to_AST ())->fold_node (hir);
-	ast_unparser.unparse (ast);
+	ast_unparser->unparse (ast);
 }
 
 void HIR_unparser::unparse_foreign (IR::Node* in)
@@ -35,7 +38,7 @@ void HIR_unparser::unparse_foreign (IR::Node* in)
 		// HIR-to-MIR will have MIR nodes, which get passed to the AST_parser, and back to here. Pass them on to the MIR_unparser.
 		MIR::Node* mir = dynamic_cast<MIR::Node*>(in);
 		assert (mir);
-		mir_unparser.unparse (mir);
+		mir_unparser->unparse (mir);
 	}
 	else
 		hir->visit (this);
@@ -46,5 +49,5 @@ void HIR_unparser::pre_foreign (Foreign* in)
 	// The foreign nodes should contain a piece of the MIR
 	MIR::Node* mir = dynamic_cast<MIR::Node*>(in->foreign);
 	assert (mir);
-	mir_unparser.unparse (mir);
+	mir_unparser->unparse (mir);
 }
