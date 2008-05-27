@@ -5,15 +5,13 @@ analyze session_name("mir").
 
 session cfg (METHOD:string).
 
-% To build the CFG, we go through 3 phases. First, we create the linked list
+% To build the CFG, we go through 2 phases. First, we create the linked list
 % of nodes, using program points. Secondly, we do a top-down pass through
-% this list, leaving the gotos and the branches in the CFG, but adding edges
-% to their targets and then following the targets. It is important to stop
-% processing if a node is already in the CFG (which may or may not happen
-% with back edges). We then have a CFG with basic blocks and edges, but the
-% BBs contain gotos and labels, which we dont want. So, phase 3, we go
-% through removing them, leaving potentially empty BBs behind. We then merge
-% any BBs that need it. This may still leave empty BBs, which is fine.
+% this list, adding CFG edges between statements. Branches add two edges, one
+% to each target. Gotos and labels are passed through, adding edges between
+% their predecessors and their successors.  It is important to stop processing
+% if a node is already in the CFG (which may or may not happen with back
+% edges). We then add these edges to the session. 
 %
 % Note that the second phase removes any unreachable code.
 
@@ -68,7 +66,6 @@ type cfg_node ::=
 |	nexit{t_Method}				% function exit
 |	n_block{t_Statement}			% basic block (BBs only have 1 statement in them)
 |	n_branch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
-|	n_empty{t_Statement}			% branch target, generally
 .
 
 predicate cfg_edge (N0:cfg_node, N1:cfg_node).
@@ -85,16 +82,21 @@ dfs (N, p_exit{METHOD}), +cfg_edge (N, nexit{METHOD}).
 
 % Normal statement - add edge and recurse
 dfs (N, p_s{S}), 
-	S \= statement_Branch{_}, S \= statement_Goto{_},
-	(
-		S = statement_Label{_}, N1 = n_empty{S}
-	; 
-		S \= statement_Label{_}, N1 = n_block{S}
-	),
+	S \= statement_Branch{_}, S \= statement_Goto{_}, S \= statement_Label{_},
+	N1 = n_block{S},
 	+cfg_edge (N, N1),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
 		+dfs (N1, P1).
+
+% Label - dont create a node or an edge, just follow the path
+dfs (N, p_s{S}), 
+	S = statement_Label{_},
+	% recurse
+		pp_edge (p_s{S}, P1), % get next pp
+		+dfs (N, P1).
+
+
 
 % find the PP for a LABEL_NAME
 predicate label_name_loc (in LABEL_NAME:string, out PP:pp).
@@ -106,7 +108,7 @@ label_name_loc (NAME_VAL, PP) :-
 	PP = LOC.
 
 
-% Branch
+% Branch - create a node, and follow both paths
 dfs (N, p_s{S}),
 	S = statement_Branch{B},
 	branch (B, VAR, TRUE_LABEL, FALSE_LABEL),
@@ -123,17 +125,15 @@ dfs (N, p_s{S}),
 			+dfs (N1, TRUE_PP),
 			+dfs (N1, FALSE_PP).
 
-% Goto
+% Goto - dont create a node or an edge, just follow the path
 dfs (N, p_s{S}),
 	S = statement_Goto{G},
 	goto (G, LABEL),
-	N1 = n_block {S},
-	+cfg_edge (N, N1),
 	% find target and recurse
 		% find the names of the labels for the branch targets
 			lABEL_NAME (LABEL, LABEL_NAME), 
 			label_name_loc (LABEL_NAME, PP),
-			+dfs (N1, PP).
+			+dfs (N, PP).
 
 % Build a .dot file to view the CFG
 dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
