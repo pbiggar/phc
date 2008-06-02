@@ -1,10 +1,11 @@
+% cfg.clp defines the predicates for the CFG. This actually creates the CFG sessions from the MIR. It is intended that do_cft.clp is run, which will create the cfg databases, but cfg.clp will need to be imported by client analyses.
+
 import "src/generated/MIR.clp".
+import "src/analyse/cfg.clp".
 import "3rdparty/clpa/analysis/base/utility.clp".
 using dotty.
 
 analyze session_name("mir").
-
-session cfg (METHOD:string).
 
 % To build the CFG, we go through 2 phases. First, we create the linked list
 % of nodes, using program points. Secondly, we do a top-down pass through
@@ -62,20 +63,10 @@ build_pps (PREV, [H|STMTs], METHOD),
 
 
 % Phase 2: Build the CFG
-type t_cfg_node ::=
-	nentry{t_Method}				% function entry
-|	nexit{t_Method}				% function exit
-|	nblock{t_Statement}			% basic block (BBs only have 1 statement in them)
-|	nbranch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
-.
-
 % CFG nodes are inferred from cfg_edges
-predicate cfg_node (N:t_cfg_node).
 cfg_node (N) :- cfg_edge (N, _).
 cfg_node (N) :- cfg_edge (_, N).
 
-
-predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node).
 
 % Add a CFG edge between FROM and a cfg_node created from TO (which is in the
 % pp_graph).
@@ -141,46 +132,6 @@ dfs (N, p_s{S}),
 			lABEL_NAME (LABEL, LABEL_NAME), 
 			label_name_loc (LABEL_NAME, PP),
 			+dfs (N, PP).
-
-
-
-% Build a .dot file to view the CFG
-
-
-% Create dotty nodes and edges
-predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
-predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
-
-% Nodes
-dotty_node (N, []) :- cfg_node (N), N = nentry{_}.
-dotty_node (N, []) :- cfg_node (N), N = nexit{_}.
-
-% Normal statements
-dotty_node (N, Attrs) :- 
-	cfg_node (N), 
-	N = nblock{S}, 
-	source_rep (any{S}, SOURCE), 
-	Attrs = [dg_attr{"label", SOURCE}].
-
-% Branches
-dotty_node (N, Attrs) :- 
-	cfg_node (N), 
-	N = nbranch{B}, 
-	source_rep (any{B}, VARNAME),
-	Attrs = [dg_attr{"label", VARNAME}, dg_attr{"shape", "rectangle"}].
-
-% Edges
-dotty_edge (E1, E2, []) :- cfg_edge (E1, E2).
-
-dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
-	Name = "CFG",
-	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),
-	\/(dotty_edge (DE1, DE2, EAs), E = dg_edge{DE1, DE2, EAs}):list_all(E, Edges).
-
-% TODO: Make these demand driven
-source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = global_id {_}, +source_rep (any{statement_Global{SUBTYPE}}, SOURCE).
-source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = eval_expr_id {_}, +source_rep (any{statement_Eval_expr{SUBTYPE}}, SOURCE).
-source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = return_id {_}, +source_rep (any{statement_Return{SUBTYPE}}, SOURCE).
 
 
 

@@ -16,15 +16,22 @@
 		"3rdparty/clpa/bin/clpa --debug parse_warnings $base.clp",
 		"rm $base.clp",
 
-		// run clpa with a sample analysis on it
-#		"3rdparty/clpa/bin/clpa --debug eval_rule src/analyse/cfgdot.clp",
-		"3rdparty/clpa/bin/clpa src/analyse/cfgdot.clp",
+		// Turn into CFG
+#		"3rdparty/clpa/bin/clpa --debug eval_rule src/analyse/do_cfg.clp",
+		"3rdparty/clpa/bin/clpa src/analyse/do_cfg.clp",
 
-		// create graphs
+		// create CFG graphs
 		"dot -Tps CFG.dot > CFG.ps",
-		"rm CFG.dot",
-		"dot -Tps PPs.dot > PPs.ps",
-		"rm PPs.dot",
+		"rm -f CFG.dot",
+#		"dot -Tps PPs.dot > PPs.ps",
+		"rm -f PPs.dot",
+
+
+		# Run Dead-code elimination
+#		"3rdparty/clpa/bin/clpa --debug eval_rule src/analyse/dce.clp",
+		"3rdparty/clpa/bin/clpa src/analyse/dce.clp",
+
+
 	);
 
 	foreach ($commands as $command)
