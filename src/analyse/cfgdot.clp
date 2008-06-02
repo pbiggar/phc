@@ -54,10 +54,10 @@ build_pps (PREV, [H|STMTs], METHOD),
 	+build_pps (P, STMTs, METHOD).
 
 % Build a .dot file to view the PPs
-dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
-	Name = "PPs",
-	\/(pp_node (P), N = dg_node{P,[]}):list_all(N, Nodes),
-	\/(pp_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
+%dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
+%	Name = "PPs",
+%	\/(pp_node (P), N = dg_node{P,[]}):list_all(N, Nodes),
+%	\/(pp_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
 
 
 
@@ -69,9 +69,12 @@ type t_cfg_node ::=
 |	nbranch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
 .
 
+% CFG nodes are inferred from cfg_edges
 predicate cfg_node (N:t_cfg_node).
 cfg_node (N) :- cfg_edge (N, _).
 cfg_node (N) :- cfg_edge (_, N).
+
+
 predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node).
 
 % Add a CFG edge between FROM and a cfg_node created from TO (which is in the
@@ -141,6 +144,8 @@ dfs (N, p_s{S}),
 
 
 
+% Build a .dot file to view the CFG
+
 
 % Create dotty nodes and edges
 predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
@@ -150,22 +155,23 @@ predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
 dotty_node (N, []) :- cfg_node (N), N = nentry{_}.
 dotty_node (N, []) :- cfg_node (N), N = nexit{_}.
 
+% Normal statements
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nblock{S}, 
 	source_rep (any{S}, SOURCE), 
 	Attrs = [dg_attr{"label", SOURCE}].
 
+% Branches
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nbranch{B}, 
-	source_rep (any{B}, SOURCE), str_cat ("BRANCH: ", SOURCE, LABEL),
-	Attrs = [dg_attr{"label", LABEL}].
+	source_rep (any{B}, VARNAME),
+	Attrs = [dg_attr{"label", VARNAME}, dg_attr{"shape", "rectangle"}].
 
 % Edges
 dotty_edge (E1, E2, []) :- cfg_edge (E1, E2).
 
-% Build a .dot file to view the CFG
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	Name = "CFG",
 	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),
