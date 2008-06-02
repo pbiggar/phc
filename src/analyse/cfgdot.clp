@@ -1,4 +1,5 @@
 import "src/generated/MIR.clp".
+import "3rdparty/clpa/analysis/base/utility.clp".
 using dotty.
 
 analyze session_name("mir").
@@ -33,57 +34,60 @@ type pp ::=
 % The first step is to add program points. Each point is a statement, but
 % this joins them to make it easier to associate each one with the next one
 % in the list (for labels and gotos/branches)
-predicate loc (P:pp).
+predicate pp_node (P:pp).
 predicate pp_edge (P0:pp, P1:pp).
 predicate build_pps (P:pp, STMTS:list[t_Statement], METHOD:t_Method).
 
 % Annotate a script with program points
 method (ID, _, yes{STMTs}),
 	A = p_entry{ID},
-	+loc(A),							% entry point
+	+pp_node(A),							% entry point
 	+build_pps (A, STMTs, ID).		% connect to statements
 
 % Handle a list of statements - base case
-build_pps (PREV, [], METHOD), +loc(p_exit{METHOD}), +pp_edge (PREV, p_exit{METHOD}).
+build_pps (PREV, [], METHOD), +pp_node(p_exit{METHOD}), +pp_edge (PREV, p_exit{METHOD}).
 
 % Handle a list of statements - Recursive case
 build_pps (PREV, [H|STMTs], METHOD),
 	P = p_s{H},
-	+loc(P), +pp_edge (PREV, P),
+	+pp_node(P), +pp_edge (PREV, P),
 	+build_pps (P, STMTs, METHOD).
 
 % Build a .dot file to view the PPs
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	Name = "PPs",
-	\/(loc (P), N = dg_node{P,[]}):list_all(N, Nodes),
+	\/(pp_node (P), N = dg_node{P,[]}):list_all(N, Nodes),
 	\/(pp_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
 
 
 
 % Phase 2: Build the CFG
-type cfg_node ::=
+type t_cfg_node ::=
 	nentry{t_Method}				% function entry
 |	nexit{t_Method}				% function exit
-|	n_block{t_Statement}			% basic block (BBs only have 1 statement in them)
-|	n_branch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
+|	nblock{t_Statement}			% basic block (BBs only have 1 statement in them)
+|	nbranch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
 .
 
-predicate cfg_edge (N0:cfg_node, N1:cfg_node).
+predicate cfg_node (N:t_cfg_node).
+cfg_node (N) :- cfg_edge (N, _).
+cfg_node (N) :- cfg_edge (_, N).
+predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node).
 
 % Add a CFG edge between FROM and a cfg_node created from TO (which is in the
 % pp_graph).
-predicate dfs (FROM:cfg_node, TO:pp).
+predicate dfs (FROM:t_cfg_node, TO:pp).
 
 % Start at the top
 pp_edge (p_entry{METHOD}, P), +dfs (nentry{METHOD}, P).
 
 % End condition
-dfs (N, p_exit{METHOD}), +cfg_edge (N, nexit{METHOD}).
+dfs (N, p_exit{METHOD}), +cfg_edge (N, nexit{METHOD}), +cfg_node (nexit{METHOD}).
 
 % Normal statement - add edge and recurse
 dfs (N, p_s{S}), 
 	S \= statement_Branch{_}, S \= statement_Goto{_}, S \= statement_Label{_},
-	N1 = n_block{S},
+	N1 = nblock{S},
 	+cfg_edge (N, N1),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
@@ -104,7 +108,7 @@ predicate label_name_loc (in LABEL_NAME:string, out PP:pp).
 label_name_loc (NAME_VAL, PP) :-
 	lABEL_NAME (NAME_ID, NAME_VAL),
 	label (LABEL_ID, NAME_ID),
-	loc (LOC), LOC = p_s{statement_Label{LABEL_ID}},
+	pp_node (LOC), LOC = p_s{statement_Label{LABEL_ID}},
 	PP = LOC.
 
 
@@ -112,7 +116,7 @@ label_name_loc (NAME_VAL, PP) :-
 dfs (N, p_s{S}),
 	S = statement_Branch{B},
 	branch (B, VAR, TRUE_LABEL, FALSE_LABEL),
-	N1 = n_branch {VAR},
+	N1 = nbranch {VAR},
 	+cfg_edge (N, N1),
 	% find targets and recurse
 		% find the names of the labels for the branch targets
@@ -135,13 +139,47 @@ dfs (N, p_s{S}),
 			label_name_loc (LABEL_NAME, PP),
 			+dfs (N, PP).
 
+
+
+
+% Create dotty nodes and edges
+predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
+predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
+
+% Nodes
+dotty_node (N, []) :- cfg_node (N), N = nentry{_}.
+dotty_node (N, []) :- cfg_node (N), N = nexit{_}.
+
+dotty_node (N, Attrs) :- 
+	cfg_node (N), 
+	N = nblock{S}, 
+	source_rep (any{S}, SOURCE), 
+	Attrs = [dg_attr{"label", SOURCE}].
+
+dotty_node (N, Attrs) :- 
+	cfg_node (N), 
+	N = nbranch{B}, 
+	source_rep (any{B}, SOURCE), str_cat ("BRANCH: ", SOURCE, LABEL),
+	Attrs = [dg_attr{"label", LABEL}].
+
+% Edges
+dotty_edge (E1, E2, []) :- cfg_edge (E1, E2).
+
 % Build a .dot file to view the CFG
-dotty_graph (Name, true, dotgraph{[], Edges}, [], [], []) :-
+dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	Name = "CFG",
-	\/(cfg_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
+	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),
+	\/(dotty_edge (DE1, DE2, EAs), E = dg_edge{DE1, DE2, EAs}):list_all(E, Edges).
+
+% TODO: Make these demand driven
+source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = global_id {_}, +source_rep (any{statement_Global{SUBTYPE}}, SOURCE).
+source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = eval_expr_id {_}, +source_rep (any{statement_Eval_expr{SUBTYPE}}, SOURCE).
+source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = return_id {_}, +source_rep (any{statement_Return{SUBTYPE}}, SOURCE).
+
+
 
 % Save the CFGs.
-predicate save_cfg (METHOD_NAME:string, N:cfg_node).
+predicate save_cfg (METHOD_NAME:string, N:t_cfg_node).
 
 cfg_edge (nentry{METHOD}, N),
 	% get the name

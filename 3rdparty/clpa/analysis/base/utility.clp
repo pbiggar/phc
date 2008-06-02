@@ -39,6 +39,7 @@
 % Miscellaneous utility predicates.
 %-----------------------------------------------------------------------------%
 
+using intops.
 using solve_sat.
 using solve_bitvector.
 using strops.

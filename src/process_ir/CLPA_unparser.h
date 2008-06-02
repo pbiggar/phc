@@ -103,7 +103,8 @@ template
 	class STRING,
 	class BOOL,
 	class Identifier,
-	class Visitor
+	class Visitor,
+	class Unparser
 >
 class CLPA_unparser : public Visitor 
 {
@@ -126,6 +127,7 @@ public:
 		uc_prefix = s (uc_prefix->substr (0, 3));
 		prefix  = s (*uc_prefix);
 		prefix->toLower ();
+
 
 		init_keywords ();
 
@@ -344,10 +346,12 @@ public:
 			ids.pop ();
 		}
 
+		String* id = get_subject_id_string (in);
+
 		// Print out the predicate.
 		cout 
 			<< "+" << *prefix << "(\"" << *filename << "\")->" << *pred_name (in) << " (\n\t"
-			<< *get_subject_id_string (in);
+			<< *id;
 
 		for_lci (params, String, i)
 		{
@@ -361,7 +365,7 @@ public:
 		{
 			cout 
 				<< "+" << *prefix << "(\"" << *filename << "\")->attr ("
-				<< get_id (in)->value() << ", "
+				<< "any{" << *id << "}, "
 				<< "\"" << (*i).first << "\", ";
 
 			Object* attr = (*i).second;
@@ -378,7 +382,14 @@ public:
 			cout << ").\n";
 		}
 
-		cout << endl;
+		// Print out the source representation
+		stringstream ss;
+		Unparser unparser (ss, true);
+		unparser.unparse (in);
+		cout 
+			<< "+" << *prefix << "(\"" << *filename << "\")->source_rep ("
+			<< "any{" << *id << "}, "
+			<< "\"" << *escape (s (ss.str ())) << "\")." << endl;
 	}
 
 protected:
@@ -590,7 +601,8 @@ class AST_CLPA_unparser : public CLPA_unparser
 	AST::STRING,
 	AST::BOOL,
 	AST::Identifier,
-	AST::Visitor
+	AST::Visitor,
+	AST_unparser
 >
 {
 
@@ -605,7 +617,8 @@ class HIR_CLPA_unparser : public CLPA_unparser
 	HIR::STRING,
 	HIR::BOOL,
 	HIR::Identifier,
-	HIR::Visitor
+	HIR::Visitor,
+	HIR_unparser
 >
 {
 };
@@ -619,7 +632,8 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR::STRING,
 	MIR::BOOL,
 	MIR::Identifier,
-	MIR::Visitor
+	MIR::Visitor,
+	MIR_unparser
 >
 {
 };
