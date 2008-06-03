@@ -20,7 +20,8 @@ dotty_node (N, Attrs) :-
 	cfg_node (N), 
 	N = nblock{S},
 	mir()->source_rep (any{S}, SOURCE),
-	Attrs = [dg_attr{"label", SOURCE}].
+	tostring (S, SSTRING), str_cat4 (SOURCE, "[", SSTRING, "]", LABEL),
+	Attrs = [dg_attr{"label", LABEL}].
 
 
 % Branches
@@ -28,7 +29,8 @@ dotty_node (N, Attrs) :-
 	cfg_node (N), 
 	N = nbranch{B}, 
 	mir()->source_rep (any{B}, VARNAME),
-	Attrs = [dg_attr{"label", VARNAME}, dg_attr{"shape", "rectangle"}].
+	tostring (B, BSTRING), str_cat4 (VARNAME, "\n[", BSTRING, "]", LABEL),
+	Attrs = [dg_attr{"label", LABEL}, dg_attr{"shape", "rectangle"}].
 
 % Edges
 dotty_edge (E1, E2, []) :- cfg_edge (E1, E2).

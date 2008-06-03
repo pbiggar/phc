@@ -12,7 +12,7 @@ type t_cfg_node ::=
 |	nbranch{t_VARIABLE_NAME}	% branch (branches on the condition in t_VARIABLE_NAME)
 .
 
-predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node).
+predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node) order[N0, N1].
 
 % CFG nodes are inferred from cfg_edges
 predicate cfg_node (N:t_cfg_node).
