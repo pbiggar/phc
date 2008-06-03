@@ -54,14 +54,14 @@ class AST_to_HIR : public AST::Fold
  HIR::Try*,					// Try*
  HIR::Catch*,				// Catch*
  HIR::Throw*,				// Throw*
- HIR::Eval_expr*,			// Eval_expr*
+ HIR::Statement*,			// Eval_expr*
  HIR::Statement*,			// Nop*
  HIR::Foreign*,			// Foreign*
  HIR::Foreign_expr*,			// Foreign_expr*
  HIR::Foreign_statement*,	// Foreign_statement*
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
- HIR::Assignment*,			// Assignment*
+ HIR::Expr*,			// Assignment*
  HIR::Op_assignment*,				// Op_assignment*
  HIR::Expr*,				// List_assignment*
  HIR::Expr*,				// List_element*
@@ -286,8 +286,12 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Eval_expr* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
+	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
+		HIR::Assignment* assignment = reinterpret_cast<HIR::Assignment*> (expr);
+		if (assignment->classid () == HIR::Assignment::ID)
+			return assignment;
+
 		HIR::Eval_expr* result;
 		result = new HIR::Eval_expr(expr);
 		copy_attrs (result, orig);
@@ -346,12 +350,14 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Assignment* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
+	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
 	{
+		// This needs to be turned into an Expr before it can be a Statement, so
+		// as to escape outside the Eval_expr fold.
 		HIR::Assignment* result;
 		result = new HIR::Assignment(variable, is_ref, expr);
 		copy_attrs (result, orig);
-		return result;
+		return reinterpret_cast<HIR::Expr*> (result);
 	}
 
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 

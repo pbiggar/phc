@@ -27,7 +27,6 @@
 #include "HIR.h"
 
 HIR::VARIABLE_NAME* simple_var (HIR::Expr* in);
-bool extract_simple_assignment (HIR::Eval_expr* in, HIR::VARIABLE_NAME*& lhs, HIR::VARIABLE_NAME*& rhs, HIR::Assignment*& assignment);
 
 /* Entering at the method level, count the total occurences of a
  * variable, and the number of defintions, and the uses is the

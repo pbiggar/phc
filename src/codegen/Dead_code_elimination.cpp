@@ -37,33 +37,37 @@ void Dead_code_elimination::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Dead_code_elimination::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Dead_code_elimination::pre_assignment (Assignment* in, List<Statement*>* out)
 {
 	// get useful variables
-	VARIABLE_NAME *lhs, *rhs;
-	Assignment* assignment;
-	if (extract_simple_assignment (in, lhs, rhs, assignment))
+	VARIABLE_NAME *lhs = simple_var (in->variable);
+	VARIABLE_NAME *rhs = simple_var (in->expr);
+
+	if (lhs == NULL || rhs == NULL)
 	{
-		cdebug << "is simple assignment" << endl;
-		xdebug (lhs);
-		xdebug (rhs);
-	
-		// Remove statement
-		if (lhs->attrs->is_true ("phc.codegen.compiler_generated")
+		out->push_back (in);
+		return;
+	}
+
+	cdebug << "is simple assignment" << endl;
+	xdebug (lhs);
+	xdebug (rhs);
+
+	// Remove statement
+	if (lhs->attrs->is_true ("phc.codegen.compiler_generated")
 			&& lhs->attrs->get_integer ("phc.use_defs.use_count")->value() == 0
 			&& lhs->attrs->get_integer ("phc.use_defs.def_count")->value() == 1)
-		{
-			cdebug << "removing statement" << endl;
+	{
+		cdebug << "removing statement" << endl;
 
-			// note lack of out->push_back (in);
-			iterate_again = true;
-			return;
-		}
-		else
-		{
-			cdebug << "Not removing: ";
-			debug (in);
-		}
+		// note lack of out->push_back (in);
+		iterate_again = true;
+		return;
+	}
+	else
+	{
+		cdebug << "Not removing: ";
+		debug (in);
 	}
 
 	out->push_back (in);

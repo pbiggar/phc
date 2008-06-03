@@ -33,6 +33,7 @@ PHP_script ::= Statement* ;
 Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
+	| Assignment
 	| Try | Throw | Eval_expr
 	| Label | Goto | Branch
 	| Foreach_next | Foreach_reset | Foreach_end
@@ -110,13 +111,12 @@ Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long>
 -}
 
 Expr ::=
-     Assignment 
-	| Cast | Unary_op | Bin_op 
+	Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
 	| Variable | Pre_op 
 	| Method_invocation | New 
 	| Literal 
-	| Array
+	| Array -- can probably be removed
 -- | Variable_name | Index_array
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	| Foreign_expr

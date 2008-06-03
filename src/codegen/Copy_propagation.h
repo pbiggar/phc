@@ -102,7 +102,7 @@ public:
 	Copy_propagation ();
 
 	void children_php_script (HIR::PHP_script* in);
-	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_assignment (HIR::Assignment* in, List<HIR::Statement*>* out);
 };
 
 #endif // PHC_COPY_PROPAGATION

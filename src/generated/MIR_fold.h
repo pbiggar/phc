@@ -680,6 +680,8 @@ public:
 				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
 			case Global::ID:
 				return fold_global(dynamic_cast<Global*>(in));
+			case Assignment::ID:
+				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Try::ID:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
@@ -724,8 +726,6 @@ public:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Reflection::ID:
 				return fold_reflection(dynamic_cast<Reflection*>(in));
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:
@@ -802,6 +802,8 @@ public:
 				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
 			case Global::ID:
 				return fold_global(dynamic_cast<Global*>(in));
+			case Assignment::ID:
+				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Try::ID:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
@@ -854,8 +856,6 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:
@@ -932,8 +932,6 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:

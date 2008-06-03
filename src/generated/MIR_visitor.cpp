@@ -1124,8 +1124,7 @@ void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
 void Visitor::pre_assignment_chain(Assignment* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
+    pre_statement((Statement*) in);
     pre_assignment((Assignment*) in);
 }
 
@@ -1555,8 +1554,7 @@ void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
 void Visitor::post_assignment_chain(Assignment* in)
 {
     post_assignment((Assignment*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
+    post_statement((Statement*) in);
     post_node((Node*) in);
 }
 
@@ -2286,6 +2284,9 @@ void Visitor::pre_statement_chain(Statement* in)
     case Global::ID:
     	pre_global_chain(dynamic_cast<Global*>(in));
     	break;
+    case Assignment::ID:
+    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
+    	break;
     case Try::ID:
     	pre_try_chain(dynamic_cast<Try*>(in));
     	break;
@@ -2336,9 +2337,6 @@ void Visitor::pre_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	pre_cast_chain(dynamic_cast<Cast*>(in));
     	break;
@@ -2429,9 +2427,6 @@ void Visitor::pre_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	pre_cast_chain(dynamic_cast<Cast*>(in));
     	break;
@@ -2532,6 +2527,9 @@ void Visitor::post_statement_chain(Statement* in)
     case Global::ID:
     	post_global_chain(dynamic_cast<Global*>(in));
     	break;
+    case Assignment::ID:
+    	post_assignment_chain(dynamic_cast<Assignment*>(in));
+    	break;
     case Try::ID:
     	post_try_chain(dynamic_cast<Try*>(in));
     	break;
@@ -2582,9 +2580,6 @@ void Visitor::post_expr_chain(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	post_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	post_cast_chain(dynamic_cast<Cast*>(in));
     	break;
@@ -2675,9 +2670,6 @@ void Visitor::post_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	post_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	post_cast_chain(dynamic_cast<Cast*>(in));
     	break;
@@ -2778,6 +2770,9 @@ void Visitor::children_statement(Statement* in)
     case Global::ID:
     	children_global(dynamic_cast<Global*>(in));
     	break;
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
+    	break;
     case Try::ID:
     	children_try(dynamic_cast<Try*>(in));
     	break;
@@ -2828,9 +2823,6 @@ void Visitor::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	children_assignment(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	children_cast(dynamic_cast<Cast*>(in));
     	break;
@@ -2921,9 +2913,6 @@ void Visitor::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	children_assignment(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	children_cast(dynamic_cast<Cast*>(in));
     	break;

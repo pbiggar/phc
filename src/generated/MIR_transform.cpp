@@ -156,9 +156,9 @@ Expr* Transform::pre_foreach_get_val(Foreach_get_val* in)
     return in;
 }
 
-Expr* Transform::pre_assignment(Assignment* in)
+void Transform::pre_assignment(Assignment* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::pre_cast(Cast* in)
@@ -447,9 +447,9 @@ Expr* Transform::post_foreach_get_val(Foreach_get_val* in)
     return in;
 }
 
-Expr* Transform::post_assignment(Assignment* in)
+void Transform::post_assignment(Assignment* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::post_cast(Cast* in)
@@ -1568,6 +1568,15 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Assignment::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_assignment(dynamic_cast<Assignment*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Try::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -1692,7 +1701,6 @@ Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
     case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
     case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
     case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
@@ -1740,7 +1748,6 @@ Target* Transform::pre_target(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID: return pre_assignment(dynamic_cast<Assignment*>(in));
     case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
     case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
     case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
@@ -1831,6 +1838,15 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     		List<Statement*>* local_out = new List<Statement*>;
     		List<Statement*>::const_iterator i;
     		post_global(dynamic_cast<Global*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Assignment::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_assignment(dynamic_cast<Assignment*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1959,7 +1975,6 @@ Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
     case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
     case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
     case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
@@ -2007,7 +2022,6 @@ Target* Transform::post_target(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID: return post_assignment(dynamic_cast<Assignment*>(in));
     case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
     case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
     case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
@@ -2066,6 +2080,9 @@ void Transform::children_statement(Statement* in)
     case Global::ID:
     	children_global(dynamic_cast<Global*>(in));
     	break;
+    case Assignment::ID:
+    	children_assignment(dynamic_cast<Assignment*>(in));
+    	break;
     case Try::ID:
     	children_try(dynamic_cast<Try*>(in));
     	break;
@@ -2116,9 +2133,6 @@ void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	children_assignment(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	children_cast(dynamic_cast<Cast*>(in));
     	break;
@@ -2209,9 +2223,6 @@ void Transform::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case Assignment::ID:
-    	children_assignment(dynamic_cast<Assignment*>(in));
-    	break;
     case Cast::ID:
     	children_cast(dynamic_cast<Cast*>(in));
     	break;

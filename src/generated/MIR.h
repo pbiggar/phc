@@ -58,6 +58,7 @@ class Foreach_reset;
 class Foreach_next;
 class Foreach_end;
 class Expr;
+class Assignment;
 class Reflection;
 class CLASS_NAME;
 class INTERFACE_NAME;
@@ -72,7 +73,6 @@ class Foreach_has_key;
 class Foreach_get_key;
 class Foreach_get_val;
 class Literal;
-class Assignment;
 class Cast;
 class Unary_op;
 class Bin_op;
@@ -149,7 +149,7 @@ public:
     virtual void assert_valid();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | Foreign_statement;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Assignment | Try | Throw | Eval_expr | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | Foreign_statement;
 class Statement : virtual public Node
 {
 public:
@@ -1224,7 +1224,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Array | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign_expr;
+// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Array | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign_expr;
 class Expr : virtual public Target
 {
 public:
@@ -1246,6 +1246,37 @@ public:
     virtual void find_all(Node* in, List<Node*>* out) = 0;
 public:
     virtual void assert_valid() = 0;
+};
+
+// Assignment ::= Variable is_ref:"&" Expr ;
+class Assignment : virtual public Statement
+{
+public:
+    Assignment(Variable* variable, bool is_ref, Expr* expr);
+protected:
+    Assignment();
+public:
+    Variable* variable;
+    bool is_ref;
+    Expr* expr;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 31;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Assignment* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
 };
 
 // Reflection ::= VARIABLE_NAME ;
@@ -1651,37 +1682,6 @@ public:
     virtual void assert_valid() = 0;
 public:
     virtual String* get_value_as_string() = 0;
-};
-
-// Assignment ::= Variable is_ref:"&" Expr ;
-class Assignment : virtual public Expr
-{
-public:
-    Assignment(Variable* variable, bool is_ref, Expr* expr);
-protected:
-    Assignment();
-public:
-    Variable* variable;
-    bool is_ref;
-    Expr* expr;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 31;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Assignment* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
 };
 
 // Cast ::= CAST VARIABLE_NAME ;

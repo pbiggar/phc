@@ -190,14 +190,13 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// $T = foreach_has_key ($arr, iter);
 	VARIABLE_NAME* has_key = fresh_var_name ("THK");
 	out->push_back (
-		new Eval_expr (
-			new Assignment (
-				new Variable (has_key),
-				false,
-				new Foreign_expr (
-					new MIR::Foreach_has_key (
-						array_name->clone (),
-						iter->clone ())))));
+		new Assignment (
+			new Variable (has_key),
+			false,
+			new Foreign_expr (
+				new MIR::Foreach_has_key (
+					array_name->clone (),
+					iter->clone ()))));
 
 
 	// if ($T) goto L1; else goto L2;
@@ -228,11 +227,11 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	assert (key->is_simple_variable ());
 
-	out->push_back (new Eval_expr (
+	out->push_back (
 			new Assignment (
 				key,
 				false,
-				new Foreign_expr (get_key))));
+				new Foreign_expr (get_key)));
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
@@ -240,7 +239,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		folder.fold_variable_name (
 			dynamic_cast<VARIABLE_NAME*> (key->variable_name));
 
-	out->push_back (new Eval_expr (
+	out->push_back (
 		new Assignment (
 		in->val->clone (),
 		in->is_ref,
@@ -248,7 +247,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			new MIR::Foreach_get_val (
 				array_name->clone (),
 				mir_key,
-				iter->clone ())))));
+				iter->clone ()))));
 
 
 	// ....  
@@ -367,11 +366,10 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// $TB1 = $x;
 		VARIABLE_NAME* lhs = fresh_var_name ("TB");
 		out->push_back (
-			new Eval_expr (
-				new Assignment (
-					new Variable (lhs),
-					false, 
-					in->expr)));
+			new Assignment (
+				new Variable (lhs),
+				false, 
+				in->expr));
 
 		// 1 branch and label per level:
 		//		if ($TB1 = 1) goto L1; else goto L2;

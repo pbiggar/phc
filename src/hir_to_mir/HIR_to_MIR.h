@@ -50,8 +50,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Throw*,				// Throw*
  MIR::Eval_expr*,			// Eval_expr*
  MIR::Node*,			// Foreign*
- MIR::Expr*,			// Foreign_expr*
  MIR::Statement*,			// Foreign_statement*
+ MIR::Expr*,			// Foreign_expr*
  MIR::Expr*,				// Expr*
  MIR::Literal*,				// Literal*
  MIR::Assignment*,			// Assignment*

@@ -58,7 +58,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Foreign_expr*,			// Foreach_get_val*
  AST::Expr*,				// Expr*
  AST::Literal*,				// Literal*
- AST::Assignment*,			// Assignment*
+ AST::Eval_expr*,			// Assignment*
  AST::Cast*,				// Cast*
  AST::Unary_op*,			// Unary_op*
  AST::Bin_op*,				// Bin_op*
@@ -319,12 +319,12 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Foreign_expr (orig);
 	}
 	
-	AST::Assignment* fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
+	AST::Eval_expr * fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(variable, is_ref, expr);
 		result->attrs = orig->attrs;
-		return result;
+		return new AST::Eval_expr (result);
 	}
 
 	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 

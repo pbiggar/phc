@@ -1,7 +1,7 @@
 (Actual_parameter,Actual_parameter,*)
 (Array,Expr,)
 (Array_elem,Array_elem,*)
-(Assignment,Expr,)
+(Assignment,Statement,*)
 (Attr_mod,Attr_mod,)
 (Attribute,Member,*)
 (Bin_op,Expr,)

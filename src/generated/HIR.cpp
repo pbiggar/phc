@@ -4591,6 +4591,145 @@ Expr::Expr()
 {
 }
 
+Assignment::Assignment(Variable* variable, bool is_ref, Expr* expr)
+{
+    this->variable = variable;
+    this->is_ref = is_ref;
+    this->expr = expr;
+}
+
+Assignment::Assignment()
+{
+    this->variable = 0;
+    this->is_ref = 0;
+    this->expr = 0;
+}
+
+void Assignment::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Assignment::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Assignment::classid()
+{
+    return ID;
+}
+
+bool Assignment::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Assignment* that = dynamic_cast<Assignment*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable == NULL)
+    {
+    	if(that->variable != NULL && !that->variable->match(this->variable))
+    		return false;
+    }
+    else if(!this->variable->match(that->variable))
+    	return false;
+    
+    that->is_ref = this->is_ref;
+    if(this->expr == NULL)
+    {
+    	if(that->expr != NULL && !that->expr->match(this->expr))
+    		return false;
+    }
+    else if(!this->expr->match(that->expr))
+    	return false;
+    
+    return true;
+}
+
+bool Assignment::equals(Node* in)
+{
+    Assignment* that = dynamic_cast<Assignment*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable == NULL || that->variable == NULL)
+    {
+    	if(this->variable != NULL || that->variable != NULL)
+    		return false;
+    }
+    else if(!this->variable->equals(that->variable))
+    	return false;
+    
+    if(this->is_ref != that->is_ref)
+    	return false;
+    
+    if(this->expr == NULL || that->expr == NULL)
+    {
+    	if(this->expr != NULL || that->expr != NULL)
+    		return false;
+    }
+    else if(!this->expr->equals(that->expr))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Assignment* Assignment::clone()
+{
+    Variable* variable = this->variable ? this->variable->clone() : NULL;
+    bool is_ref = this->is_ref;
+    Expr* expr = this->expr ? this->expr->clone() : NULL;
+    Assignment* clone = new Assignment(variable, is_ref, expr);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Assignment::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->variable != NULL)
+    {
+    	Node* variable_res = this->variable->find(in);
+    	if (variable_res) return variable_res;
+    }
+    
+    if (this->expr != NULL)
+    {
+    	Node* expr_res = this->expr->find(in);
+    	if (expr_res) return expr_res;
+    }
+    
+    return NULL;
+}
+
+void Assignment::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->variable != NULL)
+    	this->variable->find_all(in, out);
+    
+    if (this->expr != NULL)
+    	this->expr->find_all(in, out);
+    
+}
+
+void Assignment::assert_valid()
+{
+    assert(variable != NULL);
+    variable->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
+    Node::assert_mixin_valid();
+}
+
 Reflection::Reflection(VARIABLE_NAME* variable_name)
 {
     this->variable_name = variable_name;
@@ -5407,145 +5546,6 @@ Foreign_expr::Foreign_expr(IR ::Node* foreign)
 
 Literal::Literal()
 {
-}
-
-Assignment::Assignment(Variable* variable, bool is_ref, Expr* expr)
-{
-    this->variable = variable;
-    this->is_ref = is_ref;
-    this->expr = expr;
-}
-
-Assignment::Assignment()
-{
-    this->variable = 0;
-    this->is_ref = 0;
-    this->expr = 0;
-}
-
-void Assignment::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Assignment::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Assignment::classid()
-{
-    return ID;
-}
-
-bool Assignment::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Assignment* that = dynamic_cast<Assignment*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    that->is_ref = this->is_ref;
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Assignment::equals(Node* in)
-{
-    Assignment* that = dynamic_cast<Assignment*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(this->is_ref != that->is_ref)
-    	return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Assignment* Assignment::clone()
-{
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    bool is_ref = this->is_ref;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Assignment* clone = new Assignment(variable, is_ref, expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Assignment::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->variable != NULL)
-    {
-    	Node* variable_res = this->variable->find(in);
-    	if (variable_res) return variable_res;
-    }
-    
-    if (this->expr != NULL)
-    {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
-    }
-    
-    return NULL;
-}
-
-void Assignment::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->variable != NULL)
-    	this->variable->find_all(in, out);
-    
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
-    
-}
-
-void Assignment::assert_valid()
-{
-    assert(variable != NULL);
-    variable->assert_valid();
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
 }
 
 Op_assignment::Op_assignment(Variable* variable, OP* op, Expr* expr)

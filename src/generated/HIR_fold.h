@@ -46,8 +46,8 @@ template
  class _Throw,
  class _Eval_expr,
  class _Foreign,
- class _Foreign_expr,
  class _Foreign_statement,
+ class _Foreign_expr,
  class _Expr,
  class _Literal,
  class _Assignment,
@@ -404,14 +404,14 @@ public:
 		return fold_impl_eval_expr(in, expr);
 	}
 
-	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
-	{
-		return fold_impl_foreign_expr(in);
-	}
-
 	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
 	{
 		return fold_impl_foreign_statement(in);
+	}
+
+	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
+	{
+		return fold_impl_foreign_expr(in);
 	}
 
 	virtual _Assignment fold_assignment(Assignment* in)
@@ -611,8 +611,8 @@ public:
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
-	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
+	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
@@ -663,6 +663,8 @@ public:
 				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
 			case Global::ID:
 				return fold_global(dynamic_cast<Global*>(in));
+			case Assignment::ID:
+				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Try::ID:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
@@ -705,8 +707,6 @@ public:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Reflection::ID:
 				return fold_reflection(dynamic_cast<Reflection*>(in));
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:
@@ -775,6 +775,8 @@ public:
 				return fold_static_declaration(dynamic_cast<Static_declaration*>(in));
 			case Global::ID:
 				return fold_global(dynamic_cast<Global*>(in));
+			case Assignment::ID:
+				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Try::ID:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
@@ -813,10 +815,10 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Foreign_expr::ID:
-				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
+			case Foreign_expr::ID:
+				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
 		}
 		assert(0);
 	}
@@ -825,8 +827,6 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:
@@ -899,8 +899,6 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Assignment::ID:
-				return fold_assignment(dynamic_cast<Assignment*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:

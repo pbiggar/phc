@@ -57,7 +57,7 @@ public:
     virtual Expr* pre_foreach_has_key(Foreach_has_key* in);
     virtual Expr* pre_foreach_get_key(Foreach_get_key* in);
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
-    virtual Expr* pre_assignment(Assignment* in);
+    virtual void pre_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -117,7 +117,7 @@ public:
     virtual Expr* post_foreach_has_key(Foreach_has_key* in);
     virtual Expr* post_foreach_get_key(Foreach_get_key* in);
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
-    virtual Expr* post_assignment(Assignment* in);
+    virtual void post_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);

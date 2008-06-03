@@ -649,12 +649,11 @@ protected:
 						<< "{\n";
 
 					Statement* assign_default_values = 
-						new Eval_expr (
-							new Assignment (
-								new Variable (
-									(*i)->var->variable_name->clone ()),
-								false, 
-								(*i)->var->expr->clone ()));
+						new Assignment (
+							new Variable (
+								(*i)->var->variable_name->clone ()),
+							false, 
+							(*i)->var->expr->clone ());
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";
@@ -831,7 +830,7 @@ public:
 	{
 		lhs = new Wildcard<Variable>;
 		agn = new Assignment(lhs, /* ignored */ false, rhs_pattern());
-		return that->match(new Eval_expr(agn));
+		return that->match(agn);
 	}
 
 	void generate_code(Generate_C* gen)
@@ -1310,14 +1309,13 @@ public:
 		exit_arg = new Wildcard<Actual_parameter> ();
 		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
 		return that->match (
-				new Eval_expr (
-					new Assignment (new Wildcard<Variable>, false, // ignored
-						new Method_invocation(
-							NULL,	
-							name,
-							new List<Actual_parameter*>(exit_arg)
-								)
-							)))
+				new Assignment (new Wildcard<Variable>, false, // ignored
+					new Method_invocation(
+						NULL,	
+						name,
+						new List<Actual_parameter*>(exit_arg)
+							)
+						))
 			&& (*name->value->value == "exit" || *name->value->value == "die");
 	}
 

@@ -70,11 +70,10 @@ Expr* Lower_expr::eval(Expr* in)
 void Lower_expr::eval(Expr* in, Variable* temp)
 {
 	pieces->push_back(
-		new Eval_expr(
-			new Assignment(
-				temp->clone (), 
-				false, 
-				in->clone ())));
+		new Assignment(
+			temp->clone (), 
+			false, 
+			in->clone ()));
 }
 
 
@@ -88,12 +87,11 @@ VARIABLE_NAME* Lower_expr::eval_var(Expr* in)
 void Lower_expr::eval_var(Expr* in, VARIABLE_NAME* temp)
 {
 	pieces->push_back(
-		new Eval_expr(
-			new Assignment(
-				new Variable (
-					temp->clone ()),
-					false, 
-					in->clone ())));
+		new Assignment(
+			new Variable (
+				temp->clone ()),
+				false, 
+				in->clone ()));
 }
 
 

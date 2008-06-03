@@ -51,9 +51,9 @@ public:
     virtual void pre_catch(Catch* in, List<Catch*>* out);
     virtual void pre_throw(Throw* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
-    virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual Expr* pre_assignment(Assignment* in);
+    virtual Expr* pre_foreign_expr(Foreign_expr* in);
+    virtual void pre_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* pre_op_assignment(Op_assignment* in);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
@@ -106,9 +106,9 @@ public:
     virtual void post_catch(Catch* in, List<Catch*>* out);
     virtual void post_throw(Throw* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
-    virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual Expr* post_assignment(Assignment* in);
+    virtual Expr* post_foreign_expr(Foreign_expr* in);
+    virtual void post_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* post_op_assignment(Op_assignment* in);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
@@ -161,8 +161,8 @@ public:
     virtual void children_catch(Catch* in);
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
-    virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_foreign_statement(Foreign_statement* in);
+    virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_cast(Cast* in);

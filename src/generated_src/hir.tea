@@ -35,6 +35,7 @@ PHP_script ::= Statement* ;
 Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
+	| Assignment
 	| Try | Throw | Eval_expr
 	| If | Loop | Foreach
 	| Break | Continue
@@ -91,9 +92,9 @@ Throw ::= Expr ;
 
 Eval_expr ::= Expr ;
 
-Foreign ::= Foreign_expr | Foreign_statement ;
-Foreign_expr ::= ;
+Foreign ::= Foreign_statement | Foreign_expr ;
 Foreign_statement ::= ;
+Foreign_expr ::= ;
 
 -- Assign_var     ::= lhs:VARIABLE_NAME is_ref:"&"? ignore_errors:"@"? rhs:Expr ;
 -- Assign_array   ::= lhs:VARIABLE_NAME index:VARIABLE_NAME is_ref:"&"? rhs:VARIABLE_NAME ;
@@ -105,14 +106,14 @@ Foreign_statement ::= ;
 -}
 
 Expr ::=
-     Assignment 
-	| Cast | Unary_op | Bin_op 
+
+	Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
 	| Variable | Pre_op 
 	| Method_invocation | New 
 	| Literal 
-	| Op_assignment
-	| Array
+	| Op_assignment -- can probably be removed
+	| Array -- can probably be removed
 -- | Variable_name | Index_array
 	| Foreign_expr
 	;
@@ -137,7 +138,7 @@ Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
 Target ::= Expr | CLASS_NAME ;
--- Target ::= VARIABLE_NAME | CLASS_NAME;
+-- Target ::= VARIABLE_NAME | CLASS_NAME ;
 
 Pre_op ::= OP Variable ;
 
