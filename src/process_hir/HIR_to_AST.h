@@ -55,7 +55,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Expr*,				// Expr*
  AST::Literal*,				// Literal*
  AST::Statement*,			// Assignment*
- AST::Op_assignment*,				// Op_assignment*
  AST::Cast*,				// Cast*
  AST::Unary_op*,			// Unary_op*
  AST::Bin_op*,				// Bin_op*
@@ -83,8 +82,8 @@ class HIR_to_AST : public HIR::Fold
  AST::STRING*,			// STRING*
  AST::BOOL*,				// BOOL*
  AST::NIL*,				// NIL*
- AST::OP*,				// OP*
  AST::CAST*,				// CAST*
+ AST::OP*,				// OP*
  AST::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
@@ -278,15 +277,6 @@ class HIR_to_AST : public HIR::Fold
 		result->attrs = orig->attrs;
 		return result;
 	}
-
-	AST::Op_assignment* fold_impl_op_assignment(HIR::Op_assignment* orig, AST::Variable* variable, AST::OP* op, AST::Expr* expr)
-	{
-		AST::Op_assignment* result;
-		result = new AST::Op_assignment (variable, op, expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 
 	AST::While* fold_impl_loop (HIR::Loop* orig, List<AST::Statement*>* statements)
 	{

@@ -55,7 +55,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Expr*,				// Expr*
  MIR::Literal*,				// Literal*
  MIR::Assignment*,			// Assignment*
- MIR::Expr*,				// Op_assignment*
  MIR::Cast*,				// Cast*
  MIR::Unary_op*,			// Unary_op*
  MIR::Bin_op*,				// Bin_op*
@@ -83,8 +82,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::STRING*,			// STRING*
  MIR::BOOL*,				// BOOL*
  MIR::NIL*,				// NIL*
- MIR::OP*,				// OP*
  MIR::CAST*,				// CAST*
+ MIR::OP*,				// OP*
  MIR::CONSTANT_NAME*>		// CONSTANT_NAME*
 {
 public:

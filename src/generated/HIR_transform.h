@@ -54,7 +54,6 @@ public:
     virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual void pre_assignment(Assignment* in, List<Statement*>* out);
-    virtual Expr* pre_op_assignment(Op_assignment* in);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -77,8 +76,8 @@ public:
     virtual Expr* pre_string(STRING* in);
     virtual Expr* pre_bool(BOOL* in);
     virtual Expr* pre_nil(NIL* in);
-    virtual OP* pre_op(OP* in);
     virtual CAST* pre_cast(CAST* in);
+    virtual OP* pre_op(OP* in);
     virtual CONSTANT_NAME* pre_constant_name(CONSTANT_NAME* in);
 // Invoked after the children have been transformed
 public:
@@ -109,7 +108,6 @@ public:
     virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual void post_assignment(Assignment* in, List<Statement*>* out);
-    virtual Expr* post_op_assignment(Op_assignment* in);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
@@ -132,8 +130,8 @@ public:
     virtual Expr* post_string(STRING* in);
     virtual Expr* post_bool(BOOL* in);
     virtual Expr* post_nil(NIL* in);
-    virtual OP* post_op(OP* in);
     virtual CAST* post_cast(CAST* in);
+    virtual OP* post_op(OP* in);
     virtual CONSTANT_NAME* post_constant_name(CONSTANT_NAME* in);
 // Transform the children of the node
 public:
@@ -164,7 +162,6 @@ public:
     virtual void children_foreign_statement(Foreign_statement* in);
     virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_assignment(Assignment* in);
-    virtual void children_op_assignment(Op_assignment* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -189,8 +186,8 @@ public:
     virtual void children_string(STRING* in);
     virtual void children_bool(BOOL* in);
     virtual void children_nil(NIL* in);
-    virtual void children_op(OP* in);
     virtual void children_cast(CAST* in);
+    virtual void children_op(OP* in);
     virtual void children_constant_name(CONSTANT_NAME* in);
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
@@ -217,8 +214,8 @@ public:
     virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
-    virtual OP* transform_op(OP* in);
     virtual CAST* transform_cast(CAST* in);
+    virtual OP* transform_op(OP* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
     virtual Target* transform_target(Target* in);

@@ -112,7 +112,6 @@ Expr ::=
 	| Variable | Pre_op 
 	| Method_invocation | New 
 	| Literal 
-	| Op_assignment -- can probably be removed
 	| Array -- can probably be removed
 -- | Variable_name | Index_array
 	| Foreign_expr
@@ -121,7 +120,6 @@ Expr ::=
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    
 Assignment ::= Variable is_ref:"&"? Expr ;
-Op_assignment ::= Variable OP Expr ;
 -- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
 -- Variable_variable ::= VARIABLE_NAME ; 
 

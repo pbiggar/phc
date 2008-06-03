@@ -62,7 +62,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Expr*,				// Expr*
  HIR::Literal*,				// Literal*
  HIR::Expr*,			// Assignment*
- HIR::Op_assignment*,				// Op_assignment*
+ HIR::Expr*,				// Op_assignment*
  HIR::Expr*,				// List_assignment*
  HIR::Expr*,				// List_element*
  HIR::Expr*,				// Nested_list_elements*
@@ -310,14 +310,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::If* result;
 		result = new HIR::If (expr_to_var_name (expr), iftrue, iffalse);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Op_assignment* fold_impl_op_assignment(AST::Op_assignment* orig, HIR::Variable* variable, HIR::OP* op, HIR::Expr* expr)
-	{
-		HIR::Op_assignment* result;
-		result = new HIR::Op_assignment (variable, op, expr);
 		copy_attrs (result, orig);
 		return result;
 	}

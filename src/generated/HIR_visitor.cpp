@@ -138,10 +138,6 @@ void Visitor::pre_assignment(Assignment* in)
 {
 }
 
-void Visitor::pre_op_assignment(Op_assignment* in)
-{
-}
-
 void Visitor::pre_cast(Cast* in)
 {
 }
@@ -250,11 +246,11 @@ void Visitor::pre_nil(NIL* in)
 {
 }
 
-void Visitor::pre_op(OP* in)
+void Visitor::pre_cast(CAST* in)
 {
 }
 
-void Visitor::pre_cast(CAST* in)
+void Visitor::pre_op(OP* in)
 {
 }
 
@@ -395,10 +391,6 @@ void Visitor::post_assignment(Assignment* in)
 {
 }
 
-void Visitor::post_op_assignment(Op_assignment* in)
-{
-}
-
 void Visitor::post_cast(Cast* in)
 {
 }
@@ -507,11 +499,11 @@ void Visitor::post_nil(NIL* in)
 {
 }
 
-void Visitor::post_op(OP* in)
+void Visitor::post_cast(CAST* in)
 {
 }
 
-void Visitor::post_cast(CAST* in)
+void Visitor::post_op(OP* in)
 {
 }
 
@@ -688,13 +680,6 @@ void Visitor::children_assignment(Assignment* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_op_assignment(Op_assignment* in)
-{
-    visit_variable(in->variable);
-    visit_op(in->op);
-    visit_expr(in->expr);
-}
-
 void Visitor::children_cast(Cast* in)
 {
     visit_cast(in->cast);
@@ -812,11 +797,11 @@ void Visitor::children_nil(NIL* in)
 {
 }
 
-void Visitor::children_op(OP* in)
+void Visitor::children_cast(CAST* in)
 {
 }
 
-void Visitor::children_cast(CAST* in)
+void Visitor::children_op(OP* in)
 {
 }
 
@@ -1031,14 +1016,6 @@ void Visitor::pre_assignment_chain(Assignment* in)
     pre_assignment((Assignment*) in);
 }
 
-void Visitor::pre_op_assignment_chain(Op_assignment* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_op_assignment((Op_assignment*) in);
-}
-
 void Visitor::pre_cast_chain(Cast* in)
 {
     pre_node((Node*) in);
@@ -1217,18 +1194,18 @@ void Visitor::pre_nil_chain(NIL* in)
     pre_nil((NIL*) in);
 }
 
-void Visitor::pre_op_chain(OP* in)
-{
-    pre_node((Node*) in);
-    pre_identifier((Identifier*) in);
-    pre_op((OP*) in);
-}
-
 void Visitor::pre_cast_chain(CAST* in)
 {
     pre_node((Node*) in);
     pre_identifier((Identifier*) in);
     pre_cast((CAST*) in);
+}
+
+void Visitor::pre_op_chain(OP* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_op((OP*) in);
 }
 
 void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
@@ -1425,14 +1402,6 @@ void Visitor::post_assignment_chain(Assignment* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_op_assignment_chain(Op_assignment* in)
-{
-    post_op_assignment((Op_assignment*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_cast_chain(Cast* in)
 {
     post_cast((Cast*) in);
@@ -1611,16 +1580,16 @@ void Visitor::post_nil_chain(NIL* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_op_chain(OP* in)
+void Visitor::post_cast_chain(CAST* in)
 {
-    post_op((OP*) in);
+    post_cast((CAST*) in);
     post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
-void Visitor::post_cast_chain(CAST* in)
+void Visitor::post_op_chain(OP* in)
 {
-    post_cast((CAST*) in);
+    post_op((OP*) in);
     post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
@@ -1933,18 +1902,6 @@ void Visitor::visit_catch(Catch* in)
     }
 }
 
-void Visitor::visit_op(OP* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "OP");
-    else
-    {
-    	pre_op_chain(in);
-    	children_op(in);
-    	post_op_chain(in);
-    }
-}
-
 void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
@@ -1954,6 +1911,18 @@ void Visitor::visit_cast(CAST* in)
     	pre_cast_chain(in);
     	children_cast(in);
     	post_cast_chain(in);
+    }
+}
+
+void Visitor::visit_op(OP* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "OP");
+    else
+    {
+    	pre_op_chain(in);
+    	children_op(in);
+    	post_op_chain(in);
     }
 }
 
@@ -2214,9 +2183,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
     	break;
@@ -2297,9 +2263,6 @@ void Visitor::pre_target_chain(Target* in)
     	break;
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case Op_assignment::ID:
-    	pre_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
     	break;
     case Array::ID:
     	pre_array_chain(dynamic_cast<Array*>(in));
@@ -2442,9 +2405,6 @@ void Visitor::post_expr_chain(Expr* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
-    	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
     	break;
@@ -2525,9 +2485,6 @@ void Visitor::post_target_chain(Target* in)
     	break;
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case Op_assignment::ID:
-    	post_op_assignment_chain(dynamic_cast<Op_assignment*>(in));
     	break;
     case Array::ID:
     	post_array_chain(dynamic_cast<Array*>(in));
@@ -2670,9 +2627,6 @@ void Visitor::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
@@ -2753,9 +2707,6 @@ void Visitor::children_target(Target* in)
     	break;
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));

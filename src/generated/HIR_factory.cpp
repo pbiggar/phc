@@ -211,14 +211,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Assignment(variable, is_ref, expr);
     }
-    if(!strcmp(type_id, "Op_assignment"))
-    {
-    	Variable* variable = dynamic_cast<Variable*>(*i++);
-    	OP* op = dynamic_cast<OP*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Op_assignment(variable, op, expr);
-    }
     if(!strcmp(type_id, "Cast"))
     {
     	CAST* cast = dynamic_cast<CAST*>(*i++);
@@ -336,17 +328,17 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new VARIABLE_NAME(value);
     }
-    if(!strcmp(type_id, "OP"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new OP(value);
-    }
     if(!strcmp(type_id, "CAST"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new CAST(value);
+    }
+    if(!strcmp(type_id, "OP"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new OP(value);
     }
     if(!strcmp(type_id, "CONSTANT_NAME"))
     {

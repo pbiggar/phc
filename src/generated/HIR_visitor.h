@@ -60,7 +60,6 @@ public:
     virtual void pre_expr(Expr* in);
     virtual void pre_literal(Literal* in);
     virtual void pre_assignment(Assignment* in);
-    virtual void pre_op_assignment(Op_assignment* in);
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
     virtual void pre_bin_op(Bin_op* in);
@@ -88,8 +87,8 @@ public:
     virtual void pre_string(STRING* in);
     virtual void pre_bool(BOOL* in);
     virtual void pre_nil(NIL* in);
-    virtual void pre_op(OP* in);
     virtual void pre_cast(CAST* in);
+    virtual void pre_op(OP* in);
     virtual void pre_constant_name(CONSTANT_NAME* in);
 // Invoked after the children have been visited
 public:
@@ -126,7 +125,6 @@ public:
     virtual void post_expr(Expr* in);
     virtual void post_literal(Literal* in);
     virtual void post_assignment(Assignment* in);
-    virtual void post_op_assignment(Op_assignment* in);
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
     virtual void post_bin_op(Bin_op* in);
@@ -154,8 +152,8 @@ public:
     virtual void post_string(STRING* in);
     virtual void post_bool(BOOL* in);
     virtual void post_nil(NIL* in);
-    virtual void post_op(OP* in);
     virtual void post_cast(CAST* in);
+    virtual void post_op(OP* in);
     virtual void post_constant_name(CONSTANT_NAME* in);
 // Visit the children of a node
 public:
@@ -186,7 +184,6 @@ public:
     virtual void children_foreign_statement(Foreign_statement* in);
     virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_assignment(Assignment* in);
-    virtual void children_op_assignment(Op_assignment* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -211,8 +208,8 @@ public:
     virtual void children_string(STRING* in);
     virtual void children_bool(BOOL* in);
     virtual void children_nil(NIL* in);
-    virtual void children_op(OP* in);
     virtual void children_cast(CAST* in);
+    virtual void children_op(OP* in);
     virtual void children_constant_name(CONSTANT_NAME* in);
 // Unparser support
 public:
@@ -251,7 +248,6 @@ public:
     virtual void pre_foreign_statement_chain(Foreign_statement* in);
     virtual void pre_foreign_expr_chain(Foreign_expr* in);
     virtual void pre_assignment_chain(Assignment* in);
-    virtual void pre_op_assignment_chain(Op_assignment* in);
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
@@ -274,8 +270,8 @@ public:
     virtual void pre_string_chain(STRING* in);
     virtual void pre_bool_chain(BOOL* in);
     virtual void pre_nil_chain(NIL* in);
-    virtual void pre_op_chain(OP* in);
     virtual void pre_cast_chain(CAST* in);
+    virtual void pre_op_chain(OP* in);
     virtual void pre_constant_name_chain(CONSTANT_NAME* in);
 // Invoke the chain of post-visit methods along the inheritance hierarchy
 // (invoked in opposite order to the pre-chain)
@@ -308,7 +304,6 @@ public:
     virtual void post_foreign_statement_chain(Foreign_statement* in);
     virtual void post_foreign_expr_chain(Foreign_expr* in);
     virtual void post_assignment_chain(Assignment* in);
-    virtual void post_op_assignment_chain(Op_assignment* in);
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
@@ -331,8 +326,8 @@ public:
     virtual void post_string_chain(STRING* in);
     virtual void post_bool_chain(BOOL* in);
     virtual void post_nil_chain(NIL* in);
-    virtual void post_op_chain(OP* in);
     virtual void post_cast_chain(CAST* in);
+    virtual void post_op_chain(OP* in);
     virtual void post_constant_name_chain(CONSTANT_NAME* in);
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
@@ -359,8 +354,8 @@ public:
     virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
-    virtual void visit_op(OP* in);
     virtual void visit_cast(CAST* in);
+    virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
     virtual void visit_target(Target* in);

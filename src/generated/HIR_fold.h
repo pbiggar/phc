@@ -51,7 +51,6 @@ template
  class _Expr,
  class _Literal,
  class _Assignment,
- class _Op_assignment,
  class _Cast,
  class _Unary_op,
  class _Bin_op,
@@ -79,8 +78,8 @@ template
  class _STRING,
  class _BOOL,
  class _NIL,
- class _OP,
  class _CAST,
+ class _OP,
  class _CONSTANT_NAME>
 class Fold
 {
@@ -424,17 +423,6 @@ public:
 		return fold_impl_assignment(in, variable, is_ref, expr);
 	}
 
-	virtual _Op_assignment fold_op_assignment(Op_assignment* in)
-	{
-		_Variable variable = 0;
-		if(in->variable != NULL) variable = fold_variable(in->variable);
-		_OP op = 0;
-		if(in->op != NULL) op = fold_op(in->op);
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_op_assignment(in, variable, op, expr);
-	}
-
 	virtual _Cast fold_cast(Cast* in)
 	{
 		_CAST cast = 0;
@@ -614,7 +602,6 @@ public:
 	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
 	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
-	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
@@ -638,8 +625,8 @@ public:
 	virtual _STRING fold_string(STRING* orig) { assert(0); };
 	virtual _BOOL fold_bool(BOOL* orig) { assert(0); };
 	virtual _NIL fold_nil(NIL* orig) { assert(0); };
-	virtual _OP fold_op(OP* orig) { assert(0); };
 	virtual _CAST fold_cast(CAST* orig) { assert(0); };
+	virtual _OP fold_op(OP* orig) { assert(0); };
 	virtual _CONSTANT_NAME fold_constant_name(CONSTANT_NAME* orig) { assert(0); };
 
 
@@ -735,8 +722,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case CLASS_NAME::ID:
@@ -855,8 +840,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Foreign_expr::ID:
@@ -927,8 +910,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Op_assignment::ID:
-				return fold_op_assignment(dynamic_cast<Op_assignment*>(in));
 			case Array::ID:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Foreign_expr::ID:
@@ -992,6 +973,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

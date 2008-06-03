@@ -32,7 +32,6 @@
 (Method_name,Method_name,)
 (Name_with_default,Name_with_default,)
 (New,Expr,)
-(Op_assignment,Expr,)
 (Pre_op,Expr,)
 (Reflection,Reflection,)
 (Return,Statement,*)

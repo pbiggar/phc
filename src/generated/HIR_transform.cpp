@@ -141,11 +141,6 @@ void Transform::pre_assignment(Assignment* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Expr* Transform::pre_op_assignment(Op_assignment* in)
-{
-    return in;
-}
-
 Expr* Transform::pre_cast(Cast* in)
 {
     return in;
@@ -256,12 +251,12 @@ Expr* Transform::pre_nil(NIL* in)
     return in;
 }
 
-OP* Transform::pre_op(OP* in)
+CAST* Transform::pre_cast(CAST* in)
 {
     return in;
 }
 
-CAST* Transform::pre_cast(CAST* in)
+OP* Transform::pre_op(OP* in)
 {
     return in;
 }
@@ -407,11 +402,6 @@ void Transform::post_assignment(Assignment* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Expr* Transform::post_op_assignment(Op_assignment* in)
-{
-    return in;
-}
-
 Expr* Transform::post_cast(Cast* in)
 {
     return in;
@@ -522,12 +512,12 @@ Expr* Transform::post_nil(NIL* in)
     return in;
 }
 
-OP* Transform::post_op(OP* in)
+CAST* Transform::post_cast(CAST* in)
 {
     return in;
 }
 
-CAST* Transform::post_cast(CAST* in)
+OP* Transform::post_op(OP* in)
 {
     return in;
 }
@@ -689,13 +679,6 @@ void Transform::children_assignment(Assignment* in)
     in->expr = transform_expr(in->expr);
 }
 
-void Transform::children_op_assignment(Op_assignment* in)
-{
-    in->variable = transform_variable(in->variable);
-    in->op = transform_op(in->op);
-    in->expr = transform_expr(in->expr);
-}
-
 void Transform::children_cast(Cast* in)
 {
     in->cast = transform_cast(in->cast);
@@ -811,11 +794,11 @@ void Transform::children_nil(NIL* in)
 {
 }
 
-void Transform::children_op(OP* in)
+void Transform::children_cast(CAST* in)
 {
 }
 
-void Transform::children_cast(CAST* in)
+void Transform::children_op(OP* in)
 {
 }
 
@@ -1197,22 +1180,6 @@ List<Catch*>* Transform::transform_catch(Catch* in)
     return out2;
 }
 
-OP* Transform::transform_op(OP* in)
-{
-    if(in == NULL) return NULL;
-    
-    OP* out;
-    
-    out = pre_op(in);
-    if(out != NULL)
-    {
-    	children_op(out);
-    	out = post_op(out);
-    }
-    
-    return out;
-}
-
 CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
@@ -1224,6 +1191,22 @@ CAST* Transform::transform_cast(CAST* in)
     {
     	children_cast(out);
     	out = post_cast(out);
+    }
+    
+    return out;
+}
+
+OP* Transform::transform_op(OP* in)
+{
+    if(in == NULL) return NULL;
+    
+    OP* out;
+    
+    out = pre_op(in);
+    if(out != NULL)
+    {
+    	children_op(out);
+    	out = post_op(out);
     }
     
     return out;
@@ -1597,7 +1580,6 @@ Expr* Transform::pre_expr(Expr* in)
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
@@ -1642,7 +1624,6 @@ Target* Transform::pre_target(Target* in)
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Op_assignment::ID: return pre_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
@@ -1858,7 +1839,6 @@ Expr* Transform::post_expr(Expr* in)
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
@@ -1903,7 +1883,6 @@ Target* Transform::post_target(Target* in)
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Op_assignment::ID: return post_op_assignment(dynamic_cast<Op_assignment*>(in));
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
@@ -2037,9 +2016,6 @@ void Transform::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
-    	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
     	break;
@@ -2120,9 +2096,6 @@ void Transform::children_target(Target* in)
     	break;
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Op_assignment::ID:
-    	children_op_assignment(dynamic_cast<Op_assignment*>(in));
     	break;
     case Array::ID:
     	children_array(dynamic_cast<Array*>(in));
