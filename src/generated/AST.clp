@@ -1,6 +1,6 @@
 import "src/analyse/base.clp".
 
-session ast (PROG:string).
+session ast ().
 
 % Forward declarations for conjunctive types
 type t_PHP_script.

@@ -350,7 +350,7 @@ public:
 
 		// Print out the predicate.
 		cout 
-			<< "+" << *prefix << "(\"" << *filename << "\")->" << *pred_name (in) << " (\n\t"
+			<< "+" << *prefix << "()->" << *pred_name (in) << " (\n\t"
 			<< *id;
 
 		for_lci (params, String, i)
@@ -364,7 +364,7 @@ public:
 		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
 		{
 			cout 
-				<< "+" << *prefix << "(\"" << *filename << "\")->attr ("
+				<< "+" << *prefix << "()->attr ("
 				<< "any{" << *id << "}, "
 				<< "\"" << (*i).first << "\", ";
 
@@ -387,7 +387,7 @@ public:
 		Unparser unparser (ss, true);
 		unparser.unparse (in);
 		cout 
-			<< "+" << *prefix << "(\"" << *filename << "\")->source_rep ("
+			<< "+" << *prefix << "()->source_rep ("
 			<< "any{" << *id << "}, "
 			<< "\"" << *escape (s (ss.str ())) << "\")." << endl;
 	}

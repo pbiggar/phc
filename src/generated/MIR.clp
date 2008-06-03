@@ -1,6 +1,6 @@
 import "src/analyse/base.clp".
 
-session mir (PROG:string).
+session mir ().
 
 % Forward declarations for conjunctive types
 type t_PHP_script.

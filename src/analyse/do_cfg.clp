@@ -63,36 +63,38 @@ build_pps (PREV, [H|STMTs], METHOD),
 
 
 % Phase 2: Build the CFG
-% CFG nodes are inferred from cfg_edges
-cfg_node (N) :- cfg_edge (N, _).
-cfg_node (N) :- cfg_edge (_, N).
-
 
 % Add a CFG edge between FROM and a cfg_node created from TO (which is in the
 % pp_graph).
-predicate dfs (FROM:t_cfg_node, TO:pp).
+predicate dfs (FROM:t_cfg_node, TO:pp, METHOD:string).
 
 % Start at the top
-pp_edge (p_entry{METHOD}, P), +dfs (nentry{METHOD}, P).
+dfs (nentry{METHOD}, P, NAME) :-
+	pp_edge (p_entry{METHOD}, P), 
+	% get the name
+		method (METHOD, SIG, _), 
+		signature (SIG, _, _, NAME_ID, _),
+		mETHOD_NAME (NAME_ID, NAME).
 
 % End condition
-dfs (N, p_exit{METHOD}), +cfg_edge (N, nexit{METHOD}), +cfg_node (nexit{METHOD}).
+dfs (N, p_exit{METHOD}, NAME), 
+	+cfg(NAME)->cfg_edge (N, nexit{METHOD}).
 
 % Normal statement - add edge and recurse
-dfs (N, p_s{S}), 
+dfs (N, p_s{S}, NAME), 
 	S \= statement_Branch{_}, S \= statement_Goto{_}, S \= statement_Label{_},
 	N1 = nblock{S},
-	+cfg_edge (N, N1),
+	+cfg(NAME)->cfg_edge (N, N1),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
-		+dfs (N1, P1).
+		+dfs (N1, P1, NAME).
 
 % Label - dont create a node or an edge, just follow the path
-dfs (N, p_s{S}), 
+dfs (N, p_s{S}, NAME), 
 	S = statement_Label{_},
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
-		+dfs (N, P1).
+		+dfs (N, P1, NAME).
 
 
 
@@ -107,11 +109,11 @@ label_name_loc (NAME_VAL, PP) :-
 
 
 % Branch - create a node, and follow both paths
-dfs (N, p_s{S}),
+dfs (N, p_s{S}, NAME),
 	S = statement_Branch{B},
 	branch (B, VAR, TRUE_LABEL, FALSE_LABEL),
 	N1 = nbranch {VAR},
-	+cfg_edge (N, N1),
+	+cfg(NAME)->cfg_edge (N, N1),
 	% find targets and recurse
 		% find the names of the labels for the branch targets
 			lABEL_NAME (TRUE_LABEL, TRUE_LABEL_NAME), 
@@ -120,31 +122,15 @@ dfs (N, p_s{S}),
 			label_name_loc (TRUE_LABEL_NAME, TRUE_PP),
 			label_name_loc (FALSE_LABEL_NAME, FALSE_PP),
 		% recurse
-			+dfs (N1, TRUE_PP),
-			+dfs (N1, FALSE_PP).
+			+dfs (N1, TRUE_PP, NAME),
+			+dfs (N1, FALSE_PP, NAME).
 
 % Goto - dont create a node or an edge, just follow the path
-dfs (N, p_s{S}),
+dfs (N, p_s{S}, NAME),
 	S = statement_Goto{G},
 	goto (G, LABEL),
 	% find target and recurse
 		% find the names of the labels for the branch targets
 			lABEL_NAME (LABEL, LABEL_NAME), 
 			label_name_loc (LABEL_NAME, PP),
-			+dfs (N, PP).
-
-
-
-% Save the CFGs.
-predicate save_cfg (METHOD_NAME:string, N:t_cfg_node).
-
-cfg_edge (nentry{METHOD}, N),
-	% get the name
-		method (METHOD, SIG, _), 
-		signature (SIG, _, _, NAME_ID, _),
-		mETHOD_NAME (NAME_ID, NAME),
-	% add it to a session
-	+cfg(NAME)->cfg_edge (nentry{METHOD}, N), +save_cfg (NAME, N).
-
-save_cfg (METHOD, N), cfg_edge (N, N1),
-	+cfg(METHOD)->cfg_edge (N, N1), +save_cfg (METHOD, N1).
+			+dfs (N, PP, NAME).
