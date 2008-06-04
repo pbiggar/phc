@@ -95,26 +95,26 @@ Options:
     -v     Verbose. Can be set more than once. Set once, prints actions; set 
            twice, prints commands executed; set thrice, dumps results of 
            intermediate stages.
-	 -P     Since src/phc is broken, another version can be specified to do the
+    -P     Since src/phc is broken, another version can be specified to do the
            conversion steps, with this prefix.
-	 -c     Pass as arguments to the first phc. Be sure to include an --xdump
+    -c     Pass as arguments to the first phc. Be sure to include an --xdump
            command, or nothing will happen.
-	 -r     Mnemonic: refcount. The equivalent of "-c--run
+    -r     Mnemonic: refcount. The equivalent of "-c--run
            plugins/tools/debug_zval.la -xdump=plugins/tools/debug_zval.la".
-	 -d     The equivalent of "-c--run plugins/tools/demi_eval.la
+    -d     The equivalent of "-c--run plugins/tools/demi_eval.la
            -xdump=plugins/tools/demi_eval.la --r-option=true".
-	 -D     The equivalent of "-c--run plugins/tools/demi_eval.la
+    -D     The equivalent of "-c--run plugins/tools/demi_eval.la
            -xdump=plugins/tools/demi_eval.la --r-option=false".
-	 -f     Use the passed XML file as the the first program, instead of calling
+    -f     Use the passed XML file as the the first program, instead of calling
            phc.
-	 -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the
+    -i     Mnemonic: Interpret. Instead of compiling the script, dump it at the
            specified pass and interpret it.
-	 -U     Don't print 'upper' debug files (not related to -u)
-	 -u     Used with -i, 'upper's before dumping (not related to -U)
-	 -F     Mnemonic: Failure. Used for plugins which print "Failure" to
+    -U     Don't print 'upper' debug files (not related to -u)
+    -u     Used with -i, 'upper's before dumping (not related to -U)
+    -F     Mnemonic: Failure. Used for plugins which print "Failure" to
            indicate error. Run phc with the plugin to determine failure.
-	 -X     No XML attrs (pass --no-xml-attrs with --xdumps)
-	 -Z     Require script to return zero when run through interpreter
+    -X     No XML attrs (pass --no-xml-attrs with --xdumps)
+    -Z     Require script to return zero when run through interpreter
 
 Sample commands:
     reduce -v test/subjects/codegen/0001.php
