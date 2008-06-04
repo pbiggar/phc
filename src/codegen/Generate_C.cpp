@@ -822,7 +822,7 @@ class Pattern_assignment : public Pattern
 {
 public:
 	virtual Expr* rhs_pattern() = 0;
-	virtual void generate_rhs (bool used) = 0;
+	virtual void generate_rhs () = 0;
 	virtual ~Pattern_assignment() {}
 
 public:
@@ -830,29 +830,35 @@ public:
 	{
 		lhs = new Wildcard<Variable>;
 		agn = new Assignment(lhs, /* ignored */ false, rhs_pattern());
-		return that->match(agn);
+		if (that->match(agn))
+		{
+			// lhs is optional
+			if (lhs->value == NULL) lhs = NULL;
+			return true;
+		}
+
+		return false;
 	}
 
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		int used = not lhs->value->attrs->is_true ("phc.codegen.unused");
 
-		if (used) // more readable this way
+		if (lhs) // more readable this way
 		{
 			index_lhs (LOCAL, "p_lhs", lhs->value);
 
 			code <<	"if (p_lhs != NULL)\n{\n";
 
 			// Generate code for the RHS
-			generate_rhs (true);
+			generate_rhs ();
 
 			code << "}\n";
 		}
 		else
 		{
 			// Generate code for the RHS
-			generate_rhs (false);
+			generate_rhs ();
 		}
 
 		code << "}\n";
@@ -877,9 +883,9 @@ protected:
 class Pattern_assign_zval : public Pattern_assignment
 {
 public:
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		if (not used)
+		if (lhs == NULL)
 			return;
 
 		code
@@ -918,9 +924,9 @@ public:
 	}
 
 	// record if we've seen this variable before
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		if (not used)
+		if (lhs == NULL)
 			return;
 
 		// TODO If this isnt static, there is a new hash each time,
@@ -967,7 +973,7 @@ public:
 		}
 		else
 		{
-			Pattern_assign_zval::generate_rhs(used);
+			Pattern_assign_zval::generate_rhs();
 		}
 	}
 
@@ -1076,10 +1082,10 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		// FIXME: this happens because of strange, multi-stage lowering
-		if (not used)
+		if (lhs == NULL)
 			return;
 
 		if (!agn->is_ref)
@@ -1120,10 +1126,10 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		assert (agn->is_ref == false);
-		assert (used);
+		assert (lhs);
 
 		// this much copied from Assign_var
 		if (!agn->is_ref)
@@ -1198,9 +1204,9 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		// Check whether its in the form CONST or CLASS::CONST
 		String* name = new String ("");
 		if (rhs->value->class_name)
@@ -1257,7 +1263,7 @@ class Pattern_eval : public Pattern_assignment
 
 	// TODO this is untidy, and slower than it should be. Not a
 	// priority.
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		if (eval_arg->value->target) phc_unsupported (eval_arg->value);
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
@@ -1265,7 +1271,7 @@ class Pattern_eval : public Pattern_assignment
 		code << "{\n";
 		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value->variable_name));
 
-		if (used)
+		if (lhs)
 		{
 			declare ("p_rhs");
 			code 
@@ -1348,7 +1354,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		List<Actual_parameter*>::const_iterator i;
 		unsigned index;
@@ -1603,7 +1609,7 @@ public:
 				<< "}\n";
 		}
 
-		if (used)
+		if (lhs)
 		{
 			if (!agn->is_ref)
 			{
@@ -1641,9 +1647,9 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1694,9 +1700,9 @@ public:
 		return new Pre_op (op, var); 
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (not used);
+		assert (lhs == NULL);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1725,9 +1731,9 @@ public:
 		return new Unary_op(op, var_name);
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -2053,10 +2059,10 @@ class Pattern_foreach_get_val : public Pattern_assignment
 		return get_val;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		// FIXME: this happens because of strange, multi-stage lowering
-		if (not used)
+		if (lhs == NULL)
 			return;
 
 		read_simple (LOCAL, "fe_array", get_val->value->array);

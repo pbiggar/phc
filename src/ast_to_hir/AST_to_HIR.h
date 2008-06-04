@@ -346,7 +346,11 @@ class AST_to_HIR : public AST::Fold
 		// This needs to be turned into an Expr before it can be a Statement, so
 		// as to escape outside the Eval_expr fold.
 		HIR::Assignment* result;
-		result = new HIR::Assignment(variable, is_ref, expr);
+		if (variable->attrs->is_true ("phc.codegen.unused"))
+			result = new HIR::Assignment(NULL, false, expr);
+		else
+			result = new HIR::Assignment(variable, is_ref, expr);
+
 		copy_attrs (result, orig);
 		return reinterpret_cast<HIR::Expr*> (result);
 	}
