@@ -22,75 +22,77 @@
  * suffices.
  */
 class MIR_to_AST : public MIR::Fold
-<AST::Node*,				// Node*
- AST::PHP_script*,			// PHP_script*
- AST::Statement*,			// Statement*
- AST::Class_def*,			// Class_def*
- AST::Class_mod*,			// Class_mod*
- AST::Interface_def*,		// Interface_def*
- AST::Member*,				// Member*
- AST::Method*,				// Method*
- AST::Signature*,			// Signature*
- AST::Method_mod*,			// Method_mod*
- AST::Formal_parameter*,	// Formal_parameter*
- AST::Type*,				// Type*
- AST::Attribute*,			// Attribute*
- AST::Attr_mod*,			// Attr_mod*
- AST::Name_with_default*,	// Name_with_default*
- AST::Return*,				// Return*
- AST::Static_declaration*,	// Static_declaration*
- AST::Global*,				// Global*
- AST::Try*,					// Try*
- AST::Catch*,				// Catch*
- AST::Throw*,				// Throw*
- AST::Eval_expr*,			// Eval_expr*
- AST::Node*,			// Foreign*
- AST::Statement*,			// Foreign_statement*
- AST::Expr*,				// Foreign_expr*
+<
+ AST::Actual_parameter*,	// Actual_parameter*
+ AST::Array*,					// Array*
+ AST::Array_elem*,			// Array_elem*
+ AST::Eval_expr*,				// Assignment*
+ AST::Attr_mod*,				// Attr_mod*
+ AST::Attribute*,				// Attribute*
+ AST::BOOL*,					// BOOL*
+ AST::Bin_op*,					// Bin_op*
  AST::Foreign_statement*,	// Branch*
- AST::Foreign_statement*,	// Goto*
- AST::Foreign_statement*,	// Label*
- AST::Foreign_statement*,	// Foreach_reset*
- AST::Foreign_statement*,	// Foreach_next*
+ AST::CAST*,					// CAST*
+ AST::CLASS_NAME*,			// CLASS_NAME*
+ AST::CONSTANT_NAME*,		// CONSTANT_NAME*
+ AST::Cast*,					// Cast*
+ AST::Catch*,					// Catch*
+ AST::Class_def*,				// Class_def*
+ AST::Class_mod*,				// Class_mod*
+ AST::Class_name*,			// Class_name*
+ AST::Constant*,				// Constant*
+ AST::Eval_expr*,				// Eval_expr*
+ AST::Expr*,					// Expr*
  AST::Foreign_statement*,	// Foreach_end*
- AST::Foreign_expr*,			// Foreach_has_key*
  AST::Foreign_expr*,			// Foreach_get_key*
  AST::Foreign_expr*,			// Foreach_get_val*
- AST::Expr*,				// Expr*
- AST::Literal*,				// Literal*
- AST::Eval_expr*,			// Assignment*
- AST::Cast*,				// Cast*
- AST::Unary_op*,			// Unary_op*
- AST::Bin_op*,				// Bin_op*
- AST::Constant*,			// Constant*
- AST::Instanceof*,			// Instanceof*
- AST::Variable*,			// Variable*
- AST::Variable_name*,		// Variable_name*
- AST::Reflection*,			// Reflection*
- AST::Target*,				// Target*
- AST::Pre_op*,				// Pre_op*
- AST::Array*,				// Array*
- AST::Array_elem*,			// Array_elem*
- AST::Method_invocation*,	// Method_invocation*
- AST::Method_name*,			// Method_name*
- AST::Actual_parameter*,	// Actual_parameter*
- AST::New*,					// New*
- AST::Class_name*,			// Class_name*
+ AST::Foreign_expr*,			// Foreach_has_key*
+ AST::Foreign_statement*,	// Foreach_next*
+ AST::Foreign_statement*,	// Foreach_reset*
+ AST::Node*,					// Foreign*
+ AST::Expr*,					// Foreign_expr*
+ AST::Statement*,				// Foreign_statement*
+ AST::Formal_parameter*,	// Formal_parameter*
+ AST::Global*,					// Global*
+ AST::Foreign_statement*,	// Goto*
+ AST::Foreign_expr*,			// HT_ITERATOR*
+ AST::INT*,						// INT*
+ AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
- AST::Foreign_expr*,	// HT_ITERATOR*
- AST::CLASS_NAME*,		// CLASS_NAME*
- AST::INTERFACE_NAME*,	// INTERFACE_NAME*
- AST::METHOD_NAME*,		// METHOD_NAME*
+ AST::Instanceof*,			// Instanceof*
+ AST::Interface_def*,		// Interface_def*
+ AST::Identifier*,			// LABEL_NAME*
+ AST::Foreign_statement*,	// Label*
+ AST::Literal*,				// Literal*
+ AST::METHOD_NAME*,			// METHOD_NAME*
+ AST::Member*,					// Member*
+ AST::Method*,					// Method*
+ AST::Method_invocation*,	// Method_invocation*
+ AST::Method_mod*,			// Method_mod*
+ AST::Method_name*,			// Method_name*
+ AST::NIL*,						// NIL*
+ AST::Name_with_default*,	// Name_with_default*
+ AST::New*,						// New*
+ AST::Node*,					// Node*
+ AST::OP*,						// OP*
+ AST::PHP_script*,			// PHP_script*
+ AST::Pre_op*,					// Pre_op*
+ AST::REAL*,					// REAL*
+ AST::Reflection*,			// Reflection*
+ AST::Return*,					// Return*
+ AST::STRING*,					// STRING*
+ AST::Signature*,				// Signature*
+ AST::Statement*,				// Statement*
+ AST::Static_declaration*,	// Static_declaration*
+ AST::Target*,					// Target*
+ AST::Throw*,					// Throw*
+ AST::Try*,						// Try*
+ AST::Type*,					// Type*
+ AST::Unary_op*,				// Unary_op*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::Identifier*,		// LABEL_NAME*
- AST::INT*,				// INT*
- AST::REAL*,				// REAL*
- AST::STRING*,			// STRING*
- AST::BOOL*,				// BOOL*
- AST::NIL*,				// NIL*
- AST::CAST*,				// CAST*
- AST::OP*,				// OP*
- AST::CONSTANT_NAME*>		// CONSTANT_NAME*
+ AST::Variable*,				// Variable*
+ AST::Variable_name*			// Variable_name*
+>
 {
 
 

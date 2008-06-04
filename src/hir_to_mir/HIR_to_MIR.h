@@ -22,69 +22,71 @@
  * suffices.
  */
 class HIR_to_MIR : public HIR::Fold
-<MIR::Node*,				// Node*
- MIR::PHP_script*,			// PHP_script*
- MIR::Statement*,			// Statement*
- MIR::Class_def*,			// Class_def*
- MIR::Class_mod*,			// Class_mod*
- MIR::Interface_def*,		// Interface_def*
- MIR::Member*,				// Member*
- MIR::Method*,				// Method*
- MIR::Signature*,			// Signature*
- MIR::Method_mod*,			// Method_mod*
- MIR::Formal_parameter*,	// Formal_parameter*
- MIR::Type*,				// Type*
- MIR::Attribute*,			// Attribute*
- MIR::Attr_mod*,			// Attr_mod*
- MIR::Name_with_default*,	// Name_with_default*
- MIR::Statement*,			// If*
- MIR::Statement*,			// While*
- MIR::Statement*,			// Foreach*
- MIR::Statement*,			// Break*
- MIR::Statement*,			// Continue*
- MIR::Return*,				// Return*
- MIR::Static_declaration*,	// Static_declaration*
- MIR::Global*,				// Global*
- MIR::Try*,					// Try*
- MIR::Catch*,				// Catch*
- MIR::Throw*,				// Throw*
- MIR::Eval_expr*,			// Eval_expr*
- MIR::Node*,			// Foreign*
- MIR::Statement*,			// Foreign_statement*
- MIR::Expr*,			// Foreign_expr*
- MIR::Expr*,				// Expr*
- MIR::Literal*,				// Literal*
- MIR::Assignment*,			// Assignment*
- MIR::Cast*,				// Cast*
- MIR::Unary_op*,			// Unary_op*
- MIR::Bin_op*,				// Bin_op*
- MIR::Constant*,			// Constant*
- MIR::Instanceof*,			// Instanceof*
- MIR::Variable*,			// Variable*
- MIR::Variable_name*,		// Variable_name*
- MIR::Reflection*,			// Reflection*
- MIR::Target*,				// Target*
- MIR::Pre_op*,				// Pre_op*
- MIR::Array*,				// Array*
- MIR::Array_elem*,			// Array_elem*
- MIR::Method_invocation*,	// Method_invocation*
- MIR::Method_name*,			// Method_name*
+<
  MIR::Actual_parameter*,	// Actual_parameter*
- MIR::New*,					// New*
+ MIR::Array*,					// Array*
+ MIR::Array_elem*,			// Array_elem*
+ MIR::Assignment*,			// Assignment*
+ MIR::Attr_mod*,				// Attr_mod*
+ MIR::Attribute*,				// Attribute*
+ MIR::BOOL*,					// BOOL*
+ MIR::Bin_op*,					// Bin_op*
+ MIR::Statement*,				// Break*
+ MIR::CAST*,					// CAST*
+ MIR::CLASS_NAME*,			// CLASS_NAME*
+ MIR::CONSTANT_NAME*,		// CONSTANT_NAME*
+ MIR::Cast*,					// Cast*
+ MIR::Catch*,					// Catch*
+ MIR::Class_def*,				// Class_def*
+ MIR::Class_mod*,				// Class_mod*
  MIR::Class_name*,			// Class_name*
+ MIR::Constant*,				// Constant*
+ MIR::Statement*,				// Continue*
+ MIR::Eval_expr*,				// Eval_expr*
+ MIR::Expr*,					// Expr*
+ MIR::Statement*,				// Foreach*
+ MIR::Node*,					// Foreign*
+ MIR::Expr*,					// Foreign_expr*
+ MIR::Statement*,				// Foreign_statement*
+ MIR::Formal_parameter*,	// Formal_parameter*
+ MIR::Global*,					// Global*
+ MIR::INT*,						// INT*
+ MIR::INTERFACE_NAME*,		// INTERFACE_NAME*
  MIR::Identifier*,			// Identifier*
- MIR::CLASS_NAME*,		// CLASS_NAME*
- MIR::INTERFACE_NAME*,	// INTERFACE_NAME*
- MIR::METHOD_NAME*,		// METHOD_NAME*
+ MIR::Statement*,				// If*
+ MIR::Instanceof*,			// Instanceof*
+ MIR::Interface_def*,		// Interface_def*
+ MIR::Literal*,				// Literal*
+ MIR::Statement*,				// Loop*
+ MIR::METHOD_NAME*,			// METHOD_NAME*
+ MIR::Member*,					// Member*
+ MIR::Method*,					// Method*
+ MIR::Method_invocation*,	// Method_invocation*
+ MIR::Method_mod*,			// Method_mod*
+ MIR::Method_name*,			// Method_name*
+ MIR::NIL*,						// NIL*
+ MIR::Name_with_default*,	// Name_with_default*
+ MIR::New*,						// New*
+ MIR::Node*,					// Node*
+ MIR::OP*,						// OP*
+ MIR::PHP_script*,			// PHP_script*
+ MIR::Pre_op*,					// Pre_op*
+ MIR::REAL*,					// REAL*
+ MIR::Reflection*,			// Reflection*
+ MIR::Return*,					// Return*
+ MIR::STRING*,					// STRING*
+ MIR::Signature*,				// Signature*
+ MIR::Statement*,				// Statement*
+ MIR::Static_declaration*,	// Static_declaration*
+ MIR::Target*,					// Target*
+ MIR::Throw*,					// Throw*
+ MIR::Try*,						// Try*
+ MIR::Type*,					// Type*
+ MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::INT*,				// INT*
- MIR::REAL*,				// REAL*
- MIR::STRING*,			// STRING*
- MIR::BOOL*,				// BOOL*
- MIR::NIL*,				// NIL*
- MIR::CAST*,				// CAST*
- MIR::OP*,				// OP*
- MIR::CONSTANT_NAME*>		// CONSTANT_NAME*
+ MIR::Variable*,				// Variable*
+ MIR::Variable_name*			// Variable_name*
+>		
 {
 public:
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
