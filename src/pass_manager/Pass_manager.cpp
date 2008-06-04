@@ -339,10 +339,10 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 				// was lowered to AST then uppered. However, since the uppering is
 				// now in the MIR, we've nothing to upper this. I think
 				// templatizing the Foreach_uppering should work. However, we want
-				// to replace nodes which need uppering with foreign nodes, so
-				// we'll leave this as-is for now.
-
-				HIR_unparser().unparse (in->as_HIR ());
+				// to replace nodes which need uppering with foreign nodes.
+				
+				// I think not supporting this is fine
+				phc_error ("Uppered dump is not supported during HIR pass: %s", name->c_str ());
 			}
 
 			if (in->is_AST())
