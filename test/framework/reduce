@@ -35,7 +35,11 @@ require_once ("lib/header.php");
 #    prog = new_prog
 #    goto start;
 
+require_once ("lib/header.php");
 require_once ("Console/Getopt.php");
+
+$php = "php";
+$phc = "src/phc";
 
 $cg = new Console_Getopt();
 $command_line = join (" ", $cg->readPHPArgv());
@@ -303,7 +307,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 	list ($php_out, $php_err, $php_exit) = run ("php -l", $unew_program);
 	if ($php_exit || $php_err) // if the reduced case causes a PHP error, ignore.
 	{
-		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err)");
 		return false;
 	}
 
@@ -327,12 +331,12 @@ function do_main_step ($xprogram, $start, $num, $filename)
 
 	# Run through PHP
 	debug (2, "Getting PHP output");
-	list ($php_out, $php_err, $php_exit) = run ("php", $unew_program);
+	list ($php_out, $php_err, $php_exit) = run (get_php_command_line ($filename, true), $unew_program);
 	$php_out = homogenize_all ($php_out);
 	dump ("$filename.php_out_$id", $php_out);
 	if ($opt_zero && $php_exit)
 	{
-		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err");
+		debug (1, "Error running through PHP. Skip. (exit_code: $php_exit, error: $php_err)");
 		return false;
 	}
 
@@ -348,7 +352,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret", $xnew_program);
 		if ($phc_err === "" && $phc_exit === 0)
 		{
-			list ($my_out, $my_err, $my_exit) = run ("php", $phc_out);
+			list ($my_out, $my_err, $my_exit) = run (get_php_command_line ($filename, true), $phc_out);
 			$my_out = homogenize_all ($my_out);
 			dump ("$filename.phci_out_$id", $my_out);
 		}

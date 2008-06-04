@@ -6,22 +6,6 @@
  * Conduct a test which is compared to the output of the interpreter
  */
 
-// For a pipe, just put a blank $subject
-function get_php_command_line ($subject, $pipe = false)
-{
-	global $php;
-	global $opt_long;
-
-	if ($opt_long)
-		$max_exe = 12;
-	else
-		$max_exe = 5;
-
-	$dir_name = dirname($subject);
-	if ($pipe) $subject = ""; # we need the subject for the dir_name
-	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
-}
-
 require_once ("two_command_test.php");
 
 
