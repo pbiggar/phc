@@ -170,12 +170,7 @@ void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
 	w->statements->push_back (
 			new If (
 				in->cond,
-				new List<Statement*> (
-					new Eval_expr (
-						new Assignment (
-							first,
-							false,
-							new BOOL (false)))),
+				new List<Statement*>,
 				new List<Statement*> (
 					new Break (NULL))));
 
