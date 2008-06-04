@@ -84,9 +84,10 @@ class HIR_to_AST : public HIR::Fold
  AST::Unary_op*,				// Unary_op*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
  AST::Variable*,				// Variable*
- AST::Variable_name*		// Variable_name*
+ AST::Variable_name*			// Variable_name*
 >
 {
+
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
 	{
 		if (var_name == NULL)
@@ -94,6 +95,18 @@ class HIR_to_AST : public HIR::Fold
 
 		return new AST::Variable (var_name);
 	}
+
+	List<AST::Expr*>* wrap_var_name_list (List<AST::VARIABLE_NAME*>* var_names)
+	{
+		List<AST::Expr*>* result = new List<AST::Expr*>;
+		for_lci (var_names, AST::VARIABLE_NAME, i)
+		{
+			result->push_back (wrap_var_name (*i));
+		}
+		return result;
+	}
+
+
 
 	AST::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<AST::Statement*>* statements) 
 	{
@@ -348,14 +361,8 @@ class HIR_to_AST : public HIR::Fold
 
 	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
-		List<AST::Expr*>* exprs = new List<AST::Expr*>;
-		for_lci (array_indices, AST::VARIABLE_NAME, i)
-		{
-			exprs->push_back (wrap_var_name (*i));
-		}
-
 		AST::Variable* result;
-		result = new AST::Variable(target, variable_name, exprs);
+		result = new AST::Variable(target, variable_name, wrap_var_name_list (array_indices));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -400,10 +407,10 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, AST::Expr* expr) 
+	AST::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
 		AST::Actual_parameter* result;
-		result = new AST::Actual_parameter(is_ref, expr);
+		result = new AST::Actual_parameter(is_ref, new AST::Variable (target, variable_name, wrap_var_name_list (array_indices)));
 		result->attrs = orig->attrs;
 		return result;
 	}

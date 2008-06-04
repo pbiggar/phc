@@ -287,9 +287,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
     	assert(i == args->end());
-    	return new Actual_parameter(is_ref, expr);
+    	return new Actual_parameter(is_ref, target, variable_name, array_indices);
     }
     if(!strcmp(type_id, "New"))
     {

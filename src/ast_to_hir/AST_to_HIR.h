@@ -450,8 +450,11 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		assert (var);
+
 		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, expr);
+		result = new HIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
 		copy_attrs (result, orig);
 		return result;
 	}

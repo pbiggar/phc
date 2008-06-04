@@ -733,7 +733,9 @@ void Transform::children_method_invocation(Method_invocation* in)
 
 void Transform::children_actual_parameter(Actual_parameter* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_indices = transform_variable_name_list(in->array_indices);
 }
 
 void Transform::children_new(New* in)

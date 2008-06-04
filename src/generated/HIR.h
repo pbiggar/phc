@@ -588,16 +588,18 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Actual_parameter ::= is_ref:"&" Expr ;
+// Actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:VARIABLE_NAME?* ;
 class Actual_parameter : virtual public Node
 {
 public:
-    Actual_parameter(bool is_ref, Expr* expr);
+    Actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices);
 protected:
     Actual_parameter();
 public:
     bool is_ref;
-    Expr* expr;
+    Target* target;
+    Variable_name* variable_name;
+    List<VARIABLE_NAME*>* array_indices;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);

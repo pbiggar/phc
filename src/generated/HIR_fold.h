@@ -541,9 +541,20 @@ public:
 	virtual _Actual_parameter fold_actual_parameter(Actual_parameter* in)
 	{
 		bool is_ref = in->is_ref;
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_actual_parameter(in, is_ref, expr);
+		_Target target = 0;
+		if(in->target != NULL) target = fold_target(in->target);
+		_Variable_name variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		List<_VARIABLE_NAME>* array_indices = 0;
+	
+		{
+			array_indices = new List<_VARIABLE_NAME>;
+			List<VARIABLE_NAME*>::const_iterator i;
+			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
+				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
+				else array_indices->push_back(0);
+		}
+		return fold_impl_actual_parameter(in, is_ref, target, variable_name, array_indices);
 	}
 
 	virtual _New fold_new(New* in)
@@ -604,7 +615,7 @@ public:
 	virtual _Array fold_impl_array(Array* orig, List<_Array_elem>* array_elems) { assert(0); };
 	virtual _Array_elem fold_impl_array_elem(Array_elem* orig, _Expr key, bool is_ref, _Expr val) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
-	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Expr expr) { assert(0); };
+	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };

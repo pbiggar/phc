@@ -356,13 +356,10 @@ public:
 		return result;
 	}
 
-	MIR::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, MIR::Expr* expr) 
+	MIR::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::VARIABLE_NAME*>* array_indices) 
 	{
-		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
-		assert (var);
-
 		MIR::Actual_parameter* result;
-		result = new MIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
+		result = new MIR::Actual_parameter(is_ref, target, variable_name, array_indices);
 		result->attrs = orig->attrs;
 		return result;
 	}

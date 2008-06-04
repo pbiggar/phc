@@ -738,7 +738,9 @@ void Visitor::children_method_invocation(Method_invocation* in)
 void Visitor::children_actual_parameter(Actual_parameter* in)
 {
     visit_marker("is_ref", in->is_ref);
-    visit_expr(in->expr);
+    visit_target(in->target);
+    visit_variable_name(in->variable_name);
+    visit_variable_name_list(in->array_indices);
 }
 
 void Visitor::children_new(New* in)
