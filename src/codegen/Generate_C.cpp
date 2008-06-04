@@ -1739,7 +1739,7 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "expr", var_name);
+		read_simple (LOCAL, "expr", var_name->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
