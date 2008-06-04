@@ -327,16 +327,6 @@ public:
 		return fold_impl_throw(in, expr);
 	}
 
-	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
-	{
-		return fold_impl_foreign_statement(in);
-	}
-
-	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
-	{
-		return fold_impl_foreign_expr(in);
-	}
-
 	virtual _Branch fold_branch(Branch* in)
 	{
 		_VARIABLE_NAME variable_name = 0;
@@ -416,6 +406,16 @@ public:
 		_HT_ITERATOR iter = 0;
 		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
 		return fold_impl_foreach_get_val(in, array, key, iter);
+	}
+
+	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
+	{
+		return fold_impl_foreign_statement(in);
+	}
+
+	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
+	{
+		return fold_impl_foreign_expr(in);
 	}
 
 	virtual _Assignment fold_assignment(Assignment* in)
@@ -609,8 +609,6 @@ public:
 	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
-	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
-	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
@@ -620,6 +618,8 @@ public:
 	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
+	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
+	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };

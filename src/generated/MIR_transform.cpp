@@ -96,16 +96,6 @@ void Transform::pre_throw(Throw* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_foreign_statement(Foreign_statement* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-Expr* Transform::pre_foreign_expr(Foreign_expr* in)
-{
-    return in;
-}
-
 void Transform::pre_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -147,6 +137,16 @@ Expr* Transform::pre_foreach_get_key(Foreach_get_key* in)
 }
 
 Expr* Transform::pre_foreach_get_val(Foreach_get_val* in)
+{
+    return in;
+}
+
+void Transform::pre_foreign_statement(Foreign_statement* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
+Expr* Transform::pre_foreign_expr(Foreign_expr* in)
 {
     return in;
 }
@@ -382,16 +382,6 @@ void Transform::post_throw(Throw* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::post_foreign_statement(Foreign_statement* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-Expr* Transform::post_foreign_expr(Foreign_expr* in)
-{
-    return in;
-}
-
 void Transform::post_branch(Branch* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -433,6 +423,16 @@ Expr* Transform::post_foreach_get_key(Foreach_get_key* in)
 }
 
 Expr* Transform::post_foreach_get_val(Foreach_get_val* in)
+{
+    return in;
+}
+
+void Transform::post_foreign_statement(Foreign_statement* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
+Expr* Transform::post_foreign_expr(Foreign_expr* in)
 {
     return in;
 }
@@ -680,14 +680,6 @@ void Transform::children_throw(Throw* in)
     in->expr = transform_expr(in->expr);
 }
 
-void Transform::children_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Transform::children_foreign_expr(Foreign_expr* in)
-{
-}
-
 void Transform::children_branch(Branch* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
@@ -740,6 +732,14 @@ void Transform::children_foreach_get_val(Foreach_get_val* in)
     in->array = transform_variable_name(in->array);
     in->key = transform_variable_name(in->key);
     in->iter = transform_ht_iterator(in->iter);
+}
+
+void Transform::children_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Transform::children_foreign_expr(Foreign_expr* in)
+{
 }
 
 void Transform::children_assignment(Assignment* in)

@@ -3707,82 +3707,6 @@ void Throw::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreign_statement::Foreign_statement()
-{
-}
-
-void Foreign_statement::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreign_statement::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreign_statement::classid()
-{
-    return ID;
-}
-
-bool Foreign_statement::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
-    if(that == NULL) return false;
-    
-    return true;
-}
-
-bool Foreign_statement::equals(Node* in)
-{
-    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
-    if(that == NULL) return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreign_statement* Foreign_statement::clone()
-{
-    Foreign_statement* clone = new Foreign_statement();
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Foreign_statement::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void Foreign_statement::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-}
-
-void Foreign_statement::assert_valid()
-{
-    Node::assert_mixin_valid();
-}
-
-//  TODO: modify maketea to allow contructors with :
-Foreign_statement::Foreign_statement(IR ::Node* foreign)
-{
-    {
-		this->foreign = foreign;
-	}
-}
-
 Branch::Branch(VARIABLE_NAME* variable_name, LABEL_NAME* iftrue, LABEL_NAME* iffalse)
 {
     this->variable_name = variable_name;
@@ -4543,6 +4467,82 @@ void Foreach_end::assert_valid()
     assert(iter != NULL);
     iter->assert_valid();
     Node::assert_mixin_valid();
+}
+
+Foreign_statement::Foreign_statement()
+{
+}
+
+void Foreign_statement::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Foreign_statement::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Foreign_statement::classid()
+{
+    return ID;
+}
+
+bool Foreign_statement::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool Foreign_statement::equals(Node* in)
+{
+    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
+    if(that == NULL) return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreign_statement* Foreign_statement::clone()
+{
+    Foreign_statement* clone = new Foreign_statement();
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Foreign_statement::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void Foreign_statement::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void Foreign_statement::assert_valid()
+{
+    Node::assert_mixin_valid();
+}
+
+//  TODO: modify maketea to allow contructors with :
+Foreign_statement::Foreign_statement(IR ::Node* foreign)
+{
+    {
+		this->foreign = foreign;
+	}
 }
 
 Expr::Expr()
@@ -5517,81 +5517,6 @@ void CONSTANT_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreign_expr::Foreign_expr()
-{
-}
-
-void Foreign_expr::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Foreign_expr::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Foreign_expr::classid()
-{
-    return ID;
-}
-
-bool Foreign_expr::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
-    if(that == NULL) return false;
-    
-    return true;
-}
-
-bool Foreign_expr::equals(Node* in)
-{
-    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreign_expr* Foreign_expr::clone()
-{
-    Foreign_expr* clone = new Foreign_expr();
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Foreign_expr::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void Foreign_expr::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-}
-
-void Foreign_expr::assert_valid()
-{
-    Node::assert_mixin_valid();
-}
-
-Foreign_expr::Foreign_expr(IR ::Node* foreign)
-{
-    {
-		this->foreign = foreign;
-	}
-}
-
 Foreach_has_key::Foreach_has_key(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
@@ -6016,6 +5941,81 @@ void Foreach_get_val::assert_valid()
     assert(iter != NULL);
     iter->assert_valid();
     Node::assert_mixin_valid();
+}
+
+Foreign_expr::Foreign_expr()
+{
+}
+
+void Foreign_expr::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Foreign_expr::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Foreign_expr::classid()
+{
+    return ID;
+}
+
+bool Foreign_expr::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
+    if(that == NULL) return false;
+    
+    return true;
+}
+
+bool Foreign_expr::equals(Node* in)
+{
+    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
+    if(that == NULL) return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Foreign_expr* Foreign_expr::clone()
+{
+    Foreign_expr* clone = new Foreign_expr();
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Foreign_expr::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void Foreign_expr::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+}
+
+void Foreign_expr::assert_valid()
+{
+    Node::assert_mixin_valid();
+}
+
+Foreign_expr::Foreign_expr(IR ::Node* foreign)
+{
+    {
+		this->foreign = foreign;
+	}
 }
 
 Literal::Literal()

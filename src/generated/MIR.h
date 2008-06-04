@@ -49,13 +49,13 @@ class Static_declaration;
 class Global;
 class Try;
 class Throw;
-class Foreign_statement;
 class Branch;
 class Goto;
 class Label;
 class Foreach_reset;
 class Foreach_next;
 class Foreach_end;
+class Foreign_statement;
 class Expr;
 class Assignment;
 class Reflection;
@@ -67,10 +67,10 @@ class LABEL_NAME;
 class CAST;
 class OP;
 class CONSTANT_NAME;
-class Foreign_expr;
 class Foreach_has_key;
 class Foreach_get_key;
 class Foreach_get_val;
+class Foreign_expr;
 class Literal;
 class Cast;
 class Unary_op;
@@ -985,34 +985,6 @@ public:
     virtual void assert_valid();
 };
 
-// Foreign_statement ::= ;
-class Foreign_statement : virtual public Statement, virtual public Foreign
-{
-public:
-    Foreign_statement();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 19;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Foreign_statement* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
-//  TODO: modify maketea to allow contructors with :
-public:
-    Foreign_statement(IR ::Node* foreign);
-};
-
 // Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
 class Branch : virtual public Statement
 {
@@ -1028,7 +1000,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 21;
+    static const int ID = 19;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1057,7 +1029,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 22;
+    static const int ID = 20;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1086,7 +1058,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 23;
+    static const int ID = 21;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1116,7 +1088,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 24;
+    static const int ID = 22;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1146,7 +1118,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 25;
+    static const int ID = 23;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1176,7 +1148,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 26;
+    static const int ID = 24;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1190,6 +1162,34 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+};
+
+// Foreign_statement ::= ;
+class Foreign_statement : virtual public Statement, virtual public Foreign
+{
+public:
+    Foreign_statement();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 28;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Foreign_statement* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+//  TODO: modify maketea to allow contructors with :
+public:
+    Foreign_statement(IR ::Node* foreign);
 };
 
 // Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Array | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign_expr;
@@ -1508,33 +1508,6 @@ public:
     virtual void assert_valid();
 };
 
-// Foreign_expr ::= ;
-class Foreign_expr : virtual public Foreign, virtual public Expr
-{
-public:
-    Foreign_expr();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 20;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Foreign_expr* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
-public:
-    Foreign_expr(IR ::Node* foreign);
-};
-
 // Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_has_key : virtual public Expr
 {
@@ -1549,7 +1522,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 27;
+    static const int ID = 25;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1579,7 +1552,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 28;
+    static const int ID = 26;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1610,7 +1583,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 29;
+    static const int ID = 27;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1624,6 +1597,33 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+};
+
+// Foreign_expr ::= ;
+class Foreign_expr : virtual public Foreign, virtual public Expr
+{
+public:
+    Foreign_expr();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 29;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Foreign_expr* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+public:
+    Foreign_expr(IR ::Node* foreign);
 };
 
 // Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;

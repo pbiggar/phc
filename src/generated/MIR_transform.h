@@ -45,8 +45,6 @@ public:
     virtual void pre_try(Try* in, List<Statement*>* out);
     virtual void pre_catch(Catch* in, List<Catch*>* out);
     virtual void pre_throw(Throw* in, List<Statement*>* out);
-    virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual void pre_branch(Branch* in, List<Statement*>* out);
     virtual void pre_goto(Goto* in, List<Statement*>* out);
     virtual void pre_label(Label* in, List<Statement*>* out);
@@ -56,6 +54,8 @@ public:
     virtual Expr* pre_foreach_has_key(Foreach_has_key* in);
     virtual Expr* pre_foreach_get_key(Foreach_get_key* in);
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
+    virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
+    virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual void pre_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
@@ -104,8 +104,6 @@ public:
     virtual void post_try(Try* in, List<Statement*>* out);
     virtual void post_catch(Catch* in, List<Catch*>* out);
     virtual void post_throw(Throw* in, List<Statement*>* out);
-    virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
-    virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual void post_branch(Branch* in, List<Statement*>* out);
     virtual void post_goto(Goto* in, List<Statement*>* out);
     virtual void post_label(Label* in, List<Statement*>* out);
@@ -115,6 +113,8 @@ public:
     virtual Expr* post_foreach_has_key(Foreach_has_key* in);
     virtual Expr* post_foreach_get_key(Foreach_get_key* in);
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
+    virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
+    virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual void post_assignment(Assignment* in, List<Statement*>* out);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
@@ -163,8 +163,6 @@ public:
     virtual void children_try(Try* in);
     virtual void children_catch(Catch* in);
     virtual void children_throw(Throw* in);
-    virtual void children_foreign_statement(Foreign_statement* in);
-    virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_branch(Branch* in);
     virtual void children_goto(Goto* in);
     virtual void children_label(Label* in);
@@ -174,6 +172,8 @@ public:
     virtual void children_foreach_has_key(Foreach_has_key* in);
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
+    virtual void children_foreign_statement(Foreign_statement* in);
+    virtual void children_foreign_expr(Foreign_expr* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);

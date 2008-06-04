@@ -90,18 +90,6 @@ void Visitor::pre_throw(Throw* in)
 {
 }
 
-void Visitor::pre_foreign(Foreign* in)
-{
-}
-
-void Visitor::pre_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::pre_foreign_expr(Foreign_expr* in)
-{
-}
-
 void Visitor::pre_branch(Branch* in)
 {
 }
@@ -135,6 +123,18 @@ void Visitor::pre_foreach_get_key(Foreach_get_key* in)
 }
 
 void Visitor::pre_foreach_get_val(Foreach_get_val* in)
+{
+}
+
+void Visitor::pre_foreign(Foreign* in)
+{
+}
+
+void Visitor::pre_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::pre_foreign_expr(Foreign_expr* in)
 {
 }
 
@@ -363,18 +363,6 @@ void Visitor::post_throw(Throw* in)
 {
 }
 
-void Visitor::post_foreign(Foreign* in)
-{
-}
-
-void Visitor::post_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::post_foreign_expr(Foreign_expr* in)
-{
-}
-
 void Visitor::post_branch(Branch* in)
 {
 }
@@ -408,6 +396,18 @@ void Visitor::post_foreach_get_key(Foreach_get_key* in)
 }
 
 void Visitor::post_foreach_get_val(Foreach_get_val* in)
+{
+}
+
+void Visitor::post_foreign(Foreign* in)
+{
+}
+
+void Visitor::post_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::post_foreign_expr(Foreign_expr* in)
 {
 }
 
@@ -669,14 +669,6 @@ void Visitor::children_throw(Throw* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::children_foreign_expr(Foreign_expr* in)
-{
-}
-
 void Visitor::children_branch(Branch* in)
 {
     visit_variable_name(in->variable_name);
@@ -729,6 +721,14 @@ void Visitor::children_foreach_get_val(Foreach_get_val* in)
     visit_variable_name(in->array);
     visit_variable_name(in->key);
     visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::children_foreign_expr(Foreign_expr* in)
+{
 }
 
 void Visitor::children_assignment(Assignment* in)
@@ -1018,23 +1018,6 @@ void Visitor::pre_throw_chain(Throw* in)
     pre_throw((Throw*) in);
 }
 
-void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
-{
-    pre_node((Node*) in);
-    pre_statement((Statement*) in);
-    pre_foreign((Foreign*) in);
-    pre_foreign_statement((Foreign_statement*) in);
-}
-
-void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
-{
-    pre_node((Node*) in);
-    pre_foreign((Foreign*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_foreign_expr((Foreign_expr*) in);
-}
-
 void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node((Node*) in);
@@ -1099,6 +1082,23 @@ void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
     pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_foreach_get_val((Foreach_get_val*) in);
+}
+
+void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_foreign((Foreign*) in);
+    pre_foreign_statement((Foreign_statement*) in);
+}
+
+void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
+{
+    pre_node((Node*) in);
+    pre_foreign((Foreign*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_foreign_expr((Foreign_expr*) in);
 }
 
 void Visitor::pre_assignment_chain(Assignment* in)
@@ -1441,23 +1441,6 @@ void Visitor::post_throw_chain(Throw* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_foreign_statement_chain(Foreign_statement* in)
-{
-    post_foreign_statement((Foreign_statement*) in);
-    post_foreign((Foreign*) in);
-    post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_foreign_expr_chain(Foreign_expr* in)
-{
-    post_foreign_expr((Foreign_expr*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_foreign((Foreign*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_branch_chain(Branch* in)
 {
     post_branch((Branch*) in);
@@ -1521,6 +1504,23 @@ void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
     post_foreach_get_val((Foreach_get_val*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_foreign_statement_chain(Foreign_statement* in)
+{
+    post_foreign_statement((Foreign_statement*) in);
+    post_foreign((Foreign*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_foreign_expr_chain(Foreign_expr* in)
+{
+    post_foreign_expr((Foreign_expr*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_foreign((Foreign*) in);
     post_node((Node*) in);
 }
 

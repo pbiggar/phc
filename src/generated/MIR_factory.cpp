@@ -151,16 +151,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Throw(expr);
     }
-    if(!strcmp(type_id, "Foreign_statement"))
-    {
-    	assert(i == args->end());
-    	return new Foreign_statement();
-    }
-    if(!strcmp(type_id, "Foreign_expr"))
-    {
-    	assert(i == args->end());
-    	return new Foreign_expr();
-    }
     if(!strcmp(type_id, "Branch"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
@@ -223,6 +213,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
     	return new Foreach_get_val(array, key, iter);
+    }
+    if(!strcmp(type_id, "Foreign_statement"))
+    {
+    	assert(i == args->end());
+    	return new Foreign_statement();
+    }
+    if(!strcmp(type_id, "Foreign_expr"))
+    {
+    	assert(i == args->end());
+    	return new Foreign_expr();
     }
     if(!strcmp(type_id, "Assignment"))
     {
