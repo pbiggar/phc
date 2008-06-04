@@ -601,9 +601,9 @@ void Transform::children_loop(Loop* in)
 
 void Transform::children_foreach(Foreach* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->key = transform_variable(in->key);
-    in->val = transform_variable(in->val);
+    in->arr = transform_variable_name(in->arr);
+    in->key = transform_variable_name(in->key);
+    in->val = transform_variable_name(in->val);
     in->statements = transform_statement_list(in->statements);
 }
 
@@ -1096,22 +1096,6 @@ Expr* Transform::transform_expr(Expr* in)
     return out;
 }
 
-Variable* Transform::transform_variable(Variable* in)
-{
-    if(in == NULL) return NULL;
-    
-    Variable* out;
-    
-    out = pre_variable(in);
-    if(out != NULL)
-    {
-    	children_variable(out);
-    	out = post_variable(out);
-    }
-    
-    return out;
-}
-
 Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1163,6 +1147,22 @@ List<Catch*>* Transform::transform_catch(Catch* in)
     }
     
     return out2;
+}
+
+Variable* Transform::transform_variable(Variable* in)
+{
+    if(in == NULL) return NULL;
+    
+    Variable* out;
+    
+    out = pre_variable(in);
+    if(out != NULL)
+    {
+    	children_variable(out);
+    	out = post_variable(out);
+    }
+    
+    return out;
 }
 
 CAST* Transform::transform_cast(CAST* in)

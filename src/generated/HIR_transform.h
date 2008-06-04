@@ -207,10 +207,10 @@ public:
     virtual Attr_mod* transform_attr_mod(Attr_mod* in);
     virtual VARIABLE_NAME* transform_variable_name(VARIABLE_NAME* in);
     virtual Expr* transform_expr(Expr* in);
-    virtual Variable* transform_variable(Variable* in);
     virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
+    virtual Variable* transform_variable(Variable* in);
     virtual CAST* transform_cast(CAST* in);
     virtual OP* transform_op(OP* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);

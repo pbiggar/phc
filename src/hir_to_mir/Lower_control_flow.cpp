@@ -173,7 +173,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
-	MIR::VARIABLE_NAME* array_name = fold_var (in->variable_name);
+	MIR::VARIABLE_NAME* array_name = fold_var (in->arr);
 
 	// foreach_reset ($arr, iter); 
 	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();
@@ -221,27 +221,23 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// The key may not be present, but we create it anyway for the unparser. 
 	get_key->attrs->set ("phc.codegen.use_get_key", new Boolean (in->key));
 
-	Variable* key = in->key;
+	VARIABLE_NAME* key = in->key;
 	if (key == NULL)
-		key = fresh_var ("LCF_KEY_");
-
-	assert (key->is_simple_variable ());
+		key = fresh_var_name ("LCF_KEY_");
 
 	out->push_back (
 			new Assignment (
-				key,
+				new Variable (key),
 				false,
 				new Foreign_expr (get_key)));
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
-	MIR::VARIABLE_NAME* mir_key = 
-		folder.fold_variable_name (
-			dynamic_cast<VARIABLE_NAME*> (key->variable_name));
+	MIR::VARIABLE_NAME* mir_key = folder.fold_variable_name (key);
 
 	out->push_back (
 		new Assignment (
-		in->val->clone (),
+		new Variable (in->val->clone ()),
 		in->is_ref,
 		new Foreign_expr (
 			new MIR::Foreach_get_val (

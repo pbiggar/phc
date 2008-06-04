@@ -602,10 +602,10 @@ void Visitor::children_loop(Loop* in)
 
 void Visitor::children_foreach(Foreach* in)
 {
-    visit_variable_name(in->variable_name);
-    visit_variable(in->key);
+    visit_variable_name(in->arr);
+    visit_variable_name(in->key);
     visit_marker("is_ref", in->is_ref);
-    visit_variable(in->val);
+    visit_variable_name(in->val);
     visit_statement_list(in->statements);
 }
 
@@ -1820,18 +1820,6 @@ void Visitor::visit_expr(Expr* in)
     }
 }
 
-void Visitor::visit_variable(Variable* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "Variable");
-    else
-    {
-    	pre_variable_chain(in);
-    	children_variable(in);
-    	post_variable_chain(in);
-    }
-}
-
 void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
@@ -1872,6 +1860,18 @@ void Visitor::visit_catch(Catch* in)
     	pre_catch_chain(in);
     	children_catch(in);
     	post_catch_chain(in);
+    }
+}
+
+void Visitor::visit_variable(Variable* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Variable");
+    else
+    {
+    	pre_variable_chain(in);
+    	children_variable(in);
+    	post_variable_chain(in);
     }
 }
 

@@ -72,7 +72,7 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
 
 If ::= VARIABLE_NAME iftrue:Statement* iffalse:Statement* ;
 Loop ::= Statement* ;
-Foreach ::= VARIABLE_NAME key:Variable? is_ref:"&"? val:Variable Statement* ;
+Foreach ::= arr:VARIABLE_NAME key:VARIABLE_NAME? is_ref:"&"? val:VARIABLE_NAME Statement* ;
 
 -- We need to retain the Expr to lower these in the HIR
 Break ::= Expr? ;
@@ -104,7 +104,6 @@ Foreign_expr ::= ;
 -}
 
 Expr ::=
-
 	Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
 	| Variable | Pre_op 
@@ -136,6 +135,7 @@ Reflection ::= VARIABLE_NAME ;
 Target ::= Expr | CLASS_NAME ;
 -- Target ::= VARIABLE_NAME | CLASS_NAME ;
 
+-- Pre_op cannot be converted to a VARIABLE_NAME due to, for example, ++$x->z.
 Pre_op ::= OP Variable ;
 
 Array ::= Array_elem* ;
@@ -475,15 +475,6 @@ public:
 	}
 };
 
-class If
-{
-public:
-	If(VARIABLE_NAME* variable_name)
-	{
-		If (variable_name, new List<Statement*> (), new List<Statement*>);
-	}
-};
-
 class Cast
 {
 public:
@@ -494,21 +485,12 @@ public:
 	}
 };
 
-class HT_ITERATOR
+class If
 {
 public:
-	HT_ITERATOR (long identifier)
+	If(VARIABLE_NAME* variable_name)
 	{
-		value = identifier;
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-	}
-
-	String* get_value_as_string ()
-	{
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-		return new String(os.str());
+		If (variable_name, new List<Statement*> (), new List<Statement*>);
 	}
 };
 

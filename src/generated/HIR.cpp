@@ -3266,9 +3266,9 @@ void Loop::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach::Foreach(VARIABLE_NAME* variable_name, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements)
+Foreach::Foreach(VARIABLE_NAME* arr, VARIABLE_NAME* key, bool is_ref, VARIABLE_NAME* val, List<Statement*>* statements)
 {
-    this->variable_name = variable_name;
+    this->arr = arr;
     this->key = key;
     this->is_ref = is_ref;
     this->val = val;
@@ -3277,7 +3277,7 @@ Foreach::Foreach(VARIABLE_NAME* variable_name, Variable* key, bool is_ref, Varia
 
 Foreach::Foreach()
 {
-    this->variable_name = 0;
+    this->arr = 0;
     this->key = 0;
     this->is_ref = 0;
     this->val = 0;
@@ -3309,12 +3309,12 @@ bool Foreach::match(Node* in)
     Foreach* that = dynamic_cast<Foreach*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL)
+    if(this->arr == NULL)
     {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    	if(that->arr != NULL && !that->arr->match(this->arr))
     		return false;
     }
-    else if(!this->variable_name->match(that->variable_name))
+    else if(!this->arr->match(that->arr))
     	return false;
     
     if(this->key == NULL)
@@ -3362,12 +3362,12 @@ bool Foreach::equals(Node* in)
     Foreach* that = dynamic_cast<Foreach*>(in);
     if(that == NULL) return false;
     
-    if(this->variable_name == NULL || that->variable_name == NULL)
+    if(this->arr == NULL || that->arr == NULL)
     {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
+    	if(this->arr != NULL || that->arr != NULL)
     		return false;
     }
-    else if(!this->variable_name->equals(that->variable_name))
+    else if(!this->arr->equals(that->arr))
     	return false;
     
     if(this->key == NULL || that->key == NULL)
@@ -3420,10 +3420,10 @@ bool Foreach::equals(Node* in)
 
 Foreach* Foreach::clone()
 {
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Variable* key = this->key ? this->key->clone() : NULL;
+    VARIABLE_NAME* arr = this->arr ? this->arr->clone() : NULL;
+    VARIABLE_NAME* key = this->key ? this->key->clone() : NULL;
     bool is_ref = this->is_ref;
-    Variable* val = this->val ? this->val->clone() : NULL;
+    VARIABLE_NAME* val = this->val ? this->val->clone() : NULL;
     List<Statement*>* statements = NULL;
     if(this->statements != NULL)
     {
@@ -3432,7 +3432,7 @@ Foreach* Foreach::clone()
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    Foreach* clone = new Foreach(variable_name, key, is_ref, val, statements);
+    Foreach* clone = new Foreach(arr, key, is_ref, val, statements);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -3442,10 +3442,10 @@ Node* Foreach::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->variable_name != NULL)
+    if (this->arr != NULL)
     {
-    	Node* variable_name_res = this->variable_name->find(in);
-    	if (variable_name_res) return variable_name_res;
+    	Node* arr_res = this->arr->find(in);
+    	if (arr_res) return arr_res;
     }
     
     if (this->key != NULL)
@@ -3484,8 +3484,8 @@ void Foreach::find_all(Node* in, List<Node*>* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->variable_name != NULL)
-    	this->variable_name->find_all(in, out);
+    if (this->arr != NULL)
+    	this->arr->find_all(in, out);
     
     if (this->key != NULL)
     	this->key->find_all(in, out);
@@ -3512,8 +3512,8 @@ void Foreach::find_all(Node* in, List<Node*>* out)
 
 void Foreach::assert_valid()
 {
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
+    assert(arr != NULL);
+    arr->assert_valid();
     if(key != NULL) key->assert_valid();
     assert(val != NULL);
     val->assert_valid();

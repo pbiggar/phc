@@ -860,18 +860,18 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach ::= VARIABLE_NAME key:Variable? is_ref:"&" val:Variable Statement* ;
+// Foreach ::= arr:VARIABLE_NAME key:VARIABLE_NAME? is_ref:"&" val:VARIABLE_NAME Statement* ;
 class Foreach : virtual public Statement
 {
 public:
-    Foreach(VARIABLE_NAME* variable_name, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements);
+    Foreach(VARIABLE_NAME* arr, VARIABLE_NAME* key, bool is_ref, VARIABLE_NAME* val, List<Statement*>* statements);
 protected:
     Foreach();
 public:
-    VARIABLE_NAME* variable_name;
-    Variable* key;
+    VARIABLE_NAME* arr;
+    VARIABLE_NAME* key;
     bool is_ref;
-    Variable* val;
+    VARIABLE_NAME* val;
     List<Statement*>* statements;
 public:
     virtual void visit(Visitor* visitor);

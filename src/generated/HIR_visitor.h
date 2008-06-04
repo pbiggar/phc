@@ -345,10 +345,10 @@ public:
     virtual void visit_attr_mod(Attr_mod* in);
     virtual void visit_variable_name(VARIABLE_NAME* in);
     virtual void visit_expr(Expr* in);
-    virtual void visit_variable(Variable* in);
     virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
+    virtual void visit_variable(Variable* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
