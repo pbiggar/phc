@@ -674,9 +674,31 @@ function homogenize_reference_count ($string)
 	return $string;
 }
 
+/* We do not care if there is one object, or two objects alive at any point.
+ * However, var_dump will give different results depending on the number of
+ * live objects of a particular type. Since we shred, we make the extra objects
+ * stay alive longer. So mask it from testing. */
+function homogenize_object_count ($string)
+{
+	// A var dump for an object looks like this:
+	# object(Foo)#1 (2) {
+	#   ["x1"]=>
+	#   string(8) "Foo::Bar"
+	#   ["x2"]=>
+	#   array(1) {
+	#     [0]=>
+	#     string(8) "Foo::Bar"
+	#   }
+	# }
+
+	$string = preg_replace("/^(object\(\w+\)#)\d+/m", "$1x", $string);
+	return $string;
+}
+
 function homogenize_all ($string)
 {
 	$string = homogenize_reference_count ($string);
+	$string = homogenize_object_count ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
 	$string = homogenize_break_levels ($string);
 	return $string;
