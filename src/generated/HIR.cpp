@@ -3828,7 +3828,8 @@ void Return::find_all(Node* in, List<Node*>* out)
 
 void Return::assert_valid()
 {
-    if(expr != NULL) expr->assert_valid();
+    assert(expr != NULL);
+    expr->assert_valid();
     Node::assert_mixin_valid();
 }
 

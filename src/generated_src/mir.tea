@@ -69,7 +69,7 @@ Name_with_default ::= VARIABLE_NAME Expr? ;
 -}
 
 -- These need to be Expr because we don't know if they should be return by reference or by copy.
-Return ::= Expr? ;
+Return ::= Expr ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;

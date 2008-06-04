@@ -839,7 +839,7 @@ public:
     virtual void assert_valid();
 };
 
-// Return ::= Expr? ;
+// Return ::= Expr ;
 class Return : virtual public Statement
 {
 public:
