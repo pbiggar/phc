@@ -3706,117 +3706,6 @@ void Throw::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Eval_expr::Eval_expr(Expr* expr)
-{
-    this->expr = expr;
-    _init();
-}
-
-Eval_expr::Eval_expr()
-{
-    this->expr = 0;
-    _init();
-}
-
-void Eval_expr::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Eval_expr::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Eval_expr::classid()
-{
-    return ID;
-}
-
-bool Eval_expr::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL)
-    {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
-    		return false;
-    }
-    else if(!this->expr->match(that->expr))
-    	return false;
-    
-    return true;
-}
-
-bool Eval_expr::equals(Node* in)
-{
-    Eval_expr* that = dynamic_cast<Eval_expr*>(in);
-    if(that == NULL) return false;
-    
-    if(this->expr == NULL || that->expr == NULL)
-    {
-    	if(this->expr != NULL || that->expr != NULL)
-    		return false;
-    }
-    else if(!this->expr->equals(that->expr))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Eval_expr* Eval_expr::clone()
-{
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Eval_expr* clone = new Eval_expr(expr);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Eval_expr::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->expr != NULL)
-    {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
-    }
-    
-    return NULL;
-}
-
-void Eval_expr::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
-    
-}
-
-void Eval_expr::assert_valid()
-{
-    assert(expr != NULL);
-    expr->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-void Eval_expr::_init()
-{
-    {
-		assert (expr != NULL);
-	}
-}
-
 Foreign_statement::Foreign_statement()
 {
 }
@@ -4791,8 +4680,7 @@ void Assignment::find_all(Node* in, List<Node*>* out)
 
 void Assignment::assert_valid()
 {
-    assert(variable != NULL);
-    variable->assert_valid();
+    if(variable != NULL) variable->assert_valid();
     assert(expr != NULL);
     expr->assert_valid();
     Node::assert_mixin_valid();

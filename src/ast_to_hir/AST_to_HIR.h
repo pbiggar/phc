@@ -293,10 +293,8 @@ class AST_to_HIR : public AST::Fold
 		if (assignment->classid () == HIR::Assignment::ID)
 			return assignment;
 
-		HIR::Eval_expr* result;
-		result = new HIR::Eval_expr(expr);
-		copy_attrs (result, orig);
-		return result;
+		// Otherwise wrap it in an assignment
+		return new HIR::Assignment (NULL, false, expr);
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)

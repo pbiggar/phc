@@ -36,7 +36,7 @@ Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
 	| Assignment
-	| Try | Throw | Eval_expr
+	| Try | Throw
 	| If | Loop | Foreach
 	| Break | Continue
 -- | Assign_var | Assign_var_var | Assign_array | Push_array
@@ -90,8 +90,6 @@ Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
 Throw ::= Expr ;
 -- Throw ::= VARIABLE_NAME ;
 
-Eval_expr ::= Expr ;
-
 Foreign ::= Foreign_statement | Foreign_expr ;
 Foreign_statement ::= ;
 Foreign_expr ::= ;
@@ -119,7 +117,7 @@ Expr ::=
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    
-Assignment ::= Variable is_ref:"&"? Expr ;
+Assignment ::= Variable? is_ref:"&"? Expr ;
 -- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
 -- Variable_variable ::= VARIABLE_NAME ; 
 
@@ -341,15 +339,6 @@ public:
 	}
 };
 
-class Eval_expr
-{
-public:
-	void _init()
-	{
-		assert (expr != NULL);
-	}
-};
-
 class Variable
 {
 public:
@@ -453,17 +442,6 @@ public:
 	{
 		return new Attr_mod(false, false, false, false, true);
 	}
-};
-
-class Op_assignment
-{
-public:
-   Op_assignment(Variable* variable, const char* op, Expr* expr)
-   {
-      this->variable = variable;
-      this->op = new OP(new String(op));
-      this->expr = expr;
-   }
 };
 
 class Bin_op

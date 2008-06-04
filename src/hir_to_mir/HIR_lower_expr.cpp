@@ -25,7 +25,7 @@ void Lower_expr::children_php_script(PHP_script* in)
  * only a limited number of statements to consider here.
  */
 
-void Lower_expr::post_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Lower_expr::post_assignment (Assignment* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }

@@ -90,10 +90,6 @@ void Visitor::pre_throw(Throw* in)
 {
 }
 
-void Visitor::pre_eval_expr(Eval_expr* in)
-{
-}
-
 void Visitor::pre_foreign(Foreign* in)
 {
 }
@@ -364,10 +360,6 @@ void Visitor::post_catch(Catch* in)
 }
 
 void Visitor::post_throw(Throw* in)
-{
-}
-
-void Visitor::post_eval_expr(Eval_expr* in)
 {
 }
 
@@ -673,11 +665,6 @@ void Visitor::children_catch(Catch* in)
 }
 
 void Visitor::children_throw(Throw* in)
-{
-    visit_expr(in->expr);
-}
-
-void Visitor::children_eval_expr(Eval_expr* in)
 {
     visit_expr(in->expr);
 }
@@ -1029,13 +1016,6 @@ void Visitor::pre_throw_chain(Throw* in)
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_throw((Throw*) in);
-}
-
-void Visitor::pre_eval_expr_chain(Eval_expr* in)
-{
-    pre_node((Node*) in);
-    pre_statement((Statement*) in);
-    pre_eval_expr((Eval_expr*) in);
 }
 
 void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
@@ -1457,13 +1437,6 @@ void Visitor::post_catch_chain(Catch* in)
 void Visitor::post_throw_chain(Throw* in)
 {
     post_throw((Throw*) in);
-    post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_eval_expr_chain(Eval_expr* in)
-{
-    post_eval_expr((Eval_expr*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -2293,9 +2266,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Throw::ID:
     	pre_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case Eval_expr::ID:
-    	pre_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
-    	break;
     case Label::ID:
     	pre_label_chain(dynamic_cast<Label*>(in));
     	break;
@@ -2536,9 +2506,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Throw::ID:
     	post_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case Eval_expr::ID:
-    	post_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
-    	break;
     case Label::ID:
     	post_label_chain(dynamic_cast<Label*>(in));
     	break;
@@ -2778,9 +2745,6 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Throw::ID:
     	children_throw(dynamic_cast<Throw*>(in));
-    	break;
-    case Eval_expr::ID:
-    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
     case Label::ID:
     	children_label(dynamic_cast<Label*>(in));

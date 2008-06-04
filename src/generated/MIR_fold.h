@@ -36,7 +36,6 @@ template
  class _Class_mod,
  class _Class_name,
  class _Constant,
- class _Eval_expr,
  class _Expr,
  class _Foreach_end,
  class _Foreach_get_key,
@@ -328,13 +327,6 @@ public:
 		return fold_impl_throw(in, expr);
 	}
 
-	virtual _Eval_expr fold_eval_expr(Eval_expr* in)
-	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_eval_expr(in, expr);
-	}
-
 	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
 	{
 		return fold_impl_foreign_statement(in);
@@ -617,7 +609,6 @@ public:
 	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
-	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
 	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
@@ -686,8 +677,6 @@ public:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
 				return fold_throw(dynamic_cast<Throw*>(in));
-			case Eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Label::ID:
 				return fold_label(dynamic_cast<Label*>(in));
 			case Goto::ID:
@@ -808,8 +797,6 @@ public:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
 				return fold_throw(dynamic_cast<Throw*>(in));
-			case Eval_expr::ID:
-				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Label::ID:
 				return fold_label(dynamic_cast<Label*>(in));
 			case Goto::ID:
@@ -1031,6 +1018,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

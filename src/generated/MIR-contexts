@@ -12,7 +12,6 @@
 (Class_mod,Class_mod,)
 (Class_name,Class_name,)
 (Constant,Expr,)
-(Eval_expr,Statement,*)
 (Expr,Expr,)
 (Foreach_end,Statement,*)
 (Foreach_get_key,Expr,)

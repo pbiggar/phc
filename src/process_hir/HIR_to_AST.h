@@ -42,7 +42,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Class_name*,			// Class_name*
  AST::Constant*,				// Constant*
  AST::Continue*,				// Continue*
- AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
  AST::Foreach*,				// Foreach*
  AST::Foreign*,				// Foreign*
@@ -240,14 +239,6 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_eval_expr(HIR::Eval_expr* orig, AST::Expr* expr) 
-	{
-		AST::Eval_expr* result;
-		result = new AST::Eval_expr(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Foreign_expr* fold_impl_foreign_expr(HIR::Foreign_expr* orig)
 	{
 		AST::Foreign_expr* result;
@@ -306,6 +297,9 @@ class HIR_to_AST : public HIR::Fold
 
 	AST::Eval_expr* fold_impl_assignment(HIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
 	{
+		if (variable == NULL)
+			return new AST::Eval_expr (expr);
+
 		AST::Assignment* result;
 		result = new AST::Assignment(variable, is_ref, expr);
 		result->attrs = orig->attrs;

@@ -151,12 +151,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Throw(expr);
     }
-    if(!strcmp(type_id, "Eval_expr"))
-    {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Eval_expr(expr);
-    }
     if(!strcmp(type_id, "Foreign_statement"))
     {
     	assert(i == args->end());

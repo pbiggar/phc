@@ -42,7 +42,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Class_name*,			// Class_name*
  MIR::Constant*,				// Constant*
  MIR::Statement*,				// Continue*
- MIR::Eval_expr*,				// Eval_expr*
  MIR::Expr*,					// Expr*
  MIR::Statement*,				// Foreach*
  MIR::Node*,					// Foreign*
@@ -229,14 +228,6 @@ public:
 	{
 		MIR::Throw* result;
 		result = new MIR::Throw(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Eval_expr* fold_impl_eval_expr(HIR::Eval_expr* orig, MIR::Expr* expr) 
-	{
-		MIR::Eval_expr* result;
-		result = new MIR::Eval_expr(expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

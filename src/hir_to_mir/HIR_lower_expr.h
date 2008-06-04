@@ -19,7 +19,7 @@ namespace HIR
 		void children_php_script(HIR::PHP_script* in);
 
 	public:
-		void post_eval_expr(HIR::Eval_expr* in, List<HIR::Statement*>* out);
+		void post_assignment (HIR::Assignment* in, List<HIR::Statement*>* out);
 		void post_return(HIR::Return* in, List<HIR::Statement*>* out);
 		void post_global(HIR::Global* in, List<HIR::Statement*>* out);
 

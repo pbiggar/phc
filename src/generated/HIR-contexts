@@ -13,7 +13,6 @@
 (Class_name,Class_name,)
 (Constant,Expr,)
 (Continue,Statement,*)
-(Eval_expr,Statement,*)
 (Expr,Expr,)
 (Foreach,Statement,*)
 (Foreign_expr,Expr,)

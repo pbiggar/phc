@@ -41,7 +41,6 @@ class MIR_to_AST : public MIR::Fold
  AST::Class_mod*,				// Class_mod*
  AST::Class_name*,			// Class_name*
  AST::Constant*,				// Constant*
- AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
  AST::Foreign_statement*,	// Foreach_end*
  AST::Foreign_expr*,			// Foreach_get_key*
@@ -260,14 +259,6 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_eval_expr(MIR::Eval_expr* orig, AST::Expr* expr) 
-	{
-		AST::Eval_expr* result;
-		result = new AST::Eval_expr(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Foreign_statement* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
 	{
 		return new AST::Foreign_statement (orig);
@@ -323,6 +314,9 @@ class MIR_to_AST : public MIR::Fold
 	
 	AST::Eval_expr * fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
 	{
+		if (variable == NULL)
+			return new AST::Eval_expr (expr);
+
 		AST::Assignment* result;
 		result = new AST::Assignment(variable, is_ref, expr);
 		result->attrs = orig->attrs;
