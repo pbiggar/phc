@@ -6,7 +6,6 @@
  */
 
 #include "Early_lower_control_flow.h"
-#include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
 
@@ -17,7 +16,7 @@ using namespace AST;
  *	into
  *		foreach ($x as $T => $T2)
  *		{
- *			$y[$z] = $T; // & is not allowed in PPHP
+ *			$y[$z] = $T; // & is not allowed in PHP
  *			$w[4] = $T2; // & is allowed here
  *		}
  */
@@ -65,91 +64,128 @@ void Early_lower_control_flow::post_foreach (Foreach* in, List<Statement*>* out)
 
 void Early_lower_control_flow::post_while (While* in, List<Statement*>* out)
 {
-	Expr* expr = in->expr;
-
-	in->expr = new BOOL (true); //	while (true)
-
-	Break* b;
-
-	in->statements->push_front (
-		new If (expr,													// if ($x)
-			new List<Statement*>,									//		;
-			new List<Statement*> (b = new Break (NULL))));	// else break;
-
+	(*out
+		<< "while (true)"
+		<< "{"
+		<< "	if (!(" << in ->expr << ")) break;"
+		<< "}").finish (in);
 	
-	b->clone_mixin_from (in); // get line numbers
-
-	out->push_back (in);
+	While* w = dynamic_cast<While*> (out->back ());
+	w->statements->push_back_all (in->statements);
 }
 
 /* Convert
- *		do { y (); } 
+ *		do { y (); continue; } 
  *		while ($x)
  * into
+ *		$first = true;
  *		while (true)
  *		{
+ *			if ($first) $first = false;
+ *			else if (!$x) break;
  *			y ();
- *			if ($x) ;
- *			else break;
+ *			continue;
  *		}
+ *
+ *	This is a little odd, but it accounts for the continue statement, which is
+ *	difficult to handle otherwise.
  */
 void Early_lower_control_flow::post_do (Do* in, List<Statement*>* out)
 {
-	While* w = new While (new BOOL (true), in->statements); // while (true)
-
-	Break* b;
-
-	w->statements->push_back (
-		new If (in->expr,												// if ($x)
-			new List<Statement*>,									//		;
-			new List<Statement*> (b = new Break (NULL))));	// else break;
-
-	b->clone_mixin_from (in); // get line numbers
-	out->push_back (w);
+	Variable* first = fresh_var ("ElcfPD");
+	(*out
+		<< first << " = true;"
+		<< "while (true)"
+		<< "{"
+		<< "	if (" << first << ") " << first << " = false;"
+		<< "	else if (!(" << in ->expr << ")) break;"
+		<< "}").finish (in);
+	
+	While* w = dynamic_cast<While*> (out->back ());
+	w->statements->push_back_all (in->statements);
 }
 
 /* Convert
- *			for (i = 0; i < N; i++) y ();
+ *			for (i = 0; i < N; i++) { y (); continue; }
  * into
  *			i = 0;
+ *			$first = true;
  *			while (true)
  *			{
+ *				if ($first) $first = false;
+ *				else $i++; // only performed after first iteration
+ *
  *				if (i < N) ;
  *				else break;
  *
  *				y ();
- *
- *				i++;
+ *				continue;
  *			}
-*
- * This is done by converting into
- *			i = 0
- *			while (i < N)
- *			{
- *				y ();
- *				i++;
- *			}
- *	which is then lowered by post_while. */
+ */
 
 void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
 {
 	/* Note that any of in->expr, in->init and in->incr can be NULL (eg in "for
-	 * (;;)", so we have to handle all those cases. */
+	 * (;;)". Also, each expr can be a comma-op. Between these two, its best not
+	 * to use a parse_buffer. */
 
-	if (in->cond == NULL) 
-		in->cond = new BOOL (true);
-
-	// create the while
-	While *while_stmt = new While (in->cond, in->statements);
-	while_stmt->clone_mixin_from (in); // get line numbers
-
-	if (in->incr)
-		while_stmt->statements->push_back (new Eval_expr (in->incr));
-
-	// push it all back
+	//	i = 0;
 	if (in->init)
 		out->push_back (new Eval_expr (in->init));
-	post_while (while_stmt, out);
+
+
+	// $first = true;
+	Variable* first = fresh_var ("ElcfPF");
+	out->push_back (
+		new Eval_expr (
+			new Assignment (
+				first,
+				false,
+				new BOOL (true))));
+
+
+	// while (true)
+	While *w = new While (new BOOL (true), new List<Statement*>);
+
+	//		if ($first) $first = false;
+	//		else $i++; // only performed after first iteration
+	List<Statement*>* false_stmts = new List<Statement*>;
+	if (in->incr) false_stmts->push_back (new Eval_expr (in->incr));
+	w->statements->push_back (
+			new If (
+				first->clone (),
+				new List<Statement*> (
+					new Eval_expr (
+						new Assignment (
+							first,
+							false,
+							new BOOL (false)))),
+				false_stmts));
+
+
+	//		if (i < N) ;
+	//		else break;	
+	if (in->cond == NULL) 
+		in->cond = new BOOL (true);
+	w->statements->push_back (
+			new If (
+				in->cond,
+				new List<Statement*> (
+					new Eval_expr (
+						new Assignment (
+							first,
+							false,
+							new BOOL (false)))),
+				new List<Statement*> (
+					new Break (NULL))));
+
+	//		y ();
+	//		continue;
+	w->statements->push_back_all (in->statements);
+
+	w->clone_mixin_from (in); // get line numbers
+	out->push_back (w);
+
 }
 
 /* A switch statement is not an easy thing to replace, due to myriads of corner
