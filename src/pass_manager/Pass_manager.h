@@ -70,12 +70,12 @@ public:
 	Pass* get_pass_named (String* name);
 
 	// Run (returns passed IR, or new IR if lowered
-	IR::PHP_script* run_from (String* from, IR::PHP_script* in, bool dump = false);
-	IR::PHP_script* run_from_until (String* from, String* to, IR::PHP_script* in, bool dump = false);
-	IR::PHP_script* run_until (String* to, IR::PHP_script* in, bool dump = false);
+	IR::PHP_script* run_from (String* from, IR::PHP_script* in, bool main = false);
+	IR::PHP_script* run_from_until (String* from, String* to, IR::PHP_script* in, bool main = false);
+	IR::PHP_script* run_until (String* to, IR::PHP_script* in, bool main = false);
 
-	void run (IR::PHP_script* in, bool dump = false);
-	void run_pass (Pass* pass, IR::PHP_script* in, bool dump = false);
+	void run (IR::PHP_script* in, bool main = false);
+	void run_pass (Pass* pass, IR::PHP_script* in, bool main = false);
 	void post_process ();
 
 

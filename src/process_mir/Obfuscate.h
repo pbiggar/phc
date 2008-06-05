@@ -29,9 +29,9 @@ public:
 		// TODO remove code duplication from Pass_manager.cpp
 		MIR::PHP_script* mir = in->as_MIR ()->clone ();
 		mir->transform_children (new Foreach_uppering);
+		mir->visit (new Goto_uppering);
 
 		AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
-		ast->visit (new Goto_uppering);
 		AST_unparser().unparse (ast);
 	}
 

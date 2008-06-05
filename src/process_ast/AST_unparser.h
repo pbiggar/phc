@@ -16,9 +16,17 @@
 class AST_unparser : public virtual AST::Visitor, public virtual PHP_unparser
 {
 public:
-	AST_unparser (ostream& os = cout, bool in_php = false, PHP_unparser* foreign_unparser = NULL);
+	AST_unparser (ostream& os = cout, bool in_php = false);
+	AST_unparser (Unparser_state* ups);
+
+	// Use FOREIGN_UNPARSER's state.
+	AST_unparser (PHP_unparser* foreign_unparser);
+
+
 	void unparse (IR::Node* in);
 	void unparse_foreign (IR::Node* in);
+
+protected:
 
 public:
 	void children_php_script(AST::PHP_script* in);
@@ -70,9 +78,6 @@ public:
 	void children_method_invocation(AST::Method_invocation* in);
 	void children_actual_parameter(AST::Actual_parameter* in);
 	void children_new(AST::New* in);
-	void children_branch (AST::Branch* in);
-	void children_goto(AST::Goto* in);
-	void children_label(AST::Label* in);
 	void children_nop(AST::Nop* in);
 	void children_name_with_default(AST::Name_with_default* in);
 
@@ -89,8 +94,6 @@ public:
 	void children_string(AST::STRING* in);
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
-	void children_label_name(AST::LABEL_NAME* in);
-	void children_foreign(AST::Foreign* in);
 	
 	void visit_interface_name_list(List<AST::INTERFACE_NAME*>* in);
 	void visit_member_list(List<AST::Member*>* in);
@@ -105,6 +108,7 @@ public:
 	void visit_actual_parameter_list(List<AST::Actual_parameter*>* in);
 	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
 
+	void pre_foreign(AST::Foreign* in);
 	void pre_node(AST::Node* in);
 	void pre_bin_op(AST::Bin_op* in);
 	void post_bin_op(AST::Bin_op* in);

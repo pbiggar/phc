@@ -15,6 +15,7 @@
 //   http://ramikayyali.com/archives/2005/02/25/iterators
 
 #include "Lower_control_flow.h"
+#include "HIR_to_MIR.h"
 #include "process_ir/fresh.h"
 #include "process_ir/General.h"
 #include <sstream>
@@ -41,26 +42,31 @@ void Lower_control_flow::add_label (Node* in, List<Statement*> *out)
 	if (!in->attrs->has (attr_name))
 		return;
 
-	Label* label = dynamic_cast<Label*> (in->attrs->get (attr_name));
+	MIR::Label* label = dynamic_cast<MIR::Label*> (in->attrs->get (attr_name));
 	assert (label != NULL);
-	out->push_back (label->clone ());
+	out->push_back (new Foreign_statement (label->clone ()));
 }
 
 // Get IN's exit label, or create one for it, and return it.
 template <class T>
-Label* Lower_control_flow::exit_label (Node* in)
+MIR::Label* Lower_control_flow::exit_label (Node* in)
 {
 	const char* attr_name = get_attr_name <T> ();
 	if (in->attrs->has (attr_name))
 	{
-		Label *label = dynamic_cast <Label*> (in->attrs->get (attr_name));
+		MIR::Label *label = dynamic_cast <MIR::Label*> (in->attrs->get (attr_name));
 		assert (label);
 		return label;
 	}
 
-	Label *label = fresh_label ();
+	MIR::Label *label = MIR::fresh_label ();
 	in->attrs->set (attr_name, label);
 	return label;
+}
+
+MIR::VARIABLE_NAME* Lower_control_flow::fold_var (VARIABLE_NAME* in)
+{
+	return folder.fold_variable_name (in);
 }
 
 
@@ -85,26 +91,29 @@ Label* Lower_control_flow::exit_label (Node* in)
 void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 {
 	// Don't lower them if they're already lowered
-	Label *l1 = fresh_label ();
-	Label *l2 = fresh_label ();
-	Label *l3 = fresh_label ();
+	MIR::Label *l1 = MIR::fresh_label ();
+	MIR::Label *l2 = MIR::fresh_label ();
+	MIR::Label *l3 = MIR::fresh_label ();
 
 	// create the gotos
-	Goto *l1_goto_l3 = new Goto (l3->label_name->clone ());
-	Goto *l2_goto_l3 = new Goto (l3->label_name->clone ());
+	MIR::Goto *l1_goto_l3 = new MIR::Goto (l3->label_name->clone ());
+	MIR::Goto *l2_goto_l3 = new MIR::Goto (l3->label_name->clone ());
 
 	// make the if
-	Branch *branch = new Branch (in->variable_name, l1->label_name->clone (), l2->label_name->clone ());
+	MIR::Branch *branch = new MIR::Branch (
+		fold_var (in->variable_name), 
+		l1->label_name->clone (), 
+		l2->label_name->clone ());
 
 	// generate the code
-	out->push_back (branch);
-	out->push_back (l1);
+	out->push_back (new Foreign_statement (branch));
+	out->push_back (new Foreign_statement (l1));
 	out->push_back_all (in->iftrue);
-	out->push_back (l1_goto_l3);
-	out->push_back (l2);
+	out->push_back (new Foreign_statement (l1_goto_l3));
+	out->push_back (new Foreign_statement (l2));
 	out->push_back_all (in->iffalse);
-	out->push_back (l2_goto_l3);
-	out->push_back (l3);
+	out->push_back (new Foreign_statement (l2_goto_l3));
+	out->push_back (new Foreign_statement (l3));
 }
 
 void Lower_control_flow::post_if(If* in, List<Statement*>* out)
@@ -122,13 +131,13 @@ void Lower_control_flow::post_if(If* in, List<Statement*>* out)
 
 void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
 {
-	Label *l0 = fresh_label ();
-	Goto *goto_l0 = new Goto (l0->label_name->clone ());
+	MIR::Label *l0 = MIR::fresh_label ();
+	MIR::Goto *goto_l0 = new MIR::Goto (l0->label_name->clone ());
 
 	// generate code
-	out->push_back (l0);
+	out->push_back (new Foreign_statement (l0));
 	out->push_back_all (in->statements);
-	out->push_back (goto_l0);
+	out->push_back (new Foreign_statement (goto_l0));
 }
 
 void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
@@ -146,9 +155,8 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *		 ...;
  *   }
  * into
- *		foreach_reset ($arr, iter); 
- *		loop()
- *		{
+ *			foreach_reset ($arr, iter); 
+ *		L0:
  *			$T = foreach_has_key ($arr, iter);
  *			if ($T) goto L1; else goto L2;
  *		L1:
@@ -156,350 +164,114 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *			$val = foreach_get_val ($arr, iter); // optional
  *			....  
  *			foreach_next ($arr, iter); 
- *		}
+ *			goto L0:
  *		L2:
- *		foreach_end ($arr, iter);
+ *			foreach_end ($arr, iter);
  */
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
-	VARIABLE_NAME*	array_name = in->variable_name;
+	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
+	 * them first. */
+	MIR::VARIABLE_NAME* array_name = fold_var (in->arr);
 
 	// foreach_reset ($arr, iter); 
-	HT_ITERATOR* iter = fresh_iter ();
-	out->push_back (new Foreach_reset (array_name->clone (), iter));
+	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();
+	out->push_back (new Foreign_statement (
+		new MIR::Foreach_reset (array_name->clone (), iter)));
 
 
-	// loop ()
-	Loop* loop = new Loop (new List<Statement*>);
+	// L0:
+	MIR::Label* l0 = MIR::fresh_label ();
+	out->push_back (new Foreign_statement (
+		new MIR::Label (l0->label_name)));
 
 
 	// $T = foreach_has_key ($arr, iter);
 	VARIABLE_NAME* has_key = fresh_var_name ("THK");
-	loop->statements->push_back (
-		new Eval_expr (
-			new Assignment (
-				new Variable (has_key),
-				false, 
-				new Foreach_has_key (
+	out->push_back (
+		new Assign_var (
+			has_key,
+			false,
+			new Foreign_expr (
+				new MIR::Foreach_has_key (
 					array_name->clone (),
 					iter->clone ()))));
 
 
 	// if ($T) goto L1; else goto L2;
-	Label* l1 = fresh_label ();
-	Label* l2 = fresh_label ();
-	loop->statements->push_back (new Branch (has_key->clone (), l1->label_name->clone (), l2->label_name->clone ()));
+	MIR::Label* l1 = MIR::fresh_label ();
+	MIR::Label* l2 = MIR::fresh_label ();
+	out->push_back (new Foreign_statement (
+		new MIR::Branch (
+			fold_var (has_key),
+			l1->label_name->clone (), 
+			l2->label_name->clone ())));
 
 
 	// L1:
-	loop->statements->push_back (l1);
+	out->push_back (new Foreign_statement (l1));
 
 
 	// $key = foreach_get_key ($arr, iter); 
-	Foreach_get_key* get_key = new Foreach_get_key (
+	MIR::Foreach_get_key* get_key = new MIR::Foreach_get_key (
 		array_name->clone (),
 		iter->clone ());
 
 	// The key may not be present, but we create it anyway for the unparser. 
 	get_key->attrs->set ("phc.codegen.use_get_key", new Boolean (in->key));
 
-	Variable* key = in->key;
+	VARIABLE_NAME* key = in->key;
 	if (key == NULL)
-		key = fresh_var ("LCF_KEY_");
+		key = fresh_var_name ("LCF_KEY_");
 
-	assert (key->is_simple_variable ());
-
-	loop->statements->push_back (new Eval_expr (
-			new Assignment (
+	out->push_back (
+			new Assign_var (
 				key,
-				false,
-				get_key)));
+				new Foreign_expr (get_key)));
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
-	loop->statements->push_back (new Eval_expr (
-		new Assignment (
-		in->val->clone (),
-		in->is_ref,
-		new Foreach_get_val (
-			array_name->clone (),
-			(dynamic_cast<VARIABLE_NAME*>(key->variable_name))->clone(),
-			iter->clone ()))));
+	MIR::VARIABLE_NAME* mir_key = folder.fold_variable_name (key);
+
+	out->push_back (
+		new Assign_var(
+			in->val->clone (),
+			in->is_ref,
+			new Foreign_expr (
+				new MIR::Foreach_get_val (
+					array_name->clone (),
+					mir_key,
+					iter->clone ()))));
 
 
 	// ....  
-	loop->statements->push_back_all (in->statements);
+	out->push_back_all (in->statements);
 
 
 	// foreach_next ($arr, iter); 
-	loop->statements->push_back (
-		new Foreach_next (
-			array_name->clone (),
-			iter->clone ()));
+	out->push_back (new Foreign_statement (
+			new MIR::Foreach_next (
+				array_name->clone (),
+				iter->clone ())));
 
-	lower_loop(loop, out);
+	// goto L0:
+	out->push_back (new Foreign_statement (new MIR::Goto (l0->label_name->clone ())));
 
 
 	// L2:
-	out->push_back (l2);
+	out->push_back (new Foreign_statement (l2));
 
 
 	// foreach_end ($arr, iter);
-	out->push_back (
-		new Foreach_end (
+	out->push_back (new Foreign_statement (
+		new MIR::Foreach_end (
 			array_name->clone (),
-			iter->clone ()));
+			iter->clone ())));
 
 	// wrap it in a PHP script to call visit
 	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new List<Node*>)); // TODO we should have nodes here
 }
-
-/* Convert 
- *   foreach ($array as $key => $value)
- *   {
- *		 ...;
- *   }
- * into
- *	  if ($array->refcount)
- *		$temp_array = $array; // copy by val
- *	  else
- *		$temp_array =& $array; // copy by ref
- *
- *	// (if array is an expression, use former form)
- *
- *	  unset ($value);
- *	  while (list ($Tkey, ) = each ($temp_array))
- *	  {
- *	   $key =& $Tkey;
- *		$value = $temp_array [$Tkey]; // use =& form for an array reference
- *		 ...
- *	  }
- *
- *	  This saves from messing about with locks, and such, which I
- *	  believe are just refcounts anyway.
- */
-
-#if 0
-void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
-{
-	Variable* temp_array = fresh_var ("LCF_ARRAY_");
-
-	// we need a temporary even if the key is provided
-	Variable* Tkey = fresh_var ("LCF_KEY_");
-
-	// If the expression is a varaible then we may want to use a
-	// reference. Otherwise, we just use a copy.
-	// $temp_array =& $array
-//	bool array_ref = (dynamic_cast<Variable*>(in->expr) != NULL);
-	Eval_expr* array_copy = new Eval_expr (
-		new Assignment (temp_array, in->is_ref, in->expr));
-
-	Eval_expr* reset = NULL;
-	if (in->is_ref)
-	{
-		// reset ($temp_array);
-		reset = new Eval_expr (
-				new Method_invocation (
-					NULL,
-					new METHOD_NAME (new String ("reset")),
-					new List<Actual_parameter*> (
-						new Actual_parameter (false, temp_array->clone ())
-					)
-				)
-			);
-	}
-
-	// unset ($value);
-/*	List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-	unset_params->push_back (new Actual_parameter (false, in->val));
-	Eval_expr* unset = new Eval_expr (
-			new Method_invocation (NULL, 
-				new METHOD_NAME (new String ("unset")),
-				unset_params)
-			);
-*/
-
-	// list ($Tkey, ) = each ($temp_array);
-	List_assignment *assign = new List_assignment (
-			new List<List_element*> (Tkey),
-			new Method_invocation (
-				NULL, 
-				new METHOD_NAME (new String ("each")),
-				new List<Actual_parameter*> (
-					new Actual_parameter (false, temp_array->clone ())
-				)
-			)
-		);
-
-	// $key &= $Tkey;
-	if (in->key)
-		in->statements->push_front (
-				new Eval_expr (
-					new Assignment (
-						in->key,
-						false,
-						Tkey->clone ())));
-
-
-	// $value = $temp_array [$Tkey]
-	// or
-	// $value =& $temp_array [$Tkey]
-	in->statements->push_front (
-			new Eval_expr (
-				new Assignment (
-					in->val,
-					in->is_ref,
-					new Variable (
-						NULL,
-						temp_array->variable_name->clone (), 
-						new List<Expr*> (Tkey->clone ())))
-			)
-		);
-
-	// while (list ($key, ) = each ($temp_array))
-   Loop* while_stmt = new Loop (assign, in->statements);
-
-	// A continue in a for loop lands just before the increment
-	add_label<Continue> (in, while_stmt->statements);
-
-	// push it all back
-	out->push_back (array_copy);
-	if (reset) out->push_back (reset);
-//	out->push_back (unset);
-	lower_loop (while_stmt, out);
-}
-
-void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
-{
-	// use the same lock variable throughout the program
-	static Variable* locks = fresh_var ("LCF_LOCK_");
-
-	Variable* temp_array = fresh_var ("LCF_ARRAY_");
-
-	// if no key is provided, use a temporary
-	Variable* Tkey;
-	if (in->key) Tkey = in->key;
-	else Tkey = fresh_var ("LCF_KEY_");
-
-	// If the expression is a varaible then we may want to use a
-	// reference. Otherwise, we just use a copy.
-	bool array_ref = (dynamic_cast<Variable*>(in->expr) != NULL);
-	Eval_expr* copy  = new Eval_expr (
-		new Assignment (temp_array, array_ref, in->expr));
-
-	List <Statement*>* lock_check = new List<Statement*> ();
-	Variable* lock_created;
-	// if ($locks[$x]) {
-	if (array_ref)
-	{
-
-		lock_created = fresh_var ("LCF_LOCK_CREATED_");
-
-		// $tmp = $x;
-		List<Statement*>* by_copy = new List<Statement*> ();
-		by_copy->push_back (new Eval_expr (
-					new Assignment (temp_array->clone (), true, in->expr)));
-		// lock_created = false;
-		by_copy->push_back (new Eval_expr (
-					new Assignment (lock_created->clone (), false, new BOOL (false))));
-
-
-		// else 
-		// { 
-		//		$tmp =& $x;
-		List<Statement*>* by_ref = new List<Statement*> ();
-		by_ref->push_back (new Eval_expr (
-					new Assignment (temp_array->clone (), false, in->expr)));
-		//		lock_created = true;
-		by_ref->push_back (new Eval_expr (
-					new Assignment (lock_created->clone (), false, new BOOL (false))));
-
-		//		$locks[$x] = true; 
-		// }
-		by_ref->push_back (new Eval_expr (
-					new Assignment (get_lock_access (in->expr), true, in->expr)));
-
-		// Finally create the if
-		lock_check->push_back (new If (get_lock_access (in->expr), by_ref, by_copy));
-
-	}
-
-	// reset ($temp_array);
-/*	List<Actual_parameter*> *reset_params 
-	= new List<Actual_parameter*> ();
-	reset_params->push_back (new Actual_parameter (false, temp_array));
-	Eval_expr* reset = new Eval_expr (
-		new Method_invocation (NULL, 
-			new METHOD_NAME (new String ("reset")),
-			reset_params)
-		);
-*/
-	// unset ($value);
-/*	List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-	unset_params->push_back (new Actual_parameter (false, in->val));
-	Eval_expr* unset = new Eval_expr (
-			new Method_invocation (NULL, 
-				new METHOD_NAME (new String ("unset")),
-				unset_params)
-			);
-*/
-
-	// each ($temp_array)
-	List<Actual_parameter*> *each_params 
-		= new List<Actual_parameter*> ();
-	each_params->push_back (new Actual_parameter (false, temp_array));
-	Method_invocation *each = new Method_invocation (NULL, 
-			new METHOD_NAME (new String ("each")),
-			each_params);
-
-	// list ($key, ) = each ($temp_array);
-	List<List_element*> *lhss = new List< List_element*> ();
-	lhss->push_back (Tkey);
-	List_assignment *assign = new List_assignment (lhss, each);
-
-	// $value = $temp_array [$Tkey]
-	// or
-	// $value =& $temp_array [$Tkey]
-	List<Expr*> *indices = new List<Expr*> ();
-	indices->push_back (Tkey);
-	Variable *val = new Variable (NULL, temp_array->variable_name, indices);
-	Assignment *fetch_val = new Assignment (in->val, in->is_ref, val);
-	in->statements->push_front (new Eval_expr (fetch_val));
-
-	// while (list ($key, ) = each ($temp_array))
-   Loop* while_stmt = new Loop (assign, in->statements);
-
-	// A continue in a for loop lands just before the increment
-	add_label<Continue> (in, while_stmt->statements);
-
-	// reset the lock
-	Statement* lock_unset;
-	if (array_ref)
-	{
-		//		if (lock_created);
-		lock_unset = If (new Eval_expr (lock_created->clone ()));
-
-
-		// unset ($lock [$asrray]);
-		List<Actual_parameter*> *unset_params = new List<Actual_parameter*> ();
-		unset_params->push_back (new Actual_parameter (false, get_lock_access (in->expr)));
-		lock_unset->iftrue->push_back (new Eval_expr (
-				new Method_invocation (NULL, 
-					new METHOD_NAME (new String ("unset")),
-					unset_params)
-				));
-	}
-
-
-	// push it all back
-	out->push_back (copy);
-	if (array_ref) lower_if (check_lock, out);
-//	if (reset) out->push_back (reset);
-	lower_loop (while_stmt, out);
-	if (array_ref) out->push_back (lock_unset);
-}
-#endif
 
 void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 {
@@ -578,7 +350,8 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// Create a label, pushback a goto to it, and attach it as an attribute
 		// of the appropriate looping construct.
 		Node* level = (*levels)[num_levels - error_depth];
-		out->push_back (new Goto ((exit_label<T> (level))->label_name->clone ()));
+		out->push_back (new Foreign_statement (
+			new MIR::Goto ((exit_label<T> (level))->label_name->clone ())));
 	}
 	else
 	{
@@ -588,11 +361,9 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// $TB1 = $x;
 		VARIABLE_NAME* lhs = fresh_var_name ("TB");
 		out->push_back (
-			new Eval_expr (
-				new Assignment (
-					new Variable (lhs),
-					false, 
-					in->expr)));
+			new Assign_var (
+				lhs,
+				in->expr));
 
 		// 1 branch and label per level:
 		//		if ($TB1 = 1) goto L1; else goto L2;
@@ -607,19 +378,21 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 				op = new OP (new String ("<="));
 
 			//	if ($TB1 == depth) goto L1; else goto L2;
-			Label* iffalse = fresh_label ();
+			MIR::Label* iffalse = MIR::fresh_label ();
 			push_back_pieces ( // push the pieces from the eval_var back
-				new Branch (
-					(eval_var (new Bin_op (
-						lhs->clone(),
-						op,
-						eval_var (new INT (depth))))),
-					exit_label<T> (*i)->label_name, // get the label from this depth
-					iffalse->label_name->clone ()),
+				new Foreign_statement (
+					new MIR::Branch (
+						(fold_var (eval (
+							new Bin_op (
+								lhs->clone(),
+								op,
+								eval (new INT (depth)))))),
+						exit_label<T> (*i)->label_name, // get the label from this depth
+						iffalse->label_name->clone ())),
 				out);
 
 			//	L2:
-			out->push_back (iffalse);
+			out->push_back (new Foreign_statement (iffalse));
 		}
 		assert (depth == num_levels + 1);
 

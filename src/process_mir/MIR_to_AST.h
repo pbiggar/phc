@@ -22,85 +22,92 @@
  * suffices.
  */
 class MIR_to_AST : public MIR::Fold
-<AST::Node*,				// Node*
- AST::PHP_script*,			// PHP_script*
- AST::Statement*,			// Statement*
- AST::Class_def*,			// Class_def*
- AST::Class_mod*,			// Class_mod*
- AST::Interface_def*,		// Interface_def*
- AST::Member*,				// Member*
- AST::Method*,				// Method*
- AST::Signature*,			// Signature*
- AST::Method_mod*,			// Method_mod*
- AST::Formal_parameter*,	// Formal_parameter*
- AST::Type*,				// Type*
- AST::Attribute*,			// Attribute*
- AST::Attr_mod*,			// Attr_mod*
- AST::Name_with_default*,	// Name_with_default*
- AST::Return*,				// Return*
- AST::Static_declaration*,	// Static_declaration*
- AST::Global*,				// Global*
- AST::Try*,					// Try*
- AST::Catch*,				// Catch*
- AST::Throw*,				// Throw*
- AST::Eval_expr*,			// Eval_expr*
- AST::Foreign*,			// Foreign*
- AST::Branch*,				// Branch*
- AST::Goto*,				// Goto*
- AST::Label*,				// Label*
- AST::Foreign*,			// Foreach_reset*
- AST::Foreign*,			// Foreach_next*
- AST::Foreign*,			// Foreach_end*
- AST::Foreign*,			// Foreach_has_key*
- AST::Foreign*,			// Foreach_get_key*
- AST::Foreign*,			// Foreach_get_val*
- AST::Expr*,				// Expr*
- AST::Literal*,				// Literal*
- AST::Assignment*,			// Assignment*
- AST::Cast*,				// Cast*
- AST::Unary_op*,			// Unary_op*
- AST::Bin_op*,				// Bin_op*
- AST::Constant*,			// Constant*
- AST::Instanceof*,			// Instanceof*
- AST::Variable*,			// Variable*
- AST::Variable_name*,		// Variable_name*
- AST::Reflection*,			// Reflection*
- AST::Target*,				// Target*
- AST::Pre_op*,				// Pre_op*
- AST::Array*,				// Array*
- AST::Array_elem*,			// Array_elem*
- AST::Method_invocation*,	// Method_invocation*
- AST::Method_name*,			// Method_name*
+<
  AST::Actual_parameter*,	// Actual_parameter*
- AST::New*,					// New*
+ AST::Array*,					// Array*
+ AST::Array_elem*,			// Array_elem*
+ AST::Eval_expr*,				// Assign_array*
+ AST::Eval_expr*,				// Assign_var*
+ AST::Eval_expr*,				// Assign_var_var*
+ AST::Attr_mod*,				// Attr_mod*
+ AST::Attribute*,				// Attribute*
+ AST::BOOL*,					// BOOL*
+ AST::Bin_op*,					// Bin_op*
+ AST::Foreign_statement*,	// Branch*
+ AST::CAST*,					// CAST*
+ AST::CLASS_NAME*,			// CLASS_NAME*
+ AST::CONSTANT_NAME*,		// CONSTANT_NAME*
+ AST::Cast*,					// Cast*
+ AST::Catch*,					// Catch*
+ AST::Class_def*,				// Class_def*
+ AST::Class_mod*,				// Class_mod*
  AST::Class_name*,			// Class_name*
+ AST::Constant*,				// Constant*
+ AST::Expr*,					// Expr*
+ AST::Expr*,					// Expr_invocation*
+ AST::Foreign_statement*,	// Foreach_end*
+ AST::Foreign_expr*,			// Foreach_get_key*
+ AST::Foreign_expr*,			// Foreach_get_val*
+ AST::Foreign_expr*,			// Foreach_has_key*
+ AST::Foreign_statement*,	// Foreach_next*
+ AST::Foreign_statement*,	// Foreach_reset*
+ AST::Node*,					// Foreign*
+ AST::Expr*,					// Foreign_expr*
+ AST::Statement*,				// Foreign_statement*
+ AST::Formal_parameter*,	// Formal_parameter*
+ AST::Global*,					// Global*
+ AST::Foreign_statement*,	// Goto*
+ AST::Foreign_expr*,			// HT_ITERATOR*
+ AST::INT*,						// INT*
+ AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
- AST::Foreign*,			// HT_ITERATOR*
- AST::CLASS_NAME*,		// CLASS_NAME*
- AST::INTERFACE_NAME*,	// INTERFACE_NAME*
- AST::METHOD_NAME*,		// METHOD_NAME*
+ AST::Instanceof*,			// Instanceof*
+ AST::Interface_def*,		// Interface_def*
+ AST::Eval_expr*,				// Invoke_expr*
+ AST::Identifier*,			// LABEL_NAME*
+ AST::Foreign_statement*,	// Label*
+ AST::Literal*,				// Literal*
+ AST::METHOD_NAME*,			// METHOD_NAME*
+ AST::Member*,					// Member*
+ AST::Method*,					// Method*
+ AST::Method_invocation*,	// Method_invocation*
+ AST::Method_mod*,			// Method_mod*
+ AST::Method_name*,			// Method_name*
+ AST::NIL*,						// NIL*
+ AST::Name_with_default*,	// Name_with_default*
+ AST::New*,						// New*
+ AST::Node*,					// Node*
+ AST::OP*,						// OP*
+ AST::PHP_script*,			// PHP_script*
+ AST::Pre_op*,					// Pre_op*
+ AST::Eval_expr*,				// Push_array*
+ AST::REAL*,					// REAL*
+ AST::Reflection*,			// Reflection*
+ AST::Return*,					// Return*
+ AST::STRING*,					// STRING*
+ AST::Signature*,				// Signature*
+ AST::Statement*,				// Statement*
+ AST::Static_declaration*,	// Static_declaration*
+ AST::Target*,					// Target*
+ AST::Throw*,					// Throw*
+ AST::Try*,						// Try*
+ AST::Type*,					// Type*
+ AST::Unary_op*,				// Unary_op*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::LABEL_NAME*,		// LABEL_NAME*
- AST::INT*,				// INT*
- AST::REAL*,				// REAL*
- AST::STRING*,			// STRING*
- AST::BOOL*,				// BOOL*
- AST::NIL*,				// NIL*
- AST::CAST*,				// CAST*
- AST::OP*,				// OP*
- AST::CONSTANT_NAME*>		// CONSTANT_NAME*
+ AST::Variable*,				// Variable*
+ AST::Variable_name*			// Variable_name*
+>
 {
-
 
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
 	{
 		if (var_name == NULL)
 			return NULL;
 
-		return new AST::Variable (NULL, var_name, new List<AST::Expr*>);
+		return new AST::Variable (var_name);
 	}
 
-	List<AST::Expr*>* wrap_var_list (List<AST::VARIABLE_NAME*>* var_names)
+	List<AST::Expr*>* wrap_var_name_list (List<AST::VARIABLE_NAME*>* var_names)
 	{
 		List<AST::Expr*>* result = new List<AST::Expr*>;
 		for_lci (var_names, AST::VARIABLE_NAME, i)
@@ -256,76 +263,138 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_eval_expr(MIR::Eval_expr* orig, AST::Expr* expr) 
+	AST::Statement* fold_impl_foreign_statement(MIR::Foreign_statement* orig)
 	{
-		AST::Eval_expr* result;
-		result = new AST::Eval_expr(expr);
-		result->attrs = orig->attrs;
+		AST::Statement* result;
+		result = dynamic_cast<AST::Statement*> (orig->foreign);
+		assert (result);
 		return result;
 	}
 
-	AST::Branch* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::LABEL_NAME* iftrue, AST::LABEL_NAME* iffalse) 
+
+	AST::Foreign_statement* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
 	{
-		AST::Branch* result;
-		result = new AST::Branch(wrap_var_name (variable_name), iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Goto* fold_impl_goto(MIR::Goto* orig, AST::LABEL_NAME* label_name) 
+	AST::Foreign_statement* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
 	{
-		AST::Goto* result;
-		result = new AST::Goto(label_name);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Label* fold_impl_label(MIR::Label* orig, AST::LABEL_NAME* label_name) 
+	AST::Foreign_statement* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
 	{
-		AST::Label* result;
-		result = new AST::Label(label_name);
-		result->attrs = orig->attrs;
-		return result;
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Identifier* fold_label_name(MIR::LABEL_NAME* orig) 
 	{
-		return new AST::Foreign (orig);
+		// The only time this is used is when the LABEL_NAME itself is folded.
+		// When it is folded as part of something bigger, then the return value
+		// is ignored. Just use any identifier.
+		return new AST::INTERFACE_NAME (orig->value);
 	}
 
-	AST::Foreign* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Foreign* iter) 
+	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Foreign* iter) 
+	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::Foreign_expr (orig);
 	}
-	
-	AST::Assignment* fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
+
+	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Foreign_expr* iter) 
+	{
+		return new AST::Foreign_expr (orig);
+	}
+
+	AST::Foreign_expr* fold_ht_iterator (MIR::HT_ITERATOR* orig)
+	{
+		return new AST::Foreign_expr (orig);
+	}
+
+	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		AST::Assignment* result;
-		result = new AST::Assignment(variable, is_ref, expr);
+		result = new AST::Assignment(
+			new AST::Variable (
+				target, 
+				lhs,
+				new List<AST::Expr*>),
+			is_ref, 
+			rhs);
 		result->attrs = orig->attrs;
-		return result;
+		return new AST::Eval_expr (result);
 	}
 
+	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target,
+				new AST::Reflection (
+					wrap_var_name (lhs)),
+				new List<AST::Expr*>), 
+			is_ref, 
+			wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, AST::VARIABLE_NAME* index, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target, 
+				lhs, 
+				new List<AST::Expr*> (
+					wrap_var_name (index))), 
+			is_ref, 
+			wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target,
+				lhs,
+				new List<AST::Expr*> (
+					NULL)),
+				is_ref,
+				wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_invoke_expr (MIR::Invoke_expr* orig, AST::Expr* expr) 
+	{
+		return new AST::Eval_expr (expr);
+	}
+
+	
 	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Cast* result;
@@ -369,13 +438,7 @@ class MIR_to_AST : public MIR::Fold
 	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
 		AST::Variable* result;
-		List<AST::Expr*>* new_ais = new List<AST::Expr*>;
-		for_lci (array_indices, AST::VARIABLE_NAME, i)
-		{
-			new_ais->push_back (wrap_var_name (*i));
-		}
-
-		result = new AST::Variable(target, variable_name, new_ais);
+		result = new AST::Variable(target, variable_name, wrap_var_name_list (array_indices));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -420,10 +483,10 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Target* target, AST::Variable_name* var_name, List<AST::VARIABLE_NAME*>* array_indices) 
+	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Target* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
 	{
 		AST::Actual_parameter* result;
-		result = new AST::Actual_parameter(is_ref, new AST::Variable (target, var_name, wrap_var_list (array_indices)));
+		result = new AST::Actual_parameter(is_ref, new AST::Variable (target, variable_name, wrap_var_name_list (array_indices)));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -434,11 +497,6 @@ class MIR_to_AST : public MIR::Fold
 		result = new AST::New(class_name, actual_parameters);
 		result->attrs = orig->attrs;
 		return result;
-	}
-
-	AST::Foreign* fold_ht_iterator (MIR::HT_ITERATOR* orig)
-	{
-		return new AST::Foreign (orig);
 	}
 
 	AST::CLASS_NAME* fold_class_name(MIR::CLASS_NAME* orig) 
@@ -469,14 +527,6 @@ class MIR_to_AST : public MIR::Fold
 	{
 		AST::VARIABLE_NAME* result;
 		result = new AST::VARIABLE_NAME(orig->value);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::LABEL_NAME* fold_label_name(MIR::LABEL_NAME* orig) 
-	{
-		AST::LABEL_NAME* result;
-		result = new AST::LABEL_NAME(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

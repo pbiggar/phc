@@ -99,13 +99,23 @@ public:
 	}
 };
 
-/*
- * The unparser proper
- */
-
-AST_unparser::AST_unparser (ostream& os, bool in_php, PHP_unparser* foreign_unparser) 
+AST_unparser::AST_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, foreign_unparser(foreign_unparser)
+, foreign_unparser(NULL)
+{
+	in_string.push(false);
+}
+
+AST_unparser::AST_unparser (Unparser_state* ups)
+: PHP_unparser (ups)
+, foreign_unparser (NULL)
+{
+	in_string.push(false);
+}
+
+AST_unparser::AST_unparser (PHP_unparser* foreign_unparser)
+: PHP_unparser (foreign_unparser->ups)
+, foreign_unparser (foreign_unparser)
 {
 	in_string.push(false);
 }
@@ -116,6 +126,10 @@ void AST_unparser::unparse (IR::Node* in)
 	assert (ast);
 	ast->visit (this);
 }
+
+/*
+ * The unparser proper
+ */
 
 void AST_unparser::children_php_script(PHP_script* in)
 {
@@ -296,23 +310,6 @@ void AST_unparser::children_if(If* in)
 			visit_statement_list(in->iffalse);
 		}
 	}
-
-	newline();
-}
-
-/* This is simpler than the other if, since there's no user-written code to
- * maintain, and the statements can only be gotos */
-void AST_unparser::children_branch(Branch* in)
-{
-	echo("if (");
-	bool in_if_expression = true;
-	visit_expr(in->expr);
-	in_if_expression = false;
-	echo(") goto ");
-	visit_label_name (in->iftrue);
-	echo (" else goto ");
-	visit_label_name (in->iffalse);
-	echo (";");
 
 	newline();
 }
@@ -1321,31 +1318,13 @@ void AST_unparser::post_commented_node(Commented_node* in)
 	{
 		if((*i)->attrs->is_true("phc.unparser.comment.after"))
 		{
-			if(!at_start_of_line) echo(" ");
+			if(!ups->at_start_of_line) echo(" ");
 			echo(*i);
 			newline();
 		}
 	}
 
-	if(!at_start_of_line) newline();
-}
-
-void AST_unparser::children_label_name (LABEL_NAME* in)
-{
-	echo(in->value);
-}
-
-void AST_unparser::children_goto (Goto* in)
-{
-	echo ("goto ");
-	visit_label_name (in->label_name);
-	echo_nl (";");
-}
-
-void AST_unparser::children_label (Label* in)
-{
-	visit_label_name (in->label_name);
-	echo_nl(":");
+	if(!ups->at_start_of_line) newline();
 }
 
 void AST_unparser::children_nop (Nop* in)
@@ -1371,14 +1350,20 @@ void AST_unparser::children_name_with_default (Name_with_default* in)
 void AST_unparser::unparse_foreign (IR::Node* in)
 {
 	// The AST doesn't use foreign nodes
+	if (HIR::Node* hir = dynamic_cast<HIR::Node*> (in))
+		xdebug (hir);
+	else if (MIR::Node* mir = dynamic_cast<MIR::Node*> (in))
+		xdebug (mir);
+
 	assert (false);
 }
 
-void AST_unparser::children_foreign(Foreign* in)
+void AST_unparser::pre_foreign(Foreign* in)
 {
 	// If there are foreign nodes in this IR, we must have some way to print
 	// them out.
 	assert (foreign_unparser);
+	assert (in->foreign);
 
 	foreign_unparser->unparse_foreign (in->foreign);
 }

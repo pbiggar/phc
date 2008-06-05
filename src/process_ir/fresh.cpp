@@ -90,6 +90,22 @@ namespace HIR
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
 	}
+}
+
+namespace MIR
+{
+	Variable* fresh_var(string prefix)
+	{
+		return new Variable (fresh_var_name (prefix));
+	}
+
+	VARIABLE_NAME* fresh_var_name (string prefix)
+	{
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		result->attrs->set_true ("phc.codegen.st_entry_not_required");
+		result->attrs->set_true ("phc.codegen.compiler_generated");
+		return result;
+	}
 
 	HT_ITERATOR* fresh_iter ()
 	{

@@ -27,7 +27,6 @@
 #include "HIR.h"
 
 HIR::VARIABLE_NAME* simple_var (HIR::Expr* in);
-bool extract_simple_assignment (HIR::Eval_expr* in, HIR::VARIABLE_NAME*& lhs, HIR::VARIABLE_NAME*& rhs, HIR::Assignment*& assignment);
 
 /* Entering at the method level, count the total occurences of a
  * variable, and the number of defintions, and the uses is the
@@ -40,7 +39,7 @@ private:
 	stack< map<string, int>* > analysis_occurences;
 
 	void pre_method (HIR::Method* in);
-	void pre_assignment (HIR::Assignment* in);
+	void pre_assign_var (HIR::Assign_var* in);
 	void pre_variable_name (HIR::VARIABLE_NAME* in);
 	void post_method (HIR::Method* in);
 	void children_php_script (HIR::PHP_script* in);

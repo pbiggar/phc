@@ -649,12 +649,10 @@ protected:
 						<< "{\n";
 
 					Statement* assign_default_values = 
-						new Eval_expr (
-							new Assignment (
-								new Variable (
-									(*i)->var->variable_name->clone ()),
-								false, 
-								(*i)->var->expr->clone ()));
+						new Assign_var(
+							(*i)->var->variable_name->clone (),
+							false, 
+							(*i)->var->expr->clone ());
 
 					gen->children_statement (assign_default_values);
 					code << "} else {\n";
@@ -819,50 +817,52 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
-class Pattern_assignment : public Pattern
+class Pattern_assign_var : public Pattern
 {
 public:
 	virtual Expr* rhs_pattern() = 0;
-	virtual void generate_rhs (bool used) = 0;
-	virtual ~Pattern_assignment() {}
+	virtual void generate_rhs () = 0;
+	virtual ~Pattern_assign_var() {}
 
 public:
 	bool match(Statement* that)
 	{
-		lhs = new Wildcard<Variable>;
-		agn = new Assignment(lhs, /* ignored */ false, rhs_pattern());
-		return that->match(new Eval_expr(agn));
+		lhs = new Wildcard<VARIABLE_NAME>;
+		target = new Wildcard<Target>;
+		agn = new Assign_var (target, lhs, /* ignored */ false, rhs_pattern());
+		return (that->match(agn));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
-		int used = not lhs->value->attrs->is_true ("phc.codegen.unused");
+		assert (lhs);
+		if (target->value) phc_unsupported (agn);
 
-		if (used) // more readable this way
-		{
-			index_lhs (LOCAL, "p_lhs", lhs->value);
 
-			code <<	"if (p_lhs != NULL)\n{\n";
+		code 
+			<< "{\n";
 
-			// Generate code for the RHS
-			generate_rhs (true);
+		index_lhs (LOCAL, "p_lhs", lhs->value);
 
-			code << "}\n";
-		}
-		else
-		{
-			// Generate code for the RHS
-			generate_rhs (false);
-		}
+		code 
+			<<		"if (p_lhs != NULL)\n"
+			<<		"{\n";
 
-		code << "}\n";
+		// Generate code for the RHS
+		generate_rhs ();
+
+		code 
+			<<		"}\n";
+		
+		code 
+			<< "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
-	Assignment* agn;
-	Wildcard<Variable>* lhs;
+	Assign_var* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
 };
 
 /*
@@ -875,14 +875,11 @@ protected:
  * Assign_zval is that Assign_literal can do constant pooling.
  */
 
-class Pattern_assign_zval : public Pattern_assignment
+class Pattern_assign_zval : public Pattern_assign_var
 {
 public:
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		if (not used)
-			return;
-
 		code
 			<< "if ((*p_lhs)->is_ref)\n"
 			<< "{\n"
@@ -919,11 +916,8 @@ public:
 	}
 
 	// record if we've seen this variable before
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		if (not used)
-			return;
-
 		// TODO If this isnt static, there is a new hash each time,
 		// because there is a new object each time it is called. Why is
 		// there a new object each time?
@@ -968,7 +962,7 @@ public:
 		}
 		else
 		{
-			Pattern_assign_zval::generate_rhs(used);
+			Pattern_assign_zval::generate_rhs();
 		}
 	}
 
@@ -1068,7 +1062,7 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 };
 
 
-class Pattern_assign_var : public Pattern_assignment
+class Pattern_assign_var_to_var : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1077,12 +1071,8 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		// FIXME: this happens because of strange, multi-stage lowering
-		if (not used)
-			return;
-
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -1111,7 +1101,7 @@ protected:
 	Wildcard<Variable>* rhs;
 };
 
-class Pattern_cast : public Pattern_assignment
+class Pattern_cast : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1121,10 +1111,10 @@ public:
 		return new Cast (cast, rhs);
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		assert (agn->is_ref == false);
-		assert (used);
+		assert (lhs);
 
 		// this much copied from Assign_var
 		if (!agn->is_ref)
@@ -1189,7 +1179,7 @@ protected:
 	Wildcard<Variable_name>* rhs;
 };
 
-class Pattern_assign_constant : public Pattern_assignment
+class Pattern_assign_constant : public Pattern_assign_var
 {
 public:
 
@@ -1199,9 +1189,9 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		// Check whether its in the form CONST or CLASS::CONST
 		String* name = new String ("");
 		if (rhs->value->class_name)
@@ -1243,7 +1233,7 @@ protected:
 	Wildcard<Constant>* rhs;
 };
 
-class Pattern_eval : public Pattern_assignment
+class Pattern_eval : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1258,7 +1248,7 @@ class Pattern_eval : public Pattern_assignment
 
 	// TODO this is untidy, and slower than it should be. Not a
 	// priority.
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		if (eval_arg->value->target) phc_unsupported (eval_arg->value);
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
@@ -1266,7 +1256,7 @@ class Pattern_eval : public Pattern_assignment
 		code << "{\n";
 		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value->variable_name));
 
-		if (used)
+		if (lhs)
 		{
 			declare ("p_rhs");
 			code 
@@ -1310,14 +1300,13 @@ public:
 		exit_arg = new Wildcard<Actual_parameter> ();
 		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
 		return that->match (
-				new Eval_expr (
-					new Assignment (new Wildcard<Variable>, false, // ignored
-						new Method_invocation(
-							NULL,	
-							name,
-							new List<Actual_parameter*>(exit_arg)
-								)
-							)))
+				new Assign_var (new Wildcard<VARIABLE_NAME>, // ignored
+					new Method_invocation(
+						NULL,	
+						name,
+						new List<Actual_parameter*>(exit_arg)
+							)
+						))
 			&& (*name->value->value == "exit" || *name->value->value == "die");
 	}
 
@@ -1341,7 +1330,7 @@ protected:
 	Wildcard<Actual_parameter>* exit_arg;
 };
 
-class Pattern_method_invocation : public Pattern_assignment
+class Pattern_method_invocation : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1350,7 +1339,7 @@ public:
 		return rhs;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		List<Actual_parameter*>::const_iterator i;
 		unsigned index;
@@ -1605,7 +1594,7 @@ public:
 				<< "}\n";
 		}
 
-		if (used)
+		if (lhs)
 		{
 			if (!agn->is_ref)
 			{
@@ -1631,7 +1620,7 @@ protected:
 	Wildcard<Method_invocation>* rhs;
 };
 
-class Pattern_bin_op : public Pattern_assignment
+class Pattern_bin_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1643,9 +1632,9 @@ public:
 		return new Bin_op (left, op, right); 
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1685,7 +1674,7 @@ protected:
 	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pattern_pre_op : public Pattern_assignment
+class Pattern_pre_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1696,9 +1685,9 @@ public:
 		return new Pre_op (op, var); 
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (not used);
+		assert (lhs == NULL);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
@@ -1716,7 +1705,7 @@ protected:
 	Wildcard<OP>* op;
 };
 
-class Pattern_unary_op : public Pattern_assignment
+class Pattern_unary_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1727,15 +1716,15 @@ public:
 		return new Unary_op(op, var_name);
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
-		assert (used);
+		assert (lhs);
 		assert(
 			op_functions.find(*op->value->value) != 
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "expr", var_name);
+		read_simple (LOCAL, "expr", var_name->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1815,7 +1804,7 @@ class Pattern_unset : public Pattern
 	{
 		var = new Wildcard<Actual_parameter>;
 		return that->match(
-			new Eval_expr(
+			new Invoke_expr (
 				new Method_invocation(
 					"unset",
 					var)));
@@ -2045,7 +2034,7 @@ protected:
 	Wildcard<Foreach_get_key>* get_key;
 };
 
-class Pattern_foreach_get_val : public Pattern_assignment
+class Pattern_foreach_get_val : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -2053,10 +2042,10 @@ class Pattern_foreach_get_val : public Pattern_assignment
 		return get_val;
 	}
 
-	void generate_rhs (bool used)
+	void generate_rhs ()
 	{
 		// FIXME: this happens because of strange, multi-stage lowering
-		if (not used)
+		if (lhs == NULL)
 			return;
 
 		read_simple (LOCAL, "fe_array", get_val->value->array);
@@ -2173,7 +2162,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_real ()
 	,	new Pattern_assign_nil ()
 	,	new Pattern_assign_constant ()
-	,	new Pattern_assign_var ()
+	,	new Pattern_assign_var_to_var ()
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()

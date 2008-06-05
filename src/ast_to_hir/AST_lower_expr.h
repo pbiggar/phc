@@ -28,10 +28,18 @@ namespace AST
 		void children_foreach (Foreach* in);
 		void post_foreach (Foreach* in, List<Statement*>* out);
 
+		// Switch is already lowered
+		// Do is already lowered
+		// For is already lowered
+
+		// TODO: We handle most Statement types here. What about try, throw and
+		// static_declaration?
 
 		void post_eval_expr (Eval_expr* in, List<Statement*>* out);
 		void post_return (Return* in, List<Statement*>* out);
 		void post_global (Global* in, List<Statement*>* out);
+		void post_continue (Continue* in, List<Statement*>* out);
+		void post_break (Break* in, List<Statement*>* out);
 		void post_throw (Throw* in, List<Statement*>* out);
 
 	protected:

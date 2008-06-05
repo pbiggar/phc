@@ -96,13 +96,13 @@ foreach function as f:
 class Copy_propagation : public Fix_point
 {
 private:
-	map<string, HIR::Assignment*> replaceable;
+	map<string, HIR::Assign_var*> replaceable;
 
 public:
 	Copy_propagation ();
 
 	void children_php_script (HIR::PHP_script* in);
-	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_assign_var (HIR::Assign_var* in, List<HIR::Statement*>* out);
 };
 
 #endif // PHC_COPY_PROPAGATION

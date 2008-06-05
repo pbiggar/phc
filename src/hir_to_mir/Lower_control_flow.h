@@ -10,6 +10,8 @@
 #define PHC_LOWER_CONTROL_FLOW_H
 
 #include "HIR_lower_expr.h"
+#include "MIR.h"
+#include "HIR_to_MIR.h"
 #include "vector"
 
 class Lower_control_flow : public HIR::Lower_expr
@@ -17,10 +19,12 @@ class Lower_control_flow : public HIR::Lower_expr
 	private:
 		vector<HIR::Node*> break_levels;
 		vector<HIR::Node*> continue_levels;
+		HIR_to_MIR folder;
 
 	public:
+		MIR::VARIABLE_NAME* fold_var (HIR::VARIABLE_NAME* in);
 		template<class T> void add_label (HIR::Node*, List<HIR::Statement*>*);
-		template<class T> HIR::Label* exit_label (HIR::Node*);
+		template<class T> MIR::Label* exit_label (HIR::Node*);
 		template<class T> void lower_exit (T*, List<HIR::Statement*>*);
 		void lower_foreach (HIR::Foreach*, List<HIR::Statement*>*);
 		void lower_if (HIR::If*, List<HIR::Statement*>*);

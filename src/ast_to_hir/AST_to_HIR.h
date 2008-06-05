@@ -22,90 +22,89 @@
  * suffices.
  */
 class AST_to_HIR : public AST::Fold
-<HIR::Node*,				// Node*
- HIR::PHP_script*,			// PHP_script*
- HIR::Statement*,			// Statement*
- HIR::Class_def*,			// Class_def*
- HIR::Class_mod*,			// Class_mod*
- HIR::Interface_def*,		// Interface_def*
- HIR::Member*,				// Member*
- HIR::Method*,				// Method*
- HIR::Signature*,			// Signature*
- HIR::Method_mod*,			// Method_mod*
- HIR::Formal_parameter*,	// Formal_parameter*
- HIR::Type*,				// Type*
- HIR::Attribute*,			// Attribute*
- HIR::Attr_mod*,			// Attr_mod*
- HIR::Name_with_default*,	// Name_with_default*
- HIR::If*,			// If*
- HIR::Loop*,			// While*
- HIR::Statement*,		// Do*
- HIR::Statement*,			// For*
- HIR::Foreach*,			// Foreach*
- HIR::Statement*,			// Switch*
- HIR::Node*,				// Switch_case*
- HIR::Break*,			// Break*
- HIR::Continue*,			// Continue*
- HIR::Return*,				// Return*
- HIR::Static_declaration*,	// Static_declaration*
- HIR::Global*,				// Global*
- HIR::Statement*,			// Declare*
- HIR::Statement*,				// Directive*
- HIR::Try*,					// Try*
- HIR::Catch*,				// Catch*
- HIR::Throw*,				// Throw*
- HIR::Eval_expr*,			// Eval_expr*
- HIR::Statement*,			// Nop*
- HIR::Foreign*,			// Foreign*
- HIR::Branch*,				// Branch*
- HIR::Goto*,				// Goto*
- HIR::Label*,				// Label*
- HIR::Expr*,				// Expr*
- HIR::Literal*,				// Literal*
- HIR::Assignment*,			// Assignment*
- HIR::Op_assignment*,				// Op_assignment*
- HIR::Expr*,				// List_assignment*
- HIR::Expr*,				// List_element*
- HIR::Expr*,				// Nested_list_elements*
- HIR::Cast*,				// Cast*
- HIR::Unary_op*,			// Unary_op*
- HIR::Bin_op*,				// Bin_op*
- HIR::Expr*,				// Conditional_expr*
- HIR::Expr*,				// Ignore_errors*
- HIR::Constant*,			// Constant*
- HIR::Instanceof*,			// Instanceof*
- HIR::Variable*,			// Variable*
- HIR::Variable_name*,		// Variable_name*
- HIR::Reflection*,			// Reflection*
- HIR::Target*,				// Target*
- HIR::Pre_op*,				// Pre_op*
- HIR::Expr*,				// Post_op*
- HIR::Array*,				// Array*
- HIR::Array_elem*,			// Array_elem*
- HIR::Method_invocation*,	// Method_invocation*
- HIR::Method_name*,			// Method_name*
+<
  HIR::Actual_parameter*,	// Actual_parameter*
- HIR::New*,					// New*
+ HIR::Array*,					// Array*
+ HIR::Array_elem*,			// Array_elem*
+ HIR::Expr*,					// Assignment*
+ HIR::Attr_mod*,				// Attr_mod*
+ HIR::Attribute*,				// Attribute*
+ HIR::BOOL*,					// BOOL*
+ HIR::Bin_op*,					// Bin_op*
+ HIR::Break*,					// Break*
+ HIR::CAST*,					// CAST*
+ HIR::CLASS_NAME*,			// CLASS_NAME*
+ HIR::CONSTANT_NAME*,		// CONSTANT_NAME*
+ HIR::Cast*,					// Cast*
+ HIR::Catch*,					// Catch*
+ HIR::Class_def*,				// Class_def*
+ HIR::Class_mod*,				// Class_mod*
  HIR::Class_name*,			// Class_name*
- HIR::Node*,				// Commented_node*
- HIR::Identifier*,			// Identifier*
- HIR::Node*,			// Source_rep*
- HIR::CLASS_NAME*,		// CLASS_NAME*
- HIR::INTERFACE_NAME*,	// INTERFACE_NAME*
- HIR::METHOD_NAME*,		// METHOD_NAME*
- HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
+ HIR::Node*,					// Commented_node*
+ HIR::Expr*,					// Conditional_expr*
+ HIR::Constant*,				// Constant*
+ HIR::Continue*,				// Continue*
  HIR::Identifier*,			// DIRECTIVE_NAME*
- HIR::LABEL_NAME*,		// LABEL_NAME*
- HIR::INT*,				// INT*
- HIR::REAL*,				// REAL*
- HIR::STRING*,			// STRING*
- HIR::BOOL*,				// BOOL*
- HIR::NIL*,				// NIL*
- HIR::OP*,				// OP*
- HIR::CAST*,				// CAST*
- HIR::CONSTANT_NAME*>		// CONSTANT_NAME*
+ HIR::Statement*,				// Declare*
+ HIR::Statement*,				// Directive*
+ HIR::Statement*,				// Do*
+ HIR::Statement*,				// Eval_expr*
+ HIR::Expr*,					// Expr*
+ HIR::Statement*,				// For*
+ HIR::Foreach*,				// Foreach*
+ HIR::Foreign*,				// Foreign*
+ HIR::Foreign_expr*,			// Foreign_expr*
+ HIR::Foreign_statement*,	// Foreign_statement*
+ HIR::Formal_parameter*,	// Formal_parameter*
+ HIR::Global*,					// Global*
+ HIR::INT*,						// INT*
+ HIR::INTERFACE_NAME*,		// INTERFACE_NAME*
+ HIR::Identifier*,			// Identifier*
+ HIR::If*,						// If*
+ HIR::Expr*,					// Ignore_errors*
+ HIR::Instanceof*,			// Instanceof*
+ HIR::Interface_def*,		// Interface_def*
+ HIR::Expr*,					// List_assignment*
+ HIR::Expr*,					//	List_element*
+ HIR::Literal*,				// Literal*
+ HIR::METHOD_NAME*,			// METHOD_NAME*
+ HIR::Member*,					// Member*
+ HIR::Method*,					// Method*
+ HIR::Expr_invocation*,		// Method_invocation*
+ HIR::Method_mod*,			// Method_mod*
+ HIR::Method_name*,			// Method_name*
+ HIR::NIL*,						// NIL*
+ HIR::Name_with_default*,	// Name_with_default*
+ HIR::Expr*,					// Nested_list_elements*
+ HIR::Expr_invocation*,		// New*
+ HIR::Node*,					// Node*
+ HIR::Statement*,				// Nop*
+ HIR::OP*,						// OP*
+ HIR::Expr*,					// Op_assignment*
+ HIR::PHP_script*,			// PHP_script*
+ HIR::Expr*,					// Post_op*
+ HIR::Expr_invocation*,		// Pre_op*
+ HIR::REAL*,					// REAL*
+ HIR::Reflection*,			// Reflection*
+ HIR::Return*,					// Return*
+ HIR::STRING*,					// STRING*
+ HIR::Signature*,				// Signature*
+ HIR::Node*,					// Source_rep*
+ HIR::Statement*,				// Statement*
+ HIR::Static_declaration*,	// Static_declaration*
+ HIR::Statement*,				// Switch*
+ HIR::Node*,					// Switch_case*
+ HIR::Target*,					// Target*
+ HIR::Throw*,					// Throw*
+ HIR::Try*,						// Try*
+ HIR::Type*,					// Type*
+ HIR::Unary_op*,				// Unary_op*
+ HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
+ HIR::Variable*,				// Variable*
+ HIR::Variable_name*,		// Variable_name*
+ HIR::Loop*						// While*
+>
 {
-
 	// The HIR expects variable names where the AST has expressions.
 	// Find the VARIABLE_NAME within the expression.
 	bool is_wrapped_var_name (HIR::Expr* expr)
@@ -288,36 +287,22 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Eval_expr* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
+	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
-		HIR::Eval_expr* result;
-		result = new HIR::Eval_expr(expr);
-		copy_attrs (result, orig);
-		return result;
-	}
+		switch (expr->classid ())
+		{
+			case HIR::Method_invocation::ID:
+			case HIR::New::ID:
+			case HIR::Pre_op::ID:
+				HIR::Invoke_expr* result;
+				result = new HIR::Invoke_expr (dynamic_cast<HIR::Expr_invocation*>(expr));
+				copy_attrs (result, orig);
+				return result;
+			default:
+				// We know this is OK from fold_impl_assignment
+				return reinterpret_cast<HIR::Statement*> (expr);
+		}
 
-	HIR::Branch* fold_impl_branch(AST::Branch* orig, HIR::VARIABLE_NAME* variable_name, HIR::LABEL_NAME* iftrue, HIR::LABEL_NAME* iffalse) 
-	{
-		HIR::Branch* result;
-		result = new HIR::Branch(variable_name, iftrue, iffalse);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Goto* fold_impl_goto(AST::Goto* orig, HIR::LABEL_NAME* label_name) 
-	{
-		HIR::Goto* result;
-		result = new HIR::Goto(label_name);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Label* fold_impl_label(AST::Label* orig, HIR::LABEL_NAME* label_name) 
-	{
-		HIR::Label* result;
-		result = new HIR::Label(label_name);
-		copy_attrs (result, orig);
-		return result;
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
@@ -336,14 +321,6 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Op_assignment* fold_impl_op_assignment(AST::Op_assignment* orig, HIR::Variable* variable, HIR::OP* op, HIR::Expr* expr)
-	{
-		HIR::Op_assignment* result;
-		result = new HIR::Op_assignment (variable, op, expr);
-		copy_attrs (result, orig);
-		return result;
-	}
-
 	HIR::Loop* fold_impl_while (AST::While* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
 	{
 		// All while's must be true
@@ -356,10 +333,10 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* expr, HIR::Variable* key, bool is_ref, HIR::Variable* val, List<HIR::Statement*>* statements)
+	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* arr, HIR::Variable* key, bool is_ref, HIR::Variable* val, List<HIR::Statement*>* statements)
 	{
 		HIR::Foreach* result;
-		result = new HIR::Foreach(expr_to_var_name (expr), key, is_ref, val, statements);
+		result = new HIR::Foreach(expr_to_var_name (arr), expr_to_var_name (key), is_ref, expr_to_var_name (val), statements);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -372,12 +349,95 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Assignment* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
+	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* var, bool is_ref, HIR::Expr* expr) 
 	{
-		HIR::Assignment* result;
-		result = new HIR::Assignment(variable, is_ref, expr);
-		copy_attrs (result, orig);
-		return result;
+		// push_array - $t->$x[] = $y;
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 1 
+			&& var->array_indices->front () == NULL
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_wrapped_var_name (expr))
+		{
+			HIR::Push_array* result;
+			result = new HIR::Push_array (
+				var->target, 
+				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
+				is_ref, 
+				expr_to_var_name (expr));
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+		// assign_var - $t->$x = y();
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID)
+		{
+			HIR::Assign_var* result;
+			result = new HIR::Assign_var (
+				var->target,
+				dynamic_cast<HIR::VARIABLE_NAME*>(var->variable_name), 
+				is_ref, 
+				expr);
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+		// invoke_expr - y();
+		if (var->target == NULL
+			&& var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_ref == false)
+		{
+			xdebug (expr);
+			HIR::Invoke_expr* result;
+			result = new HIR::Invoke_expr (
+				dynamic_cast<HIR::Expr_invocation*> (expr)); 
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+		
+		// assign_var_var - $$x = $y;
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::Reflection::ID
+			&& is_wrapped_var_name (expr))
+		{
+			HIR::Assign_var_var* result;
+			result = new HIR::Assign_var_var (
+				var->target,
+				dynamic_cast<HIR::Reflection*>(var->variable_name)->variable_name, 
+				is_ref, 
+				expr_to_var_name (expr));
+
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+		// assign_array - $t->$x[$i] = $y;
+		if (not var->attrs->is_true ("phc.codegen.unused")
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_wrapped_var_name (expr)
+			&& var->array_indices->size () == 1
+			&& var->array_indices->front () != NULL)
+		{
+			HIR::Assign_array* result;
+			result = new HIR::Assign_array (
+				var->target,
+				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
+				var->array_indices->front (),
+				is_ref,
+				expr_to_var_name (expr));
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+
+		// all cases should be handled
+		debug (orig);
+		xadebug (orig);
+		assert (0);
 	}
 
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
@@ -441,7 +501,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Pre_op* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
+	HIR::Expr_invocation* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
 	{
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
@@ -465,7 +525,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Method_invocation* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr_invocation* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::Method_invocation* result;
 		result = new HIR::Method_invocation(target, method_name, actual_parameters);
@@ -475,13 +535,16 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
+		assert (var);
+
 		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, expr);
+		result = new HIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
 		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::New* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr_invocation* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);
@@ -517,14 +580,6 @@ class AST_to_HIR : public AST::Fold
 	{
 		HIR::VARIABLE_NAME* result;
 		result = new HIR::VARIABLE_NAME(orig->value);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::LABEL_NAME* fold_label_name(AST::LABEL_NAME* orig) 
-	{
-		HIR::LABEL_NAME* result;
-		result = new HIR::LABEL_NAME(orig->value);
 		copy_attrs (result, orig);
 		return result;
 	}

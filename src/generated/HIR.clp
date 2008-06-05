@@ -26,19 +26,11 @@ type t_Global.
 type t_Try.
 type t_Catch.
 type t_Throw.
-type t_Eval_expr.
-type t_Foreign.
-type t_Branch.
-type t_Goto.
-type t_Label.
-type t_Foreach_reset.
-type t_Foreach_next.
-type t_Foreach_end.
-type t_Foreach_has_key.
-type t_Foreach_get_key.
-type t_Foreach_get_val.
-type t_Assignment.
-type t_Op_assignment.
+type t_Assign_var.
+type t_Assign_array.
+type t_Assign_var_var.
+type t_Push_array.
+type t_Invoke_expr.
 type t_Cast.
 type t_Unary_op.
 type t_Bin_op.
@@ -52,6 +44,8 @@ type t_Array_elem.
 type t_Method_invocation.
 type t_Actual_parameter.
 type t_New.
+type t_Foreign_statement.
+type t_Foreign_expr.
 
 
 % Forward declarations for disjunctive types
@@ -59,28 +53,28 @@ type t_Node.
 type t_Statement.
 type t_Member.
 type t_Expr.
+type t_Expr_invocation.
 type t_Literal.
 type t_Variable_name.
 type t_Target.
 type t_Method_name.
 type t_Class_name.
 type t_Identifier.
+type t_Foreign.
 
 
 % Token declarations
-type t_HT_ITERATOR ::= hT_ITERATOR_id { id }.
 type t_CLASS_NAME ::= cLASS_NAME_id { id }.
 type t_INTERFACE_NAME ::= iNTERFACE_NAME_id { id }.
 type t_METHOD_NAME ::= mETHOD_NAME_id { id }.
 type t_VARIABLE_NAME ::= vARIABLE_NAME_id { id }.
-type t_LABEL_NAME ::= lABEL_NAME_id { id }.
 type t_INT ::= iNT_id { id }.
 type t_REAL ::= rEAL_id { id }.
 type t_STRING ::= sTRING_id { id }.
 type t_BOOL ::= bOOL_id { id }.
 type t_NIL ::= nIL_id { id }.
-type t_OP ::= oP_id { id }.
 type t_CAST ::= cAST_id { id }.
+type t_OP ::= oP_id { id }.
 type t_CONSTANT_NAME ::= cONSTANT_NAME_id { id }.
 
 
@@ -108,19 +102,11 @@ type t_Global ::= global_id { id }.
 type t_Try ::= try_id { id }.
 type t_Catch ::= catch_id { id }.
 type t_Throw ::= throw_id { id }.
-type t_Eval_expr ::= eval_expr_id { id }.
-type t_Foreign ::= foreign_id { id }.
-type t_Branch ::= branch_id { id }.
-type t_Goto ::= goto_id { id }.
-type t_Label ::= label_id { id }.
-type t_Foreach_reset ::= foreach_reset_id { id }.
-type t_Foreach_next ::= foreach_next_id { id }.
-type t_Foreach_end ::= foreach_end_id { id }.
-type t_Foreach_has_key ::= foreach_has_key_id { id }.
-type t_Foreach_get_key ::= foreach_get_key_id { id }.
-type t_Foreach_get_val ::= foreach_get_val_id { id }.
-type t_Assignment ::= assignment_id { id }.
-type t_Op_assignment ::= op_assignment_id { id }.
+type t_Assign_var ::= assign_var_id { id }.
+type t_Assign_array ::= assign_array_id { id }.
+type t_Assign_var_var ::= assign_var_var_id { id }.
+type t_Push_array ::= push_array_id { id }.
+type t_Invoke_expr ::= invoke_expr_id { id }.
 type t_Cast ::= cast_id { id }.
 type t_Unary_op ::= unary_op_id { id }.
 type t_Bin_op ::= bin_op_id { id }.
@@ -134,9 +120,15 @@ type t_Array_elem ::= array_elem_id { id }.
 type t_Method_invocation ::= method_invocation_id { id }.
 type t_Actual_parameter ::= actual_parameter_id { id }.
 type t_New ::= new_id { id }.
+type t_Foreign_statement ::= foreign_statement_id { id }.
+type t_Foreign_expr ::= foreign_expr_id { id }.
 
 
 % Disjunctive types
+type t_Foreign ::= 
+		  foreign_Foreign_statement { t_Foreign_statement } 
+		| foreign_Foreign_expr { t_Foreign_expr } 
+		.
 type t_Identifier ::= 
 		  identifier_INTERFACE_NAME { t_INTERFACE_NAME } 
 		| identifier_CLASS_NAME { t_CLASS_NAME } 
@@ -145,7 +137,6 @@ type t_Identifier ::=
 		| identifier_CAST { t_CAST } 
 		| identifier_OP { t_OP } 
 		| identifier_CONSTANT_NAME { t_CONSTANT_NAME } 
-		| identifier_LABEL_NAME { t_LABEL_NAME } 
 		.
 type t_Class_name ::= 
 		  class_name_CLASS_NAME { t_CLASS_NAME } 
@@ -156,27 +147,22 @@ type t_Method_name ::=
 		| method_name_Reflection { t_Reflection } 
 		.
 type t_Target ::= 
-		  target_Assignment { t_Assignment } 
-		| target_Cast { t_Cast } 
+		  target_Cast { t_Cast } 
 		| target_Unary_op { t_Unary_op } 
 		| target_Bin_op { t_Bin_op } 
 		| target_Constant { t_Constant } 
 		| target_Instanceof { t_Instanceof } 
 		| target_Variable { t_Variable } 
-		| target_Pre_op { t_Pre_op } 
 		| target_Method_invocation { t_Method_invocation } 
 		| target_New { t_New } 
+		| target_Pre_op { t_Pre_op } 
 		| target_INT { t_INT } 
 		| target_REAL { t_REAL } 
 		| target_STRING { t_STRING } 
 		| target_BOOL { t_BOOL } 
 		| target_NIL { t_NIL } 
-		| target_Op_assignment { t_Op_assignment } 
 		| target_Array { t_Array } 
-		| target_Foreach_has_key { t_Foreach_has_key } 
-		| target_Foreach_get_key { t_Foreach_get_key } 
-		| target_Foreach_get_val { t_Foreach_get_val } 
-		| target_Foreign { t_Foreign } 
+		| target_Foreign_expr { t_Foreign_expr } 
 		| target_CLASS_NAME { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -190,28 +176,28 @@ type t_Literal ::=
 		| literal_BOOL { t_BOOL } 
 		| literal_NIL { t_NIL } 
 		.
+type t_Expr_invocation ::= 
+		  expr_invocation_Method_invocation { t_Method_invocation } 
+		| expr_invocation_New { t_New } 
+		| expr_invocation_Pre_op { t_Pre_op } 
+		.
 type t_Expr ::= 
-		  expr_Assignment { t_Assignment } 
-		| expr_Cast { t_Cast } 
+		  expr_Cast { t_Cast } 
 		| expr_Unary_op { t_Unary_op } 
 		| expr_Bin_op { t_Bin_op } 
 		| expr_Constant { t_Constant } 
 		| expr_Instanceof { t_Instanceof } 
 		| expr_Variable { t_Variable } 
-		| expr_Pre_op { t_Pre_op } 
 		| expr_Method_invocation { t_Method_invocation } 
 		| expr_New { t_New } 
+		| expr_Pre_op { t_Pre_op } 
 		| expr_INT { t_INT } 
 		| expr_REAL { t_REAL } 
 		| expr_STRING { t_STRING } 
 		| expr_BOOL { t_BOOL } 
 		| expr_NIL { t_NIL } 
-		| expr_Op_assignment { t_Op_assignment } 
 		| expr_Array { t_Array } 
-		| expr_Foreach_has_key { t_Foreach_has_key } 
-		| expr_Foreach_get_key { t_Foreach_get_key } 
-		| expr_Foreach_get_val { t_Foreach_get_val } 
-		| expr_Foreign { t_Foreign } 
+		| expr_Foreign_expr { t_Foreign_expr } 
 		.
 type t_Member ::= 
 		  member_Method { t_Method } 
@@ -226,19 +212,17 @@ type t_Statement ::=
 		| statement_Global { t_Global } 
 		| statement_Try { t_Try } 
 		| statement_Throw { t_Throw } 
-		| statement_Eval_expr { t_Eval_expr } 
 		| statement_If { t_If } 
 		| statement_Loop { t_Loop } 
 		| statement_Foreach { t_Foreach } 
 		| statement_Break { t_Break } 
 		| statement_Continue { t_Continue } 
-		| statement_Label { t_Label } 
-		| statement_Goto { t_Goto } 
-		| statement_Branch { t_Branch } 
-		| statement_Foreach_next { t_Foreach_next } 
-		| statement_Foreach_reset { t_Foreach_reset } 
-		| statement_Foreach_end { t_Foreach_end } 
-		| statement_Foreign { t_Foreign } 
+		| statement_Assign_var { t_Assign_var } 
+		| statement_Assign_var_var { t_Assign_var_var } 
+		| statement_Assign_array { t_Assign_array } 
+		| statement_Push_array { t_Push_array } 
+		| statement_Invoke_expr { t_Invoke_expr } 
+		| statement_Foreign_statement { t_Foreign_statement } 
 		.
 type t_Node ::= 
 		  node_PHP_script { t_PHP_script } 
@@ -250,19 +234,17 @@ type t_Node ::=
 		| node_Global { t_Global } 
 		| node_Try { t_Try } 
 		| node_Throw { t_Throw } 
-		| node_Eval_expr { t_Eval_expr } 
 		| node_If { t_If } 
 		| node_Loop { t_Loop } 
 		| node_Foreach { t_Foreach } 
 		| node_Break { t_Break } 
 		| node_Continue { t_Continue } 
-		| node_Label { t_Label } 
-		| node_Goto { t_Goto } 
-		| node_Branch { t_Branch } 
-		| node_Foreach_next { t_Foreach_next } 
-		| node_Foreach_reset { t_Foreach_reset } 
-		| node_Foreach_end { t_Foreach_end } 
-		| node_Foreign { t_Foreign } 
+		| node_Assign_var { t_Assign_var } 
+		| node_Assign_var_var { t_Assign_var_var } 
+		| node_Assign_array { t_Assign_array } 
+		| node_Push_array { t_Push_array } 
+		| node_Invoke_expr { t_Invoke_expr } 
+		| node_Foreign_statement { t_Foreign_statement } 
 		| node_Class_mod { t_Class_mod } 
 		| node_Attribute { t_Attribute } 
 		| node_Signature { t_Signature } 
@@ -274,26 +256,22 @@ type t_Node ::=
 		| node_Catch { t_Catch } 
 		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
 		| node_Reflection { t_Reflection } 
-		| node_Assignment { t_Assignment } 
 		| node_Cast { t_Cast } 
 		| node_Unary_op { t_Unary_op } 
 		| node_Bin_op { t_Bin_op } 
 		| node_Constant { t_Constant } 
 		| node_Instanceof { t_Instanceof } 
 		| node_Variable { t_Variable } 
-		| node_Pre_op { t_Pre_op } 
 		| node_Method_invocation { t_Method_invocation } 
 		| node_New { t_New } 
+		| node_Pre_op { t_Pre_op } 
 		| node_INT { t_INT } 
 		| node_REAL { t_REAL } 
 		| node_STRING { t_STRING } 
 		| node_BOOL { t_BOOL } 
 		| node_NIL { t_NIL } 
-		| node_Op_assignment { t_Op_assignment } 
 		| node_Array { t_Array } 
-		| node_Foreach_has_key { t_Foreach_has_key } 
-		| node_Foreach_get_key { t_Foreach_get_key } 
-		| node_Foreach_get_val { t_Foreach_get_val } 
+		| node_Foreign_expr { t_Foreign_expr } 
 		| node_CLASS_NAME { t_CLASS_NAME } 
 		| node_Array_elem { t_Array_elem } 
 		| node_METHOD_NAME { t_METHOD_NAME } 
@@ -302,8 +280,6 @@ type t_Node ::=
 		| node_CAST { t_CAST } 
 		| node_OP { t_OP } 
 		| node_CONSTANT_NAME { t_CONSTANT_NAME } 
-		| node_LABEL_NAME { t_LABEL_NAME } 
-		| node_HT_ITERATOR { t_HT_ITERATOR } 
 		.
 
 
@@ -322,28 +298,20 @@ predicate attr_mod (ID:t_Attr_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE
 predicate name_with_default (ID:t_Name_with_default, VARIABLE_NAME:t_VARIABLE_NAME, EXPR:maybe[t_Expr]).
 predicate if (ID:t_If, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:list[t_Statement], IFFALSE:list[t_Statement]).
 predicate loop (ID:t_Loop, STATEMENTS:list[t_Statement]).
-predicate foreach (ID:t_Foreach, VARIABLE_NAME:t_VARIABLE_NAME, KEY:maybe[t_Variable], IS_REF:bool, VAL:t_Variable, STATEMENTS:list[t_Statement]).
+predicate foreach (ID:t_Foreach, ARR:t_VARIABLE_NAME, KEY:maybe[t_VARIABLE_NAME], IS_REF:bool, VAL:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
 predicate break (ID:t_Break, EXPR:maybe[t_Expr]).
 predicate continue (ID:t_Continue, EXPR:maybe[t_Expr]).
-predicate return (ID:t_Return, EXPR:maybe[t_Expr]).
+predicate return (ID:t_Return, EXPR:t_Expr).
 predicate static_declaration (ID:t_Static_declaration, VAR:t_Name_with_default).
 predicate global (ID:t_Global, VARIABLE_NAME:t_Variable_name).
 predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHES:list[t_Catch]).
 predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
 predicate throw (ID:t_Throw, EXPR:t_Expr).
-predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
-predicate foreign (ID:t_Foreign).
-predicate branch (ID:t_Branch, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME).
-predicate goto (ID:t_Goto, LABEL_NAME:t_LABEL_NAME).
-predicate label (ID:t_Label, LABEL_NAME:t_LABEL_NAME).
-predicate foreach_reset (ID:t_Foreach_reset, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_next (ID:t_Foreach_next, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_end (ID:t_Foreach_end, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_has_key (ID:t_Foreach_has_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_get_key (ID:t_Foreach_get_key, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate foreach_get_val (ID:t_Foreach_get_val, ARRAY:t_VARIABLE_NAME, KEY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR).
-predicate assignment (ID:t_Assignment, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr).
-predicate op_assignment (ID:t_Op_assignment, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr).
+predicate assign_var (ID:t_Assign_var, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_Expr).
+predicate assign_array (ID:t_Assign_array, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
+predicate assign_var_var (ID:t_Assign_var_var, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
+predicate push_array (ID:t_Push_array, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
+predicate invoke_expr (ID:t_Invoke_expr, EXPR:t_Expr_invocation).
 predicate cast (ID:t_Cast, CAST:t_CAST, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate unary_op (ID:t_Unary_op, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate bin_op (ID:t_Bin_op, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME).
@@ -355,21 +323,21 @@ predicate pre_op (ID:t_Pre_op, OP:t_OP, VARIABLE:t_Variable).
 predicate array (ID:t_Array, ARRAY_ELEMS:list[t_Array_elem]).
 predicate array_elem (ID:t_Array_elem, KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr).
 predicate method_invocation (ID:t_Method_invocation, TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
-predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, EXPR:t_Expr).
+predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[maybe[t_VARIABLE_NAME]]).
 predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
+predicate foreign_statement (ID:t_Foreign_statement).
+predicate foreign_expr (ID:t_Foreign_expr).
 
-predicate hT_ITERATOR (ID:t_HT_ITERATOR, VALUE:int).
 predicate cLASS_NAME (ID:t_CLASS_NAME, VALUE:string).
 predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
 predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).
 predicate vARIABLE_NAME (ID:t_VARIABLE_NAME, VALUE:string).
-predicate lABEL_NAME (ID:t_LABEL_NAME, VALUE:string).
 predicate iNT (ID:t_INT, VALUE:int).
 predicate rEAL (ID:t_REAL, VALUE:float).
 predicate sTRING (ID:t_STRING, VALUE:string).
 predicate bOOL (ID:t_BOOL, VALUE:bool).
 predicate nIL (ID:t_NIL, VALUE:null).
-predicate oP (ID:t_OP, VALUE:string).
 predicate cAST (ID:t_CAST, VALUE:string).
+predicate oP (ID:t_OP, VALUE:string).
 predicate cONSTANT_NAME (ID:t_CONSTANT_NAME, VALUE:string).
 

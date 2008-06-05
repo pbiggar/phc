@@ -34,8 +34,7 @@ Statement ::=
 	| If | While | Do | For | Foreach
 	| Switch | Break | Continue
 	| Declare | Nop
-	| Label | Goto | Branch
-	| Foreign
+	| Foreign_statement
 	;
 
 {-
@@ -90,19 +89,21 @@ Throw ::= Expr ;
 Eval_expr ::= Expr ;
 
 Nop ::= ;
-Foreign ::= ;
 
-{-
-   HIR constructs (without a PHP equivalent)
-	TODO: 
-		It would be ideal if these weren't in the AST at all, but were only
-		introduced in the fold. These concepts were created before we have a
-		fold, but moving them inside it would be perfect.
--}
+{- In the HIR, we need to put both Exprs and Statements into HIR::Foreign
+ - nodes. When they are converted to MIR, the foreign node needs to be folded
+ - to both an Expr and a Statement, which obviously is not possible. The
+ - solution is to instead use HIR::Foreign_statement and HIR::foreign_expr.
+ - However, for the HIR_to_AST to type check, we need types which are suitable
+ - for each of Foreign_expr and Foreign_statement. Both of these types must
+ - inherit from Foreign, however, they must also be suitable to fold into
+ - Statements and Exprs. The only solution is to have AST::Foreign_expr and
+ - AST:foreign_statement too. 
+ -}
+Foreign ::= Foreign_expr | Foreign_statement ;
 
-Branch ::= Expr iftrue:LABEL_NAME iffalse:LABEL_NAME;
-Goto ::= LABEL_NAME ;
-Label ::= LABEL_NAME ;
+Foreign_expr ::= ;
+Foreign_statement ::= ;
 
 {-
    Expressions
@@ -117,7 +118,7 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
-	| Foreign
+	| Foreign_expr
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
@@ -170,7 +171,7 @@ Commented_node ::=
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST | OP | CONSTANT_NAME | LABEL_NAME 
+	  | CAST | OP | CONSTANT_NAME
 	  | DIRECTIVE_NAME 
 	; 
 
@@ -765,4 +766,23 @@ public:
 	}
 
 	IR::Node* foreign;
+};
+
+class Foreign_statement
+{
+	// TODO: modify maketea to allow contructors with :
+public:
+	Foreign_statement (IR::Node* foreign)
+	{
+		this->foreign = foreign;
+	}
+};
+
+class Foreign_expr
+{
+public:
+	Foreign_expr (IR::Node* foreign)
+	{
+		this->foreign = foreign;
+	}
 };

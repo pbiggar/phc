@@ -14,83 +14,40 @@
 using namespace std;
 using namespace HIR;
 
-HIR_unparser::HIR_unparser::HIR_unparser (ostream& os, bool in_php)
+HIR_unparser::HIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, ast_unparser (os, in_php, this)
 {
+	// We unparse by converting to AST, but keeping foreign nodes in. Unparsing
+	// the foreign nodes are delegated here, and then on to the MIR_unparser.
+	ast_unparser = new AST_unparser (this);
+	mir_unparser = new MIR_unparser (ups);
 }
 
 void HIR_unparser::unparse (IR::Node* in)
 {
 	Node* hir = dynamic_cast<Node*> (in);
 	AST::Node* ast = (new HIR_to_AST ())->fold_node (hir);
-	ast_unparser.unparse (ast);
+	ast_unparser->unparse (ast);
 }
 
 void HIR_unparser::unparse_foreign (IR::Node* in)
 {
-	Node* mir = dynamic_cast<Node*> (in);
-	mir->visit (this);
+	Node* hir = dynamic_cast<Node*> (in);
+	if (!hir)
+	{
+		// HIR-to-MIR will have MIR nodes, which get passed to the AST_parser, and back to here. Pass them on to the MIR_unparser.
+		MIR::Node* mir = dynamic_cast<MIR::Node*>(in);
+		assert (mir);
+		mir_unparser->unparse (mir);
+	}
+	else
+		hir->visit (this);
 }
 
-/* Nodes which are foreign in the AST */
-void HIR_unparser::children_foreach_reset (Foreach_reset* in)
+void HIR_unparser::pre_foreign (Foreign* in)
 {
-	echo ("foreach_reset($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void HIR_unparser::children_foreach_next (Foreach_next* in)
-{
-	echo ("foreach_next($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void HIR_unparser::children_foreach_end (Foreach_end* in)
-{
-	echo ("foreach_end($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (");");
-}
-
-void HIR_unparser::children_foreach_has_key (Foreach_has_key* in)
-{
-	echo ("foreach_has_key($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-void HIR_unparser::children_foreach_get_key (Foreach_get_key* in)
-{
-	echo ("foreach_get_key($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-void HIR_unparser::children_foreach_get_val (Foreach_get_val* in)
-{
-	echo ("foreach_get_val($");
-	visit_variable_name (in->array);
-	echo (", ");
-	visit_ht_iterator (in->iter);
-	echo (")");
-}
-
-
-void HIR_unparser::children_ht_iterator(HT_ITERATOR* in)
-{
-	// we leave out the $ to handle in the same manner as VARIABLE_NAME
-	echo (in->get_value_as_string ());
+	// The foreign nodes should contain a piece of the MIR
+	MIR::Node* mir = dynamic_cast<MIR::Node*>(in->foreign);
+	assert (mir);
+	mir_unparser->unparse (mir);
 }

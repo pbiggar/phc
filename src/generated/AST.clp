@@ -34,10 +34,8 @@ type t_Catch.
 type t_Throw.
 type t_Eval_expr.
 type t_Nop.
-type t_Foreign.
-type t_Branch.
-type t_Goto.
-type t_Label.
+type t_Foreign_expr.
+type t_Foreign_statement.
 type t_Assignment.
 type t_Op_assignment.
 type t_List_assignment.
@@ -64,6 +62,7 @@ type t_New.
 type t_Node.
 type t_Statement.
 type t_Member.
+type t_Foreign.
 type t_Expr.
 type t_Literal.
 type t_List_element.
@@ -82,7 +81,6 @@ type t_INTERFACE_NAME ::= iNTERFACE_NAME_id { id }.
 type t_METHOD_NAME ::= mETHOD_NAME_id { id }.
 type t_VARIABLE_NAME ::= vARIABLE_NAME_id { id }.
 type t_DIRECTIVE_NAME ::= dIRECTIVE_NAME_id { id }.
-type t_LABEL_NAME ::= lABEL_NAME_id { id }.
 type t_INT ::= iNT_id { id }.
 type t_REAL ::= rEAL_id { id }.
 type t_STRING ::= sTRING_id { id }.
@@ -125,10 +123,8 @@ type t_Catch ::= catch_id { id }.
 type t_Throw ::= throw_id { id }.
 type t_Eval_expr ::= eval_expr_id { id }.
 type t_Nop ::= nop_id { id }.
-type t_Foreign ::= foreign_id { id }.
-type t_Branch ::= branch_id { id }.
-type t_Goto ::= goto_id { id }.
-type t_Label ::= label_id { id }.
+type t_Foreign_expr ::= foreign_expr_id { id }.
+type t_Foreign_statement ::= foreign_statement_id { id }.
 type t_Assignment ::= assignment_id { id }.
 type t_Op_assignment ::= op_assignment_id { id }.
 type t_List_assignment ::= list_assignment_id { id }.
@@ -160,7 +156,6 @@ type t_Source_rep ::=
 		| source_rep_CAST { t_CAST } 
 		| source_rep_OP { t_OP } 
 		| source_rep_CONSTANT_NAME { t_CONSTANT_NAME } 
-		| source_rep_LABEL_NAME { t_LABEL_NAME } 
 		| source_rep_DIRECTIVE_NAME { t_DIRECTIVE_NAME } 
 		| source_rep_INT { t_INT } 
 		| source_rep_REAL { t_REAL } 
@@ -176,7 +171,6 @@ type t_Identifier ::=
 		| identifier_CAST { t_CAST } 
 		| identifier_OP { t_OP } 
 		| identifier_CONSTANT_NAME { t_CONSTANT_NAME } 
-		| identifier_LABEL_NAME { t_LABEL_NAME } 
 		| identifier_DIRECTIVE_NAME { t_DIRECTIVE_NAME } 
 		.
 type t_Commented_node ::= 
@@ -200,10 +194,7 @@ type t_Commented_node ::=
 		| commented_node_Continue { t_Continue } 
 		| commented_node_Declare { t_Declare } 
 		| commented_node_Nop { t_Nop } 
-		| commented_node_Label { t_Label } 
-		| commented_node_Goto { t_Goto } 
-		| commented_node_Branch { t_Branch } 
-		| commented_node_Foreign { t_Foreign } 
+		| commented_node_Foreign_statement { t_Foreign_statement } 
 		| commented_node_Switch_case { t_Switch_case } 
 		| commented_node_Catch { t_Catch } 
 		.
@@ -237,7 +228,7 @@ type t_Target ::=
 		| target_Array { t_Array } 
 		| target_Conditional_expr { t_Conditional_expr } 
 		| target_Ignore_errors { t_Ignore_errors } 
-		| target_Foreign { t_Foreign } 
+		| target_Foreign_expr { t_Foreign_expr } 
 		| target_CLASS_NAME { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -277,7 +268,11 @@ type t_Expr ::=
 		| expr_Array { t_Array } 
 		| expr_Conditional_expr { t_Conditional_expr } 
 		| expr_Ignore_errors { t_Ignore_errors } 
-		| expr_Foreign { t_Foreign } 
+		| expr_Foreign_expr { t_Foreign_expr } 
+		.
+type t_Foreign ::= 
+		  foreign_Foreign_expr { t_Foreign_expr } 
+		| foreign_Foreign_statement { t_Foreign_statement } 
 		.
 type t_Member ::= 
 		  member_Method { t_Method } 
@@ -303,10 +298,7 @@ type t_Statement ::=
 		| statement_Continue { t_Continue } 
 		| statement_Declare { t_Declare } 
 		| statement_Nop { t_Nop } 
-		| statement_Label { t_Label } 
-		| statement_Goto { t_Goto } 
-		| statement_Branch { t_Branch } 
-		| statement_Foreign { t_Foreign } 
+		| statement_Foreign_statement { t_Foreign_statement } 
 		.
 type t_Node ::= 
 		  node_PHP_script { t_PHP_script } 
@@ -318,6 +310,8 @@ type t_Node ::=
 		| node_Attr_mod { t_Attr_mod } 
 		| node_Name_with_default { t_Name_with_default } 
 		| node_Directive { t_Directive } 
+		| node_Foreign_expr { t_Foreign_expr } 
+		| node_Foreign_statement { t_Foreign_statement } 
 		| node_Variable { t_Variable } 
 		| node_Nested_list_elements { t_Nested_list_elements } 
 		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
@@ -342,7 +336,6 @@ type t_Node ::=
 		| node_Array { t_Array } 
 		| node_Conditional_expr { t_Conditional_expr } 
 		| node_Ignore_errors { t_Ignore_errors } 
-		| node_Foreign { t_Foreign } 
 		| node_CLASS_NAME { t_CLASS_NAME } 
 		| node_Array_elem { t_Array_elem } 
 		| node_METHOD_NAME { t_METHOD_NAME } 
@@ -367,16 +360,12 @@ type t_Node ::=
 		| node_Continue { t_Continue } 
 		| node_Declare { t_Declare } 
 		| node_Nop { t_Nop } 
-		| node_Label { t_Label } 
-		| node_Goto { t_Goto } 
-		| node_Branch { t_Branch } 
 		| node_Switch_case { t_Switch_case } 
 		| node_Catch { t_Catch } 
 		| node_INTERFACE_NAME { t_INTERFACE_NAME } 
 		| node_CAST { t_CAST } 
 		| node_OP { t_OP } 
 		| node_CONSTANT_NAME { t_CONSTANT_NAME } 
-		| node_LABEL_NAME { t_LABEL_NAME } 
 		| node_DIRECTIVE_NAME { t_DIRECTIVE_NAME } 
 		.
 
@@ -413,10 +402,8 @@ predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_N
 predicate throw (ID:t_Throw, EXPR:t_Expr).
 predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
 predicate nop (ID:t_Nop).
-predicate foreign (ID:t_Foreign).
-predicate branch (ID:t_Branch, EXPR:t_Expr, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME).
-predicate goto (ID:t_Goto, LABEL_NAME:t_LABEL_NAME).
-predicate label (ID:t_Label, LABEL_NAME:t_LABEL_NAME).
+predicate foreign_expr (ID:t_Foreign_expr).
+predicate foreign_statement (ID:t_Foreign_statement).
 predicate assignment (ID:t_Assignment, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr).
 predicate op_assignment (ID:t_Op_assignment, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr).
 predicate list_assignment (ID:t_List_assignment, LIST_ELEMENTS:list[maybe[t_List_element]], EXPR:t_Expr).
@@ -443,7 +430,6 @@ predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
 predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).
 predicate vARIABLE_NAME (ID:t_VARIABLE_NAME, VALUE:string).
 predicate dIRECTIVE_NAME (ID:t_DIRECTIVE_NAME, VALUE:string).
-predicate lABEL_NAME (ID:t_LABEL_NAME, VALUE:string).
 predicate iNT (ID:t_INT, VALUE:int).
 predicate rEAL (ID:t_REAL, VALUE:float).
 predicate sTRING (ID:t_STRING, VALUE:string).

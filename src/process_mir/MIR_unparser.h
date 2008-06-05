@@ -15,11 +15,13 @@ class MIR_unparser : public virtual PHP_unparser, public virtual MIR::Visitor
 {
 public:
 	MIR_unparser(ostream& os = cout, bool in_php = false);
+	MIR_unparser (Unparser_state* ups);
+
 	void unparse (IR::Node* in);
 	void unparse_foreign (IR::Node* in);
 
 protected:
-	AST_unparser ast_unparser;
+	AST_unparser* ast_unparser;
 
 public:
 	// handle MIR-only contructs here, using unparse_foreign
@@ -32,6 +34,10 @@ public:
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 
 
+	void children_branch (MIR::Branch* in);
+	void children_goto (MIR::Goto* in);
+	void children_label (MIR::Label* in);
+	void children_label_name(MIR::LABEL_NAME* in);
 };
 
 #endif // PHC_MIR_UNPARSER 

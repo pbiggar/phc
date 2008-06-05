@@ -22,7 +22,7 @@ bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
 # hear about. 
-AM_CXXFLAGS = -Wextra -Wno-unused-parameter
+AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
 
 # Note about warnings: automake does not support per-file flags. If they did,
 # we could set -Wall -Wextra -Werror, and fix things as they came up. However,
@@ -339,10 +339,6 @@ plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
-nobase_pkglib_LTLIBRARIES += plugins/tests/limit_assignments.la
-plugins_tests_limit_assignments_la_SOURCES = plugins/tests/limit_assignments.cpp
-plugins_tests_limit_assignments_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h

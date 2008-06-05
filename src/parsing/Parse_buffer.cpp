@@ -37,9 +37,7 @@ operator<<(List<NS::Statement*>& stmts, NS::Node* in)								\
 NS##_parse_buffer::NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, NS::Node* in)									\
 {																									\
-	stringstream ss;																			\
-	NS##_unparser (ss, true).unparse (in);												\
-	out.ss << ss.str ();																		\
+	NS##_unparser (out.ss, true).unparse (in);										\
 																									\
 	out.used_nodes.push_back (in);														\
 	return out;																					\
@@ -54,7 +52,7 @@ operator<<(NS##_parse_buffer& out, string in)										\
 NS##_parse_buffer::NS##_parse_buffer&													\
 operator<<(NS##_parse_buffer& out, String* in)										\
 {																									\
-	out.ss << in;																				\
+	out.ss << *in;																				\
 	return out;																					\
 }																									\
 NS##_parse_buffer::NS##_parse_buffer&													\

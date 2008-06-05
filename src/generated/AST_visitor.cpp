@@ -146,15 +146,11 @@ void Visitor::pre_foreign(Foreign* in)
 {
 }
 
-void Visitor::pre_branch(Branch* in)
+void Visitor::pre_foreign_expr(Foreign_expr* in)
 {
 }
 
-void Visitor::pre_goto(Goto* in)
-{
-}
-
-void Visitor::pre_label(Label* in)
+void Visitor::pre_foreign_statement(Foreign_statement* in)
 {
 }
 
@@ -295,10 +291,6 @@ void Visitor::pre_variable_name(VARIABLE_NAME* in)
 }
 
 void Visitor::pre_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
-void Visitor::pre_label_name(LABEL_NAME* in)
 {
 }
 
@@ -475,15 +467,11 @@ void Visitor::post_foreign(Foreign* in)
 {
 }
 
-void Visitor::post_branch(Branch* in)
+void Visitor::post_foreign_expr(Foreign_expr* in)
 {
 }
 
-void Visitor::post_goto(Goto* in)
-{
-}
-
-void Visitor::post_label(Label* in)
+void Visitor::post_foreign_statement(Foreign_statement* in)
 {
 }
 
@@ -624,10 +612,6 @@ void Visitor::post_variable_name(VARIABLE_NAME* in)
 }
 
 void Visitor::post_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
-void Visitor::post_label_name(LABEL_NAME* in)
 {
 }
 
@@ -872,25 +856,12 @@ void Visitor::children_nop(Nop* in)
 {
 }
 
-void Visitor::children_foreign(Foreign* in)
+void Visitor::children_foreign_expr(Foreign_expr* in)
 {
 }
 
-void Visitor::children_branch(Branch* in)
+void Visitor::children_foreign_statement(Foreign_statement* in)
 {
-    visit_expr(in->expr);
-    visit_label_name(in->iftrue);
-    visit_label_name(in->iffalse);
-}
-
-void Visitor::children_goto(Goto* in)
-{
-    visit_label_name(in->label_name);
-}
-
-void Visitor::children_label(Label* in)
-{
-    visit_label_name(in->label_name);
 }
 
 void Visitor::children_assignment(Assignment* in)
@@ -1038,10 +1009,6 @@ void Visitor::children_variable_name(VARIABLE_NAME* in)
 }
 
 void Visitor::children_directive_name(DIRECTIVE_NAME* in)
-{
-}
-
-void Visitor::children_label_name(LABEL_NAME* in)
 {
 }
 
@@ -1337,38 +1304,22 @@ void Visitor::pre_nop_chain(Nop* in)
     pre_nop((Nop*) in);
 }
 
-void Visitor::pre_foreign_chain(Foreign* in)
+void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
 {
     pre_node((Node*) in);
+    pre_foreign((Foreign*) in);
     pre_target((Target*) in);
     pre_expr((Expr*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
+    pre_foreign_expr((Foreign_expr*) in);
+}
+
+void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
+{
+    pre_node((Node*) in);
     pre_foreign((Foreign*) in);
-}
-
-void Visitor::pre_branch_chain(Branch* in)
-{
-    pre_node((Node*) in);
     pre_commented_node((Commented_node*) in);
     pre_statement((Statement*) in);
-    pre_branch((Branch*) in);
-}
-
-void Visitor::pre_goto_chain(Goto* in)
-{
-    pre_node((Node*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_goto((Goto*) in);
-}
-
-void Visitor::pre_label_chain(Label* in)
-{
-    pre_node((Node*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_label((Label*) in);
+    pre_foreign_statement((Foreign_statement*) in);
 }
 
 void Visitor::pre_assignment_chain(Assignment* in)
@@ -1570,14 +1521,6 @@ void Visitor::pre_directive_name_chain(DIRECTIVE_NAME* in)
     pre_source_rep((Source_rep*) in);
     pre_identifier((Identifier*) in);
     pre_directive_name((DIRECTIVE_NAME*) in);
-}
-
-void Visitor::pre_label_name_chain(LABEL_NAME* in)
-{
-    pre_node((Node*) in);
-    pre_source_rep((Source_rep*) in);
-    pre_identifier((Identifier*) in);
-    pre_label_name((LABEL_NAME*) in);
 }
 
 void Visitor::pre_int_chain(INT* in)
@@ -1886,37 +1829,21 @@ void Visitor::post_nop_chain(Nop* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_foreign_chain(Foreign* in)
+void Visitor::post_foreign_expr_chain(Foreign_expr* in)
 {
-    post_foreign((Foreign*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
+    post_foreign_expr((Foreign_expr*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
+    post_foreign((Foreign*) in);
     post_node((Node*) in);
 }
 
-void Visitor::post_branch_chain(Branch* in)
+void Visitor::post_foreign_statement_chain(Foreign_statement* in)
 {
-    post_branch((Branch*) in);
+    post_foreign_statement((Foreign_statement*) in);
     post_statement((Statement*) in);
     post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_goto_chain(Goto* in)
-{
-    post_goto((Goto*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_label_chain(Label* in)
-{
-    post_label((Label*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
+    post_foreign((Foreign*) in);
     post_node((Node*) in);
 }
 
@@ -2116,14 +2043,6 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
 void Visitor::post_directive_name_chain(DIRECTIVE_NAME* in)
 {
     post_directive_name((DIRECTIVE_NAME*) in);
-    post_identifier((Identifier*) in);
-    post_source_rep((Source_rep*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_label_name_chain(LABEL_NAME* in)
-{
-    post_label_name((LABEL_NAME*) in);
     post_identifier((Identifier*) in);
     post_source_rep((Source_rep*) in);
     post_node((Node*) in);
@@ -2623,19 +2542,6 @@ void Visitor::visit_catch(Catch* in)
     }
 }
 
-void Visitor::visit_label_name(LABEL_NAME* in)
-{
-    visit_type("AST", "LABEL_NAME");
-    if(in == NULL)
-    	visit_null("AST", "LABEL_NAME");
-    else
-    {
-    	pre_label_name_chain(in);
-    	children_label_name(in);
-    	post_label_name_chain(in);
-    }
-}
-
 void Visitor::visit_op(OP* in)
 {
     visit_type("AST", "OP");
@@ -2918,17 +2824,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Nop::ID:
     	pre_nop_chain(dynamic_cast<Nop*>(in));
     	break;
-    case Label::ID:
-    	pre_label_chain(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	pre_goto_chain(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	pre_branch_chain(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_statement::ID:
+    	pre_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
     	break;
     }
 }
@@ -3013,8 +2910,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	pre_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
     	break;
     }
 }
@@ -3125,8 +3022,8 @@ void Visitor::pre_target_chain(Target* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	pre_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3210,17 +3107,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Nop::ID:
     	post_nop_chain(dynamic_cast<Nop*>(in));
     	break;
-    case Label::ID:
-    	post_label_chain(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	post_goto_chain(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	post_branch_chain(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_statement::ID:
+    	post_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
     	break;
     }
 }
@@ -3305,8 +3193,8 @@ void Visitor::post_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	post_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
     	break;
     }
 }
@@ -3417,8 +3305,8 @@ void Visitor::post_target_chain(Target* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	post_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3502,17 +3390,8 @@ void Visitor::children_statement(Statement* in)
     case Nop::ID:
     	children_nop(dynamic_cast<Nop*>(in));
     	break;
-    case Label::ID:
-    	children_label(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	children_goto(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	children_branch(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_statement::ID:
+    	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
     	break;
     }
 }
@@ -3597,8 +3476,8 @@ void Visitor::children_expr(Expr* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     	break;
     }
 }
@@ -3709,8 +3588,8 @@ void Visitor::children_target(Target* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Foreign_expr::ID:
+    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

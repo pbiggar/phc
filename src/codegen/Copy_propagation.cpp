@@ -70,40 +70,41 @@ void Copy_propagation::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Copy_propagation::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Copy_propagation::pre_assign_var (Assign_var* in, List<Statement*>* out)
 {
 	debug (in);
-
-	// get useful variables
-	VARIABLE_NAME *lhs, *rhs;
-	Assignment* assignment;
-	if (extract_simple_assignment (in, lhs, rhs, assignment))
+	VARIABLE_NAME* lhs = in->lhs;
+	VARIABLE_NAME* rhs = simple_var (in->rhs);
+	if (lhs == NULL || rhs == NULL)
 	{
-		xadebug (lhs);
-		xadebug (rhs);
-		cdebug << "is simple assignment" << endl;
-		string slhs = *lhs->value;
-		string srhs = *rhs->value;
+		out->push_back (in);
+		return;
+	}
 
-		// add to the list of for future consideration
-		if (lhs->attrs->is_true ("phc.codegen.compiler_generated"))
-		{
-			cdebug << "lhs is compiler generated" << endl;
-			replaceable [slhs] = assignment;
-		}
+	xadebug (lhs);
+	xadebug (rhs);
+	cdebug << "is simple assignment" << endl;
+	string slhs = *lhs->value;
+	string srhs = *rhs->value;
 
-		// consider for immediate removal
-		if (replaceable.find (srhs) != replaceable.end ()
-				&&	rhs->attrs->get_integer ("phc.use_defs.use_count")->value () == 1
-				&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
-		{
-			cdebug << "rhs is replacable" << endl;
-			replaceable [srhs]->variable = new Variable (lhs->clone ());
+	// add to the list of for future consideration
+	if (lhs->attrs->is_true ("phc.codegen.compiler_generated"))
+	{
+		cdebug << "lhs is compiler generated" << endl;
+		replaceable [slhs] = in;
+	}
 
-			// note lack of out->push_back (in);
-			iterate_again = true;
-			return;
-		}
+	// consider for immediate removal
+	if (replaceable.find (srhs) != replaceable.end ()
+			&&	rhs->attrs->get_integer ("phc.use_defs.use_count")->value () == 1
+			&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
+	{
+		cdebug << "rhs is replacable" << endl;
+		replaceable [srhs]->lhs = lhs->clone ();
+
+		// note lack of out->push_back (in);
+		iterate_again = true;
+		return;
 	}
 
 	out->push_back (in);

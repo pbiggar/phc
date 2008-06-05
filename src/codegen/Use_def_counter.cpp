@@ -39,23 +39,6 @@ VARIABLE_NAME* simple_var (Expr* in)
 	return dynamic_cast<VARIABLE_NAME*> (var->variable_name);
 }
 
-bool extract_simple_assignment (Eval_expr* in, VARIABLE_NAME*& lhs, VARIABLE_NAME*& rhs, Assignment*& assignment)
-{
-	assignment = dynamic_cast<Assignment*> (in->expr);
-	if (assignment == NULL)
-		return false;
-
-	lhs = simple_var (assignment->variable);
-	rhs = simple_var (assignment->expr);
-
-	if (lhs == NULL || rhs == NULL)
-		return false;
-
-	return true;
-}
-
-
-
 
 Use_def_counter::Use_def_counter ()
 : analysis_defs ()
@@ -89,10 +72,9 @@ void Use_def_counter::pre_method (Method* in)
 
 
 /* Count defs and uses */
-void Use_def_counter::pre_assignment (Assignment* in)
+void Use_def_counter::pre_assign_var (Assign_var* in)
 {
-	if (VARIABLE_NAME* var_name = simple_var (in->variable))
-		(*analysis_defs.top()) [*var_name->value] ++;
+	(*analysis_defs.top()) [*in->lhs->value] ++;
 }
 
 void Use_def_counter::pre_variable_name (VARIABLE_NAME* in)

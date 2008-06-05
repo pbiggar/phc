@@ -76,7 +76,7 @@ Variable* Shredder::post_variable(Variable* in)
 			new Eval_expr(
 				new Assignment(
 					temp->clone (), 
-					in->attrs->is_true ("phc.ast_shredder.need_addr"),
+					in->attrs->is_true ("phc.ast_shredder.use_ref"),
 					new Variable (in->variable_name))));
 
 		prev = temp;
@@ -87,7 +87,7 @@ Variable* Shredder::post_variable(Variable* in)
 		Variable* temp = fresh_var("TSt");
 		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
-			in->attrs->is_true ("phc.ast_shredder.need_addr"),
+			in->attrs->is_true ("phc.ast_shredder.use_ref"),
 			new Variable (
 				in->target,
 				in->variable_name->clone(),
@@ -105,7 +105,7 @@ Variable* Shredder::post_variable(Variable* in)
 		Variable* temp = fresh_var("TSi");
 		pieces->push_back(new Eval_expr(new Assignment(
 			temp->clone (),
-			in->attrs->is_true ("phc.ast_shredder.need_addr"),
+			in->attrs->is_true ("phc.ast_shredder.use_ref"),
 			new Variable (
 				NULL, 
 				prev->variable_name->clone(), 
@@ -307,19 +307,20 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	// clearing the need_addr flag
 	Expr* left = in->variable->clone();
 	left->attrs->erase("phc.ast_shredder.need_addr");
+	left->attrs->erase("phc.ast_shredder.use_ref");
 	left = transform_expr(left);
 
 	assignment = new Assignment(
 		in->variable,
 		false,
-		new Bin_op(
+		eval (new Bin_op(
 			left,
 			in->op,
-			in->expr)
+			in->expr))
 		);
 	assignment->attrs = in->attrs;
 	
-	return post_assignment(assignment); 
+	return post_assignment (assignment);
 }
 
 Expr* Shredder::pre_ignore_errors(Ignore_errors* in)

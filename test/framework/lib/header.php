@@ -6,7 +6,6 @@
  * Some standard functions
  */
 
-
 function get_phc ()
 {
 	global $opt_valgrind, $phc_suffix, $valgrind, $libphp, $working_dir;
@@ -73,6 +72,24 @@ function get_php ()
 		return "$php -C";
 	}
 }
+
+// For a pipe, just put a blank $subject
+function get_php_command_line ($subject, $pipe = false)
+{
+	global $php;
+	global $opt_long;
+
+	if ($opt_long)
+		$max_exe = 12;
+	else
+		$max_exe = 5;
+
+	$dir_name = dirname($subject);
+	if ($pipe) $subject = ""; # we need the subject for the dir_name
+	return "$php -d include_path=./:$dir_name -d max_execution_time=$max_exe $subject";
+}
+
+
 
 // Get a subject in the forms "test/subjects/codegen/000.php.out", and return "test_subjects_codegen_000.php.out"
 function wd_name ($subject)
@@ -657,9 +674,31 @@ function homogenize_reference_count ($string)
 	return $string;
 }
 
+/* We do not care if there is one object, or two objects alive at any point.
+ * However, var_dump will give different results depending on the number of
+ * live objects of a particular type. Since we shred, we make the extra objects
+ * stay alive longer. So mask it from testing. */
+function homogenize_object_count ($string)
+{
+	// A var dump for an object looks like this:
+	# object(Foo)#1 (2) {
+	#   ["x1"]=>
+	#   string(8) "Foo::Bar"
+	#   ["x2"]=>
+	#   array(1) {
+	#     [0]=>
+	#     string(8) "Foo::Bar"
+	#   }
+	# }
+
+	$string = preg_replace("/^(object\(\w+\)#)\d+/m", "$1x", $string);
+	return $string;
+}
+
 function homogenize_all ($string)
 {
 	$string = homogenize_reference_count ($string);
+	$string = homogenize_object_count ($string);
 	$string = homogenize_filenames_and_line_numbers ($string);
 	$string = homogenize_break_levels ($string);
 	return $string;

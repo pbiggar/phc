@@ -30,7 +30,7 @@ public:
 	Dead_code_elimination ();
 
 	void children_php_script (HIR::PHP_script* in);
-	void pre_eval_expr (HIR::Eval_expr* in, List<HIR::Statement*>* out);
+	void pre_assign_var (HIR::Assign_var* in, List<HIR::Statement*>* out);
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

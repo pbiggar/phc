@@ -38,6 +38,16 @@ void Lower_expr::post_return (Return* in, List<Statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Lower_expr::post_continue (Continue* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+void Lower_expr::post_break (Break* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 void Lower_expr::post_throw (Throw* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
