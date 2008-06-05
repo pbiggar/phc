@@ -33,12 +33,15 @@ void Annotate::pre_assignment(Assignment* in)
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;
+	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
 
 	// Variables on the RHS need references if $x =& $y is being used
 	Wildcard<Variable>* rhs = new Wildcard<Variable> ();
 	if (in->is_ref && in->match (new Assignment (new Wildcard<Variable>(), false /*ignore*/, rhs)))
-		rhs->value->attrs->set_true ("phc.ast_shredder.need_addr");
+	{
+		rhs->value->attrs->set_true ("phc.ast_shredder.use_ref");
+	}
 
 	// Assignments of the form $x = 5 do not need a temporary, but all other LHS
 	// forms ($$x = 5; $x[$y] = 5; etc) do.
@@ -58,6 +61,7 @@ void Annotate::pre_op_assignment(Op_assignment* in)
 {
 	// We need references if we shred $x[0][1][etc] = ...;
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 
 	// We do need a temporary for the expression of the op_assignment,
 	// because it will be the right operand to a binary operator
@@ -66,11 +70,13 @@ void Annotate::pre_op_assignment(Op_assignment* in)
 void Annotate::pre_post_op (Post_op* in)
 {
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 }
 
 void Annotate::pre_pre_op (Pre_op* in)
 {
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 }
 
 void Annotate::pre_attribute(Attribute* in)
@@ -143,7 +149,10 @@ void Annotate::post_return (Return* in)
 {
 	if (return_by_ref 
 			&& in->expr->classid () == Variable::ID)
+	{
 		in->expr->attrs->set_true ("phc.ast_shredder.need_addr");
+		in->expr->attrs->set_true ("phc.ast_shredder.use_ref");
+	}
 }
 
 void Annotate::post_method_invocation (Method_invocation* in)
