@@ -312,14 +312,14 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	assignment = new Assignment(
 		in->variable,
 		false,
-		new Bin_op(
+		eval (new Bin_op(
 			left,
 			in->op,
-			in->expr)
+			in->expr))
 		);
 	assignment->attrs = in->attrs;
 	
-	return post_assignment(assignment); 
+	return assignment; 
 }
 
 Expr* Shredder::pre_ignore_errors(Ignore_errors* in)

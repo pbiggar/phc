@@ -40,9 +40,16 @@ void Annotate::pre_assignment(Assignment* in)
 	if (in->is_ref && in->match (new Assignment (new Wildcard<Variable>(), false /*ignore*/, rhs)))
 		rhs->value->attrs->set_true ("phc.ast_shredder.need_addr");
 
-	// Is is not necessary to generate a temporary for the
-	// top-level expression of an assignment
-	if (in->expr->classid () != Array::ID)
+	// Assignments of the form $x = 5 do not need a temporary, but all other LHS
+	// forms ($$x = 5; $x[$y] = 5; etc) do.
+	if (in->expr->classid () != Array::ID
+		&& in->match (new Assignment (
+			new Variable (
+				new Wildcard<Target>, 
+				new Wildcard <VARIABLE_NAME>, 
+				new List<Expr*>),
+			false /*ignore*/, 
+			new Wildcard<Expr>)))
 		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
 }
 
