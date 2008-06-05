@@ -157,7 +157,7 @@ void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
 				new List<Statement*> (
 					new Eval_expr (
 						new Assignment (
-							first,
+							first->clone (),
 							false,
 							new BOOL (false)))),
 				false_stmts));
