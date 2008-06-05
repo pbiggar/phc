@@ -23,40 +23,41 @@ import "cfgdot.clp".
 % live_in (B) = (live_out (B) / defined (B)) U used (B)
 
 
-predicate live_in (BB:t_cfg_node, LIVE_VARIABLES:set[t_VARIABLE_NAME]).
-predicate live_out (BB:t_cfg_node, LIVE_VARIABLES:set[t_VARIABLE_NAME]).
+predicate live_in (BB:t_cfg_node, LIVE_VARIABLE:t_VARIABLE_NAME).
+predicate live_out (BB:t_cfg_node, LIVE_VARIABLE:t_VARIABLE_NAME).
 
 % Variables defined in block B
-predicate defined (BB:t_cfg_node, VARS:set[t_VARIABLE_NAME]).
+predicate defined (BB:t_cfg_node, VAR:t_VARIABLE_NAME).
 
 % Variables used in block B
-predicate used (BB:t_cfg_node, VARS:set[t_VARIABLE_NAME]).
+predicate used (BB:t_cfg_node, VARS:t_VARIABLE_NAME).
 
 
 % live_in (Exit) = []
-cfg_node (BB), BB = nexit{_}, set_empty(LS_IN), +live_in (BB, LS_IN).
+%cfg_node (BB), BB = nexit{_}, set_empty(LS_IN), +live_in (BB, LS_IN).
 
 % live_out (B) = U S, for S in Succ (B)
-live_out (BB, LS_OUT) :- cfg_node (BB),
-	\/(cfg_edge (BB, SUCC), live_in (SUCC, LS_SUCC)):set_union_all(LS_SUCC, LS_OUT).
+live_out (BB, OUT) :- cfg_node (BB),
+	cfg_edge (BB, SUCC), live_in (SUCC, OUT).
 
 
 
 % live_in (B) = (live_out (B) / defined (B)) U used (B)
-live_in (BB, LS_IN) :-
-	live_out (BB, LS_OUT), defined (BB, DEF), used (BB, USED),
-	set_difference (LS_OUT, DEF, TEMP),
-	set_union (TEMP, USED, LS_IN).
+live_in (BB, VAR) :-
+	live_out (BB, VAR), (~defined (BB, VAR) ;  used (BB, VAR)).
 
 % Used
 % TODO
-cfg_node (BB), BB = nbranch{VAR}, set_singleton (VAR, SET), +used (BB, SET).
-cfg_node (BB), BB = nblock{_}, set_empty (SET), +used (BB, SET).
+cfg_node (BB), BB = nbranch{VAR}, +used (BB, VAR).
 
-% Defined
-% TODO
-cfg_node (BB), BB = nbranch{_}, set_empty (SET), +defined (BB, SET).
-cfg_node (BB), BB = nblock{_}, set_empty (SET), +defined (BB, SET).
+% function call
+cfg_node (BB), 
+	BB = nblock{S},S = statement_Assign_var {ID},
+	mir ()->assign_var (ID, no, LHS, false, _),
+	+defined (BB, LHS).
+
+
+
 
 ?- live_in (nentry{_}, SET).
 ?- live_out (BB, SET).
