@@ -26,7 +26,9 @@ class MIR_to_AST : public MIR::Fold
  AST::Actual_parameter*,	// Actual_parameter*
  AST::Array*,					// Array*
  AST::Array_elem*,			// Array_elem*
- AST::Eval_expr*,				// Assignment*
+ AST::Eval_expr*,				// Assign_array*
+ AST::Eval_expr*,				// Assign_var*
+ AST::Eval_expr*,				// Assign_var_var*
  AST::Attr_mod*,				// Attr_mod*
  AST::Attribute*,				// Attribute*
  AST::BOOL*,					// BOOL*
@@ -42,6 +44,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Class_name*,			// Class_name*
  AST::Constant*,				// Constant*
  AST::Expr*,					// Expr*
+ AST::Expr*,					// Expr_invocation*
  AST::Foreign_statement*,	// Foreach_end*
  AST::Foreign_expr*,			// Foreach_get_key*
  AST::Foreign_expr*,			// Foreach_get_val*
@@ -60,6 +63,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Identifier*,			// Identifier*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
+ AST::Eval_expr*,				// Invoke_expr*
  AST::Identifier*,			// LABEL_NAME*
  AST::Foreign_statement*,	// Label*
  AST::Literal*,				// Literal*
@@ -76,6 +80,7 @@ class MIR_to_AST : public MIR::Fold
  AST::OP*,						// OP*
  AST::PHP_script*,			// PHP_script*
  AST::Pre_op*,					// Pre_op*
+ AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
  AST::Reflection*,			// Reflection*
  AST::Return*,					// Return*
@@ -324,18 +329,72 @@ class MIR_to_AST : public MIR::Fold
 	{
 		return new AST::Foreign_expr (orig);
 	}
-	
-	AST::Eval_expr * fold_impl_assignment(MIR::Assignment* orig, AST::Variable* variable, bool is_ref, AST::Expr* expr) 
-	{
-		if (variable == NULL)
-			return new AST::Eval_expr (expr);
 
+	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
+	{
 		AST::Assignment* result;
-		result = new AST::Assignment(variable, is_ref, expr);
+		result = new AST::Assignment(
+			new AST::Variable (
+				target, 
+				lhs,
+				new List<AST::Expr*>),
+			is_ref, 
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
+	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target,
+				new AST::Reflection (
+					wrap_var_name (lhs)),
+				new List<AST::Expr*>), 
+			is_ref, 
+			wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, AST::VARIABLE_NAME* index, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target, 
+				lhs, 
+				new List<AST::Expr*> (
+					wrap_var_name (index))), 
+			is_ref, 
+			wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::Target* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				target,
+				lhs,
+				new List<AST::Expr*> (
+					NULL)),
+				is_ref,
+				wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_invoke_expr (MIR::Invoke_expr* orig, AST::Expr* expr) 
+	{
+		return new AST::Eval_expr (expr);
+	}
+
+	
 	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Cast* result;

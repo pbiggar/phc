@@ -39,7 +39,7 @@ private:
 	stack< map<string, int>* > analysis_occurences;
 
 	void pre_method (HIR::Method* in);
-	void pre_assignment (HIR::Assignment* in);
+	void pre_assign_var (HIR::Assign_var* in);
 	void pre_variable_name (HIR::VARIABLE_NAME* in);
 	void post_method (HIR::Method* in);
 	void children_php_script (HIR::PHP_script* in);

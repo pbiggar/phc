@@ -32,11 +32,10 @@ PHP_script ::= Statement* ;
 Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
-
 	| Try | Throw
 	| Label | Goto | Branch
 
-	| Assign_var | Assign_var_var | Assign_array | Push_array 
+	| Assign_var | Assign_var_var | Assign_array | Push_array
 	;
 
 {-

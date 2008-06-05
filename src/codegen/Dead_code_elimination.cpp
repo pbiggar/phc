@@ -37,11 +37,11 @@ void Dead_code_elimination::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Dead_code_elimination::pre_assignment (Assignment* in, List<Statement*>* out)
+void Dead_code_elimination::pre_assign_var (Assign_var* in, List<Statement*>* out)
 {
 	// get useful variables
-	VARIABLE_NAME *lhs = simple_var (in->variable);
-	VARIABLE_NAME *rhs = simple_var (in->expr);
+	VARIABLE_NAME *lhs = in->lhs;
+	VARIABLE_NAME *rhs = simple_var (in->rhs);
 
 	if (lhs == NULL || rhs == NULL)
 	{

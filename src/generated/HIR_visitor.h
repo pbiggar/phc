@@ -53,12 +53,14 @@ public:
     virtual void pre_try(Try* in);
     virtual void pre_catch(Catch* in);
     virtual void pre_throw(Throw* in);
-    virtual void pre_foreign(Foreign* in);
-    virtual void pre_foreign_statement(Foreign_statement* in);
-    virtual void pre_foreign_expr(Foreign_expr* in);
+    virtual void pre_assign_var(Assign_var* in);
+    virtual void pre_assign_array(Assign_array* in);
+    virtual void pre_assign_var_var(Assign_var_var* in);
+    virtual void pre_push_array(Push_array* in);
+    virtual void pre_invoke_expr(Invoke_expr* in);
     virtual void pre_expr(Expr* in);
+    virtual void pre_expr_invocation(Expr_invocation* in);
     virtual void pre_literal(Literal* in);
-    virtual void pre_assignment(Assignment* in);
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
     virtual void pre_bin_op(Bin_op* in);
@@ -77,6 +79,9 @@ public:
     virtual void pre_new(New* in);
     virtual void pre_class_name(Class_name* in);
     virtual void pre_identifier(Identifier* in);
+    virtual void pre_foreign(Foreign* in);
+    virtual void pre_foreign_statement(Foreign_statement* in);
+    virtual void pre_foreign_expr(Foreign_expr* in);
     virtual void pre_class_name(CLASS_NAME* in);
     virtual void pre_interface_name(INTERFACE_NAME* in);
     virtual void pre_method_name(METHOD_NAME* in);
@@ -117,12 +122,14 @@ public:
     virtual void post_try(Try* in);
     virtual void post_catch(Catch* in);
     virtual void post_throw(Throw* in);
-    virtual void post_foreign(Foreign* in);
-    virtual void post_foreign_statement(Foreign_statement* in);
-    virtual void post_foreign_expr(Foreign_expr* in);
+    virtual void post_assign_var(Assign_var* in);
+    virtual void post_assign_array(Assign_array* in);
+    virtual void post_assign_var_var(Assign_var_var* in);
+    virtual void post_push_array(Push_array* in);
+    virtual void post_invoke_expr(Invoke_expr* in);
     virtual void post_expr(Expr* in);
+    virtual void post_expr_invocation(Expr_invocation* in);
     virtual void post_literal(Literal* in);
-    virtual void post_assignment(Assignment* in);
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
     virtual void post_bin_op(Bin_op* in);
@@ -141,6 +148,9 @@ public:
     virtual void post_new(New* in);
     virtual void post_class_name(Class_name* in);
     virtual void post_identifier(Identifier* in);
+    virtual void post_foreign(Foreign* in);
+    virtual void post_foreign_statement(Foreign_statement* in);
+    virtual void post_foreign_expr(Foreign_expr* in);
     virtual void post_class_name(CLASS_NAME* in);
     virtual void post_interface_name(INTERFACE_NAME* in);
     virtual void post_method_name(METHOD_NAME* in);
@@ -178,9 +188,11 @@ public:
     virtual void children_try(Try* in);
     virtual void children_catch(Catch* in);
     virtual void children_throw(Throw* in);
-    virtual void children_foreign_statement(Foreign_statement* in);
-    virtual void children_foreign_expr(Foreign_expr* in);
-    virtual void children_assignment(Assignment* in);
+    virtual void children_assign_var(Assign_var* in);
+    virtual void children_assign_array(Assign_array* in);
+    virtual void children_assign_var_var(Assign_var_var* in);
+    virtual void children_push_array(Push_array* in);
+    virtual void children_invoke_expr(Invoke_expr* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -194,6 +206,8 @@ public:
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
+    virtual void children_foreign_statement(Foreign_statement* in);
+    virtual void children_foreign_expr(Foreign_expr* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
     virtual void children_class_name(CLASS_NAME* in);
@@ -241,9 +255,11 @@ public:
     virtual void pre_try_chain(Try* in);
     virtual void pre_catch_chain(Catch* in);
     virtual void pre_throw_chain(Throw* in);
-    virtual void pre_foreign_statement_chain(Foreign_statement* in);
-    virtual void pre_foreign_expr_chain(Foreign_expr* in);
-    virtual void pre_assignment_chain(Assignment* in);
+    virtual void pre_assign_var_chain(Assign_var* in);
+    virtual void pre_assign_array_chain(Assign_array* in);
+    virtual void pre_assign_var_var_chain(Assign_var_var* in);
+    virtual void pre_push_array_chain(Push_array* in);
+    virtual void pre_invoke_expr_chain(Invoke_expr* in);
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
@@ -257,6 +273,8 @@ public:
     virtual void pre_method_invocation_chain(Method_invocation* in);
     virtual void pre_actual_parameter_chain(Actual_parameter* in);
     virtual void pre_new_chain(New* in);
+    virtual void pre_foreign_statement_chain(Foreign_statement* in);
+    virtual void pre_foreign_expr_chain(Foreign_expr* in);
     virtual void pre_class_name_chain(CLASS_NAME* in);
     virtual void pre_interface_name_chain(INTERFACE_NAME* in);
     virtual void pre_method_name_chain(METHOD_NAME* in);
@@ -296,9 +314,11 @@ public:
     virtual void post_try_chain(Try* in);
     virtual void post_catch_chain(Catch* in);
     virtual void post_throw_chain(Throw* in);
-    virtual void post_foreign_statement_chain(Foreign_statement* in);
-    virtual void post_foreign_expr_chain(Foreign_expr* in);
-    virtual void post_assignment_chain(Assignment* in);
+    virtual void post_assign_var_chain(Assign_var* in);
+    virtual void post_assign_array_chain(Assign_array* in);
+    virtual void post_assign_var_var_chain(Assign_var_var* in);
+    virtual void post_push_array_chain(Push_array* in);
+    virtual void post_invoke_expr_chain(Invoke_expr* in);
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
@@ -312,6 +332,8 @@ public:
     virtual void post_method_invocation_chain(Method_invocation* in);
     virtual void post_actual_parameter_chain(Actual_parameter* in);
     virtual void post_new_chain(New* in);
+    virtual void post_foreign_statement_chain(Foreign_statement* in);
+    virtual void post_foreign_expr_chain(Foreign_expr* in);
     virtual void post_class_name_chain(CLASS_NAME* in);
     virtual void post_interface_name_chain(INTERFACE_NAME* in);
     virtual void post_method_name_chain(METHOD_NAME* in);
@@ -348,13 +370,14 @@ public:
     virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
-    virtual void visit_variable(Variable* in);
+    virtual void visit_target(Target* in);
+    virtual void visit_expr_invocation(Expr_invocation* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
-    virtual void visit_target(Target* in);
     virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
+    virtual void visit_variable(Variable* in);
     virtual void visit_array_elem_list(List<Array_elem*>* in);
     virtual void visit_array_elem(Array_elem* in);
     virtual void visit_method_name(Method_name* in);
@@ -368,8 +391,9 @@ public:
     virtual void pre_member_chain(Member* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
-    virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_target_chain(Target* in);
+    virtual void pre_expr_invocation_chain(Expr_invocation* in);
+    virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
 // Invoke the right post-chain (manual dispatching)
 // Do not override unless you know what you are doing
@@ -378,8 +402,9 @@ public:
     virtual void post_member_chain(Member* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
-    virtual void post_class_name_chain(Class_name* in);
     virtual void post_target_chain(Target* in);
+    virtual void post_expr_invocation_chain(Expr_invocation* in);
+    virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
 // Invoke the right visit-children (manual dispatching)
 // Do not override unless you know what you are doing
@@ -388,8 +413,9 @@ public:
     virtual void children_member(Member* in);
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
-    virtual void children_class_name(Class_name* in);
     virtual void children_target(Target* in);
+    virtual void children_expr_invocation(Expr_invocation* in);
+    virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
 };
 }

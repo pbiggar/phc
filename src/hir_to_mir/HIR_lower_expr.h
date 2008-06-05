@@ -19,15 +19,16 @@ namespace HIR
 		void children_php_script(HIR::PHP_script* in);
 
 	public:
-		void post_assignment (HIR::Assignment* in, List<HIR::Statement*>* out);
+		void post_assign_var (HIR::Assign_var* in, List<HIR::Statement*>* out);
+		void post_assign_var_var (HIR::Assign_var_var* in, List<HIR::Statement*>* out);
+		void post_assign_array (HIR::Assign_array* in, List<HIR::Statement*>* out);
+		void post_push_array (HIR::Push_array* in, List<HIR::Statement*>* out);
 		void post_return(HIR::Return* in, List<HIR::Statement*>* out);
 		void post_global(HIR::Global* in, List<HIR::Statement*>* out);
 
 	protected:
-		HIR::Expr* eval(HIR::Expr* in);
-		void eval(HIR::Expr* in, HIR::Variable* temp);
-		HIR::VARIABLE_NAME* eval_var(HIR::Expr* in);
-		void eval_var(HIR::Expr* in, HIR::VARIABLE_NAME* temp);
+		HIR::VARIABLE_NAME* eval (HIR::Expr* in);
+		void eval (HIR::Expr* in, HIR::VARIABLE_NAME* temp);
 		void push_back_pieces(HIR::Statement* in, List<HIR::Statement*>* out);
 		List<HIR::Statement*>* pieces;
 	};

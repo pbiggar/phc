@@ -90,51 +90,23 @@ void Visitor::pre_throw(Throw* in)
 {
 }
 
-void Visitor::pre_branch(Branch* in)
+void Visitor::pre_assign_var(Assign_var* in)
 {
 }
 
-void Visitor::pre_goto(Goto* in)
+void Visitor::pre_assign_array(Assign_array* in)
 {
 }
 
-void Visitor::pre_label(Label* in)
+void Visitor::pre_assign_var_var(Assign_var_var* in)
 {
 }
 
-void Visitor::pre_foreach_reset(Foreach_reset* in)
+void Visitor::pre_push_array(Push_array* in)
 {
 }
 
-void Visitor::pre_foreach_next(Foreach_next* in)
-{
-}
-
-void Visitor::pre_foreach_end(Foreach_end* in)
-{
-}
-
-void Visitor::pre_foreach_has_key(Foreach_has_key* in)
-{
-}
-
-void Visitor::pre_foreach_get_key(Foreach_get_key* in)
-{
-}
-
-void Visitor::pre_foreach_get_val(Foreach_get_val* in)
-{
-}
-
-void Visitor::pre_foreign(Foreign* in)
-{
-}
-
-void Visitor::pre_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::pre_foreign_expr(Foreign_expr* in)
+void Visitor::pre_invoke_expr(Invoke_expr* in)
 {
 }
 
@@ -142,11 +114,11 @@ void Visitor::pre_expr(Expr* in)
 {
 }
 
-void Visitor::pre_literal(Literal* in)
+void Visitor::pre_expr_invocation(Expr_invocation* in)
 {
 }
 
-void Visitor::pre_assignment(Assignment* in)
+void Visitor::pre_literal(Literal* in)
 {
 }
 
@@ -218,7 +190,55 @@ void Visitor::pre_class_name(Class_name* in)
 {
 }
 
+void Visitor::pre_branch(Branch* in)
+{
+}
+
+void Visitor::pre_goto(Goto* in)
+{
+}
+
+void Visitor::pre_label(Label* in)
+{
+}
+
+void Visitor::pre_foreach_reset(Foreach_reset* in)
+{
+}
+
+void Visitor::pre_foreach_next(Foreach_next* in)
+{
+}
+
+void Visitor::pre_foreach_end(Foreach_end* in)
+{
+}
+
+void Visitor::pre_foreach_has_key(Foreach_has_key* in)
+{
+}
+
+void Visitor::pre_foreach_get_key(Foreach_get_key* in)
+{
+}
+
+void Visitor::pre_foreach_get_val(Foreach_get_val* in)
+{
+}
+
 void Visitor::pre_identifier(Identifier* in)
+{
+}
+
+void Visitor::pre_foreign(Foreign* in)
+{
+}
+
+void Visitor::pre_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::pre_foreign_expr(Foreign_expr* in)
 {
 }
 
@@ -239,10 +259,6 @@ void Visitor::pre_method_name(METHOD_NAME* in)
 }
 
 void Visitor::pre_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::pre_label_name(LABEL_NAME* in)
 {
 }
 
@@ -275,6 +291,10 @@ void Visitor::pre_op(OP* in)
 }
 
 void Visitor::pre_constant_name(CONSTANT_NAME* in)
+{
+}
+
+void Visitor::pre_label_name(LABEL_NAME* in)
 {
 }
 
@@ -363,51 +383,23 @@ void Visitor::post_throw(Throw* in)
 {
 }
 
-void Visitor::post_branch(Branch* in)
+void Visitor::post_assign_var(Assign_var* in)
 {
 }
 
-void Visitor::post_goto(Goto* in)
+void Visitor::post_assign_array(Assign_array* in)
 {
 }
 
-void Visitor::post_label(Label* in)
+void Visitor::post_assign_var_var(Assign_var_var* in)
 {
 }
 
-void Visitor::post_foreach_reset(Foreach_reset* in)
+void Visitor::post_push_array(Push_array* in)
 {
 }
 
-void Visitor::post_foreach_next(Foreach_next* in)
-{
-}
-
-void Visitor::post_foreach_end(Foreach_end* in)
-{
-}
-
-void Visitor::post_foreach_has_key(Foreach_has_key* in)
-{
-}
-
-void Visitor::post_foreach_get_key(Foreach_get_key* in)
-{
-}
-
-void Visitor::post_foreach_get_val(Foreach_get_val* in)
-{
-}
-
-void Visitor::post_foreign(Foreign* in)
-{
-}
-
-void Visitor::post_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::post_foreign_expr(Foreign_expr* in)
+void Visitor::post_invoke_expr(Invoke_expr* in)
 {
 }
 
@@ -415,11 +407,11 @@ void Visitor::post_expr(Expr* in)
 {
 }
 
-void Visitor::post_literal(Literal* in)
+void Visitor::post_expr_invocation(Expr_invocation* in)
 {
 }
 
-void Visitor::post_assignment(Assignment* in)
+void Visitor::post_literal(Literal* in)
 {
 }
 
@@ -491,7 +483,55 @@ void Visitor::post_class_name(Class_name* in)
 {
 }
 
+void Visitor::post_branch(Branch* in)
+{
+}
+
+void Visitor::post_goto(Goto* in)
+{
+}
+
+void Visitor::post_label(Label* in)
+{
+}
+
+void Visitor::post_foreach_reset(Foreach_reset* in)
+{
+}
+
+void Visitor::post_foreach_next(Foreach_next* in)
+{
+}
+
+void Visitor::post_foreach_end(Foreach_end* in)
+{
+}
+
+void Visitor::post_foreach_has_key(Foreach_has_key* in)
+{
+}
+
+void Visitor::post_foreach_get_key(Foreach_get_key* in)
+{
+}
+
+void Visitor::post_foreach_get_val(Foreach_get_val* in)
+{
+}
+
 void Visitor::post_identifier(Identifier* in)
+{
+}
+
+void Visitor::post_foreign(Foreign* in)
+{
+}
+
+void Visitor::post_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::post_foreign_expr(Foreign_expr* in)
 {
 }
 
@@ -512,10 +552,6 @@ void Visitor::post_method_name(METHOD_NAME* in)
 }
 
 void Visitor::post_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::post_label_name(LABEL_NAME* in)
 {
 }
 
@@ -548,6 +584,10 @@ void Visitor::post_op(OP* in)
 }
 
 void Visitor::post_constant_name(CONSTANT_NAME* in)
+{
+}
+
+void Visitor::post_label_name(LABEL_NAME* in)
 {
 }
 
@@ -669,73 +709,42 @@ void Visitor::children_throw(Throw* in)
     visit_expr(in->expr);
 }
 
-void Visitor::children_branch(Branch* in)
+void Visitor::children_assign_var(Assign_var* in)
 {
-    visit_variable_name(in->variable_name);
-    visit_label_name(in->iftrue);
-    visit_label_name(in->iffalse);
-}
-
-void Visitor::children_goto(Goto* in)
-{
-    visit_label_name(in->label_name);
-}
-
-void Visitor::children_label(Label* in)
-{
-    visit_label_name(in->label_name);
-}
-
-void Visitor::children_foreach_reset(Foreach_reset* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_next(Foreach_next* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_end(Foreach_end* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_has_key(Foreach_has_key* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_get_key(Foreach_get_key* in)
-{
-    visit_variable_name(in->array);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreach_get_val(Foreach_get_val* in)
-{
-    visit_variable_name(in->array);
-    visit_variable_name(in->key);
-    visit_ht_iterator(in->iter);
-}
-
-void Visitor::children_foreign_statement(Foreign_statement* in)
-{
-}
-
-void Visitor::children_foreign_expr(Foreign_expr* in)
-{
-}
-
-void Visitor::children_assignment(Assignment* in)
-{
-    visit_variable(in->variable);
+    visit_target(in->target);
+    visit_variable_name(in->lhs);
     visit_marker("is_ref", in->is_ref);
-    visit_expr(in->expr);
+    visit_expr(in->rhs);
+}
+
+void Visitor::children_assign_array(Assign_array* in)
+{
+    visit_target(in->target);
+    visit_variable_name(in->lhs);
+    visit_variable_name(in->index);
+    visit_marker("is_ref", in->is_ref);
+    visit_variable_name(in->rhs);
+}
+
+void Visitor::children_assign_var_var(Assign_var_var* in)
+{
+    visit_target(in->target);
+    visit_variable_name(in->lhs);
+    visit_marker("is_ref", in->is_ref);
+    visit_variable_name(in->rhs);
+}
+
+void Visitor::children_push_array(Push_array* in)
+{
+    visit_target(in->target);
+    visit_variable_name(in->lhs);
+    visit_marker("is_ref", in->is_ref);
+    visit_variable_name(in->rhs);
+}
+
+void Visitor::children_invoke_expr(Invoke_expr* in)
+{
+    visit_expr_invocation(in->expr);
 }
 
 void Visitor::children_cast(Cast* in)
@@ -820,6 +829,68 @@ void Visitor::children_new(New* in)
     visit_actual_parameter_list(in->actual_parameters);
 }
 
+void Visitor::children_branch(Branch* in)
+{
+    visit_variable_name(in->variable_name);
+    visit_label_name(in->iftrue);
+    visit_label_name(in->iffalse);
+}
+
+void Visitor::children_goto(Goto* in)
+{
+    visit_label_name(in->label_name);
+}
+
+void Visitor::children_label(Label* in)
+{
+    visit_label_name(in->label_name);
+}
+
+void Visitor::children_foreach_reset(Foreach_reset* in)
+{
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreach_next(Foreach_next* in)
+{
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreach_end(Foreach_end* in)
+{
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreach_has_key(Foreach_has_key* in)
+{
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreach_get_key(Foreach_get_key* in)
+{
+    visit_variable_name(in->array);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreach_get_val(Foreach_get_val* in)
+{
+    visit_variable_name(in->array);
+    visit_variable_name(in->key);
+    visit_ht_iterator(in->iter);
+}
+
+void Visitor::children_foreign_statement(Foreign_statement* in)
+{
+}
+
+void Visitor::children_foreign_expr(Foreign_expr* in)
+{
+}
+
 // Tokens don't have children, so these methods do nothing by default
 void Visitor::children_ht_iterator(HT_ITERATOR* in)
 {
@@ -838,10 +909,6 @@ void Visitor::children_method_name(METHOD_NAME* in)
 }
 
 void Visitor::children_variable_name(VARIABLE_NAME* in)
-{
-}
-
-void Visitor::children_label_name(LABEL_NAME* in)
 {
 }
 
@@ -874,6 +941,10 @@ void Visitor::children_op(OP* in)
 }
 
 void Visitor::children_constant_name(CONSTANT_NAME* in)
+{
+}
+
+void Visitor::children_label_name(LABEL_NAME* in)
 {
 }
 
@@ -1018,6 +1089,145 @@ void Visitor::pre_throw_chain(Throw* in)
     pre_throw((Throw*) in);
 }
 
+void Visitor::pre_assign_var_chain(Assign_var* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_assign_var((Assign_var*) in);
+}
+
+void Visitor::pre_assign_array_chain(Assign_array* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_assign_array((Assign_array*) in);
+}
+
+void Visitor::pre_assign_var_var_chain(Assign_var_var* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_assign_var_var((Assign_var_var*) in);
+}
+
+void Visitor::pre_push_array_chain(Push_array* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_push_array((Push_array*) in);
+}
+
+void Visitor::pre_invoke_expr_chain(Invoke_expr* in)
+{
+    pre_node((Node*) in);
+    pre_statement((Statement*) in);
+    pre_invoke_expr((Invoke_expr*) in);
+}
+
+void Visitor::pre_cast_chain(Cast* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_cast((Cast*) in);
+}
+
+void Visitor::pre_unary_op_chain(Unary_op* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_unary_op((Unary_op*) in);
+}
+
+void Visitor::pre_bin_op_chain(Bin_op* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_bin_op((Bin_op*) in);
+}
+
+void Visitor::pre_constant_chain(Constant* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_constant((Constant*) in);
+}
+
+void Visitor::pre_instanceof_chain(Instanceof* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_instanceof((Instanceof*) in);
+}
+
+void Visitor::pre_variable_chain(Variable* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_variable((Variable*) in);
+}
+
+void Visitor::pre_reflection_chain(Reflection* in)
+{
+    pre_node((Node*) in);
+    pre_variable_name((Variable_name*) in);
+    pre_method_name((Method_name*) in);
+    pre_class_name((Class_name*) in);
+    pre_reflection((Reflection*) in);
+}
+
+void Visitor::pre_pre_op_chain(Pre_op* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_expr_invocation((Expr_invocation*) in);
+    pre_pre_op((Pre_op*) in);
+}
+
+void Visitor::pre_array_chain(Array* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_array((Array*) in);
+}
+
+void Visitor::pre_array_elem_chain(Array_elem* in)
+{
+    pre_node((Node*) in);
+    pre_array_elem((Array_elem*) in);
+}
+
+void Visitor::pre_method_invocation_chain(Method_invocation* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_expr_invocation((Expr_invocation*) in);
+    pre_method_invocation((Method_invocation*) in);
+}
+
+void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
+{
+    pre_node((Node*) in);
+    pre_actual_parameter((Actual_parameter*) in);
+}
+
+void Visitor::pre_new_chain(New* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_expr_invocation((Expr_invocation*) in);
+    pre_new((New*) in);
+}
+
 void Visitor::pre_branch_chain(Branch* in)
 {
     pre_node((Node*) in);
@@ -1095,118 +1305,10 @@ void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
 void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
 {
     pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
     pre_foreign((Foreign*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
     pre_foreign_expr((Foreign_expr*) in);
-}
-
-void Visitor::pre_assignment_chain(Assignment* in)
-{
-    pre_node((Node*) in);
-    pre_statement((Statement*) in);
-    pre_assignment((Assignment*) in);
-}
-
-void Visitor::pre_cast_chain(Cast* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_cast((Cast*) in);
-}
-
-void Visitor::pre_unary_op_chain(Unary_op* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_unary_op((Unary_op*) in);
-}
-
-void Visitor::pre_bin_op_chain(Bin_op* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_bin_op((Bin_op*) in);
-}
-
-void Visitor::pre_constant_chain(Constant* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_constant((Constant*) in);
-}
-
-void Visitor::pre_instanceof_chain(Instanceof* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_instanceof((Instanceof*) in);
-}
-
-void Visitor::pre_variable_chain(Variable* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_variable((Variable*) in);
-}
-
-void Visitor::pre_reflection_chain(Reflection* in)
-{
-    pre_node((Node*) in);
-    pre_variable_name((Variable_name*) in);
-    pre_method_name((Method_name*) in);
-    pre_class_name((Class_name*) in);
-    pre_reflection((Reflection*) in);
-}
-
-void Visitor::pre_pre_op_chain(Pre_op* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_pre_op((Pre_op*) in);
-}
-
-void Visitor::pre_array_chain(Array* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_array((Array*) in);
-}
-
-void Visitor::pre_array_elem_chain(Array_elem* in)
-{
-    pre_node((Node*) in);
-    pre_array_elem((Array_elem*) in);
-}
-
-void Visitor::pre_method_invocation_chain(Method_invocation* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_method_invocation((Method_invocation*) in);
-}
-
-void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
-{
-    pre_node((Node*) in);
-    pre_actual_parameter((Actual_parameter*) in);
-}
-
-void Visitor::pre_new_chain(New* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_new((New*) in);
 }
 
 void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
@@ -1245,13 +1347,6 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
     pre_variable_name((Variable_name*) in);
     pre_identifier((Identifier*) in);
     pre_variable_name((VARIABLE_NAME*) in);
-}
-
-void Visitor::pre_label_name_chain(LABEL_NAME* in)
-{
-    pre_node((Node*) in);
-    pre_identifier((Identifier*) in);
-    pre_label_name((LABEL_NAME*) in);
 }
 
 void Visitor::pre_int_chain(INT* in)
@@ -1318,6 +1413,13 @@ void Visitor::pre_constant_name_chain(CONSTANT_NAME* in)
     pre_node((Node*) in);
     pre_identifier((Identifier*) in);
     pre_constant_name((CONSTANT_NAME*) in);
+}
+
+void Visitor::pre_label_name_chain(LABEL_NAME* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_label_name((LABEL_NAME*) in);
 }
 
 // Invoke the chain of post-visit methods along the inheritance hierarchy
@@ -1441,6 +1543,145 @@ void Visitor::post_throw_chain(Throw* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_assign_var_chain(Assign_var* in)
+{
+    post_assign_var((Assign_var*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_assign_array_chain(Assign_array* in)
+{
+    post_assign_array((Assign_array*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_assign_var_var_chain(Assign_var_var* in)
+{
+    post_assign_var_var((Assign_var_var*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_push_array_chain(Push_array* in)
+{
+    post_push_array((Push_array*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_invoke_expr_chain(Invoke_expr* in)
+{
+    post_invoke_expr((Invoke_expr*) in);
+    post_statement((Statement*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_cast_chain(Cast* in)
+{
+    post_cast((Cast*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_unary_op_chain(Unary_op* in)
+{
+    post_unary_op((Unary_op*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_bin_op_chain(Bin_op* in)
+{
+    post_bin_op((Bin_op*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_constant_chain(Constant* in)
+{
+    post_constant((Constant*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_instanceof_chain(Instanceof* in)
+{
+    post_instanceof((Instanceof*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_variable_chain(Variable* in)
+{
+    post_variable((Variable*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_reflection_chain(Reflection* in)
+{
+    post_reflection((Reflection*) in);
+    post_class_name((Class_name*) in);
+    post_method_name((Method_name*) in);
+    post_variable_name((Variable_name*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_pre_op_chain(Pre_op* in)
+{
+    post_pre_op((Pre_op*) in);
+    post_expr_invocation((Expr_invocation*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_array_chain(Array* in)
+{
+    post_array((Array*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_array_elem_chain(Array_elem* in)
+{
+    post_array_elem((Array_elem*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_method_invocation_chain(Method_invocation* in)
+{
+    post_method_invocation((Method_invocation*) in);
+    post_expr_invocation((Expr_invocation*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_actual_parameter_chain(Actual_parameter* in)
+{
+    post_actual_parameter((Actual_parameter*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_new_chain(New* in)
+{
+    post_new((New*) in);
+    post_expr_invocation((Expr_invocation*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_branch_chain(Branch* in)
 {
     post_branch((Branch*) in);
@@ -1518,115 +1759,7 @@ void Visitor::post_foreign_statement_chain(Foreign_statement* in)
 void Visitor::post_foreign_expr_chain(Foreign_expr* in)
 {
     post_foreign_expr((Foreign_expr*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
     post_foreign((Foreign*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_assignment_chain(Assignment* in)
-{
-    post_assignment((Assignment*) in);
-    post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_cast_chain(Cast* in)
-{
-    post_cast((Cast*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_unary_op_chain(Unary_op* in)
-{
-    post_unary_op((Unary_op*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_bin_op_chain(Bin_op* in)
-{
-    post_bin_op((Bin_op*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_constant_chain(Constant* in)
-{
-    post_constant((Constant*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_instanceof_chain(Instanceof* in)
-{
-    post_instanceof((Instanceof*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_variable_chain(Variable* in)
-{
-    post_variable((Variable*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_reflection_chain(Reflection* in)
-{
-    post_reflection((Reflection*) in);
-    post_class_name((Class_name*) in);
-    post_method_name((Method_name*) in);
-    post_variable_name((Variable_name*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_pre_op_chain(Pre_op* in)
-{
-    post_pre_op((Pre_op*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_array_chain(Array* in)
-{
-    post_array((Array*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_array_elem_chain(Array_elem* in)
-{
-    post_array_elem((Array_elem*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_method_invocation_chain(Method_invocation* in)
-{
-    post_method_invocation((Method_invocation*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_actual_parameter_chain(Actual_parameter* in)
-{
-    post_actual_parameter((Actual_parameter*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_new_chain(New* in)
-{
-    post_new((New*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -1667,13 +1800,6 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_variable_name((VARIABLE_NAME*) in);
     post_identifier((Identifier*) in);
     post_variable_name((Variable_name*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_label_name_chain(LABEL_NAME* in)
-{
-    post_label_name((LABEL_NAME*) in);
-    post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
 
@@ -1739,6 +1865,13 @@ void Visitor::post_op_chain(OP* in)
 void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 {
     post_constant_name((CONSTANT_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_label_name_chain(LABEL_NAME* in)
+{
+    post_label_name((LABEL_NAME*) in);
     post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
@@ -2032,39 +2165,27 @@ void Visitor::visit_catch(Catch* in)
     }
 }
 
-void Visitor::visit_label_name(LABEL_NAME* in)
+void Visitor::visit_target(Target* in)
 {
     if(in == NULL)
-    	visit_null("MIR", "LABEL_NAME");
+    	visit_null("MIR", "Target");
     else
     {
-    	pre_label_name_chain(in);
-    	children_label_name(in);
-    	post_label_name_chain(in);
+    	pre_target_chain(in);
+    	children_target(in);
+    	post_target_chain(in);
     }
 }
 
-void Visitor::visit_ht_iterator(HT_ITERATOR* in)
+void Visitor::visit_expr_invocation(Expr_invocation* in)
 {
     if(in == NULL)
-    	visit_null("MIR", "HT_ITERATOR");
+    	visit_null("MIR", "Expr_invocation");
     else
     {
-    	pre_ht_iterator_chain(in);
-    	children_ht_iterator(in);
-    	post_ht_iterator_chain(in);
-    }
-}
-
-void Visitor::visit_variable(Variable* in)
-{
-    if(in == NULL)
-    	visit_null("MIR", "Variable");
-    else
-    {
-    	pre_variable_chain(in);
-    	children_variable(in);
-    	post_variable_chain(in);
+    	pre_expr_invocation_chain(in);
+    	children_expr_invocation(in);
+    	post_expr_invocation_chain(in);
     }
 }
 
@@ -2116,18 +2237,6 @@ void Visitor::visit_class_name(Class_name* in)
     }
 }
 
-void Visitor::visit_target(Target* in)
-{
-    if(in == NULL)
-    	visit_null("MIR", "Target");
-    else
-    {
-    	pre_target_chain(in);
-    	children_target(in);
-    	post_target_chain(in);
-    }
-}
-
 void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
 {
     List<VARIABLE_NAME*>::const_iterator i;
@@ -2144,6 +2253,18 @@ void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
     	}
     
     	post_list("MIR", "VARIABLE_NAME", in->size());
+    }
+}
+
+void Visitor::visit_variable(Variable* in)
+{
+    if(in == NULL)
+    	visit_null("MIR", "Variable");
+    else
+    {
+    	pre_variable_chain(in);
+    	children_variable(in);
+    	post_variable_chain(in);
     }
 }
 
@@ -2221,6 +2342,30 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
     }
 }
 
+void Visitor::visit_label_name(LABEL_NAME* in)
+{
+    if(in == NULL)
+    	visit_null("MIR", "LABEL_NAME");
+    else
+    {
+    	pre_label_name_chain(in);
+    	children_label_name(in);
+    	post_label_name_chain(in);
+    }
+}
+
+void Visitor::visit_ht_iterator(HT_ITERATOR* in)
+{
+    if(in == NULL)
+    	visit_null("MIR", "HT_ITERATOR");
+    else
+    {
+    	pre_ht_iterator_chain(in);
+    	children_ht_iterator(in);
+    	post_ht_iterator_chain(in);
+    }
+}
+
 void Visitor::visit_php_script(PHP_script* in)
 {
     if(in == NULL)
@@ -2257,9 +2402,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Global::ID:
     	pre_global_chain(dynamic_cast<Global*>(in));
     	break;
-    case Assignment::ID:
-    	pre_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Try::ID:
     	pre_try_chain(dynamic_cast<Try*>(in));
     	break;
@@ -2283,6 +2425,21 @@ void Visitor::pre_statement_chain(Statement* in)
     	break;
     case Foreach_end::ID:
     	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case Assign_var::ID:
+    	pre_assign_var_chain(dynamic_cast<Assign_var*>(in));
+    	break;
+    case Assign_var_var::ID:
+    	pre_assign_var_var_chain(dynamic_cast<Assign_var_var*>(in));
+    	break;
+    case Assign_array::ID:
+    	pre_assign_array_chain(dynamic_cast<Assign_array*>(in));
+    	break;
+    case Push_array::ID:
+    	pre_push_array_chain(dynamic_cast<Push_array*>(in));
+    	break;
+    case Invoke_expr::ID:
+    	pre_invoke_expr_chain(dynamic_cast<Invoke_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	pre_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
@@ -2325,14 +2482,14 @@ void Visitor::pre_expr_chain(Expr* in)
     case Variable::ID:
     	pre_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	pre_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	pre_int_chain(dynamic_cast<INT*>(in));
@@ -2380,19 +2537,6 @@ void Visitor::pre_variable_name_chain(Variable_name* in)
     }
 }
 
-void Visitor::pre_class_name_chain(Class_name* in)
-{
-    switch(in->classid())
-    {
-    case CLASS_NAME::ID:
-    	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
-    	break;
-    case Reflection::ID:
-    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
 void Visitor::pre_target_chain(Target* in)
 {
     switch(in->classid())
@@ -2415,14 +2559,14 @@ void Visitor::pre_target_chain(Target* in)
     case Variable::ID:
     	pre_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	pre_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	pre_int_chain(dynamic_cast<INT*>(in));
@@ -2456,6 +2600,35 @@ void Visitor::pre_target_chain(Target* in)
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_expr_invocation_chain(Expr_invocation* in)
+{
+    switch(in->classid())
+    {
+    case Method_invocation::ID:
+    	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
+    	break;
+    case New::ID:
+    	pre_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_class_name_chain(Class_name* in)
+{
+    switch(in->classid())
+    {
+    case CLASS_NAME::ID:
+    	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    case Reflection::ID:
+    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
@@ -2497,9 +2670,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Global::ID:
     	post_global_chain(dynamic_cast<Global*>(in));
     	break;
-    case Assignment::ID:
-    	post_assignment_chain(dynamic_cast<Assignment*>(in));
-    	break;
     case Try::ID:
     	post_try_chain(dynamic_cast<Try*>(in));
     	break;
@@ -2523,6 +2693,21 @@ void Visitor::post_statement_chain(Statement* in)
     	break;
     case Foreach_end::ID:
     	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case Assign_var::ID:
+    	post_assign_var_chain(dynamic_cast<Assign_var*>(in));
+    	break;
+    case Assign_var_var::ID:
+    	post_assign_var_var_chain(dynamic_cast<Assign_var_var*>(in));
+    	break;
+    case Assign_array::ID:
+    	post_assign_array_chain(dynamic_cast<Assign_array*>(in));
+    	break;
+    case Push_array::ID:
+    	post_push_array_chain(dynamic_cast<Push_array*>(in));
+    	break;
+    case Invoke_expr::ID:
+    	post_invoke_expr_chain(dynamic_cast<Invoke_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	post_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
@@ -2565,14 +2750,14 @@ void Visitor::post_expr_chain(Expr* in)
     case Variable::ID:
     	post_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	post_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	post_int_chain(dynamic_cast<INT*>(in));
@@ -2620,19 +2805,6 @@ void Visitor::post_variable_name_chain(Variable_name* in)
     }
 }
 
-void Visitor::post_class_name_chain(Class_name* in)
-{
-    switch(in->classid())
-    {
-    case CLASS_NAME::ID:
-    	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
-    	break;
-    case Reflection::ID:
-    	post_reflection_chain(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
 void Visitor::post_target_chain(Target* in)
 {
     switch(in->classid())
@@ -2655,14 +2827,14 @@ void Visitor::post_target_chain(Target* in)
     case Variable::ID:
     	post_variable_chain(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	post_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	post_int_chain(dynamic_cast<INT*>(in));
@@ -2696,6 +2868,35 @@ void Visitor::post_target_chain(Target* in)
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_expr_invocation_chain(Expr_invocation* in)
+{
+    switch(in->classid())
+    {
+    case Method_invocation::ID:
+    	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
+    	break;
+    case New::ID:
+    	post_new_chain(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_class_name_chain(Class_name* in)
+{
+    switch(in->classid())
+    {
+    case CLASS_NAME::ID:
+    	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    case Reflection::ID:
+    	post_reflection_chain(dynamic_cast<Reflection*>(in));
     	break;
     }
 }
@@ -2737,9 +2938,6 @@ void Visitor::children_statement(Statement* in)
     case Global::ID:
     	children_global(dynamic_cast<Global*>(in));
     	break;
-    case Assignment::ID:
-    	children_assignment(dynamic_cast<Assignment*>(in));
-    	break;
     case Try::ID:
     	children_try(dynamic_cast<Try*>(in));
     	break;
@@ -2763,6 +2961,21 @@ void Visitor::children_statement(Statement* in)
     	break;
     case Foreach_end::ID:
     	children_foreach_end(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case Assign_var::ID:
+    	children_assign_var(dynamic_cast<Assign_var*>(in));
+    	break;
+    case Assign_var_var::ID:
+    	children_assign_var_var(dynamic_cast<Assign_var_var*>(in));
+    	break;
+    case Assign_array::ID:
+    	children_assign_array(dynamic_cast<Assign_array*>(in));
+    	break;
+    case Push_array::ID:
+    	children_push_array(dynamic_cast<Push_array*>(in));
+    	break;
+    case Invoke_expr::ID:
+    	children_invoke_expr(dynamic_cast<Invoke_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
@@ -2805,14 +3018,14 @@ void Visitor::children_expr(Expr* in)
     case Variable::ID:
     	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
@@ -2860,19 +3073,6 @@ void Visitor::children_variable_name(Variable_name* in)
     }
 }
 
-void Visitor::children_class_name(Class_name* in)
-{
-    switch(in->classid())
-    {
-    case CLASS_NAME::ID:
-    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
-    	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
-    	break;
-    }
-}
-
 void Visitor::children_target(Target* in)
 {
     switch(in->classid())
@@ -2895,14 +3095,14 @@ void Visitor::children_target(Target* in)
     case Variable::ID:
     	children_variable(dynamic_cast<Variable*>(in));
     	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
-    	break;
     case Method_invocation::ID:
     	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
@@ -2936,6 +3136,35 @@ void Visitor::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_expr_invocation(Expr_invocation* in)
+{
+    switch(in->classid())
+    {
+    case Method_invocation::ID:
+    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
+    	break;
+    case New::ID:
+    	children_new(dynamic_cast<New*>(in));
+    	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_class_name(Class_name* in)
+{
+    switch(in->classid())
+    {
+    case CLASS_NAME::ID:
+    	children_class_name(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    case Reflection::ID:
+    	children_reflection(dynamic_cast<Reflection*>(in));
     	break;
     }
 }

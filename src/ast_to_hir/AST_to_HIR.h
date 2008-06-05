@@ -70,20 +70,20 @@ class AST_to_HIR : public AST::Fold
  HIR::METHOD_NAME*,			// METHOD_NAME*
  HIR::Member*,					// Member*
  HIR::Method*,					// Method*
- HIR::Method_invocation*,	// Method_invocation*
+ HIR::Expr_invocation*,		// Method_invocation*
  HIR::Method_mod*,			// Method_mod*
  HIR::Method_name*,			// Method_name*
  HIR::NIL*,						// NIL*
  HIR::Name_with_default*,	// Name_with_default*
  HIR::Expr*,					// Nested_list_elements*
- HIR::New*,						// New*
+ HIR::Expr_invocation*,		// New*
  HIR::Node*,					// Node*
  HIR::Statement*,				// Nop*
  HIR::OP*,						// OP*
  HIR::Expr*,					// Op_assignment*
  HIR::PHP_script*,			// PHP_script*
  HIR::Expr*,					// Post_op*
- HIR::Pre_op*,					// Pre_op*
+ HIR::Expr_invocation*,		// Pre_op*
  HIR::REAL*,					// REAL*
  HIR::Reflection*,			// Reflection*
  HIR::Return*,					// Return*
@@ -289,12 +289,20 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
-		HIR::Assignment* assignment = reinterpret_cast<HIR::Assignment*> (expr);
-		if (assignment->classid () == HIR::Assignment::ID)
-			return assignment;
+		switch (expr->classid ())
+		{
+			case HIR::Method_invocation::ID:
+			case HIR::New::ID:
+			case HIR::Pre_op::ID:
+				HIR::Invoke_expr* result;
+				result = new HIR::Invoke_expr (dynamic_cast<HIR::Expr_invocation*>(expr));
+				copy_attrs (result, orig);
+				return result;
+			default:
+				// We know this is OK from fold_impl_assignment
+				return reinterpret_cast<HIR::Statement*> (expr);
+		}
 
-		// Otherwise wrap it in an assignment
-		return new HIR::Assignment (NULL, false, expr);
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
@@ -341,18 +349,95 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* variable, bool is_ref, HIR::Expr* expr) 
+	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* var, bool is_ref, HIR::Expr* expr) 
 	{
-		// This needs to be turned into an Expr before it can be a Statement, so
-		// as to escape outside the Eval_expr fold.
-		HIR::Assignment* result;
-		if (variable->attrs->is_true ("phc.codegen.unused"))
-			result = new HIR::Assignment(NULL, false, expr);
-		else
-			result = new HIR::Assignment(variable, is_ref, expr);
+		// push_array - $t->$x[] = $y;
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 1 
+			&& var->array_indices->front () == NULL
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_wrapped_var_name (expr))
+		{
+			HIR::Push_array* result;
+			result = new HIR::Push_array (
+				var->target, 
+				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
+				is_ref, 
+				expr_to_var_name (expr));
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
 
-		copy_attrs (result, orig);
-		return reinterpret_cast<HIR::Expr*> (result);
+		// assign_var - $t->$x = y();
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID)
+		{
+			HIR::Assign_var* result;
+			result = new HIR::Assign_var (
+				var->target,
+				dynamic_cast<HIR::VARIABLE_NAME*>(var->variable_name), 
+				is_ref, 
+				expr);
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+		// invoke_expr - y();
+		if (var->target == NULL
+			&& var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_ref == false)
+		{
+			xdebug (expr);
+			HIR::Invoke_expr* result;
+			result = new HIR::Invoke_expr (
+				dynamic_cast<HIR::Expr_invocation*> (expr)); 
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+		
+		// assign_var_var - $$x = $y;
+		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& var->array_indices->size () == 0
+			&& var->variable_name->classid () == HIR::Reflection::ID
+			&& is_wrapped_var_name (expr))
+		{
+			HIR::Assign_var_var* result;
+			result = new HIR::Assign_var_var (
+				var->target,
+				dynamic_cast<HIR::Reflection*>(var->variable_name)->variable_name, 
+				is_ref, 
+				expr_to_var_name (expr));
+
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+		// assign_array - $t->$x[$i] = $y;
+		if (not var->attrs->is_true ("phc.codegen.unused")
+			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+			&& is_wrapped_var_name (expr)
+			&& var->array_indices->size () == 1
+			&& var->array_indices->front () != NULL)
+		{
+			HIR::Assign_array* result;
+			result = new HIR::Assign_array (
+				var->target,
+				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
+				var->array_indices->front (),
+				is_ref,
+				expr_to_var_name (expr));
+			copy_attrs (result, orig);
+			return reinterpret_cast<HIR::Expr*> (result);
+		}
+
+
+		// all cases should be handled
+		debug (orig);
+		xadebug (orig);
+		assert (0);
 	}
 
 	HIR::Cast* fold_impl_cast(AST::Cast* orig, HIR::CAST* cast, HIR::Expr* expr) 
@@ -416,7 +501,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Pre_op* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
+	HIR::Expr_invocation* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
 	{
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
@@ -440,7 +525,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Method_invocation* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr_invocation* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::Method_invocation* result;
 		result = new HIR::Method_invocation(target, method_name, actual_parameters);
@@ -459,7 +544,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::New* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr_invocation* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);

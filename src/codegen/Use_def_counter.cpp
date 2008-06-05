@@ -72,10 +72,9 @@ void Use_def_counter::pre_method (Method* in)
 
 
 /* Count defs and uses */
-void Use_def_counter::pre_assignment (Assignment* in)
+void Use_def_counter::pre_assign_var (Assign_var* in)
 {
-	if (VARIABLE_NAME* var_name = simple_var (in->variable))
-		(*analysis_defs.top()) [*var_name->value] ++;
+	(*analysis_defs.top()) [*in->lhs->value] ++;
 }
 
 void Use_def_counter::pre_variable_name (VARIABLE_NAME* in)

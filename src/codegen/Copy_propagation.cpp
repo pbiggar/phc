@@ -70,11 +70,11 @@ void Copy_propagation::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Copy_propagation::pre_assignment (Assignment* in, List<Statement*>* out)
+void Copy_propagation::pre_assign_var (Assign_var* in, List<Statement*>* out)
 {
 	debug (in);
-	VARIABLE_NAME* lhs = simple_var (in->variable);
-	VARIABLE_NAME* rhs = simple_var (in->expr);
+	VARIABLE_NAME* lhs = in->lhs;
+	VARIABLE_NAME* rhs = simple_var (in->rhs);
 	if (lhs == NULL || rhs == NULL)
 	{
 		out->push_back (in);
@@ -100,7 +100,7 @@ void Copy_propagation::pre_assignment (Assignment* in, List<Statement*>* out)
 			&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
 	{
 		cdebug << "rhs is replacable" << endl;
-		replaceable [srhs]->variable = new Variable (lhs->clone ());
+		replaceable [srhs]->lhs = lhs->clone ();
 
 		// note lack of out->push_back (in);
 		iterate_again = true;

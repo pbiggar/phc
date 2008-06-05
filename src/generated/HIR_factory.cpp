@@ -187,23 +187,48 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Throw(expr);
     }
-    if(!strcmp(type_id, "Foreign_statement"))
+    if(!strcmp(type_id, "Assign_var"))
     {
-    	assert(i == args->end());
-    	return new Foreign_statement();
-    }
-    if(!strcmp(type_id, "Foreign_expr"))
-    {
-    	assert(i == args->end());
-    	return new Foreign_expr();
-    }
-    if(!strcmp(type_id, "Assignment"))
-    {
-    	Variable* variable = dynamic_cast<Variable*>(*i++);
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Expr* rhs = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new Assignment(variable, is_ref, expr);
+    	return new Assign_var(target, lhs, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Assign_array"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* index = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Assign_array(target, lhs, index, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Assign_var_var"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Assign_var_var(target, lhs, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Push_array"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Push_array(target, lhs, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Invoke_expr"))
+    {
+    	Expr_invocation* expr = dynamic_cast<Expr_invocation*>(*i++);
+    	assert(i == args->end());
+    	return new Invoke_expr(expr);
     }
     if(!strcmp(type_id, "Cast"))
     {
@@ -299,6 +324,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
+    }
+    if(!strcmp(type_id, "Foreign_statement"))
+    {
+    	assert(i == args->end());
+    	return new Foreign_statement();
+    }
+    if(!strcmp(type_id, "Foreign_expr"))
+    {
+    	assert(i == args->end());
+    	return new Foreign_expr();
     }
     if(!strcmp(type_id, "CLASS_NAME"))
     {

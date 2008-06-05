@@ -649,9 +649,8 @@ protected:
 						<< "{\n";
 
 					Statement* assign_default_values = 
-						new Assignment (
-							new Variable (
-								(*i)->var->variable_name->clone ()),
+						new Assign_var(
+							(*i)->var->variable_name->clone (),
 							false, 
 							(*i)->var->expr->clone ());
 
@@ -818,56 +817,52 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
-class Pattern_assignment : public Pattern
+class Pattern_assign_var : public Pattern
 {
 public:
 	virtual Expr* rhs_pattern() = 0;
 	virtual void generate_rhs () = 0;
-	virtual ~Pattern_assignment() {}
+	virtual ~Pattern_assign_var() {}
 
 public:
 	bool match(Statement* that)
 	{
-		lhs = new Wildcard<Variable>;
-		agn = new Assignment(lhs, /* ignored */ false, rhs_pattern());
-		if (that->match(agn))
-		{
-			// lhs is optional
-			if (lhs->value == NULL) lhs = NULL;
-			return true;
-		}
-
-		return false;
+		lhs = new Wildcard<VARIABLE_NAME>;
+		target = new Wildcard<Target>;
+		agn = new Assign_var (target, lhs, /* ignored */ false, rhs_pattern());
+		return (that->match(agn));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		code << "{\n";
+		assert (lhs);
+		if (target->value) phc_unsupported (agn);
 
-		if (lhs) // more readable this way
-		{
-			index_lhs (LOCAL, "p_lhs", lhs->value);
 
-			code <<	"if (p_lhs != NULL)\n{\n";
+		code 
+			<< "{\n";
 
-			// Generate code for the RHS
-			generate_rhs ();
+		index_lhs (LOCAL, "p_lhs", lhs->value);
 
-			code << "}\n";
-		}
-		else
-		{
-			// Generate code for the RHS
-			generate_rhs ();
-		}
+		code 
+			<<		"if (p_lhs != NULL)\n"
+			<<		"{\n";
 
-		code << "}\n";
+		// Generate code for the RHS
+		generate_rhs ();
+
+		code 
+			<<		"}\n";
+		
+		code 
+			<< "}\n";
 		code << "phc_check_invariants (TSRMLS_C);\n";
 	}
 
 protected:
-	Assignment* agn;
-	Wildcard<Variable>* lhs;
+	Assign_var* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
 };
 
 /*
@@ -880,14 +875,11 @@ protected:
  * Assign_zval is that Assign_literal can do constant pooling.
  */
 
-class Pattern_assign_zval : public Pattern_assignment
+class Pattern_assign_zval : public Pattern_assign_var
 {
 public:
 	void generate_rhs ()
 	{
-		if (lhs == NULL)
-			return;
-
 		code
 			<< "if ((*p_lhs)->is_ref)\n"
 			<< "{\n"
@@ -926,9 +918,6 @@ public:
 	// record if we've seen this variable before
 	void generate_rhs ()
 	{
-		if (lhs == NULL)
-			return;
-
 		// TODO If this isnt static, there is a new hash each time,
 		// because there is a new object each time it is called. Why is
 		// there a new object each time?
@@ -1073,7 +1062,7 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 };
 
 
-class Pattern_assign_var : public Pattern_assignment
+class Pattern_assign_var_to_var : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1084,10 +1073,6 @@ public:
 
 	void generate_rhs ()
 	{
-		// FIXME: this happens because of strange, multi-stage lowering
-		if (lhs == NULL)
-			return;
-
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -1116,7 +1101,7 @@ protected:
 	Wildcard<Variable>* rhs;
 };
 
-class Pattern_cast : public Pattern_assignment
+class Pattern_cast : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1194,7 +1179,7 @@ protected:
 	Wildcard<Variable_name>* rhs;
 };
 
-class Pattern_assign_constant : public Pattern_assignment
+class Pattern_assign_constant : public Pattern_assign_var
 {
 public:
 
@@ -1248,7 +1233,7 @@ protected:
 	Wildcard<Constant>* rhs;
 };
 
-class Pattern_eval : public Pattern_assignment
+class Pattern_eval : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1315,7 +1300,7 @@ public:
 		exit_arg = new Wildcard<Actual_parameter> ();
 		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
 		return that->match (
-				new Assignment (new Wildcard<Variable>, false, // ignored
+				new Assign_var (new Wildcard<VARIABLE_NAME>, // ignored
 					new Method_invocation(
 						NULL,	
 						name,
@@ -1345,7 +1330,7 @@ protected:
 	Wildcard<Actual_parameter>* exit_arg;
 };
 
-class Pattern_method_invocation : public Pattern_assignment
+class Pattern_method_invocation : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1635,7 +1620,7 @@ protected:
 	Wildcard<Method_invocation>* rhs;
 };
 
-class Pattern_bin_op : public Pattern_assignment
+class Pattern_bin_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1689,7 +1674,7 @@ protected:
 	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pattern_pre_op : public Pattern_assignment
+class Pattern_pre_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1720,7 +1705,7 @@ protected:
 	Wildcard<OP>* op;
 };
 
-class Pattern_unary_op : public Pattern_assignment
+class Pattern_unary_op : public Pattern_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1819,9 +1804,7 @@ class Pattern_unset : public Pattern
 	{
 		var = new Wildcard<Actual_parameter>;
 		return that->match(
-			new Assignment(
-				NULL,
-				false,
+			new Invoke_expr (
 				new Method_invocation(
 					"unset",
 					var)));
@@ -2051,7 +2034,7 @@ protected:
 	Wildcard<Foreach_get_key>* get_key;
 };
 
-class Pattern_foreach_get_val : public Pattern_assignment
+class Pattern_foreach_get_val : public Pattern_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -2179,7 +2162,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_real ()
 	,	new Pattern_assign_nil ()
 	,	new Pattern_assign_constant ()
-	,	new Pattern_assign_var ()
+	,	new Pattern_assign_var_to_var ()
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()

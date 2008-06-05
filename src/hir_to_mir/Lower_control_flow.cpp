@@ -190,8 +190,8 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// $T = foreach_has_key ($arr, iter);
 	VARIABLE_NAME* has_key = fresh_var_name ("THK");
 	out->push_back (
-		new Assignment (
-			new Variable (has_key),
+		new Assign_var (
+			has_key,
 			false,
 			new Foreign_expr (
 				new MIR::Foreach_has_key (
@@ -226,9 +226,8 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		key = fresh_var_name ("LCF_KEY_");
 
 	out->push_back (
-			new Assignment (
-				new Variable (key),
-				false,
+			new Assign_var (
+				key,
 				new Foreign_expr (get_key)));
 	
 
@@ -236,14 +235,14 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	MIR::VARIABLE_NAME* mir_key = folder.fold_variable_name (key);
 
 	out->push_back (
-		new Assignment (
-		new Variable (in->val->clone ()),
-		in->is_ref,
-		new Foreign_expr (
-			new MIR::Foreach_get_val (
-				array_name->clone (),
-				mir_key,
-				iter->clone ()))));
+		new Assign_var(
+			in->val->clone (),
+			in->is_ref,
+			new Foreign_expr (
+				new MIR::Foreach_get_val (
+					array_name->clone (),
+					mir_key,
+					iter->clone ()))));
 
 
 	// ....  
@@ -362,9 +361,8 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// $TB1 = $x;
 		VARIABLE_NAME* lhs = fresh_var_name ("TB");
 		out->push_back (
-			new Assignment (
-				new Variable (lhs),
-				false, 
+			new Assign_var (
+				lhs,
 				in->expr));
 
 		// 1 branch and label per level:
@@ -384,11 +382,11 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 			push_back_pieces ( // push the pieces from the eval_var back
 				new Foreign_statement (
 					new MIR::Branch (
-						(fold_var (eval_var (
+						(fold_var (eval (
 							new Bin_op (
 								lhs->clone(),
 								op,
-								eval_var (new INT (depth)))))),
+								eval (new INT (depth)))))),
 						exit_label<T> (*i)->label_name, // get the label from this depth
 						iffalse->label_name->clone ())),
 				out);

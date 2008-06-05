@@ -25,7 +25,22 @@ void Lower_expr::children_php_script(PHP_script* in)
  * only a limited number of statements to consider here.
  */
 
-void Lower_expr::post_assignment (Assignment* in, List<Statement*>* out)
+void Lower_expr::post_assign_var (Assign_var* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+void Lower_expr::post_assign_var_var (Assign_var_var* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+void Lower_expr::post_assign_array (Assign_array* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
+void Lower_expr::post_push_array (Push_array* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
 }
@@ -59,38 +74,18 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
  * If the node is marked "phc.hir_lower_expr.no_temp", eval simply returns in.
  */
 
-Expr* Lower_expr::eval(Expr* in)
-{
-	Variable* temp = fresh_var("TLE"); 
-	eval(in, temp);
-	return temp;
-}
-
-// Variation on eval that takes in the name of the temp
-void Lower_expr::eval(Expr* in, Variable* temp)
-{
-	pieces->push_back(
-		new Assignment(
-			temp->clone (), 
-			false, 
-			in->clone ()));
-}
-
-
-VARIABLE_NAME* Lower_expr::eval_var(Expr* in)
+VARIABLE_NAME* Lower_expr::eval(Expr* in)
 {
 	VARIABLE_NAME* temp = fresh_var_name("TLE"); 
-	eval_var(in, temp);
+	eval (in, temp);
 	return temp;
 }
 
-void Lower_expr::eval_var(Expr* in, VARIABLE_NAME* temp)
+void Lower_expr::eval(Expr* in, VARIABLE_NAME* temp)
 {
 	pieces->push_back(
-		new Assignment(
-			new Variable (
-				temp->clone ()),
-				false, 
+		new Assign_var (
+				temp->clone (),
 				in->clone ()));
 }
 
