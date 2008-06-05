@@ -100,14 +100,6 @@ plugins_tests_cloning_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) $(plugins_tests_cloning_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
-plugins_tests_limit_assignments_la_LIBADD =
-am_plugins_tests_limit_assignments_la_OBJECTS = limit_assignments.lo
-plugins_tests_limit_assignments_la_OBJECTS =  \
-	$(am_plugins_tests_limit_assignments_la_OBJECTS)
-plugins_tests_limit_assignments_la_LINK = $(LIBTOOL) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tests_limit_assignments_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_line_numbers_la_LIBADD =
 am_plugins_tests_line_numbers_la_OBJECTS = line_numbers.lo
 plugins_tests_line_numbers_la_OBJECTS =  \
@@ -345,7 +337,6 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
-	$(plugins_tests_limit_assignments_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_lost_attributes_la_SOURCES) \
@@ -369,7 +360,6 @@ SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(src_phc_SOURCES)
 DIST_SOURCES = $(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
-	$(plugins_tests_limit_assignments_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
 	$(plugins_tests_lost_attributes_la_SOURCES) \
@@ -862,8 +852,8 @@ strangelib_HEADERS = \
 	src/lib/String.h
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
-	plugins/tests/cloning.la plugins/tests/limit_assignments.la \
-	plugins/tests/linear.la plugins/tests/lost_attributes.la \
+	plugins/tests/cloning.la plugins/tests/linear.la \
+	plugins/tests/lost_attributes.la \
 	plugins/tests/strip_includes.la plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
@@ -882,8 +872,6 @@ plugins_tests_canonical_unparser_la_SOURCES = plugins/tests/canonical_unparser.c
 plugins_tests_canonical_unparser_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_limit_assignments_la_SOURCES = plugins/tests/limit_assignments.cpp
-plugins_tests_limit_assignments_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_lost_attributes_la_SOURCES = plugins/tests/lost_attributes.cpp
@@ -1034,8 +1022,6 @@ plugins/tests/canonical_unparser.la: $(plugins_tests_canonical_unparser_la_OBJEC
 	$(plugins_tests_canonical_unparser_la_LINK) -rpath $(pkglibdir) $(plugins_tests_canonical_unparser_la_OBJECTS) $(plugins_tests_canonical_unparser_la_LIBADD) $(LIBS)
 plugins/tests/cloning.la: $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_cloning_la_LINK) -rpath $(pkglibdir) $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_LIBADD) $(LIBS)
-plugins/tests/limit_assignments.la: $(plugins_tests_limit_assignments_la_OBJECTS) $(plugins_tests_limit_assignments_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
-	$(plugins_tests_limit_assignments_la_LINK) -rpath $(pkglibdir) $(plugins_tests_limit_assignments_la_OBJECTS) $(plugins_tests_limit_assignments_la_LIBADD) $(LIBS)
 plugins/tests/line_numbers.la: $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_line_numbers_la_LINK) -rpath $(pkglibdir) $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_LIBADD) $(LIBS)
 plugins/tests/linear.la: $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -1247,7 +1233,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.yy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/limit_assignments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line_numbers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linear.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lost_attributes.Plo@am__quote@
@@ -1359,13 +1344,6 @@ cloning.lo: plugins/tests/cloning.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/cloning.cpp' object='cloning.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cloning.lo `test -f 'plugins/tests/cloning.cpp' || echo '$(srcdir)/'`plugins/tests/cloning.cpp
-
-limit_assignments.lo: plugins/tests/limit_assignments.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT limit_assignments.lo -MD -MP -MF $(DEPDIR)/limit_assignments.Tpo -c -o limit_assignments.lo `test -f 'plugins/tests/limit_assignments.cpp' || echo '$(srcdir)/'`plugins/tests/limit_assignments.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/limit_assignments.Tpo $(DEPDIR)/limit_assignments.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/limit_assignments.cpp' object='limit_assignments.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o limit_assignments.lo `test -f 'plugins/tests/limit_assignments.cpp' || echo '$(srcdir)/'`plugins/tests/limit_assignments.cpp
 
 line_numbers.lo: plugins/tests/line_numbers.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT line_numbers.lo -MD -MP -MF $(DEPDIR)/line_numbers.Tpo -c -o line_numbers.lo `test -f 'plugins/tests/line_numbers.cpp' || echo '$(srcdir)/'`plugins/tests/line_numbers.cpp

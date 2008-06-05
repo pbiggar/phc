@@ -336,10 +336,6 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/cloning.la
 plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/limit_assignments.la
-plugins_tests_limit_assignments_la_SOURCES = plugins/tests/limit_assignments.cpp
-plugins_tests_limit_assignments_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-
 nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
