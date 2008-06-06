@@ -72,7 +72,7 @@ print (ERROR) :-
 	tostring (BB, BB_STR), 
 		((BB = nblock {B}, mir()->source_rep (any{B}, SOURCE))
 			;
-		SOURCE = ""),
+		SOURCE = "SOURCE NOT AVAILABLE"),
 	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).
 assert ~error (_).
 
@@ -101,7 +101,16 @@ cfg_node (BB), BB = nblock{statement_Assign_array {ID}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
 	+handled (BB).
 
-
+% Invoke_expr - Rewrap it, and treat like a normal expr
+cfg_node (BB), BB = nblock{statement_Invoke_expr{ID}},
+	mir ()->invoke_expr (ID, I_EXPR),
+	((I_EXPR = expr_invocation_Method_invocation {MI},
+	  EXPR = expr_Method_invocation {MI})
+	;(I_EXPR = expr_invocation_New {N},
+	  EXPR = expr_New {N})
+	;(I_EXPR = expr_invocation_Pre_op {P},
+	  EXPR = expr_Pre_op {P})),
+	  +use_expr (BB, EXPR).
 
 % Return - expr is used.
 cfg_node (BB), BB = nblock{statement_Return{ID}},
@@ -129,6 +138,7 @@ predicate use_expr (BB:t_cfg_node, EXPR:t_Expr).
 use_expr (BB, expr_INT{_}), +handled (BB).
 use_expr (BB, expr_STRING{_}), +handled (BB).
 use_expr (BB, expr_BOOL{_}), +handled (BB).
+use_expr (BB, expr_REAL{_}), +handled (BB).
 
 % Variables
 use_expr (BB, expr_Variable{ID}), +use_variable (BB, ID).
@@ -137,11 +147,17 @@ use_variable (BB, ID),
 	mir()->variable (ID, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES),
 	+used_var (BB, VAR_NAME), +use_variable_names (BB, ARRAY_INDICES), +handled (BB).
 	
+% Cast_op
+use_expr (BB, expr_Cast {ID}), mir()->cast (ID, _, VAR),
+	+used_var (BB, VAR), +handled (BB).
 
+% Unary_op
+use_expr (BB, expr_Unary_op {ID}), mir()->unary_op (ID, _, VAR),
+	+used_var (BB, VAR), +handled (BB).
 
 % Bin_op
-use_expr (BB, expr_Bin_op {ID}), mir()->bin_op (ID, OP1, _, OP2),
-	+used_var (BB, OP1), +used_var (BB, OP2), +handled (BB).
+use_expr (BB, expr_Bin_op {ID}), mir()->bin_op (ID, LEFT, _, RIGHT),
+	+used_var (BB, LEFT), +used_var (BB, RIGHT), +handled (BB).
 
 % Pre_op - the variable is both used and defined
 use_expr (BB, expr_Pre_op{ID}),
