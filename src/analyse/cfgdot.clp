@@ -41,8 +41,11 @@ dotty_edge (E1, E2, Attrs) :- cfg_edge (E1, E2),
 	\/(out_annotation (E1, S1), str_cat (S1, "\n", OUT)):list_all (OUT, OUTS),
 	\/(in_annotation (E2, S2), str_cat (S2, "\n", IN)):list_all (IN, INS),
 	str_cat_list (OUTS, OUTS_STR), str_cat_list (INS, INS_STR),
-	Attrs = [dg_attr{"headlabel", OUTS_STR}, dg_attr{"taillabel", INS_STR}].
+	str_cat_list (["OUT:\n", OUTS_STR, "\n-----\n\nIN:\n", INS_STR], LABEL),
+	Attrs = [dg_attr{"label", LABEL}].
 
+
+% Build the dotty graph
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	Name = "CFG",
 	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),
