@@ -11,11 +11,15 @@ using dotty.
 predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
 predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
 
+% Allow any user to annotation the CFG with strings.
+predicate in_annotation (BB:t_cfg_node, ANNOTATION:string).
+predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).
+
 % Nodes
 dotty_node (N, []) :- cfg_node (N), N = nentry{_}.
 dotty_node (N, []) :- cfg_node (N), N = nexit{_}.
 
-% Normal statements
+% Normal statements (labelled with the SOURCE_REP and [ID])
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nblock{S},
@@ -24,7 +28,7 @@ dotty_node (N, Attrs) :-
 	Attrs = [dg_attr{"label", LABEL}].
 
 
-% Branches
+% Branches (labelled with the variable name)
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nbranch{B}, 
@@ -32,8 +36,12 @@ dotty_node (N, Attrs) :-
 	tostring (B, BSTRING), str_cat4 (VARNAME, "\n[", BSTRING, "]", LABEL),
 	Attrs = [dg_attr{"label", LABEL}, dg_attr{"shape", "rectangle"}].
 
-% Edges
-dotty_edge (E1, E2, []) :- cfg_edge (E1, E2).
+% Edges (with labels if any in/out_annotations exist)
+dotty_edge (E1, E2, Attrs) :- cfg_edge (E1, E2),
+	\/(out_annotation (E1, S1), str_cat (S1, "\n", OUT)):list_all (OUT, OUTS),
+	\/(in_annotation (E2, S2), str_cat (S2, "\n", IN)):list_all (IN, INS),
+	str_cat_list (OUTS, OUTS_STR), str_cat_list (INS, INS_STR),
+	Attrs = [dg_attr{"headlabel", OUTS_STR}, dg_attr{"taillabel", INS_STR}].
 
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	Name = "CFG",
@@ -41,7 +49,3 @@ dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 	\/(dotty_edge (DE1, DE2, EAs), E = dg_edge{DE1, DE2, EAs}):list_all(E, Edges).
 
 
-%?- dotty_node (A, N).
-%?- dotty_edge (A, B, N).
-%?- cfg_edge (A, B).
-%?- cfg_node (A).
