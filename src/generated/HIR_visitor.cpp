@@ -2124,14 +2124,14 @@ void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
     	visit_null_list("HIR", "VARIABLE_NAME");
     else
     {
-    	pre_list("HIR", "VARIABLE_NAME", in->size(), true);
+    	pre_list("HIR", "VARIABLE_NAME", in->size(), false);
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
     		visit_variable_name(*i);
     	}
     
-    	post_list("HIR", "VARIABLE_NAME", in->size(), true);
+    	post_list("HIR", "VARIABLE_NAME", in->size(), false);
     }
 }
 

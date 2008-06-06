@@ -336,7 +336,7 @@ predicate unary_op (ID:t_Unary_op, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate bin_op (ID:t_Bin_op, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME).
 predicate constant (ID:t_Constant, CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME).
 predicate instanceof (ID:t_Instanceof, VARIABLE_NAME:t_VARIABLE_NAME, CLASS_NAME:t_Class_name).
-predicate variable (ID:t_Variable, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[maybe[t_VARIABLE_NAME]]).
+predicate variable (ID:t_Variable, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[t_VARIABLE_NAME]).
 predicate reflection (ID:t_Reflection, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate pre_op (ID:t_Pre_op, OP:t_OP, VARIABLE:t_Variable).
 predicate array (ID:t_Array, ARRAY_ELEMS:list[t_Array_elem]).
