@@ -1732,7 +1732,7 @@ public:
     virtual void assert_valid();
 };
 
-// Variable ::= Target? Variable_name array_indices:VARIABLE_NAME?* ;
+// Variable ::= Target? Variable_name array_indices:VARIABLE_NAME* ;
 class Variable : virtual public Expr
 {
 public:

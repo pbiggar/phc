@@ -6260,7 +6260,8 @@ void Variable::assert_valid()
     	List<VARIABLE_NAME*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
-    		if(*i != NULL) (*i)->assert_valid();
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
     	}
     }
     Node::assert_mixin_valid();
