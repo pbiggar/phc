@@ -94,6 +94,15 @@ cfg_node (BB), BB = nblock{statement_Assign_var {ID}},
 	mir ()->assign_var (ID, no, LHS, _, EXPR),
 	+defined_var (BB, LHS), +use_expr (BB, EXPR).
 
+% Assign array - $x[$y] = $z. All of x, y and z are used (even though $x has
+% the potential to be defined).
+cfg_node (BB), BB = nblock{statement_Assign_array {ID}},
+	mir ()->assign_array (ID, no, LHS, INDEX, _, RHS),
+	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
+	+handled (BB).
+
+
+
 % Return - expr is used.
 cfg_node (BB), BB = nblock{statement_Return{ID}},
 	mir()->return (ID, EXPR), +use_expr (BB, EXPR).
@@ -119,6 +128,7 @@ predicate use_expr (BB:t_cfg_node, EXPR:t_Expr).
 % Literals
 use_expr (BB, expr_INT{_}), +handled (BB).
 use_expr (BB, expr_STRING{_}), +handled (BB).
+use_expr (BB, expr_BOOL{_}), +handled (BB).
 
 % Variables
 use_expr (BB, expr_Variable{ID}), +use_variable (BB, ID).
@@ -133,6 +143,13 @@ use_variable (BB, ID),
 use_expr (BB, expr_Bin_op {ID}), mir()->bin_op (ID, OP1, _, OP2),
 	+used_var (BB, OP1), +used_var (BB, OP2), +handled (BB).
 
+% Pre_op - the variable is both used and defined
+use_expr (BB, expr_Pre_op{ID}),
+	mir()->pre_op (ID, _, VAR),
+	% TODO If VAR is simple, it may be defined here, in which case we can
+	% remove the definition if VAR is not live on exit, which is not reflected
+	% here. Add +defined (VAR).
+	+use_variable (BB, VAR), +handled (BB).
 
 % Method invocation
 use_expr (BB, expr_Method_invocation {ID}), 
