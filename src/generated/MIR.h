@@ -572,7 +572,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:VARIABLE_NAME?* ;
+// Actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:VARIABLE_NAME* ;
 class Actual_parameter : virtual public Node
 {
 public:
