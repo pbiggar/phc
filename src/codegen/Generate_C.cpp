@@ -985,6 +985,78 @@ protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
 
+void push_rhs (bool is_ref, VARIABLE_NAME* rhs)
+{
+	if (!is_ref)
+	{
+		declare ("p_rhs");
+		code 
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n";
+		read (LOCAL, "p_rhs", rhs);
+		code 
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		cleanup ("p_rhs");
+	}
+	else
+	{
+		index_lhs (LOCAL, "p_rhs", rhs);
+		code 
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
+	}
+}
+
+class Pattern_push_array : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		target = new Wildcard<Target>;
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		agn = new Push_array (target, lhs, false, rhs);
+		return (that->match(agn));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert (lhs->value);
+		assert (rhs->value);
+		if (target->value) phc_unsupported (agn);
+
+
+		code 
+			<< "{\n"
+			<<		"zval** p_lhs;\n";
+
+		read_st (LOCAL, "p_lhs_var", rhs->value);
+		code 
+			<<	"	// Array push \n"
+			<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
+			<<	""
+			<<	"	if (p_lhs != NULL)\n"
+			<<	"	{\n";
+
+		push_rhs (agn->is_ref, rhs->value);
+
+		code 
+			<<		"}\n"
+			<< "}\n"
+			<< "phc_check_invariants (TSRMLS_C);\n";
+	}
+
+protected:
+	Push_array* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* rhs;
+};
+
 /*
  * Assign_zval is a specialization of Assignment for assignments to a simple
  * zval which takes care of creating a new zval for the LHS if necessary.
@@ -2285,7 +2357,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_var_to_var ()
 //	,	new Pattern_assign_var_var () TODO
 	,	new Pattern_assign_array ()
-//	,	new Pattern_push_array ()
+	,	new Pattern_push_array ()
 //	,	new Pattern_eval_expr () TODO
 	,	new Pattern_global()
 	,	new Pattern_eval()
