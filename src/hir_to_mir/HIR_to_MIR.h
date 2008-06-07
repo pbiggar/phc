@@ -44,8 +44,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Class_name*,			// Class_name*
  MIR::Constant*,				// Constant*
  MIR::Statement*,				// Continue*
+ MIR::Eval_expr*,				// Eval_expr*
  MIR::Expr*,					// Expr*
- MIR::Expr_invocation*,		// Expr_invocation*
  MIR::Statement*,				// Foreach*
  MIR::Node*,					// Foreign*
  MIR::Expr*,					// Foreign_expr*
@@ -58,7 +58,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Statement*,				// If*
  MIR::Instanceof*,			// Instanceof*
  MIR::Interface_def*,		// Interface_def*
- MIR::Invoke_expr*,			// Invoke_expr*
  MIR::Literal*,				// Literal*
  MIR::Statement*,				// Loop*
  MIR::METHOD_NAME*,			// METHOD_NAME*
@@ -237,10 +236,10 @@ public:
 		return result;
 	}
 
-	MIR::Invoke_expr* fold_impl_invoke_expr (HIR::Invoke_expr* orig, MIR::Expr_invocation* expr_invocation) 
+	MIR::Eval_expr* fold_impl_eval_expr (HIR::Eval_expr* orig, MIR::Expr* expr) 
 	{
-		MIR::Invoke_expr* result;
-		result = new MIR::Invoke_expr (expr_invocation);
+		MIR::Eval_expr* result;
+		result = new MIR::Eval_expr (expr);
 		result->attrs = orig->attrs;
 		return result;
 	}

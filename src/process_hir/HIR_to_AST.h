@@ -36,7 +36,7 @@ class HIR_to_AST : public HIR::Fold
  AST::Break*,					// Break*
  AST::CAST*,					// CAST*
  AST::CLASS_NAME*,			// CLASS_NAME*
- AST::CONSTANT_NAME*, 		// CONSTANT_NAME*
+ AST::CONSTANT_NAME*,		// CONSTANT_NAME*
  AST::Cast*,					// Cast*
  AST::Catch*,					// Catch*
  AST::Class_def*,				// Class_def*
@@ -44,8 +44,8 @@ class HIR_to_AST : public HIR::Fold
  AST::Class_name*,			// Class_name*
  AST::Constant*,				// Constant*
  AST::Continue*,				// Continue*
+ AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
- AST::Expr*,					// Expr_invocation*
  AST::Foreach*,				// Foreach*
  AST::Foreign*,				// Foreign*
  AST::Foreign_expr*,			// Foreign_expr*
@@ -58,7 +58,6 @@ class HIR_to_AST : public HIR::Fold
  AST::If*,						// If*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
- AST::Eval_expr*,				// Invoke_expr*
  AST::Literal*,				// Literal*
  AST::While*,					// Loop*
  AST::METHOD_NAME*,			// METHOD_NAME*
@@ -263,7 +262,7 @@ class HIR_to_AST : public HIR::Fold
 		result = new AST::Foreign_expr (orig->foreign);
 		result->attrs = orig->attrs;
 		return result;
-	};
+	}
 
 	AST::Foreign_statement* fold_impl_foreign_statement (HIR::Foreign_statement* orig) 
 	{ 
@@ -271,7 +270,7 @@ class HIR_to_AST : public HIR::Fold
 		result = new AST::Foreign_statement (orig->foreign);
 		result->attrs = orig->attrs;
 		return result;
-	};
+	}
 
 	AST::Break* fold_impl_break (HIR::Break* orig, AST::Expr* expr)
 	{
@@ -372,9 +371,12 @@ class HIR_to_AST : public HIR::Fold
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_invoke_expr (HIR::Invoke_expr* orig, AST::Expr* expr) 
+	AST::Eval_expr* fold_impl_eval_expr (HIR::Eval_expr* orig, AST::Expr* expr) 
 	{
-		return new AST::Eval_expr (expr);
+		AST::Eval_expr* result;
+		result = new AST::Eval_expr(expr);
+		result->attrs = orig->attrs;
+		return result;
 	}
 
 	AST::Cast* fold_impl_cast(HIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 

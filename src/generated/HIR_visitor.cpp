@@ -126,15 +126,11 @@ void Visitor::pre_push_array(Push_array* in)
 {
 }
 
-void Visitor::pre_invoke_expr(Invoke_expr* in)
+void Visitor::pre_eval_expr(Eval_expr* in)
 {
 }
 
 void Visitor::pre_expr(Expr* in)
-{
-}
-
-void Visitor::pre_expr_invocation(Expr_invocation* in)
 {
 }
 
@@ -395,15 +391,11 @@ void Visitor::post_push_array(Push_array* in)
 {
 }
 
-void Visitor::post_invoke_expr(Invoke_expr* in)
+void Visitor::post_eval_expr(Eval_expr* in)
 {
 }
 
 void Visitor::post_expr(Expr* in)
-{
-}
-
-void Visitor::post_expr_invocation(Expr_invocation* in)
 {
 }
 
@@ -725,9 +717,9 @@ void Visitor::children_push_array(Push_array* in)
     visit_variable_name(in->rhs);
 }
 
-void Visitor::children_invoke_expr(Invoke_expr* in)
+void Visitor::children_eval_expr(Eval_expr* in)
 {
-    visit_expr_invocation(in->expr);
+    visit_expr(in->expr);
 }
 
 void Visitor::children_cast(Cast* in)
@@ -1073,11 +1065,11 @@ void Visitor::pre_push_array_chain(Push_array* in)
     pre_push_array((Push_array*) in);
 }
 
-void Visitor::pre_invoke_expr_chain(Invoke_expr* in)
+void Visitor::pre_eval_expr_chain(Eval_expr* in)
 {
     pre_node((Node*) in);
     pre_statement((Statement*) in);
-    pre_invoke_expr((Invoke_expr*) in);
+    pre_eval_expr((Eval_expr*) in);
 }
 
 void Visitor::pre_cast_chain(Cast* in)
@@ -1142,7 +1134,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
     pre_node((Node*) in);
     pre_target((Target*) in);
     pre_expr((Expr*) in);
-    pre_expr_invocation((Expr_invocation*) in);
     pre_pre_op((Pre_op*) in);
 }
 
@@ -1165,7 +1156,6 @@ void Visitor::pre_method_invocation_chain(Method_invocation* in)
     pre_node((Node*) in);
     pre_target((Target*) in);
     pre_expr((Expr*) in);
-    pre_expr_invocation((Expr_invocation*) in);
     pre_method_invocation((Method_invocation*) in);
 }
 
@@ -1180,7 +1170,6 @@ void Visitor::pre_new_chain(New* in)
     pre_node((Node*) in);
     pre_target((Target*) in);
     pre_expr((Expr*) in);
-    pre_expr_invocation((Expr_invocation*) in);
     pre_new((New*) in);
 }
 
@@ -1483,9 +1472,9 @@ void Visitor::post_push_array_chain(Push_array* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_invoke_expr_chain(Invoke_expr* in)
+void Visitor::post_eval_expr_chain(Eval_expr* in)
 {
-    post_invoke_expr((Invoke_expr*) in);
+    post_eval_expr((Eval_expr*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
 }
@@ -1550,7 +1539,6 @@ void Visitor::post_reflection_chain(Reflection* in)
 void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op((Pre_op*) in);
-    post_expr_invocation((Expr_invocation*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -1573,7 +1561,6 @@ void Visitor::post_array_elem_chain(Array_elem* in)
 void Visitor::post_method_invocation_chain(Method_invocation* in)
 {
     post_method_invocation((Method_invocation*) in);
-    post_expr_invocation((Expr_invocation*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -1588,7 +1575,6 @@ void Visitor::post_actual_parameter_chain(Actual_parameter* in)
 void Visitor::post_new_chain(New* in)
 {
     post_new((New*) in);
-    post_expr_invocation((Expr_invocation*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -2010,18 +1996,6 @@ void Visitor::visit_target(Target* in)
     }
 }
 
-void Visitor::visit_expr_invocation(Expr_invocation* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "Expr_invocation");
-    else
-    {
-    	pre_expr_invocation_chain(in);
-    	children_expr_invocation(in);
-    	post_expr_invocation_chain(in);
-    }
-}
-
 void Visitor::visit_cast(CAST* in)
 {
     if(in == NULL)
@@ -2244,8 +2218,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Push_array::ID:
     	pre_push_array_chain(dynamic_cast<Push_array*>(in));
     	break;
-    case Invoke_expr::ID:
-    	pre_invoke_expr_chain(dynamic_cast<Invoke_expr*>(in));
+    case Eval_expr::ID:
+    	pre_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	pre_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
@@ -2392,22 +2366,6 @@ void Visitor::pre_target_chain(Target* in)
     }
 }
 
-void Visitor::pre_expr_invocation_chain(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID:
-    	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	pre_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
-    }
-}
-
 void Visitor::pre_class_name_chain(Class_name* in)
 {
     switch(in->classid())
@@ -2491,8 +2449,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Push_array::ID:
     	post_push_array_chain(dynamic_cast<Push_array*>(in));
     	break;
-    case Invoke_expr::ID:
-    	post_invoke_expr_chain(dynamic_cast<Invoke_expr*>(in));
+    case Eval_expr::ID:
+    	post_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	post_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
@@ -2639,22 +2597,6 @@ void Visitor::post_target_chain(Target* in)
     }
 }
 
-void Visitor::post_expr_invocation_chain(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID:
-    	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	post_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
-    	break;
-    }
-}
-
 void Visitor::post_class_name_chain(Class_name* in)
 {
     switch(in->classid())
@@ -2738,8 +2680,8 @@ void Visitor::children_statement(Statement* in)
     case Push_array::ID:
     	children_push_array(dynamic_cast<Push_array*>(in));
     	break;
-    case Invoke_expr::ID:
-    	children_invoke_expr(dynamic_cast<Invoke_expr*>(in));
+    case Eval_expr::ID:
+    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
@@ -2882,22 +2824,6 @@ void Visitor::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_expr_invocation(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID:
-    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     }
 }

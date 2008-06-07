@@ -43,8 +43,8 @@ class MIR_to_AST : public MIR::Fold
  AST::Class_mod*,				// Class_mod*
  AST::Class_name*,			// Class_name*
  AST::Constant*,				// Constant*
+ AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
- AST::Expr*,					// Expr_invocation*
  AST::Foreign_statement*,	// Foreach_end*
  AST::Foreign_expr*,			// Foreach_get_key*
  AST::Foreign_expr*,			// Foreach_get_val*
@@ -63,7 +63,6 @@ class MIR_to_AST : public MIR::Fold
  AST::Identifier*,			// Identifier*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
- AST::Eval_expr*,				// Invoke_expr*
  AST::Identifier*,			// LABEL_NAME*
  AST::Foreign_statement*,	// Label*
  AST::Literal*,				// Literal*
@@ -389,12 +388,14 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_invoke_expr (MIR::Invoke_expr* orig, AST::Expr* expr) 
+	AST::Eval_expr* fold_impl_eval_expr (MIR::Eval_expr* orig, AST::Expr* expr) 
 	{
-		return new AST::Eval_expr (expr);
+		AST::Eval_expr* result;
+		result = new AST::Eval_expr(expr);
+		result->attrs = orig->attrs;
+		return result;
 	}
 
-	
 	AST::Cast* fold_impl_cast(MIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Cast* result;

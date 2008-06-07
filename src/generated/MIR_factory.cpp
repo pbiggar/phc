@@ -188,11 +188,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Push_array(target, lhs, is_ref, rhs);
     }
-    if(!strcmp(type_id, "Invoke_expr"))
+    if(!strcmp(type_id, "Eval_expr"))
     {
-    	Expr_invocation* expr = dynamic_cast<Expr_invocation*>(*i++);
+    	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new Invoke_expr(expr);
+    	return new Eval_expr(expr);
     }
     if(!strcmp(type_id, "Cast"))
     {

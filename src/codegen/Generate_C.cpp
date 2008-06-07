@@ -1804,7 +1804,7 @@ class Pattern_unset : public Pattern
 	{
 		var = new Wildcard<Actual_parameter>;
 		return that->match(
-			new Invoke_expr (
+			new Eval_expr (
 				new Method_invocation(
 					"unset",
 					var)));
