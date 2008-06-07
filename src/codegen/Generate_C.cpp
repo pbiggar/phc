@@ -231,6 +231,34 @@ VARIABLE_NAME* get_var_name (Variable_name* var_name)
 	return name;
 }
 
+void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
+{
+	code
+		<< "zval** " << zvp << ";\n";
+
+	// lhs_var can exist more than once; rename
+	stringstream ss1;
+	ss1 << zvp << "_lhs";
+	string zvp_name = ss1.str ();
+
+	read_st (scope, zvp_name, lhs);
+
+	stringstream ss2;
+	ss2 << zvp << "_index";
+	string zvp_index = ss2.str ();
+
+	code
+		<< "// Array assignment\n";
+	read_simple (scope, zvp_index, index);
+
+	code
+		<<	zvp << " = get_ht_entry ("
+		<<		zvp_name << ", "
+		<<		zvp_index
+		<<		" TSRMLS_CC);\n"
+		;
+}
+
 void index_lhs (Scope scope, string zvp, Variable* var)
 {
 	VARIABLE_NAME* var_name = get_var_name (var);
@@ -344,12 +372,12 @@ void read (Scope scope, string zvp, Variable* var)
 			if (var->array_indices->size()) phc_unsupported (var);
 			stringstream ss;
 			ss << zvp << "var";
-			String* name = new String (ss.str ());
-			read_simple (scope, *name, get_var_name (var));
+			string name = ss.str ();
+			read_simple (scope, name, get_var_name (var));
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = &" << *name << ";\n"; 
+				<< zvp << " = &" << name << ";\n"; 
 		}
 	}
 	else
@@ -817,6 +845,22 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
+void index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
+{
+	code
+		<< "zval** " << zvp << ";\n";
+
+	// lhs_var can exist more than once; rename
+	stringstream ss;
+	ss << zvp << "_var";
+	string zvp_name = ss.str ();
+
+	read_st (scope, zvp_name, var_name);
+	code 
+		<< "// Normal Assignment\n"
+		<< zvp << " = " << zvp_name << ";\n";
+}
+
 class Pattern_assign_var : public Pattern
 {
 public:
@@ -842,7 +886,7 @@ public:
 		code 
 			<< "{\n";
 
-		index_lhs (LOCAL, "p_lhs", lhs->value);
+		index_assign_var (LOCAL, "p_lhs", lhs->value);
 
 		code 
 			<<		"if (p_lhs != NULL)\n"
@@ -863,6 +907,82 @@ protected:
 	Assign_var* agn;
 	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
+};
+
+void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
+{
+	if (not is_ref)
+	{
+		// TODO simplify
+		declare ("p_rhs");
+
+		// copied from read ()
+		read_simple (LOCAL, "p_rhs", rhs);
+
+		code 
+			<< "// Read normal variable\n"
+			<< "if (*p_lhs != p_rhs_var)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		cleanup ("p_rhs");
+	}
+	else
+	{
+		index_lhs (LOCAL, "p_rhs", rhs);
+		code 
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
+	}
+}
+
+class Pattern_assign_array : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		target = new Wildcard<Target>;
+		lhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		agn = new Assign_array (target, lhs, index, false, rhs);
+		return (that->match(agn));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert (lhs->value);
+		assert (index->value);
+		assert (rhs->value);
+		if (target->value) phc_unsupported (agn);
+
+
+		code 
+			<< "{\n";
+
+		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value);
+
+		code 
+			<<		"if (p_lhs != NULL)\n"
+			<<		"{\n";
+
+		assign_rhs (agn->is_ref, rhs->value);
+
+		code 
+			<<		"}\n";
+		
+		code 
+			<< "}\n";
+		code << "phc_check_invariants (TSRMLS_C);\n";
+	}
+
+protected:
+	Assign_array* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* index;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 /*
@@ -2163,6 +2283,10 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_nil ()
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
+//	,	new Pattern_assign_var_var () TODO
+	,	new Pattern_assign_array ()
+//	,	new Pattern_push_array ()
+//	,	new Pattern_eval_expr () TODO
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()
