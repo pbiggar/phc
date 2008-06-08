@@ -913,15 +913,19 @@ void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 {
 	if (not is_ref)
 	{
-		// TODO simplify
 		declare ("p_rhs");
+		code 
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n";
 
 		// copied from read ()
-		read_simple (LOCAL, "p_rhs", rhs);
+		read_simple (LOCAL, "p_rhs_var", rhs);
 
 		code 
 			<< "// Read normal variable\n"
-			<< "if (*p_lhs != p_rhs_var)\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 		cleanup ("p_rhs");
 	}
@@ -1034,7 +1038,7 @@ public:
 			<< "{\n"
 			<<		"zval** p_lhs;\n";
 
-		read_st (LOCAL, "p_lhs_var", rhs->value);
+		read_st (LOCAL, "p_lhs_var", lhs->value);
 		code 
 			<<	"	// Array push \n"
 			<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
@@ -1866,37 +1870,6 @@ protected:
 	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pattern_pre_op : public Pattern_assign_var
-{
-public:
-	Expr* rhs_pattern()
-	{
-		op = new Wildcard<OP>;
-		var = new Wildcard<Variable>;
-
-		return new Pre_op (op, var); 
-	}
-
-	void generate_rhs ()
-	{
-		assert (lhs == NULL);
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
-
-		read_st (LOCAL, "p_var", get_var_name (var->value));
-
-		code
-			<< "sep_copy_on_write_ex (p_var);\n"
-			<< op_fn << "(*p_var);\n";
-	}
-
-protected:
-	Wildcard<Variable>* var;
-	Wildcard<OP>* op;
-};
-
 class Pattern_unary_op : public Pattern_assign_var
 {
 public:
@@ -1940,6 +1913,40 @@ protected:
 	Wildcard<OP>* op;
 	Wildcard<VARIABLE_NAME>* var_name;
 };
+
+class Pattern_pre_op : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		op = new Wildcard<OP>;
+		var = new Wildcard<Variable>;
+		return(that->match(new Pre_op(op, var)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code << "{\n";
+
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
+
+		read_st (LOCAL, "p_var", get_var_name (var->value));
+
+		code
+			<< "sep_copy_on_write_ex (p_var);\n"
+			<< op_fn << "(*p_var);\n";
+
+		code << "}\n";
+	}
+
+protected:
+	Wildcard<Variable>* var;
+	Wildcard<OP>* op;
+};
+
 
 class Pattern_return : public Pattern
 {

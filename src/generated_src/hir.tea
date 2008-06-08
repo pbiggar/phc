@@ -38,7 +38,7 @@ Statement ::=
 	| Try | Throw
 	| If | Loop | Foreach
 	| Break | Continue
-	| Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr
+	| Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr | Pre_op
 	| Foreign_statement
 	;
 
@@ -105,7 +105,7 @@ Expr ::=
 	  Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
 	| Variable
-	| Method_invocation | New | Pre_op -- these are the only evalable expressions
+	| Method_invocation | New
 	| Literal 
 	| Array -- can probably be removed
 -- | Variable_name | Index_array

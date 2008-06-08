@@ -13,19 +13,14 @@ using namespace AST;
 /* Convert
  *		++$x;
  *	into
- *		$u = ++$x; // mark $u as unused
+ *		++$x; // mark $u as unused
  *		$x;
  */
 Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
 {
-	// $u = ++$x;
-	Variable* unused = fresh_var ("TSpri");
-	unused->attrs->set_true ("phc.codegen.unused");
+	// ++$x;
 	pieces->push_back (new Eval_expr (
-				new Assignment (
-					unused,
-					false,
-					in)));
+					in));
 
 	// $x
 	return in->variable->clone ();;
@@ -53,7 +48,7 @@ void Pre_post_op_shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
  *		$x++;
  *	into
  *		$t = $x;
- *		$u = ++$x; // mark $u as unused
+ *		++$x; // mark $u as unused
  *		$t;
  */
 Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
@@ -66,16 +61,11 @@ Expr* Pre_post_op_shredder::post_post_op(Post_op* in)
 					false,
 					in->variable->clone())));
 
-	// $u = ++$x;
-	Variable* unused = fresh_var ("TSpoi");
-	unused->attrs->set_true ("phc.codegen.unused");
+	// ++$x;
 	pieces->push_back (new Eval_expr (
-				new Assignment (
-					unused,
-					false,
 					new Pre_op (
 						in->op,
-						in->variable))));
+						in->variable)));
 
 	// $t
 	return old_value;

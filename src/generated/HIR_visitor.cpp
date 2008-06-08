@@ -1132,8 +1132,7 @@ void Visitor::pre_reflection_chain(Reflection* in)
 void Visitor::pre_pre_op_chain(Pre_op* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
+    pre_statement((Statement*) in);
     pre_pre_op((Pre_op*) in);
 }
 
@@ -1539,8 +1538,7 @@ void Visitor::post_reflection_chain(Reflection* in)
 void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op((Pre_op*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
+    post_statement((Statement*) in);
     post_node((Node*) in);
 }
 
@@ -2221,6 +2219,9 @@ void Visitor::pre_statement_chain(Statement* in)
     case Eval_expr::ID:
     	pre_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
+    case Pre_op::ID:
+    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
+    	break;
     case Foreign_statement::ID:
     	pre_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
     	break;
@@ -2267,9 +2268,6 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case New::ID:
     	pre_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	pre_int_chain(dynamic_cast<INT*>(in));
@@ -2335,9 +2333,6 @@ void Visitor::pre_target_chain(Target* in)
     	break;
     case New::ID:
     	pre_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	pre_int_chain(dynamic_cast<INT*>(in));
@@ -2452,6 +2447,9 @@ void Visitor::post_statement_chain(Statement* in)
     case Eval_expr::ID:
     	post_eval_expr_chain(dynamic_cast<Eval_expr*>(in));
     	break;
+    case Pre_op::ID:
+    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
+    	break;
     case Foreign_statement::ID:
     	post_foreign_statement_chain(dynamic_cast<Foreign_statement*>(in));
     	break;
@@ -2498,9 +2496,6 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case New::ID:
     	post_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	post_int_chain(dynamic_cast<INT*>(in));
@@ -2566,9 +2561,6 @@ void Visitor::post_target_chain(Target* in)
     	break;
     case New::ID:
     	post_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	post_int_chain(dynamic_cast<INT*>(in));
@@ -2683,6 +2675,9 @@ void Visitor::children_statement(Statement* in)
     case Eval_expr::ID:
     	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
+    	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
     	break;
@@ -2729,9 +2724,6 @@ void Visitor::children_expr(Expr* in)
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
@@ -2797,9 +2789,6 @@ void Visitor::children_target(Target* in)
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));

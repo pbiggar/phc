@@ -38,7 +38,7 @@
 (Method_name,Method_name,)
 (Name_with_default,Name_with_default,)
 (New,Expr,)
-(Pre_op,Expr,)
+(Pre_op,Statement,*)
 (Push_array,Statement,*)
 (Reflection,Reflection,)
 (Return,Statement,*)

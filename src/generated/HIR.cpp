@@ -5455,6 +5455,146 @@ void Reflection::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Pre_op::Pre_op(OP* op, Variable* variable)
+{
+    this->op = op;
+    this->variable = variable;
+}
+
+Pre_op::Pre_op()
+{
+    this->op = 0;
+    this->variable = 0;
+}
+
+void Pre_op::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Pre_op::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Pre_op::classid()
+{
+    return ID;
+}
+
+bool Pre_op::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL)
+    {
+    	if(that->op != NULL && !that->op->match(this->op))
+    		return false;
+    }
+    else if(!this->op->match(that->op))
+    	return false;
+    
+    if(this->variable == NULL)
+    {
+    	if(that->variable != NULL && !that->variable->match(this->variable))
+    		return false;
+    }
+    else if(!this->variable->match(that->variable))
+    	return false;
+    
+    return true;
+}
+
+bool Pre_op::equals(Node* in)
+{
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL || that->op == NULL)
+    {
+    	if(this->op != NULL || that->op != NULL)
+    		return false;
+    }
+    else if(!this->op->equals(that->op))
+    	return false;
+    
+    if(this->variable == NULL || that->variable == NULL)
+    {
+    	if(this->variable != NULL || that->variable != NULL)
+    		return false;
+    }
+    else if(!this->variable->equals(that->variable))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Pre_op* Pre_op::clone()
+{
+    OP* op = this->op ? this->op->clone() : NULL;
+    Variable* variable = this->variable ? this->variable->clone() : NULL;
+    Pre_op* clone = new Pre_op(op, variable);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Pre_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
+    
+    if (this->variable != NULL)
+    {
+    	Node* variable_res = this->variable->find(in);
+    	if (variable_res) return variable_res;
+    }
+    
+    return NULL;
+}
+
+void Pre_op::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
+    
+    if (this->variable != NULL)
+    	this->variable->find_all(in, out);
+    
+}
+
+void Pre_op::assert_valid()
+{
+    assert(op != NULL);
+    op->assert_valid();
+    assert(variable != NULL);
+    variable->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Pre_op::Pre_op(Variable* var, const char* op)
+{
+    {
+		this->variable = var;
+		this->op = new OP(new String(op));
+	}
+}
+
 Foreign_statement::Foreign_statement()
 {
 }
@@ -7128,146 +7268,6 @@ bool Variable::is_simple_variable()
 				target == NULL
 			&& array_indices->size () == 0
 			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
-	}
-}
-
-Pre_op::Pre_op(OP* op, Variable* variable)
-{
-    this->op = op;
-    this->variable = variable;
-}
-
-Pre_op::Pre_op()
-{
-    this->op = 0;
-    this->variable = 0;
-}
-
-void Pre_op::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Pre_op::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Pre_op::classid()
-{
-    return ID;
-}
-
-bool Pre_op::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Pre_op* that = dynamic_cast<Pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL)
-    {
-    	if(that->op != NULL && !that->op->match(this->op))
-    		return false;
-    }
-    else if(!this->op->match(that->op))
-    	return false;
-    
-    if(this->variable == NULL)
-    {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
-    		return false;
-    }
-    else if(!this->variable->match(that->variable))
-    	return false;
-    
-    return true;
-}
-
-bool Pre_op::equals(Node* in)
-{
-    Pre_op* that = dynamic_cast<Pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL || that->op == NULL)
-    {
-    	if(this->op != NULL || that->op != NULL)
-    		return false;
-    }
-    else if(!this->op->equals(that->op))
-    	return false;
-    
-    if(this->variable == NULL || that->variable == NULL)
-    {
-    	if(this->variable != NULL || that->variable != NULL)
-    		return false;
-    }
-    else if(!this->variable->equals(that->variable))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Pre_op* Pre_op::clone()
-{
-    OP* op = this->op ? this->op->clone() : NULL;
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    Pre_op* clone = new Pre_op(op, variable);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Pre_op::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->op != NULL)
-    {
-    	Node* op_res = this->op->find(in);
-    	if (op_res) return op_res;
-    }
-    
-    if (this->variable != NULL)
-    {
-    	Node* variable_res = this->variable->find(in);
-    	if (variable_res) return variable_res;
-    }
-    
-    return NULL;
-}
-
-void Pre_op::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->op != NULL)
-    	this->op->find_all(in, out);
-    
-    if (this->variable != NULL)
-    	this->variable->find_all(in, out);
-    
-}
-
-void Pre_op::assert_valid()
-{
-    assert(op != NULL);
-    op->assert_valid();
-    assert(variable != NULL);
-    variable->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Pre_op::Pre_op(Variable* var, const char* op)
-{
-    {
-		this->variable = var;
-		this->op = new OP(new String(op));
 	}
 }
 

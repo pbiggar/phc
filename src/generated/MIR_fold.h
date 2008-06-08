@@ -752,6 +752,8 @@ public:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
 			case Eval_expr::ID:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
+			case Pre_op::ID:
+				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 			case Class_mod::ID:
@@ -792,8 +794,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:
@@ -880,6 +880,8 @@ public:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
 			case Eval_expr::ID:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
+			case Pre_op::ID:
+				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 		}
@@ -918,8 +920,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:
@@ -994,8 +994,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:

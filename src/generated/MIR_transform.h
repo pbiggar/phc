@@ -57,7 +57,7 @@ public:
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Variable* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
-    virtual Expr* pre_pre_op(Pre_op* in);
+    virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* pre_array(Array* in);
     virtual void pre_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* pre_method_invocation(Method_invocation* in);
@@ -120,7 +120,7 @@ public:
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Variable* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
-    virtual Expr* post_pre_op(Pre_op* in);
+    virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* post_array(Array* in);
     virtual void post_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* post_method_invocation(Method_invocation* in);

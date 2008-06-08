@@ -78,7 +78,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Node*,					// Node*
  AST::OP*,						// OP*
  AST::PHP_script*,			// PHP_script*
- AST::Pre_op*,					// Pre_op*
+ AST::Eval_expr*,				// Pre_op*
  AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
  AST::Reflection*,			// Reflection*
@@ -452,12 +452,12 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Pre_op* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::Variable* variable) 
+	AST::Eval_expr* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::Variable* variable) 
 	{
 		AST::Pre_op* result;
 		result = new AST::Pre_op(op, variable);
 		result->attrs = orig->attrs;
-		return result;
+		return new AST::Eval_expr (result);
 	}
 
 	AST::Array* fold_impl_array(MIR::Array* orig, List<AST::Array_elem*>* array_elems) 

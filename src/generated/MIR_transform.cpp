@@ -156,9 +156,9 @@ Reflection* Transform::pre_reflection(Reflection* in)
     return in;
 }
 
-Expr* Transform::pre_pre_op(Pre_op* in)
+void Transform::pre_pre_op(Pre_op* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::pre_array(Array* in)
@@ -462,9 +462,9 @@ Reflection* Transform::post_reflection(Reflection* in)
     return in;
 }
 
-Expr* Transform::post_pre_op(Pre_op* in)
+void Transform::post_pre_op(Pre_op* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::post_array(Array* in)
@@ -1738,6 +1738,15 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Pre_op::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_pre_op(dynamic_cast<Pre_op*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Foreign_statement::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -1789,7 +1798,6 @@ Expr* Transform::pre_expr(Expr* in)
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return pre_int(dynamic_cast<INT*>(in));
     case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
@@ -1826,7 +1834,6 @@ Target* Transform::pre_target(Target* in)
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return pre_int(dynamic_cast<INT*>(in));
     case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
@@ -2039,6 +2046,15 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Pre_op::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_pre_op(dynamic_cast<Pre_op*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Foreign_statement::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2090,7 +2106,6 @@ Expr* Transform::post_expr(Expr* in)
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return post_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return post_int(dynamic_cast<INT*>(in));
     case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
@@ -2127,7 +2142,6 @@ Target* Transform::post_target(Target* in)
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return post_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return post_int(dynamic_cast<INT*>(in));
     case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
@@ -2226,6 +2240,9 @@ void Transform::children_statement(Statement* in)
     case Eval_expr::ID:
     	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
+    	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
     	break;
@@ -2272,9 +2289,6 @@ void Transform::children_expr(Expr* in)
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
@@ -2349,9 +2363,6 @@ void Transform::children_target(Target* in)
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));

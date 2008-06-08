@@ -293,7 +293,6 @@ class AST_to_HIR : public AST::Fold
 		{
 			case HIR::Method_invocation::ID:
 			case HIR::New::ID:
-			case HIR::Pre_op::ID:
 				HIR::Eval_expr* result;
 				result = new HIR::Eval_expr (expr);
 				copy_attrs (result, orig);
@@ -504,7 +503,7 @@ class AST_to_HIR : public AST::Fold
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
 		copy_attrs (result, orig);
-		return result;
+		return reinterpret_cast<HIR::Expr*> (result);
 	}
 
 	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 

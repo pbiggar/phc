@@ -60,6 +60,7 @@ class Push_array;
 class Eval_expr;
 class Expr;
 class Reflection;
+class Pre_op;
 class Foreign_statement;
 class CLASS_NAME;
 class INTERFACE_NAME;
@@ -75,7 +76,6 @@ class Bin_op;
 class Constant;
 class Instanceof;
 class Variable;
-class Pre_op;
 class Array;
 class Method_invocation;
 class New;
@@ -146,7 +146,7 @@ public:
     virtual void assert_valid();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | If | Loop | Foreach | Break | Continue | Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr | Foreign_statement;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | If | Loop | Foreach | Break | Continue | Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr | Pre_op | Foreign_statement;
 class Statement : virtual public Node
 {
 public:
@@ -1264,7 +1264,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Method_invocation | New | Pre_op | Literal | Array | Foreign_expr;
+// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Method_invocation | New | Literal | Array | Foreign_expr;
 class Expr : virtual public Target
 {
 public:
@@ -1315,6 +1315,38 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+};
+
+// Pre_op ::= OP Variable ;
+class Pre_op : virtual public Statement
+{
+public:
+    Pre_op(OP* op, Variable* variable);
+protected:
+    Pre_op();
+public:
+    OP* op;
+    Variable* variable;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 36;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Pre_op* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+public:
+    Pre_op(Variable* var, const char* op);
 };
 
 // Foreign_statement ::= ;
@@ -1763,38 +1795,6 @@ public:
 public:
     Variable(Variable_name* name);
     bool is_simple_variable();
-};
-
-// Pre_op ::= OP Variable ;
-class Pre_op : virtual public Expr
-{
-public:
-    Pre_op(OP* op, Variable* variable);
-protected:
-    Pre_op();
-public:
-    OP* op;
-    Variable* variable;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 36;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Pre_op* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
-public:
-    Pre_op(Variable* var, const char* op);
 };
 
 // Array ::= Array_elem* ;
