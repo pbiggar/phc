@@ -301,14 +301,17 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	left->attrs->erase("phc.ast_shredder.use_ref");
 	left = transform_expr(left);
 
+	// Make sure $x .= "x" turns into $x = $x. "x". Otherwise, we can get
+	// quadratic behaviour instead.
+	Expr* expr = new Bin_op (left, in->op, in->expr);
+	if (!in->variable->is_simple_variable ())
+		expr = eval (expr);
+
 	assignment = new Assignment(
 		in->variable,
 		false,
-		eval (new Bin_op(
-			left,
-			in->op,
-			in->expr))
-		);
+		expr);
+
 	assignment->attrs = in->attrs;
 	
 	return post_assignment (assignment);
