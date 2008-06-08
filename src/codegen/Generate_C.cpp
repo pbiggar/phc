@@ -1429,7 +1429,37 @@ protected:
 	Wildcard<Constant>* rhs;
 };
 
-class Pattern_eval : public Pattern_assign_var
+/* A number of patterns can be n the form of either Eval_expr
+ * (Method_invocation) or Assign_var (_, _, Method_invocation). Abstract this
+ * to avoid duplication. */
+class Pattern_eval_expr_or_assign_var : public Pattern_assign_var
+{
+	bool match(Statement* that)
+	{
+		bool result = that->match (new Eval_expr (rhs_pattern()));
+		if (result)
+		{
+			lhs = NULL;
+			return true;
+		}
+		else
+			return Pattern_assign_var::match(that);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		if (lhs == NULL)
+		{
+			code << "{\n";
+			generate_rhs ();
+			code << "}\n";
+		}
+		else
+			Pattern_assign_var::generate_code (gen);
+	}
+};
+
+class Pattern_eval : public Pattern_eval_expr_or_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1488,25 +1518,23 @@ protected:
 	Wildcard<Actual_parameter>* eval_arg;
 };
 
-class Pattern_exit : public Pattern
+class Pattern_exit : public Pattern_eval_expr_or_assign_var
 {
 public:
-	bool match (Statement* that)
+	Pattern_exit () { name = new METHOD_NAME (s("exit")); }
+
+public:
+	Expr* rhs_pattern ()
 	{
 		exit_arg = new Wildcard<Actual_parameter> ();
-		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
-		return that->match (
-				new Assign_var (new Wildcard<VARIABLE_NAME>, // ignored
-					new Method_invocation(
+		return new Method_invocation(
 						NULL,	
 						name,
 						new List<Actual_parameter*>(exit_arg)
-							)
-						))
-			&& (*name->value->value == "exit" || *name->value->value == "die");
+						);
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_rhs ()
 	{
 		code << "{\n";
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
@@ -1524,9 +1552,17 @@ public:
 
 protected:
 	Wildcard<Actual_parameter>* exit_arg;
+	METHOD_NAME* name;
 };
 
-class Pattern_method_invocation : public Pattern_assign_var
+// die() and exit() are synonyms
+class Pattern_die : public Pattern_exit
+{
+public:
+	Pattern_die() { name = new METHOD_NAME (s("die")); }
+};
+
+class Pattern_method_invocation : public Pattern_eval_expr_or_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -2369,6 +2405,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()
+	,	new Pattern_die()
 	,	new Pattern_unset()
 	,	new Pattern_isset()
 	,	new Pattern_method_invocation()

@@ -301,7 +301,6 @@ class AST_to_HIR : public AST::Fold
 				// We know this is OK from fold_impl_assignment
 				return reinterpret_cast<HIR::Statement*> (expr);
 		}
-
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)

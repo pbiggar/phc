@@ -13,7 +13,6 @@
 
 class Desugar : public AST::Transform
 {
-	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
 	void pre_nop(AST::Nop*, List<AST::Statement*>*);
 	AST::Expr* pre_unary_op(AST::Unary_op* in);
 	void pre_return(AST::Return*, List<AST::Statement*>*);

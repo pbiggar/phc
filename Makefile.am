@@ -68,6 +68,7 @@ src_phc_SOURCES =												\
 	src/ast_to_hir/Lower_expr_flow.h						\
 	src/ast_to_hir/Pre_post_op_shredder.cpp			\
 	src/ast_to_hir/Pre_post_op_shredder.h				\
+	src/ast_to_hir/Remove_solo_variables.h				\
 	src/ast_to_hir/Split_multiple_arguments.cpp		\
 	src/ast_to_hir/Split_multiple_arguments.h			\
 	src/ast_to_hir/Split_unset_isset.cpp				\

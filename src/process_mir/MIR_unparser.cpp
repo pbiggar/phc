@@ -101,6 +101,12 @@ void MIR_unparser::children_ht_iterator(HT_ITERATOR* in)
 	echo (in->get_value_as_string ());
 }
 
+void MIR_unparser::children_variable_name (VARIABLE_NAME* in)
+{
+	// we leave out the $ to handle in the same manner as VARIABLE_NAME
+	echo (in->value);
+}
+
 /* This is simpler than the other if, since there's no user-written code to
  * maintain, and the statements can only be gotos */
 void MIR_unparser::children_branch(Branch* in)

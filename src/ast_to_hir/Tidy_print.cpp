@@ -18,11 +18,11 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 	/* Convert print, in a similar fashion to echo. Print can only have 1 parameter though, and always return 1.
 	 *   $x = print $y;
 	 * into
-	 *   $t2 = printf ("%s", $y); // $t2 can be discarded
+	 *   printf ("%s", $y); // $t2 can be discarded
 	 *   $x = 1;
 	 *
 	 * If $x is unused, we have
-	 *	  $x = printf ("%s", $y);
+	 *	  printf ("%s", $y);
 	 */
 	Wildcard<Expr>* arg = new Wildcard<Expr>;
 	Method_invocation* print = new Method_invocation (
@@ -32,28 +32,26 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 				new Actual_parameter (false, arg) // print can only have 1 argument
 				));
 
-	if (agn && agn->expr->match (print))
+	Expr* expr = in->expr;
+
+	if (agn)
+		expr = agn->expr;
+	
+	if (expr->match (print))
 	{
-		// $t2 = printf ("%s", expr);
-		bool unused = agn->variable->attrs->is_true ("phc.codegen.unused");
-
-		Variable* t2 = agn->variable;
-		if (not unused)
-			t2 = fresh_var ("TSp");
-
+		// printf ("%s", expr);
 		(*out
-			<< t2 << " = printf (\"%s\", " << arg->value << ");"
-		).to_pass (s("tidyp"), agn);
+			<< "printf (\"%s\", " << arg->value << ");"
+		).to_pass (s("tidyp"), expr);
 		
 		// This isnt necessary 
-		if (not unused)
+		if (agn)
 		{
 			// $x = 1;
 			out->push_back (new Eval_expr (
 						new Assignment(agn->variable, false,
 							new INT (1))));
 		}
-
 		return;
 	}
 	else

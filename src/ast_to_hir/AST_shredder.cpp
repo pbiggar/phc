@@ -132,15 +132,6 @@ Variable* Shredder::post_variable(Variable* in)
 	return prev;
 }
 
-/* Remove statements which consist of a single variable. These can be
- * introduced by the list lowering. We use the pre_ form, since the post_ form
- * overrides Lower_expr::post_eval_expr.*/
-void Shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
-{
-	if (in->expr->classid () != Variable::ID)
-		out->push_back (in);
-}
-
 /*
  * Binary and unary operators
  *
