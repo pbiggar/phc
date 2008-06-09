@@ -22,7 +22,7 @@ source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = global_id {_}, +mir()->source_rep (
 source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = return_id {_}, +mir()->source_rep (any{statement_Return{SUBTYPE}}, SOURCE).
 source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = assign_var_id {_}, +mir()->source_rep (any{statement_Assign_var{SUBTYPE}}, SOURCE).
 source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = assign_array_id {_}, +mir()->source_rep (any{statement_Assign_array{SUBTYPE}}, SOURCE).
-source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = invoke_expr_id {_}, +mir()->source_rep (any{statement_Invoke_expr{SUBTYPE}}, SOURCE).
+source_rep (any{SUBTYPE}, SOURCE), SUBTYPE = eval_expr_id {_}, +mir()->source_rep (any{statement_Eval_expr{SUBTYPE}}, SOURCE).
 
 
 %?- source_rep (A, B).

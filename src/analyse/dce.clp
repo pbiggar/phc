@@ -101,16 +101,10 @@ cfg_node (BB), BB = nblock{statement_Assign_array {ID}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
 	+handled (BB).
 
-% Invoke_expr - Rewrap it, and treat like a normal expr
-cfg_node (BB), BB = nblock{statement_Invoke_expr{ID}},
-	mir ()->invoke_expr (ID, I_EXPR),
-	((I_EXPR = expr_invocation_Method_invocation {MI},
-	  EXPR = expr_Method_invocation {MI})
-	;(I_EXPR = expr_invocation_New {N},
-	  EXPR = expr_New {N})
-	;(I_EXPR = expr_invocation_Pre_op {P},
-	  EXPR = expr_Pre_op {P})),
-	  +use_expr (BB, EXPR).
+% Eval_expr - Rewrap it, and treat like a normal expr
+cfg_node (BB), BB = nblock{statement_Eval_expr{ID}},
+	mir ()->eval_expr (ID, EXPR),
+		+use_expr (BB, EXPR).
 
 % Return - expr is used.
 cfg_node (BB), BB = nblock{statement_Return{ID}},
@@ -127,6 +121,14 @@ cfg_node (BB), BB = nblock{statement_Global {ID}},
 cfg_node (BB), BB = nblock{statement_Global {ID}},
 	mir ()->global (ID, variable_name_Reflection {_}),
 	+handled (BB).
+
+% Pre_op - the variable is both used and defined
+cfg_node (BB), BB = nblock{statement_Pre_op {ID}}, % TODO, this can be an expr
+	mir()->pre_op (ID, _, VAR),
+	% TODO If VAR is simple, it may be defined here, in which case we can
+	% remove the definition if VAR is not live on exit, which is not reflected
+	% here. Add +defined (VAR).
+	+use_variable (BB, VAR), +handled (BB).
 
 
 
@@ -158,14 +160,6 @@ use_expr (BB, expr_Unary_op {ID}), mir()->unary_op (ID, _, VAR),
 % Bin_op
 use_expr (BB, expr_Bin_op {ID}), mir()->bin_op (ID, LEFT, _, RIGHT),
 	+used_var (BB, LEFT), +used_var (BB, RIGHT), +handled (BB).
-
-% Pre_op - the variable is both used and defined
-use_expr (BB, expr_Pre_op{ID}),
-	mir()->pre_op (ID, _, VAR),
-	% TODO If VAR is simple, it may be defined here, in which case we can
-	% remove the definition if VAR is not live on exit, which is not reflected
-	% here. Add +defined (VAR).
-	+use_variable (BB, VAR), +handled (BB).
 
 % Method invocation
 use_expr (BB, expr_Method_invocation {ID}), 
