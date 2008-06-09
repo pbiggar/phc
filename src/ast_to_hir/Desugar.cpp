@@ -12,27 +12,6 @@
 using namespace AST;
 
 
-// All eval_expr must be assignments; if they are not, we generate
-// a dummy assignment on the LHS
-void Desugar::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
-{
-	// Don't generate an assignment for unset
-	Expr* unset = new Method_invocation("unset", new Wildcard<Expr>);
-
-	if(in->expr->classid() != Assignment::ID && 
-			in->expr->classid() != Op_assignment::ID &&
-			in->expr->classid() != List_assignment::ID &&
-			!in->expr->match(unset))
-	{
-		Variable* var = fresh_var ("TSe");
-		var->attrs->set_true ("phc.codegen.unused");
-
-		in->expr = new Assignment(var, false, in->expr);
-	}
-
-	out->push_back(in);
-}
-
 // NOP statements are removed
 void Desugar::pre_nop(Nop* in, List<Statement*>* out)
 {

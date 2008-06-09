@@ -38,8 +38,8 @@ template
  class _Class_mod,
  class _Class_name,
  class _Constant,
+ class _Eval_expr,
  class _Expr,
- class _Expr_invocation,
  class _Foreach_end,
  class _Foreach_get_key,
  class _Foreach_get_val,
@@ -58,7 +58,6 @@ template
  class _Identifier,
  class _Instanceof,
  class _Interface_def,
- class _Invoke_expr,
  class _LABEL_NAME,
  class _Label,
  class _Literal,
@@ -382,11 +381,11 @@ public:
 		return fold_impl_push_array(in, target, lhs, is_ref, rhs);
 	}
 
-	virtual _Invoke_expr fold_invoke_expr(Invoke_expr* in)
+	virtual _Eval_expr fold_eval_expr(Eval_expr* in)
 	{
-		_Expr_invocation expr = 0;
-		if(in->expr != NULL) expr = fold_expr_invocation(in->expr);
-		return fold_impl_invoke_expr(in, expr);
+		_Expr expr = 0;
+		if(in->expr != NULL) expr = fold_expr(in->expr);
+		return fold_impl_eval_expr(in, expr);
 	}
 
 	virtual _Cast fold_cast(Cast* in)
@@ -665,7 +664,7 @@ public:
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _Target target, _VARIABLE_NAME lhs, _VARIABLE_NAME index, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _Target target, _VARIABLE_NAME lhs, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };
 	virtual _Push_array fold_impl_push_array(Push_array* orig, _Target target, _VARIABLE_NAME lhs, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };
-	virtual _Invoke_expr fold_impl_invoke_expr(Invoke_expr* orig, _Expr_invocation expr) { assert(0); };
+	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
@@ -751,8 +750,10 @@ public:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
 			case Push_array::ID:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
-			case Invoke_expr::ID:
-				return fold_invoke_expr(dynamic_cast<Invoke_expr*>(in));
+			case Eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
+			case Pre_op::ID:
+				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 			case Class_mod::ID:
@@ -793,8 +794,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:
@@ -879,8 +878,10 @@ public:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
 			case Push_array::ID:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
-			case Invoke_expr::ID:
-				return fold_invoke_expr(dynamic_cast<Invoke_expr*>(in));
+			case Eval_expr::ID:
+				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
+			case Pre_op::ID:
+				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case Foreign_statement::ID:
 				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
 		}
@@ -919,8 +920,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:
@@ -941,20 +940,6 @@ public:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 			case Foreign_expr::ID:
 				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
-		}
-		assert(0);
-	}
-
-	virtual _Expr_invocation fold_expr_invocation(Expr_invocation* in)
-	{
-		switch(in->classid())
-		{
-			case Method_invocation::ID:
-				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
-			case New::ID:
-				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 		}
 		assert(0);
 	}
@@ -1009,8 +994,6 @@ public:
 				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
 			case New::ID:
 				return fold_new(dynamic_cast<New*>(in));
-			case Pre_op::ID:
-				return fold_pre_op(dynamic_cast<Pre_op*>(in));
 			case INT::ID:
 				return fold_int(dynamic_cast<INT*>(in));
 			case REAL::ID:
@@ -1104,6 +1087,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

@@ -54,7 +54,7 @@ public:
     virtual void pre_assign_array(Assign_array* in, List<Statement*>* out);
     virtual void pre_assign_var_var(Assign_var_var* in, List<Statement*>* out);
     virtual void pre_push_array(Push_array* in, List<Statement*>* out);
-    virtual void pre_invoke_expr(Invoke_expr* in, List<Statement*>* out);
+    virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -62,12 +62,12 @@ public:
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Variable* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
-    virtual Expr_invocation* pre_pre_op(Pre_op* in);
+    virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* pre_array(Array* in);
     virtual void pre_array_elem(Array_elem* in, List<Array_elem*>* out);
-    virtual Expr_invocation* pre_method_invocation(Method_invocation* in);
+    virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
-    virtual Expr_invocation* pre_new(New* in);
+    virtual Expr* pre_new(New* in);
     virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* pre_foreign_expr(Foreign_expr* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
@@ -111,7 +111,7 @@ public:
     virtual void post_assign_array(Assign_array* in, List<Statement*>* out);
     virtual void post_assign_var_var(Assign_var_var* in, List<Statement*>* out);
     virtual void post_push_array(Push_array* in, List<Statement*>* out);
-    virtual void post_invoke_expr(Invoke_expr* in, List<Statement*>* out);
+    virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
@@ -119,12 +119,12 @@ public:
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Variable* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
-    virtual Expr_invocation* post_pre_op(Pre_op* in);
+    virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* post_array(Array* in);
     virtual void post_array_elem(Array_elem* in, List<Array_elem*>* out);
-    virtual Expr_invocation* post_method_invocation(Method_invocation* in);
+    virtual Expr* post_method_invocation(Method_invocation* in);
     virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
-    virtual Expr_invocation* post_new(New* in);
+    virtual Expr* post_new(New* in);
     virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* post_foreign_expr(Foreign_expr* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
@@ -168,7 +168,7 @@ public:
     virtual void children_assign_array(Assign_array* in);
     virtual void children_assign_var_var(Assign_var_var* in);
     virtual void children_push_array(Push_array* in);
-    virtual void children_invoke_expr(Invoke_expr* in);
+    virtual void children_eval_expr(Eval_expr* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -223,7 +223,6 @@ public:
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
     virtual Target* transform_target(Target* in);
-    virtual Expr_invocation* transform_expr_invocation(Expr_invocation* in);
     virtual CAST* transform_cast(CAST* in);
     virtual OP* transform_op(OP* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
@@ -244,7 +243,6 @@ public:
     virtual Expr* pre_expr(Expr* in);
     virtual Variable_name* pre_variable_name(Variable_name* in);
     virtual Target* pre_target(Target* in);
-    virtual Expr_invocation* pre_expr_invocation(Expr_invocation* in);
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Method_name* pre_method_name(Method_name* in);
 // Invoke the right post-transform (manual dispatching)
@@ -255,7 +253,6 @@ public:
     virtual Expr* post_expr(Expr* in);
     virtual Variable_name* post_variable_name(Variable_name* in);
     virtual Target* post_target(Target* in);
-    virtual Expr_invocation* post_expr_invocation(Expr_invocation* in);
     virtual Class_name* post_class_name(Class_name* in);
     virtual Method_name* post_method_name(Method_name* in);
 // Invoke the right transform-children (manual dispatching)
@@ -266,7 +263,6 @@ public:
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
     virtual void children_target(Target* in);
-    virtual void children_expr_invocation(Expr_invocation* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
 };

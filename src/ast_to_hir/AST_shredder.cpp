@@ -132,15 +132,6 @@ Variable* Shredder::post_variable(Variable* in)
 	return prev;
 }
 
-/* Remove statements which consist of a single variable. These can be
- * introduced by the list lowering. We use the pre_ form, since the post_ form
- * overrides Lower_expr::post_eval_expr.*/
-void Shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
-{
-	if (in->expr->classid () != Variable::ID)
-		out->push_back (in);
-}
-
 /*
  * Binary and unary operators
  *
@@ -310,14 +301,17 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	left->attrs->erase("phc.ast_shredder.use_ref");
 	left = transform_expr(left);
 
+	// Make sure $x .= "x" turns into $x = $x. "x". Otherwise, we can get
+	// quadratic behaviour instead.
+	Expr* expr = new Bin_op (left, in->op, in->expr);
+	if (!in->variable->is_simple_variable ())
+		expr = eval (expr);
+
 	assignment = new Assignment(
 		in->variable,
 		false,
-		eval (new Bin_op(
-			left,
-			in->op,
-			in->expr))
-		);
+		expr);
+
 	assignment->attrs = in->attrs;
 	
 	return post_assignment (assignment);

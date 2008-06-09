@@ -39,7 +39,7 @@ Expr* Foreach_uppering::pre_foreach_has_key (MIR::Foreach_has_key* in)
 	).finish (in);
 
 	// this gets shredded into $T = $iter->valid (), so find the assignment and extract the expr.
-	return (dynamic_cast<Assign_var*> (out.front()->find (new Wildcard<Assign_var>)))->rhs;
+	return (dynamic_cast<Eval_expr*> (out.front()))->expr;
 }
 
 Expr* Foreach_uppering::pre_foreach_get_key (MIR::Foreach_get_key* in)
@@ -56,8 +56,8 @@ Expr* Foreach_uppering::pre_foreach_get_key (MIR::Foreach_get_key* in)
 		<< "$" << in->iter << "->key ();\n"
 	).finish (in);
 
-	// this gets shredded into $T = $iter->valid (), so find the assignment and extract the expr.
-	return (dynamic_cast<Assign_var*> (out.front()->find (new Wildcard<Assign_var>)))->rhs;
+	// this gets shredded into $iter->key (), so extract the expr.
+	return (dynamic_cast<Eval_expr*> (out.front()))->expr;
 }
 
 Expr* Foreach_uppering::pre_foreach_get_val (MIR::Foreach_get_val* in)
@@ -67,6 +67,6 @@ Expr* Foreach_uppering::pre_foreach_get_val (MIR::Foreach_get_val* in)
 		<< "$" << in->array << "[$" << in->key << "];"
 	).finish (in);
 
-	// this gets shredded into $T = $iter->valid (), so find the assignment and extract the expr.
+	// this gets shredded into $array[$key], so extract the expr.
 	return (dynamic_cast<Assign_var*> (out.front()->find (new Wildcard<Assign_var>)))->rhs;
 }

@@ -57,9 +57,8 @@ public:
     virtual void pre_assign_array(Assign_array* in);
     virtual void pre_assign_var_var(Assign_var_var* in);
     virtual void pre_push_array(Push_array* in);
-    virtual void pre_invoke_expr(Invoke_expr* in);
+    virtual void pre_eval_expr(Eval_expr* in);
     virtual void pre_expr(Expr* in);
-    virtual void pre_expr_invocation(Expr_invocation* in);
     virtual void pre_literal(Literal* in);
     virtual void pre_cast(Cast* in);
     virtual void pre_unary_op(Unary_op* in);
@@ -126,9 +125,8 @@ public:
     virtual void post_assign_array(Assign_array* in);
     virtual void post_assign_var_var(Assign_var_var* in);
     virtual void post_push_array(Push_array* in);
-    virtual void post_invoke_expr(Invoke_expr* in);
+    virtual void post_eval_expr(Eval_expr* in);
     virtual void post_expr(Expr* in);
-    virtual void post_expr_invocation(Expr_invocation* in);
     virtual void post_literal(Literal* in);
     virtual void post_cast(Cast* in);
     virtual void post_unary_op(Unary_op* in);
@@ -192,7 +190,7 @@ public:
     virtual void children_assign_array(Assign_array* in);
     virtual void children_assign_var_var(Assign_var_var* in);
     virtual void children_push_array(Push_array* in);
-    virtual void children_invoke_expr(Invoke_expr* in);
+    virtual void children_eval_expr(Eval_expr* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);
@@ -261,7 +259,7 @@ public:
     virtual void pre_assign_array_chain(Assign_array* in);
     virtual void pre_assign_var_var_chain(Assign_var_var* in);
     virtual void pre_push_array_chain(Push_array* in);
-    virtual void pre_invoke_expr_chain(Invoke_expr* in);
+    virtual void pre_eval_expr_chain(Eval_expr* in);
     virtual void pre_cast_chain(Cast* in);
     virtual void pre_unary_op_chain(Unary_op* in);
     virtual void pre_bin_op_chain(Bin_op* in);
@@ -320,7 +318,7 @@ public:
     virtual void post_assign_array_chain(Assign_array* in);
     virtual void post_assign_var_var_chain(Assign_var_var* in);
     virtual void post_push_array_chain(Push_array* in);
-    virtual void post_invoke_expr_chain(Invoke_expr* in);
+    virtual void post_eval_expr_chain(Eval_expr* in);
     virtual void post_cast_chain(Cast* in);
     virtual void post_unary_op_chain(Unary_op* in);
     virtual void post_bin_op_chain(Bin_op* in);
@@ -373,7 +371,6 @@ public:
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
     virtual void visit_target(Target* in);
-    virtual void visit_expr_invocation(Expr_invocation* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
@@ -394,7 +391,6 @@ public:
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
     virtual void pre_target_chain(Target* in);
-    virtual void pre_expr_invocation_chain(Expr_invocation* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
 // Invoke the right post-chain (manual dispatching)
@@ -405,7 +401,6 @@ public:
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
     virtual void post_target_chain(Target* in);
-    virtual void post_expr_invocation_chain(Expr_invocation* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
 // Invoke the right visit-children (manual dispatching)
@@ -416,7 +411,6 @@ public:
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
     virtual void children_target(Target* in);
-    virtual void children_expr_invocation(Expr_invocation* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
 };

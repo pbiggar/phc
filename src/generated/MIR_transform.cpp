@@ -116,7 +116,7 @@ void Transform::pre_push_array(Push_array* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::pre_invoke_expr(Invoke_expr* in, List<Statement*>* out)
+void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -156,9 +156,9 @@ Reflection* Transform::pre_reflection(Reflection* in)
     return in;
 }
 
-Expr_invocation* Transform::pre_pre_op(Pre_op* in)
+void Transform::pre_pre_op(Pre_op* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::pre_array(Array* in)
@@ -171,7 +171,7 @@ void Transform::pre_array_elem(Array_elem* in, List<Array_elem*>* out)
     out->push_back(in);
 }
 
-Expr_invocation* Transform::pre_method_invocation(Method_invocation* in)
+Expr* Transform::pre_method_invocation(Method_invocation* in)
 {
     return in;
 }
@@ -181,7 +181,7 @@ void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter
     out->push_back(in);
 }
 
-Expr_invocation* Transform::pre_new(New* in)
+Expr* Transform::pre_new(New* in)
 {
     return in;
 }
@@ -422,7 +422,7 @@ void Transform::post_push_array(Push_array* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-void Transform::post_invoke_expr(Invoke_expr* in, List<Statement*>* out)
+void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
 }
@@ -462,9 +462,9 @@ Reflection* Transform::post_reflection(Reflection* in)
     return in;
 }
 
-Expr_invocation* Transform::post_pre_op(Pre_op* in)
+void Transform::post_pre_op(Pre_op* in, List<Statement*>* out)
 {
-    return in;
+    out->push_back(in);
 }
 
 Expr* Transform::post_array(Array* in)
@@ -477,7 +477,7 @@ void Transform::post_array_elem(Array_elem* in, List<Array_elem*>* out)
     out->push_back(in);
 }
 
-Expr_invocation* Transform::post_method_invocation(Method_invocation* in)
+Expr* Transform::post_method_invocation(Method_invocation* in)
 {
     return in;
 }
@@ -487,7 +487,7 @@ void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_paramete
     out->push_back(in);
 }
 
-Expr_invocation* Transform::post_new(New* in)
+Expr* Transform::post_new(New* in)
 {
     return in;
 }
@@ -749,9 +749,9 @@ void Transform::children_push_array(Push_array* in)
     in->rhs = transform_variable_name(in->rhs);
 }
 
-void Transform::children_invoke_expr(Invoke_expr* in)
+void Transform::children_eval_expr(Eval_expr* in)
 {
-    in->expr = transform_expr_invocation(in->expr);
+    in->expr = transform_expr(in->expr);
 }
 
 void Transform::children_cast(Cast* in)
@@ -1327,22 +1327,6 @@ Target* Transform::transform_target(Target* in)
     return out;
 }
 
-Expr_invocation* Transform::transform_expr_invocation(Expr_invocation* in)
-{
-    if(in == NULL) return NULL;
-    
-    Expr_invocation* out;
-    
-    out = pre_expr_invocation(in);
-    if(out != NULL)
-    {
-    	children_expr_invocation(out);
-    	out = post_expr_invocation(out);
-    }
-    
-    return out;
-}
-
 CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
@@ -1745,11 +1729,20 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Invoke_expr::ID: 
+    case Eval_expr::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
     		List<Statement*>::const_iterator i;
-    		pre_invoke_expr(dynamic_cast<Invoke_expr*>(in), local_out);
+    		pre_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Pre_op::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_pre_op(dynamic_cast<Pre_op*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1805,7 +1798,6 @@ Expr* Transform::pre_expr(Expr* in)
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return pre_int(dynamic_cast<INT*>(in));
     case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
@@ -1842,7 +1834,6 @@ Target* Transform::pre_target(Target* in)
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return pre_int(dynamic_cast<INT*>(in));
     case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
@@ -1854,17 +1845,6 @@ Target* Transform::pre_target(Target* in)
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
-    }
-    assert(0);
-}
-
-Expr_invocation* Transform::pre_expr_invocation(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
-    case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return pre_pre_op(dynamic_cast<Pre_op*>(in));
     }
     assert(0);
 }
@@ -2057,11 +2037,20 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Invoke_expr::ID: 
+    case Eval_expr::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
     		List<Statement*>::const_iterator i;
-    		post_invoke_expr(dynamic_cast<Invoke_expr*>(in), local_out);
+    		post_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Pre_op::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_pre_op(dynamic_cast<Pre_op*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2117,7 +2106,6 @@ Expr* Transform::post_expr(Expr* in)
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return post_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return post_int(dynamic_cast<INT*>(in));
     case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
@@ -2154,7 +2142,6 @@ Target* Transform::post_target(Target* in)
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return post_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
     case INT::ID: return post_int(dynamic_cast<INT*>(in));
     case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
@@ -2166,17 +2153,6 @@ Target* Transform::post_target(Target* in)
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
-    }
-    assert(0);
-}
-
-Expr_invocation* Transform::post_expr_invocation(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
-    case New::ID: return post_new(dynamic_cast<New*>(in));
-    case Pre_op::ID: return post_pre_op(dynamic_cast<Pre_op*>(in));
     }
     assert(0);
 }
@@ -2261,8 +2237,11 @@ void Transform::children_statement(Statement* in)
     case Push_array::ID:
     	children_push_array(dynamic_cast<Push_array*>(in));
     	break;
-    case Invoke_expr::ID:
-    	children_invoke_expr(dynamic_cast<Invoke_expr*>(in));
+    case Eval_expr::ID:
+    	children_eval_expr(dynamic_cast<Eval_expr*>(in));
+    	break;
+    case Pre_op::ID:
+    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case Foreign_statement::ID:
     	children_foreign_statement(dynamic_cast<Foreign_statement*>(in));
@@ -2310,9 +2289,6 @@ void Transform::children_expr(Expr* in)
     	break;
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
@@ -2388,9 +2364,6 @@ void Transform::children_target(Target* in)
     case New::ID:
     	children_new(dynamic_cast<New*>(in));
     	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
-    	break;
     case INT::ID:
     	children_int(dynamic_cast<INT*>(in));
     	break;
@@ -2423,22 +2396,6 @@ void Transform::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
-    	break;
-    }
-}
-
-void Transform::children_expr_invocation(Expr_invocation* in)
-{
-    switch(in->classid())
-    {
-    case Method_invocation::ID:
-    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	children_new(dynamic_cast<New*>(in));
-    	break;
-    case Pre_op::ID:
-    	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
     }
 }

@@ -25,7 +25,7 @@ type t_Assign_var.
 type t_Assign_array.
 type t_Assign_var_var.
 type t_Push_array.
-type t_Invoke_expr.
+type t_Eval_expr.
 type t_Cast.
 type t_Unary_op.
 type t_Bin_op.
@@ -57,7 +57,6 @@ type t_Node.
 type t_Statement.
 type t_Member.
 type t_Expr.
-type t_Expr_invocation.
 type t_Literal.
 type t_Variable_name.
 type t_Target.
@@ -107,7 +106,7 @@ type t_Assign_var ::= assign_var_id { id }.
 type t_Assign_array ::= assign_array_id { id }.
 type t_Assign_var_var ::= assign_var_var_id { id }.
 type t_Push_array ::= push_array_id { id }.
-type t_Invoke_expr ::= invoke_expr_id { id }.
+type t_Eval_expr ::= eval_expr_id { id }.
 type t_Cast ::= cast_id { id }.
 type t_Unary_op ::= unary_op_id { id }.
 type t_Bin_op ::= bin_op_id { id }.
@@ -166,7 +165,6 @@ type t_Target ::=
 		| target_Variable { t_Variable } 
 		| target_Method_invocation { t_Method_invocation } 
 		| target_New { t_New } 
-		| target_Pre_op { t_Pre_op } 
 		| target_INT { t_INT } 
 		| target_REAL { t_REAL } 
 		| target_STRING { t_STRING } 
@@ -190,11 +188,6 @@ type t_Literal ::=
 		| literal_BOOL { t_BOOL } 
 		| literal_NIL { t_NIL } 
 		.
-type t_Expr_invocation ::= 
-		  expr_invocation_Method_invocation { t_Method_invocation } 
-		| expr_invocation_New { t_New } 
-		| expr_invocation_Pre_op { t_Pre_op } 
-		.
 type t_Expr ::= 
 		  expr_Cast { t_Cast } 
 		| expr_Unary_op { t_Unary_op } 
@@ -204,7 +197,6 @@ type t_Expr ::=
 		| expr_Variable { t_Variable } 
 		| expr_Method_invocation { t_Method_invocation } 
 		| expr_New { t_New } 
-		| expr_Pre_op { t_Pre_op } 
 		| expr_INT { t_INT } 
 		| expr_REAL { t_REAL } 
 		| expr_STRING { t_STRING } 
@@ -239,7 +231,8 @@ type t_Statement ::=
 		| statement_Assign_var_var { t_Assign_var_var } 
 		| statement_Assign_array { t_Assign_array } 
 		| statement_Push_array { t_Push_array } 
-		| statement_Invoke_expr { t_Invoke_expr } 
+		| statement_Eval_expr { t_Eval_expr } 
+		| statement_Pre_op { t_Pre_op } 
 		| statement_Foreign_statement { t_Foreign_statement } 
 		.
 type t_Node ::= 
@@ -262,7 +255,8 @@ type t_Node ::=
 		| node_Assign_var_var { t_Assign_var_var } 
 		| node_Assign_array { t_Assign_array } 
 		| node_Push_array { t_Push_array } 
-		| node_Invoke_expr { t_Invoke_expr } 
+		| node_Eval_expr { t_Eval_expr } 
+		| node_Pre_op { t_Pre_op } 
 		| node_Foreign_statement { t_Foreign_statement } 
 		| node_Class_mod { t_Class_mod } 
 		| node_Attribute { t_Attribute } 
@@ -283,7 +277,6 @@ type t_Node ::=
 		| node_Variable { t_Variable } 
 		| node_Method_invocation { t_Method_invocation } 
 		| node_New { t_New } 
-		| node_Pre_op { t_Pre_op } 
 		| node_INT { t_INT } 
 		| node_REAL { t_REAL } 
 		| node_STRING { t_STRING } 
@@ -330,7 +323,7 @@ predicate assign_var (ID:t_Assign_var, TARGET:maybe[t_Target], LHS:t_VARIABLE_NA
 predicate assign_array (ID:t_Assign_array, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
 predicate assign_var_var (ID:t_Assign_var_var, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
 predicate push_array (ID:t_Push_array, TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME).
-predicate invoke_expr (ID:t_Invoke_expr, EXPR:t_Expr_invocation).
+predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
 predicate cast (ID:t_Cast, CAST:t_CAST, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate unary_op (ID:t_Unary_op, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME).
 predicate bin_op (ID:t_Bin_op, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME).

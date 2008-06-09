@@ -53,9 +53,10 @@ class Assign_var;
 class Assign_array;
 class Assign_var_var;
 class Push_array;
-class Invoke_expr;
+class Eval_expr;
 class Expr;
 class Reflection;
+class Pre_op;
 class Branch;
 class Goto;
 class Label;
@@ -71,7 +72,6 @@ class CAST;
 class OP;
 class CONSTANT_NAME;
 class LABEL_NAME;
-class Expr_invocation;
 class Literal;
 class Cast;
 class Unary_op;
@@ -80,13 +80,12 @@ class Constant;
 class Instanceof;
 class Variable;
 class Array;
+class Method_invocation;
+class New;
 class Foreach_has_key;
 class Foreach_get_key;
 class Foreach_get_val;
 class Foreign_expr;
-class Pre_op;
-class Method_invocation;
-class New;
 class INT;
 class REAL;
 class STRING;
@@ -149,7 +148,7 @@ public:
     virtual void assert_valid();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | Assign_var | Assign_var_var | Assign_array | Push_array | Invoke_expr | Foreign_statement;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr | Pre_op | Foreign_statement;
 class Statement : virtual public Node
 {
 public:
@@ -1054,15 +1053,15 @@ public:
     virtual void assert_valid();
 };
 
-// Invoke_expr ::= expr:Expr_invocation ;
-class Invoke_expr : virtual public Statement
+// Eval_expr ::= Expr ;
+class Eval_expr : virtual public Statement
 {
 public:
-    Invoke_expr(Expr_invocation* expr);
+    Eval_expr(Expr* expr);
 protected:
-    Invoke_expr();
+    Eval_expr();
 public:
-    Expr_invocation* expr;
+    Expr* expr;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1074,14 +1073,14 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Invoke_expr* clone();
+    virtual Eval_expr* clone();
 public:
     virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
 };
 
-// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Expr_invocation | Literal | Array | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign_expr;
+// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Method_invocation | New | Literal | Array | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign_expr;
 class Expr : virtual public Target
 {
 public:
@@ -1128,6 +1127,36 @@ public:
     virtual Node* find(Node* in);
 public:
     virtual void assert_valid();
+};
+
+// Pre_op ::= OP Variable ;
+class Pre_op : virtual public Statement
+{
+public:
+    Pre_op(OP* op, Variable* variable);
+protected:
+    Pre_op();
+public:
+    OP* op;
+    Variable* variable;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 31;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Pre_op* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void assert_valid();
+public:
+    Pre_op(Variable* var, const char* op);
 };
 
 // Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME ;
@@ -1539,28 +1568,6 @@ public:
     virtual void assert_valid();
 };
 
-// Expr_invocation ::= Method_invocation | New | Pre_op;
-class Expr_invocation : virtual public Expr
-{
-public:
-    Expr_invocation();
-public:
-    virtual void visit(Visitor* visitor) = 0;
-    virtual void transform_children(Transform* transform) = 0;
-public:
-    virtual int classid() = 0;
-public:
-    virtual bool match(Node* in) = 0;
-public:
-    virtual bool equals(Node* in) = 0;
-public:
-    virtual Expr_invocation* clone() = 0;
-public:
-    virtual Node* find(Node* in) = 0;
-public:
-    virtual void assert_valid() = 0;
-};
-
 // Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;
 class Literal : virtual public Expr
 {
@@ -1790,6 +1797,66 @@ public:
     virtual void assert_valid();
 };
 
+// Method_invocation ::= Target? Method_name Actual_parameter* ;
+class Method_invocation : virtual public Expr
+{
+public:
+    Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters);
+protected:
+    Method_invocation();
+public:
+    Target* target;
+    Method_name* method_name;
+    List<Actual_parameter*>* actual_parameters;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 34;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Method_invocation* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void assert_valid();
+public:
+    Method_invocation(const char* name, Actual_parameter* arg);
+    Method_invocation(METHOD_NAME* name, Actual_parameter* arg);
+};
+
+// New ::= Class_name Actual_parameter* ;
+class New : virtual public Expr
+{
+public:
+    New(Class_name* class_name, List<Actual_parameter*>* actual_parameters);
+protected:
+    New();
+public:
+    Class_name* class_name;
+    List<Actual_parameter*>* actual_parameters;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 36;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual New* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void assert_valid();
+};
+
 // Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
 class Foreach_has_key : virtual public Expr
 {
@@ -1898,96 +1965,6 @@ public:
     virtual void assert_valid();
 public:
     Foreign_expr(IR ::Node* foreign);
-};
-
-// Pre_op ::= OP Variable ;
-class Pre_op : virtual public Expr_invocation
-{
-public:
-    Pre_op(OP* op, Variable* variable);
-protected:
-    Pre_op();
-public:
-    OP* op;
-    Variable* variable;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 31;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Pre_op* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void assert_valid();
-public:
-    Pre_op(Variable* var, const char* op);
-};
-
-// Method_invocation ::= Target? Method_name Actual_parameter* ;
-class Method_invocation : virtual public Expr_invocation
-{
-public:
-    Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters);
-protected:
-    Method_invocation();
-public:
-    Target* target;
-    Method_name* method_name;
-    List<Actual_parameter*>* actual_parameters;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 34;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Method_invocation* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void assert_valid();
-public:
-    Method_invocation(const char* name, Actual_parameter* arg);
-    Method_invocation(METHOD_NAME* name, Actual_parameter* arg);
-};
-
-// New ::= Class_name Actual_parameter* ;
-class New : virtual public Expr_invocation
-{
-public:
-    New(Class_name* class_name, List<Actual_parameter*>* actual_parameters);
-protected:
-    New();
-public:
-    Class_name* class_name;
-    List<Actual_parameter*>* actual_parameters;
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 36;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual New* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void assert_valid();
 };
 
 class INT : virtual public Literal

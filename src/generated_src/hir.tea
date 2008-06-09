@@ -38,7 +38,7 @@ Statement ::=
 	| Try | Throw
 	| If | Loop | Foreach
 	| Break | Continue
-	| Assign_var | Assign_var_var | Assign_array | Push_array | Invoke_expr
+	| Assign_var | Assign_var_var | Assign_array | Push_array | Eval_expr | Pre_op
 	| Foreign_statement
 	;
 
@@ -95,7 +95,7 @@ Assign_var_var ::= Target? lhs:VARIABLE_NAME						      is_ref:"&"? rhs:VARIABLE
 Push_array     ::= Target? lhs:VARIABLE_NAME								is_ref:"&"? rhs:VARIABLE_NAME ;
 
 -- Some exprs can be invoked with and without a lhs
-Invoke_expr ::= expr:Expr_invocation ;
+Eval_expr ::= Expr ;
 
 {-
    Expressions
@@ -105,14 +105,12 @@ Expr ::=
 	  Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
 	| Variable
-	| Expr_invocation
+	| Method_invocation | New
 	| Literal 
 	| Array -- can probably be removed
 -- | Variable_name | Index_array
 	| Foreign_expr
 	;
-
-Expr_invocation ::= Method_invocation | New | Pre_op ;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    

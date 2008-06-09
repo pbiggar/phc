@@ -38,7 +38,6 @@ namespace AST
 		AST::Expr* post_op_assignment(AST::Op_assignment* in);
 		AST::Expr* pre_ignore_errors(AST::Ignore_errors* in);
 		AST::Expr* post_ignore_errors(AST::Ignore_errors* in);
-		void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
 	};
 
 }

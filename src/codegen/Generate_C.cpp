@@ -231,6 +231,34 @@ VARIABLE_NAME* get_var_name (Variable_name* var_name)
 	return name;
 }
 
+void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
+{
+	code
+		<< "zval** " << zvp << ";\n";
+
+	// lhs_var can exist more than once; rename
+	stringstream ss1;
+	ss1 << zvp << "_lhs";
+	string zvp_name = ss1.str ();
+
+	read_st (scope, zvp_name, lhs);
+
+	stringstream ss2;
+	ss2 << zvp << "_index";
+	string zvp_index = ss2.str ();
+
+	code
+		<< "// Array assignment\n";
+	read_simple (scope, zvp_index, index);
+
+	code
+		<<	zvp << " = get_ht_entry ("
+		<<		zvp_name << ", "
+		<<		zvp_index
+		<<		" TSRMLS_CC);\n"
+		;
+}
+
 void index_lhs (Scope scope, string zvp, Variable* var)
 {
 	VARIABLE_NAME* var_name = get_var_name (var);
@@ -344,12 +372,12 @@ void read (Scope scope, string zvp, Variable* var)
 			if (var->array_indices->size()) phc_unsupported (var);
 			stringstream ss;
 			ss << zvp << "var";
-			String* name = new String (ss.str ());
-			read_simple (scope, *name, get_var_name (var));
+			string name = ss.str ();
+			read_simple (scope, name, get_var_name (var));
 			// the same as read_simple, but doesnt declare
 			code 
 				<< "// Read normal variable\n"
-				<< zvp << " = &" << *name << ";\n"; 
+				<< zvp << " = &" << name << ";\n"; 
 		}
 	}
 	else
@@ -817,6 +845,22 @@ protected:
  * deal with the different forms the RHS can take.
  */
 
+void index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
+{
+	code
+		<< "zval** " << zvp << ";\n";
+
+	// lhs_var can exist more than once; rename
+	stringstream ss;
+	ss << zvp << "_var";
+	string zvp_name = ss.str ();
+
+	read_st (scope, zvp_name, var_name);
+	code 
+		<< "// Normal Assignment\n"
+		<< zvp << " = " << zvp_name << ";\n";
+}
+
 class Pattern_assign_var : public Pattern
 {
 public:
@@ -842,7 +886,7 @@ public:
 		code 
 			<< "{\n";
 
-		index_lhs (LOCAL, "p_lhs", lhs->value);
+		index_assign_var (LOCAL, "p_lhs", lhs->value);
 
 		code 
 			<<		"if (p_lhs != NULL)\n"
@@ -863,6 +907,158 @@ protected:
 	Assign_var* agn;
 	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
+};
+
+void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
+{
+	if (not is_ref)
+	{
+		declare ("p_rhs");
+		code 
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n";
+
+		// copied from read ()
+		read_simple (LOCAL, "p_rhs_var", rhs);
+
+		code 
+			<< "// Read normal variable\n"
+			<< "p_rhs = &p_rhs_var;\n"
+			<< "\n"
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		cleanup ("p_rhs");
+	}
+	else
+	{
+		index_lhs (LOCAL, "p_rhs", rhs);
+		code 
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
+	}
+}
+
+class Pattern_assign_array : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		target = new Wildcard<Target>;
+		lhs = new Wildcard<VARIABLE_NAME>;
+		index = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		agn = new Assign_array (target, lhs, index, false, rhs);
+		return (that->match(agn));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert (lhs->value);
+		assert (index->value);
+		assert (rhs->value);
+		if (target->value) phc_unsupported (agn);
+
+
+		code 
+			<< "{\n";
+
+		index_assign_array (LOCAL, "p_lhs", lhs->value, index->value);
+
+		code 
+			<<		"if (p_lhs != NULL)\n"
+			<<		"{\n";
+
+		assign_rhs (agn->is_ref, rhs->value);
+
+		code 
+			<<		"}\n";
+		
+		code 
+			<< "}\n";
+		code << "phc_check_invariants (TSRMLS_C);\n";
+	}
+
+protected:
+	Assign_array* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* index;
+	Wildcard<VARIABLE_NAME>* rhs;
+};
+
+void push_rhs (bool is_ref, VARIABLE_NAME* rhs)
+{
+	if (!is_ref)
+	{
+		declare ("p_rhs");
+		code 
+			<< "zval* temp = NULL;\n"
+			<< "p_rhs = &temp;\n";
+		read (LOCAL, "p_rhs", rhs);
+		code 
+			<< "if (*p_lhs != *p_rhs)\n"
+			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+		cleanup ("p_rhs");
+	}
+	else
+	{
+		index_lhs (LOCAL, "p_rhs", rhs);
+		code 
+			<< "sep_copy_on_write_ex (p_rhs);\n"
+			<< "(*p_rhs)->is_ref = 1;\n"
+			<< "(*p_rhs)->refcount++;\n"
+			<< "zval_ptr_dtor (p_lhs);\n"
+			<< "*p_lhs = *p_rhs;\n";
+	}
+}
+
+class Pattern_push_array : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		target = new Wildcard<Target>;
+		lhs = new Wildcard<VARIABLE_NAME>;
+		rhs = new Wildcard<VARIABLE_NAME>;
+		agn = new Push_array (target, lhs, false, rhs);
+		return (that->match(agn));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		assert (lhs->value);
+		assert (rhs->value);
+		if (target->value) phc_unsupported (agn);
+
+
+		code 
+			<< "{\n"
+			<<		"zval** p_lhs;\n";
+
+		read_st (LOCAL, "p_lhs_var", lhs->value);
+		code 
+			<<	"	// Array push \n"
+			<<	"	p_lhs = push_and_index_ht (p_lhs_var TSRMLS_CC);\n"
+			<<	""
+			<<	"	if (p_lhs != NULL)\n"
+			<<	"	{\n";
+
+		push_rhs (agn->is_ref, rhs->value);
+
+		code 
+			<<		"}\n"
+			<< "}\n"
+			<< "phc_check_invariants (TSRMLS_C);\n";
+	}
+
+protected:
+	Push_array* agn;
+	Wildcard<Target>* target;
+	Wildcard<VARIABLE_NAME>* lhs;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 /*
@@ -1233,7 +1429,37 @@ protected:
 	Wildcard<Constant>* rhs;
 };
 
-class Pattern_eval : public Pattern_assign_var
+/* A number of patterns can be n the form of either Eval_expr
+ * (Method_invocation) or Assign_var (_, _, Method_invocation). Abstract this
+ * to avoid duplication. */
+class Pattern_eval_expr_or_assign_var : public Pattern_assign_var
+{
+	bool match(Statement* that)
+	{
+		bool result = that->match (new Eval_expr (rhs_pattern()));
+		if (result)
+		{
+			lhs = NULL;
+			return true;
+		}
+		else
+			return Pattern_assign_var::match(that);
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		if (lhs == NULL)
+		{
+			code << "{\n";
+			generate_rhs ();
+			code << "}\n";
+		}
+		else
+			Pattern_assign_var::generate_code (gen);
+	}
+};
+
+class Pattern_eval : public Pattern_eval_expr_or_assign_var
 {
 	Expr* rhs_pattern()
 	{
@@ -1292,25 +1518,23 @@ protected:
 	Wildcard<Actual_parameter>* eval_arg;
 };
 
-class Pattern_exit : public Pattern
+class Pattern_exit : public Pattern_eval_expr_or_assign_var
 {
 public:
-	bool match (Statement* that)
+	Pattern_exit () { name = new METHOD_NAME (s("exit")); }
+
+public:
+	Expr* rhs_pattern ()
 	{
 		exit_arg = new Wildcard<Actual_parameter> ();
-		Wildcard<METHOD_NAME>* name = new Wildcard <METHOD_NAME> ();
-		return that->match (
-				new Assign_var (new Wildcard<VARIABLE_NAME>, // ignored
-					new Method_invocation(
+		return new Method_invocation(
 						NULL,	
 						name,
 						new List<Actual_parameter*>(exit_arg)
-							)
-						))
-			&& (*name->value->value == "exit" || *name->value->value == "die");
+						);
 	}
 
-	void generate_code (Generate_C* gen)
+	void generate_rhs ()
 	{
 		code << "{\n";
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
@@ -1328,9 +1552,17 @@ public:
 
 protected:
 	Wildcard<Actual_parameter>* exit_arg;
+	METHOD_NAME* name;
 };
 
-class Pattern_method_invocation : public Pattern_assign_var
+// die() and exit() are synonyms
+class Pattern_die : public Pattern_exit
+{
+public:
+	Pattern_die() { name = new METHOD_NAME (s("die")); }
+};
+
+class Pattern_method_invocation : public Pattern_eval_expr_or_assign_var
 {
 public:
 	Expr* rhs_pattern()
@@ -1674,37 +1906,6 @@ protected:
 	Wildcard<VARIABLE_NAME>* right;
 };
 
-class Pattern_pre_op : public Pattern_assign_var
-{
-public:
-	Expr* rhs_pattern()
-	{
-		op = new Wildcard<OP>;
-		var = new Wildcard<Variable>;
-
-		return new Pre_op (op, var); 
-	}
-
-	void generate_rhs ()
-	{
-		assert (lhs == NULL);
-		assert(
-			op_functions.find(*op->value->value) != 
-			op_functions.end());
-		string op_fn = op_functions[*op->value->value]; 
-
-		read_st (LOCAL, "p_var", get_var_name (var->value));
-
-		code
-			<< "sep_copy_on_write_ex (p_var);\n"
-			<< op_fn << "(*p_var);\n";
-	}
-
-protected:
-	Wildcard<Variable>* var;
-	Wildcard<OP>* op;
-};
-
 class Pattern_unary_op : public Pattern_assign_var
 {
 public:
@@ -1748,6 +1949,40 @@ protected:
 	Wildcard<OP>* op;
 	Wildcard<VARIABLE_NAME>* var_name;
 };
+
+class Pattern_pre_op : public Pattern
+{
+public:
+	bool match(Statement* that)
+	{
+		op = new Wildcard<OP>;
+		var = new Wildcard<Variable>;
+		return(that->match(new Pre_op(op, var)));
+	}
+
+	void generate_code(Generate_C* gen)
+	{
+		code << "{\n";
+
+		assert(
+			op_functions.find(*op->value->value) != 
+			op_functions.end());
+		string op_fn = op_functions[*op->value->value]; 
+
+		read_st (LOCAL, "p_var", get_var_name (var->value));
+
+		code
+			<< "sep_copy_on_write_ex (p_var);\n"
+			<< op_fn << "(*p_var);\n";
+
+		code << "}\n";
+	}
+
+protected:
+	Wildcard<Variable>* var;
+	Wildcard<OP>* op;
+};
+
 
 class Pattern_return : public Pattern
 {
@@ -1804,7 +2039,7 @@ class Pattern_unset : public Pattern
 	{
 		var = new Wildcard<Actual_parameter>;
 		return that->match(
-			new Invoke_expr (
+			new Eval_expr (
 				new Method_invocation(
 					"unset",
 					var)));
@@ -2163,9 +2398,14 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_nil ()
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
+//	,	new Pattern_assign_var_var () TODO
+	,	new Pattern_assign_array ()
+	,	new Pattern_push_array ()
+//	,	new Pattern_eval_expr () TODO
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()
+	,	new Pattern_die()
 	,	new Pattern_unset()
 	,	new Pattern_isset()
 	,	new Pattern_method_invocation()
