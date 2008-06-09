@@ -44,7 +44,7 @@
 
 		// create CFG graphs
 		"rm -f *.ps",
-		"for i in *.dot; do dot -Tps \$i > \$i.ps; done",
+		"for i in *.dot; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",
 		"rm -f *.dot",
 
 	);

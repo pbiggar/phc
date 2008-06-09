@@ -6,7 +6,6 @@ using dotty.
 
 % Build a .dot file to view the CFG
 
-
 % Create dotty nodes and edges
 predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
 predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
@@ -16,8 +15,14 @@ predicate in_annotation (BB:t_cfg_node, ANNOTATION:string).
 predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).
 
 % Nodes
-dotty_node (N, []) :- cfg_node (N), N = nentry{_}.
-dotty_node (N, []) :- cfg_node (N), N = nexit{_}.
+dotty_node (N, [dg_attr{"label", NAME}]) :- cfg_node (N), N = nentry{METHOD}, get_method_name (METHOD, NAME).
+dotty_node (N, [dg_attr{"label", NAME}]) :- cfg_node (N), N = nexit{METHOD}, get_method_name (METHOD, NAME).
+
+predicate get_method_name (t_Method, string).
+get_method_name (METHOD, NAME) :- 
+	mir()->method (METHOD, SIG, _), 
+	mir()->signature (SIG, _, _, NAME_ID, _), 
+	mir()->mETHOD_NAME (NAME_ID, NAME).
 
 % Normal statements (labelled with the SOURCE_REP and [ID])
 dotty_node (N, Attrs) :- 
@@ -46,8 +51,8 @@ dotty_edge (E1, E2, Attrs) :- cfg_edge (E1, E2),
 
 
 % Build the dotty graph
-dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
-	Name = "CFG",
+dotty_graph (NAME, true, dotgraph{Nodes, Edges}, [], [], []) :-
+	((cfg_node (nentry{METHOD}), get_method_name (METHOD, NAME)) ; NAME = "UNKNOWN"),
 	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),
 	\/(dotty_edge (DE1, DE2, EAs), E = dg_edge{DE1, DE2, EAs}):list_all(E, Edges).
 
