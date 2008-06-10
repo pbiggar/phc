@@ -41,9 +41,9 @@
 
 		# Run Dead-code elimination
 #		"$clpa src/analyse/dce.clp",
-#		"$clpa src/analyse/xml_unparser.clp",
+		"$clpa src/analyse/xml_unparser.clp",
 
-		"$clpa src/analyse/generic.clp",
+#		"$clpa src/analyse/generic.clp",
 
 		// create CFG graphs
 		"rm -f *.ps",

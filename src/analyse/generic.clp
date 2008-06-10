@@ -1,7 +1,5 @@
 import "src/generated/MIR.clp".
 
-analyze session_name ("mir").
-
 % Generics for Calypso:
 
 % Example:
@@ -84,7 +82,7 @@ type t_generic ::= gnode{t_Node, list[t_generic]} % { ID, [PARAMS] }
 					  | gmaybe{maybe[t_generic]}.
 
 % Generics needed for this (to later be added straight from the IR with maketea).
-%predicate get_type (in NODE:t_any, out TYPE:string).
+predicate get_type (in NODE:t_Node, out TYPE:string).
 %predicate unwrap (in WRAPPED:t_any, out UNWRAPPED:t_any).
 %predicate sub_nodes (in NODE:t_any, out SUB_NODES:list[mir_type]).
 
@@ -202,48 +200,38 @@ mir()->method_invocation (ID, _, METHOD_NAME, _),
 
 
 % Generics for get_type
-%mir()->global (ID, _), +get_type (any{ID}, "Global").
-%mir()->eval_expr (ID, _), +get_type (any{ID}, "Eval_expr").
-%mir()->assign_var(ID, _, _, _, _), +get_type (any{ID}, "Assign_var").
-%mir()->vARIABLE_NAME(ID, _), +get_type (any{ID}, "VARIABLE_NAME").
-%mir()->method_invocation (ID, _, _, _), +get_type (any{ID}, "Method_invocation").
-%mir()->iNT (ID, _), +get_type (any{ID}, "INT").
-%mir()->mETHOD_NAME (ID, _), +get_type (any{ID}, "METHOD_NAME").
-%mir()->actual_parameter (ID, _, _, _, _), +get_type (any{ID}, "actual_parameter").
-%
-%% Generics for sub_nodes
-%mir()->pHP_script 
-%
-%mir()->global (ID, VARIABLE_NAME),
-%	+sub_nodes (any{ID}, [gnode{VARIABLE_NAME}]).
-%
-%mir()->eval_expr (ID, EXPR),
-%	+sub_nodes (any{ID}, [gnode{EXPR}]).
-%
-%mir()->assign_var (ID, TARGET, VARIABLE_NAME, BY_REF, EXPR), 
-%	+sub_nodes (any{ID}, [gmaybe[TARGET], gnode{VARIABLE_NAME}, gmarker{BY_REF}, gnode{EXPR}]).
-%
-%mir()->vARIABLE_NAME (ID, VALUE),
-%	+sub_nodes (any{ID}, gvalue{VALUE}).
-%
-%mir()->method_invocation (ID, IS_REF, METHOD_NAME, PARAMS),
-%	+sub_nodes (any{ID}, [gnode{METHOD_NAME}, glist{PARAMS}]).
-%
-%mir()->iNT (ID, VALUE),
-%	+sub_nodes (any{ID}, gvalue{VALUE}).
-%	
-%mir()->mETHOD_NAME (ID, VALUE),
-%	+sub_nodes (any{ID}, gvalue{VALUE}).
-%
-%mir()->actual_parameter (ID, IS_REF, TARGET, VARIABLE_NAME, []),
-%	+sub_nodes (any{ID}, [any{VARIABLE_NAME}]).
-%
-%
-%sub_nodes (WRAPPED, SUB_NODES) :-
-%	unwrap (WRAPPED, UNWRAPPED),
-%	sub_nodes (UNWRAPPED, SUB_NODES).
-%
-%
+mir()->global (ID, _),
+	+get_type (node_Global{ID}, "Global").
 
-?- to_generic (any{pHP_script_id{ID}}, B).
-%?- statements_to_generic_list (A, B).
+mir()->eval_expr (ID, _),
+	+get_type (node_Eval_expr{ID}, "Eval_expr").
+
+mir()->method (ID, _, _),
+	+get_type (node_Method {ID}, "Method").
+
+mir()->signature (ID, _, _, _, _),
+	+get_type (node_Signature {ID}, "Signature").
+
+mir()->method_mod (ID, _, _, _, _, _, _),
+	+get_type (node_Method_mod {ID}, "Method_mod").
+
+mir()->assign_var(ID, _, _, _, _),
+	+get_type (node_Assign_var{ID}, "Assign_var").
+
+mir()->vARIABLE_NAME(ID, _),
+	+get_type (node_VARIABLE_NAME{ID}, "VARIABLE_NAME").
+
+mir()->method_invocation (ID, _, _, _),
+	+get_type (node_Method_invocation{ID}, "Method_invocation").
+
+mir()->iNT (ID, _),
+	+get_type (node_INT{ID}, "INT").
+
+mir()->mETHOD_NAME (ID, _),
+	+get_type (node_METHOD_NAME{ID}, "METHOD_NAME").
+
+mir()->actual_parameter (ID, _, _, _, _),
+	+get_type (node_Actual_parameter{ID}, "actual_parameter").
+
+
+%?- get_type (A, B).
