@@ -34,13 +34,16 @@
 		"rm -f *.db",
 		"src/phc --sdump=clar $filename > $base.clp",
 		"$clpa --debug parse_warnings $base.clp",
-		"rm $base.clp",
+#		"rm $base.clp",
 
 		// Turn into CFG
 		"$clpa src/analyse/do_cfg.clp",
 
 		# Run Dead-code elimination
-		"$clpa src/analyse/dce.clp",
+#		"$clpa src/analyse/dce.clp",
+#		"$clpa src/analyse/xml_unparser.clp",
+
+		"$clpa src/analyse/generic.clp",
 
 		// create CFG graphs
 		"rm -f *.ps",
