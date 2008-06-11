@@ -55,8 +55,7 @@ Options:
     -c     Clean up (ie delete) all logs files and directories.
     -q     Just use the first 10 test subjects, for a real quick test run
     -O filename       Only test a single named file
-    -D debug_param    Debug a test case. Each test can take a param of any form,
-                      which must be provided
+    -D     Run in debug mode.
 
 Regex:
     A list of regular expressions matching the tests to be run. Any test name

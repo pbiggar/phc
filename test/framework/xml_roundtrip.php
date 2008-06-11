@@ -38,7 +38,7 @@ class XML_roundtrip extends AsyncTest
 
 
 		# Get the output going straight though the compiler
-		$bundle->commands[0]	= $this->get_command_line (NULL, $last_pass, $subject);
+		$bundle->commands[0]	= $this->get_command_line ($last_pass, $subject);
 		$bundle->commands[1] = $this->get_long_command_line ($subject, $last_pass);
 
 		$bundle->final = "finish";
@@ -56,11 +56,10 @@ class XML_roundtrip extends AsyncTest
 		$concatenator = "";
 		foreach (get_pass_list () as $pass)
 		{
-			$long_command .= $concatenator . $this->get_command_line ($prev_pass, $pass, $subject);
+			$long_command .= $concatenator . $this->get_command_line ($pass, $subject);
 			
 			$subject = NULL; // we dont need it after the first one
 			$concatenator = " | "; // we want to pipe  the commands together
-			$prev_pass = $pass;
 
 			// dont always give the full list
 			if ($pass == $last_pass)
@@ -70,14 +69,18 @@ class XML_roundtrip extends AsyncTest
 	}
 
 
-	function get_command_line ($in_pass, $out_pass, $subject)
+	function get_command_line ($pass, $subject)
 	{
 		global $phc;
 		$command = "$phc --no-hash-bang";
 
 		if (is_string ($subject)) $command .= " $subject";
-		if (is_string ($in_pass)) $command .= " --read-xml=$in_pass";
-		$command .= " --xdump=$out_pass";
+		if ($subject == NULL) $command .= " --read-xml=$pass";
+
+		// We can't read AST-to-HIR output with --read=hir
+		if ($pass == "AST-to-HIR") $pass = "hir";
+		if ($pass == "HIR-to-MIR") $pass = "mir";
+		$command .= " --xdump=$pass";
 
 		return $command;
 	}
@@ -98,7 +101,7 @@ class XML_roundtrip extends AsyncTest
 				// find the failing part
 				foreach (get_pass_list() as $pass)
 				{
-					$command1 = $this->get_command_line (NULL, $pass, $bundle->subject);
+					$command1 = $this->get_command_line ($pass, $bundle->subject);
 					$command2 = $this->get_long_command_line ($bundle->subject, $pass);
 					if (($result1 = complete_exec ($command1)) !== ($result2 = complete_exec ($command2)))
 					{

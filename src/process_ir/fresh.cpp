@@ -13,6 +13,9 @@
 // TODO Globals. Bad. Do this another way.
 extern struct gengetopt_args_info args_info;
 
+// We need to set 
+int fresh_suffix_counter = 0;
+
 // We only want to call seed once, on first call of unique_random. We abuse the
 // static initializer, but we need a non-void value for this.
 int 
@@ -40,21 +43,19 @@ unique_random ()
 	return num;
 }
 
-int fresh_suffix (string prefix)
+int fresh_suffix ()
 {
-	static map<string, int> temps;
 	if (args_info.obfuscate_flag)
 		return unique_random ();
 	else
-		return temps[prefix]++;
+		return fresh_suffix_counter++;
 }
 
 
-String* fresh (string prefix)
+String* fresh (string prefix, int suffix)
 {
-	int t = fresh_suffix (prefix);
 	stringstream ss;
-	ss << prefix << t;
+	ss << "__phc__" << prefix << suffix;
 
 	return new String(ss.str());
 }
@@ -68,7 +69,9 @@ namespace AST
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		int suffix = fresh_suffix ();
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
+		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -85,7 +88,9 @@ namespace HIR
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		int suffix = fresh_suffix ();
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
+		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -101,7 +106,9 @@ namespace MIR
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
+		int suffix = fresh_suffix ();
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
+		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -109,12 +116,17 @@ namespace MIR
 
 	HT_ITERATOR* fresh_iter ()
 	{
-		return new HT_ITERATOR (fresh_suffix ("I"));
+		int suffix = fresh_suffix ();
+		HT_ITERATOR* result = new HT_ITERATOR (suffix);
+		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		return result;
 	}
 
 	Label* fresh_label ()
 	{
-		return new Label (
-				new LABEL_NAME (fresh("L")));
+		int suffix = fresh_suffix ();
+		LABEL_NAME* result = new LABEL_NAME (fresh ("L", suffix));
+		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		return new Label (result);
 	}
 }
