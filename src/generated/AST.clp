@@ -372,32 +372,32 @@ type t_Node ::=
 
 % Conjunctive Predicates
 predicate pHP_script (ID:t_PHP_script, STATEMENTS:list[t_Statement]).
-predicate class_def (ID:t_Class_def, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
+predicate class_def (ID:t_Class_def, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, OPT_EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
 predicate class_mod (ID:t_Class_mod, IS_ABSTRACT:bool, IS_FINAL:bool).
-predicate interface_def (ID:t_Interface_def, INTERFACE_NAME:t_INTERFACE_NAME, EXTENDS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
-predicate method (ID:t_Method, SIGNATURE:t_Signature, STATEMENTS:maybe[list[t_Statement]]).
+predicate interface_def (ID:t_Interface_def, INTERFACE_NAME:t_INTERFACE_NAME, EXTENDSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
+predicate method (ID:t_Method, SIGNATURE:t_Signature, OPT_STATEMENTS:maybe[list[t_Statement]]).
 predicate signature (ID:t_Signature, METHOD_MOD:t_Method_mod, IS_REF:bool, METHOD_NAME:t_METHOD_NAME, FORMAL_PARAMETERS:list[t_Formal_parameter]).
 predicate method_mod (ID:t_Method_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool).
 predicate formal_parameter (ID:t_Formal_parameter, TYPE:t_Type, IS_REF:bool, VAR:t_Name_with_default).
-predicate p_type (ID:t_Type, CLASS_NAME:maybe[t_CLASS_NAME]).
-predicate attribute (ID:t_Attribute, ATTR_MOD:t_Attr_mod, VARS:list[t_Name_with_default]).
+predicate p_type (ID:t_Type, OPT_CLASS_NAME:maybe[t_CLASS_NAME]).
+predicate attribute (ID:t_Attribute, ATTR_MOD:t_Attr_mod, VARSS:list[t_Name_with_default]).
 predicate attr_mod (ID:t_Attr_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool).
-predicate name_with_default (ID:t_Name_with_default, VARIABLE_NAME:t_VARIABLE_NAME, EXPR:maybe[t_Expr]).
-predicate if (ID:t_If, EXPR:t_Expr, IFTRUE:list[t_Statement], IFFALSE:list[t_Statement]).
+predicate name_with_default (ID:t_Name_with_default, VARIABLE_NAME:t_VARIABLE_NAME, OPT_EXPR:maybe[t_Expr]).
+predicate if (ID:t_If, EXPR:t_Expr, IFTRUES:list[t_Statement], IFFALSES:list[t_Statement]).
 predicate while (ID:t_While, EXPR:t_Expr, STATEMENTS:list[t_Statement]).
 predicate do (ID:t_Do, STATEMENTS:list[t_Statement], EXPR:t_Expr).
-predicate for (ID:t_For, INIT:maybe[t_Expr], COND:maybe[t_Expr], INCR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
-predicate foreach (ID:t_Foreach, EXPR:t_Expr, KEY:maybe[t_Variable], IS_REF:bool, VAL:t_Variable, STATEMENTS:list[t_Statement]).
+predicate for (ID:t_For, OPT_INIT:maybe[t_Expr], OPT_COND:maybe[t_Expr], OPT_INCR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
+predicate foreach (ID:t_Foreach, EXPR:t_Expr, OPT_KEY:maybe[t_Variable], IS_REF:bool, VAL:t_Variable, STATEMENTS:list[t_Statement]).
 predicate switch (ID:t_Switch, EXPR:t_Expr, SWITCH_CASES:list[t_Switch_case]).
-predicate switch_case (ID:t_Switch_case, EXPR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
-predicate break (ID:t_Break, EXPR:maybe[t_Expr]).
-predicate continue (ID:t_Continue, EXPR:maybe[t_Expr]).
-predicate return (ID:t_Return, EXPR:maybe[t_Expr]).
-predicate static_declaration (ID:t_Static_declaration, VARS:list[t_Name_with_default]).
+predicate switch_case (ID:t_Switch_case, OPT_EXPR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
+predicate break (ID:t_Break, OPT_EXPR:maybe[t_Expr]).
+predicate continue (ID:t_Continue, OPT_EXPR:maybe[t_Expr]).
+predicate return (ID:t_Return, OPT_EXPR:maybe[t_Expr]).
+predicate static_declaration (ID:t_Static_declaration, VARSS:list[t_Name_with_default]).
 predicate global (ID:t_Global, VARIABLE_NAMES:list[t_Variable_name]).
 predicate declare (ID:t_Declare, DIRECTIVES:list[t_Directive], STATEMENTS:list[t_Statement]).
 predicate directive (ID:t_Directive, DIRECTIVE_NAME:t_DIRECTIVE_NAME, EXPR:t_Expr).
-predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHES:list[t_Catch]).
+predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHESS:list[t_Catch]).
 predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
 predicate throw (ID:t_Throw, EXPR:t_Expr).
 predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
@@ -413,15 +413,15 @@ predicate unary_op (ID:t_Unary_op, OP:t_OP, EXPR:t_Expr).
 predicate bin_op (ID:t_Bin_op, LEFT:t_Expr, OP:t_OP, RIGHT:t_Expr).
 predicate conditional_expr (ID:t_Conditional_expr, COND:t_Expr, IFTRUE:t_Expr, IFFALSE:t_Expr).
 predicate ignore_errors (ID:t_Ignore_errors, EXPR:t_Expr).
-predicate constant (ID:t_Constant, CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME).
+predicate constant (ID:t_Constant, OPT_CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME).
 predicate instanceof (ID:t_Instanceof, EXPR:t_Expr, CLASS_NAME:t_Class_name).
-predicate variable (ID:t_Variable, TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICES:list[maybe[t_Expr]]).
+predicate variable (ID:t_Variable, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[maybe[t_Expr]]).
 predicate reflection (ID:t_Reflection, EXPR:t_Expr).
 predicate pre_op (ID:t_Pre_op, OP:t_OP, VARIABLE:t_Variable).
 predicate post_op (ID:t_Post_op, VARIABLE:t_Variable, OP:t_OP).
 predicate array (ID:t_Array, ARRAY_ELEMS:list[t_Array_elem]).
-predicate array_elem (ID:t_Array_elem, KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr).
-predicate method_invocation (ID:t_Method_invocation, TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
+predicate array_elem (ID:t_Array_elem, OPT_KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr).
+predicate method_invocation (ID:t_Method_invocation, OPT_TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
 predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, EXPR:t_Expr).
 predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
 
