@@ -370,7 +370,7 @@ type t_Node ::=
 		.
 
 
-% Predicates
+% Conjunctive Predicates
 predicate pHP_script (ID:t_PHP_script, STATEMENTS:list[t_Statement]).
 predicate class_def (ID:t_Class_def, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
 predicate class_mod (ID:t_Class_mod, IS_ABSTRACT:bool, IS_FINAL:bool).
@@ -425,6 +425,7 @@ predicate method_invocation (ID:t_Method_invocation, TARGET:maybe[t_Target], MET
 predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, EXPR:t_Expr).
 predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
 
+% Token Predicates
 predicate cLASS_NAME (ID:t_CLASS_NAME, VALUE:string).
 predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
 predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).
@@ -438,4 +439,1704 @@ predicate nIL (ID:t_NIL, VALUE:null).
 predicate oP (ID:t_OP, VALUE:string).
 predicate cAST (ID:t_CAST, VALUE:string).
 predicate cONSTANT_NAME (ID:t_CONSTANT_NAME, VALUE:string).
+
+
+
+% Generics
+
+% Conjunctive Type Casts
+to_node (ANY, NODE) :- 
+	ANY = any{pHP_script_id{ID}},
+	NODE = node_PHP_script{pHP_script_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{class_def_id{ID}},
+	NODE = node_Class_def{class_def_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{class_mod_id{ID}},
+	NODE = node_Class_mod{class_mod_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{interface_def_id{ID}},
+	NODE = node_Interface_def{interface_def_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{method_id{ID}},
+	NODE = node_Method{method_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{signature_id{ID}},
+	NODE = node_Signature{signature_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{method_mod_id{ID}},
+	NODE = node_Method_mod{method_mod_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{formal_parameter_id{ID}},
+	NODE = node_Formal_parameter{formal_parameter_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{type_id{ID}},
+	NODE = node_Type{type_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{attribute_id{ID}},
+	NODE = node_Attribute{attribute_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{attr_mod_id{ID}},
+	NODE = node_Attr_mod{attr_mod_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{name_with_default_id{ID}},
+	NODE = node_Name_with_default{name_with_default_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{if_id{ID}},
+	NODE = node_If{if_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{while_id{ID}},
+	NODE = node_While{while_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{do_id{ID}},
+	NODE = node_Do{do_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{for_id{ID}},
+	NODE = node_For{for_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{foreach_id{ID}},
+	NODE = node_Foreach{foreach_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{switch_id{ID}},
+	NODE = node_Switch{switch_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{switch_case_id{ID}},
+	NODE = node_Switch_case{switch_case_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{break_id{ID}},
+	NODE = node_Break{break_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{continue_id{ID}},
+	NODE = node_Continue{continue_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{return_id{ID}},
+	NODE = node_Return{return_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{static_declaration_id{ID}},
+	NODE = node_Static_declaration{static_declaration_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{global_id{ID}},
+	NODE = node_Global{global_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{declare_id{ID}},
+	NODE = node_Declare{declare_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{directive_id{ID}},
+	NODE = node_Directive{directive_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{try_id{ID}},
+	NODE = node_Try{try_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{catch_id{ID}},
+	NODE = node_Catch{catch_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{throw_id{ID}},
+	NODE = node_Throw{throw_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{eval_expr_id{ID}},
+	NODE = node_Eval_expr{eval_expr_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{nop_id{ID}},
+	NODE = node_Nop{nop_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{foreign_expr_id{ID}},
+	NODE = node_Foreign_expr{foreign_expr_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{foreign_statement_id{ID}},
+	NODE = node_Foreign_statement{foreign_statement_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{assignment_id{ID}},
+	NODE = node_Assignment{assignment_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{op_assignment_id{ID}},
+	NODE = node_Op_assignment{op_assignment_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{list_assignment_id{ID}},
+	NODE = node_List_assignment{list_assignment_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{nested_list_elements_id{ID}},
+	NODE = node_Nested_list_elements{nested_list_elements_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{cast_id{ID}},
+	NODE = node_Cast{cast_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{unary_op_id{ID}},
+	NODE = node_Unary_op{unary_op_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{bin_op_id{ID}},
+	NODE = node_Bin_op{bin_op_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{conditional_expr_id{ID}},
+	NODE = node_Conditional_expr{conditional_expr_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{ignore_errors_id{ID}},
+	NODE = node_Ignore_errors{ignore_errors_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{constant_id{ID}},
+	NODE = node_Constant{constant_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{instanceof_id{ID}},
+	NODE = node_Instanceof{instanceof_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{variable_id{ID}},
+	NODE = node_Variable{variable_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{reflection_id{ID}},
+	NODE = node_Reflection{reflection_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{pre_op_id{ID}},
+	NODE = node_Pre_op{pre_op_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{post_op_id{ID}},
+	NODE = node_Post_op{post_op_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{array_id{ID}},
+	NODE = node_Array{array_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{array_elem_id{ID}},
+	NODE = node_Array_elem{array_elem_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{method_invocation_id{ID}},
+	NODE = node_Method_invocation{method_invocation_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{actual_parameter_id{ID}},
+	NODE = node_Actual_parameter{actual_parameter_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{new_id{ID}},
+	NODE = node_New{new_id{ID}}.
+
+
+
+% Disjunctive Type Casts
+to_node (ANY, NODE) :- 
+	ANY = any{node_PHP_script{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Class_mod{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Signature{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Method_mod{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Formal_parameter{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Type{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Attr_mod{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Name_with_default{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Directive{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Foreign_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Foreign_statement{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Variable{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Nested_list_elements{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_VARIABLE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Reflection{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Cast{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Unary_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Bin_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Constant{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Instanceof{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Pre_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Method_invocation{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_New{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_INT{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_REAL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_STRING{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_BOOL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_NIL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Op_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_List_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Post_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Array{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Conditional_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Ignore_errors{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_CLASS_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Array_elem{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_METHOD_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Actual_parameter{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Method{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Attribute{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Class_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Interface_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Return{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Static_declaration{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Global{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Try{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Throw{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Eval_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_If{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_While{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Do{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_For{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Foreach{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Switch{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Break{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Continue{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Declare{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Nop{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Switch_case{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_Catch{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_INTERFACE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_CAST{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_OP{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_CONSTANT_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{node_DIRECTIVE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Class_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Interface_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Method{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Return{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Static_declaration{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Global{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Try{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Throw{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Eval_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_If{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_While{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Do{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_For{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Foreach{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Switch{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Break{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Continue{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Declare{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Nop{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{statement_Foreign_statement{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{member_Method{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{member_Attribute{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{foreign_Foreign_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{foreign_Foreign_statement{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Cast{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Unary_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Bin_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Constant{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Instanceof{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Variable{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Pre_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Method_invocation{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_New{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_INT{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_REAL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_STRING{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_BOOL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_NIL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Op_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_List_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Post_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Array{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Conditional_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Ignore_errors{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{expr_Foreign_expr{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{literal_INT{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{literal_REAL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{literal_STRING{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{literal_BOOL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{literal_NIL{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{list_element_Variable{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{list_element_Nested_list_elements{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{variable_name_VARIABLE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{variable_name_Reflection{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{target_Assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Cast{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Unary_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Bin_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Constant{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Instanceof{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Variable{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Pre_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Method_invocation{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_New{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_INT{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_REAL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_STRING{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_BOOL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_NIL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Op_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_List_assignment{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Post_op{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Array{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Conditional_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Ignore_errors{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_Foreign_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{target_CLASS_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{method_name_METHOD_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{method_name_Reflection{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{class_name_CLASS_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{class_name_Reflection{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Method{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Attribute{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Class_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Interface_def{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Return{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Static_declaration{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Global{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Try{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Throw{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Eval_expr{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_If{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_While{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Do{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_For{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Foreach{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Switch{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Break{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Continue{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Declare{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Nop{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Foreign_statement{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Switch_case{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{commented_node_Catch{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_INTERFACE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_CLASS_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_METHOD_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_VARIABLE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_CAST{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_OP{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_CONSTANT_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{identifier_DIRECTIVE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_INTERFACE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_CLASS_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_METHOD_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_VARIABLE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_CAST{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_OP{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_CONSTANT_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_DIRECTIVE_NAME{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_INT{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_REAL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_STRING{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_BOOL{INNER}},
+	to_node (any{INNER}, NODE).
+
+to_node (ANY, NODE) :- 
+	ANY = any{source_rep_NIL{INNER}},
+	to_node (any{INNER}, NODE).
+
+
+% Tokens Casts
+to_node (ANY, NODE) :- 
+	ANY = any{cLASS_NAME_id{ID}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{iNTERFACE_NAME_id{ID}},
+	NODE = node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{mETHOD_NAME_id{ID}},
+	NODE = node_METHOD_NAME{mETHOD_NAME_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{vARIABLE_NAME_id{ID}},
+	NODE = node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{dIRECTIVE_NAME_id{ID}},
+	NODE = node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{iNT_id{ID}},
+	NODE = node_INT{iNT_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{rEAL_id{ID}},
+	NODE = node_REAL{rEAL_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{sTRING_id{ID}},
+	NODE = node_STRING{sTRING_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{bOOL_id{ID}},
+	NODE = node_BOOL{bOOL_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{nIL_id{ID}},
+	NODE = node_NIL{nIL_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{oP_id{ID}},
+	NODE = node_OP{oP_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{cAST_id{ID}},
+	NODE = node_CAST{cAST_id{ID}}.
+
+to_node (ANY, NODE) :- 
+	ANY = any{cONSTANT_NAME_id{ID}},
+	NODE = node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}.
+
+
+
+
+% Type names
+ast()->pHP_script(ID, _), +get_type (node_PHP_script{ID}, "PHP_script").
+ast()->class_def(ID, _, _, _, _, _), +get_type (node_Class_def{ID}, "Class_def").
+ast()->class_mod(ID, _, _), +get_type (node_Class_mod{ID}, "Class_mod").
+ast()->interface_def(ID, _, _, _), +get_type (node_Interface_def{ID}, "Interface_def").
+ast()->method(ID, _, _), +get_type (node_Method{ID}, "Method").
+ast()->signature(ID, _, _, _, _), +get_type (node_Signature{ID}, "Signature").
+ast()->method_mod(ID, _, _, _, _, _, _), +get_type (node_Method_mod{ID}, "Method_mod").
+ast()->formal_parameter(ID, _, _, _), +get_type (node_Formal_parameter{ID}, "Formal_parameter").
+ast()->p_type(ID, _), +get_type (node_Type{ID}, "Type").
+ast()->attribute(ID, _, _), +get_type (node_Attribute{ID}, "Attribute").
+ast()->attr_mod(ID, _, _, _, _, _), +get_type (node_Attr_mod{ID}, "Attr_mod").
+ast()->name_with_default(ID, _, _), +get_type (node_Name_with_default{ID}, "Name_with_default").
+ast()->if(ID, _, _, _), +get_type (node_If{ID}, "If").
+ast()->while(ID, _, _), +get_type (node_While{ID}, "While").
+ast()->do(ID, _, _), +get_type (node_Do{ID}, "Do").
+ast()->for(ID, _, _, _, _), +get_type (node_For{ID}, "For").
+ast()->foreach(ID, _, _, _, _, _), +get_type (node_Foreach{ID}, "Foreach").
+ast()->switch(ID, _, _), +get_type (node_Switch{ID}, "Switch").
+ast()->switch_case(ID, _, _), +get_type (node_Switch_case{ID}, "Switch_case").
+ast()->break(ID, _), +get_type (node_Break{ID}, "Break").
+ast()->continue(ID, _), +get_type (node_Continue{ID}, "Continue").
+ast()->return(ID, _), +get_type (node_Return{ID}, "Return").
+ast()->static_declaration(ID, _), +get_type (node_Static_declaration{ID}, "Static_declaration").
+ast()->global(ID, _), +get_type (node_Global{ID}, "Global").
+ast()->declare(ID, _, _), +get_type (node_Declare{ID}, "Declare").
+ast()->directive(ID, _, _), +get_type (node_Directive{ID}, "Directive").
+ast()->try(ID, _, _), +get_type (node_Try{ID}, "Try").
+ast()->catch(ID, _, _, _), +get_type (node_Catch{ID}, "Catch").
+ast()->throw(ID, _), +get_type (node_Throw{ID}, "Throw").
+ast()->eval_expr(ID, _), +get_type (node_Eval_expr{ID}, "Eval_expr").
+ast()->nop(ID), +get_type (node_Nop{ID}, "Nop").
+ast()->foreign_expr(ID), +get_type (node_Foreign_expr{ID}, "Foreign_expr").
+ast()->foreign_statement(ID), +get_type (node_Foreign_statement{ID}, "Foreign_statement").
+ast()->assignment(ID, _, _, _), +get_type (node_Assignment{ID}, "Assignment").
+ast()->op_assignment(ID, _, _, _), +get_type (node_Op_assignment{ID}, "Op_assignment").
+ast()->list_assignment(ID, _, _), +get_type (node_List_assignment{ID}, "List_assignment").
+ast()->nested_list_elements(ID, _), +get_type (node_Nested_list_elements{ID}, "Nested_list_elements").
+ast()->cast(ID, _, _), +get_type (node_Cast{ID}, "Cast").
+ast()->unary_op(ID, _, _), +get_type (node_Unary_op{ID}, "Unary_op").
+ast()->bin_op(ID, _, _, _), +get_type (node_Bin_op{ID}, "Bin_op").
+ast()->conditional_expr(ID, _, _, _), +get_type (node_Conditional_expr{ID}, "Conditional_expr").
+ast()->ignore_errors(ID, _), +get_type (node_Ignore_errors{ID}, "Ignore_errors").
+ast()->constant(ID, _, _), +get_type (node_Constant{ID}, "Constant").
+ast()->instanceof(ID, _, _), +get_type (node_Instanceof{ID}, "Instanceof").
+ast()->variable(ID, _, _, _), +get_type (node_Variable{ID}, "Variable").
+ast()->reflection(ID, _), +get_type (node_Reflection{ID}, "Reflection").
+ast()->pre_op(ID, _, _), +get_type (node_Pre_op{ID}, "Pre_op").
+ast()->post_op(ID, _, _), +get_type (node_Post_op{ID}, "Post_op").
+ast()->array(ID, _), +get_type (node_Array{ID}, "Array").
+ast()->array_elem(ID, _, _, _), +get_type (node_Array_elem{ID}, "Array_elem").
+ast()->method_invocation(ID, _, _, _), +get_type (node_Method_invocation{ID}, "Method_invocation").
+ast()->actual_parameter(ID, _, _), +get_type (node_Actual_parameter{ID}, "Actual_parameter").
+ast()->new(ID, _, _), +get_type (node_New{ID}, "New").
+
+ast()->cLASS_NAME(ID, _), +get_type (node_CLASS_NAME{ID}, "CLASS_NAME").
+ast()->iNTERFACE_NAME(ID, _), +get_type (node_INTERFACE_NAME{ID}, "INTERFACE_NAME").
+ast()->mETHOD_NAME(ID, _), +get_type (node_METHOD_NAME{ID}, "METHOD_NAME").
+ast()->vARIABLE_NAME(ID, _), +get_type (node_VARIABLE_NAME{ID}, "VARIABLE_NAME").
+ast()->dIRECTIVE_NAME(ID, _), +get_type (node_DIRECTIVE_NAME{ID}, "DIRECTIVE_NAME").
+ast()->iNT(ID, _), +get_type (node_INT{ID}, "INT").
+ast()->rEAL(ID, _), +get_type (node_REAL{ID}, "REAL").
+ast()->sTRING(ID, _), +get_type (node_STRING{ID}, "STRING").
+ast()->bOOL(ID, _), +get_type (node_BOOL{ID}, "BOOL").
+ast()->nIL(ID, _), +get_type (node_NIL{ID}, "NIL").
+ast()->oP(ID, _), +get_type (node_OP{ID}, "OP").
+ast()->cAST(ID, _), +get_type (node_CAST{ID}, "CAST").
+ast()->cONSTANT_NAME(ID, _), +get_type (node_CONSTANT_NAME{ID}, "CONSTANT_NAME").
+
+
+% Conjunctive data visitors
+ast()->pHP_script(ID, STATEMENTS),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->class_def(ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS),
+	to_node (any{ID}, NODE),
+	to_node (any{CLASS_MOD}, NODE_CLASS_MOD),
+	to_generic (NODE_CLASS_MOD, GEN_CLASS_MOD),
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	((OPT_EXTENDS = yes{EXTENDS},
+	to_node (any{EXTENDS}, NODE_EXTENDS),
+	to_generic (NODE_EXTENDS, GEN_EXTENDS),
+	GEN_OPT_EXTENDS = gmaybe{yes{GEN_EXTENDS}})
+	;
+	(GEN_OPT_EXTENDS = gmaybe{no})),
+	list_to_generic_list (IMPLEMENTSS, GEN_IMPLEMENTSS),
+	list_to_generic_list (MEMBERS, GEN_MEMBERS),
+	GENERIC = gnode{NODE, [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->class_mod(ID, IS_ABSTRACT, IS_FINAL),
+	to_node (any{ID}, NODE),
+	GEN_IS_ABSTRACT = gmarker {IS_ABSTRACT},
+	GEN_IS_FINAL = gmarker {IS_FINAL},
+	GENERIC = gnode{NODE, [GEN_IS_ABSTRACT, GEN_IS_FINAL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->interface_def(ID, INTERFACE_NAME, EXTENDSS, MEMBERS),
+	to_node (any{ID}, NODE),
+	to_node (any{INTERFACE_NAME}, NODE_INTERFACE_NAME),
+	to_generic (NODE_INTERFACE_NAME, GEN_INTERFACE_NAME),
+	list_to_generic_list (EXTENDSS, GEN_EXTENDSS),
+	list_to_generic_list (MEMBERS, GEN_MEMBERS),
+	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->method(ID, SIGNATURE, OPT_STATEMENTS),
+	to_node (any{ID}, NODE),
+	to_node (any{SIGNATURE}, NODE_SIGNATURE),
+	to_generic (NODE_SIGNATURE, GEN_SIGNATURE),
+	((OPT_STATEMENTS = yes{STATEMENTS},
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GEN_OPT_STATEMENTS = gmaybe{yes{GEN_STATEMENTS}})
+	;
+	(GEN_OPT_STATEMENTS = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_SIGNATURE, GEN_OPT_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->signature(ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS),
+	to_node (any{ID}, NODE),
+	to_node (any{METHOD_MOD}, NODE_METHOD_MOD),
+	to_generic (NODE_METHOD_MOD, GEN_METHOD_MOD),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
+	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
+	list_to_generic_list (FORMAL_PARAMETERS, GEN_FORMAL_PARAMETERS),
+	GENERIC = gnode{NODE, [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL),
+	to_node (any{ID}, NODE),
+	GEN_IS_PUBLIC = gmarker {IS_PUBLIC},
+	GEN_IS_PROTECTED = gmarker {IS_PROTECTED},
+	GEN_IS_PRIVATE = gmarker {IS_PRIVATE},
+	GEN_IS_STATIC = gmarker {IS_STATIC},
+	GEN_IS_ABSTRACT = gmarker {IS_ABSTRACT},
+	GEN_IS_FINAL = gmarker {IS_FINAL},
+	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->formal_parameter(ID, TYPE, IS_REF, VAR),
+	to_node (any{ID}, NODE),
+	to_node (any{TYPE}, NODE_TYPE),
+	to_generic (NODE_TYPE, GEN_TYPE),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{VAR}, NODE_VAR),
+	to_generic (NODE_VAR, GEN_VAR),
+	GENERIC = gnode{NODE, [GEN_TYPE, GEN_IS_REF, GEN_VAR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->p_type(ID, OPT_CLASS_NAME),
+	to_node (any{ID}, NODE),
+	((OPT_CLASS_NAME = yes{CLASS_NAME},
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	GEN_OPT_CLASS_NAME = gmaybe{yes{GEN_CLASS_NAME}})
+	;
+	(GEN_OPT_CLASS_NAME = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->attribute(ID, ATTR_MOD, VARSS),
+	to_node (any{ID}, NODE),
+	to_node (any{ATTR_MOD}, NODE_ATTR_MOD),
+	to_generic (NODE_ATTR_MOD, GEN_ATTR_MOD),
+	list_to_generic_list (VARSS, GEN_VARSS),
+	GENERIC = gnode{NODE, [GEN_ATTR_MOD, GEN_VARSS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->attr_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST),
+	to_node (any{ID}, NODE),
+	GEN_IS_PUBLIC = gmarker {IS_PUBLIC},
+	GEN_IS_PROTECTED = gmarker {IS_PROTECTED},
+	GEN_IS_PRIVATE = gmarker {IS_PRIVATE},
+	GEN_IS_STATIC = gmarker {IS_STATIC},
+	GEN_IS_CONST = gmarker {IS_CONST},
+	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]},
+	+to_generic (NODE, GENERIC).
+
+ast()->name_with_default(ID, VARIABLE_NAME, OPT_EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	((OPT_EXPR = yes{EXPR},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
+	;
+	(GEN_OPT_EXPR = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_OPT_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->if(ID, EXPR, IFTRUES, IFFALSES),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	list_to_generic_list (IFTRUES, GEN_IFTRUES),
+	list_to_generic_list (IFFALSES, GEN_IFFALSES),
+	GENERIC = gnode{NODE, [GEN_EXPR, GEN_IFTRUES, GEN_IFFALSES]},
+	+to_generic (NODE, GENERIC).
+
+ast()->while(ID, EXPR, STATEMENTS),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_EXPR, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->do(ID, STATEMENTS, EXPR),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_STATEMENTS, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->for(ID, OPT_INIT, OPT_COND, OPT_INCR, STATEMENTS),
+	to_node (any{ID}, NODE),
+	((OPT_INIT = yes{INIT},
+	to_node (any{INIT}, NODE_INIT),
+	to_generic (NODE_INIT, GEN_INIT),
+	GEN_OPT_INIT = gmaybe{yes{GEN_INIT}})
+	;
+	(GEN_OPT_INIT = gmaybe{no})),
+	((OPT_COND = yes{COND},
+	to_node (any{COND}, NODE_COND),
+	to_generic (NODE_COND, GEN_COND),
+	GEN_OPT_COND = gmaybe{yes{GEN_COND}})
+	;
+	(GEN_OPT_COND = gmaybe{no})),
+	((OPT_INCR = yes{INCR},
+	to_node (any{INCR}, NODE_INCR),
+	to_generic (NODE_INCR, GEN_INCR),
+	GEN_OPT_INCR = gmaybe{yes{GEN_INCR}})
+	;
+	(GEN_OPT_INCR = gmaybe{no})),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_OPT_INIT, GEN_OPT_COND, GEN_OPT_INCR, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->foreach(ID, EXPR, OPT_KEY, IS_REF, VAL, STATEMENTS),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	((OPT_KEY = yes{KEY},
+	to_node (any{KEY}, NODE_KEY),
+	to_generic (NODE_KEY, GEN_KEY),
+	GEN_OPT_KEY = gmaybe{yes{GEN_KEY}})
+	;
+	(GEN_OPT_KEY = gmaybe{no})),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{VAL}, NODE_VAL),
+	to_generic (NODE_VAL, GEN_VAL),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_EXPR, GEN_OPT_KEY, GEN_IS_REF, GEN_VAL, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->switch(ID, EXPR, SWITCH_CASES),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	list_to_generic_list (SWITCH_CASES, GEN_SWITCH_CASES),
+	GENERIC = gnode{NODE, [GEN_EXPR, GEN_SWITCH_CASES]},
+	+to_generic (NODE, GENERIC).
+
+ast()->switch_case(ID, OPT_EXPR, STATEMENTS),
+	to_node (any{ID}, NODE),
+	((OPT_EXPR = yes{EXPR},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
+	;
+	(GEN_OPT_EXPR = gmaybe{no})),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_OPT_EXPR, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->break(ID, OPT_EXPR),
+	to_node (any{ID}, NODE),
+	((OPT_EXPR = yes{EXPR},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
+	;
+	(GEN_OPT_EXPR = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_OPT_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->continue(ID, OPT_EXPR),
+	to_node (any{ID}, NODE),
+	((OPT_EXPR = yes{EXPR},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
+	;
+	(GEN_OPT_EXPR = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_OPT_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->return(ID, OPT_EXPR),
+	to_node (any{ID}, NODE),
+	((OPT_EXPR = yes{EXPR},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
+	;
+	(GEN_OPT_EXPR = gmaybe{no})),
+	GENERIC = gnode{NODE, [GEN_OPT_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->static_declaration(ID, VARSS),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (VARSS, GEN_VARSS),
+	GENERIC = gnode{NODE, [GEN_VARSS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->global(ID, VARIABLE_NAMES),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (VARIABLE_NAMES, GEN_VARIABLE_NAMES),
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAMES]},
+	+to_generic (NODE, GENERIC).
+
+ast()->declare(ID, DIRECTIVES, STATEMENTS),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (DIRECTIVES, GEN_DIRECTIVES),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_DIRECTIVES, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->directive(ID, DIRECTIVE_NAME, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{DIRECTIVE_NAME}, NODE_DIRECTIVE_NAME),
+	to_generic (NODE_DIRECTIVE_NAME, GEN_DIRECTIVE_NAME),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_DIRECTIVE_NAME, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->try(ID, STATEMENTS, CATCHESS),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	list_to_generic_list (CATCHESS, GEN_CATCHESS),
+	GENERIC = gnode{NODE, [GEN_STATEMENTS, GEN_CATCHESS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->catch(ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS),
+	to_node (any{ID}, NODE),
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->throw(ID, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->eval_expr(ID, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->nop(ID),
+	to_node (any{ID}, NODE),
+	GENERIC = gnode{NODE, []},
+	+to_generic (NODE, GENERIC).
+
+ast()->foreign_expr(ID),
+	to_node (any{ID}, NODE),
+	GENERIC = gnode{NODE, []},
+	+to_generic (NODE, GENERIC).
+
+ast()->foreign_statement(ID),
+	to_node (any{ID}, NODE),
+	GENERIC = gnode{NODE, []},
+	+to_generic (NODE, GENERIC).
+
+ast()->assignment(ID, VARIABLE, IS_REF, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{VARIABLE}, NODE_VARIABLE),
+	to_generic (NODE_VARIABLE, GEN_VARIABLE),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_VARIABLE, GEN_IS_REF, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->op_assignment(ID, VARIABLE, OP, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{VARIABLE}, NODE_VARIABLE),
+	to_generic (NODE_VARIABLE, GEN_VARIABLE),
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_VARIABLE, GEN_OP, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->list_assignment(ID, LIST_ELEMENTS, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{LIST_ELEMENTS}, NODE_LIST_ELEMENTS),
+	to_generic (NODE_LIST_ELEMENTS, GEN_LIST_ELEMENTS),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_LIST_ELEMENTS, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->nested_list_elements(ID, LIST_ELEMENTS),
+	to_node (any{ID}, NODE),
+	to_node (any{LIST_ELEMENTS}, NODE_LIST_ELEMENTS),
+	to_generic (NODE_LIST_ELEMENTS, GEN_LIST_ELEMENTS),
+	GENERIC = gnode{NODE, [GEN_LIST_ELEMENTS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->cast(ID, CAST, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{CAST}, NODE_CAST),
+	to_generic (NODE_CAST, GEN_CAST),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_CAST, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->unary_op(ID, OP, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_OP, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->bin_op(ID, LEFT, OP, RIGHT),
+	to_node (any{ID}, NODE),
+	to_node (any{LEFT}, NODE_LEFT),
+	to_generic (NODE_LEFT, GEN_LEFT),
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	to_node (any{RIGHT}, NODE_RIGHT),
+	to_generic (NODE_RIGHT, GEN_RIGHT),
+	GENERIC = gnode{NODE, [GEN_LEFT, GEN_OP, GEN_RIGHT]},
+	+to_generic (NODE, GENERIC).
+
+ast()->conditional_expr(ID, COND, IFTRUE, IFFALSE),
+	to_node (any{ID}, NODE),
+	to_node (any{COND}, NODE_COND),
+	to_generic (NODE_COND, GEN_COND),
+	to_node (any{IFTRUE}, NODE_IFTRUE),
+	to_generic (NODE_IFTRUE, GEN_IFTRUE),
+	to_node (any{IFFALSE}, NODE_IFFALSE),
+	to_generic (NODE_IFFALSE, GEN_IFFALSE),
+	GENERIC = gnode{NODE, [GEN_COND, GEN_IFTRUE, GEN_IFFALSE]},
+	+to_generic (NODE, GENERIC).
+
+ast()->ignore_errors(ID, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->constant(ID, OPT_CLASS_NAME, CONSTANT_NAME),
+	to_node (any{ID}, NODE),
+	((OPT_CLASS_NAME = yes{CLASS_NAME},
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	GEN_OPT_CLASS_NAME = gmaybe{yes{GEN_CLASS_NAME}})
+	;
+	(GEN_OPT_CLASS_NAME = gmaybe{no})),
+	to_node (any{CONSTANT_NAME}, NODE_CONSTANT_NAME),
+	to_generic (NODE_CONSTANT_NAME, GEN_CONSTANT_NAME),
+	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->instanceof(ID, EXPR, CLASS_NAME),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	GENERIC = gnode{NODE, [GEN_EXPR, GEN_CLASS_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->variable(ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
+	to_node (any{ID}, NODE),
+	((OPT_TARGET = yes{TARGET},
+	to_node (any{TARGET}, NODE_TARGET),
+	to_generic (NODE_TARGET, GEN_TARGET),
+	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
+	;
+	(GEN_OPT_TARGET = gmaybe{no})),
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	to_node (any{ARRAY_INDICESS}, NODE_ARRAY_INDICESS),
+	to_generic (NODE_ARRAY_INDICESS, GEN_ARRAY_INDICESS),
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->reflection(ID, EXPR),
+	to_node (any{ID}, NODE),
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->pre_op(ID, OP, VARIABLE),
+	to_node (any{ID}, NODE),
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	to_node (any{VARIABLE}, NODE_VARIABLE),
+	to_generic (NODE_VARIABLE, GEN_VARIABLE),
+	GENERIC = gnode{NODE, [GEN_OP, GEN_VARIABLE]},
+	+to_generic (NODE, GENERIC).
+
+ast()->post_op(ID, VARIABLE, OP),
+	to_node (any{ID}, NODE),
+	to_node (any{VARIABLE}, NODE_VARIABLE),
+	to_generic (NODE_VARIABLE, GEN_VARIABLE),
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	GENERIC = gnode{NODE, [GEN_VARIABLE, GEN_OP]},
+	+to_generic (NODE, GENERIC).
+
+ast()->array(ID, ARRAY_ELEMS),
+	to_node (any{ID}, NODE),
+	list_to_generic_list (ARRAY_ELEMS, GEN_ARRAY_ELEMS),
+	GENERIC = gnode{NODE, [GEN_ARRAY_ELEMS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->array_elem(ID, OPT_KEY, IS_REF, VAL),
+	to_node (any{ID}, NODE),
+	((OPT_KEY = yes{KEY},
+	to_node (any{KEY}, NODE_KEY),
+	to_generic (NODE_KEY, GEN_KEY),
+	GEN_OPT_KEY = gmaybe{yes{GEN_KEY}})
+	;
+	(GEN_OPT_KEY = gmaybe{no})),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{VAL}, NODE_VAL),
+	to_generic (NODE_VAL, GEN_VAL),
+	GENERIC = gnode{NODE, [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->method_invocation(ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS),
+	to_node (any{ID}, NODE),
+	((OPT_TARGET = yes{TARGET},
+	to_node (any{TARGET}, NODE_TARGET),
+	to_generic (NODE_TARGET, GEN_TARGET),
+	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
+	;
+	(GEN_OPT_TARGET = gmaybe{no})),
+	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
+	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
+	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]},
+	+to_generic (NODE, GENERIC).
+
+ast()->actual_parameter(ID, IS_REF, EXPR),
+	to_node (any{ID}, NODE),
+	GEN_IS_REF = gmarker {IS_REF},
+	to_node (any{EXPR}, NODE_EXPR),
+	to_generic (NODE_EXPR, GEN_EXPR),
+	GENERIC = gnode{NODE, [GEN_IS_REF, GEN_EXPR]},
+	+to_generic (NODE, GENERIC).
+
+ast()->new(ID, CLASS_NAME, ACTUAL_PARAMETERS),
+	to_node (any{ID}, NODE),
+	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
+	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
+	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]},
+	+to_generic (NODE, GENERIC).
+
+
+
+% Token data visitors
+ast()->cLASS_NAME(ID, CLASS_NAME),
+	to_node (any{ID}, NODE),
+	GEN_CLASS_NAME = gstring {CLASS_NAME},
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->iNTERFACE_NAME(ID, INTERFACE_NAME),
+	to_node (any{ID}, NODE),
+	GEN_INTERFACE_NAME = gstring {INTERFACE_NAME},
+	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->mETHOD_NAME(ID, METHOD_NAME),
+	to_node (any{ID}, NODE),
+	GEN_METHOD_NAME = gstring {METHOD_NAME},
+	GENERIC = gnode{NODE, [GEN_METHOD_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->vARIABLE_NAME(ID, VARIABLE_NAME),
+	to_node (any{ID}, NODE),
+	GEN_VARIABLE_NAME = gstring {VARIABLE_NAME},
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->dIRECTIVE_NAME(ID, DIRECTIVE_NAME),
+	to_node (any{ID}, NODE),
+	GEN_DIRECTIVE_NAME = gstring {DIRECTIVE_NAME},
+	GENERIC = gnode{NODE, [GEN_DIRECTIVE_NAME]},
+	+to_generic (NODE, GENERIC).
+
+ast()->iNT(ID, INT),
+	to_node (any{ID}, NODE),
+	GEN_INT = gint {INT},
+	GENERIC = gnode{NODE, [GEN_INT]},
+	+to_generic (NODE, GENERIC).
+
+ast()->rEAL(ID, REAL),
+	to_node (any{ID}, NODE),
+	GEN_REAL = gfloat {REAL},
+	GENERIC = gnode{NODE, [GEN_REAL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->sTRING(ID, STRING),
+	to_node (any{ID}, NODE),
+	GEN_STRING = gstring {STRING},
+	GENERIC = gnode{NODE, [GEN_STRING]},
+	+to_generic (NODE, GENERIC).
+
+ast()->bOOL(ID, BOOL),
+	to_node (any{ID}, NODE),
+	GEN_BOOL = gbool {BOOL},
+	GENERIC = gnode{NODE, [GEN_BOOL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->nIL(ID, NIL),
+	to_node (any{ID}, NODE),
+	GEN_NIL = gnull {NIL},
+	GENERIC = gnode{NODE, [GEN_NIL]},
+	+to_generic (NODE, GENERIC).
+
+ast()->oP(ID, OP),
+	to_node (any{ID}, NODE),
+	GEN_OP = gstring {OP},
+	GENERIC = gnode{NODE, [GEN_OP]},
+	+to_generic (NODE, GENERIC).
+
+ast()->cAST(ID, CAST),
+	to_node (any{ID}, NODE),
+	GEN_CAST = gstring {CAST},
+	GENERIC = gnode{NODE, [GEN_CAST]},
+	+to_generic (NODE, GENERIC).
+
+ast()->cONSTANT_NAME(ID, CONSTANT_NAME),
+	to_node (any{ID}, NODE),
+	GEN_CONSTANT_NAME = gstring {CONSTANT_NAME},
+	GENERIC = gnode{NODE, [GEN_CONSTANT_NAME]},
+	+to_generic (NODE, GENERIC).
+
+
 
