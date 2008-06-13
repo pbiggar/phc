@@ -43,8 +43,6 @@
 #		"$clpa src/analyse/dce.clp",
 		"$clpa src/analyse/xml_unparser.clp",
 
-#		"$clpa src/analyse/generic.clp",
-
 		// create CFG graphs
 		"rm -f *.ps",
 		"for i in *.dot; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",

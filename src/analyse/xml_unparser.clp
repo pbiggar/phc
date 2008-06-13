@@ -1,4 +1,3 @@
-import "generic.clp".
 import "cfgdot.clp".
 
 
@@ -10,10 +9,10 @@ analyze session_name ("cfg").
 
 % Turn this method into XML
 cfg_node (nentry{METHOD}),
-	to_generic (any{METHOD}, GENERIC),
-	+print (GENERIC),
+	to_node (any{METHOD}, NODE), to_generic (NODE, GENERIC),
 	to_xml_string (GENERIC, XML),
 	+print(XML).
+
 
 
 predicate to_xml_string_list (in GENERICS:list[t_generic], out XML:string).
@@ -33,13 +32,7 @@ to_xml_string (gnode{NODE, SUBNODES}, XML) :-
 	str_cat_list(["<MIR:", NAME, ">\n", SUBXML, "</MIR:", NAME, ">\n"], XML).
 
 
-to_xml_string (gmarker{VALUE}, XML) :- 
-	tostring (VALUE, XML_VALUE),
-	str_cat_list (["<bool><!-- TODO: NAME -->", XML_VALUE, "</bool>\n"], XML).
 
-to_xml_string (gstring{VALUE}, XML) :- 
-	str_cat_list (["<value>", VALUE, "</value>\n"], XML).
-	
 to_xml_string (glist{[]}, "") :- .
 to_xml_string (glist{[H|T]}, XML) :- 
 	to_xml_string (glist{T}, XML_T),
@@ -55,6 +48,23 @@ to_xml_string (gmaybe{yes{GENERIC}}, XML) :-
 to_xml_string (gint{VALUE}, XML) :-
 	tostring (VALUE, XML_VALUE),
 	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
+to_xml_string (gbool{VALUE}, XML) :-
+	tostring (VALUE, XML_VALUE),
+	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
+
+to_xml_string (gfloat{VALUE}, XML) :-
+	tostring (VALUE, XML_VALUE),
+	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
+
+to_xml_string (gstring{VALUE}, XML) :- 
+	str_cat_list (["<value>", VALUE, "</value>\n"], XML).
+
+to_xml_string (gmarker{VALUE}, XML) :- 
+	tostring (VALUE, XML_VALUE),
+	str_cat_list (["<bool><!-- TODO: NAME -->", XML_VALUE, "</bool>\n"], XML).
 
 % debugging
 %?- to_xml_string (A, B).
+
+%?- to_node (A, B).
+%?- get_type (A, B).
