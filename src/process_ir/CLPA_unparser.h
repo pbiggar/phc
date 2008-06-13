@@ -102,6 +102,7 @@ template
 	class Literal,
 	class STRING,
 	class BOOL,
+	class REAL,
 	class Identifier,
 	class Visitor,
 	class Unparser
@@ -252,6 +253,15 @@ public:
 		// Bools must be entirely lower case, or Calypso will think they are variable names
 		if (in->classid () == BOOL::ID)
 			value->toLower();
+
+		// Calypso doesnt like strings in scientific format
+		if (in->classid () == REAL::ID)
+		{
+			REAL* real = dynamic_cast<REAL*> (in);
+			stringstream ss;
+			ss << fixed << real->value; // TODO more precision?
+			value = s (ss.str ());
+		}
 
 		ids.push (value);
 	}
@@ -600,6 +610,7 @@ class AST_CLPA_unparser : public CLPA_unparser
 	AST::Literal,
 	AST::STRING,
 	AST::BOOL,
+	AST::REAL,
 	AST::Identifier,
 	AST::Visitor,
 	AST_unparser
@@ -616,6 +627,7 @@ class HIR_CLPA_unparser : public CLPA_unparser
 	HIR::Literal,
 	HIR::STRING,
 	HIR::BOOL,
+	HIR::REAL,
 	HIR::Identifier,
 	HIR::Visitor,
 	HIR_unparser
@@ -631,6 +643,7 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR::Literal,
 	MIR::STRING,
 	MIR::BOOL,
+	MIR::REAL,
 	MIR::Identifier,
 	MIR::Visitor,
 	MIR_unparser
