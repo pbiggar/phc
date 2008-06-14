@@ -120,8 +120,7 @@ Variable ::= Target? Variable_name array_indices:VARIABLE_NAME* ;
 Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
-Target ::= Expr | CLASS_NAME ;
--- Target ::= VARIABLE_NAME | CLASS_NAME ;
+Target ::= VARIABLE_NAME | CLASS_NAME ;
 
 -- Pre_op cannot be converted to a VARIABLE_NAME due to, for example, ++$x->z.
 Pre_op ::= OP Variable ;

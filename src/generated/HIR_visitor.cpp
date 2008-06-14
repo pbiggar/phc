@@ -1075,7 +1075,6 @@ void Visitor::pre_eval_expr_chain(Eval_expr* in)
 void Visitor::pre_cast_chain(Cast* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_cast((Cast*) in);
 }
@@ -1083,7 +1082,6 @@ void Visitor::pre_cast_chain(Cast* in)
 void Visitor::pre_unary_op_chain(Unary_op* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_unary_op((Unary_op*) in);
 }
@@ -1091,7 +1089,6 @@ void Visitor::pre_unary_op_chain(Unary_op* in)
 void Visitor::pre_bin_op_chain(Bin_op* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_bin_op((Bin_op*) in);
 }
@@ -1099,7 +1096,6 @@ void Visitor::pre_bin_op_chain(Bin_op* in)
 void Visitor::pre_constant_chain(Constant* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_constant((Constant*) in);
 }
@@ -1107,7 +1103,6 @@ void Visitor::pre_constant_chain(Constant* in)
 void Visitor::pre_instanceof_chain(Instanceof* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_instanceof((Instanceof*) in);
 }
@@ -1115,7 +1110,6 @@ void Visitor::pre_instanceof_chain(Instanceof* in)
 void Visitor::pre_variable_chain(Variable* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_variable((Variable*) in);
 }
@@ -1139,7 +1133,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
 void Visitor::pre_array_chain(Array* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_array((Array*) in);
 }
@@ -1153,7 +1146,6 @@ void Visitor::pre_array_elem_chain(Array_elem* in)
 void Visitor::pre_method_invocation_chain(Method_invocation* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_method_invocation((Method_invocation*) in);
 }
@@ -1167,7 +1159,6 @@ void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
 void Visitor::pre_new_chain(New* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_new((New*) in);
 }
@@ -1183,7 +1174,6 @@ void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
 void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_foreign((Foreign*) in);
     pre_foreign_expr((Foreign_expr*) in);
@@ -1217,6 +1207,7 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node((Node*) in);
     pre_variable_name((Variable_name*) in);
+    pre_target((Target*) in);
     pre_identifier((Identifier*) in);
     pre_variable_name((VARIABLE_NAME*) in);
 }
@@ -1224,7 +1215,6 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 void Visitor::pre_int_chain(INT* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_literal((Literal*) in);
     pre_int((INT*) in);
@@ -1233,7 +1223,6 @@ void Visitor::pre_int_chain(INT* in)
 void Visitor::pre_real_chain(REAL* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_literal((Literal*) in);
     pre_real((REAL*) in);
@@ -1242,7 +1231,6 @@ void Visitor::pre_real_chain(REAL* in)
 void Visitor::pre_string_chain(STRING* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_literal((Literal*) in);
     pre_string((STRING*) in);
@@ -1251,7 +1239,6 @@ void Visitor::pre_string_chain(STRING* in)
 void Visitor::pre_bool_chain(BOOL* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_literal((Literal*) in);
     pre_bool((BOOL*) in);
@@ -1260,7 +1247,6 @@ void Visitor::pre_bool_chain(BOOL* in)
 void Visitor::pre_nil_chain(NIL* in)
 {
     pre_node((Node*) in);
-    pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_literal((Literal*) in);
     pre_nil((NIL*) in);
@@ -1482,7 +1468,6 @@ void Visitor::post_cast_chain(Cast* in)
 {
     post_cast((Cast*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1490,7 +1475,6 @@ void Visitor::post_unary_op_chain(Unary_op* in)
 {
     post_unary_op((Unary_op*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1498,7 +1482,6 @@ void Visitor::post_bin_op_chain(Bin_op* in)
 {
     post_bin_op((Bin_op*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1506,7 +1489,6 @@ void Visitor::post_constant_chain(Constant* in)
 {
     post_constant((Constant*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1514,7 +1496,6 @@ void Visitor::post_instanceof_chain(Instanceof* in)
 {
     post_instanceof((Instanceof*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1522,7 +1503,6 @@ void Visitor::post_variable_chain(Variable* in)
 {
     post_variable((Variable*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1546,7 +1526,6 @@ void Visitor::post_array_chain(Array* in)
 {
     post_array((Array*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1560,7 +1539,6 @@ void Visitor::post_method_invocation_chain(Method_invocation* in)
 {
     post_method_invocation((Method_invocation*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1574,7 +1552,6 @@ void Visitor::post_new_chain(New* in)
 {
     post_new((New*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1591,7 +1568,6 @@ void Visitor::post_foreign_expr_chain(Foreign_expr* in)
     post_foreign_expr((Foreign_expr*) in);
     post_foreign((Foreign*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1623,6 +1599,7 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
 {
     post_variable_name((VARIABLE_NAME*) in);
     post_identifier((Identifier*) in);
+    post_target((Target*) in);
     post_variable_name((Variable_name*) in);
     post_node((Node*) in);
 }
@@ -1632,7 +1609,6 @@ void Visitor::post_int_chain(INT* in)
     post_int((INT*) in);
     post_literal((Literal*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1641,7 +1617,6 @@ void Visitor::post_real_chain(REAL* in)
     post_real((REAL*) in);
     post_literal((Literal*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1650,7 +1625,6 @@ void Visitor::post_string_chain(STRING* in)
     post_string((STRING*) in);
     post_literal((Literal*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1659,7 +1633,6 @@ void Visitor::post_bool_chain(BOOL* in)
     post_bool((BOOL*) in);
     post_literal((Literal*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -1668,7 +1641,6 @@ void Visitor::post_nil_chain(NIL* in)
     post_nil((NIL*) in);
     post_literal((Literal*) in);
     post_expr((Expr*) in);
-    post_target((Target*) in);
     post_node((Node*) in);
 }
 
@@ -2310,50 +2282,8 @@ void Visitor::pre_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID:
-    	pre_cast_chain(dynamic_cast<Cast*>(in));
-    	break;
-    case Unary_op::ID:
-    	pre_unary_op_chain(dynamic_cast<Unary_op*>(in));
-    	break;
-    case Bin_op::ID:
-    	pre_bin_op_chain(dynamic_cast<Bin_op*>(in));
-    	break;
-    case Constant::ID:
-    	pre_constant_chain(dynamic_cast<Constant*>(in));
-    	break;
-    case Instanceof::ID:
-    	pre_instanceof_chain(dynamic_cast<Instanceof*>(in));
-    	break;
-    case Variable::ID:
-    	pre_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Method_invocation::ID:
-    	pre_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	pre_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case INT::ID:
-    	pre_int_chain(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	pre_real_chain(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	pre_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	pre_bool_chain(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	pre_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Foreign_expr::ID:
-    	pre_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -2538,50 +2468,8 @@ void Visitor::post_target_chain(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID:
-    	post_cast_chain(dynamic_cast<Cast*>(in));
-    	break;
-    case Unary_op::ID:
-    	post_unary_op_chain(dynamic_cast<Unary_op*>(in));
-    	break;
-    case Bin_op::ID:
-    	post_bin_op_chain(dynamic_cast<Bin_op*>(in));
-    	break;
-    case Constant::ID:
-    	post_constant_chain(dynamic_cast<Constant*>(in));
-    	break;
-    case Instanceof::ID:
-    	post_instanceof_chain(dynamic_cast<Instanceof*>(in));
-    	break;
-    case Variable::ID:
-    	post_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Method_invocation::ID:
-    	post_method_invocation_chain(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	post_new_chain(dynamic_cast<New*>(in));
-    	break;
-    case INT::ID:
-    	post_int_chain(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	post_real_chain(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	post_string_chain(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	post_bool_chain(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	post_nil_chain(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
-    case Foreign_expr::ID:
-    	post_foreign_expr_chain(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -2766,50 +2654,8 @@ void Visitor::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID:
-    	children_cast(dynamic_cast<Cast*>(in));
-    	break;
-    case Unary_op::ID:
-    	children_unary_op(dynamic_cast<Unary_op*>(in));
-    	break;
-    case Bin_op::ID:
-    	children_bin_op(dynamic_cast<Bin_op*>(in));
-    	break;
-    case Constant::ID:
-    	children_constant(dynamic_cast<Constant*>(in));
-    	break;
-    case Instanceof::ID:
-    	children_instanceof(dynamic_cast<Instanceof*>(in));
-    	break;
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Method_invocation::ID:
-    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	children_new(dynamic_cast<New*>(in));
-    	break;
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Foreign_expr::ID:
-    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

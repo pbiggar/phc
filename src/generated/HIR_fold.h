@@ -753,10 +753,6 @@ public:
 				return fold_name_with_default(dynamic_cast<Name_with_default*>(in));
 			case Catch::ID:
 				return fold_catch(dynamic_cast<Catch*>(in));
-			case VARIABLE_NAME::ID:
-				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-			case Reflection::ID:
-				return fold_reflection(dynamic_cast<Reflection*>(in));
 			case Cast::ID:
 				return fold_cast(dynamic_cast<Cast*>(in));
 			case Unary_op::ID:
@@ -787,6 +783,10 @@ public:
 				return fold_array(dynamic_cast<Array*>(in));
 			case Foreign_expr::ID:
 				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+			case VARIABLE_NAME::ID:
+				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+			case Reflection::ID:
+				return fold_reflection(dynamic_cast<Reflection*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Array_elem::ID:
@@ -939,36 +939,8 @@ public:
 	{
 		switch(in->classid())
 		{
-			case Cast::ID:
-				return fold_cast(dynamic_cast<Cast*>(in));
-			case Unary_op::ID:
-				return fold_unary_op(dynamic_cast<Unary_op*>(in));
-			case Bin_op::ID:
-				return fold_bin_op(dynamic_cast<Bin_op*>(in));
-			case Constant::ID:
-				return fold_constant(dynamic_cast<Constant*>(in));
-			case Instanceof::ID:
-				return fold_instanceof(dynamic_cast<Instanceof*>(in));
-			case Variable::ID:
-				return fold_variable(dynamic_cast<Variable*>(in));
-			case Method_invocation::ID:
-				return fold_method_invocation(dynamic_cast<Method_invocation*>(in));
-			case New::ID:
-				return fold_new(dynamic_cast<New*>(in));
-			case INT::ID:
-				return fold_int(dynamic_cast<INT*>(in));
-			case REAL::ID:
-				return fold_real(dynamic_cast<REAL*>(in));
-			case STRING::ID:
-				return fold_string(dynamic_cast<STRING*>(in));
-			case BOOL::ID:
-				return fold_bool(dynamic_cast<BOOL*>(in));
-			case NIL::ID:
-				return fold_nil(dynamic_cast<NIL*>(in));
-			case Array::ID:
-				return fold_array(dynamic_cast<Array*>(in));
-			case Foreign_expr::ID:
-				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+			case VARIABLE_NAME::ID:
+				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 		}

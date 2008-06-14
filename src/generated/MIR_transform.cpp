@@ -1826,24 +1826,7 @@ Target* Transform::pre_target(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID: return pre_cast(dynamic_cast<Cast*>(in));
-    case Unary_op::ID: return pre_unary_op(dynamic_cast<Unary_op*>(in));
-    case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
-    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
-    case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
-    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
-    case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
-    case New::ID: return pre_new(dynamic_cast<New*>(in));
-    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
-    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2134,24 +2117,7 @@ Target* Transform::post_target(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID: return post_cast(dynamic_cast<Cast*>(in));
-    case Unary_op::ID: return post_unary_op(dynamic_cast<Unary_op*>(in));
-    case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
-    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
-    case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
-    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
-    case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
-    case New::ID: return post_new(dynamic_cast<New*>(in));
-    case INT::ID: return post_int(dynamic_cast<INT*>(in));
-    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
-    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
-    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
-    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Array::ID: return post_array(dynamic_cast<Array*>(in));
-    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2340,59 +2306,8 @@ void Transform::children_target(Target* in)
 {
     switch(in->classid())
     {
-    case Cast::ID:
-    	children_cast(dynamic_cast<Cast*>(in));
-    	break;
-    case Unary_op::ID:
-    	children_unary_op(dynamic_cast<Unary_op*>(in));
-    	break;
-    case Bin_op::ID:
-    	children_bin_op(dynamic_cast<Bin_op*>(in));
-    	break;
-    case Constant::ID:
-    	children_constant(dynamic_cast<Constant*>(in));
-    	break;
-    case Instanceof::ID:
-    	children_instanceof(dynamic_cast<Instanceof*>(in));
-    	break;
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Method_invocation::ID:
-    	children_method_invocation(dynamic_cast<Method_invocation*>(in));
-    	break;
-    case New::ID:
-    	children_new(dynamic_cast<New*>(in));
-    	break;
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	children_array(dynamic_cast<Array*>(in));
-    	break;
-    case Foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    	break;
-    case Foreign_expr::ID:
-    	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

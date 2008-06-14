@@ -94,7 +94,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Static_declaration*,	// Static_declaration*
  HIR::Statement*,				// Switch*
  HIR::Node*,					// Switch_case*
- HIR::Target*,					// Target*
+ HIR::Node*,					// Target* - HIR::Targets have VARIABLE_NAME expr, so we cant fold to them directly
  HIR::Throw*,					// Throw*
  HIR::Try*,						// Try*
  HIR::Type*,					// Type*
@@ -117,6 +117,17 @@ class AST_to_HIR : public AST::Fold
 			return false;
 
 		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
+	}
+
+	/* HIR::Targets can be a VARIABLE_NAME, which means we need to fold them to
+	 * a HIR::Node. This node can have either a CLASS_NAME, or an Expr. If it is
+	 * an Expr, it must be a wrapped VARIABLE_NAME. */
+	HIR::Target* unwrap_target (HIR::Node* target)
+	{
+		HIR::CLASS_NAME* cn = dynamic_cast<HIR::CLASS_NAME*> (target);
+		if (cn) return cn;
+
+		return expr_to_var_name (dynamic_cast<HIR::Variable*> (target));
 	}
 
 	void copy_attrs (HIR::Node* target, AST::Node* source)
@@ -476,7 +487,7 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Target* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
+	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Node* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
 	{
 		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
 		for_lci (array_indices, HIR::Expr, i)
@@ -484,7 +495,10 @@ class AST_to_HIR : public AST::Fold
 			var_names->push_back (expr_to_var_name (*i));
 		}
 		HIR::Variable* result;
-		result = new HIR::Variable(target, variable_name, var_names);
+		result = new HIR::Variable(
+			unwrap_target (target),
+			variable_name, 
+			var_names);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -521,10 +535,13 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Node* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::Method_invocation* result;
-		result = new HIR::Method_invocation(target, method_name, actual_parameters);
+		result = new HIR::Method_invocation(
+			unwrap_target (target),
+			method_name, 
+			actual_parameters);
 		copy_attrs (result, orig);
 		return result;
 	}
