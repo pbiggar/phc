@@ -1181,78 +1181,79 @@ to_node (ANY, NODE) :-
 
 
 % Type names
-mir()->pHP_script(ID, _), +get_type (node_PHP_script{ID}, "PHP_script").
-mir()->class_def(ID, _, _, _, _, _), +get_type (node_Class_def{ID}, "Class_def").
-mir()->class_mod(ID, _, _), +get_type (node_Class_mod{ID}, "Class_mod").
-mir()->interface_def(ID, _, _, _), +get_type (node_Interface_def{ID}, "Interface_def").
-mir()->method(ID, _, _), +get_type (node_Method{ID}, "Method").
-mir()->signature(ID, _, _, _, _), +get_type (node_Signature{ID}, "Signature").
-mir()->method_mod(ID, _, _, _, _, _, _), +get_type (node_Method_mod{ID}, "Method_mod").
-mir()->formal_parameter(ID, _, _, _), +get_type (node_Formal_parameter{ID}, "Formal_parameter").
-mir()->p_type(ID, _), +get_type (node_Type{ID}, "Type").
-mir()->attribute(ID, _, _), +get_type (node_Attribute{ID}, "Attribute").
-mir()->attr_mod(ID, _, _, _, _, _), +get_type (node_Attr_mod{ID}, "Attr_mod").
-mir()->name_with_default(ID, _, _), +get_type (node_Name_with_default{ID}, "Name_with_default").
-mir()->return(ID, _), +get_type (node_Return{ID}, "Return").
-mir()->static_declaration(ID, _), +get_type (node_Static_declaration{ID}, "Static_declaration").
-mir()->global(ID, _), +get_type (node_Global{ID}, "Global").
-mir()->try(ID, _, _), +get_type (node_Try{ID}, "Try").
-mir()->catch(ID, _, _, _), +get_type (node_Catch{ID}, "Catch").
-mir()->throw(ID, _), +get_type (node_Throw{ID}, "Throw").
-mir()->assign_var(ID, _, _, _, _), +get_type (node_Assign_var{ID}, "Assign_var").
-mir()->assign_array(ID, _, _, _, _, _), +get_type (node_Assign_array{ID}, "Assign_array").
-mir()->assign_var_var(ID, _, _, _, _), +get_type (node_Assign_var_var{ID}, "Assign_var_var").
-mir()->push_array(ID, _, _, _, _), +get_type (node_Push_array{ID}, "Push_array").
-mir()->eval_expr(ID, _), +get_type (node_Eval_expr{ID}, "Eval_expr").
-mir()->cast(ID, _, _), +get_type (node_Cast{ID}, "Cast").
-mir()->unary_op(ID, _, _), +get_type (node_Unary_op{ID}, "Unary_op").
-mir()->bin_op(ID, _, _, _), +get_type (node_Bin_op{ID}, "Bin_op").
-mir()->constant(ID, _, _), +get_type (node_Constant{ID}, "Constant").
-mir()->instanceof(ID, _, _), +get_type (node_Instanceof{ID}, "Instanceof").
-mir()->variable(ID, _, _, _), +get_type (node_Variable{ID}, "Variable").
-mir()->reflection(ID, _), +get_type (node_Reflection{ID}, "Reflection").
-mir()->pre_op(ID, _, _), +get_type (node_Pre_op{ID}, "Pre_op").
-mir()->array(ID, _), +get_type (node_Array{ID}, "Array").
-mir()->array_elem(ID, _, _, _), +get_type (node_Array_elem{ID}, "Array_elem").
-mir()->method_invocation(ID, _, _, _), +get_type (node_Method_invocation{ID}, "Method_invocation").
-mir()->actual_parameter(ID, _, _, _, _), +get_type (node_Actual_parameter{ID}, "Actual_parameter").
-mir()->new(ID, _, _), +get_type (node_New{ID}, "New").
-mir()->branch(ID, _, _, _), +get_type (node_Branch{ID}, "Branch").
-mir()->goto(ID, _), +get_type (node_Goto{ID}, "Goto").
-mir()->label(ID, _), +get_type (node_Label{ID}, "Label").
-mir()->foreach_reset(ID, _, _), +get_type (node_Foreach_reset{ID}, "Foreach_reset").
-mir()->foreach_next(ID, _, _), +get_type (node_Foreach_next{ID}, "Foreach_next").
-mir()->foreach_end(ID, _, _), +get_type (node_Foreach_end{ID}, "Foreach_end").
-mir()->foreach_has_key(ID, _, _), +get_type (node_Foreach_has_key{ID}, "Foreach_has_key").
-mir()->foreach_get_key(ID, _, _), +get_type (node_Foreach_get_key{ID}, "Foreach_get_key").
-mir()->foreach_get_val(ID, _, _, _), +get_type (node_Foreach_get_val{ID}, "Foreach_get_val").
-mir()->foreign_statement(ID), +get_type (node_Foreign_statement{ID}, "Foreign_statement").
-mir()->foreign_expr(ID), +get_type (node_Foreign_expr{ID}, "Foreign_expr").
+get_type (node_PHP_script{ID}, "PHP_script") :- mir()->pHP_script(ID, _).
+get_type (node_Class_def{ID}, "Class_def") :- mir()->class_def(ID, _, _, _, _, _).
+get_type (node_Class_mod{ID}, "Class_mod") :- mir()->class_mod(ID, _, _).
+get_type (node_Interface_def{ID}, "Interface_def") :- mir()->interface_def(ID, _, _, _).
+get_type (node_Method{ID}, "Method") :- mir()->method(ID, _, _).
+get_type (node_Signature{ID}, "Signature") :- mir()->signature(ID, _, _, _, _).
+get_type (node_Method_mod{ID}, "Method_mod") :- mir()->method_mod(ID, _, _, _, _, _, _).
+get_type (node_Formal_parameter{ID}, "Formal_parameter") :- mir()->formal_parameter(ID, _, _, _).
+get_type (node_Type{ID}, "Type") :- mir()->p_type(ID, _).
+get_type (node_Attribute{ID}, "Attribute") :- mir()->attribute(ID, _, _).
+get_type (node_Attr_mod{ID}, "Attr_mod") :- mir()->attr_mod(ID, _, _, _, _, _).
+get_type (node_Name_with_default{ID}, "Name_with_default") :- mir()->name_with_default(ID, _, _).
+get_type (node_Return{ID}, "Return") :- mir()->return(ID, _).
+get_type (node_Static_declaration{ID}, "Static_declaration") :- mir()->static_declaration(ID, _).
+get_type (node_Global{ID}, "Global") :- mir()->global(ID, _).
+get_type (node_Try{ID}, "Try") :- mir()->try(ID, _, _).
+get_type (node_Catch{ID}, "Catch") :- mir()->catch(ID, _, _, _).
+get_type (node_Throw{ID}, "Throw") :- mir()->throw(ID, _).
+get_type (node_Assign_var{ID}, "Assign_var") :- mir()->assign_var(ID, _, _, _, _).
+get_type (node_Assign_array{ID}, "Assign_array") :- mir()->assign_array(ID, _, _, _, _, _).
+get_type (node_Assign_var_var{ID}, "Assign_var_var") :- mir()->assign_var_var(ID, _, _, _, _).
+get_type (node_Push_array{ID}, "Push_array") :- mir()->push_array(ID, _, _, _, _).
+get_type (node_Eval_expr{ID}, "Eval_expr") :- mir()->eval_expr(ID, _).
+get_type (node_Cast{ID}, "Cast") :- mir()->cast(ID, _, _).
+get_type (node_Unary_op{ID}, "Unary_op") :- mir()->unary_op(ID, _, _).
+get_type (node_Bin_op{ID}, "Bin_op") :- mir()->bin_op(ID, _, _, _).
+get_type (node_Constant{ID}, "Constant") :- mir()->constant(ID, _, _).
+get_type (node_Instanceof{ID}, "Instanceof") :- mir()->instanceof(ID, _, _).
+get_type (node_Variable{ID}, "Variable") :- mir()->variable(ID, _, _, _).
+get_type (node_Reflection{ID}, "Reflection") :- mir()->reflection(ID, _).
+get_type (node_Pre_op{ID}, "Pre_op") :- mir()->pre_op(ID, _, _).
+get_type (node_Array{ID}, "Array") :- mir()->array(ID, _).
+get_type (node_Array_elem{ID}, "Array_elem") :- mir()->array_elem(ID, _, _, _).
+get_type (node_Method_invocation{ID}, "Method_invocation") :- mir()->method_invocation(ID, _, _, _).
+get_type (node_Actual_parameter{ID}, "Actual_parameter") :- mir()->actual_parameter(ID, _, _, _, _).
+get_type (node_New{ID}, "New") :- mir()->new(ID, _, _).
+get_type (node_Branch{ID}, "Branch") :- mir()->branch(ID, _, _, _).
+get_type (node_Goto{ID}, "Goto") :- mir()->goto(ID, _).
+get_type (node_Label{ID}, "Label") :- mir()->label(ID, _).
+get_type (node_Foreach_reset{ID}, "Foreach_reset") :- mir()->foreach_reset(ID, _, _).
+get_type (node_Foreach_next{ID}, "Foreach_next") :- mir()->foreach_next(ID, _, _).
+get_type (node_Foreach_end{ID}, "Foreach_end") :- mir()->foreach_end(ID, _, _).
+get_type (node_Foreach_has_key{ID}, "Foreach_has_key") :- mir()->foreach_has_key(ID, _, _).
+get_type (node_Foreach_get_key{ID}, "Foreach_get_key") :- mir()->foreach_get_key(ID, _, _).
+get_type (node_Foreach_get_val{ID}, "Foreach_get_val") :- mir()->foreach_get_val(ID, _, _, _).
+get_type (node_Foreign_statement{ID}, "Foreign_statement") :- mir()->foreign_statement(ID).
+get_type (node_Foreign_expr{ID}, "Foreign_expr") :- mir()->foreign_expr(ID).
 
-mir()->hT_ITERATOR(ID, _), +get_type (node_HT_ITERATOR{ID}, "HT_ITERATOR").
-mir()->cLASS_NAME(ID, _), +get_type (node_CLASS_NAME{ID}, "CLASS_NAME").
-mir()->iNTERFACE_NAME(ID, _), +get_type (node_INTERFACE_NAME{ID}, "INTERFACE_NAME").
-mir()->mETHOD_NAME(ID, _), +get_type (node_METHOD_NAME{ID}, "METHOD_NAME").
-mir()->vARIABLE_NAME(ID, _), +get_type (node_VARIABLE_NAME{ID}, "VARIABLE_NAME").
-mir()->iNT(ID, _), +get_type (node_INT{ID}, "INT").
-mir()->rEAL(ID, _), +get_type (node_REAL{ID}, "REAL").
-mir()->sTRING(ID, _), +get_type (node_STRING{ID}, "STRING").
-mir()->bOOL(ID, _), +get_type (node_BOOL{ID}, "BOOL").
-mir()->nIL(ID, _), +get_type (node_NIL{ID}, "NIL").
-mir()->cAST(ID, _), +get_type (node_CAST{ID}, "CAST").
-mir()->oP(ID, _), +get_type (node_OP{ID}, "OP").
-mir()->cONSTANT_NAME(ID, _), +get_type (node_CONSTANT_NAME{ID}, "CONSTANT_NAME").
-mir()->lABEL_NAME(ID, _), +get_type (node_LABEL_NAME{ID}, "LABEL_NAME").
+get_type (node_HT_ITERATOR{ID}, "HT_ITERATOR") :- mir()->hT_ITERATOR(ID, _).
+get_type (node_CLASS_NAME{ID}, "CLASS_NAME") :- mir()->cLASS_NAME(ID, _).
+get_type (node_INTERFACE_NAME{ID}, "INTERFACE_NAME") :- mir()->iNTERFACE_NAME(ID, _).
+get_type (node_METHOD_NAME{ID}, "METHOD_NAME") :- mir()->mETHOD_NAME(ID, _).
+get_type (node_VARIABLE_NAME{ID}, "VARIABLE_NAME") :- mir()->vARIABLE_NAME(ID, _).
+get_type (node_INT{ID}, "INT") :- mir()->iNT(ID, _).
+get_type (node_REAL{ID}, "REAL") :- mir()->rEAL(ID, _).
+get_type (node_STRING{ID}, "STRING") :- mir()->sTRING(ID, _).
+get_type (node_BOOL{ID}, "BOOL") :- mir()->bOOL(ID, _).
+get_type (node_NIL{ID}, "NIL") :- mir()->nIL(ID, _).
+get_type (node_CAST{ID}, "CAST") :- mir()->cAST(ID, _).
+get_type (node_OP{ID}, "OP") :- mir()->oP(ID, _).
+get_type (node_CONSTANT_NAME{ID}, "CONSTANT_NAME") :- mir()->cONSTANT_NAME(ID, _).
+get_type (node_LABEL_NAME{ID}, "LABEL_NAME") :- mir()->lABEL_NAME(ID, _).
 
 
 % Conjunctive data visitors
-mir()->pHP_script(ID, STATEMENTS),
+to_generic (NODE, GENERIC) :-
+	mir()->pHP_script(ID, STATEMENTS),
 	to_node (any{ID}, NODE),
 	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, [GEN_STATEMENTS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_STATEMENTS]}.
 
-mir()->class_def(ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS),
+to_generic (NODE, GENERIC) :-
+	mir()->class_def(ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS),
 	to_node (any{ID}, NODE),
 	to_node (any{CLASS_MOD}, NODE_CLASS_MOD),
 	to_generic (NODE_CLASS_MOD, GEN_CLASS_MOD),
@@ -1266,26 +1267,26 @@ mir()->class_def(ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS),
 	(GEN_OPT_EXTENDS = gmaybe{no})),
 	list_to_generic_list (IMPLEMENTSS, GEN_IMPLEMENTSS),
 	list_to_generic_list (MEMBERS, GEN_MEMBERS),
-	GENERIC = gnode{NODE, [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]}.
 
-mir()->class_mod(ID, IS_ABSTRACT, IS_FINAL),
+to_generic (NODE, GENERIC) :-
+	mir()->class_mod(ID, IS_ABSTRACT, IS_FINAL),
 	to_node (any{ID}, NODE),
 	GEN_IS_ABSTRACT = gmarker {IS_ABSTRACT},
 	GEN_IS_FINAL = gmarker {IS_FINAL},
-	GENERIC = gnode{NODE, [GEN_IS_ABSTRACT, GEN_IS_FINAL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
-mir()->interface_def(ID, INTERFACE_NAME, EXTENDSS, MEMBERS),
+to_generic (NODE, GENERIC) :-
+	mir()->interface_def(ID, INTERFACE_NAME, EXTENDSS, MEMBERS),
 	to_node (any{ID}, NODE),
 	to_node (any{INTERFACE_NAME}, NODE_INTERFACE_NAME),
 	to_generic (NODE_INTERFACE_NAME, GEN_INTERFACE_NAME),
 	list_to_generic_list (EXTENDSS, GEN_EXTENDSS),
 	list_to_generic_list (MEMBERS, GEN_MEMBERS),
-	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]}.
 
-mir()->method(ID, SIGNATURE, OPT_STATEMENTS),
+to_generic (NODE, GENERIC) :-
+	mir()->method(ID, SIGNATURE, OPT_STATEMENTS),
 	to_node (any{ID}, NODE),
 	to_node (any{SIGNATURE}, NODE_SIGNATURE),
 	to_generic (NODE_SIGNATURE, GEN_SIGNATURE),
@@ -1294,10 +1295,10 @@ mir()->method(ID, SIGNATURE, OPT_STATEMENTS),
 	GEN_OPT_STATEMENTS = gmaybe{yes{GEN_STATEMENTS}})
 	;
 	(GEN_OPT_STATEMENTS = gmaybe{no})),
-	GENERIC = gnode{NODE, [GEN_SIGNATURE, GEN_OPT_STATEMENTS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_SIGNATURE, GEN_OPT_STATEMENTS]}.
 
-mir()->signature(ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS),
+to_generic (NODE, GENERIC) :-
+	mir()->signature(ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS),
 	to_node (any{ID}, NODE),
 	to_node (any{METHOD_MOD}, NODE_METHOD_MOD),
 	to_generic (NODE_METHOD_MOD, GEN_METHOD_MOD),
@@ -1305,10 +1306,10 @@ mir()->signature(ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS),
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list (FORMAL_PARAMETERS, GEN_FORMAL_PARAMETERS),
-	GENERIC = gnode{NODE, [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]}.
 
-mir()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL),
+to_generic (NODE, GENERIC) :-
+	mir()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL),
 	to_node (any{ID}, NODE),
 	GEN_IS_PUBLIC = gmarker {IS_PUBLIC},
 	GEN_IS_PROTECTED = gmarker {IS_PROTECTED},
@@ -1316,20 +1317,20 @@ mir()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRAC
 	GEN_IS_STATIC = gmarker {IS_STATIC},
 	GEN_IS_ABSTRACT = gmarker {IS_ABSTRACT},
 	GEN_IS_FINAL = gmarker {IS_FINAL},
-	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
-mir()->formal_parameter(ID, TYPE, IS_REF, VAR),
+to_generic (NODE, GENERIC) :-
+	mir()->formal_parameter(ID, TYPE, IS_REF, VAR),
 	to_node (any{ID}, NODE),
 	to_node (any{TYPE}, NODE_TYPE),
 	to_generic (NODE_TYPE, GEN_TYPE),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{VAR}, NODE_VAR),
 	to_generic (NODE_VAR, GEN_VAR),
-	GENERIC = gnode{NODE, [GEN_TYPE, GEN_IS_REF, GEN_VAR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_TYPE, GEN_IS_REF, GEN_VAR]}.
 
-mir()->p_type(ID, OPT_CLASS_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->p_type(ID, OPT_CLASS_NAME),
 	to_node (any{ID}, NODE),
 	((OPT_CLASS_NAME = yes{CLASS_NAME},
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
@@ -1337,29 +1338,29 @@ mir()->p_type(ID, OPT_CLASS_NAME),
 	GEN_OPT_CLASS_NAME = gmaybe{yes{GEN_CLASS_NAME}})
 	;
 	(GEN_OPT_CLASS_NAME = gmaybe{no})),
-	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME]}.
 
-mir()->attribute(ID, ATTR_MOD, VAR),
+to_generic (NODE, GENERIC) :-
+	mir()->attribute(ID, ATTR_MOD, VAR),
 	to_node (any{ID}, NODE),
 	to_node (any{ATTR_MOD}, NODE_ATTR_MOD),
 	to_generic (NODE_ATTR_MOD, GEN_ATTR_MOD),
 	to_node (any{VAR}, NODE_VAR),
 	to_generic (NODE_VAR, GEN_VAR),
-	GENERIC = gnode{NODE, [GEN_ATTR_MOD, GEN_VAR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ATTR_MOD, GEN_VAR]}.
 
-mir()->attr_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST),
+to_generic (NODE, GENERIC) :-
+	mir()->attr_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST),
 	to_node (any{ID}, NODE),
 	GEN_IS_PUBLIC = gmarker {IS_PUBLIC},
 	GEN_IS_PROTECTED = gmarker {IS_PROTECTED},
 	GEN_IS_PRIVATE = gmarker {IS_PRIVATE},
 	GEN_IS_STATIC = gmarker {IS_STATIC},
 	GEN_IS_CONST = gmarker {IS_CONST},
-	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]}.
 
-mir()->name_with_default(ID, VARIABLE_NAME, OPT_EXPR),
+to_generic (NODE, GENERIC) :-
+	mir()->name_with_default(ID, VARIABLE_NAME, OPT_EXPR),
 	to_node (any{ID}, NODE),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
@@ -1369,55 +1370,55 @@ mir()->name_with_default(ID, VARIABLE_NAME, OPT_EXPR),
 	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
 	;
 	(GEN_OPT_EXPR = gmaybe{no})),
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_OPT_EXPR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_OPT_EXPR]}.
 
-mir()->return(ID, EXPR),
+to_generic (NODE, GENERIC) :-
+	mir()->return(ID, EXPR),
 	to_node (any{ID}, NODE),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, [GEN_EXPR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_EXPR]}.
 
-mir()->static_declaration(ID, VAR),
+to_generic (NODE, GENERIC) :-
+	mir()->static_declaration(ID, VAR),
 	to_node (any{ID}, NODE),
 	to_node (any{VAR}, NODE_VAR),
 	to_generic (NODE_VAR, GEN_VAR),
-	GENERIC = gnode{NODE, [GEN_VAR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VAR]}.
 
-mir()->global(ID, VARIABLE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->global(ID, VARIABLE_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]}.
 
-mir()->try(ID, STATEMENTS, CATCHESS),
+to_generic (NODE, GENERIC) :-
+	mir()->try(ID, STATEMENTS, CATCHESS),
 	to_node (any{ID}, NODE),
 	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
 	list_to_generic_list (CATCHESS, GEN_CATCHESS),
-	GENERIC = gnode{NODE, [GEN_STATEMENTS, GEN_CATCHESS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_STATEMENTS, GEN_CATCHESS]}.
 
-mir()->catch(ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS),
+to_generic (NODE, GENERIC) :-
+	mir()->catch(ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS),
 	to_node (any{ID}, NODE),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]}.
 
-mir()->throw(ID, EXPR),
+to_generic (NODE, GENERIC) :-
+	mir()->throw(ID, EXPR),
 	to_node (any{ID}, NODE),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, [GEN_EXPR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_EXPR]}.
 
-mir()->assign_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
+to_generic (NODE, GENERIC) :-
+	mir()->assign_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1430,10 +1431,10 @@ mir()->assign_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
 
-mir()->assign_array(ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS),
+to_generic (NODE, GENERIC) :-
+	mir()->assign_array(ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1448,10 +1449,10 @@ mir()->assign_array(ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_INDEX, GEN_IS_REF, GEN_RHS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_INDEX, GEN_IS_REF, GEN_RHS]}.
 
-mir()->assign_var_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
+to_generic (NODE, GENERIC) :-
+	mir()->assign_var_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1464,10 +1465,10 @@ mir()->assign_var_var(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
 
-mir()->push_array(ID, OPT_TARGET, LHS, IS_REF, RHS),
+to_generic (NODE, GENERIC) :-
+	mir()->push_array(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1480,35 +1481,35 @@ mir()->push_array(ID, OPT_TARGET, LHS, IS_REF, RHS),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
 
-mir()->eval_expr(ID, EXPR),
+to_generic (NODE, GENERIC) :-
+	mir()->eval_expr(ID, EXPR),
 	to_node (any{ID}, NODE),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, [GEN_EXPR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_EXPR]}.
 
-mir()->cast(ID, CAST, VARIABLE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->cast(ID, CAST, VARIABLE_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{CAST}, NODE_CAST),
 	to_generic (NODE_CAST, GEN_CAST),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{NODE, [GEN_CAST, GEN_VARIABLE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CAST, GEN_VARIABLE_NAME]}.
 
-mir()->unary_op(ID, OP, VARIABLE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->unary_op(ID, OP, VARIABLE_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{NODE, [GEN_OP, GEN_VARIABLE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OP, GEN_VARIABLE_NAME]}.
 
-mir()->bin_op(ID, LEFT, OP, RIGHT),
+to_generic (NODE, GENERIC) :-
+	mir()->bin_op(ID, LEFT, OP, RIGHT),
 	to_node (any{ID}, NODE),
 	to_node (any{LEFT}, NODE_LEFT),
 	to_generic (NODE_LEFT, GEN_LEFT),
@@ -1516,10 +1517,10 @@ mir()->bin_op(ID, LEFT, OP, RIGHT),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{RIGHT}, NODE_RIGHT),
 	to_generic (NODE_RIGHT, GEN_RIGHT),
-	GENERIC = gnode{NODE, [GEN_LEFT, GEN_OP, GEN_RIGHT]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_LEFT, GEN_OP, GEN_RIGHT]}.
 
-mir()->constant(ID, OPT_CLASS_NAME, CONSTANT_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->constant(ID, OPT_CLASS_NAME, CONSTANT_NAME),
 	to_node (any{ID}, NODE),
 	((OPT_CLASS_NAME = yes{CLASS_NAME},
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
@@ -1529,19 +1530,19 @@ mir()->constant(ID, OPT_CLASS_NAME, CONSTANT_NAME),
 	(GEN_OPT_CLASS_NAME = gmaybe{no})),
 	to_node (any{CONSTANT_NAME}, NODE_CONSTANT_NAME),
 	to_generic (NODE_CONSTANT_NAME, GEN_CONSTANT_NAME),
-	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]}.
 
-mir()->instanceof(ID, VARIABLE_NAME, CLASS_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->instanceof(ID, VARIABLE_NAME, CLASS_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_CLASS_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_CLASS_NAME]}.
 
-mir()->variable(ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
+to_generic (NODE, GENERIC) :-
+	mir()->variable(ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1552,32 +1553,32 @@ mir()->variable(ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
 
-mir()->reflection(ID, VARIABLE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->reflection(ID, VARIABLE_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]}.
 
-mir()->pre_op(ID, OP, VARIABLE),
+to_generic (NODE, GENERIC) :-
+	mir()->pre_op(ID, OP, VARIABLE),
 	to_node (any{ID}, NODE),
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{VARIABLE}, NODE_VARIABLE),
 	to_generic (NODE_VARIABLE, GEN_VARIABLE),
-	GENERIC = gnode{NODE, [GEN_OP, GEN_VARIABLE]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OP, GEN_VARIABLE]}.
 
-mir()->array(ID, ARRAY_ELEMS),
+to_generic (NODE, GENERIC) :-
+	mir()->array(ID, ARRAY_ELEMS),
 	to_node (any{ID}, NODE),
 	list_to_generic_list (ARRAY_ELEMS, GEN_ARRAY_ELEMS),
-	GENERIC = gnode{NODE, [GEN_ARRAY_ELEMS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY_ELEMS]}.
 
-mir()->array_elem(ID, OPT_KEY, IS_REF, VAL),
+to_generic (NODE, GENERIC) :-
+	mir()->array_elem(ID, OPT_KEY, IS_REF, VAL),
 	to_node (any{ID}, NODE),
 	((OPT_KEY = yes{KEY},
 	to_node (any{KEY}, NODE_KEY),
@@ -1588,10 +1589,10 @@ mir()->array_elem(ID, OPT_KEY, IS_REF, VAL),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{VAL}, NODE_VAL),
 	to_generic (NODE_VAL, GEN_VAL),
-	GENERIC = gnode{NODE, [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]}.
 
-mir()->method_invocation(ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS),
+to_generic (NODE, GENERIC) :-
+	mir()->method_invocation(ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS),
 	to_node (any{ID}, NODE),
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
@@ -1602,10 +1603,10 @@ mir()->method_invocation(ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS),
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
-	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]}.
 
-mir()->actual_parameter(ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
+to_generic (NODE, GENERIC) :-
+	mir()->actual_parameter(ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
 	to_node (any{ID}, NODE),
 	GEN_IS_REF = gmarker {IS_REF},
 	((OPT_TARGET = yes{TARGET},
@@ -1617,18 +1618,18 @@ mir()->actual_parameter(ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
-	GENERIC = gnode{NODE, [GEN_IS_REF, GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_IS_REF, GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
 
-mir()->new(ID, CLASS_NAME, ACTUAL_PARAMETERS),
+to_generic (NODE, GENERIC) :-
+	mir()->new(ID, CLASS_NAME, ACTUAL_PARAMETERS),
 	to_node (any{ID}, NODE),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
-	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
 
-mir()->branch(ID, VARIABLE_NAME, IFTRUE, IFFALSE),
+to_generic (NODE, GENERIC) :-
+	mir()->branch(ID, VARIABLE_NAME, IFTRUE, IFFALSE),
 	to_node (any{ID}, NODE),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
@@ -1636,69 +1637,69 @@ mir()->branch(ID, VARIABLE_NAME, IFTRUE, IFFALSE),
 	to_generic (NODE_IFTRUE, GEN_IFTRUE),
 	to_node (any{IFFALSE}, NODE_IFFALSE),
 	to_generic (NODE_IFFALSE, GEN_IFFALSE),
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_IFTRUE, GEN_IFFALSE]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_IFTRUE, GEN_IFFALSE]}.
 
-mir()->goto(ID, LABEL_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->goto(ID, LABEL_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{LABEL_NAME}, NODE_LABEL_NAME),
 	to_generic (NODE_LABEL_NAME, GEN_LABEL_NAME),
-	GENERIC = gnode{NODE, [GEN_LABEL_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_LABEL_NAME]}.
 
-mir()->label(ID, LABEL_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->label(ID, LABEL_NAME),
 	to_node (any{ID}, NODE),
 	to_node (any{LABEL_NAME}, NODE_LABEL_NAME),
 	to_generic (NODE_LABEL_NAME, GEN_LABEL_NAME),
-	GENERIC = gnode{NODE, [GEN_LABEL_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_LABEL_NAME]}.
 
-mir()->foreach_reset(ID, ARRAY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_reset(ID, ARRAY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]}.
 
-mir()->foreach_next(ID, ARRAY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_next(ID, ARRAY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]}.
 
-mir()->foreach_end(ID, ARRAY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_end(ID, ARRAY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]}.
 
-mir()->foreach_has_key(ID, ARRAY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_has_key(ID, ARRAY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]}.
 
-mir()->foreach_get_key(ID, ARRAY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_get_key(ID, ARRAY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_ITER]}.
 
-mir()->foreach_get_val(ID, ARRAY, KEY, ITER),
+to_generic (NODE, GENERIC) :-
+	mir()->foreach_get_val(ID, ARRAY, KEY, ITER),
 	to_node (any{ID}, NODE),
 	to_node (any{ARRAY}, NODE_ARRAY),
 	to_generic (NODE_ARRAY, GEN_ARRAY),
@@ -1706,105 +1707,104 @@ mir()->foreach_get_val(ID, ARRAY, KEY, ITER),
 	to_generic (NODE_KEY, GEN_KEY),
 	to_node (any{ITER}, NODE_ITER),
 	to_generic (NODE_ITER, GEN_ITER),
-	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_KEY, GEN_ITER]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_ARRAY, GEN_KEY, GEN_ITER]}.
 
-mir()->foreign_statement(ID),
+to_generic (NODE, GENERIC) :-
+	mir()->foreign_statement(ID),
 	to_node (any{ID}, NODE),
-	GENERIC = gnode{NODE, []},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, []}.
 
-mir()->foreign_expr(ID),
+to_generic (NODE, GENERIC) :-
+	mir()->foreign_expr(ID),
 	to_node (any{ID}, NODE),
-	GENERIC = gnode{NODE, []},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, []}.
 
 
 
 % Token data visitors
-mir()->hT_ITERATOR(ID, HT_ITERATOR),
+to_generic (NODE, GENERIC) :-
+	mir()->hT_ITERATOR(ID, HT_ITERATOR),
 	to_node (any{ID}, NODE),
 	GEN_HT_ITERATOR = gint {HT_ITERATOR},
-	GENERIC = gnode{NODE, [GEN_HT_ITERATOR]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_HT_ITERATOR]}.
 
-mir()->cLASS_NAME(ID, CLASS_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->cLASS_NAME(ID, CLASS_NAME),
 	to_node (any{ID}, NODE),
 	GEN_CLASS_NAME = gstring {CLASS_NAME},
-	GENERIC = gnode{NODE, [GEN_CLASS_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CLASS_NAME]}.
 
-mir()->iNTERFACE_NAME(ID, INTERFACE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->iNTERFACE_NAME(ID, INTERFACE_NAME),
 	to_node (any{ID}, NODE),
 	GEN_INTERFACE_NAME = gstring {INTERFACE_NAME},
-	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_INTERFACE_NAME]}.
 
-mir()->mETHOD_NAME(ID, METHOD_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->mETHOD_NAME(ID, METHOD_NAME),
 	to_node (any{ID}, NODE),
 	GEN_METHOD_NAME = gstring {METHOD_NAME},
-	GENERIC = gnode{NODE, [GEN_METHOD_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_METHOD_NAME]}.
 
-mir()->vARIABLE_NAME(ID, VARIABLE_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->vARIABLE_NAME(ID, VARIABLE_NAME),
 	to_node (any{ID}, NODE),
 	GEN_VARIABLE_NAME = gstring {VARIABLE_NAME},
-	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME]}.
 
-mir()->iNT(ID, INT),
+to_generic (NODE, GENERIC) :-
+	mir()->iNT(ID, INT),
 	to_node (any{ID}, NODE),
 	GEN_INT = gint {INT},
-	GENERIC = gnode{NODE, [GEN_INT]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_INT]}.
 
-mir()->rEAL(ID, REAL),
+to_generic (NODE, GENERIC) :-
+	mir()->rEAL(ID, REAL),
 	to_node (any{ID}, NODE),
 	GEN_REAL = gfloat {REAL},
-	GENERIC = gnode{NODE, [GEN_REAL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_REAL]}.
 
-mir()->sTRING(ID, STRING),
+to_generic (NODE, GENERIC) :-
+	mir()->sTRING(ID, STRING),
 	to_node (any{ID}, NODE),
 	GEN_STRING = gstring {STRING},
-	GENERIC = gnode{NODE, [GEN_STRING]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_STRING]}.
 
-mir()->bOOL(ID, BOOL),
+to_generic (NODE, GENERIC) :-
+	mir()->bOOL(ID, BOOL),
 	to_node (any{ID}, NODE),
 	GEN_BOOL = gbool {BOOL},
-	GENERIC = gnode{NODE, [GEN_BOOL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_BOOL]}.
 
-mir()->nIL(ID, NIL),
+to_generic (NODE, GENERIC) :-
+	mir()->nIL(ID, NIL),
 	to_node (any{ID}, NODE),
 	GEN_NIL = gnull {NIL},
-	GENERIC = gnode{NODE, [GEN_NIL]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_NIL]}.
 
-mir()->cAST(ID, CAST),
+to_generic (NODE, GENERIC) :-
+	mir()->cAST(ID, CAST),
 	to_node (any{ID}, NODE),
 	GEN_CAST = gstring {CAST},
-	GENERIC = gnode{NODE, [GEN_CAST]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CAST]}.
 
-mir()->oP(ID, OP),
+to_generic (NODE, GENERIC) :-
+	mir()->oP(ID, OP),
 	to_node (any{ID}, NODE),
 	GEN_OP = gstring {OP},
-	GENERIC = gnode{NODE, [GEN_OP]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_OP]}.
 
-mir()->cONSTANT_NAME(ID, CONSTANT_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->cONSTANT_NAME(ID, CONSTANT_NAME),
 	to_node (any{ID}, NODE),
 	GEN_CONSTANT_NAME = gstring {CONSTANT_NAME},
-	GENERIC = gnode{NODE, [GEN_CONSTANT_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_CONSTANT_NAME]}.
 
-mir()->lABEL_NAME(ID, LABEL_NAME),
+to_generic (NODE, GENERIC) :-
+	mir()->lABEL_NAME(ID, LABEL_NAME),
 	to_node (any{ID}, NODE),
 	GEN_LABEL_NAME = gstring {LABEL_NAME},
-	GENERIC = gnode{NODE, [GEN_LABEL_NAME]},
-	+to_generic (NODE, GENERIC).
+	GENERIC = gnode{NODE, [GEN_LABEL_NAME]}.
 
 
 
