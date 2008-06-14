@@ -661,759 +661,759 @@ to_node (ANY, NODE) :-
 
 % Disjunctive Type Casts
 to_node (ANY, NODE) :- 
-	ANY = any{node_PHP_script{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_PHP_script{pHP_script_id{ID}}},
+	NODE = node_PHP_script{pHP_script_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Class_mod{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Class_mod{class_mod_id{ID}}},
+	NODE = node_Class_mod{class_mod_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Signature{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Signature{signature_id{ID}}},
+	NODE = node_Signature{signature_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Method_mod{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Method_mod{method_mod_id{ID}}},
+	NODE = node_Method_mod{method_mod_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Formal_parameter{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Formal_parameter{formal_parameter_id{ID}}},
+	NODE = node_Formal_parameter{formal_parameter_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Type{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Type{type_id{ID}}},
+	NODE = node_Type{type_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Attr_mod{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Attr_mod{attr_mod_id{ID}}},
+	NODE = node_Attr_mod{attr_mod_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Name_with_default{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Name_with_default{name_with_default_id{ID}}},
+	NODE = node_Name_with_default{name_with_default_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Directive{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Directive{directive_id{ID}}},
+	NODE = node_Directive{directive_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Foreign_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Foreign_expr{foreign_expr_id{ID}}},
+	NODE = node_Foreign_expr{foreign_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Foreign_statement{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Foreign_statement{foreign_statement_id{ID}}},
+	NODE = node_Foreign_statement{foreign_statement_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Variable{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Variable{variable_id{ID}}},
+	NODE = node_Variable{variable_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Nested_list_elements{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Nested_list_elements{nested_list_elements_id{ID}}},
+	NODE = node_Nested_list_elements{nested_list_elements_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_VARIABLE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}},
+	NODE = node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Reflection{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Reflection{reflection_id{ID}}},
+	NODE = node_Reflection{reflection_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Assignment{assignment_id{ID}}},
+	NODE = node_Assignment{assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Cast{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Cast{cast_id{ID}}},
+	NODE = node_Cast{cast_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Unary_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Unary_op{unary_op_id{ID}}},
+	NODE = node_Unary_op{unary_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Bin_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Bin_op{bin_op_id{ID}}},
+	NODE = node_Bin_op{bin_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Constant{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Constant{constant_id{ID}}},
+	NODE = node_Constant{constant_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Instanceof{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Instanceof{instanceof_id{ID}}},
+	NODE = node_Instanceof{instanceof_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Pre_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Pre_op{pre_op_id{ID}}},
+	NODE = node_Pre_op{pre_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Method_invocation{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Method_invocation{method_invocation_id{ID}}},
+	NODE = node_Method_invocation{method_invocation_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_New{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_New{new_id{ID}}},
+	NODE = node_New{new_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_INT{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_INT{iNT_id{ID}}},
+	NODE = node_INT{iNT_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_REAL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_REAL{rEAL_id{ID}}},
+	NODE = node_REAL{rEAL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_STRING{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_STRING{sTRING_id{ID}}},
+	NODE = node_STRING{sTRING_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_BOOL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_BOOL{bOOL_id{ID}}},
+	NODE = node_BOOL{bOOL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_NIL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_NIL{nIL_id{ID}}},
+	NODE = node_NIL{nIL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Op_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Op_assignment{op_assignment_id{ID}}},
+	NODE = node_Op_assignment{op_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_List_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_List_assignment{list_assignment_id{ID}}},
+	NODE = node_List_assignment{list_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Post_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Post_op{post_op_id{ID}}},
+	NODE = node_Post_op{post_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Array{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Array{array_id{ID}}},
+	NODE = node_Array{array_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Conditional_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Conditional_expr{conditional_expr_id{ID}}},
+	NODE = node_Conditional_expr{conditional_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Ignore_errors{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Ignore_errors{ignore_errors_id{ID}}},
+	NODE = node_Ignore_errors{ignore_errors_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_CLASS_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_CLASS_NAME{cLASS_NAME_id{ID}}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Array_elem{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Array_elem{array_elem_id{ID}}},
+	NODE = node_Array_elem{array_elem_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_METHOD_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_METHOD_NAME{mETHOD_NAME_id{ID}}},
+	NODE = node_METHOD_NAME{mETHOD_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Actual_parameter{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Actual_parameter{actual_parameter_id{ID}}},
+	NODE = node_Actual_parameter{actual_parameter_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Method{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Method{method_id{ID}}},
+	NODE = node_Method{method_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Attribute{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Attribute{attribute_id{ID}}},
+	NODE = node_Attribute{attribute_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Class_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Class_def{class_def_id{ID}}},
+	NODE = node_Class_def{class_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Interface_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Interface_def{interface_def_id{ID}}},
+	NODE = node_Interface_def{interface_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Return{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Return{return_id{ID}}},
+	NODE = node_Return{return_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Static_declaration{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Static_declaration{static_declaration_id{ID}}},
+	NODE = node_Static_declaration{static_declaration_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Global{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Global{global_id{ID}}},
+	NODE = node_Global{global_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Try{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Try{try_id{ID}}},
+	NODE = node_Try{try_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Throw{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Throw{throw_id{ID}}},
+	NODE = node_Throw{throw_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Eval_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Eval_expr{eval_expr_id{ID}}},
+	NODE = node_Eval_expr{eval_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_If{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_If{if_id{ID}}},
+	NODE = node_If{if_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_While{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_While{while_id{ID}}},
+	NODE = node_While{while_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Do{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Do{do_id{ID}}},
+	NODE = node_Do{do_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_For{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_For{for_id{ID}}},
+	NODE = node_For{for_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Foreach{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Foreach{foreach_id{ID}}},
+	NODE = node_Foreach{foreach_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Switch{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Switch{switch_id{ID}}},
+	NODE = node_Switch{switch_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Break{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Break{break_id{ID}}},
+	NODE = node_Break{break_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Continue{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Continue{continue_id{ID}}},
+	NODE = node_Continue{continue_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Declare{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Declare{declare_id{ID}}},
+	NODE = node_Declare{declare_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Nop{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Nop{nop_id{ID}}},
+	NODE = node_Nop{nop_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Switch_case{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Switch_case{switch_case_id{ID}}},
+	NODE = node_Switch_case{switch_case_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_Catch{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_Catch{catch_id{ID}}},
+	NODE = node_Catch{catch_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_INTERFACE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}},
+	NODE = node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_CAST{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_CAST{cAST_id{ID}}},
+	NODE = node_CAST{cAST_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_OP{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_OP{oP_id{ID}}},
+	NODE = node_OP{oP_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_CONSTANT_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}},
+	NODE = node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{node_DIRECTIVE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}},
+	NODE = node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Class_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Class_def{class_def_id{ID}}},
+	NODE = node_Class_def{class_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Interface_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Interface_def{interface_def_id{ID}}},
+	NODE = node_Interface_def{interface_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Method{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Method{method_id{ID}}},
+	NODE = node_Method{method_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Return{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Return{return_id{ID}}},
+	NODE = node_Return{return_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Static_declaration{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Static_declaration{static_declaration_id{ID}}},
+	NODE = node_Static_declaration{static_declaration_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Global{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Global{global_id{ID}}},
+	NODE = node_Global{global_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Try{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Try{try_id{ID}}},
+	NODE = node_Try{try_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Throw{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Throw{throw_id{ID}}},
+	NODE = node_Throw{throw_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Eval_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Eval_expr{eval_expr_id{ID}}},
+	NODE = node_Eval_expr{eval_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_If{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_If{if_id{ID}}},
+	NODE = node_If{if_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_While{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_While{while_id{ID}}},
+	NODE = node_While{while_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Do{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Do{do_id{ID}}},
+	NODE = node_Do{do_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_For{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_For{for_id{ID}}},
+	NODE = node_For{for_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Foreach{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Foreach{foreach_id{ID}}},
+	NODE = node_Foreach{foreach_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Switch{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Switch{switch_id{ID}}},
+	NODE = node_Switch{switch_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Break{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Break{break_id{ID}}},
+	NODE = node_Break{break_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Continue{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Continue{continue_id{ID}}},
+	NODE = node_Continue{continue_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Declare{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Declare{declare_id{ID}}},
+	NODE = node_Declare{declare_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Nop{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Nop{nop_id{ID}}},
+	NODE = node_Nop{nop_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{statement_Foreign_statement{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{statement_Foreign_statement{foreign_statement_id{ID}}},
+	NODE = node_Foreign_statement{foreign_statement_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{member_Method{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{member_Method{method_id{ID}}},
+	NODE = node_Method{method_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{member_Attribute{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{member_Attribute{attribute_id{ID}}},
+	NODE = node_Attribute{attribute_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{foreign_Foreign_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{foreign_Foreign_expr{foreign_expr_id{ID}}},
+	NODE = node_Foreign_expr{foreign_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{foreign_Foreign_statement{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{foreign_Foreign_statement{foreign_statement_id{ID}}},
+	NODE = node_Foreign_statement{foreign_statement_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Assignment{assignment_id{ID}}},
+	NODE = node_Assignment{assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Cast{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Cast{cast_id{ID}}},
+	NODE = node_Cast{cast_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Unary_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Unary_op{unary_op_id{ID}}},
+	NODE = node_Unary_op{unary_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Bin_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Bin_op{bin_op_id{ID}}},
+	NODE = node_Bin_op{bin_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Constant{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Constant{constant_id{ID}}},
+	NODE = node_Constant{constant_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Instanceof{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Instanceof{instanceof_id{ID}}},
+	NODE = node_Instanceof{instanceof_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Variable{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Variable{variable_id{ID}}},
+	NODE = node_Variable{variable_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Pre_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Pre_op{pre_op_id{ID}}},
+	NODE = node_Pre_op{pre_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Method_invocation{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Method_invocation{method_invocation_id{ID}}},
+	NODE = node_Method_invocation{method_invocation_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_New{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_New{new_id{ID}}},
+	NODE = node_New{new_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_INT{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_INT{iNT_id{ID}}},
+	NODE = node_INT{iNT_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_REAL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_REAL{rEAL_id{ID}}},
+	NODE = node_REAL{rEAL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_STRING{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_STRING{sTRING_id{ID}}},
+	NODE = node_STRING{sTRING_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_BOOL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_BOOL{bOOL_id{ID}}},
+	NODE = node_BOOL{bOOL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_NIL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_NIL{nIL_id{ID}}},
+	NODE = node_NIL{nIL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Op_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Op_assignment{op_assignment_id{ID}}},
+	NODE = node_Op_assignment{op_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_List_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_List_assignment{list_assignment_id{ID}}},
+	NODE = node_List_assignment{list_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Post_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Post_op{post_op_id{ID}}},
+	NODE = node_Post_op{post_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Array{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Array{array_id{ID}}},
+	NODE = node_Array{array_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Conditional_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Conditional_expr{conditional_expr_id{ID}}},
+	NODE = node_Conditional_expr{conditional_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Ignore_errors{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Ignore_errors{ignore_errors_id{ID}}},
+	NODE = node_Ignore_errors{ignore_errors_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{expr_Foreign_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{expr_Foreign_expr{foreign_expr_id{ID}}},
+	NODE = node_Foreign_expr{foreign_expr_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{literal_INT{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{literal_INT{iNT_id{ID}}},
+	NODE = node_INT{iNT_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{literal_REAL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{literal_REAL{rEAL_id{ID}}},
+	NODE = node_REAL{rEAL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{literal_STRING{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{literal_STRING{sTRING_id{ID}}},
+	NODE = node_STRING{sTRING_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{literal_BOOL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{literal_BOOL{bOOL_id{ID}}},
+	NODE = node_BOOL{bOOL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{literal_NIL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{literal_NIL{nIL_id{ID}}},
+	NODE = node_NIL{nIL_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{list_element_Variable{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{list_element_Variable{variable_id{ID}}},
+	NODE = node_Variable{variable_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{list_element_Nested_list_elements{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{list_element_Nested_list_elements{nested_list_elements_id{ID}}},
+	NODE = node_Nested_list_elements{nested_list_elements_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{variable_name_VARIABLE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{variable_name_VARIABLE_NAME{vARIABLE_NAME_id{ID}}},
+	NODE = node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{variable_name_Reflection{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{variable_name_Reflection{reflection_id{ID}}},
+	NODE = node_Reflection{reflection_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{target_Assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Assignment{assignment_id{ID}}},
+	NODE = node_Assignment{assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Cast{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Cast{cast_id{ID}}},
+	NODE = node_Cast{cast_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Unary_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Unary_op{unary_op_id{ID}}},
+	NODE = node_Unary_op{unary_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Bin_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Bin_op{bin_op_id{ID}}},
+	NODE = node_Bin_op{bin_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Constant{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Constant{constant_id{ID}}},
+	NODE = node_Constant{constant_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Instanceof{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Instanceof{instanceof_id{ID}}},
+	NODE = node_Instanceof{instanceof_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Variable{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Variable{variable_id{ID}}},
+	NODE = node_Variable{variable_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Pre_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Pre_op{pre_op_id{ID}}},
+	NODE = node_Pre_op{pre_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Method_invocation{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Method_invocation{method_invocation_id{ID}}},
+	NODE = node_Method_invocation{method_invocation_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_New{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_New{new_id{ID}}},
+	NODE = node_New{new_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_INT{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_INT{iNT_id{ID}}},
+	NODE = node_INT{iNT_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_REAL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_REAL{rEAL_id{ID}}},
+	NODE = node_REAL{rEAL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_STRING{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_STRING{sTRING_id{ID}}},
+	NODE = node_STRING{sTRING_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_BOOL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_BOOL{bOOL_id{ID}}},
+	NODE = node_BOOL{bOOL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_NIL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_NIL{nIL_id{ID}}},
+	NODE = node_NIL{nIL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Op_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Op_assignment{op_assignment_id{ID}}},
+	NODE = node_Op_assignment{op_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_List_assignment{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_List_assignment{list_assignment_id{ID}}},
+	NODE = node_List_assignment{list_assignment_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Post_op{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Post_op{post_op_id{ID}}},
+	NODE = node_Post_op{post_op_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Array{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Array{array_id{ID}}},
+	NODE = node_Array{array_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Conditional_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Conditional_expr{conditional_expr_id{ID}}},
+	NODE = node_Conditional_expr{conditional_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Ignore_errors{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Ignore_errors{ignore_errors_id{ID}}},
+	NODE = node_Ignore_errors{ignore_errors_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_Foreign_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_Foreign_expr{foreign_expr_id{ID}}},
+	NODE = node_Foreign_expr{foreign_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{target_CLASS_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{target_CLASS_NAME{cLASS_NAME_id{ID}}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{method_name_METHOD_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{method_name_METHOD_NAME{mETHOD_NAME_id{ID}}},
+	NODE = node_METHOD_NAME{mETHOD_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{method_name_Reflection{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{method_name_Reflection{reflection_id{ID}}},
+	NODE = node_Reflection{reflection_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{class_name_CLASS_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{class_name_CLASS_NAME{cLASS_NAME_id{ID}}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{class_name_Reflection{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{class_name_Reflection{reflection_id{ID}}},
+	NODE = node_Reflection{reflection_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Method{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Method{method_id{ID}}},
+	NODE = node_Method{method_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Attribute{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Attribute{attribute_id{ID}}},
+	NODE = node_Attribute{attribute_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Class_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Class_def{class_def_id{ID}}},
+	NODE = node_Class_def{class_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Interface_def{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Interface_def{interface_def_id{ID}}},
+	NODE = node_Interface_def{interface_def_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Return{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Return{return_id{ID}}},
+	NODE = node_Return{return_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Static_declaration{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Static_declaration{static_declaration_id{ID}}},
+	NODE = node_Static_declaration{static_declaration_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Global{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Global{global_id{ID}}},
+	NODE = node_Global{global_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Try{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Try{try_id{ID}}},
+	NODE = node_Try{try_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Throw{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Throw{throw_id{ID}}},
+	NODE = node_Throw{throw_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Eval_expr{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Eval_expr{eval_expr_id{ID}}},
+	NODE = node_Eval_expr{eval_expr_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_If{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_If{if_id{ID}}},
+	NODE = node_If{if_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_While{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_While{while_id{ID}}},
+	NODE = node_While{while_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Do{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Do{do_id{ID}}},
+	NODE = node_Do{do_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_For{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_For{for_id{ID}}},
+	NODE = node_For{for_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Foreach{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Foreach{foreach_id{ID}}},
+	NODE = node_Foreach{foreach_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Switch{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Switch{switch_id{ID}}},
+	NODE = node_Switch{switch_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Break{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Break{break_id{ID}}},
+	NODE = node_Break{break_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Continue{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Continue{continue_id{ID}}},
+	NODE = node_Continue{continue_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Declare{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Declare{declare_id{ID}}},
+	NODE = node_Declare{declare_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Nop{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Nop{nop_id{ID}}},
+	NODE = node_Nop{nop_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Foreign_statement{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Foreign_statement{foreign_statement_id{ID}}},
+	NODE = node_Foreign_statement{foreign_statement_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Switch_case{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Switch_case{switch_case_id{ID}}},
+	NODE = node_Switch_case{switch_case_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{commented_node_Catch{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{commented_node_Catch{catch_id{ID}}},
+	NODE = node_Catch{catch_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_INTERFACE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}},
+	NODE = node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_CLASS_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_CLASS_NAME{cLASS_NAME_id{ID}}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_METHOD_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_METHOD_NAME{mETHOD_NAME_id{ID}}},
+	NODE = node_METHOD_NAME{mETHOD_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_VARIABLE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_VARIABLE_NAME{vARIABLE_NAME_id{ID}}},
+	NODE = node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_CAST{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_CAST{cAST_id{ID}}},
+	NODE = node_CAST{cAST_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_OP{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_OP{oP_id{ID}}},
+	NODE = node_OP{oP_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_CONSTANT_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_CONSTANT_NAME{cONSTANT_NAME_id{ID}}},
+	NODE = node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{identifier_DIRECTIVE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{identifier_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}},
+	NODE = node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}.
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_INTERFACE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}},
+	NODE = node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_CLASS_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_CLASS_NAME{cLASS_NAME_id{ID}}},
+	NODE = node_CLASS_NAME{cLASS_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_METHOD_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_METHOD_NAME{mETHOD_NAME_id{ID}}},
+	NODE = node_METHOD_NAME{mETHOD_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_VARIABLE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_VARIABLE_NAME{vARIABLE_NAME_id{ID}}},
+	NODE = node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_CAST{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_CAST{cAST_id{ID}}},
+	NODE = node_CAST{cAST_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_OP{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_OP{oP_id{ID}}},
+	NODE = node_OP{oP_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_CONSTANT_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_CONSTANT_NAME{cONSTANT_NAME_id{ID}}},
+	NODE = node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_DIRECTIVE_NAME{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}},
+	NODE = node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_INT{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_INT{iNT_id{ID}}},
+	NODE = node_INT{iNT_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_REAL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_REAL{rEAL_id{ID}}},
+	NODE = node_REAL{rEAL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_STRING{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_STRING{sTRING_id{ID}}},
+	NODE = node_STRING{sTRING_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_BOOL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_BOOL{bOOL_id{ID}}},
+	NODE = node_BOOL{bOOL_id{ID}}.
 
 to_node (ANY, NODE) :- 
-	ANY = any{source_rep_NIL{INNER}},
-	to_node (any{INNER}, NODE).
+	ANY = any{source_rep_NIL{nIL_id{ID}}},
+	NODE = node_NIL{nIL_id{ID}}.
 
 
 % Tokens Casts
