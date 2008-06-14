@@ -87,7 +87,7 @@ foreach ($opts as $opt)  // these need to wait until opt_phc_prefix is set
 if ($opt_command === "") 
 	$opt_command = "--xdump=AST-to-HIR --no-xml-attrs";
 
-if ($opt_help || count ($arguments) < 1)
+if ($opt_help)
 {
 	die (<<<EOL
 reduce - A program to automatically reduce test cases for phc - phpcompiler.org
