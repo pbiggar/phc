@@ -394,9 +394,9 @@ public:
 
 	virtual _Throw fold_throw(Throw* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_throw(in, expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_throw(in, variable_name);
 	}
 
 	virtual _Assign_var fold_assign_var(Assign_var* in)
@@ -651,7 +651,7 @@ public:
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
-	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
+	virtual _Throw fold_impl_throw(Throw* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Assign_var fold_impl_assign_var(Assign_var* orig, _Target target, _VARIABLE_NAME lhs, bool is_ref, _Expr rhs) { assert(0); };
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _Target target, _VARIABLE_NAME lhs, _VARIABLE_NAME index, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _Target target, _VARIABLE_NAME lhs, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };

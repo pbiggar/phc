@@ -687,7 +687,7 @@ void Transform::children_catch(Catch* in)
 
 void Transform::children_throw(Throw* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_assign_var(Assign_var* in)

@@ -260,10 +260,10 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Throw* fold_impl_throw(HIR::Throw* orig, AST::Expr* expr) 
+	AST::Throw* fold_impl_throw(HIR::Throw* orig, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Throw* result;
-		result = new AST::Throw(expr);
+		result = new AST::Throw(wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}

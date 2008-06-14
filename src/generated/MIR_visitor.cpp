@@ -698,7 +698,7 @@ void Visitor::children_catch(Catch* in)
 
 void Visitor::children_throw(Throw* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_assign_var(Assign_var* in)

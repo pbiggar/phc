@@ -293,7 +293,7 @@ class AST_to_HIR : public AST::Fold
 	HIR::Throw* fold_impl_throw(AST::Throw* orig, HIR::Expr* expr) 
 	{
 		HIR::Throw* result;
-		result = new HIR::Throw(expr);
+		result = new HIR::Throw(expr_to_var_name (expr));
 		copy_attrs (result, orig);
 		return result;
 	}

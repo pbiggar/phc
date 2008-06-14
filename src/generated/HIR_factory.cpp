@@ -183,9 +183,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Throw"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Throw(expr);
+    	return new Throw(variable_name);
     }
     if(!strcmp(type_id, "Assign_var"))
     {

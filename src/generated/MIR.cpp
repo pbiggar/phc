@@ -3610,14 +3610,14 @@ void Try::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Throw::Throw(Expr* expr)
+Throw::Throw(VARIABLE_NAME* variable_name)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Throw::Throw()
 {
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Throw::visit(Visitor* visitor)
@@ -3645,12 +3645,12 @@ bool Throw::match(Node* in)
     Throw* that = dynamic_cast<Throw*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -3661,12 +3661,12 @@ bool Throw::equals(Node* in)
     Throw* that = dynamic_cast<Throw*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -3675,8 +3675,8 @@ bool Throw::equals(Node* in)
 
 Throw* Throw::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Throw* clone = new Throw(expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Throw* clone = new Throw(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -3686,10 +3686,10 @@ Node* Throw::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->expr != NULL)
+    if (this->variable_name != NULL)
     {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
     }
     
     return NULL;
@@ -3700,15 +3700,15 @@ void Throw::find_all(Node* in, List<Node*>* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
 void Throw::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 

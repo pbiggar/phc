@@ -228,10 +228,10 @@ public:
 		return result;
 	}
 
-	MIR::Throw* fold_impl_throw(HIR::Throw* orig, MIR::Expr* expr) 
+	MIR::Throw* fold_impl_throw(HIR::Throw* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Throw* result;
-		result = new MIR::Throw(expr);
+		result = new MIR::Throw(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

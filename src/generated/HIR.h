@@ -1098,15 +1098,15 @@ public:
     virtual void assert_valid();
 };
 
-// Throw ::= Expr ;
+// Throw ::= VARIABLE_NAME ;
 class Throw : virtual public Statement
 {
 public:
-    Throw(Expr* expr);
+    Throw(VARIABLE_NAME* variable_name);
 protected:
     Throw();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);

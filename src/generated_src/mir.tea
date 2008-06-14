@@ -76,8 +76,7 @@ Global ::= Variable_name ;
 
 Try ::= Statement* catches:Catch* ;
 Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
-Throw ::= Expr ;
--- Throw ::= VARIABLE_NAME ;
+Throw ::= VARIABLE_NAME ;
 
 Assign_var     ::= Target? lhs:VARIABLE_NAME								is_ref:"&"? rhs:Expr ;
 Assign_array   ::= Target? lhs:VARIABLE_NAME index:VARIABLE_NAME	is_ref:"&"? rhs:VARIABLE_NAME ;
