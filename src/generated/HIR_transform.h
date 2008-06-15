@@ -227,13 +227,13 @@ public:
     virtual OP* transform_op(OP* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
-    virtual List<VARIABLE_NAME*>* transform_variable_name_list(List<VARIABLE_NAME*>* in);
     virtual Variable* transform_variable(Variable* in);
     virtual List<Array_elem*>* transform_array_elem_list(List<Array_elem*>* in);
     virtual List<Array_elem*>* transform_array_elem(Array_elem* in);
     virtual Method_name* transform_method_name(Method_name* in);
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
+    virtual List<VARIABLE_NAME*>* transform_variable_name_list(List<VARIABLE_NAME*>* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing

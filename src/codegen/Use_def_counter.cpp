@@ -32,7 +32,7 @@ VARIABLE_NAME* simple_var (Expr* in)
 		return NULL;
 
 	// Normal vars only, not array_indices or var-vars
-	if (var->array_indices->size () > 0
+	if (var->array_index
 		|| var->target)
 		return NULL;
 

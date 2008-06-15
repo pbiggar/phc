@@ -1357,17 +1357,17 @@ public:
     virtual void assert_valid();
 };
 
-// Variable ::= Target? Variable_name array_indices:VARIABLE_NAME* ;
+// Variable ::= Target? Variable_name array_index:VARIABLE_NAME? ;
 class Variable : virtual public Expr
 {
 public:
-    Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices);
+    Variable(Target* target, Variable_name* variable_name, VARIABLE_NAME* array_index);
 protected:
     Variable();
 public:
     Target* target;
     Variable_name* variable_name;
-    List<VARIABLE_NAME*>* array_indices;
+    VARIABLE_NAME* array_index;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);

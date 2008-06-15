@@ -759,7 +759,7 @@ void Transform::children_variable(Variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->array_indices = transform_variable_name_list(in->array_indices);
+    in->array_index = transform_variable_name(in->array_index);
 }
 
 void Transform::children_reflection(Reflection* in)
@@ -1299,22 +1299,6 @@ Class_name* Transform::transform_class_name(Class_name* in)
     return out;
 }
 
-List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME*>* in)
-{
-    List<VARIABLE_NAME*>::const_iterator i;
-    List<VARIABLE_NAME*>* out = new List<VARIABLE_NAME*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back(transform_variable_name(*i));
-    }
-    
-    return out;
-}
-
 Variable* Transform::transform_variable(Variable* in)
 {
     if(in == NULL) return NULL;
@@ -1419,6 +1403,22 @@ List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter*
     }
     
     return out2;
+}
+
+List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME*>* in)
+{
+    List<VARIABLE_NAME*>::const_iterator i;
+    List<VARIABLE_NAME*>* out = new List<VARIABLE_NAME*>;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back(transform_variable_name(*i));
+    }
+    
+    return out;
 }
 
 PHP_script* Transform::transform_php_script(PHP_script* in)

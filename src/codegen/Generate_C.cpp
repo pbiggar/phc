@@ -277,39 +277,25 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 		string zvp_name = ss.str ();
 
 		read_st (scope, zvp_name, get_var_name (var));
-		if (var->array_indices->size() == 1)
+		if (var->array_index)
 		{
-			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				stringstream ss;
-				ss << zvp << "_index";
-				string zvp_index = ss.str ();
+			stringstream ss;
+			ss << zvp << "_index";
+			string zvp_index = ss.str ();
 
-				code
-					<< "// Array assignment\n";
-				read_simple (scope, zvp_index, var->array_indices->front());
+			code
+				<< "// Array assignment\n";
+			read_simple (scope, zvp_index, var->array_index);
 
-				code
-					<<	zvp << " = get_ht_entry ("
-					<<		zvp_name << ", "
-					<<		zvp_index
-					<<		" TSRMLS_CC);\n"
+			code
+				<<	zvp << " = get_ht_entry ("
+				<<		zvp_name << ", "
+				<<		zvp_index
+				<<		" TSRMLS_CC);\n"
 				;
-			}
-			else
-			{
-				code
-					<< "// Array push \n";
-				code 
-					<< zvp << " = push_and_index_ht (" 
-					<<		zvp_name
-					<<		" TSRMLS_CC);\n";
-			}
 		}
 		else
 		{
-			assert (var->array_indices->size() == 0);
 			code 
 				<< "// Normal Assignment\n"
 				<< zvp << " = " << zvp_name << ";\n";
@@ -320,7 +306,6 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
 		phc_unsupported (var);
-		assert(var->array_indices->size() == 0);
 
 //		reference_var_var ();
 	}
@@ -345,31 +330,25 @@ void read (Scope scope, string zvp, Variable* var)
 	Variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
 	{
-		if (var->array_indices->size() == 1)
+		if (var->array_index)
 		{
 			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				code << "// Read array variable\n";
+			code << "// Read array variable\n";
 
-				read_simple (scope, "r_array", get_var_name (var));
-				read_simple (scope, "ra_index", var->array_indices->front ());
+			read_simple (scope, "r_array", get_var_name (var));
+			read_simple (scope, "ra_index", var->array_index);
 
-				code
-					<< "read_array ("
-					<<		zvp << ", "
-					<<		"r_array, "
-					<<		"ra_index, "
-					<<		"&is_" << zvp << "_new "
-					<<		" TSRMLS_CC);\n"
-					;
-			}
-			else
-				phc_unsupported (var);
+			code
+				<< "read_array ("
+				<<		zvp << ", "
+				<<		"r_array, "
+				<<		"ra_index, "
+				<<		"&is_" << zvp << "_new "
+				<<		" TSRMLS_CC);\n"
+				;
 		}
 		else
 		{
-			if (var->array_indices->size()) phc_unsupported (var);
 			stringstream ss;
 			ss << zvp << "var";
 			string name = ss.str ();
@@ -387,30 +366,24 @@ void read (Scope scope, string zvp, Variable* var)
 		Reflection* refl;
 		refl = dynamic_cast<Reflection*>(var->variable_name);
 
-		if (var->array_indices->size() == 1)
+		if (var->array_index)
 		{
 			// access var as an array
-			if (var->array_indices->front () != NULL)
-			{
-				code << "// Read array variable-variable\n";
+			code << "// Read array variable-variable\n";
 
-				read_simple (scope, "refl", get_var_name (refl));
-				read_simple (scope, "refl_index", var->array_indices->front ());
+			read_simple (scope, "refl", get_var_name (refl));
+			read_simple (scope, "refl_index", var->array_index);
 
-				code
-					<< "read_var_array ("
-					<<		get_scope (scope) << ", "
-					<<		zvp << ", " 
-					<<		"refl, "
-					<<		"refl_index "
-					<<		" TSRMLS_CC);\n";
-			}
-			else
-				phc_unsupported (var);
+			code
+				<< "read_var_array ("
+				<<		get_scope (scope) << ", "
+				<<		zvp << ", " 
+				<<		"refl, "
+				<<		"refl_index "
+				<<		" TSRMLS_CC);\n";
 		}
 		else
 		{
-			assert (var->array_indices->size() == 0);
 			code << "// Read variable variable\n";
 
 			read_simple (scope, "refl", get_var_name (refl));
@@ -441,9 +414,7 @@ void read (Scope scope, string zvp, Expr* expr)
 // Implementation of "global" (used in various places)
 void global (Variable_name* var_name)
 {
-	Variable *var = new Variable (NULL,
-					var_name,
-					new List <VARIABLE_NAME*>);
+	Variable *var = new Variable (var_name);
 
 	code << "{\n";
 	index_lhs (GLOBAL, "p_global_var", var); // rhs

@@ -774,7 +774,7 @@ void Visitor::children_variable(Variable* in)
 {
     visit_target(in->target);
     visit_variable_name(in->variable_name);
-    visit_variable_name_list(in->array_indices);
+    visit_variable_name(in->array_index);
 }
 
 void Visitor::children_reflection(Reflection* in)
@@ -2175,25 +2175,6 @@ void Visitor::visit_class_name(Class_name* in)
     }
 }
 
-void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
-{
-    List<VARIABLE_NAME*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("MIR", "VARIABLE_NAME");
-    else
-    {
-    	pre_list("MIR", "VARIABLE_NAME", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_variable_name(*i);
-    	}
-    
-    	post_list("MIR", "VARIABLE_NAME", in->size());
-    }
-}
-
 void Visitor::visit_variable(Variable* in)
 {
     if(in == NULL)
@@ -2277,6 +2258,25 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
     	pre_actual_parameter_chain(in);
     	children_actual_parameter(in);
     	post_actual_parameter_chain(in);
+    }
+}
+
+void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
+{
+    List<VARIABLE_NAME*>::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("MIR", "VARIABLE_NAME");
+    else
+    {
+    	pre_list("MIR", "VARIABLE_NAME", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_variable_name(*i);
+    	}
+    
+    	post_list("MIR", "VARIABLE_NAME", in->size());
     }
 }
 

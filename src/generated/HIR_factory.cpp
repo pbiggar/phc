@@ -270,9 +270,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
+    	VARIABLE_NAME* array_index = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Variable(target, variable_name, array_indices);
+    	return new Variable(target, variable_name, array_index);
     }
     if(!strcmp(type_id, "Reflection"))
     {
@@ -412,13 +412,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "VARIABLE_NAME_list"))
-    {
-    	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
-    	return list;
-    }
     if(!strcmp(type_id, "Array_elem_list"))
     {
     	List<Array_elem*>* list = new List<Array_elem*>;
@@ -431,6 +424,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Actual_parameter*>* list = new List<Actual_parameter*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "VARIABLE_NAME_list"))
+    {
+    	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
     	return list;
     }
     return NULL;

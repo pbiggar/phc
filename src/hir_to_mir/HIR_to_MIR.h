@@ -298,7 +298,7 @@ public:
 		assert (var);
 		assert (var->target == NULL);
 		assert (var->variable_name);
-		assert (var->array_indices->size () == 0);
+		assert (var->array_index == NULL);
 
 		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
 		assert (var_name);
@@ -345,10 +345,10 @@ public:
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::VARIABLE_NAME*>* array_indices) 
+	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, MIR::VARIABLE_NAME* array_index) 
 	{
 		MIR::Variable* result;
-		result = new MIR::Variable(target, variable_name, array_indices);
+		result = new MIR::Variable(target, variable_name, array_index);
 		result->attrs = orig->attrs;
 		return result;
 	}

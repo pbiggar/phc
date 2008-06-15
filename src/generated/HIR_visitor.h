@@ -373,13 +373,13 @@ public:
     virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
-    virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
     virtual void visit_variable(Variable* in);
     virtual void visit_array_elem_list(List<Array_elem*>* in);
     virtual void visit_array_elem(Array_elem* in);
     virtual void visit_method_name(Method_name* in);
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
+    virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
     virtual void visit_php_script(PHP_script* in);
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing

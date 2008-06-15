@@ -115,7 +115,7 @@ Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 Instanceof ::= VARIABLE_NAME Class_name ;
 
-Variable ::= Target? Variable_name array_indices:VARIABLE_NAME* ;
+Variable ::= Target? Variable_name array_index:VARIABLE_NAME? ;
 Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
@@ -370,7 +370,7 @@ public:
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<VARIABLE_NAME*>;
+		this->array_index = NULL;
 	}
 };
 

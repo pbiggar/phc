@@ -6071,18 +6071,18 @@ void Instanceof::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
+Variable::Variable(Target* target, Variable_name* variable_name, VARIABLE_NAME* array_index)
 {
     this->target = target;
     this->variable_name = variable_name;
-    this->array_indices = array_indices;
+    this->array_index = array_index;
 }
 
 Variable::Variable()
 {
     this->target = 0;
     this->variable_name = 0;
-    this->array_indices = 0;
+    this->array_index = 0;
 }
 
 void Variable::visit(Visitor* visitor)
@@ -6126,25 +6126,13 @@ bool Variable::match(Node* in)
     else if(!this->variable_name->match(that->variable_name))
     	return false;
     
-    if(this->array_indices != NULL && that->array_indices != NULL)
+    if(this->array_index == NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->array_indices->begin(), j = that->array_indices->begin();
-    		i != this->array_indices->end() && j != that->array_indices->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    	if(that->array_index != NULL && !that->array_index->match(this->array_index))
     		return false;
     }
+    else if(!this->array_index->match(that->array_index))
+    	return false;
     
     return true;
 }
@@ -6170,30 +6158,13 @@ bool Variable::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(this->array_indices == NULL || that->array_indices == NULL)
+    if(this->array_index == NULL || that->array_index == NULL)
     {
-    	if(this->array_indices != NULL || that->array_indices != NULL)
+    	if(this->array_index != NULL || that->array_index != NULL)
     		return false;
     }
-    else
-    {
-    	List<VARIABLE_NAME*>::const_iterator i, j;
-    	for(
-    		i = this->array_indices->begin(), j = that->array_indices->begin();
-    		i != this->array_indices->end() && j != that->array_indices->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->array_indices->end() || j != that->array_indices->end())
-    		return false;
-    }
+    else if(!this->array_index->equals(that->array_index))
+    	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
@@ -6203,15 +6174,8 @@ Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<VARIABLE_NAME*>* array_indices = NULL;
-    if(this->array_indices != NULL)
-    {
-    	List<VARIABLE_NAME*>::const_iterator i;
-    	array_indices = new List<VARIABLE_NAME*>;
-    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    		array_indices->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Variable* clone = new Variable(target, variable_name, array_indices);
+    VARIABLE_NAME* array_index = this->array_index ? this->array_index->clone() : NULL;
+    Variable* clone = new Variable(target, variable_name, array_index);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -6233,20 +6197,10 @@ Node* Variable::find(Node* in)
     	if (variable_name_res) return variable_name_res;
     }
     
-    if(this->array_indices != NULL)
+    if (this->array_index != NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i;
-    	for(
-    		i = this->array_indices->begin();
-    		i != this->array_indices->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			Node* res = (*i)->find (in);
-    			if (res) return res;
-    		}
-    	}
+    	Node* array_index_res = this->array_index->find(in);
+    	if (array_index_res) return array_index_res;
     }
     
     return NULL;
@@ -6263,20 +6217,8 @@ void Variable::find_all(Node* in, List<Node*>* out)
     if (this->variable_name != NULL)
     	this->variable_name->find_all(in, out);
     
-    if(this->array_indices != NULL)
-    {
-    	List<VARIABLE_NAME*>::const_iterator i;
-    	for(
-    		i = this->array_indices->begin();
-    		i != this->array_indices->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			(*i)->find_all (in, out);
-    		}
-    	}
-    }
+    if (this->array_index != NULL)
+    	this->array_index->find_all(in, out);
     
 }
 
@@ -6285,15 +6227,7 @@ void Variable::assert_valid()
     if(target != NULL) target->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    assert(array_indices != NULL);
-    {
-    	List<VARIABLE_NAME*>::const_iterator i;
-    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
+    if(array_index != NULL) array_index->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -6302,7 +6236,7 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<VARIABLE_NAME*>;
+		this->array_index = NULL;
 	}
 }
 
@@ -6311,7 +6245,7 @@ bool Variable::is_simple_variable()
     {
 		return (
 				target == NULL
-			&& array_indices->size () == 0
+			&& array_index == NULL
 			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 }

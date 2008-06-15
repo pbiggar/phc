@@ -116,6 +116,15 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
+	List<AST::Expr*>* wrap_var_name_in_list (AST::VARIABLE_NAME* var_name)
+	{
+		// Dont turn $x into $x[]
+		if (var_name == NULL)
+			return new List<AST::Expr*>;
+
+		return wrap_var_name_list (new List<AST::VARIABLE_NAME*> (var_name));
+	}
+
 	/* A MIR::Target can be a VARIABLE_NAME or a CLASS_NAME. We must wrap the
 	 * VARIABLE_NAME* in an AST::Variable. */	
 	AST::Target* wrap_target (AST::Node* target)
@@ -448,13 +457,13 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Node* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
+	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Node* target, AST::Variable_name* variable_name, AST::VARIABLE_NAME* array_index) 
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
 			wrap_target (target),
 			variable_name,
-			wrap_var_name_list (array_indices));
+			wrap_var_name_in_list (array_index));
 		result->attrs = orig->attrs;
 		return result;
 	}
