@@ -77,6 +77,10 @@ public:
     virtual void pre_actual_parameter(Actual_parameter* in);
     virtual void pre_new(New* in);
     virtual void pre_class_name(Class_name* in);
+    virtual void pre_static_value(Static_value* in);
+    virtual void pre_static_array(Static_array* in);
+    virtual void pre_static_array_elem(Static_array_elem* in);
+    virtual void pre_static_array_key(Static_array_key* in);
     virtual void pre_identifier(Identifier* in);
     virtual void pre_foreign(Foreign* in);
     virtual void pre_foreign_statement(Foreign_statement* in);
@@ -145,6 +149,10 @@ public:
     virtual void post_actual_parameter(Actual_parameter* in);
     virtual void post_new(New* in);
     virtual void post_class_name(Class_name* in);
+    virtual void post_static_value(Static_value* in);
+    virtual void post_static_array(Static_array* in);
+    virtual void post_static_array_elem(Static_array_elem* in);
+    virtual void post_static_array_key(Static_array_key* in);
     virtual void post_identifier(Identifier* in);
     virtual void post_foreign(Foreign* in);
     virtual void post_foreign_statement(Foreign_statement* in);
@@ -204,6 +212,8 @@ public:
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
+    virtual void children_static_array(Static_array* in);
+    virtual void children_static_array_elem(Static_array_elem* in);
     virtual void children_foreign_statement(Foreign_statement* in);
     virtual void children_foreign_expr(Foreign_expr* in);
 // Tokens don't have children, so these methods do nothing by default
@@ -271,6 +281,8 @@ public:
     virtual void pre_method_invocation_chain(Method_invocation* in);
     virtual void pre_actual_parameter_chain(Actual_parameter* in);
     virtual void pre_new_chain(New* in);
+    virtual void pre_static_array_chain(Static_array* in);
+    virtual void pre_static_array_elem_chain(Static_array_elem* in);
     virtual void pre_foreign_statement_chain(Foreign_statement* in);
     virtual void pre_foreign_expr_chain(Foreign_expr* in);
     virtual void pre_class_name_chain(CLASS_NAME* in);
@@ -330,6 +342,8 @@ public:
     virtual void post_method_invocation_chain(Method_invocation* in);
     virtual void post_actual_parameter_chain(Actual_parameter* in);
     virtual void post_new_chain(New* in);
+    virtual void post_static_array_chain(Static_array* in);
+    virtual void post_static_array_elem_chain(Static_array_elem* in);
     virtual void post_foreign_statement_chain(Foreign_statement* in);
     virtual void post_foreign_expr_chain(Foreign_expr* in);
     virtual void post_class_name_chain(CLASS_NAME* in);
@@ -364,6 +378,7 @@ public:
     virtual void visit_name_with_default(Name_with_default* in);
     virtual void visit_attr_mod(Attr_mod* in);
     virtual void visit_variable_name(VARIABLE_NAME* in);
+    virtual void visit_static_value(Static_value* in);
     virtual void visit_expr(Expr* in);
     virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(List<Catch*>* in);
@@ -380,37 +395,46 @@ public:
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
     virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
+    virtual void visit_static_array_elem_list(List<Static_array_elem*>* in);
+    virtual void visit_static_array_elem(Static_array_elem* in);
+    virtual void visit_static_array_key(Static_array_key* in);
     virtual void visit_php_script(PHP_script* in);
 // Invoke the right pre-chain (manual dispatching)
 // Do not override unless you know what you are doing
 public:
     virtual void pre_statement_chain(Statement* in);
     virtual void pre_member_chain(Member* in);
+    virtual void pre_static_value_chain(Static_value* in);
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
     virtual void pre_target_chain(Target* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
+    virtual void pre_static_array_key_chain(Static_array_key* in);
 // Invoke the right post-chain (manual dispatching)
 // Do not override unless you know what you are doing
 public:
     virtual void post_statement_chain(Statement* in);
     virtual void post_member_chain(Member* in);
+    virtual void post_static_value_chain(Static_value* in);
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
     virtual void post_target_chain(Target* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
+    virtual void post_static_array_key_chain(Static_array_key* in);
 // Invoke the right visit-children (manual dispatching)
 // Do not override unless you know what you are doing
 public:
     virtual void children_statement(Statement* in);
     virtual void children_member(Member* in);
+    virtual void children_static_value(Static_value* in);
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
     virtual void children_target(Target* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
+    virtual void children_static_array_key(Static_array_key* in);
 };
 }
 

@@ -81,7 +81,11 @@ template
  class _STRING,
  class _Signature,
  class _Statement,
+ class _Static_array,
+ class _Static_array_elem,
+ class _Static_array_key,
  class _Static_declaration,
+ class _Static_value,
  class _Target,
  class _Throw,
  class _Try,
@@ -257,9 +261,9 @@ public:
 	{
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_name_with_default(in, variable_name, expr);
+		_Static_value default_value = 0;
+		if(in->default_value != NULL) default_value = fold_static_value(in->default_value);
+		return fold_impl_name_with_default(in, variable_name, default_value);
 	}
 
 	virtual _Return fold_return(Return* in)
@@ -539,6 +543,30 @@ public:
 		return fold_impl_new(in, class_name, actual_parameters);
 	}
 
+	virtual _Static_array fold_static_array(Static_array* in)
+	{
+		List<_Static_array_elem>* static_array_elems = 0;
+	
+		{
+			static_array_elems = new List<_Static_array_elem>;
+			List<Static_array_elem*>::const_iterator i;
+			for(i = in->static_array_elems->begin(); i != in->static_array_elems->end(); i++)
+				if(*i != NULL) static_array_elems->push_back(fold_static_array_elem(*i));
+				else static_array_elems->push_back(0);
+		}
+		return fold_impl_static_array(in, static_array_elems);
+	}
+
+	virtual _Static_array_elem fold_static_array_elem(Static_array_elem* in)
+	{
+		_Static_array_key key = 0;
+		if(in->key != NULL) key = fold_static_array_key(in->key);
+		bool is_ref = in->is_ref;
+		_Static_value val = 0;
+		if(in->val != NULL) val = fold_static_value(in->val);
+		return fold_impl_static_array_elem(in, key, is_ref, val);
+	}
+
 	virtual _Branch fold_branch(Branch* in)
 	{
 		_VARIABLE_NAME variable_name = 0;
@@ -646,7 +674,7 @@ public:
 	virtual _Type fold_impl_type(Type* orig, _CLASS_NAME class_name) { assert(0); };
 	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, _Name_with_default var) { assert(0); };
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
-	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Expr expr) { assert(0); };
+	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Static_value default_value) { assert(0); };
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
@@ -671,6 +699,8 @@ public:
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Static_array fold_impl_static_array(Static_array* orig, List<_Static_array_elem>* static_array_elems) { assert(0); };
+	virtual _Static_array_elem fold_impl_static_array_elem(Static_array_elem* orig, _Static_array_key key, bool is_ref, _Static_value val) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
 	virtual _Label fold_impl_label(Label* orig, _LABEL_NAME label_name) { assert(0); };
@@ -815,6 +845,10 @@ public:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case Actual_parameter::ID:
 				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
+			case Static_array::ID:
+				return fold_static_array(dynamic_cast<Static_array*>(in));
+			case Static_array_elem::ID:
+				return fold_static_array_elem(dynamic_cast<Static_array_elem*>(in));
 			case INTERFACE_NAME::ID:
 				return fold_interface_name(dynamic_cast<INTERFACE_NAME*>(in));
 			case CAST::ID:
@@ -1003,6 +1037,48 @@ public:
 		assert(0);
 	}
 
+	virtual _Static_value fold_static_value(Static_value* in)
+	{
+		switch(in->classid())
+		{
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
+			case REAL::ID:
+				return fold_real(dynamic_cast<REAL*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
+			case BOOL::ID:
+				return fold_bool(dynamic_cast<BOOL*>(in));
+			case NIL::ID:
+				return fold_nil(dynamic_cast<NIL*>(in));
+			case Static_array::ID:
+				return fold_static_array(dynamic_cast<Static_array*>(in));
+			case Constant::ID:
+				return fold_constant(dynamic_cast<Constant*>(in));
+		}
+		assert(0);
+	}
+
+	virtual _Static_array_key fold_static_array_key(Static_array_key* in)
+	{
+		switch(in->classid())
+		{
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
+			case REAL::ID:
+				return fold_real(dynamic_cast<REAL*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
+			case BOOL::ID:
+				return fold_bool(dynamic_cast<BOOL*>(in));
+			case NIL::ID:
+				return fold_nil(dynamic_cast<NIL*>(in));
+			case Constant::ID:
+				return fold_constant(dynamic_cast<Constant*>(in));
+		}
+		assert(0);
+	}
+
 	virtual _Identifier fold_identifier(Identifier* in)
 	{
 		switch(in->classid())
@@ -1046,6 +1122,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

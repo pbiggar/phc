@@ -80,7 +80,11 @@ class HIR_to_AST : public HIR::Fold
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
  AST::Statement*,				// Statement*
+ AST::Array*,					// Static_array*
+ AST::Array_elem*,			// Static_array_elem*
+ AST::Expr*,					// Static_array_key*
  AST::Static_declaration*,	// Static_declaration*
+ AST::Expr*,					// Static_value*
  AST::Node*,					// Target* - HIR::Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
  AST::Throw*,					// Throw*
  AST::Try*,						// Try*
@@ -465,6 +469,22 @@ class HIR_to_AST : public HIR::Fold
 		result = new AST::Pre_op(op, variable);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
+	}
+
+	AST::Array* fold_impl_static_array(HIR::Static_array* orig, List<AST::Array_elem*>* array_elems)
+	{
+		AST::Array* result;
+		result = new AST::Array(array_elems);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Array_elem* fold_impl_static_array_elem(HIR::Static_array_elem* orig, AST::Expr* key, bool is_ref, AST::Expr* val)
+	{
+		AST::Array_elem* result;
+		result = new AST::Array_elem (key, is_ref, val);
+		result->attrs = orig->attrs;
+		return result;
 	}
 
 	AST::Array* fold_impl_array(HIR::Array* orig, List<AST::Array_elem*>* array_elems) 

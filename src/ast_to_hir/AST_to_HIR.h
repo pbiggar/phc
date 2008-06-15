@@ -237,11 +237,59 @@ class AST_to_HIR : public AST::Fold
 		copy_attrs (result, orig);
 		return result;
 	}
+
+	HIR::Static_array_elem* convert_to_static_array_elem (HIR::Array_elem* array_elem)
+	{
+		return new HIR::Static_array_elem (
+			convert_to_static_key (array_elem->key),
+			array_elem->is_ref,
+			convert_to_static_value (array_elem->val));
+	}
+
+	HIR::Static_array_key* convert_to_static_key (HIR::Expr* expr)
+	{
+		// NULL keys are allowed
+		if (expr == NULL)
+			return NULL;
+
+		HIR::Literal* lit = dynamic_cast<HIR::Literal*> (expr);
+		if (lit)
+			return lit;
+
+		HIR::Constant* constant = dynamic_cast<HIR::Constant*> (expr);
+		if (constant)
+			return constant;
+
+		assert (0); // the parser shouldnt allow constructs like this
+	}
+
+	HIR::Static_value* convert_to_static_value (HIR::Expr* expr)
+	{
+		HIR::Literal* lit = dynamic_cast<HIR::Literal*> (expr);
+		if (lit)
+			return lit;
+
+		HIR::Constant* constant = dynamic_cast<HIR::Constant*> (expr);
+		if (constant)
+			return constant;
+
+		HIR::Array* array = dynamic_cast<HIR::Array*> (expr);
+		assert (array); // the parser stops other types
+		List<HIR::Static_array_elem*>* elems = new List<HIR::Static_array_elem*>;
+		for_lci (array->array_elems, HIR::Array_elem, i)
+		{
+			elems->push_back (convert_to_static_array_elem (*i));
+		}
+		return new HIR::Static_array (elems);
+
+	}
 	
 	HIR::Name_with_default* fold_impl_name_with_default(AST::Name_with_default* orig, HIR::VARIABLE_NAME* variable_name, HIR::Expr* expr) 
 	{ 
 		HIR::Name_with_default* result;
-		result = new HIR::Name_with_default(variable_name, expr);
+		result = new HIR::Name_with_default(
+			variable_name, 
+			expr ? convert_to_static_value (expr) : NULL);
 		copy_attrs (result, orig);
 		return result;
 	}

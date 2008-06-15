@@ -1147,16 +1147,16 @@ Attr_mod* Attr_mod::new_CONST()
 	}
 }
 
-Name_with_default::Name_with_default(VARIABLE_NAME* variable_name, Expr* expr)
+Name_with_default::Name_with_default(VARIABLE_NAME* variable_name, Static_value* default_value)
 {
     this->variable_name = variable_name;
-    this->expr = expr;
+    this->default_value = default_value;
 }
 
 Name_with_default::Name_with_default()
 {
     this->variable_name = 0;
-    this->expr = 0;
+    this->default_value = 0;
 }
 
 void Name_with_default::visit(Visitor* visitor)
@@ -1192,12 +1192,12 @@ bool Name_with_default::match(Node* in)
     else if(!this->variable_name->match(that->variable_name))
     	return false;
     
-    if(this->expr == NULL)
+    if(this->default_value == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->default_value != NULL && !that->default_value->match(this->default_value))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->default_value->match(that->default_value))
     	return false;
     
     return true;
@@ -1216,12 +1216,12 @@ bool Name_with_default::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->default_value == NULL || that->default_value == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->default_value != NULL || that->default_value != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->default_value->equals(that->default_value))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -1231,8 +1231,8 @@ bool Name_with_default::equals(Node* in)
 Name_with_default* Name_with_default::clone()
 {
     VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Name_with_default* clone = new Name_with_default(variable_name, expr);
+    Static_value* default_value = this->default_value ? this->default_value->clone() : NULL;
+    Name_with_default* clone = new Name_with_default(variable_name, default_value);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -1248,10 +1248,10 @@ Node* Name_with_default::find(Node* in)
     	if (variable_name_res) return variable_name_res;
     }
     
-    if (this->expr != NULL)
+    if (this->default_value != NULL)
     {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
+    	Node* default_value_res = this->default_value->find(in);
+    	if (default_value_res) return default_value_res;
     }
     
     return NULL;
@@ -1265,8 +1265,8 @@ void Name_with_default::find_all(Node* in, List<Node*>* out)
     if (this->variable_name != NULL)
     	this->variable_name->find_all(in, out);
     
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
+    if (this->default_value != NULL)
+    	this->default_value->find_all(in, out);
     
 }
 
@@ -1274,7 +1274,7 @@ void Name_with_default::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    if(expr != NULL) expr->assert_valid();
+    if(default_value != NULL) default_value->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -1893,6 +1893,152 @@ void Actual_parameter::assert_valid()
 }
 
 Class_name::Class_name()
+{
+}
+
+Static_value::Static_value()
+{
+}
+
+Static_array_elem::Static_array_elem(Static_array_key* key, bool is_ref, Static_value* val)
+{
+    this->key = key;
+    this->is_ref = is_ref;
+    this->val = val;
+}
+
+Static_array_elem::Static_array_elem()
+{
+    this->key = 0;
+    this->is_ref = 0;
+    this->val = 0;
+}
+
+void Static_array_elem::visit(Visitor* visitor)
+{
+    visitor->visit_static_array_elem(this);
+}
+
+void Static_array_elem::transform_children(Transform* transform)
+{
+    transform->children_static_array_elem(this);
+}
+
+int Static_array_elem::classid()
+{
+    return ID;
+}
+
+bool Static_array_elem::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Static_array_elem* that = dynamic_cast<Static_array_elem*>(in);
+    if(that == NULL) return false;
+    
+    if(this->key == NULL)
+    {
+    	if(that->key != NULL && !that->key->match(this->key))
+    		return false;
+    }
+    else if(!this->key->match(that->key))
+    	return false;
+    
+    that->is_ref = this->is_ref;
+    if(this->val == NULL)
+    {
+    	if(that->val != NULL && !that->val->match(this->val))
+    		return false;
+    }
+    else if(!this->val->match(that->val))
+    	return false;
+    
+    return true;
+}
+
+bool Static_array_elem::equals(Node* in)
+{
+    Static_array_elem* that = dynamic_cast<Static_array_elem*>(in);
+    if(that == NULL) return false;
+    
+    if(this->key == NULL || that->key == NULL)
+    {
+    	if(this->key != NULL || that->key != NULL)
+    		return false;
+    }
+    else if(!this->key->equals(that->key))
+    	return false;
+    
+    if(this->is_ref != that->is_ref)
+    	return false;
+    
+    if(this->val == NULL || that->val == NULL)
+    {
+    	if(this->val != NULL || that->val != NULL)
+    		return false;
+    }
+    else if(!this->val->equals(that->val))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Static_array_elem* Static_array_elem::clone()
+{
+    Static_array_key* key = this->key ? this->key->clone() : NULL;
+    bool is_ref = this->is_ref;
+    Static_value* val = this->val ? this->val->clone() : NULL;
+    Static_array_elem* clone = new Static_array_elem(key, is_ref, val);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Static_array_elem::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->key != NULL)
+    {
+    	Node* key_res = this->key->find(in);
+    	if (key_res) return key_res;
+    }
+    
+    if (this->val != NULL)
+    {
+    	Node* val_res = this->val->find(in);
+    	if (val_res) return val_res;
+    }
+    
+    return NULL;
+}
+
+void Static_array_elem::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->key != NULL)
+    	this->key->find_all(in, out);
+    
+    if (this->val != NULL)
+    	this->val->find_all(in, out);
+    
+}
+
+void Static_array_elem::assert_valid()
+{
+    if(key != NULL) key->assert_valid();
+    assert(val != NULL);
+    val->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Static_array_key::Static_array_key()
 {
 }
 
@@ -5005,12 +5151,12 @@ Constant::Constant()
 
 void Constant::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void Constant::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int Constant::classid()
@@ -6265,6 +6411,173 @@ void New::assert_valid()
     {
     	List<Actual_parameter*>::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Static_array::Static_array(List<Static_array_elem*>* static_array_elems)
+{
+    this->static_array_elems = static_array_elems;
+}
+
+Static_array::Static_array()
+{
+    this->static_array_elems = 0;
+}
+
+void Static_array::visit(Visitor* visitor)
+{
+    visitor->visit_static_value(this);
+}
+
+void Static_array::transform_children(Transform* transform)
+{
+    transform->children_static_value(this);
+}
+
+int Static_array::classid()
+{
+    return ID;
+}
+
+bool Static_array::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Static_array* that = dynamic_cast<Static_array*>(in);
+    if(that == NULL) return false;
+    
+    if(this->static_array_elems != NULL && that->static_array_elems != NULL)
+    {
+    	List<Static_array_elem*>::const_iterator i, j;
+    	for(
+    		i = this->static_array_elems->begin(), j = that->static_array_elems->begin();
+    		i != this->static_array_elems->end() && j != that->static_array_elems->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->static_array_elems->end() || j != that->static_array_elems->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Static_array::equals(Node* in)
+{
+    Static_array* that = dynamic_cast<Static_array*>(in);
+    if(that == NULL) return false;
+    
+    if(this->static_array_elems == NULL || that->static_array_elems == NULL)
+    {
+    	if(this->static_array_elems != NULL || that->static_array_elems != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Static_array_elem*>::const_iterator i, j;
+    	for(
+    		i = this->static_array_elems->begin(), j = that->static_array_elems->begin();
+    		i != this->static_array_elems->end() && j != that->static_array_elems->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->static_array_elems->end() || j != that->static_array_elems->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Static_array* Static_array::clone()
+{
+    List<Static_array_elem*>* static_array_elems = NULL;
+    if(this->static_array_elems != NULL)
+    {
+    	List<Static_array_elem*>::const_iterator i;
+    	static_array_elems = new List<Static_array_elem*>;
+    	for(i = this->static_array_elems->begin(); i != this->static_array_elems->end(); i++)
+    		static_array_elems->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Static_array* clone = new Static_array(static_array_elems);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Static_array::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if(this->static_array_elems != NULL)
+    {
+    	List<Static_array_elem*>::const_iterator i;
+    	for(
+    		i = this->static_array_elems->begin();
+    		i != this->static_array_elems->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void Static_array::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if(this->static_array_elems != NULL)
+    {
+    	List<Static_array_elem*>::const_iterator i;
+    	for(
+    		i = this->static_array_elems->begin();
+    		i != this->static_array_elems->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void Static_array::assert_valid()
+{
+    assert(static_array_elems != NULL);
+    {
+    	List<Static_array_elem*>::const_iterator i;
+    	for(i = this->static_array_elems->begin(); i != this->static_array_elems->end(); i++)
     	{
     		assert(*i != NULL);
     		(*i)->assert_valid();
@@ -8352,12 +8665,12 @@ INT::INT()
 
 void INT::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void INT::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int INT::classid()
@@ -8474,12 +8787,12 @@ REAL::REAL()
 
 void REAL::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void REAL::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int REAL::classid()
@@ -8605,12 +8918,12 @@ STRING::STRING()
 
 void STRING::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void STRING::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int STRING::classid()
@@ -8724,12 +9037,12 @@ BOOL::BOOL()
 
 void BOOL::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void BOOL::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int BOOL::classid()
@@ -8839,12 +9152,12 @@ NIL::NIL()
 
 void NIL::visit(Visitor* visitor)
 {
-    visitor->visit_expr(this);
+    visitor->visit_static_array_key(this);
 }
 
 void NIL::transform_children(Transform* transform)
 {
-    transform->children_expr(this);
+    transform->children_static_array_key(this);
 }
 
 int NIL::classid()

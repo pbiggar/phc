@@ -80,7 +80,11 @@ class HIR_to_MIR : public HIR::Fold
  MIR::STRING*,					// STRING*
  MIR::Signature*,				// Signature*
  MIR::Statement*,				// Statement*
+ MIR::Static_array*,			// Static_array*
+ MIR::Static_array_elem*,	// Static_array_elem*
+ MIR::Static_array_key*,	// Static_array_key*
  MIR::Static_declaration*,	// Static_declaration*
+ MIR::Static_value*,			// Static_value*
  MIR::Target*,					// Target*
  MIR::Throw*,					// Throw*
  MIR::Try*,						// Try*
@@ -180,10 +184,10 @@ public:
 		return result;
 	}
 	
-	MIR::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, MIR::VARIABLE_NAME* variable_name, MIR::Expr* expr) 
+	MIR::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, MIR::VARIABLE_NAME* variable_name, MIR::Static_value* static_value) 
 	{ 
 		MIR::Name_with_default* result;
-		result = new MIR::Name_with_default(variable_name, expr);
+		result = new MIR::Name_with_default(variable_name, static_value);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -365,6 +369,22 @@ public:
 	{
 		MIR::Pre_op* result;
 		result = new MIR::Pre_op(op, variable);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Static_array* fold_impl_static_array(HIR::Static_array* orig, List<MIR::Static_array_elem*>* static_array_elems)
+	{
+		MIR::Static_array* result;
+		result = new MIR::Static_array (static_array_elems);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Static_array_elem* fold_impl_static_array_elem(HIR::Static_array_elem* orig, MIR::Static_array_key* key, bool is_ref, MIR::Static_value* val)
+	{
+		MIR::Static_array_elem* result;
+		result = new MIR::Static_array_elem (key, is_ref, val);
 		result->attrs = orig->attrs;
 		return result;
 	}

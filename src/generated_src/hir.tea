@@ -63,7 +63,7 @@ Type ::= CLASS_NAME? ;
 Attribute ::= Attr_mod var:Name_with_default ;
 Attr_mod ::= "public"? "protected"? "private"? "static"? "const"?  ;
 
-Name_with_default ::= VARIABLE_NAME Expr? ;
+Name_with_default ::= VARIABLE_NAME default_value:Static_value? ; -- "default" is a keyword in C++
 
 {-
    Statements
@@ -144,11 +144,18 @@ Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NA
 New ::= Class_name Actual_parameter* ;
 Class_name ::= CLASS_NAME | Reflection ;
 
--- Static_value ::= Literal | Static_array | Constant ;
+
+{- 
+ - Static_values represent the constaints on initializers for class attributes,
+ - and similar structures. They are required to be literals, constants, or
+ - arrays whose keys and values are also Static_values.
+ -}
+
+Static_value ::= Literal | Static_array | Constant ;
  
--- Static_array      ::= Static_array_elem* ;
--- Static_array_elem ::= Static_array_key? is_ref:"&"? val:Static_value ;
--- Static_array_key  ::= Literal | Constant ; 
+Static_array      ::= Static_array_elem* ;
+Static_array_elem ::= key:Static_array_key? is_ref:"&"? val:Static_value ;
+Static_array_key  ::= Literal | Constant ; 
 
 
 {-

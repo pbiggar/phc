@@ -206,6 +206,22 @@ void Visitor::pre_class_name(Class_name* in)
 {
 }
 
+void Visitor::pre_static_value(Static_value* in)
+{
+}
+
+void Visitor::pre_static_array(Static_array* in)
+{
+}
+
+void Visitor::pre_static_array_elem(Static_array_elem* in)
+{
+}
+
+void Visitor::pre_static_array_key(Static_array_key* in)
+{
+}
+
 void Visitor::pre_identifier(Identifier* in)
 {
 }
@@ -471,6 +487,22 @@ void Visitor::post_class_name(Class_name* in)
 {
 }
 
+void Visitor::post_static_value(Static_value* in)
+{
+}
+
+void Visitor::post_static_array(Static_array* in)
+{
+}
+
+void Visitor::post_static_array_elem(Static_array_elem* in)
+{
+}
+
+void Visitor::post_static_array_key(Static_array_key* in)
+{
+}
+
 void Visitor::post_identifier(Identifier* in)
 {
 }
@@ -617,7 +649,7 @@ void Visitor::children_attr_mod(Attr_mod* in)
 void Visitor::children_name_with_default(Name_with_default* in)
 {
     visit_variable_name(in->variable_name);
-    visit_expr(in->expr);
+    visit_static_value(in->default_value);
 }
 
 void Visitor::children_if(If* in)
@@ -802,6 +834,18 @@ void Visitor::children_new(New* in)
 {
     visit_class_name(in->class_name);
     visit_actual_parameter_list(in->actual_parameters);
+}
+
+void Visitor::children_static_array(Static_array* in)
+{
+    visit_static_array_elem_list(in->static_array_elems);
+}
+
+void Visitor::children_static_array_elem(Static_array_elem* in)
+{
+    visit_static_array_key(in->key);
+    visit_marker("is_ref", in->is_ref);
+    visit_static_value(in->val);
 }
 
 void Visitor::children_foreign_statement(Foreign_statement* in)
@@ -1097,6 +1141,8 @@ void Visitor::pre_constant_chain(Constant* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_constant((Constant*) in);
 }
 
@@ -1163,6 +1209,19 @@ void Visitor::pre_new_chain(New* in)
     pre_new((New*) in);
 }
 
+void Visitor::pre_static_array_chain(Static_array* in)
+{
+    pre_node((Node*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array((Static_array*) in);
+}
+
+void Visitor::pre_static_array_elem_chain(Static_array_elem* in)
+{
+    pre_node((Node*) in);
+    pre_static_array_elem((Static_array_elem*) in);
+}
+
 void Visitor::pre_foreign_statement_chain(Foreign_statement* in)
 {
     pre_node((Node*) in);
@@ -1216,6 +1275,8 @@ void Visitor::pre_int_chain(INT* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
     pre_int((INT*) in);
 }
@@ -1224,6 +1285,8 @@ void Visitor::pre_real_chain(REAL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
     pre_real((REAL*) in);
 }
@@ -1232,6 +1295,8 @@ void Visitor::pre_string_chain(STRING* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
     pre_string((STRING*) in);
 }
@@ -1240,6 +1305,8 @@ void Visitor::pre_bool_chain(BOOL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
     pre_bool((BOOL*) in);
 }
@@ -1248,6 +1315,8 @@ void Visitor::pre_nil_chain(NIL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_static_value((Static_value*) in);
+    pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
     pre_nil((NIL*) in);
 }
@@ -1488,6 +1557,8 @@ void Visitor::post_bin_op_chain(Bin_op* in)
 void Visitor::post_constant_chain(Constant* in)
 {
     post_constant((Constant*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1555,6 +1626,19 @@ void Visitor::post_new_chain(New* in)
     post_node((Node*) in);
 }
 
+void Visitor::post_static_array_chain(Static_array* in)
+{
+    post_static_array((Static_array*) in);
+    post_static_value((Static_value*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_static_array_elem_chain(Static_array_elem* in)
+{
+    post_static_array_elem((Static_array_elem*) in);
+    post_node((Node*) in);
+}
+
 void Visitor::post_foreign_statement_chain(Foreign_statement* in)
 {
     post_foreign_statement((Foreign_statement*) in);
@@ -1608,6 +1692,8 @@ void Visitor::post_int_chain(INT* in)
 {
     post_int((INT*) in);
     post_literal((Literal*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1616,6 +1702,8 @@ void Visitor::post_real_chain(REAL* in)
 {
     post_real((REAL*) in);
     post_literal((Literal*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1624,6 +1712,8 @@ void Visitor::post_string_chain(STRING* in)
 {
     post_string((STRING*) in);
     post_literal((Literal*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1632,6 +1722,8 @@ void Visitor::post_bool_chain(BOOL* in)
 {
     post_bool((BOOL*) in);
     post_literal((Literal*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1640,6 +1732,8 @@ void Visitor::post_nil_chain(NIL* in)
 {
     post_nil((NIL*) in);
     post_literal((Literal*) in);
+    post_static_array_key((Static_array_key*) in);
+    post_static_value((Static_value*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1899,6 +1993,18 @@ void Visitor::visit_variable_name(VARIABLE_NAME* in)
     }
 }
 
+void Visitor::visit_static_value(Static_value* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Static_value");
+    else
+    {
+    	pre_static_value_chain(in);
+    	children_static_value(in);
+    	post_static_value_chain(in);
+    }
+}
+
 void Visitor::visit_expr(Expr* in)
 {
     if(in == NULL)
@@ -2119,6 +2225,49 @@ void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
     }
 }
 
+void Visitor::visit_static_array_elem_list(List<Static_array_elem*>* in)
+{
+    List<Static_array_elem*>::const_iterator i;
+    
+    if(in == NULL)
+    	visit_null_list("HIR", "Static_array_elem");
+    else
+    {
+    	pre_list("HIR", "Static_array_elem", in->size());
+    
+    	for(i = in->begin(); i != in->end(); i++)
+    	{
+    		visit_static_array_elem(*i);
+    	}
+    
+    	post_list("HIR", "Static_array_elem", in->size());
+    }
+}
+
+void Visitor::visit_static_array_elem(Static_array_elem* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Static_array_elem");
+    else
+    {
+    	pre_static_array_elem_chain(in);
+    	children_static_array_elem(in);
+    	post_static_array_elem_chain(in);
+    }
+}
+
+void Visitor::visit_static_array_key(Static_array_key* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Static_array_key");
+    else
+    {
+    	pre_static_array_key_chain(in);
+    	children_static_array_key(in);
+    	post_static_array_key_chain(in);
+    }
+}
+
 void Visitor::visit_php_script(PHP_script* in)
 {
     if(in == NULL)
@@ -2209,6 +2358,34 @@ void Visitor::pre_member_chain(Member* in)
     	break;
     case Attribute::ID:
     	pre_attribute_chain(dynamic_cast<Attribute*>(in));
+    	break;
+    }
+}
+
+void Visitor::pre_static_value_chain(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case Static_array::ID:
+    	pre_static_array_chain(dynamic_cast<Static_array*>(in));
+    	break;
+    case Constant::ID:
+    	pre_constant_chain(dynamic_cast<Constant*>(in));
     	break;
     }
 }
@@ -2317,6 +2494,31 @@ void Visitor::pre_method_name_chain(Method_name* in)
     }
 }
 
+void Visitor::pre_static_array_key_chain(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case Constant::ID:
+    	pre_constant_chain(dynamic_cast<Constant*>(in));
+    	break;
+    }
+}
+
 // Invoke the right post-chain (manual dispatching)
 // Do not override unless you know what you are doing
 void Visitor::post_statement_chain(Statement* in)
@@ -2395,6 +2597,34 @@ void Visitor::post_member_chain(Member* in)
     	break;
     case Attribute::ID:
     	post_attribute_chain(dynamic_cast<Attribute*>(in));
+    	break;
+    }
+}
+
+void Visitor::post_static_value_chain(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case Static_array::ID:
+    	post_static_array_chain(dynamic_cast<Static_array*>(in));
+    	break;
+    case Constant::ID:
+    	post_constant_chain(dynamic_cast<Constant*>(in));
     	break;
     }
 }
@@ -2503,6 +2733,31 @@ void Visitor::post_method_name_chain(Method_name* in)
     }
 }
 
+void Visitor::post_static_array_key_chain(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case Constant::ID:
+    	post_constant_chain(dynamic_cast<Constant*>(in));
+    	break;
+    }
+}
+
 // Invoke the right visit-children (manual dispatching)
 // Do not override unless you know what you are doing
 void Visitor::children_statement(Statement* in)
@@ -2581,6 +2836,34 @@ void Visitor::children_member(Member* in)
     	break;
     case Attribute::ID:
     	children_attribute(dynamic_cast<Attribute*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_static_value(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case Static_array::ID:
+    	children_static_array(dynamic_cast<Static_array*>(in));
+    	break;
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
     }
 }
@@ -2685,6 +2968,31 @@ void Visitor::children_method_name(Method_name* in)
     	break;
     case Reflection::ID:
     	children_reflection(dynamic_cast<Reflection*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_static_array_key(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
     }
 }

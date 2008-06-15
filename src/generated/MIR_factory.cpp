@@ -108,9 +108,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Name_with_default"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Static_value* default_value = dynamic_cast<Static_value*>(*i++);
     	assert(i == args->end());
-    	return new Name_with_default(variable_name, expr);
+    	return new Name_with_default(variable_name, default_value);
     }
     if(!strcmp(type_id, "Return"))
     {
@@ -289,6 +289,20 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
     }
+    if(!strcmp(type_id, "Static_array"))
+    {
+    	List<Static_array_elem*>* static_array_elems = dynamic_cast<List<Static_array_elem*>*>(*i++);
+    	assert(i == args->end());
+    	return new Static_array(static_array_elems);
+    }
+    if(!strcmp(type_id, "Static_array_elem"))
+    {
+    	Static_array_key* key = dynamic_cast<Static_array_key*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	Static_value* val = dynamic_cast<Static_value*>(*i++);
+    	assert(i == args->end());
+    	return new Static_array_elem(key, is_ref, val);
+    }
     if(!strcmp(type_id, "Branch"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
@@ -464,6 +478,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "Static_array_elem_list"))
+    {
+    	List<Static_array_elem*>* list = new List<Static_array_elem*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<Static_array_elem*>(*i++));
     	return list;
     }
     return NULL;

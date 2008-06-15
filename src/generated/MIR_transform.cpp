@@ -136,7 +136,7 @@ Expr* Transform::pre_bin_op(Bin_op* in)
     return in;
 }
 
-Expr* Transform::pre_constant(Constant* in)
+Constant* Transform::pre_constant(Constant* in)
 {
     return in;
 }
@@ -184,6 +184,16 @@ void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter
 Expr* Transform::pre_new(New* in)
 {
     return in;
+}
+
+Static_value* Transform::pre_static_array(Static_array* in)
+{
+    return in;
+}
+
+void Transform::pre_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out)
+{
+    out->push_back(in);
 }
 
 void Transform::pre_branch(Branch* in, List<Statement*>* out)
@@ -266,27 +276,27 @@ VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
     return in;
 }
 
-Expr* Transform::pre_int(INT* in)
+Literal* Transform::pre_int(INT* in)
 {
     return in;
 }
 
-Expr* Transform::pre_real(REAL* in)
+Literal* Transform::pre_real(REAL* in)
 {
     return in;
 }
 
-Expr* Transform::pre_string(STRING* in)
+Literal* Transform::pre_string(STRING* in)
 {
     return in;
 }
 
-Expr* Transform::pre_bool(BOOL* in)
+Literal* Transform::pre_bool(BOOL* in)
 {
     return in;
 }
 
-Expr* Transform::pre_nil(NIL* in)
+Literal* Transform::pre_nil(NIL* in)
 {
     return in;
 }
@@ -442,7 +452,7 @@ Expr* Transform::post_bin_op(Bin_op* in)
     return in;
 }
 
-Expr* Transform::post_constant(Constant* in)
+Constant* Transform::post_constant(Constant* in)
 {
     return in;
 }
@@ -490,6 +500,16 @@ void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_paramete
 Expr* Transform::post_new(New* in)
 {
     return in;
+}
+
+Static_value* Transform::post_static_array(Static_array* in)
+{
+    return in;
+}
+
+void Transform::post_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out)
+{
+    out->push_back(in);
 }
 
 void Transform::post_branch(Branch* in, List<Statement*>* out)
@@ -572,27 +592,27 @@ VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
     return in;
 }
 
-Expr* Transform::post_int(INT* in)
+Literal* Transform::post_int(INT* in)
 {
     return in;
 }
 
-Expr* Transform::post_real(REAL* in)
+Literal* Transform::post_real(REAL* in)
 {
     return in;
 }
 
-Expr* Transform::post_string(STRING* in)
+Literal* Transform::post_string(STRING* in)
 {
     return in;
 }
 
-Expr* Transform::post_bool(BOOL* in)
+Literal* Transform::post_bool(BOOL* in)
 {
     return in;
 }
 
-Expr* Transform::post_nil(NIL* in)
+Literal* Transform::post_nil(NIL* in)
 {
     return in;
 }
@@ -684,7 +704,7 @@ void Transform::children_attr_mod(Attr_mod* in)
 void Transform::children_name_with_default(Name_with_default* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
-    in->expr = transform_expr(in->expr);
+    in->default_value = transform_static_value(in->default_value);
 }
 
 void Transform::children_return(Return* in)
@@ -832,6 +852,17 @@ void Transform::children_new(New* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+}
+
+void Transform::children_static_array(Static_array* in)
+{
+    in->static_array_elems = transform_static_array_elem_list(in->static_array_elems);
+}
+
+void Transform::children_static_array_elem(Static_array_elem* in)
+{
+    in->key = transform_static_array_key(in->key);
+    in->val = transform_static_value(in->val);
 }
 
 void Transform::children_branch(Branch* in)
@@ -1242,6 +1273,22 @@ VARIABLE_NAME* Transform::transform_variable_name(VARIABLE_NAME* in)
     return out;
 }
 
+Static_value* Transform::transform_static_value(Static_value* in)
+{
+    if(in == NULL) return NULL;
+    
+    Static_value* out;
+    
+    out = pre_static_value(in);
+    if(out != NULL)
+    {
+    	children_static_value(out);
+    	out = post_static_value(out);
+    }
+    
+    return out;
+}
+
 Expr* Transform::transform_expr(Expr* in)
 {
     if(in == NULL) return NULL;
@@ -1508,6 +1555,59 @@ List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME
     for(i = in->begin(); i != in->end(); i++)
     {
     	out->push_back(transform_variable_name(*i));
+    }
+    
+    return out;
+}
+
+List<Static_array_elem*>* Transform::transform_static_array_elem_list(List<Static_array_elem*>* in)
+{
+    List<Static_array_elem*>::const_iterator i;
+    List<Static_array_elem*>* out = new List<Static_array_elem*>;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back_all(transform_static_array_elem(*i));
+    }
+    
+    return out;
+}
+
+List<Static_array_elem*>* Transform::transform_static_array_elem(Static_array_elem* in)
+{
+    List<Static_array_elem*>::const_iterator i;
+    List<Static_array_elem*>* out1 = new List<Static_array_elem*>;
+    List<Static_array_elem*>* out2 = new List<Static_array_elem*>;
+    
+    if(in == NULL) out1->push_back(NULL);
+    else pre_static_array_elem(in, out1);
+    for(i = out1->begin(); i != out1->end(); i++)
+    {
+    	if(*i != NULL)
+    	{
+    		children_static_array_elem(*i);
+    		post_static_array_elem(*i, out2);
+    	}
+    	else out2->push_back(NULL);
+    }
+    
+    return out2;
+}
+
+Static_array_key* Transform::transform_static_array_key(Static_array_key* in)
+{
+    if(in == NULL) return NULL;
+    
+    Static_array_key* out;
+    
+    out = pre_static_array_key(in);
+    if(out != NULL)
+    {
+    	children_static_array_key(out);
+    	out = post_static_array_key(out);
     }
     
     return out;
@@ -1786,6 +1886,21 @@ void Transform::pre_member(Member* in, List<Member*>* out)
     assert(0);
 }
 
+Static_value* Transform::pre_static_value(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Static_array::ID: return pre_static_array(dynamic_cast<Static_array*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
+    }
+    assert(0);
+}
+
 Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
@@ -1848,6 +1963,20 @@ Method_name* Transform::pre_method_name(Method_name* in)
     {
     case METHOD_NAME::ID: return pre_method_name(dynamic_cast<METHOD_NAME*>(in));
     case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
+    }
+    assert(0);
+}
+
+Static_array_key* Transform::pre_static_array_key(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
     }
     assert(0);
 }
@@ -2077,6 +2206,21 @@ void Transform::post_member(Member* in, List<Member*>* out)
     assert(0);
 }
 
+Static_value* Transform::post_static_value(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Static_array::ID: return post_static_array(dynamic_cast<Static_array*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
+    }
+    assert(0);
+}
+
 Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
@@ -2139,6 +2283,20 @@ Method_name* Transform::post_method_name(Method_name* in)
     {
     case METHOD_NAME::ID: return post_method_name(dynamic_cast<METHOD_NAME*>(in));
     case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
+    }
+    assert(0);
+}
+
+Static_array_key* Transform::post_static_array_key(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
     }
     assert(0);
 }
@@ -2224,6 +2382,34 @@ void Transform::children_member(Member* in)
     	break;
     case Attribute::ID:
     	children_attribute(dynamic_cast<Attribute*>(in));
+    	break;
+    }
+}
+
+void Transform::children_static_value(Static_value* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case Static_array::ID:
+    	children_static_array(dynamic_cast<Static_array*>(in));
+    	break;
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
     }
 }
@@ -2337,6 +2523,31 @@ void Transform::children_method_name(Method_name* in)
     	break;
     case Reflection::ID:
     	children_reflection(dynamic_cast<Reflection*>(in));
+    	break;
+    }
+}
+
+void Transform::children_static_array_key(Static_array_key* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case Constant::ID:
+    	children_constant(dynamic_cast<Constant*>(in));
     	break;
     }
 }

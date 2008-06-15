@@ -641,20 +641,26 @@ protected:
 				// We model it as an assignment to the named variable,
 				// and call on the code generator to generate the
 				// default assignment for us.
-				if ((*i)->var->expr)
+				if ((*i)->var->default_value)
 				{
 					code 
 						<< "if (num_args <= " << index << ")\n"
 						<< "{\n";
 
-					Statement* assign_default_values = 
+					// An assignment to default values doesnt fit in the IR. They
+					// would need to be lowered first. The simplest option is to
+					// convert them to AST, run them through the passes, and
+					// generate code for that */
+					phc_unsupported ((*i)->var->default_value);
+
+/*					Statement* assign_default_values = 
 						new Assign_var(
 							(*i)->var->variable_name->clone (),
 							false, 
-							(*i)->var->expr->clone ());
+							(*i)->var->default_value->clone ());
 
 					gen->children_statement (assign_default_values);
-					code << "} else {\n";
+*/					code << "} else {\n";
 				}
 
 				code
@@ -681,7 +687,7 @@ protected:
 					  ;
 				  }
 
-				if ((*i)->var->expr)
+				if ((*i)->var->default_value)
 					code << "}\n";
 			}
 				
