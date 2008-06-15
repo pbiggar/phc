@@ -26,7 +26,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Actual_parameter*,	// Actual_parameter*
  HIR::Array*,					// Array*
  HIR::Array_elem*,			// Array_elem*
- HIR::Expr*,					// Assignment*
+ HIR::Expr*,					// Assignment* - Cant convert to HIR::Statement, or HIR::Node. So we convert to HIR::Expr, and do type tricks later.
  HIR::Attr_mod*,				// Attr_mod*
  HIR::Attribute*,				// Attribute*
  HIR::BOOL*,					// BOOL*
@@ -298,6 +298,14 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
+	/* All AST::Assignment are now in the form Eval_expr {Assignment}.
+	 * AST::Assignments are AST::Exprs, but HIR::Assign_*s are HIR::Statements,
+	 * so we must convert between the two. But the two types aren't compatible,
+	 * and there does not appear to be a HIR type we can go through.
+	 * So, in fold_impl_assignment, we return HIR::Assign_*s - even though they
+	 * aren't HIR::Exprs - and we reinterpret_cast to get around the type-system
+	 * problems. Those HIR::Assign_*s now appear below as HIR::Exprs so we
+	 * convert them into HIR::Statements. */
 	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
 		switch (expr->classid ())
