@@ -1264,7 +1264,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_EXTENDS, GEN_EXTENDS),
 	GEN_OPT_EXTENDS = gmaybe{yes{GEN_EXTENDS}})
 	;
-	(GEN_OPT_EXTENDS = gmaybe{no})),
+	(OPT_EXTENDS \= yes{_},
+	GEN_OPT_EXTENDS = gmaybe{no})),
 	list_to_generic_list (IMPLEMENTSS, GEN_IMPLEMENTSS),
 	list_to_generic_list (MEMBERS, GEN_MEMBERS),
 	GENERIC = gnode{NODE, [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]}.
@@ -1294,7 +1295,8 @@ to_generic (NODE, GENERIC) :-
 	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
 	GEN_OPT_STATEMENTS = gmaybe{yes{GEN_STATEMENTS}})
 	;
-	(GEN_OPT_STATEMENTS = gmaybe{no})),
+	(OPT_STATEMENTS \= yes{_},
+	GEN_OPT_STATEMENTS = gmaybe{no})),
 	GENERIC = gnode{NODE, [GEN_SIGNATURE, GEN_OPT_STATEMENTS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -1337,7 +1339,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	GEN_OPT_CLASS_NAME = gmaybe{yes{GEN_CLASS_NAME}})
 	;
-	(GEN_OPT_CLASS_NAME = gmaybe{no})),
+	(OPT_CLASS_NAME \= yes{_},
+	GEN_OPT_CLASS_NAME = gmaybe{no})),
 	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME]}.
 
 to_generic (NODE, GENERIC) :-
@@ -1369,7 +1372,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_EXPR, GEN_EXPR),
 	GEN_OPT_EXPR = gmaybe{yes{GEN_EXPR}})
 	;
-	(GEN_OPT_EXPR = gmaybe{no})),
+	(OPT_EXPR \= yes{_},
+	GEN_OPT_EXPR = gmaybe{no})),
 	GENERIC = gnode{NODE, [GEN_VARIABLE_NAME, GEN_OPT_EXPR]}.
 
 to_generic (NODE, GENERIC) :-
@@ -1425,7 +1429,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {IS_REF},
@@ -1441,7 +1446,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	to_node (any{INDEX}, NODE_INDEX),
@@ -1459,7 +1465,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {IS_REF},
@@ -1475,7 +1482,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {IS_REF},
@@ -1527,7 +1535,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	GEN_OPT_CLASS_NAME = gmaybe{yes{GEN_CLASS_NAME}})
 	;
-	(GEN_OPT_CLASS_NAME = gmaybe{no})),
+	(OPT_CLASS_NAME \= yes{_},
+	GEN_OPT_CLASS_NAME = gmaybe{no})),
 	to_node (any{CONSTANT_NAME}, NODE_CONSTANT_NAME),
 	to_generic (NODE_CONSTANT_NAME, GEN_CONSTANT_NAME),
 	GENERIC = gnode{NODE, [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]}.
@@ -1549,7 +1558,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
@@ -1585,7 +1595,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_KEY, GEN_KEY),
 	GEN_OPT_KEY = gmaybe{yes{GEN_KEY}})
 	;
-	(GEN_OPT_KEY = gmaybe{no})),
+	(OPT_KEY \= yes{_},
+	GEN_OPT_KEY = gmaybe{no})),
 	GEN_IS_REF = gmarker {IS_REF},
 	to_node (any{VAL}, NODE_VAL),
 	to_generic (NODE_VAL, GEN_VAL),
@@ -1599,7 +1610,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
@@ -1614,7 +1626,8 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_TARGET, GEN_TARGET),
 	GEN_OPT_TARGET = gmaybe{yes{GEN_TARGET}})
 	;
-	(GEN_OPT_TARGET = gmaybe{no})),
+	(OPT_TARGET \= yes{_},
+	GEN_OPT_TARGET = gmaybe{no})),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
