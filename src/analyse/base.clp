@@ -14,11 +14,11 @@ type t_Attr ::=
 
 % Generics
 type t_Node.
-type t_generic ::= gnode{t_Node, list[t_generic]}	% a predicate ID, and a list of its arguments
-					  | gmarker{bool}							% A Marker
-					  | glist{list[t_generic]}				% A list of generics
-					  | gmaybe{maybe[t_generic]}			% An optional generic
-					  | gstring{string}						% values
+type t_generic ::= gnode{t_Node, NAME:string, ARGS:list[t_generic]}	
+					  | gmarker{NAME:string, bool}
+					  | glist{list[t_generic]}
+					  | gmaybe{NAME:string, maybe[t_generic]}
+					  | gstring{string}
 					  | gint{int}
 					  | gfloat{float}
 					  | gbool{bool}
