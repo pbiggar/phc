@@ -11,12 +11,17 @@
 		die ("Command line error: {$getopt->message}\n");
 
 	list ($opts, $arguments) = $getopt;
+	$options = array ();
 	foreach ($opts as $opt) 
 	{
-		if ($opt[1] == NULL) $options{$opt[0]} = "";
-		else $options{$opt[0]} = ($opt[1]);
+		if ($opt[1] == NULL) 
+		{
+			@$options{$opt[0]} += 1;
+		}
+		else 
+			$options{$opt[0]} = $opt[1];
 	}
-	$opt_verbose = isset($options{"v"});
+	$opt_verbose = @$options{"v"};
 
 
 
@@ -28,6 +33,7 @@
 
 	$clpa = "3rdparty/clpa/bin/clpa";
 	if ($opt_verbose) $clpa .= " --debug add_rule";
+	if ($opt_verbose == 2) $clpa .= " --debug eval_rule";
 
 	$commands = array (
 		// create .db files in the current directory
