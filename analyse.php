@@ -47,23 +47,58 @@
 
 		# Run Dead-code elimination
 #		"$clpa src/analyse/dce.clp",
-		"$clpa src/analyse/xml_unparser.clp",
+		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
+
+		"callback: convert_to_xml",
+
+		"src/phc --read-xml=pst --dump=pst $base.combined.xml",
 
 		// create CFG graphs
 		"rm -f *.ps",
-		"for i in *.dot; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",
+		"for i in `ls *.dot`; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",
 		"rm -f *.dot",
 
 	);
 
 	foreach ($commands as $command)
 	{
-		print "Command: $command\n";
-		list ($out, $err, $exit) = complete_exec ($command);
-		if ($out or $err or $exit)
-			print "out: '$out', err: '$err', exit: '$exit'\n";
-		if ($exit !== 0)
-			die ("Bad exit code\n");
+		// callback
+		if (preg_match ("/^callback: (.*)$/", $command, $match))
+		{
+			$match[1]();
+		}
+		else 
+		{
+			print "Command: $command\n";
+			list ($out, $err, $exit) = complete_exec ($command);
+			if ($out or $err or $exit)
+				print "out: '$out', err: '$err', exit: '$exit'\n";
+			if ($exit !== 0)
+				die ("Bad exit code\n");
+		}
+	}
+
+	function convert_to_xml ()
+	{
+		global $base;
+
+		$input = file_get_contents ("$base.xml");
+
+		// each Method starts with \"<MIR:Method>\n and ends with </MIRL:MEthod>\n\"
+		preg_match_all ("!\"(<MIR:Method>\n.*?</MIR:Method>)\n\"!sm", $input, $matches);
+
+
+		// combine them with header and footer
+		$header = '<?xml version="1.0"?>
+			<MIR:PHP_script xmlns:MIR="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<attrs>
+					<attr key="phc.filename"><string>test/subjects/3rdparty/benchmarks/roadsend/benchmarks/tests/julia-ppm.php</string></attr>
+				</attrs>';
+		$footer = "</MIR:PHP_script>";
+
+
+		$combined_xml = "$header\n" . join("\n", $matches[1]) . "\n$footer";
+		file_put_contents ("$base.combined.xml", $combined_xml);
 	}
 
 
