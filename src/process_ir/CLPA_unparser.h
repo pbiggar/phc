@@ -367,15 +367,18 @@ public:
 		{
 			cout << ",\n\t" << **i;
 		}
-		cout << ").\n" << endl;
+		cout << ")." << endl;
 
+		// Create the attributes and source_rep at once.
+		cout
+			<< "\nto_node (any{" << *id << "}, NODE)\n";
+	
 		// Print out the attributes
 		AttrMap::const_iterator i;
 		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
 		{
 			cout 
-				<< "+" << *prefix << "()->attr ("
-				<< "any{" << *id << "}, "
+				<< "\t, +" << *prefix << "()->attr (NODE, "
 				<< "\"" << (*i).first << "\", ";
 
 			Object* attr = (*i).second;
@@ -389,7 +392,7 @@ public:
 			else
 				cout << "attr_unavaiable";
 
-			cout << ").\n";
+			cout << ")\n";
 		}
 
 		// Print out the source representation
@@ -397,9 +400,9 @@ public:
 		Unparser unparser (ss, true);
 		unparser.unparse (in);
 		cout 
-			<< "+" << *prefix << "()->source_rep ("
-			<< "any{" << *id << "}, "
-			<< "\"" << *escape (s (ss.str ())) << "\")." << endl;
+			<< "\t, +" << *prefix << "()->source_rep (NODE, "
+			<< "\"" << *escape (s (ss.str ())) << "\")." 
+			<< "\n\n" << endl;
 	}
 
 protected:
@@ -500,13 +503,13 @@ protected:
 		{
 			switch (*i)
 			{
-				case '\n': // newline
+				case '\n':
 					ss << "\\n";
 					break;
-				case '\\': // newline
+				case '\\':
 					ss << "\\\\";
 					break;
-				case '"': // newline
+				case '"':
 					ss << "\\\"";
 					break;
 				default:

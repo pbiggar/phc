@@ -28,7 +28,8 @@ get_method_name (METHOD, NAME) :-
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nblock{S},
-	mir()->source_rep (any{S}, SOURCE),
+	to_node (any{S}, NODE),
+	mir()->source_rep (NODE, SOURCE),
 	tostring (S, SSTRING), str_cat4 (SOURCE, "[", SSTRING, "]", LABEL),
 	Attrs = [dg_attr{"label", LABEL}].
 
@@ -37,7 +38,8 @@ dotty_node (N, Attrs) :-
 dotty_node (N, Attrs) :- 
 	cfg_node (N), 
 	N = nbranch{B}, 
-	mir()->source_rep (any{B}, VARNAME),
+	to_node (any{B}, NODE),
+	mir()->source_rep (NODE, VARNAME),
 	tostring (B, BSTRING), str_cat4 (VARNAME, "\n[", BSTRING, "]", LABEL),
 	Attrs = [dg_attr{"label", LABEL}, dg_attr{"shape", "rectangle"}].
 
