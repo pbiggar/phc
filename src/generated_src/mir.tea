@@ -96,7 +96,6 @@ Expr ::=
 	| Variable
 	| Method_invocation | New
 	| Literal 
-	| Array -- can probably be removed
 -- | Variable_name | Index_array
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	| Foreign_expr
@@ -123,9 +122,6 @@ Target ::= VARIABLE_NAME | CLASS_NAME ;
 
 -- Pre_op cannot be converted to a VARIABLE_NAME due to, for example, ++$x->z.
 Pre_op ::= OP Variable ;
-
-Array ::= Array_elem* ;
-Array_elem ::= key:Expr? is_ref:"&"? val:Expr ;
 
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;

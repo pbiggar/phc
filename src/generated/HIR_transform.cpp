@@ -186,16 +186,6 @@ void Transform::pre_pre_op(Pre_op* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Expr* Transform::pre_array(Array* in)
-{
-    return in;
-}
-
-void Transform::pre_array_elem(Array_elem* in, List<Array_elem*>* out)
-{
-    out->push_back(in);
-}
-
 Expr* Transform::pre_method_invocation(Method_invocation* in)
 {
     return in;
@@ -468,16 +458,6 @@ Reflection* Transform::post_reflection(Reflection* in)
 }
 
 void Transform::post_pre_op(Pre_op* in, List<Statement*>* out)
-{
-    out->push_back(in);
-}
-
-Expr* Transform::post_array(Array* in)
-{
-    return in;
-}
-
-void Transform::post_array_elem(Array_elem* in, List<Array_elem*>* out)
 {
     out->push_back(in);
 }
@@ -791,17 +771,6 @@ void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable = transform_variable(in->variable);
-}
-
-void Transform::children_array(Array* in)
-{
-    in->array_elems = transform_array_elem_list(in->array_elems);
-}
-
-void Transform::children_array_elem(Array_elem* in)
-{
-    in->key = transform_expr(in->key);
-    in->val = transform_expr(in->val);
 }
 
 void Transform::children_method_invocation(Method_invocation* in)
@@ -1362,43 +1331,6 @@ Variable* Transform::transform_variable(Variable* in)
     return out;
 }
 
-List<Array_elem*>* Transform::transform_array_elem_list(List<Array_elem*>* in)
-{
-    List<Array_elem*>::const_iterator i;
-    List<Array_elem*>* out = new List<Array_elem*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back_all(transform_array_elem(*i));
-    }
-    
-    return out;
-}
-
-List<Array_elem*>* Transform::transform_array_elem(Array_elem* in)
-{
-    List<Array_elem*>::const_iterator i;
-    List<Array_elem*>* out1 = new List<Array_elem*>;
-    List<Array_elem*>* out2 = new List<Array_elem*>;
-    
-    if(in == NULL) out1->push_back(NULL);
-    else pre_array_elem(in, out1);
-    for(i = out1->begin(); i != out1->end(); i++)
-    {
-    	if(*i != NULL)
-    	{
-    		children_array_elem(*i);
-    		post_array_elem(*i, out2);
-    	}
-    	else out2->push_back(NULL);
-    }
-    
-    return out2;
-}
-
 Method_name* Transform::transform_method_name(Method_name* in)
 {
     if(in == NULL) return NULL;
@@ -1785,7 +1717,6 @@ Expr* Transform::pre_expr(Expr* in)
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
     assert(0);
@@ -2093,7 +2024,6 @@ Expr* Transform::post_expr(Expr* in)
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     }
     assert(0);
@@ -2305,9 +2235,6 @@ void Transform::children_expr(Expr* in)
     	break;
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	children_array(dynamic_cast<Array*>(in));
     	break;
     case Foreign_expr::ID:
     	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));

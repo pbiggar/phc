@@ -24,8 +24,6 @@
 class HIR_to_MIR : public HIR::Fold
 <
  MIR::Actual_parameter*,	// Actual_parameter*
- MIR::Array*,					// Array*
- MIR::Array_elem*,			// Array_elem*
  MIR::Assign_array*,			// Assign_array*
  MIR::Assign_var*,			// Assign_var*
  MIR::Assign_var_var*,		// Assign_var_var*
@@ -385,22 +383,6 @@ public:
 	{
 		MIR::Static_array_elem* result;
 		result = new MIR::Static_array_elem (key, is_ref, val);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Array* fold_impl_array(HIR::Array* orig, List<MIR::Array_elem*>* array_elems) 
-	{
-		MIR::Array* result;
-		result = new MIR::Array(array_elems);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Array_elem* fold_impl_array_elem(HIR::Array_elem* orig, MIR::Expr* key, bool is_ref, MIR::Expr* val) 
-	{
-		MIR::Array_elem* result;
-		result = new MIR::Array_elem(key, is_ref, val);
 		result->attrs = orig->attrs;
 		return result;
 	}

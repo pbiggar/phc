@@ -251,20 +251,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Pre_op(op, variable);
     }
-    if(!strcmp(type_id, "Array"))
-    {
-    	List<Array_elem*>* array_elems = dynamic_cast<List<Array_elem*>*>(*i++);
-    	assert(i == args->end());
-    	return new Array(array_elems);
-    }
-    if(!strcmp(type_id, "Array_elem"))
-    {
-    	Expr* key = dynamic_cast<Expr*>(*i++);
-    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Expr* val = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Array_elem(key, is_ref, val);
-    }
     if(!strcmp(type_id, "Method_invocation"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
@@ -457,13 +443,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Catch*>* list = new List<Catch*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Catch*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Array_elem_list"))
-    {
-    	List<Array_elem*>* list = new List<Array_elem*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Array_elem*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Actual_parameter_list"))

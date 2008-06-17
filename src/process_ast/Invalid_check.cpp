@@ -29,14 +29,6 @@ bool is_ref_literal (Expr* in)
 			|| dynamic_cast <Constant*> (in));
 }
 
-// TODO avoid duplication
-bool is_ref_literal (HIR::Expr* in)
-{
-	return (	dynamic_cast <HIR::Literal*> (in) 
-			|| dynamic_cast <HIR::Array*> (in)
-			|| dynamic_cast <HIR::Constant*> (in));
-}
-
 Invalid_check::Invalid_check (bool use_ice) 
 : Pass ()
 , use_ice (use_ice)

@@ -58,8 +58,6 @@ public:
     virtual Variable* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
     virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
-    virtual Expr* pre_array(Array* in);
-    virtual void pre_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
@@ -123,8 +121,6 @@ public:
     virtual Variable* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
     virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
-    virtual Expr* post_array(Array* in);
-    virtual void post_array_elem(Array_elem* in, List<Array_elem*>* out);
     virtual Expr* post_method_invocation(Method_invocation* in);
     virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
@@ -188,8 +184,6 @@ public:
     virtual void children_variable(Variable* in);
     virtual void children_reflection(Reflection* in);
     virtual void children_pre_op(Pre_op* in);
-    virtual void children_array(Array* in);
-    virtual void children_array_elem(Array_elem* in);
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
@@ -253,8 +247,6 @@ public:
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
     virtual Variable* transform_variable(Variable* in);
-    virtual List<Array_elem*>* transform_array_elem_list(List<Array_elem*>* in);
-    virtual List<Array_elem*>* transform_array_elem(Array_elem* in);
     virtual Method_name* transform_method_name(Method_name* in);
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);

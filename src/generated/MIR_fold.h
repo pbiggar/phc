@@ -19,8 +19,6 @@ using namespace std;
 namespace MIR{
 template
 <class _Actual_parameter,
- class _Array,
- class _Array_elem,
  class _Assign_array,
  class _Assign_var,
  class _Assign_var_var,
@@ -466,30 +464,6 @@ public:
 		return fold_impl_pre_op(in, op, variable);
 	}
 
-	virtual _Array fold_array(Array* in)
-	{
-		List<_Array_elem>* array_elems = 0;
-	
-		{
-			array_elems = new List<_Array_elem>;
-			List<Array_elem*>::const_iterator i;
-			for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
-				if(*i != NULL) array_elems->push_back(fold_array_elem(*i));
-				else array_elems->push_back(0);
-		}
-		return fold_impl_array(in, array_elems);
-	}
-
-	virtual _Array_elem fold_array_elem(Array_elem* in)
-	{
-		_Expr key = 0;
-		if(in->key != NULL) key = fold_expr(in->key);
-		bool is_ref = in->is_ref;
-		_Expr val = 0;
-		if(in->val != NULL) val = fold_expr(in->val);
-		return fold_impl_array_elem(in, key, is_ref, val);
-	}
-
 	virtual _Method_invocation fold_method_invocation(Method_invocation* in)
 	{
 		_Target target = 0;
@@ -694,8 +668,6 @@ public:
 	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, _VARIABLE_NAME array_index) { assert(0); };
 	virtual _Reflection fold_impl_reflection(Reflection* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _Variable variable) { assert(0); };
-	virtual _Array fold_impl_array(Array* orig, List<_Array_elem>* array_elems) { assert(0); };
-	virtual _Array_elem fold_impl_array_elem(Array_elem* orig, _Expr key, bool is_ref, _Expr val) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
@@ -823,8 +795,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Array::ID:
-				return fold_array(dynamic_cast<Array*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -839,8 +809,6 @@ public:
 				return fold_reflection(dynamic_cast<Reflection*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
-			case Array_elem::ID:
-				return fold_array_elem(dynamic_cast<Array_elem*>(in));
 			case METHOD_NAME::ID:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case Actual_parameter::ID:
@@ -957,8 +925,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Array::ID:
-				return fold_array(dynamic_cast<Array*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -1122,6 +1088,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

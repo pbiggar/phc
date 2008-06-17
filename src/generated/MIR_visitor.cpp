@@ -158,14 +158,6 @@ void Visitor::pre_pre_op(Pre_op* in)
 {
 }
 
-void Visitor::pre_array(Array* in)
-{
-}
-
-void Visitor::pre_array_elem(Array_elem* in)
-{
-}
-
 void Visitor::pre_method_invocation(Method_invocation* in)
 {
 }
@@ -460,14 +452,6 @@ void Visitor::post_target(Target* in)
 }
 
 void Visitor::post_pre_op(Pre_op* in)
-{
-}
-
-void Visitor::post_array(Array* in)
-{
-}
-
-void Visitor::post_array_elem(Array_elem* in)
 {
 }
 
@@ -818,18 +802,6 @@ void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable(in->variable);
-}
-
-void Visitor::children_array(Array* in)
-{
-    visit_array_elem_list(in->array_elems);
-}
-
-void Visitor::children_array_elem(Array_elem* in)
-{
-    visit_expr(in->key);
-    visit_marker("is_ref", in->is_ref);
-    visit_expr(in->val);
 }
 
 void Visitor::children_method_invocation(Method_invocation* in)
@@ -1218,19 +1190,6 @@ void Visitor::pre_pre_op_chain(Pre_op* in)
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_pre_op((Pre_op*) in);
-}
-
-void Visitor::pre_array_chain(Array* in)
-{
-    pre_node((Node*) in);
-    pre_expr((Expr*) in);
-    pre_array((Array*) in);
-}
-
-void Visitor::pre_array_elem_chain(Array_elem* in)
-{
-    pre_node((Node*) in);
-    pre_array_elem((Array_elem*) in);
 }
 
 void Visitor::pre_method_invocation_chain(Method_invocation* in)
@@ -1675,19 +1634,6 @@ void Visitor::post_pre_op_chain(Pre_op* in)
 {
     post_pre_op((Pre_op*) in);
     post_statement((Statement*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_array_chain(Array* in)
-{
-    post_array((Array*) in);
-    post_expr((Expr*) in);
-    post_node((Node*) in);
-}
-
-void Visitor::post_array_elem_chain(Array_elem* in)
-{
-    post_array_elem((Array_elem*) in);
     post_node((Node*) in);
 }
 
@@ -2293,37 +2239,6 @@ void Visitor::visit_variable(Variable* in)
     }
 }
 
-void Visitor::visit_array_elem_list(List<Array_elem*>* in)
-{
-    List<Array_elem*>::const_iterator i;
-    
-    if(in == NULL)
-    	visit_null_list("MIR", "Array_elem");
-    else
-    {
-    	pre_list("MIR", "Array_elem", in->size());
-    
-    	for(i = in->begin(); i != in->end(); i++)
-    	{
-    		visit_array_elem(*i);
-    	}
-    
-    	post_list("MIR", "Array_elem", in->size());
-    }
-}
-
-void Visitor::visit_array_elem(Array_elem* in)
-{
-    if(in == NULL)
-    	visit_null("MIR", "Array_elem");
-    else
-    {
-    	pre_array_elem_chain(in);
-    	children_array_elem(in);
-    	post_array_elem_chain(in);
-    }
-}
-
 void Visitor::visit_method_name(Method_name* in)
 {
     if(in == NULL)
@@ -2621,9 +2536,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Array::ID:
-    	pre_array_chain(dynamic_cast<Array*>(in));
-    	break;
     case Foreach_has_key::ID:
     	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -2872,9 +2784,6 @@ void Visitor::post_expr_chain(Expr* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Array::ID:
-    	post_array_chain(dynamic_cast<Array*>(in));
-    	break;
     case Foreach_has_key::ID:
     	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
     	break;
@@ -3122,9 +3031,6 @@ void Visitor::children_expr(Expr* in)
     	break;
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Array::ID:
-    	children_array(dynamic_cast<Array*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));

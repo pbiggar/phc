@@ -11,6 +11,7 @@
 #include "AST_fold.h"
 #include "HIR.h"
 #include "process_ir/General.h"
+#include "process_ir/IR.h"
 
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
@@ -24,8 +25,8 @@
 class AST_to_HIR : public AST::Fold
 <
  HIR::Actual_parameter*,	// Actual_parameter*
- HIR::Array*,					// Array*
- HIR::Array_elem*,			// Array_elem*
+ HIR::Expr*,					// Array*
+ HIR::Static_array_elem*,	// Array_elem*
  HIR::Expr*,					// Assignment*
  HIR::Attr_mod*,				// Attr_mod*
  HIR::Attribute*,				// Attribute*
@@ -245,58 +246,15 @@ private:
 		return result;
 	}
 
-	HIR::Static_array_elem* convert_to_static_array_elem (HIR::Array_elem* array_elem)
-	{
-		return new HIR::Static_array_elem (
-			convert_to_static_key (array_elem->key),
-			array_elem->is_ref,
-			convert_to_static_value (array_elem->val));
-	}
-
-	HIR::Static_array_key* convert_to_static_key (HIR::Expr* expr)
-	{
-		// NULL keys are allowed
-		if (expr == NULL)
-			return NULL;
-
-		HIR::Literal* lit = dynamic_cast<HIR::Literal*> (expr);
-		if (lit)
-			return lit;
-
-		HIR::Constant* constant = dynamic_cast<HIR::Constant*> (expr);
-		if (constant)
-			return constant;
-
-		assert (0); // the parser shouldnt allow constructs like this
-	}
-
-	HIR::Static_value* convert_to_static_value (HIR::Expr* expr)
-	{
-		HIR::Literal* lit = dynamic_cast<HIR::Literal*> (expr);
-		if (lit)
-			return lit;
-
-		HIR::Constant* constant = dynamic_cast<HIR::Constant*> (expr);
-		if (constant)
-			return constant;
-
-		HIR::Array* array = dynamic_cast<HIR::Array*> (expr);
-		assert (array); // the parser stops other types
-		List<HIR::Static_array_elem*>* elems = new List<HIR::Static_array_elem*>;
-		for_lci (array->array_elems, HIR::Array_elem, i)
-		{
-			elems->push_back (convert_to_static_array_elem (*i));
-		}
-		return new HIR::Static_array (elems);
-
-	}
-	
 	HIR::Name_with_default* fold_impl_name_with_default(AST::Name_with_default* orig, HIR::VARIABLE_NAME* variable_name, HIR::Expr* expr) 
-	{ 
+	{
+		if (expr != NULL)
+			assert (isa<HIR::Static_value> (expr));
+
 		HIR::Name_with_default* result;
 		result = new HIR::Name_with_default(
 			variable_name, 
-			expr ? convert_to_static_value (expr) : NULL);
+			dyc<HIR::Static_value> (expr));
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -598,21 +556,26 @@ private:
 		result = new HIR::Pre_op(op, variable);
 		copy_attrs (result, orig);
 		eval_expr_assignment = result;
+
+		// NULL signal Eval_expr to use eval_expr_assignment
 		return NULL;
 	}
 
-	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 
+	HIR::Expr* fold_impl_array(AST::Array* orig, List<HIR::Static_array_elem*>* static_array_elems) 
 	{
-		HIR::Array* result;
-		result = new HIR::Array(array_elems);
+		HIR::Static_array* result;
+		result = new HIR::Static_array(static_array_elems);
 		copy_attrs (result, orig);
-		return result;
+		return reinterpret_cast<HIR::Expr*> (result);
 	}
 
-	HIR::Array_elem* fold_impl_array_elem(AST::Array_elem* orig, HIR::Expr* key, bool is_ref, HIR::Expr* val) 
+	HIR::Static_array_elem* fold_impl_array_elem(AST::Array_elem* orig, HIR::Expr* key, bool is_ref, HIR::Expr* val) 
 	{
-		HIR::Array_elem* result;
-		result = new HIR::Array_elem(key, is_ref, val);
+		HIR::Static_array_elem* result;
+		result = new HIR::Static_array_elem(
+			dyc<HIR::Static_array_key> (key),
+			is_ref,
+			dyc<HIR::Static_value> (val));
 		copy_attrs (result, orig);
 		return result;
 	}

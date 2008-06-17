@@ -70,8 +70,6 @@ public:
     virtual void pre_reflection(Reflection* in);
     virtual void pre_target(Target* in);
     virtual void pre_pre_op(Pre_op* in);
-    virtual void pre_array(Array* in);
-    virtual void pre_array_elem(Array_elem* in);
     virtual void pre_method_invocation(Method_invocation* in);
     virtual void pre_method_name(Method_name* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
@@ -142,8 +140,6 @@ public:
     virtual void post_reflection(Reflection* in);
     virtual void post_target(Target* in);
     virtual void post_pre_op(Pre_op* in);
-    virtual void post_array(Array* in);
-    virtual void post_array_elem(Array_elem* in);
     virtual void post_method_invocation(Method_invocation* in);
     virtual void post_method_name(Method_name* in);
     virtual void post_actual_parameter(Actual_parameter* in);
@@ -207,8 +203,6 @@ public:
     virtual void children_variable(Variable* in);
     virtual void children_reflection(Reflection* in);
     virtual void children_pre_op(Pre_op* in);
-    virtual void children_array(Array* in);
-    virtual void children_array_elem(Array_elem* in);
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
@@ -276,8 +270,6 @@ public:
     virtual void pre_variable_chain(Variable* in);
     virtual void pre_reflection_chain(Reflection* in);
     virtual void pre_pre_op_chain(Pre_op* in);
-    virtual void pre_array_chain(Array* in);
-    virtual void pre_array_elem_chain(Array_elem* in);
     virtual void pre_method_invocation_chain(Method_invocation* in);
     virtual void pre_actual_parameter_chain(Actual_parameter* in);
     virtual void pre_new_chain(New* in);
@@ -337,8 +329,6 @@ public:
     virtual void post_variable_chain(Variable* in);
     virtual void post_reflection_chain(Reflection* in);
     virtual void post_pre_op_chain(Pre_op* in);
-    virtual void post_array_chain(Array* in);
-    virtual void post_array_elem_chain(Array_elem* in);
     virtual void post_method_invocation_chain(Method_invocation* in);
     virtual void post_actual_parameter_chain(Actual_parameter* in);
     virtual void post_new_chain(New* in);
@@ -389,8 +379,6 @@ public:
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
     virtual void visit_variable(Variable* in);
-    virtual void visit_array_elem_list(List<Array_elem*>* in);
-    virtual void visit_array_elem(Array_elem* in);
     virtual void visit_method_name(Method_name* in);
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);

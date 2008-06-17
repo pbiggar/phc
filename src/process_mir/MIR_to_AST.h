@@ -24,8 +24,6 @@
 class MIR_to_AST : public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
- AST::Array*,					// Array*
- AST::Array_elem*,			// Array_elem*
  AST::Eval_expr*,				// Assign_array*
  AST::Eval_expr*,				// Assign_var*
  AST::Eval_expr*,				// Assign_var_var*
@@ -500,22 +498,6 @@ class MIR_to_AST : public MIR::Fold
 	{
 		AST::Array_elem* result;
 		result = new AST::Array_elem (key, is_ref, val);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Array* fold_impl_array(MIR::Array* orig, List<AST::Array_elem*>* array_elems) 
-	{
-		AST::Array* result;
-		result = new AST::Array(array_elems);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Array_elem* fold_impl_array_elem(MIR::Array_elem* orig, AST::Expr* key, bool is_ref, AST::Expr* val) 
-	{
-		AST::Array_elem* result;
-		result = new AST::Array_elem(key, is_ref, val);
 		result->attrs = orig->attrs;
 		return result;
 	}

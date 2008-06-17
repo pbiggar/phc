@@ -1,6 +1,4 @@
 (Actual_parameter,Actual_parameter,*)
-(Array,Expr,)
-(Array_elem,Array_elem,*)
 (Assign_array,Statement,*)
 (Assign_var,Statement,*)
 (Assign_var_var,Statement,*)
