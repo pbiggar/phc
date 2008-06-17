@@ -128,7 +128,9 @@ template <class T> bool isa(IR::Node* in)
 }
 
 template <class T> T* dyc(IR::Node* in)
-{ 
+{
+	if (in == NULL) return NULL;
+
 	T* result = dynamic_cast<T*> (in); 
 	assert (result != NULL); 
 	return result;
