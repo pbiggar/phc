@@ -119,4 +119,22 @@ public:
 
 }
 
+
+/* These are copies of ideas from LLVM. All of our uses of casts can be
+ * characterized as one of these. */
+template <class T> bool isa(IR::Node* in) 
+{ 
+	return dynamic_cast<T*> (in) != NULL;
+}
+
+template <class T> T* dyc(IR::Node* in)
+{ 
+	T* result = dynamic_cast<T*> (in); 
+	assert (result != NULL); 
+	return result;
+}
+
+
+
+
 #endif // PHC_IR_H
