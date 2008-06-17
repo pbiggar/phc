@@ -80,7 +80,7 @@
 
 	function convert_to_xml ()
 	{
-		global $base;
+		global $base, $filename;
 
 		$input = file_get_contents ("$base.xml");
 
@@ -92,9 +92,10 @@
 		$header = '<?xml version="1.0"?>
 			<MIR:PHP_script xmlns:MIR="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 				<attrs>
-					<attr key="phc.filename"><string>test/subjects/3rdparty/benchmarks/roadsend/benchmarks/tests/julia-ppm.php</string></attr>
-				</attrs>';
-		$footer = "</MIR:PHP_script>";
+					<attr key="phc.filename"><string>'.$filename.'</string></attr>
+				</attrs>
+				<MIR:Statement_list>';
+		$footer = "</MIR:Statement_list></MIR:PHP_script>";
 
 
 		$combined_xml = "$header\n" . join("\n", $matches[1]) . "\n$footer";
