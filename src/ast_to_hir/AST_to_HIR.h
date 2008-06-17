@@ -105,6 +105,13 @@ class AST_to_HIR : public AST::Fold
  HIR::Loop*						// While*
 >
 {
+public:
+	AST_to_HIR ()
+	{
+		eval_expr_assignment = NULL;
+	}
+
+private:
 	// The HIR expects variable names where the AST has expressions.
 	// Find the VARIABLE_NAME within the expression.
 	bool is_wrapped_var_name (HIR::Expr* expr)
@@ -346,20 +353,28 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
+	/* fold_impl_assignment sets eval_expr_assignment, which is returned if EXPR is NULL */
+	HIR::Statement* eval_expr_assignment;
 	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
-		switch (expr->classid ())
+		HIR::Statement* result;
+		if (expr
+			&& (expr->classid () == HIR::Method_invocation::ID
+				|| expr->classid () == HIR::New::ID))
 		{
-			case HIR::Method_invocation::ID:
-			case HIR::New::ID:
-				HIR::Eval_expr* result;
-				result = new HIR::Eval_expr (expr);
-				copy_attrs (result, orig);
-				return result;
-			default:
-				// We know this is OK from fold_impl_assignment
-				return reinterpret_cast<HIR::Statement*> (expr);
+			// Carry on as normal
+			result = new HIR::Eval_expr (expr);
+			copy_attrs (result, orig);
 		}
+		else
+		{
+			// We have an Assignment to return instead, stored in eval_expr_assignment
+			assert (eval_expr_assignment);
+			result = eval_expr_assignment;
+			eval_expr_assignment = NULL;
+		}
+
+		return result;
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
@@ -408,6 +423,8 @@ class AST_to_HIR : public AST::Fold
 
 	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* var, bool is_ref, HIR::Expr* expr) 
 	{
+		assert (eval_expr_assignment == NULL);
+
 		// Var doesnt have enough information to tell us if a NULL
 		// var->array_index indicates a push or a copy. So we have to look in
 		// ORIG.
@@ -427,7 +444,8 @@ class AST_to_HIR : public AST::Fold
 				is_ref, 
 				expr_to_var_name (expr));
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
 
@@ -445,7 +463,8 @@ class AST_to_HIR : public AST::Fold
 				is_ref,
 				expr_to_var_name (expr));
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
 		// assign_var - $t->$x = y();
@@ -461,7 +480,8 @@ class AST_to_HIR : public AST::Fold
 				is_ref, 
 				expr);
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
 		// eval_expr - y();
@@ -474,7 +494,8 @@ class AST_to_HIR : public AST::Fold
 			HIR::Eval_expr* result;
 			result = new HIR::Eval_expr (expr); 
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 		
 		// assign_var_var - $$x = $y;
@@ -491,7 +512,8 @@ class AST_to_HIR : public AST::Fold
 				expr_to_var_name (expr));
 
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
 		// all cases should be handled
@@ -575,7 +597,8 @@ class AST_to_HIR : public AST::Fold
 		HIR::Pre_op* result;
 		result = new HIR::Pre_op(op, variable);
 		copy_attrs (result, orig);
-		return reinterpret_cast<HIR::Expr*> (result);
+		eval_expr_assignment = result;
+		return NULL;
 	}
 
 	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 
