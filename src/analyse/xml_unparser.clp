@@ -33,12 +33,22 @@ to_xml_string (gnode{NODE, NAME, SUBNODES}, XML) :-
 	str_cat_list(["<MIR:", NAME, ">\n", SUBXML, "</MIR:", NAME, ">\n"], XML).
 
 
-
-to_xml_string (glist{[]}, "") :- .
-to_xml_string (glist{[H|T]}, XML) :- 
-	to_xml_string (glist{T}, XML_T),
+predicate to_xml_substring (in LIST:t_generic, out XML:string). 
+to_xml_substring (glist{_, []}, "") :- .
+to_xml_substring (glist{_, [H|T]}, XML) :-
+	to_xml_substring (glist{"", T}, XML_T),
 	to_xml_string (H, XML_H),
 	str_cat_list ([XML_H, XML_T], XML).
+	
+
+
+to_xml_string (glist{TYPE, LIST}, XML) :-
+	to_xml_substring (glist{TYPE, LIST}, SUBXML),
+	str_cat_list (["<MIR:", TYPE, "_list>\n", 
+						SUBXML, 
+						"\n</MIR:", TYPE, "_list>\n"],
+						XML).
+
 	
 to_xml_string (gmaybe{NAME, no}, XML) :- 
 	str_cat_list (["<MIR:", NAME, " xsi:nil=\"true\" />\n"], XML).
