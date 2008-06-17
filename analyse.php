@@ -99,7 +99,7 @@
 			. '<attr key="phc.filename"><string>'.$filename.'</string></attr>'
 			. '</attrs>'
 			. '<MIR:Statement_list>';
-		$footer = "</MIR:Statement_list></MIR:PHP_script>";
+		$footer = "</MIR:Statement_list>\n</MIR:PHP_script>\n";
 
 
 		$combined_xml = "$header\n" . join("\n", $matches[1]) . "\n$footer";

@@ -46,7 +46,7 @@ to_xml_string (glist{TYPE, LIST}, XML) :-
 	to_xml_substring (glist{TYPE, LIST}, SUBXML),
 	str_cat_list (["<MIR:", TYPE, "_list>\n", 
 						SUBXML, 
-						"\n</MIR:", TYPE, "_list>\n"],
+						"</MIR:", TYPE, "_list>\n"],
 						XML).
 
 	
