@@ -25,6 +25,9 @@ dnl checks for programs
 AC_PROG_CC
 AC_PROG_CXX
 
+dnl configure Calypso
+AC_CONFIG_SUBDIRS([3rdparty/clpa])
+
 dnl Configure libtool
 AC_LIBLTDL_CONVENIENCE dnl build convenience library, and set LIBLTDL
 AC_LIBTOOL_DLOPEN dnl check for dlopen support
