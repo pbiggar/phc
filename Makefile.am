@@ -11,7 +11,7 @@
 
 # TODO install autoreconf?
 
-SUBDIRS = libltdl
+SUBDIRS = libltdl 3rdparty/clpa
 
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \

@@ -543,7 +543,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 use_libXerces = @use_libXerces@
 valgrind = @valgrind@
-SUBDIRS = libltdl
+SUBDIRS = libltdl 3rdparty/clpa
 
 # Note the preprocessor supports -Wall, so we put that here, rather than a seperate CXX_FLAGS
 AM_CPPFLAGS = \
