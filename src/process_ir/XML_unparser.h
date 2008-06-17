@@ -89,14 +89,14 @@ public:
 		os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />" << endl;
 	}
 
-	void pre_list(char const* name_space, char const* type_id, int size)
+	void pre_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 	{
 		print_indent();
 		os << "<" << name_space << ":" << type_id << "_list>" << endl;
 		indent++;
 	}
 
-	void post_list(char const* name_space, char const* type_id, int size)
+	void post_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 	{
 		indent--;
 		print_indent();
