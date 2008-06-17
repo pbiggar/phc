@@ -39,6 +39,7 @@
 		// create .db files in the current directory
 		"rm -f *.db",
 		"src/phc --sdump=clar $filename > $base.clp",
+		"src/phc --xdump=clar $filename | sed 's/^\s\+//' > $base.orig.xml", # indent them the same
 		"$clpa --debug parse_warnings $base.clp",
 #		"rm $base.clp",
 
@@ -51,7 +52,9 @@
 
 		"callback: convert_to_xml",
 
-		"src/phc --read-xml=pst --dump=pst $base.combined.xml",
+		"src/phc --read-xml=pst --dump=pst $base.new.xml",
+
+		"diff -u $base.orig.xml $base.new.xml",
 
 		// create CFG graphs
 		"rm -f *.ps",
@@ -89,17 +92,18 @@
 
 
 		// combine them with header and footer
-		$header = '<?xml version="1.0"?>
-			<MIR:PHP_script xmlns:MIR="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<attrs>
-					<attr key="phc.filename"><string>'.$filename.'</string></attr>
-				</attrs>
-				<MIR:Statement_list>';
+		$header = 
+			  '<?xml version="1.0"?>'
+			. '<MIR:PHP_script xmlns:MIR="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
+			. '<attrs>'
+			. '<attr key="phc.filename"><string>'.$filename.'</string></attr>'
+			. '</attrs>'
+			. '<MIR:Statement_list>';
 		$footer = "</MIR:Statement_list></MIR:PHP_script>";
 
 
 		$combined_xml = "$header\n" . join("\n", $matches[1]) . "\n$footer";
-		file_put_contents ("$base.combined.xml", $combined_xml);
+		file_put_contents ("$base.new.xml", $combined_xml);
 	}
 
 
