@@ -52,9 +52,9 @@
 
 		"callback: convert_to_xml",
 
+		"diff -u $base.orig.xml $base.new.xml",
 		"src/phc --read-xml=pst --dump=pst $base.new.xml",
 
-		"diff -u $base.orig.xml $base.new.xml",
 
 		// create CFG graphs
 		"rm -f *.ps",
@@ -93,12 +93,12 @@
 
 		// combine them with header and footer
 		$header = 
-			  '<?xml version="1.0"?>'
-			. '<MIR:PHP_script xmlns:MIR="http://www.phpcompiler.org/phc-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-			. '<attrs>'
-			. '<attr key="phc.filename"><string>'.$filename.'</string></attr>'
-			. '</attrs>'
-			. '<MIR:Statement_list>';
+			  "<?xml version=\"1.0\"?>\n"
+			. "<MIR:PHP_script xmlns:MIR=\"http://www.phpcompiler.org/phc-1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
+			. "<attrs>\n"
+			. "<attr key=\"phc.filename\"><string>".$filename."</string></attr>\n"
+			. "</attrs>\n"
+			. "<MIR:Statement_list>";
 		$footer = "</MIR:Statement_list>\n</MIR:PHP_script>\n";
 
 

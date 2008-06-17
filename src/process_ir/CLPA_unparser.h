@@ -377,6 +377,10 @@ public:
 		AttrMap::const_iterator i;
 		for(i = in->attrs->begin(); i != in->attrs->end(); i++)
 		{
+			// Dont unparse ID (we cant remove it from the node as we need it later).
+			if ((*i).first == "phc.clpa.id")
+				continue;
+
 			cout 
 				<< "\t, +" << *prefix << "()->attr (NODE, "
 				<< "\"" << (*i).first << "\", ";
