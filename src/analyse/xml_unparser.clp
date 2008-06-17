@@ -105,9 +105,11 @@ to_xml_string (gint{VALUE}, XML) :-
 	tostring (VALUE, XML_VALUE),
 	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
 
-to_xml_string (gbool{VALUE}, XML) :-
-	tostring (VALUE, XML_VALUE),
-	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
+% To avoid superfluous differences with phc's unparsed XML, uppercase the first letter.
+to_xml_string (gbool{true}, XML) :-
+	str_cat_list (["<value>True</value>\n"], XML).
+to_xml_string (gbool{false}, XML) :-
+	str_cat_list (["<value>False</value>\n"], XML).
 
 to_xml_string (gfloat{VALUE}, XML) :-
 	tostring (VALUE, XML_VALUE),
@@ -115,7 +117,8 @@ to_xml_string (gfloat{VALUE}, XML) :-
 
 to_xml_string (gstring{VALUE}, XML) :- 
 	str_to_base64 (VALUE, BASE64),
-	str_cat_list (["<value>", BASE64, "</value>\n"], XML).
+	((VALUE = BASE64, ENCODING = "");(VALUE \= BASE64, ENCODING = " encoding=\"base64\"")),
+	str_cat_list (["<value", ENCODING, ">", BASE64, "</value>\n"], XML).
 
 
 % Unparse markers
