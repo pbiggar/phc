@@ -505,8 +505,8 @@ to_generic (NODE, GENERIC) :-
 to_generic (NODE, GENERIC) :-
 	hir()->class_mod(ID, IS_ABSTRACT, IS_FINAL),
 	to_node (any{ID}, NODE),
-	GEN_IS_ABSTRACT = gmarker {"abstract", IS_ABSTRACT},
-	GEN_IS_FINAL = gmarker {"final", IS_FINAL},
+	GEN_IS_ABSTRACT = gmarker {"is_abstract", IS_ABSTRACT},
+	GEN_IS_FINAL = gmarker {"is_final", IS_FINAL},
 	GENERIC = gnode{NODE, "Class_mod", [GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
 to_generic (NODE, GENERIC) :-
@@ -545,12 +545,12 @@ to_generic (NODE, GENERIC) :-
 to_generic (NODE, GENERIC) :-
 	hir()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL),
 	to_node (any{ID}, NODE),
-	GEN_IS_PUBLIC = gmarker {"public", IS_PUBLIC},
-	GEN_IS_PROTECTED = gmarker {"protected", IS_PROTECTED},
-	GEN_IS_PRIVATE = gmarker {"private", IS_PRIVATE},
-	GEN_IS_STATIC = gmarker {"static", IS_STATIC},
-	GEN_IS_ABSTRACT = gmarker {"abstract", IS_ABSTRACT},
-	GEN_IS_FINAL = gmarker {"final", IS_FINAL},
+	GEN_IS_PUBLIC = gmarker {"is_public", IS_PUBLIC},
+	GEN_IS_PROTECTED = gmarker {"is_protected", IS_PROTECTED},
+	GEN_IS_PRIVATE = gmarker {"is_private", IS_PRIVATE},
+	GEN_IS_STATIC = gmarker {"is_static", IS_STATIC},
+	GEN_IS_ABSTRACT = gmarker {"is_abstract", IS_ABSTRACT},
+	GEN_IS_FINAL = gmarker {"is_final", IS_FINAL},
 	GENERIC = gnode{NODE, "Method_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
 to_generic (NODE, GENERIC) :-
@@ -587,11 +587,11 @@ to_generic (NODE, GENERIC) :-
 to_generic (NODE, GENERIC) :-
 	hir()->attr_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST),
 	to_node (any{ID}, NODE),
-	GEN_IS_PUBLIC = gmarker {"public", IS_PUBLIC},
-	GEN_IS_PROTECTED = gmarker {"protected", IS_PROTECTED},
-	GEN_IS_PRIVATE = gmarker {"private", IS_PRIVATE},
-	GEN_IS_STATIC = gmarker {"static", IS_STATIC},
-	GEN_IS_CONST = gmarker {"const", IS_CONST},
+	GEN_IS_PUBLIC = gmarker {"is_public", IS_PUBLIC},
+	GEN_IS_PROTECTED = gmarker {"is_protected", IS_PROTECTED},
+	GEN_IS_PRIVATE = gmarker {"is_private", IS_PRIVATE},
+	GEN_IS_STATIC = gmarker {"is_static", IS_STATIC},
+	GEN_IS_CONST = gmarker {"is_const", IS_CONST},
 	GENERIC = gnode{NODE, "Attr_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]}.
 
 to_generic (NODE, GENERIC) :-
