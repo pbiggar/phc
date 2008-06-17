@@ -14,10 +14,10 @@ type t_Attr ::=
 
 % Generics
 type t_Node.
-type t_generic ::= gnode{t_Node, NAME:string, ARGS:list[t_generic]}	
+type t_generic ::= gnode{t_Node, TYPE:string, ARGS:list[t_generic]}	
 					  | gmarker{NAME:string, bool}
-					  | glist{list[t_generic]}
-					  | gmaybe{NAME:string, maybe[t_generic]}
+					  | glist{TYPE:string, list[t_generic]}
+					  | gmaybe{TYPE:string, maybe[t_generic]}
 					  | gstring{string}
 					  | gint{int}
 					  | gfloat{float}
@@ -26,13 +26,13 @@ type t_generic ::= gnode{t_Node, NAME:string, ARGS:list[t_generic]}
 					  .
 
 % Generic lists
-predicate list_to_generic_list (in IDS:list[A], out GENERICS:t_generic).
-list_to_generic_list ([], glist{[]}) :- .
-list_to_generic_list ([H|T], glist{GEN_LIST}) :- 
-	list_to_generic_list (T, GEN_T),
+predicate list_to_generic_list (in TYPE:string, in IDS:list[A], out GENERICS:t_generic).
+list_to_generic_list (TYPE, [], glist{TYPE, []}) :- .
+list_to_generic_list (TYPE, [H|T], glist{TYPE, GEN_LIST}) :- 
+	list_to_generic_list (TYPE, T, GEN_T),
 	to_node (any{H}, N),
 	to_generic (N, GEN_H),
-	GEN_T = glist{TAIL}, % unwrap, and rewrap in header
+	GEN_T = glist{_, TAIL}, % unwrap, and rewrap in header
 	list_append ([GEN_H], TAIL, GEN_LIST).
 
 

@@ -525,7 +525,7 @@ to_node (any{lABEL_NAME_id{ID}}, node_LABEL_NAME{lABEL_NAME_id{ID}}) :- .
 to_generic (NODE, GENERIC) :-
 	mir()->pHP_script(ID, STATEMENTS),
 	to_node (any{ID}, NODE),
-	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
 	GENERIC = gnode{NODE, "PHP_script", [GEN_STATEMENTS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -542,8 +542,8 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_EXTENDS \= yes{_},
 	GEN_OPT_EXTENDS = gmaybe{"CLASS_NAME", no})),
-	list_to_generic_list (IMPLEMENTSS, GEN_IMPLEMENTSS),
-	list_to_generic_list (MEMBERS, GEN_MEMBERS),
+	list_to_generic_list ("INTERFACE_NAME", IMPLEMENTSS, GEN_IMPLEMENTSS),
+	list_to_generic_list ("Member", MEMBERS, GEN_MEMBERS),
 	GENERIC = gnode{NODE, "Class_def", [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -558,8 +558,8 @@ to_generic (NODE, GENERIC) :-
 	to_node (any{ID}, NODE),
 	to_node (any{INTERFACE_NAME}, NODE_INTERFACE_NAME),
 	to_generic (NODE_INTERFACE_NAME, GEN_INTERFACE_NAME),
-	list_to_generic_list (EXTENDSS, GEN_EXTENDSS),
-	list_to_generic_list (MEMBERS, GEN_MEMBERS),
+	list_to_generic_list ("INTERFACE_NAME", EXTENDSS, GEN_EXTENDSS),
+	list_to_generic_list ("Member", MEMBERS, GEN_MEMBERS),
 	GENERIC = gnode{NODE, "Interface_def", [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -568,7 +568,7 @@ to_generic (NODE, GENERIC) :-
 	to_node (any{SIGNATURE}, NODE_SIGNATURE),
 	to_generic (NODE_SIGNATURE, GEN_SIGNATURE),
 	((OPT_STATEMENTS = yes{STATEMENTS},
-	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
 	GEN_OPT_STATEMENTS = gmaybe{"Statement", yes{GEN_STATEMENTS}})
 	;
 	(OPT_STATEMENTS \= yes{_},
@@ -583,7 +583,7 @@ to_generic (NODE, GENERIC) :-
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
-	list_to_generic_list (FORMAL_PARAMETERS, GEN_FORMAL_PARAMETERS),
+	list_to_generic_list ("Formal_parameter", FORMAL_PARAMETERS, GEN_FORMAL_PARAMETERS),
 	GENERIC = gnode{NODE, "Signature", [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -676,8 +676,8 @@ to_generic (NODE, GENERIC) :-
 to_generic (NODE, GENERIC) :-
 	mir()->try(ID, STATEMENTS, CATCHESS),
 	to_node (any{ID}, NODE),
-	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
-	list_to_generic_list (CATCHESS, GEN_CATCHESS),
+	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
+	list_to_generic_list ("Catch", CATCHESS, GEN_CATCHESS),
 	GENERIC = gnode{NODE, "Try", [GEN_STATEMENTS, GEN_CATCHESS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -687,7 +687,7 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	list_to_generic_list (STATEMENTS, GEN_STATEMENTS),
+	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
 	GENERIC = gnode{NODE, "Catch", [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -838,7 +838,7 @@ to_generic (NODE, GENERIC) :-
 	GEN_OPT_TARGET = gmaybe{"Target", no})),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
+	list_to_generic_list ("VARIABLE_NAME", ARRAY_INDICESS, GEN_ARRAY_INDICESS),
 	GENERIC = gnode{NODE, "Variable", [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -860,7 +860,7 @@ to_generic (NODE, GENERIC) :-
 to_generic (NODE, GENERIC) :-
 	mir()->array(ID, ARRAY_ELEMS),
 	to_node (any{ID}, NODE),
-	list_to_generic_list (ARRAY_ELEMS, GEN_ARRAY_ELEMS),
+	list_to_generic_list ("Array_elem", ARRAY_ELEMS, GEN_ARRAY_ELEMS),
 	GENERIC = gnode{NODE, "Array", [GEN_ARRAY_ELEMS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -890,7 +890,7 @@ to_generic (NODE, GENERIC) :-
 	GEN_OPT_TARGET = gmaybe{"Target", no})),
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
-	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
+	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
 	GENERIC = gnode{NODE, "Method_invocation", [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -906,7 +906,7 @@ to_generic (NODE, GENERIC) :-
 	GEN_OPT_TARGET = gmaybe{"Target", no})),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	list_to_generic_list (ARRAY_INDICESS, GEN_ARRAY_INDICESS),
+	list_to_generic_list ("VARIABLE_NAME", ARRAY_INDICESS, GEN_ARRAY_INDICESS),
 	GENERIC = gnode{NODE, "Actual_parameter", [GEN_IS_REF, GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
 
 to_generic (NODE, GENERIC) :-
@@ -914,7 +914,7 @@ to_generic (NODE, GENERIC) :-
 	to_node (any{ID}, NODE),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
-	list_to_generic_list (ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
+	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
 	GENERIC = gnode{NODE, "New", [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
 
 to_generic (NODE, GENERIC) :-
