@@ -1,5 +1,7 @@
 import "cfgdot.clp".
 
+using base64.
+
 
 % Initially, just dump the CFG in any order. After that, we can work on
 % putting the CFG back into a list of statements with labels and gotos. Then,
@@ -56,7 +58,8 @@ to_xml_string (gfloat{VALUE}, XML) :-
 	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
 
 to_xml_string (gstring{VALUE}, XML) :- 
-	str_cat_list (["<value>", VALUE, "</value>\n"], XML).
+	str_to_base64 (VALUE, BASE64),
+	str_cat_list (["<value>", BASE64, "</value>\n"], XML).
 
 to_xml_string (gmarker{NAME, VALUE}, XML) :- 
 	tostring (VALUE, XML_VALUE),

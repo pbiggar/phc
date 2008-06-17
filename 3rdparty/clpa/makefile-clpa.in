@@ -47,6 +47,7 @@ SOURCES += lang/ordering.mli lang/ordering.ml
 SOURCES += lang/builtin.ml lang/builtin.mli
 SOURCES += lang/intops.ml lang/strops.ml lang/mapops.ml
 SOURCES += lang/dotty.ml lang/error.ml lang/display.ml
+SOURCES += lang/base64.ml
 
 SOURCES += solve/mlminisat/mlminisat.cc solve/mlminisat/minisat.ml
 SOURCES += solve/biteval.mli solve/biteval.ml
@@ -153,7 +154,10 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 INCDIRS += solve/minisat $(CILOBJDIR) mlevent libevent
 LIBDIRS += $(CILOBJDIR)
-LIBS = unix nums str $(CILOBJDIR)/cil
+LIBS = nums str $(CILOBJDIR)/cil
+# 'unix' is brought in as part of netstring. Having it separately in LIBS
+# causes errors
+PACKS = netstring
 
 debug:
 	$(MAKE) -f makefile-clpa all TARGET=dc
