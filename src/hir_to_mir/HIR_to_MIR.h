@@ -363,10 +363,10 @@ public:
 		return result;
 	}
 
-	MIR::Pre_op* fold_impl_pre_op(HIR::Pre_op* orig, MIR::OP* op, MIR::Variable* variable) 
+	MIR::Pre_op* fold_impl_pre_op(HIR::Pre_op* orig, MIR::OP* op, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Pre_op* result;
-		result = new MIR::Pre_op(op, variable);
+		result = new MIR::Pre_op(op, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

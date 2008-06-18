@@ -171,7 +171,7 @@ Expr* Transform::pre_instanceof(Instanceof* in)
     return in;
 }
 
-Variable* Transform::pre_variable(Variable* in)
+Expr* Transform::pre_variable(Variable* in)
 {
     return in;
 }
@@ -447,7 +447,7 @@ Expr* Transform::post_instanceof(Instanceof* in)
     return in;
 }
 
-Variable* Transform::post_variable(Variable* in)
+Expr* Transform::post_variable(Variable* in)
 {
     return in;
 }
@@ -770,7 +770,7 @@ void Transform::children_reflection(Reflection* in)
 void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
-    in->variable = transform_variable(in->variable);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_method_invocation(Method_invocation* in)
@@ -1310,22 +1310,6 @@ Class_name* Transform::transform_class_name(Class_name* in)
     {
     	children_class_name(out);
     	out = post_class_name(out);
-    }
-    
-    return out;
-}
-
-Variable* Transform::transform_variable(Variable* in)
-{
-    if(in == NULL) return NULL;
-    
-    Variable* out;
-    
-    out = pre_variable(in);
-    if(out != NULL)
-    {
-    	children_variable(out);
-    	out = post_variable(out);
     }
     
     return out;

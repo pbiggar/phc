@@ -527,9 +527,9 @@ public:
 	{
 		_OP op = 0;
 		if(in->op != NULL) op = fold_op(in->op);
-		_Variable variable = 0;
-		if(in->variable != NULL) variable = fold_variable(in->variable);
-		return fold_impl_pre_op(in, op, variable);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_pre_op(in, op, variable_name);
 	}
 
 	virtual _Method_invocation fold_method_invocation(Method_invocation* in)
@@ -659,7 +659,7 @@ public:
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
 	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name, _VARIABLE_NAME array_index) { assert(0); };
 	virtual _Reflection fold_impl_reflection(Reflection* orig, _VARIABLE_NAME variable_name) { assert(0); };
-	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _Variable variable) { assert(0); };
+	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };

@@ -120,8 +120,7 @@ Reflection ::= VARIABLE_NAME ;
 
 Target ::= VARIABLE_NAME | CLASS_NAME ;
 
--- Pre_op cannot be converted to a VARIABLE_NAME due to, for example, ++$x->z.
-Pre_op ::= OP Variable ;
+Pre_op ::= OP VARIABLE_NAME ;
 
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
@@ -477,9 +476,9 @@ public:
 class Pre_op
 {
 public:
-	Pre_op(Variable* var, const char* op) 
+	Pre_op(VARIABLE_NAME* var_name, const char* op) 
 	{
-		this->variable = var;
+		this->variable_name = var_name;
 		this->op = new OP(new String(op));
 	}
 };

@@ -784,7 +784,7 @@ void Visitor::children_reflection(Reflection* in)
 void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
-    visit_variable(in->variable);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_method_invocation(Method_invocation* in)
@@ -2063,18 +2063,6 @@ void Visitor::visit_class_name(Class_name* in)
     	pre_class_name_chain(in);
     	children_class_name(in);
     	post_class_name_chain(in);
-    }
-}
-
-void Visitor::visit_variable(Variable* in)
-{
-    if(in == NULL)
-    	visit_null("HIR", "Variable");
-    else
-    {
-    	pre_variable_chain(in);
-    	children_variable(in);
-    	post_variable_chain(in);
     }
 }
 

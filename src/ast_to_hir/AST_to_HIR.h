@@ -553,7 +553,7 @@ private:
 	HIR::Expr* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
 	{
 		HIR::Pre_op* result;
-		result = new HIR::Pre_op(op, variable);
+		result = new HIR::Pre_op(op, expr_to_var_name (variable));
 		copy_attrs (result, orig);
 		eval_expr_assignment = result;
 

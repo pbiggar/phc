@@ -247,9 +247,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Pre_op"))
     {
     	OP* op = dynamic_cast<OP*>(*i++);
-    	Variable* variable = dynamic_cast<Variable*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Pre_op(op, variable);
+    	return new Pre_op(op, variable_name);
     }
     if(!strcmp(type_id, "Method_invocation"))
     {

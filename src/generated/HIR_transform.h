@@ -60,7 +60,7 @@ public:
     virtual Expr* pre_bin_op(Bin_op* in);
     virtual Constant* pre_constant(Constant* in);
     virtual Expr* pre_instanceof(Instanceof* in);
-    virtual Variable* pre_variable(Variable* in);
+    virtual Expr* pre_variable(Variable* in);
     virtual Reflection* pre_reflection(Reflection* in);
     virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* pre_method_invocation(Method_invocation* in);
@@ -117,7 +117,7 @@ public:
     virtual Expr* post_bin_op(Bin_op* in);
     virtual Constant* post_constant(Constant* in);
     virtual Expr* post_instanceof(Instanceof* in);
-    virtual Variable* post_variable(Variable* in);
+    virtual Expr* post_variable(Variable* in);
     virtual Reflection* post_reflection(Reflection* in);
     virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
     virtual Expr* post_method_invocation(Method_invocation* in);
@@ -228,7 +228,6 @@ public:
     virtual OP* transform_op(OP* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
-    virtual Variable* transform_variable(Variable* in);
     virtual Method_name* transform_method_name(Method_name* in);
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);

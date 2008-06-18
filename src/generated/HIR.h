@@ -1584,16 +1584,16 @@ public:
     virtual void assert_valid();
 };
 
-// Pre_op ::= OP Variable ;
+// Pre_op ::= OP VARIABLE_NAME ;
 class Pre_op : virtual public Statement
 {
 public:
-    Pre_op(OP* op, Variable* variable);
+    Pre_op(OP* op, VARIABLE_NAME* variable_name);
 protected:
     Pre_op();
 public:
     OP* op;
-    Variable* variable;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1613,7 +1613,7 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Pre_op(Variable* var, const char* op);
+    Pre_op(VARIABLE_NAME* var_name, const char* op);
 };
 
 // Method_invocation ::= Target? Method_name Actual_parameter* ;

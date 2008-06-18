@@ -1933,7 +1933,7 @@ public:
 	bool match(Statement* that)
 	{
 		op = new Wildcard<OP>;
-		var = new Wildcard<Variable>;
+		var = new Wildcard<VARIABLE_NAME>;
 		return(that->match(new Pre_op(op, var)));
 	}
 
@@ -1956,7 +1956,7 @@ public:
 	}
 
 protected:
-	Wildcard<Variable>* var;
+	Wildcard<VARIABLE_NAME>* var;
 	Wildcard<OP>* op;
 };
 

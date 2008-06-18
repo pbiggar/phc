@@ -408,7 +408,6 @@ public:
     virtual void visit_op(OP* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
-    virtual void visit_variable(Variable* in);
     virtual void visit_method_name(Method_name* in);
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);

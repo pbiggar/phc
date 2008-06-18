@@ -461,10 +461,10 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_pre_op(HIR::Pre_op* orig, AST::OP* op, AST::Variable* variable) 
+	AST::Eval_expr* fold_impl_pre_op(HIR::Pre_op* orig, AST::OP* op, AST::VARIABLE_NAME* variable_name)
 	{
 		AST::Pre_op* result;
-		result = new AST::Pre_op(op, variable);
+		result = new AST::Pre_op(op, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}

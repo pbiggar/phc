@@ -5278,12 +5278,12 @@ Variable::Variable()
 
 void Variable::visit(Visitor* visitor)
 {
-    visitor->visit_variable(this);
+    visitor->visit_expr(this);
 }
 
 void Variable::transform_children(Transform* transform)
 {
-    transform->children_variable(this);
+    transform->children_expr(this);
 }
 
 int Variable::classid()
@@ -5533,16 +5533,16 @@ void Reflection::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Pre_op::Pre_op(OP* op, Variable* variable)
+Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
 {
     this->op = op;
-    this->variable = variable;
+    this->variable_name = variable_name;
 }
 
 Pre_op::Pre_op()
 {
     this->op = 0;
-    this->variable = 0;
+    this->variable_name = 0;
 }
 
 void Pre_op::visit(Visitor* visitor)
@@ -5578,12 +5578,12 @@ bool Pre_op::match(Node* in)
     else if(!this->op->match(that->op))
     	return false;
     
-    if(this->variable == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->variable != NULL && !that->variable->match(this->variable))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->variable->match(that->variable))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -5602,12 +5602,12 @@ bool Pre_op::equals(Node* in)
     else if(!this->op->equals(that->op))
     	return false;
     
-    if(this->variable == NULL || that->variable == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->variable != NULL || that->variable != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->variable->equals(that->variable))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -5617,8 +5617,8 @@ bool Pre_op::equals(Node* in)
 Pre_op* Pre_op::clone()
 {
     OP* op = this->op ? this->op->clone() : NULL;
-    Variable* variable = this->variable ? this->variable->clone() : NULL;
-    Pre_op* clone = new Pre_op(op, variable);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Pre_op* clone = new Pre_op(op, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -5634,10 +5634,10 @@ Node* Pre_op::find(Node* in)
     	if (op_res) return op_res;
     }
     
-    if (this->variable != NULL)
+    if (this->variable_name != NULL)
     {
-    	Node* variable_res = this->variable->find(in);
-    	if (variable_res) return variable_res;
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
     }
     
     return NULL;
@@ -5651,8 +5651,8 @@ void Pre_op::find_all(Node* in, List<Node*>* out)
     if (this->op != NULL)
     	this->op->find_all(in, out);
     
-    if (this->variable != NULL)
-    	this->variable->find_all(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
@@ -5660,15 +5660,15 @@ void Pre_op::assert_valid()
 {
     assert(op != NULL);
     op->assert_valid();
-    assert(variable != NULL);
-    variable->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Pre_op::Pre_op(Variable* var, const char* op)
+Pre_op::Pre_op(VARIABLE_NAME* var_name, const char* op)
 {
     {
-		this->variable = var;
+		this->variable_name = var_name;
 		this->op = new OP(new String(op));
 	}
 }

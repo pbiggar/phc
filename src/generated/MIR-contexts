@@ -52,7 +52,7 @@
 (Try,Statement,*)
 (Type,Type,)
 (Unary_op,Expr,)
-(Variable,Variable,)
+(Variable,Expr,)
 (Variable_name,Variable_name,)
 (BOOL<bool>,Literal,)
 (CAST,CAST,)
