@@ -18,6 +18,7 @@ void debug (AST::Node *in)
 {
 	static AST_unparser *pup = new AST_unparser (cdebug);
 	pup->unparse (in);
+	cdebug << endl;
 }
 
 void xdebug (AST::Node* in)
@@ -36,6 +37,7 @@ void debug (HIR::Node *in)
 {
 	static HIR_unparser *pup = new HIR_unparser (cdebug);
 	pup->unparse (in);
+	cdebug << endl;
 }
 
 void xdebug (HIR::Node* in)
@@ -55,6 +57,7 @@ void debug (MIR::Node *in)
 {
 	static MIR_unparser *pup = new MIR_unparser (cdebug);
 	pup->unparse (in);
+	cdebug << endl;
 }
 
 void xdebug (MIR::Node* in)
