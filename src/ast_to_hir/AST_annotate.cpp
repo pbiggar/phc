@@ -36,8 +36,10 @@ void mark_var_as_lhs (AST::Variable* in)
 void Annotate::pre_assignment(Assignment* in)
 {
 	// Assignments of the form $$e =& $d dont work if $$e is split
-	// into a temporary first
-	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID)
+	// into a temporary first, except if they have array_indices.
+	// TODO: what about if they have targets?
+	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID
+		&& (!isa<Variable>(in->expr) || dyc<Variable>(in->expr)->array_indices->size () == 0))
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;
@@ -62,6 +64,13 @@ void Annotate::pre_assignment(Assignment* in)
 			false /*ignore*/, 
 			new Wildcard<Expr>)))
 		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+
+	// Except for $x = {$y}[$z], which must be split
+	if (in->expr->match (new Variable (
+			new Wildcard<Target>,
+			new Wildcard<Reflection>,
+			NULL)))
+		in->expr->attrs->erase ("phc.ast_lower_expr.no_temp");
 }
 
 // op_assignments are never by reference
