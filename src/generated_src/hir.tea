@@ -82,7 +82,6 @@ Return ::= Expr ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;
--- Variable_name ::= VARIABLE_NAME | Variable_variable;
 
 Try ::= Statement* catches:Catch* ;
 Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
@@ -92,6 +91,8 @@ Assign_var     ::= Target? lhs:VARIABLE_NAME								is_ref:"&"? rhs:Expr ;
 Assign_array   ::= Target? lhs:VARIABLE_NAME index:VARIABLE_NAME	is_ref:"&"? rhs:VARIABLE_NAME ;
 Assign_var_var ::= Target? lhs:VARIABLE_NAME						      is_ref:"&"? rhs:VARIABLE_NAME ;
 Push_array     ::= Target? lhs:VARIABLE_NAME								is_ref:"&"? rhs:VARIABLE_NAME ;
+
+Pre_op ::= OP VARIABLE_NAME ;
 
 -- Some exprs can be invoked with and without a lhs
 Eval_expr ::= Expr ;
@@ -103,16 +104,16 @@ Eval_expr ::= Expr ;
 Expr ::=
 	  Cast | Unary_op | Bin_op 
 	| Constant | Instanceof
-	| Variable
 	| Method_invocation | New
 	| Literal 
--- | Variable_name | Index_array
 	| Foreign_expr
+	| Variable -- begin the process of removing variable
+	| Index_array
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
    
--- Index_array       ::= VARIABLE_NAME index:VARIABLE_NAME ;
+Index_array ::= Target? VARIABLE_NAME index:VARIABLE_NAME ;
 -- Variable_variable ::= VARIABLE_NAME ; 
 
 Cast     ::= CAST VARIABLE_NAME ;
@@ -123,13 +124,11 @@ Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 Instanceof ::= VARIABLE_NAME Class_name ;
 
-Variable ::= Target? Variable_name array_index:VARIABLE_NAME? ;
+Variable ::= Target? Variable_name ;
 Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
 Target ::= VARIABLE_NAME | CLASS_NAME ;
-
-Pre_op ::= OP VARIABLE_NAME ;
 
 Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Reflection ;
@@ -367,14 +366,12 @@ public:
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_index = NULL;
 	}
 
 	bool is_simple_variable ()
 	{
 		return (
 				target == NULL
-			&& array_index == NULL
 			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 };

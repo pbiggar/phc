@@ -21,6 +21,7 @@
 (Formal_parameter,Formal_parameter,*)
 (Global,Statement,*)
 (If,Statement,*)
+(Index_array,Expr,)
 (Instanceof,Expr,)
 (Interface_def,Statement,*)
 (Literal,Literal,)

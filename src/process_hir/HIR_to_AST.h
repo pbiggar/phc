@@ -54,6 +54,7 @@ class HIR_to_AST : public HIR::Fold
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
  AST::If*,						// If*
+ AST::Variable*,				// Index_array*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
  AST::Literal*,				// Literal*
@@ -442,13 +443,24 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Node* target, AST::Variable_name* variable_name, AST::VARIABLE_NAME* array_index) 
+	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name, AST::VARIABLE_NAME* array_index)
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
 			wrap_target (target),
 			variable_name,
 			wrap_var_name_in_list (array_index));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Node* target, AST::Variable_name* variable_name) 
+	{
+		AST::Variable* result;
+		result = new AST::Variable(
+			wrap_target (target),
+			variable_name,
+			new List<AST::Expr*> ());
 		result->attrs = orig->attrs;
 		return result;
 	}

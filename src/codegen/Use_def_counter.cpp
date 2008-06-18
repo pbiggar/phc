@@ -32,8 +32,7 @@ VARIABLE_NAME* simple_var (Expr* in)
 		return NULL;
 
 	// Normal vars only, not array_indices or var-vars
-	if (var->array_index
-		|| var->target)
+	if (var->target)
 		return NULL;
 
 	return dynamic_cast<VARIABLE_NAME*> (var->variable_name);

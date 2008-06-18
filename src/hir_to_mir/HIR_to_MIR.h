@@ -54,6 +54,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::INTERFACE_NAME*,		// INTERFACE_NAME*
  MIR::Identifier*,			// Identifier*
  MIR::Statement*,				// If*
+ MIR::Index_array*,			// Index_array*
  MIR::Instanceof*,			// Instanceof*
  MIR::Interface_def*,		// Interface_def*
  MIR::Literal*,				// Literal*
@@ -300,7 +301,6 @@ public:
 		assert (var);
 		assert (var->target == NULL);
 		assert (var->variable_name);
-		assert (var->array_index == NULL);
 
 		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
 		assert (var_name);
@@ -347,10 +347,18 @@ public:
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, MIR::VARIABLE_NAME* array_index) 
+	MIR::Index_array* fold_impl_index_array(HIR::Index_array* orig, MIR::Target* target, MIR::VARIABLE_NAME* variable_name, MIR::VARIABLE_NAME* index)
+	{
+		MIR::Index_array* result;
+		result = new MIR::Index_array(target, variable_name, index);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
 	{
 		MIR::Variable* result;
-		result = new MIR::Variable(target, variable_name, array_index);
+		result = new MIR::Variable(target, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -141,9 +141,19 @@ void Transform::pre_push_array(Push_array* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::pre_pre_op(Pre_op* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
+}
+
+Expr* Transform::pre_index_array(Index_array* in)
+{
+    return in;
 }
 
 Expr* Transform::pre_cast(Cast* in)
@@ -179,11 +189,6 @@ Expr* Transform::pre_variable(Variable* in)
 Reflection* Transform::pre_reflection(Reflection* in)
 {
     return in;
-}
-
-void Transform::pre_pre_op(Pre_op* in, List<Statement*>* out)
-{
-    out->push_back(in);
 }
 
 Expr* Transform::pre_method_invocation(Method_invocation* in)
@@ -241,6 +246,11 @@ VARIABLE_NAME* Transform::pre_variable_name(VARIABLE_NAME* in)
     return in;
 }
 
+OP* Transform::pre_op(OP* in)
+{
+    return in;
+}
+
 Literal* Transform::pre_int(INT* in)
 {
     return in;
@@ -267,11 +277,6 @@ Literal* Transform::pre_nil(NIL* in)
 }
 
 CAST* Transform::pre_cast(CAST* in)
-{
-    return in;
-}
-
-OP* Transform::pre_op(OP* in)
 {
     return in;
 }
@@ -417,9 +422,19 @@ void Transform::post_push_array(Push_array* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::post_pre_op(Pre_op* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
 void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 {
     out->push_back(in);
+}
+
+Expr* Transform::post_index_array(Index_array* in)
+{
+    return in;
 }
 
 Expr* Transform::post_cast(Cast* in)
@@ -455,11 +470,6 @@ Expr* Transform::post_variable(Variable* in)
 Reflection* Transform::post_reflection(Reflection* in)
 {
     return in;
-}
-
-void Transform::post_pre_op(Pre_op* in, List<Statement*>* out)
-{
-    out->push_back(in);
 }
 
 Expr* Transform::post_method_invocation(Method_invocation* in)
@@ -517,6 +527,11 @@ VARIABLE_NAME* Transform::post_variable_name(VARIABLE_NAME* in)
     return in;
 }
 
+OP* Transform::post_op(OP* in)
+{
+    return in;
+}
+
 Literal* Transform::post_int(INT* in)
 {
     return in;
@@ -543,11 +558,6 @@ Literal* Transform::post_nil(NIL* in)
 }
 
 CAST* Transform::post_cast(CAST* in)
-{
-    return in;
-}
-
-OP* Transform::post_op(OP* in)
 {
     return in;
 }
@@ -719,9 +729,22 @@ void Transform::children_push_array(Push_array* in)
     in->rhs = transform_variable_name(in->rhs);
 }
 
+void Transform::children_pre_op(Pre_op* in)
+{
+    in->op = transform_op(in->op);
+    in->variable_name = transform_variable_name(in->variable_name);
+}
+
 void Transform::children_eval_expr(Eval_expr* in)
 {
     in->expr = transform_expr(in->expr);
+}
+
+void Transform::children_index_array(Index_array* in)
+{
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->index = transform_variable_name(in->index);
 }
 
 void Transform::children_cast(Cast* in)
@@ -759,17 +782,10 @@ void Transform::children_variable(Variable* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->array_index = transform_variable_name(in->array_index);
 }
 
 void Transform::children_reflection(Reflection* in)
 {
-    in->variable_name = transform_variable_name(in->variable_name);
-}
-
-void Transform::children_pre_op(Pre_op* in)
-{
-    in->op = transform_op(in->op);
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
@@ -829,6 +845,10 @@ void Transform::children_variable_name(VARIABLE_NAME* in)
 {
 }
 
+void Transform::children_op(OP* in)
+{
+}
+
 void Transform::children_int(INT* in)
 {
 }
@@ -850,10 +870,6 @@ void Transform::children_nil(NIL* in)
 }
 
 void Transform::children_cast(CAST* in)
-{
-}
-
-void Transform::children_op(OP* in)
 {
 }
 
@@ -1251,22 +1267,6 @@ Target* Transform::transform_target(Target* in)
     return out;
 }
 
-CAST* Transform::transform_cast(CAST* in)
-{
-    if(in == NULL) return NULL;
-    
-    CAST* out;
-    
-    out = pre_cast(in);
-    if(out != NULL)
-    {
-    	children_cast(out);
-    	out = post_cast(out);
-    }
-    
-    return out;
-}
-
 OP* Transform::transform_op(OP* in)
 {
     if(in == NULL) return NULL;
@@ -1278,6 +1278,22 @@ OP* Transform::transform_op(OP* in)
     {
     	children_op(out);
     	out = post_op(out);
+    }
+    
+    return out;
+}
+
+CAST* Transform::transform_cast(CAST* in)
+{
+    if(in == NULL) return NULL;
+    
+    CAST* out;
+    
+    out = pre_cast(in);
+    if(out != NULL)
+    {
+    	children_cast(out);
+    	out = post_cast(out);
     }
     
     return out;
@@ -1693,7 +1709,6 @@ Expr* Transform::pre_expr(Expr* in)
     case Bin_op::ID: return pre_bin_op(dynamic_cast<Bin_op*>(in));
     case Constant::ID: return pre_constant(dynamic_cast<Constant*>(in));
     case Instanceof::ID: return pre_instanceof(dynamic_cast<Instanceof*>(in));
-    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return pre_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return pre_new(dynamic_cast<New*>(in));
     case INT::ID: return pre_int(dynamic_cast<INT*>(in));
@@ -1702,6 +1717,8 @@ Expr* Transform::pre_expr(Expr* in)
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
+    case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     }
     assert(0);
 }
@@ -2000,7 +2017,6 @@ Expr* Transform::post_expr(Expr* in)
     case Bin_op::ID: return post_bin_op(dynamic_cast<Bin_op*>(in));
     case Constant::ID: return post_constant(dynamic_cast<Constant*>(in));
     case Instanceof::ID: return post_instanceof(dynamic_cast<Instanceof*>(in));
-    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Method_invocation::ID: return post_method_invocation(dynamic_cast<Method_invocation*>(in));
     case New::ID: return post_new(dynamic_cast<New*>(in));
     case INT::ID: return post_int(dynamic_cast<INT*>(in));
@@ -2009,6 +2025,8 @@ Expr* Transform::post_expr(Expr* in)
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
+    case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     }
     assert(0);
 }
@@ -2196,9 +2214,6 @@ void Transform::children_expr(Expr* in)
     case Instanceof::ID:
     	children_instanceof(dynamic_cast<Instanceof*>(in));
     	break;
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
     case Method_invocation::ID:
     	children_method_invocation(dynamic_cast<Method_invocation*>(in));
     	break;
@@ -2222,6 +2237,12 @@ void Transform::children_expr(Expr* in)
     	break;
     case Foreign_expr::ID:
     	children_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+    	break;
+    case Variable::ID:
+    	children_variable(dynamic_cast<Variable*>(in));
+    	break;
+    case Index_array::ID:
+    	children_index_array(dynamic_cast<Index_array*>(in));
     	break;
     }
 }

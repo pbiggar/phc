@@ -25,6 +25,7 @@
 
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/General.h"
+#include "process_ir/XML_unparser.h"
 #include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
@@ -38,8 +39,9 @@ using namespace MIR;
 void phc_unsupported (Node* node)
 {
 	cerr << "This context does not yet support this feature:" << endl;
-	debug (node);
-	xdebug (node);
+	node->visit (new MIR_unparser (cerr, true));
+	node->visit (new MIR_XML_unparser (cerr));
+	abort ();
 }
 
 // A single pass isnt really sufficient, but we can hack around it
@@ -277,29 +279,9 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 		string zvp_name = ss.str ();
 
 		read_st (scope, zvp_name, get_var_name (var));
-		if (var->array_index)
-		{
-			stringstream ss;
-			ss << zvp << "_index";
-			string zvp_index = ss.str ();
-
-			code
-				<< "// Array assignment\n";
-			read_simple (scope, zvp_index, var->array_index);
-
-			code
-				<<	zvp << " = get_ht_entry ("
-				<<		zvp_name << ", "
-				<<		zvp_index
-				<<		" TSRMLS_CC);\n"
-				;
-		}
-		else
-		{
-			code 
-				<< "// Normal Assignment\n"
-				<< zvp << " = " << zvp_name << ";\n";
-		}
+		code 
+			<< "// Normal Assignment\n"
+			<< zvp << " = " << zvp_name << ";\n";
 	}
 	else
 	{
@@ -311,6 +293,39 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 	}
 }
 
+void index_array_index (Scope scope, string zvp, Index_array* ia)
+{
+	VARIABLE_NAME* var_name = ia->variable_name;
+
+	// TODO: deal with object indexing
+	if (ia->target) phc_unsupported (ia);
+
+	code
+		<< "zval** " << zvp << ";\n";
+
+	// lhs_var can exist more than once; rename
+	stringstream ss_var;
+	ss_var << zvp << "_var";
+	string zvp_name = ss_var.str ();
+
+	read_st (scope, zvp_name, var_name);
+	stringstream ss_index;
+	ss_index << zvp << "_index";
+	string zvp_index = ss_index.str ();
+
+	code
+		<< "// Array assignment\n";
+	read_simple (scope, zvp_index, ia->index);
+
+	code
+		<<	zvp << " = get_ht_entry ("
+		<<		zvp_name << ", "
+		<<		zvp_index
+		<<		" TSRMLS_CC);\n"
+		;
+}
+
+
 /* wrappers */
 void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
@@ -318,8 +333,14 @@ void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
 }
 void index_lhs (Scope scope, string zvp, Expr* expr)
 {
-	index_lhs (scope, zvp, get_var_name (expr));
+	// dispatch manually for now
+	if (isa<Index_array> (expr))
+		index_array_index (LOCAL, "p_rhs", dyc<Index_array> (expr));
+	else
+		index_lhs (LOCAL, "p_rhs", dyc<Variable> (expr));
 }
+
+
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read (Scope scope, string zvp, Variable* var)
@@ -330,34 +351,14 @@ void read (Scope scope, string zvp, Variable* var)
 	Variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
 	{
-		if (var->array_index)
-		{
-			// access var as an array
-			code << "// Read array variable\n";
-
-			read_simple (scope, "r_array", get_var_name (var));
-			read_simple (scope, "ra_index", var->array_index);
-
-			code
-				<< "read_array ("
-				<<		zvp << ", "
-				<<		"r_array, "
-				<<		"ra_index, "
-				<<		"&is_" << zvp << "_new "
-				<<		" TSRMLS_CC);\n"
-				;
-		}
-		else
-		{
-			stringstream ss;
-			ss << zvp << "var";
-			string name = ss.str ();
-			read_simple (scope, name, get_var_name (var));
-			// the same as read_simple, but doesnt declare
-			code 
-				<< "// Read normal variable\n"
-				<< zvp << " = &" << name << ";\n"; 
-		}
+		stringstream ss;
+		ss << zvp << "var";
+		string name = ss.str ();
+		read_simple (scope, name, get_var_name (var));
+		// the same as read_simple, but doesnt declare
+		code 
+			<< "// Read normal variable\n"
+			<< zvp << " = &" << name << ";\n"; 
 	}
 	else
 	{
@@ -366,35 +367,16 @@ void read (Scope scope, string zvp, Variable* var)
 		Reflection* refl;
 		refl = dynamic_cast<Reflection*>(var->variable_name);
 
-		if (var->array_index)
-		{
-			// access var as an array
-			code << "// Read array variable-variable\n";
+		code << "// Read variable variable\n";
 
-			read_simple (scope, "refl", get_var_name (refl));
-			read_simple (scope, "refl_index", var->array_index);
+		read_simple (scope, "refl", get_var_name (refl));
 
-			code
-				<< "read_var_array ("
-				<<		get_scope (scope) << ", "
-				<<		zvp << ", " 
-				<<		"refl, "
-				<<		"refl_index "
-				<<		" TSRMLS_CC);\n";
-		}
-		else
-		{
-			code << "// Read variable variable\n";
-
-			read_simple (scope, "refl", get_var_name (refl));
-
-			code
-				<< zvp << " = read_var_var (" 
-				<<		get_scope (scope) << ", "
-				<<		"refl "
-				<<		" TSRMLS_CC);\n"
-				;
-		}
+		code
+			<< zvp << " = read_var_var (" 
+			<<		get_scope (scope) << ", "
+			<<		"refl "
+			<<		" TSRMLS_CC);\n"
+			;
 	}
 }
 
@@ -409,7 +391,27 @@ void read (Scope scope, string zvp, Expr* expr)
 }
 
 
+void read_array_index (Scope scope, string zvp, Index_array* ia)
+{
+	// TODO: deal with object indexing
+	if (ia->target) phc_unsupported (ia);
 
+	VARIABLE_NAME* var_name  = ia->variable_name;
+	// access var as an array
+	code << "// Read array variable\n";
+
+	read_simple (scope, "r_array", var_name);
+	read_simple (scope, "ra_index", ia->index);
+
+	code
+		<< "read_array ("
+		<<		zvp << ", "
+		<<		"r_array, "
+		<<		"ra_index, "
+		<<		"&is_" << zvp << "_new "
+		<<		" TSRMLS_CC);\n"
+		;
+}
 
 // Implementation of "global" (used in various places)
 void global (Variable_name* var_name)
@@ -1274,6 +1276,45 @@ protected:
 	Wildcard<Variable>* rhs;
 };
 
+class Pattern_assign_array_index_to_var : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Index_array>;
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+			read_array_index (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "if (*p_lhs != *p_rhs)\n"
+				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			index_array_index (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
+	}
+
+protected:
+	Wildcard<Index_array>* rhs;
+};
+
 class Pattern_cast : public Pattern_assign_var
 {
 public:
@@ -1989,7 +2030,10 @@ class Pattern_return : public Pattern
 		else
 		{
 			// converted into an array
-			index_lhs (LOCAL, "p_rhs", expr->value);
+			if (isa<Index_array> (expr->value))
+				index_lhs (LOCAL, "p_rhs", dyc<Index_array> (expr->value));
+			else
+				index_lhs (LOCAL, "p_rhs", expr->value);
 
 			code
 				<< "sep_copy_on_write_ex (p_rhs);\n"
@@ -2375,6 +2419,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_nil ()
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
+	,	new Pattern_assign_array_index_to_var ()
 //	,	new Pattern_assign_var_var () TODO
 	,	new Pattern_assign_array ()
 	,	new Pattern_push_array ()
@@ -2416,8 +2461,8 @@ void Generate_C::children_statement(Statement* in)
 	if(not matched)
 	{
 		cerr << "could not generate code for " << demangle(in, true) << endl;
-		debug (in);
-		xdebug (in);
+		in->visit (new MIR_unparser (cout, true));
+		in->visit (new MIR_XML_unparser (cout));
 		abort();
 	}
 }

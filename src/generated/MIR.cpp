@@ -4442,6 +4442,146 @@ void Push_array::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
+{
+    this->op = op;
+    this->variable_name = variable_name;
+}
+
+Pre_op::Pre_op()
+{
+    this->op = 0;
+    this->variable_name = 0;
+}
+
+void Pre_op::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Pre_op::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Pre_op::classid()
+{
+    return ID;
+}
+
+bool Pre_op::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL)
+    {
+    	if(that->op != NULL && !that->op->match(this->op))
+    		return false;
+    }
+    else if(!this->op->match(that->op))
+    	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Pre_op::equals(Node* in)
+{
+    Pre_op* that = dynamic_cast<Pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL || that->op == NULL)
+    {
+    	if(this->op != NULL || that->op != NULL)
+    		return false;
+    }
+    else if(!this->op->equals(that->op))
+    	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Pre_op* Pre_op::clone()
+{
+    OP* op = this->op ? this->op->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Pre_op* clone = new Pre_op(op, variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Pre_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    return NULL;
+}
+
+void Pre_op::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+}
+
+void Pre_op::assert_valid()
+{
+    assert(op != NULL);
+    op->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Pre_op::Pre_op(VARIABLE_NAME* var_name, const char* op)
+{
+    {
+		this->variable_name = var_name;
+		this->op = new OP(new String(op));
+	}
+}
+
 Eval_expr::Eval_expr(Expr* expr)
 {
     this->expr = expr;
@@ -4546,6 +4686,167 @@ void Eval_expr::assert_valid()
 
 Literal::Literal()
 {
+}
+
+Index_array::Index_array(Target* target, VARIABLE_NAME* variable_name, VARIABLE_NAME* index)
+{
+    this->target = target;
+    this->variable_name = variable_name;
+    this->index = index;
+}
+
+Index_array::Index_array()
+{
+    this->target = 0;
+    this->variable_name = 0;
+    this->index = 0;
+}
+
+void Index_array::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Index_array::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Index_array::classid()
+{
+    return ID;
+}
+
+bool Index_array::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Index_array* that = dynamic_cast<Index_array*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL)
+    {
+    	if(that->target != NULL && !that->target->match(this->target))
+    		return false;
+    }
+    else if(!this->target->match(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->index == NULL)
+    {
+    	if(that->index != NULL && !that->index->match(this->index))
+    		return false;
+    }
+    else if(!this->index->match(that->index))
+    	return false;
+    
+    return true;
+}
+
+bool Index_array::equals(Node* in)
+{
+    Index_array* that = dynamic_cast<Index_array*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL || that->target == NULL)
+    {
+    	if(this->target != NULL || that->target != NULL)
+    		return false;
+    }
+    else if(!this->target->equals(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->index == NULL || that->index == NULL)
+    {
+    	if(this->index != NULL || that->index != NULL)
+    		return false;
+    }
+    else if(!this->index->equals(that->index))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Index_array* Index_array::clone()
+{
+    Target* target = this->target ? this->target->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* index = this->index ? this->index->clone() : NULL;
+    Index_array* clone = new Index_array(target, variable_name, index);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Index_array::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    if (this->index != NULL)
+    {
+    	Node* index_res = this->index->find(in);
+    	if (index_res) return index_res;
+    }
+    
+    return NULL;
+}
+
+void Index_array::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+    if (this->index != NULL)
+    	this->index->find_all(in, out);
+    
+}
+
+void Index_array::assert_valid()
+{
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(index != NULL);
+    index->assert_valid();
+    Node::assert_mixin_valid();
 }
 
 Cast::Cast(CAST* cast, VARIABLE_NAME* variable_name)
@@ -5262,18 +5563,16 @@ void Instanceof::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name, VARIABLE_NAME* array_index)
+Variable::Variable(Target* target, Variable_name* variable_name)
 {
     this->target = target;
     this->variable_name = variable_name;
-    this->array_index = array_index;
 }
 
 Variable::Variable()
 {
     this->target = 0;
     this->variable_name = 0;
-    this->array_index = 0;
 }
 
 void Variable::visit(Visitor* visitor)
@@ -5317,14 +5616,6 @@ bool Variable::match(Node* in)
     else if(!this->variable_name->match(that->variable_name))
     	return false;
     
-    if(this->array_index == NULL)
-    {
-    	if(that->array_index != NULL && !that->array_index->match(this->array_index))
-    		return false;
-    }
-    else if(!this->array_index->match(that->array_index))
-    	return false;
-    
     return true;
 }
 
@@ -5349,14 +5640,6 @@ bool Variable::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(this->array_index == NULL || that->array_index == NULL)
-    {
-    	if(this->array_index != NULL || that->array_index != NULL)
-    		return false;
-    }
-    else if(!this->array_index->equals(that->array_index))
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -5365,8 +5648,7 @@ Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    VARIABLE_NAME* array_index = this->array_index ? this->array_index->clone() : NULL;
-    Variable* clone = new Variable(target, variable_name, array_index);
+    Variable* clone = new Variable(target, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -5388,12 +5670,6 @@ Node* Variable::find(Node* in)
     	if (variable_name_res) return variable_name_res;
     }
     
-    if (this->array_index != NULL)
-    {
-    	Node* array_index_res = this->array_index->find(in);
-    	if (array_index_res) return array_index_res;
-    }
-    
     return NULL;
 }
 
@@ -5408,9 +5684,6 @@ void Variable::find_all(Node* in, List<Node*>* out)
     if (this->variable_name != NULL)
     	this->variable_name->find_all(in, out);
     
-    if (this->array_index != NULL)
-    	this->array_index->find_all(in, out);
-    
 }
 
 void Variable::assert_valid()
@@ -5418,7 +5691,6 @@ void Variable::assert_valid()
     if(target != NULL) target->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    if(array_index != NULL) array_index->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -5427,7 +5699,6 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_index = NULL;
 	}
 }
 
@@ -5531,146 +5802,6 @@ void Reflection::assert_valid()
     assert(variable_name != NULL);
     variable_name->assert_valid();
     Node::assert_mixin_valid();
-}
-
-Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
-{
-    this->op = op;
-    this->variable_name = variable_name;
-}
-
-Pre_op::Pre_op()
-{
-    this->op = 0;
-    this->variable_name = 0;
-}
-
-void Pre_op::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Pre_op::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Pre_op::classid()
-{
-    return ID;
-}
-
-bool Pre_op::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Pre_op* that = dynamic_cast<Pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL)
-    {
-    	if(that->op != NULL && !that->op->match(this->op))
-    		return false;
-    }
-    else if(!this->op->match(that->op))
-    	return false;
-    
-    if(this->variable_name == NULL)
-    {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
-    		return false;
-    }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    return true;
-}
-
-bool Pre_op::equals(Node* in)
-{
-    Pre_op* that = dynamic_cast<Pre_op*>(in);
-    if(that == NULL) return false;
-    
-    if(this->op == NULL || that->op == NULL)
-    {
-    	if(this->op != NULL || that->op != NULL)
-    		return false;
-    }
-    else if(!this->op->equals(that->op))
-    	return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Pre_op* Pre_op::clone()
-{
-    OP* op = this->op ? this->op->clone() : NULL;
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Pre_op* clone = new Pre_op(op, variable_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Pre_op::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->op != NULL)
-    {
-    	Node* op_res = this->op->find(in);
-    	if (op_res) return op_res;
-    }
-    
-    if (this->variable_name != NULL)
-    {
-    	Node* variable_name_res = this->variable_name->find(in);
-    	if (variable_name_res) return variable_name_res;
-    }
-    
-    return NULL;
-}
-
-void Pre_op::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->op != NULL)
-    	this->op->find_all(in, out);
-    
-    if (this->variable_name != NULL)
-    	this->variable_name->find_all(in, out);
-    
-}
-
-void Pre_op::assert_valid()
-{
-    assert(op != NULL);
-    op->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Pre_op::Pre_op(VARIABLE_NAME* var_name, const char* op)
-{
-    {
-		this->variable_name = var_name;
-		this->op = new OP(new String(op));
-	}
 }
 
 Method_invocation::Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters)
@@ -7984,97 +8115,6 @@ void VARIABLE_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
-CAST::CAST(String* value)
-{
-    this->value = value;
-}
-
-CAST::CAST()
-{
-    this->value = 0;
-}
-
-void CAST::visit(Visitor* visitor)
-{
-    visitor->visit_cast(this);
-}
-
-void CAST::transform_children(Transform* transform)
-{
-    transform->children_cast(this);
-}
-
-String* CAST::get_value_as_string()
-{
-    return value;
-}
-
-int CAST::classid()
-{
-    return ID;
-}
-
-bool CAST::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    CAST* that = dynamic_cast<CAST*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool CAST::equals(Node* in)
-{
-    CAST* that = dynamic_cast<CAST*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-CAST* CAST::clone()
-{
-    String* value = new String(*this->value);
-    CAST* clone = new CAST(value);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* CAST::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void CAST::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void CAST::assert_valid()
-{
-    assert(value != NULL);
-    Node::assert_mixin_valid();
-}
-
 OP::OP(String* value)
 {
     this->value = value;
@@ -8161,6 +8201,97 @@ void OP::find_all(Node* in, List<Node*>* out)
 }
 
 void OP::assert_valid()
+{
+    assert(value != NULL);
+    Node::assert_mixin_valid();
+}
+
+CAST::CAST(String* value)
+{
+    this->value = value;
+}
+
+CAST::CAST()
+{
+    this->value = 0;
+}
+
+void CAST::visit(Visitor* visitor)
+{
+    visitor->visit_cast(this);
+}
+
+void CAST::transform_children(Transform* transform)
+{
+    transform->children_cast(this);
+}
+
+String* CAST::get_value_as_string()
+{
+    return value;
+}
+
+int CAST::classid()
+{
+    return ID;
+}
+
+bool CAST::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    CAST* that = dynamic_cast<CAST*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool CAST::equals(Node* in)
+{
+    CAST* that = dynamic_cast<CAST*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+CAST* CAST::clone()
+{
+    String* value = new String(*this->value);
+    CAST* clone = new CAST(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* CAST::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void CAST::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void CAST::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
