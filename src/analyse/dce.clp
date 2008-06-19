@@ -29,10 +29,10 @@ import "cfgdot.clp".
 predicate live_in (BB:t_cfg_node, VAR_NAME:string).
 predicate live_out (BB:t_cfg_node, VAR_NAME:string).
 
-% Variables defined in block B
+% Variables defined in block BB
 predicate defined (BB:t_cfg_node, VAR_NAME:string).
 
-% Variables used in block B
+% Variables used in block BB
 predicate used (BB:t_cfg_node, VAR_NAME:string).
 
 
@@ -61,20 +61,6 @@ live_in (BB, VAR) :-
 	(live_out (BB, VAR), ~defined (BB, VAR) ; used (BB, VAR)).
 
 
-
-% Make sure all rules are handled
-predicate handled (BB:t_cfg_node).
-predicate error (BB:t_cfg_node).
-error (BB) :- cfg_node (BB), ~handled (BB).
-
-print (ERROR) :- 
-	error (BB),
-	tostring (BB, BB_STR), 
-		((BB = nblock {B}, mir()->source_rep (any{B}, SOURCE))
-			;
-		SOURCE = "SOURCE NOT AVAILABLE"),
-	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).
-assert ~error (_).
 
 
 
@@ -189,3 +175,23 @@ use_variable_names (BB, [VAR_NAME|TAIL]),
 
 in_annotation (BB, STR) :- live_in (BB, STR).
 out_annotation (BB, STR) :- live_out (BB, STR).
+
+
+
+% Make sure all rules are handled
+predicate handled (BB:t_cfg_node).
+predicate error (BB:t_cfg_node).
+error (BB) :- cfg_node (BB), ~handled (BB).
+
+print (ERROR) :- 
+	error (BB),
+	tostring (BB, BB_STR),
+	((BB = nblock {B}, to_node (any{B}, NODE), mir()->source_rep (NODE, SOURCE))
+	;
+	(BB \= nblock{_}, SOURCE = "SOURCE NOT AVAILABLE")),
+	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).
+assert ~error (_).
+
+
+% Mark dead statements
+
