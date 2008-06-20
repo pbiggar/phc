@@ -47,7 +47,7 @@
 		"$clpa src/analyse/do_cfg.clp",
 
 		# Run Dead-code elimination
-#		"$clpa src/analyse/dce.clp",
+		"$clpa src/analyse/dce.clp",
 		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
 
 		"callback: convert_to_xml",

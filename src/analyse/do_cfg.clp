@@ -3,6 +3,7 @@
 import "src/generated/MIR.clp".
 import "src/analyse/cfg.clp".
 import "3rdparty/clpa/analysis/base/utility.clp".
+import "util.clp".
 using dotty.
 
 analyze session_name("mir").

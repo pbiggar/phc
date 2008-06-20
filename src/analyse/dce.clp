@@ -40,11 +40,8 @@ predicate used (BB:t_cfg_node, VAR_NAME:string).
 predicate defined_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 predicate used_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 
-defined (BB, VAR_NAME) :- 
-	defined_var (BB, VAR), mir()->vARIABLE_NAME (VAR, VAR_NAME).
-used (BB, VAR_NAME) :- 
-	used_var (BB, VAR), mir()->vARIABLE_NAME (VAR, VAR_NAME).
-
+defined (BB, NAME) :- defined_var (BB, vARIABLE_NAME{_, NAME}).
+used (BB, NAME) :- used_var (BB, vARIABLE_NAME{_, NAME}).
 
 
 % Intensional Rules
@@ -76,41 +73,42 @@ cfg_node (BB), BB = nbranch{VAR},
 % Assign_vars - the LHS is defined. The RHS needs to be checked. IS_REF
 % doesnt matter: if it is true, then we conservatively miss some definitions,
 % which is OK.
-cfg_node (BB), BB = nblock{statement_Assign_var {ID}},
-	mir ()->assign_var (ID, no, LHS, _, EXPR),
+cfg_node (BB), BB = nblock{statement_Assign_var {
+	assign_var {_, no, LHS, _, EXPR}}},
 	+defined_var (BB, LHS), +use_expr (BB, EXPR).
 
 % Assign array - $x[$y] = $z. All of x, y and z are used (even though $x has
 % the potential to be defined).
-cfg_node (BB), BB = nblock{statement_Assign_array {ID}},
-	mir ()->assign_array (ID, no, LHS, INDEX, _, RHS),
+cfg_node (BB), BB = nblock{statement_Assign_array {
+	assign_array {_, no, LHS, INDEX, _, RHS}}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
 	+handled (BB).
 
 % Eval_expr - Rewrap it, and treat like a normal expr
-cfg_node (BB), BB = nblock{statement_Eval_expr{ID}},
-	mir ()->eval_expr (ID, EXPR),
-		+use_expr (BB, EXPR).
+cfg_node (BB), BB = nblock{statement_Eval_expr{
+	eval_expr{_, EXPR}}},
+	+use_expr (BB, EXPR).
 
 % Return - expr is used.
-cfg_node (BB), BB = nblock{statement_Return{ID}},
-	mir()->return (ID, EXPR), +use_expr (BB, EXPR).
+cfg_node (BB), BB = nblock{statement_Return{
+	return {_, EXPR}}}, 
+	+use_expr (BB, EXPR).
 
 % Globals - the overwrite the variables, so consider it a define
-cfg_node (BB), BB = nblock{statement_Global {ID}},
-	mir ()->global (ID, variable_name_VARIABLE_NAME{VAR}),
+cfg_node (BB), BB = nblock{statement_Global {
+	global {_, variable_name_VARIABLE_NAME{VAR}}}},
 	+defined_var (BB, VAR), +handled (BB).
 
 % globals with reflection - they may-define every variable, which means we
 % cannot say any variable is defined. So nothing happens.
 
-cfg_node (BB), BB = nblock{statement_Global {ID}},
-	mir ()->global (ID, variable_name_Reflection {_}),
+cfg_node (BB), BB = nblock{statement_Global {
+	global {_, variable_name_Reflection {_}}}},
 	+handled (BB).
 
 % Pre_op - the variable is both used and defined
-cfg_node (BB), BB = nblock{statement_Pre_op {ID}}, % TODO, this can be an expr
-	mir()->pre_op (ID, _, VAR),
+cfg_node (BB), BB = nblock{statement_Pre_op {
+	pre_op {_, _, VAR}}},
 	% TODO If VAR is simple, it may be defined here, in which case we can
 	% remove the definition if VAR is not live on exit, which is not reflected
 	% here. Add +defined (VAR).
@@ -129,43 +127,52 @@ use_expr (BB, expr_BOOL{_}), +handled (BB).
 use_expr (BB, expr_REAL{_}), +handled (BB).
 
 % Variables
-use_expr (BB, expr_Variable{ID}), +use_variable (BB, ID).
 predicate use_variable (BB:t_cfg_node, Variable:t_Variable).
-use_variable (BB, ID), 
-	mir()->variable (ID, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES),
-	+used_var (BB, VAR_NAME), +use_variable_names (BB, ARRAY_INDICES), +handled (BB).
+use_expr (BB, expr_Variable{ID}), +use_variable (BB, ID).
+use_variable (BB, 
+	variable {_, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES}),
+	+used_var (BB, VAR_NAME),
+	+use_variable_names (BB, ARRAY_INDICES),
+	+handled (BB).
 	
 % Cast_op
-use_expr (BB, expr_Cast {ID}), mir()->cast (ID, _, VAR),
-	+used_var (BB, VAR), +handled (BB).
+use_expr (BB, expr_Cast {cast {_, _, VAR}}),
+	+used_var (BB, VAR),
+	+handled (BB).
 
 % Unary_op
-use_expr (BB, expr_Unary_op {ID}), mir()->unary_op (ID, _, VAR),
-	+used_var (BB, VAR), +handled (BB).
+use_expr (BB, expr_Unary_op {unary_op {_, _, VAR}}),
+	+used_var (BB, VAR), 
+	+handled (BB).
 
 % Bin_op
-use_expr (BB, expr_Bin_op {ID}), mir()->bin_op (ID, LEFT, _, RIGHT),
-	+used_var (BB, LEFT), +used_var (BB, RIGHT), +handled (BB).
+use_expr (BB, expr_Bin_op {bin_op {_, LEFT, _, RIGHT}}),
+	+used_var (BB, LEFT), 
+	+used_var (BB, RIGHT), 
+	+handled (BB).
 
 % Method invocation
-use_expr (BB, expr_Method_invocation {ID}), 
-	mir()->method_invocation (ID, no, _, PARAMS),
-	+use_actual_params (BB, PARAMS). % TODO unsafe, this will succeed if one parameter succeeds, whereas it should fail if any of them fail.
+use_expr (BB, expr_Method_invocation {method_invocation {_, no, _, PARAMS}}),
+	+use_actual_params (BB, PARAMS). 
 
 % Actual parameters (part of Method_invocation)
 % TODO reflection - means all variables are potentially used
 predicate use_actual_params (BB:t_cfg_node, list[t_Actual_parameter]).
-use_actual_params (BB, [ID|TAIL]),
-	mir()->actual_parameter (ID, _, no, variable_name_VARIABLE_NAME{VAR}, ARRAY_INDICES),
+use_actual_params (BB, [PARAM|TAIL]),
+	PARAM = actual_parameter {_, _, no, variable_name_VARIABLE_NAME{VAR}, ARRAY_INDICES},
 	+used_var (BB, VAR),
 	+use_variable_names (BB, ARRAY_INDICES),
 	+use_actual_params (BB, TAIL).
-use_actual_params (BB, []), +handled (BB).
+
+% TODO unsafe, this will succeed if one parameter succeeds, whereas it should fail if any of them fail.
+use_actual_params (BB, []),
+	+handled (BB).
 
 % VARIABLE_NAMEs
 predicate use_variable_names (BB:t_cfg_node, list[t_VARIABLE_NAME]).
 use_variable_names (BB, [VAR_NAME|TAIL]),
-	+used_var (BB, VAR_NAME), +use_variable_names (BB, TAIL).
+	+used_var (BB, VAR_NAME),
+	+use_variable_names (BB, TAIL).
 % No need to handle empty list
 
 
