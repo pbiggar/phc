@@ -1,10 +1,8 @@
-import "cfg.clp".
+import "optimize.clp".
 
-analyze session_name("cfg").
 using set.
 using error.
 
-import "cfgdot.clp".
 
 % Dead code elimination.
 
@@ -198,7 +196,3 @@ print (ERROR) :-
 	(BB \= nblock{_}, SOURCE = "SOURCE NOT AVAILABLE")),
 	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).
 assert ~error (_).
-
-
-% Mark dead statements
-

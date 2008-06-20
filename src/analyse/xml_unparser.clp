@@ -1,4 +1,4 @@
-import "cfgdot.clp".
+import "optimize.clp".
 
 using base64.
 
@@ -7,18 +7,21 @@ using base64.
 % putting the CFG back into a list of statements with labels and gotos. Then,
 % we merge all functions, and re-read it with --read-xml=clar.
 
-analyze session_name ("cfg").
+analyze session_name ("optimized").
 
 % Turn this method into XML
-cfg_node (nentry{METHOD}),
-	to_node (any{METHOD}, NODE), to_generic (NODE, GENERIC),
-	to_xml_string (GENERIC, XML),
-	+print(XML).
+% TODO fix all this. We should have the data in a data-structure, not a list
+% of predicates in the mir() session.
+method_out (_, METHOD),
+	NODE = to_node (any{METHOD}),
+	GENERIC = to_generic (NODE),
+	XML = to_xml_string (GENERIC),
+	+print (XML).
 
 
 
 % Unparse individual NODE attributes
-predicate to_xml_attr (in KEY:string, in VAL:t_Attr, out XML:string).
+predicate to_xml_attr (in KEY:string, in VAL:t_Attr, out XML:string) succeeds [once].
 to_xml_attr (KEY, attr_str{VAL}, XML) :-
 	str_cat_list (
 		["<attr key=\"", KEY, "\"><string>", VAL, "</string></attr>\n"],
@@ -40,7 +43,7 @@ to_xml_attr (KEY, attr_bool{VAL}, XML) :-
 % TODO error for attr_unavailable
 
 % Unparse lists of NODE attributes
-predicate to_xml_attrs (in NODE:t_Node, out XML:string).
+predicate to_xml_attrs (in NODE:t_Node, out XML:string) succeeds [once].
 to_xml_attrs (NODE, XML) :-
 	\/(mir()->attr(NODE, KEY, VAL), to_xml_attr (KEY, VAL, ATTR_XML)):list_all (ATTR_XML, XMLS),
 	(( XMLS = [], XML = "<attrs />\n")
@@ -60,7 +63,7 @@ to_xml_string_list ([H|T], XML) :-
 
 
 % Unparse generics
-predicate to_xml_string (in GENERIC:t_generic, out XML:string).
+predicate to_xml_string (in GENERIC:t_generic, out XML:string) succeeds [once].
 
 % Unparse NODEs
 to_xml_string (gnode{NODE, NAME, SUBNODES}, XML) :-
@@ -105,7 +108,8 @@ to_xml_string (gint{VALUE}, XML) :-
 	tostring (VALUE, XML_VALUE),
 	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
 
-% To avoid superfluous differences with phc's unparsed XML, uppercase the first letter.
+% To avoid superfluous differences with phc's unparsed XML, uppercase the
+% first letter.
 to_xml_string (gbool{true}, XML) :-
 	str_cat_list (["<value>True</value>\n"], XML).
 to_xml_string (gbool{false}, XML) :-

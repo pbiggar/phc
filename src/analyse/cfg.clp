@@ -18,3 +18,7 @@ predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node) order[N0, N1].
 predicate cfg_node (N:t_cfg_node).
 cfg_node (N) :- cfg_edge (N, _).
 cfg_node (N) :- cfg_edge (_, N).
+
+% Allow any user to annotation the CFG with strings. cfgdot will pick up on these.
+predicate in_annotation (BB:t_cfg_node, ANNOTATION:string).
+predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).

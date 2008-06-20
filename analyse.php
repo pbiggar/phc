@@ -46,20 +46,21 @@
 		// Turn into CFG
 		"$clpa src/analyse/do_cfg.clp",
 
-		# Run Dead-code elimination
-		"$clpa src/analyse/dce.clp",
-		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
-
-		"callback: convert_to_xml",
-
-		"diff -u $base.orig.xml $base.new.xml",
-		"src/phc --read-xml=pst --dump=pst $base.new.xml",
-
-
 		// create CFG graphs
 		"rm -f *.ps",
 		"for i in `ls *.dot`; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",
 		"rm -f *.dot",
+
+ 		# Run Optimizations
+		"$clpa src/analyse/do_optimize.clp",
+
+		"callback: convert_to_xml",
+
+		# Read back the optimized code
+		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
+		"diff -u $base.orig.xml $base.new.xml",
+		"src/phc --read-xml=pst --dump=pst $base.new.xml",
+
 
 	);
 
@@ -101,8 +102,7 @@
 			. "<MIR:Statement_list>";
 		$footer = "</MIR:Statement_list>\n</MIR:PHP_script>\n";
 
-
-		$combined_xml = "$header\n" . join("\n", $matches[1]) . "\n$footer";
+		$combined_xml = "$header\n" . join("\n", array_reverse ($matches[1])) . "\n$footer";
 		file_put_contents ("$base.new.xml", $combined_xml);
 	}
 

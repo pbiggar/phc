@@ -2,7 +2,6 @@ import "cfg.clp".
 import "src/generated/MIR.clp".
 import "util.clp".
 
-import "3rdparty/clpa/analysis/base/utility.clp".
 using dotty.
 
 % Build a .dot file to view the CFG
@@ -10,10 +9,6 @@ using dotty.
 % Create dotty nodes and edges
 predicate dotty_node (NODE:t_cfg_node, list[t_dg_attr]).
 predicate dotty_edge (E1:t_cfg_node, E2:t_cfg_node, list[t_dg_attr]).
-
-% Allow any user to annotation the CFG with strings.
-predicate in_annotation (BB:t_cfg_node, ANNOTATION:string).
-predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).
 
 % Nodes
 dotty_node (N, [dg_attr{"label", NAME}]) :- cfg_node (N), N = nentry{METHOD}, get_method_name (METHOD, NAME).
