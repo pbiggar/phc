@@ -76,76 +76,76 @@ type t_Source_rep.
 
 
 % Token declarations
-type t_CLASS_NAME ::= cLASS_NAME_id { id }.
-type t_INTERFACE_NAME ::= iNTERFACE_NAME_id { id }.
-type t_METHOD_NAME ::= mETHOD_NAME_id { id }.
-type t_VARIABLE_NAME ::= vARIABLE_NAME_id { id }.
-type t_DIRECTIVE_NAME ::= dIRECTIVE_NAME_id { id }.
-type t_INT ::= iNT_id { id }.
-type t_REAL ::= rEAL_id { id }.
-type t_STRING ::= sTRING_id { id }.
-type t_BOOL ::= bOOL_id { id }.
-type t_NIL ::= nIL_id { id }.
-type t_OP ::= oP_id { id }.
-type t_CAST ::= cAST_id { id }.
-type t_CONSTANT_NAME ::= cONSTANT_NAME_id { id }.
+type t_CLASS_NAME ::= cLASS_NAME { ID:id, VALUE:string }.
+type t_INTERFACE_NAME ::= iNTERFACE_NAME { ID:id, VALUE:string }.
+type t_METHOD_NAME ::= mETHOD_NAME { ID:id, VALUE:string }.
+type t_VARIABLE_NAME ::= vARIABLE_NAME { ID:id, VALUE:string }.
+type t_DIRECTIVE_NAME ::= dIRECTIVE_NAME { ID:id, VALUE:string }.
+type t_INT ::= iNT { ID:id, VALUE:int }.
+type t_REAL ::= rEAL { ID:id, VALUE:float }.
+type t_STRING ::= sTRING { ID:id, VALUE:string }.
+type t_BOOL ::= bOOL { ID:id, VALUE:bool }.
+type t_NIL ::= nIL { ID:id, VALUE:null }.
+type t_OP ::= oP { ID:id, VALUE:string }.
+type t_CAST ::= cAST { ID:id, VALUE:string }.
+type t_CONSTANT_NAME ::= cONSTANT_NAME { ID:id, VALUE:string }.
 
 
 
 % Types
-type t_PHP_script ::= pHP_script_id { id }.
-type t_Class_def ::= class_def_id { id }.
-type t_Class_mod ::= class_mod_id { id }.
-type t_Interface_def ::= interface_def_id { id }.
-type t_Method ::= method_id { id }.
-type t_Signature ::= signature_id { id }.
-type t_Method_mod ::= method_mod_id { id }.
-type t_Formal_parameter ::= formal_parameter_id { id }.
-type t_Type ::= type_id { id }.
-type t_Attribute ::= attribute_id { id }.
-type t_Attr_mod ::= attr_mod_id { id }.
-type t_Name_with_default ::= name_with_default_id { id }.
-type t_If ::= if_id { id }.
-type t_While ::= while_id { id }.
-type t_Do ::= do_id { id }.
-type t_For ::= for_id { id }.
-type t_Foreach ::= foreach_id { id }.
-type t_Switch ::= switch_id { id }.
-type t_Switch_case ::= switch_case_id { id }.
-type t_Break ::= break_id { id }.
-type t_Continue ::= continue_id { id }.
-type t_Return ::= return_id { id }.
-type t_Static_declaration ::= static_declaration_id { id }.
-type t_Global ::= global_id { id }.
-type t_Declare ::= declare_id { id }.
-type t_Directive ::= directive_id { id }.
-type t_Try ::= try_id { id }.
-type t_Catch ::= catch_id { id }.
-type t_Throw ::= throw_id { id }.
-type t_Eval_expr ::= eval_expr_id { id }.
-type t_Nop ::= nop_id { id }.
-type t_Foreign_expr ::= foreign_expr_id { id }.
-type t_Foreign_statement ::= foreign_statement_id { id }.
-type t_Assignment ::= assignment_id { id }.
-type t_Op_assignment ::= op_assignment_id { id }.
-type t_List_assignment ::= list_assignment_id { id }.
-type t_Nested_list_elements ::= nested_list_elements_id { id }.
-type t_Cast ::= cast_id { id }.
-type t_Unary_op ::= unary_op_id { id }.
-type t_Bin_op ::= bin_op_id { id }.
-type t_Conditional_expr ::= conditional_expr_id { id }.
-type t_Ignore_errors ::= ignore_errors_id { id }.
-type t_Constant ::= constant_id { id }.
-type t_Instanceof ::= instanceof_id { id }.
-type t_Variable ::= variable_id { id }.
-type t_Reflection ::= reflection_id { id }.
-type t_Pre_op ::= pre_op_id { id }.
-type t_Post_op ::= post_op_id { id }.
-type t_Array ::= array_id { id }.
-type t_Array_elem ::= array_elem_id { id }.
-type t_Method_invocation ::= method_invocation_id { id }.
-type t_Actual_parameter ::= actual_parameter_id { id }.
-type t_New ::= new_id { id }.
+type t_PHP_script ::= pHP_script { ID:id, STATEMENTS:list[t_Statement] }.
+type t_Class_def ::= class_def { ID:id, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, OPT_EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member] }.
+type t_Class_mod ::= class_mod { ID:id, IS_ABSTRACT:bool, IS_FINAL:bool }.
+type t_Interface_def ::= interface_def { ID:id, INTERFACE_NAME:t_INTERFACE_NAME, EXTENDSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member] }.
+type t_Method ::= method { ID:id, SIGNATURE:t_Signature, OPT_STATEMENTS:maybe[list[t_Statement]] }.
+type t_Signature ::= signature { ID:id, METHOD_MOD:t_Method_mod, IS_REF:bool, METHOD_NAME:t_METHOD_NAME, FORMAL_PARAMETERS:list[t_Formal_parameter] }.
+type t_Method_mod ::= method_mod { ID:id, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool }.
+type t_Formal_parameter ::= formal_parameter { ID:id, TYPE:t_Type, IS_REF:bool, VAR:t_Name_with_default }.
+type t_Type ::= t_type { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME] }.
+type t_Attribute ::= attribute { ID:id, ATTR_MOD:t_Attr_mod, VARSS:list[t_Name_with_default] }.
+type t_Attr_mod ::= attr_mod { ID:id, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool }.
+type t_Name_with_default ::= name_with_default { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, OPT_EXPR:maybe[t_Expr] }.
+type t_If ::= if { ID:id, EXPR:t_Expr, IFTRUES:list[t_Statement], IFFALSES:list[t_Statement] }.
+type t_While ::= while { ID:id, EXPR:t_Expr, STATEMENTS:list[t_Statement] }.
+type t_Do ::= do { ID:id, STATEMENTS:list[t_Statement], EXPR:t_Expr }.
+type t_For ::= for { ID:id, OPT_INIT:maybe[t_Expr], OPT_COND:maybe[t_Expr], OPT_INCR:maybe[t_Expr], STATEMENTS:list[t_Statement] }.
+type t_Foreach ::= foreach { ID:id, EXPR:t_Expr, OPT_KEY:maybe[t_Variable], IS_REF:bool, VAL:t_Variable, STATEMENTS:list[t_Statement] }.
+type t_Switch ::= switch { ID:id, EXPR:t_Expr, SWITCH_CASES:list[t_Switch_case] }.
+type t_Switch_case ::= switch_case { ID:id, OPT_EXPR:maybe[t_Expr], STATEMENTS:list[t_Statement] }.
+type t_Break ::= break { ID:id, OPT_EXPR:maybe[t_Expr] }.
+type t_Continue ::= continue { ID:id, OPT_EXPR:maybe[t_Expr] }.
+type t_Return ::= return { ID:id, OPT_EXPR:maybe[t_Expr] }.
+type t_Static_declaration ::= static_declaration { ID:id, VARSS:list[t_Name_with_default] }.
+type t_Global ::= global { ID:id, VARIABLE_NAMES:list[t_Variable_name] }.
+type t_Declare ::= declare { ID:id, DIRECTIVES:list[t_Directive], STATEMENTS:list[t_Statement] }.
+type t_Directive ::= directive { ID:id, DIRECTIVE_NAME:t_DIRECTIVE_NAME, EXPR:t_Expr }.
+type t_Try ::= try { ID:id, STATEMENTS:list[t_Statement], CATCHESS:list[t_Catch] }.
+type t_Catch ::= catch { ID:id, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement] }.
+type t_Throw ::= throw { ID:id, EXPR:t_Expr }.
+type t_Eval_expr ::= eval_expr { ID:id, EXPR:t_Expr }.
+type t_Nop ::= nop { ID:id }.
+type t_Foreign_expr ::= foreign_expr { ID:id }.
+type t_Foreign_statement ::= foreign_statement { ID:id }.
+type t_Assignment ::= assignment { ID:id, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr }.
+type t_Op_assignment ::= op_assignment { ID:id, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr }.
+type t_List_assignment ::= list_assignment { ID:id, LIST_ELEMENTS:list[maybe[t_List_element]], EXPR:t_Expr }.
+type t_Nested_list_elements ::= nested_list_elements { ID:id, LIST_ELEMENTS:list[maybe[t_List_element]] }.
+type t_Cast ::= cast { ID:id, CAST:t_CAST, EXPR:t_Expr }.
+type t_Unary_op ::= unary_op { ID:id, OP:t_OP, EXPR:t_Expr }.
+type t_Bin_op ::= bin_op { ID:id, LEFT:t_Expr, OP:t_OP, RIGHT:t_Expr }.
+type t_Conditional_expr ::= conditional_expr { ID:id, COND:t_Expr, IFTRUE:t_Expr, IFFALSE:t_Expr }.
+type t_Ignore_errors ::= ignore_errors { ID:id, EXPR:t_Expr }.
+type t_Constant ::= constant { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME }.
+type t_Instanceof ::= instanceof { ID:id, EXPR:t_Expr, CLASS_NAME:t_Class_name }.
+type t_Variable ::= variable { ID:id, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[maybe[t_Expr]] }.
+type t_Reflection ::= reflection { ID:id, EXPR:t_Expr }.
+type t_Pre_op ::= pre_op { ID:id, OP:t_OP, VARIABLE:t_Variable }.
+type t_Post_op ::= post_op { ID:id, VARIABLE:t_Variable, OP:t_OP }.
+type t_Array ::= array { ID:id, ARRAY_ELEMS:list[t_Array_elem] }.
+type t_Array_elem ::= array_elem { ID:id, OPT_KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr }.
+type t_Method_invocation ::= method_invocation { ID:id, OPT_TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
+type t_Actual_parameter ::= actual_parameter { ID:id, IS_REF:bool, EXPR:t_Expr }.
+type t_New ::= new { ID:id, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
 
 
 type t_Source_rep ::= 
@@ -371,134 +371,116 @@ type t_Node ::=
 
 
 
-% Predicates
-predicate pHP_script (ID:t_PHP_script, STATEMENTS:list[t_Statement]).
-predicate class_def (ID:t_Class_def, CLASS_MOD:t_Class_mod, CLASS_NAME:t_CLASS_NAME, OPT_EXTENDS:maybe[t_CLASS_NAME], IMPLEMENTSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
-predicate class_mod (ID:t_Class_mod, IS_ABSTRACT:bool, IS_FINAL:bool).
-predicate interface_def (ID:t_Interface_def, INTERFACE_NAME:t_INTERFACE_NAME, EXTENDSS:list[t_INTERFACE_NAME], MEMBERS:list[t_Member]).
-predicate method (ID:t_Method, SIGNATURE:t_Signature, OPT_STATEMENTS:maybe[list[t_Statement]]).
-predicate signature (ID:t_Signature, METHOD_MOD:t_Method_mod, IS_REF:bool, METHOD_NAME:t_METHOD_NAME, FORMAL_PARAMETERS:list[t_Formal_parameter]).
-predicate method_mod (ID:t_Method_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool).
-predicate formal_parameter (ID:t_Formal_parameter, TYPE:t_Type, IS_REF:bool, VAR:t_Name_with_default).
-predicate p_type (ID:t_Type, OPT_CLASS_NAME:maybe[t_CLASS_NAME]).
-predicate attribute (ID:t_Attribute, ATTR_MOD:t_Attr_mod, VARSS:list[t_Name_with_default]).
-predicate attr_mod (ID:t_Attr_mod, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool).
-predicate name_with_default (ID:t_Name_with_default, VARIABLE_NAME:t_VARIABLE_NAME, OPT_EXPR:maybe[t_Expr]).
-predicate if (ID:t_If, EXPR:t_Expr, IFTRUES:list[t_Statement], IFFALSES:list[t_Statement]).
-predicate while (ID:t_While, EXPR:t_Expr, STATEMENTS:list[t_Statement]).
-predicate do (ID:t_Do, STATEMENTS:list[t_Statement], EXPR:t_Expr).
-predicate for (ID:t_For, OPT_INIT:maybe[t_Expr], OPT_COND:maybe[t_Expr], OPT_INCR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
-predicate foreach (ID:t_Foreach, EXPR:t_Expr, OPT_KEY:maybe[t_Variable], IS_REF:bool, VAL:t_Variable, STATEMENTS:list[t_Statement]).
-predicate switch (ID:t_Switch, EXPR:t_Expr, SWITCH_CASES:list[t_Switch_case]).
-predicate switch_case (ID:t_Switch_case, OPT_EXPR:maybe[t_Expr], STATEMENTS:list[t_Statement]).
-predicate break (ID:t_Break, OPT_EXPR:maybe[t_Expr]).
-predicate continue (ID:t_Continue, OPT_EXPR:maybe[t_Expr]).
-predicate return (ID:t_Return, OPT_EXPR:maybe[t_Expr]).
-predicate static_declaration (ID:t_Static_declaration, VARSS:list[t_Name_with_default]).
-predicate global (ID:t_Global, VARIABLE_NAMES:list[t_Variable_name]).
-predicate declare (ID:t_Declare, DIRECTIVES:list[t_Directive], STATEMENTS:list[t_Statement]).
-predicate directive (ID:t_Directive, DIRECTIVE_NAME:t_DIRECTIVE_NAME, EXPR:t_Expr).
-predicate try (ID:t_Try, STATEMENTS:list[t_Statement], CATCHESS:list[t_Catch]).
-predicate catch (ID:t_Catch, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement]).
-predicate throw (ID:t_Throw, EXPR:t_Expr).
-predicate eval_expr (ID:t_Eval_expr, EXPR:t_Expr).
-predicate nop (ID:t_Nop).
-predicate foreign_expr (ID:t_Foreign_expr).
-predicate foreign_statement (ID:t_Foreign_statement).
-predicate assignment (ID:t_Assignment, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr).
-predicate op_assignment (ID:t_Op_assignment, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr).
-predicate list_assignment (ID:t_List_assignment, LIST_ELEMENTS:list[maybe[t_List_element]], EXPR:t_Expr).
-predicate nested_list_elements (ID:t_Nested_list_elements, LIST_ELEMENTS:list[maybe[t_List_element]]).
-predicate cast (ID:t_Cast, CAST:t_CAST, EXPR:t_Expr).
-predicate unary_op (ID:t_Unary_op, OP:t_OP, EXPR:t_Expr).
-predicate bin_op (ID:t_Bin_op, LEFT:t_Expr, OP:t_OP, RIGHT:t_Expr).
-predicate conditional_expr (ID:t_Conditional_expr, COND:t_Expr, IFTRUE:t_Expr, IFFALSE:t_Expr).
-predicate ignore_errors (ID:t_Ignore_errors, EXPR:t_Expr).
-predicate constant (ID:t_Constant, OPT_CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME).
-predicate instanceof (ID:t_Instanceof, EXPR:t_Expr, CLASS_NAME:t_Class_name).
-predicate variable (ID:t_Variable, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[maybe[t_Expr]]).
-predicate reflection (ID:t_Reflection, EXPR:t_Expr).
-predicate pre_op (ID:t_Pre_op, OP:t_OP, VARIABLE:t_Variable).
-predicate post_op (ID:t_Post_op, VARIABLE:t_Variable, OP:t_OP).
-predicate array (ID:t_Array, ARRAY_ELEMS:list[t_Array_elem]).
-predicate array_elem (ID:t_Array_elem, OPT_KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr).
-predicate method_invocation (ID:t_Method_invocation, OPT_TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
-predicate actual_parameter (ID:t_Actual_parameter, IS_REF:bool, EXPR:t_Expr).
-predicate new (ID:t_New, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter]).
-
-
-predicate cLASS_NAME (ID:t_CLASS_NAME, VALUE:string).
-predicate iNTERFACE_NAME (ID:t_INTERFACE_NAME, VALUE:string).
-predicate mETHOD_NAME (ID:t_METHOD_NAME, VALUE:string).
-predicate vARIABLE_NAME (ID:t_VARIABLE_NAME, VALUE:string).
-predicate dIRECTIVE_NAME (ID:t_DIRECTIVE_NAME, VALUE:string).
-predicate iNT (ID:t_INT, VALUE:int).
-predicate rEAL (ID:t_REAL, VALUE:float).
-predicate sTRING (ID:t_STRING, VALUE:string).
-predicate bOOL (ID:t_BOOL, VALUE:bool).
-predicate nIL (ID:t_NIL, VALUE:null).
-predicate oP (ID:t_OP, VALUE:string).
-predicate cAST (ID:t_CAST, VALUE:string).
-predicate cONSTANT_NAME (ID:t_CONSTANT_NAME, VALUE:string).
-
-
 
 % Generics
 
 % Type Casts
-to_node (any{pHP_script_id{ID}}, node_PHP_script{pHP_script_id{ID}}) :- .
-to_node (any{class_def_id{ID}}, node_Class_def{class_def_id{ID}}) :- .
-to_node (any{class_mod_id{ID}}, node_Class_mod{class_mod_id{ID}}) :- .
-to_node (any{interface_def_id{ID}}, node_Interface_def{interface_def_id{ID}}) :- .
-to_node (any{method_id{ID}}, node_Method{method_id{ID}}) :- .
-to_node (any{signature_id{ID}}, node_Signature{signature_id{ID}}) :- .
-to_node (any{method_mod_id{ID}}, node_Method_mod{method_mod_id{ID}}) :- .
-to_node (any{formal_parameter_id{ID}}, node_Formal_parameter{formal_parameter_id{ID}}) :- .
-to_node (any{type_id{ID}}, node_Type{type_id{ID}}) :- .
-to_node (any{attribute_id{ID}}, node_Attribute{attribute_id{ID}}) :- .
-to_node (any{attr_mod_id{ID}}, node_Attr_mod{attr_mod_id{ID}}) :- .
-to_node (any{name_with_default_id{ID}}, node_Name_with_default{name_with_default_id{ID}}) :- .
-to_node (any{if_id{ID}}, node_If{if_id{ID}}) :- .
-to_node (any{while_id{ID}}, node_While{while_id{ID}}) :- .
-to_node (any{do_id{ID}}, node_Do{do_id{ID}}) :- .
-to_node (any{for_id{ID}}, node_For{for_id{ID}}) :- .
-to_node (any{foreach_id{ID}}, node_Foreach{foreach_id{ID}}) :- .
-to_node (any{switch_id{ID}}, node_Switch{switch_id{ID}}) :- .
-to_node (any{switch_case_id{ID}}, node_Switch_case{switch_case_id{ID}}) :- .
-to_node (any{break_id{ID}}, node_Break{break_id{ID}}) :- .
-to_node (any{continue_id{ID}}, node_Continue{continue_id{ID}}) :- .
-to_node (any{return_id{ID}}, node_Return{return_id{ID}}) :- .
-to_node (any{static_declaration_id{ID}}, node_Static_declaration{static_declaration_id{ID}}) :- .
-to_node (any{global_id{ID}}, node_Global{global_id{ID}}) :- .
-to_node (any{declare_id{ID}}, node_Declare{declare_id{ID}}) :- .
-to_node (any{directive_id{ID}}, node_Directive{directive_id{ID}}) :- .
-to_node (any{try_id{ID}}, node_Try{try_id{ID}}) :- .
-to_node (any{catch_id{ID}}, node_Catch{catch_id{ID}}) :- .
-to_node (any{throw_id{ID}}, node_Throw{throw_id{ID}}) :- .
-to_node (any{eval_expr_id{ID}}, node_Eval_expr{eval_expr_id{ID}}) :- .
-to_node (any{nop_id{ID}}, node_Nop{nop_id{ID}}) :- .
-to_node (any{foreign_expr_id{ID}}, node_Foreign_expr{foreign_expr_id{ID}}) :- .
-to_node (any{foreign_statement_id{ID}}, node_Foreign_statement{foreign_statement_id{ID}}) :- .
-to_node (any{assignment_id{ID}}, node_Assignment{assignment_id{ID}}) :- .
-to_node (any{op_assignment_id{ID}}, node_Op_assignment{op_assignment_id{ID}}) :- .
-to_node (any{list_assignment_id{ID}}, node_List_assignment{list_assignment_id{ID}}) :- .
-to_node (any{nested_list_elements_id{ID}}, node_Nested_list_elements{nested_list_elements_id{ID}}) :- .
-to_node (any{cast_id{ID}}, node_Cast{cast_id{ID}}) :- .
-to_node (any{unary_op_id{ID}}, node_Unary_op{unary_op_id{ID}}) :- .
-to_node (any{bin_op_id{ID}}, node_Bin_op{bin_op_id{ID}}) :- .
-to_node (any{conditional_expr_id{ID}}, node_Conditional_expr{conditional_expr_id{ID}}) :- .
-to_node (any{ignore_errors_id{ID}}, node_Ignore_errors{ignore_errors_id{ID}}) :- .
-to_node (any{constant_id{ID}}, node_Constant{constant_id{ID}}) :- .
-to_node (any{instanceof_id{ID}}, node_Instanceof{instanceof_id{ID}}) :- .
-to_node (any{variable_id{ID}}, node_Variable{variable_id{ID}}) :- .
-to_node (any{reflection_id{ID}}, node_Reflection{reflection_id{ID}}) :- .
-to_node (any{pre_op_id{ID}}, node_Pre_op{pre_op_id{ID}}) :- .
-to_node (any{post_op_id{ID}}, node_Post_op{post_op_id{ID}}) :- .
-to_node (any{array_id{ID}}, node_Array{array_id{ID}}) :- .
-to_node (any{array_elem_id{ID}}, node_Array_elem{array_elem_id{ID}}) :- .
-to_node (any{method_invocation_id{ID}}, node_Method_invocation{method_invocation_id{ID}}) :- .
-to_node (any{actual_parameter_id{ID}}, node_Actual_parameter{actual_parameter_id{ID}}) :- .
-to_node (any{new_id{ID}}, node_New{new_id{ID}}) :- .
+to_node (any{pHP_script{ID, STATEMENTS}},
+	node_PHP_script{pHP_script{ID, STATEMENTS}}) :- .
+to_node (any{class_def{ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS}},
+	node_Class_def{class_def{ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS}}) :- .
+to_node (any{class_mod{ID, IS_ABSTRACT, IS_FINAL}},
+	node_Class_mod{class_mod{ID, IS_ABSTRACT, IS_FINAL}}) :- .
+to_node (any{interface_def{ID, INTERFACE_NAME, EXTENDSS, MEMBERS}},
+	node_Interface_def{interface_def{ID, INTERFACE_NAME, EXTENDSS, MEMBERS}}) :- .
+to_node (any{method{ID, SIGNATURE, OPT_STATEMENTS}},
+	node_Method{method{ID, SIGNATURE, OPT_STATEMENTS}}) :- .
+to_node (any{signature{ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS}},
+	node_Signature{signature{ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS}}) :- .
+to_node (any{method_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL}},
+	node_Method_mod{method_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL}}) :- .
+to_node (any{formal_parameter{ID, TYPE, IS_REF, VAR}},
+	node_Formal_parameter{formal_parameter{ID, TYPE, IS_REF, VAR}}) :- .
+to_node (any{t_type{ID, OPT_CLASS_NAME}},
+	node_Type{t_type{ID, OPT_CLASS_NAME}}) :- .
+to_node (any{attribute{ID, ATTR_MOD, VARSS}},
+	node_Attribute{attribute{ID, ATTR_MOD, VARSS}}) :- .
+to_node (any{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}},
+	node_Attr_mod{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}}) :- .
+to_node (any{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}},
+	node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}}) :- .
+to_node (any{if{ID, EXPR, IFTRUES, IFFALSES}},
+	node_If{if{ID, EXPR, IFTRUES, IFFALSES}}) :- .
+to_node (any{while{ID, EXPR, STATEMENTS}},
+	node_While{while{ID, EXPR, STATEMENTS}}) :- .
+to_node (any{do{ID, STATEMENTS, EXPR}},
+	node_Do{do{ID, STATEMENTS, EXPR}}) :- .
+to_node (any{for{ID, OPT_INIT, OPT_COND, OPT_INCR, STATEMENTS}},
+	node_For{for{ID, OPT_INIT, OPT_COND, OPT_INCR, STATEMENTS}}) :- .
+to_node (any{foreach{ID, EXPR, OPT_KEY, IS_REF, VAL, STATEMENTS}},
+	node_Foreach{foreach{ID, EXPR, OPT_KEY, IS_REF, VAL, STATEMENTS}}) :- .
+to_node (any{switch{ID, EXPR, SWITCH_CASES}},
+	node_Switch{switch{ID, EXPR, SWITCH_CASES}}) :- .
+to_node (any{switch_case{ID, OPT_EXPR, STATEMENTS}},
+	node_Switch_case{switch_case{ID, OPT_EXPR, STATEMENTS}}) :- .
+to_node (any{break{ID, OPT_EXPR}},
+	node_Break{break{ID, OPT_EXPR}}) :- .
+to_node (any{continue{ID, OPT_EXPR}},
+	node_Continue{continue{ID, OPT_EXPR}}) :- .
+to_node (any{return{ID, OPT_EXPR}},
+	node_Return{return{ID, OPT_EXPR}}) :- .
+to_node (any{static_declaration{ID, VARSS}},
+	node_Static_declaration{static_declaration{ID, VARSS}}) :- .
+to_node (any{global{ID, VARIABLE_NAMES}},
+	node_Global{global{ID, VARIABLE_NAMES}}) :- .
+to_node (any{declare{ID, DIRECTIVES, STATEMENTS}},
+	node_Declare{declare{ID, DIRECTIVES, STATEMENTS}}) :- .
+to_node (any{directive{ID, DIRECTIVE_NAME, EXPR}},
+	node_Directive{directive{ID, DIRECTIVE_NAME, EXPR}}) :- .
+to_node (any{try{ID, STATEMENTS, CATCHESS}},
+	node_Try{try{ID, STATEMENTS, CATCHESS}}) :- .
+to_node (any{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}},
+	node_Catch{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}}) :- .
+to_node (any{throw{ID, EXPR}},
+	node_Throw{throw{ID, EXPR}}) :- .
+to_node (any{eval_expr{ID, EXPR}},
+	node_Eval_expr{eval_expr{ID, EXPR}}) :- .
+to_node (any{nop{ID}},
+	node_Nop{nop{ID}}) :- .
+to_node (any{foreign_expr{ID}},
+	node_Foreign_expr{foreign_expr{ID}}) :- .
+to_node (any{foreign_statement{ID}},
+	node_Foreign_statement{foreign_statement{ID}}) :- .
+to_node (any{assignment{ID, VARIABLE, IS_REF, EXPR}},
+	node_Assignment{assignment{ID, VARIABLE, IS_REF, EXPR}}) :- .
+to_node (any{op_assignment{ID, VARIABLE, OP, EXPR}},
+	node_Op_assignment{op_assignment{ID, VARIABLE, OP, EXPR}}) :- .
+to_node (any{list_assignment{ID, LIST_ELEMENTS, EXPR}},
+	node_List_assignment{list_assignment{ID, LIST_ELEMENTS, EXPR}}) :- .
+to_node (any{nested_list_elements{ID, LIST_ELEMENTS}},
+	node_Nested_list_elements{nested_list_elements{ID, LIST_ELEMENTS}}) :- .
+to_node (any{cast{ID, CAST, EXPR}},
+	node_Cast{cast{ID, CAST, EXPR}}) :- .
+to_node (any{unary_op{ID, OP, EXPR}},
+	node_Unary_op{unary_op{ID, OP, EXPR}}) :- .
+to_node (any{bin_op{ID, LEFT, OP, RIGHT}},
+	node_Bin_op{bin_op{ID, LEFT, OP, RIGHT}}) :- .
+to_node (any{conditional_expr{ID, COND, IFTRUE, IFFALSE}},
+	node_Conditional_expr{conditional_expr{ID, COND, IFTRUE, IFFALSE}}) :- .
+to_node (any{ignore_errors{ID, EXPR}},
+	node_Ignore_errors{ignore_errors{ID, EXPR}}) :- .
+to_node (any{constant{ID, OPT_CLASS_NAME, CONSTANT_NAME}},
+	node_Constant{constant{ID, OPT_CLASS_NAME, CONSTANT_NAME}}) :- .
+to_node (any{instanceof{ID, EXPR, CLASS_NAME}},
+	node_Instanceof{instanceof{ID, EXPR, CLASS_NAME}}) :- .
+to_node (any{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}},
+	node_Variable{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}) :- .
+to_node (any{reflection{ID, EXPR}},
+	node_Reflection{reflection{ID, EXPR}}) :- .
+to_node (any{pre_op{ID, OP, VARIABLE}},
+	node_Pre_op{pre_op{ID, OP, VARIABLE}}) :- .
+to_node (any{post_op{ID, VARIABLE, OP}},
+	node_Post_op{post_op{ID, VARIABLE, OP}}) :- .
+to_node (any{array{ID, ARRAY_ELEMS}},
+	node_Array{array{ID, ARRAY_ELEMS}}) :- .
+to_node (any{array_elem{ID, OPT_KEY, IS_REF, VAL}},
+	node_Array_elem{array_elem{ID, OPT_KEY, IS_REF, VAL}}) :- .
+to_node (any{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}},
+	node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}) :- .
+to_node (any{actual_parameter{ID, IS_REF, EXPR}},
+	node_Actual_parameter{actual_parameter{ID, IS_REF, EXPR}}) :- .
+to_node (any{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}},
+	node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}) :- .
 
 
 
@@ -630,32 +612,30 @@ to_node (any{source_rep_BOOL{ID}}, node_BOOL{ID}) :- .
 to_node (any{source_rep_NIL{ID}}, node_NIL{ID}) :- .
 
 
-to_node (any{cLASS_NAME_id{ID}}, node_CLASS_NAME{cLASS_NAME_id{ID}}) :- .
-to_node (any{iNTERFACE_NAME_id{ID}}, node_INTERFACE_NAME{iNTERFACE_NAME_id{ID}}) :- .
-to_node (any{mETHOD_NAME_id{ID}}, node_METHOD_NAME{mETHOD_NAME_id{ID}}) :- .
-to_node (any{vARIABLE_NAME_id{ID}}, node_VARIABLE_NAME{vARIABLE_NAME_id{ID}}) :- .
-to_node (any{dIRECTIVE_NAME_id{ID}}, node_DIRECTIVE_NAME{dIRECTIVE_NAME_id{ID}}) :- .
-to_node (any{iNT_id{ID}}, node_INT{iNT_id{ID}}) :- .
-to_node (any{rEAL_id{ID}}, node_REAL{rEAL_id{ID}}) :- .
-to_node (any{sTRING_id{ID}}, node_STRING{sTRING_id{ID}}) :- .
-to_node (any{bOOL_id{ID}}, node_BOOL{bOOL_id{ID}}) :- .
-to_node (any{nIL_id{ID}}, node_NIL{nIL_id{ID}}) :- .
-to_node (any{oP_id{ID}}, node_OP{oP_id{ID}}) :- .
-to_node (any{cAST_id{ID}}, node_CAST{cAST_id{ID}}) :- .
-to_node (any{cONSTANT_NAME_id{ID}}, node_CONSTANT_NAME{cONSTANT_NAME_id{ID}}) :- .
+to_node (any{cLASS_NAME{ID, VALUE}}, node_CLASS_NAME{cLASS_NAME{ID, VALUE}}) :- .
+to_node (any{iNTERFACE_NAME{ID, VALUE}}, node_INTERFACE_NAME{iNTERFACE_NAME{ID, VALUE}}) :- .
+to_node (any{mETHOD_NAME{ID, VALUE}}, node_METHOD_NAME{mETHOD_NAME{ID, VALUE}}) :- .
+to_node (any{vARIABLE_NAME{ID, VALUE}}, node_VARIABLE_NAME{vARIABLE_NAME{ID, VALUE}}) :- .
+to_node (any{dIRECTIVE_NAME{ID, VALUE}}, node_DIRECTIVE_NAME{dIRECTIVE_NAME{ID, VALUE}}) :- .
+to_node (any{iNT{ID, VALUE}}, node_INT{iNT{ID, VALUE}}) :- .
+to_node (any{rEAL{ID, VALUE}}, node_REAL{rEAL{ID, VALUE}}) :- .
+to_node (any{sTRING{ID, VALUE}}, node_STRING{sTRING{ID, VALUE}}) :- .
+to_node (any{bOOL{ID, VALUE}}, node_BOOL{bOOL{ID, VALUE}}) :- .
+to_node (any{nIL{ID, VALUE}}, node_NIL{nIL{ID, VALUE}}) :- .
+to_node (any{oP{ID, VALUE}}, node_OP{oP{ID, VALUE}}) :- .
+to_node (any{cAST{ID, VALUE}}, node_CAST{cAST{ID, VALUE}}) :- .
+to_node (any{cONSTANT_NAME{ID, VALUE}}, node_CONSTANT_NAME{cONSTANT_NAME{ID, VALUE}}) :- .
 
 
 
 % Data visitors
-to_generic (NODE, GENERIC) :-
-	ast()->pHP_script(ID, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_PHP_script{NODE}, GENERIC) :-
+	NODE = pHP_script { _, STATEMENTS } ,
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "PHP_script", [GEN_STATEMENTS]}.
+	GENERIC = gnode{node_PHP_script{NODE}, "PHP_script", [GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->class_def(ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS),
-	to_node (any{ID}, NODE),
+to_generic (node_Class_def{NODE}, GENERIC) :-
+	NODE = class_def { _, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS } ,
 	to_node (any{CLASS_MOD}, NODE_CLASS_MOD),
 	to_generic (NODE_CLASS_MOD, GEN_CLASS_MOD),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
@@ -669,27 +649,24 @@ to_generic (NODE, GENERIC) :-
 	GEN_OPT_EXTENDS = gmaybe{"CLASS_NAME", no})),
 	list_to_generic_list ("INTERFACE_NAME", IMPLEMENTSS, GEN_IMPLEMENTSS),
 	list_to_generic_list ("Member", MEMBERS, GEN_MEMBERS),
-	GENERIC = gnode{NODE, "Class_def", [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]}.
+	GENERIC = gnode{node_Class_def{NODE}, "Class_def", [GEN_CLASS_MOD, GEN_CLASS_NAME, GEN_OPT_EXTENDS, GEN_IMPLEMENTSS, GEN_MEMBERS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->class_mod(ID, IS_ABSTRACT, IS_FINAL),
-	to_node (any{ID}, NODE),
+to_generic (node_Class_mod{NODE}, GENERIC) :-
+	NODE = class_mod { _, IS_ABSTRACT, IS_FINAL } ,
 	GEN_IS_ABSTRACT = gmarker {"is_abstract", IS_ABSTRACT},
 	GEN_IS_FINAL = gmarker {"is_final", IS_FINAL},
-	GENERIC = gnode{NODE, "Class_mod", [GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
+	GENERIC = gnode{node_Class_mod{NODE}, "Class_mod", [GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->interface_def(ID, INTERFACE_NAME, EXTENDSS, MEMBERS),
-	to_node (any{ID}, NODE),
+to_generic (node_Interface_def{NODE}, GENERIC) :-
+	NODE = interface_def { _, INTERFACE_NAME, EXTENDSS, MEMBERS } ,
 	to_node (any{INTERFACE_NAME}, NODE_INTERFACE_NAME),
 	to_generic (NODE_INTERFACE_NAME, GEN_INTERFACE_NAME),
 	list_to_generic_list ("INTERFACE_NAME", EXTENDSS, GEN_EXTENDSS),
 	list_to_generic_list ("Member", MEMBERS, GEN_MEMBERS),
-	GENERIC = gnode{NODE, "Interface_def", [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]}.
+	GENERIC = gnode{node_Interface_def{NODE}, "Interface_def", [GEN_INTERFACE_NAME, GEN_EXTENDSS, GEN_MEMBERS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->method(ID, SIGNATURE, OPT_STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Method{NODE}, GENERIC) :-
+	NODE = method { _, SIGNATURE, OPT_STATEMENTS } ,
 	to_node (any{SIGNATURE}, NODE_SIGNATURE),
 	to_generic (NODE_SIGNATURE, GEN_SIGNATURE),
 	((OPT_STATEMENTS = yes{STATEMENTS},
@@ -698,43 +675,39 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_STATEMENTS \= yes{_},
 	GEN_OPT_STATEMENTS = gmaybe{"Statement", no})),
-	GENERIC = gnode{NODE, "Method", [GEN_SIGNATURE, GEN_OPT_STATEMENTS]}.
+	GENERIC = gnode{node_Method{NODE}, "Method", [GEN_SIGNATURE, GEN_OPT_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->signature(ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS),
-	to_node (any{ID}, NODE),
+to_generic (node_Signature{NODE}, GENERIC) :-
+	NODE = signature { _, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS } ,
 	to_node (any{METHOD_MOD}, NODE_METHOD_MOD),
 	to_generic (NODE_METHOD_MOD, GEN_METHOD_MOD),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list ("Formal_parameter", FORMAL_PARAMETERS, GEN_FORMAL_PARAMETERS),
-	GENERIC = gnode{NODE, "Signature", [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]}.
+	GENERIC = gnode{node_Signature{NODE}, "Signature", [GEN_METHOD_MOD, GEN_IS_REF, GEN_METHOD_NAME, GEN_FORMAL_PARAMETERS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->method_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL),
-	to_node (any{ID}, NODE),
+to_generic (node_Method_mod{NODE}, GENERIC) :-
+	NODE = method_mod { _, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL } ,
 	GEN_IS_PUBLIC = gmarker {"is_public", IS_PUBLIC},
 	GEN_IS_PROTECTED = gmarker {"is_protected", IS_PROTECTED},
 	GEN_IS_PRIVATE = gmarker {"is_private", IS_PRIVATE},
 	GEN_IS_STATIC = gmarker {"is_static", IS_STATIC},
 	GEN_IS_ABSTRACT = gmarker {"is_abstract", IS_ABSTRACT},
 	GEN_IS_FINAL = gmarker {"is_final", IS_FINAL},
-	GENERIC = gnode{NODE, "Method_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
+	GENERIC = gnode{node_Method_mod{NODE}, "Method_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_ABSTRACT, GEN_IS_FINAL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->formal_parameter(ID, TYPE, IS_REF, VAR),
-	to_node (any{ID}, NODE),
+to_generic (node_Formal_parameter{NODE}, GENERIC) :-
+	NODE = formal_parameter { _, TYPE, IS_REF, VAR } ,
 	to_node (any{TYPE}, NODE_TYPE),
 	to_generic (NODE_TYPE, GEN_TYPE),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{VAR}, NODE_VAR),
 	to_generic (NODE_VAR, GEN_VAR),
-	GENERIC = gnode{NODE, "Formal_parameter", [GEN_TYPE, GEN_IS_REF, GEN_VAR]}.
+	GENERIC = gnode{node_Formal_parameter{NODE}, "Formal_parameter", [GEN_TYPE, GEN_IS_REF, GEN_VAR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->p_type(ID, OPT_CLASS_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_Type{NODE}, GENERIC) :-
+	NODE = t_type { _, OPT_CLASS_NAME } ,
 	((OPT_CLASS_NAME = yes{CLASS_NAME},
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
@@ -742,29 +715,26 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_CLASS_NAME \= yes{_},
 	GEN_OPT_CLASS_NAME = gmaybe{"CLASS_NAME", no})),
-	GENERIC = gnode{NODE, "Type", [GEN_OPT_CLASS_NAME]}.
+	GENERIC = gnode{node_Type{NODE}, "Type", [GEN_OPT_CLASS_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->attribute(ID, ATTR_MOD, VARSS),
-	to_node (any{ID}, NODE),
+to_generic (node_Attribute{NODE}, GENERIC) :-
+	NODE = attribute { _, ATTR_MOD, VARSS } ,
 	to_node (any{ATTR_MOD}, NODE_ATTR_MOD),
 	to_generic (NODE_ATTR_MOD, GEN_ATTR_MOD),
 	list_to_generic_list ("Name_with_default", VARSS, GEN_VARSS),
-	GENERIC = gnode{NODE, "Attribute", [GEN_ATTR_MOD, GEN_VARSS]}.
+	GENERIC = gnode{node_Attribute{NODE}, "Attribute", [GEN_ATTR_MOD, GEN_VARSS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->attr_mod(ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST),
-	to_node (any{ID}, NODE),
+to_generic (node_Attr_mod{NODE}, GENERIC) :-
+	NODE = attr_mod { _, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST } ,
 	GEN_IS_PUBLIC = gmarker {"is_public", IS_PUBLIC},
 	GEN_IS_PROTECTED = gmarker {"is_protected", IS_PROTECTED},
 	GEN_IS_PRIVATE = gmarker {"is_private", IS_PRIVATE},
 	GEN_IS_STATIC = gmarker {"is_static", IS_STATIC},
 	GEN_IS_CONST = gmarker {"is_const", IS_CONST},
-	GENERIC = gnode{NODE, "Attr_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]}.
+	GENERIC = gnode{node_Attr_mod{NODE}, "Attr_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->name_with_default(ID, VARIABLE_NAME, OPT_EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Name_with_default{NODE}, GENERIC) :-
+	NODE = name_with_default { _, VARIABLE_NAME, OPT_EXPR } ,
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	((OPT_EXPR = yes{EXPR},
@@ -774,36 +744,32 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_EXPR \= yes{_},
 	GEN_OPT_EXPR = gmaybe{"Expr", no})),
-	GENERIC = gnode{NODE, "Name_with_default", [GEN_VARIABLE_NAME, GEN_OPT_EXPR]}.
+	GENERIC = gnode{node_Name_with_default{NODE}, "Name_with_default", [GEN_VARIABLE_NAME, GEN_OPT_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->if(ID, EXPR, IFTRUES, IFFALSES),
-	to_node (any{ID}, NODE),
+to_generic (node_If{NODE}, GENERIC) :-
+	NODE = if { _, EXPR, IFTRUES, IFFALSES } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	list_to_generic_list ("Statement", IFTRUES, GEN_IFTRUES),
 	list_to_generic_list ("Statement", IFFALSES, GEN_IFFALSES),
-	GENERIC = gnode{NODE, "If", [GEN_EXPR, GEN_IFTRUES, GEN_IFFALSES]}.
+	GENERIC = gnode{node_If{NODE}, "If", [GEN_EXPR, GEN_IFTRUES, GEN_IFFALSES]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->while(ID, EXPR, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_While{NODE}, GENERIC) :-
+	NODE = while { _, EXPR, STATEMENTS } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "While", [GEN_EXPR, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_While{NODE}, "While", [GEN_EXPR, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->do(ID, STATEMENTS, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Do{NODE}, GENERIC) :-
+	NODE = do { _, STATEMENTS, EXPR } ,
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Do", [GEN_STATEMENTS, GEN_EXPR]}.
+	GENERIC = gnode{node_Do{NODE}, "Do", [GEN_STATEMENTS, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->for(ID, OPT_INIT, OPT_COND, OPT_INCR, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_For{NODE}, GENERIC) :-
+	NODE = for { _, OPT_INIT, OPT_COND, OPT_INCR, STATEMENTS } ,
 	((OPT_INIT = yes{INIT},
 	to_node (any{INIT}, NODE_INIT),
 	to_generic (NODE_INIT, GEN_INIT),
@@ -826,11 +792,10 @@ to_generic (NODE, GENERIC) :-
 	(OPT_INCR \= yes{_},
 	GEN_OPT_INCR = gmaybe{"Expr", no})),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "For", [GEN_OPT_INIT, GEN_OPT_COND, GEN_OPT_INCR, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_For{NODE}, "For", [GEN_OPT_INIT, GEN_OPT_COND, GEN_OPT_INCR, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->foreach(ID, EXPR, OPT_KEY, IS_REF, VAL, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Foreach{NODE}, GENERIC) :-
+	NODE = foreach { _, EXPR, OPT_KEY, IS_REF, VAL, STATEMENTS } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	((OPT_KEY = yes{KEY},
@@ -844,19 +809,17 @@ to_generic (NODE, GENERIC) :-
 	to_node (any{VAL}, NODE_VAL),
 	to_generic (NODE_VAL, GEN_VAL),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "Foreach", [GEN_EXPR, GEN_OPT_KEY, GEN_IS_REF, GEN_VAL, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_Foreach{NODE}, "Foreach", [GEN_EXPR, GEN_OPT_KEY, GEN_IS_REF, GEN_VAL, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->switch(ID, EXPR, SWITCH_CASES),
-	to_node (any{ID}, NODE),
+to_generic (node_Switch{NODE}, GENERIC) :-
+	NODE = switch { _, EXPR, SWITCH_CASES } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	list_to_generic_list ("Switch_case", SWITCH_CASES, GEN_SWITCH_CASES),
-	GENERIC = gnode{NODE, "Switch", [GEN_EXPR, GEN_SWITCH_CASES]}.
+	GENERIC = gnode{node_Switch{NODE}, "Switch", [GEN_EXPR, GEN_SWITCH_CASES]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->switch_case(ID, OPT_EXPR, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Switch_case{NODE}, GENERIC) :-
+	NODE = switch_case { _, OPT_EXPR, STATEMENTS } ,
 	((OPT_EXPR = yes{EXPR},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
@@ -865,11 +828,10 @@ to_generic (NODE, GENERIC) :-
 	(OPT_EXPR \= yes{_},
 	GEN_OPT_EXPR = gmaybe{"Expr", no})),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "Switch_case", [GEN_OPT_EXPR, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_Switch_case{NODE}, "Switch_case", [GEN_OPT_EXPR, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->break(ID, OPT_EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Break{NODE}, GENERIC) :-
+	NODE = break { _, OPT_EXPR } ,
 	((OPT_EXPR = yes{EXPR},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
@@ -877,11 +839,10 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_EXPR \= yes{_},
 	GEN_OPT_EXPR = gmaybe{"Expr", no})),
-	GENERIC = gnode{NODE, "Break", [GEN_OPT_EXPR]}.
+	GENERIC = gnode{node_Break{NODE}, "Break", [GEN_OPT_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->continue(ID, OPT_EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Continue{NODE}, GENERIC) :-
+	NODE = continue { _, OPT_EXPR } ,
 	((OPT_EXPR = yes{EXPR},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
@@ -889,11 +850,10 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_EXPR \= yes{_},
 	GEN_OPT_EXPR = gmaybe{"Expr", no})),
-	GENERIC = gnode{NODE, "Continue", [GEN_OPT_EXPR]}.
+	GENERIC = gnode{node_Continue{NODE}, "Continue", [GEN_OPT_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->return(ID, OPT_EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Return{NODE}, GENERIC) :-
+	NODE = return { _, OPT_EXPR } ,
 	((OPT_EXPR = yes{EXPR},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
@@ -901,169 +861,148 @@ to_generic (NODE, GENERIC) :-
 	;
 	(OPT_EXPR \= yes{_},
 	GEN_OPT_EXPR = gmaybe{"Expr", no})),
-	GENERIC = gnode{NODE, "Return", [GEN_OPT_EXPR]}.
+	GENERIC = gnode{node_Return{NODE}, "Return", [GEN_OPT_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->static_declaration(ID, VARSS),
-	to_node (any{ID}, NODE),
+to_generic (node_Static_declaration{NODE}, GENERIC) :-
+	NODE = static_declaration { _, VARSS } ,
 	list_to_generic_list ("Name_with_default", VARSS, GEN_VARSS),
-	GENERIC = gnode{NODE, "Static_declaration", [GEN_VARSS]}.
+	GENERIC = gnode{node_Static_declaration{NODE}, "Static_declaration", [GEN_VARSS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->global(ID, VARIABLE_NAMES),
-	to_node (any{ID}, NODE),
+to_generic (node_Global{NODE}, GENERIC) :-
+	NODE = global { _, VARIABLE_NAMES } ,
 	list_to_generic_list ("Variable_name", VARIABLE_NAMES, GEN_VARIABLE_NAMES),
-	GENERIC = gnode{NODE, "Global", [GEN_VARIABLE_NAMES]}.
+	GENERIC = gnode{node_Global{NODE}, "Global", [GEN_VARIABLE_NAMES]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->declare(ID, DIRECTIVES, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Declare{NODE}, GENERIC) :-
+	NODE = declare { _, DIRECTIVES, STATEMENTS } ,
 	list_to_generic_list ("Directive", DIRECTIVES, GEN_DIRECTIVES),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "Declare", [GEN_DIRECTIVES, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_Declare{NODE}, "Declare", [GEN_DIRECTIVES, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->directive(ID, DIRECTIVE_NAME, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Directive{NODE}, GENERIC) :-
+	NODE = directive { _, DIRECTIVE_NAME, EXPR } ,
 	to_node (any{DIRECTIVE_NAME}, NODE_DIRECTIVE_NAME),
 	to_generic (NODE_DIRECTIVE_NAME, GEN_DIRECTIVE_NAME),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Directive", [GEN_DIRECTIVE_NAME, GEN_EXPR]}.
+	GENERIC = gnode{node_Directive{NODE}, "Directive", [GEN_DIRECTIVE_NAME, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->try(ID, STATEMENTS, CATCHESS),
-	to_node (any{ID}, NODE),
+to_generic (node_Try{NODE}, GENERIC) :-
+	NODE = try { _, STATEMENTS, CATCHESS } ,
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
 	list_to_generic_list ("Catch", CATCHESS, GEN_CATCHESS),
-	GENERIC = gnode{NODE, "Try", [GEN_STATEMENTS, GEN_CATCHESS]}.
+	GENERIC = gnode{node_Try{NODE}, "Try", [GEN_STATEMENTS, GEN_CATCHESS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->catch(ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Catch{NODE}, GENERIC) :-
+	NODE = catch { _, CLASS_NAME, VARIABLE_NAME, STATEMENTS } ,
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	list_to_generic_list ("Statement", STATEMENTS, GEN_STATEMENTS),
-	GENERIC = gnode{NODE, "Catch", [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]}.
+	GENERIC = gnode{node_Catch{NODE}, "Catch", [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->throw(ID, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Throw{NODE}, GENERIC) :-
+	NODE = throw { _, EXPR } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Throw", [GEN_EXPR]}.
+	GENERIC = gnode{node_Throw{NODE}, "Throw", [GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->eval_expr(ID, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Eval_expr{NODE}, GENERIC) :-
+	NODE = eval_expr { _, EXPR } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Eval_expr", [GEN_EXPR]}.
+	GENERIC = gnode{node_Eval_expr{NODE}, "Eval_expr", [GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->nop(ID),
-	to_node (any{ID}, NODE),
-	GENERIC = gnode{NODE, "Nop", []}.
+to_generic (node_Nop{NODE}, GENERIC) :-
+	NODE = nop { _ } ,
+	GENERIC = gnode{node_Nop{NODE}, "Nop", []}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->foreign_expr(ID),
-	to_node (any{ID}, NODE),
-	GENERIC = gnode{NODE, "Foreign_expr", []}.
+to_generic (node_Foreign_expr{NODE}, GENERIC) :-
+	NODE = foreign_expr { _ } ,
+	GENERIC = gnode{node_Foreign_expr{NODE}, "Foreign_expr", []}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->foreign_statement(ID),
-	to_node (any{ID}, NODE),
-	GENERIC = gnode{NODE, "Foreign_statement", []}.
+to_generic (node_Foreign_statement{NODE}, GENERIC) :-
+	NODE = foreign_statement { _ } ,
+	GENERIC = gnode{node_Foreign_statement{NODE}, "Foreign_statement", []}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->assignment(ID, VARIABLE, IS_REF, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Assignment{NODE}, GENERIC) :-
+	NODE = assignment { _, VARIABLE, IS_REF, EXPR } ,
 	to_node (any{VARIABLE}, NODE_VARIABLE),
 	to_generic (NODE_VARIABLE, GEN_VARIABLE),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Assignment", [GEN_VARIABLE, GEN_IS_REF, GEN_EXPR]}.
+	GENERIC = gnode{node_Assignment{NODE}, "Assignment", [GEN_VARIABLE, GEN_IS_REF, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->op_assignment(ID, VARIABLE, OP, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Op_assignment{NODE}, GENERIC) :-
+	NODE = op_assignment { _, VARIABLE, OP, EXPR } ,
 	to_node (any{VARIABLE}, NODE_VARIABLE),
 	to_generic (NODE_VARIABLE, GEN_VARIABLE),
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Op_assignment", [GEN_VARIABLE, GEN_OP, GEN_EXPR]}.
+	GENERIC = gnode{node_Op_assignment{NODE}, "Op_assignment", [GEN_VARIABLE, GEN_OP, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->list_assignment(ID, LIST_ELEMENTS, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_List_assignment{NODE}, GENERIC) :-
+	NODE = list_assignment { _, LIST_ELEMENTS, EXPR } ,
 	to_node (any{LIST_ELEMENTS}, NODE_LIST_ELEMENTS),
 	to_generic (NODE_LIST_ELEMENTS, GEN_LIST_ELEMENTS),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "List_assignment", [GEN_LIST_ELEMENTS, GEN_EXPR]}.
+	GENERIC = gnode{node_List_assignment{NODE}, "List_assignment", [GEN_LIST_ELEMENTS, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->nested_list_elements(ID, LIST_ELEMENTS),
-	to_node (any{ID}, NODE),
+to_generic (node_Nested_list_elements{NODE}, GENERIC) :-
+	NODE = nested_list_elements { _, LIST_ELEMENTS } ,
 	to_node (any{LIST_ELEMENTS}, NODE_LIST_ELEMENTS),
 	to_generic (NODE_LIST_ELEMENTS, GEN_LIST_ELEMENTS),
-	GENERIC = gnode{NODE, "Nested_list_elements", [GEN_LIST_ELEMENTS]}.
+	GENERIC = gnode{node_Nested_list_elements{NODE}, "Nested_list_elements", [GEN_LIST_ELEMENTS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->cast(ID, CAST, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Cast{NODE}, GENERIC) :-
+	NODE = cast { _, CAST, EXPR } ,
 	to_node (any{CAST}, NODE_CAST),
 	to_generic (NODE_CAST, GEN_CAST),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Cast", [GEN_CAST, GEN_EXPR]}.
+	GENERIC = gnode{node_Cast{NODE}, "Cast", [GEN_CAST, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->unary_op(ID, OP, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Unary_op{NODE}, GENERIC) :-
+	NODE = unary_op { _, OP, EXPR } ,
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Unary_op", [GEN_OP, GEN_EXPR]}.
+	GENERIC = gnode{node_Unary_op{NODE}, "Unary_op", [GEN_OP, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->bin_op(ID, LEFT, OP, RIGHT),
-	to_node (any{ID}, NODE),
+to_generic (node_Bin_op{NODE}, GENERIC) :-
+	NODE = bin_op { _, LEFT, OP, RIGHT } ,
 	to_node (any{LEFT}, NODE_LEFT),
 	to_generic (NODE_LEFT, GEN_LEFT),
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{RIGHT}, NODE_RIGHT),
 	to_generic (NODE_RIGHT, GEN_RIGHT),
-	GENERIC = gnode{NODE, "Bin_op", [GEN_LEFT, GEN_OP, GEN_RIGHT]}.
+	GENERIC = gnode{node_Bin_op{NODE}, "Bin_op", [GEN_LEFT, GEN_OP, GEN_RIGHT]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->conditional_expr(ID, COND, IFTRUE, IFFALSE),
-	to_node (any{ID}, NODE),
+to_generic (node_Conditional_expr{NODE}, GENERIC) :-
+	NODE = conditional_expr { _, COND, IFTRUE, IFFALSE } ,
 	to_node (any{COND}, NODE_COND),
 	to_generic (NODE_COND, GEN_COND),
 	to_node (any{IFTRUE}, NODE_IFTRUE),
 	to_generic (NODE_IFTRUE, GEN_IFTRUE),
 	to_node (any{IFFALSE}, NODE_IFFALSE),
 	to_generic (NODE_IFFALSE, GEN_IFFALSE),
-	GENERIC = gnode{NODE, "Conditional_expr", [GEN_COND, GEN_IFTRUE, GEN_IFFALSE]}.
+	GENERIC = gnode{node_Conditional_expr{NODE}, "Conditional_expr", [GEN_COND, GEN_IFTRUE, GEN_IFFALSE]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->ignore_errors(ID, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Ignore_errors{NODE}, GENERIC) :-
+	NODE = ignore_errors { _, EXPR } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Ignore_errors", [GEN_EXPR]}.
+	GENERIC = gnode{node_Ignore_errors{NODE}, "Ignore_errors", [GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->constant(ID, OPT_CLASS_NAME, CONSTANT_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_Constant{NODE}, GENERIC) :-
+	NODE = constant { _, OPT_CLASS_NAME, CONSTANT_NAME } ,
 	((OPT_CLASS_NAME = yes{CLASS_NAME},
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
@@ -1073,20 +1012,18 @@ to_generic (NODE, GENERIC) :-
 	GEN_OPT_CLASS_NAME = gmaybe{"CLASS_NAME", no})),
 	to_node (any{CONSTANT_NAME}, NODE_CONSTANT_NAME),
 	to_generic (NODE_CONSTANT_NAME, GEN_CONSTANT_NAME),
-	GENERIC = gnode{NODE, "Constant", [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]}.
+	GENERIC = gnode{node_Constant{NODE}, "Constant", [GEN_OPT_CLASS_NAME, GEN_CONSTANT_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->instanceof(ID, EXPR, CLASS_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_Instanceof{NODE}, GENERIC) :-
+	NODE = instanceof { _, EXPR, CLASS_NAME } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
-	GENERIC = gnode{NODE, "Instanceof", [GEN_EXPR, GEN_CLASS_NAME]}.
+	GENERIC = gnode{node_Instanceof{NODE}, "Instanceof", [GEN_EXPR, GEN_CLASS_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->variable(ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS),
-	to_node (any{ID}, NODE),
+to_generic (node_Variable{NODE}, GENERIC) :-
+	NODE = variable { _, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS } ,
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
 	to_generic (NODE_TARGET, GEN_TARGET),
@@ -1098,42 +1035,37 @@ to_generic (NODE, GENERIC) :-
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	to_node (any{ARRAY_INDICESS}, NODE_ARRAY_INDICESS),
 	to_generic (NODE_ARRAY_INDICESS, GEN_ARRAY_INDICESS),
-	GENERIC = gnode{NODE, "Variable", [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
+	GENERIC = gnode{node_Variable{NODE}, "Variable", [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->reflection(ID, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Reflection{NODE}, GENERIC) :-
+	NODE = reflection { _, EXPR } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Reflection", [GEN_EXPR]}.
+	GENERIC = gnode{node_Reflection{NODE}, "Reflection", [GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->pre_op(ID, OP, VARIABLE),
-	to_node (any{ID}, NODE),
+to_generic (node_Pre_op{NODE}, GENERIC) :-
+	NODE = pre_op { _, OP, VARIABLE } ,
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
 	to_node (any{VARIABLE}, NODE_VARIABLE),
 	to_generic (NODE_VARIABLE, GEN_VARIABLE),
-	GENERIC = gnode{NODE, "Pre_op", [GEN_OP, GEN_VARIABLE]}.
+	GENERIC = gnode{node_Pre_op{NODE}, "Pre_op", [GEN_OP, GEN_VARIABLE]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->post_op(ID, VARIABLE, OP),
-	to_node (any{ID}, NODE),
+to_generic (node_Post_op{NODE}, GENERIC) :-
+	NODE = post_op { _, VARIABLE, OP } ,
 	to_node (any{VARIABLE}, NODE_VARIABLE),
 	to_generic (NODE_VARIABLE, GEN_VARIABLE),
 	to_node (any{OP}, NODE_OP),
 	to_generic (NODE_OP, GEN_OP),
-	GENERIC = gnode{NODE, "Post_op", [GEN_VARIABLE, GEN_OP]}.
+	GENERIC = gnode{node_Post_op{NODE}, "Post_op", [GEN_VARIABLE, GEN_OP]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->array(ID, ARRAY_ELEMS),
-	to_node (any{ID}, NODE),
+to_generic (node_Array{NODE}, GENERIC) :-
+	NODE = array { _, ARRAY_ELEMS } ,
 	list_to_generic_list ("Array_elem", ARRAY_ELEMS, GEN_ARRAY_ELEMS),
-	GENERIC = gnode{NODE, "Array", [GEN_ARRAY_ELEMS]}.
+	GENERIC = gnode{node_Array{NODE}, "Array", [GEN_ARRAY_ELEMS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->array_elem(ID, OPT_KEY, IS_REF, VAL),
-	to_node (any{ID}, NODE),
+to_generic (node_Array_elem{NODE}, GENERIC) :-
+	NODE = array_elem { _, OPT_KEY, IS_REF, VAL } ,
 	((OPT_KEY = yes{KEY},
 	to_node (any{KEY}, NODE_KEY),
 	to_generic (NODE_KEY, GEN_KEY),
@@ -1144,11 +1076,10 @@ to_generic (NODE, GENERIC) :-
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{VAL}, NODE_VAL),
 	to_generic (NODE_VAL, GEN_VAL),
-	GENERIC = gnode{NODE, "Array_elem", [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]}.
+	GENERIC = gnode{node_Array_elem{NODE}, "Array_elem", [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->method_invocation(ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS),
-	to_node (any{ID}, NODE),
+to_generic (node_Method_invocation{NODE}, GENERIC) :-
+	NODE = method_invocation { _, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS } ,
 	((OPT_TARGET = yes{TARGET},
 	to_node (any{TARGET}, NODE_TARGET),
 	to_generic (NODE_TARGET, GEN_TARGET),
@@ -1159,103 +1090,88 @@ to_generic (NODE, GENERIC) :-
 	to_node (any{METHOD_NAME}, NODE_METHOD_NAME),
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
-	GENERIC = gnode{NODE, "Method_invocation", [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]}.
+	GENERIC = gnode{node_Method_invocation{NODE}, "Method_invocation", [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->actual_parameter(ID, IS_REF, EXPR),
-	to_node (any{ID}, NODE),
+to_generic (node_Actual_parameter{NODE}, GENERIC) :-
+	NODE = actual_parameter { _, IS_REF, EXPR } ,
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{NODE, "Actual_parameter", [GEN_IS_REF, GEN_EXPR]}.
+	GENERIC = gnode{node_Actual_parameter{NODE}, "Actual_parameter", [GEN_IS_REF, GEN_EXPR]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->new(ID, CLASS_NAME, ACTUAL_PARAMETERS),
-	to_node (any{ID}, NODE),
+to_generic (node_New{NODE}, GENERIC) :-
+	NODE = new { _, CLASS_NAME, ACTUAL_PARAMETERS } ,
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
-	GENERIC = gnode{NODE, "New", [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
+	GENERIC = gnode{node_New{NODE}, "New", [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
 
 
 
-to_generic (NODE, GENERIC) :-
-	ast()->cLASS_NAME(ID, CLASS_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_CLASS_NAME{NODE}, GENERIC) :-
+	NODE = cLASS_NAME { _, CLASS_NAME } ,
 	GEN_CLASS_NAME = gstring {CLASS_NAME},
-	GENERIC = gnode{NODE, "CLASS_NAME", [GEN_CLASS_NAME]}.
+	GENERIC = gnode{node_CLASS_NAME{NODE}, "CLASS_NAME", [GEN_CLASS_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->iNTERFACE_NAME(ID, INTERFACE_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_INTERFACE_NAME{NODE}, GENERIC) :-
+	NODE = iNTERFACE_NAME { _, INTERFACE_NAME } ,
 	GEN_INTERFACE_NAME = gstring {INTERFACE_NAME},
-	GENERIC = gnode{NODE, "INTERFACE_NAME", [GEN_INTERFACE_NAME]}.
+	GENERIC = gnode{node_INTERFACE_NAME{NODE}, "INTERFACE_NAME", [GEN_INTERFACE_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->mETHOD_NAME(ID, METHOD_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_METHOD_NAME{NODE}, GENERIC) :-
+	NODE = mETHOD_NAME { _, METHOD_NAME } ,
 	GEN_METHOD_NAME = gstring {METHOD_NAME},
-	GENERIC = gnode{NODE, "METHOD_NAME", [GEN_METHOD_NAME]}.
+	GENERIC = gnode{node_METHOD_NAME{NODE}, "METHOD_NAME", [GEN_METHOD_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->vARIABLE_NAME(ID, VARIABLE_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_VARIABLE_NAME{NODE}, GENERIC) :-
+	NODE = vARIABLE_NAME { _, VARIABLE_NAME } ,
 	GEN_VARIABLE_NAME = gstring {VARIABLE_NAME},
-	GENERIC = gnode{NODE, "VARIABLE_NAME", [GEN_VARIABLE_NAME]}.
+	GENERIC = gnode{node_VARIABLE_NAME{NODE}, "VARIABLE_NAME", [GEN_VARIABLE_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->dIRECTIVE_NAME(ID, DIRECTIVE_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_DIRECTIVE_NAME{NODE}, GENERIC) :-
+	NODE = dIRECTIVE_NAME { _, DIRECTIVE_NAME } ,
 	GEN_DIRECTIVE_NAME = gstring {DIRECTIVE_NAME},
-	GENERIC = gnode{NODE, "DIRECTIVE_NAME", [GEN_DIRECTIVE_NAME]}.
+	GENERIC = gnode{node_DIRECTIVE_NAME{NODE}, "DIRECTIVE_NAME", [GEN_DIRECTIVE_NAME]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->iNT(ID, INT),
-	to_node (any{ID}, NODE),
+to_generic (node_INT{NODE}, GENERIC) :-
+	NODE = iNT { _, INT } ,
 	GEN_INT = gint {INT},
-	GENERIC = gnode{NODE, "INT", [GEN_INT]}.
+	GENERIC = gnode{node_INT{NODE}, "INT", [GEN_INT]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->rEAL(ID, REAL),
-	to_node (any{ID}, NODE),
+to_generic (node_REAL{NODE}, GENERIC) :-
+	NODE = rEAL { _, REAL } ,
 	GEN_REAL = gfloat {REAL},
-	GENERIC = gnode{NODE, "REAL", [GEN_REAL]}.
+	GENERIC = gnode{node_REAL{NODE}, "REAL", [GEN_REAL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->sTRING(ID, STRING),
-	to_node (any{ID}, NODE),
+to_generic (node_STRING{NODE}, GENERIC) :-
+	NODE = sTRING { _, STRING } ,
 	GEN_STRING = gstring {STRING},
-	GENERIC = gnode{NODE, "STRING", [GEN_STRING]}.
+	GENERIC = gnode{node_STRING{NODE}, "STRING", [GEN_STRING]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->bOOL(ID, BOOL),
-	to_node (any{ID}, NODE),
+to_generic (node_BOOL{NODE}, GENERIC) :-
+	NODE = bOOL { _, BOOL } ,
 	GEN_BOOL = gbool {BOOL},
-	GENERIC = gnode{NODE, "BOOL", [GEN_BOOL]}.
+	GENERIC = gnode{node_BOOL{NODE}, "BOOL", [GEN_BOOL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->nIL(ID, NIL),
-	to_node (any{ID}, NODE),
+to_generic (node_NIL{NODE}, GENERIC) :-
+	NODE = nIL { _, NIL } ,
 	GEN_NIL = gnull {NIL},
-	GENERIC = gnode{NODE, "NIL", [GEN_NIL]}.
+	GENERIC = gnode{node_NIL{NODE}, "NIL", [GEN_NIL]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->oP(ID, OP),
-	to_node (any{ID}, NODE),
+to_generic (node_OP{NODE}, GENERIC) :-
+	NODE = oP { _, OP } ,
 	GEN_OP = gstring {OP},
-	GENERIC = gnode{NODE, "OP", [GEN_OP]}.
+	GENERIC = gnode{node_OP{NODE}, "OP", [GEN_OP]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->cAST(ID, CAST),
-	to_node (any{ID}, NODE),
+to_generic (node_CAST{NODE}, GENERIC) :-
+	NODE = cAST { _, CAST } ,
 	GEN_CAST = gstring {CAST},
-	GENERIC = gnode{NODE, "CAST", [GEN_CAST]}.
+	GENERIC = gnode{node_CAST{NODE}, "CAST", [GEN_CAST]}.
 
-to_generic (NODE, GENERIC) :-
-	ast()->cONSTANT_NAME(ID, CONSTANT_NAME),
-	to_node (any{ID}, NODE),
+to_generic (node_CONSTANT_NAME{NODE}, GENERIC) :-
+	NODE = cONSTANT_NAME { _, CONSTANT_NAME } ,
 	GEN_CONSTANT_NAME = gstring {CONSTANT_NAME},
-	GENERIC = gnode{NODE, "CONSTANT_NAME", [GEN_CONSTANT_NAME]}.
+	GENERIC = gnode{node_CONSTANT_NAME{NODE}, "CONSTANT_NAME", [GEN_CONSTANT_NAME]}.
 
 
 

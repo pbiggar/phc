@@ -1,5 +1,6 @@
 import "cfg.clp".
 import "src/generated/MIR.clp".
+import "util.clp".
 
 import "3rdparty/clpa/analysis/base/utility.clp".
 using dotty.
@@ -17,12 +18,6 @@ predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).
 % Nodes
 dotty_node (N, [dg_attr{"label", NAME}]) :- cfg_node (N), N = nentry{METHOD}, get_method_name (METHOD, NAME).
 dotty_node (N, [dg_attr{"label", NAME}]) :- cfg_node (N), N = nexit{METHOD}, get_method_name (METHOD, NAME).
-
-predicate get_method_name (t_Method, string).
-get_method_name (METHOD, NAME) :- 
-	mir()->method (METHOD, SIG, _), 
-	mir()->signature (SIG, _, _, NAME_ID, _), 
-	mir()->mETHOD_NAME (NAME_ID, NAME).
 
 % Normal statements (labelled with the SOURCE_REP and [ID])
 dotty_node (N, Attrs) :- 

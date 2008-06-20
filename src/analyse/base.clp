@@ -48,3 +48,7 @@ predicate source_rep (ID:t_Node, SOURCE:string).
 
 % The filename from the file currently being analysed.
 predicate filename (FILENAME:string).
+
+% Forward declare
+type t_PHP_script.
+predicate program (PHP_script:t_PHP_script).
