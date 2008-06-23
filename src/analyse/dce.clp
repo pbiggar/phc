@@ -191,7 +191,7 @@ error (BB) :- cfg_node (BB), ~handled (BB).
 print (ERROR) :- 
 	error (BB),
 	tostring (BB, BB_STR),
-	((BB = nblock {B}, to_node (any{B}, NODE), mir()->source_rep (NODE, SOURCE))
+	((BB = nblock {B}, to_node (any{B}, NODE), mir()->source_rep (get_id (NODE), SOURCE))
 	;
 	(BB \= nblock{_}, SOURCE = "SOURCE NOT AVAILABLE")),
 	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).

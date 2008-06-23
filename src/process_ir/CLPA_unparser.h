@@ -79,12 +79,14 @@ template
 >
 class CLPA_unparser : public Visitor 
 {
+	typedef CLPA_unparser<PHP_script, Node, Literal, STRING, BOOL, REAL, Identifier, Visitor, Unparser> Parent;
+
 protected:
 	String* uc_prefix;
 	String* prefix;
 	List<String*> keywords;
 	int id;
-	string comma;
+	const string comma;
 	const char* base_type;
 	stringstream out;
 	bool next_node_optional;
@@ -94,13 +96,13 @@ protected:
 public:
 
 	CLPA_unparser ()
+	: id (0)
+	, comma (", \n")
+	, base_type (NULL)
+	, next_node_optional (false)
+	, list_depth (0)
 	{
-		comma = ", \n";
-		id = 0;
-		base_type = NULL;
-		list_depth = 0;
 		init_keywords ();
-		next_node_optional = false;
 	}
 
 	void init (PHP_script* in)
@@ -119,10 +121,11 @@ public:
 			<< "+" << *prefix << "()->program (";
 	}
 
-	void finish ()
+	void finish (PHP_script* in)
 	{
 		backspace_comma ();
-		out << ").";
+		out << ").\n\n";
+		in->visit (new Attr_unparser (this));
 		cout << out.str ();
 	}
 
@@ -134,12 +137,14 @@ public:
 		// cant go into pre_/post_php_script
 		init (in);
 		Visitor::visit_php_script (in);
-		finish ();
+		finish (in);
 	}
 
+	// skip over ", \n"
 	void backspace_comma ()
 	{
-		out.seekp (-3, ios_base::end);
+		int length = -(comma.length ());
+		out.seekp (length, ios_base::end);
 	}
 
 	void init_keywords ()
@@ -266,9 +271,11 @@ public:
 			in->attrs->set_true ("phc.clpa.use_base_type");
 		}
 
-		out << *constructor_name (in);
-			
-		out << "{" << id++ << comma;
+		in->attrs->set_integer ("phc.clpa.id", id);
+
+		out 
+			<< *constructor_name (in)
+			<< "{" << id++ << comma;
 
 		// indicate its been used
 		base_type = NULL;
@@ -333,16 +340,6 @@ public:
 		out << comma;
 	}
 
-	String* pred_name (Node* in)
-	{
-		stringstream ss;
-		const char* name = demangle (in, false);
-		ss << (char)(tolower (name[0]));
-		ss << &name[1];
-
-		return check_for_keywords (s (ss.str ()), s("p"));
-	}
-
 	String* constructor_name (Node* in)
 	{
 		return lowerFirst (s (demangle (in, false)));
@@ -401,6 +398,54 @@ public:
 
 		return new String(ss.str());	
 	}
+
+	class Attr_unparser : public Visitor
+	{
+		Parent* parent;
+
+	public:
+		Attr_unparser (Parent* parent) : parent (parent) { }
+
+	
+		void pre_node(Node* in)
+		{
+			// We dont need clpa.id anymore
+			int id = in->attrs->get_integer ("phc.clpa.id")->value();
+			in->attrs->erase_with_prefix ("phc.clpa");
+
+			// Print out the attributes
+			AttrMap::const_iterator i;
+			for(i = in->attrs->begin(); i != in->attrs->end(); i++)
+			{
+				parent->out
+					<< "+" << *parent->prefix << "()->attr (" << id << ", "
+					<< "\"" << (*i).first << "\", ";
+
+				Object* attr = (*i).second;
+
+				if(String* str = dynamic_cast<String*>(attr))
+					parent->out << "attr_str{\"" << *str << "\"}";
+				else if(Integer* _int = dynamic_cast<Integer*>(attr))
+					parent->out << "attr_int{" << _int->value () << "}";
+				else if(Boolean* b = dynamic_cast<Boolean*>(attr))
+					parent->out << "attr_bool{" << (b->value () ? "true" : "false") << "}";
+				else
+					parent->out << "attr_unavaiable";
+
+				parent->out << ").\n";
+			}
+
+			// Print out the source representation
+			stringstream ss;
+			Unparser unparser (ss, true);
+			unparser.unparse (in);
+			parent->out
+				<< "+" << *parent->prefix << "()->source_rep (" << id << ", "
+				<< "\"" << *parent->escape (s (ss.str ())) << "\").\n";
+
+		}
+
+	};
 
 };
 

@@ -280,93 +280,178 @@ type t_Node ::=
 
 % Generics
 
-% Type Casts
 to_node (any{pHP_script{ID, STATEMENTS}},
 	node_PHP_script{pHP_script{ID, STATEMENTS}}) :- .
+get_id (node_PHP_script{pHP_script{ID, STATEMENTS}}, ID) :- .
+
 to_node (any{class_def{ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS}},
 	node_Class_def{class_def{ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS}}) :- .
+get_id (node_Class_def{class_def{ID, CLASS_MOD, CLASS_NAME, OPT_EXTENDS, IMPLEMENTSS, MEMBERS}}, ID) :- .
+
 to_node (any{class_mod{ID, IS_ABSTRACT, IS_FINAL}},
 	node_Class_mod{class_mod{ID, IS_ABSTRACT, IS_FINAL}}) :- .
+get_id (node_Class_mod{class_mod{ID, IS_ABSTRACT, IS_FINAL}}, ID) :- .
+
 to_node (any{interface_def{ID, INTERFACE_NAME, EXTENDSS, MEMBERS}},
 	node_Interface_def{interface_def{ID, INTERFACE_NAME, EXTENDSS, MEMBERS}}) :- .
+get_id (node_Interface_def{interface_def{ID, INTERFACE_NAME, EXTENDSS, MEMBERS}}, ID) :- .
+
 to_node (any{method{ID, SIGNATURE, OPT_STATEMENTS}},
 	node_Method{method{ID, SIGNATURE, OPT_STATEMENTS}}) :- .
+get_id (node_Method{method{ID, SIGNATURE, OPT_STATEMENTS}}, ID) :- .
+
 to_node (any{signature{ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS}},
 	node_Signature{signature{ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS}}) :- .
+get_id (node_Signature{signature{ID, METHOD_MOD, IS_REF, METHOD_NAME, FORMAL_PARAMETERS}}, ID) :- .
+
 to_node (any{method_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL}},
 	node_Method_mod{method_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL}}) :- .
+get_id (node_Method_mod{method_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_ABSTRACT, IS_FINAL}}, ID) :- .
+
 to_node (any{formal_parameter{ID, TYPE, IS_REF, VAR}},
 	node_Formal_parameter{formal_parameter{ID, TYPE, IS_REF, VAR}}) :- .
+get_id (node_Formal_parameter{formal_parameter{ID, TYPE, IS_REF, VAR}}, ID) :- .
+
 to_node (any{t_type{ID, OPT_CLASS_NAME}},
 	node_Type{t_type{ID, OPT_CLASS_NAME}}) :- .
+get_id (node_Type{t_type{ID, OPT_CLASS_NAME}}, ID) :- .
+
 to_node (any{attribute{ID, ATTR_MOD, VAR}},
 	node_Attribute{attribute{ID, ATTR_MOD, VAR}}) :- .
+get_id (node_Attribute{attribute{ID, ATTR_MOD, VAR}}, ID) :- .
+
 to_node (any{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}},
 	node_Attr_mod{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}}) :- .
+get_id (node_Attr_mod{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}}, ID) :- .
+
 to_node (any{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}},
 	node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}}) :- .
+get_id (node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}}, ID) :- .
+
 to_node (any{if{ID, VARIABLE_NAME, IFTRUES, IFFALSES}},
 	node_If{if{ID, VARIABLE_NAME, IFTRUES, IFFALSES}}) :- .
+get_id (node_If{if{ID, VARIABLE_NAME, IFTRUES, IFFALSES}}, ID) :- .
+
 to_node (any{loop{ID, STATEMENTS}},
 	node_Loop{loop{ID, STATEMENTS}}) :- .
+get_id (node_Loop{loop{ID, STATEMENTS}}, ID) :- .
+
 to_node (any{foreach{ID, ARR, OPT_KEY, IS_REF, VAL, STATEMENTS}},
 	node_Foreach{foreach{ID, ARR, OPT_KEY, IS_REF, VAL, STATEMENTS}}) :- .
+get_id (node_Foreach{foreach{ID, ARR, OPT_KEY, IS_REF, VAL, STATEMENTS}}, ID) :- .
+
 to_node (any{break{ID, OPT_EXPR}},
 	node_Break{break{ID, OPT_EXPR}}) :- .
+get_id (node_Break{break{ID, OPT_EXPR}}, ID) :- .
+
 to_node (any{continue{ID, OPT_EXPR}},
 	node_Continue{continue{ID, OPT_EXPR}}) :- .
+get_id (node_Continue{continue{ID, OPT_EXPR}}, ID) :- .
+
 to_node (any{return{ID, EXPR}},
 	node_Return{return{ID, EXPR}}) :- .
+get_id (node_Return{return{ID, EXPR}}, ID) :- .
+
 to_node (any{static_declaration{ID, VAR}},
 	node_Static_declaration{static_declaration{ID, VAR}}) :- .
+get_id (node_Static_declaration{static_declaration{ID, VAR}}, ID) :- .
+
 to_node (any{global{ID, VARIABLE_NAME}},
 	node_Global{global{ID, VARIABLE_NAME}}) :- .
+get_id (node_Global{global{ID, VARIABLE_NAME}}, ID) :- .
+
 to_node (any{try{ID, STATEMENTS, CATCHESS}},
 	node_Try{try{ID, STATEMENTS, CATCHESS}}) :- .
+get_id (node_Try{try{ID, STATEMENTS, CATCHESS}}, ID) :- .
+
 to_node (any{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}},
 	node_Catch{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}}) :- .
+get_id (node_Catch{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}}, ID) :- .
+
 to_node (any{throw{ID, EXPR}},
 	node_Throw{throw{ID, EXPR}}) :- .
+get_id (node_Throw{throw{ID, EXPR}}, ID) :- .
+
 to_node (any{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}},
 	node_Assign_var{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
+get_id (node_Assign_var{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+
 to_node (any{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}},
 	node_Assign_array{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}}) :- .
+get_id (node_Assign_array{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}}, ID) :- .
+
 to_node (any{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}},
 	node_Assign_var_var{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
+get_id (node_Assign_var_var{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+
 to_node (any{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}},
 	node_Push_array{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
+get_id (node_Push_array{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+
 to_node (any{eval_expr{ID, EXPR}},
 	node_Eval_expr{eval_expr{ID, EXPR}}) :- .
+get_id (node_Eval_expr{eval_expr{ID, EXPR}}, ID) :- .
+
 to_node (any{cast{ID, CAST, VARIABLE_NAME}},
 	node_Cast{cast{ID, CAST, VARIABLE_NAME}}) :- .
+get_id (node_Cast{cast{ID, CAST, VARIABLE_NAME}}, ID) :- .
+
 to_node (any{unary_op{ID, OP, VARIABLE_NAME}},
 	node_Unary_op{unary_op{ID, OP, VARIABLE_NAME}}) :- .
+get_id (node_Unary_op{unary_op{ID, OP, VARIABLE_NAME}}, ID) :- .
+
 to_node (any{bin_op{ID, LEFT, OP, RIGHT}},
 	node_Bin_op{bin_op{ID, LEFT, OP, RIGHT}}) :- .
+get_id (node_Bin_op{bin_op{ID, LEFT, OP, RIGHT}}, ID) :- .
+
 to_node (any{constant{ID, OPT_CLASS_NAME, CONSTANT_NAME}},
 	node_Constant{constant{ID, OPT_CLASS_NAME, CONSTANT_NAME}}) :- .
+get_id (node_Constant{constant{ID, OPT_CLASS_NAME, CONSTANT_NAME}}, ID) :- .
+
 to_node (any{instanceof{ID, VARIABLE_NAME, CLASS_NAME}},
 	node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}) :- .
+get_id (node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}, ID) :- .
+
 to_node (any{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}},
 	node_Variable{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}) :- .
+get_id (node_Variable{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}, ID) :- .
+
 to_node (any{reflection{ID, VARIABLE_NAME}},
 	node_Reflection{reflection{ID, VARIABLE_NAME}}) :- .
+get_id (node_Reflection{reflection{ID, VARIABLE_NAME}}, ID) :- .
+
 to_node (any{pre_op{ID, OP, VARIABLE}},
 	node_Pre_op{pre_op{ID, OP, VARIABLE}}) :- .
+get_id (node_Pre_op{pre_op{ID, OP, VARIABLE}}, ID) :- .
+
 to_node (any{array{ID, ARRAY_ELEMS}},
 	node_Array{array{ID, ARRAY_ELEMS}}) :- .
+get_id (node_Array{array{ID, ARRAY_ELEMS}}, ID) :- .
+
 to_node (any{array_elem{ID, OPT_KEY, IS_REF, VAL}},
 	node_Array_elem{array_elem{ID, OPT_KEY, IS_REF, VAL}}) :- .
+get_id (node_Array_elem{array_elem{ID, OPT_KEY, IS_REF, VAL}}, ID) :- .
+
 to_node (any{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}},
 	node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}) :- .
+get_id (node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}, ID) :- .
+
 to_node (any{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}},
 	node_Actual_parameter{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}) :- .
+get_id (node_Actual_parameter{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}, ID) :- .
+
 to_node (any{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}},
 	node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}) :- .
+get_id (node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}, ID) :- .
+
 to_node (any{foreign_statement{ID}},
 	node_Foreign_statement{foreign_statement{ID}}) :- .
+get_id (node_Foreign_statement{foreign_statement{ID}}, ID) :- .
+
 to_node (any{foreign_expr{ID}},
 	node_Foreign_expr{foreign_expr{ID}}) :- .
+get_id (node_Foreign_expr{foreign_expr{ID}}, ID) :- .
+
 
 
 
@@ -446,17 +531,41 @@ to_node (any{foreign_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
 
 
 to_node (any{cLASS_NAME{ID, VALUE}}, node_CLASS_NAME{cLASS_NAME{ID, VALUE}}) :- .
+get_id (node_CLASS_NAME{cLASS_NAME{ID, _}}, ID) :- .
+
 to_node (any{iNTERFACE_NAME{ID, VALUE}}, node_INTERFACE_NAME{iNTERFACE_NAME{ID, VALUE}}) :- .
+get_id (node_INTERFACE_NAME{iNTERFACE_NAME{ID, _}}, ID) :- .
+
 to_node (any{mETHOD_NAME{ID, VALUE}}, node_METHOD_NAME{mETHOD_NAME{ID, VALUE}}) :- .
+get_id (node_METHOD_NAME{mETHOD_NAME{ID, _}}, ID) :- .
+
 to_node (any{vARIABLE_NAME{ID, VALUE}}, node_VARIABLE_NAME{vARIABLE_NAME{ID, VALUE}}) :- .
+get_id (node_VARIABLE_NAME{vARIABLE_NAME{ID, _}}, ID) :- .
+
 to_node (any{iNT{ID, VALUE}}, node_INT{iNT{ID, VALUE}}) :- .
+get_id (node_INT{iNT{ID, _}}, ID) :- .
+
 to_node (any{rEAL{ID, VALUE}}, node_REAL{rEAL{ID, VALUE}}) :- .
+get_id (node_REAL{rEAL{ID, _}}, ID) :- .
+
 to_node (any{sTRING{ID, VALUE}}, node_STRING{sTRING{ID, VALUE}}) :- .
+get_id (node_STRING{sTRING{ID, _}}, ID) :- .
+
 to_node (any{bOOL{ID, VALUE}}, node_BOOL{bOOL{ID, VALUE}}) :- .
+get_id (node_BOOL{bOOL{ID, _}}, ID) :- .
+
 to_node (any{nIL{ID, VALUE}}, node_NIL{nIL{ID, VALUE}}) :- .
+get_id (node_NIL{nIL{ID, _}}, ID) :- .
+
 to_node (any{cAST{ID, VALUE}}, node_CAST{cAST{ID, VALUE}}) :- .
+get_id (node_CAST{cAST{ID, _}}, ID) :- .
+
 to_node (any{oP{ID, VALUE}}, node_OP{oP{ID, VALUE}}) :- .
+get_id (node_OP{oP{ID, _}}, ID) :- .
+
 to_node (any{cONSTANT_NAME{ID, VALUE}}, node_CONSTANT_NAME{cONSTANT_NAME{ID, VALUE}}) :- .
+get_id (node_CONSTANT_NAME{cONSTANT_NAME{ID, _}}, ID) :- .
+
 
 
 

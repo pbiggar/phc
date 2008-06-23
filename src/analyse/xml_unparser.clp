@@ -10,8 +10,6 @@ using base64.
 analyze session_name ("optimized").
 
 % Turn this method into XML
-% TODO fix all this. We should have the data in a data-structure, not a list
-% of predicates in the mir() session.
 method_out (_, METHOD),
 	NODE = to_node (any{METHOD}),
 	GENERIC = to_generic (NODE),
@@ -45,7 +43,7 @@ to_xml_attr (KEY, attr_bool{VAL}, XML) :-
 % Unparse lists of NODE attributes
 predicate to_xml_attrs (in NODE:t_Node, out XML:string) succeeds [once].
 to_xml_attrs (NODE, XML) :-
-	\/(mir()->attr(NODE, KEY, VAL), to_xml_attr (KEY, VAL, ATTR_XML)):list_all (ATTR_XML, XMLS),
+	\/(mir()->attr(get_id(NODE), KEY, VAL), to_xml_attr (KEY, VAL, ATTR_XML)):list_all (ATTR_XML, XMLS),
 	(( XMLS = [], XML = "<attrs />\n")
 	;
 	( XMLS \= [],
