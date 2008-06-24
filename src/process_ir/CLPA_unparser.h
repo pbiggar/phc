@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <stack>
+#include <set>
 #include "General.h"
 
 /* We want to dump our IR pretty much directly into Calypso, using the
@@ -84,9 +85,10 @@ class CLPA_unparser : public Visitor
 protected:
 	String* uc_prefix;
 	String* prefix;
-	List<String*> keywords;
+	set<string> keywords;
 	int id;
-	const string comma;
+	int indent_depth;
+	bool leading_comma;
 	const char* base_type;
 	stringstream out;
 	bool next_node_optional;
@@ -97,13 +99,18 @@ public:
 
 	CLPA_unparser ()
 	: id (0)
-	, comma (", \n")
+	, indent_depth (0)
+	, leading_comma (false)
 	, base_type (NULL)
 	, next_node_optional (false)
 	, list_depth (0)
 	{
 		init_keywords ();
 	}
+
+/* 
+ * Top-level printing 
+ */
 
 	void init (PHP_script* in)
 	{
@@ -114,17 +121,19 @@ public:
 		uc_prefix = s (prefix->substr (0, 3));
 		prefix  = s (*uc_prefix);
 		prefix->toLower ();
+		init_keywords ();
 
-		out 
-			<< "import \"src/generated/" << *uc_prefix << ".clp\".\n"
-			<< "import \"src/analyse/base.clp\".\n\n"
-			<< "+" << *prefix << "()->program (";
+		
+		stringstream ss; ss << "src/generated/" << uc_prefix << ".clp";
+
+		print_import (s(s("src/generated/")->append (*uc_prefix).append(".clp")));
+		print_import (s("src/analyse/base.clp"));
+		open_predicate (prefix, s("program"));
 	}
 
 	void finish (PHP_script* in)
 	{
-		backspace_comma ();
-		out << ").\n\n";
+		close_predicate ();
 		in->visit (new Attr_unparser (this));
 		cout << out.str ();
 	}
@@ -140,68 +149,37 @@ public:
 		finish (in);
 	}
 
-	// skip over ", \n"
-	void backspace_comma ()
-	{
-		int length = -(comma.length ());
-		out.seekp (length, ios_base::end);
-	}
-
-	void init_keywords ()
-	{
-		keywords.push_back (s("type"));
-		keywords.push_back (s("predicate"));
-		keywords.push_back (s("session"));
-		keywords.push_back (s("analyse"));
-		keywords.push_back (s("using"));
-		keywords.push_back (s("import"));
-	}
-
-	// If its a keyword, then we need to prefix it
-	String* check_for_keywords (String* name, String* prefix)
-	{
-		for_lci (&keywords, String, i)
-		{
-			if (**i == *name)
-			{
-				// append prefix
-				stringstream ss;
-				ss << *prefix << "_" << *name;
-				return s (ss.str ());
-			}
-		}
-		return name;
-	}
+/* 
+ * Unparsing
+ */
 
 	/* BOOLs are pushed for markers */
 	void visit_marker(char const* name, bool value)
 	{
-		out 
-			<< (value ? "true" : "false")
-			<< comma;
+		print_line (value ? s("true") : s("false"));
 	}
 
 	/* NULLs get pushed for null values */
-	void visit_null(char const* name_space, char const* type_id)
+/*	void visit_null(char const* name_space, char const* type_id)
 	{
 	}
 	void visit_null_list(char const* name_space, char const* type_id)
 	{
 	}
-
+*/
 	/* We could do with a pre_/post_optional here, but its really hard to put
 	 * that into maketea. */
 	void visit_optional(bool is_null)
 	{
 		if (is_null)
-			out << "no" << comma;
+			print_line (s("no"));
 		else
 			next_node_optional = true;
 	}
 
 	/* Disjunctive types are represented in the .clp definition as 
 	 *		t_Target ::= 
-	 *			target_Assignment_id {t_Assignment} 
+	 *			target_Assignment_id {t_Assignment}
 	 *			| target_Cast_id {t_cast}
 	 *			| etc ...
 	 *
@@ -220,38 +198,28 @@ public:
 
 	void pre_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 	{
-		// Optional applies to lists, but we cant annotate a list, since it isnt
-		// a node. So we make a note of the depth of lists, and when we come to
-		// this depth again, we close the yes{} braces.
+		// Optional applies to lists, but we cant annotate a list, since it
+		// isnt a node. So we make a note of the depth of lists, and when we
+		// come to this depth again, we close the yes{} braces.
 		if (next_node_optional)
-		{
-			out << "yes{";
-			optional_lists [list_depth] = true;
-			next_node_optional = false;
-		}
+			open_scope (s("yes"));
 
-		out 
-			<< "[" 
-			<< "   "; // dont delete the [
+		optional_lists [list_depth] = next_node_optional;
+		next_node_optional = false;
 
-		list_depth++;
-
+		open_list ();
 	}
 
 
 	void post_list(char const* name_space, char const* type_id, int size, bool nullable_elements)
 	{
-		backspace_comma ();
+		close_list ();
 
 		if (optional_lists[list_depth] == true)
 		{
 			optional_lists[list_depth] = false;
-			out << "}";
+			close_scope ();
 		}
-
-		out << "]\n" << comma;
-
-		list_depth--;
 	}
 
 	void pre_node(Node* in)
@@ -259,23 +227,25 @@ public:
 		// Optional nodes need to be wrapped in yes{}
 		if (next_node_optional)
 		{
-			out << "yes{";
+			open_scope (s ("yes"));
 			in->attrs->set_true ("phc.clpa.optional");
 			next_node_optional = false;
 		}
 
 		// Does the name need to be wrapped in a base_type
-		if (*constructor_name (in) != *lowerFirst (s (base_type)))
+		if (*s(demangle (in, false)) != *s(base_type))
 		{
-			out << *disj_constructor_name (s (base_type), in) << "{";
+			open_scope (disj_constructor_name (s(base_type), in));
 			in->attrs->set_true ("phc.clpa.use_base_type");
 		}
 
+		// We need this for attribute unparsing
 		in->attrs->set_integer ("phc.clpa.id", id);
 
-		out 
-			<< *constructor_name (in)
-			<< "{" << id++ << comma;
+		open_scope (constructor_name (in));
+
+		// Node ID
+		print_line (id++);
 
 		// indicate its been used
 		base_type = NULL;
@@ -283,26 +253,20 @@ public:
 
 	void post_node(Node* in)
 	{
-		// Remove the previous comma and space
-		backspace_comma ();
+		if (in->attrs->is_true ("phc.clpa.optional"))
+			close_scope ();
+
+		close_scope ();
 
 		// Base types need to be closed
 		if (in->attrs->is_true ("phc.clpa.use_base_type"))
-			out << "}";
-
-		if (in->attrs->is_true ("phc.clpa.optional"))
-			out << "}";
-
-		out << "}" << comma;
+			close_scope ();
 	}
 
-
-
-	
 	void pre_identifier (Identifier* in)
 	{
 		// Strings need quotes
-		out << "\"" << *in->get_value_as_string () << "\"" << comma;
+		print_quoted_line (in->get_value_as_string ());
 	}
 
 	void pre_literal (Literal* in)
@@ -312,7 +276,7 @@ public:
 			case STRING::ID:
 				// String literals need to be wrapped in quotes, and must be on a
 				// single line
-				out << "\"" << *escape(in->get_value_as_string ()) << "\"";
+				print_quoted_line (escape (in->get_value_as_string ()));
 				break;
 
 			// Bools must be entirely lower case, or Calypso will think they
@@ -321,7 +285,7 @@ public:
 			{
 				String* value = in->get_value_as_string ();
 				value->toLower();
-				out << *value;
+				print_line (value);
 				break;
 			}
 
@@ -329,20 +293,24 @@ public:
 			case REAL::ID:
 			{
 				REAL* real = dynamic_cast<REAL*> (in);
-				// TODO save old 'fixed' state and restore
-				out << fixed << real->value; // TODO more precision?
+				print_line (real->value); // TODO fixed precision
 				break;
 			}
 
 			default:
-				out << *in->get_value_as_string ();
+				print_line (in->get_value_as_string ());
 		}
-		out << comma;
 	}
+
+	/*
+	 * Calypso name formatting 
+	 */
 
 	String* constructor_name (Node* in)
 	{
-		return lowerFirst (s (demangle (in, false)));
+		return check_for_keywords (
+				lowerFirst (s (demangle (in, false))),
+				s ("c"));
 	}
 
 	String* disj_constructor_name (String* base_type, Node* sub_type)
@@ -351,24 +319,7 @@ public:
 		ss 
 			<< *lowerFirst (base_type)
 			<< "_"
-			<< *type_name (sub_type);
-		return s (ss.str ());
-	}
-
-	String* lowerFirst (String *in)
-	{
-		stringstream ss;
-		const char* name = in->c_str ();
-		ss << (char)(tolower (name[0]));
-		ss << (&name[1]);
-		return s (ss.str ());
-	}
-
-	String* type_name (Node* in)
-	{
-		stringstream ss;
-		const char* name = demangle (in, false);
-		ss << name;
+			<< demangle (sub_type, false);
 		return s (ss.str ());
 	}
 
@@ -399,6 +350,139 @@ public:
 		return new String(ss.str());	
 	}
 
+	void init_keywords ()
+	{
+		keywords.insert ("type");
+		keywords.insert ("predicate");
+		keywords.insert ("session");
+		keywords.insert ("analyse");
+		keywords.insert ("using");
+		keywords.insert ("import");
+	}
+
+	// If its a keyword, then we need to prefix it
+	String* check_for_keywords (String* name, String* prefix)
+	{
+		if (keywords.find (*name) == keywords.end())
+			return name;
+
+		// append prefix
+		stringstream ss;
+		ss << *prefix << "_" << *name;
+		return s (ss.str ());
+	}
+
+
+	/*
+	 * Utility functions
+	 */
+
+	// Lower the first characted of the string
+	String* lowerFirst (String *in)
+	{
+		stringstream ss;
+		const char* name = in->c_str ();
+		ss << (char)(tolower (name[0]));
+		ss << (&name[1]);
+		return s (ss.str ());
+	}
+
+
+	/*
+	 * Printing functions
+	 */
+	void print_import (String* filename)
+	{
+		out << "import \"" << *filename << "\".\n";
+	}
+
+	void open_predicate (String* prefix, String* predicate_name)
+	{
+		out 
+			<< "+" << *prefix << "()->" << *predicate_name
+			<< *indent(false) << "(";
+
+		indent_depth++;
+		leading_comma = false;
+	}
+
+	void close_predicate ()
+	{
+		indent_depth--;
+
+		out
+			<< "\n). \n\n";
+	}
+
+	void print_line (String* line)
+	{ 
+		out 
+			<< *indent() << *line;
+
+	}
+
+	void print_line (int num)
+	{ 
+		out 
+			<< *indent() << num; 
+	}
+
+	void print_quoted_line (String* line)
+	{ 
+		out << *indent() << "\"" << *line << "\"";
+	}
+
+	void open_scope (String* name)
+	{
+		// indent() resets leading_comma, so when its used twice in the same
+		// expr, we dont have a guaranteed ordering, so they need to be split.
+		out
+			<< *indent() << *name;
+		out
+			<< *indent(false) << "{";
+			
+		leading_comma = false;
+		indent_depth++;
+	}
+	void close_scope ()
+	{
+		indent_depth--;
+
+		out << *indent(false) << "}";
+	}
+
+	void open_list ()
+	{
+		out << *indent() << "[";
+
+		leading_comma = false;
+		indent_depth++;
+		list_depth++;
+	}
+	void close_list ()
+	{
+		indent_depth--;
+
+		out << *indent(false) << "]";
+		list_depth--;
+	}
+	String* indent(bool comma = true)
+	{
+		// TODO theres a better way to do this
+		stringstream ss;
+		ss 
+			<< ((leading_comma && comma) ? ", " : "")
+			<< "\n" 
+			<< string (indent_depth*3, ' ');
+
+		leading_comma = true;
+		return s(ss.str());
+	}
+
+
+
+
+	// Unparse the attributes seperately
 	class Attr_unparser : public Visitor
 	{
 		Parent* parent;

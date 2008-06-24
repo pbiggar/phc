@@ -87,7 +87,7 @@ type t_Method ::= method { ID:id, SIGNATURE:t_Signature, OPT_STATEMENTS:maybe[li
 type t_Signature ::= signature { ID:id, METHOD_MOD:t_Method_mod, IS_REF:bool, METHOD_NAME:t_METHOD_NAME, FORMAL_PARAMETERS:list[t_Formal_parameter] }.
 type t_Method_mod ::= method_mod { ID:id, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_ABSTRACT:bool, IS_FINAL:bool }.
 type t_Formal_parameter ::= formal_parameter { ID:id, TYPE:t_Type, IS_REF:bool, VAR:t_Name_with_default }.
-type t_Type ::= t_type { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME] }.
+type t_Type ::= c_type { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME] }.
 type t_Attribute ::= attribute { ID:id, ATTR_MOD:t_Attr_mod, VAR:t_Name_with_default }.
 type t_Attr_mod ::= attr_mod { ID:id, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool }.
 type t_Name_with_default ::= name_with_default { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, OPT_EXPR:maybe[t_Expr] }.
@@ -312,9 +312,9 @@ to_node (any{formal_parameter{ID, TYPE, IS_REF, VAR}},
 	node_Formal_parameter{formal_parameter{ID, TYPE, IS_REF, VAR}}) :- .
 get_id (node_Formal_parameter{formal_parameter{ID, TYPE, IS_REF, VAR}}, ID) :- .
 
-to_node (any{t_type{ID, OPT_CLASS_NAME}},
-	node_Type{t_type{ID, OPT_CLASS_NAME}}) :- .
-get_id (node_Type{t_type{ID, OPT_CLASS_NAME}}, ID) :- .
+to_node (any{c_type{ID, OPT_CLASS_NAME}},
+	node_Type{c_type{ID, OPT_CLASS_NAME}}) :- .
+get_id (node_Type{c_type{ID, OPT_CLASS_NAME}}, ID) :- .
 
 to_node (any{attribute{ID, ATTR_MOD, VAR}},
 	node_Attribute{attribute{ID, ATTR_MOD, VAR}}) :- .
@@ -648,7 +648,7 @@ to_generic (node_Formal_parameter{NODE}, GENERIC) :-
 	GENERIC = gnode{node_Formal_parameter{NODE}, "Formal_parameter", [GEN_TYPE, GEN_IS_REF, GEN_VAR]}.
 
 to_generic (node_Type{NODE}, GENERIC) :-
-	NODE = t_type { _, OPT_CLASS_NAME } ,
+	NODE = c_type { _, OPT_CLASS_NAME } ,
 	((OPT_CLASS_NAME = yes{CLASS_NAME},
 	to_node (any{CLASS_NAME}, NODE_CLASS_NAME),
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
