@@ -54,11 +54,14 @@
  		# Run Optimizations
 		"$clpa src/analyse/do_optimize.clp",
 
-		"callback: convert_to_xml",
-
 		# Read back the optimized code
 		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
+		"callback: convert_to_xml",
+
+		# Check it
 		"diff -u $base.orig.xml $base.new.xml",
+
+		# Print the PHP code
 		"src/phc --read-xml=pst --dump=pst $base.new.xml",
 
 
@@ -88,7 +91,7 @@
 
 		$input = file_get_contents ("$base.xml");
 
-		// each Method starts with \"<MIR:Method>\n and ends with </MIRL:MEthod>\n\"
+		// each Method starts with \"<MIR:Method>\n and ends with </MIR:Method>\n\"
 		preg_match_all ("!\"(<MIR:Method>\n.*?</MIR:Method>)\n\"!sm", $input, $matches);
 
 
