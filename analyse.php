@@ -46,23 +46,27 @@
 		// Turn into CFG
 		"$clpa src/analyse/do_cfg.clp",
 
-		// create CFG graphs
+ 		# Run Optimizations
+		"$clpa src/analyse/do_optimize.clp",
+
+		# create CFG graphs (run after optimization so we can see the graphs)
 		"rm -f *.ps",
 		"for i in `ls *.dot`; do dot -Tps \$i -o`basename \$i .dot`.ps ; done",
 		"rm -f *.dot",
-
- 		# Run Optimizations
-		"$clpa src/analyse/do_optimize.clp",
 
 		# Read back the optimized code
 		"$clpa --quiet src/analyse/xml_unparser.clp > $base.xml",
 		"callback: convert_to_xml",
 
 		# Check it
-		"diff -u $base.orig.xml $base.new.xml",
+#		"diff -u $base.orig.xml $base.new.xml",
 
 		# Print the PHP code
 		"src/phc --read-xml=pst --dump=pst $base.new.xml",
+		"src/phc --read-xml=pst --generate-c $base.new.xml > $base.c",
+		"src/phc --read-xml=pst --compile -o $base.out $base.new.xml",
+
+		"./$base.out",
 
 
 	);

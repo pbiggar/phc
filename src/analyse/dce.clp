@@ -65,7 +65,7 @@ live_in (BB, VAR) :-
 handled (BB) :- cfg_node (BB), (BB = nentry{_} ; BB = nexit{_}).
 
 % Branches - the var is used
-cfg_node (BB), BB = nbranch{VAR}, 
+cfg_node (BB), BB = nbranch{VAR, _, _}, 
 	+used_var (BB, VAR), +handled (BB).
 
 % Assign_vars - the LHS is defined. The RHS needs to be checked. IS_REF

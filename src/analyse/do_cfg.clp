@@ -118,7 +118,7 @@ find_target (LABEL_NAME, PP) :-
 % Branch - create a node, and follow both paths
 dfs (N, p_s{S}, METHOD_NAME),
 	S = statement_Branch{branch{_, VAR, TRUE_LABEL, FALSE_LABEL}},
-	N1 = nbranch {VAR},
+	N1 = nbranch {VAR, TRUE_LABEL, FALSE_LABEL},
 	+cfg(METHOD_NAME)->cfg_edge (N, N1),
 	% find targets and recurse
 		% find the names of the labels for the branch targets
