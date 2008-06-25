@@ -10,7 +10,7 @@ type t_cfg_node ::=
 |	nexit{t_Method}				% function exit
 |	nblock{t_Statement}			% basic block (BBs only have 1 statement in them)
 	% branch (branches on the condition in t_VARIABLE_NAME)
-|	nbranch{t_VARIABLE_NAME, TRUE:t_LABEL_NAME, FALSE:t_LABEL_NAME}
+|	nbranch{t_VARIABLE_NAME, TRUE:t_cfg_node, FALSE:t_cfg_node}
 .
 
 predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node) order[N0, N1].

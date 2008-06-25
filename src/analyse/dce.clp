@@ -1,7 +1,6 @@
 import "optimize.clp".
 
 using set.
-using error.
 
 
 % Dead code elimination.

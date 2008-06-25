@@ -18,13 +18,17 @@ cfg_node (ENTRY),
 	set_to_sorted_list (STATEMENT_LIST_SET, STATEMENT_LISTS),
 	flatten (STATEMENT_LISTS, STATEMENTS),
 
+	% Add entry goto and exit label seperately, so we can control the ordering.
+	cfg_edge (ENTRY, FIRST_TARGET), FIRST_GOTO = bb_goto(FIRST_TARGET),
+	LAST_TARGET = bb_label (nexit{METHOD}),
+	ALL_STATEMENTS = list_append ([FIRST_GOTO|STATEMENTS], [LAST_TARGET]),
+
 	% Add it to the optimized DB
-	NEW_METHOD = method{ID, SIGNATURE, yes{STATEMENTS}},
+	NEW_METHOD = method{ID, SIGNATURE, yes{ALL_STATEMENTS}},
 	+optimized()->method_out (METHOD_NAME, NEW_METHOD).
 
 % Build a list of statement for a BB
-predicate linear_statements (BB:t_cfg_node, out STATEMENTS:list[t_Statement]) succeeds [once].
-
+predicate linear_statements (BB:t_cfg_node, out STATEMENTS:list[t_Statement]).
 
 % Get labels and gotos for a block
 predicate bb_goto (in S:t_cfg_node, out LABEL:t_Statement) succeeds [once].
@@ -42,7 +46,8 @@ bb_label_name (S, lABEL_NAME {0, LABEL}) :- counter (LABEL_NUM), str_cat ("CL", 
 % When removing statements, dont forget to special-case branches.
 cfg_node (BB),
 	BB = nbranch{VAR, TRUE, FALSE},
-	STATEMENTS = [bb_label (BB), statement_Branch{branch{0, VAR, TRUE, FALSE}}],
+	BRANCH = branch{0, VAR, bb_label_name (TRUE), bb_label_name (FALSE)},
+	STATEMENTS = [bb_label (BB), statement_Branch{BRANCH}],
 	+linear_statements (BB, STATEMENTS).
 
 cfg_node (BB),
@@ -50,14 +55,6 @@ cfg_node (BB),
 	cfg_edge (BB, E),
 	STATEMENTS = [bb_label (BB), S, bb_goto (E)],
 	+linear_statements (nblock{S}, STATEMENTS).
-
-cfg_node (BB),
-	BB = nentry{_}, cfg_edge (BB, E),
-	+linear_statements (BB, [bb_goto (E)]).
-
-cfg_node (BB),
-	BB = nexit{_},
-	+linear_statements (BB, [bb_label (BB)]).
 
 % Flatten a list of lists into a single list
 predicate flatten (in list[list[A]], out list[A]).

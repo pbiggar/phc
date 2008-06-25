@@ -8,13 +8,15 @@ using dotty.
 
 analyze session_name("mir").
 
-% To build the CFG, we go through 2 phases. First, we create the linked list
+% To build the CFG, we go through 3 phases. First, we create the linked list
 % of nodes, using program points. Secondly, we do a top-down pass through
 % this list, adding CFG edges between statements. Branches add two edges, one
 % to each target. Gotos and labels are passed through, adding edges between
 % their predecessors and their successors.  It is important to stop processing
 % if a node is already in the CFG (which may or may not happen with back
-% edges). We then add these edges to the session. 
+% edges). After the edges and nodes are added to the current session, we add
+% them to the cfg() DB. We do this in two passes so that we can fix the branch
+% statements.
 %
 % Note that the second phase removes any unreachable code.
 
@@ -76,50 +78,53 @@ dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
 
 % Add a CFG edge between FROM and a cfg_node created from TO (which is in the
 % pp_graph).
-predicate dfs (FROM:t_cfg_node, TO:pp, METHOD:string).
+predicate dfs (FROM:t_cfg_node, TO:pp, IS_TARGET:maybe[bool], METHOD:string).
+
+% like cfg_edge, but also encodes the method_name.
+predicate method_edge (N1:t_cfg_node, N2:t_cfg_node, IS_TARGET:maybe[bool], METHOD_NAME:string).
 
 % Start at the top
-dfs (nentry{METHOD}, P, METHOD_NAME) :-
+dfs (nentry{METHOD}, P, no, METHOD_NAME) :-
 	pp_edge (p_entry{METHOD}, P), 
 	% get the name
 	METHOD_NAME = get_method_name (METHOD).
 
 % End condition
-dfs (N, p_exit{METHOD}, METHOD_NAME),
-	+cfg(METHOD_NAME)->cfg_edge (N, nexit{METHOD}).
+dfs (N, p_exit{METHOD}, IS_TARGET, METHOD_NAME),
+	+method_edge (N, nexit{METHOD}, IS_TARGET, METHOD_NAME),
+	+fix_up_branch(METHOD_NAME).
 
 % Normal statement - add edge and recurse
-dfs (N, p_s{S}, METHOD_NAME), 
+dfs (N, p_s{S}, IS_TARGET, METHOD_NAME), 
 	S \= statement_Branch{_}, S \= statement_Goto{_}, S \= statement_Label{_},
 	N1 = nblock{S},
-	+cfg(METHOD_NAME)->cfg_edge (N, N1),
+	+method_edge (N, N1, IS_TARGET, METHOD_NAME),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
-		+dfs (N1, P1, METHOD_NAME).
+		+dfs (N1, P1, no, METHOD_NAME).
 
 % Label - dont create a node or an edge, just follow the path
-dfs (N, p_s{S}, METHOD_NAME), 
+dfs (N, p_s{S}, IS_TARGET, METHOD_NAME), 
 	S = statement_Label{_},
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
-		+dfs (N, P1, METHOD_NAME).
+		+dfs (N, P1, IS_TARGET, METHOD_NAME).
+
+% Goto - dont create a node or an edge, just follow the path
+dfs (N, p_s{statement_Goto{G}}, IS_TARGET, METHOD_NAME),
+	G = goto {_, lABEL_NAME{_, LABEL_NAME}},
+	% find target and recurse
+		% find the names of the labels for the branch targets
+			find_target (LABEL_NAME, PP),
+			+dfs (N, PP, IS_TARGET, METHOD_NAME).
 
 
-
-% find the PP for a LABEL_NAME.
-predicate find_target (in LABEL_NAME:string, out PP:pp).
-
-find_target (LABEL_NAME, PP) :-
-	pp_node (LOC), 
-	LOC = p_s{statement_Label{label{_, lABEL_NAME{_, LABEL_NAME}}}},
-	PP = LOC.
-
-
-% Branch - create a node, and follow both paths
-dfs (N, p_s{S}, METHOD_NAME),
+% Branch - create a fake node, which will be fixed up later, and follow both
+% paths
+dfs (N, p_s{S}, IS_TARGET, METHOD_NAME),
 	S = statement_Branch{branch{_, VAR, TRUE_LABEL, FALSE_LABEL}},
-	N1 = nbranch {VAR, TRUE_LABEL, FALSE_LABEL},
-	+cfg(METHOD_NAME)->cfg_edge (N, N1),
+	N1 = nbranch {VAR, N, N},
+	+method_edge (N, N1, IS_TARGET, METHOD_NAME),
 	% find targets and recurse
 		% find the names of the labels for the branch targets
 			TRUE_LABEL = lABEL_NAME {_, TRUE_LABEL_NAME},
@@ -128,13 +133,46 @@ dfs (N, p_s{S}, METHOD_NAME),
 			find_target (TRUE_LABEL_NAME, TRUE_PP),
 			find_target (FALSE_LABEL_NAME, FALSE_PP),
 		% recurse
-			+dfs (N1, TRUE_PP, METHOD_NAME),
-			+dfs (N1, FALSE_PP, METHOD_NAME).
+			+dfs (N1, TRUE_PP, yes{true}, METHOD_NAME),
+			+dfs (N1, FALSE_PP, yes{false}, METHOD_NAME).
 
-% Goto - dont create a node or an edge, just follow the path
-dfs (N, p_s{statement_Goto{G}}, METHOD_NAME),
-	G = goto {_, lABEL_NAME{_, LABEL_NAME}},
-	% find target and recurse
-		% find the names of the labels for the branch targets
-			find_target (LABEL_NAME, PP),
-			+dfs (N, PP, METHOD_NAME).
+% find the PP for a LABEL_NAME.
+predicate find_target (in LABEL_NAME:string, out PP:pp).
+find_target (LABEL_NAME, PP) :-
+	pp_node (LOC), 
+	LOC = p_s{statement_Label{label{_, lABEL_NAME{_, LABEL_NAME}}}},
+	PP = LOC.
+
+
+
+
+% Phase 3: Fix up and add to the cfg() session.
+
+
+% After all edges are added, store them in the DB, fixing up the branches as
+% we go.
+predicate fix_up_branch(METHOD_NAME:string).
+
+% No branches - just add it
+fix_up_branch (METHOD_NAME),
+	method_edge (N1, N2, _, METHOD_NAME), N1 \= nbranch{_, _, _}, N2 \= nbranch{_, _, _},
+	+cfg(METHOD_NAME)->cfg_edge (N1, N2).
+
+% Source is a branch
+fix_up_branch (METHOD_NAME),
+	method_edge (N1, N2, _, METHOD_NAME), N1 = nbranch{_, _, _}, N2 \= nbranch{_, _, _},
+	+cfg(METHOD_NAME)->cfg_edge (get_new_branch (METHOD_NAME, N1), N2).
+
+% Target is a branch
+fix_up_branch (METHOD_NAME),
+	method_edge (N1, N2, _, METHOD_NAME), N1 \= nbranch{_, _, _}, N2 = nbranch{_, _, _},
+	+cfg(METHOD_NAME)->cfg_edge (N1, get_new_branch (METHOD_NAME, N2)).
+
+% Cant have two branches
+assert ~(method_edge(nbranch{_, _, _}, nbranch{_, _, _}, _, _)).
+
+predicate get_new_branch (in METHOD_NAME:string, in IN:t_cfg_node, out OUT:t_cfg_node) succeeds [once].
+get_new_branch (METHOD_NAME, IN, nbranch{VAR, NT, NF}) :-
+	method_edge (IN, NT, yes{true}, METHOD_NAME),
+	method_edge (IN, NF, yes{false}, METHOD_NAME),
+	IN = nbranch{VAR, _, _}.
