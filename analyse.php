@@ -62,7 +62,7 @@
 #		"diff -u $base.orig.xml $base.new.xml",
 
 		# Print the PHP code
-		"src/phc --read-xml=pst --dump=pst $base.new.xml",
+		"src/phc --read-xml=mir --dump=mir $base.new.xml",
 		"src/phc --read-xml=pst --generate-c $base.new.xml > $base.c",
 		"src/phc --read-xml=pst --compile -o $base.out $base.new.xml",
 
