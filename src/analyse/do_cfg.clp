@@ -156,17 +156,17 @@ predicate fix_up_branch(METHOD_NAME:string).
 % No branches - just add it
 fix_up_branch (METHOD_NAME),
 	method_edge (N1, N2, _, METHOD_NAME), N1 \= nbranch{_, _, _}, N2 \= nbranch{_, _, _},
-	+cfg(METHOD_NAME)->cfg_edge (N1, N2).
+	+cfg(METHOD_NAME, 0)->cfg_edge (N1, N2).
 
 % Source is a branch
 fix_up_branch (METHOD_NAME),
 	method_edge (N1, N2, _, METHOD_NAME), N1 = nbranch{_, _, _}, N2 \= nbranch{_, _, _},
-	+cfg(METHOD_NAME)->cfg_edge (get_new_branch (METHOD_NAME, N1), N2).
+	+cfg(METHOD_NAME, 0)->cfg_edge (get_new_branch (METHOD_NAME, N1), N2).
 
 % Target is a branch
 fix_up_branch (METHOD_NAME),
 	method_edge (N1, N2, _, METHOD_NAME), N1 \= nbranch{_, _, _}, N2 = nbranch{_, _, _},
-	+cfg(METHOD_NAME)->cfg_edge (N1, get_new_branch (METHOD_NAME, N2)).
+	+cfg(METHOD_NAME, 0)->cfg_edge (N1, get_new_branch (METHOD_NAME, N2)).
 
 % Cant have two branches
 assert ~(method_edge(nbranch{_, _, _}, nbranch{_, _, _}, _, _)).

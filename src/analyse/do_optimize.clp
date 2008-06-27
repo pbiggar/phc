@@ -7,10 +7,29 @@ using set.
 analyze session_name("cfg").
 
 
+% Handle versioning. We can't iterate within Calypso, so if there are any
+% dead CFG nodes, we write a new version of the CFG to the DB. It picks up
+% the results, and automatically runs optimizations on it. If there is
+% nothing marked dead, we turn it into an mir(), which is unparsed into XML
+% later.
+mark_dead (_),
+	cfg_edge (BB1, BB2),
+	~mark_dead (BB1), ~mark_dead (BB2),
+	cfg(METHOD, VERSION),
+	+cfg(METHOD, VERSION+1)->cfg_edge (BB1, BB2).
+
+mark_dead (_),
+	cfg_edge (BB1, BB2),
+	~mark_dead (BB1), mark_dead (BB2),
+	cfg_edge (BB2, BB3),
+	cfg(METHOD, VERSION),
+	+cfg(METHOD, VERSION+1)->cfg_edge (BB1, BB3).
+
 % Turn the CFG back into mir().
 
 % So we have a CFG for a method, so we need to reconstruct the method
 cfg_node (ENTRY),
+	~mark_dead (_), % If there are any dead statements, we're not done
 	ENTRY = nentry{METHOD},
 	METHOD = method{ID, SIGNATURE, _},
 	METHOD_NAME = get_method_name (METHOD),
@@ -57,7 +76,6 @@ order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 predicate linear_statements (BB:t_cfg_node, out STATEMENTS:list[t_Statement]).
 
 cfg_node (BB),
-	~mark_dead (BB),
 	BB = nbranch{VAR, TRUE, FALSE},
 	BRANCH = branch{-1, VAR, bb_label_name (TRUE), bb_label_name (FALSE)},
 	STATEMENTS = [bb_label (BB), statement_Branch{BRANCH}],
@@ -67,9 +85,7 @@ cfg_node (BB),
 	BB = nblock{S}, cfg_edge (BB, NEXT),
 	LABEL = bb_label (BB),
 	GOTO = bb_goto (NEXT),
-	((~mark_dead (BB), STATEMENTS = [LABEL, S, GOTO])
-	;
-	(mark_dead (BB), STATEMENTS = [LABEL, GOTO])),
+	STATEMENTS = [LABEL, S, GOTO],
 	+linear_statements (BB, STATEMENTS).
 
 cfg_node (BB),
@@ -156,4 +172,3 @@ get_used_labels ([H|T], OUT) :-
 		);
 		(H \= statement_Branch{_}, H \= statement_Goto{_}, OUT = SET)
 	).
-	

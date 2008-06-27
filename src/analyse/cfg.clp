@@ -1,7 +1,7 @@
 import "src/generated/MIR.clp".
 
 
-session cfg (METHOD:string).
+session cfg (METHOD:string, VERSION:int).
 
 
 % Phase 2: Build the CFG

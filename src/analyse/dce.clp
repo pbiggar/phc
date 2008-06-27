@@ -20,4 +20,10 @@ cfg_node (BB),
 	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, expr_INT{_}},
 	~live_out (BB, VAR_NAME),
 	+mark_dead (BB).
-%	+remove_cfg_node (BB).
+
+cfg_node (BB),
+	BB = nblock{statement_Assign_var{S}},
+	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, expr_Variable{_}},
+	~live_out (BB, VAR_NAME),
+	+mark_dead (BB).
+
