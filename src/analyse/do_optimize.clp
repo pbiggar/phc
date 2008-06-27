@@ -14,16 +14,22 @@ analyze session_name("cfg").
 % later.
 mark_dead (_),
 	cfg_edge (BB1, BB2),
-	~mark_dead (BB1), ~mark_dead (BB2),
+	~mark_dead (BB1),
+	get_non_dead_target (BB2, NEW_BB),
 	cfg(METHOD, VERSION),
-	+cfg(METHOD, VERSION+1)->cfg_edge (BB1, BB2).
+	+cfg(METHOD, VERSION+1)->cfg_edge (BB1, NEW_BB).
 
-mark_dead (_),
-	cfg_edge (BB1, BB2),
-	~mark_dead (BB1), mark_dead (BB2),
-	cfg_edge (BB2, BB3),
-	cfg(METHOD, VERSION),
-	+cfg(METHOD, VERSION+1)->cfg_edge (BB1, BB3).
+predicate get_non_dead_target (in BB:t_cfg_node, out TARGET:t_cfg_node) succeeds [many].
+get_non_dead_target (BB, TARGET) :-
+	(~mark_dead (BB), TARGET = BB)
+	;
+	(	mark_dead (BB),
+		cfg_edge (BB, NEXT),
+		STRING = str_cat_list (["Removing dead statement: ", tostring (BB)]),
+		+print (STRING),
+		get_non_dead_target (NEXT, TARGET)).
+
+
 
 % Turn the CFG back into mir().
 
