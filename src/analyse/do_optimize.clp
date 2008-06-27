@@ -2,6 +2,8 @@ import "optimize.clp".
 import "dce.clp".
 import "cfgdot.clp".
 
+using set.
+
 analyze session_name("cfg").
 
 
@@ -55,6 +57,7 @@ order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 predicate linear_statements (BB:t_cfg_node, out STATEMENTS:list[t_Statement]).
 
 cfg_node (BB),
+	~mark_dead (BB),
 	BB = nbranch{VAR, TRUE, FALSE},
 	BRANCH = branch{-1, VAR, bb_label_name (TRUE), bb_label_name (FALSE)},
 	STATEMENTS = [bb_label (BB), statement_Branch{BRANCH}],
@@ -62,7 +65,12 @@ cfg_node (BB),
 
 cfg_node (BB),
 	BB = nblock{S}, cfg_edge (BB, NEXT),
-	+linear_statements (BB, [bb_label (BB), S, bb_goto (NEXT)]).
+	LABEL = bb_label (BB),
+	GOTO = bb_goto (NEXT),
+	((~mark_dead (BB), STATEMENTS = [LABEL, S, GOTO])
+	;
+	(mark_dead (BB), STATEMENTS = [LABEL, GOTO])),
+	+linear_statements (BB, STATEMENTS).
 
 cfg_node (BB),
 	BB = nentry{_}, cfg_edge (BB, NEXT),

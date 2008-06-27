@@ -38,7 +38,7 @@
 	$commands = array (
 		// create .db files in the current directory
 		"rm -f *.db",
-		"src/phc --sdump=clar $filename > $base.clp",
+		"src/phc --disable=dce --sdump=clar $filename > $base.clp",
 		"src/phc --xdump=clar $filename | sed 's/^\s\+//' > $base.orig.xml", # indent them the same
 		"$clpa --debug parse_warnings $base.clp",
 #		"rm $base.clp",

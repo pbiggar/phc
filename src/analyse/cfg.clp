@@ -23,3 +23,13 @@ cfg_node (N) :- cfg_edge (_, N).
 % Allow any user to annotation the CFG with strings. cfgdot will pick up on these.
 predicate in_annotation (BB:t_cfg_node, ANNOTATION:string).
 predicate out_annotation (BB:t_cfg_node, ANNOTATION:string).
+
+
+% Remove a node from the CFG
+predicate mark_dead (BB:t_cfg_node).
+predicate remove_cfg_node (BB:t_cfg_node).
+remove_cfg_node (BB),
+	cfg_edge (FROM, BB),
+	cfg_edge (BB, TO),
+	+cfg_edge (FROM, TO).
+%	+mark_dead (BB).
