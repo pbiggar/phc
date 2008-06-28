@@ -8,7 +8,7 @@ get_method_name (METHOD, METHOD_NAME) :-
 
 
 % Flatten a list of lists into a single list
-predicate flatten (in list[list[A]], out list[A]).
+predicate flatten (in list[list[A]], out list[A]) succeeds [once].
 flatten ([], []) :- .
 flatten ([H|T], OUT) :- flatten (T, TS), list_append (H, TS, OUT).
 

@@ -26,6 +26,13 @@ predicate attr(ID:id, NAME:string, VAL:t_Attr).
 predicate source_rep (ID:id, SOURCE:string).
 
 
+using intops.
+% Creating new nodes - we need unused IDs.
+predicate next_id (out ID:id) succeeds [once].
+% HACK HACK HACK HACK HACK TODO XXX
+next_id (RESULT) :- counter (X), RESULT = 1000000 + X.
+
+
 
 % Generics
 

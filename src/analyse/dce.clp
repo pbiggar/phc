@@ -17,13 +17,18 @@ import "live.clp".
 
 cfg_node (BB),
 	BB = nblock{statement_Assign_var{S}},
-	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, expr_INT{_}},
+	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
+	~is_side_effecting (EXPR),
 	~live_out (BB, VAR_NAME),
-	+mark_dead (BB).
+	+remove_bb (BB).
 
 cfg_node (BB),
 	BB = nblock{statement_Assign_var{S}},
-	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, expr_Variable{_}},
+	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
+	is_side_effecting (EXPR),
 	~live_out (BB, VAR_NAME),
-	+mark_dead (BB).
+	+replace_bb (BB, [nblock{statement_Eval_expr {eval_expr{next_id(), EXPR}}}]).
 
+predicate is_side_effecting (in EXPR:t_Expr) succeeds [zero,once].
+is_side_effecting (EXPR) :-
+	EXPR = expr_New{_} ; EXPR = expr_Method_invocation {_}.
