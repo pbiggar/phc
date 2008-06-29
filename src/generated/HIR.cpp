@@ -5666,6 +5666,137 @@ void Index_array::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Variable_variable::Variable_variable(Target* target, VARIABLE_NAME* variable_name)
+{
+    this->target = target;
+    this->variable_name = variable_name;
+}
+
+Variable_variable::Variable_variable()
+{
+    this->target = 0;
+    this->variable_name = 0;
+}
+
+void Variable_variable::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Variable_variable::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Variable_variable::classid()
+{
+    return ID;
+}
+
+bool Variable_variable::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL)
+    {
+    	if(that->target != NULL && !that->target->match(this->target))
+    		return false;
+    }
+    else if(!this->target->match(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Variable_variable::equals(Node* in)
+{
+    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL || that->target == NULL)
+    {
+    	if(this->target != NULL || that->target != NULL)
+    		return false;
+    }
+    else if(!this->target->equals(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Variable_variable* Variable_variable::clone()
+{
+    Target* target = this->target ? this->target->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Variable_variable* clone = new Variable_variable(target, variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Variable_variable::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    return NULL;
+}
+
+void Variable_variable::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+}
+
+void Variable_variable::assert_valid()
+{
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
 Cast::Cast(CAST* cast, VARIABLE_NAME* variable_name)
 {
     this->cast = cast;
@@ -6380,7 +6511,7 @@ void Instanceof::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name)
+Variable::Variable(Target* target, VARIABLE_NAME* variable_name)
 {
     this->target = target;
     this->variable_name = variable_name;
@@ -6464,7 +6595,7 @@ bool Variable::equals(Node* in)
 Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
-    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
     Variable* clone = new Variable(target, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -6511,20 +6642,11 @@ void Variable::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Variable_name* name)
+Variable::Variable(VARIABLE_NAME* name)
 {
     {
 		this->target = NULL;
 		this->variable_name = name;
-	}
-}
-
-bool Variable::is_simple_variable()
-{
-    {
-		return (
-				target == NULL
-			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 }
 

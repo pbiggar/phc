@@ -57,6 +57,7 @@ public:
     virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* pre_index_array(Index_array* in);
+    virtual Expr* pre_variable_variable(Variable_variable* in);
     virtual Expr* pre_cast(Cast* in);
     virtual Expr* pre_unary_op(Unary_op* in);
     virtual Expr* pre_bin_op(Bin_op* in);
@@ -115,6 +116,7 @@ public:
     virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual Expr* post_index_array(Index_array* in);
+    virtual Expr* post_variable_variable(Variable_variable* in);
     virtual Expr* post_cast(Cast* in);
     virtual Expr* post_unary_op(Unary_op* in);
     virtual Expr* post_bin_op(Bin_op* in);
@@ -173,6 +175,7 @@ public:
     virtual void children_pre_op(Pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_index_array(Index_array* in);
+    virtual void children_variable_variable(Variable_variable* in);
     virtual void children_cast(Cast* in);
     virtual void children_unary_op(Unary_op* in);
     virtual void children_bin_op(Bin_op* in);

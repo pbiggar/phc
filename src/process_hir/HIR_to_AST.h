@@ -91,7 +91,8 @@ class HIR_to_AST : public HIR::Fold
  AST::Unary_op*,				// Unary_op*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
  AST::Variable*,				// Variable*
- AST::Variable_name*			// Variable_name*
+ AST::Variable_name*,		// Variable_name*
+ AST::Expr*						// Variable_variable*
 >
 {
 
@@ -454,12 +455,23 @@ class HIR_to_AST : public HIR::Fold
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Node* target, AST::Variable_name* variable_name) 
+	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
 			wrap_target (target),
 			variable_name,
+			new List<AST::Expr*> ());
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Variable* fold_impl_variable_variable(HIR::Variable_variable* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name) 
+	{
+		AST::Variable* result;
+		result = new AST::Variable(
+			wrap_target (target),
+			new AST::Reflection (wrap_var_name (variable_name)),
 			new List<AST::Expr*> ());
 		result->attrs = orig->attrs;
 		return result;

@@ -416,7 +416,8 @@ void read_array_index (Scope scope, string zvp, Index_array* ia)
 // Implementation of "global" (used in various places)
 void global (Variable_name* var_name)
 {
-	Variable *var = new Variable (var_name);
+	// TODO Variable_variable
+	Variable *var = new Variable (dyc<VARIABLE_NAME> (var_name));
 
 	code << "{\n";
 	index_lhs (GLOBAL, "p_global_var", var); // rhs

@@ -388,6 +388,7 @@ private:
 		assert (eval_expr_assignment == NULL);
 
 		HIR::Variable* var = dynamic_cast<HIR::Variable*> (lhs);
+		HIR::Variable_variable* var_var = dynamic_cast<HIR::Variable_variable*> (lhs);
 		HIR::Index_array* ia = dynamic_cast<HIR::Index_array*> (lhs);
 
 		// Var doesnt have enough information to tell us if a NULL
@@ -460,15 +461,14 @@ private:
 		}
 		
 		// assign_var_var - $$x = $y;
-		if (var
-			&& not var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& var->variable_name->classid () == HIR::Reflection::ID
+		if (var_var
+			&& not var_var->variable_name->attrs->is_true ("phc.codegen.unused")
 			&& is_wrapped_var_name (expr))
 		{
 			HIR::Assign_var_var* result;
 			result = new HIR::Assign_var_var (
-				var->target,
-				dynamic_cast<HIR::Reflection*>(var->variable_name)->variable_name, 
+				var_var->target,
+				var_var->variable_name, 
 				is_ref, 
 				expr_to_var_name (expr));
 
@@ -532,23 +532,19 @@ private:
 		// fold_impl_actual_parameter handle its arguments. Obviously, we
 		// shouldn't fail on more than one array_index.
 
-		// Let actual_parameters handle it
-		if ((array_indices->size () > 1)
-			|| (array_indices->size () == 1 
-					&& isa<HIR::Reflection> (variable_name)))
-			return NULL;
 
-
-		if (array_indices->size () == 0)
+		if (array_indices->size () == 0
+			&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
 			HIR::Variable* result;
 			result = new HIR::Variable(
 					unwrap_target (target),
-					variable_name);
+					dyc<HIR::VARIABLE_NAME> (variable_name));
 			copy_attrs (result, orig);
 			return result;
 		}
-		else
+		else if (array_indices->size () == 1
+				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
 			// Note that array_index can be NULL, if this is the lhs of a push_array
 			HIR::VARIABLE_NAME* array_index = expr_to_var_name (array_indices->front ());
@@ -559,6 +555,21 @@ private:
 					array_index);
 			copy_attrs (result, orig);
 			return result;
+		}
+		else if (array_indices->size () == 0
+				&& isa<HIR::Reflection> (variable_name))
+		{
+			HIR::Variable_variable* result;
+			result = new HIR::Variable_variable (
+					unwrap_target (target),
+					dyc<HIR::Reflection> (variable_name)->variable_name);
+			copy_attrs (result, orig);
+			return result;
+		}
+		else
+		{
+			// Let actual_parameters handle it
+			return NULL;
 		}
 	}
 

@@ -91,7 +91,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
  MIR::Variable*,				// Variable*
- MIR::Variable_name*			// Variable_name*
+ MIR::Variable_name*,		// Variable_name*
+ MIR::Variable_variable*	// Variable_variable*
 >		
 {
 public:
@@ -355,10 +356,18 @@ public:
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Variable* result;
 		result = new MIR::Variable(target, variable_name);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Variable_variable* fold_impl_variable_variable (HIR::Variable_variable* orig, MIR::Target* target, MIR::VARIABLE_NAME* variable_name) 
+	{
+		MIR::Variable_variable* result;
+		result = new MIR::Variable_variable(target, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

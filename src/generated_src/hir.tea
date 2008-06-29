@@ -107,14 +107,14 @@ Expr ::=
 	| Method_invocation | New
 	| Literal 
 	| Foreign_expr
-	| Variable -- begin the process of removing variable
-	| Index_array
+	| Variable | Index_array | Variable_variable
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
-   
+
+-- TODO: move Target to its own Expr.
 Index_array ::= Target? VARIABLE_NAME index:VARIABLE_NAME ;
--- Variable_variable ::= VARIABLE_NAME ; 
+Variable_variable ::= Target? VARIABLE_NAME ; 
 
 Cast     ::= CAST VARIABLE_NAME ;
 Unary_op ::= OP VARIABLE_NAME ;
@@ -124,7 +124,7 @@ Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 Instanceof ::= VARIABLE_NAME Class_name ;
 
-Variable ::= Target? Variable_name ;
+Variable ::= Target? VARIABLE_NAME ;
 Variable_name ::= VARIABLE_NAME | Reflection ;
 Reflection ::= VARIABLE_NAME ;
 
@@ -362,17 +362,10 @@ public:
 class Variable
 {
 public:
-	Variable(Variable_name* name) 
+	Variable(VARIABLE_NAME* name) 
 	{
 		this->target = NULL;
 		this->variable_name = name;
-	}
-
-	bool is_simple_variable ()
-	{
-		return (
-				target == NULL
-			&& dynamic_cast<VARIABLE_NAME*> (variable_name));
 	}
 };
 

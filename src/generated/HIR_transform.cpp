@@ -156,6 +156,11 @@ Expr* Transform::pre_index_array(Index_array* in)
     return in;
 }
 
+Expr* Transform::pre_variable_variable(Variable_variable* in)
+{
+    return in;
+}
+
 Expr* Transform::pre_cast(Cast* in)
 {
     return in;
@@ -433,6 +438,11 @@ void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
 }
 
 Expr* Transform::post_index_array(Index_array* in)
+{
+    return in;
+}
+
+Expr* Transform::post_variable_variable(Variable_variable* in)
 {
     return in;
 }
@@ -745,6 +755,12 @@ void Transform::children_index_array(Index_array* in)
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
     in->index = transform_variable_name(in->index);
+}
+
+void Transform::children_variable_variable(Variable_variable* in)
+{
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_cast(Cast* in)
@@ -1719,6 +1735,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Foreign_expr::ID: return pre_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
+    case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2027,6 +2044,7 @@ Expr* Transform::post_expr(Expr* in)
     case Foreign_expr::ID: return post_foreign_expr(dynamic_cast<Foreign_expr*>(in));
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
+    case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2243,6 +2261,9 @@ void Transform::children_expr(Expr* in)
     	break;
     case Index_array::ID:
     	children_index_array(dynamic_cast<Index_array*>(in));
+    	break;
+    case Variable_variable::ID:
+    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }

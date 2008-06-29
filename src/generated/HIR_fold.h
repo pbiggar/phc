@@ -86,12 +86,13 @@ template
  class _Unary_op,
  class _VARIABLE_NAME,
  class _Variable,
- class _Variable_name>
+ class _Variable_name,
+ class _Variable_variable>
 class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _Foreach, _Foreign, _Foreign_expr, _Foreign_statement, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Reflection, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _Foreach, _Foreign, _Foreign_expr, _Foreign_statement, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Reflection, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _Variable_variable> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -482,6 +483,15 @@ public:
 		return fold_impl_index_array(in, target, variable_name, index);
 	}
 
+	virtual _Variable_variable fold_variable_variable(Variable_variable* in)
+	{
+		_Target target = 0;
+		if(in->target != NULL) target = fold_target(in->target);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_variable_variable(in, target, variable_name);
+	}
+
 	virtual _Cast fold_cast(Cast* in)
 	{
 		_CAST cast = 0;
@@ -533,7 +543,7 @@ public:
 	{
 		_Target target = 0;
 		if(in->target != NULL) target = fold_target(in->target);
-		_Variable_name variable_name = 0;
+		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		return fold_impl_variable(in, target, variable_name);
 	}
@@ -667,12 +677,13 @@ public:
 	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Index_array fold_impl_index_array(Index_array* orig, _Target target, _VARIABLE_NAME variable_name, _VARIABLE_NAME index) { assert(0); };
+	virtual _Variable_variable fold_impl_variable_variable(Variable_variable* orig, _Target target, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
-	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _Variable_name variable_name) { assert(0); };
+	virtual _Variable fold_impl_variable(Variable* orig, _Target target, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Reflection fold_impl_reflection(Reflection* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
@@ -792,6 +803,8 @@ public:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Index_array::ID:
 				return fold_index_array(dynamic_cast<Index_array*>(in));
+			case Variable_variable::ID:
+				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Reflection::ID:
@@ -912,6 +925,8 @@ public:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Index_array::ID:
 				return fold_index_array(dynamic_cast<Index_array*>(in));
+			case Variable_variable::ID:
+				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
 		}
 		assert(0);
 	}
@@ -1065,6 +1080,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

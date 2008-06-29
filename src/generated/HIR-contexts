@@ -51,6 +51,7 @@
 (Unary_op,Expr,)
 (Variable,Expr,)
 (Variable_name,Variable_name,)
+(Variable_variable,Expr,)
 (BOOL<bool>,Literal,)
 (CAST,CAST,)
 (CLASS_NAME,CLASS_NAME,)
