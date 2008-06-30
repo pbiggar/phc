@@ -118,9 +118,7 @@ private:
 	bool is_wrapped_var_name (HIR::Expr* expr)
 	{
 		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
-		if (	var == NULL 
-			|| var->variable_name == NULL
-			|| var->target != NULL)
+		if (var == NULL)
 			return false;
 
 		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
@@ -387,6 +385,7 @@ private:
 	{
 		assert (eval_expr_assignment == NULL);
 
+		HIR::Target_expr* target_expr = dynamic_cast<HIR::Target_expr*> (lhs);
 		HIR::Variable* var = dynamic_cast<HIR::Variable*> (lhs);
 		HIR::Variable_variable* var_var = dynamic_cast<HIR::Variable_variable*> (lhs);
 		HIR::Index_array* ia = dynamic_cast<HIR::Index_array*> (lhs);
@@ -395,14 +394,13 @@ private:
 		// var->array_index indicates a push or a copy. So we have to look in
 		// ORIG.
 		
-		// push_array - $t->$x[] = $y;
+		// push_array - $x[] = $y;
 		if (ia
 			&& ia->index == NULL
 			&& is_wrapped_var_name (expr))
 		{
 			HIR::Push_array* result;
 			result = new HIR::Push_array (
-				ia->target, 
 				ia->variable_name, 
 				is_ref, 
 				expr_to_var_name (expr));
@@ -412,14 +410,13 @@ private:
 		}
 
 
-		// assign_array - $t->$x[$i] = $y;
+		// assign_array - $x[$i] = $y;
 		if (ia
 			&& ia->index
 			&& is_wrapped_var_name (expr))
 		{
 			HIR::Assign_array* result;
 			result = new HIR::Assign_array (
-				ia->target,
 				dynamic_cast<HIR::VARIABLE_NAME*> (ia->variable_name), 
 				ia->index,
 				is_ref,
@@ -429,7 +426,7 @@ private:
 			return NULL;
 		}
 
-		// assign_var - $t->$x = y();
+		// assign_var - $x = y();
 		if (var
 			&& not var->variable_name->attrs->is_true ("phc.codegen.unused")
 			&& orig->variable->array_indices->size() == 0
@@ -437,7 +434,6 @@ private:
 		{
 			HIR::Assign_var* result;
 			result = new HIR::Assign_var (
-				var->target,
 				dynamic_cast<HIR::VARIABLE_NAME*>(var->variable_name), 
 				is_ref, 
 				expr);
@@ -448,7 +444,6 @@ private:
 
 		// eval_expr - y();
 		if (var
-			&& var->target == NULL
 			&& var->variable_name->attrs->is_true ("phc.codegen.unused")
 			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
 			&& is_ref == false)
@@ -467,9 +462,23 @@ private:
 		{
 			HIR::Assign_var_var* result;
 			result = new HIR::Assign_var_var (
-				var_var->target,
 				var_var->variable_name, 
 				is_ref, 
+				expr_to_var_name (expr));
+
+			copy_attrs (result, orig);
+			eval_expr_assignment = result;
+			return NULL;
+		}
+
+		// target_expr - $x->$y = $z;
+		if (target_expr)
+		{
+			HIR::Assign_target* result;
+			result = new HIR::Assign_target(
+				target_expr->target,
+				target_expr->variable_name, 
+				is_ref,
 				expr_to_var_name (expr));
 
 			copy_attrs (result, orig);
@@ -533,36 +542,49 @@ private:
 		// shouldn't fail on more than one array_index.
 
 
+		// $x
 		if (array_indices->size () == 0
+			&& target == NULL
 			&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
 			HIR::Variable* result;
 			result = new HIR::Variable(
-					unwrap_target (target),
 					dyc<HIR::VARIABLE_NAME> (variable_name));
 			copy_attrs (result, orig);
 			return result;
 		}
+		// $x->[$y]
 		else if (array_indices->size () == 1
+				&& target == NULL
 				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
 			// Note that array_index can be NULL, if this is the lhs of a push_array
 			HIR::VARIABLE_NAME* array_index = expr_to_var_name (array_indices->front ());
 			HIR::Index_array* result;
 			result = new HIR::Index_array (
-					unwrap_target (target),
 					dyc<HIR::VARIABLE_NAME> (variable_name),
 					array_index);
 			copy_attrs (result, orig);
 			return result;
 		}
+		// $$x
 		else if (array_indices->size () == 0
+				&& target == NULL
 				&& isa<HIR::Reflection> (variable_name))
 		{
 			HIR::Variable_variable* result;
 			result = new HIR::Variable_variable (
-					unwrap_target (target),
 					dyc<HIR::Reflection> (variable_name)->variable_name);
+			copy_attrs (result, orig);
+			return result;
+		}
+		// $x->
+		else if (target)
+		{
+			HIR::Target_expr* result;
+			result = new HIR::Target_expr (
+					unwrap_target (target),
+					variable_name);
 			copy_attrs (result, orig);
 			return result;
 		}

@@ -27,15 +27,10 @@ using namespace HIR;
 
 VARIABLE_NAME* simple_var (Expr* in)
 {
-	Variable* var = dynamic_cast<Variable*> (in);
-	if (!var)
+	if (!isa<Variable> (in))
 		return NULL;
 
-	// Normal vars only, not array_indices or var-vars
-	if (var->target)
-		return NULL;
-
-	return dynamic_cast<VARIABLE_NAME*> (var->variable_name);
+	return dyc<VARIABLE_NAME> (dyc<Variable> (in)->variable_name);
 }
 
 

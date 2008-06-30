@@ -43,6 +43,7 @@ void Annotate::pre_assignment(Assignment* in)
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;
+	// TODO The final part should be $T[etc] = ...;, not $T2 =& $T[etc]; $T2 = ...;
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
 	mark_var_as_lhs (in->variable);
 
@@ -54,8 +55,9 @@ void Annotate::pre_assignment(Assignment* in)
 	}
 
 	// Assignments of the form $x = 5 do not need a temporary, but all other LHS
-	// forms ($$x = 5; $x[$y] = 5; etc) do.
+	// forms ($$x = 5; $x[$y] = 5; $t->x; etc) do.
 	if (in->expr->classid () != Array::ID
+		&& in->variable->target == NULL
 		&& in->match (new Assignment (
 			new Variable (
 				new Wildcard<Target>, 

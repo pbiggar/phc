@@ -101,6 +101,11 @@ void Transform::pre_assign_var(Assign_var* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::pre_assign_target(Assign_target* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_assign_array(Assign_array* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -126,12 +131,22 @@ void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Expr* Transform::pre_index_array(Index_array* in)
+Expr* Transform::pre_target_expr(Target_expr* in)
+{
+    return in;
+}
+
+Expr* Transform::pre_variable(Variable* in)
 {
     return in;
 }
 
 Expr* Transform::pre_variable_variable(Variable_variable* in)
+{
+    return in;
+}
+
+Expr* Transform::pre_index_array(Index_array* in)
 {
     return in;
 }
@@ -157,11 +172,6 @@ Constant* Transform::pre_constant(Constant* in)
 }
 
 Expr* Transform::pre_instanceof(Instanceof* in)
-{
-    return in;
-}
-
-Expr* Transform::pre_variable(Variable* in)
 {
     return in;
 }
@@ -417,6 +427,11 @@ void Transform::post_assign_var(Assign_var* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::post_assign_target(Assign_target* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
 void Transform::post_assign_array(Assign_array* in, List<Statement*>* out)
 {
     out->push_back(in);
@@ -442,12 +457,22 @@ void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Expr* Transform::post_index_array(Index_array* in)
+Expr* Transform::post_target_expr(Target_expr* in)
+{
+    return in;
+}
+
+Expr* Transform::post_variable(Variable* in)
 {
     return in;
 }
 
 Expr* Transform::post_variable_variable(Variable_variable* in)
+{
+    return in;
+}
+
+Expr* Transform::post_index_array(Index_array* in)
 {
     return in;
 }
@@ -473,11 +498,6 @@ Constant* Transform::post_constant(Constant* in)
 }
 
 Expr* Transform::post_instanceof(Instanceof* in)
-{
-    return in;
-}
-
-Expr* Transform::post_variable(Variable* in)
 {
     return in;
 }
@@ -742,14 +762,19 @@ void Transform::children_throw(Throw* in)
 
 void Transform::children_assign_var(Assign_var* in)
 {
-    in->target = transform_target(in->target);
     in->lhs = transform_variable_name(in->lhs);
     in->rhs = transform_expr(in->rhs);
 }
 
-void Transform::children_assign_array(Assign_array* in)
+void Transform::children_assign_target(Assign_target* in)
 {
     in->target = transform_target(in->target);
+    in->lhs = transform_variable_name(in->lhs);
+    in->rhs = transform_variable_name(in->rhs);
+}
+
+void Transform::children_assign_array(Assign_array* in)
+{
     in->lhs = transform_variable_name(in->lhs);
     in->index = transform_variable_name(in->index);
     in->rhs = transform_variable_name(in->rhs);
@@ -757,14 +782,12 @@ void Transform::children_assign_array(Assign_array* in)
 
 void Transform::children_assign_var_var(Assign_var_var* in)
 {
-    in->target = transform_target(in->target);
     in->lhs = transform_variable_name(in->lhs);
     in->rhs = transform_variable_name(in->rhs);
 }
 
 void Transform::children_push_array(Push_array* in)
 {
-    in->target = transform_target(in->target);
     in->lhs = transform_variable_name(in->lhs);
     in->rhs = transform_variable_name(in->rhs);
 }
@@ -780,17 +803,26 @@ void Transform::children_eval_expr(Eval_expr* in)
     in->expr = transform_expr(in->expr);
 }
 
-void Transform::children_index_array(Index_array* in)
+void Transform::children_target_expr(Target_expr* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->index = transform_variable_name(in->index);
+}
+
+void Transform::children_variable(Variable* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_variable_variable(Variable_variable* in)
 {
-    in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
+}
+
+void Transform::children_index_array(Index_array* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->index = transform_variable_name(in->index);
 }
 
 void Transform::children_cast(Cast* in)
@@ -822,12 +854,6 @@ void Transform::children_instanceof(Instanceof* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->class_name = transform_class_name(in->class_name);
-}
-
-void Transform::children_variable(Variable* in)
-{
-    in->target = transform_target(in->target);
-    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_reflection(Reflection* in)
@@ -1777,6 +1803,15 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Assign_target::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_assign_target(dynamic_cast<Assign_target*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Eval_expr::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -1872,6 +1907,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
     case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
+    case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
     }
     assert(0);
 }
@@ -2098,6 +2134,15 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Assign_target::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_assign_target(dynamic_cast<Assign_target*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Eval_expr::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2193,6 +2238,7 @@ Expr* Transform::post_expr(Expr* in)
     case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
     case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
+    case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
     }
     assert(0);
 }
@@ -2311,6 +2357,9 @@ void Transform::children_statement(Statement* in)
     case Push_array::ID:
     	children_push_array(dynamic_cast<Push_array*>(in));
     	break;
+    case Assign_target::ID:
+    	children_assign_target(dynamic_cast<Assign_target*>(in));
+    	break;
     case Eval_expr::ID:
     	children_eval_expr(dynamic_cast<Eval_expr*>(in));
     	break;
@@ -2424,6 +2473,9 @@ void Transform::children_expr(Expr* in)
     	break;
     case Variable_variable::ID:
     	children_variable_variable(dynamic_cast<Variable_variable*>(in));
+    	break;
+    case Target_expr::ID:
+    	children_target_expr(dynamic_cast<Target_expr*>(in));
     	break;
     }
 }

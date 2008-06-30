@@ -25,6 +25,7 @@ class MIR_to_AST : public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
  AST::Eval_expr*,				// Assign_array*
+ AST::Eval_expr*,				// Assign_target*
  AST::Eval_expr*,				// Assign_var*
  AST::Eval_expr*,				// Assign_var_var*
  AST::Attr_mod*,				// Attr_mod*
@@ -91,6 +92,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Static_declaration*,	// Static_declaration*
  AST::Expr*,					// Static_value*
  AST::Node*,					// Target* - MIR::Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
+ AST::Variable*,				// Target_expr*
  AST::Throw*,					// Throw*
  AST::Try*,						// Try*
  AST::Type*,					// Type*
@@ -354,12 +356,12 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::Node* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
+	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
-				wrap_target (target),
+				NULL,
 				lhs,
 				new List<AST::Expr*>),
 			is_ref, 
@@ -368,12 +370,12 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::Node* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
-				wrap_target (target),
+				NULL,
 				new AST::Reflection (
 					wrap_var_name (lhs)),
 				new List<AST::Expr*>), 
@@ -383,12 +385,12 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::Node* target, AST::VARIABLE_NAME* lhs, AST::VARIABLE_NAME* index, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::VARIABLE_NAME* lhs, AST::VARIABLE_NAME* index, bool is_ref, AST::VARIABLE_NAME* rhs) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
-				wrap_target (target),
+				NULL,
 				lhs, 
 				new List<AST::Expr*> (
 					wrap_var_name (index))), 
@@ -398,17 +400,31 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::Node* target, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	{
+		AST::Assignment* result;
+		result = new AST::Assignment(
+			new AST::Variable (
+				NULL,
+				lhs,
+				new List<AST::Expr*> (
+					NULL)),
+			is_ref,
+			wrap_var_name (rhs));
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Eval_expr* fold_impl_assign_target (MIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
 				wrap_target (target),
 				lhs,
-				new List<AST::Expr*> (
-					NULL)),
-				is_ref,
-				wrap_var_name (rhs));
+				new List<AST::Expr*>),
+			is_ref,
+			wrap_var_name (rhs));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
@@ -461,33 +477,44 @@ class MIR_to_AST : public MIR::Fold
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (MIR::Index_array* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name, AST::VARIABLE_NAME* array_index)
+	AST::Variable* fold_impl_index_array (MIR::Index_array* orig, AST::VARIABLE_NAME* variable_name, AST::VARIABLE_NAME* array_index)
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
-			wrap_target (target),
+			NULL,
 			variable_name,
 			wrap_var_name_in_list (array_index));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name) 
+	AST::Variable* fold_impl_variable(MIR::Variable* orig, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
-			wrap_target (target),
+			NULL,
 			variable_name,
 			new List<AST::Expr*> ());
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable_variable(MIR::Variable_variable* orig, AST::Node* target, AST::VARIABLE_NAME* variable_name) 
+	AST::Variable* fold_impl_target_expr (MIR::Target_expr* orig, AST::Node* target, AST::Variable_name* variable_name)
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
 			wrap_target (target),
+			variable_name,
+			new List<AST::Expr*>);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Variable* fold_impl_variable_variable(MIR::Variable_variable* orig, AST::VARIABLE_NAME* variable_name) 
+	{
+		AST::Variable* result;
+		result = new AST::Variable(
+			NULL,
 			new AST::Reflection (wrap_var_name (variable_name)),
 			new List<AST::Expr*> ());
 		result->attrs = orig->attrs;

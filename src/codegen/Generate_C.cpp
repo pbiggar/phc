@@ -265,9 +265,6 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 {
 	VARIABLE_NAME* var_name = get_var_name (var);
 
-	// TODO: deal with object indexing
-	if (var->target) phc_unsupported (var);
-
 	code
 		<< "zval** " << zvp << ";\n";
 
@@ -296,9 +293,6 @@ void index_lhs (Scope scope, string zvp, Variable* var)
 void index_array_index (Scope scope, string zvp, Index_array* ia)
 {
 	VARIABLE_NAME* var_name = ia->variable_name;
-
-	// TODO: deal with object indexing
-	if (ia->target) phc_unsupported (ia);
 
 	code
 		<< "zval** " << zvp << ";\n";
@@ -345,9 +339,6 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 /* Generate code to read the variable named in VAR to the zval* ZVP */
 void read (Scope scope, string zvp, Variable* var)
 {
-	// TODO: deal with object indexing
-	if (var->target) phc_unsupported (var);
-
 	Variable_name* var_name  = var->variable_name;
 	if(var_name != NULL)
 	{
@@ -393,9 +384,6 @@ void read (Scope scope, string zvp, Expr* expr)
 
 void read_array_index (Scope scope, string zvp, Index_array* ia)
 {
-	// TODO: deal with object indexing
-	if (ia->target) phc_unsupported (ia);
-
 	VARIABLE_NAME* var_name  = ia->variable_name;
 	// access var as an array
 	code << "// Read array variable\n";
@@ -852,17 +840,12 @@ public:
 	bool match(Statement* that)
 	{
 		lhs = new Wildcard<VARIABLE_NAME>;
-		target = new Wildcard<Target>;
-		agn = new Assign_var (target, lhs, /* ignored */ false, rhs_pattern());
+		agn = new Assign_var (lhs, /* ignored */ false, rhs_pattern());
 		return (that->match(agn));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
-		assert (lhs);
-		if (target->value) phc_unsupported (agn);
-
-
 		code 
 			<< "{\n";
 
@@ -926,11 +909,10 @@ class Pattern_assign_array : public Pattern
 public:
 	bool match(Statement* that)
 	{
-		target = new Wildcard<Target>;
 		lhs = new Wildcard<VARIABLE_NAME>;
 		index = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Assign_array (target, lhs, index, false, rhs);
+		agn = new Assign_array (lhs, index, false, rhs);
 		return (that->match(agn));
 	}
 
@@ -939,8 +921,6 @@ public:
 		assert (lhs->value);
 		assert (index->value);
 		assert (rhs->value);
-		if (target->value) phc_unsupported (agn);
-
 
 		code 
 			<< "{\n";
@@ -963,7 +943,6 @@ public:
 
 protected:
 	Assign_array* agn;
-	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<VARIABLE_NAME>* index;
 	Wildcard<VARIABLE_NAME>* rhs;
@@ -1000,10 +979,9 @@ class Pattern_push_array : public Pattern
 public:
 	bool match(Statement* that)
 	{
-		target = new Wildcard<Target>;
 		lhs = new Wildcard<VARIABLE_NAME>;
 		rhs = new Wildcard<VARIABLE_NAME>;
-		agn = new Push_array (target, lhs, false, rhs);
+		agn = new Push_array (lhs, false, rhs);
 		return (that->match(agn));
 	}
 
@@ -1011,8 +989,6 @@ public:
 	{
 		assert (lhs->value);
 		assert (rhs->value);
-		if (target->value) phc_unsupported (agn);
-
 
 		code 
 			<< "{\n"
@@ -1036,7 +1012,6 @@ public:
 
 protected:
 	Push_array* agn;
-	Wildcard<Target>* target;
 	Wildcard<VARIABLE_NAME>* lhs;
 	Wildcard<VARIABLE_NAME>* rhs;
 };
@@ -2071,9 +2046,6 @@ class Pattern_unset : public Pattern
 	{
 		code << "{\n";
 
-		// TODO: deal with object indexing
-		if (var->value->target) phc_unsupported (var);
-
 		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
 
 		if (var_name != NULL)
@@ -2147,9 +2119,6 @@ class Pattern_isset : public Pattern_assign_zval
 	void initialize(ostream& code, string lhs)
 	{
 		code << "{\n";
-
-		// TODO: deal with object indexing
-		if (var->value->target) phc_unsupported (var->value);
 
 		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
 
