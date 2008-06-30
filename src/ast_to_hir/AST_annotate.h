@@ -21,7 +21,6 @@ namespace AST
 		public:
 
 		Annotate();
-		void pre_node(AST::Node* in);
 		void pre_assignment(AST::Assignment* in);
 		void pre_op_assignment(AST::Op_assignment* in);
 		void pre_post_op (AST::Post_op* in);

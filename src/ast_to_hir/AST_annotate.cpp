@@ -15,16 +15,6 @@ Annotate::Annotate()
 {
 }
 
-void Annotate::pre_node(Node* in)
-{
-	in->attrs->erase("phc.unparser.is_global_stmt");
-	in->attrs->erase("phc.unparser.starts_line");
-	in->attrs->erase("phc.unparser.needs_curlies");
-	in->attrs->erase("phc.unparser.needs_user_curlies");
-	in->attrs->erase("phc.unparser.needs_brackets");
-	in->attrs->erase("phc.unparser.needs_user_brackets");
-}
-
 void mark_var_as_lhs (AST::Variable* in)
 {
 	in->attrs->set_true("phc.ast_shredder.use_ref");
