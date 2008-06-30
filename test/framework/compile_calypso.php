@@ -37,9 +37,15 @@ class CompileCalypso extends AsyncTest
 
 	}
 
-	function combine_xml ($input, $async)
+	function combine_xml ($x, $async)
 	{
 		$input = $async->outs[5];
+
+		if ($input == "")
+		{
+			$this->async_failure ("No XML output", $async);
+			return false;
+		}
 
 		// each Method starts with \"<MIR:Method>\n and ends with </MIR:Method>\n\"
 		preg_match_all ("!\"(<MIR:Method>\n.*?</MIR:Method>)\n\"!sm", $input, $matches);
@@ -58,6 +64,17 @@ class CompileCalypso extends AsyncTest
 		$combined_xml = "$header\n" . join("\n", array_reverse ($matches[1])) . "\n$footer";
 
 		$async->ins[6] = $combined_xml;
+	}
+
+	function check_calypso (&$out, $async)
+	{
+		if (preg_match ("/^ERROR: .*/m", $out, $matches))
+		{
+			$this->async_failure ("Error in pass: $matches[0]", $async);
+			return false;
+		}
+
+		return $out;
 	}
 
 	function homogenize_output ($string)
@@ -98,10 +115,12 @@ class CompileCalypso extends AsyncTest
 		# Split the program into functions, and create CFGs in the cfg DB
 		$async->commands[3] = "$clpa src/analyse/do_cfg.clp";
 		$async->exit_handlers[3] = "fail_on_output";
+		$async->out_handlers[3] = "check_calypso";
 
 		# Do optimizations; put the results in the optimized DB
 		$async->commands[4] = "$clpa src/analyse/do_optimize.clp";
 		$async->exit_handlers[4] = "fail_on_output";
+		$async->out_handlers[4] = "check_calypso";
 
 		# Unparse the optimized DB into XML
 		$async->commands[5] = "$clpa src/analyse/xml_unparser.clp";
