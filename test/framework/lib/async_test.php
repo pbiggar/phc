@@ -41,7 +41,8 @@ class AsyncBundle
 
 	function get_in ()
 	{
-		if (isset ($this->ins))
+		if (isset ($this->ins)
+			&& isset ($this->ins[$this->state]))
 			return $this->ins[$this->state];
 
 		return NULL;
