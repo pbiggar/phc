@@ -145,6 +145,10 @@ use_expr (BB, expr_Bin_op {bin_op {_, LEFT, _, RIGHT}}),
 	+used_var (BB, RIGHT), 
 	+handled (BB).
 
+% Constant
+use_expr (BB, expr_Constant {_}), % no used vars
+	+handled (BB).
+
 % Method invocation
 use_expr (BB, expr_Method_invocation {method_invocation {_, no, _, PARAMS}}),
 	+use_actual_params (BB, PARAMS). 
@@ -182,13 +186,14 @@ out_annotation (BB, STR) :- live_out (BB, STR).
 % Make sure all rules are handled
 predicate handled (BB:t_cfg_node).
 predicate error (BB:t_cfg_node).
-error (BB) :- cfg_node (BB), ~handled (BB).
-
-print (ERROR) :- 
-	error (BB),
+error (BB) :- 
+	cfg_node (BB),
+	~handled (BB),
 	tostring (BB, BB_STR),
 	((BB = nblock {B}, to_node (any{B}, NODE), mir()->source_rep (get_id (NODE), SOURCE))
 	;
 	(BB \= nblock{_}, SOURCE = "SOURCE NOT AVAILABLE")),
-	str_cat_list (["Error: ", BB_STR, " - ", SOURCE], ERROR).
+	str_cat_list (["Error, not handled: ", BB_STR, " - ", SOURCE], ERROR),
+	+print (ERROR).
+
 assert ~error (_).
