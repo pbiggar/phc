@@ -68,13 +68,14 @@ cfg_node (BB), BB = nbranch{VAR, _, _},
 % doesnt matter: if it is true, then we conservatively miss some definitions,
 % which is OK.
 cfg_node (BB), BB = nblock{statement_Assign_var {
-	assign_var {_, no, LHS, _, EXPR}}},
-	+defined_var (BB, LHS), +use_expr (BB, EXPR).
+	assign_var {_, LHS, _, EXPR}}},
+	+defined_var (BB, LHS),
+	+use_expr (BB, EXPR).
 
 % Assign array - $x[$y] = $z. All of x, y and z are used (even though $x has
 % the potential to be defined).
 cfg_node (BB), BB = nblock{statement_Assign_array {
-	assign_array {_, no, LHS, INDEX, _, RHS}}},
+	assign_array {_, LHS, INDEX, _, RHS}}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
 	+handled (BB).
 
@@ -106,7 +107,7 @@ cfg_node (BB), BB = nblock{statement_Pre_op {
 	% TODO If VAR is simple, it may be defined here, in which case we can
 	% remove the definition if VAR is not live on exit, which is not reflected
 	% here. Add +defined (VAR).
-	+use_variable (BB, VAR), +handled (BB).
+	+used_var (BB, VAR), +handled (BB).
 
 
 
@@ -121,13 +122,17 @@ use_expr (BB, expr_BOOL{_}), +handled (BB).
 use_expr (BB, expr_REAL{_}), +handled (BB).
 
 % Variables
-predicate use_variable (BB:t_cfg_node, Variable:t_Variable).
-use_expr (BB, expr_Variable{ID}), +use_variable (BB, ID).
-use_variable (BB, 
-	variable {_, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES}),
+use_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
 	+used_var (BB, VAR_NAME),
-	+use_variable_names (BB, ARRAY_INDICES),
 	+handled (BB).
+
+% TODO array, reflection etc
+
+%use_variable (BB, 
+%	variable {_, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES}),
+%	+used_var (BB, VAR_NAME),
+%	+use_variable_names (BB, ARRAY_INDICES),
+%	+handled (BB).
 	
 % Cast_op
 use_expr (BB, expr_Cast {cast {_, _, VAR}}),

@@ -108,9 +108,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Name_with_default"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	Static_value* default_value = dynamic_cast<Static_value*>(*i++);
     	assert(i == args->end());
-    	return new Name_with_default(variable_name, expr);
+    	return new Name_with_default(variable_name, default_value);
     }
     if(!strcmp(type_id, "If"))
     {
@@ -183,52 +183,90 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Throw"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Throw(expr);
+    	return new Throw(variable_name);
     }
     if(!strcmp(type_id, "Assign_var"))
     {
-    	Target* target = dynamic_cast<Target*>(*i++);
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Expr* rhs = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
-    	return new Assign_var(target, lhs, is_ref, rhs);
+    	return new Assign_var(lhs, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Assign_target"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* lhs = dynamic_cast<Variable_name*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Assign_target(target, lhs, is_ref, rhs);
     }
     if(!strcmp(type_id, "Assign_array"))
     {
-    	Target* target = dynamic_cast<Target*>(*i++);
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	VARIABLE_NAME* index = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Assign_array(target, lhs, index, is_ref, rhs);
+    	return new Assign_array(lhs, index, is_ref, rhs);
     }
     if(!strcmp(type_id, "Assign_var_var"))
     {
-    	Target* target = dynamic_cast<Target*>(*i++);
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Assign_var_var(target, lhs, is_ref, rhs);
+    	return new Assign_var_var(lhs, is_ref, rhs);
     }
     if(!strcmp(type_id, "Push_array"))
     {
-    	Target* target = dynamic_cast<Target*>(*i++);
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Push_array(target, lhs, is_ref, rhs);
+    	return new Push_array(lhs, is_ref, rhs);
+    }
+    if(!strcmp(type_id, "Pre_op"))
+    {
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Pre_op(op, variable_name);
     }
     if(!strcmp(type_id, "Eval_expr"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
     	return new Eval_expr(expr);
+    }
+    if(!strcmp(type_id, "Target_expr"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	assert(i == args->end());
+    	return new Target_expr(target, variable_name);
+    }
+    if(!strcmp(type_id, "Variable"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable(variable_name);
+    }
+    if(!strcmp(type_id, "Variable_variable"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_variable(variable_name);
+    }
+    if(!strcmp(type_id, "Index_array"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* index = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Index_array(variable_name, index);
     }
     if(!strcmp(type_id, "Cast"))
     {
@@ -266,40 +304,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Instanceof(variable_name, class_name);
     }
-    if(!strcmp(type_id, "Variable"))
-    {
-    	Target* target = dynamic_cast<Target*>(*i++);
-    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
-    	assert(i == args->end());
-    	return new Variable(target, variable_name, array_indices);
-    }
     if(!strcmp(type_id, "Reflection"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
     	return new Reflection(variable_name);
-    }
-    if(!strcmp(type_id, "Pre_op"))
-    {
-    	OP* op = dynamic_cast<OP*>(*i++);
-    	Variable* variable = dynamic_cast<Variable*>(*i++);
-    	assert(i == args->end());
-    	return new Pre_op(op, variable);
-    }
-    if(!strcmp(type_id, "Array"))
-    {
-    	List<Array_elem*>* array_elems = dynamic_cast<List<Array_elem*>*>(*i++);
-    	assert(i == args->end());
-    	return new Array(array_elems);
-    }
-    if(!strcmp(type_id, "Array_elem"))
-    {
-    	Expr* key = dynamic_cast<Expr*>(*i++);
-    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Expr* val = dynamic_cast<Expr*>(*i++);
-    	assert(i == args->end());
-    	return new Array_elem(key, is_ref, val);
     }
     if(!strcmp(type_id, "Method_invocation"))
     {
@@ -324,6 +333,20 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
+    }
+    if(!strcmp(type_id, "Static_array"))
+    {
+    	List<Static_array_elem*>* static_array_elems = dynamic_cast<List<Static_array_elem*>*>(*i++);
+    	assert(i == args->end());
+    	return new Static_array(static_array_elems);
+    }
+    if(!strcmp(type_id, "Static_array_elem"))
+    {
+    	Static_array_key* key = dynamic_cast<Static_array_key*>(*i++);
+    	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
+    	Static_value* val = dynamic_cast<Static_value*>(*i++);
+    	assert(i == args->end());
+    	return new Static_array_elem(key, is_ref, val);
     }
     if(!strcmp(type_id, "Foreign_statement"))
     {
@@ -359,17 +382,17 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new VARIABLE_NAME(value);
     }
-    if(!strcmp(type_id, "CAST"))
-    {
-    	String* value = dynamic_cast<String*>(*i++);
-    	assert(i == args->end());
-    	return new CAST(value);
-    }
     if(!strcmp(type_id, "OP"))
     {
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new OP(value);
+    }
+    if(!strcmp(type_id, "CAST"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new CAST(value);
     }
     if(!strcmp(type_id, "CONSTANT_NAME"))
     {
@@ -412,6 +435,13 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
+    if(!strcmp(type_id, "Actual_parameter_list"))
+    {
+    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
+    	return list;
+    }
     if(!strcmp(type_id, "VARIABLE_NAME_list"))
     {
     	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
@@ -419,18 +449,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Array_elem_list"))
+    if(!strcmp(type_id, "Static_array_elem_list"))
     {
-    	List<Array_elem*>* list = new List<Array_elem*>;
+    	List<Static_array_elem*>* list = new List<Static_array_elem*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<Array_elem*>(*i++));
-    	return list;
-    }
-    if(!strcmp(type_id, "Actual_parameter_list"))
-    {
-    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
+    		list->push_back(dynamic_cast<Static_array_elem*>(*i++));
     	return list;
     }
     return NULL;

@@ -100,6 +100,9 @@ template
  class _While>
 class Fold
 {
+// Access this class from subclasses without copying out the template instantiation
+public:
+   typedef Fold<_Actual_parameter, _Array, _Array_elem, _Assignment, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Commented_node, _Conditional_expr, _Constant, _Continue, _DIRECTIVE_NAME, _Declare, _Directive, _Do, _Eval_expr, _Expr, _For, _Foreach, _Foreign, _Foreign_expr, _Foreign_statement, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Ignore_errors, _Instanceof, _Interface_def, _List_assignment, _List_element, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _Nested_list_elements, _New, _Node, _Nop, _OP, _Op_assignment, _PHP_script, _Post_op, _Pre_op, _REAL, _Reflection, _Return, _STRING, _Signature, _Source_rep, _Statement, _Static_declaration, _Switch, _Switch_case, _Target, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _While> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing

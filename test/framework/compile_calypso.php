@@ -129,7 +129,6 @@ class CompileCalypso extends AsyncTest
 
 		# Read in the XML and compile
 		$exe_name = wd_name ("$subject.out." . $this->get_name ());
-		$async->ins[6] = "$phc --read-xml=pst -c -o $exe_name";
 		$async->commands[6] = "$phc --read-xml=pst -c -o $exe_name";
 		$async->out_handlers[6] = "fail_on_output";
 		$async->err_handlers[6] = "fail_on_output";

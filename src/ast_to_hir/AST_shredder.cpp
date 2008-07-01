@@ -289,6 +289,19 @@ Expr* Shredder::post_array(Array* in)
 	return new Variable (var->variable_name->clone ());
 }
 
+/* Turn
+ *
+ *		$x[...] += $y;
+ *
+ *	into
+ *
+ *		$T &= $x[...]
+ *		$T = $T + $y;
+ *
+ *	If $x is a simple variable, simply turn into
+ *
+ *		$x = $x + $y;
+ */
 Expr* Shredder::post_op_assignment(Op_assignment* in)
 {
 	Assignment* assignment;
@@ -296,24 +309,34 @@ Expr* Shredder::post_op_assignment(Op_assignment* in)
 	// The LHS may be of the form $x[$y], but that should occur
 	// as an operand to a binary operator. Hence, we must visit the RHS again
 	// clearing the need_addr flag
-	Expr* left = in->variable->clone();
-	left->attrs->erase("phc.ast_shredder.need_addr");
-	left->attrs->erase("phc.ast_shredder.use_ref");
-	left = transform_expr(left);
+	in->variable->attrs->erase("phc.ast_shredder.need_addr");
 
-	// Make sure $x .= "x" turns into $x = $x. "x". Otherwise, we can get
-	// quadratic behaviour instead.
-	Expr* expr = new Bin_op (left, in->op, in->expr);
-	if (!in->variable->is_simple_variable ())
-		expr = eval (expr);
+	Variable* lhs = in->variable;
+	// If not a simple varaible, then $lhs &= $x[...];
+	if (!lhs->is_simple_variable ())
+	{
+		lhs = fresh_var ("Toa");
+		Expr* copy = new Assignment (
+				lhs->clone (),
+				true,
+				in->variable);
 
+		copy->transform_children (this);
+		pieces->push_back (new Eval_expr (copy));
+	}
+
+	// Create $T = $T + $y;
 	assignment = new Assignment(
-		in->variable,
+		lhs,
 		false,
-		expr);
+		new Bin_op (
+			lhs->clone (),
+			in->op, 
+			in->expr));
 
 	assignment->attrs = in->attrs;
-	
+
+	// This might still be nested assignment
 	return post_assignment (assignment);
 }
 

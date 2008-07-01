@@ -15,37 +15,39 @@ Annotate::Annotate()
 {
 }
 
-void Annotate::pre_node(Node* in)
+void mark_var_as_lhs (AST::Variable* in)
 {
-	in->attrs->erase("phc.unparser.is_global_stmt");
-	in->attrs->erase("phc.unparser.starts_line");
-	in->attrs->erase("phc.unparser.needs_curlies");
-	in->attrs->erase("phc.unparser.needs_user_curlies");
-	in->attrs->erase("phc.unparser.needs_brackets");
-	in->attrs->erase("phc.unparser.needs_user_brackets");
+	in->attrs->set_true("phc.ast_shredder.use_ref");
+
+	if (isa<Variable> (in->target))
+		mark_var_as_lhs (dyc<Variable> (in->target));
 }
 
 void Annotate::pre_assignment(Assignment* in)
 {
 	// Assignments of the form $$e =& $d dont work if $$e is split
-	// into a temporary first
-	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID)
+	// into a temporary first, except if they have array_indices.
+	// TODO: what about if they have targets?
+	if (in->is_ref && in->variable->variable_name->classid() == Reflection::ID
+		&& (!isa<Variable>(in->expr) || dyc<Variable>(in->expr)->array_indices->size () == 0))
 		in->variable->attrs->set_true("phc.ast_lower_expr.no_temp");
 
 	// We need references if we shred $x[0][1][etc] = ...;
-	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
+	// TODO The final part should be $T[etc] = ...;, not $T2 =& $T[etc]; $T2 = ...;
 	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
+	mark_var_as_lhs (in->variable);
 
 	// Variables on the RHS need references if $x =& $y is being used
 	Wildcard<Variable>* rhs = new Wildcard<Variable> ();
 	if (in->is_ref && in->match (new Assignment (new Wildcard<Variable>(), false /*ignore*/, rhs)))
 	{
-		rhs->value->attrs->set_true ("phc.ast_shredder.use_ref");
+		mark_var_as_lhs (rhs->value);
 	}
 
 	// Assignments of the form $x = 5 do not need a temporary, but all other LHS
-	// forms ($$x = 5; $x[$y] = 5; etc) do.
+	// forms ($$x = 5; $x[$y] = 5; $t->x; etc) do.
 	if (in->expr->classid () != Array::ID
+		&& in->variable->target == NULL
 		&& in->match (new Assignment (
 			new Variable (
 				new Wildcard<Target>, 
@@ -54,14 +56,20 @@ void Annotate::pre_assignment(Assignment* in)
 			false /*ignore*/, 
 			new Wildcard<Expr>)))
 		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
+
+	// Except for $x = {$y}[$z], which must be split
+	if (in->expr->match (new Variable (
+			new Wildcard<Target>,
+			new Wildcard<Reflection>,
+			NULL)))
+		in->expr->attrs->erase ("phc.ast_lower_expr.no_temp");
 }
 
 // op_assignments are never by reference
 void Annotate::pre_op_assignment(Op_assignment* in)
 {
 	// We need references if we shred $x[0][1][etc] = ...;
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
-	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
+	mark_var_as_lhs (in->variable);
 
 	// We do need a temporary for the expression of the op_assignment,
 	// because it will be the right operand to a binary operator
@@ -69,13 +77,11 @@ void Annotate::pre_op_assignment(Op_assignment* in)
 
 void Annotate::pre_post_op (Post_op* in)
 {
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
 	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 }
 
 void Annotate::pre_pre_op (Pre_op* in)
 {
-	in->variable->attrs->set_true("phc.ast_shredder.need_addr");
 	in->variable->attrs->set_true("phc.ast_shredder.use_ref");
 }
 

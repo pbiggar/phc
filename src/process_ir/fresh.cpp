@@ -55,7 +55,8 @@ int fresh_suffix ()
 String* fresh (string prefix, int suffix)
 {
 	stringstream ss;
-	ss << "__phc__" << prefix << suffix;
+//	ss << "__phc__" << prefix << suffix;
+	ss << prefix << suffix;
 
 	return new String(ss.str());
 }

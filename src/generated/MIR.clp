@@ -22,23 +22,27 @@ type t_Try.
 type t_Catch.
 type t_Throw.
 type t_Assign_var.
+type t_Assign_target.
 type t_Assign_array.
 type t_Assign_var_var.
 type t_Push_array.
+type t_Pre_op.
 type t_Eval_expr.
+type t_Target_expr.
+type t_Variable.
+type t_Variable_variable.
+type t_Index_array.
 type t_Cast.
 type t_Unary_op.
 type t_Bin_op.
 type t_Constant.
 type t_Instanceof.
-type t_Variable.
 type t_Reflection.
-type t_Pre_op.
-type t_Array.
-type t_Array_elem.
 type t_Method_invocation.
 type t_Actual_parameter.
 type t_New.
+type t_Static_array.
+type t_Static_array_elem.
 type t_Branch.
 type t_Goto.
 type t_Label.
@@ -61,6 +65,8 @@ type t_Variable_name.
 type t_Target.
 type t_Method_name.
 type t_Class_name.
+type t_Static_value.
+type t_Static_array_key.
 type t_Identifier.
 type t_Foreign.
 
@@ -72,13 +78,13 @@ type t_CLASS_NAME ::= cLASS_NAME { ID:id, VALUE:string }.
 type t_INTERFACE_NAME ::= iNTERFACE_NAME { ID:id, VALUE:string }.
 type t_METHOD_NAME ::= mETHOD_NAME { ID:id, VALUE:string }.
 type t_VARIABLE_NAME ::= vARIABLE_NAME { ID:id, VALUE:string }.
+type t_OP ::= oP { ID:id, VALUE:string }.
 type t_INT ::= iNT { ID:id, VALUE:int }.
 type t_REAL ::= rEAL { ID:id, VALUE:float }.
 type t_STRING ::= sTRING { ID:id, VALUE:string }.
 type t_BOOL ::= bOOL { ID:id, VALUE:bool }.
 type t_NIL ::= nIL { ID:id, VALUE:null }.
 type t_CAST ::= cAST { ID:id, VALUE:string }.
-type t_OP ::= oP { ID:id, VALUE:string }.
 type t_CONSTANT_NAME ::= cONSTANT_NAME { ID:id, VALUE:string }.
 type t_LABEL_NAME ::= lABEL_NAME { ID:id, VALUE:string }.
 
@@ -96,31 +102,35 @@ type t_Formal_parameter ::= formal_parameter { ID:id, TYPE:t_Type, IS_REF:bool, 
 type t_Type ::= c_type { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME] }.
 type t_Attribute ::= attribute { ID:id, ATTR_MOD:t_Attr_mod, VAR:t_Name_with_default }.
 type t_Attr_mod ::= attr_mod { ID:id, IS_PUBLIC:bool, IS_PROTECTED:bool, IS_PRIVATE:bool, IS_STATIC:bool, IS_CONST:bool }.
-type t_Name_with_default ::= name_with_default { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, OPT_EXPR:maybe[t_Expr] }.
+type t_Name_with_default ::= name_with_default { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, OPT_DEFAULT_VALUE:maybe[t_Static_value] }.
 type t_Return ::= return { ID:id, EXPR:t_Expr }.
 type t_Static_declaration ::= static_declaration { ID:id, VAR:t_Name_with_default }.
 type t_Global ::= global { ID:id, VARIABLE_NAME:t_Variable_name }.
 type t_Try ::= try { ID:id, STATEMENTS:list[t_Statement], CATCHESS:list[t_Catch] }.
 type t_Catch ::= catch { ID:id, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABLE_NAME, STATEMENTS:list[t_Statement] }.
-type t_Throw ::= throw { ID:id, EXPR:t_Expr }.
-type t_Assign_var ::= assign_var { ID:id, OPT_TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_Expr }.
-type t_Assign_array ::= assign_array { ID:id, OPT_TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
-type t_Assign_var_var ::= assign_var_var { ID:id, OPT_TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
-type t_Push_array ::= push_array { ID:id, OPT_TARGET:maybe[t_Target], LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
+type t_Throw ::= throw { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
+type t_Assign_var ::= assign_var { ID:id, LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_Expr }.
+type t_Assign_target ::= assign_target { ID:id, TARGET:t_Target, LHS:t_Variable_name, IS_REF:bool, RHS:t_VARIABLE_NAME }.
+type t_Assign_array ::= assign_array { ID:id, LHS:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
+type t_Assign_var_var ::= assign_var_var { ID:id, LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
+type t_Push_array ::= push_array { ID:id, LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:t_VARIABLE_NAME }.
+type t_Pre_op ::= pre_op { ID:id, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Eval_expr ::= eval_expr { ID:id, EXPR:t_Expr }.
+type t_Target_expr ::= target_expr { ID:id, TARGET:t_Target, VARIABLE_NAME:t_Variable_name }.
+type t_Variable ::= variable { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
+type t_Variable_variable ::= variable_variable { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
+type t_Index_array ::= index_array { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME }.
 type t_Cast ::= cast { ID:id, CAST:t_CAST, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Unary_op ::= unary_op { ID:id, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Bin_op ::= bin_op { ID:id, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME }.
 type t_Constant ::= constant { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME }.
 type t_Instanceof ::= instanceof { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, CLASS_NAME:t_Class_name }.
-type t_Variable ::= variable { ID:id, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[t_VARIABLE_NAME] }.
 type t_Reflection ::= reflection { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
-type t_Pre_op ::= pre_op { ID:id, OP:t_OP, VARIABLE:t_Variable }.
-type t_Array ::= array { ID:id, ARRAY_ELEMS:list[t_Array_elem] }.
-type t_Array_elem ::= array_elem { ID:id, OPT_KEY:maybe[t_Expr], IS_REF:bool, VAL:t_Expr }.
 type t_Method_invocation ::= method_invocation { ID:id, OPT_TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
 type t_Actual_parameter ::= actual_parameter { ID:id, IS_REF:bool, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[t_VARIABLE_NAME] }.
 type t_New ::= new { ID:id, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
+type t_Static_array ::= static_array { ID:id, STATIC_ARRAY_ELEMS:list[t_Static_array_elem] }.
+type t_Static_array_elem ::= static_array_elem { ID:id, OPT_KEY:maybe[t_Static_array_key], IS_REF:bool, VAL:t_Static_value }.
 type t_Branch ::= branch { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME }.
 type t_Goto ::= goto { ID:id, LABEL_NAME:t_LABEL_NAME }.
 type t_Label ::= label { ID:id, LABEL_NAME:t_LABEL_NAME }.
@@ -148,6 +158,23 @@ type t_Identifier ::=
 		| identifier_CONSTANT_NAME { t_CONSTANT_NAME } 
 		| identifier_LABEL_NAME { t_LABEL_NAME } 
 		.
+type t_Static_array_key ::= 
+		  static_array_key_INT { t_INT } 
+		| static_array_key_REAL { t_REAL } 
+		| static_array_key_STRING { t_STRING } 
+		| static_array_key_BOOL { t_BOOL } 
+		| static_array_key_NIL { t_NIL } 
+		| static_array_key_Constant { t_Constant } 
+		.
+type t_Static_value ::= 
+		  static_value_INT { t_INT } 
+		| static_value_REAL { t_REAL } 
+		| static_value_STRING { t_STRING } 
+		| static_value_BOOL { t_BOOL } 
+		| static_value_NIL { t_NIL } 
+		| static_value_Static_array { t_Static_array } 
+		| static_value_Constant { t_Constant } 
+		.
 type t_Class_name ::= 
 		  class_name_CLASS_NAME { t_CLASS_NAME } 
 		| class_name_Reflection { t_Reflection } 
@@ -157,24 +184,7 @@ type t_Method_name ::=
 		| method_name_Reflection { t_Reflection } 
 		.
 type t_Target ::= 
-		  target_Cast { t_Cast } 
-		| target_Unary_op { t_Unary_op } 
-		| target_Bin_op { t_Bin_op } 
-		| target_Constant { t_Constant } 
-		| target_Instanceof { t_Instanceof } 
-		| target_Variable { t_Variable } 
-		| target_Method_invocation { t_Method_invocation } 
-		| target_New { t_New } 
-		| target_INT { t_INT } 
-		| target_REAL { t_REAL } 
-		| target_STRING { t_STRING } 
-		| target_BOOL { t_BOOL } 
-		| target_NIL { t_NIL } 
-		| target_Array { t_Array } 
-		| target_Foreach_has_key { t_Foreach_has_key } 
-		| target_Foreach_get_key { t_Foreach_get_key } 
-		| target_Foreach_get_val { t_Foreach_get_val } 
-		| target_Foreign_expr { t_Foreign_expr } 
+		  target_VARIABLE_NAME { t_VARIABLE_NAME } 
 		| target_CLASS_NAME { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -194,7 +204,6 @@ type t_Expr ::=
 		| expr_Bin_op { t_Bin_op } 
 		| expr_Constant { t_Constant } 
 		| expr_Instanceof { t_Instanceof } 
-		| expr_Variable { t_Variable } 
 		| expr_Method_invocation { t_Method_invocation } 
 		| expr_New { t_New } 
 		| expr_INT { t_INT } 
@@ -202,11 +211,14 @@ type t_Expr ::=
 		| expr_STRING { t_STRING } 
 		| expr_BOOL { t_BOOL } 
 		| expr_NIL { t_NIL } 
-		| expr_Array { t_Array } 
 		| expr_Foreach_has_key { t_Foreach_has_key } 
 		| expr_Foreach_get_key { t_Foreach_get_key } 
 		| expr_Foreach_get_val { t_Foreach_get_val } 
 		| expr_Foreign_expr { t_Foreign_expr } 
+		| expr_Variable { t_Variable } 
+		| expr_Index_array { t_Index_array } 
+		| expr_Variable_variable { t_Variable_variable } 
+		| expr_Target_expr { t_Target_expr } 
 		.
 type t_Member ::= 
 		  member_Method { t_Method } 
@@ -231,6 +243,7 @@ type t_Statement ::=
 		| statement_Assign_var_var { t_Assign_var_var } 
 		| statement_Assign_array { t_Assign_array } 
 		| statement_Push_array { t_Push_array } 
+		| statement_Assign_target { t_Assign_target } 
 		| statement_Eval_expr { t_Eval_expr } 
 		| statement_Pre_op { t_Pre_op } 
 		| statement_Foreign_statement { t_Foreign_statement } 
@@ -255,6 +268,7 @@ type t_Node ::=
 		| node_Assign_var_var { t_Assign_var_var } 
 		| node_Assign_array { t_Assign_array } 
 		| node_Push_array { t_Push_array } 
+		| node_Assign_target { t_Assign_target } 
 		| node_Eval_expr { t_Eval_expr } 
 		| node_Pre_op { t_Pre_op } 
 		| node_Foreign_statement { t_Foreign_statement } 
@@ -267,14 +281,11 @@ type t_Node ::=
 		| node_Attr_mod { t_Attr_mod } 
 		| node_Name_with_default { t_Name_with_default } 
 		| node_Catch { t_Catch } 
-		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
-		| node_Reflection { t_Reflection } 
 		| node_Cast { t_Cast } 
 		| node_Unary_op { t_Unary_op } 
 		| node_Bin_op { t_Bin_op } 
 		| node_Constant { t_Constant } 
 		| node_Instanceof { t_Instanceof } 
-		| node_Variable { t_Variable } 
 		| node_Method_invocation { t_Method_invocation } 
 		| node_New { t_New } 
 		| node_INT { t_INT } 
@@ -282,15 +293,21 @@ type t_Node ::=
 		| node_STRING { t_STRING } 
 		| node_BOOL { t_BOOL } 
 		| node_NIL { t_NIL } 
-		| node_Array { t_Array } 
 		| node_Foreach_has_key { t_Foreach_has_key } 
 		| node_Foreach_get_key { t_Foreach_get_key } 
 		| node_Foreach_get_val { t_Foreach_get_val } 
 		| node_Foreign_expr { t_Foreign_expr } 
+		| node_Variable { t_Variable } 
+		| node_Index_array { t_Index_array } 
+		| node_Variable_variable { t_Variable_variable } 
+		| node_Target_expr { t_Target_expr } 
+		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
+		| node_Reflection { t_Reflection } 
 		| node_CLASS_NAME { t_CLASS_NAME } 
-		| node_Array_elem { t_Array_elem } 
 		| node_METHOD_NAME { t_METHOD_NAME } 
 		| node_Actual_parameter { t_Actual_parameter } 
+		| node_Static_array { t_Static_array } 
+		| node_Static_array_elem { t_Static_array_elem } 
 		| node_INTERFACE_NAME { t_INTERFACE_NAME } 
 		| node_CAST { t_CAST } 
 		| node_OP { t_OP } 
@@ -348,9 +365,9 @@ to_node (any{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CON
 	node_Attr_mod{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}}) :- .
 get_id (node_Attr_mod{attr_mod{ID, IS_PUBLIC, IS_PROTECTED, IS_PRIVATE, IS_STATIC, IS_CONST}}, ID) :- .
 
-to_node (any{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}},
-	node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}}) :- .
-get_id (node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_EXPR}}, ID) :- .
+to_node (any{name_with_default{ID, VARIABLE_NAME, OPT_DEFAULT_VALUE}},
+	node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_DEFAULT_VALUE}}) :- .
+get_id (node_Name_with_default{name_with_default{ID, VARIABLE_NAME, OPT_DEFAULT_VALUE}}, ID) :- .
 
 to_node (any{return{ID, EXPR}},
 	node_Return{return{ID, EXPR}}) :- .
@@ -372,29 +389,53 @@ to_node (any{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}},
 	node_Catch{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}}) :- .
 get_id (node_Catch{catch{ID, CLASS_NAME, VARIABLE_NAME, STATEMENTS}}, ID) :- .
 
-to_node (any{throw{ID, EXPR}},
-	node_Throw{throw{ID, EXPR}}) :- .
-get_id (node_Throw{throw{ID, EXPR}}, ID) :- .
+to_node (any{throw{ID, VARIABLE_NAME}},
+	node_Throw{throw{ID, VARIABLE_NAME}}) :- .
+get_id (node_Throw{throw{ID, VARIABLE_NAME}}, ID) :- .
 
-to_node (any{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}},
-	node_Assign_var{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
-get_id (node_Assign_var{assign_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+to_node (any{assign_var{ID, LHS, IS_REF, RHS}},
+	node_Assign_var{assign_var{ID, LHS, IS_REF, RHS}}) :- .
+get_id (node_Assign_var{assign_var{ID, LHS, IS_REF, RHS}}, ID) :- .
 
-to_node (any{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}},
-	node_Assign_array{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}}) :- .
-get_id (node_Assign_array{assign_array{ID, OPT_TARGET, LHS, INDEX, IS_REF, RHS}}, ID) :- .
+to_node (any{assign_target{ID, TARGET, LHS, IS_REF, RHS}},
+	node_Assign_target{assign_target{ID, TARGET, LHS, IS_REF, RHS}}) :- .
+get_id (node_Assign_target{assign_target{ID, TARGET, LHS, IS_REF, RHS}}, ID) :- .
 
-to_node (any{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}},
-	node_Assign_var_var{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
-get_id (node_Assign_var_var{assign_var_var{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+to_node (any{assign_array{ID, LHS, INDEX, IS_REF, RHS}},
+	node_Assign_array{assign_array{ID, LHS, INDEX, IS_REF, RHS}}) :- .
+get_id (node_Assign_array{assign_array{ID, LHS, INDEX, IS_REF, RHS}}, ID) :- .
 
-to_node (any{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}},
-	node_Push_array{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}}) :- .
-get_id (node_Push_array{push_array{ID, OPT_TARGET, LHS, IS_REF, RHS}}, ID) :- .
+to_node (any{assign_var_var{ID, LHS, IS_REF, RHS}},
+	node_Assign_var_var{assign_var_var{ID, LHS, IS_REF, RHS}}) :- .
+get_id (node_Assign_var_var{assign_var_var{ID, LHS, IS_REF, RHS}}, ID) :- .
+
+to_node (any{push_array{ID, LHS, IS_REF, RHS}},
+	node_Push_array{push_array{ID, LHS, IS_REF, RHS}}) :- .
+get_id (node_Push_array{push_array{ID, LHS, IS_REF, RHS}}, ID) :- .
+
+to_node (any{pre_op{ID, OP, VARIABLE_NAME}},
+	node_Pre_op{pre_op{ID, OP, VARIABLE_NAME}}) :- .
+get_id (node_Pre_op{pre_op{ID, OP, VARIABLE_NAME}}, ID) :- .
 
 to_node (any{eval_expr{ID, EXPR}},
 	node_Eval_expr{eval_expr{ID, EXPR}}) :- .
 get_id (node_Eval_expr{eval_expr{ID, EXPR}}, ID) :- .
+
+to_node (any{target_expr{ID, TARGET, VARIABLE_NAME}},
+	node_Target_expr{target_expr{ID, TARGET, VARIABLE_NAME}}) :- .
+get_id (node_Target_expr{target_expr{ID, TARGET, VARIABLE_NAME}}, ID) :- .
+
+to_node (any{variable{ID, VARIABLE_NAME}},
+	node_Variable{variable{ID, VARIABLE_NAME}}) :- .
+get_id (node_Variable{variable{ID, VARIABLE_NAME}}, ID) :- .
+
+to_node (any{variable_variable{ID, VARIABLE_NAME}},
+	node_Variable_variable{variable_variable{ID, VARIABLE_NAME}}) :- .
+get_id (node_Variable_variable{variable_variable{ID, VARIABLE_NAME}}, ID) :- .
+
+to_node (any{index_array{ID, VARIABLE_NAME, INDEX}},
+	node_Index_array{index_array{ID, VARIABLE_NAME, INDEX}}) :- .
+get_id (node_Index_array{index_array{ID, VARIABLE_NAME, INDEX}}, ID) :- .
 
 to_node (any{cast{ID, CAST, VARIABLE_NAME}},
 	node_Cast{cast{ID, CAST, VARIABLE_NAME}}) :- .
@@ -416,25 +457,9 @@ to_node (any{instanceof{ID, VARIABLE_NAME, CLASS_NAME}},
 	node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}) :- .
 get_id (node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}, ID) :- .
 
-to_node (any{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}},
-	node_Variable{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}) :- .
-get_id (node_Variable{variable{ID, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}, ID) :- .
-
 to_node (any{reflection{ID, VARIABLE_NAME}},
 	node_Reflection{reflection{ID, VARIABLE_NAME}}) :- .
 get_id (node_Reflection{reflection{ID, VARIABLE_NAME}}, ID) :- .
-
-to_node (any{pre_op{ID, OP, VARIABLE}},
-	node_Pre_op{pre_op{ID, OP, VARIABLE}}) :- .
-get_id (node_Pre_op{pre_op{ID, OP, VARIABLE}}, ID) :- .
-
-to_node (any{array{ID, ARRAY_ELEMS}},
-	node_Array{array{ID, ARRAY_ELEMS}}) :- .
-get_id (node_Array{array{ID, ARRAY_ELEMS}}, ID) :- .
-
-to_node (any{array_elem{ID, OPT_KEY, IS_REF, VAL}},
-	node_Array_elem{array_elem{ID, OPT_KEY, IS_REF, VAL}}) :- .
-get_id (node_Array_elem{array_elem{ID, OPT_KEY, IS_REF, VAL}}, ID) :- .
 
 to_node (any{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}},
 	node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}) :- .
@@ -447,6 +472,14 @@ get_id (node_Actual_parameter{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_
 to_node (any{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}},
 	node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}) :- .
 get_id (node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}, ID) :- .
+
+to_node (any{static_array{ID, STATIC_ARRAY_ELEMS}},
+	node_Static_array{static_array{ID, STATIC_ARRAY_ELEMS}}) :- .
+get_id (node_Static_array{static_array{ID, STATIC_ARRAY_ELEMS}}, ID) :- .
+
+to_node (any{static_array_elem{ID, OPT_KEY, IS_REF, VAL}},
+	node_Static_array_elem{static_array_elem{ID, OPT_KEY, IS_REF, VAL}}) :- .
+get_id (node_Static_array_elem{static_array_elem{ID, OPT_KEY, IS_REF, VAL}}, ID) :- .
 
 to_node (any{branch{ID, VARIABLE_NAME, IFTRUE, IFFALSE}},
 	node_Branch{branch{ID, VARIABLE_NAME, IFTRUE, IFFALSE}}) :- .
@@ -513,6 +546,7 @@ to_node (any{statement_Assign_var{ID}}, node_Assign_var{ID}) :- .
 to_node (any{statement_Assign_var_var{ID}}, node_Assign_var_var{ID}) :- .
 to_node (any{statement_Assign_array{ID}}, node_Assign_array{ID}) :- .
 to_node (any{statement_Push_array{ID}}, node_Push_array{ID}) :- .
+to_node (any{statement_Assign_target{ID}}, node_Assign_target{ID}) :- .
 to_node (any{statement_Eval_expr{ID}}, node_Eval_expr{ID}) :- .
 to_node (any{statement_Pre_op{ID}}, node_Pre_op{ID}) :- .
 to_node (any{statement_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
@@ -523,7 +557,6 @@ to_node (any{expr_Unary_op{ID}}, node_Unary_op{ID}) :- .
 to_node (any{expr_Bin_op{ID}}, node_Bin_op{ID}) :- .
 to_node (any{expr_Constant{ID}}, node_Constant{ID}) :- .
 to_node (any{expr_Instanceof{ID}}, node_Instanceof{ID}) :- .
-to_node (any{expr_Variable{ID}}, node_Variable{ID}) :- .
 to_node (any{expr_Method_invocation{ID}}, node_Method_invocation{ID}) :- .
 to_node (any{expr_New{ID}}, node_New{ID}) :- .
 to_node (any{expr_INT{ID}}, node_INT{ID}) :- .
@@ -531,11 +564,14 @@ to_node (any{expr_REAL{ID}}, node_REAL{ID}) :- .
 to_node (any{expr_STRING{ID}}, node_STRING{ID}) :- .
 to_node (any{expr_BOOL{ID}}, node_BOOL{ID}) :- .
 to_node (any{expr_NIL{ID}}, node_NIL{ID}) :- .
-to_node (any{expr_Array{ID}}, node_Array{ID}) :- .
 to_node (any{expr_Foreach_has_key{ID}}, node_Foreach_has_key{ID}) :- .
 to_node (any{expr_Foreach_get_key{ID}}, node_Foreach_get_key{ID}) :- .
 to_node (any{expr_Foreach_get_val{ID}}, node_Foreach_get_val{ID}) :- .
 to_node (any{expr_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
+to_node (any{expr_Variable{ID}}, node_Variable{ID}) :- .
+to_node (any{expr_Index_array{ID}}, node_Index_array{ID}) :- .
+to_node (any{expr_Variable_variable{ID}}, node_Variable_variable{ID}) :- .
+to_node (any{expr_Target_expr{ID}}, node_Target_expr{ID}) :- .
 to_node (any{literal_INT{ID}}, node_INT{ID}) :- .
 to_node (any{literal_REAL{ID}}, node_REAL{ID}) :- .
 to_node (any{literal_STRING{ID}}, node_STRING{ID}) :- .
@@ -543,29 +579,25 @@ to_node (any{literal_BOOL{ID}}, node_BOOL{ID}) :- .
 to_node (any{literal_NIL{ID}}, node_NIL{ID}) :- .
 to_node (any{variable_name_VARIABLE_NAME{ID}}, node_VARIABLE_NAME{ID}) :- .
 to_node (any{variable_name_Reflection{ID}}, node_Reflection{ID}) :- .
-to_node (any{target_Cast{ID}}, node_Cast{ID}) :- .
-to_node (any{target_Unary_op{ID}}, node_Unary_op{ID}) :- .
-to_node (any{target_Bin_op{ID}}, node_Bin_op{ID}) :- .
-to_node (any{target_Constant{ID}}, node_Constant{ID}) :- .
-to_node (any{target_Instanceof{ID}}, node_Instanceof{ID}) :- .
-to_node (any{target_Variable{ID}}, node_Variable{ID}) :- .
-to_node (any{target_Method_invocation{ID}}, node_Method_invocation{ID}) :- .
-to_node (any{target_New{ID}}, node_New{ID}) :- .
-to_node (any{target_INT{ID}}, node_INT{ID}) :- .
-to_node (any{target_REAL{ID}}, node_REAL{ID}) :- .
-to_node (any{target_STRING{ID}}, node_STRING{ID}) :- .
-to_node (any{target_BOOL{ID}}, node_BOOL{ID}) :- .
-to_node (any{target_NIL{ID}}, node_NIL{ID}) :- .
-to_node (any{target_Array{ID}}, node_Array{ID}) :- .
-to_node (any{target_Foreach_has_key{ID}}, node_Foreach_has_key{ID}) :- .
-to_node (any{target_Foreach_get_key{ID}}, node_Foreach_get_key{ID}) :- .
-to_node (any{target_Foreach_get_val{ID}}, node_Foreach_get_val{ID}) :- .
-to_node (any{target_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
+to_node (any{target_VARIABLE_NAME{ID}}, node_VARIABLE_NAME{ID}) :- .
 to_node (any{target_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
 to_node (any{method_name_METHOD_NAME{ID}}, node_METHOD_NAME{ID}) :- .
 to_node (any{method_name_Reflection{ID}}, node_Reflection{ID}) :- .
 to_node (any{class_name_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
 to_node (any{class_name_Reflection{ID}}, node_Reflection{ID}) :- .
+to_node (any{static_value_INT{ID}}, node_INT{ID}) :- .
+to_node (any{static_value_REAL{ID}}, node_REAL{ID}) :- .
+to_node (any{static_value_STRING{ID}}, node_STRING{ID}) :- .
+to_node (any{static_value_BOOL{ID}}, node_BOOL{ID}) :- .
+to_node (any{static_value_NIL{ID}}, node_NIL{ID}) :- .
+to_node (any{static_value_Static_array{ID}}, node_Static_array{ID}) :- .
+to_node (any{static_value_Constant{ID}}, node_Constant{ID}) :- .
+to_node (any{static_array_key_INT{ID}}, node_INT{ID}) :- .
+to_node (any{static_array_key_REAL{ID}}, node_REAL{ID}) :- .
+to_node (any{static_array_key_STRING{ID}}, node_STRING{ID}) :- .
+to_node (any{static_array_key_BOOL{ID}}, node_BOOL{ID}) :- .
+to_node (any{static_array_key_NIL{ID}}, node_NIL{ID}) :- .
+to_node (any{static_array_key_Constant{ID}}, node_Constant{ID}) :- .
 to_node (any{identifier_INTERFACE_NAME{ID}}, node_INTERFACE_NAME{ID}) :- .
 to_node (any{identifier_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
 to_node (any{identifier_METHOD_NAME{ID}}, node_METHOD_NAME{ID}) :- .
@@ -593,6 +625,9 @@ get_id (node_METHOD_NAME{mETHOD_NAME{ID, _}}, ID) :- .
 to_node (any{vARIABLE_NAME{ID, VALUE}}, node_VARIABLE_NAME{vARIABLE_NAME{ID, VALUE}}) :- .
 get_id (node_VARIABLE_NAME{vARIABLE_NAME{ID, _}}, ID) :- .
 
+to_node (any{oP{ID, VALUE}}, node_OP{oP{ID, VALUE}}) :- .
+get_id (node_OP{oP{ID, _}}, ID) :- .
+
 to_node (any{iNT{ID, VALUE}}, node_INT{iNT{ID, VALUE}}) :- .
 get_id (node_INT{iNT{ID, _}}, ID) :- .
 
@@ -610,9 +645,6 @@ get_id (node_NIL{nIL{ID, _}}, ID) :- .
 
 to_node (any{cAST{ID, VALUE}}, node_CAST{cAST{ID, VALUE}}) :- .
 get_id (node_CAST{cAST{ID, _}}, ID) :- .
-
-to_node (any{oP{ID, VALUE}}, node_OP{oP{ID, VALUE}}) :- .
-get_id (node_OP{oP{ID, _}}, ID) :- .
 
 to_node (any{cONSTANT_NAME{ID, VALUE}}, node_CONSTANT_NAME{cONSTANT_NAME{ID, VALUE}}) :- .
 get_id (node_CONSTANT_NAME{cONSTANT_NAME{ID, _}}, ID) :- .
@@ -730,17 +762,17 @@ to_generic (node_Attr_mod{NODE}, GENERIC) :-
 	GENERIC = gnode{node_Attr_mod{NODE}, "Attr_mod", [GEN_IS_PUBLIC, GEN_IS_PROTECTED, GEN_IS_PRIVATE, GEN_IS_STATIC, GEN_IS_CONST]}.
 
 to_generic (node_Name_with_default{NODE}, GENERIC) :-
-	NODE = name_with_default { _, VARIABLE_NAME, OPT_EXPR } ,
+	NODE = name_with_default { _, VARIABLE_NAME, OPT_DEFAULT_VALUE } ,
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	((OPT_EXPR = yes{EXPR},
-	to_node (any{EXPR}, NODE_EXPR),
-	to_generic (NODE_EXPR, GEN_EXPR),
-	GEN_OPT_EXPR = gmaybe{"Expr", yes{GEN_EXPR}})
+	((OPT_DEFAULT_VALUE = yes{DEFAULT_VALUE},
+	to_node (any{DEFAULT_VALUE}, NODE_DEFAULT_VALUE),
+	to_generic (NODE_DEFAULT_VALUE, GEN_DEFAULT_VALUE),
+	GEN_OPT_DEFAULT_VALUE = gmaybe{"Static_value", yes{GEN_DEFAULT_VALUE}})
 	;
-	(OPT_EXPR \= yes{_},
-	GEN_OPT_EXPR = gmaybe{"Expr", no})),
-	GENERIC = gnode{node_Name_with_default{NODE}, "Name_with_default", [GEN_VARIABLE_NAME, GEN_OPT_EXPR]}.
+	(OPT_DEFAULT_VALUE \= yes{_},
+	GEN_OPT_DEFAULT_VALUE = gmaybe{"Static_value", no})),
+	GENERIC = gnode{node_Name_with_default{NODE}, "Name_with_default", [GEN_VARIABLE_NAME, GEN_OPT_DEFAULT_VALUE]}.
 
 to_generic (node_Return{NODE}, GENERIC) :-
 	NODE = return { _, EXPR } ,
@@ -776,36 +808,33 @@ to_generic (node_Catch{NODE}, GENERIC) :-
 	GENERIC = gnode{node_Catch{NODE}, "Catch", [GEN_CLASS_NAME, GEN_VARIABLE_NAME, GEN_STATEMENTS]}.
 
 to_generic (node_Throw{NODE}, GENERIC) :-
-	NODE = throw { _, EXPR } ,
-	to_node (any{EXPR}, NODE_EXPR),
-	to_generic (NODE_EXPR, GEN_EXPR),
-	GENERIC = gnode{node_Throw{NODE}, "Throw", [GEN_EXPR]}.
+	NODE = throw { _, VARIABLE_NAME } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Throw{NODE}, "Throw", [GEN_VARIABLE_NAME]}.
 
 to_generic (node_Assign_var{NODE}, GENERIC) :-
-	NODE = assign_var { _, OPT_TARGET, LHS, IS_REF, RHS } ,
-	((OPT_TARGET = yes{TARGET},
-	to_node (any{TARGET}, NODE_TARGET),
-	to_generic (NODE_TARGET, GEN_TARGET),
-	GEN_OPT_TARGET = gmaybe{"Target", yes{GEN_TARGET}})
-	;
-	(OPT_TARGET \= yes{_},
-	GEN_OPT_TARGET = gmaybe{"Target", no})),
+	NODE = assign_var { _, LHS, IS_REF, RHS } ,
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{node_Assign_var{NODE}, "Assign_var", [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
+	GENERIC = gnode{node_Assign_var{NODE}, "Assign_var", [GEN_LHS, GEN_IS_REF, GEN_RHS]}.
 
-to_generic (node_Assign_array{NODE}, GENERIC) :-
-	NODE = assign_array { _, OPT_TARGET, LHS, INDEX, IS_REF, RHS } ,
-	((OPT_TARGET = yes{TARGET},
+to_generic (node_Assign_target{NODE}, GENERIC) :-
+	NODE = assign_target { _, TARGET, LHS, IS_REF, RHS } ,
 	to_node (any{TARGET}, NODE_TARGET),
 	to_generic (NODE_TARGET, GEN_TARGET),
-	GEN_OPT_TARGET = gmaybe{"Target", yes{GEN_TARGET}})
-	;
-	(OPT_TARGET \= yes{_},
-	GEN_OPT_TARGET = gmaybe{"Target", no})),
+	to_node (any{LHS}, NODE_LHS),
+	to_generic (NODE_LHS, GEN_LHS),
+	GEN_IS_REF = gmarker {"is_ref", IS_REF},
+	to_node (any{RHS}, NODE_RHS),
+	to_generic (NODE_RHS, GEN_RHS),
+	GENERIC = gnode{node_Assign_target{NODE}, "Assign_target", [GEN_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
+
+to_generic (node_Assign_array{NODE}, GENERIC) :-
+	NODE = assign_array { _, LHS, INDEX, IS_REF, RHS } ,
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	to_node (any{INDEX}, NODE_INDEX),
@@ -813,45 +842,67 @@ to_generic (node_Assign_array{NODE}, GENERIC) :-
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{node_Assign_array{NODE}, "Assign_array", [GEN_OPT_TARGET, GEN_LHS, GEN_INDEX, GEN_IS_REF, GEN_RHS]}.
+	GENERIC = gnode{node_Assign_array{NODE}, "Assign_array", [GEN_LHS, GEN_INDEX, GEN_IS_REF, GEN_RHS]}.
 
 to_generic (node_Assign_var_var{NODE}, GENERIC) :-
-	NODE = assign_var_var { _, OPT_TARGET, LHS, IS_REF, RHS } ,
-	((OPT_TARGET = yes{TARGET},
-	to_node (any{TARGET}, NODE_TARGET),
-	to_generic (NODE_TARGET, GEN_TARGET),
-	GEN_OPT_TARGET = gmaybe{"Target", yes{GEN_TARGET}})
-	;
-	(OPT_TARGET \= yes{_},
-	GEN_OPT_TARGET = gmaybe{"Target", no})),
+	NODE = assign_var_var { _, LHS, IS_REF, RHS } ,
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{node_Assign_var_var{NODE}, "Assign_var_var", [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
+	GENERIC = gnode{node_Assign_var_var{NODE}, "Assign_var_var", [GEN_LHS, GEN_IS_REF, GEN_RHS]}.
 
 to_generic (node_Push_array{NODE}, GENERIC) :-
-	NODE = push_array { _, OPT_TARGET, LHS, IS_REF, RHS } ,
-	((OPT_TARGET = yes{TARGET},
-	to_node (any{TARGET}, NODE_TARGET),
-	to_generic (NODE_TARGET, GEN_TARGET),
-	GEN_OPT_TARGET = gmaybe{"Target", yes{GEN_TARGET}})
-	;
-	(OPT_TARGET \= yes{_},
-	GEN_OPT_TARGET = gmaybe{"Target", no})),
+	NODE = push_array { _, LHS, IS_REF, RHS } ,
 	to_node (any{LHS}, NODE_LHS),
 	to_generic (NODE_LHS, GEN_LHS),
 	GEN_IS_REF = gmarker {"is_ref", IS_REF},
 	to_node (any{RHS}, NODE_RHS),
 	to_generic (NODE_RHS, GEN_RHS),
-	GENERIC = gnode{node_Push_array{NODE}, "Push_array", [GEN_OPT_TARGET, GEN_LHS, GEN_IS_REF, GEN_RHS]}.
+	GENERIC = gnode{node_Push_array{NODE}, "Push_array", [GEN_LHS, GEN_IS_REF, GEN_RHS]}.
+
+to_generic (node_Pre_op{NODE}, GENERIC) :-
+	NODE = pre_op { _, OP, VARIABLE_NAME } ,
+	to_node (any{OP}, NODE_OP),
+	to_generic (NODE_OP, GEN_OP),
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Pre_op{NODE}, "Pre_op", [GEN_OP, GEN_VARIABLE_NAME]}.
 
 to_generic (node_Eval_expr{NODE}, GENERIC) :-
 	NODE = eval_expr { _, EXPR } ,
 	to_node (any{EXPR}, NODE_EXPR),
 	to_generic (NODE_EXPR, GEN_EXPR),
 	GENERIC = gnode{node_Eval_expr{NODE}, "Eval_expr", [GEN_EXPR]}.
+
+to_generic (node_Target_expr{NODE}, GENERIC) :-
+	NODE = target_expr { _, TARGET, VARIABLE_NAME } ,
+	to_node (any{TARGET}, NODE_TARGET),
+	to_generic (NODE_TARGET, GEN_TARGET),
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Target_expr{NODE}, "Target_expr", [GEN_TARGET, GEN_VARIABLE_NAME]}.
+
+to_generic (node_Variable{NODE}, GENERIC) :-
+	NODE = variable { _, VARIABLE_NAME } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Variable{NODE}, "Variable", [GEN_VARIABLE_NAME]}.
+
+to_generic (node_Variable_variable{NODE}, GENERIC) :-
+	NODE = variable_variable { _, VARIABLE_NAME } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Variable_variable{NODE}, "Variable_variable", [GEN_VARIABLE_NAME]}.
+
+to_generic (node_Index_array{NODE}, GENERIC) :-
+	NODE = index_array { _, VARIABLE_NAME, INDEX } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	to_node (any{INDEX}, NODE_INDEX),
+	to_generic (NODE_INDEX, GEN_INDEX),
+	GENERIC = gnode{node_Index_array{NODE}, "Index_array", [GEN_VARIABLE_NAME, GEN_INDEX]}.
 
 to_generic (node_Cast{NODE}, GENERIC) :-
 	NODE = cast { _, CAST, VARIABLE_NAME } ,
@@ -900,52 +951,11 @@ to_generic (node_Instanceof{NODE}, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	GENERIC = gnode{node_Instanceof{NODE}, "Instanceof", [GEN_VARIABLE_NAME, GEN_CLASS_NAME]}.
 
-to_generic (node_Variable{NODE}, GENERIC) :-
-	NODE = variable { _, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS } ,
-	((OPT_TARGET = yes{TARGET},
-	to_node (any{TARGET}, NODE_TARGET),
-	to_generic (NODE_TARGET, GEN_TARGET),
-	GEN_OPT_TARGET = gmaybe{"Target", yes{GEN_TARGET}})
-	;
-	(OPT_TARGET \= yes{_},
-	GEN_OPT_TARGET = gmaybe{"Target", no})),
-	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
-	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	list_to_generic_list ("VARIABLE_NAME", ARRAY_INDICESS, GEN_ARRAY_INDICESS),
-	GENERIC = gnode{node_Variable{NODE}, "Variable", [GEN_OPT_TARGET, GEN_VARIABLE_NAME, GEN_ARRAY_INDICESS]}.
-
 to_generic (node_Reflection{NODE}, GENERIC) :-
 	NODE = reflection { _, VARIABLE_NAME } ,
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	GENERIC = gnode{node_Reflection{NODE}, "Reflection", [GEN_VARIABLE_NAME]}.
-
-to_generic (node_Pre_op{NODE}, GENERIC) :-
-	NODE = pre_op { _, OP, VARIABLE } ,
-	to_node (any{OP}, NODE_OP),
-	to_generic (NODE_OP, GEN_OP),
-	to_node (any{VARIABLE}, NODE_VARIABLE),
-	to_generic (NODE_VARIABLE, GEN_VARIABLE),
-	GENERIC = gnode{node_Pre_op{NODE}, "Pre_op", [GEN_OP, GEN_VARIABLE]}.
-
-to_generic (node_Array{NODE}, GENERIC) :-
-	NODE = array { _, ARRAY_ELEMS } ,
-	list_to_generic_list ("Array_elem", ARRAY_ELEMS, GEN_ARRAY_ELEMS),
-	GENERIC = gnode{node_Array{NODE}, "Array", [GEN_ARRAY_ELEMS]}.
-
-to_generic (node_Array_elem{NODE}, GENERIC) :-
-	NODE = array_elem { _, OPT_KEY, IS_REF, VAL } ,
-	((OPT_KEY = yes{KEY},
-	to_node (any{KEY}, NODE_KEY),
-	to_generic (NODE_KEY, GEN_KEY),
-	GEN_OPT_KEY = gmaybe{"Expr", yes{GEN_KEY}})
-	;
-	(OPT_KEY \= yes{_},
-	GEN_OPT_KEY = gmaybe{"Expr", no})),
-	GEN_IS_REF = gmarker {"is_ref", IS_REF},
-	to_node (any{VAL}, NODE_VAL),
-	to_generic (NODE_VAL, GEN_VAL),
-	GENERIC = gnode{node_Array_elem{NODE}, "Array_elem", [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]}.
 
 to_generic (node_Method_invocation{NODE}, GENERIC) :-
 	NODE = method_invocation { _, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS } ,
@@ -982,6 +992,25 @@ to_generic (node_New{NODE}, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
 	GENERIC = gnode{node_New{NODE}, "New", [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
+
+to_generic (node_Static_array{NODE}, GENERIC) :-
+	NODE = static_array { _, STATIC_ARRAY_ELEMS } ,
+	list_to_generic_list ("Static_array_elem", STATIC_ARRAY_ELEMS, GEN_STATIC_ARRAY_ELEMS),
+	GENERIC = gnode{node_Static_array{NODE}, "Static_array", [GEN_STATIC_ARRAY_ELEMS]}.
+
+to_generic (node_Static_array_elem{NODE}, GENERIC) :-
+	NODE = static_array_elem { _, OPT_KEY, IS_REF, VAL } ,
+	((OPT_KEY = yes{KEY},
+	to_node (any{KEY}, NODE_KEY),
+	to_generic (NODE_KEY, GEN_KEY),
+	GEN_OPT_KEY = gmaybe{"Static_array_key", yes{GEN_KEY}})
+	;
+	(OPT_KEY \= yes{_},
+	GEN_OPT_KEY = gmaybe{"Static_array_key", no})),
+	GEN_IS_REF = gmarker {"is_ref", IS_REF},
+	to_node (any{VAL}, NODE_VAL),
+	to_generic (NODE_VAL, GEN_VAL),
+	GENERIC = gnode{node_Static_array_elem{NODE}, "Static_array_elem", [GEN_OPT_KEY, GEN_IS_REF, GEN_VAL]}.
 
 to_generic (node_Branch{NODE}, GENERIC) :-
 	NODE = branch { _, VARIABLE_NAME, IFTRUE, IFFALSE } ,
@@ -1090,6 +1119,11 @@ to_generic (node_VARIABLE_NAME{NODE}, GENERIC) :-
 	GEN_VARIABLE_NAME = gstring {VARIABLE_NAME},
 	GENERIC = gnode{node_VARIABLE_NAME{NODE}, "VARIABLE_NAME", [GEN_VARIABLE_NAME]}.
 
+to_generic (node_OP{NODE}, GENERIC) :-
+	NODE = oP { _, OP } ,
+	GEN_OP = gstring {OP},
+	GENERIC = gnode{node_OP{NODE}, "OP", [GEN_OP]}.
+
 to_generic (node_INT{NODE}, GENERIC) :-
 	NODE = iNT { _, INT } ,
 	GEN_INT = gint {INT},
@@ -1119,11 +1153,6 @@ to_generic (node_CAST{NODE}, GENERIC) :-
 	NODE = cAST { _, CAST } ,
 	GEN_CAST = gstring {CAST},
 	GENERIC = gnode{node_CAST{NODE}, "CAST", [GEN_CAST]}.
-
-to_generic (node_OP{NODE}, GENERIC) :-
-	NODE = oP { _, OP } ,
-	GEN_OP = gstring {OP},
-	GENERIC = gnode{node_OP{NODE}, "OP", [GEN_OP]}.
 
 to_generic (node_CONSTANT_NAME{NODE}, GENERIC) :-
 	NODE = cONSTANT_NAME { _, CONSTANT_NAME } ,

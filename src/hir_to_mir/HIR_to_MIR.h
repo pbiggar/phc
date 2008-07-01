@@ -24,9 +24,8 @@
 class HIR_to_MIR : public HIR::Fold
 <
  MIR::Actual_parameter*,	// Actual_parameter*
- MIR::Array*,					// Array*
- MIR::Array_elem*,			// Array_elem*
  MIR::Assign_array*,			// Assign_array*
+ MIR::Assign_target*,		// Assign_target*
  MIR::Assign_var*,			// Assign_var*
  MIR::Assign_var_var*,		// Assign_var_var*
  MIR::Attr_mod*,				// Attr_mod*
@@ -56,6 +55,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::INTERFACE_NAME*,		// INTERFACE_NAME*
  MIR::Identifier*,			// Identifier*
  MIR::Statement*,				// If*
+ MIR::Index_array*,			// Index_array*
  MIR::Instanceof*,			// Instanceof*
  MIR::Interface_def*,		// Interface_def*
  MIR::Literal*,				// Literal*
@@ -80,15 +80,21 @@ class HIR_to_MIR : public HIR::Fold
  MIR::STRING*,					// STRING*
  MIR::Signature*,				// Signature*
  MIR::Statement*,				// Statement*
+ MIR::Static_array*,			// Static_array*
+ MIR::Static_array_elem*,	// Static_array_elem*
+ MIR::Static_array_key*,	// Static_array_key*
  MIR::Static_declaration*,	// Static_declaration*
+ MIR::Static_value*,			// Static_value*
  MIR::Target*,					// Target*
+ MIR::Target_expr*,			// Target_expr*
  MIR::Throw*,					// Throw*
  MIR::Try*,						// Try*
  MIR::Type*,					// Type*
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
  MIR::Variable*,				// Variable*
- MIR::Variable_name*			// Variable_name*
+ MIR::Variable_name*,		// Variable_name*
+ MIR::Variable_variable*	// Variable_variable*
 >		
 {
 public:
@@ -180,10 +186,10 @@ public:
 		return result;
 	}
 	
-	MIR::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, MIR::VARIABLE_NAME* variable_name, MIR::Expr* expr) 
+	MIR::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, MIR::VARIABLE_NAME* variable_name, MIR::Static_value* static_value) 
 	{ 
 		MIR::Name_with_default* result;
-		result = new MIR::Name_with_default(variable_name, expr);
+		result = new MIR::Name_with_default(variable_name, static_value);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -228,10 +234,10 @@ public:
 		return result;
 	}
 
-	MIR::Throw* fold_impl_throw(HIR::Throw* orig, MIR::Expr* expr) 
+	MIR::Throw* fold_impl_throw(HIR::Throw* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Throw* result;
-		result = new MIR::Throw(expr);
+		result = new MIR::Throw(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -244,34 +250,42 @@ public:
 		return result;
 	}
 
-	MIR::Assign_var* fold_impl_assign_var (HIR::Assign_var* orig, MIR::Target* target, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::Expr* rhs) 
+	MIR::Assign_var* fold_impl_assign_var (HIR::Assign_var* orig, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::Expr* rhs) 
 	{
 		MIR::Assign_var* result;
-		result = new MIR::Assign_var (target, lhs, is_ref, rhs);
+		result = new MIR::Assign_var (lhs, is_ref, rhs);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Assign_var_var* fold_impl_assign_var_var (HIR::Assign_var_var* orig, MIR::Target* target, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::VARIABLE_NAME* rhs) 
+	MIR::Assign_var_var* fold_impl_assign_var_var (HIR::Assign_var_var* orig, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::VARIABLE_NAME* rhs) 
 	{
 		MIR::Assign_var_var* result;
-		result = new MIR::Assign_var_var(target, lhs, is_ref, rhs);
+		result = new MIR::Assign_var_var(lhs, is_ref, rhs);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Assign_array* fold_impl_assign_array (HIR::Assign_array* orig, MIR::Target* target, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* index, bool is_ref, MIR::VARIABLE_NAME* rhs) 
+	MIR::Assign_array* fold_impl_assign_array (HIR::Assign_array* orig, MIR::VARIABLE_NAME* lhs, MIR::VARIABLE_NAME* index, bool is_ref, MIR::VARIABLE_NAME* rhs) 
 	{
 		MIR::Assign_array* result;
-		result = new MIR::Assign_array (target, lhs, index, is_ref, rhs);
+		result = new MIR::Assign_array (lhs, index, is_ref, rhs);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Push_array* fold_impl_push_array (HIR::Push_array* orig, MIR::Target* target, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::VARIABLE_NAME* rhs) 
+	MIR::Assign_target* fold_impl_assign_target (HIR::Assign_target* orig, MIR::Target* target, MIR::Variable_name* lhs, bool is_ref, MIR::VARIABLE_NAME* rhs) 
+	{
+		MIR::Assign_target* result;
+		result = new MIR::Assign_target (target, lhs, is_ref, rhs);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Push_array* fold_impl_push_array (HIR::Push_array* orig, MIR::VARIABLE_NAME* lhs, bool is_ref, MIR::VARIABLE_NAME* rhs) 
 	{
 		MIR::Push_array* result;
-		result = new MIR::Push_array (target, lhs, is_ref, rhs);
+		result = new MIR::Push_array (lhs, is_ref, rhs);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -296,9 +310,7 @@ public:
 
 		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
 		assert (var);
-		assert (var->target == NULL);
 		assert (var->variable_name);
-		assert (var->array_indices->size () == 0);
 
 		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
 		assert (var_name);
@@ -345,10 +357,34 @@ public:
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::VARIABLE_NAME*>* array_indices) 
+	MIR::Index_array* fold_impl_index_array(HIR::Index_array* orig, MIR::VARIABLE_NAME* variable_name, MIR::VARIABLE_NAME* index)
+	{
+		MIR::Index_array* result;
+		result = new MIR::Index_array(variable_name, index);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Variable* result;
-		result = new MIR::Variable(target, variable_name, array_indices);
+		result = new MIR::Variable(variable_name);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Variable_variable* fold_impl_variable_variable(HIR::Variable_variable* orig, MIR::VARIABLE_NAME* variable_name) 
+	{
+		MIR::Variable_variable* result;
+		result = new MIR::Variable_variable(variable_name);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Target_expr* fold_impl_target_expr (HIR::Target_expr* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	{
+		MIR::Target_expr* result;
+		result = new MIR::Target_expr(target, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -361,26 +397,26 @@ public:
 		return result;
 	}
 
-	MIR::Pre_op* fold_impl_pre_op(HIR::Pre_op* orig, MIR::OP* op, MIR::Variable* variable) 
+	MIR::Pre_op* fold_impl_pre_op(HIR::Pre_op* orig, MIR::OP* op, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Pre_op* result;
-		result = new MIR::Pre_op(op, variable);
+		result = new MIR::Pre_op(op, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Array* fold_impl_array(HIR::Array* orig, List<MIR::Array_elem*>* array_elems) 
+	MIR::Static_array* fold_impl_static_array(HIR::Static_array* orig, List<MIR::Static_array_elem*>* static_array_elems)
 	{
-		MIR::Array* result;
-		result = new MIR::Array(array_elems);
+		MIR::Static_array* result;
+		result = new MIR::Static_array (static_array_elems);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Array_elem* fold_impl_array_elem(HIR::Array_elem* orig, MIR::Expr* key, bool is_ref, MIR::Expr* val) 
+	MIR::Static_array_elem* fold_impl_static_array_elem(HIR::Static_array_elem* orig, MIR::Static_array_key* key, bool is_ref, MIR::Static_value* val)
 	{
-		MIR::Array_elem* result;
-		result = new MIR::Array_elem(key, is_ref, val);
+		MIR::Static_array_elem* result;
+		result = new MIR::Static_array_elem (key, is_ref, val);
 		result->attrs = orig->attrs;
 		return result;
 	}

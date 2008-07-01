@@ -17,14 +17,14 @@ import "live.clp".
 
 cfg_node (BB),
 	BB = nblock{statement_Assign_var{S}},
-	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
+	S = assign_var{_, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
 	~is_side_effecting (EXPR),
 	~live_out (BB, VAR_NAME),
 	+remove_bb (BB).
 
 cfg_node (BB),
 	BB = nblock{statement_Assign_var{S}},
-	S = assign_var{_, no, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
+	S = assign_var{_, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
 	is_side_effecting (EXPR),
 	~live_out (BB, VAR_NAME),
 	+replace_bb (BB, [nblock{statement_Eval_expr {eval_expr{next_id(), EXPR}}}]).

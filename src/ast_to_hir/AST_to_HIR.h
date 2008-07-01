@@ -11,6 +11,7 @@
 #include "AST_fold.h"
 #include "HIR.h"
 #include "process_ir/General.h"
+#include "process_ir/IR.h"
 
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
@@ -24,8 +25,8 @@
 class AST_to_HIR : public AST::Fold
 <
  HIR::Actual_parameter*,	// Actual_parameter*
- HIR::Array*,					// Array*
- HIR::Array_elem*,			// Array_elem*
+ HIR::Expr*,					// Array*
+ HIR::Static_array_elem*,	// Array_elem*
  HIR::Expr*,					// Assignment*
  HIR::Attr_mod*,				// Attr_mod*
  HIR::Attribute*,				// Attribute*
@@ -94,29 +95,44 @@ class AST_to_HIR : public AST::Fold
  HIR::Static_declaration*,	// Static_declaration*
  HIR::Statement*,				// Switch*
  HIR::Node*,					// Switch_case*
- HIR::Target*,					// Target*
+ HIR::Node*,					// Target* - HIR::Targets have VARIABLE_NAME expr, so we cant fold to them directly
  HIR::Throw*,					// Throw*
  HIR::Try*,						// Try*
  HIR::Type*,					// Type*
  HIR::Unary_op*,				// Unary_op*
  HIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- HIR::Variable*,				// Variable*
+ HIR::Expr*,					// Variable* - HIR::Variable is split into multiple type
  HIR::Variable_name*,		// Variable_name*
  HIR::Loop*						// While*
 >
 {
+public:
+	AST_to_HIR ()
+	{
+		eval_expr_assignment = NULL;
+	}
+
+private:
 	// The HIR expects variable names where the AST has expressions.
 	// Find the VARIABLE_NAME within the expression.
 	bool is_wrapped_var_name (HIR::Expr* expr)
 	{
 		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
-		if (	var == NULL 
-			|| var->variable_name == NULL
-			|| var->target != NULL
-			|| var->array_indices->size () != 0)
+		if (var == NULL)
 			return false;
 
 		return (dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name));
+	}
+
+	/* HIR::Targets can be a VARIABLE_NAME, which means we need to fold them to
+	 * a HIR::Node. This node can have either a CLASS_NAME, or an Expr. If it is
+	 * an Expr, it must be a wrapped VARIABLE_NAME. */
+	HIR::Target* unwrap_target (HIR::Node* target)
+	{
+		HIR::CLASS_NAME* cn = dynamic_cast<HIR::CLASS_NAME*> (target);
+		if (cn) return cn;
+
+		return expr_to_var_name (dynamic_cast<HIR::Variable*> (target));
 	}
 
 	void copy_attrs (HIR::Node* target, AST::Node* source)
@@ -226,11 +242,16 @@ class AST_to_HIR : public AST::Fold
 		copy_attrs (result, orig);
 		return result;
 	}
-	
+
 	HIR::Name_with_default* fold_impl_name_with_default(AST::Name_with_default* orig, HIR::VARIABLE_NAME* variable_name, HIR::Expr* expr) 
-	{ 
+	{
+		if (expr != NULL)
+			assert (isa<HIR::Static_value> (expr));
+
 		HIR::Name_with_default* result;
-		result = new HIR::Name_with_default(variable_name, expr);
+		result = new HIR::Name_with_default(
+			variable_name, 
+			dyc<HIR::Static_value> (expr));
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -282,25 +303,33 @@ class AST_to_HIR : public AST::Fold
 	HIR::Throw* fold_impl_throw(AST::Throw* orig, HIR::Expr* expr) 
 	{
 		HIR::Throw* result;
-		result = new HIR::Throw(expr);
+		result = new HIR::Throw(expr_to_var_name (expr));
 		copy_attrs (result, orig);
 		return result;
 	}
 
+	/* fold_impl_assignment sets eval_expr_assignment, which is returned if EXPR is NULL */
+	HIR::Statement* eval_expr_assignment;
 	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
-		switch (expr->classid ())
+		HIR::Statement* result;
+		if (expr
+			&& (expr->classid () == HIR::Method_invocation::ID
+				|| expr->classid () == HIR::New::ID))
 		{
-			case HIR::Method_invocation::ID:
-			case HIR::New::ID:
-				HIR::Eval_expr* result;
-				result = new HIR::Eval_expr (expr);
-				copy_attrs (result, orig);
-				return result;
-			default:
-				// We know this is OK from fold_impl_assignment
-				return reinterpret_cast<HIR::Statement*> (expr);
+			// Carry on as normal
+			result = new HIR::Eval_expr (expr);
+			copy_attrs (result, orig);
 		}
+		else
+		{
+			// We have an Assignment to return instead, stored in eval_expr_assignment
+			assert (eval_expr_assignment);
+			result = eval_expr_assignment;
+			eval_expr_assignment = NULL;
+		}
+
+		return result;
 	}
 
 	HIR::Break* fold_impl_break (AST::Break* orig, HIR::Expr* expr)
@@ -331,10 +360,15 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* arr, HIR::Variable* key, bool is_ref, HIR::Variable* val, List<HIR::Statement*>* statements)
+	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* arr, HIR::Expr* key, bool is_ref, HIR::Expr* val, List<HIR::Statement*>* statements)
 	{
 		HIR::Foreach* result;
-		result = new HIR::Foreach(expr_to_var_name (arr), expr_to_var_name (key), is_ref, expr_to_var_name (val), statements);
+		result = new HIR::Foreach(
+			expr_to_var_name (arr),
+			expr_to_var_name (key),
+			is_ref,
+			expr_to_var_name (val),
+			statements);
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -347,88 +381,110 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Variable* var, bool is_ref, HIR::Expr* expr) 
+	HIR::Expr* fold_impl_assignment(AST::Assignment* orig, HIR::Expr* lhs, bool is_ref, HIR::Expr* expr) 
 	{
-		// push_array - $t->$x[] = $y;
-		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& var->array_indices->size () == 1 
-			&& var->array_indices->front () == NULL
-			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
+		assert (eval_expr_assignment == NULL);
+
+		HIR::Target_expr* target_expr = dynamic_cast<HIR::Target_expr*> (lhs);
+		HIR::Variable* var = dynamic_cast<HIR::Variable*> (lhs);
+		HIR::Variable_variable* var_var = dynamic_cast<HIR::Variable_variable*> (lhs);
+		HIR::Index_array* ia = dynamic_cast<HIR::Index_array*> (lhs);
+
+		// Var doesnt have enough information to tell us if a NULL
+		// var->array_index indicates a push or a copy. So we have to look in
+		// ORIG.
+		
+		// push_array - $x[] = $y;
+		if (ia
+			&& ia->index == NULL
 			&& is_wrapped_var_name (expr))
 		{
 			HIR::Push_array* result;
 			result = new HIR::Push_array (
-				var->target, 
-				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
+				ia->variable_name, 
 				is_ref, 
 				expr_to_var_name (expr));
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
-		// assign_var - $t->$x = y();
-		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& var->array_indices->size () == 0
+
+		// assign_array - $x[$i] = $y;
+		if (ia
+			&& ia->index
+			&& is_wrapped_var_name (expr))
+		{
+			HIR::Assign_array* result;
+			result = new HIR::Assign_array (
+				dynamic_cast<HIR::VARIABLE_NAME*> (ia->variable_name), 
+				ia->index,
+				is_ref,
+				expr_to_var_name (expr));
+			copy_attrs (result, orig);
+			eval_expr_assignment = result;
+			return NULL;
+		}
+
+		// assign_var - $x = y();
+		if (var
+			&& not var->variable_name->attrs->is_true ("phc.codegen.unused")
+			&& orig->variable->array_indices->size() == 0
 			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID)
 		{
 			HIR::Assign_var* result;
 			result = new HIR::Assign_var (
-				var->target,
 				dynamic_cast<HIR::VARIABLE_NAME*>(var->variable_name), 
 				is_ref, 
 				expr);
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
 		// eval_expr - y();
-		if (var->target == NULL
+		if (var
 			&& var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& var->array_indices->size () == 0
 			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
 			&& is_ref == false)
 		{
 			HIR::Eval_expr* result;
 			result = new HIR::Eval_expr (expr); 
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 		
 		// assign_var_var - $$x = $y;
-		if (not var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& var->array_indices->size () == 0
-			&& var->variable_name->classid () == HIR::Reflection::ID
+		if (var_var
+			&& not var_var->variable_name->attrs->is_true ("phc.codegen.unused")
 			&& is_wrapped_var_name (expr))
 		{
 			HIR::Assign_var_var* result;
 			result = new HIR::Assign_var_var (
-				var->target,
-				dynamic_cast<HIR::Reflection*>(var->variable_name)->variable_name, 
+				var_var->variable_name, 
 				is_ref, 
 				expr_to_var_name (expr));
 
 			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
+			eval_expr_assignment = result;
+			return NULL;
 		}
 
-		// assign_array - $t->$x[$i] = $y;
-		if (not var->attrs->is_true ("phc.codegen.unused")
-			&& var->variable_name->classid () == HIR::VARIABLE_NAME::ID
-			&& is_wrapped_var_name (expr)
-			&& var->array_indices->size () == 1
-			&& var->array_indices->front () != NULL)
+		// target_expr - $x->$y = $z;
+		if (target_expr)
 		{
-			HIR::Assign_array* result;
-			result = new HIR::Assign_array (
-				var->target,
-				dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name), 
-				var->array_indices->front (),
+			HIR::Assign_target* result;
+			result = new HIR::Assign_target(
+				target_expr->target,
+				target_expr->variable_name, 
 				is_ref,
 				expr_to_var_name (expr));
-			copy_attrs (result, orig);
-			return reinterpret_cast<HIR::Expr*> (result);
-		}
 
+			copy_attrs (result, orig);
+			eval_expr_assignment = result;
+			return NULL;
+		}
 
 		// all cases should be handled
 		debug (orig);
@@ -476,17 +532,67 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Variable* fold_impl_variable(AST::Variable* orig, HIR::Target* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
+	HIR::Expr* fold_impl_variable(AST::Variable* orig, HIR::Node* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
 	{
-		List<HIR::VARIABLE_NAME*>* var_names = new List<HIR::VARIABLE_NAME*>;
-		for_lci (array_indices, HIR::Expr, i)
+		// HIR::Variables can only have 1 array_index. However,
+		// HIR::Actual_parameters can have multiple array_indices. We don't have
+		// the context here to tell which is which. The common case is only one
+		// array_index, so we assume thats what we have here. We let
+		// fold_impl_actual_parameter handle its arguments. Obviously, we
+		// shouldn't fail on more than one array_index.
+
+
+		// $x
+		if (array_indices->size () == 0
+			&& target == NULL
+			&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
-			var_names->push_back (expr_to_var_name (*i));
+			HIR::Variable* result;
+			result = new HIR::Variable(
+					dyc<HIR::VARIABLE_NAME> (variable_name));
+			copy_attrs (result, orig);
+			return result;
 		}
-		HIR::Variable* result;
-		result = new HIR::Variable(target, variable_name, var_names);
-		copy_attrs (result, orig);
-		return result;
+		// $x->[$y]
+		else if (array_indices->size () == 1
+				&& target == NULL
+				&& isa<HIR::VARIABLE_NAME> (variable_name))
+		{
+			// Note that array_index can be NULL, if this is the lhs of a push_array
+			HIR::VARIABLE_NAME* array_index = expr_to_var_name (array_indices->front ());
+			HIR::Index_array* result;
+			result = new HIR::Index_array (
+					dyc<HIR::VARIABLE_NAME> (variable_name),
+					array_index);
+			copy_attrs (result, orig);
+			return result;
+		}
+		// $$x
+		else if (array_indices->size () == 0
+				&& target == NULL
+				&& isa<HIR::Reflection> (variable_name))
+		{
+			HIR::Variable_variable* result;
+			result = new HIR::Variable_variable (
+					dyc<HIR::Reflection> (variable_name)->variable_name);
+			copy_attrs (result, orig);
+			return result;
+		}
+		// $x->
+		else if (target)
+		{
+			HIR::Target_expr* result;
+			result = new HIR::Target_expr (
+					unwrap_target (target),
+					variable_name);
+			copy_attrs (result, orig);
+			return result;
+		}
+		else
+		{
+			// Let actual_parameters handle it
+			return NULL;
+		}
 	}
 
 	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
@@ -497,45 +603,69 @@ class AST_to_HIR : public AST::Fold
 		return result;
 	}
 
-	HIR::Expr* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Variable* variable) 
+	HIR::Expr* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
 		HIR::Pre_op* result;
-		result = new HIR::Pre_op(op, variable);
+		result = new HIR::Pre_op(op, expr_to_var_name (expr));
+		copy_attrs (result, orig);
+		eval_expr_assignment = result;
+
+		// NULL signal Eval_expr to use eval_expr_assignment
+		return NULL;
+	}
+
+	HIR::Expr* fold_impl_array(AST::Array* orig, List<HIR::Static_array_elem*>* static_array_elems) 
+	{
+		HIR::Static_array* result;
+		result = new HIR::Static_array(static_array_elems);
 		copy_attrs (result, orig);
 		return reinterpret_cast<HIR::Expr*> (result);
 	}
 
-	HIR::Array* fold_impl_array(AST::Array* orig, List<HIR::Array_elem*>* array_elems) 
+	HIR::Static_array_elem* fold_impl_array_elem(AST::Array_elem* orig, HIR::Expr* key, bool is_ref, HIR::Expr* val) 
 	{
-		HIR::Array* result;
-		result = new HIR::Array(array_elems);
+		HIR::Static_array_elem* result;
+		result = new HIR::Static_array_elem(
+			dyc<HIR::Static_array_key> (key),
+			is_ref,
+			dyc<HIR::Static_value> (val));
 		copy_attrs (result, orig);
 		return result;
 	}
 
-	HIR::Array_elem* fold_impl_array_elem(AST::Array_elem* orig, HIR::Expr* key, bool is_ref, HIR::Expr* val) 
-	{
-		HIR::Array_elem* result;
-		result = new HIR::Array_elem(key, is_ref, val);
-		copy_attrs (result, orig);
-		return result;
-	}
-
-	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Target* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Node* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
 	{
 		HIR::Method_invocation* result;
-		result = new HIR::Method_invocation(target, method_name, actual_parameters);
+		result = new HIR::Method_invocation(
+			unwrap_target (target),
+			method_name, 
+			actual_parameters);
 		copy_attrs (result, orig);
 		return result;
 	}
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
-		HIR::Variable* var = dynamic_cast<HIR::Variable*> (expr);
-		assert (var);
+		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
+		List<HIR::VARIABLE_NAME*>* array_indices = new List<HIR::VARIABLE_NAME*>;
+		for_lci (dyc<AST::Variable> (orig->expr)->array_indices, AST::Expr, i)
+			array_indices->push_back (expr_to_var_name (fold_expr (*i)));
+
+		// fold_impl_variable rejects a number of constructs allowed here. We must fold ourselves.
+		AST::Variable* param = dyc<AST::Variable> (orig->expr);
+		assert (param);
+		HIR::Target* target = NULL;
+		if (param->target)
+		{
+			target = unwrap_target (fold_target (param->target));
+			assert (target);
+		}
+
+		HIR::Variable_name* var_name = parent::fold_variable_name (param->variable_name);
+		assert (var_name);
 
 		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, var->target, var->variable_name, var->array_indices);
+		result = new HIR::Actual_parameter(is_ref, target, var_name, array_indices);
 		copy_attrs (result, orig);
 		return result;
 	}

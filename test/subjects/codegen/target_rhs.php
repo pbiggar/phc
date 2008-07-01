@@ -60,11 +60,11 @@
 
 
 	// Pre_op with reflection - can't shred
-	++($t->$r[$i]);
+	++$t->$r[$i];
 	var_dump ($x);
 
 	// Pre-op -can't shred
-	++($t->y);
+	++$t->y;
 	var_dump ($x);
 
 ?>
