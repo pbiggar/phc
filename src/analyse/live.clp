@@ -125,10 +125,25 @@ cfg_node (BB), BB = nblock{statement_Pre_op {
 	% here. Add +defined (VAR).
 	+used_var (BB, VAR), +handled (BB).
 
+% Foreach statements
+cfg_node (BB), BB = nblock {statement_Foreach_reset{foreach_reset{_, VAR_NAME, _}}},
+	+used_var (BB, VAR_NAME),
+	+handled (BB).
+
+cfg_node (BB), BB = nblock {statement_Foreach_end{foreach_end{_, VAR_NAME, _}}},
+	+used_var (BB, VAR_NAME),
+	+handled (BB).
+
+cfg_node (BB), BB = nblock {statement_Foreach_next{foreach_next{_, VAR_NAME, _}}},
+	+used_var (BB, VAR_NAME),
+	+handled (BB).
 
 
 
-% Generic expression handling
+
+
+
+% Expression handling
 predicate use_expr (BB:t_cfg_node, EXPR:t_Expr).
 
 % Literals
@@ -193,6 +208,17 @@ use_expr (BB, expr_Bin_op {bin_op {_, LEFT, _, RIGHT}}),
 % Constant
 use_expr (BB, expr_Constant {_}), % no used vars
 	+handled (BB).
+
+% Foreach
+use_expr (BB, expr_Foreach_has_key{foreach_has_key{_, ARRAY, _}}),
+	+used_var (BB, ARRAY), +handled (BB).
+
+use_expr (BB, expr_Foreach_get_key{foreach_get_key{_, ARRAY, _}}),
+	+used_var (BB, ARRAY), +handled (BB).
+
+% Ignore key.
+use_expr (BB, expr_Foreach_get_val{foreach_get_val{_, ARRAY, _, _}}),
+	+used_var (BB, ARRAY), +handled (BB).
 
 
 % Method invocation
