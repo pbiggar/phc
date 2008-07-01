@@ -16,26 +16,36 @@ import "optimize.clp".
 % live_out (B) = U S, for S in Succ (B)
 % live_in (B) = (live_out (B) / defined (B)) U used (B)
 
-% Note ommitting deifnitions is safe, as the live-ness for that varaiable
+% Note ommitting definitions is safe, as the live-ness for that varaiable
 % will continue to propagate, and we cannot kill the definition. Omitting uses
 % is not safe, as we may accidentally kill a variable which is later used.
 
-predicate live_in (BB:t_cfg_node, VAR_NAME:string).
-predicate live_out (BB:t_cfg_node, VAR_NAME:string).
+
+type lv_info ::= lv_name{string}
+					| lv_bottom.
+
+predicate live_in (BB:t_cfg_node, LIVE_INFO:lv_info).
+predicate live_out (BB:t_cfg_node, LIVE_INFO:lv_info).
 
 % Variables defined in block BB
-predicate defined (BB:t_cfg_node, VAR_NAME:string).
+predicate defined (BB:t_cfg_node, LIVE_INFO:lv_info).
 
 % Variables used in block BB
-predicate used (BB:t_cfg_node, VAR_NAME:string).
+predicate used (BB:t_cfg_node, LIVE_INFO:lv_info).
 
 
 % Get that variable name from the vars
 predicate defined_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 predicate used_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 
-defined (BB, NAME) :- defined_var (BB, vARIABLE_NAME{_, NAME}).
-used (BB, NAME) :- used_var (BB, vARIABLE_NAME{_, NAME}).
+defined (BB, lv_name{NAME}) :- defined_var (BB, vARIABLE_NAME{_, NAME}).
+used (BB, lv_name{NAME}) :- used_var (BB, vARIABLE_NAME{_, NAME}).
+
+predicate is_live (in BB:t_cfg_node, in VAR_NAME:string) succeeds [zero,once].
+is_live (BB, VAR_NAME) :-
+	live_out (BB, lv_name{VAR_NAME})
+	; live_out (BB, lv_bottom).
+
 
 
 % Intensional Rules
@@ -77,6 +87,12 @@ cfg_node (BB), BB = nblock{statement_Assign_var {
 cfg_node (BB), BB = nblock{statement_Assign_array {
 	assign_array {_, LHS, INDEX, _, RHS}}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
+	+handled (BB).
+
+cfg_node (BB), BB = nblock{statement_Push_array {
+	push_array {_, ARRAY, _, RHS}}},
+	+used_var (BB, ARRAY),
+	+used_var (BB, RHS),
 	+handled (BB).
 
 % Eval_expr - Rewrap it, and treat like a normal expr
@@ -126,14 +142,38 @@ use_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
 	+used_var (BB, VAR_NAME),
 	+handled (BB).
 
-% TODO array, reflection etc
+use_expr (BB, expr_Index_array {index_array{_, ARRAY_NAME, INDEX_NAME}}),
+	+used_var (BB, INDEX_NAME),
+	+used_var (BB, ARRAY_NAME),
+	+handled (BB).
 
-%use_variable (BB, 
-%	variable {_, no, variable_name_VARIABLE_NAME{VAR_NAME}, ARRAY_INDICES}),
-%	+used_var (BB, VAR_NAME),
-%	+use_variable_names (BB, ARRAY_INDICES),
-%	+handled (BB).
-	
+use_expr (BB, expr_Variable_variable {variable_variable{_, _}}),
+	+used (BB, lv_bottom),
+	+handled (BB).
+
+% Target_expr
+use_expr (BB, expr_Target_expr {target_expr{_, TARGET, VARIABLE_NAME}}),
+	% Target
+	(( TARGET = target_CLASS_NAME {_})
+	;
+	(
+		TARGET = target_VARIABLE_NAME{T_VAR_NAME}, 
+		+used_var (BB, T_VAR_NAME)
+	)),
+
+	% Variable_name
+	(( 
+		VARIABLE_NAME = variable_name_Reflection {_},
+		+used (BB, lv_bottom)
+	)
+	;
+	(
+		VARIABLE_NAME = variable_name_VARIABLE_NAME {VAR_NAME}, 
+		+used_var (BB, VAR_NAME)
+	)),
+	+handled (BB).
+
+
 % Cast_op
 use_expr (BB, expr_Cast {cast {_, _, VAR}}),
 	+used_var (BB, VAR),
@@ -153,6 +193,7 @@ use_expr (BB, expr_Bin_op {bin_op {_, LEFT, _, RIGHT}}),
 % Constant
 use_expr (BB, expr_Constant {_}), % no used vars
 	+handled (BB).
+
 
 % Method invocation
 use_expr (BB, expr_Method_invocation {method_invocation {_, no, _, PARAMS}}),
@@ -183,8 +224,10 @@ use_variable_names (BB, [VAR_NAME|TAIL]),
 
 % Annotate the CFG with liveness info.
 
-in_annotation (BB, STR) :- live_in (BB, STR).
-out_annotation (BB, STR) :- live_out (BB, STR).
+in_annotation (BB, STR) :- live_in (BB, lv_name{STR}).
+out_annotation (BB, STR) :- live_out (BB, lv_name{STR}).
+in_annotation (BB, "BOTTOM") :- live_in (BB, lv_bottom).
+out_annotation (BB, "BOTTOM") :- live_out (BB, lv_bottom).
 
 
 
