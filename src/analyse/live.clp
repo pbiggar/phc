@@ -68,11 +68,11 @@ live_in (BB, VAR) :-
 % Extensional rules (from the predicates).
 
 % Entry and exit - nothing to do here
-handled (BB) :- cfg_node (BB), (BB = nentry{_} ; BB = nexit{_}).
+live_handled (BB) :- cfg_node (BB), (BB = nentry{_} ; BB = nexit{_}).
 
 % Branches - the var is used
 cfg_node (BB), BB = nbranch{VAR, _, _}, 
-	+used_var (BB, VAR), +handled (BB).
+	+used_var (BB, VAR), +live_handled (BB).
 
 % Assign_vars - the LHS is defined. The RHS needs to be checked. IS_REF
 % doesnt matter: if it is true, then we conservatively miss some definitions,
@@ -87,13 +87,13 @@ cfg_node (BB), BB = nblock{statement_Assign_var {
 cfg_node (BB), BB = nblock{statement_Assign_array {
 	assign_array {_, LHS, INDEX, _, RHS}}},
 	+used_var (BB, LHS), +used_var (BB, INDEX), +used_var (BB, RHS),
-	+handled (BB).
+	+live_handled (BB).
 
 cfg_node (BB), BB = nblock{statement_Push_array {
 	push_array {_, ARRAY, _, RHS}}},
 	+used_var (BB, ARRAY),
 	+used_var (BB, RHS),
-	+handled (BB).
+	+live_handled (BB).
 
 % Eval_expr - Rewrap it, and treat like a normal expr
 cfg_node (BB), BB = nblock{statement_Eval_expr{
@@ -108,14 +108,14 @@ cfg_node (BB), BB = nblock{statement_Return{
 % Globals - the overwrite the variables, so consider it a define
 cfg_node (BB), BB = nblock{statement_Global {
 	global {_, variable_name_VARIABLE_NAME{VAR}}}},
-	+defined_var (BB, VAR), +handled (BB).
+	+defined_var (BB, VAR), +live_handled (BB).
 
 % globals with reflection - they may-define every variable, which means we
 % cannot say any variable is defined. So nothing happens.
 
 cfg_node (BB), BB = nblock{statement_Global {
 	global {_, variable_name_Reflection {_}}}},
-	+handled (BB).
+	+live_handled (BB).
 
 % Pre_op - the variable is both used and defined
 cfg_node (BB), BB = nblock{statement_Pre_op {
@@ -123,20 +123,20 @@ cfg_node (BB), BB = nblock{statement_Pre_op {
 	% TODO If VAR is simple, it may be defined here, in which case we can
 	% remove the definition if VAR is not live on exit, which is not reflected
 	% here. Add +defined (VAR).
-	+used_var (BB, VAR), +handled (BB).
+	+used_var (BB, VAR), +live_handled (BB).
 
 % Foreach statements
 cfg_node (BB), BB = nblock {statement_Foreach_reset{foreach_reset{_, VAR_NAME, _}}},
 	+used_var (BB, VAR_NAME),
-	+handled (BB).
+	+live_handled (BB).
 
 cfg_node (BB), BB = nblock {statement_Foreach_end{foreach_end{_, VAR_NAME, _}}},
 	+used_var (BB, VAR_NAME),
-	+handled (BB).
+	+live_handled (BB).
 
 cfg_node (BB), BB = nblock {statement_Foreach_next{foreach_next{_, VAR_NAME, _}}},
 	+used_var (BB, VAR_NAME),
-	+handled (BB).
+	+live_handled (BB).
 
 
 
@@ -147,24 +147,24 @@ cfg_node (BB), BB = nblock {statement_Foreach_next{foreach_next{_, VAR_NAME, _}}
 predicate use_expr (BB:t_cfg_node, EXPR:t_Expr).
 
 % Literals
-use_expr (BB, expr_INT{_}), +handled (BB).
-use_expr (BB, expr_STRING{_}), +handled (BB).
-use_expr (BB, expr_BOOL{_}), +handled (BB).
-use_expr (BB, expr_REAL{_}), +handled (BB).
+use_expr (BB, expr_INT{_}), +live_handled (BB).
+use_expr (BB, expr_STRING{_}), +live_handled (BB).
+use_expr (BB, expr_BOOL{_}), +live_handled (BB).
+use_expr (BB, expr_REAL{_}), +live_handled (BB).
 
 % Variables
 use_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
 	+used_var (BB, VAR_NAME),
-	+handled (BB).
+	+live_handled (BB).
 
 use_expr (BB, expr_Index_array {index_array{_, ARRAY_NAME, INDEX_NAME}}),
 	+used_var (BB, INDEX_NAME),
 	+used_var (BB, ARRAY_NAME),
-	+handled (BB).
+	+live_handled (BB).
 
 use_expr (BB, expr_Variable_variable {variable_variable{_, _}}),
 	+used (BB, lv_bottom),
-	+handled (BB).
+	+live_handled (BB).
 
 % Target_expr
 use_expr (BB, expr_Target_expr {target_expr{_, TARGET, VARIABLE_NAME}}),
@@ -186,39 +186,39 @@ use_expr (BB, expr_Target_expr {target_expr{_, TARGET, VARIABLE_NAME}}),
 		VARIABLE_NAME = variable_name_VARIABLE_NAME {VAR_NAME}, 
 		+used_var (BB, VAR_NAME)
 	)),
-	+handled (BB).
+	+live_handled (BB).
 
 
 % Cast_op
 use_expr (BB, expr_Cast {cast {_, _, VAR}}),
 	+used_var (BB, VAR),
-	+handled (BB).
+	+live_handled (BB).
 
 % Unary_op
 use_expr (BB, expr_Unary_op {unary_op {_, _, VAR}}),
 	+used_var (BB, VAR), 
-	+handled (BB).
+	+live_handled (BB).
 
 % Bin_op
 use_expr (BB, expr_Bin_op {bin_op {_, LEFT, _, RIGHT}}),
 	+used_var (BB, LEFT), 
 	+used_var (BB, RIGHT), 
-	+handled (BB).
+	+live_handled (BB).
 
 % Constant
 use_expr (BB, expr_Constant {_}), % no used vars
-	+handled (BB).
+	+live_handled (BB).
 
 % Foreach
 use_expr (BB, expr_Foreach_has_key{foreach_has_key{_, ARRAY, _}}),
-	+used_var (BB, ARRAY), +handled (BB).
+	+used_var (BB, ARRAY), +live_handled (BB).
 
 use_expr (BB, expr_Foreach_get_key{foreach_get_key{_, ARRAY, _}}),
-	+used_var (BB, ARRAY), +handled (BB).
+	+used_var (BB, ARRAY), +live_handled (BB).
 
 % Ignore key.
 use_expr (BB, expr_Foreach_get_val{foreach_get_val{_, ARRAY, _, _}}),
-	+used_var (BB, ARRAY), +handled (BB).
+	+used_var (BB, ARRAY), +live_handled (BB).
 
 
 % Method invocation
@@ -236,7 +236,7 @@ use_actual_params (BB, [PARAM|TAIL]),
 
 % TODO unsafe, this will succeed if one parameter succeeds, whereas it should fail if any of them fail.
 use_actual_params (BB, []),
-	+handled (BB).
+	+live_handled (BB).
 
 % VARIABLE_NAMEs
 predicate use_variable_names (BB:t_cfg_node, list[t_VARIABLE_NAME]).
@@ -257,17 +257,6 @@ out_annotation (BB, "BOTTOM") :- live_out (BB, lv_bottom).
 
 
 
-% Make sure all rules are handled
-predicate handled (BB:t_cfg_node).
-predicate error (BB:t_cfg_node).
-error (BB) :- 
-	cfg_node (BB),
-	~handled (BB),
-	tostring (BB, BB_STR),
-	((BB = nblock {B}, to_node (any{B}, NODE), mir()->source_rep (get_id (NODE), SOURCE))
-	;
-	(BB \= nblock{_}, SOURCE = "SOURCE NOT AVAILABLE")),
-	str_cat_list (["Error, not handled: ", BB_STR, " - ", SOURCE], ERROR),
-	+print (ERROR).
+% Error checking
+predicate live_handled (BB:t_cfg_node).
 
-assert ~error (_).

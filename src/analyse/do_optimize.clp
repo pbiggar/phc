@@ -4,7 +4,10 @@ import "cfgdot.clp".
 analyze session_name("cfg").
 
 % Perform Dead-code elimination.
+import "address_taken.clp".
 import "dce.clp".
+
+import "errors.clp".
 
 % After optimizations, iterate, generating a new version of the CFG, until it converges.
 import "do_versioning.clp".
