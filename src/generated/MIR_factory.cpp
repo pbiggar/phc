@@ -433,6 +433,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new LABEL_NAME(value);
     }
+    if(!strcmp(type_id, "HT_ITERATOR"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new HT_ITERATOR(value);
+    }
     if(!strcmp(type_id, "Statement_list"))
     {
     	List<Statement*>* list = new List<Statement*>;

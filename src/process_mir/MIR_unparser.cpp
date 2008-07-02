@@ -30,7 +30,12 @@ void MIR_unparser::unparse (IR::Node* in)
 {
 	Node* mir = dynamic_cast<Node*> (in);
 	AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
-	ast_unparser->unparse (ast);
+
+	// We dont return foreign_expr
+	if (ast == NULL)
+		unparse_foreign (in);
+	else
+		ast_unparser->unparse (ast);
 }
 
 void MIR_unparser::unparse_foreign (IR::Node* in)
@@ -97,7 +102,6 @@ void MIR_unparser::children_foreach_get_val (Foreach_get_val* in)
 
 void MIR_unparser::children_ht_iterator(HT_ITERATOR* in)
 {
-	// we leave out the $ to handle in the same manner as VARIABLE_NAME
 	echo (in->get_value_as_string ());
 }
 

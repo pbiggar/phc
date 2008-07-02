@@ -56,7 +56,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
  AST::Foreign_statement*,	// Goto*
- AST::Foreign_expr*,			// HT_ITERATOR*
+ AST::Identifier*,			// HT_ITERATOR* - is really a Foreign_expr
  AST::INT*,						// INT*
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
@@ -103,6 +103,11 @@ class MIR_to_AST : public MIR::Fold
  AST::Expr*						// Variable_variable*
 >
 {
+public:
+	MIR_to_AST ()
+	{
+		foreign_expr = NULL;
+	}
 
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
 	{
@@ -321,43 +326,53 @@ class MIR_to_AST : public MIR::Fold
 		return new AST::INTERFACE_NAME (orig->value);
 	}
 
-	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
+	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
+	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
+	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_statement (orig);
 	}
 
-	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
+	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Foreign_expr* iter) 
+	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Foreign_expr* iter) 
+	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Identifier* iter) 
 	{
 		return new AST::Foreign_expr (orig);
 	}
 
-	AST::Foreign_expr* fold_ht_iterator (MIR::HT_ITERATOR* orig)
+	AST::Identifier* fold_ht_iterator (MIR::HT_ITERATOR* orig)
 	{
-		return new AST::Foreign_expr (orig);
+		foreign_expr = new AST::Foreign_expr (orig);
+		return NULL;
 	}
 
+	AST::Foreign_expr* foreign_expr;	
 	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
+		// Trick to bypass type rules
+		if (rhs == NULL && foreign_expr != NULL)
+		{
+			rhs = foreign_expr;
+			foreign_expr = NULL;
+		}
+
+
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
@@ -431,6 +446,13 @@ class MIR_to_AST : public MIR::Fold
 
 	AST::Eval_expr* fold_impl_eval_expr (MIR::Eval_expr* orig, AST::Expr* expr) 
 	{
+		// Trick to bypass type rules
+		if (expr == NULL && foreign_expr != NULL)
+		{
+			expr = foreign_expr;
+			foreign_expr = NULL;
+		}
+
 		AST::Eval_expr* result;
 		result = new AST::Eval_expr(expr);
 		result->attrs = orig->attrs;

@@ -261,11 +261,6 @@ Expr* Transform::pre_foreign_expr(Foreign_expr* in)
     return in;
 }
 
-HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
-{
-    return in;
-}
-
 CLASS_NAME* Transform::pre_class_name(CLASS_NAME* in)
 {
     return in;
@@ -327,6 +322,11 @@ CONSTANT_NAME* Transform::pre_constant_name(CONSTANT_NAME* in)
 }
 
 LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
+{
+    return in;
+}
+
+HT_ITERATOR* Transform::pre_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
@@ -587,11 +587,6 @@ Expr* Transform::post_foreign_expr(Foreign_expr* in)
     return in;
 }
 
-HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
-{
-    return in;
-}
-
 CLASS_NAME* Transform::post_class_name(CLASS_NAME* in)
 {
     return in;
@@ -653,6 +648,11 @@ CONSTANT_NAME* Transform::post_constant_name(CONSTANT_NAME* in)
 }
 
 LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
+{
+    return in;
+}
+
+HT_ITERATOR* Transform::post_ht_iterator(HT_ITERATOR* in)
 {
     return in;
 }
@@ -955,10 +955,6 @@ void Transform::children_foreign_expr(Foreign_expr* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void Transform::children_ht_iterator(HT_ITERATOR* in)
-{
-}
-
 void Transform::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1008,6 +1004,10 @@ void Transform::children_constant_name(CONSTANT_NAME* in)
 }
 
 void Transform::children_label_name(LABEL_NAME* in)
+{
+}
+
+void Transform::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 

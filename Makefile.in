@@ -304,8 +304,8 @@ am_src_phc_OBJECTS = getopt1.$(OBJEXT) getopt.$(OBJEXT) \
 	Strip_unparser_attributes.$(OBJEXT) Token_conversion.$(OBJEXT) \
 	HIR_unparser.$(OBJEXT) debug.$(OBJEXT) fresh.$(OBJEXT) \
 	General.$(OBJEXT) IR.$(OBJEXT) PHP_unparser.$(OBJEXT) \
-	Foreach_uppering.$(OBJEXT) Goto_uppering.$(OBJEXT) \
-	MIR_unparser.$(OBJEXT)
+	XML_unparser.$(OBJEXT) Foreach_uppering.$(OBJEXT) \
+	Goto_uppering.$(OBJEXT) MIR_unparser.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -738,6 +738,7 @@ src_phc_SOURCES = \
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
+	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
 	src/process_mir/Foreach_uppering.cpp				\
 	src/process_mir/Foreach_uppering.h					\
@@ -1220,6 +1221,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Translate_empty.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_comment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/base64.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/canonical_unparser.Plo@am__quote@
@@ -2483,6 +2485,20 @@ PHP_unparser.obj: src/process_ir/PHP_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/PHP_unparser.cpp' object='PHP_unparser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PHP_unparser.obj `if test -f 'src/process_ir/PHP_unparser.cpp'; then $(CYGPATH_W) 'src/process_ir/PHP_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/PHP_unparser.cpp'; fi`
+
+XML_unparser.o: src/process_ir/XML_unparser.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XML_unparser.o -MD -MP -MF $(DEPDIR)/XML_unparser.Tpo -c -o XML_unparser.o `test -f 'src/process_ir/XML_unparser.cpp' || echo '$(srcdir)/'`src/process_ir/XML_unparser.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/XML_unparser.Tpo $(DEPDIR)/XML_unparser.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/XML_unparser.cpp' object='XML_unparser.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_unparser.o `test -f 'src/process_ir/XML_unparser.cpp' || echo '$(srcdir)/'`src/process_ir/XML_unparser.cpp
+
+XML_unparser.obj: src/process_ir/XML_unparser.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT XML_unparser.obj -MD -MP -MF $(DEPDIR)/XML_unparser.Tpo -c -o XML_unparser.obj `if test -f 'src/process_ir/XML_unparser.cpp'; then $(CYGPATH_W) 'src/process_ir/XML_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/XML_unparser.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/XML_unparser.Tpo $(DEPDIR)/XML_unparser.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_ir/XML_unparser.cpp' object='XML_unparser.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_unparser.obj `if test -f 'src/process_ir/XML_unparser.cpp'; then $(CYGPATH_W) 'src/process_ir/XML_unparser.cpp'; else $(CYGPATH_W) '$(srcdir)/src/process_ir/XML_unparser.cpp'; fi`
 
 Foreach_uppering.o: src/process_mir/Foreach_uppering.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Foreach_uppering.o -MD -MP -MF $(DEPDIR)/Foreach_uppering.Tpo -c -o Foreach_uppering.o `test -f 'src/process_mir/Foreach_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Foreach_uppering.cpp

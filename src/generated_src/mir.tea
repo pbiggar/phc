@@ -153,12 +153,12 @@ Branch ::= VARIABLE_NAME iftrue:LABEL_NAME iffalse:LABEL_NAME;
 Goto ::= LABEL_NAME ;
 Label ::= LABEL_NAME ;
 
-Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
-Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
+Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
+Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
+Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
+Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
+Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR ;
 
 {-
  - Additional structure 
@@ -166,7 +166,7 @@ Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long>
 
 Identifier ::=
 	  INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME 
-	  | CAST | OP | CONSTANT_NAME | LABEL_NAME
+	  | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	;  
 
 Foreign ::= Foreign_statement | Foreign_expr ;
@@ -491,25 +491,6 @@ public:
 		this->variable_name = variable_name;
 	}
 };
-
-class HT_ITERATOR
-{
-public:
-	HT_ITERATOR (long identifier)
-	{
-		value = identifier;
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-	}
-
-	String* get_value_as_string ()
-	{
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-		return new String(os.str());
-	}
-};
-
 
 class Identifier
 {

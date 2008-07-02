@@ -118,7 +118,7 @@ namespace MIR
 	HT_ITERATOR* fresh_iter ()
 	{
 		int suffix = fresh_suffix ();
-		HT_ITERATOR* result = new HT_ITERATOR (suffix);
+		HT_ITERATOR* result = new HT_ITERATOR (fresh ("ht_iterator", suffix));
 		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
 		return result;
 	}

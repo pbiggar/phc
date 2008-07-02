@@ -52,16 +52,6 @@ class CompiledVsInterpreted extends AsyncTest
 		return $string;
 	}
 
-	function handle_exit_failure ($exit, $async)
-	{
-		fail_on_output ($exit, $async);
-	}
-
-	function handle_err_failure (&$err, $async)
-	{
-		fail_on_output ($exit, $async);
-	}
-
 	function get_php_command ($subject)
 	{
 		return get_php_command_line ($subject);

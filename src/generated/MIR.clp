@@ -73,7 +73,6 @@ type t_Foreign.
 
 
 % Token declarations
-type t_HT_ITERATOR ::= hT_ITERATOR { ID:id, VALUE:int }.
 type t_CLASS_NAME ::= cLASS_NAME { ID:id, VALUE:string }.
 type t_INTERFACE_NAME ::= iNTERFACE_NAME { ID:id, VALUE:string }.
 type t_METHOD_NAME ::= mETHOD_NAME { ID:id, VALUE:string }.
@@ -87,6 +86,7 @@ type t_NIL ::= nIL { ID:id, VALUE:null }.
 type t_CAST ::= cAST { ID:id, VALUE:string }.
 type t_CONSTANT_NAME ::= cONSTANT_NAME { ID:id, VALUE:string }.
 type t_LABEL_NAME ::= lABEL_NAME { ID:id, VALUE:string }.
+type t_HT_ITERATOR ::= hT_ITERATOR { ID:id, VALUE:string }.
 
 
 
@@ -157,6 +157,7 @@ type t_Identifier ::=
 		| identifier_OP { t_OP } 
 		| identifier_CONSTANT_NAME { t_CONSTANT_NAME } 
 		| identifier_LABEL_NAME { t_LABEL_NAME } 
+		| identifier_HT_ITERATOR { t_HT_ITERATOR } 
 		.
 type t_Static_array_key ::= 
 		  static_array_key_INT { t_INT } 
@@ -606,12 +607,10 @@ to_node (any{identifier_CAST{ID}}, node_CAST{ID}) :- .
 to_node (any{identifier_OP{ID}}, node_OP{ID}) :- .
 to_node (any{identifier_CONSTANT_NAME{ID}}, node_CONSTANT_NAME{ID}) :- .
 to_node (any{identifier_LABEL_NAME{ID}}, node_LABEL_NAME{ID}) :- .
+to_node (any{identifier_HT_ITERATOR{ID}}, node_HT_ITERATOR{ID}) :- .
 to_node (any{foreign_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
 to_node (any{foreign_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
 
-
-to_node (any{hT_ITERATOR{ID, VALUE}}, node_HT_ITERATOR{hT_ITERATOR{ID, VALUE}}) :- .
-get_id (node_HT_ITERATOR{hT_ITERATOR{ID, _}}, ID) :- .
 
 to_node (any{cLASS_NAME{ID, VALUE}}, node_CLASS_NAME{cLASS_NAME{ID, VALUE}}) :- .
 get_id (node_CLASS_NAME{cLASS_NAME{ID, _}}, ID) :- .
@@ -651,6 +650,9 @@ get_id (node_CONSTANT_NAME{cONSTANT_NAME{ID, _}}, ID) :- .
 
 to_node (any{lABEL_NAME{ID, VALUE}}, node_LABEL_NAME{lABEL_NAME{ID, VALUE}}) :- .
 get_id (node_LABEL_NAME{lABEL_NAME{ID, _}}, ID) :- .
+
+to_node (any{hT_ITERATOR{ID, VALUE}}, node_HT_ITERATOR{hT_ITERATOR{ID, VALUE}}) :- .
+get_id (node_HT_ITERATOR{hT_ITERATOR{ID, _}}, ID) :- .
 
 
 
@@ -1094,11 +1096,6 @@ to_generic (node_Foreign_expr{NODE}, GENERIC) :-
 
 
 
-to_generic (node_HT_ITERATOR{NODE}, GENERIC) :-
-	NODE = hT_ITERATOR { _, HT_ITERATOR } ,
-	GEN_HT_ITERATOR = gint {HT_ITERATOR},
-	GENERIC = gnode{node_HT_ITERATOR{NODE}, "HT_ITERATOR", [GEN_HT_ITERATOR]}.
-
 to_generic (node_CLASS_NAME{NODE}, GENERIC) :-
 	NODE = cLASS_NAME { _, CLASS_NAME } ,
 	GEN_CLASS_NAME = gstring {CLASS_NAME},
@@ -1163,6 +1160,11 @@ to_generic (node_LABEL_NAME{NODE}, GENERIC) :-
 	NODE = lABEL_NAME { _, LABEL_NAME } ,
 	GEN_LABEL_NAME = gstring {LABEL_NAME},
 	GENERIC = gnode{node_LABEL_NAME{NODE}, "LABEL_NAME", [GEN_LABEL_NAME]}.
+
+to_generic (node_HT_ITERATOR{NODE}, GENERIC) :-
+	NODE = hT_ITERATOR { _, HT_ITERATOR } ,
+	GEN_HT_ITERATOR = gstring {HT_ITERATOR},
+	GENERIC = gnode{node_HT_ITERATOR{NODE}, "HT_ITERATOR", [GEN_HT_ITERATOR]}.
 
 
 
