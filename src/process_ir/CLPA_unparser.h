@@ -579,12 +579,6 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR_unparser
 >
 {
-	void pre_ht_iterator (MIR::HT_ITERATOR* in)
-	{
-		print_line (in->value);
-	}
-
-
 };
 
 #endif // PHC_CLPA_UNPARSER
