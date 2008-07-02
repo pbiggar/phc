@@ -16,6 +16,8 @@
 #include "lib/List.h"
 #include "cmdline.h"
 
+char* get_args_info_tab ();
+
 template
 <
 	class Script,
@@ -32,9 +34,13 @@ protected:
 
 	void print_indent()
 	{
-		extern gengetopt_args_info args_info;
+		// Because this is a header, we cant put extern args_info in the file.
+		// However, adding it in this scope is also confusing, since the compiler
+		// may think it has internal linkage, when it actually has external (a
+		// theory, I'm not sure of the exact problem). Anyway, the solution is to
+		// put the access to args_info in a separate file, and access it that way.
 		for(int i = 0; i < indent; i++)
-			os << args_info.tab_arg;
+			os << get_args_info_tab ();
 	}
 
 	bool needs_encoding(String* str)

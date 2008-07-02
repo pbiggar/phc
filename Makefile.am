@@ -206,6 +206,7 @@ src_phc_SOURCES =												\
 	src/process_ir/IR.h										\
 	src/process_ir/PHP_unparser.cpp						\
 	src/process_ir/PHP_unparser.h							\
+	src/process_ir/XML_unparser.cpp						\
 	src/process_ir/XML_unparser.h							\
 	src/process_mir/Foreach_uppering.cpp				\
 	src/process_mir/Foreach_uppering.h					\
