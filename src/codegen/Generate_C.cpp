@@ -2188,14 +2188,14 @@ class Pattern_foreach_reset: public Pattern
 	{
 		// declare the external iterator so outside local scope blocks
 		code
-			<< "HashPosition pos" << reset->value->iter->value << ";\n"
+			<< "HashPosition " << *reset->value->iter->value << ";\n"
 			<< "{\n";
 
 		read_simple (LOCAL, "fe_array", reset->value->array);
 		code 
 			<< "zend_hash_internal_pointer_reset_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << reset->value->iter->value << ");\n"
+			<< "						&" << *reset->value->iter->value << ");\n"
 			<< "}\n";
 	}
 
@@ -2218,7 +2218,7 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 		os
 			<< "int type = zend_hash_get_current_key_type_ex ("
 			<< "						fe_array->value.ht, "
-			<< "						&pos" << has_key->value->iter->value << ");\n"
+			<< "						&" << *has_key->value->iter->value << ");\n"
 			<< "ZVAL_BOOL(" << var << ", type != HASH_KEY_NON_EXISTANT);\n";
 	}
 
@@ -2245,7 +2245,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 			<< "						fe_array->value.ht,"
 			<< "						&str_index, &str_length, &num_index, "
 			<< "						0, "
-			<< "						&pos" << get_key->value->iter->value << ");\n"
+			<< "						&" << *get_key->value->iter->value << ");\n"
 			<< "if (result == HASH_KEY_IS_LONG)\n"
 			<< "{\n"
 			<< "	ZVAL_LONG (" << var << ", num_index);\n"
@@ -2284,7 +2284,7 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->iter->value << ");\n"
+				<< "						&" << *get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
@@ -2296,7 +2296,7 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 				<< "int result = zend_hash_get_current_data_ex (\n"
 				<< "						fe_array->value.ht, "
 				<<							"(void**)(&p_rhs), "
-				<< "						&pos" << get_val->value->iter->value << ");\n"
+				<< "						&" << *get_val->value->iter->value << ");\n"
 				<< "assert (result == SUCCESS);\n"
 				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
@@ -2325,7 +2325,7 @@ class Pattern_foreach_next: public Pattern
 		code 
 			<< "int result = zend_hash_move_forward_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << next->value->iter->value << ");\n"
+			<<							"&" << *next->value->iter->value << ");\n"
 			<< "assert (result == SUCCESS);\n";
 		code << "}\n";
 	}
@@ -2349,7 +2349,7 @@ class Pattern_foreach_end : public Pattern
 		code 
 			<< "zend_hash_internal_pointer_end_ex ("
 			<<							"fe_array->value.ht, "
-			<<							"&pos" << end->value->iter->value << ");\n";
+			<<							"&" << *end->value->iter->value << ");\n";
 		code << "}\n";
 	}
 
@@ -2440,9 +2440,16 @@ void Generate_C::children_statement(Statement* in)
 void Generate_C::pre_php_script(PHP_script* in)
 {
 	// For now, we simply include this.
-	ifstream file ("libphc.cpp");
-	assert (file.is_open ());
+	ifstream file;
 
+	// Check the current directory first. This means we can change libphc.cpp without recompiling or installing.
+	file.open ("libphc.cpp");
+
+	// Check the installed directory.
+	if (!file.is_open())
+		file.open (DATADIR "/phc/libphc.cpp");
+
+	assert (file.is_open ());
 	while (not file.eof ())
 	{
 		string str;

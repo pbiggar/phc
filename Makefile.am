@@ -44,6 +44,7 @@ src_phc_DEPENDENCIES = $(LIBLTDL)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
+pkgdata_DATA = libphc.cpp
 
 src_phc_SOURCES =												\
 	3rdparty/getopt/getopt1.c								\
