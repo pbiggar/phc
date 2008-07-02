@@ -78,7 +78,6 @@ public:
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
     virtual void pre_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* pre_foreign_expr(Foreign_expr* in);
-    virtual HT_ITERATOR* pre_ht_iterator(HT_ITERATOR* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
@@ -92,6 +91,7 @@ public:
     virtual CAST* pre_cast(CAST* in);
     virtual CONSTANT_NAME* pre_constant_name(CONSTANT_NAME* in);
     virtual LABEL_NAME* pre_label_name(LABEL_NAME* in);
+    virtual HT_ITERATOR* pre_ht_iterator(HT_ITERATOR* in);
 // Invoked after the children have been transformed
 public:
     virtual PHP_script* post_php_script(PHP_script* in);
@@ -145,7 +145,6 @@ public:
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
     virtual void post_foreign_statement(Foreign_statement* in, List<Statement*>* out);
     virtual Expr* post_foreign_expr(Foreign_expr* in);
-    virtual HT_ITERATOR* post_ht_iterator(HT_ITERATOR* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
@@ -159,6 +158,7 @@ public:
     virtual CAST* post_cast(CAST* in);
     virtual CONSTANT_NAME* post_constant_name(CONSTANT_NAME* in);
     virtual LABEL_NAME* post_label_name(LABEL_NAME* in);
+    virtual HT_ITERATOR* post_ht_iterator(HT_ITERATOR* in);
 // Transform the children of the node
 public:
     virtual void children_php_script(PHP_script* in);
@@ -214,7 +214,6 @@ public:
     virtual void children_foreign_expr(Foreign_expr* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_ht_iterator(HT_ITERATOR* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
@@ -228,6 +227,7 @@ public:
     virtual void children_cast(CAST* in);
     virtual void children_constant_name(CONSTANT_NAME* in);
     virtual void children_label_name(LABEL_NAME* in);
+    virtual void children_ht_iterator(HT_ITERATOR* in);
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
 public:

@@ -42,7 +42,6 @@ class Static_array_elem;
 class Static_array_key;
 class Identifier;
 class Foreign;
-class HT_ITERATOR;
 class Class_def;
 class Interface_def;
 class Method;
@@ -92,6 +91,7 @@ class OP;
 class CAST;
 class CONSTANT_NAME;
 class LABEL_NAME;
+class HT_ITERATOR;
 class INT;
 class REAL;
 class STRING;
@@ -101,7 +101,7 @@ class NIL;
 class Transform;
 class Visitor;
 
-// Node ::= PHP_script | Statement | Class_mod | Member | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Catch | Expr | Variable_name | Target | Method_name | Actual_parameter | Class_name | Static_value | Static_array_elem | Static_array_key | Identifier | Foreign | HT_ITERATOR<long>;
+// Node ::= PHP_script | Statement | Class_mod | Member | Signature | Method_mod | Formal_parameter | Type | Attr_mod | Name_with_default | Catch | Expr | Variable_name | Target | Method_name | Actual_parameter | Class_name | Static_value | Static_array_elem | Static_array_key | Identifier | Foreign;
 class Node : virtual public IR::Node
 {
 public:
@@ -705,7 +705,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME;
+// Identifier ::= INTERFACE_NAME | CLASS_NAME | METHOD_NAME | VARIABLE_NAME | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR;
 class Identifier : virtual public Node
 {
 public:
@@ -756,39 +756,6 @@ public:
 public:
     Foreign(IR ::Node* foreign);
     IR ::Node* foreign;
-};
-
-class HT_ITERATOR : virtual public Node
-{
-protected:
-    HT_ITERATOR();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    long value;
-public:
-    static const int ID = 52;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-    virtual bool match_value(HT_ITERATOR* that);
-public:
-    virtual bool equals(Node* in);
-    virtual bool equals_value(HT_ITERATOR* that);
-public:
-    virtual HT_ITERATOR* clone();
-    virtual long clone_value();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
-    virtual void assert_value_valid();
-public:
-    HT_ITERATOR(long identifier);
-    String* get_value_as_string();
 };
 
 // Class_def ::= Class_mod CLASS_NAME extends:CLASS_NAME? implements:INTERFACE_NAME* Member* ;
@@ -1798,7 +1765,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_reset ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_reset : virtual public Statement
 {
 public:
@@ -1828,7 +1795,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_next ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_next : virtual public Statement
 {
 public:
@@ -1858,7 +1825,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_end ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_end : virtual public Statement
 {
 public:
@@ -1888,7 +1855,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_has_key ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_has_key : virtual public Expr
 {
 public:
@@ -1918,7 +1885,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_get_key ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_get_key : virtual public Expr
 {
 public:
@@ -1948,7 +1915,7 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR<long> ;
+// Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_get_val : virtual public Expr
 {
 public:
@@ -2047,7 +2014,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 53;
+    static const int ID = 52;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2076,7 +2043,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 54;
+    static const int ID = 53;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2105,7 +2072,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 55;
+    static const int ID = 54;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2134,7 +2101,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 56;
+    static const int ID = 55;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2163,7 +2130,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 57;
+    static const int ID = 56;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2192,7 +2159,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 63;
+    static const int ID = 62;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2221,7 +2188,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 64;
+    static const int ID = 63;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2250,7 +2217,7 @@ public:
     String* value;
     virtual String* get_value_as_string();
 public:
-    static const int ID = 65;
+    static const int ID = 64;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2258,6 +2225,35 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual LABEL_NAME* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+};
+
+class HT_ITERATOR : virtual public Identifier
+{
+public:
+    HT_ITERATOR(String* value);
+protected:
+    HT_ITERATOR();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    String* value;
+    virtual String* get_value_as_string();
+public:
+    static const int ID = 65;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual HT_ITERATOR* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -2278,7 +2274,7 @@ public:
 public:
     long value;
 public:
-    static const int ID = 58;
+    static const int ID = 57;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2317,7 +2313,7 @@ public:
 public:
     double value;
 public:
-    static const int ID = 59;
+    static const int ID = 58;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2355,7 +2351,7 @@ public:
 public:
     String* value;
 public:
-    static const int ID = 60;
+    static const int ID = 59;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2390,7 +2386,7 @@ public:
 public:
     bool value;
 public:
-    static const int ID = 61;
+    static const int ID = 60;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2423,7 +2419,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 62;
+    static const int ID = 61;
     virtual int classid();
 public:
     virtual bool match(Node* in);

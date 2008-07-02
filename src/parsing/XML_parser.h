@@ -405,26 +405,49 @@ public:
 
 class AST_XML_parser : public XML_parser 
 <
-	AST::PHP_script, 
-	AST::Node, 
-	AST::Node_factory, 
-	AST::STRING, 
-	AST::CAST, 
-	AST::INT, 
-	AST::REAL, 
-	AST::BOOL, 
+	AST::PHP_script,
+	AST::Node,
+	AST::Node_factory,
+	AST::STRING,
+	AST::CAST,
+	AST::INT,
+	AST::REAL,
+	AST::BOOL,
 	AST::NIL
 >
 {
 };
 
-class HIR_XML_parser : public XML_parser <HIR::PHP_script, HIR::Node, HIR::Node_factory, HIR::STRING, HIR::CAST, HIR::INT, HIR::REAL, HIR::BOOL, HIR::NIL>
+class HIR_XML_parser : public XML_parser
+<
+	HIR::PHP_script,
+	HIR::Node,
+	HIR::Node_factory,
+	HIR::STRING,
+	HIR::CAST,
+	HIR::INT,
+	HIR::REAL,
+	HIR::BOOL,
+	HIR::NIL
+>
 {
 };
 
-class MIR_XML_parser : public XML_parser <MIR::PHP_script, MIR::Node, MIR::Node_factory, MIR::STRING, MIR::CAST, MIR::INT, MIR::REAL, MIR::BOOL, MIR::NIL>
+class MIR_XML_parser : public XML_parser
+<
+	MIR::PHP_script,
+	MIR::Node,
+	MIR::Node_factory,
+	MIR::STRING,
+	MIR::CAST,
+	MIR::INT,
+	MIR::REAL,
+	MIR::BOOL,
+	MIR::NIL
+>
 {
 };
+
 #endif // HAVE_XERCES
 
 #endif // PHC_XML_PARSER_H

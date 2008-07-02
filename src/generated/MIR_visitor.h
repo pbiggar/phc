@@ -91,7 +91,6 @@ public:
     virtual void pre_foreign(Foreign* in);
     virtual void pre_foreign_statement(Foreign_statement* in);
     virtual void pre_foreign_expr(Foreign_expr* in);
-    virtual void pre_ht_iterator(HT_ITERATOR* in);
     virtual void pre_class_name(CLASS_NAME* in);
     virtual void pre_interface_name(INTERFACE_NAME* in);
     virtual void pre_method_name(METHOD_NAME* in);
@@ -105,6 +104,7 @@ public:
     virtual void pre_cast(CAST* in);
     virtual void pre_constant_name(CONSTANT_NAME* in);
     virtual void pre_label_name(LABEL_NAME* in);
+    virtual void pre_ht_iterator(HT_ITERATOR* in);
 // Invoked after the children have been visited
 public:
     virtual void post_node(Node* in);
@@ -171,7 +171,6 @@ public:
     virtual void post_foreign(Foreign* in);
     virtual void post_foreign_statement(Foreign_statement* in);
     virtual void post_foreign_expr(Foreign_expr* in);
-    virtual void post_ht_iterator(HT_ITERATOR* in);
     virtual void post_class_name(CLASS_NAME* in);
     virtual void post_interface_name(INTERFACE_NAME* in);
     virtual void post_method_name(METHOD_NAME* in);
@@ -185,6 +184,7 @@ public:
     virtual void post_cast(CAST* in);
     virtual void post_constant_name(CONSTANT_NAME* in);
     virtual void post_label_name(LABEL_NAME* in);
+    virtual void post_ht_iterator(HT_ITERATOR* in);
 // Visit the children of a node
 public:
     virtual void children_php_script(PHP_script* in);
@@ -240,7 +240,6 @@ public:
     virtual void children_foreign_expr(Foreign_expr* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
-    virtual void children_ht_iterator(HT_ITERATOR* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
@@ -254,6 +253,7 @@ public:
     virtual void children_cast(CAST* in);
     virtual void children_constant_name(CONSTANT_NAME* in);
     virtual void children_label_name(LABEL_NAME* in);
+    virtual void children_ht_iterator(HT_ITERATOR* in);
 // Unparser support
 public:
     virtual void visit_marker(char const* name, bool value);
@@ -315,7 +315,6 @@ public:
     virtual void pre_foreach_get_val_chain(Foreach_get_val* in);
     virtual void pre_foreign_statement_chain(Foreign_statement* in);
     virtual void pre_foreign_expr_chain(Foreign_expr* in);
-    virtual void pre_ht_iterator_chain(HT_ITERATOR* in);
     virtual void pre_class_name_chain(CLASS_NAME* in);
     virtual void pre_interface_name_chain(INTERFACE_NAME* in);
     virtual void pre_method_name_chain(METHOD_NAME* in);
@@ -329,6 +328,7 @@ public:
     virtual void pre_cast_chain(CAST* in);
     virtual void pre_constant_name_chain(CONSTANT_NAME* in);
     virtual void pre_label_name_chain(LABEL_NAME* in);
+    virtual void pre_ht_iterator_chain(HT_ITERATOR* in);
 // Invoke the chain of post-visit methods along the inheritance hierarchy
 // (invoked in opposite order to the pre-chain)
 // Do not override unless you know what you are doing
@@ -384,7 +384,6 @@ public:
     virtual void post_foreach_get_val_chain(Foreach_get_val* in);
     virtual void post_foreign_statement_chain(Foreign_statement* in);
     virtual void post_foreign_expr_chain(Foreign_expr* in);
-    virtual void post_ht_iterator_chain(HT_ITERATOR* in);
     virtual void post_class_name_chain(CLASS_NAME* in);
     virtual void post_interface_name_chain(INTERFACE_NAME* in);
     virtual void post_method_name_chain(METHOD_NAME* in);
@@ -398,6 +397,7 @@ public:
     virtual void post_cast_chain(CAST* in);
     virtual void post_constant_name_chain(CONSTANT_NAME* in);
     virtual void post_label_name_chain(LABEL_NAME* in);
+    virtual void post_ht_iterator_chain(HT_ITERATOR* in);
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
 public:

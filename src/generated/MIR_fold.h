@@ -721,7 +721,6 @@ public:
 	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
 	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
 
-	virtual _HT_ITERATOR fold_ht_iterator(HT_ITERATOR* orig) { assert(0); };
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
@@ -735,6 +734,7 @@ public:
 	virtual _CAST fold_cast(CAST* orig) { assert(0); };
 	virtual _CONSTANT_NAME fold_constant_name(CONSTANT_NAME* orig) { assert(0); };
 	virtual _LABEL_NAME fold_label_name(LABEL_NAME* orig) { assert(0); };
+	virtual _HT_ITERATOR fold_ht_iterator(HT_ITERATOR* orig) { assert(0); };
 
 
 // Manual dispatching for abstract classes
@@ -1117,6 +1117,8 @@ public:
 				return fold_constant_name(dynamic_cast<CONSTANT_NAME*>(in));
 			case LABEL_NAME::ID:
 				return fold_label_name(dynamic_cast<LABEL_NAME*>(in));
+			case HT_ITERATOR::ID:
+				return fold_ht_iterator(dynamic_cast<HT_ITERATOR*>(in));
 		}
 		assert(0);
 	}

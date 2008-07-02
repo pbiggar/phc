@@ -1919,120 +1919,6 @@ Foreign::Foreign(IR ::Node* foreign)
 	}
 }
 
-HT_ITERATOR::HT_ITERATOR()
-{
-    this->value = 0;
-}
-
-void HT_ITERATOR::visit(Visitor* visitor)
-{
-    visitor->visit_ht_iterator(this);
-}
-
-void HT_ITERATOR::transform_children(Transform* transform)
-{
-    transform->children_ht_iterator(this);
-}
-
-int HT_ITERATOR::classid()
-{
-    return ID;
-}
-
-bool HT_ITERATOR::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
-    if(that == NULL) return false;
-    
-    if(!match_value(that))
-    	return false;
-    else
-    	return true;
-}
-
-bool HT_ITERATOR::match_value(HT_ITERATOR* that)
-{
-    return true;
-}
-
-bool HT_ITERATOR::equals(Node* in)
-{
-    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
-    if(that == NULL) return false;
-    
-    if(!equals_value(that))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-bool HT_ITERATOR::equals_value(HT_ITERATOR* that)
-{
-    return (this->value == that->value);
-}
-
-HT_ITERATOR* HT_ITERATOR::clone()
-{
-    value = clone_value();
-    HT_ITERATOR* clone = new HT_ITERATOR(value);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-long HT_ITERATOR::clone_value()
-{
-    return value;
-}
-
-Node* HT_ITERATOR::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void HT_ITERATOR::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-}
-
-void HT_ITERATOR::assert_valid()
-{
-    assert_value_valid();
-    Node::assert_mixin_valid();
-}
-
-void HT_ITERATOR::assert_value_valid()
-{
-    // Assume value is valid
-}
-
-HT_ITERATOR::HT_ITERATOR(long identifier)
-{
-    {
-		value = identifier;
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-	}
-}
-
-String* HT_ITERATOR::get_value_as_string()
-{
-    {
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-		return new String(os.str());
-	}
-}
-
 Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
 {
     this->class_mod = class_mod;
@@ -8686,6 +8572,97 @@ void LABEL_NAME::find_all(Node* in, List<Node*>* out)
 }
 
 void LABEL_NAME::assert_valid()
+{
+    assert(value != NULL);
+    Node::assert_mixin_valid();
+}
+
+HT_ITERATOR::HT_ITERATOR(String* value)
+{
+    this->value = value;
+}
+
+HT_ITERATOR::HT_ITERATOR()
+{
+    this->value = 0;
+}
+
+void HT_ITERATOR::visit(Visitor* visitor)
+{
+    visitor->visit_ht_iterator(this);
+}
+
+void HT_ITERATOR::transform_children(Transform* transform)
+{
+    transform->children_ht_iterator(this);
+}
+
+String* HT_ITERATOR::get_value_as_string()
+{
+    return value;
+}
+
+int HT_ITERATOR::classid()
+{
+    return ID;
+}
+
+bool HT_ITERATOR::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool HT_ITERATOR::equals(Node* in)
+{
+    HT_ITERATOR* that = dynamic_cast<HT_ITERATOR*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+HT_ITERATOR* HT_ITERATOR::clone()
+{
+    String* value = new String(*this->value);
+    HT_ITERATOR* clone = new HT_ITERATOR(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* HT_ITERATOR::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void HT_ITERATOR::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void HT_ITERATOR::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();

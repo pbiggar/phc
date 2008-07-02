@@ -262,10 +262,6 @@ void Visitor::pre_foreign_expr(Foreign_expr* in)
 {
 }
 
-void Visitor::pre_ht_iterator(HT_ITERATOR* in)
-{
-}
-
 void Visitor::pre_class_name(CLASS_NAME* in)
 {
 }
@@ -315,6 +311,10 @@ void Visitor::pre_constant_name(CONSTANT_NAME* in)
 }
 
 void Visitor::pre_label_name(LABEL_NAME* in)
+{
+}
+
+void Visitor::pre_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -575,10 +575,6 @@ void Visitor::post_foreign_expr(Foreign_expr* in)
 {
 }
 
-void Visitor::post_ht_iterator(HT_ITERATOR* in)
-{
-}
-
 void Visitor::post_class_name(CLASS_NAME* in)
 {
 }
@@ -628,6 +624,10 @@ void Visitor::post_constant_name(CONSTANT_NAME* in)
 }
 
 void Visitor::post_label_name(LABEL_NAME* in)
+{
+}
+
+void Visitor::post_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -951,10 +951,6 @@ void Visitor::children_foreign_expr(Foreign_expr* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
-void Visitor::children_ht_iterator(HT_ITERATOR* in)
-{
-}
-
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1004,6 +1000,10 @@ void Visitor::children_constant_name(CONSTANT_NAME* in)
 }
 
 void Visitor::children_label_name(LABEL_NAME* in)
+{
+}
+
+void Visitor::children_ht_iterator(HT_ITERATOR* in)
 {
 }
 
@@ -1383,12 +1383,6 @@ void Visitor::pre_foreign_expr_chain(Foreign_expr* in)
     pre_foreign_expr((Foreign_expr*) in);
 }
 
-void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
-{
-    pre_node((Node*) in);
-    pre_ht_iterator((HT_ITERATOR*) in);
-}
-
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
 {
     pre_node((Node*) in);
@@ -1498,6 +1492,13 @@ void Visitor::pre_label_name_chain(LABEL_NAME* in)
     pre_node((Node*) in);
     pre_identifier((Identifier*) in);
     pre_label_name((LABEL_NAME*) in);
+}
+
+void Visitor::pre_ht_iterator_chain(HT_ITERATOR* in)
+{
+    pre_node((Node*) in);
+    pre_identifier((Identifier*) in);
+    pre_ht_iterator((HT_ITERATOR*) in);
 }
 
 // Invoke the chain of post-visit methods along the inheritance hierarchy
@@ -1856,12 +1857,6 @@ void Visitor::post_foreign_expr_chain(Foreign_expr* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
-{
-    post_ht_iterator((HT_ITERATOR*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_class_name_chain(CLASS_NAME* in)
 {
     post_class_name((CLASS_NAME*) in);
@@ -1969,6 +1964,13 @@ void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 void Visitor::post_label_name_chain(LABEL_NAME* in)
 {
     post_label_name((LABEL_NAME*) in);
+    post_identifier((Identifier*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_ht_iterator_chain(HT_ITERATOR* in)
+{
+    post_ht_iterator((HT_ITERATOR*) in);
     post_identifier((Identifier*) in);
     post_node((Node*) in);
 }
