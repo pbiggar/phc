@@ -2440,9 +2440,16 @@ void Generate_C::children_statement(Statement* in)
 void Generate_C::pre_php_script(PHP_script* in)
 {
 	// For now, we simply include this.
-	ifstream file ("libphc.cpp");
-	assert (file.is_open ());
+	ifstream file;
 
+	// Check the current directory first. This means we can change libphc.cpp without recompiling or installing.
+	file.open ("libphc.cpp");
+
+	// Check the installed directory.
+	if (!file.is_open())
+		file.open (DATADIR "/phc/libphc.cpp");
+
+	assert (file.is_open ());
 	while (not file.eof ())
 	{
 		string str;
