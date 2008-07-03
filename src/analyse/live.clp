@@ -151,6 +151,7 @@ use_expr (BB, expr_INT{_}), +live_handled (BB).
 use_expr (BB, expr_STRING{_}), +live_handled (BB).
 use_expr (BB, expr_BOOL{_}), +live_handled (BB).
 use_expr (BB, expr_REAL{_}), +live_handled (BB).
+use_expr (BB, expr_NIL{_}), +live_handled (BB).
 
 % Variables
 use_expr (BB, expr_Variable{variable{_, VAR_NAME}}),

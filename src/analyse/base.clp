@@ -57,7 +57,7 @@ type t_generic ::= gnode{t_Node, TYPE:string, ARGS:list[t_generic]}
 					  | gint{int}
 					  | gfloat{float}
 					  | gbool{bool}
-					  | gnull{null}
+					  | gnull
 					  .
 
 predicate to_generic (in NODE:t_Node, out GENERIC:t_generic) succeeds [once].

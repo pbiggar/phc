@@ -76,19 +76,19 @@ type t_Source_rep.
 
 
 % Token declarations
-type t_CLASS_NAME ::= cLASS_NAME { ID:id, VALUE:string }.
-type t_INTERFACE_NAME ::= iNTERFACE_NAME { ID:id, VALUE:string }.
-type t_METHOD_NAME ::= mETHOD_NAME { ID:id, VALUE:string }.
-type t_VARIABLE_NAME ::= vARIABLE_NAME { ID:id, VALUE:string }.
-type t_DIRECTIVE_NAME ::= dIRECTIVE_NAME { ID:id, VALUE:string }.
-type t_INT ::= iNT { ID:id, VALUE:int }.
-type t_REAL ::= rEAL { ID:id, VALUE:float }.
-type t_STRING ::= sTRING { ID:id, VALUE:string }.
-type t_BOOL ::= bOOL { ID:id, VALUE:bool }.
-type t_NIL ::= nIL { ID:id, VALUE:null }.
-type t_OP ::= oP { ID:id, VALUE:string }.
-type t_CAST ::= cAST { ID:id, VALUE:string }.
-type t_CONSTANT_NAME ::= cONSTANT_NAME { ID:id, VALUE:string }.
+type t_CLASS_NAME ::= cLASS_NAME { ID:id, VALUE:string}.
+type t_INTERFACE_NAME ::= iNTERFACE_NAME { ID:id, VALUE:string}.
+type t_METHOD_NAME ::= mETHOD_NAME { ID:id, VALUE:string}.
+type t_VARIABLE_NAME ::= vARIABLE_NAME { ID:id, VALUE:string}.
+type t_DIRECTIVE_NAME ::= dIRECTIVE_NAME { ID:id, VALUE:string}.
+type t_INT ::= iNT { ID:id, VALUE:int}.
+type t_REAL ::= rEAL { ID:id, VALUE:float}.
+type t_STRING ::= sTRING { ID:id, VALUE:string}.
+type t_BOOL ::= bOOL { ID:id, VALUE:bool}.
+type t_NIL ::= nIL { ID:id}.
+type t_OP ::= oP { ID:id, VALUE:string}.
+type t_CAST ::= cAST { ID:id, VALUE:string}.
+type t_CONSTANT_NAME ::= cONSTANT_NAME { ID:id, VALUE:string}.
 
 
 
@@ -718,43 +718,43 @@ to_node (any{source_rep_NIL{ID}}, node_NIL{ID}) :- .
 
 
 to_node (any{cLASS_NAME{ID, VALUE}}, node_CLASS_NAME{cLASS_NAME{ID, VALUE}}) :- .
-get_id (node_CLASS_NAME{cLASS_NAME{ID, _}}, ID) :- .
+get_id (node_CLASS_NAME{cLASS_NAME{ID, VALUE}}, ID) :- .
 
 to_node (any{iNTERFACE_NAME{ID, VALUE}}, node_INTERFACE_NAME{iNTERFACE_NAME{ID, VALUE}}) :- .
-get_id (node_INTERFACE_NAME{iNTERFACE_NAME{ID, _}}, ID) :- .
+get_id (node_INTERFACE_NAME{iNTERFACE_NAME{ID, VALUE}}, ID) :- .
 
 to_node (any{mETHOD_NAME{ID, VALUE}}, node_METHOD_NAME{mETHOD_NAME{ID, VALUE}}) :- .
-get_id (node_METHOD_NAME{mETHOD_NAME{ID, _}}, ID) :- .
+get_id (node_METHOD_NAME{mETHOD_NAME{ID, VALUE}}, ID) :- .
 
 to_node (any{vARIABLE_NAME{ID, VALUE}}, node_VARIABLE_NAME{vARIABLE_NAME{ID, VALUE}}) :- .
-get_id (node_VARIABLE_NAME{vARIABLE_NAME{ID, _}}, ID) :- .
+get_id (node_VARIABLE_NAME{vARIABLE_NAME{ID, VALUE}}, ID) :- .
 
 to_node (any{dIRECTIVE_NAME{ID, VALUE}}, node_DIRECTIVE_NAME{dIRECTIVE_NAME{ID, VALUE}}) :- .
-get_id (node_DIRECTIVE_NAME{dIRECTIVE_NAME{ID, _}}, ID) :- .
+get_id (node_DIRECTIVE_NAME{dIRECTIVE_NAME{ID, VALUE}}, ID) :- .
 
 to_node (any{iNT{ID, VALUE}}, node_INT{iNT{ID, VALUE}}) :- .
-get_id (node_INT{iNT{ID, _}}, ID) :- .
+get_id (node_INT{iNT{ID, VALUE}}, ID) :- .
 
 to_node (any{rEAL{ID, VALUE}}, node_REAL{rEAL{ID, VALUE}}) :- .
-get_id (node_REAL{rEAL{ID, _}}, ID) :- .
+get_id (node_REAL{rEAL{ID, VALUE}}, ID) :- .
 
 to_node (any{sTRING{ID, VALUE}}, node_STRING{sTRING{ID, VALUE}}) :- .
-get_id (node_STRING{sTRING{ID, _}}, ID) :- .
+get_id (node_STRING{sTRING{ID, VALUE}}, ID) :- .
 
 to_node (any{bOOL{ID, VALUE}}, node_BOOL{bOOL{ID, VALUE}}) :- .
-get_id (node_BOOL{bOOL{ID, _}}, ID) :- .
+get_id (node_BOOL{bOOL{ID, VALUE}}, ID) :- .
 
-to_node (any{nIL{ID, VALUE}}, node_NIL{nIL{ID, VALUE}}) :- .
-get_id (node_NIL{nIL{ID, _}}, ID) :- .
+to_node (any{nIL{ID}}, node_NIL{nIL{ID}}) :- .
+get_id (node_NIL{nIL{ID}}, ID) :- .
 
 to_node (any{oP{ID, VALUE}}, node_OP{oP{ID, VALUE}}) :- .
-get_id (node_OP{oP{ID, _}}, ID) :- .
+get_id (node_OP{oP{ID, VALUE}}, ID) :- .
 
 to_node (any{cAST{ID, VALUE}}, node_CAST{cAST{ID, VALUE}}) :- .
-get_id (node_CAST{cAST{ID, _}}, ID) :- .
+get_id (node_CAST{cAST{ID, VALUE}}, ID) :- .
 
 to_node (any{cONSTANT_NAME{ID, VALUE}}, node_CONSTANT_NAME{cONSTANT_NAME{ID, VALUE}}) :- .
-get_id (node_CONSTANT_NAME{cONSTANT_NAME{ID, _}}, ID) :- .
+get_id (node_CONSTANT_NAME{cONSTANT_NAME{ID, VALUE}}, ID) :- .
 
 
 
@@ -1285,8 +1285,8 @@ to_generic (node_BOOL{NODE}, GENERIC) :-
 	GENERIC = gnode{node_BOOL{NODE}, "BOOL", [GEN_BOOL]}.
 
 to_generic (node_NIL{NODE}, GENERIC) :-
-	NODE = nIL { _, NIL } ,
-	GEN_NIL = gnull {NIL},
+	NODE = nIL { _ } ,
+	GEN_NIL = gnull,
 	GENERIC = gnode{node_NIL{NODE}, "NIL", [GEN_NIL]}.
 
 to_generic (node_OP{NODE}, GENERIC) :-

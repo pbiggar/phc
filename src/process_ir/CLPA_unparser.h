@@ -74,13 +74,14 @@ template
 	class STRING,
 	class BOOL,
 	class REAL,
+	class NIL,
 	class Identifier,
 	class Visitor,
 	class Unparser
 >
 class CLPA_unparser : public Visitor 
 {
-	typedef CLPA_unparser<PHP_script, Node, Literal, STRING, BOOL, REAL, Identifier, Visitor, Unparser> Parent;
+	typedef CLPA_unparser<PHP_script, Node, Literal, STRING, BOOL, REAL, NIL, Identifier, Visitor, Unparser> Parent;
 
 protected:
 	String* uc_prefix;
@@ -294,6 +295,12 @@ public:
 			{
 				REAL* real = dynamic_cast<REAL*> (in);
 				print_real (real->value); // TODO fixed precision
+				break;
+			}
+
+			case NIL::ID:
+			{
+				// Do nothing 
 				break;
 			}
 
@@ -548,6 +555,7 @@ class AST_CLPA_unparser : public CLPA_unparser
 	AST::STRING,
 	AST::BOOL,
 	AST::REAL,
+	AST::NIL,
 	AST::Identifier,
 	AST::Visitor,
 	AST_unparser
@@ -564,6 +572,7 @@ class HIR_CLPA_unparser : public CLPA_unparser
 	HIR::STRING,
 	HIR::BOOL,
 	HIR::REAL,
+	HIR::NIL,
 	HIR::Identifier,
 	HIR::Visitor,
 	HIR_unparser
@@ -580,6 +589,7 @@ class MIR_CLPA_unparser : public CLPA_unparser
 	MIR::STRING,
 	MIR::BOOL,
 	MIR::REAL,
+	MIR::NIL,
 	MIR::Identifier,
 	MIR::Visitor,
 	MIR_unparser
