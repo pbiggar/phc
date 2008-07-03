@@ -13,8 +13,7 @@ using namespace MIR;
 void Foreach_uppering::pre_foreach_reset (MIR::Foreach_reset* in, List<Statement*>* out)
 {
 	(*out
-		<< "if (!is_array ($" << in->array << ")) trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
-		<< "$" << in->iter << " = new ArrayObject ((array)($" << in->array << "));\n"
+		<< "$" << in->iter << " = new ArrayObject ($" << in->array << ");\n"
 		<< "$" << in->iter << " = $" << in->iter << "->getIterator();"
 	).finish (in);
 }
