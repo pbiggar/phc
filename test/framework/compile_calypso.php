@@ -74,6 +74,12 @@ class CompileCalypso extends AsyncTest
 			return false;
 		}
 
+		if (preg_match ("/^WARNING: .*/m", $out, $matches))
+		{
+			$this->async_failure ("Warning in pass: $matches[0]", $async);
+			return false;
+		}
+
 		return $out;
 	}
 
