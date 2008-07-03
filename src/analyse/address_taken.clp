@@ -23,7 +23,6 @@ predicate alias_handled (BB:t_cfg_node).
 % No aliases
 alias_handled (BB) :- cfg_node (BB), 
 	(	  BB = nentry{_} 
-		; BB = nexit{_}
 		; BB = nempty{_}
 		; BB = nbranch{_,_,_}
 		; BB = nblock {statement_Assign_var {assign_var {_, _, false, _}}}
@@ -37,6 +36,25 @@ alias_handled (BB) :- cfg_node (BB),
 
 predicate aliased (t_VARIABLE_NAME).
 aliased (vARIABLE_NAME{_, VAR_NAME}), +in_alias_set (alias_var{VAR_NAME}).
+
+
+% Handle formal parameters
+cfg_node (BB),
+	BB = nexit{method{_, signature{_, _, _, _, PARAMS}, _}},
+	+alias_formal_params (BB, PARAMS).
+
+predicate alias_formal_params (BB:t_cfg_node, list[t_Formal_parameter]).
+
+% No target, empty list, VARIABLE_NAME
+alias_formal_params (BB, [PARAM|TAIL]),
+	PARAM = formal_parameter {_, _, _, name_with_default{_, VAR_NAME, _}},
+	+aliased (VAR_NAME),
+	+alias_formal_params (BB, TAIL).
+
+% All params must be handled to get this far
+alias_formal_params (BB, []),
+	+alias_handled (BB).
+
 
 
 
