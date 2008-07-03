@@ -3,11 +3,11 @@
 % Error handling
 
 predicate error_in (BB:t_cfg_node, NAME:string).
-error_in (BB, NAME) :- 
+error_in (BB, MESSAGE) :-
 	cfg_node (BB),
 	(
-	  ~live_handled (BB), NAME = "LIVE"
-	; ~alias_handled (BB), NAME = "ALIAS"
+	  ~live_handled (BB), MESSAGE = "LIVE"
+	; ~alias_handled (BB), MESSAGE = "ALIAS"
 	).
 
 % This is done in separate predicates so that the error will print before the
