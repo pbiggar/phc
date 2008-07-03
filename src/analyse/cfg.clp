@@ -17,7 +17,10 @@ type t_cfg_node ::=
 | nempty{t_Statement} % We replace labels and gotos with empty blocks
 .
 
-predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node) order[N0, N1].
+predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node).
+
+% Can't have an edge to itself.
+assert ~cfg_edge (BB, BB).
 
 % CFG nodes are inferred from cfg_edges
 predicate cfg_node (N:t_cfg_node).
