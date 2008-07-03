@@ -68,7 +68,7 @@ live_in (BB, VAR) :-
 % Extensional rules (from the predicates).
 
 % Entry and exit - nothing to do here
-live_handled (BB) :- cfg_node (BB), (BB = nentry{_} ; BB = nexit{_}).
+live_handled (BB) :- cfg_node (BB), (BB = nentry{_} ; BB = nexit{_} ; BB = nempty{_}).
 
 % Branches - the var is used
 cfg_node (BB), BB = nbranch{VAR, _, _}, 

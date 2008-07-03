@@ -30,10 +30,14 @@ predicate order_nodes (PREV:list[t_cfg_node], STATEMENTS:list[t_Statement], NEXT
 predicate ordered_statements (STATEMENTS:list[t_Statement]).
 
 
-% Base case
-order_nodes (_, STATEMENTS, []), +ordered_statements (STATEMENTS).
+% No more statements to analyse
+order_nodes (_, STATEMENTS, []),
+	% Add the final label for the exit node
+	cfg_node (BB), BB = nexit{_},
+	list_append (STATEMENTS, [bb_label(BB)], ALL_STATEMENTS),
+	+ordered_statements (ALL_STATEMENTS).
 
-% Seen this before
+% Seen this statement before
 order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 	list_mem (PREV, BB), 
 	+order_nodes (PREV, STATEMENTS, TAIL).
@@ -60,18 +64,20 @@ cfg_node (BB),
 
 cfg_node (BB),
 	BB = nblock{S}, cfg_edge (BB, NEXT),
-	LABEL = bb_label (BB),
-	GOTO = bb_goto (NEXT),
-	STATEMENTS = [LABEL, S, GOTO],
-	+linear_statements (BB, STATEMENTS).
+	+linear_statements (BB, [bb_label (BB), S, bb_goto (NEXT)]).
 
 cfg_node (BB),
 	BB = nentry{_}, cfg_edge (BB, NEXT),
 	+linear_statements (BB, [bb_goto (NEXT)]).
 
+% This must be the last statement, but with DFS, it might not be. Add it later.
 cfg_node (BB),
 	BB = nexit{_},
-	+linear_statements (BB, [bb_label (BB)]).
+	+linear_statements (BB, []).
+
+cfg_node (BB),
+	BB = nempty{_}, cfg_edge (BB, NEXT),
+	+linear_statements (BB, [bb_label (BB), bb_goto (NEXT)]).
 
 
 

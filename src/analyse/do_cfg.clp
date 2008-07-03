@@ -103,20 +103,24 @@ dfs (N, p_s{S}, IS_TARGET, METHOD_NAME),
 		pp_edge (p_s{S}, P1), % get next pp
 		+dfs (N1, P1, no, METHOD_NAME).
 
-% Label - dont create a node or an edge, just follow the path
+% Label - create an empty statement and follow the path
 dfs (N, p_s{S}, IS_TARGET, METHOD_NAME), 
 	S = statement_Label{_},
+	N1 = nempty{S},
+	+method_edge (N, N1, IS_TARGET, METHOD_NAME),
 	% recurse
 		pp_edge (p_s{S}, P1), % get next pp
-		+dfs (N, P1, IS_TARGET, METHOD_NAME).
+		+dfs (N1, P1, IS_TARGET, METHOD_NAME).
 
-% Goto - dont create a node or an edge, just follow the path
-dfs (N, p_s{statement_Goto{G}}, IS_TARGET, METHOD_NAME),
-	G = goto {_, lABEL_NAME{_, LABEL_NAME}},
+% Goto - create and empty statement and follow the path
+dfs (N, p_s{S}, IS_TARGET, METHOD_NAME),
+	S = statement_Goto {goto {_, lABEL_NAME{_, LABEL_NAME}}},
+	N1 = nempty{S},
+	+method_edge (N, N1, IS_TARGET, METHOD_NAME),
 	% find target and recurse
 		% find the names of the labels for the branch targets
 			find_target (LABEL_NAME, PP),
-			+dfs (N, PP, IS_TARGET, METHOD_NAME).
+			+dfs (N1, PP, IS_TARGET, METHOD_NAME).
 
 
 % Branch - create a fake node, which will be fixed up later, and follow both

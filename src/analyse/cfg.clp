@@ -6,11 +6,15 @@ session cfg (METHOD:string, VERSION:int).
 
 % Phase 2: Build the CFG
 type t_cfg_node ::=
-	nentry{t_Method}				% function entry
-|	nexit{t_Method}				% function exit
-|	nblock{t_Statement}			% basic block (BBs only have 1 statement in them)
-	% branch (branches on the condition in t_VARIABLE_NAME)
-|	nbranch{t_VARIABLE_NAME, TRUE:t_cfg_node, FALSE:t_cfg_node}
+  nentry{t_Method}				% function entry
+| nexit{t_Method}					% function exit
+| nblock{t_Statement}			% basic block (BBs only have 1 statement in
+										% them)
+| nbranch{	VARIABLE_NAME:t_VARIABLE_NAME,  % branch on VARIABLE_NAME
+				TRUE:t_cfg_node, 
+				FALSE:t_cfg_node} 
+												
+| nempty{t_Statement} % We replace labels and gotos with empty blocks
 .
 
 predicate cfg_edge (N0:t_cfg_node, N1:t_cfg_node) order[N0, N1].

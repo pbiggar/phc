@@ -24,6 +24,7 @@ predicate alias_handled (BB:t_cfg_node).
 alias_handled (BB) :- cfg_node (BB), 
 	(	  BB = nentry{_} 
 		; BB = nexit{_}
+		; BB = nempty{_}
 		; BB = nbranch{_,_,_}
 		; BB = nblock {statement_Assign_var {assign_var {_, _, false, _}}}
 		; BB = nblock {statement_Assign_array {assign_array {_, _, _, false, _}}}
