@@ -5,8 +5,6 @@
 ~reiterate (),
 	cfg_node (ENTRY),
 	ENTRY = nentry{METHOD},
-	METHOD = method{ID, SIGNATURE, _},
-	METHOD_NAME = get_method_name (METHOD),
 
 	% Get all the basic blocks and merge them
 	+order_nodes ([], [], [ENTRY]), % kick off ordering
@@ -14,20 +12,22 @@
 
 	CLEAN_STATEMENTS = clean_up_labels (clean_up_gotos (STATEMENTS)),
 
-	% Add it to the optimized DB
+	% Create a new method
+	METHOD = method{ID, SIGNATURE, _},
+	METHOD_NAME = get_method_name (METHOD),
 	NEW_METHOD = method{ID, SIGNATURE, yes{CLEAN_STATEMENTS}},
+
+	% Add it to the optimized DB
 	+optimized()->method_out (METHOD_NAME, NEW_METHOD).
-
-
 
 
 % Starting at the first CFG node, find the next nodes, checking if they are in
 % the current list. If not, add them (and their associated statements), and
 % continue through the list. When there are no more items in the list, finish.
-predicate order_nodes (PREV:list[t_cfg_node], STATEMENTS:list[t_Statement], NEXT:list[t_cfg_node]).
+predicate order_nodes (out PREV:list[t_cfg_node], out STATEMENTS:list[t_Statement], out NEXT:list[t_cfg_node]).
 
 % When finished, this holds the completed list.
-predicate ordered_statements (STATEMENTS:list[t_Statement]).
+predicate ordered_statements (out STATEMENTS:list[t_Statement]).
 
 
 % No more statements to analyse
@@ -46,7 +46,7 @@ order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 	~list_mem (PREV, BB), 
     NPREV = list_append (PREV, [BB]),
-	 linear_statements (BB, BB_STATEMENTS),
+	 BB_STATEMENTS = linear_statements (BB),
     NSTATEMENTS = list_append (STATEMENTS, BB_STATEMENTS),
     \/cfg_edge (BB, NEXT):list_all (NEXT, NEXTS), % A bit arbitrary. We could choose directions with a branch.
     NSUCCS = list_append(NEXTS, TAIL),  % order here determines DFS vs BFS
@@ -54,30 +54,25 @@ order_nodes (PREV, STATEMENTS, [BB|TAIL]),
 
 
 % Build a list of statement for a BB
-predicate linear_statements (BB:t_cfg_node, out STATEMENTS:list[t_Statement]).
+predicate linear_statements (in BB:t_cfg_node, out STATEMENTS:list[t_Statement]) succeeds [once].
 
-cfg_node (BB),
+linear_statements (BB, STATEMENTS) :-
 	BB = nbranch{VAR, TRUE, FALSE},
 	BRANCH = branch{-1, VAR, bb_label_name (TRUE), bb_label_name (FALSE)},
-	STATEMENTS = [bb_label (BB), statement_Branch{BRANCH}],
-	+linear_statements (BB, STATEMENTS).
+	STATEMENTS = [bb_label (BB), statement_Branch{BRANCH}].
 
-cfg_node (BB),
-	BB = nblock{S}, cfg_edge (BB, NEXT),
-	+linear_statements (BB, [bb_label (BB), S, bb_goto (NEXT)]).
+linear_statements (BB, [bb_label (BB), S, bb_goto (NEXT)]) :-
+	BB = nblock{S}, cfg_edge (BB, NEXT).
 
-cfg_node (BB),
-	BB = nentry{_}, cfg_edge (BB, NEXT),
-	+linear_statements (BB, [bb_goto (NEXT)]).
+linear_statements (BB, [bb_goto (NEXT)]) :-
+	BB = nentry{_}, cfg_edge (BB, NEXT).
 
 % This must be the last statement, but with DFS, it might not be. Add it later.
-cfg_node (BB),
-	BB = nexit{_},
-	+linear_statements (BB, []).
+linear_statements (BB, []) :-
+	BB = nexit{_}.
 
-cfg_node (BB),
-	BB = nempty{_}, cfg_edge (BB, NEXT),
-	+linear_statements (BB, [bb_label (BB), bb_goto (NEXT)]).
+linear_statements (BB, [bb_label (BB), bb_goto (NEXT)]) :-
+	BB = nempty{_}, cfg_edge (BB, NEXT).
 
 
 
