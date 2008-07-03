@@ -16,6 +16,7 @@ import "live.clp".
 
 
 cfg_node (BB),
+	~cfg ("__MAIN__", _), % Since globals can affect main, we can't do DCE on it
 	BB = nblock{statement_Assign_var{S}},
 	S = assign_var{_, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
 	~is_side_effecting (EXPR),
@@ -24,6 +25,7 @@ cfg_node (BB),
 	+remove_bb (BB).
 
 cfg_node (BB),
+	~cfg ("__MAIN__", _), % Since globals can affect main, we can't do DCE on it
 	BB = nblock{statement_Assign_var{S}},
 	S = assign_var{_, vARIABLE_NAME{_, VAR_NAME}, false, EXPR},
 	is_side_effecting (EXPR),
