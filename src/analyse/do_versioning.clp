@@ -46,3 +46,6 @@ remove_bb (BB), BB = nblock{S},
 % Only allow removing blocks
 remove_bb (BB), BB \= nblock{_}, +error_in (BB, "Can only handle nblocks").
 
+replace_bb (BB, NEW),
+	+print (str_cat_list (["Removing:       ", tostring (BB), "\nReplacing with: ", tostring (NEW)])).
+
