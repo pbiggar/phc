@@ -96,8 +96,8 @@
 		$input = file_get_contents ("$base.xml");
 
 		// each Method starts with \"<MIR:Method>\n and ends with </MIR:Method>\n\"
-		preg_match_all ("!\"(<MIR:Method>\n.*?</MIR:Method>)\n\"!sm", $input, $matches);
-
+		$input = preg_replace ("!^\"<MIR:Method>$!sm", "<MIR:Method>", $input);
+		$input = preg_replace ("!^</MIR:Method>\n\"\n$!sm", "</MIR:Method>", $input);
 
 		// combine them with header and footer
 		$header = 
@@ -109,7 +109,7 @@
 			. "<MIR:Statement_list>";
 		$footer = "</MIR:Statement_list>\n</MIR:PHP_script>\n";
 
-		$combined_xml = "$header\n" . join("\n", array_reverse ($matches[1])) . "\n$footer";
+		$combined_xml = "$header\n$input\n$footer";
 		file_put_contents ("$base.new.xml", $combined_xml);
 	}
 
