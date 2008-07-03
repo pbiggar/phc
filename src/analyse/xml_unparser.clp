@@ -117,6 +117,9 @@ to_xml_string (gfloat{VALUE}, XML) :-
 	tostring (VALUE, XML_VALUE),
 	str_cat_list (["<value>", XML_VALUE, "</value>\n"], XML).
 
+to_xml_string (gnull, "") :- .
+
+
 to_xml_string (gstring{VALUE}, XML) :- 
 	str_to_base64 (VALUE, BASE64),
 	((VALUE = BASE64, ENCODING = "");(VALUE \= BASE64, ENCODING = " encoding=\"base64\"")),
