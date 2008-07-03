@@ -245,7 +245,7 @@ public:
 		open_scope (constructor_name (in));
 
 		// Node ID
-		print_line (id++);
+		print_int (id++);
 
 		// indicate its been used
 		base_type = NULL;
@@ -293,7 +293,7 @@ public:
 			case REAL::ID:
 			{
 				REAL* real = dynamic_cast<REAL*> (in);
-				print_line (real->value); // TODO fixed precision
+				print_real (real->value); // TODO fixed precision
 				break;
 			}
 
@@ -421,10 +421,16 @@ public:
 
 	}
 
-	void print_line (int num)
+	void print_int (int num)
 	{ 
 		out 
 			<< *indent() << num; 
+	}
+
+	void print_real (double num)
+	{ 
+		out 
+			<< *indent() << fixed << num; 
 	}
 
 	void print_quoted_line (String* line)
