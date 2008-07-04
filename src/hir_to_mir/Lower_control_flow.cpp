@@ -155,6 +155,11 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *		 ...;
  *   }
  * into
+ *			if (!is_array ($arr)) 
+ *			{
+ *				trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
+ *				$arr = (array)($arr);
+ *			}
  *			foreach_reset ($arr, iter); 
  *		L0:
  *			$T = foreach_has_key ($arr, iter);
@@ -173,7 +178,16 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
-	MIR::VARIABLE_NAME* array_name = fold_var (in->arr);
+	MIR::VARIABLE_NAME* array_name = fold_var (in->arr); // keep the attributes
+
+	(*out
+		<< "if (!is_array ($" << in->arr << ")) "
+		<< "{"
+		<< "	trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
+		<< "	$" << in->arr << " = (array)($" << in->arr << ");"
+		<< "}"
+	).to_pass (s("HIR-to-MIR"), in);
+
 
 	// foreach_reset ($arr, iter); 
 	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();

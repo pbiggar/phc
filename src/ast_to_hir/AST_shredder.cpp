@@ -362,6 +362,7 @@ Expr* Shredder::post_ignore_errors(Ignore_errors* in)
 {
 	Variable* temp = fresh_var("TSie");
 	Variable* old = dynamic_cast<Variable*>(in->attrs->get("phc.ast_shredder.old_error_level"));
+	in->attrs->erase ("phc.ast_shredder.old_error_level");
 	assert(old);
 	
 	(*pieces
