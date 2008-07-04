@@ -15,6 +15,7 @@ abstract class Test
 		$this->failures = 0;
 		$this->skipped = 0;
 		$this->timeouts = 0;
+		$this->max_time = 20;
 		$this->total = 0;
 		$this->solo_tests = 0;
 		$this->timers = array();

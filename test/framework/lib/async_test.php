@@ -258,7 +258,7 @@ abstract class AsyncTest extends Test
 				unset ($this->running_procs [$index]); // remove from the running list
 				$bundle->continuation (); // start the next bit straight away
 			}
-			else if (time () > $bundle->start_time + 20)
+			else if (time () > $bundle->start_time + $this->max_time)
 			{
 				$bundle->read_streams ();
 
