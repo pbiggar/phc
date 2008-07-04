@@ -14,6 +14,8 @@ type t_Node.
 type t_PHP_script.
 predicate program (PHP_script:t_PHP_script).
 
+% Add create_dot_graphs to print dot graphs for various phases.
+predicate create_dot_graphs ().
 
 % Encode attributes
 type t_Attr ::=

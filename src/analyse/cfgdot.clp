@@ -44,6 +44,7 @@ dotty_edge (E1, E2, Attrs) :- cfg_edge (E1, E2),
 
 % Build the dotty graph
 dotty_graph (NAME, true, dotgraph{Nodes, Edges}, [dg_attr{"outputorder", "edgesfirst"}], [], []) :-
+	create_dot_graphs (),
 	cfg (METHOD_NAME, VERSION),
 	NAME = str_cat_list ([METHOD_NAME, "_v", tostring (VERSION)]),
 	\/(dotty_node (DN, NAs), N = dg_node{DN, NAs}):list_all(N, Nodes),

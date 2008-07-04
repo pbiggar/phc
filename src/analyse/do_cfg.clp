@@ -68,6 +68,7 @@ build_pps (PREV, [H|STMTs], METHOD),
 
 % Build a .dot file to view the PPs
 dotty_graph (Name, true, dotgraph{Nodes, Edges}, [], [], []) :-
+	create_dot_graphs (),
 	Name = "PPs",
 	\/(pp_node (P), N = dg_node{P,[]}):list_all(N, Nodes),
 	\/(pp_edge (EN1, EN2), E = dg_edge{EN1,EN2, []}):list_all(E, Edges).
