@@ -31,6 +31,12 @@ const char* get_attr_name ()
 	return NULL;
 }
 
+void clear_attrs (Node* in)
+{
+	in->attrs->erase ("phc.codegen.break_label");
+	in->attrs->erase ("phc.codegen.continue_label");
+}
+
 template<class T> 
 void Lower_control_flow::add_label (Node* in, List<Statement*> *out)
 {
@@ -147,6 +153,7 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 	add_label<Break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
+	clear_attrs (in);
 }
 
 /* Convert 
@@ -295,6 +302,7 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 	add_label<Break> (in, out);
 	break_levels.pop_back ();
 	continue_levels.pop_back ();
+	clear_attrs (in);
 }
 
 
