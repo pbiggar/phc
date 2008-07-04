@@ -7,12 +7,19 @@
 PHC_ARGS=""
 DEBUG_PHC=0
 OPTIMIZE=0
+CALYPSO=0
 for var in $@
 do
 	if [ "-$var" = "--g" ]
 	then
 		EXEC_NAME="gdb "
 		DEBUG_PHC=1
+	elif [ "-$var" = "--c" ]
+	then
+		CALYPSO=1
+# Implies -O
+		PHC_ARGS="$PHC_ARGS -O3"
+		OPTIMIZE=1
 	elif [ "-$var" = "--V" ]
 	then
 		EXEC_NAME="valgrind "
@@ -45,8 +52,8 @@ NAME=${NAME%.php}
 OUT_NAME=$NAME.out
 EXEC_NAME="$EXEC_NAME./$OUT_NAME"
 
-
 cp $PHP_NAME $NAME.orig.php || exit 1;
+
 
 # generate HIR
 src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
@@ -66,6 +73,7 @@ if [[ $? != 0 ]]; then
 	exit 1
 fi
 
+
 # generate uppered HIR
 #src/phc $PHP_NAME $PHC_ARGS --udump=AST-to-HIR > $NAME.uhir.php
 #if [[ $? != 0 ]]; then
@@ -74,6 +82,13 @@ fi
 #	fi
 #	exit 1
 #fi
+
+# Optimize using calypso
+if [ $CALYPSO = 1 ]
+then
+	./analyse.php $PHP_NAME
+	PHP_NAME="--read-xml=pst $NAME.new.xml"
+fi
 
 # generate C
 src/phc --generate-c $PHC_ARGS $PHP_NAME > $NAME.c
