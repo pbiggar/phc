@@ -176,8 +176,6 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
 
 void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
-	VARIABLE_NAME* cast_array_name = fresh_var_name ("FE");
-
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
 	MIR::VARIABLE_NAME* array_name = fold_var (in->arr); // keep the attributes
