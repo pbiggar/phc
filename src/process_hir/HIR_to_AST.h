@@ -47,8 +47,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Expr*,					// Expr*
  AST::Foreach*,				// Foreach*
  AST::Foreign*,				// Foreign*
- AST::Foreign_expr*,			// Foreign_expr*
- AST::Foreign_statement*,	// Foreign_statement*
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
  AST::INT*,						// INT*
@@ -651,19 +649,10 @@ public:
 		return result;
 	}
 
-	/* Foreign nodes */
-	AST::Foreign_statement* fold_impl_foreign_statement(HIR::Foreign_statement* orig)
+	AST::Foreign* fold_impl_foreign (HIR::Foreign* orig)
 	{
-		AST::Foreign_statement* result;
-		result = new AST::Foreign_statement (orig->foreign);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Foreign_expr* fold_impl_foreign_expr(HIR::Foreign_expr* orig)
-	{
-		AST::Foreign_expr* result;
-		result = new AST::Foreign_expr (orig->foreign);
+		AST::Foreign* result;
+		result = new AST::Foreign(orig->foreign);
 		result->attrs = orig->attrs;
 		return result;
 	}

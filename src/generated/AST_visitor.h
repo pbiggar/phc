@@ -62,8 +62,6 @@ public:
     virtual void pre_eval_expr(Eval_expr* in);
     virtual void pre_nop(Nop* in);
     virtual void pre_foreign(Foreign* in);
-    virtual void pre_foreign_expr(Foreign_expr* in);
-    virtual void pre_foreign_statement(Foreign_statement* in);
     virtual void pre_expr(Expr* in);
     virtual void pre_literal(Literal* in);
     virtual void pre_assignment(Assignment* in);
@@ -144,8 +142,6 @@ public:
     virtual void post_eval_expr(Eval_expr* in);
     virtual void post_nop(Nop* in);
     virtual void post_foreign(Foreign* in);
-    virtual void post_foreign_expr(Foreign_expr* in);
-    virtual void post_foreign_statement(Foreign_statement* in);
     virtual void post_expr(Expr* in);
     virtual void post_literal(Literal* in);
     virtual void post_assignment(Assignment* in);
@@ -222,8 +218,7 @@ public:
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_nop(Nop* in);
-    virtual void children_foreign_expr(Foreign_expr* in);
-    virtual void children_foreign_statement(Foreign_statement* in);
+    virtual void children_foreign(Foreign* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_list_assignment(List_assignment* in);
@@ -300,8 +295,7 @@ public:
     virtual void pre_throw_chain(Throw* in);
     virtual void pre_eval_expr_chain(Eval_expr* in);
     virtual void pre_nop_chain(Nop* in);
-    virtual void pre_foreign_expr_chain(Foreign_expr* in);
-    virtual void pre_foreign_statement_chain(Foreign_statement* in);
+    virtual void pre_foreign_chain(Foreign* in);
     virtual void pre_assignment_chain(Assignment* in);
     virtual void pre_op_assignment_chain(Op_assignment* in);
     virtual void pre_list_assignment_chain(List_assignment* in);
@@ -370,8 +364,7 @@ public:
     virtual void post_throw_chain(Throw* in);
     virtual void post_eval_expr_chain(Eval_expr* in);
     virtual void post_nop_chain(Nop* in);
-    virtual void post_foreign_expr_chain(Foreign_expr* in);
-    virtual void post_foreign_statement_chain(Foreign_statement* in);
+    virtual void post_foreign_chain(Foreign* in);
     virtual void post_assignment_chain(Assignment* in);
     virtual void post_op_assignment_chain(Op_assignment* in);
     virtual void post_list_assignment_chain(List_assignment* in);

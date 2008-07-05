@@ -38,7 +38,7 @@ Statement ::=
 	| Foreach_next | Foreach_reset | Foreach_end
 	| Assign_var | Assign_var_var | Assign_array | Push_array | Assign_target
 	| Eval_expr | Pre_op
-	| Foreign_statement
+	| Foreign
 	;
 
 {-
@@ -99,7 +99,7 @@ Expr ::=
 	| Method_invocation | New
 	| Literal 
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
-	| Foreign_expr
+	| Foreign
 	-- TODO add Variable_name, remove Variable_variable/Variable
 	| Variable | Index_array | Variable_variable | Target_expr
 	;
@@ -169,9 +169,7 @@ Identifier ::=
 	  | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	;  
 
-Foreign ::= Foreign_statement | Foreign_expr ;
-Foreign_statement ::= ;
-Foreign_expr ::= ;
+Foreign ::= ;
 
 
 {-
@@ -633,23 +631,4 @@ public:
 	}
 
 	IR::Node* foreign;
-};
-
-class Foreign_statement
-{
-	// TODO: modify maketea to allow contructors with :
-public:
-	Foreign_statement (IR::Node* foreign)
-	{
-		this->foreign = foreign;
-	}
-};
-
-class Foreign_expr
-{
-public:
-	Foreign_expr (IR::Node* foreign)
-	{
-		this->foreign = foreign;
-	}
 };

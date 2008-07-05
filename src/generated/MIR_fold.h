@@ -46,8 +46,6 @@ template
  class _Foreach_next,
  class _Foreach_reset,
  class _Foreign,
- class _Foreign_expr,
- class _Foreign_statement,
  class _Formal_parameter,
  class _Global,
  class _Goto,
@@ -100,7 +98,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Foreign, _Foreign_expr, _Foreign_statement, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Reflection, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _Variable_variable> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Foreign, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Reflection, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _Variable_variable> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -654,14 +652,9 @@ public:
 		return fold_impl_foreach_get_val(in, array, key, iter);
 	}
 
-	virtual _Foreign_statement fold_foreign_statement(Foreign_statement* in)
+	virtual _Foreign fold_foreign(Foreign* in)
 	{
-		return fold_impl_foreign_statement(in);
-	}
-
-	virtual _Foreign_expr fold_foreign_expr(Foreign_expr* in)
-	{
-		return fold_impl_foreign_expr(in);
+		return fold_impl_foreign(in);
 	}
 
 
@@ -718,8 +711,7 @@ public:
 	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreign_statement fold_impl_foreign_statement(Foreign_statement* orig) { assert(0); };
-	virtual _Foreign_expr fold_impl_foreign_expr(Foreign_expr* orig) { assert(0); };
+	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
@@ -787,8 +779,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign_statement::ID:
-				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case Class_mod::ID:
 				return fold_class_mod(dynamic_cast<Class_mod*>(in));
 			case Attribute::ID:
@@ -837,8 +829,6 @@ public:
 				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
 			case Foreach_get_val::ID:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-			case Foreign_expr::ID:
-				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
 			case Variable::ID:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Index_array::ID:
@@ -923,8 +913,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign_statement::ID:
-				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 		}
 		assert(0);
 	}
@@ -975,8 +965,8 @@ public:
 				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
 			case Foreach_get_val::ID:
 				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-			case Foreign_expr::ID:
-				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
+			case Foreign::ID:
+				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case Variable::ID:
 				return fold_variable(dynamic_cast<Variable*>(in));
 			case Index_array::ID:
@@ -1123,18 +1113,6 @@ public:
 		assert(0);
 	}
 
-	virtual _Foreign fold_foreign(Foreign* in)
-	{
-		switch(in->classid())
-		{
-			case Foreign_statement::ID:
-				return fold_foreign_statement(dynamic_cast<Foreign_statement*>(in));
-			case Foreign_expr::ID:
-				return fold_foreign_expr(dynamic_cast<Foreign_expr*>(in));
-		}
-		assert(0);
-	}
-
 
 
 // Virtual destructor to avoid compiler warnings
@@ -1142,6 +1120,6 @@ public:
 };
 
 template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
 }
 

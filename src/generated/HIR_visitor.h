@@ -85,8 +85,6 @@ public:
     virtual void pre_static_array_key(Static_array_key* in);
     virtual void pre_identifier(Identifier* in);
     virtual void pre_foreign(Foreign* in);
-    virtual void pre_foreign_statement(Foreign_statement* in);
-    virtual void pre_foreign_expr(Foreign_expr* in);
     virtual void pre_class_name(CLASS_NAME* in);
     virtual void pre_interface_name(INTERFACE_NAME* in);
     virtual void pre_method_name(METHOD_NAME* in);
@@ -159,8 +157,6 @@ public:
     virtual void post_static_array_key(Static_array_key* in);
     virtual void post_identifier(Identifier* in);
     virtual void post_foreign(Foreign* in);
-    virtual void post_foreign_statement(Foreign_statement* in);
-    virtual void post_foreign_expr(Foreign_expr* in);
     virtual void post_class_name(CLASS_NAME* in);
     virtual void post_interface_name(INTERFACE_NAME* in);
     virtual void post_method_name(METHOD_NAME* in);
@@ -220,8 +216,7 @@ public:
     virtual void children_new(New* in);
     virtual void children_static_array(Static_array* in);
     virtual void children_static_array_elem(Static_array_elem* in);
-    virtual void children_foreign_statement(Foreign_statement* in);
-    virtual void children_foreign_expr(Foreign_expr* in);
+    virtual void children_foreign(Foreign* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
     virtual void children_class_name(CLASS_NAME* in);
@@ -291,8 +286,7 @@ public:
     virtual void pre_new_chain(New* in);
     virtual void pre_static_array_chain(Static_array* in);
     virtual void pre_static_array_elem_chain(Static_array_elem* in);
-    virtual void pre_foreign_statement_chain(Foreign_statement* in);
-    virtual void pre_foreign_expr_chain(Foreign_expr* in);
+    virtual void pre_foreign_chain(Foreign* in);
     virtual void pre_class_name_chain(CLASS_NAME* in);
     virtual void pre_interface_name_chain(INTERFACE_NAME* in);
     virtual void pre_method_name_chain(METHOD_NAME* in);
@@ -354,8 +348,7 @@ public:
     virtual void post_new_chain(New* in);
     virtual void post_static_array_chain(Static_array* in);
     virtual void post_static_array_elem_chain(Static_array_elem* in);
-    virtual void post_foreign_statement_chain(Foreign_statement* in);
-    virtual void post_foreign_expr_chain(Foreign_expr* in);
+    virtual void post_foreign_chain(Foreign* in);
     virtual void post_class_name_chain(CLASS_NAME* in);
     virtual void post_interface_name_chain(INTERFACE_NAME* in);
     virtual void post_method_name_chain(METHOD_NAME* in);
