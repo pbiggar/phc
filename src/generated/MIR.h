@@ -97,6 +97,7 @@ class REAL;
 class STRING;
 class BOOL;
 class NIL;
+class None;
 
 class Transform;
 class Visitor;
@@ -498,7 +499,7 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Variable_name ::= VARIABLE_NAME | Reflection;
+// Variable_name ::= VARIABLE_NAME | Variable_variable;
 class Variable_name : virtual public Node
 {
 public:
@@ -1339,7 +1340,7 @@ public:
 };
 
 // Variable_variable ::= VARIABLE_NAME ;
-class Variable_variable : virtual public Expr
+class Variable_variable : virtual public Expr, virtual public Variable_name
 {
 public:
     Variable_variable(VARIABLE_NAME* variable_name);
@@ -1555,7 +1556,7 @@ public:
 };
 
 // Reflection ::= VARIABLE_NAME ;
-class Reflection : virtual public Variable_name, virtual public Method_name, virtual public Class_name
+class Reflection : virtual public Method_name, virtual public Class_name
 {
 public:
     Reflection(VARIABLE_NAME* variable_name);
@@ -2437,6 +2438,24 @@ public:
     virtual String* get_value_as_string();
 };
 
+// The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_target, virtual public Assign_array, virtual public Assign_var_var, virtual public Push_array, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Target_expr, virtual public Variable, virtual public Variable_variable, virtual public Index_array, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Variable_name, virtual public Reflection, virtual public Target, virtual public Method_invocation, virtual public Method_name, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Identifier, virtual public Foreign, virtual public Foreign_statement, virtual public Foreign_expr, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
+{
+public:
+    None();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+    virtual None* clone();
+    virtual void assert_valid();
+    virtual String* get_value_as_string();
+    virtual int classid();
+    virtual bool match(Node* in);
+    virtual bool equals(Node* in);
+    virtual Node* find(Node* in);
+    virtual void find_all(Node* in, List<Node*>* out);
+};
+
 
 class __WILDCARD__
 {
@@ -2519,7 +2538,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 66;
+	static const int ID = 67;
 	int classid()
 	{
 		return ID;

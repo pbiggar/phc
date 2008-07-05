@@ -100,13 +100,16 @@ class MIR_to_AST : public MIR::Fold
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
  AST::Variable*,				// Variable*
  AST::Variable_name*,		// Variable_name*
- AST::Expr*						// Variable_variable*
+ AST::None*						// Variable_variable*
 >
 {
+	AST::Reflection* reflection;
+	AST::Foreign_expr* foreign_expr;	
 public:
 	MIR_to_AST ()
 	{
 		foreign_expr = NULL;
+		reflection = NULL;
 	}
 
 	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
@@ -362,7 +365,6 @@ public:
 		return NULL;
 	}
 
-	AST::Foreign_expr* foreign_expr;	
 	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// Trick to bypass type rules
@@ -532,15 +534,52 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_variable_variable(MIR::Variable_variable* orig, AST::VARIABLE_NAME* variable_name) 
+	/* A variable-variable may be converted to a Variable (for Exprs) or a
+	 * Reflection (for Variable_name).
+	 */
+	AST::Variable_name* fold_variable_name (MIR::Variable_name* orig)
 	{
-		AST::Variable* result;
-		result = new AST::Variable(
-			NULL,
-			new AST::Reflection (wrap_var_name (variable_name)),
-			new List<AST::Expr*> ());
-		result->attrs = orig->attrs;
+		if (!isa<MIR::Variable_variable> (orig))
+			return parent::fold_variable_name (orig);
+
+		fold_variable_variable (dyc<MIR::Variable_variable> (orig));
+		assert (this->reflection);
+		AST::Reflection* result = this->reflection;
+
+		this->reflection = NULL;
 		return result;
+	}
+
+	AST::Expr* fold_expr (MIR::Expr* orig)
+	{
+		if (!isa<MIR::Variable_variable> (orig))
+			return parent::fold_expr (orig);
+
+		fold_variable_variable (dyc<MIR::Variable_variable> (orig));
+		assert (this->reflection);
+
+		AST::Variable* result;
+		result = new AST::Variable (
+			NULL,
+			this->reflection,
+			new List<AST::Expr*>);
+		result->attrs = orig->attrs;
+
+		this->reflection = NULL;
+		return result;
+	}
+
+	AST::None* fold_impl_variable_variable(MIR::Variable_variable* orig, AST::VARIABLE_NAME* variable_name) 
+	{
+		// Return NULL, and the users of this use this->reflection.
+		assert (this->reflection == NULL);
+
+		AST::Reflection* result;
+		result = new AST::Reflection(wrap_var_name (variable_name));
+		result->attrs = orig->attrs;
+
+		this->reflection = result;
+		return NULL;
 	}
 
 	AST::Reflection* fold_impl_reflection(MIR::Reflection* orig, AST::VARIABLE_NAME* variable_name) 

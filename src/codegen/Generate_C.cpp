@@ -340,7 +340,7 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 void read (Scope scope, string zvp, Variable* var)
 {
 	Variable_name* var_name  = var->variable_name;
-	if(var_name != NULL)
+	if(isa<VARIABLE_NAME> (var_name))
 	{
 		stringstream ss;
 		ss << zvp << "var";
@@ -355,17 +355,16 @@ void read (Scope scope, string zvp, Variable* var)
 	{
 		// Variable variable.
 		// After shredder, a variable variable cannot have array indices
-		Reflection* refl;
-		refl = dynamic_cast<Reflection*>(var->variable_name);
+		Variable_variable* var_var = dyc<Variable_variable>(var->variable_name);
 
 		code << "// Read variable variable\n";
 
-		read_simple (scope, "refl", get_var_name (refl));
+		read_simple (scope, "var_var", var_var->variable_name);
 
 		code
 			<< zvp << " = read_var_var (" 
 			<<		get_scope (scope) << ", "
-			<<		"refl "
+			<<		"var_var "
 			<<		" TSRMLS_CC);\n"
 			;
 	}

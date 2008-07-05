@@ -99,6 +99,7 @@ class REAL;
 class STRING;
 class BOOL;
 class NIL;
+class None;
 
 class Transform;
 class Visitor;
@@ -2505,6 +2506,24 @@ public:
     NIL(String* source_rep);
 };
 
+// The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public While, virtual public Do, virtual public For, virtual public Foreach, virtual public Switch, virtual public Switch_case, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Declare, virtual public Directive, virtual public Try, virtual public Catch, virtual public Throw, virtual public Eval_expr, virtual public Nop, virtual public Foreign, virtual public Foreign_expr, virtual public Foreign_statement, virtual public Expr, virtual public Literal, virtual public Assignment, virtual public Op_assignment, virtual public List_assignment, virtual public List_element, virtual public Nested_list_elements, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Conditional_expr, virtual public Ignore_errors, virtual public Constant, virtual public Instanceof, virtual public Variable, virtual public Variable_name, virtual public Reflection, virtual public Target, virtual public Pre_op, virtual public Post_op, virtual public Array, virtual public Array_elem, virtual public Method_invocation, virtual public Method_name, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Commented_node, virtual public Identifier, virtual public Source_rep, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public DIRECTIVE_NAME, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public OP, virtual public CAST, virtual public CONSTANT_NAME
+{
+public:
+    None();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+    virtual None* clone();
+    virtual void assert_valid();
+    virtual String* get_value_as_string();
+    virtual int classid();
+    virtual bool match(Node* in);
+    virtual bool equals(Node* in);
+    virtual Node* find(Node* in);
+    virtual void find_all(Node* in, List<Node*>* out);
+};
+
 
 class __WILDCARD__
 {
@@ -2587,7 +2606,7 @@ public:
 		assert (0); // I'm not sure what this would mean
 	}
 public:
-	static const int ID = 67;
+	static const int ID = 68;
 	int classid()
 	{
 		return ID;

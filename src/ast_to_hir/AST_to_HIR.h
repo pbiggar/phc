@@ -86,7 +86,7 @@ class AST_to_HIR : public AST::Fold
  HIR::Expr*,					// Post_op*
  HIR::Expr*,					// Pre_op*
  HIR::REAL*,					// REAL*
- HIR::Reflection*,			// Reflection*
+ HIR::None*,					// Reflection*
  HIR::Return*,					// Return*
  HIR::STRING*,					// STRING*
  HIR::Signature*,				// Signature*
@@ -106,10 +106,12 @@ class AST_to_HIR : public AST::Fold
  HIR::Loop*						// While*
 >
 {
+	HIR::Reflection* reflection;
 public:
 	AST_to_HIR ()
 	{
 		eval_expr_assignment = NULL;
+		reflection = NULL;
 	}
 
 private:
@@ -152,6 +154,8 @@ private:
 		HIR::VARIABLE_NAME* var_name = dynamic_cast<HIR::VARIABLE_NAME*> (var->variable_name);
 		return var_name;
 	}
+
+public:
 
 	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, List<HIR::Statement*>* statements) 
 	{
@@ -277,6 +281,7 @@ private:
 	HIR::Global* fold_impl_global(AST::Global* orig, List<HIR::Variable_name*>* variable_names) 
 	{
 		assert(variable_names->size() == 1);
+		assert (variable_names->front() != NULL);
 		
 		HIR::Global* result;
 		result = new HIR::Global(variable_names->front ());
@@ -570,13 +575,9 @@ private:
 		// $$x
 		else if (array_indices->size () == 0
 				&& target == NULL
-				&& isa<HIR::Reflection> (variable_name))
+				&& isa<HIR::Variable_variable> (variable_name))
 		{
-			HIR::Variable_variable* result;
-			result = new HIR::Variable_variable (
-					dyc<HIR::Reflection> (variable_name)->variable_name);
-			copy_attrs (result, orig);
-			return result;
+			return dyc<HIR::Variable_variable> (variable_name);
 		}
 		// $x->
 		else if (target)
@@ -595,13 +596,6 @@ private:
 		}
 	}
 
-	HIR::Reflection* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
-	{
-		HIR::Reflection* result;
-		result = new HIR::Reflection (expr_to_var_name (expr));
-		copy_attrs (result, orig);
-		return result;
-	}
 
 	HIR::Expr* fold_impl_pre_op(AST::Pre_op* orig, HIR::OP* op, HIR::Expr* expr) 
 	{
@@ -644,6 +638,72 @@ private:
 		return result;
 	}
 
+	/* AST::Reflection may be folded to a Reflection or Variable_variable.
+	 * Higher-up parts of the fold should not need to know this, so we wrap
+	 * AST_fold's fold_variable_name, fold_method_name and fold_clasS_name to
+	 * hide it.
+	 */
+	HIR::None* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
+	{
+		// What we need depends on context: either Reflection or
+		// Variable_variable may be required. So create one of each and let the
+		// caller decide.
+		HIR::Reflection* reflection;
+		reflection = new HIR::Reflection (expr_to_var_name (expr));
+		copy_attrs (reflection, orig);
+		this->reflection = reflection;
+
+		return NULL;
+	}
+
+	HIR::Reflection* get_reflection (AST::Reflection* in)
+	{
+		// Get a folded reflection
+		HIR::None* n = fold_reflection (in);
+		assert (n == NULL);
+
+		HIR::Reflection* refl = this->reflection;
+		this->reflection = NULL;
+
+		return refl;
+	}
+
+
+	// Reflection is converted to Variable_name in this context.
+	virtual HIR::Variable_name* fold_variable_name(AST::Variable_name* in)
+	{
+		if (isa<AST::Reflection> (in))
+		{
+			HIR::Reflection* refl = get_reflection (dyc<AST::Reflection>(in));
+			// Convert it to a Variable_variable
+			HIR::Variable_variable* result;
+			result = new HIR::Variable_variable (refl->variable_name);
+			copy_attrs (result, in);
+			return result;
+
+		}
+		else
+			return parent::fold_variable_name (in);
+	}
+
+	HIR::Method_name* fold_method_name(AST::Method_name* in)
+	{
+		if (isa<AST::Reflection> (in))
+		{
+			return get_reflection (dyc<AST::Reflection> (in));
+		}
+		else
+			return parent::fold_method_name (in);
+	}
+
+	HIR::Class_name* fold_class_name(AST::Class_name* in)
+	{
+		if (isa<AST::Reflection> (in))
+			return get_reflection (dyc<AST::Reflection> (in));
+		else
+			return parent::fold_class_name (in);
+	}
+
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
 		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
@@ -661,8 +721,7 @@ private:
 			assert (target);
 		}
 
-		HIR::Variable_name* var_name = parent::fold_variable_name (param->variable_name);
-		assert (var_name);
+		HIR::Variable_name* var_name = fold_variable_name (param->variable_name);
 
 		HIR::Actual_parameter* result;
 		result = new HIR::Actual_parameter(is_ref, target, var_name, array_indices);

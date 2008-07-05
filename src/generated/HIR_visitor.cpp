@@ -1171,6 +1171,7 @@ void Visitor::pre_variable_variable_chain(Variable_variable* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_variable_name((Variable_name*) in);
     pre_variable_variable((Variable_variable*) in);
 }
 
@@ -1221,7 +1222,6 @@ void Visitor::pre_instanceof_chain(Instanceof* in)
 void Visitor::pre_reflection_chain(Reflection* in)
 {
     pre_node((Node*) in);
-    pre_variable_name((Variable_name*) in);
     pre_method_name((Method_name*) in);
     pre_class_name((Class_name*) in);
     pre_reflection((Reflection*) in);
@@ -1602,6 +1602,7 @@ void Visitor::post_variable_chain(Variable* in)
 void Visitor::post_variable_variable_chain(Variable_variable* in)
 {
     post_variable_variable((Variable_variable*) in);
+    post_variable_name((Variable_name*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1655,7 +1656,6 @@ void Visitor::post_reflection_chain(Reflection* in)
     post_reflection((Reflection*) in);
     post_class_name((Class_name*) in);
     post_method_name((Method_name*) in);
-    post_variable_name((Variable_name*) in);
     post_node((Node*) in);
 }
 
@@ -2468,8 +2468,8 @@ void Visitor::pre_variable_name_chain(Variable_name* in)
     case VARIABLE_NAME::ID:
     	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID:
+    	pre_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }
@@ -2716,8 +2716,8 @@ void Visitor::post_variable_name_chain(Variable_name* in)
     case VARIABLE_NAME::ID:
     	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	post_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID:
+    	post_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }
@@ -2964,8 +2964,8 @@ void Visitor::children_variable_name(Variable_name* in)
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID:
+    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }

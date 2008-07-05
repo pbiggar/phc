@@ -141,7 +141,7 @@ Expr* Transform::pre_variable(Variable* in)
     return in;
 }
 
-Expr* Transform::pre_variable_variable(Variable_variable* in)
+Variable_variable* Transform::pre_variable_variable(Variable_variable* in)
 {
     return in;
 }
@@ -467,7 +467,7 @@ Expr* Transform::post_variable(Variable* in)
     return in;
 }
 
-Expr* Transform::post_variable_variable(Variable_variable* in)
+Variable_variable* Transform::post_variable_variable(Variable_variable* in)
 {
     return in;
 }
@@ -1917,7 +1917,7 @@ Variable_name* Transform::pre_variable_name(Variable_name* in)
     switch(in->classid())
     {
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2248,7 +2248,7 @@ Variable_name* Transform::post_variable_name(Variable_name* in)
     switch(in->classid())
     {
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2487,8 +2487,8 @@ void Transform::children_variable_name(Variable_name* in)
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_variable::ID:
+    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }

@@ -849,12 +849,12 @@ public:
 				return fold_target_expr(dynamic_cast<Target_expr*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-			case Reflection::ID:
-				return fold_reflection(dynamic_cast<Reflection*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case METHOD_NAME::ID:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
+			case Reflection::ID:
+				return fold_reflection(dynamic_cast<Reflection*>(in));
 			case Actual_parameter::ID:
 				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
 			case Static_array::ID:
@@ -1013,8 +1013,8 @@ public:
 		{
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-			case Reflection::ID:
-				return fold_reflection(dynamic_cast<Reflection*>(in));
+			case Variable_variable::ID:
+				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
 		}
 		assert(0);
 	}

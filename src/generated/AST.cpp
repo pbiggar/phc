@@ -10476,5 +10476,59 @@ NIL::NIL(String* source_rep)
 	}
 }
 
+None::None()
+{
+}
+
+void None::visit(Visitor* visitor)
+{
+    assert (0);
+}
+
+void None::transform_children(Transform* transform)
+{
+    assert (0);
+}
+
+None* None::clone()
+{
+    assert (0);
+}
+
+void None::assert_valid()
+{
+    assert (0);
+}
+
+String* None::get_value_as_string()
+{
+    assert (0);
+}
+
+int None::classid()
+{
+    assert (0);
+}
+
+bool None::match(Node* in)
+{
+    assert (0);
+}
+
+bool None::equals(Node* in)
+{
+    assert (0);
+}
+
+Node* None::find(Node* in)
+{
+    assert (0);
+}
+
+void None::find_all(Node* in, List<Node*>* out)
+{
+    assert (0);
+}
+
 }
 

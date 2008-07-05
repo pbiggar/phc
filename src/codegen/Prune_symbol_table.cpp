@@ -59,9 +59,7 @@ void Prune_symbol_table::pre_method (Method* in)
 	}
 }
 
-// TODO this is over-conservative, as it will stop variable
-// functions, which are fine.
-void Prune_symbol_table::pre_reflection (Reflection* in)
+void Prune_symbol_table::pre_variable_variable (Variable_variable* in)
 {
 	prune = false;
 }
@@ -113,7 +111,7 @@ void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 void Prune_symbol_table::post_variable_name (Variable_name* in)
 {
 	// reflection means we cant remove any globals
-	if (in->classid () == Reflection::ID)
+	if (in->classid () == Variable_variable::ID)
 		var_reflection_present = true;
 }
 
