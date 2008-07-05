@@ -297,73 +297,6 @@ public:
 		return result;
 	}
 
-	AST::Statement* fold_impl_foreign_statement(MIR::Foreign_statement* orig)
-	{
-		AST::Statement* result;
-		result = dynamic_cast<AST::Statement*> (orig->foreign);
-		assert (result);
-		return result;
-	}
-
-
-	AST::Foreign_statement* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Foreign_statement* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Foreign_statement* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Identifier* fold_label_name(MIR::LABEL_NAME* orig) 
-	{
-		// do nothing. LABEL_NAMEs are always wrapped, but there will be an
-		// attempt to fold them, so we need to supply a definition so that it
-		// doesnt fail.
-		return NULL;
-	}
-
-	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_statement (orig);
-	}
-
-	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_expr (orig);
-	}
-
-	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_expr (orig);
-	}
-
-	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Identifier* iter) 
-	{
-		return new AST::Foreign_expr (orig);
-	}
-
-	AST::Identifier* fold_ht_iterator (MIR::HT_ITERATOR* orig)
-	{
-		foreign_expr = new AST::Foreign_expr (orig);
-		return NULL;
-	}
 
 	AST::Eval_expr* fold_impl_assign_var (MIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
@@ -741,6 +674,85 @@ public:
 		result->attrs = orig->attrs;
 		return result;
 	}
+
+	/* Foreign nodes */
+	AST::Statement* fold_impl_foreign_statement(MIR::Foreign_statement* orig)
+	{
+		AST::Statement* result;
+		result = dynamic_cast<AST::Statement*> (orig->foreign);
+		assert (result);
+		return result;
+	}
+
+	AST::Foreign_expr* fold_impl_foreign_expr(MIR::Foreign_expr* orig)
+	{
+		AST::Foreign_expr* result;
+		result = new AST::Foreign_expr (orig->foreign);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	/* MIR types without an AST equivalent. */
+
+	AST::Foreign_statement* fold_impl_branch(MIR::Branch* orig, AST::VARIABLE_NAME* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Foreign_statement* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Foreign_statement* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Identifier* fold_label_name(MIR::LABEL_NAME* orig) 
+	{
+		// do nothing. LABEL_NAMEs are always wrapped, but there will be an
+		// attempt to fold them, so we need to supply a definition so that it
+		// doesnt fail.
+		return NULL;
+	}
+
+	AST::Foreign_statement* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Foreign_statement* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Foreign_statement* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_statement (orig);
+	}
+
+	AST::Foreign_expr* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_expr (orig);
+	}
+
+	AST::Foreign_expr* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::VARIABLE_NAME* array, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_expr (orig);
+	}
+
+	AST::Foreign_expr* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::VARIABLE_NAME* array, AST::VARIABLE_NAME* key, AST::Identifier* iter) 
+	{
+		return new AST::Foreign_expr (orig);
+	}
+
+	AST::Identifier* fold_ht_iterator (MIR::HT_ITERATOR* orig)
+	{
+		foreign_expr = new AST::Foreign_expr (orig);
+		return NULL;
+	}
+
 
 	~MIR_to_AST () {}
 };

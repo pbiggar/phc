@@ -289,62 +289,6 @@ public:
 		return result;
 	}
 
-	AST::Foreign_expr* fold_impl_foreign_expr(HIR::Foreign_expr* orig)
-	{
-		AST::Foreign_expr* result;
-		result = new AST::Foreign_expr (orig->foreign);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Foreign_statement* fold_impl_foreign_statement (HIR::Foreign_statement* orig) 
-	{ 
-		AST::Foreign_statement* result;
-		result = new AST::Foreign_statement (orig->foreign);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Break* fold_impl_break (HIR::Break* orig, AST::Expr* expr)
-	{
-		AST::Break* result;
-		result = new AST::Break (expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::If* fold_impl_if(HIR::If* orig, AST::VARIABLE_NAME* variable_name, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
-	{
-		AST::If* result;
-		result = new AST::If (wrap_var_name (variable_name), iftrue, iffalse);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::While* fold_impl_loop (HIR::Loop* orig, List<AST::Statement*>* statements)
-	{
-		AST::While* result;
-		result = new AST::While(new AST::BOOL (true), statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::VARIABLE_NAME* expr, AST::VARIABLE_NAME* key, bool is_ref, AST::VARIABLE_NAME* val, List<AST::Statement*>* statements)
-	{
-		AST::Foreach* result;
-		result = new AST::Foreach(wrap_var_name (expr), wrap_var_name (key), is_ref, wrap_var_name (val), statements);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	AST::Continue* fold_impl_continue(HIR::Continue* orig, AST::Expr* expr)
-	{
-		AST::Continue* result;
-		result = new AST::Continue(expr);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	AST::Eval_expr* fold_impl_assign_var (HIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		AST::Assignment* result;
@@ -707,6 +651,64 @@ public:
 		return result;
 	}
 
+	/* Foreign nodes */
+	AST::Foreign_statement* fold_impl_foreign_statement(HIR::Foreign_statement* orig)
+	{
+		AST::Foreign_statement* result;
+		result = new AST::Foreign_statement (orig->foreign);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Foreign_expr* fold_impl_foreign_expr(HIR::Foreign_expr* orig)
+	{
+		AST::Foreign_expr* result;
+		result = new AST::Foreign_expr (orig->foreign);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	/* HIR types not in the MIR */
+
+	AST::Break* fold_impl_break (HIR::Break* orig, AST::Expr* expr)
+	{
+		AST::Break* result;
+		result = new AST::Break (expr);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::If* fold_impl_if(HIR::If* orig, AST::VARIABLE_NAME* variable_name, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
+	{
+		AST::If* result;
+		result = new AST::If (wrap_var_name (variable_name), iftrue, iffalse);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::While* fold_impl_loop (HIR::Loop* orig, List<AST::Statement*>* statements)
+	{
+		AST::While* result;
+		result = new AST::While(new AST::BOOL (true), statements);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::VARIABLE_NAME* expr, AST::VARIABLE_NAME* key, bool is_ref, AST::VARIABLE_NAME* val, List<AST::Statement*>* statements)
+	{
+		AST::Foreach* result;
+		result = new AST::Foreach(wrap_var_name (expr), wrap_var_name (key), is_ref, wrap_var_name (val), statements);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Continue* fold_impl_continue(HIR::Continue* orig, AST::Expr* expr)
+	{
+		AST::Continue* result;
+		result = new AST::Continue(expr);
+		result->attrs = orig->attrs;
+		return result;
+	}
 	~HIR_to_AST () {}
 };
 

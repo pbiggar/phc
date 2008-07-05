@@ -106,7 +106,9 @@ class AST_to_HIR : public AST::Fold
  HIR::Loop*						// While*
 >
 {
+	HIR::Statement* eval_expr_assignment;
 	HIR::Reflection* reflection;
+
 public:
 	AST_to_HIR ()
 	{
@@ -314,7 +316,6 @@ public:
 	}
 
 	/* fold_impl_assignment sets eval_expr_assignment, which is returned if EXPR is NULL */
-	HIR::Statement* eval_expr_assignment;
 	HIR::Statement* fold_impl_eval_expr(AST::Eval_expr* orig, HIR::Expr* expr) 
 	{
 		HIR::Statement* result;
