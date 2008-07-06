@@ -105,7 +105,7 @@ class AST_to_HIR : public AST::Fold
 >
 {
 	HIR::Statement* eval_expr_assignment;
-	HIR::Reflection* reflection;
+	AST::Reflection* reflection;
 
 public:
 	AST_to_HIR ()
@@ -637,49 +637,24 @@ public:
 		return result;
 	}
 
-	/* AST::Reflection may be folded to a Reflection or Variable_variable.
-	 * Higher-up parts of the fold should not need to know this, so we wrap
-	 * AST_fold's fold_variable_name, fold_method_name and fold_clasS_name to
-	 * hide it.
-	 */
-	HIR::None* fold_impl_reflection(AST::Reflection* orig, HIR::Expr* expr) 
+	/* The HIR has no Reflection. Instead, we save the AST::Reflection, and
+	 * extract a VARIABLE_NAME here. */
+	HIR::VARIABLE_NAME* refl_to_var_name (AST::Node* in)
 	{
-		// What we need depends on context: either Reflection or
-		// Variable_variable may be required. So create one of each and let the
-		// caller decide.
-		HIR::Reflection* reflection;
-		reflection = new HIR::Reflection (expr_to_var_name (expr));
-		copy_attrs (reflection, orig);
-		this->reflection = reflection;
-
-		return NULL;
+		AST::Reflection* refl = dyc<AST::Reflection> (in);
+		HIR::Variable* var = dyc<HIR::Variable> (fold_expr (refl->expr));
+		return dyc<HIR::VARIABLE_NAME> (var->variable_name);
 	}
-
-	HIR::Reflection* get_reflection (AST::Reflection* in)
-	{
-		// Get a folded reflection
-		HIR::None* n = fold_reflection (in);
-		assert (n == NULL);
-
-		HIR::Reflection* refl = this->reflection;
-		this->reflection = NULL;
-
-		return refl;
-	}
-
 
 	// Reflection is converted to Variable_name in this context.
 	virtual HIR::Variable_name* fold_variable_name(AST::Variable_name* in)
 	{
 		if (isa<AST::Reflection> (in))
 		{
-			HIR::Reflection* refl = get_reflection (dyc<AST::Reflection>(in));
-			// Convert it to a Variable_variable
 			HIR::Variable_variable* result;
-			result = new HIR::Variable_variable (refl->variable_name);
+			result = new HIR::Variable_variable (refl_to_var_name (in));
 			copy_attrs (result, in);
 			return result;
-
 		}
 		else
 			return parent::fold_variable_name (in);
@@ -689,7 +664,10 @@ public:
 	{
 		if (isa<AST::Reflection> (in))
 		{
-			return get_reflection (dyc<AST::Reflection> (in));
+			HIR::Variable_method* result;
+			result = new HIR::Variable_method (refl_to_var_name (in));
+			copy_attrs (result, in);
+			return result;
 		}
 		else
 			return parent::fold_method_name (in);
@@ -698,7 +676,12 @@ public:
 	HIR::Class_name* fold_class_name(AST::Class_name* in)
 	{
 		if (isa<AST::Reflection> (in))
-			return get_reflection (dyc<AST::Reflection> (in));
+		{
+			HIR::Variable_class* result;
+			result = new HIR::Variable_class (refl_to_var_name (in));
+			copy_attrs (result, in);
+			return result;
+		}
 		else
 			return parent::fold_class_name (in);
 	}

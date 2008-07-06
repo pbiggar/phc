@@ -73,7 +73,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Pre_op*,					// Pre_op*
  MIR::Push_array*,			// Push_array*
  MIR::REAL*,					// REAL*
- MIR::Reflection*,			// Reflection*
  MIR::Return*,					// Return*
  MIR::STRING*,					// STRING*
  MIR::Signature*,				// Signature*
@@ -91,6 +90,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
  MIR::Variable*,				// Variable*
+ MIR::Variable_class*,		// Variable_class*
+ MIR::Variable_method*,		// Variable_method*
  MIR::Variable_name*,		// Variable_name*
  MIR::Variable_variable*	// Variable_variable*
 >		
@@ -417,18 +418,26 @@ public:
 		return result;
 	}
 
-	MIR::Target_expr* fold_impl_target_expr (HIR::Target_expr* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	MIR::Variable_method* fold_impl_variable_method(HIR::Variable_method* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
-		MIR::Target_expr* result;
-		result = new MIR::Target_expr(target, variable_name);
+		MIR::Variable_method* result;
+		result = new MIR::Variable_method(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Reflection* fold_impl_reflection(HIR::Reflection* orig, MIR::VARIABLE_NAME* variable_name) 
+	MIR::Variable_class* fold_impl_variable_class(HIR::Variable_class* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
-		MIR::Reflection* result;
-		result = new MIR::Reflection(variable_name);
+		MIR::Variable_class* result;
+		result = new MIR::Variable_class(variable_name);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Target_expr* fold_impl_target_expr (HIR::Target_expr* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	{
+		MIR::Target_expr* result;
+		result = new MIR::Target_expr(target, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

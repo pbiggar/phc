@@ -120,17 +120,18 @@ Constant ::= CLASS_NAME? CONSTANT_NAME ;
 Instanceof ::= VARIABLE_NAME Class_name ;
 
 Variable_name ::= VARIABLE_NAME | Variable_variable ;
-Reflection ::= VARIABLE_NAME ;
 
 Target ::= VARIABLE_NAME | CLASS_NAME ;
 
 Method_invocation ::= Target? Method_name Actual_parameter* ;
-Method_name ::= METHOD_NAME | Reflection ;
+Method_name ::= METHOD_NAME | Variable_method ;
+Variable_method ::= VARIABLE_NAME ;
 
 Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NAME* ;
 
 New ::= Class_name Actual_parameter* ;
-Class_name ::= CLASS_NAME | Reflection ;
+Class_name ::= CLASS_NAME | Variable_class ;
+Variable_class ::= VARIABLE_NAME ; 
 
 
 {- 

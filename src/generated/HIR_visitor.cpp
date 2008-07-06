@@ -186,10 +186,6 @@ void Visitor::pre_variable_name(Variable_name* in)
 {
 }
 
-void Visitor::pre_reflection(Reflection* in)
-{
-}
-
 void Visitor::pre_target(Target* in)
 {
 }
@@ -202,6 +198,10 @@ void Visitor::pre_method_name(Method_name* in)
 {
 }
 
+void Visitor::pre_variable_method(Variable_method* in)
+{
+}
+
 void Visitor::pre_actual_parameter(Actual_parameter* in)
 {
 }
@@ -211,6 +211,10 @@ void Visitor::pre_new(New* in)
 }
 
 void Visitor::pre_class_name(Class_name* in)
+{
+}
+
+void Visitor::pre_variable_class(Variable_class* in)
 {
 }
 
@@ -467,10 +471,6 @@ void Visitor::post_variable_name(Variable_name* in)
 {
 }
 
-void Visitor::post_reflection(Reflection* in)
-{
-}
-
 void Visitor::post_target(Target* in)
 {
 }
@@ -483,6 +483,10 @@ void Visitor::post_method_name(Method_name* in)
 {
 }
 
+void Visitor::post_variable_method(Variable_method* in)
+{
+}
+
 void Visitor::post_actual_parameter(Actual_parameter* in)
 {
 }
@@ -492,6 +496,10 @@ void Visitor::post_new(New* in)
 }
 
 void Visitor::post_class_name(Class_name* in)
+{
+}
+
+void Visitor::post_variable_class(Variable_class* in)
 {
 }
 
@@ -817,16 +825,16 @@ void Visitor::children_instanceof(Instanceof* in)
     visit_class_name(in->class_name);
 }
 
-void Visitor::children_reflection(Reflection* in)
-{
-    visit_variable_name(in->variable_name);
-}
-
 void Visitor::children_method_invocation(Method_invocation* in)
 {
     visit_target(in->target);
     visit_method_name(in->method_name);
     visit_actual_parameter_list(in->actual_parameters);
+}
+
+void Visitor::children_variable_method(Variable_method* in)
+{
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_actual_parameter(Actual_parameter* in)
@@ -841,6 +849,11 @@ void Visitor::children_new(New* in)
 {
     visit_class_name(in->class_name);
     visit_actual_parameter_list(in->actual_parameters);
+}
+
+void Visitor::children_variable_class(Variable_class* in)
+{
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_static_array(Static_array* in)
@@ -1199,19 +1212,18 @@ void Visitor::pre_instanceof_chain(Instanceof* in)
     pre_instanceof((Instanceof*) in);
 }
 
-void Visitor::pre_reflection_chain(Reflection* in)
-{
-    pre_node((Node*) in);
-    pre_method_name((Method_name*) in);
-    pre_class_name((Class_name*) in);
-    pre_reflection((Reflection*) in);
-}
-
 void Visitor::pre_method_invocation_chain(Method_invocation* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
     pre_method_invocation((Method_invocation*) in);
+}
+
+void Visitor::pre_variable_method_chain(Variable_method* in)
+{
+    pre_node((Node*) in);
+    pre_method_name((Method_name*) in);
+    pre_variable_method((Variable_method*) in);
 }
 
 void Visitor::pre_actual_parameter_chain(Actual_parameter* in)
@@ -1225,6 +1237,13 @@ void Visitor::pre_new_chain(New* in)
     pre_node((Node*) in);
     pre_expr((Expr*) in);
     pre_new((New*) in);
+}
+
+void Visitor::pre_variable_class_chain(Variable_class* in)
+{
+    pre_node((Node*) in);
+    pre_class_name((Class_name*) in);
+    pre_variable_class((Variable_class*) in);
 }
 
 void Visitor::pre_static_array_chain(Static_array* in)
@@ -1623,18 +1642,17 @@ void Visitor::post_instanceof_chain(Instanceof* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_reflection_chain(Reflection* in)
-{
-    post_reflection((Reflection*) in);
-    post_class_name((Class_name*) in);
-    post_method_name((Method_name*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_method_invocation_chain(Method_invocation* in)
 {
     post_method_invocation((Method_invocation*) in);
     post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_variable_method_chain(Variable_method* in)
+{
+    post_variable_method((Variable_method*) in);
+    post_method_name((Method_name*) in);
     post_node((Node*) in);
 }
 
@@ -1648,6 +1666,13 @@ void Visitor::post_new_chain(New* in)
 {
     post_new((New*) in);
     post_expr((Expr*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_variable_class_chain(Variable_class* in)
+{
+    post_variable_class((Variable_class*) in);
+    post_class_name((Class_name*) in);
     post_node((Node*) in);
 }
 
@@ -2458,8 +2483,8 @@ void Visitor::pre_class_name_chain(Class_name* in)
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID:
+    	pre_variable_class_chain(dynamic_cast<Variable_class*>(in));
     	break;
     }
 }
@@ -2471,8 +2496,8 @@ void Visitor::pre_method_name_chain(Method_name* in)
     case METHOD_NAME::ID:
     	pre_method_name_chain(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	pre_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID:
+    	pre_variable_method_chain(dynamic_cast<Variable_method*>(in));
     	break;
     }
 }
@@ -2706,8 +2731,8 @@ void Visitor::post_class_name_chain(Class_name* in)
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	post_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID:
+    	post_variable_class_chain(dynamic_cast<Variable_class*>(in));
     	break;
     }
 }
@@ -2719,8 +2744,8 @@ void Visitor::post_method_name_chain(Method_name* in)
     case METHOD_NAME::ID:
     	post_method_name_chain(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	post_reflection_chain(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID:
+    	post_variable_method_chain(dynamic_cast<Variable_method*>(in));
     	break;
     }
 }
@@ -2954,8 +2979,8 @@ void Visitor::children_class_name(Class_name* in)
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID:
+    	children_variable_class(dynamic_cast<Variable_class*>(in));
     	break;
     }
 }
@@ -2967,8 +2992,8 @@ void Visitor::children_method_name(Method_name* in)
     case METHOD_NAME::ID:
     	children_method_name(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID:
+    	children_variable_method(dynamic_cast<Variable_method*>(in));
     	break;
     }
 }

@@ -61,10 +61,11 @@ public:
     virtual Expr* pre_bin_op(Bin_op* in);
     virtual Constant* pre_constant(Constant* in);
     virtual Expr* pre_instanceof(Instanceof* in);
-    virtual Reflection* pre_reflection(Reflection* in);
     virtual Expr* pre_method_invocation(Method_invocation* in);
+    virtual Method_name* pre_variable_method(Variable_method* in);
     virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
+    virtual Class_name* pre_variable_class(Variable_class* in);
     virtual Static_value* pre_static_array(Static_array* in);
     virtual void pre_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out);
     virtual void pre_branch(Branch* in, List<Statement*>* out);
@@ -127,10 +128,11 @@ public:
     virtual Expr* post_bin_op(Bin_op* in);
     virtual Constant* post_constant(Constant* in);
     virtual Expr* post_instanceof(Instanceof* in);
-    virtual Reflection* post_reflection(Reflection* in);
     virtual Expr* post_method_invocation(Method_invocation* in);
+    virtual Method_name* post_variable_method(Variable_method* in);
     virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
+    virtual Class_name* post_variable_class(Variable_class* in);
     virtual Static_value* post_static_array(Static_array* in);
     virtual void post_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out);
     virtual void post_branch(Branch* in, List<Statement*>* out);
@@ -193,10 +195,11 @@ public:
     virtual void children_bin_op(Bin_op* in);
     virtual void children_constant(Constant* in);
     virtual void children_instanceof(Instanceof* in);
-    virtual void children_reflection(Reflection* in);
     virtual void children_method_invocation(Method_invocation* in);
+    virtual void children_variable_method(Variable_method* in);
     virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
+    virtual void children_variable_class(Variable_class* in);
     virtual void children_static_array(Static_array* in);
     virtual void children_static_array_elem(Static_array_elem* in);
     virtual void children_branch(Branch* in);

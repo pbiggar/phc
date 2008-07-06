@@ -79,7 +79,6 @@ class MIR_to_AST : public MIR::Fold
  AST::Eval_expr*,				// Pre_op*
  AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
- AST::Reflection*,			// Reflection*
  AST::Return*,					// Return*
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
@@ -89,7 +88,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Expr*,					// Static_array_key*
  AST::Static_declaration*,	// Static_declaration*
  AST::Expr*,					// Static_value*
- AST::Node*,					// Target* - MIR::Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
+ AST::Node*,					// Target* - Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
  AST::Variable*,				// Target_expr*
  AST::Throw*,					// Throw*
  AST::Try*,						// Try*
@@ -97,6 +96,8 @@ class MIR_to_AST : public MIR::Fold
  AST::Unary_op*,				// Unary_op*
  AST::VARIABLE_NAME*,		// VARIABLE_NAME*
  AST::Variable*,				// Variable*
+ AST::Reflection*,			// Variable_class*
+ AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
  AST::None*						// Variable_variable* - Reflection or Variable
 >
@@ -513,7 +514,15 @@ public:
 		return NULL;
 	}
 
-	AST::Reflection* fold_impl_reflection(MIR::Reflection* orig, AST::VARIABLE_NAME* variable_name) 
+	AST::Reflection* fold_impl_variable_method (MIR::Variable_method* orig, AST::VARIABLE_NAME* variable_name) 
+	{
+		AST::Reflection* result;
+		result = new AST::Reflection (wrap_var_name (variable_name));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Reflection* fold_impl_variable_class (MIR::Variable_class* orig, AST::VARIABLE_NAME* variable_name) 
 	{
 		AST::Reflection* result;
 		result = new AST::Reflection (wrap_var_name (variable_name));

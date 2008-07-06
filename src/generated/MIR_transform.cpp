@@ -176,12 +176,12 @@ Expr* Transform::pre_instanceof(Instanceof* in)
     return in;
 }
 
-Reflection* Transform::pre_reflection(Reflection* in)
+Expr* Transform::pre_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-Expr* Transform::pre_method_invocation(Method_invocation* in)
+Method_name* Transform::pre_variable_method(Variable_method* in)
 {
     return in;
 }
@@ -192,6 +192,11 @@ void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter
 }
 
 Expr* Transform::pre_new(New* in)
+{
+    return in;
+}
+
+Class_name* Transform::pre_variable_class(Variable_class* in)
 {
     return in;
 }
@@ -497,12 +502,12 @@ Expr* Transform::post_instanceof(Instanceof* in)
     return in;
 }
 
-Reflection* Transform::post_reflection(Reflection* in)
+Expr* Transform::post_method_invocation(Method_invocation* in)
 {
     return in;
 }
 
-Expr* Transform::post_method_invocation(Method_invocation* in)
+Method_name* Transform::post_variable_method(Variable_method* in)
 {
     return in;
 }
@@ -513,6 +518,11 @@ void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_paramete
 }
 
 Expr* Transform::post_new(New* in)
+{
+    return in;
+}
+
+Class_name* Transform::post_variable_class(Variable_class* in)
 {
     return in;
 }
@@ -846,16 +856,16 @@ void Transform::children_instanceof(Instanceof* in)
     in->class_name = transform_class_name(in->class_name);
 }
 
-void Transform::children_reflection(Reflection* in)
-{
-    in->variable_name = transform_variable_name(in->variable_name);
-}
-
 void Transform::children_method_invocation(Method_invocation* in)
 {
     in->target = transform_target(in->target);
     in->method_name = transform_method_name(in->method_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+}
+
+void Transform::children_variable_method(Variable_method* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_actual_parameter(Actual_parameter* in)
@@ -869,6 +879,11 @@ void Transform::children_new(New* in)
 {
     in->class_name = transform_class_name(in->class_name);
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
+}
+
+void Transform::children_variable_class(Variable_class* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_static_array(Static_array* in)
@@ -1917,7 +1932,7 @@ Class_name* Transform::pre_class_name(Class_name* in)
     switch(in->classid())
     {
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
-    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID: return pre_variable_class(dynamic_cast<Variable_class*>(in));
     }
     assert(0);
 }
@@ -1927,7 +1942,7 @@ Method_name* Transform::pre_method_name(Method_name* in)
     switch(in->classid())
     {
     case METHOD_NAME::ID: return pre_method_name(dynamic_cast<METHOD_NAME*>(in));
-    case Reflection::ID: return pre_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID: return pre_variable_method(dynamic_cast<Variable_method*>(in));
     }
     assert(0);
 }
@@ -2242,7 +2257,7 @@ Class_name* Transform::post_class_name(Class_name* in)
     switch(in->classid())
     {
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
-    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID: return post_variable_class(dynamic_cast<Variable_class*>(in));
     }
     assert(0);
 }
@@ -2252,7 +2267,7 @@ Method_name* Transform::post_method_name(Method_name* in)
     switch(in->classid())
     {
     case METHOD_NAME::ID: return post_method_name(dynamic_cast<METHOD_NAME*>(in));
-    case Reflection::ID: return post_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID: return post_variable_method(dynamic_cast<Variable_method*>(in));
     }
     assert(0);
 }
@@ -2487,8 +2502,8 @@ void Transform::children_class_name(Class_name* in)
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_class::ID:
+    	children_variable_class(dynamic_cast<Variable_class*>(in));
     	break;
     }
 }
@@ -2500,8 +2515,8 @@ void Transform::children_method_name(Method_name* in)
     case METHOD_NAME::ID:
     	children_method_name(dynamic_cast<METHOD_NAME*>(in));
     	break;
-    case Reflection::ID:
-    	children_reflection(dynamic_cast<Reflection*>(in));
+    case Variable_method::ID:
+    	children_variable_method(dynamic_cast<Variable_method*>(in));
     	break;
     }
 }
