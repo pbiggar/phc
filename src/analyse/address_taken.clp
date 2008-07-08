@@ -4,17 +4,14 @@
 % ignored for scalar optimizations.
 
 
-type alias ::= alias_var {string}
-				| alias_bottom.
-
 % Does VAR_NAME alias another variable
 predicate is_alias (in VAR_NAME:string) succeeds [zero,once].
 
-is_alias (_) :- in_alias_set (alias_bottom).
-is_alias (VAR_NAME) :- in_alias_set (alias_var{VAR_NAME}).
+is_alias (_) :- in_alias_set (var_bottom).
+is_alias (VAR_NAME) :- in_alias_set (var_name{VAR_NAME}).
 
 % Encode aliases
-predicate in_alias_set (in ALIAS:alias).
+predicate in_alias_set (in ALIAS:var_info).
 
 
 % Error handling
@@ -35,7 +32,7 @@ alias_handled (BB) :- cfg_node (BB),
 
 
 predicate aliased (t_VARIABLE_NAME).
-aliased (vARIABLE_NAME{_, VAR_NAME}), +in_alias_set (alias_var{VAR_NAME}).
+aliased (vARIABLE_NAME{_, VAR_NAME}), +in_alias_set (var_name{VAR_NAME}).
 
 
 % Handle formal parameters
@@ -93,7 +90,7 @@ cfg_node (BB), BB = nblock{statement_Global {
 % cannot say any variable is defined. So nothing happens.
 cfg_node (BB), BB = nblock{statement_Global {
 	global {_, variable_name_Reflection {_}}}},
-	+in_alias_set (alias_bottom),
+	+in_alias_set (var_bottom),
 	+alias_handled (BB).
 
 
@@ -128,7 +125,7 @@ alias_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
 
 % Variable_variable: $x =& $$y - Everything is aliased.
 alias_expr (BB, expr_Variable_variable {variable_variable{_, _}}),
-	+in_alias_set (alias_bottom),
+	+in_alias_set (var_bottom),
 	+alias_handled (BB).
 
 % Method invocation - all parameters can be aliased
@@ -151,7 +148,7 @@ alias_actual_params (BB, [PARAM|TAIL]),
 % No target, empty list, Reflection
 alias_actual_params (BB, [PARAM|TAIL]),
 	PARAM = actual_parameter {_, _, no, variable_name_Reflection {_}, []},
-	+in_alias_set (alias_bottom),
+	+in_alias_set (var_bottom),
 	+alias_actual_params (BB, TAIL).
 
 % Everything else - No aliases

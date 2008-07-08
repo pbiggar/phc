@@ -5,7 +5,7 @@ import "optimize.clp".
 % Legend:
 % U			union
 % /			less
-% B			Basic block
+% BB			Basic block
 %
 % An assignment to a variable is dead if the variable is no longer live after
 % the assignment. Liveness is a backwards analysis, with the following
@@ -13,38 +13,35 @@ import "optimize.clp".
 %
 % live_in (Exit) = []
 %
-% live_out (B) = U S, for S in Succ (B)
-% live_in (B) = (live_out (B) / defined (B)) U used (B)
+% live_out (BB) = U live_in (S), for all S in Succ (BB)
+% live_in (BB) = (live_out (BB) / defined (BB)) U used (BB)
 
 % Note ommitting definitions is safe, as the live-ness for that varaiable
 % will continue to propagate, and we cannot kill the definition. Omitting uses
 % is not safe, as we may accidentally kill a variable which is later used.
 
 
-type lv_info ::= lv_name{string}
-					| lv_bottom.
-
-predicate live_in (BB:t_cfg_node, LIVE_INFO:lv_info).
-predicate live_out (BB:t_cfg_node, LIVE_INFO:lv_info).
+predicate live_in (BB:t_cfg_node, LIVE_INFO:var_info).
+predicate live_out (BB:t_cfg_node, LIVE_INFO:var_info).
 
 % Variables defined in block BB
-predicate defined (BB:t_cfg_node, LIVE_INFO:lv_info).
+predicate defined (BB:t_cfg_node, LIVE_INFO:var_info).
 
 % Variables used in block BB
-predicate used (BB:t_cfg_node, LIVE_INFO:lv_info).
+predicate used (BB:t_cfg_node, LIVE_INFO:var_info).
 
 
 % Get that variable name from the vars
 predicate defined_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 predicate used_var (BB:t_cfg_node, VAR_NAME:t_VARIABLE_NAME).
 
-defined (BB, lv_name{NAME}) :- defined_var (BB, vARIABLE_NAME{_, NAME}).
-used (BB, lv_name{NAME}) :- used_var (BB, vARIABLE_NAME{_, NAME}).
+defined (BB, var_name{NAME}) :- defined_var (BB, vARIABLE_NAME{_, NAME}).
+used (BB, var_name{NAME}) :- used_var (BB, vARIABLE_NAME{_, NAME}).
 
 predicate is_live (in BB:t_cfg_node, in VAR_NAME:string) succeeds [zero,once].
 is_live (BB, VAR_NAME) :-
-	live_out (BB, lv_name{VAR_NAME})
-	; live_out (BB, lv_bottom).
+	live_out (BB, var_name{VAR_NAME})
+	; live_out (BB, var_bottom).
 
 
 
@@ -53,11 +50,11 @@ is_live (BB, VAR_NAME) :-
 % live_in (Exit) = []
 % Implicit
 
-% live_out (B) = U S, for S in Succ (B)
+% live_out (BB) = U live_in (S), for all S in Succ (BB)
 live_out (BB, OUT) :- cfg_node (BB),
 	cfg_edge (BB, SUCC), live_in (SUCC, OUT).
 
-% live_in (B) = (live_out (B) / defined (B)) U used (B)
+% live_in (BB) = (live_out (BB) / defined (BB)) U used (BB)
 live_in (BB, VAR) :-
 	(live_out (BB, VAR), ~defined (BB, VAR) ; used (BB, VAR)).
 
@@ -164,7 +161,7 @@ use_expr (BB, expr_Index_array {index_array{_, ARRAY_NAME, INDEX_NAME}}),
 	+live_handled (BB).
 
 use_expr (BB, expr_Variable_variable {variable_variable{_, _}}),
-	+used (BB, lv_bottom),
+	+used (BB, var_bottom),
 	+live_handled (BB).
 
 % Target_expr
@@ -180,7 +177,7 @@ use_expr (BB, expr_Target_expr {target_expr{_, TARGET, VARIABLE_NAME}}),
 	% Variable_name
 	(( 
 		VARIABLE_NAME = variable_name_Reflection {_},
-		+used (BB, lv_bottom)
+		+used (BB, var_bottom)
 	)
 	;
 	(
@@ -251,10 +248,10 @@ use_variable_names (BB, [VAR_NAME|TAIL]),
 
 % Annotate the CFG with liveness info.
 
-in_annotation (BB, STR) :- live_in (BB, lv_name{STR}).
-out_annotation (BB, STR) :- live_out (BB, lv_name{STR}).
-in_annotation (BB, "BOTTOM") :- live_in (BB, lv_bottom).
-out_annotation (BB, "BOTTOM") :- live_out (BB, lv_bottom).
+in_annotation (BB, STR) :- live_in (BB, var_name{STR}).
+out_annotation (BB, STR) :- live_out (BB, var_name{STR}).
+in_annotation (BB, "BOTTOM") :- live_in (BB, var_bottom).
+out_annotation (BB, "BOTTOM") :- live_out (BB, var_bottom).
 
 
 
