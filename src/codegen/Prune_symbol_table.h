@@ -38,7 +38,7 @@ public:
 	// mark methods and variable_names
 	void post_method (MIR::Method* in);
 	void post_variable_name (MIR::VARIABLE_NAME* in);
-	void post_variable_name (MIR::Variable_name* in);
+	void post_variable_variable (MIR::Variable_variable* in);
 };
 
 #endif  // _PRUNE_SYMBOL_TABLE_H_

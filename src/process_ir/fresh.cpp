@@ -82,11 +82,6 @@ namespace AST
 
 namespace HIR
 {
-	Variable* fresh_var(string prefix)
-	{
-		return new Variable (fresh_var_name (prefix));
-	}
-
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
 		int suffix = fresh_suffix ();
@@ -100,11 +95,6 @@ namespace HIR
 
 namespace MIR
 {
-	Variable* fresh_var(string prefix)
-	{
-		return new Variable (fresh_var_name (prefix));
-	}
-
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
 		int suffix = fresh_suffix ();

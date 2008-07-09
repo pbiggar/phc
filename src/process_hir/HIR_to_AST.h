@@ -88,8 +88,7 @@ class HIR_to_AST : public HIR::Fold
  AST::Try*,						// Try*
  AST::Type*,					// Type*
  AST::Unary_op*,				// Unary_op*
- AST::VARIABLE_NAME*,		// VARIABLE_NAME*
- AST::Variable*,				// Variable*
+ AST::None*,					// VARIABLE_NAME* - Variable or Variable_name
  AST::Reflection*,			// Variable_class*
  AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
@@ -97,52 +96,76 @@ class HIR_to_AST : public HIR::Fold
 >
 {
 	AST::Reflection* reflection;
+	stack<AST::VARIABLE_NAME*> var_names;
+
+	// Indicates non-NULL for target.
+	AST::None* non_null_ptr;
+
 public:
 	HIR_to_AST ()
 	{
 		reflection = NULL;
+
+		// We can't instantiate a None (must use a pointer sized object)
+		non_null_ptr = reinterpret_cast <AST::None*> (new AST::INT (0));
 	}
 
-	AST::Variable* wrap_var_name (AST::VARIABLE_NAME* var_name)
+	AST::VARIABLE_NAME* get_var_name ()
+	{
+		assert (!var_names.empty());
+		AST::VARIABLE_NAME* result = var_names.top ();
+		var_names.pop ();
+		return result;
+	}
+
+	AST::Variable* wrap_var_name (AST::Node* var_name)
 	{
 		if (var_name == NULL)
 			return NULL;
 
-		return new AST::Variable (var_name);
+		return new AST::Variable (get_var_name ());
 	}
 
-	List<AST::Expr*>* wrap_var_name_list (List<AST::VARIABLE_NAME*>* var_names)
+	List<AST::Expr*>* wrap_var_name_list (List<AST::None*>* var_names)
 	{
 		List<AST::Expr*>* result = new List<AST::Expr*>;
-		for_lci (var_names, AST::VARIABLE_NAME, i)
+		for_lci (var_names, AST::None, i)
 		{
-			result->push_back (wrap_var_name (*i));
+			// Process in reverse order off the stack
+			result->push_front (wrap_var_name (*i));
 		}
 		return result;
 	}
 
-	List<AST::Expr*>* wrap_var_name_in_list (AST::VARIABLE_NAME* var_name)
+	List<AST::Expr*>* wrap_var_name_in_list (AST::None* var_name)
 	{
 		// Dont turn $x into $x[]
 		if (var_name == NULL)
 			return new List<AST::Expr*>;
 
-		return wrap_var_name_list (new List<AST::VARIABLE_NAME*> (var_name));
+		return wrap_var_name_list (new List<AST::None*> (var_name));
 	}
 
-	/* A HIR::Target can be a VARIABLE_NAME or a CLASS_NAME. We must wrap the
-	 * VARIABLE_NAME* in an AST::Variable. */	
+	/* VARIABLE_NAMEs are converted to None. CLASS_NAMEs are returned in one
+	 * piece, but their static type is Node. However, Target is optional, so
+	 * NULL indicates that there is no target. Therefore, we cannot use NULL as
+	 * the return type of VARIABLE_NAME. We cant use an arbitrary integer in
+	 * case a pointer of the same value exists, so we allocate non_null_ptr,
+	 * which cannot have the same address as any other value.*/ 
 	AST::Target* wrap_target (AST::Node* target)
 	{
+		// Target is generally optional
 		if (target == NULL)
 			return NULL;
 
-		AST::CLASS_NAME* cn = dynamic_cast <AST::CLASS_NAME*> (target);
-		if (cn) return cn;
+		// VARIABLE_NAME returns that it is a non-null
+		if (target == non_null_ptr)
+			return wrap_var_name (target);
 
-		return new AST::Variable (dynamic_cast<AST::VARIABLE_NAME*> (target));
+		return dyc<AST::CLASS_NAME> (target);
 	}
 
+public:
 
 	AST::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<AST::Statement*>* statements) 
 	{
@@ -232,10 +255,10 @@ public:
 		return result;
 	}
 	
-	AST::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, AST::VARIABLE_NAME* variable_name, AST::Expr* expr) 
+	AST::Name_with_default* fold_impl_name_with_default(HIR::Name_with_default* orig, AST::None* variable_name, AST::Expr* expr) 
 	{ 
 		AST::Name_with_default* result;
-		result = new AST::Name_with_default(variable_name, expr);
+		result = new AST::Name_with_default(get_var_name (), expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -272,15 +295,15 @@ public:
 		return result;
 	}
 
-	AST::Catch* fold_impl_catch(HIR::Catch* orig, AST::CLASS_NAME* class_name, AST::VARIABLE_NAME* variable_name, List<AST::Statement*>* statements) 
+	AST::Catch* fold_impl_catch(HIR::Catch* orig, AST::CLASS_NAME* class_name, AST::None* variable_name, List<AST::Statement*>* statements) 
 	{
 		AST::Catch* result;
-		result = new AST::Catch(class_name, variable_name, statements);
+		result = new AST::Catch(class_name, get_var_name (), statements);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Throw* fold_impl_throw(HIR::Throw* orig, AST::VARIABLE_NAME* variable_name) 
+	AST::Throw* fold_impl_throw(HIR::Throw* orig, AST::None* variable_name) 
 	{
 		AST::Throw* result;
 		result = new AST::Throw(wrap_var_name (variable_name));
@@ -288,75 +311,89 @@ public:
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_assign_var (HIR::Assign_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::Expr* rhs) 
+	AST::Eval_expr* fold_impl_assign_var (HIR::Assign_var* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		AST::Assignment* result;
 		result = new AST::Assignment(
-			new AST::Variable (
-				NULL,
-				lhs,
-				new List<AST::Expr*>),
+			wrap_var_name (lhs),
 			is_ref, 
 			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_var_var (HIR::Assign_var_var* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_assign_var_var (HIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
 	{
+		// The order is important.
+		AST::VARIABLE_NAME* rhs_var = get_var_name ();
+		AST::VARIABLE_NAME* lhs_var = get_var_name ();
+
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
 				NULL,
 				new AST::Reflection (
-					wrap_var_name (lhs)),
+					new AST::Variable (lhs_var)),
 				new List<AST::Expr*>), 
 			is_ref, 
-			wrap_var_name (rhs));
+			new AST::Variable (rhs_var));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_array (HIR::Assign_array* orig, AST::VARIABLE_NAME* lhs, AST::VARIABLE_NAME* index, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_assign_array (HIR::Assign_array* orig, AST::None* lhs, AST::None* index, bool is_ref, AST::None* rhs) 
 	{
+		// The order is important.
+		AST::VARIABLE_NAME* rhs_var = get_var_name ();
+		AST::VARIABLE_NAME* index_var = get_var_name ();
+		AST::VARIABLE_NAME* lhs_var = get_var_name ();
+
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
 				NULL,
-				lhs, 
+				lhs_var,
 				new List<AST::Expr*> (
-					wrap_var_name (index))), 
+					new AST::Variable (index_var))),
 			is_ref, 
-			wrap_var_name (rhs));
+			new AST::Variable (rhs_var));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_push_array (HIR::Push_array* orig, AST::VARIABLE_NAME* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_push_array (HIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
 	{
+		// The order is important.
+		AST::VARIABLE_NAME* rhs_var = get_var_name ();
+		AST::VARIABLE_NAME* lhs_var = get_var_name ();
+
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
 				NULL,
-				lhs,
+				lhs_var,
 				new List<AST::Expr*> (
 					NULL)),
 			is_ref,
-			wrap_var_name (rhs));
+			new AST::Variable (rhs_var));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_target (HIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::VARIABLE_NAME* rhs) 
+	AST::Eval_expr* fold_impl_assign_target (HIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::None* rhs) 
 	{
+		// The order is important.
+		AST::VARIABLE_NAME* rhs_var = get_var_name ();
+		AST::Target* target_var = wrap_target (target);
+
 		AST::Assignment* result;
 		result = new AST::Assignment(
 			new AST::Variable (
-				wrap_target (target),
+				target_var,
 				lhs,
 				new List<AST::Expr*>),
 			is_ref,
-			wrap_var_name (rhs));
+			new AST::Variable (rhs_var));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
@@ -369,7 +406,7 @@ public:
 		return result;
 	}
 
-	AST::Cast* fold_impl_cast(HIR::Cast* orig, AST::CAST* cast, AST::VARIABLE_NAME* variable_name) 
+	AST::Cast* fold_impl_cast(HIR::Cast* orig, AST::CAST* cast, AST::None* variable_name) 
 	{
 		AST::Cast* result;
 		result = new AST::Cast(cast, wrap_var_name (variable_name));
@@ -377,7 +414,7 @@ public:
 		return result;
 	}
 
-	AST::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, AST::OP* op, AST::VARIABLE_NAME* variable_name) 
+	AST::Unary_op* fold_impl_unary_op(HIR::Unary_op* orig, AST::OP* op, AST::None* variable_name) 
 	{
 		AST::Unary_op* result;
 		result = new AST::Unary_op(op, wrap_var_name (variable_name));
@@ -385,10 +422,13 @@ public:
 		return result;
 	}
 
-	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::VARIABLE_NAME* left, AST::OP* op, AST::VARIABLE_NAME* right) 
+	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::None* left, AST::OP* op, AST::None* right) 
 	{
+		AST::Variable* right_var = wrap_var_name (left);
+		AST::Variable* left_var = wrap_var_name (left);
+
 		AST::Bin_op* result;
-		result = new AST::Bin_op(wrap_var_name (left), op, wrap_var_name (right));
+		result = new AST::Bin_op(left_var, op, right_var);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -401,7 +441,7 @@ public:
 		return result;
 	}
 
-	AST::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, AST::VARIABLE_NAME* variable_name, AST::Class_name* class_name) 
+	AST::Instanceof* fold_impl_instanceof(HIR::Instanceof* orig, AST::None* variable_name, AST::Class_name* class_name) 
 	{
 		AST::Instanceof* result;
 		result = new AST::Instanceof(wrap_var_name (variable_name), class_name);
@@ -409,24 +449,14 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::VARIABLE_NAME* variable_name, AST::VARIABLE_NAME* array_index)
+	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::None* variable_name, AST::None* array_index)
 	{
-		AST::Variable* result;
-		result = new AST::Variable(
-			NULL,
-			variable_name,
-			wrap_var_name_in_list (array_index));
-		result->attrs = orig->attrs;
-		return result;
-	}
+		// The order is important.
+		List<AST::Expr*>* list = wrap_var_name_in_list (array_index);
+		AST::VARIABLE_NAME* var = get_var_name ();
 
-	AST::Variable* fold_impl_variable(HIR::Variable* orig, AST::VARIABLE_NAME* variable_name) 
-	{
 		AST::Variable* result;
-		result = new AST::Variable(
-			NULL,
-			variable_name,
-			new List<AST::Expr*> ());
+		result = new AST::Variable(NULL, var, list);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -447,37 +477,46 @@ public:
 	 */
 	AST::Variable_name* fold_variable_name (HIR::Variable_name* orig)
 	{
-		if (!isa<HIR::Variable_variable> (orig))
-			return parent::fold_variable_name (orig);
+		if (isa<HIR::Variable_variable> (orig))
+		{
+			fold_variable_variable (dyc<HIR::Variable_variable> (orig));
+			AST::Reflection* result = this->reflection;
+			assert (result);
 
-		fold_variable_variable (dyc<HIR::Variable_variable> (orig));
-		assert (this->reflection);
-		AST::Reflection* result = this->reflection;
-
-		this->reflection = NULL;
-		return result;
+			this->reflection = NULL;
+			return result;
+		}
+		else
+		{
+			fold_variable_name (dyc<HIR::VARIABLE_NAME> (orig));
+			return get_var_name ();
+		}
 	}
 
 	AST::Expr* fold_expr (HIR::Expr* orig)
 	{
-		if (!isa<HIR::Variable_variable> (orig))
+		if (isa<HIR::Variable_variable> (orig))
+		{
+			fold_variable_variable (dyc<HIR::Variable_variable> (orig));
+			assert (this->reflection);
+
+			AST::Variable* result;
+			result = new AST::Variable (
+				NULL,
+				this->reflection,
+				new List<AST::Expr*>);
+			result->attrs = orig->attrs;
+
+			this->reflection = NULL;
+			return result;
+		}
+		else if (isa<HIR::VARIABLE_NAME> (orig))
+			return wrap_var_name (fold_variable_name (dyc<HIR::VARIABLE_NAME> (orig)));
+		else
 			return parent::fold_expr (orig);
-
-		fold_variable_variable (dyc<HIR::Variable_variable> (orig));
-		assert (this->reflection);
-
-		AST::Variable* result;
-		result = new AST::Variable (
-			NULL,
-			this->reflection,
-			new List<AST::Expr*>);
-		result->attrs = orig->attrs;
-
-		this->reflection = NULL;
-		return result;
 	}
 
-	AST::None* fold_impl_variable_variable(HIR::Variable_variable* orig, AST::VARIABLE_NAME* variable_name) 
+	AST::None* fold_impl_variable_variable(HIR::Variable_variable* orig, AST::None* variable_name) 
 	{
 		// Return NULL, and the users of this use this->reflection.
 		assert (this->reflection == NULL);
@@ -490,7 +529,7 @@ public:
 		return NULL;
 	}
 
-	AST::Reflection* fold_impl_variable_method (HIR::Variable_method* orig, AST::VARIABLE_NAME* variable_name) 
+	AST::Reflection* fold_impl_variable_method (HIR::Variable_method* orig, AST::None* variable_name) 
 	{
 		AST::Reflection* result;
 		result = new AST::Reflection (wrap_var_name (variable_name));
@@ -498,7 +537,7 @@ public:
 		return result;
 	}
 
-	AST::Reflection* fold_impl_variable_class (HIR::Variable_class* orig, AST::VARIABLE_NAME* variable_name) 
+	AST::Reflection* fold_impl_variable_class (HIR::Variable_class* orig, AST::None* variable_name) 
 	{
 		AST::Reflection* result;
 		result = new AST::Reflection (wrap_var_name (variable_name));
@@ -506,7 +545,7 @@ public:
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_pre_op(HIR::Pre_op* orig, AST::OP* op, AST::VARIABLE_NAME* variable_name)
+	AST::Eval_expr* fold_impl_pre_op(HIR::Pre_op* orig, AST::OP* op, AST::None* variable_name)
 	{
 		AST::Pre_op* result;
 		result = new AST::Pre_op(op, wrap_var_name (variable_name));
@@ -541,15 +580,18 @@ public:
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::VARIABLE_NAME*>* array_indices) 
+	AST::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::None*>* array_indices) 
 	{
+		List<AST::Expr*>* list = wrap_var_name_list (array_indices);
+		AST::Target* target_var = wrap_target (target);
+
 		AST::Actual_parameter* result;
 		result = new AST::Actual_parameter(
 			is_ref, 
 			new AST::Variable (
-				wrap_target (target),
-				variable_name, 
-				wrap_var_name_list (array_indices)));
+				target_var,
+				variable_name,
+				list));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -586,12 +628,16 @@ public:
 		return result;
 	}
 
-	AST::VARIABLE_NAME* fold_variable_name(HIR::VARIABLE_NAME* orig) 
+	AST::None* fold_variable_name(HIR::VARIABLE_NAME* orig) 
 	{
 		AST::VARIABLE_NAME* result;
 		result = new AST::VARIABLE_NAME(orig->value);
 		result->attrs = orig->attrs;
-		return result;
+
+		var_names.push (result);
+
+		// See comment in wrap_target ().
+		return non_null_ptr;
 	}
 
 	AST::INT* fold_int(HIR::INT* orig) 
@@ -676,7 +722,7 @@ public:
 		return result;
 	}
 
-	AST::If* fold_impl_if(HIR::If* orig, AST::VARIABLE_NAME* variable_name, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
+	AST::If* fold_impl_if(HIR::If* orig, AST::None* variable_name, List<AST::Statement*>* iftrue, List<AST::Statement*>* iffalse)
 	{
 		AST::If* result;
 		result = new AST::If (wrap_var_name (variable_name), iftrue, iffalse);
@@ -692,10 +738,15 @@ public:
 		return result;
 	}
 
-	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::VARIABLE_NAME* expr, AST::VARIABLE_NAME* key, bool is_ref, AST::VARIABLE_NAME* val, List<AST::Statement*>* statements)
+	AST::Foreach* fold_impl_foreach (HIR::Foreach* orig, AST::None* arr, AST::None* key, bool is_ref, AST::None* val, List<AST::Statement*>* statements)
 	{
+		// The order is important.
+		AST::Variable* val_var = wrap_var_name (val);
+		AST::Variable* key_var = wrap_var_name (key);
+		AST::Variable* arr_var = wrap_var_name (arr);
+
 		AST::Foreach* result;
-		result = new AST::Foreach(wrap_var_name (expr), wrap_var_name (key), is_ref, wrap_var_name (val), statements);
+		result = new AST::Foreach(arr_var, key_var, is_ref, val_var, statements);
 		result->attrs = orig->attrs;
 		return result;
 	}

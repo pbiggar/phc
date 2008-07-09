@@ -249,12 +249,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Target_expr(target, variable_name);
     }
-    if(!strcmp(type_id, "Variable"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Variable(variable_name);
-    }
     if(!strcmp(type_id, "Variable_variable"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);

@@ -150,7 +150,7 @@ void Visitor::pre_target_expr(Target_expr* in)
 {
 }
 
-void Visitor::pre_variable(Variable* in)
+void Visitor::pre_variable_name(Variable_name* in)
 {
 }
 
@@ -179,10 +179,6 @@ void Visitor::pre_constant(Constant* in)
 }
 
 void Visitor::pre_instanceof(Instanceof* in)
-{
-}
-
-void Visitor::pre_variable_name(Variable_name* in)
 {
 }
 
@@ -435,7 +431,7 @@ void Visitor::post_target_expr(Target_expr* in)
 {
 }
 
-void Visitor::post_variable(Variable* in)
+void Visitor::post_variable_name(Variable_name* in)
 {
 }
 
@@ -464,10 +460,6 @@ void Visitor::post_constant(Constant* in)
 }
 
 void Visitor::post_instanceof(Instanceof* in)
-{
-}
-
-void Visitor::post_variable_name(Variable_name* in)
 {
 }
 
@@ -775,11 +767,6 @@ void Visitor::children_eval_expr(Eval_expr* in)
 void Visitor::children_target_expr(Target_expr* in)
 {
     visit_target(in->target);
-    visit_variable_name(in->variable_name);
-}
-
-void Visitor::children_variable(Variable* in)
-{
     visit_variable_name(in->variable_name);
 }
 
@@ -1153,13 +1140,6 @@ void Visitor::pre_target_expr_chain(Target_expr* in)
     pre_target_expr((Target_expr*) in);
 }
 
-void Visitor::pre_variable_chain(Variable* in)
-{
-    pre_node((Node*) in);
-    pre_expr((Expr*) in);
-    pre_variable((Variable*) in);
-}
-
 void Visitor::pre_variable_variable_chain(Variable_variable* in)
 {
     pre_node((Node*) in);
@@ -1294,6 +1274,7 @@ void Visitor::pre_method_name_chain(METHOD_NAME* in)
 void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
 {
     pre_node((Node*) in);
+    pre_expr((Expr*) in);
     pre_variable_name((Variable_name*) in);
     pre_target((Target*) in);
     pre_identifier((Identifier*) in);
@@ -1583,13 +1564,6 @@ void Visitor::post_target_expr_chain(Target_expr* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_variable_chain(Variable* in)
-{
-    post_variable((Variable*) in);
-    post_expr((Expr*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_variable_variable_chain(Variable_variable* in)
 {
     post_variable_variable((Variable_variable*) in);
@@ -1727,6 +1701,7 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_identifier((Identifier*) in);
     post_target((Target*) in);
     post_variable_name((Variable_name*) in);
+    post_expr((Expr*) in);
     post_node((Node*) in);
 }
 
@@ -2435,14 +2410,14 @@ void Visitor::pre_expr_chain(Expr* in)
     case Foreign::ID:
     	pre_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
-    case Variable::ID:
-    	pre_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Index_array::ID:
-    	pre_index_array_chain(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case Variable_variable::ID:
     	pre_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
+    	break;
+    case Index_array::ID:
+    	pre_index_array_chain(dynamic_cast<Index_array*>(in));
     	break;
     case Target_expr::ID:
     	pre_target_expr_chain(dynamic_cast<Target_expr*>(in));
@@ -2683,14 +2658,14 @@ void Visitor::post_expr_chain(Expr* in)
     case Foreign::ID:
     	post_foreign_chain(dynamic_cast<Foreign*>(in));
     	break;
-    case Variable::ID:
-    	post_variable_chain(dynamic_cast<Variable*>(in));
-    	break;
-    case Index_array::ID:
-    	post_index_array_chain(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case Variable_variable::ID:
     	post_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
+    	break;
+    case Index_array::ID:
+    	post_index_array_chain(dynamic_cast<Index_array*>(in));
     	break;
     case Target_expr::ID:
     	post_target_expr_chain(dynamic_cast<Target_expr*>(in));
@@ -2931,14 +2906,14 @@ void Visitor::children_expr(Expr* in)
     case Foreign::ID:
     	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Index_array::ID:
-    	children_index_array(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case Variable_variable::ID:
     	children_variable_variable(dynamic_cast<Variable_variable*>(in));
+    	break;
+    case Index_array::ID:
+    	children_index_array(dynamic_cast<Index_array*>(in));
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));

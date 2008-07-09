@@ -100,14 +100,13 @@ Expr ::=
 	| Literal 
 	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	| Foreign
-	-- TODO add Variable_name, remove Variable_variable/Variable
-	| Variable | Index_array | Variable_variable | Target_expr
+	| Variable_name | Index_array | Target_expr
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
 
 Target_expr ::= Target Variable_name;
-Variable ::= VARIABLE_NAME ;
+Variable_name ::= VARIABLE_NAME | Variable_variable ;
 Variable_variable ::= VARIABLE_NAME ;
 Index_array ::= VARIABLE_NAME index:VARIABLE_NAME ;
 
@@ -118,8 +117,6 @@ Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ;
 Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
 Instanceof ::= VARIABLE_NAME Class_name ;
-
-Variable_name ::= VARIABLE_NAME | Variable_variable ;
 
 Target ::= VARIABLE_NAME | CLASS_NAME ;
 

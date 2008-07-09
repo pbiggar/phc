@@ -41,13 +41,14 @@ void Dead_code_elimination::pre_assign_var (Assign_var* in, List<Statement*>* ou
 {
 	// get useful variables
 	VARIABLE_NAME *lhs = in->lhs;
-	VARIABLE_NAME *rhs = simple_var (in->rhs);
 
-	if (lhs == NULL || rhs == NULL)
+	if (!isa<HIR::VARIABLE_NAME> (in->rhs))
 	{
 		out->push_back (in);
 		return;
 	}
+
+	VARIABLE_NAME *rhs = dyc<HIR::VARIABLE_NAME> (in->rhs);
 
 	cdebug << "is simple assignment" << endl;
 	xdebug (lhs);

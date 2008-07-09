@@ -58,7 +58,7 @@ public:
     virtual void pre_expr(Expr* in);
     virtual void pre_literal(Literal* in);
     virtual void pre_target_expr(Target_expr* in);
-    virtual void pre_variable(Variable* in);
+    virtual void pre_variable_name(Variable_name* in);
     virtual void pre_variable_variable(Variable_variable* in);
     virtual void pre_index_array(Index_array* in);
     virtual void pre_cast(Cast* in);
@@ -66,7 +66,6 @@ public:
     virtual void pre_bin_op(Bin_op* in);
     virtual void pre_constant(Constant* in);
     virtual void pre_instanceof(Instanceof* in);
-    virtual void pre_variable_name(Variable_name* in);
     virtual void pre_target(Target* in);
     virtual void pre_method_invocation(Method_invocation* in);
     virtual void pre_method_name(Method_name* in);
@@ -137,7 +136,7 @@ public:
     virtual void post_expr(Expr* in);
     virtual void post_literal(Literal* in);
     virtual void post_target_expr(Target_expr* in);
-    virtual void post_variable(Variable* in);
+    virtual void post_variable_name(Variable_name* in);
     virtual void post_variable_variable(Variable_variable* in);
     virtual void post_index_array(Index_array* in);
     virtual void post_cast(Cast* in);
@@ -145,7 +144,6 @@ public:
     virtual void post_bin_op(Bin_op* in);
     virtual void post_constant(Constant* in);
     virtual void post_instanceof(Instanceof* in);
-    virtual void post_variable_name(Variable_name* in);
     virtual void post_target(Target* in);
     virtual void post_method_invocation(Method_invocation* in);
     virtual void post_method_name(Method_name* in);
@@ -211,7 +209,6 @@ public:
     virtual void children_pre_op(Pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_target_expr(Target_expr* in);
-    virtual void children_variable(Variable* in);
     virtual void children_variable_variable(Variable_variable* in);
     virtual void children_index_array(Index_array* in);
     virtual void children_cast(Cast* in);
@@ -288,7 +285,6 @@ public:
     virtual void pre_pre_op_chain(Pre_op* in);
     virtual void pre_eval_expr_chain(Eval_expr* in);
     virtual void pre_target_expr_chain(Target_expr* in);
-    virtual void pre_variable_chain(Variable* in);
     virtual void pre_variable_variable_chain(Variable_variable* in);
     virtual void pre_index_array_chain(Index_array* in);
     virtual void pre_cast_chain(Cast* in);
@@ -357,7 +353,6 @@ public:
     virtual void post_pre_op_chain(Pre_op* in);
     virtual void post_eval_expr_chain(Eval_expr* in);
     virtual void post_target_expr_chain(Target_expr* in);
-    virtual void post_variable_chain(Variable* in);
     virtual void post_variable_variable_chain(Variable_variable* in);
     virtual void post_index_array_chain(Index_array* in);
     virtual void post_cast_chain(Cast* in);

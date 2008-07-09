@@ -89,7 +89,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Type*,					// Type*
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::Variable*,				// Variable*
  MIR::Variable_class*,		// Variable_class*
  MIR::Variable_method*,		// Variable_method*
  MIR::Variable_name*,		// Variable_name*
@@ -105,22 +104,6 @@ public:
 		foreign_expr = NULL;
 		foreign_statement = NULL;
 	}
-
-public:
-	MIR::VARIABLE_NAME* var_name_from_expr (MIR::Expr* expr)
-	{
-		if (expr == NULL) // $x[]
-			return NULL;
-
-		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
-		assert (var);
-		assert (var->variable_name);
-
-		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
-		assert (var_name);
-		return var_name;
-	}
-
 
 public:
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
@@ -398,14 +381,6 @@ public:
 	{
 		MIR::Index_array* result;
 		result = new MIR::Index_array(variable_name, index);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::VARIABLE_NAME* variable_name) 
-	{
-		MIR::Variable* result;
-		result = new MIR::Variable(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

@@ -161,12 +161,7 @@ Expr* Transform::pre_target_expr(Target_expr* in)
     return in;
 }
 
-Expr* Transform::pre_variable(Variable* in)
-{
-    return in;
-}
-
-Variable_variable* Transform::pre_variable_variable(Variable_variable* in)
+Variable_name* Transform::pre_variable_variable(Variable_variable* in)
 {
     return in;
 }
@@ -457,12 +452,7 @@ Expr* Transform::post_target_expr(Target_expr* in)
     return in;
 }
 
-Expr* Transform::post_variable(Variable* in)
-{
-    return in;
-}
-
-Variable_variable* Transform::post_variable_variable(Variable_variable* in)
+Variable_name* Transform::post_variable_variable(Variable_variable* in)
 {
     return in;
 }
@@ -776,11 +766,6 @@ void Transform::children_eval_expr(Eval_expr* in)
 void Transform::children_target_expr(Target_expr* in)
 {
     in->target = transform_target(in->target);
-    in->variable_name = transform_variable_name(in->variable_name);
-}
-
-void Transform::children_variable(Variable* in)
-{
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
@@ -1763,9 +1748,9 @@ Expr* Transform::pre_expr(Expr* in)
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
-    case Variable::ID: return pre_variable(dynamic_cast<Variable*>(in));
-    case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
+    case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
     }
     assert(0);
@@ -2076,9 +2061,9 @@ Expr* Transform::post_expr(Expr* in)
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
-    case Variable::ID: return post_variable(dynamic_cast<Variable*>(in));
-    case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
+    case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
     }
     assert(0);
@@ -2294,14 +2279,14 @@ void Transform::children_expr(Expr* in)
     case Foreign::ID:
     	children_foreign(dynamic_cast<Foreign*>(in));
     	break;
-    case Variable::ID:
-    	children_variable(dynamic_cast<Variable*>(in));
-    	break;
-    case Index_array::ID:
-    	children_index_array(dynamic_cast<Index_array*>(in));
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     case Variable_variable::ID:
     	children_variable_variable(dynamic_cast<Variable_variable*>(in));
+    	break;
+    case Index_array::ID:
+    	children_index_array(dynamic_cast<Index_array*>(in));
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));

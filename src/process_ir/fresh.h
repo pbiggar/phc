@@ -24,13 +24,11 @@ namespace AST
 
 namespace HIR
 {
-	HIR::Variable* fresh_var (string prefix);
 	HIR::VARIABLE_NAME* fresh_var_name (string prefix);
 }
 
 namespace MIR
 {
-	MIR::Variable* fresh_var (string prefix);
 	MIR::VARIABLE_NAME* fresh_var_name (string prefix);
 	MIR::Label* fresh_label ();
 	MIR::HT_ITERATOR* fresh_iter ();
