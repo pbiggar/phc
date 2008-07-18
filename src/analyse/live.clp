@@ -1,6 +1,6 @@
 import "optimize.clp".
 
-% Dead code elimination.
+% Liveness analysis (for Dead-code elimination).
 
 % Legend:
 % U			union
@@ -16,7 +16,7 @@ import "optimize.clp".
 % live_out (BB) = U live_in (S), for all S in Succ (BB)
 % live_in (BB) = (live_out (BB) / defined (BB)) U used (BB)
 
-% Note ommitting definitions is safe, as the live-ness for that varaiable
+% Note omitting definitions is safe, as the live-ness for that variaable
 % will continue to propagate, and we cannot kill the definition. Omitting uses
 % is not safe, as we may accidentally kill a variable which is later used.
 

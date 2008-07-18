@@ -2,7 +2,7 @@ import "live.clp".
 
 % Statements which can be removed if a variable isnt live
 %
-% Assign_var (non-reference onla, no targety)
+% Assign_var (non-reference only, no target)
 % $x = ...
 % where ... is:
 %	cast
