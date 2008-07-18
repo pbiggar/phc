@@ -527,7 +527,7 @@ public:
 				else if(Boolean* b = dynamic_cast<Boolean*>(attr))
 					parent->out << "attr_bool{" << (b->value () ? "true" : "false") << "}";
 				else
-					parent->out << "attr_unavaiable";
+					parent->out << "attr_unavailable";
 
 				parent->out << ").\n";
 			}
