@@ -26,8 +26,6 @@
 #include "map"
 #include "HIR.h"
 
-HIR::VARIABLE_NAME* simple_var (HIR::Expr* in);
-
 /* Entering at the method level, count the total occurences of a
  * variable, and the number of defintions, and the uses is the
  * difference of the two. */

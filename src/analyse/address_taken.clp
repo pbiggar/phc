@@ -86,10 +86,10 @@ cfg_node (BB), BB = nblock{statement_Global {
 	global {_, variable_name_VARIABLE_NAME{VAR_NAME}}}},
 	+aliased (VAR_NAME), +alias_handled (BB).
 
-% Globals (REFLECTION) - Everything is aliased
+% Globals (Variable_variable) - Everything is aliased
 % cannot say any variable is defined. So nothing happens.
 cfg_node (BB), BB = nblock{statement_Global {
-	global {_, variable_name_Reflection {_}}}},
+	global {_, variable_name_Variable_variable {_}}}},
 	+in_alias_set (var_bottom),
 	+alias_handled (BB).
 
@@ -119,7 +119,7 @@ alias_handled (BB) :- alias_expr (BB, EXPR),
 
 
 % Variable:  $x =& $y; $y is aliased.
-alias_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
+alias_expr (BB, expr_VARIABLE_NAME {VAR_NAME}),
 	+aliased (VAR_NAME),
 	+alias_handled (BB).
 
@@ -147,7 +147,7 @@ alias_actual_params (BB, [PARAM|TAIL]),
 
 % No target, empty list, Reflection
 alias_actual_params (BB, [PARAM|TAIL]),
-	PARAM = actual_parameter {_, _, no, variable_name_Reflection {_}, []},
+	PARAM = actual_parameter {_, _, no, variable_name_Variable_variable {_}, []},
 	+in_alias_set (var_bottom),
 	+alias_actual_params (BB, TAIL).
 

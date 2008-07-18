@@ -28,14 +28,34 @@ MIR_unparser::MIR_unparser (Unparser_state* ups)
 
 void MIR_unparser::unparse (IR::Node* in)
 {
-	Node* mir = dynamic_cast<Node*> (in);
-	AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
-
-	// We dont return foreign_expr
-	if (ast == NULL)
-		unparse_foreign (in);
+	// Folding a VARIABLE_NAME doesnt return an AST::VARIABLE_NAME
+	if (isa<VARIABLE_NAME> (in))
+	{
+		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
+		ast_unparser->unparse (
+			new AST::VARIABLE_NAME (
+				var_name->value));
+	}
+	else if (isa<Variable_variable> (in))
+	{
+		Variable_variable* var_var = dyc<Variable_variable> (in);
+		ast_unparser->unparse (
+			new AST::Reflection (
+				new AST::Variable (
+					new AST::VARIABLE_NAME (
+						var_var->variable_name->value))));
+	}
 	else
-		ast_unparser->unparse (ast);
+	{
+		Node* mir = dynamic_cast<Node*> (in);
+		AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
+
+		// We dont return foreign_expr
+		if (ast == NULL)
+			unparse_foreign (in);
+		else
+			ast_unparser->unparse (ast);
+	}
 }
 
 void MIR_unparser::unparse_foreign (IR::Node* in)

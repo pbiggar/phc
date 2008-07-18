@@ -30,7 +30,7 @@ public:
 	Prune_symbol_table ();
 	// do the analysis
 	void pre_method (MIR::Method* in);
-	void pre_reflection (MIR::Reflection* in);
+	void pre_variable_variable (MIR::Variable_variable* in);
 	void pre_method_invocation (MIR::Method_invocation* in);
 	void pre_global (MIR::Global* in);
 	void post_global (MIR::Global* in);
@@ -38,7 +38,7 @@ public:
 	// mark methods and variable_names
 	void post_method (MIR::Method* in);
 	void post_variable_name (MIR::VARIABLE_NAME* in);
-	void post_variable_name (MIR::Variable_name* in);
+	void post_variable_variable (MIR::Variable_variable* in);
 };
 
 #endif  // _PRUNE_SYMBOL_TABLE_H_

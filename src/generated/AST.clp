@@ -34,8 +34,7 @@ type t_Catch.
 type t_Throw.
 type t_Eval_expr.
 type t_Nop.
-type t_Foreign_expr.
-type t_Foreign_statement.
+type t_Foreign.
 type t_Assignment.
 type t_Op_assignment.
 type t_List_assignment.
@@ -61,7 +60,6 @@ type t_New.
 type t_Node.
 type t_Statement.
 type t_Member.
-type t_Foreign.
 type t_Expr.
 type t_Literal.
 type t_List_element.
@@ -124,8 +122,7 @@ type t_Catch ::= catch { ID:id, CLASS_NAME:t_CLASS_NAME, VARIABLE_NAME:t_VARIABL
 type t_Throw ::= throw { ID:id, EXPR:t_Expr }.
 type t_Eval_expr ::= eval_expr { ID:id, EXPR:t_Expr }.
 type t_Nop ::= nop { ID:id }.
-type t_Foreign_expr ::= foreign_expr { ID:id }.
-type t_Foreign_statement ::= foreign_statement { ID:id }.
+type t_Foreign ::= foreign { ID:id }.
 type t_Assignment ::= assignment { ID:id, VARIABLE:t_Variable, IS_REF:bool, EXPR:t_Expr }.
 type t_Op_assignment ::= op_assignment { ID:id, VARIABLE:t_Variable, OP:t_OP, EXPR:t_Expr }.
 type t_List_assignment ::= list_assignment { ID:id, LIST_ELEMENTS:list[maybe[t_List_element]], EXPR:t_Expr }.
@@ -194,7 +191,7 @@ type t_Commented_node ::=
 		| commented_node_Continue { t_Continue } 
 		| commented_node_Declare { t_Declare } 
 		| commented_node_Nop { t_Nop } 
-		| commented_node_Foreign_statement { t_Foreign_statement } 
+		| commented_node_Foreign { t_Foreign } 
 		| commented_node_Switch_case { t_Switch_case } 
 		| commented_node_Catch { t_Catch } 
 		.
@@ -228,7 +225,7 @@ type t_Target ::=
 		| target_Array { t_Array } 
 		| target_Conditional_expr { t_Conditional_expr } 
 		| target_Ignore_errors { t_Ignore_errors } 
-		| target_Foreign_expr { t_Foreign_expr } 
+		| target_Foreign { t_Foreign } 
 		| target_CLASS_NAME { t_CLASS_NAME } 
 		.
 type t_Variable_name ::= 
@@ -268,11 +265,7 @@ type t_Expr ::=
 		| expr_Array { t_Array } 
 		| expr_Conditional_expr { t_Conditional_expr } 
 		| expr_Ignore_errors { t_Ignore_errors } 
-		| expr_Foreign_expr { t_Foreign_expr } 
-		.
-type t_Foreign ::= 
-		  foreign_Foreign_expr { t_Foreign_expr } 
-		| foreign_Foreign_statement { t_Foreign_statement } 
+		| expr_Foreign { t_Foreign } 
 		.
 type t_Member ::= 
 		  member_Method { t_Method } 
@@ -298,7 +291,7 @@ type t_Statement ::=
 		| statement_Continue { t_Continue } 
 		| statement_Declare { t_Declare } 
 		| statement_Nop { t_Nop } 
-		| statement_Foreign_statement { t_Foreign_statement } 
+		| statement_Foreign { t_Foreign } 
 		.
 type t_Node ::= 
 		  node_PHP_script { t_PHP_script } 
@@ -310,8 +303,6 @@ type t_Node ::=
 		| node_Attr_mod { t_Attr_mod } 
 		| node_Name_with_default { t_Name_with_default } 
 		| node_Directive { t_Directive } 
-		| node_Foreign_expr { t_Foreign_expr } 
-		| node_Foreign_statement { t_Foreign_statement } 
 		| node_Variable { t_Variable } 
 		| node_Nested_list_elements { t_Nested_list_elements } 
 		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
@@ -336,6 +327,7 @@ type t_Node ::=
 		| node_Array { t_Array } 
 		| node_Conditional_expr { t_Conditional_expr } 
 		| node_Ignore_errors { t_Ignore_errors } 
+		| node_Foreign { t_Foreign } 
 		| node_CLASS_NAME { t_CLASS_NAME } 
 		| node_Array_elem { t_Array_elem } 
 		| node_METHOD_NAME { t_METHOD_NAME } 
@@ -498,13 +490,9 @@ to_node (any{nop{ID}},
 	node_Nop{nop{ID}}) :- .
 get_id (node_Nop{nop{ID}}, ID) :- .
 
-to_node (any{foreign_expr{ID}},
-	node_Foreign_expr{foreign_expr{ID}}) :- .
-get_id (node_Foreign_expr{foreign_expr{ID}}, ID) :- .
-
-to_node (any{foreign_statement{ID}},
-	node_Foreign_statement{foreign_statement{ID}}) :- .
-get_id (node_Foreign_statement{foreign_statement{ID}}, ID) :- .
+to_node (any{foreign{ID}},
+	node_Foreign{foreign{ID}}) :- .
+get_id (node_Foreign{foreign{ID}}, ID) :- .
 
 to_node (any{assignment{ID, VARIABLE, IS_REF, EXPR}},
 	node_Assignment{assignment{ID, VARIABLE, IS_REF, EXPR}}) :- .
@@ -608,11 +596,9 @@ to_node (any{statement_Break{ID}}, node_Break{ID}) :- .
 to_node (any{statement_Continue{ID}}, node_Continue{ID}) :- .
 to_node (any{statement_Declare{ID}}, node_Declare{ID}) :- .
 to_node (any{statement_Nop{ID}}, node_Nop{ID}) :- .
-to_node (any{statement_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
+to_node (any{statement_Foreign{ID}}, node_Foreign{ID}) :- .
 to_node (any{member_Method{ID}}, node_Method{ID}) :- .
 to_node (any{member_Attribute{ID}}, node_Attribute{ID}) :- .
-to_node (any{foreign_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
-to_node (any{foreign_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
 to_node (any{expr_Assignment{ID}}, node_Assignment{ID}) :- .
 to_node (any{expr_Cast{ID}}, node_Cast{ID}) :- .
 to_node (any{expr_Unary_op{ID}}, node_Unary_op{ID}) :- .
@@ -634,7 +620,7 @@ to_node (any{expr_Post_op{ID}}, node_Post_op{ID}) :- .
 to_node (any{expr_Array{ID}}, node_Array{ID}) :- .
 to_node (any{expr_Conditional_expr{ID}}, node_Conditional_expr{ID}) :- .
 to_node (any{expr_Ignore_errors{ID}}, node_Ignore_errors{ID}) :- .
-to_node (any{expr_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
+to_node (any{expr_Foreign{ID}}, node_Foreign{ID}) :- .
 to_node (any{literal_INT{ID}}, node_INT{ID}) :- .
 to_node (any{literal_REAL{ID}}, node_REAL{ID}) :- .
 to_node (any{literal_STRING{ID}}, node_STRING{ID}) :- .
@@ -665,7 +651,7 @@ to_node (any{target_Post_op{ID}}, node_Post_op{ID}) :- .
 to_node (any{target_Array{ID}}, node_Array{ID}) :- .
 to_node (any{target_Conditional_expr{ID}}, node_Conditional_expr{ID}) :- .
 to_node (any{target_Ignore_errors{ID}}, node_Ignore_errors{ID}) :- .
-to_node (any{target_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
+to_node (any{target_Foreign{ID}}, node_Foreign{ID}) :- .
 to_node (any{target_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
 to_node (any{method_name_METHOD_NAME{ID}}, node_METHOD_NAME{ID}) :- .
 to_node (any{method_name_Reflection{ID}}, node_Reflection{ID}) :- .
@@ -691,7 +677,7 @@ to_node (any{commented_node_Break{ID}}, node_Break{ID}) :- .
 to_node (any{commented_node_Continue{ID}}, node_Continue{ID}) :- .
 to_node (any{commented_node_Declare{ID}}, node_Declare{ID}) :- .
 to_node (any{commented_node_Nop{ID}}, node_Nop{ID}) :- .
-to_node (any{commented_node_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
+to_node (any{commented_node_Foreign{ID}}, node_Foreign{ID}) :- .
 to_node (any{commented_node_Switch_case{ID}}, node_Switch_case{ID}) :- .
 to_node (any{commented_node_Catch{ID}}, node_Catch{ID}) :- .
 to_node (any{identifier_INTERFACE_NAME{ID}}, node_INTERFACE_NAME{ID}) :- .
@@ -1049,13 +1035,9 @@ to_generic (node_Nop{NODE}, GENERIC) :-
 	NODE = nop { _ } ,
 	GENERIC = gnode{node_Nop{NODE}, "Nop", []}.
 
-to_generic (node_Foreign_expr{NODE}, GENERIC) :-
-	NODE = foreign_expr { _ } ,
-	GENERIC = gnode{node_Foreign_expr{NODE}, "Foreign_expr", []}.
-
-to_generic (node_Foreign_statement{NODE}, GENERIC) :-
-	NODE = foreign_statement { _ } ,
-	GENERIC = gnode{node_Foreign_statement{NODE}, "Foreign_statement", []}.
+to_generic (node_Foreign{NODE}, GENERIC) :-
+	NODE = foreign { _ } ,
+	GENERIC = gnode{node_Foreign{NODE}, "Foreign", []}.
 
 to_generic (node_Assignment{NODE}, GENERIC) :-
 	NODE = assignment { _, VARIABLE, IS_REF, EXPR } ,

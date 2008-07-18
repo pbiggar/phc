@@ -72,14 +72,16 @@ void Copy_propagation::children_php_script (PHP_script* in)
 
 void Copy_propagation::pre_assign_var (Assign_var* in, List<Statement*>* out)
 {
+	xdebug (in);
 	debug (in);
-	VARIABLE_NAME* lhs = in->lhs;
-	VARIABLE_NAME* rhs = simple_var (in->rhs);
-	if (lhs == NULL || rhs == NULL)
+	if (!isa<HIR::VARIABLE_NAME> (in->rhs))
 	{
 		out->push_back (in);
 		return;
 	}
+
+	VARIABLE_NAME* lhs = in->lhs;
+	VARIABLE_NAME* rhs = dyc<VARIABLE_NAME> (in->rhs);
 
 	xadebug (lhs);
 	xadebug (rhs);

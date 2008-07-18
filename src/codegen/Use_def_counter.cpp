@@ -22,18 +22,6 @@
 
 using namespace HIR;
 
-
-// Some convenience analysistions for passes which use this.
-
-VARIABLE_NAME* simple_var (Expr* in)
-{
-	if (!isa<Variable> (in))
-		return NULL;
-
-	return dyc<VARIABLE_NAME> (dyc<Variable> (in)->variable_name);
-}
-
-
 Use_def_counter::Use_def_counter ()
 : analysis_defs ()
 , analysis_occurences ()

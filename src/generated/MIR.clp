@@ -29,7 +29,6 @@ type t_Push_array.
 type t_Pre_op.
 type t_Eval_expr.
 type t_Target_expr.
-type t_Variable.
 type t_Variable_variable.
 type t_Index_array.
 type t_Cast.
@@ -37,10 +36,11 @@ type t_Unary_op.
 type t_Bin_op.
 type t_Constant.
 type t_Instanceof.
-type t_Reflection.
 type t_Method_invocation.
+type t_Variable_method.
 type t_Actual_parameter.
 type t_New.
+type t_Variable_class.
 type t_Static_array.
 type t_Static_array_elem.
 type t_Branch.
@@ -52,8 +52,7 @@ type t_Foreach_end.
 type t_Foreach_has_key.
 type t_Foreach_get_key.
 type t_Foreach_get_val.
-type t_Foreign_statement.
-type t_Foreign_expr.
+type t_Foreign.
 
 
 type t_Node.
@@ -68,7 +67,6 @@ type t_Class_name.
 type t_Static_value.
 type t_Static_array_key.
 type t_Identifier.
-type t_Foreign.
 
 
 
@@ -117,7 +115,6 @@ type t_Push_array ::= push_array { ID:id, LHS:t_VARIABLE_NAME, IS_REF:bool, RHS:
 type t_Pre_op ::= pre_op { ID:id, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Eval_expr ::= eval_expr { ID:id, EXPR:t_Expr }.
 type t_Target_expr ::= target_expr { ID:id, TARGET:t_Target, VARIABLE_NAME:t_Variable_name }.
-type t_Variable ::= variable { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Variable_variable ::= variable_variable { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Index_array ::= index_array { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, INDEX:t_VARIABLE_NAME }.
 type t_Cast ::= cast { ID:id, CAST:t_CAST, VARIABLE_NAME:t_VARIABLE_NAME }.
@@ -125,10 +122,11 @@ type t_Unary_op ::= unary_op { ID:id, OP:t_OP, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Bin_op ::= bin_op { ID:id, LEFT:t_VARIABLE_NAME, OP:t_OP, RIGHT:t_VARIABLE_NAME }.
 type t_Constant ::= constant { ID:id, OPT_CLASS_NAME:maybe[t_CLASS_NAME], CONSTANT_NAME:t_CONSTANT_NAME }.
 type t_Instanceof ::= instanceof { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, CLASS_NAME:t_Class_name }.
-type t_Reflection ::= reflection { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Method_invocation ::= method_invocation { ID:id, OPT_TARGET:maybe[t_Target], METHOD_NAME:t_Method_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
+type t_Variable_method ::= variable_method { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Actual_parameter ::= actual_parameter { ID:id, IS_REF:bool, OPT_TARGET:maybe[t_Target], VARIABLE_NAME:t_Variable_name, ARRAY_INDICESS:list[t_VARIABLE_NAME] }.
 type t_New ::= new { ID:id, CLASS_NAME:t_Class_name, ACTUAL_PARAMETERS:list[t_Actual_parameter] }.
+type t_Variable_class ::= variable_class { ID:id, VARIABLE_NAME:t_VARIABLE_NAME }.
 type t_Static_array ::= static_array { ID:id, STATIC_ARRAY_ELEMS:list[t_Static_array_elem] }.
 type t_Static_array_elem ::= static_array_elem { ID:id, OPT_KEY:maybe[t_Static_array_key], IS_REF:bool, VAL:t_Static_value }.
 type t_Branch ::= branch { ID:id, VARIABLE_NAME:t_VARIABLE_NAME, IFTRUE:t_LABEL_NAME, IFFALSE:t_LABEL_NAME }.
@@ -140,14 +138,9 @@ type t_Foreach_end ::= foreach_end { ID:id, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITE
 type t_Foreach_has_key ::= foreach_has_key { ID:id, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR }.
 type t_Foreach_get_key ::= foreach_get_key { ID:id, ARRAY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR }.
 type t_Foreach_get_val ::= foreach_get_val { ID:id, ARRAY:t_VARIABLE_NAME, KEY:t_VARIABLE_NAME, ITER:t_HT_ITERATOR }.
-type t_Foreign_statement ::= foreign_statement { ID:id }.
-type t_Foreign_expr ::= foreign_expr { ID:id }.
+type t_Foreign ::= foreign { ID:id }.
 
 
-type t_Foreign ::= 
-		  foreign_Foreign_statement { t_Foreign_statement } 
-		| foreign_Foreign_expr { t_Foreign_expr } 
-		.
 type t_Identifier ::= 
 		  identifier_INTERFACE_NAME { t_INTERFACE_NAME } 
 		| identifier_CLASS_NAME { t_CLASS_NAME } 
@@ -178,11 +171,11 @@ type t_Static_value ::=
 		.
 type t_Class_name ::= 
 		  class_name_CLASS_NAME { t_CLASS_NAME } 
-		| class_name_Reflection { t_Reflection } 
+		| class_name_Variable_class { t_Variable_class } 
 		.
 type t_Method_name ::= 
 		  method_name_METHOD_NAME { t_METHOD_NAME } 
-		| method_name_Reflection { t_Reflection } 
+		| method_name_Variable_method { t_Variable_method } 
 		.
 type t_Target ::= 
 		  target_VARIABLE_NAME { t_VARIABLE_NAME } 
@@ -190,7 +183,7 @@ type t_Target ::=
 		.
 type t_Variable_name ::= 
 		  variable_name_VARIABLE_NAME { t_VARIABLE_NAME } 
-		| variable_name_Reflection { t_Reflection } 
+		| variable_name_Variable_variable { t_Variable_variable } 
 		.
 type t_Literal ::= 
 		  literal_INT { t_INT } 
@@ -215,10 +208,10 @@ type t_Expr ::=
 		| expr_Foreach_has_key { t_Foreach_has_key } 
 		| expr_Foreach_get_key { t_Foreach_get_key } 
 		| expr_Foreach_get_val { t_Foreach_get_val } 
-		| expr_Foreign_expr { t_Foreign_expr } 
-		| expr_Variable { t_Variable } 
-		| expr_Index_array { t_Index_array } 
+		| expr_Foreign { t_Foreign } 
+		| expr_VARIABLE_NAME { t_VARIABLE_NAME } 
 		| expr_Variable_variable { t_Variable_variable } 
+		| expr_Index_array { t_Index_array } 
 		| expr_Target_expr { t_Target_expr } 
 		.
 type t_Member ::= 
@@ -247,7 +240,7 @@ type t_Statement ::=
 		| statement_Assign_target { t_Assign_target } 
 		| statement_Eval_expr { t_Eval_expr } 
 		| statement_Pre_op { t_Pre_op } 
-		| statement_Foreign_statement { t_Foreign_statement } 
+		| statement_Foreign { t_Foreign } 
 		.
 type t_Node ::= 
 		  node_PHP_script { t_PHP_script } 
@@ -272,7 +265,7 @@ type t_Node ::=
 		| node_Assign_target { t_Assign_target } 
 		| node_Eval_expr { t_Eval_expr } 
 		| node_Pre_op { t_Pre_op } 
-		| node_Foreign_statement { t_Foreign_statement } 
+		| node_Foreign { t_Foreign } 
 		| node_Class_mod { t_Class_mod } 
 		| node_Attribute { t_Attribute } 
 		| node_Signature { t_Signature } 
@@ -297,16 +290,15 @@ type t_Node ::=
 		| node_Foreach_has_key { t_Foreach_has_key } 
 		| node_Foreach_get_key { t_Foreach_get_key } 
 		| node_Foreach_get_val { t_Foreach_get_val } 
-		| node_Foreign_expr { t_Foreign_expr } 
-		| node_Variable { t_Variable } 
-		| node_Index_array { t_Index_array } 
-		| node_Variable_variable { t_Variable_variable } 
-		| node_Target_expr { t_Target_expr } 
 		| node_VARIABLE_NAME { t_VARIABLE_NAME } 
-		| node_Reflection { t_Reflection } 
+		| node_Variable_variable { t_Variable_variable } 
+		| node_Index_array { t_Index_array } 
+		| node_Target_expr { t_Target_expr } 
 		| node_CLASS_NAME { t_CLASS_NAME } 
 		| node_METHOD_NAME { t_METHOD_NAME } 
+		| node_Variable_method { t_Variable_method } 
 		| node_Actual_parameter { t_Actual_parameter } 
+		| node_Variable_class { t_Variable_class } 
 		| node_Static_array { t_Static_array } 
 		| node_Static_array_elem { t_Static_array_elem } 
 		| node_INTERFACE_NAME { t_INTERFACE_NAME } 
@@ -426,10 +418,6 @@ to_node (any{target_expr{ID, TARGET, VARIABLE_NAME}},
 	node_Target_expr{target_expr{ID, TARGET, VARIABLE_NAME}}) :- .
 get_id (node_Target_expr{target_expr{ID, TARGET, VARIABLE_NAME}}, ID) :- .
 
-to_node (any{variable{ID, VARIABLE_NAME}},
-	node_Variable{variable{ID, VARIABLE_NAME}}) :- .
-get_id (node_Variable{variable{ID, VARIABLE_NAME}}, ID) :- .
-
 to_node (any{variable_variable{ID, VARIABLE_NAME}},
 	node_Variable_variable{variable_variable{ID, VARIABLE_NAME}}) :- .
 get_id (node_Variable_variable{variable_variable{ID, VARIABLE_NAME}}, ID) :- .
@@ -458,13 +446,13 @@ to_node (any{instanceof{ID, VARIABLE_NAME, CLASS_NAME}},
 	node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}) :- .
 get_id (node_Instanceof{instanceof{ID, VARIABLE_NAME, CLASS_NAME}}, ID) :- .
 
-to_node (any{reflection{ID, VARIABLE_NAME}},
-	node_Reflection{reflection{ID, VARIABLE_NAME}}) :- .
-get_id (node_Reflection{reflection{ID, VARIABLE_NAME}}, ID) :- .
-
 to_node (any{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}},
 	node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}) :- .
 get_id (node_Method_invocation{method_invocation{ID, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS}}, ID) :- .
+
+to_node (any{variable_method{ID, VARIABLE_NAME}},
+	node_Variable_method{variable_method{ID, VARIABLE_NAME}}) :- .
+get_id (node_Variable_method{variable_method{ID, VARIABLE_NAME}}, ID) :- .
 
 to_node (any{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}},
 	node_Actual_parameter{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS}}) :- .
@@ -473,6 +461,10 @@ get_id (node_Actual_parameter{actual_parameter{ID, IS_REF, OPT_TARGET, VARIABLE_
 to_node (any{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}},
 	node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}) :- .
 get_id (node_New{new{ID, CLASS_NAME, ACTUAL_PARAMETERS}}, ID) :- .
+
+to_node (any{variable_class{ID, VARIABLE_NAME}},
+	node_Variable_class{variable_class{ID, VARIABLE_NAME}}) :- .
+get_id (node_Variable_class{variable_class{ID, VARIABLE_NAME}}, ID) :- .
 
 to_node (any{static_array{ID, STATIC_ARRAY_ELEMS}},
 	node_Static_array{static_array{ID, STATIC_ARRAY_ELEMS}}) :- .
@@ -518,13 +510,9 @@ to_node (any{foreach_get_val{ID, ARRAY, KEY, ITER}},
 	node_Foreach_get_val{foreach_get_val{ID, ARRAY, KEY, ITER}}) :- .
 get_id (node_Foreach_get_val{foreach_get_val{ID, ARRAY, KEY, ITER}}, ID) :- .
 
-to_node (any{foreign_statement{ID}},
-	node_Foreign_statement{foreign_statement{ID}}) :- .
-get_id (node_Foreign_statement{foreign_statement{ID}}, ID) :- .
-
-to_node (any{foreign_expr{ID}},
-	node_Foreign_expr{foreign_expr{ID}}) :- .
-get_id (node_Foreign_expr{foreign_expr{ID}}, ID) :- .
+to_node (any{foreign{ID}},
+	node_Foreign{foreign{ID}}) :- .
+get_id (node_Foreign{foreign{ID}}, ID) :- .
 
 
 
@@ -550,7 +538,7 @@ to_node (any{statement_Push_array{ID}}, node_Push_array{ID}) :- .
 to_node (any{statement_Assign_target{ID}}, node_Assign_target{ID}) :- .
 to_node (any{statement_Eval_expr{ID}}, node_Eval_expr{ID}) :- .
 to_node (any{statement_Pre_op{ID}}, node_Pre_op{ID}) :- .
-to_node (any{statement_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
+to_node (any{statement_Foreign{ID}}, node_Foreign{ID}) :- .
 to_node (any{member_Method{ID}}, node_Method{ID}) :- .
 to_node (any{member_Attribute{ID}}, node_Attribute{ID}) :- .
 to_node (any{expr_Cast{ID}}, node_Cast{ID}) :- .
@@ -568,10 +556,10 @@ to_node (any{expr_NIL{ID}}, node_NIL{ID}) :- .
 to_node (any{expr_Foreach_has_key{ID}}, node_Foreach_has_key{ID}) :- .
 to_node (any{expr_Foreach_get_key{ID}}, node_Foreach_get_key{ID}) :- .
 to_node (any{expr_Foreach_get_val{ID}}, node_Foreach_get_val{ID}) :- .
-to_node (any{expr_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
-to_node (any{expr_Variable{ID}}, node_Variable{ID}) :- .
-to_node (any{expr_Index_array{ID}}, node_Index_array{ID}) :- .
+to_node (any{expr_Foreign{ID}}, node_Foreign{ID}) :- .
+to_node (any{expr_VARIABLE_NAME{ID}}, node_VARIABLE_NAME{ID}) :- .
 to_node (any{expr_Variable_variable{ID}}, node_Variable_variable{ID}) :- .
+to_node (any{expr_Index_array{ID}}, node_Index_array{ID}) :- .
 to_node (any{expr_Target_expr{ID}}, node_Target_expr{ID}) :- .
 to_node (any{literal_INT{ID}}, node_INT{ID}) :- .
 to_node (any{literal_REAL{ID}}, node_REAL{ID}) :- .
@@ -579,13 +567,13 @@ to_node (any{literal_STRING{ID}}, node_STRING{ID}) :- .
 to_node (any{literal_BOOL{ID}}, node_BOOL{ID}) :- .
 to_node (any{literal_NIL{ID}}, node_NIL{ID}) :- .
 to_node (any{variable_name_VARIABLE_NAME{ID}}, node_VARIABLE_NAME{ID}) :- .
-to_node (any{variable_name_Reflection{ID}}, node_Reflection{ID}) :- .
+to_node (any{variable_name_Variable_variable{ID}}, node_Variable_variable{ID}) :- .
 to_node (any{target_VARIABLE_NAME{ID}}, node_VARIABLE_NAME{ID}) :- .
 to_node (any{target_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
 to_node (any{method_name_METHOD_NAME{ID}}, node_METHOD_NAME{ID}) :- .
-to_node (any{method_name_Reflection{ID}}, node_Reflection{ID}) :- .
+to_node (any{method_name_Variable_method{ID}}, node_Variable_method{ID}) :- .
 to_node (any{class_name_CLASS_NAME{ID}}, node_CLASS_NAME{ID}) :- .
-to_node (any{class_name_Reflection{ID}}, node_Reflection{ID}) :- .
+to_node (any{class_name_Variable_class{ID}}, node_Variable_class{ID}) :- .
 to_node (any{static_value_INT{ID}}, node_INT{ID}) :- .
 to_node (any{static_value_REAL{ID}}, node_REAL{ID}) :- .
 to_node (any{static_value_STRING{ID}}, node_STRING{ID}) :- .
@@ -608,8 +596,6 @@ to_node (any{identifier_OP{ID}}, node_OP{ID}) :- .
 to_node (any{identifier_CONSTANT_NAME{ID}}, node_CONSTANT_NAME{ID}) :- .
 to_node (any{identifier_LABEL_NAME{ID}}, node_LABEL_NAME{ID}) :- .
 to_node (any{identifier_HT_ITERATOR{ID}}, node_HT_ITERATOR{ID}) :- .
-to_node (any{foreign_Foreign_statement{ID}}, node_Foreign_statement{ID}) :- .
-to_node (any{foreign_Foreign_expr{ID}}, node_Foreign_expr{ID}) :- .
 
 
 to_node (any{cLASS_NAME{ID, VALUE}}, node_CLASS_NAME{cLASS_NAME{ID, VALUE}}) :- .
@@ -886,12 +872,6 @@ to_generic (node_Target_expr{NODE}, GENERIC) :-
 	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
 	GENERIC = gnode{node_Target_expr{NODE}, "Target_expr", [GEN_TARGET, GEN_VARIABLE_NAME]}.
 
-to_generic (node_Variable{NODE}, GENERIC) :-
-	NODE = variable { _, VARIABLE_NAME } ,
-	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
-	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{node_Variable{NODE}, "Variable", [GEN_VARIABLE_NAME]}.
-
 to_generic (node_Variable_variable{NODE}, GENERIC) :-
 	NODE = variable_variable { _, VARIABLE_NAME } ,
 	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
@@ -953,12 +933,6 @@ to_generic (node_Instanceof{NODE}, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	GENERIC = gnode{node_Instanceof{NODE}, "Instanceof", [GEN_VARIABLE_NAME, GEN_CLASS_NAME]}.
 
-to_generic (node_Reflection{NODE}, GENERIC) :-
-	NODE = reflection { _, VARIABLE_NAME } ,
-	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
-	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
-	GENERIC = gnode{node_Reflection{NODE}, "Reflection", [GEN_VARIABLE_NAME]}.
-
 to_generic (node_Method_invocation{NODE}, GENERIC) :-
 	NODE = method_invocation { _, OPT_TARGET, METHOD_NAME, ACTUAL_PARAMETERS } ,
 	((OPT_TARGET = yes{TARGET},
@@ -972,6 +946,12 @@ to_generic (node_Method_invocation{NODE}, GENERIC) :-
 	to_generic (NODE_METHOD_NAME, GEN_METHOD_NAME),
 	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
 	GENERIC = gnode{node_Method_invocation{NODE}, "Method_invocation", [GEN_OPT_TARGET, GEN_METHOD_NAME, GEN_ACTUAL_PARAMETERS]}.
+
+to_generic (node_Variable_method{NODE}, GENERIC) :-
+	NODE = variable_method { _, VARIABLE_NAME } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Variable_method{NODE}, "Variable_method", [GEN_VARIABLE_NAME]}.
 
 to_generic (node_Actual_parameter{NODE}, GENERIC) :-
 	NODE = actual_parameter { _, IS_REF, OPT_TARGET, VARIABLE_NAME, ARRAY_INDICESS } ,
@@ -994,6 +974,12 @@ to_generic (node_New{NODE}, GENERIC) :-
 	to_generic (NODE_CLASS_NAME, GEN_CLASS_NAME),
 	list_to_generic_list ("Actual_parameter", ACTUAL_PARAMETERS, GEN_ACTUAL_PARAMETERS),
 	GENERIC = gnode{node_New{NODE}, "New", [GEN_CLASS_NAME, GEN_ACTUAL_PARAMETERS]}.
+
+to_generic (node_Variable_class{NODE}, GENERIC) :-
+	NODE = variable_class { _, VARIABLE_NAME } ,
+	to_node (any{VARIABLE_NAME}, NODE_VARIABLE_NAME),
+	to_generic (NODE_VARIABLE_NAME, GEN_VARIABLE_NAME),
+	GENERIC = gnode{node_Variable_class{NODE}, "Variable_class", [GEN_VARIABLE_NAME]}.
 
 to_generic (node_Static_array{NODE}, GENERIC) :-
 	NODE = static_array { _, STATIC_ARRAY_ELEMS } ,
@@ -1086,13 +1072,9 @@ to_generic (node_Foreach_get_val{NODE}, GENERIC) :-
 	to_generic (NODE_ITER, GEN_ITER),
 	GENERIC = gnode{node_Foreach_get_val{NODE}, "Foreach_get_val", [GEN_ARRAY, GEN_KEY, GEN_ITER]}.
 
-to_generic (node_Foreign_statement{NODE}, GENERIC) :-
-	NODE = foreign_statement { _ } ,
-	GENERIC = gnode{node_Foreign_statement{NODE}, "Foreign_statement", []}.
-
-to_generic (node_Foreign_expr{NODE}, GENERIC) :-
-	NODE = foreign_expr { _ } ,
-	GENERIC = gnode{node_Foreign_expr{NODE}, "Foreign_expr", []}.
+to_generic (node_Foreign{NODE}, GENERIC) :-
+	NODE = foreign { _ } ,
+	GENERIC = gnode{node_Foreign{NODE}, "Foreign", []}.
 
 
 

@@ -475,7 +475,6 @@ function complete_exec($command, $stdin = NULL, $timeout = 20, $pass_through = f
 			file_put_contents ("php://stderr", $new_err);
 		}
 
-		// 20 second timeout on any command
 		if (time () > $start_time + $timeout)
 		{
 			$out = stream_get_contents ($pipes[1]);

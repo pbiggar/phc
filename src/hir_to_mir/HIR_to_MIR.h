@@ -46,9 +46,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Eval_expr*,				// Eval_expr*
  MIR::Expr*,					// Expr*
  MIR::Statement*,				// Foreach*
- MIR::Node*,					// Foreign*
- MIR::Expr*,					// Foreign_expr*
- MIR::Statement*,				// Foreign_statement*
+ MIR::None*,					// Foreign*
  MIR::Formal_parameter*,	// Formal_parameter*
  MIR::Global*,					// Global*
  MIR::INT*,						// INT*
@@ -75,7 +73,6 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Pre_op*,					// Pre_op*
  MIR::Push_array*,			// Push_array*
  MIR::REAL*,					// REAL*
- MIR::Reflection*,			// Reflection*
  MIR::Return*,					// Return*
  MIR::STRING*,					// STRING*
  MIR::Signature*,				// Signature*
@@ -92,11 +89,22 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Type*,					// Type*
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::Variable*,				// Variable*
+ MIR::Variable_class*,		// Variable_class*
+ MIR::Variable_method*,		// Variable_method*
  MIR::Variable_name*,		// Variable_name*
  MIR::Variable_variable*	// Variable_variable*
 >		
 {
+	MIR::Statement* foreign_statement;
+	MIR::Expr* foreign_expr;
+
+public:
+	HIR_to_MIR ()
+	{
+		foreign_expr = NULL;
+		foreign_statement = NULL;
+	}
+
 public:
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
 	{
@@ -290,31 +298,43 @@ public:
 		return result;
 	}
 
-
-	MIR::Expr* fold_impl_foreign_expr (HIR::Foreign_expr* orig)
+	MIR::Expr* fold_expr (HIR::Expr* orig)
 	{
-		// It should already be suitable to put in the MIR
-		return dynamic_cast<MIR::Expr*> (orig->foreign);
+		if (!isa<HIR::Foreign> (orig))
+			return parent::fold_expr (orig);
+
+		fold_foreign (dyc<HIR::Foreign> (orig));
+		MIR::Expr* expr = this->foreign_expr;
+		assert (expr);
+		this->foreign_expr = NULL;
+		return expr;
 	}
 
-	MIR::Statement* fold_impl_foreign_statement (HIR::Foreign_statement* orig)
+	MIR::Statement* fold_statement (HIR::Statement* orig)
 	{
-		// It should already be suitable to put in the MIR
-		return dynamic_cast<MIR::Statement*> (orig->foreign);
+		if (!isa<HIR::Foreign> (orig))
+			return parent::fold_statement (orig);
+
+		fold_foreign (dyc<HIR::Foreign> (orig));
+		MIR::Statement* statement = this->foreign_statement;
+		assert (statement);
+		this->foreign_statement = NULL;
+		return statement;
 	}
 
-	MIR::VARIABLE_NAME* var_name_from_expr (MIR::Expr* expr)
+	MIR::None* fold_impl_foreign (HIR::Foreign* orig)
 	{
-		if (expr == NULL) // $x[]
-			return NULL;
+		assert (foreign_statement == NULL);
+		assert (foreign_expr == NULL);
 
-		MIR::Variable* var = dynamic_cast<MIR::Variable*> (expr);
-		assert (var);
-		assert (var->variable_name);
+		// Save the result, and fetch it from the caller.
+		if (isa<MIR::Statement> (orig->foreign))
+			foreign_statement = dyc<MIR::Statement> (orig->foreign);
+		else if (isa<MIR::Expr> (orig->foreign))
+			foreign_expr = dyc<MIR::Expr> (orig->foreign);
+		else assert (0);
 
-		MIR::VARIABLE_NAME* var_name = dynamic_cast<MIR::VARIABLE_NAME*> (var->variable_name);
-		assert (var_name);
-		return var_name;
+		return NULL;
 	}
 
 	MIR::Cast* fold_impl_cast(HIR::Cast* orig, MIR::CAST* cast, MIR::VARIABLE_NAME* expr) 
@@ -365,14 +385,6 @@ public:
 		return result;
 	}
 
-	MIR::Variable* fold_impl_variable(HIR::Variable* orig, MIR::VARIABLE_NAME* variable_name) 
-	{
-		MIR::Variable* result;
-		result = new MIR::Variable(variable_name);
-		result->attrs = orig->attrs;
-		return result;
-	}
-
 	MIR::Variable_variable* fold_impl_variable_variable(HIR::Variable_variable* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Variable_variable* result;
@@ -381,18 +393,26 @@ public:
 		return result;
 	}
 
-	MIR::Target_expr* fold_impl_target_expr (HIR::Target_expr* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	MIR::Variable_method* fold_impl_variable_method(HIR::Variable_method* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
-		MIR::Target_expr* result;
-		result = new MIR::Target_expr(target, variable_name);
+		MIR::Variable_method* result;
+		result = new MIR::Variable_method(variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Reflection* fold_impl_reflection(HIR::Reflection* orig, MIR::VARIABLE_NAME* variable_name) 
+	MIR::Variable_class* fold_impl_variable_class(HIR::Variable_class* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
-		MIR::Reflection* result;
-		result = new MIR::Reflection(variable_name);
+		MIR::Variable_class* result;
+		result = new MIR::Variable_class(variable_name);
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	MIR::Target_expr* fold_impl_target_expr (HIR::Target_expr* orig, MIR::Target* target, MIR::Variable_name* variable_name) 
+	{
+		MIR::Target_expr* result;
+		result = new MIR::Target_expr(target, variable_name);
 		result->attrs = orig->attrs;
 		return result;
 	}

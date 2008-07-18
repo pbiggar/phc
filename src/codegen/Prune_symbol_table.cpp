@@ -59,9 +59,7 @@ void Prune_symbol_table::pre_method (Method* in)
 	}
 }
 
-// TODO this is over-conservative, as it will stop variable
-// functions, which are fine.
-void Prune_symbol_table::pre_reflection (Reflection* in)
+void Prune_symbol_table::pre_variable_variable (Variable_variable* in)
 {
 	prune = false;
 }
@@ -110,11 +108,9 @@ void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 }
 
 
-void Prune_symbol_table::post_variable_name (Variable_name* in)
+void Prune_symbol_table::post_variable_variable (Variable_variable* in)
 {
-	// reflection means we cant remove any globals
-	if (in->classid () == Reflection::ID)
-		var_reflection_present = true;
+	var_reflection_present = true;
 }
 
 class Remove_globals : public Transform
@@ -130,8 +126,8 @@ public:
 
 	void pre_global (Global* in, List<Statement*>* out)
 	{
-		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (in->variable_name);
-		assert (var_name); // if there were any reflection, we wouldnt be here
+		// if there were any reflection, we wouldnt be here
+		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
 
 		// if the key is there, we need the global
 		if (var_names.find (*var_name->value) != var_names.end ())
@@ -157,6 +153,3 @@ void Prune_symbol_table::post_method (Method* in)
 			in->transform_children (new Remove_globals (&vars));
 	}
 }
-
-
-

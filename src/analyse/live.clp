@@ -107,11 +107,11 @@ cfg_node (BB), BB = nblock{statement_Global {
 	global {_, variable_name_VARIABLE_NAME{VAR}}}},
 	+defined_var (BB, VAR), +live_handled (BB).
 
-% globals with reflection - they may-define every variable, which means we
-% cannot say any variable is defined. So nothing happens.
+% globals with variable_variables - they may-define every variable, which
+% means we cannot say any variable is defined. So nothing happens.
 
 cfg_node (BB), BB = nblock{statement_Global {
-	global {_, variable_name_Reflection {_}}}},
+	global {_, variable_name_Variable_variable {_}}}},
 	+live_handled (BB).
 
 % Pre_op - the variable is both used and defined
@@ -151,7 +151,7 @@ use_expr (BB, expr_REAL{_}), +live_handled (BB).
 use_expr (BB, expr_NIL{_}), +live_handled (BB).
 
 % Variables
-use_expr (BB, expr_Variable{variable{_, VAR_NAME}}),
+use_expr (BB, expr_VARIABLE_NAME{VAR_NAME}),
 	+used_var (BB, VAR_NAME),
 	+live_handled (BB).
 
@@ -176,7 +176,7 @@ use_expr (BB, expr_Target_expr {target_expr{_, TARGET, VARIABLE_NAME}}),
 
 	% Variable_name
 	(( 
-		VARIABLE_NAME = variable_name_Reflection {_},
+		VARIABLE_NAME = variable_name_Variable_variable {_},
 		+used (BB, var_bottom)
 	)
 	;

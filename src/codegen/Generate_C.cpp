@@ -217,22 +217,6 @@ void read_st (Scope scope, string zvp, VARIABLE_NAME* var_name)
 	}
 }
 
-// Note this can return NULL if its not a variable name
-VARIABLE_NAME* get_var_name (Expr* var_expr)
-{
-	Variable* var = dynamic_cast<Variable*> (var_expr);
-	assert (var);
-	VARIABLE_NAME* name = dynamic_cast<VARIABLE_NAME*> (var->variable_name);
-	return name;
-}
-
-VARIABLE_NAME* get_var_name (Variable_name* var_name)
-{
-	VARIABLE_NAME* name = dynamic_cast<VARIABLE_NAME*> (var_name);
-	assert (name);
-	return name;
-}
-
 void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_NAME* index)
 {
 	code
@@ -259,35 +243,6 @@ void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_N
 		<<		zvp_index
 		<<		" TSRMLS_CC);\n"
 		;
-}
-
-void index_lhs (Scope scope, string zvp, Variable* var)
-{
-	VARIABLE_NAME* var_name = get_var_name (var);
-
-	code
-		<< "zval** " << zvp << ";\n";
-
-	if (var_name != NULL)
-	{
-		// lhs_var can exist more than once; rename
-		stringstream ss;
-		ss << zvp << "_var";
-		string zvp_name = ss.str ();
-
-		read_st (scope, zvp_name, get_var_name (var));
-		code 
-			<< "// Normal Assignment\n"
-			<< zvp << " = " << zvp_name << ";\n";
-	}
-	else
-	{
-		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		phc_unsupported (var);
-
-//		reference_var_var ();
-	}
 }
 
 void index_array_index (Scope scope, string zvp, Index_array* ia)
@@ -319,33 +274,51 @@ void index_array_index (Scope scope, string zvp, Index_array* ia)
 		;
 }
 
-
-/* wrappers */
-void index_lhs (Scope scope, string zvp, VARIABLE_NAME* var_name)
-{
-	index_lhs (scope, zvp, new Variable (var_name));
-}
 void index_lhs (Scope scope, string zvp, Expr* expr)
 {
-	// dispatch manually for now
 	if (isa<Index_array> (expr))
+	{
 		index_array_index (LOCAL, "p_rhs", dyc<Index_array> (expr));
-	else
-		index_lhs (LOCAL, "p_rhs", dyc<Variable> (expr));
-}
+		return;
+	}
 
+	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (expr);
+
+	code
+		<< "zval** " << zvp << ";\n";
+
+	if (var_name != NULL)
+	{
+		// lhs_var can exist more than once; rename
+		stringstream ss;
+		ss << zvp << "_var";
+		string zvp_name = ss.str ();
+
+		read_st (scope, zvp_name, var_name);
+		code 
+			<< "// Normal Assignment\n"
+			<< zvp << " = " << zvp_name << ";\n";
+	}
+	else
+	{
+		// Variable variable.
+		// After shredder, a variable variable cannot have array indices
+		phc_unsupported (expr);
+
+//		reference_var_var ();
+	}
+}
 
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (Scope scope, string zvp, Variable* var)
+void read (Scope scope, string zvp, Variable_name* var_name)
 {
-	Variable_name* var_name  = var->variable_name;
-	if(var_name != NULL)
+	if(isa<VARIABLE_NAME> (var_name))
 	{
 		stringstream ss;
 		ss << zvp << "var";
 		string name = ss.str ();
-		read_simple (scope, name, get_var_name (var));
+		read_simple (scope, name, dyc<VARIABLE_NAME> (var_name));
 		// the same as read_simple, but doesnt declare
 		code 
 			<< "// Read normal variable\n"
@@ -354,33 +327,20 @@ void read (Scope scope, string zvp, Variable* var)
 	else
 	{
 		// Variable variable.
-		// After shredder, a variable variable cannot have array indices
-		Reflection* refl;
-		refl = dynamic_cast<Reflection*>(var->variable_name);
+		Variable_variable* var_var = dyc<Variable_variable>(var_name);
 
 		code << "// Read variable variable\n";
 
-		read_simple (scope, "refl", get_var_name (refl));
+		read_simple (scope, "var_var", var_var->variable_name);
 
 		code
 			<< zvp << " = read_var_var (" 
 			<<		get_scope (scope) << ", "
-			<<		"refl "
+			<<		"var_var "
 			<<		" TSRMLS_CC);\n"
 			;
 	}
 }
-
-/* wrappers */
-void read (Scope scope, string zvp, VARIABLE_NAME* var_name)
-{
-	read (scope, zvp, new Variable (var_name));
-}
-void read (Scope scope, string zvp, Expr* expr)
-{
-	read (scope, zvp, get_var_name (expr));
-}
-
 
 void read_array_index (Scope scope, string zvp, Index_array* ia)
 {
@@ -404,12 +364,9 @@ void read_array_index (Scope scope, string zvp, Index_array* ia)
 // Implementation of "global" (used in various places)
 void global (Variable_name* var_name)
 {
-	// TODO Variable_variable
-	Variable *var = new Variable (dyc<VARIABLE_NAME> (var_name));
-
 	code << "{\n";
-	index_lhs (GLOBAL, "p_global_var", var); // rhs
-	index_lhs (LOCAL, "p_local_global_var", var); // lhs
+	index_lhs (LOCAL, "p_local_global_var", var_name); // lhs
+	index_lhs (GLOBAL, "p_global_var", var_name); // rhs
 
 	// Note that p_global_var can be in the copy-on-write set.
 	code 
@@ -1218,7 +1175,7 @@ class Pattern_assign_var_to_var : public Pattern_assign_var
 public:
 	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<Variable>;
+		rhs = new Wildcard<VARIABLE_NAME>;
 		return rhs;
 	}
 
@@ -1249,7 +1206,7 @@ public:
 	}
 
 protected:
-	Wildcard<Variable>* rhs;
+	Wildcard<VARIABLE_NAME>* rhs;
 };
 
 class Pattern_assign_array_index_to_var : public Pattern_assign_var
@@ -1474,7 +1431,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
 
 		code << "{\n";
-		read_simple (LOCAL, "eval_arg", get_var_name (eval_arg->value->variable_name));
+		read_simple (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
 
 		if (lhs)
 		{
@@ -1512,6 +1469,9 @@ protected:
 	Wildcard<Actual_parameter>* eval_arg;
 };
 
+// TODO exit/die/unset etc are probably not by reference. I can probably shred
+// them as a result. Also, they probably can't be called with variable
+// variables.
 class Pattern_exit : public Pattern_eval_expr_or_assign_var
 {
 public:
@@ -1534,7 +1494,7 @@ public:
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
 		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_simple (LOCAL, "arg", get_var_name (exit_arg->value->variable_name));
+		read_simple (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
 
 		// Fetch the parameter
 		code
@@ -1665,8 +1625,8 @@ public:
 			i++, index++)
 		{
 			if ((*i)->target) phc_unsupported (*i);
-			VARIABLE_NAME* var_name = get_var_name ((*i)->variable_name);
 
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>((*i)->variable_name);
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1718,10 +1678,7 @@ public:
 			}
 			else
 			{
-				// TODO: Its correct to handle variable variables here,
-				// since we dont know if they are to be passed by
-				// reference or not, so they cannot be shredder earlier.
-				if (var_name == NULL) phc_unsupported (*i);
+
 				code 
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
@@ -1963,7 +1920,7 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_st (LOCAL, "p_var", get_var_name (var->value));
+		read_st (LOCAL, "p_var", var->value);
 
 		code
 			<< "sep_copy_on_write_ex (p_var);\n"
@@ -1991,7 +1948,7 @@ class Pattern_return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			read_simple (LOCAL, "rhs", get_var_name (expr->value));
+			read_simple (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -2006,6 +1963,7 @@ class Pattern_return : public Pattern
 		else
 		{
 			// converted into an array
+			// TODO: why?
 			if (isa<Index_array> (expr->value))
 				index_lhs (LOCAL, "p_rhs", dyc<Index_array> (expr->value));
 			else
@@ -2034,23 +1992,23 @@ class Pattern_unset : public Pattern
 {
 	bool match(Statement* that)
 	{
-		var = new Wildcard<Actual_parameter>;
+		param = new Wildcard<Actual_parameter>;
 		return that->match(
 			new Eval_expr (
 				new Method_invocation(
 					"unset",
-					var)));
+					param)));
 	}
 
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
 
-		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
+		VARIABLE_NAME* var_name = dynamic_cast <VARIABLE_NAME*> (param->value->variable_name);
 
 		if (var_name != NULL)
 		{
-			if (var->value->array_indices->size() == 0)
+			if (param->value->array_indices->size() == 0)
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
@@ -2076,8 +2034,8 @@ class Pattern_unset : public Pattern
 			}
 			else 
 			{
-				assert(var->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = (var->value->array_indices->front());
+				assert(param->value->array_indices->size() == 1);
+				VARIABLE_NAME* index = (param->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -2092,39 +2050,32 @@ class Pattern_unset : public Pattern
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (var);
+			phc_unsupported (param);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<Actual_parameter>* var;
+	Wildcard<Actual_parameter>* param;
 };
 
 class Pattern_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
-		var = new Wildcard<Actual_parameter>;
-		return new Method_invocation("isset", var);
+		param = new Wildcard<Actual_parameter>;
+		return new Method_invocation("isset", param);
 	}
-
-/*
-	void initialize(ostream& os, string var)
-	{
-		os	<< "ZVAL_BOOL (" << var << ", 1)\n;"; 
-	}
-*/
 
 	void initialize(ostream& code, string lhs)
 	{
 		code << "{\n";
 
-		VARIABLE_NAME* var_name = get_var_name (var->value->variable_name);
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (param->value->variable_name);
 
-		if (var_name != NULL)
+		if (var_name)
 		{
-			if (var->value->array_indices->size() == 0)
+			if (param->value->array_indices->size() == 0)
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
@@ -2146,8 +2097,9 @@ class Pattern_isset : public Pattern_assign_zval
 			}
 			else 
 			{
-				assert(var->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = var->value->array_indices->front();
+				// TODO this can have > 1 array_index
+				assert(param->value->array_indices->size() == 1);
+				VARIABLE_NAME* index = param->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
 				read_simple (LOCAL, "u_index", index);
 
@@ -2163,13 +2115,13 @@ class Pattern_isset : public Pattern_assign_zval
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (var);
+			phc_unsupported (param);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<Actual_parameter>* var;
+	Wildcard<Actual_parameter>* param;
 };
 
 /*

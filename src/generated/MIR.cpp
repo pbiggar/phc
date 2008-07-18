@@ -1347,10 +1347,6 @@ Expr::Expr()
 {
 }
 
-Variable_name::Variable_name()
-{
-}
-
 Target::Target()
 {
 }
@@ -1691,17 +1687,6 @@ Static_array_key::Static_array_key()
 
 Identifier::Identifier()
 {
-}
-
-Foreign::Foreign()
-{
-}
-
-Foreign::Foreign(IR ::Node* foreign)
-{
-    {
-		this->foreign = foreign;
-	}
 }
 
 Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
@@ -4143,182 +4128,8 @@ void Target_expr::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(VARIABLE_NAME* variable_name)
+Variable_name::Variable_name()
 {
-    this->variable_name = variable_name;
-}
-
-Variable::Variable()
-{
-    this->variable_name = 0;
-}
-
-void Variable::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Variable::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Variable::classid()
-{
-    return ID;
-}
-
-bool Variable::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Variable* that = dynamic_cast<Variable*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL)
-    {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
-    		return false;
-    }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    return true;
-}
-
-bool Variable::equals(Node* in)
-{
-    Variable* that = dynamic_cast<Variable*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Variable* Variable::clone()
-{
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Variable* clone = new Variable(variable_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Variable::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
-    
-    return NULL;
-}
-
-void Variable::assert_valid()
-{
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Variable_variable::Variable_variable(VARIABLE_NAME* variable_name)
-{
-    this->variable_name = variable_name;
-}
-
-Variable_variable::Variable_variable()
-{
-    this->variable_name = 0;
-}
-
-void Variable_variable::visit(Visitor* visitor)
-{
-    visitor->visit_expr(this);
-}
-
-void Variable_variable::transform_children(Transform* transform)
-{
-    transform->children_expr(this);
-}
-
-int Variable_variable::classid()
-{
-    return ID;
-}
-
-bool Variable_variable::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL)
-    {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
-    		return false;
-    }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    return true;
-}
-
-bool Variable_variable::equals(Node* in)
-{
-    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Variable_variable* Variable_variable::clone()
-{
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Variable_variable* clone = new Variable_variable(variable_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Variable_variable::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
-    
-    return NULL;
-}
-
-void Variable_variable::assert_valid()
-{
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    Node::assert_mixin_valid();
 }
 
 Index_array::Index_array(VARIABLE_NAME* variable_name, VARIABLE_NAME* index)
@@ -5047,95 +4858,6 @@ void Instanceof::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Reflection::Reflection(VARIABLE_NAME* variable_name)
-{
-    this->variable_name = variable_name;
-}
-
-Reflection::Reflection()
-{
-    this->variable_name = 0;
-}
-
-void Reflection::visit(Visitor* visitor)
-{
-    visitor->visit_class_name(this);
-}
-
-void Reflection::transform_children(Transform* transform)
-{
-    transform->children_class_name(this);
-}
-
-int Reflection::classid()
-{
-    return ID;
-}
-
-bool Reflection::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Reflection* that = dynamic_cast<Reflection*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL)
-    {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
-    		return false;
-    }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    return true;
-}
-
-bool Reflection::equals(Node* in)
-{
-    Reflection* that = dynamic_cast<Reflection*>(in);
-    if(that == NULL) return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Reflection* Reflection::clone()
-{
-    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Reflection* clone = new Reflection(variable_name);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Reflection::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    Node* variable_name_res = variable_name->find(in);
-    if (variable_name_res) return variable_name_res;
-    
-    return NULL;
-}
-
-void Reflection::assert_valid()
-{
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
 Method_invocation::Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters)
 {
     this->target = target;
@@ -5346,6 +5068,95 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
 	}
 }
 
+Variable_method::Variable_method(VARIABLE_NAME* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Variable_method::Variable_method()
+{
+    this->variable_name = 0;
+}
+
+void Variable_method::visit(Visitor* visitor)
+{
+    visitor->visit_method_name(this);
+}
+
+void Variable_method::transform_children(Transform* transform)
+{
+    transform->children_method_name(this);
+}
+
+int Variable_method::classid()
+{
+    return ID;
+}
+
+bool Variable_method::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Variable_method* that = dynamic_cast<Variable_method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Variable_method::equals(Node* in)
+{
+    Variable_method* that = dynamic_cast<Variable_method*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Variable_method* Variable_method::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Variable_method* clone = new Variable_method(variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Variable_method::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
+}
+
+void Variable_method::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
 New::New(Class_name* class_name, List<Actual_parameter*>* actual_parameters)
 {
     this->class_name = class_name;
@@ -5512,6 +5323,95 @@ void New::assert_valid()
     		(*i)->assert_valid();
     	}
     }
+    Node::assert_mixin_valid();
+}
+
+Variable_class::Variable_class(VARIABLE_NAME* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Variable_class::Variable_class()
+{
+    this->variable_name = 0;
+}
+
+void Variable_class::visit(Visitor* visitor)
+{
+    visitor->visit_class_name(this);
+}
+
+void Variable_class::transform_children(Transform* transform)
+{
+    transform->children_class_name(this);
+}
+
+int Variable_class::classid()
+{
+    return ID;
+}
+
+bool Variable_class::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Variable_class* that = dynamic_cast<Variable_class*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Variable_class::equals(Node* in)
+{
+    Variable_class* that = dynamic_cast<Variable_class*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Variable_class* Variable_class::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Variable_class* clone = new Variable_class(variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Variable_class::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
+}
+
+void Variable_class::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -6677,124 +6577,55 @@ void Foreach_get_val::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreign_statement::Foreign_statement()
+Foreign::Foreign()
 {
 }
 
-void Foreign_statement::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreign_statement::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreign_statement::classid()
-{
-    return ID;
-}
-
-bool Foreign_statement::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
-    if(that == NULL) return false;
-    
-    return true;
-}
-
-bool Foreign_statement::equals(Node* in)
-{
-    Foreign_statement* that = dynamic_cast<Foreign_statement*>(in);
-    if(that == NULL) return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreign_statement* Foreign_statement::clone()
-{
-    Foreign_statement* clone = new Foreign_statement();
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Foreign_statement::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void Foreign_statement::assert_valid()
-{
-    Node::assert_mixin_valid();
-}
-
-//  TODO: modify maketea to allow contructors with :
-Foreign_statement::Foreign_statement(IR ::Node* foreign)
-{
-    {
-		this->foreign = foreign;
-	}
-}
-
-Foreign_expr::Foreign_expr()
-{
-}
-
-void Foreign_expr::visit(Visitor* visitor)
+void Foreign::visit(Visitor* visitor)
 {
     visitor->visit_expr(this);
 }
 
-void Foreign_expr::transform_children(Transform* transform)
+void Foreign::transform_children(Transform* transform)
 {
     transform->children_expr(this);
 }
 
-int Foreign_expr::classid()
+int Foreign::classid()
 {
     return ID;
 }
 
-bool Foreign_expr::match(Node* in)
+bool Foreign::match(Node* in)
 {
     __WILDCARD__* joker;
     joker = dynamic_cast<__WILDCARD__*>(in);
     if(joker != NULL && joker->match(this))
     	return true;
     
-    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
+    Foreign* that = dynamic_cast<Foreign*>(in);
     if(that == NULL) return false;
     
     return true;
 }
 
-bool Foreign_expr::equals(Node* in)
+bool Foreign::equals(Node* in)
 {
-    Foreign_expr* that = dynamic_cast<Foreign_expr*>(in);
+    Foreign* that = dynamic_cast<Foreign*>(in);
     if(that == NULL) return false;
     
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
 
-Foreign_expr* Foreign_expr::clone()
+Foreign* Foreign::clone()
 {
-    Foreign_expr* clone = new Foreign_expr();
+    Foreign* clone = new Foreign();
     clone->Node::clone_mixin_from(this);
     return clone;
 }
 
-Node* Foreign_expr::find(Node* in)
+Node* Foreign::find(Node* in)
 {
     if (this->match (in))
     	return this;
@@ -6802,12 +6633,12 @@ Node* Foreign_expr::find(Node* in)
     return NULL;
 }
 
-void Foreign_expr::assert_valid()
+void Foreign::assert_valid()
 {
     Node::assert_mixin_valid();
 }
 
-Foreign_expr::Foreign_expr(IR ::Node* foreign)
+Foreign::Foreign(IR ::Node* foreign)
 {
     {
 		this->foreign = foreign;
@@ -7064,91 +6895,6 @@ Node* METHOD_NAME::find(Node* in)
 }
 
 void METHOD_NAME::assert_valid()
-{
-    assert(value != NULL);
-    Node::assert_mixin_valid();
-}
-
-VARIABLE_NAME::VARIABLE_NAME(String* value)
-{
-    this->value = value;
-}
-
-VARIABLE_NAME::VARIABLE_NAME()
-{
-    this->value = 0;
-}
-
-void VARIABLE_NAME::visit(Visitor* visitor)
-{
-    visitor->visit_variable_name(this);
-}
-
-void VARIABLE_NAME::transform_children(Transform* transform)
-{
-    transform->children_variable_name(this);
-}
-
-String* VARIABLE_NAME::get_value_as_string()
-{
-    return value;
-}
-
-int VARIABLE_NAME::classid()
-{
-    return ID;
-}
-
-bool VARIABLE_NAME::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value != NULL && that->value != NULL)
-    	return (*this->value == *that->value);
-    else
-    	return true;
-}
-
-bool VARIABLE_NAME::equals(Node* in)
-{
-    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
-    if(that == NULL) return false;
-    
-    if(this->value == NULL || that->value == NULL)
-    {
-    	if(this->value != NULL || that->value != NULL)
-    		return false;
-    }
-    else if(*this->value != *that->value)
-    	return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-VARIABLE_NAME* VARIABLE_NAME::clone()
-{
-    String* value = new String(*this->value);
-    VARIABLE_NAME* clone = new VARIABLE_NAME(value);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* VARIABLE_NAME::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
@@ -7574,6 +7320,180 @@ Node* HT_ITERATOR::find(Node* in)
 }
 
 void HT_ITERATOR::assert_valid()
+{
+    assert(value != NULL);
+    Node::assert_mixin_valid();
+}
+
+Variable_variable::Variable_variable(VARIABLE_NAME* variable_name)
+{
+    this->variable_name = variable_name;
+}
+
+Variable_variable::Variable_variable()
+{
+    this->variable_name = 0;
+}
+
+void Variable_variable::visit(Visitor* visitor)
+{
+    visitor->visit_variable_name(this);
+}
+
+void Variable_variable::transform_children(Transform* transform)
+{
+    transform->children_variable_name(this);
+}
+
+int Variable_variable::classid()
+{
+    return ID;
+}
+
+bool Variable_variable::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    return true;
+}
+
+bool Variable_variable::equals(Node* in)
+{
+    Variable_variable* that = dynamic_cast<Variable_variable*>(in);
+    if(that == NULL) return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Variable_variable* Variable_variable::clone()
+{
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Variable_variable* clone = new Variable_variable(variable_name);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Variable_variable::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    Node* variable_name_res = variable_name->find(in);
+    if (variable_name_res) return variable_name_res;
+    
+    return NULL;
+}
+
+void Variable_variable::assert_valid()
+{
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+VARIABLE_NAME::VARIABLE_NAME(String* value)
+{
+    this->value = value;
+}
+
+VARIABLE_NAME::VARIABLE_NAME()
+{
+    this->value = 0;
+}
+
+void VARIABLE_NAME::visit(Visitor* visitor)
+{
+    visitor->visit_variable_name(this);
+}
+
+void VARIABLE_NAME::transform_children(Transform* transform)
+{
+    transform->children_variable_name(this);
+}
+
+String* VARIABLE_NAME::get_value_as_string()
+{
+    return value;
+}
+
+int VARIABLE_NAME::classid()
+{
+    return ID;
+}
+
+bool VARIABLE_NAME::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value != NULL && that->value != NULL)
+    	return (*this->value == *that->value);
+    else
+    	return true;
+}
+
+bool VARIABLE_NAME::equals(Node* in)
+{
+    VARIABLE_NAME* that = dynamic_cast<VARIABLE_NAME*>(in);
+    if(that == NULL) return false;
+    
+    if(this->value == NULL || that->value == NULL)
+    {
+    	if(this->value != NULL || that->value != NULL)
+    		return false;
+    }
+    else if(*this->value != *that->value)
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+VARIABLE_NAME* VARIABLE_NAME::clone()
+{
+    String* value = new String(*this->value);
+    VARIABLE_NAME* clone = new VARIABLE_NAME(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* VARIABLE_NAME::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
@@ -8114,6 +8034,60 @@ String* NIL::get_value_as_string()
     {
 		return new String("NULL");
 	}
+}
+
+None::None()
+{
+}
+
+void None::visit(Visitor* visitor)
+{
+    assert (0);
+}
+
+void None::transform_children(Transform* transform)
+{
+    assert (0);
+}
+
+None* None::clone()
+{
+    assert (0);
+}
+
+void None::assert_valid()
+{
+    assert (0);
+}
+
+String* None::get_value_as_string()
+{
+    assert (0);
+}
+
+int None::classid()
+{
+    assert (0);
+}
+
+bool None::match(Node* in)
+{
+    assert (0);
+}
+
+bool None::equals(Node* in)
+{
+    assert (0);
+}
+
+Node* None::find(Node* in)
+{
+    assert (0);
+}
+
+void None::find_all(Node* in, List<Node*>* out)
+{
+    assert (0);
 }
 
 }

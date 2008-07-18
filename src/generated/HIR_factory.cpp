@@ -249,12 +249,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Target_expr(target, variable_name);
     }
-    if(!strcmp(type_id, "Variable"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Variable(variable_name);
-    }
     if(!strcmp(type_id, "Variable_variable"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
@@ -304,12 +298,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Instanceof(variable_name, class_name);
     }
-    if(!strcmp(type_id, "Reflection"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Reflection(variable_name);
-    }
     if(!strcmp(type_id, "Method_invocation"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
@@ -317,6 +305,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
     	assert(i == args->end());
     	return new Method_invocation(target, method_name, actual_parameters);
+    }
+    if(!strcmp(type_id, "Variable_method"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_method(variable_name);
     }
     if(!strcmp(type_id, "Actual_parameter"))
     {
@@ -334,6 +328,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
     }
+    if(!strcmp(type_id, "Variable_class"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_class(variable_name);
+    }
     if(!strcmp(type_id, "Static_array"))
     {
     	List<Static_array_elem*>* static_array_elems = dynamic_cast<List<Static_array_elem*>*>(*i++);
@@ -348,15 +348,10 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Static_array_elem(key, is_ref, val);
     }
-    if(!strcmp(type_id, "Foreign_statement"))
+    if(!strcmp(type_id, "Foreign"))
     {
     	assert(i == args->end());
-    	return new Foreign_statement();
-    }
-    if(!strcmp(type_id, "Foreign_expr"))
-    {
-    	assert(i == args->end());
-    	return new Foreign_expr();
+    	return new Foreign();
     }
     if(!strcmp(type_id, "CLASS_NAME"))
     {
