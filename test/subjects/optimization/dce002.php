@@ -9,8 +9,10 @@
 	// A series of dead assignments (the number is the pass in which they are eliminated).
 	$e = $a; // 1
 	$d = 1; // 4
+	$x = 7; // not DEAD
 	$c = $d; // 3
 	$b = $c; // 2
+	var_dump ($x);
 	$a = $b; // 1
 	$x = 3; // 1
 	$y = 2; // 1
