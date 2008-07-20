@@ -1,187 +1,176 @@
 {
-   <ld - this looks like it's gengetopt's fault, but its a valgrind bug>
-   Memcheck:Addr4
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libc-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   fun:_dl_open
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
    fun:dlopen
-   fun:_Z11run_pluginsP14AST_php_script
-   fun:main
+   fun:sys_dl_open
+   fun:tryall_dlopen
+   fun:find_module
+   fun:try_dlopen
 }
 {
-   <ld - potentially not an error - again, valgrind bug>
-   Memcheck:Cond
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libc-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   fun:_dl_open
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
    fun:dlopen
-   fun:_Z11run_pluginsP14AST_php_script
-   fun:main
+   fun:sys_dl_open
+   fun:tryall_dlopen
+   fun:find_module
 }
 {
-   <ld - potentially not an error - again>
-   Memcheck:Cond
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libc-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   fun:_dl_open
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
    fun:dlopen
-   fun:_Z11run_pluginsP14AST_php_script
-   fun:main
+   fun:sys_dl_open
+   fun:tryall_dlopen
+   fun:find_module
 }
 {
-   <ld - potentially not an error, again>
-   Memcheck:Cond
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libc-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   fun:_dl_open
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
-   obj:/lib/ld-2.3.6.so
-   obj:/lib/tls/i686/cmov/libdl-2.3.6.so
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
    fun:dlopen
-   fun:_Z11run_pluginsP14AST_php_script
+   fun:sys_dl_open
+   fun:tryall_dlopen
+}
+{
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlopen
+   fun:sys_dl_open
+}
+{
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libc-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlsym
+   fun:sys_dl_sym
+   fun:lt_dlsym
+   fun:_ZN12Pass_manager10add_pluginEP18lt_dlhandle_structP6StringS3_
+}
+{
+   ltdl - not our fault
+   Memcheck:Cond
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libc-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlsym
+   fun:sys_dl_sym
+   fun:lt_dlsym
+   fun:_ZN11Plugin_pass3runEPN2IR10PHP_scriptEP12Pass_manager
+   fun:_ZN4Pass8run_passEPN2IR10PHP_scriptEP12Pass_manager
+   fun:_ZN12Pass_manager8run_passEP4PassPN2IR10PHP_scriptEb
+}
+{
+   ltdl - not our fault
+   Memcheck:Cond
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libc-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlsym
+   fun:sys_dl_sym
+   fun:lt_dlsym
+   fun:_ZN11Plugin_pass3runEPN2IR10PHP_scriptEP12Pass_manager
+   fun:_ZN4Pass8run_passEPN2IR10PHP_scriptEP12Pass_manager
+   fun:_ZN12Pass_manager8run_passEP4PassPN2IR10PHP_scriptEb
+}
+{
+   ltdl - not our fault
+   Memcheck:Addr8
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlopen
+   fun:sys_dl_open
+   fun:tryall_dlopen
+   fun:find_module
+   fun:try_dlopen
+   fun:lt_dlopen
+   fun:lt_dlopenext
+}
+{
+   ltdl - not our fault
+   Memcheck:Cond
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libc-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlsym
+   fun:sys_dl_sym
+   fun:lt_dlsym
+   fun:_ZN12Pass_manager10add_pluginEP18lt_dlhandle_structP6StringS3_
+   fun:_Z12init_pluginsP12Pass_manager
    fun:main
 }
 {
-   <Xerces error>
+   ltdl - not our fault
    Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
-   fun:_ZN11xercesc_2_710XMLScanner10scanPrologEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-   fun:_Z11run_pluginsP14AST_php_script
+   obj:/lib/ld-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libc-2.7.so
+   obj:/lib/libdl-2.7.so
+   obj:/lib/ld-2.7.so
+   obj:/lib/libdl-2.7.so
+   fun:dlsym
+   fun:sys_dl_sym
+   fun:lt_dlsym
+   fun:_ZN12Pass_manager10add_pluginEP18lt_dlhandle_structP6StringS3_
+   fun:_Z12init_pluginsP12Pass_manager
    fun:main
-}
-{
-   <Same bug, different stack trace>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79XMLReader13skippedStringEPKt
-   fun:_ZN11xercesc_2_712IGXMLScanner10scanEndTagERb
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-   fun:_Z11run_pluginsP14AST_php_script
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanCharDataERNS_9XMLBufferE
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-   fun:_Z11run_pluginsP14AST_php_script
-   fun:main
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79ReaderMgr11getNextCharEv
-   fun:_ZN11xercesc_2_712IGXMLScanner18basicAttrValueScanEPKtRNS_9XMLBufferE
-   fun:_ZN11xercesc_2_712IGXMLScanner11rawAttrScanEPKtRNS_11RefVectorOfINS_12KVStringPairEEERb
-   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79XMLReader8getQNameERNS_9XMLBufferEPi
-   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-   fun:_Z11run_pluginsP14AST_php_script
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79ReaderMgr12peekNextCharEv
-   fun:_ZN11xercesc_2_710XMLScanner14senseNextTokenERj
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-   fun:_Z11run_pluginsP14AST_php_script
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79XMLReader8getQNameERNS_9XMLBufferEPi
-   fun:_ZN11xercesc_2_712IGXMLScanner11rawAttrScanEPKtRNS_11RefVectorOfINS_12KVStringPairEEERb
-   fun:_ZN11xercesc_2_712IGXMLScanner14scanStartTagNSERb
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
-}
-{
-   <Same bug, different stack trace - again>
-   Memcheck:Cond
-   fun:_ZN11xercesc_2_717XMLUTF8Transcoder13transcodeFromEPKhjPtjRjPh
-   fun:_ZN11xercesc_2_79XMLReader14xcodeMoreCharsEPtPhj
-   fun:_ZN11xercesc_2_79XMLReader17refreshCharBufferEv
-   fun:_ZN11xercesc_2_79XMLReader10skipSpacesERbb
-   fun:_ZN11xercesc_2_79ReaderMgr14skipPastSpacesEb
-   fun:_ZN11xercesc_2_712IGXMLScanner10scanEndTagERb
-   fun:_ZN11xercesc_2_712IGXMLScanner11scanContentEv
-   fun:_ZN11xercesc_2_712IGXMLScanner12scanDocumentERKNS_11InputSourceE
-   fun:_ZN11xercesc_2_717SAX2XMLReaderImpl5parseERKNS_11InputSourceE
-   fun:_Z13parse_ast_xmlRN11xercesc_2_711InputSourceE
-   fun:_Z20parse_ast_xml_bufferP6String
-   fun:process_ast
 }
