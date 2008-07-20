@@ -185,13 +185,18 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 {
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
-	MIR::VARIABLE_NAME* array_name = fold_var (in->arr); // keep the attributes
+	HIR::VARIABLE_NAME* cast_array_name = fresh_var_name ("LF");
+	MIR::VARIABLE_NAME* array_name = fold_var (cast_array_name); // keep the attributes
 
 	(*out
 		<< "if (!is_array ($" << in->arr << ")) "
 		<< "{"
 		<< "	trigger_error (\"Invalid argument supplied for foreach()\", E_USER_WARNING);"
-		<< "	$" << in->arr << " = (array)($" << in->arr << ");"
+		<< "	$" << cast_array_name << " = (array)($" << in->arr << ");"
+		<< "}"
+		<< "else"
+		<< "{"
+		<< "	$" << cast_array_name << " =" << (in->is_ref ? "&" : "") << " $" << in->arr << ";"
 		<< "}"
 	).to_pass (s("HIR-to-MIR"), in);
 

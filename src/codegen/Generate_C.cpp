@@ -1272,7 +1272,8 @@ public:
 				<< "p_rhs = &temp;\n";
 			read (LOCAL, "p_rhs", rhs->value);
 			code 
-				<< "write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "if (*p_lhs != *p_rhs)\n"
+				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
 			cleanup ("p_rhs");
 		}
 		else
