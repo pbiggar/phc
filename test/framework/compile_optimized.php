@@ -20,13 +20,13 @@ class CompileOptimized extends CompiledVsInterpreted
 	function get_phc_command ($subject, $exe_name)
 	{
 		global $phc;
-		return "$phc -c -O3 $subject -o $exe_name";
+		return "$phc -c -O $subject -o $exe_name";
 	}
 
 	function get_php_command ($subject)
 	{
 		global $phc;
-		return "$phc -O3 --dump=sua $subject | ". get_php_command_line ("");
+		return "$phc -O --dump=sua $subject | ". get_php_command_line ("");
 	}
 }
 
