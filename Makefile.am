@@ -84,20 +84,10 @@ src_phc_SOURCES =												\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
 	src/codegen/Compile_C.h									\
-	src/codegen/Copy_propagation.cpp						\
-	src/codegen/Copy_propagation.h						\
-	src/codegen/Dead_code_elimination.cpp				\
-	src/codegen/Dead_code_elimination.h					\
-	src/codegen/Fix_point.cpp								\
-	src/codegen/Fix_point.h									\
 	src/codegen/Generate_C.cpp								\
 	src/codegen/Generate_C.h								\
 	src/codegen/Lift_functions_and_classes.cpp		\
 	src/codegen/Lift_functions_and_classes.h			\
-	src/codegen/Prune_symbol_table.cpp					\
-	src/codegen/Prune_symbol_table.h						\
-	src/codegen/Use_def_counter.cpp 						\
-	src/codegen/Use_def_counter.h							\
 	src/embed/embed.cpp										\
 	src/embed/embed.h											\
 	src/generated/AST.cpp									\
@@ -154,6 +144,16 @@ src_phc_SOURCES =												\
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/optimize/Copy_propagation.cpp					\
+	src/optimize/Copy_propagation.h						\
+	src/optimize/Dead_code_elimination.cpp				\
+	src/optimize/Dead_code_elimination.h				\
+	src/optimize/Fix_point.cpp								\
+	src/optimize/Fix_point.h								\
+	src/optimize/Prune_symbol_table.cpp					\
+	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Use_def_counter.cpp 					\
+	src/optimize/Use_def_counter.h						\
 	src/parsing/Parse_buffer.cpp							\
 	src/parsing/Parse_buffer.h								\
 	src/parsing/parse.cpp									\
