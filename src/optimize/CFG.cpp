@@ -83,6 +83,7 @@ CFG::add_statements (List<Statement*>* statements)
 				vertex_t iffalse = labels[*b->iffalse->get_value_as_string ()];
 				add_edge (v, iftrue, bs);
 				add_edge (v, iffalse, bs);
+				use_parent = false;
 				break;
 			}
 
