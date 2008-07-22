@@ -9,7 +9,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 33
+#define YY_FLEX_SUBMINOR_VERSION 34
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -31,7 +31,7 @@
 
 /* C99 systems have <inttypes.h>. Non-C99 systems may or may not. */
 
-#if __STDC_VERSION__ >= 199901L
+#if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 
 /* C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
  * if you want the limit (max/min) macros for int types. 
@@ -94,11 +94,12 @@ typedef unsigned int flex_uint32_t;
 
 #else	/* ! __cplusplus */
 
-#if __STDC__
+/* C99 requires __STDC__ to be defined as 1. */
+#if defined (__STDC__)
 
 #define YY_USE_CONST
 
-#endif	/* __STDC__ */
+#endif	/* defined (__STDC__) */
 #endif	/* ! __cplusplus */
 
 #ifdef YY_USE_CONST
@@ -133,8 +134,6 @@ typedef void* yyscan_t;
 #define yylineno (YY_CURRENT_BUFFER_LVALUE->yy_bs_lineno)
 #define yycolumn (YY_CURRENT_BUFFER_LVALUE->yy_bs_column)
 #define yy_flex_debug yyg->yy_flex_debug_r
-
-int PHP_lex_init (yyscan_t* scanner);
 
 /* Enter a start condition.  This macro really ought to take a parameter,
  * but we do it the disgusting crufty way forced on us by the ()-less
@@ -196,11 +195,13 @@ typedef struct yy_buffer_state *YY_BUFFER_STATE;
 /* The following is because we cannot portably get our hands on size_t
  * (without autoconf's help, which isn't available because we want
  * flex-generated scanners to compile on their own).
+ * Given that the standard has decreed that size_t exists since 1989,
+ * I guess we can afford to depend on it. Manoj.
  */
 
 #ifndef YY_TYPEDEF_YY_SIZE_T
 #define YY_TYPEDEF_YY_SIZE_T
-typedef unsigned int yy_size_t;
+typedef size_t yy_size_t;
 #endif
 
 #ifndef YY_STRUCT_YY_BUFFER_STATE
@@ -911,7 +912,7 @@ goto find_rule; \
 
 
 /* Define a few tokens referenced in the grammar, below */
-#line 915 "src/generated/lex.yy.cc"
+#line 916 "src/generated/lex.yy.cc"
 
 #define INITIAL 0
 #define PHP 1
@@ -975,6 +976,12 @@ struct yyguts_t
     char *yy_full_match;
     int yy_lp;
 
+    /* These are only needed for trailing context rules,
+     * but there's no conditional variable for that yet. */
+    int yy_looking_for_trail_begin;
+    int yy_full_lp;
+    int *yy_full_state;
+
     char *yytext_r;
     int yy_more_flag;
     int yy_more_len;
@@ -989,6 +996,10 @@ static int yy_init_globals (yyscan_t yyscanner );
      * from bison output in section 1.*/
     #    define yylval yyg->yylval_r
     
+int PHP_lex_init (yyscan_t* scanner);
+
+int PHP_lex_init_extra (YY_EXTRA_TYPE user_defined,yyscan_t* scanner);
+
 /* Accessor methods to globals.
    These are made visible to non-reentrant scanners for convenience. */
 
@@ -1066,7 +1077,7 @@ static int input (yyscan_t yyscanner );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO (void) fwrite( yytext, yyleng, 1, yyout )
+#define ECHO fwrite( yytext, yyleng, 1, yyout )
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -1077,7 +1088,7 @@ static int input (yyscan_t yyscanner );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		size_t n; \
+		int n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -1170,7 +1181,7 @@ YY_DECL
 
 	/* Update source_line */
 
-#line 1174 "src/generated/lex.yy.cc"
+#line 1185 "src/generated/lex.yy.cc"
 
     yylval = yylval_param;
 
@@ -1185,6 +1196,8 @@ YY_DECL
         /* Create the reject buffer large enough to save one state per allowed character. */
         if ( ! yyg->yy_state_buf )
             yyg->yy_state_buf = (yy_state_type *)PHP_alloc(YY_STATE_BUF_SIZE  ,yyscanner);
+            if ( ! yyg->yy_state_buf )
+                YY_FATAL_ERROR( "out of dynamic memory in PHP_lex()" );
 
 		if ( ! yyg->yy_start )
 			yyg->yy_start = 1;	/* first start state */
@@ -2368,7 +2381,7 @@ YY_RULE_SETUP
 #line 870 "src/generated_src/php_scanner.lex"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2372 "src/generated/lex.yy.cc"
+#line 2385 "src/generated/lex.yy.cc"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2592,6 +2605,14 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 
 	else
 		ret_val = EOB_ACT_CONTINUE_SCAN;
+
+	if ((yy_size_t) (yyg->yy_n_chars + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
+		/* Extend the array by 50%, plus the number we really need. */
+		yy_size_t new_size = yyg->yy_n_chars + number_to_move + (yyg->yy_n_chars >> 1);
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) PHP_realloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,new_size ,yyscanner );
+		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
+			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
+	}
 
 	yyg->yy_n_chars += number_to_move;
 	YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[yyg->yy_n_chars] = YY_END_OF_BUFFER_CHAR;
@@ -2981,7 +3002,9 @@ static void PHP_ensure_buffer_stack (yyscan_t yyscanner)
 		yyg->yy_buffer_stack = (struct yy_buffer_state**)PHP_alloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								, yyscanner);
-		
+		if ( ! yyg->yy_buffer_stack )
+			YY_FATAL_ERROR( "out of dynamic memory in PHP_ensure_buffer_stack()" );
+								  
 		memset(yyg->yy_buffer_stack, 0, num_to_alloc * sizeof(struct yy_buffer_state*));
 				
 		yyg->yy_buffer_stack_max = num_to_alloc;
@@ -2999,6 +3022,8 @@ static void PHP_ensure_buffer_stack (yyscan_t yyscanner)
 								(yyg->yy_buffer_stack,
 								num_to_alloc * sizeof(struct yy_buffer_state*)
 								, yyscanner);
+		if ( ! yyg->yy_buffer_stack )
+			YY_FATAL_ERROR( "out of dynamic memory in PHP_ensure_buffer_stack()" );
 
 		/* zero only the new slots.*/
 		memset(yyg->yy_buffer_stack + yyg->yy_buffer_stack_max, 0, grow_size * sizeof(struct yy_buffer_state*));
@@ -3109,8 +3134,7 @@ YY_BUFFER_STATE PHP__scan_bytes  (yyconst char * yybytes, int  _yybytes_len , yy
 			yyg->yy_start_stack = (int *) PHP_realloc((void *) yyg->yy_start_stack,new_size ,yyscanner );
 
 		if ( ! yyg->yy_start_stack )
-			YY_FATAL_ERROR(
-			"out of memory expanding start-condition stack" );
+			YY_FATAL_ERROR( "out of memory expanding start-condition stack" );
 		}
 
 	yyg->yy_start_stack[yyg->yy_start_stack_ptr++] = YY_START;
@@ -3337,6 +3361,42 @@ int PHP_lex_init(yyscan_t* ptr_yy_globals)
     /* By setting to 0xAA, we expose bugs in yy_init_globals. Leave at 0x00 for releases. */
     memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
 
+    return yy_init_globals ( *ptr_yy_globals );
+}
+
+/* PHP_lex_init_extra has the same functionality as PHP_lex_init, but follows the
+ * convention of taking the scanner as the last argument. Note however, that
+ * this is a *pointer* to a scanner, as it will be allocated by this call (and
+ * is the reason, too, why this function also must handle its own declaration).
+ * The user defined value in the first argument will be available to PHP_alloc in
+ * the yyextra field.
+ */
+
+int PHP_lex_init_extra(YY_EXTRA_TYPE yy_user_defined,yyscan_t* ptr_yy_globals )
+
+{
+    struct yyguts_t dummy_yyguts;
+
+    PHP_set_extra (yy_user_defined, &dummy_yyguts);
+
+    if (ptr_yy_globals == NULL){
+        errno = EINVAL;
+        return 1;
+    }
+	
+    *ptr_yy_globals = (yyscan_t) PHP_alloc ( sizeof( struct yyguts_t ), &dummy_yyguts );
+	
+    if (*ptr_yy_globals == NULL){
+        errno = ENOMEM;
+        return 1;
+    }
+    
+    /* By setting to 0xAA, we expose bugs in
+    yy_init_globals. Leave at 0x00 for releases. */
+    memset(*ptr_yy_globals,0x00,sizeof(struct yyguts_t));
+    
+    PHP_set_extra (yy_user_defined, *ptr_yy_globals);
+    
     return yy_init_globals ( *ptr_yy_globals );
 }
 

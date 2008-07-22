@@ -18,6 +18,7 @@ AM_CPPFLAGS = \
 	$(LTDLINCL) -I$(srcdir)/src -I$(srcdir)/3rdparty/getopt -I$(srcdir)/src/generated \
 	@libphp_headers@ -DDATADIR=\"$(datadir)\" -DPKGLIBDIR=\"$(pkglibdir)\" -Wall
 
+lib_LTLIBRARIES = libphc.la
 bin_PROGRAMS = src/phc
 
 # By using CXXFLAGS we avoid warnings in generated_src, which we dont want to
@@ -37,7 +38,7 @@ src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
-src_phc_LDADD = @gc_lib@ $(LIBLTDL)
+src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 
 src_phc_DEPENDENCIES = $(LIBLTDL)
 
@@ -47,6 +48,9 @@ libexec_SCRIPTS = libtool
 pkgdata_DATA = libphc.cpp
 
 src_phc_SOURCES =												\
+	src/phc.cpp
+
+libphc_la_SOURCES= \
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
@@ -170,7 +174,6 @@ src_phc_SOURCES =												\
 	src/pass_manager/Plugin_pass.h						\
 	src/pass_manager/Transform_pass.h					\
 	src/pass_manager/Visitor_pass.h						\
-	src/phc.cpp													\
 	src/process_ast/AST_unparser.cpp						\
 	src/process_ast/AST_unparser.h						\
 	src/process_ast/Constant_folding.cpp				\
