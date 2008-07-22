@@ -63,6 +63,7 @@ const char *gengetopt_args_info_full_help[] = {
   "      --udump=passname     Dump input as runnable PHP after the pass named \n                             'passname'",
   "      --ddump=passname     Dump input as DOT after the pass named 'passname'",
   "      --xdump=passname     Dump input as XML after the pass named 'passname'",
+  "      --cfg-dump=passname  Dump CFG after the pass named 'passname'",
   "      --list-passes        List the passes to be run  (default=off)",
   "      --dont-fail          Dont fail on error (after parsing)  (default=off)",
   "      --no-xml-attrs       When dumping XML, omit node attributes  \n                             (default=off)",
@@ -154,6 +155,7 @@ void clear_given (struct gengetopt_args_info *args_info)
   args_info->udump_given = 0 ;
   args_info->ddump_given = 0 ;
   args_info->xdump_given = 0 ;
+  args_info->cfg_dump_given = 0 ;
   args_info->list_passes_given = 0 ;
   args_info->dont_fail_given = 0 ;
   args_info->no_xml_attrs_given = 0 ;
@@ -204,6 +206,8 @@ void clear_args (struct gengetopt_args_info *args_info)
   args_info->ddump_orig = NULL;
   args_info->xdump_arg = NULL;
   args_info->xdump_orig = NULL;
+  args_info->cfg_dump_arg = NULL;
+  args_info->cfg_dump_orig = NULL;
   args_info->list_passes_flag = 0;
   args_info->dont_fail_flag = 0;
   args_info->no_xml_attrs_flag = 0;
@@ -263,10 +267,13 @@ void init_args_info(struct gengetopt_args_info *args_info)
   args_info->xdump_help = gengetopt_args_info_full_help[34] ;
   args_info->xdump_min = -1;
   args_info->xdump_max = -1;
-  args_info->list_passes_help = gengetopt_args_info_full_help[35] ;
-  args_info->dont_fail_help = gengetopt_args_info_full_help[36] ;
-  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[37] ;
-  args_info->disable_help = gengetopt_args_info_full_help[38] ;
+  args_info->cfg_dump_help = gengetopt_args_info_full_help[35] ;
+  args_info->cfg_dump_min = -1;
+  args_info->cfg_dump_max = -1;
+  args_info->list_passes_help = gengetopt_args_info_full_help[36] ;
+  args_info->dont_fail_help = gengetopt_args_info_full_help[37] ;
+  args_info->no_xml_attrs_help = gengetopt_args_info_full_help[38] ;
+  args_info->disable_help = gengetopt_args_info_full_help[39] ;
   args_info->disable_min = -1;
   args_info->disable_max = -1;
   
@@ -422,6 +429,7 @@ cmdline_parser_release (struct gengetopt_args_info *args_info)
   free_multiple_string_field (args_info->udump_given, &(args_info->udump_arg), &(args_info->udump_orig));
   free_multiple_string_field (args_info->ddump_given, &(args_info->ddump_arg), &(args_info->ddump_orig));
   free_multiple_string_field (args_info->xdump_given, &(args_info->xdump_arg), &(args_info->xdump_orig));
+  free_multiple_string_field (args_info->cfg_dump_given, &(args_info->cfg_dump_arg), &(args_info->cfg_dump_orig));
   free_multiple_string_field (args_info->disable_given, &(args_info->disable_arg), &(args_info->disable_orig));
   
   
@@ -517,6 +525,7 @@ cmdline_parser_dump(FILE *outfile, struct gengetopt_args_info *args_info)
   write_multiple_into_file(outfile, args_info->udump_given, "udump", args_info->udump_orig, 0);
   write_multiple_into_file(outfile, args_info->ddump_given, "ddump", args_info->ddump_orig, 0);
   write_multiple_into_file(outfile, args_info->xdump_given, "xdump", args_info->xdump_orig, 0);
+  write_multiple_into_file(outfile, args_info->cfg_dump_given, "cfg-dump", args_info->cfg_dump_orig, 0);
   if (args_info->list_passes_given)
     write_into_file(outfile, "list-passes", 0, 0 );
   if (args_info->dont_fail_given)
@@ -797,6 +806,9 @@ cmdline_parser_required2 (struct gengetopt_args_info *args_info, const char *pro
   if (check_multiple_option_occurrences(prog_name, args_info->xdump_given, args_info->xdump_min, args_info->xdump_max, "'--xdump'"))
      error = 1;
   
+  if (check_multiple_option_occurrences(prog_name, args_info->cfg_dump_given, args_info->cfg_dump_min, args_info->cfg_dump_max, "'--cfg-dump'"))
+     error = 1;
+  
   if (check_multiple_option_occurrences(prog_name, args_info->disable_given, args_info->disable_min, args_info->disable_max, "'--disable'"))
      error = 1;
   
@@ -1039,6 +1051,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   struct generic_list * udump_list = NULL;
   struct generic_list * ddump_list = NULL;
   struct generic_list * xdump_list = NULL;
+  struct generic_list * cfg_dump_list = NULL;
   struct generic_list * disable_list = NULL;
   int error = 0;
   struct gengetopt_args_info local_args_info;
@@ -1100,6 +1113,7 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
         { "udump",	1, NULL, 0 },
         { "ddump",	1, NULL, 0 },
         { "xdump",	1, NULL, 0 },
+        { "cfg-dump",	1, NULL, 0 },
         { "list-passes",	0, NULL, 0 },
         { "dont-fail",	0, NULL, 0 },
         { "no-xml-attrs",	0, NULL, 0 },
@@ -1449,6 +1463,17 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
               goto failure;
           
           }
+          /* Dump CFG after the pass named 'passname'.  */
+          else if (strcmp (long_options[option_index].name, "cfg-dump") == 0)
+          {
+          
+            if (update_multiple_arg_temp(&cfg_dump_list, 
+                &(local_args_info.cfg_dump_given), optarg, 0, 0, ARG_STRING,
+                "cfg-dump", '-',
+                additional_error))
+              goto failure;
+          
+          }
           /* List the passes to be run.  */
           else if (strcmp (long_options[option_index].name, "list-passes") == 0)
           {
@@ -1541,6 +1566,10 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
     &(args_info->xdump_orig), args_info->xdump_given,
     local_args_info.xdump_given, 0 , 
     ARG_STRING, xdump_list);
+  update_multiple_arg((void *)&(args_info->cfg_dump_arg),
+    &(args_info->cfg_dump_orig), args_info->cfg_dump_given,
+    local_args_info.cfg_dump_given, 0 , 
+    ARG_STRING, cfg_dump_list);
   update_multiple_arg((void *)&(args_info->disable_arg),
     &(args_info->disable_orig), args_info->disable_given,
     local_args_info.disable_given, 0 , 
@@ -1562,6 +1591,8 @@ cmdline_parser_internal (int argc, char * const *argv, struct gengetopt_args_inf
   local_args_info.ddump_given = 0;
   args_info->xdump_given += local_args_info.xdump_given;
   local_args_info.xdump_given = 0;
+  args_info->cfg_dump_given += local_args_info.cfg_dump_given;
+  local_args_info.cfg_dump_given = 0;
   args_info->disable_given += local_args_info.disable_given;
   local_args_info.disable_given = 0;
   
@@ -1610,6 +1641,7 @@ failure:
   free_list (udump_list, 1 );
   free_list (ddump_list, 1 );
   free_list (xdump_list, 1 );
+  free_list (cfg_dump_list, 1 );
   free_list (disable_list, 1 );
   
   cmdline_parser_release (&local_args_info);

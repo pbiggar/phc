@@ -148,12 +148,18 @@ libphc_la_SOURCES= \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/optimize/Basic_block.cpp							\
+	src/optimize/Basic_block.h								\
+	src/optimize/CFG.h										\
+	src/optimize/CFG.cpp										\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
+	src/optimize/Live_variable_analysis.cpp			\
+	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Use_def_counter.cpp 					\

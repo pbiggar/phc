@@ -36,6 +36,7 @@ option "dump" - "Dump input as PHP (although potentially with gotos and labels) 
 option "udump" - "Dump input as runnable PHP after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "ddump" - "Dump input as DOT after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "xdump" - "Dump input as XML after the pass named 'passname'" string typestr="passname" multiple hidden optional
+option "cfg-dump" - "Dump CFG after the pass named 'passname'" string typestr="passname" multiple hidden optional
 option "list-passes" - "List the passes to be run" flag off hidden
 option "dont-fail" - "Dont fail on error (after parsing)" flag off hidden
 option "no-xml-attrs" - "When dumping XML, omit node attributes" flag off hidden

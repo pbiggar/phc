@@ -119,6 +119,11 @@ struct gengetopt_args_info
   int xdump_min; /**< @brief Dump input as XML after the pass named 'passname''s minimum occurreces */
   int xdump_max; /**< @brief Dump input as XML after the pass named 'passname''s maximum occurreces */
   const char *xdump_help; /**< @brief Dump input as XML after the pass named 'passname' help description.  */
+  char ** cfg_dump_arg;	/**< @brief Dump CFG after the pass named 'passname'.  */
+  char ** cfg_dump_orig;	/**< @brief Dump CFG after the pass named 'passname' original value given at command line.  */
+  int cfg_dump_min; /**< @brief Dump CFG after the pass named 'passname''s minimum occurreces */
+  int cfg_dump_max; /**< @brief Dump CFG after the pass named 'passname''s maximum occurreces */
+  const char *cfg_dump_help; /**< @brief Dump CFG after the pass named 'passname' help description.  */
   int list_passes_flag;	/**< @brief List the passes to be run (default=off).  */
   const char *list_passes_help; /**< @brief List the passes to be run help description.  */
   int dont_fail_flag;	/**< @brief Dont fail on error (after parsing) (default=off).  */
@@ -161,6 +166,7 @@ struct gengetopt_args_info
   unsigned int udump_given ;	/**< @brief Whether udump was given.  */
   unsigned int ddump_given ;	/**< @brief Whether ddump was given.  */
   unsigned int xdump_given ;	/**< @brief Whether xdump was given.  */
+  unsigned int cfg_dump_given ;	/**< @brief Whether cfg-dump was given.  */
   unsigned int list_passes_given ;	/**< @brief Whether list-passes was given.  */
   unsigned int dont_fail_given ;	/**< @brief Whether dont-fail was given.  */
   unsigned int no_xml_attrs_given ;	/**< @brief Whether no-xml-attrs was given.  */

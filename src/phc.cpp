@@ -24,6 +24,7 @@
 #include "codegen/Compile_C.h"
 #include "optimize/Copy_propagation.h"
 #include "optimize/Dead_code_elimination.h"
+#include "optimize/Live_variable_analysis.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
 #include "optimize/Prune_symbol_table.h"
@@ -167,6 +168,7 @@ int main(int argc, char** argv)
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
+	pm->add_mir_pass (new Live_variable_analysis ());
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
 	stringstream ss;
 	pm->add_mir_pass (new Generate_C (ss));
