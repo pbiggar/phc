@@ -8,6 +8,7 @@
 #include <iostream>
 #include "lib/demangle.h"
 #include "DOT_unparser.h"
+#include "process_ir/General.h"
 #include "cmdline.h"
 
 using namespace std;
@@ -52,32 +53,41 @@ void DOT_unparser::pre_identifier(Identifier* in)
 	new_box(in->get_value_as_string());
 }
 
-void DOT_unparser::pre_literal(Literal* in)
+String* DOT_unparser::escape(String* in, int max_length)
 {
-	String& str = *in->get_source_rep();
-	ostringstream escaped;
+	unsigned ml = max_length;
+
+	if (max_length == -1)
+		ml = in->size();
+
+	stringstream escaped;
 	unsigned i;
 
 	// escape according to dot rules (this varies slightly from
 	// escaping for PHP or C).
-	for(i = 0; i < 10 && i < str.size(); i++)
+	for(i = 0; i < ml && i < in->size(); i++)
 	{
-		switch(str[i])
+		switch((*in)[i])
 		{
 			case '\\':
 			case '"':
-				escaped << "\\" << str[i];
+				escaped << "\\" << (*in)[i];
 				break;
 			default:
-				if(str[i] >= 32 && str[i] != 127) escaped << str[i];
+				if((*in)[i] >= 32 && (*in)[i] != 127) escaped << (*in)[i];
 				break;
 		}
 	}	
 
-	if(i < str.size())
+	if(i < in->size())
 		escaped << "..";
 
-	new_box(new String(escaped.str()));
+	return s(escaped.str());
+}
+
+void DOT_unparser::pre_literal(Literal* in)
+{
+	new_box(escape (in->get_source_rep()));
 }
 
 void DOT_unparser::visit_marker(char const* name, bool value)
