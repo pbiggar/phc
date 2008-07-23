@@ -40,8 +40,6 @@ src_phc_LDFLAGS = -export-dynamic
 # and we dont want this feature anyway
 src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 
-src_phc_DEPENDENCIES = $(LIBLTDL)
-
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd

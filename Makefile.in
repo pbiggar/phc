@@ -303,6 +303,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_src_phc_OBJECTS = phc.$(OBJEXT)
 src_phc_OBJECTS = $(am_src_phc_OBJECTS)
 am__DEPENDENCIES_1 =
+src_phc_DEPENDENCIES = $(am__DEPENDENCIES_1) libphc.la
 src_phc_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(src_phc_LDFLAGS) $(LDFLAGS) -o $@
@@ -569,7 +570,6 @@ src_phc_LDFLAGS = -export-dynamic
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
 # and we dont want this feature anyway
 src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
-src_phc_DEPENDENCIES = $(LIBLTDL)
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
