@@ -5,11 +5,12 @@
  * Control-flow Graph
  */
 
-#include "CFG.h"
-#include "process_ir/General.h"
-#include "boost/graph/graphviz.hpp"
-#include "process_ast/DOT_unparser.h"
 #include "boost/foreach.hpp"
+#include "boost/graph/graphviz.hpp"
+
+#include "CFG.h"
+#include "process_ast/DOT_unparser.h"
+#include "process_ir/General.h"
 
 using namespace boost;
 using namespace std;
@@ -19,14 +20,18 @@ CFG::CFG ()
 : bs()
 {
 	bb = get(vertex_bb_t(), bs);
+
+	// Initialize the entry and exit blocks
+	entry = add_vertex (bs);
+	bb[entry] = new Entry_block;
+
+	exit = add_vertex (bs);
+	bb[exit] = new Exit_block;
 }
 
 void
 CFG::add_statements (List<Statement*>* statements)
 {
-	vertex_t entry = add_vertex (bs);
-	bb[entry] = new Entry_block;
-
 	// Keep track of labels, for edges between gotos and branches.
 	map <string, vertex_t> labels;
 
@@ -95,9 +100,6 @@ CFG::add_statements (List<Statement*>* statements)
 		}
 	}
 	
-	vertex_t exit = add_vertex (bs);
-	bb[exit] = new Exit_block;
-
 	assert (use_parent);
 	add_edge (parent, exit, bs);
 
@@ -109,6 +111,30 @@ CFG::add_statements (List<Statement*>* statements)
 	}
 
 }
+
+Basic_block*
+CFG::get_entry_bb ()
+{
+	return bb[entry];
+}
+
+Basic_block*
+CFG::get_exit_bb ()
+{
+	return bb[exit];
+}
+
+list<Basic_block*>*
+CFG::get_predecessors (Basic_block* bb)
+{
+	list<Basic_block*>* result = new list<Basic_block*>;
+
+	assert (0);
+	// TODO
+
+	return result;
+}
+
 
 // Dump to graphviz
 struct BB_property_functor

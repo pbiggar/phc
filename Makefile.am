@@ -40,8 +40,6 @@ src_phc_LDFLAGS = -export-dynamic
 # and we dont want this feature anyway
 src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 
-src_phc_DEPENDENCIES = $(LIBLTDL)
-
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
@@ -148,10 +146,12 @@ libphc_la_SOURCES= \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/optimize/Backwards_flow_visitor.cpp			\
+	src/optimize/Backwards_flow_visitor.h				\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
-	src/optimize/CFG.h										\
 	src/optimize/CFG.cpp										\
+	src/optimize/CFG.h										\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
