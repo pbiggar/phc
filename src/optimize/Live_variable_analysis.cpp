@@ -60,19 +60,120 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 	}
 }
 
-#define USE(VAR) bb->uses->insert (VAR->value);
-#define DEF(VAR) bb->defs->insert (VAR->value);
-
-void use_expr (Basic_block* bb, Expr* in)
-{
-	// TODO
-	assert (0);
-}
+#define USE(VAR) bb->uses->insert (VAR->value)
+#define DEF(VAR) bb->defs->insert (VAR->value)
 
 void
 Live_variable_analysis::process_branch_block (Branch_block* bb)
 {
 	USE (bb->branch->variable_name);
+}
+
+void
+use_variable_name (Basic_block* bb, Variable_name* in)
+{
+	if (isa<VARIABLE_NAME> (in))
+		USE (dyc<VARIABLE_NAME> (in));
+	else
+		assert (0); // TODO
+}
+
+/* Expressions */
+void use_expr (Basic_block* bb, Expr* in)
+{
+	switch(in->classid())
+	{
+		case BOOL::ID:
+		case Constant::ID:
+		case INT::ID:
+		case NIL::ID:
+		case REAL::ID:
+		case STRING::ID:
+			// do nothing
+			break;
+
+		case Bin_op::ID:
+		{
+			Bin_op* bin_op = dyc<Bin_op> (in);
+			USE (bin_op->left);
+			USE (bin_op->right);
+			break;
+		}
+
+		case Cast::ID:
+			USE (dyc<Cast> (in)->variable_name);
+			break;
+
+		case Foreach_get_key::ID:
+			USE (dyc<Foreach_get_key> (in)->array);
+			break;
+
+		case Foreach_get_val::ID:
+			USE (dyc<Foreach_get_val> (in)->array);
+			break;
+
+		case Foreach_has_key::ID:
+			USE (dyc<Foreach_has_key> (in)->array);
+			break;
+
+		case Index_array::ID:
+		{
+			Index_array* ia = dyc<Index_array> (in);
+			USE (ia->variable_name);
+			USE (ia->index);
+		}
+
+		case Instanceof::ID:
+			USE (dyc<Instanceof> (in)->variable_name);
+			break;
+
+		case Method_invocation::ID:
+		{
+			Method_invocation* mi = dyc<Method_invocation> (in);
+
+			if (isa<VARIABLE_NAME> (mi->method_name))
+				assert (0); // TODO
+
+			foreach (Actual_parameter* ap, *mi->actual_parameters)
+			{
+				use_variable_name (bb, ap->variable_name);
+			}
+			break;
+		}
+
+		case New::ID:
+			// TODO
+			// TODO class_name?
+			assert (0);
+
+		case Target_expr::ID:
+		{
+			Target_expr* te = dyc<Target_expr> (in);
+			use_variable_name (bb, te->variable_name);
+
+			if (isa<VARIABLE_NAME> (te->target))
+				assert (0); // bottom
+
+			break;
+		}
+
+		case Unary_op::ID:
+			USE (dyc<Cast> (in)->variable_name);
+			break;
+
+		case VARIABLE_NAME::ID:
+			USE (dyc<VARIABLE_NAME> (in));
+			break;
+
+		case Variable_variable::ID:
+			// TODO: bottom
+			assert (0);
+			break;
+
+		default:
+			assert (0);
+			break;
+	}
 }
 
 void
@@ -86,7 +187,7 @@ Live_variable_analysis::process_assign_array (Statement_block* bb, MIR::Assign_a
 void
 Live_variable_analysis::process_assign_target (Statement_block* bb, MIR::Assign_target* in)
 {
-	assert (0); //use_expr (in->target);
+//	use_expr (bb, in->target);
 	assert (0); // USE (in->lhs);
 	USE (in->rhs);
 }
@@ -95,7 +196,7 @@ void
 Live_variable_analysis::process_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	DEF (in->lhs);
-	assert (0); //use_expr (bb, in->expr);
+	use_expr (bb, in->rhs);
 }
 
 void
