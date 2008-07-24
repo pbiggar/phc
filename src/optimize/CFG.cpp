@@ -19,14 +19,20 @@ using namespace MIR;
 CFG::CFG ()
 : bs()
 {
-	bb = get(vertex_bb_t(), bs);
+	vb = get(vertex_bb_t(), bs);
 
 	// Initialize the entry and exit blocks
-	entry = add_vertex (bs);
-	bb[entry] = new Entry_block;
+	entry = add_bb (new Entry_block);
+	exit = add_bb (new Exit_block);
+}
 
-	exit = add_vertex (bs);
-	bb[exit] = new Exit_block;
+vertex_t
+CFG::add_bb (Basic_block* bb)
+{
+	vertex_t v = add_vertex (bs);
+	vb[v] = bb;
+	bb->vertex = v;
+	return v;
 }
 
 void
@@ -42,11 +48,27 @@ CFG::add_statements (List<Statement*>* statements)
 	// In the first pass, just create nodes for the statements.
 	for_lci (statements, Statement, i)
 	{
-		vertex_t v = add_vertex (bs);;
-		nodes[*i] = v;
+		vertex_t v;
+		switch ((*i)->classid())
+		{
+			case Label::ID:
+				v = add_bb (new Empty_block);
+				labels [*dyc<Label>(*i)->label_name->get_value_as_string ()] = v;
+				break;
 
-		if (isa<Label> (*i))
-			labels [*dyc<Label>(*i)->label_name->get_value_as_string ()] = v;
+			case Goto::ID:
+				v = add_bb (new Empty_block);
+				break;
+
+			case Branch::ID:
+				v = add_bb (new Branch_block (dyc<Branch>(*i)));
+					break;
+
+			default:
+				v = add_bb (new Statement_block (*i));
+				break;
+		}
+		nodes[*i] = v;
 	}
 
 
@@ -54,48 +76,41 @@ CFG::add_statements (List<Statement*>* statements)
 	vertex_t parent = entry;
 	bool use_parent = true; // parent is just an int, so not nullable
 
-	for_lci (statements, Statement, i)
+	foreach (Statement* s, *statements)
 	{
 		// Be careful with pointers. Its very easy to overwrite vertices
-		vertex_t v = nodes[*i];
+		vertex_t v = nodes[s];
 		if (use_parent)
-		{
 			add_edge (parent, v, bs);
-		}
-		switch ((*i)->classid())
-		{
-			case Label::ID:
-				bb[v] = new Empty_block;
-				parent = v;
-				use_parent = true;
-				break;
 
+
+		switch (s->classid())
+		{
 			case Goto::ID:
 			{
-				bb[v] = new Empty_block;
-				use_parent = false;
 				vertex_t target = 
-					labels[*dyc<Goto>(*i)->label_name->get_value_as_string ()];
+					labels[*dyc<Goto>(s)->label_name->get_value_as_string ()];
 				add_edge (v, target, bs);
+
+				use_parent = false;
 				break;
 			}
 
 			case Branch::ID:
 			{
-				Branch* b = dyc<Branch>(*i);
-				bb[v] = new Branch_block (b);
+				Branch* b = dyc<Branch>(s);
 				vertex_t iftrue = labels[*b->iftrue->get_value_as_string ()];
 				vertex_t iffalse = labels[*b->iffalse->get_value_as_string ()];
 				add_edge (v, iftrue, bs);
 				add_edge (v, iffalse, bs);
+
 				use_parent = false;
 				break;
 			}
 
 			default:
-				bb[v] = new Statement_block (*i);
-				use_parent = true;
 				parent = v;
+				use_parent = true;
 				break;
 		}
 	}
@@ -103,11 +118,10 @@ CFG::add_statements (List<Statement*>* statements)
 	assert (use_parent);
 	add_edge (parent, exit, bs);
 
-
 	// Check that no blocks have NULL vertices
-	BOOST_FOREACH (vertex_t v, vertices (bs))
+	foreach (vertex_t v, vertices (bs))
 	{
-		assert (bb[v] != NULL);
+		assert (vb[v] != NULL);
 	}
 
 }
@@ -115,13 +129,13 @@ CFG::add_statements (List<Statement*>* statements)
 Basic_block*
 CFG::get_entry_bb ()
 {
-	return bb[entry];
+	return vb[entry];
 }
 
 Basic_block*
 CFG::get_exit_bb ()
 {
-	return bb[exit];
+	return vb[exit];
 }
 
 list<Basic_block*>*
@@ -138,10 +152,14 @@ CFG::get_predecessors (Basic_block* bb)
 list<Basic_block*>*
 CFG::get_successors (Basic_block* bb)
 {
+	this->consistency_check();
+
 	list<Basic_block*>* result = new list<Basic_block*>;
 
-	assert (0);
-	// TODO
+	foreach (edge_t e, out_edges (bb->vertex, bs))
+	{
+		result->push_back (vb[target (e, bs)]);
+	}
 
 	return result;
 }
@@ -151,8 +169,10 @@ CFG::get_all_bbs ()
 {
 	list<Basic_block*>* result = new list<Basic_block*>;
 
-	assert (0);
-	// TODO
+	foreach (vertex_t v, vertices(bs))
+	{
+		result->push_back (vb[v]);
+	}
 
 	return result;
 }
@@ -160,10 +180,10 @@ CFG::get_all_bbs ()
 // Dump to graphviz
 struct BB_property_functor
 {
-	property_map<Graph, vertex_bb_t>::type bb;
+	property_map<Graph, vertex_bb_t>::type vb;
 	BB_property_functor (CFG* cfg)
 	{
-		bb = cfg->bb;
+		vb = cfg->vb;
 	}
 	void operator()(std::ostream& out, const edge_t& v) const 
 	{
@@ -173,8 +193,8 @@ struct BB_property_functor
 
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
-		out << " [label=\"" << *DOT_unparser::escape (bb[v]->get_graphviz_label ()) << "\"";
-		String* prop = bb[v]->get_graphviz_properties ();
+		out << " [label=\"" << *DOT_unparser::escape (vb[v]->get_graphviz_label ()) << "\"";
+		String* prop = vb[v]->get_graphviz_properties ();
 		if (prop)
 			out << ", " << *prop << " ";
 		
@@ -199,4 +219,15 @@ CFG::dump_graphviz ()
 		BB_property_functor(this),
 		BB_property_functor(this),
 		Graph_property_functor());
+}
+
+/* Error checking */
+void
+CFG::consistency_check ()
+{
+	// I believe the Graph can renumber the BBs. Each BB should have the correct vertex.
+	foreach (vertex_t v, vertices (bs))
+	{
+		assert (vb[v]->vertex == v);
+	}
 }

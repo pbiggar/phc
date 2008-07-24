@@ -53,16 +53,20 @@ class CFG;
 class CFG
 {
 public:
-	// Accessor for bb property. Access using bb[vertex].
-	boost::property_map<Graph, vertex_bb_t>::type bb;
+	// Accessor for BB property. Access using vb[vertex].
+	boost::property_map<Graph, vertex_bb_t>::type vb;
 
 public:
 
 	CFG ();
 	void add_statements (List<MIR::Statement*>* statements);
 
+	// Add the BB to the graph, and update the BB's vertex.
+	vertex_t add_bb (Basic_block* bb);
+
 public:
 	void dump_graphviz ();
+	void consistency_check ();
 
 public:
 	Basic_block* get_entry_bb ();
