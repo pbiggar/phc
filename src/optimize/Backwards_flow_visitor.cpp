@@ -83,3 +83,116 @@ Backwards_flow_visitor::process_bb (Basic_block* bb)
 		}
 	}
 }
+
+void
+Backwards_flow_visitor::process_entry (Entry_block*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_empty (Empty_block*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_exit (Exit_block*)
+{
+	assert (0);
+}
+void
+Backwards_flow_visitor::process_branch (Branch_block*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_assign_array (Statement_block* sb, MIR::Assign_array*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_assign_target (Statement_block* sb, MIR::Assign_target*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_assign_var (Statement_block* sb, MIR::Assign_var*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_assign_var_var (Statement_block* sb, MIR::Assign_var_var*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_eval_expr (Statement_block* sb, MIR::Eval_expr*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_foreach_end (Statement_block* sb, MIR::Foreach_end*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_foreach_next (Statement_block* sb, MIR::Foreach_next*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_foreach_reset (Statement_block* sb, MIR::Foreach_reset*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_global (Statement_block* sb, MIR::Global*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_pre_op (Statement_block* sb, MIR::Pre_op*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_push_array (Statement_block* sb, MIR::Push_array*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_return (Statement_block* sb, MIR::Return*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_static_declaration (Statement_block* sb, MIR::Static_declaration*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_throw (Statement_block* sb, MIR::Throw*)
+{
+	assert (0);
+}
+
+void
+Backwards_flow_visitor::process_try (Statement_block* sb, MIR::Try*)
+{
+	assert (0);
+}

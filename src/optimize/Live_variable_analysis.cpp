@@ -36,83 +36,97 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		CFG* cfg = new CFG ();
 		cfg->add_statements (method->statements);
 		cfg->dump_graphviz ();
+		Backwards_flow_visitor::run (cfg);
 	}
 }
 
+#define USE(VAR) bb->uses.insert (*VAR->value);
+#define DEF(VAR) bb->defs.insert (*VAR->value);
+
+void use_expr (Basic_block* bb, Expr* in) {}
+
 void
-Live_variable_analysis::process_entry (Entry_block*)
+Live_variable_analysis::process_branch (Branch_block* bb)
 {
-}
-void
-Live_variable_analysis::process_empty (Empty_block*)
-{
-}
-void
-Live_variable_analysis::process_exit (Exit_block*)
-{
-}
-void
-Live_variable_analysis::process_branch (Branch_block*)
-{
-}
-void
-Live_variable_analysis::process_return (Statement_block* sb, MIR::Return*)
-{
-}
-void
-Live_variable_analysis::process_static_declaration (Statement_block* sb, MIR::Static_declaration*)
-{
-}
-void
-Live_variable_analysis::process_global (Statement_block* sb, MIR::Global*)
-{
-}
-void
-Live_variable_analysis::process_try (Statement_block* sb, MIR::Try*)
-{
-}
-void
-Live_variable_analysis::process_throw (Statement_block* sb, MIR::Throw*)
-{
-}
-void
-Live_variable_analysis::process_foreach_next (Statement_block* sb, MIR::Foreach_next*)
-{
-}
-void
-Live_variable_analysis::process_foreach_reset (Statement_block* sb, MIR::Foreach_reset*)
-{
-}
-void
-Live_variable_analysis::process_foreach_end (Statement_block* sb, MIR::Foreach_end*)
-{
-}
-void
-Live_variable_analysis::process_assign_var (Statement_block* sb, MIR::Assign_var*)
-{
-}
-void
-Live_variable_analysis::process_assign_var_var (Statement_block* sb, MIR::Assign_var_var*)
-{
-}
-void
-Live_variable_analysis::process_assign_array (Statement_block* sb, MIR::Assign_array*)
-{
-}
-void
-Live_variable_analysis::process_push_array (Statement_block* sb, MIR::Push_array*)
-{
-}
-void
-Live_variable_analysis::process_assign_target (Statement_block* sb, MIR::Assign_target*)
-{
-}
-void
-Live_variable_analysis::process_eval_expr (Statement_block* sb, MIR::Eval_expr*)
-{
-}
-void
-Live_variable_analysis::process_pre_op (Statement_block* sb, MIR::Pre_op*)
-{
+	USE (bb->branch->variable_name);
 }
 
+void
+Live_variable_analysis::process_assign_array (Statement_block* bb, MIR::Assign_array* in)
+{
+	USE (in->lhs); // may be defined, but we conservativly say it won't.
+	USE (in->index);
+	USE (in->rhs); // cant be defined
+}
+
+void
+Live_variable_analysis::process_assign_target (Statement_block* bb, MIR::Assign_target* in)
+{
+	assert (0); //use_expr (in->target);
+	assert (0); // USE (in->lhs);
+	USE (in->rhs);
+}
+
+void
+Live_variable_analysis::process_assign_var (Statement_block* bb, MIR::Assign_var* in)
+{
+	DEF (in->lhs);
+	assert (0); //use_expr (bb, in->expr);
+}
+
+void
+Live_variable_analysis::process_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
+{
+	// We don't know what variable is assigned, so we conservatively say none.
+	USE (in->rhs);
+}
+
+void
+Live_variable_analysis::process_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+{
+	use_expr (bb, in->expr);
+}
+
+void
+Live_variable_analysis::process_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
+{
+	USE (in->array);
+}
+
+void
+Live_variable_analysis::process_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
+{
+	USE (in->array);
+}
+
+void
+Live_variable_analysis::process_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
+{
+	USE (in->array);
+}
+
+void
+Live_variable_analysis::process_global (Statement_block* bb, MIR::Global* in)
+{
+	// TODO This might define the variable in some cases. Is that useful?
+}
+
+void
+Live_variable_analysis::process_pre_op (Statement_block* bb, MIR::Pre_op* in)
+{
+	USE (in->variable_name);
+	// Technically, it is also DEF, but it makes no difference.
+}
+
+void
+Live_variable_analysis::process_push_array (Statement_block* bb, MIR::Push_array* in)
+{
+	USE (in->lhs);
+	USE (in->rhs);
+}
+
+void
+Live_variable_analysis::process_return (Statement_block* bb, MIR::Return* in)
+{
+	use_expr (bb, in->expr);
+}

@@ -27,6 +27,10 @@ public:
 
 	// Dataflow solution
 public:
+	set<string> defs;
+	set<string> uses;
+	set<string> live_in;
+	set<string> live_out;
 	int iteration_count;
 	
 
