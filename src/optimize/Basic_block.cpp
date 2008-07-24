@@ -70,4 +70,8 @@ Basic_block::init_df ()
 	// TODO make sure iteration count is taken into account
 	iteration_count = 0;
 	solution_changed = true;
+	defs = new Set;
+	uses = new Set;
+	live_in = new Set;
+	live_out = new Set;
 }

@@ -14,18 +14,16 @@ public:
 	Set();
 
 public:
-	// Out-of-place operations return new sets
-	Set* oop_union (Set* other);
-	Set* oop_intersection (Set* other);
-	Set* oop_difference (Set* other);
+	// Out-of-place operations return new sets. We only consider out-of-place
+	// versions since the STL includes only out-of-place versions. In-place
+	// versions can be created in a lot of cases, however, possibly with lower
+	// complexity.
+	Set* set_union (Set* other);
+	Set* set_intersection (Set* other);
+	Set* set_difference (Set* other);
 	
-	// In-place operations
-	Set* ip_union (Set* other);
-	Set* ip_intersection (Set* other);
-	Set* ip_difference (Set* other);
-
 public:
-	void add (String* string);
+	void insert (String* string);
 };
 
 

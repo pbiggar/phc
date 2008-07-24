@@ -143,8 +143,10 @@ CFG::get_predecessors (Basic_block* bb)
 {
 	list<Basic_block*>* result = new list<Basic_block*>;
 
-	assert (0);
-	// TODO
+	foreach (edge_t e, in_edges (bb->vertex, bs))
+	{
+		result->push_back (vb[source (e, bs)]);
+	}
 
 	return result;
 }
@@ -152,8 +154,6 @@ CFG::get_predecessors (Basic_block* bb)
 list<Basic_block*>*
 CFG::get_successors (Basic_block* bb)
 {
-	this->consistency_check();
-
 	list<Basic_block*>* result = new list<Basic_block*>;
 
 	foreach (edge_t e, out_edges (bb->vertex, bs))
@@ -167,6 +167,8 @@ CFG::get_successors (Basic_block* bb)
 list<Basic_block*>*
 CFG::get_all_bbs ()
 {
+	this->consistency_check();
+
 	list<Basic_block*>* result = new list<Basic_block*>;
 
 	foreach (vertex_t v, vertices(bs))
