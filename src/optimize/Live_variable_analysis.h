@@ -24,10 +24,11 @@ public:
 	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);
 
 	// Local solution
-	void process_entry (Entry_block*) {}
-	void process_empty (Empty_block*) {}
-	void process_exit (Exit_block*) {}
-	void process_branch (Branch_block*);
+	void process_entry_block (Entry_block*) {}
+	void process_empty_block (Empty_block*) {}
+	void process_exit_block (Exit_block*) {}
+	void process_branch_block (Branch_block*);
+
 	void process_assign_array (Statement_block* sb, MIR::Assign_array*);
 	void process_assign_target (Statement_block* sb, MIR::Assign_target*);
 	void process_assign_var (Statement_block* sb, MIR::Assign_var*);
@@ -40,6 +41,9 @@ public:
 	void process_pre_op (Statement_block* sb, MIR::Pre_op*);
 	void process_push_array (Statement_block* sb, MIR::Push_array*);
 	void process_return (Statement_block* sb, MIR::Return*);
+	void process_static_declaration (Statement_block* sb, MIR::Static_declaration*);
+	void process_try (Statement_block* sb, MIR::Try*);
+	void process_throw (Statement_block* sb, MIR::Throw*);
 
 };
 

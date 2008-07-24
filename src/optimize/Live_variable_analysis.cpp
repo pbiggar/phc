@@ -70,7 +70,7 @@ void use_expr (Basic_block* bb, Expr* in)
 }
 
 void
-Live_variable_analysis::process_branch (Branch_block* bb)
+Live_variable_analysis::process_branch_block (Branch_block* bb)
 {
 	USE (bb->branch->variable_name);
 }
@@ -154,3 +154,24 @@ Live_variable_analysis::process_return (Statement_block* bb, MIR::Return* in)
 {
 	use_expr (bb, in->expr);
 }
+void
+Live_variable_analysis::process_static_declaration (Statement_block* sb, MIR::Static_declaration*)
+{
+	assert (0);
+	// TODO
+}
+
+void
+Live_variable_analysis::process_try (Statement_block* sb, MIR::Try*)
+{
+	assert (0);
+	// TODO
+}
+
+void
+Live_variable_analysis::process_throw (Statement_block* sb, MIR::Throw*)
+{
+	assert (0);
+	// TODO
+}
+
