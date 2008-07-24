@@ -206,21 +206,24 @@ struct BB_property_functor
 
 struct Graph_property_functor
 {
+	String* label;
+	Graph_property_functor(String* label) : label (label) {}
 	void operator()(std::ostream& out) const 
 	{
-		out << "graph [outputorder=edgesfirst]" << std::endl;
+		out << "graph [outputorder=edgesfirst];" << std::endl;
+		out << "graph [label=\"" << *label << "\"];" << std::endl;
 	}
 };
 
 void
-CFG::dump_graphviz ()
+CFG::dump_graphviz (String* label)
 {
 	write_graphviz (
 		cout, 
 		bs, 
 		BB_property_functor(this),
 		BB_property_functor(this),
-		Graph_property_functor());
+		Graph_property_functor(label));
 }
 
 /* Error checking */

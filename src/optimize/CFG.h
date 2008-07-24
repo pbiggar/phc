@@ -65,7 +65,7 @@ public:
 	vertex_t add_bb (Basic_block* bb);
 
 public:
-	void dump_graphviz ();
+	void dump_graphviz (String* label);
 	void consistency_check ();
 
 public:

@@ -35,9 +35,9 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		Method* method = dyc<Method> (*i);
 		CFG* cfg = new CFG ();
 		cfg->add_statements (method->statements);
-		cfg->dump_graphviz ();
+		cfg->dump_graphviz (s("BEFORE DCE"));
 		Backwards_flow_visitor::run (cfg);
-		cfg->dump_graphviz ();
+		cfg->dump_graphviz (s("AFTER DCE"));
 	}
 }
 
