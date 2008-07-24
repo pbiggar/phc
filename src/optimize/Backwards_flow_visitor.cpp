@@ -7,6 +7,11 @@ using namespace MIR;
 void
 Backwards_flow_visitor::run (CFG* cfg)
 {
+	BOOST_FOREACH (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		bb->init_df ();
+	}
+
 	// Add the exit block the worklist
 	list<Basic_block*> worklist;
 	worklist.push_back (cfg->get_exit_bb ());
@@ -18,8 +23,10 @@ Backwards_flow_visitor::run (CFG* cfg)
 		Basic_block* bb = worklist.front ();
 		worklist.pop_front ();
 
-		// if you return true, re-add the node to the worklist.
-		if (bb->process (this))
+		process_bb (bb, cfg);
+
+		// If 
+		if (bb->should_reiterate ())
 		{
 			BOOST_FOREACH (Basic_block* pred, *cfg->get_predecessors (bb))
 			{
@@ -30,19 +37,23 @@ Backwards_flow_visitor::run (CFG* cfg)
 }
 
 void
-Backwards_flow_visitor::process_bb (Basic_block* bb)
+Backwards_flow_visitor::process_bb (Basic_block* bb, CFG* cfg)
 {
+	/* Calculate the OUT solution from the successors */
+	transfer_out (bb, cfg->get_successors (bb));
+
+	/* Calculate the local solution */
 	if (Entry_block* eb = dynamic_cast<Entry_block*> (bb))
-		process_entry (eb);
+		process_entry_block (eb);
 
 	else if (Empty_block* eb = dynamic_cast<Empty_block*> (bb))
-		process_empty (eb);
+		process_empty_block (eb);
 
 	else if (Exit_block* eb = dynamic_cast<Exit_block*> (bb))
-		process_exit (eb);
+		process_exit_block (eb);
 
 	else if (Branch_block* brb = dynamic_cast<Branch_block*> (bb))
-		process_branch (brb);
+		process_branch_block (brb);
 
 	else if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
 	{
@@ -82,27 +93,30 @@ Backwards_flow_visitor::process_bb (Basic_block* bb)
 				assert (0);
 		}
 	}
+
+	// Calculate the IN solution from the local results
+	transfer_in (bb, cfg->get_predecessors (bb));
 }
 
 void
-Backwards_flow_visitor::process_entry (Entry_block*)
+Backwards_flow_visitor::process_entry_block (Entry_block*)
 {
 	assert (0);
 }
 
 void
-Backwards_flow_visitor::process_empty (Empty_block*)
+Backwards_flow_visitor::process_empty_block (Empty_block*)
 {
 	assert (0);
 }
 
 void
-Backwards_flow_visitor::process_exit (Exit_block*)
+Backwards_flow_visitor::process_exit_block (Exit_block*)
 {
 	assert (0);
 }
 void
-Backwards_flow_visitor::process_branch (Branch_block*)
+Backwards_flow_visitor::process_branch_block (Branch_block*)
 {
 	assert (0);
 }

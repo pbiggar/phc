@@ -2,6 +2,7 @@
 #include "Backwards_flow_visitor.h"
 #include "process_ir/General.h"
 
+/* Constructors */
 Branch_block::Branch_block (MIR::Branch* b) 
 : branch (b) 
 {
@@ -56,19 +57,17 @@ Branch_block::get_graphviz_properties ()
 }
 
 
+/* Dataflow */
 bool
-Basic_block::process (Backwards_flow_visitor* analysis)
+Basic_block::should_reiterate ()
 {
-	bool changed;
+	return solution_changed;
+}
 
-//	old_solution = solution;
-	analysis->process_bb (this);
-
-	// We regard it to be changed the first time its run.
-//	if (solution != old_solution || iteration_count == 0)
-//		changed = true;
-
-	iteration_count++;
-
-	return changed;
+void
+Basic_block::init_df ()
+{
+	// TODO make sure iteration count is taken into account
+	iteration_count = 0;
+	solution_changed = true;
 }

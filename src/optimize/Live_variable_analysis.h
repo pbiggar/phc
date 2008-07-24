@@ -18,6 +18,12 @@ public:
 	bool pass_is_enabled (Pass_manager* pm);
 	void run (IR::PHP_script* ir_script, Pass_manager* pm);
 public:
+
+	// Transfer functions
+	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);
+	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);
+
+	// Local solution
 	void process_entry (Entry_block*) {}
 	void process_empty (Empty_block*) {}
 	void process_exit (Exit_block*) {}
@@ -34,6 +40,7 @@ public:
 	void process_pre_op (Statement_block* sb, MIR::Pre_op*);
 	void process_push_array (Statement_block* sb, MIR::Push_array*);
 	void process_return (Statement_block* sb, MIR::Return*);
+
 };
 
 #endif // LIVE_VARIABLE_ANALYSIS

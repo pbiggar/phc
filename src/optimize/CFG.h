@@ -67,6 +67,9 @@ public:
 public:
 	Basic_block* get_entry_bb ();
 	Basic_block* get_exit_bb ();
+
+	// TODO: this will get slow. Instead we should return an iterator.
+	list<Basic_block*>* get_all_bbs ();
 	list<Basic_block*>* get_predecessors (Basic_block*);
 	list<Basic_block*>* get_successors (Basic_block*);
 

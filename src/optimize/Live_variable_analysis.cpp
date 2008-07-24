@@ -37,13 +37,37 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		cfg->add_statements (method->statements);
 		cfg->dump_graphviz ();
 		Backwards_flow_visitor::run (cfg);
+		cfg->dump_graphviz ();
 	}
 }
 
-#define USE(VAR) bb->uses.insert (*VAR->value);
-#define DEF(VAR) bb->defs.insert (*VAR->value);
 
-void use_expr (Basic_block* bb, Expr* in) {}
+void
+Live_variable_analysis::transfer_in (Basic_block* bb, list<Basic_block*>*)
+{
+	// IN = (OUT / DEFS) U USES
+	bb->live_in = bb->live_out->oop_union (bb->defs)->ip_union (bb->live_out);
+}
+
+void
+Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs)
+{
+	// OUT = \/ IN (s), where s in Succs (BB).
+	bb->live_out = new Set;
+	BOOST_FOREACH (Basic_block* succ, *succs)
+	{
+		bb->live_out->ip_union (succ->live_in);
+	}
+}
+
+#define USE(VAR) bb->uses->add (VAR->value);
+#define DEF(VAR) bb->defs->add (VAR->value);
+
+void use_expr (Basic_block* bb, Expr* in)
+{
+	// TODO
+	assert (0);
+}
 
 void
 Live_variable_analysis::process_branch (Branch_block* bb)

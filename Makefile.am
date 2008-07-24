@@ -162,6 +162,8 @@ libphc_la_SOURCES= \
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
+	src/optimize/Set.cpp										\
+	src/optimize/Set.h										\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
 	src/parsing/Parse_buffer.cpp							\

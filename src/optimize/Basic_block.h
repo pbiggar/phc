@@ -4,6 +4,7 @@
 #include <boost/graph/properties.hpp>
 #include "MIR.h"
 #include "CFG.h"
+#include "Set.h"
 
 
 class Backwards_flow_visitor;
@@ -25,14 +26,17 @@ public:
 	// Process this block using the passed analysis
 	bool process (Backwards_flow_visitor*);
 
-	// Dataflow solution
 public:
-	set<string> defs;
-	set<string> uses;
-	set<string> live_in;
-	set<string> live_out;
+	// TODO: these should be moved into a solution class, so that we can have 1 per analysis.
+	// Dataflow solution
+	Set* defs;
+	Set* uses;
+	Set* live_in;
+	Set* live_out;
 	int iteration_count;
-	
+	bool solution_changed;
+	void init_df ();
+	bool should_reiterate ();
 
 };
 

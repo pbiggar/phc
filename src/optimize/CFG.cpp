@@ -135,6 +135,27 @@ CFG::get_predecessors (Basic_block* bb)
 	return result;
 }
 
+list<Basic_block*>*
+CFG::get_successors (Basic_block* bb)
+{
+	list<Basic_block*>* result = new list<Basic_block*>;
+
+	assert (0);
+	// TODO
+
+	return result;
+}
+
+list<Basic_block*>*
+CFG::get_all_bbs ()
+{
+	list<Basic_block*>* result = new list<Basic_block*>;
+
+	assert (0);
+	// TODO
+
+	return result;
+}
 
 // Dump to graphviz
 struct BB_property_functor

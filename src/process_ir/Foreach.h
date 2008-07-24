@@ -8,6 +8,10 @@
 #ifndef PHC_FOREACH
 #define PHC_FOREACH
 
+#include <boost/foreach.hpp>
+
+#define foreach BOOST_FOREACH
+
 /* lci stand for List const iterator. VAR is the list, TYPE is the type
  * contained in the list, and ITER is the name of the iterator, which the macro
  * declares for you */
