@@ -6,7 +6,7 @@
 
 class Set
 {
-private:
+public:
 	// Backing store
 	set<string> bs;
 

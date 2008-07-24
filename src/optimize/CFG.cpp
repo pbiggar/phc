@@ -189,18 +189,81 @@ struct BB_property_functor
 	}
 	void operator()(std::ostream& out, const edge_t& v) const 
 	{
-		// No edges properties
 		// TODO add true and false for Branches
+
+		// Head and tail annotatations are done in the vertex, because the
+		// headlabel and taillabel attributes dont expand the area they are
+		// in, and so are frequently unreadable.
 	}
 
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
-		out << " [label=\"" << *DOT_unparser::escape (vb[v]->get_graphviz_label ()) << "\"";
-		String* prop = vb[v]->get_graphviz_properties ();
-		if (prop)
-			out << ", " << *prop << " ";
+		out << "[label=\"";
+
+		// IN annotations
+		pair<String*, Set*> props;
+		stringstream ss1;
+		foreach (props, *vb[v]->get_graphviz_head_properties ())
+		{
+			if (props.second->bs.size ())
+			{
+				ss1 << *props.first << " = [";
+				foreach (string str, props.second->bs)
+				{
+					ss1 << str << ", ";
+				}
+				ss1 << "]\\n";
+			}
+		}
+
+		// BB source
+		stringstream ss2;
+		ss2 << *DOT_unparser::escape (vb[v]->get_graphviz_label ());
+
+		// BB properties
+		stringstream ss3;
+		foreach (props, *vb[v]->get_graphviz_bb_properties ())
+		{
+			if (props.second->bs.size ())
+			{
+				ss3 << *props.first << " = [";
+				foreach (string str, props.second->bs)
+				{
+					ss3 << str << ", ";
+				}
+				ss3 << "]\\n";
+			}
+		}
+
+		// OUT annotations
+		stringstream ss4;
+		foreach (props, *vb[v]->get_graphviz_tail_properties ())
+		{
+			if (props.second->bs.size ())
+			{
+				ss4 << *props.first << " = [";
+				foreach (string str, props.second->bs)
+				{
+					ss4 << str << ", ";
+				}
+				ss4 << "]\\n";
+			}
+		}
+
+		// Print out all 4 stringstreams, with line-break;
+		out << ss1.str();
+		if (ss1.str().size())
+			out << "\\n"; // blank line before source
+		out << ss2.str();
+		if (ss3.str().size() || ss4.str().size())
+			out << "\\n\\n"; // blank line after source
+		out << ss3.str();
+		out << ss4.str();
+		if (ss3.str().size() || ss4.str().size())
+			out << "\b\b";
+
 		
-		out << "]";
+		out << "\"]";
 	}
 };
 

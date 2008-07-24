@@ -13,6 +13,8 @@ class Backwards_flow_visitor;
 class Basic_block
 {
 public:
+	Basic_block();
+
 	// Indicate to BGL that this represents a vertex internal property.
 	typedef boost::vertex_property_tag kind;
 	vertex_t vertex;
@@ -21,7 +23,13 @@ public:
 	virtual String* get_graphviz_label () = 0;
 
 	// Override if there are extra properties for this block.
-	virtual String* get_graphviz_properties ();
+	// Returns a list of (name,value) pairs
+	virtual list<std::pair<String*,String*> >* get_graphviz_properties ();
+
+	// Returns a list of (name, list[values]) pairs
+	virtual list<std::pair<String*,Set*> >* get_graphviz_bb_properties ();
+	virtual list<std::pair<String*,Set*> >* get_graphviz_head_properties ();
+	virtual list<std::pair<String*,Set*> >* get_graphviz_tail_properties ();
 
 	// Process this block using the passed analysis
 	bool process (Backwards_flow_visitor*);
@@ -60,8 +68,8 @@ class Branch_block : public Basic_block
 public:
 	MIR::Branch* branch;
 	Branch_block (MIR::Branch* b);
-	virtual String* get_graphviz_label ();
-	virtual String* get_graphviz_properties ();
+	String* get_graphviz_label ();
+	list<std::pair<String*,String*> >* get_graphviz_properties ();
 };
 
 
