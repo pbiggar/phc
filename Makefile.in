@@ -98,11 +98,11 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	MIR_transform.lo MIR_visitor.lo php_parser.tab.lo \
 	HIR_lower_expr.lo Lower_control_flow.lo AttrMap.lo base64.lo \
 	Boolean.lo demangle.lo error.lo Integer.lo Object.lo String.lo \
-	Backwards_flow_visitor.lo Basic_block.lo CFG.lo \
-	Copy_propagation.lo Fix_point.lo Live_variable_analysis.lo \
-	Prune_symbol_table.lo Set.lo Use_def_counter.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
+	Basic_block.lo CFG.lo Copy_propagation.lo \
+	Dead_code_elimination.lo Fix_point.lo \
+	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo \
+	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
+	XML_parser.lo Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
 	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
@@ -676,16 +676,17 @@ libphc_la_SOURCES = \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
-	src/optimize/Backwards_flow_visitor.cpp			\
-	src/optimize/Backwards_flow_visitor.h				\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
 	src/optimize/CFG.h										\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
+	src/optimize/Dead_code_elimination.cpp				\
+	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
+	src/optimize/Flow_visitor.h							\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Prune_symbol_table.cpp					\
@@ -1199,7 +1200,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Backwards_flow_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Basic_block.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CFG.Plo@am__quote@
@@ -1209,6 +1209,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Constant_folding.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Copy_propagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
@@ -1659,13 +1660,6 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
 
-Backwards_flow_visitor.lo: src/optimize/Backwards_flow_visitor.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Backwards_flow_visitor.lo -MD -MP -MF $(DEPDIR)/Backwards_flow_visitor.Tpo -c -o Backwards_flow_visitor.lo `test -f 'src/optimize/Backwards_flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Backwards_flow_visitor.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Backwards_flow_visitor.Tpo $(DEPDIR)/Backwards_flow_visitor.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Backwards_flow_visitor.cpp' object='Backwards_flow_visitor.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Backwards_flow_visitor.lo `test -f 'src/optimize/Backwards_flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Backwards_flow_visitor.cpp
-
 Basic_block.lo: src/optimize/Basic_block.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Basic_block.lo -MD -MP -MF $(DEPDIR)/Basic_block.Tpo -c -o Basic_block.lo `test -f 'src/optimize/Basic_block.cpp' || echo '$(srcdir)/'`src/optimize/Basic_block.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Basic_block.Tpo $(DEPDIR)/Basic_block.Plo
@@ -1686,6 +1680,13 @@ Copy_propagation.lo: src/optimize/Copy_propagation.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Copy_propagation.cpp' object='Copy_propagation.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Copy_propagation.lo `test -f 'src/optimize/Copy_propagation.cpp' || echo '$(srcdir)/'`src/optimize/Copy_propagation.cpp
+
+Dead_code_elimination.lo: src/optimize/Dead_code_elimination.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Dead_code_elimination.lo -MD -MP -MF $(DEPDIR)/Dead_code_elimination.Tpo -c -o Dead_code_elimination.lo `test -f 'src/optimize/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/optimize/Dead_code_elimination.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Dead_code_elimination.Tpo $(DEPDIR)/Dead_code_elimination.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Dead_code_elimination.cpp' object='Dead_code_elimination.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_code_elimination.lo `test -f 'src/optimize/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/optimize/Dead_code_elimination.cpp
 
 Fix_point.lo: src/optimize/Fix_point.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.lo -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.lo `test -f 'src/optimize/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/Fix_point.cpp

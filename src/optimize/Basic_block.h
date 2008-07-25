@@ -2,12 +2,11 @@
 #define PHC_BASIC_BLOCK
 
 #include <boost/graph/properties.hpp>
+
 #include "MIR.h"
 #include "CFG.h"
 #include "Set.h"
 
-
-class Backwards_flow_visitor;
 
 /* Basic blocks */
 class Basic_block
@@ -30,9 +29,6 @@ public:
 	virtual list<std::pair<String*,Set*> >* get_graphviz_bb_properties ();
 	virtual list<std::pair<String*,Set*> >* get_graphviz_head_properties ();
 	virtual list<std::pair<String*,Set*> >* get_graphviz_tail_properties ();
-
-	// Process this block using the passed analysis
-	bool process (Backwards_flow_visitor*);
 
 public:
 	// TODO: these should be moved into a solution class, so that we can have 1 per analysis.

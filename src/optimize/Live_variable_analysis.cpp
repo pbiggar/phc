@@ -6,6 +6,7 @@
  */
 
 #include "Live_variable_analysis.h"
+#include "Dead_code_elimination.h"
 #include "CFG.h"
 #include "process_ir/General.h"
 #include "cmdline.h"
@@ -36,10 +37,10 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		CFG* cfg = new CFG ();
 		cfg->add_statements (method->statements);
 		cfg->dump_graphviz (s("BEFORE DCE"));
-		Backwards_flow_visitor::run (cfg);
+		run (cfg);
 		cfg->dump_graphviz (s("AFTER DCE"));
-//		Dead_code_elimination* dce = new Dead_code_elimination;
-//		dce->run (cfg);
+		Dead_code_elimination* dce = new Dead_code_elimination;
+		dce->run (cfg);
 	}
 }
 

@@ -2,23 +2,28 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  *
- * Live variable analysis
+ * Dead-code elimination
  */
 
 #include "pass_manager/Pass_manager.h"
 #include "Flow_visitor.h"
 
-#ifndef PHC_LIVE_VARIABLE_ANALYSIS
-#define PHC_LIVE_VARIABLE_ANALYSIS
+#ifndef PHC_DEAD_CODE_ELIMINATION 
+#define PHC_DEAD_CODE_ELIMINATION
 
-class Live_variable_analysis : public Pass, public Backwards_flow_visitor
+class Dead_code_elimination : public Pass, public Forwards_flow_visitor
 {
 public:
-	Live_variable_analysis ();
 	bool pass_is_enabled (Pass_manager* pm);
 	void run (IR::PHP_script* ir_script, Pass_manager* pm);
 	void run (CFG*);
 public:
+
+	void process_assign_var (Statement_block* sb, MIR::Assign_var*);
+
+	// TODO
+	// I dont want to have to overwrite these every time I write a pass.
+	// Define a "sparse_visitor", which odesn't require this.
 
 	// Transfer functions
 	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);
@@ -32,7 +37,6 @@ public:
 
 	void process_assign_array (Statement_block* sb, MIR::Assign_array*);
 	void process_assign_target (Statement_block* sb, MIR::Assign_target*);
-	void process_assign_var (Statement_block* sb, MIR::Assign_var*);
 	void process_assign_var_var (Statement_block* sb, MIR::Assign_var_var*);
 	void process_eval_expr (Statement_block* sb, MIR::Eval_expr*);
 	void process_foreach_end (Statement_block* sb, MIR::Foreach_end*);
@@ -46,6 +50,7 @@ public:
 	void process_try (Statement_block* sb, MIR::Try*);
 	void process_throw (Statement_block* sb, MIR::Throw*);
 
+
 };
 
-#endif // PHC_LIVE_VARIABLE_ANALYSIS
+#endif // PHC_DEAD_CODE_ELIMINATION
