@@ -154,8 +154,6 @@ libphc_la_SOURCES= \
 	src/optimize/CFG.h										\
 	src/optimize/Copy_propagation.cpp					\
 	src/optimize/Copy_propagation.h						\
-	src/optimize/Dead_code_elimination.cpp				\
-	src/optimize/Dead_code_elimination.h				\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
 	src/optimize/Live_variable_analysis.cpp			\

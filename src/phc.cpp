@@ -23,7 +23,6 @@
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
 #include "optimize/Copy_propagation.h"
-#include "optimize/Dead_code_elimination.h"
 #include "optimize/Live_variable_analysis.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
@@ -153,7 +152,6 @@ int main(int argc, char** argv)
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
-	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 
 

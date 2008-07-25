@@ -38,6 +38,8 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		cfg->dump_graphviz (s("BEFORE DCE"));
 		Backwards_flow_visitor::run (cfg);
 		cfg->dump_graphviz (s("AFTER DCE"));
+//		Dead_code_elimination* dce = new Dead_code_elimination;
+//		dce->run (cfg);
 	}
 }
 
