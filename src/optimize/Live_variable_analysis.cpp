@@ -46,7 +46,7 @@ void
 Live_variable_analysis::transfer_in (Basic_block* bb, list<Basic_block*>*)
 {
 	// IN = (OUT / DEFS) U USES
-	bb->live_in = bb->live_out->set_union (bb->defs)->set_union (bb->live_out);
+	bb->live_in = bb->live_out->set_difference (bb->defs)->set_union (bb->uses);
 }
 
 void
@@ -54,7 +54,7 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 {
 	// OUT = \/ IN (s), where s in Succs (BB).
 	bb->live_out = new Set;
-	BOOST_FOREACH (Basic_block* succ, *succs)
+	foreach (Basic_block* succ, *succs)
 	{
 		bb->live_out = bb->live_out->set_union (succ->live_in);
 	}

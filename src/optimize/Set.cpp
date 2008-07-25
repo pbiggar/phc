@@ -2,6 +2,7 @@
 #include <iterator>
 #include "assert.h"
 
+#include "process_ir/General.h"
 #include "Set.h"
 
 Set::Set()
@@ -53,5 +54,15 @@ void
 Set::insert (String* string)
 {
 	bs.insert (*string);
+}
+
+void
+Set::dump(ostream& out)
+{
+	foreach (string str, bs)
+	{
+		out << str << ", ";
+	}
+	out << "\n";
 }
 

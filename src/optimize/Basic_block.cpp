@@ -80,7 +80,7 @@ Branch_block::get_graphviz_properties ()
 bool
 Basic_block::should_reiterate ()
 {
-	return solution_changed;
+	return false;
 }
 
 void
@@ -111,8 +111,8 @@ list<std::pair<String*,Set*> >*
 Basic_block::get_graphviz_head_properties ()
 {
 	list<std::pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
-	if (live_out)
-		result->push_back (pair<String*, Set*> (s("OUT"), live_out));
+	if (live_in)
+		result->push_back (pair<String*, Set*> (s("IN"), live_in));
 	return result;
 }
 
@@ -120,7 +120,7 @@ list<std::pair<String*,Set*> >*
 Basic_block::get_graphviz_tail_properties ()
 {
 	list<std::pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
-	if (live_in)
-		result->push_back (pair<String*, Set*> (s("IN"), live_in));
+	if (live_out)
+		result->push_back (pair<String*, Set*> (s("OUT"), live_out));
 	return result;
 }

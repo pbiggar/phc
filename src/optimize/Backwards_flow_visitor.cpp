@@ -1,5 +1,5 @@
 #include "Backwards_flow_visitor.h"
-#include <boost/foreach.hpp>
+#include <process_ir/General.h>
 #include "MIR.h"
 
 using namespace MIR;
@@ -7,7 +7,7 @@ using namespace MIR;
 void
 Backwards_flow_visitor::run (CFG* cfg)
 {
-	BOOST_FOREACH (Basic_block* bb, *cfg->get_all_bbs ())
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		bb->init_df ();
 	}
@@ -23,16 +23,14 @@ Backwards_flow_visitor::run (CFG* cfg)
 		Basic_block* bb = worklist.front ();
 		worklist.pop_front ();
 
+		cdebug << "process BB " << bb->vertex << endl;
 		process_bb (bb, cfg);
 
-		// If 
+		foreach (Basic_block* pred, *cfg->get_predecessors (bb))
+			worklist.push_back (pred);
+
 		if (bb->should_reiterate ())
-		{
-			BOOST_FOREACH (Basic_block* pred, *cfg->get_predecessors (bb))
-			{
-				worklist.push_front (pred);
-			}
-		}
+			worklist.push_back (bb);
 	}
 }
 
@@ -60,39 +58,57 @@ Backwards_flow_visitor::process_bb (Basic_block* bb, CFG* cfg)
 		switch (sb->statement->classid ())
 		{
 			case Assign_array::ID:
-				return process_assign_array(sb, dyc<Assign_array>(sb->statement));
+				process_assign_array(sb, dyc<Assign_array>(sb->statement));
+				break;
 			case Assign_target::ID:
-				return process_assign_target(sb, dyc<Assign_target>(sb->statement));
+				process_assign_target(sb, dyc<Assign_target>(sb->statement));
+				break;
 			case Assign_var::ID:
-				return process_assign_var(sb, dyc<Assign_var>(sb->statement));
+				process_assign_var(sb, dyc<Assign_var>(sb->statement));
+				break;
 			case Assign_var_var::ID:
-				return process_assign_var_var(sb, dyc<Assign_var_var>(sb->statement));
+				process_assign_var_var(sb, dyc<Assign_var_var>(sb->statement));
+				break;
 			case Eval_expr::ID:
-				return process_eval_expr(sb, dyc<Eval_expr>(sb->statement));
+				process_eval_expr(sb, dyc<Eval_expr>(sb->statement));
+				break;
 			case Foreach_end::ID:
-				return process_foreach_end(sb, dyc<Foreach_end>(sb->statement));
+				process_foreach_end(sb, dyc<Foreach_end>(sb->statement));
+				break;
 			case Foreach_next::ID:
-				return process_foreach_next(sb, dyc<Foreach_next>(sb->statement));
+				process_foreach_next(sb, dyc<Foreach_next>(sb->statement));
+				break;
 			case Foreach_reset::ID:
-				return process_foreach_reset(sb, dyc<Foreach_reset>(sb->statement));
+				process_foreach_reset(sb, dyc<Foreach_reset>(sb->statement));
+				break;
 			case Global::ID:
-				return process_global(sb, dyc<Global>(sb->statement));
+				process_global(sb, dyc<Global>(sb->statement));
+				break;
 			case Pre_op::ID:
-				return process_pre_op(sb, dyc<Pre_op>(sb->statement));
+				process_pre_op(sb, dyc<Pre_op>(sb->statement));
+				break;
 			case Push_array::ID:
-				return process_push_array(sb, dyc<Push_array>(sb->statement));
+				process_push_array(sb, dyc<Push_array>(sb->statement));
+				break;
 			case Return::ID:
-				return process_return(sb, dyc<Return>(sb->statement));
+				process_return(sb, dyc<Return>(sb->statement));
+				break;
 			case Static_declaration::ID:
-				return process_static_declaration(sb, dyc<Static_declaration>(sb->statement));
+				process_static_declaration(sb, dyc<Static_declaration>(sb->statement));
+				break;
 			case Throw::ID:
-				return process_throw(sb, dyc<Throw>(sb->statement));
+				process_throw(sb, dyc<Throw>(sb->statement));
+				break;
 			case Try::ID:
-				return process_try(sb, dyc<Try>(sb->statement));
+				process_try(sb, dyc<Try>(sb->statement));
+				break;
 			default:
 				assert (0);
 		}
 	}
+
+	// TODO we only need to calculate the results once. after that its all
+	// transfer functions.
 
 	// Calculate the IN solution from the local results
 	transfer_in (bb, cfg->get_predecessors (bb));

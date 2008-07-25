@@ -16,7 +16,7 @@ public:
 public:
 	// Out-of-place operations return new sets. We only consider out-of-place
 	// versions since the STL includes only out-of-place versions. In-place
-	// versions can be created in a lot of cases, however, possibly with lower
+	// versions could be created in some cases, however, possibly with lower
 	// complexity.
 	Set* set_union (Set* other);
 	Set* set_intersection (Set* other);
@@ -24,6 +24,7 @@ public:
 	
 public:
 	void insert (String* string);
+	void dump(ostream&);
 };
 
 
