@@ -33,7 +33,6 @@ AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
 # 5 or 6 files which require special rules.
 
 # -export-dynammic: Special libtool flag for later plugin loading
-# -R: search for libraries (ie libphp5) in php's lib install dir
 src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
@@ -515,7 +514,7 @@ distclean-local:
 # - If the maintainer built it (for instance, a .info file), then
 #   maintainer-clean should delete it. However maintainer-clean should not
 #   delete anything that needs to exist in order to run ./configure && make. 
-MAINTAINERCLEANFILES = Makefile.in src/generated/README.TreeTransform
+MAINTAINERCLEANFILES = Makefile.in
 # Just delete the contents - the directory is in svn
 maintainerclean-local:
 	rm -rf src/generated/*
