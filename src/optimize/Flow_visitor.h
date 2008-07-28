@@ -30,7 +30,7 @@ public:
 	{
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{
-			bb->init_df ();
+			this->init_block (bb);
 			visit_bb_local (cfg, bb);
 		}
 
@@ -51,17 +51,16 @@ public:
 			foreach (Basic_block* pred, *get_next_cfg_nodes (bb, cfg))
 				worklist.push_back (pred);
 
-			if (bb->should_reiterate ())
+			if (this->should_reiterate (bb))
 				worklist.push_back (bb);
 		}
 
 		// After the pure analysis section, apply the results (once).
 		foreach (Basic_block* bb, *cfg->get_all_bbs ())
 		{
-			bb->init_df ();
-			list<Basic_block*>* bbs = new list<Basic_block*>;
-			transform_bb (bb, bbs);
-//			cfg->replace (bb, bbs);
+			list<Basic_block*>* replacements = new list<Basic_block*>;
+			transform_bb (bb, replacements);
+			cfg->replace_bb (bb, replacements);
 		}
 	}
 
@@ -335,6 +334,8 @@ class Full_flow_visitor
 {
 public:
 	/* Public interface for analyses */
+	virtual void init_block (Basic_block*) = 0;
+	virtual bool should_reiterate (Basic_block*) = 0;
 
 	/* Transfer functions */
 	virtual void transfer_in (Basic_block* bb, list<Basic_block*>* preds) = 0;
@@ -371,6 +372,8 @@ class Sparse_flow_visitor
 {
 public:
 	/* Public interface for analyses */
+	virtual void init_block (Basic_block* bb) {}
+	virtual bool should_reiterate (Basic_block* bb) { return false; }
 
 	/* Transfer functions */
 	virtual void transfer_in (Basic_block* bb, list<Basic_block*>* preds) {};

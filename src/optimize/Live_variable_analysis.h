@@ -20,6 +20,9 @@ public:
 
 public:
 
+	void init_block (Basic_block* bb);
+	bool should_reiterate (Basic_block* bb);
+
 	// Transfer functions
 	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);
 	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);

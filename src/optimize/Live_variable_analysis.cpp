@@ -38,9 +38,10 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		cfg->add_statements (method->statements);
 		cfg->dump_graphviz (s("BEFORE DCE"));
 		visit (cfg);
-		cfg->dump_graphviz (s("AFTER DCE"));
+		cfg->dump_graphviz (s("AFTER LVA"));
 		Dead_code_elimination* dce = new Dead_code_elimination;
 		dce->visit (cfg);
+		cfg->dump_graphviz (s("AFTER DCE"));
 	}
 }
 
@@ -279,3 +280,18 @@ Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
 	// TODO
 }
 
+void
+Live_variable_analysis::init_block (Basic_block* bb)
+{
+	bb->defs = new Set();
+	bb->uses = new Set();
+	bb->live_in = new Set();
+	bb->live_out = new Set();
+}
+
+bool
+Live_variable_analysis::should_reiterate (Basic_block* bb)
+{
+	// TODO
+	return false;
+}

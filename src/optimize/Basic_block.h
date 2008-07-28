@@ -39,9 +39,6 @@ public:
 	Set* live_out;
 	int iteration_count;
 	bool solution_changed;
-	void init_df ();
-	bool should_reiterate ();
-
 };
 
 class Entry_block : public Basic_block

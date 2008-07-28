@@ -32,7 +32,7 @@ typedef boost::property<
 
 typedef boost::adjacency_list<
 	boost::listS,
-	boost::vecS,
+	boost::listS,
 	boost::bidirectionalS, // we want access to source and targets of edges
 	Vertex_property
 > Graph;
@@ -55,6 +55,7 @@ class CFG
 public:
 	// Accessor for BB property. Access using vb[vertex].
 	boost::property_map<Graph, vertex_bb_t>::type vb;
+	boost::property_map<Graph, boost::vertex_index_t>::type index;
 
 public:
 
@@ -76,11 +77,17 @@ public:
 	list<Basic_block*>* get_all_bbs ();
 	list<Basic_block*>* get_predecessors (Basic_block*);
 	list<Basic_block*>* get_successors (Basic_block*);
+	void replace_bb (Basic_block* bb, list<Basic_block*>* replacements);
+	void remove_bb (Basic_block* bb);
 
 private:
 	Graph bs; // backing store
 	vertex_t entry;
 	vertex_t exit;
+
+	// If we use a graph with listS for the adjacency lists, then we need to
+	// manually update the index for dumping via graphviz.
+	int next_id;
 };
 
 #endif // PHC_CFG

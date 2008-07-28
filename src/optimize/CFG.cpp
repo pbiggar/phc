@@ -18,8 +18,10 @@ using namespace MIR;
 
 CFG::CFG ()
 : bs()
+, next_id (0)
 {
 	vb = get(vertex_bb_t(), bs);
+	index = get(vertex_index_t(), bs);
 
 	// Initialize the entry and exit blocks
 	entry = add_bb (new Entry_block);
@@ -32,6 +34,10 @@ CFG::add_bb (Basic_block* bb)
 	vertex_t v = add_vertex (bs);
 	vb[v] = bb;
 	bb->vertex = v;
+
+	// IDs are used by graphviz
+	index[v] = next_id++;
+
 	return v;
 }
 
@@ -118,12 +124,7 @@ CFG::add_statements (List<Statement*>* statements)
 	assert (use_parent);
 	add_edge (parent, exit, bs);
 
-	// Check that no blocks have NULL vertices
-	foreach (vertex_t v, vertices (bs))
-	{
-		assert (vb[v] != NULL);
-	}
-
+	consistency_check ();
 }
 
 Basic_block*
@@ -167,7 +168,6 @@ CFG::get_successors (Basic_block* bb)
 list<Basic_block*>*
 CFG::get_all_bbs ()
 {
-	this->consistency_check();
 
 	list<Basic_block*>* result = new list<Basic_block*>;
 
@@ -281,6 +281,7 @@ struct Graph_property_functor
 void
 CFG::dump_graphviz (String* label)
 {
+	consistency_check ();
 	write_graphviz (
 		cout, 
 		bs, 
@@ -293,9 +294,54 @@ CFG::dump_graphviz (String* label)
 void
 CFG::consistency_check ()
 {
-	// I believe the Graph can renumber the BBs. Each BB should have the correct vertex.
+	// The graph should never reuse vertices.
 	foreach (vertex_t v, vertices (bs))
 	{
 		assert (vb[v]->vertex == v);
+	}
+}
+
+void
+CFG::remove_bb (Basic_block* bb)
+{
+	vertex_t v = bb->vertex;
+
+	clear_vertex (v, bs);
+	remove_vertex (v, bs);
+}
+
+void
+CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
+{
+	if (replacements->size() == 1
+		&& replacements->front() == bb)
+	{
+		// Same BB: do nothing
+	}
+	else if (replacements->size() == 0)
+	{
+		// Remove the BB
+		foreach (Basic_block* pred, *get_predecessors (bb))
+			foreach (Basic_block* succ, *get_successors (bb))
+				add_edge (pred->vertex, succ->vertex, bs);
+
+		remove_bb (bb);
+	}
+	else
+	{
+		foreach (Basic_block* new_bb,* replacements)
+		{
+			// Create vertices for the new statements
+			vertex_t v = add_bb (new_bb);
+
+			// Add edges from predecessors
+			foreach (Basic_block* pred, *get_predecessors (bb))
+				add_edge (pred->vertex, v, bs);
+
+			// Add edges from asuccessors 
+			foreach (Basic_block* succ, *get_successors (bb))
+				add_edge (v, succ->vertex, bs);
+		}
+		remove_bb (bb);
 	}
 }

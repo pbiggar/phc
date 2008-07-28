@@ -6,17 +6,17 @@ using namespace std;
 /* Constructors */
 
 Basic_block::Basic_block()
+: vertex (NULL)
+, defs (NULL)
+, uses (NULL)
+, live_in (NULL)
+, live_out (NULL)
 {
-	defs = new Set();
-	uses = new Set();
-	live_in = new Set();
-	live_out = new Set();
 }
 
 Branch_block::Branch_block (MIR::Branch* b) 
 : branch (b) 
 {
-
 }
 
 Statement_block::Statement_block (MIR::Statement* s) 
@@ -72,26 +72,6 @@ Branch_block::get_graphviz_properties ()
 	result->push_back (pair<String*,String*> (s("shape"), s("rectangle")));
 
 	return result;
-}
-
-
-/* Dataflow */
-bool
-Basic_block::should_reiterate ()
-{
-	return false;
-}
-
-void
-Basic_block::init_df ()
-{
-	// TODO make sure iteration count is taken into account
-	iteration_count = 0;
-	solution_changed = true;
-	defs = new Set;
-	uses = new Set;
-	live_in = new Set;
-	live_out = new Set;
 }
 
 
