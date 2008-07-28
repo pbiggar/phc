@@ -24,6 +24,7 @@ public:
 	
 public:
 	void insert (String* string);
+	bool contains (String* string);
 	void dump(ostream&);
 };
 

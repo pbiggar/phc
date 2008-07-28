@@ -11,13 +11,13 @@
 #ifndef PHC_LIVE_VARIABLE_ANALYSIS
 #define PHC_LIVE_VARIABLE_ANALYSIS
 
-class Live_variable_analysis : public Pass, public Backwards_flow_visitor
+class Live_variable_analysis : public Pass, public Flow_visitor<Full_flow_visitor, BACKWARD_FLOW>
 {
 public:
 	Live_variable_analysis ();
 	bool pass_is_enabled (Pass_manager* pm);
 	void run (IR::PHP_script* ir_script, Pass_manager* pm);
-	void run (CFG*);
+
 public:
 
 	// Transfer functions

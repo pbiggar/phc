@@ -51,9 +51,15 @@ Set::set_difference (Set* other)
 }
 
 void
-Set::insert (String* string)
+Set::insert (String* name)
 {
-	bs.insert (*string);
+	bs.insert (*name);
+}
+
+bool
+Set::contains (String* name)
+{
+	return (bs.find (*name) != bs.end());
 }
 
 void
@@ -65,4 +71,6 @@ Set::dump(ostream& out)
 	}
 	out << "\n";
 }
+
+
 
