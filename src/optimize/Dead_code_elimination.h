@@ -19,7 +19,7 @@ public:
 	void run (IR::PHP_script* ir_script, Pass_manager* pm);
 public:
 
-	void process_assign_var (Statement_block* sb, MIR::Assign_var*);
+	void transform_assign_var (Statement_block*, MIR::Assign_var*, list<Basic_block*>*);
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

@@ -67,7 +67,7 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 #define DEF(VAR) bb->defs->insert (VAR->value)
 
 void
-Live_variable_analysis::process_branch_block (Branch_block* bb)
+Live_variable_analysis::visit_branch_block (Branch_block* bb)
 {
 	USE (bb->branch->variable_name);
 }
@@ -180,7 +180,7 @@ void use_expr (Basic_block* bb, Expr* in)
 }
 
 void
-Live_variable_analysis::process_assign_array (Statement_block* bb, MIR::Assign_array* in)
+Live_variable_analysis::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	USE (in->lhs); // may be defined, but we conservativly say it won't.
 	USE (in->index);
@@ -188,7 +188,7 @@ Live_variable_analysis::process_assign_array (Statement_block* bb, MIR::Assign_a
 }
 
 void
-Live_variable_analysis::process_assign_target (Statement_block* bb, MIR::Assign_target* in)
+Live_variable_analysis::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
 {
 //	use_expr (bb, in->target);
 	assert (0); // USE (in->lhs);
@@ -196,84 +196,84 @@ Live_variable_analysis::process_assign_target (Statement_block* bb, MIR::Assign_
 }
 
 void
-Live_variable_analysis::process_assign_var (Statement_block* bb, MIR::Assign_var* in)
+Live_variable_analysis::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
 	DEF (in->lhs);
 	use_expr (bb, in->rhs);
 }
 
 void
-Live_variable_analysis::process_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
+Live_variable_analysis::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
 	// We don't know what variable is assigned, so we conservatively say none.
 	USE (in->rhs);
 }
 
 void
-Live_variable_analysis::process_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
+Live_variable_analysis::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in)
 {
 	use_expr (bb, in->expr);
 }
 
 void
-Live_variable_analysis::process_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
+Live_variable_analysis::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
 	USE (in->array);
 }
 
 void
-Live_variable_analysis::process_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
+Live_variable_analysis::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
 	USE (in->array);
 }
 
 void
-Live_variable_analysis::process_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
+Live_variable_analysis::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
 	USE (in->array);
 }
 
 void
-Live_variable_analysis::process_global (Statement_block* bb, MIR::Global* in)
+Live_variable_analysis::visit_global (Statement_block* bb, MIR::Global* in)
 {
 	// TODO This might define the variable in some cases. Is that useful?
 }
 
 void
-Live_variable_analysis::process_pre_op (Statement_block* bb, MIR::Pre_op* in)
+Live_variable_analysis::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 	USE (in->variable_name);
 	// Technically, it is also DEF, but it makes no difference.
 }
 
 void
-Live_variable_analysis::process_push_array (Statement_block* bb, MIR::Push_array* in)
+Live_variable_analysis::visit_push_array (Statement_block* bb, MIR::Push_array* in)
 {
 	USE (in->lhs);
 	USE (in->rhs);
 }
 
 void
-Live_variable_analysis::process_return (Statement_block* bb, MIR::Return* in)
+Live_variable_analysis::visit_return (Statement_block* bb, MIR::Return* in)
 {
 	use_expr (bb, in->expr);
 }
 void
-Live_variable_analysis::process_static_declaration (Statement_block* sb, MIR::Static_declaration*)
+Live_variable_analysis::visit_static_declaration (Statement_block* sb, MIR::Static_declaration*)
 {
 	assert (0);
 	// TODO
 }
 
 void
-Live_variable_analysis::process_try (Statement_block* sb, MIR::Try*)
+Live_variable_analysis::visit_try (Statement_block* sb, MIR::Try*)
 {
 	assert (0);
 	// TODO
 }
 
 void
-Live_variable_analysis::process_throw (Statement_block* sb, MIR::Throw*)
+Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
 {
 	assert (0);
 	// TODO

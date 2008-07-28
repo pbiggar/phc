@@ -30,16 +30,19 @@ bool is_side_effecting (Expr* in)
 }
 
 void
-Dead_code_elimination::process_assign_var (Statement_block* bb, MIR::Assign_var* in)
+Dead_code_elimination::transform_assign_var (Statement_block* bb, MIR::Assign_var* in, list<Basic_block*>* out)
 {
-	if (in->is_ref == false
-		&& !bb->live_out->contains (in->lhs->value)
-//		&& !is_aliased (in->rhs) // TODO
+	if (in->is_ref
+		|| bb->live_out->contains (in->lhs->value)
+//		|| is_aliased (in->rhs) // TODO
 		)
+		out->push_back (bb);
+	
+	else if (is_side_effecting (in->rhs))
+		out->push_back (new Statement_block (new Eval_expr (in->rhs)));
+
+	else
 	{
-		if (is_side_effecting (in->rhs))
-			bb->statement = new Eval_expr (in->rhs);
-		else
-			assert (0); // TODO remove the block
+		// leave empty
 	}
 }
