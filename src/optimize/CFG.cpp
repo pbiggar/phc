@@ -7,6 +7,8 @@
 
 #include "boost/foreach.hpp"
 #include "boost/graph/graphviz.hpp"
+#include "boost/graph/depth_first_search.hpp"
+#include "boost/graph/visitors.hpp"
 
 #include "CFG.h"
 #include "process_ast/DOT_unparser.h"
@@ -345,3 +347,114 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 		remove_bb (bb);
 	}
 }
+
+// Do a depth first search. For each block, add a label, and a goto to the next
+// block(s).
+class Linearizer : public default_dfs_visitor
+{
+public:
+	List<Statement*>* statements;
+	map<vertex_t, LABEL_NAME*> labels;
+	Linearizer()
+	{
+		statements = new List<Statement*>;
+	}
+
+	/* Assign a label for each block. */
+	void initialize_vertex (vertex_t v, const Graph& g)
+	{
+		labels [v] = fresh_label_name ();
+	}
+
+	/* Return a Goto to the next statement. */
+	Goto* get_goto_next (Basic_block* bb, const Graph& g)
+	{
+		vertex_t v = bb->vertex;
+		assert (out_degree (v, g) == 1);
+		vertex_t t = target (*out_edges (v, g).first, g);
+		return new Goto (labels[t]);
+	}
+
+	void discover_vertex (vertex_t v, const Graph& g)
+	{
+		Basic_block* bb = get(vertex_bb_t(), g)[v];
+
+		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+		{
+			statements->push_back (new Label(labels[v]->clone ()));
+			statements->push_back (sb->statement);
+			statements->push_back (get_goto_next (bb, g));
+		}
+
+		else if (dynamic_cast<Entry_block*> (bb))
+			statements->push_back (get_goto_next (bb, g));
+
+		else if (dynamic_cast<Exit_block*> (bb))
+			statements->push_back (new Label(labels[v]->clone ()));
+
+		else if (dynamic_cast<Empty_block*> (bb))
+		{
+			statements->push_back (new Label(labels[v]->clone ()));
+			statements->push_back (get_goto_next (bb, g));
+		}
+		else
+			assert (0); // TODO branches
+	}
+};
+
+class Label_counter : public Visitor
+{
+	map<string, int>* counts;
+public:
+	Label_counter (map<string, int>* c) : counts(c) {}
+
+	void pre_label_name (LABEL_NAME* in)
+	{
+		(*counts)[*in->value]++;
+	}
+};
+
+List<Statement*>*
+CFG::get_linear_statements ()
+{
+	Linearizer linearizer;
+	depth_first_search (bs, visitor (linearizer));
+	List<Statement*>* results = linearizer.statements;
+
+	/* Remove redundant gotos, which would fall-through to their targets
+	 * anyway. */
+	List<Statement*>::iterator i = results->begin ();
+	while (i != results->end ())
+	{
+		Wildcard<LABEL_NAME>* ln = new Wildcard<LABEL_NAME>;
+		Statement* s = *i;
+		Statement* next = *(++i);
+		if (s->match (new Goto (ln))
+			&& next->match (new Label (ln->value)))
+		{
+			i--;
+
+			// Use this form of looping so that the iterator moves to the next
+			// iterm before its invalidated.
+			results->erase (i++);
+		}
+	}
+
+	/* Remove labels that are only used once. */
+	map<string, int> label_counts;
+	(new Label_counter (&label_counts))->visit_statement_list (results);
+
+	i = results->begin ();
+	while (i != results->end ())
+	{
+		Wildcard<LABEL_NAME>* ln = new Wildcard<LABEL_NAME>;
+		if ((*i)->match (new Label (ln))
+			&& label_counts[*ln->value->value] == 1)
+			results->erase (i++);
+		else
+			i++;
+	}
+
+	return results;
+}
+

@@ -42,6 +42,7 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		Dead_code_elimination* dce = new Dead_code_elimination;
 		dce->visit (cfg);
 		cfg->dump_graphviz (s("AFTER DCE"));
+		method->statements = cfg->get_linear_statements ();
 	}
 }
 

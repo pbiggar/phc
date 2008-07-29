@@ -61,6 +61,7 @@ public:
 
 	CFG ();
 	void add_statements (List<MIR::Statement*>* statements);
+	List<MIR::Statement*>* get_linear_statements ();
 
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);

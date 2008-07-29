@@ -31,6 +31,7 @@ namespace MIR
 {
 	MIR::VARIABLE_NAME* fresh_var_name (string prefix);
 	MIR::Label* fresh_label ();
+	LABEL_NAME* fresh_label_name ();
 	MIR::HT_ITERATOR* fresh_iter ();
 }
 

@@ -115,9 +115,14 @@ namespace MIR
 
 	Label* fresh_label ()
 	{
+		return new Label (fresh_label_name ());
+	}
+
+	LABEL_NAME* fresh_label_name ()
+	{
 		int suffix = fresh_suffix ();
 		LABEL_NAME* result = new LABEL_NAME (fresh ("L", suffix));
 		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
-		return new Label (result);
+		return result;
 	}
 }
