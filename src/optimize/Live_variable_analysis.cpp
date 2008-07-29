@@ -36,12 +36,12 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		Method* method = dyc<Method> (*i);
 		CFG* cfg = new CFG ();
 		cfg->add_statements (method->statements);
-		cfg->dump_graphviz (s("BEFORE DCE"));
+//		cfg->dump_graphviz (s("BEFORE DCE"));
 		visit (cfg);
-		cfg->dump_graphviz (s("AFTER LVA"));
+//		cfg->dump_graphviz (s("AFTER LVA"));
 		Dead_code_elimination* dce = new Dead_code_elimination;
 		dce->visit (cfg);
-		cfg->dump_graphviz (s("AFTER DCE"));
+//		cfg->dump_graphviz (s("AFTER DCE"));
 		method->statements = cfg->get_linear_statements ();
 	}
 }
@@ -126,6 +126,7 @@ void use_expr (Basic_block* bb, Expr* in)
 			Index_array* ia = dyc<Index_array> (in);
 			USE (ia->variable_name);
 			USE (ia->index);
+			break;
 		}
 
 		case Instanceof::ID:

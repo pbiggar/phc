@@ -20,9 +20,9 @@ using namespace MIR;
 
 CFG::CFG ()
 : bs()
-, next_id (0)
 {
 	vb = get(vertex_bb_t(), bs);
+	ebd = get(edge_branch_direction_t(), bs);
 	index = get(vertex_index_t(), bs);
 
 	// Initialize the entry and exit blocks
@@ -37,10 +37,27 @@ CFG::add_bb (Basic_block* bb)
 	vb[v] = bb;
 	bb->vertex = v;
 
-	// IDs are used by graphviz
-	index[v] = next_id++;
-
 	return v;
+}
+
+edge_t
+CFG::add_edge (Basic_block* source, Basic_block* target)
+{
+	edge_t e = boost::add_edge (source->vertex, target->vertex, bs).first;
+	ebd[e] = indeterminate;
+	return e;
+}
+
+pair<edge_t, edge_t>
+CFG::add_branch (Branch_block* source, Basic_block* target1, Basic_block* target2)
+{
+	assert (source);
+	edge_t et = boost::add_edge (source->vertex, target1->vertex, bs).first;
+	edge_t ef = boost::add_edge (source->vertex, target2->vertex, bs).first;
+
+	ebd[et] = true;
+	ebd[ef] = false;
+	return pair<edge_t, edge_t> (et,ef);
 }
 
 void
@@ -70,7 +87,7 @@ CFG::add_statements (List<Statement*>* statements)
 
 			case Branch::ID:
 				v = add_bb (new Branch_block (dyc<Branch>(*i)));
-					break;
+				break;
 
 			default:
 				v = add_bb (new Statement_block (*i));
@@ -89,8 +106,7 @@ CFG::add_statements (List<Statement*>* statements)
 		// Be careful with pointers. Its very easy to overwrite vertices
 		vertex_t v = nodes[s];
 		if (use_parent)
-			add_edge (parent, v, bs);
-
+			add_edge (vb[parent], vb[v]);
 
 		switch (s->classid())
 		{
@@ -98,7 +114,7 @@ CFG::add_statements (List<Statement*>* statements)
 			{
 				vertex_t target = 
 					labels[*dyc<Goto>(s)->label_name->get_value_as_string ()];
-				add_edge (v, target, bs);
+				add_edge (vb[v], vb[target]);
 
 				use_parent = false;
 				break;
@@ -109,8 +125,10 @@ CFG::add_statements (List<Statement*>* statements)
 				Branch* b = dyc<Branch>(s);
 				vertex_t iftrue = labels[*b->iftrue->get_value_as_string ()];
 				vertex_t iffalse = labels[*b->iffalse->get_value_as_string ()];
-				add_edge (v, iftrue, bs);
-				add_edge (v, iffalse, bs);
+				add_branch (
+					dynamic_cast<Branch_block*> (vb[v]),
+					vb[iftrue],
+					vb[iffalse]);
 
 				use_parent = false;
 				break;
@@ -124,7 +142,7 @@ CFG::add_statements (List<Statement*>* statements)
 	}
 	
 	assert (use_parent);
-	add_edge (parent, exit, bs);
+	add_edge (vb[parent], vb[exit]);
 
 	consistency_check ();
 }
@@ -185,13 +203,22 @@ CFG::get_all_bbs ()
 struct BB_property_functor
 {
 	property_map<Graph, vertex_bb_t>::type vb;
+	boost::property_map<Graph, edge_branch_direction_t>::type ebd;
+
 	BB_property_functor (CFG* cfg)
 	{
 		vb = cfg->vb;
+		ebd = cfg->ebd;
 	}
-	void operator()(std::ostream& out, const edge_t& v) const 
+	void operator()(std::ostream& out, const edge_t& e) const 
 	{
-		// TODO add true and false for Branches
+		if (indeterminate (ebd[e]))
+			return;
+
+		if (ebd[e])
+			out << "[label=T]";
+		else
+			out << "[label=F]";
 
 		// Head and tail annotatations are done in the vertex, because the
 		// headlabel and taillabel attributes dont expand the area they are
@@ -283,6 +310,7 @@ struct Graph_property_functor
 void
 CFG::dump_graphviz (String* label)
 {
+	renumber_vertex_indices ();
 	consistency_check ();
 	write_graphviz (
 		cout, 
@@ -325,7 +353,7 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 		// Remove the BB
 		foreach (Basic_block* pred, *get_predecessors (bb))
 			foreach (Basic_block* succ, *get_successors (bb))
-				add_edge (pred->vertex, succ->vertex, bs);
+				boost::add_edge (pred->vertex, succ->vertex, bs);
 
 		remove_bb (bb);
 	}
@@ -338,11 +366,11 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 
 			// Add edges from predecessors
 			foreach (Basic_block* pred, *get_predecessors (bb))
-				add_edge (pred->vertex, v, bs);
+				boost::add_edge (pred->vertex, v, bs);
 
 			// Add edges from asuccessors 
 			foreach (Basic_block* succ, *get_successors (bb))
-				add_edge (v, succ->vertex, bs);
+				boost::add_edge (v, succ->vertex, bs);
 		}
 		remove_bb (bb);
 	}
@@ -352,10 +380,13 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 // block(s).
 class Linearizer : public default_dfs_visitor
 {
-public:
-	List<Statement*>* statements;
+	CFG* cfg;
 	map<vertex_t, LABEL_NAME*> labels;
-	Linearizer()
+
+public:
+
+	List<Statement*>* statements;
+	Linearizer(CFG* cfg) : cfg(cfg)
 	{
 		statements = new List<Statement*>;
 	}
@@ -366,39 +397,33 @@ public:
 		labels [v] = fresh_label_name ();
 	}
 
-	/* Return a Goto to the next statement. */
-	Goto* get_goto_next (Basic_block* bb, const Graph& g)
-	{
-		vertex_t v = bb->vertex;
-		assert (out_degree (v, g) == 1);
-		vertex_t t = target (*out_edges (v, g).first, g);
-		return new Goto (labels[t]);
-	}
-
 	void discover_vertex (vertex_t v, const Graph& g)
 	{
 		Basic_block* bb = get(vertex_bb_t(), g)[v];
 
+		// Add a label
+		statements->push_back (new Label(labels[v]->clone ()));
+
+		// Statement or branch block
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
-		{
-			statements->push_back (new Label(labels[v]->clone ()));
 			statements->push_back (sb->statement);
-			statements->push_back (get_goto_next (bb, g));
-		}
 
-		else if (dynamic_cast<Entry_block*> (bb))
-			statements->push_back (get_goto_next (bb, g));
-
-		else if (dynamic_cast<Exit_block*> (bb))
-			statements->push_back (new Label(labels[v]->clone ()));
-
-		else if (dynamic_cast<Empty_block*> (bb))
+		else if (Branch_block* br = dynamic_cast<Branch_block*> (bb))
 		{
-			statements->push_back (new Label(labels[v]->clone ()));
-			statements->push_back (get_goto_next (bb, g));
+			// While in the CFG, the ifftrue and iffalse fields of a branch are
+			// meaningless (by design).
+			statements->push_back (br->branch);
+			br->branch->iftrue = labels[cfg->get_true_successor (br)->vertex];
+			br->branch->iffalse = labels[cfg->get_false_successor (br)->vertex];
 		}
-		else
-			assert (0); // TODO branches
+
+		// Add a goto successor
+		if (not dynamic_cast<Branch_block*> (bb)
+				&& not dynamic_cast<Exit_block*> (bb))
+		{
+			vertex_t next = cfg->get_successor (bb)->vertex;
+			statements->push_back (new Goto (labels[next]->clone ()));
+		}
 	}
 };
 
@@ -417,14 +442,16 @@ public:
 List<Statement*>*
 CFG::get_linear_statements ()
 {
-	Linearizer linearizer;
+	Linearizer linearizer (this);
+	renumber_vertex_indices ();
 	depth_first_search (bs, visitor (linearizer));
 	List<Statement*>* results = linearizer.statements;
 
 	/* Remove redundant gotos, which would fall-through to their targets
 	 * anyway. */
 	List<Statement*>::iterator i = results->begin ();
-	while (i != results->end ())
+	List<Statement*>::iterator end = --results->end ();
+	while (i != end) // stop one before the end, so that i++ will still read a statement
 	{
 		Wildcard<LABEL_NAME>* ln = new Wildcard<LABEL_NAME>;
 		Statement* s = *i;
@@ -458,3 +485,48 @@ CFG::get_linear_statements ()
 	return results;
 }
 
+Basic_block*
+CFG::get_successor (Basic_block* bb)
+{
+	vertex_t v = bb->vertex;
+	assert (out_degree (v, bs) == 1);
+	vertex_t t = target (*out_edges (v, bs).first, bs);
+	return vb[t];
+}
+
+Basic_block*
+CFG::get_true_successor (Branch_block* bb)
+{
+	vertex_t v = bb->vertex;
+	assert (out_degree (v, bs) == 2);
+
+
+	/* It isn't clear that the order in which the edges get added is the order
+	 * in which they'll be iterated, so check both. */
+	foreach (edge_t e, out_edges (v, bs))
+		if (ebd[e])
+			return vb[target (e, bs)];
+
+	assert (0);
+}
+
+Basic_block*
+CFG::get_false_successor (Branch_block* bb)
+{
+	vertex_t v = bb->vertex;
+	assert (out_degree (v, bs) == 2);
+
+	foreach (edge_t e, out_edges (v, bs))
+		if (not ebd[e])
+			return vb[target (e, bs)];
+
+	assert (0);
+}
+
+void
+CFG::renumber_vertex_indices ()
+{
+	int new_index = 0;
+	foreach (vertex_t v, vertices (bs))
+		index[v] = new_index++;
+}
