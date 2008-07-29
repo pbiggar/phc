@@ -93,23 +93,25 @@ template
  class _Variable_class,
  class _Variable_method,
  class _Variable_name,
- class _Variable_variable>
+ class _Variable_variable,
+ template <class _Tp, class _Alloc = allocator<_Tp> > class _List = List
+>
 class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Foreign, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_class, _Variable_method, _Variable_name, _Variable_variable> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Foreign, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
 public:
 	virtual _PHP_script fold_php_script(PHP_script* in)
 	{
-		List<_Statement>* statements = 0;
+		_List<_Statement>* statements = 0;
 	
 		{
-			statements = new List<_Statement>;
-			List<Statement*>::const_iterator i;
+			statements = new _List<_Statement>;
+			typename _List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
@@ -125,20 +127,20 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_CLASS_NAME extends = 0;
 		if(in->extends != NULL) extends = fold_class_name(in->extends);
-		List<_INTERFACE_NAME>* implements = 0;
+		_List<_INTERFACE_NAME>* implements = 0;
 	
 		{
-			implements = new List<_INTERFACE_NAME>;
-			List<INTERFACE_NAME*>::const_iterator i;
+			implements = new _List<_INTERFACE_NAME>;
+			typename _List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->implements->begin(); i != in->implements->end(); i++)
 				if(*i != NULL) implements->push_back(fold_interface_name(*i));
 				else implements->push_back(0);
 		}
-		List<_Member>* members = 0;
+		_List<_Member>* members = 0;
 	
 		{
-			members = new List<_Member>;
-			List<Member*>::const_iterator i;
+			members = new _List<_Member>;
+			typename _List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
 				else members->push_back(0);
@@ -157,20 +159,20 @@ public:
 	{
 		_INTERFACE_NAME interface_name = 0;
 		if(in->interface_name != NULL) interface_name = fold_interface_name(in->interface_name);
-		List<_INTERFACE_NAME>* extends = 0;
+		_List<_INTERFACE_NAME>* extends = 0;
 	
 		{
-			extends = new List<_INTERFACE_NAME>;
-			List<INTERFACE_NAME*>::const_iterator i;
+			extends = new _List<_INTERFACE_NAME>;
+			typename _List<INTERFACE_NAME*>::const_iterator i;
 			for(i = in->extends->begin(); i != in->extends->end(); i++)
 				if(*i != NULL) extends->push_back(fold_interface_name(*i));
 				else extends->push_back(0);
 		}
-		List<_Member>* members = 0;
+		_List<_Member>* members = 0;
 	
 		{
-			members = new List<_Member>;
-			List<Member*>::const_iterator i;
+			members = new _List<_Member>;
+			typename _List<Member*>::const_iterator i;
 			for(i = in->members->begin(); i != in->members->end(); i++)
 				if(*i != NULL) members->push_back(fold_member(*i));
 				else members->push_back(0);
@@ -182,11 +184,11 @@ public:
 	{
 		_Signature signature = 0;
 		if(in->signature != NULL) signature = fold_signature(in->signature);
-		List<_Statement>* statements = 0;
+		_List<_Statement>* statements = 0;
 	if (in->statements)
 		{
-			statements = new List<_Statement>;
-			List<Statement*>::const_iterator i;
+			statements = new _List<_Statement>;
+			typename _List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
@@ -201,11 +203,11 @@ public:
 		bool is_ref = in->is_ref;
 		_METHOD_NAME method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Formal_parameter>* formal_parameters = 0;
+		_List<_Formal_parameter>* formal_parameters = 0;
 	
 		{
-			formal_parameters = new List<_Formal_parameter>;
-			List<Formal_parameter*>::const_iterator i;
+			formal_parameters = new _List<_Formal_parameter>;
+			typename _List<Formal_parameter*>::const_iterator i;
 			for(i = in->formal_parameters->begin(); i != in->formal_parameters->end(); i++)
 				if(*i != NULL) formal_parameters->push_back(fold_formal_parameter(*i));
 				else formal_parameters->push_back(0);
@@ -292,20 +294,20 @@ public:
 
 	virtual _Try fold_try(Try* in)
 	{
-		List<_Statement>* statements = 0;
+		_List<_Statement>* statements = 0;
 	
 		{
-			statements = new List<_Statement>;
-			List<Statement*>::const_iterator i;
+			statements = new _List<_Statement>;
+			typename _List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
 		}
-		List<_Catch>* catches = 0;
+		_List<_Catch>* catches = 0;
 	
 		{
-			catches = new List<_Catch>;
-			List<Catch*>::const_iterator i;
+			catches = new _List<_Catch>;
+			typename _List<Catch*>::const_iterator i;
 			for(i = in->catches->begin(); i != in->catches->end(); i++)
 				if(*i != NULL) catches->push_back(fold_catch(*i));
 				else catches->push_back(0);
@@ -319,11 +321,11 @@ public:
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_Statement>* statements = 0;
+		_List<_Statement>* statements = 0;
 	
 		{
-			statements = new List<_Statement>;
-			List<Statement*>::const_iterator i;
+			statements = new _List<_Statement>;
+			typename _List<Statement*>::const_iterator i;
 			for(i = in->statements->begin(); i != in->statements->end(); i++)
 				if(*i != NULL) statements->push_back(fold_statement(*i));
 				else statements->push_back(0);
@@ -486,11 +488,11 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Method_name method_name = 0;
 		if(in->method_name != NULL) method_name = fold_method_name(in->method_name);
-		List<_Actual_parameter>* actual_parameters = 0;
+		_List<_Actual_parameter>* actual_parameters = 0;
 	
 		{
-			actual_parameters = new List<_Actual_parameter>;
-			List<Actual_parameter*>::const_iterator i;
+			actual_parameters = new _List<_Actual_parameter>;
+			typename _List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
 				else actual_parameters->push_back(0);
@@ -512,11 +514,11 @@ public:
 		if(in->target != NULL) target = fold_target(in->target);
 		_Variable_name variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		List<_VARIABLE_NAME>* array_indices = 0;
+		_List<_VARIABLE_NAME>* array_indices = 0;
 	
 		{
-			array_indices = new List<_VARIABLE_NAME>;
-			List<VARIABLE_NAME*>::const_iterator i;
+			array_indices = new _List<_VARIABLE_NAME>;
+			typename _List<VARIABLE_NAME*>::const_iterator i;
 			for(i = in->array_indices->begin(); i != in->array_indices->end(); i++)
 				if(*i != NULL) array_indices->push_back(fold_variable_name(*i));
 				else array_indices->push_back(0);
@@ -528,11 +530,11 @@ public:
 	{
 		_Class_name class_name = 0;
 		if(in->class_name != NULL) class_name = fold_class_name(in->class_name);
-		List<_Actual_parameter>* actual_parameters = 0;
+		_List<_Actual_parameter>* actual_parameters = 0;
 	
 		{
-			actual_parameters = new List<_Actual_parameter>;
-			List<Actual_parameter*>::const_iterator i;
+			actual_parameters = new _List<_Actual_parameter>;
+			typename _List<Actual_parameter*>::const_iterator i;
 			for(i = in->actual_parameters->begin(); i != in->actual_parameters->end(); i++)
 				if(*i != NULL) actual_parameters->push_back(fold_actual_parameter(*i));
 				else actual_parameters->push_back(0);
@@ -549,11 +551,11 @@ public:
 
 	virtual _Static_array fold_static_array(Static_array* in)
 	{
-		List<_Static_array_elem>* static_array_elems = 0;
+		_List<_Static_array_elem>* static_array_elems = 0;
 	
 		{
-			static_array_elems = new List<_Static_array_elem>;
-			List<Static_array_elem*>::const_iterator i;
+			static_array_elems = new _List<_Static_array_elem>;
+			typename _List<Static_array_elem*>::const_iterator i;
 			for(i = in->static_array_elems->begin(); i != in->static_array_elems->end(); i++)
 				if(*i != NULL) static_array_elems->push_back(fold_static_array_elem(*i));
 				else static_array_elems->push_back(0);
@@ -662,12 +664,12 @@ public:
 // The user-defined folds
 // Override these methods to get specific functionality
 public:
-	virtual _PHP_script fold_impl_php_script(PHP_script* orig, List<_Statement>* statements) { assert(0); };
-	virtual _Class_def fold_impl_class_def(Class_def* orig, _Class_mod class_mod, _CLASS_NAME class_name, _CLASS_NAME extends, List<_INTERFACE_NAME>* implements, List<_Member>* members) { assert(0); };
+	virtual _PHP_script fold_impl_php_script(PHP_script* orig, _List<_Statement>* statements) { assert(0); };
+	virtual _Class_def fold_impl_class_def(Class_def* orig, _Class_mod class_mod, _CLASS_NAME class_name, _CLASS_NAME extends, _List<_INTERFACE_NAME>* implements, _List<_Member>* members) { assert(0); };
 	virtual _Class_mod fold_impl_class_mod(Class_mod* orig, bool is_abstract, bool is_final) { assert(0); };
-	virtual _Interface_def fold_impl_interface_def(Interface_def* orig, _INTERFACE_NAME interface_name, List<_INTERFACE_NAME>* extends, List<_Member>* members) { assert(0); };
-	virtual _Method fold_impl_method(Method* orig, _Signature signature, List<_Statement>* statements) { assert(0); };
-	virtual _Signature fold_impl_signature(Signature* orig, _Method_mod method_mod, bool is_ref, _METHOD_NAME method_name, List<_Formal_parameter>* formal_parameters) { assert(0); };
+	virtual _Interface_def fold_impl_interface_def(Interface_def* orig, _INTERFACE_NAME interface_name, _List<_INTERFACE_NAME>* extends, _List<_Member>* members) { assert(0); };
+	virtual _Method fold_impl_method(Method* orig, _Signature signature, _List<_Statement>* statements) { assert(0); };
+	virtual _Signature fold_impl_signature(Signature* orig, _Method_mod method_mod, bool is_ref, _METHOD_NAME method_name, _List<_Formal_parameter>* formal_parameters) { assert(0); };
 	virtual _Method_mod fold_impl_method_mod(Method_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_abstract, bool is_final) { assert(0); };
 	virtual _Formal_parameter fold_impl_formal_parameter(Formal_parameter* orig, _Type type, bool is_ref, _Name_with_default var) { assert(0); };
 	virtual _Type fold_impl_type(Type* orig, _CLASS_NAME class_name) { assert(0); };
@@ -677,8 +679,8 @@ public:
 	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
-	virtual _Try fold_impl_try(Try* orig, List<_Statement>* statements, List<_Catch>* catches) { assert(0); };
-	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, List<_Statement>* statements) { assert(0); };
+	virtual _Try fold_impl_try(Try* orig, _List<_Statement>* statements, _List<_Catch>* catches) { assert(0); };
+	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, _List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Assign_var fold_impl_assign_var(Assign_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Expr rhs) { assert(0); };
 	virtual _Assign_target fold_impl_assign_target(Assign_target* orig, _Target target, _Variable_name lhs, bool is_ref, _VARIABLE_NAME rhs) { assert(0); };
@@ -695,12 +697,12 @@ public:
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _VARIABLE_NAME left, _OP op, _VARIABLE_NAME right) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
-	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Variable_method fold_impl_variable_method(Variable_method* orig, _VARIABLE_NAME variable_name) { assert(0); };
-	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, List<_VARIABLE_NAME>* array_indices) { assert(0); };
-	virtual _New fold_impl_new(New* orig, _Class_name class_name, List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, _List<_VARIABLE_NAME>* array_indices) { assert(0); };
+	virtual _New fold_impl_new(New* orig, _Class_name class_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Variable_class fold_impl_variable_class(Variable_class* orig, _VARIABLE_NAME variable_name) { assert(0); };
-	virtual _Static_array fold_impl_static_array(Static_array* orig, List<_Static_array_elem>* static_array_elems) { assert(0); };
+	virtual _Static_array fold_impl_static_array(Static_array* orig, _List<_Static_array_elem>* static_array_elems) { assert(0); };
 	virtual _Static_array_elem fold_impl_static_array_elem(Static_array_elem* orig, _Static_array_key key, bool is_ref, _Static_value val) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
 	virtual _Goto fold_impl_goto(Goto* orig, _LABEL_NAME label_name) { assert(0); };
@@ -1119,7 +1121,7 @@ public:
 	virtual ~Fold() {}
 };
 
-template<class T>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T> {};
+template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 
