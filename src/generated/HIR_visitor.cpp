@@ -146,6 +146,10 @@ void Visitor::pre_literal(Literal* in)
 {
 }
 
+void Visitor::pre_rvalue(Rvalue* in)
+{
+}
+
 void Visitor::pre_target_expr(Target_expr* in)
 {
 }
@@ -424,6 +428,10 @@ void Visitor::post_expr(Expr* in)
 }
 
 void Visitor::post_literal(Literal* in)
+{
+}
+
+void Visitor::post_rvalue(Rvalue* in)
 {
 }
 
@@ -728,29 +736,29 @@ void Visitor::children_assign_target(Assign_target* in)
     visit_target(in->target);
     visit_variable_name(in->lhs);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->rhs);
+    visit_rvalue(in->rhs);
 }
 
 void Visitor::children_assign_array(Assign_array* in)
 {
     visit_variable_name(in->lhs);
-    visit_variable_name(in->index);
+    visit_rvalue(in->index);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->rhs);
+    visit_rvalue(in->rhs);
 }
 
 void Visitor::children_assign_var_var(Assign_var_var* in)
 {
     visit_variable_name(in->lhs);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->rhs);
+    visit_rvalue(in->rhs);
 }
 
 void Visitor::children_push_array(Push_array* in)
 {
     visit_variable_name(in->lhs);
     visit_marker("is_ref", in->is_ref);
-    visit_variable_name(in->rhs);
+    visit_rvalue(in->rhs);
 }
 
 void Visitor::children_pre_op(Pre_op* in)
@@ -778,7 +786,7 @@ void Visitor::children_variable_variable(Variable_variable* in)
 void Visitor::children_index_array(Index_array* in)
 {
     visit_variable_name(in->variable_name);
-    visit_variable_name(in->index);
+    visit_rvalue(in->index);
 }
 
 void Visitor::children_cast(Cast* in)
@@ -795,9 +803,9 @@ void Visitor::children_unary_op(Unary_op* in)
 
 void Visitor::children_bin_op(Bin_op* in)
 {
-    visit_variable_name(in->left);
+    visit_rvalue(in->left);
     visit_op(in->op);
-    visit_variable_name(in->right);
+    visit_rvalue(in->right);
 }
 
 void Visitor::children_constant(Constant* in)
@@ -829,7 +837,7 @@ void Visitor::children_actual_parameter(Actual_parameter* in)
     visit_marker("is_ref", in->is_ref);
     visit_target(in->target);
     visit_variable_name(in->variable_name);
-    visit_variable_name_list(in->array_indices);
+    visit_rvalue_list(in->array_indices);
 }
 
 void Visitor::children_new(New* in)
@@ -1276,6 +1284,7 @@ void Visitor::pre_variable_name_chain(VARIABLE_NAME* in)
     pre_node((Node*) in);
     pre_expr((Expr*) in);
     pre_variable_name((Variable_name*) in);
+    pre_rvalue((Rvalue*) in);
     pre_target((Target*) in);
     pre_identifier((Identifier*) in);
     pre_variable_name((VARIABLE_NAME*) in);
@@ -1292,6 +1301,7 @@ void Visitor::pre_int_chain(INT* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_rvalue((Rvalue*) in);
     pre_static_value((Static_value*) in);
     pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
@@ -1302,6 +1312,7 @@ void Visitor::pre_real_chain(REAL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_rvalue((Rvalue*) in);
     pre_static_value((Static_value*) in);
     pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
@@ -1312,6 +1323,7 @@ void Visitor::pre_string_chain(STRING* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_rvalue((Rvalue*) in);
     pre_static_value((Static_value*) in);
     pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
@@ -1322,6 +1334,7 @@ void Visitor::pre_bool_chain(BOOL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_rvalue((Rvalue*) in);
     pre_static_value((Static_value*) in);
     pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
@@ -1332,6 +1345,7 @@ void Visitor::pre_nil_chain(NIL* in)
 {
     pre_node((Node*) in);
     pre_expr((Expr*) in);
+    pre_rvalue((Rvalue*) in);
     pre_static_value((Static_value*) in);
     pre_static_array_key((Static_array_key*) in);
     pre_literal((Literal*) in);
@@ -1700,6 +1714,7 @@ void Visitor::post_variable_name_chain(VARIABLE_NAME* in)
     post_variable_name((VARIABLE_NAME*) in);
     post_identifier((Identifier*) in);
     post_target((Target*) in);
+    post_rvalue((Rvalue*) in);
     post_variable_name((Variable_name*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
@@ -1718,6 +1733,7 @@ void Visitor::post_int_chain(INT* in)
     post_literal((Literal*) in);
     post_static_array_key((Static_array_key*) in);
     post_static_value((Static_value*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1728,6 +1744,7 @@ void Visitor::post_real_chain(REAL* in)
     post_literal((Literal*) in);
     post_static_array_key((Static_array_key*) in);
     post_static_value((Static_value*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1738,6 +1755,7 @@ void Visitor::post_string_chain(STRING* in)
     post_literal((Literal*) in);
     post_static_array_key((Static_array_key*) in);
     post_static_value((Static_value*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1748,6 +1766,7 @@ void Visitor::post_bool_chain(BOOL* in)
     post_literal((Literal*) in);
     post_static_array_key((Static_array_key*) in);
     post_static_value((Static_value*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -1758,6 +1777,7 @@ void Visitor::post_nil_chain(NIL* in)
     post_literal((Literal*) in);
     post_static_array_key((Static_array_key*) in);
     post_static_value((Static_value*) in);
+    post_rvalue((Rvalue*) in);
     post_expr((Expr*) in);
     post_node((Node*) in);
 }
@@ -2089,6 +2109,18 @@ void Visitor::visit_target(Target* in)
     }
 }
 
+void Visitor::visit_rvalue(Rvalue* in)
+{
+    if(in == NULL)
+    	visit_null("HIR", "Rvalue");
+    else
+    {
+    	pre_rvalue_chain(in);
+    	children_rvalue(in);
+    	post_rvalue_chain(in);
+    }
+}
+
 void Visitor::visit_op(OP* in)
 {
     if(in == NULL)
@@ -2180,22 +2212,22 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
     }
 }
 
-void Visitor::visit_variable_name_list(List<VARIABLE_NAME*>* in)
+void Visitor::visit_rvalue_list(List<Rvalue*>* in)
 {
-    List<VARIABLE_NAME*>::const_iterator i;
+    List<Rvalue*>::const_iterator i;
     
     if(in == NULL)
-    	visit_null_list("HIR", "VARIABLE_NAME");
+    	visit_null_list("HIR", "Rvalue");
     else
     {
-    	pre_list("HIR", "VARIABLE_NAME", in->size());
+    	pre_list("HIR", "Rvalue", in->size());
     
     	for(i = in->begin(); i != in->end(); i++)
     	{
-    		visit_variable_name(*i);
+    		visit_rvalue(*i);
     	}
     
-    	post_list("HIR", "VARIABLE_NAME", in->size());
+    	post_list("HIR", "Rvalue", in->size());
     }
 }
 
@@ -2451,6 +2483,31 @@ void Visitor::pre_target_chain(Target* in)
     }
 }
 
+void Visitor::pre_rvalue_chain(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	pre_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	pre_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	pre_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	pre_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	pre_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Visitor::pre_class_name_chain(Class_name* in)
 {
     switch(in->classid())
@@ -2699,6 +2756,31 @@ void Visitor::post_target_chain(Target* in)
     }
 }
 
+void Visitor::post_rvalue_chain(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	post_int_chain(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	post_real_chain(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	post_string_chain(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	post_bool_chain(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	post_nil_chain(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    }
+}
+
 void Visitor::post_class_name_chain(Class_name* in)
 {
     switch(in->classid())
@@ -2943,6 +3025,31 @@ void Visitor::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Visitor::children_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }

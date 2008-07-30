@@ -1509,6 +1509,10 @@ Expr::Expr()
 {
 }
 
+Rvalue::Rvalue()
+{
+}
+
 Target::Target()
 {
 }
@@ -1517,7 +1521,7 @@ Method_name::Method_name()
 {
 }
 
-Actual_parameter::Actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<VARIABLE_NAME*>* array_indices)
+Actual_parameter::Actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices)
 {
     this->is_ref = is_ref;
     this->target = target;
@@ -1577,7 +1581,7 @@ bool Actual_parameter::match(Node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i, j;
+    	List<Rvalue*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -1629,7 +1633,7 @@ bool Actual_parameter::equals(Node* in)
     }
     else
     {
-    	List<VARIABLE_NAME*>::const_iterator i, j;
+    	List<Rvalue*>::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -1656,11 +1660,11 @@ Actual_parameter* Actual_parameter::clone()
     bool is_ref = this->is_ref;
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<VARIABLE_NAME*>* array_indices = NULL;
+    List<Rvalue*>* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i;
-    	array_indices = new List<VARIABLE_NAME*>;
+    	List<Rvalue*>::const_iterator i;
+    	array_indices = new List<Rvalue*>;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -1688,7 +1692,7 @@ Node* Actual_parameter::find(Node* in)
     
     if(this->array_indices != NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i;
+    	List<Rvalue*>::const_iterator i;
     	for(
     		i = this->array_indices->begin();
     		i != this->array_indices->end();
@@ -1718,7 +1722,7 @@ void Actual_parameter::find_all(Node* in, List<Node*>* out)
     
     if(this->array_indices != NULL)
     {
-    	List<VARIABLE_NAME*>::const_iterator i;
+    	List<Rvalue*>::const_iterator i;
     	for(
     		i = this->array_indices->begin();
     		i != this->array_indices->end();
@@ -1740,7 +1744,7 @@ void Actual_parameter::assert_valid()
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<VARIABLE_NAME*>::const_iterator i;
+    	List<Rvalue*>::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		assert(*i != NULL);
@@ -4672,7 +4676,7 @@ Assign_var::Assign_var(VARIABLE_NAME* lhs, bool is_ref, Expr* rhs)
 	}
 }
 
-Assign_target::Assign_target(Target* target, Variable_name* lhs, bool is_ref, VARIABLE_NAME* rhs)
+Assign_target::Assign_target(Target* target, Variable_name* lhs, bool is_ref, Rvalue* rhs)
 {
     this->target = target;
     this->lhs = lhs;
@@ -4782,7 +4786,7 @@ Assign_target* Assign_target::clone()
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* lhs = this->lhs ? this->lhs->clone() : NULL;
     bool is_ref = this->is_ref;
-    VARIABLE_NAME* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
     Assign_target* clone = new Assign_target(target, lhs, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -4841,7 +4845,7 @@ void Assign_target::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Assign_array::Assign_array(VARIABLE_NAME* lhs, VARIABLE_NAME* index, bool is_ref, VARIABLE_NAME* rhs)
+Assign_array::Assign_array(VARIABLE_NAME* lhs, Rvalue* index, bool is_ref, Rvalue* rhs)
 {
     this->lhs = lhs;
     this->index = index;
@@ -4949,9 +4953,9 @@ bool Assign_array::equals(Node* in)
 Assign_array* Assign_array::clone()
 {
     VARIABLE_NAME* lhs = this->lhs ? this->lhs->clone() : NULL;
-    VARIABLE_NAME* index = this->index ? this->index->clone() : NULL;
+    Rvalue* index = this->index ? this->index->clone() : NULL;
     bool is_ref = this->is_ref;
-    VARIABLE_NAME* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
     Assign_array* clone = new Assign_array(lhs, index, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -5010,7 +5014,7 @@ void Assign_array::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Assign_var_var::Assign_var_var(VARIABLE_NAME* lhs, bool is_ref, VARIABLE_NAME* rhs)
+Assign_var_var::Assign_var_var(VARIABLE_NAME* lhs, bool is_ref, Rvalue* rhs)
 {
     this->lhs = lhs;
     this->is_ref = is_ref;
@@ -5101,7 +5105,7 @@ Assign_var_var* Assign_var_var::clone()
 {
     VARIABLE_NAME* lhs = this->lhs ? this->lhs->clone() : NULL;
     bool is_ref = this->is_ref;
-    VARIABLE_NAME* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
     Assign_var_var* clone = new Assign_var_var(lhs, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -5149,7 +5153,7 @@ void Assign_var_var::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Push_array::Push_array(VARIABLE_NAME* lhs, bool is_ref, VARIABLE_NAME* rhs)
+Push_array::Push_array(VARIABLE_NAME* lhs, bool is_ref, Rvalue* rhs)
 {
     this->lhs = lhs;
     this->is_ref = is_ref;
@@ -5240,7 +5244,7 @@ Push_array* Push_array::clone()
 {
     VARIABLE_NAME* lhs = this->lhs ? this->lhs->clone() : NULL;
     bool is_ref = this->is_ref;
-    VARIABLE_NAME* rhs = this->rhs ? this->rhs->clone() : NULL;
+    Rvalue* rhs = this->rhs ? this->rhs->clone() : NULL;
     Push_array* clone = new Push_array(lhs, is_ref, rhs);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -5670,7 +5674,7 @@ Variable_name::Variable_name()
 {
 }
 
-Index_array::Index_array(VARIABLE_NAME* variable_name, VARIABLE_NAME* index)
+Index_array::Index_array(VARIABLE_NAME* variable_name, Rvalue* index)
 {
     this->variable_name = variable_name;
     this->index = index;
@@ -5754,7 +5758,7 @@ bool Index_array::equals(Node* in)
 Index_array* Index_array::clone()
 {
     VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    VARIABLE_NAME* index = this->index ? this->index->clone() : NULL;
+    Rvalue* index = this->index ? this->index->clone() : NULL;
     Index_array* clone = new Index_array(variable_name, index);
     clone->Node::clone_mixin_from(this);
     return clone;
@@ -6082,7 +6086,7 @@ Unary_op::Unary_op(VARIABLE_NAME* variable_name, const char* op)
 	}
 }
 
-Bin_op::Bin_op(VARIABLE_NAME* left, OP* op, VARIABLE_NAME* right)
+Bin_op::Bin_op(Rvalue* left, OP* op, Rvalue* right)
 {
     this->left = left;
     this->op = op;
@@ -6183,9 +6187,9 @@ bool Bin_op::equals(Node* in)
 
 Bin_op* Bin_op::clone()
 {
-    VARIABLE_NAME* left = this->left ? this->left->clone() : NULL;
+    Rvalue* left = this->left ? this->left->clone() : NULL;
     OP* op = this->op ? this->op->clone() : NULL;
-    VARIABLE_NAME* right = this->right ? this->right->clone() : NULL;
+    Rvalue* right = this->right ? this->right->clone() : NULL;
     Bin_op* clone = new Bin_op(left, op, right);
     clone->Node::clone_mixin_from(this);
     return clone;

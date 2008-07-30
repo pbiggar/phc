@@ -760,26 +760,26 @@ void Transform::children_assign_target(Assign_target* in)
 {
     in->target = transform_target(in->target);
     in->lhs = transform_variable_name(in->lhs);
-    in->rhs = transform_variable_name(in->rhs);
+    in->rhs = transform_rvalue(in->rhs);
 }
 
 void Transform::children_assign_array(Assign_array* in)
 {
     in->lhs = transform_variable_name(in->lhs);
-    in->index = transform_variable_name(in->index);
-    in->rhs = transform_variable_name(in->rhs);
+    in->index = transform_rvalue(in->index);
+    in->rhs = transform_rvalue(in->rhs);
 }
 
 void Transform::children_assign_var_var(Assign_var_var* in)
 {
     in->lhs = transform_variable_name(in->lhs);
-    in->rhs = transform_variable_name(in->rhs);
+    in->rhs = transform_rvalue(in->rhs);
 }
 
 void Transform::children_push_array(Push_array* in)
 {
     in->lhs = transform_variable_name(in->lhs);
-    in->rhs = transform_variable_name(in->rhs);
+    in->rhs = transform_rvalue(in->rhs);
 }
 
 void Transform::children_pre_op(Pre_op* in)
@@ -807,7 +807,7 @@ void Transform::children_variable_variable(Variable_variable* in)
 void Transform::children_index_array(Index_array* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
-    in->index = transform_variable_name(in->index);
+    in->index = transform_rvalue(in->index);
 }
 
 void Transform::children_cast(Cast* in)
@@ -824,9 +824,9 @@ void Transform::children_unary_op(Unary_op* in)
 
 void Transform::children_bin_op(Bin_op* in)
 {
-    in->left = transform_variable_name(in->left);
+    in->left = transform_rvalue(in->left);
     in->op = transform_op(in->op);
-    in->right = transform_variable_name(in->right);
+    in->right = transform_rvalue(in->right);
 }
 
 void Transform::children_constant(Constant* in)
@@ -857,7 +857,7 @@ void Transform::children_actual_parameter(Actual_parameter* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->array_indices = transform_variable_name_list(in->array_indices);
+    in->array_indices = transform_rvalue_list(in->array_indices);
 }
 
 void Transform::children_new(New* in)
@@ -1387,6 +1387,22 @@ Target* Transform::transform_target(Target* in)
     return out;
 }
 
+Rvalue* Transform::transform_rvalue(Rvalue* in)
+{
+    if(in == NULL) return NULL;
+    
+    Rvalue* out;
+    
+    out = pre_rvalue(in);
+    if(out != NULL)
+    {
+    	children_rvalue(out);
+    	out = post_rvalue(out);
+    }
+    
+    return out;
+}
+
 OP* Transform::transform_op(OP* in)
 {
     if(in == NULL) return NULL;
@@ -1504,17 +1520,17 @@ List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter*
     return out2;
 }
 
-List<VARIABLE_NAME*>* Transform::transform_variable_name_list(List<VARIABLE_NAME*>* in)
+List<Rvalue*>* Transform::transform_rvalue_list(List<Rvalue*>* in)
 {
-    List<VARIABLE_NAME*>::const_iterator i;
-    List<VARIABLE_NAME*>* out = new List<VARIABLE_NAME*>;
+    List<Rvalue*>::const_iterator i;
+    List<Rvalue*>* out = new List<Rvalue*>;
     
     if(in == NULL)
     	return NULL;
     
     for(i = in->begin(); i != in->end(); i++)
     {
-    	out->push_back(transform_variable_name(*i));
+    	out->push_back(transform_rvalue(*i));
     }
     
     return out;
@@ -1912,6 +1928,20 @@ Target* Transform::pre_target(Target* in)
     assert(0);
 }
 
+Rvalue* Transform::pre_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return pre_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return pre_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Class_name* Transform::pre_class_name(Class_name* in)
 {
     switch(in->classid())
@@ -2237,6 +2267,20 @@ Target* Transform::post_target(Target* in)
     assert(0);
 }
 
+Rvalue* Transform::post_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID: return post_int(dynamic_cast<INT*>(in));
+    case REAL::ID: return post_real(dynamic_cast<REAL*>(in));
+    case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
+    case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
+    case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    }
+    assert(0);
+}
+
 Class_name* Transform::post_class_name(Class_name* in)
 {
     switch(in->classid())
@@ -2476,6 +2520,31 @@ void Transform::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Transform::children_rvalue(Rvalue* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
     }
 }

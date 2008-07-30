@@ -80,6 +80,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
  AST::Return*,					// Return*
+ AST::Expr*,					// Rvalue*
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
  AST::Statement*,				// Statement*
@@ -330,10 +331,9 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -343,17 +343,15 @@ public:
 				new AST::Reflection (
 					new AST::Variable (lhs_var)),
 				new List<AST::Expr*>), 
-			is_ref, 
-			new AST::Variable (rhs_var));
+			is_ref,
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::None* lhs, AST::None* index, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::None* lhs, AST::Expr* index, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
-		AST::VARIABLE_NAME* index_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -361,18 +359,16 @@ public:
 			new AST::Variable (
 				NULL,
 				lhs_var,
-				new List<AST::Expr*> (
-					new AST::Variable (index_var))),
-			is_ref, 
-			new AST::Variable (rhs_var));
+				new List<AST::Expr*> (index)),
+			is_ref,
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -383,15 +379,14 @@ public:
 				new List<AST::Expr*> (
 					NULL)),
 			is_ref,
-			new AST::Variable (rhs_var));
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_target (MIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_target (MIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::Target* target_var = wrap_target (target);
 
 		AST::Assignment* result;
@@ -401,7 +396,7 @@ public:
 				lhs,
 				new List<AST::Expr*>),
 			is_ref,
-			new AST::Variable (rhs_var));
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
@@ -430,13 +425,10 @@ public:
 		return result;
 	}
 
-	AST::Bin_op* fold_impl_bin_op(MIR::Bin_op* orig, AST::None* left, AST::OP* op, AST::None* right) 
+	AST::Bin_op* fold_impl_bin_op(MIR::Bin_op* orig, AST::Expr* left, AST::OP* op, AST::Expr* right) 
 	{
-		AST::Variable* right_var = wrap_var_name (left);
-		AST::Variable* left_var = wrap_var_name (left);
-
 		AST::Bin_op* result;
-		result = new AST::Bin_op(left_var, op, right_var);
+		result = new AST::Bin_op(left, op, right);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -457,14 +449,13 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (MIR::Index_array* orig, AST::None* variable_name, AST::None* array_index)
+	AST::Variable* fold_impl_index_array (MIR::Index_array* orig, AST::None* variable_name, AST::Expr* index)
 	{
-		// The order is important.
-		List<AST::Expr*>* list = wrap_var_name_in_list (array_index);
-		AST::VARIABLE_NAME* var = get_var_name ();
-
 		AST::Variable* result;
-		result = new AST::Variable(NULL, var, list);
+		result = new AST::Variable (
+			NULL, 
+			get_var_name (), 
+			new List<AST::Expr*> (index));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -522,6 +513,14 @@ public:
 			return wrap_var_name (fold_variable_name (dyc<MIR::VARIABLE_NAME> (orig)));
 		else
 			return parent::fold_expr (orig);
+	}
+
+	AST::Expr* fold_rvalue (MIR::Rvalue* orig)
+	{
+		if (isa<MIR::VARIABLE_NAME> (orig))
+			return wrap_var_name (fold_variable_name (dyc<MIR::VARIABLE_NAME> (orig)));
+		else
+			return parent::fold_rvalue (orig);
 	}
 
 	AST::None* fold_impl_variable_variable(MIR::Variable_variable* orig, AST::None* variable_name) 
@@ -588,9 +587,8 @@ public:
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::None*>* array_indices) 
+	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices)
 	{
-		List<AST::Expr*>* list = wrap_var_name_list (array_indices);
 		AST::Target* target_var = wrap_target (target);
 
 		AST::Actual_parameter* result;
@@ -599,7 +597,7 @@ public:
 			new AST::Variable (
 				target_var,
 				variable_name,
-				list));
+				array_indices));
 		result->attrs = orig->attrs;
 		return result;
 	}

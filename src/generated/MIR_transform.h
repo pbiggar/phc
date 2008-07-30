@@ -251,6 +251,7 @@ public:
     virtual List<Catch*>* transform_catch_list(List<Catch*>* in);
     virtual List<Catch*>* transform_catch(Catch* in);
     virtual Target* transform_target(Target* in);
+    virtual Rvalue* transform_rvalue(Rvalue* in);
     virtual OP* transform_op(OP* in);
     virtual CAST* transform_cast(CAST* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
@@ -258,7 +259,7 @@ public:
     virtual Method_name* transform_method_name(Method_name* in);
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
-    virtual List<VARIABLE_NAME*>* transform_variable_name_list(List<VARIABLE_NAME*>* in);
+    virtual List<Rvalue*>* transform_rvalue_list(List<Rvalue*>* in);
     virtual List<Static_array_elem*>* transform_static_array_elem_list(List<Static_array_elem*>* in);
     virtual List<Static_array_elem*>* transform_static_array_elem(Static_array_elem* in);
     virtual Static_array_key* transform_static_array_key(Static_array_key* in);
@@ -274,6 +275,7 @@ public:
     virtual Expr* pre_expr(Expr* in);
     virtual Variable_name* pre_variable_name(Variable_name* in);
     virtual Target* pre_target(Target* in);
+    virtual Rvalue* pre_rvalue(Rvalue* in);
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Method_name* pre_method_name(Method_name* in);
     virtual Static_array_key* pre_static_array_key(Static_array_key* in);
@@ -286,6 +288,7 @@ public:
     virtual Expr* post_expr(Expr* in);
     virtual Variable_name* post_variable_name(Variable_name* in);
     virtual Target* post_target(Target* in);
+    virtual Rvalue* post_rvalue(Rvalue* in);
     virtual Class_name* post_class_name(Class_name* in);
     virtual Method_name* post_method_name(Method_name* in);
     virtual Static_array_key* post_static_array_key(Static_array_key* in);
@@ -298,6 +301,7 @@ public:
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
     virtual void children_target(Target* in);
+    virtual void children_rvalue(Rvalue* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
     virtual void children_static_array_key(Static_array_key* in);

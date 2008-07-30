@@ -57,6 +57,7 @@ public:
     virtual void pre_eval_expr(Eval_expr* in);
     virtual void pre_expr(Expr* in);
     virtual void pre_literal(Literal* in);
+    virtual void pre_rvalue(Rvalue* in);
     virtual void pre_target_expr(Target_expr* in);
     virtual void pre_variable_name(Variable_name* in);
     virtual void pre_variable_variable(Variable_variable* in);
@@ -135,6 +136,7 @@ public:
     virtual void post_eval_expr(Eval_expr* in);
     virtual void post_expr(Expr* in);
     virtual void post_literal(Literal* in);
+    virtual void post_rvalue(Rvalue* in);
     virtual void post_target_expr(Target_expr* in);
     virtual void post_variable_name(Variable_name* in);
     virtual void post_variable_variable(Variable_variable* in);
@@ -417,6 +419,7 @@ public:
     virtual void visit_catch_list(List<Catch*>* in);
     virtual void visit_catch(Catch* in);
     virtual void visit_target(Target* in);
+    virtual void visit_rvalue(Rvalue* in);
     virtual void visit_op(OP* in);
     virtual void visit_cast(CAST* in);
     virtual void visit_constant_name(CONSTANT_NAME* in);
@@ -424,7 +427,7 @@ public:
     virtual void visit_method_name(Method_name* in);
     virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
-    virtual void visit_variable_name_list(List<VARIABLE_NAME*>* in);
+    virtual void visit_rvalue_list(List<Rvalue*>* in);
     virtual void visit_static_array_elem_list(List<Static_array_elem*>* in);
     virtual void visit_static_array_elem(Static_array_elem* in);
     virtual void visit_static_array_key(Static_array_key* in);
@@ -440,6 +443,7 @@ public:
     virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
     virtual void pre_target_chain(Target* in);
+    virtual void pre_rvalue_chain(Rvalue* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
     virtual void pre_static_array_key_chain(Static_array_key* in);
@@ -452,6 +456,7 @@ public:
     virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
     virtual void post_target_chain(Target* in);
+    virtual void post_rvalue_chain(Rvalue* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
     virtual void post_static_array_key_chain(Static_array_key* in);
@@ -464,6 +469,7 @@ public:
     virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
     virtual void children_target(Target* in);
+    virtual void children_rvalue(Rvalue* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
     virtual void children_static_array_key(Static_array_key* in);

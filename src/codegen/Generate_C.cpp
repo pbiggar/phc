@@ -163,8 +163,9 @@ String* get_non_st_name (VARIABLE_NAME* var_name)
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_simple (Scope scope, string zvp, VARIABLE_NAME* var_name)
+void read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		String* name = get_non_st_name (var_name);
@@ -235,7 +236,7 @@ void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_N
 
 	code
 		<< "// Array assignment\n";
-	read_simple (scope, zvp_index, index);
+	read_rvalue (scope, zvp_index, index);
 
 	code
 		<<	zvp << " = get_ht_entry ("
@@ -264,7 +265,7 @@ void index_array_index (Scope scope, string zvp, Index_array* ia)
 
 	code
 		<< "// Array assignment\n";
-	read_simple (scope, zvp_index, ia->index);
+	read_rvalue (scope, zvp_index, ia->index);
 
 	code
 		<<	zvp << " = get_ht_entry ("
@@ -318,8 +319,8 @@ void read (Scope scope, string zvp, Variable_name* var_name)
 		stringstream ss;
 		ss << zvp << "var";
 		string name = ss.str ();
-		read_simple (scope, name, dyc<VARIABLE_NAME> (var_name));
-		// the same as read_simple, but doesnt declare
+		read_rvalue (scope, name, dyc<VARIABLE_NAME> (var_name));
+		// the same as read_rvalue, but doesnt declare
 		code 
 			<< "// Read normal variable\n"
 			<< zvp << " = &" << name << ";\n"; 
@@ -331,7 +332,7 @@ void read (Scope scope, string zvp, Variable_name* var_name)
 
 		code << "// Read variable variable\n";
 
-		read_simple (scope, "var_var", var_var->variable_name);
+		read_rvalue (scope, "var_var", var_var->variable_name);
 
 		code
 			<< zvp << " = read_var_var (" 
@@ -348,8 +349,8 @@ void read_array_index (Scope scope, string zvp, Index_array* ia)
 	// access var as an array
 	code << "// Read array variable\n";
 
-	read_simple (scope, "r_array", var_name);
-	read_simple (scope, "ra_index", ia->index);
+	read_rvalue (scope, "r_array", var_name);
+	read_rvalue (scope, "ra_index", ia->index);
 
 	code
 		<< "read_array ("
@@ -728,7 +729,7 @@ public:
 	{
 		code
 			<< "{\n";
-		read_simple (LOCAL, "p_cond", cond->value);
+		read_rvalue (LOCAL, "p_cond", cond->value);
 		code 
 			<< "zend_bool bcond = zend_is_true (p_cond);\n";
 		code 
@@ -839,7 +840,7 @@ void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 			<< "p_rhs = &temp;\n";
 
 		// copied from read ()
-		read_simple (LOCAL, "p_rhs_var", rhs);
+		read_rvalue (LOCAL, "p_rhs_var", rhs);
 
 		code 
 			<< "// Read normal variable\n"
@@ -1432,7 +1433,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
 
 		code << "{\n";
-		read_simple (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
+		read_rvalue (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
 
 		if (lhs)
 		{
@@ -1495,7 +1496,7 @@ public:
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
 		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_simple (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
+		read_rvalue (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
 
 		// Fetch the parameter
 		code
@@ -1645,14 +1646,14 @@ public:
 				// run-time whether the function is call-by-reference or
 				// not.
 				if ((*i)->array_indices->size () > 1) phc_unsupported (*i);
-				VARIABLE_NAME* ind = (*i)->array_indices->front ();
+				Rvalue* ind = (*i)->array_indices->front ();
 
 				code
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
 				read_st (LOCAL, "arg", var_name);
-				read_simple (LOCAL, "ind", ind);
+				read_rvalue (LOCAL, "ind", ind);
 
 				code
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
@@ -1665,8 +1666,8 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var_name);
-				read_simple (LOCAL, "ind", ind);
+				read_rvalue (LOCAL, "arg", var_name);
+				read_rvalue (LOCAL, "ind", ind);
 
 				code
 					<< "  args[" << index << "] = fetch_array_arg ("
@@ -1694,7 +1695,7 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var_name);
+				read_rvalue (LOCAL, "arg", var_name);
 
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
@@ -1824,8 +1825,8 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "left", left->value);
-		read_simple (LOCAL, "right", right->value);
+		read_rvalue (LOCAL, "left", left->value);
+		read_rvalue (LOCAL, "right", right->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1877,7 +1878,7 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "expr", var_name->value);
+		read_rvalue (LOCAL, "expr", var_name->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1949,7 +1950,7 @@ class Pattern_return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			read_simple (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
+			read_rvalue (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -2036,9 +2037,9 @@ class Pattern_unset : public Pattern
 			else 
 			{
 				assert(param->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = (param->value->array_indices->front());
+				Rvalue* index = (param->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
-				read_simple (LOCAL, "u_index", index);
+				read_rvalue (LOCAL, "u_index", index);
 
 				code
 					<< "unset_array ("
@@ -2100,9 +2101,9 @@ class Pattern_isset : public Pattern_assign_zval
 			{
 				// TODO this can have > 1 array_index
 				assert(param->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = param->value->array_indices->front();
+				Rvalue* index = param->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
-				read_simple (LOCAL, "u_index", index);
+				read_rvalue (LOCAL, "u_index", index);
 
 				code
 				  << "ZVAL_BOOL(" << lhs << ", "
@@ -2144,7 +2145,7 @@ class Pattern_foreach_reset: public Pattern
 			<< "HashPosition " << *reset->value->iter->value << ";\n"
 			<< "{\n";
 
-		read_simple (LOCAL, "fe_array", reset->value->array);
+		read_rvalue (LOCAL, "fe_array", reset->value->array);
 		code 
 			<< "zend_hash_internal_pointer_reset_ex ("
 			<< "						fe_array->value.ht, "
@@ -2167,7 +2168,7 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", has_key->value->array);
+		read_rvalue (LOCAL, "fe_array", has_key->value->array);
 		os
 			<< "int type = zend_hash_get_current_key_type_ex ("
 			<< "						fe_array->value.ht, "
@@ -2189,7 +2190,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", get_key->value->array);
+		read_rvalue (LOCAL, "fe_array", get_key->value->array);
 		os
 			<< "char* str_index = NULL;\n"
 			<< "uint str_length;\n"
@@ -2227,7 +2228,7 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 		if (lhs == NULL)
 			return;
 
-		read_simple (LOCAL, "fe_array", get_val->value->array);
+		read_rvalue (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -2274,7 +2275,7 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", next->value->array);
+		read_rvalue (LOCAL, "fe_array", next->value->array);
 		code 
 			<< "int result = zend_hash_move_forward_ex ("
 			<<							"fe_array->value.ht, "
@@ -2298,7 +2299,7 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", end->value->array);
+		read_rvalue (LOCAL, "fe_array", end->value->array);
 		code 
 			<< "zend_hash_internal_pointer_end_ex ("
 			<<							"fe_array->value.ht, "

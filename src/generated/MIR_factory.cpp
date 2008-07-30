@@ -164,16 +164,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* lhs = dynamic_cast<Variable_name*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Assign_target(target, lhs, is_ref, rhs);
     }
     if(!strcmp(type_id, "Assign_array"))
     {
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	VARIABLE_NAME* index = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* index = dynamic_cast<Rvalue*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Assign_array(lhs, index, is_ref, rhs);
     }
@@ -181,7 +181,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Assign_var_var(lhs, is_ref, rhs);
     }
@@ -189,7 +189,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	VARIABLE_NAME* lhs = dynamic_cast<VARIABLE_NAME*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	VARIABLE_NAME* rhs = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Push_array(lhs, is_ref, rhs);
     }
@@ -222,7 +222,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Index_array"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	VARIABLE_NAME* index = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* index = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Index_array(variable_name, index);
     }
@@ -242,9 +242,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Bin_op"))
     {
-    	VARIABLE_NAME* left = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* left = dynamic_cast<Rvalue*>(*i++);
     	OP* op = dynamic_cast<OP*>(*i++);
-    	VARIABLE_NAME* right = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	Rvalue* right = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
     	return new Bin_op(left, op, right);
     }
@@ -281,7 +281,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<VARIABLE_NAME*>* array_indices = dynamic_cast<List<VARIABLE_NAME*>*>(*i++);
+    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
     	assert(i == args->end());
     	return new Actual_parameter(is_ref, target, variable_name, array_indices);
     }
@@ -476,11 +476,11 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "VARIABLE_NAME_list"))
+    if(!strcmp(type_id, "Rvalue_list"))
     {
-    	List<VARIABLE_NAME*>* list = new List<VARIABLE_NAME*>;
+    	List<Rvalue*>* list = new List<Rvalue*>;
     	while(i != args->end())
-    		list->push_back(dynamic_cast<VARIABLE_NAME*>(*i++));
+    		list->push_back(dynamic_cast<Rvalue*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Static_array_elem_list"))
