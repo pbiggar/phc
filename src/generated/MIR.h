@@ -68,6 +68,7 @@ class Constant;
 class Instanceof;
 class Method_invocation;
 class Variable_method;
+class Variable_actual_parameter;
 class New;
 class Variable_class;
 class Static_array;
@@ -570,36 +571,28 @@ public:
     virtual void assert_valid() = 0;
 };
 
-// Actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:Rvalue* ;
+// Actual_parameter ::= Literal | Variable_actual_parameter;
 class Actual_parameter : virtual public Node
 {
 public:
-    Actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices);
-protected:
     Actual_parameter();
 public:
-    bool is_ref;
-    Target* target;
-    Variable_name* variable_name;
-    List<Rvalue*>* array_indices;
+    virtual void visit(Visitor* visitor) = 0;
+    virtual void transform_children(Transform* transform) = 0;
 public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
+    virtual int classid() = 0;
 public:
-    static const int ID = 36;
-    virtual int classid();
+    virtual bool match(Node* in) = 0;
 public:
-    virtual bool match(Node* in);
+    virtual bool equals(Node* in) = 0;
 public:
-    virtual bool equals(Node* in);
+    virtual Actual_parameter* clone() = 0;
 public:
-    virtual Actual_parameter* clone();
+    virtual Node* find(Node* in) = 0;
 public:
-    virtual Node* find(Node* in);
+    virtual void find_all(Node* in, List<Node*>* out) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
+    virtual void assert_valid() = 0;
 };
 
 // Class_name ::= CLASS_NAME | Variable_class;
@@ -1227,7 +1220,7 @@ public:
 };
 
 // Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;
-class Literal : virtual public Expr, virtual public Rvalue, virtual public Static_value, virtual public Static_array_key
+class Literal : virtual public Expr, virtual public Rvalue, virtual public Actual_parameter, virtual public Static_value, virtual public Static_array_key
 {
 public:
     Literal();
@@ -1548,6 +1541,38 @@ public:
     virtual bool equals(Node* in);
 public:
     virtual Variable_method* clone();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+};
+
+// Variable_actual_parameter ::= is_ref:"&" Target? Variable_name array_indices:Rvalue* ;
+class Variable_actual_parameter : virtual public Actual_parameter
+{
+public:
+    Variable_actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices);
+protected:
+    Variable_actual_parameter();
+public:
+    bool is_ref;
+    Target* target;
+    Variable_name* variable_name;
+    List<Rvalue*>* array_indices;
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    static const int ID = 36;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual Variable_actual_parameter* clone();
 public:
     virtual Node* find(Node* in);
 public:
@@ -2408,7 +2433,7 @@ public:
 };
 
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_target, virtual public Assign_array, virtual public Assign_var_var, virtual public Push_array, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Target_expr, virtual public Variable_name, virtual public Variable_variable, virtual public Index_array, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Method_name, virtual public Variable_method, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Variable_class, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Identifier, virtual public Foreign, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_target, virtual public Assign_array, virtual public Assign_var_var, virtual public Push_array, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Target_expr, virtual public Variable_name, virtual public Variable_variable, virtual public Index_array, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Method_name, virtual public Variable_method, virtual public Actual_parameter, virtual public Variable_actual_parameter, virtual public New, virtual public Class_name, virtual public Variable_class, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Identifier, virtual public Foreign, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
 {
 public:
     None();

@@ -85,6 +85,7 @@ template
  class _Type,
  class _Unary_op,
  class _VARIABLE_NAME,
+ class _Variable_actual_parameter,
  class _Variable_class,
  class _Variable_method,
  class _Variable_name,
@@ -95,7 +96,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _Foreach, _Foreign, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _Foreach, _Foreign, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_actual_parameter, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -576,7 +577,7 @@ public:
 		return fold_impl_variable_method(in, variable_name);
 	}
 
-	virtual _Actual_parameter fold_actual_parameter(Actual_parameter* in)
+	virtual _Variable_actual_parameter fold_variable_actual_parameter(Variable_actual_parameter* in)
 	{
 		bool is_ref = in->is_ref;
 		_Target target = 0;
@@ -592,7 +593,7 @@ public:
 				if(*i != NULL) array_indices->push_back(fold_rvalue(*i));
 				else array_indices->push_back(0);
 		}
-		return fold_impl_actual_parameter(in, is_ref, target, variable_name, array_indices);
+		return fold_impl_variable_actual_parameter(in, is_ref, target, variable_name, array_indices);
 	}
 
 	virtual _New fold_new(New* in)
@@ -692,7 +693,7 @@ public:
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Variable_method fold_impl_variable_method(Variable_method* orig, _VARIABLE_NAME variable_name) { assert(0); };
-	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
+	virtual _Variable_actual_parameter fold_impl_variable_actual_parameter(Variable_actual_parameter* orig, bool is_ref, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
 	virtual _Variable_class fold_impl_variable_class(Variable_class* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Static_array fold_impl_static_array(Static_array* orig, _List<_Static_array_elem>* static_array_elems) { assert(0); };
@@ -819,8 +820,8 @@ public:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case Variable_method::ID:
 				return fold_variable_method(dynamic_cast<Variable_method*>(in));
-			case Actual_parameter::ID:
-				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
+			case Variable_actual_parameter::ID:
+				return fold_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in));
 			case Variable_class::ID:
 				return fold_variable_class(dynamic_cast<Variable_class*>(in));
 			case Static_array::ID:
@@ -1017,6 +1018,26 @@ public:
 		assert(0);
 	}
 
+	virtual _Actual_parameter fold_actual_parameter(Actual_parameter* in)
+	{
+		switch(in->classid())
+		{
+			case INT::ID:
+				return fold_int(dynamic_cast<INT*>(in));
+			case REAL::ID:
+				return fold_real(dynamic_cast<REAL*>(in));
+			case STRING::ID:
+				return fold_string(dynamic_cast<STRING*>(in));
+			case BOOL::ID:
+				return fold_bool(dynamic_cast<BOOL*>(in));
+			case NIL::ID:
+				return fold_nil(dynamic_cast<NIL*>(in));
+			case Variable_actual_parameter::ID:
+				return fold_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in));
+		}
+		assert(0);
+	}
+
 	virtual _Class_name fold_class_name(Class_name* in)
 	{
 		switch(in->classid())
@@ -1100,6 +1121,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 

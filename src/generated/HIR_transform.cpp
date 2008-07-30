@@ -206,7 +206,7 @@ Method_name* Transform::pre_variable_method(Variable_method* in)
     return in;
 }
 
-void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::pre_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
@@ -497,7 +497,7 @@ Method_name* Transform::post_variable_method(Variable_method* in)
     return in;
 }
 
-void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::post_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
@@ -823,7 +823,7 @@ void Transform::children_variable_method(Variable_method* in)
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void Transform::children_actual_parameter(Actual_parameter* in)
+void Transform::children_variable_actual_parameter(Variable_actual_parameter* in)
 {
     in->target = transform_target(in->target);
     in->variable_name = transform_variable_name(in->variable_name);
@@ -1826,6 +1826,38 @@ Method_name* Transform::pre_method_name(Method_name* in)
     assert(0);
 }
 
+void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+{
+    switch(in->classid())
+    {
+    case INT::ID: 
+    	out->push_back(pre_int(dynamic_cast<INT*>(in)));
+    	return;
+    case REAL::ID: 
+    	out->push_back(pre_real(dynamic_cast<REAL*>(in)));
+    	return;
+    case STRING::ID: 
+    	out->push_back(pre_string(dynamic_cast<STRING*>(in)));
+    	return;
+    case BOOL::ID: 
+    	out->push_back(pre_bool(dynamic_cast<BOOL*>(in)));
+    	return;
+    case NIL::ID: 
+    	out->push_back(pre_nil(dynamic_cast<NIL*>(in)));
+    	return;
+    case Variable_actual_parameter::ID: 
+    	{
+    		List<Actual_parameter*>* local_out = new List<Actual_parameter*>;
+    		List<Actual_parameter*>::const_iterator i;
+    		pre_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
 Static_array_key* Transform::pre_static_array_key(Static_array_key* in)
 {
     switch(in->classid())
@@ -2153,6 +2185,38 @@ Method_name* Transform::post_method_name(Method_name* in)
     assert(0);
 }
 
+void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+{
+    switch(in->classid())
+    {
+    case INT::ID: 
+    	out->push_back(post_int(dynamic_cast<INT*>(in)));
+    	return;
+    case REAL::ID: 
+    	out->push_back(post_real(dynamic_cast<REAL*>(in)));
+    	return;
+    case STRING::ID: 
+    	out->push_back(post_string(dynamic_cast<STRING*>(in)));
+    	return;
+    case BOOL::ID: 
+    	out->push_back(post_bool(dynamic_cast<BOOL*>(in)));
+    	return;
+    case NIL::ID: 
+    	out->push_back(post_nil(dynamic_cast<NIL*>(in)));
+    	return;
+    case Variable_actual_parameter::ID: 
+    	{
+    		List<Actual_parameter*>* local_out = new List<Actual_parameter*>;
+    		List<Actual_parameter*>::const_iterator i;
+    		post_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    }
+    assert(0);
+}
+
 Static_array_key* Transform::post_static_array_key(Static_array_key* in)
 {
     switch(in->classid())
@@ -2411,6 +2475,31 @@ void Transform::children_method_name(Method_name* in)
     	break;
     case Variable_method::ID:
     	children_variable_method(dynamic_cast<Variable_method*>(in));
+    	break;
+    }
+}
+
+void Transform::children_actual_parameter(Actual_parameter* in)
+{
+    switch(in->classid())
+    {
+    case INT::ID:
+    	children_int(dynamic_cast<INT*>(in));
+    	break;
+    case REAL::ID:
+    	children_real(dynamic_cast<REAL*>(in));
+    	break;
+    case STRING::ID:
+    	children_string(dynamic_cast<STRING*>(in));
+    	break;
+    case BOOL::ID:
+    	children_bool(dynamic_cast<BOOL*>(in));
+    	break;
+    case NIL::ID:
+    	children_nil(dynamic_cast<NIL*>(in));
+    	break;
+    case Variable_actual_parameter::ID:
+    	children_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in));
     	break;
     }
 }

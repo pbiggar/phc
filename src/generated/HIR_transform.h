@@ -67,7 +67,7 @@ public:
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual Method_name* pre_variable_method(Variable_method* in);
-    virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
+    virtual void pre_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
     virtual Class_name* pre_variable_class(Variable_class* in);
     virtual Static_value* pre_static_array(Static_array* in);
@@ -127,7 +127,7 @@ public:
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Expr* post_method_invocation(Method_invocation* in);
     virtual Method_name* post_variable_method(Variable_method* in);
-    virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
+    virtual void post_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
     virtual Class_name* post_variable_class(Variable_class* in);
     virtual Static_value* post_static_array(Static_array* in);
@@ -187,7 +187,7 @@ public:
     virtual void children_instanceof(Instanceof* in);
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_variable_method(Variable_method* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
+    virtual void children_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void children_new(New* in);
     virtual void children_variable_class(Variable_class* in);
     virtual void children_static_array(Static_array* in);
@@ -258,6 +258,7 @@ public:
     virtual Rvalue* pre_rvalue(Rvalue* in);
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Method_name* pre_method_name(Method_name* in);
+    virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Static_array_key* pre_static_array_key(Static_array_key* in);
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
@@ -271,6 +272,7 @@ public:
     virtual Rvalue* post_rvalue(Rvalue* in);
     virtual Class_name* post_class_name(Class_name* in);
     virtual Method_name* post_method_name(Method_name* in);
+    virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Static_array_key* post_static_array_key(Static_array_key* in);
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
@@ -284,6 +286,7 @@ public:
     virtual void children_rvalue(Rvalue* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
+    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_static_array_key(Static_array_key* in);
 };
 }

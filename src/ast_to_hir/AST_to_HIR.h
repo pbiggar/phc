@@ -658,6 +658,9 @@ public:
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
+		if (isa<HIR::Literal> (expr))
+			return dyc<HIR::Literal> (expr);
+
 		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
 		List<HIR::Rvalue*>* array_indices = new List<HIR::Rvalue*>;
 		for_lci (dyc<AST::Variable> (orig->expr)->array_indices, AST::Expr, i)
@@ -675,8 +678,8 @@ public:
 
 		HIR::Variable_name* var_name = fold_variable_name (param->variable_name);
 
-		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, target, var_name, array_indices);
+		HIR::Variable_actual_parameter* result;
+		result = new HIR::Variable_actual_parameter (is_ref, target, var_name, array_indices);
 		copy_attrs (result, orig);
 		return result;
 	}

@@ -130,7 +130,8 @@ Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Variable_method ;
 Variable_method ::= VARIABLE_NAME ;
 
-Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:Rvalue* ;
+Actual_parameter ::= Literal | Variable_actual_parameter ;
+Variable_actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:Rvalue* ;
 
 New ::= Class_name Actual_parameter* ;
 Class_name ::= CLASS_NAME | Variable_class ;

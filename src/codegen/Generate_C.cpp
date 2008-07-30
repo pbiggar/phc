@@ -1416,7 +1416,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 {
 	Expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<Actual_parameter>;
+		eval_arg = new Wildcard<Variable_actual_parameter>;
 		return new Method_invocation(
 			NULL,	
 			new METHOD_NAME( new String("eval")),
@@ -1468,7 +1468,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 	}
 
 protected:
-	Wildcard<Actual_parameter>* eval_arg;
+	Wildcard<Variable_actual_parameter>* eval_arg;
 };
 
 // TODO exit/die/unset etc are probably not by reference. I can probably shred
@@ -1482,7 +1482,7 @@ public:
 public:
 	Expr* rhs_pattern ()
 	{
-		exit_arg = new Wildcard<Actual_parameter> ();
+		exit_arg = new Wildcard<Variable_actual_parameter> ();
 		return new Method_invocation(
 						NULL,	
 						name,
@@ -1507,7 +1507,7 @@ public:
 	}
 
 protected:
-	Wildcard<Actual_parameter>* exit_arg;
+	Wildcard<Variable_actual_parameter>* exit_arg;
 	METHOD_NAME* name;
 };
 
@@ -1591,6 +1591,7 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
+			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
 			
 			code
@@ -1605,7 +1606,7 @@ public:
 			<< "}\n"
 			;
 			
-			if((*i)->is_ref) code << "by_ref[" << index << "] = 1;\n";
+			if(param->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
 			// code << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
 		}
@@ -1626,9 +1627,10 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			if ((*i)->target) phc_unsupported (*i);
+			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
+			if (param->target) phc_unsupported (param);
 
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>((*i)->variable_name);
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->variable_name);
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1637,7 +1639,7 @@ public:
 			 * zval*, put it in args, and fetch it into args_ind after.
 			 * (It is difficult to return a zval** which doesnt point
 			 * into its containing hashtable, otherwise. */
-			if ((*i)->array_indices->size ())
+			if (param->array_indices->size ())
 			{
 				// TODO: variables are allowed have more than 1 index
 				// (so long as the indexes are all temporaries). We do
@@ -1645,8 +1647,8 @@ public:
 				// references or not, since we do not know until
 				// run-time whether the function is call-by-reference or
 				// not.
-				if ((*i)->array_indices->size () > 1) phc_unsupported (*i);
-				Rvalue* ind = (*i)->array_indices->front ();
+				if (param->array_indices->size () > 1) phc_unsupported (param);
+				Rvalue* ind = param->array_indices->front ();
 
 				code
 					<< "if (by_ref [" << index << "])\n"
@@ -1994,7 +1996,7 @@ class Pattern_unset : public Pattern
 {
 	bool match(Statement* that)
 	{
-		param = new Wildcard<Actual_parameter>;
+		param = new Wildcard<Variable_actual_parameter>;
 		return that->match(
 			new Eval_expr (
 				new Method_invocation(
@@ -2058,14 +2060,14 @@ class Pattern_unset : public Pattern
 	}
 
 protected:
-	Wildcard<Actual_parameter>* param;
+	Wildcard<Variable_actual_parameter>* param;
 };
 
 class Pattern_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
-		param = new Wildcard<Actual_parameter>;
+		param = new Wildcard<Variable_actual_parameter>;
 		return new Method_invocation("isset", param);
 	}
 
@@ -2123,7 +2125,7 @@ class Pattern_isset : public Pattern_assign_zval
 	}
 
 protected:
-	Wildcard<Actual_parameter>* param;
+	Wildcard<Variable_actual_parameter>* param;
 };
 
 /*

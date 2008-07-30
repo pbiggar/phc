@@ -90,6 +90,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Type*,					// Type*
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
+ MIR::Variable_actual_parameter*,	// Variable_actual_parameter
  MIR::Variable_class*,		// Variable_class*
  MIR::Variable_method*,		// Variable_method*
  MIR::Variable_name*,		// Variable_name*
@@ -450,10 +451,10 @@ public:
 		return result;
 	}
 
-	MIR::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Rvalue*>* array_indices) 
+	MIR::Variable_actual_parameter* fold_impl_variable_actual_parameter(HIR::Variable_actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Rvalue*>* array_indices) 
 	{
-		MIR::Actual_parameter* result;
-		result = new MIR::Actual_parameter(is_ref, target, variable_name, array_indices);
+		MIR::Variable_actual_parameter* result;
+		result = new MIR::Variable_actual_parameter (is_ref, target, variable_name, array_indices);
 		result->attrs = orig->attrs;
 		return result;
 	}

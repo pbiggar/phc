@@ -312,14 +312,14 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Variable_method(variable_name);
     }
-    if(!strcmp(type_id, "Actual_parameter"))
+    if(!strcmp(type_id, "Variable_actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
     	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
     	assert(i == args->end());
-    	return new Actual_parameter(is_ref, target, variable_name, array_indices);
+    	return new Variable_actual_parameter(is_ref, target, variable_name, array_indices);
     }
     if(!strcmp(type_id, "New"))
     {

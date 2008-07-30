@@ -72,6 +72,7 @@ public:
     virtual void pre_method_name(Method_name* in);
     virtual void pre_variable_method(Variable_method* in);
     virtual void pre_actual_parameter(Actual_parameter* in);
+    virtual void pre_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void pre_new(New* in);
     virtual void pre_class_name(Class_name* in);
     virtual void pre_variable_class(Variable_class* in);
@@ -151,6 +152,7 @@ public:
     virtual void post_method_name(Method_name* in);
     virtual void post_variable_method(Variable_method* in);
     virtual void post_actual_parameter(Actual_parameter* in);
+    virtual void post_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void post_new(New* in);
     virtual void post_class_name(Class_name* in);
     virtual void post_variable_class(Variable_class* in);
@@ -220,7 +222,7 @@ public:
     virtual void children_instanceof(Instanceof* in);
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_variable_method(Variable_method* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
+    virtual void children_variable_actual_parameter(Variable_actual_parameter* in);
     virtual void children_new(New* in);
     virtual void children_variable_class(Variable_class* in);
     virtual void children_static_array(Static_array* in);
@@ -296,7 +298,7 @@ public:
     virtual void pre_instanceof_chain(Instanceof* in);
     virtual void pre_method_invocation_chain(Method_invocation* in);
     virtual void pre_variable_method_chain(Variable_method* in);
-    virtual void pre_actual_parameter_chain(Actual_parameter* in);
+    virtual void pre_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void pre_new_chain(New* in);
     virtual void pre_variable_class_chain(Variable_class* in);
     virtual void pre_static_array_chain(Static_array* in);
@@ -364,7 +366,7 @@ public:
     virtual void post_instanceof_chain(Instanceof* in);
     virtual void post_method_invocation_chain(Method_invocation* in);
     virtual void post_variable_method_chain(Variable_method* in);
-    virtual void post_actual_parameter_chain(Actual_parameter* in);
+    virtual void post_variable_actual_parameter_chain(Variable_actual_parameter* in);
     virtual void post_new_chain(New* in);
     virtual void post_variable_class_chain(Variable_class* in);
     virtual void post_static_array_chain(Static_array* in);
@@ -446,6 +448,7 @@ public:
     virtual void pre_rvalue_chain(Rvalue* in);
     virtual void pre_class_name_chain(Class_name* in);
     virtual void pre_method_name_chain(Method_name* in);
+    virtual void pre_actual_parameter_chain(Actual_parameter* in);
     virtual void pre_static_array_key_chain(Static_array_key* in);
 // Invoke the right post-chain (manual dispatching)
 // Do not override unless you know what you are doing
@@ -459,6 +462,7 @@ public:
     virtual void post_rvalue_chain(Rvalue* in);
     virtual void post_class_name_chain(Class_name* in);
     virtual void post_method_name_chain(Method_name* in);
+    virtual void post_actual_parameter_chain(Actual_parameter* in);
     virtual void post_static_array_key_chain(Static_array_key* in);
 // Invoke the right visit-children (manual dispatching)
 // Do not override unless you know what you are doing
@@ -472,6 +476,7 @@ public:
     virtual void children_rvalue(Rvalue* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
+    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_static_array_key(Static_array_key* in);
 };
 }
