@@ -129,6 +129,16 @@ plugins_tests_cloning_la_LINK = $(LIBTOOL) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(AM_CXXFLAGS) $(CXXFLAGS) $(plugins_tests_cloning_la_LDFLAGS) \
 	$(LDFLAGS) -o $@
+plugins_tests_inconsistent_st_attr_la_LIBADD =
+am_plugins_tests_inconsistent_st_attr_la_OBJECTS =  \
+	inconsistent_st_attr.lo
+plugins_tests_inconsistent_st_attr_la_OBJECTS =  \
+	$(am_plugins_tests_inconsistent_st_attr_la_OBJECTS)
+plugins_tests_inconsistent_st_attr_la_LINK = $(LIBTOOL) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) \
+	$(plugins_tests_inconsistent_st_attr_la_LDFLAGS) $(LDFLAGS) -o \
+	$@
 plugins_tests_line_numbers_la_LIBADD =
 am_plugins_tests_line_numbers_la_OBJECTS = line_numbers.lo
 plugins_tests_line_numbers_la_OBJECTS =  \
@@ -145,14 +155,6 @@ plugins_tests_linear_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(plugins_tests_linear_la_LDFLAGS) $(LDFLAGS) -o \
 	$@
-plugins_tests_lost_attributes_la_LIBADD =
-am_plugins_tests_lost_attributes_la_OBJECTS = lost_attributes.lo
-plugins_tests_lost_attributes_la_OBJECTS =  \
-	$(am_plugins_tests_lost_attributes_la_OBJECTS)
-plugins_tests_lost_attributes_la_LINK = $(LIBTOOL) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(plugins_tests_lost_attributes_la_LDFLAGS) $(LDFLAGS) -o $@
 plugins_tests_pre_vs_post_count_la_LIBADD =
 am_plugins_tests_pre_vs_post_count_la_OBJECTS = pre_vs_post_count.lo
 plugins_tests_pre_vs_post_count_la_OBJECTS =  \
@@ -334,9 +336,9 @@ CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
+	$(plugins_tests_inconsistent_st_attr_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
-	$(plugins_tests_lost_attributes_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
@@ -358,9 +360,9 @@ SOURCES = $(libphc_la_SOURCES) \
 DIST_SOURCES = $(libphc_la_SOURCES) \
 	$(plugins_tests_canonical_unparser_la_SOURCES) \
 	$(plugins_tests_cloning_la_SOURCES) \
+	$(plugins_tests_inconsistent_st_attr_la_SOURCES) \
 	$(plugins_tests_line_numbers_la_SOURCES) \
 	$(plugins_tests_linear_la_SOURCES) \
-	$(plugins_tests_lost_attributes_la_SOURCES) \
 	$(plugins_tests_pre_vs_post_count_la_SOURCES) \
 	$(plugins_tests_source_vs_semantic_values_la_SOURCES) \
 	$(plugins_tests_strip_includes_la_SOURCES) \
@@ -857,7 +859,7 @@ strangelib_HEADERS = \
 
 nobase_pkglib_LTLIBRARIES = plugins/tests/canonical_unparser.la \
 	plugins/tests/cloning.la plugins/tests/linear.la \
-	plugins/tests/lost_attributes.la \
+	plugins/tests/inconsistent_st_attr.la \
 	plugins/tests/strip_includes.la plugins/tests/line_numbers.la \
 	plugins/tests/pre_vs_post_count.la \
 	plugins/tests/source_vs_semantic_values.la \
@@ -878,8 +880,8 @@ plugins_tests_cloning_la_SOURCES = plugins/tests/cloning.cpp plugins/tests/Colle
 plugins_tests_cloning_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
-plugins_tests_lost_attributes_la_SOURCES = plugins/tests/lost_attributes.cpp
-plugins_tests_lost_attributes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
+plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
 plugins_tests_strip_includes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 plugins_tests_line_numbers_la_SOURCES = plugins/tests/line_numbers.cpp
@@ -1055,12 +1057,12 @@ plugins/tests/canonical_unparser.la: $(plugins_tests_canonical_unparser_la_OBJEC
 	$(plugins_tests_canonical_unparser_la_LINK) -rpath $(pkglibdir) $(plugins_tests_canonical_unparser_la_OBJECTS) $(plugins_tests_canonical_unparser_la_LIBADD) $(LIBS)
 plugins/tests/cloning.la: $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_cloning_la_LINK) -rpath $(pkglibdir) $(plugins_tests_cloning_la_OBJECTS) $(plugins_tests_cloning_la_LIBADD) $(LIBS)
+plugins/tests/inconsistent_st_attr.la: $(plugins_tests_inconsistent_st_attr_la_OBJECTS) $(plugins_tests_inconsistent_st_attr_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
+	$(plugins_tests_inconsistent_st_attr_la_LINK) -rpath $(pkglibdir) $(plugins_tests_inconsistent_st_attr_la_OBJECTS) $(plugins_tests_inconsistent_st_attr_la_LIBADD) $(LIBS)
 plugins/tests/line_numbers.la: $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_line_numbers_la_LINK) -rpath $(pkglibdir) $(plugins_tests_line_numbers_la_OBJECTS) $(plugins_tests_line_numbers_la_LIBADD) $(LIBS)
 plugins/tests/linear.la: $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_linear_la_LINK) -rpath $(pkglibdir) $(plugins_tests_linear_la_OBJECTS) $(plugins_tests_linear_la_LIBADD) $(LIBS)
-plugins/tests/lost_attributes.la: $(plugins_tests_lost_attributes_la_OBJECTS) $(plugins_tests_lost_attributes_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
-	$(plugins_tests_lost_attributes_la_LINK) -rpath $(pkglibdir) $(plugins_tests_lost_attributes_la_OBJECTS) $(plugins_tests_lost_attributes_la_LIBADD) $(LIBS)
 plugins/tests/pre_vs_post_count.la: $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
 	$(plugins_tests_pre_vs_post_count_la_LINK) -rpath $(pkglibdir) $(plugins_tests_pre_vs_post_count_la_OBJECTS) $(plugins_tests_pre_vs_post_count_la_LIBADD) $(LIBS)
 plugins/tests/source_vs_semantic_values.la: $(plugins_tests_source_vs_semantic_values_la_OBJECTS) $(plugins_tests_source_vs_semantic_values_la_DEPENDENCIES) plugins/tests/$(am__dirstamp)
@@ -1266,10 +1268,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/helloworld.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inconsistent_st_attr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.yy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/line_numbers.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linear.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lost_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/phc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/php_parser.tab.Plo@am__quote@
@@ -1876,6 +1878,13 @@ cloning.lo: plugins/tests/cloning.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cloning.lo `test -f 'plugins/tests/cloning.cpp' || echo '$(srcdir)/'`plugins/tests/cloning.cpp
 
+inconsistent_st_attr.lo: plugins/tests/inconsistent_st_attr.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT inconsistent_st_attr.lo -MD -MP -MF $(DEPDIR)/inconsistent_st_attr.Tpo -c -o inconsistent_st_attr.lo `test -f 'plugins/tests/inconsistent_st_attr.cpp' || echo '$(srcdir)/'`plugins/tests/inconsistent_st_attr.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/inconsistent_st_attr.Tpo $(DEPDIR)/inconsistent_st_attr.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/inconsistent_st_attr.cpp' object='inconsistent_st_attr.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o inconsistent_st_attr.lo `test -f 'plugins/tests/inconsistent_st_attr.cpp' || echo '$(srcdir)/'`plugins/tests/inconsistent_st_attr.cpp
+
 line_numbers.lo: plugins/tests/line_numbers.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT line_numbers.lo -MD -MP -MF $(DEPDIR)/line_numbers.Tpo -c -o line_numbers.lo `test -f 'plugins/tests/line_numbers.cpp' || echo '$(srcdir)/'`plugins/tests/line_numbers.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/line_numbers.Tpo $(DEPDIR)/line_numbers.Plo
@@ -1889,13 +1898,6 @@ linear.lo: plugins/tests/linear.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/linear.cpp' object='linear.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o linear.lo `test -f 'plugins/tests/linear.cpp' || echo '$(srcdir)/'`plugins/tests/linear.cpp
-
-lost_attributes.lo: plugins/tests/lost_attributes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lost_attributes.lo -MD -MP -MF $(DEPDIR)/lost_attributes.Tpo -c -o lost_attributes.lo `test -f 'plugins/tests/lost_attributes.cpp' || echo '$(srcdir)/'`plugins/tests/lost_attributes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/lost_attributes.Tpo $(DEPDIR)/lost_attributes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='plugins/tests/lost_attributes.cpp' object='lost_attributes.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lost_attributes.lo `test -f 'plugins/tests/lost_attributes.cpp' || echo '$(srcdir)/'`plugins/tests/lost_attributes.cpp
 
 pre_vs_post_count.lo: plugins/tests/pre_vs_post_count.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pre_vs_post_count.lo -MD -MP -MF $(DEPDIR)/pre_vs_post_count.Tpo -c -o pre_vs_post_count.lo `test -f 'plugins/tests/pre_vs_post_count.cpp' || echo '$(srcdir)/'`plugins/tests/pre_vs_post_count.cpp

@@ -88,7 +88,7 @@ require_once ("compiled_vs_interpreted.php");
 require_once ("compile_optimized.php");
 require_once ("refcounts.php");
 require_once ("demi_eval.php");
-$tests[] = new PluginTest ("lost_attributes");
+$tests[] = new PluginTest ("inconsistent_st_attr");
 $tests[] = new PluginTest ("linear");
 $tests[] = new PluginTest ("cloning");
 $tests[] = new PluginTest ("pre_vs_post_count");

@@ -343,9 +343,9 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/lost_attributes.la
-plugins_tests_lost_attributes_la_SOURCES = plugins/tests/lost_attributes.cpp
-plugins_tests_lost_attributes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tests/inconsistent_st_attr.la
+plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
+plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
 plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
