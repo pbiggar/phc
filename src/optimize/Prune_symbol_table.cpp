@@ -36,91 +36,116 @@
 using namespace MIR;
 
 Prune_symbol_table::Prune_symbol_table () 
-:  prune (false) 
+: prune (false)
+, var_reflection_present (false)
 {
-
+	vars = new map<string, bool>;
 }
 
 // TODO we cant compile nested functions anyway, but this needs to be
 // updated when we do.
 
+
+
+class Analysis : public Visitor
+{
+public:
+	bool prune;
+	bool var_reflection_present;
+
+	// variables which are present anywhere in the method
+	map<string, bool>* vars;
+
+	// We only record globals if they are not in a
+	// global statement
+	bool record_globals;
+
+	Analysis (map<string, bool>* vars)
+	: prune (false)
+	, vars(vars)
+	{
+	}
+
+	void pre_variable_variable (Variable_variable* in)
+	{
+		prune = false;
+	}
+
+
+	void pre_method_invocation (Method_invocation* in)
+	{
+		METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
+		if (name && (
+					// TODO look at extract () and anything else that affects the symbol table
+					*name->value == "eval"
+					or *name->value == "include"
+					or *name->value == "require" 
+					or *name->value == "include_once" 
+					or *name->value == "require_once"))
+		{
+			prune = false;
+		}
+		else
+		{
+			// Since eval, include etc are builtin, and cant be called as
+			// variable variables, its actually safe to prune here.
+		}
+	}
+
+
+	void pre_global (Global* in)
+	{
+		// Don't mark children variable names
+		record_globals = false;
+	}
+
+	void post_global (Global* in)
+	{
+		record_globals = true;
+	}
+
+	void post_variable_name (VARIABLE_NAME* in)
+	{
+		// record variable names for removing globals
+		if (record_globals)
+			(*vars)[*in->value] = true;
+	}
+
+	void post_variable_variable (Variable_variable* in)
+	{
+		var_reflection_present = true;
+	}
+
+};
+
 // We do the "analysis" in the pre_ methods, and update in the post_ methods.
 void Prune_symbol_table::pre_method (Method* in)
 {
-	// reset
-	prune = true;
-	var_reflection_present = false;;
-	record_globals = true;
-	vars.clear();
+	Analysis a (vars);
+	in->visit (&a);
+	prune = a.prune;
+	var_reflection_present = a.var_reflection_present;
+	vars = a.vars;
 
+	// We cant prune in __MAIN__, due to globals.
 	if (*in->signature->method_name->value == "__MAIN__")
-	{
 		prune = false;
-	}
 }
-
-void Prune_symbol_table::pre_variable_variable (Variable_variable* in)
-{
-	prune = false;
-}
-
-void Prune_symbol_table::pre_method_invocation (Method_invocation* in)
-{
-	METHOD_NAME* name = dynamic_cast<METHOD_NAME*>(in->method_name);
-	if (name && (
-				*name->value == "eval"
-				or *name->value == "include"
-				or *name->value == "require" 
-				or *name->value == "include_once" 
-				or *name->value == "require_once"))
-	{
-		prune = false;
-	}
-	else
-	{
-		// Since eval, include etc are builtin, and cant be called as
-		// variable variables, its actually safe to prune here.
-	}
-}
-
-void Prune_symbol_table::pre_global (Global* in)
-{
-	// Don't mark children variable names
-	record_globals = false;
-}
-
-void Prune_symbol_table::post_global (Global* in)
-{
-	record_globals = true;
-}
-
 
 void Prune_symbol_table::post_variable_name (VARIABLE_NAME* in)
 {
 	if (prune)
-	{
 		in->attrs->set_true ("phc.codegen.st_entry_not_required");
-
-		// record variable names for removing globals in post_method
-		if (record_globals)
-			vars[*in->value] = true;
-	}
-}
-
-
-void Prune_symbol_table::post_variable_variable (Variable_variable* in)
-{
-	var_reflection_present = true;
 }
 
 class Remove_globals : public Transform
 {
 private:
-	map<string, bool> var_names;
+	map<string, bool>* var_names;
 
 public:
 	Remove_globals (map<string, bool> *var_names) 
-	: var_names (*var_names) 
+	: var_names (var_names) 
 	{
 	}
 
@@ -130,7 +155,7 @@ public:
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);
 
 		// if the key is there, we need the global
-		if (var_names.find (*var_name->value) != var_names.end ())
+		if (var_names->find (*var_name->value) != var_names->end ())
 			out->push_back (in);
 		else 
 		{
@@ -138,7 +163,6 @@ public:
 		}
 	}
 };
-
 
 /* Also mark the function. */
 void Prune_symbol_table::post_method (Method* in)
@@ -150,6 +174,7 @@ void Prune_symbol_table::post_method (Method* in)
 
 		// Go through the globals and check if they're used
 		if (!var_reflection_present)
-			in->transform_children (new Remove_globals (&vars));
+			in->transform_children (new Remove_globals (vars));
 	}
 }
+
