@@ -1141,10 +1141,10 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 			<<		"\"" << escape(rhs->value->value) << "\", "
 			<<		rhs->value->value->length() << ", 1);\n";
 	}
-
+public:
 	// Escape according to C rules (this varies slightly from unparsing for PHP
 	// and dot).
-	string escape(String* s)
+	static string escape(String* s)
 	{
 		stringstream ss;
 
@@ -2323,7 +2323,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
-	MIR_unparser (ss).unparse (in);
+	MIR_unparser (ss, true).unparse (in);
 
 	while (not ss.eof ())
 	{
@@ -2332,7 +2332,7 @@ void Generate_C::children_statement(Statement* in)
 	  // allowed and result in syntax errors in C. Use // instead.
 		string str;
 		getline (ss, str);
-		code << "// " << str << endl;
+		code << "// " << Pattern_assign_string::escape (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
