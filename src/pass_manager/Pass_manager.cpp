@@ -121,6 +121,11 @@ void Pass_manager::add_after_each_ast_pass (Pass* pass)
 	add_after_each_pass (pass, ast_queue);
 }
 
+void Pass_manager::add_after_each_hir_pass (Pass* pass)
+{
+	add_after_each_pass (pass, hir_queue);
+}
+
 void Pass_manager::add_after_each_mir_pass (Pass* pass)
 {
 	add_after_each_pass (pass, mir_queue);
