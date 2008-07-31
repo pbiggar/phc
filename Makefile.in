@@ -574,7 +574,7 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = libphc.cpp
+pkgdata_DATA = libphc/support_routines.c libphc/builtin_functions.c
 src_phc_SOURCES = \
 	src/phc.cpp
 

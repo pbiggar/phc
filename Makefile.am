@@ -42,12 +42,12 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = libphc.cpp
+pkgdata_DATA = libphc/support_routines.c libphc/builtin_functions.c
 
 src_phc_SOURCES =												\
 	src/phc.cpp
 
-libphc_la_SOURCES= \
+libphc_la_SOURCES= 											\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
@@ -218,7 +218,7 @@ libphc_la_SOURCES= \
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
 
-BUILT_SOURCES = \
+BUILT_SOURCES = 												\
 	src/generated/AST.cpp									\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\

@@ -2393,17 +2393,21 @@ void Generate_C::children_statement(Statement* in)
 	}
 }
 
-void Generate_C::pre_php_script(PHP_script* in)
+void include_file (ostream& out, String* filename)
 {
 	// For now, we simply include this.
 	ifstream file;
 
-	// Check the current directory first. This means we can change libphc.cpp without recompiling or installing.
-	file.open ("libphc.cpp");
+	stringstream ss1, ss2;
+	ss1 << "libphc/" << *filename;
+	ss2 << DATADIR << "/phc/libphc/" << *filename;
+
+	// Check the current directory first. This means we can change the file without recompiling or installing.
+	file.open (ss1.str ().c_str ());
 
 	// Check the installed directory.
 	if (!file.is_open())
-		file.open (DATADIR "/phc/libphc.cpp");
+		file.open (ss2.str ().c_str ());
 
 	assert (file.is_open ());
 	while (not file.eof ())
@@ -2415,6 +2419,13 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 	file.close ();
 	assert (file.is_open () == false);
+
+}
+
+void Generate_C::pre_php_script(PHP_script* in)
+{
+	include_file (prologue, s("builtin_functions.c"));
+	include_file (prologue, s("support_routines.c"));
 }
 
 void Generate_C::post_php_script(PHP_script* in)
