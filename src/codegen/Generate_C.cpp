@@ -23,15 +23,17 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
+#include <fstream>
+#include <set>
+#include <cstdlib>
+
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
-#include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
 #include "lib/List.h"
 #include "lib/demangle.h"
-#include <set>
 
 using namespace MIR;
 
@@ -41,7 +43,7 @@ void phc_unsupported (Node* node)
 	cerr << "This context does not yet support this feature:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
 	node->visit (new MIR_XML_unparser (cerr));
-	abort ();
+	exit (-1);
 }
 
 // A single pass isnt really sufficient, but we can hack around it

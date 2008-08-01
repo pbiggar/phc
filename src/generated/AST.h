@@ -14,6 +14,7 @@
 #include "process_ir/IR.h"
 #include <list>
 #include <string>
+#include <cstring>
 #include <assert.h>
 using namespace std;
 

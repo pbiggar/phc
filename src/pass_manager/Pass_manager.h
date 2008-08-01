@@ -15,7 +15,6 @@
 #include "ltdl.h"
 
 class Pass;
-class IR::PHP_script;
 
 class Pass_manager
 {

@@ -11,6 +11,8 @@
 using namespace std;
 
 #include <map>
+#include <string>
+
 #include "lib/Object.h"
 #include "lib/Boolean.h"
 #include "lib/Integer.h"

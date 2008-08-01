@@ -7,6 +7,7 @@
 #include "parsing/parse.h"
 #include "AST_transform.h"
 #include "process_ir/General.h"
+#include <cstdlib>
 
 using namespace AST;
 
