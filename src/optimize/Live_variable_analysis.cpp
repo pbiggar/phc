@@ -164,7 +164,7 @@ void use_expr (Basic_block* bb, Expr* in)
 		}
 
 		case Unary_op::ID:
-			USE (dyc<Cast> (in)->variable_name);
+			USE (dyc<Unary_op> (in)->variable_name);
 			break;
 
 		case VARIABLE_NAME::ID:
