@@ -11,6 +11,7 @@ Basic_block::Basic_block()
 , uses (NULL)
 , live_in (NULL)
 , live_out (NULL)
+, changed (false)
 {
 }
 

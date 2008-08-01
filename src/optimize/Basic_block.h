@@ -38,7 +38,7 @@ public:
 	Set* live_in;
 	Set* live_out;
 	int iteration_count;
-	bool solution_changed;
+	bool changed;
 };
 
 class Entry_block : public Basic_block

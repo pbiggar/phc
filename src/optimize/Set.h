@@ -21,6 +21,8 @@ public:
 	Set* set_union (Set* other);
 	Set* set_intersection (Set* other);
 	Set* set_difference (Set* other);
+	bool operator!=(Set& other);
+	bool operator==(Set& other);
 	
 public:
 	void insert (String* string);

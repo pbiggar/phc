@@ -34,25 +34,22 @@ public:
 			visit_bb_local (cfg, bb);
 		}
 
-		// Add the exit block the worklist
-		list<Basic_block*> worklist;
-		worklist.push_back (get_initial_bb (cfg));
+		// Add the each block to the worklist
+		list<Basic_block*>* worklist = get_initial_worklist (cfg);
 
 		// iterate until the worklist is no more
-		while (not worklist.empty ())
+		while (not worklist->empty ())
 		{
 			// Process the front block
-			Basic_block* bb = worklist.front ();
-			worklist.pop_front ();
+			Basic_block* bb = worklist->front ();
+			worklist->pop_front ();
 
 			cdebug << "process BB " << bb->vertex << endl;
 			visit_transfer_functions (bb, cfg);
 
-			foreach (Basic_block* pred, *get_next_cfg_nodes (bb, cfg))
-				worklist.push_back (pred);
-
-			if (this->should_reiterate (bb))
-				worklist.push_back (bb);
+			if (this->solution_has_changed (bb))
+				foreach (Basic_block* next, *get_next_cfg_nodes (bb, cfg))
+					worklist->push_back (next);
 		}
 
 		// After the pure analysis section, apply the results (once).
@@ -318,12 +315,17 @@ private:
 		}
 	}
 
-	Basic_block* get_initial_bb (CFG* cfg)
+	list<Basic_block*>* get_initial_worklist (CFG* cfg)
 	{
-		if (Direction == FORWARD_FLOW)
-			return cfg->get_entry_bb ();
-		else
-			return cfg->get_exit_bb ();
+		list<Basic_block*>* worklist = new list<Basic_block*>;
+		foreach (Basic_block* bb, *cfg->get_all_bbs ())
+		{
+			// TODO its correct both ways, but its faster if we get a
+			// topological ordering for forward, and a reverse tpologocial
+			// ordering for backwards
+			worklist->push_back (bb);
+		}
+		return worklist;
 	}
 
 };
@@ -335,7 +337,7 @@ class Full_flow_visitor
 public:
 	/* Public interface for analyses */
 	virtual void init_block (Basic_block*) = 0;
-	virtual bool should_reiterate (Basic_block*) = 0;
+	virtual bool solution_has_changed (Basic_block*) = 0;
 
 	/* Transfer functions */
 	virtual void transfer_in (Basic_block* bb, list<Basic_block*>* preds) = 0;
@@ -373,7 +375,7 @@ class Sparse_flow_visitor
 public:
 	/* Public interface for analyses */
 	virtual void init_block (Basic_block* bb) {}
-	virtual bool should_reiterate (Basic_block* bb) { return false; }
+	virtual bool solution_has_changed (Basic_block* bb) { return false; }
 
 	/* Transfer functions */
 	virtual void transfer_in (Basic_block* bb, list<Basic_block*>* preds) {};

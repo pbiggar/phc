@@ -72,5 +72,18 @@ Set::dump(ostream& out)
 	out << "\n";
 }
 
+bool
+Set::operator==(Set& other)
+{
+	return (bs == other.bs);
+}
+
+
+bool
+Set::operator!=(Set& other)
+{
+	return (bs != other.bs);
+}
+
 
 

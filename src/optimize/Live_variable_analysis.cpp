@@ -50,8 +50,13 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 void
 Live_variable_analysis::transfer_in (Basic_block* bb, list<Basic_block*>*)
 {
+	Set* old = bb->live_in;
+
 	// IN = (OUT / DEFS) U USES
 	bb->live_in = bb->live_out->set_difference (bb->defs)->set_union (bb->uses);
+
+	if (*bb->live_in != *old)
+		bb->changed = true;
 }
 
 void
@@ -63,6 +68,9 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 	{
 		bb->live_out = bb->live_out->set_union (succ->live_in);
 	}
+
+	// We don't care if the OUT solution changes, unless the IN solution does,
+	// as the OUT solution wouldn't propagate.
 }
 
 #define USE(VAR) bb->uses->insert (VAR->value)
@@ -81,6 +89,12 @@ use_variable_name (Basic_block* bb, Variable_name* in)
 		USE (dyc<VARIABLE_NAME> (in));
 	else
 		assert (0); // TODO
+}
+
+bool
+solution_has_changed ()
+{
+	return false;
 }
 
 /* Expressions */
@@ -289,11 +303,13 @@ Live_variable_analysis::init_block (Basic_block* bb)
 	bb->uses = new Set();
 	bb->live_in = new Set();
 	bb->live_out = new Set();
+	bb->changed = false;
 }
 
 bool
-Live_variable_analysis::should_reiterate (Basic_block* bb)
+Live_variable_analysis::solution_has_changed (Basic_block* bb)
 {
-	// TODO
-	return false;
+	bool result = bb->changed;
+	bb->changed = false;
+	return result;
 }
