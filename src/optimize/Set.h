@@ -10,6 +10,9 @@ public:
 	// Backing store
 	set<string> bs;
 
+	// If true, the SET holds every possbible variable.
+	bool full;
+
 public:
 	Set();
 
@@ -26,6 +29,10 @@ public:
 	
 public:
 	void insert (String* string);
+
+	// The set is the set of all possible strings.
+	void insert_all ();
+
 	bool contains (String* string);
 	void dump(ostream&);
 };

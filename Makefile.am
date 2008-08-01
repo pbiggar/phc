@@ -146,6 +146,8 @@ libphc_la_SOURCES= \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/optimize/Address_taken.cpp						\
+	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\

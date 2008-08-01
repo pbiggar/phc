@@ -7,6 +7,7 @@
 
 Set::Set()
 : bs()
+, full (false)
 {
 }
 
@@ -16,10 +17,15 @@ Set::set_union (Set* other)
 {
 	Set* result = new Set;
 
-	std::set_union (
-		bs.begin (), bs.end(),
-		other->bs.begin (), other->bs.end (),
-		insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	if (other->full or full)
+		result->full = true;
+	else
+	{
+		std::set_union (
+				this->bs.begin (), this->bs.end(),
+				other->bs.begin (), other->bs.end (),
+				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	}
 
 	return result;
 }
@@ -29,10 +35,29 @@ Set::set_intersection (Set* other)
 {
 	Set* result = new Set;
 
-	std::set_intersection (
-		bs.begin (), bs.end(),
-		other->bs.begin (), other->bs.end (),
-		insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	if (this->full && other->full)
+	{
+		result->full = true;
+	}
+	else if (this->full)
+	{
+		std::copy (
+				this->bs.begin (), this->bs.end(),
+				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	}
+	else if (other->full)
+	{
+		std::copy (
+				other->bs.begin (), other->bs.end(),
+				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	}
+	else
+	{
+		std::set_intersection (
+				bs.begin (), bs.end(),
+				other->bs.begin (), other->bs.end (),
+				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+	}
 
 	return result;
 }
@@ -41,6 +66,14 @@ Set*
 Set::set_difference (Set* other)
 {
 	Set* result = new Set;
+
+	if (other->full)
+		return result;
+	else if (this->full)
+	{
+		result->full = true;
+		return result;
+	}
 
 	std::set_difference (
 		bs.begin (), bs.end(),
@@ -85,5 +118,6 @@ Set::operator!=(Set& other)
 	return (bs != other.bs);
 }
 
-
-
+void Set::insert_all ()
+{
+}

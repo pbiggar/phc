@@ -39,6 +39,9 @@ public:
 	Set* live_out;
 	int iteration_count;
 	bool changed;
+
+	// this is a global solution, so each BB should have the same solution.
+	Set* aliases; 
 };
 
 class Entry_block : public Basic_block

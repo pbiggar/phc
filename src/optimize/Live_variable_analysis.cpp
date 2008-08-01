@@ -7,6 +7,7 @@
 
 #include "Live_variable_analysis.h"
 #include "Dead_code_elimination.h"
+#include "Address_taken.h"
 #include "process_ir/General.h"
 #include "cmdline.h"
 
@@ -38,6 +39,8 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		cfg->add_statements (method->statements);
 //		cfg->dump_graphviz (s("BEFORE DCE"));
 		visit (cfg);
+		Address_taken* at = new Address_taken;
+		at->visit (cfg);
 //		cfg->dump_graphviz (s("AFTER LVA"));
 		Dead_code_elimination* dce = new Dead_code_elimination;
 		dce->visit (cfg);
@@ -89,12 +92,6 @@ use_variable_name (Basic_block* bb, Variable_name* in)
 		USE (dyc<VARIABLE_NAME> (in));
 	else
 		assert (0); // TODO
-}
-
-bool
-solution_has_changed ()
-{
-	return false;
 }
 
 /* Expressions */

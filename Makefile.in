@@ -98,7 +98,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	MIR_transform.lo MIR_visitor.lo php_parser.tab.lo \
 	HIR_lower_expr.lo Lower_control_flow.lo AttrMap.lo base64.lo \
 	Boolean.lo demangle.lo error.lo Integer.lo Object.lo String.lo \
-	Basic_block.lo CFG.lo Copy_propagation.lo \
+	Address_taken.lo Basic_block.lo CFG.lo Copy_propagation.lo \
 	Dead_code_elimination.lo Fix_point.lo \
 	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo \
 	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
@@ -676,6 +676,8 @@ libphc_la_SOURCES = \
 	src/lib/Object.h											\
 	src/lib/String.cpp										\
 	src/lib/String.h											\
+	src/optimize/Address_taken.cpp						\
+	src/optimize/Address_taken.h							\
 	src/optimize/Basic_block.cpp							\
 	src/optimize/Basic_block.h								\
 	src/optimize/CFG.cpp										\
@@ -1199,6 +1201,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_transform.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AST_visitor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Address_taken.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AttrMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Basic_block.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Boolean.Plo@am__quote@
@@ -1659,6 +1662,13 @@ String.lo: src/lib/String.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/lib/String.cpp' object='String.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o String.lo `test -f 'src/lib/String.cpp' || echo '$(srcdir)/'`src/lib/String.cpp
+
+Address_taken.lo: src/optimize/Address_taken.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Address_taken.lo -MD -MP -MF $(DEPDIR)/Address_taken.Tpo -c -o Address_taken.lo `test -f 'src/optimize/Address_taken.cpp' || echo '$(srcdir)/'`src/optimize/Address_taken.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Address_taken.Tpo $(DEPDIR)/Address_taken.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Address_taken.cpp' object='Address_taken.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Address_taken.lo `test -f 'src/optimize/Address_taken.cpp' || echo '$(srcdir)/'`src/optimize/Address_taken.cpp
 
 Basic_block.lo: src/optimize/Basic_block.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Basic_block.lo -MD -MP -MF $(DEPDIR)/Basic_block.Tpo -c -o Basic_block.lo `test -f 'src/optimize/Basic_block.cpp' || echo '$(srcdir)/'`src/optimize/Basic_block.cpp
