@@ -140,7 +140,20 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 void 
 Goto_uppering::pre_php_script (PHP_script *in)
 {
+	bool add_call_to_main = false;
+	if (in->statements->size() > 0 && isa<Method> (in->statements->front()))
+	{
+		Method* m = dyc<Method> (in->statements->front());
+		if (*m->signature->method_name->value == "__MAIN__")
+			add_call_to_main = true;
+	}
+
 	in->statements = convert_statement_list (in->statements);
+
+	if (add_call_to_main)
+		(*in->statements
+			<< "__MAIN__();"
+		).finish (in);
 }
 
 void 
