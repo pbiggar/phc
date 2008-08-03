@@ -7,18 +7,20 @@
 PHC_ARGS=""
 DEBUG_PHC=0
 OPTIMIZE=0
+GDB="libtool --mode=execute gdb --args"
+VALGRIND="libtool --mode=execute valgrind"
 for var in $@
 do
 	if [ "-$var" = "--g" ]
 	then
-		EXEC_NAME="gdb "
+		EXEC_NAME="$GDB "
 		DEBUG_PHC=1
 	elif [ "-$var" = "--V" ]
 	then
-		EXEC_NAME="valgrind "
+		EXEC_NAME="$VALGRIND "
 	elif [ "-$var" = "--M" ]
 	then
-		EXEC_NAME="valgrind --tool=massif "
+		EXEC_NAME="$VALGRIND --tool=massif "
 	elif [ "-$var" = "--O" ]
 	then
 		PHC_ARGS="$PHC_ARGS -O3"
@@ -52,7 +54,7 @@ cp $PHP_NAME $NAME.orig.php || exit 1;
 src/phc $PHP_NAME $PHC_ARGS --dump=hir > $NAME.hir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --dump=hir
+		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=hir
 	fi
 	exit 1
 fi
@@ -61,7 +63,7 @@ fi
 src/phc $PHP_NAME $PHC_ARGS --dump=mir > $NAME.mir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec gdb --args src/phc $PHP_NAME $PHC_ARGS --dump=mir
+		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=mir
 	fi
 	exit 1
 fi
@@ -79,7 +81,7 @@ fi
 src/phc --generate-c $PHC_ARGS $PHP_NAME > $NAME.c
 if [[ $? != 0 ]]; then 
 	if [[ $DEBUG_PHC  != 0 ]]; then 
-		exec gdb --args src/phc --generate-c $PHC_ARGS $PHP_NAME
+		exec $GDB src/phc --generate-c $PHC_ARGS $PHP_NAME
 	fi
 	exit 1
 fi
@@ -100,7 +102,7 @@ fi
 $GCC_COMMAND
 if [[ $? != 0 ]]; then 
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec gdb --args src/phc --generate-c $PHC_ARGS $PHP_NAME
+		exec $GDB src/phc --generate-c $PHC_ARGS $PHP_NAME
 	fi
 	exit 1
 fi
