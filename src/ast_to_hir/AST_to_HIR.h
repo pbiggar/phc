@@ -663,8 +663,8 @@ public:
 
 		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
 		List<HIR::Rvalue*>* array_indices = new List<HIR::Rvalue*>;
-		for_lci (dyc<AST::Variable> (orig->expr)->array_indices, AST::Expr, i)
-			array_indices->push_back (dyc<HIR::Rvalue> (fold_expr (*i)));
+		foreach (AST::Expr* expr, *dyc<AST::Variable> (orig->expr)->array_indices)
+			array_indices->push_back (dyc<HIR::Rvalue> (fold_expr (expr)));
 
 		// fold_impl_variable rejects a number of constructs allowed here. We must fold ourselves.
 		AST::Variable* param = dyc<AST::Variable> (orig->expr);

@@ -28,15 +28,16 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 
+typedef List<Pass*> Pass_queue;
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
   check (false)
 {
-	ast_queue = new List<Pass*>;
-	hir_queue = new List<Pass*>;
-	mir_queue = new List<Pass*>;
-	queues = new List <List<Pass*>* > (ast_queue, hir_queue, mir_queue);
+	ast_queue = new Pass_queue;
+	hir_queue = new Pass_queue;
+	mir_queue = new Pass_queue;
+	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
 }
 
 void Pass_manager::add_ast_visitor (AST::Visitor* visitor, String* name, String* description)
@@ -94,7 +95,7 @@ void Pass_manager::add_mir_pass (Pass* pass)
 
 
 
-void Pass_manager::add_pass (Pass* pass, List<Pass*>* queue)
+void Pass_manager::add_pass (Pass* pass, Pass_queue* queue)
 {
 	assert (pass->name);
 	queue->push_back (pass);
@@ -131,7 +132,7 @@ void Pass_manager::add_after_each_mir_pass (Pass* pass)
 	add_after_each_pass (pass, mir_queue);
 }
 
-void Pass_manager::add_after_each_pass (Pass* pass, List<Pass*>* queue)
+void Pass_manager::add_after_each_pass (Pass* pass, Pass_queue* queue)
 {
 	for_li (queue, Pass, p)
 	{
@@ -142,7 +143,7 @@ void Pass_manager::add_after_each_pass (Pass* pass, List<Pass*>* queue)
 
 void Pass_manager::remove_all ()
 {
-	for_li (queues, List<Pass*>, q)
+	for_li (queues, Pass_queue, q)
 	{
 		(*q)->clear ();
 	}
@@ -153,7 +154,7 @@ void Pass_manager::remove_after_named_pass (String* name)
 	String* n = name;
 
 	bool remove = false;
-	for_li (queues, List<Pass*>, q)
+	for_li (queues, Pass_queue, q)
 	{
 		for_li (*q, Pass, p) 
 		{
@@ -170,7 +171,7 @@ void Pass_manager::remove_after_named_pass (String* name)
 
 void Pass_manager::remove_pass_named (String* name)
 {
-	for_li (queues, List<Pass*>, q)
+	for_li (queues, Pass_queue, q)
 	{
 		for_li (*q, Pass, p) 
 		{
@@ -184,8 +185,8 @@ void Pass_manager::remove_pass_named (String* name)
 
 void Pass_manager::add_after_each_pass (Pass* pass)
 {
-	for_lci (queues, List<Pass*>, q)
-		add_after_each_pass (pass, *q);
+	foreach (Pass_queue* q, *queues)
+		add_after_each_pass (pass, q);
 }
 
 
@@ -194,11 +195,11 @@ void Pass_manager::add_before_named_pass (Pass* pass, String* name)
 {
 	String* n = name;
 
-	for_lci (queues, List<Pass*>, q)
-		for_li (*q, Pass, p) 
+	foreach (Pass_queue* q, *queues)
+		for_li (q, Pass, p) 
 			if (*n == *((*p)->name))
 			{
-				(*q)->insert (p, pass);
+				q->insert (p, pass);
 				return;
 			}
 
@@ -210,17 +211,17 @@ void Pass_manager::add_after_named_pass (Pass* pass, String* name)
 {
 	String* n = name;
 
-	for_lci (queues, List<Pass*>, q)
-		for_li (*q, Pass, p) 
+	foreach (Pass_queue* q, *queues)
+		for_li (q, Pass, p) 
 			if (*n == *((*p)->name))
 			{
-				if (p == (*q)->end ())
-					(*q)->push_back (pass);
+				if (p == q->end ())
+					q->push_back (pass);
 				else
 				{
 					// insert before the next item
 					p++;
-					(*q)->insert (p, pass);
+					q->insert (p, pass);
 				}
 				return;
 			}
@@ -277,17 +278,17 @@ String* format (String* str, int prefix_length)
 void Pass_manager::list_passes ()
 {
 	cout << "Passes:\n";
-	for_lci (queues, List<Pass*>, q)
-		for_lci (*q, Pass, p) 
+	foreach (Pass_queue* q, *queues)
+		foreach (Pass* p, *q) 
 		{
 			const char* name = "AST";
-			if ((*q) == hir_queue) name = "HIR";
-			if ((*q) == mir_queue) name = "MIR";
-			String* desc = (*p)->description;
+			if (q == hir_queue) name = "HIR";
+			if (q == mir_queue) name = "MIR";
+			String* desc = p->description;
 
 			printf ("%-15s    (%-8s - %3s)    %s\n", 
-					(*p)->name->c_str (),
-					(*p)->is_enabled (this) ? "enabled" : "disabled",
+					p->name->c_str (),
+					p->is_enabled (this) ? "enabled" : "disabled",
 					name,
 					desc ? (format (desc, 39)->c_str ()) : "No description");
 		}
@@ -380,8 +381,8 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 void Pass_manager::run (IR::PHP_script* in, bool main)
 {
 	// AST
-	for_lci (ast_queue, Pass, p)
-		run_pass (*p, in, main);
+	foreach (Pass* p, *ast_queue)
+		run_pass (p, in, main);
 
 	// Sometimes folding can crash. If you went out of your way to remove the
 	// passes in the later queues, dont fold.
@@ -391,8 +392,8 @@ void Pass_manager::run (IR::PHP_script* in, bool main)
 	// HIR
 	in = in->fold_lower ();
 
-	for_lci (hir_queue, Pass, p)
-		run_pass (*p, in, main);
+	foreach (Pass* p, *hir_queue)
+		run_pass (p, in, main);
 
 	if (mir_queue->size () == 0)
 		return;
@@ -400,8 +401,8 @@ void Pass_manager::run (IR::PHP_script* in, bool main)
 	// MIR
 	in = in->fold_lower ();
 
-	for_lci (mir_queue, Pass, p)
-		run_pass (*p, in, main);
+	foreach (Pass* p, *mir_queue)
+		run_pass (p, in, main);
 }
 
 // The pass manager is used to parse and transform small snippets of
@@ -444,35 +445,35 @@ IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool ma
 IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool main)
 {
 	bool exec = false;
-	for_lci (queues, List<Pass*>, q)
+	foreach (Pass_queue* q, *queues)
 	{
-		for_lci (*q, Pass, p)
+		foreach (Pass* p, *q)
 		{
 			// check for starting pass
 			if (!exec && 
-					((from == NULL) || *((*p)->name) == *from))
+					((from == NULL) || *(p->name) == *from))
 				exec = true;
 
 			if (exec)
-				run_pass (*p, in, main);
+				run_pass (p, in, main);
 
 			// check for last pass
-			if (exec && (to != NULL) && *((*p)->name) == *to)
+			if (exec && (to != NULL) && *(p->name) == *to)
 				return in;
 		}
 
 		// TODO dirty hack
-		if (*q == ast_queue && in->is_AST () 
+		if (q == ast_queue && in->is_AST () 
 			&& hir_queue->size () == 0 
 			&& mir_queue->size () == 0)
 			return in;
 
-		if (*q == hir_queue && in->is_HIR () 
+		if (q == hir_queue && in->is_HIR () 
 			&& mir_queue->size () == 0)
 			return in;
 
-		if ((in->is_AST () && *q == ast_queue)
-			|| (in->is_HIR () && *q == hir_queue))
+		if ((in->is_AST () && q == ast_queue)
+			|| (in->is_HIR () && q == hir_queue))
 		in = in->fold_lower ();
 	}
 	return in;
@@ -480,10 +481,10 @@ IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_
 
 void Pass_manager::post_process ()
 {
-	for_lci (queues, List<Pass*>, q)
-		for_lci (*q, Pass, p)
+	foreach (Pass_queue* q, *queues)
+		foreach (Pass* p, *q)
 		{
-			(*p)->post_process ();
+			p->post_process ();
 		}
 }
 
@@ -495,20 +496,20 @@ bool Pass_manager::has_pass_named (String* name)
 
 Pass* Pass_manager::get_pass_named (String* name)
 {
-	for_lci (queues, List<Pass*>, q)
-		for_lci (*q, Pass, p)
+	foreach (Pass_queue* q, *queues)
+		foreach (Pass* p, *q)
 		{
-			if (*name == *(*p)->name)
-				return *p;
+			if (*name == *p->name)
+				return p;
 		}
 	return NULL;
 }
 
-bool is_queue_pass (String* name, List<Pass*>* queue)
+bool is_queue_pass (String* name, Pass_queue* queue)
 {
-	for_lci (queue, Pass, p)
+	foreach (Pass* p, *queue)
 	{
-		if (*name == *(*p)->name)
+		if (*name == *p->name)
 			return true;
 	}
 	return false;

@@ -180,10 +180,10 @@ void Invalid_check::pre_attribute (Attribute* in)
 {
 	if (in->attr_mod->is_const)
 	{
-		for_lci (in->vars, Name_with_default, i)
+		foreach (Name_with_default* nwd, *in->vars)
 		{
-			if ((*i)->expr->classid () == Array::ID)
-				error ("Arrays are not allowed in class constants", *i);
+			if (nwd->expr->classid () == Array::ID)
+				error ("Arrays are not allowed in class constants", nwd);
 		}
 	}
 }

@@ -131,10 +131,10 @@ public:
 	List<AST::Expr*>* wrap_var_name_list (List<AST::None*>* var_names)
 	{
 		List<AST::Expr*>* result = new List<AST::Expr*>;
-		for_lci (var_names, AST::None, i)
+		foreach (AST::None* n, *var_names)
 		{
 			// Process in reverse order off the stack
-			result->push_front (wrap_var_name (*i));
+			result->push_front (wrap_var_name (n));
 		}
 		return result;
 	}
@@ -170,9 +170,9 @@ public:
 	List<AST::Actual_parameter*>* convert_actual_parameters (List<AST::Node*>* in)
 	{
 		List<AST::Actual_parameter*>* out = new List<AST::Actual_parameter*>;
-		for_lci (in, AST::Node, i)
+		foreach (AST::Node* n, *in)
 		{
-			out->push_back (dyc<AST::Actual_parameter> (*i));
+			out->push_back (dyc<AST::Actual_parameter> (n));
 		}
 		return out;
 	}
