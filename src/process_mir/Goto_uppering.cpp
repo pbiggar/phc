@@ -70,11 +70,10 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	Label *label_pattern = new Label (l1);;
 
 	// Convert all the patterns
-	List<Statement*>::const_iterator i;
-	for (i = in->begin (); i != in->end (); i++)
+	foreach (Statement* s, *in)
 	{
 		// add statements to the current case statement
-		if ((*i)->match (goto_pattern))
+		if (s->match (goto_pattern))
 		{
 			// add the gotos to the current case statement
 			(*current->statements 
@@ -82,7 +81,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 				<< "continue;"
 			).finish (ast_next); // we dont care about attributes
 		}
-		else if ((*i)->match (branch_pattern))
+		else if (s->match (branch_pattern))
 		{
 			// add the if and gotos to the current case statement
 			(*current->statements 
@@ -98,7 +97,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 				<< "}"
 			).finish (ast_next); // we dont care about attributes
 		}
-		else if ((*i)->match (label_pattern))
+		else if (s->match (label_pattern))
 		{
 			// case "l1":
 			current = new AST::Switch_case (
@@ -109,10 +108,10 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 		}
 		else
 		{
-			if (((*i)->attrs->is_true ("phc.lower_control_flow.top_level_declaration")))
-				prelude->push_back(*i);
+			if ((s->attrs->is_true ("phc.lower_control_flow.top_level_declaration")))
+				prelude->push_back(s);
 			else
-				current->statements->push_back((new MIR_to_AST ())->fold_statement (*i));
+				current->statements->push_back((new MIR_to_AST ())->fold_statement (s));
 		}
 	}
 
@@ -146,11 +145,6 @@ Goto_uppering::pre_php_script (PHP_script *in)
 void 
 Goto_uppering::pre_method (Method *in)
 {
-	if(in->statements != NULL) // abstract method?
+	if(in->statements != NULL) // abstract method
 		in->statements = convert_statement_list (in->statements);
-}
-
-void Goto_uppering::post_php_script (PHP_script* in)
-{
-//	in->visit (new Check_uppering ());
 }
