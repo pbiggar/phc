@@ -5,14 +5,16 @@
  * Goto-upper and print IR if the --obfuscate optiopn is given
  */
 
-#ifndef PHC_OBFUSCATE_H
-#define PHC_OBFUSCATE_H
+#ifndef PHC_OBFUSCATE
+#define PHC_OBFUSCATE
+
+#include "pass_manager/Pass_manager.h"
+#include "process_mir/MIR_to_AST.h"
 
 #include "process_mir/Goto_uppering.h"
 #include "process_mir/Foreach_uppering.h"
-#include "pass_manager/Pass_manager.h"
+#include "process_mir/Main_uppering.h"
 
-#include "process_mir/MIR_to_AST.h"
 
 class Obfuscate : public Pass
 {
@@ -30,6 +32,7 @@ public:
 		MIR::PHP_script* mir = in->as_MIR ()->clone ();
 		mir->transform_children (new Foreach_uppering);
 		mir->visit (new Goto_uppering);
+		mir->visit (new Main_uppering);
 
 		AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
 		AST_unparser().unparse (ast);
@@ -42,4 +45,4 @@ public:
 };
 
 
-#endif // PHC_OBFUSCATE_H
+#endif // PHC_OBFUSCATE

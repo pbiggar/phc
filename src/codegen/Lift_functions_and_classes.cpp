@@ -7,6 +7,7 @@
  */
 
 #include "Lift_functions_and_classes.h"
+#include "process_ir/General.h"
 
 using namespace MIR;
 
@@ -16,13 +17,12 @@ void Lift_functions_and_classes::children_php_script(PHP_script* in)
 	List<Statement*>* top_level_statements = new List<Statement*>;
 
 	// move all non-declaration statements into main
-	List<Statement*>::const_iterator i;
-	for (i = in->statements->begin (); i != in->statements->end (); i++)
+	foreach (Statement* s, *in->statements)
 	{
-		if (((*i)->attrs->is_true ("phc.lower_control_flow.top_level_declaration")))
-			top_level_statements->push_back(*i);
+		if ((s->attrs->is_true("phc.lower_control_flow.top_level_declaration")))
+			top_level_statements->push_back(s);
 		else
-			main->push_back(*i);
+			main->push_back(s);
 
 	}
 
@@ -33,6 +33,8 @@ void Lift_functions_and_classes::children_php_script(PHP_script* in)
 			new METHOD_NAME(new String("__MAIN__")),
 			new List<Formal_parameter*>),
 		main));
+
+	top_level_statements->back()->attrs->set_true("phc.lower_control_flow.top_level_declaration");
 
 	in->statements = top_level_statements;
 }

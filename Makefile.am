@@ -213,6 +213,7 @@ libphc_la_SOURCES= 											\
 	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
+	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
 	src/process_mir/MIR_unparser.h						\
