@@ -1,4 +1,4 @@
 <?php
-	$x[][0]; // { Error: Cannot use [] for reading }
+	$x[][0]; // { phc-error: Cannot use [] for reading }
 ?>
 

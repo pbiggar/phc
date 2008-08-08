@@ -1,6 +1,9 @@
 <?php
-	//	options :: out_regex :: err_regex :: exit_code :: no subject
-	// { --debug=prc ::  :: .+ :: 0 :: false }
+
+	// check that the debug flag leaves some output in stderr
+
+	// { phc-option: --debug=prc }
+	// { phc-debug: is simple assignment }
 
 	function y ($x)
 	{

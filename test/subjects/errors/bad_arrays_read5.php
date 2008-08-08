@@ -1,5 +1,5 @@
 <?php
 
-	f ($a[]); // { Error: Cannot use [] for reading }
+	f ($a[]); // { phc-error: Cannot use [] for reading }
 
 ?>

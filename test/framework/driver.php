@@ -70,6 +70,7 @@ require_once ("lib/pass_dump.php");
 // Add tests to list
 $tests = array ();
 
+require_once ("annotated_test.php");
 require_once ("basic_parse_test.php");
 require_once ("no_whitespace.php");
 $tests[] = new CompareBackwards ("ast");

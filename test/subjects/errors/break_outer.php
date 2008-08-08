@@ -1,5 +1,5 @@
 <?php
 
-	break $x; // { Error: Cannot break/continue 1 levels }
+	break $x; // { phc-error: Cannot break/continue 1 levels }
 
 ?>

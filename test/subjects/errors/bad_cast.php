@@ -1,6 +1,6 @@
 <?php
 
 	$x = (object
-	) $y; // { Error: syntax error, unexpected VARIABLE }
+	) $y; // { phc-error: syntax error, unexpected VARIABLE }
 
 ?>

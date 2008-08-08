@@ -2,7 +2,7 @@
 
 	interface Foo 
 	{
-		var $bold; # { Error: Interfaces may not include member variables } 
+		var $bold; # {phc-error: Interfaces may not include member variables } 
 	}
 
 ?>

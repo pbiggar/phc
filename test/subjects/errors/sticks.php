@@ -1,6 +1,6 @@
 <?php
 
-	declare (sticks = 0) // { Error: PHP only supports the 'ticks' directive } 
+	declare (sticks = 0) // { phc-error: PHP only supports the 'ticks' directive } 
 	{
 		echo "a";
 	}
