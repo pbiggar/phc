@@ -75,6 +75,8 @@ public:
 	static String* escape_dq(String* s);
 	static String* escape_sq(String* s);
 
+	virtual ~PHP_unparser () {}
+
 };
 
 #endif // PHC_PHP_UNPARSER 
