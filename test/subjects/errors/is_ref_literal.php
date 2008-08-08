@@ -7,5 +7,5 @@
 	}
 
 
-	x (&"asd");
+	x (&"asd"); // { phc-error:  syntax error, unexpected T_STRING, expecting IDENT or VARIABLE or '$' }
 ?>
