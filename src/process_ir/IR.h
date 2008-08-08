@@ -74,6 +74,18 @@ public:
 		attrs = new AttrMap();
 	}
 
+	// If the location isnt already there, copy it from another node.
+	void copy_location (Node* source)
+	{
+		String* filename = dynamic_cast<String*>(attrs->get("phc.filename"));
+		if (filename == NULL)
+			attrs->set ("phc.filename", source->get_filename ()->clone ());
+
+		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
+		if (i == NULL)
+			attrs->set ("phc.line_number", new Integer (source->get_line_number()));
+	}
+
 	virtual ~Node() {}
 };
 

@@ -8843,8 +8843,9 @@ Method_invocation::Method_invocation(const char* name, Expr* arg)
     { 
 		this->target = NULL;
 		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
+		actual_parameter->copy_location (arg);
+		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
 	}
 }
 
@@ -8853,8 +8854,9 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Expr* arg)
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
+		actual_parameter->copy_location (arg);
+		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
 	}
 }
 
