@@ -7,8 +7,7 @@
 #include "AST_visitor.h"
 #include "process_ir/General.h"
 
-using namespace AST; 
-
+template <class Visitor, class PHP_script, class Statement>
 class Count_statements : public Visitor
 {
 private:
@@ -25,6 +24,7 @@ public:
    void post_php_script(PHP_script* in)
    {
       cout << num_statements << " statements found" << endl;
+		exit (0);
    }
    
    // Count the number of function calls
@@ -36,11 +36,20 @@ public:
 
 extern "C" void load (Pass_manager* pm, Plugin_pass* pass)
 {
-	pm->remove_after_named_pass (s("ast"));
-	pm->add_after_named_pass (pass, s("ast"));
+	pm->add_after_each_pass (pass);
 }
 
-extern "C" void run_ast (PHP_script* in, Pass_manager* pm, String* option)
+extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option)
 {
-	in->visit (new Count_statements ());
+	in->visit (new Count_statements<AST::Visitor, AST::PHP_script, AST::Statement> ());
+}
+
+extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option)
+{
+	in->visit (new Count_statements<HIR::Visitor, HIR::PHP_script, HIR::Statement> ());
+}
+
+extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option)
+{
+	in->visit (new Count_statements<MIR::Visitor, MIR::PHP_script, MIR::Statement> ());
 }
