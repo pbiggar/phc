@@ -15,7 +15,6 @@ void shutdown_xml ();
 
 #ifdef HAVE_XERCES
 
-#include "AST.h"
 #include <xercesc/sax/InputSource.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
@@ -25,9 +24,15 @@ void shutdown_xml ();
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/StdInInputSource.hpp>
 #include <stack>
+#include <boost/lexical_cast.hpp>
+
 #include "lib/base64.h"
 #include "lib/error.h"
 #include "lib/AttrMap.h"
+#include "process_ir/General.h"
+#include "AST.h"
+#include "HIR.h"
+#include "MIR.h"
 #include "AST_factory.h"
 #include "HIR_factory.h"
 #include "MIR_factory.h"
@@ -38,13 +43,15 @@ extern struct gengetopt_args_info args_info;
 #define ERR_XML_PARSE "Could not parse the XML (%s)"
 
 XERCES_CPP_NAMESPACE_USE
+using namespace boost;
 
 
-template<class PHP_script, class Node, class Node_factory, class STRING, class CAST, class INT, class REAL, class BOOL, class NIL>
+template<class Node_factory, class STRING, class CAST, class INT, class REAL, class BOOL, class NIL>
 class PHC_SAX2Handler : public DefaultHandler 
 {
-private:
+protected:
 	stack<Object*> node_stack;
+private:
 	stack<int> num_children_stack;
 	bool is_nil, is_base64_encoded;
 	String buffer;
@@ -53,7 +60,7 @@ private:
 	const Locator* locator;
 
 public:
-	PHP_script* result;
+	IR::PHP_script* result;
 	bool no_errors;
 
 public:
@@ -70,7 +77,7 @@ public:
 	{
 		if(no_errors)
 		{
-			result = dynamic_cast<PHP_script*>(node_stack.top());
+			result = dynamic_cast<IR::PHP_script*>(node_stack.top());
 		}
 	}
 
@@ -143,8 +150,7 @@ public:
 			
 		char* name = XMLString::transcode(localname);
 		Object* node = NULL;
-		Node* ir_node = NULL;
-		String* value;
+		IR::Node* ir_node = NULL;
 
 		// Number of children of the node we are about to create
 		int num_children = num_children_stack.top();
@@ -180,48 +186,9 @@ while (0)
 			attrs_stack.top()->set(key, node_stack.top());
 			node_stack.pop();
 		}
-		else if(!strcmp(name, "STRING"))
+		else if (is_token_name (name))
 		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
-
-			ir_node = new STRING(value);
-			copy_attrs ();
-		}
-		else if(!strcmp(name, "CAST"))
-		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
-
-			ir_node = new CAST(value);
-			copy_attrs ();
-		}
-		else if(!strcmp(name, "INT"))
-		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
-			
-			ir_node = new INT(strtol(value->c_str(), 0, 0));
-			copy_attrs ();
-		}
-		else if(!strcmp(name, "REAL"))
-		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
-			
-			ir_node = new REAL(atof(value->c_str()));	
-			copy_attrs ();
-		}
-		else if(!strcmp(name, "BOOL"))
-		{
-			value = dynamic_cast<String*>(node_stack.top()); node_stack.pop();
-			
-			// BOOL::get_value_as_string returns "True" or "False"
-			if(*value == "True")
-				ir_node = new BOOL(true);
-			else
-				ir_node = new BOOL(false);
-			copy_attrs ();
-		}
-		else if(!strcmp(name, "NIL"))
-		{
-			ir_node = new NIL();
+			ir_node = fetch_token (name);
 			copy_attrs ();
 		}
 		else if(
@@ -273,7 +240,7 @@ while (0)
 			{
 				phc_warning("XML parser: cannot deal with tag '%s'", name);
 			}
-			ir_node = dynamic_cast<Node*>(node);
+			ir_node = dynamic_cast<IR::Node*>(node);
 
 			if(ir_node != NULL)
 			{
@@ -324,34 +291,80 @@ while (0)
 		// I love this one
 		this->locator = &(*locator);
 	}
+
+	virtual bool is_token_name (string name)
+	{
+		return name == "STRING"
+				|| name == "CAST"
+				|| name == "INT"
+				|| name == "REAL"
+				|| name == "BOOL"
+				|| name == "NIL";
+	}
+
+	virtual IR::Node* fetch_token (string name)
+	{
+		IR::Node* result;
+		if (name == "STRING")
+			result = new STRING (dyc<String>(node_stack.top()));
+
+		else if (name == "CAST")
+			result = new CAST (dyc<String>(node_stack.top()));
+
+		else if (name == "INT")
+			result = new INT (lexical_cast <long> (*dyc<String>(node_stack.top())));
+
+		else if (name == "REAL")
+			result = new REAL (lexical_cast <double> (*dyc<String>(node_stack.top())));
+
+		else if (name == "BOOL")
+		{
+			String* value = dyc<String> (node_stack.top ());
+			// BOOL::get_value_as_string returns "True" or "False"
+			if(*value == "True")
+				result = new BOOL(true);
+			else
+				result = new BOOL(false);
+		}
+
+		else if (name == "NIL")
+			return new NIL (); // no stack pop
+
+		else
+			assert (0);
+
+		node_stack.pop();
+		return result;
+	}
+
 };
 
-template <class PHP_script, class Node, class Node_factory, class STRING, class CAST, class INT, class REAL, class BOOL, class NIL>
+template <class PHC_SAX2Handler>
 class XML_parser
 {
 public:
-	PHP_script* parse_xml_file (String* filename)
+	IR::PHP_script* parse_xml_file (String* filename)
 	{
 		XMLCh* name = XMLString::transcode(filename->c_str());
 		LocalFileInputSource is (name);
-		PHP_script* result = parse_xml(is);
+		IR::PHP_script* result = parse_xml(is);
 		XMLString::release(&name);
 
 		return result;
 	}
-	PHP_script* parse_xml_buffer(String* buffer)
+	IR::PHP_script* parse_xml_buffer(String* buffer)
 	{
 		MemBufInputSource is((XMLByte*) buffer->c_str(), buffer->length(), "parse_ast_xml_buffer", false);
 		return parse_xml (is);
 	}
 
-	PHP_script* parse_xml_stdin()
+	IR::PHP_script* parse_xml_stdin()
 	{
 		StdInInputSource is;
 		return parse_xml (is);
 	}
 
-	PHP_script* parse_xml (InputSource& inputSource)
+	IR::PHP_script* parse_xml (InputSource& inputSource)
 	{
 		SAX2XMLReader* parser = XMLReaderFactory::createXMLReader();
 		parser->setFeature(XMLUni::fgSAX2CoreNameSpaces, true);
@@ -371,8 +384,7 @@ public:
 			parser->setFeature(XMLUni::fgXercesDynamic, false);
 		}
 
-		PHC_SAX2Handler<PHP_script, Node, Node_factory, STRING, CAST, INT, REAL, BOOL, NIL>* phcHandler =
-			new PHC_SAX2Handler <PHP_script, Node, Node_factory, STRING, CAST, INT, REAL, BOOL, NIL>();
+		PHC_SAX2Handler* phcHandler = new PHC_SAX2Handler;
 		parser->setContentHandler(phcHandler);
 		parser->setErrorHandler(phcHandler);
 
@@ -394,7 +406,7 @@ public:
 		if(!phcHandler->no_errors)
 			phc_error(ERR_XML_PARSE, "There were XML errors");
 
-		PHP_script* result = phcHandler->result; 
+		IR::PHP_script* result = phcHandler->result; 
 
 		delete parser;
 		delete phcHandler;
@@ -403,50 +415,22 @@ public:
 	}
 };
 
-class AST_XML_parser : public XML_parser 
-<
-	AST::PHP_script,
-	AST::Node,
-	AST::Node_factory,
-	AST::STRING,
-	AST::CAST,
-	AST::INT,
-	AST::REAL,
-	AST::BOOL,
-	AST::NIL
->
+class AST_SAX2Handler : public PHC_SAX2Handler<AST::Node_factory, AST::STRING, AST::CAST, AST::INT, AST::REAL, AST::BOOL, AST::NIL>
 {
 };
 
-class HIR_XML_parser : public XML_parser
-<
-	HIR::PHP_script,
-	HIR::Node,
-	HIR::Node_factory,
-	HIR::STRING,
-	HIR::CAST,
-	HIR::INT,
-	HIR::REAL,
-	HIR::BOOL,
-	HIR::NIL
->
+class HIR_SAX2Handler : public PHC_SAX2Handler<HIR::Node_factory, HIR::STRING, HIR::CAST, HIR::INT, HIR::REAL, HIR::BOOL, HIR::NIL>
 {
 };
 
-class MIR_XML_parser : public XML_parser
-<
-	MIR::PHP_script,
-	MIR::Node,
-	MIR::Node_factory,
-	MIR::STRING,
-	MIR::CAST,
-	MIR::INT,
-	MIR::REAL,
-	MIR::BOOL,
-	MIR::NIL
->
+class MIR_SAX2Handler : public PHC_SAX2Handler<MIR::Node_factory, MIR::STRING, MIR::CAST, MIR::INT, MIR::REAL, MIR::BOOL, MIR::NIL>
 {
+	typedef PHC_SAX2Handler<MIR::Node_factory, MIR::STRING, MIR::CAST, MIR::INT, MIR::REAL, MIR::BOOL, MIR::NIL> parent;
 };
+
+class AST_XML_parser : public XML_parser<AST_SAX2Handler> {};
+class HIR_XML_parser : public XML_parser<HIR_SAX2Handler> {};
+class MIR_XML_parser : public XML_parser<MIR_SAX2Handler> {};
 
 #endif // HAVE_XERCES
 
