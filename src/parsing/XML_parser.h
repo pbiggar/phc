@@ -150,7 +150,6 @@ public:
 			
 		char* name = XMLString::transcode(localname);
 		Object* node = NULL;
-		IR::Node* ir_node = NULL;
 
 		// Number of children of the node we are about to create
 		int num_children = num_children_stack.top();
@@ -158,17 +157,6 @@ public:
 		// After we pop, num_children_stack.top() corresponds to the number
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
-
-#define copy_attrs()									\
-do															\
-{															\
-	if (attrs_stack.size() > 0)					\
-	{														\
-		ir_node->attrs = attrs_stack.top();		\
-		attrs_stack.pop();							\
-	}														\
-}															\
-while (0)
 
 		if(is_nil)
 		{
@@ -188,8 +176,7 @@ while (0)
 		}
 		else if (is_token_name (name))
 		{
-			ir_node = fetch_token (name);
-			copy_attrs ();
+			node = fetch_token (name);
 		}
 		else if(
  			 !strcmp(name, "value") 
@@ -240,21 +227,16 @@ while (0)
 			{
 				phc_warning("XML parser: cannot deal with tag '%s'", name);
 			}
-			ir_node = dynamic_cast<IR::Node*>(node);
+		}
 
-			if(ir_node != NULL)
-			{
-				copy_attrs ();
-			}
-			else
-			{
-				// Must have been a list
-			}
+		// Fetch attributes
+		if(isa<IR::Node> (node) && attrs_stack.size() > 0)
+		{
+			dyc<IR::Node> (node)->attrs = attrs_stack.top();
+			attrs_stack.pop();
 		}
 	
-		if(ir_node != NULL)
-			node_stack.push(ir_node);
-		else if(node != NULL)
+		if(node != NULL)
 			node_stack.push(node);
 
 		XMLString::release(&name);
