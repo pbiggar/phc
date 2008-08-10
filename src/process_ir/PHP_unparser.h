@@ -16,7 +16,7 @@
 class Unparser_state
 {
 	public:
-		Unparser_state (ostream& os = cout, bool in_php = false);
+		Unparser_state (ostream& os, bool in_php);
 
 	public:
 		bool at_start_of_line;
