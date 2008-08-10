@@ -12,6 +12,7 @@
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ast/AST_unparser.h"
 #include <list>
 #include <string>
 #include <cstring>
@@ -1940,7 +1941,7 @@ public:
     virtual void assert_valid();
 };
 
-class FOREIGN : virtual public Statement, virtual public Expr
+class FOREIGN : virtual public Statement, virtual public Expr, virtual public IR::FOREIGN
 {
 public:
     FOREIGN(IR::Node* value);
@@ -1970,11 +1971,8 @@ public:
     virtual void assert_valid();
     virtual void assert_value_valid();
 public:
-    // 	IR::Node* clone_value ()
-    // 	{
-    // 		return value->clone ();
-    // 	}
     bool equals_value(FOREIGN* that);
+    IR ::Node* get_value();
 };
 
 class CLASS_NAME : virtual public Target, virtual public Class_name, virtual public Identifier

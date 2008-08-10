@@ -16,6 +16,7 @@ prefix "AST";
 external class "Object";
 external class "IR::Node";
 external class "IR::PHP_script";
+external class "IR::FOREIGN";
 use list "List";
 use string "String";
 use namespace "AST";
@@ -739,16 +740,16 @@ public:
 	}
 };
 
-class FOREIGN
+class FOREIGN : IR::FOREIGN
 {
 public:
-//	IR::Node* clone_value ()
-//	{
-//		return value->clone ();
-//	}
-
 	bool equals_value (FOREIGN* that)
 	{
 		return value->equals (that->value);
+	}
+
+	IR::Node* get_value()
+	{
+		return value;
 	}
 };

@@ -9078,14 +9078,17 @@ void FOREIGN::assert_value_valid()
     // Assume value is valid
 }
 
-// 	IR::Node* clone_value ()
-// 	{
-// 		return value->clone ();
-// 	}
 bool FOREIGN::equals_value(FOREIGN* that)
 {
     {
 		return value->equals (that->value);
+	}
+}
+
+IR ::Node* FOREIGN::get_value()
+{
+    {
+		return value;
 	}
 }
 

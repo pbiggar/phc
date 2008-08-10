@@ -19,21 +19,7 @@ public:
 	AST_unparser (ostream& os = cout, bool in_php = false);
 	AST_unparser (Unparser_state* ups);
 
-	// Use FOREIGN_UNPARSER's state.
-	AST_unparser (PHP_unparser* foreign_unparser);
-
-
 	void unparse (IR::Node* in);
-
-	/* Each the HIR_ and MIR_unparsers both use AST_unparser. They fold the
-	 * {H,M}IR into AST, and call the AST_unparser on it. There are some nodes
-	 * in the MIR that are not representable in the AST. These nodes are wrapped
-	 * in an AST::FOREIGN, and the MIR_unparser is called to unparse them.
-	 *
-	 * The interface for FOREIGN nodes supports the HIR is the same fashion,
-	 * though the HIR doesn't need it.
-	 */
-	void unparse_foreign (IR::Node* in);
 
 protected:
 
@@ -135,9 +121,6 @@ protected:
 	stack<bool> in_string;
 	stack<AST::OP*> last_op;
 
-	// Use this to parse foreign nodes
-public:
-	PHP_unparser* foreign_unparser;
 };
 
 #endif // PHC_AST_UNPARSER 

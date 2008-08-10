@@ -35,6 +35,8 @@ namespace MIR
 	class Transform;
 }
 
+class Unparser_state;
+
 namespace IR
 {
 
@@ -61,6 +63,16 @@ public:
 	bool equals (IR::Node*);
 
 	virtual ~Node() {}
+};
+
+
+class FOREIGN
+{
+public:
+	virtual void unparse (Unparser_state* ups);
+
+	// We cant have the value here, because the token sets it.
+	virtual IR::Node* get_value () = 0;
 };
 
 

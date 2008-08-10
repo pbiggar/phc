@@ -74,6 +74,17 @@ void PHP_script::assert_valid()
 		as_MIR()->assert_valid();
 }
 
+void
+FOREIGN::unparse (Unparser_state* ups)
+{
+	IR::Node* value = get_value ();
+	if (isa<AST::Node> (value))
+		dyc<AST::Node> (value)->visit (new AST_unparser (ups));
+	else if (isa<HIR::Node> (value))
+		dyc<HIR::Node> (value)->visit (new HIR_unparser (ups));
+	else
+		dyc<MIR::Node> (value)->visit (new MIR_unparser (ups));
+}
 
 // VISIT
 
