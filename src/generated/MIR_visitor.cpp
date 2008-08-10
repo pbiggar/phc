@@ -258,7 +258,7 @@ void Visitor::pre_identifier(Identifier* in)
 {
 }
 
-void Visitor::pre_foreign(Foreign* in)
+void Visitor::pre_foreign(FOREIGN* in)
 {
 }
 
@@ -571,7 +571,7 @@ void Visitor::post_identifier(Identifier* in)
 {
 }
 
-void Visitor::post_foreign(Foreign* in)
+void Visitor::post_foreign(FOREIGN* in)
 {
 }
 
@@ -942,11 +942,11 @@ void Visitor::children_foreach_get_val(Foreach_get_val* in)
     visit_ht_iterator(in->iter);
 }
 
-void Visitor::children_foreign(Foreign* in)
+// Tokens don't have children, so these methods do nothing by default
+void Visitor::children_foreign(FOREIGN* in)
 {
 }
 
-// Tokens don't have children, so these methods do nothing by default
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1363,12 +1363,12 @@ void Visitor::pre_foreach_get_val_chain(Foreach_get_val* in)
     pre_foreach_get_val((Foreach_get_val*) in);
 }
 
-void Visitor::pre_foreign_chain(Foreign* in)
+void Visitor::pre_foreign_chain(FOREIGN* in)
 {
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_expr((Expr*) in);
-    pre_foreign((Foreign*) in);
+    pre_foreign((FOREIGN*) in);
 }
 
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
@@ -1841,9 +1841,9 @@ void Visitor::post_foreach_get_val_chain(Foreach_get_val* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_foreign_chain(Foreign* in)
+void Visitor::post_foreign_chain(FOREIGN* in)
 {
-    post_foreign((Foreign*) in);
+    post_foreign((FOREIGN*) in);
     post_expr((Expr*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
@@ -2523,24 +2523,6 @@ void Visitor::pre_statement_chain(Statement* in)
     case Throw::ID:
     	pre_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case Label::ID:
-    	pre_label_chain(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	pre_goto_chain(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	pre_branch_chain(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreach_next::ID:
-    	pre_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	pre_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
-    	break;
     case Assign_var::ID:
     	pre_assign_var_chain(dynamic_cast<Assign_var*>(in));
     	break;
@@ -2562,8 +2544,26 @@ void Visitor::pre_statement_chain(Statement* in)
     case Pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Label::ID:
+    	pre_label_chain(dynamic_cast<Label*>(in));
+    	break;
+    case Goto::ID:
+    	pre_goto_chain(dynamic_cast<Goto*>(in));
+    	break;
+    case Branch::ID:
+    	pre_branch_chain(dynamic_cast<Branch*>(in));
+    	break;
+    case Foreach_next::ID:
+    	pre_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
+    	break;
+    case Foreach_reset::ID:
+    	pre_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
+    	break;
+    case Foreach_end::ID:
+    	pre_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2649,18 +2649,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
-    	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2672,6 +2660,18 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case Target_expr::ID:
     	pre_target_expr_chain(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
+    	break;
+    case Foreach_has_key::ID:
+    	pre_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
+    	break;
+    case Foreach_get_key::ID:
+    	pre_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
+    	break;
+    case Foreach_get_val::ID:
+    	pre_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -2833,24 +2833,6 @@ void Visitor::post_statement_chain(Statement* in)
     case Throw::ID:
     	post_throw_chain(dynamic_cast<Throw*>(in));
     	break;
-    case Label::ID:
-    	post_label_chain(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	post_goto_chain(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	post_branch_chain(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreach_next::ID:
-    	post_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	post_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
-    	break;
     case Assign_var::ID:
     	post_assign_var_chain(dynamic_cast<Assign_var*>(in));
     	break;
@@ -2872,8 +2854,26 @@ void Visitor::post_statement_chain(Statement* in)
     case Pre_op::ID:
     	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case Label::ID:
+    	post_label_chain(dynamic_cast<Label*>(in));
+    	break;
+    case Goto::ID:
+    	post_goto_chain(dynamic_cast<Goto*>(in));
+    	break;
+    case Branch::ID:
+    	post_branch_chain(dynamic_cast<Branch*>(in));
+    	break;
+    case Foreach_next::ID:
+    	post_foreach_next_chain(dynamic_cast<Foreach_next*>(in));
+    	break;
+    case Foreach_reset::ID:
+    	post_foreach_reset_chain(dynamic_cast<Foreach_reset*>(in));
+    	break;
+    case Foreach_end::ID:
+    	post_foreach_end_chain(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2959,18 +2959,6 @@ void Visitor::post_expr_chain(Expr* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
-    	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2982,6 +2970,18 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case Target_expr::ID:
     	post_target_expr_chain(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
+    	break;
+    case Foreach_has_key::ID:
+    	post_foreach_has_key_chain(dynamic_cast<Foreach_has_key*>(in));
+    	break;
+    case Foreach_get_key::ID:
+    	post_foreach_get_key_chain(dynamic_cast<Foreach_get_key*>(in));
+    	break;
+    case Foreach_get_val::ID:
+    	post_foreach_get_val_chain(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }
@@ -3143,24 +3143,6 @@ void Visitor::children_statement(Statement* in)
     case Throw::ID:
     	children_throw(dynamic_cast<Throw*>(in));
     	break;
-    case Label::ID:
-    	children_label(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	children_goto(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	children_branch(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreach_next::ID:
-    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
-    	break;
     case Assign_var::ID:
     	children_assign_var(dynamic_cast<Assign_var*>(in));
     	break;
@@ -3182,8 +3164,26 @@ void Visitor::children_statement(Statement* in)
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Label::ID:
+    	children_label(dynamic_cast<Label*>(in));
+    	break;
+    case Goto::ID:
+    	children_goto(dynamic_cast<Goto*>(in));
+    	break;
+    case Branch::ID:
+    	children_branch(dynamic_cast<Branch*>(in));
+    	break;
+    case Foreach_next::ID:
+    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
+    	break;
+    case Foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
+    	break;
+    case Foreach_end::ID:
+    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3269,18 +3269,6 @@ void Visitor::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -3292,6 +3280,18 @@ void Visitor::children_expr(Expr* in)
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
+    	break;
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    	break;
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    	break;
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }

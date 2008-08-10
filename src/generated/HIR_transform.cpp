@@ -231,7 +231,7 @@ void Transform::pre_static_array_elem(Static_array_elem* in, List<Static_array_e
     out->push_back(in);
 }
 
-Foreign* Transform::pre_foreign(Foreign* in)
+FOREIGN* Transform::pre_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -522,7 +522,7 @@ void Transform::post_static_array_elem(Static_array_elem* in, List<Static_array_
     out->push_back(in);
 }
 
-Foreign* Transform::post_foreign(Foreign* in)
+FOREIGN* Transform::post_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -852,11 +852,11 @@ void Transform::children_static_array_elem(Static_array_elem* in)
     in->val = transform_static_value(in->val);
 }
 
-void Transform::children_foreign(Foreign* in)
+// Tokens don't have children, so these methods do nothing by default
+void Transform::children_foreign(FOREIGN* in)
 {
 }
 
-// Tokens don't have children, so these methods do nothing by default
 void Transform::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1699,8 +1699,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(pre_foreign(dynamic_cast<Foreign*>(in)));
+    case FOREIGN::ID: 
+    	out->push_back(pre_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -1763,11 +1763,11 @@ Expr* Transform::pre_expr(Expr* in)
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
+    case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
     }
     assert(0);
 }
@@ -2058,8 +2058,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(post_foreign(dynamic_cast<Foreign*>(in)));
+    case FOREIGN::ID: 
+    	out->push_back(post_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -2122,11 +2122,11 @@ Expr* Transform::post_expr(Expr* in)
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
+    case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
     }
     assert(0);
 }
@@ -2297,8 +2297,8 @@ void Transform::children_statement(Statement* in)
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2384,9 +2384,6 @@ void Transform::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2398,6 +2395,9 @@ void Transform::children_expr(Expr* in)
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }

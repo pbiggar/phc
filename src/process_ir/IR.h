@@ -43,48 +43,22 @@ class Node : public Object
 public:
 	AttrMap* attrs;
 
+	Node();
+
 	// Return the line number of the node (or 0 if unknown)
-	int get_line_number()
-	{
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if(i != NULL)
-			return i->value();
-		else
-			return 0;
-	}
+	int get_line_number();
 
 	// Return the filename of the node. If unknown, use "<unknown>",
 	// which is what the interpreter uses.
 	// TODO In the future, make sure we always have filenames and
 	// line numbers.
-	String* get_filename()
-	{
-		String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
-		if (result == NULL)
-			result = new String ("<unknown>");
-
-		return result;
-	}
-
-	Node()
-	{
-		// Constructor gets called because all classes inherit from
-		// Node virtually; also, because maketea knows Node is
-		// abstract, it won't add a constructor itself
-		attrs = new AttrMap();
-	}
+	String* get_filename();
 
 	// If the location isnt already there, copy it from another node.
-	void copy_location (Node* source)
-	{
-		String* filename = dynamic_cast<String*>(attrs->get("phc.filename"));
-		if (filename == NULL)
-			attrs->set ("phc.filename", source->get_filename ()->clone ());
+	void copy_location (Node* source);
 
-		Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
-		if (i == NULL)
-			attrs->set ("phc.line_number", new Integer (source->get_line_number()));
-	}
+	// Node features.
+	bool equals (IR::Node*);
 
 	virtual ~Node() {}
 };

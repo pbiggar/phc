@@ -242,7 +242,7 @@ void Visitor::pre_identifier(Identifier* in)
 {
 }
 
-void Visitor::pre_foreign(Foreign* in)
+void Visitor::pre_foreign(FOREIGN* in)
 {
 }
 
@@ -531,7 +531,7 @@ void Visitor::post_identifier(Identifier* in)
 {
 }
 
-void Visitor::post_foreign(Foreign* in)
+void Visitor::post_foreign(FOREIGN* in)
 {
 }
 
@@ -871,11 +871,11 @@ void Visitor::children_static_array_elem(Static_array_elem* in)
     visit_static_value(in->val);
 }
 
-void Visitor::children_foreign(Foreign* in)
+// Tokens don't have children, so these methods do nothing by default
+void Visitor::children_foreign(FOREIGN* in)
 {
 }
 
-// Tokens don't have children, so these methods do nothing by default
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1256,12 +1256,12 @@ void Visitor::pre_static_array_elem_chain(Static_array_elem* in)
     pre_static_array_elem((Static_array_elem*) in);
 }
 
-void Visitor::pre_foreign_chain(Foreign* in)
+void Visitor::pre_foreign_chain(FOREIGN* in)
 {
     pre_node((Node*) in);
     pre_statement((Statement*) in);
     pre_expr((Expr*) in);
-    pre_foreign((Foreign*) in);
+    pre_foreign((FOREIGN*) in);
 }
 
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
@@ -1692,9 +1692,9 @@ void Visitor::post_static_array_elem_chain(Static_array_elem* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_foreign_chain(Foreign* in)
+void Visitor::post_foreign_chain(FOREIGN* in)
 {
-    post_foreign((Foreign*) in);
+    post_foreign((FOREIGN*) in);
     post_expr((Expr*) in);
     post_statement((Statement*) in);
     post_node((Node*) in);
@@ -2372,8 +2372,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Pre_op::ID:
     	pre_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2459,9 +2459,6 @@ void Visitor::pre_expr_chain(Expr* in)
     case NIL::ID:
     	pre_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2473,6 +2470,9 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case Target_expr::ID:
     	pre_target_expr_chain(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2670,8 +2670,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Pre_op::ID:
     	post_pre_op_chain(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2757,9 +2757,6 @@ void Visitor::post_expr_chain(Expr* in)
     case NIL::ID:
     	post_nil_chain(dynamic_cast<NIL*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2771,6 +2768,9 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case Target_expr::ID:
     	post_target_expr_chain(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2968,8 +2968,8 @@ void Visitor::children_statement(Statement* in)
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3055,9 +3055,6 @@ void Visitor::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -3069,6 +3066,9 @@ void Visitor::children_expr(Expr* in)
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }

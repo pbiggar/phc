@@ -45,8 +45,8 @@ class HIR_to_AST : public HIR::Fold
  AST::Continue*,				// Continue*
  AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
+ AST::FOREIGN*,				// FOREIGN*
  AST::Foreach*,				// Foreach*
- AST::Foreign*,				// Foreign*
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
  AST::INT*,						// INT*
@@ -721,10 +721,10 @@ public:
 		return result;
 	}
 
-	AST::Foreign* fold_impl_foreign (HIR::Foreign* orig)
+	AST::FOREIGN* fold_foreign (HIR::FOREIGN* orig)
 	{
-		AST::Foreign* result;
-		result = new AST::Foreign(orig->foreign);
+		AST::FOREIGN* result;
+		result = new AST::FOREIGN(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

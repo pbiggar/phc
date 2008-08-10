@@ -32,7 +32,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Attribute*,				// Attribute*
  AST::BOOL*,					// BOOL*
  AST::Bin_op*,					// Bin_op*
- AST::Foreign*,				// Branch*
+ AST::FOREIGN*,				// Branch*
  AST::CAST*,					// CAST*
  AST::CLASS_NAME*,			// CLASS_NAME*
  AST::CONSTANT_NAME*,		// CONSTANT_NAME*
@@ -44,17 +44,17 @@ class MIR_to_AST : public MIR::Fold
  AST::Constant*,				// Constant*
  AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
- AST::Foreign*,				// Foreach_end*
- AST::Foreign*,				// Foreach_get_key*
- AST::Foreign*,				// Foreach_get_val*
- AST::Foreign*,				// Foreach_has_key*
- AST::Foreign*,				// Foreach_next*
- AST::Foreign*,				// Foreach_reset*
- AST::None*,					// Foreign* -- Expr or Statement
+ AST::None*,					// FOREIGN* -- Expr or Statement
+ AST::FOREIGN*,				// Foreach_end*
+ AST::FOREIGN*,				// Foreach_get_key*
+ AST::FOREIGN*,				// Foreach_get_val*
+ AST::FOREIGN*,				// Foreach_has_key*
+ AST::FOREIGN*,				// Foreach_next*
+ AST::FOREIGN*,				// Foreach_reset*
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
- AST::Foreign*,				// Goto*
- AST::Identifier*,			// HT_ITERATOR* - is really a Foreign
+ AST::FOREIGN*,				// Goto*
+ AST::Identifier*,			// HT_ITERATOR* - is really a FOREIGN
  AST::INT*,						// INT*
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
@@ -62,7 +62,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
  AST::Identifier*,			// LABEL_NAME*
- AST::Foreign*,				// Label*
+ AST::FOREIGN*,				// Label*
  AST::Literal*,				// Literal*
  AST::METHOD_NAME*,			// METHOD_NAME*
  AST::Member*,					// Member*
@@ -731,9 +731,9 @@ public:
 
 	AST::Statement* fold_statement (MIR::Statement* orig)
 	{
-		if (isa<MIR::Foreign> (orig))
+		if (isa<MIR::FOREIGN> (orig))
 		{
-			fold_foreign (dyc<MIR::Foreign> (orig));
+			fold_foreign (dyc<MIR::FOREIGN> (orig));
 			AST::Statement* result = this->foreign_statement;
 			assert (result);
 			this->foreign_statement = NULL;
@@ -745,10 +745,10 @@ public:
 
 
 	/* The only foreign node so far is a while */
-	AST::None* fold_impl_foreign (MIR::Foreign* orig)
+	AST::None* fold_foreign (MIR::FOREIGN* orig)
 	{
 		AST::While* result;
-		result = dynamic_cast<AST::While*> (orig->foreign);
+		result = dynamic_cast<AST::While*> (orig->value);
 		assert (result);
 
 		foreign_statement = result;
@@ -757,19 +757,19 @@ public:
 
 	/* MIR types without an AST equivalent. */
 
-	AST::Foreign* fold_impl_branch(MIR::Branch* orig, AST::None* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
+	AST::FOREIGN* fold_impl_branch(MIR::Branch* orig, AST::None* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
+	AST::FOREIGN* fold_impl_goto(MIR::Goto* orig, AST::Identifier* label_name) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
+	AST::FOREIGN* fold_impl_label(MIR::Label* orig, AST::Identifier* label_name) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
 	AST::Identifier* fold_label_name(MIR::LABEL_NAME* orig) 
@@ -780,39 +780,39 @@ public:
 		return NULL;
 	}
 
-	AST::Foreign* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::None* array, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::None* array, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::None* array, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::None* array, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::None* array, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
-	AST::Foreign* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::None* key, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::None* key, AST::Identifier* iter) 
 	{
-		return new AST::Foreign (orig);
+		return new AST::FOREIGN (orig);
 	}
 
 	AST::Identifier* fold_ht_iterator (MIR::HT_ITERATOR* orig)
 	{
-		// We dont care what happens to this, since it's always wrapped in another Foreign
+		// We dont care what happens to this, since it's always wrapped in another FOREIGN
 		return NULL;
 	}
 

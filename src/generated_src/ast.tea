@@ -34,7 +34,9 @@ Statement ::=
 	| If | While | Do | For | Foreach
 	| Switch | Break | Continue
 	| Declare | Nop
-	| Foreign
+	-- Foreign represents a construct from another IR that does not have a
+	-- natural representation in this IR.
+	| FOREIGN<IR::Node*>
 	;
 
 {-
@@ -93,7 +95,6 @@ Nop ::= ;
 
 -- Foreign represents a construct from another IR that does not have a natural
 -- representation in this IR.
-Foreign ::= ;
 
 
 {-
@@ -109,7 +110,7 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
-	| Foreign
+	| FOREIGN<IR::Node*>
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
@@ -738,13 +739,16 @@ public:
 	}
 };
 
-class Foreign
+class FOREIGN
 {
 public:
-	Foreign (IR::Node* foreign)
-	{
-		this->foreign = foreign;
-	}
+//	IR::Node* clone_value ()
+//	{
+//		return value->clone ();
+//	}
 
-	IR::Node* foreign;
+	bool equals_value (FOREIGN* that)
+	{
+		return value->equals (that->value);
+	}
 };

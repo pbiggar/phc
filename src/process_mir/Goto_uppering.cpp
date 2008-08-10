@@ -45,7 +45,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 
 
 	// while (true) { switch ($next) { } }
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 		new AST::While (
 			new AST::BOOL (true),
 			new List<AST::Statement*> (

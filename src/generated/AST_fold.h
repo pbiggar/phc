@@ -46,9 +46,9 @@ template
  class _Do,
  class _Eval_expr,
  class _Expr,
+ class _FOREIGN,
  class _For,
  class _Foreach,
- class _Foreign,
  class _Formal_parameter,
  class _Global,
  class _INT,
@@ -103,7 +103,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Array, _Array_elem, _Assignment, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Commented_node, _Conditional_expr, _Constant, _Continue, _DIRECTIVE_NAME, _Declare, _Directive, _Do, _Eval_expr, _Expr, _For, _Foreach, _Foreign, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Ignore_errors, _Instanceof, _Interface_def, _List_assignment, _List_element, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _Nested_list_elements, _New, _Node, _Nop, _OP, _Op_assignment, _PHP_script, _Post_op, _Pre_op, _REAL, _Reflection, _Return, _STRING, _Signature, _Source_rep, _Statement, _Static_declaration, _Switch, _Switch_case, _Target, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _While, _List> parent;
+   typedef Fold<_Actual_parameter, _Array, _Array_elem, _Assignment, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Commented_node, _Conditional_expr, _Constant, _Continue, _DIRECTIVE_NAME, _Declare, _Directive, _Do, _Eval_expr, _Expr, _FOREIGN, _For, _Foreach, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Ignore_errors, _Instanceof, _Interface_def, _List_assignment, _List_element, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _Nested_list_elements, _New, _Node, _Nop, _OP, _Op_assignment, _PHP_script, _Post_op, _Pre_op, _REAL, _Reflection, _Return, _STRING, _Signature, _Source_rep, _Statement, _Static_declaration, _Switch, _Switch_case, _Target, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable, _Variable_name, _While, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -552,11 +552,6 @@ public:
 		return fold_impl_nop(in);
 	}
 
-	virtual _Foreign fold_foreign(Foreign* in)
-	{
-		return fold_impl_foreign(in);
-	}
-
 	virtual _Assignment fold_assignment(Assignment* in)
 	{
 		_Variable variable = 0;
@@ -818,7 +813,6 @@ public:
 	virtual _Throw fold_impl_throw(Throw* orig, _Expr expr) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Nop fold_impl_nop(Nop* orig) { assert(0); };
-	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 	virtual _Assignment fold_impl_assignment(Assignment* orig, _Variable variable, bool is_ref, _Expr expr) { assert(0); };
 	virtual _Op_assignment fold_impl_op_assignment(Op_assignment* orig, _Variable variable, _OP op, _Expr expr) { assert(0); };
 	virtual _List_assignment fold_impl_list_assignment(List_assignment* orig, _List<_List_element>* list_elements, _Expr expr) { assert(0); };
@@ -840,6 +834,7 @@ public:
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Expr expr) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
 
+	virtual _FOREIGN fold_foreign(FOREIGN* orig) { assert(0); };
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
@@ -927,8 +922,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Array_elem::ID:
@@ -1037,8 +1032,8 @@ public:
 				return fold_declare(dynamic_cast<Declare*>(in));
 			case Nop::ID:
 				return fold_nop(dynamic_cast<Nop*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 		}
 		assert(0);
 	}
@@ -1101,8 +1096,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 		}
 		assert(0);
 	}
@@ -1195,8 +1190,8 @@ public:
 				return fold_conditional_expr(dynamic_cast<Conditional_expr*>(in));
 			case Ignore_errors::ID:
 				return fold_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 		}
@@ -1271,8 +1266,8 @@ public:
 				return fold_declare(dynamic_cast<Declare*>(in));
 			case Nop::ID:
 				return fold_nop(dynamic_cast<Nop*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case Switch_case::ID:
 				return fold_switch_case(dynamic_cast<Switch_case*>(in));
 			case Catch::ID:

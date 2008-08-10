@@ -41,8 +41,8 @@ template
  class _Continue,
  class _Eval_expr,
  class _Expr,
+ class _FOREIGN,
  class _Foreach,
- class _Foreign,
  class _Formal_parameter,
  class _Global,
  class _INT,
@@ -97,7 +97,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _Foreach, _Foreign, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_actual_parameter, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Break, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Continue, _Eval_expr, _Expr, _FOREIGN, _Foreach, _Formal_parameter, _Global, _INT, _INTERFACE_NAME, _Identifier, _If, _Index_array, _Instanceof, _Interface_def, _Literal, _Loop, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_actual_parameter, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -644,11 +644,6 @@ public:
 		return fold_impl_static_array_elem(in, key, is_ref, val);
 	}
 
-	virtual _Foreign fold_foreign(Foreign* in)
-	{
-		return fold_impl_foreign(in);
-	}
-
 
 
 // The user-defined folds
@@ -699,8 +694,8 @@ public:
 	virtual _Variable_class fold_impl_variable_class(Variable_class* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Static_array fold_impl_static_array(Static_array* orig, _List<_Static_array_elem>* static_array_elems) { assert(0); };
 	virtual _Static_array_elem fold_impl_static_array_elem(Static_array_elem* orig, _Static_array_key key, bool is_ref, _Static_value val) { assert(0); };
-	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 
+	virtual _FOREIGN fold_foreign(FOREIGN* orig) { assert(0); };
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
@@ -763,8 +758,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case Class_mod::ID:
 				return fold_class_mod(dynamic_cast<Class_mod*>(in));
 			case Attribute::ID:
@@ -885,8 +880,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 		}
 		assert(0);
 	}
@@ -931,8 +926,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Variable_variable::ID:
@@ -941,6 +934,8 @@ public:
 				return fold_index_array(dynamic_cast<Index_array*>(in));
 			case Target_expr::ID:
 				return fold_target_expr(dynamic_cast<Target_expr*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 		}
 		assert(0);
 	}

@@ -45,8 +45,8 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Statement*,				// Continue*
  MIR::Eval_expr*,				// Eval_expr*
  MIR::Expr*,					// Expr*
+ MIR::None*,					// FOREIGN*
  MIR::Statement*,				// Foreach*
- MIR::None*,					// Foreign*
  MIR::Formal_parameter*,	// Formal_parameter*
  MIR::Global*,					// Global*
  MIR::INT*,						// INT*
@@ -302,10 +302,10 @@ public:
 
 	MIR::Expr* fold_expr (HIR::Expr* orig)
 	{
-		if (!isa<HIR::Foreign> (orig))
+		if (!isa<HIR::FOREIGN> (orig))
 			return parent::fold_expr (orig);
 
-		fold_foreign (dyc<HIR::Foreign> (orig));
+		fold_foreign (dyc<HIR::FOREIGN> (orig));
 		MIR::Expr* expr = this->foreign_expr;
 		assert (expr);
 		this->foreign_expr = NULL;
@@ -314,26 +314,26 @@ public:
 
 	MIR::Statement* fold_statement (HIR::Statement* orig)
 	{
-		if (!isa<HIR::Foreign> (orig))
+		if (!isa<HIR::FOREIGN> (orig))
 			return parent::fold_statement (orig);
 
-		fold_foreign (dyc<HIR::Foreign> (orig));
+		fold_foreign (dyc<HIR::FOREIGN> (orig));
 		MIR::Statement* statement = this->foreign_statement;
 		assert (statement);
 		this->foreign_statement = NULL;
 		return statement;
 	}
 
-	MIR::None* fold_impl_foreign (HIR::Foreign* orig)
+	MIR::None* fold_foreign (HIR::FOREIGN* orig)
 	{
 		assert (foreign_statement == NULL);
 		assert (foreign_expr == NULL);
 
 		// Save the result, and fetch it from the caller.
-		if (isa<MIR::Statement> (orig->foreign))
-			foreign_statement = dyc<MIR::Statement> (orig->foreign);
-		else if (isa<MIR::Expr> (orig->foreign))
-			foreign_expr = dyc<MIR::Expr> (orig->foreign);
+		if (isa<MIR::Statement> (orig->value))
+			foreign_statement = dyc<MIR::Statement> (orig->value);
+		else if (isa<MIR::Expr> (orig->value))
+			foreign_expr = dyc<MIR::Expr> (orig->value);
 		else assert (0);
 
 		return NULL;

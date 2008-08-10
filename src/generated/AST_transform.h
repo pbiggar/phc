@@ -59,7 +59,6 @@ public:
     virtual void pre_throw(Throw* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void pre_nop(Nop* in, List<Statement*>* out);
-    virtual Foreign* pre_foreign(Foreign* in);
     virtual Expr* pre_assignment(Assignment* in);
     virtual Expr* pre_op_assignment(Op_assignment* in);
     virtual Expr* pre_list_assignment(List_assignment* in);
@@ -80,6 +79,7 @@ public:
     virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
+    virtual FOREIGN* pre_foreign(FOREIGN* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
@@ -126,7 +126,6 @@ public:
     virtual void post_throw(Throw* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
     virtual void post_nop(Nop* in, List<Statement*>* out);
-    virtual Foreign* post_foreign(Foreign* in);
     virtual Expr* post_assignment(Assignment* in);
     virtual Expr* post_op_assignment(Op_assignment* in);
     virtual Expr* post_list_assignment(List_assignment* in);
@@ -147,6 +146,7 @@ public:
     virtual Expr* post_method_invocation(Method_invocation* in);
     virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
+    virtual FOREIGN* post_foreign(FOREIGN* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
@@ -193,7 +193,6 @@ public:
     virtual void children_throw(Throw* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_nop(Nop* in);
-    virtual void children_foreign(Foreign* in);
     virtual void children_assignment(Assignment* in);
     virtual void children_op_assignment(Op_assignment* in);
     virtual void children_list_assignment(List_assignment* in);
@@ -216,6 +215,7 @@ public:
     virtual void children_new(New* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
+    virtual void children_foreign(FOREIGN* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);

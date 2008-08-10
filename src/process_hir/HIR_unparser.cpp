@@ -65,10 +65,10 @@ void HIR_unparser::unparse_foreign (IR::Node* in)
 		hir->visit (this);
 }
 
-void HIR_unparser::pre_foreign (Foreign* in)
+void HIR_unparser::pre_foreign (FOREIGN* in)
 {
 	// The foreign nodes should contain a piece of the MIR
-	MIR::Node* mir = dynamic_cast<MIR::Node*>(in->foreign);
+	MIR::Node* mir = dynamic_cast<MIR::Node*>(in->value);
 	assert (mir);
 	mir_unparser->unparse (mir);
 }

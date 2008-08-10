@@ -40,13 +40,13 @@ template
  class _Constant,
  class _Eval_expr,
  class _Expr,
+ class _FOREIGN,
  class _Foreach_end,
  class _Foreach_get_key,
  class _Foreach_get_val,
  class _Foreach_has_key,
  class _Foreach_next,
  class _Foreach_reset,
- class _Foreign,
  class _Formal_parameter,
  class _Global,
  class _Goto,
@@ -103,7 +103,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Foreign, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_actual_parameter, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FOREIGN, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PHP_script, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _VARIABLE_NAME, _Variable_actual_parameter, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -657,11 +657,6 @@ public:
 		return fold_impl_foreach_get_val(in, array, key, iter);
 	}
 
-	virtual _Foreign fold_foreign(Foreign* in)
-	{
-		return fold_impl_foreign(in);
-	}
-
 
 
 // The user-defined folds
@@ -716,8 +711,8 @@ public:
 	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreign fold_impl_foreign(Foreign* orig) { assert(0); };
 
+	virtual _FOREIGN fold_foreign(FOREIGN* orig) { assert(0); };
 	virtual _CLASS_NAME fold_class_name(CLASS_NAME* orig) { assert(0); };
 	virtual _INTERFACE_NAME fold_interface_name(INTERFACE_NAME* orig) { assert(0); };
 	virtual _METHOD_NAME fold_method_name(METHOD_NAME* orig) { assert(0); };
@@ -758,18 +753,6 @@ public:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
 				return fold_throw(dynamic_cast<Throw*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
 			case Assign_var::ID:
 				return fold_assign_var(dynamic_cast<Assign_var*>(in));
 			case Assign_var_var::ID:
@@ -784,8 +767,20 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Label::ID:
+				return fold_label(dynamic_cast<Label*>(in));
+			case Goto::ID:
+				return fold_goto(dynamic_cast<Goto*>(in));
+			case Branch::ID:
+				return fold_branch(dynamic_cast<Branch*>(in));
+			case Foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
+			case Foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
+			case Foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 			case Class_mod::ID:
 				return fold_class_mod(dynamic_cast<Class_mod*>(in));
 			case Attribute::ID:
@@ -828,12 +823,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Foreach_has_key::ID:
-				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-			case Foreach_get_key::ID:
-				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-			case Foreach_get_val::ID:
-				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Variable_variable::ID:
@@ -842,6 +831,12 @@ public:
 				return fold_index_array(dynamic_cast<Index_array*>(in));
 			case Target_expr::ID:
 				return fold_target_expr(dynamic_cast<Target_expr*>(in));
+			case Foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+			case Foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+			case Foreach_get_val::ID:
+				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case METHOD_NAME::ID:
@@ -892,18 +887,6 @@ public:
 				return fold_try(dynamic_cast<Try*>(in));
 			case Throw::ID:
 				return fold_throw(dynamic_cast<Throw*>(in));
-			case Label::ID:
-				return fold_label(dynamic_cast<Label*>(in));
-			case Goto::ID:
-				return fold_goto(dynamic_cast<Goto*>(in));
-			case Branch::ID:
-				return fold_branch(dynamic_cast<Branch*>(in));
-			case Foreach_next::ID:
-				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
-			case Foreach_reset::ID:
-				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-			case Foreach_end::ID:
-				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
 			case Assign_var::ID:
 				return fold_assign_var(dynamic_cast<Assign_var*>(in));
 			case Assign_var_var::ID:
@@ -918,8 +901,20 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
+			case Label::ID:
+				return fold_label(dynamic_cast<Label*>(in));
+			case Goto::ID:
+				return fold_goto(dynamic_cast<Goto*>(in));
+			case Branch::ID:
+				return fold_branch(dynamic_cast<Branch*>(in));
+			case Foreach_next::ID:
+				return fold_foreach_next(dynamic_cast<Foreach_next*>(in));
+			case Foreach_reset::ID:
+				return fold_foreach_reset(dynamic_cast<Foreach_reset*>(in));
+			case Foreach_end::ID:
+				return fold_foreach_end(dynamic_cast<Foreach_end*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
 		}
 		assert(0);
 	}
@@ -964,14 +959,6 @@ public:
 				return fold_bool(dynamic_cast<BOOL*>(in));
 			case NIL::ID:
 				return fold_nil(dynamic_cast<NIL*>(in));
-			case Foreach_has_key::ID:
-				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-			case Foreach_get_key::ID:
-				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-			case Foreach_get_val::ID:
-				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-			case Foreign::ID:
-				return fold_foreign(dynamic_cast<Foreign*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Variable_variable::ID:
@@ -980,6 +967,14 @@ public:
 				return fold_index_array(dynamic_cast<Index_array*>(in));
 			case Target_expr::ID:
 				return fold_target_expr(dynamic_cast<Target_expr*>(in));
+			case FOREIGN::ID:
+				return fold_foreign(dynamic_cast<FOREIGN*>(in));
+			case Foreach_has_key::ID:
+				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+			case Foreach_get_key::ID:
+				return fold_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+			case Foreach_get_val::ID:
+				return fold_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
 		}
 		assert(0);
 	}

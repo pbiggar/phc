@@ -77,7 +77,7 @@ public:
     virtual Expr* pre_foreach_has_key(Foreach_has_key* in);
     virtual Expr* pre_foreach_get_key(Foreach_get_key* in);
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
-    virtual Foreign* pre_foreign(Foreign* in);
+    virtual FOREIGN* pre_foreign(FOREIGN* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
@@ -143,7 +143,7 @@ public:
     virtual Expr* post_foreach_has_key(Foreach_has_key* in);
     virtual Expr* post_foreach_get_key(Foreach_get_key* in);
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
-    virtual Foreign* post_foreign(Foreign* in);
+    virtual FOREIGN* post_foreign(FOREIGN* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
@@ -209,9 +209,9 @@ public:
     virtual void children_foreach_has_key(Foreach_has_key* in);
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
-    virtual void children_foreign(Foreign* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
+    virtual void children_foreign(FOREIGN* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);

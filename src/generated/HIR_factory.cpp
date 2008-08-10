@@ -348,11 +348,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Static_array_elem(key, is_ref, val);
     }
-    if(!strcmp(type_id, "Foreign"))
-    {
-    	assert(i == args->end());
-    	return new Foreign();
-    }
     if(!strcmp(type_id, "CLASS_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);

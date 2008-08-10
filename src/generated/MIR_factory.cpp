@@ -375,11 +375,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Foreach_get_val(array, key, iter);
     }
-    if(!strcmp(type_id, "Foreign"))
-    {
-    	assert(i == args->end());
-    	return new Foreign();
-    }
     if(!strcmp(type_id, "CLASS_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);

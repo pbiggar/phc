@@ -73,7 +73,7 @@ public:
     virtual Class_name* pre_variable_class(Variable_class* in);
     virtual Static_value* pre_static_array(Static_array* in);
     virtual void pre_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out);
-    virtual Foreign* pre_foreign(Foreign* in);
+    virtual FOREIGN* pre_foreign(FOREIGN* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* pre_method_name(METHOD_NAME* in);
@@ -133,7 +133,7 @@ public:
     virtual Class_name* post_variable_class(Variable_class* in);
     virtual Static_value* post_static_array(Static_array* in);
     virtual void post_static_array_elem(Static_array_elem* in, List<Static_array_elem*>* out);
-    virtual Foreign* post_foreign(Foreign* in);
+    virtual FOREIGN* post_foreign(FOREIGN* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
     virtual METHOD_NAME* post_method_name(METHOD_NAME* in);
@@ -193,9 +193,9 @@ public:
     virtual void children_variable_class(Variable_class* in);
     virtual void children_static_array(Static_array* in);
     virtual void children_static_array_elem(Static_array_elem* in);
-    virtual void children_foreign(Foreign* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
+    virtual void children_foreign(FOREIGN* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);

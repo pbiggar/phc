@@ -6357,81 +6357,6 @@ void Nop::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreign::Foreign()
-{
-}
-
-void Foreign::visit(Visitor* visitor)
-{
-    visitor->visit_statement(this);
-}
-
-void Foreign::transform_children(Transform* transform)
-{
-    transform->children_statement(this);
-}
-
-int Foreign::classid()
-{
-    return ID;
-}
-
-bool Foreign::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Foreign* that = dynamic_cast<Foreign*>(in);
-    if(that == NULL) return false;
-    
-    return true;
-}
-
-bool Foreign::equals(Node* in)
-{
-    Foreign* that = dynamic_cast<Foreign*>(in);
-    if(that == NULL) return false;
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Foreign* Foreign::clone()
-{
-    Foreign* clone = new Foreign();
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Foreign::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    return NULL;
-}
-
-void Foreign::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-}
-
-void Foreign::assert_valid()
-{
-    Node::assert_mixin_valid();
-}
-
-Foreign::Foreign(IR ::Node* foreign)
-{
-    {
-		this->foreign = foreign;
-	}
-}
-
 Literal::Literal()
 {
 }
@@ -9055,6 +8980,113 @@ void New::assert_valid()
     	}
     }
     Node::assert_mixin_valid();
+}
+
+FOREIGN::FOREIGN(IR::Node* value)
+{
+    this->value = value;
+}
+
+FOREIGN::FOREIGN()
+{
+    this->value = 0;
+}
+
+void FOREIGN::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void FOREIGN::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int FOREIGN::classid()
+{
+    return ID;
+}
+
+bool FOREIGN::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    FOREIGN* that = dynamic_cast<FOREIGN*>(in);
+    if(that == NULL) return false;
+    
+    if(!match_value(that))
+    	return false;
+    else
+    	return true;
+}
+
+bool FOREIGN::match_value(FOREIGN* that)
+{
+    return true;
+}
+
+bool FOREIGN::equals(Node* in)
+{
+    FOREIGN* that = dynamic_cast<FOREIGN*>(in);
+    if(that == NULL) return false;
+    
+    if(!equals_value(that))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+FOREIGN* FOREIGN::clone()
+{
+    value = clone_value();
+    FOREIGN* clone = new FOREIGN(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+IR::Node* FOREIGN::clone_value()
+{
+    return value;
+}
+
+Node* FOREIGN::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void FOREIGN::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void FOREIGN::assert_valid()
+{
+    assert_value_valid();
+    Node::assert_mixin_valid();
+}
+
+void FOREIGN::assert_value_valid()
+{
+    // Assume value is valid
+}
+
+// 	IR::Node* clone_value ()
+// 	{
+// 		return value->clone ();
+// 	}
+bool FOREIGN::equals_value(FOREIGN* that)
+{
+    {
+		return value->equals (that->value);
+	}
 }
 
 CLASS_NAME::CLASS_NAME(String* value)

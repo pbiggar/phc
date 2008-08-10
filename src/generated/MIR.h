@@ -82,7 +82,7 @@ class Foreach_end;
 class Foreach_has_key;
 class Foreach_get_key;
 class Foreach_get_val;
-class Foreign;
+class FOREIGN;
 class CLASS_NAME;
 class INTERFACE_NAME;
 class METHOD_NAME;
@@ -160,7 +160,7 @@ public:
     virtual void assert_valid();
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | Assign_var | Assign_var_var | Assign_array | Push_array | Assign_target | Eval_expr | Pre_op | Foreign;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Assign_var | Assign_var_var | Assign_array | Push_array | Assign_target | Eval_expr | Pre_op | Label | Goto | Branch | Foreach_next | Foreach_reset | Foreach_end | FOREIGN<IR::Node*>;
 class Statement : virtual public Node
 {
 public:
@@ -476,7 +476,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Method_invocation | New | Literal | Foreach_has_key | Foreach_get_key | Foreach_get_val | Foreign | Variable_name | Index_array | Target_expr;
+// Expr ::= Cast | Unary_op | Bin_op | Constant | Instanceof | Method_invocation | New | Literal | Variable_name | Index_array | Target_expr | FOREIGN<IR::Node*> | Foreach_has_key | Foreach_get_key | Foreach_get_val;
 class Expr : virtual public Node
 {
 public:
@@ -1940,32 +1940,41 @@ public:
     virtual void assert_valid();
 };
 
-// Foreign ::= ;
-class Foreign : virtual public Statement, virtual public Expr
+class FOREIGN : virtual public Statement, virtual public Expr
 {
 public:
-    Foreign();
+    FOREIGN(IR::Node* value);
+protected:
+    FOREIGN();
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
+public:
+    IR::Node* value;
 public:
     static const int ID = 50;
     virtual int classid();
 public:
     virtual bool match(Node* in);
+    virtual bool match_value(FOREIGN* that);
 public:
     virtual bool equals(Node* in);
 public:
-    virtual Foreign* clone();
+    virtual FOREIGN* clone();
+    virtual IR::Node* clone_value();
 public:
     virtual Node* find(Node* in);
 public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+    virtual void assert_value_valid();
 public:
-    Foreign(IR ::Node* foreign);
-    IR ::Node* foreign;
+    // 	IR::Node* clone_value ()
+    // 	{
+    // 		return value->clone ();
+    // 	}
+    bool equals_value(FOREIGN* that);
 };
 
 class CLASS_NAME : virtual public Target, virtual public Class_name, virtual public Identifier
@@ -2434,7 +2443,7 @@ public:
 };
 
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_target, virtual public Assign_array, virtual public Assign_var_var, virtual public Push_array, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Target_expr, virtual public Variable_name, virtual public Variable_variable, virtual public Index_array, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Method_name, virtual public Variable_method, virtual public Actual_parameter, virtual public Variable_actual_parameter, virtual public New, virtual public Class_name, virtual public Variable_class, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Identifier, virtual public Foreign, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Try, virtual public Catch, virtual public Throw, virtual public Assign_var, virtual public Assign_target, virtual public Assign_array, virtual public Assign_var_var, virtual public Push_array, virtual public Pre_op, virtual public Eval_expr, virtual public Expr, virtual public Literal, virtual public Rvalue, virtual public Target_expr, virtual public Variable_name, virtual public Variable_variable, virtual public Index_array, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Constant, virtual public Instanceof, virtual public Target, virtual public Method_invocation, virtual public Method_name, virtual public Variable_method, virtual public Actual_parameter, virtual public Variable_actual_parameter, virtual public New, virtual public Class_name, virtual public Variable_class, virtual public Static_value, virtual public Static_array, virtual public Static_array_elem, virtual public Static_array_key, virtual public Branch, virtual public Goto, virtual public Label, virtual public Foreach_reset, virtual public Foreach_next, virtual public Foreach_end, virtual public Foreach_has_key, virtual public Foreach_get_key, virtual public Foreach_get_val, virtual public Identifier, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public OP, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public CAST, virtual public CONSTANT_NAME, virtual public LABEL_NAME, virtual public HT_ITERATOR
 {
 public:
     None();

@@ -51,9 +51,9 @@ class AST_to_HIR : public AST::Fold
  HIR::Statement*,				// Do*
  HIR::Statement*,				// Eval_expr*
  HIR::Expr*,					// Expr*
+ HIR::FOREIGN*,				// FOREIGN*
  HIR::Statement*,				// For*
  HIR::Foreach*,				// Foreach*
- HIR::Foreign*,				// Foreign*
  HIR::Formal_parameter*,	// Formal_parameter*
  HIR::Global*,					// Global*
  HIR::INT*,						// INT*

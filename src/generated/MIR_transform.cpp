@@ -251,7 +251,7 @@ Expr* Transform::pre_foreach_get_val(Foreach_get_val* in)
     return in;
 }
 
-Foreign* Transform::pre_foreign(Foreign* in)
+FOREIGN* Transform::pre_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -572,7 +572,7 @@ Expr* Transform::post_foreach_get_val(Foreach_get_val* in)
     return in;
 }
 
-Foreign* Transform::post_foreign(Foreign* in)
+FOREIGN* Transform::post_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -936,11 +936,11 @@ void Transform::children_foreach_get_val(Foreach_get_val* in)
     in->iter = transform_ht_iterator(in->iter);
 }
 
-void Transform::children_foreign(Foreign* in)
+// Tokens don't have children, so these methods do nothing by default
+void Transform::children_foreign(FOREIGN* in)
 {
 }
 
-// Tokens don't have children, so these methods do nothing by default
 void Transform::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1715,60 +1715,6 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Label::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_label(dynamic_cast<Label*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Goto::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_goto(dynamic_cast<Goto*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Branch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_branch(dynamic_cast<Branch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_next::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_reset::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_end::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		pre_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Assign_var::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -1832,8 +1778,62 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(pre_foreign(dynamic_cast<Foreign*>(in)));
+    case Label::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_label(dynamic_cast<Label*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Goto::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_goto(dynamic_cast<Goto*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Branch::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_branch(dynamic_cast<Branch*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_next::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_reset::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_end::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case FOREIGN::ID: 
+    	out->push_back(pre_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -1896,14 +1896,14 @@ Expr* Transform::pre_expr(Expr* in)
     case STRING::ID: return pre_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return pre_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
-    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
+    case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
+    case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     }
     assert(0);
 }
@@ -2086,60 +2086,6 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Label::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_label(dynamic_cast<Label*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Goto::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_goto(dynamic_cast<Goto*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Branch::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_branch(dynamic_cast<Branch*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_next::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_reset::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
-    case Foreach_end::ID: 
-    	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
-    		post_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     case Assign_var::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2203,8 +2149,62 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(post_foreign(dynamic_cast<Foreign*>(in)));
+    case Label::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_label(dynamic_cast<Label*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Goto::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_goto(dynamic_cast<Goto*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Branch::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_branch(dynamic_cast<Branch*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_next::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_next(dynamic_cast<Foreach_next*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_reset::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_reset(dynamic_cast<Foreach_reset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case Foreach_end::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_foreach_end(dynamic_cast<Foreach_end*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
+    case FOREIGN::ID: 
+    	out->push_back(post_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -2267,14 +2267,14 @@ Expr* Transform::post_expr(Expr* in)
     case STRING::ID: return post_string(dynamic_cast<STRING*>(in));
     case BOOL::ID: return post_bool(dynamic_cast<BOOL*>(in));
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
-    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
+    case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
+    case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     }
     assert(0);
 }
@@ -2409,24 +2409,6 @@ void Transform::children_statement(Statement* in)
     case Throw::ID:
     	children_throw(dynamic_cast<Throw*>(in));
     	break;
-    case Label::ID:
-    	children_label(dynamic_cast<Label*>(in));
-    	break;
-    case Goto::ID:
-    	children_goto(dynamic_cast<Goto*>(in));
-    	break;
-    case Branch::ID:
-    	children_branch(dynamic_cast<Branch*>(in));
-    	break;
-    case Foreach_next::ID:
-    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
-    	break;
-    case Foreach_reset::ID:
-    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
-    	break;
-    case Foreach_end::ID:
-    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
-    	break;
     case Assign_var::ID:
     	children_assign_var(dynamic_cast<Assign_var*>(in));
     	break;
@@ -2448,8 +2430,26 @@ void Transform::children_statement(Statement* in)
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case Label::ID:
+    	children_label(dynamic_cast<Label*>(in));
+    	break;
+    case Goto::ID:
+    	children_goto(dynamic_cast<Goto*>(in));
+    	break;
+    case Branch::ID:
+    	children_branch(dynamic_cast<Branch*>(in));
+    	break;
+    case Foreach_next::ID:
+    	children_foreach_next(dynamic_cast<Foreach_next*>(in));
+    	break;
+    case Foreach_reset::ID:
+    	children_foreach_reset(dynamic_cast<Foreach_reset*>(in));
+    	break;
+    case Foreach_end::ID:
+    	children_foreach_end(dynamic_cast<Foreach_end*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2535,18 +2535,6 @@ void Transform::children_expr(Expr* in)
     case NIL::ID:
     	children_nil(dynamic_cast<NIL*>(in));
     	break;
-    case Foreach_has_key::ID:
-    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
-    	break;
-    case Foreach_get_key::ID:
-    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
-    	break;
-    case Foreach_get_val::ID:
-    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
-    	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
-    	break;
     case VARIABLE_NAME::ID:
     	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     	break;
@@ -2558,6 +2546,18 @@ void Transform::children_expr(Expr* in)
     	break;
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));
+    	break;
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
+    	break;
+    case Foreach_has_key::ID:
+    	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
+    	break;
+    case Foreach_get_key::ID:
+    	children_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
+    	break;
+    case Foreach_get_val::ID:
+    	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     	break;
     }
 }

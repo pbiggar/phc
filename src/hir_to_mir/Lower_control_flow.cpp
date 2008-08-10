@@ -50,7 +50,7 @@ void Lower_control_flow::add_label (Node* in, List<Statement*> *out)
 
 	MIR::Label* label = dynamic_cast<MIR::Label*> (in->attrs->get (attr_name));
 	assert (label != NULL);
-	out->push_back (new Foreign (label->clone ()));
+	out->push_back (new FOREIGN (label->clone ()));
 }
 
 // Get IN's exit label, or create one for it, and return it.
@@ -112,14 +112,14 @@ void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 		l2->label_name->clone ());
 
 	// generate the code
-	out->push_back (new Foreign (branch));
-	out->push_back (new Foreign (l1));
+	out->push_back (new FOREIGN (branch));
+	out->push_back (new FOREIGN (l1));
 	out->push_back_all (in->iftrue);
-	out->push_back (new Foreign (l1_goto_l3));
-	out->push_back (new Foreign (l2));
+	out->push_back (new FOREIGN (l1_goto_l3));
+	out->push_back (new FOREIGN (l2));
 	out->push_back_all (in->iffalse);
-	out->push_back (new Foreign (l2_goto_l3));
-	out->push_back (new Foreign (l3));
+	out->push_back (new FOREIGN (l2_goto_l3));
+	out->push_back (new FOREIGN (l3));
 }
 
 void Lower_control_flow::post_if(If* in, List<Statement*>* out)
@@ -141,9 +141,9 @@ void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
 	MIR::Goto *goto_l0 = new MIR::Goto (l0->label_name->clone ());
 
 	// generate code
-	out->push_back (new Foreign (l0));
+	out->push_back (new FOREIGN (l0));
 	out->push_back_all (in->statements);
-	out->push_back (new Foreign (goto_l0));
+	out->push_back (new FOREIGN (goto_l0));
 }
 
 void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
@@ -203,13 +203,13 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 	// foreach_reset ($arr, iter); 
 	MIR::HT_ITERATOR* iter = MIR::fresh_iter ();
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 		new MIR::Foreach_reset (array_name->clone (), iter)));
 
 
 	// L0:
 	MIR::Label* l0 = MIR::fresh_label ();
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 		new MIR::Label (l0->label_name)));
 
 
@@ -219,7 +219,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		new Assign_var (
 			has_key,
 			false,
-			new Foreign (
+			new FOREIGN (
 				new MIR::Foreach_has_key (
 					array_name->clone (),
 					iter->clone ()))));
@@ -228,7 +228,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	// if ($T) goto L1; else goto L2;
 	MIR::Label* l1 = MIR::fresh_label ();
 	MIR::Label* l2 = MIR::fresh_label ();
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 		new MIR::Branch (
 			fold_var (has_key),
 			l1->label_name->clone (), 
@@ -236,7 +236,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// L1:
-	out->push_back (new Foreign (l1));
+	out->push_back (new FOREIGN (l1));
 
 
 	// $key = foreach_get_key ($arr, iter); 
@@ -254,7 +254,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 	out->push_back (
 			new Assign_var (
 				key,
-				new Foreign (get_key)));
+				new FOREIGN (get_key)));
 	
 
 	// $val = foreach_get_val ($arr, $get_key, iter); 
@@ -264,7 +264,7 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 		new Assign_var(
 			in->val->clone (),
 			in->is_ref,
-			new Foreign (
+			new FOREIGN (
 				new MIR::Foreach_get_val (
 					array_name->clone (),
 					mir_key,
@@ -276,21 +276,21 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 
 
 	// foreach_next ($arr, iter); 
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 			new MIR::Foreach_next (
 				array_name->clone (),
 				iter->clone ())));
 
 	// goto L0:
-	out->push_back (new Foreign (new MIR::Goto (l0->label_name->clone ())));
+	out->push_back (new FOREIGN (new MIR::Goto (l0->label_name->clone ())));
 
 
 	// L2:
-	out->push_back (new Foreign (l2));
+	out->push_back (new FOREIGN (l2));
 
 
 	// foreach_end ($arr, iter);
-	out->push_back (new Foreign (
+	out->push_back (new FOREIGN (
 		new MIR::Foreach_end (
 			array_name->clone (),
 			iter->clone ())));
@@ -377,7 +377,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 		// Create a label, pushback a goto to it, and attach it as an attribute
 		// of the appropriate looping construct.
 		Node* level = (*levels)[num_levels - error_depth];
-		out->push_back (new Foreign (
+		out->push_back (new FOREIGN (
 			new MIR::Goto ((exit_label<T> (level))->label_name->clone ())));
 	}
 	else
@@ -407,7 +407,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 			//	if ($TB1 == depth) goto L1; else goto L2;
 			MIR::Label* iffalse = MIR::fresh_label ();
 			push_back_pieces ( // push the pieces from the eval_var back
-				new Foreign (
+				new FOREIGN (
 					new MIR::Branch (
 						(fold_var (eval (
 							new Bin_op (
@@ -419,7 +419,7 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 				out);
 
 			//	L2:
-			out->push_back (new Foreign (iffalse));
+			out->push_back (new FOREIGN (iffalse));
 		}
 		assert (depth == num_levels + 1);
 

@@ -91,7 +91,7 @@ public:
     virtual void pre_foreach_get_key(Foreach_get_key* in);
     virtual void pre_foreach_get_val(Foreach_get_val* in);
     virtual void pre_identifier(Identifier* in);
-    virtual void pre_foreign(Foreign* in);
+    virtual void pre_foreign(FOREIGN* in);
     virtual void pre_class_name(CLASS_NAME* in);
     virtual void pre_interface_name(INTERFACE_NAME* in);
     virtual void pre_method_name(METHOD_NAME* in);
@@ -171,7 +171,7 @@ public:
     virtual void post_foreach_get_key(Foreach_get_key* in);
     virtual void post_foreach_get_val(Foreach_get_val* in);
     virtual void post_identifier(Identifier* in);
-    virtual void post_foreign(Foreign* in);
+    virtual void post_foreign(FOREIGN* in);
     virtual void post_class_name(CLASS_NAME* in);
     virtual void post_interface_name(INTERFACE_NAME* in);
     virtual void post_method_name(METHOD_NAME* in);
@@ -237,9 +237,9 @@ public:
     virtual void children_foreach_has_key(Foreach_has_key* in);
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
-    virtual void children_foreign(Foreign* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
+    virtual void children_foreign(FOREIGN* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
     virtual void children_method_name(METHOD_NAME* in);
@@ -313,7 +313,7 @@ public:
     virtual void pre_foreach_has_key_chain(Foreach_has_key* in);
     virtual void pre_foreach_get_key_chain(Foreach_get_key* in);
     virtual void pre_foreach_get_val_chain(Foreach_get_val* in);
-    virtual void pre_foreign_chain(Foreign* in);
+    virtual void pre_foreign_chain(FOREIGN* in);
     virtual void pre_class_name_chain(CLASS_NAME* in);
     virtual void pre_interface_name_chain(INTERFACE_NAME* in);
     virtual void pre_method_name_chain(METHOD_NAME* in);
@@ -381,7 +381,7 @@ public:
     virtual void post_foreach_has_key_chain(Foreach_has_key* in);
     virtual void post_foreach_get_key_chain(Foreach_get_key* in);
     virtual void post_foreach_get_val_chain(Foreach_get_val* in);
-    virtual void post_foreign_chain(Foreign* in);
+    virtual void post_foreign_chain(FOREIGN* in);
     virtual void post_class_name_chain(CLASS_NAME* in);
     virtual void post_interface_name_chain(INTERFACE_NAME* in);
     virtual void post_method_name_chain(METHOD_NAME* in);

@@ -28,9 +28,9 @@ public:
 	/* Each the HIR_ and MIR_unparsers both use AST_unparser. They fold the
 	 * {H,M}IR into AST, and call the AST_unparser on it. There are some nodes
 	 * in the MIR that are not representable in the AST. These nodes are wrapped
-	 * in an AST::Foreign, and the MIR_unparser is called to unparse them.
+	 * in an AST::FOREIGN, and the MIR_unparser is called to unparse them.
 	 *
-	 * The interface for Foreign nodes supports the HIR is the same fashion,
+	 * The interface for FOREIGN nodes supports the HIR is the same fashion,
 	 * though the HIR doesn't need it.
 	 */
 	void unparse_foreign (IR::Node* in);
@@ -117,7 +117,7 @@ public:
 	void visit_actual_parameter_list(List<AST::Actual_parameter*>* in);
 	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
 
-	void pre_foreign(AST::Foreign* in);
+	void pre_foreign(AST::FOREIGN* in);
 	void pre_node(AST::Node* in);
 	void pre_bin_op(AST::Bin_op* in);
 	void post_bin_op(AST::Bin_op* in);

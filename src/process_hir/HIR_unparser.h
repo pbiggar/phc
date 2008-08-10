@@ -21,7 +21,7 @@ public:
 	void unparse (IR::Node* in);
 	void unparse_foreign (IR::Node* in);
 
-	void pre_foreign(HIR::Foreign* in);
+	void pre_foreign(HIR::FOREIGN* in);
 
 protected:
 	AST_unparser* ast_unparser;
