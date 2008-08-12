@@ -233,33 +233,16 @@ int main(int argc, char** argv)
 				phc_error("XML support not built-in; install Xerces C development library");
 			#else
 				String* pass_name = new String (args_info.read_xml_arg);
-				if (not pm->has_pass_named (pass_name))
-					phc_error ("Specified pass %s is not valid", pass_name->c_str ());
+ 
+				// We'd like debug info while parsing too.
+				pm->maybe_enable_debug (pm->get_pass_named (pass_name));
 
-				if (pm->is_ast_pass (pass_name))
-				{
-					AST_XML_parser parser;
-					if(args_info.inputs_num == 0)
-						ir = parser.parse_xml_stdin();
-					else
-						ir = parser.parse_xml_file (filename);
-				}
-				else if (pm->is_hir_pass (pass_name))
-				{
-					HIR_XML_parser parser;
-					if(args_info.inputs_num == 0)
-						ir = parser.parse_xml_stdin();
-					else
-						ir = parser.parse_xml_file (filename);
-				}
-				else if (pm->is_mir_pass (pass_name))
-				{
-					MIR_XML_parser parser;
-					if(args_info.inputs_num == 0)
-						ir = parser.parse_xml_stdin();
-					else
-						ir = parser.parse_xml_file (filename);
-				}
+				XML_parser parser;
+				if(args_info.inputs_num == 0)
+					ir = parser.parse_xml_stdin();
+				else
+					ir = parser.parse_xml_file (filename);
+
 				// If we are reading the output of another phc session, we need to
 				// set fresh_suffix_counter, or new variables/labels may be created
 				// with the same ID as the old one.

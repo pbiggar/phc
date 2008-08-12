@@ -155,7 +155,10 @@ public:
 
 		if(is_root)
 		{
-			state->os << " xmlns:" << xmlns << "=\"http://www.phpcompiler.org/phc-1.1\"";
+			// TODO these should have different defintions.
+			state->os << " xmlns:AST=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:HIR=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:MIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
