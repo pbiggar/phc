@@ -288,6 +288,7 @@ public:
 
 
 		Object* node = NULL;
+		bool accept_attrs = true;
 
 		// Number of children of the node we are about to create
 		int num_children = num_children_stack.top();
@@ -295,7 +296,7 @@ public:
 		// After we pop, num_children_stack.top() corresponds to the number
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
-
+/*		TODO: debug info takes a long time to generate sometimes. Predicate it with if (debug)
 		cdebug << "Evaluating: " << name << ", and buffer: " << buffer << " with " << num_children << " children";
 		if (num_children_stack.size() > 0)
 			cdebug << ", and " << num_children_stack.top() << " parent's children";
@@ -308,6 +309,8 @@ public:
 			else
 				cdebug << "having type: " << typeid (node_stack.top()).name ();
 		}
+		cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
+*/
 		cdebug << endl;
 
 		if(is_nil)
@@ -342,6 +345,9 @@ public:
 			// Must be the child of a FOREIGN
 			node = node_stack.top();
 			node_stack.pop();
+
+			// Don't let this take two attrs
+			accept_attrs = false;
 		}
 		else if(!strcmp(name, "bool"))
 		{
@@ -398,8 +404,8 @@ public:
 			}
 		}
 
-		// Fetch attributes
-		if(isa<IR::Node> (node) && attrs_stack.size() > 0)
+		// Fetch attributes (dont check size, it covers up bugs)
+		if(accept_attrs && isa<IR::Node> (node))
 		{
 			dyc<IR::Node> (node)->attrs = attrs_stack.top();
 			attrs_stack.pop();
