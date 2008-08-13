@@ -799,15 +799,18 @@ BUILT_SOURCES = \
 strangephcdir = $(pkgincludedir)
 strangephc_HEADERS = \
 	config.h										\
+	src/generated/AST_factory.h			\
 	src/generated/AST_fold.h				\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
 	src/generated/cmdline.h					\
+	src/generated/HIR_factory.h			\
 	src/generated/HIR_fold.h				\
 	src/generated/HIR.h						\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_visitor.h			\
+	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
 	src/generated/MIR_transform.h			\
@@ -816,12 +819,14 @@ strangephc_HEADERS = \
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS = \
 	src/parsing/parse.h						\
+	src/parsing/Parse_buffer.h				\
 	src/parsing/XML_parser.h
 
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS = \
 	src/process_ast/AST_unparser.h			\
-	src/process_ast/DOT_unparser.h
+	src/process_ast/DOT_unparser.h			\
+	src/process_ast/Pretty_print.h
 
 strangeprocesshirdir = $(pkgincludedir)/process_hir
 strangeprocesshir_HEADERS = \
