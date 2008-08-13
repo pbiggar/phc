@@ -16,14 +16,14 @@ using namespace MIR;
 
 MIR_unparser::MIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
+, ast_unparser (ups)
 {
-	ast_unparser = new AST_unparser (this);
 }
 
 MIR_unparser::MIR_unparser (Unparser_state* ups)
 : PHP_unparser (ups)
+, ast_unparser (ups)
 {
-	ast_unparser = new AST_unparser (this);
 }
 
 void MIR_unparser::unparse (IR::Node* in)
@@ -32,14 +32,14 @@ void MIR_unparser::unparse (IR::Node* in)
 	if (isa<VARIABLE_NAME> (in))
 	{
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in);
-		ast_unparser->unparse (
+		ast_unparser.unparse (
 			new AST::VARIABLE_NAME (
 				var_name->value));
 	}
 	else if (isa<Variable_variable> (in))
 	{
 		Variable_variable* var_var = dyc<Variable_variable> (in);
-		ast_unparser->unparse (
+		ast_unparser.unparse (
 			new AST::Reflection (
 				new AST::Variable (
 					new AST::VARIABLE_NAME (
@@ -47,21 +47,18 @@ void MIR_unparser::unparse (IR::Node* in)
 	}
 	else
 	{
-		Node* mir = dynamic_cast<Node*> (in);
+		Node* mir = dyc<Node> (in);
 		AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
-
-		// We dont return foreign_expr
-		if (ast == NULL)
-			unparse_foreign (in);
+		if (ast)
+			ast_unparser.unparse (ast);
 		else
-			ast_unparser->unparse (ast);
+			dyc<MIR::Node> (in)->visit (this);
 	}
 }
 
-void MIR_unparser::unparse_foreign (IR::Node* in)
+void MIR_unparser::pre_foreign (FOREIGN* in)
 {
-	Node* mir = dynamic_cast<Node*> (in);
-	mir->visit (this);
+	in->unparse (ups);
 }
 
 /* Nodes which are foreign in the AST */
@@ -73,7 +70,6 @@ void MIR_unparser::children_foreach_reset (Foreach_reset* in)
 	visit_ht_iterator (in->iter);
 	echo (");");
 }
-
 void MIR_unparser::children_foreach_next (Foreach_next* in)
 {
 	echo ("foreach_next($");

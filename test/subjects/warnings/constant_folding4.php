@@ -1,3 +1,3 @@
 <?php
-var_dump (0 / "String"); // { Warning: Division by zero }
+var_dump (0 / "String"); // { phc-warning: Division by zero }
 ?>

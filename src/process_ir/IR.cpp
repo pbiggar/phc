@@ -13,6 +13,57 @@
 
 using namespace IR;
 
+int
+Node::get_line_number ()
+{
+	Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
+	if(i != NULL)
+		return i->value();
+	else
+		return 0;
+}
+
+String*
+Node::get_filename()
+{
+	String* result = dynamic_cast<String*>(attrs->get("phc.filename"));
+	if (result == NULL)
+		result = new String ("<unknown>");
+
+	return result;
+}
+
+Node::Node()
+{
+	attrs = new AttrMap;
+}
+
+void
+Node::copy_location (Node* source)
+{
+	String* filename = dynamic_cast<String*>(attrs->get("phc.filename"));
+	if (filename == NULL)
+		attrs->set ("phc.filename", source->get_filename ()->clone ());
+
+	Integer* i = dynamic_cast<Integer*>(attrs->get("phc.line_number"));
+	if (i == NULL)
+		attrs->set ("phc.line_number", new Integer (source->get_line_number()));
+}
+
+bool
+Node::equals (IR::Node* that)
+{
+	if (isa<AST::Node> (this))
+		return dyc<AST::Node> (this)->equals (dyc<AST::Node> (that));
+	else if (isa<HIR::Node> (this))
+		return dyc<HIR::Node> (this)->equals (dyc<HIR::Node> (that));
+	else if (isa<MIR::Node> (this))
+		return dyc<MIR::Node> (this)->equals (dyc<MIR::Node> (that));
+
+	assert (0);
+}
+
+
 void PHP_script::assert_valid()
 {
 	if(is_AST())
@@ -23,6 +74,17 @@ void PHP_script::assert_valid()
 		as_MIR()->assert_valid();
 }
 
+void
+FOREIGN::unparse (Unparser_state* ups)
+{
+	IR::Node* value = get_value ();
+	if (isa<AST::Node> (value))
+		dyc<AST::Node> (value)->visit (new AST_unparser (ups));
+	else if (isa<HIR::Node> (value))
+		dyc<HIR::Node> (value)->visit (new HIR_unparser (ups));
+	else
+		dyc<MIR::Node> (value)->visit (new MIR_unparser (ups));
+}
 
 // VISIT
 

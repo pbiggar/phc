@@ -243,11 +243,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Nop();
     }
-    if(!strcmp(type_id, "Foreign"))
-    {
-    	assert(i == args->end());
-    	return new Foreign();
-    }
     if(!strcmp(type_id, "Assignment"))
     {
     	Variable* variable = dynamic_cast<Variable*>(*i++);

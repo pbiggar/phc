@@ -12,8 +12,10 @@
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ast/AST_unparser.h"
 #include <list>
 #include <string>
+#include <cstring>
 #include <assert.h>
 using namespace std;
 

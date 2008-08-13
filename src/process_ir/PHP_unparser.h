@@ -13,27 +13,23 @@
 #include <sstream>
 #include "AST_visitor.h"
 
+class Unparser_state
+{
+	public:
+		Unparser_state (ostream& os, bool in_php);
+
+	public:
+		bool at_start_of_line;
+		bool in_php;
+
+	public:
+		ostream& os;
+		int indent_level;
+		bool delayed_newline;
+};
 
 class PHP_unparser
 {
-protected:
-	// This should be accessible to the PHP_unparser
-	class Unparser_state
-	{
-		public:
-			Unparser_state (ostream& os = cout, bool in_php = false);
-
-		public:
-			bool at_start_of_line;
-			bool in_php;
-
-		public:
-			ostream& os;
-			int indent_level;
-			bool delayed_newline;
-	};
-
-
 // Constructor; pass in a different ostream to write to a file/string instead
 // of standard output
 public:
@@ -44,10 +40,6 @@ public:
 
 	// unparse the node
 	virtual void unparse (IR::Node* in) = 0;
-
-	// Other unparsers can call this unparser to unparse Foreign nodes from
-	// their IR.
-	virtual void unparse_foreign (IR::Node* in) = 0;
 
 // Interface
 protected:
@@ -74,6 +66,8 @@ protected:
 public:
 	static String* escape_dq(String* s);
 	static String* escape_sq(String* s);
+
+	virtual ~PHP_unparser () {}
 
 };
 

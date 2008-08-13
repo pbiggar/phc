@@ -161,11 +161,6 @@ void Transform::pre_nop(Nop* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Foreign* Transform::pre_foreign(Foreign* in)
-{
-    return in;
-}
-
 Expr* Transform::pre_assignment(Assignment* in)
 {
     return in;
@@ -262,6 +257,11 @@ void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter
 }
 
 Expr* Transform::pre_new(New* in)
+{
+    return in;
+}
+
+FOREIGN* Transform::pre_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -487,11 +487,6 @@ void Transform::post_nop(Nop* in, List<Statement*>* out)
     out->push_back(in);
 }
 
-Foreign* Transform::post_foreign(Foreign* in)
-{
-    return in;
-}
-
 Expr* Transform::post_assignment(Assignment* in)
 {
     return in;
@@ -588,6 +583,11 @@ void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_paramete
 }
 
 Expr* Transform::post_new(New* in)
+{
+    return in;
+}
+
+FOREIGN* Transform::post_foreign(FOREIGN* in)
 {
     return in;
 }
@@ -838,10 +838,6 @@ void Transform::children_nop(Nop* in)
 {
 }
 
-void Transform::children_foreign(Foreign* in)
-{
-}
-
 void Transform::children_assignment(Assignment* in)
 {
     in->variable = transform_variable(in->variable);
@@ -963,6 +959,10 @@ void Transform::children_new(New* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
+void Transform::children_foreign(FOREIGN* in)
+{
+}
+
 void Transform::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1927,8 +1927,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(pre_foreign(dynamic_cast<Foreign*>(in)));
+    case FOREIGN::ID: 
+    	out->push_back(pre_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -1985,7 +1985,7 @@ Expr* Transform::pre_expr(Expr* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
     }
     assert(0);
 }
@@ -2055,7 +2055,7 @@ Target* Transform::pre_target(Target* in)
     case Array::ID: return pre_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return pre_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return pre_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return pre_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2248,8 +2248,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
-    case Foreign::ID: 
-    	out->push_back(post_foreign(dynamic_cast<Foreign*>(in)));
+    case FOREIGN::ID: 
+    	out->push_back(post_foreign(dynamic_cast<FOREIGN*>(in)));
     	return;
     }
     assert(0);
@@ -2306,7 +2306,7 @@ Expr* Transform::post_expr(Expr* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
     }
     assert(0);
 }
@@ -2376,7 +2376,7 @@ Target* Transform::post_target(Target* in)
     case Array::ID: return post_array(dynamic_cast<Array*>(in));
     case Conditional_expr::ID: return post_conditional_expr(dynamic_cast<Conditional_expr*>(in));
     case Ignore_errors::ID: return post_ignore_errors(dynamic_cast<Ignore_errors*>(in));
-    case Foreign::ID: return post_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
     }
     assert(0);
@@ -2455,8 +2455,8 @@ void Transform::children_statement(Statement* in)
     case Nop::ID:
     	children_nop(dynamic_cast<Nop*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2541,8 +2541,8 @@ void Transform::children_expr(Expr* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2653,8 +2653,8 @@ void Transform::children_target(Target* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

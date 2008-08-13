@@ -19,6 +19,7 @@ prefix "MIR";
 external class "Object";
 external class "IR::Node";
 external class "IR::PHP_script";
+external class "IR::FOREIGN";
 use list "List";
 use string "String";
 use namespace "MIR";
@@ -34,11 +35,13 @@ Statement ::=
      Class_def | Interface_def | Method
 	| Return | Static_declaration | Global
 	| Try | Throw
-	| Label | Goto | Branch
-	| Foreach_next | Foreach_reset | Foreach_end
 	| Assign_var | Assign_var_var | Assign_array | Push_array | Assign_target
 	| Eval_expr | Pre_op
-	| Foreign
+	| Label | Goto | Branch
+	| Foreach_next | Foreach_reset | Foreach_end
+	-- Foreign represents a construct from another IR that does not have a
+	-- natural representation in this IR.
+	| FOREIGN<IR::Node*>
 	;
 
 {-
@@ -79,10 +82,10 @@ Catch ::= CLASS_NAME VARIABLE_NAME Statement* ;
 Throw ::= VARIABLE_NAME ;
 
 Assign_var     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Expr ;
-Assign_target	::= Target	lhs:Variable_name								is_ref:"&"? rhs:VARIABLE_NAME;
-Assign_array   ::=			lhs:VARIABLE_NAME index:VARIABLE_NAME	is_ref:"&"? rhs:VARIABLE_NAME ;
-Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:VARIABLE_NAME ;
-Push_array     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:VARIABLE_NAME ;
+Assign_target	::= Target	lhs:Variable_name								is_ref:"&"? rhs:Rvalue ;
+Assign_array   ::=			lhs:VARIABLE_NAME index:Rvalue			is_ref:"&"? rhs:Rvalue ;
+Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
+Push_array     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
 
 Pre_op ::= OP VARIABLE_NAME ;
 
@@ -94,25 +97,32 @@ Eval_expr ::= Expr ;
 -}
 
 Expr ::=
-	  Cast | Unary_op | Bin_op 
+	  Cast | Unary_op | Bin_op
 	| Constant | Instanceof
 	| Method_invocation | New
 	| Literal 
-	| Foreach_has_key | Foreach_get_key | Foreach_get_val
-	| Foreign
 	| Variable_name | Index_array | Target_expr
+	| FOREIGN<IR::Node*>
+	-- MIR only
+	| Foreach_has_key | Foreach_get_key | Foreach_get_val
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
 
+-- Use Rvalue anywhere that the access is read-only, and a literal might be
+-- used just as easily as a VARIABLE_NAME. Don't use them where they could be
+-- immediately folded to something better, for example, in a Unary_op or a
+-- Target_expr.
+Rvalue ::= Literal | VARIABLE_NAME ;
+
 Target_expr ::= Target Variable_name;
 Variable_name ::= VARIABLE_NAME | Variable_variable ;
 Variable_variable ::= VARIABLE_NAME ;
-Index_array ::= VARIABLE_NAME index:VARIABLE_NAME ;
+Index_array ::= VARIABLE_NAME index:Rvalue ;
 
 Cast     ::= CAST VARIABLE_NAME ;
 Unary_op ::= OP VARIABLE_NAME ;
-Bin_op   ::= left:VARIABLE_NAME OP right:VARIABLE_NAME ; 
+Bin_op   ::= left:Rvalue OP right:Rvalue ;
 
 Constant ::= CLASS_NAME? CONSTANT_NAME ;
 
@@ -124,7 +134,8 @@ Method_invocation ::= Target? Method_name Actual_parameter* ;
 Method_name ::= METHOD_NAME | Variable_method ;
 Variable_method ::= VARIABLE_NAME ;
 
-Actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:VARIABLE_NAME* ;
+Actual_parameter ::= Literal | Variable_actual_parameter ;
+Variable_actual_parameter ::= is_ref:"&"? Target? Variable_name array_indices:Rvalue* ;
 
 New ::= Class_name Actual_parameter* ;
 Class_name ::= CLASS_NAME | Variable_class ;
@@ -167,11 +178,6 @@ Identifier ::=
 	  | CAST | OP | CONSTANT_NAME | LABEL_NAME | HT_ITERATOR
 	;  
 
--- Foreign represents a construct from another IR that does not have a natural
--- representation in this IR.
-Foreign ::= ;
-
-
 {-
  - Extra attributes and methods (mixin code)
  -}
@@ -187,6 +193,7 @@ Foreign ::= ;
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
+#include "process_ast/AST_unparser.h"
 
 class Node : IR::Node
 {
@@ -622,13 +629,16 @@ public:
 	}
 };
 
-class Foreign
+class FOREIGN : IR::FOREIGN
 {
 public:
-	Foreign (IR::Node* foreign)
+	bool equals_value (FOREIGN* that)
 	{
-		this->foreign = foreign;
+		return value->equals (that->value);
 	}
 
-	IR::Node* foreign;
+	IR::Node* get_value()
+	{
+		return value;
+	}
 };

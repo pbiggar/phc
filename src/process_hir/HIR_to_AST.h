@@ -23,7 +23,7 @@
  */
 class HIR_to_AST : public HIR::Fold
 <
- AST::Actual_parameter*,	// Actual_parameter*
+ AST::Node*,					// Actual_parameter*
  AST::Eval_expr*,				// Assign_array*
  AST::Eval_expr*,				// Assign_target*
  AST::Eval_expr*,				// Assign_var*
@@ -45,8 +45,8 @@ class HIR_to_AST : public HIR::Fold
  AST::Continue*,				// Continue*
  AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
+ AST::FOREIGN*,				// FOREIGN*
  AST::Foreach*,				// Foreach*
- AST::Foreign*,				// Foreign*
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
  AST::INT*,						// INT*
@@ -74,6 +74,7 @@ class HIR_to_AST : public HIR::Fold
  AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
  AST::Return*,					// Return*
+ AST::Expr*,					// Rvalue*
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
  AST::Statement*,				// Statement*
@@ -89,6 +90,7 @@ class HIR_to_AST : public HIR::Fold
  AST::Type*,					// Type*
  AST::Unary_op*,				// Unary_op*
  AST::None*,					// VARIABLE_NAME* - Variable or Variable_name
+ AST::Actual_parameter*,	// Variable_actual_parameter*
  AST::Reflection*,			// Variable_class*
  AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
@@ -129,10 +131,10 @@ public:
 	List<AST::Expr*>* wrap_var_name_list (List<AST::None*>* var_names)
 	{
 		List<AST::Expr*>* result = new List<AST::Expr*>;
-		for_lci (var_names, AST::None, i)
+		foreach (AST::None* n, *var_names)
 		{
 			// Process in reverse order off the stack
-			result->push_front (wrap_var_name (*i));
+			result->push_front (wrap_var_name (n));
 		}
 		return result;
 	}
@@ -163,6 +165,16 @@ public:
 			return wrap_var_name (target);
 
 		return dyc<AST::CLASS_NAME> (target);
+	}
+
+	List<AST::Actual_parameter*>* convert_actual_parameters (List<AST::Node*>* in)
+	{
+		List<AST::Actual_parameter*>* out = new List<AST::Actual_parameter*>;
+		foreach (AST::Node* n, *in)
+		{
+			out->push_back (dyc<AST::Actual_parameter> (n));
+		}
+		return out;
 	}
 
 public:
@@ -322,10 +334,9 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_var_var (HIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_var_var (HIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -335,17 +346,15 @@ public:
 				new AST::Reflection (
 					new AST::Variable (lhs_var)),
 				new List<AST::Expr*>), 
-			is_ref, 
-			new AST::Variable (rhs_var));
+			is_ref,
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_array (HIR::Assign_array* orig, AST::None* lhs, AST::None* index, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_array (HIR::Assign_array* orig, AST::None* lhs, AST::Expr* index, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
-		AST::VARIABLE_NAME* index_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -353,18 +362,16 @@ public:
 			new AST::Variable (
 				NULL,
 				lhs_var,
-				new List<AST::Expr*> (
-					new AST::Variable (index_var))),
-			is_ref, 
-			new AST::Variable (rhs_var));
+				new List<AST::Expr*> (index)),
+			is_ref,
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_push_array (HIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_push_array (HIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -375,15 +382,14 @@ public:
 				new List<AST::Expr*> (
 					NULL)),
 			is_ref,
-			new AST::Variable (rhs_var));
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_target (HIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::None* rhs) 
+	AST::Eval_expr* fold_impl_assign_target (HIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
-		AST::VARIABLE_NAME* rhs_var = get_var_name ();
 		AST::Target* target_var = wrap_target (target);
 
 		AST::Assignment* result;
@@ -393,7 +399,7 @@ public:
 				lhs,
 				new List<AST::Expr*>),
 			is_ref,
-			new AST::Variable (rhs_var));
+			rhs);
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
 	}
@@ -422,13 +428,10 @@ public:
 		return result;
 	}
 
-	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::None* left, AST::OP* op, AST::None* right) 
+	AST::Bin_op* fold_impl_bin_op(HIR::Bin_op* orig, AST::Expr* left, AST::OP* op, AST::Expr* right) 
 	{
-		AST::Variable* right_var = wrap_var_name (left);
-		AST::Variable* left_var = wrap_var_name (left);
-
 		AST::Bin_op* result;
-		result = new AST::Bin_op(left_var, op, right_var);
+		result = new AST::Bin_op(left, op, right);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -449,14 +452,13 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::None* variable_name, AST::None* array_index)
+	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::None* variable_name, AST::Expr* index)
 	{
-		// The order is important.
-		List<AST::Expr*>* list = wrap_var_name_in_list (array_index);
-		AST::VARIABLE_NAME* var = get_var_name ();
-
 		AST::Variable* result;
-		result = new AST::Variable(NULL, var, list);
+		result = new AST::Variable (
+			NULL, 
+			get_var_name (), 
+			new List<AST::Expr*> (index));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -516,6 +518,14 @@ public:
 			return parent::fold_expr (orig);
 	}
 
+	AST::Expr* fold_rvalue (HIR::Rvalue* orig)
+	{
+		if (isa<HIR::VARIABLE_NAME> (orig))
+			return wrap_var_name (fold_variable_name (dyc<HIR::VARIABLE_NAME> (orig)));
+		else
+			return parent::fold_rvalue (orig);
+	}
+
 	AST::None* fold_impl_variable_variable(HIR::Variable_variable* orig, AST::None* variable_name) 
 	{
 		// Return NULL, and the users of this use this->reflection.
@@ -569,20 +579,19 @@ public:
 		return result;
 	}
 
-	AST::Method_invocation* fold_impl_method_invocation(HIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, List<AST::Actual_parameter*>* actual_parameters) 
+	AST::Method_invocation* fold_impl_method_invocation(HIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, List<AST::Node*>* actual_parameters) 
 	{
 		AST::Method_invocation* result;
 		result = new AST::Method_invocation(
 			wrap_target (target),
 			method_name, 
-			actual_parameters);
+			convert_actual_parameters (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_actual_parameter(HIR::Actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::None*>* array_indices) 
+	AST::Actual_parameter* fold_impl_variable_actual_parameter(HIR::Variable_actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices)
 	{
-		List<AST::Expr*>* list = wrap_var_name_list (array_indices);
 		AST::Target* target_var = wrap_target (target);
 
 		AST::Actual_parameter* result;
@@ -591,15 +600,23 @@ public:
 			new AST::Variable (
 				target_var,
 				variable_name,
-				list));
+				array_indices));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::New* fold_impl_new(HIR::New* orig, AST::Class_name* class_name, List<AST::Actual_parameter*>* actual_parameters) 
+	AST::Actual_parameter* fold_actual_parameter (HIR::Actual_parameter* in)
+	{
+		if (isa<HIR::Literal> (in))
+			return new AST::Actual_parameter (false, fold_literal (dyc<HIR::Literal> (in)));
+		else
+			return dyc<AST::Actual_parameter> (parent::fold_actual_parameter (in));
+	}
+
+	AST::New* fold_impl_new(HIR::New* orig, AST::Class_name* class_name, List<AST::Node*>* actual_parameters) 
 	{
 		AST::New* result;
-		result = new AST::New(class_name, actual_parameters);
+		result = new AST::New(class_name, convert_actual_parameters (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -704,10 +721,10 @@ public:
 		return result;
 	}
 
-	AST::Foreign* fold_impl_foreign (HIR::Foreign* orig)
+	AST::FOREIGN* fold_foreign (HIR::FOREIGN* orig)
 	{
-		AST::Foreign* result;
-		result = new AST::Foreign(orig->foreign);
+		AST::FOREIGN* result;
+		result = new AST::FOREIGN(orig->value);
 		result->attrs = orig->attrs;
 		return result;
 	}

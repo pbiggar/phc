@@ -33,7 +33,6 @@ AM_CXXFLAGS = -Wextra -Wno-unused-parameter -Wno-write-strings
 # 5 or 6 files which require special rules.
 
 # -export-dynammic: Special libtool flag for later plugin loading
-# -R: search for libraries (ie libphp5) in php's lib install dir
 src_phc_LDFLAGS = -export-dynamic
 
 # We leave out -dlopen" self "-dlopen" since its built-in to later automakes,
@@ -43,12 +42,12 @@ src_phc_LDADD = @gc_lib@ $(LIBLTDL) libphc.la
 bin_SCRIPTS = src/phc_compile_plugin
 libexec_SCRIPTS = libtool
 # pkgdata_DATA = phc-1.0.xsd
-pkgdata_DATA = libphc.cpp
+pkgdata_DATA = libphc/support_routines.c libphc/builtin_functions.c
 
 src_phc_SOURCES =												\
 	src/phc.cpp
 
-libphc_la_SOURCES= \
+libphc_la_SOURCES= 											\
 	3rdparty/getopt/getopt1.c								\
 	3rdparty/getopt/getopt.c								\
 	3rdparty/getopt/getopt.h								\
@@ -225,12 +224,13 @@ libphc_la_SOURCES= \
 	src/process_mir/Foreach_uppering.h					\
 	src/process_mir/Goto_uppering.cpp					\
 	src/process_mir/Goto_uppering.h						\
+	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
 
-BUILT_SOURCES = \
+BUILT_SOURCES = 												\
 	src/generated/AST.cpp									\
 	src/generated/AST_factory.cpp							\
 	src/generated/AST_factory.h							\
@@ -355,9 +355,9 @@ nobase_pkglib_LTLIBRARIES += plugins/tests/linear.la
 plugins_tests_linear_la_SOURCES = plugins/tests/linear.cpp plugins/tests/Collect_all_pointers.h
 plugins_tests_linear_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
-nobase_pkglib_LTLIBRARIES += plugins/tests/lost_attributes.la
-plugins_tests_lost_attributes_la_SOURCES = plugins/tests/lost_attributes.cpp
-plugins_tests_lost_attributes_la_LDFLAGS = ${PLUGIN_LDFLAGS}
+nobase_pkglib_LTLIBRARIES += plugins/tests/inconsistent_st_attr.la
+plugins_tests_inconsistent_st_attr_la_SOURCES = plugins/tests/inconsistent_st_attr.cpp
+plugins_tests_inconsistent_st_attr_la_LDFLAGS = ${PLUGIN_LDFLAGS}
 
 nobase_pkglib_LTLIBRARIES += plugins/tests/strip_includes.la
 plugins_tests_strip_includes_la_SOURCES = plugins/tests/strip_includes.cpp
@@ -526,7 +526,7 @@ distclean-local:
 # - If the maintainer built it (for instance, a .info file), then
 #   maintainer-clean should delete it. However maintainer-clean should not
 #   delete anything that needs to exist in order to run ./configure && make. 
-MAINTAINERCLEANFILES = Makefile.in src/generated/README.TreeTransform
+MAINTAINERCLEANFILES = Makefile.in
 # Just delete the contents - the directory is in svn
 maintainerclean-local:
 	rm -rf src/generated/*

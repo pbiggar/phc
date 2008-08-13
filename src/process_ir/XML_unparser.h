@@ -14,34 +14,64 @@
 #include "lib/error.h"
 #include "lib/String.h"
 #include "lib/List.h"
+#include "process_ir/IR.h"
 #include "cmdline.h"
 
 char* get_args_info_tab ();
+
+class XML_unparser_state
+{
+public:
+	ostream& os;
+	bool print_attrs;
+	int indent;
+
+public:
+	XML_unparser_state (ostream& os, bool print_attrs);
+	void print_indent();
+};
+
+void xml_unparse (AST::Node*, XML_unparser_state* state = NULL);
+void xml_unparse (HIR::Node*, XML_unparser_state* state = NULL);
+void xml_unparse (MIR::Node*, XML_unparser_state* state = NULL);
+void xml_unparse (IR::Node*, XML_unparser_state* state = NULL);
+
 
 template
 <
 	class Script,
 	class Node,
-	class Visitor
+	class Visitor,
+	class Identifier,
+	class Literal,
+	class NIL,
+	class CAST,
+	class FOREIGN
 >
 class XML_unparser : public Visitor 
 {
 protected:
 	string xmlns; // XML namespace
-	ostream& os;
-	int indent;
-	bool print_attrs;
+	XML_unparser_state* state;
 
-	void print_indent()
+public:
+	XML_unparser(string xmlns, ostream& os = cout, bool print_attrs = true)
+	: xmlns(xmlns)
 	{
-		// Because this is a header, we cant put extern args_info in the file.
-		// However, adding it in this scope is also confusing, since the compiler
-		// may think it has internal linkage, when it actually has external (a
-		// theory, I'm not sure of the exact problem). Anyway, the solution is to
-		// put the access to args_info in a separate file, and access it that way.
-		for(int i = 0; i < indent; i++)
-			os << get_args_info_tab ();
+		state = new XML_unparser_state (os, print_attrs);
 	}
+
+	XML_unparser(string xmlns, XML_unparser_state* state)
+	: xmlns(xmlns)
+	, state(state)
+	{
+	}
+
+	virtual ~XML_unparser() 
+	{
+	}
+
+public:
 
 	bool needs_encoding(String* str)
 	{
@@ -62,51 +92,38 @@ protected:
 		return false;
 	}
 
-public:
-	XML_unparser(string xmlns, ostream& os = cout, bool print_attrs = true)
-		: xmlns(xmlns), os(os), print_attrs (print_attrs)
-	{
-		indent = 0;
-	}
-
-	virtual ~XML_unparser() 
-	{
-	}
-
-public:
-
 	void visit_marker(char const* name, bool value)
 	{
-		print_indent();
-		os << "<bool>" 
+		state->print_indent();
+		state->os << "<bool>" 
 			<< "<!-- " << name << " -->"
 			<< (value ? "true" : "false") << "</bool>" << endl;
 	}
 
 	void visit_null(char const* name_space, char const* type_id)
 	{
-		print_indent();
-		os << "<" << name_space << ":" << type_id << " xsi:nil=\"true\" />" << endl;
+		state->print_indent();
+		state->os << "<" << name_space << ":" << type_id << " xsi:nil=\"true\" />" << endl;
 	}
 
 	void visit_null_list(char const* name_space, char const* type_id)
 	{
-		print_indent();
-		os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />" << endl;
+		state->print_indent();
+		state->os << "<" << name_space << ":" << type_id << "_list xsi:nil=\"true\" />" << endl;
 	}
 
 	void pre_list(char const* name_space, char const* type_id, int size)
 	{
-		print_indent();
-		os << "<" << name_space << ":" << type_id << "_list>" << endl;
-		indent++;
+		state->print_indent();
+		state->os << "<" << name_space << ":" << type_id << "_list>" << endl;
+		state->indent++;
 	}
 
 	void post_list(char const* name_space, char const* type_id, int size)
 	{
-		indent--;
-		print_indent();
-		os << "</" << name_space << ":" << type_id << "_list>" << endl;
+		state->indent--;
+		state->print_indent();
+		state->os << "</" << name_space << ":" << type_id << "_list>" << endl;
 	}
 
 public:
@@ -130,63 +147,63 @@ public:
 		bool is_root = dynamic_cast<Script*>(in);
 
 		if(is_root)
-			os << "<?xml version=\"1.0\"?>" << endl;
+			state->os << "<?xml version=\"1.0\"?>" << endl;
 
-		print_indent();
+		state->print_indent();
 
-		os << "<" << demangle_xml (in);
+		state->os << "<" << demangle_xml (in);
 
 		if(is_root)
 		{
-			os << " xmlns:" << xmlns << "=\"http://www.phpcompiler.org/phc-1.1\"";
-			os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
+			state->os << " xmlns:" << xmlns << "=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
-		os << ">" << endl;
-		indent++;
+		state->os << ">" << endl;
+		state->indent++;
 
-		if(print_attrs) print_attributes(in);
+		if(state->print_attrs) print_attributes(in);
 	}
 
 	void post_node(Node* in)
 	{
-		indent--;
-		print_indent();
-		os << "</" << demangle_xml(in) << ">" << endl;
+		state->indent--;
+		state->print_indent();
+		state->os << "</" << demangle_xml(in) << ">" << endl;
 	}
 
 protected:
 
 	void maybe_encode (const char* tag_name, String* value)
 	{
-		os << "<" << tag_name;
+		state->os << "<" << tag_name;
 
 		if(needs_encoding(value))
 		{
-			os << " encoding=\"base64\">";
-			os << *base64_encode(value);
+			state->os << " encoding=\"base64\">";
+			state->os << *base64_encode(value);
 		}
 		else
 		{
-			os << ">";
-			os << *value;
+			state->os << ">";
+			state->os << *value;
 		}
 
-		os << "</" << tag_name << ">";
+		state->os << "</" << tag_name << ">";
 	}
 
 	void print_attributes(Node* in)
 	{
 		if(in->attrs->size() == 0)
 		{
-			print_indent();
-			os << "<attrs />" << endl;
+			state->print_indent();
+			state->os << "<attrs />" << endl;
 		}
 		else
 		{
-			print_indent();
-			os << "<attrs>" << endl;
-			indent++;
+			state->print_indent();
+			state->os << "<attrs>" << endl;
+			state->indent++;
 
 			AttrMap::const_iterator i;
 			for(i = in->attrs->begin(); i != in->attrs->end(); i++)
@@ -194,54 +211,93 @@ protected:
 				print_attribute((*i).first, (*i).second);
 			}
 
-			indent--;
-			print_indent();
-			os << "</attrs>" << endl;
+			state->indent--;
+			state->print_indent();
+			state->os << "</attrs>" << endl;
 		}
 	}
 
 	void print_attribute(string name, Object* attr)
 	{
-		print_indent();
+		state->print_indent();
 
 		if(String* str = dynamic_cast<String*>(attr))
 		{
-			os << "<attr key=\"" << name << "\">";
+			state->os << "<attr key=\"" << name << "\">";
 			maybe_encode ("string", str);
-			os << "</attr>" << endl;
+			state->os << "</attr>" << endl;
 		}
 		else if(Integer* i = dynamic_cast<Integer*>(attr))
 		{
-			os << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>" << endl;
+			state->os << "<attr key=\"" << name << "\"><integer>" << i->value () << "</integer></attr>" << endl;
 		}
 		else if(Boolean* b = dynamic_cast<Boolean*>(attr))
 		{
-			os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
+			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
 		}
 		else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
 		{
-			os << "<attr key=\"" << name << "\"><string_list>" << endl;
-			indent++;
+			state->os << "<attr key=\"" << name << "\"><string_list>" << endl;
+			state->indent++;
 
 			List<String*>::const_iterator j;
 			for(j = ls->begin(); j != ls->end(); j++)
 			{
-				print_indent();
+				state->print_indent();
 				maybe_encode ("string", *j);
 			}
 
-			indent--;
-			print_indent();
-			os << "</string_list></attr>" << endl;
+			state->indent--;
+			state->print_indent();
+			state->os << "</string_list></attr>" << endl;
 		}
 		else if (attr == NULL)
 		{
-			os << "<!-- skipping NULL attribute " << name << " -->" << endl;
+			state->os << "<!-- skipping NULL attribute " << name << " -->" << endl;
+		}
+		else if (IR::Node* node = dynamic_cast<IR::Node*> (attr))
+		{
+			xml_unparse (node, state);
 		}
 		else
 			phc_warning ("Don't know how to deal with attribute '%s' of type '%s'", name.c_str(), demangle(attr, true));	
 	}
 
+	void pre_literal(Literal* in)
+	{
+		String* value = in->get_value_as_string();
+
+		// NIL does not have a value
+		if(!isa<NIL> (in))
+		{
+			state->print_indent();
+			maybe_encode ("value", value);
+			state->os << endl;
+		}
+	}
+
+	void pre_identifier(Identifier* in)
+	{
+		String* value = in->get_value_as_string();
+
+		state->print_indent();
+		maybe_encode ("value", value);
+		state->os << endl;
+	}
+
+	// Foreign nodes delegate to the appropriate XML_unparser.
+	void pre_foreign (FOREIGN* in)
+	{
+		state->print_indent();
+		state->os << "<value>" << endl;
+
+		state->indent++;
+		xml_unparse (in->value, state);
+		state->indent--;
+
+		state->print_indent();
+		state->os << "</value>" << endl;
+	}
 };
 
 #include "AST_visitor.h"
@@ -249,7 +305,12 @@ class AST_XML_unparser : public XML_unparser
 <
 	AST::PHP_script,
 	AST::Node,
-	AST::Visitor
+	AST::Visitor,
+	AST::Identifier,
+	AST::Literal,
+	AST::NIL,
+	AST::CAST,
+	AST::FOREIGN
 >
 {
 public:
@@ -257,43 +318,30 @@ public:
 	: XML_unparser<
 			AST::PHP_script,
 			AST::Node,
-			AST::Visitor
+			AST::Visitor,
+			AST::Identifier,
+			AST::Literal,
+			AST::NIL,
+			AST::CAST,
+			AST::FOREIGN
 		> ("AST", os, print_attrs)
 	{
 	}
+
+	AST_XML_unparser(XML_unparser_state* state)
+	: XML_unparser<
+			AST::PHP_script,
+			AST::Node,
+			AST::Visitor,
+			AST::Identifier,
+			AST::Literal,
+			AST::NIL,
+			AST::CAST,
+			AST::FOREIGN
+		> ("AST", state)
+	{
+	}
 	
-	void pre_identifier(AST::Identifier* in)
-	{
-		AST::CAST* cast = dynamic_cast<AST::CAST*>(in);
-
-		if(cast != NULL)
-		{
-			print_indent();
-			os << "<value>" << *cast->value << "</value>" << endl;
-		}
-		else
-		{
-			String* value = in->get_value_as_string();
-
-			print_indent();
-			maybe_encode ("value", value);
-			os << endl;
-		}
-	}
-
-	void pre_literal(AST::Literal* in)
-	{
-		String* value = in->get_value_as_string();
-
-		// NIL does not have a value
-		if(!dynamic_cast<AST::NIL*>(in))
-		{
-			print_indent();
-			maybe_encode ("value", value);
-			os << endl;
-		}
-	}
-
 };
 
 #include "HIR_visitor.h"
@@ -301,7 +349,12 @@ class HIR_XML_unparser : public XML_unparser
 <
 	HIR::PHP_script,
 	HIR::Node,
-	HIR::Visitor
+	HIR::Visitor,
+	HIR::Identifier,
+	HIR::Literal,
+	HIR::NIL,
+	HIR::CAST,
+	HIR::FOREIGN
 >
 {
 public:
@@ -309,33 +362,29 @@ public:
 	: XML_unparser<
 			HIR::PHP_script,
 			HIR::Node,
-			HIR::Visitor
+			HIR::Visitor,
+			HIR::Identifier,
+			HIR::Literal,
+			HIR::NIL,
+			HIR::CAST,
+			HIR::FOREIGN
 		> ("HIR", os, print_attrs)
 	{
 	}
-	
-	void pre_identifier(HIR::Identifier* in)
+
+	HIR_XML_unparser(XML_unparser_state* state)
+	: XML_unparser<
+			HIR::PHP_script,
+			HIR::Node,
+			HIR::Visitor,
+			HIR::Identifier,
+			HIR::Literal,
+			HIR::NIL,
+			HIR::CAST,
+			HIR::FOREIGN
+		> ("HIR", state)
 	{
-		String* value = in->get_value_as_string();
-
-		print_indent();
-		maybe_encode ("value", value);
-		os << endl;
 	}
-
-	void pre_literal(HIR::Literal* in)
-	{
-		String* value = in->get_value_as_string();
-
-		// NIL does not have a value
-		if(!dynamic_cast<HIR::NIL*>(in))
-		{
-			print_indent();
-			maybe_encode ("value", value);
-			os << endl;
-		}
-	}
-
 };
 
 #include "MIR_visitor.h"
@@ -343,7 +392,12 @@ class MIR_XML_unparser : public XML_unparser
 <
 	MIR::PHP_script, 
 	MIR::Node, 
-	MIR::Visitor
+	MIR::Visitor,
+	MIR::Identifier,
+	MIR::Literal,
+	MIR::NIL,
+	MIR::CAST,
+	MIR::FOREIGN
 > 
 {
 public:
@@ -351,33 +405,31 @@ public:
 	: XML_unparser<
 			MIR::PHP_script,
 			MIR::Node,
-			MIR::Visitor
+			MIR::Visitor,
+			MIR::Identifier,
+			MIR::Literal,
+			MIR::NIL,
+			MIR::CAST,
+			MIR::FOREIGN
 		> ("MIR", os, print_attrs)
 	{
 	}
-	
-	void pre_identifier(MIR::Identifier* in)
+
+	MIR_XML_unparser(XML_unparser_state* state)
+	: XML_unparser<
+			MIR::PHP_script,
+			MIR::Node,
+			MIR::Visitor,
+			MIR::Identifier,
+			MIR::Literal,
+			MIR::NIL,
+			MIR::CAST,
+			MIR::FOREIGN
+		> ("MIR", state)
 	{
-		String* value = in->get_value_as_string();
-
-		print_indent();
-		maybe_encode ("value", value);
-		os << endl;
-
 	}
 
-	void pre_literal(MIR::Literal* in)
-	{
-		String* value = in->get_value_as_string();
-
-		// NIL does not have a value
-		if(!dynamic_cast<MIR::NIL*>(in))
-		{
-			print_indent();
-			maybe_encode ("value", value);
-			os << endl;
-		}
-	}
 };
+
 
 #endif // PHC_XML_UNPARSER

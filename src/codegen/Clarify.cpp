@@ -43,11 +43,8 @@ void Clarify::post_method (MIR::Method* in)
 	var_names->push_back (s("HTTP_FILES_VARS"));
 	var_names->push_back (s("_REQUEST"));
 	var_names->push_back (s("HTTP_REQUEST_VARS"));
-	for_lci(var_names,String,i)
+	foreach (String *s, *var_names)
 	{
-		in->statements->push_front (
-			new MIR::Global (
-				new MIR::VARIABLE_NAME (
-					*i)));
+		in->statements->push_front (new Global (new VARIABLE_NAME (s)));
 	}
 }

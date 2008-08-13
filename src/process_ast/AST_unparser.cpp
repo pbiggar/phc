@@ -101,29 +101,19 @@ public:
 
 AST_unparser::AST_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
-, foreign_unparser(NULL)
 {
 	in_string.push(false);
 }
 
 AST_unparser::AST_unparser (Unparser_state* ups)
 : PHP_unparser (ups)
-, foreign_unparser (NULL)
-{
-	in_string.push(false);
-}
-
-AST_unparser::AST_unparser (PHP_unparser* foreign_unparser)
-: PHP_unparser (foreign_unparser->ups)
-, foreign_unparser (foreign_unparser)
 {
 	in_string.push(false);
 }
 
 void AST_unparser::unparse (IR::Node* in)
 {
-	Node* ast = dynamic_cast<Node*> (in);
-	assert (ast);
+	Node* ast = dyc<Node> (in);
 	ast->visit (this);
 }
 
@@ -1346,24 +1336,7 @@ void AST_unparser::children_name_with_default (Name_with_default* in)
 	}
 }
 
-
-void AST_unparser::unparse_foreign (IR::Node* in)
+void AST_unparser::pre_foreign(FOREIGN* in)
 {
-	// The AST doesn't use foreign nodes
-	if (HIR::Node* hir = dynamic_cast<HIR::Node*> (in))
-		xdebug (hir);
-	else if (MIR::Node* mir = dynamic_cast<MIR::Node*> (in))
-		xdebug (mir);
-
-	assert (false);
-}
-
-void AST_unparser::pre_foreign(Foreign* in)
-{
-	// If there are foreign nodes in this IR, we must have some way to print
-	// them out.
-	assert (foreign_unparser);
-	assert (in->foreign);
-
-	foreign_unparser->unparse_foreign (in->foreign);
+	in->unparse (ups);
 }

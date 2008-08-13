@@ -41,4 +41,20 @@ public:
 	virtual Object* clone() = 0;
 };
 
+/* These are copies of ideas from LLVM. All of our uses of casts can be
+ * characterized as one of these. */
+template <class T> bool isa(Object* in) 
+{ 
+	return dynamic_cast<T*> (in) != NULL;
+}
+
+template <class T> T* dyc(Object* in)
+{
+	if (in == NULL) return NULL;
+
+	T* result = dynamic_cast<T*> (in); 
+	assert (result != NULL); 
+	return result;
+}
+
 #endif /* OBJECT_H */

@@ -5,6 +5,7 @@
  * Like STL string, but inherit from Object
  */
 
+#include <algorithm>
 #include "String.h" 
 
 String::String() 

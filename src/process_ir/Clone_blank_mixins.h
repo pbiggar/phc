@@ -50,19 +50,19 @@ public:
 	: anchor (anchor)
 	{
 		deep_originals = new List<Node*>;
-		tfor_lci (originals, Node, i)
+		foreach (Node* n, *originals)
 		{
-			(*i)->visit (new Collect_all_nodes<Node, Visitor> (deep_originals));
+			n->visit (new Collect_all_nodes<Node, Visitor> (deep_originals));
 		}
 	}
 
 	void pre_node (Node* in)
 	{
-		tfor_lci (deep_originals, Node, i)
+		foreach (Node* n, *deep_originals)
 		{
 			// TODO is there a problem with copying values markers here?
-			if ((*i)->match (in))
-				in->clone_mixin_from (*i);
+			if (n->match (in))
+				in->clone_mixin_from (n);
 			else
 				in->clone_mixin_from (anchor);
 		}

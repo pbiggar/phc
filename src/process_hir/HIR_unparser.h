@@ -14,18 +14,15 @@
 
 class HIR_unparser : public virtual PHP_unparser, public virtual HIR::Visitor
 {
+	AST_unparser ast_unparser;
+
 public:
 	HIR_unparser (ostream& os = cout, bool in_php = false);
 	HIR_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);
-	void unparse_foreign (IR::Node* in);
 
-	void pre_foreign(HIR::Foreign* in);
-
-protected:
-	AST_unparser* ast_unparser;
-	MIR_unparser* mir_unparser;
+	void pre_foreign(HIR::FOREIGN* in);
 };
 
 #endif // PHC_HIR_UNPARSER 

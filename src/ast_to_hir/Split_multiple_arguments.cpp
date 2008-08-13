@@ -14,9 +14,9 @@ using namespace AST;
 
 void Split_multiple_arguments::pre_global(Global* in, List<Statement*>* out)
 {
-	for_lci (in->variable_names, Variable_name, i)
+	foreach (Variable_name* vn, *in->variable_names)
 	{
-		Global* global = new Global(new List<Variable_name*>(*i));
+		Global* global = new Global(new List<Variable_name*>(vn));
 		global->attrs = in->attrs->clone();
 		out->push_back(global);
 	}
@@ -24,9 +24,9 @@ void Split_multiple_arguments::pre_global(Global* in, List<Statement*>* out)
 	
 void Split_multiple_arguments::pre_static_declaration(Static_declaration* in, List<Statement*>* out)
 {
-	for_lci (in->vars, Name_with_default, i)
+	foreach (Name_with_default* nwd, *in->vars)
 	{
-		Static_declaration* stat = new Static_declaration(new List<Name_with_default*>(*i));
+		Static_declaration* stat = new Static_declaration(new List<Name_with_default*>(nwd));
 		stat->attrs = in->attrs->clone();
 		out->push_back(stat);
 	}
@@ -34,9 +34,9 @@ void Split_multiple_arguments::pre_static_declaration(Static_declaration* in, Li
 	
 void Split_multiple_arguments::pre_attribute(Attribute* in, List<Member*>* out)
 {
-	for_lci (in->vars, Name_with_default, i)
+	foreach (Name_with_default* nwd, *in->vars)
 	{
-		Attribute* attr = new Attribute(in->attr_mod->clone (), new List<Name_with_default*>(*i));
+		Attribute* attr = new Attribute(in->attr_mod->clone (), new List<Name_with_default*>(nwd));
 		attr->attrs = in->attrs->clone();
 		out->push_back(attr);
 	}

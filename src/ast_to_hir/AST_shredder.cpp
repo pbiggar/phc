@@ -185,6 +185,14 @@ Expr* Shredder::post_new (New* in)
  * Literals
  */
 
+/* In most cases, it isnt required to shred literals, but it simplifies matters
+ * a great deal. If we don't shred these, then we need to simplify reflections
+ * and branches with immediate values, run a constant-folding pass after
+ * switch-lowering, remove literals in statements by themselves, and allow the
+ * unparser to print unprintable variables (like $5 or ${""}). All of these
+ * changes would then have to be duplicated in the MIR. It is simpler to shred
+ * here, and just make the changes in the MIR. */
+
 Expr* Shredder::post_int(INT* in)
 {
 	return eval(in);

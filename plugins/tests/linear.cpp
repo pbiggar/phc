@@ -37,14 +37,14 @@ void run (PHP_script* in)
 		// get a bit more information here. We want to print information if it all fails.
 		cap.all_pointers.sort ();
 		Object* last = NULL;
-		tfor_lci (&cap.all_pointers, Object, i)
+		foreach (Object* obj, cap.all_pointers)
 		{
 			if (last)
 			{
-				if ((*i) == last)
+				if (obj == last)
 				{
-					printf ("Problem found: (%p)\n", *i);
-					if (Node* node = dynamic_cast<Node*> (*i))
+					printf ("Problem found: (%p)\n", obj);
+					if (Node* node = dynamic_cast<Node*> (obj))
 					{
 						// Print the nodes
 						debug (node);
@@ -53,16 +53,16 @@ void run (PHP_script* in)
 					else
 					{
 						// Find the owners of the attribute
-						tfor_lci (&cap.all_nodes, Node, n)
+						foreach (Node* n, cap.all_nodes)
 						{
 							AttrMap::const_iterator a;
-							for(a = (*n)->attrs->begin(); a != (*n)->attrs->end(); a++)
+							for(a = n->attrs->begin(); a != n->attrs->end(); a++)
 							{
-								if ((*a).second == *i)
+								if ((*a).second == n)
 								{
-									printf ("In parent node: (%p), attribute name %s\n", *n, (*a).first.c_str ());
-									debug (*n);
-									xadebug (*n);
+									printf ("In parent node: (%p), attribute name %s\n", n, (*a).first.c_str ());
+									debug (n);
+									xadebug (n);
 								}
 							}
 
@@ -71,7 +71,7 @@ void run (PHP_script* in)
 					}
 				}
 			}
-			last = *i;
+			last = obj;
 		}
 	}
 }

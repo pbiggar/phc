@@ -6,7 +6,7 @@
 		{
 			while ($x > 0)
 			{
-				break 17; // { Error: Cannot break/continue 17 levels }
+				break 17; // { phc-error: Cannot break/continue 17 levels }
 				$x--;
 			}
 		}

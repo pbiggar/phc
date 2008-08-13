@@ -7,12 +7,11 @@
  * continues.
  */
 
-#ifndef PHC_GOTO_UPPERING_H
-#define PHC_GOTO_UPPERING_H
+#ifndef PHC_GOTO_UPPERING
+#define PHC_GOTO_UPPERING
 
 #include "MIR_visitor.h"
 #include "AST.h"
-
 
 class Goto_uppering : public MIR::Visitor
 {
@@ -26,9 +25,8 @@ public:
 
 	List<MIR::Statement*>* convert_statement_list (List<MIR::Statement*> *in);
 	
-	void pre_php_script (MIR::PHP_script *in);
+	void pre_php_script (MIR::PHP_script* in);
 	void pre_method (MIR::Method *in);
-	void post_php_script (MIR::PHP_script* in);
 };
 
-#endif // PHC_GOTO_UPPERING_H
+#endif // PHC_GOTO_UPPERING

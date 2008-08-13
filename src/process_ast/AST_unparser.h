@@ -19,12 +19,7 @@ public:
 	AST_unparser (ostream& os = cout, bool in_php = false);
 	AST_unparser (Unparser_state* ups);
 
-	// Use FOREIGN_UNPARSER's state.
-	AST_unparser (PHP_unparser* foreign_unparser);
-
-
 	void unparse (IR::Node* in);
-	void unparse_foreign (IR::Node* in);
 
 protected:
 
@@ -108,7 +103,7 @@ public:
 	void visit_actual_parameter_list(List<AST::Actual_parameter*>* in);
 	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
 
-	void pre_foreign(AST::Foreign* in);
+	void pre_foreign(AST::FOREIGN* in);
 	void pre_node(AST::Node* in);
 	void pre_bin_op(AST::Bin_op* in);
 	void post_bin_op(AST::Bin_op* in);
@@ -126,9 +121,6 @@ protected:
 	stack<bool> in_string;
 	stack<AST::OP*> last_op;
 
-	// Use this to parse foreign nodes
-public:
-	PHP_unparser* foreign_unparser;
 };
 
 #endif // PHC_AST_UNPARSER 

@@ -1,4 +1,7 @@
 <?php
-	//	options :: out_regex :: err_regex :: exit_code :: no subject
-	// { --list-passes :: Passes:\n([a-zA-Z-_0-9]+\s+\((enabled|disabled)\s+- (AST|HIR|MIR|LIR)\)\s+.+)+ ::  :: 0 :: false }
+	
+	// Check --list-passes is in the correct format
+
+	// { phc-option: --list-passes }
+	// { phc-regex-output: Passes:\n([a-zA-Z-_0-9]+\s+\((enabled|disabled)\s+- (AST|HIR|MIR|LIR)\)\s+.+?)+ }
 ?>

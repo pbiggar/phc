@@ -1,4 +1,4 @@
 <?php
 
-	f()++; // {Error: Variable name expected}
+	f()++; // {phc-error: Variable name expected}
 ?>

@@ -16,6 +16,7 @@ prefix "AST";
 external class "Object";
 external class "IR::Node";
 external class "IR::PHP_script";
+external class "IR::FOREIGN";
 use list "List";
 use string "String";
 use namespace "AST";
@@ -34,7 +35,9 @@ Statement ::=
 	| If | While | Do | For | Foreach
 	| Switch | Break | Continue
 	| Declare | Nop
-	| Foreign
+	-- Foreign represents a construct from another IR that does not have a
+	-- natural representation in this IR.
+	| FOREIGN<IR::Node*>
 	;
 
 {-
@@ -93,7 +96,6 @@ Nop ::= ;
 
 -- Foreign represents a construct from another IR that does not have a natural
 -- representation in this IR.
-Foreign ::= ;
 
 
 {-
@@ -109,7 +111,7 @@ Expr ::=
 	| Literal 
 	| Op_assignment | List_assignment 
 	| Post_op | Array | Conditional_expr | Ignore_errors 
-	| Foreign
+	| FOREIGN<IR::Node*>
 	;
 
 Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<> ;
@@ -397,16 +399,18 @@ public:
 	{ 
 		this->target = NULL;
 		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
+		actual_parameter->copy_location (arg);
+		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
 	}
 
 	Method_invocation(METHOD_NAME* name, Expr* arg) 
 	{ 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*>;
-		this->actual_parameters->push_back(new Actual_parameter(false, arg));
+		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
+		actual_parameter->copy_location (arg);
+		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
 	}
 };
 
@@ -736,13 +740,16 @@ public:
 	}
 };
 
-class Foreign
+class FOREIGN : IR::FOREIGN
 {
 public:
-	Foreign (IR::Node* foreign)
+	bool equals_value (FOREIGN* that)
 	{
-		this->foreign = foreign;
+		return value->equals (that->value);
 	}
 
-	IR::Node* foreign;
+	IR::Node* get_value()
+	{
+		return value;
+	}
 };

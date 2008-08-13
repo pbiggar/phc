@@ -142,10 +142,6 @@ void Visitor::pre_nop(Nop* in)
 {
 }
 
-void Visitor::pre_foreign(Foreign* in)
-{
-}
-
 void Visitor::pre_expr(Expr* in)
 {
 }
@@ -263,6 +259,10 @@ void Visitor::pre_identifier(Identifier* in)
 }
 
 void Visitor::pre_source_rep(Source_rep* in)
+{
+}
+
+void Visitor::pre_foreign(FOREIGN* in)
 {
 }
 
@@ -455,10 +455,6 @@ void Visitor::post_nop(Nop* in)
 {
 }
 
-void Visitor::post_foreign(Foreign* in)
-{
-}
-
 void Visitor::post_expr(Expr* in)
 {
 }
@@ -576,6 +572,10 @@ void Visitor::post_identifier(Identifier* in)
 }
 
 void Visitor::post_source_rep(Source_rep* in)
+{
+}
+
+void Visitor::post_foreign(FOREIGN* in)
 {
 }
 
@@ -828,10 +828,6 @@ void Visitor::children_nop(Nop* in)
 {
 }
 
-void Visitor::children_foreign(Foreign* in)
-{
-}
-
 void Visitor::children_assignment(Assignment* in)
 {
     visit_variable(in->variable);
@@ -956,6 +952,10 @@ void Visitor::children_new(New* in)
 }
 
 // Tokens don't have children, so these methods do nothing by default
+void Visitor::children_foreign(FOREIGN* in)
+{
+}
+
 void Visitor::children_class_name(CLASS_NAME* in)
 {
 }
@@ -1260,16 +1260,6 @@ void Visitor::pre_nop_chain(Nop* in)
     pre_nop((Nop*) in);
 }
 
-void Visitor::pre_foreign_chain(Foreign* in)
-{
-    pre_node((Node*) in);
-    pre_target((Target*) in);
-    pre_expr((Expr*) in);
-    pre_commented_node((Commented_node*) in);
-    pre_statement((Statement*) in);
-    pre_foreign((Foreign*) in);
-}
-
 void Visitor::pre_assignment_chain(Assignment* in)
 {
     pre_node((Node*) in);
@@ -1425,6 +1415,16 @@ void Visitor::pre_new_chain(New* in)
     pre_target((Target*) in);
     pre_expr((Expr*) in);
     pre_new((New*) in);
+}
+
+void Visitor::pre_foreign_chain(FOREIGN* in)
+{
+    pre_node((Node*) in);
+    pre_target((Target*) in);
+    pre_expr((Expr*) in);
+    pre_commented_node((Commented_node*) in);
+    pre_statement((Statement*) in);
+    pre_foreign((FOREIGN*) in);
 }
 
 void Visitor::pre_class_name_chain(CLASS_NAME* in)
@@ -1777,16 +1777,6 @@ void Visitor::post_nop_chain(Nop* in)
     post_node((Node*) in);
 }
 
-void Visitor::post_foreign_chain(Foreign* in)
-{
-    post_foreign((Foreign*) in);
-    post_statement((Statement*) in);
-    post_commented_node((Commented_node*) in);
-    post_expr((Expr*) in);
-    post_target((Target*) in);
-    post_node((Node*) in);
-}
-
 void Visitor::post_assignment_chain(Assignment* in)
 {
     post_assignment((Assignment*) in);
@@ -1939,6 +1929,16 @@ void Visitor::post_actual_parameter_chain(Actual_parameter* in)
 void Visitor::post_new_chain(New* in)
 {
     post_new((New*) in);
+    post_expr((Expr*) in);
+    post_target((Target*) in);
+    post_node((Node*) in);
+}
+
+void Visitor::post_foreign_chain(FOREIGN* in)
+{
+    post_foreign((FOREIGN*) in);
+    post_statement((Statement*) in);
+    post_commented_node((Commented_node*) in);
     post_expr((Expr*) in);
     post_target((Target*) in);
     post_node((Node*) in);
@@ -2734,8 +2734,8 @@ void Visitor::pre_statement_chain(Statement* in)
     case Nop::ID:
     	pre_nop_chain(dynamic_cast<Nop*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2820,8 +2820,8 @@ void Visitor::pre_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -2932,8 +2932,8 @@ void Visitor::pre_target_chain(Target* in)
     case Ignore_errors::ID:
     	pre_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	pre_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	pre_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     case CLASS_NAME::ID:
     	pre_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3017,8 +3017,8 @@ void Visitor::post_statement_chain(Statement* in)
     case Nop::ID:
     	post_nop_chain(dynamic_cast<Nop*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3103,8 +3103,8 @@ void Visitor::post_expr_chain(Expr* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3215,8 +3215,8 @@ void Visitor::post_target_chain(Target* in)
     case Ignore_errors::ID:
     	post_ignore_errors_chain(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	post_foreign_chain(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	post_foreign_chain(dynamic_cast<FOREIGN*>(in));
     	break;
     case CLASS_NAME::ID:
     	post_class_name_chain(dynamic_cast<CLASS_NAME*>(in));
@@ -3300,8 +3300,8 @@ void Visitor::children_statement(Statement* in)
     case Nop::ID:
     	children_nop(dynamic_cast<Nop*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3386,8 +3386,8 @@ void Visitor::children_expr(Expr* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     }
 }
@@ -3498,8 +3498,8 @@ void Visitor::children_target(Target* in)
     case Ignore_errors::ID:
     	children_ignore_errors(dynamic_cast<Ignore_errors*>(in));
     	break;
-    case Foreign::ID:
-    	children_foreign(dynamic_cast<Foreign*>(in));
+    case FOREIGN::ID:
+    	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));

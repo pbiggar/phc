@@ -13,18 +13,19 @@
 
 class MIR_unparser : public virtual PHP_unparser, public virtual MIR::Visitor
 {
+	AST_unparser ast_unparser;
+
 public:
 	MIR_unparser(ostream& os = cout, bool in_php = false);
 	MIR_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);
-	void unparse_foreign (IR::Node* in);
 
-protected:
-	AST_unparser* ast_unparser;
 
 public:
-	// handle MIR-only contructs here, using unparse_foreign
+	void pre_foreign(MIR::FOREIGN* in);
+
+	// handle MIR-only contructs here
 	void children_foreach_reset(MIR::Foreach_reset* in);
 	void children_foreach_next(MIR::Foreach_next* in);
 	void children_foreach_end(MIR::Foreach_end* in);

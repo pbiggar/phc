@@ -133,7 +133,7 @@ PHP_unparser::PHP_unparser(Unparser_state* ups)
 {
 }
 
-PHP_unparser::Unparser_state::Unparser_state (ostream& os, bool in_php)
+Unparser_state::Unparser_state (ostream& os, bool in_php)
 : in_php (in_php)
 , os(os)
 {

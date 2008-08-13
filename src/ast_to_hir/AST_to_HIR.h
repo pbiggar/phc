@@ -51,9 +51,9 @@ class AST_to_HIR : public AST::Fold
  HIR::Statement*,				// Do*
  HIR::Statement*,				// Eval_expr*
  HIR::Expr*,					// Expr*
+ HIR::FOREIGN*,				// FOREIGN*
  HIR::Statement*,				// For*
  HIR::Foreach*,				// Foreach*
- HIR::Foreign*,				// Foreign*
  HIR::Formal_parameter*,	// Formal_parameter*
  HIR::Global*,					// Global*
  HIR::INT*,						// INT*
@@ -378,13 +378,13 @@ public:
 		// push_array - $x[] = $y;
 		if (ia
 			&& ia->index == NULL
-			&& isa<HIR::VARIABLE_NAME> (expr))
+			&& isa<HIR::Rvalue> (expr))
 		{
 			HIR::Push_array* result;
 			result = new HIR::Push_array (
 				ia->variable_name, 
 				is_ref, 
-				dyc<HIR::VARIABLE_NAME> (expr));
+				dyc<HIR::Rvalue> (expr));
 			copy_attrs (result, orig);
 			eval_expr_assignment = result;
 			return NULL;
@@ -394,14 +394,14 @@ public:
 		// assign_array - $x[$i] = $y;
 		if (ia
 			&& ia->index
-			&& isa<HIR::VARIABLE_NAME> (expr))
+			&& isa<HIR::Rvalue> (expr))
 		{
 			HIR::Assign_array* result;
 			result = new HIR::Assign_array (
 				dynamic_cast<HIR::VARIABLE_NAME*> (ia->variable_name), 
 				ia->index,
 				is_ref,
-				dyc<HIR::VARIABLE_NAME> (expr));
+				dyc<HIR::Rvalue> (expr));
 			copy_attrs (result, orig);
 			eval_expr_assignment = result;
 			return NULL;
@@ -434,13 +434,13 @@ public:
 		// assign_var_var - $$x = $y;
 		if (var_var
 			&& not var_var->variable_name->attrs->is_true ("phc.codegen.unused")
-			&& isa<HIR::VARIABLE_NAME> (expr))
+			&& isa<HIR::Rvalue> (expr))
 		{
 			HIR::Assign_var_var* result;
 			result = new HIR::Assign_var_var (
 				var_var->variable_name, 
 				is_ref, 
-				dyc<HIR::VARIABLE_NAME> (expr));
+				dyc<HIR::Rvalue> (expr));
 
 			copy_attrs (result, orig);
 			eval_expr_assignment = result;
@@ -455,7 +455,7 @@ public:
 				target_expr->target,
 				target_expr->variable_name, 
 				is_ref,
-				dyc<HIR::VARIABLE_NAME> (expr));
+				dyc<HIR::Rvalue> (expr));
 
 			copy_attrs (result, orig);
 			eval_expr_assignment = result;
@@ -487,7 +487,7 @@ public:
 	HIR::Bin_op* fold_impl_bin_op(AST::Bin_op* orig, HIR::Expr* left, HIR::OP* op, HIR::Expr* right) 
 	{
 		HIR::Bin_op* result;
-		result = new HIR::Bin_op(dyc<HIR::VARIABLE_NAME> (left), op, dyc<HIR::VARIABLE_NAME> (right));
+		result = new HIR::Bin_op(dyc<HIR::Rvalue> (left), op, dyc<HIR::Rvalue> (right));
 		copy_attrs (result, orig);
 		return result;
 	}
@@ -527,13 +527,12 @@ public:
 			copy_attrs (result, orig);
 			return result;
 		}
-		// $x->[$y]
+		// $x[$y]
 		else if (array_indices->size () == 1
 				&& target == NULL
 				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
-			// Note that array_index can be NULL, if this is the lhs of a push_array
-			HIR::VARIABLE_NAME* array_index = dyc<HIR::VARIABLE_NAME> (array_indices->front ());
+			HIR::Rvalue* array_index = dyc<HIR::Rvalue> (array_indices->front ());
 			HIR::Index_array* result;
 			result = new HIR::Index_array (
 					dyc<HIR::VARIABLE_NAME> (variable_name),
@@ -659,10 +658,13 @@ public:
 
 	HIR::Actual_parameter* fold_impl_actual_parameter(AST::Actual_parameter* orig, bool is_ref, HIR::Expr* expr) 
 	{
+		if (isa<HIR::Literal> (expr))
+			return dyc<HIR::Literal> (expr);
+
 		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
-		List<HIR::VARIABLE_NAME*>* array_indices = new List<HIR::VARIABLE_NAME*>;
-		for_lci (dyc<AST::Variable> (orig->expr)->array_indices, AST::Expr, i)
-			array_indices->push_back (dyc<HIR::VARIABLE_NAME> (fold_expr (*i)));
+		List<HIR::Rvalue*>* array_indices = new List<HIR::Rvalue*>;
+		foreach (AST::Expr* expr, *dyc<AST::Variable> (orig->expr)->array_indices)
+			array_indices->push_back (dyc<HIR::Rvalue> (fold_expr (expr)));
 
 		// fold_impl_variable rejects a number of constructs allowed here. We must fold ourselves.
 		AST::Variable* param = dyc<AST::Variable> (orig->expr);
@@ -676,8 +678,8 @@ public:
 
 		HIR::Variable_name* var_name = fold_variable_name (param->variable_name);
 
-		HIR::Actual_parameter* result;
-		result = new HIR::Actual_parameter(is_ref, target, var_name, array_indices);
+		HIR::Variable_actual_parameter* result;
+		result = new HIR::Variable_actual_parameter (is_ref, target, var_name, array_indices);
 		copy_attrs (result, orig);
 		return result;
 	}

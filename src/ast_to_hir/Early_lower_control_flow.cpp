@@ -319,11 +319,11 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 	// after it.
 	List<Statement*>* default_statements = NULL;
 
-	for_lci (in->switch_cases, Switch_case, i)
+	foreach (Switch_case* sc, *in->switch_cases)
 	{
 		// Only evaluate a case expression if it hasnt been matched
 		// already.
-		if ((*i)->expr != NULL) // case $var:
+		if (sc->expr != NULL) // case $var:
 		{
 			List<Statement*>* body = new List<Statement*>;
 
@@ -341,7 +341,7 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 				new Assignment (
 					expr_var, 
 					false, 
-					(*i)->expr)));
+					sc->expr)));
 
 			// if (val == val1) matched = true;
 			body->push_back (new If (
@@ -368,7 +368,7 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 		wrapper->statements->push_back (
 			new If (
 				matched_val->clone (),
-				(*i)->statements,
+				sc->statements,
 				new List<Statement*> ()));
 
 		
@@ -376,7 +376,7 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 		// The default case gets a copy of all statements which occur
 		// after it.
 		if (default_statements)
-			default_statements->push_back_all ((*i)->statements->clone ());
+			default_statements->push_back_all (sc->statements->clone ());
 	}
 
 

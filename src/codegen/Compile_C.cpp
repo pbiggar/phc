@@ -5,15 +5,18 @@
  * Compile generated C code
  */
 
-#include "codegen/Compile_C.h"
-#include <lib/error.h>
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <cstring>
+#include <cstdlib>
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include "codegen/Compile_C.h"
+#include <lib/error.h>
 
 Compile_C::Compile_C (stringstream& os)
 : os(os)

@@ -76,22 +76,41 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 	// as the OUT solution wouldn't propagate.
 }
 
-#define USE(VAR) bb->uses->insert (VAR->value)
+void
+use (Basic_block* bb, VARIABLE_NAME* var_name)
+{
+	bb->uses->insert (var_name->value);
+}
+
+void
+use (Basic_block* bb, Rvalue* rval)
+{
+	if (isa<VARIABLE_NAME> (rval))
+		use (bb, dyc<VARIABLE_NAME> (rval));
+}
+
+void
+use (Basic_block* bb, Variable_name* var_name)
+{
+	if (isa<VARIABLE_NAME> (var_name))
+		use (bb, dyc<VARIABLE_NAME> (var_name));
+	else
+		assert (0); // TODO
+}
+
+void
+def (Basic_block* bb, VARIABLE_NAME* var_name)
+{
+	bb->defs->insert (var_name->value);
+}
+
+
 #define DEF(VAR) bb->defs->insert (VAR->value)
 
 void
 Live_variable_analysis::visit_branch_block (Branch_block* bb)
 {
-	USE (bb->branch->variable_name);
-}
-
-void
-use_variable_name (Basic_block* bb, Variable_name* in)
-{
-	if (isa<VARIABLE_NAME> (in))
-		USE (dyc<VARIABLE_NAME> (in));
-	else
-		assert (0); // TODO
+	use (bb, bb->branch->variable_name);
 }
 
 /* Expressions */
@@ -111,37 +130,37 @@ void use_expr (Basic_block* bb, Expr* in)
 		case Bin_op::ID:
 		{
 			Bin_op* bin_op = dyc<Bin_op> (in);
-			USE (bin_op->left);
-			USE (bin_op->right);
+			use (bb, bin_op->left);
+			use (bb, bin_op->right);
 			break;
 		}
 
 		case Cast::ID:
-			USE (dyc<Cast> (in)->variable_name);
+			use (bb, dyc<Cast> (in)->variable_name);
 			break;
 
 		case Foreach_get_key::ID:
-			USE (dyc<Foreach_get_key> (in)->array);
+			use (bb, dyc<Foreach_get_key> (in)->array);
 			break;
 
 		case Foreach_get_val::ID:
-			USE (dyc<Foreach_get_val> (in)->array);
+			use (bb, dyc<Foreach_get_val> (in)->array);
 			break;
 
 		case Foreach_has_key::ID:
-			USE (dyc<Foreach_has_key> (in)->array);
+			use (bb, dyc<Foreach_has_key> (in)->array);
 			break;
 
 		case Index_array::ID:
 		{
 			Index_array* ia = dyc<Index_array> (in);
-			USE (ia->variable_name);
-			USE (ia->index);
+			use (bb, ia->variable_name);
+			use (bb, ia->index);
 			break;
 		}
 
 		case Instanceof::ID:
-			USE (dyc<Instanceof> (in)->variable_name);
+			use (bb, dyc<Instanceof> (in)->variable_name);
 			break;
 
 		case Method_invocation::ID:
@@ -153,7 +172,8 @@ void use_expr (Basic_block* bb, Expr* in)
 
 			foreach (Actual_parameter* ap, *mi->actual_parameters)
 			{
-				use_variable_name (bb, ap->variable_name);
+				if (Variable_actual_parameter* vap = dynamic_cast<Variable_actual_parameter*> (ap))
+					use (bb, vap->variable_name);
 			}
 			break;
 		}
@@ -166,7 +186,7 @@ void use_expr (Basic_block* bb, Expr* in)
 		case Target_expr::ID:
 		{
 			Target_expr* te = dyc<Target_expr> (in);
-			use_variable_name (bb, te->variable_name);
+			use (bb, te->variable_name);
 
 			if (isa<VARIABLE_NAME> (te->target))
 				assert (0); // bottom
@@ -175,11 +195,11 @@ void use_expr (Basic_block* bb, Expr* in)
 		}
 
 		case Unary_op::ID:
-			USE (dyc<Unary_op> (in)->variable_name);
+			use (bb, dyc<Unary_op> (in)->variable_name);
 			break;
 
 		case VARIABLE_NAME::ID:
-			USE (dyc<VARIABLE_NAME> (in));
+			use (bb, dyc<VARIABLE_NAME> (in));
 			break;
 
 		case Variable_variable::ID:
@@ -196,17 +216,17 @@ void use_expr (Basic_block* bb, Expr* in)
 void
 Live_variable_analysis::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
-	USE (in->lhs); // may be defined, but we conservativly say it won't.
-	USE (in->index);
-	USE (in->rhs); // cant be defined
+	use (bb, in->lhs); // may be defined, but we conservativly say it won't.
+	use (bb, in->index);
+	use (bb, in->rhs); // cant be defined
 }
 
 void
 Live_variable_analysis::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
 {
 //	use_expr (bb, in->target);
-	assert (0); // USE (in->lhs);
-	USE (in->rhs);
+	assert (0); // use (bb, in->lhs);
+	use (bb, in->rhs);
 }
 
 void
@@ -220,7 +240,7 @@ void
 Live_variable_analysis::visit_assign_var_var (Statement_block* bb, MIR::Assign_var_var* in)
 {
 	// We don't know what variable is assigned, so we conservatively say none.
-	USE (in->rhs);
+	use (bb, in->rhs);
 }
 
 void
@@ -232,19 +252,19 @@ Live_variable_analysis::visit_eval_expr (Statement_block* bb, MIR::Eval_expr* in
 void
 Live_variable_analysis::visit_foreach_end (Statement_block* bb, MIR::Foreach_end* in)
 {
-	USE (in->array);
+	use (bb, in->array);
 }
 
 void
 Live_variable_analysis::visit_foreach_next (Statement_block* bb, MIR::Foreach_next* in)
 {
-	USE (in->array);
+	use (bb, in->array);
 }
 
 void
 Live_variable_analysis::visit_foreach_reset (Statement_block* bb, MIR::Foreach_reset* in)
 {
-	USE (in->array);
+	use (bb, in->array);
 }
 
 void
@@ -256,15 +276,15 @@ Live_variable_analysis::visit_global (Statement_block* bb, MIR::Global* in)
 void
 Live_variable_analysis::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
-	USE (in->variable_name);
+	use (bb, in->variable_name);
 	// Technically, it is also DEF, but it makes no difference.
 }
 
 void
 Live_variable_analysis::visit_push_array (Statement_block* bb, MIR::Push_array* in)
 {
-	USE (in->lhs);
-	USE (in->rhs);
+	use (bb, in->lhs);
+	use (bb, in->rhs);
 }
 
 void

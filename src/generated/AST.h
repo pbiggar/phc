@@ -14,6 +14,7 @@
 #include "process_ir/IR.h"
 #include <list>
 #include <string>
+#include <cstring>
 #include <assert.h>
 using namespace std;
 
@@ -66,7 +67,6 @@ class Try;
 class Throw;
 class Eval_expr;
 class Nop;
-class Foreign;
 class Literal;
 class Assignment;
 class Op_assignment;
@@ -84,6 +84,7 @@ class Post_op;
 class Array;
 class Method_invocation;
 class New;
+class FOREIGN;
 class CLASS_NAME;
 class INTERFACE_NAME;
 class METHOD_NAME;
@@ -513,7 +514,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 49;
+    static const int ID = 48;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -567,7 +568,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 51;
+    static const int ID = 50;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -662,7 +663,7 @@ public:
     void set_source_rep(String* source_rep);
 };
 
-// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | Foreign;
+// Statement ::= Class_def | Interface_def | Method | Return | Static_declaration | Global | Try | Throw | Eval_expr | If | While | Do | For | Foreach | Switch | Break | Continue | Declare | Nop | FOREIGN<IR::Node*>;
 class Statement : virtual public Commented_node
 {
 public:
@@ -771,7 +772,7 @@ public:
     virtual void assert_valid();
 };
 
-// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | Foreign;
+// Expr ::= Assignment | Cast | Unary_op | Bin_op | Constant | Instanceof | Variable | Pre_op | Method_invocation | New | Literal | Op_assignment | List_assignment | Post_op | Array | Conditional_expr | Ignore_errors | FOREIGN<IR::Node*>;
 class Expr : virtual public Target
 {
 public:
@@ -808,7 +809,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 36;
+    static const int ID = 35;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -837,7 +838,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 45;
+    static const int ID = 44;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1485,34 +1486,6 @@ public:
     virtual void assert_valid();
 };
 
-// Foreign ::= ;
-class Foreign : virtual public Statement, virtual public Expr
-{
-public:
-    Foreign();
-public:
-    virtual void visit(Visitor* visitor);
-    virtual void transform_children(Transform* transform);
-public:
-    static const int ID = 32;
-    virtual int classid();
-public:
-    virtual bool match(Node* in);
-public:
-    virtual bool equals(Node* in);
-public:
-    virtual Foreign* clone();
-public:
-    virtual Node* find(Node* in);
-public:
-    virtual void find_all(Node* in, List<Node*>* out);
-public:
-    virtual void assert_valid();
-public:
-    Foreign(IR ::Node* foreign);
-    IR ::Node* foreign;
-};
-
 // Literal ::= INT<long> | REAL<double> | STRING<String*> | BOOL<bool> | NIL<>;
 class Literal : virtual public Expr, virtual public Source_rep
 {
@@ -1552,7 +1525,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 33;
+    static const int ID = 32;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1583,7 +1556,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 34;
+    static const int ID = 33;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1615,7 +1588,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 35;
+    static const int ID = 34;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1645,7 +1618,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 37;
+    static const int ID = 36;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1677,7 +1650,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 38;
+    static const int ID = 37;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1710,7 +1683,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 39;
+    static const int ID = 38;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1743,7 +1716,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 40;
+    static const int ID = 39;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1772,7 +1745,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 41;
+    static const int ID = 40;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1802,7 +1775,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 42;
+    static const int ID = 41;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1832,7 +1805,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 43;
+    static const int ID = 42;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1863,7 +1836,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 44;
+    static const int ID = 43;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1896,7 +1869,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 46;
+    static const int ID = 45;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1928,7 +1901,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 47;
+    static const int ID = 46;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1959,7 +1932,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 48;
+    static const int ID = 47;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -1990,7 +1963,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 50;
+    static const int ID = 49;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2023,7 +1996,7 @@ public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
 public:
-    static const int ID = 52;
+    static const int ID = 51;
     virtual int classid();
 public:
     virtual bool match(Node* in);
@@ -2037,6 +2010,40 @@ public:
     virtual void find_all(Node* in, List<Node*>* out);
 public:
     virtual void assert_valid();
+};
+
+class FOREIGN : virtual public Statement, virtual public Expr, virtual public IR::FOREIGN
+{
+public:
+    FOREIGN(IR::Node* value);
+protected:
+    FOREIGN();
+public:
+    virtual void visit(Visitor* visitor);
+    virtual void transform_children(Transform* transform);
+public:
+    IR::Node* value;
+public:
+    static const int ID = 52;
+    virtual int classid();
+public:
+    virtual bool match(Node* in);
+    virtual bool match_value(FOREIGN* that);
+public:
+    virtual bool equals(Node* in);
+public:
+    virtual FOREIGN* clone();
+    virtual IR::Node* clone_value();
+public:
+    virtual Node* find(Node* in);
+public:
+    virtual void find_all(Node* in, List<Node*>* out);
+public:
+    virtual void assert_valid();
+    virtual void assert_value_valid();
+public:
+    bool equals_value(FOREIGN* that);
+    IR ::Node* get_value();
 };
 
 class CLASS_NAME : virtual public Target, virtual public Class_name, virtual public Identifier
@@ -2451,7 +2458,7 @@ public:
 };
 
 // The top of the class hierarchy. If the Fold will not allow you fold to anything else, try this.
-class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public While, virtual public Do, virtual public For, virtual public Foreach, virtual public Switch, virtual public Switch_case, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Declare, virtual public Directive, virtual public Try, virtual public Catch, virtual public Throw, virtual public Eval_expr, virtual public Nop, virtual public Foreign, virtual public Expr, virtual public Literal, virtual public Assignment, virtual public Op_assignment, virtual public List_assignment, virtual public List_element, virtual public Nested_list_elements, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Conditional_expr, virtual public Ignore_errors, virtual public Constant, virtual public Instanceof, virtual public Variable, virtual public Variable_name, virtual public Reflection, virtual public Target, virtual public Pre_op, virtual public Post_op, virtual public Array, virtual public Array_elem, virtual public Method_invocation, virtual public Method_name, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Commented_node, virtual public Identifier, virtual public Source_rep, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public DIRECTIVE_NAME, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public OP, virtual public CAST, virtual public CONSTANT_NAME
+class None : virtual public Node, virtual public PHP_script, virtual public Statement, virtual public Class_def, virtual public Class_mod, virtual public Interface_def, virtual public Member, virtual public Method, virtual public Signature, virtual public Method_mod, virtual public Formal_parameter, virtual public Type, virtual public Attribute, virtual public Attr_mod, virtual public Name_with_default, virtual public If, virtual public While, virtual public Do, virtual public For, virtual public Foreach, virtual public Switch, virtual public Switch_case, virtual public Break, virtual public Continue, virtual public Return, virtual public Static_declaration, virtual public Global, virtual public Declare, virtual public Directive, virtual public Try, virtual public Catch, virtual public Throw, virtual public Eval_expr, virtual public Nop, virtual public Expr, virtual public Literal, virtual public Assignment, virtual public Op_assignment, virtual public List_assignment, virtual public List_element, virtual public Nested_list_elements, virtual public Cast, virtual public Unary_op, virtual public Bin_op, virtual public Conditional_expr, virtual public Ignore_errors, virtual public Constant, virtual public Instanceof, virtual public Variable, virtual public Variable_name, virtual public Reflection, virtual public Target, virtual public Pre_op, virtual public Post_op, virtual public Array, virtual public Array_elem, virtual public Method_invocation, virtual public Method_name, virtual public Actual_parameter, virtual public New, virtual public Class_name, virtual public Commented_node, virtual public Identifier, virtual public Source_rep, virtual public FOREIGN, virtual public CLASS_NAME, virtual public INTERFACE_NAME, virtual public METHOD_NAME, virtual public VARIABLE_NAME, virtual public DIRECTIVE_NAME, virtual public INT, virtual public REAL, virtual public STRING, virtual public BOOL, virtual public NIL, virtual public OP, virtual public CAST, virtual public CONSTANT_NAME
 {
 public:
     None();

@@ -213,6 +213,9 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 	}
 	else
 #endif
+	if (warning)
+		phc_warning("File %s could not be included, and will be included at run-time", param, warning);
+
 	out->push_back (in);
 }
 
@@ -301,11 +304,8 @@ void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 		return;
 	}
 
-	// Set up search directory
-	List<String*>* dirs = get_search_directories (filename, in);
-
 	// Try to parse the file
-	PHP_script* ast = parse(filename, dirs);
+	PHP_script* ast = parse(filename, get_search_directories (filename, in));
 
 	// Script could not be found or not be parsed; leave the include in
 	if (ast == NULL)

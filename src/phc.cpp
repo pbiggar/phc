@@ -276,10 +276,12 @@ int main(int argc, char** argv)
 
 			// print error
 			if (ir == NULL)
+			{
 				if (args_info.inputs_num != 0)
 					phc_error("File not found", filename, 0);
 				else
 					return -1;
+			}
 
 			// run passes
 			pm->run (ir, true);

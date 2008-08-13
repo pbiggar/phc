@@ -3,6 +3,6 @@
 
 	class C
 	{
-		const X = array();	// { Error: Arrays are not allowed in class constants }
+		const X = array(); // { phc-error: Arrays are not allowed in class constants }
 	}
 ?>

@@ -24,9 +24,11 @@ public:
 public:
 	void init_block (Basic_block* bb);
 	bool solution_has_changed (Basic_block* bb);
-	void aliased (Basic_block* bb, MIR::Variable_name*);
 	void alias_expr (Basic_block* bb, MIR::Expr*);
 	void alias_bottom (Basic_block* bb);
+	void aliased (Basic_block* bb, MIR::Variable_name*);
+	void aliased (Basic_block* bb, MIR::Rvalue*);
+	void aliased (Basic_block* bb, MIR::VARIABLE_NAME*);
 
 	// Transfer functions
 	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);

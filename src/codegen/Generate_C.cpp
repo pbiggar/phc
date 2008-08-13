@@ -23,15 +23,17 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
+#include <fstream>
+#include <set>
+#include <cstdlib>
+
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
-#include <fstream>
 #include "Generate_C.h"
 #include "embed/embed.h"
 #include "lib/List.h"
 #include "lib/demangle.h"
-#include <set>
 
 using namespace MIR;
 
@@ -41,7 +43,7 @@ void phc_unsupported (Node* node)
 	cerr << "This context does not yet support this feature:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
 	node->visit (new MIR_XML_unparser (cerr));
-	abort ();
+	exit (-1);
 }
 
 // A single pass isnt really sufficient, but we can hack around it
@@ -163,8 +165,9 @@ String* get_non_st_name (VARIABLE_NAME* var_name)
 
 
 // Generate calls to read_var, for array and array index lookups, and the like.
-void read_simple (Scope scope, string zvp, VARIABLE_NAME* var_name)
+void read_rvalue (Scope scope, string zvp, Rvalue* rvalue)
 {
+	VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (rvalue);
 	if (scope == LOCAL && var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 	{
 		String* name = get_non_st_name (var_name);
@@ -235,7 +238,7 @@ void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_N
 
 	code
 		<< "// Array assignment\n";
-	read_simple (scope, zvp_index, index);
+	read_rvalue (scope, zvp_index, index);
 
 	code
 		<<	zvp << " = get_ht_entry ("
@@ -264,7 +267,7 @@ void index_array_index (Scope scope, string zvp, Index_array* ia)
 
 	code
 		<< "// Array assignment\n";
-	read_simple (scope, zvp_index, ia->index);
+	read_rvalue (scope, zvp_index, ia->index);
 
 	code
 		<<	zvp << " = get_ht_entry ("
@@ -318,8 +321,8 @@ void read (Scope scope, string zvp, Variable_name* var_name)
 		stringstream ss;
 		ss << zvp << "var";
 		string name = ss.str ();
-		read_simple (scope, name, dyc<VARIABLE_NAME> (var_name));
-		// the same as read_simple, but doesnt declare
+		read_rvalue (scope, name, dyc<VARIABLE_NAME> (var_name));
+		// the same as read_rvalue, but doesnt declare
 		code 
 			<< "// Read normal variable\n"
 			<< zvp << " = &" << name << ";\n"; 
@@ -331,7 +334,7 @@ void read (Scope scope, string zvp, Variable_name* var_name)
 
 		code << "// Read variable variable\n";
 
-		read_simple (scope, "var_var", var_var->variable_name);
+		read_rvalue (scope, "var_var", var_var->variable_name);
 
 		code
 			<< zvp << " = read_var_var (" 
@@ -348,8 +351,8 @@ void read_array_index (Scope scope, string zvp, Index_array* ia)
 	// access var as an array
 	code << "// Read array variable\n";
 
-	read_simple (scope, "r_array", var_name);
-	read_simple (scope, "ra_index", ia->index);
+	read_rvalue (scope, "r_array", var_name);
+	read_rvalue (scope, "ra_index", ia->index);
 
 	code
 		<< "read_array ("
@@ -728,7 +731,7 @@ public:
 	{
 		code
 			<< "{\n";
-		read_simple (LOCAL, "p_cond", cond->value);
+		read_rvalue (LOCAL, "p_cond", cond->value);
 		code 
 			<< "zend_bool bcond = zend_is_true (p_cond);\n";
 		code 
@@ -839,7 +842,7 @@ void assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 			<< "p_rhs = &temp;\n";
 
 		// copied from read ()
-		read_simple (LOCAL, "p_rhs_var", rhs);
+		read_rvalue (LOCAL, "p_rhs_var", rhs);
 
 		code 
 			<< "// Read normal variable\n"
@@ -1140,10 +1143,10 @@ class Pattern_assign_string : public Pattern_assign_literal<STRING, string>
 			<<		"\"" << escape(rhs->value->value) << "\", "
 			<<		rhs->value->value->length() << ", 1);\n";
 	}
-
+public:
 	// Escape according to C rules (this varies slightly from unparsing for PHP
 	// and dot).
-	string escape(String* s)
+	static string escape(String* s)
 	{
 		stringstream ss;
 
@@ -1415,7 +1418,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 {
 	Expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<Actual_parameter>;
+		eval_arg = new Wildcard<Variable_actual_parameter>;
 		return new Method_invocation(
 			NULL,	
 			new METHOD_NAME( new String("eval")),
@@ -1432,7 +1435,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
 
 		code << "{\n";
-		read_simple (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
+		read_rvalue (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
 
 		if (lhs)
 		{
@@ -1467,7 +1470,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 	}
 
 protected:
-	Wildcard<Actual_parameter>* eval_arg;
+	Wildcard<Variable_actual_parameter>* eval_arg;
 };
 
 // TODO exit/die/unset etc are probably not by reference. I can probably shred
@@ -1481,7 +1484,7 @@ public:
 public:
 	Expr* rhs_pattern ()
 	{
-		exit_arg = new Wildcard<Actual_parameter> ();
+		exit_arg = new Wildcard<Variable_actual_parameter> ();
 		return new Method_invocation(
 						NULL,	
 						name,
@@ -1495,7 +1498,7 @@ public:
 		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
 		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_simple (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
+		read_rvalue (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
 
 		// Fetch the parameter
 		code
@@ -1506,7 +1509,7 @@ public:
 	}
 
 protected:
-	Wildcard<Actual_parameter>* exit_arg;
+	Wildcard<Variable_actual_parameter>* exit_arg;
 	METHOD_NAME* name;
 };
 
@@ -1590,6 +1593,7 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
+			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
 			
 			code
@@ -1604,7 +1608,7 @@ public:
 			<< "}\n"
 			;
 			
-			if((*i)->is_ref) code << "by_ref[" << index << "] = 1;\n";
+			if(param->is_ref) code << "by_ref[" << index << "] = 1;\n";
 			
 			// code << "printf(\"by reference: %d\\n\", by_ref[" << index << "]);\n";
 		}
@@ -1625,9 +1629,10 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			if ((*i)->target) phc_unsupported (*i);
+			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
+			if (param->target) phc_unsupported (param);
 
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>((*i)->variable_name);
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->variable_name);
 
 			code << "destruct[" << index << "] = 0;\n";
 			/* If we need a point that goes straight into the
@@ -1636,7 +1641,7 @@ public:
 			 * zval*, put it in args, and fetch it into args_ind after.
 			 * (It is difficult to return a zval** which doesnt point
 			 * into its containing hashtable, otherwise. */
-			if ((*i)->array_indices->size ())
+			if (param->array_indices->size ())
 			{
 				// TODO: variables are allowed have more than 1 index
 				// (so long as the indexes are all temporaries). We do
@@ -1644,15 +1649,15 @@ public:
 				// references or not, since we do not know until
 				// run-time whether the function is call-by-reference or
 				// not.
-				if ((*i)->array_indices->size () > 1) phc_unsupported (*i);
-				VARIABLE_NAME* ind = (*i)->array_indices->front ();
+				if (param->array_indices->size () > 1) phc_unsupported (param);
+				Rvalue* ind = param->array_indices->front ();
 
 				code
 					<< "if (by_ref [" << index << "])\n"
 					<< "{\n";
 
 				read_st (LOCAL, "arg", var_name);
-				read_simple (LOCAL, "ind", ind);
+				read_rvalue (LOCAL, "ind", ind);
 
 				code
 					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
@@ -1665,8 +1670,8 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var_name);
-				read_simple (LOCAL, "ind", ind);
+				read_rvalue (LOCAL, "arg", var_name);
+				read_rvalue (LOCAL, "ind", ind);
 
 				code
 					<< "  args[" << index << "] = fetch_array_arg ("
@@ -1694,7 +1699,7 @@ public:
 					<< "else\n"
 					<< "{\n";
 
-				read_simple (LOCAL, "arg", var_name);
+				read_rvalue (LOCAL, "arg", var_name);
 
 				code
 					<< "  args[" << index << "] = fetch_var_arg ("
@@ -1824,8 +1829,8 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "left", left->value);
-		read_simple (LOCAL, "right", right->value);
+		read_rvalue (LOCAL, "left", left->value);
+		read_rvalue (LOCAL, "right", right->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1877,7 +1882,7 @@ public:
 			op_functions.end());
 		string op_fn = op_functions[*op->value->value]; 
 
-		read_simple (LOCAL, "expr", var_name->value);
+		read_rvalue (LOCAL, "expr", var_name->value);
 
 		code
 			<< "if (in_copy_on_write (*p_lhs))\n"
@@ -1949,7 +1954,7 @@ class Pattern_return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			read_simple (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
+			read_rvalue (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -1993,7 +1998,7 @@ class Pattern_unset : public Pattern
 {
 	bool match(Statement* that)
 	{
-		param = new Wildcard<Actual_parameter>;
+		param = new Wildcard<Variable_actual_parameter>;
 		return that->match(
 			new Eval_expr (
 				new Method_invocation(
@@ -2036,9 +2041,9 @@ class Pattern_unset : public Pattern
 			else 
 			{
 				assert(param->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = (param->value->array_indices->front());
+				Rvalue* index = (param->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
-				read_simple (LOCAL, "u_index", index);
+				read_rvalue (LOCAL, "u_index", index);
 
 				code
 					<< "unset_array ("
@@ -2057,14 +2062,14 @@ class Pattern_unset : public Pattern
 	}
 
 protected:
-	Wildcard<Actual_parameter>* param;
+	Wildcard<Variable_actual_parameter>* param;
 };
 
 class Pattern_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
-		param = new Wildcard<Actual_parameter>;
+		param = new Wildcard<Variable_actual_parameter>;
 		return new Method_invocation("isset", param);
 	}
 
@@ -2100,9 +2105,9 @@ class Pattern_isset : public Pattern_assign_zval
 			{
 				// TODO this can have > 1 array_index
 				assert(param->value->array_indices->size() == 1);
-				VARIABLE_NAME* index = param->value->array_indices->front();
+				Rvalue* index = param->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
-				read_simple (LOCAL, "u_index", index);
+				read_rvalue (LOCAL, "u_index", index);
 
 				code
 				  << "ZVAL_BOOL(" << lhs << ", "
@@ -2122,7 +2127,7 @@ class Pattern_isset : public Pattern_assign_zval
 	}
 
 protected:
-	Wildcard<Actual_parameter>* param;
+	Wildcard<Variable_actual_parameter>* param;
 };
 
 /*
@@ -2144,7 +2149,7 @@ class Pattern_foreach_reset: public Pattern
 			<< "HashPosition " << *reset->value->iter->value << ";\n"
 			<< "{\n";
 
-		read_simple (LOCAL, "fe_array", reset->value->array);
+		read_rvalue (LOCAL, "fe_array", reset->value->array);
 		code 
 			<< "zend_hash_internal_pointer_reset_ex ("
 			<< "						fe_array->value.ht, "
@@ -2167,7 +2172,7 @@ class Pattern_foreach_has_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", has_key->value->array);
+		read_rvalue (LOCAL, "fe_array", has_key->value->array);
 		os
 			<< "int type = zend_hash_get_current_key_type_ex ("
 			<< "						fe_array->value.ht, "
@@ -2189,7 +2194,7 @@ class Pattern_foreach_get_key : public Pattern_assign_zval
 
 	void initialize (ostream& os, string var)
 	{
-		read_simple (LOCAL, "fe_array", get_key->value->array);
+		read_rvalue (LOCAL, "fe_array", get_key->value->array);
 		os
 			<< "char* str_index = NULL;\n"
 			<< "uint str_length;\n"
@@ -2227,7 +2232,7 @@ class Pattern_foreach_get_val : public Pattern_assign_var
 		if (lhs == NULL)
 			return;
 
-		read_simple (LOCAL, "fe_array", get_val->value->array);
+		read_rvalue (LOCAL, "fe_array", get_val->value->array);
 		if (!agn->is_ref)
 		{
 			declare ("p_rhs");
@@ -2274,7 +2279,7 @@ class Pattern_foreach_next: public Pattern
 	void generate_code (Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", next->value->array);
+		read_rvalue (LOCAL, "fe_array", next->value->array);
 		code 
 			<< "int result = zend_hash_move_forward_ex ("
 			<<							"fe_array->value.ht, "
@@ -2298,7 +2303,7 @@ class Pattern_foreach_end : public Pattern
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
-		read_simple (LOCAL, "fe_array", end->value->array);
+		read_rvalue (LOCAL, "fe_array", end->value->array);
 		code 
 			<< "zend_hash_internal_pointer_end_ex ("
 			<<							"fe_array->value.ht, "
@@ -2320,7 +2325,7 @@ protected:
 void Generate_C::children_statement(Statement* in)
 {
 	stringstream ss;
-	MIR_unparser (ss).unparse (in);
+	MIR_unparser (ss, true).unparse (in);
 
 	while (not ss.eof ())
 	{
@@ -2329,7 +2334,7 @@ void Generate_C::children_statement(Statement* in)
 	  // allowed and result in syntax errors in C. Use // instead.
 		string str;
 		getline (ss, str);
-		code << "// " << str << endl;
+		code << "// " << Pattern_assign_string::escape (s(str)) << endl;
 	}
 
 	Pattern* patterns[] = 
@@ -2390,17 +2395,21 @@ void Generate_C::children_statement(Statement* in)
 	}
 }
 
-void Generate_C::pre_php_script(PHP_script* in)
+void include_file (ostream& out, String* filename)
 {
 	// For now, we simply include this.
 	ifstream file;
 
-	// Check the current directory first. This means we can change libphc.cpp without recompiling or installing.
-	file.open ("libphc.cpp");
+	stringstream ss1, ss2;
+	ss1 << "libphc/" << *filename;
+	ss2 << DATADIR << "/phc/" << *filename;
+
+	// Check the current directory first. This means we can change the file without recompiling or installing.
+	file.open (ss1.str ().c_str ());
 
 	// Check the installed directory.
 	if (!file.is_open())
-		file.open (DATADIR "/phc/libphc.cpp");
+		file.open (ss2.str ().c_str ());
 
 	assert (file.is_open ());
 	while (not file.eof ())
@@ -2412,6 +2421,13 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 	file.close ();
 	assert (file.is_open () == false);
+
+}
+
+void Generate_C::pre_php_script(PHP_script* in)
+{
+	include_file (prologue, s("builtin_functions.c"));
+	include_file (prologue, s("support_routines.c"));
 }
 
 void Generate_C::post_php_script(PHP_script* in)

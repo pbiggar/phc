@@ -589,6 +589,7 @@ get_st_entry (HashTable * st, char *name, int length, ulong hashval TSRMLS_DC)
   return p_zvp;
 }
 
+// TODO unused - remove.
 static zval **
 get_st_entry_ex (HashTable * st, char *name, int length,
 		 ulong hashval TSRMLS_DC)

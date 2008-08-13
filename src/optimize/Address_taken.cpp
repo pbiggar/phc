@@ -34,18 +34,33 @@ void Address_taken::transfer_out (Basic_block*, list<Basic_block*>*) {}
 void Address_taken::visit_branch_block (Branch_block* bb) {}
 
 void
+Address_taken::alias_bottom (Basic_block* bb)
+{
+	bb->aliases->insert_all ();
+}
+
+void
 Address_taken::aliased (Basic_block* bb, Variable_name* in)
 {
 	if (isa<VARIABLE_NAME> (in))
-		bb->aliases->insert (dyc<VARIABLE_NAME> (in)->value);
+		aliased (bb, dyc<VARIABLE_NAME> (in));
 	else
 		alias_bottom (bb);
 }
 
 void
-Address_taken::alias_bottom (Basic_block* bb)
+Address_taken::aliased (Basic_block* bb, Rvalue* in)
 {
-	bb->aliases->insert_all ();
+	if (isa<VARIABLE_NAME> (in))
+		aliased (bb, dyc<VARIABLE_NAME> (in));
+
+	// nothing happens for literals
+}
+
+void
+Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
+{
+	bb->aliases->insert (in->value);
 }
 
 // Aliased:
@@ -98,12 +113,14 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 
 			foreach (Actual_parameter* ap, *mi->actual_parameters)
 			{
-				// Target is a parameter
-				if (isa<VARIABLE_NAME> (ap->target))
-					aliased (bb, dyc<VARIABLE_NAME> (ap->target));
+				Variable_actual_parameter* vap = dyc<Variable_actual_parameter> (ap);
 
-				aliased (bb, ap->variable_name);
-				foreach (VARIABLE_NAME* array_index, *ap->array_indices)
+				// Target is a parameter
+				if (isa<VARIABLE_NAME> (vap->target))
+					aliased (bb, dyc<VARIABLE_NAME> (vap->target));
+
+				aliased (bb, vap->variable_name);
+				foreach (Rvalue* array_index, *vap->array_indices)
 					aliased (bb, array_index);
 			}
 			break;
