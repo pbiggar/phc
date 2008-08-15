@@ -381,7 +381,10 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 class Linearizer : public default_dfs_visitor
 {
 	CFG* cfg;
-	map<vertex_t, LABEL_NAME*> labels;
+	// Since the linearizer is passed by copy, a non-pointer would be
+	// deallocated after the depth-first-search. However, we need to keep the
+	// exit_label alive.
+	map<vertex_t, LABEL_NAME*>* labels;
 
 public:
 
@@ -389,20 +392,22 @@ public:
 	Linearizer(CFG* cfg) : cfg(cfg)
 	{
 		statements = new List<Statement*>;
+		labels = new map<vertex_t, LABEL_NAME*>;
 	}
 
 	/* Assign a label for each block. */
 	void initialize_vertex (vertex_t v, const Graph& g)
 	{
-		labels [v] = fresh_label_name ();
+		(*labels) [v] = fresh_label_name ();
 	}
 
 	void discover_vertex (vertex_t v, const Graph& g)
 	{
 		Basic_block* bb = get(vertex_bb_t(), g)[v];
 
-		// Add a label
-		statements->push_back (new Label(labels[v]->clone ()));
+		// Add a label (the exit block label is added at the very end)
+		if (not dynamic_cast<Exit_block*> (bb))
+			statements->push_back (new Label((*labels)[v]->clone ()));
 
 		// Statement or branch block
 		if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
@@ -413,8 +418,8 @@ public:
 			// While in the CFG, the ifftrue and iffalse fields of a branch are
 			// meaningless (by design).
 			statements->push_back (br->branch);
-			br->branch->iftrue = labels[cfg->get_true_successor (br)->vertex];
-			br->branch->iffalse = labels[cfg->get_false_successor (br)->vertex];
+			br->branch->iftrue = (*labels)[cfg->get_true_successor (br)->vertex];
+			br->branch->iffalse = (*labels)[cfg->get_false_successor (br)->vertex];
 		}
 
 		// Add a goto successor
@@ -422,8 +427,17 @@ public:
 				&& not dynamic_cast<Exit_block*> (bb))
 		{
 			vertex_t next = cfg->get_successor (bb)->vertex;
-			statements->push_back (new Goto (labels[next]->clone ()));
+			statements->push_back (new Goto ((*labels)[next]->clone ()));
 		}
+	}
+
+	void add_exit_label ()
+	{
+		Basic_block* bb = cfg->get_exit_bb ();
+
+		// Add an exit block at the very end, so that it doesnt fall through to
+		// anything.
+		statements->push_back (new Label((*labels)[bb->vertex]->clone ()));
 	}
 };
 
@@ -445,6 +459,7 @@ CFG::get_linear_statements ()
 	Linearizer linearizer (this);
 	renumber_vertex_indices ();
 	depth_first_search (bs, visitor (linearizer));
+	linearizer.add_exit_label ();
 	List<Statement*>* results = linearizer.statements;
 
 	/* Remove redundant gotos, which would fall-through to their targets
@@ -481,7 +496,6 @@ CFG::get_linear_statements ()
 		else
 			i++;
 	}
-
 	return results;
 }
 
