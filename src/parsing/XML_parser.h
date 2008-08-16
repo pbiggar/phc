@@ -404,11 +404,23 @@ public:
 			}
 		}
 
-		// Fetch attributes (dont check size, it covers up bugs)
-		if(accept_attrs && isa<IR::Node> (node))
+		// Fetch attributes
+		if(accept_attrs && isa <IR::Node> (node))
 		{
-			dyc<IR::Node> (node)->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			IR::Node* attr_node = dyc<IR::Node> (node);
+			if (attrs_stack.size() > 0)
+			{
+				attr_node->attrs = attrs_stack.top();
+				attrs_stack.pop();
+			}
+			else
+			{
+				// TODO: This is fine if there are no attributes, but if some nodes
+				// are missing attributes it'll be a problem.
+
+				// There might be no attributes in the XML file.
+				attr_node->attrs = new AttrMap ();
+			}
 		}
 	
 		if(node != NULL)
