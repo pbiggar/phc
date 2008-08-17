@@ -45,6 +45,11 @@ void Lower_expr::post_push_array (Push_array* in, List<Statement*>* out)
 	push_back_pieces(in, out);
 }
 
+void Lower_expr::post_eval_expr (Eval_expr* in, List<Statement*>* out)
+{
+	push_back_pieces(in, out);
+}
+
 void Lower_expr::post_return(Return* in, List<Statement*>* out)
 {
 	push_back_pieces(in, out);
@@ -88,5 +93,3 @@ void Lower_expr::eval(Expr* in, VARIABLE_NAME* temp)
 				temp->clone (),
 				in->clone ()));
 }
-
-

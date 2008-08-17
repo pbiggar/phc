@@ -23,7 +23,7 @@
  */
 class MIR_to_AST : public MIR::Fold
 <
- AST::Node*,					// Actual_parameter*
+ AST::Actual_parameter*,	// Actual_parameter*
  AST::Eval_expr*,				// Assign_array*
  AST::Eval_expr*,				// Assign_target*
  AST::Eval_expr*,				// Assign_var*
@@ -61,6 +61,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Variable*,				// Index_array*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
+ AST::Method_invocation*,	// Isset*
  AST::Identifier*,			// LABEL_NAME*
  AST::FOREIGN*,				// Label*
  AST::Literal*,				// Literal*
@@ -75,7 +76,9 @@ class MIR_to_AST : public MIR::Fold
  AST::New*,						// New*
  AST::Node*,					// Node*
  AST::OP*,						// OP*
+ AST::Node*,					// PARAM_INDEX*
  AST::PHP_script*,			// PHP_script*
+ AST::FOREIGN*,				// Param_is_ref*
  AST::Eval_expr*,				// Pre_op*
  AST::Eval_expr*,				// Push_array*
  AST::REAL*,					// REAL*
@@ -95,8 +98,8 @@ class MIR_to_AST : public MIR::Fold
  AST::Try*,						// Try*
  AST::Type*,					// Type*
  AST::Unary_op*,				// Unary_op*
+ AST::Eval_expr*,				// Unset*
  AST::None*,					// VARIABLE_NAME* - Variable or Variable_name
- AST::Actual_parameter*,	// Variable_actual_parameter*
  AST::Reflection*,			// Variable_class*
  AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
@@ -173,16 +176,6 @@ public:
 			return wrap_var_name (target);
 
 		return dyc<AST::CLASS_NAME> (target);
-	}
-
-	List<AST::Actual_parameter*>* convert_actual_parameters (List<AST::Node*>* in)
-	{
-		List<AST::Actual_parameter*>* out = new List<AST::Actual_parameter*>;
-		foreach (AST::Node* n, *in)
-		{
-			out->push_back (dyc<AST::Actual_parameter> (n));
-		}
-		return out;
 	}
 
 public:
@@ -587,44 +580,32 @@ public:
 		return result;
 	}
 
-	AST::Method_invocation* fold_impl_method_invocation(MIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, List<AST::Node*>* actual_parameters) 
+	AST::Method_invocation* fold_impl_method_invocation(MIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, List<AST::Actual_parameter*>* actual_parameters) 
 	{
 		AST::Method_invocation* result;
 		result = new AST::Method_invocation(
 			wrap_target (target),
 			method_name, 
-			convert_actual_parameters (actual_parameters));
+			actual_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Actual_parameter* fold_impl_variable_actual_parameter(MIR::Variable_actual_parameter* orig, bool is_ref, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices)
+	AST::Actual_parameter* fold_impl_actual_parameter(MIR::Actual_parameter* orig, bool is_ref, AST::Expr* expr)
 	{
-		AST::Target* target_var = wrap_target (target);
-
 		AST::Actual_parameter* result;
 		result = new AST::Actual_parameter(
-			is_ref, 
-			new AST::Variable (
-				target_var,
-				variable_name,
-				array_indices));
+			is_ref,
+			expr);
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Actual_parameter* fold_actual_parameter (MIR::Actual_parameter* in)
-	{
-		if (isa<MIR::Literal> (in))
-			return new AST::Actual_parameter (false, fold_literal (dyc<MIR::Literal> (in)));
-		else
-			return dyc<AST::Actual_parameter> (parent::fold_actual_parameter (in));
-	}
 
-	AST::New* fold_impl_new(MIR::New* orig, AST::Class_name* class_name, List<AST::Node*>* actual_parameters) 
+	AST::New* fold_impl_new(MIR::New* orig, AST::Class_name* class_name, List<AST::Actual_parameter*>* actual_parameters) 
 	{
 		AST::New* result;
-		result = new AST::New(class_name, convert_actual_parameters (actual_parameters));
+		result = new AST::New(class_name, actual_parameters);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -644,6 +625,9 @@ public:
 		result->attrs = orig->attrs;
 		return result;
 	}
+
+	// Provide public access
+	using parent::fold_method_name;
 
 	AST::METHOD_NAME* fold_method_name(MIR::METHOD_NAME* orig) 
 	{
@@ -814,6 +798,53 @@ public:
 	{
 		// We dont care what happens to this, since it's always wrapped in another FOREIGN
 		return NULL;
+	}
+
+	AST::Node* fold_param_index (MIR::PARAM_INDEX* orig)
+	{
+		// We don't care what happens, since it will be removed by folding a Param_is_ref
+		return NULL;
+	}
+
+	AST::FOREIGN* fold_param_is_ref (MIR::Param_is_ref* orig)
+	{
+		return new AST::FOREIGN (orig);
+	}
+
+	AST::Eval_expr* fold_impl_unset (MIR::Unset* orig, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	{
+		AST::Method_invocation* result;
+		result = new AST::Method_invocation (
+			NULL,
+			new AST::METHOD_NAME (s("unset")),
+			new List<AST::Actual_parameter*> (
+				new AST::Actual_parameter (
+					false,
+					new AST::Variable (
+						wrap_target (target),
+						variable_name,
+						array_indices))));
+
+		result->attrs = orig->attrs;
+		return new AST::Eval_expr (result);
+	}
+
+	AST::Method_invocation* fold_impl_isset (MIR::Isset* orig, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	{
+		AST::Method_invocation* result;
+		result = new AST::Method_invocation (
+			NULL,
+			new AST::METHOD_NAME (s("isset")),
+			new List<AST::Actual_parameter*> (
+				new AST::Actual_parameter (
+					false,
+					new AST::Variable (
+						wrap_target (target),
+						variable_name,
+						array_indices))));
+
+		result->attrs = orig->attrs;
+		return result;
 	}
 
 

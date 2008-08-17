@@ -637,6 +637,9 @@ public:
 		return result;
 	}
 
+	// Provide public access
+	using parent::fold_method_name;
+
 	AST::METHOD_NAME* fold_method_name(HIR::METHOD_NAME* orig) 
 	{
 		AST::METHOD_NAME* result;

@@ -96,8 +96,9 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	cmdline.lo HIR.lo HIR_factory.lo HIR_transform.lo \
 	HIR_visitor.lo lex.yy.lo MIR.lo MIR_factory.lo \
 	MIR_transform.lo MIR_visitor.lo php_parser.tab.lo \
-	HIR_lower_expr.lo Lower_control_flow.lo AttrMap.lo base64.lo \
-	Boolean.lo demangle.lo error.lo Integer.lo Object.lo String.lo \
+	HIR_lower_expr.lo Lower_control_flow.lo \
+	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
+	demangle.lo error.lo Integer.lo Object.lo String.lo \
 	Copy_propagation.lo Dead_code_elimination.lo Fix_point.lo \
 	Prune_symbol_table.lo Use_def_counter.lo Parse_buffer.lo \
 	parse.lo PHP_context.lo XML_parser.lo Pass_manager.lo \
@@ -108,7 +109,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
 	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
 	PHP_unparser.lo XML_unparser.lo Foreach_uppering.lo \
-	Goto_uppering.lo MIR_unparser.lo
+	Goto_uppering.lo MIR_unparser.lo Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -661,6 +662,8 @@ libphc_la_SOURCES = \
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
+	src/hir_to_mir/Lower_method_invocations.cpp		\
+	src/hir_to_mir/Lower_method_invocations.h			\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -749,6 +752,8 @@ libphc_la_SOURCES = \
 	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
+	src/process_mir/Param_is_ref_uppering.cpp			\
+	src/process_mir/Param_is_ref_uppering.h			\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
 
@@ -1230,6 +1235,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/List_shredder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_expr_flow.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Lower_method_invocations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_factory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MIR_transform.Plo@am__quote@
@@ -1240,6 +1246,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Param_is_ref_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Parse_buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Pass_manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Plugin_pass.Plo@am__quote@
@@ -1599,6 +1606,13 @@ Lower_control_flow.lo: src/hir_to_mir/Lower_control_flow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_control_flow.lo `test -f 'src/hir_to_mir/Lower_control_flow.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Lower_control_flow.cpp
 
+Lower_method_invocations.lo: src/hir_to_mir/Lower_method_invocations.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Lower_method_invocations.lo -MD -MP -MF $(DEPDIR)/Lower_method_invocations.Tpo -c -o Lower_method_invocations.lo `test -f 'src/hir_to_mir/Lower_method_invocations.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Lower_method_invocations.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Lower_method_invocations.Tpo $(DEPDIR)/Lower_method_invocations.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/hir_to_mir/Lower_method_invocations.cpp' object='Lower_method_invocations.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Lower_method_invocations.lo `test -f 'src/hir_to_mir/Lower_method_invocations.cpp' || echo '$(srcdir)/'`src/hir_to_mir/Lower_method_invocations.cpp
+
 AttrMap.lo: src/lib/AttrMap.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT AttrMap.lo -MD -MP -MF $(DEPDIR)/AttrMap.Tpo -c -o AttrMap.lo `test -f 'src/lib/AttrMap.cpp' || echo '$(srcdir)/'`src/lib/AttrMap.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/AttrMap.Tpo $(DEPDIR)/AttrMap.Plo
@@ -1871,6 +1885,13 @@ MIR_unparser.lo: src/process_mir/MIR_unparser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_mir/MIR_unparser.cpp' object='MIR_unparser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o MIR_unparser.lo `test -f 'src/process_mir/MIR_unparser.cpp' || echo '$(srcdir)/'`src/process_mir/MIR_unparser.cpp
+
+Param_is_ref_uppering.lo: src/process_mir/Param_is_ref_uppering.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Param_is_ref_uppering.lo -MD -MP -MF $(DEPDIR)/Param_is_ref_uppering.Tpo -c -o Param_is_ref_uppering.lo `test -f 'src/process_mir/Param_is_ref_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Param_is_ref_uppering.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Param_is_ref_uppering.Tpo $(DEPDIR)/Param_is_ref_uppering.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/process_mir/Param_is_ref_uppering.cpp' object='Param_is_ref_uppering.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Param_is_ref_uppering.lo `test -f 'src/process_mir/Param_is_ref_uppering.cpp' || echo '$(srcdir)/'`src/process_mir/Param_is_ref_uppering.cpp
 
 canonical_unparser.lo: plugins/tests/canonical_unparser.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT canonical_unparser.lo -MD -MP -MF $(DEPDIR)/canonical_unparser.Tpo -c -o canonical_unparser.lo `test -f 'plugins/tests/canonical_unparser.cpp' || echo '$(srcdir)/'`plugins/tests/canonical_unparser.cpp

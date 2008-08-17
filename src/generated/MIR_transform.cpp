@@ -131,6 +131,16 @@ void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::pre_unset(Unset* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
+Expr* Transform::pre_isset(Isset* in)
+{
+    return in;
+}
+
 Expr* Transform::pre_target_expr(Target_expr* in)
 {
     return in;
@@ -181,7 +191,7 @@ Method_name* Transform::pre_variable_method(Variable_method* in)
     return in;
 }
 
-void Transform::pre_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
@@ -247,6 +257,16 @@ Expr* Transform::pre_foreach_get_key(Foreach_get_key* in)
 }
 
 Expr* Transform::pre_foreach_get_val(Foreach_get_val* in)
+{
+    return in;
+}
+
+Expr* Transform::pre_param_is_ref(Param_is_ref* in)
+{
+    return in;
+}
+
+PARAM_INDEX* Transform::pre_param_index(PARAM_INDEX* in)
 {
     return in;
 }
@@ -452,6 +472,16 @@ void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
     out->push_back(in);
 }
 
+void Transform::post_unset(Unset* in, List<Statement*>* out)
+{
+    out->push_back(in);
+}
+
+Expr* Transform::post_isset(Isset* in)
+{
+    return in;
+}
+
 Expr* Transform::post_target_expr(Target_expr* in)
 {
     return in;
@@ -502,7 +532,7 @@ Method_name* Transform::post_variable_method(Variable_method* in)
     return in;
 }
 
-void Transform::post_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
 {
     out->push_back(in);
 }
@@ -568,6 +598,16 @@ Expr* Transform::post_foreach_get_key(Foreach_get_key* in)
 }
 
 Expr* Transform::post_foreach_get_val(Foreach_get_val* in)
+{
+    return in;
+}
+
+Expr* Transform::post_param_is_ref(Param_is_ref* in)
+{
+    return in;
+}
+
+PARAM_INDEX* Transform::post_param_index(PARAM_INDEX* in)
 {
     return in;
 }
@@ -793,6 +833,20 @@ void Transform::children_eval_expr(Eval_expr* in)
     in->expr = transform_expr(in->expr);
 }
 
+void Transform::children_unset(Unset* in)
+{
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_indices = transform_rvalue_list(in->array_indices);
+}
+
+void Transform::children_isset(Isset* in)
+{
+    in->target = transform_target(in->target);
+    in->variable_name = transform_variable_name(in->variable_name);
+    in->array_indices = transform_rvalue_list(in->array_indices);
+}
+
 void Transform::children_target_expr(Target_expr* in)
 {
     in->target = transform_target(in->target);
@@ -853,11 +907,9 @@ void Transform::children_variable_method(Variable_method* in)
     in->variable_name = transform_variable_name(in->variable_name);
 }
 
-void Transform::children_variable_actual_parameter(Variable_actual_parameter* in)
+void Transform::children_actual_parameter(Actual_parameter* in)
 {
-    in->target = transform_target(in->target);
-    in->variable_name = transform_variable_name(in->variable_name);
-    in->array_indices = transform_rvalue_list(in->array_indices);
+    in->rvalue = transform_rvalue(in->rvalue);
 }
 
 void Transform::children_new(New* in)
@@ -936,7 +988,18 @@ void Transform::children_foreach_get_val(Foreach_get_val* in)
     in->iter = transform_ht_iterator(in->iter);
 }
 
+void Transform::children_param_is_ref(Param_is_ref* in)
+{
+    in->target = transform_target(in->target);
+    in->method_name = transform_method_name(in->method_name);
+    in->param_index = transform_param_index(in->param_index);
+}
+
 // Tokens don't have children, so these methods do nothing by default
+void Transform::children_param_index(PARAM_INDEX* in)
+{
+}
+
 void Transform::children_foreign(FOREIGN* in)
 {
 }
@@ -1419,6 +1482,22 @@ OP* Transform::transform_op(OP* in)
     return out;
 }
 
+List<Rvalue*>* Transform::transform_rvalue_list(List<Rvalue*>* in)
+{
+    List<Rvalue*>::const_iterator i;
+    List<Rvalue*>* out = new List<Rvalue*>;
+    
+    if(in == NULL)
+    	return NULL;
+    
+    for(i = in->begin(); i != in->end(); i++)
+    {
+    	out->push_back(transform_rvalue(*i));
+    }
+    
+    return out;
+}
+
 CAST* Transform::transform_cast(CAST* in)
 {
     if(in == NULL) return NULL;
@@ -1520,22 +1599,6 @@ List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter*
     return out2;
 }
 
-List<Rvalue*>* Transform::transform_rvalue_list(List<Rvalue*>* in)
-{
-    List<Rvalue*>::const_iterator i;
-    List<Rvalue*>* out = new List<Rvalue*>;
-    
-    if(in == NULL)
-    	return NULL;
-    
-    for(i = in->begin(); i != in->end(); i++)
-    {
-    	out->push_back(transform_rvalue(*i));
-    }
-    
-    return out;
-}
-
 List<Static_array_elem*>* Transform::transform_static_array_elem_list(List<Static_array_elem*>* in)
 {
     List<Static_array_elem*>::const_iterator i;
@@ -1616,6 +1679,22 @@ HT_ITERATOR* Transform::transform_ht_iterator(HT_ITERATOR* in)
     {
     	children_ht_iterator(out);
     	out = post_ht_iterator(out);
+    }
+    
+    return out;
+}
+
+PARAM_INDEX* Transform::transform_param_index(PARAM_INDEX* in)
+{
+    if(in == NULL) return NULL;
+    
+    PARAM_INDEX* out;
+    
+    out = pre_param_index(in);
+    if(out != NULL)
+    {
+    	children_param_index(out);
+    	out = post_param_index(out);
     }
     
     return out;
@@ -1778,6 +1857,15 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Unset::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		pre_unset(dynamic_cast<Unset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Label::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -1900,10 +1988,12 @@ Expr* Transform::pre_expr(Expr* in)
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
+    case Isset::ID: return pre_isset(dynamic_cast<Isset*>(in));
     case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    case Param_is_ref::ID: return pre_param_is_ref(dynamic_cast<Param_is_ref*>(in));
     }
     assert(0);
 }
@@ -1958,38 +2048,6 @@ Method_name* Transform::pre_method_name(Method_name* in)
     {
     case METHOD_NAME::ID: return pre_method_name(dynamic_cast<METHOD_NAME*>(in));
     case Variable_method::ID: return pre_variable_method(dynamic_cast<Variable_method*>(in));
-    }
-    assert(0);
-}
-
-void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
-{
-    switch(in->classid())
-    {
-    case INT::ID: 
-    	out->push_back(pre_int(dynamic_cast<INT*>(in)));
-    	return;
-    case REAL::ID: 
-    	out->push_back(pre_real(dynamic_cast<REAL*>(in)));
-    	return;
-    case STRING::ID: 
-    	out->push_back(pre_string(dynamic_cast<STRING*>(in)));
-    	return;
-    case BOOL::ID: 
-    	out->push_back(pre_bool(dynamic_cast<BOOL*>(in)));
-    	return;
-    case NIL::ID: 
-    	out->push_back(pre_nil(dynamic_cast<NIL*>(in)));
-    	return;
-    case Variable_actual_parameter::ID: 
-    	{
-    		List<Actual_parameter*>* local_out = new List<Actual_parameter*>;
-    		List<Actual_parameter*>::const_iterator i;
-    		pre_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     }
     assert(0);
 }
@@ -2149,6 +2207,15 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     			out->push_back(*i);
     	}
     	return;
+    case Unset::ID: 
+    	{
+    		List<Statement*>* local_out = new List<Statement*>;
+    		List<Statement*>::const_iterator i;
+    		post_unset(dynamic_cast<Unset*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Label::ID: 
     	{
     		List<Statement*>* local_out = new List<Statement*>;
@@ -2271,10 +2338,12 @@ Expr* Transform::post_expr(Expr* in)
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
     case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
+    case Isset::ID: return post_isset(dynamic_cast<Isset*>(in));
     case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    case Param_is_ref::ID: return post_param_is_ref(dynamic_cast<Param_is_ref*>(in));
     }
     assert(0);
 }
@@ -2329,38 +2398,6 @@ Method_name* Transform::post_method_name(Method_name* in)
     {
     case METHOD_NAME::ID: return post_method_name(dynamic_cast<METHOD_NAME*>(in));
     case Variable_method::ID: return post_variable_method(dynamic_cast<Variable_method*>(in));
-    }
-    assert(0);
-}
-
-void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
-{
-    switch(in->classid())
-    {
-    case INT::ID: 
-    	out->push_back(post_int(dynamic_cast<INT*>(in)));
-    	return;
-    case REAL::ID: 
-    	out->push_back(post_real(dynamic_cast<REAL*>(in)));
-    	return;
-    case STRING::ID: 
-    	out->push_back(post_string(dynamic_cast<STRING*>(in)));
-    	return;
-    case BOOL::ID: 
-    	out->push_back(post_bool(dynamic_cast<BOOL*>(in)));
-    	return;
-    case NIL::ID: 
-    	out->push_back(post_nil(dynamic_cast<NIL*>(in)));
-    	return;
-    case Variable_actual_parameter::ID: 
-    	{
-    		List<Actual_parameter*>* local_out = new List<Actual_parameter*>;
-    		List<Actual_parameter*>::const_iterator i;
-    		post_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in), local_out);
-    		for(i = local_out->begin(); i != local_out->end(); i++)
-    			out->push_back(*i);
-    	}
-    	return;
     }
     assert(0);
 }
@@ -2429,6 +2466,9 @@ void Transform::children_statement(Statement* in)
     	break;
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
+    	break;
+    case Unset::ID:
+    	children_unset(dynamic_cast<Unset*>(in));
     	break;
     case Label::ID:
     	children_label(dynamic_cast<Label*>(in));
@@ -2547,6 +2587,9 @@ void Transform::children_expr(Expr* in)
     case Target_expr::ID:
     	children_target_expr(dynamic_cast<Target_expr*>(in));
     	break;
+    case Isset::ID:
+    	children_isset(dynamic_cast<Isset*>(in));
+    	break;
     case FOREIGN::ID:
     	children_foreign(dynamic_cast<FOREIGN*>(in));
     	break;
@@ -2558,6 +2601,9 @@ void Transform::children_expr(Expr* in)
     	break;
     case Foreach_get_val::ID:
     	children_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
+    	break;
+    case Param_is_ref::ID:
+    	children_param_is_ref(dynamic_cast<Param_is_ref*>(in));
     	break;
     }
 }
@@ -2635,31 +2681,6 @@ void Transform::children_method_name(Method_name* in)
     	break;
     case Variable_method::ID:
     	children_variable_method(dynamic_cast<Variable_method*>(in));
-    	break;
-    }
-}
-
-void Transform::children_actual_parameter(Actual_parameter* in)
-{
-    switch(in->classid())
-    {
-    case INT::ID:
-    	children_int(dynamic_cast<INT*>(in));
-    	break;
-    case REAL::ID:
-    	children_real(dynamic_cast<REAL*>(in));
-    	break;
-    case STRING::ID:
-    	children_string(dynamic_cast<STRING*>(in));
-    	break;
-    case BOOL::ID:
-    	children_bool(dynamic_cast<BOOL*>(in));
-    	break;
-    case NIL::ID:
-    	children_nil(dynamic_cast<NIL*>(in));
-    	break;
-    case Variable_actual_parameter::ID:
-    	children_variable_actual_parameter(dynamic_cast<Variable_actual_parameter*>(in));
     	break;
     }
 }

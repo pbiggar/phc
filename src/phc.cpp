@@ -5,7 +5,11 @@
  * Main application module 
  */
 
-#include "AST.h"
+#include <ltdl.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "ast_to_hir/AST_shredder.h"
 #include "ast_to_hir/Desugar.h"
 #include "ast_to_hir/Early_lower_control_flow.h"
@@ -22,15 +26,15 @@
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
-#include "optimize/Copy_propagation.h"
-#include "optimize/Dead_code_elimination.h"
 #include "codegen/Generate_C.h"
 #include "codegen/Lift_functions_and_classes.h"
-#include "optimize/Prune_symbol_table.h"
 #include "embed/embed.h"
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
-#include <ltdl.h>
+#include "hir_to_mir/Lower_method_invocations.h"
+#include "optimize/Copy_propagation.h"
+#include "optimize/Dead_code_elimination.h"
+#include "optimize/Prune_symbol_table.h"
 #include "parsing/parse.h"
 #include "parsing/XML_parser.h"
 #include "pass_manager/Fake_pass.h"
@@ -45,9 +49,6 @@
 #include "process_ast/Strip_unparser_attributes.h"
 #include "process_ir/XML_unparser.h"
 #include "process_mir/Obfuscate.h"
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 using namespace std;
 
@@ -153,6 +154,7 @@ int main(int argc, char** argv)
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
 	pm->add_hir_transform (new Dead_code_elimination (), s("dce"), s("Dead code elimination - Remove some copies introduced by lowered"));
+	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
 
 
@@ -233,7 +235,7 @@ int main(int argc, char** argv)
 				phc_error("XML support not built-in; install Xerces C development library");
 			#else
 				String* pass_name = new String (args_info.read_xml_arg);
- 
+
 				// We'd like debug info while parsing too.
 				pm->maybe_enable_debug (pm->get_pass_named (pass_name));
 

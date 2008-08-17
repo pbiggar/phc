@@ -25,6 +25,7 @@ namespace HIR
 		void post_push_array (HIR::Push_array* in, List<HIR::Statement*>* out);
 		void post_return(HIR::Return* in, List<HIR::Statement*>* out);
 		void post_global(HIR::Global* in, List<HIR::Statement*>* out);
+		void post_eval_expr (HIR::Eval_expr* in, List<Statement*>* out);
 
 	protected:
 		HIR::VARIABLE_NAME* eval (HIR::Expr* in);

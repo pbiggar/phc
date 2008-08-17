@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include "boost/lexical_cast.hpp"
 #include "lib/error.h"
 #include "lib/Object.h"
 #include "lib/List.h"
@@ -12,7 +13,6 @@
 #include "lib/Integer.h"
 #include "lib/AttrMap.h"
 #include "process_ir/IR.h"
-#include "process_ast/AST_unparser.h"
 #include <list>
 #include <string>
 #include <cstring>
@@ -54,6 +54,8 @@ public:
     virtual void pre_push_array(Push_array* in, List<Statement*>* out);
     virtual void pre_pre_op(Pre_op* in, List<Statement*>* out);
     virtual void pre_eval_expr(Eval_expr* in, List<Statement*>* out);
+    virtual void pre_unset(Unset* in, List<Statement*>* out);
+    virtual Expr* pre_isset(Isset* in);
     virtual Expr* pre_target_expr(Target_expr* in);
     virtual Variable_name* pre_variable_variable(Variable_variable* in);
     virtual Expr* pre_index_array(Index_array* in);
@@ -64,7 +66,7 @@ public:
     virtual Expr* pre_instanceof(Instanceof* in);
     virtual Expr* pre_method_invocation(Method_invocation* in);
     virtual Method_name* pre_variable_method(Variable_method* in);
-    virtual void pre_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out);
+    virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* pre_new(New* in);
     virtual Class_name* pre_variable_class(Variable_class* in);
     virtual Static_value* pre_static_array(Static_array* in);
@@ -78,6 +80,8 @@ public:
     virtual Expr* pre_foreach_has_key(Foreach_has_key* in);
     virtual Expr* pre_foreach_get_key(Foreach_get_key* in);
     virtual Expr* pre_foreach_get_val(Foreach_get_val* in);
+    virtual Expr* pre_param_is_ref(Param_is_ref* in);
+    virtual PARAM_INDEX* pre_param_index(PARAM_INDEX* in);
     virtual FOREIGN* pre_foreign(FOREIGN* in);
     virtual CLASS_NAME* pre_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* pre_interface_name(INTERFACE_NAME* in);
@@ -120,6 +124,8 @@ public:
     virtual void post_push_array(Push_array* in, List<Statement*>* out);
     virtual void post_pre_op(Pre_op* in, List<Statement*>* out);
     virtual void post_eval_expr(Eval_expr* in, List<Statement*>* out);
+    virtual void post_unset(Unset* in, List<Statement*>* out);
+    virtual Expr* post_isset(Isset* in);
     virtual Expr* post_target_expr(Target_expr* in);
     virtual Variable_name* post_variable_variable(Variable_variable* in);
     virtual Expr* post_index_array(Index_array* in);
@@ -130,7 +136,7 @@ public:
     virtual Expr* post_instanceof(Instanceof* in);
     virtual Expr* post_method_invocation(Method_invocation* in);
     virtual Method_name* post_variable_method(Variable_method* in);
-    virtual void post_variable_actual_parameter(Variable_actual_parameter* in, List<Actual_parameter*>* out);
+    virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Expr* post_new(New* in);
     virtual Class_name* post_variable_class(Variable_class* in);
     virtual Static_value* post_static_array(Static_array* in);
@@ -144,6 +150,8 @@ public:
     virtual Expr* post_foreach_has_key(Foreach_has_key* in);
     virtual Expr* post_foreach_get_key(Foreach_get_key* in);
     virtual Expr* post_foreach_get_val(Foreach_get_val* in);
+    virtual Expr* post_param_is_ref(Param_is_ref* in);
+    virtual PARAM_INDEX* post_param_index(PARAM_INDEX* in);
     virtual FOREIGN* post_foreign(FOREIGN* in);
     virtual CLASS_NAME* post_class_name(CLASS_NAME* in);
     virtual INTERFACE_NAME* post_interface_name(INTERFACE_NAME* in);
@@ -186,6 +194,8 @@ public:
     virtual void children_push_array(Push_array* in);
     virtual void children_pre_op(Pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
+    virtual void children_unset(Unset* in);
+    virtual void children_isset(Isset* in);
     virtual void children_target_expr(Target_expr* in);
     virtual void children_variable_variable(Variable_variable* in);
     virtual void children_index_array(Index_array* in);
@@ -196,7 +206,7 @@ public:
     virtual void children_instanceof(Instanceof* in);
     virtual void children_method_invocation(Method_invocation* in);
     virtual void children_variable_method(Variable_method* in);
-    virtual void children_variable_actual_parameter(Variable_actual_parameter* in);
+    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_new(New* in);
     virtual void children_variable_class(Variable_class* in);
     virtual void children_static_array(Static_array* in);
@@ -210,8 +220,10 @@ public:
     virtual void children_foreach_has_key(Foreach_has_key* in);
     virtual void children_foreach_get_key(Foreach_get_key* in);
     virtual void children_foreach_get_val(Foreach_get_val* in);
+    virtual void children_param_is_ref(Param_is_ref* in);
 // Tokens don't have children, so these methods do nothing by default
 public:
+    virtual void children_param_index(PARAM_INDEX* in);
     virtual void children_foreign(FOREIGN* in);
     virtual void children_class_name(CLASS_NAME* in);
     virtual void children_interface_name(INTERFACE_NAME* in);
@@ -255,18 +267,19 @@ public:
     virtual Target* transform_target(Target* in);
     virtual Rvalue* transform_rvalue(Rvalue* in);
     virtual OP* transform_op(OP* in);
+    virtual List<Rvalue*>* transform_rvalue_list(List<Rvalue*>* in);
     virtual CAST* transform_cast(CAST* in);
     virtual CONSTANT_NAME* transform_constant_name(CONSTANT_NAME* in);
     virtual Class_name* transform_class_name(Class_name* in);
     virtual Method_name* transform_method_name(Method_name* in);
     virtual List<Actual_parameter*>* transform_actual_parameter_list(List<Actual_parameter*>* in);
     virtual List<Actual_parameter*>* transform_actual_parameter(Actual_parameter* in);
-    virtual List<Rvalue*>* transform_rvalue_list(List<Rvalue*>* in);
     virtual List<Static_array_elem*>* transform_static_array_elem_list(List<Static_array_elem*>* in);
     virtual List<Static_array_elem*>* transform_static_array_elem(Static_array_elem* in);
     virtual Static_array_key* transform_static_array_key(Static_array_key* in);
     virtual LABEL_NAME* transform_label_name(LABEL_NAME* in);
     virtual HT_ITERATOR* transform_ht_iterator(HT_ITERATOR* in);
+    virtual PARAM_INDEX* transform_param_index(PARAM_INDEX* in);
     virtual PHP_script* transform_php_script(PHP_script* in);
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
@@ -280,7 +293,6 @@ public:
     virtual Rvalue* pre_rvalue(Rvalue* in);
     virtual Class_name* pre_class_name(Class_name* in);
     virtual Method_name* pre_method_name(Method_name* in);
-    virtual void pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Static_array_key* pre_static_array_key(Static_array_key* in);
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
@@ -294,7 +306,6 @@ public:
     virtual Rvalue* post_rvalue(Rvalue* in);
     virtual Class_name* post_class_name(Class_name* in);
     virtual Method_name* post_method_name(Method_name* in);
-    virtual void post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out);
     virtual Static_array_key* post_static_array_key(Static_array_key* in);
 // Invoke the right transform-children (manual dispatching)
 // Do not override unless you what you are doing
@@ -308,7 +319,6 @@ public:
     virtual void children_rvalue(Rvalue* in);
     virtual void children_class_name(Class_name* in);
     virtual void children_method_name(Method_name* in);
-    virtual void children_actual_parameter(Actual_parameter* in);
     virtual void children_static_array_key(Static_array_key* in);
 };
 }

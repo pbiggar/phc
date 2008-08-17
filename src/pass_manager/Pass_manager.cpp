@@ -25,6 +25,7 @@
 #include "process_ast/Invalid_check.h"
 #include "process_mir/Goto_uppering.h"
 #include "process_mir/Foreach_uppering.h"
+#include "process_mir/Param_is_ref_uppering.h"
 #include "process_mir/Main_uppering.h"
 
 #include "process_hir/HIR_to_AST.h"
@@ -335,6 +336,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			{
 				MIR::PHP_script* mir = in->as_MIR ();
 				mir->transform_children (new Foreach_uppering);
+				mir->transform_children (new Param_is_ref_uppering);
 				mir->visit (new Main_uppering);
 				mir->visit (new Goto_uppering);
 				AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);

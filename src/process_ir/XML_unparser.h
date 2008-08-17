@@ -432,6 +432,15 @@ public:
 	{
 	}
 
+	void pre_param_index (MIR::PARAM_INDEX* in)
+	{
+		String* value = in->get_value_as_string();
+
+		state->print_indent();
+		maybe_encode ("value", value);
+		state->os << endl;
+	}
+
 };
 
 

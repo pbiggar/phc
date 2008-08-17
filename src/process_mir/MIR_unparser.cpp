@@ -8,6 +8,8 @@
  *   http://framework.zend.com/manual/en/coding-standard.coding-style.html
  */
 
+#include <boost/lexical_cast.hpp>
+
 #include "MIR_unparser.h" 
 #include "MIR_to_AST.h" 
 
@@ -18,12 +20,14 @@ MIR_unparser::MIR_unparser (ostream& os, bool in_php)
 : PHP_unparser (os, in_php)
 , ast_unparser (ups)
 {
+	folder = new MIR_to_AST ();
 }
 
 MIR_unparser::MIR_unparser (Unparser_state* ups)
 : PHP_unparser (ups)
 , ast_unparser (ups)
 {
+	folder = new MIR_to_AST ();
 }
 
 void MIR_unparser::unparse (IR::Node* in)
@@ -48,7 +52,7 @@ void MIR_unparser::unparse (IR::Node* in)
 	else
 	{
 		Node* mir = dyc<Node> (in);
-		AST::Node* ast = (new MIR_to_AST ())->fold_node (mir);
+		AST::Node* ast = folder->fold_node (mir);
 		if (ast)
 			ast_unparser.unparse (ast);
 		else
@@ -160,4 +164,18 @@ void MIR_unparser::children_label (Label* in)
 void MIR_unparser::children_label_name (LABEL_NAME* in)
 {
 	echo(in->value);
+}
+
+void MIR_unparser::children_param_is_ref (Param_is_ref* in)
+{
+	echo ("param_is_ref (");
+	if (in->target)
+		ast_unparser.unparse (folder->fold_target (in->target));
+	else
+		echo ("NULL");
+	echo (", ");
+	ast_unparser.unparse (folder->fold_method_name (in->method_name));
+	echo (", ");
+	echo (boost::lexical_cast <string> (in->param_index->value));
+	echo (");");
 }

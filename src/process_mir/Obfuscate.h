@@ -13,8 +13,8 @@
 
 #include "process_mir/Goto_uppering.h"
 #include "process_mir/Foreach_uppering.h"
+#include "process_mir/Param_is_ref_uppering.h"
 #include "process_mir/Main_uppering.h"
-
 
 class Obfuscate : public Pass
 {
@@ -31,6 +31,7 @@ public:
 		// TODO remove code duplication from Pass_manager.cpp
 		MIR::PHP_script* mir = in->as_MIR ()->clone ();
 		mir->transform_children (new Foreach_uppering);
+		mir->transform_children (new Param_is_ref_uppering);
 		mir->visit (new Goto_uppering);
 		mir->visit (new Main_uppering);
 

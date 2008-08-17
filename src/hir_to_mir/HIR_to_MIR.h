@@ -12,6 +12,19 @@
 #include "MIR.h"
 #include "process_ir/General.h"
 
+template <class Result_type, class List_type>
+List<Result_type*>* rewrap_list (List<List_type*>* nodes)
+{
+	List<Result_type*>* result = new List<Result_type*>;
+	foreach (List_type* n, *nodes)
+	{
+		result->push_back (dyc<Result_type> (n));
+	}
+	return result;
+}
+
+
+
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
  * implementation in this translation, so that we inherit the default assert(0)
@@ -23,7 +36,7 @@
  */
 class HIR_to_MIR : public HIR::Fold
 <
- MIR::Actual_parameter*,	// Actual_parameter*
+ MIR::Node*,					// Actual_parameter*
  MIR::Assign_array*,			// Assign_array*
  MIR::Assign_target*,		// Assign_target*
  MIR::Assign_var*,			// Assign_var*
@@ -61,7 +74,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::METHOD_NAME*,			// METHOD_NAME*
  MIR::Member*,					// Member*
  MIR::Method*,					// Method*
- MIR::Method_invocation*,	// Method_invocation*
+ MIR::Expr*,					// Method_invocation*
  MIR::Method_mod*,			// Method_mod*
  MIR::Method_name*,			// Method_name*
  MIR::NIL*,						// NIL*
@@ -90,7 +103,7 @@ class HIR_to_MIR : public HIR::Fold
  MIR::Type*,					// Type*
  MIR::Unary_op*,				// Unary_op*
  MIR::VARIABLE_NAME*,		// VARIABLE_NAME*
- MIR::Variable_actual_parameter*,	// Variable_actual_parameter
+ MIR::Node*,					// Variable_actual_parameter
  MIR::Variable_class*,		// Variable_class*
  MIR::Variable_method*,		// Variable_method*
  MIR::Variable_name*,		// Variable_name*
@@ -99,13 +112,17 @@ class HIR_to_MIR : public HIR::Fold
 {
 	MIR::Statement* foreign_statement;
 	MIR::Expr* foreign_expr;
+	MIR::Unset* unset;
 
 public:
 	HIR_to_MIR ()
 	{
 		foreign_expr = NULL;
 		foreign_statement = NULL;
+		unset = NULL;
 	}
+
+	using parent::fold_method_name;
 
 public:
 	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
@@ -314,14 +331,29 @@ public:
 
 	MIR::Statement* fold_statement (HIR::Statement* orig)
 	{
-		if (!isa<HIR::FOREIGN> (orig))
+		if (isa<HIR::FOREIGN> (orig))
+		{
+			fold_foreign (dyc<HIR::FOREIGN> (orig));
+			MIR::Statement* statement = this->foreign_statement;
+			assert (statement);
+			this->foreign_statement = NULL;
+			return statement;
+		}
+		else if (orig->match (
+			new HIR::Eval_expr (
+				new HIR::Method_invocation (
+					NULL,
+					new HIR::METHOD_NAME (s ("unset")),
+					NULL))))
+		{
+			parent::fold_statement (orig);
+			MIR::Unset* unset = this->unset;
+			assert (unset);
+			this->unset = NULL;
+			return unset;
+		}
+		else
 			return parent::fold_statement (orig);
-
-		fold_foreign (dyc<HIR::FOREIGN> (orig));
-		MIR::Statement* statement = this->foreign_statement;
-		assert (statement);
-		this->foreign_statement = NULL;
-		return statement;
 	}
 
 	MIR::None* fold_foreign (HIR::FOREIGN* orig)
@@ -443,26 +475,66 @@ public:
 		return result;
 	}
 
-	MIR::Method_invocation* fold_impl_method_invocation(HIR::Method_invocation* orig, MIR::Target* target, MIR::Method_name* method_name, List<MIR::Actual_parameter*>* actual_parameters) 
+	MIR::Expr* fold_impl_method_invocation(HIR::Method_invocation* orig, MIR::Target* target, MIR::Method_name* method_name, List<MIR::Node*>* actual_parameters) 
 	{
+		// Unset and Isset are special and gets put straight into the MIR.
+		MIR::METHOD_NAME* mn = dynamic_cast <MIR::METHOD_NAME*> (method_name);
+		if (target == NULL
+			&& mn
+			&& (*mn->value == "unset"
+				||*mn->value == "isset"))
+		{
+			assert (actual_parameters->size () == 1);
+
+			HIR::Variable_actual_parameter* ap = dyc<HIR::Variable_actual_parameter> (orig->actual_parameters->front ());
+
+			List<MIR::Rvalue*>* array_indices = new List<MIR::Rvalue*>;
+			foreach (HIR::Rvalue* rvalue, *ap->array_indices)
+				array_indices->push_back (fold_rvalue (rvalue));
+
+			if (*mn->value == "unset")
+			{
+				unset = new MIR::Unset (
+					ap->target ? fold_target (ap->target) : NULL,
+					parent::fold_variable_name (ap->variable_name),
+					array_indices);
+				unset->attrs = unset->attrs;
+			}
+			else
+			{
+				MIR::Isset* result;
+				result = new MIR::Isset (
+					ap->target ? fold_target (ap->target) : NULL,
+					parent::fold_variable_name (ap->variable_name),
+					array_indices);
+				result->attrs = orig->attrs;
+				return result;
+			}
+
+			return NULL;
+		}
+
 		MIR::Method_invocation* result;
-		result = new MIR::Method_invocation(target, method_name, actual_parameters);
+		result = new MIR::Method_invocation(target, method_name, rewrap_list<MIR::Actual_parameter, MIR::Node> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	MIR::Variable_actual_parameter* fold_impl_variable_actual_parameter(HIR::Variable_actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Rvalue*>* array_indices) 
+	MIR::Node* fold_impl_variable_actual_parameter (HIR::Variable_actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Rvalue*>* array_indices)
 	{
-		MIR::Variable_actual_parameter* result;
-		result = new MIR::Variable_actual_parameter (is_ref, target, variable_name, array_indices);
-		result->attrs = orig->attrs;
-		return result;
+		// Unset and Isset can still have targets, var-vars and array_indices, so just ignore them.
+		if (target
+			|| array_indices->size () > 0
+			|| isa<MIR::Variable_variable> (variable_name))
+			return NULL;
+
+		return new MIR::Actual_parameter (is_ref, dyc<MIR::VARIABLE_NAME> (variable_name));
 	}
 
-	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, List<MIR::Actual_parameter*>* actual_parameters) 
+	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, List<MIR::Node*>* actual_parameters) 
 	{
 		MIR::New* result;
-		result = new MIR::New(class_name, actual_parameters);
+		result = new MIR::New(class_name, rewrap_list<MIR::Actual_parameter, MIR::Node> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}

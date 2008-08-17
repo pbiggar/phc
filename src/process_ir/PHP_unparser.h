@@ -43,8 +43,8 @@ public:
 
 // Interface
 protected:
-	void echo(const char* str);
-	void echo_nl(const char* s);
+	void echo(string str);
+	void echo_nl(string s);
 	void echo(String* str);
 	void echo_nl(String* str);
 

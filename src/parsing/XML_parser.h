@@ -71,7 +71,9 @@ template<
 class T_Node_builder : public Node_builder
 {
 public:
-	Object* handle_token (string name, Object* param)
+	typedef T_Node_builder<Factory, STRING, CAST, INT, REAL, BOOL, NIL, FOREIGN> parent;
+
+	virtual Object* handle_token (string name, Object* param)
 	{
 		String* value = dynamic_cast<String*> (param);
 
@@ -105,7 +107,7 @@ public:
 			assert (0);
 	}
 
-	bool can_handle_token (string name)
+	virtual bool can_handle_token (string name)
 	{
 		return name == "STRING"
 				|| name == "CAST"
@@ -171,6 +173,21 @@ class MIR_node_builder : public T_Node_builder
 	MIR::FOREIGN
 >
 {
+	bool can_handle_token (string name)
+	{
+		return name == "PARAM_INDEX" || parent::can_handle_token (name);
+	}
+
+
+	Object* handle_token (string name, Object* param)
+	{
+		if (name == "PARAM_INDEX")
+		{
+			return new MIR::PARAM_INDEX (lexical_cast <int> (*dyc<String> (param)));
+		}
+		else
+			return parent::handle_token (name, param);
+	}
 };
 
 class PHC_SAX2Handler : public DefaultHandler 

@@ -6,7 +6,7 @@
  */
 
 #include "AST_annotate.h"
-#include "process_ir/debug.h"
+#include "process_ir/General.h"
 
 using namespace AST;
 
@@ -185,11 +185,16 @@ void Annotate::post_method_invocation (Method_invocation* in)
 	/* It isn't correct to shred variables which may be references at
 	 * run-time, but where we cannot tell if they are at compile-time. The
 	 * only occurrence of this in PHP is actual parameters. */
-	List<Actual_parameter*>::const_iterator i;
-	for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
+	foreach (Actual_parameter* ap, *in->actual_parameters)
 	{
-		if (dynamic_cast<Variable*> ((*i)->expr))
-			(*i)->expr->attrs->set_true("phc.ast_shredder.dont_shred");
+		// We can shred variable that we know are passed by reference
+		if (ap->is_ref)
+		{
+			ap->expr->attrs->set_true ("phc.ast_shredder.use_ref");
+			ap->expr->attrs->set_true ("phc.ast_shredder.need_addr");
+		}
+		else if (dynamic_cast<Variable*> (ap->expr))
+			ap->expr->attrs->set_true("phc.ast_shredder.dont_shred");
 	}
 
 }

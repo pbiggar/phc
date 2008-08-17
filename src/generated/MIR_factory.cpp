@@ -206,6 +206,22 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Eval_expr(expr);
     }
+    if(!strcmp(type_id, "Unset"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
+    	assert(i == args->end());
+    	return new Unset(target, variable_name, array_indices);
+    }
+    if(!strcmp(type_id, "Isset"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
+    	assert(i == args->end());
+    	return new Isset(target, variable_name, array_indices);
+    }
     if(!strcmp(type_id, "Target_expr"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
@@ -276,14 +292,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Variable_method(variable_name);
     }
-    if(!strcmp(type_id, "Variable_actual_parameter"))
+    if(!strcmp(type_id, "Actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
-    	Target* target = dynamic_cast<Target*>(*i++);
-    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
+    	Rvalue* rvalue = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Variable_actual_parameter(is_ref, target, variable_name, array_indices);
+    	return new Actual_parameter(is_ref, rvalue);
     }
     if(!strcmp(type_id, "New"))
     {
@@ -375,6 +389,14 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Foreach_get_val(array, key, iter);
     }
+    if(!strcmp(type_id, "Param_is_ref"))
+    {
+    	Target* target = dynamic_cast<Target*>(*i++);
+    	Method_name* method_name = dynamic_cast<Method_name*>(*i++);
+    	PARAM_INDEX* param_index = dynamic_cast<PARAM_INDEX*>(*i++);
+    	assert(i == args->end());
+    	return new Param_is_ref(target, method_name, param_index);
+    }
     if(!strcmp(type_id, "CLASS_NAME"))
     {
     	String* value = dynamic_cast<String*>(*i++);
@@ -464,18 +486,18 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
-    if(!strcmp(type_id, "Actual_parameter_list"))
-    {
-    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
-    	while(i != args->end())
-    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
-    	return list;
-    }
     if(!strcmp(type_id, "Rvalue_list"))
     {
     	List<Rvalue*>* list = new List<Rvalue*>;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Rvalue*>(*i++));
+    	return list;
+    }
+    if(!strcmp(type_id, "Actual_parameter_list"))
+    {
+    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
+    	while(i != args->end())
+    		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Static_array_elem_list"))

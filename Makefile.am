@@ -128,6 +128,8 @@ libphc_la_SOURCES= 											\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
+	src/hir_to_mir/Lower_method_invocations.cpp		\
+	src/hir_to_mir/Lower_method_invocations.h			\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -216,6 +218,8 @@ libphc_la_SOURCES= 											\
 	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
+	src/process_mir/Param_is_ref_uppering.cpp			\
+	src/process_mir/Param_is_ref_uppering.h			\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
 

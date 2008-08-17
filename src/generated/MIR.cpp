@@ -1521,8 +1521,113 @@ Method_name::Method_name()
 {
 }
 
+Actual_parameter::Actual_parameter(bool is_ref, Rvalue* rvalue)
+{
+    this->is_ref = is_ref;
+    this->rvalue = rvalue;
+}
+
 Actual_parameter::Actual_parameter()
 {
+    this->is_ref = 0;
+    this->rvalue = 0;
+}
+
+void Actual_parameter::visit(Visitor* visitor)
+{
+    visitor->visit_actual_parameter(this);
+}
+
+void Actual_parameter::transform_children(Transform* transform)
+{
+    transform->children_actual_parameter(this);
+}
+
+int Actual_parameter::classid()
+{
+    return ID;
+}
+
+bool Actual_parameter::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Actual_parameter* that = dynamic_cast<Actual_parameter*>(in);
+    if(that == NULL) return false;
+    
+    that->is_ref = this->is_ref;
+    if(this->rvalue == NULL)
+    {
+    	if(that->rvalue != NULL && !that->rvalue->match(this->rvalue))
+    		return false;
+    }
+    else if(!this->rvalue->match(that->rvalue))
+    	return false;
+    
+    return true;
+}
+
+bool Actual_parameter::equals(Node* in)
+{
+    Actual_parameter* that = dynamic_cast<Actual_parameter*>(in);
+    if(that == NULL) return false;
+    
+    if(this->is_ref != that->is_ref)
+    	return false;
+    
+    if(this->rvalue == NULL || that->rvalue == NULL)
+    {
+    	if(this->rvalue != NULL || that->rvalue != NULL)
+    		return false;
+    }
+    else if(!this->rvalue->equals(that->rvalue))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Actual_parameter* Actual_parameter::clone()
+{
+    bool is_ref = this->is_ref;
+    Rvalue* rvalue = this->rvalue ? this->rvalue->clone() : NULL;
+    Actual_parameter* clone = new Actual_parameter(is_ref, rvalue);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Actual_parameter::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->rvalue != NULL)
+    {
+    	Node* rvalue_res = this->rvalue->find(in);
+    	if (rvalue_res) return rvalue_res;
+    }
+    
+    return NULL;
+}
+
+void Actual_parameter::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->rvalue != NULL)
+    	this->rvalue->find_all(in, out);
+    
+}
+
+void Actual_parameter::assert_valid()
+{
+    assert(rvalue != NULL);
+    rvalue->assert_valid();
+    Node::assert_mixin_valid();
 }
 
 Class_name::Class_name()
@@ -1677,6 +1782,114 @@ Static_array_key::Static_array_key()
 
 Identifier::Identifier()
 {
+}
+
+PARAM_INDEX::PARAM_INDEX(int value)
+{
+    this->value = value;
+}
+
+PARAM_INDEX::PARAM_INDEX()
+{
+    this->value = 0;
+}
+
+void PARAM_INDEX::visit(Visitor* visitor)
+{
+    visitor->visit_param_index(this);
+}
+
+void PARAM_INDEX::transform_children(Transform* transform)
+{
+    transform->children_param_index(this);
+}
+
+int PARAM_INDEX::classid()
+{
+    return ID;
+}
+
+bool PARAM_INDEX::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    PARAM_INDEX* that = dynamic_cast<PARAM_INDEX*>(in);
+    if(that == NULL) return false;
+    
+    if(!match_value(that))
+    	return false;
+    else
+    	return true;
+}
+
+bool PARAM_INDEX::match_value(PARAM_INDEX* that)
+{
+    return true;
+}
+
+bool PARAM_INDEX::equals(Node* in)
+{
+    PARAM_INDEX* that = dynamic_cast<PARAM_INDEX*>(in);
+    if(that == NULL) return false;
+    
+    if(!equals_value(that))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+bool PARAM_INDEX::equals_value(PARAM_INDEX* that)
+{
+    return (this->value == that->value);
+}
+
+PARAM_INDEX* PARAM_INDEX::clone()
+{
+    value = clone_value();
+    PARAM_INDEX* clone = new PARAM_INDEX(value);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+int PARAM_INDEX::clone_value()
+{
+    return value;
+}
+
+Node* PARAM_INDEX::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    return NULL;
+}
+
+void PARAM_INDEX::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+}
+
+void PARAM_INDEX::assert_valid()
+{
+    assert_value_valid();
+    Node::assert_mixin_valid();
+}
+
+void PARAM_INDEX::assert_value_valid()
+{
+    // Assume value is valid
+}
+
+String* PARAM_INDEX::get_value_as_string()
+{
+    {
+		return new String (boost::lexical_cast<string> (value));
+	}
 }
 
 Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
@@ -4374,6 +4587,458 @@ void Eval_expr::assert_valid()
     Node::assert_mixin_valid();
 }
 
+Unset::Unset(Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices)
+{
+    this->target = target;
+    this->variable_name = variable_name;
+    this->array_indices = array_indices;
+}
+
+Unset::Unset()
+{
+    this->target = 0;
+    this->variable_name = 0;
+    this->array_indices = 0;
+}
+
+void Unset::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void Unset::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int Unset::classid()
+{
+    return ID;
+}
+
+bool Unset::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Unset* that = dynamic_cast<Unset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL)
+    {
+    	if(that->target != NULL && !that->target->match(this->target))
+    		return false;
+    }
+    else if(!this->target->match(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->array_indices != NULL && that->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Unset::equals(Node* in)
+{
+    Unset* that = dynamic_cast<Unset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL || that->target == NULL)
+    {
+    	if(this->target != NULL || that->target != NULL)
+    		return false;
+    }
+    else if(!this->target->equals(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->array_indices == NULL || that->array_indices == NULL)
+    {
+    	if(this->array_indices != NULL || that->array_indices != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Rvalue*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Unset* Unset::clone()
+{
+    Target* target = this->target ? this->target->clone() : NULL;
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Rvalue*>* array_indices = NULL;
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	array_indices = new List<Rvalue*>;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    		array_indices->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Unset* clone = new Unset(target, variable_name, array_indices);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Unset::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void Unset::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void Unset::assert_valid()
+{
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(array_indices != NULL);
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
+Isset::Isset(Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices)
+{
+    this->target = target;
+    this->variable_name = variable_name;
+    this->array_indices = array_indices;
+}
+
+Isset::Isset()
+{
+    this->target = 0;
+    this->variable_name = 0;
+    this->array_indices = 0;
+}
+
+void Isset::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Isset::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Isset::classid()
+{
+    return ID;
+}
+
+bool Isset::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Isset* that = dynamic_cast<Isset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL)
+    {
+    	if(that->target != NULL && !that->target->match(this->target))
+    		return false;
+    }
+    else if(!this->target->match(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL)
+    {
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
+    		return false;
+    }
+    else if(!this->variable_name->match(that->variable_name))
+    	return false;
+    
+    if(this->array_indices != NULL && that->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL)
+    		{
+    			if(*j != NULL && !(*j)->match(*i))
+    				return false;
+    		}
+    		else if(!(*i)->match(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
+    
+    return true;
+}
+
+bool Isset::equals(Node* in)
+{
+    Isset* that = dynamic_cast<Isset*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL || that->target == NULL)
+    {
+    	if(this->target != NULL || that->target != NULL)
+    		return false;
+    }
+    else if(!this->target->equals(that->target))
+    	return false;
+    
+    if(this->variable_name == NULL || that->variable_name == NULL)
+    {
+    	if(this->variable_name != NULL || that->variable_name != NULL)
+    		return false;
+    }
+    else if(!this->variable_name->equals(that->variable_name))
+    	return false;
+    
+    if(this->array_indices == NULL || that->array_indices == NULL)
+    {
+    	if(this->array_indices != NULL || that->array_indices != NULL)
+    		return false;
+    }
+    else
+    {
+    	List<Rvalue*>::const_iterator i, j;
+    	for(
+    		i = this->array_indices->begin(), j = that->array_indices->begin();
+    		i != this->array_indices->end() && j != that->array_indices->end();
+    		i++, j++)
+    	{
+    		if(*i == NULL || *j == NULL)
+    		{
+    			if(*i != NULL || *j != NULL)
+    				return false;
+    		}
+    		else if(!(*i)->equals(*j))
+    			return false;
+    	}
+    	if(i != this->array_indices->end() || j != that->array_indices->end())
+    		return false;
+    }
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Isset* Isset::clone()
+{
+    Target* target = this->target ? this->target->clone() : NULL;
+    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    List<Rvalue*>* array_indices = NULL;
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	array_indices = new List<Rvalue*>;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    		array_indices->push_back(*i ? (*i)->clone() : NULL);
+    }
+    Isset* clone = new Isset(target, variable_name, array_indices);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Isset::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
+    
+    if (this->variable_name != NULL)
+    {
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
+    }
+    
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			Node* res = (*i)->find (in);
+    			if (res) return res;
+    		}
+    	}
+    }
+    
+    return NULL;
+}
+
+void Isset::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
+    
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
+    
+    if(this->array_indices != NULL)
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(
+    		i = this->array_indices->begin();
+    		i != this->array_indices->end();
+    		i++)
+    	{
+    		if(*i != NULL)
+    		{
+    			(*i)->find_all (in, out);
+    		}
+    	}
+    }
+    
+}
+
+void Isset::assert_valid()
+{
+    if(target != NULL) target->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
+    assert(array_indices != NULL);
+    {
+    	List<Rvalue*>::const_iterator i;
+    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
+    	{
+    		assert(*i != NULL);
+    		(*i)->assert_valid();
+    	}
+    }
+    Node::assert_mixin_valid();
+}
+
 Literal::Literal()
 {
 }
@@ -5703,239 +6368,6 @@ void Variable_method::assert_valid()
 {
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    Node::assert_mixin_valid();
-}
-
-Variable_actual_parameter::Variable_actual_parameter(bool is_ref, Target* target, Variable_name* variable_name, List<Rvalue*>* array_indices)
-{
-    this->is_ref = is_ref;
-    this->target = target;
-    this->variable_name = variable_name;
-    this->array_indices = array_indices;
-}
-
-Variable_actual_parameter::Variable_actual_parameter()
-{
-    this->is_ref = 0;
-    this->target = 0;
-    this->variable_name = 0;
-    this->array_indices = 0;
-}
-
-void Variable_actual_parameter::visit(Visitor* visitor)
-{
-    visitor->visit_actual_parameter(this);
-}
-
-void Variable_actual_parameter::transform_children(Transform* transform)
-{
-    transform->children_actual_parameter(this);
-}
-
-int Variable_actual_parameter::classid()
-{
-    return ID;
-}
-
-bool Variable_actual_parameter::match(Node* in)
-{
-    __WILDCARD__* joker;
-    joker = dynamic_cast<__WILDCARD__*>(in);
-    if(joker != NULL && joker->match(this))
-    	return true;
-    
-    Variable_actual_parameter* that = dynamic_cast<Variable_actual_parameter*>(in);
-    if(that == NULL) return false;
-    
-    that->is_ref = this->is_ref;
-    if(this->target == NULL)
-    {
-    	if(that->target != NULL && !that->target->match(this->target))
-    		return false;
-    }
-    else if(!this->target->match(that->target))
-    	return false;
-    
-    if(this->variable_name == NULL)
-    {
-    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
-    		return false;
-    }
-    else if(!this->variable_name->match(that->variable_name))
-    	return false;
-    
-    if(this->array_indices != NULL && that->array_indices != NULL)
-    {
-    	List<Rvalue*>::const_iterator i, j;
-    	for(
-    		i = this->array_indices->begin(), j = that->array_indices->begin();
-    		i != this->array_indices->end() && j != that->array_indices->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL)
-    		{
-    			if(*j != NULL && !(*j)->match(*i))
-    				return false;
-    		}
-    		else if(!(*i)->match(*j))
-    			return false;
-    	}
-    	if(i != this->array_indices->end() || j != that->array_indices->end())
-    		return false;
-    }
-    
-    return true;
-}
-
-bool Variable_actual_parameter::equals(Node* in)
-{
-    Variable_actual_parameter* that = dynamic_cast<Variable_actual_parameter*>(in);
-    if(that == NULL) return false;
-    
-    if(this->is_ref != that->is_ref)
-    	return false;
-    
-    if(this->target == NULL || that->target == NULL)
-    {
-    	if(this->target != NULL || that->target != NULL)
-    		return false;
-    }
-    else if(!this->target->equals(that->target))
-    	return false;
-    
-    if(this->variable_name == NULL || that->variable_name == NULL)
-    {
-    	if(this->variable_name != NULL || that->variable_name != NULL)
-    		return false;
-    }
-    else if(!this->variable_name->equals(that->variable_name))
-    	return false;
-    
-    if(this->array_indices == NULL || that->array_indices == NULL)
-    {
-    	if(this->array_indices != NULL || that->array_indices != NULL)
-    		return false;
-    }
-    else
-    {
-    	List<Rvalue*>::const_iterator i, j;
-    	for(
-    		i = this->array_indices->begin(), j = that->array_indices->begin();
-    		i != this->array_indices->end() && j != that->array_indices->end();
-    		i++, j++)
-    	{
-    		if(*i == NULL || *j == NULL)
-    		{
-    			if(*i != NULL || *j != NULL)
-    				return false;
-    		}
-    		else if(!(*i)->equals(*j))
-    			return false;
-    	}
-    	if(i != this->array_indices->end() || j != that->array_indices->end())
-    		return false;
-    }
-    
-    if(!Node::is_mixin_equal(that)) return false;
-    return true;
-}
-
-Variable_actual_parameter* Variable_actual_parameter::clone()
-{
-    bool is_ref = this->is_ref;
-    Target* target = this->target ? this->target->clone() : NULL;
-    Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Rvalue*>* array_indices = NULL;
-    if(this->array_indices != NULL)
-    {
-    	List<Rvalue*>::const_iterator i;
-    	array_indices = new List<Rvalue*>;
-    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    		array_indices->push_back(*i ? (*i)->clone() : NULL);
-    }
-    Variable_actual_parameter* clone = new Variable_actual_parameter(is_ref, target, variable_name, array_indices);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
-Node* Variable_actual_parameter::find(Node* in)
-{
-    if (this->match (in))
-    	return this;
-    
-    if (this->target != NULL)
-    {
-    	Node* target_res = this->target->find(in);
-    	if (target_res) return target_res;
-    }
-    
-    if (this->variable_name != NULL)
-    {
-    	Node* variable_name_res = this->variable_name->find(in);
-    	if (variable_name_res) return variable_name_res;
-    }
-    
-    if(this->array_indices != NULL)
-    {
-    	List<Rvalue*>::const_iterator i;
-    	for(
-    		i = this->array_indices->begin();
-    		i != this->array_indices->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			Node* res = (*i)->find (in);
-    			if (res) return res;
-    		}
-    	}
-    }
-    
-    return NULL;
-}
-
-void Variable_actual_parameter::find_all(Node* in, List<Node*>* out)
-{
-    if (this->match (in))
-    	out->push_back (this);
-    
-    if (this->target != NULL)
-    	this->target->find_all(in, out);
-    
-    if (this->variable_name != NULL)
-    	this->variable_name->find_all(in, out);
-    
-    if(this->array_indices != NULL)
-    {
-    	List<Rvalue*>::const_iterator i;
-    	for(
-    		i = this->array_indices->begin();
-    		i != this->array_indices->end();
-    		i++)
-    	{
-    		if(*i != NULL)
-    		{
-    			(*i)->find_all (in, out);
-    		}
-    	}
-    }
-    
-}
-
-void Variable_actual_parameter::assert_valid()
-{
-    if(target != NULL) target->assert_valid();
-    assert(variable_name != NULL);
-    variable_name->assert_valid();
-    assert(array_indices != NULL);
-    {
-    	List<Rvalue*>::const_iterator i;
-    	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
-    	{
-    		assert(*i != NULL);
-    		(*i)->assert_valid();
-    	}
-    }
     Node::assert_mixin_valid();
 }
 
@@ -7590,6 +8022,167 @@ void Foreach_get_val::assert_valid()
     key->assert_valid();
     assert(iter != NULL);
     iter->assert_valid();
+    Node::assert_mixin_valid();
+}
+
+Param_is_ref::Param_is_ref(Target* target, Method_name* method_name, PARAM_INDEX* param_index)
+{
+    this->target = target;
+    this->method_name = method_name;
+    this->param_index = param_index;
+}
+
+Param_is_ref::Param_is_ref()
+{
+    this->target = 0;
+    this->method_name = 0;
+    this->param_index = 0;
+}
+
+void Param_is_ref::visit(Visitor* visitor)
+{
+    visitor->visit_expr(this);
+}
+
+void Param_is_ref::transform_children(Transform* transform)
+{
+    transform->children_expr(this);
+}
+
+int Param_is_ref::classid()
+{
+    return ID;
+}
+
+bool Param_is_ref::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    Param_is_ref* that = dynamic_cast<Param_is_ref*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL)
+    {
+    	if(that->target != NULL && !that->target->match(this->target))
+    		return false;
+    }
+    else if(!this->target->match(that->target))
+    	return false;
+    
+    if(this->method_name == NULL)
+    {
+    	if(that->method_name != NULL && !that->method_name->match(this->method_name))
+    		return false;
+    }
+    else if(!this->method_name->match(that->method_name))
+    	return false;
+    
+    if(this->param_index == NULL)
+    {
+    	if(that->param_index != NULL && !that->param_index->match(this->param_index))
+    		return false;
+    }
+    else if(!this->param_index->match(that->param_index))
+    	return false;
+    
+    return true;
+}
+
+bool Param_is_ref::equals(Node* in)
+{
+    Param_is_ref* that = dynamic_cast<Param_is_ref*>(in);
+    if(that == NULL) return false;
+    
+    if(this->target == NULL || that->target == NULL)
+    {
+    	if(this->target != NULL || that->target != NULL)
+    		return false;
+    }
+    else if(!this->target->equals(that->target))
+    	return false;
+    
+    if(this->method_name == NULL || that->method_name == NULL)
+    {
+    	if(this->method_name != NULL || that->method_name != NULL)
+    		return false;
+    }
+    else if(!this->method_name->equals(that->method_name))
+    	return false;
+    
+    if(this->param_index == NULL || that->param_index == NULL)
+    {
+    	if(this->param_index != NULL || that->param_index != NULL)
+    		return false;
+    }
+    else if(!this->param_index->equals(that->param_index))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+Param_is_ref* Param_is_ref::clone()
+{
+    Target* target = this->target ? this->target->clone() : NULL;
+    Method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
+    PARAM_INDEX* param_index = this->param_index ? this->param_index->clone() : NULL;
+    Param_is_ref* clone = new Param_is_ref(target, method_name, param_index);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* Param_is_ref::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->target != NULL)
+    {
+    	Node* target_res = this->target->find(in);
+    	if (target_res) return target_res;
+    }
+    
+    if (this->method_name != NULL)
+    {
+    	Node* method_name_res = this->method_name->find(in);
+    	if (method_name_res) return method_name_res;
+    }
+    
+    if (this->param_index != NULL)
+    {
+    	Node* param_index_res = this->param_index->find(in);
+    	if (param_index_res) return param_index_res;
+    }
+    
+    return NULL;
+}
+
+void Param_is_ref::find_all(Node* in, List<Node*>* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->target != NULL)
+    	this->target->find_all(in, out);
+    
+    if (this->method_name != NULL)
+    	this->method_name->find_all(in, out);
+    
+    if (this->param_index != NULL)
+    	this->param_index->find_all(in, out);
+    
+}
+
+void Param_is_ref::assert_valid()
+{
+    if(target != NULL) target->assert_valid();
+    assert(method_name != NULL);
+    method_name->assert_valid();
+    assert(param_index != NULL);
+    param_index->assert_valid();
     Node::assert_mixin_valid();
 }
 
