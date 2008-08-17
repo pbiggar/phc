@@ -100,6 +100,86 @@ class BOOL;
 class NIL;
 class None;
 
+typedef List<Node*> Node_list;
+typedef List<PHP_script*> PHP_script_list;
+typedef List<Class_mod*> Class_mod_list;
+typedef List<Signature*> Signature_list;
+typedef List<Method_mod*> Method_mod_list;
+typedef List<Formal_parameter*> Formal_parameter_list;
+typedef List<Type*> Type_list;
+typedef List<Attr_mod*> Attr_mod_list;
+typedef List<Name_with_default*> Name_with_default_list;
+typedef List<Directive*> Directive_list;
+typedef List<List_element*> List_element_list;
+typedef List<Variable_name*> Variable_name_list;
+typedef List<Target*> Target_list;
+typedef List<Array_elem*> Array_elem_list;
+typedef List<Method_name*> Method_name_list;
+typedef List<Actual_parameter*> Actual_parameter_list;
+typedef List<Class_name*> Class_name_list;
+typedef List<Commented_node*> Commented_node_list;
+typedef List<Source_rep*> Source_rep_list;
+typedef List<Statement*> Statement_list;
+typedef List<Member*> Member_list;
+typedef List<Switch_case*> Switch_case_list;
+typedef List<Catch*> Catch_list;
+typedef List<Expr*> Expr_list;
+typedef List<Nested_list_elements*> Nested_list_elements_list;
+typedef List<Reflection*> Reflection_list;
+typedef List<Identifier*> Identifier_list;
+typedef List<Class_def*> Class_def_list;
+typedef List<Interface_def*> Interface_def_list;
+typedef List<Method*> Method_list;
+typedef List<Attribute*> Attribute_list;
+typedef List<If*> If_list;
+typedef List<While*> While_list;
+typedef List<Do*> Do_list;
+typedef List<For*> For_list;
+typedef List<Foreach*> Foreach_list;
+typedef List<Switch*> Switch_list;
+typedef List<Break*> Break_list;
+typedef List<Continue*> Continue_list;
+typedef List<Return*> Return_list;
+typedef List<Static_declaration*> Static_declaration_list;
+typedef List<Global*> Global_list;
+typedef List<Declare*> Declare_list;
+typedef List<Try*> Try_list;
+typedef List<Throw*> Throw_list;
+typedef List<Eval_expr*> Eval_expr_list;
+typedef List<Nop*> Nop_list;
+typedef List<Literal*> Literal_list;
+typedef List<Assignment*> Assignment_list;
+typedef List<Op_assignment*> Op_assignment_list;
+typedef List<List_assignment*> List_assignment_list;
+typedef List<Cast*> Cast_list;
+typedef List<Unary_op*> Unary_op_list;
+typedef List<Bin_op*> Bin_op_list;
+typedef List<Conditional_expr*> Conditional_expr_list;
+typedef List<Ignore_errors*> Ignore_errors_list;
+typedef List<Constant*> Constant_list;
+typedef List<Instanceof*> Instanceof_list;
+typedef List<Variable*> Variable_list;
+typedef List<Pre_op*> Pre_op_list;
+typedef List<Post_op*> Post_op_list;
+typedef List<Array*> Array_list;
+typedef List<Method_invocation*> Method_invocation_list;
+typedef List<New*> New_list;
+typedef List<FOREIGN*> FOREIGN_list;
+typedef List<CLASS_NAME*> CLASS_NAME_list;
+typedef List<INTERFACE_NAME*> INTERFACE_NAME_list;
+typedef List<METHOD_NAME*> METHOD_NAME_list;
+typedef List<VARIABLE_NAME*> VARIABLE_NAME_list;
+typedef List<DIRECTIVE_NAME*> DIRECTIVE_NAME_list;
+typedef List<OP*> OP_list;
+typedef List<CAST*> CAST_list;
+typedef List<CONSTANT_NAME*> CONSTANT_NAME_list;
+typedef List<INT*> INT_list;
+typedef List<REAL*> REAL_list;
+typedef List<STRING*> STRING_list;
+typedef List<BOOL*> BOOL_list;
+typedef List<NIL*> NIL_list;
+typedef List<None*> None_list;
+
 class Transform;
 class Visitor;
 
@@ -122,7 +202,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -135,11 +215,11 @@ public:
 class PHP_script : virtual public Node, virtual public IR::PHP_script
 {
 public:
-    PHP_script(List<Statement*>* statements);
+    PHP_script(Statement_list* statements);
 protected:
     PHP_script();
 public:
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -155,7 +235,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -185,7 +265,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -194,14 +274,14 @@ public:
 class Signature : virtual public Node
 {
 public:
-    Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, List<Formal_parameter*>* formal_parameters);
+    Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters);
 protected:
     Signature();
 public:
     Method_mod* method_mod;
     bool is_ref;
     METHOD_NAME* method_name;
-    List<Formal_parameter*>* formal_parameters;
+    Formal_parameter_list* formal_parameters;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -217,7 +297,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -251,7 +331,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -291,7 +371,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -323,7 +403,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -354,7 +434,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -392,7 +472,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -422,7 +502,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -446,7 +526,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -470,7 +550,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -494,7 +574,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -525,7 +605,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -549,7 +629,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -579,7 +659,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -603,7 +683,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -625,7 +705,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -653,7 +733,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 public:
@@ -682,7 +762,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -706,7 +786,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -715,12 +795,12 @@ public:
 class Switch_case : virtual public Commented_node
 {
 public:
-    Switch_case(Expr* expr, List<Statement*>* statements);
+    Switch_case(Expr* expr, Statement_list* statements);
 protected:
     Switch_case();
 public:
     Expr* expr;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -736,7 +816,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -745,13 +825,13 @@ public:
 class Catch : virtual public Commented_node
 {
 public:
-    Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements);
+    Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, Statement_list* statements);
 protected:
     Catch();
 public:
     CLASS_NAME* class_name;
     VARIABLE_NAME* variable_name;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -767,7 +847,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -791,7 +871,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -800,11 +880,11 @@ public:
 class Nested_list_elements : virtual public List_element
 {
 public:
-    Nested_list_elements(List<List_element*>* list_elements);
+    Nested_list_elements(List_element_list* list_elements);
 protected:
     Nested_list_elements();
 public:
-    List<List_element*>* list_elements;
+    List_element_list* list_elements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -820,7 +900,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -849,7 +929,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -873,7 +953,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -882,15 +962,15 @@ public:
 class Class_def : virtual public Statement, virtual public Commented_node
 {
 public:
-    Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members);
+    Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, INTERFACE_NAME_list* implements, Member_list* members);
 protected:
     Class_def();
 public:
     Class_mod* class_mod;
     CLASS_NAME* class_name;
     CLASS_NAME* extends;
-    List<INTERFACE_NAME*>* implements;
-    List<Member*>* members;
+    INTERFACE_NAME_list* implements;
+    Member_list* members;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -906,7 +986,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -921,13 +1001,13 @@ public:
 class Interface_def : virtual public Statement, virtual public Commented_node
 {
 public:
-    Interface_def(INTERFACE_NAME* interface_name, List<INTERFACE_NAME*>* extends, List<Member*>* members);
+    Interface_def(INTERFACE_NAME* interface_name, INTERFACE_NAME_list* extends, Member_list* members);
 protected:
     Interface_def();
 public:
     INTERFACE_NAME* interface_name;
-    List<INTERFACE_NAME*>* extends;
-    List<Member*>* members;
+    INTERFACE_NAME_list* extends;
+    Member_list* members;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -943,7 +1023,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -952,12 +1032,12 @@ public:
 class Method : virtual public Statement, virtual public Member
 {
 public:
-    Method(Signature* signature, List<Statement*>* statements);
+    Method(Signature* signature, Statement_list* statements);
 protected:
     Method();
 public:
     Signature* signature;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -973,7 +1053,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -982,12 +1062,12 @@ public:
 class Attribute : virtual public Member
 {
 public:
-    Attribute(Attr_mod* attr_mod, List<Name_with_default*>* vars);
+    Attribute(Attr_mod* attr_mod, Name_with_default_list* vars);
 protected:
     Attribute();
 public:
     Attr_mod* attr_mod;
-    List<Name_with_default*>* vars;
+    Name_with_default_list* vars;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1003,7 +1083,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1012,13 +1092,13 @@ public:
 class If : virtual public Statement
 {
 public:
-    If(Expr* expr, List<Statement*>* iftrue, List<Statement*>* iffalse);
+    If(Expr* expr, Statement_list* iftrue, Statement_list* iffalse);
 protected:
     If();
 public:
     Expr* expr;
-    List<Statement*>* iftrue;
-    List<Statement*>* iffalse;
+    Statement_list* iftrue;
+    Statement_list* iffalse;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1034,7 +1114,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1045,12 +1125,12 @@ public:
 class While : virtual public Statement
 {
 public:
-    While(Expr* expr, List<Statement*>* statements);
+    While(Expr* expr, Statement_list* statements);
 protected:
     While();
 public:
     Expr* expr;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1066,7 +1146,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1075,11 +1155,11 @@ public:
 class Do : virtual public Statement
 {
 public:
-    Do(List<Statement*>* statements, Expr* expr);
+    Do(Statement_list* statements, Expr* expr);
 protected:
     Do();
 public:
-    List<Statement*>* statements;
+    Statement_list* statements;
     Expr* expr;
 public:
     virtual void visit(Visitor* visitor);
@@ -1096,7 +1176,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1105,14 +1185,14 @@ public:
 class For : virtual public Statement
 {
 public:
-    For(Expr* init, Expr* cond, Expr* incr, List<Statement*>* statements);
+    For(Expr* init, Expr* cond, Expr* incr, Statement_list* statements);
 protected:
     For();
 public:
     Expr* init;
     Expr* cond;
     Expr* incr;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1128,7 +1208,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1137,7 +1217,7 @@ public:
 class Foreach : virtual public Statement
 {
 public:
-    Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements);
+    Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, Statement_list* statements);
 protected:
     Foreach();
 public:
@@ -1145,7 +1225,7 @@ public:
     Variable* key;
     bool is_ref;
     Variable* val;
-    List<Statement*>* statements;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1161,7 +1241,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1170,12 +1250,12 @@ public:
 class Switch : virtual public Statement
 {
 public:
-    Switch(Expr* expr, List<Switch_case*>* switch_cases);
+    Switch(Expr* expr, Switch_case_list* switch_cases);
 protected:
     Switch();
 public:
     Expr* expr;
-    List<Switch_case*>* switch_cases;
+    Switch_case_list* switch_cases;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1191,7 +1271,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1220,7 +1300,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1249,7 +1329,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1278,7 +1358,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1287,11 +1367,11 @@ public:
 class Static_declaration : virtual public Statement
 {
 public:
-    Static_declaration(List<Name_with_default*>* vars);
+    Static_declaration(Name_with_default_list* vars);
 protected:
     Static_declaration();
 public:
-    List<Name_with_default*>* vars;
+    Name_with_default_list* vars;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1307,7 +1387,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1316,11 +1396,11 @@ public:
 class Global : virtual public Statement
 {
 public:
-    Global(List<Variable_name*>* variable_names);
+    Global(Variable_name_list* variable_names);
 protected:
     Global();
 public:
-    List<Variable_name*>* variable_names;
+    Variable_name_list* variable_names;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1336,7 +1416,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1345,12 +1425,12 @@ public:
 class Declare : virtual public Statement
 {
 public:
-    Declare(List<Directive*>* directives, List<Statement*>* statements);
+    Declare(Directive_list* directives, Statement_list* statements);
 protected:
     Declare();
 public:
-    List<Directive*>* directives;
-    List<Statement*>* statements;
+    Directive_list* directives;
+    Statement_list* statements;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1366,7 +1446,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1375,12 +1455,12 @@ public:
 class Try : virtual public Statement
 {
 public:
-    Try(List<Statement*>* statements, List<Catch*>* catches);
+    Try(Statement_list* statements, Catch_list* catches);
 protected:
     Try();
 public:
-    List<Statement*>* statements;
-    List<Catch*>* catches;
+    Statement_list* statements;
+    Catch_list* catches;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1396,7 +1476,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1425,7 +1505,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1454,7 +1534,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1481,7 +1561,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1505,7 +1585,7 @@ public:
 public:
     virtual Node* find(Node* in) = 0;
 public:
-    virtual void find_all(Node* in, List<Node*>* out) = 0;
+    virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
 };
@@ -1536,7 +1616,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1567,7 +1647,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1578,11 +1658,11 @@ public:
 class List_assignment : virtual public Expr
 {
 public:
-    List_assignment(List<List_element*>* list_elements, Expr* expr);
+    List_assignment(List_element_list* list_elements, Expr* expr);
 protected:
     List_assignment();
 public:
-    List<List_element*>* list_elements;
+    List_element_list* list_elements;
     Expr* expr;
 public:
     virtual void visit(Visitor* visitor);
@@ -1599,7 +1679,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1629,7 +1709,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1661,7 +1741,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1694,7 +1774,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1727,7 +1807,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1756,7 +1836,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1786,7 +1866,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1816,7 +1896,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1825,13 +1905,13 @@ public:
 class Variable : virtual public Expr, virtual public List_element
 {
 public:
-    Variable(Target* target, Variable_name* variable_name, List<Expr*>* array_indices);
+    Variable(Target* target, Variable_name* variable_name, Expr_list* array_indices);
 protected:
     Variable();
 public:
     Target* target;
     Variable_name* variable_name;
-    List<Expr*>* array_indices;
+    Expr_list* array_indices;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1847,7 +1927,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1880,7 +1960,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1912,7 +1992,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1923,11 +2003,11 @@ public:
 class Array : virtual public Expr
 {
 public:
-    Array(List<Array_elem*>* array_elems);
+    Array(Array_elem_list* array_elems);
 protected:
     Array();
 public:
-    List<Array_elem*>* array_elems;
+    Array_elem_list* array_elems;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1943,7 +2023,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -1952,13 +2032,13 @@ public:
 class Method_invocation : virtual public Expr
 {
 public:
-    Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters);
+    Method_invocation(Target* target, Method_name* method_name, Actual_parameter_list* actual_parameters);
 protected:
     Method_invocation();
 public:
     Target* target;
     Method_name* method_name;
-    List<Actual_parameter*>* actual_parameters;
+    Actual_parameter_list* actual_parameters;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1974,7 +2054,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -1986,12 +2066,12 @@ public:
 class New : virtual public Expr
 {
 public:
-    New(Class_name* class_name, List<Actual_parameter*>* actual_parameters);
+    New(Class_name* class_name, Actual_parameter_list* actual_parameters);
 protected:
     New();
 public:
     Class_name* class_name;
-    List<Actual_parameter*>* actual_parameters;
+    Actual_parameter_list* actual_parameters;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -2007,7 +2087,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2037,7 +2117,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2070,7 +2150,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2099,7 +2179,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2128,7 +2208,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2157,7 +2237,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2186,7 +2266,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2215,7 +2295,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2244,7 +2324,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2273,7 +2353,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 };
@@ -2303,7 +2383,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2343,7 +2423,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2380,7 +2460,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2417,7 +2497,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
     virtual void assert_value_valid();
@@ -2449,7 +2529,7 @@ public:
 public:
     virtual Node* find(Node* in);
 public:
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
 public:
@@ -2472,7 +2552,7 @@ public:
     virtual bool match(Node* in);
     virtual bool equals(Node* in);
     virtual Node* find(Node* in);
-    virtual void find_all(Node* in, List<Node*>* out);
+    virtual void find_all(Node* in, Node_list* out);
 };
 
 
@@ -2552,7 +2632,7 @@ public:
 		return NULL;
 	}
 
-	virtual void find_all(Node* in, List<Node*>* out)
+	virtual void find_all(Node* in, Node_list* out)
 	{
 		assert (0); // I'm not sure what this would mean
 	}

@@ -2064,9 +2064,9 @@ void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
-void Visitor::visit_statement_list(List<Statement*>* in)
+void Visitor::visit_statement_list(Statement_list* in)
 {
-    List<Statement*>::const_iterator i;
+    Statement_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Statement");
@@ -2119,9 +2119,9 @@ void Visitor::visit_class_name(CLASS_NAME* in)
     }
 }
 
-void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
+void Visitor::visit_interface_name_list(INTERFACE_NAME_list* in)
 {
-    List<INTERFACE_NAME*>::const_iterator i;
+    INTERFACE_NAME_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "INTERFACE_NAME");
@@ -2138,9 +2138,9 @@ void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
     }
 }
 
-void Visitor::visit_member_list(List<Member*>* in)
+void Visitor::visit_member_list(Member_list* in)
 {
-    List<Member*>::const_iterator i;
+    Member_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Member");
@@ -2217,9 +2217,9 @@ void Visitor::visit_method_name(METHOD_NAME* in)
     }
 }
 
-void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
+void Visitor::visit_formal_parameter_list(Formal_parameter_list* in)
 {
-    List<Formal_parameter*>::const_iterator i;
+    Formal_parameter_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Formal_parameter");
@@ -2284,9 +2284,9 @@ void Visitor::visit_attr_mod(Attr_mod* in)
     }
 }
 
-void Visitor::visit_name_with_default_list(List<Name_with_default*>* in)
+void Visitor::visit_name_with_default_list(Name_with_default_list* in)
 {
-    List<Name_with_default*>::const_iterator i;
+    Name_with_default_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Name_with_default");
@@ -2339,9 +2339,9 @@ void Visitor::visit_variable(Variable* in)
     }
 }
 
-void Visitor::visit_switch_case_list(List<Switch_case*>* in)
+void Visitor::visit_switch_case_list(Switch_case_list* in)
 {
-    List<Switch_case*>::const_iterator i;
+    Switch_case_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Switch_case");
@@ -2370,9 +2370,9 @@ void Visitor::visit_switch_case(Switch_case* in)
     }
 }
 
-void Visitor::visit_variable_name_list(List<Variable_name*>* in)
+void Visitor::visit_variable_name_list(Variable_name_list* in)
 {
-    List<Variable_name*>::const_iterator i;
+    Variable_name_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Variable_name");
@@ -2389,9 +2389,9 @@ void Visitor::visit_variable_name_list(List<Variable_name*>* in)
     }
 }
 
-void Visitor::visit_directive_list(List<Directive*>* in)
+void Visitor::visit_directive_list(Directive_list* in)
 {
-    List<Directive*>::const_iterator i;
+    Directive_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Directive");
@@ -2432,9 +2432,9 @@ void Visitor::visit_directive_name(DIRECTIVE_NAME* in)
     }
 }
 
-void Visitor::visit_catch_list(List<Catch*>* in)
+void Visitor::visit_catch_list(Catch_list* in)
 {
-    List<Catch*>::const_iterator i;
+    Catch_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Catch");
@@ -2475,9 +2475,9 @@ void Visitor::visit_op(OP* in)
     }
 }
 
-void Visitor::visit_list_element_list(List<List_element*>* in)
+void Visitor::visit_list_element_list(List_element_list* in)
 {
-    List<List_element*>::const_iterator i;
+    List_element_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "List_element");
@@ -2566,9 +2566,9 @@ void Visitor::visit_variable_name(Variable_name* in)
     }
 }
 
-void Visitor::visit_expr_list(List<Expr*>* in)
+void Visitor::visit_expr_list(Expr_list* in)
 {
-    List<Expr*>::const_iterator i;
+    Expr_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Expr");
@@ -2585,9 +2585,9 @@ void Visitor::visit_expr_list(List<Expr*>* in)
     }
 }
 
-void Visitor::visit_array_elem_list(List<Array_elem*>* in)
+void Visitor::visit_array_elem_list(Array_elem_list* in)
 {
-    List<Array_elem*>::const_iterator i;
+    Array_elem_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Array_elem");
@@ -2628,9 +2628,9 @@ void Visitor::visit_method_name(Method_name* in)
     }
 }
 
-void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
+void Visitor::visit_actual_parameter_list(Actual_parameter_list* in)
 {
-    List<Actual_parameter*>::const_iterator i;
+    Actual_parameter_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("AST", "Actual_parameter");

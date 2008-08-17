@@ -18,7 +18,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     List<Object*>::const_iterator i = args->begin();
     if(!strcmp(type_id, "PHP_script"))
     {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new PHP_script(statements);
     }
@@ -27,8 +27,8 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Class_mod* class_mod = dynamic_cast<Class_mod*>(*i++);
     	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	CLASS_NAME* extends = dynamic_cast<CLASS_NAME*>(*i++);
-    	List<INTERFACE_NAME*>* implements = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
-    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
+    	INTERFACE_NAME_list* implements = dynamic_cast<INTERFACE_NAME_list*>(*i++);
+    	Member_list* members = dynamic_cast<Member_list*>(*i++);
     	assert(i == args->end());
     	return new Class_def(class_mod, class_name, extends, implements, members);
     }
@@ -42,15 +42,15 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Interface_def"))
     {
     	INTERFACE_NAME* interface_name = dynamic_cast<INTERFACE_NAME*>(*i++);
-    	List<INTERFACE_NAME*>* extends = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
-    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
+    	INTERFACE_NAME_list* extends = dynamic_cast<INTERFACE_NAME_list*>(*i++);
+    	Member_list* members = dynamic_cast<Member_list*>(*i++);
     	assert(i == args->end());
     	return new Interface_def(interface_name, extends, members);
     }
     if(!strcmp(type_id, "Method"))
     {
     	Signature* signature = dynamic_cast<Signature*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Method(signature, statements);
     }
@@ -59,7 +59,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Method_mod* method_mod = dynamic_cast<Method_mod*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
-    	List<Formal_parameter*>* formal_parameters = dynamic_cast<List<Formal_parameter*>*>(*i++);
+    	Formal_parameter_list* formal_parameters = dynamic_cast<Formal_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new Signature(method_mod, is_ref, method_name, formal_parameters);
     }
@@ -132,8 +132,8 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Try"))
     {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	List<Catch*>* catches = dynamic_cast<List<Catch*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
+    	Catch_list* catches = dynamic_cast<Catch_list*>(*i++);
     	assert(i == args->end());
     	return new Try(statements, catches);
     }
@@ -141,7 +141,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Catch(class_name, variable_name, statements);
     }
@@ -210,7 +210,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
+    	Rvalue_list* array_indices = dynamic_cast<Rvalue_list*>(*i++);
     	assert(i == args->end());
     	return new Unset(target, variable_name, array_indices);
     }
@@ -218,7 +218,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<Rvalue*>* array_indices = dynamic_cast<List<Rvalue*>*>(*i++);
+    	Rvalue_list* array_indices = dynamic_cast<Rvalue_list*>(*i++);
     	assert(i == args->end());
     	return new Isset(target, variable_name, array_indices);
     }
@@ -282,7 +282,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Method_name* method_name = dynamic_cast<Method_name*>(*i++);
-    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
+    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new Method_invocation(target, method_name, actual_parameters);
     }
@@ -302,7 +302,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "New"))
     {
     	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
-    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
+    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
     }
@@ -314,7 +314,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Static_array"))
     {
-    	List<Static_array_elem*>* static_array_elems = dynamic_cast<List<Static_array_elem*>*>(*i++);
+    	Static_array_elem_list* static_array_elems = dynamic_cast<Static_array_elem_list*>(*i++);
     	assert(i == args->end());
     	return new Static_array(static_array_elems);
     }
@@ -453,56 +453,56 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Statement_list"))
     {
-    	List<Statement*>* list = new List<Statement*>;
+    	Statement_list* list = new Statement_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Statement*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "INTERFACE_NAME_list"))
     {
-    	List<INTERFACE_NAME*>* list = new List<INTERFACE_NAME*>;
+    	INTERFACE_NAME_list* list = new INTERFACE_NAME_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<INTERFACE_NAME*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Member_list"))
     {
-    	List<Member*>* list = new List<Member*>;
+    	Member_list* list = new Member_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Member*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Formal_parameter_list"))
     {
-    	List<Formal_parameter*>* list = new List<Formal_parameter*>;
+    	Formal_parameter_list* list = new Formal_parameter_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Catch_list"))
     {
-    	List<Catch*>* list = new List<Catch*>;
+    	Catch_list* list = new Catch_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Rvalue_list"))
     {
-    	List<Rvalue*>* list = new List<Rvalue*>;
+    	Rvalue_list* list = new Rvalue_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Rvalue*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Actual_parameter_list"))
     {
-    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
+    	Actual_parameter_list* list = new Actual_parameter_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Static_array_elem_list"))
     {
-    	List<Static_array_elem*>* list = new List<Static_array_elem*>;
+    	Static_array_elem_list* list = new Static_array_elem_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Static_array_elem*>(*i++));
     	return list;

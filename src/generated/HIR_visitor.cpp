@@ -1818,9 +1818,9 @@ void Visitor::post_constant_name_chain(CONSTANT_NAME* in)
 
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
-void Visitor::visit_statement_list(List<Statement*>* in)
+void Visitor::visit_statement_list(Statement_list* in)
 {
-    List<Statement*>::const_iterator i;
+    Statement_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Statement");
@@ -1873,9 +1873,9 @@ void Visitor::visit_class_name(CLASS_NAME* in)
     }
 }
 
-void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
+void Visitor::visit_interface_name_list(INTERFACE_NAME_list* in)
 {
-    List<INTERFACE_NAME*>::const_iterator i;
+    INTERFACE_NAME_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "INTERFACE_NAME");
@@ -1892,9 +1892,9 @@ void Visitor::visit_interface_name_list(List<INTERFACE_NAME*>* in)
     }
 }
 
-void Visitor::visit_member_list(List<Member*>* in)
+void Visitor::visit_member_list(Member_list* in)
 {
-    List<Member*>::const_iterator i;
+    Member_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Member");
@@ -1971,9 +1971,9 @@ void Visitor::visit_method_name(METHOD_NAME* in)
     }
 }
 
-void Visitor::visit_formal_parameter_list(List<Formal_parameter*>* in)
+void Visitor::visit_formal_parameter_list(Formal_parameter_list* in)
 {
-    List<Formal_parameter*>::const_iterator i;
+    Formal_parameter_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Formal_parameter");
@@ -2086,9 +2086,9 @@ void Visitor::visit_variable_name(Variable_name* in)
     }
 }
 
-void Visitor::visit_catch_list(List<Catch*>* in)
+void Visitor::visit_catch_list(Catch_list* in)
 {
-    List<Catch*>::const_iterator i;
+    Catch_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Catch");
@@ -2201,9 +2201,9 @@ void Visitor::visit_method_name(Method_name* in)
     }
 }
 
-void Visitor::visit_actual_parameter_list(List<Actual_parameter*>* in)
+void Visitor::visit_actual_parameter_list(Actual_parameter_list* in)
 {
-    List<Actual_parameter*>::const_iterator i;
+    Actual_parameter_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Actual_parameter");
@@ -2232,9 +2232,9 @@ void Visitor::visit_actual_parameter(Actual_parameter* in)
     }
 }
 
-void Visitor::visit_rvalue_list(List<Rvalue*>* in)
+void Visitor::visit_rvalue_list(Rvalue_list* in)
 {
-    List<Rvalue*>::const_iterator i;
+    Rvalue_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Rvalue");
@@ -2251,9 +2251,9 @@ void Visitor::visit_rvalue_list(List<Rvalue*>* in)
     }
 }
 
-void Visitor::visit_static_array_elem_list(List<Static_array_elem*>* in)
+void Visitor::visit_static_array_elem_list(Static_array_elem_list* in)
 {
-    List<Static_array_elem*>::const_iterator i;
+    Static_array_elem_list::const_iterator i;
     
     if(in == NULL)
     	visit_null_list("HIR", "Static_array_elem");

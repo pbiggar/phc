@@ -369,18 +369,18 @@ public:
 // Call the pre-chain, visit children and post-chain in order
 // Do not override unless you know what you are doing
 public:
-    virtual void visit_statement_list(List<Statement*>* in);
+    virtual void visit_statement_list(Statement_list* in);
     virtual void visit_statement(Statement* in);
     virtual void visit_class_mod(Class_mod* in);
     virtual void visit_class_name(CLASS_NAME* in);
-    virtual void visit_interface_name_list(List<INTERFACE_NAME*>* in);
-    virtual void visit_member_list(List<Member*>* in);
+    virtual void visit_interface_name_list(INTERFACE_NAME_list* in);
+    virtual void visit_member_list(Member_list* in);
     virtual void visit_member(Member* in);
     virtual void visit_interface_name(INTERFACE_NAME* in);
     virtual void visit_signature(Signature* in);
     virtual void visit_method_mod(Method_mod* in);
     virtual void visit_method_name(METHOD_NAME* in);
-    virtual void visit_formal_parameter_list(List<Formal_parameter*>* in);
+    virtual void visit_formal_parameter_list(Formal_parameter_list* in);
     virtual void visit_formal_parameter(Formal_parameter* in);
     virtual void visit_type(Type* in);
     virtual void visit_name_with_default(Name_with_default* in);
@@ -389,7 +389,7 @@ public:
     virtual void visit_static_value(Static_value* in);
     virtual void visit_expr(Expr* in);
     virtual void visit_variable_name(Variable_name* in);
-    virtual void visit_catch_list(List<Catch*>* in);
+    virtual void visit_catch_list(Catch_list* in);
     virtual void visit_catch(Catch* in);
     virtual void visit_target(Target* in);
     virtual void visit_rvalue(Rvalue* in);
@@ -398,10 +398,10 @@ public:
     virtual void visit_constant_name(CONSTANT_NAME* in);
     virtual void visit_class_name(Class_name* in);
     virtual void visit_method_name(Method_name* in);
-    virtual void visit_actual_parameter_list(List<Actual_parameter*>* in);
+    virtual void visit_actual_parameter_list(Actual_parameter_list* in);
     virtual void visit_actual_parameter(Actual_parameter* in);
-    virtual void visit_rvalue_list(List<Rvalue*>* in);
-    virtual void visit_static_array_elem_list(List<Static_array_elem*>* in);
+    virtual void visit_rvalue_list(Rvalue_list* in);
+    virtual void visit_static_array_elem_list(Static_array_elem_list* in);
     virtual void visit_static_array_elem(Static_array_elem* in);
     virtual void visit_static_array_key(Static_array_key* in);
     virtual void visit_php_script(PHP_script* in);
