@@ -12,19 +12,6 @@
 #include "MIR.h"
 #include "process_ir/General.h"
 
-template <class Result_type, class List_type>
-List<Result_type*>* rewrap_list (List<List_type*>* nodes)
-{
-	List<Result_type*>* result = new List<Result_type*>;
-	foreach (List_type* n, *nodes)
-	{
-		result->push_back (dyc<Result_type> (n));
-	}
-	return result;
-}
-
-
-
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
  * implementation in this translation, so that we inherit the default assert(0)
@@ -515,7 +502,10 @@ public:
 		}
 
 		MIR::Method_invocation* result;
-		result = new MIR::Method_invocation(target, method_name, rewrap_list<MIR::Actual_parameter, MIR::Node> (actual_parameters));
+		result = new MIR::Method_invocation(
+			target, 
+			method_name, 
+			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -534,7 +524,9 @@ public:
 	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, List<MIR::Node*>* actual_parameters) 
 	{
 		MIR::New* result;
-		result = new MIR::New(class_name, rewrap_list<MIR::Actual_parameter, MIR::Node> (actual_parameters));
+		result = new MIR::New(
+			class_name, 
+			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}

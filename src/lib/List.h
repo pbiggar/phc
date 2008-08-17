@@ -10,6 +10,7 @@
 
 #include <list>
 #include "lib/Object.h"
+#include "process_ir/Foreach.h"
 
 using namespace std;
 
@@ -69,5 +70,16 @@ public:
 		return result;
 	}
 };
+
+template <class List_type, class Result_type>
+List<Result_type*>* rewrap_list (List<List_type*>* nodes)
+{
+	List<Result_type*>* result = new List<Result_type*>;
+	foreach (List_type* n, *nodes)
+	{
+		result->push_back (dyc<Result_type> (n));
+	}
+	return result;
+}
 
 #endif /* LIST_H */

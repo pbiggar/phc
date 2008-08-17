@@ -167,16 +167,6 @@ public:
 		return dyc<AST::CLASS_NAME> (target);
 	}
 
-	List<AST::Actual_parameter*>* convert_actual_parameters (List<AST::Node*>* in)
-	{
-		List<AST::Actual_parameter*>* out = new List<AST::Actual_parameter*>;
-		foreach (AST::Node* n, *in)
-		{
-			out->push_back (dyc<AST::Actual_parameter> (n));
-		}
-		return out;
-	}
-
 public:
 
 	AST::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<AST::Statement*>* statements) 
@@ -585,7 +575,7 @@ public:
 		result = new AST::Method_invocation(
 			wrap_target (target),
 			method_name, 
-			convert_actual_parameters (actual_parameters));
+			rewrap_list<AST::Node, AST::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -616,7 +606,9 @@ public:
 	AST::New* fold_impl_new(HIR::New* orig, AST::Class_name* class_name, List<AST::Node*>* actual_parameters) 
 	{
 		AST::New* result;
-		result = new AST::New(class_name, convert_actual_parameters (actual_parameters));
+		result = new AST::New(
+			class_name, 
+			rewrap_list<AST::Node, AST::Actual_parameter> (actual_parameters));
 		result->attrs = orig->attrs;
 		return result;
 	}
