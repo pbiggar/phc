@@ -245,12 +245,14 @@ int main(int argc, char** argv)
 				else
 					ir = parser.parse_xml_file (filename);
 
-				// If we are reading the output of another phc session, we need to
-				// set fresh_suffix_counter, or new variables/labels may be created
-				// with the same ID as the old one.
-				ir->visit ( new AST_read_fresh_suffix_counter, 
-								new HIR_read_fresh_suffix_counter, 
-								new MIR_read_fresh_suffix_counter);
+				// If we are reading the output of another phc session, make note
+				// of the variable names used, so we dont re-use them.
+				ir->visit (
+					new Read_fresh_suffix_counter, 
+					new Read_fresh_suffix_counter, 
+					new Read_fresh_suffix_counter);
+				// TODO:
+				// this should add a pass
 
 				pm->run_from (pass_name, ir, true);
 			#endif
@@ -267,6 +269,12 @@ int main(int argc, char** argv)
 				else
 					return -1;
 			}
+
+			// Avoid overwriting source variables.
+			ir->visit (
+				new Read_fresh_suffix_counter, 
+				new Read_fresh_suffix_counter, 
+				new Read_fresh_suffix_counter);
 
 			// run passes
 			pm->run (ir, true);

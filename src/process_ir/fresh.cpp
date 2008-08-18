@@ -51,12 +51,19 @@ int fresh_suffix ()
 		return fresh_suffix_counter++;
 }
 
+// Don't ever give a fresh variable, if it's already used in the program.
+set<string> unfresh_vars;
 
-String* fresh (string prefix, int suffix)
+String* fresh (string prefix)
 {
 	stringstream ss;
-//	ss << "__phc__" << prefix << suffix;
-	ss << prefix << suffix;
+	do
+	{
+		ss.str(""); // erase
+		//	ss << "__phc__" << prefix << suffix;
+		ss << prefix << fresh_suffix();
+	}
+	while (unfresh_vars.find (ss.str()) != unfresh_vars.end());
 
 	return new String(ss.str());
 }
@@ -70,9 +77,7 @@ namespace AST
 
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		int suffix = fresh_suffix ();
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
-		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -84,9 +89,7 @@ namespace HIR
 {
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		int suffix = fresh_suffix ();
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
-		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -97,9 +100,7 @@ namespace MIR
 {
 	VARIABLE_NAME* fresh_var_name (string prefix)
 	{
-		int suffix = fresh_suffix ();
-		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix, suffix));
-		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		VARIABLE_NAME* result = new VARIABLE_NAME (fresh (prefix));
 		result->attrs->set_true ("phc.codegen.st_entry_not_required");
 		result->attrs->set_true ("phc.codegen.compiler_generated");
 		return result;
@@ -107,17 +108,13 @@ namespace MIR
 
 	HT_ITERATOR* fresh_iter ()
 	{
-		int suffix = fresh_suffix ();
-		HT_ITERATOR* result = new HT_ITERATOR (fresh ("ht_iterator", suffix));
-		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		HT_ITERATOR* result = new HT_ITERATOR (fresh ("ht_iterator"));
 		return result;
 	}
 
 	Label* fresh_label ()
 	{
-		int suffix = fresh_suffix ();
-		LABEL_NAME* result = new LABEL_NAME (fresh ("L", suffix));
-		result->attrs->set ("phc.fresh.suffix", new Integer (suffix));
+		LABEL_NAME* result = new LABEL_NAME (fresh ("L"));
 		return new Label (result);
 	}
 }
