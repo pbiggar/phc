@@ -67,8 +67,8 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 				folder.fold_method_name (in->method_name),
 				new MIR::PARAM_INDEX (index)));
 
-		List<Statement*>* iftrue = new List<Statement*>;
-		List<Statement*>* iffalse = new List<Statement*>;
+		Statement_list* iftrue = new Statement_list;
+		Statement_list* iffalse = new Statement_list;
 
 		pieces->push_back (
 			new If (

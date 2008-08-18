@@ -16,15 +16,14 @@ using namespace AST;
 
 class Remove_solo_variables : public Transform
 {
-	void post_eval_expr (Eval_expr* in, List<Statement*>* out)
+	void post_eval_expr (Eval_expr* in, Statement_list* out)
 	{
-		Variable* var = dynamic_cast<Variable*> (in->expr);
-		if (var == NULL)
-			out->push_back (in);
-		else
+		if (isa<Variable> (in->expr))
 		{
 			// Remove the solo variable
 		}
+		else
+			out->push_back (in);
 	}
 };
 

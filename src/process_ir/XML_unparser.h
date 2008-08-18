@@ -238,16 +238,15 @@ protected:
 		{
 			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
 		}
-		else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
+		else if(String_list* ls = dynamic_cast<String_list*>(attr))
 		{
 			state->os << "<attr key=\"" << name << "\"><string_list>" << endl;
 			state->indent++;
 
-			List<String*>::const_iterator j;
-			for(j = ls->begin(); j != ls->end(); j++)
+			foreach (String* s, *ls)
 			{
 				state->print_indent();
-				maybe_encode ("string", *j);
+				maybe_encode ("string", s);
 			}
 
 			state->indent--;

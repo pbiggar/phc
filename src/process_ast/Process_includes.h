@@ -19,7 +19,7 @@ public:
 	bool hir;
 
 	Process_includes (bool hir, String* pass_name, Pass_manager* pm, String* name);
-	void do_not_include (const char*, AST::Eval_expr*, List<AST::Statement*>*, AST::Actual_parameter*);
+	void do_not_include (const char*, AST::Eval_expr*, AST::Statement_list*, AST::Actual_parameter*);
 
 	// Pass information
 public:
@@ -34,8 +34,8 @@ public:
 	bool pass_is_enabled (Pass_manager* pm);
 
 public:
-	void pre_method(AST::Method* in, List<AST::Member*>* out);
-	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_method(AST::Method* in, AST::Member_list* out);
+	void pre_eval_expr(AST::Eval_expr* in, AST::Statement_list* out);
 
 };
 

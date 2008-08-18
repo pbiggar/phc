@@ -22,7 +22,7 @@ extern struct gengetopt_args_info args_info;
 
 using namespace AST;
 
-String* search_file(String* filename, List<String*>* dirs);
+String* search_file(String* filename, String_list* dirs);
 void run_standard_transforms(PHP_script* php_script);
 
 PHP_script* parse_code (String* code, String* filename, int line_number)
@@ -59,7 +59,7 @@ PHP_script* parse_code (String* code, String* filename, int line_number)
 }
 
 
-PHP_script* parse(String* filename, List<String*>* dirs)
+PHP_script* parse(String* filename, String_list* dirs)
 {
 	assert(filename);
 	
@@ -104,7 +104,7 @@ PHP_script* parse(String* filename, List<String*>* dirs)
 	return php_script;
 }
 
-String* search_file(String* filename, List<String*>* dirs)
+String* search_file(String* filename, String_list* dirs)
 {
 	struct stat buf;
 
@@ -121,33 +121,32 @@ String* search_file(String* filename, List<String*>* dirs)
 	}
 
 	// Otherwise, search dirs
-	List<String*>::const_iterator i;
-	for(i = dirs->begin(); i != dirs->end(); i++)
+	foreach (String* s, *dirs)
 	{
-		String full_path = **i;
-		full_path.append("/");
-		full_path.append(*filename);
+		String* full_path = s->clone ();
+		full_path->append("/");
+		full_path->append(*filename);
 	
-		if(!stat(full_path.c_str(), &buf))
+		if(!stat(full_path->c_str(), &buf))
 		{
-			return new String(full_path);
+			return full_path;
 		}
 	}
 
 	// Otherwise, search dirs (with backslashes instead of forward slashes)
-	for(i = dirs->begin(); i != dirs->end(); i++)
+	foreach (String* s, *dirs)
 	{
-		String full_path = **i;
-		full_path.append("/");
-		full_path.append(*filename);
+		String* full_path = s->clone ();
+		full_path->append("/");
+		full_path->append(*filename);
 
 		String::iterator j;
-		for(j = full_path.begin(); j != full_path.end(); j++)
-			if(*j == '/') *j = '\\';
+		foreach (char & c, *full_path)
+			if(c == '/') c = '\\';
 
-		if(!stat(full_path.c_str(), &buf))
+		if(!stat(full_path->c_str(), &buf))
 		{
-			return new String(full_path);
+			return full_path;
 		}
 	}
 	

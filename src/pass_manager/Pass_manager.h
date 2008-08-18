@@ -15,6 +15,7 @@
 #include "ltdl.h"
 
 class Pass;
+typedef List<Pass*> Pass_queue;
 
 class Pass_manager
 {
@@ -36,7 +37,7 @@ public:
 
 	// Add single passes
 	void add_plugin (lt_dlhandle handle, String* name, String* option);
-	void add_pass (Pass* pass, List<Pass*>* queue);
+	void add_pass (Pass* pass, Pass_queue* queue);
 
 	// Add AST passes
 	void add_ast_pass (Pass* pass);
@@ -63,7 +64,7 @@ public:
 	void add_after_each_pass (Pass* pass);
 	void add_after_named_pass (Pass* pass, String* name);
 	void add_before_named_pass (Pass* pass, String* name);
-	void add_after_each_pass (Pass* pass, List<Pass*>*);
+	void add_after_each_pass (Pass* pass, Pass_queue*);
 
 	bool has_pass_named (String *);
 	Pass* get_pass_named (String* name);
@@ -83,10 +84,10 @@ public:
 	void maybe_enable_debug (Pass* pass);
 
 protected:
-	List<Pass*>* ast_queue;
-	List<Pass*>* hir_queue;
-	List<Pass*>* mir_queue;
-	List< List<Pass*>* >* queues;
+	Pass_queue* ast_queue;
+	Pass_queue* hir_queue;
+	Pass_queue* mir_queue;
+	List<Pass_queue*>* queues;
 	
 
 };

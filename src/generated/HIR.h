@@ -2010,6 +2010,8 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+public:
+    METHOD_NAME(const char* name);
 };
 
 class OP : virtual public Identifier

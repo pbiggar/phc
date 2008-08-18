@@ -23,7 +23,7 @@ private:
 public:
 	Goto_uppering ();
 
-	List<MIR::Statement*>* convert_statement_list (List<MIR::Statement*> *in);
+	MIR::Statement_list* convert_statement_list (MIR::Statement_list *in);
 	
 	void pre_php_script (MIR::PHP_script* in);
 	void pre_method (MIR::Method *in);

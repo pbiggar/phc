@@ -11,7 +11,7 @@
 
 using namespace AST;
 
-void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Tidy_print::pre_eval_expr (Eval_expr* in, Statement_list* out)
 {
 	Assignment* agn = dynamic_cast<Assignment*> (in->expr);
 
@@ -28,7 +28,7 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
 	Method_invocation* print = new Method_invocation (
 			NULL,	
 			new METHOD_NAME (new String ("print")),
-			new List<Actual_parameter*> (
+			new Actual_parameter_list (
 				new Actual_parameter (false, arg) // print can only have 1 argument
 				));
 

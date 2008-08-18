@@ -37,7 +37,7 @@ void Dead_code_elimination::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Dead_code_elimination::pre_assign_var (Assign_var* in, List<Statement*>* out)
+void Dead_code_elimination::pre_assign_var (Assign_var* in, Statement_list* out)
 {
 	// get useful variables
 	VARIABLE_NAME *lhs = in->lhs;

@@ -38,7 +38,7 @@ void clear_attrs (Node* in)
 }
 
 template<class T> 
-void Lower_control_flow::add_label (Node* in, List<Statement*> *out)
+void Lower_control_flow::add_label (Node* in, Statement_list *out)
 {
 	assert (break_levels.back () == in);
 	assert (continue_levels.back () == in);
@@ -94,7 +94,7 @@ MIR::VARIABLE_NAME* Lower_control_flow::fold_var (VARIABLE_NAME* in)
  * fall-through edge if we negate the condition, but this is more
  * readable and understandable, as it keeps the structure of the original
  * if-else statement. */
-void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
+void Lower_control_flow::lower_if(If* in, Statement_list* out)
 {
 	// Don't lower them if they're already lowered
 	MIR::Label *l1 = MIR::fresh_label ();
@@ -122,7 +122,7 @@ void Lower_control_flow::lower_if(If* in, List<Statement*>* out)
 	out->push_back (new FOREIGN (l3));
 }
 
-void Lower_control_flow::post_if(If* in, List<Statement*>* out)
+void Lower_control_flow::post_if(If* in, Statement_list* out)
 {
 	lower_if (in, out);
 }
@@ -135,7 +135,7 @@ void Lower_control_flow::post_if(If* in, List<Statement*>* out)
  *			goto L0
  */
 
-void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
+void Lower_control_flow::lower_loop (Loop* in, Statement_list* out)
 {
 	MIR::Label *l0 = MIR::fresh_label ();
 	MIR::Goto *goto_l0 = new MIR::Goto (l0->label_name->clone ());
@@ -146,7 +146,7 @@ void Lower_control_flow::lower_loop (Loop* in, List<Statement*>* out)
 	out->push_back (new FOREIGN (goto_l0));
 }
 
-void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
+void Lower_control_flow::post_loop (Loop* in, Statement_list* out)
 {
 	add_label<Continue> (in, out);
 	lower_loop (in, out);
@@ -181,7 +181,7 @@ void Lower_control_flow::post_loop (Loop* in, List<Statement*>* out)
  *			foreach_end ($arr, iter);
  */
 
-void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
+void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 {
 	/* We wrap a number of MIR nodes in foreign, but we need to convert some of
 	 * them first. */
@@ -296,10 +296,10 @@ void Lower_control_flow::lower_foreach (Foreach* in, List<Statement*>* out)
 			iter->clone ())));
 
 	// wrap it in a PHP script to call visit
-	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new List<Node*>)); // TODO we should have nodes here
+	(new PHP_script (out))->visit (new Clone_blank_mixins<Node, Visitor> (in, new Node_list)); // TODO we should have nodes here
 }
 
-void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
+void Lower_control_flow::post_foreach(Foreach* in, Statement_list* out)
 {
 	lower_foreach (in, out);
 	// we add the continue label in lower_foreach
@@ -329,7 +329,7 @@ void Lower_control_flow::post_foreach(Foreach* in, List<Statement*>* out)
 // TODO: what about 'break "my_string" (and then break '17')?
 // TODO: FYI: Objects/strings evaluate to 0
 template <class T>
-void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
+void Lower_control_flow::lower_exit (T* in, Statement_list* out)
 {
 	vector<Node*> *levels;
 	if (Break::ID == in->ID) levels = &break_levels;
@@ -435,18 +435,18 @@ void Lower_control_flow::lower_exit (T* in, List<Statement*>* out)
 	}
 }
 
-void Lower_control_flow::post_break (Break* in, List<Statement*>* out)
+void Lower_control_flow::post_break (Break* in, Statement_list* out)
 {
 	lower_exit<Break> (in, out);
 }
 
-void Lower_control_flow::post_continue (Continue* in, List<Statement*>* out)
+void Lower_control_flow::post_continue (Continue* in, Statement_list* out)
 {
 	lower_exit<Continue> (in, out);
 }
 
 
-void Lower_control_flow::pre_control_flow (Statement* in, List<Statement*>* out)
+void Lower_control_flow::pre_control_flow (Statement* in, Statement_list* out)
 {
 	break_levels.push_back (in);
 	continue_levels.push_back (in);
@@ -454,12 +454,12 @@ void Lower_control_flow::pre_control_flow (Statement* in, List<Statement*>* out)
 }
 
 
-void Lower_control_flow::pre_loop(Loop* in, List<Statement*>* out)
+void Lower_control_flow::pre_loop(Loop* in, Statement_list* out)
 {
 	pre_control_flow (in, out);
 }
 
-void Lower_control_flow::pre_foreach(Foreach* in, List<Statement*>* out)
+void Lower_control_flow::pre_foreach(Foreach* in, Statement_list* out)
 {
 	pre_control_flow (in, out);
 }

@@ -15,9 +15,9 @@
 class Split_multiple_arguments : public AST::Transform
 {
 public:
-	void pre_global(AST::Global* in, List<AST::Statement*>* out);
-	void pre_static_declaration(AST::Static_declaration* in, List<AST::Statement*>* out);
-	void pre_attribute(AST::Attribute* in, List<AST::Member*>* out);
+	void pre_global(AST::Global* in, AST::Statement_list* out);
+	void pre_static_declaration(AST::Static_declaration* in, AST::Statement_list* out);
+	void pre_attribute(AST::Attribute* in, AST::Member_list* out);
 };
 
 #endif // PHC_SPLIT_MULTIPLE_ARGUMENTS_H

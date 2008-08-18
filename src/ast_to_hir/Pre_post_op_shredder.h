@@ -15,7 +15,7 @@
 class Pre_post_op_shredder : public AST::Lower_expr
 {
 	AST::Expr* post_pre_op(AST::Pre_op* in);
-	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_eval_expr (AST::Eval_expr* in, AST::Statement_list* out);
 	AST::Expr* post_post_op(AST::Post_op* in);
 };
 

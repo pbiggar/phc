@@ -242,16 +242,16 @@ public:
 
 	Commented_node ()
 	{
-		attrs->set ("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new String_list);
 	}
 
 	// Return the comments associated with the node
 	List<String*>* get_comments()
 	{
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
+		String_list* comments = dynamic_cast<String_list*>(attrs->get("phc.comments"));
 
 		if (comments == NULL)
-			return new List<String*>;
+			return new String_list;
 
 		return comments;
 	}
@@ -264,8 +264,8 @@ public:
 	{
 		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new METHOD_NAME(new String(name));
-		this->formal_parameters = new List<Formal_parameter*>;
+		this->method_name = new METHOD_NAME(name);
+		this->formal_parameters = new Formal_parameter_list;
 	}
 };
 
@@ -331,8 +331,8 @@ public:
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 
 	Class_def(const char* name)
@@ -340,8 +340,8 @@ public:
 		this->class_mod = new Class_mod(false, false);
 		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 
 	void add_member(Member* member) 
@@ -352,7 +352,7 @@ public:
 	// Returns NULL if the method could not be found
 	Method* get_method(const char* name)
 	{
-		List<Member*>::const_iterator i;
+		Member_list::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
 			Method* method = dynamic_cast<Method*>(*i);
@@ -380,7 +380,7 @@ public:
 	{
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new Expr_list;
 	}
 
 	bool is_simple_variable ()
@@ -398,10 +398,10 @@ public:
 	Method_invocation(const char* name, Expr* arg) 
 	{ 
 		this->target = NULL;
-		this->method_name = new METHOD_NAME(new String(name));
+		this->method_name = new METHOD_NAME(name);
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
 	}
 
 	Method_invocation(METHOD_NAME* name, Expr* arg) 
@@ -410,7 +410,16 @@ public:
 		this->method_name = name; 
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
+	}
+};
+
+class METHOD_NAME
+{
+public:
+	METHOD_NAME(const char* name)
+	{
+		this->value = new String (name);
 	}
 };
 
@@ -539,7 +548,7 @@ class If
 public:
 	If(Expr* expr)
 	{
-		If (expr, new List<Statement*> (), new List<Statement*>);
+		If (expr, new Statement_list, new Statement_list);
 	}
 };
 

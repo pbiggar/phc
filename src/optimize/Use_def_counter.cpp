@@ -94,7 +94,7 @@ public:
 	}
 };
 
-void Use_def_counter::finish_analysis (List<HIR::Statement*>* in)
+void Use_def_counter::finish_analysis (HIR::Statement_list* in)
 {
 	map<string, int>* defs = analysis_defs.top ();
 	map<string, int>* occurences = analysis_occurences.top ();

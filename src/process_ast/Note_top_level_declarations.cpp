@@ -16,14 +16,13 @@ using namespace AST;
  * since we'll lose that information later */
 void Note_top_level_declarations::pre_php_script (PHP_script* in)
 {
-	List<Statement*>::const_iterator i;
-	for (i = in->statements->begin (); i != in->statements->end (); i++)
+	foreach (Statement* s, *in->statements)
 	{
-		if ((*i)->classid () == Method::ID
-			|| (*i)->classid () == Class_def::ID
-			|| (*i)->classid () == Interface_def::ID)
+		if (s->classid () == Method::ID
+			|| s->classid () == Class_def::ID
+			|| s->classid () == Interface_def::ID)
 		{
-			(*i)->attrs->set_true ("phc.lower_control_flow.top_level_declaration");
+			s->attrs->set_true ("phc.lower_control_flow.top_level_declaration");
 		}
 	}
 }

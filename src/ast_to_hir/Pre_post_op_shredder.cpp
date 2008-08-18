@@ -35,7 +35,7 @@ Expr* Pre_post_op_shredder::post_pre_op(Pre_op* in)
  *	This avoids an extra statement being issued by post_post_op.
  *	This should be replaced with data-flow at a later date.
  */
-void Pre_post_op_shredder::pre_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Pre_post_op_shredder::pre_eval_expr (Eval_expr* in, Statement_list* out)
 {
 	if (Post_op* post_op = dynamic_cast<Post_op*> (in->expr))
 	{

@@ -13,7 +13,7 @@ using namespace HIR;
 
 void Lower_expr::children_php_script(PHP_script* in)
 {
-	pieces = new List<Statement*>;
+	pieces = new Statement_list;
 	Transform::children_php_script(in);
 }
 
@@ -25,42 +25,42 @@ void Lower_expr::children_php_script(PHP_script* in)
  * only a limited number of statements to consider here.
  */
 
-void Lower_expr::post_assign_var (Assign_var* in, List<Statement*>* out)
+void Lower_expr::post_assign_var (Assign_var* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_assign_var_var (Assign_var_var* in, List<Statement*>* out)
+void Lower_expr::post_assign_var_var (Assign_var_var* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_assign_array (Assign_array* in, List<Statement*>* out)
+void Lower_expr::post_assign_array (Assign_array* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_push_array (Push_array* in, List<Statement*>* out)
+void Lower_expr::post_push_array (Push_array* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Lower_expr::post_eval_expr (Eval_expr* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_return(Return* in, List<Statement*>* out)
+void Lower_expr::post_return(Return* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_global(Global* in, List<Statement*>* out)
+void Lower_expr::post_global(Global* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
+void Lower_expr::push_back_pieces(Statement* in, Statement_list* out)
 {
 	out->push_back_all(pieces);
 	out->push_back(in);

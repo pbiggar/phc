@@ -139,9 +139,9 @@ public:
 		return new AST::Variable (get_var_name ());
 	}
 
-	List<AST::Expr*>* wrap_var_name_list (List<AST::None*>* var_names)
+	AST::Expr_list* wrap_var_name_list (AST::None_list* var_names)
 	{
-		List<AST::Expr*>* result = new List<AST::Expr*>;
+		AST::Expr_list* result = new AST::Expr_list;
 		foreach (AST::None* n, *var_names)
 		{
 			// Process in reverse order off the stack
@@ -150,13 +150,13 @@ public:
 		return result;
 	}
 
-	List<AST::Expr*>* wrap_var_name_in_list (AST::None* var_name)
+	AST::Expr_list* wrap_var_name_in_list (AST::None* var_name)
 	{
 		// Dont turn $x into $x[]
 		if (var_name == NULL)
-			return new List<AST::Expr*>;
+			return new AST::Expr_list;
 
-		return wrap_var_name_list (new List<AST::None*> (var_name));
+		return wrap_var_name_list (new AST::None_list (var_name));
 	}
 
 	/* VARIABLE_NAMEs are converted to None. CLASS_NAMEs are returned in one
@@ -180,7 +180,7 @@ public:
 
 public:
 
-	AST::PHP_script* fold_impl_php_script(MIR::PHP_script* orig, List<AST::Statement*>* statements) 
+	AST::PHP_script* fold_impl_php_script(MIR::PHP_script* orig, AST::Statement_list* statements) 
 	{
 		AST::PHP_script* result;
 		result = new AST::PHP_script(statements);
@@ -188,7 +188,7 @@ public:
 		return result;
 	}
 
-	AST::Class_def* fold_impl_class_def(MIR::Class_def* orig, AST::Class_mod* class_mod, AST::CLASS_NAME* class_name, AST::CLASS_NAME* extends, List<AST::INTERFACE_NAME*>* implements, List<AST::Member*>* members) 
+	AST::Class_def* fold_impl_class_def(MIR::Class_def* orig, AST::Class_mod* class_mod, AST::CLASS_NAME* class_name, AST::CLASS_NAME* extends, AST::INTERFACE_NAME_list* implements, AST::Member_list* members) 
 	{
 		AST::Class_def* result;
 		result = new AST::Class_def(class_mod, class_name, extends, implements, members);
@@ -204,7 +204,7 @@ public:
 		return result;
 	}
 
-	AST::Interface_def* fold_impl_interface_def(MIR::Interface_def* orig, AST::INTERFACE_NAME* interface_name, List<AST::INTERFACE_NAME*>* extends, List<AST::Member*>* members) 
+	AST::Interface_def* fold_impl_interface_def(MIR::Interface_def* orig, AST::INTERFACE_NAME* interface_name, AST::INTERFACE_NAME_list* extends, AST::Member_list* members) 
 	{
 		AST::Interface_def* result;
 		result = new AST::Interface_def(interface_name, extends, members);
@@ -212,7 +212,7 @@ public:
 		return result;
 	}
 
-	AST::Method* fold_impl_method(MIR::Method* orig, AST::Signature* signature, List<AST::Statement*>* statements) 
+	AST::Method* fold_impl_method(MIR::Method* orig, AST::Signature* signature, AST::Statement_list* statements) 
 	{
 		AST::Method* result;
 		result = new AST::Method(signature, statements);
@@ -220,7 +220,7 @@ public:
 		return result;
 	}
 
-	AST::Signature* fold_impl_signature(MIR::Signature* orig, AST::Method_mod* method_mod, bool is_ref, AST::METHOD_NAME* method_name, List<AST::Formal_parameter*>* formal_parameters) 
+	AST::Signature* fold_impl_signature(MIR::Signature* orig, AST::Method_mod* method_mod, bool is_ref, AST::METHOD_NAME* method_name, AST::Formal_parameter_list* formal_parameters) 
 	{
 		AST::Signature* result;
 		result = new AST::Signature(method_mod, is_ref, method_name, formal_parameters);
@@ -255,7 +255,7 @@ public:
 	AST::Attribute* fold_impl_attribute(MIR::Attribute* orig, AST::Attr_mod* attr_mod, AST::Name_with_default* var) 
 	{
 		AST::Attribute* result;
-		result = new AST::Attribute(attr_mod, new List<AST::Name_with_default*> (var));
+		result = new AST::Attribute(attr_mod, new AST::Name_with_default_list (var));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -287,7 +287,7 @@ public:
 	AST::Static_declaration* fold_impl_static_declaration(MIR::Static_declaration* orig, AST::Name_with_default* var) 
 	{
 		AST::Static_declaration* result;
-		result = new AST::Static_declaration(new List<AST::Name_with_default*> (var));
+		result = new AST::Static_declaration(new AST::Name_with_default_list (var));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -295,12 +295,12 @@ public:
 	AST::Global* fold_impl_global(MIR::Global* orig, AST::Variable_name* variable_name) 
 	{
 		AST::Global* result;
-		result = new AST::Global(new List<AST::Variable_name*> (variable_name));
+		result = new AST::Global(new AST::Variable_name_list (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
 
-	AST::Try* fold_impl_try(MIR::Try* orig, List<AST::Statement*>* statements, List<AST::Catch*>* catches) 
+	AST::Try* fold_impl_try(MIR::Try* orig, AST::Statement_list* statements, AST::Catch_list* catches) 
 	{
 		AST::Try* result;
 		result = new AST::Try(statements, catches);
@@ -308,7 +308,7 @@ public:
 		return result;
 	}
 
-	AST::Catch* fold_impl_catch(MIR::Catch* orig, AST::CLASS_NAME* class_name, AST::None* variable_name, List<AST::Statement*>* statements) 
+	AST::Catch* fold_impl_catch(MIR::Catch* orig, AST::CLASS_NAME* class_name, AST::None* variable_name, AST::Statement_list* statements) 
 	{
 		AST::Catch* result;
 		result = new AST::Catch(class_name, get_var_name (), statements);
@@ -346,7 +346,7 @@ public:
 				NULL,
 				new AST::Reflection (
 					new AST::Variable (lhs_var)),
-				new List<AST::Expr*>), 
+				new AST::Expr_list), 
 			is_ref,
 			rhs);
 		result->attrs = orig->attrs;
@@ -363,7 +363,7 @@ public:
 			new AST::Variable (
 				NULL,
 				lhs_var,
-				new List<AST::Expr*> (index)),
+				new AST::Expr_list (index)),
 			is_ref,
 			rhs);
 		result->attrs = orig->attrs;
@@ -380,7 +380,7 @@ public:
 			new AST::Variable (
 				NULL,
 				lhs_var,
-				new List<AST::Expr*> (
+				new AST::Expr_list (
 					NULL)),
 			is_ref,
 			rhs);
@@ -398,7 +398,7 @@ public:
 			new AST::Variable (
 				target_var,
 				lhs,
-				new List<AST::Expr*>),
+				new AST::Expr_list),
 			is_ref,
 			rhs);
 		result->attrs = orig->attrs;
@@ -459,7 +459,7 @@ public:
 		result = new AST::Variable (
 			NULL, 
 			get_var_name (), 
-			new List<AST::Expr*> (index));
+			new AST::Expr_list (index));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -470,7 +470,7 @@ public:
 		result = new AST::Variable(
 			wrap_target (target),
 			variable_name,
-			new List<AST::Expr*>);
+			new AST::Expr_list);
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -507,7 +507,7 @@ public:
 			result = new AST::Variable (
 				NULL,
 				this->reflection,
-				new List<AST::Expr*>);
+				new AST::Expr_list);
 			result->attrs = orig->attrs;
 
 			this->reflection = NULL;
@@ -564,7 +564,7 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Array* fold_impl_static_array(MIR::Static_array* orig, List<AST::Array_elem*>* array_elems)
+	AST::Array* fold_impl_static_array(MIR::Static_array* orig, AST::Array_elem_list* array_elems)
 	{
 		AST::Array* result;
 		result = new AST::Array(array_elems);
@@ -580,7 +580,7 @@ public:
 		return result;
 	}
 
-	AST::Method_invocation* fold_impl_method_invocation(MIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, List<AST::Actual_parameter*>* actual_parameters) 
+	AST::Method_invocation* fold_impl_method_invocation(MIR::Method_invocation* orig, AST::Node* target, AST::Method_name* method_name, AST::Actual_parameter_list* actual_parameters) 
 	{
 		AST::Method_invocation* result;
 		result = new AST::Method_invocation(
@@ -602,7 +602,7 @@ public:
 	}
 
 
-	AST::New* fold_impl_new(MIR::New* orig, AST::Class_name* class_name, List<AST::Actual_parameter*>* actual_parameters) 
+	AST::New* fold_impl_new(MIR::New* orig, AST::Class_name* class_name, AST::Actual_parameter_list* actual_parameters) 
 	{
 		AST::New* result;
 		result = new AST::New(class_name, actual_parameters);
@@ -811,13 +811,13 @@ public:
 		return new AST::FOREIGN (orig);
 	}
 
-	AST::Eval_expr* fold_impl_unset (MIR::Unset* orig, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	AST::Eval_expr* fold_impl_unset (MIR::Unset* orig, AST::Node* target, AST::Variable_name* variable_name, AST::Expr_list* array_indices) 
 	{
 		AST::Method_invocation* result;
 		result = new AST::Method_invocation (
 			NULL,
 			new AST::METHOD_NAME (s("unset")),
-			new List<AST::Actual_parameter*> (
+			new AST::Actual_parameter_list (
 				new AST::Actual_parameter (
 					false,
 					new AST::Variable (
@@ -829,13 +829,13 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Method_invocation* fold_impl_isset (MIR::Isset* orig, AST::Node* target, AST::Variable_name* variable_name, List<AST::Expr*>* array_indices) 
+	AST::Method_invocation* fold_impl_isset (MIR::Isset* orig, AST::Node* target, AST::Variable_name* variable_name, AST::Expr_list* array_indices) 
 	{
 		AST::Method_invocation* result;
 		result = new AST::Method_invocation (
 			NULL,
 			new AST::METHOD_NAME (s("isset")),
-			new List<AST::Actual_parameter*> (
+			new AST::Actual_parameter_list (
 				new AST::Actual_parameter (
 					false,
 					new AST::Variable (

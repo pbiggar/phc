@@ -10,7 +10,7 @@
 
 using namespace MIR;
 
-void Foreach_uppering::pre_foreach_reset (MIR::Foreach_reset* in, List<Statement*>* out)
+void Foreach_uppering::pre_foreach_reset (MIR::Foreach_reset* in, Statement_list* out)
 {
 	(*out
 		<< "$" << in->iter << " = new ArrayObject ($" << in->array << ");\n"
@@ -18,21 +18,21 @@ void Foreach_uppering::pre_foreach_reset (MIR::Foreach_reset* in, List<Statement
 	).finish (in);
 }
 
-void Foreach_uppering::pre_foreach_next (MIR::Foreach_next* in, List<Statement*>* out)
+void Foreach_uppering::pre_foreach_next (MIR::Foreach_next* in, Statement_list* out)
 {
 	(*out
 		<< "$" << in->iter << "->next ();\n"
 	).finish (in);
 }
 
-void Foreach_uppering::pre_foreach_end (MIR::Foreach_end* in, List<Statement*>* out)
+void Foreach_uppering::pre_foreach_end (MIR::Foreach_end* in, Statement_list* out)
 {
 	// Do nothing (the garbage collector will clean this up)
 }
 
 Expr* Foreach_uppering::pre_foreach_has_key (MIR::Foreach_has_key* in)
 {
-	List<MIR::Statement*> out;
+	MIR::Statement_list out;
 	(out
 		<< "$" << in->iter << "->valid ();\n"
 	).finish (in);
@@ -50,7 +50,7 @@ Expr* Foreach_uppering::pre_foreach_get_key (MIR::Foreach_get_key* in)
 		return nil;
 	}
 
-	List<MIR::Statement*> out;
+	MIR::Statement_list out;
 	(out
 		<< "$" << in->iter << "->key ();\n"
 	).finish (in);
@@ -61,7 +61,7 @@ Expr* Foreach_uppering::pre_foreach_get_key (MIR::Foreach_get_key* in)
 
 Expr* Foreach_uppering::pre_foreach_get_val (MIR::Foreach_get_val* in)
 {
-	List<MIR::Statement*> out;
+	MIR::Statement_list out;
 	(out
 		<< "$" << in->array << "[$" << in->key << "];"
 	).finish (in);

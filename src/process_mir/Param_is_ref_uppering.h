@@ -15,7 +15,7 @@
 class Param_is_ref_uppering : public MIR::Transform
 {
 public:
-	void pre_assign_var (MIR::Assign_var* in, List<MIR::Statement*>* out);
+	void pre_assign_var (MIR::Assign_var* in, MIR::Statement_list* out);
 };
 
 #endif // PHC_PARAM_IS_REF_UPPERING

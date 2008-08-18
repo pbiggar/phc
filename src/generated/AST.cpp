@@ -548,8 +548,8 @@ Signature::Signature(const char* name)
     {
 		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new METHOD_NAME(new String(name));
-		this->formal_parameters = new List<Formal_parameter*>;
+		this->method_name = new METHOD_NAME(name);
+		this->formal_parameters = new Formal_parameter_list;
 	}
 }
 
@@ -1672,7 +1672,7 @@ Class_name::Class_name()
 Commented_node::Commented_node()
 {
     {
-		attrs->set ("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new String_list);
 	}
 }
 
@@ -1680,10 +1680,10 @@ Commented_node::Commented_node()
 List<String*>* Commented_node::get_comments()
 {
     {
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
+		String_list* comments = dynamic_cast<String_list*>(attrs->get("phc.comments"));
 
 		if (comments == NULL)
-			return new List<String*>;
+			return new String_list;
 
 		return comments;
 	}
@@ -2783,8 +2783,8 @@ Class_def::Class_def(Class_mod* mod)
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2794,8 +2794,8 @@ Class_def::Class_def(const char* name)
 		this->class_mod = new Class_mod(false, false);
 		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2810,7 +2810,7 @@ void Class_def::add_member(Member* member)
 Method* Class_def::get_method(const char* name)
 {
     {
-		List<Member*>::const_iterator i;
+		Member_list::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
 			Method* method = dynamic_cast<Method*>(*i);
@@ -3803,7 +3803,7 @@ void If::assert_valid()
 If::If(Expr* expr)
 {
     {
-		If (expr, new List<Statement*> (), new List<Statement*>);
+		If (expr, new Statement_list, new Statement_list);
 	}
 }
 
@@ -8076,7 +8076,7 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new Expr_list;
 	}
 }
 
@@ -8767,10 +8767,10 @@ Method_invocation::Method_invocation(const char* name, Expr* arg)
 {
     { 
 		this->target = NULL;
-		this->method_name = new METHOD_NAME(new String(name));
+		this->method_name = new METHOD_NAME(name);
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
 	}
 }
 
@@ -8781,7 +8781,7 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Expr* arg)
 		this->method_name = name; 
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
 	}
 }
 
@@ -9363,6 +9363,13 @@ void METHOD_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+METHOD_NAME::METHOD_NAME(const char* name)
+{
+    {
+		this->value = new String (name);
+	}
 }
 
 VARIABLE_NAME::VARIABLE_NAME(String* value)

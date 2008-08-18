@@ -52,7 +52,7 @@ void Annotate::pre_assignment(Assignment* in)
 			new Variable (
 				new Wildcard<Target>, 
 				new Wildcard <VARIABLE_NAME>, 
-				new List<Expr*>),
+				new Expr_list),
 			false /*ignore*/, 
 			new Wildcard<Expr>)))
 		in->expr->attrs->set_true("phc.ast_lower_expr.no_temp");
@@ -173,7 +173,7 @@ void Annotate::post_method_invocation (Method_invocation* in)
 				or *name->value == "include_once" 
 				or *name->value == "require_once"))
 	{
-		List<Actual_parameter*>::const_iterator i;
+		Actual_parameter_list::const_iterator i;
 		for (i = in->actual_parameters->begin (); i != in->actual_parameters->end(); i++)
 		{
 			if (dynamic_cast<STRING*> ((*i)->expr))

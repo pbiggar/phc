@@ -17,7 +17,7 @@ using namespace AST;
  *		unset($y);
  * 	unset($z);
  */
-void Split_unset_isset::pre_eval_expr(Eval_expr * in, List<Statement*>* out)
+void Split_unset_isset::pre_eval_expr(Eval_expr * in, Statement_list* out)
 {
 	Expr* unset = new Method_invocation(
 		NULL, 	// NULL target
@@ -27,16 +27,12 @@ void Split_unset_isset::pre_eval_expr(Eval_expr * in, List<Statement*>* out)
 
 	if(in->expr->match(unset))
 	{
-		Method_invocation* inv = dynamic_cast<Method_invocation*>(in->expr);
-		assert(inv);
+		Method_invocation* inv = dyc<Method_invocation>(in->expr);
 
-		List<Actual_parameter*>::const_iterator i;
-		for(i = inv->actual_parameters->begin();
-			i != inv->actual_parameters->end();
-			i++)
+		foreach(Actual_parameter* ap, *inv->actual_parameters)
 		{
-			assert(!(*i)->is_ref);
-			out->push_back(new Eval_expr(new Method_invocation("unset", (*i)->expr)));
+			assert(!ap->is_ref);
+			out->push_back(new Eval_expr(new Method_invocation("unset", ap->expr)));
 		}
 	}
 	else
@@ -53,20 +49,17 @@ void Split_unset_isset::pre_eval_expr(Eval_expr * in, List<Statement*>* out)
  */
 Expr* Split_unset_isset::pre_method_invocation(Method_invocation* in)
 {
-	if(in->method_name->match(new METHOD_NAME(new String("isset"))))
+	if(in->method_name->match(new METHOD_NAME("isset")))
 	{
-		List<Expr*>* terms = new List<Expr*>;
+		Expr_list* terms = new Expr_list;
 
-		List<Actual_parameter*>::const_iterator i;
-		for(i = in->actual_parameters->begin();
-			i != in->actual_parameters->end();
-			i++)
+		foreach(Actual_parameter* ap, *in->actual_parameters)
 		{
-			assert(!(*i)->is_ref);
-			terms->push_back(new Method_invocation("isset", (*i)->expr));
+			assert(!ap->is_ref);
+			terms->push_back(new Method_invocation("isset", ap->expr));
 		}
 
-		List<Expr*>::const_iterator j = terms->begin();
+		Expr_list::const_iterator j = terms->begin();
 		Expr* result = *j++;
 		for( ; j != terms->end(); j++)
 		{

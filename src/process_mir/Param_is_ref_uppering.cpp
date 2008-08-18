@@ -42,7 +42,7 @@ using namespace MIR;
  *		$t = $T4->isPassedByReference ();
  */
 void
-Param_is_ref_uppering::pre_assign_var (MIR::Assign_var* in, List<MIR::Statement*>* out)
+Param_is_ref_uppering::pre_assign_var (MIR::Assign_var* in, MIR::Statement_list* out)
 {
 	Wildcard<VARIABLE_NAME>* lhs = new Wildcard<VARIABLE_NAME>;
 	Wildcard<Param_is_ref>* param_is_ref = new Wildcard<Param_is_ref>;

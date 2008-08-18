@@ -561,7 +561,7 @@ protected:
 
 		// debug_argument_stack();
 
-		List<Formal_parameter*>* parameters = signature->formal_parameters;
+		Formal_parameter_list* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
 			code 
@@ -574,7 +574,7 @@ protected:
 			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
-			List<Formal_parameter*>::const_iterator i;
+			Formal_parameter_list::const_iterator i;
 			int index;	
 			for(i = parameters->begin(), index = 0;
 				i != parameters->end();
@@ -1533,7 +1533,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 		return new Method_invocation(
 			NULL,	
 			new METHOD_NAME(new String("eval")),
-			new List<Actual_parameter*>(eval_arg));
+			new Actual_parameter_list(eval_arg));
 	}
 
 	// TODO this is untidy, and slower than it should be. Not a
@@ -1594,7 +1594,7 @@ public:
 		return new Method_invocation(
 						NULL,	
 						name,
-						new List<Actual_parameter*>(exit_arg)
+						new Actual_parameter_list(exit_arg)
 						);
 	}
 
@@ -1635,7 +1635,7 @@ public:
 
 	void generate_rhs ()
 	{
-		List<Actual_parameter*>::const_iterator i;
+		Actual_parameter_list::const_iterator i;
 		unsigned index;
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
@@ -2473,32 +2473,26 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 void Generate_C::post_php_script(PHP_script* in)
 {
-	List<Signature*>::const_iterator i;
-
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
-	for(i = methods->begin(); i != methods->end(); i++)
+	foreach (Signature* s, *methods)
 	{
-		String* name = (*i)->method_name->value;
+		String* name = s->method_name->value;
 
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
 		code 
 		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
-		<< ((*i)->is_ref ? "1" : "0")
+		<< (s->is_ref ? "1" : "0")
 		<< ", 0)\n"
 		;
 
 		// TODO: deal with type hinting
 
-		List<Formal_parameter*>::const_iterator j;
-		for(
-			j = (*i)->formal_parameters->begin();
-			j != (*i)->formal_parameters->end();
-			j++)
+		foreach (Formal_parameter* fp, *s->formal_parameters)
 		{
 			code 
 			<< "ZEND_ARG_INFO("
-			<< ((*j)->is_ref ? "1" : "0")
-			<< ", \"" << *(*j)->var->variable_name->value << "\")\n"; 
+			<< (fp->is_ref ? "1" : "0")
+			<< ", \"" << *fp->var->variable_name->value << "\")\n"; 
 		}
 
 		code << "ZEND_END_ARG_INFO()\n";
@@ -2508,9 +2502,10 @@ void Generate_C::post_php_script(PHP_script* in)
 		<< "// Register all functions with PHP\n"
 		<< "static function_entry " << *extension_name << "_functions[] = {\n"
 		;
-	for(i = methods->begin(); i != methods->end(); i++)
+
+	foreach (Signature* s, *methods)
 	{
-		String* name = (*i)->method_name->value;
+		String* name = s->method_name->value;
 		code << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
 	}
 
@@ -2629,7 +2624,7 @@ void Generate_C::post_php_script(PHP_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new List<Signature*>;
+	methods = new Signature_list;
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
 }

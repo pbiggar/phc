@@ -379,7 +379,7 @@ public:
 		}
 		else if(!strcmp(name, "string_list"))
 		{
-			List<String*>* string_list = new List<String*>;
+			String_list* string_list = new String_list;
 
 			for(int i = 0; i < num_children; i++)
 			{

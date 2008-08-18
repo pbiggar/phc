@@ -556,8 +556,8 @@ Signature::Signature(const char* name)
     {
 		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new METHOD_NAME(new String(name));
-		this->formal_parameters = new List<Formal_parameter*>;
+		this->method_name = new METHOD_NAME(name);
+		this->formal_parameters = new Formal_parameter_list;
 	}
 }
 
@@ -2249,8 +2249,8 @@ Class_def::Class_def(Class_mod* mod)
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2260,8 +2260,8 @@ Class_def::Class_def(const char* name)
 		this->class_mod = new Class_mod(false, false);
 		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2276,7 +2276,7 @@ void Class_def::add_member(Member* member)
 Method* Class_def::get_method(const char* name)
 {
     {
-		List<Member*>::const_iterator i;
+		Member_list::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
 			Method* method = dynamic_cast<Method*>(*i);
@@ -6255,8 +6255,8 @@ Method_invocation::Method_invocation(const char* name, Actual_parameter* arg)
 {
     { 
 		this->target = NULL;
-		this->method_name = new METHOD_NAME(new String(name));
-		this->actual_parameters = new List<Actual_parameter*> (arg);
+		this->method_name = new METHOD_NAME(name);
+		this->actual_parameters = new Actual_parameter_list (arg);
 	}
 }
 
@@ -6265,7 +6265,7 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Actual_parameter* arg)
     { 
 		this->target = NULL;
 		this->method_name = name; 
-		this->actual_parameters = new List<Actual_parameter*> (arg);
+		this->actual_parameters = new Actual_parameter_list (arg);
 	}
 }
 
@@ -8567,6 +8567,13 @@ void METHOD_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+METHOD_NAME::METHOD_NAME(const char* name)
+{
+    {
+		this->value = new String (name);
+	}
 }
 
 OP::OP(String* value)

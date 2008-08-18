@@ -32,7 +32,7 @@ public:
 public:
 	String* extension_name;
 	bool is_extension;
-	List<MIR::Signature*>* methods;	// List of all methods compiled	
+	MIR::Signature_list* methods;	// List of all methods compiled	
 	bool return_by_reference; 		// current methods returns by reference	
 };
 

@@ -112,7 +112,7 @@ public:
 	using parent::fold_method_name;
 
 public:
-	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, List<MIR::Statement*>* statements) 
+	MIR::PHP_script* fold_impl_php_script(HIR::PHP_script* orig, MIR::Statement_list* statements) 
 	{
 		MIR::PHP_script* result;
 		result = new MIR::PHP_script(statements);
@@ -120,7 +120,7 @@ public:
 		return result;
 	}
 
-	MIR::Class_def* fold_impl_class_def(HIR::Class_def* orig, MIR::Class_mod* class_mod, MIR::CLASS_NAME* class_name, MIR::CLASS_NAME* extends, List<MIR::INTERFACE_NAME*>* implements, List<MIR::Member*>* members) 
+	MIR::Class_def* fold_impl_class_def(HIR::Class_def* orig, MIR::Class_mod* class_mod, MIR::CLASS_NAME* class_name, MIR::CLASS_NAME* extends, MIR::INTERFACE_NAME_list* implements, MIR::Member_list* members) 
 	{
 		MIR::Class_def* result;
 		result = new MIR::Class_def(class_mod, class_name, extends, implements, members);
@@ -136,7 +136,7 @@ public:
 		return result;
 	}
 
-	MIR::Interface_def* fold_impl_interface_def(HIR::Interface_def* orig, MIR::INTERFACE_NAME* interface_name, List<MIR::INTERFACE_NAME*>* extends, List<MIR::Member*>* members) 
+	MIR::Interface_def* fold_impl_interface_def(HIR::Interface_def* orig, MIR::INTERFACE_NAME* interface_name, MIR::INTERFACE_NAME_list* extends, MIR::Member_list* members) 
 	{
 		MIR::Interface_def* result;
 		result = new MIR::Interface_def(interface_name, extends, members);
@@ -144,7 +144,7 @@ public:
 		return result;
 	}
 
-	MIR::Method* fold_impl_method(HIR::Method* orig, MIR::Signature* signature, List<MIR::Statement*>* statements) 
+	MIR::Method* fold_impl_method(HIR::Method* orig, MIR::Signature* signature, MIR::Statement_list* statements) 
 	{
 		MIR::Method* result;
 		result = new MIR::Method(signature, statements);
@@ -152,7 +152,7 @@ public:
 		return result;
 	}
 
-	MIR::Signature* fold_impl_signature(HIR::Signature* orig, MIR::Method_mod* method_mod, bool is_ref, MIR::METHOD_NAME* method_name, List<MIR::Formal_parameter*>* formal_parameters) 
+	MIR::Signature* fold_impl_signature(HIR::Signature* orig, MIR::Method_mod* method_mod, bool is_ref, MIR::METHOD_NAME* method_name, MIR::Formal_parameter_list* formal_parameters) 
 	{
 		MIR::Signature* result;
 		result = new MIR::Signature(method_mod, is_ref, method_name, formal_parameters);
@@ -232,7 +232,7 @@ public:
 		return result;
 	}
 
-	MIR::Try* fold_impl_try(HIR::Try* orig, List<MIR::Statement*>* statements, List<MIR::Catch*>* catches) 
+	MIR::Try* fold_impl_try(HIR::Try* orig, MIR::Statement_list* statements, MIR::Catch_list* catches) 
 	{
 		MIR::Try* result;
 		result = new MIR::Try(statements, catches);
@@ -240,7 +240,7 @@ public:
 		return result;
 	}
 
-	MIR::Catch* fold_impl_catch(HIR::Catch* orig, MIR::CLASS_NAME* class_name, MIR::VARIABLE_NAME* variable_name, List<MIR::Statement*>* statements) 
+	MIR::Catch* fold_impl_catch(HIR::Catch* orig, MIR::CLASS_NAME* class_name, MIR::VARIABLE_NAME* variable_name, MIR::Statement_list* statements) 
 	{
 		MIR::Catch* result;
 		result = new MIR::Catch(class_name, variable_name, statements);
@@ -446,7 +446,7 @@ public:
 		return result;
 	}
 
-	MIR::Static_array* fold_impl_static_array(HIR::Static_array* orig, List<MIR::Static_array_elem*>* static_array_elems)
+	MIR::Static_array* fold_impl_static_array(HIR::Static_array* orig, MIR::Static_array_elem_list* static_array_elems)
 	{
 		MIR::Static_array* result;
 		result = new MIR::Static_array (static_array_elems);
@@ -462,7 +462,7 @@ public:
 		return result;
 	}
 
-	MIR::Expr* fold_impl_method_invocation(HIR::Method_invocation* orig, MIR::Target* target, MIR::Method_name* method_name, List<MIR::Node*>* actual_parameters) 
+	MIR::Expr* fold_impl_method_invocation(HIR::Method_invocation* orig, MIR::Target* target, MIR::Method_name* method_name, MIR::Node_list* actual_parameters) 
 	{
 		// Unset and Isset are special and gets put straight into the MIR.
 		MIR::METHOD_NAME* mn = dynamic_cast <MIR::METHOD_NAME*> (method_name);
@@ -475,7 +475,7 @@ public:
 
 			HIR::Variable_actual_parameter* ap = dyc<HIR::Variable_actual_parameter> (orig->actual_parameters->front ());
 
-			List<MIR::Rvalue*>* array_indices = new List<MIR::Rvalue*>;
+			MIR::Rvalue_list* array_indices = new MIR::Rvalue_list;
 			foreach (HIR::Rvalue* rvalue, *ap->array_indices)
 				array_indices->push_back (fold_rvalue (rvalue));
 
@@ -510,7 +510,7 @@ public:
 		return result;
 	}
 
-	MIR::Node* fold_impl_variable_actual_parameter (HIR::Variable_actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, List<MIR::Rvalue*>* array_indices)
+	MIR::Node* fold_impl_variable_actual_parameter (HIR::Variable_actual_parameter* orig, bool is_ref, MIR::Target* target, MIR::Variable_name* variable_name, MIR::Rvalue_list* array_indices)
 	{
 		// Unset and Isset can still have targets, var-vars and array_indices, so just ignore them.
 		if (target
@@ -521,7 +521,7 @@ public:
 		return new MIR::Actual_parameter (is_ref, dyc<MIR::VARIABLE_NAME> (variable_name));
 	}
 
-	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, List<MIR::Node*>* actual_parameters) 
+	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, MIR::Node_list* actual_parameters) 
 	{
 		MIR::New* result;
 		result = new MIR::New(

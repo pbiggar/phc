@@ -29,7 +29,7 @@ void Clarify::post_method (MIR::Method* in)
 	if (in->statements == NULL)
 		return;
 
-	List<String*>* var_names = new List<String*>;
+	String_list* var_names = new String_list;
 	var_names->push_back (s("GLOBALS"));
 	var_names->push_back (s("_ENV"));
 	var_names->push_back (s("HTTP_ENV_VARS"));

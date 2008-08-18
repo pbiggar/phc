@@ -20,7 +20,7 @@ using namespace AST;
  *			$w[4] = $T2; // & is allowed here
  *		}
  */
-void Early_lower_control_flow::post_foreach (Foreach* in, List<Statement*>* out)
+void Early_lower_control_flow::post_foreach (Foreach* in, Statement_list* out)
 {
 	// We use push_front, so do value first
 	if (not in->val->is_simple_variable ())
@@ -62,7 +62,7 @@ void Early_lower_control_flow::post_foreach (Foreach* in, List<Statement*>* out)
  *			}
  */
 
-void Early_lower_control_flow::post_while (While* in, List<Statement*>* out)
+void Early_lower_control_flow::post_while (While* in, Statement_list* out)
 {
 	(*out
 		<< "while (true)"
@@ -90,7 +90,7 @@ void Early_lower_control_flow::post_while (While* in, List<Statement*>* out)
  *	This is a little odd, but it accounts for the continue statement, which is
  *	difficult to handle otherwise.
  */
-void Early_lower_control_flow::post_do (Do* in, List<Statement*>* out)
+void Early_lower_control_flow::post_do (Do* in, Statement_list* out)
 {
 	Variable* first = fresh_var ("ElcfPD");
 	(*out
@@ -101,7 +101,7 @@ void Early_lower_control_flow::post_do (Do* in, List<Statement*>* out)
 		<< "	else if (!(" << in ->expr << ")) break;"
 		<< "}").finish (in);
 	
-	While* w = dynamic_cast<While*> (out->back ());
+	While* w = dyc<While> (out->back ());
 	w->statements->push_back_all (in->statements);
 }
 
@@ -123,7 +123,7 @@ void Early_lower_control_flow::post_do (Do* in, List<Statement*>* out)
  *			}
  */
 
-void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
+void Early_lower_control_flow::post_for (For* in, Statement_list* out)
 {
 	/* Note that any of in->expr, in->init and in->incr can be NULL (eg in "for
 	 * (;;)". Also, each expr can be a comma-op. Between these two, its best not
@@ -145,16 +145,16 @@ void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
 
 
 	// while (true)
-	While *w = new While (new BOOL (true), new List<Statement*>);
+	While *w = new While (new BOOL (true), new Statement_list);
 
 	//		if ($first) $first = false;
 	//		else $i++; // only performed after first iteration
-	List<Statement*>* false_stmts = new List<Statement*>;
+	Statement_list* false_stmts = new Statement_list;
 	if (in->incr) false_stmts->push_back (new Eval_expr (in->incr));
 	w->statements->push_back (
 			new If (
 				first->clone (),
-				new List<Statement*> (
+				new Statement_list (
 					new Eval_expr (
 						new Assignment (
 							first->clone (),
@@ -170,8 +170,8 @@ void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
 	w->statements->push_back (
 			new If (
 				in->cond,
-				new List<Statement*>,
-				new List<Statement*> (
+				new Statement_list,
+				new Statement_list (
 					new Break (NULL))));
 
 	//		y ();
@@ -294,7 +294,7 @@ void Early_lower_control_flow::post_for (For* in, List<Statement*>* out)
  *
  *	Use a pre_switch so that the do_while can be lowered in the post_do.
  */
-void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
+void Early_lower_control_flow::pre_switch(Switch* in, Statement_list* out)
 {
 	// val = expr;
 	Variable *switch_val = fresh_var ("TEL");
@@ -313,11 +313,11 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 			new BOOL (false))));
 
 	// do {
-	Do* wrapper = new Do (new List<Statement*>(), new BOOL (false));
+	Do* wrapper = new Do (new Statement_list, new BOOL (false));
 
 	// The default expression gets its statements and all statements
 	// after it.
-	List<Statement*>* default_statements = NULL;
+	Statement_list* default_statements = NULL;
 
 	foreach (Switch_case* sc, *in->switch_cases)
 	{
@@ -325,13 +325,13 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 		// already.
 		if (sc->expr != NULL) // case $var:
 		{
-			List<Statement*>* body = new List<Statement*>;
+			Statement_list* body = new Statement_list;
 
 			// if (!matched)
 			wrapper->statements->push_back (
 				new If (
 					matched_val->clone (),
-					new List<Statement*>,
+					new Statement_list,
 					body));
 
 			// TODO if its a var, we dont need to extract it
@@ -349,18 +349,18 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 					switch_val->clone (), 
 					new OP (new String ("==")), 
 					expr_var->clone ()),
-				new List<Statement*> (
+				new Statement_list (
 					new Eval_expr (
 						new Assignment (
 							matched_val->clone (), 
 							false, 
 							new BOOL (true)))),
-				new List<Statement*>));
+				new Statement_list));
 		}
 		else
 		{
 			// reset the list of default statements
-			default_statements = new List<Statement*> ();
+			default_statements = new Statement_list;
 		}
 
 
@@ -369,7 +369,7 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 			new If (
 				matched_val->clone (),
 				sc->statements,
-				new List<Statement*> ()));
+				new Statement_list));
 
 		
 
@@ -387,7 +387,7 @@ void Early_lower_control_flow::pre_switch(Switch* in, List<Statement*>* out)
 		wrapper->statements->push_back (
 			new If (
 				matched_val->clone (),
-				new List<Statement*>,
+				new Statement_list,
 				default_statements)); // negate
 	}
 

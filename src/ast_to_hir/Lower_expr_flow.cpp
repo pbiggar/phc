@@ -80,9 +80,20 @@ Expr* Lower_expr_flow::post_conditional_expr(Conditional_expr* in)
 {
 	Variable* temp = fresh_var("TEF");
 
-	pieces->push_back(new If (in->cond, 
-		new List<Statement*> (new Eval_expr (new Assignment (temp->clone (), false, in->iftrue))),
-		new List<Statement*> (new Eval_expr (new Assignment (temp->clone (), false, in->iffalse)))));
+	pieces->push_back(new If (
+		in->cond, 
+			new Statement_list (
+				new Eval_expr (
+					new Assignment (
+						temp->clone (), 
+						false, 
+						in->iftrue))),
+			new Statement_list (
+				new Eval_expr (
+					new Assignment (
+						temp->clone (),
+						false,
+						in->iffalse)))));
 	
 	return temp;
 }

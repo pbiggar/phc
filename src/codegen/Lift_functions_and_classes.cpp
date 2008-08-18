@@ -13,8 +13,8 @@ using namespace MIR;
 
 void Lift_functions_and_classes::children_php_script(PHP_script* in)
 {
-	List<Statement*>* main = new List<Statement*>;
-	List<Statement*>* top_level_statements = new List<Statement*>;
+	Statement_list* main = new Statement_list;
+	Statement_list* top_level_statements = new Statement_list;
 
 	// move all non-declaration statements into main
 	foreach (Statement* s, *in->statements)
@@ -31,7 +31,7 @@ void Lift_functions_and_classes::children_php_script(PHP_script* in)
 			new Method_mod(),
 			false,
 			new METHOD_NAME(new String("__MAIN__")),
-			new List<Formal_parameter*>),
+			new Formal_parameter_list),
 		main));
 
 	top_level_statements->back()->attrs->set_true("phc.lower_control_flow.top_level_declaration");

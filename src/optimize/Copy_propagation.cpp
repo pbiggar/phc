@@ -70,7 +70,7 @@ void Copy_propagation::children_php_script (PHP_script* in)
 	in->visit (new Clear_use_defs);
 }
 
-void Copy_propagation::pre_assign_var (Assign_var* in, List<Statement*>* out)
+void Copy_propagation::pre_assign_var (Assign_var* in, Statement_list* out)
 {
 	xdebug (in);
 	debug (in);

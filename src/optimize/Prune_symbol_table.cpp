@@ -149,7 +149,7 @@ public:
 	{
 	}
 
-	void pre_global (Global* in, List<Statement*>* out)
+	void pre_global (Global* in, Statement_list* out)
 	{
 		// if there were any reflection, we wouldnt be here
 		VARIABLE_NAME* var_name = dyc<VARIABLE_NAME> (in->variable_name);

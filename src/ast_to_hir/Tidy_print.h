@@ -13,7 +13,7 @@
 
 class Tidy_print : public AST::Transform
 {
-	void pre_eval_expr (AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_eval_expr (AST::Eval_expr* in, AST::Statement_list* out);
 };
 
 #endif // PHC_TIDY_PRINT_H

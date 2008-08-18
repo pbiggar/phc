@@ -13,7 +13,7 @@ using namespace AST;
 
 
 // NOP statements are removed
-void Desugar::pre_nop(Nop* in, List<Statement*>* out)
+void Desugar::pre_nop(Nop* in, Statement_list* out)
 {
 	// Leave "out" empty 
 }
@@ -30,7 +30,7 @@ Expr* Desugar::pre_unary_op(Unary_op* in)
 }
 
 // All return statements must get an argument (NULL if none specified)
-void Desugar::pre_return(Return* in, List<Statement*>* out)
+void Desugar::pre_return(Return* in, Statement_list* out)
 {
 	if(in->expr == NULL)
 	{
@@ -41,7 +41,7 @@ void Desugar::pre_return(Return* in, List<Statement*>* out)
 	out->push_back(in);
 }
 
-void Desugar::pre_declare (Declare* in, List<Statement*>* out)
+void Desugar::pre_declare (Declare* in, Statement_list* out)
 {
 	// Just remove declare statements, they dont make sense in a compiler.
 }

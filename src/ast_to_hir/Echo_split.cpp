@@ -22,11 +22,11 @@ using namespace AST;
 //	  print f();
 //
 //	We convert to print simply so the later print transformation is easier.
-void Echo_split::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Echo_split::pre_eval_expr(Eval_expr* in, Statement_list* out)
 {
 	Method_invocation* echo = new Method_invocation (
 			NULL,	
-			new METHOD_NAME (new String("echo")),
+			new METHOD_NAME ("echo"),
 			NULL); // match any list (note this doesnt get populated. Use in STMT get the list.)
 
 	if (not in->expr->match (echo))
@@ -35,18 +35,16 @@ void Echo_split::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
 		return;
 	};
 
-	List<Actual_parameter*>* params =
-		(dynamic_cast <Method_invocation*> (in->expr))->actual_parameters;
-	assert (params);
+	Actual_parameter_list* params =
+		(dyc <Method_invocation> (in->expr))->actual_parameters;
 
-	List<Actual_parameter*>::const_iterator i;
-	for (i = params->begin (); i != params->end(); i++)
+	foreach (Actual_parameter* ap, *params)
 	{
 		out->push_back (new Eval_expr (
 					new Method_invocation (
 						NULL,
-						new METHOD_NAME (new String ("print")),
-						new List<Actual_parameter*> (*i))));
+						new METHOD_NAME ("print"),
+						new Actual_parameter_list (ap))));
 
 	}
 }

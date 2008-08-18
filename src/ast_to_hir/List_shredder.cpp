@@ -39,14 +39,14 @@ Expr* List_shredder::post_list_assignment(List_assignment* in)
 
 
 	// reverse order
-	List<List_element*>::reverse_iterator i;
+	List_element_list::reverse_iterator i;
 	int counter = in->list_elements->size () - 1;
 	for (i = in->list_elements->rbegin (); 
 			i != in->list_elements->rend ();
 			i++)
 	{
 		// create the RHS
-		List<Expr*> *array_indices = new List<Expr*> ();
+		Expr_list *array_indices = new Expr_list ();
 		array_indices->push_back (new INT (counter));
 		Variable* rhs = new Variable (
 				NULL,
