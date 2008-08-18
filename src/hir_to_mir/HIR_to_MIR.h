@@ -491,7 +491,7 @@ public:
 					ap->target ? fold_target (ap->target) : NULL,
 					parent::fold_variable_name (ap->variable_name),
 					array_indices);
-				unset->attrs = orig->attrs;
+				copy_attrs (unset, orig);
 				return NULL;
 			}
 			else
