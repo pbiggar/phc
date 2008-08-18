@@ -153,7 +153,7 @@ public:
 		// deliberately empty
 	}
 
-   void pre_return (Return* in, List<Statement*>* out)
+   void pre_return (Return* in, Statement_list* out)
 	{
 		// return 7; => $x = 7;
 		if (variable and in->expr)
@@ -186,7 +186,7 @@ bool Process_includes::pass_is_enabled (Pass_manager* pm)
 }
 
 
-void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<Statement*>* out, Actual_parameter* param)
+void Process_includes::do_not_include (const char* warning, Eval_expr* in, Statement_list* out, Actual_parameter* param)
 {
 	// TODO bring this back
 #if 0
@@ -224,7 +224,7 @@ void Process_includes::do_not_include (const char* warning, Eval_expr* in, List<
 /* If it matches, return the filename, else return NULL. If warn is passed,
  * warn if an include statement is found, but using an expression, not a
  * string. */
-Actual_parameter* matching_param (Eval_expr* in, List<Statement*>* out) 
+Actual_parameter* matching_param (Eval_expr* in, Statement_list* out) 
 { 
 
 	// the filename is the only parameter of the include statement
@@ -233,7 +233,7 @@ Actual_parameter* matching_param (Eval_expr* in, List<Statement*>* out)
 	Method_invocation* pattern = new Method_invocation(
 			NULL,
 			method_name,
-			new List<Actual_parameter*> (param)
+			new Actual_parameter_list (param)
 			);
 
 	Assignment* agn_pattern = new Assignment (
@@ -262,9 +262,9 @@ String* get_filename_from_param (Actual_parameter* param)
 	return NULL;
 }
 
-List<String*>* get_search_directories (String* filename, Node* in)
+String_list* get_search_directories (String* filename, Node* in)
 {
-	List<String*>* dirs = new List<String*>();
+	String_list* dirs = new String_list;
 	// TODO get include path from PHP and allow path to be provided at compile time
 
 	// If the included file starts with "./" or "../", use empty search path.
@@ -280,7 +280,7 @@ List<String*>* get_search_directories (String* filename, Node* in)
 }
 
 // look for include statements
-void Process_includes::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Process_includes::pre_eval_expr(Eval_expr* in, Statement_list* out)
 {
 	// check if its an include function
 	Actual_parameter* param = matching_param (in, out);

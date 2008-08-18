@@ -13,10 +13,10 @@
 
 class Desugar : public AST::Transform
 {
-	void pre_nop(AST::Nop*, List<AST::Statement*>*);
+	void pre_nop(AST::Nop*, AST::Statement_list*);
 	AST::Expr* pre_unary_op(AST::Unary_op* in);
-	void pre_return(AST::Return*, List<AST::Statement*>*);
-	void pre_declare (AST::Declare*, List<AST::Statement*>*);
+	void pre_return(AST::Return*, AST::Statement_list*);
+	void pre_declare (AST::Declare*, AST::Statement_list*);
 };
 
 #endif // PHC_DESUGAR_H

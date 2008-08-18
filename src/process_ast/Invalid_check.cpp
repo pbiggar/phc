@@ -82,10 +82,9 @@ bool check_for_push_operator (Variable* in)
 {
 	if (in->array_indices)
 	{
-		List<Expr*>::const_iterator i;
-		for (i = in->array_indices->begin (); i != in->array_indices->end (); i++)
+		foreach (Expr* expr, *in->array_indices)
 		{
-			if (*i == NULL)
+			if (expr == NULL)
 				return true;
 		}
 	}
@@ -136,12 +135,11 @@ void Invalid_check::pre_interface_def (Interface_def* in)
 {
 	// interface X { $var x; }
 	// Interfaces arent allowed have non-const attributes
-	List<Member*>::const_iterator i;
-	for (i = in->members->begin (); i != in->members->end (); i++)
+	foreach (Member* m, *in->members)
 	{
 		Wildcard<Attr_mod> *attr_mod = new Wildcard<Attr_mod>;
 
-		if ((*i)->match (new Attribute (attr_mod, NULL)))
+		if (m->match (new Attribute (attr_mod, NULL)))
 			if (!attr_mod->value->is_const)
 				error ("Interfaces may not include member variables", 
 					attr_mod->value);
@@ -233,11 +231,10 @@ void Invalid_check::pre_method_invocation (Method_invocation* in)
 	}
 
 	// check the parameters are readable variables (not [])
-	List<Actual_parameter*>::const_iterator i;
-	for (i = in->actual_parameters->begin (); i != in->actual_parameters->end (); i++)
+	foreach (Actual_parameter* ap, *in->actual_parameters)
 	{
 		Wildcard<Variable>* var = new Wildcard<Variable>;
-		if ((*i)->match (new Actual_parameter (
+		if (ap->match (new Actual_parameter (
 						false, // ignored
 						var)))
 		{

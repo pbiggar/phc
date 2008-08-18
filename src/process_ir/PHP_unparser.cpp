@@ -17,12 +17,12 @@ extern struct gengetopt_args_info args_info;
 
 using namespace std;
 
-void PHP_unparser::echo(const char* str)
+void PHP_unparser::echo(string str)
 {
 	echo (new String (str));
 }
 
-void PHP_unparser::echo_nl(const char* s)
+void PHP_unparser::echo_nl(string s)
 {
 	echo_nl (new String (s));
 }

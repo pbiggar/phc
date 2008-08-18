@@ -155,7 +155,10 @@ public:
 
 		if(is_root)
 		{
-			state->os << " xmlns:" << xmlns << "=\"http://www.phpcompiler.org/phc-1.1\"";
+			// TODO these should have different defintions.
+			state->os << " xmlns:AST=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:HIR=\"http://www.phpcompiler.org/phc-1.1\"";
+			state->os << " xmlns:MIR=\"http://www.phpcompiler.org/phc-1.1\"";
 			state->os << " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
 		}
 
@@ -235,16 +238,15 @@ protected:
 		{
 			state->os << "<attr key=\"" << name << "\"><bool>" << (b->value() ? "true" : "false") << "</bool></attr>" << endl;
 		}
-		else if(List<String*>* ls = dynamic_cast<List<String*>*>(attr))
+		else if(String_list* ls = dynamic_cast<String_list*>(attr))
 		{
 			state->os << "<attr key=\"" << name << "\"><string_list>" << endl;
 			state->indent++;
 
-			List<String*>::const_iterator j;
-			for(j = ls->begin(); j != ls->end(); j++)
+			foreach (String* s, *ls)
 			{
 				state->print_indent();
-				maybe_encode ("string", *j);
+				maybe_encode ("string", s);
 			}
 
 			state->indent--;
@@ -427,6 +429,15 @@ public:
 			MIR::FOREIGN
 		> ("MIR", state)
 	{
+	}
+
+	void pre_param_index (MIR::PARAM_INDEX* in)
+	{
+		String* value = in->get_value_as_string();
+
+		state->print_indent();
+		maybe_encode ("value", value);
+		state->os << endl;
 	}
 
 };

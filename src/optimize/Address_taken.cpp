@@ -112,17 +112,8 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 			Method_invocation* mi = dyc<Method_invocation> (in);
 
 			foreach (Actual_parameter* ap, *mi->actual_parameters)
-			{
-				Variable_actual_parameter* vap = dyc<Variable_actual_parameter> (ap);
+				aliased (bb, ap->rvalue);
 
-				// Target is a parameter
-				if (isa<VARIABLE_NAME> (vap->target))
-					aliased (bb, dyc<VARIABLE_NAME> (vap->target));
-
-				aliased (bb, vap->variable_name);
-				foreach (Rvalue* array_index, *vap->array_indices)
-					aliased (bb, array_index);
-			}
 			break;
 		}
 

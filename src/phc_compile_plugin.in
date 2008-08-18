@@ -44,7 +44,7 @@ if [ ! -x $_LIBTOOL ]; then
 	exit 1
 fi
 
-# We only support gcc, but @CXX@ might be a non-default version.
+# We only support gcc, but @ CXX @ might be a non-default version.
 _COMPILE="$_LIBTOOL --mode=compile @CXX@ $_INCLUDES $CFLAGS -c $_FILENAME -o $_OBJECT"
 _LINK="$_LIBTOOL --mode=link @CXX@ -module $LDFLAGS $_OBJECT -o $_OUTPUT -rpath $_INSTALL_DIR"
 

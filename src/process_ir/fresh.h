@@ -11,10 +11,12 @@
 #include "AST_visitor.h"
 #include "HIR_visitor.h"
 #include "MIR_visitor.h"
+#include <set>
 
 String* fresh(string prefix);
 
 extern int fresh_suffix_counter;
+extern set<string> unfresh_vars;
 
 namespace AST
 {
@@ -37,44 +39,25 @@ namespace MIR
 
 // There is a similar problem that this does not solve: variables used in a
 // program's source should never be used for temporary variables.
-template <class VARIABLE_NAME, class Visitor>
-class Read_fresh_suffix_counter : virtual public Visitor
+class Read_fresh_suffix_counter
+: public AST::Visitor
+, public HIR::Visitor
+, public MIR::Visitor
 {
 
 public:
-   void pre_variable_name (VARIABLE_NAME* in) 
+   void pre_variable_name (AST::VARIABLE_NAME* in) 
 	{
-		if (not in->attrs->has ("phc.fresh.suffix"))
-			return;
-
-		Integer* suffix = in->attrs->get_integer ("phc.fresh.suffix");
-		if (suffix && suffix->value () >= fresh_suffix_counter)
-			fresh_suffix_counter = suffix->value() + 1;
+		unfresh_vars.insert (*in->value);
 	}
-};
-
-class AST_read_fresh_suffix_counter : public Read_fresh_suffix_counter
-<
-	AST::VARIABLE_NAME,
-	AST::Visitor
->
-{
-};
-
-class HIR_read_fresh_suffix_counter : public Read_fresh_suffix_counter
-<
-	HIR::VARIABLE_NAME,
-	HIR::Visitor
->
-{
-};
-
-class MIR_read_fresh_suffix_counter : public Read_fresh_suffix_counter
-<
-	MIR::VARIABLE_NAME,
-	MIR::Visitor
->
-{
+   void pre_variable_name (HIR::VARIABLE_NAME* in) 
+	{
+		unfresh_vars.insert (*in->value);
+	}
+   void pre_variable_name (MIR::VARIABLE_NAME* in) 
+	{
+		unfresh_vars.insert (*in->value);
+	}
 };
 
 #endif // PHC_FRESH_H

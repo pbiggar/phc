@@ -11,6 +11,8 @@
 #include "MIR_visitor.h"
 #include "process_ast/AST_unparser.h"
 
+class MIR_to_AST;
+
 class MIR_unparser : public virtual PHP_unparser, public virtual MIR::Visitor
 {
 	AST_unparser ast_unparser;
@@ -21,6 +23,7 @@ public:
 
 	void unparse (IR::Node* in);
 
+	MIR_to_AST* folder;
 
 public:
 	void pre_foreign(MIR::FOREIGN* in);
@@ -34,6 +37,7 @@ public:
 	void children_foreach_get_val(MIR::Foreach_get_val* in);
 	void children_ht_iterator(MIR::HT_ITERATOR* in);
 	void children_variable_name (MIR::VARIABLE_NAME* in);
+	void children_param_is_ref (MIR::Param_is_ref* in);
 
 
 	void children_branch (MIR::Branch* in);

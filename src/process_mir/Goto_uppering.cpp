@@ -21,14 +21,14 @@ Goto_uppering::Goto_uppering ()
 
 /* We dont want to run this on all statement bodies in the traversal order.  So
  * we call it manually at the right times. */
-List<Statement*>*
-Goto_uppering::convert_statement_list (List<Statement*> *in)
+Statement_list*
+Goto_uppering::convert_statement_list (Statement_list *in)
 {
 	// The prelude contains all class and function declarations
-	List<Statement*> *prelude = new List<Statement*> ();
+	Statement_list *prelude = new Statement_list;
 
 	// OUT only contains the while, and the "start" statement.
-	List<Statement*> *out = new List<Statement*> ();
+	Statement_list *out = new Statement_list;
 
 
 	// $next = "start";
@@ -37,7 +37,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	).finish (next);
 
 	// switch ($next)
-	List<AST::Switch_case*> *cases = new List<AST::Switch_case*> ();
+	AST::Switch_case_list *cases = new AST::Switch_case_list;
 	AST::Switch *switches = 
 		new AST::Switch (
 			ast_next->clone (),
@@ -48,7 +48,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	out->push_back (new FOREIGN (
 		new AST::While (
 			new AST::BOOL (true),
-			new List<AST::Statement*> (
+			new AST::Statement_list (
 				switches))));
 
 
@@ -56,7 +56,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	AST::Switch_case* current = 
 		new AST::Switch_case (
 			new AST::STRING (s("start")),
-			new List<AST::Statement*> ());
+			new AST::Statement_list);
 
 	cases->push_back (current);
 
@@ -102,7 +102,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 			// case "l1":
 			current = new AST::Switch_case (
 				new AST::STRING (l1->value->value), 
-				new List<AST::Statement*> ());
+				new AST::Statement_list);
 
 			cases->push_back (current);
 		}
@@ -123,7 +123,7 @@ Goto_uppering::convert_statement_list (List<Statement*> *in)
 	// add the breaking statement
 	current = new AST::Switch_case (
 			new AST::STRING (s("end")),
-			new List<AST::Statement*> ());
+			new AST::Statement_list);
 	cases->push_back (current);
 
 	(*current->statements

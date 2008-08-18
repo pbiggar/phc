@@ -40,7 +40,7 @@ using namespace MIR;
 // Label supported features
 void phc_unsupported (Node* node)
 {
-	cerr << "This context does not yet support this feature:" << endl;
+	cerr << "Could not generate code:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
 	node->visit (new MIR_XML_unparser (cerr));
 	exit (-1);
@@ -314,35 +314,31 @@ void index_lhs (Scope scope, string zvp, Expr* expr)
 
 
 /* Generate code to read the variable named in VAR to the zval* ZVP */
-void read (Scope scope, string zvp, Variable_name* var_name)
+void read_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
 {
-	if(isa<VARIABLE_NAME> (var_name))
-	{
-		stringstream ss;
-		ss << zvp << "var";
-		string name = ss.str ();
-		read_rvalue (scope, name, dyc<VARIABLE_NAME> (var_name));
-		// the same as read_rvalue, but doesnt declare
-		code 
-			<< "// Read normal variable\n"
-			<< zvp << " = &" << name << ";\n"; 
-	}
-	else
-	{
-		// Variable variable.
-		Variable_variable* var_var = dyc<Variable_variable>(var_name);
+	stringstream ss;
+	ss << zvp << "var";
+	string name = ss.str ();
+	read_rvalue (scope, name, var_name);
 
-		code << "// Read variable variable\n";
+	// the same as read_rvalue, but doesnt declare
+	code 
+		<< "// Read normal variable\n"
+		<< zvp << " = &" << name << ";\n"; 
+}
 
-		read_rvalue (scope, "var_var", var_var->variable_name);
+void read_var_var (Scope scope, string zvp, Variable_variable* var_var)
+{
+	code << "// Read variable variable\n";
 
-		code
-			<< zvp << " = read_var_var (" 
-			<<		get_scope (scope) << ", "
-			<<		"var_var "
-			<<		" TSRMLS_CC);\n"
-			;
-	}
+	read_rvalue (scope, "var_var", var_var->variable_name);
+
+	code
+		<< zvp << " = read_var_var (" 
+		<<		get_scope (scope) << ", "
+		<<		"var_var "
+		<<		" TSRMLS_CC);\n"
+		;
 }
 
 void read_array_index (Scope scope, string zvp, Index_array* ia)
@@ -565,7 +561,7 @@ protected:
 
 		// debug_argument_stack();
 
-		List<Formal_parameter*>* parameters = signature->formal_parameters;
+		Formal_parameter_list* parameters = signature->formal_parameters;
 		if(parameters && parameters->size() > 0)
 		{
 			code 
@@ -578,7 +574,7 @@ protected:
 			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
-			List<Formal_parameter*>::const_iterator i;
+			Formal_parameter_list::const_iterator i;
 			int index;	
 			for(i = parameters->begin(), index = 0;
 				i != parameters->end();
@@ -916,7 +912,7 @@ void push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 		code 
 			<< "zval* temp = NULL;\n"
 			<< "p_rhs = &temp;\n";
-		read (LOCAL, "p_rhs", rhs);
+		read_var (LOCAL, "p_rhs", rhs);
 		code 
 			<< "if (*p_lhs != *p_rhs)\n"
 			<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
@@ -1017,7 +1013,7 @@ stringstream initializations;
 stringstream finalizations;
 
 template<class T, class K>
-class Pattern_assign_literal : public Pattern_assign_zval 
+class Pattern_assign_literal : public Pattern_assign_zval
 {
 public:
 	Expr* rhs_pattern()
@@ -1190,7 +1186,7 @@ public:
 			code 
 				<< "zval* temp = NULL;\n"
 				<< "p_rhs = &temp;\n";
-			read (LOCAL, "p_rhs", rhs->value);
+			read_var (LOCAL, "p_rhs", rhs->value);
 			code 
 				<< "if (*p_lhs != *p_rhs)\n"
 				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
@@ -1211,6 +1207,46 @@ public:
 protected:
 	Wildcard<VARIABLE_NAME>* rhs;
 };
+
+class Pattern_assign_var_var_to_var  : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Variable_variable>;
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		if (!agn->is_ref)
+		{
+			declare ("p_rhs");
+			code 
+				<< "zval* temp = NULL;\n"
+				<< "p_rhs = &temp;\n";
+			read_var_var (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "if (*p_lhs != *p_rhs)\n"
+				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+			cleanup ("p_rhs");
+		}
+		else
+		{
+			index_lhs (LOCAL, "p_rhs", rhs->value);
+			code 
+				<< "sep_copy_on_write_ex (p_rhs);\n"
+				<< "(*p_rhs)->is_ref = 1;\n"
+				<< "(*p_rhs)->refcount++;\n"
+				<< "zval_ptr_dtor (p_lhs);\n"
+				<< "*p_lhs = *p_rhs;\n";
+		}
+	}
+
+protected:
+	Wildcard<Variable_variable>* rhs;
+};
+
 
 class Pattern_assign_array_index_to_var : public Pattern_assign_var
 {
@@ -1251,6 +1287,81 @@ protected:
 	Wildcard<Index_array>* rhs;
 };
 
+class Pattern_assign_param_is_ref : public Pattern_assign_var
+{
+public:
+	Expr* rhs_pattern()
+	{
+		rhs = new Wildcard<Param_is_ref>;
+		return rhs;
+	}
+
+	void generate_rhs ()
+	{
+		assert (!agn->is_ref);
+		String* name = dyc<METHOD_NAME> (rhs->value->method_name)->value;
+		int index = rhs->value->param_index->value;
+
+		code
+			// lookup the function and cache it for next time
+			<< "// Call the function\n"
+			<< "static zend_fcall_info fci;\n"
+			<< "static zend_fcall_info_cache fcic = {0,NULL,NULL,NULL};\n"
+			<< "if (!fcic.initialized)\n"
+			<< "{\n"
+			<<		"zval function_name;\n"
+			<<		"INIT_PZVAL(&function_name);\n"
+			<<		"ZVAL_STRING(&function_name, "
+			<<			"\"" << *name << "\", "
+			<<			"0);\n"
+
+			<<		"int result = zend_fcall_info_init (&function_name, &fci, &fcic TSRMLS_CC);\n"
+			<< 	"if (result == FAILURE) // check for missing function\n"
+			<< 	"{\n"
+			<<			"phc_setup_error (1, \"" 
+			<< 			*rhs->get_filename () << "\", " 
+			<< 			rhs->get_line_number () << ", "
+			<<				"NULL TSRMLS_CC);\n"
+						// die
+			<<			"php_error_docref (NULL TSRMLS_CC, E_ERROR, "
+			<<				"\"Call to undefined function %s()\", \"" 
+			<< 			*name << "\");\n"
+			<< 	"}\n"
+			<< "}\n"
+
+			<< "zend_function* signature = fcic.function_handler;\n"
+			<< "zend_arg_info* arg_info = signature->common.arg_info;\n"
+			<< "int count = 0;\n"
+			<< "while (arg_info && count < " << index << ")\n"
+			<< "{\n"
+			<<		"count++;\n"
+			<<		"arg_info++;\n"
+			<< "}\n";
+
+		// TODO this could be locally allocated
+		declare ("p_rhs");
+		code
+			<< "p_rhs = p_lhs;\n"
+			<< "zvp_clone (p_rhs, &is_p_rhs_new);\n"
+			<< "if (count == " << index << ")\n"
+			<< "{\n"
+			<<		"ZVAL_BOOL (*p_rhs, arg_info->pass_by_reference);\n"
+			<< "}\n"
+			<< "else\n"
+			<< "{\n"
+			<<		"ZVAL_BOOL (*p_rhs, signature->common.pass_rest_by_reference);\n"
+			<< "}\n"
+			<<	"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+
+		cleanup ("p_rhs");
+
+	}
+
+protected:
+	Wildcard<Param_is_ref>* rhs;
+};
+
+
 class Pattern_cast : public Pattern_assign_var
 {
 public:
@@ -1273,7 +1384,7 @@ public:
 			code 
 				<< "zval* temp = NULL;\n"
 				<< "p_rhs = &temp;\n";
-			read (LOCAL, "p_rhs", rhs->value);
+			read_var (LOCAL, "p_rhs", rhs->value);
 			code 
 				<< "if (*p_lhs != *p_rhs)\n"
 				<<		"write_var (p_lhs, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
@@ -1418,24 +1529,19 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 {
 	Expr* rhs_pattern()
 	{
-		eval_arg = new Wildcard<Variable_actual_parameter>;
+		eval_arg = new Wildcard<Actual_parameter>;
 		return new Method_invocation(
 			NULL,	
-			new METHOD_NAME( new String("eval")),
-			new List<Actual_parameter*>(eval_arg
-				)
-			);
+			new METHOD_NAME(new String("eval")),
+			new Actual_parameter_list(eval_arg));
 	}
 
 	// TODO this is untidy, and slower than it should be. Not a
 	// priority.
 	void generate_rhs ()
 	{
-		if (eval_arg->value->target) phc_unsupported (eval_arg->value);
-		if (eval_arg->value->array_indices->size ()) phc_unsupported (eval_arg->value);
-
 		code << "{\n";
-		read_rvalue (LOCAL, "eval_arg", dyc<VARIABLE_NAME> (eval_arg->value->variable_name));
+		read_rvalue (LOCAL, "eval_arg", eval_arg->value->rvalue);
 
 		if (lhs)
 		{
@@ -1470,7 +1576,7 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 	}
 
 protected:
-	Wildcard<Variable_actual_parameter>* eval_arg;
+	Wildcard<Actual_parameter>* eval_arg;
 };
 
 // TODO exit/die/unset etc are probably not by reference. I can probably shred
@@ -1484,21 +1590,19 @@ public:
 public:
 	Expr* rhs_pattern ()
 	{
-		exit_arg = new Wildcard<Variable_actual_parameter> ();
+		exit_arg = new Wildcard<Actual_parameter> ();
 		return new Method_invocation(
 						NULL,	
 						name,
-						new List<Actual_parameter*>(exit_arg)
+						new Actual_parameter_list(exit_arg)
 						);
 	}
 
 	void generate_rhs ()
 	{
 		code << "{\n";
-		if (exit_arg->value->target) phc_unsupported (exit_arg->value);
-		if (exit_arg->value->array_indices->size ()) phc_unsupported (exit_arg->value);
 
-		read_rvalue (LOCAL, "arg", dyc<VARIABLE_NAME> (exit_arg->value->variable_name));
+		read_rvalue (LOCAL, "arg", exit_arg->value->rvalue);
 
 		// Fetch the parameter
 		code
@@ -1509,7 +1613,7 @@ public:
 	}
 
 protected:
-	Wildcard<Variable_actual_parameter>* exit_arg;
+	Wildcard<Actual_parameter>* exit_arg;
 	METHOD_NAME* name;
 };
 
@@ -1531,7 +1635,7 @@ public:
 
 	void generate_rhs ()
 	{
-		List<Actual_parameter*>::const_iterator i;
+		Actual_parameter_list::const_iterator i;
 		unsigned index;
 		
 		// code << "debug_hash(EG(active_symbol_table));\n";
@@ -1593,7 +1697,7 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
+			Actual_parameter* param = dyc<Actual_parameter> (*i);
 			// code << "printf(\"argument '%s' \", arg_info ? arg_info->name : \"(unknown)\");\n";
 			
 			code
@@ -1629,87 +1733,32 @@ public:
 			i != rhs->value->actual_parameters->end(); 
 			i++, index++)
 		{
-			Variable_actual_parameter* param = dyc<Variable_actual_parameter> (*i);
-			if (param->target) phc_unsupported (param);
-
-			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>(param->variable_name);
+			VARIABLE_NAME* var_name = dyc<VARIABLE_NAME>((*i)->rvalue);
 
 			code << "destruct[" << index << "] = 0;\n";
-			/* If we need a point that goes straight into the
-			 * hashtable, which we do for pass-by-ref, then we return a
-			 * zval**, straight into args_ind. Otherwise we return a
-			 * zval*, put it in args, and fetch it into args_ind after.
-			 * (It is difficult to return a zval** which doesnt point
-			 * into its containing hashtable, otherwise. */
-			if (param->array_indices->size ())
-			{
-				// TODO: variables are allowed have more than 1 index
-				// (so long as the indexes are all temporaries). We do
-				// not know whether to shred the variables using
-				// references or not, since we do not know until
-				// run-time whether the function is call-by-reference or
-				// not.
-				if (param->array_indices->size () > 1) phc_unsupported (param);
-				Rvalue* ind = param->array_indices->front ();
+			code 
+				<< "if (by_ref [" << index << "])\n"
+				<< "{\n";
+			;
+			read_st (LOCAL, "p_arg", var_name);
+			code
+				<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
+				<<				"p_arg);\n"
+				<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
+				<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
+				<< "}\n"
+				<< "else\n"
+				<< "{\n";
 
-				code
-					<< "if (by_ref [" << index << "])\n"
-					<< "{\n";
+			read_rvalue (LOCAL, "arg", var_name);
 
-				read_st (LOCAL, "arg", var_name);
-				read_rvalue (LOCAL, "ind", ind);
-
-				code
-					<< "	args_ind[" << index << "] = fetch_array_arg_by_ref ("
-					<<				"arg, "
-					<<				"ind, "
-					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
-					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-					<< "}\n"
-					<< "else\n"
-					<< "{\n";
-
-				read_rvalue (LOCAL, "arg", var_name);
-				read_rvalue (LOCAL, "ind", ind);
-
-				code
-					<< "  args[" << index << "] = fetch_array_arg ("
-					<<				"arg, "
-					<<				"ind, "
-					<<				"&destruct[" << index << "] TSRMLS_CC);\n"
-					<< " args_ind[" << index << "] = &args[" << index << "];\n"
-					<< "}\n"
-					;
-			}
-			else
-			{
-
-				code 
-					<< "if (by_ref [" << index << "])\n"
-					<< "{\n";
-;
-				read_st (LOCAL, "p_arg", var_name);
-				code
-					<< "	args_ind[" << index << "] = fetch_var_arg_by_ref ("
-					<<				"p_arg);\n"
-					<< "	assert (!in_copy_on_write (*args_ind[" << index << "]));\n"
-					<<	"  args[" << index << "] = *args_ind[" << index << "];\n"
-					<< "}\n"
-					<< "else\n"
-					<< "{\n";
-
-				read_rvalue (LOCAL, "arg", var_name);
-
-				code
-					<< "  args[" << index << "] = fetch_var_arg ("
-					<<				"arg, "
-					<<				"&destruct[" << index << "]);\n"
-					<< " args_ind[" << index << "] = &args[" << index << "];\n"
-					<< "}\n"
-					;
-
-			}
+			code
+				<< "  args[" << index << "] = fetch_var_arg ("
+				<<				"arg, "
+				<<				"&destruct[" << index << "]);\n"
+				<< " args_ind[" << index << "] = &args[" << index << "];\n"
+				<< "}\n"
+				;
 		}
 
 		code
@@ -1998,23 +2047,19 @@ class Pattern_unset : public Pattern
 {
 	bool match(Statement* that)
 	{
-		param = new Wildcard<Variable_actual_parameter>;
-		return that->match(
-			new Eval_expr (
-				new Method_invocation(
-					"unset",
-					param)));
+		unset = new Wildcard<Unset>;
+		return that->match(unset);
 	}
 
 	void generate_code(Generate_C* gen)
 	{
 		code << "{\n";
 
-		VARIABLE_NAME* var_name = dynamic_cast <VARIABLE_NAME*> (param->value->variable_name);
+		VARIABLE_NAME* var_name = dynamic_cast <VARIABLE_NAME*> (unset->value->variable_name);
 
 		if (var_name != NULL)
 		{
-			if (param->value->array_indices->size() == 0)
+			if (unset->value->array_indices->size() == 0)
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
@@ -2040,8 +2085,8 @@ class Pattern_unset : public Pattern
 			}
 			else 
 			{
-				assert(param->value->array_indices->size() == 1);
-				Rvalue* index = (param->value->array_indices->front());
+				assert(unset->value->array_indices->size() == 1);
+				Rvalue* index = (unset->value->array_indices->front());
 				read_st (LOCAL, "u_array", var_name);
 				read_rvalue (LOCAL, "u_index", index);
 
@@ -2055,33 +2100,32 @@ class Pattern_unset : public Pattern
 		else
 		{
 			// Variable variable
-			// TODO
-			phc_unsupported (param);
+			phc_unsupported (unset);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<Variable_actual_parameter>* param;
+	Wildcard<Unset>* unset;
 };
 
 class Pattern_isset : public Pattern_assign_zval
 {
 	Expr* rhs_pattern()
 	{
-		param = new Wildcard<Variable_actual_parameter>;
-		return new Method_invocation("isset", param);
+		isset = new Wildcard<Isset>;
+		return isset;
 	}
 
 	void initialize(ostream& code, string lhs)
 	{
 		code << "{\n";
 
-		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (param->value->variable_name);
+		VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (isset->value->variable_name);
 
 		if (var_name)
 		{
-			if (param->value->array_indices->size() == 0)
+			if (isset->value->array_indices->size() == 0)
 			{
 				if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
@@ -2104,8 +2148,8 @@ class Pattern_isset : public Pattern_assign_zval
 			else 
 			{
 				// TODO this can have > 1 array_index
-				assert(param->value->array_indices->size() == 1);
-				Rvalue* index = param->value->array_indices->front();
+				assert(isset->value->array_indices->size() == 1);
+				Rvalue* index = isset->value->array_indices->front();
 				read_st (LOCAL, "u_array", var_name);
 				read_rvalue (LOCAL, "u_index", index);
 
@@ -2121,13 +2165,13 @@ class Pattern_isset : public Pattern_assign_zval
 		{
 			// Variable variable
 			// TODO
-			phc_unsupported (param);
+			phc_unsupported (isset);
 		}
 		code << "}\n";
 	}
 
 protected:
-	Wildcard<Variable_actual_parameter>* param;
+	Wildcard<Isset>* isset;
 };
 
 /*
@@ -2348,10 +2392,10 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_constant ()
 	,	new Pattern_assign_var_to_var ()
 	,	new Pattern_assign_array_index_to_var ()
-//	,	new Pattern_assign_var_var () TODO
+	,	new Pattern_assign_var_var_to_var () // TODO renaming
+	,	new Pattern_assign_param_is_ref ()
 	,	new Pattern_assign_array ()
 	,	new Pattern_push_array ()
-//	,	new Pattern_eval_expr () TODO
 	,	new Pattern_global()
 	,	new Pattern_eval()
 	,	new Pattern_exit()
@@ -2388,10 +2432,7 @@ void Generate_C::children_statement(Statement* in)
 
 	if(not matched)
 	{
-		cerr << "could not generate code for " << demangle(in, true) << endl;
-		in->visit (new MIR_unparser (cout, true));
-		in->visit (new MIR_XML_unparser (cout));
-		abort();
+		phc_unsupported (in);
 	}
 }
 
@@ -2432,32 +2473,26 @@ void Generate_C::pre_php_script(PHP_script* in)
 
 void Generate_C::post_php_script(PHP_script* in)
 {
-	List<Signature*>::const_iterator i;
-
 	code << "// ArgInfo structures (necessary to support compile time pass-by-reference)\n";
-	for(i = methods->begin(); i != methods->end(); i++)
+	foreach (Signature* s, *methods)
 	{
-		String* name = (*i)->method_name->value;
+		String* name = s->method_name->value;
 
 		// TODO: pass by reference only works for PHP>5.1.0. Do we care?
 		code 
 		<< "ZEND_BEGIN_ARG_INFO_EX(" << *name << "_arg_info, 0, "
-		<< ((*i)->is_ref ? "1" : "0")
+		<< (s->is_ref ? "1" : "0")
 		<< ", 0)\n"
 		;
 
 		// TODO: deal with type hinting
 
-		List<Formal_parameter*>::const_iterator j;
-		for(
-			j = (*i)->formal_parameters->begin();
-			j != (*i)->formal_parameters->end();
-			j++)
+		foreach (Formal_parameter* fp, *s->formal_parameters)
 		{
 			code 
 			<< "ZEND_ARG_INFO("
-			<< ((*j)->is_ref ? "1" : "0")
-			<< ", \"" << *(*j)->var->variable_name->value << "\")\n"; 
+			<< (fp->is_ref ? "1" : "0")
+			<< ", \"" << *fp->var->variable_name->value << "\")\n"; 
 		}
 
 		code << "ZEND_END_ARG_INFO()\n";
@@ -2467,9 +2502,10 @@ void Generate_C::post_php_script(PHP_script* in)
 		<< "// Register all functions with PHP\n"
 		<< "static function_entry " << *extension_name << "_functions[] = {\n"
 		;
-	for(i = methods->begin(); i != methods->end(); i++)
+
+	foreach (Signature* s, *methods)
 	{
-		String* name = (*i)->method_name->value;
+		String* name = s->method_name->value;
 		code << "PHP_FE(" << *name << ", " << *name << "_arg_info)\n";
 	}
 
@@ -2588,7 +2624,7 @@ void Generate_C::post_php_script(PHP_script* in)
 
 Generate_C::Generate_C(ostream& os) : os (os)
 {
-	methods = new List<Signature*>;
+	methods = new Signature_list;
 	name = new String ("generate-c");
 	description = new String ("Generate C code from the MIR");
 }

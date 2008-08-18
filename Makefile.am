@@ -128,6 +128,8 @@ libphc_la_SOURCES= 											\
 	src/hir_to_mir/HIR_to_MIR.h							\
 	src/hir_to_mir/Lower_control_flow.cpp				\
 	src/hir_to_mir/Lower_control_flow.h					\
+	src/hir_to_mir/Lower_method_invocations.cpp		\
+	src/hir_to_mir/Lower_method_invocations.h			\
 	src/lib/AttrMap.cpp										\
 	src/lib/AttrMap.h											\
 	src/lib/base64.cpp										\
@@ -227,6 +229,8 @@ libphc_la_SOURCES= 											\
 	src/process_mir/Main_uppering.h						\
 	src/process_mir/MIR_to_AST.h							\
 	src/process_mir/MIR_unparser.cpp						\
+	src/process_mir/Param_is_ref_uppering.cpp			\
+	src/process_mir/Param_is_ref_uppering.h			\
 	src/process_mir/MIR_unparser.h						\
 	src/process_mir/Obfuscate.h
 
@@ -276,15 +280,18 @@ BUILT_SOURCES = 												\
 strangephcdir = $(pkgincludedir)
 strangephc_HEADERS =							\
 	config.h										\
+	src/generated/AST_factory.h			\
 	src/generated/AST_fold.h				\
 	src/generated/AST.h						\
 	src/generated/AST_transform.h			\
 	src/generated/AST_visitor.h			\
 	src/generated/cmdline.h					\
+	src/generated/HIR_factory.h			\
 	src/generated/HIR_fold.h				\
 	src/generated/HIR.h						\
 	src/generated/HIR_transform.h			\
 	src/generated/HIR_visitor.h			\
+	src/generated/MIR_factory.h			\
 	src/generated/MIR_fold.h				\
 	src/generated/MIR.h						\
 	src/generated/MIR_transform.h			\
@@ -293,12 +300,14 @@ strangephc_HEADERS =							\
 strangeparsingdir = $(pkgincludedir)/parsing
 strangeparsing_HEADERS =					\
 	src/parsing/parse.h						\
+	src/parsing/Parse_buffer.h				\
 	src/parsing/XML_parser.h
 
 strangeprocessastdir = $(pkgincludedir)/process_ast
 strangeprocessast_HEADERS =					\
 	src/process_ast/AST_unparser.h			\
-	src/process_ast/DOT_unparser.h
+	src/process_ast/DOT_unparser.h			\
+	src/process_ast/Pretty_print.h
 
 strangeprocesshirdir = $(pkgincludedir)/process_hir
 strangeprocesshir_HEADERS =					\

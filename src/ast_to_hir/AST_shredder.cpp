@@ -91,7 +91,7 @@ Variable* Shredder::post_variable(Variable* in)
 			new Variable (
 				in->target,
 				in->variable_name->clone(),
-				new List<Expr*>()
+				new Expr_list
 			))));
 		prev = temp;
 		num_pieces--;
@@ -109,7 +109,7 @@ Variable* Shredder::post_variable(Variable* in)
 			new Variable (
 				NULL, 
 				prev->variable_name->clone(), 
-				new List<Expr*>(in->array_indices->front()->clone ())))));
+				new Expr_list(in->array_indices->front()->clone ())))));
 		prev = temp;
 		num_pieces--;
 
@@ -264,22 +264,22 @@ Expr* Shredder::post_array(Array* in)
 
 	// We need to cast it in case its empty
 	pieces->push_back(
-		new Eval_expr (new Assignment (
-									var->clone (), 
-									false, 
-									new Cast(
-										"array", 
-										new String ("array"), 
-										var->clone ()))));
-	
+		new Eval_expr (
+			new Assignment (
+				var->clone (), 
+				false, 
+				new Cast(
+					"array", 
+					new String ("array"), 
+					var->clone ()))));
 
-	List<Array_elem*>::const_iterator i;
-	for(i = in->array_elems->begin(); i != in->array_elems->end(); i++)
+
+	foreach (Array_elem* ae, *in->array_elems)
 	{
 		Expr* key;
 
-		if((*i)->key != NULL)
-			key = (*i)->key;
+		if(ae->key != NULL)
+			key = ae->key;
 		else
 			key = NULL;
 
@@ -289,9 +289,9 @@ Expr* Shredder::post_array(Array* in)
 					new Variable (
 						NULL,
 						var->variable_name->clone(),
-						new List<Expr*>(key)),
-					(*i)->is_ref,
-					(*i)->val)));
+						new Expr_list (key)),
+					ae->is_ref,
+					ae->val)));
 	}
 
 	return new Variable (var->variable_name->clone ());

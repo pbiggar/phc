@@ -56,6 +56,8 @@ public:
 	// line numbers.
 	String* get_filename();
 
+	virtual Node* clone () = 0;
+
 	// If the location isnt already there, copy it from another node.
 	void copy_location (Node* source);
 

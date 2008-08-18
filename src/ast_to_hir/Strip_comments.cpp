@@ -11,5 +11,5 @@ using namespace AST;
 
 void Strip_comments::pre_commented_node(Commented_node* in)
 {
-	in->attrs->set ("phc.comments", new List<String*> ());
+	in->attrs->set ("phc.comments", new String_list);
 }

@@ -11,7 +11,7 @@ PHP_script* Transform::pre_php_script(PHP_script* in)
     return in;
 }
 
-void Transform::pre_class_def(Class_def* in, List<Statement*>* out)
+void Transform::pre_class_def(Class_def* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -21,12 +21,12 @@ Class_mod* Transform::pre_class_mod(Class_mod* in)
     return in;
 }
 
-void Transform::pre_interface_def(Interface_def* in, List<Statement*>* out)
+void Transform::pre_interface_def(Interface_def* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_method(Method* in, List<Method*>* out)
+void Transform::pre_method(Method* in, Method_list* out)
 {
     out->push_back(in);
 }
@@ -41,7 +41,7 @@ Method_mod* Transform::pre_method_mod(Method_mod* in)
     return in;
 }
 
-void Transform::pre_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
+void Transform::pre_formal_parameter(Formal_parameter* in, Formal_parameter_list* out)
 {
     out->push_back(in);
 }
@@ -51,7 +51,7 @@ Type* Transform::pre_type(Type* in)
     return in;
 }
 
-void Transform::pre_attribute(Attribute* in, List<Member*>* out)
+void Transform::pre_attribute(Attribute* in, Member_list* out)
 {
     out->push_back(in);
 }
@@ -66,97 +66,97 @@ Name_with_default* Transform::pre_name_with_default(Name_with_default* in)
     return in;
 }
 
-void Transform::pre_if(If* in, List<Statement*>* out)
+void Transform::pre_if(If* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_while(While* in, List<Statement*>* out)
+void Transform::pre_while(While* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_do(Do* in, List<Statement*>* out)
+void Transform::pre_do(Do* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_for(For* in, List<Statement*>* out)
+void Transform::pre_for(For* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_foreach(Foreach* in, List<Statement*>* out)
+void Transform::pre_foreach(Foreach* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_switch(Switch* in, List<Statement*>* out)
+void Transform::pre_switch(Switch* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_switch_case(Switch_case* in, List<Switch_case*>* out)
+void Transform::pre_switch_case(Switch_case* in, Switch_case_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_break(Break* in, List<Statement*>* out)
+void Transform::pre_break(Break* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_continue(Continue* in, List<Statement*>* out)
+void Transform::pre_continue(Continue* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_return(Return* in, List<Statement*>* out)
+void Transform::pre_return(Return* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_static_declaration(Static_declaration* in, List<Statement*>* out)
+void Transform::pre_static_declaration(Static_declaration* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_global(Global* in, List<Statement*>* out)
+void Transform::pre_global(Global* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_declare(Declare* in, List<Statement*>* out)
+void Transform::pre_declare(Declare* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_directive(Directive* in, List<Directive*>* out)
+void Transform::pre_directive(Directive* in, Directive_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_try(Try* in, List<Statement*>* out)
+void Transform::pre_try(Try* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_catch(Catch* in, List<Catch*>* out)
+void Transform::pre_catch(Catch* in, Catch_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_throw(Throw* in, List<Statement*>* out)
+void Transform::pre_throw(Throw* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Transform::pre_eval_expr(Eval_expr* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::pre_nop(Nop* in, List<Statement*>* out)
+void Transform::pre_nop(Nop* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -176,7 +176,7 @@ Expr* Transform::pre_list_assignment(List_assignment* in)
     return in;
 }
 
-void Transform::pre_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
+void Transform::pre_nested_list_elements(Nested_list_elements* in, List_element_list* out)
 {
     out->push_back(in);
 }
@@ -241,7 +241,7 @@ Expr* Transform::pre_array(Array* in)
     return in;
 }
 
-void Transform::pre_array_elem(Array_elem* in, List<Array_elem*>* out)
+void Transform::pre_array_elem(Array_elem* in, Array_elem_list* out)
 {
     out->push_back(in);
 }
@@ -251,7 +251,7 @@ Expr* Transform::pre_method_invocation(Method_invocation* in)
     return in;
 }
 
-void Transform::pre_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
 {
     out->push_back(in);
 }
@@ -337,7 +337,7 @@ PHP_script* Transform::post_php_script(PHP_script* in)
     return in;
 }
 
-void Transform::post_class_def(Class_def* in, List<Statement*>* out)
+void Transform::post_class_def(Class_def* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -347,12 +347,12 @@ Class_mod* Transform::post_class_mod(Class_mod* in)
     return in;
 }
 
-void Transform::post_interface_def(Interface_def* in, List<Statement*>* out)
+void Transform::post_interface_def(Interface_def* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_method(Method* in, List<Method*>* out)
+void Transform::post_method(Method* in, Method_list* out)
 {
     out->push_back(in);
 }
@@ -367,7 +367,7 @@ Method_mod* Transform::post_method_mod(Method_mod* in)
     return in;
 }
 
-void Transform::post_formal_parameter(Formal_parameter* in, List<Formal_parameter*>* out)
+void Transform::post_formal_parameter(Formal_parameter* in, Formal_parameter_list* out)
 {
     out->push_back(in);
 }
@@ -377,7 +377,7 @@ Type* Transform::post_type(Type* in)
     return in;
 }
 
-void Transform::post_attribute(Attribute* in, List<Member*>* out)
+void Transform::post_attribute(Attribute* in, Member_list* out)
 {
     out->push_back(in);
 }
@@ -392,97 +392,97 @@ Name_with_default* Transform::post_name_with_default(Name_with_default* in)
     return in;
 }
 
-void Transform::post_if(If* in, List<Statement*>* out)
+void Transform::post_if(If* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_while(While* in, List<Statement*>* out)
+void Transform::post_while(While* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_do(Do* in, List<Statement*>* out)
+void Transform::post_do(Do* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_for(For* in, List<Statement*>* out)
+void Transform::post_for(For* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_foreach(Foreach* in, List<Statement*>* out)
+void Transform::post_foreach(Foreach* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_switch(Switch* in, List<Statement*>* out)
+void Transform::post_switch(Switch* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_switch_case(Switch_case* in, List<Switch_case*>* out)
+void Transform::post_switch_case(Switch_case* in, Switch_case_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_break(Break* in, List<Statement*>* out)
+void Transform::post_break(Break* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_continue(Continue* in, List<Statement*>* out)
+void Transform::post_continue(Continue* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_return(Return* in, List<Statement*>* out)
+void Transform::post_return(Return* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_static_declaration(Static_declaration* in, List<Statement*>* out)
+void Transform::post_static_declaration(Static_declaration* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_global(Global* in, List<Statement*>* out)
+void Transform::post_global(Global* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_declare(Declare* in, List<Statement*>* out)
+void Transform::post_declare(Declare* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_directive(Directive* in, List<Directive*>* out)
+void Transform::post_directive(Directive* in, Directive_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_try(Try* in, List<Statement*>* out)
+void Transform::post_try(Try* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_catch(Catch* in, List<Catch*>* out)
+void Transform::post_catch(Catch* in, Catch_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_throw(Throw* in, List<Statement*>* out)
+void Transform::post_throw(Throw* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_eval_expr(Eval_expr* in, List<Statement*>* out)
+void Transform::post_eval_expr(Eval_expr* in, Statement_list* out)
 {
     out->push_back(in);
 }
 
-void Transform::post_nop(Nop* in, List<Statement*>* out)
+void Transform::post_nop(Nop* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -502,7 +502,7 @@ Expr* Transform::post_list_assignment(List_assignment* in)
     return in;
 }
 
-void Transform::post_nested_list_elements(Nested_list_elements* in, List<List_element*>* out)
+void Transform::post_nested_list_elements(Nested_list_elements* in, List_element_list* out)
 {
     out->push_back(in);
 }
@@ -567,7 +567,7 @@ Expr* Transform::post_array(Array* in)
     return in;
 }
 
-void Transform::post_array_elem(Array_elem* in, List<Array_elem*>* out)
+void Transform::post_array_elem(Array_elem* in, Array_elem_list* out)
 {
     out->push_back(in);
 }
@@ -577,7 +577,7 @@ Expr* Transform::post_method_invocation(Method_invocation* in)
     return in;
 }
 
-void Transform::post_actual_parameter(Actual_parameter* in, List<Actual_parameter*>* out)
+void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
 {
     out->push_back(in);
 }
@@ -1017,10 +1017,10 @@ void Transform::children_constant_name(CONSTANT_NAME* in)
 
 // Call the pre-transform, transform-children post-transform methods in order
 // Do not override unless you know what you are doing
-List<Statement*>* Transform::transform_statement_list(List<Statement*>* in)
+Statement_list* Transform::transform_statement_list(Statement_list* in)
 {
-    List<Statement*>::const_iterator i;
-    List<Statement*>* out = new List<Statement*>;
+    Statement_list::const_iterator i;
+    Statement_list* out = new Statement_list;
     
     if(in == NULL)
     	return NULL;
@@ -1033,11 +1033,11 @@ List<Statement*>* Transform::transform_statement_list(List<Statement*>* in)
     return out;
 }
 
-List<Statement*>* Transform::transform_statement(Statement* in)
+Statement_list* Transform::transform_statement(Statement* in)
 {
-    List<Statement*>::const_iterator i;
-    List<Statement*>* out1 = new List<Statement*>;
-    List<Statement*>* out2 = new List<Statement*>;
+    Statement_list::const_iterator i;
+    Statement_list* out1 = new Statement_list;
+    Statement_list* out2 = new Statement_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_statement(in, out1);
@@ -1086,10 +1086,10 @@ CLASS_NAME* Transform::transform_class_name(CLASS_NAME* in)
     return out;
 }
 
-List<INTERFACE_NAME*>* Transform::transform_interface_name_list(List<INTERFACE_NAME*>* in)
+INTERFACE_NAME_list* Transform::transform_interface_name_list(INTERFACE_NAME_list* in)
 {
-    List<INTERFACE_NAME*>::const_iterator i;
-    List<INTERFACE_NAME*>* out = new List<INTERFACE_NAME*>;
+    INTERFACE_NAME_list::const_iterator i;
+    INTERFACE_NAME_list* out = new INTERFACE_NAME_list;
     
     if(in == NULL)
     	return NULL;
@@ -1102,10 +1102,10 @@ List<INTERFACE_NAME*>* Transform::transform_interface_name_list(List<INTERFACE_N
     return out;
 }
 
-List<Member*>* Transform::transform_member_list(List<Member*>* in)
+Member_list* Transform::transform_member_list(Member_list* in)
 {
-    List<Member*>::const_iterator i;
-    List<Member*>* out = new List<Member*>;
+    Member_list::const_iterator i;
+    Member_list* out = new Member_list;
     
     if(in == NULL)
     	return NULL;
@@ -1118,11 +1118,11 @@ List<Member*>* Transform::transform_member_list(List<Member*>* in)
     return out;
 }
 
-List<Member*>* Transform::transform_member(Member* in)
+Member_list* Transform::transform_member(Member* in)
 {
-    List<Member*>::const_iterator i;
-    List<Member*>* out1 = new List<Member*>;
-    List<Member*>* out2 = new List<Member*>;
+    Member_list::const_iterator i;
+    Member_list* out1 = new Member_list;
+    Member_list* out2 = new Member_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_member(in, out1);
@@ -1203,10 +1203,10 @@ METHOD_NAME* Transform::transform_method_name(METHOD_NAME* in)
     return out;
 }
 
-List<Formal_parameter*>* Transform::transform_formal_parameter_list(List<Formal_parameter*>* in)
+Formal_parameter_list* Transform::transform_formal_parameter_list(Formal_parameter_list* in)
 {
-    List<Formal_parameter*>::const_iterator i;
-    List<Formal_parameter*>* out = new List<Formal_parameter*>;
+    Formal_parameter_list::const_iterator i;
+    Formal_parameter_list* out = new Formal_parameter_list;
     
     if(in == NULL)
     	return NULL;
@@ -1219,11 +1219,11 @@ List<Formal_parameter*>* Transform::transform_formal_parameter_list(List<Formal_
     return out;
 }
 
-List<Formal_parameter*>* Transform::transform_formal_parameter(Formal_parameter* in)
+Formal_parameter_list* Transform::transform_formal_parameter(Formal_parameter* in)
 {
-    List<Formal_parameter*>::const_iterator i;
-    List<Formal_parameter*>* out1 = new List<Formal_parameter*>;
-    List<Formal_parameter*>* out2 = new List<Formal_parameter*>;
+    Formal_parameter_list::const_iterator i;
+    Formal_parameter_list* out1 = new Formal_parameter_list;
+    Formal_parameter_list* out2 = new Formal_parameter_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_formal_parameter(in, out1);
@@ -1288,10 +1288,10 @@ Attr_mod* Transform::transform_attr_mod(Attr_mod* in)
     return out;
 }
 
-List<Name_with_default*>* Transform::transform_name_with_default_list(List<Name_with_default*>* in)
+Name_with_default_list* Transform::transform_name_with_default_list(Name_with_default_list* in)
 {
-    List<Name_with_default*>::const_iterator i;
-    List<Name_with_default*>* out = new List<Name_with_default*>;
+    Name_with_default_list::const_iterator i;
+    Name_with_default_list* out = new Name_with_default_list;
     
     if(in == NULL)
     	return NULL;
@@ -1352,10 +1352,10 @@ Variable* Transform::transform_variable(Variable* in)
     return out;
 }
 
-List<Switch_case*>* Transform::transform_switch_case_list(List<Switch_case*>* in)
+Switch_case_list* Transform::transform_switch_case_list(Switch_case_list* in)
 {
-    List<Switch_case*>::const_iterator i;
-    List<Switch_case*>* out = new List<Switch_case*>;
+    Switch_case_list::const_iterator i;
+    Switch_case_list* out = new Switch_case_list;
     
     if(in == NULL)
     	return NULL;
@@ -1368,11 +1368,11 @@ List<Switch_case*>* Transform::transform_switch_case_list(List<Switch_case*>* in
     return out;
 }
 
-List<Switch_case*>* Transform::transform_switch_case(Switch_case* in)
+Switch_case_list* Transform::transform_switch_case(Switch_case* in)
 {
-    List<Switch_case*>::const_iterator i;
-    List<Switch_case*>* out1 = new List<Switch_case*>;
-    List<Switch_case*>* out2 = new List<Switch_case*>;
+    Switch_case_list::const_iterator i;
+    Switch_case_list* out1 = new Switch_case_list;
+    Switch_case_list* out2 = new Switch_case_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_switch_case(in, out1);
@@ -1389,10 +1389,10 @@ List<Switch_case*>* Transform::transform_switch_case(Switch_case* in)
     return out2;
 }
 
-List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name*>* in)
+Variable_name_list* Transform::transform_variable_name_list(Variable_name_list* in)
 {
-    List<Variable_name*>::const_iterator i;
-    List<Variable_name*>* out = new List<Variable_name*>;
+    Variable_name_list::const_iterator i;
+    Variable_name_list* out = new Variable_name_list;
     
     if(in == NULL)
     	return NULL;
@@ -1405,10 +1405,10 @@ List<Variable_name*>* Transform::transform_variable_name_list(List<Variable_name
     return out;
 }
 
-List<Directive*>* Transform::transform_directive_list(List<Directive*>* in)
+Directive_list* Transform::transform_directive_list(Directive_list* in)
 {
-    List<Directive*>::const_iterator i;
-    List<Directive*>* out = new List<Directive*>;
+    Directive_list::const_iterator i;
+    Directive_list* out = new Directive_list;
     
     if(in == NULL)
     	return NULL;
@@ -1421,11 +1421,11 @@ List<Directive*>* Transform::transform_directive_list(List<Directive*>* in)
     return out;
 }
 
-List<Directive*>* Transform::transform_directive(Directive* in)
+Directive_list* Transform::transform_directive(Directive* in)
 {
-    List<Directive*>::const_iterator i;
-    List<Directive*>* out1 = new List<Directive*>;
-    List<Directive*>* out2 = new List<Directive*>;
+    Directive_list::const_iterator i;
+    Directive_list* out1 = new Directive_list;
+    Directive_list* out2 = new Directive_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_directive(in, out1);
@@ -1458,10 +1458,10 @@ DIRECTIVE_NAME* Transform::transform_directive_name(DIRECTIVE_NAME* in)
     return out;
 }
 
-List<Catch*>* Transform::transform_catch_list(List<Catch*>* in)
+Catch_list* Transform::transform_catch_list(Catch_list* in)
 {
-    List<Catch*>::const_iterator i;
-    List<Catch*>* out = new List<Catch*>;
+    Catch_list::const_iterator i;
+    Catch_list* out = new Catch_list;
     
     if(in == NULL)
     	return NULL;
@@ -1474,11 +1474,11 @@ List<Catch*>* Transform::transform_catch_list(List<Catch*>* in)
     return out;
 }
 
-List<Catch*>* Transform::transform_catch(Catch* in)
+Catch_list* Transform::transform_catch(Catch* in)
 {
-    List<Catch*>::const_iterator i;
-    List<Catch*>* out1 = new List<Catch*>;
-    List<Catch*>* out2 = new List<Catch*>;
+    Catch_list::const_iterator i;
+    Catch_list* out1 = new Catch_list;
+    Catch_list* out2 = new Catch_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_catch(in, out1);
@@ -1511,10 +1511,10 @@ OP* Transform::transform_op(OP* in)
     return out;
 }
 
-List<List_element*>* Transform::transform_list_element_list(List<List_element*>* in)
+List_element_list* Transform::transform_list_element_list(List_element_list* in)
 {
-    List<List_element*>::const_iterator i;
-    List<List_element*>* out = new List<List_element*>;
+    List_element_list::const_iterator i;
+    List_element_list* out = new List_element_list;
     
     if(in == NULL)
     	return NULL;
@@ -1527,11 +1527,11 @@ List<List_element*>* Transform::transform_list_element_list(List<List_element*>*
     return out;
 }
 
-List<List_element*>* Transform::transform_list_element(List_element* in)
+List_element_list* Transform::transform_list_element(List_element* in)
 {
-    List<List_element*>::const_iterator i;
-    List<List_element*>* out1 = new List<List_element*>;
-    List<List_element*>* out2 = new List<List_element*>;
+    List_element_list::const_iterator i;
+    List_element_list* out1 = new List_element_list;
+    List_element_list* out2 = new List_element_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_list_element(in, out1);
@@ -1628,10 +1628,10 @@ Variable_name* Transform::transform_variable_name(Variable_name* in)
     return out;
 }
 
-List<Expr*>* Transform::transform_expr_list(List<Expr*>* in)
+Expr_list* Transform::transform_expr_list(Expr_list* in)
 {
-    List<Expr*>::const_iterator i;
-    List<Expr*>* out = new List<Expr*>;
+    Expr_list::const_iterator i;
+    Expr_list* out = new Expr_list;
     
     if(in == NULL)
     	return NULL;
@@ -1644,10 +1644,10 @@ List<Expr*>* Transform::transform_expr_list(List<Expr*>* in)
     return out;
 }
 
-List<Array_elem*>* Transform::transform_array_elem_list(List<Array_elem*>* in)
+Array_elem_list* Transform::transform_array_elem_list(Array_elem_list* in)
 {
-    List<Array_elem*>::const_iterator i;
-    List<Array_elem*>* out = new List<Array_elem*>;
+    Array_elem_list::const_iterator i;
+    Array_elem_list* out = new Array_elem_list;
     
     if(in == NULL)
     	return NULL;
@@ -1660,11 +1660,11 @@ List<Array_elem*>* Transform::transform_array_elem_list(List<Array_elem*>* in)
     return out;
 }
 
-List<Array_elem*>* Transform::transform_array_elem(Array_elem* in)
+Array_elem_list* Transform::transform_array_elem(Array_elem* in)
 {
-    List<Array_elem*>::const_iterator i;
-    List<Array_elem*>* out1 = new List<Array_elem*>;
-    List<Array_elem*>* out2 = new List<Array_elem*>;
+    Array_elem_list::const_iterator i;
+    Array_elem_list* out1 = new Array_elem_list;
+    Array_elem_list* out2 = new Array_elem_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_array_elem(in, out1);
@@ -1697,10 +1697,10 @@ Method_name* Transform::transform_method_name(Method_name* in)
     return out;
 }
 
-List<Actual_parameter*>* Transform::transform_actual_parameter_list(List<Actual_parameter*>* in)
+Actual_parameter_list* Transform::transform_actual_parameter_list(Actual_parameter_list* in)
 {
-    List<Actual_parameter*>::const_iterator i;
-    List<Actual_parameter*>* out = new List<Actual_parameter*>;
+    Actual_parameter_list::const_iterator i;
+    Actual_parameter_list* out = new Actual_parameter_list;
     
     if(in == NULL)
     	return NULL;
@@ -1713,11 +1713,11 @@ List<Actual_parameter*>* Transform::transform_actual_parameter_list(List<Actual_
     return out;
 }
 
-List<Actual_parameter*>* Transform::transform_actual_parameter(Actual_parameter* in)
+Actual_parameter_list* Transform::transform_actual_parameter(Actual_parameter* in)
 {
-    List<Actual_parameter*>::const_iterator i;
-    List<Actual_parameter*>* out1 = new List<Actual_parameter*>;
-    List<Actual_parameter*>* out2 = new List<Actual_parameter*>;
+    Actual_parameter_list::const_iterator i;
+    Actual_parameter_list* out1 = new Actual_parameter_list;
+    Actual_parameter_list* out2 = new Actual_parameter_list;
     
     if(in == NULL) out1->push_back(NULL);
     else pre_actual_parameter(in, out1);
@@ -1752,14 +1752,14 @@ PHP_script* Transform::transform_php_script(PHP_script* in)
 
 // Invoke the right pre-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void Transform::pre_statement(Statement* in, List<Statement*>* out)
+void Transform::pre_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
     {
     case Class_def::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1767,8 +1767,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Interface_def::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1776,8 +1776,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Method::ID: 
     	{
-    		List<Method*>* local_out = new List<Method*>;
-    		List<Method*>::const_iterator i;
+    		Method_list* local_out = new Method_list;
+    		Method_list::const_iterator i;
     		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1785,8 +1785,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Return::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1794,8 +1794,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Static_declaration::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1803,8 +1803,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Global::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1812,8 +1812,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Try::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1821,8 +1821,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Throw::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1830,8 +1830,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Eval_expr::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1839,8 +1839,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case If::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_if(dynamic_cast<If*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1848,8 +1848,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case While::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_while(dynamic_cast<While*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1857,8 +1857,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Do::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_do(dynamic_cast<Do*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1866,8 +1866,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case For::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_for(dynamic_cast<For*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1875,8 +1875,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Foreach::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_foreach(dynamic_cast<Foreach*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1884,8 +1884,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Switch::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_switch(dynamic_cast<Switch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1893,8 +1893,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Break::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_break(dynamic_cast<Break*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1902,8 +1902,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Continue::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_continue(dynamic_cast<Continue*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1911,8 +1911,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Declare::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_declare(dynamic_cast<Declare*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1920,8 +1920,8 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     	return;
     case Nop::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		pre_nop(dynamic_cast<Nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1934,14 +1934,14 @@ void Transform::pre_statement(Statement* in, List<Statement*>* out)
     assert(0);
 }
 
-void Transform::pre_member(Member* in, List<Member*>* out)
+void Transform::pre_member(Member* in, Member_list* out)
 {
     switch(in->classid())
     {
     case Method::ID: 
     	{
-    		List<Method*>* local_out = new List<Method*>;
-    		List<Method*>::const_iterator i;
+    		Method_list* local_out = new Method_list;
+    		Method_list::const_iterator i;
     		pre_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -1949,8 +1949,8 @@ void Transform::pre_member(Member* in, List<Member*>* out)
     	return;
     case Attribute::ID: 
     	{
-    		List<Member*>* local_out = new List<Member*>;
-    		List<Member*>::const_iterator i;
+    		Member_list* local_out = new Member_list;
+    		Member_list::const_iterator i;
     		pre_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2000,7 +2000,7 @@ Variable_name* Transform::pre_variable_name(Variable_name* in)
     assert(0);
 }
 
-void Transform::pre_list_element(List_element* in, List<List_element*>* out)
+void Transform::pre_list_element(List_element* in, List_element_list* out)
 {
     switch(in->classid())
     {
@@ -2009,8 +2009,8 @@ void Transform::pre_list_element(List_element* in, List<List_element*>* out)
     	return;
     case Nested_list_elements::ID: 
     	{
-    		List<List_element*>* local_out = new List<List_element*>;
-    		List<List_element*>::const_iterator i;
+    		List_element_list* local_out = new List_element_list;
+    		List_element_list::const_iterator i;
     		pre_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2073,14 +2073,14 @@ Method_name* Transform::pre_method_name(Method_name* in)
 
 // Invoke the right post-transform (manual dispatching)
 // Do not override unless you know what you are doing
-void Transform::post_statement(Statement* in, List<Statement*>* out)
+void Transform::post_statement(Statement* in, Statement_list* out)
 {
     switch(in->classid())
     {
     case Class_def::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_class_def(dynamic_cast<Class_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2088,8 +2088,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Interface_def::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_interface_def(dynamic_cast<Interface_def*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2097,8 +2097,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Method::ID: 
     	{
-    		List<Method*>* local_out = new List<Method*>;
-    		List<Method*>::const_iterator i;
+    		Method_list* local_out = new Method_list;
+    		Method_list::const_iterator i;
     		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2106,8 +2106,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Return::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_return(dynamic_cast<Return*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2115,8 +2115,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Static_declaration::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_static_declaration(dynamic_cast<Static_declaration*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2124,8 +2124,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Global::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_global(dynamic_cast<Global*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2133,8 +2133,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Try::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_try(dynamic_cast<Try*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2142,8 +2142,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Throw::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_throw(dynamic_cast<Throw*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2151,8 +2151,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Eval_expr::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_eval_expr(dynamic_cast<Eval_expr*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2160,8 +2160,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case If::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_if(dynamic_cast<If*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2169,8 +2169,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case While::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_while(dynamic_cast<While*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2178,8 +2178,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Do::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_do(dynamic_cast<Do*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2187,8 +2187,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case For::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_for(dynamic_cast<For*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2196,8 +2196,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Foreach::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_foreach(dynamic_cast<Foreach*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2205,8 +2205,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Switch::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_switch(dynamic_cast<Switch*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2214,8 +2214,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Break::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_break(dynamic_cast<Break*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2223,8 +2223,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Continue::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_continue(dynamic_cast<Continue*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2232,8 +2232,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Declare::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_declare(dynamic_cast<Declare*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2241,8 +2241,8 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     	return;
     case Nop::ID: 
     	{
-    		List<Statement*>* local_out = new List<Statement*>;
-    		List<Statement*>::const_iterator i;
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
     		post_nop(dynamic_cast<Nop*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2255,14 +2255,14 @@ void Transform::post_statement(Statement* in, List<Statement*>* out)
     assert(0);
 }
 
-void Transform::post_member(Member* in, List<Member*>* out)
+void Transform::post_member(Member* in, Member_list* out)
 {
     switch(in->classid())
     {
     case Method::ID: 
     	{
-    		List<Method*>* local_out = new List<Method*>;
-    		List<Method*>::const_iterator i;
+    		Method_list* local_out = new Method_list;
+    		Method_list::const_iterator i;
     		post_method(dynamic_cast<Method*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2270,8 +2270,8 @@ void Transform::post_member(Member* in, List<Member*>* out)
     	return;
     case Attribute::ID: 
     	{
-    		List<Member*>* local_out = new List<Member*>;
-    		List<Member*>::const_iterator i;
+    		Member_list* local_out = new Member_list;
+    		Member_list::const_iterator i;
     		post_attribute(dynamic_cast<Attribute*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
@@ -2321,7 +2321,7 @@ Variable_name* Transform::post_variable_name(Variable_name* in)
     assert(0);
 }
 
-void Transform::post_list_element(List_element* in, List<List_element*>* out)
+void Transform::post_list_element(List_element* in, List_element_list* out)
 {
     switch(in->classid())
     {
@@ -2330,8 +2330,8 @@ void Transform::post_list_element(List_element* in, List<List_element*>* out)
     	return;
     case Nested_list_elements::ID: 
     	{
-    		List<List_element*>* local_out = new List<List_element*>;
-    		List<List_element*>::const_iterator i;
+    		List_element_list* local_out = new List_element_list;
+    		List_element_list::const_iterator i;
     		post_nested_list_elements(dynamic_cast<Nested_list_elements*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);

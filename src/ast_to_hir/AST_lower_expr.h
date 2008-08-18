@@ -20,13 +20,13 @@ namespace AST
 
 	public:
 		void children_if (If* in);
-		void post_if (If* in, List<Statement*>* out);
+		void post_if (If* in, Statement_list* out);
 
 		void children_while (While* in);
-		void post_while (While* in, List<Statement*>* out);
+		void post_while (While* in, Statement_list* out);
 
 		void children_foreach (Foreach* in);
-		void post_foreach (Foreach* in, List<Statement*>* out);
+		void post_foreach (Foreach* in, Statement_list* out);
 
 		// Switch is already lowered
 		// Do is already lowered
@@ -35,18 +35,18 @@ namespace AST
 		// TODO: We handle most Statement types here. What about try, throw and
 		// static_declaration?
 
-		void post_eval_expr (Eval_expr* in, List<Statement*>* out);
-		void post_return (Return* in, List<Statement*>* out);
-		void post_global (Global* in, List<Statement*>* out);
-		void post_continue (Continue* in, List<Statement*>* out);
-		void post_break (Break* in, List<Statement*>* out);
-		void post_throw (Throw* in, List<Statement*>* out);
+		void post_eval_expr (Eval_expr* in, Statement_list* out);
+		void post_return (Return* in, Statement_list* out);
+		void post_global (Global* in, Statement_list* out);
+		void post_continue (Continue* in, Statement_list* out);
+		void post_break (Break* in, Statement_list* out);
+		void post_throw (Throw* in, Statement_list* out);
 
 	protected:
 		Expr* eval(Expr* in);
 		void eval(Expr* in, Variable* temp);
-		void push_back_pieces(Statement* in, List<Statement*>* out);
-		List<Statement*>* pieces;
+		void push_back_pieces(Statement* in, Statement_list* out);
+		Statement_list* pieces;
 	};
 
 }

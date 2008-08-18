@@ -102,7 +102,7 @@ public:
 	Copy_propagation ();
 
 	void children_php_script (HIR::PHP_script* in);
-	void pre_assign_var (HIR::Assign_var* in, List<HIR::Statement*>* out);
+	void pre_assign_var (HIR::Assign_var* in, HIR::Statement_list* out);
 };
 
 #endif // PHC_COPY_PROPAGATION

@@ -651,7 +651,7 @@ function homogenize_break_levels ($string)
 	return $string;
 }
 
-// This strips off the & from a var_dump. Changing whether smoething
+// This strips off the & from a var_dump. Changing whether something
 // is a reference or not isnt correct, but changing the refcount is
 // ok. If a var only has a reference count of 1, then is_ref wont be
 // set, so the & wont be present.
@@ -666,9 +666,9 @@ function homogenize_reference_count ($string)
 	//		}
 	$string = preg_replace(
 		"/
-					(\s+\[.*?\]=>\s+)		# key and newline
-					&							# we want to delete this
-					(.*?\s+)					# dont go too far
+			(\s+\[.*?\]=>\s+)		# key and newline
+			&							# we want to delete this
+			(.*?)						# dont go too far
 		/Ssmx", "$1$2", $string); // s=DOTALL,m=MULTILINE,x=EXTENDED,S=STUDY(?)
 	return $string;
 }

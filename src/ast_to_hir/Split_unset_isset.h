@@ -15,7 +15,7 @@ class Split_unset_isset : public AST::Transform
 {
 public:
 	// Split unset 
-	void pre_eval_expr(AST::Eval_expr* in, List<AST::Statement*>* out);
+	void pre_eval_expr(AST::Eval_expr* in, AST::Statement_list* out);
 
 	// Split isset
 	AST::Expr* pre_method_invocation(AST::Method_invocation* in); 

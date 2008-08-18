@@ -130,11 +130,12 @@ private:
 	{
 		target->attrs->clone_all_from (source->attrs);
 		target->attrs->erase ("phc.comments");
+		target->attrs->erase_with_prefix ("phc.ast");
 	}
 
 public:
 
-	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, List<HIR::Statement*>* statements) 
+	HIR::PHP_script* fold_impl_php_script(AST::PHP_script* orig, HIR::Statement_list* statements) 
 	{
 		HIR::PHP_script* result;
 		result = new HIR::PHP_script(statements);
@@ -142,7 +143,7 @@ public:
 		return result;
 	}
 
-	HIR::Class_def* fold_impl_class_def(AST::Class_def* orig, HIR::Class_mod* class_mod, HIR::CLASS_NAME* class_name, HIR::CLASS_NAME* extends, List<HIR::INTERFACE_NAME*>* implements, List<HIR::Member*>* members) 
+	HIR::Class_def* fold_impl_class_def(AST::Class_def* orig, HIR::Class_mod* class_mod, HIR::CLASS_NAME* class_name, HIR::CLASS_NAME* extends, HIR::INTERFACE_NAME_list* implements, HIR::Member_list* members) 
 	{
 		HIR::Class_def* result;
 		result = new HIR::Class_def(class_mod, class_name, extends, implements, members);
@@ -158,7 +159,7 @@ public:
 		return result;
 	}
 
-	HIR::Interface_def* fold_impl_interface_def(AST::Interface_def* orig, HIR::INTERFACE_NAME* interface_name, List<HIR::INTERFACE_NAME*>* extends, List<HIR::Member*>* members) 
+	HIR::Interface_def* fold_impl_interface_def(AST::Interface_def* orig, HIR::INTERFACE_NAME* interface_name, HIR::INTERFACE_NAME_list* extends, HIR::Member_list* members) 
 	{
 		HIR::Interface_def* result;
 		result = new HIR::Interface_def(interface_name, extends, members);
@@ -166,7 +167,7 @@ public:
 		return result;
 	}
 
-	HIR::Method* fold_impl_method(AST::Method* orig, HIR::Signature* signature, List<HIR::Statement*>* statements) 
+	HIR::Method* fold_impl_method(AST::Method* orig, HIR::Signature* signature, HIR::Statement_list* statements) 
 	{
 		HIR::Method* result;
 		result = new HIR::Method(signature, statements);
@@ -174,7 +175,7 @@ public:
 		return result;
 	}
 
-	HIR::Signature* fold_impl_signature(AST::Signature* orig, HIR::Method_mod* method_mod, bool is_ref, HIR::METHOD_NAME* method_name, List<HIR::Formal_parameter*>* formal_parameters) 
+	HIR::Signature* fold_impl_signature(AST::Signature* orig, HIR::Method_mod* method_mod, bool is_ref, HIR::METHOD_NAME* method_name, HIR::Formal_parameter_list* formal_parameters) 
 	{
 		HIR::Signature* result;
 		result = new HIR::Signature(method_mod, is_ref, method_name, formal_parameters);
@@ -206,7 +207,7 @@ public:
 		return result;
 	}
 
-	HIR::Attribute* fold_impl_attribute(AST::Attribute* orig, HIR::Attr_mod* attr_mod, List<HIR::Name_with_default*>* vars) 
+	HIR::Attribute* fold_impl_attribute(AST::Attribute* orig, HIR::Attr_mod* attr_mod, HIR::Name_with_default_list* vars) 
 	{
 		assert(vars->size() == 1);
 
@@ -245,7 +246,7 @@ public:
 		return result;
 	}
 
-	HIR::Static_declaration* fold_impl_static_declaration(AST::Static_declaration* orig, List<HIR::Name_with_default*>* vars) 
+	HIR::Static_declaration* fold_impl_static_declaration(AST::Static_declaration* orig, HIR::Name_with_default_list* vars) 
 	{
 		assert(vars->size() == 1);
 
@@ -255,7 +256,7 @@ public:
 		return result;
 	}
 
-	HIR::Global* fold_impl_global(AST::Global* orig, List<HIR::Variable_name*>* variable_names) 
+	HIR::Global* fold_impl_global(AST::Global* orig, HIR::Variable_name_list* variable_names) 
 	{
 		assert(variable_names->size() == 1);
 		assert (variable_names->front() != NULL);
@@ -266,7 +267,7 @@ public:
 		return result;
 	}
 
-	HIR::Try* fold_impl_try(AST::Try* orig, List<HIR::Statement*>* statements, List<HIR::Catch*>* catches) 
+	HIR::Try* fold_impl_try(AST::Try* orig, HIR::Statement_list* statements, HIR::Catch_list* catches) 
 	{
 		HIR::Try* result;
 		result = new HIR::Try(statements, catches);
@@ -274,7 +275,7 @@ public:
 		return result;
 	}
 
-	HIR::Catch* fold_impl_catch(AST::Catch* orig, HIR::CLASS_NAME* class_name, HIR::VARIABLE_NAME* variable_name, List<HIR::Statement*>* statements) 
+	HIR::Catch* fold_impl_catch(AST::Catch* orig, HIR::CLASS_NAME* class_name, HIR::VARIABLE_NAME* variable_name, HIR::Statement_list* statements) 
 	{
 		HIR::Catch* result;
 		result = new HIR::Catch(class_name, variable_name, statements);
@@ -321,7 +322,7 @@ public:
 		return result;
 	}
 
-	HIR::If* fold_impl_if(AST::If* orig, HIR::Expr* expr, List<HIR::Statement*>* iftrue, List<HIR::Statement*>* iffalse)
+	HIR::If* fold_impl_if(AST::If* orig, HIR::Expr* expr, HIR::Statement_list* iftrue, HIR::Statement_list* iffalse)
 	{
 		HIR::If* result;
 		result = new HIR::If (dyc<HIR::VARIABLE_NAME> (expr), iftrue, iffalse);
@@ -329,7 +330,7 @@ public:
 		return result;
 	}
 
-	HIR::Loop* fold_impl_while (AST::While* orig, HIR::Expr* expr, List<HIR::Statement*>* statements)
+	HIR::Loop* fold_impl_while (AST::While* orig, HIR::Expr* expr, HIR::Statement_list* statements)
 	{
 		// All while's must be true
 		HIR::BOOL* b = dynamic_cast<HIR::BOOL*> (expr);
@@ -341,7 +342,7 @@ public:
 		return result;
 	}
 
-	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* arr, HIR::Expr* key, bool is_ref, HIR::Expr* val, List<HIR::Statement*>* statements)
+	HIR::Foreach* fold_impl_foreach (AST::Foreach* orig, HIR::Expr* arr, HIR::Expr* key, bool is_ref, HIR::Expr* val, HIR::Statement_list* statements)
 	{
 		HIR::Foreach* result;
 		result = new HIR::Foreach(
@@ -508,7 +509,7 @@ public:
 		return result;
 	}
 
-	HIR::Expr* fold_impl_variable(AST::Variable* orig, HIR::Node* target, HIR::Variable_name* variable_name, List<HIR::Expr*>* array_indices) 
+	HIR::Expr* fold_impl_variable(AST::Variable* orig, HIR::Node* target, HIR::Variable_name* variable_name, HIR::Expr_list* array_indices) 
 	{
 		// HIR::Variables can only have 1 array_index. However,
 		// HIR::Actual_parameters can have multiple array_indices. We don't have
@@ -578,7 +579,7 @@ public:
 		return NULL;
 	}
 
-	HIR::Expr* fold_impl_array(AST::Array* orig, List<HIR::Static_array_elem*>* static_array_elems) 
+	HIR::Expr* fold_impl_array(AST::Array* orig, HIR::Static_array_elem_list* static_array_elems) 
 	{
 		HIR::Static_array* result;
 		result = new HIR::Static_array(static_array_elems);
@@ -597,7 +598,7 @@ public:
 		return result;
 	}
 
-	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Node* target, HIR::Method_name* method_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr* fold_impl_method_invocation(AST::Method_invocation* orig, HIR::Node* target, HIR::Method_name* method_name, HIR::Actual_parameter_list* actual_parameters) 
 	{
 		HIR::Method_invocation* result;
 		result = new HIR::Method_invocation(
@@ -662,7 +663,7 @@ public:
 			return dyc<HIR::Literal> (expr);
 
 		// See comment in fold_impl_variable. We need to extract and fold our array_indices ourselves.
-		List<HIR::Rvalue*>* array_indices = new List<HIR::Rvalue*>;
+		HIR::Rvalue_list* array_indices = new HIR::Rvalue_list;
 		foreach (AST::Expr* expr, *dyc<AST::Variable> (orig->expr)->array_indices)
 			array_indices->push_back (dyc<HIR::Rvalue> (fold_expr (expr)));
 
@@ -684,7 +685,7 @@ public:
 		return result;
 	}
 
-	HIR::Expr* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, List<HIR::Actual_parameter*>* actual_parameters) 
+	HIR::Expr* fold_impl_new(AST::New* orig, HIR::Class_name* class_name, HIR::Actual_parameter_list* actual_parameters) 
 	{
 		HIR::New* result;
 		result = new HIR::New(class_name, actual_parameters);

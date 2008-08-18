@@ -14,7 +14,7 @@ using namespace AST;
 
 void Lower_expr::children_php_script(PHP_script* in)
 {
-	pieces = new List<Statement*>;
+	pieces = new Statement_list;
 	Transform::children_php_script(in);
 }
 
@@ -23,32 +23,32 @@ void Lower_expr::children_php_script(PHP_script* in)
  * pieces created for each part of the expression.
  */
 
-void Lower_expr::post_eval_expr (Eval_expr* in, List<Statement*>* out)
+void Lower_expr::post_eval_expr (Eval_expr* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_global (Global* in, List<Statement*>* out)
+void Lower_expr::post_global (Global* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_return (Return* in, List<Statement*>* out)
+void Lower_expr::post_return (Return* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_continue (Continue* in, List<Statement*>* out)
+void Lower_expr::post_continue (Continue* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_break (Break* in, List<Statement*>* out)
+void Lower_expr::post_break (Break* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
-void Lower_expr::post_throw (Throw* in, List<Statement*>* out)
+void Lower_expr::post_throw (Throw* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
@@ -64,8 +64,8 @@ void Lower_expr::children_if (If* in)
 {
 	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
-	List<Statement*>* saved_pieces = pieces;
-	pieces = new List<Statement*> ();
+	Statement_list* saved_pieces = pieces;
+	pieces = new Statement_list ();
 
 	// run the rest of the transform
 	in->iftrue = transform_statement_list(in->iftrue);
@@ -75,7 +75,7 @@ void Lower_expr::children_if (If* in)
 	pieces = saved_pieces;
 }
 
-void Lower_expr::post_if (If* in, List<Statement*>* out)
+void Lower_expr::post_if (If* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
@@ -84,8 +84,8 @@ void Lower_expr::children_while (While* in)
 {
 	// save the expression's pieces
 	in->expr = transform_expr(in->expr);
-	List<Statement*>* saved_pieces = pieces;
-	pieces = new List<Statement*> ();
+	Statement_list* saved_pieces = pieces;
+	pieces = new Statement_list;
 
 	// run the rest of the transform
 	in->statements = transform_statement_list(in->statements);
@@ -94,7 +94,7 @@ void Lower_expr::children_while (While* in)
 	pieces = saved_pieces;
 }
 
-void Lower_expr::post_while (While* in, List<Statement*>* out)
+void Lower_expr::post_while (While* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
@@ -107,8 +107,8 @@ void Lower_expr::children_foreach (Foreach* in)
 	// No need to mess with the key and val, as they are written to,
 	// not read from. Early_lower_control_flow deals with them.
 
-	List<Statement*>* saved_pieces = pieces;
-	pieces = new List<Statement*> ();
+	Statement_list* saved_pieces = pieces;
+	pieces = new Statement_list;
 
 	// run the rest of the transform
 	in->statements = transform_statement_list(in->statements);
@@ -117,14 +117,14 @@ void Lower_expr::children_foreach (Foreach* in)
 	pieces = saved_pieces;
 }
 
-void Lower_expr::post_foreach (Foreach* in, List<Statement*>* out)
+void Lower_expr::post_foreach (Foreach* in, Statement_list* out)
 {
 	push_back_pieces(in, out);
 }
 
 
 
-void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
+void Lower_expr::push_back_pieces(Statement* in, Statement_list* out)
 {
 	out->push_back_all(pieces);
 	out->push_back(in);
@@ -133,7 +133,7 @@ void Lower_expr::push_back_pieces(Statement* in, List<Statement*>* out)
 	if(!pieces->empty())
 	{
 		pieces->front()->attrs->set("phc.comments", in->get_comments());
-		in->attrs->set("phc.comments", new List<String*>);
+		in->attrs->set("phc.comments", new String_list);
 	}
 
 	pieces->clear();

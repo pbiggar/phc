@@ -44,7 +44,7 @@ private:
 
 	// start analysing a new method
 	void init_analysis ();
-	void finish_analysis (List<HIR::Statement*>* in);
+	void finish_analysis (HIR::Statement_list* in);
 
 public:
 	Use_def_counter ();

@@ -18,7 +18,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     List<Object*>::const_iterator i = args->begin();
     if(!strcmp(type_id, "PHP_script"))
     {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new PHP_script(statements);
     }
@@ -27,8 +27,8 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Class_mod* class_mod = dynamic_cast<Class_mod*>(*i++);
     	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	CLASS_NAME* extends = dynamic_cast<CLASS_NAME*>(*i++);
-    	List<INTERFACE_NAME*>* implements = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
-    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
+    	INTERFACE_NAME_list* implements = dynamic_cast<INTERFACE_NAME_list*>(*i++);
+    	Member_list* members = dynamic_cast<Member_list*>(*i++);
     	assert(i == args->end());
     	return new Class_def(class_mod, class_name, extends, implements, members);
     }
@@ -42,15 +42,15 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Interface_def"))
     {
     	INTERFACE_NAME* interface_name = dynamic_cast<INTERFACE_NAME*>(*i++);
-    	List<INTERFACE_NAME*>* extends = dynamic_cast<List<INTERFACE_NAME*>*>(*i++);
-    	List<Member*>* members = dynamic_cast<List<Member*>*>(*i++);
+    	INTERFACE_NAME_list* extends = dynamic_cast<INTERFACE_NAME_list*>(*i++);
+    	Member_list* members = dynamic_cast<Member_list*>(*i++);
     	assert(i == args->end());
     	return new Interface_def(interface_name, extends, members);
     }
     if(!strcmp(type_id, "Method"))
     {
     	Signature* signature = dynamic_cast<Signature*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Method(signature, statements);
     }
@@ -59,7 +59,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Method_mod* method_mod = dynamic_cast<Method_mod*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	METHOD_NAME* method_name = dynamic_cast<METHOD_NAME*>(*i++);
-    	List<Formal_parameter*>* formal_parameters = dynamic_cast<List<Formal_parameter*>*>(*i++);
+    	Formal_parameter_list* formal_parameters = dynamic_cast<Formal_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new Signature(method_mod, is_ref, method_name, formal_parameters);
     }
@@ -91,7 +91,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Attribute"))
     {
     	Attr_mod* attr_mod = dynamic_cast<Attr_mod*>(*i++);
-    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
+    	Name_with_default_list* vars = dynamic_cast<Name_with_default_list*>(*i++);
     	assert(i == args->end());
     	return new Attribute(attr_mod, vars);
     }
@@ -115,21 +115,21 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "If"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* iftrue = dynamic_cast<List<Statement*>*>(*i++);
-    	List<Statement*>* iffalse = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* iftrue = dynamic_cast<Statement_list*>(*i++);
+    	Statement_list* iffalse = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new If(expr, iftrue, iffalse);
     }
     if(!strcmp(type_id, "While"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new While(expr, statements);
     }
     if(!strcmp(type_id, "Do"))
     {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
     	return new Do(statements, expr);
@@ -139,7 +139,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Expr* init = dynamic_cast<Expr*>(*i++);
     	Expr* cond = dynamic_cast<Expr*>(*i++);
     	Expr* incr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new For(init, cond, incr, statements);
     }
@@ -149,21 +149,21 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	Variable* key = dynamic_cast<Variable*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Variable* val = dynamic_cast<Variable*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Foreach(expr, key, is_ref, val, statements);
     }
     if(!strcmp(type_id, "Switch"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Switch_case*>* switch_cases = dynamic_cast<List<Switch_case*>*>(*i++);
+    	Switch_case_list* switch_cases = dynamic_cast<Switch_case_list*>(*i++);
     	assert(i == args->end());
     	return new Switch(expr, switch_cases);
     }
     if(!strcmp(type_id, "Switch_case"))
     {
     	Expr* expr = dynamic_cast<Expr*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Switch_case(expr, statements);
     }
@@ -187,20 +187,20 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Static_declaration"))
     {
-    	List<Name_with_default*>* vars = dynamic_cast<List<Name_with_default*>*>(*i++);
+    	Name_with_default_list* vars = dynamic_cast<Name_with_default_list*>(*i++);
     	assert(i == args->end());
     	return new Static_declaration(vars);
     }
     if(!strcmp(type_id, "Global"))
     {
-    	List<Variable_name*>* variable_names = dynamic_cast<List<Variable_name*>*>(*i++);
+    	Variable_name_list* variable_names = dynamic_cast<Variable_name_list*>(*i++);
     	assert(i == args->end());
     	return new Global(variable_names);
     }
     if(!strcmp(type_id, "Declare"))
     {
-    	List<Directive*>* directives = dynamic_cast<List<Directive*>*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Directive_list* directives = dynamic_cast<Directive_list*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Declare(directives, statements);
     }
@@ -213,8 +213,8 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Try"))
     {
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
-    	List<Catch*>* catches = dynamic_cast<List<Catch*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
+    	Catch_list* catches = dynamic_cast<Catch_list*>(*i++);
     	assert(i == args->end());
     	return new Try(statements, catches);
     }
@@ -222,7 +222,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	CLASS_NAME* class_name = dynamic_cast<CLASS_NAME*>(*i++);
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	List<Statement*>* statements = dynamic_cast<List<Statement*>*>(*i++);
+    	Statement_list* statements = dynamic_cast<Statement_list*>(*i++);
     	assert(i == args->end());
     	return new Catch(class_name, variable_name, statements);
     }
@@ -261,14 +261,14 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "List_assignment"))
     {
-    	List<List_element*>* list_elements = dynamic_cast<List<List_element*>*>(*i++);
+    	List_element_list* list_elements = dynamic_cast<List_element_list*>(*i++);
     	Expr* expr = dynamic_cast<Expr*>(*i++);
     	assert(i == args->end());
     	return new List_assignment(list_elements, expr);
     }
     if(!strcmp(type_id, "Nested_list_elements"))
     {
-    	List<List_element*>* list_elements = dynamic_cast<List<List_element*>*>(*i++);
+    	List_element_list* list_elements = dynamic_cast<List_element_list*>(*i++);
     	assert(i == args->end());
     	return new Nested_list_elements(list_elements);
     }
@@ -326,7 +326,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
-    	List<Expr*>* array_indices = dynamic_cast<List<Expr*>*>(*i++);
+    	Expr_list* array_indices = dynamic_cast<Expr_list*>(*i++);
     	assert(i == args->end());
     	return new Variable(target, variable_name, array_indices);
     }
@@ -352,7 +352,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Array"))
     {
-    	List<Array_elem*>* array_elems = dynamic_cast<List<Array_elem*>*>(*i++);
+    	Array_elem_list* array_elems = dynamic_cast<Array_elem_list*>(*i++);
     	assert(i == args->end());
     	return new Array(array_elems);
     }
@@ -368,7 +368,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	Target* target = dynamic_cast<Target*>(*i++);
     	Method_name* method_name = dynamic_cast<Method_name*>(*i++);
-    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
+    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new Method_invocation(target, method_name, actual_parameters);
     }
@@ -382,7 +382,7 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "New"))
     {
     	Class_name* class_name = dynamic_cast<Class_name*>(*i++);
-    	List<Actual_parameter*>* actual_parameters = dynamic_cast<List<Actual_parameter*>*>(*i++);
+    	Actual_parameter_list* actual_parameters = dynamic_cast<Actual_parameter_list*>(*i++);
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
     }
@@ -436,91 +436,91 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Statement_list"))
     {
-    	List<Statement*>* list = new List<Statement*>;
+    	Statement_list* list = new Statement_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Statement*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "INTERFACE_NAME_list"))
     {
-    	List<INTERFACE_NAME*>* list = new List<INTERFACE_NAME*>;
+    	INTERFACE_NAME_list* list = new INTERFACE_NAME_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<INTERFACE_NAME*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Member_list"))
     {
-    	List<Member*>* list = new List<Member*>;
+    	Member_list* list = new Member_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Member*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Formal_parameter_list"))
     {
-    	List<Formal_parameter*>* list = new List<Formal_parameter*>;
+    	Formal_parameter_list* list = new Formal_parameter_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Formal_parameter*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Name_with_default_list"))
     {
-    	List<Name_with_default*>* list = new List<Name_with_default*>;
+    	Name_with_default_list* list = new Name_with_default_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Name_with_default*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Switch_case_list"))
     {
-    	List<Switch_case*>* list = new List<Switch_case*>;
+    	Switch_case_list* list = new Switch_case_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Switch_case*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Variable_name_list"))
     {
-    	List<Variable_name*>* list = new List<Variable_name*>;
+    	Variable_name_list* list = new Variable_name_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Variable_name*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Directive_list"))
     {
-    	List<Directive*>* list = new List<Directive*>;
+    	Directive_list* list = new Directive_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Directive*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Catch_list"))
     {
-    	List<Catch*>* list = new List<Catch*>;
+    	Catch_list* list = new Catch_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Catch*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "List_element_list"))
     {
-    	List<List_element*>* list = new List<List_element*>;
+    	List_element_list* list = new List_element_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<List_element*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Expr_list"))
     {
-    	List<Expr*>* list = new List<Expr*>;
+    	Expr_list* list = new Expr_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Expr*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Array_elem_list"))
     {
-    	List<Array_elem*>* list = new List<Array_elem*>;
+    	Array_elem_list* list = new Array_elem_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Array_elem*>(*i++));
     	return list;
     }
     if(!strcmp(type_id, "Actual_parameter_list"))
     {
-    	List<Actual_parameter*>* list = new List<Actual_parameter*>;
+    	Actual_parameter_list* list = new Actual_parameter_list;
     	while(i != args->end())
     		list->push_back(dynamic_cast<Actual_parameter*>(*i++));
     	return list;

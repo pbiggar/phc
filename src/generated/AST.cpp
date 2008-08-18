@@ -56,7 +56,7 @@ bool Node::is_mixin_equal(Node* in)
 	}
 }
 
-PHP_script::PHP_script(List<Statement*>* statements)
+PHP_script::PHP_script(Statement_list* statements)
 {
     this->statements = statements;
 }
@@ -93,7 +93,7 @@ bool PHP_script::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -126,7 +126,7 @@ bool PHP_script::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -150,11 +150,11 @@ bool PHP_script::equals(Node* in)
 
 PHP_script* PHP_script::clone()
 {
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -170,7 +170,7 @@ Node* PHP_script::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -187,14 +187,14 @@ Node* PHP_script::find(Node* in)
     return NULL;
 }
 
-void PHP_script::find_all(Node* in, List<Node*>* out)
+void PHP_script::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -213,7 +213,7 @@ void PHP_script::assert_valid()
 {
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -297,7 +297,7 @@ Node* Class_mod::find(Node* in)
     return NULL;
 }
 
-void Class_mod::find_all(Node* in, List<Node*>* out)
+void Class_mod::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -309,7 +309,7 @@ void Class_mod::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, List<Formal_parameter*>* formal_parameters)
+Signature::Signature(Method_mod* method_mod, bool is_ref, METHOD_NAME* method_name, Formal_parameter_list* formal_parameters)
 {
     this->method_mod = method_mod;
     this->is_ref = is_ref;
@@ -369,7 +369,7 @@ bool Signature::match(Node* in)
     
     if(this->formal_parameters != NULL && that->formal_parameters != NULL)
     {
-    	List<Formal_parameter*>::const_iterator i, j;
+    	Formal_parameter_list::const_iterator i, j;
     	for(
     		i = this->formal_parameters->begin(), j = that->formal_parameters->begin();
     		i != this->formal_parameters->end() && j != that->formal_parameters->end();
@@ -421,7 +421,7 @@ bool Signature::equals(Node* in)
     }
     else
     {
-    	List<Formal_parameter*>::const_iterator i, j;
+    	Formal_parameter_list::const_iterator i, j;
     	for(
     		i = this->formal_parameters->begin(), j = that->formal_parameters->begin();
     		i != this->formal_parameters->end() && j != that->formal_parameters->end();
@@ -448,11 +448,11 @@ Signature* Signature::clone()
     Method_mod* method_mod = this->method_mod ? this->method_mod->clone() : NULL;
     bool is_ref = this->is_ref;
     METHOD_NAME* method_name = this->method_name ? this->method_name->clone() : NULL;
-    List<Formal_parameter*>* formal_parameters = NULL;
+    Formal_parameter_list* formal_parameters = NULL;
     if(this->formal_parameters != NULL)
     {
-    	List<Formal_parameter*>::const_iterator i;
-    	formal_parameters = new List<Formal_parameter*>;
+    	Formal_parameter_list::const_iterator i;
+    	formal_parameters = new Formal_parameter_list;
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     		formal_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -480,7 +480,7 @@ Node* Signature::find(Node* in)
     
     if(this->formal_parameters != NULL)
     {
-    	List<Formal_parameter*>::const_iterator i;
+    	Formal_parameter_list::const_iterator i;
     	for(
     		i = this->formal_parameters->begin();
     		i != this->formal_parameters->end();
@@ -497,7 +497,7 @@ Node* Signature::find(Node* in)
     return NULL;
 }
 
-void Signature::find_all(Node* in, List<Node*>* out)
+void Signature::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -510,7 +510,7 @@ void Signature::find_all(Node* in, List<Node*>* out)
     
     if(this->formal_parameters != NULL)
     {
-    	List<Formal_parameter*>::const_iterator i;
+    	Formal_parameter_list::const_iterator i;
     	for(
     		i = this->formal_parameters->begin();
     		i != this->formal_parameters->end();
@@ -533,7 +533,7 @@ void Signature::assert_valid()
     method_name->assert_valid();
     assert(formal_parameters != NULL);
     {
-    	List<Formal_parameter*>::const_iterator i;
+    	Formal_parameter_list::const_iterator i;
     	for(i = this->formal_parameters->begin(); i != this->formal_parameters->end(); i++)
     	{
     		assert(*i != NULL);
@@ -548,8 +548,8 @@ Signature::Signature(const char* name)
     {
 		this->method_mod = Method_mod::new_PUBLIC();
 		this->is_ref = false;
-		this->method_name = new METHOD_NAME(new String(name));
-		this->formal_parameters = new List<Formal_parameter*>;
+		this->method_name = new METHOD_NAME(name);
+		this->formal_parameters = new Formal_parameter_list;
 	}
 }
 
@@ -645,7 +645,7 @@ Node* Method_mod::find(Node* in)
     return NULL;
 }
 
-void Method_mod::find_all(Node* in, List<Node*>* out)
+void Method_mod::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -840,7 +840,7 @@ Node* Formal_parameter::find(Node* in)
     return NULL;
 }
 
-void Formal_parameter::find_all(Node* in, List<Node*>* out)
+void Formal_parameter::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -965,7 +965,7 @@ Node* Type::find(Node* in)
     return NULL;
 }
 
-void Type::find_all(Node* in, List<Node*>* out)
+void Type::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1067,7 +1067,7 @@ Node* Attr_mod::find(Node* in)
     return NULL;
 }
 
-void Attr_mod::find_all(Node* in, List<Node*>* out)
+void Attr_mod::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1249,7 +1249,7 @@ Node* Name_with_default::find(Node* in)
     return NULL;
 }
 
-void Name_with_default::find_all(Node* in, List<Node*>* out)
+void Name_with_default::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1380,7 +1380,7 @@ Node* Directive::find(Node* in)
     return NULL;
 }
 
-void Directive::find_all(Node* in, List<Node*>* out)
+void Directive::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1531,7 +1531,7 @@ Node* Array_elem::find(Node* in)
     return NULL;
 }
 
-void Array_elem::find_all(Node* in, List<Node*>* out)
+void Array_elem::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1648,7 +1648,7 @@ Node* Actual_parameter::find(Node* in)
     return NULL;
 }
 
-void Actual_parameter::find_all(Node* in, List<Node*>* out)
+void Actual_parameter::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1672,7 +1672,7 @@ Class_name::Class_name()
 Commented_node::Commented_node()
 {
     {
-		attrs->set ("phc.comments", new List<String*>);
+		attrs->set ("phc.comments", new String_list);
 	}
 }
 
@@ -1680,10 +1680,10 @@ Commented_node::Commented_node()
 List<String*>* Commented_node::get_comments()
 {
     {
-		List<String*>* comments = dynamic_cast<List<String*>*>(attrs->get("phc.comments"));
+		String_list* comments = dynamic_cast<String_list*>(attrs->get("phc.comments"));
 
 		if (comments == NULL)
-			return new List<String*>;
+			return new String_list;
 
 		return comments;
 	}
@@ -1727,7 +1727,7 @@ Member::Member()
 {
 }
 
-Switch_case::Switch_case(Expr* expr, List<Statement*>* statements)
+Switch_case::Switch_case(Expr* expr, Statement_list* statements)
 {
     this->expr = expr;
     this->statements = statements;
@@ -1774,7 +1774,7 @@ bool Switch_case::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -1815,7 +1815,7 @@ bool Switch_case::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -1840,11 +1840,11 @@ bool Switch_case::equals(Node* in)
 Switch_case* Switch_case::clone()
 {
     Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -1866,7 +1866,7 @@ Node* Switch_case::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -1883,7 +1883,7 @@ Node* Switch_case::find(Node* in)
     return NULL;
 }
 
-void Switch_case::find_all(Node* in, List<Node*>* out)
+void Switch_case::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -1893,7 +1893,7 @@ void Switch_case::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -1913,7 +1913,7 @@ void Switch_case::assert_valid()
     if(expr != NULL) expr->assert_valid();
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -1923,7 +1923,7 @@ void Switch_case::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, List<Statement*>* statements)
+Catch::Catch(CLASS_NAME* class_name, VARIABLE_NAME* variable_name, Statement_list* statements)
 {
     this->class_name = class_name;
     this->variable_name = variable_name;
@@ -1980,7 +1980,7 @@ bool Catch::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2029,7 +2029,7 @@ bool Catch::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -2055,11 +2055,11 @@ Catch* Catch::clone()
 {
     CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
     VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -2087,7 +2087,7 @@ Node* Catch::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -2104,7 +2104,7 @@ Node* Catch::find(Node* in)
     return NULL;
 }
 
-void Catch::find_all(Node* in, List<Node*>* out)
+void Catch::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -2117,7 +2117,7 @@ void Catch::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -2140,7 +2140,7 @@ void Catch::assert_valid()
     variable_name->assert_valid();
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -2154,7 +2154,7 @@ Expr::Expr()
 {
 }
 
-Nested_list_elements::Nested_list_elements(List<List_element*>* list_elements)
+Nested_list_elements::Nested_list_elements(List_element_list* list_elements)
 {
     this->list_elements = list_elements;
 }
@@ -2191,7 +2191,7 @@ bool Nested_list_elements::match(Node* in)
     
     if(this->list_elements != NULL && that->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i, j;
+    	List_element_list::const_iterator i, j;
     	for(
     		i = this->list_elements->begin(), j = that->list_elements->begin();
     		i != this->list_elements->end() && j != that->list_elements->end();
@@ -2224,7 +2224,7 @@ bool Nested_list_elements::equals(Node* in)
     }
     else
     {
-    	List<List_element*>::const_iterator i, j;
+    	List_element_list::const_iterator i, j;
     	for(
     		i = this->list_elements->begin(), j = that->list_elements->begin();
     		i != this->list_elements->end() && j != that->list_elements->end();
@@ -2248,11 +2248,11 @@ bool Nested_list_elements::equals(Node* in)
 
 Nested_list_elements* Nested_list_elements::clone()
 {
-    List<List_element*>* list_elements = NULL;
+    List_element_list* list_elements = NULL;
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
-    	list_elements = new List<List_element*>;
+    	List_element_list::const_iterator i;
+    	list_elements = new List_element_list;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
     		list_elements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -2268,7 +2268,7 @@ Node* Nested_list_elements::find(Node* in)
     
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(
     		i = this->list_elements->begin();
     		i != this->list_elements->end();
@@ -2285,14 +2285,14 @@ Node* Nested_list_elements::find(Node* in)
     return NULL;
 }
 
-void Nested_list_elements::find_all(Node* in, List<Node*>* out)
+void Nested_list_elements::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(
     		i = this->list_elements->begin();
     		i != this->list_elements->end();
@@ -2311,7 +2311,7 @@ void Nested_list_elements::assert_valid()
 {
     assert(list_elements != NULL);
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -2405,7 +2405,7 @@ Node* Reflection::find(Node* in)
     return NULL;
 }
 
-void Reflection::find_all(Node* in, List<Node*>* out)
+void Reflection::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -2426,7 +2426,7 @@ Identifier::Identifier()
 {
 }
 
-Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, List<INTERFACE_NAME*>* implements, List<Member*>* members)
+Class_def::Class_def(Class_mod* class_mod, CLASS_NAME* class_name, CLASS_NAME* extends, INTERFACE_NAME_list* implements, Member_list* members)
 {
     this->class_mod = class_mod;
     this->class_name = class_name;
@@ -2495,7 +2495,7 @@ bool Class_def::match(Node* in)
     
     if(this->implements != NULL && that->implements != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	INTERFACE_NAME_list::const_iterator i, j;
     	for(
     		i = this->implements->begin(), j = that->implements->begin();
     		i != this->implements->end() && j != that->implements->end();
@@ -2515,7 +2515,7 @@ bool Class_def::match(Node* in)
     
     if(this->members != NULL && that->members != NULL)
     {
-    	List<Member*>::const_iterator i, j;
+    	Member_list::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -2572,7 +2572,7 @@ bool Class_def::equals(Node* in)
     }
     else
     {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	INTERFACE_NAME_list::const_iterator i, j;
     	for(
     		i = this->implements->begin(), j = that->implements->begin();
     		i != this->implements->end() && j != that->implements->end();
@@ -2597,7 +2597,7 @@ bool Class_def::equals(Node* in)
     }
     else
     {
-    	List<Member*>::const_iterator i, j;
+    	Member_list::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -2624,19 +2624,19 @@ Class_def* Class_def::clone()
     Class_mod* class_mod = this->class_mod ? this->class_mod->clone() : NULL;
     CLASS_NAME* class_name = this->class_name ? this->class_name->clone() : NULL;
     CLASS_NAME* extends = this->extends ? this->extends->clone() : NULL;
-    List<INTERFACE_NAME*>* implements = NULL;
+    INTERFACE_NAME_list* implements = NULL;
     if(this->implements != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	implements = new List<INTERFACE_NAME*>;
+    	INTERFACE_NAME_list::const_iterator i;
+    	implements = new INTERFACE_NAME_list;
     	for(i = this->implements->begin(); i != this->implements->end(); i++)
     		implements->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<Member*>* members = NULL;
+    Member_list* members = NULL;
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
-    	members = new List<Member*>;
+    	Member_list::const_iterator i;
+    	members = new Member_list;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     		members->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -2670,7 +2670,7 @@ Node* Class_def::find(Node* in)
     
     if(this->implements != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(
     		i = this->implements->begin();
     		i != this->implements->end();
@@ -2686,7 +2686,7 @@ Node* Class_def::find(Node* in)
     
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(
     		i = this->members->begin();
     		i != this->members->end();
@@ -2703,7 +2703,7 @@ Node* Class_def::find(Node* in)
     return NULL;
 }
 
-void Class_def::find_all(Node* in, List<Node*>* out)
+void Class_def::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -2719,7 +2719,7 @@ void Class_def::find_all(Node* in, List<Node*>* out)
     
     if(this->implements != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(
     		i = this->implements->begin();
     		i != this->implements->end();
@@ -2734,7 +2734,7 @@ void Class_def::find_all(Node* in, List<Node*>* out)
     
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(
     		i = this->members->begin();
     		i != this->members->end();
@@ -2758,7 +2758,7 @@ void Class_def::assert_valid()
     if(extends != NULL) extends->assert_valid();
     assert(implements != NULL);
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(i = this->implements->begin(); i != this->implements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -2767,7 +2767,7 @@ void Class_def::assert_valid()
     }
     assert(members != NULL);
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
     		assert(*i != NULL);
@@ -2783,8 +2783,8 @@ Class_def::Class_def(Class_mod* mod)
 		this->class_mod = mod;
 		this->class_name = NULL;
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2794,8 +2794,8 @@ Class_def::Class_def(const char* name)
 		this->class_mod = new Class_mod(false, false);
 		this->class_name = new CLASS_NAME(new String(name));
 		this->extends = NULL;
-		this->implements = new List<INTERFACE_NAME*>;
-		this->members = new List<Member*>;
+		this->implements = new INTERFACE_NAME_list;
+		this->members = new Member_list;
 	}
 }
 
@@ -2810,7 +2810,7 @@ void Class_def::add_member(Member* member)
 Method* Class_def::get_method(const char* name)
 {
     {
-		List<Member*>::const_iterator i;
+		Member_list::const_iterator i;
 		for(i = members->begin(); i != members->end(); i++)
 		{
 			Method* method = dynamic_cast<Method*>(*i);
@@ -2822,7 +2822,7 @@ Method* Class_def::get_method(const char* name)
 	}
 }
 
-Interface_def::Interface_def(INTERFACE_NAME* interface_name, List<INTERFACE_NAME*>* extends, List<Member*>* members)
+Interface_def::Interface_def(INTERFACE_NAME* interface_name, INTERFACE_NAME_list* extends, Member_list* members)
 {
     this->interface_name = interface_name;
     this->extends = extends;
@@ -2871,7 +2871,7 @@ bool Interface_def::match(Node* in)
     
     if(this->extends != NULL && that->extends != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	INTERFACE_NAME_list::const_iterator i, j;
     	for(
     		i = this->extends->begin(), j = that->extends->begin();
     		i != this->extends->end() && j != that->extends->end();
@@ -2891,7 +2891,7 @@ bool Interface_def::match(Node* in)
     
     if(this->members != NULL && that->members != NULL)
     {
-    	List<Member*>::const_iterator i, j;
+    	Member_list::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -2932,7 +2932,7 @@ bool Interface_def::equals(Node* in)
     }
     else
     {
-    	List<INTERFACE_NAME*>::const_iterator i, j;
+    	INTERFACE_NAME_list::const_iterator i, j;
     	for(
     		i = this->extends->begin(), j = that->extends->begin();
     		i != this->extends->end() && j != that->extends->end();
@@ -2957,7 +2957,7 @@ bool Interface_def::equals(Node* in)
     }
     else
     {
-    	List<Member*>::const_iterator i, j;
+    	Member_list::const_iterator i, j;
     	for(
     		i = this->members->begin(), j = that->members->begin();
     		i != this->members->end() && j != that->members->end();
@@ -2982,19 +2982,19 @@ bool Interface_def::equals(Node* in)
 Interface_def* Interface_def::clone()
 {
     INTERFACE_NAME* interface_name = this->interface_name ? this->interface_name->clone() : NULL;
-    List<INTERFACE_NAME*>* extends = NULL;
+    INTERFACE_NAME_list* extends = NULL;
     if(this->extends != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
-    	extends = new List<INTERFACE_NAME*>;
+    	INTERFACE_NAME_list::const_iterator i;
+    	extends = new INTERFACE_NAME_list;
     	for(i = this->extends->begin(); i != this->extends->end(); i++)
     		extends->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<Member*>* members = NULL;
+    Member_list* members = NULL;
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
-    	members = new List<Member*>;
+    	Member_list::const_iterator i;
+    	members = new Member_list;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     		members->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -3016,7 +3016,7 @@ Node* Interface_def::find(Node* in)
     
     if(this->extends != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(
     		i = this->extends->begin();
     		i != this->extends->end();
@@ -3032,7 +3032,7 @@ Node* Interface_def::find(Node* in)
     
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(
     		i = this->members->begin();
     		i != this->members->end();
@@ -3049,7 +3049,7 @@ Node* Interface_def::find(Node* in)
     return NULL;
 }
 
-void Interface_def::find_all(Node* in, List<Node*>* out)
+void Interface_def::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -3059,7 +3059,7 @@ void Interface_def::find_all(Node* in, List<Node*>* out)
     
     if(this->extends != NULL)
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(
     		i = this->extends->begin();
     		i != this->extends->end();
@@ -3074,7 +3074,7 @@ void Interface_def::find_all(Node* in, List<Node*>* out)
     
     if(this->members != NULL)
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(
     		i = this->members->begin();
     		i != this->members->end();
@@ -3095,7 +3095,7 @@ void Interface_def::assert_valid()
     interface_name->assert_valid();
     assert(extends != NULL);
     {
-    	List<INTERFACE_NAME*>::const_iterator i;
+    	INTERFACE_NAME_list::const_iterator i;
     	for(i = this->extends->begin(); i != this->extends->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3104,7 +3104,7 @@ void Interface_def::assert_valid()
     }
     assert(members != NULL);
     {
-    	List<Member*>::const_iterator i;
+    	Member_list::const_iterator i;
     	for(i = this->members->begin(); i != this->members->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3114,7 +3114,7 @@ void Interface_def::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Method::Method(Signature* signature, List<Statement*>* statements)
+Method::Method(Signature* signature, Statement_list* statements)
 {
     this->signature = signature;
     this->statements = statements;
@@ -3161,7 +3161,7 @@ bool Method::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -3202,7 +3202,7 @@ bool Method::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -3227,11 +3227,11 @@ bool Method::equals(Node* in)
 Method* Method::clone()
 {
     Signature* signature = this->signature ? this->signature->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -3253,7 +3253,7 @@ Node* Method::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -3270,7 +3270,7 @@ Node* Method::find(Node* in)
     return NULL;
 }
 
-void Method::find_all(Node* in, List<Node*>* out)
+void Method::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -3280,7 +3280,7 @@ void Method::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -3301,7 +3301,7 @@ void Method::assert_valid()
     signature->assert_valid();
     if(statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3311,7 +3311,7 @@ void Method::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Attribute::Attribute(Attr_mod* attr_mod, List<Name_with_default*>* vars)
+Attribute::Attribute(Attr_mod* attr_mod, Name_with_default_list* vars)
 {
     this->attr_mod = attr_mod;
     this->vars = vars;
@@ -3358,7 +3358,7 @@ bool Attribute::match(Node* in)
     
     if(this->vars != NULL && that->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i, j;
+    	Name_with_default_list::const_iterator i, j;
     	for(
     		i = this->vars->begin(), j = that->vars->begin();
     		i != this->vars->end() && j != that->vars->end();
@@ -3399,7 +3399,7 @@ bool Attribute::equals(Node* in)
     }
     else
     {
-    	List<Name_with_default*>::const_iterator i, j;
+    	Name_with_default_list::const_iterator i, j;
     	for(
     		i = this->vars->begin(), j = that->vars->begin();
     		i != this->vars->end() && j != that->vars->end();
@@ -3424,11 +3424,11 @@ bool Attribute::equals(Node* in)
 Attribute* Attribute::clone()
 {
     Attr_mod* attr_mod = this->attr_mod ? this->attr_mod->clone() : NULL;
-    List<Name_with_default*>* vars = NULL;
+    Name_with_default_list* vars = NULL;
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
+    	Name_with_default_list::const_iterator i;
+    	vars = new Name_with_default_list;
     	for(i = this->vars->begin(); i != this->vars->end(); i++)
     		vars->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -3450,7 +3450,7 @@ Node* Attribute::find(Node* in)
     
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(
     		i = this->vars->begin();
     		i != this->vars->end();
@@ -3467,7 +3467,7 @@ Node* Attribute::find(Node* in)
     return NULL;
 }
 
-void Attribute::find_all(Node* in, List<Node*>* out)
+void Attribute::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -3477,7 +3477,7 @@ void Attribute::find_all(Node* in, List<Node*>* out)
     
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(
     		i = this->vars->begin();
     		i != this->vars->end();
@@ -3498,7 +3498,7 @@ void Attribute::assert_valid()
     attr_mod->assert_valid();
     assert(vars != NULL);
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(i = this->vars->begin(); i != this->vars->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3508,7 +3508,7 @@ void Attribute::assert_valid()
     Node::assert_mixin_valid();
 }
 
-If::If(Expr* expr, List<Statement*>* iftrue, List<Statement*>* iffalse)
+If::If(Expr* expr, Statement_list* iftrue, Statement_list* iffalse)
 {
     this->expr = expr;
     this->iftrue = iftrue;
@@ -3557,7 +3557,7 @@ bool If::match(Node* in)
     
     if(this->iftrue != NULL && that->iftrue != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->iftrue->begin(), j = that->iftrue->begin();
     		i != this->iftrue->end() && j != that->iftrue->end();
@@ -3577,7 +3577,7 @@ bool If::match(Node* in)
     
     if(this->iffalse != NULL && that->iffalse != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->iffalse->begin(), j = that->iffalse->begin();
     		i != this->iffalse->end() && j != that->iffalse->end();
@@ -3618,7 +3618,7 @@ bool If::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->iftrue->begin(), j = that->iftrue->begin();
     		i != this->iftrue->end() && j != that->iftrue->end();
@@ -3643,7 +3643,7 @@ bool If::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->iffalse->begin(), j = that->iffalse->begin();
     		i != this->iffalse->end() && j != that->iffalse->end();
@@ -3668,19 +3668,19 @@ bool If::equals(Node* in)
 If* If::clone()
 {
     Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* iftrue = NULL;
+    Statement_list* iftrue = NULL;
     if(this->iftrue != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	iftrue = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	iftrue = new Statement_list;
     	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
     		iftrue->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<Statement*>* iffalse = NULL;
+    Statement_list* iffalse = NULL;
     if(this->iffalse != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	iffalse = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	iffalse = new Statement_list;
     	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
     		iffalse->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -3702,7 +3702,7 @@ Node* If::find(Node* in)
     
     if(this->iftrue != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->iftrue->begin();
     		i != this->iftrue->end();
@@ -3718,7 +3718,7 @@ Node* If::find(Node* in)
     
     if(this->iffalse != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->iffalse->begin();
     		i != this->iffalse->end();
@@ -3735,7 +3735,7 @@ Node* If::find(Node* in)
     return NULL;
 }
 
-void If::find_all(Node* in, List<Node*>* out)
+void If::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -3745,7 +3745,7 @@ void If::find_all(Node* in, List<Node*>* out)
     
     if(this->iftrue != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->iftrue->begin();
     		i != this->iftrue->end();
@@ -3760,7 +3760,7 @@ void If::find_all(Node* in, List<Node*>* out)
     
     if(this->iffalse != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->iffalse->begin();
     		i != this->iffalse->end();
@@ -3781,7 +3781,7 @@ void If::assert_valid()
     expr->assert_valid();
     assert(iftrue != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->iftrue->begin(); i != this->iftrue->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3790,7 +3790,7 @@ void If::assert_valid()
     }
     assert(iffalse != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->iffalse->begin(); i != this->iffalse->end(); i++)
     	{
     		assert(*i != NULL);
@@ -3803,11 +3803,11 @@ void If::assert_valid()
 If::If(Expr* expr)
 {
     {
-		If (expr, new List<Statement*> (), new List<Statement*>);
+		If (expr, new Statement_list, new Statement_list);
 	}
 }
 
-While::While(Expr* expr, List<Statement*>* statements)
+While::While(Expr* expr, Statement_list* statements)
 {
     this->expr = expr;
     this->statements = statements;
@@ -3854,7 +3854,7 @@ bool While::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -3895,7 +3895,7 @@ bool While::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -3920,11 +3920,11 @@ bool While::equals(Node* in)
 While* While::clone()
 {
     Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -3946,7 +3946,7 @@ Node* While::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -3963,7 +3963,7 @@ Node* While::find(Node* in)
     return NULL;
 }
 
-void While::find_all(Node* in, List<Node*>* out)
+void While::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -3973,7 +3973,7 @@ void While::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -3994,7 +3994,7 @@ void While::assert_valid()
     expr->assert_valid();
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -4004,7 +4004,7 @@ void While::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Do::Do(List<Statement*>* statements, Expr* expr)
+Do::Do(Statement_list* statements, Expr* expr)
 {
     this->statements = statements;
     this->expr = expr;
@@ -4043,7 +4043,7 @@ bool Do::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4084,7 +4084,7 @@ bool Do::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4116,11 +4116,11 @@ bool Do::equals(Node* in)
 
 Do* Do::clone()
 {
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -4137,7 +4137,7 @@ Node* Do::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4160,14 +4160,14 @@ Node* Do::find(Node* in)
     return NULL;
 }
 
-void Do::find_all(Node* in, List<Node*>* out)
+void Do::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4189,7 +4189,7 @@ void Do::assert_valid()
 {
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -4201,7 +4201,7 @@ void Do::assert_valid()
     Node::assert_mixin_valid();
 }
 
-For::For(Expr* init, Expr* cond, Expr* incr, List<Statement*>* statements)
+For::For(Expr* init, Expr* cond, Expr* incr, Statement_list* statements)
 {
     this->init = init;
     this->cond = cond;
@@ -4268,7 +4268,7 @@ bool For::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4325,7 +4325,7 @@ bool For::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4352,11 +4352,11 @@ For* For::clone()
     Expr* init = this->init ? this->init->clone() : NULL;
     Expr* cond = this->cond ? this->cond->clone() : NULL;
     Expr* incr = this->incr ? this->incr->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -4390,7 +4390,7 @@ Node* For::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4407,7 +4407,7 @@ Node* For::find(Node* in)
     return NULL;
 }
 
-void For::find_all(Node* in, List<Node*>* out)
+void For::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -4423,7 +4423,7 @@ void For::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4445,7 +4445,7 @@ void For::assert_valid()
     if(incr != NULL) incr->assert_valid();
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -4455,7 +4455,7 @@ void For::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach::Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, List<Statement*>* statements)
+Foreach::Foreach(Expr* expr, Variable* key, bool is_ref, Variable* val, Statement_list* statements)
 {
     this->expr = expr;
     this->key = key;
@@ -4525,7 +4525,7 @@ bool Foreach::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4585,7 +4585,7 @@ bool Foreach::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -4613,11 +4613,11 @@ Foreach* Foreach::clone()
     Variable* key = this->key ? this->key->clone() : NULL;
     bool is_ref = this->is_ref;
     Variable* val = this->val ? this->val->clone() : NULL;
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -4651,7 +4651,7 @@ Node* Foreach::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4668,7 +4668,7 @@ Node* Foreach::find(Node* in)
     return NULL;
 }
 
-void Foreach::find_all(Node* in, List<Node*>* out)
+void Foreach::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -4684,7 +4684,7 @@ void Foreach::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -4708,7 +4708,7 @@ void Foreach::assert_valid()
     val->assert_valid();
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -4718,7 +4718,7 @@ void Foreach::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Switch::Switch(Expr* expr, List<Switch_case*>* switch_cases)
+Switch::Switch(Expr* expr, Switch_case_list* switch_cases)
 {
     this->expr = expr;
     this->switch_cases = switch_cases;
@@ -4765,7 +4765,7 @@ bool Switch::match(Node* in)
     
     if(this->switch_cases != NULL && that->switch_cases != NULL)
     {
-    	List<Switch_case*>::const_iterator i, j;
+    	Switch_case_list::const_iterator i, j;
     	for(
     		i = this->switch_cases->begin(), j = that->switch_cases->begin();
     		i != this->switch_cases->end() && j != that->switch_cases->end();
@@ -4806,7 +4806,7 @@ bool Switch::equals(Node* in)
     }
     else
     {
-    	List<Switch_case*>::const_iterator i, j;
+    	Switch_case_list::const_iterator i, j;
     	for(
     		i = this->switch_cases->begin(), j = that->switch_cases->begin();
     		i != this->switch_cases->end() && j != that->switch_cases->end();
@@ -4831,11 +4831,11 @@ bool Switch::equals(Node* in)
 Switch* Switch::clone()
 {
     Expr* expr = this->expr ? this->expr->clone() : NULL;
-    List<Switch_case*>* switch_cases = NULL;
+    Switch_case_list* switch_cases = NULL;
     if(this->switch_cases != NULL)
     {
-    	List<Switch_case*>::const_iterator i;
-    	switch_cases = new List<Switch_case*>;
+    	Switch_case_list::const_iterator i;
+    	switch_cases = new Switch_case_list;
     	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
     		switch_cases->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -4857,7 +4857,7 @@ Node* Switch::find(Node* in)
     
     if(this->switch_cases != NULL)
     {
-    	List<Switch_case*>::const_iterator i;
+    	Switch_case_list::const_iterator i;
     	for(
     		i = this->switch_cases->begin();
     		i != this->switch_cases->end();
@@ -4874,7 +4874,7 @@ Node* Switch::find(Node* in)
     return NULL;
 }
 
-void Switch::find_all(Node* in, List<Node*>* out)
+void Switch::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -4884,7 +4884,7 @@ void Switch::find_all(Node* in, List<Node*>* out)
     
     if(this->switch_cases != NULL)
     {
-    	List<Switch_case*>::const_iterator i;
+    	Switch_case_list::const_iterator i;
     	for(
     		i = this->switch_cases->begin();
     		i != this->switch_cases->end();
@@ -4905,7 +4905,7 @@ void Switch::assert_valid()
     expr->assert_valid();
     assert(switch_cases != NULL);
     {
-    	List<Switch_case*>::const_iterator i;
+    	Switch_case_list::const_iterator i;
     	for(i = this->switch_cases->begin(); i != this->switch_cases->end(); i++)
     	{
     		assert(*i != NULL);
@@ -5000,7 +5000,7 @@ Node* Break::find(Node* in)
     return NULL;
 }
 
-void Break::find_all(Node* in, List<Node*>* out)
+void Break::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -5101,7 +5101,7 @@ Node* Continue::find(Node* in)
     return NULL;
 }
 
-void Continue::find_all(Node* in, List<Node*>* out)
+void Continue::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -5202,7 +5202,7 @@ Node* Return::find(Node* in)
     return NULL;
 }
 
-void Return::find_all(Node* in, List<Node*>* out)
+void Return::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -5218,7 +5218,7 @@ void Return::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Static_declaration::Static_declaration(List<Name_with_default*>* vars)
+Static_declaration::Static_declaration(Name_with_default_list* vars)
 {
     this->vars = vars;
 }
@@ -5255,7 +5255,7 @@ bool Static_declaration::match(Node* in)
     
     if(this->vars != NULL && that->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i, j;
+    	Name_with_default_list::const_iterator i, j;
     	for(
     		i = this->vars->begin(), j = that->vars->begin();
     		i != this->vars->end() && j != that->vars->end();
@@ -5288,7 +5288,7 @@ bool Static_declaration::equals(Node* in)
     }
     else
     {
-    	List<Name_with_default*>::const_iterator i, j;
+    	Name_with_default_list::const_iterator i, j;
     	for(
     		i = this->vars->begin(), j = that->vars->begin();
     		i != this->vars->end() && j != that->vars->end();
@@ -5312,11 +5312,11 @@ bool Static_declaration::equals(Node* in)
 
 Static_declaration* Static_declaration::clone()
 {
-    List<Name_with_default*>* vars = NULL;
+    Name_with_default_list* vars = NULL;
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
-    	vars = new List<Name_with_default*>;
+    	Name_with_default_list::const_iterator i;
+    	vars = new Name_with_default_list;
     	for(i = this->vars->begin(); i != this->vars->end(); i++)
     		vars->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -5332,7 +5332,7 @@ Node* Static_declaration::find(Node* in)
     
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(
     		i = this->vars->begin();
     		i != this->vars->end();
@@ -5349,14 +5349,14 @@ Node* Static_declaration::find(Node* in)
     return NULL;
 }
 
-void Static_declaration::find_all(Node* in, List<Node*>* out)
+void Static_declaration::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->vars != NULL)
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(
     		i = this->vars->begin();
     		i != this->vars->end();
@@ -5375,7 +5375,7 @@ void Static_declaration::assert_valid()
 {
     assert(vars != NULL);
     {
-    	List<Name_with_default*>::const_iterator i;
+    	Name_with_default_list::const_iterator i;
     	for(i = this->vars->begin(); i != this->vars->end(); i++)
     	{
     		assert(*i != NULL);
@@ -5385,7 +5385,7 @@ void Static_declaration::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Global::Global(List<Variable_name*>* variable_names)
+Global::Global(Variable_name_list* variable_names)
 {
     this->variable_names = variable_names;
 }
@@ -5422,7 +5422,7 @@ bool Global::match(Node* in)
     
     if(this->variable_names != NULL && that->variable_names != NULL)
     {
-    	List<Variable_name*>::const_iterator i, j;
+    	Variable_name_list::const_iterator i, j;
     	for(
     		i = this->variable_names->begin(), j = that->variable_names->begin();
     		i != this->variable_names->end() && j != that->variable_names->end();
@@ -5455,7 +5455,7 @@ bool Global::equals(Node* in)
     }
     else
     {
-    	List<Variable_name*>::const_iterator i, j;
+    	Variable_name_list::const_iterator i, j;
     	for(
     		i = this->variable_names->begin(), j = that->variable_names->begin();
     		i != this->variable_names->end() && j != that->variable_names->end();
@@ -5479,11 +5479,11 @@ bool Global::equals(Node* in)
 
 Global* Global::clone()
 {
-    List<Variable_name*>* variable_names = NULL;
+    Variable_name_list* variable_names = NULL;
     if(this->variable_names != NULL)
     {
-    	List<Variable_name*>::const_iterator i;
-    	variable_names = new List<Variable_name*>;
+    	Variable_name_list::const_iterator i;
+    	variable_names = new Variable_name_list;
     	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
     		variable_names->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -5499,7 +5499,7 @@ Node* Global::find(Node* in)
     
     if(this->variable_names != NULL)
     {
-    	List<Variable_name*>::const_iterator i;
+    	Variable_name_list::const_iterator i;
     	for(
     		i = this->variable_names->begin();
     		i != this->variable_names->end();
@@ -5516,14 +5516,14 @@ Node* Global::find(Node* in)
     return NULL;
 }
 
-void Global::find_all(Node* in, List<Node*>* out)
+void Global::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->variable_names != NULL)
     {
-    	List<Variable_name*>::const_iterator i;
+    	Variable_name_list::const_iterator i;
     	for(
     		i = this->variable_names->begin();
     		i != this->variable_names->end();
@@ -5542,7 +5542,7 @@ void Global::assert_valid()
 {
     assert(variable_names != NULL);
     {
-    	List<Variable_name*>::const_iterator i;
+    	Variable_name_list::const_iterator i;
     	for(i = this->variable_names->begin(); i != this->variable_names->end(); i++)
     	{
     		assert(*i != NULL);
@@ -5552,7 +5552,7 @@ void Global::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Declare::Declare(List<Directive*>* directives, List<Statement*>* statements)
+Declare::Declare(Directive_list* directives, Statement_list* statements)
 {
     this->directives = directives;
     this->statements = statements;
@@ -5591,7 +5591,7 @@ bool Declare::match(Node* in)
     
     if(this->directives != NULL && that->directives != NULL)
     {
-    	List<Directive*>::const_iterator i, j;
+    	Directive_list::const_iterator i, j;
     	for(
     		i = this->directives->begin(), j = that->directives->begin();
     		i != this->directives->end() && j != that->directives->end();
@@ -5611,7 +5611,7 @@ bool Declare::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -5644,7 +5644,7 @@ bool Declare::equals(Node* in)
     }
     else
     {
-    	List<Directive*>::const_iterator i, j;
+    	Directive_list::const_iterator i, j;
     	for(
     		i = this->directives->begin(), j = that->directives->begin();
     		i != this->directives->end() && j != that->directives->end();
@@ -5669,7 +5669,7 @@ bool Declare::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -5693,19 +5693,19 @@ bool Declare::equals(Node* in)
 
 Declare* Declare::clone()
 {
-    List<Directive*>* directives = NULL;
+    Directive_list* directives = NULL;
     if(this->directives != NULL)
     {
-    	List<Directive*>::const_iterator i;
-    	directives = new List<Directive*>;
+    	Directive_list::const_iterator i;
+    	directives = new Directive_list;
     	for(i = this->directives->begin(); i != this->directives->end(); i++)
     		directives->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -5721,7 +5721,7 @@ Node* Declare::find(Node* in)
     
     if(this->directives != NULL)
     {
-    	List<Directive*>::const_iterator i;
+    	Directive_list::const_iterator i;
     	for(
     		i = this->directives->begin();
     		i != this->directives->end();
@@ -5737,7 +5737,7 @@ Node* Declare::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -5754,14 +5754,14 @@ Node* Declare::find(Node* in)
     return NULL;
 }
 
-void Declare::find_all(Node* in, List<Node*>* out)
+void Declare::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->directives != NULL)
     {
-    	List<Directive*>::const_iterator i;
+    	Directive_list::const_iterator i;
     	for(
     		i = this->directives->begin();
     		i != this->directives->end();
@@ -5776,7 +5776,7 @@ void Declare::find_all(Node* in, List<Node*>* out)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -5795,7 +5795,7 @@ void Declare::assert_valid()
 {
     assert(directives != NULL);
     {
-    	List<Directive*>::const_iterator i;
+    	Directive_list::const_iterator i;
     	for(i = this->directives->begin(); i != this->directives->end(); i++)
     	{
     		assert(*i != NULL);
@@ -5804,7 +5804,7 @@ void Declare::assert_valid()
     }
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -5814,7 +5814,7 @@ void Declare::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Try::Try(List<Statement*>* statements, List<Catch*>* catches)
+Try::Try(Statement_list* statements, Catch_list* catches)
 {
     this->statements = statements;
     this->catches = catches;
@@ -5853,7 +5853,7 @@ bool Try::match(Node* in)
     
     if(this->statements != NULL && that->statements != NULL)
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -5873,7 +5873,7 @@ bool Try::match(Node* in)
     
     if(this->catches != NULL && that->catches != NULL)
     {
-    	List<Catch*>::const_iterator i, j;
+    	Catch_list::const_iterator i, j;
     	for(
     		i = this->catches->begin(), j = that->catches->begin();
     		i != this->catches->end() && j != that->catches->end();
@@ -5906,7 +5906,7 @@ bool Try::equals(Node* in)
     }
     else
     {
-    	List<Statement*>::const_iterator i, j;
+    	Statement_list::const_iterator i, j;
     	for(
     		i = this->statements->begin(), j = that->statements->begin();
     		i != this->statements->end() && j != that->statements->end();
@@ -5931,7 +5931,7 @@ bool Try::equals(Node* in)
     }
     else
     {
-    	List<Catch*>::const_iterator i, j;
+    	Catch_list::const_iterator i, j;
     	for(
     		i = this->catches->begin(), j = that->catches->begin();
     		i != this->catches->end() && j != that->catches->end();
@@ -5955,19 +5955,19 @@ bool Try::equals(Node* in)
 
 Try* Try::clone()
 {
-    List<Statement*>* statements = NULL;
+    Statement_list* statements = NULL;
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
-    	statements = new List<Statement*>;
+    	Statement_list::const_iterator i;
+    	statements = new Statement_list;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     		statements->push_back(*i ? (*i)->clone() : NULL);
     }
-    List<Catch*>* catches = NULL;
+    Catch_list* catches = NULL;
     if(this->catches != NULL)
     {
-    	List<Catch*>::const_iterator i;
-    	catches = new List<Catch*>;
+    	Catch_list::const_iterator i;
+    	catches = new Catch_list;
     	for(i = this->catches->begin(); i != this->catches->end(); i++)
     		catches->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -5983,7 +5983,7 @@ Node* Try::find(Node* in)
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -5999,7 +5999,7 @@ Node* Try::find(Node* in)
     
     if(this->catches != NULL)
     {
-    	List<Catch*>::const_iterator i;
+    	Catch_list::const_iterator i;
     	for(
     		i = this->catches->begin();
     		i != this->catches->end();
@@ -6016,14 +6016,14 @@ Node* Try::find(Node* in)
     return NULL;
 }
 
-void Try::find_all(Node* in, List<Node*>* out)
+void Try::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->statements != NULL)
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(
     		i = this->statements->begin();
     		i != this->statements->end();
@@ -6038,7 +6038,7 @@ void Try::find_all(Node* in, List<Node*>* out)
     
     if(this->catches != NULL)
     {
-    	List<Catch*>::const_iterator i;
+    	Catch_list::const_iterator i;
     	for(
     		i = this->catches->begin();
     		i != this->catches->end();
@@ -6057,7 +6057,7 @@ void Try::assert_valid()
 {
     assert(statements != NULL);
     {
-    	List<Statement*>::const_iterator i;
+    	Statement_list::const_iterator i;
     	for(i = this->statements->begin(); i != this->statements->end(); i++)
     	{
     		assert(*i != NULL);
@@ -6066,7 +6066,7 @@ void Try::assert_valid()
     }
     assert(catches != NULL);
     {
-    	List<Catch*>::const_iterator i;
+    	Catch_list::const_iterator i;
     	for(i = this->catches->begin(); i != this->catches->end(); i++)
     	{
     		assert(*i != NULL);
@@ -6161,7 +6161,7 @@ Node* Throw::find(Node* in)
     return NULL;
 }
 
-void Throw::find_all(Node* in, List<Node*>* out)
+void Throw::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -6265,7 +6265,7 @@ Node* Eval_expr::find(Node* in)
     return NULL;
 }
 
-void Eval_expr::find_all(Node* in, List<Node*>* out)
+void Eval_expr::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -6345,7 +6345,7 @@ Node* Nop::find(Node* in)
     return NULL;
 }
 
-void Nop::find_all(Node* in, List<Node*>* out)
+void Nop::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -6478,7 +6478,7 @@ Node* Assignment::find(Node* in)
     return NULL;
 }
 
-void Assignment::find_all(Node* in, List<Node*>* out)
+void Assignment::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -6635,7 +6635,7 @@ Node* Op_assignment::find(Node* in)
     return NULL;
 }
 
-void Op_assignment::find_all(Node* in, List<Node*>* out)
+void Op_assignment::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -6671,7 +6671,7 @@ Op_assignment::Op_assignment(Variable* variable, const char* op, Expr* expr)
    }
 }
 
-List_assignment::List_assignment(List<List_element*>* list_elements, Expr* expr)
+List_assignment::List_assignment(List_element_list* list_elements, Expr* expr)
 {
     this->list_elements = list_elements;
     this->expr = expr;
@@ -6710,7 +6710,7 @@ bool List_assignment::match(Node* in)
     
     if(this->list_elements != NULL && that->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i, j;
+    	List_element_list::const_iterator i, j;
     	for(
     		i = this->list_elements->begin(), j = that->list_elements->begin();
     		i != this->list_elements->end() && j != that->list_elements->end();
@@ -6751,7 +6751,7 @@ bool List_assignment::equals(Node* in)
     }
     else
     {
-    	List<List_element*>::const_iterator i, j;
+    	List_element_list::const_iterator i, j;
     	for(
     		i = this->list_elements->begin(), j = that->list_elements->begin();
     		i != this->list_elements->end() && j != that->list_elements->end();
@@ -6783,11 +6783,11 @@ bool List_assignment::equals(Node* in)
 
 List_assignment* List_assignment::clone()
 {
-    List<List_element*>* list_elements = NULL;
+    List_element_list* list_elements = NULL;
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
-    	list_elements = new List<List_element*>;
+    	List_element_list::const_iterator i;
+    	list_elements = new List_element_list;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
     		list_elements->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -6804,7 +6804,7 @@ Node* List_assignment::find(Node* in)
     
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(
     		i = this->list_elements->begin();
     		i != this->list_elements->end();
@@ -6827,14 +6827,14 @@ Node* List_assignment::find(Node* in)
     return NULL;
 }
 
-void List_assignment::find_all(Node* in, List<Node*>* out)
+void List_assignment::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->list_elements != NULL)
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(
     		i = this->list_elements->begin();
     		i != this->list_elements->end();
@@ -6856,7 +6856,7 @@ void List_assignment::assert_valid()
 {
     assert(list_elements != NULL);
     {
-    	List<List_element*>::const_iterator i;
+    	List_element_list::const_iterator i;
     	for(i = this->list_elements->begin(); i != this->list_elements->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -6977,7 +6977,7 @@ Node* Cast::find(Node* in)
     return NULL;
 }
 
-void Cast::find_all(Node* in, List<Node*>* out)
+void Cast::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7118,7 +7118,7 @@ Node* Unary_op::find(Node* in)
     return NULL;
 }
 
-void Unary_op::find_all(Node* in, List<Node*>* out)
+void Unary_op::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7283,7 +7283,7 @@ Node* Bin_op::find(Node* in)
     return NULL;
 }
 
-void Bin_op::find_all(Node* in, List<Node*>* out)
+void Bin_op::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7454,7 +7454,7 @@ Node* Conditional_expr::find(Node* in)
     return NULL;
 }
 
-void Conditional_expr::find_all(Node* in, List<Node*>* out)
+void Conditional_expr::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7566,7 +7566,7 @@ Node* Ignore_errors::find(Node* in)
     return NULL;
 }
 
-void Ignore_errors::find_all(Node* in, List<Node*>* out)
+void Ignore_errors::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7693,7 +7693,7 @@ Node* Constant::find(Node* in)
     return NULL;
 }
 
-void Constant::find_all(Node* in, List<Node*>* out)
+void Constant::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7824,7 +7824,7 @@ Node* Instanceof::find(Node* in)
     return NULL;
 }
 
-void Instanceof::find_all(Node* in, List<Node*>* out)
+void Instanceof::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -7846,7 +7846,7 @@ void Instanceof::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Variable::Variable(Target* target, Variable_name* variable_name, List<Expr*>* array_indices)
+Variable::Variable(Target* target, Variable_name* variable_name, Expr_list* array_indices)
 {
     this->target = target;
     this->variable_name = variable_name;
@@ -7903,7 +7903,7 @@ bool Variable::match(Node* in)
     
     if(this->array_indices != NULL && that->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -7952,7 +7952,7 @@ bool Variable::equals(Node* in)
     }
     else
     {
-    	List<Expr*>::const_iterator i, j;
+    	Expr_list::const_iterator i, j;
     	for(
     		i = this->array_indices->begin(), j = that->array_indices->begin();
     		i != this->array_indices->end() && j != that->array_indices->end();
@@ -7978,11 +7978,11 @@ Variable* Variable::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Variable_name* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    List<Expr*>* array_indices = NULL;
+    Expr_list* array_indices = NULL;
     if(this->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i;
-    	array_indices = new List<Expr*>;
+    	Expr_list::const_iterator i;
+    	array_indices = new Expr_list;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     		array_indices->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -8010,7 +8010,7 @@ Node* Variable::find(Node* in)
     
     if(this->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
     		i = this->array_indices->begin();
     		i != this->array_indices->end();
@@ -8027,7 +8027,7 @@ Node* Variable::find(Node* in)
     return NULL;
 }
 
-void Variable::find_all(Node* in, List<Node*>* out)
+void Variable::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -8040,7 +8040,7 @@ void Variable::find_all(Node* in, List<Node*>* out)
     
     if(this->array_indices != NULL)
     {
-    	List<Expr*>::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(
     		i = this->array_indices->begin();
     		i != this->array_indices->end();
@@ -8062,7 +8062,7 @@ void Variable::assert_valid()
     variable_name->assert_valid();
     assert(array_indices != NULL);
     {
-    	List<Expr*>::const_iterator i;
+    	Expr_list::const_iterator i;
     	for(i = this->array_indices->begin(); i != this->array_indices->end(); i++)
     	{
     		if(*i != NULL) (*i)->assert_valid();
@@ -8076,7 +8076,7 @@ Variable::Variable(Variable_name* name)
     {
 		this->target = NULL;
 		this->variable_name = name;
-		this->array_indices = new List<Expr*>;
+		this->array_indices = new Expr_list;
 	}
 }
 
@@ -8200,7 +8200,7 @@ Node* Pre_op::find(Node* in)
     return NULL;
 }
 
-void Pre_op::find_all(Node* in, List<Node*>* out)
+void Pre_op::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -8340,7 +8340,7 @@ Node* Post_op::find(Node* in)
     return NULL;
 }
 
-void Post_op::find_all(Node* in, List<Node*>* out)
+void Post_op::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -8370,7 +8370,7 @@ Post_op::Post_op(Variable* var, const char* op)
 	}
 }
 
-Array::Array(List<Array_elem*>* array_elems)
+Array::Array(Array_elem_list* array_elems)
 {
     this->array_elems = array_elems;
 }
@@ -8407,7 +8407,7 @@ bool Array::match(Node* in)
     
     if(this->array_elems != NULL && that->array_elems != NULL)
     {
-    	List<Array_elem*>::const_iterator i, j;
+    	Array_elem_list::const_iterator i, j;
     	for(
     		i = this->array_elems->begin(), j = that->array_elems->begin();
     		i != this->array_elems->end() && j != that->array_elems->end();
@@ -8440,7 +8440,7 @@ bool Array::equals(Node* in)
     }
     else
     {
-    	List<Array_elem*>::const_iterator i, j;
+    	Array_elem_list::const_iterator i, j;
     	for(
     		i = this->array_elems->begin(), j = that->array_elems->begin();
     		i != this->array_elems->end() && j != that->array_elems->end();
@@ -8464,11 +8464,11 @@ bool Array::equals(Node* in)
 
 Array* Array::clone()
 {
-    List<Array_elem*>* array_elems = NULL;
+    Array_elem_list* array_elems = NULL;
     if(this->array_elems != NULL)
     {
-    	List<Array_elem*>::const_iterator i;
-    	array_elems = new List<Array_elem*>;
+    	Array_elem_list::const_iterator i;
+    	array_elems = new Array_elem_list;
     	for(i = this->array_elems->begin(); i != this->array_elems->end(); i++)
     		array_elems->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -8484,7 +8484,7 @@ Node* Array::find(Node* in)
     
     if(this->array_elems != NULL)
     {
-    	List<Array_elem*>::const_iterator i;
+    	Array_elem_list::const_iterator i;
     	for(
     		i = this->array_elems->begin();
     		i != this->array_elems->end();
@@ -8501,14 +8501,14 @@ Node* Array::find(Node* in)
     return NULL;
 }
 
-void Array::find_all(Node* in, List<Node*>* out)
+void Array::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
     
     if(this->array_elems != NULL)
     {
-    	List<Array_elem*>::const_iterator i;
+    	Array_elem_list::const_iterator i;
     	for(
     		i = this->array_elems->begin();
     		i != this->array_elems->end();
@@ -8527,7 +8527,7 @@ void Array::assert_valid()
 {
     assert(array_elems != NULL);
     {
-    	List<Array_elem*>::const_iterator i;
+    	Array_elem_list::const_iterator i;
     	for(i = this->array_elems->begin(); i != this->array_elems->end(); i++)
     	{
     		assert(*i != NULL);
@@ -8537,7 +8537,7 @@ void Array::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Method_invocation::Method_invocation(Target* target, Method_name* method_name, List<Actual_parameter*>* actual_parameters)
+Method_invocation::Method_invocation(Target* target, Method_name* method_name, Actual_parameter_list* actual_parameters)
 {
     this->target = target;
     this->method_name = method_name;
@@ -8594,7 +8594,7 @@ bool Method_invocation::match(Node* in)
     
     if(this->actual_parameters != NULL && that->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i, j;
+    	Actual_parameter_list::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -8643,7 +8643,7 @@ bool Method_invocation::equals(Node* in)
     }
     else
     {
-    	List<Actual_parameter*>::const_iterator i, j;
+    	Actual_parameter_list::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -8669,11 +8669,11 @@ Method_invocation* Method_invocation::clone()
 {
     Target* target = this->target ? this->target->clone() : NULL;
     Method_name* method_name = this->method_name ? this->method_name->clone() : NULL;
-    List<Actual_parameter*>* actual_parameters = NULL;
+    Actual_parameter_list* actual_parameters = NULL;
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
-    	actual_parameters = new List<Actual_parameter*>;
+    	Actual_parameter_list::const_iterator i;
+    	actual_parameters = new Actual_parameter_list;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -8701,7 +8701,7 @@ Node* Method_invocation::find(Node* in)
     
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(
     		i = this->actual_parameters->begin();
     		i != this->actual_parameters->end();
@@ -8718,7 +8718,7 @@ Node* Method_invocation::find(Node* in)
     return NULL;
 }
 
-void Method_invocation::find_all(Node* in, List<Node*>* out)
+void Method_invocation::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -8731,7 +8731,7 @@ void Method_invocation::find_all(Node* in, List<Node*>* out)
     
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(
     		i = this->actual_parameters->begin();
     		i != this->actual_parameters->end();
@@ -8753,7 +8753,7 @@ void Method_invocation::assert_valid()
     method_name->assert_valid();
     assert(actual_parameters != NULL);
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
     		assert(*i != NULL);
@@ -8767,10 +8767,10 @@ Method_invocation::Method_invocation(const char* name, Expr* arg)
 {
     { 
 		this->target = NULL;
-		this->method_name = new METHOD_NAME(new String(name));
+		this->method_name = new METHOD_NAME(name);
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
 	}
 }
 
@@ -8781,11 +8781,11 @@ Method_invocation::Method_invocation(METHOD_NAME* name, Expr* arg)
 		this->method_name = name; 
 		Actual_parameter* actual_parameter = new Actual_parameter (false, arg);
 		actual_parameter->copy_location (arg);
-		this->actual_parameters = new List<Actual_parameter*> (actual_parameter);
+		this->actual_parameters = new Actual_parameter_list (actual_parameter);
 	}
 }
 
-New::New(Class_name* class_name, List<Actual_parameter*>* actual_parameters)
+New::New(Class_name* class_name, Actual_parameter_list* actual_parameters)
 {
     this->class_name = class_name;
     this->actual_parameters = actual_parameters;
@@ -8832,7 +8832,7 @@ bool New::match(Node* in)
     
     if(this->actual_parameters != NULL && that->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i, j;
+    	Actual_parameter_list::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -8873,7 +8873,7 @@ bool New::equals(Node* in)
     }
     else
     {
-    	List<Actual_parameter*>::const_iterator i, j;
+    	Actual_parameter_list::const_iterator i, j;
     	for(
     		i = this->actual_parameters->begin(), j = that->actual_parameters->begin();
     		i != this->actual_parameters->end() && j != that->actual_parameters->end();
@@ -8898,11 +8898,11 @@ bool New::equals(Node* in)
 New* New::clone()
 {
     Class_name* class_name = this->class_name ? this->class_name->clone() : NULL;
-    List<Actual_parameter*>* actual_parameters = NULL;
+    Actual_parameter_list* actual_parameters = NULL;
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
-    	actual_parameters = new List<Actual_parameter*>;
+    	Actual_parameter_list::const_iterator i;
+    	actual_parameters = new Actual_parameter_list;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     		actual_parameters->push_back(*i ? (*i)->clone() : NULL);
     }
@@ -8924,7 +8924,7 @@ Node* New::find(Node* in)
     
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(
     		i = this->actual_parameters->begin();
     		i != this->actual_parameters->end();
@@ -8941,7 +8941,7 @@ Node* New::find(Node* in)
     return NULL;
 }
 
-void New::find_all(Node* in, List<Node*>* out)
+void New::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -8951,7 +8951,7 @@ void New::find_all(Node* in, List<Node*>* out)
     
     if(this->actual_parameters != NULL)
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(
     		i = this->actual_parameters->begin();
     		i != this->actual_parameters->end();
@@ -8972,7 +8972,7 @@ void New::assert_valid()
     class_name->assert_valid();
     assert(actual_parameters != NULL);
     {
-    	List<Actual_parameter*>::const_iterator i;
+    	Actual_parameter_list::const_iterator i;
     	for(i = this->actual_parameters->begin(); i != this->actual_parameters->end(); i++)
     	{
     		assert(*i != NULL);
@@ -9061,7 +9061,7 @@ Node* FOREIGN::find(Node* in)
     return NULL;
 }
 
-void FOREIGN::find_all(Node* in, List<Node*>* out)
+void FOREIGN::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9171,7 +9171,7 @@ Node* CLASS_NAME::find(Node* in)
     return NULL;
 }
 
-void CLASS_NAME::find_all(Node* in, List<Node*>* out)
+void CLASS_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9262,7 +9262,7 @@ Node* INTERFACE_NAME::find(Node* in)
     return NULL;
 }
 
-void INTERFACE_NAME::find_all(Node* in, List<Node*>* out)
+void INTERFACE_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9353,7 +9353,7 @@ Node* METHOD_NAME::find(Node* in)
     return NULL;
 }
 
-void METHOD_NAME::find_all(Node* in, List<Node*>* out)
+void METHOD_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9363,6 +9363,13 @@ void METHOD_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+METHOD_NAME::METHOD_NAME(const char* name)
+{
+    {
+		this->value = new String (name);
+	}
 }
 
 VARIABLE_NAME::VARIABLE_NAME(String* value)
@@ -9444,7 +9451,7 @@ Node* VARIABLE_NAME::find(Node* in)
     return NULL;
 }
 
-void VARIABLE_NAME::find_all(Node* in, List<Node*>* out)
+void VARIABLE_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9535,7 +9542,7 @@ Node* DIRECTIVE_NAME::find(Node* in)
     return NULL;
 }
 
-void DIRECTIVE_NAME::find_all(Node* in, List<Node*>* out)
+void DIRECTIVE_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9626,7 +9633,7 @@ Node* OP::find(Node* in)
     return NULL;
 }
 
-void OP::find_all(Node* in, List<Node*>* out)
+void OP::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9717,7 +9724,7 @@ Node* CAST::find(Node* in)
     return NULL;
 }
 
-void CAST::find_all(Node* in, List<Node*>* out)
+void CAST::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9808,7 +9815,7 @@ Node* CONSTANT_NAME::find(Node* in)
     return NULL;
 }
 
-void CONSTANT_NAME::find_all(Node* in, List<Node*>* out)
+void CONSTANT_NAME::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -9899,7 +9906,7 @@ Node* INT::find(Node* in)
     return NULL;
 }
 
-void INT::find_all(Node* in, List<Node*>* out)
+void INT::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -10029,7 +10036,7 @@ Node* REAL::find(Node* in)
     return NULL;
 }
 
-void REAL::find_all(Node* in, List<Node*>* out)
+void REAL::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -10163,7 +10170,7 @@ Node* STRING::find(Node* in)
     return NULL;
 }
 
-void STRING::find_all(Node* in, List<Node*>* out)
+void STRING::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -10295,7 +10302,7 @@ Node* BOOL::find(Node* in)
     return NULL;
 }
 
-void BOOL::find_all(Node* in, List<Node*>* out)
+void BOOL::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -10401,7 +10408,7 @@ Node* NIL::find(Node* in)
     return NULL;
 }
 
-void NIL::find_all(Node* in, List<Node*>* out)
+void NIL::find_all(Node* in, Node_list* out)
 {
     if (this->match (in))
     	out->push_back (this);
@@ -10475,7 +10482,7 @@ Node* None::find(Node* in)
     assert (0);
 }
 
-void None::find_all(Node* in, List<Node*>* out)
+void None::find_all(Node* in, Node_list* out)
 {
     assert (0);
 }

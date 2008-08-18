@@ -11,6 +11,7 @@
 #include <string>
 #include "lib/Object.h"
 #include "lib/AttrMap.h"
+#include "lib/List.h"
 
 using namespace std;
 
@@ -36,5 +37,7 @@ public:
 	void toLower();
 	String* clone();
 };
+
+typedef List<String*> String_list;
 
 #endif

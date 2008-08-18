@@ -24,6 +24,7 @@ void shutdown_xml ();
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <xercesc/framework/StdInInputSource.hpp>
 #include <stack>
+#include <map>
 #include <boost/lexical_cast.hpp>
 
 #include "lib/base64.h"
@@ -45,8 +46,150 @@ extern struct gengetopt_args_info args_info;
 XERCES_CPP_NAMESPACE_USE
 using namespace boost;
 
+// The map wants a non-template class, so we put the code re-use in
+// T_node_builder, and just put the definition here.
+class Node_builder
+{
+public:
+	virtual bool can_handle_token (string name) = 0;
+	virtual Object* handle_token (string name, Object* param) = 0;
 
-template<class Node_factory, class STRING, class CAST, class INT, class REAL, class BOOL, class NIL>
+	virtual Object* create_node (char const* type, List<Object*>* args) = 0;
+};
+
+
+template<
+	class Factory,
+	class STRING,
+	class CAST,
+	class INT,
+	class REAL,
+	class BOOL,
+	class NIL,
+	class FOREIGN
+>
+class T_Node_builder : public Node_builder
+{
+public:
+	typedef T_Node_builder<Factory, STRING, CAST, INT, REAL, BOOL, NIL, FOREIGN> parent;
+
+	virtual Object* handle_token (string name, Object* param)
+	{
+		String* value = dynamic_cast<String*> (param);
+
+		// TODO CAST should be OK?
+		// TODO all of these should be do-able, with minor changes to maketea.
+		if (name == "STRING")
+			return new STRING (value);
+
+		else if (name == "CAST")
+			return new CAST (value);
+
+		else if (name == "INT")
+			return new INT (lexical_cast <long> (*value));
+
+		else if (name == "REAL")
+			return new REAL (lexical_cast <double> (*value));
+
+		else if (name == "BOOL")
+		{
+			// BOOL::get_value_as_string returns "True" or "False"
+			if (*value == "True")
+				return new BOOL(true);
+			else
+				return new BOOL(false);
+		}
+
+		else if (name == "NIL")
+			return new NIL ();
+
+		else
+			assert (0);
+	}
+
+	virtual bool can_handle_token (string name)
+	{
+		return name == "STRING"
+				|| name == "CAST"
+				|| name == "INT"
+				|| name == "REAL"
+				|| name == "BOOL"
+				|| name == "NIL";
+	}
+
+	Object* create_node (char const* type, List<Object*>* args)
+	{
+		// FOREIGN is special in that its a token with subnodes, which must be
+		// processed first.
+		if (type == *s("FOREIGN"))
+		{
+			assert (args->size () == 1);
+			return new FOREIGN (dyc<IR::Node> (args->front ()));
+		}
+		else
+			return Factory::create (type, args);
+	}
+};
+
+
+
+class AST_node_builder : public T_Node_builder
+<
+	AST::Node_factory,
+	AST::STRING,
+	AST::CAST,
+	AST::INT,
+	AST::REAL,
+	AST::BOOL,
+	AST::NIL,
+	AST::FOREIGN
+>
+{
+};
+
+class HIR_node_builder : public T_Node_builder
+<
+	HIR::Node_factory,
+	HIR::STRING,
+	HIR::CAST,
+	HIR::INT,
+	HIR::REAL,
+	HIR::BOOL,
+	HIR::NIL,
+	HIR::FOREIGN
+>
+{
+};
+
+class MIR_node_builder : public T_Node_builder
+<
+	MIR::Node_factory,
+	MIR::STRING,
+	MIR::CAST,
+	MIR::INT,
+	MIR::REAL,
+	MIR::BOOL,
+	MIR::NIL,
+	MIR::FOREIGN
+>
+{
+	bool can_handle_token (string name)
+	{
+		return name == "PARAM_INDEX" || parent::can_handle_token (name);
+	}
+
+
+	Object* handle_token (string name, Object* param)
+	{
+		if (name == "PARAM_INDEX")
+		{
+			return new MIR::PARAM_INDEX (lexical_cast <int> (*dyc<String> (param)));
+		}
+		else
+			return parent::handle_token (name, param);
+	}
+};
+
 class PHC_SAX2Handler : public DefaultHandler 
 {
 protected:
@@ -62,9 +205,15 @@ private:
 public:
 	IR::PHP_script* result;
 	bool no_errors;
+	map<string, Node_builder*> builders;
 
 public:
-	PHC_SAX2Handler() {}
+	PHC_SAX2Handler() 
+	{
+		builders["AST"] = new AST_node_builder;
+		builders["HIR"] = new HIR_node_builder;
+		builders["MIR"] = new MIR_node_builder;
+	}
 
 public:
 	void startDocument()
@@ -149,7 +298,14 @@ public:
 		if(!no_errors) return;
 			
 		char* name = XMLString::transcode(localname);
+
+		String* ns = s (string (XMLString::transcode(qname)).substr (0, 3));
+		if (*ns != "AST" && *ns != "HIR" && *ns != "MIR")
+			ns = NULL;
+
+
 		Object* node = NULL;
+		bool accept_attrs = true;
 
 		// Number of children of the node we are about to create
 		int num_children = num_children_stack.top();
@@ -157,6 +313,22 @@ public:
 		// After we pop, num_children_stack.top() corresponds to the number
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
+/*		TODO: debug info takes a long time to generate sometimes. Predicate it with if (debug)
+		cdebug << "Evaluating: " << name << ", and buffer: " << buffer << " with " << num_children << " children";
+		if (num_children_stack.size() > 0)
+			cdebug << ", and " << num_children_stack.top() << " parent's children";
+		cdebug << ". With " << node_stack.size() << " nodes on the stack";
+		if (node_stack.size() > 0)
+		{
+			cdebug << ", with the top one ";
+			if (String* str = dynamic_cast<String*>(node_stack.top()))
+				cdebug << "being a string with value: " << *str;
+			else
+				cdebug << "having type: " << typeid (node_stack.top()).name ();
+		}
+		cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
+*/
+		cdebug << endl;
 
 		if(is_nil)
 		{
@@ -170,23 +342,29 @@ public:
 		}
 		else if(!strcmp(name, "attr"))
 		{
+			cdebug << "Attr with key: " << key << endl;
 			// key is set when we see the open tag
 			attrs_stack.top()->set(key, node_stack.top());
 			node_stack.pop();
 		}
-		else if (is_token_name (name))
-		{
-			node = fetch_token (name);
-		}
-		else if(
- 			 !strcmp(name, "value") 
-		  || !strcmp(name, "string")
-		  )
+		else if(num_children == 0 &&
+				(!strcmp(name, "string")
+				|| !strcmp(name, "value")))
 		{
 			if(is_base64_encoded)
 				node = base64_decode(&buffer);
 			else
 				node = new String(buffer);
+		}
+		else if (!strcmp(name, "value")
+			&& num_children == 1)
+		{
+			// Must be the child of a FOREIGN
+			node = node_stack.top();
+			node_stack.pop();
+
+			// Don't let this take two attrs
+			accept_attrs = false;
 		}
 		else if(!strcmp(name, "bool"))
 		{
@@ -201,7 +379,7 @@ public:
 		}
 		else if(!strcmp(name, "string_list"))
 		{
-			List<String*>* string_list = new List<String*>;
+			String_list* string_list = new String_list;
 
 			for(int i = 0; i < num_children; i++)
 			{
@@ -210,6 +388,19 @@ public:
 			}
 
 			node = string_list;
+		}
+		else if (ns 
+			&& builders[*ns]->can_handle_token (name))
+		{
+			Object* arg = NULL;
+			if (num_children == 1)
+			{
+				arg = node_stack.top();
+				node_stack.pop ();
+			}
+				else assert (num_children == 0);
+
+			node = builders[*ns]->handle_token (name, arg);
 		}
 		else 
 		{
@@ -220,20 +411,33 @@ public:
 				args.push_front(node_stack.top());
 				node_stack.pop();
 			}
-		
-			node = Node_factory::create(name, &args);
+
+			assert (ns);
+			node = builders[*ns]->create_node (name, &args);
 
 			if(node == NULL)
 			{
-				phc_warning("XML parser: cannot deal with tag '%s'", name);
+				phc_warning("XML parser: cannot deal with tag '%s' in namespace '%s'", name, ns ? ns->c_str() : "NONE");
 			}
 		}
 
 		// Fetch attributes
-		if(isa<IR::Node> (node) && attrs_stack.size() > 0)
+		if(accept_attrs && isa <IR::Node> (node))
 		{
-			dyc<IR::Node> (node)->attrs = attrs_stack.top();
-			attrs_stack.pop();
+			IR::Node* attr_node = dyc<IR::Node> (node);
+			if (attrs_stack.size() > 0)
+			{
+				attr_node->attrs = attrs_stack.top();
+				attrs_stack.pop();
+			}
+			else
+			{
+				// TODO: This is fine if there are no attributes, but if some nodes
+				// are missing attributes it'll be a problem.
+
+				// There might be no attributes in the XML file.
+				attr_node->attrs = new AttrMap ();
+			}
 		}
 	
 		if(node != NULL)
@@ -273,55 +477,8 @@ public:
 		// I love this one
 		this->locator = &(*locator);
 	}
-
-	virtual bool is_token_name (string name)
-	{
-		return name == "STRING"
-				|| name == "CAST"
-				|| name == "INT"
-				|| name == "REAL"
-				|| name == "BOOL"
-				|| name == "NIL";
-	}
-
-	virtual IR::Node* fetch_token (string name)
-	{
-		IR::Node* result;
-		if (name == "STRING")
-			result = new STRING (dyc<String>(node_stack.top()));
-
-		else if (name == "CAST")
-			result = new CAST (dyc<String>(node_stack.top()));
-
-		else if (name == "INT")
-			result = new INT (lexical_cast <long> (*dyc<String>(node_stack.top())));
-
-		else if (name == "REAL")
-			result = new REAL (lexical_cast <double> (*dyc<String>(node_stack.top())));
-
-		else if (name == "BOOL")
-		{
-			String* value = dyc<String> (node_stack.top ());
-			// BOOL::get_value_as_string returns "True" or "False"
-			if(*value == "True")
-				result = new BOOL(true);
-			else
-				result = new BOOL(false);
-		}
-
-		else if (name == "NIL")
-			return new NIL (); // no stack pop
-
-		else
-			assert (0);
-
-		node_stack.pop();
-		return result;
-	}
-
 };
 
-template <class PHC_SAX2Handler>
 class XML_parser
 {
 public:
@@ -396,23 +553,6 @@ public:
 		return result;
 	}
 };
-
-class AST_SAX2Handler : public PHC_SAX2Handler<AST::Node_factory, AST::STRING, AST::CAST, AST::INT, AST::REAL, AST::BOOL, AST::NIL>
-{
-};
-
-class HIR_SAX2Handler : public PHC_SAX2Handler<HIR::Node_factory, HIR::STRING, HIR::CAST, HIR::INT, HIR::REAL, HIR::BOOL, HIR::NIL>
-{
-};
-
-class MIR_SAX2Handler : public PHC_SAX2Handler<MIR::Node_factory, MIR::STRING, MIR::CAST, MIR::INT, MIR::REAL, MIR::BOOL, MIR::NIL>
-{
-	typedef PHC_SAX2Handler<MIR::Node_factory, MIR::STRING, MIR::CAST, MIR::INT, MIR::REAL, MIR::BOOL, MIR::NIL> parent;
-};
-
-class AST_XML_parser : public XML_parser<AST_SAX2Handler> {};
-class HIR_XML_parser : public XML_parser<HIR_SAX2Handler> {};
-class MIR_XML_parser : public XML_parser<MIR_SAX2Handler> {};
 
 #endif // HAVE_XERCES
 

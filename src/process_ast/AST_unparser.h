@@ -90,18 +90,18 @@ public:
 	void children_bool(AST::BOOL* in);
 	void children_nil(AST::NIL* in);
 	
-	void visit_interface_name_list(List<AST::INTERFACE_NAME*>* in);
-	void visit_member_list(List<AST::Member*>* in);
-	void visit_statement_list(List<AST::Statement*>* in);
-	void visit_formal_parameter_list(List<AST::Formal_parameter*>* in);
-	void visit_switch_case_list(List<AST::Switch_case*>* in);
-	void visit_directive_list(List<AST::Directive*>* in);
-	void visit_catch_list(List<AST::Catch*>* in);
-	void visit_list_element_list(List<AST::List_element*>* in);
-	void visit_expr_list(List<AST::Expr*>* in);
-	void visit_array_elem_list(List<AST::Array_elem*>* in);
-	void visit_actual_parameter_list(List<AST::Actual_parameter*>* in);
-	void visit_name_with_default_list(List<AST::Name_with_default*>* in);
+	void visit_interface_name_list(AST::INTERFACE_NAME_list* in);
+	void visit_member_list(AST::Member_list* in);
+	void visit_statement_list(AST::Statement_list* in);
+	void visit_formal_parameter_list(AST::Formal_parameter_list* in);
+	void visit_switch_case_list(AST::Switch_case_list* in);
+	void visit_directive_list(AST::Directive_list* in);
+	void visit_catch_list(AST::Catch_list* in);
+	void visit_list_element_list(AST::List_element_list* in);
+	void visit_expr_list(AST::Expr_list* in);
+	void visit_array_elem_list(AST::Array_elem_list* in);
+	void visit_actual_parameter_list(AST::Actual_parameter_list* in);
+	void visit_name_with_default_list(AST::Name_with_default_list* in);
 
 	void pre_foreign(AST::FOREIGN* in);
 	void pre_node(AST::Node* in);

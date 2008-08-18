@@ -172,8 +172,9 @@ void use_expr (Basic_block* bb, Expr* in)
 
 			foreach (Actual_parameter* ap, *mi->actual_parameters)
 			{
-				if (Variable_actual_parameter* vap = dynamic_cast<Variable_actual_parameter*> (ap))
-					use (bb, vap->variable_name);
+				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
+				if (var_name)
+					use (bb, var_name);
 			}
 			break;
 		}
