@@ -25,23 +25,17 @@ Object* AttrMap::get(string key)
 
 Boolean* AttrMap::get_boolean(string key)
 {
-	Boolean* ret = dynamic_cast<Boolean*> (get (key));
-	assert(ret != NULL);
-	return ret;
+	return dyc<Boolean> (get (key));
 }
 
 Integer* AttrMap::get_integer(string key)
 {
-	Integer* ret = dynamic_cast<Integer*> (get (key));
-	assert(ret != NULL);
-	return ret;
+	return dyc<Integer> (get (key));
 }
 
 String* AttrMap::get_string(string key)
 {
-	String* ret = dynamic_cast<String*> (get (key));
-	assert(ret != NULL);
-	return ret;
+	return dyc<String> (get (key));
 }
 
 void AttrMap::set_true(string key)
@@ -57,8 +51,7 @@ void AttrMap::set_false(string key)
 bool AttrMap::is_true(string key)
 {
 	if(!has(key)) return false;
-	Boolean* ret = dynamic_cast<Boolean*>((*this)[key]);
-	assert(ret != NULL);
+	Boolean* ret = dyc<Boolean>((*this)[key]);
 	return ret->value();
 }
 

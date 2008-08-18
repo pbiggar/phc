@@ -130,6 +130,7 @@ private:
 	{
 		target->attrs->clone_all_from (source->attrs);
 		target->attrs->erase ("phc.comments");
+		target->attrs->erase_with_prefix ("phc.ast");
 	}
 
 public:

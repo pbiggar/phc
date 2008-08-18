@@ -109,6 +109,12 @@ public:
 		unset = NULL;
 	}
 
+	void copy_attrs (MIR::Node* target, HIR::Node* source)
+	{
+		target->attrs->clone_all_from (source->attrs);
+		target->attrs->erase_with_prefix ("phc.hir");
+	}
+
 	using parent::fold_method_name;
 
 public:
@@ -116,7 +122,7 @@ public:
 	{
 		MIR::PHP_script* result;
 		result = new MIR::PHP_script(statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -124,7 +130,7 @@ public:
 	{
 		MIR::Class_def* result;
 		result = new MIR::Class_def(class_mod, class_name, extends, implements, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -132,7 +138,7 @@ public:
 	{
 		MIR::Class_mod* result;
 		result = new MIR::Class_mod(is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -140,7 +146,7 @@ public:
 	{
 		MIR::Interface_def* result;
 		result = new MIR::Interface_def(interface_name, extends, members);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -148,7 +154,7 @@ public:
 	{
 		MIR::Method* result;
 		result = new MIR::Method(signature, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -156,7 +162,7 @@ public:
 	{
 		MIR::Signature* result;
 		result = new MIR::Signature(method_mod, is_ref, method_name, formal_parameters);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -164,7 +170,7 @@ public:
 	{
 		MIR::Method_mod* result;
 		result = new MIR::Method_mod(is_public, is_protected, is_private, is_static, is_abstract, is_final);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -172,7 +178,7 @@ public:
 	{
 		MIR::Formal_parameter* result;
 		result = new MIR::Formal_parameter(type, is_ref, var);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -180,7 +186,7 @@ public:
 	{
 		MIR::Type* result;
 		result = new MIR::Type(class_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -188,7 +194,7 @@ public:
 	{
 		MIR::Attribute* result;
 		result = new MIR::Attribute(attr_mod, var);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -196,7 +202,7 @@ public:
 	{
 		MIR::Attr_mod* result;
 		result = new MIR::Attr_mod(is_public, is_protected, is_private, is_static, is_const);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 	
@@ -204,7 +210,7 @@ public:
 	{ 
 		MIR::Name_with_default* result;
 		result = new MIR::Name_with_default(variable_name, static_value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -212,7 +218,7 @@ public:
 	{
 		MIR::Return* result;
 		result = new MIR::Return(expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -220,7 +226,7 @@ public:
 	{
 		MIR::Static_declaration* result;
 		result = new MIR::Static_declaration(var);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -228,7 +234,7 @@ public:
 	{
 		MIR::Global* result;
 		result = new MIR::Global(variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -236,7 +242,7 @@ public:
 	{
 		MIR::Try* result;
 		result = new MIR::Try(statements, catches);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -244,7 +250,7 @@ public:
 	{
 		MIR::Catch* result;
 		result = new MIR::Catch(class_name, variable_name, statements);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -252,7 +258,7 @@ public:
 	{
 		MIR::Throw* result;
 		result = new MIR::Throw(variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -260,7 +266,7 @@ public:
 	{
 		MIR::Eval_expr* result;
 		result = new MIR::Eval_expr (expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -268,7 +274,7 @@ public:
 	{
 		MIR::Assign_var* result;
 		result = new MIR::Assign_var (lhs, is_ref, rhs);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -276,7 +282,7 @@ public:
 	{
 		MIR::Assign_var_var* result;
 		result = new MIR::Assign_var_var(lhs, is_ref, rhs);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -284,7 +290,7 @@ public:
 	{
 		MIR::Assign_array* result;
 		result = new MIR::Assign_array (lhs, index, is_ref, rhs);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -292,7 +298,7 @@ public:
 	{
 		MIR::Assign_target* result;
 		result = new MIR::Assign_target (target, lhs, is_ref, rhs);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -300,7 +306,7 @@ public:
 	{
 		MIR::Push_array* result;
 		result = new MIR::Push_array (lhs, is_ref, rhs);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -330,7 +336,7 @@ public:
 			new HIR::Eval_expr (
 				new HIR::Method_invocation (
 					NULL,
-					new HIR::METHOD_NAME (s ("unset")),
+					new HIR::METHOD_NAME ("unset"),
 					NULL))))
 		{
 			parent::fold_statement (orig);
@@ -362,7 +368,7 @@ public:
 	{
 		MIR::Cast* result;
 		result = new MIR::Cast(cast, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -370,7 +376,7 @@ public:
 	{
 		MIR::Unary_op* result;
 		result = new MIR::Unary_op(op, expr);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -378,7 +384,7 @@ public:
 	{
 		MIR::Bin_op* result;
 		result = new MIR::Bin_op(left, op, right);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -386,7 +392,7 @@ public:
 	{
 		MIR::Constant* result;
 		result = new MIR::Constant(class_name, constant_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -394,7 +400,7 @@ public:
 	{
 		MIR::Instanceof* result;
 		result = new MIR::Instanceof(variable_name, class_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -402,7 +408,7 @@ public:
 	{
 		MIR::Index_array* result;
 		result = new MIR::Index_array(variable_name, index);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -410,7 +416,7 @@ public:
 	{
 		MIR::Variable_variable* result;
 		result = new MIR::Variable_variable(variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -418,7 +424,7 @@ public:
 	{
 		MIR::Variable_method* result;
 		result = new MIR::Variable_method(variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -426,7 +432,7 @@ public:
 	{
 		MIR::Variable_class* result;
 		result = new MIR::Variable_class(variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -434,7 +440,7 @@ public:
 	{
 		MIR::Target_expr* result;
 		result = new MIR::Target_expr(target, variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -442,7 +448,7 @@ public:
 	{
 		MIR::Pre_op* result;
 		result = new MIR::Pre_op(op, variable_name);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -450,7 +456,7 @@ public:
 	{
 		MIR::Static_array* result;
 		result = new MIR::Static_array (static_array_elems);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -458,7 +464,7 @@ public:
 	{
 		MIR::Static_array_elem* result;
 		result = new MIR::Static_array_elem (key, is_ref, val);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -485,7 +491,8 @@ public:
 					ap->target ? fold_target (ap->target) : NULL,
 					parent::fold_variable_name (ap->variable_name),
 					array_indices);
-				unset->attrs = unset->attrs;
+				unset->attrs = orig->attrs;
+				return NULL;
 			}
 			else
 			{
@@ -494,11 +501,9 @@ public:
 					ap->target ? fold_target (ap->target) : NULL,
 					parent::fold_variable_name (ap->variable_name),
 					array_indices);
-				result->attrs = orig->attrs;
+				copy_attrs (result, orig);
 				return result;
 			}
-
-			return NULL;
 		}
 
 		MIR::Method_invocation* result;
@@ -506,7 +511,7 @@ public:
 			target, 
 			method_name, 
 			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -518,7 +523,10 @@ public:
 			|| isa<MIR::Variable_variable> (variable_name))
 			return NULL;
 
-		return new MIR::Actual_parameter (is_ref, dyc<MIR::VARIABLE_NAME> (variable_name));
+		MIR::Actual_parameter* result;
+		result = new MIR::Actual_parameter (is_ref, dyc<MIR::VARIABLE_NAME> (variable_name));
+		copy_attrs (result, orig);
+		return result;
 	}
 
 	MIR::New* fold_impl_new(HIR::New* orig, MIR::Class_name* class_name, MIR::Node_list* actual_parameters) 
@@ -527,7 +535,7 @@ public:
 		result = new MIR::New(
 			class_name, 
 			rewrap_list<MIR::Node, MIR::Actual_parameter> (actual_parameters));
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -535,7 +543,7 @@ public:
 	{
 		MIR::CLASS_NAME* result;
 		result = new MIR::CLASS_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -543,7 +551,7 @@ public:
 	{
 		MIR::INTERFACE_NAME* result;
 		result = new MIR::INTERFACE_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -551,7 +559,7 @@ public:
 	{
 		MIR::METHOD_NAME* result;
 		result = new MIR::METHOD_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -559,7 +567,7 @@ public:
 	{
 		MIR::VARIABLE_NAME* result;
 		result = new MIR::VARIABLE_NAME(orig->value);
-		result->attrs = orig->attrs->clone ();
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -567,7 +575,7 @@ public:
 	{
 		MIR::INT* result;
 		result = new MIR::INT(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -575,7 +583,7 @@ public:
 	{
 		MIR::REAL* result;
 		result = new MIR::REAL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -583,7 +591,7 @@ public:
 	{
 		MIR::STRING* result;
 		result = new MIR::STRING(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -591,7 +599,7 @@ public:
 	{
 		MIR::BOOL* result;
 		result = new MIR::BOOL(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -599,7 +607,7 @@ public:
 	{
 		MIR::NIL* result;
 		result = new MIR::NIL();
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -607,7 +615,7 @@ public:
 	{
 		MIR::OP* result;
 		result = new MIR::OP(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -615,7 +623,7 @@ public:
 	{
 		MIR::CAST* result;
 		result = new MIR::CAST(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 
@@ -623,7 +631,7 @@ public:
 	{
 		MIR::CONSTANT_NAME* result;
 		result = new MIR::CONSTANT_NAME(orig->value);
-		result->attrs = orig->attrs;
+		copy_attrs (result, orig);
 		return result;
 	}
 

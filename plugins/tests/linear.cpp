@@ -55,12 +55,12 @@ void run (PHP_script* in)
 						// Find the owners of the attribute
 						foreach (Node* n, cap.all_nodes)
 						{
-							AttrMap::const_iterator a;
-							for(a = n->attrs->begin(); a != n->attrs->end(); a++)
+							typedef std::pair<string, Object*> map_type; // foreach doesnt like commas
+							foreach (map_type p, *n->attrs)
 							{
-								if ((*a).second == n)
+								if (p.second == obj)
 								{
-									printf ("In parent node: (%p), attribute name %s\n", n, (*a).first.c_str ());
+									printf ("In parent node: (%p), attribute name %s\n", n, p.first.c_str ());
 									debug (n);
 									xadebug (n);
 								}
