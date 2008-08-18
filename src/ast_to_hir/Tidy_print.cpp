@@ -27,7 +27,7 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, Statement_list* out)
 	Wildcard<Expr>* arg = new Wildcard<Expr>;
 	Method_invocation* print = new Method_invocation (
 			NULL,	
-			new METHOD_NAME (new String ("print")),
+			new METHOD_NAME ("print"),
 			new Actual_parameter_list (
 				new Actual_parameter (false, arg) // print can only have 1 argument
 				));
@@ -48,9 +48,12 @@ void Tidy_print::pre_eval_expr (Eval_expr* in, Statement_list* out)
 		if (agn)
 		{
 			// $x = 1;
-			out->push_back (new Eval_expr (
-						new Assignment(agn->variable, false,
-							new INT (1))));
+			out->push_back (
+				new Eval_expr (
+					new Assignment(
+						agn->variable, 
+						false,
+						new INT (1))));
 		}
 		return;
 	}
