@@ -198,6 +198,12 @@ Address_taken::visit_global (Statement_block* bb, MIR::Global* in)
 }
 
 void
+Address_taken::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
+{
+	// Nothing
+}
+
+void
 Address_taken::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 {
 	// Nothing
@@ -234,6 +240,12 @@ Address_taken::visit_throw (Statement_block* sb, MIR::Throw*)
 {
 	assert (0);
 	// TODO
+}
+
+void
+Address_taken::visit_unset (Statement_block* sb, MIR::Unset*)
+{
+	// Nothing
 }
 
 void

@@ -32,20 +32,24 @@ void
 Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 {
 	MIR::PHP_script* script = ir_script->as_MIR();
-	for_lci (script->statements, Statement, i)
+	foreach (Statement* s, *script->statements)
 	{
-		Method* method = dyc<Method> (*i);
-		CFG* cfg = new CFG ();
-		cfg->add_statements (method->statements);
-//		cfg->dump_graphviz (s("BEFORE DCE"));
-		visit (cfg);
-		Address_taken* at = new Address_taken;
-		at->visit (cfg);
-//		cfg->dump_graphviz (s("AFTER LVA"));
-		Dead_code_elimination* dce = new Dead_code_elimination;
-		dce->visit (cfg);
-//		cfg->dump_graphviz (s("AFTER DCE"));
-		method->statements = cfg->get_linear_statements ();
+		// TODO we should be optimizing all methods
+		if (isa<Method> (s))
+		{
+			Method* method = dyc<Method> (s);
+			CFG* cfg = new CFG ();
+			cfg->add_statements (method->statements);
+			//		cfg->dump_graphviz (s("BEFORE DCE"));
+			visit (cfg);
+			Address_taken* at = new Address_taken;
+			at->visit (cfg);
+			//		cfg->dump_graphviz (s("AFTER LVA"));
+			Dead_code_elimination* dce = new Dead_code_elimination;
+			dce->visit (cfg);
+			//		cfg->dump_graphviz (s("AFTER DCE"));
+			method->statements = cfg->get_linear_statements ();
+		}
 	}
 }
 
@@ -74,6 +78,12 @@ Live_variable_analysis::transfer_out (Basic_block* bb, list<Basic_block*>* succs
 
 	// We don't care if the OUT solution changes, unless the IN solution does,
 	// as the OUT solution wouldn't propagate.
+}
+
+void
+use_bottom (Basic_block* bb)
+{
+	bb->uses->insert_all ();
 }
 
 void
@@ -282,6 +292,12 @@ Live_variable_analysis::visit_pre_op (Statement_block* bb, MIR::Pre_op* in)
 }
 
 void
+Live_variable_analysis::visit_param_is_ref (Statement_block* bb, MIR::Param_is_ref* in)
+{
+	// Nothing used
+}
+
+void
 Live_variable_analysis::visit_push_array (Statement_block* bb, MIR::Push_array* in)
 {
 	use (bb, in->lhs);
@@ -312,6 +328,17 @@ Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
 {
 	assert (0);
 	// TODO
+}
+
+void
+Live_variable_analysis::visit_unset (Statement_block* bb, MIR::Unset* in)
+{
+	if (in->target == NULL
+		&& isa<VARIABLE_NAME> (in->variable_name)
+		&& in->array_indices->size () == 0)
+	{
+		def (bb, dyc<VARIABLE_NAME> (in->variable_name));
+	}
 }
 
 void

@@ -113,6 +113,9 @@ private:
 				case MIR::Global::ID:
 					this->visit_global(sb, dyc<MIR::Global>(sb->statement));
 					break;
+				case MIR::Param_is_ref::ID:
+					this->visit_param_is_ref (sb, dyc<MIR::Param_is_ref>(sb->statement));
+					break;
 				case MIR::Pre_op::ID:
 					this->visit_pre_op(sb, dyc<MIR::Pre_op>(sb->statement));
 					break;
@@ -130,6 +133,9 @@ private:
 					break;
 				case MIR::Try::ID:
 					this->visit_try(sb, dyc<MIR::Try>(sb->statement));
+					break;
+				case MIR::Unset::ID:
+					this->visit_unset (sb, dyc<MIR::Unset>(sb->statement));
 					break;
 				default:
 					assert (0);
@@ -188,6 +194,9 @@ private:
 				case MIR::Global::ID:
 					this->transform_global(sb, dyc<MIR::Global>(sb->statement), out);
 					break;
+				case MIR::Param_is_ref::ID:
+					this->transform_param_is_ref (sb, dyc<MIR::Param_is_ref> (sb->statement), out);
+					break;
 				case MIR::Pre_op::ID:
 					this->transform_pre_op(sb, dyc<MIR::Pre_op>(sb->statement), out);
 					break;
@@ -205,6 +214,9 @@ private:
 					break;
 				case MIR::Try::ID:
 					this->transform_try(sb, dyc<MIR::Try>(sb->statement), out);
+					break;
+				case MIR::Unset::ID:
+					this->transform_unset(sb, dyc<MIR::Unset>(sb->statement), out);
 					break;
 				default:
 					assert (0);
@@ -267,6 +279,10 @@ private:
 	{
 		out->push_back (in);
 	}
+	virtual void transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, list<Basic_block*>* out)
+	{
+		out->push_back (in);
+	}
 	virtual void transform_pre_op (Statement_block* in, MIR::Pre_op*, list<Basic_block*>* out)
 	{
 		out->push_back (in);
@@ -288,6 +304,10 @@ private:
 		out->push_back (in);
 	}
 	virtual void transform_try (Statement_block* in, MIR::Try*, list<Basic_block*>* out)
+	{
+		out->push_back (in);
+	}
+	virtual void transform_unset (Statement_block* in, MIR::Unset*, list<Basic_block*>* out)
 	{
 		out->push_back (in);
 	}
@@ -360,12 +380,14 @@ public:
 	virtual void visit_foreach_next (Statement_block*, MIR::Foreach_next*) = 0;
 	virtual void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*) = 0;
 	virtual void visit_global (Statement_block*, MIR::Global*) = 0;
+	virtual void visit_param_is_ref (Statement_block*, MIR::Param_is_ref*) = 0;
 	virtual void visit_pre_op (Statement_block*, MIR::Pre_op*) = 0;
 	virtual void visit_push_array (Statement_block*, MIR::Push_array*) = 0;
 	virtual void visit_return (Statement_block*, MIR::Return*) = 0;
 	virtual void visit_static_declaration (Statement_block*, MIR::Static_declaration*) = 0;
 	virtual void visit_throw (Statement_block*, MIR::Throw*) = 0;
 	virtual void visit_try (Statement_block*, MIR::Try*) = 0;
+	virtual void visit_unset (Statement_block*, MIR::Unset*) = 0;
 };
 
 /* Each method is defined and empty, so we can override a small number of
@@ -398,12 +420,14 @@ public:
 	virtual void visit_foreach_next (Statement_block*, MIR::Foreach_next*) {};
 	virtual void visit_foreach_reset (Statement_block*, MIR::Foreach_reset*) {};
 	virtual void visit_global (Statement_block*, MIR::Global*) {};
+	virtual void visit_param_is_ref (Statement_block*, MIR::Param_is_ref*) {};
 	virtual void visit_pre_op (Statement_block*, MIR::Pre_op*) {};
 	virtual void visit_push_array (Statement_block*, MIR::Push_array*) {};
 	virtual void visit_return (Statement_block*, MIR::Return*) {};
 	virtual void visit_static_declaration (Statement_block*, MIR::Static_declaration*) {};
 	virtual void visit_throw (Statement_block*, MIR::Throw*) {};
 	virtual void visit_try (Statement_block*, MIR::Try*) {};
+	virtual void visit_unset (Statement_block*, MIR::Unset*) {};
 };
 
 
