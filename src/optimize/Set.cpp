@@ -120,4 +120,5 @@ Set::operator!=(Set& other)
 
 void Set::insert_all ()
 {
+	full = true;
 }

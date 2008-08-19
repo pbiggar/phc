@@ -222,10 +222,11 @@ Address_taken::visit_return (Statement_block* bb, MIR::Return* in)
 	alias_expr (bb, in->expr);
 }
 void
-Address_taken::visit_static_declaration (Statement_block* sb, MIR::Static_declaration*)
+Address_taken::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)
 {
-	assert (0);
-	// TODO
+	// This could be set to anything in a different incovation of the
+	// function.
+	aliased (bb, in->var->variable_name);
 }
 
 void

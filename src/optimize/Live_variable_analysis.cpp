@@ -134,6 +134,7 @@ void use_expr (Basic_block* bb, Expr* in)
 		case NIL::ID:
 		case REAL::ID:
 		case STRING::ID:
+		case Param_is_ref::ID:
 			// do nothing
 			break;
 
@@ -232,10 +233,13 @@ void use_expr (Basic_block* bb, Expr* in)
 		case Target_expr::ID:
 		{
 			Target_expr* te = dyc<Target_expr> (in);
-			use (bb, te->variable_name);
+
+			// This uses a variable field, not a variable expr.
+			if (isa<Variable_variable> (te->variable_name))
+				use (bb, dyc<Variable_variable> (te->variable_name)->variable_name);
 
 			if (isa<VARIABLE_NAME> (te->target))
-				assert (0); // bottom
+				use (bb, dyc<VARIABLE_NAME> (te->target));
 
 			break;
 		}
@@ -249,8 +253,7 @@ void use_expr (Basic_block* bb, Expr* in)
 			break;
 
 		case Variable_variable::ID:
-			// TODO: bottom
-			assert (0);
+			use_bottom (bb);
 			break;
 
 		default:
@@ -270,8 +273,9 @@ Live_variable_analysis::visit_assign_array (Statement_block* bb, MIR::Assign_arr
 void
 Live_variable_analysis::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
 {
-//	use_expr (bb, in->target);
-	assert (0); // use (bb, in->lhs);
+	if (isa<VARIABLE_NAME> (in->target))
+		use (bb, dyc<VARIABLE_NAME> (in->target));
+
 	use (bb, in->rhs);
 }
 
@@ -347,8 +351,7 @@ Live_variable_analysis::visit_return (Statement_block* bb, MIR::Return* in)
 void
 Live_variable_analysis::visit_static_declaration (Statement_block* sb, MIR::Static_declaration*)
 {
-	assert (0);
-	// TODO
+	// A defintion the first time the function is called: after that it isnt a use or a def. Do nothing.
 }
 
 void
