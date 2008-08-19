@@ -169,6 +169,30 @@ void use_expr (Basic_block* bb, Expr* in)
 			break;
 		}
 
+		case Isset::ID:
+		{
+			Isset* i = dyc<Isset> (in);
+			if (i->target && isa<VARIABLE_NAME> (i->target))
+				use (bb, dyc<VARIABLE_NAME> (i->target));
+
+			// If there is a target, then a var-var means a field access, not
+			// accessing any variable.
+			if (isa<Variable_variable> (i->variable_name))
+			{
+				if (i->target)
+					use (bb, dyc<Variable_variable> (i->variable_name)->variable_name);
+				else
+					use_bottom (bb);
+			}
+			else
+				use (bb, dyc<VARIABLE_NAME> (i->variable_name));
+
+			foreach (Rvalue* rv, *i->array_indices)
+				use (bb, rv);
+
+			break;
+		}
+
 		case Instanceof::ID:
 			use (bb, dyc<Instanceof> (in)->variable_name);
 			break;
@@ -190,9 +214,20 @@ void use_expr (Basic_block* bb, Expr* in)
 		}
 
 		case New::ID:
-			// TODO
-			// TODO class_name?
-			assert (0);
+		{
+			New* n = dyc<New> (in);
+
+			if (isa<VARIABLE_NAME> (n->class_name))
+				assert (0); // TODO
+
+			foreach (Actual_parameter* ap, *n->actual_parameters)
+			{
+				VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (ap->rvalue);
+				if (var_name)
+					use (bb, var_name);
+			}
+			break;
+		}
 
 		case Target_expr::ID:
 		{
