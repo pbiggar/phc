@@ -95,8 +95,10 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Foreach_get_val::ID:
 		case Foreach_has_key::ID:
 		case Index_array::ID:
+		case Isset::ID:
 			// Nothing is aliased on the RHS of $x =& $y[$z]
 		case Instanceof::ID:
+		case Param_is_ref::ID:
 		case Unary_op::ID:
 		case Target_expr::ID:
 			// do nothing
@@ -118,9 +120,14 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		}
 
 		case New::ID:
-			// TODO same as Method_invocation
-			// TODO class_name?
-			assert (0);
+		{
+			New* n = dyc<New> (in);
+
+			foreach (Actual_parameter* ap, *n->actual_parameters)
+				aliased (bb, ap->rvalue);
+
+			break;
+		}
 
 		case VARIABLE_NAME::ID:
 			aliased (bb, dyc<VARIABLE_NAME> (in));
@@ -140,14 +147,14 @@ void
 Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 {
 	if (in->is_ref)
-		aliased (bb, in->lhs);
+		aliased (bb, in->rhs);
 }
 
 void
 Address_taken::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
 {
-	// TODO
-	assert (0);
+	if (in->is_ref)
+		aliased (bb, in->rhs);
 }
 
 void
