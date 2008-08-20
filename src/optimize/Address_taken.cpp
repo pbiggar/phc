@@ -32,6 +32,13 @@ void Address_taken::transfer_in (Basic_block* bb, list<Basic_block*>*) {}
 void Address_taken::transfer_out (Basic_block*, list<Basic_block*>*) {}
 
 void Address_taken::visit_branch_block (Branch_block* bb) {}
+void Address_taken::visit_entry_block (Entry_block* bb)
+{
+	foreach (Formal_parameter* fp, *bb->method->signature->formal_parameters)
+	{
+		aliased (bb, fp->var->variable_name);
+	}
+}
 
 void
 Address_taken::alias_bottom (Basic_block* bb)

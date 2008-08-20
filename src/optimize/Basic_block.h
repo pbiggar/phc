@@ -46,12 +46,18 @@ public:
 
 class Entry_block : public Basic_block
 {
+public:
 	virtual String* get_graphviz_label ();
+	Entry_block (MIR::Method* method) : method(method) {}
+	MIR::Method* method;
 };
 
 class Exit_block : public Basic_block
 {
+public:
 	virtual String* get_graphviz_label ();
+	Exit_block (MIR::Method* method) : method(method) {}
+	MIR::Method* method;
 };
 
 class Empty_block : public Basic_block

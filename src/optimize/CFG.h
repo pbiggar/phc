@@ -70,8 +70,7 @@ public:
 
 public:
 
-	CFG ();
-	void add_statements (List<MIR::Statement*>* statements);
+	CFG (MIR::Method* method);
 	List<MIR::Statement*>* get_linear_statements ();
 
 	// Add the BB to the graph, and update the BB's vertex.
@@ -109,8 +108,11 @@ public:
 
 private:
 	Graph bs; // backing store
+	MIR::Method* method;
 	vertex_t entry;
 	vertex_t exit;
+
+	void add_statements (MIR::Statement_list*);
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.

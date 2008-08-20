@@ -35,7 +35,7 @@ public:
 	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);
 
 	// Local solution
-	void visit_entry_block (Entry_block*) {}
+	void visit_entry_block (Entry_block*);
 	void visit_empty_block (Empty_block*) {}
 	void visit_exit_block (Exit_block*) {}
 	void visit_branch_block (Branch_block*);

@@ -18,16 +18,19 @@ using namespace boost;
 using namespace std;
 using namespace MIR;
 
-CFG::CFG ()
+CFG::CFG (Method* method)
 : bs()
+, method (method)
 {
 	vb = get(vertex_bb_t(), bs);
 	ebd = get(edge_branch_direction_t(), bs);
 	index = get(vertex_index_t(), bs);
 
 	// Initialize the entry and exit blocks
-	entry = add_bb (new Entry_block);
-	exit = add_bb (new Exit_block);
+	entry = add_bb (new Entry_block (method));
+	exit = add_bb (new Exit_block (method));
+
+	add_statements (method->statements);
 }
 
 vertex_t

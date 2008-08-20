@@ -38,16 +38,19 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 		if (isa<Method> (s))
 		{
 			Method* method = dyc<Method> (s);
-			CFG* cfg = new CFG ();
-			cfg->add_statements (method->statements);
+			CFG* cfg = new CFG (method);
+
 			//		cfg->dump_graphviz (s("BEFORE DCE"));
-			visit (cfg);
+			this->visit (cfg);
+
 			Address_taken* at = new Address_taken;
 			at->visit (cfg);
-			//		cfg->dump_graphviz (s("AFTER LVA"));
+			//		cfg->dump_graphviz (s("AFTER Aliasing"));
+
 			Dead_code_elimination* dce = new Dead_code_elimination;
 			dce->visit (cfg);
 			//		cfg->dump_graphviz (s("AFTER DCE"));
+
 			method->statements = cfg->get_linear_statements ();
 		}
 	}
