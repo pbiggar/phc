@@ -367,10 +367,10 @@ public:
 	{
 		assert (eval_expr_assignment == NULL);
 
-		HIR::Target_expr* target_expr = dynamic_cast<HIR::Target_expr*> (lhs);
+		HIR::Field_access* field_access = dynamic_cast<HIR::Field_access*> (lhs);
 		HIR::VARIABLE_NAME* var_name = dynamic_cast<HIR::VARIABLE_NAME*> (lhs);
 		HIR::Variable_variable* var_var = dynamic_cast<HIR::Variable_variable*> (lhs);
-		HIR::Index_array* ia = dynamic_cast<HIR::Index_array*> (lhs);
+		HIR::Array_access* ia = dynamic_cast<HIR::Array_access*> (lhs);
 
 		// Var doesnt have enough information to tell us if a NULL
 		// var->array_index indicates a push or a copy. So we have to look in
@@ -448,13 +448,13 @@ public:
 			return NULL;
 		}
 
-		// target_expr - $x->$y = $z;
-		if (target_expr)
+		// field_access - $x->$y = $z;
+		if (field_access)
 		{
-			HIR::Assign_target* result;
-			result = new HIR::Assign_target(
-				target_expr->target,
-				target_expr->variable_name, 
+			HIR::Assign_field* result;
+			result = new HIR::Assign_field (
+				field_access->target,
+				field_access->field_name, 
 				is_ref,
 				dyc<HIR::Rvalue> (expr));
 
@@ -534,8 +534,8 @@ public:
 				&& isa<HIR::VARIABLE_NAME> (variable_name))
 		{
 			HIR::Rvalue* array_index = dyc<HIR::Rvalue> (array_indices->front ());
-			HIR::Index_array* result;
-			result = new HIR::Index_array (
+			HIR::Array_access* result;
+			result = new HIR::Array_access (
 					dyc<HIR::VARIABLE_NAME> (variable_name),
 					array_index);
 			copy_attrs (result, orig);
@@ -550,13 +550,21 @@ public:
 			copy_attrs (result, orig);
 			return result;
 		}
-		// $x->
+		// $x->f
 		else if (target)
 		{
-			HIR::Target_expr* result;
-			result = new HIR::Target_expr (
+			HIR::Field_name* field_name;
+			if (isa<HIR::VARIABLE_NAME> (variable_name))
+				field_name = new HIR::FIELD_NAME (dyc<HIR::VARIABLE_NAME> (variable_name)->value);
+			else
+				field_name = new HIR::Variable_field (dyc<HIR::Variable_variable> (variable_name)->variable_name->clone ());
+
+			field_name->attrs = variable_name->attrs->clone ();
+
+			HIR::Field_access* result;
+			result = new HIR::Field_access (
 					unwrap_target (target),
-					variable_name);
+					field_name);
 			copy_attrs (result, orig);
 			return result;
 		}

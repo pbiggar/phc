@@ -101,7 +101,7 @@ void Transform::pre_assign_var(Assign_var* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::pre_assign_target(Assign_target* in, Statement_list* out)
+void Transform::pre_assign_field(Assign_field* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -141,17 +141,12 @@ Expr* Transform::pre_isset(Isset* in)
     return in;
 }
 
-Expr* Transform::pre_target_expr(Target_expr* in)
+Expr* Transform::pre_field_access(Field_access* in)
 {
     return in;
 }
 
-Variable_name* Transform::pre_variable_variable(Variable_variable* in)
-{
-    return in;
-}
-
-Expr* Transform::pre_index_array(Index_array* in)
+Expr* Transform::pre_array_access(Array_access* in)
 {
     return in;
 }
@@ -186,11 +181,6 @@ Expr* Transform::pre_method_invocation(Method_invocation* in)
     return in;
 }
 
-Method_name* Transform::pre_variable_method(Variable_method* in)
-{
-    return in;
-}
-
 void Transform::pre_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
 {
     out->push_back(in);
@@ -201,7 +191,22 @@ Expr* Transform::pre_new(New* in)
     return in;
 }
 
+Method_name* Transform::pre_variable_method(Variable_method* in)
+{
+    return in;
+}
+
+Variable_name* Transform::pre_variable_variable(Variable_variable* in)
+{
+    return in;
+}
+
 Class_name* Transform::pre_variable_class(Variable_class* in)
+{
+    return in;
+}
+
+Field_name* Transform::pre_variable_field(Variable_field* in)
 {
     return in;
 }
@@ -336,6 +341,11 @@ CONSTANT_NAME* Transform::pre_constant_name(CONSTANT_NAME* in)
     return in;
 }
 
+Field_name* Transform::pre_field_name(FIELD_NAME* in)
+{
+    return in;
+}
+
 LABEL_NAME* Transform::pre_label_name(LABEL_NAME* in)
 {
     return in;
@@ -442,7 +452,7 @@ void Transform::post_assign_var(Assign_var* in, Statement_list* out)
     out->push_back(in);
 }
 
-void Transform::post_assign_target(Assign_target* in, Statement_list* out)
+void Transform::post_assign_field(Assign_field* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -482,17 +492,12 @@ Expr* Transform::post_isset(Isset* in)
     return in;
 }
 
-Expr* Transform::post_target_expr(Target_expr* in)
+Expr* Transform::post_field_access(Field_access* in)
 {
     return in;
 }
 
-Variable_name* Transform::post_variable_variable(Variable_variable* in)
-{
-    return in;
-}
-
-Expr* Transform::post_index_array(Index_array* in)
+Expr* Transform::post_array_access(Array_access* in)
 {
     return in;
 }
@@ -527,11 +532,6 @@ Expr* Transform::post_method_invocation(Method_invocation* in)
     return in;
 }
 
-Method_name* Transform::post_variable_method(Variable_method* in)
-{
-    return in;
-}
-
 void Transform::post_actual_parameter(Actual_parameter* in, Actual_parameter_list* out)
 {
     out->push_back(in);
@@ -542,7 +542,22 @@ Expr* Transform::post_new(New* in)
     return in;
 }
 
+Method_name* Transform::post_variable_method(Variable_method* in)
+{
+    return in;
+}
+
+Variable_name* Transform::post_variable_variable(Variable_variable* in)
+{
+    return in;
+}
+
 Class_name* Transform::post_variable_class(Variable_class* in)
+{
+    return in;
+}
+
+Field_name* Transform::post_variable_field(Variable_field* in)
 {
     return in;
 }
@@ -677,6 +692,11 @@ CONSTANT_NAME* Transform::post_constant_name(CONSTANT_NAME* in)
     return in;
 }
 
+Field_name* Transform::post_field_name(FIELD_NAME* in)
+{
+    return in;
+}
+
 LABEL_NAME* Transform::post_label_name(LABEL_NAME* in)
 {
     return in;
@@ -796,10 +816,10 @@ void Transform::children_assign_var(Assign_var* in)
     in->rhs = transform_expr(in->rhs);
 }
 
-void Transform::children_assign_target(Assign_target* in)
+void Transform::children_assign_field(Assign_field* in)
 {
     in->target = transform_target(in->target);
-    in->lhs = transform_variable_name(in->lhs);
+    in->lhs = transform_field_name(in->lhs);
     in->rhs = transform_rvalue(in->rhs);
 }
 
@@ -847,18 +867,13 @@ void Transform::children_isset(Isset* in)
     in->array_indices = transform_rvalue_list(in->array_indices);
 }
 
-void Transform::children_target_expr(Target_expr* in)
+void Transform::children_field_access(Field_access* in)
 {
     in->target = transform_target(in->target);
-    in->variable_name = transform_variable_name(in->variable_name);
+    in->field_name = transform_field_name(in->field_name);
 }
 
-void Transform::children_variable_variable(Variable_variable* in)
-{
-    in->variable_name = transform_variable_name(in->variable_name);
-}
-
-void Transform::children_index_array(Index_array* in)
+void Transform::children_array_access(Array_access* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
     in->index = transform_rvalue(in->index);
@@ -902,11 +917,6 @@ void Transform::children_method_invocation(Method_invocation* in)
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
-void Transform::children_variable_method(Variable_method* in)
-{
-    in->variable_name = transform_variable_name(in->variable_name);
-}
-
 void Transform::children_actual_parameter(Actual_parameter* in)
 {
     in->rvalue = transform_rvalue(in->rvalue);
@@ -918,7 +928,22 @@ void Transform::children_new(New* in)
     in->actual_parameters = transform_actual_parameter_list(in->actual_parameters);
 }
 
+void Transform::children_variable_method(Variable_method* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+}
+
+void Transform::children_variable_variable(Variable_variable* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+}
+
 void Transform::children_variable_class(Variable_class* in)
+{
+    in->variable_name = transform_variable_name(in->variable_name);
+}
+
+void Transform::children_variable_field(Variable_field* in)
 {
     in->variable_name = transform_variable_name(in->variable_name);
 }
@@ -1049,6 +1074,10 @@ void Transform::children_cast(CAST* in)
 }
 
 void Transform::children_constant_name(CONSTANT_NAME* in)
+{
+}
+
+void Transform::children_field_name(FIELD_NAME* in)
 {
 }
 
@@ -1450,6 +1479,22 @@ Target* Transform::transform_target(Target* in)
     return out;
 }
 
+Field_name* Transform::transform_field_name(Field_name* in)
+{
+    if(in == NULL) return NULL;
+    
+    Field_name* out;
+    
+    out = pre_field_name(in);
+    if(out != NULL)
+    {
+    	children_field_name(out);
+    	out = post_field_name(out);
+    }
+    
+    return out;
+}
+
 Rvalue* Transform::transform_rvalue(Rvalue* in)
 {
     if(in == NULL) return NULL;
@@ -1830,11 +1875,11 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Assign_target::ID: 
+    case Assign_field::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		pre_assign_target(dynamic_cast<Assign_target*>(in), local_out);
+    		pre_assign_field(dynamic_cast<Assign_field*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -1986,10 +2031,10 @@ Expr* Transform::pre_expr(Expr* in)
     case NIL::ID: return pre_nil(dynamic_cast<NIL*>(in));
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
-    case Index_array::ID: return pre_index_array(dynamic_cast<Index_array*>(in));
-    case Target_expr::ID: return pre_target_expr(dynamic_cast<Target_expr*>(in));
-    case Isset::ID: return pre_isset(dynamic_cast<Isset*>(in));
+    case Array_access::ID: return pre_array_access(dynamic_cast<Array_access*>(in));
+    case Field_access::ID: return pre_field_access(dynamic_cast<Field_access*>(in));
     case FOREIGN::ID: return pre_foreign(dynamic_cast<FOREIGN*>(in));
+    case Isset::ID: return pre_isset(dynamic_cast<Isset*>(in));
     case Foreach_has_key::ID: return pre_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -2014,6 +2059,16 @@ Target* Transform::pre_target(Target* in)
     {
     case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case CLASS_NAME::ID: return pre_class_name(dynamic_cast<CLASS_NAME*>(in));
+    }
+    assert(0);
+}
+
+Field_name* Transform::pre_field_name(Field_name* in)
+{
+    switch(in->classid())
+    {
+    case FIELD_NAME::ID: return pre_field_name(dynamic_cast<FIELD_NAME*>(in));
+    case Variable_field::ID: return pre_variable_field(dynamic_cast<Variable_field*>(in));
     }
     assert(0);
 }
@@ -2180,11 +2235,11 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
-    case Assign_target::ID: 
+    case Assign_field::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
     		Statement_list::const_iterator i;
-    		post_assign_target(dynamic_cast<Assign_target*>(in), local_out);
+    		post_assign_field(dynamic_cast<Assign_field*>(in), local_out);
     		for(i = local_out->begin(); i != local_out->end(); i++)
     			out->push_back(*i);
     	}
@@ -2336,10 +2391,10 @@ Expr* Transform::post_expr(Expr* in)
     case NIL::ID: return post_nil(dynamic_cast<NIL*>(in));
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
-    case Index_array::ID: return post_index_array(dynamic_cast<Index_array*>(in));
-    case Target_expr::ID: return post_target_expr(dynamic_cast<Target_expr*>(in));
-    case Isset::ID: return post_isset(dynamic_cast<Isset*>(in));
+    case Array_access::ID: return post_array_access(dynamic_cast<Array_access*>(in));
+    case Field_access::ID: return post_field_access(dynamic_cast<Field_access*>(in));
     case FOREIGN::ID: return post_foreign(dynamic_cast<FOREIGN*>(in));
+    case Isset::ID: return post_isset(dynamic_cast<Isset*>(in));
     case Foreach_has_key::ID: return post_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
@@ -2364,6 +2419,16 @@ Target* Transform::post_target(Target* in)
     {
     case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
     case CLASS_NAME::ID: return post_class_name(dynamic_cast<CLASS_NAME*>(in));
+    }
+    assert(0);
+}
+
+Field_name* Transform::post_field_name(Field_name* in)
+{
+    switch(in->classid())
+    {
+    case FIELD_NAME::ID: return post_field_name(dynamic_cast<FIELD_NAME*>(in));
+    case Variable_field::ID: return post_variable_field(dynamic_cast<Variable_field*>(in));
     }
     assert(0);
 }
@@ -2458,8 +2523,8 @@ void Transform::children_statement(Statement* in)
     case Push_array::ID:
     	children_push_array(dynamic_cast<Push_array*>(in));
     	break;
-    case Assign_target::ID:
-    	children_assign_target(dynamic_cast<Assign_target*>(in));
+    case Assign_field::ID:
+    	children_assign_field(dynamic_cast<Assign_field*>(in));
     	break;
     case Eval_expr::ID:
     	children_eval_expr(dynamic_cast<Eval_expr*>(in));
@@ -2581,17 +2646,17 @@ void Transform::children_expr(Expr* in)
     case Variable_variable::ID:
     	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
-    case Index_array::ID:
-    	children_index_array(dynamic_cast<Index_array*>(in));
+    case Array_access::ID:
+    	children_array_access(dynamic_cast<Array_access*>(in));
     	break;
-    case Target_expr::ID:
-    	children_target_expr(dynamic_cast<Target_expr*>(in));
-    	break;
-    case Isset::ID:
-    	children_isset(dynamic_cast<Isset*>(in));
+    case Field_access::ID:
+    	children_field_access(dynamic_cast<Field_access*>(in));
     	break;
     case FOREIGN::ID:
     	children_foreign(dynamic_cast<FOREIGN*>(in));
+    	break;
+    case Isset::ID:
+    	children_isset(dynamic_cast<Isset*>(in));
     	break;
     case Foreach_has_key::ID:
     	children_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
@@ -2630,6 +2695,19 @@ void Transform::children_target(Target* in)
     	break;
     case CLASS_NAME::ID:
     	children_class_name(dynamic_cast<CLASS_NAME*>(in));
+    	break;
+    }
+}
+
+void Transform::children_field_name(Field_name* in)
+{
+    switch(in->classid())
+    {
+    case FIELD_NAME::ID:
+    	children_field_name(dynamic_cast<FIELD_NAME*>(in));
+    	break;
+    case Variable_field::ID:
+    	children_variable_field(dynamic_cast<Variable_field*>(in));
     	break;
     }
 }

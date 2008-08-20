@@ -1588,6 +1588,8 @@ public:
     virtual void find_all(Node* in, Node_list* out) = 0;
 public:
     virtual void assert_valid() = 0;
+public:
+    virtual String* get_value_as_string() = 0;
 };
 
 // Assignment ::= Variable is_ref:"&" Expr ;
@@ -2153,6 +2155,8 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+public:
+    CLASS_NAME(const char* name);
 };
 
 class INTERFACE_NAME : virtual public Identifier
@@ -2242,6 +2246,8 @@ public:
     virtual void find_all(Node* in, Node_list* out);
 public:
     virtual void assert_valid();
+public:
+    VARIABLE_NAME(const char* name);
 };
 
 class DIRECTIVE_NAME : virtual public Identifier

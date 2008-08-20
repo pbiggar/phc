@@ -24,8 +24,9 @@
 class HIR_to_AST : public HIR::Fold
 <
  AST::Node*,					// Actual_parameter*
+ AST::Variable*,				// Array_access*
  AST::Eval_expr*,				// Assign_array*
- AST::Eval_expr*,				// Assign_target*
+ AST::Eval_expr*,				// Assign_field*
  AST::Eval_expr*,				// Assign_var*
  AST::Eval_expr*,				// Assign_var_var*
  AST::Attr_mod*,				// Attr_mod*
@@ -45,7 +46,10 @@ class HIR_to_AST : public HIR::Fold
  AST::Continue*,				// Continue*
  AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
+ AST::VARIABLE_NAME*,		// FIELD_NAME*
  AST::FOREIGN*,				// FOREIGN*
+ AST::Variable*,				// Field_access*
+ AST::Variable_name*,		// Field_name*
  AST::Foreach*,				// Foreach*
  AST::Formal_parameter*,	// Formal_parameter*
  AST::Global*,					// Global*
@@ -53,7 +57,6 @@ class HIR_to_AST : public HIR::Fold
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
  AST::If*,						// If*
- AST::Variable*,				// Index_array*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
  AST::Literal*,				// Literal*
@@ -84,7 +87,6 @@ class HIR_to_AST : public HIR::Fold
  AST::Static_declaration*,	// Static_declaration*
  AST::Expr*,					// Static_value*
  AST::Node*,					// Target* - Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
- AST::Variable*,				// Target_expr*
  AST::Throw*,					// Throw*
  AST::Try*,						// Try*
  AST::Type*,					// Type*
@@ -92,6 +94,7 @@ class HIR_to_AST : public HIR::Fold
  AST::None*,					// VARIABLE_NAME* - Variable or Variable_name
  AST::Actual_parameter*,	// Variable_actual_parameter*
  AST::Reflection*,			// Variable_class*
+ AST::Reflection*,			// Variable_field*
  AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
  AST::None*						// Variable_variable* - Reflection or Variable
@@ -377,7 +380,7 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_target (HIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
+	AST::Eval_expr* fold_impl_assign_field (HIR::Assign_field* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
 		AST::Target* target_var = wrap_target (target);
@@ -442,7 +445,7 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (HIR::Index_array* orig, AST::None* variable_name, AST::Expr* index)
+	AST::Variable* fold_impl_array_access (HIR::Array_access* orig, AST::None* variable_name, AST::Expr* index)
 	{
 		AST::Variable* result;
 		result = new AST::Variable (
@@ -453,7 +456,7 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_target_expr (HIR::Target_expr* orig, AST::Node* target, AST::Variable_name* variable_name)
+	AST::Variable* fold_impl_field_access (HIR::Field_access* orig, AST::Node* target, AST::Variable_name* variable_name)
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
@@ -545,6 +548,14 @@ public:
 		return result;
 	}
 
+	AST::Reflection* fold_impl_variable_field (HIR::Variable_field* orig, AST::None* variable_name) 
+	{
+		AST::Reflection* result;
+		result = new AST::Reflection (wrap_var_name (variable_name));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
 	AST::Eval_expr* fold_impl_pre_op(HIR::Pre_op* orig, AST::OP* op, AST::None* variable_name)
 	{
 		AST::Pre_op* result;
@@ -586,7 +597,7 @@ public:
 
 		AST::Actual_parameter* result;
 		result = new AST::Actual_parameter(
-			is_ref, 
+			is_ref,
 			new AST::Variable (
 				target_var,
 				variable_name,
@@ -650,6 +661,14 @@ public:
 
 		// See comment in wrap_target ().
 		return non_null_ptr;
+	}
+
+	AST::VARIABLE_NAME* fold_field_name (HIR::FIELD_NAME* orig) 
+	{
+		AST::VARIABLE_NAME* result;
+		result = new AST::VARIABLE_NAME (orig->value);
+		result->attrs = orig->attrs;
+		return result;
 	}
 
 	AST::INT* fold_int(HIR::INT* orig) 
@@ -770,6 +789,7 @@ public:
 		result->attrs = orig->attrs;
 		return result;
 	}
+
 	~HIR_to_AST () {}
 };
 

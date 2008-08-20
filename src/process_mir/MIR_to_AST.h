@@ -24,8 +24,9 @@
 class MIR_to_AST : public MIR::Fold
 <
  AST::Actual_parameter*,	// Actual_parameter*
+ AST::Variable*,				// Array_access*
  AST::Eval_expr*,				// Assign_array*
- AST::Eval_expr*,				// Assign_target*
+ AST::Eval_expr*,				// Assign_field*
  AST::Eval_expr*,				// Assign_var*
  AST::Eval_expr*,				// Assign_var_var*
  AST::Attr_mod*,				// Attr_mod*
@@ -44,7 +45,10 @@ class MIR_to_AST : public MIR::Fold
  AST::Constant*,				// Constant*
  AST::Eval_expr*,				// Eval_expr*
  AST::Expr*,					// Expr*
+ AST::VARIABLE_NAME*,		// FIELD_NAME*
  AST::None*,					// FOREIGN* -- Expr or Statement
+ AST::Variable*,				// Field_access*
+ AST::Variable_name*,		// Field_name*
  AST::FOREIGN*,				// Foreach_end*
  AST::FOREIGN*,				// Foreach_get_key*
  AST::FOREIGN*,				// Foreach_get_val*
@@ -58,7 +62,6 @@ class MIR_to_AST : public MIR::Fold
  AST::INT*,						// INT*
  AST::INTERFACE_NAME*,		// INTERFACE_NAME*
  AST::Identifier*,			// Identifier*
- AST::Variable*,				// Index_array*
  AST::Instanceof*,			// Instanceof*
  AST::Interface_def*,		// Interface_def*
  AST::Method_invocation*,	// Isset*
@@ -93,7 +96,6 @@ class MIR_to_AST : public MIR::Fold
  AST::Static_declaration*,	// Static_declaration*
  AST::Expr*,					// Static_value*
  AST::Node*,					// Target* - Targets have VARIABLE_NAME expr, so wont fold nicely to AST::Target
- AST::Variable*,				// Target_expr*
  AST::Throw*,					// Throw*
  AST::Try*,						// Try*
  AST::Type*,					// Type*
@@ -101,6 +103,7 @@ class MIR_to_AST : public MIR::Fold
  AST::Eval_expr*,				// Unset*
  AST::None*,					// VARIABLE_NAME* - Variable or Variable_name
  AST::Reflection*,			// Variable_class*
+ AST::Reflection*,			// Variable_field*
  AST::Reflection*,			// Variable_method*
  AST::Variable_name*,		// Variable_name*
  AST::None*						// Variable_variable* - Reflection or Variable
@@ -388,7 +391,7 @@ public:
 		return new AST::Eval_expr (result);
 	}
 
-	AST::Eval_expr* fold_impl_assign_target (MIR::Assign_target* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
+	AST::Eval_expr* fold_impl_assign_field (MIR::Assign_field* orig, AST::Node* target, AST::Variable_name* lhs, bool is_ref, AST::Expr* rhs) 
 	{
 		// The order is important.
 		AST::Target* target_var = wrap_target (target);
@@ -453,7 +456,7 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_index_array (MIR::Index_array* orig, AST::None* variable_name, AST::Expr* index)
+	AST::Variable* fold_impl_array_access (MIR::Array_access* orig, AST::None* variable_name, AST::Expr* index)
 	{
 		AST::Variable* result;
 		result = new AST::Variable (
@@ -464,7 +467,7 @@ public:
 		return result;
 	}
 
-	AST::Variable* fold_impl_target_expr (MIR::Target_expr* orig, AST::Node* target, AST::Variable_name* variable_name)
+	AST::Variable* fold_impl_field_access (MIR::Field_access* orig, AST::Node* target, AST::Variable_name* variable_name)
 	{
 		AST::Variable* result;
 		result = new AST::Variable(
@@ -549,6 +552,14 @@ public:
 	}
 
 	AST::Reflection* fold_impl_variable_class (MIR::Variable_class* orig, AST::None* variable_name) 
+	{
+		AST::Reflection* result;
+		result = new AST::Reflection (wrap_var_name (variable_name));
+		result->attrs = orig->attrs;
+		return result;
+	}
+
+	AST::Reflection* fold_impl_variable_field (MIR::Variable_field* orig, AST::None* variable_name) 
 	{
 		AST::Reflection* result;
 		result = new AST::Reflection (wrap_var_name (variable_name));
@@ -647,6 +658,14 @@ public:
 
 		// See comment in wrap_target ().
 		return non_null_ptr;
+	}
+
+	AST::VARIABLE_NAME* fold_field_name (MIR::FIELD_NAME* orig) 
+	{
+		AST::VARIABLE_NAME* result;
+		result = new AST::VARIABLE_NAME (orig->value);
+		result->attrs = orig->attrs;
+		return result;
 	}
 
 	AST::INT* fold_int(MIR::INT* orig) 
@@ -846,7 +865,6 @@ public:
 		result->attrs = orig->attrs;
 		return result;
 	}
-
 
 	~MIR_to_AST () {}
 };

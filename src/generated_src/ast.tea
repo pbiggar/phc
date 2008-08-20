@@ -423,6 +423,25 @@ public:
 	}
 };
 
+class CLASS_NAME
+{
+public:
+	CLASS_NAME(const char* name)
+	{
+		this->value = new String (name);
+	}
+};
+
+class VARIABLE_NAME
+{
+public:
+	VARIABLE_NAME (const char* name)
+	{
+		this->value = new String (name);
+	}
+};
+
+
 class Formal_parameter
 {
 public:
@@ -563,18 +582,6 @@ public:
 	}
 };
 
-class HT_ITERATOR
-{
-public:
-	String* get_value_as_string ()
-	{
-		std::ostringstream os;
-		os << "ht_iterator_" << value;
-		return new String(os.str());
-	}
-};
-
-
 class Source_rep
 {
 public:
@@ -601,6 +608,11 @@ public:
 	}
 };
 
+class Literal
+{
+public:
+	virtual String* get_value_as_string() = 0;
+};
 
 class INT
 {
