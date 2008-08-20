@@ -92,7 +92,7 @@ Set::insert (String* name)
 bool
 Set::contains (String* name)
 {
-	return (bs.find (*name) != bs.end());
+	return full || (bs.find (*name) != bs.end());
 }
 
 void

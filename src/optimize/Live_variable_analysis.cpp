@@ -40,16 +40,23 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 			Method* method = dyc<Method> (s);
 			CFG* cfg = new CFG (method);
 
-			//		cfg->dump_graphviz (s("BEFORE DCE"));
-			this->visit (cfg);
+			// We want a path that goes through CFG creation, but doesnt
+			// otherwise optimize.
+			if (lexical_cast<int> (args_info.optimize_arg) > 0)
+			{
+				//		cfg->dump_graphviz (s("BEFORE DCE"));
+				this->visit (cfg);
 
-			Address_taken* at = new Address_taken;
-			at->visit (cfg);
-			//		cfg->dump_graphviz (s("AFTER Aliasing"));
+				Address_taken* at = new Address_taken;
+				at->visit (cfg);
+				//		cfg->dump_graphviz (s("AFTER Aliasing"));
 
-			Dead_code_elimination* dce = new Dead_code_elimination;
-			dce->visit (cfg);
-			//		cfg->dump_graphviz (s("AFTER DCE"));
+				Dead_code_elimination* dce = new Dead_code_elimination;
+				dce->visit (cfg);
+				//		cfg->dump_graphviz (s("AFTER DCE"));
+			}
+			else
+				cdebug << "Not optimizing" << endl;
 
 			method->statements = cfg->get_linear_statements ();
 		}
