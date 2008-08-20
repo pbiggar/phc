@@ -34,10 +34,12 @@ void Address_taken::transfer_out (Basic_block*, list<Basic_block*>*) {}
 void Address_taken::visit_branch_block (Branch_block* bb) {}
 void Address_taken::visit_entry_block (Entry_block* bb)
 {
+	// All variables in the global scope are aliased.
+	if (*bb->method->signature->method_name->value == "__MAIN__")
+		alias_bottom (bb);
+
 	foreach (Formal_parameter* fp, *bb->method->signature->formal_parameters)
-	{
 		aliased (bb, fp->var->variable_name);
-	}
 }
 
 void
