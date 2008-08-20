@@ -18,7 +18,7 @@ Address_taken::Address_taken ()
 {
 //	this->name = s("address-taken");
 //	this->description = s("Address-taken alias analysis");
-	// TODO move this out of the analysis, into the CFG.
+	aliases = new Set ();
 }
 
 bool
@@ -259,8 +259,8 @@ Address_taken::visit_unset (Statement_block* sb, MIR::Unset*)
 void
 Address_taken::init_block (Basic_block* bb)
 {
-	bb->aliases = new Set ();
-	// We use a global array for this, since the solution does not iterate.
+	// We use a global set for this, since there is only one solution.
+	bb->aliases = aliases;
 }
 
 bool

@@ -34,7 +34,7 @@ Dead_code_elimination::transform_assign_var (Statement_block* bb, MIR::Assign_va
 {
 	if (in->is_ref
 		|| bb->live_out->contains (in->lhs->value)
-//		|| is_aliased (in->rhs) // TODO
+		|| bb->aliases->contains (in->lhs->value)
 		)
 		out->push_back (bb);
 	
