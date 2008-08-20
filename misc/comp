@@ -63,7 +63,7 @@ fi
 src/phc $PHP_NAME $PHC_ARGS --dump=mir > $NAME.mir.php
 if [[ $? != 0 ]]; then
 	if [[ $DEBUG_PHC != 0 ]]; then 
-		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=mir
+		exec $GDB src/phc $PHP_NAME $PHC_ARGS --dump=generate-c
 	fi
 	exit 1
 fi
