@@ -46,13 +46,3 @@ Dead_code_elimination::transform_assign_var (Statement_block* bb, MIR::Assign_va
 		// leave empty
 	}
 }
-
-void
-Dead_code_elimination::transform_global (Statement_block* bb, MIR::Global* in, list<Basic_block*>* out)
-{
-	// If the global is not used, remove it. Ignore aliasing effects, since
-	// this doesnt affect the contents of a variable, just its scope.
-	if (not isa<VARIABLE_NAME> (in->variable_name)
-		|| bb->live_out->contains (dyc<VARIABLE_NAME> (in->variable_name)->value))
-		out->push_back (bb);
-}

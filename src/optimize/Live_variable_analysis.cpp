@@ -118,7 +118,7 @@ use (Basic_block* bb, Variable_name* var_name)
 	if (isa<VARIABLE_NAME> (var_name))
 		use (bb, dyc<VARIABLE_NAME> (var_name));
 	else
-		assert (0); // TODO
+		use_bottom (bb);
 }
 
 void
@@ -371,17 +371,15 @@ Live_variable_analysis::visit_static_declaration (Statement_block* sb, MIR::Stat
 }
 
 void
-Live_variable_analysis::visit_try (Statement_block* sb, MIR::Try*)
+Live_variable_analysis::visit_try (Statement_block* bb, MIR::Try*)
 {
-	assert (0);
-	// TODO
+	use_bottom (bb);
 }
 
 void
-Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
+Live_variable_analysis::visit_throw (Statement_block* bb, MIR::Throw*)
 {
-	assert (0);
-	// TODO
+	use_bottom (bb);
 }
 
 void

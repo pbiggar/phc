@@ -246,17 +246,15 @@ Address_taken::visit_static_declaration (Statement_block* bb, MIR::Static_declar
 }
 
 void
-Address_taken::visit_try (Statement_block* sb, MIR::Try*)
+Address_taken::visit_try (Statement_block* bb, MIR::Try*)
 {
-	assert (0);
-	// TODO
+	alias_bottom (bb);
 }
 
 void
-Address_taken::visit_throw (Statement_block* sb, MIR::Throw*)
+Address_taken::visit_throw (Statement_block* bb, MIR::Throw*)
 {
-	assert (0);
-	// TODO
+	alias_bottom (bb);
 }
 
 void
