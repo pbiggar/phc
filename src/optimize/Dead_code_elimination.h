@@ -20,6 +20,7 @@ public:
 public:
 
 	void transform_assign_var (Statement_block*, MIR::Assign_var*, list<Basic_block*>*);
+	void transform_global (Statement_block* bb, MIR::Global* in, list<Basic_block*>* out);
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

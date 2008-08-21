@@ -32,20 +32,20 @@ void
 Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 {
 	MIR::PHP_script* script = ir_script->as_MIR();
-	foreach (Statement* s, *script->statements)
+	foreach (Statement* stmt, *script->statements)
 	{
 		// TODO we should be optimizing all methods
-		if (isa<Method> (s))
+		if (isa<Method> (stmt))
 		{
-			Method* method = dyc<Method> (s);
+			Method* method = dyc<Method> (stmt);
 			CFG* cfg = new CFG (method);
 
 			// We want a path that goes through CFG creation, but doesnt
 			// otherwise optimize.
 			if (lexical_cast<int> (args_info.optimize_arg) > 0)
 			{
-				//		cfg->dump_graphviz (s("BEFORE DCE"));
 				this->visit (cfg);
+//				cfg->dump_graphviz (s("After liveness"));
 
 				Address_taken* at = new Address_taken;
 				at->visit (cfg);
@@ -381,11 +381,42 @@ Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
 void
 Live_variable_analysis::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
+	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (in->variable_name);
+
+	// only unset ($x); defines $x
 	if (in->target == NULL
-		&& isa<VARIABLE_NAME> (in->variable_name)
+		&& var_name
 		&& in->array_indices->size () == 0)
 	{
-		def (bb, dyc<VARIABLE_NAME> (in->variable_name));
+		def (bb, var_name); 
+	}
+
+	// unset ($x[0]); uses $x
+	if (in->target == NULL
+		&& var_name
+		&& in->array_indices->size ())
+	{
+		use(bb, var_name);
+	}
+
+	// unset ($t->$x) uses $x
+	if (in->target
+		&& var_name == NULL)
+	{
+		use (bb, dyc<Variable_variable> (in->variable_name)->variable_name);
+	}
+
+	// unset	($t->x) uses $t
+	if (in->target && isa<VARIABLE_NAME> (in->target))
+	{
+		use (bb, dyc<VARIABLE_NAME> (in->target));
+	}
+
+	// unset ($$x) can use anything, but doesn't define a particular variable.
+	if (in->target == NULL
+		&& var_name == NULL)
+	{
+		use_bottom (bb);
 	}
 }
 

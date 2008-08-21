@@ -302,11 +302,17 @@ struct BB_property_functor
 struct Graph_property_functor
 {
 	String* label;
-	Graph_property_functor(String* label) : label (label) {}
+	String* method_name;
+	Graph_property_functor(String* method_name, String* label) 
+	: label (label)
+	, method_name (method_name)
+	{
+	}
+
 	void operator()(std::ostream& out) const 
 	{
 		out << "graph [outputorder=edgesfirst];" << std::endl;
-		out << "graph [label=\"" << *label << "\"];" << std::endl;
+		out << "graph [label=\"" << *method_name << " - " << *label << "\"];" << std::endl;
 	}
 };
 
@@ -320,7 +326,7 @@ CFG::dump_graphviz (String* label)
 		bs, 
 		BB_property_functor(this),
 		BB_property_functor(this),
-		Graph_property_functor(label));
+		Graph_property_functor(method->signature->method_name->value, label));
 }
 
 /* Error checking */
