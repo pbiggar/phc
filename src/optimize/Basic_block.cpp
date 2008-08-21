@@ -12,6 +12,7 @@ Basic_block::Basic_block()
 , live_in (NULL)
 , live_out (NULL)
 , changed (false)
+, aliases (NULL)
 {
 }
 
@@ -84,6 +85,8 @@ Basic_block::get_graphviz_bb_properties ()
 		result->push_back (pair<String*, Set*> (s("defs"), defs));
 	if (uses)
 		result->push_back (pair<String*, Set*> (s("uses"), uses));
+	if (aliases && dynamic_cast<Entry_block*> (this))
+		result->push_back (pair<String*, Set*> (s("aliases"), aliases));
 	return result;
 }
 

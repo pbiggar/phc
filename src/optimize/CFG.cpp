@@ -227,7 +227,7 @@ struct BB_property_functor
 		// headlabel and taillabel attributes dont expand the area they are
 		// in, and so are frequently unreadable.
 	}
-
+#define LINE_LENGTH 30
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
 		out << "[label=\"";
@@ -240,9 +240,15 @@ struct BB_property_functor
 			if (props.second->bs.size ())
 			{
 				ss1 << *props.first << " = [";
+				unsigned int line_count = 1;
 				foreach (string str, props.second->bs)
 				{
 					ss1 << str << ", ";
+					if (ss1.str().size() > (LINE_LENGTH * line_count))
+					{
+						line_count++;
+						ss1 << "\\n";
+					}
 				}
 				ss1 << "]\\n";
 			}
@@ -259,9 +265,15 @@ struct BB_property_functor
 			if (props.second->bs.size ())
 			{
 				ss3 << *props.first << " = [";
+				unsigned int line_count = 1;
 				foreach (string str, props.second->bs)
 				{
 					ss3 << str << ", ";
+					if (ss3.str().size() > (LINE_LENGTH * line_count))
+					{
+						line_count++;
+						ss3 << "\\n";
+					}
 				}
 				ss3 << "]\\n";
 			}
@@ -274,9 +286,15 @@ struct BB_property_functor
 			if (props.second->bs.size ())
 			{
 				ss4 << *props.first << " = [";
+				unsigned int line_count = 1;
 				foreach (string str, props.second->bs)
 				{
 					ss4 << str << ", ";
+					if (ss4.str().size() > (LINE_LENGTH * line_count))
+					{
+						line_count++;
+						ss4 << "\\n";
+					}
 				}
 				ss4 << "]\\n";
 			}

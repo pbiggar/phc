@@ -45,15 +45,18 @@ Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
 			if (lexical_cast<int> (args_info.optimize_arg) > 0)
 			{
 				this->visit (cfg);
-//				cfg->dump_graphviz (s("After liveness"));
+				if (args_info.cfg_dump_given)
+					cfg->dump_graphviz (s("After liveness"));
 
 				Address_taken* at = new Address_taken;
 				at->visit (cfg);
-				//		cfg->dump_graphviz (s("AFTER Aliasing"));
+				if (args_info.cfg_dump_given)
+					cfg->dump_graphviz (s("AFTER Aliasing"));
 
 				Dead_code_elimination* dce = new Dead_code_elimination;
 				dce->visit (cfg);
-				//		cfg->dump_graphviz (s("AFTER DCE"));
+				if (args_info.cfg_dump_given)
+					cfg->dump_graphviz (s("AFTER DCE"));
 			}
 			else
 				cdebug << "Not optimizing" << endl;
@@ -330,7 +333,10 @@ Live_variable_analysis::visit_foreach_reset (Statement_block* bb, MIR::Foreach_r
 void
 Live_variable_analysis::visit_global (Statement_block* bb, MIR::Global* in)
 {
-	// TODO This might define the variable in some cases. Is that useful?
+	if (isa<VARIABLE_NAME> (in->variable_name))
+		def (bb, dyc<VARIABLE_NAME> (in->variable_name));
+	else
+		use (bb, dyc<Variable_variable> (in->variable_name));
 }
 
 void
@@ -381,6 +387,11 @@ Live_variable_analysis::visit_throw (Statement_block* sb, MIR::Throw*)
 void
 Live_variable_analysis::visit_unset (Statement_block* bb, MIR::Unset* in)
 {
+	foreach (Rvalue* index, *in->array_indices)
+	{
+		use (bb, index);
+	}
+
 	VARIABLE_NAME* var_name = dynamic_cast<VARIABLE_NAME*> (in->variable_name);
 
 	// only unset ($x); defines $x
