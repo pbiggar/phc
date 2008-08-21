@@ -8,13 +8,14 @@
 #ifndef PHC_PASS_MANAGER_H
 #define PHC_PASS_MANAGER_H
 
-#include "Pass.h"
-#include "lib/List.h"
-
-#include "cmdline.h"
 #include "ltdl.h"
 
-class Pass;
+#include "cmdline.h"
+#include "lib/List.h"
+
+#include "Pass.h"
+#include "Optimization_pass.h"
+
 typedef List<Pass*> Pass_queue;
 
 class Pass_manager
@@ -44,21 +45,22 @@ public:
 	void add_ast_visitor (AST::Visitor* visitor, String* name, String* description);
 	void add_ast_transform (AST::Transform* transform, String* name, String* description);
 	void add_after_each_ast_pass (Pass* pass);
-	bool is_ast_pass (String* name);
 
 	// Add HIR passes
 	void add_hir_pass (Pass* pass);
 	void add_hir_visitor (HIR::Visitor* visitor, String* name, String* description);
 	void add_hir_transform (HIR::Transform* transform, String* name, String* description);
 	void add_after_each_hir_pass (Pass* pass);
-	bool is_hir_pass (String* name);
 
 	// Add MIR passes
 	void add_mir_pass (Pass* pass);
 	void add_mir_visitor (MIR::Visitor* visitor, String* name, String* description);
 	void add_mir_transform (MIR::Transform* transform, String* name, String* description);
+	void add_codegen_pass (Pass* pass);
 	void add_after_each_mir_pass (Pass* pass);
-	bool is_mir_pass (String* name);
+
+	void add_optimization (Flow_visitor* visitor, String* name, String* description);
+	void run_optimization_passes (MIR::PHP_script* in);
 
 	// Add passes of any kind
 	void add_after_each_pass (Pass* pass);
@@ -87,10 +89,9 @@ protected:
 	Pass_queue* ast_queue;
 	Pass_queue* hir_queue;
 	Pass_queue* mir_queue;
+	Pass_queue* optimization_queue;
+	Pass_queue* codegen_queue;
 	List<Pass_queue*>* queues;
-	
-
 };
-
 
 #endif // PHC_PASS_MANAGER_H

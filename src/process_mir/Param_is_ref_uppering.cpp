@@ -7,6 +7,7 @@
 
 #include "Param_is_ref_uppering.h"
 #include "MIR_to_AST.h"
+#include "parsing/Parse_buffer.h"
 #include "process_ir/General.h"
 
 using namespace MIR;

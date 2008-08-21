@@ -16,7 +16,6 @@ String* s (string s);
 #include "debug.h"
 #include "Foreach.h"
 #include "fresh.h"
-#include "parsing/Parse_buffer.h"
 #include "boost/lexical_cast.hpp"
 
 using boost::lexical_cast;

@@ -7,7 +7,8 @@
 
 #include "Tidy_print.h"
 #include "process_ir/General.h"
-#include "process_ir/fresh.h"
+#include "parsing/Parse_buffer.h"
+
 
 using namespace AST;
 

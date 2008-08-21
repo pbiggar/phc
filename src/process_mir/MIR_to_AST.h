@@ -10,6 +10,7 @@
 
 #include "MIR_fold.h"
 #include "AST.h"
+#include <stack>
 #include "process_ir/General.h"
 
 /*

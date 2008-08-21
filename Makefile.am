@@ -160,6 +160,7 @@ libphc_la_SOURCES= 											\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.h							\
+	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Prune_symbol_table.cpp					\
@@ -177,6 +178,8 @@ libphc_la_SOURCES= 											\
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
+	src/pass_manager/Optimization_pass.cpp				\
+	src/pass_manager/Optimization_pass.h				\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\

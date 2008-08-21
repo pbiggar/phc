@@ -11,61 +11,25 @@
 #include "process_ir/General.h"
 #include "cmdline.h"
 
-extern struct gengetopt_args_info args_info;
-
 using namespace MIR;
 
-Live_variable_analysis::Live_variable_analysis () 
+void
+Live_variable_analysis::init_block (Basic_block* bb)
 {
-	this->name = s("LVA");
-	this->description = s("Live-variable analysis");
+	bb->defs = new Set();
+	bb->uses = new Set();
+	bb->live_in = new Set();
+	bb->live_out = new Set();
+	bb->changed = false;
 }
 
 bool
-Live_variable_analysis::pass_is_enabled (Pass_manager* pm)
+Live_variable_analysis::solution_has_changed (Basic_block* bb)
 {
-	return args_info.optimize_given;
+	bool result = bb->changed;
+	bb->changed = false;
+	return result;
 }
-
-
-void
-Live_variable_analysis::run (IR::PHP_script* ir_script, Pass_manager* pm)
-{
-	MIR::PHP_script* script = ir_script->as_MIR();
-	foreach (Statement* stmt, *script->statements)
-	{
-		// TODO we should be optimizing all methods
-		if (isa<Method> (stmt))
-		{
-			Method* method = dyc<Method> (stmt);
-			CFG* cfg = new CFG (method);
-
-			// We want a path that goes through CFG creation, but doesnt
-			// otherwise optimize.
-			if (lexical_cast<int> (args_info.optimize_arg) > 0)
-			{
-				this->visit (cfg);
-				if (args_info.cfg_dump_given)
-					cfg->dump_graphviz (s("After liveness"));
-
-				Address_taken* at = new Address_taken;
-				at->visit (cfg);
-				if (args_info.cfg_dump_given)
-					cfg->dump_graphviz (s("AFTER Aliasing"));
-
-				Dead_code_elimination* dce = new Dead_code_elimination;
-				dce->visit (cfg);
-				if (args_info.cfg_dump_given)
-					cfg->dump_graphviz (s("AFTER DCE"));
-			}
-			else
-				cdebug << "Not optimizing" << endl;
-
-			method->statements = cfg->get_linear_statements ();
-		}
-	}
-}
-
 
 void
 Live_variable_analysis::transfer_in (Basic_block* bb, list<Basic_block*>*)
@@ -364,6 +328,7 @@ Live_variable_analysis::visit_return (Statement_block* bb, MIR::Return* in)
 {
 	use_expr (bb, in->expr);
 }
+
 void
 Live_variable_analysis::visit_static_declaration (Statement_block* sb, MIR::Static_declaration*)
 {
@@ -376,8 +341,7 @@ Live_variable_analysis::visit_try (Statement_block* bb, MIR::Try*)
 	use_bottom (bb);
 }
 
-void
-Live_variable_analysis::visit_throw (Statement_block* bb, MIR::Throw*)
+void Live_variable_analysis::visit_throw (Statement_block* bb, MIR::Throw*)
 {
 	use_bottom (bb);
 }
@@ -427,22 +391,4 @@ Live_variable_analysis::visit_unset (Statement_block* bb, MIR::Unset* in)
 	{
 		use_bottom (bb);
 	}
-}
-
-void
-Live_variable_analysis::init_block (Basic_block* bb)
-{
-	bb->defs = new Set();
-	bb->uses = new Set();
-	bb->live_in = new Set();
-	bb->live_out = new Set();
-	bb->changed = false;
-}
-
-bool
-Live_variable_analysis::solution_has_changed (Basic_block* bb)
-{
-	bool result = bb->changed;
-	bb->changed = false;
-	return result;
 }

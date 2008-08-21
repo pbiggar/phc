@@ -11,13 +11,8 @@
 #ifndef PHC_LIVE_VARIABLE_ANALYSIS
 #define PHC_LIVE_VARIABLE_ANALYSIS
 
-class Live_variable_analysis : public Pass, public Flow_visitor<Full_flow_visitor, BACKWARD_FLOW>
+class Live_variable_analysis : public Forward_flow_visitor
 {
-public:
-	Live_variable_analysis ();
-	bool pass_is_enabled (Pass_manager* pm);
-	void run (IR::PHP_script* ir_script, Pass_manager* pm);
-
 public:
 
 	void init_block (Basic_block* bb);
@@ -27,10 +22,6 @@ public:
 	void transfer_in (Basic_block* bb, list<Basic_block*>* preds);
 	void transfer_out (Basic_block* bb, list<Basic_block*>* succs);
 
-	// Local solution
-	void visit_entry_block (Entry_block*) {}
-	void visit_empty_block (Empty_block*) {}
-	void visit_exit_block (Exit_block*) {}
 	void visit_branch_block (Branch_block*);
 
 	void visit_assign_array (Statement_block* sb, MIR::Assign_array*);

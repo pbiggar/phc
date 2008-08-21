@@ -100,11 +100,12 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
 	demangle.lo error.lo Integer.lo Object.lo String.lo \
 	Address_taken.lo Basic_block.lo CFG.lo Copy_propagation.lo \
-	Dead_code_elimination.lo Fix_point.lo \
+	Dead_code_elimination.lo Fix_point.lo Flow_visitor.lo \
 	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo \
 	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -695,6 +696,7 @@ libphc_la_SOURCES = \
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.h							\
+	src/optimize/Flow_visitor.cpp							\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
 	src/optimize/Prune_symbol_table.cpp					\
@@ -712,6 +714,8 @@ libphc_la_SOURCES = \
 	src/parsing/XML_parser.cpp								\
 	src/parsing/XML_parser.h								\
 	src/pass_manager/Fake_pass.h							\
+	src/pass_manager/Optimization_pass.cpp				\
+	src/pass_manager/Optimization_pass.h				\
 	src/pass_manager/Pass.h									\
 	src/pass_manager/Pass_manager.cpp					\
 	src/pass_manager/Pass_manager.h						\
@@ -1232,6 +1236,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Expand_includes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Fix_point.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Flow_visitor.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Foreach_uppering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/General.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Generate_C.Plo@am__quote@
@@ -1260,6 +1265,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MySQL2DBX.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Note_top_level_declarations.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Object.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Optimization_pass.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_context.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PHP_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Param_is_ref_uppering.Plo@am__quote@
@@ -1728,6 +1734,13 @@ Fix_point.lo: src/optimize/Fix_point.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Fix_point.lo `test -f 'src/optimize/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/Fix_point.cpp
 
+Flow_visitor.lo: src/optimize/Flow_visitor.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Flow_visitor.lo -MD -MP -MF $(DEPDIR)/Flow_visitor.Tpo -c -o Flow_visitor.lo `test -f 'src/optimize/Flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Flow_visitor.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Flow_visitor.Tpo $(DEPDIR)/Flow_visitor.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Flow_visitor.cpp' object='Flow_visitor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Flow_visitor.lo `test -f 'src/optimize/Flow_visitor.cpp' || echo '$(srcdir)/'`src/optimize/Flow_visitor.cpp
+
 Live_variable_analysis.lo: src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Live_variable_analysis.lo -MD -MP -MF $(DEPDIR)/Live_variable_analysis.Tpo -c -o Live_variable_analysis.lo `test -f 'src/optimize/Live_variable_analysis.cpp' || echo '$(srcdir)/'`src/optimize/Live_variable_analysis.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Live_variable_analysis.Tpo $(DEPDIR)/Live_variable_analysis.Plo
@@ -1783,6 +1796,13 @@ XML_parser.lo: src/parsing/XML_parser.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/parsing/XML_parser.cpp' object='XML_parser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o XML_parser.lo `test -f 'src/parsing/XML_parser.cpp' || echo '$(srcdir)/'`src/parsing/XML_parser.cpp
+
+Optimization_pass.lo: src/pass_manager/Optimization_pass.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Optimization_pass.lo -MD -MP -MF $(DEPDIR)/Optimization_pass.Tpo -c -o Optimization_pass.lo `test -f 'src/pass_manager/Optimization_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Optimization_pass.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Optimization_pass.Tpo $(DEPDIR)/Optimization_pass.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/pass_manager/Optimization_pass.cpp' object='Optimization_pass.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Optimization_pass.lo `test -f 'src/pass_manager/Optimization_pass.cpp' || echo '$(srcdir)/'`src/pass_manager/Optimization_pass.cpp
 
 Pass_manager.lo: src/pass_manager/Pass_manager.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Pass_manager.lo -MD -MP -MF $(DEPDIR)/Pass_manager.Tpo -c -o Pass_manager.lo `test -f 'src/pass_manager/Pass_manager.cpp' || echo '$(srcdir)/'`src/pass_manager/Pass_manager.cpp

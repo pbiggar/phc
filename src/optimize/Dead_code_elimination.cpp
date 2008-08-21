@@ -1,26 +1,5 @@
 #include "Dead_code_elimination.h"
 #include "process_ir/General.h"
-#include "cmdline.h"
-
-extern struct gengetopt_args_info args_info;
-
-Dead_code_elimination::Dead_code_elimination () 
-{
-	this->name = s("DCE");
-	this->description = s("Dead-code elimination");
-}
-
-bool
-Dead_code_elimination::pass_is_enabled (Pass_manager* pm)
-{
-	return args_info.optimize_given;
-}
-
-void
-Dead_code_elimination::run (IR::PHP_script* ir_script, Pass_manager* pm)
-{
-	assert (0);
-}
 
 using namespace MIR;
 
@@ -30,8 +9,16 @@ bool is_side_effecting (Expr* in)
 }
 
 void
-Dead_code_elimination::transform_assign_var (Statement_block* bb, MIR::Assign_var* in, list<Basic_block*>* out)
+Dead_code_elimination::transform_statement_block (Statement_block* bb, list<Basic_block*>* out)
 {
+	if (not isa<Assign_var> (bb->statement))
+	{
+		out->push_back (bb);
+		return;
+	}
+
+	Assign_var* in = dyc<Assign_var> (bb->statement);
+		
 	if (in->is_ref
 		|| bb->live_out->contains (in->lhs->value)
 		|| bb->aliases->contains (in->lhs->value)

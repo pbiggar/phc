@@ -7,17 +7,15 @@
  * of which alias each other.
  */
 
-#include "pass_manager/Pass_manager.h"
 #include "Flow_visitor.h"
 
 #ifndef PHC_ADDRESS_TAKEN
 #define PHC_ADDRESS_TAKEN
 
-class Address_taken : public Flow_visitor<Full_flow_visitor, FORWARD_FLOW>
+class Address_taken : public Forward_flow_visitor
 {
 public:
 	Address_taken ();
-	bool pass_is_enabled (Pass_manager* pm);
 
 	Set* aliases;
 

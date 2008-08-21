@@ -38,7 +38,12 @@ Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 	ast_queue = new Pass_queue;
 	hir_queue = new Pass_queue;
 	mir_queue = new Pass_queue;
+	optimization_queue = new Pass_queue;
+	codegen_queue = new Pass_queue;
+
 	queues = new List <Pass_queue* > (ast_queue, hir_queue, mir_queue);
+	queues->push_back (optimization_queue);
+	queues->push_back (codegen_queue);
 }
 
 void Pass_manager::add_ast_visitor (AST::Visitor* visitor, String* name, String* description)
@@ -93,6 +98,19 @@ void Pass_manager::add_mir_pass (Pass* pass)
 {
 	add_pass (pass, mir_queue);
 }
+
+void Pass_manager::add_optimization (Flow_visitor* v, String* name, String* description)
+{
+	Pass* pass = new Optimization_pass (v, name, description);
+	add_pass (pass, optimization_queue);
+}
+
+void Pass_manager::add_codegen_pass (Pass* pass)
+{
+	add_pass (pass, codegen_queue);
+}
+
+
 
 
 
@@ -285,6 +303,8 @@ void Pass_manager::list_passes ()
 			const char* name = "AST";
 			if (q == hir_queue) name = "HIR";
 			if (q == mir_queue) name = "MIR";
+			if (q == optimization_queue) name = "OPT";
+			if (q == codegen_queue) name = "GEN";
 			String* desc = p->description;
 
 			printf ("%-15s    (%-8s - %3s)    %s\n", 
@@ -406,6 +426,11 @@ void Pass_manager::run (IR::PHP_script* in, bool main)
 
 	foreach (Pass* p, *mir_queue)
 		run_pass (p, in, main);
+
+	run_optimization_passes (in->as_MIR());
+
+	foreach (Pass* p, *codegen_queue)
+		run_pass (p, in, true);
 }
 
 // The pass manager is used to parse and transform small snippets of
@@ -518,17 +543,34 @@ bool is_queue_pass (String* name, Pass_queue* queue)
 	return false;
 }
 
-bool Pass_manager::is_ast_pass (String* name)
-{
-	return is_queue_pass (name, ast_queue);
-}
 
-bool Pass_manager::is_hir_pass (String* name)
+void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
-	return is_queue_pass (name, hir_queue);
-}
+	if (lexical_cast<int> (args_info->optimize_arg) == 0)
+	{
+		cdebug << "Not optimizing" << endl;
+		return;
+	}
 
-bool Pass_manager::is_mir_pass (String* name)
-{
-	return is_queue_pass (name, mir_queue);
+	// Perform optimizations method-at-a-time.
+	MIR::PHP_script* script = in->as_MIR();
+	foreach (MIR::Statement* stmt, *script->statements)
+	{
+		// TODO we should be optimizing all methods
+		if (isa<MIR::Method> (stmt))
+		{
+			MIR::Method* method = dyc<MIR::Method> (stmt);
+			CFG* cfg = new CFG (method);
+
+			foreach (Pass* pass, *optimization_queue)
+			{
+				Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+				opt->run (cfg, this);
+			}
+
+			// We want a path that goes through CFtcreation, but doesnt
+			// otherwise optimize.
+			method->statements = cfg->get_linear_statements ();
+		}
+	}
 }

@@ -7,6 +7,7 @@
 
 #include "Early_lower_control_flow.h"
 #include "process_ir/General.h"
+#include "parsing/Parse_buffer.h"
 #include <sstream>
 
 using namespace AST;

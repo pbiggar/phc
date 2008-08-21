@@ -32,6 +32,7 @@
 #include "hir_to_mir/HIR_to_MIR.h"
 #include "hir_to_mir/Lower_control_flow.h"
 #include "hir_to_mir/Lower_method_invocations.h"
+#include "optimize/Address_taken.h"
 #include "optimize/Copy_propagation.h"
 #include "optimize/Dead_code_elimination.h"
 #include "optimize/Live_variable_analysis.h"
@@ -153,27 +154,32 @@ int main(int argc, char** argv)
 
 
 	pm->add_hir_pass (new Fake_pass (s("hir"), s("High-level Internal Representation - the smallest subset of PHP which can represent the entire language")));
+	// TODO move to optimizations
 	pm->add_hir_transform (new Copy_propagation (), s("prc"), s("Propagate copies - Remove some copies introduced as a result of lowering"));
 	pm->add_hir_transform (new Lower_method_invocations (), s("lmi"), s("Lower Method Invocations - Lower parameters using run-time reference checks"));
 	pm->add_hir_transform (new Lower_control_flow (), s("lcf"), s("Lower Control Flow - Use gotos in place of loops, ifs, breaks and continues"));
-
-
-	// process_hir passes
 	pm->add_hir_pass (new Fake_pass (s("HIR-to-MIR"), s("The MIR in HIR form")));
 
 
-	// codegen passes
 	// Use ss to pass generated code between Generate_C and Compile_C
 	pm->add_mir_pass (new Fake_pass (s("mir"), s("Medium-level Internal Representation - simple code with high-level constructs lowered to straight-line code.")));
 	pm->add_mir_pass (new Obfuscate ());
 //	pm->add_mir_pass (new Process_includes (true, new String ("mir"), pm, "incl2"));
 	pm->add_mir_transform (new Lift_functions_and_classes (), s("lfc"), s("Move statements from global scope into __MAIN__ method"));
 	pm->add_mir_visitor (new Clarify (), s("clar"), s("Clarify - Make implicit defintions explicit"));
-	pm->add_mir_pass (new Live_variable_analysis ());
+
+	// TODO move to optimizations
 	pm->add_mir_visitor (new Prune_symbol_table (), s("pst"), s("Prune Symbol Table - Note whether a symbol table is required in generated code"));
+
+
+	pm->add_optimization (new Address_taken (), s("ataa"), s("Address-taken alias analysis"));
+	pm->add_optimization (new Live_variable_analysis (), s("lva"), s("Live variable analysis"));
+	pm->add_optimization (new Dead_code_elimination (), s("dce"), s("Dead code elimination"));
+
+	// codegen passes
 	stringstream ss;
-	pm->add_mir_pass (new Generate_C (ss));
-	pm->add_mir_pass (new Compile_C (ss));
+	pm->add_codegen_pass (new Generate_C (ss));
+	pm->add_codegen_pass (new Compile_C (ss));
 
 
 	// Plugins add their passes to the pass manager

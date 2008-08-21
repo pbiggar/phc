@@ -10,6 +10,7 @@
 #include "Goto_uppering.h"
 #include "MIR_to_AST.h"
 #include "process_ir/General.h"
+#include "parsing/Parse_buffer.h"
 
 using namespace MIR;
 

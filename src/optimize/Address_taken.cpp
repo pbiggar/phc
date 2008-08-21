@@ -6,25 +6,13 @@
  */
 
 #include "Address_taken.h"
-#include "Dead_code_elimination.h"
 #include "process_ir/General.h"
-#include "cmdline.h"
-
-extern struct gengetopt_args_info args_info;
 
 using namespace MIR;
 
-Address_taken::Address_taken () 
+Address_taken::Address_taken ()
 {
-//	this->name = s("address-taken");
-//	this->description = s("Address-taken alias analysis");
 	aliases = new Set ();
-}
-
-bool
-Address_taken::pass_is_enabled (Pass_manager* pm)
-{
-	return args_info.optimize_given;
 }
 
 // Transfer functions not required
