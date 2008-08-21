@@ -148,7 +148,6 @@ class PHC_output_annotation extends Test_annotation
 			else
 				$pattern = "!$value!ms";
 
-
 			$result = preg_match ($pattern, $out);
 
 			// Potential errors
@@ -181,6 +180,9 @@ class Annotation_translator extends Test_annotation
 	{
 		foreach ($this->values as $value)
 			$result[] = "$this->translation: $value";
+
+		// Having processed the dependencies, we dont want to use them again.
+		$this->values = array ();
 
 		return $result;
 	}
@@ -375,7 +377,7 @@ class Annotated_test extends AsyncTest
 					"Annotation $name not available, in $subject");
 
 			$available[$name]->add_value ($options, $value);
-			$result[] = $available[$name];
+			$result[$name] = $available[$name];
 
 			$triples = array_merge ($available[$name]->get_dependencies (), $triples);
 		}
