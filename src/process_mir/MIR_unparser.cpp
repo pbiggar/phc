@@ -13,6 +13,12 @@
 #include "MIR_unparser.h" 
 #include "MIR_to_AST.h" 
 
+#include "process_mir/Goto_uppering.h"
+#include "process_mir/Foreach_uppering.h"
+#include "process_mir/Param_is_ref_uppering.h"
+#include "process_mir/Main_uppering.h"
+
+
 using namespace std;
 using namespace MIR;
 
@@ -59,6 +65,19 @@ void MIR_unparser::unparse (IR::Node* in)
 			dyc<MIR::Node> (in)->visit (this);
 	}
 }
+
+void
+MIR_unparser::unparse_uppered (IR::PHP_script* in)
+{
+	MIR::PHP_script* mir = in->as_MIR ()->clone ();
+	mir->transform_children (new Foreach_uppering);
+	mir->transform_children (new Param_is_ref_uppering);
+	mir->visit (new Main_uppering);
+	mir->visit (new Goto_uppering);
+	AST::PHP_script* ast = (new MIR_to_AST ())->fold_php_script (mir);
+	AST_unparser().unparse (ast) ;
+}
+
 
 void MIR_unparser::pre_foreign (FOREIGN* in)
 {

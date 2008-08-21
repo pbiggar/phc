@@ -22,6 +22,7 @@ public:
 	MIR_unparser (Unparser_state* ups);
 
 	void unparse (IR::Node* in);
+	void unparse_uppered (IR::PHP_script* in);
 
 	MIR_to_AST* folder;
 
