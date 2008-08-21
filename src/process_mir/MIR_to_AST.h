@@ -185,6 +185,9 @@ public:
 
 	AST::PHP_script* fold_impl_php_script(MIR::PHP_script* orig, AST::Statement_list* statements) 
 	{
+		// If we forget to pop a var_name, there will be some left on the stack.
+		assert (var_names.size() == 0);
+
 		AST::PHP_script* result;
 		result = new AST::PHP_script(statements);
 		result->attrs = orig->attrs;
@@ -340,7 +343,6 @@ public:
 
 	AST::Eval_expr* fold_impl_assign_var_var (MIR::Assign_var_var* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
-		// The order is important.
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -358,7 +360,6 @@ public:
 
 	AST::Eval_expr* fold_impl_assign_array (MIR::Assign_array* orig, AST::None* lhs, AST::Expr* index, bool is_ref, AST::Expr* rhs) 
 	{
-		// The order is important.
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -375,7 +376,6 @@ public:
 
 	AST::Eval_expr* fold_impl_push_array (MIR::Push_array* orig, AST::None* lhs, bool is_ref, AST::Expr* rhs) 
 	{
-		// The order is important.
 		AST::VARIABLE_NAME* lhs_var = get_var_name ();
 
 		AST::Assignment* result;
@@ -762,6 +762,7 @@ public:
 
 	AST::FOREIGN* fold_impl_branch(MIR::Branch* orig, AST::None* variable_name, AST::Identifier* iftrue, AST::Identifier* iffalse) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
@@ -785,31 +786,38 @@ public:
 
 	AST::FOREIGN* fold_impl_foreach_reset (MIR::Foreach_reset* orig, AST::None* array, AST::Identifier* iter) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
 	AST::FOREIGN* fold_impl_foreach_next (MIR::Foreach_next* orig, AST::None* array, AST::Identifier* iter) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
 	AST::FOREIGN* fold_impl_foreach_end (MIR::Foreach_end* orig, AST::None* array, AST::Identifier* iter) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
 	AST::FOREIGN* fold_impl_foreach_has_key (MIR::Foreach_has_key* orig, AST::None* array, AST::Identifier* iter) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
 	AST::FOREIGN* fold_impl_foreach_get_key (MIR::Foreach_get_key* orig, AST::None* array, AST::Identifier* iter) 
 	{
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
 	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::None* key, AST::Identifier* iter) 
 	{
+		get_var_name ();
+		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}
 
