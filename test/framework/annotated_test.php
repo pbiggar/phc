@@ -179,8 +179,10 @@ class Annotation_translator extends Test_annotation
 
 	function get_dependencies ()
 	{
-		assert (count ($this->values) == 1);
-		return array ("$this->translation: {$this->values[0]}");
+		foreach ($this->values as $value)
+			$result[] = "$this->translation: $value";
+
+		return $result;
 	}
 }
 
