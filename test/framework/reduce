@@ -349,7 +349,7 @@ function do_main_step ($xprogram, $start, $num, $filename)
 
 		global $opt_upper;
 		$upper = $opt_upper ? "u" : "";
-		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret", $xnew_program);
+		list ($phc_out, $phc_err, $phc_exit) = run ("src/phc --read-xml=ast --{$upper}dump=$opt_interpret $opt_main_command", $xnew_program);
 		if ($phc_err === "" && $phc_exit === 0)
 		{
 			list ($my_out, $my_err, $my_exit) = run (get_php_command_line ($filename, true), $phc_out);
