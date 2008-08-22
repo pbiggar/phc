@@ -814,9 +814,8 @@ public:
 		return new AST::FOREIGN (orig);
 	}
 
-	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::None* key, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		get_var_name ();
 		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}

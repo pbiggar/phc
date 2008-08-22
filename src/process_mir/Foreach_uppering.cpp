@@ -59,13 +59,19 @@ Expr* Foreach_uppering::pre_foreach_get_key (MIR::Foreach_get_key* in)
 	return (dynamic_cast<Eval_expr*> (out.front()))->expr;
 }
 
-Expr* Foreach_uppering::pre_foreach_get_val (MIR::Foreach_get_val* in)
+void 
+Foreach_uppering::pre_assign_var (MIR::Assign_var* in, MIR::Statement_list* out)
 {
-	MIR::Statement_list out;
-	(out
-		<< "$" << in->iter << "->current ();\n"
-	).finish (in);
+	if (not isa<Foreach_get_val> (in->rhs))
+	{
+		out->push_back (in);
+		return;
+	}
 
-	// this gets shredded into $iter->val() so extract the expr.
-	return (dynamic_cast<Eval_expr*> (out.front()))->expr;
+	Foreach_get_val* fgv = dyc<Foreach_get_val> (in->rhs);
+
+	(*out
+		<< "$" << in->lhs << " =" << (in->is_ref ? "&" : "") 
+		<< " $" << fgv->array << "[$" << fgv->iter << "->key ()];\n"
+	).finish (in);
 }

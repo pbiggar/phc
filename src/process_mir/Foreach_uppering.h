@@ -19,7 +19,7 @@ public:
 	void pre_foreach_end (MIR::Foreach_end* in, MIR::Statement_list* out);
 	MIR::Expr* pre_foreach_has_key (MIR::Foreach_has_key* in);
 	MIR::Expr* pre_foreach_get_key (MIR::Foreach_get_key* in);
-	MIR::Expr* pre_foreach_get_val (MIR::Foreach_get_val* in);
+	void pre_assign_var  (MIR::Assign_var* in, MIR::Statement_list* out);
 };
 
 #endif // PHC_FOREACH_UPPERING_H
