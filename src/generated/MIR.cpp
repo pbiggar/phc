@@ -7977,17 +7977,15 @@ void Foreach_get_key::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter)
+Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
-    this->key = key;
     this->iter = iter;
 }
 
 Foreach_get_val::Foreach_get_val()
 {
     this->array = 0;
-    this->key = 0;
     this->iter = 0;
 }
 
@@ -8024,14 +8022,6 @@ bool Foreach_get_val::match(Node* in)
     else if(!this->array->match(that->array))
     	return false;
     
-    if(this->key == NULL)
-    {
-    	if(that->key != NULL && !that->key->match(this->key))
-    		return false;
-    }
-    else if(!this->key->match(that->key))
-    	return false;
-    
     if(this->iter == NULL)
     {
     	if(that->iter != NULL && !that->iter->match(this->iter))
@@ -8056,14 +8046,6 @@ bool Foreach_get_val::equals(Node* in)
     else if(!this->array->equals(that->array))
     	return false;
     
-    if(this->key == NULL || that->key == NULL)
-    {
-    	if(this->key != NULL || that->key != NULL)
-    		return false;
-    }
-    else if(!this->key->equals(that->key))
-    	return false;
-    
     if(this->iter == NULL || that->iter == NULL)
     {
     	if(this->iter != NULL || that->iter != NULL)
@@ -8079,9 +8061,8 @@ bool Foreach_get_val::equals(Node* in)
 Foreach_get_val* Foreach_get_val::clone()
 {
     VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
-    VARIABLE_NAME* key = this->key ? this->key->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
-    Foreach_get_val* clone = new Foreach_get_val(array, key, iter);
+    Foreach_get_val* clone = new Foreach_get_val(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -8095,12 +8076,6 @@ Node* Foreach_get_val::find(Node* in)
     {
     	Node* array_res = this->array->find(in);
     	if (array_res) return array_res;
-    }
-    
-    if (this->key != NULL)
-    {
-    	Node* key_res = this->key->find(in);
-    	if (key_res) return key_res;
     }
     
     if (this->iter != NULL)
@@ -8120,9 +8095,6 @@ void Foreach_get_val::find_all(Node* in, Node_list* out)
     if (this->array != NULL)
     	this->array->find_all(in, out);
     
-    if (this->key != NULL)
-    	this->key->find_all(in, out);
-    
     if (this->iter != NULL)
     	this->iter->find_all(in, out);
     
@@ -8132,8 +8104,6 @@ void Foreach_get_val::assert_valid()
 {
     assert(array != NULL);
     array->assert_valid();
-    assert(key != NULL);
-    key->assert_valid();
     assert(iter != NULL);
     iter->assert_valid();
     Node::assert_mixin_valid();

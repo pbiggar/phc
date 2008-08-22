@@ -1009,7 +1009,6 @@ void Transform::children_foreach_get_key(Foreach_get_key* in)
 void Transform::children_foreach_get_val(Foreach_get_val* in)
 {
     in->array = transform_variable_name(in->array);
-    in->key = transform_variable_name(in->key);
     in->iter = transform_ht_iterator(in->iter);
 }
 

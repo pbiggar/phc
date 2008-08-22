@@ -1003,7 +1003,6 @@ void Visitor::children_foreach_get_key(Foreach_get_key* in)
 void Visitor::children_foreach_get_val(Foreach_get_val* in)
 {
     visit_variable_name(in->array);
-    visit_variable_name(in->key);
     visit_ht_iterator(in->iter);
 }
 

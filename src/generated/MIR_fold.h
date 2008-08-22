@@ -689,11 +689,9 @@ public:
 	{
 		_VARIABLE_NAME array = 0;
 		if(in->array != NULL) array = fold_variable_name(in->array);
-		_VARIABLE_NAME key = 0;
-		if(in->key != NULL) key = fold_variable_name(in->key);
 		_HT_ITERATOR iter = 0;
 		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_get_val(in, array, key, iter);
+		return fold_impl_foreach_get_val(in, array, iter);
 	}
 
 	virtual _Param_is_ref fold_param_is_ref(Param_is_ref* in)
@@ -763,7 +761,7 @@ public:
 	virtual _Foreach_end fold_impl_foreach_end(Foreach_end* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
+	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Param_is_ref fold_impl_param_is_ref(Param_is_ref* orig, _Target target, _Method_name method_name, _PARAM_INDEX param_index) { assert(0); };
 
 	virtual _PARAM_INDEX fold_param_index(PARAM_INDEX* orig) { assert(0); };

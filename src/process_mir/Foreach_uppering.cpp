@@ -63,9 +63,9 @@ Expr* Foreach_uppering::pre_foreach_get_val (MIR::Foreach_get_val* in)
 {
 	MIR::Statement_list out;
 	(out
-		<< "$" << in->array << "[$" << in->key << "];"
+		<< "$" << in->iter << "->current ();\n"
 	).finish (in);
 
-	// this gets shredded into $array[$key], so extract the expr.
-	return (dynamic_cast<Assign_var*> (out.front()->find (new Wildcard<Assign_var>)))->rhs;
+	// this gets shredded into $iter->val() so extract the expr.
+	return (dynamic_cast<Eval_expr*> (out.front()))->expr;
 }
