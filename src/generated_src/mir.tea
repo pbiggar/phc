@@ -72,9 +72,9 @@ Name_with_default ::= VARIABLE_NAME default_value:Static_value? ; -- "default" i
    Statements
 -}
 
--- These need to be Expr because we don't know if they should be return by reference or by copy.
--- TODO: Allow these to be shredded with a return_value_by_ref predicate
-Return ::= Expr ;
+-- It is not possible to return by reference unless the function is declared
+-- to return by reference. We may therefore return a VARIABLE_NAME here.
+Return ::= VARIABLE_NAME ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;
@@ -194,7 +194,6 @@ Foreach_get_val ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
  - Param_is_ref with true.
  -}
 Param_is_ref ::= Target? Method_name PARAM_INDEX<int> ;
-
 
 {-
  - Additional structure 

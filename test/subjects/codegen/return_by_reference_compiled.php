@@ -34,7 +34,7 @@
 	var_export($d);
 
 	$a = 5;
-	$e =& g();
+	$e =& g(); // (*)
 	$e = $e + 1;
 	var_export($a);
 	var_export($e);

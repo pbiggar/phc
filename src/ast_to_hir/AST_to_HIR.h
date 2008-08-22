@@ -241,7 +241,7 @@ public:
 	HIR::Return* fold_impl_return(AST::Return* orig, HIR::Expr* expr) 
 	{
 		HIR::Return* result;
-		result = new HIR::Return(expr);
+		result = new HIR::Return(dyc<HIR::VARIABLE_NAME> (expr));
 		copy_attrs (result, orig);
 		return result;
 	}

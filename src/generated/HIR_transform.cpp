@@ -709,7 +709,7 @@ void Transform::children_continue(Continue* in)
 
 void Transform::children_return(Return* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_static_declaration(Static_declaration* in)

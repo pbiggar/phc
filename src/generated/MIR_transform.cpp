@@ -779,7 +779,7 @@ void Transform::children_name_with_default(Name_with_default* in)
 
 void Transform::children_return(Return* in)
 {
-    in->expr = transform_expr(in->expr);
+    in->variable_name = transform_variable_name(in->variable_name);
 }
 
 void Transform::children_static_declaration(Static_declaration* in)
@@ -1393,22 +1393,6 @@ Static_value* Transform::transform_static_value(Static_value* in)
     return out;
 }
 
-Expr* Transform::transform_expr(Expr* in)
-{
-    if(in == NULL) return NULL;
-    
-    Expr* out;
-    
-    out = pre_expr(in);
-    if(out != NULL)
-    {
-    	children_expr(out);
-    	out = post_expr(out);
-    }
-    
-    return out;
-}
-
 Variable_name* Transform::transform_variable_name(Variable_name* in)
 {
     if(in == NULL) return NULL;
@@ -1460,6 +1444,22 @@ Catch_list* Transform::transform_catch(Catch* in)
     }
     
     return out2;
+}
+
+Expr* Transform::transform_expr(Expr* in)
+{
+    if(in == NULL) return NULL;
+    
+    Expr* out;
+    
+    out = pre_expr(in);
+    if(out != NULL)
+    {
+    	children_expr(out);
+    	out = post_expr(out);
+    }
+    
+    return out;
 }
 
 Target* Transform::transform_target(Target* in)
@@ -2012,6 +2012,16 @@ Static_value* Transform::pre_static_value(Static_value* in)
     assert(0);
 }
 
+Variable_name* Transform::pre_variable_name(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
+    }
+    assert(0);
+}
+
 Expr* Transform::pre_expr(Expr* in)
 {
     switch(in->classid())
@@ -2038,16 +2048,6 @@ Expr* Transform::pre_expr(Expr* in)
     case Foreach_get_key::ID: return pre_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return pre_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case Param_is_ref::ID: return pre_param_is_ref(dynamic_cast<Param_is_ref*>(in));
-    }
-    assert(0);
-}
-
-Variable_name* Transform::pre_variable_name(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID: return pre_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    case Variable_variable::ID: return pre_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2372,6 +2372,16 @@ Static_value* Transform::post_static_value(Static_value* in)
     assert(0);
 }
 
+Variable_name* Transform::post_variable_name(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
+    }
+    assert(0);
+}
+
 Expr* Transform::post_expr(Expr* in)
 {
     switch(in->classid())
@@ -2398,16 +2408,6 @@ Expr* Transform::post_expr(Expr* in)
     case Foreach_get_key::ID: return post_foreach_get_key(dynamic_cast<Foreach_get_key*>(in));
     case Foreach_get_val::ID: return post_foreach_get_val(dynamic_cast<Foreach_get_val*>(in));
     case Param_is_ref::ID: return post_param_is_ref(dynamic_cast<Param_is_ref*>(in));
-    }
-    assert(0);
-}
-
-Variable_name* Transform::post_variable_name(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID: return post_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    case Variable_variable::ID: return post_variable_variable(dynamic_cast<Variable_variable*>(in));
     }
     assert(0);
 }
@@ -2599,6 +2599,19 @@ void Transform::children_static_value(Static_value* in)
     }
 }
 
+void Transform::children_variable_name(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    case Variable_variable::ID:
+    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
+    	break;
+    }
+}
+
 void Transform::children_expr(Expr* in)
 {
     switch(in->classid())
@@ -2668,19 +2681,6 @@ void Transform::children_expr(Expr* in)
     	break;
     case Param_is_ref::ID:
     	children_param_is_ref(dynamic_cast<Param_is_ref*>(in));
-    	break;
-    }
-}
-
-void Transform::children_variable_name(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID:
-    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    	break;
-    case Variable_variable::ID:
-    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }

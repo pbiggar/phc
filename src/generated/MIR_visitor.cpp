@@ -766,7 +766,7 @@ void Visitor::children_name_with_default(Name_with_default* in)
 
 void Visitor::children_return(Return* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_static_declaration(Static_declaration* in)
@@ -2376,18 +2376,6 @@ void Visitor::visit_static_value(Static_value* in)
     }
 }
 
-void Visitor::visit_expr(Expr* in)
-{
-    if(in == NULL)
-    	visit_null("MIR", "Expr");
-    else
-    {
-    	pre_expr_chain(in);
-    	children_expr(in);
-    	post_expr_chain(in);
-    }
-}
-
 void Visitor::visit_variable_name(Variable_name* in)
 {
     if(in == NULL)
@@ -2428,6 +2416,18 @@ void Visitor::visit_catch(Catch* in)
     	pre_catch_chain(in);
     	children_catch(in);
     	post_catch_chain(in);
+    }
+}
+
+void Visitor::visit_expr(Expr* in)
+{
+    if(in == NULL)
+    	visit_null("MIR", "Expr");
+    else
+    {
+    	pre_expr_chain(in);
+    	children_expr(in);
+    	post_expr_chain(in);
     }
 }
 
@@ -2787,6 +2787,19 @@ void Visitor::pre_static_value_chain(Static_value* in)
     }
 }
 
+void Visitor::pre_variable_name_chain(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID:
+    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    case Variable_variable::ID:
+    	pre_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
+    	break;
+    }
+}
+
 void Visitor::pre_expr_chain(Expr* in)
 {
     switch(in->classid())
@@ -2856,19 +2869,6 @@ void Visitor::pre_expr_chain(Expr* in)
     	break;
     case Param_is_ref::ID:
     	pre_param_is_ref_chain(dynamic_cast<Param_is_ref*>(in));
-    	break;
-    }
-}
-
-void Visitor::pre_variable_name_chain(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID:
-    	pre_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
-    	break;
-    case Variable_variable::ID:
-    	pre_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }
@@ -3094,6 +3094,19 @@ void Visitor::post_static_value_chain(Static_value* in)
     }
 }
 
+void Visitor::post_variable_name_chain(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID:
+    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    case Variable_variable::ID:
+    	post_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
+    	break;
+    }
+}
+
 void Visitor::post_expr_chain(Expr* in)
 {
     switch(in->classid())
@@ -3163,19 +3176,6 @@ void Visitor::post_expr_chain(Expr* in)
     	break;
     case Param_is_ref::ID:
     	post_param_is_ref_chain(dynamic_cast<Param_is_ref*>(in));
-    	break;
-    }
-}
-
-void Visitor::post_variable_name_chain(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID:
-    	post_variable_name_chain(dynamic_cast<VARIABLE_NAME*>(in));
-    	break;
-    case Variable_variable::ID:
-    	post_variable_variable_chain(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }
@@ -3401,6 +3401,19 @@ void Visitor::children_static_value(Static_value* in)
     }
 }
 
+void Visitor::children_variable_name(Variable_name* in)
+{
+    switch(in->classid())
+    {
+    case VARIABLE_NAME::ID:
+    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+    	break;
+    case Variable_variable::ID:
+    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
+    	break;
+    }
+}
+
 void Visitor::children_expr(Expr* in)
 {
     switch(in->classid())
@@ -3470,19 +3483,6 @@ void Visitor::children_expr(Expr* in)
     	break;
     case Param_is_ref::ID:
     	children_param_is_ref(dynamic_cast<Param_is_ref*>(in));
-    	break;
-    }
-}
-
-void Visitor::children_variable_name(Variable_name* in)
-{
-    switch(in->classid())
-    {
-    case VARIABLE_NAME::ID:
-    	children_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-    	break;
-    case Variable_variable::ID:
-    	children_variable_variable(dynamic_cast<Variable_variable*>(in));
     	break;
     }
 }

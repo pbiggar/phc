@@ -156,7 +156,6 @@ void Annotate::post_return (Return* in)
 	if (return_by_ref 
 			&& in->expr->classid () == Variable::ID)
 	{
-		in->expr->attrs->set_true ("phc.ast_shredder.need_addr");
 		in->expr->attrs->set_true ("phc.ast_shredder.use_ref");
 	}
 }

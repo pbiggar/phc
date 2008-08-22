@@ -81,8 +81,9 @@ Foreach ::= arr:VARIABLE_NAME key:VARIABLE_NAME? is_ref:"&"? val:VARIABLE_NAME S
 Break ::= Expr? ;
 Continue ::= Expr? ;
 
--- These need to be Expr because we don't know if they should be return by reference or by copy.
-Return ::= Expr ;
+-- It is not possible to return by reference unless the function is declared
+-- to return by reference. We may therefore return a VARIABLE_NAME here.
+Return ::= VARIABLE_NAME ;
 
 Static_declaration ::= var:Name_with_default ;
 Global ::= Variable_name ;

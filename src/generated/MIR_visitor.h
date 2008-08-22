@@ -448,10 +448,10 @@ public:
     virtual void visit_attr_mod(Attr_mod* in);
     virtual void visit_variable_name(VARIABLE_NAME* in);
     virtual void visit_static_value(Static_value* in);
-    virtual void visit_expr(Expr* in);
     virtual void visit_variable_name(Variable_name* in);
     virtual void visit_catch_list(Catch_list* in);
     virtual void visit_catch(Catch* in);
+    virtual void visit_expr(Expr* in);
     virtual void visit_target(Target* in);
     virtual void visit_field_name(Field_name* in);
     virtual void visit_rvalue(Rvalue* in);
@@ -476,8 +476,8 @@ public:
     virtual void pre_statement_chain(Statement* in);
     virtual void pre_member_chain(Member* in);
     virtual void pre_static_value_chain(Static_value* in);
-    virtual void pre_expr_chain(Expr* in);
     virtual void pre_variable_name_chain(Variable_name* in);
+    virtual void pre_expr_chain(Expr* in);
     virtual void pre_target_chain(Target* in);
     virtual void pre_field_name_chain(Field_name* in);
     virtual void pre_rvalue_chain(Rvalue* in);
@@ -490,8 +490,8 @@ public:
     virtual void post_statement_chain(Statement* in);
     virtual void post_member_chain(Member* in);
     virtual void post_static_value_chain(Static_value* in);
-    virtual void post_expr_chain(Expr* in);
     virtual void post_variable_name_chain(Variable_name* in);
+    virtual void post_expr_chain(Expr* in);
     virtual void post_target_chain(Target* in);
     virtual void post_field_name_chain(Field_name* in);
     virtual void post_rvalue_chain(Rvalue* in);
@@ -504,8 +504,8 @@ public:
     virtual void children_statement(Statement* in);
     virtual void children_member(Member* in);
     virtual void children_static_value(Static_value* in);
-    virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
+    virtual void children_expr(Expr* in);
     virtual void children_target(Target* in);
     virtual void children_field_name(Field_name* in);
     virtual void children_rvalue(Rvalue* in);

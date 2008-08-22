@@ -217,10 +217,10 @@ public:
 		return result;
 	}
 
-	MIR::Return* fold_impl_return(HIR::Return* orig, MIR::Expr* expr) 
+	MIR::Return* fold_impl_return(HIR::Return* orig, MIR::VARIABLE_NAME* variable_name) 
 	{
 		MIR::Return* result;
-		result = new MIR::Return(expr);
+		result = new MIR::Return(variable_name);
 		copy_attrs (result, orig);
 		return result;
 	}
