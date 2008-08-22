@@ -14,7 +14,7 @@ class Dead_code_elimination : public Forward_flow_visitor
 {
 public:
 
-	void transform_statement_block (Statement_block*, list<Basic_block*>*);
+	void transform_assign_var (Statement_block*, MIR::Assign_var* in, list<Basic_block*>*);
 };
 
 #endif // PHC_DEAD_CODE_ELIMINATION

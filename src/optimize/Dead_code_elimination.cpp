@@ -9,16 +9,8 @@ bool is_side_effecting (Expr* in)
 }
 
 void
-Dead_code_elimination::transform_statement_block (Statement_block* bb, list<Basic_block*>* out)
+Dead_code_elimination::transform_assign_var (Statement_block* bb, Assign_var* in, list<Basic_block*>* out)
 {
-	if (not isa<Assign_var> (bb->statement))
-	{
-		out->push_back (bb);
-		return;
-	}
-
-	Assign_var* in = dyc<Assign_var> (bb->statement);
-		
 	if (in->is_ref
 		|| bb->live_out->contains (in->lhs->value)
 		|| bb->aliases->contains (in->lhs->value)

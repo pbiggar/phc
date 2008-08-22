@@ -352,7 +352,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 			// TODO remove code duplication from Obfuscate.h
 			if (in->is_MIR ())
 			{
-				MIR::PHP_script* mir = in->as_MIR ();
+				MIR::PHP_script* mir = in->as_MIR() ->clone ();
 				mir->transform_children (new Foreach_uppering);
 				mir->transform_children (new Param_is_ref_uppering);
 				mir->visit (new Main_uppering);
@@ -403,34 +403,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 void Pass_manager::run (IR::PHP_script* in, bool main)
 {
-	// AST
-	foreach (Pass* p, *ast_queue)
-		run_pass (p, in, main);
-
-	// Sometimes folding can crash. If you went out of your way to remove the
-	// passes in the later queues, dont fold.
-	if (hir_queue->size() == 0 && mir_queue->size () == 0)
-		return;
-
-	// HIR
-	in = in->fold_lower ();
-
-	foreach (Pass* p, *hir_queue)
-		run_pass (p, in, main);
-
-	if (mir_queue->size () == 0)
-		return;
-
-	// MIR
-	in = in->fold_lower ();
-
-	foreach (Pass* p, *mir_queue)
-		run_pass (p, in, main);
-
-	run_optimization_passes (in->as_MIR());
-
-	foreach (Pass* p, *codegen_queue)
-		run_pass (p, in, true);
+	run_from_until (NULL, NULL, in, main);
 }
 
 // The pass manager is used to parse and transform small snippets of
@@ -473,37 +446,85 @@ IR::PHP_script* Pass_manager::run_until (String* to, IR::PHP_script* in, bool ma
 IR::PHP_script* Pass_manager::run_from_until (String* from, String* to, IR::PHP_script* in, bool main)
 {
 	bool exec = false;
-	foreach (Pass_queue* q, *queues)
+	// AST
+	foreach (Pass* p, *ast_queue)
 	{
-		foreach (Pass* p, *q)
-		{
-			// check for starting pass
-			if (!exec && 
-					((from == NULL) || *(p->name) == *from))
-				exec = true;
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
 
-			if (exec)
-				run_pass (p, in, main);
+		if (exec)
+			run_pass (p, in, main);
 
-			// check for last pass
-			if (exec && (to != NULL) && *(p->name) == *to)
-				return in;
-		}
-
-		// TODO dirty hack
-		if (q == ast_queue && in->is_AST () 
-			&& hir_queue->size () == 0 
-			&& mir_queue->size () == 0)
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
 			return in;
-
-		if (q == hir_queue && in->is_HIR () 
-			&& mir_queue->size () == 0)
-			return in;
-
-		if ((in->is_AST () && q == ast_queue)
-			|| (in->is_HIR () && q == hir_queue))
-		in = in->fold_lower ();
 	}
+
+	// Sometimes folding can crash. If you went out of your way to remove the
+	// passes in the later queues, dont fold.
+	if (hir_queue->size() == 0 && mir_queue->size () == 0 
+		&& optimization_queue->size () == 0 && codegen_queue->size() == 0)
+		return in;
+
+	// HIR
+	in = in->fold_lower ();
+
+	foreach (Pass* p, *hir_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	if (mir_queue->size () == 0 
+		&& optimization_queue->size () == 0 && codegen_queue->size() == 0)
+		return in;
+
+	// MIR
+	in = in->fold_lower ();
+
+	foreach (Pass* p, *mir_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
+	run_optimization_passes (in->as_MIR());
+
+	foreach (Pass* p, *codegen_queue)
+	{
+		// check for starting pass
+		if (!exec && 
+				((from == NULL) || *(p->name) == *from))
+			exec = true;
+
+		if (exec)
+			run_pass (p, in, main);
+
+		// check for last pass
+		if (exec && (to != NULL) && *(p->name) == *to)
+			return in;
+	}
+
 	return in;
 }
 
@@ -546,12 +567,6 @@ bool is_queue_pass (String* name, Pass_queue* queue)
 
 void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
-	if (lexical_cast<int> (args_info->optimize_arg) == 0)
-	{
-		cdebug << "Not optimizing" << endl;
-		return;
-	}
-
 	// Perform optimizations method-at-a-time.
 	MIR::PHP_script* script = in->as_MIR();
 	foreach (MIR::Statement* stmt, *script->statements)
@@ -562,15 +577,44 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 			CFG* cfg = new CFG (method);
 
-			foreach (Pass* pass, *optimization_queue)
+			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
-				Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-				opt->run (cfg, this);
-			}
+				// iterate until it fix-points (or 10 times)
+				for (int iter = 0; iter < 10; iter++)
+				{
+					MIR::Method* old = method->clone ();
 
-			// We want a path that goes through CFtcreation, but doesnt
-			// otherwise optimize.
-			method->statements = cfg->get_linear_statements ();
+					// If optimization is not set, create the CFG anyway. We don't want to
+					// have to maintain two paths.
+					foreach (Pass* pass, *optimization_queue)
+					{
+						if (args_info->verbose_flag)
+							cout << "Running pass: " << *pass->name << endl;
+
+						maybe_enable_debug (pass);
+
+						// Run optimization
+						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
+						opt->run (cfg, this);
+
+						// Dump CFG
+						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
+						{
+							if (*pass->name == args_info->cfg_dump_arg [i])
+							{
+								stringstream name;
+								name << *pass->name << " - iteration " << iter;
+								cfg->dump_graphviz (s(name.str()));
+							}
+						}
+					}
+
+					// Check if we need to iterate again
+					method->statements = cfg->get_linear_statements ();
+					if (old->equals (method))
+						break;
+				}
+			}
 		}
 	}
 }

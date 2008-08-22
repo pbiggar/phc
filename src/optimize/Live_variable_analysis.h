@@ -11,7 +11,7 @@
 #ifndef PHC_LIVE_VARIABLE_ANALYSIS
 #define PHC_LIVE_VARIABLE_ANALYSIS
 
-class Live_variable_analysis : public Forward_flow_visitor
+class Live_variable_analysis : public Backward_flow_visitor
 {
 public:
 

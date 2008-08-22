@@ -88,11 +88,16 @@ use (Basic_block* bb, Variable_name* var_name)
 void
 def (Basic_block* bb, VARIABLE_NAME* var_name)
 {
+	cdebug << "def: " << *var_name->value;
+	if (Statement_block* sb = dynamic_cast<Statement_block*> (bb))
+	{
+		cdebug << " in ";
+		debug (sb->statement);
+		xdebug (sb->statement);
+	}
+
 	bb->defs->insert (var_name->value);
 }
-
-
-#define DEF(VAR) bb->defs->insert (VAR->value)
 
 void
 Live_variable_analysis::visit_branch_block (Branch_block* bb)
@@ -259,7 +264,7 @@ Live_variable_analysis::visit_assign_target (Statement_block* bb, MIR::Assign_ta
 void
 Live_variable_analysis::visit_assign_var (Statement_block* bb, MIR::Assign_var* in)
 {
-	DEF (in->lhs);
+	def (bb, in->lhs);
 	use_expr (bb, in->rhs);
 }
 
