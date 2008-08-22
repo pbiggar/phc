@@ -159,14 +159,14 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Assign_var(lhs, is_ref, rhs);
     }
-    if(!strcmp(type_id, "Assign_target"))
+    if(!strcmp(type_id, "Assign_field"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
-    	Variable_name* lhs = dynamic_cast<Variable_name*>(*i++);
+    	Field_name* field_name = dynamic_cast<Field_name*>(*i++);
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
     	Rvalue* rhs = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Assign_target(target, lhs, is_ref, rhs);
+    	return new Assign_field(target, field_name, is_ref, rhs);
     }
     if(!strcmp(type_id, "Assign_array"))
     {
@@ -222,25 +222,19 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Isset(target, variable_name, array_indices);
     }
-    if(!strcmp(type_id, "Target_expr"))
+    if(!strcmp(type_id, "Field_access"))
     {
     	Target* target = dynamic_cast<Target*>(*i++);
-    	Variable_name* variable_name = dynamic_cast<Variable_name*>(*i++);
+    	Field_name* field_name = dynamic_cast<Field_name*>(*i++);
     	assert(i == args->end());
-    	return new Target_expr(target, variable_name);
+    	return new Field_access(target, field_name);
     }
-    if(!strcmp(type_id, "Variable_variable"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Variable_variable(variable_name);
-    }
-    if(!strcmp(type_id, "Index_array"))
+    if(!strcmp(type_id, "Array_access"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	Rvalue* index = dynamic_cast<Rvalue*>(*i++);
     	assert(i == args->end());
-    	return new Index_array(variable_name, index);
+    	return new Array_access(variable_name, index);
     }
     if(!strcmp(type_id, "Cast"))
     {
@@ -286,12 +280,6 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new Method_invocation(target, method_name, actual_parameters);
     }
-    if(!strcmp(type_id, "Variable_method"))
-    {
-    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	assert(i == args->end());
-    	return new Variable_method(variable_name);
-    }
     if(!strcmp(type_id, "Actual_parameter"))
     {
     	bool is_ref = dynamic_cast<Boolean*>(*i++)->value();
@@ -306,11 +294,29 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	assert(i == args->end());
     	return new New(class_name, actual_parameters);
     }
+    if(!strcmp(type_id, "Variable_method"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_method(variable_name);
+    }
+    if(!strcmp(type_id, "Variable_variable"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_variable(variable_name);
+    }
     if(!strcmp(type_id, "Variable_class"))
     {
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
     	return new Variable_class(variable_name);
+    }
+    if(!strcmp(type_id, "Variable_field"))
+    {
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new Variable_field(variable_name);
     }
     if(!strcmp(type_id, "Static_array"))
     {
@@ -438,6 +444,12 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     	String* value = dynamic_cast<String*>(*i++);
     	assert(i == args->end());
     	return new CONSTANT_NAME(value);
+    }
+    if(!strcmp(type_id, "FIELD_NAME"))
+    {
+    	String* value = dynamic_cast<String*>(*i++);
+    	assert(i == args->end());
+    	return new FIELD_NAME(value);
     }
     if(!strcmp(type_id, "LABEL_NAME"))
     {

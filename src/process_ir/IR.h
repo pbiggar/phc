@@ -75,6 +75,8 @@ public:
 
 	// We cant have the value here, because the token sets it.
 	virtual IR::Node* get_value () = 0;
+
+	virtual ~FOREIGN() {}
 };
 
 

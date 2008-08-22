@@ -4,6 +4,7 @@
 
 	// { phc-option: --dump=mir }
 	// { phc-regex-output: foreach_reset\(\$\w+, ht_iterator\d+\); }
+	// { phc-regex-output: \$THK10 = foreach_has_key\(\$\w+, ht_iterator\d+\) }
 
 	foreach ($x as $y)
 	{

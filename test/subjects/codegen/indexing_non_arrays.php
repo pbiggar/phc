@@ -1,6 +1,6 @@
 <?php
 
-	require ("../parsing/scalar_array.php");
+	require ("test/subjects/parsing/scalar_array.php");
 
 	function write ($init, $insert)
 	{

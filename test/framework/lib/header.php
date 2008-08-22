@@ -626,6 +626,9 @@ function homogenize_xml ($string)
 {
 	$string = preg_replace("/(<attr key=\"phc.line_number\">)\d+(<\/attr>)/", "$1$2", $string);
 	$string = preg_replace("/(<attr key=\"phc.filename\">).*?(<\/attr>)/", "$1$2", $string);
+
+	// fresh doesnt return the same numbers every time.
+	$string = preg_replace("/(<value>\D+)\d+(<\/value>)/", "$1xx$2", $string);
 	return $string;
 }
 

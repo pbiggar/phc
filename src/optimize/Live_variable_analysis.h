@@ -25,7 +25,7 @@ public:
 	void visit_branch_block (Branch_block*);
 
 	void visit_assign_array (Statement_block* sb, MIR::Assign_array*);
-	void visit_assign_target (Statement_block* sb, MIR::Assign_target*);
+	void visit_assign_field (Statement_block* sb, MIR::Assign_field*);
 	void visit_assign_var (Statement_block* sb, MIR::Assign_var*);
 	void visit_assign_var_var (Statement_block* sb, MIR::Assign_var_var*);
 	void visit_eval_expr (Statement_block* sb, MIR::Eval_expr*);

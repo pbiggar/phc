@@ -248,7 +248,7 @@ void index_assign_array (Scope scope, string zvp, VARIABLE_NAME* lhs, VARIABLE_N
 		;
 }
 
-void index_array_index (Scope scope, string zvp, Index_array* ia)
+void array_access_index (Scope scope, string zvp, Array_access* ia)
 {
 	VARIABLE_NAME* var_name = ia->variable_name;
 
@@ -279,9 +279,9 @@ void index_array_index (Scope scope, string zvp, Index_array* ia)
 
 void index_lhs (Scope scope, string zvp, Expr* expr)
 {
-	if (isa<Index_array> (expr))
+	if (isa<Array_access> (expr))
 	{
-		index_array_index (LOCAL, "p_rhs", dyc<Index_array> (expr));
+		array_access_index (LOCAL, "p_rhs", dyc<Array_access> (expr));
 		return;
 	}
 
@@ -341,7 +341,7 @@ void read_var_var (Scope scope, string zvp, Variable_variable* var_var)
 		;
 }
 
-void read_array_index (Scope scope, string zvp, Index_array* ia)
+void read_array_index (Scope scope, string zvp, Array_access* ia)
 {
 	VARIABLE_NAME* var_name  = ia->variable_name;
 	// access var as an array
@@ -1253,7 +1253,7 @@ class Pattern_assign_array_index_to_var : public Pattern_assign_var
 public:
 	Expr* rhs_pattern()
 	{
-		rhs = new Wildcard<Index_array>;
+		rhs = new Wildcard<Array_access>;
 		return rhs;
 	}
 
@@ -1273,7 +1273,7 @@ public:
 		}
 		else
 		{
-			index_array_index (LOCAL, "p_rhs", rhs->value);
+			array_access_index (LOCAL, "p_rhs", rhs->value);
 			code 
 				<< "sep_copy_on_write_ex (p_rhs);\n"
 				<< "(*p_rhs)->is_ref = 1;\n"
@@ -1284,7 +1284,7 @@ public:
 	}
 
 protected:
-	Wildcard<Index_array>* rhs;
+	Wildcard<Array_access>* rhs;
 };
 
 class Pattern_assign_param_is_ref : public Pattern_assign_var
@@ -2019,8 +2019,8 @@ class Pattern_return : public Pattern
 		{
 			// converted into an array
 			// TODO: why?
-			if (isa<Index_array> (expr->value))
-				index_lhs (LOCAL, "p_rhs", dyc<Index_array> (expr->value));
+			if (isa<Array_access> (expr->value))
+				index_lhs (LOCAL, "p_rhs", dyc<Array_access> (expr->value));
 			else
 				index_lhs (LOCAL, "p_rhs", expr->value);
 

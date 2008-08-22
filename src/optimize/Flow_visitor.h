@@ -39,7 +39,7 @@ public:
 	virtual void visit_branch_block (Branch_block*) {};
 
 	virtual void visit_assign_array (Statement_block*, MIR::Assign_array*) {};
-	virtual void visit_assign_target (Statement_block*, MIR::Assign_target*) {};
+	virtual void visit_assign_field (Statement_block*, MIR::Assign_field *) {};
 	virtual void visit_assign_var (Statement_block*, MIR::Assign_var*) {};
 	virtual void visit_assign_var_var (Statement_block*, MIR::Assign_var_var*) {};
 	virtual void visit_eval_expr (Statement_block*, MIR::Eval_expr*) {};
@@ -63,7 +63,7 @@ public:
 	virtual void transform_branch_block (Branch_block* in, list<Basic_block*>* out);
 
 	virtual void transform_assign_array (Statement_block* in, MIR::Assign_array*, list<Basic_block*>* out);
-	virtual void transform_assign_target (Statement_block* in, MIR::Assign_target*, list<Basic_block*>* out);
+	virtual void transform_assign_field (Statement_block* in, MIR::Assign_field*, list<Basic_block*>* out);
 	virtual void transform_assign_var (Statement_block* in, MIR::Assign_var*, list<Basic_block*>* out);
 	virtual void transform_assign_var_var (Statement_block* in, MIR::Assign_var_var*, list<Basic_block*>* out);
 	virtual void transform_eval_expr (Statement_block* in, MIR::Eval_expr*, list<Basic_block*>* out);

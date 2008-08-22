@@ -100,14 +100,22 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 		// Shred the target
 		if(ap->target)
 		{
+			Field_name* field_name;
+			if (isa<Variable_variable> (ap->variable_name))
+				field_name = new Variable_field (dyc<Variable_variable> (ap->variable_name)->variable_name->clone());
+			else
+				field_name = new FIELD_NAME (dyc<VARIABLE_NAME> (ap->variable_name)->value);
+
+			field_name->attrs = ap->variable_name->attrs->clone ();
+
 			VARIABLE_NAME* temp = fresh_var_name ("TMIt");
 			iftrue->push_back (
 				new Assign_var (
 							temp->clone (),
 							true,
-							new Target_expr (
+							new Field_access (
 								ap->target,
-								ap->variable_name->clone ())));
+								field_name)));
 			prev = temp;
 			ap->target = NULL;
 		}
@@ -123,7 +131,7 @@ Lower_method_invocations::pre_method_invocation (Method_invocation* in)
 				new Assign_var (
 					temp->clone (),
 					true,
-					new Index_array (
+					new Array_access (
 						prev->clone (),
 						ap->array_indices->front ())));
 

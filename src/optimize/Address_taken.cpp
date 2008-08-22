@@ -91,13 +91,13 @@ Address_taken::alias_expr (Basic_block* bb, Expr* in)
 		case Foreach_get_key::ID:
 		case Foreach_get_val::ID:
 		case Foreach_has_key::ID:
-		case Index_array::ID:
-		case Isset::ID:
+		case Array_access::ID:
 			// Nothing is aliased on the RHS of $x =& $y[$z]
+		case Isset::ID:
 		case Instanceof::ID:
 		case Param_is_ref::ID:
 		case Unary_op::ID:
-		case Target_expr::ID:
+		case Field_access::ID:
 			// do nothing
 			break;
 
@@ -148,7 +148,7 @@ Address_taken::visit_assign_array (Statement_block* bb, MIR::Assign_array* in)
 }
 
 void
-Address_taken::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
+Address_taken::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 {
 	if (in->is_ref)
 		aliased (bb, in->rhs);

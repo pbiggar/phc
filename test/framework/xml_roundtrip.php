@@ -39,12 +39,18 @@ class XML_roundtrip extends AsyncTest
 
 		# Get the output going straight though the compiler
 		$bundle->commands[0]	= $this->get_command_line ($last_pass, $subject);
+		$bundle->out_handlers[0] = "homogenize_output";
 		$bundle->commands[1] = $this->get_long_command_line ($subject, $last_pass);
+		$bundle->out_handlers[1] = "homogenize_output";
 
 		$bundle->final = "finish";
 
 		$bundle->start ();
+	}
 
+	function homogenize_output ($string)
+	{
+		return homogenize_xml ($string);
 	}
 
 	// Construct a command line which pipes the xml output of one pass into the

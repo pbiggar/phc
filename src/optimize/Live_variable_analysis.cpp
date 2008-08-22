@@ -144,9 +144,9 @@ void use_expr (Basic_block* bb, Expr* in)
 			use (bb, dyc<Foreach_has_key> (in)->array);
 			break;
 
-		case Index_array::ID:
+		case Array_access::ID:
 		{
-			Index_array* ia = dyc<Index_array> (in);
+			Array_access* ia = dyc<Array_access> (in);
 			use (bb, ia->variable_name);
 			use (bb, ia->index);
 			break;
@@ -212,16 +212,16 @@ void use_expr (Basic_block* bb, Expr* in)
 			break;
 		}
 
-		case Target_expr::ID:
+		case Field_access::ID:
 		{
-			Target_expr* te = dyc<Target_expr> (in);
+			Field_access* fa = dyc<Field_access> (in);
 
 			// This uses a variable field, not a variable expr.
-			if (isa<Variable_variable> (te->variable_name))
-				use (bb, dyc<Variable_variable> (te->variable_name)->variable_name);
+			if (isa<Variable_field> (fa->field_name))
+				use (bb, dyc<Variable_field> (fa->field_name)->variable_name);
 
-			if (isa<VARIABLE_NAME> (te->target))
-				use (bb, dyc<VARIABLE_NAME> (te->target));
+			if (isa<VARIABLE_NAME> (fa->target))
+				use (bb, dyc<VARIABLE_NAME> (fa->target));
 
 			break;
 		}
@@ -253,12 +253,14 @@ Live_variable_analysis::visit_assign_array (Statement_block* bb, MIR::Assign_arr
 }
 
 void
-Live_variable_analysis::visit_assign_target (Statement_block* bb, MIR::Assign_target* in)
+Live_variable_analysis::visit_assign_field (Statement_block* bb, MIR::Assign_field* in)
 {
 	if (isa<VARIABLE_NAME> (in->target))
 		use (bb, dyc<VARIABLE_NAME> (in->target));
 
-	use (bb, in->rhs);
+	// field_name should be ignored, but variable_field uses a var_name
+	if (isa<Variable_field> (in->field_name))
+		use (bb, dyc<Variable_field> (in->field_name)->variable_name);
 }
 
 void

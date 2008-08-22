@@ -9183,6 +9183,13 @@ void CLASS_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
+CLASS_NAME::CLASS_NAME(const char* name)
+{
+    {
+		this->value = new String (name);
+	}
+}
+
 INTERFACE_NAME::INTERFACE_NAME(String* value)
 {
     this->value = value;
@@ -9461,6 +9468,13 @@ void VARIABLE_NAME::assert_valid()
 {
     assert(value != NULL);
     Node::assert_mixin_valid();
+}
+
+VARIABLE_NAME::VARIABLE_NAME(const char* name)
+{
+    {
+		this->value = new String (name);
+	}
 }
 
 DIRECTIVE_NAME::DIRECTIVE_NAME(String* value)

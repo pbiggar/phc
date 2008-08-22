@@ -46,18 +46,17 @@ class Read_fresh_suffix_counter
 {
 
 public:
-   void pre_variable_name (AST::VARIABLE_NAME* in) 
+	void found_value (String* value)
 	{
-		unfresh_vars.insert (*in->value);
+		unfresh_vars.insert (*value);
 	}
-   void pre_variable_name (HIR::VARIABLE_NAME* in) 
-	{
-		unfresh_vars.insert (*in->value);
-	}
-   void pre_variable_name (MIR::VARIABLE_NAME* in) 
-	{
-		unfresh_vars.insert (*in->value);
-	}
+
+   void pre_variable_name (AST::VARIABLE_NAME* in) { found_value (in->value); }
+	void pre_variable_name (HIR::VARIABLE_NAME* in) { found_value (in->value); }
+	void pre_variable_name (MIR::VARIABLE_NAME* in) { found_value (in->value); }
+	void pre_label_name (MIR::LABEL_NAME* in)			{ found_value (in->value); }
+	void pre_ht_iterator (MIR::HT_ITERATOR* in)		{ found_value (in->value); }
+
 };
 
 #endif // PHC_FRESH_H

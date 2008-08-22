@@ -187,10 +187,10 @@ int main(int argc, char** argv)
 
 	// All the passes are added, so check the dumping options
 #define check_passes(FLAG)																		\
-	for (unsigned int i = 0; i < args_info.FLAG##_given; i++)				\
+	for (unsigned int i = 0; i < args_info.FLAG##_given; i++)						\
 	{																									\
 		if (! pm->has_pass_named (new String (args_info.FLAG##_arg [i])))			\
-			phc_error ("No " #FLAG " pass named %s", args_info.FLAG##_arg [i]);	\
+			phc_error ("Pass %s, specified with flag --" #FLAG ", is not valid", args_info.FLAG##_arg [i]);	\
 	}
 	check_passes (dump);
 	check_passes (udump);
@@ -199,6 +199,11 @@ int main(int argc, char** argv)
 	check_passes (debug);
 	check_passes (disable);
 
+	// There's only one read-xml option.
+	if (args_info.read_xml_given
+		&& !pm->has_pass_named (new String (const_cast<const char*>(args_info.read_xml_arg))))
+		phc_error ("Pass %s, specified with flag --read-xml, is not valid", args_info.read_xml_arg);	\
+
 #undef check_passes
 
 	// Disable passes if asked
@@ -206,7 +211,6 @@ int main(int argc, char** argv)
 	{
 		pm->get_pass_named (s(args_info.disable_arg [i]))->set_enabled (false);
 	}
-
 
 
 	/* 

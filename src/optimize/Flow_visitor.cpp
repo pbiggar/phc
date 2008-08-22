@@ -75,8 +75,8 @@ Flow_visitor::visit_bb_local (CFG* cfg, Basic_block* bb)
 			case MIR::Assign_array::ID:
 				this->visit_assign_array(sb, dyc<MIR::Assign_array>(sb->statement));
 				break;
-			case MIR::Assign_target::ID:
-				this->visit_assign_target(sb, dyc<MIR::Assign_target>(sb->statement));
+			case MIR::Assign_field::ID:
+				this->visit_assign_field(sb, dyc<MIR::Assign_field>(sb->statement));
 				break;
 			case MIR::Assign_var::ID:
 				this->visit_assign_var(sb, dyc<MIR::Assign_var>(sb->statement));
@@ -161,8 +161,8 @@ Flow_visitor::transform_bb (Basic_block* bb, list<Basic_block*>* out)
 			case MIR::Assign_array::ID:
 				this->transform_assign_array(sb, dyc<MIR::Assign_array>(sb->statement), out);
 				break;
-			case MIR::Assign_target::ID:
-				this->transform_assign_target(sb, dyc<MIR::Assign_target>(sb->statement), out);
+			case MIR::Assign_field::ID:
+				this->transform_assign_field(sb, dyc<MIR::Assign_field>(sb->statement), out);
 				break;
 			case MIR::Assign_var::ID:
 				this->transform_assign_var(sb, dyc<MIR::Assign_var>(sb->statement), out);
@@ -249,7 +249,7 @@ Flow_visitor::transform_assign_array (Statement_block* in, MIR::Assign_array*, l
 }
 
 void
-Flow_visitor::transform_assign_target (Statement_block* in, MIR::Assign_target*, list<Basic_block*>* out)
+Flow_visitor::transform_assign_field (Statement_block* in, MIR::Assign_field*, list<Basic_block*>* out)
 {
 	out->push_back (in);
 }

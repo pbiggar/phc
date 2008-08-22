@@ -21,8 +21,9 @@ using namespace std;
 namespace MIR{
 template
 <class _Actual_parameter,
+ class _Array_access,
  class _Assign_array,
- class _Assign_target,
+ class _Assign_field,
  class _Assign_var,
  class _Assign_var_var,
  class _Attr_mod,
@@ -41,7 +42,10 @@ template
  class _Constant,
  class _Eval_expr,
  class _Expr,
+ class _FIELD_NAME,
  class _FOREIGN,
+ class _Field_access,
+ class _Field_name,
  class _Foreach_end,
  class _Foreach_get_key,
  class _Foreach_get_val,
@@ -55,7 +59,6 @@ template
  class _INT,
  class _INTERFACE_NAME,
  class _Identifier,
- class _Index_array,
  class _Instanceof,
  class _Interface_def,
  class _Isset,
@@ -90,7 +93,6 @@ template
  class _Static_declaration,
  class _Static_value,
  class _Target,
- class _Target_expr,
  class _Throw,
  class _Try,
  class _Type,
@@ -98,6 +100,7 @@ template
  class _Unset,
  class _VARIABLE_NAME,
  class _Variable_class,
+ class _Variable_field,
  class _Variable_method,
  class _Variable_name,
  class _Variable_variable,
@@ -107,7 +110,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Assign_array, _Assign_target, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FOREIGN, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Index_array, _Instanceof, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Target_expr, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -357,16 +360,16 @@ public:
 		return fold_impl_assign_var(in, lhs, is_ref, rhs);
 	}
 
-	virtual _Assign_target fold_assign_target(Assign_target* in)
+	virtual _Assign_field fold_assign_field(Assign_field* in)
 	{
 		_Target target = 0;
 		if(in->target != NULL) target = fold_target(in->target);
-		_Variable_name lhs = 0;
-		if(in->lhs != NULL) lhs = fold_variable_name(in->lhs);
+		_Field_name field_name = 0;
+		if(in->field_name != NULL) field_name = fold_field_name(in->field_name);
 		bool is_ref = in->is_ref;
 		_Rvalue rhs = 0;
 		if(in->rhs != NULL) rhs = fold_rvalue(in->rhs);
-		return fold_impl_assign_target(in, target, lhs, is_ref, rhs);
+		return fold_impl_assign_field(in, target, field_name, is_ref, rhs);
 	}
 
 	virtual _Assign_array fold_assign_array(Assign_array* in)
@@ -453,29 +456,22 @@ public:
 		return fold_impl_isset(in, target, variable_name, array_indices);
 	}
 
-	virtual _Target_expr fold_target_expr(Target_expr* in)
+	virtual _Field_access fold_field_access(Field_access* in)
 	{
 		_Target target = 0;
 		if(in->target != NULL) target = fold_target(in->target);
-		_Variable_name variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_target_expr(in, target, variable_name);
+		_Field_name field_name = 0;
+		if(in->field_name != NULL) field_name = fold_field_name(in->field_name);
+		return fold_impl_field_access(in, target, field_name);
 	}
 
-	virtual _Variable_variable fold_variable_variable(Variable_variable* in)
-	{
-		_VARIABLE_NAME variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_variable_variable(in, variable_name);
-	}
-
-	virtual _Index_array fold_index_array(Index_array* in)
+	virtual _Array_access fold_array_access(Array_access* in)
 	{
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		_Rvalue index = 0;
 		if(in->index != NULL) index = fold_rvalue(in->index);
-		return fold_impl_index_array(in, variable_name, index);
+		return fold_impl_array_access(in, variable_name, index);
 	}
 
 	virtual _Cast fold_cast(Cast* in)
@@ -543,13 +539,6 @@ public:
 		return fold_impl_method_invocation(in, target, method_name, actual_parameters);
 	}
 
-	virtual _Variable_method fold_variable_method(Variable_method* in)
-	{
-		_VARIABLE_NAME variable_name = 0;
-		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_variable_method(in, variable_name);
-	}
-
 	virtual _Actual_parameter fold_actual_parameter(Actual_parameter* in)
 	{
 		bool is_ref = in->is_ref;
@@ -574,11 +563,32 @@ public:
 		return fold_impl_new(in, class_name, actual_parameters);
 	}
 
+	virtual _Variable_method fold_variable_method(Variable_method* in)
+	{
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_variable_method(in, variable_name);
+	}
+
+	virtual _Variable_variable fold_variable_variable(Variable_variable* in)
+	{
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_variable_variable(in, variable_name);
+	}
+
 	virtual _Variable_class fold_variable_class(Variable_class* in)
 	{
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
 		return fold_impl_variable_class(in, variable_name);
+	}
+
+	virtual _Variable_field fold_variable_field(Variable_field* in)
+	{
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_variable_field(in, variable_name);
 	}
 
 	virtual _Static_array fold_static_array(Static_array* in)
@@ -721,7 +731,7 @@ public:
 	virtual _Catch fold_impl_catch(Catch* orig, _CLASS_NAME class_name, _VARIABLE_NAME variable_name, _List<_Statement>* statements) { assert(0); };
 	virtual _Throw fold_impl_throw(Throw* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Assign_var fold_impl_assign_var(Assign_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Expr rhs) { assert(0); };
-	virtual _Assign_target fold_impl_assign_target(Assign_target* orig, _Target target, _Variable_name lhs, bool is_ref, _Rvalue rhs) { assert(0); };
+	virtual _Assign_field fold_impl_assign_field(Assign_field* orig, _Target target, _Field_name field_name, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _VARIABLE_NAME lhs, _Rvalue index, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Push_array fold_impl_push_array(Push_array* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
@@ -729,19 +739,20 @@ public:
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Unset fold_impl_unset(Unset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Isset fold_impl_isset(Isset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
-	virtual _Target_expr fold_impl_target_expr(Target_expr* orig, _Target target, _Variable_name variable_name) { assert(0); };
-	virtual _Variable_variable fold_impl_variable_variable(Variable_variable* orig, _VARIABLE_NAME variable_name) { assert(0); };
-	virtual _Index_array fold_impl_index_array(Index_array* orig, _VARIABLE_NAME variable_name, _Rvalue index) { assert(0); };
+	virtual _Field_access fold_impl_field_access(Field_access* orig, _Target target, _Field_name field_name) { assert(0); };
+	virtual _Array_access fold_impl_array_access(Array_access* orig, _VARIABLE_NAME variable_name, _Rvalue index) { assert(0); };
 	virtual _Cast fold_impl_cast(Cast* orig, _CAST cast, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Unary_op fold_impl_unary_op(Unary_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Bin_op fold_impl_bin_op(Bin_op* orig, _Rvalue left, _OP op, _Rvalue right) { assert(0); };
 	virtual _Constant fold_impl_constant(Constant* orig, _CLASS_NAME class_name, _CONSTANT_NAME constant_name) { assert(0); };
 	virtual _Instanceof fold_impl_instanceof(Instanceof* orig, _VARIABLE_NAME variable_name, _Class_name class_name) { assert(0); };
 	virtual _Method_invocation fold_impl_method_invocation(Method_invocation* orig, _Target target, _Method_name method_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
-	virtual _Variable_method fold_impl_variable_method(Variable_method* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Actual_parameter fold_impl_actual_parameter(Actual_parameter* orig, bool is_ref, _Rvalue rvalue) { assert(0); };
 	virtual _New fold_impl_new(New* orig, _Class_name class_name, _List<_Actual_parameter>* actual_parameters) { assert(0); };
+	virtual _Variable_method fold_impl_variable_method(Variable_method* orig, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Variable_variable fold_impl_variable_variable(Variable_variable* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Variable_class fold_impl_variable_class(Variable_class* orig, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Variable_field fold_impl_variable_field(Variable_field* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Static_array fold_impl_static_array(Static_array* orig, _List<_Static_array_elem>* static_array_elems) { assert(0); };
 	virtual _Static_array_elem fold_impl_static_array_elem(Static_array_elem* orig, _Static_array_key key, bool is_ref, _Static_value val) { assert(0); };
 	virtual _Branch fold_impl_branch(Branch* orig, _VARIABLE_NAME variable_name, _LABEL_NAME iftrue, _LABEL_NAME iffalse) { assert(0); };
@@ -769,6 +780,7 @@ public:
 	virtual _NIL fold_nil(NIL* orig) { assert(0); };
 	virtual _CAST fold_cast(CAST* orig) { assert(0); };
 	virtual _CONSTANT_NAME fold_constant_name(CONSTANT_NAME* orig) { assert(0); };
+	virtual _FIELD_NAME fold_field_name(FIELD_NAME* orig) { assert(0); };
 	virtual _LABEL_NAME fold_label_name(LABEL_NAME* orig) { assert(0); };
 	virtual _HT_ITERATOR fold_ht_iterator(HT_ITERATOR* orig) { assert(0); };
 
@@ -805,8 +817,8 @@ public:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
 			case Push_array::ID:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
-			case Assign_target::ID:
-				return fold_assign_target(dynamic_cast<Assign_target*>(in));
+			case Assign_field::ID:
+				return fold_assign_field(dynamic_cast<Assign_field*>(in));
 			case Eval_expr::ID:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
@@ -873,10 +885,10 @@ public:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Variable_variable::ID:
 				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
-			case Index_array::ID:
-				return fold_index_array(dynamic_cast<Index_array*>(in));
-			case Target_expr::ID:
-				return fold_target_expr(dynamic_cast<Target_expr*>(in));
+			case Array_access::ID:
+				return fold_array_access(dynamic_cast<Array_access*>(in));
+			case Field_access::ID:
+				return fold_field_access(dynamic_cast<Field_access*>(in));
 			case Isset::ID:
 				return fold_isset(dynamic_cast<Isset*>(in));
 			case Foreach_has_key::ID:
@@ -889,14 +901,18 @@ public:
 				return fold_param_is_ref(dynamic_cast<Param_is_ref*>(in));
 			case CLASS_NAME::ID:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
+			case Actual_parameter::ID:
+				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
 			case METHOD_NAME::ID:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case Variable_method::ID:
 				return fold_variable_method(dynamic_cast<Variable_method*>(in));
-			case Actual_parameter::ID:
-				return fold_actual_parameter(dynamic_cast<Actual_parameter*>(in));
 			case Variable_class::ID:
 				return fold_variable_class(dynamic_cast<Variable_class*>(in));
+			case FIELD_NAME::ID:
+				return fold_field_name(dynamic_cast<FIELD_NAME*>(in));
+			case Variable_field::ID:
+				return fold_variable_field(dynamic_cast<Variable_field*>(in));
 			case Static_array::ID:
 				return fold_static_array(dynamic_cast<Static_array*>(in));
 			case Static_array_elem::ID:
@@ -947,8 +963,8 @@ public:
 				return fold_assign_array(dynamic_cast<Assign_array*>(in));
 			case Push_array::ID:
 				return fold_push_array(dynamic_cast<Push_array*>(in));
-			case Assign_target::ID:
-				return fold_assign_target(dynamic_cast<Assign_target*>(in));
+			case Assign_field::ID:
+				return fold_assign_field(dynamic_cast<Assign_field*>(in));
 			case Eval_expr::ID:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
@@ -1017,14 +1033,14 @@ public:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
 			case Variable_variable::ID:
 				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
-			case Index_array::ID:
-				return fold_index_array(dynamic_cast<Index_array*>(in));
-			case Target_expr::ID:
-				return fold_target_expr(dynamic_cast<Target_expr*>(in));
-			case Isset::ID:
-				return fold_isset(dynamic_cast<Isset*>(in));
+			case Array_access::ID:
+				return fold_array_access(dynamic_cast<Array_access*>(in));
+			case Field_access::ID:
+				return fold_field_access(dynamic_cast<Field_access*>(in));
 			case FOREIGN::ID:
 				return fold_foreign(dynamic_cast<FOREIGN*>(in));
+			case Isset::ID:
+				return fold_isset(dynamic_cast<Isset*>(in));
 			case Foreach_has_key::ID:
 				return fold_foreach_has_key(dynamic_cast<Foreach_has_key*>(in));
 			case Foreach_get_key::ID:
@@ -1075,18 +1091,6 @@ public:
 		assert(0);
 	}
 
-	virtual _Variable_name fold_variable_name(Variable_name* in)
-	{
-		switch(in->classid())
-		{
-			case VARIABLE_NAME::ID:
-				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
-			case Variable_variable::ID:
-				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
-		}
-		assert(0);
-	}
-
 	virtual _Target fold_target(Target* in)
 	{
 		switch(in->classid())
@@ -1111,6 +1115,18 @@ public:
 		assert(0);
 	}
 
+	virtual _Variable_name fold_variable_name(Variable_name* in)
+	{
+		switch(in->classid())
+		{
+			case VARIABLE_NAME::ID:
+				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+			case Variable_variable::ID:
+				return fold_variable_variable(dynamic_cast<Variable_variable*>(in));
+		}
+		assert(0);
+	}
+
 	virtual _Class_name fold_class_name(Class_name* in)
 	{
 		switch(in->classid())
@@ -1119,6 +1135,18 @@ public:
 				return fold_class_name(dynamic_cast<CLASS_NAME*>(in));
 			case Variable_class::ID:
 				return fold_variable_class(dynamic_cast<Variable_class*>(in));
+		}
+		assert(0);
+	}
+
+	virtual _Field_name fold_field_name(Field_name* in)
+	{
+		switch(in->classid())
+		{
+			case FIELD_NAME::ID:
+				return fold_field_name(dynamic_cast<FIELD_NAME*>(in));
+			case Variable_field::ID:
+				return fold_variable_field(dynamic_cast<Variable_field*>(in));
 		}
 		assert(0);
 	}
@@ -1177,6 +1205,8 @@ public:
 				return fold_method_name(dynamic_cast<METHOD_NAME*>(in));
 			case VARIABLE_NAME::ID:
 				return fold_variable_name(dynamic_cast<VARIABLE_NAME*>(in));
+			case FIELD_NAME::ID:
+				return fold_field_name(dynamic_cast<FIELD_NAME*>(in));
 			case CAST::ID:
 				return fold_cast(dynamic_cast<CAST*>(in));
 			case OP::ID:
@@ -1198,6 +1228,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 
