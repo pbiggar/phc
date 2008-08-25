@@ -18,7 +18,6 @@ abstract class Test
 		$this->max_time = 20;
 		$this->total = 0;
 		$this->solo_tests = 0;
-		$this->timers = array();
 		$this->missing_dependencies = array ();
 	}
 
@@ -193,10 +192,7 @@ abstract class Test
 			}
 			else
 			{
-				# TODO with async test, the timer doesnt make sense
-				$this->start_timer ($subject);
 				$this->run_test ($subject);
-				$this->end_timer ($subject);
 			}
 			$count ++;
 
@@ -205,82 +201,6 @@ abstract class Test
 		}
 
 		$this->finish_test ();
-	}
-
-	function start_timer ($subject)
-	{
-		$this->timer_start = microtime(true);
-	}
-
-	function end_timer ($subject)
-	{
-		$time = microtime (true) - $this->timer_start;
-		$this->timers[$subject] = $time;
-	}
-
-	function get_timing_string ()
-	{
-		if (count ($this->timers) == 0) return "";
-		$blue = blue_string();
-		$red = red_string();
-		$reset = reset_string ();
-		asort($this->timers, SORT_NUMERIC);
-		$numbers = array();
-
-		// need the number to address it
-		$i = 0;
-		$files = $this->get_test_subjects ();
-		foreach ($files as $file)
-		{
-			$numbers{$file} = $i;
-			$i++;
-		}
-
-		// get the median (you cant just index with ints)
-		$i = 0;
-		foreach ($this->timers as $key => $value)
-		{
-			if ($i++ >= count($this->timers) / 2)
-			{
-				$med_val = $value;
-				$med_key = $numbers{$key};
-				break;
-			}
-		}
-
-		// get the mean
-		$total = 0;
-		foreach ($this->timers as $key => $value)
-		{
-			$total += $value;
-		}
-		$mean = $total / count ($this->timers);
-
-		// get the std dev
-		$total = 0;
-		foreach ($this->timers as $key => $value)
-		{
-			$dev = $value - $mean;
-			$total += ($dev * $dev);
-		}
-		$std_dev = sqrt ($total / (count ($this->timers)));
-
-		// get the max
-		$max_val = array_pop(array_values($this->timers));
-		$max_key = $numbers{array_pop(array_keys($this->timers))};
-
-		// more than a second apart, and 2 std deviations above average
-		if (($max_val > ($mean + 2*$std_dev))
-				and ($max_val > $mean + 1))
-		{
-			return sprintf ("{$blue}avg %2ss; {$red}max%5s%3ss$reset", 
-					floor($mean), "($max_key)", floor($max_val));
-		}
-		else
-		{
-			return sprintf ("{$blue}avg %2ss$reset              ", floor($mean));
-		}
-
 	}
 
 	function mark_success ($subject)

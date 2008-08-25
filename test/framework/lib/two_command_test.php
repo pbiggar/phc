@@ -20,11 +20,6 @@ abstract class TwoCommandTest extends Test
 		return false;
 	}
 
-	function end_timer ()
-	{
-		// does nothing. The timer is manually ended in run_test
-	}
-
 	function run_test ($subject)
 	{
 		$command1 = $this->get_command_line1 ($subject);
@@ -34,7 +29,6 @@ abstract class TwoCommandTest extends Test
 		$out1 = $this->homogenize_output ($out1);
 		$out2 = $this->homogenize_output ($out2);
 
-		parent::end_timer($subject); // the diff can take a long time
 		if ($out1 !== $out2 or 
 				$err1 !== $err2 or
 				(!$this->allow_failure_exit_code () and ($exit1 != 0 or $exit2 != 0)))

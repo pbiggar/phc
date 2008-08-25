@@ -22,9 +22,7 @@ abstract class NoSubjectTest extends Test
 			return false;
 		}
 
-		$this->start_timer ("All");
 		$this->run_test ("All");
-		$this->end_timer ("All");
 		$this->finish_test ();
 	}
 }
