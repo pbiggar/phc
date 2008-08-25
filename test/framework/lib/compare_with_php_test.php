@@ -6,10 +6,10 @@
  * Conduct a test which is compared to the output of the interpreter
  */
 
-require_once ("two_command_test.php");
+require_once ("async_test.php");
 
 
-class CompareWithPHP extends TwoCommandTest
+class CompareWithPHP extends AsyncTest
 {
 	function __construct ($name, $command_line, $dependecy)
 	{
@@ -19,6 +19,7 @@ class CompareWithPHP extends TwoCommandTest
 		parent::__construct ();
 	}
 
+	// TODO move the cache to AsyncTest
 	public static $cache = array ();
 	function get_test_subjects ()
 	{
@@ -72,6 +73,21 @@ class CompareWithPHP extends TwoCommandTest
 	function get_name ()
 	{
 		return $this->name;
+	}
+
+	function run_test ($subject)
+	{
+		$async = new AsyncBundle ($this, $subject);
+
+		$async->commands[0] = $this->get_command_line1 ($subject);
+		$async->out_handlers[0] = "homogenize_output";
+
+		$async->commands[1] = $this->get_command_line2 ($subject);
+		$async->out_handlers[1] = "homogenize_output";
+
+		$async->final = "two_command_finish";
+
+		$async->start ();
 	}
 }
 

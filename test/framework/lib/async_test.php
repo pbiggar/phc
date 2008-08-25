@@ -328,6 +328,23 @@ abstract class AsyncTest extends Test
 
 		$this->running_procs[] = $bundle;
 	}
+
+	// We use this a lot.
+	function two_command_finish ($async)
+	{
+		if ($async->outs[0] !== $async->outs[1]
+			or $async->errs[0] !== $async->errs[1]
+			or $async->exits[0] !== $async->exits[1])
+		{
+			$output = diff ($async->outs[0], $async->outs[1]);
+			$async->outs = $output;
+			$this->async_failure ("Outputs dont match", $async);
+		}
+		else
+		{
+			$this->async_success ($async);
+		}
+	}
 }
 
 ?>

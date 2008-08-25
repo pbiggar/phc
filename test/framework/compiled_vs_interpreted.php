@@ -42,7 +42,6 @@ class CompiledVsInterpreted extends AsyncTest
 		{
 			$this->async_success ($async);
 		}
-
 	}
 
 	function homogenize_output ($string)

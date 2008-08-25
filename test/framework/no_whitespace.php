@@ -35,17 +35,8 @@ class NoWhitespace extends AsyncTest
 		$async->out_handlers[1] = "strip_whitespace";
 		$async->err_handlers[1] = "fail_on_output";
 
-		$async->final = "finish";
+		$async->final = "two_command_finish";
 		$async->start ();
-	}
-
-	function finish ($async)
-	{
-		if ($async->outs[0] !== $async->outs[1])
-			$this->async_failure ("Whitespace free output doesnt match", $async);
-		else
-			$this->async_success ($async);
-
 	}
 
 	// This strings whitespace from strings, so it wont be perfect, but thats
