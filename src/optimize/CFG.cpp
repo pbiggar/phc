@@ -395,7 +395,7 @@ CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
 			foreach (Basic_block* pred, *get_predecessors (bb))
 				boost::add_edge (pred->vertex, v, bs);
 
-			// Add edges from asuccessors 
+			// Add edges from successors 
 			foreach (Basic_block* succ, *get_successors (bb))
 				boost::add_edge (v, succ->vertex, bs);
 		}
@@ -571,3 +571,89 @@ CFG::renumber_vertex_indices ()
 	foreach (vertex_t v, vertices (bs))
 		index[v] = new_index++;
 }
+
+
+/* SSA from here */
+
+#if 0
+void CFG::convert_to_ssa_form ()
+{
+	// We use Muchnick, Section 8.11, which is essentially the same as the
+	// Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
+	// Zadeck paper. To really understand this, it is best to work out the
+	// example from Muchnick 8.11.
+	
+	/*
+	 * Terms (from Muchnick 7.3)
+	 * 
+	 * Dominator:
+	 *		A basic block X dominates another, Y, if X must be executed before Y.
+	 *		X dominates X.  Technically, if all paths from ENTRY to Y must go
+	 *		through X.  
+	 *
+	 *	Immediate dominator:
+	 *		The unique dominator U of a BB X, for which there is no BB dominated
+	 *		by U which dominates X.
+	 *
+	 *	Strict dominator: 
+	 *		X sdom Y if X dom Y and X != Y.
+	 *
+	 *	Dominance Frontier:
+	 *		DF (X) is the set of nodes dominated by X, whose successors are not
+	 *		dominated by X (well, one or more are not dominated by X).
+	 *	
+	 *	We need to calculate the dominace frontier. There is a linear-time algorithm for this:
+	 * Find DF_local (X):
+	 *		DF_local (x) = { y in succ (x) | idom (y) != x }
+	 *		The set of successors of X, which are not immediately dominated by X.
+	 *
+	 *	Find DF_up (X, Z):
+	 *		DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
+	 *		We want to propagate each the dominance frontiers of Z to X, its
+	 *		immediate dominator, if X doesnt dominate frontier (Y).
+	 *
+	 *	Then iteratively propagate DF_local (Z) to dominated to immediate
+	 *	dominator X via DF_up (X, Z).
+	 *
+	 *	So:
+	 *
+	 *	Iteratied dominance frontier:
+	 *		DF+ (X) = DF_local (X) union (U DF_up (X, Z), where Z in idom (X).
+	 */
+
+	// Step 1: Calculate immediate dominators.
+	typedef iterator_property_map<vector<Vertex>::iterator, IndexMap> PredMap;
+
+	Pred_map idoms;
+	lengauer_tarjan_dominator_tree(bs, entry, idoms);
+
+
+	foreach (vertex_t x, all_nodes)
+	{
+		// Step 2: Calculate local dominance frontier:
+		foreach (vertex_t y, get_successors (x))
+		{
+			// TODO which way is the mapping?
+			if (y == get (idoms, (x)))
+				df [x] += y;
+		}
+	
+		// Step 3: Propagate local dominance frontier upwards.
+		//		For each node Y, where Y in idom (X), for each Z in DF (Y), 
+		//		if Y !in idom (X), then add Y to DF (X).
+		foreach (vertex_t z, get_idomed_by (x))
+		{
+			foreach (vertex_t y, df [z])
+			{
+				if (!y in idom (x))
+					df[x] += y;
+			}
+		}
+	}
+
+	// Now we have dominance frontiers of each BB. For each assignment in BB[i],
+	// there is a PHI node in DF[BB[i]].
+
+}
+#endif
+
