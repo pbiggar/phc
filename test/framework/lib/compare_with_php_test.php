@@ -25,11 +25,6 @@ class CompareWithPHP extends TwoCommandTest
 		return get_interpretable_scripts ();
 	}
 
-	function allow_failure_exit_code ()
-	{
-		return true;
-	}
-
 	// we intercept and wrap this to cache results
 	function run_command ($command, $subject)
 	{

@@ -12,14 +12,6 @@ abstract class TwoCommandTest extends Test
 	abstract function get_command_line1 ($subject);
 	abstract function get_command_line2 ($subject);
 
-	// exit true if we allow the test1 or test2 to exit a non-zero
-	// exit code. If true, scripts with minor errors, which we intend
-	// to _kinda_ replicate, are allowed.
-	function allow_failure_exit_code ()
-	{
-		return false;
-	}
-
 	function run_test ($subject)
 	{
 		$command1 = $this->get_command_line1 ($subject);
@@ -31,7 +23,7 @@ abstract class TwoCommandTest extends Test
 
 		if ($out1 !== $out2 or 
 				$err1 !== $err2 or
-				(!$this->allow_failure_exit_code () and ($exit1 != 0 or $exit2 != 0)))
+				$exit1 !== $exit2)
 		{
 			$output = diff ($out1, $out2);
 			$this->mark_failure($subject, 
