@@ -6,8 +6,7 @@
 #include "Set.h"
 
 Set::Set()
-: bs()
-, full (false)
+: full (false)
 {
 }
 
@@ -22,9 +21,9 @@ Set::set_union (Set* other)
 	else
 	{
 		std::set_union (
-				this->bs.begin (), this->bs.end(),
-				other->bs.begin (), other->bs.end (),
-				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+				this->begin (), this->end(),
+				other->begin (), other->end (),
+				insert_iterator<set<string> > (*result, result->begin ()));
 	}
 
 	return result;
@@ -42,21 +41,21 @@ Set::set_intersection (Set* other)
 	else if (this->full)
 	{
 		std::copy (
-				this->bs.begin (), this->bs.end(),
-				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+				this->begin (), this->end(),
+				insert_iterator<set<string> > (*result, result->begin ()));
 	}
 	else if (other->full)
 	{
 		std::copy (
-				other->bs.begin (), other->bs.end(),
-				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+				other->begin (), other->end(),
+				insert_iterator<set<string> > (*result, result->begin ()));
 	}
 	else
 	{
 		std::set_intersection (
-				bs.begin (), bs.end(),
-				other->bs.begin (), other->bs.end (),
-				insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+				begin (), end(),
+				other->begin (), other->end (),
+				insert_iterator<set<string> > (*result, result->begin ()));
 	}
 
 	return result;
@@ -76,9 +75,9 @@ Set::set_difference (Set* other)
 	}
 
 	std::set_difference (
-		bs.begin (), bs.end(),
-		other->bs.begin (), other->bs.end (),
-		insert_iterator<set<string> > (result->bs, result->bs.begin ()));
+		begin (), end(),
+		other->begin (), other->end (),
+		insert_iterator<set<string> > (*result, result->begin ()));
 
 	return result;
 }
@@ -86,39 +85,45 @@ Set::set_difference (Set* other)
 void
 Set::insert (String* name)
 {
-	bs.insert (*name);
+	this->insert (*name);
 }
 
 bool
 Set::contains (String* name)
 {
-	return full || (bs.find (*name) != bs.end());
+	return full || (find (*name) != end());
 }
 
 void
 Set::dump(ostream& out)
 {
-	foreach (string str, bs)
+	foreach (string str, *this)
 	{
 		out << str << ", ";
 	}
 	out << "\n";
 }
 
-bool
-Set::operator==(Set& other)
-{
-	return (bs == other.bs);
-}
-
-
-bool
-Set::operator!=(Set& other)
-{
-	return (bs != other.bs);
-}
-
-void Set::insert_all ()
+void 
+Set::insert_all ()
 {
 	full = true;
+}
+
+Set*
+Set::clone ()
+{
+	Set* result = new Set ();
+	if (full)
+	{
+		result->full = true;
+		return result;
+	}
+
+	foreach (string name, *this)
+	{
+		result->insert (name);
+	}
+
+	return result;
 }

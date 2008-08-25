@@ -101,7 +101,7 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	demangle.lo error.lo Integer.lo Object.lo String.lo \
 	Address_taken.lo Basic_block.lo CFG.lo Copy_propagation.lo \
 	Dead_code_elimination.lo Fix_point.lo Flow_visitor.lo \
-	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo \
+	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo SSA.lo \
 	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
 	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
 	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
@@ -703,6 +703,8 @@ libphc_la_SOURCES = \
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Set.cpp										\
 	src/optimize/Set.h										\
+	src/optimize/SSA.cpp										\
+	src/optimize/SSA.h										\
 	src/optimize/Use_def_counter.cpp 					\
 	src/optimize/Use_def_counter.h						\
 	src/parsing/Parse_buffer.cpp							\
@@ -1277,6 +1279,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Prune_symbol_table.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_concat_null.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Remove_parser_temporaries.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SSA.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Set.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_multiple_arguments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Split_unset_isset.Plo@am__quote@
@@ -1761,6 +1764,13 @@ Set.lo: src/optimize/Set.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Set.cpp' object='Set.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Set.lo `test -f 'src/optimize/Set.cpp' || echo '$(srcdir)/'`src/optimize/Set.cpp
+
+SSA.lo: src/optimize/SSA.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT SSA.lo -MD -MP -MF $(DEPDIR)/SSA.Tpo -c -o SSA.lo `test -f 'src/optimize/SSA.cpp' || echo '$(srcdir)/'`src/optimize/SSA.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/SSA.Tpo $(DEPDIR)/SSA.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/SSA.cpp' object='SSA.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o SSA.lo `test -f 'src/optimize/SSA.cpp' || echo '$(srcdir)/'`src/optimize/SSA.cpp
 
 Use_def_counter.lo: src/optimize/Use_def_counter.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Use_def_counter.lo -MD -MP -MF $(DEPDIR)/Use_def_counter.Tpo -c -o Use_def_counter.lo `test -f 'src/optimize/Use_def_counter.cpp' || echo '$(srcdir)/'`src/optimize/Use_def_counter.cpp

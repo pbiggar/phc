@@ -6,6 +6,7 @@
 #include "MIR.h"
 #include "CFG.h"
 #include "Set.h"
+#include "SSA.h"
 
 
 /* Basic blocks */
@@ -30,6 +31,11 @@ public:
 	virtual list<std::pair<String*,Set*> >* get_graphviz_head_properties ();
 	virtual list<std::pair<String*,Set*> >* get_graphviz_tail_properties ();
 
+	void add_phi_function (string var_name);
+	bool has_phi_function (string var_name);
+
+	// TODO: add mayUse/mayDef
+
 public:
 	// TODO: these should be moved into a solution class, so that we can have 1 per analysis.
 	// Dataflow solution
@@ -41,7 +47,9 @@ public:
 	bool changed;
 
 	// this is a global solution, so each BB should have the same solution.
-	Set* aliases; 
+	Set* aliases;
+
+	map<string, Phi*> phi_nodes;
 };
 
 class Entry_block : public Basic_block

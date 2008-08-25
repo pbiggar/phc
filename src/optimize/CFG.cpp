@@ -312,11 +312,11 @@ struct BB_property_functor
 		stringstream ss1;
 		foreach (props, *vb[v]->get_graphviz_head_properties ())
 		{
-			if (props.second->bs.size ())
+			if (props.second->size ())
 			{
 				ss1 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, props.second->bs)
+				foreach (string str, *props.second)
 				{
 					ss1 << str << ", ";
 					if (ss1.str().size() > (LINE_LENGTH * line_count))
@@ -337,11 +337,11 @@ struct BB_property_functor
 		stringstream ss3;
 		foreach (props, *vb[v]->get_graphviz_bb_properties ())
 		{
-			if (props.second->bs.size ())
+			if (props.second->size ())
 			{
 				ss3 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, props.second->bs)
+				foreach (string str, *props.second)
 				{
 					ss3 << str << ", ";
 					if (ss3.str().size() > (LINE_LENGTH * line_count))
@@ -358,11 +358,11 @@ struct BB_property_functor
 		stringstream ss4;
 		foreach (props, *vb[v]->get_graphviz_tail_properties ())
 		{
-			if (props.second->bs.size ())
+			if (props.second->size ())
 			{
 				ss4 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, props.second->bs)
+				foreach (string str, *props.second)
 				{
 					ss4 << str << ", ";
 					if (ss4.str().size() > (LINE_LENGTH * line_count))
@@ -730,23 +730,31 @@ void CFG::convert_to_ssa_form ()
 		}
 	}
 
-	// Now we have dominance frontiers of each BB. For each assignment in BB[i],
-	// there is a PHI node in DF[BB[i]].
+	// Now we have dominance frontiers of each BB. For each assignment in
+	// BB[i], there is a PHI node in DF[BB[i]].
 	
-	// Muchnick gives up at this point. We continue instead in Cooper/Torczon, Section 9.3.3.
+	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
+	// Section 9.3.3, with some minor changes. Since we dont have a list of
+	// global names, we iterate through all block, rather than the blocks
+	// corresponding to the variable names. 
 	
-	// For an assignment to X in BB, add a PHI function for variable X in the dominance frontier of BB.
-	// All variables are "Global", since we only have one statement per BB.
-
-	// Since we dont have global, and only have 1 assignment per BB, we modify
-	// the algorithm from Fig 9.11 somewhat.
+	// For an assignment to X in BB, add a PHI function for variable X in the
+	// dominance frontier of BB.
 	list<Basic_block*>* worklist = get_all_bbs_top_down ();
 	list<Basic_block*>::iterator i = worklist->begin ();
-/*	while (worklist != worklist->end ())
+	while (i != worklist->end ())
 	{
 		Basic_block* bb = *i;
-		foreach (VARIABLE_NAME* var_name, *bb->get_defined_vars ())
-			foreach (Basic_block* target, df [bb->vertex])
-				target->add_phi_function (var_name);
-	}*/
+		foreach (string var_name, *bb->defs)
+		{
+			foreach (vertex_t frontier, df [bb->vertex])
+			{
+				if (not vb[frontier]->has_phi_function (var_name))
+				{
+					vb[frontier]->add_phi_function (var_name);
+					worklist->push_back (vb[frontier]);
+				}
+			}
+		}
+	}
 }

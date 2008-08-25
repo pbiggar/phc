@@ -1,8 +1,10 @@
 #include "Basic_block.h"
 #include "process_ir/General.h"
 #include "process_mir/MIR_unparser.h"
+#include "MIR.h"
 
 using namespace std;
+using namespace MIR;
 
 /* Constructors */
 
@@ -107,4 +109,16 @@ Basic_block::get_graphviz_tail_properties ()
 	if (live_out)
 		result->push_back (pair<String*, Set*> (s("OUT"), live_out));
 	return result;
+}
+
+void
+Basic_block::add_phi_function (string var_name)
+{
+	phi_nodes[var_name] = new Phi;
+}
+
+bool
+Basic_block::has_phi_function (string var_name)
+{
+	return phi_nodes.find (var_name) != phi_nodes.end ();
 }

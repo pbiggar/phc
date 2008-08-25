@@ -4,12 +4,9 @@
 #include <set>
 #include <lib/String.h>
 
-class Set
+class Set : public set<string>, virtual public Object
 {
 public:
-	// Backing store
-	set<string> bs;
-
 	// If true, the SET holds every possbible variable.
 	bool full;
 
@@ -24,8 +21,6 @@ public:
 	Set* set_union (Set* other);
 	Set* set_intersection (Set* other);
 	Set* set_difference (Set* other);
-	bool operator!=(Set& other);
-	bool operator==(Set& other);
 	
 public:
 	void insert (String* string);
@@ -35,6 +30,14 @@ public:
 
 	bool contains (String* string);
 	void dump(ostream&);
+
+	Set* clone ();
+
+	using set<string>::insert;
+
+public:
+	// TODO when using iterators, assert (!full). We cant iterate through the
+	// full set.
 };
 
 
