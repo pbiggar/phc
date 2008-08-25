@@ -36,7 +36,8 @@ typedef boost::adjacency_list<
 
 	// Vertex properties
 	boost::property<boost::vertex_index_t, int,
-		boost::property <vertex_bb_t, Basic_block*> >,
+		boost::property<boost::vertex_color_t, boost::default_color_type,
+			boost::property <vertex_bb_t, Basic_block*> > >,
 
 	// Edge property
 	boost::property<edge_branch_direction_t, boost::logic::tribool>
@@ -88,6 +89,8 @@ public:
 
 	// TODO: this will get slow. Instead we should return an iterator.
 	list<Basic_block*>* get_all_bbs ();
+	list<Basic_block*>* get_all_bbs_top_down ();
+	list<Basic_block*>* get_all_bbs_bottom_up ();
 
 	list<Basic_block*>* get_predecessors (Basic_block*);
 	list<Basic_block*>* get_successors (Basic_block*);
@@ -113,6 +116,7 @@ private:
 	vertex_t exit;
 
 	void add_statements (MIR::Statement_list*);
+	void convert_to_ssa_form ();
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.

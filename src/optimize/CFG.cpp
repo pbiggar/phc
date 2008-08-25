@@ -5,10 +5,13 @@
  * Control-flow Graph
  */
 
-#include "boost/foreach.hpp"
-#include "boost/graph/graphviz.hpp"
-#include "boost/graph/depth_first_search.hpp"
-#include "boost/graph/visitors.hpp"
+#include <boost/foreach.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/visitors.hpp>
+#include <boost/graph/dominator_tree.hpp>
+#include <boost/graph/filtered_graph.hpp>
+#include <boost/graph/topological_sort.hpp>
 
 #include "CFG.h"
 #include "process_ast/DOT_unparser.h"
@@ -199,6 +202,78 @@ CFG::get_all_bbs ()
 		result->push_back (vb[v]);
 	}
 
+	return result;
+}
+
+// TODO simplify linearizer
+template <class Graph>
+class Depth_first_list : public default_dfs_visitor
+{
+public:
+	list<Basic_block*>* result;
+
+	Depth_first_list (list<Basic_block*>* result)
+	: result (result)
+	{
+	}
+
+	void discover_vertex (vertex_t v, const Graph& g)
+	{
+		result->push_back (get(vertex_bb_t(), g)[v]);
+	}
+};
+
+template <class VertexColorMap>
+struct filter_back_edges
+{
+	Graph* graph;
+	VertexColorMap* color_map;
+
+	filter_back_edges () {}
+
+	filter_back_edges (Graph* graph, VertexColorMap* color_map)
+	: graph (graph)
+   , color_map (color_map)
+	{
+	}
+
+	template <typename Edge>
+	bool operator()(const Edge& e) const
+	{
+		// back edges have a gray target.
+		return gray_color != get(*color_map, target(e, *graph));
+	}
+};
+
+list<Basic_block*>*
+CFG::get_all_bbs_top_down ()
+{
+	typedef property_map<Graph, vertex_color_t>::type VertexColorMap;
+	typedef filtered_graph<Graph, filter_back_edges<VertexColorMap> > DAG;
+
+	// Create a new graph, without back edges.
+	VertexColorMap cm;
+	DAG fg (bs, filter_back_edges<VertexColorMap> (&bs, &cm));
+
+	// Do a topologic sort on the graph.
+	vector<vertex_t> vertices;
+	topological_sort(fg, back_inserter(vertices));
+
+	// Convert to a list of BBs
+	list<Basic_block*>* result = new list<Basic_block*>;
+	foreach (vertex_t v, vertices)
+	{
+		result->push_back (vb[v]);
+	}
+
+	return result;
+}
+
+list<Basic_block*>*
+CFG::get_all_bbs_bottom_up ()
+{
+	list<Basic_block*>* result = get_all_bbs_top_down ();
+	result->reverse ();
 	return result;
 }
 
@@ -575,13 +650,13 @@ CFG::renumber_vertex_indices ()
 
 /* SSA from here */
 
-#if 0
 void CFG::convert_to_ssa_form ()
 {
 	// We use Muchnick, Section 8.11, which is essentially the same as the
 	// Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
 	// Zadeck paper. To really understand this, it is best to work out the
-	// example from Muchnick 8.11.
+	// example from Muchnick 8.11 (note that successor means immediate
+	// successor, not a node which can be reached).
 	
 	/*
 	 * Terms (from Muchnick 7.3)
@@ -621,39 +696,57 @@ void CFG::convert_to_ssa_form ()
 	 *		DF+ (X) = DF_local (X) union (U DF_up (X, Z), where Z in idom (X).
 	 */
 
+	map <vertex_t, set<vertex_t> > df;
+
 	// Step 1: Calculate immediate dominators.
-	typedef iterator_property_map<vector<Vertex>::iterator, IndexMap> PredMap;
+	typedef property_map<Graph, vertex_index_t>::type Index_map;
+	typedef iterator_property_map<vector<vertex_t>::iterator, Index_map> Pred_map;
 
 	Pred_map idoms;
 	lengauer_tarjan_dominator_tree(bs, entry, idoms);
 
-
-	foreach (vertex_t x, all_nodes)
+	// Calculate the dominance frontier.
+	foreach (vertex_t x, vertices (bs))
 	{
 		// Step 2: Calculate local dominance frontier:
-		foreach (vertex_t y, get_successors (x))
+		foreach (Basic_block* y_bb, *this->get_successors (vb[x]))
 		{
-			// TODO which way is the mapping?
-			if (y == get (idoms, (x)))
-				df [x] += y;
+			vertex_t y = y_bb->vertex;
+
+			if (get (idoms, y) != x) // if x !idom y
+				df [x].insert (y);
 		}
 	
 		// Step 3: Propagate local dominance frontier upwards.
-		//		For each node Y, where Y in idom (X), for each Z in DF (Y), 
-		//		if Y !in idom (X), then add Y to DF (X).
-		foreach (vertex_t z, get_idomed_by (x))
+		// DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
+		foreach (Basic_block* bb, *this->get_all_bbs_bottom_up ())
 		{
+			vertex_t z = bb->vertex;
 			foreach (vertex_t y, df [z])
 			{
-				if (!y in idom (x))
-					df[x] += y;
+				if (get(idoms, y) != x)
+					df [x].insert (y);
 			}
 		}
 	}
 
 	// Now we have dominance frontiers of each BB. For each assignment in BB[i],
 	// there is a PHI node in DF[BB[i]].
+	
+	// Muchnick gives up at this point. We continue instead in Cooper/Torczon, Section 9.3.3.
+	
+	// For an assignment to X in BB, add a PHI function for variable X in the dominance frontier of BB.
+	// All variables are "Global", since we only have one statement per BB.
 
+	// Since we dont have global, and only have 1 assignment per BB, we modify
+	// the algorithm from Fig 9.11 somewhat.
+	list<Basic_block*>* worklist = get_all_bbs_top_down ();
+	list<Basic_block*>::iterator i = worklist->begin ();
+/*	while (worklist != worklist->end ())
+	{
+		Basic_block* bb = *i;
+		foreach (VARIABLE_NAME* var_name, *bb->get_defined_vars ())
+			foreach (Basic_block* target, df [bb->vertex])
+				target->add_phi_function (var_name);
+	}*/
 }
-#endif
-

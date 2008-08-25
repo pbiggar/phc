@@ -31,7 +31,6 @@ Flow_visitor::visit (CFG* cfg)
 		Basic_block* bb = worklist->front ();
 		worklist->pop_front ();
 
-		cdebug << "process BB " << bb->vertex << endl;
 		visit_transfer_functions (bb, cfg);
 
 		if (this->solution_has_changed (bb))
