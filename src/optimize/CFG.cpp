@@ -735,13 +735,14 @@ void CFG::convert_to_ssa_form ()
 	
 	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
 	// Section 9.3.3, with some minor changes. Since we dont have a list of
-	// global names, we iterate through all block, rather than the blocks
+	// global names, we iterate through all blocks, rather than the blocks
 	// corresponding to the variable names. 
 	
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
 	list<Basic_block*>* worklist = get_all_bbs_top_down ();
 	list<Basic_block*>::iterator i = worklist->begin ();
+	Set all_names;
 	while (i != worklist->end ())
 	{
 		Basic_block* bb = *i;
@@ -753,8 +754,63 @@ void CFG::convert_to_ssa_form ()
 				{
 					vb[frontier]->add_phi_function (var_name);
 					worklist->push_back (vb[frontier]);
+					all_names.insert (var_name);
 				}
 			}
 		}
 	}
+
+
+	// Renaming (Cooper/Torczon, setion 9.3.4).
+	
+	// Following the example of GCC, we give each SSA_NAME a distinct number. So
+	// instead of x_0, y_0, x_1, y_1, as in textbooks, we use x_0, y_1, x_2,
+	// y_2. This allows us use the version as an index into a bitvector (which
+	// we may or may not do in the future).
+	int counter = 0;
+	map<string, list<int> > var_stacks;
+	foreach (string name, all_names)
+	{
+		var_stacks[name].push_back (0);
+	}
+	rename_ssa_vars (get_entry_bb (), &counter, &var_stacks);
+
+
 }
+
+/* Given a BB, this will perform recursively perform SSA renaming, descending
+ * the dominator tree. COUNTER is the version of the next SSA_NAME. VAR_STACKS
+ * is the stack of versions used by a named variable. When returning from
+ * recursing, the stack is popped to reveal the version used on the previous
+ * level. */
+void
+CFG::rename_ssa_vars (Basic_block* bb, int* counter, map<string, list<int> >* var_stacks)
+{
+/*	foreach (Phi* phi, bb->phis)
+	{
+		rename lhs with newname
+	}
+
+	foreach (statement)
+	{
+		rewrite uses using top of var_stack
+		rewrite lhs with newname
+	}
+
+	foreach (cfg successor)
+	{
+		fill in phi parameter
+	}
+
+	foreach (dominator successor)
+	{
+		rename_ssa_vars (next, counter, var_stacks)
+	}
+
+	foreach (def in BB)
+	{
+		pop_stack (def);
+	}
+*/	
+}
+

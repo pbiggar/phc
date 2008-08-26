@@ -117,6 +117,7 @@ private:
 
 	void add_statements (MIR::Statement_list*);
 	void convert_to_ssa_form ();
+	void rename_ssa_vars (Basic_block* bb, int* counter, map<string, list<int> >* var_stacks);
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.
