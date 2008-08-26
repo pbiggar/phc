@@ -172,8 +172,8 @@ void Lower_control_flow::post_loop (Loop* in, Statement_list* out)
  *			$T = foreach_has_key ($arr, iter);
  *			if ($T) goto L1; else goto L2;
  *		L1:
- *			$key = foreach_get_key ($arr, iter); 
- *			$val = foreach_get_val ($arr, iter); // optional
+ *			$key = foreach_get_key ($arr, iter); // optional 
+ *			$val = foreach_get_val ($arr, iter);
  *			....  
  *			foreach_next ($arr, iter); 
  *			goto L0:
@@ -244,9 +244,6 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 		array_name->clone (),
 		iter->clone ());
 
-	// The key may not be present, but we create it anyway for the unparser. 
-	get_key->attrs->set ("phc.codegen.use_get_key", new Boolean (in->key));
-
 	VARIABLE_NAME* key = in->key;
 	if (key == NULL)
 		key = fresh_var_name ("LCF_KEY_");
@@ -257,9 +254,6 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 				new FOREIGN (get_key)));
 	
 
-	// $val = foreach_get_val ($arr, $get_key, iter); 
-	MIR::VARIABLE_NAME* mir_key = folder.fold_variable_name (key);
-
 	out->push_back (
 		new Assign_var(
 			in->val->clone (),
@@ -267,7 +261,6 @@ void Lower_control_flow::lower_foreach (Foreach* in, Statement_list* out)
 			new FOREIGN (
 				new MIR::Foreach_get_val (
 					array_name->clone (),
-					mir_key,
 					iter->clone ()))));
 
 

@@ -333,7 +333,7 @@ Live_variable_analysis::visit_push_array (Statement_block* bb, MIR::Push_array* 
 void
 Live_variable_analysis::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	use_expr (bb, in->expr);
+	use (bb, in->variable_name);
 }
 
 void

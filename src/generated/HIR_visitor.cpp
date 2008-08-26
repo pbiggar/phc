@@ -725,7 +725,7 @@ void Visitor::children_continue(Continue* in)
 
 void Visitor::children_return(Return* in)
 {
-    visit_expr(in->expr);
+    visit_variable_name(in->variable_name);
 }
 
 void Visitor::children_static_declaration(Static_declaration* in)

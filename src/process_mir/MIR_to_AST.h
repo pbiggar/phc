@@ -283,10 +283,10 @@ public:
 		return result;
 	}
 
-	AST::Return* fold_impl_return(MIR::Return* orig, AST::Expr* expr) 
+	AST::Return* fold_impl_return(MIR::Return* orig, AST::None* variable_name) 
 	{
 		AST::Return* result;
-		result = new AST::Return(expr);
+		result = new AST::Return(wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return result;
 	}
@@ -815,9 +815,8 @@ public:
 		return new AST::FOREIGN (orig);
 	}
 
-	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::None* key, AST::Identifier* iter) 
+	AST::FOREIGN* fold_impl_foreach_get_val (MIR::Foreach_get_val* orig, AST::None* array, AST::Identifier* iter) 
 	{
-		get_var_name ();
 		get_var_name ();
 		return new AST::FOREIGN (orig);
 	}

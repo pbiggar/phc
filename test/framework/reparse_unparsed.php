@@ -7,7 +7,7 @@
  */
 
 array_push($tests, new ReparseUnparsed ());
-class ReparseUnparsed extends TwoCommandTest
+class ReparseUnparsed extends AsyncTest
 {
 	function get_test_subjects ()
 	{
@@ -19,24 +19,19 @@ class ReparseUnparsed extends TwoCommandTest
 		return array ("BasicParseTest");
 	}
 
-	function get_command_line1 ($subject)
+	function run_test ($subject)
 	{
 		global $phc;
-		return "cat $subject | $phc --pretty-print 2>&1";
-	}
 
-	function get_command_line2 ($subject)
-	{
-		global $phc;
-		return "$phc --pretty-print $subject 2>&1 | $phc --pretty-print 2>&1";
-	}
+		$async = new AsyncBundle ($this, $subject);
 
-	function homogenize_output ($string)
-	{
-		// TODO ideally we would use the xml output, but there are problems there
-//		return homogenize_xml ($string);
-	}
+		$async->commands[0] = "cat $subject | $phc --pretty-print";
+		$async->commands[1] = "$phc --pretty-print $subject 2>&1 | $phc --pretty-print";
 
+		$async->final = "two_command_finish";
+
+		$async->start ();
+	}
 }
 
 ?>

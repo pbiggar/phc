@@ -223,7 +223,7 @@ Address_taken::visit_push_array (Statement_block* bb, MIR::Push_array* in)
 void
 Address_taken::visit_return (Statement_block* bb, MIR::Return* in)
 {
-	alias_expr (bb, in->expr);
+	aliased (bb, in->variable_name);
 }
 void
 Address_taken::visit_static_declaration (Statement_block* bb, MIR::Static_declaration* in)

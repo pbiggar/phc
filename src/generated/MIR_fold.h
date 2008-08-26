@@ -283,9 +283,9 @@ public:
 
 	virtual _Return fold_return(Return* in)
 	{
-		_Expr expr = 0;
-		if(in->expr != NULL) expr = fold_expr(in->expr);
-		return fold_impl_return(in, expr);
+		_VARIABLE_NAME variable_name = 0;
+		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
+		return fold_impl_return(in, variable_name);
 	}
 
 	virtual _Static_declaration fold_static_declaration(Static_declaration* in)
@@ -689,11 +689,9 @@ public:
 	{
 		_VARIABLE_NAME array = 0;
 		if(in->array != NULL) array = fold_variable_name(in->array);
-		_VARIABLE_NAME key = 0;
-		if(in->key != NULL) key = fold_variable_name(in->key);
 		_HT_ITERATOR iter = 0;
 		if(in->iter != NULL) iter = fold_ht_iterator(in->iter);
-		return fold_impl_foreach_get_val(in, array, key, iter);
+		return fold_impl_foreach_get_val(in, array, iter);
 	}
 
 	virtual _Param_is_ref fold_param_is_ref(Param_is_ref* in)
@@ -724,7 +722,7 @@ public:
 	virtual _Attribute fold_impl_attribute(Attribute* orig, _Attr_mod attr_mod, _Name_with_default var) { assert(0); };
 	virtual _Attr_mod fold_impl_attr_mod(Attr_mod* orig, bool is_public, bool is_protected, bool is_private, bool is_static, bool is_const) { assert(0); };
 	virtual _Name_with_default fold_impl_name_with_default(Name_with_default* orig, _VARIABLE_NAME variable_name, _Static_value default_value) { assert(0); };
-	virtual _Return fold_impl_return(Return* orig, _Expr expr) { assert(0); };
+	virtual _Return fold_impl_return(Return* orig, _VARIABLE_NAME variable_name) { assert(0); };
 	virtual _Static_declaration fold_impl_static_declaration(Static_declaration* orig, _Name_with_default var) { assert(0); };
 	virtual _Global fold_impl_global(Global* orig, _Variable_name variable_name) { assert(0); };
 	virtual _Try fold_impl_try(Try* orig, _List<_Statement>* statements, _List<_Catch>* catches) { assert(0); };
@@ -763,7 +761,7 @@ public:
 	virtual _Foreach_end fold_impl_foreach_end(Foreach_end* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_has_key fold_impl_foreach_has_key(Foreach_has_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Foreach_get_key fold_impl_foreach_get_key(Foreach_get_key* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
-	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _VARIABLE_NAME key, _HT_ITERATOR iter) { assert(0); };
+	virtual _Foreach_get_val fold_impl_foreach_get_val(Foreach_get_val* orig, _VARIABLE_NAME array, _HT_ITERATOR iter) { assert(0); };
 	virtual _Param_is_ref fold_impl_param_is_ref(Param_is_ref* orig, _Target target, _Method_name method_name, _PARAM_INDEX param_index) { assert(0); };
 
 	virtual _PARAM_INDEX fold_param_index(PARAM_INDEX* orig) { assert(0); };

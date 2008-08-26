@@ -1012,15 +1012,15 @@ public:
     virtual void assert_valid();
 };
 
-// Return ::= Expr ;
+// Return ::= VARIABLE_NAME ;
 class Return : virtual public Statement
 {
 public:
-    Return(Expr* expr);
+    Return(VARIABLE_NAME* variable_name);
 protected:
     Return();
 public:
-    Expr* expr;
+    VARIABLE_NAME* variable_name;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -2127,16 +2127,15 @@ public:
     virtual void assert_valid();
 };
 
-// Foreach_get_val ::= array:VARIABLE_NAME key:VARIABLE_NAME iter:HT_ITERATOR ;
+// Foreach_get_val ::= array:VARIABLE_NAME iter:HT_ITERATOR ;
 class Foreach_get_val : virtual public Expr
 {
 public:
-    Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter);
+    Foreach_get_val(VARIABLE_NAME* array, HT_ITERATOR* iter);
 protected:
     Foreach_get_val();
 public:
     VARIABLE_NAME* array;
-    VARIABLE_NAME* key;
     HT_ITERATOR* iter;
 public:
     virtual void visit(Visitor* visitor);

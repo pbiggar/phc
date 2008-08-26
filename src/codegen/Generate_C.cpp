@@ -1994,8 +1994,8 @@ class Pattern_return : public Pattern
 {
 	bool match(Statement* that)
 	{
-		expr = new Wildcard<Expr>;
-		return(that->match(new Return(expr)));
+		var_name = new Wildcard<VARIABLE_NAME>;
+		return(that->match(new Return(var_name)));
 	}
 
 	void generate_code(Generate_C* gen)
@@ -2003,7 +2003,7 @@ class Pattern_return : public Pattern
 		code << "{\n";
 		if(!gen->return_by_reference)
 		{
-			read_rvalue (LOCAL, "rhs", dyc<VARIABLE_NAME> (expr->value));
+			read_rvalue (LOCAL, "rhs", var_name->value);
 
 			// Run-time return by reference had slightly different
 			// semantics to compile-time. There is no way within a
@@ -2017,12 +2017,7 @@ class Pattern_return : public Pattern
 		}
 		else
 		{
-			// converted into an array
-			// TODO: why?
-			if (isa<Array_access> (expr->value))
-				index_lhs (LOCAL, "p_rhs", dyc<Array_access> (expr->value));
-			else
-				index_lhs (LOCAL, "p_rhs", expr->value);
+			index_lhs (LOCAL, "p_rhs", var_name->value);
 
 			code
 				<< "sep_copy_on_write_ex (p_rhs);\n"
@@ -2040,7 +2035,7 @@ class Pattern_return : public Pattern
 	}
 
 protected:
-	Wildcard<Expr>* expr;
+	Wildcard<VARIABLE_NAME>* var_name;
 };
 
 class Pattern_unset : public Pattern

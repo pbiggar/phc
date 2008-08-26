@@ -114,9 +114,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     }
     if(!strcmp(type_id, "Return"))
     {
-    	Expr* expr = dynamic_cast<Expr*>(*i++);
+    	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Return(expr);
+    	return new Return(variable_name);
     }
     if(!strcmp(type_id, "Static_declaration"))
     {
@@ -390,10 +390,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     if(!strcmp(type_id, "Foreach_get_val"))
     {
     	VARIABLE_NAME* array = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	VARIABLE_NAME* key = dynamic_cast<VARIABLE_NAME*>(*i++);
     	HT_ITERATOR* iter = dynamic_cast<HT_ITERATOR*>(*i++);
     	assert(i == args->end());
-    	return new Foreach_get_val(array, key, iter);
+    	return new Foreach_get_val(array, iter);
     }
     if(!strcmp(type_id, "Param_is_ref"))
     {

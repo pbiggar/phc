@@ -2913,14 +2913,14 @@ void Attribute::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Return::Return(Expr* expr)
+Return::Return(VARIABLE_NAME* variable_name)
 {
-    this->expr = expr;
+    this->variable_name = variable_name;
 }
 
 Return::Return()
 {
-    this->expr = 0;
+    this->variable_name = 0;
 }
 
 void Return::visit(Visitor* visitor)
@@ -2948,12 +2948,12 @@ bool Return::match(Node* in)
     Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL)
+    if(this->variable_name == NULL)
     {
-    	if(that->expr != NULL && !that->expr->match(this->expr))
+    	if(that->variable_name != NULL && !that->variable_name->match(this->variable_name))
     		return false;
     }
-    else if(!this->expr->match(that->expr))
+    else if(!this->variable_name->match(that->variable_name))
     	return false;
     
     return true;
@@ -2964,12 +2964,12 @@ bool Return::equals(Node* in)
     Return* that = dynamic_cast<Return*>(in);
     if(that == NULL) return false;
     
-    if(this->expr == NULL || that->expr == NULL)
+    if(this->variable_name == NULL || that->variable_name == NULL)
     {
-    	if(this->expr != NULL || that->expr != NULL)
+    	if(this->variable_name != NULL || that->variable_name != NULL)
     		return false;
     }
-    else if(!this->expr->equals(that->expr))
+    else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
     if(!Node::is_mixin_equal(that)) return false;
@@ -2978,8 +2978,8 @@ bool Return::equals(Node* in)
 
 Return* Return::clone()
 {
-    Expr* expr = this->expr ? this->expr->clone() : NULL;
-    Return* clone = new Return(expr);
+    VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
+    Return* clone = new Return(variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -2989,10 +2989,10 @@ Node* Return::find(Node* in)
     if (this->match (in))
     	return this;
     
-    if (this->expr != NULL)
+    if (this->variable_name != NULL)
     {
-    	Node* expr_res = this->expr->find(in);
-    	if (expr_res) return expr_res;
+    	Node* variable_name_res = this->variable_name->find(in);
+    	if (variable_name_res) return variable_name_res;
     }
     
     return NULL;
@@ -3003,15 +3003,15 @@ void Return::find_all(Node* in, Node_list* out)
     if (this->match (in))
     	out->push_back (this);
     
-    if (this->expr != NULL)
-    	this->expr->find_all(in, out);
+    if (this->variable_name != NULL)
+    	this->variable_name->find_all(in, out);
     
 }
 
 void Return::assert_valid()
 {
-    assert(expr != NULL);
-    expr->assert_valid();
+    assert(variable_name != NULL);
+    variable_name->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -7977,17 +7977,15 @@ void Foreach_get_key::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, VARIABLE_NAME* key, HT_ITERATOR* iter)
+Foreach_get_val::Foreach_get_val(VARIABLE_NAME* array, HT_ITERATOR* iter)
 {
     this->array = array;
-    this->key = key;
     this->iter = iter;
 }
 
 Foreach_get_val::Foreach_get_val()
 {
     this->array = 0;
-    this->key = 0;
     this->iter = 0;
 }
 
@@ -8024,14 +8022,6 @@ bool Foreach_get_val::match(Node* in)
     else if(!this->array->match(that->array))
     	return false;
     
-    if(this->key == NULL)
-    {
-    	if(that->key != NULL && !that->key->match(this->key))
-    		return false;
-    }
-    else if(!this->key->match(that->key))
-    	return false;
-    
     if(this->iter == NULL)
     {
     	if(that->iter != NULL && !that->iter->match(this->iter))
@@ -8056,14 +8046,6 @@ bool Foreach_get_val::equals(Node* in)
     else if(!this->array->equals(that->array))
     	return false;
     
-    if(this->key == NULL || that->key == NULL)
-    {
-    	if(this->key != NULL || that->key != NULL)
-    		return false;
-    }
-    else if(!this->key->equals(that->key))
-    	return false;
-    
     if(this->iter == NULL || that->iter == NULL)
     {
     	if(this->iter != NULL || that->iter != NULL)
@@ -8079,9 +8061,8 @@ bool Foreach_get_val::equals(Node* in)
 Foreach_get_val* Foreach_get_val::clone()
 {
     VARIABLE_NAME* array = this->array ? this->array->clone() : NULL;
-    VARIABLE_NAME* key = this->key ? this->key->clone() : NULL;
     HT_ITERATOR* iter = this->iter ? this->iter->clone() : NULL;
-    Foreach_get_val* clone = new Foreach_get_val(array, key, iter);
+    Foreach_get_val* clone = new Foreach_get_val(array, iter);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -8095,12 +8076,6 @@ Node* Foreach_get_val::find(Node* in)
     {
     	Node* array_res = this->array->find(in);
     	if (array_res) return array_res;
-    }
-    
-    if (this->key != NULL)
-    {
-    	Node* key_res = this->key->find(in);
-    	if (key_res) return key_res;
     }
     
     if (this->iter != NULL)
@@ -8120,9 +8095,6 @@ void Foreach_get_val::find_all(Node* in, Node_list* out)
     if (this->array != NULL)
     	this->array->find_all(in, out);
     
-    if (this->key != NULL)
-    	this->key->find_all(in, out);
-    
     if (this->iter != NULL)
     	this->iter->find_all(in, out);
     
@@ -8132,8 +8104,6 @@ void Foreach_get_val::assert_valid()
 {
     assert(array != NULL);
     array->assert_valid();
-    assert(key != NULL);
-    key->assert_valid();
     assert(iter != NULL);
     iter->assert_valid();
     Node::assert_mixin_valid();

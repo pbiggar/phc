@@ -266,10 +266,10 @@ public:
     virtual Attr_mod* transform_attr_mod(Attr_mod* in);
     virtual VARIABLE_NAME* transform_variable_name(VARIABLE_NAME* in);
     virtual Static_value* transform_static_value(Static_value* in);
-    virtual Expr* transform_expr(Expr* in);
     virtual Variable_name* transform_variable_name(Variable_name* in);
     virtual Catch_list* transform_catch_list(Catch_list* in);
     virtual Catch_list* transform_catch(Catch* in);
+    virtual Expr* transform_expr(Expr* in);
     virtual Target* transform_target(Target* in);
     virtual Field_name* transform_field_name(Field_name* in);
     virtual Rvalue* transform_rvalue(Rvalue* in);
@@ -294,8 +294,8 @@ public:
     virtual void pre_statement(Statement* in, Statement_list* out);
     virtual void pre_member(Member* in, Member_list* out);
     virtual Static_value* pre_static_value(Static_value* in);
-    virtual Expr* pre_expr(Expr* in);
     virtual Variable_name* pre_variable_name(Variable_name* in);
+    virtual Expr* pre_expr(Expr* in);
     virtual Target* pre_target(Target* in);
     virtual Field_name* pre_field_name(Field_name* in);
     virtual Rvalue* pre_rvalue(Rvalue* in);
@@ -308,8 +308,8 @@ public:
     virtual void post_statement(Statement* in, Statement_list* out);
     virtual void post_member(Member* in, Member_list* out);
     virtual Static_value* post_static_value(Static_value* in);
-    virtual Expr* post_expr(Expr* in);
     virtual Variable_name* post_variable_name(Variable_name* in);
+    virtual Expr* post_expr(Expr* in);
     virtual Target* post_target(Target* in);
     virtual Field_name* post_field_name(Field_name* in);
     virtual Rvalue* post_rvalue(Rvalue* in);
@@ -322,8 +322,8 @@ public:
     virtual void children_statement(Statement* in);
     virtual void children_member(Member* in);
     virtual void children_static_value(Static_value* in);
-    virtual void children_expr(Expr* in);
     virtual void children_variable_name(Variable_name* in);
+    virtual void children_expr(Expr* in);
     virtual void children_target(Target* in);
     virtual void children_field_name(Field_name* in);
     virtual void children_rvalue(Rvalue* in);
