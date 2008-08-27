@@ -20,7 +20,7 @@
 
 using namespace std;
 
-extern gengetopt_args_info* args_info;
+extern gengetopt_args_info args_info;
 
 template
 <
@@ -441,7 +441,7 @@ void
 XML_unparser_state::print_indent ()
 {
 	for(int i = 0; i < indent; i++)
-		os << args_info->tab_arg;
+		os << args_info.tab_arg;
 }
 
 void
