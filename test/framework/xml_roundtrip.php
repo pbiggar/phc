@@ -26,6 +26,12 @@ class XML_roundtrip extends AsyncTest
 		return get_all_scripts ();
 	}
 
+	// This test is very CPU intensive.
+	function get_phc_num_procs_divisor ()
+	{
+		return 2;
+	}
+
 	// Dump after the last pass. Then dump after every pass, and reparse
 	// it. Check that the final dump is that same.
 	function run_test ($subject)

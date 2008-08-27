@@ -226,7 +226,8 @@ abstract class AsyncTest extends Test
 
 	function check_capacity ()
 	{
-		if (count ($this->running_procs) >= PHC_NUM_PROCS)
+		if (count ($this->running_procs) 
+				>= (PHC_NUM_PROCS / $this->get_phc_num_procs_divisor()))
 		{
 			// check each and see if we can remove some
 			$this->check_running_procs ();
@@ -278,7 +279,8 @@ abstract class AsyncTest extends Test
 
 	function run_waiting_procs ()
 	{
-		while (count ($this->running_procs) < PHC_NUM_PROCS)
+		while (count ($this->running_procs) 
+				< (PHC_NUM_PROCS / $this->get_phc_num_procs_divisor()))
 		{
 #			inst ("Poll waiting");
 			if (count ($this->waiting_procs) == 0)
@@ -344,6 +346,13 @@ abstract class AsyncTest extends Test
 		{
 			$this->async_success ($async);
 		}
+	}
+
+	/* Some tests are very CPU intensive. Overriding this will reduce the
+	 * number of tests run at once. */
+	function phc_num_procs_divisor ()
+	{
+		return 1;
 	}
 }
 
