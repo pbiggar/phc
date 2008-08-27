@@ -350,7 +350,7 @@ abstract class AsyncTest extends Test
 
 	/* Some tests are very CPU intensive. Overriding this will reduce the
 	 * number of tests run at once. */
-	function phc_num_procs_divisor ()
+	function get_phc_num_procs_divisor ()
 	{
 		return 1;
 	}
