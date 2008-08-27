@@ -9410,6 +9410,7 @@ VARIABLE_NAME::VARIABLE_NAME(const char* name)
     {
 		this->value = new String (name);
 		in_ssa = false;
+		version = 0;
 	}
 }
 
@@ -9438,6 +9439,26 @@ void VARIABLE_NAME::set_version(int version)
 {
     {
 		this->version = version;
+	}
+}
+
+bool VARIABLE_NAME::operator<(MIR ::VARIABLE_NAME& other)
+{
+    {
+		if (*value < *other.value)
+			return true;
+
+		if (in_ssa && !other.in_ssa)
+			return true;
+
+		// equal
+		if (!in_ssa)
+			return false;
+
+		if (version < other.version)
+			return true;
+
+		return false;
 	}
 }
 

@@ -8,7 +8,8 @@
 using namespace MIR;
 
 Set::Set()
-: full (false)
+: parent(&variable_name_ptr_comparison)
+, full (false)
 {
 }
 
@@ -128,5 +129,9 @@ Set::clone ()
 bool
 variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2)
 {
-	return p1->equals (p2);
+	assert (p1);
+	assert (p2);
+
+	// This needs to model '<', which must be transitive.
+	return (*p1) < (*p2);
 }

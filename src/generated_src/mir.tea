@@ -439,6 +439,7 @@ public:
 	{
 		this->value = new String (name);
 		in_ssa = false;
+		version = 0;
 	}
 
 	void convert_to_ssa_name (int version)
@@ -461,6 +462,24 @@ public:
 	void set_version (int version)
 	{
 		this->version = version;
+	}
+
+	bool operator<(MIR::VARIABLE_NAME& other)
+	{
+		if (*value < *other.value)
+			return true;
+
+		if (in_ssa && !other.in_ssa)
+			return true;
+
+		// equal
+		if (!in_ssa)
+			return false;
+
+		if (version < other.version)
+			return true;
+
+		return false;
 	}
 
 private:
