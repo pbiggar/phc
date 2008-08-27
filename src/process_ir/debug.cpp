@@ -23,14 +23,12 @@ void debug (AST::Node *in)
 
 void xdebug (AST::Node* in)
 {
-	AST_XML_unparser *xup = new AST_XML_unparser (cdebug, false);
-	in->visit (xup);
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (AST::Node* in)
 {
-	AST_XML_unparser *xup = new AST_XML_unparser (cdebug, true);
-	in->visit (xup);
+	xml_unparse (in, cdebug, true);
 }
 
 void debug (HIR::Node *in)
@@ -42,14 +40,12 @@ void debug (HIR::Node *in)
 
 void xdebug (HIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cdebug, false);
-	in->visit (xup);
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (HIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cdebug, true);
-	in->visit (xup);
+	xml_unparse (in, cdebug, true);
 }
 
 
@@ -62,14 +58,12 @@ void debug (MIR::Node *in)
 
 void xdebug (MIR::Node* in)
 {
-	MIR_XML_unparser *xup = new MIR_XML_unparser (cdebug, false);
-	in->visit (xup);
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (MIR::Node* in)
 {
-	MIR_XML_unparser *xup = new MIR_XML_unparser (cdebug, true);
-	in->visit (xup);
+	xml_unparse (in, cdebug, true);
 }
 
 // set badbit. This wont print anything into the stream.
