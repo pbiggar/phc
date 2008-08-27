@@ -6,11 +6,10 @@
  * Note lack of constant propagation.
  */
 
-#ifndef PHC_CONSTANT_FOLDING
-#define PHC_CONSTANT_FOLDING
+#ifndef PHC_CONSTANT_FOLDING_H
+#define PHC_CONSTANT_FOLDING_H
 
 #include "AST_transform.h"
-
 
 class Constant_folding : public AST::Transform
 {
@@ -19,4 +18,4 @@ public:
 	AST::Expr* post_unary_op(AST::Unary_op* in);
 };
 
-#endif // PHC_CONSTANT_FOLDING
+#endif // PHC_CONSTANT_FOLDING_H

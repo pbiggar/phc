@@ -16,6 +16,7 @@
 #include <sys/wait.h>
 
 #include "codegen/Compile_C.h"
+#include "pass_manager/Pass_manager.h"
 #include <lib/error.h>
 
 Compile_C::Compile_C (stringstream& os)

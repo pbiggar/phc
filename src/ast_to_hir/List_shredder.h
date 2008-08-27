@@ -9,7 +9,6 @@
 #define PHC_EARLY_SHREDDER_H
 
 #include "ast_to_hir/AST_lower_expr.h"
-#include "process_ir/fresh.h"
 
 // Some shredding will create variables which may be missed if done
 // at the same time as the variable shredding.

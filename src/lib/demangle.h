@@ -5,10 +5,11 @@
  * Return the demangled classname of the specified object 
  */
 
-#ifndef PHC_DEMANGLE
-#define PHC_DEMANGLE
+#ifndef PHC_DEMANGLE_H
+#define PHC_DEMANGLE_H
 
-#include "lib/Object.h"
+class Object;
+
 const char* demangle(Object* obj, bool include_namespace);
 
-#endif // PHC_DEMANGLE
+#endif // PHC_DEMANGLE_H

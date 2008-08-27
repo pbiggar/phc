@@ -8,14 +8,18 @@
 #ifndef PHC_PASS_MANAGER_H
 #define PHC_PASS_MANAGER_H
 
-#include "Pass.h"
 #include "lib/List.h"
 
 #include "cmdline.h"
 #include "ltdl.h"
 
 class Pass;
+class String;
 typedef List<Pass*> Pass_queue;
+namespace AST { class Visitor; class Transform; }
+namespace HIR { class Visitor; class Transform; }
+namespace MIR { class Visitor; class Transform; }
+namespace IR { class PHP_script; }
 
 class Pass_manager
 {

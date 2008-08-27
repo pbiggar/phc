@@ -8,6 +8,11 @@
 #ifndef PHC_PLUGIN_PASS_H
 #define PHC_PLUGIN_PASS_H
 
+#include "Pass.h"
+#include "ltdl.h"
+
+// We want to make it simple to write plugins, so they should just have to
+// include Plugin_pass.h, and everything else will be available
 #include "Pass_manager.h"
 
 class Plugin_pass : public Pass
@@ -28,8 +33,6 @@ extern "C" void unload ();
 extern "C" void run_ast (AST::PHP_script* in, Pass_manager* pm, String* option);
 extern "C" void run_hir (HIR::PHP_script* in, Pass_manager* pm, String* option);
 extern "C" void run_mir (MIR::PHP_script* in, Pass_manager* pm, String* option);
-
-
 
 
 #endif // PHC_PLUGIN_PASS_H

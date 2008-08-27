@@ -8,7 +8,7 @@
 #ifndef PHC_BASE64_H
 #define PHC_BASE64_H
 
-#include "lib/String.h"
+class String;
 
 String* base64_encode(String* str);
 String* base64_decode(String* str);

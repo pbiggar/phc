@@ -6,8 +6,6 @@
  * option is given
  */
 
-
-
 #ifndef PHC_PRETTY_PRINT_H
 #define PHC_PRETTY_PRINT_H
 

@@ -5,13 +5,14 @@
  * Like STL string, but inherit from Object
  */
 
-#ifndef PHC_STRING
-#define PHC_STRING
+#ifndef PHC_STRING_H
+#define PHC_STRING_H
 
 #include <string>
 #include "lib/Object.h"
-#include "lib/AttrMap.h"
 #include "lib/List.h"
+
+class AttrMap;
 
 using namespace std;
 
@@ -40,4 +41,4 @@ public:
 
 typedef List<String*> String_list;
 
-#endif
+#endif // PHC_STRING_H

@@ -8,11 +8,10 @@
  */
 
 
-
 #ifndef PHC_FAKE_PASS_H
 #define PHC_FAKE_PASS_H
 
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Pass.h"
 
 class Fake_pass : public Pass
 {

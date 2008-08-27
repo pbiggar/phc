@@ -9,16 +9,13 @@
 #ifndef PHC_REMOVE_SOLO_VARIABLES_H
 #define PHC_REMOVE_SOLO_VARIABLES_H
 
+#include "AST_transform.h"
 
-#include "process_ir/General.h"
-
-using namespace AST;
-
-class Remove_solo_variables : public Transform
+class Remove_solo_variables : public AST::Transform
 {
-	void post_eval_expr (Eval_expr* in, Statement_list* out)
+	void post_eval_expr (AST::Eval_expr* in, AST::Statement_list* out)
 	{
-		if (isa<Variable> (in->expr))
+		if (isa<AST::Variable> (in->expr))
 		{
 			// Remove the solo variable
 		}

@@ -5,8 +5,8 @@
  * Specialized version of std::map 
  */
 
-#ifndef PHC_MAP
-#define PHC_MAP
+#ifndef PHC_ATTR_MAP_H
+#define PHC_ATTR_MAP_H
 
 using namespace std;
 
@@ -14,10 +14,10 @@ using namespace std;
 #include <string>
 
 #include "lib/Object.h"
-#include "lib/Boolean.h"
-#include "lib/Integer.h"
 
 class String;
+class Integer;
+class Boolean;
 
 class AttrMap : public map<string, Object*>, virtual public Object
 {
@@ -48,4 +48,4 @@ public:
 	void clone_all_from(AttrMap* other);
 };
 
-#endif // PHC_MAP
+#endif // PHC_ATTR_MAP_H

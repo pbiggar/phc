@@ -13,6 +13,7 @@
 #include "lib/demangle.h"
 #include "lib/error.h"
 #include "lib/String.h"
+#include "lib/Boolean.h"
 #include "lib/List.h"
 #include "process_ir/IR.h"
 #include "cmdline.h"

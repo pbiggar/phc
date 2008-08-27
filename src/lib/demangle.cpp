@@ -7,8 +7,11 @@
 
 #include <typeinfo>
 #include <cxxabi.h>
+#include <string.h>
+
+#include "lib/Object.h"
+
 #include "lib/demangle.h"
-#include "string.h"
 
 const char* demangle(Object* obj, bool include_namespace)
 {

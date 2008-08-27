@@ -10,8 +10,6 @@
 
 #include "AST_fold.h"
 #include "HIR.h"
-#include "process_ir/General.h"
-#include "process_ir/IR.h"
 
 /*
  * Those AST nodes that should no longer appear in the HIR do not have an
