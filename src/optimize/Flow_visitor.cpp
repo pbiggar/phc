@@ -22,7 +22,7 @@ Flow_visitor::visit (CFG* cfg)
 	}
 
 	// Add the each block to the worklist
-	list<Basic_block*>* worklist = get_initial_worklist (cfg);
+	BB_list* worklist = get_initial_worklist (cfg);
 
 	// iterate until the worklist is no more
 	while (not worklist->empty ())
@@ -41,9 +41,9 @@ Flow_visitor::visit (CFG* cfg)
 	// After the pure analysis section, apply the results (once).
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
-		list<Basic_block*>* replacements = new list<Basic_block*>;
+		BB_list* replacements = new BB_list;
 		transform_bb (bb, replacements);
-		cfg->replace_bb (bb, replacements);
+		bb->replace (replacements);
 	}
 }
 
@@ -134,7 +134,7 @@ Flow_visitor::visit_bb_local (CFG* cfg, Basic_block* bb)
 
 	// Assume for now we only need a sparse version.
 void
-Flow_visitor::transform_bb (Basic_block* bb, list<Basic_block*>* out)
+Flow_visitor::transform_bb (Basic_block* bb, BB_list* out)
 {
 	/* Using the THIS pointer is a little unusual, but its required to make
 	 * these calls be resolved at template instantiation time, rather than
@@ -218,138 +218,138 @@ Flow_visitor::transform_bb (Basic_block* bb, list<Basic_block*>* out)
 }
 
 void
-Flow_visitor::transform_entry_block (Entry_block* in, list<Basic_block*>* out)
+Flow_visitor::transform_entry_block (Entry_block* in, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_empty_block (Empty_block* in, list<Basic_block*>* out)
+Flow_visitor::transform_empty_block (Empty_block* in, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_exit_block (Exit_block* in, list<Basic_block*>* out)
+Flow_visitor::transform_exit_block (Exit_block* in, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_branch_block (Branch_block* in, list<Basic_block*>* out)
+Flow_visitor::transform_branch_block (Branch_block* in, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_assign_array (Statement_block* in, MIR::Assign_array*, list<Basic_block*>* out)
+Flow_visitor::transform_assign_array (Statement_block* in, MIR::Assign_array*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_assign_field (Statement_block* in, MIR::Assign_field*, list<Basic_block*>* out)
+Flow_visitor::transform_assign_field (Statement_block* in, MIR::Assign_field*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_assign_var (Statement_block* in, MIR::Assign_var*, list<Basic_block*>* out)
+Flow_visitor::transform_assign_var (Statement_block* in, MIR::Assign_var*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_assign_var_var (Statement_block* in, MIR::Assign_var_var*, list<Basic_block*>* out)
+Flow_visitor::transform_assign_var_var (Statement_block* in, MIR::Assign_var_var*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_eval_expr (Statement_block* in, MIR::Eval_expr*, list<Basic_block*>* out)
+Flow_visitor::transform_eval_expr (Statement_block* in, MIR::Eval_expr*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_foreach_end (Statement_block* in, MIR::Foreach_end*, list<Basic_block*>* out)
+Flow_visitor::transform_foreach_end (Statement_block* in, MIR::Foreach_end*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_foreach_next (Statement_block* in, MIR::Foreach_next*, list<Basic_block*>* out)
+Flow_visitor::transform_foreach_next (Statement_block* in, MIR::Foreach_next*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_foreach_reset (Statement_block* in, MIR::Foreach_reset*, list<Basic_block*>* out)
+Flow_visitor::transform_foreach_reset (Statement_block* in, MIR::Foreach_reset*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_global (Statement_block* in, MIR::Global*, list<Basic_block*>* out)
+Flow_visitor::transform_global (Statement_block* in, MIR::Global*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, list<Basic_block*>* out)
+Flow_visitor::transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_pre_op (Statement_block* in, MIR::Pre_op*, list<Basic_block*>* out)
+Flow_visitor::transform_pre_op (Statement_block* in, MIR::Pre_op*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_push_array (Statement_block* in, MIR::Push_array*, list<Basic_block*>* out)
+Flow_visitor::transform_push_array (Statement_block* in, MIR::Push_array*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_return (Statement_block* in, MIR::Return*, list<Basic_block*>* out)
+Flow_visitor::transform_return (Statement_block* in, MIR::Return*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_static_declaration (Statement_block* in, MIR::Static_declaration*, list<Basic_block*>* out)
+Flow_visitor::transform_static_declaration (Statement_block* in, MIR::Static_declaration*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_throw (Statement_block* in, MIR::Throw*, list<Basic_block*>* out)
+Flow_visitor::transform_throw (Statement_block* in, MIR::Throw*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_try (Statement_block* in, MIR::Try*, list<Basic_block*>* out)
+Flow_visitor::transform_try (Statement_block* in, MIR::Try*, BB_list* out)
 {
 	out->push_back (in);
 }
 
 void
-Flow_visitor::transform_unset (Statement_block* in, MIR::Unset*, list<Basic_block*>* out)
+Flow_visitor::transform_unset (Statement_block* in, MIR::Unset*, BB_list* out)
 {
 	out->push_back (in);
 }
 
-list<Basic_block*>*
+BB_list*
 Flow_visitor::get_next_cfg_nodes (Basic_block* bb, CFG* cfg)
 {
 	if (direction == FORWARD_FLOW)
-		return cfg->get_successors (bb);
+		return bb->get_successors ();
 	else
-		return cfg->get_predecessors (bb);
+		return bb->get_predecessors ();
 }
 
 void
@@ -357,28 +357,21 @@ Flow_visitor::visit_transfer_functions (Basic_block* bb, CFG* cfg)
 {
 	if (direction == FORWARD_FLOW)
 	{
-		this->transfer_in (bb, cfg->get_predecessors (bb));
-		this->transfer_out (bb, cfg->get_successors (bb));
+		this->transfer_in (bb, bb->get_predecessors ());
+		this->transfer_out (bb, bb->get_successors ());
 	}
 	else
 	{
-		this->transfer_out (bb, cfg->get_successors (bb));
-		this->transfer_in (bb, cfg->get_predecessors (bb));
+		this->transfer_out (bb, bb->get_successors ());
+		this->transfer_in (bb, bb->get_predecessors ());
 	}
 }
 
-list<Basic_block*>*
+BB_list*
 Flow_visitor::get_initial_worklist (CFG* cfg)
 {
-	list<Basic_block*>* worklist = new list<Basic_block*>;
-	foreach (Basic_block* bb, *cfg->get_all_bbs ())
-	{
-		// TODO its correct both ways, but its faster if we get a
-		// topological ordering for forward, and a reverse tpologocial
-		// ordering for backwards
-		worklist->push_back (bb);
-	}
-	return worklist;
+	if (direction == FORWARD_FLOW)
+		return cfg->get_all_bbs_top_down ();
+	else
+		return cfg->get_all_bbs_bottom_up ();
 }
-
-

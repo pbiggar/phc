@@ -9385,14 +9385,6 @@ bool VARIABLE_NAME::equals(Node* in)
     return true;
 }
 
-VARIABLE_NAME* VARIABLE_NAME::clone()
-{
-    String* value = new String(*this->value);
-    VARIABLE_NAME* clone = new VARIABLE_NAME(value);
-    clone->Node::clone_mixin_from(this);
-    return clone;
-}
-
 Node* VARIABLE_NAME::find(Node* in)
 {
     if (this->match (in))
@@ -9417,6 +9409,35 @@ VARIABLE_NAME::VARIABLE_NAME(const char* name)
 {
     {
 		this->value = new String (name);
+		in_ssa = false;
+	}
+}
+
+void VARIABLE_NAME::convert_to_ssa_name(int version)
+{
+    {
+		assert (not this->in_ssa);
+		this->in_ssa = true;
+		this->version = version;
+	}
+}
+
+VARIABLE_NAME* VARIABLE_NAME::clone()
+{
+    {
+		String* value = new String(*this->value);
+		VARIABLE_NAME* clone = new VARIABLE_NAME(value);
+		clone->Node::clone_mixin_from(this);
+		clone->in_ssa = this->in_ssa;
+		clone->version = this->version;
+		return clone;
+	}
+}
+
+void VARIABLE_NAME::set_version(int version)
+{
+    {
+		this->version = version;
 	}
 }
 

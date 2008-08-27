@@ -8,19 +8,13 @@
 #include "AttrMap.h"
 #include "String.h"
 
-AttrMap::AttrMap() : map<string, Object*>() 
+AttrMap::AttrMap() 
+: Map<string, Object>() 
 {
 }
 
 AttrMap::~AttrMap() 
 {
-}
-
-Object* AttrMap::get(string key)
-{
-	if (!has (key)) return NULL;
-
-	return (*this)[key];
 }
 
 Boolean* AttrMap::get_boolean(string key)
@@ -55,16 +49,6 @@ bool AttrMap::is_true(string key)
 	return ret->value();
 }
 
-bool AttrMap::has(string key)
-{
-	return find(key) != end();
-}
-
-void AttrMap::set(string key, Object* value)
-{
-	(*this)[key] = value;
-}
-
 void AttrMap::erase_with_prefix (string key_prefix)
 {
 	AttrMap::iterator i;
@@ -79,22 +63,5 @@ void AttrMap::erase_with_prefix (string key_prefix)
 		}
 		else
 			i++;
-	}
-}
-
-AttrMap* AttrMap::clone()
-{
-	AttrMap* result = new AttrMap;
-	result->clone_all_from(this);
-	return result;
-}
-
-void AttrMap::clone_all_from(AttrMap* other)
-{
-	AttrMap::const_iterator i;
-	for(i = other->begin(); i != other->end(); i++)
-	{
-		assert ((*i).second != NULL);
-		set((*i).first, (*i).second->clone());
 	}
 }

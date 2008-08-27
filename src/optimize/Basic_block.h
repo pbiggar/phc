@@ -8,18 +8,29 @@
 #include "Set.h"
 #include "SSA.h"
 
-
 /* Basic blocks */
-class Basic_block
+class Basic_block : virtual public Object
 {
 public:
-	Basic_block();
+	CFG* cfg;
+
+public:
+	Basic_block (CFG* parent);
+
+public:
+	/*
+	 * Boost::Graph integration
+	 */
 
 	// Indicate to BGL that this represents a vertex internal property.
 	typedef boost::vertex_property_tag kind;
 	vertex_t vertex;
 
-	// Labels for graphviz
+public:
+	/*
+	 * Graphviz properties
+	 */
+
 	virtual String* get_graphviz_label () = 0;
 
 	// Override if there are extra properties for this block.
@@ -27,18 +38,59 @@ public:
 	virtual list<std::pair<String*,String*> >* get_graphviz_properties ();
 
 	// Returns a list of (name, list[values]) pairs
-	virtual list<std::pair<String*,Set*> >* get_graphviz_bb_properties ();
-	virtual list<std::pair<String*,Set*> >* get_graphviz_head_properties ();
-	virtual list<std::pair<String*,Set*> >* get_graphviz_tail_properties ();
-
-	void add_phi_function (string var_name);
-	bool has_phi_function (string var_name);
-
-	// TODO: add mayUse/mayDef
+	virtual list<pair<String*,Set*> >* get_graphviz_bb_properties ();
+	virtual list<pair<String*,Set*> >* get_graphviz_head_properties ();
+	virtual list<pair<String*,Set*> >* get_graphviz_tail_properties ();
 
 public:
-	// TODO: these should be moved into a solution class, so that we can have 1 per analysis.
-	// Dataflow solution
+	/*
+	 * Block properties
+	 */
+
+	/* In the presence of variable_variables, the variable which is actually
+	 * used (ie $x for $$x) is returned, not a full set.
+	 * TODO: this will probably break for defs.
+	 * TODO: These are really for SSA_renaming. I don't think we can use them
+	 * for a different purpose with the same semantics.*/
+	virtual Set* get_local_defs ();
+	virtual Set* get_local_uses ();
+
+	BB_list* get_predecessors ();
+	BB_list* get_successors ();
+
+	// Assert a block has a single successor, and return it.
+	Basic_block* get_successor ();
+
+	Basic_block* get_immediate_dominator ();
+	BB_list* get_dominated_blocks ();
+
+	// This is designed to return an incomplete solution while it being created.
+	BB_list* get_dominance_frontier ();
+	void add_to_dominance_frontier (Basic_block*);
+
+
+	void add_phi_function (MIR::VARIABLE_NAME* var_name);
+	bool has_phi_function (MIR::VARIABLE_NAME* var_name);
+
+	List<Phi*>* get_phi_nodes ();
+private:
+	map<string, Phi*> phi_nodes;
+
+
+public:
+	/*
+	 * Block manipulation
+	 */
+	void remove ();
+	void replace (BB_list* replacements);
+
+public:
+	/*
+	 * Data-flow properties
+	 *
+	 * TODO: Abstract into a DF_Solution class
+	 */
+	
 	Set* defs;
 	Set* uses;
 	Set* live_in;
@@ -46,30 +98,42 @@ public:
 	int iteration_count;
 	bool changed;
 
-	// this is a global solution, so each BB should have the same solution.
+	// This is a global solution, so each BB should have the same solution.
 	Set* aliases;
 
-	map<string, Phi*> phi_nodes;
+public:
+	/*
+	 * Misc
+	 */
+
+	// TODO do we need to clone a block?
+	Basic_block* clone() { assert (0); }
 };
 
 class Entry_block : public Basic_block
 {
 public:
 	virtual String* get_graphviz_label ();
-	Entry_block (MIR::Method* method) : method(method) {}
+	Entry_block (CFG* cfg, MIR::Method* method);
 	MIR::Method* method;
 };
 
 class Exit_block : public Basic_block
 {
 public:
-	virtual String* get_graphviz_label ();
-	Exit_block (MIR::Method* method) : method(method) {}
 	MIR::Method* method;
+
+public:
+	Exit_block (CFG* cfg, MIR::Method* method);
+
+	virtual String* get_graphviz_label ();
 };
 
 class Empty_block : public Basic_block
 {
+public:
+	Empty_block (CFG* cfg);
+
 	virtual String* get_graphviz_label ();
 };
 
@@ -77,19 +141,39 @@ class Branch_block : public Basic_block
 {
 public:
 	MIR::Branch* branch;
-	Branch_block (MIR::Branch* b);
-	String* get_graphviz_label ();
-	list<std::pair<String*,String*> >* get_graphviz_properties ();
-};
 
+public:
+	Branch_block (CFG* parent, MIR::Branch* b);
+
+	/*
+	 * Graphviz
+	 */
+	String* get_graphviz_label ();
+	list<pair<String*,String*> >* get_graphviz_properties ();
+
+	Set* get_local_uses ();
+
+	// Assert a block has a two successors, representing true and false
+	// branches, and return the true branch.
+	Basic_block* get_true_successor ();
+
+	// Assert a block has a two successors, representing true and false
+	// branches, and return the false branch.
+	Basic_block* get_false_successor ();
+};
 
 class Statement_block : public Basic_block 
 {
 public:
 	MIR::Statement* statement;
-	Statement_block (MIR::Statement* s);
+
+public:
+	Statement_block (CFG* cfg, MIR::Statement* s);
+
+	Set* get_local_defs ();
+	Set* get_local_uses ();
+
 	virtual String* get_graphviz_label ();
 };
-
 
 #endif // PHC_BASIC_BLOCK

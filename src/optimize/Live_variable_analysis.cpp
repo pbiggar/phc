@@ -66,7 +66,7 @@ use_bottom (Basic_block* bb)
 void
 use (Basic_block* bb, VARIABLE_NAME* var_name)
 {
-	bb->uses->insert (var_name->value);
+	bb->uses->insert (var_name);
 }
 
 void
@@ -96,7 +96,7 @@ def (Basic_block* bb, VARIABLE_NAME* var_name)
 		xdebug (sb->statement);
 	}
 
-	bb->defs->insert (var_name->value);
+	bb->defs->insert (var_name);
 }
 
 void

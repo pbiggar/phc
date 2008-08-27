@@ -2538,8 +2538,6 @@ public:
 public:
     virtual bool equals(Node* in);
 public:
-    virtual VARIABLE_NAME* clone();
-public:
     virtual Node* find(Node* in);
 public:
     virtual void find_all(Node* in, Node_list* out);
@@ -2547,6 +2545,12 @@ public:
     virtual void assert_valid();
 public:
     VARIABLE_NAME(const char* name);
+    void convert_to_ssa_name(int version);
+    VARIABLE_NAME* clone();
+    void set_version(int version);
+private:
+    int version;
+    bool in_ssa;
 };
 
 class INT : virtual public Literal

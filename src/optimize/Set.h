@@ -4,8 +4,21 @@
 #include <set>
 #include <lib/String.h>
 
-class Set : public set<string>, virtual public Object
+bool
+variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2);
+
+class Set 
+: public set<
+	MIR::VARIABLE_NAME*, 
+	bool (*)(MIR::VARIABLE_NAME*, MIR::VARIABLE_NAME*)>
+, virtual public Object
 {
+	typedef set<
+		MIR::VARIABLE_NAME*,
+		bool (*)(MIR::VARIABLE_NAME*,
+		MIR::VARIABLE_NAME*)
+	> parent;
+
 public:
 	// If true, the SET holds every possbible variable.
 	bool full;
@@ -23,18 +36,14 @@ public:
 	Set* set_difference (Set* other);
 	
 public:
-	void insert (String* string);
-
 	// The set is the set of all possible strings.
 	void insert_all ();
 
-	bool contains (String* string);
+	bool has (MIR::VARIABLE_NAME* string);
 	void dump(ostream&);
 
 	Set* clone ();
-
-	using set<string>::insert;
-
+	
 public:
 	// TODO when using iterators, assert (!full). We cant iterate through the
 	// full set.

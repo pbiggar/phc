@@ -57,7 +57,7 @@ Address_taken::aliased (Basic_block* bb, Rvalue* in)
 void
 Address_taken::aliased (Basic_block* bb, VARIABLE_NAME* in)
 {
-	bb->aliases->insert (in->value);
+	bb->aliases->insert (in);
 }
 
 // Aliased:

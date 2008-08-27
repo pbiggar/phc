@@ -15,6 +15,8 @@
 
 using namespace std;
 
+typedef List<String*> String_list;
+
 class String : public string, virtual public Object
 {
 // This is a hack and will at some point be removed.

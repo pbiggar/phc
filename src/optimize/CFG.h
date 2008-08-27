@@ -12,8 +12,13 @@
 #include <boost/graph/properties.hpp>
 #include <boost/logic/tribool.hpp>
 
+#include "lib/List.h"
+
 
 class Basic_block;
+typedef List<Basic_block*> BB_list;
+class Dominance;
+class Phi;
 class Branch_block;
 
 /* Add a property for Basic blocks */
@@ -52,6 +57,7 @@ typedef Graph::edge_descriptor edge_t;
 
 class CFG;
 #include "Basic_block.h"
+#include "SSA.h"
 #include "MIR.h"
 
 /* Boost::Graph is a nice library for graphs, but a little difficult to use,
@@ -59,6 +65,10 @@ class CFG;
 class CFG
 {
 public:
+	/*
+	 * Boost::Graph properties
+	 */
+
 	// Accessor for BB property. Access using vb[vertex].
 	boost::property_map<Graph, vertex_bb_t>::type vb;
 
@@ -70,6 +80,9 @@ public:
 	boost::property_map<Graph, boost::vertex_index_t>::type index;
 
 public:
+	/*
+	 * CFG creation and manipulation
+	 */
 
 	CFG (MIR::Method* method);
 	List<MIR::Statement*>* get_linear_statements ();
@@ -77,37 +90,33 @@ public:
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);
 	edge_t add_edge (Basic_block* source, Basic_block* target);
-	std::pair<edge_t, edge_t> add_branch (Branch_block* source, Basic_block* target1, Basic_block* target2);
+	std::pair<edge_t, edge_t> add_branch (
+		Branch_block* source, 
+		Basic_block* target1, 
+		Basic_block* target2);
 
 public:
 	void dump_graphviz (String* label);
-	void consistency_check ();
 
 public:
+	/*
+	 * CFG access
+	 */
 	Basic_block* get_entry_bb ();
 	Basic_block* get_exit_bb ();
 
-	// TODO: this will get slow. Instead we should return an iterator.
-	list<Basic_block*>* get_all_bbs ();
-	list<Basic_block*>* get_all_bbs_top_down ();
-	list<Basic_block*>* get_all_bbs_bottom_up ();
+	BB_list* get_all_bbs ();
+	BB_list* get_all_bbs_top_down ();
+	BB_list* get_all_bbs_bottom_up ();
 
-	list<Basic_block*>* get_predecessors (Basic_block*);
-	list<Basic_block*>* get_successors (Basic_block*);
-
-	// Assert a block has a single successor, and return it.
-	Basic_block* get_successor (Basic_block*);
-
-	// Assert a block has a two successors, representing true and false
-	// branches, and return the true branch.
-	Basic_block* get_true_successor (Branch_block*);
-
-	// Assert a block has a two successors, representing true and false
-	// branches, and return the false branch.
-	Basic_block* get_false_successor (Branch_block*);
-
-	void replace_bb (Basic_block* bb, list<Basic_block*>* replacements);
-	void remove_bb (Basic_block* bb);
+public:
+	/*
+	 * SSA information
+	 */
+	Dominance* dominance;
+	friend class Dominance;
+	friend class Basic_block;
+	friend class Branch_block;
 
 private:
 	Graph bs; // backing store
@@ -117,11 +126,17 @@ private:
 
 	void add_statements (MIR::Statement_list*);
 	void convert_to_ssa_form ();
-	void rename_ssa_vars (Basic_block* bb, int* counter, map<string, list<int> >* var_stacks);
+	BB_list* get_bb_successors (Basic_block* bb);
+	BB_list* get_bb_predecessors (Basic_block* bb);
+	edge_t get_edge (Basic_block* bb1, Basic_block* bb2);
+
+	/* returns true or false. If edge isnt true or false, asserts. */
+	bool is_true_edge (edge_t edge);
 
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.
 	void renumber_vertex_indices ();
+	void consistency_check ();
 };
 
 #endif // PHC_CFG

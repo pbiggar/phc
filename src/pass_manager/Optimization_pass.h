@@ -8,9 +8,11 @@
 #ifndef PHC_OPTIMIZATION_PASS_H
 #define PHC_OPTIMIZATION_PASS_H
 
-#include "optimize/Flow_visitor.h"
 #include "pass_manager/Pass.h"
 #include "process_ir/IR.h"
+
+class Flow_visitor;
+class CFG;
 
 class Optimization_pass : public Pass
 {

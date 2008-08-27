@@ -30,8 +30,8 @@ public:
 	virtual bool solution_has_changed (Basic_block* bb) { return false; }
 
 	/* Transfer functions */
-	virtual void transfer_in (Basic_block* bb, list<Basic_block*>* preds) {};
-	virtual void transfer_out (Basic_block* bb, list<Basic_block*>* succs) {};
+	virtual void transfer_in (Basic_block* bb, BB_list* preds) {};
+	virtual void transfer_out (Basic_block* bb, BB_list* succs) {};
 
 	virtual void visit_entry_block (Entry_block*) {};
 	virtual void visit_empty_block (Empty_block*) {};
@@ -57,38 +57,38 @@ public:
 	virtual void visit_unset (Statement_block*, MIR::Unset*) {};
 
 
-	virtual void transform_entry_block (Entry_block* in, list<Basic_block*>* out);
-	virtual void transform_empty_block (Empty_block* in, list<Basic_block*>* out);
-	virtual void transform_exit_block (Exit_block* in, list<Basic_block*>* out);
-	virtual void transform_branch_block (Branch_block* in, list<Basic_block*>* out);
+	virtual void transform_entry_block (Entry_block* in, BB_list* out);
+	virtual void transform_empty_block (Empty_block* in, BB_list* out);
+	virtual void transform_exit_block (Exit_block* in, BB_list* out);
+	virtual void transform_branch_block (Branch_block* in, BB_list* out);
 
-	virtual void transform_assign_array (Statement_block* in, MIR::Assign_array*, list<Basic_block*>* out);
-	virtual void transform_assign_field (Statement_block* in, MIR::Assign_field*, list<Basic_block*>* out);
-	virtual void transform_assign_var (Statement_block* in, MIR::Assign_var*, list<Basic_block*>* out);
-	virtual void transform_assign_var_var (Statement_block* in, MIR::Assign_var_var*, list<Basic_block*>* out);
-	virtual void transform_eval_expr (Statement_block* in, MIR::Eval_expr*, list<Basic_block*>* out);
-	virtual void transform_foreach_end (Statement_block* in, MIR::Foreach_end*, list<Basic_block*>* out);
-	virtual void transform_foreach_next (Statement_block* in, MIR::Foreach_next*, list<Basic_block*>* out);
-	virtual void transform_foreach_reset (Statement_block* in, MIR::Foreach_reset*, list<Basic_block*>* out);
-	virtual void transform_global (Statement_block* in, MIR::Global*, list<Basic_block*>* out);
-	virtual void transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, list<Basic_block*>* out);
-	virtual void transform_pre_op (Statement_block* in, MIR::Pre_op*, list<Basic_block*>* out);
-	virtual void transform_push_array (Statement_block* in, MIR::Push_array*, list<Basic_block*>* out);
-	virtual void transform_return (Statement_block* in, MIR::Return*, list<Basic_block*>* out);
-	virtual void transform_static_declaration (Statement_block* in, MIR::Static_declaration*, list<Basic_block*>* out);
-	virtual void transform_throw (Statement_block* in, MIR::Throw*, list<Basic_block*>* out);
-	virtual void transform_try (Statement_block* in, MIR::Try*, list<Basic_block*>* out);
-	virtual void transform_unset (Statement_block* in, MIR::Unset*, list<Basic_block*>* out);
+	virtual void transform_assign_array (Statement_block* in, MIR::Assign_array*, BB_list* out);
+	virtual void transform_assign_field (Statement_block* in, MIR::Assign_field*, BB_list* out);
+	virtual void transform_assign_var (Statement_block* in, MIR::Assign_var*, BB_list* out);
+	virtual void transform_assign_var_var (Statement_block* in, MIR::Assign_var_var*, BB_list* out);
+	virtual void transform_eval_expr (Statement_block* in, MIR::Eval_expr*, BB_list* out);
+	virtual void transform_foreach_end (Statement_block* in, MIR::Foreach_end*, BB_list* out);
+	virtual void transform_foreach_next (Statement_block* in, MIR::Foreach_next*, BB_list* out);
+	virtual void transform_foreach_reset (Statement_block* in, MIR::Foreach_reset*, BB_list* out);
+	virtual void transform_global (Statement_block* in, MIR::Global*, BB_list* out);
+	virtual void transform_param_is_ref (Statement_block* in, MIR::Param_is_ref*, BB_list* out);
+	virtual void transform_pre_op (Statement_block* in, MIR::Pre_op*, BB_list* out);
+	virtual void transform_push_array (Statement_block* in, MIR::Push_array*, BB_list* out);
+	virtual void transform_return (Statement_block* in, MIR::Return*, BB_list* out);
+	virtual void transform_static_declaration (Statement_block* in, MIR::Static_declaration*, BB_list* out);
+	virtual void transform_throw (Statement_block* in, MIR::Throw*, BB_list* out);
+	virtual void transform_try (Statement_block* in, MIR::Try*, BB_list* out);
+	virtual void transform_unset (Statement_block* in, MIR::Unset*, BB_list* out);
 
 
 private:
 	/* Calculate the local solution */
 	void visit_bb_local (CFG* cfg, Basic_block* bb);
-	void transform_bb (Basic_block* bb, list<Basic_block*>* out);
+	void transform_bb (Basic_block* bb, BB_list* out);
 
-	list<Basic_block*>* get_next_cfg_nodes (Basic_block* bb, CFG* cfg);
+	BB_list* get_next_cfg_nodes (Basic_block* bb, CFG* cfg);
 	void visit_transfer_functions (Basic_block* bb, CFG* cfg);
-	list<Basic_block*>* get_initial_worklist (CFG* cfg);
+	BB_list* get_initial_worklist (CFG* cfg);
 };
 
 class Forward_flow_visitor : public Flow_visitor

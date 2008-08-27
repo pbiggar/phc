@@ -26,6 +26,7 @@
 
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
+#include "optimize/CFG.h"
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),

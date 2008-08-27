@@ -14,6 +14,7 @@
 #include <boost/graph/topological_sort.hpp>
 
 #include "CFG.h"
+#include "SSA.h"
 #include "process_ast/DOT_unparser.h"
 #include "process_ir/General.h"
 
@@ -22,7 +23,8 @@ using namespace std;
 using namespace MIR;
 
 CFG::CFG (Method* method)
-: bs()
+: dominance (NULL)
+, bs()
 , method (method)
 {
 	vb = get(vertex_bb_t(), bs);
@@ -30,8 +32,8 @@ CFG::CFG (Method* method)
 	index = get(vertex_index_t(), bs);
 
 	// Initialize the entry and exit blocks
-	entry = add_bb (new Entry_block (method));
-	exit = add_bb (new Exit_block (method));
+	entry = add_bb (new Entry_block (this, method));
+	exit = add_bb (new Exit_block (this, method));
 
 	add_statements (method->statements);
 }
@@ -67,7 +69,7 @@ CFG::add_branch (Branch_block* source, Basic_block* target1, Basic_block* target
 }
 
 void
-CFG::add_statements (List<Statement*>* statements)
+CFG::add_statements (Statement_list* statements)
 {
 	// Keep track of labels, for edges between gotos and branches.
 	map <string, vertex_t> labels;
@@ -77,29 +79,29 @@ CFG::add_statements (List<Statement*>* statements)
 
 
 	// In the first pass, just create nodes for the statements.
-	for_lci (statements, Statement, i)
+	foreach (Statement* s, *statements)
 	{
 		vertex_t v;
-		switch ((*i)->classid())
+		switch (s->classid())
 		{
 			case Label::ID:
-				v = add_bb (new Empty_block);
-				labels [*dyc<Label>(*i)->label_name->get_value_as_string ()] = v;
+				v = add_bb (new Empty_block (this));
+				labels [*dyc<Label>(s)->label_name->get_value_as_string ()] = v;
 				break;
 
 			case Goto::ID:
-				v = add_bb (new Empty_block);
+				v = add_bb (new Empty_block (this));
 				break;
 
 			case Branch::ID:
-				v = add_bb (new Branch_block (dyc<Branch>(*i)));
+				v = add_bb (new Branch_block (this, dyc<Branch>(s)));
 				break;
 
 			default:
-				v = add_bb (new Statement_block (*i));
+				v = add_bb (new Statement_block (this, s));
 				break;
 		}
-		nodes[*i] = v;
+		nodes[s] = v;
 	}
 
 
@@ -165,37 +167,11 @@ CFG::get_exit_bb ()
 	return vb[exit];
 }
 
-list<Basic_block*>*
-CFG::get_predecessors (Basic_block* bb)
-{
-	list<Basic_block*>* result = new list<Basic_block*>;
-
-	foreach (edge_t e, in_edges (bb->vertex, bs))
-	{
-		result->push_back (vb[source (e, bs)]);
-	}
-
-	return result;
-}
-
-list<Basic_block*>*
-CFG::get_successors (Basic_block* bb)
-{
-	list<Basic_block*>* result = new list<Basic_block*>;
-
-	foreach (edge_t e, out_edges (bb->vertex, bs))
-	{
-		result->push_back (vb[target (e, bs)]);
-	}
-
-	return result;
-}
-
-list<Basic_block*>*
+BB_list*
 CFG::get_all_bbs ()
 {
 
-	list<Basic_block*>* result = new list<Basic_block*>;
+	BB_list* result = new BB_list;
 
 	foreach (vertex_t v, vertices(bs))
 	{
@@ -210,9 +186,9 @@ template <class Graph>
 class Depth_first_list : public default_dfs_visitor
 {
 public:
-	list<Basic_block*>* result;
+	BB_list* result;
 
-	Depth_first_list (list<Basic_block*>* result)
+	Depth_first_list (BB_list* result)
 	: result (result)
 	{
 	}
@@ -245,7 +221,7 @@ struct filter_back_edges
 	}
 };
 
-list<Basic_block*>*
+BB_list*
 CFG::get_all_bbs_top_down ()
 {
 	typedef property_map<Graph, vertex_color_t>::type VertexColorMap;
@@ -260,7 +236,7 @@ CFG::get_all_bbs_top_down ()
 	topological_sort(fg, back_inserter(vertices));
 
 	// Convert to a list of BBs
-	list<Basic_block*>* result = new list<Basic_block*>;
+	BB_list* result = new BB_list;
 	foreach (vertex_t v, vertices)
 	{
 		result->push_back (vb[v]);
@@ -269,10 +245,10 @@ CFG::get_all_bbs_top_down ()
 	return result;
 }
 
-list<Basic_block*>*
+BB_list*
 CFG::get_all_bbs_bottom_up ()
 {
-	list<Basic_block*>* result = get_all_bbs_top_down ();
+	BB_list* result = get_all_bbs_top_down ();
 	result->reverse ();
 	return result;
 }
@@ -308,17 +284,17 @@ struct BB_property_functor
 		out << "[label=\"";
 
 		// IN annotations
-		pair<String*, Set*> props;
 		stringstream ss1;
+		pair<String*, Set*> props;
 		foreach (props, *vb[v]->get_graphviz_head_properties ())
 		{
 			if (props.second->size ())
 			{
 				ss1 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, *props.second)
+				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss1 << str << ", ";
+					ss1 << *var_name->value << ", ";
 					if (ss1.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -341,9 +317,9 @@ struct BB_property_functor
 			{
 				ss3 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, *props.second)
+				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss3 << str << ", ";
+					ss3 << *var_name->value << ", ";
 					if (ss3.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -362,9 +338,9 @@ struct BB_property_functor
 			{
 				ss4 << *props.first << " = [";
 				unsigned int line_count = 1;
-				foreach (string str, *props.second)
+				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss4 << str << ", ";
+					ss4 << *var_name->value << ", ";
 					if (ss4.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -432,52 +408,6 @@ CFG::consistency_check ()
 		assert (vb[v]->vertex == v);
 	}
 }
-
-void
-CFG::remove_bb (Basic_block* bb)
-{
-	vertex_t v = bb->vertex;
-
-	clear_vertex (v, bs);
-	remove_vertex (v, bs);
-}
-
-void
-CFG::replace_bb (Basic_block* bb, list<Basic_block*>* replacements)
-{
-	if (replacements->size() == 1
-		&& replacements->front() == bb)
-	{
-		// Same BB: do nothing
-	}
-	else if (replacements->size() == 0)
-	{
-		// Remove the BB
-		foreach (Basic_block* pred, *get_predecessors (bb))
-			foreach (Basic_block* succ, *get_successors (bb))
-				boost::add_edge (pred->vertex, succ->vertex, bs);
-
-		remove_bb (bb);
-	}
-	else
-	{
-		foreach (Basic_block* new_bb,* replacements)
-		{
-			// Create vertices for the new statements
-			vertex_t v = add_bb (new_bb);
-
-			// Add edges from predecessors
-			foreach (Basic_block* pred, *get_predecessors (bb))
-				boost::add_edge (pred->vertex, v, bs);
-
-			// Add edges from successors 
-			foreach (Basic_block* succ, *get_successors (bb))
-				boost::add_edge (v, succ->vertex, bs);
-		}
-		remove_bb (bb);
-	}
-}
-
 // Do a depth first search. For each block, add a label, and a goto to the next
 // block(s).
 class Linearizer : public default_dfs_visitor
@@ -520,15 +450,15 @@ public:
 			// While in the CFG, the ifftrue and iffalse fields of a branch are
 			// meaningless (by design).
 			statements->push_back (br->branch);
-			br->branch->iftrue = (*labels)[cfg->get_true_successor (br)->vertex];
-			br->branch->iffalse = (*labels)[cfg->get_false_successor (br)->vertex];
+			br->branch->iftrue = (*labels)[br->get_true_successor ()->vertex];
+			br->branch->iffalse = (*labels)[br->get_false_successor ()->vertex];
 		}
 
 		// Add a goto successor
 		if (not dynamic_cast<Branch_block*> (bb)
 				&& not dynamic_cast<Exit_block*> (bb))
 		{
-			vertex_t next = cfg->get_successor (bb)->vertex;
+			vertex_t next = bb->get_successor ()->vertex;
 			statements->push_back (new Goto ((*labels)[next]->clone ()));
 		}
 	}
@@ -601,43 +531,6 @@ CFG::get_linear_statements ()
 	return results;
 }
 
-Basic_block*
-CFG::get_successor (Basic_block* bb)
-{
-	vertex_t v = bb->vertex;
-	assert (out_degree (v, bs) == 1);
-	vertex_t t = target (*out_edges (v, bs).first, bs);
-	return vb[t];
-}
-
-Basic_block*
-CFG::get_true_successor (Branch_block* bb)
-{
-	vertex_t v = bb->vertex;
-	assert (out_degree (v, bs) == 2);
-
-
-	/* It isn't clear that the order in which the edges get added is the order
-	 * in which they'll be iterated, so check both. */
-	foreach (edge_t e, out_edges (v, bs))
-		if (ebd[e])
-			return vb[target (e, bs)];
-
-	assert (0);
-}
-
-Basic_block*
-CFG::get_false_successor (Branch_block* bb)
-{
-	vertex_t v = bb->vertex;
-	assert (out_degree (v, bs) == 2);
-
-	foreach (edge_t e, out_edges (v, bs))
-		if (not ebd[e])
-			return vb[target (e, bs)];
-
-	assert (0);
-}
 
 void
 CFG::renumber_vertex_indices ()
@@ -652,87 +545,12 @@ CFG::renumber_vertex_indices ()
 
 void CFG::convert_to_ssa_form ()
 {
-	// We use Muchnick, Section 8.11, which is essentially the same as the
-	// Minimal SSA form from the original Cytron, Ferrante, Rosen, Wegman and
-	// Zadeck paper. To really understand this, it is best to work out the
-	// example from Muchnick 8.11 (note that successor means immediate
-	// successor, not a node which can be reached).
-	
-	/*
-	 * Terms (from Muchnick 7.3)
-	 * 
-	 * Dominator:
-	 *		A basic block X dominates another, Y, if X must be executed before Y.
-	 *		X dominates X.  Technically, if all paths from ENTRY to Y must go
-	 *		through X.  
-	 *
-	 *	Immediate dominator:
-	 *		The unique dominator U of a BB X, for which there is no BB dominated
-	 *		by U which dominates X.
-	 *
-	 *	Strict dominator: 
-	 *		X sdom Y if X dom Y and X != Y.
-	 *
-	 *	Dominance Frontier:
-	 *		DF (X) is the set of nodes dominated by X, whose successors are not
-	 *		dominated by X (well, one or more are not dominated by X).
-	 *	
-	 *	We need to calculate the dominace frontier. There is a linear-time algorithm for this:
-	 * Find DF_local (X):
-	 *		DF_local (x) = { y in succ (x) | idom (y) != x }
-	 *		The set of successors of X, which are not immediately dominated by X.
-	 *
-	 *	Find DF_up (X, Z):
-	 *		DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
-	 *		We want to propagate each the dominance frontiers of Z to X, its
-	 *		immediate dominator, if X doesnt dominate frontier (Y).
-	 *
-	 *	Then iteratively propagate DF_local (Z) to dominated to immediate
-	 *	dominator X via DF_up (X, Z).
-	 *
-	 *	So:
-	 *
-	 *	Iteratied dominance frontier:
-	 *		DF+ (X) = DF_local (X) union (U DF_up (X, Z), where Z in idom (X).
-	 */
+	// Calculate dominance frontiers
+	Dominance* dom = new Dominance (this);
+	dom->calculate_immediate_dominators ();
+	dom->calculate_local_dominance_frontier ();
+	dom->propagate_dominance_frontier_upwards ();
 
-	map <vertex_t, set<vertex_t> > df;
-
-	// Step 1: Calculate immediate dominators.
-	typedef property_map<Graph, vertex_index_t>::type Index_map;
-	typedef iterator_property_map<vector<vertex_t>::iterator, Index_map> Pred_map;
-
-	Pred_map idoms;
-	lengauer_tarjan_dominator_tree(bs, entry, idoms);
-
-	// Calculate the dominance frontier.
-	foreach (vertex_t x, vertices (bs))
-	{
-		// Step 2: Calculate local dominance frontier:
-		foreach (Basic_block* y_bb, *this->get_successors (vb[x]))
-		{
-			vertex_t y = y_bb->vertex;
-
-			if (get (idoms, y) != x) // if x !idom y
-				df [x].insert (y);
-		}
-	
-		// Step 3: Propagate local dominance frontier upwards.
-		// DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
-		foreach (Basic_block* bb, *this->get_all_bbs_bottom_up ())
-		{
-			vertex_t z = bb->vertex;
-			foreach (vertex_t y, df [z])
-			{
-				if (get(idoms, y) != x)
-					df [x].insert (y);
-			}
-		}
-	}
-
-	// Now we have dominance frontiers of each BB. For each assignment in
-	// BB[i], there is a PHI node in DF[BB[i]].
-	
 	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
 	// Section 9.3.3, with some minor changes. Since we dont have a list of
 	// global names, we iterate through all blocks, rather than the blocks
@@ -740,77 +558,76 @@ void CFG::convert_to_ssa_form ()
 	
 	// For an assignment to X in BB, add a PHI function for variable X in the
 	// dominance frontier of BB.
-	list<Basic_block*>* worklist = get_all_bbs_top_down ();
-	list<Basic_block*>::iterator i = worklist->begin ();
+	// TODO Abstract this.
+	BB_list* worklist = get_all_bbs_top_down ();
+	BB_list::iterator i = worklist->begin ();
 	Set all_names;
 	while (i != worklist->end ())
 	{
 		Basic_block* bb = *i;
-		foreach (string var_name, *bb->defs)
+		foreach (VARIABLE_NAME* var_name, *bb->get_local_defs ())
 		{
-			foreach (vertex_t frontier, df [bb->vertex])
+			foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 			{
-				if (not vb[frontier]->has_phi_function (var_name))
+				if (frontier->has_phi_function (var_name))
 				{
-					vb[frontier]->add_phi_function (var_name);
-					worklist->push_back (vb[frontier]);
+					frontier->add_phi_function (var_name);
+					worklist->push_back (frontier);
 					all_names.insert (var_name);
 				}
 			}
 		}
 	}
 
-
-	// Renaming (Cooper/Torczon, setion 9.3.4).
-	
-	// Following the example of GCC, we give each SSA_NAME a distinct number. So
-	// instead of x_0, y_0, x_1, y_1, as in textbooks, we use x_0, y_1, x_2,
-	// y_2. This allows us use the version as an index into a bitvector (which
-	// we may or may not do in the future).
-	int counter = 0;
-	map<string, list<int> > var_stacks;
-	foreach (string name, all_names)
+	SSA_renaming sr(this);
+	foreach (VARIABLE_NAME* var_name, all_names)
 	{
-		var_stacks[name].push_back (0);
+		sr.initialize_var_stack (var_name);
 	}
-	rename_ssa_vars (get_entry_bb (), &counter, &var_stacks);
 
-
+	sr.rename_vars (get_entry_bb ());
 }
 
-/* Given a BB, this will perform recursively perform SSA renaming, descending
- * the dominator tree. COUNTER is the version of the next SSA_NAME. VAR_STACKS
- * is the stack of versions used by a named variable. When returning from
- * recursing, the stack is popped to reveal the version used on the previous
- * level. */
-void
-CFG::rename_ssa_vars (Basic_block* bb, int* counter, map<string, list<int> >* var_stacks)
+BB_list*
+CFG::get_bb_successors (Basic_block* bb)
 {
-/*	foreach (Phi* phi, bb->phis)
+	BB_list* result = new BB_list;
+
+	foreach (edge_t e, out_edges (bb->vertex, bs))
 	{
-		rename lhs with newname
+		result->push_back (vb[target (e, bs)]);
 	}
 
-	foreach (statement)
-	{
-		rewrite uses using top of var_stack
-		rewrite lhs with newname
-	}
-
-	foreach (cfg successor)
-	{
-		fill in phi parameter
-	}
-
-	foreach (dominator successor)
-	{
-		rename_ssa_vars (next, counter, var_stacks)
-	}
-
-	foreach (def in BB)
-	{
-		pop_stack (def);
-	}
-*/	
+	return result;
 }
 
+BB_list*
+CFG::get_bb_predecessors (Basic_block* bb)
+{
+	BB_list* result = new BB_list;
+
+	foreach (edge_t e, in_edges (bb->vertex, bs))
+	{
+		result->push_back (vb[source (e, bs)]);
+	}
+
+	return result;
+}
+
+edge_t
+CFG::get_edge (Basic_block* bb1, Basic_block* bb2)
+{
+	foreach (edge_t e, out_edges (bb1->vertex, bs))
+		if (target (e, bs) == bb2->vertex)
+			return e;
+
+	assert (0);
+}
+
+/* returns true or false. If edge isnt true or false, asserts. */
+bool
+CFG::is_true_edge (edge_t edge)
+{
+	assert (ebd[edge] != indeterminate);
+	return ebd[edge];
+}

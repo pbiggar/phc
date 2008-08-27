@@ -5,6 +5,8 @@
 #include "process_ir/General.h"
 #include "Set.h"
 
+using namespace MIR;
+
 Set::Set()
 : full (false)
 {
@@ -23,7 +25,7 @@ Set::set_union (Set* other)
 		std::set_union (
 				this->begin (), this->end(),
 				other->begin (), other->end (),
-				insert_iterator<set<string> > (*result, result->begin ()));
+				insert_iterator<parent> (*result, result->begin ()));
 	}
 
 	return result;
@@ -42,20 +44,20 @@ Set::set_intersection (Set* other)
 	{
 		std::copy (
 				this->begin (), this->end(),
-				insert_iterator<set<string> > (*result, result->begin ()));
+				insert_iterator<parent> (*result, result->begin ()));
 	}
 	else if (other->full)
 	{
 		std::copy (
 				other->begin (), other->end(),
-				insert_iterator<set<string> > (*result, result->begin ()));
+				insert_iterator<parent> (*result, result->begin ()));
 	}
 	else
 	{
 		std::set_intersection (
 				begin (), end(),
 				other->begin (), other->end (),
-				insert_iterator<set<string> > (*result, result->begin ()));
+				insert_iterator<parent> (*result, result->begin ()));
 	}
 
 	return result;
@@ -77,29 +79,23 @@ Set::set_difference (Set* other)
 	std::set_difference (
 		begin (), end(),
 		other->begin (), other->end (),
-		insert_iterator<set<string> > (*result, result->begin ()));
+		insert_iterator<parent> (*result, result->begin ()));
 
 	return result;
 }
 
-void
-Set::insert (String* name)
-{
-	this->insert (*name);
-}
-
 bool
-Set::contains (String* name)
+Set::has (VARIABLE_NAME* var_name)
 {
-	return full || (find (*name) != end());
+	return full || (find (var_name) != end());
 }
 
 void
 Set::dump(ostream& out)
 {
-	foreach (string str, *this)
+	foreach (VARIABLE_NAME* var_name, *this)
 	{
-		out << str << ", ";
+		out << *var_name->value << ", ";
 	}
 	out << "\n";
 }
@@ -120,10 +116,17 @@ Set::clone ()
 		return result;
 	}
 
-	foreach (string name, *this)
+	foreach (VARIABLE_NAME* var_name, *this)
 	{
-		result->insert (name);
+		result->insert (var_name);
 	}
 
 	return result;
+}
+
+
+bool
+variable_name_ptr_comparison (MIR::VARIABLE_NAME* p1, MIR::VARIABLE_NAME* p2)
+{
+	return p1->equals (p2);
 }

@@ -2,24 +2,24 @@
  * phc -- the open source PHP compiler
  * See doc/license/README.license for licensing information
  * 
- * Specialized version of std::map 
+ * Specialized version of std::map, for (string,object) pairs
  */
 
-#ifndef PHC_MAP
-#define PHC_MAP
+#ifndef PHC_ATTR_MAP
+#define PHC_ATTR_MAP
 
 using namespace std;
 
-#include <map>
 #include <string>
 
 #include "lib/Object.h"
 #include "lib/Boolean.h"
 #include "lib/Integer.h"
+#include "lib/Map.h"
 
 class String;
 
-class AttrMap : public map<string, Object*>, virtual public Object
+class AttrMap : public Map<string, Object>
 {
 public:
 	AttrMap();
@@ -27,11 +27,9 @@ public:
 
 // Retrieve attributes of various types
 public:
-	Object* get(string key);
 	Boolean* get_boolean(string key);
 	Integer* get_integer(string key);
 	String* get_string(string key);
-	bool has(string key);
 	
 // Special support for bools
 public:
@@ -40,12 +38,24 @@ public:
 	bool is_true(string key); // is_true returns false is not has(key)
 
 public:
-	void set(string key, Object* value);
 	void erase_with_prefix (string key_prefix);
 
-public:
-	AttrMap* clone();
-	void clone_all_from(AttrMap* other);
+	AttrMap* clone()
+	{
+		AttrMap* result = new AttrMap;
+		result->clone_all_from(this);
+		return result;
+	}
+
+	void clone_all_from(AttrMap* other)
+	{
+		pair<string, Object*> p;
+		foreach (p, *other)
+		{
+			assert (p.second != NULL);
+			set(p.first, p.second->clone());
+		}
+	}
 };
 
-#endif // PHC_MAP
+#endif // PHC_ATTR_MAP
