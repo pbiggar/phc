@@ -72,6 +72,9 @@ public:
 	// Accessor for BB property. Access using vb[vertex].
 	boost::property_map<Graph, vertex_bb_t>::type vb;
 
+	// Get color map
+	boost::property_map<Graph, vertex_color_t>::type cm;
+
 	// Accessor for Edge direction property. Access using ebd[edge].
 	boost::property_map<Graph, edge_branch_direction_t>::type ebd;
 
@@ -120,6 +123,9 @@ public:
 
 private:
 	Graph bs; // backing store
+
+	friend struct filter_back_edges;
+
 	MIR::Method* method;
 	vertex_t entry;
 	vertex_t exit;

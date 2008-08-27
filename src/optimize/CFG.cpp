@@ -199,59 +199,6 @@ public:
 	}
 };
 
-template <class VertexColorMap>
-struct filter_back_edges
-{
-	Graph* graph;
-	VertexColorMap* color_map;
-
-	filter_back_edges () {}
-
-	filter_back_edges (Graph* graph, VertexColorMap* color_map)
-	: graph (graph)
-   , color_map (color_map)
-	{
-	}
-
-	template <typename Edge>
-	bool operator()(const Edge& e) const
-	{
-		// back edges have a gray target.
-		return gray_color != get(*color_map, target(e, *graph));
-	}
-};
-
-BB_list*
-CFG::get_all_bbs_top_down ()
-{
-	typedef property_map<Graph, vertex_color_t>::type VertexColorMap;
-	typedef filtered_graph<Graph, filter_back_edges<VertexColorMap> > DAG;
-
-	// Create a new graph, without back edges.
-	VertexColorMap cm;
-	DAG fg (bs, filter_back_edges<VertexColorMap> (&bs, &cm));
-
-	// Do a topologic sort on the graph.
-	vector<vertex_t> vertices;
-	topological_sort(fg, back_inserter(vertices));
-
-	// Convert to a list of BBs
-	BB_list* result = new BB_list;
-	foreach (vertex_t v, vertices)
-	{
-		result->push_back (vb[v]);
-	}
-
-	return result;
-}
-
-BB_list*
-CFG::get_all_bbs_bottom_up ()
-{
-	BB_list* result = get_all_bbs_top_down ();
-	result->reverse ();
-	return result;
-}
 
 // Dump to graphviz
 struct BB_property_functor
@@ -408,8 +355,8 @@ CFG::consistency_check ()
 		assert (vb[v]->vertex == v);
 	}
 }
-// Do a depth first search. For each block, add a label, and a goto to the next
-// block(s).
+// Do a depth first search. For each block, add a label, and a goto to the
+// next block(s).
 class Linearizer : public default_dfs_visitor
 {
 	CFG* cfg;
@@ -630,4 +577,57 @@ CFG::is_true_edge (edge_t edge)
 {
 	assert (ebd[edge] != indeterminate);
 	return ebd[edge];
+}
+
+
+
+struct filter_back_edges
+{
+	CFG* cfg;
+
+	filter_back_edges () {}
+
+	filter_back_edges (CFG* cfgs)
+	: cfg (cfg)
+	{
+	}
+
+	template <typename Edge>
+	bool operator()(const Edge& e) const
+	{
+		// back edges have a gray target.
+		return gray_color != cfg->cm[target(e, cfg->bs)];
+	}
+};
+
+BB_list*
+CFG::get_all_bbs_top_down ()
+{
+	typedef filtered_graph<Graph, filter_back_edges> DAG;
+
+	renumber_vertex_indices ();
+
+	// Create a new graph, without back edges.
+	DAG fg (bs, filter_back_edges (this));
+
+	// Do a topologic sort on the graph.
+	vector<vertex_t> vertices;
+	topological_sort(fg, back_inserter(vertices), color_map(cm));
+
+	// Convert to a list of BBs
+	BB_list* result = new BB_list;
+	foreach (vertex_t v, vertices)
+	{
+		result->push_back (vb[v]);
+	}
+
+	return result;
+}
+
+BB_list*
+CFG::get_all_bbs_bottom_up ()
+{
+	BB_list* result = get_all_bbs_top_down ();
+	result->reverse ();
+	return result;
 }
