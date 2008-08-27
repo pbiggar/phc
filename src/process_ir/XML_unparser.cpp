@@ -9,6 +9,7 @@
 #include "cmdline.h"
 
 #include "XML_unparser.h"
+#include "lib/Object.h"
 
 // See comment in XML_unparser::print_indent
 extern gengetopt_args_info args_info;
@@ -42,26 +43,17 @@ XML_unparser_state::print_indent ()
 void
 xml_unparse (AST::Node* in, XML_unparser_state* state)
 {
-	if (state == NULL)
-		in->visit (new AST_XML_unparser ());
-	else
-		in->visit (new AST_XML_unparser (state));
+	in->visit (new AST_XML_unparser (state));
 }
 
 void xml_unparse (HIR::Node* in, XML_unparser_state* state)
 {
-	if (state == NULL)
-		in->visit (new HIR_XML_unparser ());
-	else
-		in->visit (new HIR_XML_unparser (state));
+	in->visit (new HIR_XML_unparser (state));
 }
 
 void xml_unparse (MIR::Node* in, XML_unparser_state* state)
 {
-	if (state == NULL)
-		in->visit (new MIR_XML_unparser ());
-	else
-		in->visit (new MIR_XML_unparser (state));
+	in->visit (new MIR_XML_unparser (state));
 }
 
 void xml_unparse (IR::Node* in, XML_unparser_state* state)
@@ -72,4 +64,30 @@ void xml_unparse (IR::Node* in, XML_unparser_state* state)
 		xml_unparse (dyc<HIR::Node> (in), state);
 	else
 		xml_unparse (dyc<MIR::Node> (in), state);
+}
+
+
+void xml_unparse (AST::Node* in, ostream& os, bool print_attrs)
+{
+	in->visit (new AST_XML_unparser (os, print_attrs));
+}
+
+void xml_unparse (HIR::Node* in, ostream& os, bool print_attrs)
+{
+	in->visit (new HIR_XML_unparser (os, print_attrs));
+}
+
+void xml_unparse (MIR::Node* in, ostream& os, bool print_attrs)
+{
+	in->visit (new MIR_XML_unparser (os, print_attrs));
+}
+
+void xml_unparse (IR::PHP_script* in, ostream& os, bool print_attrs)
+{
+	if (isa<AST::PHP_script> (in))
+		xml_unparse (dyc<AST::Node> (in), os, print_attrs);
+	else if (isa<HIR::PHP_script> (in))
+		xml_unparse (dyc<HIR::Node> (in), os, print_attrs);
+	else
+		xml_unparse (dyc<MIR::Node> (in), os, print_attrs);
 }

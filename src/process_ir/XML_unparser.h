@@ -32,10 +32,14 @@ public:
 	void print_indent();
 };
 
-void xml_unparse (AST::Node*, XML_unparser_state* state = NULL);
-void xml_unparse (HIR::Node*, XML_unparser_state* state = NULL);
-void xml_unparse (MIR::Node*, XML_unparser_state* state = NULL);
-void xml_unparse (IR::Node*, XML_unparser_state* state = NULL);
+void xml_unparse (AST::Node*, XML_unparser_state* state);
+void xml_unparse (HIR::Node*, XML_unparser_state* state);
+void xml_unparse (MIR::Node*, XML_unparser_state* state);
+void xml_unparse (IR::Node*, XML_unparser_state* state);
+void xml_unparse (AST::Node*, ostream& os = cout, bool print_attrs = true);
+void xml_unparse (HIR::Node*, ostream& os = cout, bool print_attrs = true);
+void xml_unparse (MIR::Node*, ostream& os = cout, bool print_attrs = true);
+void xml_unparse (IR::PHP_script*, ostream& os = cout, bool print_attrs = true);
 
 
 template

@@ -42,7 +42,7 @@ void phc_unsupported (Node* node)
 {
 	cerr << "Could not generate code:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
-	node->visit (new MIR_XML_unparser (cerr));
+	xml_unparse (node, cerr);
 	exit (-1);
 }
 
