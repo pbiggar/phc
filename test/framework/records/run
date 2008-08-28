@@ -83,7 +83,7 @@
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 		print "Test problem, saving error\n";
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 1, 0)");
 
 		save_log ();
 		die ();
@@ -181,7 +181,7 @@
 
 		global $DB, $DB_FILENAME;
 		$DB = new PDO ("sqlite:$DB_FILENAME");
-		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed)");
+		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed, redo)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
 	}
 
@@ -212,7 +212,7 @@
 		$end_time = time ();
 		$time = $end_time - $START_TIME;
 
-		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0)");
+		e ("INSERT INTO complete VALUES ($REV, $time, $LATEST_REVISION, '$AUTHOR', '$DATE', $end_time, 0, 0)");
 
 		save_log ();
 	}
@@ -309,7 +309,7 @@
 	{
 		// Get list of processed revisions
 		global $LATEST_REVISION, $DB;
-		$revs = $DB->query ("SELECT revision FROM complete ORDER BY revision ASC")->fetchAll(PDO::FETCH_COLUMN);
+		$revs = $DB->query ("SELECT revision FROM complete WHERE redo = 0")->fetchAll(PDO::FETCH_COLUMN);
 
 		// Go backwards until we find an unprocessed revision
 		sort ($revs);
