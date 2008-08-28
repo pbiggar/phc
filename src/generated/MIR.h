@@ -2549,7 +2549,6 @@ public:
     VARIABLE_NAME* clone();
     void set_version(int version);
     bool operator<(MIR ::VARIABLE_NAME& other);
-private:
     int version;
     bool in_ssa;
 };

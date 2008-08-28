@@ -7,9 +7,11 @@
 
 #include "AttrMap.h"
 #include "String.h"
+#include "Boolean.h"
+#include "Integer.h"
 
 AttrMap::AttrMap() 
-: Map<string, Object>() 
+: Map<string, Object*>() 
 {
 }
 

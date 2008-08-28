@@ -121,6 +121,8 @@ public:
 	friend class Basic_block;
 	friend class Branch_block;
 
+	void convert_to_ssa_form ();
+
 private:
 	Graph bs; // backing store
 
@@ -131,7 +133,6 @@ private:
 	vertex_t exit;
 
 	void add_statements (MIR::Statement_list*);
-	void convert_to_ssa_form ();
 	BB_list* get_bb_successors (Basic_block* bb);
 	BB_list* get_bb_predecessors (Basic_block* bb);
 	edge_t get_edge (Basic_block* bb1, Basic_block* bb2);

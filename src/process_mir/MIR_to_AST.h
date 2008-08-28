@@ -652,7 +652,17 @@ public:
 	AST::None* fold_variable_name(MIR::VARIABLE_NAME* orig) 
 	{
 		AST::VARIABLE_NAME* result;
-		result = new AST::VARIABLE_NAME(orig->value);
+
+		// Give it an SSA_name
+		if (orig->in_ssa)
+		{
+			stringstream ss;
+			ss << *orig->value << "__v" << orig->version;
+			result = new AST::VARIABLE_NAME(s(ss.str()));
+		}
+		else
+			result = new AST::VARIABLE_NAME(orig->value);
+
 		result->attrs = orig->attrs;
 
 		var_names.push (result);

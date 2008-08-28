@@ -575,10 +575,9 @@ CFG::get_edge (Basic_block* bb1, Basic_block* bb2)
 bool
 CFG::is_true_edge (edge_t edge)
 {
-	assert (ebd[edge] != indeterminate);
+	assert (!indeterminate (ebd[edge]));
 	return ebd[edge];
 }
-
 
 
 struct filter_back_edges

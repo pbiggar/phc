@@ -77,15 +77,37 @@ Dominance::calculate_immediate_dominators ()
 
 	// This automatically builds reverse dominators, ie, given y, find x such
 	// that x idom y.
-	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idoms);
+	// From HERE to THERE copied directly from boost documents.
+	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	typedef iterator_property_map<vector<vertex_t>::iterator, IndexMap> PredMap;
+	cfg->renumber_vertex_indices ();	
+	vector<vertex_t> domTreePredVector = vector<vertex_t>(
+		num_vertices(cfg->bs),
+		graph_traits<Graph>::null_vertex());
+	PredMap idom_calc = make_iterator_property_map(
+		domTreePredVector.begin(),
+		get(vertex_index, cfg->bs));
+	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idom_calc);
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
+			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
+		else
+			cout << "BB: " << bb << " does not have an immediate dominator" << endl;
+	}
+
+	// THERE (see HERE)
 
 	// Build forward dominators
 	// We also want to find the block that are immedately dominated by
 	// another block (ie [a,b,c] such that x idom a, x idom b and x idom c.
 	foreach (Basic_block* y, *cfg->get_all_bbs ())
 	{
-		vertex_t dominator = get (idoms, y->vertex);
-		forward_doms [cfg->vb[dominator]]->push_back (y);
+		if (y != cfg->get_entry_bb ())
+		{
+			Basic_block* dom = y->get_immediate_dominator ();
+			forward_doms [dom]->push_back (y);
+		}
 	}
 }
 
@@ -137,7 +159,7 @@ Dominance::get_bb_dominance_frontier (Basic_block* bb)
 Basic_block*
 Dominance::get_bb_immediate_dominator (Basic_block* bb)
 {
-	return cfg->vb [get (idoms, bb->vertex)];
+	return idoms[bb];
 }
 
 

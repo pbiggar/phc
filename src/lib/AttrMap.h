@@ -13,13 +13,13 @@ using namespace std;
 #include <string>
 
 #include "lib/Object.h"
-#include "lib/Boolean.h"
-#include "lib/Integer.h"
 #include "lib/Map.h"
 
 class String;
+class Integer;
+class Boolean;
 
-class AttrMap : public Map<string, Object>
+class AttrMap : public Map<string, Object*>
 {
 public:
 	AttrMap();

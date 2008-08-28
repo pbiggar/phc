@@ -29,15 +29,13 @@ public:
 class Dominance
 {
 	CFG* cfg;
-	map <Basic_block*, BB_list*> df;
-	map <Basic_block*, BB_list*> forward_doms;
+	Map <Basic_block*, BB_list*> df;
+	Map <Basic_block*, BB_list*> forward_doms;
+	Map <Basic_block*, Basic_block*> idoms;
 
 public:
 	Dominance (CFG* cfg);
 
-	typedef property_map<Graph, vertex_index_t>::type Index_map;
-	typedef iterator_property_map<vector<vertex_t>::iterator, Index_map> Pred_map;
-	Pred_map idoms;
 
 	// Terms are defined in a comment in SSA.cpp.
 	void calculate_immediate_dominators ();

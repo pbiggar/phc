@@ -598,6 +598,11 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 								cfg->dump_graphviz (s(name.str()));
 							}
 						}
+
+						// just test for now.
+						CFG* cfg2 = new CFG (method->clone ());
+						cfg2->convert_to_ssa_form ();
+
 					}
 
 					// Check if we need to iterate again

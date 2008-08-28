@@ -15,7 +15,7 @@ using namespace std;
 #include "process_ir/Foreach.h"
 
 template <class Key, class Value>
-class Map : public map<Key, Value*>, virtual public Object
+class Map : public map<Key, Value>, virtual public Object
 {
 public:
 	Map() {}
@@ -27,14 +27,14 @@ public:
 		return this->find(key) != this->end();
 	}
 
-	Value* get(Key key)
+	Value get(Key key)
 	{
 		if (!has (key)) return NULL;
 
 		return (*this)[key];
 	}
 
-	void set(Key key, Value* value)
+	void set(Key key, Value value)
 	{
 		(*this)[key] = value;
 	}
@@ -49,7 +49,7 @@ public:
 
 	void clone_all_from(Map* other)
 	{
-		pair<Key, Value*> p;
+		pair<Key, Value> p;
 		foreach (p, *other)
 		{
 			assert (p.second != NULL);
