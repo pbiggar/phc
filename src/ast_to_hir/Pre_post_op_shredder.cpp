@@ -6,6 +6,7 @@
  */
 
 #include "Pre_post_op_shredder.h"
+#include "process_ir/fresh.h"
 
 using namespace AST;
 

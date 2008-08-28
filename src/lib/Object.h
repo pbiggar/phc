@@ -6,8 +6,8 @@
  * (i.e., a base that supports RTTI)
  */
 
-#ifndef PHC_OBJECT
-#define PHC_OBJECT
+#ifndef PHC_OBJECT_H
+#define PHC_OBJECT_H
 
 #include "config.h"
 #include <assert.h>
@@ -57,4 +57,4 @@ template <class T> T* dyc(Object* in)
 	return result;
 }
 
-#endif /* OBJECT_H */
+#endif // PHC_OBJECT_H

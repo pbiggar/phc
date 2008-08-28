@@ -10,7 +10,6 @@
 
 #include "AST_transform.h"
 
-
 class Remove_concat_null : public AST::Transform
 {
 public:

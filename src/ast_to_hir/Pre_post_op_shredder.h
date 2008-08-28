@@ -9,8 +9,6 @@
 #define PHC_PRE_POST_OP_SHREDDER_H
 
 #include "ast_to_hir/AST_lower_expr.h"
-#include "process_ir/fresh.h"
-
 
 class Pre_post_op_shredder : public AST::Lower_expr
 {

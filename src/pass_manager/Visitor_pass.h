@@ -8,8 +8,9 @@
 #ifndef PHC_VISITOR_PASS_H
 #define PHC_VISITOR_PASS_H
 
-#include "AST_visitor.h"
-#include "MIR_visitor.h"
+namespace AST { class Visitor; }
+namespace HIR { class Visitor; }
+namespace MIR { class Visitor; }
 
 // TODO generic visitors, not AST viistors
 class Visitor_pass : public Pass

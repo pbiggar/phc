@@ -90,17 +90,17 @@ Dominance::calculate_immediate_dominators ()
 		domTreePredVector.begin(),
 		get(vertex_index, cfg->bs));
 	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idom_calc);
-	cout << "Entry is: " << cfg->get_entry_bb ();
-	cout << "Exit is: " << cfg->get_exit_bb ();
+	DEBUG ("Entry is: " << cfg->get_entry_bb ());
+	DEBUG ("Exit is: " << cfg->get_exit_bb ());
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
 		{
 			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
-			cout << "BB " << bb << "(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index () << endl;
+			DEBUG ("BB " << bb << "(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index ());
 		}
 		else
-			cout << "BB: " << bb << "(" << bb->get_index() << ") does not have an immediate dominator" << endl;
+			DEBUG ("BB: " << bb << "(" << bb->get_index() << ") does not have an immediate dominator");
 	}
 
 	// THERE (see HERE)
@@ -228,7 +228,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Create new names for PHI targets
 	foreach (Phi* phi, *bb->get_phi_nodes ())
 	{
-		cdebug << "converting phi" << endl;
+		DEBUG ("converting phi");
 		debug (phi->lhs);
 		create_new_ssa_name (phi->lhs);
 	}
@@ -236,7 +236,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Rename local variable uses
 	foreach (VARIABLE_NAME* use, *bb->get_ssa_uses ())
 	{
-		cdebug << "Converting use " << use << "-" << use->in_ssa << " - v" << use->version << endl;
+		DEBUG ("Converting use " << use << "-" << use->in_ssa << " - v" << use->version);
 		debug (use);
 		use->convert_to_ssa_name (read_var_stack (use));
 	}
@@ -244,7 +244,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Create new names for defs
 	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
 	{
-		cdebug << "Converting def " << def << endl;
+		DEBUG ("Converting def " << def);
 		debug (def);
 		create_new_ssa_name (def);
 	}

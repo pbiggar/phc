@@ -3,7 +3,7 @@
 	<head>
 		<title>phc -- the open source PHP compiler</title>
 		<style type="text/css">
-			table.layout { width: 100% }
+			table.layout { width: 100%; border-collapse: collapse  }
 			table.info { width: 100%; }
 			table.info td { color: gray; background-color: #efdba7 }
 			table.info th { color: black; background-color: #efdba7 }

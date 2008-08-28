@@ -23,7 +23,7 @@ Dead_code_elimination::transform_assign_var (Statement_block* bb, Assign_var* in
 	else
 	{
 		// leave empty
-		cdebug << "Removing dead code: ";
+		DEBUG ("Not removing: ");
 		debug (in);
 	}
 }

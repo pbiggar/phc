@@ -5,8 +5,8 @@
  * Class to represent bools 
  */
 
-#ifndef PHC_BOOLEAN
-#define PHC_BOOLEAN
+#ifndef PHC_BOOLEAN_H
+#define PHC_BOOLEAN_H
 
 #include "lib/Object.h"
 
@@ -24,4 +24,4 @@ public:
 	Boolean* clone();
 };
 
-#endif 
+#endif // PHC_BOOLEAN_H

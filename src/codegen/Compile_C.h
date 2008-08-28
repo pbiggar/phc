@@ -5,7 +5,7 @@
  * Compile generated C code
  */
 
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Pass.h"
 
 class Compile_C : public Pass
 {

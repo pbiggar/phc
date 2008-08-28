@@ -5,10 +5,12 @@
  * Error handling 
  */
 
-#ifndef PHC_ERROR
-#define PHC_ERROR
+#ifndef PHC_ERROR_H
+#define PHC_ERROR_H
 
-#include "lib/String.h"
+#include <stdarg.h>
+
+class String;
 
 namespace AST { class Node; }
 namespace HIR { class Node; }
@@ -39,4 +41,4 @@ void phc_warning (const char* message, AST::Node*, ...);
 void phc_warning (const char* message, HIR::Node*, ...);
 void phc_warning (const char* message, MIR::Node*, ...);
 
-#endif // PHC_ERROR
+#endif // PHC_ERROR_H

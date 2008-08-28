@@ -5,8 +5,8 @@
  * Like the STL list, but inherit from Object
  */
  
-#ifndef PHC_LIST
-#define PHC_LIST
+#ifndef PHC_LIST_H
+#define PHC_LIST_H
 
 #include <list>
 #include "lib/Object.h"
@@ -82,4 +82,4 @@ List<Result_type*>* rewrap_list (List<List_type*>* nodes)
 	return result;
 }
 
-#endif /* LIST_H */
+#endif // PHC_LIST_H

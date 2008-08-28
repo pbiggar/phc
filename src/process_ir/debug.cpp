@@ -16,6 +16,7 @@
 
 void debug (AST::Node *in)
 {
+	CHECK_DEBUG ();
 	static AST_unparser *pup = new AST_unparser (cdebug, true);
 	pup->unparse (in);
 	cdebug << endl;
@@ -23,18 +24,19 @@ void debug (AST::Node *in)
 
 void xdebug (AST::Node* in)
 {
-	AST_XML_unparser *xup = new AST_XML_unparser (cdebug, false);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (AST::Node* in)
 {
-	AST_XML_unparser *xup = new AST_XML_unparser (cdebug, true);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, true);
 }
 
 void debug (HIR::Node *in)
 {
+	CHECK_DEBUG ();
 	static HIR_unparser *pup = new HIR_unparser (cdebug, true);
 	pup->unparse (in);
 	cdebug << endl;
@@ -42,19 +44,20 @@ void debug (HIR::Node *in)
 
 void xdebug (HIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cdebug, false);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (HIR::Node* in)
 {
-	HIR_XML_unparser *xup = new HIR_XML_unparser (cdebug, true);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, true);
 }
 
 
 void debug (MIR::Node *in)
 {
+	CHECK_DEBUG ();
 	static MIR_unparser *pup = new MIR_unparser (cdebug, true);
 	pup->unparse (in);
 	cdebug << endl;
@@ -62,33 +65,26 @@ void debug (MIR::Node *in)
 
 void xdebug (MIR::Node* in)
 {
-	MIR_XML_unparser *xup = new MIR_XML_unparser (cdebug, false);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, false);
 }
 
 void xadebug (MIR::Node* in)
 {
-	MIR_XML_unparser *xup = new MIR_XML_unparser (cdebug, true);
-	in->visit (xup);
+	CHECK_DEBUG ();
+	xml_unparse (in, cdebug, true);
 }
 
-// set badbit. This wont print anything into the stream.
-ostream cdebug_buffer (0);
+ostream& cdebug = cerr;
 
-// If we initialize to cdebug_buffer, then we won't be able to turn it off once
-// it's on.
-ostringstream initializer;
-ostream& cdebug = initializer;
+bool debugging_enabled = false;
 
 void enable_cdebug ()
 {
-	// ceer prints input to console
-	cdebug.rdbuf (cerr.rdbuf());
+	debugging_enabled = true;
 }
 
 void disable_cdebug ()
 {
-	// cdebug_buffer ignores all input
-	cdebug.rdbuf (cdebug_buffer.rdbuf());
+	debugging_enabled = false;
 }
-

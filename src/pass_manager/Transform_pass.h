@@ -8,8 +8,7 @@
 #ifndef PHC_TRANSFORM_PASS_H
 #define PHC_TRANSFORM_PASS_H
 
-#include "AST_transform.h"
-#include "MIR_transform.h"
+#include "Pass.h"
 
 class Transform_pass : public Pass
 {

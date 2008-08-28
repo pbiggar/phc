@@ -5,8 +5,8 @@
  * Class to represent long (for passing around as synthesized attributes) 
  */
  
-#ifndef PHC_INTEGER
-#define PHC_INTEGER
+#ifndef PHC_INTEGER_H
+#define PHC_INTEGER_H
 
 // Hack in the C++ language to distinguish between pre and post ops
 #define POST_INCREMENT int
@@ -30,4 +30,4 @@ public:
 	void operator++(POST_INCREMENT); 
 };
 
-#endif
+#endif // PHC_INTEGER_H

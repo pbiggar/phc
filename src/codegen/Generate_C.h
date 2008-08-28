@@ -12,7 +12,7 @@
 #define GENERATE_C
 
 #include "MIR_visitor.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Pass.h"
 
 class Generate_C : public MIR::Visitor, public Pass
 {

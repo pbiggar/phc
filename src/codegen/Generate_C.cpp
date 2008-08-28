@@ -30,6 +30,7 @@
 #include "process_mir/MIR_unparser.h"
 #include "process_ir/General.h"
 #include "process_ir/XML_unparser.h"
+#include "pass_manager/Pass_manager.h"
 #include "Generate_C.h"
 #include "embed/embed.h"
 #include "lib/List.h"
@@ -42,7 +43,7 @@ void phc_unsupported (Node* node)
 {
 	cerr << "Could not generate code:" << endl;
 	node->visit (new MIR_unparser (cerr, true));
-	node->visit (new MIR_XML_unparser (cerr));
+	xml_unparse (node, cerr);
 	exit (-1);
 }
 

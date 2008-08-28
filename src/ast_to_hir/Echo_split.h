@@ -15,6 +15,4 @@ class Echo_split : public AST::Transform
 	void pre_eval_expr(AST::Eval_expr* in, AST::Statement_list* out);
 };
 
-
-
 #endif // PHC_ECHO_SPLIT_H

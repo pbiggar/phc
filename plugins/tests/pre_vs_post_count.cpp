@@ -10,6 +10,7 @@
 #include "HIR_visitor.h"
 #include "MIR_visitor.h"
 #include "pass_manager/Plugin_pass.h"
+#include "pass_manager/Pass_manager.h"
 
 static bool success = true;
 static bool is_run = false;

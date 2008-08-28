@@ -40,7 +40,7 @@ class Unparser_state;
 namespace IR
 {
 
-class Node : public Object
+class Node : virtual public Object
 {
 public:
 	AttrMap* attrs;
@@ -68,7 +68,7 @@ public:
 };
 
 
-class FOREIGN
+class FOREIGN : virtual public Object
 {
 public:
 	virtual void unparse (Unparser_state* ups);
@@ -80,7 +80,7 @@ public:
 };
 
 
-class PHP_script
+class PHP_script : virtual public Object
 {
 // Operations that are defined over all IRs
 public:

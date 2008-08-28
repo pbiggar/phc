@@ -8,7 +8,6 @@
 #ifndef PHC_SPLIT_UNSET_ISSET_H
 #define PHC_SPLIT_UNSET_ISSET_H
 
-#include "ast_to_hir/AST_lower_expr.h"
 #include "AST_transform.h"
 
 class Split_unset_isset : public AST::Transform

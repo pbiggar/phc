@@ -44,15 +44,11 @@
 
 		// make
 		cd ("make", "make");
-		$results = cd ("php test/framework/driver.php -p", "test");
-		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $LOG_DIR/test_logs"); 
-		store_test_results ($results, "tests");
-
-		// make install
 		cd ("make install", "install");
-		$results = cd ("php test/framework/driver.php -q -i -p", "install_test");
-		c ("mv ".readlink("$TEST_DIR/test/logs/latest")." $LOG_DIR/install_test_logs"); 
-		store_test_results ($results, "install_tests");
+		$results = cd ("php test/framework/driver.php -i -p -l", "test");
+
+		save_test_logs ();
+		store_test_results ($results, "tests");
 
 		// Finish up
 		finalize_revision_test ();
@@ -121,6 +117,29 @@
 		return false;
 	}
 
+	function save_test_logs ()
+	{
+		global $LOG_DIR;
+		global $TEST_DIR;
+		$test_dir = "$LOG_DIR/test_logs";
+		c ("mv " . readlink ("$TEST_DIR/test/logs/latest"). " $test_dir");
+
+		# tar-gzip them (directories only)
+		$dirs = scandir ($test_dir);
+		unset ($dirs[0]); // remove "."
+		unset ($dirs[1]); // remove ".."
+		foreach ($dirs as $dir)
+		{
+			$dir = "$test_dir/$dir";
+			if (is_dir ($dir))
+			{
+				$dir = str_replace (getcwd ()."/", "", $dir); // make it relative
+				c ("tar czf $dir.tar.gz $dir");
+				c ("rm -Rf $dir");
+			}
+		}
+	}
+
 	function store_test_results ($result_string, $table_name)
 	{
 		global $REV;
@@ -164,7 +183,6 @@
 		$DB = new PDO ("sqlite:$DB_FILENAME");
 		e ("CREATE TABLE IF NOT EXISTS complete (revision, time, test_revision, author, commit_date, test_date, failed)");
 		e ("CREATE TABLE IF NOT EXISTS tests (revision, testname, pass, fail, timeout, skip)");
-		e ("CREATE TABLE IF NOT EXISTS install_tests (revision, testname, pass, fail, timeout, skip)");
 	}
 
 	function initialize_revision_test ()
@@ -180,7 +198,6 @@
 
 		e ("DELETE FROM complete WHERE revision == $REV");
 		e ("DELETE FROM tests WHERE revision == $REV");
-		e ("DELETE FROM install_tests WHERE revision == $REV");
 	}
 
 	function save_log ()

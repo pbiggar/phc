@@ -5,7 +5,11 @@
  * Shred lists.
  */
 
+#include "process_ir/fresh.h"
+
 #include "List_shredder.h"
+
+// TODO: needed for is_ref_literal. Refactor.
 #include "process_ast/Invalid_check.h"
 
 using namespace AST;

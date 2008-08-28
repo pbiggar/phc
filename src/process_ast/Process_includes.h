@@ -9,7 +9,7 @@
 #define PHC_PROCESS_INCLUDES
 
 #include "ast_to_hir/AST_lower_expr.h"
-#include "pass_manager/Pass_manager.h"
+#include "pass_manager/Pass.h"
 
 class Process_includes : public AST::Lower_expr, public Pass
 {

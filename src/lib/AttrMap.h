@@ -5,8 +5,8 @@
  * Specialized version of std::map, for (string,object) pairs
  */
 
-#ifndef PHC_ATTR_MAP
-#define PHC_ATTR_MAP
+#ifndef PHC_ATTR_MAP_H
+#define PHC_ATTR_MAP_H
 
 using namespace std;
 
@@ -58,4 +58,4 @@ public:
 	}
 };
 
-#endif // PHC_ATTR_MAP
+#endif // PHC_ATTR_MAP_H

@@ -16,7 +16,12 @@
 #include "Pass.h"
 #include "Optimization_pass.h"
 
+class String;
 typedef List<Pass*> Pass_queue;
+namespace AST { class Visitor; class Transform; }
+namespace HIR { class Visitor; class Transform; }
+namespace MIR { class Visitor; class Transform; }
+namespace IR { class PHP_script; }
 
 class Pass_manager
 {

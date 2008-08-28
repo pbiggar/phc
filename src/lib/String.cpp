@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include "String.h" 
+#include "AttrMap.h" 
 
 String::String() 
 {
