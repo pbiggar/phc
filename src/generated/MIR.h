@@ -2550,6 +2550,7 @@ public:
     VARIABLE_NAME* clone();
     void set_version(int version);
     bool operator<(MIR ::VARIABLE_NAME& other);
+    String* get_ssa_var_name();
     int version;
     bool in_ssa;
 };

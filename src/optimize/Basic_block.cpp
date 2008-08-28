@@ -122,6 +122,17 @@ list<std::pair<String*,Set*> >*
 Basic_block::get_graphviz_head_properties ()
 {
 	list<std::pair<String*,Set*> >* result = new list<std::pair<String*,Set*> >;
+	// Phi nodes
+	foreach (Phi* phi, *get_phi_nodes ())
+	{
+		Set* set = new Set;
+		foreach (VARIABLE_NAME* arg, *phi->args)
+			set->insert (arg);
+
+		result->push_back (
+			pair<String*, Set*> (phi->lhs->get_ssa_var_name (), set));
+	}
+
 	if (live_in)
 		result->push_back (pair<String*, Set*> (s("IN"), live_in));
 	return result;
@@ -143,13 +154,16 @@ Basic_block::get_graphviz_tail_properties ()
 void
 Basic_block::add_phi_function (VARIABLE_NAME* var_name)
 {
+	// We only want 1 phi node per variable name, regardless of the number of
+	// versions.
+	assert (not has_phi_function (var_name));
 	phi_nodes[*var_name->value] = new Phi (var_name->clone ());
 }
 
 bool
 Basic_block::has_phi_function (VARIABLE_NAME* var_name)
 {
-	return phi_nodes.find (*var_name->value) != phi_nodes.end ();
+	return phi_nodes.has (*var_name->value);
 }
 
 BB_list*

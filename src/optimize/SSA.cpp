@@ -209,17 +209,10 @@ SSA_renaming::read_var_stack (VARIABLE_NAME* var_name)
 }
 
 void 
-SSA_renaming::initialize_var_stack (VARIABLE_NAME* var_name)
-{
-	assert (var_stacks.find (*var_name->value) != var_stacks.end());
-	push_to_var_stack (var_name, counter++);
-}
-
-void 
 SSA_renaming::create_new_ssa_name (VARIABLE_NAME* var_name)
 {
 	var_name->convert_to_ssa_name (counter);
-	var_stacks[*var_name->value].push (counter++);
+	push_to_var_stack (var_name, counter++);
 }
 
 void 
@@ -262,5 +255,5 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
 	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
-		var_stacks[*def->value].pop ();
+		read_var_stack (def);
 }

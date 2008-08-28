@@ -243,7 +243,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss1 << *var_name->value << ", ";
+					ss1 << *var_name->get_ssa_var_name() << ", ";
 					if (ss1.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -268,7 +268,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss3 << *var_name->value << ", ";
+					ss3 << *var_name->get_ssa_var_name () << ", ";
 					if (ss3.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -289,7 +289,7 @@ struct BB_property_functor
 				unsigned int line_count = 1;
 				foreach (VARIABLE_NAME* var_name, *props.second)
 				{
-					ss4 << *var_name->value << ", ";
+					ss4 << *var_name->get_ssa_var_name() << ", ";
 					if (ss4.str().size() > (LINE_LENGTH * line_count))
 					{
 						line_count++;
@@ -510,31 +510,30 @@ void CFG::convert_to_ssa_form ()
 	// TODO Abstract this.
 	BB_list* worklist = get_all_bbs_top_down ();
 	BB_list::iterator i = worklist->begin ();
-	Set all_names;
 	while (i != worklist->end ())
 	{
 		Basic_block* bb = *i;
-		foreach (VARIABLE_NAME* var_name, *bb->get_ssa_defs ())
+		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
-			foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
+			bool def_added = false;
+			// TODO defs include Phi functions.
+			foreach (VARIABLE_NAME* var_name, *bb->get_ssa_defs ())
 			{
-				if (frontier->has_phi_function (var_name))
+				if (!frontier->has_phi_function (var_name))
 				{
 					frontier->add_phi_function (var_name);
-					worklist->push_back (frontier);
-					all_names.insert (var_name);
+					def_added = true;
 				}
 			}
+
+			// This adds a new def, which requires us to iterate.
+			if (def_added)
+				worklist->push_back (frontier);
 		}
 		i++;
 	}
 
 	SSA_renaming sr(this);
-	foreach (VARIABLE_NAME* var_name, all_names)
-	{
-		sr.initialize_var_stack (var_name);
-	}
-
 	sr.rename_vars (get_entry_bb ());
 }
 

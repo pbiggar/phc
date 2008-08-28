@@ -9506,6 +9506,19 @@ bool VARIABLE_NAME::operator<(MIR ::VARIABLE_NAME& other)
 	}
 }
 
+String* VARIABLE_NAME::get_ssa_var_name()
+{
+    {
+		// TODO use get_value_as_string?
+		if (!in_ssa)
+			return value;
+
+		stringstream ss;
+		ss << *value << "__v" << version;
+		return new String (ss.str());
+	}
+}
+
 INT::INT(long value)
 {
     this->value = value;

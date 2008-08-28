@@ -493,6 +493,17 @@ public:
 		return false;
 	}
 
+	String* get_ssa_var_name ()
+	{
+		// TODO use get_value_as_string?
+		if (!in_ssa)
+			return value;
+
+		stringstream ss;
+		ss << *value << "__v" << version;
+		return new String (ss.str());
+	}
+
 	int version;
 	bool in_ssa;
 };

@@ -74,7 +74,7 @@ public:
 
 	List<Phi*>* get_phi_nodes ();
 private:
-	map<string, Phi*> phi_nodes;
+	Map<string, Phi*> phi_nodes;
 
 
 public:
