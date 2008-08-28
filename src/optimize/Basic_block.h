@@ -52,8 +52,8 @@ public:
 	 * TODO: this will probably break for defs.
 	 * TODO: These are really for SSA_renaming. I don't think we can use them
 	 * for a different purpose with the same semantics.*/
-	virtual Set* get_local_defs ();
-	virtual Set* get_local_uses ();
+	virtual Set* get_ssa_defs ();
+	virtual Set* get_ssa_uses ();
 
 	BB_list* get_predecessors ();
 	BB_list* get_successors ();
@@ -154,7 +154,7 @@ public:
 	String* get_graphviz_label ();
 	list<pair<String*,String*> >* get_graphviz_properties ();
 
-	Set* get_local_uses ();
+	Set* get_ssa_uses ();
 
 	// Assert a block has a two successors, representing true and false
 	// branches, and return the true branch.
@@ -173,8 +173,8 @@ public:
 public:
 	Statement_block (CFG* cfg, MIR::Statement* s);
 
-	Set* get_local_defs ();
-	Set* get_local_uses ();
+	Set* get_ssa_defs ();
+	Set* get_ssa_uses ();
 
 	virtual String* get_graphviz_label ();
 };

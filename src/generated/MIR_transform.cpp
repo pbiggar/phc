@@ -846,6 +846,7 @@ void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable_name = transform_variable_name(in->variable_name);
+    in->ssa_use = transform_variable_name(in->ssa_use);
 }
 
 void Transform::children_eval_expr(Eval_expr* in)

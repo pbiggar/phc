@@ -158,6 +158,8 @@ libphc_la_SOURCES= 											\
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
+	src/optimize/Def_use.cpp 								\
+	src/optimize/Def_use.h									\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.h							\

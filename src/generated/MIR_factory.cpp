@@ -197,8 +197,9 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	OP* op = dynamic_cast<OP*>(*i++);
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* ssa_use = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Pre_op(op, variable_name);
+    	return new Pre_op(op, variable_name, ssa_use);
     }
     if(!strcmp(type_id, "Eval_expr"))
     {

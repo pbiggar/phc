@@ -568,8 +568,11 @@ public:
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::None* variable_name)
+	AST::Eval_expr* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::None* variable_name, AST::None* ssa_use)
 	{
+		// Pop SSA_USE and ignore it.
+		get_var_name ();
+
 		AST::Pre_op* result;
 		result = new AST::Pre_op(op, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;

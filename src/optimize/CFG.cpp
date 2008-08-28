@@ -514,7 +514,7 @@ void CFG::convert_to_ssa_form ()
 	while (i != worklist->end ())
 	{
 		Basic_block* bb = *i;
-		foreach (VARIABLE_NAME* var_name, *bb->get_local_defs ())
+		foreach (VARIABLE_NAME* var_name, *bb->get_ssa_defs ())
 		{
 			foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 			{
@@ -526,6 +526,7 @@ void CFG::convert_to_ssa_form ()
 				}
 			}
 		}
+		i++;
 	}
 
 	SSA_renaming sr(this);

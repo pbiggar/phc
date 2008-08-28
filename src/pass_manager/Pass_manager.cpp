@@ -600,8 +600,10 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 						}
 
 						// just test for now.
+						enable_cdebug ();
 						CFG* cfg2 = new CFG (method->clone ());
 						cfg2->convert_to_ssa_form ();
+						disable_cdebug ();
 
 					}
 

@@ -4349,16 +4349,18 @@ void Push_array::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
+Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name, VARIABLE_NAME* ssa_use)
 {
     this->op = op;
     this->variable_name = variable_name;
+    this->ssa_use = ssa_use;
 }
 
 Pre_op::Pre_op()
 {
     this->op = 0;
     this->variable_name = 0;
+    this->ssa_use = 0;
 }
 
 void Pre_op::visit(Visitor* visitor)
@@ -4402,6 +4404,14 @@ bool Pre_op::match(Node* in)
     else if(!this->variable_name->match(that->variable_name))
     	return false;
     
+    if(this->ssa_use == NULL)
+    {
+    	if(that->ssa_use != NULL && !that->ssa_use->match(this->ssa_use))
+    		return false;
+    }
+    else if(!this->ssa_use->match(that->ssa_use))
+    	return false;
+    
     return true;
 }
 
@@ -4426,6 +4436,14 @@ bool Pre_op::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
+    if(this->ssa_use == NULL || that->ssa_use == NULL)
+    {
+    	if(this->ssa_use != NULL || that->ssa_use != NULL)
+    		return false;
+    }
+    else if(!this->ssa_use->equals(that->ssa_use))
+    	return false;
+    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -4434,7 +4452,8 @@ Pre_op* Pre_op::clone()
 {
     OP* op = this->op ? this->op->clone() : NULL;
     VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    Pre_op* clone = new Pre_op(op, variable_name);
+    VARIABLE_NAME* ssa_use = this->ssa_use ? this->ssa_use->clone() : NULL;
+    Pre_op* clone = new Pre_op(op, variable_name, ssa_use);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -4456,6 +4475,12 @@ Node* Pre_op::find(Node* in)
     	if (variable_name_res) return variable_name_res;
     }
     
+    if (this->ssa_use != NULL)
+    {
+    	Node* ssa_use_res = this->ssa_use->find(in);
+    	if (ssa_use_res) return ssa_use_res;
+    }
+    
     return NULL;
 }
 
@@ -4470,6 +4495,9 @@ void Pre_op::find_all(Node* in, Node_list* out)
     if (this->variable_name != NULL)
     	this->variable_name->find_all(in, out);
     
+    if (this->ssa_use != NULL)
+    	this->ssa_use->find_all(in, out);
+    
 }
 
 void Pre_op::assert_valid()
@@ -4478,14 +4506,26 @@ void Pre_op::assert_valid()
     op->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
+    assert(ssa_use != NULL);
+    ssa_use->assert_valid();
     Node::assert_mixin_valid();
 }
 
-Pre_op::Pre_op(VARIABLE_NAME* var_name, const char* op)
+Pre_op::Pre_op(VARIABLE_NAME* variable_name, const char* op)
 {
     {
-		this->variable_name = var_name;
+		this->variable_name = variable_name;
+		this->ssa_use = variable_name->clone ();
 		this->op = new OP(new String(op));
+	}
+}
+
+Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
+{
+    {
+		this->variable_name = variable_name;
+		this->ssa_use = variable_name->clone ();
+		this->op = op;
 	}
 }
 
@@ -9322,11 +9362,6 @@ void Variable_variable::assert_valid()
     Node::assert_mixin_valid();
 }
 
-VARIABLE_NAME::VARIABLE_NAME(String* value)
-{
-    this->value = value;
-}
-
 VARIABLE_NAME::VARIABLE_NAME()
 {
     this->value = 0;
@@ -9405,12 +9440,21 @@ void VARIABLE_NAME::assert_valid()
     Node::assert_mixin_valid();
 }
 
+VARIABLE_NAME::VARIABLE_NAME(String* name)
+{
+    {
+		this->value = name;
+		this->in_ssa = false;
+		this->version = 0;
+	}
+}
+
 VARIABLE_NAME::VARIABLE_NAME(const char* name)
 {
     {
 		this->value = new String (name);
-		in_ssa = false;
-		version = 0;
+		this->in_ssa = false;
+		this->version = 0;
 	}
 }
 

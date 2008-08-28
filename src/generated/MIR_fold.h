@@ -410,7 +410,9 @@ public:
 		if(in->op != NULL) op = fold_op(in->op);
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		return fold_impl_pre_op(in, op, variable_name);
+		_VARIABLE_NAME ssa_use = 0;
+		if(in->ssa_use != NULL) ssa_use = fold_variable_name(in->ssa_use);
+		return fold_impl_pre_op(in, op, variable_name, ssa_use);
 	}
 
 	virtual _Eval_expr fold_eval_expr(Eval_expr* in)
@@ -733,7 +735,7 @@ public:
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _VARIABLE_NAME lhs, _Rvalue index, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Push_array fold_impl_push_array(Push_array* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
-	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name, _VARIABLE_NAME ssa_use) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Unset fold_impl_unset(Unset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Isset fold_impl_isset(Isset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };

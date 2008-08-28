@@ -6,6 +6,8 @@
 #include <boost/graph/filtered_graph.hpp>
 #include <boost/graph/topological_sort.hpp>
 
+#include "process_ir/debug.h"
+
 #include "SSA.h"
 
 using namespace MIR;
@@ -196,6 +198,11 @@ SSA_renaming::push_to_var_stack (VARIABLE_NAME* var_name, int version)
 int 
 SSA_renaming::read_var_stack (VARIABLE_NAME* var_name)
 {
+	// In traditional SSA, all variables are initialized at the start of a
+	// function. Not so here (though it could be done that way).
+	if (var_stacks[*var_name->value].size () == 0)
+		push_to_var_stack (var_name, counter++);
+
 	int result = var_stacks[*var_name->value].top();
 	var_stacks[*var_name->value].pop();
 	return result;
@@ -220,15 +227,27 @@ SSA_renaming::rename_vars (Basic_block* bb)
 {
 	// Create new names for PHI targets
 	foreach (Phi* phi, *bb->get_phi_nodes ())
+	{
+		cdebug << "converting phi" << endl;
+		debug (phi->lhs);
 		create_new_ssa_name (phi->lhs);
+	}
 
 	// Rename local variable uses
-	foreach (VARIABLE_NAME* use, *bb->get_local_uses ())
+	foreach (VARIABLE_NAME* use, *bb->get_ssa_uses ())
+	{
+		cdebug << "Converting use " << use << "-" << use->in_ssa << " - v" << use->version << endl;
+		debug (use);
 		use->convert_to_ssa_name (read_var_stack (use));
+	}
 
 	// Create new names for defs
-	foreach (VARIABLE_NAME* def, *bb->get_local_defs ())
+	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
+	{
+		cdebug << "Converting def " << def << endl;
+		debug (def);
 		create_new_ssa_name (def);
+	}
 
 	// Copy names to CFG successors (including names defined in
 	// predecessor, which are not redefined here).
@@ -242,6 +261,6 @@ SSA_renaming::rename_vars (Basic_block* bb)
 
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
-	foreach (VARIABLE_NAME* def, *bb->get_local_defs ())
+	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
 		var_stacks[*def->value].pop ();
 }

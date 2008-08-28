@@ -25,6 +25,7 @@ public:
 
 public:
 	Set();
+	Set(MIR::VARIABLE_NAME*);
 
 public:
 	// Out-of-place operations return new sets. We only consider out-of-place

@@ -100,18 +100,19 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
 	demangle.lo error.lo Integer.lo Object.lo String.lo \
 	Address_taken.lo Basic_block.lo CFG.lo Copy_propagation.lo \
-	Dead_code_elimination.lo Fix_point.lo Flow_visitor.lo \
-	Live_variable_analysis.lo Prune_symbol_table.lo Set.lo SSA.lo \
-	Use_def_counter.lo Parse_buffer.lo parse.lo PHP_context.lo \
-	XML_parser.lo Optimization_pass.lo Pass_manager.lo \
-	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
-	DOT_unparser.lo Invalid_check.lo \
-	Note_top_level_declarations.lo Process_includes.lo \
-	Remove_concat_null.lo Remove_parser_temporaries.lo \
-	Strip_unparser_attributes.lo Token_conversion.lo \
-	HIR_unparser.lo debug.lo fresh.lo General.lo IR.lo \
-	PHP_unparser.lo XML_unparser.lo Foreach_uppering.lo \
-	Goto_uppering.lo MIR_unparser.lo Param_is_ref_uppering.lo
+	Dead_code_elimination.lo Def_use.lo Fix_point.lo \
+	Flow_visitor.lo Live_variable_analysis.lo \
+	Prune_symbol_table.lo Set.lo SSA.lo Use_def_counter.lo \
+	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
+	Optimization_pass.lo Pass_manager.lo Plugin_pass.lo \
+	AST_unparser.lo Constant_folding.lo DOT_unparser.lo \
+	Invalid_check.lo Note_top_level_declarations.lo \
+	Process_includes.lo Remove_concat_null.lo \
+	Remove_parser_temporaries.lo Strip_unparser_attributes.lo \
+	Token_conversion.lo HIR_unparser.lo debug.lo fresh.lo \
+	General.lo IR.lo PHP_unparser.lo XML_unparser.lo \
+	Foreach_uppering.lo Goto_uppering.lo MIR_unparser.lo \
+	Param_is_ref_uppering.lo
 libphc_la_OBJECTS = $(am_libphc_la_OBJECTS)
 plugins_tests_canonical_unparser_la_LIBADD =
 am_plugins_tests_canonical_unparser_la_OBJECTS =  \
@@ -694,6 +695,8 @@ libphc_la_SOURCES = \
 	src/optimize/Copy_propagation.h						\
 	src/optimize/Dead_code_elimination.cpp				\
 	src/optimize/Dead_code_elimination.h				\
+	src/optimize/Def_use.cpp 								\
+	src/optimize/Def_use.h									\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
 	src/optimize/Flow_visitor.h							\
@@ -1234,6 +1237,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Copy_propagation.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DOT_unparser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Dead_code_elimination.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Def_use.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Desugar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Early_lower_control_flow.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Echo_split.Plo@am__quote@
@@ -1730,6 +1734,13 @@ Dead_code_elimination.lo: src/optimize/Dead_code_elimination.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Dead_code_elimination.cpp' object='Dead_code_elimination.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Dead_code_elimination.lo `test -f 'src/optimize/Dead_code_elimination.cpp' || echo '$(srcdir)/'`src/optimize/Dead_code_elimination.cpp
+
+Def_use.lo: src/optimize/Def_use.cpp
+@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Def_use.lo -MD -MP -MF $(DEPDIR)/Def_use.Tpo -c -o Def_use.lo `test -f 'src/optimize/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/Def_use.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Def_use.Tpo $(DEPDIR)/Def_use.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/optimize/Def_use.cpp' object='Def_use.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Def_use.lo `test -f 'src/optimize/Def_use.cpp' || echo '$(srcdir)/'`src/optimize/Def_use.cpp
 
 Fix_point.lo: src/optimize/Fix_point.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Fix_point.lo -MD -MP -MF $(DEPDIR)/Fix_point.Tpo -c -o Fix_point.lo `test -f 'src/optimize/Fix_point.cpp' || echo '$(srcdir)/'`src/optimize/Fix_point.cpp

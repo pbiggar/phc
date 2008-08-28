@@ -1316,16 +1316,17 @@ public:
     virtual void assert_valid();
 };
 
-// Pre_op ::= OP VARIABLE_NAME ;
+// Pre_op ::= OP VARIABLE_NAME ssa_use:VARIABLE_NAME ;
 class Pre_op : virtual public Statement
 {
 public:
-    Pre_op(OP* op, VARIABLE_NAME* variable_name);
+    Pre_op(OP* op, VARIABLE_NAME* variable_name, VARIABLE_NAME* ssa_use);
 protected:
     Pre_op();
 public:
     OP* op;
     VARIABLE_NAME* variable_name;
+    VARIABLE_NAME* ssa_use;
 public:
     virtual void visit(Visitor* visitor);
     virtual void transform_children(Transform* transform);
@@ -1345,7 +1346,8 @@ public:
 public:
     virtual void assert_valid();
 public:
-    Pre_op(VARIABLE_NAME* var_name, const char* op);
+    Pre_op(VARIABLE_NAME* variable_name, const char* op);
+    Pre_op(OP* op, VARIABLE_NAME* variable_name);
 };
 
 // Eval_expr ::= Expr ;
@@ -2520,8 +2522,6 @@ public:
 
 class VARIABLE_NAME : virtual public Rvalue, virtual public Target, virtual public Variable_name, virtual public Identifier
 {
-public:
-    VARIABLE_NAME(String* value);
 protected:
     VARIABLE_NAME();
 public:
@@ -2544,6 +2544,7 @@ public:
 public:
     virtual void assert_valid();
 public:
+    VARIABLE_NAME(String* name);
     VARIABLE_NAME(const char* name);
     void convert_to_ssa_name(int version);
     VARIABLE_NAME* clone();

@@ -1,7 +1,9 @@
-#include "Basic_block.h"
 #include "process_ir/General.h"
 #include "process_mir/MIR_unparser.h"
 #include "MIR.h"
+
+#include "Basic_block.h"
+#include "Def_use.h"
 
 using namespace std;
 using namespace MIR;
@@ -141,25 +143,13 @@ Basic_block::get_graphviz_tail_properties ()
 void
 Basic_block::add_phi_function (VARIABLE_NAME* var_name)
 {
-	phi_nodes[*var_name->value] = new Phi (var_name);
+	phi_nodes[*var_name->value] = new Phi (var_name->clone ());
 }
 
 bool
 Basic_block::has_phi_function (VARIABLE_NAME* var_name)
 {
 	return phi_nodes.find (*var_name->value) != phi_nodes.end ();
-}
-
-Set*
-Statement_block::get_local_defs ()
-{
-	assert (0);
-}
-
-Set*
-Statement_block::get_local_uses ()
-{
-	assert (0);
 }
 
 BB_list*
@@ -246,21 +236,33 @@ Basic_block::get_dominated_blocks ()
 }
 
 Set*
-Basic_block::get_local_defs ()
+Basic_block::get_ssa_defs ()
 {
-	assert (0);
+	return new Set ();
 }
 
 Set*
-Basic_block::get_local_uses ()
+Basic_block::get_ssa_uses ()
 {
-	assert (0);
+	return new Set ();
 }
 
 Set*
-Branch_block::get_local_uses ()
+Branch_block::get_ssa_uses ()
 {
-	assert (0);
+	return new Set (branch->variable_name);
+}
+
+Set*
+Statement_block::get_ssa_uses ()
+{
+	return Def_use::get_uses (statement);
+}
+
+Set*
+Statement_block::get_ssa_defs ()
+{
+	return Def_use::get_defs (statement);
 }
 
 List<Phi*>*

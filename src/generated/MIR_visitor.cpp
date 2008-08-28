@@ -838,6 +838,7 @@ void Visitor::children_pre_op(Pre_op* in)
 {
     visit_op(in->op);
     visit_variable_name(in->variable_name);
+    visit_variable_name(in->ssa_use);
 }
 
 void Visitor::children_eval_expr(Eval_expr* in)

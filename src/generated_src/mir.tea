@@ -89,7 +89,10 @@ Assign_array   ::=			lhs:VARIABLE_NAME index:Rvalue			is_ref:"&"? rhs:Rvalue ;
 Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
 Push_array     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
 
-Pre_op ::= OP VARIABLE_NAME ;
+-- A Pre-op has slightly different semantics to a Bin_op. We add an
+-- (otherwise invisible) variable to show that it has a different def and use
+-- in SSA form.
+Pre_op ::= OP VARIABLE_NAME ssa_use:VARIABLE_NAME ;
 
 -- Some exprs can be invoked with and without a lhs
 Eval_expr ::= Expr ;
@@ -435,11 +438,19 @@ public:
 class VARIABLE_NAME
 {
 public:
+
+	VARIABLE_NAME (String* name)
+	{
+		this->value = name;
+		this->in_ssa = false;
+		this->version = 0;
+	}
+
 	VARIABLE_NAME (const char* name)
 	{
 		this->value = new String (name);
-		in_ssa = false;
-		version = 0;
+		this->in_ssa = false;
+		this->version = 0;
 	}
 
 	void convert_to_ssa_name (int version)
@@ -587,10 +598,18 @@ public:
 class Pre_op
 {
 public:
-	Pre_op(VARIABLE_NAME* var_name, const char* op) 
+	Pre_op(VARIABLE_NAME* variable_name, const char* op) 
 	{
-		this->variable_name = var_name;
+		this->variable_name = variable_name;
+		this->ssa_use = variable_name->clone ();
 		this->op = new OP(new String(op));
+	}
+
+	Pre_op(OP* op, VARIABLE_NAME* variable_name) 
+	{
+		this->variable_name = variable_name;
+		this->ssa_use = variable_name->clone ();
+		this->op = op;
 	}
 };
 

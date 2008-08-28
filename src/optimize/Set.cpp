@@ -13,6 +13,13 @@ Set::Set()
 {
 }
 
+Set::Set(VARIABLE_NAME* var_name)
+: parent(&variable_name_ptr_comparison)
+, full (false)
+{
+	insert (var_name);
+}
+
 // Out-of-place operations return new sets
 Set*
 Set::set_union (Set* other)
