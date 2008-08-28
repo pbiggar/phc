@@ -133,9 +133,13 @@ private:
 	vertex_t exit;
 
 	void add_statements (MIR::Statement_list*);
+
+	// For BB methods
 	BB_list* get_bb_successors (Basic_block* bb);
 	BB_list* get_bb_predecessors (Basic_block* bb);
 	edge_t get_edge (Basic_block* bb1, Basic_block* bb2);
+	void replace_bb (Basic_block* bb, BB_list* replacements);
+	void remove_bb (Basic_block* bb);
 
 	/* returns true or false. If edge isnt true or false, asserts. */
 	bool is_true_edge (edge_t edge);
@@ -143,6 +147,11 @@ private:
 	// If we use a graph with listS for the adjacency lists, then we need to
 	// renumber the indices for certain algorithms.
 	void renumber_vertex_indices ();
+
+	// Remove unreachable nodes, and empty nodes.
+	void tidy_up ();
+
+	// Check that the BB->vertex mapping is symmetric.
 	void consistency_check ();
 };
 

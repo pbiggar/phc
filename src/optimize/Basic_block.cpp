@@ -211,44 +211,14 @@ Branch_block::get_false_successor ()
 void
 Basic_block::remove ()
 {
-	clear_vertex (vertex, cfg->bs);
-	remove_vertex (vertex, cfg->bs);
+	cfg->replace_bb (this, new BB_list);
 }
 
 void
 Basic_block::replace (BB_list* replacements)
 {
-	if (replacements->size() == 1
-		&& replacements->front() == this)
-	{
-		// Same BB: do nothing
-	}
-	else if (replacements->size() == 0)
-	{
-		// Remove the BB
-		foreach (Basic_block* pred, *this->get_predecessors ())
-			foreach (Basic_block* succ, *this->get_successors ())
-				boost::add_edge (pred->vertex, succ->vertex, cfg->bs);
+	cfg->replace_bb (this, replacements);
 
-		this->remove ();
-	}
-	else
-	{
-		foreach (Basic_block* new_bb, *replacements)
-		{
-			// Create vertices for the new statements
-			vertex_t v = cfg->add_bb (new_bb);
-
-			// Add edges from predecessors
-			foreach (Basic_block* pred, *this->get_predecessors ())
-				boost::add_edge (pred->vertex, v, cfg->bs);
-
-			// Add edges from successors 
-			foreach (Basic_block* succ, *this->get_successors ())
-				boost::add_edge (v, succ->vertex, cfg->bs);
-		}
-		this->remove ();
-	}
 }
 
 BB_list*

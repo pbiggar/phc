@@ -152,6 +152,8 @@ CFG::add_statements (Statement_list* statements)
 	assert (use_parent);
 	add_edge (vb[parent], vb[exit]);
 
+	tidy_up ();
+
 	consistency_check ();
 }
 
@@ -580,6 +582,63 @@ CFG::is_true_edge (edge_t edge)
 }
 
 
+void
+CFG::replace_bb (Basic_block* bb, BB_list* replacements)
+{
+	// If the edge has a T/F label, it is because the predecessor is a Branch.
+	// Just copy the label from the new predecessor.
+
+	if (replacements->size() == 1
+		&& replacements->front() == bb)
+	{
+		// Same BB: do nothing
+	}
+	else if (replacements->size() == 0)
+	{
+		// Remove the BB
+		foreach (Basic_block* pred, *bb->get_predecessors ())
+			foreach (Basic_block* succ, *bb->get_successors ())
+			{
+				edge_t e = add_edge (pred, succ);
+				ebd[e] = ebd[get_edge (pred, bb)];
+			}
+
+		remove_bb (bb);
+	}
+	else
+	{
+		// TODO This should create a chain, and add an edge to the front and
+		// back. I suspect this doesnt work.
+		assert (0);
+		foreach (Basic_block* new_bb, *replacements)
+		{
+			add_bb (new_bb);
+
+			// Add edges from predecessors
+			foreach (Basic_block* pred, *bb->get_predecessors ())
+			{
+				add_edge (pred, new_bb);
+			}
+
+			// Add edges from successors 
+			foreach (Basic_block* succ, *bb->get_successors ())
+			{
+				add_edge (new_bb, succ);
+			}
+		}
+		remove_bb (bb);
+	}
+}
+
+void
+CFG::remove_bb (Basic_block* bb)
+{
+	clear_vertex (bb->vertex, bs);
+	remove_vertex (bb->vertex, bs);
+}
+
+
+
 struct filter_back_edges
 {
 	CFG* cfg;
@@ -629,4 +688,20 @@ CFG::get_all_bbs_bottom_up ()
 	BB_list* result = get_all_bbs_top_down ();
 	result->reverse ();
 	return result;
+}
+
+void
+CFG::tidy_up ()
+{
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		// Remove unreachable blocks (ie, no predecessors and are not the entry
+		// block).
+	
+		// Remove empty blocks (have either 1 predecessor or 1 successor).
+		if (isa<Empty_block> (bb))
+			bb->remove ();
+
+
+	}
 }
