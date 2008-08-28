@@ -567,6 +567,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 		{
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 			CFG* cfg = new CFG (method);
+			cfg->convert_to_ssa_form ();
 
 			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
@@ -586,7 +587,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 						// Run optimization
 						Optimization_pass* opt = dynamic_cast<Optimization_pass*> (pass);
-						opt->run (cfg, this);
+	//					opt->run (cfg, this);
 
 						// Dump CFG
 						for (unsigned int i = 0; i < args_info->cfg_dump_given; i++)
@@ -598,12 +599,6 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 								cfg->dump_graphviz (s(name.str()));
 							}
 						}
-
-						// just test for now.
-						enable_cdebug ();
-						CFG* cfg2 = new CFG (method->clone ());
-						cfg2->convert_to_ssa_form ();
-						disable_cdebug ();
 
 					}
 
