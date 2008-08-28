@@ -10,11 +10,7 @@
 			die ("Invalid revision: {$_GET["rev"]}.");
 
 		print_revision_details ($rev);
-		print "<table class=layout><tr><td>\n";
 		print_test_details ($rev, "test");
-		print "</td><td valign=top>\n";
-		print_test_details ($rev, "install_test");
-		print "</td></tr></table>\n";
 
 	}
 
@@ -56,8 +52,6 @@
 		print "		<th>". maybe_link ($rev, "install.log", "Install Log") ."</th>";
 		print "	</tr><tr>\n";
 		print "		<th>". maybe_link ($rev, "test.log", "Test Log") ."</th>";
-		print "		<th>". maybe_link ($rev, "install_test.log", "Install Test Log") ."</th>";
-		print "	</tr><tr>\n";
 		print "		<th colspan=2><a href=\"http://code.google.com/p/phc/source/detail?r=$rev\">Commit log</a></th>";
 		print "	</tr></table>";
 
@@ -93,7 +87,6 @@
 				")->fetchAll(PDO::FETCH_ASSOC);
 
 		print "<table class=info>";
-		print "<tr><th colspan=5>{$table_name}s</th></tr>\n";
 		print "<tr><th>Test name</th><th>"
 			. maybe_link ($rev, "{$table_name}_logs/success", "Passes", true) ."</th><th>"
 			. maybe_link ($rev, "{$table_name}_logs/failure", "Fails", true) ."</th><th>"
@@ -137,7 +130,7 @@
 			if ($name == "Total")
 				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/\">$name</a>";
 			else if ($row["fail"])
-				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/$name/\">$name</a>";
+				$row["testname"] = "<a href=\"results/$rev/{$table_name}_logs/$name.tar.gz\">$name</a>";
 
 			print "<tr>\n";
 			foreach ($row as $key => $entry)
