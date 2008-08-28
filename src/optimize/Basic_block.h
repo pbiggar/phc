@@ -106,6 +106,9 @@ public:
 	 * Misc
 	 */
 
+	// Can be useful for debugging.
+	int get_index ();
+
 	// TODO do we need to clone a block?
 	Basic_block* clone() { assert (0); }
 };

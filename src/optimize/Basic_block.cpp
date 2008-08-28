@@ -274,3 +274,9 @@ Basic_block::get_phi_nodes ()
 
 	return result;
 }
+
+int
+Basic_block::get_index ()
+{
+	return cfg->index[vertex];
+}

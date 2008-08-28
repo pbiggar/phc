@@ -495,10 +495,10 @@ CFG::renumber_vertex_indices ()
 void CFG::convert_to_ssa_form ()
 {
 	// Calculate dominance frontiers
-	Dominance* dom = new Dominance (this);
-	dom->calculate_immediate_dominators ();
-	dom->calculate_local_dominance_frontier ();
-	dom->propagate_dominance_frontier_upwards ();
+	dominance = new Dominance (this);
+	dominance->calculate_immediate_dominators ();
+	dominance->calculate_local_dominance_frontier ();
+	dominance->propagate_dominance_frontier_upwards ();
 
 	// Muchnick gives up at this point. We continue instead in Cooper/Torczon,
 	// Section 9.3.3, with some minor changes. Since we dont have a list of

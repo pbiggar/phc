@@ -88,12 +88,17 @@ Dominance::calculate_immediate_dominators ()
 		domTreePredVector.begin(),
 		get(vertex_index, cfg->bs));
 	lengauer_tarjan_dominator_tree(cfg->bs, cfg->entry, idom_calc);
+	cout << "Entry is: " << cfg->get_entry_bb ();
+	cout << "Exit is: " << cfg->get_exit_bb ();
 	foreach (Basic_block* bb, *cfg->get_all_bbs ())
 	{
 		if (get(idom_calc, bb->vertex) != graph_traits<Graph>::null_vertex())
+		{
 			idoms[bb] = cfg->vb[get(idom_calc, bb->vertex)];
+			cout << "BB " << bb << "(" << bb->get_index() << ") is dominated by " << idoms[bb]->get_index () << endl;
+		}
 		else
-			cout << "BB: " << bb << " does not have an immediate dominator" << endl;
+			cout << "BB: " << bb << "(" << bb->get_index() << ") does not have an immediate dominator" << endl;
 	}
 
 	// THERE (see HERE)
@@ -101,12 +106,19 @@ Dominance::calculate_immediate_dominators ()
 	// Build forward dominators
 	// We also want to find the block that are immedately dominated by
 	// another block (ie [a,b,c] such that x idom a, x idom b and x idom c.
+
+	foreach (Basic_block* bb, *cfg->get_all_bbs ())
+	{
+		forward_idoms[bb] = new BB_list;
+		df[bb] = new BB_list;
+	}
+
 	foreach (Basic_block* y, *cfg->get_all_bbs ())
 	{
 		if (y != cfg->get_entry_bb ())
 		{
 			Basic_block* dom = y->get_immediate_dominator ();
-			forward_doms [dom]->push_back (y);
+			forward_idoms [dom]->push_back (y);
 		}
 	}
 }
@@ -129,11 +141,11 @@ Dominance::calculate_local_dominance_frontier ()
 void
 Dominance::propagate_dominance_frontier_upwards ()
 {
-	foreach (Basic_block* x, *cfg->get_all_bbs ())
+	// Step 3: Propagate local dominance frontier upwards.
+	// DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
+	foreach (Basic_block* z, *cfg->get_all_bbs_bottom_up ())
 	{
-		// Step 3: Propagate local dominance frontier upwards.
-		// DF_up (x,z)  = { y in DF (z) | idom (z) = x && idom (y) != x }
-		foreach (Basic_block* z, *cfg->get_all_bbs_bottom_up ())
+		foreach (Basic_block* x, *z->get_predecessors ())
 		{
 			foreach (Basic_block* y, *z->get_dominance_frontier ())
 			{
@@ -166,7 +178,7 @@ Dominance::get_bb_immediate_dominator (Basic_block* bb)
 BB_list*
 Dominance::get_blocks_dominated_by_bb (Basic_block* bb)
 {
-	return forward_doms[bb];
+	return forward_idoms[bb];
 }
 
 SSA_renaming::SSA_renaming (CFG* cfg)

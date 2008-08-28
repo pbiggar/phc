@@ -30,7 +30,7 @@ class Dominance
 {
 	CFG* cfg;
 	Map <Basic_block*, BB_list*> df;
-	Map <Basic_block*, BB_list*> forward_doms;
+	Map <Basic_block*, BB_list*> forward_idoms;
 	Map <Basic_block*, Basic_block*> idoms;
 
 public:
