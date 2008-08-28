@@ -59,7 +59,7 @@ public:
 
 	void to_pass (String* pass, Node* anchor)
 	{
-		cdebug << "Parsing:\n" << ss.str () << endl;
+		DEBUG ("Parsing:\n" << ss.str () << endl);
 		AST::PHP_script* ast = parse_code (s(ss.str ()), NULL, 0);
 		IR::PHP_script* ir = pm->run_until (pass, ast);
 		PHP_script* script = NULL;

@@ -85,14 +85,14 @@ void Copy_propagation::pre_assign_var (Assign_var* in, Statement_list* out)
 
 	xadebug (lhs);
 	xadebug (rhs);
-	cdebug << "is simple assignment" << endl;
+	DEBUG ("is simple assignment");
 	string slhs = *lhs->value;
 	string srhs = *rhs->value;
 
 	// add to the list of for future consideration
 	if (lhs->attrs->is_true ("phc.codegen.compiler_generated"))
 	{
-		cdebug << "lhs is compiler generated" << endl;
+		DEBUG ("lhs is compiler generated");
 		replaceable [slhs] = in;
 	}
 
@@ -101,7 +101,7 @@ void Copy_propagation::pre_assign_var (Assign_var* in, Statement_list* out)
 			&&	rhs->attrs->get_integer ("phc.use_defs.use_count")->value () == 1
 			&&	rhs->attrs->get_integer ("phc.use_defs.def_count")->value () == 1)
 	{
-		cdebug << "rhs is replacable" << endl;
+		DEBUG ("rhs is replacable");
 		replaceable [srhs]->lhs = lhs->clone ();
 
 		// note lack of out->push_back (in);

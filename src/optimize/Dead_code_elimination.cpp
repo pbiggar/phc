@@ -50,7 +50,7 @@ void Dead_code_elimination::pre_assign_var (Assign_var* in, Statement_list* out)
 
 	VARIABLE_NAME *rhs = dyc<HIR::VARIABLE_NAME> (in->rhs);
 
-	cdebug << "is simple assignment" << endl;
+	DEBUG ("is simple assignment");
 	xdebug (lhs);
 	xdebug (rhs);
 
@@ -59,7 +59,7 @@ void Dead_code_elimination::pre_assign_var (Assign_var* in, Statement_list* out)
 			&& lhs->attrs->get_integer ("phc.use_defs.use_count")->value() == 0
 			&& lhs->attrs->get_integer ("phc.use_defs.def_count")->value() == 1)
 	{
-		cdebug << "removing statement" << endl;
+		DEBUG ("removing statement");
 
 		// note lack of out->push_back (in);
 		iterate_again = true;
@@ -67,7 +67,7 @@ void Dead_code_elimination::pre_assign_var (Assign_var* in, Statement_list* out)
 	}
 	else
 	{
-		cdebug << "Not removing: ";
+		DEBUG ("Not removing: ");
 		debug (in);
 	}
 

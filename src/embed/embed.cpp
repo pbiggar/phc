@@ -165,7 +165,7 @@ Expr* PHP::fold_constant_expr (Expr* in)
 	bool ret = eval_string (code, &value, in);
 	if (!ret)
 	{
-		cdebug << "Error, can not fold constants: ";
+		DEBUG ("Error, can not fold constants: ");
 		debug (in);
 		return in;
 	}

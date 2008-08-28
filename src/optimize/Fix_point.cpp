@@ -21,7 +21,7 @@ void Fix_point::visit_php_script (HIR::PHP_script* in)
 {
 	while (iterate_again && iterations < 10)
 	{
-		cdebug << "Iteration: " << iterations << endl;
+		DEBUG ("Iteration: " << iterations);
 		iterate_again = false;
 		iterations++;
 
@@ -36,7 +36,7 @@ void Fix_point::children_php_script (HIR::PHP_script* in)
 {
 	while (iterate_again && iterations < 10)
 	{
-		cdebug << "Iteration: " << iterations << endl;
+		DEBUG ("Iteration: " << iterations);
 		iterate_again = false;
 		iterations++;
 

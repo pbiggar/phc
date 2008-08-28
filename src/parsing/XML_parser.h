@@ -313,22 +313,28 @@ public:
 		// After we pop, num_children_stack.top() corresponds to the number
 		// of children of the *parent* of the node we are about to create
 		num_children_stack.pop();
-/*		TODO: debug info takes a long time to generate sometimes. Predicate it with if (debug)
-		cdebug << "Evaluating: " << name << ", and buffer: " << buffer << " with " << num_children << " children";
-		if (num_children_stack.size() > 0)
-			cdebug << ", and " << num_children_stack.top() << " parent's children";
-		cdebug << ". With " << node_stack.size() << " nodes on the stack";
-		if (node_stack.size() > 0)
+		if (debugging_enabled)
 		{
-			cdebug << ", with the top one ";
-			if (String* str = dynamic_cast<String*>(node_stack.top()))
-				cdebug << "being a string with value: " << *str;
-			else
-				cdebug << "having type: " << typeid (node_stack.top()).name ();
+			cdebug 
+				<< "Evaluating: " << name 
+				<< ", and buffer: " << buffer 
+				<< " with " << num_children << " children";
+
+			if (num_children_stack.size() > 0)
+				cdebug << ", and " << num_children_stack.top() << " parent's children";
+			cdebug << ". With " << node_stack.size() << " nodes on the stack";
+			if (node_stack.size() > 0)
+			{
+				cdebug << ", with the top one ";
+				if (String* str = dynamic_cast<String*>(node_stack.top()))
+					cdebug << "being a string with value: " << *str;
+				else
+					cdebug << "having type: " << typeid (node_stack.top()).name ();
+			}
+			cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
+
+			cdebug << endl;
 		}
-		cdebug << "With " << attrs_stack.size() << " AttrMaps on the stack";
-*/
-		cdebug << endl;
 
 		if(is_nil)
 		{
@@ -342,7 +348,7 @@ public:
 		}
 		else if(!strcmp(name, "attr"))
 		{
-			cdebug << "Attr with key: " << key << endl;
+			DEBUG ("Attr with key: " << key);
 			// key is set when we see the open tag
 			attrs_stack.top()->set(key, node_stack.top());
 			node_stack.pop();

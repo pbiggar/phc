@@ -18,8 +18,14 @@
 #include "MIR.h"
 #include <ostream>
 
+#define CHECK_DEBUG() if (!debugging_enabled) return;
+#define DEBUG(A) if (debugging_enabled) { cdebug << A << endl; }
+
+extern bool debugging_enabled;
+
 /* Dump the XML for anynode to stderr. A global function. */
-// these are split so they're easy to call from the debugger
+// TODO: These are split so they're easy to call from the debugger. But that
+// doesn't seem to work in gdb.
 void debug (AST::Node* in);
 void xdebug (AST::Node* in);
 void xadebug (AST::Node* in);
