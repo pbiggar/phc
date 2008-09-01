@@ -21,7 +21,6 @@
 #include "ast_to_hir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
-#include "ast_to_hir/Tidy_print.h"
 #include "ast_to_hir/Translate_empty.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
@@ -146,7 +145,6 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Pre_post_op_shredder (), s("pps"), s("Shred pre- and post-ops, removing post-ops"));
 	pm->add_ast_transform (new List_shredder (), s("lish"), s("List shredder - simplify to array assignments"));
 	pm->add_ast_transform (new Shredder (), s("ashred"), s("Shredder - turn the AST into three-address-code, replacing complex expressions with a temporary variable"));
-	pm->add_ast_transform (new Tidy_print (), s("tidyp"), s("Replace calls to echo() and print() with printf()"));
 	pm->add_ast_transform (new Remove_solo_variables (), s("rsv"), s("Remove statements which consist of variables by themselves"));
 	pm->add_ast_pass (new Fake_pass (s("AST-to-HIR"), s("The HIR in AST form")));
 

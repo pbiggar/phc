@@ -23,6 +23,9 @@
  * assembly code instead would simply be a temporary value on the stack.
  */
 
+// TODO Variable_variables cannot be used to access superglobals. See warning
+// in http://php.net/manual/en/language.variables.superglobals.php
+
 #include <fstream>
 #include <set>
 #include <cstdlib>
@@ -1500,6 +1503,7 @@ protected:
  * to avoid duplication. */
 class Pattern_eval_expr_or_assign_var : public Pattern_assign_var
 {
+public:
 	bool match(Statement* that)
 	{
 		bool result = that->match (new Eval_expr (rhs_pattern()));
@@ -1525,31 +1529,54 @@ class Pattern_eval_expr_or_assign_var : public Pattern_assign_var
 	}
 };
 
-class Pattern_eval : public Pattern_eval_expr_or_assign_var
+class Pattern_builtin : public Pattern_eval_expr_or_assign_var
 {
-	Expr* rhs_pattern()
+public:
+	bool match(Statement* that)
 	{
-		eval_arg = new Wildcard<Actual_parameter>;
-		return new Method_invocation(
-			NULL,	
-			new METHOD_NAME(new String("eval")),
-			new Actual_parameter_list(eval_arg));
+		bool result = Pattern_eval_expr_or_assign_var::match (that);
+		if (not result)
+			return false;
+
+		string& name = *method_name->value->value;
+		return
+			// TODO are there more?
+				name == "eval"
+			|| name == "exit"
+			|| name == "die"
+			|| name == "print"
+			|| name == "echo"
+			|| name == "include"
+			|| name == "include_once"
+			|| name == "require"
+			|| name == "require_once"
+			|| name == "empty";
 	}
 
-	// TODO this is untidy, and slower than it should be. Not a
-	// priority.
+	Expr* rhs_pattern()
+	{
+		method_name = new Wildcard<METHOD_NAME>;
+		arg = new Wildcard<Actual_parameter>;
+		return new Method_invocation(
+			NULL,
+			method_name,
+			new List<Actual_parameter*>(arg));
+	}
+
 	void generate_rhs ()
 	{
-		code << "{\n";
-		read_rvalue (LOCAL, "eval_arg", eval_arg->value->rvalue);
+		read_rvalue (LOCAL, "p_arg", arg->value->rvalue);
 
 		if (lhs)
 		{
+			// create a result
 			declare ("p_rhs");
 			code 
 				<< "zval* temp = NULL;\n"
+				<< "ALLOC_INIT_ZVAL (temp);\n"
+				<< "is_p_rhs_new = 1;\n"
 				<< "p_rhs = &temp;\n"
-				<< "eval (eval_arg, p_rhs, &is_p_rhs_new TSRMLS_CC);\n";
+				<< "phc_builtin_" << *method_name->value->value << " (p_arg, *p_rhs TSRMLS_CC);\n";
 
 			if (!agn->is_ref)
 			{
@@ -1568,60 +1595,12 @@ class Pattern_eval : public Pattern_eval_expr_or_assign_var
 			cleanup ("p_rhs");
 		}
 		else
-		{
-			code << "eval (eval_arg, NULL, NULL TSRMLS_CC);\n";
-		}
-
-		code << "}\n" ;
+			code << "phc_builtin_" << *method_name->value->value << " (p_arg, NULL TSRMLS_CC);\n";
 	}
 
 protected:
-	Wildcard<Actual_parameter>* eval_arg;
-};
-
-// TODO exit/die/unset etc are probably not by reference. I can probably shred
-// them as a result. Also, they probably can't be called with variable
-// variables.
-class Pattern_exit : public Pattern_eval_expr_or_assign_var
-{
-public:
-	Pattern_exit () { name = new METHOD_NAME (s("exit")); }
-
-public:
-	Expr* rhs_pattern ()
-	{
-		exit_arg = new Wildcard<Actual_parameter> ();
-		return new Method_invocation(
-						NULL,	
-						name,
-						new Actual_parameter_list(exit_arg)
-						);
-	}
-
-	void generate_rhs ()
-	{
-		code << "{\n";
-
-		read_rvalue (LOCAL, "arg", exit_arg->value->rvalue);
-
-		// Fetch the parameter
-		code
-			<<	"// Exit ()\n"
-			<<	"phc_exit (arg TSRMLS_CC);\n";
-
-		code << "}\n";
-	}
-
-protected:
-	Wildcard<Actual_parameter>* exit_arg;
-	METHOD_NAME* name;
-};
-
-// die() and exit() are synonyms
-class Pattern_die : public Pattern_exit
-{
-public:
-	Pattern_die() { name = new METHOD_NAME (s("die")); }
+	Wildcard<METHOD_NAME>* method_name;
+	Wildcard<Actual_parameter>* arg;
 };
 
 class Pattern_method_invocation : public Pattern_eval_expr_or_assign_var
@@ -2392,9 +2371,7 @@ void Generate_C::children_statement(Statement* in)
 	,	new Pattern_assign_array ()
 	,	new Pattern_push_array ()
 	,	new Pattern_global()
-	,	new Pattern_eval()
-	,	new Pattern_exit()
-	,	new Pattern_die()
+	,	new Pattern_builtin()
 	,	new Pattern_unset()
 	,	new Pattern_isset()
 	,	new Pattern_method_invocation()
@@ -2462,8 +2439,8 @@ void include_file (ostream& out, String* filename)
 
 void Generate_C::pre_php_script(PHP_script* in)
 {
-	include_file (prologue, s("builtin_functions.c"));
 	include_file (prologue, s("support_routines.c"));
+	include_file (prologue, s("builtin_functions.c"));
 }
 
 void Generate_C::post_php_script(PHP_script* in)
