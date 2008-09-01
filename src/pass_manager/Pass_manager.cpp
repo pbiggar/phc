@@ -323,13 +323,8 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->udump_arg [i])
 		{
-			// TODO uppering should be built in to this
-			// TODO this should be built into to MIR_unparser
-			// TODO remove code duplication from Obfuscate.h
 			if (in->is_MIR ())
-			{
 				MIR_unparser().unparse_uppered (in->as_MIR ());
-			}
 
 			// As pure HIR, this should be fine. As HIR with Foreign MIR nodes (during HIR-to-MIR lowering), ?
 			if (in->is_HIR ())
@@ -354,7 +349,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 	{
 		if (*name == args_info->ddump_arg [i])
 		{
-			// Works on AST only
+			// TODO: Works on AST only
 			in->visit(new DOT_unparser());
 		}
 	}
@@ -370,29 +365,7 @@ void Pass_manager::dump (IR::PHP_script* in, Pass* pass)
 
 void Pass_manager::run (IR::PHP_script* in, bool main)
 {
-	// AST
-	foreach (Pass* p, *ast_queue)
-		run_pass (p, in, main);
-
-	// Sometimes folding can crash. If you went out of your way to remove the
-	// passes in the later queues, dont fold.
-	if (hir_queue->size() == 0 && mir_queue->size () == 0)
-		return;
-
-	// HIR
-	in = in->fold_lower ();
-
-	foreach (Pass* p, *hir_queue)
-		run_pass (p, in, main);
-
-	if (mir_queue->size () == 0)
-		return;
-
-	// MIR
-	in = in->fold_lower ();
-
-	foreach (Pass* p, *mir_queue)
-		run_pass (p, in, main);
+	run_from_until (NULL, NULL, in, main);
 }
 
 // The pass manager is used to parse and transform small snippets of
