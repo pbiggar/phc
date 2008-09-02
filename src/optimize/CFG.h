@@ -93,6 +93,11 @@ public:
 	// Add the BB to the graph, and update the BB's vertex.
 	vertex_t add_bb (Basic_block* bb);
 	edge_t add_edge (Basic_block* source, Basic_block* target);
+
+	// Replace the edge between SOURCE and TARGET, with an edge from SOURCE to
+	// NEW_BB, and an edge from NEW_BB to TARGET.
+	void add_bb_between (Basic_block* new_bb, Basic_block* source, Basic_block* target);
+
 	std::pair<edge_t, edge_t> add_branch (
 		Branch_block* source, 
 		Basic_block* target1, 
@@ -122,6 +127,7 @@ public:
 	friend class Branch_block;
 
 	void convert_to_ssa_form ();
+	void convert_out_of_ssa_form ();
 
 private:
 	Graph bs; // backing store

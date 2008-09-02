@@ -79,7 +79,7 @@ Dominance::calculate_immediate_dominators ()
 
 	// This automatically builds reverse dominators, ie, given y, find x such
 	// that x idom y.
-	// From HERE to THERE copied directly from boost documents.
+	// From HERE to THERE copied straight from boost documentation.
 	typedef property_map<Graph, vertex_index_t>::type IndexMap;
 	typedef iterator_property_map<vector<vertex_t>::iterator, IndexMap> PredMap;
 	cfg->renumber_vertex_indices ();	
@@ -246,7 +246,7 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// predecessor, which are not redefined here).
 	foreach (Basic_block* succ, *bb->get_successors ())
 		foreach (Phi* phi, *succ->get_phi_nodes ())
-		phi->add_arg (read_var_stack (phi->lhs));
+			phi->add_arg (read_var_stack (phi->lhs));
 
 	// Recurse down the dominator tree
 	foreach (Basic_block* dominated, *bb->get_dominated_blocks ())

@@ -55,7 +55,7 @@ list<pair<String*,String*> >*
 Basic_block::get_graphviz_properties ()
 {
 	list<pair<String*,String*> >* result = new list<pair<String*,String*> >;
-	assert (0);
+	result->push_back (make_pair (s("shape"), s("box")));
 	return result;
 }
 
@@ -81,7 +81,7 @@ String* Empty_block::get_graphviz_label ()
 
 String* Branch_block::get_graphviz_label ()
 {
-	return branch->variable_name->value;
+	return branch->variable_name->get_ssa_var_name ();
 }
 
 String*
@@ -99,7 +99,7 @@ Branch_block::get_graphviz_properties ()
 	list<pair<String*,String*> >* result =
 		Basic_block::get_graphviz_properties ();
 
-	result->push_back (pair<String*,String*> (s("shape"), s("rectangle")));
+	result->push_back (make_pair (s("shape"), s("diamond")));
 
 	return result;
 }
@@ -164,6 +164,12 @@ bool
 Basic_block::has_phi_function (VARIABLE_NAME* var_name)
 {
 	return phi_nodes.has (*var_name->value);
+}
+
+void
+Basic_block::remove_phi_nodes ()
+{
+	phi_nodes.clear ();
 }
 
 BB_list*

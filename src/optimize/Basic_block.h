@@ -71,6 +71,7 @@ public:
 
 	void add_phi_function (MIR::VARIABLE_NAME* var_name);
 	bool has_phi_function (MIR::VARIABLE_NAME* var_name);
+	void remove_phi_nodes ();
 
 	List<Phi*>* get_phi_nodes ();
 private:

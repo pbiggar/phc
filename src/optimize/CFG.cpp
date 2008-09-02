@@ -230,7 +230,13 @@ struct BB_property_functor
 #define LINE_LENGTH 30
 	void operator()(std::ostream& out, const vertex_t& v) const 
 	{
-		out << "[label=\"";
+		out << "[";
+
+		pair<String*, String*> bb_props;
+		foreach (bb_props, *vb[v]->get_graphviz_properties ())
+			out << *bb_props.first << "=" << *bb_props.second << ",";
+
+		out << "label=\"";
 
 		// IN annotations
 		stringstream ss1;
@@ -537,6 +543,40 @@ void CFG::convert_to_ssa_form ()
 	sr.rename_vars (get_entry_bb ());
 }
 
+
+void
+CFG::convert_out_of_ssa_form ()
+{
+	// TODO
+	foreach (Basic_block* bb, *get_all_bbs ())
+	{
+		foreach (Phi* phi, *bb->get_phi_nodes ())
+		{
+			foreach (VARIABLE_NAME* var_name, *phi->args)
+			{
+				Assign_var* copy = new Assign_var (
+					phi->lhs->clone (),
+					false,
+					var_name->clone ());
+
+				Statement_block* new_bb = new Statement_block (this, copy);
+
+				// TODO get the real predecessor.
+				add_bb_between (bb->get_predecessors ()->front (), bb, new_bb);
+
+				// We avoid the critical edge problem because we have only 1
+				// statement per block. Removing phi nodes adds a single block
+				// along the necessary edge.
+			}
+		}
+		bb->remove_phi_nodes ();
+	}
+
+	// TODO: at this point, we could do with a register-allocation style
+	// interference graph to reduce the number of temporaries (aka
+	// "registers") that we use in the generated code.
+}
+
 BB_list*
 CFG::get_bb_successors (Basic_block* bb)
 {
@@ -579,6 +619,17 @@ CFG::is_true_edge (edge_t edge)
 {
 	assert (!indeterminate (ebd[edge]));
 	return ebd[edge];
+}
+
+void
+CFG::add_bb_between (Basic_block* source, Basic_block* target, Basic_block* new_bb)
+{
+	add_bb (new_bb);
+	edge_t current_edge = get_edge (source, target);
+	assert (indeterminate (ebd[current_edge])); // TODO
+	add_edge (source, new_bb);
+	add_edge (new_bb, target);
+	remove_edge (current_edge, bs);
 }
 
 

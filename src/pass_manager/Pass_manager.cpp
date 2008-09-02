@@ -564,17 +564,23 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 		{
 			MIR::Method* method = dyc<MIR::Method> (stmt);
 			CFG* cfg = new CFG (method);
-			cfg->convert_to_ssa_form ();
 
-			if (lexical_cast<int> (args_info->optimize_arg) > 0)
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - pre SSA"));
+
+			cfg->convert_to_ssa_form ();
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - in SSA"));
+
+			cfg->convert_out_of_ssa_form ();
+			if (args_info->cfg_dump_given)
+				cfg->dump_graphviz (s("CFG - post SSA"));
+
+/*			if (lexical_cast<int> (args_info->optimize_arg) > 0)
 			{
 				// iterate until it fix-points (or 10 times)
-				for (int iter = 0; iter < 10; iter++)
+				for (int iter = 0; iter < 1; iter++) // TODO changed back to 10
 				{
-					MIR::Method* old = method->clone ();
-
-					// If optimization is not set, create the CFG anyway. We don't want to
-					// have to maintain two paths.
 					foreach (Pass* pass, *optimization_queue)
 					{
 						if (args_info->verbose_flag)
@@ -599,12 +605,10 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 
 					}
 
-					// Check if we need to iterate again
-					method->statements = cfg->get_linear_statements ();
-					if (old->equals (method))
-						break;
+					// TODO Iteration didnt work. Fix it.
 				}
 			}
+*/			method->statements = cfg->get_linear_statements ();
 		}
 	}
 }
