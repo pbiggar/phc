@@ -53,6 +53,7 @@ public:
     virtual void pre_assign_var_var(Assign_var_var* in, Statement_list* out);
     virtual void pre_push_array(Push_array* in, Statement_list* out);
     virtual void pre_pre_op(Pre_op* in, Statement_list* out);
+    virtual void pre_ssa_pre_op(SSA_pre_op* in, Statement_list* out);
     virtual void pre_eval_expr(Eval_expr* in, Statement_list* out);
     virtual void pre_unset(Unset* in, Statement_list* out);
     virtual Expr* pre_isset(Isset* in);
@@ -125,6 +126,7 @@ public:
     virtual void post_assign_var_var(Assign_var_var* in, Statement_list* out);
     virtual void post_push_array(Push_array* in, Statement_list* out);
     virtual void post_pre_op(Pre_op* in, Statement_list* out);
+    virtual void post_ssa_pre_op(SSA_pre_op* in, Statement_list* out);
     virtual void post_eval_expr(Eval_expr* in, Statement_list* out);
     virtual void post_unset(Unset* in, Statement_list* out);
     virtual Expr* post_isset(Isset* in);
@@ -197,6 +199,7 @@ public:
     virtual void children_assign_var_var(Assign_var_var* in);
     virtual void children_push_array(Push_array* in);
     virtual void children_pre_op(Pre_op* in);
+    virtual void children_ssa_pre_op(SSA_pre_op* in);
     virtual void children_eval_expr(Eval_expr* in);
     virtual void children_unset(Unset* in);
     virtual void children_isset(Isset* in);

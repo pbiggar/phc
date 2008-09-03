@@ -1964,8 +1964,7 @@ public:
 	{
 		op = new Wildcard<OP>;
 		var = new Wildcard<VARIABLE_NAME>;
-		// TODO what if they are different?
-		return(that->match(new Pre_op(op, var, var->clone())));
+		return(that->match(new Pre_op(op, var)));
 	}
 
 	void generate_code(Generate_C* gen)

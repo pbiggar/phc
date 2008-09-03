@@ -88,6 +88,7 @@ class MIR_to_AST : public MIR::Fold
  AST::REAL*,					// REAL*
  AST::Return*,					// Return*
  AST::Expr*,					// Rvalue*
+ AST::FOREIGN*,				// SSA_pre_op*
  AST::STRING*,					// STRING*
  AST::Signature*,				// Signature*
  AST::Statement*,				// Statement*
@@ -568,15 +569,17 @@ public:
 		return result;
 	}
 
-	AST::Eval_expr* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::None* variable_name, AST::None* ssa_use)
+	AST::Eval_expr* fold_impl_pre_op(MIR::Pre_op* orig, AST::OP* op, AST::None* variable_name)
 	{
-		// Pop SSA_USE and ignore it.
-		get_var_name ();
-
 		AST::Pre_op* result;
 		result = new AST::Pre_op(op, wrap_var_name (variable_name));
 		result->attrs = orig->attrs;
 		return new AST::Eval_expr (result);
+	}
+
+	AST::FOREIGN* fold_impl_ssa_pre_op(MIR::SSA_pre_op* orig, AST::OP* op, AST::None* def, AST::None* use)
+	{
+		return new AST::FOREIGN (orig);
 	}
 
 	AST::Array* fold_impl_static_array(MIR::Static_array* orig, AST::Array_elem_list* array_elems)

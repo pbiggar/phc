@@ -4349,18 +4349,16 @@ void Push_array::assert_valid()
     Node::assert_mixin_valid();
 }
 
-Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name, VARIABLE_NAME* ssa_use)
+Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
 {
     this->op = op;
     this->variable_name = variable_name;
-    this->ssa_use = ssa_use;
 }
 
 Pre_op::Pre_op()
 {
     this->op = 0;
     this->variable_name = 0;
-    this->ssa_use = 0;
 }
 
 void Pre_op::visit(Visitor* visitor)
@@ -4404,14 +4402,6 @@ bool Pre_op::match(Node* in)
     else if(!this->variable_name->match(that->variable_name))
     	return false;
     
-    if(this->ssa_use == NULL)
-    {
-    	if(that->ssa_use != NULL && !that->ssa_use->match(this->ssa_use))
-    		return false;
-    }
-    else if(!this->ssa_use->match(that->ssa_use))
-    	return false;
-    
     return true;
 }
 
@@ -4436,14 +4426,6 @@ bool Pre_op::equals(Node* in)
     else if(!this->variable_name->equals(that->variable_name))
     	return false;
     
-    if(this->ssa_use == NULL || that->ssa_use == NULL)
-    {
-    	if(this->ssa_use != NULL || that->ssa_use != NULL)
-    		return false;
-    }
-    else if(!this->ssa_use->equals(that->ssa_use))
-    	return false;
-    
     if(!Node::is_mixin_equal(that)) return false;
     return true;
 }
@@ -4452,8 +4434,7 @@ Pre_op* Pre_op::clone()
 {
     OP* op = this->op ? this->op->clone() : NULL;
     VARIABLE_NAME* variable_name = this->variable_name ? this->variable_name->clone() : NULL;
-    VARIABLE_NAME* ssa_use = this->ssa_use ? this->ssa_use->clone() : NULL;
-    Pre_op* clone = new Pre_op(op, variable_name, ssa_use);
+    Pre_op* clone = new Pre_op(op, variable_name);
     clone->Node::clone_mixin_from(this);
     return clone;
 }
@@ -4475,12 +4456,6 @@ Node* Pre_op::find(Node* in)
     	if (variable_name_res) return variable_name_res;
     }
     
-    if (this->ssa_use != NULL)
-    {
-    	Node* ssa_use_res = this->ssa_use->find(in);
-    	if (ssa_use_res) return ssa_use_res;
-    }
-    
     return NULL;
 }
 
@@ -4495,9 +4470,6 @@ void Pre_op::find_all(Node* in, Node_list* out)
     if (this->variable_name != NULL)
     	this->variable_name->find_all(in, out);
     
-    if (this->ssa_use != NULL)
-    	this->ssa_use->find_all(in, out);
-    
 }
 
 void Pre_op::assert_valid()
@@ -4506,8 +4478,6 @@ void Pre_op::assert_valid()
     op->assert_valid();
     assert(variable_name != NULL);
     variable_name->assert_valid();
-    assert(ssa_use != NULL);
-    ssa_use->assert_valid();
     Node::assert_mixin_valid();
 }
 
@@ -4515,18 +4485,170 @@ Pre_op::Pre_op(VARIABLE_NAME* variable_name, const char* op)
 {
     {
 		this->variable_name = variable_name;
-		this->ssa_use = variable_name->clone ();
 		this->op = new OP(new String(op));
 	}
 }
 
-Pre_op::Pre_op(OP* op, VARIABLE_NAME* variable_name)
+SSA_pre_op::SSA_pre_op(OP* op, VARIABLE_NAME* def, VARIABLE_NAME* use)
 {
+    this->op = op;
+    this->def = def;
+    this->use = use;
+}
+
+SSA_pre_op::SSA_pre_op()
+{
+    this->op = 0;
+    this->def = 0;
+    this->use = 0;
+}
+
+void SSA_pre_op::visit(Visitor* visitor)
+{
+    visitor->visit_statement(this);
+}
+
+void SSA_pre_op::transform_children(Transform* transform)
+{
+    transform->children_statement(this);
+}
+
+int SSA_pre_op::classid()
+{
+    return ID;
+}
+
+bool SSA_pre_op::match(Node* in)
+{
+    __WILDCARD__* joker;
+    joker = dynamic_cast<__WILDCARD__*>(in);
+    if(joker != NULL && joker->match(this))
+    	return true;
+    
+    SSA_pre_op* that = dynamic_cast<SSA_pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL)
     {
-		this->variable_name = variable_name;
-		this->ssa_use = variable_name->clone ();
-		this->op = op;
-	}
+    	if(that->op != NULL && !that->op->match(this->op))
+    		return false;
+    }
+    else if(!this->op->match(that->op))
+    	return false;
+    
+    if(this->def == NULL)
+    {
+    	if(that->def != NULL && !that->def->match(this->def))
+    		return false;
+    }
+    else if(!this->def->match(that->def))
+    	return false;
+    
+    if(this->use == NULL)
+    {
+    	if(that->use != NULL && !that->use->match(this->use))
+    		return false;
+    }
+    else if(!this->use->match(that->use))
+    	return false;
+    
+    return true;
+}
+
+bool SSA_pre_op::equals(Node* in)
+{
+    SSA_pre_op* that = dynamic_cast<SSA_pre_op*>(in);
+    if(that == NULL) return false;
+    
+    if(this->op == NULL || that->op == NULL)
+    {
+    	if(this->op != NULL || that->op != NULL)
+    		return false;
+    }
+    else if(!this->op->equals(that->op))
+    	return false;
+    
+    if(this->def == NULL || that->def == NULL)
+    {
+    	if(this->def != NULL || that->def != NULL)
+    		return false;
+    }
+    else if(!this->def->equals(that->def))
+    	return false;
+    
+    if(this->use == NULL || that->use == NULL)
+    {
+    	if(this->use != NULL || that->use != NULL)
+    		return false;
+    }
+    else if(!this->use->equals(that->use))
+    	return false;
+    
+    if(!Node::is_mixin_equal(that)) return false;
+    return true;
+}
+
+SSA_pre_op* SSA_pre_op::clone()
+{
+    OP* op = this->op ? this->op->clone() : NULL;
+    VARIABLE_NAME* def = this->def ? this->def->clone() : NULL;
+    VARIABLE_NAME* use = this->use ? this->use->clone() : NULL;
+    SSA_pre_op* clone = new SSA_pre_op(op, def, use);
+    clone->Node::clone_mixin_from(this);
+    return clone;
+}
+
+Node* SSA_pre_op::find(Node* in)
+{
+    if (this->match (in))
+    	return this;
+    
+    if (this->op != NULL)
+    {
+    	Node* op_res = this->op->find(in);
+    	if (op_res) return op_res;
+    }
+    
+    if (this->def != NULL)
+    {
+    	Node* def_res = this->def->find(in);
+    	if (def_res) return def_res;
+    }
+    
+    if (this->use != NULL)
+    {
+    	Node* use_res = this->use->find(in);
+    	if (use_res) return use_res;
+    }
+    
+    return NULL;
+}
+
+void SSA_pre_op::find_all(Node* in, Node_list* out)
+{
+    if (this->match (in))
+    	out->push_back (this);
+    
+    if (this->op != NULL)
+    	this->op->find_all(in, out);
+    
+    if (this->def != NULL)
+    	this->def->find_all(in, out);
+    
+    if (this->use != NULL)
+    	this->use->find_all(in, out);
+    
+}
+
+void SSA_pre_op::assert_valid()
+{
+    assert(op != NULL);
+    op->assert_valid();
+    assert(def != NULL);
+    def->assert_valid();
+    assert(use != NULL);
+    use->assert_valid();
+    Node::assert_mixin_valid();
 }
 
 Eval_expr::Eval_expr(Expr* expr)

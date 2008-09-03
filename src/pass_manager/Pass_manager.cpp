@@ -27,6 +27,8 @@
 #include "process_hir/HIR_to_AST.h"
 #include "process_mir/MIR_to_AST.h"
 #include "optimize/CFG.h"
+#include "optimize/Into_SSA.h"
+#include "optimize/Out_of_SSA.h"
 
 Pass_manager::Pass_manager (gengetopt_args_info* args_info)
 : args_info (args_info),
@@ -557,6 +559,7 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 {
 	// Perform optimizations method-at-a-time.
 	MIR::PHP_script* script = in->as_MIR();
+	script->transform_children (new Into_SSA);
 	foreach (MIR::Statement* stmt, *script->statements)
 	{
 		// TODO we should be optimizing all methods
@@ -616,4 +619,5 @@ void Pass_manager::run_optimization_passes (MIR::PHP_script* in)
 */			method->statements = cfg->get_linear_statements ();
 		}
 	}
+	script->transform_children (new Out_of_SSA);
 }

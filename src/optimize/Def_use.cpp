@@ -26,11 +26,15 @@ public:
 			uses->insert (dyc<VARIABLE_NAME> (in));
 	}
 
+	void def (VARIABLE_NAME* in)
+	{
+		defs->insert (in);
+	}
+
 	void pre_pre_op (Pre_op* in)
 	{
-		defs->insert (in->variable_name);
-		uses->insert (in->ssa_use);
-		handled = true;
+		// should be conveted to SSA_pre_op
+		assert (0);
 	}
 
 	void pre_actual_parameter (Actual_parameter* in)
@@ -39,9 +43,16 @@ public:
 		handled = true;
 	}
 
+	void pre_ssa_pre_op (SSA_pre_op* in)
+	{
+		use (in->use);
+		def (in->def);
+		handled = true;
+	}
+
 	void pre_assign_var (Assign_var* in)
 	{
-		defs->insert (in->lhs);
+		def (in->lhs);
 		if (isa<VARIABLE_NAME> (in->rhs) || isa<Literal> (in->rhs))
 			handled = true;
 	}
@@ -63,11 +74,11 @@ public:
 	{
 		
 		if (VARIABLE_NAME* vn = dynamic_cast<VARIABLE_NAME*> (in->variable_name))
-			defs->insert (vn);
+			def (vn);
 		else
 		{
 			// what's defined here?
-			uses->insert (dyc<Variable_variable> (in)->variable_name);
+			use (dyc<Variable_variable> (in)->variable_name);
 		}
 
 		handled = true;

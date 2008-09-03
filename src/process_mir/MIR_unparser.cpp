@@ -197,3 +197,13 @@ void MIR_unparser::children_param_is_ref (Param_is_ref* in)
 	echo (boost::lexical_cast <string> (in->param_index->value));
 	echo (");");
 }
+
+void MIR_unparser::children_ssa_pre_op (SSA_pre_op* in)
+{
+	visit_variable_name (in->def);
+	echo (" ");
+	echo (in->op->value);
+	echo (" ");
+	visit_variable_name (in->use);
+	echo (";");
+}

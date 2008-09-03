@@ -197,9 +197,16 @@ Object* Node_factory::create(char const* type_id, List<Object*>* args)
     {
     	OP* op = dynamic_cast<OP*>(*i++);
     	VARIABLE_NAME* variable_name = dynamic_cast<VARIABLE_NAME*>(*i++);
-    	VARIABLE_NAME* ssa_use = dynamic_cast<VARIABLE_NAME*>(*i++);
     	assert(i == args->end());
-    	return new Pre_op(op, variable_name, ssa_use);
+    	return new Pre_op(op, variable_name);
+    }
+    if(!strcmp(type_id, "SSA_pre_op"))
+    {
+    	OP* op = dynamic_cast<OP*>(*i++);
+    	VARIABLE_NAME* def = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	VARIABLE_NAME* use = dynamic_cast<VARIABLE_NAME*>(*i++);
+    	assert(i == args->end());
+    	return new SSA_pre_op(op, def, use);
     }
     if(!strcmp(type_id, "Eval_expr"))
     {

@@ -126,6 +126,11 @@ void Transform::pre_pre_op(Pre_op* in, Statement_list* out)
     out->push_back(in);
 }
 
+void Transform::pre_ssa_pre_op(SSA_pre_op* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
 void Transform::pre_eval_expr(Eval_expr* in, Statement_list* out)
 {
     out->push_back(in);
@@ -473,6 +478,11 @@ void Transform::post_push_array(Push_array* in, Statement_list* out)
 }
 
 void Transform::post_pre_op(Pre_op* in, Statement_list* out)
+{
+    out->push_back(in);
+}
+
+void Transform::post_ssa_pre_op(SSA_pre_op* in, Statement_list* out)
 {
     out->push_back(in);
 }
@@ -846,7 +856,13 @@ void Transform::children_pre_op(Pre_op* in)
 {
     in->op = transform_op(in->op);
     in->variable_name = transform_variable_name(in->variable_name);
-    in->ssa_use = transform_variable_name(in->ssa_use);
+}
+
+void Transform::children_ssa_pre_op(SSA_pre_op* in)
+{
+    in->op = transform_op(in->op);
+    in->def = transform_variable_name(in->def);
+    in->use = transform_variable_name(in->use);
 }
 
 void Transform::children_eval_expr(Eval_expr* in)
@@ -1902,6 +1918,15 @@ void Transform::pre_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case SSA_pre_op::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		pre_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Unset::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -2262,6 +2287,15 @@ void Transform::post_statement(Statement* in, Statement_list* out)
     			out->push_back(*i);
     	}
     	return;
+    case SSA_pre_op::ID: 
+    	{
+    		Statement_list* local_out = new Statement_list;
+    		Statement_list::const_iterator i;
+    		post_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in), local_out);
+    		for(i = local_out->begin(); i != local_out->end(); i++)
+    			out->push_back(*i);
+    	}
+    	return;
     case Unset::ID: 
     	{
     		Statement_list* local_out = new Statement_list;
@@ -2531,6 +2565,9 @@ void Transform::children_statement(Statement* in)
     	break;
     case Pre_op::ID:
     	children_pre_op(dynamic_cast<Pre_op*>(in));
+    	break;
+    case SSA_pre_op::ID:
+    	children_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in));
     	break;
     case Unset::ID:
     	children_unset(dynamic_cast<Unset*>(in));

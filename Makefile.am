@@ -162,10 +162,12 @@ libphc_la_SOURCES= 											\
 	src/optimize/Def_use.h									\
 	src/optimize/Fix_point.cpp								\
 	src/optimize/Fix_point.h								\
-	src/optimize/Flow_visitor.h							\
 	src/optimize/Flow_visitor.cpp							\
+	src/optimize/Flow_visitor.h							\
+	src/optimize/Into_SSA.h									\
 	src/optimize/Live_variable_analysis.cpp			\
 	src/optimize/Live_variable_analysis.h				\
+	src/optimize/Out_of_SSA.h								\
 	src/optimize/Prune_symbol_table.cpp					\
 	src/optimize/Prune_symbol_table.h					\
 	src/optimize/Set.cpp										\

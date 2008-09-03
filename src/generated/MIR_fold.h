@@ -84,6 +84,7 @@ template
  class _REAL,
  class _Return,
  class _Rvalue,
+ class _SSA_pre_op,
  class _STRING,
  class _Signature,
  class _Statement,
@@ -110,7 +111,7 @@ class Fold
 {
 // Access this class from subclasses without copying out the template instantiation
 public:
-   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
+   typedef Fold<_Actual_parameter, _Array_access, _Assign_array, _Assign_field, _Assign_var, _Assign_var_var, _Attr_mod, _Attribute, _BOOL, _Bin_op, _Branch, _CAST, _CLASS_NAME, _CONSTANT_NAME, _Cast, _Catch, _Class_def, _Class_mod, _Class_name, _Constant, _Eval_expr, _Expr, _FIELD_NAME, _FOREIGN, _Field_access, _Field_name, _Foreach_end, _Foreach_get_key, _Foreach_get_val, _Foreach_has_key, _Foreach_next, _Foreach_reset, _Formal_parameter, _Global, _Goto, _HT_ITERATOR, _INT, _INTERFACE_NAME, _Identifier, _Instanceof, _Interface_def, _Isset, _LABEL_NAME, _Label, _Literal, _METHOD_NAME, _Member, _Method, _Method_invocation, _Method_mod, _Method_name, _NIL, _Name_with_default, _New, _Node, _OP, _PARAM_INDEX, _PHP_script, _Param_is_ref, _Pre_op, _Push_array, _REAL, _Return, _Rvalue, _SSA_pre_op, _STRING, _Signature, _Statement, _Static_array, _Static_array_elem, _Static_array_key, _Static_declaration, _Static_value, _Target, _Throw, _Try, _Type, _Unary_op, _Unset, _VARIABLE_NAME, _Variable_class, _Variable_field, _Variable_method, _Variable_name, _Variable_variable, _List> parent;
 // Recursively fold the children before folding the parent
 // This methods form the client API for a fold, but should not be
 // overridden unless you know what you are doing
@@ -410,9 +411,18 @@ public:
 		if(in->op != NULL) op = fold_op(in->op);
 		_VARIABLE_NAME variable_name = 0;
 		if(in->variable_name != NULL) variable_name = fold_variable_name(in->variable_name);
-		_VARIABLE_NAME ssa_use = 0;
-		if(in->ssa_use != NULL) ssa_use = fold_variable_name(in->ssa_use);
-		return fold_impl_pre_op(in, op, variable_name, ssa_use);
+		return fold_impl_pre_op(in, op, variable_name);
+	}
+
+	virtual _SSA_pre_op fold_ssa_pre_op(SSA_pre_op* in)
+	{
+		_OP op = 0;
+		if(in->op != NULL) op = fold_op(in->op);
+		_VARIABLE_NAME def = 0;
+		if(in->def != NULL) def = fold_variable_name(in->def);
+		_VARIABLE_NAME use = 0;
+		if(in->use != NULL) use = fold_variable_name(in->use);
+		return fold_impl_ssa_pre_op(in, op, def, use);
 	}
 
 	virtual _Eval_expr fold_eval_expr(Eval_expr* in)
@@ -735,7 +745,8 @@ public:
 	virtual _Assign_array fold_impl_assign_array(Assign_array* orig, _VARIABLE_NAME lhs, _Rvalue index, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Assign_var_var fold_impl_assign_var_var(Assign_var_var* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
 	virtual _Push_array fold_impl_push_array(Push_array* orig, _VARIABLE_NAME lhs, bool is_ref, _Rvalue rhs) { assert(0); };
-	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name, _VARIABLE_NAME ssa_use) { assert(0); };
+	virtual _Pre_op fold_impl_pre_op(Pre_op* orig, _OP op, _VARIABLE_NAME variable_name) { assert(0); };
+	virtual _SSA_pre_op fold_impl_ssa_pre_op(SSA_pre_op* orig, _OP op, _VARIABLE_NAME def, _VARIABLE_NAME use) { assert(0); };
 	virtual _Eval_expr fold_impl_eval_expr(Eval_expr* orig, _Expr expr) { assert(0); };
 	virtual _Unset fold_impl_unset(Unset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
 	virtual _Isset fold_impl_isset(Isset* orig, _Target target, _Variable_name variable_name, _List<_Rvalue>* array_indices) { assert(0); };
@@ -823,6 +834,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
+			case SSA_pre_op::ID:
+				return fold_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in));
 			case Unset::ID:
 				return fold_unset(dynamic_cast<Unset*>(in));
 			case Label::ID:
@@ -969,6 +982,8 @@ public:
 				return fold_eval_expr(dynamic_cast<Eval_expr*>(in));
 			case Pre_op::ID:
 				return fold_pre_op(dynamic_cast<Pre_op*>(in));
+			case SSA_pre_op::ID:
+				return fold_ssa_pre_op(dynamic_cast<SSA_pre_op*>(in));
 			case Unset::ID:
 				return fold_unset(dynamic_cast<Unset*>(in));
 			case Label::ID:
@@ -1228,6 +1243,6 @@ public:
 };
 
 template<class T, template <class _Tp, class _Alloc = allocator<_Tp> > class _List>
-class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
+class Uniform_fold : public Fold<T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, T, _List> {};
 }
 
