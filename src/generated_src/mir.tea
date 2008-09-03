@@ -89,9 +89,10 @@ Assign_array   ::=			lhs:VARIABLE_NAME index:Rvalue			is_ref:"&"? rhs:Rvalue ;
 Assign_var_var ::=			lhs:VARIABLE_NAME						      is_ref:"&"? rhs:Rvalue ;
 Push_array     ::=			lhs:VARIABLE_NAME								is_ref:"&"? rhs:Rvalue ;
 
--- A Pre-op has slightly different semantics to a Bin_op. We add an
--- (otherwise invisible) variable to show that it has a different def and use
--- in SSA form.
+-- A Pre-op ($x++) has slightly different semantics to a Bin_op ($x = $x+1).
+-- These semantics mean we can't convert it to the bin_op form. However, they
+-- also require a different variable for SSA use/def ($x_0 = $x_1+1). We add
+-- an (otherwise invisible) variable to show this.
 Pre_op ::= OP VARIABLE_NAME ssa_use:VARIABLE_NAME ;
 
 -- Some exprs can be invoked with and without a lhs
@@ -472,6 +473,8 @@ public:
 
 	void set_version (int version)
 	{
+		// This might already be in SSA, but it doesnt matter.
+		this->in_ssa = true;
 		this->version = version;
 	}
 

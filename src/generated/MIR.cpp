@@ -9482,6 +9482,8 @@ VARIABLE_NAME* VARIABLE_NAME::clone()
 void VARIABLE_NAME::set_version(int version)
 {
     {
+		// This might already be in SSA, but it doesnt matter.
+		this->in_ssa = true;
 		this->version = version;
 	}
 }

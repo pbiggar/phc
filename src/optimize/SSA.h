@@ -84,9 +84,11 @@ private:
 	 */
 	void push_to_var_stack (MIR::VARIABLE_NAME* var_name, int version);
 	int read_var_stack (MIR::VARIABLE_NAME* var_name);
+	void pop_var_stack (MIR::VARIABLE_NAME* var_name);
 
 	// Rename the variable into SSA, giving it a version.
 	void create_new_ssa_name (MIR::VARIABLE_NAME* var_name);
+	void debug_var_stacks ();
 };
 
 #endif // PHC_SSA

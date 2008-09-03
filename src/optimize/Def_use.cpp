@@ -76,8 +76,11 @@ public:
 	/* Leave this in until this works */
 	void post_statement (Statement* in)
 	{
-		debug (in);
-		xdebug (in);
+		if (!handled)
+		{
+			debug (in);
+			xdebug (in);
+		}
 		assert (handled);
 	}
 };

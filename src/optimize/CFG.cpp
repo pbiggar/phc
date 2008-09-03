@@ -521,9 +521,13 @@ void CFG::convert_to_ssa_form ()
 		Basic_block* bb = *i;
 		foreach (Basic_block* frontier, *bb->get_dominance_frontier ())
 		{
+			// Get defs (including phi node LHSs)
+			Set* def_list = bb->get_ssa_defs ();
+			foreach (Phi* phi, *bb->get_phi_nodes())
+				def_list->insert (phi->lhs);
+
 			bool def_added = false;
-			// TODO defs include Phi functions.
-			foreach (VARIABLE_NAME* var_name, *bb->get_ssa_defs ())
+			foreach (VARIABLE_NAME* var_name, *def_list)
 			{
 				if (!frontier->has_phi_function (var_name))
 				{
@@ -547,11 +551,11 @@ void CFG::convert_to_ssa_form ()
 void
 CFG::convert_out_of_ssa_form ()
 {
-	// TODO
 	foreach (Basic_block* bb, *get_all_bbs ())
 	{
 		foreach (Phi* phi, *bb->get_phi_nodes ())
 		{
+			BB_list* preds = bb->get_predecessors ();
 			foreach (VARIABLE_NAME* var_name, *phi->args)
 			{
 				Assign_var* copy = new Assign_var (
@@ -561,8 +565,9 @@ CFG::convert_out_of_ssa_form ()
 
 				Statement_block* new_bb = new Statement_block (this, copy);
 
-				// TODO get the real predecessor.
-				add_bb_between (bb->get_predecessors ()->front (), bb, new_bb);
+				add_bb_between (preds->front (), bb, new_bb);
+				// TODO I'm not sure these are in the same order.
+				preds->pop_front ();
 
 				// We avoid the critical edge problem because we have only 1
 				// statement per block. Removing phi nodes adds a single block

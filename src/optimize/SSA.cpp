@@ -195,7 +195,7 @@ SSA_renaming::push_to_var_stack (VARIABLE_NAME* var_name, int version)
 	var_stacks[*var_name->value].push (version);
 }
 
-int 
+int
 SSA_renaming::read_var_stack (VARIABLE_NAME* var_name)
 {
 	// In traditional SSA, all variables are initialized at the start of a
@@ -204,8 +204,13 @@ SSA_renaming::read_var_stack (VARIABLE_NAME* var_name)
 		push_to_var_stack (var_name, counter++);
 
 	int result = var_stacks[*var_name->value].top();
-	var_stacks[*var_name->value].pop();
 	return result;
+}
+
+void
+SSA_renaming::pop_var_stack (VARIABLE_NAME* var_name)
+{
+	var_stacks[*var_name->value].pop();
 }
 
 void 
@@ -215,13 +220,36 @@ SSA_renaming::create_new_ssa_name (VARIABLE_NAME* var_name)
 	push_to_var_stack (var_name, counter++);
 }
 
+void
+SSA_renaming::debug_var_stacks ()
+{
+	CHECK_DEBUG ();
+	string name;
+	stack<int> st;
+	foreach (tie (name,st), var_stacks)
+	{
+		cdebug << name << ": (TOP) ";
+		stack<int> copy (st);
+		while (copy.size ())
+		{
+			cdebug << copy.top () << ", ";
+			copy.pop ();
+		}
+		cdebug << "(BOTTOM)" << endl;
+	}
+}
+
 void 
 SSA_renaming::rename_vars (Basic_block* bb)
 {
+	DEBUG ("renaming vars in " << *bb->get_graphviz_label ());
+	debug_var_stacks ();
+
+
 	// Create new names for PHI targets
 	foreach (Phi* phi, *bb->get_phi_nodes ())
 	{
-		DEBUG ("converting phi");
+		DEBUG ("converting phi lhs");
 		debug (phi->lhs);
 		create_new_ssa_name (phi->lhs);
 	}
@@ -229,9 +257,11 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Rename local variable uses
 	foreach (VARIABLE_NAME* use, *bb->get_ssa_uses ())
 	{
-		DEBUG ("Converting use " << use << "-" << use->in_ssa << " - v" << use->version);
+		DEBUG ("Converting use " << use);
 		debug (use);
 		use->convert_to_ssa_name (read_var_stack (use));
+		DEBUG (" to ");
+		debug (use);
 	}
 
 	// Create new names for defs
@@ -240,6 +270,8 @@ SSA_renaming::rename_vars (Basic_block* bb)
 		DEBUG ("Converting def " << def);
 		debug (def);
 		create_new_ssa_name (def);
+		DEBUG (" to ");
+		debug (def);
 	}
 
 	// Copy names to CFG successors (including names defined in
@@ -255,5 +287,5 @@ SSA_renaming::rename_vars (Basic_block* bb)
 	// Before going back up the tree, get rid of new variable names from
 	// the stack, so the next node up sees its own names.
 	foreach (VARIABLE_NAME* def, *bb->get_ssa_defs ())
-		read_var_stack (def);
+		pop_var_stack (def);
 }
