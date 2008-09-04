@@ -90,19 +90,19 @@ am_libphc_la_OBJECTS = getopt1.lo getopt.lo AST_annotate.lo \
 	Early_lower_control_flow.lo Echo_split.lo List_shredder.lo \
 	Lower_expr_flow.lo Pre_post_op_shredder.lo \
 	Split_multiple_arguments.lo Split_unset_isset.lo \
-	Strip_comments.lo Translate_empty.lo Clarify.lo Compile_C.lo \
-	Generate_C.lo Lift_functions_and_classes.lo embed.lo AST.lo \
-	AST_factory.lo AST_transform.lo AST_visitor.lo cmdline.lo \
-	HIR.lo HIR_factory.lo HIR_transform.lo HIR_visitor.lo \
-	lex.yy.lo MIR.lo MIR_factory.lo MIR_transform.lo \
-	MIR_visitor.lo php_parser.tab.lo HIR_lower_expr.lo \
-	Lower_control_flow.lo Lower_method_invocations.lo AttrMap.lo \
-	base64.lo Boolean.lo demangle.lo error.lo Integer.lo Object.lo \
-	String.lo Copy_propagation.lo Dead_code_elimination.lo \
-	Fix_point.lo Prune_symbol_table.lo Use_def_counter.lo \
-	Parse_buffer.lo parse.lo PHP_context.lo XML_parser.lo \
-	Pass_manager.lo Plugin_pass.lo AST_unparser.lo \
-	Constant_folding.lo DOT_unparser.lo Invalid_check.lo \
+	Strip_comments.lo Clarify.lo Compile_C.lo Generate_C.lo \
+	Lift_functions_and_classes.lo embed.lo AST.lo AST_factory.lo \
+	AST_transform.lo AST_visitor.lo cmdline.lo HIR.lo \
+	HIR_factory.lo HIR_transform.lo HIR_visitor.lo lex.yy.lo \
+	MIR.lo MIR_factory.lo MIR_transform.lo MIR_visitor.lo \
+	php_parser.tab.lo HIR_lower_expr.lo Lower_control_flow.lo \
+	Lower_method_invocations.lo AttrMap.lo base64.lo Boolean.lo \
+	demangle.lo error.lo Integer.lo Object.lo String.lo \
+	Copy_propagation.lo Dead_code_elimination.lo Fix_point.lo \
+	Prune_symbol_table.lo Use_def_counter.lo Parse_buffer.lo \
+	parse.lo PHP_context.lo XML_parser.lo Pass_manager.lo \
+	Plugin_pass.lo AST_unparser.lo Constant_folding.lo \
+	DOT_unparser.lo Invalid_check.lo \
 	Note_top_level_declarations.lo Process_includes.lo \
 	Remove_concat_null.lo Remove_parser_temporaries.lo \
 	Strip_unparser_attributes.lo Token_conversion.lo \
@@ -610,8 +610,6 @@ libphc_la_SOURCES = \
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/ast_to_hir/Translate_empty.cpp					\
-	src/ast_to_hir/Translate_empty.h						\
 	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\
@@ -1258,7 +1256,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_comments.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Strip_unparser_attributes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Token_conversion.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Translate_empty.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Use_def_counter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/XML_unparser.Plo@am__quote@
@@ -1440,13 +1437,6 @@ Strip_comments.lo: src/ast_to_hir/Strip_comments.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Strip_comments.cpp' object='Strip_comments.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Strip_comments.lo `test -f 'src/ast_to_hir/Strip_comments.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Strip_comments.cpp
-
-Translate_empty.lo: src/ast_to_hir/Translate_empty.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Translate_empty.lo -MD -MP -MF $(DEPDIR)/Translate_empty.Tpo -c -o Translate_empty.lo `test -f 'src/ast_to_hir/Translate_empty.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Translate_empty.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Translate_empty.Tpo $(DEPDIR)/Translate_empty.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/ast_to_hir/Translate_empty.cpp' object='Translate_empty.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Translate_empty.lo `test -f 'src/ast_to_hir/Translate_empty.cpp' || echo '$(srcdir)/'`src/ast_to_hir/Translate_empty.cpp
 
 Clarify.lo: src/codegen/Clarify.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Clarify.lo -MD -MP -MF $(DEPDIR)/Clarify.Tpo -c -o Clarify.lo `test -f 'src/codegen/Clarify.cpp' || echo '$(srcdir)/'`src/codegen/Clarify.cpp

@@ -77,8 +77,6 @@ libphc_la_SOURCES= 											\
 	src/ast_to_hir/Split_unset_isset.h					\
 	src/ast_to_hir/Strip_comments.cpp					\
 	src/ast_to_hir/Strip_comments.h						\
-	src/ast_to_hir/Translate_empty.cpp					\
-	src/ast_to_hir/Translate_empty.h						\
 	src/codegen/Clarify.cpp									\
 	src/codegen/Clarify.h									\
 	src/codegen/Compile_C.cpp								\

@@ -66,6 +66,5 @@ phc_builtin_print (zval* arg, zval* result TSRMLS_DC)
 static void
 phc_builtin_empty (zval* arg, zval* result TSRMLS_DC)
 {
-//   return (not_in_symbol_table || is_false (value))
-  ZVAL_BOOL (result, !zend_is_true);
+  ZVAL_BOOL (result, !zend_is_true (arg));
 }

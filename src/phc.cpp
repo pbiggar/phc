@@ -21,7 +21,6 @@
 #include "ast_to_hir/Split_multiple_arguments.h"
 #include "ast_to_hir/Split_unset_isset.h"
 #include "ast_to_hir/Strip_comments.h"
-#include "ast_to_hir/Translate_empty.h"
 #include "cmdline.h"
 #include "codegen/Clarify.h"
 #include "codegen/Compile_C.h"
@@ -137,7 +136,6 @@ int main(int argc, char** argv)
 	pm->add_ast_transform (new Split_multiple_arguments (), s("sma"), s("Split multiple arguments for globals, attributes and static declarations"));
 	pm->add_ast_transform (new Split_unset_isset (), s("sui"), s("Split unset() and isset() into multiple calls with one argument each"));
 	pm->add_ast_transform (new Echo_split (), s("ecs"), s("Split echo() into multiple calls with one argument each"));
-	pm->add_ast_transform (new Translate_empty (), s("empty"), s("Translate calls to empty() into casts"));
 
 	pm->add_ast_transform (new Early_lower_control_flow (), s("elcf"), s("Early Lower Control Flow - lower for, while, do and switch statements")); // AST
 	pm->add_ast_transform (new Lower_expr_flow (), s("lef"), s("Lower Expression Flow - Lower ||, && and ?: expressions"));
