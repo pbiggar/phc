@@ -366,23 +366,6 @@ string read_array_index (Scope scope, string zvp, Array_access* ia)
 	return ss.str();
 }
 
-// Implementation of "global" (used in various places)
-string global (Variable_name* var_name)
-{
-	stringstream ss;
-	ss
-	<<	index_lhs (LOCAL, "p_local_global_var", var_name) // lhs
-	<<	index_lhs (GLOBAL, "p_global_var", var_name) // rhs
-	// Note that p_global_var can be in the copy-on-write set.
-	<<	"sep_copy_on_write_ex (p_global_var);\n"
-	<<	"(*p_global_var)->is_ref = 1;\n"
-	<<	"(*p_global_var)->refcount++;\n"
-	<<	"zval_ptr_dtor (p_local_global_var);\n"
-	<<	"*p_local_global_var = *p_global_var;\n"
-	;
-	return ss.str();
-}
-
 /*
  * Map of the Zend functions that implement the operators
  *
@@ -497,22 +480,10 @@ protected:
 	class Find_temps : public Visitor
 	{
 	public:
-		// Dont find variables within other functions, if those
-		// functions/classes are in.
-		bool in_class;
-		bool in_function;
 		set<string> var_names;
-
-		Find_temps () :
-			in_class (false),
-			in_function (false) 
-		{
-		}
-
 		void pre_variable_name (VARIABLE_NAME* var_name)
 		{
-			if (!in_function && !in_class 
-					&& var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+			if (var_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 			{
 				string name = get_non_st_name (var_name);
 				var_names.insert (name);
@@ -574,11 +545,8 @@ protected:
 			<< "zend_get_parameters_array(0, num_args, params);\n"
 			;
 
-			Formal_parameter_list::const_iterator i;
-			int index;	
-			for(i = parameters->begin(), index = 0;
-				i != parameters->end();
-				i++, index++)
+			int index = 0;
+			foreach (Formal_parameter* param, *parameters)
 			{
 //				code << "printf(\"refcount = %d, is_ref = %d\\n\", params[" << index << "]->refcount, params[" << index << "]->is_ref);\n";
 				code << "// param " << index << "\n";
@@ -588,7 +556,7 @@ protected:
 				// We model it as an assignment to the named variable,
 				// and call on the code generator to generate the
 				// default assignment for us.
-				if ((*i)->var->default_value)
+				if (param->var->default_value)
 				{
 					code 
 					<< "if (num_args <= " << index << ")\n"
@@ -598,13 +566,13 @@ protected:
 					// would need to be lowered first. The simplest option is to
 					// convert them to AST, run them through the passes, and
 					// generate code for that */
-					phc_unsupported ((*i)->var->default_value);
+					phc_unsupported (param->var->default_value);
 
 /*					Statement* assign_default_values = 
 						new Assign_var(
-							(*i)->var->variable_name->clone (),
+							param->var->variable_name->clone (),
 							false, 
-							(*i)->var->default_value->clone ());
+							param->var->default_value->clone ());
 
 					gen->children_statement (assign_default_values);
 */					code << "} else {\n";
@@ -615,9 +583,9 @@ protected:
 
 				// TODO this should be abstactable, but it work now, so
 				// leave it.
-				if ((*i)->var->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
+				if (param->var->variable_name->attrs->is_true ("phc.codegen.st_entry_not_required"))
 				{
-					string name = get_non_st_name ((*i)->var->variable_name);
+					string name = get_non_st_name (param->var->variable_name);
 					code 
 					<< name << " = params[" << index << "];\n";
 				}
@@ -626,16 +594,18 @@ protected:
 					// TODO i dont believe theres a test for this
 					code 
 					<< "zend_hash_quick_add(EG(active_symbol_table), "
-					<<		"\"" << *(*i)->var->variable_name->value << "\", " 
-					<<		(*i)->var->variable_name->value->length() + 1 << ", "
-					<<		get_hash ((*i)->var->variable_name) << ", "
+					<<		"\"" << *param->var->variable_name->value << "\", " 
+					<<		param->var->variable_name->value->length() + 1 << ", "
+					<<		get_hash (param->var->variable_name) << ", "
 					<<		"&params[" << index << "], "
 					<<		"sizeof(zval*), NULL);\n"
 					;
-				  }
+				}
 
-				if ((*i)->var->default_value)
+				if (param->var->default_value)
 					code << "}\n";
+
+				index++;
 			}
 				
 			code << "}\n";
@@ -764,19 +734,6 @@ protected:
  * but not with the RHS. Various other classes inherit from Assignment, and
  * deal with the different forms the RHS can take.
  */
-
-string index_assign_var (Scope scope, string zvp, VARIABLE_NAME* var_name)
-{
-	stringstream ss;
-	string zvp_name = suffix (zvp, "var");
-
-	ss
-	<< read_st (scope, zvp_name, var_name)
-	<< "zval** " << zvp << " = " << zvp_name << ";\n";
-
-	return ss.str();
-}
-
 class Pattern_assign_var : public Pattern
 {
 public:
@@ -795,7 +752,7 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code 
-		<<	index_assign_var (LOCAL, "p_lhs", lhs->value)
+		<<	read_st (LOCAL, "p_lhs", lhs->value)
 
 		<<	"if (p_lhs != NULL)\n"
 		<<	"{\n";
@@ -835,7 +792,7 @@ string assign_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	else
 	{
 		ss	
-		<< index_lhs (LOCAL, "p_rhs", rhs)
+		<< read_st (LOCAL, "p_rhs", rhs)
 		<< "sep_copy_on_write_ex (p_rhs);\n"
 		<< "(*p_rhs)->is_ref = 1;\n"
 		<< "(*p_rhs)->refcount++;\n"
@@ -902,7 +859,7 @@ string push_rhs (bool is_ref, VARIABLE_NAME* rhs)
 	else
 	{
 		ss
-		<< index_lhs (LOCAL, "p_rhs", rhs)
+		<< read_st (LOCAL, "p_rhs", rhs)
 		
 		<< "sep_copy_on_write_ex (p_rhs);\n"
 		<< "(*p_rhs)->is_ref = 1;\n"
@@ -1179,7 +1136,7 @@ public:
 		else
 		{
 			code
-			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+			<< read_st (LOCAL, "p_rhs", rhs->value)
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
@@ -1387,7 +1344,7 @@ public:
 		else
 		{
 			code
-			<< index_lhs (LOCAL, "p_rhs", rhs->value)
+			<< read_st (LOCAL, "p_rhs", rhs->value)
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
 			<< "(*p_rhs)->refcount++;\n"
@@ -1430,7 +1387,15 @@ public:
 	void generate_code(Generate_C* gen)
 	{
 		code
-		<< global (rhs->value);
+		<<	index_lhs (LOCAL, "p_local_global_var", rhs->value) // lhs
+		<<	index_lhs (GLOBAL, "p_global_var", rhs->value) // rhs
+		// Note that p_global_var can be in the copy-on-write set.
+		<<	"sep_copy_on_write_ex (p_global_var);\n"
+		<<	"(*p_global_var)->is_ref = 1;\n"
+		<<	"(*p_global_var)->refcount++;\n"
+		<<	"zval_ptr_dtor (p_local_global_var);\n"
+		<<	"*p_local_global_var = *p_global_var;\n"
+		;
 	}
 
 protected:
@@ -1991,7 +1956,7 @@ class Pattern_return : public Pattern
 		else
 		{
 			code
-			<< index_lhs (LOCAL, "p_rhs", var_name->value)
+			<< read_st (LOCAL, "p_rhs", var_name->value)
 			<< "sep_copy_on_write_ex (p_rhs);\n"
 			<< "zval_ptr_dtor (return_value_ptr);\n"
 			<< "(*p_rhs)->is_ref = 1;\n"
